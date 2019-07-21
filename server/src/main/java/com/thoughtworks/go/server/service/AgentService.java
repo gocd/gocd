@@ -52,15 +52,15 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.CurrentGoCDVersion.docsUrl;
+import static com.thoughtworks.go.serverhealth.HealthStateScope.GLOBAL;
 import static com.thoughtworks.go.serverhealth.HealthStateType.general;
 import static com.thoughtworks.go.util.CommaSeparatedString.append;
 import static com.thoughtworks.go.util.CommaSeparatedString.remove;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 import static java.lang.String.format;
-import static java.util.Arrays.asList;
 import static java.util.Collections.*;
-import static org.apache.commons.lang3.StringUtils.isBlank;
+import static java.util.stream.StreamSupport.stream;
 import static org.apache.commons.lang3.StringUtils.join;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
@@ -134,12 +134,10 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         return toAgentViewModels(agentInstances.findRegisteredAgents());
     }
 
-    private AgentsViewModel toAgentViewModels(AgentInstances instances) {
-        AgentsViewModel agents = new AgentsViewModel();
-        for (AgentInstance instance : instances) {
-            agents.add(toAgentViewModel(instance));
-        }
-        return agents;
+    private AgentsViewModel toAgentViewModels(AgentInstances agentInstances) {
+        return stream(agentInstances.spliterator(), false)
+                    .map(this::toAgentViewModel)
+                    .collect(Collectors.toCollection(AgentsViewModel::new));
     }
 
     private AgentViewModel toAgentViewModel(AgentInstance instance) {
@@ -150,10 +148,10 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         return agentInstances.findRegisteredAgents();
     }
 
-    private boolean isUnknownAgent(AgentInstance agentInstance, OperationResult operationResult) {
+    private boolean isUnknownAgent(AgentInstance agentInstance, OperationResult result) {
         if (agentInstance.isNullAgent()) {
-            String agentNotFoundMessage = String.format("Agent '%s' not found", agentInstance.getUuid());
-            operationResult.notFound("Agent not found.", agentNotFoundMessage, HealthStateType.general(HealthStateScope.GLOBAL));
+            String agentNotFoundMessage = format("Agent '%s' not found", agentInstance.getUuid());
+            result.notFound("Agent not found.", agentNotFoundMessage, general(GLOBAL));
             return true;
         }
         return false;
@@ -162,7 +160,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     private boolean doesNotHaveOperatePermission(Username username, OperationResult operationResult) {
         if (!securityService.hasOperatePermissionForAgents(username)) {
             String message = "Unauthorized to operate on agent";
-            operationResult.forbidden(message, message, HealthStateType.general(HealthStateScope.GLOBAL));
+            operationResult.forbidden(message, message, general(GLOBAL));
             return true;
         }
         return false;
@@ -206,12 +204,12 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
             saveOrUpdate(agent);
 
             if (agent.hasErrors()) {
-                result.unprocessibleEntity("Updating agent failed:", "", HealthStateType.general(HealthStateScope.GLOBAL));
+                result.unprocessibleEntity("Updating agent failed:", "", general(GLOBAL));
             } else {
-                result.ok(String.format("Updated agent with uuid %s.", agent.getUuid()));
+                result.ok(format("Updated agent with uuid %s.", agent.getUuid()));
             }
         } catch (Exception e) {
-            result.internalServerError("Updating agent failed: " + e.getMessage(), HealthStateType.general(HealthStateScope.GLOBAL));
+            result.internalServerError("Updating agent failed: " + e.getMessage(), general(GLOBAL));
             return null;
         }
 
@@ -259,7 +257,9 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
 
         List<String> uuidsAssociatedWithEnv = getAssociatedUUIDs(envConfig.getAgents());
         EnvironmentsConfig envsConfig = getEnvironmentsConfigFrom(envConfig);
-        AgentsUpdateValidator validator = new AgentsUpdateValidator(agentInstances, username, result, uuidsToAssociateWithEnv, TriState.TRUE, envsConfig, emptyList(), emptyList(), emptyList(), goConfigService);
+        AgentsUpdateValidator validator
+                = new AgentsUpdateValidator(agentInstances, username, result, uuidsToAssociateWithEnv,
+                                            TriState.TRUE, envsConfig, emptyList(), emptyList(), emptyList(), goConfigService);
         try {
             if (validator.canContinue()) {
                 validator.validate();
@@ -290,29 +290,27 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         }
     }
 
-    private List<String> actualOrEmptyList(List<String> actualList){
-        return actualList == null ? emptyList() : actualList;
-    }
-
     private List<String> getUUIDsToAddEnvTo(List<String> uuidsToAssociateWithEnv, List<String> uuidsAssociatedWithEnv) {
-        return uuidsToAssociateWithEnv.stream().filter(uuid -> !uuidsAssociatedWithEnv.contains(uuid))
-                .collect(Collectors.toList());
+        return uuidsToAssociateWithEnv.stream()
+                                      .filter(uuid -> !uuidsAssociatedWithEnv.contains(uuid))
+                                      .collect(Collectors.toList());
     }
 
     private List<String> getUUIDsToRemoveEnvFrom(List<String> uuidsToAssociateWithEnv, List<String> uuidsAssociatedWithEnv) {
-        return uuidsAssociatedWithEnv.stream().filter(uuid -> !uuidsToAssociateWithEnv.contains(uuid))
-                .collect(Collectors.toList());
+        return uuidsAssociatedWithEnv.stream()
+                                     .filter(uuid -> !uuidsToAssociateWithEnv.contains(uuid))
+                                     .collect(Collectors.toList());
     }
 
-    private List<Agent> getAgentsToAddEnvToList(List<String> agentsToAddEnvTo, String env) {
-        return agentsToAddEnvTo.stream()
-                .map(uuid -> {
-                    Agent agent = agentDao.agentByUuid(uuid);
-                    String envsToSet = append(agent.getEnvironments(), singletonList(env));
-                    agent.setEnvironments(envsToSet);
-                    return agent;
-                })
-                .collect(Collectors.toList());
+    private List<Agent> getAgentsToAddEnvToList(List<String> uuidsToAddEnvsTo, String env) {
+        return uuidsToAddEnvsTo.stream()
+                               .map(uuid -> {
+                                    Agent agent = agentDao.agentByUuid(uuid);
+                                    String envsToSet = append(agent.getEnvironments(), singletonList(env));
+                                    agent.setEnvironments(envsToSet);
+                                    return agent;
+                               })
+                               .collect(Collectors.toList());
     }
 
     private List<Agent> getAgentsToRemoveEnvFromList(List<String> agentsToRemoveEnvFrom, String env) {
@@ -356,11 +354,11 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         }
     }
 
-    private void addThoseEnvsThatAreNotAssociatedWithTheAgentFromConfigRepo(EnvironmentsConfig envsToAdd, Agent agent) {
+    private void addOnlyThoseEnvsThatAreNotAssociatedWithTheAgentFromConfigRepo(EnvironmentsConfig envsToAdd, Agent agent) {
         if(envsToAdd != null) {
             String uuid = agent.getUuid();
             envsToAdd.forEach(env -> {
-                if (environmentContainsAgentRemotely(env, uuid)) {
+                if (env.containsAgentRemotely(uuid)) {
                     LOGGER.debug("Not adding Agent %s to Environment %s. It is associated from a Config Repo", uuid, env);
                 } else {
                     String envName = env.name().toString();
@@ -370,22 +368,19 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         }
     }
 
-    private boolean environmentContainsAgentRemotely(EnvironmentConfig envConfig, String uuid) {
-        return envConfig.containsAgentRemotely(uuid);
-    }
-
     private void addRemoveEnvsAndResources(Agent agent, EnvironmentsConfig envsToAdd, List<String> envsToRemove,
                                            List<String> resourcesToAdd, List<String> resourcesToRemove) {
-        addThoseEnvsThatAreNotAssociatedWithTheAgentFromConfigRepo(envsToAdd, agent);
+        addOnlyThoseEnvsThatAreNotAssociatedWithTheAgentFromConfigRepo(envsToAdd, agent);
         agent.removeEnvironments(envsToRemove);
+
         agent.addResources(resourcesToAdd);
         agent.removeResources(resourcesToRemove);
     }
 
-    private boolean populateAgentInstancesForUUIDs(OperationResult operationResult, List<String> uuids, List<AgentInstance> agents) {
+    private boolean populateAgentInstancesForUUIDs(OperationResult result, List<String> uuids, List<AgentInstance> agents) {
         for (String uuid : uuids) {
             AgentInstance agentInstance = findAgentAndRefreshStatus(uuid);
-            if (isUnknownAgent(agentInstance, operationResult)) {
+            if (isUnknownAgent(agentInstance, result)) {
                 return false;
             }
             agents.add(agentInstance);
@@ -393,112 +388,134 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         return true;
     }
 
-    public void deleteAgents(Username username, HttpOperationResult operationResult, List<String> uuids) {
-        if (doesNotHaveOperatePermission(username, operationResult)) {
+    public void deleteAgents(Username username, HttpOperationResult result, List<String> uuids) {
+        if (doesNotHaveOperatePermission(username, result)) {
             return;
         }
+
         List<AgentInstance> agents = new ArrayList<>();
-        if (!populateAgentInstancesForUUIDs(operationResult, uuids, agents)) {
+        if (!populateAgentInstancesForUUIDs(result, uuids, agents)) {
             return;
         }
 
         for (AgentInstance agentInstance : agents) {
             if (!agentInstance.canBeDeleted()) {
-                operationResult.notAcceptable(String.format("Failed to delete %s agent(s), as agent(s) might not be disabled or are still building.", agents.size()),
-                        HealthStateType.general(HealthStateScope.GLOBAL));
+                result.notAcceptable(format("Failed to delete %s agent(s), as agent(s) might not be disabled or are still building.", agents.size()), general(GLOBAL));
                 return;
             }
         }
 
         try {
-            List<Agent> allAgents = filterAgents(uuids);
-            if (allAgents.size() != uuids.size()) {
-                List<String> uuidsOfAgentsInDatabase = allAgents.stream().map(Agent::getUuid).collect(Collectors.toList());
-                List<String> nonExistentAgentIds = uuids.stream().filter(uuid -> !uuidsOfAgentsInDatabase.contains(uuid)).collect(Collectors.toList());
+            List<Agent> existingFoundAgents = filterAgents(uuids);
+            if (existingFoundAgents.size() != uuids.size()) {
+                List<String> foundUUIDs = existingFoundAgents.stream().map(Agent::getUuid).collect(Collectors.toList());
+                List<String> notFoundUUIDs = uuids.stream().filter(uuid -> !foundUUIDs.contains(uuid)).collect(Collectors.toList());
 
-                if (!nonExistentAgentIds.isEmpty()) {
-                    bomb("Unable to delete agent; Agent [" + nonExistentAgentIds + "] not found.");
+                if (!notFoundUUIDs.isEmpty()) {
+                    bomb("Unable to delete agent; Agent [" + notFoundUUIDs + "] not found.");
                 }
             }
             agentDao.bulkSoftDelete(uuids);
-            operationResult.ok(String.format("Deleted %s agent(s).", agents.size()));
+            result.ok(format("Deleted %s agent(s).", agents.size()));
         } catch (Exception e) {
-            operationResult.internalServerError("Deleting agents failed:" + e.getMessage(), HealthStateType.general(HealthStateScope.GLOBAL));
+            result.internalServerError("Deleting agents failed:" + e.getMessage(), general(GLOBAL));
         }
     }
 
     private List<Agent> filterAgents(List<String> uuids) {
         return agentInstances.values().stream().filter(agentInstance -> uuids.contains(agentInstance.getUuid()))
-                .map(AgentInstance::getAgent)
-                .collect(Collectors.toList());
+                                               .map(AgentInstance::getAgent)
+                                               .collect(Collectors.toList());
     }
 
-    public void updateRuntimeInfo(AgentRuntimeInfo info) {
-        if (!info.hasCookie()) {
-            LOGGER.warn("Agent [{}] has no cookie set", info.agentInfoDebugString());
-            throw new AgentNoCookieSetException(format("Agent [%s] has no cookie set", info.agentInfoDebugString()));
-        }
-        if (info.hasDuplicateCookie(agentDao.cookieFor(info.getIdentifier()))) {
-            LOGGER.warn("Found agent [{}] with duplicate uuid. Please check the agent installation.", info.agentInfoDebugString());
-            serverHealthService.update(
-                    ServerHealthState.warning(format("[%s] has duplicate unique identifier which conflicts with [%s]", info.agentInfoForDisplay(), findAgentAndRefreshStatus(info.getUUId()).agentInfoForDisplay()),
-                            "Please check the agent installation. Click <a href='" + docsUrl("/faq/agent_guid_issue.html") + "' target='_blank'>here</a> for more info.",
-                            HealthStateType.duplicateAgent(HealthStateScope.forAgent(info.getCookie())), Timeout.THIRTY_SECONDS));
-            throw new AgentWithDuplicateUUIDException(format("Agent [%s] has invalid cookie", info.agentInfoDebugString()));
-        }
-        AgentInstance agentInstance = findAgentAndRefreshStatus(info.getUUId());
-        if (agentInstance.isIpChangeRequired(info.getIpAdress())) {
-            Agent tmpAgent = agentInstance.getAgent();
-            LOGGER.warn("Agent with UUID [{}] changed IP Address from [{}] to [{}]", info.getUUId(), tmpAgent.getIpaddress(), info.getIpAdress());
-            String uuid = tmpAgent.getUuid();
+    public void updateRuntimeInfo(AgentRuntimeInfo agentRuntimeInfo) {
+        bombIfAgentDoesNotHaveACookie(agentRuntimeInfo);
 
-            Agent agent = (agentInstance.isRegistered() ? tmpAgent : null);
-            bombIfNull(agent, "Unable to set agent ipAddress; Agent [" + uuid + "] not found.");
-            agent.setIpaddress(info.getIpAdress());
+        bombIfAgentHasADuplicateCookie(agentRuntimeInfo);
+
+        AgentInstance agentInstance = findAgentAndRefreshStatus(agentRuntimeInfo.getUUId());
+        if (agentInstance.isIpChangeRequired(agentRuntimeInfo.getIpAdress())) {
+            LOGGER.warn("Agent with UUID [{}] changed IP Address from [{}] to [{}]", agentRuntimeInfo.getUUId(), agentInstance.getAgent().getIpaddress(), agentRuntimeInfo.getIpAdress());
+
+            Agent agent = (agentInstance.isRegistered() ? agentInstance.getAgent() : null);
+            bombIfNull(agent, "Unable to set agent ipAddress; Agent [" + agentInstance.getAgent().getUuid() + "] not found.");
+            agent.setIpaddress(agentRuntimeInfo.getIpAdress());
             saveOrUpdate(agent);
         }
-        agentInstances.updateAgentRuntimeInfo(info);
+
+        agentInstances.updateAgentRuntimeInfo(agentRuntimeInfo);
     }
 
+    private void bombIfAgentHasADuplicateCookie(AgentRuntimeInfo agentRuntimeInfo) {
+        if (agentRuntimeInfo.hasDuplicateCookie(agentDao.cookieFor(agentRuntimeInfo.getIdentifier()))) {
+            LOGGER.warn("Found agent [{}] with duplicate uuid. Please check the agent installation.", agentRuntimeInfo.agentInfoDebugString());
+            serverHealthService.update(
+                    ServerHealthState.warning(format("[%s] has duplicate unique identifier which conflicts with [%s]", agentRuntimeInfo.agentInfoForDisplay(), findAgentAndRefreshStatus(agentRuntimeInfo.getUUId()).agentInfoForDisplay()),
+                            "Please check the agent installation. Click <a href='" + docsUrl("/faq/agent_guid_issue.html") + "' target='_blank'>here</a> for more agentRuntimeInfo.",
+                            HealthStateType.duplicateAgent(HealthStateScope.forAgent(agentRuntimeInfo.getCookie())), Timeout.THIRTY_SECONDS));
+            throw new AgentWithDuplicateUUIDException(format("Agent [%s] has invalid cookie", agentRuntimeInfo.agentInfoDebugString()));
+        }
+    }
+
+    private void bombIfAgentDoesNotHaveACookie(AgentRuntimeInfo agentRuntimeInfo) {
+        if (!agentRuntimeInfo.hasCookie()) {
+            LOGGER.warn("Agent [{}] has no cookie set", agentRuntimeInfo.agentInfoDebugString());
+            throw new AgentNoCookieSetException(format("Agent [%s] has no cookie set", agentRuntimeInfo.agentInfoDebugString()));
+        }
+    }
 
     public Username agentUsername(String uuId, String ipAddress, String hostNameForDisplay) {
-        return new Username(String.format("agent_%s_%s_%s", uuId, ipAddress, hostNameForDisplay));
+        return new Username(format("agent_%s_%s_%s", uuId, ipAddress, hostNameForDisplay));
     }
 
     public Registration requestRegistration(Username username, AgentRuntimeInfo agentRuntimeInfo) {
         LOGGER.debug("Agent is requesting registration {}", agentRuntimeInfo);
+
         AgentInstance agentInstance = agentInstances.register(agentRuntimeInfo);
         Registration registration = agentInstance.assignCertification();
+
         if (agentInstance.isRegistered()) {
             //TODO : Re-look at below flow to see if we need to set the cookie and save back agent into db
             Agent agent = agentInstance.getAgent();
-            if (agent.getCookie() == null) {
-                String cookie = uuidGenerator.randomUuid();
-                agent.setCookie(cookie);
-            }
-            saveOrUpdateAgentInstance(agentInstance, username);
-            if (agent.hasErrors()) {
-                List<ConfigErrors> errors = ErrorCollector.getAllErrors(agent);
+            generateCookieForAgentIfAgentDoesNotHaveACookie(agent);
 
-                throw new GoConfigInvalidException(null, new AllConfigErrors(errors));
-            }
+            saveOrUpdateAgentInstance(agentInstance);
+            bombIfAgentHasErrors(agent);
             LOGGER.debug("New Agent approved {}", agentRuntimeInfo);
         }
+
         return registration;
     }
 
-    public void updateAgentApprovalStatus(final String uuid, final Boolean isDenied, Username currentUser) {
+    private void generateCookieForAgentIfAgentDoesNotHaveACookie(Agent agent) {
+        if (agent.getCookie() == null) {
+            String cookie = uuidGenerator.randomUuid();
+            agent.setCookie(cookie);
+        }
+    }
+
+    private void bombIfAgentHasErrors(Agent agent) {
+        if (agent.hasErrors()) {
+            List<ConfigErrors> errors = ErrorCollector.getAllErrors(agent);
+
+            throw new GoConfigInvalidException(null, new AllConfigErrors(errors));
+        }
+    }
+
+    public void updateAgentApprovalStatus(final String uuid, final Boolean isDenied) {
         AgentInstance agentInstance = agentInstances.findAgent(uuid);
+
         Agent agent = (agentInstance.isRegistered() ? agentInstance.getAgent() : null);
         bombIfNull(agent, "Unable to update agent approval status; Agent [" + uuid + "] not found.");
+
         agent.setDisabled(isDenied);
         saveOrUpdate(agent);
     }
 
-    public void saveOrUpdateAgentInstance(AgentInstance agentInstance, Username currentUser) {
+    private void saveOrUpdateAgentInstance(AgentInstance agentInstance) {
         Agent agent = agentInstance.getAgent();
         if (!agentInstance.isRegistered()) {
-            this.updateAgentApprovalStatus(agent.getUuid(), agent.isDisabled(), currentUser);
+            this.updateAgentApprovalStatus(agent.getUuid(), agent.isDisabled());
         } else {
             saveOrUpdate(agent);
         }
@@ -513,10 +530,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
             LOGGER.warn("Registered agent with the same uuid [{}] already approved.", agentInstance);
         } else {
             Agent agent = agentInstance.getAgent();
-            if (agent.getCookie() == null) {
-                String cookie = uuidGenerator.randomUuid();
-                agent.setCookie(cookie);
-            }
+            generateCookieForAgentIfAgentDoesNotHaveACookie(agent);
             saveOrUpdate(agent);
         }
     }
@@ -591,10 +605,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     }
 
     public void register(Agent agent, String agentAutoRegisterResources, String agentAutoRegisterEnvironments, HttpOperationResult result) {
-        if (agent.getCookie() == null) {
-            String cookie = uuidGenerator.randomUuid();
-            agent.setCookie(cookie);
-        }
+        generateCookieForAgentIfAgentDoesNotHaveACookie(agent);
         agent.setResourceConfigs(new ResourceConfigs(agentAutoRegisterResources));
         agent.setEnvironments(agentAutoRegisterEnvironments);
         saveOrUpdate(agent);

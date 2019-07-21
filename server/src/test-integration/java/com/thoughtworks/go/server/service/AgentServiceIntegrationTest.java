@@ -536,61 +536,53 @@ public class AgentServiceIntegrationTest {
             "classpath:testPropertyConfigurer.xml", "classpath:WEB-INF/spring-all-servlet.xml"})
     class ErrorConditions {
         @Test
-        public void shouldReturn400WhenUpdatingAnUnknownAgent() {
-            HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
-            agentService.bulkUpdateAgentAttributes(USERNAME, operationResult, singletonList("unknown-agent-id"), emptyStrList,
-                    emptyStrList, emptyEnvsConfig, emptyStrList, TriState.TRUE);
-
-            assertThat(operationResult.httpCode(), is(400));
-            assertThat(operationResult.message(), is("Agents with uuids 'unknown-agent-id' were not found!"));
-        }
-
-        @Test
-        public void shouldReturn403WhenUnauthorizedUserTriesToDeleteAgent() {
-            CONFIG_HELPER.enableSecurity();
-            HttpOperationResult operationResult = new HttpOperationResult();
-            CONFIG_HELPER.addAdmins("admin1");
-            agentService.deleteAgents(new Username(new CaseInsensitiveString("not-admin")), operationResult, asList(UUID));
-            assertThat(operationResult.httpCode(), is(403));
-            assertThat(operationResult.message(), is("Unauthorized to operate on agent"));
-        }
-
-        @Test
-        public void shouldReturn404WhenAgentToBeDeletedDoesNotExist() {
-            String agentId = "unknown-agent-id";
-            HttpOperationResult operationResult = new HttpOperationResult();
-            agentService.deleteAgents(USERNAME, operationResult, asList(agentId));
-            assertThat(operationResult.httpCode(), is(404));
-            assertThat(operationResult.message(), is("Agent not found."));
-        }
-
-        @Test
-        public void shouldReturn403WhenAUnauthorizedUserTriesToEnable() {
-            String agentId = "agent-id";
-            CONFIG_HELPER.enableSecurity();
-            CONFIG_HELPER.addAdmins("admin1");
-
+        void shouldReturn400WhenUpdatingAnUnknownAgent() {
             HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-            agentService.bulkUpdateAgentAttributes(new Username(new CaseInsensitiveString("not-admin")), result,
-                    asList(agentId), emptyStrList, emptyStrList, emptyEnvsConfig,
-                    emptyStrList, TriState.TRUE);
-
-            assertThat(result.httpCode(), is(403));
-            assertThat(result.message(), is("Unauthorized to edit."));
-        }
-
-        @Test
-        public void shouldReturn400WhenDisablingAnUnknownAgent() {
-            HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-            agentService.bulkUpdateAgentAttributes(USERNAME, result, singletonList("unknown-agent-id"), emptyStrList, emptyStrList,
-                    emptyEnvsConfig, emptyStrList, TriState.FALSE);
+            agentService.bulkUpdateAgentAttributes(USERNAME, result, singletonList("unknown-agent-id"), emptyStrList,
+                                                   emptyStrList, emptyEnvsConfig, emptyStrList, TriState.TRUE);
 
             assertThat(result.httpCode(), is(400));
             assertThat(result.message(), is("Agents with uuids 'unknown-agent-id' were not found!"));
         }
 
         @Test
-        public void shouldThrow422WhenUpdatingAgentWithInvalidInputs() {
+        void shouldReturn403WhenUnauthorizedUserTriesToDeleteAgent() {
+            CONFIG_HELPER.enableSecurity();
+            CONFIG_HELPER.addAdmins("authorized-user");
+
+            HttpOperationResult result = new HttpOperationResult();
+            agentService.deleteAgents(new Username(new CaseInsensitiveString("unauthorized-user")), result, asList(UUID));
+            assertThat(result.httpCode(), is(403));
+            assertThat(result.message(), is("Unauthorized to operate on agent"));
+        }
+
+        @Test
+        void shouldReturn404WhenAgentToBeDeletedDoesNotExist() {
+            String unknownUUID = "unknown-agent-id";
+            HttpOperationResult result = new HttpOperationResult();
+
+            agentService.deleteAgents(USERNAME, result, singletonList(unknownUUID));
+            assertThat(result.httpCode(), is(404));
+            assertThat(result.message(), is("Agent not found."));
+        }
+
+        @Test
+        void shouldReturn403WhenAUnauthorizedUserTriesToEnable() {
+            String agentId = "agent-id";
+            CONFIG_HELPER.enableSecurity();
+            CONFIG_HELPER.addAdmins("authorized-user");
+
+            HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+            agentService.bulkUpdateAgentAttributes(new Username(new CaseInsensitiveString("unauthorized-user")), result,
+                                                   singletonList(agentId), emptyStrList, emptyStrList, emptyEnvsConfig,
+                                                   emptyStrList, TriState.TRUE);
+
+            assertThat(result.httpCode(), is(403));
+            assertThat(result.message(), is("Unauthorized to edit."));
+        }
+
+        @Test
+        void shouldThrow422WhenUpdatingAgentWithInvalidInputs() {
             Agent agent = createAnIdleAgentAndDisableIt(UUID);
             String originalHostname = agent.getHostname();
             List<String> originalResourceNames = agent.getResourceConfigs().resourceNames();
@@ -598,12 +590,15 @@ public class AgentServiceIntegrationTest {
             assertThat(agentService.agentInstances().size(), is(1));
             assertThat(getFirstAgent().getHostname(), is(not("some-hostname")));
 
-            HttpOperationResult operationResult = new HttpOperationResult();
-            AgentInstance agentInstance = agentService.updateAgentAttributes(USERNAME, operationResult, UUID, "some-hostname", "lin!ux", null, TriState.UNSET);
+            HttpOperationResult result = new HttpOperationResult();
+            String invalidResourceName = "lin!ux";
+            AgentInstance agentInstance = agentService.updateAgentAttributes(USERNAME, result, UUID, "some-hostname",
+                                                                             invalidResourceName, null, TriState.UNSET);
 
-            assertThat(operationResult.httpCode(), is(422));
-            assertThat(operationResult.message(), is("Updating agent failed:"));
-            assertThat(agentInstance.getAgent().errors().on(JobConfig.RESOURCES), is("Resource name 'lin!ux' is not valid. Valid names much match '^[-\\w\\s|.]*$'"));
+            assertThat(result.httpCode(), is(422));
+            assertThat(result.message(), is("Updating agent failed:"));
+            assertThat(agentInstance.getAgent().errors().on(JobConfig.RESOURCES),
+                       is("Resource name 'lin!ux' is not valid. Valid names much match '^[-\\w\\s|.]*$'"));
 
             assertThat(agentService.agentInstances().size(), is(1));
             assertThat(getFirstAgent().getHostname(), is(originalHostname));
@@ -611,28 +606,27 @@ public class AgentServiceIntegrationTest {
         }
 
         @Test
-        public void shouldThrowExceptionWhenADuplicateAgentTriesToUpdateStatus() {
-            AgentInstance instance = AgentInstanceMother.building();
-            AgentService agentService = getAgentService(new AgentInstances(new SystemEnvironment(), agentStatusChangeListener(), instance));
-            AgentInstances agents = agentService.findRegisteredAgents();
+        void shouldThrowExceptionWhenADuplicateAgentTriesToUpdateStatus() {
+            AgentInstance buildingAgentInstance = AgentInstanceMother.building();
+            AgentService agentService = getAgentService(new AgentInstances(new SystemEnvironment(), agentStatusChangeListener(), buildingAgentInstance));
+            AgentInstances agentInstances = agentService.findRegisteredAgents();
 
-            String uuid = instance.getAgent().getUuid();
-            assertThat(agents.findAgentAndRefreshStatus(uuid).getStatus(), is(AgentStatus.Building));
+            String uuid = buildingAgentInstance.getAgent().getUuid();
+            assertThat(agentInstances.findAgentAndRefreshStatus(uuid).getStatus(), is(AgentStatus.Building));
 
-            AgentIdentifier identifier = instance.getAgent().getAgentIdentifier();
+            AgentIdentifier identifier = buildingAgentInstance.getAgent().getAgentIdentifier();
             agentDao.associateCookie(identifier, "new_cookie");
-            AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(identifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "old_cookie", false);
 
+            AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(identifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "old_cookie", false);
             AgentWithDuplicateUUIDException e = assertThrows(AgentWithDuplicateUUIDException.class, () -> agentService.updateRuntimeInfo(runtimeInfo));
             assertEquals(e.getMessage(), format("Agent [%s] has invalid cookie", runtimeInfo.agentInfoDebugString()));
 
-            agents = agentService.findRegisteredAgents();
-            assertThat(agents.findAgentAndRefreshStatus(uuid).getStatus(), is(AgentStatus.Building));
-            AgentIdentifier agentIdentifier = instance.getAgent().getAgentIdentifier();
+            agentInstances = agentService.findRegisteredAgents();
+            assertThat(agentInstances.findAgentAndRefreshStatus(uuid).getStatus(), is(AgentStatus.Building));
+            AgentIdentifier agentIdentifier = buildingAgentInstance.getAgent().getAgentIdentifier();
             String cookie = agentService.assignCookie(agentIdentifier);
             agentService.updateRuntimeInfo(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), cookie, false));
         }
-
     }
 
     @Nested
@@ -640,25 +634,25 @@ public class AgentServiceIntegrationTest {
             "classpath:testPropertyConfigurer.xml", "classpath:WEB-INF/spring-all-servlet.xml"})
     class Update {
         @Test
-        public void shouldBeAbleToUpdateAgentsHostName() {
+        void shouldBeAbleToUpdateAgentsHostName() {
             createAnIdleAgentAndDisableIt(UUID);
 
             assertThat(agentService.agentInstances().size(), is(1));
-            assertThat(getFirstAgent().getHostname(), is(not("some-hostname")));
+            String someHostName = "some-hostname";
+            assertThat(getFirstAgent().getHostname(), is(not(someHostName)));
 
             HttpOperationResult result = new HttpOperationResult();
-            agentService.updateAgentAttributes(USERNAME, result, UUID, "some-hostname", null, null, TriState.UNSET);
+            agentService.updateAgentAttributes(USERNAME, result, UUID, someHostName, null, null, TriState.UNSET);
 
             assertThat(result.httpCode(), is(200));
             assertThat(result.message(), is("Updated agent with uuid uuid."));
 
             assertThat(agentService.agentInstances().size(), is(1));
-            assertThat(getFirstAgent().getHostname(), is("some-hostname"));
+            assertThat(getFirstAgent().getHostname(), is(someHostName));
         }
 
         @Test
-        public void shouldUpdateAgentAttributesForValidInputs() throws Exception {
-            String headCommitBeforeUpdate = configRepository.getCurrentRevCommit().name();
+        void shouldUpdateAgentAttributesForValidInputs() {
             createAnIdleAgentAndDisableIt(UUID);
             createEnvironment("a", "b");
 
@@ -666,50 +660,59 @@ public class AgentServiceIntegrationTest {
             assertThat(getFirstAgent().getHostname(), is(not("some-hostname")));
             assertThat(getFirstAgent().isDisabled(), is(true));
 
-            HttpOperationResult operationResult = new HttpOperationResult();
-            agentService.updateAgentAttributes(USERNAME, operationResult, UUID, "some-hostname", "linux,java", "a,b", TriState.UNSET);
+            HttpOperationResult result = new HttpOperationResult();
+            agentService.updateAgentAttributes(USERNAME, result, UUID, "some-hostname",
+                                               "linux,java","a,b", TriState.TRUE);
 
-            assertThat(operationResult.httpCode(), is(200));
-            assertThat(operationResult.message(), is("Updated agent with uuid uuid."));
+            AgentInstance firstAgent = getFirstAgent();
+            List<String> resourceNames = firstAgent.getResourceConfigs().resourceNames();
+
+            assertThat(result.httpCode(), is(200));
+            assertThat(result.message(), is("Updated agent with uuid uuid."));
 
             assertThat(agentService.agentInstances().size(), is(1));
-            assertThat(getFirstAgent().getHostname(), is("some-hostname"));
-            assertThat(getFirstAgent().getResourceConfigs().resourceNames(), equalTo(asList("java", "linux")));
-            assertThat(getFirstAgent().isDisabled(), is(true));
+            assertThat(firstAgent.getHostname(), is("some-hostname"));
+            assertThat(resourceNames, equalTo(asList("java", "linux")));
+            assertThat(firstAgent.isDisabled(), is(false));
             assertEquals(getEnvironments(getFirstAgent().getUuid()), new HashSet<>(asList("a", "b")));
         }
 
         @Test
-        public void shouldUpdateAgentStatus() {
-            AgentInstance instance = AgentInstanceMother.building();
-            AgentService agentService = getAgentService(new AgentInstances(new SystemEnvironment(), agentStatusChangeListener(), instance));
-            AgentInstances agents = agentService.findRegisteredAgents();
+        void shouldUpdateAgentStatus() {
+            AgentInstance buildingAgentInstance = AgentInstanceMother.building();
+            AgentService agentService = getAgentService(new AgentInstances(new SystemEnvironment(), agentStatusChangeListener(), buildingAgentInstance));
+            AgentInstances registeredAgentInstances = agentService.findRegisteredAgents();
 
-            String uuid = instance.getAgent().getUuid();
-            assertThat(agents.findAgentAndRefreshStatus(uuid).getStatus(), is(AgentStatus.Building));
-            AgentIdentifier agentIdentifier = instance.getAgent().getAgentIdentifier();
+            String uuid = buildingAgentInstance.getAgent().getUuid();
+            assertThat(registeredAgentInstances.findAgentAndRefreshStatus(uuid).getStatus(), is(AgentStatus.Building));
+
+            AgentIdentifier agentIdentifier = buildingAgentInstance.getAgent().getAgentIdentifier();
             String cookie = agentService.assignCookie(agentIdentifier);
             agentService.updateRuntimeInfo(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), cookie, false));
-            agents = agentService.findRegisteredAgents();
-            assertThat(agents.findAgentAndRefreshStatus(uuid).getStatus(), is(AgentStatus.Idle));
+
+            registeredAgentInstances = agentService.findRegisteredAgents();
+            assertThat(registeredAgentInstances.findAgentAndRefreshStatus(uuid).getStatus(), is(AgentStatus.Idle));
         }
 
         @Test
-        public void shouldUpdateOnlyThoseAgentsAttributeThatAreSpecified() {
+        void shouldUpdateOnlyThoseAgentsAttributeThatAreSpecified() {
             createEnvironment("a", "b");
             Agent agent = createAnIdleAgentAndDisableIt(UUID);
             String originalHostname = agent.getHostname();
 
-            HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
-            agentService.bulkUpdateAgentAttributes(USERNAME, operationResult, asList(UUID), emptyStrList, emptyStrList, createEnvironmentsConfigWith("a", "b"), emptyStrList, TriState.TRUE);
+            HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+            agentService.bulkUpdateAgentAttributes(USERNAME, result, asList(UUID), emptyStrList, emptyStrList, createEnvironmentsConfigWith("a", "b"), emptyStrList, TriState.TRUE);
 
+            assertTrue(result.isSuccessful());
+            assertThat(result.message(), is("Updated agent(s) with uuid(s): [" + StringUtils.join(asList(UUID), ", ") + "]."));
             assertThat(agentService.agentInstances().size(), is(1));
 
-            HttpOperationResult operationResult1 = new HttpOperationResult();
-            agentService.updateAgentAttributes(USERNAME, operationResult1, UUID, null, null, null, TriState.UNSET);
+            HttpOperationResult result1 = new HttpOperationResult();
+            String notSpecifying = null;
+            agentService.updateAgentAttributes(USERNAME, result1, UUID, notSpecifying, notSpecifying, notSpecifying, TriState.UNSET);
 
-            assertThat(operationResult1.httpCode(), is(200));
-            assertThat(operationResult1.message(), is("Updated agent with uuid uuid."));
+            assertThat(result1.httpCode(), is(200));
+            assertThat(result1.message(), is("Updated agent with uuid uuid."));
 
             assertThat(agentService.agentInstances().size(), is(1));
             assertThat(getFirstAgent().getHostname(), is(originalHostname));
@@ -717,7 +720,7 @@ public class AgentServiceIntegrationTest {
         }
 
         @Test
-        public void shouldThrowBadRequestIfNoOperationsProvidedOnBulkUpdateAgents() {
+        void shouldThrowBadRequestIfNoOperationToPerformOnBulkUpdatingAgents() {
             AgentInstance pendingAgent = AgentInstanceMother.pending();
             AgentInstance registeredAgent = AgentInstanceMother.disabled();
 
@@ -738,7 +741,7 @@ public class AgentServiceIntegrationTest {
         }
 
         @Test
-        public void shouldUpdateResourcesEnvironmentsAndAgentStateOfTheProvidedStatesAllTogether() {
+        void shouldUpdateResourcesEnvironmentsAndAgentStateOfAllTheProvidedAgentsAllTogether() {
             createEnabledAgent(UUID);
             createEnabledAgent(UUID2);
 
@@ -775,15 +778,14 @@ public class AgentServiceIntegrationTest {
             "classpath:testPropertyConfigurer.xml", "classpath:WEB-INF/spring-all-servlet.xml"})
     class LostContact {
         @Test
-        public void shouldMarkAgentAsLostContactWhenAgentDoesNotPingWithinTimeoutPeriod() {
+        void shouldMarkAgentAsLostContactWhenAgentDoesNotPingWithinTimeoutPeriod() {
             new SystemEnvironment().setProperty("agent.connection.timeout", "-1");
-            CONFIG_HELPER.addMailHost(new MailHost("ghost.name", 25, "loser", "boozer", true, false, "go@foo.mail.com", "admin@foo.mail.com"));
-
             Date date = new Date(70, 1, 1, 1, 1, 1);
             AgentInstance instance = AgentInstanceMother.idle(date, "CCeDev01");
             ((AgentRuntimeInfo) ReflectionUtil.getField(instance, "agentRuntimeInfo")).setOperatingSystem("Minix");
-            EmailSender mailSender = mock(EmailSender.class);
-            AgentService agentService = new AgentService(new SystemEnvironment(), securityService, agentDao, new UuidGenerator(), serverHealthService, agentStatusChangeNotifier(), goConfigService);
+
+            AgentService agentService = new AgentService(new SystemEnvironment(), securityService, agentDao, new UuidGenerator(),
+                                                         serverHealthService, agentStatusChangeNotifier(), goConfigService);
             AgentInstances agentInstances = (AgentInstances) ReflectionUtil.getField(agentService, "agentInstances");
             agentInstances.add(instance);
 
@@ -794,45 +796,23 @@ public class AgentServiceIntegrationTest {
         }
 
         @Test
-        public void shouldNotShootoutMailsWhenAgentHasLostContact() {
-            CONFIG_HELPER.addMailHost(new MailHost("ghost.name", 25, "loser", "boozer", true, false, "go@foo.mail.com", "admin@foo.mail.com"));
-
-            AgentInstance instance = AgentInstanceMother.idle(new Date(), "CCeDev01");
-            EmailSender mailSender = mock(EmailSender.class);
-
-            agentDao.associateCookie(instance.getAgentIdentifier(), "rotten-cookie");
-
-            AgentService agentService = new AgentService(new SystemEnvironment(), securityService, agentDao, new UuidGenerator(), serverHealthService, agentStatusChangeNotifier(), goConfigService);
-            AgentInstances agentInstances = (AgentInstances) ReflectionUtil.getField(agentService, "agentInstances");
-            agentInstances.add(instance);
-
-            ReflectionUtil.setField(instance, "lastHeardTime", null);
-
-            AgentRuntimeInfo runtimeInfo = (AgentRuntimeInfo) ReflectionUtil.getField(instance, "agentRuntimeInfo");
-            runtimeInfo.setCookie("rotten-cookie");
-            runtimeInfo.setStatus(AgentStatus.Building);
-
-            agentService.updateRuntimeInfo(runtimeInfo);
-
-            verify(mailSender, never()).sendEmail(any(SendEmailMessage.class));
-        }
-
-        @Test
-        public void shouldSendLostContactEmailWhenAgentStateIsLostContact_FEATURE_HIDDEN() {
+        void shouldNotSendLostContactEmailWhenAgentStateIsLostContact() {
             new SystemEnvironment().setProperty("agent.connection.timeout", "-1");
             CONFIG_HELPER.addMailHost(new MailHost("ghost.name", 25, "loser", "boozer", true, false, "go@foo.mail.com", "admin@foo.mail.com"));
 
             Date date = new Date(70, 1, 1, 1, 1, 1);
-            AgentInstance instance = AgentInstanceMother.idle(date, "CCeDev01");
-            ((AgentRuntimeInfo) ReflectionUtil.getField(instance, "agentRuntimeInfo")).setOperatingSystem("Minix");
+            AgentInstance idleAgentInstance = AgentInstanceMother.idle(date, "CCeDev01");
+            ((AgentRuntimeInfo) ReflectionUtil.getField(idleAgentInstance, "agentRuntimeInfo")).setOperatingSystem("Minix");
+
             EmailSender mailSender = mock(EmailSender.class);
             AgentService agentService = new AgentService(new SystemEnvironment(), securityService, agentDao, new UuidGenerator(), serverHealthService, agentStatusChangeNotifier(), goConfigService);
             AgentInstances agentInstances = (AgentInstances) ReflectionUtil.getField(agentService, "agentInstances");
-            agentInstances.add(instance);
+            agentInstances.add(idleAgentInstance);
 
             AgentInstances agents = agentService.findRegisteredAgents();
             assertThat(agents.size(), is(1));
-            AgentInstance agentInstance = agents.findAgentAndRefreshStatus(instance.getAgent().getUuid());
+
+            AgentInstance agentInstance = agents.findAgentAndRefreshStatus(idleAgentInstance.getAgent().getUuid());
             assertThat(agentInstance.getStatus(), is(AgentStatus.LostContact));
             String body = String.format("The email has been sent out automatically by the Go server at (%s) to Go administrators.\n"
                     + "\n"
@@ -847,9 +827,8 @@ public class AgentServiceIntegrationTest {
                     + "Environments: \n"
                     + "\n"
                     + "Lost contact at: %s", SystemUtil.getFirstLocalNonLoopbackIpAddress(), date);
-            verify(mailSender, never()).sendEmail(new SendEmailMessage("[Lost Contact] Go agent host: " + instance.getHostname(), body, "admin@foo.mail.com"));
+            verify(mailSender, never()).sendEmail(new SendEmailMessage("[Lost Contact] Go agent host: " + idleAgentInstance.getHostname(), body, "admin@foo.mail.com"));
         }
-
     }
 
     @Nested
@@ -857,35 +836,34 @@ public class AgentServiceIntegrationTest {
             "classpath:testPropertyConfigurer.xml", "classpath:WEB-INF/spring-all-servlet.xml"})
     class Resources {
         @Test
-        public void shouldAddResourcesToDisabledAgent() {
+        void shouldAddResourcesToDisabledAgent() {
             createAnIdleAgentAndDisableIt(UUID);
 
             assertThat(agentService.agentInstances().size(), is(1));
             assertThat(getFirstAgent().getResourceConfigs(), is(empty()));
+            assertThat(agentService.findAgent(UUID).getStatus(), is(AgentStatus.Disabled));
 
-            HttpOperationResult operationResult = new HttpOperationResult();
-            agentService.updateAgentAttributes(USERNAME, operationResult, UUID, null, "linux,java", null, TriState.UNSET);
+            HttpOperationResult result = new HttpOperationResult();
+            agentService.updateAgentAttributes(USERNAME, result, UUID, null, "linux,java", null, TriState.UNSET);
 
-            assertThat(operationResult.httpCode(), is(200));
-            assertThat(operationResult.message(), is("Updated agent with uuid uuid."));
+            assertThat(result.httpCode(), is(200));
+            assertThat(result.message(), is("Updated agent with uuid uuid."));
 
             assertThat(agentService.agentInstances().size(), is(1));
             assertThat(getFirstAgent().getResourceConfigs().resourceNames(), is(asList("java", "linux")));
         }
 
         @Test
-        public void shouldAddResourcesWhileBulkUpdatingAgents() {
+        void shouldAddResourcesWhileBulkUpdatingAgents() {
             createEnabledAgent(UUID);
             createEnabledAgent(UUID2);
 
             List<String> uuids = asList(UUID, UUID2);
             List<String> resourcesToAdd = asList("resource1", "resource2");
-            List<String> resourcesToRemove = emptyStrList;
-            List<String> emptyEnvs = emptyStrList;
 
             HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-            agentService.bulkUpdateAgentAttributes(USERNAME, result, uuids, resourcesToAdd, resourcesToRemove,
-                    emptyEnvsConfig, emptyEnvs, TriState.TRUE);
+            agentService.bulkUpdateAgentAttributes(USERNAME, result, uuids, resourcesToAdd, emptyStrList,
+                                                   emptyEnvsConfig, emptyStrList, TriState.TRUE);
             assertThat(result.httpCode(), is(200));
             assertThat(result.message(), is("Updated agent(s) with uuid(s): [uuid, uuid2]."));
 
@@ -899,22 +877,21 @@ public class AgentServiceIntegrationTest {
         }
 
         @Test
-        public void shouldNotAllowNonAdminUserToAddResourcesToAgents() {
-            String agentId = "agent-id";
+        void shouldNotAllowNonAdminUserToAddResourcesToAgents() {
             CONFIG_HELPER.enableSecurity();
-            CONFIG_HELPER.addAdmins("admin1");
+            CONFIG_HELPER.addAdmins("authorized-admin-user");
 
-            HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
-            agentService.bulkUpdateAgentAttributes(new Username(new CaseInsensitiveString("not-admin")), operationResult,
-                    asList(agentId), asList("dont-care"), emptyStrList,
-                    emptyEnvsConfig, emptyStrList, TriState.UNSET);
+            HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+            Username unauthorizedUser = new Username(new CaseInsensitiveString("unauthorized-user"));
+            agentService.bulkUpdateAgentAttributes(unauthorizedUser, result, singletonList("agent-id"), singletonList("dont-care"),
+                                                   emptyStrList, emptyEnvsConfig, emptyStrList, TriState.UNSET);
 
-            assertThat(operationResult.httpCode(), is(403));
-            assertThat(operationResult.message(), is("Unauthorized to edit."));
+            assertThat(result.httpCode(), is(403));
+            assertThat(result.message(), is("Unauthorized to edit."));
         }
 
         @Test
-        public void shouldNotUpdateResourcesOnElasticAgents() {
+        void shouldNotUpdateResourcesOnElasticAgents() {
             Agent elasticAgent = AgentMother.elasticAgent();
 
             agentService.register(elasticAgent, null, null, new HttpOperationResult());
@@ -924,7 +901,7 @@ public class AgentServiceIntegrationTest {
             List<String> resourcesToAdd = singletonList("resource");
 
             assertTrue(agentService.findAgent(elasticAgent.getUuid()).getResourceConfigs().isEmpty());
-            agentService.bulkUpdateAgentAttributes(Username.ANONYMOUS, result, uuids, resourcesToAdd, emptyStrList, emptyEnvsConfig, emptyStrList, TriState.FALSE);
+            agentService.bulkUpdateAgentAttributes(Username.ANONYMOUS, result, uuids, resourcesToAdd, emptyStrList, emptyEnvsConfig, emptyStrList, TriState.UNSET);
 
             HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
             expectedResult.badRequest("Resources on elastic agents with uuids [" + StringUtils.join(uuids, ", ") + "] can not be updated.");
@@ -934,13 +911,13 @@ public class AgentServiceIntegrationTest {
         }
 
         @Test
-        public void shouldRemoveResourcesFromTheSpecifiedAgents() {
+        void shouldRemoveResourcesFromTheSpecifiedAgents() {
             Agent agent = new Agent(UUID, "remote-host1", "50.40.30.21");
             Agent agent1 = new Agent(UUID2, "remote-host1", "50.40.30.22");
 
-            HttpOperationResult operationResult = new HttpOperationResult();
-            agentService.register(agent, "resource1,resource2", null, operationResult);
-            agentService.register(agent1, "resource2", null, operationResult);
+            HttpOperationResult result1 = new HttpOperationResult();
+            agentService.register(agent, "resource1,resource2", null, result1);
+            agentService.register(agent1, "resource2", null, result1);
 
             List<String> uuids = asList(UUID, UUID2);
             List<String> resourcesToRemove = singletonList("resource2");
@@ -948,16 +925,15 @@ public class AgentServiceIntegrationTest {
             assertThat(agentService.findAgent(UUID).getResourceConfigs().size(), is(2));
             assertThat(agentService.findAgent(UUID2).getResourceConfigs().size(), is(1));
 
-            HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-            agentService.bulkUpdateAgentAttributes(Username.ANONYMOUS, result, uuids, emptyStrList, resourcesToRemove, emptyEnvsConfig, emptyStrList, TriState.FALSE);
+            HttpLocalizedOperationResult result2 = new HttpLocalizedOperationResult();
+            agentService.bulkUpdateAgentAttributes(Username.ANONYMOUS, result2, uuids, emptyStrList, resourcesToRemove, emptyEnvsConfig, emptyStrList, TriState.UNSET);
 
-            assertTrue(result.isSuccessful());
-            assertThat(result.message(), is("Updated agent(s) with uuid(s): [" + StringUtils.join(uuids, ", ") + "]."));
+            assertTrue(result2.isSuccessful());
+            assertThat(result2.message(), is("Updated agent(s) with uuid(s): [" + StringUtils.join(uuids, ", ") + "]."));
             assertThat(agentService.findAgent(UUID).getResourceConfigs().size(), is(1));
             assertThat(agentService.findAgent(UUID).getResourceConfigs(), contains(new ResourceConfig("resource1")));
             assertThat(agentService.findAgent(UUID2).getResourceConfigs().size(), is(0));
         }
-
     }
 
     @Nested
@@ -965,11 +941,12 @@ public class AgentServiceIntegrationTest {
             "classpath:testPropertyConfigurer.xml", "classpath:WEB-INF/spring-all-servlet.xml"})
     class RegistrationAndApproval {
         @Test
-        public void shouldRegisterLocalAgentWithNonLoopbackIpAddress() throws Exception {
+        void shouldRegisterLocalAgentWithNonLoopbackIpAddress() throws Exception {
             String nonLoopbackIp = SystemUtil.getFirstLocalNonLoopbackIpAddress();
-            InetAddress inetAddress = InetAddress.getByName(nonLoopbackIp);
+            InetAddress nonLoopbackIpAddress = InetAddress.getByName(nonLoopbackIp);
             assertThat(SystemUtil.isLocalIpAddress(nonLoopbackIp), is(true));
-            Agent agent = new Agent("uuid", inetAddress.getHostName(), nonLoopbackIp);
+
+            Agent agent = new Agent("uuid", nonLoopbackIpAddress.getHostName(), nonLoopbackIp);
             AgentRuntimeInfo agentRuntimeInfo = fromServer(agent, false, "/var/lib", 0L, "linux", false);
             agentService.requestRegistration(new Username("bob"), agentRuntimeInfo);
 
@@ -980,11 +957,12 @@ public class AgentServiceIntegrationTest {
         }
 
         @Test
-        public void shouldBeAbleToRegisterAgent() {
+        void shouldBeAbleToRegisterPendingAgent() {
             AgentInstance pendingAgentInstance = AgentInstanceMother.pending();
             Agent pendingAgent = pendingAgentInstance.getAgent();
 
-            agentService.requestRegistration(new Username("bob"), fromServer(pendingAgent, false, "var/lib", 0L, "linux", false));
+            agentService.requestRegistration(new Username("bob"), fromServer(pendingAgent, false, "var/lib",
+                                             0L, "linux", false));
             String uuid = pendingAgentInstance.getUuid();
             agentService.approve(uuid);
 
@@ -994,29 +972,34 @@ public class AgentServiceIntegrationTest {
         }
 
         @Test
-        public void shouldRegisterAgentOnlyOnce() {
-            AgentInstance pendingAgentInstance = AgentInstanceMother.pending();
-            agentService.requestRegistration(new Username("bob"), fromServer(pendingAgentInstance.getAgent(), false, "var/lib", 0L, "linux", false));
+        void shouldRegisterAgentOnlyOnce() {
+            Agent pendingAgent = AgentInstanceMother.pending().getAgent();
+            AgentRuntimeInfo agentRuntimeInfo1 = fromServer(pendingAgent, false, "var/lib", 0L,
+                                              "linux", false);
+            agentService.requestRegistration(new Username("bob"), agentRuntimeInfo1);
 
-            agentService.approve(pendingAgentInstance.getUuid());
+            agentService.approve(pendingAgent.getUuid());
 
-            agentService.requestRegistration(new Username("bob"), fromServer(pendingAgentInstance.getAgent(), true, "var/lib", 0L, "linux", false));
-            agentService.requestRegistration(new Username("bob"), fromServer(pendingAgentInstance.getAgent(), true, "var/lib", 0L, "linux", false));
+            AgentRuntimeInfo agentRuntimeInfo2 = fromServer(pendingAgent, true, "var/lib", 0L,
+                                                            "linux", false);
+            agentService.requestRegistration(new Username("bob"), agentRuntimeInfo2);
+            agentService.requestRegistration(new Username("bob"), agentRuntimeInfo2);
+
             assertThat(agentService.findRegisteredAgents().size(), is(1));
         }
 
         @Test
-        public void shouldBeAbleToMakeReapprovedAgentIdle() {
+        void shouldBeAbleToMakeReapprovedAgentIdle() {
             disableAgent();
 
-            agentService.updateAgentApprovalStatus("uuid1", false, Username.ANONYMOUS);
+            agentService.updateAgentApprovalStatus("uuid1", false);
 
             AgentInstance instance = agentService.findAgentAndRefreshStatus("uuid1");
             assertThat(instance.getStatus(), is(AgentStatus.Idle));
         }
 
         @Test
-        public void shouldLoadAgentsByApprovalStatus() {
+        void shouldLoadAgentsByApprovalStatus() {
             Agent disabledAgent1 = new Agent("uuid1", "disabledAgent1", "127.0.0.1", "cookie1");
             disabledAgent1.disable();
             agentDao.saveOrUpdate(disabledAgent1);
@@ -1031,22 +1014,21 @@ public class AgentServiceIntegrationTest {
             assertThat(approvedAgents.size(), is(1));
             assertThat(approvedAgents.findAgentAndRefreshStatus("uuid3").getAgent().getHostname(), is("approvedAgent1"));
 
-            AgentInstances deniedAgents = agentService.findDisabledAgents();
-            assertThat(deniedAgents.size(), is(2));
-            assertThat(deniedAgents.findAgentAndRefreshStatus("uuid1").getAgent().getHostname(), is("disabledAgent1"));
-            assertThat(deniedAgents.findAgentAndRefreshStatus("uuid2").getAgent().getHostname(), is("disabledAgent2"));
+            AgentInstances disabledAgents = agentService.findDisabledAgents();
+            assertThat(disabledAgents.size(), is(2));
+            assertThat(disabledAgents.findAgentAndRefreshStatus("uuid1").getAgent().getHostname(), is("disabledAgent1"));
+            assertThat(disabledAgents.findAgentAndRefreshStatus("uuid2").getAgent().getHostname(), is("disabledAgent2"));
         }
 
         @Test
-        public void shouldUpdateAgentApprovalStatusByUuid() {
+        void shouldUpdateAgentApprovalStatusByUuid() {
             Agent agent = new Agent(UUID, "test", "127.0.0.1", new ResourceConfigs("java"));
             agentService.register(agent, null, null, new HttpOperationResult());
 
-            agentService.updateAgentApprovalStatus(agent.getUuid(), Boolean.TRUE, Username.ANONYMOUS);
+            agentService.updateAgentApprovalStatus(agent.getUuid(), Boolean.TRUE);
 
             assertThat(agentService.findAgent(UUID).getStatus(), is(AgentStatus.Disabled));
         }
-
     }
 
     @Nested
@@ -1054,13 +1036,14 @@ public class AgentServiceIntegrationTest {
             "classpath:testPropertyConfigurer.xml", "classpath:WEB-INF/spring-all-servlet.xml"})
     class LoadingAgents {
         @Test
-        public void shouldLoadAllAgents() {
+        void shouldLoadAllAgents() {
             AgentInstance idleAgentInstance = AgentInstanceMother.idle(new Date(), "CCeDev01");
             AgentInstance pendingAgentInstance = AgentInstanceMother.pending();
             AgentInstance buildingAgentInstance = AgentInstanceMother.building();
             AgentInstance deniedAgentInstance = AgentInstanceMother.disabled();
 
-            AgentInstances agentInstances = new AgentInstances(new SystemEnvironment(), agentStatusChangeListener(), idleAgentInstance, pendingAgentInstance, buildingAgentInstance, deniedAgentInstance);
+            AgentInstances agentInstances = new AgentInstances(new SystemEnvironment(), agentStatusChangeListener(),
+                                                               idleAgentInstance, pendingAgentInstance, buildingAgentInstance, deniedAgentInstance);
             AgentService agentService = getAgentService(agentInstances);
 
             assertThat(agentService.agentInstances().size(), is(4));
@@ -1077,13 +1060,10 @@ public class AgentServiceIntegrationTest {
             "classpath:testPropertyConfigurer.xml", "classpath:WEB-INF/spring-all-servlet.xml"})
     class Environments {
         @Test
-        public void shouldDoNothingWhenEnvironmentsToAddOrRemoveIsNullOrEmpty() {
-            // Associate two environments (prod and stage) with an agent in database
+        void shouldDoNothingWhenEnvironmentsToAddOrRemoveIsNullOrEmpty() {
             String prodEnv = "prod";
-            String stageEnv = "stage";
 
             createEnvironment(prodEnv);
-            createEnvironment(stageEnv);
 
             createEnabledAgent(UUID);
 
@@ -1093,23 +1073,19 @@ public class AgentServiceIntegrationTest {
             EnvironmentsConfig envsConfig = new EnvironmentsConfig();
 
             envsConfig.add(CONFIG_HELPER.getEnvironment(prodEnv));
-            envsConfig.add(CONFIG_HELPER.getEnvironment(stageEnv));
 
             agentService.bulkUpdateAgentAttributes(USERNAME, result, singletonList(UUID), singletonList("R1"),
                                                    emptyList, envsConfig, emptyList, TriState.UNSET);
 
             Agent agent = agentService.findAgent(UUID).getAgent();
-            assertTrue(agent.getEnvironmentsAsList().size() == 2);
-            assertTrue(agent.getEnvironmentsAsList().contains(stageEnv));
+            assertTrue(agent.getEnvironmentsAsList().size() == 1);
             assertTrue(agent.getEnvironmentsAsList().contains(prodEnv));
 
-            // Again update environment association with agent in DB by passing NULL values for environments to add/remove
             agentService.bulkUpdateAgentAttributes(USERNAME, result, singletonList(UUID), singletonList("R2"),
                                                    singletonList("R1"), null, emptyList, TriState.UNSET);
 
             agent = agentService.findAgent(UUID).getAgent();
-            assertTrue(agent.getEnvironmentsAsList().size() == 2);
-            assertTrue(agent.getEnvironmentsAsList().contains(stageEnv));
+            assertTrue(agent.getEnvironmentsAsList().size() == 1);
             assertTrue(agent.getEnvironmentsAsList().contains(prodEnv));
 
             assertTrue(agent.getResourceConfigs().resourceNames().contains("R2"));
@@ -1120,8 +1096,7 @@ public class AgentServiceIntegrationTest {
 
 
             agent = agentService.findAgent(UUID).getAgent();
-            assertTrue(agent.getEnvironmentsAsList().size() == 2);
-            assertTrue(agent.getEnvironmentsAsList().contains(stageEnv));
+            assertTrue(agent.getEnvironmentsAsList().size() == 1);
             assertTrue(agent.getEnvironmentsAsList().contains(prodEnv));
 
             assertTrue(agent.getResourceConfigs().resourceNames().contains("R3"));
@@ -1130,70 +1105,61 @@ public class AgentServiceIntegrationTest {
         }
 
         @Test
-        public void shouldDoNothingWhenResourcesToAddOrRemoveIsNULLOrEmpty() {
+        void shouldDoNothingWhenResourcesToAddOrRemoveIsNULLOrEmpty() {
             createEnabledAgent(UUID);
 
             List<String> emptyList = emptyStrList;
             HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-
             EnvironmentsConfig envsConfig = new EnvironmentsConfig();
             agentService.bulkUpdateAgentAttributes(USERNAME, result, singletonList(UUID), asList("r1", "r2"),
-                    null, envsConfig, emptyList, TriState.TRUE);
+                                   null, envsConfig, emptyList, TriState.TRUE);
 
-            // Step 4 : Assert that association was not stored because the association exists in config repo
             AgentInstance agentInstance = agentService.findAgent(UUID);
             Agent agent = agentInstance.getAgent();
             assertTrue(agent.getResourceConfigs().resourceNames().contains("r1"));
             assertTrue(agent.getResourceConfigs().resourceNames().contains("r2"));
 
             agentService.bulkUpdateAgentAttributes(USERNAME, result, singletonList(UUID), null,
-                    emptyList, null, null, TriState.TRUE);
+                                                   emptyList, null, null, TriState.TRUE);
 
             assertTrue(agent.getResourceConfigs().resourceNames().contains("r1"));
             assertTrue(agent.getResourceConfigs().resourceNames().contains("r2"));
         }
 
         @Test
-        public void shouldDoNothingWhenTryingToAddAgentToEnvironmentAlreadyAssociatedInConfigRepo() {
-            // Step 1 : create and add en environment in Config XML
+        void shouldDoNothingWhenTryingToAddAgentEnvironmentAssociationThatAlreadyExistsInConfigRepo() {
             String prodEnv = "prod";
             createEnvironment(prodEnv);
             createEnabledAgent(UUID);
 
-            // Step 2 : create agent and associate it in memory with environment
-            EnvironmentConfig envConfig = CONFIG_HELPER.getEnvironment(prodEnv);
-            envConfig.setOrigins(new RepoConfigOrigin());
-            envConfig.addAgent(UUID);
+            EnvironmentConfig prodEnvConfig = CONFIG_HELPER.getEnvironment(prodEnv);
+            prodEnvConfig.setOrigins(new RepoConfigOrigin());
+            prodEnvConfig.addAgent(UUID);
 
-            // Step 3 : Try to store agent-environment associations in DB
-            List<String> emptyList = emptyStrList;
             HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-            EnvironmentsConfig envsConfig = new EnvironmentsConfig();
-            envsConfig.add(envConfig);
-            agentService.bulkUpdateAgentAttributes(USERNAME, result, singletonList(UUID), emptyList, emptyList,
-                                                   envsConfig, emptyList, TriState.UNSET);
+            EnvironmentsConfig prodEnvsConfig = new EnvironmentsConfig();
+            prodEnvsConfig.add(prodEnvConfig);
+            agentService.bulkUpdateAgentAttributes(USERNAME, result, singletonList(UUID), emptyStrList, emptyStrList,
+                                                   prodEnvsConfig, emptyStrList, TriState.UNSET);
 
-            // Step 4 : Assert that association was not stored because the association exists in config repo
-            AgentInstance agentInstance = agentService.findAgent(UUID);
-            Agent agent = agentInstance.getAgent();
+            Agent agent = agentService.findAgent(UUID).getAgent();
             assertTrue(agent.getEnvironmentsAsList().isEmpty());
         }
 
         @Test
-        public void shouldBeAbleToUpdateEnvironmentsUsingUpdateAgentAttrsCall() {
+        void shouldBeAbleToUpdateEnvironmentsUsingUpdateAgentAttrsCall() {
             createEnvironment("a", "b", "c", "d", "e");
             createEnabledAgent(UUID);
 
             HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-            List<String> emptyList = emptyStrList;
-            agentService.bulkUpdateAgentAttributes(USERNAME, result, singletonList(UUID), emptyList, emptyList,
-                    createEnvironmentsConfigWith("a", "b", "c"), emptyList,
-                    TriState.UNSET);
+            agentService.bulkUpdateAgentAttributes(USERNAME, result, singletonList(UUID), emptyStrList, emptyStrList,
+                                                   createEnvironmentsConfigWith("a", "b", "c"), emptyStrList, TriState.UNSET);
 
             assertThat(result.httpCode(), is(200));
 
             assertThat(agentService.agentInstances().size(), is(1));
             assertThat(getFirstAgent().getResourceConfigs(), is(empty()));
+            assertThat(getFirstAgent().getAgent().getEnvironmentsAsList(), is(Arrays.asList("a", "b", "c")));
 
             HttpOperationResult result1 = new HttpOperationResult();
             agentService.updateAgentAttributes(USERNAME, result1, UUID, null, null, "c,d,e", TriState.UNSET);
@@ -1202,27 +1168,28 @@ public class AgentServiceIntegrationTest {
             assertThat(result1.message(), is("Updated agent with uuid uuid."));
 
             assertThat(agentService.agentInstances().size(), is(1));
-            assertThat(getEnvironments(getFirstAgent().getUuid()).equals(new HashSet<>(asList("c", "d", "e"))), is(true));
+            assertThat(getFirstAgent().getAgent().getEnvironmentsAsList(), is(Arrays.asList("c", "d", "e")));
         }
 
         @Test
-        public void shouldAddEnvironmentsWhileBulkUpdatingAgents() {
+        void shouldAddEnvironmentsWhileBulkUpdatingAgents() {
             createEnvironment("uat", "prod");
 
             createEnabledAgent(UUID);
             createEnabledAgent(UUID2);
 
-            HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
-            agentService.bulkUpdateAgentAttributes(USERNAME, operationResult, asList(UUID, UUID2), emptyStrList, emptyStrList, createEnvironmentsConfigWith("uat", "prod"), emptyStrList, TriState.TRUE);
+            HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+            agentService.bulkUpdateAgentAttributes(USERNAME, result, asList(UUID, UUID2), emptyStrList, emptyStrList,
+                                                   createEnvironmentsConfigWith("uat", "prod"), emptyStrList, TriState.TRUE);
 
-            assertThat(operationResult.httpCode(), is(200));
-            assertThat(operationResult.message(), is("Updated agent(s) with uuid(s): [uuid, uuid2]."));
+            assertThat(result.httpCode(), is(200));
+            assertThat(result.message(), is("Updated agent(s) with uuid(s): [uuid, uuid2]."));
             assertThat(environmentConfigService.environmentsFor(UUID), containsSet("uat", "prod"));
             assertThat(environmentConfigService.environmentsFor(UUID2), containsSet("uat", "prod"));
         }
 
         @Test
-        public void shouldAddEnvToSpecifiedAgents() {
+        void shouldAddEnvToSpecifiedAgents() {
             createEnvironment("uat");
 
             createEnabledAgent(UUID);
@@ -1239,14 +1206,15 @@ public class AgentServiceIntegrationTest {
         }
 
         @Test
-        public void shouldRemoveEnvFromSpecifiedAgents() {
+        void shouldRemoveEnvFromSpecifiedAgents() {
             createEnvironment("uat");
 
             createEnabledAgent(UUID);
             createEnabledAgent(UUID2);
 
             HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-            agentService.bulkUpdateAgentAttributes(USERNAME, result, asList(UUID, UUID2), emptyStrList, emptyStrList, createEnvironmentsConfigWith("uat"), emptyStrList, TriState.TRUE);
+            agentService.bulkUpdateAgentAttributes(USERNAME, result, asList(UUID, UUID2), emptyStrList, emptyStrList,
+                                                   createEnvironmentsConfigWith("uat"), emptyStrList, TriState.TRUE);
             assertThat(result.httpCode(), is(200));
             assertThat(result.message(), is("Updated agent(s) with uuid(s): [uuid, uuid2]."));
 
@@ -1254,7 +1222,8 @@ public class AgentServiceIntegrationTest {
             BasicEnvironmentConfig uat = new BasicEnvironmentConfig(new CaseInsensitiveString("uat"));
             uat.addAgent(UUID);
             uat.addAgent(UUID2);
-            agentService.updateAgentsAssociationWithSpecifiedEnv(USERNAME, uat, emptyList(), result);
+            List<String> noAgents = emptyList();
+            agentService.updateAgentsAssociationWithSpecifiedEnv(USERNAME, uat, noAgents, result);
 
             assertThat(result.httpCode(), is(200));
             assertThat(result.message(), is("Updated agent(s) with uuid(s): []."));
@@ -1264,7 +1233,7 @@ public class AgentServiceIntegrationTest {
         }
 
         @Test
-        public void shouldAddRemoveEnvFromSpecifiedAgents() {
+        void shouldAddRemoveEnvFromSpecifiedAgents() {
             createEnvironment("uat");
 
             createEnabledAgent(UUID);
@@ -1273,7 +1242,8 @@ public class AgentServiceIntegrationTest {
             createEnabledAgent(UUID3);
 
             HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-            agentService.bulkUpdateAgentAttributes(USERNAME, result, asList(UUID, UUID2), emptyStrList, emptyStrList, createEnvironmentsConfigWith("uat"), emptyStrList, TriState.TRUE);
+            agentService.bulkUpdateAgentAttributes(USERNAME, result, asList(UUID, UUID2), emptyStrList, emptyStrList,
+                                                   createEnvironmentsConfigWith("uat"), emptyStrList, TriState.TRUE);
             assertThat(result.httpCode(), is(200));
             assertThat(result.message(), is("Updated agent(s) with uuid(s): [uuid, uuid2]."));
 
@@ -1292,31 +1262,29 @@ public class AgentServiceIntegrationTest {
         }
 
         @Test
-        public void shouldNotFailWhenAddingAgentsEnvironmentThatAlreadyExist() {
+        void shouldNotFailWhenAddingAgentsEnvironmentThatAlreadyExist() {
             createEnvironment("uat");
 
             createEnabledAgent(UUID);
             createEnabledAgent(UUID2);
 
-            HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
-            agentService.bulkUpdateAgentAttributes(USERNAME, operationResult, asList(UUID, UUID2), emptyStrList, emptyStrList, createEnvironmentsConfigWith("uat"), emptyStrList, TriState.TRUE);
-            agentService.bulkUpdateAgentAttributes(USERNAME, operationResult, asList(UUID, UUID2), emptyStrList,
-                    emptyStrList, createEnvironmentsConfigWith("uat"),
-                    emptyStrList, TriState.TRUE);
+            HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+            agentService.bulkUpdateAgentAttributes(USERNAME, result, asList(UUID, UUID2), emptyStrList, emptyStrList,
+                                                   createEnvironmentsConfigWith("uat"), emptyStrList, TriState.TRUE);
 
-            operationResult = new HttpLocalizedOperationResult();
-            agentService.bulkUpdateAgentAttributes(USERNAME, operationResult, asList(UUID, UUID2), emptyStrList, emptyStrList, createEnvironmentsConfigWith("uat"), emptyStrList, TriState.TRUE);
-            agentService.bulkUpdateAgentAttributes(USERNAME, operationResult, asList(UUID, UUID2), emptyStrList,
-                    emptyStrList, createEnvironmentsConfigWith("uat"),
-                    emptyStrList, TriState.TRUE);
+            result = new HttpLocalizedOperationResult();
+            assertTrue(result.isSuccessful());
 
-            assertThat(operationResult.httpCode(), is(200));
+            agentService.bulkUpdateAgentAttributes(USERNAME, result, asList(UUID, UUID2), emptyStrList, emptyStrList,
+                                                   createEnvironmentsConfigWith("uat"), emptyStrList, TriState.TRUE);
+
+            assertTrue(result.isSuccessful());
             assertThat(environmentConfigService.environmentsFor(UUID), containsSet("uat"));
             assertThat(environmentConfigService.environmentsFor(UUID2), containsSet("uat"));
         }
 
         @Test
-        public void shouldBeAbleToRemoveAgentsEnvironments() {
+        void shouldBeAbleToRemoveAgentsEnvironments() {
             createEnvironment("uat", "prod");
 
             Agent enabledAgent1 = createEnabledAgent(UUID);
@@ -1327,20 +1295,21 @@ public class AgentServiceIntegrationTest {
             enabledAgent2.setEnvironments("uat,prod");
             agentDao.saveOrUpdate(enabledAgent2);
 
-            HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
-            agentService.bulkUpdateAgentAttributes(USERNAME, operationResult, asList(UUID, UUID2), emptyStrList, emptyStrList, emptyEnvsConfig, asList("uat"), TriState.TRUE);
+            HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+            agentService.bulkUpdateAgentAttributes(USERNAME, result, asList(UUID, UUID2), emptyStrList, emptyStrList,
+                                                   emptyEnvsConfig, singletonList("uat"), TriState.TRUE);
 
-            assertThat(operationResult.httpCode(), is(200));
-            assertThat(operationResult.message(), is("Updated agent(s) with uuid(s): [uuid, uuid2]."));
+            assertTrue(result.isSuccessful());
+            assertThat(result.message(), is("Updated agent(s) with uuid(s): [uuid, uuid2]."));
 
-            assertThat(environmentConfigService.environmentsFor(UUID), not(containsSet("uat")));
+            assertTrue(environmentConfigService.environmentsFor(UUID).isEmpty());
 
-            assertThat(environmentConfigService.environmentsFor(UUID2), not(containsSet("uat")));
+            assertTrue(environmentConfigService.environmentsFor(UUID2).size() == 1);
             assertThat(environmentConfigService.environmentsFor(UUID2), containsSet("prod"));
         }
 
         @Test
-        public void shouldOnlyAddRemoveAgentsEnvironmentThatAreRequested() {
+        void shouldOnlyAddRemoveAgentsEnvironmentThatAreRequested() {
             createEnvironment("uat", "prod", "perf", "test", "dev");
 
             Agent agent1 = createEnabledAgent(UUID);
@@ -1352,9 +1321,8 @@ public class AgentServiceIntegrationTest {
             agentDao.saveOrUpdate(agent2);
 
             HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-            agentService.bulkUpdateAgentAttributes(USERNAME, result, asList(UUID, UUID2), emptyStrList,
-                    emptyStrList, createEnvironmentsConfigWith("dev", "test", "perf"),
-                    asList("uat", "prod"), TriState.TRUE);
+            agentService.bulkUpdateAgentAttributes(USERNAME, result, asList(UUID, UUID2), emptyStrList, emptyStrList,
+                                                   createEnvironmentsConfigWith("dev", "test", "perf"), asList("uat", "prod"), TriState.TRUE);
 
             assertThat(result.httpCode(), is(200));
             assertThat(result.message(), is("Updated agent(s) with uuid(s): [uuid, uuid2]."));
@@ -1382,27 +1350,27 @@ public class AgentServiceIntegrationTest {
     }
 
         @Test
-        public void shouldNotAllowUnauthorizedUserToUpdateAgentsEnvironment() {
+        void shouldNotAllowUnauthorizedUserToUpdateAgentsEnvironment() {
             CONFIG_HELPER.enableSecurity();
-            CONFIG_HELPER.addAdmins("adminUser");
+            CONFIG_HELPER.addAdmins("authorized-user");
 
             HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-            agentService.bulkUpdateAgentAttributes(USERNAME, result, asList(UUID), emptyStrList, emptyStrList,
-                    emptyEnvsConfig, asList("uat"), TriState.TRUE);
+            agentService.bulkUpdateAgentAttributes(new Username(new CaseInsensitiveString("unauthorized-user")), result, singletonList(UUID), emptyStrList, emptyStrList,
+                                                   emptyEnvsConfig, singletonList("uat"), TriState.TRUE);
 
             assertThat(result.httpCode(), is(403));
             assertThat(result.message(), is("Unauthorized to edit."));
         }
 
         @Test
-        public void shouldBeAbleToAddAgentToNonExistingEnvironment() {
+        void shouldNotFailWhenAgentIsAssociatedWithNonExistingEnvironment() {
             createEnabledAgent(UUID);
             createEnabledAgent(UUID2);
 
             HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-            List<String> uuids = asList(UUID, UUID2);
 
-            agentService.bulkUpdateAgentAttributes(Username.ANONYMOUS, result, uuids, emptyStrList, emptyStrList, createEnvironmentsConfigWith("non-existent-env"), emptyStrList, TriState.TRUE);
+            agentService.bulkUpdateAgentAttributes(Username.ANONYMOUS, result, asList(UUID, UUID2), emptyStrList, emptyStrList,
+                                                   createEnvironmentsConfigWith("non-existent-env"), emptyStrList, TriState.TRUE);
 
             assertTrue(result.isSuccessful());
             assertThat(result.httpCode(), is(200));
@@ -1410,14 +1378,14 @@ public class AgentServiceIntegrationTest {
         }
 
         @Test
-        public void shouldBeAbleToRemoveAgentFromNonExistingEnvironment() {
+        void shouldNotFailWhenAgentAssociatedIsAskedToBeRemovedFromNonExistingEnvironment() {
             createEnabledAgent(UUID);
             createEnabledAgent(UUID2);
 
             HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-            List<String> uuids = asList(UUID, UUID2);
 
-            agentService.bulkUpdateAgentAttributes(Username.ANONYMOUS, result, uuids, emptyStrList, emptyStrList, emptyEnvsConfig, singletonList("non-existent-env"), TriState.TRUE);
+            agentService.bulkUpdateAgentAttributes(Username.ANONYMOUS, result, asList(UUID, UUID2), emptyStrList, emptyStrList, emptyEnvsConfig,
+                                                   singletonList("non-existent-env"), TriState.TRUE);
 
             assertTrue(result.isSuccessful());
             assertThat(result.httpCode(), is(200));
@@ -1464,7 +1432,7 @@ public class AgentServiceIntegrationTest {
         Agent pending = new Agent("uuid1", "agent1", "192.168.0.1");
         agentService.requestRegistration(new Username("bob"), fromServer(pending, false, "/var/lib", 0L, "linux"));
         agentService.approve("uuid1");
-        agentService.updateAgentApprovalStatus("uuid1", true, Username.ANONYMOUS);
+        agentService.updateAgentApprovalStatus("uuid1", true);
     }
 
     private boolean isDisabled(Agent agent) {

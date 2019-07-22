@@ -1,0 +1,3 @@
+
+Defaults    env_reset
+go ALL=(ALL) NOPASSWD: /run-docker-daemon.sh

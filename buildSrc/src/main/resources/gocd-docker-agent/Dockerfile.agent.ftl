@@ -86,12 +86,15 @@ ADD docker-entrypoint.sh /
 COPY --from=gocd-agent-unzip /go-agent /go-agent
 # ensure that logs are printed to console output
 COPY --chown=go:root agent-bootstrapper-logback-include.xml agent-launcher-logback-include.xml agent-logback-include.xml /go-agent/config/
+<#if distro.name() == "docker">
+COPY --chown=root:root dockerd-sudo /etc/sudoers.d/dockerd-sudo
+</#if>
 
 RUN chown -R go:root /go-agent /docker-entrypoint.d /go /godata /docker-entrypoint.sh \
     && chmod -R g=u /go-agent /docker-entrypoint.d /go /godata /docker-entrypoint.sh
 
 <#if distro.name() == "docker">
-  ADD run-docker-daemon.sh /
+  COPY --chown=root:root run-docker-daemon.sh /
 </#if>
 
 ENTRYPOINT ["/docker-entrypoint.sh"]

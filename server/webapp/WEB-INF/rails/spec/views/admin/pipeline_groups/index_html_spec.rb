@@ -295,7 +295,7 @@ describe "admin/pipeline_groups/index.html.erb" do
       render
 
       Capybara.string(response.body).find('div.group_pipelines').tap do |div|
-        expect(div).to have_selector("a.add_link.add_pipeline_to_group[href='#{pipeline_new_path(:group => "group_foo")}']")
+        expect(div).to have_selector("a.add_link.add_pipeline_to_group[href='#{spark_pipelines_new_path(:group => "group_foo")}']")
       end
     end
 
@@ -305,7 +305,7 @@ describe "admin/pipeline_groups/index.html.erb" do
       render
 
       Capybara.string(response.body).find('div.add_first_pipeline_in_group').tap do |div|
-        expect(div).to have_selector("a.add_link.add_pipeline_to_group[href='#{pipeline_new_path(:group => "some-group")}']")
+        expect(div).to have_selector("a.add_link.add_pipeline_to_group[href='#{spark_pipelines_new_path(:group => "some-group")}']")
       end
     end
 
@@ -315,7 +315,7 @@ describe "admin/pipeline_groups/index.html.erb" do
       render
 
       Capybara.string(response.body).find('span.title_secondary_info').tap do |span|
-        expect(span).to have_selector("a.link_as_button.primary.add_pipeline_to_group[href='#{pipeline_new_path(:group => "defaultGroup")}']")
+        expect(span).to have_selector("a.link_as_button.primary.add_pipeline_to_group[href='#{spark_pipelines_new_path(:group => "defaultGroup")}']")
       end
     end
 

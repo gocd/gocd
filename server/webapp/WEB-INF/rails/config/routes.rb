@@ -50,8 +50,7 @@ Rails.application.routes.draw do
   get "admin/:stage_parent/:pipeline_name/materials" => "admin/materials#index", constraints: {stage_parent: "pipelines", pipeline_name: PIPELINE_NAME_FORMAT}, defaults: {stage_parent: "pipelines"}, as: :admin_material_index
   delete "admin/:stage_parent/:pipeline_name/materials/:finger_print" => "admin/materials#destroy", constraints: {stage_parent: "pipelines", pipeline_name: PIPELINE_NAME_FORMAT}, defaults: {stage_parent: "pipelines"}, as: :admin_material_delete
 
-  get "admin/pipeline/new" => "admin/pipelines#new", as: :pipeline_new
-  get "admin/pipelines/create" => "admin/pipelines#new", as: :new_pipeline_new
+  get "admin/pipelines/create" => "admin/pipelines#new", as: :spark_pipelines_new
   post "admin/pipelines" => "admin/pipelines#create", as: :pipeline_create
   get "admin/pipeline/:pipeline_name/clone" => "admin/pipelines#clone", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :pipeline_clone
   post "admin/pipeline/save_clone" => "admin/pipelines#save_clone", as: :pipeline_save_clone

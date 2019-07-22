@@ -12,11 +12,6 @@
       "value": false
     },
     {
-      "key": "new_add_pipeline_flow",
-      "description": "New add pipeline flow.",
-      "value": false
-    },
-    {
       "key": "test_drive",
       "description": "test drive instance.",
       "value": false

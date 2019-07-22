@@ -74,7 +74,7 @@ class NewDashboardControllerTest implements ControllerTrait<NewDashboardControll
         get(controller.controllerPath())
 
         assertThatResponse()
-          .redirectsTo("/go/admin/pipeline/new?group=defaultGroup")
+          .redirectsTo("/go/admin/pipelines/create?group=defaultGroup")
       }
 
       @Test

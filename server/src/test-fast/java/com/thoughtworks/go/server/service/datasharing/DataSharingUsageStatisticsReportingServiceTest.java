@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.server.service.datasharing;
 
+import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.DataSharingSettings;
 import com.thoughtworks.go.domain.UsageStatisticsReporting;
 import com.thoughtworks.go.server.dao.UsageStatisticsReportingSqlMapDao;
@@ -28,6 +29,7 @@ import org.mockito.Mock;
 import java.time.LocalDate;
 import java.util.Date;
 
+import static com.thoughtworks.go.server.service.datasharing.DataSharingUsageStatisticsReportingService.USAGE_DATA_IGNORE_LAST_UPDATED_AT;
 import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
@@ -42,6 +44,8 @@ public class DataSharingUsageStatisticsReportingServiceTest {
     private DataSharingSettingsService dataSharingSettingsService;
     @Mock
     private SystemEnvironment systemEnvironment;
+    @Mock
+    private GoCache goCache;
     private String goUsageDataRemoteServerURL;
     private String goUsageDataGetEncryptionKeysURL;
     private DataSharingSettings dataSharingSetting;
@@ -50,11 +54,12 @@ public class DataSharingUsageStatisticsReportingServiceTest {
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        service = new DataSharingUsageStatisticsReportingService(usageStatisticsReportingSqlMapDao, dataSharingSettingsService, systemEnvironment, clock);
+        service = new DataSharingUsageStatisticsReportingService(usageStatisticsReportingSqlMapDao, dataSharingSettingsService, systemEnvironment, clock, goCache);
         goUsageDataRemoteServerURL = "https://datasharing.gocd.org";
         goUsageDataGetEncryptionKeysURL = "https://datasharing.gocd.org/encryption_keys";
         when(systemEnvironment.getGoDataSharingServerUrl()).thenReturn(goUsageDataRemoteServerURL);
         when(systemEnvironment.getGoDataSharingGetEncryptionKeysUrl()).thenReturn(goUsageDataGetEncryptionKeysURL);
+        when(goCache.getOrDefault(USAGE_DATA_IGNORE_LAST_UPDATED_AT, false)).thenReturn(false);
 
         dataSharingSetting = new DataSharingSettings();
         when(dataSharingSettingsService.get()).thenReturn(dataSharingSetting);

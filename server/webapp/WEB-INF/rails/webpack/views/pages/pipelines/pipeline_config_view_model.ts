@@ -15,11 +15,8 @@
  */
 
 // utils
-import {ApiRequestBuilder, ApiVersion} from "helpers/api_request_builder";
-import SparkRoutes from "helpers/spark_routes";
 import * as m from "mithril";
 import * as stream from "mithril/stream";
-import * as s from "underscore.string";
 
 // models and such
 import {ConfigRepo} from "models/config_repos/types";
@@ -46,34 +43,6 @@ export class PipelineConfigVM {
       }
       return fn();
     }
-  }
-
-  preview(pluginId: string, validate?: boolean) {
-    const payload = this.pipeline.toApiPayload().pipeline;
-    const group = payload.group;
-    delete payload.group;
-
-    if (!validate) {
-      if (s.isBlank(payload.name)) {
-        payload.name = "** UNNAMED PIPELINE **";
-      }
-
-      for (let i = payload.stages.length - 1; i >= 0; i--) {
-        const stage = payload.stages[i];
-        if (stage && s.isBlank(stage.name)) {
-          stage.name = `** UNNAMED STAGE ${i + 1} **`;
-        }
-
-        for (let k = stage.jobs.length; k >= 0; k--) {
-          const job = stage.jobs[k];
-          if (job && s.isBlank(job.name)) {
-            job.name = `** UNNAMED JOB ${k + 1} **`;
-          }
-        }
-      }
-    }
-
-    return ApiRequestBuilder.POST(SparkRoutes.pacPreview(pluginId, group, validate), ApiVersion.v1, { payload });
   }
 }
 

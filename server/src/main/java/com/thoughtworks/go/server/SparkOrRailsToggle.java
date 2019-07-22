@@ -21,9 +21,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class SparkOrRailsToggle {
-    public void pluggableScmsUsingRails(HttpServletRequest request, HttpServletResponse response) {
-        basedOnToggle(Toggles.USE_OLD_PLUGGABLE_SCMS_API, request);
-    }
 
     private void basedOnToggle(String toggle, HttpServletRequest request) {
         if (Toggles.isToggleOn(toggle)) {

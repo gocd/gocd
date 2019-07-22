@@ -132,15 +132,13 @@
   <rule>
     <name>Spark Pluggable SCMs Index API</name>
     <from>^/api/admin/scms(/?)$</from>
-    <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="pluggableScmsUsingRails"/>
-    <to last="true">/%{attribute:sparkOrRails}/api/admin/scms</to>
+    <to last="true">/spark/api/admin/scms</to>
   </rule>
 
   <rule>
     <name>Spark Pluggable SCM CRUD API</name>
     <from>^/api/admin/scms/(.*)$</from>
-    <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="pluggableScmsUsingRails"/>
-    <to last="true">/%{attribute:sparkOrRails}/api/admin/scms/${escape:$1}</to>
+    <to last="true">/spark/api/admin/scms/${escape:$1}</to>
   </rule>
 
   <rule>

@@ -13,30 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Routes from "gen/ts-routes";
+
 import {ApiRequestBuilder, ApiResult, ApiVersion, ObjectWithEtag} from "helpers/api_request_builder";
+import SparkRoutes from "helpers/spark_routes";
 import {PluginSettings} from "models/shared/plugin_infos_new/plugin_settings/plugin_settings";
 
 export class PluginSettingsCRUD {
   private static API_VERSION_HEADER = ApiVersion.v1;
 
   static all() {
-    return ApiRequestBuilder.GET(Routes.apiv1AdminPluginSettingsPath(), this.API_VERSION_HEADER)
+    return ApiRequestBuilder.GET(SparkRoutes.apiAdminPluginSettingPath(), this.API_VERSION_HEADER)
       .then((result: ApiResult<string>) => result.map((str) => PluginSettings.fromJSON(JSON.parse(str))));
   }
 
   static get(id: string) {
-    return ApiRequestBuilder.GET(Routes.apiv1AdminPluginSettingPath(id), this.API_VERSION_HEADER)
+    return ApiRequestBuilder.GET(SparkRoutes.apiAdminPluginSettingPath(id), this.API_VERSION_HEADER)
       .then(this.extractObjectWithEtag());
   }
 
   static create(pluginSettings: PluginSettings) {
-    return ApiRequestBuilder.POST(Routes.apiv1AdminPluginSettingsPath(), this.API_VERSION_HEADER, {payload: pluginSettings.toJSON()})
+    return ApiRequestBuilder.POST(SparkRoutes.apiAdminPluginSettingPath(), this.API_VERSION_HEADER, {payload: pluginSettings.toJSON()})
       .then(this.extractObjectWithEtag());
   }
 
   static update(pluginSettings: PluginSettings, etag: string) {
-    return ApiRequestBuilder.PUT(Routes.apiv1AdminPluginSettingPath(pluginSettings.plugin_id), this.API_VERSION_HEADER,
+    return ApiRequestBuilder.PUT(SparkRoutes.apiAdminPluginSettingPath(pluginSettings.plugin_id), this.API_VERSION_HEADER,
       {payload: pluginSettings.toJSON(), etag})
       .then(this.extractObjectWithEtag());
   }

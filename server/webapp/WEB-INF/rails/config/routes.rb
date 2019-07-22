@@ -237,7 +237,6 @@ Rails.application.routes.draw do
           resources :environments, only: [:index]
           resources :command_snippets, only: [:index]
         end
-        resources :scms, param: :material_name, controller: :pluggable_scms, only: [:index, :show, :create, :update], constraints: {material_name: ALLOW_DOTS}
       end
 
       get 'version_infos/stale', controller: :version_infos, action: :stale, as: :stale_version_info

@@ -44,13 +44,11 @@ public class ResourceConfigs extends BaseCollection<ResourceConfig> implements C
 
     public ResourceConfigs(String resources) {
         if (StringUtils.isNotEmpty(resources)) {
-            String[] resourceArray = resources.split(",");
-            for (String resource : resourceArray) {
+            String[] resourceArr = resources.split(",");
+            for (String resource : resourceArr) {
                 try {
                     add(new ResourceConfig(resource));
-                } catch (Exception e) {
-                    continue;
-                }
+                } catch (Exception e) {}
             }
         }
     }

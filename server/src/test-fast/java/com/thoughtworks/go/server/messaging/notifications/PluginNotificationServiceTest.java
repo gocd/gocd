@@ -107,10 +107,12 @@ public class PluginNotificationServiceTest {
         when(notificationPluginRegistry.getPluginsInterestedIn(NotificationExtension.AGENT_STATUS_CHANGE_NOTIFICATION)).thenReturn(new LinkedHashSet<>(asList(PLUGIN_ID_1)));
         when(systemEnvironment.get(NOTIFICATION_PLUGIN_MESSAGES_TTL)).thenReturn(1000L);
         ElasticAgentRuntimeInfo agentRuntimeInfo = new ElasticAgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, "/foo/one", null, "42", "go.cd.elastic-agent-plugin.docker");
-        Agent agent = new Agent();
+
+        Agent agent = new Agent("some-uuid");
         agent.setElasticAgentId("42");
         agent.setElasticPluginId("go.cd.elastic-agent-plugin.docker");
         agent.setIpaddress("127.0.0.1");
+
         AgentInstance agentInstance = AgentInstance.createFromAgent(agent, new SystemEnvironment(), mock(AgentStatusChangeListener.class));
         agentInstance.update(agentRuntimeInfo);
 

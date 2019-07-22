@@ -119,10 +119,14 @@ public class AgentsControllerV5 extends ApiController implements SparkSpringCont
         final HttpOperationResult result = new HttpOperationResult();
 
         final AgentInstance updatedAgentInstance
-                = agentService.updateAgentAttributes(currentUsername(), result, uuid, agentUpdateRequest.getHostname(),
-                                                     agentUpdateRequest.getResources(), agentUpdateRequest.getEnvironments(),
-                                                     agentUpdateRequest.getAgentConfigState()
-        );
+                = agentService.updateAgentAttributes(currentUsername(),
+                                                     result,
+                                                     uuid,
+                                                     agentUpdateRequest.getHostname(),
+                                                     agentUpdateRequest.getResources(),
+                                                     agentUpdateRequest.getEnvironments(),
+                                                     agentUpdateRequest.getAgentConfigState());
+
         return handleCreateOrUpdateResponse(request, response, updatedAgentInstance, result);
     }
 
@@ -132,9 +136,14 @@ public class AgentsControllerV5 extends ApiController implements SparkSpringCont
         final HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
         EnvironmentsConfig envsConfig = createEnvironmentsConfigFrom(req.getOperations().getEnvironments().toAdd());
-        agentService.bulkUpdateAgentAttributes(currentUsername(), result, req.getUuids(), req.getOperations().getResources().toAdd(),
-                                               req.getOperations().getResources().toRemove(), envsConfig,
-                                               req.getOperations().getEnvironments().toRemove(), req.getAgentConfigState());
+        agentService.bulkUpdateAgentAttributes(currentUsername(),
+                                               result,
+                                               req.getUuids(),
+                                               req.getOperations().getResources().toAdd(),
+                                               req.getOperations().getResources().toRemove(),
+                                               envsConfig,
+                                               req.getOperations().getEnvironments().toRemove(),
+                                               req.getAgentConfigState());
 
         return renderHTTPOperationResult(result, request, response);
     }

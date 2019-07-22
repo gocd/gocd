@@ -28,8 +28,11 @@ import java.util.*;
 import static com.thoughtworks.go.util.CommaSeparatedString.append;
 import static com.thoughtworks.go.util.CommaSeparatedString.remove;
 import static java.lang.String.format;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.join;
 
 /**
  * @understands the current persistent information related to an Agent
@@ -51,24 +54,22 @@ public class Agent extends PersistentObject implements Validatable {
     public static final String IP_ADDRESS = "ipAddress";
     public static final String UUID = "uuid";
 
-    public Agent() {
-    }
+    public Agent(Agent anotherAgent){
+        setUuid(anotherAgent.getUuid());
+        setHostname(anotherAgent.getHostname());
+        setIpaddress(anotherAgent.getIpaddress());
 
-    public static Agent newInstanceFrom(Agent original) {
-        Agent copy = new Agent(original.getUuid(), original.getHostname(), original.getIpaddress(), original.getCookie());
+        setDisabled(anotherAgent.isDisabled());
+        setElasticAgentId(anotherAgent.getElasticAgentId());
+        setElasticPluginId(anotherAgent.getElasticPluginId());
+        setEnvironments(anotherAgent.getEnvironments());
+        setResources(anotherAgent.getResourceConfigs());
+        setId(anotherAgent.getId());
+        setDeleted(anotherAgent.isDeleted());
 
-        copy.setDisabled(original.isDisabled());
-        copy.setElasticAgentId(original.getElasticAgentId());
-        copy.setElasticPluginId(original.getElasticPluginId());
-        copy.setEnvironments(original.getEnvironments());
-        copy.setResources(original.getResourceConfigs());
-        copy.setId(original.getId());
-
-        if (original.getCookie() != null) {
-            copy.setCookie(original.getCookie());
+        if (anotherAgent.getCookie() != null) {
+            setCookie(anotherAgent.getCookie());
         }
-
-        return copy;
     }
 
     public Agent(String uuid) {
@@ -83,7 +84,7 @@ public class Agent extends PersistentObject implements Validatable {
         this.hostname = hostname;
         this.ipaddress = ipaddress;
         this.uuid = uuid;
-        this.resources = StringUtils.join(resourceConfigs.resourceNames(), ",");
+        this.resources = join(resourceConfigs.resourceNames(), ",");
     }
 
     public Agent(String uuid, String hostname, String ipaddress, String cookie) {
@@ -118,7 +119,7 @@ public class Agent extends PersistentObject implements Validatable {
     @Override
     public void validate(ValidationContext validationContext) {
         validateIpAddress();
-        if (StringUtils.isBlank(uuid)) {
+        if (isBlank(uuid)) {
             addError(UUID, "UUID cannot be empty");
         }
         validateResources();
@@ -141,7 +142,7 @@ public class Agent extends PersistentObject implements Validatable {
         if (address == null) {
             return;
         }
-        if (StringUtils.isBlank(address)) {
+        if (isBlank(address)) {
             addError(IP_ADDRESS, "IpAddress cannot be empty if it is present.");
             return;
         }
@@ -334,7 +335,7 @@ public class Agent extends PersistentObject implements Validatable {
     }
 
     public void setResources(ResourceConfigs resourceConfigs) {
-        this.resources = StringUtils.join(resourceConfigs.resourceNames(), ",");
+        this.resources = join(resourceConfigs.resourceNames(), ",");
     }
 
     public String getCookie() {
@@ -351,5 +352,9 @@ public class Agent extends PersistentObject implements Validatable {
 
     public String getHostnameForDisplay() {
         return this.hostname;
+    }
+
+    public boolean isDeleted() {
+        return deleted;
     }
 }

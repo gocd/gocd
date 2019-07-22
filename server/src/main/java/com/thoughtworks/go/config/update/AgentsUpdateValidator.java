@@ -28,7 +28,6 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.util.TriState;
 
-import java.util.Collections;
 import java.util.List;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;

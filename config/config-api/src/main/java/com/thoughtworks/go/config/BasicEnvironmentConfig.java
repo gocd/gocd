@@ -33,13 +33,14 @@ import static com.thoughtworks.go.util.command.EnvironmentVariableContext.GO_ENV
 public class BasicEnvironmentConfig implements EnvironmentConfig {
     @ConfigAttribute(value = NAME_FIELD, optional = false)
     private CaseInsensitiveString name;
+
     @ConfigSubtag
     private EnvironmentVariablesConfig variables = new EnvironmentVariablesConfig();
-//    @ConfigSubtag
+
     private EnvironmentAgentsConfig agents = new EnvironmentAgentsConfig();
+
     @ConfigSubtag
     private EnvironmentPipelinesConfig pipelines = new EnvironmentPipelinesConfig();
-
 
     private final ConfigErrors configErrors = new ConfigErrors();
     private ConfigOrigin origin;

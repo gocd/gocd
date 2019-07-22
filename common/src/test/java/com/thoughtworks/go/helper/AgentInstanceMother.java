@@ -15,10 +15,13 @@
  */
 package com.thoughtworks.go.helper;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.Agent;
+import com.thoughtworks.go.config.ResourceConfig;
+import com.thoughtworks.go.config.ResourceConfigs;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.domain.AgentStatus;
+import com.thoughtworks.go.domain.NullAgentInstance;
 import com.thoughtworks.go.listener.AgentStatusChangeListener;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.service.AgentBuildingInfo;
@@ -28,6 +31,7 @@ import com.thoughtworks.go.util.SystemEnvironment;
 
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
@@ -45,6 +49,10 @@ public class AgentInstanceMother {
 
     public static AgentInstance idle() {
         return idle(new Date(), "CCeDev01");
+    }
+
+    public static AgentInstance nullInstance() {
+        return new NullAgentInstance("null-agent-instance" + UUID.randomUUID());
     }
 
     public static AgentInstance idleWith(String uuid) {

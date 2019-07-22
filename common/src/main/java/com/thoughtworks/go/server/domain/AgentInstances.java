@@ -96,7 +96,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
         return agentInstanceMap.values();
     }
 
-    public AgentInstances sort() {
+    public AgentInstances allAgents() {
         AgentInstances agents = new AgentInstances(agentStatusChangeListener);
         Collection<AgentInstance> agentInstances = currentInstances();
         agentInstances.forEach(agents::add);
@@ -165,21 +165,24 @@ public class AgentInstances implements Iterable<AgentInstance> {
         return new TreeSet<>(agentInstanceMap.values());
     }
 
-    public void sync(Agents agentsFromConfig) {
-        for (Agent agent : agentsFromConfig) {
-            String uuid = agent.getUuid();
+    public void sync(Agents agentsFromDB) {
+        for (Agent agentFromDB : agentsFromDB) {
+            String uuid = agentFromDB.getUuid();
+
             if (agentInstanceMap.containsKey(uuid)) {
-                agentInstanceMap.get(uuid).syncConfig(agent);
+                agentInstanceMap.get(uuid).syncConfig(agentFromDB);
             } else {
-                agentInstanceMap.put(uuid, AgentInstance.createFromAgent(agent, new SystemEnvironment(), agentStatusChangeListener));
+                agentInstanceMap.put(uuid, AgentInstance.createFromAgent(agentFromDB, new SystemEnvironment(), agentStatusChangeListener));
             }
         }
 
         synchronized (agentInstanceMap) {
             List<String> uuids = new ArrayList<>();
+
             for (String uuid : agentInstanceMap.keySet()) {
                 AgentInstance instance = agentInstanceMap.get(uuid);
-                if (!agentsFromConfig.hasAgent(uuid) && !(instance.getStatus() == AgentStatus.Pending)) {
+
+                if (!agentsFromDB.hasAgent(uuid) && !(instance.getStatus() == AgentStatus.Pending)) {
                     uuids.add(uuid);
                 }
             }

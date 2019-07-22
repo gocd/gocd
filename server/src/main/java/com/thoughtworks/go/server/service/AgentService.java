@@ -122,7 +122,8 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
 
     public Map<AgentInstance, Collection<String>> agentsToEnvNameMap() {
         Map<AgentInstance, Collection<String>> allAgents = new LinkedHashMap<>();
-        for (AgentInstance agentInstance : agentInstances.sort()) {
+
+        for (AgentInstance agentInstance : agentInstances.allAgents()) {
             TreeSet<String> sortedEnvSet = new TreeSet<>(new AlphaAsciiComparator());
             sortedEnvSet.addAll(agentInstance.getAgent().getEnvironmentsAsList());
             allAgents.put(agentInstance, sortedEnvSet);
@@ -168,23 +169,23 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
 
     public AgentInstance updateAgentAttributes(Username username, HttpOperationResult result, String uuid,
                                                String newHostname, String resources, String environments,
-                                               TriState enable) {
+                                               TriState state) {
         if (doesNotHaveOperatePermission(username, result)) {
             return null;
         }
 
-        AgentInstance agentInstance = findAgent(uuid);
+        AgentInstance agentInstance = agentInstances.findAgent(uuid);
         if (isUnknownAgent(agentInstance, result)) {
             return null;
         }
 
-        Agent agent = Agent.newInstanceFrom(agentInstance.getAgent());
+        Agent agent = new Agent(agentInstance.getAgent());
 
-        if (enable.isTrue()) {
+        if (state.isTrue()) {
             agent.enable();
         }
 
-        if (enable.isFalse()) {
+        if (state.isFalse()) {
             agent.disable();
         }
 
@@ -685,8 +686,8 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         }
     }
 
-    private void notifyAgentChangeListener(Agent oldAgent, Agent newAgent) {
-        AgentChangedEvent event = new AgentChangedEvent(oldAgent, newAgent);
+    private void notifyAgentChangeListener(Agent agentBeforeUpdate, Agent agentAfterUpdate) {
+        AgentChangedEvent event = new AgentChangedEvent(agentBeforeUpdate, agentAfterUpdate);
         listeners.forEach(listener -> listener.agentChanged(event));
     }
 
@@ -708,14 +709,6 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     private EnvironmentsConfig getEnvironmentsConfigFrom(EnvironmentConfig envConfig) {
         EnvironmentsConfig envsConfig = new EnvironmentsConfig();
         envsConfig.add(envConfig);
-        return envsConfig;
-    }
-
-    private EnvironmentsConfig createEnvironmentsConfigFrom(List<String> envList) {
-        EnvironmentsConfig envsConfig = new EnvironmentsConfig();
-        if (envList != null) {
-            envList.forEach(env -> envsConfig.add(new BasicEnvironmentConfig(new CaseInsensitiveString(env))));
-        }
         return envsConfig;
     }
 }

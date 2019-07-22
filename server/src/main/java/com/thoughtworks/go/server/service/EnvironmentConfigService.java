@@ -286,25 +286,31 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
 
     @Override
     public void agentChanged(AgentChangedEvent event) {
-        Agent oldAgent = event.getOldAgent();
-        Agent newAgent = event.getNewAgent();
+        Agent agentBeforeUpdate = event.getAgentBeforeUpdate();
+        Agent agentAfterUpdate = event.getAgentAfterUpdate();
 
-        List<String> oldEnvs = oldAgent.getEnvironmentsAsList();
-        List<String> newEnvs = newAgent.getEnvironmentsAsList();
+        List<String> beforeUpdateEnvList = agentBeforeUpdate.getEnvironmentsAsList();
+        List<String> afterUpdateEnvList = agentAfterUpdate.getEnvironmentsAsList();
 
-        List<String> removedEnvs = oldEnvs.stream().filter(env -> !newEnvs.contains(env)).collect(Collectors.toList());
-        List<String> addedEnvs = newEnvs.stream().filter(env -> !oldEnvs.contains(env)).collect(Collectors.toList());
+        List<String> removedEnvList = beforeUpdateEnvList.stream()
+                                                         .filter(env -> !afterUpdateEnvList.contains(env))
+                                                         .collect(Collectors.toList());
 
-        removeAgentFromEnvs(oldAgent, removedEnvs);
-        addAgentToEnvs(newAgent.getUuid(), addedEnvs);
+        List<String> addedEnvList = afterUpdateEnvList.stream()
+                                                      .filter(env -> !beforeUpdateEnvList.contains(env))
+                                                      .collect(Collectors.toList());
+
+        removeAgentFromEnvironments(agentBeforeUpdate, removedEnvList);
+
+        addAgentToEnvironments(agentAfterUpdate.getUuid(), addedEnvList);
 
         matchers = this.environments.matchers();
     }
 
     @Override
     public void agentDeleted(Agent agent) {
-        List<String> envs = agent.getEnvironmentsAsList();
-        removeAgentFromEnvs(agent, envs);
+        List<String> envList = agent.getEnvironmentsAsList();
+        removeAgentFromEnvironments(agent, envList);
         matchers = this.environments.matchers();
     }
 
@@ -334,8 +340,8 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
         matchers = this.environments.matchers();
     }
 
-    private void removeAgentFromEnvs(Agent agent, List<String> envs) {
-        envs.forEach(env -> {
+    private void removeAgentFromEnvironments(Agent agent, List<String> envList) {
+        envList.forEach(env -> {
             String uuid = agent.getUuid();
             EnvironmentConfig envConfig = this.environments.find(new CaseInsensitiveString(env));
             if(envConfig != null && envConfig.hasAgent(uuid)
@@ -345,17 +351,18 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
         });
     }
 
-    private void removeAgentFromNonExcludedEnvs(String uuid, List<String> envsToExclude) {
-        this.environments.stream().filter(env -> !(envsToExclude.contains(env.name().toString())))
-                .forEach(env -> {
-                    if(env.hasAgent(uuid)){
-                        env.removeAgent(uuid);
-                    }
-                });
+    private void removeAgentFromNonExcludedEnvironments(String uuid, List<String> envToExcludeList) {
+        this.environments.stream()
+                         .filter(env -> !(envToExcludeList.contains(env.name().toString())))
+                         .forEach(env -> {
+                                if(env.hasAgent(uuid)){
+                                    env.removeAgent(uuid);
+                                }
+                         });
     }
 
-    private void addAgentToEnvs(String agentUuid, List<String> envs) {
-        envs.forEach(env -> {
+    private void addAgentToEnvironments(String agentUuid, List<String> envList) {
+        envList.forEach(env -> {
             EnvironmentConfig envConfig = this.environments.find(new CaseInsensitiveString(env));
             if (envConfig != null && !envConfig.hasAgent(agentUuid)) {
                 envConfig.addAgent(agentUuid);
@@ -367,8 +374,8 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
         agentService.agents()
                 .forEach(agent -> {
                     List<String> associatedEnvNames = agent.getEnvironmentsAsList();
-                    addAgentToEnvs(agent.getUuid(), associatedEnvNames);
-                    removeAgentFromNonExcludedEnvs(agent.getUuid(), associatedEnvNames);
+                    addAgentToEnvironments(agent.getUuid(), associatedEnvNames);
+                    removeAgentFromNonExcludedEnvironments(agent.getUuid(), associatedEnvNames);
                 });
         matchers = this.environments.matchers();
     }

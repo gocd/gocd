@@ -22,13 +22,21 @@ import com.thoughtworks.go.config.ResourceConfigs;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
-
+import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.*;
 
 public class AgentTest {
+    @Test
+    void shouldCopyAllFieldsFromAnotherAgentObjectUsingCopyConstructor() {
+        Agent origAgent = new Agent("uuid", "host", "127.0.0.1", "cookie");
+        origAgent.addResources(asList("Resource1", "Resource2"));
+        origAgent.addEnvironments(asList("dev", "test"));
+
+        Agent copiedAgent = new Agent(origAgent);
+        assertEquals(origAgent, copiedAgent);
+    }
 
     @Nested
     class IPAddress{
@@ -79,7 +87,7 @@ public class AgentTest {
         }
 
         private void shouldBeValid(String ipAddress) {
-            Agent agent = new Agent();
+            Agent agent = new Agent("some-dummy-uuid");
             agent.setIpaddress(ipAddress);
             agent.validate(ConfigSaveValidationContext.forChain(agent));
             assertThat(agent.errors().on(Agent.IP_ADDRESS), is(nullValue()));
@@ -93,20 +101,20 @@ public class AgentTest {
             Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
             agent.setResources(new ResourceConfigs("resource1"));
 
-            agent.addResources(Arrays.asList("resource2", "resource3"));
+            agent.addResources(asList("resource2", "resource3"));
 
             assertThat(agent.getResources().size(), is(3));
-            assertThat(agent.getResources().resourceNames(), is(Arrays.asList("resource1", "resource2", "resource3")));
+            assertThat(agent.getResources().resourceNames(), is(asList("resource1", "resource2", "resource3")));
         }
 
         @Test
         void shouldAddResourcesToIfThereAreNoExistingResources() {
             Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
 
-            agent.addResources(Arrays.asList("resource2", "resource3"));
+            agent.addResources(asList("resource2", "resource3"));
 
             assertThat(agent.getResources().size(), is(2));
-            assertThat(agent.getResources().resourceNames(), is(Arrays.asList("resource2", "resource3")));
+            assertThat(agent.getResources().resourceNames(), is(asList("resource2", "resource3")));
         }
 
         @Test
@@ -114,17 +122,17 @@ public class AgentTest {
             Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
             agent.setResources(new ResourceConfigs("resource1,resource2,resource3"));
 
-            agent.removeResources(Arrays.asList("resource2"));
+            agent.removeResources(asList("resource2"));
 
             assertThat(agent.getResources().size(), is(2));
-            assertThat(agent.getResources().resourceNames(), is(Arrays.asList("resource1", "resource3")));
+            assertThat(agent.getResources().resourceNames(), is(asList("resource1", "resource3")));
         }
 
         @Test
         void shouldNotRemoveResourcesIfDoNotExist() {
             Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
 
-            agent.removeResources(Arrays.asList("resource2"));
+            agent.removeResources(asList("resource2"));
 
             assertTrue(agent.getResources().resourceNames().isEmpty());
         }
@@ -165,7 +173,7 @@ public class AgentTest {
             Agent agent = new Agent("");
             agent.validate(ConfigSaveValidationContext.forChain(agent));
             assertThat(agent.errors().on(Agent.UUID), is("UUID cannot be empty"));
-            agent = new Agent(null);
+            agent = new Agent("");
             agent.validate(ConfigSaveValidationContext.forChain(agent));
             assertThat(agent.errors().on(Agent.UUID), is("UUID cannot be empty"));
         }
@@ -178,7 +186,7 @@ public class AgentTest {
             Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
             agent.setEnvironments("env1,env2");
 
-            agent.addEnvironments(Arrays.asList("env2", "env3"));
+            agent.addEnvironments(asList("env2", "env3"));
 
             assertThat(agent.getEnvironments(), is("env1,env2,env3"));
         }
@@ -187,7 +195,7 @@ public class AgentTest {
         void shouldAddEnvironmentsIfNoExistingEnvironments() {
             Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
 
-            agent.addEnvironments(Arrays.asList("env2", "env3"));
+            agent.addEnvironments(asList("env2", "env3"));
 
             assertThat(agent.getEnvironments(), is("env2,env3"));
         }
@@ -197,7 +205,7 @@ public class AgentTest {
             Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
             agent.setEnvironments("env1,env2");
 
-            agent.removeEnvironments(Arrays.asList("env1", "env3"));
+            agent.removeEnvironments(asList("env1", "env3"));
 
             assertThat(agent.getEnvironments(), is("env2"));
         }
@@ -206,7 +214,7 @@ public class AgentTest {
         void shouldNotRemoveEnvironmentsIfEnvironmentsDoNotExist() {
             Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
 
-            agent.removeEnvironments(Arrays.asList("env1", "env3"));
+            agent.removeEnvironments(asList("env1", "env3"));
 
             assertNull(agent.getEnvironments());
         }

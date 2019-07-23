@@ -184,14 +184,14 @@ public class AgentDao extends HibernateDaoSupport {
     }
 
     private void updateAgentObject(Agent agent) {
-        Long id = (Long) getHibernateTemplate().execute(session -> {
+        Long idFromDB = (Long) getHibernateTemplate().execute(session -> {
             Query query = session.createQuery("select id from Agent where uuid = :uuid");
             query.setString("uuid", agent.getUuid());
             return query.uniqueResult();
         });
 
-        if (id != null && agent.getId() == -1) {
-            agent.setId(id);
+        if (idFromDB != null && agent.getId() == -1) {
+            agent.setId(idFromDB);
         }
     }
 
@@ -215,14 +215,14 @@ public class AgentDao extends HibernateDaoSupport {
     public void bulkUpdateAttributes(List<Agent> agents, Map<String, AgentConfigStatus> agentToStatusMap, TriState enable) {
         if (enable.isTrue() || enable.isFalse()) {
             agents.stream()
-                    .filter(agent -> agentToStatusMap.get(agent.getUuid()) == AgentConfigStatus.Pending)
-                    .forEach(agent -> {
+                  .filter(agent -> agentToStatusMap.get(agent.getUuid()) == AgentConfigStatus.Pending)
+                  .forEach(agent -> {
                         updateAgentObject(agent);
                         if (agent.getCookie() == null) {
                             String cookie = uuidGenerator.randomUuid();
                             agent.setCookie(cookie);
                         }
-                    });
+                  });
         }
 
         synchronized (agents) {
@@ -230,7 +230,9 @@ public class AgentDao extends HibernateDaoSupport {
                 @Override
                 protected void doInTransactionWithoutResult(TransactionStatus status) {
                     agents.forEach(agent -> sessionFactory.getCurrentSession().saveOrUpdate(Agent.class.getName(), agent));
-                    List<String> uuids = agents.stream().map(Agent::getUuid).collect(Collectors.toList());
+                    List<String> uuids = agents.stream()
+                                               .map(Agent::getUuid)
+                                               .collect(Collectors.toList());
                     registerCommitCallbackToClearCacheAndNotifyBulkChangeListeners(synchronizationManager, uuids);
                 }
             });

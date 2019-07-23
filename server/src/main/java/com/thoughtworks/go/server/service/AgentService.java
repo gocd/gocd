@@ -220,8 +220,6 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     public void bulkUpdateAgentAttributes(Username username, LocalizedOperationResult result, List<String> uuids,
                                           List<String> resourcesToAdd, List<String> resourcesToRemove,
                                           EnvironmentsConfig envsToAdd, List<String> envsToRemove, TriState state) {
-
-
         AgentsUpdateValidator validator
                 = new AgentsUpdateValidator(agentInstances, username, result, uuids, state, envsToAdd,
                                             envsToRemove, resourcesToAdd, resourcesToRemove, goConfigService);
@@ -234,11 +232,8 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
                     agents.addAll(agentInstances.findPendingAgents(uuids));
                 }
 
-                agents.forEach(agent -> {
-                    addRemoveEnvsAndResources(agent, envsToAdd, envsToRemove, resourcesToAdd, resourcesToRemove);
-                    enableDisableAgent(state, agent);
-                });
-
+                agents.forEach(agent -> setResourcesEnvironmentsAndState(agent, resourcesToAdd, resourcesToRemove,
+                                                                         envsToAdd, envsToRemove, state));
                 agentDao.bulkUpdateAttributes(agents, createAgentToStatusMap(agents), state);
                 result.setMessage("Updated agent(s) with uuid(s): [" + join(uuids, ", ") + "].");
             }
@@ -248,6 +243,12 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
                 result.internalServerError("Server error occured. Check log for details.");
             }
         }
+    }
+
+    private void setResourcesEnvironmentsAndState(Agent agent, List<String> resourcesToAdd, List<String> resourcesToRemove,
+                                                  EnvironmentsConfig envsToAdd, List<String> envsToRemove, TriState state) {
+        addRemoveEnvsAndResources(agent, envsToAdd, envsToRemove, resourcesToAdd, resourcesToRemove);
+        enableDisableAgent(state, agent);
     }
 
     public void updateAgentsAssociationWithSpecifiedEnv(Username username, EnvironmentConfig envConfig,
@@ -360,7 +361,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
             String uuid = agent.getUuid();
             envsToAdd.forEach(env -> {
                 if (env.containsAgentRemotely(uuid)) {
-                    LOGGER.debug("Not adding Agent %s to Environment %s. It is associated from a Config Repo", uuid, env);
+                    LOGGER.info(format("Not adding Agent [%s] to Environment [%s] as it is already associated from a Config Repo", uuid, env.name().toString()));
                 } else {
                     String envName = env.name().toString();
                     agent.addEnvironment(envName);

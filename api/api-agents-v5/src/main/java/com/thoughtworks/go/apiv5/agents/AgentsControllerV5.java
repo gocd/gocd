@@ -54,6 +54,7 @@ import spark.Response;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import static java.util.Collections.singletonList;
 import static spark.Spark.*;
@@ -149,11 +150,12 @@ public class AgentsControllerV5 extends ApiController implements SparkSpringCont
     }
 
     private EnvironmentsConfig createEnvironmentsConfigFrom(List<String> envList) {
-        EnvironmentsConfig envsConfig = new EnvironmentsConfig();
         if(envList != null){
-            envList.forEach(env -> envsConfig.add(new BasicEnvironmentConfig(new CaseInsensitiveString(env))));
+            return envList.stream()
+                          .map(environmentConfigService::named)
+                          .collect(Collectors.toCollection(EnvironmentsConfig::new));
         }
-        return envsConfig;
+        return new EnvironmentsConfig();
     }
 
     public String deleteAgent(Request request, Response response) throws IOException {

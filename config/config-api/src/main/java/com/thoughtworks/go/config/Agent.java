@@ -54,6 +54,8 @@ public class Agent extends PersistentObject implements Validatable {
     public static final String IP_ADDRESS = "ipAddress";
     public static final String UUID = "uuid";
 
+    public Agent(){}
+
     public Agent(Agent anotherAgent){
         setUuid(anotherAgent.getUuid());
         setHostname(anotherAgent.getHostname());

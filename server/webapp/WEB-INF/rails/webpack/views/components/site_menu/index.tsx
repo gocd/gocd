@@ -121,7 +121,6 @@ export interface Attrs {
   isUserAdmin: boolean;
   canViewAdminPage: boolean;
   showAnalytics: boolean;
-  showSecretConfigSpa: boolean;
 }
 
 export default class SiteMenu extends MithrilViewComponent<Attrs> {
@@ -132,11 +131,6 @@ export default class SiteMenu extends MithrilViewComponent<Attrs> {
 
     let adminMenu = null;
     const linkToAccessTokenManagementSPA = <SiteSubNavItem href="/go/admin/admin_access_tokens" text="Access Tokens Management"/>;
-
-    let linkToSecretConfigSPA;
-    if (vnode.attrs.showSecretConfigSpa) {
-      linkToSecretConfigSPA = <SiteSubNavItem href="/go/admin/secret_configs" text="Secret Management"/>;
-    }
 
     if (vnode.attrs.canViewAdminPage) {
       if (vnode.attrs.isUserAdmin) {
@@ -159,7 +153,7 @@ export default class SiteMenu extends MithrilViewComponent<Attrs> {
                 <SiteSubNavItem href="/go/admin/artifact_stores" text="Artifact Stores"/>
                 <SiteSubNavItem href="/go/admin/data_sharing/settings" text="Data Sharing"/>
                 <SiteSubNavItem href="/go/admin/maintenance_mode" text="Server Maintenance Mode"/>
-                {linkToSecretConfigSPA}
+                <SiteSubNavItem href="/go/admin/secret_configs" text="Secret Management"/>
               </SiteSubNav>
               <SiteSubNav>
                 <SiteSubNavHeading text="Security"/>

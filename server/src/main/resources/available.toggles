@@ -30,11 +30,6 @@
       "key": "allow_empty_pipeline_groups_dashboard",
       "description": "Coupled with queryParam allowEmpty=true will show empty pipeline groups on the dashboard.",
       "value": false
-    },
-    {
-      "key": "show_secret_config_spa",
-      "description": "Show Secret Config SPA in menu for admin. Default: true",
-      "value": true
     }
   ]
 }

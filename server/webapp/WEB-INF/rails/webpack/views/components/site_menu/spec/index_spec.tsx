@@ -29,8 +29,7 @@ describe("Site Menu", () => {
             isGroupAdmin: true,
             isUserAdmin: true,
             canViewAdminPage: true,
-            showAnalytics: true,
-            showSecretConfigSpa: true
+            showAnalytics: true
           } as Attrs);
     const dashboard = helper.find("a").get(0);
     const agents    = helper.find("a").get(1);

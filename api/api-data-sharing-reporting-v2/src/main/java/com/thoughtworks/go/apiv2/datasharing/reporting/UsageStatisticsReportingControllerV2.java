@@ -21,6 +21,7 @@ import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.apiv2.datasharing.reporting.representers.UsageStatisticsReportingRepresenter;
 import com.thoughtworks.go.domain.UsageStatisticsReporting;
+import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.service.datasharing.DataSharingUsageStatisticsReportingService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.spark.Routes.DataSharing;
@@ -32,18 +33,21 @@ import spark.Response;
 
 import java.io.IOException;
 
+import static com.thoughtworks.go.server.service.datasharing.DataSharingUsageStatisticsReportingService.USAGE_DATA_IGNORE_LAST_UPDATED_AT;
 import static spark.Spark.*;
 
 @Component
 public class UsageStatisticsReportingControllerV2 extends ApiController implements SparkSpringController {
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final DataSharingUsageStatisticsReportingService usageStatisticsReportingService;
+    private GoCache goCache;
 
     @Autowired
-    public UsageStatisticsReportingControllerV2(ApiAuthenticationHelper apiAuthenticationHelper, DataSharingUsageStatisticsReportingService UsageStatisticsReportingService) {
+    public UsageStatisticsReportingControllerV2(ApiAuthenticationHelper apiAuthenticationHelper, DataSharingUsageStatisticsReportingService UsageStatisticsReportingService, GoCache goCache) {
         super(ApiVersion.v2);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
         this.usageStatisticsReportingService = UsageStatisticsReportingService;
+        this.goCache = goCache;
     }
 
     @Override
@@ -88,6 +92,7 @@ public class UsageStatisticsReportingControllerV2 extends ApiController implemen
         if (!result.isSuccessful()) {
             return renderHTTPOperationResult(result, request, response);
         }
+        goCache.put(USAGE_DATA_IGNORE_LAST_UPDATED_AT, false);
 
         response.status(204);
         return NOTHING;

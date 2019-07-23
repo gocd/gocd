@@ -31,7 +31,6 @@ export interface Attrs {
   isUserAdmin: boolean;
   canViewAdminPage: boolean;
   showAnalyticsDashboard: boolean;
-  showSecretConfigSpa: boolean;
 }
 
 export class SiteHeader extends MithrilViewComponent<Attrs> {
@@ -77,7 +76,6 @@ export class SiteHeader extends MithrilViewComponent<Attrs> {
                       isUserAdmin={isUserAdmin}
                       isGroupAdmin={isGroupAdmin}
                       canViewTemplates={canViewTemplates}
-                      showSecretConfigSpa={vnode.attrs.showSecretConfigSpa}
             />
           </div>
 

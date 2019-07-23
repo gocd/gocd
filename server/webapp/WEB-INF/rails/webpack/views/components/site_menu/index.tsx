@@ -16,7 +16,6 @@
 import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
-import {SiteSubNavItem} from "views/components/site_menu/index";
 import * as styles from "./index.scss";
 
 const classnames = bind(styles);

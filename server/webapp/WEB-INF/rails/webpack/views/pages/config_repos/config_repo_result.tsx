@@ -109,15 +109,15 @@ class Link {
     }
 
     if (node instanceof DefinedGroup) {
-      return <a href={Routes.pipelineGroupShowPath(node.name())}>{node.name()}</a>;
+      return <a data-test-id={_.snakeCase("group " + node.name())} href={Routes.pipelineGroupShowPath(node.name())}>{node.name()}</a>;
     }
 
     if (node instanceof DefinedPipeline) {
-      return <a href={VMRoutes.pipelineHistoryPath(node.name())}>{node.name()}</a>;
+      return <a data-test-id={_.snakeCase("pipeline " + node.name())} href={VMRoutes.pipelineHistoryPath(node.name())}>{node.name()}</a>;
     }
 
     if (node instanceof DefinedEnvironment) {
-      return <a href={Routes.environmentShowPath(node.name())}>{node.name()}</a>;
+      return <a data-test-id={_.snakeCase("environment " + node.name())} href={Routes.environmentShowPath(node.name())}>{node.name()}</a>;
     }
 
     return node.name();

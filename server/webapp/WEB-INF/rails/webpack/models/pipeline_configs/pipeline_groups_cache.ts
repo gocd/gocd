@@ -57,6 +57,14 @@ export class DefaultCache extends PipelineGroupsCache<Option> {
   constructor() {
     super((groupName: string) => ({id: groupName, text: groupName} as Option));
   }
+
+  pipelineGroups() {
+    if (this.ready() && !super.pipelineGroups().length) {
+      return [{ id: "defaultGroup", text: "defaultGroup" }]; // when there are no groups available, return "defaultGroup"
+    }
+
+    return super.pipelineGroups();
+  }
 }
 
 export class PipelineGroupCRUD {

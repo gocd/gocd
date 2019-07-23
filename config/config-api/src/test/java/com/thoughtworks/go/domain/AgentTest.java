@@ -17,8 +17,6 @@ package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.config.ConfigSaveValidationContext;
-import com.thoughtworks.go.config.ResourceConfig;
-import com.thoughtworks.go.config.ResourceConfigs;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -99,7 +97,7 @@ public class AgentTest {
         @Test
         void shouldAddResourcesToExistingResources() {
             Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
-            agent.setResources(new ResourceConfigs("resource1"));
+            agent.setResources("resource1");
 
             agent.addResources(asList("resource2", "resource3"));
 
@@ -120,7 +118,7 @@ public class AgentTest {
         @Test
         void shouldRemoveResourcesFromExistingResources() {
             Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
-            agent.setResources(new ResourceConfigs("resource1,resource2,resource3"));
+            agent.setResources("resource1,resource2,resource3");
 
             agent.removeResources(asList("resource2"));
 
@@ -141,7 +139,7 @@ public class AgentTest {
         public void shouldAllowResourcesOnNonElasticAgents() {
             Agent agent = new Agent("uuid", "hostname", "10.10.10.10");
 
-            agent.addResourceConfig(new ResourceConfig("foo"));
+            agent.setResources("foo");
             agent.validate(null);
             assertThat(agent.errors().isEmpty(), is(true));
         }
@@ -151,7 +149,7 @@ public class AgentTest {
             Agent agent = new Agent("uuid", "hostname", "10.10.10.10");
             agent.setElasticPluginId("com.example.foo");
             agent.setElasticAgentId("foobar");
-            agent.addResourceConfig(new ResourceConfig("foo"));
+            agent.setResources("foo");
             agent.validate(null);
 
             assertEquals(1, agent.errors().size());

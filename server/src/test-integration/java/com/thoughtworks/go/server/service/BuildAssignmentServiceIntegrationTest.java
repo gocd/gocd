@@ -356,7 +356,7 @@ public class BuildAssignmentServiceIntegrationTest {
         configHelper.removePipeline(fixture.pipelineName);
 
         Agent agent = AgentMother.localAgent();
-        agent.addResourceConfig(new ResourceConfig("some-other-resource"));
+        agent.setResources("some-other-resource");
 
         assertThat(buildAssignmentService.assignWorkToAgent(agent(agent)), Matchers.is(BuildAssignmentService.NO_WORK));
         Pipeline pipeline = pipelineDao.mostRecentPipeline(fixture.pipelineName);
@@ -440,7 +440,7 @@ public class BuildAssignmentServiceIntegrationTest {
         buildAssignmentService.onTimer();
 
         Agent agent = AgentMother.localAgent();
-        agent.addResourceConfig(new ResourceConfig("some-other-resource"));
+        agent.setResources("some-other-resource");
 
         try {
             buildAssignmentService.assignWorkToAgent(agent(agent));
@@ -566,7 +566,7 @@ public class BuildAssignmentServiceIntegrationTest {
 
         buildAssignmentService.onTimer();
         Agent agent = AgentMother.localAgent();
-        agent.addResourceConfig(new ResourceConfig("fetcher"));
+        agent.setResources("fetcher");
         BuildWork work = (BuildWork) buildAssignmentService.assignWorkToAgent(agent(agent));
 
         List<Builder> builders = work.getAssignment().getBuilders();
@@ -618,7 +618,7 @@ public class BuildAssignmentServiceIntegrationTest {
         scheduleHelper.schedule(evolveConfig, modifySomeFiles(evolveConfig), DEFAULT_APPROVED_BY);
 
         Agent agent = AgentMother.localAgent();
-        agent.addResourceConfig(new ResourceConfig("some-other-resource"));
+        agent.setResources("some-other-resource");
 
         Work work = buildAssignmentService.assignWorkToAgent(agent(agent));
         assertThat(work, is(BuildAssignmentService.NO_WORK));
@@ -638,7 +638,7 @@ public class BuildAssignmentServiceIntegrationTest {
         scheduleHelper.schedule(evolveConfig, modifySomeFiles(evolveConfig), DEFAULT_APPROVED_BY);
 
         Agent agent = AgentMother.localAgent();
-        agent.addResourceConfig(new ResourceConfig("some-resource"));
+        agent.setResources("some-resource");
 
         buildAssignmentService.onTimer();
         Work work = buildAssignmentService.assignWorkToAgent(agent(agent));
@@ -664,7 +664,7 @@ public class BuildAssignmentServiceIntegrationTest {
         scheduleHelper.schedule(evolveConfig, modifySomeFiles(evolveConfig), DEFAULT_APPROVED_BY);
 
         Agent agent = AgentMother.localAgent();
-        agent.addResourceConfig(new ResourceConfig("some-resource"));
+        agent.setResources("some-resource");
 
         buildAssignmentService.onTimer();
         Work work = buildAssignmentService.assignWorkToAgent(agent(agent));
@@ -690,7 +690,7 @@ public class BuildAssignmentServiceIntegrationTest {
         buildAssignmentService.onTimer();
 
         Agent agent = AgentMother.localAgent();
-        agent.addResourceConfig(new ResourceConfig("some-resource"));
+        agent.setResources("some-resource");
         Work work = buildAssignmentService.assignWorkToAgent(agent(agent));
         assertThat(work, is(not(BuildAssignmentService.NO_WORK)));
 

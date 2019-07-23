@@ -47,8 +47,13 @@ import org.mockito.ArgumentCaptor;
 import java.util.Collections;
 import java.util.List;
 
+import static com.thoughtworks.go.CurrentGoCDVersion.docsUrl;
+import static com.thoughtworks.go.serverhealth.HealthStateScope.forAgent;
+import static com.thoughtworks.go.serverhealth.HealthStateType.duplicateAgent;
+import static com.thoughtworks.go.serverhealth.ServerHealthState.warning;
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
+import static com.thoughtworks.go.utils.Timeout.THIRTY_SECONDS;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -236,9 +241,14 @@ public class AgentServiceTest {
             } catch (Exception e) {
                 assertThat(e.getMessage(), is(format("Agent [%s] has invalid cookie", runtimeInfo.agentInfoDebugString())));
                 assertThat(logFixture.getRawMessages(), hasItem(format("Found agent [%s] with duplicate uuid. Please check the agent installation.", runtimeInfo.agentInfoDebugString())));
-                verify(serverHealthService).update(ServerHealthState.warning(format("[%s] has duplicate unique identifier which conflicts with [%s]", runtimeInfo.agentInfoForDisplay(), original.agentInfoForDisplay()),
-                        "Please check the agent installation. Click <a href='" + CurrentGoCDVersion.docsUrl("/faq/agent_guid_issue.html") + "' target='_blank'>here</a> for more info.",
-                        HealthStateType.duplicateAgent(HealthStateScope.forAgent(runtimeInfo.getCookie())), Timeout.THIRTY_SECONDS));
+
+                String msg = format("[%s] has duplicate unique identifier which conflicts with [%s]",
+                                    runtimeInfo.agentInfoForDisplay(), original.agentInfoForDisplay());
+
+                String desc = "Please check the agent installation. Click <a href='" + docsUrl("/faq/agent_guid_issue.html") + "' target='_blank'>here</a> for more info.";
+                ServerHealthState serverHealthState = warning(msg, desc, duplicateAgent(forAgent(runtimeInfo.getCookie())), THIRTY_SECONDS);
+
+                verify(serverHealthService).update(serverHealthState);
             }
         }
 

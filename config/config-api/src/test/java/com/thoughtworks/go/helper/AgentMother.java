@@ -20,9 +20,11 @@ import com.thoughtworks.go.config.ResourceConfig;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.UUID;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
+import static java.util.Arrays.asList;
 
 public class AgentMother {
 
@@ -67,9 +69,8 @@ public class AgentMother {
 
     public static Agent localAgentWithResources(String... resources) {
         Agent agent = localAgent();
-        for (String resource : resources) {
-            agent.addResourceConfig(new ResourceConfig(resource));
-        }
+        agent.setResourcesFromList(asList(resources));
+
         return agent;
     }
 }

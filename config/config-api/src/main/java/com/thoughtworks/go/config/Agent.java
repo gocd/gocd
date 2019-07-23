@@ -21,18 +21,19 @@ import com.thoughtworks.go.domain.IpAddress;
 import com.thoughtworks.go.domain.PersistentObject;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.util.SystemUtil;
-import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 
 import static com.thoughtworks.go.util.CommaSeparatedString.append;
 import static com.thoughtworks.go.util.CommaSeparatedString.remove;
 import static java.lang.String.format;
-import static java.util.Collections.emptyList;
+import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
-import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
-import static org.apache.commons.lang3.StringUtils.join;
+import static org.apache.commons.lang3.StringUtils.*;
+import static org.springframework.util.CollectionUtils.isEmpty;
 
 /**
  * @understands the current persistent information related to an Agent
@@ -65,7 +66,12 @@ public class Agent extends PersistentObject implements Validatable {
         setElasticAgentId(anotherAgent.getElasticAgentId());
         setElasticPluginId(anotherAgent.getElasticPluginId());
         setEnvironments(anotherAgent.getEnvironments());
-        setResources(anotherAgent.getResourceConfigs());
+
+        ResourceConfigs anotherAgentResourceConfigs = anotherAgent.getResourceConfigs();
+        if(!isEmpty(anotherAgentResourceConfigs)){
+            setResources(anotherAgentResourceConfigs.getCommaSeparatedResourceNames());
+        }
+
         setId(anotherAgent.getId());
         setDeleted(anotherAgent.isDeleted());
 
@@ -104,16 +110,6 @@ public class Agent extends PersistentObject implements Validatable {
         this.setIpaddress(ipaddress);
     }
 
-    public void addResources(List<String> resourcesToAdd) {
-        String commaSeparatedResourceNames = getResourceConfigs().getCommaSeparatedResourceNames();
-        setResources(new ResourceConfigs(append(commaSeparatedResourceNames, resourcesToAdd)));
-    }
-
-    public void removeResources(List<String> resourcesToRemove) {
-        String commaSeparatedResourceNames = getResourceConfigs().getCommaSeparatedResourceNames();
-        setResources(new ResourceConfigs(remove(commaSeparatedResourceNames, resourcesToRemove)));
-    }
-
     public void removeEnvironments(List<String> envsToRemove) {
         this.setEnvironments(remove(this.getEnvironments(), envsToRemove));
     }
@@ -131,27 +127,31 @@ public class Agent extends PersistentObject implements Validatable {
         ResourceConfigs resourceConfigs = getResources();
         if (isElastic() && !resourceConfigs.isEmpty()) {
             errors.add("elasticAgentId", "Elastic agents cannot have resources.");
-        } else {
-            resourceConfigs.validate(null);
-            if (!resourceConfigs.errors().isEmpty()) {
-                errors.addAll(resourceConfigs.errors());
-            }
+            return;
+        }
+
+        resourceConfigs.validate(null);
+        if (resourceConfigs.hasErrors()) {
+            errors.addAll(resourceConfigs.errors());
         }
     }
 
     private void validateIpAddress() {
-        String address = getIpaddress();
-        if (address == null) {
+        String ipAddress = getIpaddress();
+
+        if (ipAddress == null) {
             return;
         }
-        if (isBlank(address)) {
+
+        if (isBlank(ipAddress)) {
             addError(IP_ADDRESS, "IpAddress cannot be empty if it is present.");
             return;
         }
+
         try {
-            IpAddress.create(address);
+            IpAddress.create(ipAddress);
         } catch (Exception e) {
-            addError(IP_ADDRESS, String.format("'%s' is an invalid IP address.", address));
+            addError(IP_ADDRESS, format("'%s' is an invalid IP address.", ipAddress));
         }
     }
 
@@ -177,22 +177,44 @@ public class Agent extends PersistentObject implements Validatable {
         return new ResourceConfigs(resources);
     }
 
-    public void addResourceConfig(ResourceConfig resourceConfig) {
-        LinkedHashSet<String> resourcesList = new LinkedHashSet<>();
-        if (this.getEnvironments() != null) {
-            resourcesList.addAll(Arrays.asList(this.resources.split(",")));
+    public void removeResources(List<String> resourcesToRemove) {
+        if (!isEmpty(resourcesToRemove)) {
+            String resourcesBeforeAdd = getResourceConfigs().getCommaSeparatedResourceNames();
+            String resourcesAfterAdd = remove(resourcesBeforeAdd, resourcesToRemove);
+            setCommaSeparatedResourceNames(resourcesAfterAdd);
         }
-        resourcesList.add(resourceConfig.getName());
-        this.setEnvironments(String.join(",", environments));
-        this.resources = String.join(",", resourcesList);
     }
 
-    public void removeResource(ResourceConfig resourceConfig) {
-        this.getResources().remove(resourceConfig);
+    public void addResource(String resource) {
+        if(isNotBlank(resource)) {
+            addResources(singletonList(resource));
+        }
     }
 
-    public void setResourceConfigs(ResourceConfigs resourceConfigs) {
-        resources = resourceConfigs.getCommaSeparatedResourceNames();
+    public void addResources(List<String> resourcesToAdd) {
+        if (!isEmpty(resourcesToAdd)) {
+            String resourcesBeforeAdd = getResourceConfigs().getCommaSeparatedResourceNames();
+            String resourcesAfterAdd = append(resourcesBeforeAdd, resourcesToAdd);
+            setCommaSeparatedResourceNames(resourcesAfterAdd);
+        }
+    }
+
+    public void setResources(String commaSeparatedResources) {
+        setCommaSeparatedResourceNames(commaSeparatedResources);
+    }
+
+    public void setResourcesFromList(List<String> resourceList) {
+        String resourceNames = append(null, resourceList);
+        setCommaSeparatedResourceNames(resourceNames);
+    }
+
+    private void setCommaSeparatedResourceNames(String resourceNames) {
+        if (isBlank(resourceNames)) {
+            this.resources = null;
+            return;
+        }
+
+        this.resources = new ResourceConfigs(resourceNames).getCommaSeparatedResourceNames();
     }
 
     public boolean isEnabled() {
@@ -317,7 +339,7 @@ public class Agent extends PersistentObject implements Validatable {
     }
 
     public List<String> getEnvironmentsAsList() {
-        return (this.environments == null ? new ArrayList<>() : Arrays.asList(this.environments.split(",")));
+        return (this.environments == null ? new ArrayList<>() : asList(this.environments.split(",")));
     }
 
     public void setEnvironments(String envs) {
@@ -334,10 +356,6 @@ public class Agent extends PersistentObject implements Validatable {
 
     public ResourceConfigs getResources() {
         return new ResourceConfigs(resources == null ? "" : resources);
-    }
-
-    public void setResources(ResourceConfigs resourceConfigs) {
-        this.resources = join(resourceConfigs.resourceNames(), ",");
     }
 
     public String getCookie() {

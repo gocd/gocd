@@ -45,6 +45,10 @@ public class ResourceConfig implements Serializable, Comparable<ResourceConfig>,
         this.configErrors = resourceConfig.configErrors;
     }
 
+    public boolean hasErrors(){
+        return !this.errors().isEmpty();
+    }
+
     public String getName() {
         return StringUtils.trimToNull(name);
     }

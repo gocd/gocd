@@ -16,13 +16,13 @@
 package com.thoughtworks.go.server.ui;
 
 
-import com.thoughtworks.go.config.ResourceConfig;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.helper.AgentInstanceMother;
 import org.junit.Test;
 
 import java.util.Date;
 
+import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -150,7 +150,7 @@ public class AgentsViewModelTest {
     }
 
     @Test
-    public void shouldFilterWithExactMatch() throws Exception {
+    public void shouldFilterWithExactMatch() {
         AgentsViewModel agents = agentsViewModel();
         agents.filter("resource:\"Foo\", baz");
         assertThat(agents.size(), is(1));
@@ -158,7 +158,7 @@ public class AgentsViewModelTest {
     }
 
     @Test
-    public void shouldHandleUnclosedDoubleQuotes() throws Exception {
+    public void shouldHandleUnclosedDoubleQuotes() {
         AgentsViewModel agents = agentsViewModel();
         agents.filter("resource:\"");
         assertThat(agents.size(), is(0));
@@ -168,12 +168,11 @@ public class AgentsViewModelTest {
         AgentsViewModel agents = new AgentsViewModel();
         AgentInstance idleAgentInstance = AgentInstanceMother.idle(new Date(), "CCeDev01");
         AgentInstanceMother.updateOS(idleAgentInstance, "macos");
-        idleAgentInstance.getAgent().addResourceConfig(new ResourceConfig("foo"));
-        idleAgentInstance.getAgent().addResourceConfig(new ResourceConfig("bar"));
+        idleAgentInstance.getAgent().addResources(asList("foo","bar"));
         agents.add(new AgentViewModel(idleAgentInstance, "uat"));
 
         AgentInstance buildingAgentInstance = AgentInstanceMother.building();
-        buildingAgentInstance.getAgent().addResourceConfig(new ResourceConfig("goofooboo"));
+        buildingAgentInstance.getAgent().addResource("goofooboo");
         agents.add(new AgentViewModel(buildingAgentInstance, "dev", "uat"));
         agents.add(new AgentViewModel(AgentInstanceMother.pending()));
         agents.add(new AgentViewModel(AgentInstanceMother.disabled(), "prod"));

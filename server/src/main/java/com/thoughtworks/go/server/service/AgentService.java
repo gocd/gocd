@@ -194,7 +194,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         }
 
         if (resources != null) {
-            agent.setResources(new ResourceConfigs(resources));
+            agent.setResources(resources);
         }
 
         if (environments != null) {
@@ -453,7 +453,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
             LOGGER.warn("Found agent [{}] with duplicate uuid. Please check the agent installation.", agentRuntimeInfo.agentInfoDebugString());
             serverHealthService.update(
                     ServerHealthState.warning(format("[%s] has duplicate unique identifier which conflicts with [%s]", agentRuntimeInfo.agentInfoForDisplay(), findAgentAndRefreshStatus(agentRuntimeInfo.getUUId()).agentInfoForDisplay()),
-                            "Please check the agent installation. Click <a href='" + docsUrl("/faq/agent_guid_issue.html") + "' target='_blank'>here</a> for more agentRuntimeInfo.",
+                            "Please check the agent installation. Click <a href='" + docsUrl("/faq/agent_guid_issue.html") + "' target='_blank'>here</a> for more info.",
                             HealthStateType.duplicateAgent(HealthStateScope.forAgent(agentRuntimeInfo.getCookie())), Timeout.THIRTY_SECONDS));
             throw new AgentWithDuplicateUUIDException(format("Agent [%s] has invalid cookie", agentRuntimeInfo.agentInfoDebugString()));
         }
@@ -608,7 +608,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
 
     public void register(Agent agent, String agentAutoRegisterResources, String agentAutoRegisterEnvironments, HttpOperationResult result) {
         generateCookieForAgentIfAgentDoesNotHaveACookie(agent);
-        agent.setResourceConfigs(new ResourceConfigs(agentAutoRegisterResources));
+        agent.setResources(agentAutoRegisterResources);
         agent.setEnvironments(agentAutoRegisterEnvironments);
         saveOrUpdate(agent);
     }

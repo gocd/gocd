@@ -61,10 +61,10 @@ public class AgentInstanceMother {
         return agentInstance;
     }
 
-    public static AgentInstance idleWith(String uuid, String hostname, String ipAddress, String location, long space, String os, List<String> resources) {
+    public static AgentInstance idleWith(String uuid, String hostname, String ipAddress, String location, long space, String os, List<String> resourceList) {
 
         Agent agent = new Agent(uuid, hostname, ipAddress);
-        agent.setResourceConfigs(new ResourceConfigs(resources.stream().map(ResourceConfig::new).collect(Collectors.toList())));
+        agent.setResourcesFromList(resourceList);
 
         AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, location, "cookie");
         agentRuntimeInfo.idle();
@@ -139,8 +139,8 @@ public class AgentInstanceMother {
     }
 
 
-    public static AgentInstance updateResources(AgentInstance agentInstance, String resources) {
-        agentInstance.getAgent().setResourceConfigs(new ResourceConfigs(resources));
+    public static AgentInstance updateResources(AgentInstance agentInstance, String commaSeparatedResources) {
+        agentInstance.getAgent().setResources(commaSeparatedResources);
         return agentInstance;
     }
 

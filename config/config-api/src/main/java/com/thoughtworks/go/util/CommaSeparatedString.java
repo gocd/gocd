@@ -16,12 +16,13 @@
 
 package com.thoughtworks.go.util;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
@@ -31,36 +32,57 @@ public class CommaSeparatedString {
             return origCommaSeparatedStr;
         }
 
-        LinkedHashSet<String> uniqEntries = new LinkedHashSet<>();
-        if (isNotBlank(origCommaSeparatedStr)) {
-            uniqEntries.addAll(asList(origCommaSeparatedStr.split(",")));
-        }
-        uniqEntries.addAll(entriesToAdd);
+        LinkedHashSet<String> distinctEntrySet = createDistinctEntrySetWithExistingAndNewEntriesToAdd(origCommaSeparatedStr, entriesToAdd);
 
-        List<String> entryList = uniqEntries.stream().filter(entry -> !entry.isEmpty()).collect(Collectors.toList());
-
-        if(entryList.isEmpty()){
-            return null;
+        List<String> entryList = distinctEntrySet.stream()
+                                                 .filter(StringUtils::isNotBlank)
+                                                 .collect(Collectors.toList());
+        if (!entryList.isEmpty()) {
+            return convertListToCommaSeparatedStr(entryList);
         }
-        return String.join(",", entryList);
+
+        return null;
     }
 
-    public static String remove(String origCommaSeparatedStr, List<String> entriesToRemove){
+    public static String remove(String commaSeparatedStr, List<String> entriesToRemove){
         if(isEmpty(entriesToRemove)){
-            return origCommaSeparatedStr;
+            return commaSeparatedStr;
         }
 
-        if (isNotBlank(origCommaSeparatedStr)) {
-            List<String> finalEntryList = Arrays.stream(origCommaSeparatedStr.split(","))
-                                                .filter(entry -> !entriesToRemove.contains(entry))
-                                                .collect(Collectors.toList());
-            if (finalEntryList.isEmpty()) {
-                return null;
-            } else {
-                return String.join(",", finalEntryList);
+        if (isNotBlank(commaSeparatedStr)) {
+            List<String> entryListAfterRemoval = Arrays.stream(convertCommaSeparatedStrToArray(commaSeparatedStr))
+                                                       .filter(entry -> !entriesToRemove.contains(entry))
+                                                       .collect(Collectors.toList());
+            if (!entryListAfterRemoval.isEmpty()) {
+                return convertListToCommaSeparatedStr(entryListAfterRemoval);
             }
+
+            return null;
         }
 
-        return origCommaSeparatedStr;
+        return commaSeparatedStr;
+    }
+
+    private static LinkedHashSet<String> createDistinctEntrySetWithExistingAndNewEntriesToAdd(String commaSeparatedStr, List<String> entriesToAdd) {
+        LinkedHashSet<String> uniqEntrySet = new LinkedHashSet<>();
+
+        if (isNotBlank(commaSeparatedStr)) {
+            uniqEntrySet.addAll(convertCommaSeparatedStrToList(commaSeparatedStr));
+        }
+
+        uniqEntrySet.addAll(entriesToAdd);
+        return uniqEntrySet;
+    }
+
+    private static String convertListToCommaSeparatedStr(List<String> list){
+        return String.join(",", list);
+    }
+
+    private static List<String> convertCommaSeparatedStrToList(String commaSeparatedStr){
+        return Arrays.asList(convertCommaSeparatedStrToArray(commaSeparatedStr));
+    }
+
+    private static String[] convertCommaSeparatedStrToArray(String commaSeparatedStr){
+        return commaSeparatedStr.split(",");
     }
 }

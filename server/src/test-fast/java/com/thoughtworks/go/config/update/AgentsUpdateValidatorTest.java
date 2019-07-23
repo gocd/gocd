@@ -145,7 +145,7 @@ public class AgentsUpdateValidatorTest {
 
             AgentInstance disabledAgentInstance = AgentInstanceMother.disabled();
             Agent disabledAgent = disabledAgentInstance.getAgent();
-            disabledAgent.addResourceConfig(new ResourceConfig("linux"));
+            disabledAgent.addResource("linux");
 
             when(agentInstances.findAgent(disabledAgent.getUuid())).thenReturn(disabledAgentInstance);
 

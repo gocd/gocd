@@ -227,16 +227,16 @@ public class AgentDaoTest {
     @Test
     public void shouldBulkUpdateAttributes() {
         Agent agent = new Agent("uuid", "localhost", "127.0.0.1", "cookie");
-        agent.setResourceConfigs(new ResourceConfigs("resource1,resource2"));
+        agent.setResources("resource1,resource2");
         AgentInstance agentInstance1 = AgentInstance.createFromAgent(agent, new SystemEnvironment(), null);
         agent.setEnvironments("env1,env2,env3");
 
         Agent agent1 = new Agent("uuid2", "localhost2", "127.0.0.2", "cookie2");
-        agent1.setResourceConfigs(new ResourceConfigs("resource1"));
+        agent1.setResources("resource1");
         AgentInstance agentInstance2 = AgentInstance.createFromAgent(agent1, new SystemEnvironment(), null);
 
         Agent agent2 = new Agent("uuid3", "localhost3", "127.0.0.3", "cookie3");
-        agent2.setResourceConfigs(new ResourceConfigs("resource1"));
+        agent2.setResources("resource1");
         agent2.setEnvironments("env1,env3");
         AgentInstance agentInstance3 = AgentInstance.createFromAgent(agent2, new SystemEnvironment(), null);
 

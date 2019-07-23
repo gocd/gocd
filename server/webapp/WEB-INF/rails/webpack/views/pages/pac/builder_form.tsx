@@ -107,7 +107,7 @@ class PipelineStructure extends MithrilComponent<Attrs> {
 /** produces a Promise<string>, resolving a sha-256 hex digest of specified string content */
 function sha256(subj: string): Promise<string> {
   return new Promise<string>((res, rej) => {
-    crypto.subtle.digest("SHA-256", new TextEncoder().encode(subj)).then((buf) => {
+    crypto.subtle.digest("SHA-256", encode(subj)).then((buf) => {
       const ba = new Uint8Array(buf);
       const hexes = new Array(ba.length);
 
@@ -118,4 +118,13 @@ function sha256(subj: string): Promise<string> {
       res(hexes.join(""));
     }, (err) => rej(err));
   });
+}
+
+function encode(subj: string): Uint8Array {
+  if ("function" === typeof TextEncoder) {
+    return new TextEncoder().encode(subj);
+  }
+
+  // Pre-Chromium MS Edge browsers do not support TextEncoder
+  return Uint8Array.from(subj.split("").map((s) => s.charCodeAt(0)));
 }

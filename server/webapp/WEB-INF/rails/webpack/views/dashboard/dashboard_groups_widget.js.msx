@@ -27,14 +27,13 @@ const GroupHeading = {
   view(vnode) {
     const vm    = vnode.attrs.vm;
     const paths = vm.routes();
-    const useNewAddPipelineFlow = vnode.attrs.useNewAddPipelineFlow;
     let addPipeline = "";
 
-    if (paths.newPipeline && vm.canAdminister) {
+    if (vm.canAdminister) {
       if (vnode.attrs.addPipelineButtonStyling) {
-        addPipeline = <Buttons.Primary align="right" icon={Buttons.ButtonIcon.ADD} disabled={!vm.canAdminister} aria-label={vm.ariaLabelForNewPipeline()} title={vm.titleForNewPipeline()} onclick={this.goToAddPipeline.bind(null, useNewAddPipelineFlow? paths.new : paths.newPipeline)}>New Pipeline</Buttons.Primary>;
+        addPipeline = <Buttons.Primary align="right" icon={Buttons.ButtonIcon.ADD} disabled={!vm.canAdminister} aria-label={vm.ariaLabelForNewPipeline()} title={vm.titleForNewPipeline()} onclick={this.goToAddPipeline.bind(null, paths.new)}>New Pipeline</Buttons.Primary>;
       } else {
-        addPipeline = <div class="dashboard-group_add_pipeline"><f.link class="icon_add" disabled={!vm.canAdminister} href={useNewAddPipelineFlow? paths.new : paths.newPipeline}
+        addPipeline = <div class="dashboard-group_add_pipeline"><f.link class="icon_add" disabled={!vm.canAdminister} href={paths.new}
                     tooltipText={vm.tooltipForNewPipeline()} title={vm.titleForNewPipeline()} aria-label={vm.ariaLabelForNewPipeline()}>New Pipeline</f.link></div>;
       }
     }

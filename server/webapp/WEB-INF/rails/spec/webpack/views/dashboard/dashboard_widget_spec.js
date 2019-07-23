@@ -307,7 +307,7 @@ describe("Dashboard Widget", () => {
     const pipelineGroupJSON = dashboardJson._embedded.pipeline_groups[0];
 
     const title = helper.find('.dashboard-group_add_pipeline>a').get(0);
-    expect(title.href.indexOf(`/go/admin/pipeline/new?group=${pipelineGroupJSON.name}`)).not.toEqual(-1);
+    expect(title.href.indexOf(`/go/admin/pipelines/create?group=${pipelineGroupJSON.name}`)).not.toEqual(-1);
 
   });
 
@@ -315,7 +315,7 @@ describe("Dashboard Widget", () => {
     const pipelineGroupJSON = dashboardJson._embedded.environments[0];
 
     const title = helper.find('.dashboard-group_add_pipeline>a').get(0);
-    expect(title.href.indexOf(`/go/admin/pipeline/new?group=${pipelineGroupJSON.name}`)).toEqual(-1);
+    expect(title.href.indexOf(`/go/admin/pipelines/create?group=${pipelineGroupJSON.name}`)).toEqual(-1);
   });
 
   it("should show disabled pipeline group settings icon showing tooltip for non admin users", () => {

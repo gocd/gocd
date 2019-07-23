@@ -87,8 +87,6 @@ public class UrlRewriterIntegrationTest {
     public static ResponseAssertion CONFIG_VIEW = new ResponseAssertion(HTTP_URL + "/go/config_view/templates/template_name", HTTP_URL + "/go/rails/config_view/templates/template_name");
 
     @DataPoint
-    public static ResponseAssertion PIPELINE_NEW = new ResponseAssertion(HTTP_URL + "/go/admin/pipeline/new", HTTP_URL + "/go/rails/admin/pipeline/new", true);
-    @DataPoint
     public static ResponseAssertion PIPELINE_CREATE = new ResponseAssertion(HTTP_URL + "/go/admin/pipelines", HTTP_URL + "/go/rails/admin/pipelines", METHOD.POST);
     @DataPoint
     public static ResponseAssertion SERVER_BACKUP = new ResponseAssertion(HTTP_URL + "/go/admin/backup", HTTP_URL + "/go/spark/admin/backup", true);

@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.exceptions.InvalidPendingAgentOperationException;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.update.AgentUpdateValidator;
 import com.thoughtworks.go.config.update.AgentsUpdateValidator;
 import com.thoughtworks.go.domain.*;
@@ -140,8 +141,8 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
 
     private AgentsViewModel toAgentViewModels(AgentInstances agentInstances) {
         return stream(agentInstances.spliterator(), false)
-                    .map(this::toAgentViewModel)
-                    .collect(Collectors.toCollection(AgentsViewModel::new));
+                .map(this::toAgentViewModel)
+                .collect(Collectors.toCollection(AgentsViewModel::new));
     }
 
     private AgentViewModel toAgentViewModel(AgentInstance instance) {
@@ -186,12 +187,12 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
                 saveOrUpdate(agent);
 
                 if (agent.hasErrors()) {
-                    result.unprocessibleEntity("Updating agent failed:", "", general(GLOBAL));
+                    result.unprocessibleEntity("Updating agent failed.", "", general(GLOBAL));
                 } else {
                     result.ok(format("Updated agent with uuid %s.", agent.getUuid()));
                 }
             }
-        } catch(InvalidPendingAgentOperationException | IllegalArgumentException e){
+        } catch(InvalidPendingAgentOperationException | IllegalArgumentException | RecordNotFoundException e){
             LOGGER.error(e.getMessage(), e);
             return null;
         } catch (Exception e) {
@@ -231,7 +232,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
                                           EnvironmentsConfig envsToAdd, List<String> envsToRemove, TriState state) {
         AgentsUpdateValidator validator
                 = new AgentsUpdateValidator(agentInstances, username, result, uuids, state, envsToAdd,
-                                            envsToRemove, resourcesToAdd, resourcesToRemove, goConfigService);
+                envsToRemove, resourcesToAdd, resourcesToRemove, goConfigService);
         try {
             if (validator.canContinue()) {
                 validator.validate();
@@ -242,7 +243,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
                 }
 
                 agents.forEach(agent -> setResourcesEnvironmentsAndState(agent, resourcesToAdd, resourcesToRemove,
-                                                                         envsToAdd, envsToRemove, state));
+                        envsToAdd, envsToRemove, state));
                 agentDao.bulkUpdateAttributes(agents, createAgentToStatusMap(agents), state);
                 result.setMessage("Updated agent(s) with uuid(s): [" + join(uuids, ", ") + "].");
             }
@@ -270,7 +271,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         EnvironmentsConfig envsConfig = getEnvironmentsConfigFrom(envConfig);
         AgentsUpdateValidator validator
                 = new AgentsUpdateValidator(agentInstances, username, result, uuidsToAssociateWithEnv,
-                                            TriState.TRUE, envsConfig, emptyList(), emptyList(), emptyList(), goConfigService);
+                TriState.TRUE, envsConfig, emptyList(), emptyList(), emptyList(), goConfigService);
         try {
             if (validator.canContinue()) {
                 validator.validate();
@@ -303,25 +304,25 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
 
     private List<String> getUUIDsToAddEnvTo(List<String> uuidsToAssociateWithEnv, List<String> uuidsAssociatedWithEnv) {
         return uuidsToAssociateWithEnv.stream()
-                                      .filter(uuid -> !uuidsAssociatedWithEnv.contains(uuid))
-                                      .collect(Collectors.toList());
+                .filter(uuid -> !uuidsAssociatedWithEnv.contains(uuid))
+                .collect(Collectors.toList());
     }
 
     private List<String> getUUIDsToRemoveEnvFrom(List<String> uuidsToAssociateWithEnv, List<String> uuidsAssociatedWithEnv) {
         return uuidsAssociatedWithEnv.stream()
-                                     .filter(uuid -> !uuidsToAssociateWithEnv.contains(uuid))
-                                     .collect(Collectors.toList());
+                .filter(uuid -> !uuidsToAssociateWithEnv.contains(uuid))
+                .collect(Collectors.toList());
     }
 
     private List<Agent> getAgentsToAddEnvToList(List<String> uuidsToAddEnvsTo, String env) {
         return uuidsToAddEnvsTo.stream()
-                               .map(uuid -> {
-                                    Agent agent = agentDao.agentByUuid(uuid);
-                                    String envsToSet = append(agent.getEnvironments(), singletonList(env));
-                                    agent.setEnvironments(envsToSet);
-                                    return agent;
-                               })
-                               .collect(Collectors.toList());
+                .map(uuid -> {
+                    Agent agent = agentDao.agentByUuid(uuid);
+                    String envsToSet = append(agent.getEnvironments(), singletonList(env));
+                    agent.setEnvironments(envsToSet);
+                    return agent;
+                })
+                .collect(Collectors.toList());
     }
 
     private List<Agent> getAgentsToRemoveEnvFromList(List<String> agentsToRemoveEnvFrom, String env) {
@@ -366,7 +367,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     }
 
     private void addOnlyThoseEnvsThatAreNotAssociatedWithTheAgentFromConfigRepo(EnvironmentsConfig envsToAdd, Agent agent) {
-        if(envsToAdd != null) {
+        if (envsToAdd != null) {
             String uuid = agent.getUuid();
             envsToAdd.forEach(env -> {
                 if (env.containsAgentRemotely(uuid)) {
@@ -435,8 +436,8 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
 
     private List<Agent> filterAgents(List<String> uuids) {
         return agentInstances.values().stream().filter(agentInstance -> uuids.contains(agentInstance.getUuid()))
-                                               .map(AgentInstance::getAgent)
-                                               .collect(Collectors.toList());
+                .map(AgentInstance::getAgent)
+                .collect(Collectors.toList());
     }
 
     public void updateRuntimeInfo(AgentRuntimeInfo agentRuntimeInfo) {

@@ -65,7 +65,7 @@ public class AgentUpdateValidator {
             return true;
         }
 
-        String msg = "No Operation performed on agents.";
+        String msg = "No Operation performed on agent.";
         result.badRequest(msg, msg, general(GLOBAL));
 
         return false;
@@ -88,7 +88,7 @@ public class AgentUpdateValidator {
 
     private void bombIfSpecifiedAsBlank(String entityValues, String entityName) {
         if (entityValues != null && isBlank(entityValues)) {
-            String msg = format("%s are specified but they are blank!", entityName);
+            String msg = format("%s are specified but they are blank.", entityName);
             result.badRequest(msg, msg, general(GLOBAL));
             throw new IllegalArgumentException(msg);
         }
@@ -96,8 +96,8 @@ public class AgentUpdateValidator {
 
     private void bombWhenAgentsDoesNotExist() {
         if (agentInstance.isNullAgent()) {
-            String agentNotFoundMessage = format("Agent '%s' not found", agentInstance.getUuid());
-            result.notFound("Agent not found.", agentNotFoundMessage, general(GLOBAL));
+            String agentNotFoundMessage = format("Agent '%s' not found.", agentInstance.getUuid());
+            result.notFound(agentNotFoundMessage, agentNotFoundMessage, general(GLOBAL));
             throw new RecordNotFoundException(EntityType.Agent, agentInstance.getUuid());
         }
     }
@@ -118,7 +118,7 @@ public class AgentUpdateValidator {
             return;
         }
 
-        String msg = format("Pending agentInstance [%s] must be explicitly enabled or disabled when performing any operation on it.", agentInstance.getUuid());
+        String msg = format("Pending agent [%s] must be explicitly enabled or disabled when performing any operation on it.", agentInstance.getUuid());
         result.badRequest(msg, msg, general(GLOBAL));
         throw new InvalidPendingAgentOperationException(singletonList(agentInstance.getUuid()));
     }

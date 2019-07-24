@@ -28,9 +28,10 @@ import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -39,6 +40,7 @@ import java.util.List;
 
 import static com.thoughtworks.go.domain.AgentInstance.AgentType.LOCAL;
 import static com.thoughtworks.go.domain.AgentInstance.AgentType.REMOTE;
+import static com.thoughtworks.go.domain.AgentInstance.FilterBy.*;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.*;
@@ -52,7 +54,7 @@ public class AgentInstanceTest {
     private static final String DEFAULT_IP_ADDRESS = "10.18.5.1";
     private AgentStatusChangeListener agentStatusChangeListener;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         systemEnvironment = new SystemEnvironment();
         agent = new Agent("uuid2", "CCeDev01", DEFAULT_IP_ADDRESS);
@@ -60,7 +62,7 @@ public class AgentInstanceTest {
         agentStatusChangeListener = mock(AgentStatusChangeListener.class);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         FileUtils.deleteQuietly(new File("config/agentkeystore"));
         new SystemEnvironment().setProperty("agent.connection.timeout", "300");
@@ -734,6 +736,45 @@ public class AgentInstanceTest {
         FieldUtils.writeField(agentInstance, "lastHeardTime", timeLoggedForMissingStatus, true);
         agentInstance.refresh();
         assertThat(agentInstance.getRuntimeStatus(), is(AgentRuntimeStatus.LostContact));
+    }
+
+    @Nested
+    class Matches {
+        @Test
+        void shouldReturnTrueIfMatchesTheFilter() {
+            AgentInstance pending = AgentInstanceMother.pending();
+            assertTrue(pending.matches(Pending));
+
+            Agent pendingAgent = pending.getAgent();
+            pendingAgent.setElasticAgentId("elastic-agent-id");
+            pendingAgent.setElasticPluginId("elastic-plugin-id");
+
+            pending.syncConfig(pendingAgent);
+
+            assertTrue(pending.matches(Elastic));
+
+            AgentInstance nullInstance = AgentInstanceMother.nullInstance();
+            assertTrue(nullInstance.matches(Null));
+        }
+
+        @Test
+        void shouldReturnFalseIfDoesNotMatchTheFilter() {
+            AgentInstance building = AgentInstanceMother.building();
+            assertFalse(building.matches(Pending));
+            assertFalse(building.matches(Elastic));
+
+            AgentInstance pending = AgentInstanceMother.pending();
+            assertFalse(pending.matches(Elastic));
+            assertFalse(pending.matches(Null));
+
+            AgentInstance idle = AgentInstanceMother.idle();
+            Agent idleAgent = idle.getAgent();
+            idleAgent.setElasticAgentId("elastic-agent-id");
+            idleAgent.setElasticPluginId("elastic-plugin-id");
+            idle.syncConfig(idleAgent);
+            assertFalse(idle.matches(Pending));
+            assertFalse(idle.matches(Null));
+        }
     }
 
     private List<JobPlan> jobPlans(String... resources) {

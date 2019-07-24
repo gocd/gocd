@@ -346,6 +346,19 @@ public class AgentInstance implements Comparable<AgentInstance> {
         return isDisabled() && !(isBuilding() || isCancelled());
     }
 
+    public boolean matches(FilterBy filter) {
+        switch (filter) {
+            case Pending:
+                return isPending();
+            case Elastic:
+                return isElastic();
+            case Null:
+                return isNullAgent();
+            default:
+                return false;
+        }
+    }
+
     enum AgentType {
         LOCAL, REMOTE
     }
@@ -471,5 +484,11 @@ public class AgentInstance implements Comparable<AgentInstance> {
         if (this.isRegistered()) {
             this.agentStatusChangeListener.onAgentStatusChange(this);
         }
+    }
+
+    public enum FilterBy {
+        Pending,
+        Elastic,
+        Null
     }
 }

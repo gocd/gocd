@@ -16,11 +16,7 @@
 package com.thoughtworks.go.server.service;
 
 import ch.qos.logback.classic.Level;
-import com.thoughtworks.go.CurrentGoCDVersion;
-import com.thoughtworks.go.config.Agent;
-import com.thoughtworks.go.config.BasicEnvironmentConfig;
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.EnvironmentsConfig;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.remote.AgentIdentifier;
@@ -32,15 +28,14 @@ import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.server.ui.AgentViewModel;
 import com.thoughtworks.go.server.ui.AgentsViewModel;
 import com.thoughtworks.go.server.util.UuidGenerator;
-import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TriState;
-import com.thoughtworks.go.utils.Timeout;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -58,9 +53,9 @@ import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -243,7 +238,7 @@ public class AgentServiceTest {
                 assertThat(logFixture.getRawMessages(), hasItem(format("Found agent [%s] with duplicate uuid. Please check the agent installation.", runtimeInfo.agentInfoDebugString())));
 
                 String msg = format("[%s] has duplicate unique identifier which conflicts with [%s]",
-                                    runtimeInfo.agentInfoForDisplay(), original.agentInfoForDisplay());
+                        runtimeInfo.agentInfoForDisplay(), original.agentInfoForDisplay());
 
                 String desc = "Please check the agent installation. Click <a href='" + docsUrl("/faq/agent_guid_issue.html") + "' target='_blank'>here</a> for more info.";
                 ServerHealthState serverHealthState = warning(msg, desc, duplicateAgent(forAgent(runtimeInfo.getCookie())), THIRTY_SECONDS);
@@ -338,4 +333,173 @@ public class AgentServiceTest {
         assertThat(operationResult.message(), is("Updated agent(s) with uuid(s): [uuid, UUID2]."));
     }
 
+    @Nested
+    class AgentUpdateAttributes {
+        @Test
+        void shouldUpdateTheAgentAttributes() {
+            String uuid = "uuid";
+            HttpOperationResult result = new HttpOperationResult();
+            Username username = new Username(new CaseInsensitiveString("test"));
+
+            when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
+            when(agentDao.agentByUuid(uuid)).thenReturn(agent);
+            when(agentInstances.findAgent(uuid)).thenReturn(mock(AgentInstance.class));
+
+            AgentInstance agentInstance = agentService.updateAgentAttributes(username, result, uuid, "new-hostname", "resource1,resource2", "env1,env2", TriState.TRUE);
+
+            verify(agentDao).saveOrUpdate(any(Agent.class));
+            assertTrue(result.isSuccess());
+            assertThat(result.message(), is("Updated agent with uuid uuid."));
+
+            Agent agentFromService = agentInstance.getAgent();
+
+            assertThat(agentFromService.getHostname(), is("new-hostname"));
+            assertThat(agentFromService.getResources().getCommaSeparatedResourceNames(), is("resource1,resource2"));
+            assertThat(agentFromService.getEnvironments(), is("env1,env2"));
+            assertFalse(agentFromService.isDisabled());
+        }
+
+        @Test
+        void shouldThrow400IfNoOperationToPerform() {
+            String uuid = "uuid";
+            HttpOperationResult result = new HttpOperationResult();
+            Username username = new Username(new CaseInsensitiveString("test"));
+
+            when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
+            when(agentDao.agentByUuid(uuid)).thenReturn(agent);
+            when(agentInstances.findAgent(uuid)).thenReturn(mock(AgentInstance.class));
+
+            agentService.updateAgentAttributes(username, result, uuid, null, null, null, TriState.UNSET);
+
+            verify(agentDao, times(0)).saveOrUpdate(any(Agent.class));
+            assertThat(result.httpCode(), is(400));
+            assertThat(result.message(), is("No Operation performed on agent."));
+        }
+
+        @Test
+        void shouldThrow404IfAgentDoesNotExist() {
+            String uuid = "non-existent-uuid";
+            HttpOperationResult result = new HttpOperationResult();
+            Username username = new Username(new CaseInsensitiveString("test"));
+            AgentInstance agentInstance = mock(AgentInstance.class);
+
+            when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
+            when(agentDao.agentByUuid(uuid)).thenReturn(agent);
+            when(agentInstances.findAgent(uuid)).thenReturn(agentInstance);
+            when(agentInstance.isNullAgent()).thenReturn(true);
+            when(agentInstance.getUuid()).thenReturn(uuid);
+
+            agentService.updateAgentAttributes(username, result, uuid, "new-hostname", "resource1,resource2", "env1,env2", TriState.TRUE);
+
+            verify(agentDao, times(0)).saveOrUpdate(any(Agent.class));
+            assertThat(result.httpCode(), is(404));
+            assertThat(result.message(), is("Agent 'non-existent-uuid' not found."));
+        }
+
+        @Test
+        void shouldThrow400IfEnvironmentsSpecifiedAsBlank() {
+            String uuid = "uuid";
+            HttpOperationResult result = new HttpOperationResult();
+            Username username = new Username(new CaseInsensitiveString("test"));
+            AgentInstance agentInstance = mock(AgentInstance.class);
+
+            when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
+            when(agentDao.agentByUuid(uuid)).thenReturn(agent);
+            when(agentInstances.findAgent(uuid)).thenReturn(agentInstance);
+            when(agentInstance.isNullAgent()).thenReturn(false);
+            when(agentInstance.getUuid()).thenReturn(uuid);
+
+            agentService.updateAgentAttributes(username, result, uuid, "new-hostname", "resource1,resource2", "", TriState.TRUE);
+
+            verify(agentDao, times(0)).saveOrUpdate(any(Agent.class));
+            assertThat(result.httpCode(), is(400));
+            assertThat(result.message(), is("Environments are specified but they are blank."));
+        }
+
+        @Test
+        void shouldThrow400IfResourcesSpecifiedAsBlank() {
+            String uuid = "uuid";
+            HttpOperationResult result = new HttpOperationResult();
+            Username username = new Username(new CaseInsensitiveString("test"));
+            AgentInstance agentInstance = mock(AgentInstance.class);
+
+            when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
+            when(agentDao.agentByUuid(uuid)).thenReturn(agent);
+            when(agentInstances.findAgent(uuid)).thenReturn(agentInstance);
+            when(agentInstance.isNullAgent()).thenReturn(false);
+            when(agentInstance.getUuid()).thenReturn(uuid);
+
+            agentService.updateAgentAttributes(username, result, uuid, "new-hostname", "", "env1", TriState.TRUE);
+
+            verify(agentDao, times(0)).saveOrUpdate(any(Agent.class));
+            assertThat(result.httpCode(), is(400));
+            assertThat(result.message(), is("Resources are specified but they are blank."));
+        }
+
+        @Test
+        void shouldThrow400IfOperationsPerformedOnPendingAgentWithoutUpdatingTheState() {
+            String uuid = "uuid";
+            HttpOperationResult result = new HttpOperationResult();
+            Username username = new Username(new CaseInsensitiveString("test"));
+            AgentInstance agentInstance = mock(AgentInstance.class);
+
+            when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
+            when(agentDao.agentByUuid(uuid)).thenReturn(agent);
+            when(agentInstances.findAgent(uuid)).thenReturn(agentInstance);
+            when(agentInstance.isNullAgent()).thenReturn(false);
+            when(agentInstance.isPending()).thenReturn(true);
+            when(agentInstance.getUuid()).thenReturn(uuid);
+
+            agentService.updateAgentAttributes(username, result, uuid, "new-hostname", "resource1", "env1", TriState.UNSET);
+
+            verify(agentDao, times(0)).saveOrUpdate(any(Agent.class));
+            assertThat(result.httpCode(), is(400));
+            assertThat(result.message(), is("Pending agent [uuid] must be explicitly enabled or disabled when performing any operation on it."));
+        }
+
+        @Test
+        void shouldThrow422IfResourceNamesAreInvalid() {
+            String uuid = "uuid";
+            HttpOperationResult result = new HttpOperationResult();
+            Username username = new Username(new CaseInsensitiveString("test"));
+
+            when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
+            when(agentDao.agentByUuid(uuid)).thenReturn(agent);
+            when(agentInstances.findAgent(uuid)).thenReturn(mock(AgentInstance.class));
+
+            AgentInstance agentInstance = agentService.updateAgentAttributes(username, result, uuid, "new-hostname", "res%^1", "env1", TriState.TRUE);
+
+            verify(agentDao, times(0)).saveOrUpdate(any(Agent.class));
+            assertThat(result.httpCode(), is(422));
+            assertThat(result.message(), is("Updating agent failed."));
+
+            Agent agent = agentInstance.getAgent();
+            assertTrue(agent.hasErrors());
+            assertThat(agent.errors().on(JobConfig.RESOURCES), is("Resource name 'res%^1' is not valid. Valid names much match '^[-\\w\\s|.]*$'"));
+        }
+
+        @Test
+        void shouldOnlyUpdateAttributesThatAreSpecified() {
+            String uuid = "uuid";
+            HttpOperationResult result = new HttpOperationResult();
+            Username username = new Username(new CaseInsensitiveString("test"));
+
+            when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
+            when(agentDao.agentByUuid(uuid)).thenReturn(agent);
+            when(agentInstances.findAgent(uuid)).thenReturn(mock(AgentInstance.class));
+
+            AgentInstance agentInstance = agentService.updateAgentAttributes(username, result, uuid, null, null, "env1,env2", TriState.TRUE);
+
+            verify(agentDao).saveOrUpdate(any(Agent.class));
+            assertTrue(result.isSuccess());
+            assertThat(result.message(), is("Updated agent with uuid uuid."));
+
+            Agent agentFromService = agentInstance.getAgent();
+
+            assertThat(agentFromService.getHostname(), is("host"));
+            assertThat(agentFromService.getResources().getCommaSeparatedResourceNames(), is(""));
+            assertThat(agentFromService.getEnvironments(), is("env1,env2"));
+            assertFalse(agentFromService.isDisabled());
+        }
+    }
 }

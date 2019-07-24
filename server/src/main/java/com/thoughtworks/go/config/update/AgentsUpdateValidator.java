@@ -22,6 +22,7 @@ import com.thoughtworks.go.config.exceptions.ElasticAgentsResourceUpdateExceptio
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.InvalidPendingAgentOperationException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -30,6 +31,7 @@ import com.thoughtworks.go.util.TriState;
 
 import java.util.List;
 
+import static com.thoughtworks.go.domain.AgentInstance.FilterBy.*;
 import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 import static java.lang.String.format;
@@ -104,7 +106,7 @@ public class AgentsUpdateValidator {
     }
 
     private void bombWhenAgentsDoesNotExist() {
-        List<String> notFoundUUIDs = agentInstances.findNullAgentUUIDs(uuids);
+        List<String> notFoundUUIDs = agentInstances.filterBy(uuids,Null);
 
         if(!isEmpty(notFoundUUIDs)){
             result.badRequest(EntityType.Agent.notFoundMessage(notFoundUUIDs));
@@ -128,7 +130,7 @@ public class AgentsUpdateValidator {
     }
 
     private void bombWhenAnyOperationOnPendingAgents() throws InvalidPendingAgentOperationException {
-        List<String> pendingAgentUUIDs = agentInstances.findPendingAgentUUIDs(uuids);
+        List<String> pendingAgentUUIDs = agentInstances.filterBy(uuids, Pending);
 
         if(isEmpty(pendingAgentUUIDs)){
             return;
@@ -146,7 +148,7 @@ public class AgentsUpdateValidator {
             return;
         }
 
-        List<String> elasticAgentUUIDs = agentInstances.findElasticAgentUUIDs(uuids);
+        List<String> elasticAgentUUIDs = agentInstances.filterBy(uuids,Elastic);
         if(isEmpty(elasticAgentUUIDs)){
             return;
         }

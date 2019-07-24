@@ -34,6 +34,7 @@ import org.mockito.Mock;
 import java.util.Date;
 import java.util.List;
 
+import static com.thoughtworks.go.domain.AgentInstance.FilterBy.*;
 import static com.thoughtworks.go.helper.AgentInstanceMother.*;
 import static com.thoughtworks.go.server.service.AgentRuntimeInfo.fromServer;
 import static java.util.Arrays.asList;
@@ -81,7 +82,7 @@ class AgentInstancesTest {
     }
 
     @Nested
-    class Find{
+    class Find {
         @Test
         void shouldFindEnabledAgents() {
             AgentInstances agentInstances = sample();
@@ -98,9 +99,9 @@ class AgentInstancesTest {
             AgentInstances agentInstances = sample();
 
             List<Agent> pendingAgents = agentInstances.findPendingAgents(asList(idle.getUuid(),
-                                                                                pending.getUuid(),
-                                                                                building.getUuid(),
-                                                                                disabled.getUuid()));
+                    pending.getUuid(),
+                    building.getUuid(),
+                    disabled.getUuid()));
             assertThat(pendingAgents.size(), is(1));
             assertThat(pendingAgents.get(0).getUuid(), is(pending.getUuid()));
         }
@@ -109,10 +110,7 @@ class AgentInstancesTest {
         void shouldFindPendingAgentUUIDs() {
             AgentInstances agentInstances = sample();
 
-            List<String> pendingAgentUUIDs = agentInstances.findPendingAgentUUIDs(asList(idle.getUuid(),
-                                                                                         pending.getUuid(),
-                                                                                         building.getUuid(),
-                                                                                         disabled.getUuid()));
+            List<String> pendingAgentUUIDs = agentInstances.filterBy(asList(idle.getUuid(), pending.getUuid(), building.getUuid(), disabled.getUuid()), Pending);
             assertThat(pendingAgentUUIDs.size(), is(1));
             assertThat(pendingAgentUUIDs.get(0), is(pending.getUuid()));
         }
@@ -122,9 +120,7 @@ class AgentInstancesTest {
             AgentInstances agentInstances = sample();
             agentInstances.add(nullInstance);
 
-            List<String> nullAgentUUIDs = agentInstances.findNullAgentUUIDs(asList(idle.getUuid(),
-                                                                                   pending.getUuid(),
-                                                                                   nullInstance.getUuid()));
+            List<String> nullAgentUUIDs = agentInstances.filterBy(asList(idle.getUuid(), pending.getUuid(), nullInstance.getUuid()), Null);
             assertThat(nullAgentUUIDs.size(), is(1));
             assertThat(nullAgentUUIDs.get(0), is(nullInstance.getUuid()));
         }
@@ -133,9 +129,7 @@ class AgentInstancesTest {
         void shouldFindElasticAgentUUIDs() {
             AgentInstances agentInstances = sample();
 
-            List<String> nullAgentUUIDs = agentInstances.findElasticAgentUUIDs(asList(idle.getUuid(),
-                                                                                      pending.getUuid(),
-                                                                                      elastic.getUuid()));
+            List<String> nullAgentUUIDs = agentInstances.filterBy(asList(idle.getUuid(), pending.getUuid(), elastic.getUuid()), Elastic);
             assertThat(nullAgentUUIDs.size(), is(1));
             assertThat(nullAgentUUIDs.get(0), is(elastic.getUuid()));
         }
@@ -265,8 +259,8 @@ class AgentInstancesTest {
         when(systemEnvironment.get(SystemEnvironment.MAX_PENDING_AGENTS_ALLOWED)).thenReturn(1);
 
         assertThrows(MaxPendingAgentsLimitReachedException.class,
-                                () -> agentInstances.register(fromServer(agent, false, "/var/lib",
-                                                    0L, "linux")));
+                () -> agentInstances.register(fromServer(agent, false, "/var/lib",
+                        0L, "linux")));
     }
 
     @Test
@@ -291,8 +285,8 @@ class AgentInstancesTest {
 
         MaxPendingAgentsLimitReachedException e
                 = assertThrows(MaxPendingAgentsLimitReachedException.class,
-                               () -> agentInstances.register(fromServer(agent, false, "/var/lib",
-                                                             Long.MAX_VALUE, "linux")));
+                () -> agentInstances.register(fromServer(agent, false, "/var/lib",
+                        Long.MAX_VALUE, "linux")));
         assertThat(e.getMessage(), is("Max pending agents allowed 100, limit reached"));
     }
 

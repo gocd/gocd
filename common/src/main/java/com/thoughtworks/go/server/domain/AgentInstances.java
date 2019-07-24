@@ -108,7 +108,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
         AgentInstances registered = new AgentInstances(agentStatusChangeListener);
         synchronized (agentInstanceMap) {
             stream(this.spliterator(), false).filter(agentInstance -> agentInstance.getStatus().isRegistered())
-                                                    .forEach(registered::add);
+                    .forEach(registered::add);
         }
         return registered;
     }
@@ -116,14 +116,14 @@ public class AgentInstances implements Iterable<AgentInstance> {
     public AgentInstances findDisabledAgents() {
         AgentInstances agentInstances = new AgentInstances(agentStatusChangeListener);
         currentInstances().stream().filter(AgentInstance::isDisabled)
-                                   .forEach(agentInstances::add);
+                .forEach(agentInstances::add);
         return agentInstances;
     }
 
     public AgentInstances findEnabledAgents() {
         AgentInstances agentInstances = new AgentInstances(agentStatusChangeListener);
         currentInstances().stream().filter(agentInstance -> agentInstance.getStatus().isEnabled())
-                                   .forEach(agentInstances::add);
+                .forEach(agentInstances::add);
         return agentInstances;
     }
 
@@ -158,7 +158,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
 
     private List<AgentInstance> agentsToRemove() {
         return stream(this.spliterator(), false).filter(AgentInstance::canRemove)
-                                                       .collect(Collectors.toList());
+                .collect(Collectors.toList());
     }
 
     private Collection<AgentInstance> currentInstances() {
@@ -226,7 +226,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
 
     public List<AgentInstance> filter(List<String> uuids) {
         return stream(this.spliterator(), false).filter(agentInstance -> uuids.contains(agentInstance.getUuid()))
-                                                       .collect(Collectors.toList());
+                .collect(Collectors.toList());
     }
 
     public LinkedMultiValueMap<String, ElasticAgentMetadata> allElasticAgentsGroupedByPluginId() {
@@ -268,28 +268,14 @@ public class AgentInstances implements Iterable<AgentInstance> {
 
     public List<Agent> findPendingAgents(List<String> uuids) {
         return uuids.stream().map(this::findAgent).filter(AgentInstance::isPending)
-                             .map(agentInstance -> agentInstance.getAgent().deepClone())
-                             .collect(Collectors.toList());
+                .map(agentInstance -> agentInstance.getAgent().deepClone())
+                .collect(Collectors.toList());
     }
 
-    public List<String> findPendingAgentUUIDs(List<String> uuids) {
+    public List<String> filterBy(List<String> uuids, AgentInstance.FilterBy filter) {
         return uuids.stream().map(this::findAgent)
-                             .filter(AgentInstance::isPending)
-                             .map(AgentInstance::getUuid)
-                             .collect(Collectors.toList());
-    }
-
-    public List<String> findElasticAgentUUIDs(List<String> uuids) {
-        return uuids.stream().map(this::findAgent)
-                             .filter(AgentInstance::isElastic)
-                             .map(AgentInstance::getUuid)
-                             .collect(Collectors.toList());
-    }
-
-    public List<String> findNullAgentUUIDs(List<String> uuids) {
-        return uuids.stream().map(this::findAgent)
-                             .filter(AgentInstance::isNullAgent)
-                             .map(AgentInstance::getUuid)
-                             .collect(Collectors.toList());
+                .filter(agentInstance -> agentInstance.matches(filter))
+                .map(AgentInstance::getUuid)
+                .collect(Collectors.toList());
     }
 }

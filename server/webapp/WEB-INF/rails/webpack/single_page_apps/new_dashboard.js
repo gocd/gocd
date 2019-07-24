@@ -29,7 +29,6 @@ $(() => {
   const dashboardElem              = $('#dashboard');
   const showEmptyPipelineGroups    = JSON.parse(dashboardElem.attr('data-show-empty-pipeline-groups'));
   const shouldShowAnalyticsIcon    = JSON.parse(dashboardElem.attr('data-should-show-analytics-icon'));
-  const addPipelineButtonStyling   = JSON.parse(dashboardElem.attr('data-add-pipeline-button-styling'));
   const pluginsSupportingAnalytics = {};
 
   const dashboard     = new Dashboard();
@@ -199,7 +198,6 @@ $(() => {
           showSpinner,
           pluginsSupportingAnalytics,
           shouldShowAnalyticsIcon,
-          addPipelineButtonStyling,
           vm:                   dashboardVM,
           doCancelPolling:      () => repeater().stop(),
           doRefreshImmediately: () => repeater().restart()

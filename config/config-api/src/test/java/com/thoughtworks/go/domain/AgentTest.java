@@ -16,13 +16,11 @@
 package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.config.Agent;
-import com.thoughtworks.go.config.ConfigSaveValidationContext;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static java.util.Arrays.asList;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 public class AgentTest {
@@ -37,7 +35,7 @@ public class AgentTest {
     }
 
     @Nested
-    class IPAddress{
+    class IPAddress {
         @Test
         public void agentWithNoIpAddressShouldBeValid() {
             Agent agent = new Agent("uuid", null, null);
@@ -93,7 +91,7 @@ public class AgentTest {
     }
 
     @Nested
-    class Resources{
+    class Resources {
         @Test
         void shouldAddResourcesToExistingResources() {
             Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
@@ -158,7 +156,7 @@ public class AgentTest {
     }
 
     @Nested
-    class UUID{
+    class UUID {
         @Test
         public void shouldPassValidationWhenUUidIsAvailable() {
             Agent agent = new Agent("uuid");
@@ -215,6 +213,33 @@ public class AgentTest {
             agent.removeEnvironments(asList("env1", "env3"));
 
             assertNull(agent.getEnvironments());
+        }
+
+        @Test
+        void shouldReturnEmptyListIfEnvironmentIsNullOrEmpty() {
+            Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
+
+            assertThat(agent.getEnvironments(), is(nullValue()));
+            assertThat(agent.getEnvironmentsAsList(), is(empty()));
+
+            agent.setEnvironments("");
+
+            assertThat(agent.getEnvironments(), not(nullValue()));
+            assertThat(agent.getEnvironments(), is(emptyString()));
+            assertThat(agent.getEnvironmentsAsList(), is(empty()));
+        }
+
+        @Test
+        void shouldReturnEnvAsListSplitOnComma() {
+            Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
+            assertThat(agent.getEnvironments(), is(nullValue()));
+            assertThat(agent.getEnvironmentsAsList(), is(empty()));
+
+            agent.setEnvironments("env1,env2");
+
+            assertThat(agent.getEnvironments(), not(nullValue()));
+            assertThat(agent.getEnvironments(), is("env1,env2"));
+            assertThat(agent.getEnvironmentsAsList(), is(asList("env1", "env2")));
         }
     }
 }

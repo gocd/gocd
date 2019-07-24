@@ -343,7 +343,7 @@ public class Agent extends PersistentObject {
     }
 
     public List<String> getEnvironmentsAsList() {
-        return (this.environments == null ? new ArrayList<>() : asList(this.environments.split(",")));
+        return (isBlank(this.environments) ? new ArrayList<>() : asList(this.environments.split(",")));
     }
 
     public void setEnvironments(String envs) {

@@ -173,17 +173,18 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     }
 
     public AgentInstance updateAgentAttributes(Username username, HttpOperationResult result, String uuid,
-                                               String hostname, String resources, String environments,
+                                               String hostname, String resources, EnvironmentsConfig environments,
                                                TriState state) {
         AgentUpdateValidator validator = new AgentUpdateValidator(username, agentInstances.findAgent(uuid), hostname, environments,
-                                                                  resources, state, result, goConfigService);
+                resources, state, result, goConfigService);
         Agent agent = agentDao.agentByUuid(uuid);
         try {
-            if(validator.canContinue()) {
+            if (validator.canContinue()) {
                 validator.validate();
 
-                setAgentAttributes(hostname, environments, resources, state, agent);
-
+                setAgentAttributes(hostname, resources, state, agent);
+                agent.setEnvironments("");
+                addOnlyThoseEnvsThatAreNotAssociatedWithTheAgentFromConfigRepo(environments, agent);
                 saveOrUpdate(agent);
 
                 if (agent.hasErrors()) {
@@ -192,7 +193,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
                     result.ok(format("Updated agent with uuid %s.", agent.getUuid()));
                 }
             }
-        } catch(InvalidPendingAgentOperationException | IllegalArgumentException | RecordNotFoundException e){
+        } catch (InvalidPendingAgentOperationException | IllegalArgumentException | RecordNotFoundException e) {
             LOGGER.error(e.getMessage(), e);
             return null;
         } catch (Exception e) {
@@ -205,7 +206,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         return AgentInstance.createFromAgent(agent, systemEnvironment, agentStatusChangeNotifier);
     }
 
-    private void setAgentAttributes(String newHostname, String environments, String resources, TriState state, Agent agent) {
+    private void setAgentAttributes(String newHostname, String resources, TriState state, Agent agent) {
         if (state.isTrue()) {
             agent.enable();
         }
@@ -220,10 +221,6 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
 
         if (resources != null) {
             agent.setResources(resources);
-        }
-
-        if (environments != null) {
-            agent.setEnvironments(environments);
         }
     }
 

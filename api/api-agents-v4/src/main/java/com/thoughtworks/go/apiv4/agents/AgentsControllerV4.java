@@ -32,8 +32,6 @@ import com.thoughtworks.go.apiv4.agents.representers.AgentBulkUpdateRequestRepre
 import com.thoughtworks.go.apiv4.agents.representers.AgentRepresenter;
 import com.thoughtworks.go.apiv4.agents.representers.AgentUpdateRequestRepresenter;
 import com.thoughtworks.go.apiv4.agents.representers.AgentsRepresenter;
-import com.thoughtworks.go.config.BasicEnvironmentConfig;
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.EnvironmentsConfig;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.domain.AgentInstance;
@@ -45,6 +43,7 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import spark.Request;
@@ -52,10 +51,11 @@ import spark.Response;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static spark.Spark.*;
 
@@ -113,13 +113,14 @@ public class AgentsControllerV4 extends ApiController implements SparkSpringCont
         final AgentUpdateRequest agentUpdateRequest = AgentUpdateRequestRepresenter.fromJSON(request.body());
         final HttpOperationResult result = new HttpOperationResult();
 
+        EnvironmentsConfig envsConfig = createEnvironmentsConfigFrom(agentUpdateRequest.getEnvironments());
         final AgentInstance updatedAgentInstance = agentService.updateAgentAttributes(
                 currentUsername(),
                 result,
                 uuid,
                 agentUpdateRequest.getHostname(),
                 agentUpdateRequest.getResources(),
-                agentUpdateRequest.getEnvironments(),
+                envsConfig,
                 agentUpdateRequest.getAgentConfigState()
         );
 
@@ -132,19 +133,31 @@ public class AgentsControllerV4 extends ApiController implements SparkSpringCont
         final HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
         EnvironmentsConfig envsConfig = createEnvironmentsConfigFrom(req.getOperations().getEnvironments().toAdd());
-        agentService.bulkUpdateAgentAttributes(currentUsername(), result, req.getUuids(), req.getOperations().getResources().toAdd(),
-                                               req.getOperations().getResources().toRemove(), envsConfig,
-                                               req.getOperations().getEnvironments().toRemove(), req.getAgentConfigState());
+        agentService.bulkUpdateAgentAttributes(currentUsername(), result, req.getUuids(), req.getOperations().getResources().toAdd(), req.getOperations().getResources().toRemove(), envsConfig, req.getOperations().getEnvironments().toRemove(), req.getAgentConfigState());
 
         return renderHTTPOperationResult(result, request, response);
     }
 
-    private EnvironmentsConfig createEnvironmentsConfigFrom(List<String> envList) {
-        EnvironmentsConfig envsConfig = new EnvironmentsConfig();
-        if(envList != null){
-            envList.forEach(env -> envsConfig.add(new BasicEnvironmentConfig(new CaseInsensitiveString(env))));
+    private EnvironmentsConfig createEnvironmentsConfigFrom(String commaSeparatedEnvironments) {
+        if (commaSeparatedEnvironments == null) {
+            return null;
         }
-        return envsConfig;
+        EnvironmentsConfig environmentConfigs = new EnvironmentsConfig();
+        if (StringUtils.isBlank(commaSeparatedEnvironments)) {
+            return environmentConfigs;
+        }
+
+        return createEnvironmentsConfigFrom(asList(commaSeparatedEnvironments.split(",")));
+    }
+
+    private EnvironmentsConfig createEnvironmentsConfigFrom(List<String> envList) {
+        if (envList != null) {
+            return envList.stream()
+                    .filter(StringUtils::isNotBlank)
+                    .map(environmentConfigService::findOrDefault)
+                    .collect(Collectors.toCollection(EnvironmentsConfig::new));
+        }
+        return new EnvironmentsConfig();
     }
 
     public String deleteAgent(Request request, Response response) throws IOException {
@@ -191,7 +204,7 @@ public class AgentsControllerV4 extends ApiController implements SparkSpringCont
     }
 
     private void checkSecurityOr403(Request request, Response response) {
-        if (Arrays.asList("GET", "HEAD").contains(request.requestMethod().toUpperCase())) {
+        if (asList("GET", "HEAD").contains(request.requestMethod().toUpperCase())) {
             apiAuthenticationHelper.checkUserAnd403(request, response);
             return;
         }

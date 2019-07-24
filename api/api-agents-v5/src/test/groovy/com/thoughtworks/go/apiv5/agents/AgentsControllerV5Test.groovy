@@ -18,6 +18,8 @@ package com.thoughtworks.go.apiv5.agents
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.config.BasicEnvironmentConfig
+import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.EnvironmentConfig
 import com.thoughtworks.go.config.EnvironmentsConfig
 import com.thoughtworks.go.domain.AgentInstance
@@ -288,14 +290,19 @@ class AgentsControllerV5Test implements SecurityServiceTrait, ControllerTrait<Ag
       loginAsAdmin()
       AgentInstance updatedAgentInstance = idleWith("uuid2", "agent02.example.com", "10.0.0.1", "/var/lib/bar", 10, "", asList("psql", "java"))
 
-      when(environmentConfigService.environmentConfigsFor("uuid2")).thenReturn(singleton(environment("env1")))
+      def environmentsConfig = new EnvironmentsConfig()
+      def environmentConfig = environment("env1")
+      when(environmentConfigService.findOrDefault("env1")).thenReturn(environmentConfig)
+      when(environmentConfigService.environmentConfigsFor("uuid2")).thenReturn(singleton(environmentConfig))
+
+      environmentsConfig.add(environmentConfig)
       when(agentService.updateAgentAttributes(
         eq(currentUsername()),
         any() as HttpOperationResult,
         eq("uuid2"),
         eq("agent02.example.com"),
         eq("java,psql"),
-        eq("env1"),
+        eq(environmentsConfig),
         eq(TriState.TRUE))
       ).thenReturn(updatedAgentInstance)
 
@@ -353,7 +360,7 @@ class AgentsControllerV5Test implements SecurityServiceTrait, ControllerTrait<Ag
     @Test
     void 'should error out when operation is unsuccessful'() {
       loginAsAdmin()
-      when(agentService.updateAgentAttributes(any() as Username, any() as HttpOperationResult, anyString(), anyString(), anyString(), anyString(), any() as TriState)).thenAnswer({ InvocationOnMock invocation ->
+      when(agentService.updateAgentAttributes(any() as Username, any() as HttpOperationResult, anyString(), anyString(), anyString(), anyList() as EnvironmentsConfig, any() as TriState)).thenAnswer({ InvocationOnMock invocation ->
         def result = invocation.getArgument(1) as HttpOperationResult
         result.unprocessibleEntity("Not a valid operation", "some description", null)
         return idle()

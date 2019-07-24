@@ -15,7 +15,8 @@
  */
 package com.thoughtworks.go.config.update;
 
-import com.thoughtworks.go.config.ResourceConfigs;
+import com.thoughtworks.go.config.EnvironmentsConfig;
+import com.thoughtworks.go.config.exceptions.ElasticAgentsResourceUpdateException;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.InvalidPendingAgentOperationException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
@@ -24,6 +25,7 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.util.TriState;
+import org.apache.commons.collections4.CollectionUtils;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
 import static com.thoughtworks.go.serverhealth.HealthStateScope.GLOBAL;
@@ -38,13 +40,13 @@ public class AgentUpdateValidator {
     private final Username username;
     private final AgentInstance agentInstance;
     private final String hostname;
-    private final String environments;
+    private final EnvironmentsConfig environments;
     private final String resources;
     private final HttpOperationResult result;
     private GoConfigService goConfigService;
     private final TriState state;
 
-    public AgentUpdateValidator(Username username, AgentInstance agentInstance, String hostname, String environments,
+    public AgentUpdateValidator(Username username, AgentInstance agentInstance, String hostname, EnvironmentsConfig environments,
                                 String resources, TriState state, HttpOperationResult result, GoConfigService goConfigService) {
         this.username = username;
         this.agentInstance = agentInstance;
@@ -81,14 +83,23 @@ public class AgentUpdateValidator {
 
     public void validate() throws Exception {
         bombWhenAgentsDoesNotExist();
-        bombIfSpecifiedAsBlank(environments, "Environments");
-        bombIfSpecifiedAsBlank(resources, "Resources");
+        bombIfEnvironmentsSpecifiedAsEmpty(environments);
+        bombIfResourcesSpecifiedAsBlank(resources);
         bombIfAnyOperationOnPendingAgent();
+        bombWhenElasticAgentResourcesAreUpdated();
     }
 
-    private void bombIfSpecifiedAsBlank(String entityValues, String entityName) {
+    private void bombIfEnvironmentsSpecifiedAsEmpty(EnvironmentsConfig environments) {
+        if (environments != null && CollectionUtils.isEmpty(environments)) {
+            String msg = "Environments are specified but they are blank.";
+            result.badRequest(msg, msg, general(GLOBAL));
+            throw new IllegalArgumentException(msg);
+        }
+    }
+
+    private void bombIfResourcesSpecifiedAsBlank(String entityValues) {
         if (entityValues != null && isBlank(entityValues)) {
-            String msg = format("%s are specified but they are blank.", entityName);
+            String msg = "Resources are specified but they are blank.";
             result.badRequest(msg, msg, general(GLOBAL));
             throw new IllegalArgumentException(msg);
         }
@@ -104,9 +115,9 @@ public class AgentUpdateValidator {
 
     private boolean isAnyOperationPerformedOnAgents() {
         return isNotBlank(resources)
-                    || isNotBlank(environments)
-                    || isNotBlank(hostname)
-                    || state.isTrue() || state.isFalse();
+                || CollectionUtils.isNotEmpty(environments)
+                || isNotBlank(hostname)
+                || state.isTrue() || state.isFalse();
     }
 
     private void bombIfAnyOperationOnPendingAgent() throws InvalidPendingAgentOperationException {
@@ -121,5 +132,18 @@ public class AgentUpdateValidator {
         String msg = format("Pending agent [%s] must be explicitly enabled or disabled when performing any operation on it.", agentInstance.getUuid());
         result.badRequest(msg, msg, general(GLOBAL));
         throw new InvalidPendingAgentOperationException(singletonList(agentInstance.getUuid()));
+    }
+
+    private void bombWhenElasticAgentResourcesAreUpdated() throws ElasticAgentsResourceUpdateException {
+        if (isBlank(resources)) {
+            return;
+        }
+        if (!agentInstance.isElastic()) {
+            return;
+        }
+
+        String message = format("Resources on elastic agent with uuid [%s] can not be updated.", agentInstance.getUuid());
+        result.badRequest(message, "", general(GLOBAL));
+        throw new ElasticAgentsResourceUpdateException(singletonList(agentInstance.getUuid()));
     }
 }

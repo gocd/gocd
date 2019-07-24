@@ -17,6 +17,7 @@ package com.thoughtworks.go.apiv4.agents
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.config.BasicEnvironmentConfig
 import com.thoughtworks.go.config.EnvironmentsConfig
 import com.thoughtworks.go.domain.AgentInstance
 import com.thoughtworks.go.domain.NullAgentInstance
@@ -42,6 +43,7 @@ import java.util.stream.Stream
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.helper.AgentInstanceMother.idle
 import static com.thoughtworks.go.helper.AgentInstanceMother.idleWith
+import static com.thoughtworks.go.helper.EnvironmentConfigMother.environment
 import static java.util.Arrays.asList
 import static java.util.Collections.singleton
 import static java.util.stream.Collectors.toSet
@@ -225,15 +227,20 @@ class AgentsControllerV4Test implements SecurityServiceTrait, ControllerTrait<Ag
     void 'should update agent information'() {
       loginAsAdmin()
       AgentInstance updatedAgentInstance = idleWith("uuid2", "agent02.example.com", "10.0.0.1", "/var/lib/bar", 10, "", asList("psql", "java"))
+      def environmentsConfig = new EnvironmentsConfig()
+      def environmentConfig = environment("env1")
 
+      when(environmentConfigService.findOrDefault("env1")).thenReturn(environmentConfig)
       when(environmentConfigService.environmentsFor("uuid2")).thenReturn(singleton("env1"))
+      
+      environmentsConfig.add(environmentConfig)
       when(agentService.updateAgentAttributes(
         eq(currentUsername()),
         any() as HttpOperationResult,
         eq("uuid2"),
         eq("agent02.example.com"),
         eq("java,psql"),
-        eq("env1"),
+        eq(environmentsConfig),
         eq(TriState.TRUE))
       ).thenReturn(updatedAgentInstance)
 
@@ -276,7 +283,7 @@ class AgentsControllerV4Test implements SecurityServiceTrait, ControllerTrait<Ag
     @Test
     void 'should error out when operation is unsuccessful'() {
       loginAsAdmin()
-      when(agentService.updateAgentAttributes(any() as Username, any() as HttpOperationResult, anyString(), anyString(), anyString(), anyString(), any() as TriState)).thenAnswer({ InvocationOnMock invocation ->
+      when(agentService.updateAgentAttributes(any() as Username, any() as HttpOperationResult, anyString(), anyString(), anyString(), anyList() as EnvironmentsConfig, any() as TriState)).thenAnswer({ InvocationOnMock invocation ->
         def result = invocation.getArgument(1) as HttpOperationResult
         result.unprocessibleEntity("Not a valid operation", "some description", null)
         return idle()

@@ -521,6 +521,15 @@ class EnvironmentConfigServiceTest {
                 .isInstanceOf(RecordNotFoundException.class);
     }
 
+    @Test
+    void shouldReturnDefaultBasicEnvConfigWhenEnvironmentIsAbsent() {
+        String environmentName = "foo-environment";
+        String pipelineName = "up42";
+        environmentConfigService.syncEnvironmentsFromConfig(environmentsConfig(environmentName, pipelineName));
+
+        assertThat(environmentConfigService.findOrDefault("invalid-environment-name")).isEqualTo(new BasicEnvironmentConfig(new CaseInsensitiveString("invalid-environment-name")));
+    }
+
     @Nested
     class EnvironmentForPipeline {
         @Test

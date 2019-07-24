@@ -32,8 +32,6 @@ import com.thoughtworks.go.apiv5.agents.representers.AgentBulkUpdateRequestRepre
 import com.thoughtworks.go.apiv5.agents.representers.AgentRepresenter;
 import com.thoughtworks.go.apiv5.agents.representers.AgentUpdateRequestRepresenter;
 import com.thoughtworks.go.apiv5.agents.representers.AgentsRepresenter;
-import com.thoughtworks.go.config.BasicEnvironmentConfig;
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.EnvironmentConfig;
 import com.thoughtworks.go.config.EnvironmentsConfig;
 import com.thoughtworks.go.config.exceptions.EntityType;
@@ -46,6 +44,7 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import spark.Request;
@@ -56,6 +55,7 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static spark.Spark.*;
 
@@ -102,7 +102,7 @@ public class AgentsControllerV5 extends ApiController implements SparkSpringCont
         Map<AgentInstance, Collection<EnvironmentConfig>> agentToEnvConfigsMap = new HashMap<>();
         agentService.agentInstances().values().forEach(agentInstance -> {
             Set<EnvironmentConfig> environmentConfigs = environmentConfigService.environmentConfigsFor(agentInstance.getUuid());
-            agentToEnvConfigsMap.put(agentInstance,environmentConfigs);
+            agentToEnvConfigsMap.put(agentInstance, environmentConfigs);
         });
         return writerForTopLevelObject(request, response,
                 outputWriter -> AgentsRepresenter.toJSON(outputWriter, agentToEnvConfigsMap, securityService, currentUsername()));
@@ -119,14 +119,8 @@ public class AgentsControllerV5 extends ApiController implements SparkSpringCont
         final AgentUpdateRequest agentUpdateRequest = AgentUpdateRequestRepresenter.fromJSON(request.body());
         final HttpOperationResult result = new HttpOperationResult();
 
-        final AgentInstance updatedAgentInstance
-                = agentService.updateAgentAttributes(currentUsername(),
-                                                     result,
-                                                     uuid,
-                                                     agentUpdateRequest.getHostname(),
-                                                     agentUpdateRequest.getResources(),
-                                                     agentUpdateRequest.getEnvironments(),
-                                                     agentUpdateRequest.getAgentConfigState());
+        EnvironmentsConfig envsConfig = createEnvironmentsConfigFrom(agentUpdateRequest.getEnvironments());
+        final AgentInstance updatedAgentInstance = agentService.updateAgentAttributes(currentUsername(), result, uuid, agentUpdateRequest.getHostname(), agentUpdateRequest.getResources(), envsConfig, agentUpdateRequest.getAgentConfigState());
 
         return handleCreateOrUpdateResponse(request, response, updatedAgentInstance, result);
     }
@@ -138,22 +132,36 @@ public class AgentsControllerV5 extends ApiController implements SparkSpringCont
 
         EnvironmentsConfig envsConfig = createEnvironmentsConfigFrom(req.getOperations().getEnvironments().toAdd());
         agentService.bulkUpdateAgentAttributes(currentUsername(),
-                                               result,
-                                               req.getUuids(),
-                                               req.getOperations().getResources().toAdd(),
-                                               req.getOperations().getResources().toRemove(),
-                                               envsConfig,
-                                               req.getOperations().getEnvironments().toRemove(),
-                                               req.getAgentConfigState());
+                result,
+                req.getUuids(),
+                req.getOperations().getResources().toAdd(),
+                req.getOperations().getResources().toRemove(),
+                envsConfig,
+                req.getOperations().getEnvironments().toRemove(),
+                req.getAgentConfigState());
 
         return renderHTTPOperationResult(result, request, response);
     }
 
+    private EnvironmentsConfig createEnvironmentsConfigFrom(String commaSeparatedEnvironments) {
+        if (commaSeparatedEnvironments == null) {
+            return null;
+        }
+        EnvironmentsConfig environmentConfigs = new EnvironmentsConfig();
+        if (StringUtils.isBlank(commaSeparatedEnvironments)) {
+            return environmentConfigs;
+        }
+
+        return createEnvironmentsConfigFrom(asList(commaSeparatedEnvironments.split(",")));
+    }
+
     private EnvironmentsConfig createEnvironmentsConfigFrom(List<String> envList) {
-        if(envList != null){
-            return envList.stream()
-                          .map(environmentConfigService::named)
-                          .collect(Collectors.toCollection(EnvironmentsConfig::new));
+        if (envList != null) {
+            EnvironmentsConfig collect = envList.stream()
+                    .filter(StringUtils::isNotBlank)
+                    .map(environmentConfigService::findOrDefault)
+                    .collect(Collectors.toCollection(EnvironmentsConfig::new));
+            return collect;
         }
         return new EnvironmentsConfig();
     }
@@ -202,7 +210,7 @@ public class AgentsControllerV5 extends ApiController implements SparkSpringCont
     }
 
     private void checkSecurityOr403(Request request, Response response) {
-        if (Arrays.asList("GET", "HEAD").contains(request.requestMethod().toUpperCase())) {
+        if (asList("GET", "HEAD").contains(request.requestMethod().toUpperCase())) {
             apiAuthenticationHelper.checkUserAnd403(request, response);
             return;
         }

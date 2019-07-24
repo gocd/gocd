@@ -17,6 +17,7 @@ package com.thoughtworks.go.server.service;
 
 import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.remote.AgentIdentifier;
@@ -39,6 +40,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -53,7 +55,6 @@ import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -282,6 +283,7 @@ public class AgentServiceTest {
         when(agentInstance.canBeDeleted()).thenReturn(true);
 
         when(agentInstances.findAgentAndRefreshStatus(uuid)).thenReturn(agentInstance);
+        when(agentInstance.getAgent()).thenReturn(mock(Agent.class));
 
         AgentService agentService = new AgentService(new SystemEnvironment(), agentInstances,
                 securityService, agentDao, uuidGenerator, serverHealthService = mock(ServerHealthService.class), null, goConfigService);
@@ -345,7 +347,7 @@ public class AgentServiceTest {
             when(agentDao.agentByUuid(uuid)).thenReturn(agent);
             when(agentInstances.findAgent(uuid)).thenReturn(mock(AgentInstance.class));
 
-            AgentInstance agentInstance = agentService.updateAgentAttributes(username, result, uuid, "new-hostname", "resource1,resource2", "env1,env2", TriState.TRUE);
+            AgentInstance agentInstance = agentService.updateAgentAttributes(username, result, uuid, "new-hostname", "resource1,resource2", createEnvironmentsConfigWith("env1", "env2"), TriState.TRUE);
 
             verify(agentDao).saveOrUpdate(any(Agent.class));
             assertTrue(result.isSuccess());
@@ -389,7 +391,7 @@ public class AgentServiceTest {
             when(agentInstance.isNullAgent()).thenReturn(true);
             when(agentInstance.getUuid()).thenReturn(uuid);
 
-            agentService.updateAgentAttributes(username, result, uuid, "new-hostname", "resource1,resource2", "env1,env2", TriState.TRUE);
+            agentService.updateAgentAttributes(username, result, uuid, "new-hostname", "resource1,resource2", createEnvironmentsConfigWith("env1", "env2"), TriState.TRUE);
 
             verify(agentDao, times(0)).saveOrUpdate(any(Agent.class));
             assertThat(result.httpCode(), is(404));
@@ -409,7 +411,7 @@ public class AgentServiceTest {
             when(agentInstance.isNullAgent()).thenReturn(false);
             when(agentInstance.getUuid()).thenReturn(uuid);
 
-            agentService.updateAgentAttributes(username, result, uuid, "new-hostname", "resource1,resource2", "", TriState.TRUE);
+            agentService.updateAgentAttributes(username, result, uuid, "new-hostname", "resource1,resource2", emptyEnvsConfig, TriState.TRUE);
 
             verify(agentDao, times(0)).saveOrUpdate(any(Agent.class));
             assertThat(result.httpCode(), is(400));
@@ -429,7 +431,7 @@ public class AgentServiceTest {
             when(agentInstance.isNullAgent()).thenReturn(false);
             when(agentInstance.getUuid()).thenReturn(uuid);
 
-            agentService.updateAgentAttributes(username, result, uuid, "new-hostname", "", "env1", TriState.TRUE);
+            agentService.updateAgentAttributes(username, result, uuid, "new-hostname", "", createEnvironmentsConfigWith("env1"), TriState.TRUE);
 
             verify(agentDao, times(0)).saveOrUpdate(any(Agent.class));
             assertThat(result.httpCode(), is(400));
@@ -450,7 +452,7 @@ public class AgentServiceTest {
             when(agentInstance.isPending()).thenReturn(true);
             when(agentInstance.getUuid()).thenReturn(uuid);
 
-            agentService.updateAgentAttributes(username, result, uuid, "new-hostname", "resource1", "env1", TriState.UNSET);
+            agentService.updateAgentAttributes(username, result, uuid, "new-hostname", "resource1", createEnvironmentsConfigWith("env1"), TriState.UNSET);
 
             verify(agentDao, times(0)).saveOrUpdate(any(Agent.class));
             assertThat(result.httpCode(), is(400));
@@ -467,7 +469,7 @@ public class AgentServiceTest {
             when(agentDao.agentByUuid(uuid)).thenReturn(agent);
             when(agentInstances.findAgent(uuid)).thenReturn(mock(AgentInstance.class));
 
-            AgentInstance agentInstance = agentService.updateAgentAttributes(username, result, uuid, "new-hostname", "res%^1", "env1", TriState.TRUE);
+            AgentInstance agentInstance = agentService.updateAgentAttributes(username, result, uuid, "new-hostname", "res%^1", createEnvironmentsConfigWith("env1"), TriState.TRUE);
 
             verify(agentDao, times(0)).saveOrUpdate(any(Agent.class));
             assertThat(result.httpCode(), is(422));
@@ -488,7 +490,7 @@ public class AgentServiceTest {
             when(agentDao.agentByUuid(uuid)).thenReturn(agent);
             when(agentInstances.findAgent(uuid)).thenReturn(mock(AgentInstance.class));
 
-            AgentInstance agentInstance = agentService.updateAgentAttributes(username, result, uuid, null, null, "env1,env2", TriState.TRUE);
+            AgentInstance agentInstance = agentService.updateAgentAttributes(username, result, uuid, null, null, createEnvironmentsConfigWith("env1", "env2"), TriState.TRUE);
 
             verify(agentDao).saveOrUpdate(any(Agent.class));
             assertTrue(result.isSuccess());
@@ -500,6 +502,37 @@ public class AgentServiceTest {
             assertThat(agentFromService.getResources().getCommaSeparatedResourceNames(), is(""));
             assertThat(agentFromService.getEnvironments(), is("env1,env2"));
             assertFalse(agentFromService.isDisabled());
+        }
+
+        @Test
+        void shouldNotAddEnvsWhichAreAssociatedWithTheAgentFromConfigRepo() {
+            String uuid = "uuid";
+            HttpOperationResult result = new HttpOperationResult();
+            Username username = new Username(new CaseInsensitiveString("test"));
+
+            when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
+            when(agentDao.agentByUuid(uuid)).thenReturn(agent);
+            when(agentInstances.findAgent(uuid)).thenReturn(mock(AgentInstance.class));
+
+            EnvironmentsConfig environmentConfigs = new EnvironmentsConfig();
+            EnvironmentConfig repoEnvConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("config-repo-env"));
+            repoEnvConfig.setOrigins(new RepoConfigOrigin());
+            repoEnvConfig.addAgent(uuid);
+            environmentConfigs.add(repoEnvConfig);
+            environmentConfigs.add(new BasicEnvironmentConfig(new CaseInsensitiveString("non-config-repo-env")));
+            AgentInstance agentInstance = agentService.updateAgentAttributes(username, result, uuid, null, null, environmentConfigs, TriState.TRUE);
+
+            verify(agentDao).saveOrUpdate(any(Agent.class));
+            assertTrue(result.isSuccess());
+            assertThat(result.message(), is("Updated agent with uuid uuid."));
+
+            assertThat(agentInstance.getAgent().getEnvironments(), is("non-config-repo-env"));
+        }
+
+        private EnvironmentsConfig createEnvironmentsConfigWith(String... envs) {
+            EnvironmentsConfig envsConfig = new EnvironmentsConfig();
+            Arrays.stream(envs).forEach(env -> envsConfig.add(new BasicEnvironmentConfig(new CaseInsensitiveString(env))));
+            return envsConfig;
         }
     }
 }

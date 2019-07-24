@@ -711,8 +711,8 @@ public class AgentServiceIntegrationTest {
             String notSpecifying = null;
             agentService.updateAgentAttributes(USERNAME, result1, UUID, notSpecifying, notSpecifying, notSpecifying, TriState.UNSET);
 
-            assertThat(result1.httpCode(), is(200));
-            assertThat(result1.message(), is("Updated agent with uuid uuid."));
+            assertThat(result1.httpCode(), is(400));
+            assertThat(result1.message(), is("No Operation performed on agents."));
 
             assertThat(agentService.agentInstances().size(), is(1));
             assertThat(getFirstAgent().getHostname(), is(originalHostname));

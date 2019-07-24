@@ -17,6 +17,8 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
+import com.thoughtworks.go.config.exceptions.InvalidPendingAgentOperationException;
+import com.thoughtworks.go.config.update.AgentUpdateValidator;
 import com.thoughtworks.go.config.update.AgentsUpdateValidator;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.listener.AgentChangeListener;
@@ -150,38 +152,59 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         return agentInstances.findRegisteredAgents();
     }
 
-    private boolean isUnknownAgent(AgentInstance agentInstance, OperationResult result) {
-        if (agentInstance.isNullAgent()) {
-            String agentNotFoundMessage = format("Agent '%s' not found", agentInstance.getUuid());
+    private boolean agentNotFound(Agent agent, OperationResult result) {
+        if (agent.isNull()) {
+            String agentNotFoundMessage = format("Agent '%s' not found", agent.getUuid());
             result.notFound("Agent not found.", agentNotFoundMessage, general(GLOBAL));
             return true;
         }
+
         return false;
     }
 
-    private boolean doesNotHaveOperatePermission(Username username, OperationResult operationResult) {
+    private boolean doesNotHaveOperatePermission(Username username, OperationResult result) {
         if (!securityService.hasOperatePermissionForAgents(username)) {
             String message = "Unauthorized to operate on agent";
-            operationResult.forbidden(message, message, general(GLOBAL));
+            result.forbidden(message, message, general(GLOBAL));
             return true;
         }
         return false;
     }
 
     public AgentInstance updateAgentAttributes(Username username, HttpOperationResult result, String uuid,
-                                               String newHostname, String resources, String environments,
+                                               String hostname, String resources, String environments,
                                                TriState state) {
-        if (doesNotHaveOperatePermission(username, result)) {
+        AgentUpdateValidator validator = new AgentUpdateValidator(username, agentInstances.findAgent(uuid), hostname, environments,
+                                                                  resources, state, result, goConfigService);
+        Agent agent = agentDao.agentByUuid(uuid);
+        try {
+            if(validator.canContinue()) {
+                validator.validate();
+
+                setAgentAttributes(hostname, environments, resources, state, agent);
+
+                saveOrUpdate(agent);
+
+                if (agent.hasErrors()) {
+                    result.unprocessibleEntity("Updating agent failed:", "", general(GLOBAL));
+                } else {
+                    result.ok(format("Updated agent with uuid %s.", agent.getUuid()));
+                }
+            }
+        } catch(InvalidPendingAgentOperationException | IllegalArgumentException e){
+            LOGGER.error(e.getMessage(), e);
+            return null;
+        } catch (Exception e) {
+            String msg = "Updating agent failed: " + e.getMessage();
+            LOGGER.error(msg, e);
+            result.internalServerError(msg, general(GLOBAL));
             return null;
         }
 
-        AgentInstance agentInstance = agentInstances.findAgent(uuid);
-        if (isUnknownAgent(agentInstance, result)) {
-            return null;
-        }
+        return AgentInstance.createFromAgent(agent, systemEnvironment, agentStatusChangeNotifier);
+    }
 
-        Agent agent = new Agent(agentInstance.getAgent());
-
+    private void setAgentAttributes(String newHostname, String environments, String resources, TriState state, Agent agent) {
         if (state.isTrue()) {
             agent.enable();
         }
@@ -201,21 +224,6 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         if (environments != null) {
             agent.setEnvironments(environments);
         }
-
-        try {
-            saveOrUpdate(agent);
-
-            if (agent.hasErrors()) {
-                result.unprocessibleEntity("Updating agent failed:", "", general(GLOBAL));
-            } else {
-                result.ok(format("Updated agent with uuid %s.", agent.getUuid()));
-            }
-        } catch (Exception e) {
-            result.internalServerError("Updating agent failed: " + e.getMessage(), general(GLOBAL));
-            return null;
-        }
-
-        return AgentInstance.createFromAgent(agent, systemEnvironment, agentStatusChangeNotifier);
     }
 
     public void bulkUpdateAgentAttributes(Username username, LocalizedOperationResult result, List<String> uuids,
@@ -383,7 +391,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     private boolean populateAgentInstancesForUUIDs(OperationResult result, List<String> uuids, List<AgentInstance> agents) {
         for (String uuid : uuids) {
             AgentInstance agentInstance = findAgentAndRefreshStatus(uuid);
-            if (isUnknownAgent(agentInstance, result)) {
+            if (agentNotFound(agentInstance.getAgent(), result)) {
                 return false;
             }
             agents.add(agentInstance);

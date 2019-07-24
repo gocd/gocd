@@ -36,7 +36,9 @@ import static org.apache.commons.lang3.StringUtils.*;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 /**
- * @understands the current persistent information related to an Agent
+ * <code>Agent</code> is the entity object model class used by Hibernate to represent a record in <code>Agents</code> table.
+ * This object model is used to perform crud operations on <code>Agents</code> table. Hence please do not remove the <i>default constructor</i>
+ * and do not change anything related to <i>id</i> field as those are critical for hibernate to work fine
  */
 public class Agent extends PersistentObject {
     private String hostname;

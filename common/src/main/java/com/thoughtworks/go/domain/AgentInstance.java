@@ -353,14 +353,14 @@ public class AgentInstance implements Comparable<AgentInstance> {
     public static AgentInstance createFromAgent(Agent agent, SystemEnvironment systemEnvironment,
                                                 AgentStatusChangeListener agentStatusChangeListener) {
         AgentType type = agent.isFromLocalHost() ? AgentType.LOCAL : AgentType.REMOTE;
-        AgentInstance result = new AgentInstance(agent, type, systemEnvironment, agentStatusChangeListener);
-        result.agentConfigStatus = agent.isDisabled() ? AgentConfigStatus.Disabled : AgentConfigStatus.Enabled;
+        AgentInstance agentInstance = new AgentInstance(agent, type, systemEnvironment, agentStatusChangeListener);
+        agentInstance.agentConfigStatus = agent.isDisabled() ? AgentConfigStatus.Disabled : AgentConfigStatus.Enabled;
 
-        result.errors.addAll(agent.errors());
+        agentInstance.errors.addAll(agent.errors());
         for (ResourceConfig resourceConfig : agent.getResourceConfigs()) {
-            result.errors.addAll(resourceConfig.errors());
+            agentInstance.errors.addAll(resourceConfig.errors());
         }
-        return result;
+        return agentInstance;
     }
 
     public static AgentInstance createFromLiveAgent(AgentRuntimeInfo agentRuntimeInfo, SystemEnvironment systemEnvironment,

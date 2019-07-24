@@ -271,7 +271,7 @@ public class AgentInstanceMother {
         ResourceConfig resourceConfig1 = new ResourceConfig("foo%");
         ResourceConfig resourceConfig2 = new ResourceConfig("bar$");
         Agent agent = new Agent("uuid", "host", "IP", new ResourceConfigs(resourceConfig1, resourceConfig2));
-        agent.validate(null);
+        agent.validate();
         return AgentInstance.createFromAgent(agent, new SystemEnvironment(), mock(AgentStatusChangeListener.class));
     }
 }

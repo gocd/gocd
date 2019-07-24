@@ -59,6 +59,7 @@ import static com.thoughtworks.go.util.CommaSeparatedString.remove;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 import static java.lang.String.format;
+import static java.util.Arrays.asList;
 import static java.util.Collections.*;
 import static java.util.stream.StreamSupport.stream;
 import static org.apache.commons.lang3.StringUtils.join;
@@ -498,7 +499,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
 
     private void bombIfAgentHasErrors(Agent agent) {
         if (agent.hasErrors()) {
-            List<ConfigErrors> errors = ErrorCollector.getAllErrors(agent);
+            List<ConfigErrors> errors = agent.errorsAsList();
 
             throw new GoConfigInvalidException(null, new AllConfigErrors(errors));
         }
@@ -637,11 +638,11 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     }
 
     public void disableAgents(String... uuids) {
-        agentDao.changeDisabled(Arrays.asList(uuids), true);
+        agentDao.changeDisabled(asList(uuids), true);
     }
 
     public void saveOrUpdate(Agent agent) {
-        agent.validate(null);
+        agent.validate();
         if (!agent.hasErrors()) {
             agentDao.saveOrUpdate(agent);
         }
@@ -704,7 +705,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     }
 
     public void validate(Agent agent) {
-        agent.validate(null);
+        agent.validate();
     }
 
     private EnvironmentsConfig getEnvironmentsConfigFrom(EnvironmentConfig envConfig) {

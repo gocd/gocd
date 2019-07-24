@@ -49,6 +49,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.List;
 
 import static com.thoughtworks.go.util.SystemEnvironment.AGENT_EXTRA_PROPERTIES;
@@ -241,7 +242,7 @@ public class AgentRegistrationController {
             HttpOperationResult result = new HttpOperationResult();
             agentService.validate(agent);
             if (agent.hasErrors()) {
-                List<ConfigErrors> errors = ErrorCollector.getAllErrors(agent);
+                List<ConfigErrors> errors = agent.errorsAsList();
                 throw new GoConfigInvalidException(null, new AllConfigErrors(errors));
             }
 
@@ -268,7 +269,7 @@ public class AgentRegistrationController {
                 LOG.info("[Agent Auto Registration] Auto registering agent with uuid {} ", uuid);
                 agentService.register(agent, agentAutoRegisterResources, agentAutoRegisterEnvironments, result);
                 if (agent.hasErrors()) {
-                    List<ConfigErrors> errors = ErrorCollector.getAllErrors(agent);
+                    List<ConfigErrors> errors = agent.errorsAsList();
 
                     ConfigErrors e = new ConfigErrors();
                     e.add("resultMessage", result.detailedMessage());

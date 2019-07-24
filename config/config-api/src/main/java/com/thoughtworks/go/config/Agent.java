@@ -38,7 +38,7 @@ import static org.springframework.util.CollectionUtils.isEmpty;
 /**
  * @understands the current persistent information related to an Agent
  */
-public class Agent extends PersistentObject implements Validatable {
+public class Agent extends PersistentObject {
     private String hostname;
     private String ipaddress;
     private String uuid;
@@ -55,9 +55,10 @@ public class Agent extends PersistentObject implements Validatable {
     public static final String IP_ADDRESS = "ipAddress";
     public static final String UUID = "uuid";
 
-    public Agent(){}
+    public Agent() {
+    }
 
-    public Agent(Agent anotherAgent){
+    public Agent(Agent anotherAgent) {
         setUuid(anotherAgent.getUuid());
         setHostname(anotherAgent.getHostname());
         setIpaddress(anotherAgent.getIpaddress());
@@ -68,7 +69,7 @@ public class Agent extends PersistentObject implements Validatable {
         setEnvironments(anotherAgent.getEnvironments());
 
         ResourceConfigs anotherAgentResourceConfigs = anotherAgent.getResourceConfigs();
-        if(!isEmpty(anotherAgentResourceConfigs)){
+        if (!isEmpty(anotherAgentResourceConfigs)) {
             setResources(anotherAgentResourceConfigs.getCommaSeparatedResourceNames());
         }
 
@@ -114,8 +115,7 @@ public class Agent extends PersistentObject implements Validatable {
         this.setEnvironments(remove(this.getEnvironments(), envsToRemove));
     }
 
-    @Override
-    public void validate(ValidationContext validationContext) {
+    public void validate() {
         validateIpAddress();
         if (isBlank(uuid)) {
             addError(UUID, "UUID cannot be empty");
@@ -155,14 +155,16 @@ public class Agent extends PersistentObject implements Validatable {
         }
     }
 
-    @Override
     public void addError(String fieldName, String msg) {
         errors.add(fieldName, msg);
     }
 
-    @Override
     public ConfigErrors errors() {
         return errors;
+    }
+
+    public List<ConfigErrors> errorsAsList() {
+        return asList(errors);
     }
 
     public boolean hasErrors() {
@@ -186,7 +188,7 @@ public class Agent extends PersistentObject implements Validatable {
     }
 
     public void addResource(String resource) {
-        if(isNotBlank(resource)) {
+        if (isNotBlank(resource)) {
             addResources(singletonList(resource));
         }
     }
@@ -350,7 +352,7 @@ public class Agent extends PersistentObject implements Validatable {
         this.setEnvironments(append(this.getEnvironments(), envsToAdd));
     }
 
-    public void addEnvironment(String env){
+    public void addEnvironment(String env) {
         this.addEnvironments(singletonList(env));
     }
 

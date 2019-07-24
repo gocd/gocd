@@ -86,7 +86,7 @@ public class Agents extends ArrayList<Agent> implements Validatable {
     public void validate(ValidationContext validationContext) {
         boolean validity = validateDuplicateElasticAgentIds();
         for (Agent agent : this) {
-            agent.validate(validationContext);
+            agent.validate();
             validity = !agent.hasErrors() && validity;
         }
     }

@@ -72,7 +72,6 @@ public class NewDashboardController implements SparkController {
             put("viewTitle", "Dashboard");
             put("showEmptyPipelineGroups", Toggles.isToggleOn(Toggles.ALLOW_EMPTY_PIPELINE_GROUPS_DASHBOARD));
             put("shouldShowAnalyticsIcon", showAnalyticsIcon());
-            put("addPipelineButtonStyling", Toggles.isToggleOn(Toggles.ADD_PIPELINE_BUTTON_STYLING));
         }};
         return new ModelAndView(object, "new_dashboard/index.ftlh");
     }

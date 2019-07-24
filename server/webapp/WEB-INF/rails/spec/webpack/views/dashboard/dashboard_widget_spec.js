@@ -34,7 +34,7 @@ describe("Dashboard Widget", () => {
 
   const sel = asSelector(css);
 
-  let dashboard, dashboardJson, buildCauseJson, doCancelPolling, doRefreshImmediately;
+  let dashboard, dashboardJson, buildCauseJson, doCancelPolling, doRefreshImmediately, vm;
   const originalDebounce = _.debounce;
 
   const helper = new TestHelper();
@@ -311,8 +311,10 @@ describe("Dashboard Widget", () => {
     expect(helper.q(sel.btnPrimary, helper.q(".dashboard-group_title"))).toBeInDOM();
   });
 
-  it("should show pipeline add icon when grouped by environments for admin users", () => {
-    expect(helper.q(sel.btnPrimary, helper.q(".dashboard-group_title"))).toBeInDOM();
+  it("should not show pipeline add icon when grouped by environments for admin users", () => {
+    vm.groupByEnvironment(true);
+    m.redraw();
+    expect(helper.q(sel.btnPrimary, helper.q(".dashboard-group_title"))).not.toBeInDOM();
   });
 
   it("should show disabled pipeline group settings icon showing tooltip for non admin users", () => {
@@ -524,8 +526,8 @@ describe("Dashboard Widget", () => {
     personalizeVM.model(new Personalization([{name: "Default", state: []}], []));
     dashboard.initialize(dashboardJson);
 
-    const dashboardViewModel           = new DashboardVM(dashboard);
-    dashboardViewModel._performRouting = _.noop;
+    vm = new DashboardVM(dashboard);
+    vm._performRouting = _.noop;
     helper.mount(() => m(DashboardWidget, {
       personalizeVM,
       showSpinner,
@@ -533,7 +535,7 @@ describe("Dashboard Widget", () => {
       shouldShowAnalyticsIcon:    false,
       doCancelPolling,
       doRefreshImmediately,
-      vm:                         dashboardViewModel
+      vm
     }));
   }
 

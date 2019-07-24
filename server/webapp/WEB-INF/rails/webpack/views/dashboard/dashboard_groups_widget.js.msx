@@ -33,7 +33,7 @@ const GroupHeading = {
               aria-label={vm.label()}>{vm.name || "Pipelines not in any Environment"}</f.link>
       {vm.name && <f.link class="edit_config dashboard-group_edit-config" disabled={!vm.canAdminister} href={paths.edit}
                           tooltipText={vm.tooltipForEdit()} title={vm.titleForEdit()} aria-label={vm.ariaLabelForEdit()}/>}
-      { vm.canAdminister ? <Buttons.Primary align="right"
+      { vm.canAdminister && paths.new ? <Buttons.Primary align="right"
                                             icon={Buttons.ButtonIcon.ADD}
                                             disabled={!vm.canAdminister}
                                             aria-label={vm.ariaLabelForNewPipeline()}

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {bind} from "classnames/bind";
+import classnames from "classnames";
 import * as Routes from "gen/ts-routes";
 import {MithrilComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
@@ -37,7 +37,6 @@ import {Attrs as ElasticProfilesWidgetAttrs, ElasticProfilesWidget} from "views/
 import {AddOperation, CloneOperation, DeleteOperation, EditOperation} from "views/pages/page_operations";
 import * as styles from ".//index.scss";
 
-const classnames = bind(styles);
 export type ClusterProfileOperations = EditOperation<ClusterProfile> & DeleteOperation<string> & AddOperation<void> & CloneOperation<ClusterProfile>;
 
 export interface Attrs extends ElasticProfilesWidgetAttrs {

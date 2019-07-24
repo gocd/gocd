@@ -13,15 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {bind} from "classnames/bind";
+import classnames from "classnames";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
 import {NotificationCenter} from "views/components/notification_center";
 import {ServerHealthSummary} from "views/components/server_health_summary/server_health_summary";
 import SiteMenu, {SiteSubNavItem} from "views/components/site_menu";
 import * as styles from "./site_header.scss";
-
-const classnames          = bind(styles);
 
 export interface Attrs {
   isAnonymous: boolean;

@@ -13,12 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {bind} from "classnames/bind";
+import classnames from "classnames";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
 import * as styles from "./index.scss";
-
-const classnames = bind(styles);
 
 interface SiteHeaderLinkAttrs {
   isNavLink?: boolean;

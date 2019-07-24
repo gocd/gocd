@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {bind} from "classnames/bind";
+import classnames from "classnames";
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
 import {
@@ -24,7 +24,6 @@ import * as s from "underscore.string";
 import {Modal, Size} from "../modal";
 import * as styles from "./server_health_messages_count_widget.scss";
 
-const classnames    = bind(styles);
 const TimeFormatter = require("helpers/time_formatter");
 
 export class ServerHealthMessagesModal extends Modal {

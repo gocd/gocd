@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {bind} from "classnames/bind";
+import classnames from "classnames";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
@@ -43,8 +43,6 @@ import {
 } from "views/components/forms/input_fields";
 import {DeleteOperation, DisableOperation, EnableOperation} from "views/pages/page_operations";
 import * as styles from "./index.scss";
-
-const classnames = bind(styles);
 
 export interface HasRoleSelection {
   rolesSelection: Stream<Map<GoCDRole, TriStateCheckbox>>;

@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-import {bind} from "classnames/bind";
+import classnames from "classnames";
 import {MithrilComponent} from "jsx/mithril-component";
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
 import * as styles from "./index.scss";
-
-const classnames = bind(styles);
 
 interface Attrs {
   tabs: m.Child[] | any;

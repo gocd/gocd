@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {bind} from "classnames/bind";
+import classnames from "classnames";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
@@ -28,8 +28,6 @@ import {Spinner} from "views/components/spinner";
 import * as foundationStyles from "views/pages/new_plugins/foundation_hax.scss";
 import {GoCDRoleModalBodyWidget, PluginRoleModalBodyWidget} from "views/pages/roles/role_modal_body_widget";
 import * as styles from "./index.scss";
-
-const foundationClassNames = bind(foundationStyles);
 
 export enum Action {
   NEW, CLONE, EDIT
@@ -96,7 +94,7 @@ export class RoleModalBody extends MithrilViewComponent<RoleModalAttrs> {
                                  role={vnode.attrs.role()}/>);
     }
 
-    return (<div class={foundationClassNames(foundationStyles.foundationGridHax, foundationStyles.foundationFormHax)}>
+    return (<div class={classnames(foundationStyles.foundationGridHax, foundationStyles.foundationFormHax)}>
         {mayBeTypeSelector}
         {roleWidget}
       </div>

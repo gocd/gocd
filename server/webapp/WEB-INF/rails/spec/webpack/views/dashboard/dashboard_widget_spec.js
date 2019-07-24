@@ -15,6 +15,8 @@
  */
 import SparkRoutes from "helpers/spark_routes";
 import {TestHelper} from "views/pages/spec/test_helper";
+import * as css from "views/components/buttons/index.scss";
+import {asSelector} from "helpers/css_proxies";
 
 describe("Dashboard Widget", () => {
   const m               = require("mithril");
@@ -29,6 +31,8 @@ describe("Dashboard Widget", () => {
 
   const PersonalizeVM   = require('views/dashboard/models/personalization_vm');
   const Personalization = require('models/dashboard/personalization');
+
+  const sel = asSelector(css);
 
   let dashboard, dashboardJson, buildCauseJson, doCancelPolling, doRefreshImmediately;
   const originalDebounce = _.debounce;
@@ -304,18 +308,11 @@ describe("Dashboard Widget", () => {
   });
 
   it("should show pipeline add icon when grouped by pipeline group for admin users", () => {
-    const pipelineGroupJSON = dashboardJson._embedded.pipeline_groups[0];
-
-    const title = helper.find('.dashboard-group_add_pipeline>a').get(0);
-    expect(title.href.indexOf(`/go/admin/pipelines/create?group=${pipelineGroupJSON.name}`)).not.toEqual(-1);
-
+    expect(helper.q(sel.btnPrimary, helper.q(".dashboard-group_title"))).toBeInDOM();
   });
 
-  it("should not show pipeline add icon when grouped by environments for admin users", () => {
-    const pipelineGroupJSON = dashboardJson._embedded.environments[0];
-
-    const title = helper.find('.dashboard-group_add_pipeline>a').get(0);
-    expect(title.href.indexOf(`/go/admin/pipelines/create?group=${pipelineGroupJSON.name}`)).toEqual(-1);
+  it("should show pipeline add icon when grouped by environments for admin users", () => {
+    expect(helper.q(sel.btnPrimary, helper.q(".dashboard-group_title"))).toBeInDOM();
   });
 
   it("should show disabled pipeline group settings icon showing tooltip for non admin users", () => {

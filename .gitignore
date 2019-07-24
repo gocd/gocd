@@ -446,3 +446,7 @@ api/api-scms-v2/out/
 api/api-scms-v2/target/
 api/api-scms-v2/logs/
 api/api-scms-v2/config/
+api/api-internal-pipelines-v1/out/
+api/api-internal-pipelines-v1/target/
+api/api-internal-pipelines-v1/logs/
+api/api-internal-pipelines-v1/config/

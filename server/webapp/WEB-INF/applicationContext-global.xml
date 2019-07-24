@@ -31,6 +31,7 @@
   <context:component-scan base-package="com.thoughtworks.go.apiv1.mailserver"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv1.internalresources"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv1.internalcommandsnippets"/>
+  <context:component-scan base-package="com.thoughtworks.go.apiv1.internalpipelines"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv1.backupconfig"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv1.pipelinesascodeinternal"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv1.pluginsettings"/>

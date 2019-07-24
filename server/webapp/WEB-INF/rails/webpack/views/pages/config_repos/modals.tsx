@@ -61,7 +61,7 @@ class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
       return {id: pluginInfo.id, text: pluginInfo.about.name};
     });
 
-    const errorMessage = vnode.attrs.error ? <div className={styles.errorWrapper}>{vnode.attrs.error}</div> : undefined;
+    const errorMessage = vnode.attrs.error ? <div class={styles.errorWrapper}>{vnode.attrs.error}</div> : undefined;
     return (
       [
         (errorMessage),

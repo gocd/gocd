@@ -154,9 +154,9 @@ interface PluginDeprecationWarningAttrs {
 class PluginDeprecationWarning extends MithrilViewComponent<PluginDeprecationWarningAttrs> {
   view(vnode: m.Vnode<PluginDeprecationWarningAttrs>) {
     return (
-      <div data-test-id="deprecation-warning-tooltip-wrapper" className={styles.deprecationWarningTooltipWrapper}>
-        <i data-test-id={"deprecation-warning-icon"} className={styles.deprecationWarningIcon}/>
-        <div data-test-id="deprecation-warning-tooltip-content" className={styles.deprecationWarningTooltipContent}>
+      <div data-test-id="deprecation-warning-tooltip-wrapper" class={styles.deprecationWarningTooltipWrapper}>
+        <i data-test-id={"deprecation-warning-icon"} class={styles.deprecationWarningIcon}/>
+        <div data-test-id="deprecation-warning-tooltip-content" class={styles.deprecationWarningTooltipContent}>
           {vnode.attrs.content}
         </div>
       </div>);

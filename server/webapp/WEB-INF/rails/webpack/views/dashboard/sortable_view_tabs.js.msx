@@ -46,7 +46,7 @@ const ViewTab = {
                 data-name={name} aria-label={current ? `'${name}' is selected` : name} title={name} tabIndex="0">
       <i class="icon_drag" />
       <div class="tab-name" title={name} aria-label={name}>{name}</div>
-      <button className="edit-tab"  onclick={edit} ><i class="icon_edit"/></button>
+      <button class="edit-tab"  onclick={edit} ><i class="icon_edit"/></button>
     </div>;
   }
 };

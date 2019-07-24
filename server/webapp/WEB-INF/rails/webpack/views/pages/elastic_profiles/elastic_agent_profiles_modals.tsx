@@ -335,14 +335,14 @@ export class UsageElasticProfileModal extends Modal {
     }
 
     const data = this.usages.map((usage) => [
-      <span className={styles.tableCell}>{usage.pipelineName()}</span>,
-      <span className={styles.tableCell}>{usage.stageName()}</span>,
-      <span className={styles.tableCell}>{usage.jobName()}</span>,
+      <span class={styles.tableCell}>{usage.pipelineName()}</span>,
+      <span class={styles.tableCell}>{usage.stageName()}</span>,
+      <span class={styles.tableCell}>{usage.jobName()}</span>,
       UsageElasticProfileModal.anchorToSettings(usage)
     ]);
     return (
       <div>
-        <em className={styles.note}>* The `Job settings` link will be disabled when pipeline config is defined
+        <em class={styles.note}>* The `Job settings` link will be disabled when pipeline config is defined
           externally.</em>
         <Table headers={["Pipeline", "Stage", "Job", " "]} data={data}/>
       </div>

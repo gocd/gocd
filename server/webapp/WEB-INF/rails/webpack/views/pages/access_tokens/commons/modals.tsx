@@ -97,7 +97,7 @@ export abstract class RevokeTokenModal extends BaseModal {
 
   body(): m.Children {
     if (this.operationState() === PageState.LOADING) {
-      return <div className={styles.spinnerContainer}>
+      return <div class={styles.spinnerContainer}>
         <Spinner/>
       </div>;
     }

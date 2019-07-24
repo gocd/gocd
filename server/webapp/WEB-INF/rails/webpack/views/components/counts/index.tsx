@@ -34,7 +34,7 @@ export interface Attrs {
 
 export class Counts extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
-    return <div className={classnames(styles.countWrapper)}>
+    return <div class={classnames(styles.countWrapper)}>
       <ul data-test-id={vnode.attrs.dataTestId}>
         {
           _.map(vnode.attrs.counts, (count) => {
@@ -42,7 +42,7 @@ export class Counts extends MithrilViewComponent<Attrs> {
             const classNames = classnames(styles.count, styles[count.color]);
 
             return <li>{count.label}: <span data-test-id={`${vnode.attrs.dataTestId}-${s.slugify(count.label)}`}
-                                            className={classNames}>{count.count}</span></li>;
+                                            class={classNames}>{count.count}</span></li>;
           })
         }
       </ul>

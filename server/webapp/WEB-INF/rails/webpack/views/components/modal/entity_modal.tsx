@@ -67,11 +67,11 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
 
   body(): m.Children {
     const flashMessage = this.errorMessage() ?
-      <div className={styles.errorWrapper}><FlashMessage type={MessageType.alert} message={this.errorMessage()}/>
+      <div class={styles.errorWrapper}><FlashMessage type={MessageType.alert} message={this.errorMessage()}/>
       </div> : null;
     return [
       flashMessage,
-      <div className={classnames(foundationStyles.foundationGridHax, foundationStyles.foundationFormHax)}>
+      <div class={classnames(foundationStyles.foundationGridHax, foundationStyles.foundationFormHax)}>
         {this.modalBody()}
       </div>
     ];

@@ -47,13 +47,13 @@ export class TestConnection extends MithrilViewComponent<Attrs> {
     this.failure  = vnode.attrs.failure;
     this.complete = vnode.attrs.complete;
 
-    return <div className={styles.testConnectionButtonWrapper}>
+    return <div class={styles.testConnectionButtonWrapper}>
       <Buttons.Secondary data-test-id="test-connection-button"
                          onclick={() => this.testConnection(vnode.attrs.material, vnode.attrs.group)} disabled={this.busy}>
-        <span className={this.testConnectionButtonIcon} data-test-id="test-connection-icon"/>
+        <span class={this.testConnectionButtonIcon} data-test-id="test-connection-icon"/>
         {this.testConnectionButtonText}
       </Buttons.Secondary>
-      <div className={styles.testConnectionResult}>{this.testConnectionMessage}</div>
+      <div class={styles.testConnectionResult}>{this.testConnectionMessage}</div>
     </div>;
   }
 

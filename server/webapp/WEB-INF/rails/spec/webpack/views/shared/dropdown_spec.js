@@ -43,7 +43,7 @@ describe('Dropdown widget', () => {
   beforeEach(() => {
     helper.mount(() => {
       return <div>
-        <span className="other-node">Some text</span>
+        <span class="other-node">Some text</span>
         <Dropdown model={model}
                   label="Select an item:"
                   attrName="selectedAnimal"

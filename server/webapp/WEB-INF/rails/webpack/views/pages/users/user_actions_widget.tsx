@@ -71,18 +71,18 @@ class FiltersView extends Dropdown<FiltersViewAttrs> {
     return (
       <div data-test-id="filters-view"
            data-test-visible={`${vnode.attrs.showFilters()}`}
-           className={classnames({[styles.hidden]: !vnode.attrs.showFilters()},
+           class={classnames({[styles.hidden]: !vnode.attrs.showFilters()},
                                  styles.filterDropdownContent)}>
-        <header className={classnames(styles.filterHeader)}>
-          <h4 data-test-id="filter-by-heading" className={classnames(styles.filterByHeading)}> Filter By </h4>
+        <header class={classnames(styles.filterHeader)}>
+          <h4 data-test-id="filter-by-heading" class={classnames(styles.filterByHeading)}> Filter By </h4>
           <Link data-test-id="reset-filter-btn"
                 onclick={vnode.attrs.userFilters().resetFilters.bind(vnode.attrs.userFilters())}>
             Reset Filters
           </Link>
         </header>
-        <div className={classnames(styles.filtersBody)}>
-          <div className={classnames(styles.filterItems)}>
-            <h4 className={classnames(styles.filterItemsHead)}
+        <div class={classnames(styles.filtersBody)}>
+          <div class={classnames(styles.filterItems)}>
+            <h4 class={classnames(styles.filterItemsHead)}
                 data-test-id="filter-by-privileges-heading">Privileges</h4>
             <Form compactForm={true} data-test-id="filter-by-privileges">
               <CheckboxField label="System Administrators"
@@ -91,8 +91,8 @@ class FiltersView extends Dropdown<FiltersViewAttrs> {
                              property={vnode.attrs.userFilters().normalUsers}/>
             </Form>
           </div>
-          <div className={classnames(styles.filterItems)}>
-            <h4 className={classnames(styles.filterItemsHead)} data-test-id="filter-by-users-state-heading">
+          <div class={classnames(styles.filterItems)}>
+            <h4 class={classnames(styles.filterItemsHead)} data-test-id="filter-by-users-state-heading">
               User state
             </h4>
             <Form compactForm={true} data-test-id="filter-by-states">
@@ -103,9 +103,9 @@ class FiltersView extends Dropdown<FiltersViewAttrs> {
             </Form>
           </div>
 
-          <div className={classnames(styles.filterItems)}>
-            <h4 className={classnames(styles.filterItemsHead)} data-test-id="filter-by-role-heading">Roles</h4>
-            <div data-test-id="filter-by-roles" className={styles.filterByRoles}>
+          <div class={classnames(styles.filterItems)}>
+            <h4 class={classnames(styles.filterItemsHead)} data-test-id="filter-by-role-heading">Roles</h4>
+            <div data-test-id="filter-by-roles" class={styles.filterByRoles}>
               <Form compactForm={true}>
                 {this.renderRoles(vnode)}
               </Form>
@@ -167,8 +167,8 @@ class RolesDropdown extends Dropdown<RolesViewAttrs> {
     });
 
     return (
-      <div className={classNames}>
-        <div className={styles.rolesList}>
+      <div class={classNames}>
+        <div class={styles.rolesList}>
           <Form compactForm={true}>
             {checkboxes}
           </Form>
@@ -216,9 +216,9 @@ export class UsersActionsWidget extends MithrilViewComponent<State> {
       }
     ] as CountsAttr[];
 
-    return <div className={classnames(styles.userManagementHeader)}>
-      <div className={classnames(styles.userActionsAndCounts)}>
-        <div className={classnames(styles.userActions)}>
+    return <div class={classnames(styles.userManagementHeader)}>
+      <div class={classnames(styles.userActionsAndCounts)}>
+        <div class={classnames(styles.userActions)}>
           <ButtonGroup>
             <Secondary onclick={vnode.attrs.onEnable.bind(vnode.attrs, vnode.attrs.users())}
                        disabled={!vnode.attrs.users().anyUserSelected()}>Enable</Secondary>
@@ -231,7 +231,7 @@ export class UsersActionsWidget extends MithrilViewComponent<State> {
         </div>
         <Counts counts={counts} dataTestId="users"/>
       </div>
-      <div className={classnames(styles.userFilters)}>
+      <div class={classnames(styles.userFilters)}>
         <SearchField property={vnode.attrs.userFilters().searchText} dataTestId={"search-box"}/>
         <FiltersView {...vnode.attrs} show={vnode.attrs.showFilters}/>
       </div>

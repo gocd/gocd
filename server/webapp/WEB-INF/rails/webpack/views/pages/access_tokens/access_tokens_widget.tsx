@@ -72,7 +72,7 @@ export class AccessTokensWidgetForCurrentUser extends MithrilViewComponent<Attrs
       </ul>);
     }
     return (
-      <div className={styles.personalAccessTokenContainer}>
+      <div class={styles.personalAccessTokenContainer}>
         <Tabs tabs={["Active Tokens", "Revoked Tokens"]}
               contents={[
                 this.getActiveTokensView(vnode),
@@ -84,7 +84,7 @@ export class AccessTokensWidgetForCurrentUser extends MithrilViewComponent<Attrs
 
   getRevokeButton(vnode: m.Vnode<Attrs>, accessToken: Stream<AccessToken>) {
     if (accessToken().revoked()) {
-      return <span className={styles.revoked}>Revoked</span>;
+      return <span class={styles.revoked}>Revoked</span>;
     }
     return <Buttons.Default data-test-id="button-revoke"
                             onclick={vnode.attrs.onRevoke.bind(this, accessToken)}>Revoke</Buttons.Default>;
@@ -100,7 +100,7 @@ export class AccessTokensWidgetForCurrentUser extends MithrilViewComponent<Attrs
       </p>;
     }
 
-    return <div className={styles.activeTokensTable}>
+    return <div class={styles.activeTokensTable}>
       <Table headers={["Description", "Created At", "Last Used", "Revoke"]}
              data={activeTokensData}/>
     </div>;
@@ -113,7 +113,7 @@ export class AccessTokensWidgetForCurrentUser extends MithrilViewComponent<Attrs
       return <p>You don't have any revoked tokens.</p>;
     }
 
-    return <div className={styles.revokedTokensTable}>
+    return <div class={styles.revokedTokensTable}>
       <Table data={revokedTokensData}
              headers={["Description", "Created At", "Last Used", "Revoked By", "Revoked At", "Revoked Message"]}/>
     </div>;
@@ -154,8 +154,8 @@ export class AccessTokensWidgetForAdmin extends MithrilViewComponent<AdminAttrs>
     }
 
     return (
-      <div className={styles.adminAccessTokenContainer}>
-        <div className={styles.accessTokenSearchBox}>
+      <div class={styles.adminAccessTokenContainer}>
+        <div class={styles.accessTokenSearchBox}>
           <SearchField property={vnode.attrs.searchText} dataTestId={"search-box"} placeholder={"Search tokens"}/>
         </div>
         <Tabs
@@ -172,7 +172,7 @@ export class AccessTokensWidgetForAdmin extends MithrilViewComponent<AdminAttrs>
   getRevokeButton(accessToken: Stream<AccessToken>,
                   onRevoke: (accessToken: Stream<AccessToken>, e: MouseEvent) => void) {
     if (accessToken().revoked()) {
-      return <span className={styles.revoked}>Revoked</span>;
+      return <span class={styles.revoked}>Revoked</span>;
     }
     return <Buttons.Default data-test-id="button-revoke"
                             onclick={onRevoke.bind(this, accessToken)}>Revoke</Buttons.Default>;
@@ -205,7 +205,7 @@ export class AccessTokensWidgetForAdmin extends MithrilViewComponent<AdminAttrs>
       return <p>There are no active tokens matching your search query.</p>;
     }
 
-    return <div className={styles.activeTokensTable}>
+    return <div class={styles.activeTokensTable}>
       <Table headers={["Created By", "Description", "Created At", "Last Used", "Revoke"]}
              data={accessTokenDataPostFilter}/></div>;
   }
@@ -221,7 +221,7 @@ export class AccessTokensWidgetForAdmin extends MithrilViewComponent<AdminAttrs>
       return <p>There are no revoked tokens matching your search query.</p>;
     }
 
-    return <div className={styles.revokedTokensTable}>
+    return <div class={styles.revokedTokensTable}>
       <Table data={revokedTokensData}
              headers={["Created By", "Description", "Created At", "Last Used", "Revoked By", "Revoked At", "Revoked Message"]}/>
     </div>;

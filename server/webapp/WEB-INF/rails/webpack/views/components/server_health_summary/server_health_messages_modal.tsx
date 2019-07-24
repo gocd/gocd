@@ -36,7 +36,7 @@ export class ServerHealthMessagesModal extends Modal {
   }
 
   body(): m.Children {
-    return <ul className={styles.serverHealthStatuses}>
+    return <ul class={styles.serverHealthStatuses}>
       {
         this.messages().collect((msg: ServerHealthMessage) => {
                                   return this.messageView(msg);
@@ -55,11 +55,11 @@ export class ServerHealthMessagesModal extends Modal {
 
     return <li data-test-id={messageId}
                data-test-message-level={message.level.toLowerCase()}
-               className={classnames(styles.serverHealthStatus, message.level.toLowerCase())}>
-      <span data-test-class="server-health-message_message" className={styles.message}>{m.trust(message.message)}</span>
+               class={classnames(styles.serverHealthStatus, message.level.toLowerCase())}>
+      <span data-test-class="server-health-message_message" class={styles.message}>{m.trust(message.message)}</span>
       <span data-test-class="server-health-message_timestamp"
-            className={styles.timestamp}>{TimeFormatter.format(message.time)}</span>
-      <p data-test-class="server-health-message_detail" className={styles.detail}>{m.trust(message.detail)}</p>
+            class={styles.timestamp}>{TimeFormatter.format(message.time)}</span>
+      <p data-test-class="server-health-message_detail" class={styles.detail}>{m.trust(message.detail)}</p>
     </li>;
   }
 }

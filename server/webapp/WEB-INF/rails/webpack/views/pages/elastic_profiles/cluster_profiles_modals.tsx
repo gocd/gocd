@@ -148,7 +148,7 @@ export abstract class BaseClusterProfileModal extends Modal {
         </div>
         <div>
           {errorSection}
-          <div className={classnames(foundationStyles.foundationGridHax, foundationStyles.foundationFormHax)}>
+          <div class={classnames(foundationStyles.foundationGridHax, foundationStyles.foundationFormHax)}>
             <div class="row collapse" data-test-id="cluster-profile-properties-form">
               {clusterProfileForm}
             </div>

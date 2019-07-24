@@ -58,7 +58,7 @@ export class UserSearchModal extends Modal {
     return (
       <div>
         {optionalErrorMesage}
-        <div className={classnames(styles.searchUser)}>
+        <div class={classnames(styles.searchUser)}>
           <SearchFieldWithButton property={this.searchText}
                                  placeholder={'Search user..'}
                                  dataTestId={"user-search-query"}
@@ -111,7 +111,7 @@ export class UserSearchModal extends Modal {
 
   private renderTable() {
     if (this.searchStatus()) {
-      return <div className={styles.spinnerWrapper}><Spinner/></div>;
+      return <div class={styles.spinnerWrapper}><Spinner/></div>;
     }
 
     if (_.isEmpty(this.userResult())) {

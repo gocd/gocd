@@ -36,7 +36,7 @@ class MainPage extends MithrilViewComponent<Attrs> {
       <div class={styles.page}>
         <div class={styles.pagewrap}>
           {this.showHeader(vnode)}
-          <main className={styles.mainContainer}>
+          <main class={styles.mainContainer}>
             {vnode.children}
           </main>
         </div>

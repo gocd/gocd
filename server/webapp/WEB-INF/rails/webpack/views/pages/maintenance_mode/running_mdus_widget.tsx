@@ -50,7 +50,7 @@ export class MDUInfoWidget extends MithrilViewComponent<MDUInfoAttrs> {
     }
 
     return (
-      <CollapsiblePanel header={<h3 className={styles.runningSystemHeader}>Running MDUs</h3>} expanded={true}>
+      <CollapsiblePanel header={<h3 class={styles.runningSystemHeader}>Running MDUs</h3>} expanded={true}>
         {inProgressMaterials}
       </CollapsiblePanel>
     );

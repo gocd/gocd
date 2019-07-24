@@ -36,7 +36,7 @@ export class DeleteUserConfirmModal extends DeleteConfirmModal {
   private static getMessage(usersToBeDeleted: string[]) {
     return (<div>
       <p>Are you sure you want to delete these users:
-        <span className={styles.toBeDeletedUsers}>
+        <span class={styles.toBeDeletedUsers}>
           {usersToBeDeleted.join(",")}
         </span>
       </p>

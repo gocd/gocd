@@ -36,15 +36,15 @@ export class KeyValuePair extends MithrilViewComponent<Attrs> {
       const dataTestIdForKey   = s.slugify(`key-value-key-${key}`);
       const dataTestIdForValue = s.slugify(`key-value-value-${key}`);
 
-      elements.push(<li className={classnames(styles.keyValueItem, {[styles.keyValueInlineItem]: isInline})} key={key}>
-        <label data-test-id={dataTestIdForKey} title={key} className={styles.key}>{key}</label>
+      elements.push(<li class={classnames(styles.keyValueItem, {[styles.keyValueInlineItem]: isInline})} key={key}>
+        <label data-test-id={dataTestIdForKey} title={key} class={styles.key}>{key}</label>
         <span data-test-id={dataTestIdForValue}
-              className={styles.value}>{KeyValuePair.renderedValue(value)}</span>
+              class={styles.value}>{KeyValuePair.renderedValue(value)}</span>
       </li>);
     });
     return (
       <ul data-test-id={vnode.attrs['data-test-id']}
-          className={classnames(styles.keyValuePair, {[styles.keyValuePairInline]: isInline})}>
+          class={classnames(styles.keyValuePair, {[styles.keyValuePairInline]: isInline})}>
         {elements}
       </ul>
     );
@@ -93,7 +93,7 @@ export class KeyValueTitle extends MithrilViewComponent<KeyValueTitleAttrs> {
     const inlineClass = vnode.attrs.inline ? styles.titleInline : '';
     return [
       vnode.attrs.image,
-      <h4 data-test-id={vnode.attrs.titleTestId} className={classnames(styles.title, inlineClass)}>{vnode.attrs.title}</h4>
+      <h4 data-test-id={vnode.attrs.titleTestId} class={classnames(styles.title, inlineClass)}>{vnode.attrs.title}</h4>
     ];
   }
 }

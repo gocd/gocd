@@ -59,7 +59,7 @@ export class JobInfoWidget extends MithrilViewComponent<JobInfoAttrs> {
     }
 
     return (
-      <CollapsiblePanel header={<h3 className={styles.runningSystemHeader}>{vnode.attrs.title}</h3>} expanded={true}>
+      <CollapsiblePanel header={<h3 class={styles.runningSystemHeader}>{vnode.attrs.title}</h3>} expanded={true}>
         <div>{runningStages}</div>
       </CollapsiblePanel>
     );

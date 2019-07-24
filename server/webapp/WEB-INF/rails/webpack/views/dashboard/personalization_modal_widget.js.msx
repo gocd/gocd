@@ -46,7 +46,7 @@ const BlanketSelector = {
     const vm = vnode.attrs.vm;
     return <div class="blanket-selection">
       <span class="blanket-selection_label">Select pipelines</span>
-      <div className="select-pipelines_buttons">
+      <div class="select-pipelines_buttons">
         <f.button class={vm && vm.hasAllSelected() ? "btn_all active" : "btn_all"} disabled={!vm} onclick={vm && vm.selectAll}>All</f.button>
         <f.button class={vm && vm.hasNoneSelected() ? "btn_none active" : "btn_none"}  disabled={!vm} onclick={vm && vm.selectNone}>None</f.button>
       </div>
@@ -165,10 +165,10 @@ const PersonalizationModalWidget = {
     const vm = vnode.attrs.vm;
 
     return <div class="personalize-editor-controls">
-      <div className="view-top">
+      <div class="view-top">
         <AlertContainer vm={vm}/>
         <FilterNameInput {...vnode.attrs} />
-        <div className="show-pipelines">
+        <div class="show-pipelines">
           <span class="section-label">Show pipelines:</span>
           <div class="checkbox-help">
             <f.checkbox name="include-new-pipelines" model={vm} attrName="includeNewPipelines" label="New" labelClass="checkbox-help_label"/>

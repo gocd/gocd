@@ -181,7 +181,7 @@ def configureLinuxPackage(DefaultTask packageTask, InstallerType installerType, 
             }
 
             if (eachLine == 'PIDDIR="."') {
-              eachLine = "PIDDIR=\"/var/run/${installerType.baseName}\""
+              eachLine = "PIDDIR=\"/var/lib/${installerType.baseName}/run\""
             }
 
             if (eachLine =~ /^#PASS_THROUGH=/ && installerType.allowPassthrough) {

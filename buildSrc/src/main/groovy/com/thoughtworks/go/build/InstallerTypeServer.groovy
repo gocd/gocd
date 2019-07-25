@@ -78,6 +78,7 @@ class InstallerTypeServer implements InstallerType {
       '/usr/share/doc/go-server'           : [mode: 0755, owner: 'root', group: 'root', ownedByPackage: true],
       '/usr/share/go-server/wrapper-config': [mode: 0750, owner: 'root', group: 'go', ownedByPackage: true],
       '/var/lib/go-server'                 : [mode: 0750, owner: 'go', group: 'go', ownedByPackage: true],
+      '/var/lib/go-server/run'             : [mode: 0750, owner: 'go', group: 'go', ownedByPackage: true],
       '/var/log/go-server'                 : [mode: 0750, owner: 'go', group: 'go', ownedByPackage: true],
       '/var/run/go-server'                 : [mode: 0750, owner: 'go', group: 'go', ownedByPackage: true],
       '/etc/go'                            : [mode: 0750, owner: 'go', group: 'go', ownedByPackage: true],

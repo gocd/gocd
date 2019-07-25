@@ -246,7 +246,12 @@ function bindingAttributes<T>(attrs: BindingsAttr<T> & ReadonlyAttr,
   };
 
   if (!attrs.readonly) {
+    const existingHandler = (attrs as any)[eventName];
     bindingAttributes[eventName] = (evt: any) => {
+      if ("function" === typeof existingHandler) {
+        existingHandler(evt);
+      }
+
       attrs.property(evt.currentTarget[propertyAttribute]);
       if (attrs.onchange) {
         attrs.onchange(evt);
@@ -313,19 +318,24 @@ export abstract class FormField<T, V = {}> extends MithrilViewComponent<BaseAttr
   protected abstract renderInputField(vnode: m.Vnode<BaseAttrs<T> & V>): m.Children;
 }
 
-export type TextFieldAttrs = BaseAttrs<string> & RequiredFieldAttr & PlaceholderAttr;
+export interface TextFieldAttrs extends BaseAttrs<string>, RequiredFieldAttr, PlaceholderAttr {
+  type?: string;
+}
+
 export type NumberFieldAttrs = BaseAttrs<number> & RequiredFieldAttr & PlaceholderAttr;
 
 export class TextField extends FormField<string, RequiredFieldAttr & PlaceholderAttr> {
-
   renderInputField(vnode: m.Vnode<TextFieldAttrs>) {
-    return (
-      <input type="text"
-             class={classnames(styles.formControl)}
-             {...this.defaultAttributes(vnode.attrs)}
-             {...this.bindingAttributes(vnode.attrs, "oninput", "value")}
-      />
-    );
+    const baseAttrs: { [key: string]: string } = {
+      type: vnode.attrs.type || "text",
+      class: styles.formControl
+    };
+
+    return <input
+      {...baseAttrs}
+      {...this.defaultAttributes(vnode.attrs)}
+      {...this.bindingAttributes(vnode.attrs, "oninput", "value")}
+    />;
   }
 
   protected defaultAttributes(attrs: TextFieldAttrs) {

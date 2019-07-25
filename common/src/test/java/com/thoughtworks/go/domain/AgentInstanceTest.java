@@ -16,8 +16,6 @@
 package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.config.Agent;
-import com.thoughtworks.go.config.ResourceConfig;
-import com.thoughtworks.go.config.ResourceConfigs;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.listener.AgentStatusChangeListener;
@@ -41,8 +39,10 @@ import java.util.List;
 import static com.thoughtworks.go.domain.AgentInstance.AgentType.LOCAL;
 import static com.thoughtworks.go.domain.AgentInstance.AgentType.REMOTE;
 import static com.thoughtworks.go.domain.AgentInstance.FilterBy.*;
+import static com.thoughtworks.go.util.CommaSeparatedString.convertCommaSeparatedStrToList;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -678,7 +678,7 @@ public class AgentInstanceTest {
 
     @Test
     public void shouldNotMatchJobPlanIfTheAgentIsElasticAndJobHasResourcesDefined() {
-        Agent agent = new Agent("uuid", "hostname", "11.1.1.1", new ResourceConfigs(new ResourceConfig("r1")));
+        Agent agent = new Agent("uuid", "hostname", "11.1.1.1", singletonList("r1"));
         agent.setElasticAgentId("elastic-agent-id-1");
         String elasticPluginId = "elastic-plugin-id-1";
         agent.setElasticPluginId(elasticPluginId);
@@ -795,7 +795,7 @@ public class AgentInstanceTest {
     }
 
     private Agent agent(String resources) {
-        return new Agent("UUID", "A", "127.0.0.1", new ResourceConfigs(resources));
+        return new Agent("UUID", "A", "127.0.0.1", convertCommaSeparatedStrToList(resources));
     }
 
     private AgentRuntimeInfo buildingRuntimeInfo() {

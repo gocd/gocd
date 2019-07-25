@@ -23,20 +23,23 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 public class CommaSeparatedString {
-    public static String append(String origCommaSeparatedStr, List<String> entriesToAdd){
-        if(isEmpty(entriesToAdd)){
+    public static String append(String origCommaSeparatedStr, List<String> entriesToAdd) {
+        if (isEmpty(entriesToAdd)) {
             return origCommaSeparatedStr;
         }
 
         LinkedHashSet<String> distinctEntrySet = createDistinctEntrySetWithExistingAndNewEntriesToAdd(origCommaSeparatedStr, entriesToAdd);
 
         List<String> entryList = distinctEntrySet.stream()
-                                                 .filter(StringUtils::isNotBlank)
-                                                 .collect(Collectors.toList());
+                .map(String::trim)
+                .filter(StringUtils::isNotBlank)
+                .collect(Collectors.toList());
+
         if (!entryList.isEmpty()) {
             return convertListToCommaSeparatedStr(entryList);
         }
@@ -44,15 +47,17 @@ public class CommaSeparatedString {
         return null;
     }
 
-    public static String remove(String commaSeparatedStr, List<String> entriesToRemove){
-        if(isEmpty(entriesToRemove)){
+    public static String remove(String commaSeparatedStr, List<String> entriesToRemove) {
+        if (isEmpty(entriesToRemove)) {
             return commaSeparatedStr;
         }
 
         if (isNotBlank(commaSeparatedStr)) {
             List<String> entryListAfterRemoval = Arrays.stream(convertCommaSeparatedStrToArray(commaSeparatedStr))
-                                                       .filter(entry -> !entriesToRemove.contains(entry))
-                                                       .collect(Collectors.toList());
+                    .map(String::trim)
+                    .filter(entry -> !entriesToRemove.contains(entry))
+                    .collect(Collectors.toList());
+
             if (!entryListAfterRemoval.isEmpty()) {
                 return convertListToCommaSeparatedStr(entryListAfterRemoval);
             }
@@ -74,15 +79,15 @@ public class CommaSeparatedString {
         return uniqEntrySet;
     }
 
-    private static String convertListToCommaSeparatedStr(List<String> list){
+    private static String convertListToCommaSeparatedStr(List<String> list) {
         return String.join(",", list);
     }
 
-    private static List<String> convertCommaSeparatedStrToList(String commaSeparatedStr){
+    public static List<String> convertCommaSeparatedStrToList(String commaSeparatedStr){
         return Arrays.asList(convertCommaSeparatedStrToArray(commaSeparatedStr));
     }
 
-    private static String[] convertCommaSeparatedStrToArray(String commaSeparatedStr){
-        return commaSeparatedStr.split(",");
+    private static String[] convertCommaSeparatedStrToArray(String commaSeparatedStr) {
+        return commaSeparatedStr.trim().split("\\s*,[,\\s]*");
     }
 }

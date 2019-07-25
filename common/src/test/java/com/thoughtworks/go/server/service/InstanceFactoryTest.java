@@ -34,10 +34,7 @@ import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.UUID;
+import java.util.*;
 
 import static com.thoughtworks.go.domain.JobResult.Passed;
 import static com.thoughtworks.go.domain.JobResult.Unknown;
@@ -45,6 +42,8 @@ import static com.thoughtworks.go.domain.JobState.Completed;
 import static com.thoughtworks.go.domain.JobState.Scheduled;
 import static com.thoughtworks.go.helper.ModificationsMother.modifyOneFile;
 import static com.thoughtworks.go.util.DataStructureUtils.a;
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -111,8 +110,8 @@ public class InstanceFactoryTest {
 
         Pipeline instance = instanceFactory.createPipelineInstance(pipelineConfig, ModificationsMother.forceBuild(pipelineConfig), context, "some-md5", new TimeProvider());
 
-        assertThat(instance.findStage("stage").findJob("foo").getPlan().getVariables(), is(new EnvironmentVariables(Arrays.asList(new EnvironmentVariable("foo", "foo")))));
-        assertThat(instance.findStage("stage").findJob("bar").getPlan().getVariables(), is(new EnvironmentVariables(Arrays.asList(new EnvironmentVariable("foo", "bar")))));
+        assertThat(instance.findStage("stage").findJob("foo").getPlan().getVariables(), is(new EnvironmentVariables(asList(new EnvironmentVariable("foo", "foo")))));
+        assertThat(instance.findStage("stage").findJob("bar").getPlan().getVariables(), is(new EnvironmentVariables(asList(new EnvironmentVariable("foo", "bar")))));
     }
 
     @Test
@@ -253,7 +252,7 @@ public class InstanceFactoryTest {
         JobInstance secondJob = new JobInstance("second-job", timeProvider);
         JobInstances jobInstances = new JobInstances(firstJob, secondJob);
         Stage stage = StageMother.custom("test", jobInstances);
-        Stage clonedStage = instanceFactory.createStageForRerunOfJobs(stage, Arrays.asList("first-job"), new DefaultSchedulingContext("loser", new Agents()),
+        Stage clonedStage = instanceFactory.createStageForRerunOfJobs(stage, asList("first-job"), new DefaultSchedulingContext("loser", new Agents()),
                 StageConfigMother.custom("test", "first-job", "second-job"),
                 new TimeProvider(),
                 "latest");
@@ -374,9 +373,9 @@ public class InstanceFactoryTest {
         JobConfig javaConfig = stageConfig.getJobs().getJob(new CaseInsensitiveString("java"));
         javaConfig.setRunInstanceCount(2);
 
-        Agent agent1 = new Agent("abcd1234", "host", "127.0.0.2", new ResourceConfigs(new ResourceConfig("foobar")));
-        Agent agent2 = new Agent("1234abcd", "ghost", "192.168.1.2", new ResourceConfigs(new ResourceConfig("baz"), new ResourceConfig("foobar")));
-        Agent agent3 = new Agent("7890abdc", "lost", "10.4.3.55", new ResourceConfigs(new ResourceConfig("crapyagent")));
+        Agent agent1 = new Agent("abcd1234", "host", "127.0.0.2", singletonList("foobar"));
+        Agent agent2 = new Agent("1234abcd", "ghost", "192.168.1.2", asList("baz", "foobar"));
+        Agent agent3 = new Agent("7890abdc", "lost", "10.4.3.55", singletonList("crapyagent"));
         DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents(agent1, agent2, agent3));
 
         Stage stageInstance = instanceFactory.createStageInstance(stageConfig, schedulingContext, "md5", clock);
@@ -553,10 +552,10 @@ public class InstanceFactoryTest {
         railsConfig.setRunOnAllAgents(true);
         railsConfig.addResourceConfig("foobar");
 
-        DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents(
-                new Agent("abcd1234", "host", "127.0.0.2", new ResourceConfigs(new ResourceConfig("foobar"))),
-                new Agent("1234abcd", "ghost", "192.168.1.2", new ResourceConfigs(new ResourceConfig("baz"), new ResourceConfig("foobar"))),
-                new Agent("7890abdc", "lost", "10.4.3.55", new ResourceConfigs(new ResourceConfig("crapyagent")))));
+        Agent agent1 = new Agent("abcd1234", "host", "127.0.0.2", singletonList("foobar"));
+        Agent agent2 = new Agent("1234abcd", "ghost", "192.168.1.2", asList("baz", "foobar"));
+        Agent agent3 = new Agent("7890abdc", "lost", "10.4.3.55", singletonList("crapyagent"));
+        DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents(agent1, agent2, agent3));
 
         RunOnAllAgents.CounterBasedJobNameGenerator jobNameGenerator = new RunOnAllAgents.CounterBasedJobNameGenerator(CaseInsensitiveString.str(railsConfig.name()));
         JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("dev"), railsConfig, schedulingContext, new TimeProvider(), jobNameGenerator);
@@ -582,10 +581,10 @@ public class InstanceFactoryTest {
         railsConfig.setRunOnAllAgents(true);
         railsConfig.addResourceConfig("foobar");
 
-        DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents(
-                new Agent("abcd1234", "host", "127.0.0.2", new ResourceConfigs(new ResourceConfig("foobar"))),
-                new Agent("1234abcd", "ghost", "192.168.1.2", new ResourceConfigs(new ResourceConfig("baz"), new ResourceConfig("foobar"))),
-                new Agent("7890abdc", "lost", "10.4.3.55", new ResourceConfigs(new ResourceConfig("crapyagent")))));
+        Agent agent1 = new Agent("abcd1234", "host", "127.0.0.2", singletonList("foobar"));
+        Agent agent2 = new Agent("1234abcd", "ghost", "192.168.1.2", asList("baz", "foobar"));
+        Agent agent3 = new Agent("7890abdc", "lost", "10.4.3.55", singletonList("crapyagent"));
+        DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents(agent1, agent2, agent3));
 
         RunOnAllAgents.CounterBasedJobNameGenerator jobNameGenerator = new RunOnAllAgents.CounterBasedJobNameGenerator(CaseInsensitiveString.str(railsConfig.name()));
         JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("dev"), railsConfig, schedulingContext, new TimeProvider(), jobNameGenerator);
@@ -620,10 +619,12 @@ public class InstanceFactoryTest {
         JobConfig railsConfig = stageConfig.getJobs().getJob(new CaseInsensitiveString("rails"));
         railsConfig.setRunOnAllAgents(true);
         railsConfig.addResourceConfig("foobar");
-        Stage newStage = instanceFactory.createStageForRerunOfJobs(stage, a("rails"), new DefaultSchedulingContext("loser", new Agents(
-                new Agent("abcd1234", "host", "127.0.0.2", new ResourceConfigs(new ResourceConfig("foobar"))),
-                new Agent("1234abcd", "ghost", "192.168.1.2", new ResourceConfigs(new ResourceConfig("baz"), new ResourceConfig("foobar"))),
-                new Agent("7890abdc", "lost", "10.4.3.55", new ResourceConfigs(new ResourceConfig("crapyagent"))))), stageConfig, new TimeProvider(), "md5");
+
+        Agent agent1 = new Agent("abcd1234", "host", "127.0.0.2", singletonList("foobar"));
+        Agent agent2 = new Agent("1234abcd", "ghost", "192.168.1.2", asList("baz", "foobar"));
+        Agent agent3 = new Agent("7890abdc", "lost", "10.4.3.55", singletonList("crapyagent"));
+        DefaultSchedulingContext context = new DefaultSchedulingContext("loser", new Agents(agent1, agent2, agent3));
+        Stage newStage = instanceFactory.createStageForRerunOfJobs(stage, a("rails"), context, stageConfig, new TimeProvider(), "md5");
 
         assertThat(newStage.getJobInstances().size(), is(3));
 
@@ -649,10 +650,10 @@ public class InstanceFactoryTest {
         railsConfig.setRunOnAllAgents(true);
         railsConfig.addResourceConfig("foobar");
 
-        DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents(
-                new Agent("abcd1234", "host", "127.0.0.2", new ResourceConfigs(new ResourceConfig("foobar"))),
-                new Agent("1234abcd", "ghost", "192.168.1.2", new ResourceConfigs(new ResourceConfig("baz"), new ResourceConfig("foobar"))),
-                new Agent("7890abdc", "lost", "10.4.3.55", new ResourceConfigs(new ResourceConfig("crapyagent")))));
+        Agent agent1 = new Agent("abcd1234", "host", "127.0.0.2", singletonList("foobar"));
+        Agent agent2 = new Agent("1234abcd", "ghost", "192.168.1.2", asList("baz", "foobar"));
+        Agent agent3 = new Agent("7890abdc", "lost", "10.4.3.55", singletonList("crapyagent"));
+        DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents(agent1, agent2, agent3));
 
         RunOnAllAgents.CounterBasedJobNameGenerator jobNameGenerator = new RunOnAllAgents.CounterBasedJobNameGenerator(CaseInsensitiveString.str(railsConfig.name()));
         JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("dev"), railsConfig, schedulingContext, new TimeProvider(), jobNameGenerator);
@@ -681,9 +682,9 @@ public class InstanceFactoryTest {
         railsConfig.setRunOnAllAgents(true);
         railsConfig.addResourceConfig("foobar");
 
-        Agent agent1 = new Agent("abcd1234", "host", "127.0.0.2", new ResourceConfigs(new ResourceConfig("foobar")));
-        Agent agent2 = new Agent("1234abcd", "ghost", "192.168.1.2", new ResourceConfigs(new ResourceConfig("baz"), new ResourceConfig("foobar")));
-        Agent agent3 = new Agent("7890abdc", "lost", "10.4.3.55", new ResourceConfigs(new ResourceConfig("crapyagent")));
+        Agent agent1 = new Agent("abcd1234", "host", "127.0.0.2", singletonList("foobar"));
+        Agent agent2 = new Agent("1234abcd", "ghost", "192.168.1.2", asList("baz", "foobar"));
+        Agent agent3 = new Agent("7890abdc", "lost", "10.4.3.55", singletonList("crapyagent"));
         DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents(agent1, agent2, agent3));
 
         RunOnAllAgents.CounterBasedJobNameGenerator jobNameGenerator = new RunOnAllAgents.CounterBasedJobNameGenerator(CaseInsensitiveString.str(railsConfig.name()));

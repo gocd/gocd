@@ -29,6 +29,7 @@ import org.junit.Test;
 import java.util.*;
 
 import static com.thoughtworks.go.helper.AgentInstanceMother.*;
+import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -84,7 +85,7 @@ public class AgentViewModelTest {
     @Test
     public void shouldSortAgentInstanceWithDifferentUsableSpaceCorrectly() {
         // nobody's grand daddy knows where this came from!
-        List<Long> magicValuesForTimSort = Arrays.asList(1L, 1L, 1L, 1L, 2L, 2L, 2L, 2L, -1L, -1L,
+        List<Long> magicValuesForTimSort = asList(1L, 1L, 1L, 1L, 2L, 2L, 2L, 2L, -1L, -1L,
                 -1L, -1L, -1L, -1L, -1L, -1L, -1L, -1L, -1L, -1L, -1L, -1L, -1L, -1L, -1L,
                 -1L, -1L, -1L, -1L, -1L, 1L, 2L);
         List<AgentViewModel> avmList = new ArrayList<>();
@@ -178,9 +179,7 @@ public class AgentViewModelTest {
 
     @Test
     public void shouldMapErrors() {
-        ResourceConfig resourceConfig1 = new ResourceConfig("foo");
-        ResourceConfig resourceConfig2 = new ResourceConfig("bar");
-        Agent agent = new Agent("uuid", "host", "IP", new ResourceConfigs(resourceConfig1, resourceConfig2));
+        Agent agent = new Agent("uuid", "host", "IP", asList("foo", "bar"));
         agent.addError(Agent.IP_ADDRESS, "bad ip");
         agent.addError(ResourceConfig.NAME, "bad name for resource2");
         agent.addError(ResourceConfig.NAME, "bad name for resource1");

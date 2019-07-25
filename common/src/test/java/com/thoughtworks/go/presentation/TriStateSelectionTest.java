@@ -15,16 +15,15 @@
  */
 package com.thoughtworks.go.presentation;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.config.Agents;
 import com.thoughtworks.go.config.ResourceConfig;
 import com.thoughtworks.go.config.ResourceConfigs;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import org.hamcrest.Matchers;
@@ -56,8 +55,8 @@ public class TriStateSelectionTest {
     @Test
     public void shouldHaveActionAddIfAllAgentsHaveThatResource() {
         resourceConfigs.add(new ResourceConfig("all"));
-        agents.add(new Agent("uuid1", "host1", "127.0.0.1", new ResourceConfigs("all")));
-        agents.add(new Agent("uuid2", "host2", "127.0.0.2", new ResourceConfigs("all")));
+        agents.add(new Agent("uuid1", "host1", "127.0.0.1", singletonList("all")));
+        agents.add(new Agent("uuid2", "host2", "127.0.0.2", singletonList("all")));
 
         List<TriStateSelection> selections = TriStateSelection.forAgentsResources(resourceConfigs, agents);
         assertThat(selections, hasItem(new TriStateSelection("all", TriStateSelection.Action.add)));
@@ -66,8 +65,8 @@ public class TriStateSelectionTest {
     @Test
     public void shouldBeNoChangeIfAllAgentsHaveThatResource() {
         resourceConfigs.add(new ResourceConfig("some"));
-        agents.add(new Agent("uuid1", "host1", "127.0.0.1", new ResourceConfigs("some")));
-        agents.add(new Agent("uuid2", "host2", "127.0.0.2", new ResourceConfigs()));
+        agents.add(new Agent("uuid1", "host1", "127.0.0.1", singletonList("some")));
+        agents.add(new Agent("uuid2", "host2", "127.0.0.2", emptyList()));
 
         List<TriStateSelection> selections = TriStateSelection.forAgentsResources(resourceConfigs, agents);
         assertThat(selections, hasItem(new TriStateSelection("some", TriStateSelection.Action.nochange)));
@@ -76,8 +75,8 @@ public class TriStateSelectionTest {
     @Test
     public void shouldHaveActionRemoveIfNoAgentsHaveResource() {
         resourceConfigs.add(new ResourceConfig("none"));
-        agents.add(new Agent("uuid1", "host1", "127.0.0.1", new ResourceConfigs("one")));
-        agents.add(new Agent("uuid2", "host2", "127.0.0.2", new ResourceConfigs("two")));
+        agents.add(new Agent("uuid1", "host1", "127.0.0.1", singletonList("one")));
+        agents.add(new Agent("uuid2", "host2", "127.0.0.2", singletonList("two")));
 
         List<TriStateSelection> selections = TriStateSelection.forAgentsResources(resourceConfigs, agents);
         assertThat(selections, hasItem(new TriStateSelection("none", TriStateSelection.Action.remove)));

@@ -22,15 +22,14 @@ import com.thoughtworks.go.domain.PersistentObject;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.util.SystemUtil;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import static com.thoughtworks.go.util.CommaSeparatedString.append;
+import static com.thoughtworks.go.util.CommaSeparatedString.convertCommaSeparatedStrToList;
 import static com.thoughtworks.go.util.CommaSeparatedString.remove;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang3.StringUtils.*;
 import static org.springframework.util.CollectionUtils.isEmpty;
@@ -70,10 +69,7 @@ public class Agent extends PersistentObject {
         setElasticPluginId(anotherAgent.getElasticPluginId());
         setEnvironments(anotherAgent.getEnvironments());
 
-        ResourceConfigs anotherAgentResourceConfigs = anotherAgent.getResourceConfigs();
-        if (!isEmpty(anotherAgentResourceConfigs)) {
-            setResources(anotherAgentResourceConfigs.getCommaSeparatedResourceNames());
-        }
+        this.resources = anotherAgent.getResources();
 
         setId(anotherAgent.getId());
         setDeleted(anotherAgent.isDeleted());
@@ -88,14 +84,14 @@ public class Agent extends PersistentObject {
     }
 
     public Agent(String uuid, String hostname, String ipaddress) {
-        this(uuid, hostname, ipaddress, new ResourceConfigs());
+        this(uuid, hostname, ipaddress, emptyList());
     }
 
-    public Agent(String uuid, String hostname, String ipaddress, ResourceConfigs resourceConfigs) {
+    public Agent(String uuid, String hostname, String ipaddress, List<String> resources) {
         this.hostname = hostname;
         this.ipaddress = ipaddress;
         this.uuid = uuid;
-        this.resources = join(resourceConfigs.resourceNames(), ",");
+        this.resources = resources == null ? null : join(resources, ",");
     }
 
     public Agent(String uuid, String hostname, String ipaddress, String cookie) {
@@ -126,7 +122,7 @@ public class Agent extends PersistentObject {
     }
 
     private void validateResources() {
-        ResourceConfigs resourceConfigs = getResources();
+        ResourceConfigs resourceConfigs = new ResourceConfigs(getResources());
         if (isElastic() && !resourceConfigs.isEmpty()) {
             errors.add("elasticAgentId", "Elastic agents cannot have resources.");
             return;
@@ -173,18 +169,13 @@ public class Agent extends PersistentObject {
         return errors != null && !errors.isEmpty();
     }
 
-    public boolean hasAllResources(Collection<ResourceConfig> required) {
-        return this.getResources().containsAll(required);
-    }
-
-    public ResourceConfigs getResourceConfigs() {
-        return new ResourceConfigs(resources);
+    public boolean hasAllResources(Collection<String> resourcesToCheck) {
+        return this.getResourcesAsList().containsAll(resourcesToCheck);
     }
 
     public void removeResources(List<String> resourcesToRemove) {
         if (!isEmpty(resourcesToRemove)) {
-            String resourcesBeforeAdd = getResourceConfigs().getCommaSeparatedResourceNames();
-            String resourcesAfterAdd = remove(resourcesBeforeAdd, resourcesToRemove);
+            String resourcesAfterAdd = remove(this.resources, resourcesToRemove);
             setCommaSeparatedResourceNames(resourcesAfterAdd);
         }
     }
@@ -197,8 +188,7 @@ public class Agent extends PersistentObject {
 
     public void addResources(List<String> resourcesToAdd) {
         if (!isEmpty(resourcesToAdd)) {
-            String resourcesBeforeAdd = getResourceConfigs().getCommaSeparatedResourceNames();
-            String resourcesAfterAdd = append(resourcesBeforeAdd, resourcesToAdd);
+            String resourcesAfterAdd = append(this.resources, resourcesToAdd);
             setCommaSeparatedResourceNames(resourcesAfterAdd);
         }
     }
@@ -343,7 +333,7 @@ public class Agent extends PersistentObject {
     }
 
     public List<String> getEnvironmentsAsList() {
-        return (isBlank(this.environments) ? new ArrayList<>() : asList(this.environments.split(",")));
+        return (isBlank(this.environments) ? new ArrayList<>() : convertCommaSeparatedStrToList(environments));
     }
 
     public void setEnvironments(String envs) {
@@ -358,8 +348,12 @@ public class Agent extends PersistentObject {
         this.addEnvironments(singletonList(env));
     }
 
-    public ResourceConfigs getResources() {
-        return new ResourceConfigs(resources == null ? "" : resources);
+    public String getResources() {
+        return resources;
+    }
+
+    public List<String> getResourcesAsList() {
+        return (isBlank(this.resources) ? new ArrayList<>() : convertCommaSeparatedStrToList(this.resources));
     }
 
     public String getCookie() {

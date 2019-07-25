@@ -296,8 +296,7 @@ public class AgentServiceIntegrationTest {
 
         @Test
         void shouldNotAllowAnyUpdateOperationOnPendingAgent() {
-            AgentRuntimeInfo pendingAgent = fromServer(new Agent(UUID, "CCeDev03", "10.18.5.3",
-                            new ResourceConfigs(new ResourceConfig("db"), new ResourceConfig("web"))),
+            AgentRuntimeInfo pendingAgent = fromServer(new Agent(UUID, "CCeDev03", "10.18.5.3", asList("db","web")),
                     false, "/var/lib", 0L, "linux", false);
             agentService.requestRegistration(Username.ANONYMOUS, pendingAgent);
             assertThat(agentService.findAgent(UUID).isRegistered(), is(false));
@@ -462,7 +461,7 @@ public class AgentServiceIntegrationTest {
 
         @Test
         void shouldAllowEnablingThePendingAndDisabledAgentsTogether() {
-            AgentRuntimeInfo pendingAgent = fromServer(new Agent(UUID, "CCeDev03", "10.18.5.3", new ResourceConfigs(new ResourceConfig("db"), new ResourceConfig("web"))), false, "/var/lib", 0L, "linux", false);
+            AgentRuntimeInfo pendingAgent = fromServer(new Agent(UUID, "CCeDev03", "10.18.5.3", asList("db", "web")), false, "/var/lib", 0L, "linux", false);
             Agent agent = new Agent(UUID2, "remote-host1", "50.40.30.21");
 
             agentService.requestRegistration(Username.ANONYMOUS, pendingAgent);
@@ -586,7 +585,7 @@ public class AgentServiceIntegrationTest {
         void shouldThrow422WhenUpdatingAgentWithInvalidInputs() {
             Agent agent = createAnIdleAgentAndDisableIt(UUID);
             String originalHostname = agent.getHostname();
-            List<String> originalResourceNames = agent.getResourceConfigs().resourceNames();
+            List<String> originalResourceNames = agent.getResourcesAsList();
 
             assertThat(agentService.agentInstances().size(), is(1));
             assertThat(getFirstAgent().getHostname(), is(not("some-hostname")));
@@ -868,13 +867,13 @@ public class AgentServiceIntegrationTest {
             assertThat(result.httpCode(), is(200));
             assertThat(result.message(), is("Updated agent(s) with uuid(s): [uuid, uuid2]."));
 
-            ResourceConfigs uuidResources = agentService.findAgentAndRefreshStatus(UUID).getAgent().getResourceConfigs();
-            assertThat(uuidResources, hasItem(new ResourceConfig("resource1")));
-            assertThat(uuidResources, hasItem(new ResourceConfig("resource2")));
+            List<String> uuidResources = agentService.findAgentAndRefreshStatus(UUID).getAgent().getResourcesAsList();
+            assertThat(uuidResources, hasItem("resource1"));
+            assertThat(uuidResources, hasItem("resource2"));
 
-            ResourceConfigs uuid2Resources = agentService.findAgentAndRefreshStatus(UUID2).getAgent().getResourceConfigs();
-            assertThat(uuid2Resources, hasItem(new ResourceConfig("resource1")));
-            assertThat(uuid2Resources, hasItem(new ResourceConfig("resource2")));
+            List<String> uuid2Resources = agentService.findAgentAndRefreshStatus(UUID2).getAgent().getResourcesAsList();
+            assertThat(uuid2Resources, hasItem("resource1"));
+            assertThat(uuid2Resources, hasItem("resource2"));
         }
 
         @Test
@@ -1022,7 +1021,7 @@ public class AgentServiceIntegrationTest {
 
         @Test
         void shouldUpdateAgentApprovalStatusByUuid() {
-            Agent agent = new Agent(UUID, "test", "127.0.0.1", new ResourceConfigs("java"));
+            Agent agent = new Agent(UUID, "test", "127.0.0.1", singletonList("java"));
             agentService.register(agent, null, null);
 
             agentService.updateAgentApprovalStatus(agent.getUuid(), Boolean.TRUE);
@@ -1088,8 +1087,8 @@ public class AgentServiceIntegrationTest {
             assertTrue(agent.getEnvironmentsAsList().size() == 1);
             assertTrue(agent.getEnvironmentsAsList().contains(prodEnv));
 
-            assertTrue(agent.getResourceConfigs().resourceNames().contains("R2"));
-            assertFalse(agent.getResourceConfigs().resourceNames().contains("R1"));
+            assertTrue(agent.getResourcesAsList().contains("R2"));
+            assertFalse(agent.getResourcesAsList().contains("R1"));
 
             agentService.bulkUpdateAgentAttributes(USERNAME, result, singletonList(UUID), asList("R3", "R4"),
                     singletonList("R2"), new EnvironmentsConfig(), null, TriState.UNSET);
@@ -1099,9 +1098,9 @@ public class AgentServiceIntegrationTest {
             assertTrue(agent.getEnvironmentsAsList().size() == 1);
             assertTrue(agent.getEnvironmentsAsList().contains(prodEnv));
 
-            assertTrue(agent.getResourceConfigs().resourceNames().contains("R3"));
-            assertTrue(agent.getResourceConfigs().resourceNames().contains("R4"));
-            assertFalse(agent.getResourceConfigs().resourceNames().contains("R2"));
+            assertTrue(agent.getResourcesAsList().contains("R3"));
+            assertTrue(agent.getResourcesAsList().contains("R4"));
+            assertFalse(agent.getResourcesAsList().contains("R2"));
         }
 
         @Test
@@ -1116,14 +1115,14 @@ public class AgentServiceIntegrationTest {
 
             AgentInstance agentInstance = agentService.findAgent(UUID);
             Agent agent = agentInstance.getAgent();
-            assertTrue(agent.getResourceConfigs().resourceNames().contains("r1"));
-            assertTrue(agent.getResourceConfigs().resourceNames().contains("r2"));
+            assertTrue(agent.getResourcesAsList().contains("r1"));
+            assertTrue(agent.getResourcesAsList().contains("r2"));
 
             agentService.bulkUpdateAgentAttributes(USERNAME, result, singletonList(UUID), null,
                     emptyList, null, null, TriState.TRUE);
 
-            assertTrue(agent.getResourceConfigs().resourceNames().contains("r1"));
-            assertTrue(agent.getResourceConfigs().resourceNames().contains("r2"));
+            assertTrue(agent.getResourcesAsList().contains("r1"));
+            assertTrue(agent.getResourcesAsList().contains("r2"));
         }
 
         @Test

@@ -286,7 +286,7 @@ public class AgentInstance implements Comparable<AgentInstance> {
     }
 
     public ResourceConfigs getResourceConfigs() {
-        return getAgent().getResourceConfigs();
+        return new ResourceConfigs(getAgent().getResources());
     }
 
     public String getIpAddress() {
@@ -310,7 +310,7 @@ public class AgentInstance implements Comparable<AgentInstance> {
     }
 
     private boolean isNotElasticAndResourcesMatchForNonElasticAgents(JobPlan jobPlan) {
-        return !jobPlan.requiresElasticAgent() && !isElastic() && agent.hasAllResources(jobPlan.getResources().toResourceConfigs());
+        return !jobPlan.requiresElasticAgent() && !isElastic() && agent.hasAllResources(jobPlan.getResources().toResourceConfigs().resourceNames());
     }
 
     public String getBuildLocator() {
@@ -368,11 +368,8 @@ public class AgentInstance implements Comparable<AgentInstance> {
         AgentType type = agent.isFromLocalHost() ? AgentType.LOCAL : AgentType.REMOTE;
         AgentInstance agentInstance = new AgentInstance(agent, type, systemEnvironment, agentStatusChangeListener);
         agentInstance.agentConfigStatus = agent.isDisabled() ? AgentConfigStatus.Disabled : AgentConfigStatus.Enabled;
-
         agentInstance.errors.addAll(agent.errors());
-        for (ResourceConfig resourceConfig : agent.getResourceConfigs()) {
-            agentInstance.errors.addAll(resourceConfig.errors());
-        }
+
         return agentInstance;
     }
 

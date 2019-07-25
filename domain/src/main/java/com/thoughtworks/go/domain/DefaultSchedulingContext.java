@@ -68,7 +68,7 @@ public class DefaultSchedulingContext implements SchedulingContext {
     public Agents findAgentsMatching(ResourceConfigs resourceConfigs) {
         Agents found = new Agents();
         for (Agent agent : agents) {
-            if (agent.hasAllResources(resourceConfigs) && !agent.isDisabled()) {
+            if (agent.hasAllResources(resourceConfigs.resourceNames()) && !agent.isDisabled()) {
                 found.add(agent);
             }
         }

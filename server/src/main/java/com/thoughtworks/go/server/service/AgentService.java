@@ -656,12 +656,16 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
 
     public Set<ResourceConfig> getAllResources() {
         Set<ResourceConfig> resourceConfigSet = new HashSet<>();
-        agents().forEach(agent -> resourceConfigSet.addAll(agent.getResources()));
+        agents().forEach(agent -> resourceConfigSet.addAll(new ResourceConfigs(agent.getResources())));
         return resourceConfigSet;
     }
 
     public List<String> getResourceList() {
-        return getAllResources().stream().map(ResourceConfig::getName).collect(Collectors.toList());
+        return agents().stream()
+                .map(Agent::getResourcesAsList)
+                .flatMap(Collection::stream)
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     @Override

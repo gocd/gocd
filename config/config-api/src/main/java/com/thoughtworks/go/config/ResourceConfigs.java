@@ -43,12 +43,14 @@ public class ResourceConfigs extends BaseCollection<ResourceConfig> implements C
     public ResourceConfigs(String commaSeparatedResources) {
         if (isNotEmpty(commaSeparatedResources)) {
             String[] resourceArr = commaSeparatedResources.split(",");
-            Arrays.stream(resourceArr).map(ResourceConfig::new)
-                                      .forEach(this::add);
+            Arrays.stream(resourceArr)
+                    .map(String::trim)
+                    .map(ResourceConfig::new)
+                    .forEach(this::add);
         }
     }
 
-    public boolean hasErrors(){
+    public boolean hasErrors() {
         return !this.errors().isEmpty();
     }
 
@@ -72,9 +74,9 @@ public class ResourceConfigs extends BaseCollection<ResourceConfig> implements C
 
     public List<String> resourceNames() {
         return this.stream().map(ResourceConfig::getName)
-                            .distinct()
-                            .sorted()
-                            .collect(Collectors.toList());
+                .distinct()
+                .sorted()
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -105,8 +107,8 @@ public class ResourceConfigs extends BaseCollection<ResourceConfig> implements C
     @Override
     public ConfigErrors errors() {
         this.stream().filter(ResourceConfig::hasErrors)
-                     .map(ResourceConfig::errors)
-                     .forEach(configErrors::addAll);
+                .map(ResourceConfig::errors)
+                .forEach(configErrors::addAll);
 
         return configErrors;
     }
@@ -133,7 +135,7 @@ public class ResourceConfigs extends BaseCollection<ResourceConfig> implements C
         clear();
         String[] resourceNames = csv.split(",");
         Arrays.stream(resourceNames).map(String::trim)
-                                    .map(ResourceConfig::new)
-                                    .forEach(this::add);
+                .map(ResourceConfig::new)
+                .forEach(this::add);
     }
 }

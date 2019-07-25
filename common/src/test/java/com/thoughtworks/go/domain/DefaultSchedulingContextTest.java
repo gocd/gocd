@@ -20,6 +20,7 @@ import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.util.ReflectionUtil;
 import org.junit.Test;
 
+import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -165,7 +166,7 @@ public class DefaultSchedulingContextTest {
 	}
 
     private Agent agent(String uuid, String... names) {
-        return new Agent(uuid, "localhost", "127.0.0.1", resources(names));
+        return new Agent(uuid, "localhost", "127.0.0.1", names == null ? null : asList(names));
     }
 
 	public static ResourceConfigs resources(String... names) {

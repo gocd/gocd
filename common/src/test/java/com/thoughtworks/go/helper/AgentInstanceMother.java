@@ -16,8 +16,6 @@
 package com.thoughtworks.go.helper;
 
 import com.thoughtworks.go.config.Agent;
-import com.thoughtworks.go.config.ResourceConfig;
-import com.thoughtworks.go.config.ResourceConfigs;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.domain.AgentStatus;
@@ -32,9 +30,10 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.mockito.Mockito.mock;
 
 public class AgentInstanceMother {
@@ -106,7 +105,7 @@ public class AgentInstanceMother {
     }
 
     public static AgentInstance building(String buildLocator, SystemEnvironment systemEnvironment) {
-        Agent buildingAgentConfig = new Agent("uuid3", "CCeDev01", "10.18.5.1", new ResourceConfigs("java"));
+        Agent buildingAgentConfig = new Agent("uuid3", "CCeDev01", "10.18.5.1", singletonList("java"));
         AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(buildingAgentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false);
         agentRuntimeInfo.busy(new AgentBuildingInfo("pipeline", buildLocator));
         AgentInstance building = AgentInstance.createFromAgent(buildingAgentConfig, systemEnvironment, mock(AgentStatusChangeListener.class));
@@ -115,7 +114,7 @@ public class AgentInstanceMother {
     }
 
     public static AgentInstance pending(SystemEnvironment systemEnvironment) {
-        AgentRuntimeInfo runtimeInfo = AgentRuntimeInfo.fromServer(new Agent("uuid4", "CCeDev03", "10.18.5.3", new ResourceConfigs(new ResourceConfig("db"), new ResourceConfig("web"))), false,
+        AgentRuntimeInfo runtimeInfo = AgentRuntimeInfo.fromServer(new Agent("uuid4", "CCeDev03", "10.18.5.3", asList("db", "web")), false,
                 "/var/lib", 0L, "linux");
         AgentInstance pending = AgentInstance.createFromLiveAgent(runtimeInfo, systemEnvironment, mock(AgentStatusChangeListener.class));
         pending.pending();
@@ -180,7 +179,7 @@ public class AgentInstanceMother {
 
     public static AgentInstance updateHostname(AgentInstance agentInstance, String hostname) {
         Agent original = agentInstance.getAgent();
-        agentInstance.syncConfig(new Agent(original.getUuid(), hostname, original.getIpaddress(), original.getResourceConfigs()));
+        agentInstance.syncConfig(new Agent(original.getUuid(), hostname, original.getIpaddress(), original.getResourcesAsList()));
         return agentInstance;
     }
 
@@ -268,9 +267,7 @@ public class AgentInstanceMother {
     }
 
     public static AgentInstance agentWithConfigErrors() {
-        ResourceConfig resourceConfig1 = new ResourceConfig("foo%");
-        ResourceConfig resourceConfig2 = new ResourceConfig("bar$");
-        Agent agent = new Agent("uuid", "host", "IP", new ResourceConfigs(resourceConfig1, resourceConfig2));
+        Agent agent = new Agent("uuid", "host", "IP", asList("foo%","bar$"));
         agent.validate();
         return AgentInstance.createFromAgent(agent, new SystemEnvironment(), mock(AgentStatusChangeListener.class));
     }

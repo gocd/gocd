@@ -41,6 +41,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.*;
@@ -161,7 +162,7 @@ public class AgentDaoTest {
         agentDao.saveOrUpdate(agent1);
         agentDao.saveOrUpdate(agent2);
 
-        List<String> uuids = Arrays.asList("uuid", "uuid2");
+        List<String> uuids = asList("uuid", "uuid2");
 
         List<Agent> allAgents = agentDao.agentsByUUIds(uuids);
 
@@ -212,8 +213,8 @@ public class AgentDaoTest {
         agentDao.saveOrUpdate(agent2);
         agentDao.saveOrUpdate(agent3);
 
-        List<String> disabledUuids = Arrays.asList("uuid", "uuid3");
-        List<String> enabledUuids = Arrays.asList("uuid2");
+        List<String> disabledUuids = asList("uuid", "uuid3");
+        List<String> enabledUuids = asList("uuid2");
 
         agentDao.changeDisabled(disabledUuids, true);
         agentDao.changeDisabled(enabledUuids, false);
@@ -248,23 +249,23 @@ public class AgentDaoTest {
         agentToStatusMap.put(agent.getUuid(), agentInstance1.getStatus().getConfigStatus());
         agentToStatusMap.put(agent2.getUuid(), agentInstance3.getStatus().getConfigStatus());
 
-        agent.addResources(Arrays.asList("resource3", "resource4"));
-        agent2.addResources(Arrays.asList("resource3", "resource4"));
+        agent.addResources(asList("resource3", "resource4"));
+        agent2.addResources(asList("resource3", "resource4"));
 
-        agent.removeResources(Arrays.asList("resource1", "resource2"));
-        agent2.removeResources(Arrays.asList("resource1", "resource2"));
+        agent.removeResources(asList("resource1", "resource2"));
+        agent2.removeResources(asList("resource1", "resource2"));
 
-        agent.addEnvironments(Arrays.asList("env2", "env4"));
-        agent2.addEnvironments(Arrays.asList("env2", "env4"));
+        agent.addEnvironments(asList("env2", "env4"));
+        agent2.addEnvironments(asList("env2", "env4"));
 
-        agent.removeEnvironments(Arrays.asList("env1", "env3"));
-        agent2.removeEnvironments(Arrays.asList("env1", "env3"));
+        agent.removeEnvironments(asList("env1", "env3"));
+        agent2.removeEnvironments(asList("env1", "env3"));
 
-        agentDao.bulkUpdateAttributes(Arrays.asList(agent, agent2), agentToStatusMap, TriState.UNSET);
+        agentDao.bulkUpdateAttributes(asList(agent, agent2), agentToStatusMap, TriState.UNSET);
 
-        assertThat(agentDao.agentByUuid(agent.getUuid()).getResources().resourceNames(), is(Arrays.asList("resource3", "resource4")));
-        assertThat(agentDao.agentByUuid(agent1.getUuid()).getResources().resourceNames(), is(Arrays.asList("resource1")));
-        assertThat(agentDao.agentByUuid(agent2.getUuid()).getResources().resourceNames(), is(Arrays.asList("resource3", "resource4")));
+        assertThat(agentDao.agentByUuid(agent.getUuid()).getResources(), is("resource3,resource4"));
+        assertThat(agentDao.agentByUuid(agent1.getUuid()).getResources(), is("resource1"));
+        assertThat(agentDao.agentByUuid(agent2.getUuid()).getResources(), is("resource3,resource4"));
 
         assertThat(agentDao.agentByUuid(agent.getUuid()).getEnvironments(), is("env2,env4"));
         assertNull(agentDao.agentByUuid(agent1.getUuid()).getEnvironments());
@@ -278,7 +279,7 @@ public class AgentDaoTest {
         agentDao.saveOrUpdate(agent1);
         agentDao.saveOrUpdate(agent2);
 
-        agentDao.bulkSoftDelete(Arrays.asList("uuid", "uuid2"));
+        agentDao.bulkSoftDelete(asList("uuid", "uuid2"));
 
         assertNull(agentDao.agentByUuid("uuid"));
         assertNull(agentDao.agentByUuid("uuid2"));

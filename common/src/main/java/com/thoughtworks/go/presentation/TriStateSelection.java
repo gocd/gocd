@@ -61,7 +61,7 @@ public class TriStateSelection implements Comparable<TriStateSelection> {
         return convert(resourceConfigs, agents, new Assigner<ResourceConfig, Agent>() {
             @Override
             public boolean shouldAssociate(Agent agent, ResourceConfig resourceConfig) {
-                return agent.getResourceConfigs().contains(resourceConfig);
+                return agent.getResourcesAsList().contains(resourceConfig.getName());
             }
 
             @Override

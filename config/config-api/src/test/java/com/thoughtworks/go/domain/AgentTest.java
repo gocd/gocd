@@ -99,8 +99,8 @@ public class AgentTest {
 
             agent.addResources(asList("resource2", "resource3"));
 
-            assertThat(agent.getResources().size(), is(3));
-            assertThat(agent.getResources().resourceNames(), is(asList("resource1", "resource2", "resource3")));
+            assertThat(agent.getResourcesAsList().size(), is(3));
+            assertThat(agent.getResourcesAsList(), is(asList("resource1", "resource2", "resource3")));
         }
 
         @Test
@@ -109,8 +109,8 @@ public class AgentTest {
 
             agent.addResources(asList("resource2", "resource3"));
 
-            assertThat(agent.getResources().size(), is(2));
-            assertThat(agent.getResources().resourceNames(), is(asList("resource2", "resource3")));
+            assertThat(agent.getResourcesAsList().size(), is(2));
+            assertThat(agent.getResourcesAsList(), is(asList("resource2", "resource3")));
         }
 
         @Test
@@ -120,8 +120,8 @@ public class AgentTest {
 
             agent.removeResources(asList("resource2"));
 
-            assertThat(agent.getResources().size(), is(2));
-            assertThat(agent.getResources().resourceNames(), is(asList("resource1", "resource3")));
+            assertThat(agent.getResourcesAsList().size(), is(2));
+            assertThat(agent.getResourcesAsList(), is(asList("resource1", "resource3")));
         }
 
         @Test
@@ -130,7 +130,7 @@ public class AgentTest {
 
             agent.removeResources(asList("resource2"));
 
-            assertTrue(agent.getResources().resourceNames().isEmpty());
+            assertTrue(agent.getResourcesAsList().isEmpty());
         }
 
         @Test

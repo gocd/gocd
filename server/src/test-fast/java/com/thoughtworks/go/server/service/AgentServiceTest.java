@@ -358,7 +358,7 @@ class AgentServiceTest {
             Agent agentFromService = agentInstance.getAgent();
 
             assertThat(agentFromService.getHostname(), is("new-hostname"));
-            assertThat(agentFromService.getResources().getCommaSeparatedResourceNames(), is("resource1,resource2"));
+            assertThat(agentFromService.getResources(), is("resource1,resource2"));
             assertThat(agentFromService.getEnvironments(), is("env1,env2"));
             assertFalse(agentFromService.isDisabled());
         }
@@ -501,7 +501,7 @@ class AgentServiceTest {
             Agent agentFromService = agentInstance.getAgent();
 
             assertThat(agentFromService.getHostname(), is("host"));
-            assertThat(agentFromService.getResources().getCommaSeparatedResourceNames(), is(""));
+            assertThat(agentFromService.getResources(), is(""));
             assertThat(agentFromService.getEnvironments(), is("env1,env2"));
             assertFalse(agentFromService.isDisabled());
         }
@@ -564,5 +564,34 @@ class AgentServiceTest {
         EnvironmentsConfig envsConfig = new EnvironmentsConfig();
         Arrays.stream(envs).forEach(env -> envsConfig.add(new BasicEnvironmentConfig(new CaseInsensitiveString(env))));
         return envsConfig;
+    }
+
+    @Test
+    void shouldReturnDistinctListOfResourcesFromAllAgents() {
+        AgentInstance agentInstance = AgentInstanceMother.building();
+        agentInstance.getAgent().setResources("a,b,c");
+
+        AgentInstance agentInstance1 = AgentInstanceMother.building();
+        agentInstance1.getAgent().setResources("d,e,a");
+
+        when(agentInstances.values()).thenReturn(asList(agentInstance, agentInstance1));
+
+        assertEquals(asList("a","b","c","d","e"), agentService.getResourceList());
+    }
+
+    @Test
+    void shouldNotContainEmptyStringInReturnedListOfResourcesFromAllAgentsWhenSomeAgentsHaveNoResources() {
+        AgentInstance agentInstance = AgentInstanceMother.building();
+        agentInstance.getAgent().setResources("a,b,c");
+
+        AgentInstance agentInstance1 = AgentInstanceMother.idle();
+        agentInstance1.getAgent().setResources(" ");
+
+        AgentInstance agentInstance2 = AgentInstanceMother.pending();
+        agentInstance2.getAgent().setResources(null);
+
+        when(agentInstances.values()).thenReturn(asList(agentInstance, agentInstance1, agentInstance2));
+
+        assertEquals(asList("a","b","c"), agentService.getResourceList());
     }
 }

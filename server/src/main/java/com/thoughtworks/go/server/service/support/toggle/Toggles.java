@@ -20,6 +20,7 @@ public class Toggles {
     public static String BROWSER_CONSOLE_LOG_WS = "browser_console_log_ws_key";
     public static String ALLOW_EMPTY_PIPELINE_GROUPS_DASHBOARD = "allow_empty_pipeline_groups_dashboard";
     public static String TEST_DRIVE = "test_drive";
+    public static String NEW_PIPELINE_DROPDOWN = "new_pipeline_dropdown";
 
     private static FeatureToggleService service;
 

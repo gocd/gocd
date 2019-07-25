@@ -710,10 +710,6 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         listeners.add(listener);
     }
 
-    public void validate(Agent agent) {
-        agent.validate();
-    }
-
     private EnvironmentsConfig getEnvironmentsConfigFrom(EnvironmentConfig envConfig) {
         EnvironmentsConfig envsConfig = new EnvironmentsConfig();
         envsConfig.add(envConfig);

@@ -240,7 +240,7 @@ public class AgentRegistrationController {
 
             Agent agent = new Agent(uuid, preferredHostname, ipAddress);
             HttpOperationResult result = new HttpOperationResult();
-            agentService.validate(agent);
+            agent.validate();
             if (agent.hasErrors()) {
                 List<ConfigErrors> errors = agent.errorsAsList();
                 throw new GoConfigInvalidException(null, new AllConfigErrors(errors));

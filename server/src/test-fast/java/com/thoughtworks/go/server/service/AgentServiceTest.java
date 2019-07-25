@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
+import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.Username;
@@ -534,5 +535,32 @@ public class AgentServiceTest {
             Arrays.stream(envs).forEach(env -> envsConfig.add(new BasicEnvironmentConfig(new CaseInsensitiveString(env))));
             return envsConfig;
         }
+    }
+
+    @Test
+    void shouldReturnTrueIsGivenUuidIsPresentAndTheAgentInstanceIsNotNullAndRegistered() {
+        String uuid = "uuid";
+        AgentInstance agentInstance = AgentInstanceMother.building();
+        when(agentInstances.findAgent(uuid)).thenReturn(agentInstance);
+
+        assertTrue(agentService.hasAgent(uuid));
+    }
+
+    @Test
+    void shouldReturnFalseIfUuidGivenDoesNotExist() {
+        String uuid = "uuid";
+        AgentInstance agentInstance = AgentInstanceMother.nullInstance();
+        when(agentInstances.findAgent(uuid)).thenReturn(agentInstance);
+
+        assertFalse(agentService.hasAgent(uuid));
+    }
+
+    @Test
+    void shouldReturnFalseIfAgentForTheUuidGivenExistButIsNotRegistered() {
+        String uuid = "uuid";
+        AgentInstance agentInstance = AgentInstanceMother.pendingInstance();
+        when(agentInstances.findAgent(uuid)).thenReturn(agentInstance);
+
+        assertFalse(agentService.hasAgent(uuid));
     }
 }

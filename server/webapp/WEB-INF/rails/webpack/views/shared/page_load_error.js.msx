@@ -22,7 +22,7 @@ const PageLoadError = {
 
   view(vnode) {
     return (
-      <div class="alert callout">
+      <div className="alert callout">
         <h5>{vnode.attrs.message}</h5>
         <p>Refresh <a href="javascript: window.location.reload()">this page</a> in some time, and if the problem
           persists, check the server logs.</p>

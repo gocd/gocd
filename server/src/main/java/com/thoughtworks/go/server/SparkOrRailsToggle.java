@@ -21,6 +21,17 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class SparkOrRailsToggle {
+    public void securityAuthConfigApi(HttpServletRequest request, HttpServletResponse response) {
+        basedOnToggle(Toggles.SECURITY_AUTH_CONFIG_USE_RAILS_API, request);
+    }
+
+    public void pluginSettingsAPIUsingRails(HttpServletRequest request, HttpServletResponse response) {
+        basedOnToggle(Toggles.PLUGIN_SETTINGS_API_USING_RAILS, request);
+    }
+
+    public void pluggableScmsUsingRails(HttpServletRequest request, HttpServletResponse response) {
+        basedOnToggle(Toggles.USE_OLD_PLUGGABLE_SCMS_API, request);
+    }
 
     private void basedOnToggle(String toggle, HttpServletRequest request) {
         if (Toggles.isToggleOn(toggle)) {

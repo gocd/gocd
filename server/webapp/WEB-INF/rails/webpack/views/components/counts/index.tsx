@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-import classnames from "classnames";
+import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
 import * as s from "underscore.string";
 import * as styles from "./index.scss";
+
+const classnames = bind(styles);
 
 export interface CountsAttr {
   label: string;
@@ -34,7 +36,7 @@ export interface Attrs {
 
 export class Counts extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
-    return <div class={classnames(styles.countWrapper)}>
+    return <div className={classnames(styles.countWrapper)}>
       <ul data-test-id={vnode.attrs.dataTestId}>
         {
           _.map(vnode.attrs.counts, (count) => {
@@ -42,7 +44,7 @@ export class Counts extends MithrilViewComponent<Attrs> {
             const classNames = classnames(styles.count, styles[count.color]);
 
             return <li>{count.label}: <span data-test-id={`${vnode.attrs.dataTestId}-${s.slugify(count.label)}`}
-                                            class={classNames}>{count.count}</span></li>;
+                                            className={classNames}>{count.count}</span></li>;
           })
         }
       </ul>

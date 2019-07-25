@@ -37,7 +37,7 @@ export class HeaderPanel extends MithrilViewComponent<Attrs> {
       );
     }
 
-    return (<header class={style.pageHeader}>
+    return (<header className={style.pageHeader}>
       <div class={style.pageTitle}>
         {this.maybeSection(vnode)}
         <h1 class={style.title} data-test-id="title">{vnode.attrs.title}</h1>
@@ -49,7 +49,7 @@ export class HeaderPanel extends MithrilViewComponent<Attrs> {
   private maybeSection(vnode: m.Vnode<Attrs>) {
     if (vnode.attrs.sectionName) {
       return (
-        <h1 class={style.sectionName} data-test-id="section-name">{vnode.attrs.sectionName}</h1>
+        <h1 className={style.sectionName} data-test-id="section-name">{vnode.attrs.sectionName}</h1>
       );
     }
   }

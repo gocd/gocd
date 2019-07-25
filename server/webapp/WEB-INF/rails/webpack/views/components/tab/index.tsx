@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-import classnames from "classnames";
+import {bind} from "classnames/bind";
 import {MithrilComponent} from "jsx/mithril-component";
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
 import * as styles from "./index.scss";
+
+const classnames = bind(styles);
 
 interface Attrs {
   tabs: m.Child[] | any;
@@ -41,12 +43,12 @@ export class Tabs extends MithrilComponent<Attrs, State> {
 
   view(vnode: m.Vnode<Attrs, State>): m.Children | void | null {
     const tabs = (
-      <ul class={styles.tabs}>
+      <ul className={styles.tabs}>
         {vnode.attrs.tabs.map((tab: any, index: number) => {
           const classesToApply = classnames(styles.tabHead, {[styles.active]: vnode.state.isSelected(index)});
 
           return <li onclick={() => vnode.state.selectedTabIndex(index)}>
-            <a class={classesToApply}
+            <a className={classesToApply}
                href={"javascript:void(0);"}
                data-test-id={`tab-header-${index}`}
             >{tab}</a>
@@ -55,16 +57,16 @@ export class Tabs extends MithrilComponent<Attrs, State> {
       </ul>);
 
     const tabContents = (
-      <div class={styles.tabContainer}>
+      <div className={styles.tabContainer}>
         {vnode.attrs.contents.map((content: any, index: number) => {
           return [
-            <h3 class={classnames(styles.tabAccordionHeading,
+            <h3 className={classnames(styles.tabAccordionHeading,
                                       {[styles.active]: vnode.state.isSelected(index)})}
                 onclick={() => vnode.state.selectedTabIndex(index)}>
               {vnode.attrs.tabs[index]}
             </h3>,
             <div data-test-id={`tab-content-${index}`}
-                 class={classnames(styles.tabContent, {[styles.hide]: !vnode.state.isSelected(index)})}
+                 className={classnames(styles.tabContent, {[styles.hide]: !vnode.state.isSelected(index)})}
                  id={`tab${index}`}>
               {content}
             </div>

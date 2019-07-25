@@ -15,8 +15,6 @@
  */
 import SparkRoutes from "helpers/spark_routes";
 import {TestHelper} from "views/pages/spec/test_helper";
-import * as css from "views/components/buttons/index.scss";
-import {asSelector} from "helpers/css_proxies";
 
 describe("Dashboard Widget", () => {
   const m               = require("mithril");
@@ -32,9 +30,7 @@ describe("Dashboard Widget", () => {
   const PersonalizeVM   = require('views/dashboard/models/personalization_vm');
   const Personalization = require('models/dashboard/personalization');
 
-  const sel = asSelector(css);
-
-  let dashboard, dashboardJson, buildCauseJson, doCancelPolling, doRefreshImmediately, vm;
+  let dashboard, dashboardJson, buildCauseJson, doCancelPolling, doRefreshImmediately;
   const originalDebounce = _.debounce;
 
   const helper = new TestHelper();
@@ -308,13 +304,18 @@ describe("Dashboard Widget", () => {
   });
 
   it("should show pipeline add icon when grouped by pipeline group for admin users", () => {
-    expect(helper.q(sel.btnPrimary, helper.q(".dashboard-group_title"))).toBeInDOM();
+    const pipelineGroupJSON = dashboardJson._embedded.pipeline_groups[0];
+
+    const title = helper.find('.dashboard-group_add_pipeline>a').get(0);
+    expect(title.href.indexOf(`/go/admin/pipeline/new?group=${pipelineGroupJSON.name}`)).not.toEqual(-1);
+
   });
 
   it("should not show pipeline add icon when grouped by environments for admin users", () => {
-    vm.groupByEnvironment(true);
-    m.redraw();
-    expect(helper.q(sel.btnPrimary, helper.q(".dashboard-group_title"))).not.toBeInDOM();
+    const pipelineGroupJSON = dashboardJson._embedded.environments[0];
+
+    const title = helper.find('.dashboard-group_add_pipeline>a').get(0);
+    expect(title.href.indexOf(`/go/admin/pipeline/new?group=${pipelineGroupJSON.name}`)).toEqual(-1);
   });
 
   it("should show disabled pipeline group settings icon showing tooltip for non admin users", () => {
@@ -526,8 +527,8 @@ describe("Dashboard Widget", () => {
     personalizeVM.model(new Personalization([{name: "Default", state: []}], []));
     dashboard.initialize(dashboardJson);
 
-    vm = new DashboardVM(dashboard);
-    vm._performRouting = _.noop;
+    const dashboardViewModel           = new DashboardVM(dashboard);
+    dashboardViewModel._performRouting = _.noop;
     helper.mount(() => m(DashboardWidget, {
       personalizeVM,
       showSpinner,
@@ -535,7 +536,7 @@ describe("Dashboard Widget", () => {
       shouldShowAnalyticsIcon:    false,
       doCancelPolling,
       doRefreshImmediately,
-      vm
+      vm:                         dashboardViewModel
     }));
   }
 

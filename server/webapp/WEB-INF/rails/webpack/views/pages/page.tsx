@@ -48,7 +48,7 @@ export abstract class Page<Attrs = {}, State = {}> extends MithrilComponent<Attr
       case PageState.OK:
         const component = this.componentToDisplay(vnode);
         if (component) {
-          return <main class="main-container">
+          return <main className="main-container">
             {this.headerPanel(vnode)}
             {component}
           </main>;

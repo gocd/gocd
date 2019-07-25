@@ -18,6 +18,7 @@ package com.thoughtworks.go.plugin.access.configrepo.v2;
 
 import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.plugin.access.common.models.ImageDeserializer;
+import com.thoughtworks.go.plugin.access.configrepo.ConfigFileList;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoMigrator;
 import com.thoughtworks.go.plugin.access.configrepo.ExportedConfig;
 import com.thoughtworks.go.plugin.access.configrepo.JsonMessageHandler;
@@ -67,6 +68,16 @@ public class JsonMessageHandler2_0 implements JsonMessageHandler {
     @Override
     public Image getImageResponseFromBody(String responseBody) {
         return new ImageDeserializer().fromJSON(responseBody);
+    }
+
+    @Override
+    public String requestMessageConfigFiles(String destinationFolder, Collection<CRConfigurationProperty> configurations) {
+        throw new UnsupportedOperationException("V2 Config Repo plugins don't support config-files");
+    }
+
+    @Override
+    public ConfigFileList responseMessageForConfigFiles(String responseBody) {
+        throw new UnsupportedOperationException("V2 Config Repo plugins don't support config-files");
     }
 
     @Override

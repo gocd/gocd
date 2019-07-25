@@ -23,6 +23,7 @@ import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessa
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler2_0;
 import com.thoughtworks.go.plugin.access.configrepo.v1.JsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.access.configrepo.v2.JsonMessageHandler2_0;
+import com.thoughtworks.go.plugin.access.configrepo.v3.JsonMessageHandler3_0;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.configrepo.codec.GsonCodec;
 import com.thoughtworks.go.plugin.configrepo.contract.CRConfigurationProperty;
@@ -49,8 +50,9 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
     public static final String REQUEST_PARSE_CONTENT = "parse-content";
     public static final String REQUEST_PIPELINE_EXPORT = "pipeline-export";
     public static final String REQUEST_CAPABILITIES = "get-capabilities";
+    public static final String REQUEST_CONFIG_FILES = "config-files";
 
-    private static final List<String> goSupportedVersions = asList("1.0", "2.0");
+    private static final List<String> goSupportedVersions = asList("1.0", "2.0", "3.0");
 
     private Map<String, JsonMessageHandler> messageHandlerMap = new HashMap<>();
 
@@ -62,6 +64,9 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
 
         registerHandler("2.0", new PluginSettingsJsonMessageHandler2_0());
         messageHandlerMap.put("2.0", new JsonMessageHandler2_0(new GsonCodec(), new ConfigRepoMigrator()));
+
+        registerHandler("3.0", new PluginSettingsJsonMessageHandler2_0());
+        messageHandlerMap.put("3.0", new JsonMessageHandler3_0(new GsonCodec(), new ConfigRepoMigrator()));
     }
 
     @Override
@@ -94,6 +99,26 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
             @Override
             public Capabilities onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return messageHandlerMap.get(resolvedExtensionVersion).getCapabilitiesFromResponse(responseBody);
+            }
+        });
+    }
+
+    @Override
+    public ConfigFileList getConfigFiles(String pluginId, final String destinationFolder, final Collection<CRConfigurationProperty> configurations) {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_CONFIG_FILES, new DefaultPluginInteractionCallback<ConfigFileList>() {
+            @Override
+            public String requestBody(String resolvedExtensionVersion) {
+                return messageHandlerMap.get(resolvedExtensionVersion).requestMessageConfigFiles(destinationFolder, configurations);
+            }
+
+            @Override
+            public Map<String, String> requestParams(String resolvedExtensionVersion) {
+                return null;
+            }
+
+            @Override
+            public ConfigFileList onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
+                return messageHandlerMap.get(resolvedExtensionVersion).responseMessageForConfigFiles(responseBody);
             }
         });
     }

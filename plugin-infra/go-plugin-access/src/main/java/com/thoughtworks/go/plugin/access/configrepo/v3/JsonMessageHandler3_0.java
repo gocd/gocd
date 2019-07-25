@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.plugin.access.configrepo.v1;
-
+package com.thoughtworks.go.plugin.access.configrepo.v3;
 
 import com.google.gson.GsonBuilder;
+import com.thoughtworks.go.plugin.access.common.models.ImageDeserializer;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigFileList;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoMigrator;
 import com.thoughtworks.go.plugin.access.configrepo.ExportedConfig;
 import com.thoughtworks.go.plugin.access.configrepo.JsonMessageHandler;
-import com.thoughtworks.go.plugin.access.configrepo.v1.messages.ParseDirectoryMessage;
-import com.thoughtworks.go.plugin.access.configrepo.v1.messages.ParseDirectoryResponseMessage;
+import com.thoughtworks.go.plugin.access.configrepo.v3.messages.*;
 import com.thoughtworks.go.plugin.configrepo.codec.GsonCodec;
 import com.thoughtworks.go.plugin.configrepo.contract.CRConfigurationProperty;
 import com.thoughtworks.go.plugin.configrepo.contract.CRParseResult;
@@ -35,17 +34,34 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 
-public class JsonMessageHandler1_0 implements JsonMessageHandler {
+public class JsonMessageHandler3_0 implements JsonMessageHandler {
     static final int CURRENT_CONTRACT_VERSION = 5;
-    private static final Logger LOGGER = LoggerFactory.getLogger(JsonMessageHandler1_0.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JsonMessageHandler3_0.class);
     private final GsonCodec codec;
     private final ConfigRepoMigrator migrator;
 
-    public JsonMessageHandler1_0(GsonCodec gsonCodec, ConfigRepoMigrator configRepoMigrator) {
+    public JsonMessageHandler3_0(GsonCodec gsonCodec, ConfigRepoMigrator configRepoMigrator) {
         codec = gsonCodec;
         migrator = configRepoMigrator;
+    }
+
+    @Override
+    public Capabilities getCapabilitiesFromResponse(String responseBody) {
+        return com.thoughtworks.go.plugin.access.configrepo.v3.models.Capabilities.fromJSON(responseBody).toCapabilities();
+    }
+
+    @Override
+    public Image getImageResponseFromBody(String responseBody) {
+        return new ImageDeserializer().fromJSON(responseBody);
+    }
+
+    @Override
+    public String requestMessageForPipelineExport(CRPipeline pipeline) {
+        PipelineExportMessage requestMessage = new PipelineExportMessage(pipeline);
+        return codec.getGson().toJson(requestMessage);
     }
 
     @Override
@@ -55,8 +71,8 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
     }
 
     @Override
-    public String requestMessageForParseContent(Map<String, String> content) {
-        throw new UnsupportedOperationException("V1 Config Repo plugins don't support parse-content");
+    public String requestMessageForParseContent(Map<String, String> contents) {
+        return codec.getGson().toJson(Collections.singletonMap("contents", contents));
     }
 
     private ParseDirectoryMessage prepareMessage_1(String destinationFolder, Collection<CRConfigurationProperty> configurations) {
@@ -72,23 +88,24 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
     }
 
     @Override
-    public Capabilities getCapabilitiesFromResponse(String responseBody) {
-        return null;
-    }
-
-    @Override
-    public Image getImageResponseFromBody(String responseBody) {
-        return null;
-    }
-
-    @Override
     public String requestMessageConfigFiles(String destinationFolder, Collection<CRConfigurationProperty> configurations) {
-        throw new UnsupportedOperationException("V1 Config Repo plugins don't support config-files");
+        ConfigFilesMessage requestMessage = new ConfigFilesMessage(destinationFolder);
+        for (CRConfigurationProperty conf : configurations) {
+            requestMessage.addConfiguration(conf.getKey(), conf.getValue(), conf.getEncryptedValue());
+        }
+        return codec.getGson().toJson(requestMessage);
     }
 
     @Override
     public ConfigFileList responseMessageForConfigFiles(String responseBody) {
-        throw new UnsupportedOperationException("V1 Config Repo plugins don't support config-files");
+        ConfigFilesResponseMessage response = codec.getGson().fromJson(responseBody, ConfigFilesResponseMessage.class);
+        return ConfigFileList.from(response.getFiles());
+    }
+
+    @Override
+    public ExportedConfig responseMessageForPipelineExport(String responseBody, Map<String, String> headers) {
+        PipelineExportResponseMessage response = codec.getGson().fromJson(responseBody, PipelineExportResponseMessage.class);
+        return ExportedConfig.from(response.getPipeline(), headers);
     }
 
     @Override
@@ -134,12 +151,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
 
     @Override
     public CRParseResult responseMessageForParseContent(String responseBody) {
-        throw new UnsupportedOperationException("V1 Config Repo plugins don't support parse-content");
-    }
-
-    @Override
-    public String requestMessageForPipelineExport(CRPipeline pipeline) {
-        throw new UnsupportedOperationException("V1 Config Repo plugins don't support pipeline export");
+        return responseMessageForParseDirectory(responseBody);
     }
 
     private String migrate(String responseBody, int targetVersion) {
@@ -149,13 +161,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
         return migrator.migrate(responseBody, targetVersion);
     }
 
-    @Override
-    public ExportedConfig responseMessageForPipelineExport(String responseBody, Map<String, String> headers) {
-        throw new UnsupportedOperationException("V1 Config Repo plugins don't support pipeline export");
-    }
-
     class ResponseScratch {
         public Integer target_version;
     }
-
 }

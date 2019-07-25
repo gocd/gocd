@@ -40,4 +40,8 @@ public interface JsonMessageHandler {
     Capabilities getCapabilitiesFromResponse(String responseBody);
 
     Image getImageResponseFromBody(String responseBody);
+
+    String requestMessageConfigFiles(String destinationFolder, Collection<CRConfigurationProperty> configurations);
+
+    ConfigFileList responseMessageForConfigFiles(String responseBody);
 }

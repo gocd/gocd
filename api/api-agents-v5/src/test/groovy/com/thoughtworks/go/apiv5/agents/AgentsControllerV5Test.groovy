@@ -272,19 +272,6 @@ class AgentsControllerV5Test implements SecurityServiceTrait, ControllerTrait<Ag
 
   @Nested
   class Update {
-    @Nested
-    class Security implements SecurityTestTrait, AdminUserSecurity {
-      @Override
-      String getControllerMethodUnderTest() {
-        return 'update'
-      }
-
-      @Override
-      void makeHttpCall() {
-        patchWithApiHeader(controller.controllerPath("/some-uuid"), [])
-      }
-    }
-
     @Test
     void 'should update agent information'() {
       loginAsAdmin()
@@ -394,6 +381,232 @@ class AgentsControllerV5Test implements SecurityServiceTrait, ControllerTrait<Ag
           "build_state"       : "Idle"
         ]
       ])
+    }
+
+    @Nested
+    class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Override
+      String getControllerMethodUnderTest() {
+        return 'update'
+      }
+
+      @Override
+      void makeHttpCall() {
+        patchWithApiHeader(controller.controllerPath("/some-uuid"), [])
+      }
+    }
+
+    @Nested
+    class Environments {
+        @Test
+        void 'should pass proper environments config object to service given comma separated list of environments'() {
+          loginAsAdmin()
+          AgentInstance updatedAgentInstance = idleWith("uuid2", "agent02.example.com", "10.0.0.1", "/var/lib/bar", 10, "", asList("psql", "java"))
+
+          def environmentsConfig = new EnvironmentsConfig()
+          def environmentConfig = environment("env1")
+          def environmentConfig1 = environment("env2")
+          environmentsConfig.add(environmentConfig)
+          environmentsConfig.add(environmentConfig1)
+
+          def commaSeparatedEnvs = "   env1, env2 "
+
+          when(environmentConfigService.findOrDefault("env1")).thenReturn(environmentConfig)
+          when(environmentConfigService.findOrDefault("env2")).thenReturn(environmentConfig1)
+
+          when(environmentConfigService.environmentConfigsFor("uuid2")).thenReturn(singleton(environmentConfig))
+
+          when(agentService.updateAgentAttributes(
+            eq(currentUsername()),
+            any() as HttpOperationResult,
+            eq("uuid2"),
+            eq("agent02.example.com"),
+            eq("java,psql"),
+            eq(environmentsConfig),
+            eq(TriState.TRUE))
+          ).thenReturn(updatedAgentInstance)
+
+          def requestBody = ["hostname"          : "agent02.example.com",
+                             "agent_config_state": "Enabled",
+                             "resources"         : ["java", "psql"],
+                             "environments"      : commaSeparatedEnvs
+          ]
+          patchWithApiHeader(controller.controllerPath("/uuid2"), requestBody)
+
+          verify(agentService).updateAgentAttributes(eq(currentUsername()),
+            any() as HttpOperationResult,
+            eq("uuid2"),
+            eq("agent02.example.com"),
+            eq("java,psql"),
+            eq(environmentsConfig),
+            eq(TriState.TRUE))
+
+          assertThatResponse()
+            .isOk()
+            .hasContentType(controller.mimeType)
+            .hasJsonBody([
+            "_links"            : [
+              "self": [
+                "href": "http://test.host/go/api/agents/uuid2"
+              ],
+              "doc" : [
+                "href": apiDocsUrl("#agents")
+              ],
+              "find": [
+                "href": "http://test.host/go/api/agents/:uuid"
+              ]
+            ],
+            "uuid"              : "uuid2",
+            "hostname"          : "agent02.example.com",
+            "ip_address"        : "10.0.0.1",
+            "sandbox"           : "/var/lib/bar",
+            "operating_system"  : "",
+            "free_space"        : 10,
+            "agent_config_state": "Enabled",
+            "agent_state"       : "Idle",
+            "resources"         : ["java", "psql"],
+            "environments"      : [
+              [
+                name  : "env1",
+                origin: [
+                  type    : "gocd",
+                  "_links": [
+                    "self": [
+                      "href": "http://test.host/go/admin/config_xml"
+                    ],
+                    "doc" : [
+                      "href": apiDocsUrl("#get-configuration")
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            "build_state"       : "Idle"
+          ])
+        }
+
+        @Test
+        void 'should pass empty environments config object to service given empty comma separated list of environments'() {
+          loginAsAdmin()
+          AgentInstance updatedAgentInstance = idleWith("uuid2", "agent02.example.com", "10.0.0.1", "/var/lib/bar", 10, "", asList("psql", "java"))
+
+          def environmentsConfig = new EnvironmentsConfig()
+
+          def commaSeparatedEnvs = "             "
+
+          when(agentService.updateAgentAttributes(
+            eq(currentUsername()),
+            any() as HttpOperationResult,
+            eq("uuid2"),
+            eq("agent02.example.com"),
+            eq("java,psql"),
+            eq(environmentsConfig),
+            eq(TriState.TRUE))
+          ).thenReturn(updatedAgentInstance)
+
+          def requestBody = ["hostname"          : "agent02.example.com",
+                             "agent_config_state": "Enabled",
+                             "resources"         : ["java", "psql"],
+                             "environments"      : commaSeparatedEnvs
+          ]
+          patchWithApiHeader(controller.controllerPath("/uuid2"), requestBody)
+
+          verify(agentService).updateAgentAttributes(eq(currentUsername()),
+            any() as HttpOperationResult,
+            eq("uuid2"),
+            eq("agent02.example.com"),
+            eq("java,psql"),
+            eq(environmentsConfig),
+            eq(TriState.TRUE))
+
+          assertThatResponse()
+            .isOk()
+            .hasContentType(controller.mimeType)
+            .hasJsonBody([
+            "_links"            : [
+              "self": [
+                "href": "http://test.host/go/api/agents/uuid2"
+              ],
+              "doc" : [
+                "href": apiDocsUrl("#agents")
+              ],
+              "find": [
+                "href": "http://test.host/go/api/agents/:uuid"
+              ]
+            ],
+            "uuid"              : "uuid2",
+            "hostname"          : "agent02.example.com",
+            "ip_address"        : "10.0.0.1",
+            "sandbox"           : "/var/lib/bar",
+            "operating_system"  : "",
+            "free_space"        : 10,
+            "agent_config_state": "Enabled",
+            "agent_state"       : "Idle",
+            "resources"         : ["java", "psql"],
+            "environments"      : [],
+            "build_state"       : "Idle"
+          ])
+        }
+
+        @Test
+        void 'should pass null as environments config object to service given null comma separated list of environments'() {
+          loginAsAdmin()
+          AgentInstance updatedAgentInstance = idleWith("uuid2", "agent02.example.com", "10.0.0.1", "/var/lib/bar", 10, "", asList("psql", "java"))
+
+          def environmentsConfig = new EnvironmentsConfig()
+
+          when(agentService.updateAgentAttributes(
+            eq(currentUsername()),
+            any() as HttpOperationResult,
+            eq("uuid2"),
+            eq("agent02.example.com"),
+            eq("java,psql"),
+            eq(null),
+            eq(TriState.TRUE))
+          ).thenReturn(updatedAgentInstance)
+
+          def requestBody = ["hostname"          : "agent02.example.com",
+                             "agent_config_state": "Enabled",
+                             "resources"         : ["java", "psql"]
+          ]
+          patchWithApiHeader(controller.controllerPath("/uuid2"), requestBody)
+
+          verify(agentService).updateAgentAttributes(eq(currentUsername()),
+            any() as HttpOperationResult,
+            eq("uuid2"),
+            eq("agent02.example.com"),
+            eq("java,psql"),
+            eq(null),
+            eq(TriState.TRUE))
+
+          assertThatResponse()
+            .isOk()
+            .hasContentType(controller.mimeType)
+            .hasJsonBody([
+            "_links"            : [
+              "self": [
+                "href": "http://test.host/go/api/agents/uuid2"
+              ],
+              "doc" : [
+                "href": apiDocsUrl("#agents")
+              ],
+              "find": [
+                "href": "http://test.host/go/api/agents/:uuid"
+              ]
+            ],
+            "uuid"              : "uuid2",
+            "hostname"          : "agent02.example.com",
+            "ip_address"        : "10.0.0.1",
+            "sandbox"           : "/var/lib/bar",
+            "operating_system"  : "",
+            "free_space"        : 10,
+            "agent_config_state": "Enabled",
+            "agent_state"       : "Idle",
+            "resources"         : ["java", "psql"],
+            "environments"      : [],
+            "build_state"       : "Idle"
+          ])
+        }
     }
   }
 

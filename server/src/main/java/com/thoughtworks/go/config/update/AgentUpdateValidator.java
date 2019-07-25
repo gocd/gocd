@@ -16,7 +16,6 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.EnvironmentsConfig;
-import com.thoughtworks.go.config.exceptions.ElasticAgentsResourceUpdateException;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.InvalidPendingAgentOperationException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
@@ -86,7 +85,6 @@ public class AgentUpdateValidator {
         bombIfEnvironmentsSpecifiedAsEmpty(environments);
         bombIfResourcesSpecifiedAsBlank(resources);
         bombIfAnyOperationOnPendingAgent();
-        bombWhenElasticAgentResourcesAreUpdated();
     }
 
     private void bombIfEnvironmentsSpecifiedAsEmpty(EnvironmentsConfig environments) {
@@ -132,18 +130,5 @@ public class AgentUpdateValidator {
         String msg = format("Pending agent [%s] must be explicitly enabled or disabled when performing any operation on it.", agentInstance.getUuid());
         result.badRequest(msg, msg, general(GLOBAL));
         throw new InvalidPendingAgentOperationException(singletonList(agentInstance.getUuid()));
-    }
-
-    private void bombWhenElasticAgentResourcesAreUpdated() throws ElasticAgentsResourceUpdateException {
-        if (isBlank(resources)) {
-            return;
-        }
-        if (!agentInstance.isElastic()) {
-            return;
-        }
-
-        String message = format("Resources on elastic agent with uuid [%s] can not be updated.", agentInstance.getUuid());
-        result.badRequest(message, "", general(GLOBAL));
-        throw new ElasticAgentsResourceUpdateException(singletonList(agentInstance.getUuid()));
     }
 }

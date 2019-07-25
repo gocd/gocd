@@ -50,14 +50,14 @@
             if [ ! -z "${GO_SERVER_PORT}" ]; then
                 # non default port
                 if [ "${GO_SERVER_PORT}" != "8153" ]; then
-                  MIGRATED_SERVER_JVM_ARGS="${MIGRATED_SERVER_JVM_ARGS}${MIGRATED_SERVER_JVM_ARGS:+ }-Dcruise.server.port${GO_SERVER_PORT}"
+                  MIGRATED_SERVER_JVM_ARGS="${MIGRATED_SERVER_JVM_ARGS}${MIGRATED_SERVER_JVM_ARGS:+ }-Dcruise.server.port=${GO_SERVER_PORT}"
                 fi
             fi
 
             if [ ! -z "${GO_SERVER_SSL_PORT}" ]; then
                 # non default port
                 if [ "${GO_SERVER_SSL_PORT}" != "8154" ]; then
-                  MIGRATED_SERVER_JVM_ARGS="${MIGRATED_SERVER_JVM_ARGS}${MIGRATED_SERVER_JVM_ARGS:+ }-Dcruise.server.ssl.port${GO_SERVER_SSL_PORT}"
+                  MIGRATED_SERVER_JVM_ARGS="${MIGRATED_SERVER_JVM_ARGS}${MIGRATED_SERVER_JVM_ARGS:+ }-Dcruise.server.ssl.port=${GO_SERVER_SSL_PORT}"
                 fi
             fi
 
@@ -67,6 +67,10 @@
 
             if [ ! -z "${GO_JAVA_HOME}" ]; then
                 MIGRATED_GO_JAVA_HOME="${GO_JAVA_HOME}"
+            fi
+
+            if [ ! -z "${SERVER_WORK_DIR}" ]; then
+                /bin/echo -E "wrapper.working.dir=${SERVER_WORK_DIR}" >> ${MIGRATION_FILE}
             fi
 
             if [ ! -z "${MIGRATED_GO_JAVA_HOME}" ]; then

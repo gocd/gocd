@@ -57,6 +57,10 @@
                 MIGRATED_AGENT_BOOTSTRAPPER_ARGS="${MIGRATED_AGENT_BOOTSTRAPPER_ARGS}${MIGRATED_AGENT_BOOTSTRAPPER_ARGS:+ }$AGENT_BOOTSTRAPPER_ARGS"
             fi
 
+            if [ ! -z "${AGENT_WORK_DIR}" ]; then
+                /bin/echo -E "wrapper.working.dir=${AGENT_WORK_DIR}" >> ${MIGRATION_FILE}
+            fi
+
             if [ ! -z "${MIGRATED_GO_JAVA_HOME}" ]; then
                 /bin/echo -E "wrapper.java.command=${MIGRATED_GO_JAVA_HOME}/bin/java" >> ${MIGRATION_FILE}
             fi

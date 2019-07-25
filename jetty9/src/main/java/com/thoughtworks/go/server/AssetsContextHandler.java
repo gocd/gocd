@@ -58,6 +58,9 @@ public class AssetsContextHandler extends ContextHandler {
         private AssetsHandler() {
             resourceHandler.setCacheControl("max-age=31536000,public");
             resourceHandler.setEtags(false);
+
+            resourceHandler.setDirAllowed(false);
+            resourceHandler.setDirectoriesListed(false);
         }
 
         @Override

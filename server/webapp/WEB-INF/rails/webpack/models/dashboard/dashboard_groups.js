@@ -108,7 +108,8 @@ class PipelineGroup extends Group {
     return {
       show: `${Routes.pipelineGroupsPath()}#group-${this.name}`,
       edit: Routes.pipelineGroupEditPath(this.name),
-      new: `${SparkRoutes.newCreatePipelinePath()}?group=${this.name}`
+      new: `${SparkRoutes.newCreatePipelinePath()}?group=${this.name}`,
+      asCode: `${SparkRoutes.createPipelineAsCodePath()}?group=${this.name}`
     };
   }
 }

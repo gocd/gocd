@@ -24,7 +24,6 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.util.TriState;
-import org.apache.commons.collections4.CollectionUtils;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
 import static com.thoughtworks.go.serverhealth.HealthStateScope.GLOBAL;
@@ -32,6 +31,8 @@ import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 import static com.thoughtworks.go.serverhealth.HealthStateType.general;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
+import static org.apache.commons.collections4.CollectionUtils.isEmpty;
+import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -88,7 +89,7 @@ public class AgentUpdateValidator {
     }
 
     private void bombIfEnvironmentsSpecifiedAsEmpty(EnvironmentsConfig environments) {
-        if (environments != null && CollectionUtils.isEmpty(environments)) {
+        if (environments != null && isEmpty(environments)) {
             String msg = "Environments are specified but they are blank.";
             result.badRequest(msg, msg, general(GLOBAL));
             throw new IllegalArgumentException(msg);
@@ -113,7 +114,7 @@ public class AgentUpdateValidator {
 
     private boolean isAnyOperationPerformedOnAgents() {
         return isNotBlank(resources)
-                || CollectionUtils.isNotEmpty(environments)
+                || isNotEmpty(environments)
                 || isNotBlank(hostname)
                 || state.isTrue() || state.isFalse();
     }

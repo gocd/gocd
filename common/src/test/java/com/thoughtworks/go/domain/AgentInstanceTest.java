@@ -39,7 +39,7 @@ import java.util.List;
 import static com.thoughtworks.go.domain.AgentInstance.AgentType.LOCAL;
 import static com.thoughtworks.go.domain.AgentInstance.AgentType.REMOTE;
 import static com.thoughtworks.go.domain.AgentInstance.FilterBy.*;
-import static com.thoughtworks.go.util.CommaSeparatedString.convertCommaSeparatedStrToList;
+import static com.thoughtworks.go.util.CommaSeparatedString.commaSeparatedStrToList;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -795,7 +795,7 @@ public class AgentInstanceTest {
     }
 
     private Agent agent(String resources) {
-        return new Agent("UUID", "A", "127.0.0.1", convertCommaSeparatedStrToList(resources));
+        return new Agent("UUID", "A", "127.0.0.1", commaSeparatedStrToList(resources));
     }
 
     private AgentRuntimeInfo buildingRuntimeInfo() {

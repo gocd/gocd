@@ -20,13 +20,15 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.IpAddress;
 import com.thoughtworks.go.domain.PersistentObject;
 import com.thoughtworks.go.remote.AgentIdentifier;
-import com.thoughtworks.go.util.SystemUtil;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 
-import static com.thoughtworks.go.util.CommaSeparatedString.append;
-import static com.thoughtworks.go.util.CommaSeparatedString.convertCommaSeparatedStrToList;
+import static com.thoughtworks.go.util.CommaSeparatedString.*;
 import static com.thoughtworks.go.util.CommaSeparatedString.remove;
+import static com.thoughtworks.go.util.SystemUtil.isLocalhost;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -237,7 +239,7 @@ public class Agent extends PersistentObject {
 
     public boolean isFromLocalHost() {
         if (cachedIsFromLocalHost == null) {
-            cachedIsFromLocalHost = SystemUtil.isLocalhost(ipaddress);
+            cachedIsFromLocalHost = isLocalhost(ipaddress);
         }
         return cachedIsFromLocalHost;
     }
@@ -333,11 +335,15 @@ public class Agent extends PersistentObject {
     }
 
     public List<String> getEnvironmentsAsList() {
-        return (isBlank(this.environments) ? new ArrayList<>() : convertCommaSeparatedStrToList(environments));
+        return (isBlank(this.environments) ? new ArrayList<>() : commaSeparatedStrToList(environments));
     }
 
     public void setEnvironments(String envs) {
         this.environments = envs;
+    }
+
+    public void setEnvironmentsFrom(List<String> envList) {
+        this.environments = listToCommaSeparatedStr(envList);
     }
 
     public void addEnvironments(List<String> envsToAdd) {
@@ -353,7 +359,7 @@ public class Agent extends PersistentObject {
     }
 
     public List<String> getResourcesAsList() {
-        return (isBlank(this.resources) ? new ArrayList<>() : convertCommaSeparatedStrToList(this.resources));
+        return (isBlank(this.resources) ? new ArrayList<>() : commaSeparatedStrToList(this.resources));
     }
 
     public String getCookie() {

@@ -182,9 +182,8 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
             if (validator.canContinue()) {
                 validator.validate();
 
-                setAgentAttributes(hostname, resources, state, agent);
-                agent.setEnvironments("");
-                addOnlyThoseEnvsThatAreNotAssociatedWithTheAgentFromConfigRepo(environments, agent);
+                setAgentAttributes(hostname, resources, environments, state, agent);
+
                 saveOrUpdate(agent);
 
                 if (agent.hasErrors()) {
@@ -206,7 +205,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         return AgentInstance.createFromAgent(agent, systemEnvironment, agentStatusChangeNotifier);
     }
 
-    private void setAgentAttributes(String newHostname, String resources, TriState state, Agent agent) {
+    private void setAgentAttributes(String newHostname, String resources, EnvironmentsConfig environments, TriState state, Agent agent) {
         if (state.isTrue()) {
             agent.enable();
         }
@@ -222,6 +221,8 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         if (resources != null) {
             agent.setResources(resources);
         }
+
+        setOnlyThoseEnvsThatAreNotAssociatedWithAgentFromConfigRepo(environments, agent);
     }
 
     public void bulkUpdateAgentAttributes(Username username, LocalizedOperationResult result, List<String> uuids,
@@ -363,7 +364,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         }
     }
 
-    private void addOnlyThoseEnvsThatAreNotAssociatedWithTheAgentFromConfigRepo(EnvironmentsConfig envsToAdd, Agent agent) {
+    private void addOnlyThoseEnvsThatAreNotAssociatedWithAgentFromConfigRepo(EnvironmentsConfig envsToAdd, Agent agent) {
         if (envsToAdd != null) {
             String uuid = agent.getUuid();
             envsToAdd.forEach(env -> {
@@ -377,9 +378,20 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         }
     }
 
+    private void setOnlyThoseEnvsThatAreNotAssociatedWithAgentFromConfigRepo(EnvironmentsConfig envsToSet, Agent agent) {
+        if (envsToSet != null) {
+            ArrayList<String> envsToSetList = envsToSet.stream()
+                    .filter(env -> !env.containsAgentRemotely(agent.getUuid()))
+                    .map(env -> env.name().toString())
+                    .collect(Collectors.toCollection(ArrayList::new));
+
+            agent.setEnvironmentsFrom(envsToSetList);
+        }
+    }
+
     private void addRemoveEnvsAndResources(Agent agent, EnvironmentsConfig envsToAdd, List<String> envsToRemove,
                                            List<String> resourcesToAdd, List<String> resourcesToRemove) {
-        addOnlyThoseEnvsThatAreNotAssociatedWithTheAgentFromConfigRepo(envsToAdd, agent);
+        addOnlyThoseEnvsThatAreNotAssociatedWithAgentFromConfigRepo(envsToAdd, agent);
         agent.removeEnvironments(envsToRemove);
 
         agent.addResources(resourcesToAdd);

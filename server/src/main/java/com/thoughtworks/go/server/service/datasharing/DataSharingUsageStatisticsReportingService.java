@@ -16,8 +16,8 @@
 package com.thoughtworks.go.server.service.datasharing;
 
 import com.thoughtworks.go.domain.UsageStatisticsReporting;
-import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.UsageStatisticsReportingSqlMapDao;
+import com.thoughtworks.go.server.service.datasharing.DataSharingSettingsService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -35,26 +35,21 @@ import static com.thoughtworks.go.util.DateUtils.isToday;
 public class DataSharingUsageStatisticsReportingService {
     private final UsageStatisticsReportingSqlMapDao usageStatisticsReportingSqlMapDao;
     private final Clock clock;
-    private GoCache goCache;
     private DataSharingSettingsService dataSharingSettingsService;
     private final SystemEnvironment systemEnvironment;
     private final Object mutexForReportingUsageData = new Object();
 
     private DateTime reportingStartedTime = null;
 
-    public static String USAGE_DATA_IGNORE_LAST_UPDATED_AT = "usage-data-ignore-last-updated-at";
-
     @Autowired
     public DataSharingUsageStatisticsReportingService(UsageStatisticsReportingSqlMapDao usageStatisticsReportingSqlMapDao,
                                                       DataSharingSettingsService dataSharingSettingsService,
                                                       SystemEnvironment systemEnvironment,
-                                                      Clock clock,
-                                                      GoCache goCache) {
+                                                      Clock clock) {
         this.usageStatisticsReportingSqlMapDao = usageStatisticsReportingSqlMapDao;
         this.dataSharingSettingsService = dataSharingSettingsService;
         this.systemEnvironment = systemEnvironment;
         this.clock = clock;
-        this.goCache = goCache;
     }
 
     public void initialize() {
@@ -79,14 +74,8 @@ public class DataSharingUsageStatisticsReportingService {
         loaded.setDataSharingServerUrl(systemEnvironment.getGoDataSharingServerUrl());
         loaded.setDataSharingGetEncryptionKeysUrl(systemEnvironment.getGoDataSharingGetEncryptionKeysUrl());
         boolean canReport = !isDevelopmentServer() && dataSharingSettingsService.get().allowSharing()
-                && !isReportingInProgress();
-
-        if (goCache.getOrDefault(USAGE_DATA_IGNORE_LAST_UPDATED_AT, false)) {
-            loaded.canReport(canReport);
-        } else {
-            loaded.canReport(canReport && !isToday(loaded.lastReportedAt()));
-        }
-
+                && !isToday(loaded.lastReportedAt()) && !isReportingInProgress();
+        loaded.canReport(canReport);
         return loaded;
     }
 

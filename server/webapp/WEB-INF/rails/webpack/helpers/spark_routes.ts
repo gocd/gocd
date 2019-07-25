@@ -309,11 +309,4 @@ export default class {
   static backupConfigPath() {
     return "/go/api/config/backup";
   }
-
-  static apiAdminPluginSettingPath(id?: string) {
-    if (id) {
-      return `/go/api/admin/plugin_settings/${id}`;
-    }
-    return `/go/api/admin/plugin_settings`;
-  }
 }

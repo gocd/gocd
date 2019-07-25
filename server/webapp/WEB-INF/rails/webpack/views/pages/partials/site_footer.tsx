@@ -30,7 +30,7 @@ export interface Attrs {
 
 export class SiteFooter extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
-    return <div class={styles.footer}>
+    return <div className={styles.footer}>
       {SiteFooter.maintenanceModeOrLegacyBrowserBanner(vnode)}
       <div class={styles.left}>
         <p class={styles.content}>Copyright &copy; {GoCDVersion.copyrightYear}&nbsp;
@@ -43,7 +43,7 @@ export class SiteFooter extends MithrilViewComponent<Attrs> {
           <a href={`/go/assets/dependency-license-report-${GoCDVersion.fullVersion}`} target="_blank">
             third-party software
           </a>.
-          <span class={styles.gocdVersion}>GoCD Version: {GoCDVersion.formattedVersion}.</span>
+          <span className={styles.gocdVersion}>GoCD Version: {GoCDVersion.formattedVersion}.</span>
         </p>
       </div>
       <div class={styles.right}>

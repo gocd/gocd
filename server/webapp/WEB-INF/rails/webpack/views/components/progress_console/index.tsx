@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-import classnames from "classnames";
+import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
 import * as styles from "./index.scss";
+
+const classnames          = bind(styles);
 
 export interface Attrs {
   messages: string[];

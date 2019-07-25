@@ -92,9 +92,6 @@ subprojects {
         def file = project.file("${task.gitRepoDirectory}/run-docker-daemon.sh")
         file.bytes = BuildDockerImageTask.class.getResource("/gocd-docker-agent/run-docker-daemon.sh").bytes
         file.setExecutable(true, false)
-
-        file = project.file("${task.gitRepoDirectory}/dockerd-sudo")
-        file.bytes = BuildDockerImageTask.class.getResource("/gocd-docker-agent/dockerd-sudo").bytes
       }
     }
 

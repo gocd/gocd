@@ -56,7 +56,7 @@ export class GoCDRoleModalBodyWidget extends MithrilViewComponent<ModalAttrs> {
                  errorText={role.errors().errorsForDisplay("name")}
                  required={true}/>
 
-      <li class={styles.usersInRole}>
+      <li className={styles.usersInRole}>
         <UsersWidget roleAttributes={role.attributes}
                      selectedUser={this.lastUserAdded}
                      readOnly={false}/>
@@ -64,7 +64,7 @@ export class GoCDRoleModalBodyWidget extends MithrilViewComponent<ModalAttrs> {
 
       <TextField label="Role users" required={false} property={this.newUser}/>
 
-      <li class={styles.addUserToRole}>
+      <li className={styles.addUserToRole}>
         <Buttons.Primary
           data-test-id="role-add-user-button"
           onclick={this.addNewUserToRole.bind(this, vnode)}>Add</Buttons.Primary>
@@ -148,7 +148,7 @@ export class PluginRoleModalBodyWidget extends MithrilViewComponent<PluginModalA
           </Form>
         </div>
         <div>
-          <div class="row collapse">
+          <div className="row collapse">
             <AngularPluginNew
               pluginInfoSettings={stream(pluginSettings)}
               configuration={new Configurations(pluginAttributes.properties())}

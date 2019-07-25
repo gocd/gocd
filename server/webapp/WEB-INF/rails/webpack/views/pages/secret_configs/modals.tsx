@@ -104,7 +104,7 @@ export abstract class SecretConfigModal extends EntityModal<SecretConfig> {
         </Form>
       </FormHeader>
 
-      <div class={styles.widthSmall}>
+      <div className={styles.widthSmall}>
         <TextAreaField label={"Description"}
                        property={this.entity().description}
                        resizable={true}
@@ -115,7 +115,7 @@ export abstract class SecretConfigModal extends EntityModal<SecretConfig> {
       </div>
 
       <div>
-        <div class="row collapse">
+        <div className="row collapse">
           <AngularPluginNew
             pluginInfoSettings={stream(pluginSettings)}
             configuration={this.entity().properties()}
@@ -123,7 +123,7 @@ export abstract class SecretConfigModal extends EntityModal<SecretConfig> {
         </div>
       </div>
       <RulesWidget rules={this.entity().rules} resourceAutocompleteHelper={this.resourceAutocompleteHelper}/>
-      <div class={styles.addRule}>
+      <div className={styles.addRule}>
         <Buttons.Secondary data-test-id="add-rule-button" onclick={this.addNewRule.bind(this)}>
           + New Rule
         </Buttons.Secondary>

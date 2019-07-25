@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import classnames from "classnames";
+import {bind} from "classnames/bind";
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
 import {
@@ -24,6 +24,7 @@ import * as s from "underscore.string";
 import {Modal, Size} from "../modal";
 import * as styles from "./server_health_messages_count_widget.scss";
 
+const classnames    = bind(styles);
 const TimeFormatter = require("helpers/time_formatter");
 
 export class ServerHealthMessagesModal extends Modal {
@@ -36,7 +37,7 @@ export class ServerHealthMessagesModal extends Modal {
   }
 
   body(): m.Children {
-    return <ul class={styles.serverHealthStatuses}>
+    return <ul className={styles.serverHealthStatuses}>
       {
         this.messages().collect((msg: ServerHealthMessage) => {
                                   return this.messageView(msg);
@@ -55,11 +56,11 @@ export class ServerHealthMessagesModal extends Modal {
 
     return <li data-test-id={messageId}
                data-test-message-level={message.level.toLowerCase()}
-               class={classnames(styles.serverHealthStatus, message.level.toLowerCase())}>
-      <span data-test-class="server-health-message_message" class={styles.message}>{m.trust(message.message)}</span>
+               className={classnames(styles.serverHealthStatus, message.level.toLowerCase())}>
+      <span data-test-class="server-health-message_message" className={styles.message}>{m.trust(message.message)}</span>
       <span data-test-class="server-health-message_timestamp"
-            class={styles.timestamp}>{TimeFormatter.format(message.time)}</span>
-      <p data-test-class="server-health-message_detail" class={styles.detail}>{m.trust(message.detail)}</p>
+            className={styles.timestamp}>{TimeFormatter.format(message.time)}</span>
+      <p data-test-class="server-health-message_detail" className={styles.detail}>{m.trust(message.detail)}</p>
     </li>;
   }
 }

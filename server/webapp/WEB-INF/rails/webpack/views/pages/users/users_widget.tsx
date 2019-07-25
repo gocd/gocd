@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import classnames from "classnames";
+import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
@@ -28,6 +28,8 @@ import {
 import {State as UserActionsState, UsersActionsWidget} from "views/pages/users/user_actions_widget";
 import * as styles from "./index.scss";
 
+const classnames = bind(styles);
+
 export interface Attrs extends UserActionsState, SuperAdminPrivilegeSwitchAttrs, RequiresUserViewHelper {
 
 }
@@ -36,16 +38,16 @@ export class UsersTableWidget extends MithrilViewComponent<Attrs> {
   static headers(users: Users) {
     return [
       <input type="checkbox"
-             class={styles.formCheck}
+             className={styles.formCheck}
              checked={users.areAllUsersSelected()}
              onclick={users.toggleSelection.bind(users)}/>,
       "Username",
       "Display name",
       <span>
         Roles
-        <div class={classnames(styles.roleLegends)}>
-          <div class={classnames(styles.roleGocd)}>GoCD</div>
-          <div class={classnames(styles.rolePlugin)}>Plugin</div>
+        <div className={classnames(styles.roleLegends)}>
+          <div className={classnames(styles.roleGocd)}>GoCD</div>
+          <div className={classnames(styles.rolePlugin)}>Plugin</div>
         </div>
       </span>,
       "System Admin",
@@ -56,47 +58,47 @@ export class UsersTableWidget extends MithrilViewComponent<Attrs> {
 
   view(vnode: m.Vnode<Attrs>) {
     return (
-      <div class={styles.flexTable} data-test-id="users-table">
-        <div class={styles.tableHeader} data-test-id="users-header">
+      <div className={styles.flexTable} data-test-id="users-table">
+        <div className={styles.tableHeader} data-test-id="users-header">
           {
             _.map(UsersTableWidget.headers(vnode.attrs.users() as Users), (header) => {
-              return <div class={styles.tableHead}>{header}</div>;
+              return <div className={styles.tableHead}>{header}</div>;
             })
           }
         </div>
-        <div class={styles.tableBody}>
+        <div className={styles.tableBody}>
           {
             vnode.attrs.users().map((user: User) => {
               const className   = (user.enabled() ? "" : styles.disabled);
               const selectedRow = (user.checked() ? styles.selected : "");
 
               return [
-                <div class={classnames(styles.tableRow, selectedRow, className)} data-test-id="user-row">
-                  <div class={styles.tableCell}>
-                    <input type="checkbox" class={styles.formCheck}
+                <div className={classnames(styles.tableRow, selectedRow, className)} data-test-id="user-row">
+                  <div className={styles.tableCell}>
+                    <input type="checkbox" className={styles.formCheck}
                            checked={user.checked()}
                            onclick={m.withAttr("checked", user.checked)}/>
                   </div>
-                  <div class={styles.tableCell} data-test-id="user-username">
+                  <div className={styles.tableCell} data-test-id="user-username">
                     <span>{user.loginName()}</span>
                   </div>
-                  <div class={styles.tableCell} data-test-id="user-display-name">
+                  <div className={styles.tableCell} data-test-id="user-display-name">
                     <span>{user.displayName()}</span>
                   </div>
-                  <div class={styles.tableCell} data-test-id="user-roles">
+                  <div className={styles.tableCell} data-test-id="user-roles">
                     <span>{UsersTableWidget.roles(user)}</span>
                   </div>
-                  <div class={classnames(styles.tableCell, styles.systemAdminCell)}
+                  <div className={classnames(styles.tableCell, styles.systemAdminCell)}
                        data-test-id="user-super-admin-switch">
                     <SuperAdminPrivilegeSwitch user={user}
                                                userViewHelper={vnode.attrs.userViewHelper}
                                                onToggleAdmin={vnode.attrs.onToggleAdmin}/>
                     {this.maybeShowOperationStatusIcon(vnode, user)}
                   </div>
-                  <div class={styles.tableCell} data-test-id="user-email">
+                  <div className={styles.tableCell} data-test-id="user-email">
                     <span>{user.email()}</span>
                   </div>
-                  <div class={styles.tableCell} data-test-id="user-enabled">
+                  <div className={styles.tableCell} data-test-id="user-enabled">
                     <span>{user.enabled() ? "Yes" : "No"}</span>
                   </div>
                 </div>,
@@ -110,8 +112,8 @@ export class UsersTableWidget extends MithrilViewComponent<Attrs> {
 
   maybeShowOperationErrorMessage(vnode: m.Vnode<Attrs>, user: User) {
     if (vnode.attrs.userViewHelper().hasError(user)) {
-      return <div class={classnames(styles.tableRow)}>
-        <div class={styles.alertError} data-test-id="user-update-error-message">
+      return <div className={classnames(styles.tableRow)}>
+        <div className={styles.alertError} data-test-id="user-update-error-message">
           <p>{vnode.attrs.userViewHelper().errorMessageFor(user)}</p>
         </div>
       </div>;
@@ -122,10 +124,10 @@ export class UsersTableWidget extends MithrilViewComponent<Attrs> {
     return (
       <span>
         {user.gocdRoles().map((roleName) => {
-          return <span class={classnames(styles.gocdRole)}>{roleName}</span>;
+          return <span className={classnames(styles.gocdRole)}>{roleName}</span>;
         })}
         {user.pluginRoles().map((roleName) => {
-          return <span class={classnames(styles.pluginRole)}>{roleName}</span>;
+          return <span className={classnames(styles.pluginRole)}>{roleName}</span>;
         })}
       </span>
     );
@@ -137,11 +139,11 @@ export class UsersTableWidget extends MithrilViewComponent<Attrs> {
         return <Icons.Spinner iconOnly={true} title={"Update in progress"}/>;
       }
       if (vnode.attrs.userViewHelper().hasError(user)) {
-        return <span class={styles.iconError} data-test-id="update-unsuccessful"/>;
+        return <span className={styles.iconError} data-test-id="update-unsuccessful"/>;
       }
 
       if (vnode.attrs.userViewHelper().isUpdatedSuccessfully(user)) {
-        return <span class={styles.iconCheck} data-test-id="update-successful"/>;
+        return <span className={styles.iconCheck} data-test-id="update-successful"/>;
       }
     }
   }

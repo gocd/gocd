@@ -186,7 +186,7 @@ enum Distro implements DistroBehavior {
     @Override
     List<DistroVersion> getSupportedVersions() {
       return [
-        new DistroVersion(version: 'dind', releaseName: 'dind', eolDate: parseDate('2099-01-01'), installPrerequisitesCommands: ['apk add --no-cache cyrus-sasl cyrus-sasl-plain sudo'])
+        new DistroVersion(version: 'dind', releaseName: 'dind', eolDate: parseDate('2099-01-01'), installPrerequisitesCommands: ['apk add --no-cache cyrus-sasl cyrus-sasl-plain'])
       ]
     }
 

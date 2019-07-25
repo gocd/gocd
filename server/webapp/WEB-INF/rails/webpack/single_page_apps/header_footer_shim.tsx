@@ -45,6 +45,7 @@ $(() => {
     const isAnonymous                = extractBoolean(body, "data-user-anonymous");
     const isServerInMaintenanceMode  = extractBoolean(body, "data-is-server-in-maintenance-mode");
     const userDisplayName            = body.getAttribute("data-user-display-name") || "";
+    const showSecretConfigSpa        = extractBoolean(body, "data-show-secret-config-spa");
     const maintenanceModeUpdatedOn   = body.getAttribute("data-maintenance-mode-updated-on");
     const maintenanceModeUpdatedBy   = body.getAttribute("data-maintenance-mode-updated-by");
 
@@ -62,7 +63,8 @@ $(() => {
       isGroupAdmin,
       canViewTemplates,
       userDisplayName,
-      isAnonymous
+      isAnonymous,
+      showSecretConfigSpa
     } as Attrs;
 
     const menuMountPoint = document.querySelector("#app-menu");

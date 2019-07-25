@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import classnames from "classnames";
+import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
 import * as styles from "./index.scss";
+
+const classnames = bind(styles);
 
 interface SiteHeaderLinkAttrs {
   isNavLink?: boolean;
@@ -69,11 +71,11 @@ class SiteNavItem extends MithrilViewComponent<SiteNavItemAttrs> {
     }
 
     return (
-      <li class={dropDownClass}>
+      <li className={dropDownClass}>
         <SiteHeaderLink isNavLink={true}>
           {vnode.attrs.text}
         </SiteHeaderLink>
-        <i class={styles.caretDownIcon}/>
+        <i className={styles.caretDownIcon}/>
         {vnode.children}
       </li>
     );
@@ -83,7 +85,7 @@ class SiteNavItem extends MithrilViewComponent<SiteNavItemAttrs> {
 class SiteSubNav extends MithrilViewComponent<{}> {
   view(vnode: m.Vnode<{}>) {
     return (
-      <ul class={styles.siteSubNav}>
+      <ul className={styles.siteSubNav}>
         {vnode.children}
       </ul>
     );
@@ -93,7 +95,7 @@ class SiteSubNav extends MithrilViewComponent<{}> {
 export class SiteSubNavItem extends MithrilViewComponent<TextWithLink> {
   view(vnode: m.Vnode<TextWithLink>) {
     return (
-      <li class={styles.siteSubNavItem}>
+      <li className={styles.siteSubNavItem}>
         <SiteHeaderLink href={vnode.attrs.href}
                         isNavLink={false}>
           {vnode.attrs.text}
@@ -106,8 +108,8 @@ export class SiteSubNavItem extends MithrilViewComponent<TextWithLink> {
 class SiteSubNavHeading extends MithrilViewComponent<Text> {
   view(vnode: m.Vnode<Text>) {
     return (
-      <li class={styles.siteSubNavItem}>
-        <h5 class={styles.siteSubNavLinkHead}>{vnode.attrs.text}</h5>
+      <li className={styles.siteSubNavItem}>
+        <h5 className={styles.siteSubNavLinkHead}>{vnode.attrs.text}</h5>
       </li>
     );
   }
@@ -119,6 +121,7 @@ export interface Attrs {
   isUserAdmin: boolean;
   canViewAdminPage: boolean;
   showAnalytics: boolean;
+  showSecretConfigSpa: boolean;
 }
 
 export default class SiteMenu extends MithrilViewComponent<Attrs> {
@@ -130,11 +133,16 @@ export default class SiteMenu extends MithrilViewComponent<Attrs> {
     let adminMenu = null;
     const linkToAccessTokenManagementSPA = <SiteSubNavItem href="/go/admin/admin_access_tokens" text="Access Tokens Management"/>;
 
+    let linkToSecretConfigSPA;
+    if (vnode.attrs.showSecretConfigSpa) {
+      linkToSecretConfigSPA = <SiteSubNavItem href="/go/admin/secret_configs" text="Secret Management"/>;
+    }
+
     if (vnode.attrs.canViewAdminPage) {
       if (vnode.attrs.isUserAdmin) {
         adminMenu = (
           <SiteNavItem isDropDown={true} text="Admin">
-            <div class={styles.subNavigation}>
+            <div className={styles.subNavigation}>
               <SiteSubNav>
                 <SiteSubNavItem href="/go/admin/pipelines" text="Pipelines"/>
                 <SiteSubNavItem href="/go/admin/environments" text="Environments"/>
@@ -151,7 +159,7 @@ export default class SiteMenu extends MithrilViewComponent<Attrs> {
                 <SiteSubNavItem href="/go/admin/artifact_stores" text="Artifact Stores"/>
                 <SiteSubNavItem href="/go/admin/data_sharing/settings" text="Data Sharing"/>
                 <SiteSubNavItem href="/go/admin/maintenance_mode" text="Server Maintenance Mode"/>
-                <SiteSubNavItem href="/go/admin/secret_configs" text="Secret Management"/>
+                {linkToSecretConfigSPA}
               </SiteSubNav>
               <SiteSubNav>
                 <SiteSubNavHeading text="Security"/>
@@ -165,7 +173,7 @@ export default class SiteMenu extends MithrilViewComponent<Attrs> {
         );
       } else if (vnode.attrs.isGroupAdmin) {
         adminMenu = <SiteNavItem isDropDown={true} text="Admin">
-          <div class={styles.subNavigation}>
+          <div className={styles.subNavigation}>
             <SiteSubNav>
               <SiteSubNavItem href="/go/admin/pipelines" text="Pipelines"/>
               <SiteSubNavItem href="/go/admin/templates" text="Templates"/>
@@ -178,7 +186,7 @@ export default class SiteMenu extends MithrilViewComponent<Attrs> {
         </SiteNavItem>;
       } else if (vnode.attrs.canViewTemplates) {
         adminMenu = <SiteNavItem isDropDown={true} text="Admin">
-          <div class={styles.subNavigation}>
+          <div className={styles.subNavigation}>
             <SiteSubNav>
               <SiteSubNavItem href="/go/admin/templates" text="Templates"/>
             </SiteSubNav>
@@ -187,8 +195,8 @@ export default class SiteMenu extends MithrilViewComponent<Attrs> {
       }
     }
 
-    return <nav class={styles.mainMenu}>
-      <ul class={styles.siteNav}>
+    return <nav className={styles.mainMenu}>
+      <ul className={styles.siteNav}>
         <SiteNavItem href="/go/pipelines" text="Dashboard"/>
         <SiteNavItem href="/go/agents" text="Agents"/>
         {analyticsMenu}

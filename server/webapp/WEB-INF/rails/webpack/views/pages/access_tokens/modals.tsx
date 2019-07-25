@@ -43,7 +43,7 @@ export class GenerateTokenModal extends BaseModal {
 
   body(): m.Children {
     if (this.operationState() === PageState.LOADING) {
-      return <div class={styles.spinnerContainer}>
+      return <div className={styles.spinnerContainer}>
         <Spinner/>
       </div>;
     }

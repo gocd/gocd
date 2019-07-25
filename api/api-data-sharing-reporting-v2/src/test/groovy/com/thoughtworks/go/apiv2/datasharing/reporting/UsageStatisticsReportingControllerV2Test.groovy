@@ -43,7 +43,7 @@ class UsageStatisticsReportingControllerV2Test implements SecurityServiceTrait, 
 
     @Override
     UsageStatisticsReportingControllerV2 createControllerInstance() {
-        new UsageStatisticsReportingControllerV2(new ApiAuthenticationHelper(securityService, goConfigService), service, goCache)
+        new UsageStatisticsReportingControllerV2(new ApiAuthenticationHelper(securityService, goConfigService), service)
     }
 
     @Nested

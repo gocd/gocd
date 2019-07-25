@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import classnames from "classnames";
+import {bind} from "classnames/bind";
 import * as clipboard from "clipboard-polyfill";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
@@ -26,6 +26,8 @@ import * as Buttons from "views/components/buttons";
 import {EncryptedValue} from "views/components/forms/encrypted_value";
 import {SwitchBtn} from "views/components/switch";
 import * as styles from "./forms.scss";
+
+const classnames = bind(styles);
 
 export interface RequiredFieldAttr {
   required?: boolean;
@@ -136,7 +138,7 @@ class RequiredLabel extends MithrilViewComponent<RequiredFieldAttr> {
 
   view(vnode: m.Vnode<RequiredFieldAttr>) {
     if (RequiredLabel.isRequiredField(vnode.attrs) && !vnode.attrs.hideRequiredAsterix) {
-      return (<span class={styles.formLabelRequired}>*</span>);
+      return (<span className={styles.formLabelRequired}>*</span>);
     }
   }
 
@@ -179,7 +181,7 @@ class Label extends MithrilViewComponent<LabelComponentAttrs> {
     if (Label.hasLabelText(vnode.attrs)) {
       return <label for={vnode.attrs.fieldId}
                     data-test-id={`form-field-label-${s.slugify(Label.labelToId(vnode.attrs.label))}`}
-                    class={classnames(styles.formLabel)}>
+                    className={classnames(styles.formLabel)}>
         {vnode.attrs.label}
         <RequiredLabel {...vnode.attrs} />
         {vnode.children}
@@ -202,7 +204,7 @@ class HelpText extends MithrilViewComponent<HelpTextComponentAttrs> {
 
   view(vnode: m.Vnode<HelpTextComponentAttrs>) {
     if (!_.isEmpty(vnode.attrs.helpText)) {
-      return (<span id={vnode.attrs.helpTextId} class={classnames(styles.formHelp)}>{vnode.attrs.helpText}</span>);
+      return (<span id={vnode.attrs.helpTextId} className={classnames(styles.formHelp)}>{vnode.attrs.helpText}</span>);
     }
   }
 
@@ -222,7 +224,7 @@ class ErrorText extends MithrilViewComponent<ErrorTextComponentAttrs> {
 
   view(vnode: m.Vnode<ErrorTextComponentAttrs>) {
     if (ErrorText.hasErrorText(vnode.attrs)) {
-      return <span class={styles.formErrorText} id={vnode.attrs.errorId}>{vnode.attrs.errorText}</span>;
+      return <span className={styles.formErrorText} id={vnode.attrs.errorId}>{vnode.attrs.errorText}</span>;
     }
   }
 }
@@ -290,7 +292,7 @@ export abstract class FormField<T, V = {}> extends MithrilViewComponent<BaseAttr
 
   view(vnode: m.Vnode<BaseAttrs<T> & V>) {
     return (
-      <li class={classnames(styles.formGroup,
+      <li className={classnames(styles.formGroup,
                                 {[styles.formHasError]: ErrorText.hasErrorText(vnode.attrs)})}>
         <Label {...vnode.attrs} fieldId={this.id}/>
         {this.renderInputField(vnode)}
@@ -320,7 +322,7 @@ export class TextField extends FormField<string, RequiredFieldAttr & Placeholder
   renderInputField(vnode: m.Vnode<TextFieldAttrs>) {
     return (
       <input type="text"
-             class={classnames(styles.formControl)}
+             className={classnames(styles.formControl)}
              {...this.defaultAttributes(vnode.attrs)}
              {...this.bindingAttributes(vnode.attrs, "oninput", "value")}
       />
@@ -358,7 +360,7 @@ export class TextAreaField extends FormField<string, TextAreaFieldAttrs> {
 
     return (
       <textarea
-        class={classnames(styles.formControl,
+        className={classnames(styles.formControl,
                               styles.textArea,
                               SizeTransformer.transform(vnode.attrs.size),
                               {[styles.textareaFixed]: !(vnode.attrs.resizable)})}
@@ -388,7 +390,7 @@ export class PasswordField extends FormField<EncryptedValue, RequiredFieldAttr &
 
   renderInputField(vnode: m.Vnode<BaseAttrs<EncryptedValue> & RequiredFieldAttr & PlaceholderAttr>) {
     const input = <input type="password"
-                         class={classnames(styles.formControl, styles.inline)}
+                         className={classnames(styles.formControl, styles.inline)}
                          {...this.defaultAttributes(vnode.attrs)}
                          {...this.bindingAttributes(vnode.attrs, "oninput", "value")}/>;
 
@@ -432,7 +434,7 @@ export class SimplePasswordField extends TextField {
   renderInputField(vnode: m.Vnode<BaseAttrs<string> & RequiredFieldAttr & PlaceholderAttr>): any {
     return (
       <input type="password"
-             class={classnames(styles.formControl)}
+             className={classnames(styles.formControl)}
              {...this.defaultAttributes(vnode.attrs)}
              {...this.bindingAttributes(vnode.attrs, "oninput", "value")}
       />
@@ -443,9 +445,9 @@ export class SimplePasswordField extends TextField {
 export class SearchField extends FormField<string, PlaceholderAttr> {
   view(vnode: m.Vnode<BindingsAttr<string> & PlaceholderAttr>): any {
     return (
-      <span class={classnames(styles.searchBoxWrapper)}>
+      <span className={classnames(styles.searchBoxWrapper)}>
       <input type="search"
-             class={classnames(styles.formControl, styles.searchBoxInput)}
+             className={classnames(styles.formControl, styles.searchBoxInput)}
              placeholder={vnode.attrs.placeholder}
              {...this.defaultAttributes(vnode.attrs)}
              {...this.bindingAttributes(vnode.attrs, "oninput", "value")}/>
@@ -461,9 +463,9 @@ export class SearchField extends FormField<string, PlaceholderAttr> {
 export class CheckboxField extends FormField<boolean> {
   view(vnode: m.Vnode<BaseAttrs<boolean>>) {
     return (
-      <li class={classnames(styles.formGroup,
+      <li className={classnames(styles.formGroup,
                                 {[styles.formHasError]: ErrorText.hasErrorText(vnode.attrs as ErrorTextAttr)})}>
-        <div class={styles.formCheck}>
+        <div className={styles.formCheck}>
           {this.renderInputField(vnode)}
           <Label {...vnode.attrs as LabelAttr} fieldId={this.id}/>
           <ErrorText {...vnode.attrs as ErrorTextAttr} errorId={this.errorId}/>
@@ -478,16 +480,16 @@ export class CheckboxField extends FormField<boolean> {
       <input type="checkbox"
              {...this.defaultAttributes(vnode.attrs)}
              {...this.bindingAttributes(vnode.attrs, "onclick", "checked")}
-             class={classnames(styles.formCheckInput)}/>);
+             className={classnames(styles.formCheckInput)}/>);
   }
 }
 
 export class TriStateCheckboxField extends FormField<TriStateCheckbox> {
   view(vnode: m.Vnode<BaseAttrs<TriStateCheckbox>>) {
     return (
-      <li class={classnames(styles.formGroup,
+      <li className={classnames(styles.formGroup,
                                 {[styles.formHasError]: ErrorText.hasErrorText(vnode.attrs as ErrorTextAttr)})}>
-        <div class={styles.formCheck}>
+        <div className={styles.formCheck}>
           {this.renderInputField(vnode)}
           <Label {...vnode.attrs as LabelAttr} fieldId={this.id}/>
           <ErrorText {...vnode.attrs as ErrorTextAttr} errorId={this.errorId}/>
@@ -502,7 +504,7 @@ export class TriStateCheckboxField extends FormField<TriStateCheckbox> {
       <input type="checkbox"
              {...this.defaultAttributes(vnode.attrs)}
              {...this.bindingAttributes(vnode.attrs, "onclick", "checked")}
-             class={classnames(styles.formCheckInput)}/>);
+             className={classnames(styles.formCheckInput)}/>);
   }
 
   protected bindingAttributes(attrs: BaseAttrs<TriStateCheckbox>,
@@ -605,7 +607,7 @@ abstract class TextFieldWithButton extends MithrilViewComponent<TextFieldWithBut
     }
 
     return (
-      <li class={classnames(styles.formGroup, styles.formGroupTextFieldWithButton)} {...defaultAttrs}>
+      <li className={classnames(styles.formGroup, styles.formGroupTextFieldWithButton)} {...defaultAttrs}>
         {this.renderInputField(vnode)}
         {this.renderButton(vnode)}
       </li>
@@ -626,7 +628,7 @@ abstract class TextFieldWithButton extends MithrilViewComponent<TextFieldWithBut
   protected renderButton(vnode: m.Vnode<TextFieldWithButtonAttrs>): m.Children {
     const btnAttrs = this.btnAttrs(vnode);
     return <button onclick={this.onButtonClick(vnode)}
-                   class={classnames(styles.quickAddButton)} {...btnAttrs}>
+                   className={classnames(styles.quickAddButton)} {...btnAttrs}>
       {this.name()}
     </button>;
   }
@@ -634,7 +636,7 @@ abstract class TextFieldWithButton extends MithrilViewComponent<TextFieldWithBut
   protected renderInputField(vnode: m.Vnode<TextFieldWithButtonAttrs>): m.Children {
     const inputSizeClass = SizeTransformer.transform(vnode.attrs.size);
     return <input type="text"
-                  class={classnames(styles.formControl, inputSizeClass)}
+                  className={classnames(styles.formControl, inputSizeClass)}
                   {...this.defaultAttributes(vnode.attrs)}
                   {...bindingAttributes(vnode.attrs, "oninput", "value")}/>;
   }
@@ -691,9 +693,9 @@ export class SearchFieldWithButton extends QuickAddField {
   }
 
   protected renderInputField(vnode: m.Vnode<TextFieldWithButtonAttrs>) {
-    return <span class={classnames(styles.searchBoxWrapper)}>
+    return <span className={classnames(styles.searchBoxWrapper)}>
       <input type="search"
-             class={classnames(styles.formControl, styles.searchBoxInput)}
+             className={classnames(styles.formControl, styles.searchBoxInput)}
              {...this.defaultAttributes(vnode.attrs)}
              {...bindingAttributes(vnode.attrs, "oninput", "value")}/>
     </span>;

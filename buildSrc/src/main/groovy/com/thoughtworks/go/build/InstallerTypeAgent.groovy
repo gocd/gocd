@@ -70,6 +70,7 @@ class InstallerTypeAgent implements InstallerType {
       '/usr/share/doc/go-agent'           : [mode: 0755, owner: 'root', group: 'root', ownedByPackage: true],
       '/usr/share/go-agent/wrapper-config': [mode: 0750, owner: 'root', group: 'go', ownedByPackage: true],
       '/var/lib/go-agent'                 : [mode: 0750, owner: 'go', group: 'go', ownedByPackage: true],
+      '/var/lib/go-agent/run'             : [mode: 0750, owner: 'go', group: 'go', ownedByPackage: true],
       '/var/log/go-agent'                 : [mode: 0750, owner: 'go', group: 'go', ownedByPackage: true],
       '/var/run/go-agent'                 : [mode: 0750, owner: 'go', group: 'go', ownedByPackage: true]
     ]

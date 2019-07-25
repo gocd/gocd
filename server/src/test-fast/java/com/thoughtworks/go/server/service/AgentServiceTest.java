@@ -64,7 +64,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.*;
 
-public class AgentServiceTest {
+class AgentServiceTest {
     private AgentService agentService;
     private AgentInstances agentInstances;
     private AgentDao agentDao;
@@ -79,7 +79,7 @@ public class AgentServiceTest {
     private EnvironmentsConfig emptyEnvsConfig = new EnvironmentsConfig();
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         agentInstances = mock(AgentInstances.class);
         securityService = mock(SecurityService.class);
         agent = new Agent("uuid", "host", "192.168.1.1");
@@ -94,7 +94,7 @@ public class AgentServiceTest {
     }
 
     @Test
-    public void shouldUpdateStatus() {
+    void shouldUpdateStatus() {
         AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "pavanIsGreat");
         when(agentDao.cookieFor(runtimeInfo.getIdentifier())).thenReturn("pavanIsGreat");
         agentService.updateRuntimeInfo(runtimeInfo);
@@ -102,7 +102,7 @@ public class AgentServiceTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenAgentWithNoCookieTriesToUpdateStatus() {
+    void shouldThrowExceptionWhenAgentWithNoCookieTriesToUpdateStatus() {
         AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), null);
 
         try (LogFixture logFixture = logFixtureFor(AgentService.class, Level.DEBUG)) {
@@ -119,7 +119,7 @@ public class AgentServiceTest {
     }
 
     @Test
-    public void shouldUpdateAgentsAssociationWithSpecifiedEnv() {
+    void shouldUpdateAgentsAssociationWithSpecifiedEnv() {
         AgentInstance agentInstance = mock(AgentInstance.class);
         Username username = new Username(new CaseInsensitiveString("test"));
         String uuid = "uuid";
@@ -150,7 +150,7 @@ public class AgentServiceTest {
     }
 
     @Test
-    public void shouldAddAgentsAssociationToTheSpecifiedEnv() {
+    void shouldAddAgentsAssociationToTheSpecifiedEnv() {
         AgentInstance agentInstance = mock(AgentInstance.class);
         Username username = new Username(new CaseInsensitiveString("test"));
         String uuid = "uuid";
@@ -185,7 +185,7 @@ public class AgentServiceTest {
     }
 
     @Test
-    public void shouldRemoveAgentsAssociationFromTheSpecifiedEnv() {
+    void shouldRemoveAgentsAssociationFromTheSpecifiedEnv() {
         AgentInstance agentInstance = mock(AgentInstance.class);
         Username username = new Username(new CaseInsensitiveString("test"));
         String uuid = "uuid";
@@ -225,7 +225,7 @@ public class AgentServiceTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenADuplicateAgentTriesToUpdateStatus() {
+    void shouldThrowExceptionWhenADuplicateAgentTriesToUpdateStatus() {
         AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), null);
         runtimeInfo.setCookie("invalid_cookie");
         AgentInstance original = AgentInstance.createFromLiveAgent(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), null), new SystemEnvironment(), null);
@@ -254,14 +254,14 @@ public class AgentServiceTest {
     }
 
     @Test
-    public void shouldAssociateCookieForAnAgent() {
+    void shouldAssociateCookieForAnAgent() {
         when(uuidGenerator.randomUuid()).thenReturn("foo");
         assertThat(agentService.assignCookie(agentIdentifier), is("foo"));
         verify(agentDao).associateCookie(eq(agentIdentifier), any(String.class));
     }
 
     @Test
-    public void shouldUnderstandFilteringAgentListBasedOnUuid() {
+    void shouldUnderstandFilteringAgentListBasedOnUuid() {
         AgentInstance instance1 = AgentInstance.createFromLiveAgent(AgentRuntimeInfo.fromServer(new Agent("uuid-1", "host-1", "192.168.1.2"), true, "/foo/bar", 100l, "linux"), new SystemEnvironment(), null);
         AgentInstance instance3 = AgentInstance.createFromLiveAgent(AgentRuntimeInfo.fromServer(new Agent("uuid-3", "host-3", "192.168.1.4"), true, "/baz/quux", 300l, "linux"), new SystemEnvironment(), null);
         when(agentInstances.filter(asList("uuid-1", "uuid-3"))).thenReturn(asList(instance1, instance3));
@@ -273,7 +273,7 @@ public class AgentServiceTest {
     }
 
     @Test
-    public void shouldFailWhenDeleteIsNotSuccessful() {
+    void shouldFailWhenDeleteIsNotSuccessful() {
         AgentInstance agentInstance = mock(AgentInstance.class);
         String uuid = "1234";
         Username username = new Username(new CaseInsensitiveString("test"));
@@ -295,25 +295,26 @@ public class AgentServiceTest {
     }
 
     @Test
-    public void shouldUpdateAttributesForTheAgent() {
-        AgentInstance agentInstance = mock(AgentInstance.class);
-        List<String> uuids = singletonList("uuid");
-        HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
+    void shouldBulkUpdateAgentsAttributes() {
+        AgentInstance agentInstance1 = mock(AgentInstance.class);
+        AgentInstance agentInstance2 = mock(AgentInstance.class);
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         Username username = new Username(new CaseInsensitiveString("test"));
 
         when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
         when(goConfigService.getEnvironments()).thenReturn(new EnvironmentsConfig());
-        when(agentInstances.findAgent("uuid")).thenReturn(agentInstance);
+        when(agentInstances.findAgent("uuid1")).thenReturn(agentInstance1);
+        when(agentInstances.findAgent("uuid2")).thenReturn(agentInstance2);
 
-        agentService.bulkUpdateAgentAttributes(username, operationResult, uuids, emptyStrList, emptyStrList, emptyEnvsConfig, emptyStrList, TriState.TRUE);
+        agentService.bulkUpdateAgentAttributes(username, result, asList("uuid1", "uuid2"), asList("R1", "R2"), emptyStrList, createEnvironmentsConfigWith("test", "prod"), emptyStrList, TriState.TRUE);
 
         verify(agentDao).bulkUpdateAttributes(anyList(), anyMap(), eq(TriState.TRUE));
-        assertThat(operationResult.isSuccessful(), is(true));
-        assertThat(operationResult.message(), is("Updated agent(s) with uuid(s): [uuid]."));
+        assertThat(result.isSuccessful(), is(true));
+        assertThat(result.message(), is("Updated agent(s) with uuid(s): [uuid1, uuid2]."));
     }
 
     @Test
-    public void shouldEnableMultipleAgents() {
+    void shouldBulkEnableAgents() {
         Username username = new Username(new CaseInsensitiveString("test"));
         AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromAgent(agentIdentifier, AgentRuntimeStatus.Unknown, "cookie", false);
         AgentInstance pending = AgentInstance.createFromLiveAgent(agentRuntimeInfo, new SystemEnvironment(), null);
@@ -529,13 +530,8 @@ public class AgentServiceTest {
 
             assertThat(agentInstance.getAgent().getEnvironments(), is("non-config-repo-env"));
         }
-
-        private EnvironmentsConfig createEnvironmentsConfigWith(String... envs) {
-            EnvironmentsConfig envsConfig = new EnvironmentsConfig();
-            Arrays.stream(envs).forEach(env -> envsConfig.add(new BasicEnvironmentConfig(new CaseInsensitiveString(env))));
-            return envsConfig;
-        }
     }
+
 
     @Test
     void shouldReturnTrueIsGivenUuidIsPresentAndTheAgentInstanceIsNotNullAndRegistered() {
@@ -562,5 +558,11 @@ public class AgentServiceTest {
         when(agentInstances.findAgent(uuid)).thenReturn(agentInstance);
 
         assertFalse(agentService.hasAgent(uuid));
+    }
+
+    private EnvironmentsConfig createEnvironmentsConfigWith(String... envs) {
+        EnvironmentsConfig envsConfig = new EnvironmentsConfig();
+        Arrays.stream(envs).forEach(env -> envsConfig.add(new BasicEnvironmentConfig(new CaseInsensitiveString(env))));
+        return envsConfig;
     }
 }

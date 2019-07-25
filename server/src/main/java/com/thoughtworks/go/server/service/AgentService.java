@@ -613,7 +613,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         return agentInstances.findDisabledAgents();
     }
 
-    public void register(Agent agent, String agentAutoRegisterResources, String agentAutoRegisterEnvironments, HttpOperationResult result) {
+    public void register(Agent agent, String agentAutoRegisterResources, String agentAutoRegisterEnvironments) {
         generateCookieForAgentIfAgentDoesNotHaveACookie(agent);
         agent.setResources(agentAutoRegisterResources);
         agent.setEnvironments(agentAutoRegisterEnvironments);

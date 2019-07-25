@@ -466,7 +466,7 @@ public class AgentServiceIntegrationTest {
             Agent agent = new Agent(UUID2, "remote-host1", "50.40.30.21");
 
             agentService.requestRegistration(Username.ANONYMOUS, pendingAgent);
-            agentService.register(agent, null, null, new HttpOperationResult());
+            agentService.register(agent, null, null);
             agentService.disableAgents(agent.getUuid());
 
             assertThat(agentService.findAgent(UUID).isRegistered(), is(false));
@@ -488,8 +488,8 @@ public class AgentServiceIntegrationTest {
             Agent agent = new Agent(UUID, "remote-host1", "50.40.30.21");
             Agent agent1 = new Agent(UUID2, "remote-host2", "50.40.30.22");
 
-            agentService.register(agent, null, null, new HttpOperationResult());
-            agentService.register(agent1, null, null, new HttpOperationResult());
+            agentService.register(agent, null, null);
+            agentService.register(agent1, null, null);
 
             assertFalse(agentService.findAgent(agent.getUuid()).isDisabled());
             assertFalse(agentService.findAgent(agent1.getUuid()).isDisabled());
@@ -512,8 +512,8 @@ public class AgentServiceIntegrationTest {
             Agent agent = new Agent(UUID, "remote-host1", "50.40.30.21");
             Agent agent1 = new Agent(UUID2, "remote-host2", "50.40.30.22");
 
-            agentService.register(agent, null, null, new HttpOperationResult());
-            agentService.register(agent1, null, null, new HttpOperationResult());
+            agentService.register(agent, null, null);
+            agentService.register(agent1, null, null);
 
             assertFalse(agentService.findAgent(agent.getUuid()).isDisabled());
             assertFalse(agentService.findAgent(agent1.getUuid()).isDisabled());
@@ -895,7 +895,7 @@ public class AgentServiceIntegrationTest {
         void shouldNotUpdateResourcesOnElasticAgents() {
             Agent elasticAgent = AgentMother.elasticAgent();
 
-            agentService.register(elasticAgent, null, null, new HttpOperationResult());
+            agentService.register(elasticAgent, null, null);
 
             HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
             List<String> uuids = singletonList(elasticAgent.getUuid());
@@ -916,9 +916,8 @@ public class AgentServiceIntegrationTest {
             Agent agent = new Agent(UUID, "remote-host1", "50.40.30.21");
             Agent agent1 = new Agent(UUID2, "remote-host1", "50.40.30.22");
 
-            HttpOperationResult result1 = new HttpOperationResult();
-            agentService.register(agent, "resource1,resource2", null, result1);
-            agentService.register(agent1, "resource2", null, result1);
+            agentService.register(agent, "resource1,resource2", null);
+            agentService.register(agent1, "resource2", null);
 
             List<String> uuids = asList(UUID, UUID2);
             List<String> resourcesToRemove = singletonList("resource2");
@@ -926,11 +925,11 @@ public class AgentServiceIntegrationTest {
             assertThat(agentService.findAgent(UUID).getResourceConfigs().size(), is(2));
             assertThat(agentService.findAgent(UUID2).getResourceConfigs().size(), is(1));
 
-            HttpLocalizedOperationResult result2 = new HttpLocalizedOperationResult();
-            agentService.bulkUpdateAgentAttributes(Username.ANONYMOUS, result2, uuids, emptyStrList, resourcesToRemove, emptyEnvsConfig, emptyStrList, TriState.UNSET);
+            HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+            agentService.bulkUpdateAgentAttributes(Username.ANONYMOUS, result, uuids, emptyStrList, resourcesToRemove, emptyEnvsConfig, emptyStrList, TriState.UNSET);
 
-            assertTrue(result2.isSuccessful());
-            assertThat(result2.message(), is("Updated agent(s) with uuid(s): [" + StringUtils.join(uuids, ", ") + "]."));
+            assertTrue(result.isSuccessful());
+            assertThat(result.message(), is("Updated agent(s) with uuid(s): [" + StringUtils.join(uuids, ", ") + "]."));
             assertThat(agentService.findAgent(UUID).getResourceConfigs().size(), is(1));
             assertThat(agentService.findAgent(UUID).getResourceConfigs(), contains(new ResourceConfig("resource1")));
             assertThat(agentService.findAgent(UUID2).getResourceConfigs().size(), is(0));
@@ -1024,7 +1023,7 @@ public class AgentServiceIntegrationTest {
         @Test
         void shouldUpdateAgentApprovalStatusByUuid() {
             Agent agent = new Agent(UUID, "test", "127.0.0.1", new ResourceConfigs("java"));
-            agentService.register(agent, null, null, new HttpOperationResult());
+            agentService.register(agent, null, null);
 
             agentService.updateAgentApprovalStatus(agent.getUuid(), Boolean.TRUE);
 
@@ -1128,7 +1127,7 @@ public class AgentServiceIntegrationTest {
         }
 
         @Test
-        void shouldDoNothingWhenTryingToAddAgentEnvironmentAssociationThatAlreadyExistsInConfigRepo() {
+        void shouldNotAddEnvsWhichAreAssociatedWithTheAgentFromConfigRepoOnBulkAgentUpdate() {
             String prodEnv = "prod";
             createEnvironment(prodEnv);
             createEnabledAgent(UUID);
@@ -1148,7 +1147,7 @@ public class AgentServiceIntegrationTest {
         }
 
         @Test
-        void shouldNotAddEnvsWhichAreAssociatedWithTheAgentFromConfigRepo() {
+        void shouldNotAddEnvsWhichAreAssociatedWithTheAgentFromConfigRepoOnUpdateAgent() {
             String prodEnv = "prod";
             createEnvironment(prodEnv);
             createEnabledAgent(UUID);

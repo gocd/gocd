@@ -239,7 +239,6 @@ public class AgentRegistrationController {
             }
 
             Agent agent = new Agent(uuid, preferredHostname, ipAddress);
-            HttpOperationResult result = new HttpOperationResult();
             agent.validate();
             if (agent.hasErrors()) {
                 List<ConfigErrors> errors = agent.errorsAsList();
@@ -267,15 +266,9 @@ public class AgentRegistrationController {
 
             if (goConfigService.serverConfig().shouldAutoRegisterAgentWith(agentAutoRegisterKey) && !agentService.hasAgent(uuid)) {
                 LOG.info("[Agent Auto Registration] Auto registering agent with uuid {} ", uuid);
-                agentService.register(agent, agentAutoRegisterResources, agentAutoRegisterEnvironments, result);
+                agentService.register(agent, agentAutoRegisterResources, agentAutoRegisterEnvironments);
                 if (agent.hasErrors()) {
-                    List<ConfigErrors> errors = agent.errorsAsList();
-
-                    ConfigErrors e = new ConfigErrors();
-                    e.add("resultMessage", result.detailedMessage());
-
-                    errors.add(e);
-                    throw new GoConfigInvalidException(null, new AllConfigErrors(errors).asString());
+                    throw new GoConfigInvalidException(null, new AllConfigErrors(agent.errorsAsList()).asString());
                 }
             }
 

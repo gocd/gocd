@@ -233,7 +233,6 @@ Rails.application.routes.draw do
           end
           resources :pipelines, only: [:index]
           resources :environments, only: [:index]
-          resources :command_snippets, only: [:index]
         end
       end
 

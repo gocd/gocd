@@ -113,8 +113,12 @@ public class EnvironmentsControllerV2 extends ApiController implements SparkSpri
 
         EnvironmentConfig environmentConfig = fetchEntityFromConfig(environmentName);
 
-        setEtagHeader(environmentConfig, response);
+        String etag = etagFor(environmentConfig);
+        if (fresh(request, etag)) {
+            return notModified(response);
+        }
 
+        setEtagHeader(environmentConfig, response);
         return writerForTopLevelObject(request, response,
                 outputWriter -> EnvironmentRepresenter.toJSON(outputWriter, environmentConfig));
     }

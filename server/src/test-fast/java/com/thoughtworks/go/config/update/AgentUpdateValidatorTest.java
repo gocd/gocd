@@ -36,7 +36,6 @@ import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 
 import static java.lang.String.format;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -63,40 +62,7 @@ class AgentUpdateValidatorTest {
     }
 
     private AgentUpdateValidator newAgentUpdateValidator() {
-        EnvironmentsConfig envsConfig = new EnvironmentsConfig();
-        return new AgentUpdateValidator(currentUser, agentInstance, hostName, environmentsConfig, resources, state, result, goConfigService);
-    }
-
-    @Nested
-    class CanContinue {
-        @Test
-        void shouldAllowAdministratorToPerformAnyOperationOnAgents() {
-            when(goConfigService.isAdministrator(currentUser.getUsername())).thenReturn(true);
-            state = TriState.TRUE;
-            assertTrue(newAgentUpdateValidator().canContinue());
-        }
-
-        @Test
-        void shouldThrow400WhenNoOperationIsPerformedOnAgents() {
-            state = TriState.UNSET;
-            AgentUpdateValidator validator = newAgentUpdateValidator();
-
-            when(goConfigService.isAdministrator(currentUser.getUsername())).thenReturn(true);
-
-            assertFalse(validator.canContinue());
-            assertThat(result.httpCode()).isEqualTo(400);
-            assertThat(result.message()).isEqualTo("No Operation performed on agent.");
-        }
-
-        @Test
-        void shouldThrow403WhenNonAdminUserIsUpdatingAgents() {
-            AgentUpdateValidator validator = newAgentUpdateValidator();
-            when(goConfigService.isAdministrator(currentUser.getUsername())).thenReturn(false);
-            assertFalse(validator.canContinue());
-
-            assertThat(result.httpCode()).isEqualTo(403);
-            assertThat(result.message()).isEqualTo("Unauthorized to edit.");
-        }
+        return new AgentUpdateValidator(agentInstance, hostName, environmentsConfig, resources, state, result);
     }
 
     @Nested

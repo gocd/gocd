@@ -26,6 +26,10 @@ import com.thoughtworks.go.util.comparator.AlphaAsciiComparator;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.str;
+import static java.util.stream.Collectors.toCollection;
+import static java.util.stream.Collectors.toList;
+
 /**
  * @understands the current persistent information related to multiple logical groupings of machines
  */
@@ -39,24 +43,25 @@ public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implem
 
     @Override
     public void validate(ValidationContext validationContext) {
-        List<CaseInsensitiveString> allPipelineNames = validationContext.getCruiseConfig().getAllPipelineNames();
         List<CaseInsensitiveString> allEnvironmentNames = new ArrayList<>();
         Map<CaseInsensitiveString, CaseInsensitiveString> pipelineToEnvMap = new HashMap<>();
-        for (EnvironmentConfig environmentConfig : this) {
-            if (allEnvironmentNames.contains(environmentConfig.name())) {
-                environmentConfig.addError("name", String.format("Environment with name '%s' already exists.", environmentConfig.name()));
+
+        List<CaseInsensitiveString> allPipelineNames = validationContext.getCruiseConfig().getAllPipelineNames();
+        for (EnvironmentConfig envConfig : this) {
+            if (allEnvironmentNames.contains(envConfig.name())) {
+                envConfig.addError("name", String.format("Environment with name '%s' already exists.", envConfig.name()));
             } else {
-                allEnvironmentNames.add(environmentConfig.name());
+                allEnvironmentNames.add(envConfig.name());
             }
 
-            for (EnvironmentPipelineConfig pipeline : environmentConfig.getPipelines()) {
+            for (EnvironmentPipelineConfig pipeline : envConfig.getPipelines()) {
                 if (!allPipelineNames.contains(pipeline.getName())) {
-                    environmentConfig.addError("pipeline", String.format("Environment '%s' refers to an unknown pipeline '%s'.", environmentConfig.name(), pipeline.getName()));
+                    envConfig.addError("pipeline", String.format("Environment '%s' refers to an unknown pipeline '%s'.", envConfig.name(), pipeline.getName()));
                 }
                 if (pipelineToEnvMap.containsKey(pipeline.getName())) {
-                    environmentConfig.addError("pipeline", "Associating pipeline(s) which is already part of " + pipelineToEnvMap.get(pipeline.getName()) + " environment");
+                    envConfig.addError("pipeline", "Associating pipeline(s) which is already part of " + pipelineToEnvMap.get(pipeline.getName()) + " environment");
                 } else {
-                    pipelineToEnvMap.put(pipeline.getName(), environmentConfig.name());
+                    pipelineToEnvMap.put(pipeline.getName(), envConfig.name());
                 }
             }
         }
@@ -72,31 +77,26 @@ public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implem
         configErrors.add(fieldName, message);
     }
 
-    public void addAgentsToEnvironment(String environmentName, String... uuids) {
-        EnvironmentConfig environment = getOrCreateEnvironment(environmentName);
-        for (String uuid : uuids) {
-            environment.addAgent(uuid);
+    private EnvironmentConfig getOrCreateEnvironment(String envName) {
+        EnvironmentConfig envConfig = this.stream()
+                .filter(config -> config.hasName(new CaseInsensitiveString(envName)))
+                .findAny()
+                .orElse(null);
+
+        if(envConfig == null) {
+            envConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(envName));
+            add(envConfig);
         }
+
+        return envConfig;
     }
 
-    private EnvironmentConfig getOrCreateEnvironment(String environmentName) {
-        for (EnvironmentConfig config : this) {
-            if (config.hasName(new CaseInsensitiveString(environmentName))) {
-                return config;
-            }
-        }
-        BasicEnvironmentConfig config = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
-        add(config);
-        return config;
-    }
-
-    public EnvironmentPipelineMatcher matchersForPipeline(String pipelineName) {
-        for (EnvironmentConfig config : this) {
-            if (config.containsPipeline(new CaseInsensitiveString(pipelineName))) {
-                return config.createMatcher();
-            }
-        }
-        return null;
+    EnvironmentPipelineMatcher matchersForPipeline(String pipelineName) {
+        return this.stream()
+                .filter(envConfig -> envConfig.containsPipeline(new CaseInsensitiveString(pipelineName)))
+                .findFirst()
+                .map(EnvironmentConfig::createMatcher)
+                .orElse(null);
     }
 
     @Override
@@ -104,94 +104,66 @@ public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implem
         return super.add(environment);
     }
 
-    public void addPipelinesToEnvironment(String environmentName, String... pipelineNames) {
-        EnvironmentConfig environment = getOrCreateEnvironment(environmentName);
-        for (String pipelineName : pipelineNames) {
-            environment.addPipeline(new CaseInsensitiveString(pipelineName));
-        }
+    public void addPipelinesToEnvironment(String envName, String... pipelineNames) {
+        EnvironmentConfig envConfig = getOrCreateEnvironment(envName);
+        Arrays.stream(pipelineNames).map(CaseInsensitiveString::new).forEach(envConfig::addPipeline);
     }
 
     public EnvironmentPipelineMatchers matchers() {
-        EnvironmentPipelineMatchers environmentPipelineMatchers = new EnvironmentPipelineMatchers();
-        for (EnvironmentConfig environment : this) {
-            environmentPipelineMatchers.add(environment.createMatcher());
-        }
-        return environmentPipelineMatchers;
+        return this.stream()
+                .map(EnvironmentConfig::createMatcher)
+                .collect(toCollection(EnvironmentPipelineMatchers::new));
     }
 
     public CaseInsensitiveString findEnvironmentNameForPipeline(final CaseInsensitiveString pipelineName) {
-        EnvironmentConfig environment = findEnvironmentForPipeline(pipelineName);
-        return environment == null ? null : environment.name();
+        EnvironmentConfig envConfig = findEnvironmentForPipeline(pipelineName);
+        return envConfig == null ? null : envConfig.name();
     }
 
     public EnvironmentConfig findEnvironmentForPipeline(final CaseInsensitiveString pipelineName) {
-        for (EnvironmentConfig config : this) {
-            if (config.containsPipeline(pipelineName)) {
-                return config;
-            }
-        }
-        return null;
+        return this.stream().filter(env -> env.containsPipeline(pipelineName)).findFirst().orElse(null);
     }
 
     public boolean isPipelineAssociatedWithAnyEnvironment(final CaseInsensitiveString pipelineName) {
-        for (EnvironmentConfig environment : this) {
-            if (environment.containsPipeline(pipelineName)) {
-                return true;
-            }
-        }
-        return false;
+        return this.stream().anyMatch(env -> env.containsPipeline(pipelineName));
     }
 
-    public boolean isPipelineAssociatedWithRemoteEnvironment(final CaseInsensitiveString pipelineName) {
-        for (EnvironmentConfig environment : this) {
-            if (environment.containsPipelineRemotely(pipelineName)) {
-                return true;
-            }
-        }
-        return false;
+    boolean isPipelineAssociatedWithRemoteEnvironment(final CaseInsensitiveString pipelineName) {
+        return this.stream().anyMatch(env -> env.containsPipelineRemotely(pipelineName));
     }
 
-    public boolean isAgentUnderEnvironment(String agentUuid) {
-        for (EnvironmentConfig environment : this) {
-            if (environment.hasAgent(agentUuid)) {
-                return true;
-            }
-        }
-        return false;
+    public boolean isAgentAssociatedWithEnvironment(String uuid) {
+        return this.stream().anyMatch(env -> env.hasAgent(uuid));
     }
 
-    public EnvironmentConfig named(final CaseInsensitiveString envName) {
-        EnvironmentConfig environmentConfig = find(envName);
-        if (environmentConfig != null) return environmentConfig;
-        throw new RecordNotFoundException(EntityType.Environment, envName);
+    public EnvironmentConfig named(CaseInsensitiveString env) {
+        EnvironmentConfig envConfig = find(env);
+        if (envConfig == null) {
+            throw new RecordNotFoundException(EntityType.Environment, env);
+        }
+        return envConfig;
     }
 
-    public EnvironmentConfig find(CaseInsensitiveString envName) {
-        for (EnvironmentConfig environmentConfig : this) {
-            if (environmentConfig.name().equals(envName)) {
-                return environmentConfig;
-            }
-        }
-        return null;
+    public EnvironmentConfig find(CaseInsensitiveString env) {
+        return this.stream()
+                .filter(envConfig -> envConfig.name().equals(env))
+                .findFirst()
+                .orElse(null);
     }
 
     public List<CaseInsensitiveString> names() {
-        ArrayList<CaseInsensitiveString> names = new ArrayList<>();
-        for (EnvironmentConfig environment : this) {
-            names.add(environment.name());
-        }
-        return names;
+        return this.stream().map(EnvironmentConfig::name).collect(toList());
     }
 
-    public TreeSet<String> environmentsForAgent(String agentUuid) {
-        return environmentConfigsForAgent(agentUuid).stream()
-                .map(environmentConfig -> CaseInsensitiveString.str(environmentConfig.name()))
-                .collect(Collectors.toCollection(() -> new TreeSet<>(new AlphaAsciiComparator())));
+    public TreeSet<String> environmentsForAgent(String uuid) {
+        return environmentConfigsForAgent(uuid).stream()
+                .map(environmentConfig -> str(environmentConfig.name()))
+                .collect(toCollection(() -> new TreeSet<>(new AlphaAsciiComparator())));
     }
 
-    public Set<EnvironmentConfig> environmentConfigsForAgent(String agentUuid) {
+    public Set<EnvironmentConfig> environmentConfigsForAgent(String uuid) {
         return this.stream()
-                .filter(environmentConfig -> environmentConfig.hasAgent(agentUuid))
+                .filter(environmentConfig -> environmentConfig.hasAgent(uuid))
                 .collect(Collectors.toSet());
     }
 
@@ -199,20 +171,13 @@ public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implem
         return find(environmentName) != null;
     }
 
-
     public void removeAgentFromAllEnvironments(String uuid) {
-        for (EnvironmentConfig environmentConfig : this) {
-            environmentConfig.removeAgent(uuid);
-        }
+        this.forEach(envConfig -> envConfig.removeAgent(uuid));
     }
 
     public EnvironmentsConfig getLocal() {
-        EnvironmentsConfig locals = new EnvironmentsConfig();
-        for (EnvironmentConfig environmentConfig : this) {
-            EnvironmentConfig local = environmentConfig.getLocal();
-            if (local != null)
-                locals.add(local);
-        }
-        return locals;
+        return this.stream()
+                .filter(envConfig -> envConfig.getLocal() != null)
+                .collect(Collectors.toCollection(EnvironmentsConfig::new));
     }
 }

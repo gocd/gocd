@@ -20,14 +20,10 @@ import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.InvalidPendingAgentOperationException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.AgentInstance;
-import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.util.TriState;
 
-import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
 import static com.thoughtworks.go.serverhealth.HealthStateScope.GLOBAL;
-import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 import static com.thoughtworks.go.serverhealth.HealthStateType.general;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
@@ -37,48 +33,21 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public class AgentUpdateValidator {
-    private final Username username;
     private final AgentInstance agentInstance;
     private final String hostname;
     private final EnvironmentsConfig environments;
     private final String resources;
     private final HttpOperationResult result;
-    private GoConfigService goConfigService;
     private final TriState state;
 
-    public AgentUpdateValidator(Username username, AgentInstance agentInstance, String hostname, EnvironmentsConfig environments,
-                                String resources, TriState state, HttpOperationResult result, GoConfigService goConfigService) {
-        this.username = username;
+    public AgentUpdateValidator(AgentInstance agentInstance, String hostname, EnvironmentsConfig environments,
+                                String resources, TriState state, HttpOperationResult result) {
         this.agentInstance = agentInstance;
         this.hostname = hostname;
         this.environments = environments;
         this.resources = resources;
         this.state = state;
         this.result = result;
-        this.goConfigService = goConfigService;
-    }
-
-    public boolean canContinue() {
-        if (!isAuthorized()) {
-            return false;
-        }
-
-        if (isAnyOperationPerformedOnAgents()) {
-            return true;
-        }
-
-        String msg = "No Operation performed on agent.";
-        result.badRequest(msg, msg, general(GLOBAL));
-
-        return false;
-    }
-
-    private boolean isAuthorized() {
-        if (goConfigService.isAdministrator(username.getUsername())) {
-            return true;
-        }
-        result.forbidden(forbiddenToEdit(), forbiddenToEdit(), forbidden());
-        return false;
     }
 
     public void validate() throws Exception {

@@ -36,11 +36,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.thoughtworks.go.domain.AgentInstance.FilterBy.*;
-import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
-import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toCollection;
 import static junit.framework.TestCase.assertFalse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -56,8 +55,8 @@ public class AgentsUpdateValidatorTest {
     private GoConfigService goConfigService;
     private AgentInstances agentInstances;
     private List<String> uuids;
-    private List<String> environmentsToAdd;
-    private List<String> environmentsToRemove;
+    private List<String> envsToAdd;
+    private List<String> envsToRemove;
     private List<String> resourcesToAdd;
     private List<String> resourcesToRemove;
     private TriState triState;
@@ -71,8 +70,8 @@ public class AgentsUpdateValidatorTest {
         agentInstances = mock(AgentInstances.class);
 
         uuids = new ArrayList<>();
-        environmentsToAdd = new ArrayList<>();
-        environmentsToRemove = new ArrayList<>();
+        envsToAdd = new ArrayList<>();
+        envsToRemove = new ArrayList<>();
         resourcesToAdd = new ArrayList<>();
         resourcesToRemove = new ArrayList<>();
         triState = TriState.TRUE;
@@ -98,16 +97,6 @@ public class AgentsUpdateValidatorTest {
             expectedResult.badRequest("No Operation performed on agents.");
             assertThat(result).isEqualTo(expectedResult);
         }
-
-        @Test
-        public void shouldThrow403WhenNonAdminUserIsUpdatingAgents() {
-            AgentsUpdateValidator validator = newAgentsUpdateValidator();
-            when(goConfigService.isAdministrator(currentUser.getUsername())).thenReturn(false);
-            assertFalse(validator.canContinue());
-            HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-            expectedResult.forbidden(forbiddenToEdit(), forbidden());
-            assertThat(result).isEqualTo(expectedResult);
-        }
     }
 
     @Nested
@@ -125,8 +114,8 @@ public class AgentsUpdateValidatorTest {
 
         @Test
         public void shouldPassValidationWhenEnvironmentsToBeAddedRemovedDoesNotExistsInConfigXML() throws Exception {
-            environmentsToAdd.add("prod");
-            environmentsToRemove.add("dev");
+            envsToAdd.add("prod");
+            envsToRemove.add("dev");
 
             AgentInstance agentInstance = AgentInstanceMother.disabled();
             Agent agent = agentInstance.getAgent();
@@ -181,9 +170,11 @@ public class AgentsUpdateValidatorTest {
     }
 
     private AgentsUpdateValidator newAgentsUpdateValidator() {
-        EnvironmentsConfig envsConfig = new EnvironmentsConfig();
-        environmentsToAdd.forEach(env -> envsConfig.add(new BasicEnvironmentConfig(new CaseInsensitiveString(env))));
-        return new AgentsUpdateValidator(agentInstances, currentUser, result, uuids, triState, envsConfig, environmentsToRemove,
-                resourcesToAdd, resourcesToRemove, goConfigService);
+        EnvironmentsConfig envsConfig = envsToAdd.stream().map(this::basicEnvironmentConfigFrom).collect(toCollection(EnvironmentsConfig::new));
+        return new AgentsUpdateValidator(agentInstances, uuids, triState, envsConfig, envsToRemove, resourcesToAdd, resourcesToRemove, result);
+    }
+
+    private BasicEnvironmentConfig basicEnvironmentConfigFrom(String env) {
+        return new BasicEnvironmentConfig(new CaseInsensitiveString(env));
     }
 }

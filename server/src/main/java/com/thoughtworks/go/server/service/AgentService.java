@@ -65,6 +65,8 @@ import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.*;
 import static java.util.stream.StreamSupport.stream;
+import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.commons.lang3.StringUtils.join;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
@@ -72,11 +74,9 @@ import static org.springframework.util.CollectionUtils.isEmpty;
 @Service
 public class AgentService implements DatabaseEntityChangeListener<Agent> {
     private final SystemEnvironment systemEnvironment;
-    private final SecurityService securityService;
     private final UuidGenerator uuidGenerator;
     private final ServerHealthService serverHealthService;
     private AgentStatusChangeNotifier agentStatusChangeNotifier;
-    private GoConfigService goConfigService;
     private final AgentDao agentDao;
 
     private AgentInstances agentInstances;
@@ -86,25 +86,20 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentService.class);
 
     @Autowired
-    public AgentService(SystemEnvironment systemEnvironment,
-                        SecurityService securityService, AgentDao agentDao, UuidGenerator uuidGenerator, ServerHealthService serverHealthService,
-                        AgentStatusChangeNotifier agentStatusChangeNotifier, GoConfigService goConfigService) {
-        this(systemEnvironment, null, securityService, agentDao, uuidGenerator, serverHealthService,
-                agentStatusChangeNotifier, goConfigService);
+    public AgentService(SystemEnvironment systemEnvironment, AgentDao agentDao, UuidGenerator uuidGenerator,
+                        ServerHealthService serverHealthService, AgentStatusChangeNotifier agentStatusChangeNotifier) {
+        this(systemEnvironment, null, agentDao, uuidGenerator, serverHealthService, agentStatusChangeNotifier);
         this.agentInstances = new AgentInstances(agentStatusChangeNotifier);
     }
 
-    AgentService(SystemEnvironment systemEnvironment, AgentInstances agentInstances,
-                 SecurityService securityService, AgentDao agentDao, UuidGenerator uuidGenerator,
-                 ServerHealthService serverHealthService, AgentStatusChangeNotifier agentStatusChangeNotifier, GoConfigService goConfigService) {
+    AgentService(SystemEnvironment systemEnvironment, AgentInstances agentInstances, AgentDao agentDao, UuidGenerator uuidGenerator,
+                 ServerHealthService serverHealthService, AgentStatusChangeNotifier agentStatusChangeNotifier) {
         this.systemEnvironment = systemEnvironment;
-        this.securityService = securityService;
         this.agentInstances = agentInstances;
         this.agentDao = agentDao;
         this.uuidGenerator = uuidGenerator;
         this.serverHealthService = serverHealthService;
         this.agentStatusChangeNotifier = agentStatusChangeNotifier;
-        this.goConfigService = goConfigService;
     }
 
     public void initialize() {
@@ -163,23 +158,13 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         return false;
     }
 
-    private boolean doesNotHaveOperatePermission(Username username, OperationResult result) {
-        if (!securityService.hasOperatePermissionForAgents(username)) {
-            String message = "Unauthorized to operate on agent";
-            result.forbidden(message, message, general(GLOBAL));
-            return true;
-        }
-        return false;
-    }
-
-    public AgentInstance updateAgentAttributes(Username username, HttpOperationResult result, String uuid,
-                                               String hostname, String resources, EnvironmentsConfig environments,
-                                               TriState state) {
-        AgentUpdateValidator validator = new AgentUpdateValidator(username, agentInstances.findAgent(uuid), hostname, environments,
-                resources, state, result, goConfigService);
+    public AgentInstance updateAgentAttributes(String uuid, String hostname, String resources,
+                                               EnvironmentsConfig environments, TriState state, HttpOperationResult result) {
+        AgentUpdateValidator validator
+                = new AgentUpdateValidator(agentInstances.findAgent(uuid), hostname, environments, resources, state, result);
         Agent agent = agentDao.agentByUuid(uuid);
         try {
-            if (validator.canContinue()) {
+            if (isAnyOperationPerformedOnAgent(hostname, environments, resources, state, result)) {
                 validator.validate();
 
                 setAgentAttributes(hostname, resources, environments, state, agent);
@@ -225,14 +210,12 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         setOnlyThoseEnvsThatAreNotAssociatedWithAgentFromConfigRepo(environments, agent);
     }
 
-    public void bulkUpdateAgentAttributes(Username username, LocalizedOperationResult result, List<String> uuids,
-                                          List<String> resourcesToAdd, List<String> resourcesToRemove,
-                                          EnvironmentsConfig envsToAdd, List<String> envsToRemove, TriState state) {
+    public void bulkUpdateAgentAttributes(List<String> uuids, List<String> resourcesToAdd, List<String> resourcesToRemove,
+                                          EnvironmentsConfig envsToAdd, List<String> envsToRemove, TriState state, LocalizedOperationResult result) {
         AgentsUpdateValidator validator
-                = new AgentsUpdateValidator(agentInstances, username, result, uuids, state, envsToAdd,
-                envsToRemove, resourcesToAdd, resourcesToRemove, goConfigService);
+                = new AgentsUpdateValidator(agentInstances, uuids, state, envsToAdd, envsToRemove, resourcesToAdd, resourcesToRemove, result);
         try {
-            if (validator.canContinue()) {
+            if (isAnyOperationPerformedOnBulkAgents(resourcesToAdd, resourcesToRemove, envsToAdd, envsToRemove, state, result)) {
                 validator.validate();
 
                 List<Agent> agents = this.agentDao.agentsByUUIds(uuids);
@@ -259,8 +242,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         enableDisableAgent(state, agent);
     }
 
-    public void updateAgentsAssociationWithSpecifiedEnv(Username username, EnvironmentConfig envConfig,
-                                                        List<String> uuidsToAssociateWithEnv, LocalizedOperationResult result) {
+    public void updateAgentsAssociationWithSpecifiedEnv(EnvironmentConfig envConfig, List<String> uuidsToAssociateWithEnv, LocalizedOperationResult result) {
         if (envConfig == null) {
             return;
         }
@@ -268,10 +250,9 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         List<String> uuidsAssociatedWithEnv = getAssociatedUUIDs(envConfig.getAgents());
         EnvironmentsConfig envsConfig = getEnvironmentsConfigFrom(envConfig);
         AgentsUpdateValidator validator
-                = new AgentsUpdateValidator(agentInstances, username, result, uuidsToAssociateWithEnv,
-                TriState.TRUE, envsConfig, emptyList(), emptyList(), emptyList(), goConfigService);
+                = new AgentsUpdateValidator(agentInstances, uuidsToAssociateWithEnv, TriState.TRUE, envsConfig, emptyList(), emptyList(), emptyList(), result);
         try {
-            if (validator.canContinue()) {
+            if (isAnyOperationPerformedOnBulkAgents(emptyList(), emptyList(), envsConfig, emptyList(), TriState.TRUE, result)) {
                 validator.validate();
 
                 List<String> uuidsToRemoveEnvFrom = getUUIDsToRemoveEnvFrom(uuidsToAssociateWithEnv, uuidsAssociatedWithEnv);
@@ -409,11 +390,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         return true;
     }
 
-    public void deleteAgents(Username username, HttpOperationResult result, List<String> uuids) {
-        if (doesNotHaveOperatePermission(username, result)) {
-            return;
-        }
-
+    public void deleteAgents(HttpOperationResult result, List<String> uuids) {
         List<AgentInstance> agents = new ArrayList<>();
         if (!populateAgentInstancesForUUIDs(result, uuids, agents)) {
             return;
@@ -489,18 +466,16 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         return new Username(format("agent_%s_%s_%s", uuId, ipAddress, hostNameForDisplay));
     }
 
-    public Registration requestRegistration(Username username, AgentRuntimeInfo agentRuntimeInfo) {
+    public Registration requestRegistration(AgentRuntimeInfo agentRuntimeInfo) {
         LOGGER.debug("Agent is requesting registration {}", agentRuntimeInfo);
 
         AgentInstance agentInstance = agentInstances.register(agentRuntimeInfo);
         Registration registration = agentInstance.assignCertification();
 
         if (agentInstance.isRegistered()) {
-            //TODO : Re-look at below flow to see if we need to set the cookie and save back agent into db
             Agent agent = agentInstance.getAgent();
-            generateCookieForAgentIfAgentDoesNotHaveACookie(agent);
-
-            saveOrUpdateAgentInstance(agentInstance);
+            generateAndAddCookieIfAgentDoesNotHaveCookie(agent);
+            saveOrUpdate(agentInstance.getAgent());
             bombIfAgentHasErrors(agent);
             LOGGER.debug("New Agent approved {}", agentRuntimeInfo);
         }
@@ -508,7 +483,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         return registration;
     }
 
-    private void generateCookieForAgentIfAgentDoesNotHaveACookie(Agent agent) {
+    private void generateAndAddCookieIfAgentDoesNotHaveCookie(Agent agent) {
         if (agent.getCookie() == null) {
             String cookie = uuidGenerator.randomUuid();
             agent.setCookie(cookie);
@@ -533,15 +508,6 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         saveOrUpdate(agent);
     }
 
-    private void saveOrUpdateAgentInstance(AgentInstance agentInstance) {
-        Agent agent = agentInstance.getAgent();
-        if (!agentInstance.isRegistered()) {
-            this.updateAgentApprovalStatus(agent.getUuid(), agent.isDisabled());
-        } else {
-            saveOrUpdate(agent);
-        }
-    }
-
     @Deprecated
     public void approve(String uuid) {
         AgentInstance agentInstance = findAgentAndRefreshStatus(uuid);
@@ -551,7 +517,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
             LOGGER.warn("Registered agent with the same uuid [{}] already approved.", agentInstance);
         } else {
             Agent agent = agentInstance.getAgent();
-            generateCookieForAgentIfAgentDoesNotHaveACookie(agent);
+            generateAndAddCookieIfAgentDoesNotHaveCookie(agent);
             saveOrUpdate(agent);
         }
     }
@@ -626,7 +592,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     }
 
     public void register(Agent agent, String agentAutoRegisterResources, String agentAutoRegisterEnvironments) {
-        generateCookieForAgentIfAgentDoesNotHaveACookie(agent);
+        generateAndAddCookieIfAgentDoesNotHaveCookie(agent);
         agent.setResources(agentAutoRegisterResources);
         agent.setEnvironments(agentAutoRegisterEnvironments);
         saveOrUpdate(agent);
@@ -666,13 +632,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         }
     }
 
-    public Set<ResourceConfig> getAllResources() {
-        Set<ResourceConfig> resourceConfigSet = new HashSet<>();
-        agents().forEach(agent -> resourceConfigSet.addAll(new ResourceConfigs(agent.getResources())));
-        return resourceConfigSet;
-    }
-
-    public List<String> getResourceList() {
+    public List<String> getListOfResourcesAcrossAgents() {
         return agents().stream()
                 .map(Agent::getResourcesAsList)
                 .flatMap(Collection::stream)
@@ -696,17 +656,16 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     }
 
     @Override
-    public void entityChanged(Agent newAgent) {
-        AgentInstance oldAgentInstance = agentInstances.findAgent(newAgent.getUuid());
+    public void entityChanged(Agent agentAfterUpdate) {
+        AgentInstance agentInstanceBeforeUpdate = agentInstances.findAgent(agentAfterUpdate.getUuid());
 
-        // this is the case when agent is created in DB newly and it has not been cached yet.
-        if (oldAgentInstance instanceof NullAgentInstance) {
-            oldAgentInstance = AgentInstance.createFromAgent(newAgent, new SystemEnvironment(), agentStatusChangeNotifier);
-            this.agentInstances.add(oldAgentInstance);
+        if (agentInstanceBeforeUpdate instanceof NullAgentInstance) {
+            agentInstanceBeforeUpdate = AgentInstance.createFromAgent(agentAfterUpdate, new SystemEnvironment(), agentStatusChangeNotifier);
+            this.agentInstances.add(agentInstanceBeforeUpdate);
         } else {
-            Agent oldAgent = oldAgentInstance.getAgent();
-            notifyAgentChangeListener(oldAgent, newAgent);
-            oldAgentInstance.syncConfig(newAgent);
+            Agent agentBeforeUpdate = agentInstanceBeforeUpdate.getAgent();
+            notifyAgentChangeListener(agentBeforeUpdate, agentAfterUpdate);
+            agentInstanceBeforeUpdate.syncConfig(agentAfterUpdate);
         }
     }
 
@@ -730,5 +689,31 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         EnvironmentsConfig envsConfig = new EnvironmentsConfig();
         envsConfig.add(envConfig);
         return envsConfig;
+    }
+
+    private boolean isAnyOperationPerformedOnAgent(String hostname, EnvironmentsConfig environments,
+                                                   String resources, TriState state, HttpOperationResult result) {
+        boolean performed = isNotBlank(resources) || isNotEmpty(environments) || isNotBlank(hostname) || state.isTrue() || state.isFalse();
+        if(!performed) {
+            String msg = "No Operation performed on agent.";
+            result.badRequest(msg, msg, general(GLOBAL));
+        }
+        return performed;
+    }
+
+    private boolean isAnyOperationPerformedOnBulkAgents(List<String> resourcesToAdd, List<String> resourcesToRemove,
+                                                        EnvironmentsConfig envsToAdd, List<String> envsToRemove,
+                                                        TriState state, LocalizedOperationResult result) {
+        boolean performed
+                = !resourcesToAdd.isEmpty()
+                || !resourcesToRemove.isEmpty()
+                || !envsToAdd.isEmpty()
+                || !envsToRemove.isEmpty()
+                || state.isTrue()
+                || state.isFalse();
+        if(!performed) {
+            result.badRequest("No Operation performed on agents.");
+        }
+        return performed;
     }
 }

@@ -22,18 +22,13 @@ import com.thoughtworks.go.config.exceptions.ElasticAgentsResourceUpdateExceptio
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.InvalidPendingAgentOperationException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
-import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.server.domain.AgentInstances;
-import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.util.TriState;
 
 import java.util.List;
 
 import static com.thoughtworks.go.domain.AgentInstance.FilterBy.*;
-import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
-import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
@@ -41,7 +36,6 @@ import static org.apache.commons.lang3.StringUtils.join;
 
 public class AgentsUpdateValidator {
     private AgentInstances agentInstances;
-    private final Username username;
     private final LocalizedOperationResult result;
     private final List<String> uuids;
     private final TriState state;
@@ -49,14 +43,12 @@ public class AgentsUpdateValidator {
     private final List<String> resourcesToRemove;
     private final EnvironmentsConfig envsToAdd;
     private final List<String> envsToRemove;
-    private GoConfigService goConfigService;
     public Agents agents;
 
-    public AgentsUpdateValidator(AgentInstances agentInstances, Username username, LocalizedOperationResult result,
-                                 List<String> uuids, TriState state, EnvironmentsConfig envsToAdd, List<String> envsToRemove,
-                                 List<String> resourcesToAdd, List<String> resourcesToRemove, GoConfigService goConfigService) {
+    public AgentsUpdateValidator(AgentInstances agentInstances, List<String> uuids, TriState state, EnvironmentsConfig envsToAdd,
+                                 List<String> envsToRemove, List<String> resourcesToAdd, List<String> resourcesToRemove,
+                                 LocalizedOperationResult result) {
         this.agentInstances = agentInstances;
-        this.username = username;
         this.result = result;
         this.uuids = uuids;
         this.state = state;
@@ -66,8 +58,6 @@ public class AgentsUpdateValidator {
 
         this.envsToAdd = (envsToAdd == null ? new EnvironmentsConfig() : envsToAdd);
         this.envsToRemove = actualOrEmptyList(envsToRemove);
-
-        this.goConfigService = goConfigService;
     }
 
     private List<String> actualOrEmptyList(List<String> list){
@@ -75,10 +65,6 @@ public class AgentsUpdateValidator {
     }
 
     public boolean canContinue() {
-        if (!isAuthorized()) {
-            return false;
-        }
-
         if (isAnyOperationPerformedOnAgents()) {
             return true;
         }
@@ -112,14 +98,6 @@ public class AgentsUpdateValidator {
             result.badRequest(EntityType.Agent.notFoundMessage(notFoundUUIDs));
             throw new RecordNotFoundException(EntityType.Agent, notFoundUUIDs);
         }
-    }
-
-    private boolean isAuthorized() {
-        if (goConfigService.isAdministrator(username.getUsername())) {
-            return true;
-        }
-        result.forbidden(forbiddenToEdit(), forbidden());
-        return false;
     }
 
     private boolean isAnyOperationPerformedOnAgents() {

@@ -27,7 +27,6 @@ import com.thoughtworks.go.config.update.DeleteEnvironmentCommand;
 import com.thoughtworks.go.config.update.PatchEnvironmentCommand;
 import com.thoughtworks.go.config.update.UpdateEnvironmentCommand;
 import com.thoughtworks.go.domain.ConfigElementForEdit;
-import com.thoughtworks.go.domain.EnvironmentPipelineMatcher;
 import com.thoughtworks.go.domain.EnvironmentPipelineMatchers;
 import com.thoughtworks.go.domain.JobPlan;
 import com.thoughtworks.go.i18n.LocalizedMessage;
@@ -42,9 +41,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.entityConfigValidationFailed;
+import static java.util.stream.Collectors.toList;
 
 /**
  * @understands grouping of agents and pipelines within an environment
@@ -91,23 +90,16 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
         agentService.registerAgentChangeListeners(this);
     }
 
-    public List<JobPlan> filterJobsByAgent(List<JobPlan> jobPlans, String agentUuid) {
-        ArrayList<JobPlan> plans = new ArrayList<>();
-        for (JobPlan jobPlan : jobPlans) {
-            if (matchers.match(jobPlan.getPipelineName(), agentUuid)) {
-                plans.add(jobPlan);
-            }
-        }
-        return plans;
+    List<JobPlan> filterJobsByAgent(List<JobPlan> jobPlans, String agentUuid) {
+        return jobPlans.stream().filter(jobPlan -> matchers.match(jobPlan.getPipelineName(), agentUuid)).collect(toList());
     }
 
-    public String envForPipeline(String pipelineName) {
-        for (EnvironmentPipelineMatcher matcher : matchers) {
-            if (matcher.hasPipeline(pipelineName)) {
-                return CaseInsensitiveString.str(matcher.name());
-            }
-        }
-        return null;
+    String envForPipeline(String pipelineName) {
+        return matchers.stream()
+                .filter(matcher -> matcher.hasPipeline(pipelineName))
+                .map(matcher -> CaseInsensitiveString.str(matcher.name()))
+                .findFirst()
+                .orElse(null);
     }
 
     public EnvironmentConfig environmentForPipeline(String pipelineName) {
@@ -125,7 +117,7 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
 
         } else {
             for (Agent agent : agentService.agents()) {
-                if (!environments.isAgentUnderEnvironment(agent.getUuid())) {
+                if (!environments.isAgentAssociatedWithEnvironment(agent.getUuid())) {
                     agents.add(agent);
                 }
             }
@@ -178,13 +170,13 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
     public List<EnvironmentConfig> getAllLocalEnvironments() {
         return environmentNames().stream()
                 .map(environmentName -> EnvironmentConfigService.this.getEnvironmentForEdit(environmentName.toString()))
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
     public List<EnvironmentConfig> getAllMergedEnvironments() {
         return environmentNames().stream()
                 .map(env -> EnvironmentConfigService.this.getMergedEnvironmentforDisplay(env.toString(), new HttpLocalizedOperationResult()).getConfigElement())
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
     public List<EnvironmentViewModel> listAllMergedEnvironments() {
@@ -303,11 +295,11 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
 
         List<String> removedEnvList = beforeUpdateEnvList.stream()
                 .filter(env -> !afterUpdateEnvList.contains(env))
-                .collect(Collectors.toList());
+                .collect(toList());
 
         List<String> addedEnvList = afterUpdateEnvList.stream()
                 .filter(env -> !beforeUpdateEnvList.contains(env))
-                .collect(Collectors.toList());
+                .collect(toList());
 
         removeAgentFromEnvironments(agentBeforeUpdate, removedEnvList);
 

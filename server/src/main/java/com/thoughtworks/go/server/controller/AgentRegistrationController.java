@@ -17,14 +17,12 @@
 package com.thoughtworks.go.server.controller;
 
 import com.thoughtworks.go.config.Agent;
-import com.thoughtworks.go.config.ErrorCollector;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.plugin.infra.commons.PluginsZip;
 import com.thoughtworks.go.security.Registration;
 import com.thoughtworks.go.security.RegistrationJSONizer;
 import com.thoughtworks.go.server.service.*;
-import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
@@ -49,7 +47,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 import java.util.List;
 
 import static com.thoughtworks.go.util.SystemEnvironment.AGENT_EXTRA_PROPERTIES;
@@ -281,7 +278,7 @@ public class AgentRegistrationController {
                 agentRuntimeInfo = ElasticAgentRuntimeInfo.fromServer(agentRuntimeInfo, elasticAgentId, elasticPluginId);
             }
 
-            keyEntry = agentService.requestRegistration(agentService.agentUsername(uuid, ipAddress, preferredHostname), agentRuntimeInfo);
+            keyEntry = agentService.requestRegistration(agentRuntimeInfo);
 
             final HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.setContentType(MediaType.APPLICATION_JSON);

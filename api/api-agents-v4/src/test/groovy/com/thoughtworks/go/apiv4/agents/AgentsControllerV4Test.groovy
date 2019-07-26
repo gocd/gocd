@@ -20,7 +20,6 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.config.EnvironmentsConfig
 import com.thoughtworks.go.domain.AgentInstance
 import com.thoughtworks.go.domain.NullAgentInstance
-import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.service.AgentService
 import com.thoughtworks.go.server.service.EnvironmentConfigService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
@@ -233,13 +232,12 @@ class AgentsControllerV4Test implements SecurityServiceTrait, ControllerTrait<Ag
 
       environmentsConfig.add(environmentConfig)
       when(agentService.updateAgentAttributes(
-        eq(currentUsername()),
-        any() as HttpOperationResult,
         eq("uuid2"),
         eq("agent02.example.com"),
         eq("java,psql"),
         eq(environmentsConfig),
-        eq(TriState.TRUE))
+        eq(TriState.TRUE),
+        any() as HttpOperationResult)
       ).thenReturn(updatedAgentInstance)
 
       def requestBody = ["hostname"          : "agent02.example.com",
@@ -281,8 +279,9 @@ class AgentsControllerV4Test implements SecurityServiceTrait, ControllerTrait<Ag
     @Test
     void 'should error out when operation is unsuccessful'() {
       loginAsAdmin()
-      when(agentService.updateAgentAttributes(any() as Username, any() as HttpOperationResult, anyString(), anyString(), anyString(), anyList() as EnvironmentsConfig, any() as TriState)).thenAnswer({ InvocationOnMock invocation ->
-        def result = invocation.getArgument(1) as HttpOperationResult
+      when(agentService.updateAgentAttributes(anyString(), anyString(), anyString(), anyList() as EnvironmentsConfig,
+        any() as TriState, any() as HttpOperationResult)).thenAnswer({ InvocationOnMock invocation ->
+        def result = invocation.getArgument(5) as HttpOperationResult
         result.unprocessibleEntity("Not a valid operation", "some description", null)
         return idle()
       })
@@ -338,13 +337,12 @@ class AgentsControllerV4Test implements SecurityServiceTrait, ControllerTrait<Ag
         when(environmentConfigService.environmentsFor("uuid2")).thenReturn(singleton("env1"))
 
         when(agentService.updateAgentAttributes(
-          eq(currentUsername()),
-          any() as HttpOperationResult,
           eq("uuid2"),
           eq("agent02.example.com"),
           eq("java,psql"),
           eq(environmentsConfig),
-          eq(TriState.TRUE))
+          eq(TriState.TRUE),
+          any() as HttpOperationResult)
         ).thenReturn(updatedAgentInstance)
 
         def requestBody = ["hostname"          : "agent02.example.com",
@@ -354,13 +352,13 @@ class AgentsControllerV4Test implements SecurityServiceTrait, ControllerTrait<Ag
         ]
         patchWithApiHeader(controller.controllerPath("/uuid2"), requestBody)
 
-        verify(agentService).updateAgentAttributes(eq(currentUsername()),
-          any() as HttpOperationResult,
+        verify(agentService).updateAgentAttributes(
           eq("uuid2"),
           eq("agent02.example.com"),
           eq("java,psql"),
           eq(environmentsConfig),
-          eq(TriState.TRUE))
+          eq(TriState.TRUE),
+          any() as HttpOperationResult)
 
         assertThatResponse()
           .isOk()
@@ -401,13 +399,12 @@ class AgentsControllerV4Test implements SecurityServiceTrait, ControllerTrait<Ag
         def commaSeparatedEnvs = "             "
 
         when(agentService.updateAgentAttributes(
-          eq(currentUsername()),
-          any() as HttpOperationResult,
           eq("uuid2"),
           eq("agent02.example.com"),
           eq("java,psql"),
           eq(environmentsConfig),
-          eq(TriState.TRUE))
+          eq(TriState.TRUE),
+          any() as HttpOperationResult)
         ).thenReturn(updatedAgentInstance)
 
         def requestBody = ["hostname"          : "agent02.example.com",
@@ -417,13 +414,14 @@ class AgentsControllerV4Test implements SecurityServiceTrait, ControllerTrait<Ag
         ]
         patchWithApiHeader(controller.controllerPath("/uuid2"), requestBody)
 
-        verify(agentService).updateAgentAttributes(eq(currentUsername()),
-          any() as HttpOperationResult,
+        verify(agentService).updateAgentAttributes(
           eq("uuid2"),
           eq("agent02.example.com"),
           eq("java,psql"),
           eq(environmentsConfig),
-          eq(TriState.TRUE))
+          eq(TriState.TRUE),
+          any() as HttpOperationResult
+        )
 
         assertThatResponse()
           .isOk()
@@ -462,13 +460,12 @@ class AgentsControllerV4Test implements SecurityServiceTrait, ControllerTrait<Ag
         def environmentsConfig = new EnvironmentsConfig()
 
         when(agentService.updateAgentAttributes(
-          eq(currentUsername()),
-          any() as HttpOperationResult,
           eq("uuid2"),
           eq("agent02.example.com"),
           eq("java,psql"),
           eq(null),
-          eq(TriState.TRUE))
+          eq(TriState.TRUE),
+          any() as HttpOperationResult)
         ).thenReturn(updatedAgentInstance)
 
         def requestBody = ["hostname"          : "agent02.example.com",
@@ -477,13 +474,14 @@ class AgentsControllerV4Test implements SecurityServiceTrait, ControllerTrait<Ag
         ]
         patchWithApiHeader(controller.controllerPath("/uuid2"), requestBody)
 
-        verify(agentService).updateAgentAttributes(eq(currentUsername()),
-          any() as HttpOperationResult,
+        verify(agentService).updateAgentAttributes(
           eq("uuid2"),
           eq("agent02.example.com"),
           eq("java,psql"),
           eq(null),
-          eq(TriState.TRUE))
+          eq(TriState.TRUE),
+          any() as HttpOperationResult
+        )
 
         assertThatResponse()
           .isOk()
@@ -535,18 +533,17 @@ class AgentsControllerV4Test implements SecurityServiceTrait, ControllerTrait<Ag
     void 'should update agents information for specified agents'() {
       loginAsAdmin()
       doAnswer({ InvocationOnMock invocation ->
-        def result = invocation.getArgument(1) as HttpLocalizedOperationResult
+        def result = invocation.getArgument(6) as HttpLocalizedOperationResult
         result.setMessage("Updated agent(s) with uuid(s): [agent-1, agent-2].")
 
       }).when(agentService).bulkUpdateAgentAttributes(
-        eq(currentUsername()) as Username,
-        any() as LocalizedOperationResult,
         any() as List<String>,
         any() as List<String>,
         any() as List<String>,
         any() as EnvironmentsConfig,
         any() as List<String>,
-        any() as TriState
+        any() as TriState,
+        any() as LocalizedOperationResult
       )
 
       def requestBody = [
@@ -597,9 +594,9 @@ class AgentsControllerV4Test implements SecurityServiceTrait, ControllerTrait<Ag
 
       when(agentService.findAgent("uuid2")).thenReturn(idle())
       doAnswer({ InvocationOnMock invocation ->
-        def result = invocation.getArgument(1) as HttpOperationResult
+        def result = invocation.getArgument(0) as HttpOperationResult
         result.ok("Deleted 1 agent(s).")
-      }).when(agentService).deleteAgents(eq(currentUsername()), any() as HttpOperationResult, eq(asList("uuid2")))
+      }).when(agentService).deleteAgents(any() as HttpOperationResult, eq(asList("uuid2")))
 
       deleteWithApiHeader(controller.controllerPath("uuid2"))
 
@@ -614,10 +611,10 @@ class AgentsControllerV4Test implements SecurityServiceTrait, ControllerTrait<Ag
       loginAsAdmin()
 
       doAnswer({ InvocationOnMock invocation ->
-        def result = invocation.getArgument(1) as HttpOperationResult
+        def result = invocation.getArgument(0) as HttpOperationResult
         def message = "Failed to delete agent."
         result.unprocessibleEntity(message, "Some description", null)
-      }).when(agentService).deleteAgents(eq(currentUsername()), any() as HttpOperationResult, eq(asList("uuid2")))
+      }).when(agentService).deleteAgents(any() as HttpOperationResult, eq(asList("uuid2")))
 
       deleteWithApiHeader(controller.controllerPath("uuid2"))
 
@@ -651,9 +648,9 @@ class AgentsControllerV4Test implements SecurityServiceTrait, ControllerTrait<Ag
       when(agentService.findAgent("agent-2")).thenReturn(idleWith("agent-2"))
 
       doAnswer({ InvocationOnMock invocation ->
-        def result = invocation.getArgument(1) as HttpOperationResult
+        def result = invocation.getArgument(0) as HttpOperationResult
         result.ok("Deleted 2 agent(s).")
-      }).when(agentService).deleteAgents(eq(currentUsername()), any() as HttpOperationResult, eq(asList("agent-1", "agent-2")))
+      }).when(agentService).deleteAgents(any() as HttpOperationResult, eq(asList("agent-1", "agent-2")))
 
       def requestBody = ["uuids": ["agent-1", "agent-2"]]
 
@@ -670,10 +667,10 @@ class AgentsControllerV4Test implements SecurityServiceTrait, ControllerTrait<Ag
       loginAsAdmin()
 
       doAnswer({ InvocationOnMock invocation ->
-        def result = invocation.getArgument(1) as HttpOperationResult
+        def result = invocation.getArgument(0) as HttpOperationResult
         def message = "Failed to delete agent."
         result.unprocessibleEntity(message, "Some description", null)
-      }).when(agentService).deleteAgents(eq(currentUsername()), any() as HttpOperationResult, eq(asList("agent-1", "agent-2")))
+      }).when(agentService).deleteAgents(any() as HttpOperationResult, eq(asList("agent-1", "agent-2")))
 
       def requestBody = ["uuids": ["agent-1", "agent-2"]]
 

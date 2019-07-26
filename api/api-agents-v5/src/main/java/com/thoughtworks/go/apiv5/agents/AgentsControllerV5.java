@@ -44,6 +44,7 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
+import com.thoughtworks.go.util.TriState;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -116,12 +117,16 @@ public class AgentsControllerV5 extends ApiController implements SparkSpringCont
     }
 
     public String update(Request request, Response response) {
-        final String uuid = request.params("uuid");
-        final AgentUpdateRequest agentUpdateRequest = AgentUpdateRequestRepresenter.fromJSON(request.body());
-        final HttpOperationResult result = new HttpOperationResult();
+        String uuid = request.params("uuid");
+        AgentUpdateRequest req = AgentUpdateRequestRepresenter.fromJSON(request.body());
 
-        EnvironmentsConfig envsConfig = createEnvironmentsConfigFrom(agentUpdateRequest.getEnvironments());
-        final AgentInstance updatedAgentInstance = agentService.updateAgentAttributes(currentUsername(), result, uuid, agentUpdateRequest.getHostname(), agentUpdateRequest.getResources(), envsConfig, agentUpdateRequest.getAgentConfigState());
+        EnvironmentsConfig envsConfig = createEnvironmentsConfigFrom(req.getEnvironments());
+        String hostname = req.getHostname();
+        String resources = req.getResources();
+        TriState configState = req.getAgentConfigState();
+
+        HttpOperationResult result = new HttpOperationResult();
+        AgentInstance updatedAgentInstance = agentService.updateAgentAttributes(uuid, hostname, resources, envsConfig, configState, result);
 
         return handleCreateOrUpdateResponse(request, response, updatedAgentInstance, result);
     }
@@ -132,14 +137,14 @@ public class AgentsControllerV5 extends ApiController implements SparkSpringCont
         final HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
         EnvironmentsConfig envsConfig = createEnvironmentsConfigFrom(req.getOperations().getEnvironments().toAdd());
-        agentService.bulkUpdateAgentAttributes(currentUsername(),
-                result,
+        agentService.bulkUpdateAgentAttributes(
                 req.getUuids(),
                 req.getOperations().getResources().toAdd(),
                 req.getOperations().getResources().toRemove(),
                 envsConfig,
                 req.getOperations().getEnvironments().toRemove(),
-                req.getAgentConfigState());
+                req.getAgentConfigState(),
+                result);
 
         return renderHTTPOperationResult(result, request, response);
     }
@@ -169,7 +174,7 @@ public class AgentsControllerV5 extends ApiController implements SparkSpringCont
 
     public String deleteAgent(Request request, Response response) throws IOException {
         final HttpOperationResult result = new HttpOperationResult();
-        agentService.deleteAgents(currentUsername(), result, singletonList(request.params("uuid")));
+        agentService.deleteAgents(result, singletonList(request.params("uuid")));
         return renderHTTPOperationResult(result, request, response);
     }
 
@@ -178,7 +183,7 @@ public class AgentsControllerV5 extends ApiController implements SparkSpringCont
         final List<String> uuids = toList(reader.optJsonArray("uuids").orElse(new JsonArray()));
 
         final HttpOperationResult result = new HttpOperationResult();
-        agentService.deleteAgents(currentUsername(), result, uuids);
+        agentService.deleteAgents(result, uuids);
 
         return renderHTTPOperationResult(result, request, response);
     }

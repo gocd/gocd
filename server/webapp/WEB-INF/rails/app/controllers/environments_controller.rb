@@ -62,7 +62,7 @@ class EnvironmentsController < ApplicationController
     if !selectedUUIDs.empty?
         puts 'There are selected agents...'
         puts
-        agent_service.updateAgentsAssociationWithSpecifiedEnv(current_user, original_env_config, selectedUUIDs, result1)
+        agent_service.updateAgentsAssociationWithSpecifiedEnv(original_env_config, selectedUUIDs, result1)
 
         puts 'Agents are updated in DB...'
         puts
@@ -82,7 +82,7 @@ class EnvironmentsController < ApplicationController
           puts 'Rolling back DB changes...'
           puts
           result3 = HttpLocalizedOperationResult.new
-          agent_service.updateAgentsAssociationWithSpecifiedEnv(current_user, original_env_config, [], result3)
+          agent_service.updateAgentsAssociationWithSpecifiedEnv(original_env_config, [], result3)
           puts 'Rollback done!'
           puts
         end
@@ -121,7 +121,7 @@ class EnvironmentsController < ApplicationController
         return render :plain => message, :location => url_options_with_flash(message, {:action => :index, :class => 'success', :only_path => true})
       end
 
-      agent_service.updateAgentsAssociationWithSpecifiedEnv(current_user, original_env_config, finalUUIDsToAssociate, result)
+      agent_service.updateAgentsAssociationWithSpecifiedEnv(original_env_config, finalUUIDsToAssociate, result)
       if !result.isSuccessful()
         message = result.message()
         return render_error_response message, result.httpCode(), true

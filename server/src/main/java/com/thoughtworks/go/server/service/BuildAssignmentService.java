@@ -45,6 +45,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static com.thoughtworks.go.util.command.EnvironmentVariableContext.GO_ENVIRONMENT_NAME;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.collections4.CollectionUtils.forAllDo;
@@ -314,16 +315,16 @@ public class BuildAssignmentService implements ConfigChangedListener {
         }
     }
 
-    private EnvironmentVariableContext getEnvironmentVariableContextFromEnvironment(String pipelineName) {
-        EnvironmentConfig environmentConfig = environmentConfigService.environmentForPipeline(pipelineName);
-        if (environmentConfig == null) {
+    EnvironmentVariableContext getEnvironmentVariableContextFromEnvironment(String pipelineName) {
+        EnvironmentConfig environmentForPipeline = environmentConfigService.environmentForPipeline(pipelineName);
+        if (environmentForPipeline == null) {
             return null;
         }
 
-        secretParamResolver.resolve(environmentConfig);
+        secretParamResolver.resolve(environmentForPipeline);
 
-        EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
-        environmentConfig.getVariables().forEach(variable -> {
+        EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext(GO_ENVIRONMENT_NAME, CaseInsensitiveString.str(environmentForPipeline.name()));
+        environmentForPipeline.getVariables().forEach(variable -> {
             environmentVariableContext.setProperty(variable.getName(), variable.valueForCommandline(), variable.isSecure() || variable.hasSecretParams());
         });
         return environmentVariableContext;

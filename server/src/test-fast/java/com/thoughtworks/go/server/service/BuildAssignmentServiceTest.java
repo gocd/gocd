@@ -48,6 +48,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 
+import static com.thoughtworks.go.util.command.EnvironmentVariableContext.GO_ENVIRONMENT_NAME;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -405,6 +406,27 @@ class BuildAssignmentServiceTest {
             inOrder.verify(scheduleService).failJob(jobInstance);
             inOrder.verify(jobStatusTopic).post(new JobStatusMessage(jobPlan1.getIdentifier(), JobState.Completed, "agent_uuid"));
         }
+    }
+
+    @Test
+    void shouldGetEnvironmentVariableContextIncludingGO_ENVIRONMENT_NAMEVariable() {
+        String pipelineName = "pipeline1";
+        String environmentName = "uat_environment";
+
+        when(environmentConfigService.environmentForPipeline(pipelineName)).thenReturn(new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName)));
+        EnvironmentVariableContext context = buildAssignmentService.getEnvironmentVariableContextFromEnvironment(pipelineName);
+
+        assertThat(context.getProperty(GO_ENVIRONMENT_NAME)).isEqualTo(environmentName);
+    }
+
+    @Test
+    void shouldReturnNullWhenNoEnvironmentBelongingToSpecifiedPipelineExists() {
+        String pipelineName = "pipeline1";
+
+        when(environmentConfigService.environmentForPipeline(pipelineName)).thenReturn(null);
+        EnvironmentVariableContext context = buildAssignmentService.getEnvironmentVariableContextFromEnvironment(pipelineName);
+
+        assertThat(context).isNull();
     }
 
     private JobPlan getJobPlan(CaseInsensitiveString pipelineName, CaseInsensitiveString stageName, JobConfig job) {

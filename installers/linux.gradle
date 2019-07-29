@@ -66,9 +66,6 @@ enum OsType {
       // for basic stuff like `ls`, `id`
       fpmArgs += ['--depends', 'coreutils']
 
-      // for `pidof`
-      fpmArgs += ['--depends', 'sysvinit-tools']
-
       // for `ps`
       fpmArgs += ['--depends', 'procps']
 

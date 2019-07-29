@@ -107,6 +107,21 @@ function onUpdate(scope, args) {
   };
 }
 
+
+const oncreate = function (vnode) {
+  vnode.children.forEach((elem) => {
+    if (!(elem.dom instanceof Element)) {
+      return;
+    }
+
+    Array.from(elem.dom.querySelectorAll("script")).forEach((script) => {
+      const newScript     = document.createElement('script');
+      newScript.innerHTML = script.innerHTML;
+      script.parentNode.replaceChild(newScript, script);
+    });
+  });
+};
+
 export const AngularPluginNew = {
   template(template) {
     return $('<div></div>').html(template.replace(/GOINPUTNAME\[([^\]]*)\]/g, (_match, name) => {
@@ -124,7 +139,7 @@ export const AngularPluginNew = {
            ng-controller={controllerName(vnode.attrs.configuration)}
            oncreate={onCreate(vnode.state.$scope, vnode.attrs)}
            onupdate={onUpdate(vnode.state.$scope, vnode.attrs)}>
-        {pluginTemplate(vnode.attrs.pluginInfoSettings())}
+        {m.fragment({oncreate}, [pluginTemplate(vnode.attrs.pluginInfoSettings())])}
       </div>
     );
   }

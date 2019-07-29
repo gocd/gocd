@@ -42,6 +42,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import static java.util.Arrays.asList;
+import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.*;
@@ -268,7 +269,7 @@ public class AgentDaoTest {
         assertThat(agentDao.agentByUuid(agent2.getUuid()).getResources(), is("resource3,resource4"));
 
         assertThat(agentDao.agentByUuid(agent.getUuid()).getEnvironments(), is("env2,env4"));
-        assertNull(agentDao.agentByUuid(agent1.getUuid()).getEnvironments());
+        assertThat(agentDao.agentByUuid(agent1.getUuid()).getEnvironments(), is(emptyString()));
         assertThat(agentDao.agentByUuid(agent2.getUuid()).getEnvironments(), is("env2,env4"));
     }
 

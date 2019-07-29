@@ -29,7 +29,6 @@ import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.apiv5.agents.model.AgentBulkUpdateRequest;
 import com.thoughtworks.go.apiv5.agents.model.AgentUpdateRequest;
 import com.thoughtworks.go.apiv5.agents.representers.AgentBulkUpdateRequestRepresenter;
-import com.thoughtworks.go.apiv5.agents.representers.AgentRepresenter;
 import com.thoughtworks.go.apiv5.agents.representers.AgentUpdateRequestRepresenter;
 import com.thoughtworks.go.apiv5.agents.representers.AgentsRepresenter;
 import com.thoughtworks.go.config.EnvironmentConfig;
@@ -56,6 +55,7 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import static com.thoughtworks.go.apiv5.agents.representers.AgentRepresenter.toJSON;
 import static com.thoughtworks.go.util.CommaSeparatedString.commaSeparatedStrToList;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -70,7 +70,8 @@ public class AgentsControllerV5 extends ApiController implements SparkSpringCont
     private final EnvironmentConfigService environmentConfigService;
 
     @Autowired
-    public AgentsControllerV5(AgentService agentService, ApiAuthenticationHelper apiAuthenticationHelper, SecurityService securityService, EnvironmentConfigService environmentConfigService) {
+    public AgentsControllerV5(AgentService agentService, ApiAuthenticationHelper apiAuthenticationHelper,
+                              SecurityService securityService, EnvironmentConfigService environmentConfigService) {
         super(ApiVersion.v5);
         this.agentService = agentService;
         this.apiAuthenticationHelper = apiAuthenticationHelper;
@@ -102,18 +103,23 @@ public class AgentsControllerV5 extends ApiController implements SparkSpringCont
 
     public String index(Request request, Response response) throws IOException {
         Map<AgentInstance, Collection<EnvironmentConfig>> agentToEnvConfigsMap = new HashMap<>();
+
         agentService.agentInstances().values().forEach(agentInstance -> {
             Set<EnvironmentConfig> environmentConfigs = environmentConfigService.environmentConfigsFor(agentInstance.getUuid());
             agentToEnvConfigsMap.put(agentInstance, environmentConfigs);
         });
+
         return writerForTopLevelObject(request, response,
                 outputWriter -> AgentsRepresenter.toJSON(outputWriter, agentToEnvConfigsMap, securityService, currentUsername()));
     }
 
     public String show(Request request, Response response) throws IOException {
-        final AgentInstance agentInstance = fetchEntityFromConfig(request.params("uuid"));
+        String uuid = request.params("uuid");
+        final AgentInstance agentInstance = fetchEntityFromConfig(uuid);
 
-        return writerForTopLevelObject(request, response, outputWriter -> AgentRepresenter.toJSON(outputWriter, agentInstance, environmentConfigService.environmentConfigsFor(request.params("uuid")), securityService, currentUsername()));
+        return writerForTopLevelObject(request, response,
+                outputWriter -> toJSON(outputWriter, agentInstance, environmentConfigService.environmentConfigsFor(uuid),
+                        securityService, currentUsername()));
     }
 
     public String update(Request request, Response response) {
@@ -212,7 +218,9 @@ public class AgentsControllerV5 extends ApiController implements SparkSpringCont
 
     @Override
     public Consumer<OutputWriter> jsonWriter(AgentInstance agentInstance) {
-        return outputWriter -> AgentRepresenter.toJSON(outputWriter, agentInstance, environmentConfigService.environmentConfigsFor(agentInstance.getUuid()), securityService, currentUsername());
+        return outputWriter -> toJSON(outputWriter, agentInstance,
+                environmentConfigService.environmentConfigsFor(agentInstance.getUuid()),
+                securityService, currentUsername());
     }
 
     private void checkSecurityOr403(Request request, Response response) {
@@ -220,16 +228,14 @@ public class AgentsControllerV5 extends ApiController implements SparkSpringCont
             apiAuthenticationHelper.checkUserAnd403(request, response);
             return;
         }
-
         apiAuthenticationHelper.checkAdminUserAnd403(request, response);
     }
 
-    private List<String> toList(JsonArray jsonArray) {
+    private List<String> toList(JsonArray jsonArr) {
         final List<String> list = new ArrayList<>();
-        for (JsonElement element : jsonArray) {
-            list.add(element.getAsString());
+        for (JsonElement jsonElement : jsonArr) {
+            list.add(jsonElement.getAsString());
         }
-
         return list;
     }
 

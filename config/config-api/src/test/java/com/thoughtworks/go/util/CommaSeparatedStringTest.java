@@ -16,102 +16,105 @@
 
 package com.thoughtworks.go.util;
 
-import org.junit.jupiter.api.*;
-
-import java.util.Arrays;
-import java.util.Collections;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 
 import static com.thoughtworks.go.util.CommaSeparatedString.append;
 import static com.thoughtworks.go.util.CommaSeparatedString.remove;
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 class CommaSeparatedStringTest {
-
     @Nested
     class Append {
         @Test
-        public void shouldReturnACommaSeparatedStringWithEntriesToAppendWhenOriginalStringIsNULL() {
-            String result = append(null, Arrays.asList("e1", "e2", "e3"));
+        void shouldAppendValidListOfEntriesToNullCommaSeparatedString() {
+            String result = append(null, asList("e1", "e2", "e3"));
             assertThat(result).isEqualTo("e1,e2,e3");
         }
 
         @Test
-        public void shouldReturnACommaSeparatedStringWithEntriesToAppendWhenOriginalStringIsEmpty() {
-            String result = append("", Arrays.asList("e1", "e2", "e3"));
+        void shouldAppendValidListOfEntriesToEmptyCommaSeparatedString() {
+            String result = append("", asList("e1", "e2", "e3"));
             assertThat(result).isEqualTo("e1,e2,e3");
         }
 
         @Test
-        public void shouldReturnMergedCommaSeparatedStringWhenOriginalStringContainsEntries() {
-            String result = append("e2", Arrays.asList("e1", "e2", "e3"));
+        void shouldAppendAndMergeListOfEntriesWithOriginalCommaSeparatedString() {
+            String result = append("e2", asList("e1", "e2", "e3"));
             assertThat(result).isEqualTo("e2,e1,e3");
         }
 
         @Test
-        public void shouldReturnOriginalCommaSeparatedStringWhenOriginalStringContainsAllEntries() {
-            String result = append("e1,e2,e3", Arrays.asList("e1", "e2", "e3"));
+        void shouldDoNothingWhenOriginalCommaSeparatedStringContainsAllEntriesInTheList() {
+            String result = append("e1,e2,e3", asList("e1", "e2", "e3"));
             assertThat(result).isEqualTo("e1,e2,e3");
         }
 
         @Test
-        public void shouldReturnOriginalCommaSeparatedStringWhenEntriesAreNull() {
+        void shouldDoNothingWhenListOfEntriesIsNull() {
             String result = append("e1,e2,e3", null);
             assertThat(result).isEqualTo("e1,e2,e3");
         }
 
         @Test
-        public void shouldReturnOriginalCommaSeparatedStringWhenEntriesAreEmpty() {
-            String result = append("e1,e2,e3", Collections.emptyList());
+        void shouldDoNothingWhenListOfEntriesIsEmpty() {
+            String result = append("e1,e2,e3", emptyList());
+            assertThat(result).isEqualTo("e1,e2,e3");
+        }
+
+        @Test
+        void shouldAppendEntriesAfterRemovingLeadingAndTrailingSpaces() {
+            String result = append("e1", asList(" e2 ", "", "   e3", "e4 "));
+            assertThat(result).isEqualTo("e1,e2,e3,e4");
+        }
+
+        @Test
+        void shouldNotAppendNullEntriesInTheList() {
+            String result = append("e1", asList(null, "e2", "e3"));
             assertThat(result).isEqualTo("e1,e2,e3");
         }
     }
-
 
     @Nested
     class Remove {
         @Test
-        public void shouldReturnANullCommaSeparatedStringWithoutEntriesToRemoveWhenOriginalStringIsNULL() {
+        void shouldDoNothingWhenEntriesToRemoveIsNull() {
             String result = remove(null, null);
             assertNull(result);
-        }
 
-        @Test
-        public void shouldReturnABlankCommaSeparatedStringWithoutEntriesToAppendWhenOriginalStringIsEmpty() {
-            String result = remove("", null);
+            result = remove("", null);
             assertThat(result).isEqualTo("");
+
+            result = remove("e1,e2", null);
+            assertThat(result).isEqualTo("e1,e2");
         }
 
         @Test
-        public void shouldRemoveEntriesToRemoveWhenOriginalStringContainsEntries() {
-            String result = remove("e1,e2,e3", Arrays.asList("e1", "e3"));
+        void shouldRemoveEntriesToRemoveWhenOriginalStringContainsEntries() {
+            String result = remove("e1,e2,e3", asList("e1", "e3"));
             assertThat(result).isEqualTo("e2");
         }
 
         @Test
-        public void shouldReturnOriginalCommaSeparatedStringWhenOriginalStringDoesNotContainsEntries1() {
-            String result = remove("e1,e2,e3", Arrays.asList("e4"));
+        void shouldDoNothingWhenEntriesToRemoveDoesNotContainsEntriesInOriginalCommaSeparatedString() {
+            String result = remove("e1,e2,e3", singletonList("e4"));
             assertThat(result).isEqualTo("e1,e2,e3");
-        }
 
-        @Test
-        public void shouldReturnOriginalCommaSeparatedStringWhenOriginalStringDoesNotContainsEntries2() {
-            String result = remove("", Arrays.asList("e1", "e2"));
+            result = remove("", asList("e1", "e2"));
             assertThat(result).isEqualTo("");
-        }
 
-        @Test
-        public void shouldReturnOriginalCommaSeparatedStringWhenOriginalStringDoesNotContainsEntries3() {
-            String result = remove(null, Arrays.asList("e1", "e2"));
+            result = remove(null, asList("e1", "e2"));
             assertNull(result);
         }
 
         @Test
-        public void shouldReturnNullCommaSeparatedStringWhenItContainsAllEntries() {
-            String result = remove("e1,e2", Arrays.asList("e1", "e2"));
+        void shouldRemoveAllEntriesWhenListOfEntriesToRemoveContainsAllEntriesInOriginalCommaSeparatedString() {
+            String result = remove("e1,e2", asList("e1", "e2"));
             assertNull(result);
         }
     }
-
-
 }

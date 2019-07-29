@@ -23,8 +23,6 @@ import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
-
-import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.activity.AgentAssignment;
@@ -75,6 +73,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Semaphore;
 
+import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import static com.thoughtworks.go.helper.ModificationsMother.modifyNoFiles;
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
@@ -143,7 +142,7 @@ public class BuildAssignmentServiceIntegrationTest {
     }
 
     @AfterClass
-    public static void tearDownConfigFileLocation() throws IOException {
+    public static void tearDownConfigFileLocation() {
         TestRepo.internalTearDown();
     }
 
@@ -183,7 +182,7 @@ public class BuildAssignmentServiceIntegrationTest {
     }
 
     @Test
-    public void shouldRescheduleAbandonedBuild() throws SQLException {
+    public void shouldRescheduleAbandonedBuild() {
         AgentIdentifier instance = agent(AgentMother.localAgent());
         Pipeline pipeline = instanceFactory.createPipelineInstance(evolveConfig, modifyNoFiles(evolveConfig), new DefaultSchedulingContext(
                 DEFAULT_APPROVED_BY), md5, new TimeProvider());

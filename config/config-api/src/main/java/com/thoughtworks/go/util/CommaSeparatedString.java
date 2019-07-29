@@ -18,11 +18,12 @@ package com.thoughtworks.go.util;
 
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.List;
+import java.util.*;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
@@ -35,6 +36,7 @@ public class CommaSeparatedString {
         LinkedHashSet<String> distinctEntrySet = createDistinctEntrySetWithExistingAndNewEntriesToAdd(origCommaSeparatedStr, entriesToAdd);
 
         List<String> entryList = distinctEntrySet.stream()
+                .filter(Objects::nonNull)
                 .map(String::trim)
                 .filter(StringUtils::isNotBlank)
                 .collect(toList());
@@ -51,10 +53,12 @@ public class CommaSeparatedString {
             return commaSeparatedStr;
         }
 
+        List<String> finalEntriesToRemove = filterEmptyEntriesAndTrimTheirValues(entriesToRemove);
+
         if (isNotBlank(commaSeparatedStr)) {
             List<String> entryListAfterRemoval = Arrays.stream(commaSeparatedStrToArr(commaSeparatedStr))
                     .map(String::trim)
-                    .filter(entry -> !entriesToRemove.contains(entry))
+                    .filter(entry -> !finalEntriesToRemove.contains(entry))
                     .collect(toList());
 
             if (!entryListAfterRemoval.isEmpty()) {
@@ -65,6 +69,10 @@ public class CommaSeparatedString {
         }
 
         return commaSeparatedStr;
+    }
+
+    private static List<String> filterEmptyEntriesAndTrimTheirValues(List<String> entriesToRemove) {
+        return entriesToRemove.stream().filter(StringUtils::isNotBlank).map(String::trim).collect(toList());
     }
 
     private static LinkedHashSet<String> createDistinctEntrySetWithExistingAndNewEntriesToAdd(String commaSeparatedStr, List<String> entriesToAdd) {
@@ -78,12 +86,12 @@ public class CommaSeparatedString {
         return uniqEntrySet;
     }
 
-    public static String listToCommaSeparatedStr(List<String> list) {
+    private static String listToCommaSeparatedStr(List<String> list) {
         return String.join(",", list);
     }
 
     public static List<String> commaSeparatedStrToList(String commaSeparatedStr){
-        return Arrays.asList(commaSeparatedStrToArr(commaSeparatedStr));
+        return isBlank(commaSeparatedStr) ? emptyList() : asList(commaSeparatedStrToArr(commaSeparatedStr));
     }
 
     private static String[] commaSeparatedStrToArr(String commaSeparatedStr) {

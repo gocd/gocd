@@ -20,10 +20,13 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class AgentTest {
+class AgentTest {
     @Test
     void shouldCopyAllFieldsFromAnotherAgentObjectUsingCopyConstructor() {
         Agent origAgent = new Agent("uuid", "host", "127.0.0.1", "cookie");
@@ -37,15 +40,14 @@ public class AgentTest {
     @Nested
     class IPAddress {
         @Test
-        public void agentWithNoIpAddressShouldBeValid() {
+        void agentWithNoIpAddressShouldBeValid() {
             Agent agent = new Agent("uuid", null, null);
-
             agent.validate();
             assertFalse(agent.hasErrors());
         }
 
         @Test
-        public void shouldValidateIpCorrectIPv4Address() {
+        void shouldValidateIpCorrectIPv4Address() {
             shouldBeValid("127.0.0.1");
             shouldBeValid("0.0.0.0");
             shouldBeValid("255.255.0.0");
@@ -53,12 +55,12 @@ public class AgentTest {
         }
 
         @Test
-        public void shouldValidateIpCorrectIPv6Address() {
+        void shouldValidateIpCorrectIPv6Address() {
             shouldBeValid("0:0:0:0:0:0:0:1");
         }
 
         @Test
-        public void shouldFailValidationIfIPAddressIsInvalid1() {
+        void shouldFailValidationIfIPAddressIsInvalid1() {
             Agent agent = new Agent("uuid", "host", "blahinvalid");
             agent.validate();
             assertThat(agent.errors().on(Agent.IP_ADDRESS), is("'blahinvalid' is an invalid IP address."));
@@ -69,14 +71,14 @@ public class AgentTest {
         }
 
         @Test
-        public void shouldFailValidationIfIPAddressIsInvalid2() {
+        void shouldFailValidationIfIPAddressIsInvalid2() {
             Agent agent = new Agent("uuid", "host", "399.0.0.1");
             agent.validate();
             assertThat(agent.errors().on(Agent.IP_ADDRESS), is("'399.0.0.1' is an invalid IP address."));
         }
 
         @Test
-        public void shouldInvalidateEmptyIpAddress() {
+        void shouldInvalidateEmptyIpAddress() {
             Agent agent = new Agent("uuid", "host", "");
             agent.validate();
             assertThat(agent.errors().on(Agent.IP_ADDRESS), is("IpAddress cannot be empty if it is present."));
@@ -92,49 +94,143 @@ public class AgentTest {
 
     @Nested
     class Resources {
-        @Test
-        void shouldAddResourcesToExistingResources() {
-            Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
-            agent.setResources("resource1");
+        @Nested
+        class AddResources {
+            @Test
+            void shouldAddResourceWithValidResourceName() {
+                Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
+                assertThat(agent.getResources(), is(emptyString()));
 
-            agent.addResources(asList("resource2", "resource3"));
+                agent.addResource("r1");
+                assertThat(agent.getResources(), is("r1"));
 
-            assertThat(agent.getResourcesAsList().size(), is(3));
-            assertThat(agent.getResourcesAsList(), is(asList("resource1", "resource2", "resource3")));
+                agent.addResource("r2");
+                assertThat(agent.getResources(), is("r1,r2"));
+            }
+
+            @Test
+            void shouldAddResourceWithResourceNameContainingLeadingAndTrailingSpaces() {
+                Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
+                assertThat(agent.getResources(), is(emptyString()));
+
+                agent.addResource("  r1");
+                assertThat(agent.getResources(), is("r1"));
+
+                agent.addResource("r2      ");
+                assertThat(agent.getResources(), is("r1,r2"));
+
+                agent.addResource(" r3 ");
+                assertThat(agent.getResources(), is("r1,r2,r3"));
+            }
+
+            @Test
+            void shouldDoNothingWhenEmptyResourceNameIsSpecified() {
+                Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
+                assertThat(agent.getResources(), is(emptyString()));
+
+                agent.addResource("  ");
+                assertThat(agent.getResources(), is(emptyString()));
+
+                agent.addResource("");
+                assertThat(agent.getResources(), is(emptyString()));
+            }
+
+            @Test
+            void shouldDoNothingWhenNullCommaSeparatedStringOfResourceNamesIsSpecified() {
+                Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
+                agent.setResources(null);
+                assertThat(agent.getResources(), is(nullValue()));
+            }
+
+            @Test
+            void shouldDoNothingWhenNullResourceNameIsSpecified() {
+                Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
+                assertThat(agent.getResources(), is(emptyString()));
+
+                agent.addResource(null);
+                assertThat(agent.getResources(), is(emptyString()));
+            }
+
+            @Test
+            void shouldAddResourcesWithValidListOfResourceNames() {
+                Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
+
+                agent.addResources(asList("r1", "r2"));
+                assertThat(agent.getResources(), is("r1,r2"));
+
+                agent.addResources(asList("r3"));
+                assertThat(agent.getResources(), is("r1,r2,r3"));
+            }
+
+            @Test
+            void shouldDoNothingWhenNullIsSpecifiedAsListOfResourceNames() {
+                Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
+                agent.addResources(null);
+                assertThat(agent.getResources(), is(emptyString()));
+            }
+
+            @Test
+            void shouldAddResourcesWithListOfResourceNamesContainingLeadingTrailingSpaces() {
+                Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
+
+                agent.addResources(asList("r1", "r2"));
+                assertThat(agent.getResources(), is("r1,r2"));
+
+                agent.addResources(asList("  r3", "r4  ", "  r5  ", "r6", "   ", " "));
+                assertThat(agent.getResources(), is("r1,r2,r3,r4,r5,r6"));
+            }
+        }
+
+        @Nested
+        class RemoveResources{
+            @Test
+            void shouldRemoveResourcesFromExistingResources() {
+                Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
+                agent.setResources("r1,r2");
+                agent.removeResources(asList("r1", "r3"));
+                assertThat(agent.getResources(), is("r2"));
+            }
+
+            @Test
+            void shouldDoNothingWhenListOfResourcesToRemoveDoesNotExist() {
+                Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
+                agent.removeResources(asList("r1", "r2"));
+                assertNull(agent.getResources());
+            }
+
+            @Test
+            void shouldDoNothingWhenListOfResourcesToRemoveIsEmpty() {
+                Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
+                agent.removeResources(emptyList());
+                assertThat(agent.getResources(), is(emptyString()));
+            }
+
+            @Test
+            void shouldDoNothingWhenListOfResourcesToRemoveIsNull() {
+                Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
+                agent.removeResources(null);
+                assertThat(agent.getResources(), is(emptyString()));
+            }
+
+            @Test
+            void shouldTrimEachResourceNameInTheListOfResourcesToRemove() {
+                Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
+                agent.setResourcesFromList(asList("r1","r2", "r3"));
+                agent.removeResources(asList("  r1 ","r2 ", " r3"));
+                assertNull(agent.getResources());
+            }
+
+            @Test
+            void shouldNotConsiderNullOrEmptyResourceNamesInTheListOfResourcesToRemove() {
+                Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
+                agent.setResourcesFromList(asList("r1","r2", "r3"));
+                agent.removeResources(asList(null," ", ""));
+                assertThat(agent.getResources(), is("r1,r2,r3"));
+            }
         }
 
         @Test
-        void shouldAddResourcesToIfThereAreNoExistingResources() {
-            Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
-
-            agent.addResources(asList("resource2", "resource3"));
-
-            assertThat(agent.getResourcesAsList().size(), is(2));
-            assertThat(agent.getResourcesAsList(), is(asList("resource2", "resource3")));
-        }
-
-        @Test
-        void shouldRemoveResourcesFromExistingResources() {
-            Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
-            agent.setResources("resource1,resource2,resource3");
-
-            agent.removeResources(asList("resource2"));
-
-            assertThat(agent.getResourcesAsList().size(), is(2));
-            assertThat(agent.getResourcesAsList(), is(asList("resource1", "resource3")));
-        }
-
-        @Test
-        void shouldNotRemoveResourcesIfDoNotExist() {
-            Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
-
-            agent.removeResources(asList("resource2"));
-
-            assertTrue(agent.getResourcesAsList().isEmpty());
-        }
-
-        @Test
-        public void shouldAllowResourcesOnNonElasticAgents() {
+        void shouldAllowResourcesOnNonElasticAgents() {
             Agent agent = new Agent("uuid", "hostname", "10.10.10.10");
 
             agent.setResources("foo");
@@ -143,7 +239,7 @@ public class AgentTest {
         }
 
         @Test
-        public void shouldNotAllowResourcesElasticAgents() {
+        void shouldNotAllowResourcesElasticAgents() {
             Agent agent = new Agent("uuid", "hostname", "10.10.10.10");
             agent.setElasticPluginId("com.example.foo");
             agent.setElasticAgentId("foobar");
@@ -158,14 +254,14 @@ public class AgentTest {
     @Nested
     class UUID {
         @Test
-        public void shouldPassValidationWhenUUidIsAvailable() {
+        void shouldPassValidationWhenUUidIsAvailable() {
             Agent agent = new Agent("uuid");
             agent.validate();
             assertThat(agent.errors().on(Agent.UUID), is(nullValue()));
         }
 
         @Test
-        public void shouldFailValidationWhenUUidIsBlank() {
+        void shouldFailValidationWhenUUidIsBlank() {
             Agent agent = new Agent("");
             agent.validate();
             assertThat(agent.errors().on(Agent.UUID), is("UUID cannot be empty"));
@@ -177,62 +273,215 @@ public class AgentTest {
 
     @Nested
     class Environments {
-        @Test
-        void shouldAddEnvironmentsToExistingEnvironments() {
-            Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
-            agent.setEnvironments("env1,env2");
+        @Nested
+        class SetEnvironments {
+            @Test
+            void shouldSetEnvironmentsWithValidCommaSeparatedStringOfEnvironmentNames() {
+                Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
+                agent.setEnvironments("env1,env2,env3");
+                assertThat(agent.getEnvironments(), is("env1,env2,env3"));
 
-            agent.addEnvironments(asList("env2", "env3"));
+                agent.setEnvironments("env4,env5");
+                assertThat(agent.getEnvironments(), is("env4,env5"));
+            }
 
-            assertThat(agent.getEnvironments(), is("env1,env2,env3"));
+            @Test
+            void shouldSetEnvironmentsAsNullWhenEmptyCommaSeparatedStringOfEnvironmentNamesIsSpecified() {
+                Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
+                agent.setEnvironments("      ");
+                assertThat(agent.getEnvironments(), is(nullValue()));
+            }
+
+            @Test
+            void shouldSetEnvironmentsAsNullWhenNullCommaSeparatedStringOfEnvironmentNamesIsSpecified() {
+                Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
+                agent.setEnvironments(null);
+                assertThat(agent.getEnvironments(), is(nullValue()));
+            }
+
+            @Test
+            void shouldSetEnvironmentsAsNullWhenInvalidCommaSeparatedStringOfEnvironmentNamesIsSpecified() {
+                Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
+                agent.setEnvironments("   , ,, ,");
+                assertThat(agent.getEnvironments(), is(nullValue()));
+            }
+
+            @Test
+            void shouldSetEnvironmentsWithValidListOfEnvironmentNames() {
+                Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
+                agent.setEnvironmentsFrom(asList("env1","env2","env3"));
+                assertThat(agent.getEnvironments(), is("env1,env2,env3"));
+
+                agent.setEnvironmentsFrom(asList("env4","env5"));
+                assertThat(agent.getEnvironments(), is("env4,env5"));
+            }
+
+            @Test
+            void shouldSetEnvironmentsFromEmptyListOrListContainingEmptyEnvironmentNames() {
+                Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
+                agent.setEnvironmentsFrom(emptyList());
+                assertThat(agent.getEnvironments(), is(nullValue()));
+
+                agent.setEnvironmentsFrom(asList("      "," ","  ","","","  "));
+                assertThat(agent.getEnvironments(), is(nullValue()));
+
+                agent.setEnvironmentsFrom(singletonList("      , ,  ,,,  "));
+                assertThat(agent.getEnvironments(), is(", ,  ,,,"));
+            }
+
+            @Test
+            void shouldSetEnvironmentsAsNullWhenNullListOfEnvironmentNamesIsSpecified() {
+                Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
+                agent.setEnvironmentsFrom(null);
+                assertThat(agent.getEnvironments(), is(nullValue()));
+            }
         }
 
-        @Test
-        void shouldAddEnvironmentsIfNoExistingEnvironments() {
-            Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
+        @Nested
+        class AddEnvironments {
+            @Test
+            void shouldAddEnvironmentWithValidEnvironmentName() {
+                Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
+                assertThat(agent.getEnvironments(), is(emptyString()));
 
-            agent.addEnvironments(asList("env2", "env3"));
+                agent.addEnvironment("env1");
+                assertThat(agent.getEnvironments(), is("env1"));
 
-            assertThat(agent.getEnvironments(), is("env2,env3"));
+                agent.addEnvironment("env2");
+                assertThat(agent.getEnvironments(), is("env1,env2"));
+            }
+
+            @Test
+            void shouldTrimAndAddEnvironmentWhenEnvironmentNameIsSpecifiedAsContainingLeadingAndTrailingSpaces() {
+                Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
+                assertThat(agent.getEnvironments(), is(emptyString()));
+
+                agent.addEnvironment("  env1");
+                assertThat(agent.getEnvironments(), is("env1"));
+
+                agent.addEnvironment("env2      ");
+                assertThat(agent.getEnvironments(), is("env1,env2"));
+
+                agent.addEnvironment(" env3 ");
+                assertThat(agent.getEnvironments(), is("env1,env2,env3"));
+            }
+
+            @Test
+            void shouldDoNothingWhenEmptyEnvironmentNameIsSpecified() {
+                Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
+                assertThat(agent.getEnvironments(), is(emptyString()));
+
+                agent.addEnvironment("  ");
+                assertThat(agent.getEnvironments(), is(emptyString()));
+
+                agent.addEnvironment("");
+                assertThat(agent.getEnvironments(), is(emptyString()));
+            }
+
+            @Test
+            void shouldDoNothingWhenNullEnvironmentNameIsSpecified() {
+                Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
+                assertThat(agent.getEnvironments(), is(emptyString()));
+
+                agent.addEnvironment(null);
+                assertThat(agent.getEnvironments(), is(emptyString()));
+            }
+
+            @Test
+            void shouldAddEnvironmentsWithValidListOfEnvironmentNames() {
+                Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
+
+                agent.addEnvironments(asList("env1", "env2"));
+                assertThat(agent.getEnvironments(), is("env1,env2"));
+
+                agent.addEnvironments(asList("env3"));
+                assertThat(agent.getEnvironments(), is("env1,env2,env3"));
+            }
+
+            @Test
+            void shouldDoNothingWhenNullIsSpecifiedAsListOfEnvironmentNames() {
+                Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
+                agent.addEnvironments(null);
+                assertThat(agent.getEnvironments(), is(emptyString()));
+            }
+
+            @Test
+            void shouldAddEnvironmentsWithListOfEnvironmentNamesContainingLeadingTrailingSpaces() {
+                Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
+
+                agent.addEnvironments(asList("env1", "env2"));
+                assertThat(agent.getEnvironments(), is("env1,env2"));
+
+                agent.addEnvironments(asList("  env3", "env4  ", "  env5  ", "env6", "   ", " "));
+                assertThat(agent.getEnvironments(), is("env1,env2,env3,env4,env5,env6"));
+            }
         }
 
-        @Test
-        void shouldRemoveEnvironmentsFromExistingEnvironments() {
-            Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
-            agent.setEnvironments("env1,env2");
+        @Nested
+        class RemoveEnvironments{
+            @Test
+            void shouldRemoveEnvironmentsFromExistingEnvironments() {
+                Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
+                agent.setEnvironments("env1,env2");
+                agent.removeEnvironments(asList("env1", "env3"));
+                assertThat(agent.getEnvironments(), is("env2"));
+            }
 
-            agent.removeEnvironments(asList("env1", "env3"));
+            @Test
+            void shouldDoNothingWhenListOfEnvironmentsToRemoveDoesNotExist() {
+                Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
+                agent.removeEnvironments(asList("env1", "env3"));
+                assertNull(agent.getEnvironments());
+            }
 
-            assertThat(agent.getEnvironments(), is("env2"));
-        }
+            @Test
+            void shouldDoNothingWhenListOfEnvironmentsToRemoveIsEmpty() {
+                Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
+                agent.removeEnvironments(emptyList());
+                assertNull(agent.getEnvironments());
+            }
 
-        @Test
-        void shouldNotRemoveEnvironmentsIfEnvironmentsDoNotExist() {
-            Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
+            @Test
+            void shouldDoNothingWhenListOfEnvironmentsToRemoveIsNull() {
+                Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
+                agent.removeEnvironments(null);
+                assertNull(agent.getEnvironments());
+            }
 
-            agent.removeEnvironments(asList("env1", "env3"));
+            @Test
+            void shouldTrimEachEnvironmentNameInTheListOfEnvironmentsToRemove() {
+                Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
+                agent.setEnvironmentsFrom(asList("e1","e2", "e3"));
+                agent.removeEnvironments(asList("  e1 ","e2 ", " e3"));
+                assertNull(agent.getEnvironments());
+            }
 
-            assertNull(agent.getEnvironments());
+            @Test
+            void shouldNotConsiderNullOrEmptyEnvironmentNamesInTheListOfEnvironmentsToRemove() {
+                Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
+                agent.setEnvironmentsFrom(asList("e1","e2", "e3"));
+                agent.removeEnvironments(asList(null," ", ""));
+                assertThat(agent.getEnvironments(), is("e1,e2,e3"));
+            }
         }
 
         @Test
         void shouldReturnEmptyListIfEnvironmentIsNullOrEmpty() {
             Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
 
-            assertThat(agent.getEnvironments(), is(nullValue()));
+            assertThat(agent.getEnvironments(), is(emptyString()));
             assertThat(agent.getEnvironmentsAsList(), is(empty()));
 
             agent.setEnvironments("");
 
-            assertThat(agent.getEnvironments(), not(nullValue()));
-            assertThat(agent.getEnvironments(), is(emptyString()));
+            assertThat(agent.getEnvironments(), is(nullValue()));
             assertThat(agent.getEnvironmentsAsList(), is(empty()));
         }
 
         @Test
         void shouldReturnEnvAsListSplitOnComma() {
             Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
-            assertThat(agent.getEnvironments(), is(nullValue()));
+            assertThat(agent.getEnvironments(), is(emptyString()));
             assertThat(agent.getEnvironmentsAsList(), is(empty()));
 
             agent.setEnvironments("env1,env2");

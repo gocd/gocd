@@ -48,8 +48,8 @@ public class Agent extends PersistentObject {
     private String elasticAgentId;
     private String elasticPluginId;
     private boolean disabled;
-    private String environments;
-    private String resources;
+    private String environments = DEFAULT_VALUE;
+    private String resources = DEFAULT_VALUE;
     private String cookie;
     private boolean deleted;
 
@@ -57,6 +57,7 @@ public class Agent extends PersistentObject {
     private ConfigErrors errors = new ConfigErrors();
     public static final String IP_ADDRESS = "ipAddress";
     public static final String UUID = "uuid";
+    private static final String DEFAULT_VALUE = "";
 
     public Agent() {
     }
@@ -209,7 +210,6 @@ public class Agent extends PersistentObject {
             this.resources = null;
             return;
         }
-
         this.resources = new ResourceConfigs(resourceNames).getCommaSeparatedResourceNames();
     }
 
@@ -339,19 +339,19 @@ public class Agent extends PersistentObject {
     }
 
     public void setEnvironments(String envs) {
-        this.environments = envs;
+        this.environments = append(null, commaSeparatedStrToList(envs));
     }
 
     public void setEnvironmentsFrom(List<String> envList) {
-        this.environments = listToCommaSeparatedStr(envList);
+        this.environments = append(null, envList);
     }
 
     public void addEnvironments(List<String> envsToAdd) {
-        this.setEnvironments(append(this.getEnvironments(), envsToAdd));
+        this.environments = append(this.getEnvironments(), envsToAdd);
     }
 
     public void addEnvironment(String env) {
-        this.addEnvironments(singletonList(env));
+        this.addEnvironments(isBlank(env) ? null : singletonList(env));
     }
 
     public String getResources() {

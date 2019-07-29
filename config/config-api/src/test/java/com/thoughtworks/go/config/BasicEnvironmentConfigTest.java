@@ -20,12 +20,14 @@ import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.config.remote.UIConfigOrigin;
 import com.thoughtworks.go.helper.GoConfigMother;
+import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 
+import static com.thoughtworks.go.util.command.EnvironmentVariableContext.GO_ENVIRONMENT_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class BasicEnvironmentConfigTest extends EnvironmentConfigTestBase {
@@ -89,6 +91,7 @@ class BasicEnvironmentConfigTest extends EnvironmentConfigTestBase {
         environmentConfig.setConfigAttributes(Collections.singletonMap(BasicEnvironmentConfig.NAME_FIELD, "PROD"));
         assertThat(environmentConfig.name()).isEqualTo(new CaseInsensitiveString("PROD"));
     }
+
 
     @Nested
     class validate {
@@ -154,6 +157,23 @@ class BasicEnvironmentConfigTest extends EnvironmentConfigTestBase {
         assertThat(reference.errors().isEmpty()).isTrue();
     }
 
+    @Test
+    void shouldReturnEnvironmentContextWithGO_ENVIRONMENT_NAMEVariableWhenNoEnvironmentVariablesAreDefined() {
+        EnvironmentVariableContext environmentContext = environmentConfig.createEnvironmentContext();
+
+        assertThat(environmentContext.getProperties()).hasSize(1);
+        assertThat(environmentContext.getProperty(GO_ENVIRONMENT_NAME)).isEqualTo(environmentConfig.name().toString());
+    }
+
+    @Test
+    void shouldReturnEnvironmentContextWithGO_ENVIRONMENT_NAMEVariableWhenEnvironmentVariablesAreDefined() {
+        environmentConfig.addEnvironmentVariable("foo", "bar");
+        EnvironmentVariableContext environmentContext = environmentConfig.createEnvironmentContext();
+
+        assertThat(environmentContext.getProperties()).hasSize(2);
+        assertThat(environmentContext.getProperty(GO_ENVIRONMENT_NAME)).isEqualTo(environmentConfig.name().toString());
+        assertThat(environmentContext.getProperty("foo")).isEqualTo("bar");
+    }
 
     private void passReferenceValidationHelper(ConfigOrigin pipelineOrigin, ConfigOrigin envOrigin) {
         BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("pipe1");

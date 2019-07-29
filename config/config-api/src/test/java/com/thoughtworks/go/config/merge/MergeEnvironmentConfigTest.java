@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static com.thoughtworks.go.util.command.EnvironmentVariableContext.GO_ENVIRONMENT_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
@@ -223,6 +224,24 @@ class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
         pairEnvironmentConfig.validate(ConfigSaveValidationContext.forChain(pairEnvironmentConfig));
         assertThat(pairEnvironmentConfig.errors().isEmpty()).isFalse();
         assertThat(pairEnvironmentConfig.errors().on(MergeEnvironmentConfig.CONSISTENT_KV)).isEqualTo("Environment variable 'variable-name1' is defined more than once with different values");
+    }
+
+    @Test
+    void shouldReturnEnvironmentContextWithGO_ENVIRONMENT_NAMEVariableWhenNoEnvironmentVariablesAreDefined() {
+        EnvironmentVariableContext environmentContext = environmentConfig.createEnvironmentContext();
+
+        assertThat(environmentContext.getProperties()).hasSize(1);
+        assertThat(environmentContext.getProperty(GO_ENVIRONMENT_NAME)).isEqualTo(environmentConfig.name().toString());
+    }
+
+    @Test
+    void shouldReturnEnvironmentContextWithGO_ENVIRONMENT_NAMEVariableWhenEnvironmentVariablesAreDefined() {
+        environmentConfig.addEnvironmentVariable("foo", "bar");
+        EnvironmentVariableContext environmentContext = environmentConfig.createEnvironmentContext();
+
+        assertThat(environmentContext.getProperties()).hasSize(2);
+        assertThat(environmentContext.getProperty(GO_ENVIRONMENT_NAME)).isEqualTo(environmentConfig.name().toString());
+        assertThat(environmentContext.getProperty("foo")).isEqualTo("bar");
     }
 
     @Nested

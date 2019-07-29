@@ -326,7 +326,6 @@ class BuildAssignmentServiceTest {
             when(scheduledPipelineLoader.pipelineWithPasswordAwareBuildCauseByBuildId(anyLong())).thenReturn(pipeline);
             when(scheduleService.updateAssignedInfo(anyString(), any())).thenReturn(false);
             when(goConfigService.artifactStores()).thenReturn(new ArtifactStores());
-            when(environmentConfigService.environmentVariableContextFor(anyString())).thenReturn(new EnvironmentVariableContext());
             doAnswer(invocation -> {
                 BuildAssignment assignment = invocation.getArgument(0);
                 assignment.getSecretParams().findFirst("GIT_PASSWORD").ifPresent(param -> param.setValue("some-password"));
@@ -358,7 +357,6 @@ class BuildAssignmentServiceTest {
             when(pipeline.getBuildCause()).thenReturn(BuildCause.createWithModifications(materialRevisions, "bob"));
             when(scheduledPipelineLoader.pipelineWithPasswordAwareBuildCauseByBuildId(anyLong())).thenReturn(pipeline);
             when(goConfigService.artifactStores()).thenReturn(new ArtifactStores());
-            when(environmentConfigService.environmentVariableContextFor(anyString())).thenReturn(new EnvironmentVariableContext());
             when(jobInstanceService.buildById(jobPlan1.getJobId())).thenReturn(jobInstance);
             when(agentInstance.getUuid()).thenReturn("agent_uuid");
             when(jobInstance.getState()).thenReturn(JobState.Completed);

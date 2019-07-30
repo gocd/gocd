@@ -15,58 +15,79 @@
  */
 package com.thoughtworks.go.config;
 
-import org.junit.Test;
+import com.thoughtworks.go.domain.NullAgent;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 
-import java.util.Set;
-
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.hasItem;
 import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class AgentsTest {
+class AgentsTest {
+    @Nested
+    class GetAgent {
+        @Test
+        void getAgentByUUIDShouldReturnValidAgentForExistingUUID() {
+            Agents agents = new Agents();
+            agents.add(new Agent("1", "localhost", "2"));
 
-    @Test
-    public void shouldFindAgentByUuid() {
-        Agents agents = new Agents();
-        agents.add(new Agent("1", "localhost", "2"));
-        assertThat(agents.getAgentByUuid("1").getHostname(), is("localhost"));
+            assertThat(agents.getAgentByUUID("1").getHostname(), is("localhost"));
+            assertThat(agents.getAgentByUUID("1").getIpaddress(), is("2"));
+        }
+
+        @Test
+        void getAgentByUUIDShouldReturnNullForUUIDThatDoesNotExist() {
+            Agents agents = new Agents();
+            agents.add(new Agent("1", "localhost", "2"));
+            assertTrue(agents.getAgentByUUID("uuid-that-does-not-exist") instanceof NullAgent);
+            assertThat(agents.getAgentByUUID("uuid-that-does-not-exist").isNull(), is(true));
+        }
     }
 
-    @Test
-    public void shouldGiveAListOfUuids() throws Exception {
-        Agents agents = new Agents();
-        agents.add(new Agent("1", "localhost", "2"));
-        Agent denied = new Agent("2", "localhost", "2");
-        denied.setDisabled(true);
-        agents.add(denied);
+    @Nested
+    class HasAgent {
+        @Test
+        void hasAgentShouldReturnTrueForExistingUUID() {
+            Agents agents = new Agents();
+            agents.add(new Agent("1", "localhost", "2"));
+            assertThat(agents.hasAgent("1"), is(true));
+        }
 
-        Set<String> uuids = agents.acceptedUuids();
-
-        assertThat(uuids.size(), is(2));
-        assertThat(uuids, hasItem("1"));
-        assertThat(uuids, hasItem("2"));
+        @Test
+        void hasAgentShouldReturnFalseForUUIDThatDoesNotExist() {
+            Agents agents = new Agents();
+            agents.add(new Agent("1", "localhost", "2"));
+            assertThat(agents.hasAgent("uuid-that-does-not-exist"), is(false));
+        }
     }
 
-    @Test
-    public void shouldValidateDuplicateElasticAgentId() throws Exception {
-        Agents agents = new Agents();
+    @Nested
+    class AddAgent {
+        @Test
+        void addShouldAddAgentToTheListOfAgents() {
+            Agents agents = new Agents();
 
-        Agent elasticAgent1 = new Agent("1", "localhost", "1");
-        elasticAgent1.setElasticAgentId("elastic-agent-id");
-        elasticAgent1.setElasticPluginId("awesome-elastic-agent");
+            Agent agent1 = new Agent("1", "localhost1", "1");
+            Agent agent2 = new Agent("2", "localhost2", "2");
+            agents.add(agent1);
+            agents.add(agent2);
 
-        Agent elasticAgent2 = new Agent("2", "localhost", "2");
-        elasticAgent2.setElasticAgentId("elastic-agent-id");
-        elasticAgent2.setElasticPluginId("awesome-elastic-agent");
+            assertThat(agents.getAgentByUUID("1"), is(equalTo(agent1)));
+            assertThat(agents.getAgentByUUID("2"), is(equalTo(agent2)));
+        }
 
-        agents.add(elasticAgent1);
-        agents.add(elasticAgent2);
+        @Test
+        void addShouldNotAddNullToTheListOfAgents() {
+            Agents agents = new Agents();
+            Agent agent = new Agent("1", "localhost2", "2");
+            agents.add(null);
+            agents.add(null);
+            agents.add(null);
+            agents.add(agent);
 
-        agents.validate(new ConfigSaveValidationContext(agents));
-
-        assertThat(elasticAgent1.errors().size(), is(1));
-        assertThat(elasticAgent1.errors().getAllOn("elasticAgentId").get(0), is("Duplicate ElasticAgentId found for agents [1, 2]"));
-        assertThat(elasticAgent2.errors().size(), is(1));
-        assertThat(elasticAgent2.errors().getAllOn("elasticAgentId").get(0), is("Duplicate ElasticAgentId found for agents [1, 2]"));
+            assertThat(agents.size(), is(1));
+            assertThat(agents.getAgentByUUID("1"), is(equalTo(agent)));
+        }
     }
 }

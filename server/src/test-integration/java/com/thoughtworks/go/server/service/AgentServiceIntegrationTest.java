@@ -352,7 +352,7 @@ public class AgentServiceIntegrationTest {
             List<String> emptyList = emptyStrList;
             agentService.bulkUpdateAgentAttributes(asList(uuid), emptyList, emptyList, emptyEnvsConfig, emptyList, TriState.FALSE, result);
 
-            assertThat(agentService.agents().getAgentByUuid(uuid).isDisabled(), is(true));
+            assertThat(agentService.agents().getAgentByUUID(uuid).isDisabled(), is(true));
         }
 
         @Test
@@ -465,8 +465,8 @@ public class AgentServiceIntegrationTest {
 
             assertTrue(result.isSuccessful());
             assertThat(result.message(), is("Updated agent(s) with uuid(s): [" + StringUtils.join(uuids, ", ") + "]."));
-            assertThat(agentService.agents().getAgentByUuid(UUID).isEnabled(), is(true));
-            assertThat(agentService.agents().getAgentByUuid(agent.getUuid()).isEnabled(), is(true));
+            assertThat(agentService.agents().getAgentByUUID(UUID).isEnabled(), is(true));
+            assertThat(agentService.agents().getAgentByUUID(agent.getUuid()).isEnabled(), is(true));
         }
 
         @Test

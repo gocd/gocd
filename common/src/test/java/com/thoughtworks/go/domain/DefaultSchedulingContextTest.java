@@ -18,22 +18,22 @@ package com.thoughtworks.go.domain;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.util.ReflectionUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static java.util.Arrays.asList;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
 public class DefaultSchedulingContextTest {
-
     @Test
-    public void shouldFindNoAgentsIfNoneExist() throws Exception {
+	void shouldFindNoAgentsIfNoneExist() {
         DefaultSchedulingContext context = new DefaultSchedulingContext("approved", new Agents());
         assertThat(context.findAgentsMatching(new ResourceConfigs()), is(new Agents()));
     }
 
-    @Test public void shouldFindAllAgentsIfNoResourcesAreSpecified() throws Exception {
+    @Test
+	void shouldFindAllAgentsIfNoResourcesAreSpecified() {
         Agent linux = agent("uuid1", "linux");
         Agent windows = agent("uuid2", "windows");
         Agents matchingAgents = new Agents(linux, windows);
@@ -41,7 +41,8 @@ public class DefaultSchedulingContextTest {
         assertThat(context.findAgentsMatching(new ResourceConfigs()), is(matchingAgents));
     }
 
-    @Test public void shouldOnlyFindAgentsThatMatchResourcesSpecified() throws Exception {
+    @Test
+	void shouldOnlyFindAgentsThatMatchResourcesSpecified() {
         Agent linux = agent("uuid1", "linux");
         Agent windows = agent("uuid2", "windows");
         Agents matchingAgents = new Agents(linux, windows);
@@ -49,7 +50,8 @@ public class DefaultSchedulingContextTest {
         assertThat(context.findAgentsMatching(resources("linux")), is(new Agents(linux)));
     }
 
-    @Test public void shouldFindNoAgentsIfNoneMatch() throws Exception {
+    @Test
+	void shouldFindNoAgentsIfNoneMatch() {
         Agent linux = agent("uuid1", "linux");
         Agent windows = agent("uuid2", "windows");
         Agents matchingAgents = new Agents(linux, windows);
@@ -57,7 +59,8 @@ public class DefaultSchedulingContextTest {
         assertThat(context.findAgentsMatching(resources("macosx")), is(new Agents()));
     }
 
-    @Test public void shouldNotMatchDeniedAgents() throws Exception {
+    @Test
+	void shouldNotMatchDeniedAgents() {
         Agent linux = agent("uuid1", "linux");
         Agent windows = agent("uuid2", "windows");
         windows.disable();
@@ -67,7 +70,7 @@ public class DefaultSchedulingContextTest {
     }
 
     @Test
-    public void shouldSetEnvironmentVariablesOnSchedulingContext() throws Exception {
+	void shouldSetEnvironmentVariablesOnSchedulingContext() {
         EnvironmentVariablesConfig existing = new EnvironmentVariablesConfig();
         existing.add("firstVar", "firstVal");
         existing.add("overriddenVar", "originalVal");
@@ -94,7 +97,7 @@ public class DefaultSchedulingContextTest {
     }
 
 	@Test
-	public void shouldCreatePermittedAgentContextCorrectly() throws Exception {
+	void shouldCreatePermittedAgentContextCorrectly() {
 		Agent linux = agent("uuid1", "linux");
 		Agent windows = agent("uuid2", "windows");
 		windows.disable();
@@ -131,7 +134,7 @@ public class DefaultSchedulingContextTest {
 	}
 
 	@Test
-	public void shouldCreateRerunSchedulingContextCorrectly() throws Exception {
+	void shouldCreateRerunSchedulingContextCorrectly() {
 		Agent linux = agent("uuid1", "linux");
 		Agent windows = agent("uuid2", "windows");
 		windows.disable();

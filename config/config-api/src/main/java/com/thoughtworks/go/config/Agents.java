@@ -15,37 +15,30 @@
  */
 package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.NullAgent;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import static java.util.Arrays.asList;
 
-public class Agents extends ArrayList<Agent> implements Validatable {
-    private ConfigErrors errors = new ConfigErrors();
-    private String elasticAgentId = "elasticAgentId";
-
+public class Agents extends ArrayList<Agent> {
     public Agents() {
         super();
     }
 
-    public Agents(List<Agent> agentConfigs) {
-        if (agentConfigs != null) {
-            this.addAll(agentConfigs);
+    public Agents(List<Agent> agents) {
+        if (agents != null) {
+            this.addAll(agents);
         }
     }
 
-    public Agents(Agent... agentConfigs) {
-        this.addAll(asList(agentConfigs));
+    public Agents(Agent... agents) {
+        this.addAll(asList(agents));
     }
 
-    public Agents(Collection<Agent> agentConfigs) {
-        this.addAll(agentConfigs);
-    }
-
-    public Agent getAgentByUuid(String uuid) {
+    public Agent getAgentByUUID(String uuid) {
         for (Agent agent : this) {
             if (StringUtils.equals(agent.getUuid(), uuid)) {
                 return agent;
@@ -55,76 +48,16 @@ public class Agents extends ArrayList<Agent> implements Validatable {
     }
 
     public boolean hasAgent(String uuid) {
-        return !getAgentByUuid(uuid).isNull();
+        return !getAgentByUUID(uuid).isNull();
     }
 
-    @Override
-    public boolean add(Agent newAgentConfig) {
-        if (contains(newAgentConfig)) {
-            throw new IllegalArgumentException("Agent with same UUID already exists: " + newAgentConfig);
-        }
-        return super.add(newAgentConfig);
-    }
-
-    public Set<String> acceptedUuids() {
-        HashSet<String> uuids = new HashSet<>();
-        for (Agent agent : this) {
-            uuids.add(agent.getUuid());
-        }
-        return uuids;
-    }
-
-    public Agents filter(List<String> uuids) {
-        Agents agents = new Agents();
-        for (String uuid : uuids) {
-            agents.add(getAgentByUuid(uuid));
-        }
-        return agents;
-    }
-
-    @Override
-    public void validate(ValidationContext validationContext) {
-        boolean validity = validateDuplicateElasticAgentIds();
-        for (Agent agent : this) {
-            agent.validate();
-            validity = !agent.hasErrors() && validity;
-        }
-    }
-
-    private boolean validateDuplicateElasticAgentIds() {
-        HashMap<String, String> elasticAgentIdToUUIDMap = new HashMap<>();
-        for (Agent agent : this) {
-
-            if (!agent.isElastic()) {
-                continue;
+    public boolean add(Agent agent) {
+        if(agent != null) {
+            if (contains(agent)) {
+                throw new IllegalArgumentException("Agent with same UUID already exists: " + agent);
             }
-
-            if (elasticAgentIdToUUIDMap.containsKey(agent.getElasticAgentId())) {
-                Agent duplicatedAgentConfig = this.getAgentByUuid(elasticAgentIdToUUIDMap.get(agent.getElasticAgentId()));
-                String error = String.format("Duplicate ElasticAgentId found for agents [%s, %s]", duplicatedAgentConfig.getUuid(), agent.getUuid());
-                agent.addError(elasticAgentId, error);
-                duplicatedAgentConfig.addError("elasticAgentId", error);
-                return false;
-            }
-
-            elasticAgentIdToUUIDMap.put(agent.getElasticAgentId(), agent.getUuid());
+            return super.add(agent);
         }
-
-        return true;
+        return false;
     }
-
-    @Override
-    public ConfigErrors errors() {
-        return errors;
-    }
-
-    @Override
-    public void addError(String fieldName, String message) {
-        errors.add(fieldName, message);
-    }
-
-    public List<ConfigErrors> getAllErrors() {
-        return ErrorCollector.getAllErrors(this);
-    }
-
 }

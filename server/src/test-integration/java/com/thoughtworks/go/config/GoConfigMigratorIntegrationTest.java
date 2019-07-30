@@ -1374,7 +1374,7 @@ public class GoConfigMigratorIntegrationTest {
                 + configContent
                 + "</cruise>";
 
-        int initialAgentCountInDb = agentDao.allAgents().size();
+        int initialAgentCountInDb = agentDao.getAllAgents().size();
         CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml);
         String newConfigFile = FileUtils.readFileToString(configFile, UTF_8);
 
@@ -1383,7 +1383,7 @@ public class GoConfigMigratorIntegrationTest {
         if (cache != null) {
             cache.evictDefaultQueryRegion();
         }
-        int newAgentCountInDb = agentDao.allAgents().size();
+        int newAgentCountInDb = agentDao.getAllAgents().size();
         assertThat(newAgentCountInDb).isEqualTo(initialAgentCountInDb + 4);
 
         XmlAssert.assertThat(newConfigFile).doesNotHaveXPath("//agents");

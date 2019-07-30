@@ -128,8 +128,8 @@ class AgentServiceTest {
         Agent agentConfigForUUID1 = mock(Agent.class);
 
         when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
-        when(agentDao.agentByUuid(uuid)).thenReturn(agent);
-        when(agentDao.agentByUuid("uuid1")).thenReturn(agentConfigForUUID1);
+        when(agentDao.getAgentByUUID(uuid)).thenReturn(agent);
+        when(agentDao.getAgentByUUID("uuid1")).thenReturn(agentConfigForUUID1);
         when(agentConfigForUUID1.getEnvironments()).thenReturn("test");
 
         agent.setEnvironments("test");
@@ -159,8 +159,8 @@ class AgentServiceTest {
         Agent agentConfigForUUID1 = mock(Agent.class);
 
         when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
-        when(agentDao.agentByUuid(uuid)).thenReturn(agent);
-        when(agentDao.agentByUuid("uuid1")).thenReturn(agentConfigForUUID1);
+        when(agentDao.getAgentByUUID(uuid)).thenReturn(agent);
+        when(agentDao.getAgentByUUID("uuid1")).thenReturn(agentConfigForUUID1);
 
         EnvironmentsConfig envConfigs = new EnvironmentsConfig();
         BasicEnvironmentConfig testEnv = new BasicEnvironmentConfig(new CaseInsensitiveString("test"));
@@ -197,8 +197,8 @@ class AgentServiceTest {
         agent.setEnvironments("test");
 
         when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
-        when(agentDao.agentByUuid(uuid)).thenReturn(agent);
-        when(agentDao.agentByUuid("uuid1")).thenReturn(agentConfigForUUID1);
+        when(agentDao.getAgentByUUID(uuid)).thenReturn(agent);
+        when(agentDao.getAgentByUUID("uuid1")).thenReturn(agentConfigForUUID1);
 
         EnvironmentsConfig envConfigs = new EnvironmentsConfig();
         BasicEnvironmentConfig testEnv = new BasicEnvironmentConfig(new CaseInsensitiveString("test"));
@@ -348,7 +348,7 @@ class AgentServiceTest {
             Username username = new Username(new CaseInsensitiveString("test"));
 
             when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
-            when(agentDao.agentByUuid(uuid)).thenReturn(agent);
+            when(agentDao.getAgentByUUID(uuid)).thenReturn(agent);
             when(agentInstances.findAgent(uuid)).thenReturn(mock(AgentInstance.class));
 
             AgentInstance agentInstance = agentService.updateAgentAttributes(uuid, "new-hostname", "resource1,resource2", createEnvironmentsConfigWith("env1", "env2"), TriState.TRUE, result);
@@ -370,7 +370,7 @@ class AgentServiceTest {
             String uuid = "uuid";
             HttpOperationResult result = new HttpOperationResult();
 
-            when(agentDao.agentByUuid(uuid)).thenReturn(agent);
+            when(agentDao.getAgentByUUID(uuid)).thenReturn(agent);
             when(agentInstances.findAgent(uuid)).thenReturn(mock(AgentInstance.class));
 
             agentService.updateAgentAttributes(uuid, null, null, null, TriState.UNSET, result);
@@ -388,7 +388,7 @@ class AgentServiceTest {
             AgentInstance agentInstance = mock(AgentInstance.class);
 
             when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
-            when(agentDao.agentByUuid(uuid)).thenReturn(agent);
+            when(agentDao.getAgentByUUID(uuid)).thenReturn(agent);
             when(agentInstances.findAgent(uuid)).thenReturn(agentInstance);
             when(agentInstance.isNullAgent()).thenReturn(true);
             when(agentInstance.getUuid()).thenReturn(uuid);
@@ -408,7 +408,7 @@ class AgentServiceTest {
             AgentInstance agentInstance = mock(AgentInstance.class);
 
             when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
-            when(agentDao.agentByUuid(uuid)).thenReturn(agent);
+            when(agentDao.getAgentByUUID(uuid)).thenReturn(agent);
             when(agentInstances.findAgent(uuid)).thenReturn(agentInstance);
             when(agentInstance.isNullAgent()).thenReturn(false);
             when(agentInstance.getUuid()).thenReturn(uuid);
@@ -428,7 +428,7 @@ class AgentServiceTest {
             AgentInstance agentInstance = mock(AgentInstance.class);
 
             when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
-            when(agentDao.agentByUuid(uuid)).thenReturn(agent);
+            when(agentDao.getAgentByUUID(uuid)).thenReturn(agent);
             when(agentInstances.findAgent(uuid)).thenReturn(agentInstance);
             when(agentInstance.isNullAgent()).thenReturn(false);
             when(agentInstance.getUuid()).thenReturn(uuid);
@@ -448,7 +448,7 @@ class AgentServiceTest {
             AgentInstance agentInstance = mock(AgentInstance.class);
 
             when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
-            when(agentDao.agentByUuid(uuid)).thenReturn(agent);
+            when(agentDao.getAgentByUUID(uuid)).thenReturn(agent);
             when(agentInstances.findAgent(uuid)).thenReturn(agentInstance);
             when(agentInstance.isNullAgent()).thenReturn(false);
             when(agentInstance.isPending()).thenReturn(true);
@@ -468,7 +468,7 @@ class AgentServiceTest {
             Username username = new Username(new CaseInsensitiveString("test"));
 
             when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
-            when(agentDao.agentByUuid(uuid)).thenReturn(agent);
+            when(agentDao.getAgentByUUID(uuid)).thenReturn(agent);
             when(agentInstances.findAgent(uuid)).thenReturn(mock(AgentInstance.class));
 
             AgentInstance agentInstance = agentService.updateAgentAttributes(uuid, "new-hostname", "res%^1", createEnvironmentsConfigWith("env1"), TriState.TRUE, result);
@@ -489,7 +489,7 @@ class AgentServiceTest {
             Username username = new Username(new CaseInsensitiveString("test"));
 
             when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
-            when(agentDao.agentByUuid(uuid)).thenReturn(agent);
+            when(agentDao.getAgentByUUID(uuid)).thenReturn(agent);
             when(agentInstances.findAgent(uuid)).thenReturn(mock(AgentInstance.class));
 
             AgentInstance agentInstance = agentService.updateAgentAttributes(uuid, null, null, createEnvironmentsConfigWith("env1", "env2"), TriState.TRUE, result);
@@ -513,7 +513,7 @@ class AgentServiceTest {
             Username username = new Username(new CaseInsensitiveString("test"));
 
             when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
-            when(agentDao.agentByUuid(uuid)).thenReturn(agent);
+            when(agentDao.getAgentByUUID(uuid)).thenReturn(agent);
             when(agentInstances.findAgent(uuid)).thenReturn(mock(AgentInstance.class));
 
             EnvironmentsConfig environmentConfigs = new EnvironmentsConfig();

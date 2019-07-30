@@ -108,7 +108,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     }
 
     public void sync() {
-        agentInstances.sync(new Agents(agentDao.allAgents()));
+        agentInstances.sync(new Agents(agentDao.getAllAgents()));
     }
 
     public AgentInstances agentInstances() {
@@ -162,7 +162,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
                                                EnvironmentsConfig environments, TriState state, HttpOperationResult result) {
         AgentUpdateValidator validator
                 = new AgentUpdateValidator(agentInstances.findAgent(uuid), hostname, environments, resources, state, result);
-        Agent agent = agentDao.agentByUuid(uuid);
+        Agent agent = agentDao.getAgentByUUID(uuid);
         try {
             if (isAnyOperationPerformedOnAgent(hostname, environments, resources, state, result)) {
                 validator.validate();
@@ -218,7 +218,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
             if (isAnyOperationPerformedOnBulkAgents(resourcesToAdd, resourcesToRemove, envsToAdd, envsToRemove, state, result)) {
                 validator.validate();
 
-                List<Agent> agents = this.agentDao.agentsByUUIds(uuids);
+                List<Agent> agents = this.agentDao.getAgentsByUUIDs(uuids);
                 if (state.isTrue() || state.isFalse()) {
                     agents.addAll(agentInstances.findPendingAgents(uuids));
                 }
@@ -296,7 +296,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     private List<Agent> getAgentsToAddEnvToList(List<String> uuidsToAddEnvsTo, String env) {
         return uuidsToAddEnvsTo.stream()
                 .map(uuid -> {
-                    Agent agent = agentDao.agentByUuid(uuid);
+                    Agent agent = agentDao.getAgentByUUID(uuid);
                     String envsToSet = append(agent.getEnvironments(), singletonList(env));
                     agent.setEnvironments(envsToSet);
                     return agent;
@@ -307,7 +307,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     private List<Agent> getAgentsToRemoveEnvFromList(List<String> agentsToRemoveEnvFrom, String env) {
         return agentsToRemoveEnvFrom.stream()
                 .map(uuid -> {
-                    Agent agent = agentDao.agentByUuid(uuid);
+                    Agent agent = agentDao.getAgentByUUID(uuid);
                     String envsToSet = remove(agent.getEnvironments(), singletonList(env));
                     agent.setEnvironments(envsToSet);
                     return agent;
@@ -618,11 +618,11 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     }
 
     public void disableAgents(List<String> uuids) {
-        agentDao.changeDisabled(uuids, true);
+        agentDao.enableOrDisableAgents(uuids, true);
     }
 
     public void disableAgents(String... uuids) {
-        agentDao.changeDisabled(asList(uuids), true);
+        agentDao.enableOrDisableAgents(asList(uuids), true);
     }
 
     public void saveOrUpdate(Agent agent) {

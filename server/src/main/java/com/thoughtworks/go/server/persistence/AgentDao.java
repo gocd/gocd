@@ -37,7 +37,11 @@ import org.springframework.transaction.support.TransactionSynchronizationAdapter
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static java.lang.String.format;
 import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.toList;
+import static org.apache.commons.collections4.CollectionUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
  * @understands persisting and retrieving agent uuid-cookie mapping
@@ -68,12 +72,11 @@ public class AgentDao extends HibernateDaoSupport {
     }
 
     public String cookieFor(final AgentIdentifier agentIdentifier) {
-        Agent agent = agentByUuid(agentIdentifier.getUuid());
-
+        Agent agent = getAgentByUUID(agentIdentifier.getUuid());
         return null == agent ? null : agent.getCookie();
     }
 
-    public Agent agentByUuid(String uuid) {
+    public Agent getAgentByUUID(String uuid) {
         String key = agentCacheKey(uuid);
         Agent agent = (Agent) cache.get(key);
 
@@ -83,7 +86,7 @@ public class AgentDao extends HibernateDaoSupport {
                 if (agent != null) {
                     return agent;
                 }
-                agent = fetchAgentByUuid(uuid);
+                agent = fetchAgentFromDBByUUID(uuid);
                 cache.put(key, agent);
             }
         }
@@ -94,23 +97,25 @@ public class AgentDao extends HibernateDaoSupport {
     public void associateCookie(final AgentIdentifier agentIdentifier, final String cookie) {
         final String uuid = agentIdentifier.getUuid();
         final String key = agentCacheKey(uuid);
+
         synchronized (key) {
             transactionTemplate.execute(new TransactionCallbackWithoutResult() {
                 @Override
                 protected void doInTransactionWithoutResult(TransactionStatus status) {
-                    Agent agent = fetchAgentByUuid(uuid);
+                    Agent agent = fetchAgentFromDBByUUID(uuid);
                     if (agent == null) {
                         agent = new Agent(uuid, agentIdentifier.getHostName(), agentIdentifier.getIpAddress(), cookie);
                     } else {
                         agent.setFieldValues(cookie, agentIdentifier.getHostName(), agentIdentifier.getIpAddress());
                     }
                     getHibernateTemplate().saveOrUpdate(agent);
-                    final Agent changedAgent = agent;
+
+                    final Agent updatedAgent = agent;
                     synchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
                         @Override
                         public void afterCommit() {
                             cache.remove(key);
-                            notifyAgentEntityChangeListeners(changedAgent);
+                            notifyAgentEntityChangeListeners(updatedAgent);
                         }
                     });
                 }
@@ -122,7 +127,7 @@ public class AgentDao extends HibernateDaoSupport {
         return (AgentDao.class.getName() + "_agent_" + uuid).intern();
     }
 
-    public List<Agent> allAgents() {
+    public List<Agent> getAllAgents() {
         return ((List<Agent>) transactionTemplate.execute((TransactionCallback) transactionStatus -> {
             Query query = sessionFactory.getCurrentSession().createQuery("FROM Agent where deleted = false");
             query.setCacheable(true);
@@ -134,7 +139,7 @@ public class AgentDao extends HibernateDaoSupport {
         }));
     }
 
-    public List<Agent> agentsByUUIds(List<String> uuids) {
+    public List<Agent> getAgentsByUUIDs(List<String> uuids) {
         return ((List<Agent>) transactionTemplate.execute((TransactionCallback) transactionStatus -> {
             Query query = sessionFactory.getCurrentSession().createQuery("FROM Agent where uuid in :uuids and deleted = false");
             query.setCacheable(true);
@@ -143,7 +148,7 @@ public class AgentDao extends HibernateDaoSupport {
         }));
     }
 
-    private Agent fetchAgentByUuid(final String uuid) {
+    private Agent fetchAgentFromDBByUUID(final String uuid) {
         return (Agent) transactionTemplate.execute((TransactionCallback) transactionStatus -> {
             Query query = sessionFactory.getCurrentSession().createQuery("FROM Agent where uuid = :uuid and deleted = false");
             query.setCacheable(true);
@@ -154,7 +159,7 @@ public class AgentDao extends HibernateDaoSupport {
 
     public void saveOrUpdate(Agent agent) {
         final String key = agentCacheKey(agent.getUuid());
-        updateAgentObject(agent);
+        updateAgentIdFromDBIfAgentDoesNotHaveAnIdAndAgentExistInDB(agent);
         synchronized (key) {
             transactionTemplate.execute(new TransactionCallbackWithoutResult() {
                 @Override
@@ -178,12 +183,12 @@ public class AgentDao extends HibernateDaoSupport {
 
     private void notifyBulkAgentEntityChangeListeners(List<String> uuids) {
         agentEntityChangeListenerSet.forEach(listener -> {
-            List<Agent> changedAgents = agentsByUUIds(uuids);
+            List<Agent> changedAgents = getAgentsByUUIDs(uuids);
             listener.bulkEntitiesChanged(changedAgents);
         });
     }
 
-    private void updateAgentObject(Agent agent) {
+    private void updateAgentIdFromDBIfAgentDoesNotHaveAnIdAndAgentExistInDB(Agent agent) {
         Long idFromDB = (Long) getHibernateTemplate().execute(session -> {
             Query query = session.createQuery("select id from Agent where uuid = :uuid");
             query.setString("uuid", agent.getUuid());
@@ -195,12 +200,12 @@ public class AgentDao extends HibernateDaoSupport {
         }
     }
 
-    public void changeDisabled(final List<String> uuids, final boolean disabled) {
+    public void enableOrDisableAgents(final List<String> uuids, final boolean disabled) {
         synchronized (uuids) {
             transactionTemplate.execute(new TransactionCallbackWithoutResult() {
                 @Override
                 protected void doInTransactionWithoutResult(TransactionStatus status) {
-                    String queryString = String.format("update Agent set disabled = :disabled where uuid in (:uuids)");
+                    String queryString = format("update Agent set disabled = :disabled where uuid in (:uuids)");
                     Query query = sessionFactory.getCurrentSession().createQuery(queryString);
                     query.setParameter("disabled", disabled);
                     query.setParameterList("uuids", uuids);
@@ -215,14 +220,14 @@ public class AgentDao extends HibernateDaoSupport {
     public void bulkUpdateAttributes(List<Agent> agents, Map<String, AgentConfigStatus> agentToStatusMap, TriState enable) {
         if (enable.isTrue() || enable.isFalse()) {
             agents.stream()
-                  .filter(agent -> agentToStatusMap.get(agent.getUuid()) == AgentConfigStatus.Pending)
-                  .forEach(agent -> {
-                        updateAgentObject(agent);
+                    .filter(agent -> agentToStatusMap.get(agent.getUuid()) == AgentConfigStatus.Pending)
+                    .forEach(agent -> {
+                        updateAgentIdFromDBIfAgentDoesNotHaveAnIdAndAgentExistInDB(agent);
                         if (agent.getCookie() == null) {
                             String cookie = uuidGenerator.randomUuid();
                             agent.setCookie(cookie);
                         }
-                  });
+                    });
         }
 
         synchronized (agents) {
@@ -231,8 +236,8 @@ public class AgentDao extends HibernateDaoSupport {
                 protected void doInTransactionWithoutResult(TransactionStatus status) {
                     agents.forEach(agent -> sessionFactory.getCurrentSession().saveOrUpdate(Agent.class.getName(), agent));
                     List<String> uuids = agents.stream()
-                                               .map(Agent::getUuid)
-                                               .collect(Collectors.toList());
+                            .map(Agent::getUuid)
+                            .collect(toList());
                     registerCommitCallbackToClearCacheAndNotifyBulkChangeListeners(synchronizationManager, uuids);
                 }
             });
@@ -244,10 +249,11 @@ public class AgentDao extends HibernateDaoSupport {
             transactionTemplate.execute(new TransactionCallbackWithoutResult() {
                 @Override
                 protected void doInTransactionWithoutResult(TransactionStatus status) {
-                    String queryString = String.format("update Agent set deleted = :deleted where uuid in (:uuids)");
+                    String queryString = format("update Agent set deleted = true where uuid in (:uuids)");
                     Query query = sessionFactory.getCurrentSession().createQuery(queryString);
-                    query.setParameter("deleted", true);
+
                     query.setParameterList("uuids", uuids);
+
                     query.executeUpdate();
 
                     registerCommitCallbackToClearCacheAndNotifyBulkDeleteListeners(synchronizationManager, uuids);

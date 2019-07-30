@@ -108,7 +108,8 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     }
 
     public void sync() {
-        agentInstances.sync(new Agents(agentDao.getAllAgents()));
+        Agents agentsFromDB = new Agents(agentDao.getAllAgents());
+        agentInstances.syncAgentInstancesFrom(agentsFromDB);
     }
 
     public AgentInstances agentInstances() {
@@ -522,8 +523,8 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         }
     }
 
-    public void notifyJobCancelledEvent(String agentId) {
-        agentInstances.updateAgentAboutCancelledBuild(agentId, true);
+    public void notifyJobCancelledEvent(String uuid) {
+        agentInstances.updateAgentAboutCancelledBuild(uuid, true);
     }
 
     public AgentInstance findAgentAndRefreshStatus(String uuid) {
@@ -665,7 +666,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         } else {
             Agent agentBeforeUpdate = agentInstanceBeforeUpdate.getAgent();
             notifyAgentChangeListener(agentBeforeUpdate, agentAfterUpdate);
-            agentInstanceBeforeUpdate.syncConfig(agentAfterUpdate);
+            agentInstanceBeforeUpdate.syncAgentFrom(agentAfterUpdate);
         }
     }
 

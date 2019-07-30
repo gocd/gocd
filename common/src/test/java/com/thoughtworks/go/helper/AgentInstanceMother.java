@@ -56,7 +56,7 @@ public class AgentInstanceMother {
 
     public static AgentInstance idleWith(String uuid) {
         final AgentInstance agentInstance = idle();
-        agentInstance.syncConfig(new Agent(uuid, agentInstance.getHostname(), agentInstance.getIpAddress()));
+        agentInstance.syncAgentFrom(new Agent(uuid, agentInstance.getHostname(), agentInstance.getIpAddress()));
         return agentInstance;
     }
 
@@ -73,7 +73,7 @@ public class AgentInstanceMother {
         AgentInstance agentInstance = AgentInstance.createFromLiveAgent(agentRuntimeInfo, new SystemEnvironment(), mock(AgentStatusChangeListener.class));
         agentInstance.idle();
         agentInstance.update(agentRuntimeInfo);
-        agentInstance.syncConfig(agent);
+        agentInstance.syncAgentFrom(agent);
 
         return agentInstance;
     }
@@ -133,7 +133,7 @@ public class AgentInstanceMother {
     }
 
     public static AgentInstance updateUuid(AgentInstance agent, String uuid) {
-        agent.syncConfig(new Agent(uuid, agent.getHostname(), agent.getIpAddress()));
+        agent.syncAgentFrom(new Agent(uuid, agent.getHostname(), agent.getIpAddress()));
         return agent;
     }
 
@@ -179,7 +179,7 @@ public class AgentInstanceMother {
 
     public static AgentInstance updateHostname(AgentInstance agentInstance, String hostname) {
         Agent original = agentInstance.getAgent();
-        agentInstance.syncConfig(new Agent(original.getUuid(), hostname, original.getIpaddress(), original.getResourcesAsList()));
+        agentInstance.syncAgentFrom(new Agent(original.getUuid(), hostname, original.getIpaddress(), original.getResourcesAsList()));
         return agentInstance;
     }
 
@@ -187,7 +187,7 @@ public class AgentInstanceMother {
         Agent agent = agentInstance.getAgent();
         agent.setElasticAgentId(elasticAgentId);
 
-        agentInstance.syncConfig(agent);
+        agentInstance.syncAgentFrom(agent);
         return agentInstance;
     }
 
@@ -195,7 +195,7 @@ public class AgentInstanceMother {
         Agent agent = agentInstance.getAgent();
         agent.setElasticPluginId(elasticPluginId);
 
-        agentInstance.syncConfig(agent);
+        agentInstance.syncAgentFrom(agent);
         return agentInstance;
     }
 

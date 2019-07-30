@@ -466,7 +466,7 @@ class ElasticAgentPluginServiceTest {
             Agent agent = new Agent(agentInstance.getUuid(), agentInstance.getHostname(), agentInstance.getIpAddress());
             agent.setElasticAgentId(elasticAgentId);
             agent.setElasticPluginId(elasticPluginId);
-            agentInstance.syncConfig(agent);
+            agentInstance.syncAgentFrom(agent);
 
             JobInstance up42_job = JobInstanceMother.completed("up42_job");
             up42_job.setAgentUuid(agentInstance.getUuid());

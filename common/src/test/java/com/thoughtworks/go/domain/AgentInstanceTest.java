@@ -187,7 +187,7 @@ public class AgentInstanceTest {
 
         AgentInstance agentInstance = new AgentInstance(instance.agent, instance.getType(), systemEnvironment, agentStatusChangeListener);
 
-        agentInstance.syncConfig(agent);
+        agentInstance.syncAgentFrom(agent);
 
         verify(agentStatusChangeListener).onAgentStatusChange(agentInstance);
     }
@@ -354,7 +354,7 @@ public class AgentInstanceTest {
     @Test
     public void shouldDefaultToMissingStatusWhenSyncAnApprovedAgent() {
         AgentInstance instance = AgentInstance.createFromAgent(agent, systemEnvironment, mock(AgentStatusChangeListener.class));
-        instance.syncConfig(agent);
+        instance.syncAgentFrom(agent);
         assertThat(instance.getStatus(), is(AgentStatus.Missing));
     }
 
@@ -463,7 +463,7 @@ public class AgentInstanceTest {
         AgentInstance original = AgentInstance.createFromAgent(agent, systemEnvironment, mock(AgentStatusChangeListener.class));
         original.update(buildingRuntimeInfo(agent));
 
-        original.syncConfig(agent);
+        original.syncAgentFrom(agent);
         assertThat(original.getStatus(), is(AgentStatus.Building));
     }
 
@@ -472,10 +472,10 @@ public class AgentInstanceTest {
         AgentInstance original = AgentInstance.createFromAgent(agent, systemEnvironment, mock(AgentStatusChangeListener.class));
         original.update(buildingRuntimeInfo());
 
-        Agent newAgentConfig = new Agent(agent.getUuid(), agent.getHostname(), agent.getIpaddress());
-        newAgentConfig.disable();
+        Agent newAgent = new Agent(agent.getUuid(), agent.getHostname(), agent.getIpaddress());
+        newAgent.disable();
 
-        original.syncConfig(newAgentConfig);
+        original.syncAgentFrom(newAgent);
         assertThat(original.getStatus(), is(AgentStatus.Disabled));
     }
 
@@ -613,7 +613,7 @@ public class AgentInstanceTest {
     public void shouldSetAgentToIdleWhenItIsApproved() {
         AgentInstance pendingAgentInstance = AgentInstanceMother.pending();
         Agent agent = new Agent(pendingAgentInstance.getUuid(), pendingAgentInstance.getHostname(), pendingAgentInstance.getIpAddress());
-        pendingAgentInstance.syncConfig(agent);
+        pendingAgentInstance.syncAgentFrom(agent);
         AgentStatus status = pendingAgentInstance.getStatus();
         assertThat(status, is(AgentStatus.Idle));
     }
@@ -627,7 +627,7 @@ public class AgentInstanceTest {
         agent.setElasticPluginId("com.example.aws");
 
         assertFalse(agentInstance.isElastic());
-        agentInstance.syncConfig(agent);
+        agentInstance.syncAgentFrom(agent);
         assertTrue(agentInstance.isElastic());
 
         assertEquals("i-123456", agentInstance.elasticAgentMetadata().elasticAgentId());
@@ -752,7 +752,7 @@ public class AgentInstanceTest {
             pendingAgent.setElasticAgentId("elastic-agent-id");
             pendingAgent.setElasticPluginId("elastic-plugin-id");
 
-            pending.syncConfig(pendingAgent);
+            pending.syncAgentFrom(pendingAgent);
 
             assertTrue(pending.matches(Elastic));
 
@@ -774,7 +774,7 @@ public class AgentInstanceTest {
             Agent idleAgent = idle.getAgent();
             idleAgent.setElasticAgentId("elastic-agent-id");
             idleAgent.setElasticPluginId("elastic-plugin-id");
-            idle.syncConfig(idleAgent);
+            idle.syncAgentFrom(idleAgent);
             assertFalse(idle.matches(Pending));
             assertFalse(idle.matches(Null));
         }

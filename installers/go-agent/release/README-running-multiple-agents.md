@@ -41,7 +41,7 @@ Each agent needs to be configured to run in its own separate directory so that e
         AGENT_ID="go-agent-${AGENT_INDEX}"
 
         # create the directories for agent data and binaries
-        mkdir -p /usr/share/${AGENT_ID} /var/{run,lib,log}/${AGENT_ID}
+        mkdir -p /usr/share/${AGENT_ID} /var/{lib,log}/${AGENT_ID} /var/lib/${AGENT_ID}/run
 
         # copy over all config and shell scripts and wrapper configs
         cp -arf /usr/share/go-agent/{bin,wrapper-config} /usr/share/${AGENT_ID}
@@ -51,8 +51,8 @@ Each agent needs to be configured to run in its own separate directory so that e
 
         # change ownership and mode, so that the `go` user, and only that user
         # can write to these directories
-        chown go:go /var/{lib,log,run}/${AGENT_ID}
-        chmod 0750 /var/{lib,log,run}/${AGENT_ID}
+        chown -R go:go /var/{lib,log}/${AGENT_ID}
+        chmod -R 0750 /var/{lib,log}/${AGENT_ID}
 
         # tweak the scripts and configs to use the correct directories
         sed -i -e "s@go-agent@${AGENT_ID}@g" /usr/share/${AGENT_ID}/bin/go-agent
@@ -86,8 +86,7 @@ Each agent needs to be configured to run in its own separate directory so that e
     for AGENT_INDEX in $(seq 1 "${AGENT_COUNT}")
     do
       AGENT_ID="go-agent-${AGENT_INDEX}"
-    
-      rm -rf "${AGENT_ID}"
+
       /bin/mkdir -p "${AGENT_ID}" "${AGENT_ID}/run"
     
       # use the same jre and gocd jars from main agent

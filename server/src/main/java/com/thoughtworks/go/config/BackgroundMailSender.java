@@ -19,9 +19,11 @@ import com.thoughtworks.go.domain.materials.ValidationBean;
 import com.thoughtworks.go.server.messaging.SendEmailMessage;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
+import lombok.EqualsAndHashCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@EqualsAndHashCode
 public class BackgroundMailSender implements GoMailSender {
     private static final Logger LOGGER = LoggerFactory.getLogger(BackgroundMailSender.class);
 
@@ -65,34 +67,4 @@ public class BackgroundMailSender implements GoMailSender {
         }
     }
 
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        BackgroundMailSender that = (BackgroundMailSender) o;
-
-        if (timeout != that.timeout) {
-            return false;
-        }
-        if (mailSender != null ? !mailSender.equals(that.mailSender) : that.mailSender != null) {
-            return false;
-        }
-        if (validation != null ? !validation.equals(that.validation) : that.validation != null) {
-            return false;
-        }
-
-        return true;
-    }
-
-    public int hashCode() {
-        int result;
-        result = (validation != null ? validation.hashCode() : 0);
-        result = 31 * result + (mailSender != null ? mailSender.hashCode() : 0);
-        result = 31 * result + timeout;
-        return result;
-    }
 }

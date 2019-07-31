@@ -18,6 +18,8 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.domain.materials.ValidationBean;
 import com.thoughtworks.go.server.messaging.SendEmailMessage;
 import com.thoughtworks.go.util.SystemUtil;
+import lombok.EqualsAndHashCode;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,49 +31,13 @@ import java.util.Properties;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_TIMEOUT;
 import static javax.mail.Message.RecipientType.TO;
 
+@EqualsAndHashCode
 public class GoSmtpMailSender implements GoMailSender {
     private static final Logger LOGGER = LoggerFactory.getLogger(GoSmtpMailSender.class);
+    private final MailHost mailHost;
 
-    private String host;
-    private int port;
-    private String username;
-    private String password;
-    private Boolean tls;
-    private String administratorEmail;
-    private String from;
-
-    public GoSmtpMailSender(String hostName, int port, String username, String password, boolean tls, String from,
-                            String to) {
-        this.host = hostName;
-        this.port = port;
-        this.username = username;
-        this.password = password;
-        this.tls = tls;
-        this.from = from;
-        this.administratorEmail = to;
-    }
-
-    public GoSmtpMailSender() {
-    }
-
-    public void setHost(String host) {
-        this.host = host;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public void setTls(Boolean tls) {
-        this.tls = tls;
+    public GoSmtpMailSender(MailHost mailHost) {
+        this.mailHost = mailHost;
     }
 
     public ValidationBean send(String subject, String body, String to) {
@@ -79,10 +45,10 @@ public class GoSmtpMailSender implements GoMailSender {
         try {
             LOGGER.debug("Sending email [{}] to [{}]", subject, to);
             Properties props = mailProperties();
-            MailSession session = MailSession.getInstance().createWith(props, username, password);
+            MailSession session = MailSession.getInstance().createWith(props, mailHost.getUsername(), mailHost.getPassword());
             transport = session.getTransport();
-            transport.connect(host, port, nullIfEmpty(username), nullIfEmpty(password));
-            MimeMessage msg = session.createMessage(from, to, subject, body);
+            transport.connect(mailHost.getHostName(), mailHost.getPort(), StringUtils.trimToNull(mailHost.getUsername()), StringUtils.trimToNull(mailHost.getPassword()));
+            MimeMessage msg = session.createMessage(mailHost.getFrom(), to, subject, body);
             transport.sendMessage(msg, msg.getRecipients(TO));
             return ValidationBean.valid();
         } catch (Exception e) {
@@ -103,20 +69,9 @@ public class GoSmtpMailSender implements GoMailSender {
         return send(message.getSubject(), message.getBody(), message.getTo());
     }
 
-    private String getUsername() {
-        return nullIfEmpty(username);
-    }
-
-    private String nullIfEmpty(String aString) {
-        if (aString == null || aString.isEmpty()) {
-            return null;
-        }
-        return aString;
-    }
-
     private Properties mailProperties() {
         Properties props = new Properties();
-        props.put("mail.from", from);
+        props.put("mail.from", mailHost.getFrom());
 
         if (!System.getProperties().containsKey("mail.smtp.connectiontimeout")) {
             props.put("mail.smtp.connectiontimeout", DEFAULT_TIMEOUT);
@@ -130,66 +85,10 @@ public class GoSmtpMailSender implements GoMailSender {
             props.put("mail.smtp.starttls.enable", "true");
         }
 
-        String mailProtocol = tls ? "smtps" : "smtp";
+        String mailProtocol = mailHost.isTls() ? "smtps" : "smtp";
         props.put("mail.transport.protocol", mailProtocol);
 
         return props;
-    }
-
-    public void setAdministratorEmail(String administratorEmail) {
-        this.administratorEmail = administratorEmail;
-    }
-
-    public void setFrom(String from) {
-        this.from = from;
-    }
-
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        GoSmtpMailSender that = (GoSmtpMailSender) o;
-
-        if (port != that.port) {
-            return false;
-        }
-        if (administratorEmail != null ? !administratorEmail.equals(
-                that.administratorEmail) : that.administratorEmail != null) {
-            return false;
-        }
-        if (from != null ? !from.equals(that.from) : that.from != null) {
-            return false;
-        }
-        if (host != null ? !host.equals(that.host) : that.host != null) {
-            return false;
-        }
-        if (password != null ? !password.equals(that.password) : that.password != null) {
-            return false;
-        }
-        if (tls != null ? !tls.equals(that.tls) : that.tls != null) {
-            return false;
-        }
-        if (username != null ? !username.equals(that.username) : that.username != null) {
-            return false;
-        }
-
-        return true;
-    }
-
-    public int hashCode() {
-        int result;
-        result = (host != null ? host.hashCode() : 0);
-        result = 31 * result + port;
-        result = 31 * result + (username != null ? username.hashCode() : 0);
-        result = 31 * result + (password != null ? password.hashCode() : 0);
-        result = 31 * result + (tls != null ? tls.hashCode() : 0);
-        result = 31 * result + (administratorEmail != null ? administratorEmail.hashCode() : 0);
-        result = 31 * result + (from != null ? from.hashCode() : 0);
-        return result;
     }
 
     public static String emailBody() {
@@ -199,14 +98,6 @@ public class GoSmtpMailSender implements GoMailSender {
     }
 
     public static GoMailSender createSender(MailHost mailHost) {
-        GoSmtpMailSender sender = new GoSmtpMailSender();
-        sender.setHost(mailHost.getHostName());
-        sender.setPort(mailHost.getPort());
-        sender.setUsername(mailHost.getUsername());
-        sender.setPassword(mailHost.getCurrentPassword());
-        sender.setAdministratorEmail(mailHost.getAdminMail());
-        sender.setFrom(mailHost.getFrom());
-        sender.setTls(mailHost.isTls());
-        return new BackgroundMailSender(sender);
+        return new BackgroundMailSender(new GoSmtpMailSender(mailHost));
     }
 }

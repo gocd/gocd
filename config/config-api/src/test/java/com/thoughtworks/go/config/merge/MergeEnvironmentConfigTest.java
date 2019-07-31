@@ -18,20 +18,24 @@ package com.thoughtworks.go.config.merge;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
+import com.thoughtworks.go.domain.EnvironmentPipelineMatcher;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import static com.thoughtworks.go.util.command.EnvironmentVariableContext.GO_ENVIRONMENT_NAME;
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.junit.jupiter.api.Assertions.*;
 
 class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
+    private MergeEnvironmentConfig singleEnvironmentConfig;
     private MergeEnvironmentConfig pairEnvironmentConfig;
     private EnvironmentConfig localUatEnv1;
     private EnvironmentConfig uatLocalPart2;
@@ -46,9 +50,8 @@ class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
         uatLocalPart2.setOrigins(new FileConfigOrigin());
         uatRemotePart = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
         uatRemotePart.setOrigins(new RepoConfigOrigin());
-        pairEnvironmentConfig = new MergeEnvironmentConfig(
-                uatLocalPart2,
-                uatRemotePart);
+        pairEnvironmentConfig = new MergeEnvironmentConfig(uatLocalPart2, uatRemotePart);
+        singleEnvironmentConfig = new MergeEnvironmentConfig(localUatEnv1);
 
         super.environmentConfig = pairEnvironmentConfig;
     }
@@ -150,7 +153,6 @@ class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
         }
     }
 
-
     @Nested
     class getAgents {
         @Test
@@ -241,6 +243,16 @@ class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
         assertThat(environmentContext.getProperty("foo")).isEqualTo("bar");
     }
 
+    @Test
+    void shouldAddErrorToTheConfig() {
+        assertTrue(pairEnvironmentConfig.errors().isEmpty());
+
+        pairEnvironmentConfig.addError("field-name", "some error message.");
+
+        assertThat(pairEnvironmentConfig.errors().size()).isEqualTo(1);
+        assertThat(pairEnvironmentConfig.errors().on("field-name")).isEqualTo("some error message.");
+    }
+
     @Nested
     class validate {
         @Test
@@ -296,7 +308,7 @@ class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
         uatLocalPart.addEnvironmentVariable("hello", "world");
         environmentConfig = new MergeEnvironmentConfig(uatLocalPart, uatRemotePart);
         environmentConfig.setConfigAttributes(Collections.singletonMap(BasicEnvironmentConfig.VARIABLES_FIELD,
-                Arrays.asList(envVar("foo", "bar"), envVar("baz", "quux"), envVar("hello", "you"))));
+                asList(envVar("foo", "bar"), envVar("baz", "quux"), envVar("hello", "you"))));
 
         assertThat(environmentConfig.getVariables()).contains(new EnvironmentVariableConfig("hello", "you"));
         assertThat(environmentConfig.getVariables()).contains(new EnvironmentVariableConfig("foo", "bar"));
@@ -325,7 +337,6 @@ class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
         assertThat(environmentConfig.getOriginForPipeline(new CaseInsensitiveString(remotePipeline))).isEqualTo(new RepoConfigOrigin());
     }
 
-
     @Test
     void shouldReturnCorrectOriginOfDefinedAgent() {
         BasicEnvironmentConfig uatLocalPart = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
@@ -340,5 +351,109 @@ class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
 
         assertThat(environmentConfig.getOriginForAgent(localAgent)).isEqualTo(new FileConfigOrigin());
         assertThat(environmentConfig.getOriginForAgent(remoteAgent)).isEqualTo(new RepoConfigOrigin());
+    }
+
+    @Nested
+    class GetFirstEditablePart {
+        @Test
+        void shouldReturnFirstEditablePart() {
+            EnvironmentConfig firstEditablePart = singleEnvironmentConfig.getFirstEditablePartOrNull();
+
+            assertNotNull(firstEditablePart);
+        }
+
+        @Test
+        void shouldReturnNullAsFirstEditablePart() {
+            BasicEnvironmentConfig basicEnvironmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("repo"));
+            basicEnvironmentConfig.setOrigins(new RepoConfigOrigin());
+
+            MergeEnvironmentConfig mergeEnvironmentConfig = new MergeEnvironmentConfig(basicEnvironmentConfig);
+
+            assertNull(mergeEnvironmentConfig.getFirstEditablePartOrNull());
+        }
+
+        @Test
+        void shouldThrowExceptionIfNoEditablePartExists() {
+            BasicEnvironmentConfig basicEnvironmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("repo"));
+            basicEnvironmentConfig.setOrigins(new RepoConfigOrigin());
+
+            MergeEnvironmentConfig mergeEnvironmentConfig = new MergeEnvironmentConfig(basicEnvironmentConfig);
+
+            assertThatCode(mergeEnvironmentConfig::getFirstEditablePart)
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessage("No editable configuration part");
+        }
+
+        @Test
+        void shouldNotThrowExceptionIfEditablePartExists() {
+            assertThatCode(singleEnvironmentConfig::getFirstEditablePart)
+                    .doesNotThrowAnyException();
+        }
+
+        @Test
+        void shouldNotThrowExceptionIfNoEditablePartExistsAndShouldReturnNull() {
+            BasicEnvironmentConfig basicEnvironmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("repo"));
+            basicEnvironmentConfig.setOrigins(new RepoConfigOrigin());
+
+            MergeEnvironmentConfig mergeEnvironmentConfig = new MergeEnvironmentConfig(basicEnvironmentConfig);
+
+            assertThatCode(() -> {
+                EnvironmentConfig environmentConfig = mergeEnvironmentConfig.getFirstEditablePartWithoutThrowingException();
+
+                assertNull(environmentConfig);
+            }).doesNotThrowAnyException();
+        }
+    }
+
+    @Test
+    void shouldReturnMatchersWithTheProperties() {
+        singleEnvironmentConfig.addPipeline(new CaseInsensitiveString("pipeline-1"));
+        singleEnvironmentConfig.addAgent("agent-1");
+
+        EnvironmentPipelineMatcher matcher = singleEnvironmentConfig.createMatcher();
+
+        assertNotNull(matcher);
+        assertThat(matcher.name()).isEqualTo(singleEnvironmentConfig.name());
+        assertTrue(matcher.hasPipeline("pipeline-1"));
+        assertTrue(matcher.match("pipeline-1", "agent-1"));
+
+        assertFalse(matcher.hasPipeline("non-existent-pipeline"));
+    }
+
+    @Test
+    void shouldNotThrowExceptionIfAllThePipelinesArePresent() {
+        CaseInsensitiveString p1 = new CaseInsensitiveString("pipeline-1");
+        CaseInsensitiveString p2 = new CaseInsensitiveString("pipeline-2");
+
+        singleEnvironmentConfig.addPipeline(p1);
+        singleEnvironmentConfig.addPipeline(p2);
+
+        assertThatCode(() -> singleEnvironmentConfig.validateContainsOnlyPipelines(asList(p1, p2)))
+                .doesNotThrowAnyException();
+    }
+
+    @Test
+    void shouldThrowExceptionIfOneOfThePipelinesAreNotPassed() {
+        CaseInsensitiveString p1 = new CaseInsensitiveString("pipeline-1");
+        CaseInsensitiveString p2 = new CaseInsensitiveString("pipeline-2");
+        CaseInsensitiveString p3 = new CaseInsensitiveString("pipeline-3");
+
+        singleEnvironmentConfig.addPipeline(p1);
+        singleEnvironmentConfig.addPipeline(p2);
+
+        assertThatCode(() -> singleEnvironmentConfig.validateContainsOnlyPipelines(asList(p1, p3)))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessage("Environment 'UAT' refers to an unknown pipeline 'pipeline-2'.");
+    }
+
+    @Test
+    void shouldReturnTrueIsChildConfigContainsNoPipelineAgentsAndVariables() {
+        assertTrue(singleEnvironmentConfig.isEnvironmentEmpty());
+    }
+
+    @Test
+    void shouldReturnFalseIfNotEmpty() {
+        singleEnvironmentConfig.addPipeline(new CaseInsensitiveString("pipeline1"));
+        assertFalse(singleEnvironmentConfig.isEnvironmentEmpty());
     }
 }

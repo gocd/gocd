@@ -77,20 +77,6 @@ public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implem
         configErrors.add(fieldName, message);
     }
 
-    private EnvironmentConfig getOrCreateEnvironment(String envName) {
-        EnvironmentConfig envConfig = this.stream()
-                .filter(config -> config.hasName(new CaseInsensitiveString(envName)))
-                .findAny()
-                .orElse(null);
-
-        if(envConfig == null) {
-            envConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(envName));
-            add(envConfig);
-        }
-
-        return envConfig;
-    }
-
     EnvironmentPipelineMatcher matchersForPipeline(String pipelineName) {
         return this.stream()
                 .filter(envConfig -> envConfig.containsPipeline(new CaseInsensitiveString(pipelineName)))
@@ -179,5 +165,19 @@ public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implem
         return this.stream()
                 .filter(envConfig -> envConfig.getLocal() != null)
                 .collect(Collectors.toCollection(EnvironmentsConfig::new));
+    }
+
+    private EnvironmentConfig getOrCreateEnvironment(String envName) {
+        EnvironmentConfig envConfig = this.stream()
+                .filter(config -> config.hasName(new CaseInsensitiveString(envName)))
+                .findAny()
+                .orElse(null);
+
+        if(envConfig == null) {
+            envConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(envName));
+            add(envConfig);
+        }
+
+        return envConfig;
     }
 }

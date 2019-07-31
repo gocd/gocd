@@ -82,15 +82,14 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig> im
         return getFirstEditablePartOrNull();
     }
 
-
     @Override
     public void validate(ValidationContext validationContext) {
-        validateDuplicateEnvironmentVariables(validationContext);
-        validateDuplicatePipelines(validationContext);
-        validateDuplicateAgents(validationContext);
+        validateDuplicateEnvironmentVariables();
+        validateDuplicatePipelines();
+        validateDuplicateAgents();
     }
 
-    private void validateDuplicateAgents(ValidationContext validationContext) {
+    private void validateDuplicateAgents() {
         ArrayList<String> allAgents = new ArrayList<>();
 
         for (EnvironmentConfig part : this) {
@@ -105,7 +104,7 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig> im
         }
     }
 
-    private void validateDuplicateEnvironmentVariables(ValidationContext validationContext) {
+    private void validateDuplicateEnvironmentVariables() {
         EnvironmentVariablesConfig allVariables = new EnvironmentVariablesConfig();
         for (EnvironmentConfig part : this) {
             for (EnvironmentVariableConfig partVariable : part.getVariables()) {
@@ -122,7 +121,7 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig> im
         }
     }
 
-    private void validateDuplicatePipelines(ValidationContext validationContext) {
+    private void validateDuplicatePipelines() {
         ArrayList<CaseInsensitiveString> allPipelines = new ArrayList<>();
 
         for (EnvironmentConfig part : this) {

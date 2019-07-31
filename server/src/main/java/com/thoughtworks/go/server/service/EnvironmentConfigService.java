@@ -146,10 +146,6 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
         return environments.environmentConfigsForAgent(uuid);
     }
 
-    public EnvironmentConfig named(String envName) {
-        return environments.named(new CaseInsensitiveString(envName));
-    }
-
     public EnvironmentConfig getEnvironmentConfig(String envName) {
         return environments.named(new CaseInsensitiveString(envName));
     }
@@ -179,6 +175,7 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
                 .collect(toList());
     }
 
+    // don't remove - used in rails
     public List<EnvironmentViewModel> listAllMergedEnvironments() {
         ArrayList<EnvironmentViewModel> environmentViewModels = new ArrayList<>();
         List<EnvironmentConfig> allMergedEnvironments = getAllMergedEnvironments();
@@ -223,23 +220,6 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
         return pipelines;
     }
 
-    private List<EnvironmentPipelineModel> getAllPipelinesForUser(Username user, List<PipelineConfig> pipelineConfigs) {
-        List<EnvironmentPipelineModel> pipelines = new ArrayList<>();
-        for (PipelineConfig pipelineConfig : pipelineConfigs) {
-            String pipelineName = CaseInsensitiveString.str(pipelineConfig.name());
-            if (securityService.hasViewPermissionForPipeline(user, pipelineName)) {
-                EnvironmentConfig environment = environments.findEnvironmentForPipeline(new CaseInsensitiveString(pipelineName));
-                if (environment != null) {
-                    pipelines.add(new EnvironmentPipelineModel(pipelineName, CaseInsensitiveString.str(environment.name())));
-                } else {
-                    pipelines.add(new EnvironmentPipelineModel(pipelineName));
-                }
-            }
-        }
-        Collections.sort(pipelines);
-        return pipelines;
-    }
-
     public void updateEnvironment(final String oldEnvName, final EnvironmentConfig envConfig, final Username username,
                                   String md5, final HttpLocalizedOperationResult result) {
         String failureMsg = "Failed to update environment '" + oldEnvName + "'.";
@@ -269,19 +249,6 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
         update(deleteEnvironmentCommand, envConfig, username, result, actionFailed);
         if (result.isSuccessful()) {
             result.setMessage(EntityType.Environment.deleteSuccessful(environmentName));
-        }
-    }
-
-    private void update(EntityConfigUpdateCommand updateEnvCmd, EnvironmentConfig config, Username currentUser,
-                        HttpLocalizedOperationResult result, String actionFailed) {
-        try {
-            goConfigService.updateConfig(updateEnvCmd, currentUser);
-        } catch (Exception e) {
-            if ((e instanceof GoConfigInvalidException) && !result.hasMessage()) {
-                result.unprocessableEntity(entityConfigValidationFailed(config.getClass().getAnnotation(ConfigTag.class).value(), config.name(), e.getMessage()));
-            } else if (!result.hasMessage()) {
-                result.badRequest(LocalizedMessage.composite(actionFailed, e.getMessage()));
-            }
         }
     }
 
@@ -341,6 +308,16 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
         matchers = this.environments.matchers();
     }
 
+    public void syncAssociatedAgentsFromDB() {
+        agentService.agents()
+                .forEach(agent -> {
+                    List<String> associatedEnvNames = agent.getEnvironmentsAsList();
+                    addAgentToEnvironments(agent.getUuid(), associatedEnvNames);
+                    removeAgentFromNonExcludedEnvironments(agent.getUuid(), associatedEnvNames);
+                });
+        matchers = this.environments.matchers();
+    }
+
     private void removeAgentFromEnvironments(Agent agent, List<String> envList) {
         envList.forEach(env -> {
             String uuid = agent.getUuid();
@@ -371,14 +348,33 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
         });
     }
 
-    public void syncAssociatedAgentsFromDB() {
-        agentService.agents()
-                .forEach(agent -> {
-                    List<String> associatedEnvNames = agent.getEnvironmentsAsList();
-                    addAgentToEnvironments(agent.getUuid(), associatedEnvNames);
-                    removeAgentFromNonExcludedEnvironments(agent.getUuid(), associatedEnvNames);
-                });
-        matchers = this.environments.matchers();
+    private List<EnvironmentPipelineModel> getAllPipelinesForUser(Username user, List<PipelineConfig> pipelineConfigs) {
+        List<EnvironmentPipelineModel> pipelines = new ArrayList<>();
+        for (PipelineConfig pipelineConfig : pipelineConfigs) {
+            String pipelineName = CaseInsensitiveString.str(pipelineConfig.name());
+            if (securityService.hasViewPermissionForPipeline(user, pipelineName)) {
+                EnvironmentConfig environment = environments.findEnvironmentForPipeline(new CaseInsensitiveString(pipelineName));
+                if (environment != null) {
+                    pipelines.add(new EnvironmentPipelineModel(pipelineName, CaseInsensitiveString.str(environment.name())));
+                } else {
+                    pipelines.add(new EnvironmentPipelineModel(pipelineName));
+                }
+            }
+        }
+        Collections.sort(pipelines);
+        return pipelines;
     }
 
+    private void update(EntityConfigUpdateCommand updateEnvCmd, EnvironmentConfig config, Username currentUser,
+                        HttpLocalizedOperationResult result, String actionFailed) {
+        try {
+            goConfigService.updateConfig(updateEnvCmd, currentUser);
+        } catch (Exception e) {
+            if ((e instanceof GoConfigInvalidException) && !result.hasMessage()) {
+                result.unprocessableEntity(entityConfigValidationFailed(config.getClass().getAnnotation(ConfigTag.class).value(), config.name(), e.getMessage()));
+            } else if (!result.hasMessage()) {
+                result.badRequest(LocalizedMessage.composite(actionFailed, e.getMessage()));
+            }
+        }
+    }
 }

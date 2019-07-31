@@ -19,6 +19,7 @@ import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.config.remote.UIConfigOrigin;
+import com.thoughtworks.go.domain.EnvironmentPipelineMatcher;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,7 +29,10 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 
 import static com.thoughtworks.go.util.command.EnvironmentVariableContext.GO_ENVIRONMENT_NAME;
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.junit.jupiter.api.Assertions.*;
 
 class BasicEnvironmentConfigTest extends EnvironmentConfigTestBase {
     @BeforeEach
@@ -173,6 +177,67 @@ class BasicEnvironmentConfigTest extends EnvironmentConfigTestBase {
         assertThat(environmentContext.getProperties()).hasSize(2);
         assertThat(environmentContext.getProperty(GO_ENVIRONMENT_NAME)).isEqualTo(environmentConfig.name().toString());
         assertThat(environmentContext.getProperty("foo")).isEqualTo("bar");
+    }
+    @Test
+    void shouldAddErrorToTheConfig() {
+        assertTrue(environmentConfig.errors().isEmpty());
+
+        environmentConfig.addError("field-name", "some error message.");
+
+        assertThat(environmentConfig.errors().size()).isEqualTo(1);
+        assertThat(environmentConfig.errors().on("field-name")).isEqualTo("some error message.");
+    }
+
+    @Test
+    void shouldReturnMatchersWithTheProperties() {
+        environmentConfig.addPipeline(new CaseInsensitiveString("pipeline-1"));
+        environmentConfig.addAgent("agent-1");
+
+        EnvironmentPipelineMatcher matcher = environmentConfig.createMatcher();
+
+        assertNotNull(matcher);
+        assertThat(matcher.name()).isEqualTo(environmentConfig.name());
+        assertTrue(matcher.hasPipeline("pipeline-1"));
+        assertTrue(matcher.match("pipeline-1", "agent-1"));
+
+        assertFalse(matcher.hasPipeline("non-existent-pipeline"));
+    }
+
+    @Test
+    void shouldNotThrowExceptionIfAllThePipelinesArePresent() {
+        CaseInsensitiveString p1 = new CaseInsensitiveString("pipeline-1");
+        CaseInsensitiveString p2 = new CaseInsensitiveString("pipeline-2");
+
+        environmentConfig.addPipeline(p1);
+        environmentConfig.addPipeline(p2);
+
+        assertThatCode(() -> environmentConfig.validateContainsOnlyPipelines(asList(p1, p2)))
+                .doesNotThrowAnyException();
+    }
+
+    @Test
+    void shouldThrowExceptionIfOneOfThePipelinesAreNotPassed() {
+        CaseInsensitiveString p1 = new CaseInsensitiveString("pipeline-1");
+        CaseInsensitiveString p2 = new CaseInsensitiveString("pipeline-2");
+        CaseInsensitiveString p3 = new CaseInsensitiveString("pipeline-3");
+
+        environmentConfig.addPipeline(p1);
+        environmentConfig.addPipeline(p2);
+
+        assertThatCode(() -> environmentConfig.validateContainsOnlyPipelines(asList(p1, p3)))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessage("Environment 'UAT' refers to an unknown pipeline 'pipeline-2'.");
+    }
+
+    @Test
+    void shouldReturnTrueIsChildConfigContainsNoPipelineAgentsAndVariables() {
+        assertTrue(environmentConfig.isEnvironmentEmpty());
+    }
+
+    @Test
+    void shouldReturnFalseIfNotEmpty() {
+        environmentConfig.addPipeline(new CaseInsensitiveString("pipeline1"));
+        assertFalse(environmentConfig.isEnvironmentEmpty());
     }
 
     private void passReferenceValidationHelper(ConfigOrigin pipelineOrigin, ConfigOrigin envOrigin) {

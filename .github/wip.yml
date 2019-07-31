@@ -1,0 +1,12 @@
+# these are list of terms, case-insensitive
+terms:
+  - DNM
+  - do not merge
+  - WIP
+  - work in progress
+
+# where to look for terms above
+locations:
+  - title
+  - label_name
+  - commit_subject

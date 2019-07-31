@@ -1752,11 +1752,6 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "      <pipeline name='pipeline1'/>"
                         + "    </pipelines>"
                         + "  </environment>"
-                        + "  <environment name='prod'>"
-                        + "    <pipelines>"
-                        + "      <pipeline name='pipeline1'/>"
-                        + "    </pipelines>"
-                        + "  </environment>"
                         + "</environments>", CONFIG_SCHEMA_VERSION);
 
         EnvironmentsConfig environmentsConfig = ConfigMigrator.loadWithMigration(content).config.getEnvironments();

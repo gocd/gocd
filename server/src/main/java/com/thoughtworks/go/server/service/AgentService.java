@@ -221,7 +221,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
 
                 List<Agent> agents = this.agentDao.getAgentsByUUIDs(uuids);
                 if (state.isTrue() || state.isFalse()) {
-                    agents.addAll(agentInstances.findPendingAgents(uuids));
+                    agents.addAll(agentInstances.filterPendingAgents(uuids));
                 }
 
                 agents.forEach(agent -> setResourcesEnvironmentsAndState(agent, resourcesToAdd, resourcesToRemove,
@@ -577,19 +577,11 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     }
 
     public LinkedMultiValueMap<String, ElasticAgentMetadata> allElasticAgents() {
-        return agentInstances.allElasticAgentsGroupedByPluginId();
+        return agentInstances.getAllElasticAgentsGroupedByPluginId();
     }
 
     public AgentInstance findElasticAgent(String elasticAgentId, String elasticPluginId) {
         return agentInstances.findElasticAgent(elasticAgentId, elasticPluginId);
-    }
-
-    public AgentInstances findEnabledAgents() {
-        return agentInstances.findEnabledAgents();
-    }
-
-    public AgentInstances findDisabledAgents() {
-        return agentInstances.findDisabledAgents();
     }
 
     public void register(Agent agent, String agentAutoRegisterResources, String agentAutoRegisterEnvironments) {

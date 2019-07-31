@@ -31,7 +31,11 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.Serializable;
 
+import static com.thoughtworks.go.domain.AgentStatus.Idle;
+import static com.thoughtworks.go.domain.AgentStatus.Pending;
+import static com.thoughtworks.go.util.SystemUtil.isLocalIpAddress;
 import static java.lang.String.format;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public class AgentRuntimeInfo implements Serializable {
     private static Logger LOGGER = LoggerFactory.getLogger(AgentRuntimeInfo.class);
@@ -66,18 +70,21 @@ public class AgentRuntimeInfo implements Serializable {
     public static AgentRuntimeInfo fromServer(Agent agent, boolean registeredAlready, String location,
                                               Long usablespace, String operatingSystem ) {
 
-        if (StringUtils.isEmpty(location)) {
+        if (isEmpty(location)) {
             throw new RuntimeException("Agent should not register without installation path.");
         }
-        AgentStatus status = AgentStatus.Pending;
-        if (SystemUtil.isLocalIpAddress(agent.getIpaddress()) || registeredAlready) {
-            status = AgentStatus.Idle;
+
+        AgentStatus status = Pending;
+        if (isLocalIpAddress(agent.getIpaddress()) || registeredAlready) {
+            status = Idle;
         }
 
-        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agent.getAgentIdentifier(), status.getRuntimeStatus(), location, null);
-        agentRuntimeInfo.setUsableSpace(usablespace);
-        agentRuntimeInfo.operatingSystemName = operatingSystem;
-        return agentRuntimeInfo;
+        AgentRuntimeStatus runtimeStatus = status.getRuntimeStatus();
+        AgentIdentifier identifier = agent.getAgentIdentifier();
+        AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(identifier, runtimeStatus, location, null);
+        runtimeInfo.setUsableSpace(usablespace);
+        runtimeInfo.operatingSystemName = operatingSystem;
+        return runtimeInfo;
     }
 
     public static AgentRuntimeInfo initialState(Agent agent) {

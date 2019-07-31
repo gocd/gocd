@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.domain;
 import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.config.Agents;
 import com.thoughtworks.go.domain.AgentInstance;
+import com.thoughtworks.go.domain.AgentInstance.FilterBy;
 import com.thoughtworks.go.domain.AgentStatus;
 import com.thoughtworks.go.domain.NullAgentInstance;
 import com.thoughtworks.go.domain.exception.MaxPendingAgentsLimitReachedException;
@@ -31,13 +32,17 @@ import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.thoughtworks.go.domain.AgentInstance.createFromAgent;
+import static com.thoughtworks.go.util.SystemEnvironment.MAX_PENDING_AGENTS_ALLOWED;
+import static java.lang.String.format;
 import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 import static java.util.stream.StreamSupport.stream;
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.join;
 
 public class AgentInstances implements Iterable<AgentInstance> {
     private SystemEnvironment systemEnvironment;
@@ -102,39 +107,24 @@ public class AgentInstances implements Iterable<AgentInstance> {
     }
 
     public AgentInstances allAgents() {
-        AgentInstances agents = new AgentInstances(agentStatusChangeListener);
-        Collection<AgentInstance> agentInstances = currentInstances();
-        agentInstances.forEach(agents::add);
-        return agents;
+        AgentInstances allAgentInstances = new AgentInstances(agentStatusChangeListener);
+        Collection<AgentInstance> currentAgentInstances = currentInstances();
+
+        currentAgentInstances.forEach(allAgentInstances::add);
+        return allAgentInstances;
     }
 
     public AgentInstances findRegisteredAgents() {
         this.refresh();
-        AgentInstances registered = new AgentInstances(agentStatusChangeListener);
+        AgentInstances registeredInstances = new AgentInstances(agentStatusChangeListener);
+
         synchronized (uuidToAgentInstanceMap) {
             stream(this.spliterator(), false)
                     .filter(agentInstance -> agentInstance.getStatus().isRegistered())
-                    .forEach(registered::add);
+                    .forEach(registeredInstances::add);
         }
-        return registered;
-    }
 
-    public AgentInstances findDisabledAgents() {
-        AgentInstances agentInstances = new AgentInstances(agentStatusChangeListener);
-        currentInstances()
-                .stream()
-                .filter(AgentInstance::isDisabled)
-                .forEach(agentInstances::add);
-        return agentInstances;
-    }
-
-    public AgentInstances findEnabledAgents() {
-        AgentInstances agentInstances = new AgentInstances(agentStatusChangeListener);
-        currentInstances()
-                .stream()
-                .filter(agentInstance -> agentInstance.getStatus().isEnabled())
-                .forEach(agentInstances::add);
-        return agentInstances;
+        return registeredInstances;
     }
 
     @Override
@@ -146,29 +136,13 @@ public class AgentInstances implements Iterable<AgentInstance> {
         return uuidToAgentInstanceMap.isEmpty();
     }
 
-    public AgentInstance findFirstByHostname(String hostname) {
-        return currentInstances().stream()
-                .filter(instance -> instance.getAgent().getHostname().equals(hostname))
-                .findFirst()
-                .orElse(new NullAgentInstance(""));
-    }
-
     public Integer size() {
         return uuidToAgentInstanceMap.size();
     }
 
     public void refresh() {
         currentInstances().forEach(AgentInstance::refresh);
-        agentsToRemove().forEach(agentInstance -> removeAgent(agentInstance.getAgent().getUuid()));
-    }
-
-    private List<AgentInstance> agentsToRemove() {
-        return stream(this.spliterator(), false).filter(AgentInstance::canRemove)
-                .collect(Collectors.toList());
-    }
-
-    private Collection<AgentInstance> currentInstances() {
-        return new TreeSet<>(uuidToAgentInstanceMap.values());
+        getRemovableAgents().forEach(agentInstance -> removeAgent(agentInstance.getAgent().getUuid()));
     }
 
     public void syncAgentInstancesFrom(Agents agentsFromDB) {
@@ -197,27 +171,21 @@ public class AgentInstances implements Iterable<AgentInstance> {
     }
 
     public boolean hasAgent(String uuid) {
-        return !(findAgentAndRefreshStatus(uuid) instanceof NullAgentInstance);
+        AgentInstance agentInstance = findAgentAndRefreshStatus(uuid);
+        return !(agentInstance instanceof NullAgentInstance);
     }
 
-    public AgentInstance register(AgentRuntimeInfo info) {
-        AgentInstance agentInstance = findAgentAndRefreshStatus(info.getUUId());
+    public AgentInstance register(AgentRuntimeInfo runtimeInfo) {
+        AgentInstance agentInstance = findAgentAndRefreshStatus(runtimeInfo.getUUId());
         if (!agentInstance.isRegistered()) {
             if (isMaxPendingAgentsLimitReached()) {
-                throw new MaxPendingAgentsLimitReachedException(systemEnvironment.get(SystemEnvironment.MAX_PENDING_AGENTS_ALLOWED));
+                throw new MaxPendingAgentsLimitReachedException(systemEnvironment.get(MAX_PENDING_AGENTS_ALLOWED));
             }
-            agentInstance = AgentInstance.createFromLiveAgent(info, systemEnvironment, agentStatusChangeListener);
+            agentInstance = AgentInstance.createFromLiveAgent(runtimeInfo, systemEnvironment, agentStatusChangeListener);
             this.add(agentInstance);
         }
-        agentInstance.update(info);
+        agentInstance.update(runtimeInfo);
         return agentInstance;
-    }
-
-    private boolean isMaxPendingAgentsLimitReached() {
-        Integer maxPendingAgentsAllowed = systemEnvironment.get(SystemEnvironment.MAX_PENDING_AGENTS_ALLOWED);
-        int pendingAgentsCount = this.size() - findRegisteredAgents().size();
-
-        return pendingAgentsCount >= maxPendingAgentsAllowed;
     }
 
     public void updateAgentRuntimeInfo(AgentRuntimeInfo info) {
@@ -236,10 +204,10 @@ public class AgentInstances implements Iterable<AgentInstance> {
 
         return stream(this.spliterator(), false)
                 .filter(agentInstance -> uuids.contains(agentInstance.getUuid()))
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
-    public LinkedMultiValueMap<String, ElasticAgentMetadata> allElasticAgentsGroupedByPluginId() {
+    public LinkedMultiValueMap<String, ElasticAgentMetadata> getAllElasticAgentsGroupedByPluginId() {
         LinkedMultiValueMap<String, ElasticAgentMetadata> map = new LinkedMultiValueMap<>();
 
         for (Map.Entry<String, AgentInstance> entry : uuidToAgentInstanceMap.entrySet()) {
@@ -254,38 +222,61 @@ public class AgentInstances implements Iterable<AgentInstance> {
     }
 
     public AgentInstance findElasticAgent(final String elasticAgentId, final String elasticPluginId) {
-        Collection<AgentInstance> values = uuidToAgentInstanceMap.values().stream().filter(agentInstance -> {
-            if (!agentInstance.isElastic()) {
-                return false;
-            }
+        Collection<AgentInstance> agentInstances = uuidToAgentInstanceMap.values();
 
-            ElasticAgentMetadata elasticAgentMetadata = agentInstance.elasticAgentMetadata();
-            return elasticAgentMetadata.elasticAgentId().equals(elasticAgentId) && elasticAgentMetadata.elasticPluginId().equals(elasticPluginId);
+        List<AgentInstance> matchingElasticInstances = agentInstances.stream()
+                .filter(agentInstance -> agentInstance.isElastic()
+                        && agentInstance.elasticAgentMetadata().elasticAgentId().equals(elasticAgentId)
+                        && agentInstance.elasticAgentMetadata().elasticPluginId().equals(elasticPluginId))
+                .collect(toList());
 
-        }).collect(Collectors.toList());
-
-        if (values.size() == 0) {
+        if (CollectionUtils.isEmpty(matchingElasticInstances)) {
             return null;
         }
 
-        if (values.size() > 1) {
-            Collection<String> uuids = values.stream().map(AgentInstance::getUuid).collect(Collectors.toList());
-            throw new IllegalStateException(String.format("Found multiple agents with the same elastic agent id [%s]", StringUtils.join(uuids, ", ")));
+        if (matchingElasticInstances.size() > 1) {
+            Collection<String> uuids = matchingElasticInstances.stream().map(AgentInstance::getUuid).collect(toList());
+            throw new IllegalStateException(format("Found multiple agents with the same elastic agent id [%s]", join(uuids, ", ")));
         }
 
-        return values.iterator().next();
+        return matchingElasticInstances.iterator().next();
     }
 
-    public List<Agent> findPendingAgents(List<String> uuids) {
-        return uuids.stream().map(this::findAgent).filter(AgentInstance::isPending)
+    public List<Agent> filterPendingAgents(List<String> uuids) {
+        return (CollectionUtils.isEmpty(uuids) ? new ArrayList<String>() : uuids)
+                .stream()
+                .map(this::findAgent)
+                .filter(this::isPendingAndIsNotNullInstance)
                 .map(agentInstance -> agentInstance.getAgent().deepClone())
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
-    public List<String> filterBy(List<String> uuids, AgentInstance.FilterBy filter) {
-        return uuids.stream().map(this::findAgent)
+    public List<String> filterBy(List<String> uuids, FilterBy filter) {
+        return (CollectionUtils.isEmpty(uuids) ? new ArrayList<String>() : uuids)
+                .stream()
+                .map(this::findAgent)
                 .filter(agentInstance -> agentInstance.matches(filter))
                 .map(AgentInstance::getUuid)
-                .collect(Collectors.toList());
+                .collect(toList());
+    }
+
+    private boolean isPendingAndIsNotNullInstance(AgentInstance agentInstance) {
+        return agentInstance.isPending() && !agentInstance.isNullAgent();
+    }
+
+    private List<AgentInstance> getRemovableAgents() {
+        return stream(this.spliterator(), false)
+                .filter(AgentInstance::canRemove)
+                .collect(toList());
+    }
+
+    private Collection<AgentInstance> currentInstances() {
+        return new TreeSet<>(uuidToAgentInstanceMap.values());
+    }
+
+    private boolean isMaxPendingAgentsLimitReached() {
+        Integer maxPendingAgentsAllowed = systemEnvironment.get(MAX_PENDING_AGENTS_ALLOWED);
+        int pendingAgentsCount = this.size() - findRegisteredAgents().size();
+        return pendingAgentsCount >= maxPendingAgentsAllowed;
     }
 }

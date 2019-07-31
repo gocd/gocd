@@ -945,28 +945,6 @@ public class AgentServiceIntegrationTest {
         }
 
         @Test
-        void shouldLoadAgentsByApprovalStatus() {
-            Agent disabledAgent1 = new Agent("uuid1", "disabledAgent1", "127.0.0.1", "cookie1");
-            disabledAgent1.disable();
-            agentDao.saveOrUpdate(disabledAgent1);
-
-            Agent disabledAgent2 = new Agent("uuid2", "disabledAgent2", "127.0.0.2", "cookie2");
-            disabledAgent2.disable();
-            agentDao.saveOrUpdate(disabledAgent2);
-
-            agentDao.saveOrUpdate(new Agent("uuid3", "approvedAgent1", "127.0.0.3", "cookie3"));
-
-            AgentInstances approvedAgents = agentService.findEnabledAgents();
-            assertThat(approvedAgents.size(), is(1));
-            assertThat(approvedAgents.findAgentAndRefreshStatus("uuid3").getAgent().getHostname(), is("approvedAgent1"));
-
-            AgentInstances disabledAgents = agentService.findDisabledAgents();
-            assertThat(disabledAgents.size(), is(2));
-            assertThat(disabledAgents.findAgentAndRefreshStatus("uuid1").getAgent().getHostname(), is("disabledAgent1"));
-            assertThat(disabledAgents.findAgentAndRefreshStatus("uuid2").getAgent().getHostname(), is("disabledAgent2"));
-        }
-
-        @Test
         void shouldUpdateAgentApprovalStatusByUuid() {
             Agent agent = new Agent(UUID, "test", "127.0.0.1", singletonList("java"));
             agentService.register(agent, null, null);

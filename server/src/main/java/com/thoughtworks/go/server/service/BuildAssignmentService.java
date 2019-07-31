@@ -186,7 +186,6 @@ public class BuildAssignmentService implements ConfigChangedListener {
                 return buildWork;
             }
         }
-
         return NO_WORK;
     }
 

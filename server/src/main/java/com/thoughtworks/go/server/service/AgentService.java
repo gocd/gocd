@@ -123,7 +123,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     public Map<AgentInstance, Collection<String>> agentsToEnvNameMap() {
         Map<AgentInstance, Collection<String>> allAgents = new LinkedHashMap<>();
 
-        for (AgentInstance agentInstance : agentInstances.allAgents()) {
+        for (AgentInstance agentInstance : agentInstances.getAllAgents()) {
             TreeSet<String> sortedEnvSet = new TreeSet<>(new AlphaAsciiComparator());
             sortedEnvSet.addAll(agentInstance.getAgent().getEnvironmentsAsList());
             allAgents.put(agentInstance, sortedEnvSet);

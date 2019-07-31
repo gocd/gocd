@@ -31,8 +31,10 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.Serializable;
 
+import static com.thoughtworks.go.domain.AgentRuntimeStatus.*;
 import static com.thoughtworks.go.domain.AgentStatus.Idle;
 import static com.thoughtworks.go.domain.AgentStatus.Pending;
+import static com.thoughtworks.go.server.service.AgentBuildingInfo.NOT_BUILDING;
 import static com.thoughtworks.go.util.SystemUtil.isLocalIpAddress;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
@@ -58,7 +60,7 @@ public class AgentRuntimeInfo implements Serializable {
     public AgentRuntimeInfo(AgentIdentifier identifier, AgentRuntimeStatus runtimeStatus, String location, String cookie) {
         this.identifier = identifier;
         this.runtimeStatus = runtimeStatus;
-        this.buildingInfo = AgentBuildingInfo.NOT_BUILDING;
+        this.buildingInfo = NOT_BUILDING;
         this.location = location;
         this.cookie = cookie;
     }
@@ -76,7 +78,7 @@ public class AgentRuntimeInfo implements Serializable {
 
         AgentStatus status = Pending;
         if (isLocalIpAddress(agent.getIpaddress()) || registeredAlready) {
-            status = Idle;
+            status = AgentStatus.Idle;
         }
 
         AgentRuntimeStatus runtimeStatus = status.getRuntimeStatus();
@@ -97,16 +99,16 @@ public class AgentRuntimeInfo implements Serializable {
 
     public void busy(AgentBuildingInfo agentBuildingInfo) {
         this.buildingInfo = agentBuildingInfo;
-        this.runtimeStatus = AgentRuntimeStatus.Building;
+        this.runtimeStatus = Building;
     }
 
     public void cancel() {
-        this.runtimeStatus = AgentRuntimeStatus.Cancelled;
+        this.runtimeStatus = Cancelled;
     }
 
     public void idle() {
         this.runtimeStatus = AgentRuntimeStatus.Idle;
-        this.buildingInfo = AgentBuildingInfo.NOT_BUILDING;
+        this.buildingInfo = NOT_BUILDING;
     }
 
     public AgentRuntimeStatus getRuntimeStatus() {
@@ -118,7 +120,7 @@ public class AgentRuntimeInfo implements Serializable {
     }
 
     public boolean isCancelled() {
-        return runtimeStatus == AgentRuntimeStatus.Cancelled;
+        return runtimeStatus == Cancelled;
     }
 
     @Override
@@ -222,7 +224,7 @@ public class AgentRuntimeInfo implements Serializable {
     }
 
     public void clearBuildingInfo() {
-        this.buildingInfo = AgentBuildingInfo.NOT_BUILDING;
+        this.buildingInfo = NOT_BUILDING;
     }
 
     public boolean isLowDiskSpace(long limit) {
@@ -275,7 +277,7 @@ public class AgentRuntimeInfo implements Serializable {
     public void updateSelf(AgentRuntimeInfo newRuntimeInfo) {
         this.buildingInfo = newRuntimeInfo.getBuildingInfo();
         if (newRuntimeInfo.isCancelled()) {
-            this.setRuntimeStatus(AgentRuntimeStatus.Cancelled);
+            this.setRuntimeStatus(Cancelled);
         }
         this.location = newRuntimeInfo.getLocation();
         this.usableSpace = newRuntimeInfo.getUsableSpace();

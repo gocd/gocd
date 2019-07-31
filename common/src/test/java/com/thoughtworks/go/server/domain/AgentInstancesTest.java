@@ -44,7 +44,7 @@ import static com.thoughtworks.go.domain.AgentInstance.createFromLiveAgent;
 import static com.thoughtworks.go.domain.AgentRuntimeStatus.*;
 import static com.thoughtworks.go.helper.AgentInstanceMother.*;
 import static com.thoughtworks.go.server.service.AgentRuntimeInfo.fromServer;
-import static java.lang.Long.MAX_VALUE;
+import static com.thoughtworks.go.util.SystemEnvironment.MAX_PENDING_AGENTS_ALLOWED;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.hamcrest.CoreMatchers.hasItems;
@@ -188,6 +188,14 @@ class AgentInstancesTest {
             assertThat(agents.findAgentAndRefreshStatus("uuid3"), is(building));
             assertThat(agents.findAgentAndRefreshStatus("uuid5"), is(disabled));
             assertThat(agents.findAgentAndRefreshStatus(elastic.getUuid()), is(elastic));
+        }
+
+        @Test
+        void shouldReturnEmptyAgentInstancesWhenThereAreNoRegisteredAgents() {
+            AgentInstances agentInstances = new AgentInstances(mock(AgentStatusChangeListener.class));
+
+            AgentInstances registeredAgentInstances = agentInstances.findRegisteredAgents();
+            assertThat(registeredAgentInstances.size(), is(0));
         }
     }
 
@@ -415,6 +423,19 @@ class AgentInstancesTest {
     }
 
     @Test
+    void getAllAgentsShouldReturnAllAgentInstancesInMemoryCache() {
+        AgentInstances agentInstaces = createAgentInstancesWithAgentInstanceInVariousState();
+
+        AgentInstances allAgents = agentInstaces.getAllAgents();
+        assertThat(allAgents.size(), is(5));
+
+        agentInstaces.add(createElasticAgentInstance(999, "go.cd.elastic-agent-plugin.docker"));
+
+        allAgents = agentInstaces.getAllAgents();
+        assertThat(allAgents.size(), is(6));
+    }
+
+    @Test
     void shouldBeAbleToCreateAgentInstancesWithNullArrayOfAgentInstance() {
         AgentInstances agentInstances = new AgentInstances(systemEnvironment, mock(AgentStatusChangeListener.class), null);
 
@@ -423,48 +444,24 @@ class AgentInstancesTest {
     }
 
     @Test
-    void agentHostnameShouldBeUnique() {
-        Agent agent = new Agent("uuid2", "CCeDev01", "10.18.5.1");
-        AgentInstances agentInstances = new AgentInstances(mock(AgentStatusChangeListener.class));
-        agentInstances.register(fromServer(agent, false, "/var/lib", 0L, "linux"));
-        agentInstances.register(fromServer(agent, false, "/var/lib", 0L, "linux"));
-    }
-
-    @Test
-    void registerShouldErrorOutIfMaxPendingAgentsLimitIsReached() {
+    void registerShouldThrowExceptionWhenMaxPendingAgentsLimitIsReached() {
         Agent agent = new Agent("uuid2", "CCeDev01", "10.18.5.1");
         AgentInstances agentInstances = new AgentInstances(systemEnvironment, listener, pending());
-        when(systemEnvironment.get(SystemEnvironment.MAX_PENDING_AGENTS_ALLOWED)).thenReturn(1);
-
-        assertThrows(MaxPendingAgentsLimitReachedException.class,
-                () -> agentInstances.register(fromServer(agent, false, "/var/lib",
-                        0L, "linux")));
-    }
-
-    @Test
-    void shouldRemovePendingAgentThatIsTimedOut() {
-        when(systemEnvironment.getAgentConnectionTimeout()).thenReturn(-1);
-        AgentInstances agentInstances = new AgentInstances(systemEnvironment, listener, pending, building, disabled);
-        agentInstances.refresh();
-        assertThat(agentInstances.findAgentAndRefreshStatus("uuid4"), is(instanceOf(NullAgentInstance.class)));
-    }
-
-    @Test
-    void shouldThrowExceptionWhenMaxPendingAgentsLimitIsReached() {
-        final AgentInstances agentInstances = new AgentInstances(mock(AgentStatusChangeListener.class));
-
-        // Register 100 agents. Max pending agents Limit is 100.
-        for (int i = 0; i < 100; i++) {
-            Agent agent = new Agent("uuid" + i, "CCeDev_" + i, "10.18.5." + i);
-            AgentRuntimeInfo runtimeInfo = fromServer(agent, false, "/var/lib", MAX_VALUE, "linux");
-            agentInstances.register(runtimeInfo);
-        }
-
-        Agent agent = new Agent("uuid" + 200, "CCeDev_" + 200, "10.18.5." + 200);
+        when(systemEnvironment.get(MAX_PENDING_AGENTS_ALLOWED)).thenReturn(1);
 
         MaxPendingAgentsLimitReachedException e = assertThrows(MaxPendingAgentsLimitReachedException.class,
-                () -> agentInstances.register(fromServer(agent, false, "/var/lib", MAX_VALUE, "linux")));
-        assertThat(e.getMessage(), is("Max pending agents allowed 100, limit reached"));
+                () -> agentInstances.register(fromServer(agent, false, "/var/lib", 0L, "linux")));
+        assertThat(e.getMessage(), is("Max pending agents allowed 1, limit reached"));
+    }
+
+    @Test
+    void shouldRemoveTimedOutPendingAgentsOnRefresh() {
+        when(systemEnvironment.getAgentConnectionTimeout()).thenReturn(-1);
+        AgentInstances agentInstances = new AgentInstances(systemEnvironment, listener, pending, building, disabled);
+        assertThat(agentInstances.getAllAgents().size(), is(3));
+        agentInstances.refresh();
+        assertThat(agentInstances.getAllAgents().size(), is(2));
+        assertThat(agentInstances.findAgentAndRefreshStatus(pending.getUuid()), is(instanceOf(NullAgentInstance.class)));
     }
 
     private AgentInstances createAgentInstancesWithAgentInstanceInVariousState() {
@@ -510,7 +507,7 @@ class AgentInstancesTest {
         ElasticAgentRuntimeInfo elasticRuntime = new ElasticAgentRuntimeInfo(id, Idle, "/foo/one", null, elasticAgentId, elasticPluginId);
 
         Agent elasticAgent = createElasticAgent(uuid, ip, elasticAgentId, elasticPluginId);
-        AgentInstance elasticAgentInstance = AgentInstance.createFromAgent(elasticAgent, new SystemEnvironment(), mock(AgentStatusChangeListener.class));
+        AgentInstance elasticAgentInstance = createFromAgent(elasticAgent, new SystemEnvironment(), mock(AgentStatusChangeListener.class));
 
         elasticAgentInstance.update(elasticRuntime);
         return elasticAgentInstance;

@@ -16,7 +16,6 @@
 package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.config.Agent;
-import com.thoughtworks.go.config.ResourceConfig;
 import com.thoughtworks.go.config.ResourceConfigs;
 import com.thoughtworks.go.listener.AgentStatusChangeListener;
 import com.thoughtworks.go.remote.AgentIdentifier;
@@ -37,8 +36,7 @@ import java.util.List;
 import static com.thoughtworks.go.domain.AgentConfigStatus.Disabled;
 import static com.thoughtworks.go.domain.AgentConfigStatus.Enabled;
 import static com.thoughtworks.go.domain.AgentConfigStatus.Pending;
-import static com.thoughtworks.go.domain.AgentRuntimeStatus.LostContact;
-import static com.thoughtworks.go.domain.AgentRuntimeStatus.Missing;
+import static com.thoughtworks.go.domain.AgentRuntimeStatus.*;
 import static com.thoughtworks.go.domain.AgentStatus.fromConfig;
 import static com.thoughtworks.go.domain.AgentStatus.fromRuntime;
 
@@ -111,9 +109,9 @@ public class AgentInstance implements Comparable<AgentInstance> {
         updateConfigStatus(agent.isDisabled() ? Disabled : Enabled);
     }
 
-    private void syncStatus(AgentRuntimeStatus runtimeStatus) {
-        if (runtimeStatus == AgentRuntimeStatus.Idle) {
-            updateRuntimeStatus(AgentRuntimeStatus.Idle);
+    private void syncRuntimeStatus(AgentRuntimeStatus runtimeStatus) {
+        if (runtimeStatus == Idle) {
+            updateRuntimeStatus(Idle);
             agentRuntimeInfo.clearBuildingInfo();
         } else if (!(agentRuntimeInfo.isCancelled())) {
             updateRuntimeStatus(runtimeStatus);
@@ -121,14 +119,14 @@ public class AgentInstance implements Comparable<AgentInstance> {
     }
 
     public void building(AgentBuildingInfo agentBuildingInfo) {
-        syncStatus(AgentRuntimeStatus.Building);
+        syncRuntimeStatus(Building);
         agentRuntimeInfo.busy(agentBuildingInfo);
     }
 
     //  Used only in tests
     public void idle() {
         agentConfigStatus = Enabled;
-        syncStatus(AgentRuntimeStatus.Idle);
+        syncRuntimeStatus(Idle);
         agentRuntimeInfo.clearBuildingInfo();
     }
 
@@ -234,7 +232,7 @@ public class AgentInstance implements Comparable<AgentInstance> {
     }
 
     public void update(AgentRuntimeInfo newRuntimeInfo) {
-        syncStatus(newRuntimeInfo.getRuntimeStatus());
+        syncRuntimeStatus(newRuntimeInfo.getRuntimeStatus());
         syncIp(newRuntimeInfo);
         this.lastHeardTime = new Date();
         this.agentRuntimeInfo.updateSelf(newRuntimeInfo);
@@ -274,11 +272,11 @@ public class AgentInstance implements Comparable<AgentInstance> {
     }
 
     public boolean isIdle() {
-        return agentRuntimeInfo.getRuntimeStatus() == AgentRuntimeStatus.Idle;
+        return agentRuntimeInfo.getRuntimeStatus() == Idle;
     }
 
     public boolean isBuilding() {
-        return agentRuntimeInfo.getRuntimeStatus() == AgentRuntimeStatus.Building;
+        return agentRuntimeInfo.getRuntimeStatus() == Building;
     }
 
     public boolean isCancelled() {

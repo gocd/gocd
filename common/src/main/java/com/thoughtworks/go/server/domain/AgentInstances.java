@@ -27,7 +27,6 @@ import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.*;
@@ -39,7 +38,6 @@ import static com.thoughtworks.go.util.SystemEnvironment.MAX_PENDING_AGENTS_ALLO
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
 import static java.util.stream.StreamSupport.stream;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.join;
@@ -106,7 +104,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
         return uuidToAgentInstanceMap.values();
     }
 
-    public AgentInstances allAgents() {
+    public AgentInstances getAllAgents() {
         AgentInstances allAgentInstances = new AgentInstances(agentStatusChangeListener);
         Collection<AgentInstance> currentAgentInstances = currentInstances();
 
@@ -188,9 +186,9 @@ public class AgentInstances implements Iterable<AgentInstance> {
         return agentInstance;
     }
 
-    public void updateAgentRuntimeInfo(AgentRuntimeInfo info) {
-        AgentInstance instance = this.findAgentAndRefreshStatus(info.getUUId());
-        instance.update(info);
+    public void updateAgentRuntimeInfo(AgentRuntimeInfo runtimeInfo) {
+        AgentInstance agentInstance = this.findAgentAndRefreshStatus(runtimeInfo.getUUId());
+        agentInstance.update(runtimeInfo);
     }
 
     public void building(String uuid, AgentBuildingInfo agentBuildingInfo) {
@@ -246,7 +244,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
         return (CollectionUtils.isEmpty(uuids) ? new ArrayList<String>() : uuids)
                 .stream()
                 .map(this::findAgent)
-                .filter(this::isPendingAndIsNotNullInstance)
+                .filter(this::isPendingAndNotNullInstance)
                 .map(agentInstance -> agentInstance.getAgent().deepClone())
                 .collect(toList());
     }
@@ -260,7 +258,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
                 .collect(toList());
     }
 
-    private boolean isPendingAndIsNotNullInstance(AgentInstance agentInstance) {
+    private boolean isPendingAndNotNullInstance(AgentInstance agentInstance) {
         return agentInstance.isPending() && !agentInstance.isNullAgent();
     }
 

@@ -10,6 +10,9 @@ mergeable:
         no_empty:
           enabled: true
           message: 'Project must be specified'
+        must_include:
+          # one or more chars
+          regex: '.+'
     fail:
       - do: checks
         status: failure

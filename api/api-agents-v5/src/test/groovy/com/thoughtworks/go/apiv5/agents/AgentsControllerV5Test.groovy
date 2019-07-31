@@ -90,7 +90,7 @@ class AgentsControllerV5Test implements SecurityServiceTrait, ControllerTrait<Ag
       def collection = new ArrayList<AgentInstance>()
       def instance = idle()
       collection.add(instance)
-      when(agentService.agentInstances()).thenReturn(instances)
+      when(agentService.getAgentInstances()).thenReturn(instances)
       when(instances.values()).thenReturn(collection)
 
       def environmentConfigs = new HashSet<EnvironmentConfig>()

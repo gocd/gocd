@@ -83,7 +83,7 @@ class AgentsControllerV4Test implements SecurityServiceTrait, ControllerTrait<Ag
 
     @Test
     void "should return a list of agents"() {
-      when(agentService.agentEnvironmentMap()).thenReturn(new HashMap<AgentInstance, Collection<String>>() {
+      when(agentService.getAgentInstanceToSortedEnvMap()).thenReturn(new HashMap<AgentInstance, Collection<String>>() {
         {
           put(idle(), asList("env1", "env2"))
         }

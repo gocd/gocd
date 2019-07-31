@@ -1,0 +1,16 @@
+version: 2
+mergeable:
+  - when: pull_request.*
+    validate:
+      - do: milestone
+        no_empty:
+          enabled: true
+      - do: project
+        no_empty:
+          enabled: true
+    fail:
+      - do: checks
+        status: failure
+        payload:
+          title: The PR is not ready to be merged.
+          summary: The pull request is not ready to be merged.

@@ -145,4 +145,4 @@ if [ "$1" = "${AGENT_WORK_DIR}/bin/go-agent" ]; then
   echo "set.AGENT_STARTUP_ARGS=%AGENT_STARTUP_ARGS% -Dgo.console.stdout=true %GOCD_AGENT_JVM_OPTS%"
 fi
 
-try exec /usr/local/sbin/tini -- "$@"
+try exec /usr/local/sbin/tini -g -- "$@"

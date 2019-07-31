@@ -162,7 +162,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     public AgentInstance updateAgentAttributes(String uuid, String hostname, String resources,
                                                EnvironmentsConfig environments, TriState state, HttpOperationResult result) {
         AgentUpdateValidator validator
-                = new AgentUpdateValidator(agentInstances.findAgent(uuid), hostname, environments, resources, state, result);
+                = new AgentUpdateValidator(agentInstances.findAgent(uuid), environments, resources, state, result);
         Agent agent = agentDao.getAgentByUUID(uuid);
         try {
             if (isAnyOperationPerformedOnAgent(hostname, environments, resources, state, result)) {
@@ -214,7 +214,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     public void bulkUpdateAgentAttributes(List<String> uuids, List<String> resourcesToAdd, List<String> resourcesToRemove,
                                           EnvironmentsConfig envsToAdd, List<String> envsToRemove, TriState state, LocalizedOperationResult result) {
         AgentsUpdateValidator validator
-                = new AgentsUpdateValidator(agentInstances, uuids, state, envsToAdd, envsToRemove, resourcesToAdd, resourcesToRemove, result);
+                = new AgentsUpdateValidator(agentInstances, uuids, state, resourcesToAdd, resourcesToRemove, result);
         try {
             if (isAnyOperationPerformedOnBulkAgents(resourcesToAdd, resourcesToRemove, envsToAdd, envsToRemove, state, result)) {
                 validator.validate();
@@ -250,8 +250,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
 
         List<String> uuidsAssociatedWithEnv = getAssociatedUUIDs(envConfig.getAgents());
         EnvironmentsConfig envsConfig = getEnvironmentsConfigFrom(envConfig);
-        AgentsUpdateValidator validator
-                = new AgentsUpdateValidator(agentInstances, uuidsToAssociateWithEnv, TriState.TRUE, envsConfig, emptyList(), emptyList(), emptyList(), result);
+        AgentsUpdateValidator validator = new AgentsUpdateValidator(agentInstances, uuidsToAssociateWithEnv, TriState.TRUE, emptyList(), emptyList(), result);
         try {
             if (isAnyOperationPerformedOnBulkAgents(emptyList(), emptyList(), envsConfig, emptyList(), TriState.TRUE, result)) {
                 validator.validate();
@@ -687,7 +686,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     private boolean isAnyOperationPerformedOnAgent(String hostname, EnvironmentsConfig environments,
                                                    String resources, TriState state, HttpOperationResult result) {
         boolean performed = isNotBlank(resources) || isNotEmpty(environments) || isNotBlank(hostname) || state.isTrue() || state.isFalse();
-        if(!performed) {
+        if (!performed) {
             String msg = "No Operation performed on agent.";
             result.badRequest(msg, msg, general(GLOBAL));
         }
@@ -704,7 +703,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
                 || !envsToRemove.isEmpty()
                 || state.isTrue()
                 || state.isFalse();
-        if(!performed) {
+        if (!performed) {
             result.badRequest("No Operation performed on agents.");
         }
         return performed;

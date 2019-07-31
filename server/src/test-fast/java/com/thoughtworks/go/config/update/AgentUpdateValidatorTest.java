@@ -25,7 +25,6 @@ import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.helper.GoConfigMother;
-import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.util.TriState;
@@ -36,16 +35,16 @@ import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 
 import static java.lang.String.format;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class AgentUpdateValidatorTest {
     private HttpOperationResult result;
-    private Username currentUser;
     private GoConfigService goConfigService;
     private AgentInstance agentInstance;
-    private String hostName;
     private EnvironmentsConfig environmentsConfig;
     private String resources;
     private TriState state;
@@ -53,7 +52,6 @@ class AgentUpdateValidatorTest {
     @BeforeEach
     void setUp() {
         result = new HttpOperationResult();
-        currentUser = new Username(new CaseInsensitiveString("user"));
         goConfigService = mock(GoConfigService.class);
         agentInstance = mock(AgentInstance.class);
 
@@ -62,17 +60,33 @@ class AgentUpdateValidatorTest {
     }
 
     private AgentUpdateValidator newAgentUpdateValidator() {
-        return new AgentUpdateValidator(agentInstance, hostName, environmentsConfig, resources, state, result);
+        return new AgentUpdateValidator(agentInstance, environmentsConfig, resources, state, result);
     }
 
     @Nested
     class Validations {
         @Test
+        void shouldNotThrowExceptionIfTheInputsAreValid() {
+            agentInstance = AgentInstanceMother.idle();
+            state = TriState.TRUE;
+            environmentsConfig = createEnvironmentsConfigWith("uat");
+
+            assertThatCode(() -> newAgentUpdateValidator().validate())
+                    .doesNotThrowAnyException();
+
+            assertTrue(result.isSuccess());
+        }
+
+        @Test
         void shouldThrowExceptionWhenAgentsToBeUpdatedDoesNotExist() {
             agentInstance = AgentInstanceMother.nullInstance();
 
-            assertThrows(RecordNotFoundException.class, () -> newAgentUpdateValidator().validate());
-            assertEquals(result.message(), format("Agent '%s' not found.", agentInstance.getUuid()));
+            assertThatCode(() -> newAgentUpdateValidator().validate())
+                    .isInstanceOf(RecordNotFoundException.class)
+                    .hasMessage(format("Agent with uuid '%s' was not found!", agentInstance.getUuid()));
+
+            assertEquals(404, result.httpCode());
+            assertEquals(format("Agent '%s' not found.", agentInstance.getUuid()), result.message());
         }
 
         @Test
@@ -80,7 +94,12 @@ class AgentUpdateValidatorTest {
             state = TriState.UNSET;
             agentInstance = AgentInstanceMother.pending();
 
-            assertThrows(InvalidPendingAgentOperationException.class, () -> newAgentUpdateValidator().validate());
+            assertThatCode(() -> newAgentUpdateValidator().validate())
+                    .isInstanceOf(InvalidPendingAgentOperationException.class)
+                    .hasMessage("Invalid operation performed on pending agents: [uuid4]");
+
+            assertEquals(400, result.httpCode());
+            assertEquals(format("Pending agent [%s] must be explicitly enabled or disabled when performing any operation on it.", agentInstance.getUuid()), result.message());
         }
 
         @Test
@@ -89,7 +108,35 @@ class AgentUpdateValidatorTest {
 
             agentInstance = AgentInstanceMother.disabled();
 
-            assertDoesNotThrow(() -> newAgentUpdateValidator().validate());
+            assertThatCode(() -> newAgentUpdateValidator().validate())
+                    .doesNotThrowAnyException();
+
+            assertTrue(result.isSuccess());
+        }
+
+        @Test
+        void shouldBombIfEnvsSpecifiedAsBlank() {
+            environmentsConfig = new EnvironmentsConfig();
+            AgentUpdateValidator agentUpdateValidator = newAgentUpdateValidator();
+
+            assertThatCode(() -> newAgentUpdateValidator().validate())
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("Environments are specified but they are blank.");
+
+            assertEquals(400, result.httpCode());
+            assertEquals("Environments are specified but they are blank.", result.message());
+        }
+
+        @Test
+        void shouldBombIfResourcesAreSpecifiedAsBlank() {
+            environmentsConfig = createEnvironmentsConfigWith("env");
+            resources = "";
+
+            assertThatCode(() -> newAgentUpdateValidator().validate())
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("Resources are specified but they are blank.");
+            assertEquals(400, result.httpCode());
+            assertEquals("Resources are specified but they are blank.", result.message());
         }
     }
 

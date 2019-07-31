@@ -16,7 +16,6 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.Agents;
-import com.thoughtworks.go.config.EnvironmentsConfig;
 import com.thoughtworks.go.config.ResourceConfigs;
 import com.thoughtworks.go.config.exceptions.ElasticAgentsResourceUpdateException;
 import com.thoughtworks.go.config.exceptions.EntityType;
@@ -41,12 +40,10 @@ public class AgentsUpdateValidator {
     private final TriState state;
     private final List<String> resourcesToAdd;
     private final List<String> resourcesToRemove;
-    private final EnvironmentsConfig envsToAdd;
-    private final List<String> envsToRemove;
     public Agents agents;
 
-    public AgentsUpdateValidator(AgentInstances agentInstances, List<String> uuids, TriState state, EnvironmentsConfig envsToAdd,
-                                 List<String> envsToRemove, List<String> resourcesToAdd, List<String> resourcesToRemove,
+    public AgentsUpdateValidator(AgentInstances agentInstances, List<String> uuids, TriState state,
+                                 List<String> resourcesToAdd, List<String> resourcesToRemove,
                                  LocalizedOperationResult result) {
         this.agentInstances = agentInstances;
         this.result = result;
@@ -55,22 +52,6 @@ public class AgentsUpdateValidator {
 
         this.resourcesToAdd = actualOrEmptyList(resourcesToAdd);
         this.resourcesToRemove = actualOrEmptyList(resourcesToRemove);
-
-        this.envsToAdd = (envsToAdd == null ? new EnvironmentsConfig() : envsToAdd);
-        this.envsToRemove = actualOrEmptyList(envsToRemove);
-    }
-
-    private List<String> actualOrEmptyList(List<String> list){
-        return (list == null ? emptyList() : list);
-    }
-
-    public boolean canContinue() {
-        if (isAnyOperationPerformedOnAgents()) {
-            return true;
-        }
-
-        result.badRequest("No Operation performed on agents.");
-        return false;
     }
 
     public void validate() throws Exception {
@@ -92,42 +73,35 @@ public class AgentsUpdateValidator {
     }
 
     private void bombWhenAgentsDoesNotExist() {
-        List<String> notFoundUUIDs = agentInstances.filterBy(uuids,Null);
+        List<String> notFoundUUIDs = agentInstances.filterBy(uuids, Null);
 
-        if(!isEmpty(notFoundUUIDs)){
+        if (!isEmpty(notFoundUUIDs)) {
             result.badRequest(EntityType.Agent.notFoundMessage(notFoundUUIDs));
             throw new RecordNotFoundException(EntityType.Agent, notFoundUUIDs);
         }
     }
 
-    private boolean isAnyOperationPerformedOnAgents() {
-        return !resourcesToAdd.isEmpty()
-                    || !resourcesToRemove.isEmpty()
-                    || !envsToAdd.isEmpty() || !envsToRemove.isEmpty()
-                    || state.isTrue() || state.isFalse();
-    }
-
     private void bombWhenAnyOperationOnPendingAgents() throws InvalidPendingAgentOperationException {
         List<String> pendingAgentUUIDs = agentInstances.filterBy(uuids, Pending);
 
-        if(isEmpty(pendingAgentUUIDs)){
+        if (isEmpty(pendingAgentUUIDs)) {
             return;
         }
 
         if (!(state.isTrue() || state.isFalse())) {
             result.badRequest(format("Pending agents [%s] must be explicitly enabled or disabled when performing any operations on them.",
-                                     commaSeparate(pendingAgentUUIDs)));
+                    commaSeparate(pendingAgentUUIDs)));
             throw new InvalidPendingAgentOperationException(pendingAgentUUIDs);
         }
     }
 
     private void bombWhenElasticAgentResourcesAreUpdated() throws ElasticAgentsResourceUpdateException {
-        if(resourcesAreNotUpdated()){
+        if (resourcesAreNotUpdated()) {
             return;
         }
 
-        List<String> elasticAgentUUIDs = agentInstances.filterBy(uuids,Elastic);
-        if(isEmpty(elasticAgentUUIDs)){
+        List<String> elasticAgentUUIDs = agentInstances.filterBy(uuids, Elastic);
+        if (isEmpty(elasticAgentUUIDs)) {
             return;
         }
 
@@ -139,7 +113,11 @@ public class AgentsUpdateValidator {
         return resourcesToAdd.isEmpty() && resourcesToRemove.isEmpty();
     }
 
-    private String commaSeparate(List<String> listOfStrs){
+    private String commaSeparate(List<String> listOfStrs) {
         return join(listOfStrs, ", ");
+    }
+
+    private List<String> actualOrEmptyList(List<String> list) {
+        return (list == null ? emptyList() : list);
     }
 }

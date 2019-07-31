@@ -28,22 +28,18 @@ import static com.thoughtworks.go.serverhealth.HealthStateType.general;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
-import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public class AgentUpdateValidator {
     private final AgentInstance agentInstance;
-    private final String hostname;
     private final EnvironmentsConfig environments;
     private final String resources;
     private final HttpOperationResult result;
     private final TriState state;
 
-    public AgentUpdateValidator(AgentInstance agentInstance, String hostname, EnvironmentsConfig environments,
+    public AgentUpdateValidator(AgentInstance agentInstance, EnvironmentsConfig environments,
                                 String resources, TriState state, HttpOperationResult result) {
         this.agentInstance = agentInstance;
-        this.hostname = hostname;
         this.environments = environments;
         this.resources = resources;
         this.state = state;
@@ -79,13 +75,6 @@ public class AgentUpdateValidator {
             result.notFound(agentNotFoundMessage, agentNotFoundMessage, general(GLOBAL));
             throw new RecordNotFoundException(EntityType.Agent, agentInstance.getUuid());
         }
-    }
-
-    private boolean isAnyOperationPerformedOnAgents() {
-        return isNotBlank(resources)
-                || isNotEmpty(environments)
-                || isNotBlank(hostname)
-                || state.isTrue() || state.isFalse();
     }
 
     private void bombIfAnyOperationOnPendingAgent() throws InvalidPendingAgentOperationException {

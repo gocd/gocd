@@ -231,66 +231,6 @@ class EnvironmentConfigServiceTest {
     }
 
     @Test
-    void shouldListEnvironmentVariablesDefinedForAnEnvironment() {
-        EnvironmentsConfig environmentConfigs = new EnvironmentsConfig();
-        BasicEnvironmentConfig environment = environment("uat");
-        environment.addEnvironmentVariable("Var1", "Value1");
-        environment.addEnvironmentVariable("Var2", "Value2");
-        environmentConfigs.add(environment);
-        environmentConfigService.syncEnvironmentsFromConfig(environmentConfigs);
-
-        EnvironmentVariableContext environmentVariableContext = environmentConfigService.environmentVariableContextFor("uat-pipeline");
-
-        assertThat(environmentVariableContext.getProperties().size()).isEqualTo(3);
-        assertThat(environmentVariableContext.getProperty("GO_ENVIRONMENT_NAME")).isEqualTo("uat");
-        assertThat(environmentVariableContext.getProperty("Var1")).isEqualTo("Value1");
-        assertThat(environmentVariableContext.getProperty("Var2")).isEqualTo("Value2");
-        assertThat(environmentConfigService.environmentVariableContextFor("non-existent-pipeline")).isNull();
-    }
-
-    @Test
-    void shouldReturnNullEnvironmentVariablesIfThePipelineDoesNotBelongToAnEnvironment() {
-        environmentConfigService.syncEnvironmentsFromConfig(environments("uat", "prod"));
-        assertThat(environmentConfigService.environmentVariableContextFor("pipeline-with-no-environment")).isNull();
-    }
-
-    @Test
-    void shouldListAllEnvironmentVariablesDefinedForAConfigRepoEnvironment() {
-        EnvironmentsConfig environmentConfigs = new EnvironmentsConfig();
-
-        BasicEnvironmentConfig localPart = environment("uat");
-        localPart.addEnvironmentVariable("Var1", "Value1");
-        localPart.addEnvironmentVariable("Var2", "Value2");
-        BasicEnvironmentConfig remotePart = remote("uat");
-        remotePart.addEnvironmentVariable("remote-var1", "remote-value-1");
-        environmentConfigs.add(new MergeEnvironmentConfig(localPart, remotePart));
-        environmentConfigService.syncEnvironmentsFromConfig(environmentConfigs);
-
-        EnvironmentVariableContext environmentVariableContext = environmentConfigService.environmentVariableContextFor("uat-pipeline");
-
-        assertThat(environmentVariableContext.getProperties().size()).isEqualTo(4);
-        assertThat(environmentVariableContext.getProperty("GO_ENVIRONMENT_NAME")).isEqualTo("uat");
-        assertThat(environmentVariableContext.getProperty("Var1")).isEqualTo("Value1");
-        assertThat(environmentVariableContext.getProperty("Var2")).isEqualTo("Value2");
-        assertThat(environmentVariableContext.getProperty("remote-var1")).isEqualTo("remote-value-1");
-    }
-
-    @Test
-    void shouldListAllEnvironmentVariablesDefinedForRemoteOnlyEnvironment() {
-        EnvironmentsConfig environmentConfigs = new EnvironmentsConfig();
-        BasicEnvironmentConfig remotePart = remote("uat");
-        remotePart.addEnvironmentVariable("remote-var1", "remote-value-1");
-        environmentConfigs.add(new MergeEnvironmentConfig(remotePart));
-        environmentConfigService.syncEnvironmentsFromConfig(environmentConfigs);
-
-        EnvironmentVariableContext environmentVariableContext = environmentConfigService.environmentVariableContextFor("uat-pipeline");
-
-        assertThat(environmentVariableContext.getProperties().size()).isEqualTo(2);
-        assertThat(environmentVariableContext.getProperty("GO_ENVIRONMENT_NAME")).isEqualTo("uat");
-        assertThat(environmentVariableContext.getProperty("remote-var1")).isEqualTo("remote-value-1");
-    }
-
-    @Test
     void shouldReturnEnvironmentNames() {
         environmentConfigService.syncEnvironmentsFromConfig(environments("uat", "prod"));
         List<CaseInsensitiveString> environmentNames = environmentConfigService.environmentNames();

@@ -335,11 +335,11 @@ body {
 }
 
 .pipeline_pause-message {
-  @include truncate-to-lines($line-count: 3);
-
-  margin: 5px 0 0 0;
-  float:  left;
-  clear:  both;
+  word-break: break-all;
+  font-size:  12px;
+  margin:     5px 0 0 0;
+  float:      left;
+  clear:      both;
 }
 
 .pipeline_instance {

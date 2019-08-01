@@ -914,7 +914,7 @@ public class AgentServiceIntegrationTest {
 
             assertThat(agentService.findRegisteredAgents().size(), is(1));
             assertThat(agentService.findAgentAndRefreshStatus(uuid).getAgent().isDisabled(), is(false));
-            assertThat(agentDao.getAgentByUUID(uuid).isDisabled(), is(false));
+            assertThat(agentDao.getAgentByUUIDFromCacheOrDB(uuid).isDisabled(), is(false));
         }
 
         @Test

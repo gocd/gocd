@@ -72,11 +72,11 @@ public class AgentDao extends HibernateDaoSupport {
     }
 
     public String cookieFor(final AgentIdentifier agentIdentifier) {
-        Agent agent = getAgentByUUID(agentIdentifier.getUuid());
+        Agent agent = getAgentByUUIDFromCacheOrDB(agentIdentifier.getUuid());
         return null == agent ? null : agent.getCookie();
     }
 
-    public Agent getAgentByUUID(String uuid) {
+    public Agent getAgentByUUIDFromCacheOrDB(String uuid) {
         String key = agentCacheKey(uuid);
         Agent agent = (Agent) cache.get(key);
 
@@ -148,7 +148,7 @@ public class AgentDao extends HibernateDaoSupport {
         }));
     }
 
-    private Agent fetchAgentFromDBByUUID(final String uuid) {
+    public Agent fetchAgentFromDBByUUID(final String uuid) {
         return (Agent) transactionTemplate.execute((TransactionCallback) transactionStatus -> {
             Query query = sessionFactory.getCurrentSession().createQuery("FROM Agent where uuid = :uuid and deleted = false");
             query.setCacheable(true);

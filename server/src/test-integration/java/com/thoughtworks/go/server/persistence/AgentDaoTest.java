@@ -93,7 +93,15 @@ public class AgentDaoTest {
         void shouldGetAgentByUUID() {
             Agent agent = new Agent("uuid", "localhost", "127.0.0.1", "cookie");
             agentDao.saveOrUpdate(agent);
-            Agent agentFromDB = agentDao.getAgentByUUID(agent.getUuid());
+            Agent agentFromDB = agentDao.getAgentByUUIDFromCacheOrDB(agent.getUuid());
+            assertThat(agent, is(agentFromDB));
+        }
+
+        @Test
+        void shouldFetchAgentFromDBByUUID() {
+            Agent agent = new Agent("uuid", "localhost", "127.0.0.1", "cookie");
+            agentDao.saveOrUpdate(agent);
+            Agent agentFromDB = agentDao.fetchAgentFromDBByUUID(agent.getUuid());
             assertThat(agent, is(agentFromDB));
         }
 
@@ -145,7 +153,13 @@ public class AgentDaoTest {
 
         @Test
         void shouldReturnNullWhenUnknownUUIDIsSpecifiedInGetAgentByUUID() {
-            Agent agent = agentDao.getAgentByUUID("uuid-that-does-not-exist");
+            Agent agent = agentDao.getAgentByUUIDFromCacheOrDB("uuid-that-does-not-exist");
+            assertThat(agent, is(nullValue()));
+        }
+
+        @Test
+        void shouldReturnNullWhenUnknownUUIDIsSpecifiedInFetchAgentFromDBByUUID() {
+            Agent agent = agentDao.fetchAgentFromDBByUUID("uuid-that-does-not-exist");
             assertThat(agent, is(nullValue()));
         }
 
@@ -312,13 +326,13 @@ public class AgentDaoTest {
 
             agentDao.bulkUpdateAttributes(asList(agent1, agent3), agentToStatusMap, TriState.UNSET);
 
-            assertThat(agentDao.getAgentByUUID(agent1.getUuid()).getResources(), is("r3,r4"));
-            assertThat(agentDao.getAgentByUUID(agent2.getUuid()).getResources(), is("r1"));
-            assertThat(agentDao.getAgentByUUID(agent3.getUuid()).getResources(), is("r3,r4"));
+            assertThat(agentDao.getAgentByUUIDFromCacheOrDB(agent1.getUuid()).getResources(), is("r3,r4"));
+            assertThat(agentDao.getAgentByUUIDFromCacheOrDB(agent2.getUuid()).getResources(), is("r1"));
+            assertThat(agentDao.getAgentByUUIDFromCacheOrDB(agent3.getUuid()).getResources(), is("r3,r4"));
 
-            assertThat(agentDao.getAgentByUUID(agent1.getUuid()).getEnvironments(), is("e2,e4"));
-            assertThat(agentDao.getAgentByUUID(agent2.getUuid()).getEnvironments(), is(emptyString()));
-            assertThat(agentDao.getAgentByUUID(agent3.getUuid()).getEnvironments(), is("e2,e4"));
+            assertThat(agentDao.getAgentByUUIDFromCacheOrDB(agent1.getUuid()).getEnvironments(), is("e2,e4"));
+            assertThat(agentDao.getAgentByUUIDFromCacheOrDB(agent2.getUuid()).getEnvironments(), is(emptyString()));
+            assertThat(agentDao.getAgentByUUIDFromCacheOrDB(agent3.getUuid()).getEnvironments(), is("e2,e4"));
         }
 
         @Test
@@ -358,8 +372,8 @@ public class AgentDaoTest {
             agentDao.enableOrDisableAgents(disabledUuids, true);
             agentDao.enableOrDisableAgents(enabledUuids, false);
 
-            disabledUuids.forEach(uuid -> assertThat(agentDao.getAgentByUUID(uuid).isDisabled(), is(true)));
-            enabledUuids.forEach(uuid -> assertThat(agentDao.getAgentByUUID(uuid).isDisabled(), is(false)));
+            disabledUuids.forEach(uuid -> assertThat(agentDao.getAgentByUUIDFromCacheOrDB(uuid).isDisabled(), is(true)));
+            enabledUuids.forEach(uuid -> assertThat(agentDao.getAgentByUUIDFromCacheOrDB(uuid).isDisabled(), is(false)));
         }
     }
 

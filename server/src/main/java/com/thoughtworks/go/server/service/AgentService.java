@@ -135,7 +135,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
                                                EnvironmentsConfig environments, TriState state, HttpOperationResult result) {
         AgentUpdateValidator validator
                 = new AgentUpdateValidator(agentInstances.findAgent(uuid), environments, resources, state, result);
-        Agent agent = agentDao.getAgentByUUID(uuid);
+        Agent agent = agentDao.getAgentByUUIDFromCacheOrDB(uuid);
         try {
             if (isAnyOperationPerformedOnAgent(hostname, environments, resources, state, result)) {
                 validator.validate();
@@ -555,7 +555,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     private List<Agent> getAgentsToAddEnvToList(List<String> uuidsToAddEnvsTo, String env) {
         return uuidsToAddEnvsTo.stream()
                 .map(uuid -> {
-                    Agent agent = agentDao.getAgentByUUID(uuid);
+                    Agent agent = agentDao.getAgentByUUIDFromCacheOrDB(uuid);
                     String envsToSet = append(agent.getEnvironments(), singletonList(env));
                     agent.setEnvironments(envsToSet);
                     return agent;
@@ -566,7 +566,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     private List<Agent> getAgentsToRemoveEnvFromList(List<String> agentsToRemoveEnvFrom, String env) {
         return agentsToRemoveEnvFrom.stream()
                 .map(uuid -> {
-                    Agent agent = agentDao.getAgentByUUID(uuid);
+                    Agent agent = agentDao.getAgentByUUIDFromCacheOrDB(uuid);
                     String envsToSet = remove(agent.getEnvironments(), singletonList(env));
                     agent.setEnvironments(envsToSet);
                     return agent;
@@ -639,7 +639,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     }
 
     private boolean validateAndPopulateAgents(List<String> uuids, List<AgentInstance> agents, OperationResult result) {
-        if(isEmpty(uuids)){
+        if (isEmpty(uuids)) {
             return true;
         }
 

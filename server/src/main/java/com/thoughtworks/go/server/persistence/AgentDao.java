@@ -251,9 +251,7 @@ public class AgentDao extends HibernateDaoSupport {
                 protected void doInTransactionWithoutResult(TransactionStatus status) {
                     String queryString = format("update Agent set deleted = true where uuid in (:uuids)");
                     Query query = sessionFactory.getCurrentSession().createQuery(queryString);
-
                     query.setParameterList("uuids", uuids);
-
                     query.executeUpdate();
 
                     registerCommitCallbackToClearCacheAndNotifyBulkDeleteListeners(synchronizationManager, uuids);

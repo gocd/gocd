@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
+import com.thoughtworks.go.domain.NullAgentInstance;
 import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.listener.AgentStatusChangeListener;
 import com.thoughtworks.go.remote.AgentIdentifier;
@@ -547,24 +548,172 @@ class AgentServiceTest {
         assertThat(agentsViewModel, is(emptyList()));
     }
 
-    @Test
-    void shouldThrowInternalServerErrorWhenDeleteAgentsFailDueToAgentNotFound() {
-        String uuid = "1234";
-        Username username = new Username(new CaseInsensitiveString("test"));
+    @Nested
+    class DeleteAgents {
+        @Nested
+        class NegativeTests {
+            @Test
+            void shouldThrow404WhenDeleteAgentsIsCalledWithSingleAgentThatDoesNotExist() {
+                String uuid = "1234";
+                Username username = new Username(new CaseInsensitiveString("test"));
 
-        AgentInstance agentInstance = mock(AgentInstance.class);
-        when(securityService.hasOperatePermissionForAgents(username)).thenReturn(true);
-        when(agentInstance.canBeDeleted()).thenReturn(true);
-        when(agentInstances.findAgentAndRefreshStatus(uuid)).thenReturn(agentInstance);
-        when(agentInstance.getAgent()).thenReturn(mock(Agent.class));
+                AgentInstance mockAgentInstance = mock(AgentInstance.class);
+                Agent mockAgent = mock(Agent.class);
 
-        AgentService agentService = new AgentService(new SystemEnvironment(), agentInstances,
-                agentDao, uuidGenerator, serverHealthService = mock(ServerHealthService.class), null);
+                when(securityService.hasOperatePermissionForAgents(username)).thenReturn(true);
+                when(mockAgentInstance.canBeDeleted()).thenReturn(true);
+                when(agentInstances.findAgentAndRefreshStatus(uuid)).thenReturn(mockAgentInstance);
+                when(mockAgentInstance.getAgent()).thenReturn(mockAgent);
+                when(mockAgent.isNull()).thenReturn(true);
+                when(mockAgentInstance.getAgent().getUuid()).thenReturn(uuid);
 
-        HttpOperationResult result = mock(HttpOperationResult.class);
-        agentService.deleteAgents(result, singletonList(uuid));
+                AgentService agentService = new AgentService(new SystemEnvironment(), agentInstances,
+                        agentDao, uuidGenerator, serverHealthService = mock(ServerHealthService.class), null);
 
-        verify(result).internalServerError(any(String.class), any(HealthStateType.class));
+                HttpOperationResult result = new HttpOperationResult();
+                agentService.deleteAgents(singletonList(uuid), result);
+
+                assertThat(result.httpCode(), is(404));
+                assertThat(result.message(), is("Not Found"));
+                assertThat(result.getServerHealthState().getDescription(), is(format("Agent '%s' not found", uuid)));
+            }
+
+            @Test
+            void shouldThrow406WhenDeleteAgentsIsCalledWithSingleNotDisabledAgent() {
+                String uuid = "1234";
+                Username username = new Username(new CaseInsensitiveString("test"));
+
+                AgentInstance mockAgentInstance = mock(AgentInstance.class);
+                Agent mockAgent = mock(Agent.class);
+
+                when(securityService.hasOperatePermissionForAgents(username)).thenReturn(true);
+                when(mockAgentInstance.canBeDeleted()).thenReturn(false);
+                when(agentInstances.findAgentAndRefreshStatus(uuid)).thenReturn(mockAgentInstance);
+                when(mockAgentInstance.getAgent()).thenReturn(mockAgent);
+                when(mockAgent.isNull()).thenReturn(false);
+
+                AgentService agentService = new AgentService(new SystemEnvironment(), agentInstances,
+                        agentDao, uuidGenerator, serverHealthService = mock(ServerHealthService.class), null);
+
+                HttpOperationResult result = new HttpOperationResult();
+                agentService.deleteAgents(singletonList(uuid), result);
+
+                assertThat(result.httpCode(), is(406));
+                assertThat(result.message(), is("Failed to delete an agent, as it is not in a disabled state or is still building."));
+            }
+
+            @Test
+            void shouldThrow406WhenDeleteAgentsIsCalledWithMultipleAgentsWithOneNotDisabledAgent() {
+                String uuid1 = "1234";
+                String uuid2 = "4321";
+                Username username = new Username(new CaseInsensitiveString("test"));
+
+                AgentInstance mockAgentInstance1 = mock(AgentInstance.class);
+                AgentInstance mockAgentInstance2 = mock(AgentInstance.class);
+
+                Agent mockAgent = mock(Agent.class);
+
+                when(securityService.hasOperatePermissionForAgents(username)).thenReturn(true);
+                when(mockAgentInstance1.canBeDeleted()).thenReturn(true);
+                when(mockAgentInstance2.canBeDeleted()).thenReturn(false);
+
+                when(agentInstances.findAgentAndRefreshStatus(uuid1)).thenReturn(mockAgentInstance1);
+                when(agentInstances.findAgentAndRefreshStatus(uuid2)).thenReturn(mockAgentInstance2);
+
+                when(mockAgentInstance1.getAgent()).thenReturn(mockAgent);
+                when(mockAgentInstance2.getAgent()).thenReturn(mockAgent);
+
+                when(mockAgent.isNull()).thenReturn(false);
+
+                AgentService agentService = new AgentService(new SystemEnvironment(), agentInstances,
+                        agentDao, uuidGenerator, serverHealthService = mock(ServerHealthService.class), null);
+
+                HttpOperationResult result = new HttpOperationResult();
+                agentService.deleteAgents(asList(uuid1, uuid2), result);
+
+                assertThat(result.httpCode(), is(406));
+                assertThat(result.message(), is("Could not delete any agents, as one or more agents might not be disabled or are still building."));
+            }
+        }
+
+        @Nested
+        class PositiveTests {
+            @Test
+            void shouldReturn200WhenDeleteAgentsIsCalledWithSingleDisabledAgent() {
+                String uuid = "1234";
+                Username username = new Username(new CaseInsensitiveString("test"));
+
+                AgentInstance mockAgentInstance = mock(AgentInstance.class);
+                Agent mockAgent = mock(Agent.class);
+
+                when(securityService.hasOperatePermissionForAgents(username)).thenReturn(true);
+                when(mockAgentInstance.canBeDeleted()).thenReturn(true);
+                when(agentInstances.findAgentAndRefreshStatus(uuid)).thenReturn(mockAgentInstance);
+                when(mockAgentInstance.getAgent()).thenReturn(mockAgent);
+                when(mockAgent.isNull()).thenReturn(false);
+                when(mockAgentInstance.getAgent().getUuid()).thenReturn(uuid);
+                doNothing().when(agentDao).bulkSoftDelete(singletonList(uuid));
+
+                AgentService agentService = new AgentService(new SystemEnvironment(), agentInstances,
+                        agentDao, uuidGenerator, serverHealthService = mock(ServerHealthService.class), null);
+
+                HttpOperationResult result = new HttpOperationResult();
+                agentService.deleteAgents(singletonList(uuid), result);
+
+                assertThat(result.httpCode(), is(200));
+                assertThat(result.message(), is("Deleted 1 agent(s)."));
+                verify(agentDao).bulkSoftDelete(singletonList(uuid));
+            }
+
+            @Test
+            void shouldReturn200WhenDeleteAgentsIsCalledWithNullAsListOfUUIDs() {
+                Username username = new Username(new CaseInsensitiveString("test"));
+
+                when(securityService.hasOperatePermissionForAgents(username)).thenReturn(true);
+
+                AgentService agentService = new AgentService(new SystemEnvironment(), agentInstances,
+                        agentDao, uuidGenerator, serverHealthService = mock(ServerHealthService.class), null);
+
+                HttpOperationResult result = new HttpOperationResult();
+                agentService.deleteAgents(null, result);
+
+                assertThat(result.httpCode(), is(200));
+                assertThat(result.message(), is("Deleted 0 agent(s)."));
+            }
+
+            @Test
+            void shouldReturn200WhenDeleteAgentsIsCalledMultipleDisabledAgents() {
+                String uuid1 = "1234";
+                String uuid2 = "4321";
+                Username username = new Username(new CaseInsensitiveString("test"));
+
+                AgentInstance mockAgentInstance1 = mock(AgentInstance.class);
+                AgentInstance mockAgentInstance2 = mock(AgentInstance.class);
+
+                Agent mockAgent = mock(Agent.class);
+
+                when(securityService.hasOperatePermissionForAgents(username)).thenReturn(true);
+                when(mockAgentInstance1.canBeDeleted()).thenReturn(true);
+                when(mockAgentInstance2.canBeDeleted()).thenReturn(true);
+
+                when(agentInstances.findAgentAndRefreshStatus(uuid1)).thenReturn(mockAgentInstance1);
+                when(agentInstances.findAgentAndRefreshStatus(uuid2)).thenReturn(mockAgentInstance2);
+
+                when(mockAgentInstance1.getAgent()).thenReturn(mockAgent);
+                when(mockAgentInstance2.getAgent()).thenReturn(mockAgent);
+
+                when(mockAgent.isNull()).thenReturn(false);
+
+                AgentService agentService = new AgentService(new SystemEnvironment(), agentInstances,
+                        agentDao, uuidGenerator, serverHealthService = mock(ServerHealthService.class), null);
+
+                HttpOperationResult result = new HttpOperationResult();
+                agentService.deleteAgents(asList(uuid1, uuid2), result);
+
+                assertThat(result.httpCode(), is(200));
+                assertThat(result.message(), is("Deleted 2 agent(s)."));
+            }
+        }
     }
 
     @Test

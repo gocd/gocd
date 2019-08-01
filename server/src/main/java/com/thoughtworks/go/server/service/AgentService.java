@@ -227,33 +227,46 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         }
     }
 
-    public void deleteAgents(HttpOperationResult result, List<String> uuids) {
-        List<AgentInstance> agents = new ArrayList<>();
-        if (!validateAndPopulateAgents(uuids, agents, result)) {
-            return;
-        }
-
-        for (AgentInstance agentInstance : agents) {
-            if (!agentInstance.canBeDeleted()) {
-                result.notAcceptable(format("Failed to delete %s agent(s), as agent(s) might not be disabled or are still building.", agents.size()), general(GLOBAL));
-                return;
-            }
-        }
-
+    public void deleteAgents(List<String> uuids, HttpOperationResult result) {
         try {
-            List<Agent> existingFoundAgents = filterAgents(uuids);
-            if (existingFoundAgents.size() != uuids.size()) {
-                List<String> foundUUIDs = existingFoundAgents.stream().map(Agent::getUuid).collect(toList());
-                List<String> notFoundUUIDs = uuids.stream().filter(uuid -> !foundUUIDs.contains(uuid)).collect(toList());
-
-                if (!notFoundUUIDs.isEmpty()) {
-                    bomb("Unable to delete agent; Agent " + notFoundUUIDs + " not found.");
-                }
+            List<AgentInstance> agents = new ArrayList<>();
+            if (!validateAndPopulateAgents(uuids, agents, result)) {
+                return;
             }
             agentDao.bulkSoftDelete(uuids);
             result.ok(format("Deleted %s agent(s).", agents.size()));
         } catch (Exception e) {
-            result.internalServerError("Deleting agents failed:" + e.getMessage(), general(GLOBAL));
+            String errMsg = "Deleting agents failed.";
+            LOGGER.error(errMsg, e);
+            result.internalServerError(errMsg + e.getMessage(), general(GLOBAL));
+        }
+    }
+
+    private boolean validateAndPopulateAgents(List<String> uuids, List<AgentInstance> agents, HttpOperationResult result) {
+        if (!validateThatAllAgentsExistAndPopulateAgents(uuids, agents, result)) {
+            return false;
+        }
+        if (!validateThatAllAgentsCanBeDeleted(agents, result)) {
+            return false;
+        }
+        return true;
+    }
+
+    private boolean validateThatAllAgentsCanBeDeleted(List<AgentInstance> agents, HttpOperationResult result) {
+        for (AgentInstance agentInstance : agents) {
+            if (!agentInstance.canBeDeleted()) {
+                result.notAcceptable(getFailedToDeleteMessage(agents.size()), general(GLOBAL));
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private String getFailedToDeleteMessage(int numOfAgents){
+        if(numOfAgents == 1){
+            return "Failed to delete an agent, as it is not in a disabled state or is still building.";
+        } else {
+            return "Could not delete any agents, as one or more agents might not be disabled or are still building.";
         }
     }
 
@@ -638,8 +651,8 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         agent.removeResources(resourcesToRemove);
     }
 
-    private boolean validateAndPopulateAgents(List<String> uuids, List<AgentInstance> agents, OperationResult result) {
-        if (isEmpty(uuids)) {
+    private boolean validateThatAllAgentsExistAndPopulateAgents(List<String> uuids, List<AgentInstance> agents, OperationResult result) {
+        if(isEmpty(uuids)){
             return true;
         }
 
@@ -677,8 +690,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
 
     private boolean isAgentNotFound(Agent agent, OperationResult result) {
         if (agent.isNull()) {
-            String agentNotFoundMessage = format("Agent '%s' not found", agent.getUuid());
-            result.notFound("Agent not found.", agentNotFoundMessage, general(GLOBAL));
+            result.notFound("Not Found", format("Agent '%s' not found", agent.getUuid()), general(GLOBAL));
             return true;
         }
         return false;

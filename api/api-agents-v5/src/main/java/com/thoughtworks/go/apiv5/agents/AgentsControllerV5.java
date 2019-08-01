@@ -180,7 +180,7 @@ public class AgentsControllerV5 extends ApiController implements SparkSpringCont
 
     public String deleteAgent(Request request, Response response) throws IOException {
         final HttpOperationResult result = new HttpOperationResult();
-        agentService.deleteAgents(result, singletonList(request.params("uuid")));
+        agentService.deleteAgents(singletonList(request.params("uuid")), result);
         return renderHTTPOperationResult(result, request, response);
     }
 
@@ -189,7 +189,7 @@ public class AgentsControllerV5 extends ApiController implements SparkSpringCont
         final List<String> uuids = toList(reader.optJsonArray("uuids").orElse(new JsonArray()));
 
         final HttpOperationResult result = new HttpOperationResult();
-        agentService.deleteAgents(result, uuids);
+        agentService.deleteAgents(uuids, result);
 
         return renderHTTPOperationResult(result, request, response);
     }

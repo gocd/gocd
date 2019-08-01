@@ -594,9 +594,9 @@ class AgentsControllerV4Test implements SecurityServiceTrait, ControllerTrait<Ag
 
       when(agentService.findAgent("uuid2")).thenReturn(idle())
       doAnswer({ InvocationOnMock invocation ->
-        def result = invocation.getArgument(0) as HttpOperationResult
+        def result = invocation.getArgument(1) as HttpOperationResult
         result.ok("Deleted 1 agent(s).")
-      }).when(agentService).deleteAgents(any() as HttpOperationResult, eq(asList("uuid2")))
+      }).when(agentService).deleteAgents(eq(asList("uuid2")), any() as HttpOperationResult)
 
       deleteWithApiHeader(controller.controllerPath("uuid2"))
 
@@ -611,10 +611,10 @@ class AgentsControllerV4Test implements SecurityServiceTrait, ControllerTrait<Ag
       loginAsAdmin()
 
       doAnswer({ InvocationOnMock invocation ->
-        def result = invocation.getArgument(0) as HttpOperationResult
+        def result = invocation.getArgument(1) as HttpOperationResult
         def message = "Failed to delete agent."
         result.unprocessibleEntity(message, "Some description", null)
-      }).when(agentService).deleteAgents(any() as HttpOperationResult, eq(asList("uuid2")))
+      }).when(agentService).deleteAgents(eq(asList("uuid2")), any() as HttpOperationResult)
 
       deleteWithApiHeader(controller.controllerPath("uuid2"))
 
@@ -648,9 +648,9 @@ class AgentsControllerV4Test implements SecurityServiceTrait, ControllerTrait<Ag
       when(agentService.findAgent("agent-2")).thenReturn(idleWith("agent-2"))
 
       doAnswer({ InvocationOnMock invocation ->
-        def result = invocation.getArgument(0) as HttpOperationResult
+        def result = invocation.getArgument(1) as HttpOperationResult
         result.ok("Deleted 2 agent(s).")
-      }).when(agentService).deleteAgents(any() as HttpOperationResult, eq(asList("agent-1", "agent-2")))
+      }).when(agentService).deleteAgents(eq(asList("agent-1", "agent-2")), any() as HttpOperationResult)
 
       def requestBody = ["uuids": ["agent-1", "agent-2"]]
 
@@ -667,10 +667,10 @@ class AgentsControllerV4Test implements SecurityServiceTrait, ControllerTrait<Ag
       loginAsAdmin()
 
       doAnswer({ InvocationOnMock invocation ->
-        def result = invocation.getArgument(0) as HttpOperationResult
+        def result = invocation.getArgument(1) as HttpOperationResult
         def message = "Failed to delete agent."
         result.unprocessibleEntity(message, "Some description", null)
-      }).when(agentService).deleteAgents(any() as HttpOperationResult, eq(asList("agent-1", "agent-2")))
+      }).when(agentService).deleteAgents(eq(asList("agent-1", "agent-2")), any() as HttpOperationResult)
 
       def requestBody = ["uuids": ["agent-1", "agent-2"]]
 

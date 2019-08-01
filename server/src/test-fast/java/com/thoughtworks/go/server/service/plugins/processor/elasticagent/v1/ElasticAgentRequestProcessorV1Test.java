@@ -107,7 +107,7 @@ public class ElasticAgentRequestProcessorV1Test {
         processor.process(pluginDescriptor, request);
 
         verify(agentService, times(1)).findElasticAgent("foo", "cd.go.example.plugin");
-        verify(agentService, times(1)).deleteAgents(any(HttpOperationResult.class), eq(singletonList(agentInstance.getUuid())));
+        verify(agentService, times(1)).deleteAgents(eq(singletonList(agentInstance.getUuid())), any(HttpOperationResult.class));
     }
 
     @Test

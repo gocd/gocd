@@ -58,6 +58,7 @@ import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
@@ -144,14 +145,14 @@ public class AgentServiceIntegrationTest {
 
             HttpOperationResult result = new HttpOperationResult();
 
-            agentService.deleteAgents(result, singletonList(UUID));
+            agentService.deleteAgents(singletonList(UUID), result);
             assertThat(result.httpCode(), is(200));
             assertThat(result.message(), is("Deleted 1 agent(s)."));
 
             result = new HttpOperationResult();
-            agentService.deleteAgents(result, singletonList(UUID2));
+            agentService.deleteAgents(singletonList(UUID2), result);
             assertThat(result.httpCode(), is(406));
-            assertThat(result.message(), is("Failed to delete 1 agent(s), as agent(s) might not be disabled or are still building."));
+            assertThat(result.message(), is("Failed to delete an agent, as it is not in a disabled state or is still building."));
 
             assertThat(agentService.getAgentInstances().size(), is(1));
             assertTrue(agentService.getAgentInstances().hasAgent(UUID2));
@@ -166,14 +167,14 @@ public class AgentServiceIntegrationTest {
             assertThat(agentService.getAgentInstances().size(), is(3));
 
             HttpOperationResult result = new HttpOperationResult();
-            agentService.deleteAgents(result, asList(UUID, UUID2, UUID3));
+            agentService.deleteAgents(asList(UUID, UUID2, UUID3), result);
 
             assertThat(result.httpCode(), is(406));
-            assertThat(result.message(), is("Failed to delete 3 agent(s), as agent(s) might not be disabled or are still building."));
+            assertThat(result.message(), is("Could not delete any agents, as one or more agents might not be disabled or are still building."));
 
             assertThat(agentService.getAgentInstances().size(), is(3));
 
-            agentService.deleteAgents(result, asList(UUID, UUID2));
+            agentService.deleteAgents(asList(UUID, UUID2), result);
 
             assertThat(result.httpCode(), is(200));
             assertThat(result.message(), is("Deleted 2 agent(s)."));
@@ -188,10 +189,10 @@ public class AgentServiceIntegrationTest {
             assertThat(agentService.getAgentInstances().size(), is(1));
 
             HttpOperationResult result = new HttpOperationResult();
-            agentService.deleteAgents(result, asList(UUID));
+            agentService.deleteAgents(asList(UUID), result);
 
             assertThat(result.httpCode(), is(406));
-            assertThat(result.message(), is("Failed to delete 1 agent(s), as agent(s) might not be disabled or are still building."));
+            assertThat(result.message(), is("Failed to delete an agent, as it is not in a disabled state or is still building."));
 
             assertThat(agentService.getAgentInstances().size(), is(1));
             assertTrue(agentService.getAgentInstances().hasAgent(UUID));
@@ -219,7 +220,7 @@ public class AgentServiceIntegrationTest {
             assertThat(agentService.getAgentInstances().size(), is(2));
 
             HttpOperationResult result = new HttpOperationResult();
-            agentService.deleteAgents(result, singletonList(UUID));
+            agentService.deleteAgents(singletonList(UUID), result);
 
             assertThat(result.httpCode(), is(200));
             assertThat(result.message(), is("Deleted 1 agent(s)."));
@@ -230,9 +231,11 @@ public class AgentServiceIntegrationTest {
         @Test
         void shouldReturn404WhenDeleteAgentsIsCalledWithUnknownAgentUUID() {
             HttpOperationResult result = new HttpOperationResult();
-            agentService.deleteAgents(result, singletonList("unknown-agent-id"));
+            String unknownUUID = "unknown-agent-id";
+            agentService.deleteAgents(singletonList(unknownUUID), result);
             assertThat(result.httpCode(), is(404));
-            assertThat(result.message(), is("Agent not found."));
+            assertThat(result.message(), is("Not Found"));
+            assertThat(result.getServerHealthState().getDescription(), is(format("Agent '%s' not found", unknownUUID)));
         }
     }
 
@@ -537,9 +540,10 @@ public class AgentServiceIntegrationTest {
             String unknownUUID = "unknown-agent-id";
             HttpOperationResult result = new HttpOperationResult();
 
-            agentService.deleteAgents(result, singletonList(unknownUUID));
+            agentService.deleteAgents(singletonList(unknownUUID), result);
             assertThat(result.httpCode(), is(404));
-            assertThat(result.message(), is("Agent not found."));
+            assertThat(result.message(), is("Not Found"));
+            assertThat(result.getServerHealthState().getDescription(), is(format("Agent '%s' not found", unknownUUID)));
         }
 
         @Test

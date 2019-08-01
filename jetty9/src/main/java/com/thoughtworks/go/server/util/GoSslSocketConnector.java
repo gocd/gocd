@@ -71,6 +71,7 @@ public class GoSslSocketConnector implements GoSocketConnector {
         sslContextFactory.setTrustStorePath(truststore.getPath());
         sslContextFactory.setTrustStorePassword(password);
         sslContextFactory.setWantClientAuth(true);
+        sslContextFactory.setEndpointIdentificationAlgorithm(null);
 
         if(!ArrayUtils.isEmpty(goSSLConfig.getCipherSuitesToBeIncluded())) sslContextFactory.setIncludeCipherSuites(goSSLConfig.getCipherSuitesToBeIncluded());
         if(!ArrayUtils.isEmpty(goSSLConfig.getCipherSuitesToBeExcluded())) sslContextFactory.setExcludeCipherSuites(goSSLConfig.getCipherSuitesToBeExcluded());

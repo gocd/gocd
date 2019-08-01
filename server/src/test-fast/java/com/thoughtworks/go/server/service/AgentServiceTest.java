@@ -23,6 +23,7 @@ import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.domain.NullAgentInstance;
 import com.thoughtworks.go.helper.AgentInstanceMother;
+import com.thoughtworks.go.helper.AgentMother;
 import com.thoughtworks.go.listener.AgentStatusChangeListener;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.domain.AgentInstances;
@@ -546,6 +547,47 @@ class AgentServiceTest {
 
         agentsViewModel = agentService.filter(null);
         assertThat(agentsViewModel, is(emptyList()));
+    }
+
+    @Nested
+    class FindRegistedAgentByUUID {
+        @Test
+        void shouldFindRegisteredAgentByUUID() {
+            AgentInstance agentInstance = AgentInstanceMother.building();
+            String uuidToUse = agentInstance.getUuid();
+
+            when(agentInstances.findAgent(uuidToUse)).thenReturn(agentInstance);
+            Agent agent = agentService.findRegisteredAgentByUUID(uuidToUse);
+
+            assertThat(agent, is(agentInstance.getAgent()));
+        }
+
+        @Test
+        void findRegisterdAgentByUUIDShouldReturnNullIfThereIsNoRegisteredAgentMatchingUUID() {
+            AgentInstance agentInstance = AgentInstanceMother.pending();
+            String uuidToUse = agentInstance.getUuid();
+
+            when(agentInstances.findAgent(uuidToUse)).thenReturn(agentInstance);
+            Agent agent = agentService.findRegisteredAgentByUUID(uuidToUse);
+
+            assertThat(agent, is(nullValue()));
+        }
+    }
+
+    @Nested
+    class DisableAgents {
+        @Test
+        void shouldDoNothingIfDisableAgentsIsCalledWithEmptyListOfUUIDs() {
+            agentService.disableAgents(emptyList());
+            verify(agentDao, times(0)).enableOrDisableAgents(anyList(), anyBoolean());
+        }
+
+        @Test
+        void shouldDisableAgentsWhenCalledWithNonEmptyListOfUUIDs() {
+            List<String> uuids = asList("uuid1", "uuid2");
+            agentService.disableAgents(uuids);
+            verify(agentDao).enableOrDisableAgents(uuids, true);
+        }
     }
 
     @Nested

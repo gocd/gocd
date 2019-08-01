@@ -102,11 +102,11 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     }
 
     public void initialize() {
-        this.sync();
+        this.syncAgentInstanceCacheFromAgentsInDB();
         agentDao.registerListener(this);
     }
 
-    public void sync() {
+    private void syncAgentInstanceCacheFromAgentsInDB() {
         Agents allAgentsFromDB = new Agents(agentDao.getAllAgents());
         agentInstances.syncAgentInstancesFrom(allAgentsFromDB);
     }
@@ -366,7 +366,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         return cookie;
     }
 
-    public Agent findAgentObjectByUuid(String uuid) {
+    public Agent findRegisteredAgentByUUID(String uuid) {
         AgentInstance agentInstance = agentInstances.findAgent(uuid);
         if (agentInstance != null && agentInstance.isRegistered()) {
             return agentInstance.getAgent();
@@ -414,18 +414,22 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         return agent;
     }
 
-    public List<String> allAgentUuids() {
+    public List<String> getAllAgentUUIDs() {
         return agentInstances.values().stream().filter(AgentInstance::isRegistered)
                 .map(AgentInstance::getUuid)
                 .collect(toList());
     }
 
     public void disableAgents(List<String> uuids) {
-        agentDao.enableOrDisableAgents(uuids, true);
+        if (!isEmpty(uuids)) {
+            agentDao.enableOrDisableAgents(uuids, true);
+        }
     }
 
     public void disableAgents(String... uuids) {
-        agentDao.enableOrDisableAgents(asList(uuids), true);
+        if(uuids != null) {
+            agentDao.enableOrDisableAgents(asList(uuids), true);
+        }
     }
 
     public void saveOrUpdate(Agent agent) {

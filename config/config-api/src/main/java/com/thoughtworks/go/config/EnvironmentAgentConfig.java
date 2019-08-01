@@ -16,6 +16,10 @@
 package com.thoughtworks.go.config;
 
 import static java.lang.String.format;
+import static org.apache.commons.collections4.CollectionUtils.isEmpty;
+
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 
 import com.thoughtworks.go.domain.ConfigErrors;
@@ -42,6 +46,10 @@ public class EnvironmentAgentConfig implements Validatable {
     }
 
     public boolean validateUuidPresent(CaseInsensitiveString name, Set<String> uuids) {
+        if (isEmpty(uuids)) {
+            return false;
+        }
+
         if (!uuids.contains(uuid)) {
             this.addError(UUID, format("Environment '%s' has an invalid agent uuid '%s'", name, uuid));
         }

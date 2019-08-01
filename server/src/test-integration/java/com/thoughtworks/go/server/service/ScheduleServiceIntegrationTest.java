@@ -583,7 +583,7 @@ public class ScheduleServiceIntegrationTest {
 
     private AgentIdentifier agent(AgentConfig agentConfig) {
     private AgentIdentifier agent(Agent agent) {
-        agentService.sync();
+        agentService.initialize();
         agentService.approve(agent.getUuid());
         return agentService.findAgent(agent.getUuid()).getAgentIdentifier();
     }

@@ -78,12 +78,12 @@ public class JobPresentationServiceTest {
         JobInstance jobWithDeletedAgent = assignedWithAgentId("dev", deletedAgentUuid);
         when(agentService.findAgentAndRefreshStatus(deletedAgentUuid)).thenReturn(null);
         Agent agentFromDb = new Agent(deletedAgentUuid,"hostname", "1.2.3.4", "cookie");
-        when(agentService.findAgentObjectByUuid(deletedAgentUuid)).thenReturn(agentFromDb);
+        when(agentService.findRegisteredAgentByUUID(deletedAgentUuid)).thenReturn(agentFromDb);
         List<JobInstanceModel> models = new JobPresentationService(jobDurationStrategy, agentService).jobInstanceModelFor(new JobInstances(jobWithDeletedAgent));
         assertThat(models.size(), is(1));
         assertThat(models.get(0), is(new JobInstanceModel(jobWithDeletedAgent, jobDurationStrategy, agentFromDb)));
         verify(agentService, times(1)).findAgentAndRefreshStatus(deletedAgentUuid);
-        verify(agentService, times(1)).findAgentObjectByUuid(deletedAgentUuid);
+        verify(agentService, times(1)).findRegisteredAgentByUUID(deletedAgentUuid);
         verifyNoMoreInteractions(agentService);
     }
 }

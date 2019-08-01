@@ -15,8 +15,8 @@
  */
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
-import * as stream from "mithril/stream";
 import {Stream} from "mithril/stream";
+import * as stream from "mithril/stream";
 import {TriStateCheckbox} from "models/tri_state_checkbox";
 import {ButtonGroup, ButtonIcon} from "views/components/buttons";
 import * as Buttons from "views/components/buttons/index";
@@ -24,6 +24,7 @@ import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {Ellipsize} from "views/components/ellipsize";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {AutocompleteField, SuggestionProvider} from "views/components/forms/autocomplete";
+import {IdentifierInputField} from "views/components/forms/common_validating_inputs";
 import {EncryptedValue} from "views/components/forms/encrypted_value";
 import {Form} from "views/components/forms/form";
 import {
@@ -65,6 +66,7 @@ export class KitchenSink extends MithrilViewComponent<null> {
   view(vnode: m.Vnode<null>) {
     const model: Stream<string> = stream();
     const textValue: Stream<string> = stream();
+    const name: Stream<string> = stream();
 
     return (
       <div>
@@ -263,6 +265,10 @@ export class KitchenSink extends MithrilViewComponent<null> {
             return "Only numbers are allowed! You'd better settle down, you rebel, you!";
           }
         }} />
+
+        <h3>Validate-as-you-type Name field (just a special case of LiveValidatingInputField)</h3>
+
+        <IdentifierInputField label={`GoCD identier (a.k.a., "name")`} property={name}/>
 
         <h3>Dynamic autocomplete</h3>
         <AutocompleteField label="Dynamic" property={model} provider={this.provider}/>

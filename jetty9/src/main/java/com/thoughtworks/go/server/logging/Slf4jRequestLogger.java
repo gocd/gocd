@@ -20,20 +20,17 @@ import org.eclipse.jetty.server.RequestLog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-
 public class Slf4jRequestLogger extends AbstractNCSARequestLog implements RequestLog {
 
     private static Logger LOG = LoggerFactory.getLogger("org.eclipse.jetty.server.RequestLog");
 
-    @Override
-    protected boolean isEnabled() {
-        return LOG.isInfoEnabled();
+    public Slf4jRequestLogger() {
+        super(requestEntry -> LOG.info(requestEntry));
     }
 
     @Override
-    public void write(String requestEntry) {
-        LOG.info(requestEntry);
+    protected boolean isEnabled() {
+        return LOG.isInfoEnabled();
     }
 
 }

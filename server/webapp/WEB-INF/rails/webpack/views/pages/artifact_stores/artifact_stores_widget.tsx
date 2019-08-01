@@ -90,10 +90,10 @@ export class ArtifactStoresWidget extends MithrilViewComponent<Attrs> {
 
   private static createPluginNameElement(pluginInfo?: PluginInfo<any>) {
     if (pluginInfo) {
-      return (<div data-test-id="plugin-name" className={styles.pluginName}>{pluginInfo!.about.name}</div>);
+      return (<div data-test-id="plugin-name" class={styles.pluginName}>{pluginInfo!.about.name}</div>);
     }
 
-    return (<div data-test-id="plugin-name" className={styles.pluginNotInstalled}>Plugin is not installed</div>);
+    return (<div data-test-id="plugin-name" class={styles.pluginNotInstalled}>Plugin is not installed</div>);
   }
 
   private static headerIcon(pluginInfo?: PluginInfo<any>) {

@@ -26,6 +26,6 @@ export interface Attrs {
 
 export class Link extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
-    return (<a {...vnode.attrs} className={styles.inlineLink}>{vnode.children}</a>);
+    return (<a {...vnode.attrs} class={styles.inlineLink}>{vnode.children}</a>);
   }
 }

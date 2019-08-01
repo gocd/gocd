@@ -51,7 +51,7 @@ const PipelineWidget = {
                                 pluginsSupportingAnalytics={vnode.attrs.pluginsSupportingAnalytics}
                                 shouldShowAnalyticsIcon={vnode.attrs.shouldShowAnalyticsIcon}
                                 operationMessages={vnode.attrs.operationMessages}/>
-          <div className="pipeline_instances">
+          <div class="pipeline_instances">
             {pipelineInstances}
           </div>
 

@@ -36,7 +36,7 @@ class MainPage extends MithrilViewComponent<Attrs> {
       <div class={styles.page}>
         <div class={styles.pagewrap}>
           {this.showHeader(vnode)}
-          <main className={styles.mainContainer}>
+          <main class={styles.mainContainer}>
             {vnode.children}
           </main>
         </div>
@@ -100,7 +100,6 @@ export default abstract class Page {
       const canViewTemplates           = this.extractBoolean(body, "data-can-user-view-templates");
       const isAnonymous                = this.extractBoolean(body, "data-user-anonymous");
       const isServerInMaintenanceMode  = this.extractBoolean(body, "data-is-server-in-maintenance-mode");
-      const showSecretConfigSpa        = this.extractBoolean(body, "data-show-secret-config-spa");
       const userDisplayName            = body.getAttribute("data-user-display-name") || "";
       const maintenanceModeUpdatedOn   = body.getAttribute("data-maintenance-mode-updated-on");
       const maintenanceModeUpdatedBy   = body.getAttribute("data-maintenance-mode-updated-by");
@@ -119,8 +118,7 @@ export default abstract class Page {
         isGroupAdmin,
         canViewTemplates,
         userDisplayName,
-        isAnonymous,
-        showSecretConfigSpa
+        isAnonymous
       };
 
       m.mount(body, {

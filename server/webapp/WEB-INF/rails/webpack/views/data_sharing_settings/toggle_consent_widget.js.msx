@@ -52,8 +52,8 @@ const ToggleConsentWidget = {
           This allows the calculation of the average number of pipelines a GoCD instance has. Knowing the average number
           of pipelines helps us optimize the GoCD experience.
         </div>
-        <div className="consent-for">
-          <span className="key">Number of config repo pipelines (config_repo_pipeline_count) [Added in GoCD v18.8.0]:</span>
+        <div class="consent-for">
+          <span class="key">Number of config repo pipelines (config_repo_pipeline_count) [Added in GoCD v18.8.0]:</span>
           This count provides a measure of usefulness of the pipeline as code feature.
           We plan to make this feature better soon and this metric will be used as an indicator of success of this effort.
         </div>
@@ -66,8 +66,8 @@ const ToggleConsentWidget = {
           <span class="key">Oldest pipeline run time (oldest_pipeline_execution_time):</span>
             This provides data around the age of the GoCD instance. Along with the number of pipelines data point, it helps establish an expected growth in the number of pipelines.
         </div>
-        <div className="consent-for">
-          <span className="key">Number of elastic agent jobs (job_count and elastic_agent_job_count) [Added in GoCD v18.8.0]:</span>
+        <div class="consent-for">
+          <span class="key">Number of elastic agent jobs (job_count and elastic_agent_job_count) [Added in GoCD v18.8.0]:</span>
           These counts provides a measure of usefulness of elastic agent plugins.
           We’ve recently spent effort on elastic agents plugins (for Kubernetes, Docker, etc).
           This helps decide which plugins to put more effort into and improve.

@@ -59,16 +59,16 @@ const PipelineHeaderWidget = {
     let pipelineLockButton;
     if (pipeline.isLocked) {
       pipelineLockButton = pipeline.canUnlock
-        ? (<button onclick={vnode.state.unlock.bind(vnode.state, pipeline)} aria-label="Pipeline Locked" title="Pipeline Locked" className="pipeline_locked"/>)
-        : (<f.button className="pipeline_locked disabled"
+        ? (<button onclick={vnode.state.unlock.bind(vnode.state, pipeline)} aria-label="Pipeline Locked" title="Pipeline Locked" class="pipeline_locked"/>)
+        : (<f.button class="pipeline_locked disabled"
                      tooltipText={pipeline.getLockDisabledTooltipText()}/>);
     }
 
     return (
       <div class="pipeline_header">
         <div class="pipeline_sub_header">
-          <h3 className="pipeline_name">{pipeline.name}</h3>
-          <div className="pipeline_actions">
+          <h3 class="pipeline_name">{pipeline.name}</h3>
+          <div class="pipeline_actions">
             {analyticsIcons}
             {settingsButton}
             {pipelineLockButton}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,19 @@
  * limitations under the License.
  */
 
-apply plugin: 'jacoco'
-apply plugin: 'groovy'
+export class ConfigRepoCapabilities {
+  readonly supportsPipelineExport: boolean;
+  readonly supportsParseContent: boolean;
 
-dependencies {
-  compile project(':api:api-base')
+  constructor(supportsPipelineExport: boolean, supportsParseContent: boolean) {
+    this.supportsPipelineExport = supportsPipelineExport;
+    this.supportsParseContent = supportsParseContent;
+  }
 
-  testCompile project(path: ':api:api-base', configuration: 'testOutput')
-
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
-  testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
+  static fromJSON(data: any): ConfigRepoCapabilities {
+    return new ConfigRepoCapabilities(
+      data && data.supports_pipeline_export,
+      data && data.supports_parse_content,
+    );
+  }
 }

@@ -39,7 +39,7 @@ export class MaintenanceModeWidget extends MithrilViewComponent<Attrs> {
     let mayBeMaintenanceInfo;
     if (maintenanceModeInfo.maintenanceModeState()) {
       mayBeMaintenanceInfo = (
-        <div data-test-id="in-progress-subsystems" className={styles.inProgressSubsystems}>
+        <div data-test-id="in-progress-subsystems" class={styles.inProgressSubsystems}>
           <MaintenanceModeInfoWidget maintenanceModeInfo={vnode.attrs.maintenanceModeInfo} onCancelStage={vnode.attrs.onCancelStage}/>
         </div>
       );
@@ -58,8 +58,8 @@ export class MaintenanceModeWidget extends MithrilViewComponent<Attrs> {
     }
 
     return (
-      <div className={styles.maintenanceModeWidget} data-test-id="maintenance-mode-widget">
-        <p data-test-id="maintenance-mode-description" className={styles.maintenanceModeDescription}>
+      <div class={styles.maintenanceModeWidget} data-test-id="maintenance-mode-widget">
+        <p data-test-id="maintenance-mode-description" class={styles.maintenanceModeDescription}>
           When put into maintenance mode, it is safe to restart or upgrade the GoCD server without having any running
           jobs reschedule when the server is back up.
           &nbsp;

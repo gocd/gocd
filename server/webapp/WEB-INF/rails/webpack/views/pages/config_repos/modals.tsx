@@ -61,7 +61,7 @@ class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
       return {id: pluginInfo.id, text: pluginInfo.about.name};
     });
 
-    const errorMessage = vnode.attrs.error ? <div className={styles.errorWrapper}>{vnode.attrs.error}</div> : undefined;
+    const errorMessage = vnode.attrs.error ? <div class={styles.errorWrapper}>{vnode.attrs.error}</div> : undefined;
     return (
       [
         (errorMessage),
@@ -354,7 +354,11 @@ export class NewConfigRepoModal extends ConfigRepoModal {
               onError: (msg: (m.Children)) => any,
               pluginInfos: Stream<Array<PluginInfo<any>>>) {
     super(onSuccessfulSave, onError, pluginInfos);
-    this.repo(new ConfigRepo(undefined, pluginInfos()[0].id, new Material("git", new GitMaterialAttributes())));
+
+    // prefer the YAML plugin and fallback to the first plugin when not present
+    const defaultPlugin = pluginInfos().find((p) => ConfigRepo.YAML_PLUGIN_ID === p.id) || pluginInfos()[0];
+
+    this.repo(new ConfigRepo(undefined, defaultPlugin.id, new Material("git", new GitMaterialAttributes())));
     this.isNew = true;
   }
 

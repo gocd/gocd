@@ -65,15 +65,13 @@ public class NewDashboardController implements SparkController {
     public ModelAndView index(Request request, Response response) {
         Username username = currentUsername();
         if (pipelineConfigService.viewableGroupsFor(username).isEmpty() && securityService.canCreatePipelines(username)) {
-            response.redirect("/go/admin/pipeline/new?group=defaultGroup");
+            response.redirect("/go/admin/pipelines/create?group=defaultGroup");
             return null;
         }
         HashMap<Object, Object> object = new HashMap<Object, Object>() {{
             put("viewTitle", "Dashboard");
             put("showEmptyPipelineGroups", Toggles.isToggleOn(Toggles.ALLOW_EMPTY_PIPELINE_GROUPS_DASHBOARD));
             put("shouldShowAnalyticsIcon", showAnalyticsIcon());
-            put("useNewAddPipelineFlow", Toggles.isToggleOn(Toggles.NEW_ADD_PIPELINE_FLOW));
-            put("addPipelineButtonStyling", Toggles.isToggleOn(Toggles.ADD_PIPELINE_BUTTON_STYLING));
         }};
         return new ModelAndView(object, "new_dashboard/index.ftlh");
     }

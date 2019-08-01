@@ -6,7 +6,7 @@
     Pipelines
     <span class="title_secondary_info">
       <% if @groups.size() == 0 %>
-        <%= link_to 'Create a new pipeline', pipeline_new_path(:group => com.thoughtworks.go.config.PipelineConfigs::DEFAULT_GROUP), :class => "link_as_button primary add_pipeline_to_group" -%>
+        <%= link_to 'Create a new pipeline', spark_pipelines_new_path(:group => com.thoughtworks.go.config.PipelineConfigs::DEFAULT_GROUP), :class => "link_as_button primary add_pipeline_to_group" -%>
       <% end %>
       <% if is_user_an_admin? %>
         <a href="#" class="link_as_button primary" onclick="Modalbox.show('<%= pipeline_group_new_path -%>', {overlayClose: false,title: 'Add New Pipeline Group'})">
@@ -42,11 +42,7 @@
               <div class="information">No pipelines associated with this group</div>
             </div>
             <div class="add_first_pipeline_in_group">
-              <% if use_new_add_pipeline_flow? %>
-                <%= link_to 'Create a new pipeline within this group', new_pipeline_new_path(:group => group.getGroup()), :class => "add_link add_pipeline_to_group" -%>
-              <% else %>
-                <%= link_to 'Create a new pipeline within this group', pipeline_new_path(:group => group.getGroup()), :class => "add_link add_pipeline_to_group" -%>
-              <% end %>
+              <%= link_to 'Create a new pipeline within this group', spark_pipelines_new_path(:group => group.getGroup()), :class => "add_link add_pipeline_to_group" -%>
             </div>
         <% else %>
 
@@ -144,11 +140,7 @@
               <% end %>
               </tbody>
             </table>
-            <% if use_new_add_pipeline_flow? %>
-              <%= link_to 'Create a new pipeline within this group', new_pipeline_new_path(:group => group.getGroup()), :class => "add_link add_pipeline_to_group" -%>
-            <% else %>
-              <%= link_to 'Create a new pipeline within this group', pipeline_new_path(:group => group.getGroup()), :class => "add_link add_pipeline_to_group" -%>
-            <% end %>
+            <%= link_to 'Create a new pipeline within this group', spark_pipelines_new_path(:group => group.getGroup()), :class => "add_link add_pipeline_to_group" -%>
         <% end %>
       </div>
   <% end %>

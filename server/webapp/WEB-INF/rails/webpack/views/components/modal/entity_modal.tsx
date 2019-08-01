@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {bind} from "classnames/bind";
+import classnames from "classnames";
 import {ApiResult, ErrorResponse, ObjectWithEtag, SuccessResponse} from "helpers/api_request_builder";
 import _ = require("lodash");
 import * as m from "mithril";
@@ -28,8 +28,6 @@ import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Modal, ModalState, Size} from "views/components/modal/index";
 import * as foundationStyles from "views/pages/new_plugins/foundation_hax.scss";
 import * as styles from "./index.scss";
-
-const foundationClassNames = bind(foundationStyles);
 
 export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
   protected entity: Stream<T>;
@@ -69,11 +67,11 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
 
   body(): m.Children {
     const flashMessage = this.errorMessage() ?
-      <div className={styles.errorWrapper}><FlashMessage type={MessageType.alert} message={this.errorMessage()}/>
+      <div class={styles.errorWrapper}><FlashMessage type={MessageType.alert} message={this.errorMessage()}/>
       </div> : null;
     return [
       flashMessage,
-      <div className={foundationClassNames(foundationStyles.foundationGridHax, foundationStyles.foundationFormHax)}>
+      <div class={classnames(foundationStyles.foundationGridHax, foundationStyles.foundationFormHax)}>
         {this.modalBody()}
       </div>
     ];

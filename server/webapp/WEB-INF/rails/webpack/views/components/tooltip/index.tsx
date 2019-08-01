@@ -17,12 +17,10 @@
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
 
-import {bind} from "classnames/bind";
+import classnames from "classnames";
 import {InfoCircle, QuestionCircle} from "views/components/icons";
 import * as Icons from "views/components/icons";
 import * as styles from "./index.scss";
-
-const classnames = bind(styles);
 
 export enum TooltipSize {
   small,
@@ -51,7 +49,7 @@ class Tooltip extends MithrilViewComponent<Attrs> {
       <div data-test-id="tooltip-wrapper" class={styles.tooltipWrapper}>
         {m(this.tooltipType, {iconOnly: true})}
         <div data-test-id="tooltip-content"
-             className={classnames(styles.tooltipContent, size)}>
+             class={classnames(styles.tooltipContent, size)}>
           <p>{vnode.attrs.content}</p>
         </div>
       </div>);

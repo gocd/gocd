@@ -76,7 +76,7 @@ class Dropdown {
         <a aria-label={`Group by ${selectedText}`} tabindex="0" class="c-dropdown_head"
            onclick={toggleDropdown.bind(this, vnode.state)}>{selectedText}</a>
         <i role="presentation" class="c-down-arrow" onclick={toggleDropdown.bind(this, vnode.state)}/>
-        <div className="c-dropdown_body">
+        <div class="c-dropdown_body">
           {dropdownHtml}
         </div>
       </div>

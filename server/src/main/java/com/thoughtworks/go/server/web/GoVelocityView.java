@@ -114,7 +114,6 @@ public class GoVelocityView extends VelocityToolboxView {
         velocityContext.put(SHOW_ANALYTICS_DASHBOARD, (securityService.isUserAdmin(username) && supportsAnalyticsDashboard()));
         velocityContext.put(WEBPACK_ASSETS_SERVICE, webpackAssetsService());
         velocityContext.put(MAINTENANCE_MODE_SERVICE, getMaintenanceModeService());
-        velocityContext.put(Toggles.SHOW_SECRET_CONFIG_SPA, Toggles.isToggleOn(Toggles.SHOW_SECRET_CONFIG_SPA));
 
         if (!SessionUtils.hasAuthenticationToken(request)) {
             return;

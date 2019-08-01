@@ -51,15 +51,8 @@ public class SecretConfigsController implements SparkController {
     public void setupRoutes() {
         path(controllerBasePath(), () -> {
             before("", authenticationHelper::checkAdminUserAnd403);
-            before("", this::showWhenEnabled);
             get("", this::index, engine);
         });
-    }
-
-    private void showWhenEnabled(Request request, Response response) {
-        if (!featureToggleService.isToggleOn(Toggles.SHOW_SECRET_CONFIG_SPA)) {
-            throw authenticationHelper.renderNotFoundResponse();
-        }
     }
 
     public ModelAndView index(Request request, Response response) {

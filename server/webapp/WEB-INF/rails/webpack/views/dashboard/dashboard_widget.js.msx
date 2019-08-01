@@ -86,8 +86,6 @@ const DashboardWidget = {
 
           {messageView}
           <DashboardGroupsWidget scheme={vm.scheme()}
-                                 useNewAddPipelineFlow={args.useNewAddPipelineFlow}
-                                 addPipelineButtonStyling={args.addPipelineButtonStyling}
                                  invalidateEtag={vm.invalidateEtag}
                                  resolver={dashboard} {...sharedGroupArgs}
                                  groups={vm.filteredGroups(personalizeVM.currentFilter())}/>

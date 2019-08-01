@@ -37,8 +37,8 @@ export class LogoutPageWidget extends MithrilViewComponent<AuthPluginInfo> {
       return LogoutPageWidget.redirectMessage();
     }
     return (
-      <div className={styles.loggedOut}>
-        <div className={styles.logoutGraphics}>
+      <div class={styles.loggedOut}>
+        <div class={styles.logoutGraphics}>
           <img src={loggedOut}/>
         </div>
         <p>You have been logged out. <a href={LOGIN_PAGE_URL}>Click here</a> to login again.</p>
@@ -48,8 +48,8 @@ export class LogoutPageWidget extends MithrilViewComponent<AuthPluginInfo> {
 
   private static redirectMessage() {
     return (
-      <div className={styles.loggedOut}>
-        <div className={styles.logoutGraphics}>
+      <div class={styles.loggedOut}>
+        <div class={styles.logoutGraphics}>
           <img src={loggedOut}/>
         </div>
         <p>

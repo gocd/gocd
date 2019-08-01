@@ -200,7 +200,7 @@ const PipelineOperationsWidget = {
         pausedTimeMsg            = <div title={pausedAtServerTime}>on {pausedAtLocalTime}</div>;
       }
       pipelinePauseMessage = (<div
-        className="pipeline_pause-message">
+        class="pipeline_pause-message">
         {pausedMessage}
         {pausedTimeMsg}
       </div>);
@@ -209,7 +209,7 @@ const PipelineOperationsWidget = {
     return (
       <div>
         {flashMessage}
-        <ul className="pipeline_operations">
+        <ul class="pipeline_operations">
           <li>
             <f.button onclick={!pipeline.triggerDisabled() && vnode.state.trigger.bind(vnode.state, pipeline)}
                       class={`pipeline_btn play ${(pipeline.triggerDisabled() ? 'disabled' : '')}`}

@@ -25,4 +25,3 @@ export const button: string;
 export const buttonGroup: string;
 export const btnDropdownContainer: string;
 export const saveBtns: string;
-export const errorResponse: string;

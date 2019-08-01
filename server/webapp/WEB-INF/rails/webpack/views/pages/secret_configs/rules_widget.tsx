@@ -44,9 +44,9 @@ export class RulesWidget extends MithrilViewComponent<AutoCompleteAttrs> {
       , "Type"
       , <div>
         Resources
-        <span className={styles.warningWrapper}>
-          <i className={styles.infoIcon}/>
-          <div className={styles.warningContent}>
+        <span class={styles.warningWrapper}>
+          <i class={styles.infoIcon}/>
+          <div class={styles.warningContent}>
             Resource can be the name of the entity or a wildcard which matches one or more entities.
           </div>
         </span>
@@ -95,7 +95,7 @@ export class RulesWidget extends MithrilViewComponent<AutoCompleteAttrs> {
       <h2>Rules </h2>
       <FlashMessage type={MessageType.info}
                     message="The default rule is to deny access to this secret configuration for all GoCD entities. Configure rules below to override that behavior."/>
-      <div data-test-id="rules-table" className={styles.rulesTable}>
+      <div data-test-id="rules-table" class={styles.rulesTable}>
         <Table headers={RulesWidget.headers()}
                data={new RulesWidgetBody(vnode.attrs.rules,
                                          vnode.attrs.resourceAutocompleteHelper,
@@ -155,7 +155,7 @@ class RulesWidgetBody {
           required={true}/>,
         <Buttons.Cancel data-test-id="rule-delete"
                         onclick={this.removeRule.bind(this, rule)}>
-          <span className={styles.iconDelete}></span>
+          <span class={styles.iconDelete}></span>
         </Buttons.Cancel>
       ];
     });
@@ -184,7 +184,7 @@ export class RulesInfoWidget extends MithrilViewComponent<Attrs> {
     });
     return <div data-test-id="rules-info">
       <h3>Rules</h3>
-      <div data-test-id="rule-table" className={styles.rulesWrapper}>
+      <div data-test-id="rule-table" class={styles.rulesWrapper}>
         <Table headers={RulesInfoWidget.headers()} data={ruleData}/>
       </div>
     </div>;

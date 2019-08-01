@@ -124,8 +124,6 @@ api/api-config-repo-operations-v1/config/
 api/api-config-repo-operations-v1/logs/
 api/api-config-repo-operations-v1/out/
 api/api-config-repo-operations-v1/target/
-api/api-config-repos-v1/config/
-api/api-config-repos-v1/out/
 api/api-version-v1/out/
 api/api-version-v1/logs/
 api/api-version-v1/target/
@@ -163,10 +161,6 @@ api/api-encryption-v1/target/
 api/api-material-search-v1/logs/
 api/api-material-search-v1/out/
 api/api-material-search-v1/target/
-api/api-pipeline-config-v6/config/
-api/api-pipeline-config-v6/logs/
-api/api-pipeline-config-v6/out/
-api/api-pipeline-config-v6/target/
 api/api-pipeline-groups-v1/config/
 api/api-pipeline-groups-v1/logs/
 api/api-pipeline-groups-v1/out/

@@ -152,7 +152,7 @@ export class GoCDRoleWidget extends RoleWidget {
     const gocdRole = vnode.attrs.role as GoCDRole;
     let body;
     if (gocdRole.attributes().users.length === 0) {
-      body = (<span data-test-id="no-users-message" className={styles.noUsersMessage}>No users in this role.</span>);
+      body = (<span data-test-id="no-users-message" class={styles.noUsersMessage}>No users in this role.</span>);
     } else {
       body = (<UsersWidget roleAttributes={gocdRole.attributes}/>);
     }

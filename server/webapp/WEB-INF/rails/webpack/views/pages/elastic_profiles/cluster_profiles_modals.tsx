@@ -15,7 +15,7 @@
  */
 const AngularPluginNew = require("views/shared/angular_plugin_new");
 
-import {bind} from "classnames/bind";
+import classnames from "classnames";
 import {ApiResult, ErrorResponse, ObjectWithEtag} from "helpers/api_request_builder";
 import * as _ from "lodash";
 import * as m from "mithril";
@@ -35,8 +35,6 @@ import {Modal, Size} from "views/components/modal";
 import {Spinner} from "views/components/spinner";
 import * as styles from "views/pages/elastic_profiles/index.scss";
 import * as foundationStyles from "views/pages/new_plugins/foundation_hax.scss";
-
-const foundationClassNames = bind(foundationStyles);
 
 export enum ModalType {
   edit, create
@@ -150,7 +148,7 @@ export abstract class BaseClusterProfileModal extends Modal {
         </div>
         <div>
           {errorSection}
-          <div className={foundationClassNames(foundationStyles.foundationGridHax, foundationStyles.foundationFormHax)}>
+          <div class={classnames(foundationStyles.foundationGridHax, foundationStyles.foundationFormHax)}>
             <div class="row collapse" data-test-id="cluster-profile-properties-form">
               {clusterProfileForm}
             </div>

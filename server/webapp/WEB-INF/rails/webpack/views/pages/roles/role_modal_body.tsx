@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {bind} from "classnames/bind";
+import classnames from "classnames";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
@@ -28,8 +28,6 @@ import {Spinner} from "views/components/spinner";
 import * as foundationStyles from "views/pages/new_plugins/foundation_hax.scss";
 import {GoCDRoleModalBodyWidget, PluginRoleModalBodyWidget} from "views/pages/roles/role_modal_body_widget";
 import * as styles from "./index.scss";
-
-const foundationClassNames = bind(foundationStyles);
 
 export enum Action {
   NEW, CLONE, EDIT
@@ -52,32 +50,32 @@ export class RoleModalBody extends MithrilViewComponent<RoleModalAttrs> {
     }
 
     if (!vnode.attrs.role || (vnode.attrs.isStale && vnode.attrs.isStale())) {
-      return <div className={styles.spinnerWrapper}><Spinner/></div>;
+      return <div class={styles.spinnerWrapper}><Spinner/></div>;
     }
 
     let mayBeTypeSelector: any;
     if (vnode.attrs.action === Action.NEW) {
       mayBeTypeSelector = (
         <div data-test-id="role-type-selector">
-          <label className="inline">Select type of role:&nbsp;&nbsp;&nbsp;</label>
+          <label class="inline">Select type of role:&nbsp;&nbsp;&nbsp;</label>
           <input
-            className="core-role"
+            class="core-role"
             id="core-role"
             name="role-type-selector"
             type="radio"
             checked={!vnode.attrs.role().isPluginRole()}
             onclick={vnode.attrs.changeRoleType && vnode.attrs.changeRoleType.bind(this, RoleType.gocd)}/>
-          <label className="inline" for="core-role">GoCD Role</label>
+          <label class="inline" for="core-role">GoCD Role</label>
 
           <input
-            className="plugin-role"
+            class="plugin-role"
             name="role-type-selector"
             id="plugin-role"
             type="radio"
             disabled={!RoleModalBody.hasAuthConfigs(vnode)}
             checked={vnode.attrs.role().isPluginRole()}
             onclick={vnode.attrs.changeRoleType && vnode.attrs.changeRoleType.bind(this, RoleType.plugin)}/>
-          <label className={!RoleModalBody.hasAuthConfigs(vnode) ? `${styles.disabled} inline` : "inline"}
+          <label class={!RoleModalBody.hasAuthConfigs(vnode) ? `${styles.disabled} inline` : "inline"}
                  disabled={!RoleModalBody.hasAuthConfigs(vnode)} for="plugin-role">Plugin Role</label>
         </div>
       );
@@ -96,7 +94,7 @@ export class RoleModalBody extends MithrilViewComponent<RoleModalAttrs> {
                                  role={vnode.attrs.role()}/>);
     }
 
-    return (<div class={foundationClassNames(foundationStyles.foundationGridHax, foundationStyles.foundationFormHax)}>
+    return (<div class={classnames(foundationStyles.foundationGridHax, foundationStyles.foundationFormHax)}>
         {mayBeTypeSelector}
         {roleWidget}
       </div>

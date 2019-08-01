@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {bind} from "classnames/bind";
+import classnames from "classnames";
 import {ApiResult, ErrorResponse, ObjectWithEtag} from "helpers/api_request_builder";
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
@@ -33,7 +33,6 @@ import {Table} from "views/components/table";
 import * as styles from "views/pages/elastic_profiles/index.scss";
 import * as foundationStyles from "views/pages/new_plugins/foundation_hax.scss";
 
-const foundationClassNames = bind(foundationStyles);
 const AngularPluginNew     = require("views/shared/angular_plugin_new");
 import * as _ from "lodash";
 
@@ -126,7 +125,7 @@ abstract class BaseElasticProfileModal extends Modal {
     const elasticProfileConfigurations = (elasticAgentExtension as ElasticAgentSettings).profileSettings;
 
     return (
-      <div class={foundationClassNames(foundationStyles.foundationGridHax, foundationStyles.foundationFormHax)}>
+      <div class={classnames(foundationStyles.foundationGridHax, foundationStyles.foundationFormHax)}>
         <div>
           <FormHeader>
             <FlashMessage type={MessageType.alert} message={this.noClusterProfileError}/>
@@ -336,14 +335,14 @@ export class UsageElasticProfileModal extends Modal {
     }
 
     const data = this.usages.map((usage) => [
-      <span className={styles.tableCell}>{usage.pipelineName()}</span>,
-      <span className={styles.tableCell}>{usage.stageName()}</span>,
-      <span className={styles.tableCell}>{usage.jobName()}</span>,
+      <span class={styles.tableCell}>{usage.pipelineName()}</span>,
+      <span class={styles.tableCell}>{usage.stageName()}</span>,
+      <span class={styles.tableCell}>{usage.jobName()}</span>,
       UsageElasticProfileModal.anchorToSettings(usage)
     ]);
     return (
       <div>
-        <em className={styles.note}>* The `Job settings` link will be disabled when pipeline config is defined
+        <em class={styles.note}>* The `Job settings` link will be disabled when pipeline config is defined
           externally.</em>
         <Table headers={["Pipeline", "Stage", "Job", " "]} data={data}/>
       </div>

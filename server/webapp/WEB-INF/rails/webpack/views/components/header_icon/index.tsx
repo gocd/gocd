@@ -36,12 +36,12 @@ export class HeaderIcon extends MithrilComponent<Attrs> {
       </div>;
     }
     if (vnode.children && !_.isEmpty(vnode.children)) {
-      return <div className={styles.headerIcon}>
+      return <div class={styles.headerIcon}>
         {vnode.children}
       </div>;
     }
     return <div class={styles.headerIcon}>
-      <span aria-label={name} className={styles.unknownIcon}/>
+      <span aria-label={name} class={styles.unknownIcon}/>
     </div>;
   }
 

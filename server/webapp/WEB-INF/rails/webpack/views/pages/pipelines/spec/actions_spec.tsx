@@ -23,6 +23,7 @@ import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {LocationHandler, PipelineActions} from "../actions";
 import * as css from "../actions.scss";
+import * as errCss from "../server_errors.scss";
 
 class TestLocationHandler implements LocationHandler {
   urls: string[] = [];
@@ -41,6 +42,7 @@ class TestLocationHandler implements LocationHandler {
 }
 
 const sel = asSelector<typeof css>(css);
+const errSel = asSelector<typeof errCss>(errCss);
 const helper = new TestHelper();
 const loc = new TestLocationHandler();
 
@@ -67,8 +69,8 @@ describe("AddPipeline: Actions Section", () => {
     const saveActions = helper.q(sel.saveBtns, top);
     expect(saveActions).toBeTruthy();
 
-    expect(helper.q(sel.errorResponse, saveActions)).toBeTruthy();
-    expect(helper.q(sel.errorResponse, saveActions).textContent).toBe("");
+    expect(helper.q(errSel.errorResponse, saveActions)).toBeTruthy();
+    expect(helper.q(errSel.errorResponse, saveActions).textContent).toBe("");
 
     expect(helper.q(sel.btnSecondary, saveActions)).toBeTruthy();
     expect(helper.q(sel.btnSecondary, saveActions).textContent).toBe("Save + Edit Full Config");
@@ -84,7 +86,7 @@ describe("AddPipeline: Actions Section", () => {
 
     expect(config.isValid).toHaveBeenCalled();
     expect(config.create).not.toHaveBeenCalled();
-    expect(helper.text(sel.errorResponse)).toBe("Please fix the validation errors above before proceeding.");
+    expect(helper.text(errSel.errorResponse)).toBe("Please fix the validation errors above before proceeding.");
   });
 
   it("Cancel goes to the dashboard but does not create", () => {
@@ -106,7 +108,7 @@ describe("AddPipeline: Actions Section", () => {
 
     createPromise.then(() => {
       setTimeout(() => { // allow the outer promise.then() wrapping createPromise to finish
-        expect(helper.text(sel.errorResponse)).toBe("uh-oh!");
+        expect(helper.text(errSel.errorResponse)).toBe("uh-oh!");
         const mat = Array.from(config.materials()).pop()!;
         expect(mat.attributes().errors().hasErrors("url")).toBe(true);
         expect(mat.attributes().errors().errorsForDisplay("url")).toBe("This url is bogus.");
@@ -127,7 +129,7 @@ describe("AddPipeline: Actions Section", () => {
 
     createPromise.then(() => {
       setTimeout(() => { // allow the outer promise.then() wrapping createPromise to finish
-        expect(helper.text(sel.errorResponse)).toBe("uh-oh!: pipelineConfig.materials[0].something: unknown. error.");
+        expect(helper.text(errSel.errorResponse)).toBe("uh-oh!: pipelineConfig.materials[0].something: unknown. error.");
         const mat = Array.from(config.materials()).pop()!;
         expect(mat.attributes().errors().hasErrors("url")).toBe(true);
         expect(mat.attributes().errors().errorsForDisplay("url")).toBe("This url is bogus.");

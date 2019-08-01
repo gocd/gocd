@@ -108,15 +108,13 @@
   <rule>
     <name>Spark Plugin Settings Create API</name>
     <from>^/api/admin/plugin_settings(/?)$</from>
-    <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="pluginSettingsAPIUsingRails"/>
-    <to last="true">/%{attribute:sparkOrRails}/api/admin/plugin_settings</to>
+    <to last="true">/spark/api/admin/plugin_settings</to>
   </rule>
 
   <rule>
     <name>Spark Plugin Settings Get and Update API</name>
     <from>^/api/admin/plugin_settings/(.*)$</from>
-    <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="pluginSettingsAPIUsingRails"/>
-    <to last="true">/%{attribute:sparkOrRails}/api/admin/plugin_settings/${escape:$1}</to>
+    <to last="true">/spark/api/admin/plugin_settings/${escape:$1}</to>
   </rule>
 
   <rule>
@@ -134,15 +132,13 @@
   <rule>
     <name>Spark Pluggable SCMs Index API</name>
     <from>^/api/admin/scms(/?)$</from>
-    <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="pluggableScmsUsingRails"/>
-    <to last="true">/%{attribute:sparkOrRails}/api/admin/scms</to>
+    <to last="true">/spark/api/admin/scms</to>
   </rule>
 
   <rule>
     <name>Spark Pluggable SCM CRUD API</name>
     <from>^/api/admin/scms/(.*)$</from>
-    <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="pluggableScmsUsingRails"/>
-    <to last="true">/%{attribute:sparkOrRails}/api/admin/scms/${escape:$1}</to>
+    <to last="true">/spark/api/admin/scms/${escape:$1}</to>
   </rule>
 
   <rule>
@@ -670,22 +666,19 @@
   <rule>
     <name>Security Auth Configs API Index API</name>
     <from>^/api/admin/security/auth_configs</from>
-    <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="securityAuthConfigApi"/>
-    <to last="true">/%{attribute:sparkOrRails}/api/admin/security/auth_configs</to>
+    <to last="true">/spark/api/admin/security/auth_configs</to>
   </rule>
 
   <rule>
     <name>Security Auth Configs API</name>
     <from>^/api/admin/security/auth_configs/(.*)$</from>
-    <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="securityAuthConfigApi"/>
-    <to last="true">/%{attribute:sparkOrRails}/api/admin/security/auth_configs/${escape:$1}</to>
+    <to last="true">/spark/api/admin/security/auth_configs/${escape:$1}</to>
   </rule>
 
   <rule>
     <name>Security Auth Configs internal API</name>
     <from>^/api/admin/internal/security/auth_configs/verify_connection$</from>
-    <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="securityAuthConfigApi"/>
-    <to last="true">/%{attribute:sparkOrRails}/api/admin/internal/security/auth_configs/verify_connection</to>
+    <to last="true">/spark/api/admin/internal/security/auth_configs/verify_connection</to>
   </rule>
 
   <rule>

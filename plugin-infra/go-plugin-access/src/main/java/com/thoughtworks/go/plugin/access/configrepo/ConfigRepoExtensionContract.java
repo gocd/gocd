@@ -31,6 +31,8 @@ public interface ConfigRepoExtensionContract {
 
     CRParseResult parseDirectory(String pluginId, final String destinationFolder, final Collection<CRConfigurationProperty> configurations);
 
+    ConfigFileList getConfigFiles(String pluginId, final String destinationFolder, final Collection<CRConfigurationProperty> configurations);
+
     CRParseResult parseContent(String pluginId, Map<String, String> content);
 
     ExportedConfig pipelineExport(String pluginId, final CRPipeline pipelineConfig);

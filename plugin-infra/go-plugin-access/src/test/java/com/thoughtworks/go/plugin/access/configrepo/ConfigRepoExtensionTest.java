@@ -19,6 +19,7 @@ import com.thoughtworks.go.plugin.access.ExtensionsRegistry;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
 import com.thoughtworks.go.plugin.access.configrepo.v1.JsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.access.configrepo.v2.JsonMessageHandler2_0;
+import com.thoughtworks.go.plugin.access.configrepo.v3.JsonMessageHandler3_0;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import com.thoughtworks.go.plugin.configrepo.codec.GsonCodec;
@@ -33,10 +34,7 @@ import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.CONFIG_REPO_EXTENSION;
 import static org.hamcrest.Matchers.is;
@@ -57,6 +55,8 @@ public class ConfigRepoExtensionTest {
     @Mock
     private JsonMessageHandler2_0 jsonMessageHandler2;
     @Mock
+    private JsonMessageHandler3_0 jsonMessageHandler3;
+    @Mock
     ExtensionsRegistry extensionsRegistry;
     private ConfigRepoExtension extension;
     private String responseBody = "expected-response";
@@ -75,10 +75,11 @@ public class ConfigRepoExtensionTest {
         extension = new ConfigRepoExtension(pluginManager, extensionsRegistry);
         extension.getMessageHandlerMap().put("1.0", jsonMessageHandler1);
         extension.getMessageHandlerMap().put("2.0", jsonMessageHandler2);
+        extension.getMessageHandlerMap().put("3.0", jsonMessageHandler3);
 
         requestArgumentCaptor = ArgumentCaptor.forClass(GoPluginApiRequest.class);
 
-        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, CONFIG_REPO_EXTENSION, new ArrayList<>(Arrays.asList("1.0", "2.0")))).thenReturn("1.0");
+        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, CONFIG_REPO_EXTENSION, new ArrayList<>(Arrays.asList("1.0", "2.0", "3.0")))).thenReturn("1.0");
         when(pluginManager.isPluginOfType(CONFIG_REPO_EXTENSION, PLUGIN_ID)).thenReturn(true);
         DefaultGoPluginApiResponse response = DefaultGoPluginApiResponse.success(responseBody);
         responseHeaders.forEach(response::addResponseHeader);
@@ -108,7 +109,7 @@ public class ConfigRepoExtensionTest {
         CRPipeline pipeline = new CRPipeline();
         String serialized = new GsonCodec().getGson().toJson(pipeline);
         when(jsonMessageHandler2.responseMessageForPipelineExport(responseBody, responseHeaders)).thenReturn(ExportedConfig.from(serialized, responseHeaders));
-        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, CONFIG_REPO_EXTENSION, new ArrayList<>(Arrays.asList("1.0", "2.0")))).thenReturn("2.0");
+        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, CONFIG_REPO_EXTENSION, new ArrayList<>(Arrays.asList("1.0", "2.0", "3.0")))).thenReturn("2.0");
 
 
         ExportedConfig response = extension.pipelineExport(PLUGIN_ID, pipeline);
@@ -120,10 +121,27 @@ public class ConfigRepoExtensionTest {
     }
 
     @Test
+    public void shouldTalkToPluginToGetConfigFiles() {
+        List<String> deserializedResponse = new ArrayList<>();
+        deserializedResponse.add("file.yaml");
+        ConfigFileList files = new ConfigFileList(deserializedResponse, null);
+        when(jsonMessageHandler3.responseMessageForConfigFiles(responseBody)).thenReturn(files);
+        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, CONFIG_REPO_EXTENSION, new ArrayList<>(Arrays.asList("1.0", "2.0", "3.0")))).thenReturn("3.0");
+
+
+        ConfigFileList response = extension.getConfigFiles(PLUGIN_ID, "dir", null);
+
+        assertRequest(requestArgumentCaptor.getValue(), CONFIG_REPO_EXTENSION, "3.0", ConfigRepoExtension.REQUEST_CONFIG_FILES, null);
+
+        verify(jsonMessageHandler3).responseMessageForConfigFiles(responseBody);
+        assertSame(response, files);
+    }
+
+    @Test
     public void shouldRequestCapabilities() {
         Capabilities capabilities = new Capabilities(true, true);
         when(jsonMessageHandler2.getCapabilitiesFromResponse(responseBody)).thenReturn(capabilities);
-        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, CONFIG_REPO_EXTENSION, new ArrayList<>(Arrays.asList("1.0", "2.0")))).thenReturn("2.0");
+        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, CONFIG_REPO_EXTENSION, new ArrayList<>(Arrays.asList("1.0", "2.0", "3.0")))).thenReturn("2.0");
 
         Capabilities res = extension.getCapabilities(PLUGIN_ID);
 

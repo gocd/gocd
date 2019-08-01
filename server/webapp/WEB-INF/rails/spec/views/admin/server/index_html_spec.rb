@@ -125,37 +125,37 @@ describe "admin/server/index.html.erb" do
     it "should show all the email fields" do
       render
 
-      Capybara.string(response.body).find('div#mail_host_config').tap do |div|
-        expect(div).to have_selector("h2.legend", "Email Notification")
+      Capybara.string(response.body).find('div#mail_host_config', visible: :hidden).tap do |div|
+        expect(div).to have_selector("h2.legend", "Email Notification", visible: :hidden)
 
-        div.find(".fieldset").tap do |fieldset|
-          fieldset.all(".form_item").tap do |form_items|
-            expect(form_items[1]).to have_selector("label", :text => "Hostname*")
-            expect(form_items[1]).to have_selector("input[type='text'][name='server_configuration_form[hostName]']")
+        div.find(".fieldset", visible: :hidden).tap do |fieldset|
+          fieldset.all(".form_item", visible: :hidden).tap do |form_items|
+            expect(form_items[1]).to have_selector("label", :text => "Hostname*", visible: :hidden)
+            expect(form_items[1]).to have_selector("input[type='text'][name='server_configuration_form[hostName]']", visible: :hidden)
 
-            expect(form_items[2]).to have_selector("label", :text => "Port*")
-            expect(form_items[2]).to have_selector("input[type='text'][name='server_configuration_form[port]']")
+            expect(form_items[2]).to have_selector("label", :text => "Port*", visible: :hidden)
+            expect(form_items[2]).to have_selector("input[type='text'][name='server_configuration_form[port]']", visible: :hidden)
 
-            expect(form_items[3]).to have_selector("label", :text => "Username")
-            expect(form_items[3]).to have_selector("input[type='text'][name='server_configuration_form[username]']")
+            expect(form_items[3]).to have_selector("label", :text => "Username", visible: :hidden)
+            expect(form_items[3]).to have_selector("input[type='text'][name='server_configuration_form[username]']", visible: :hidden)
 
-            expect(form_items[4]).to have_selector("label", :text => "Password")
-            expect(form_items[4]).to have_selector("input[type='password'][name='server_configuration_form[password]']")
-            expect(form_items[4]).to have_selector("label", :text => "Change Password")
+            expect(form_items[4]).to have_selector("label", :text => "Password", visible: :hidden)
+            expect(form_items[4]).to have_selector("input[type='password'][name='server_configuration_form[password]']", visible: :hidden)
+            expect(form_items[4]).to have_selector("label", :text => "Change Password", visible: :hidden)
 
-            expect(form_items[5]).to have_selector("label", :text => "Use SMTPS")
-            expect(form_items[5]).to have_selector("input[type='checkbox'][name='server_configuration_form[tls]']")
-            expect(form_items[5]).to have_selector("div[class='contextual_help has_go_tip_right']")
+            expect(form_items[5]).to have_selector("label", :text => "Use SMTPS", visible: :hidden)
+            expect(form_items[5]).to have_selector("input[type='checkbox'][name='server_configuration_form[tls]']", visible: :hidden)
+            expect(form_items[5]).to have_selector("div[class='contextual_help has_go_tip_right']", visible: :hidden)
 
-            help_text = form_items[5].find("div[class='contextual_help has_go_tip_right']")["title"]
+            help_text = form_items[5].find("div[class='contextual_help has_go_tip_right']", visible: :hidden)["title"]
             expect(help_text).to start_with("This changes the protocol used to send the mail. It switches between SMTP and SMTPS")
             expect(help_text).to include("<a class='' href='#{docs_url '/configuration/admin_mailhost_info.html#starttls'}'")
 
-            expect(form_items[6]).to have_selector("label", :text => "From*")
-            expect(form_items[6]).to have_selector("input[type='text'][name='server_configuration_form[from]']")
+            expect(form_items[6]).to have_selector("label", :text => "From*", visible: :hidden)
+            expect(form_items[6]).to have_selector("input[type='text'][name='server_configuration_form[from]']", visible: :hidden)
 
-            expect(form_items[7]).to have_selector("label", :text => "Admin mail*")
-            expect(form_items[7]).to have_selector("input[type='text'][name='server_configuration_form[adminMail]']")
+            expect(form_items[7]).to have_selector("label", :text => "Admin mail*", visible: :hidden)
+            expect(form_items[7]).to have_selector("input[type='text'][name='server_configuration_form[adminMail]']", visible: :hidden)
           end
         end
       end

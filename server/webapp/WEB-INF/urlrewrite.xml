@@ -669,6 +669,12 @@
   </rule>
 
   <rule>
+    <name>Internal Pipelines as Code Supporting API</name>
+    <from>^/api/admin/internal/pac/config_files(/?)$</from>
+    <to last="true">/spark/api/admin/internal/pac/config_files</to>
+  </rule>
+
+  <rule>
     <name>Default dashboard, based on toggle</name>
     <from>^/pipelines(/?)$</from>
     <to last="true">/spark/dashboard</to>

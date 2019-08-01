@@ -24,18 +24,27 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.api.util.HaltApiResponses;
 import com.thoughtworks.go.api.util.MessageJson;
+import com.thoughtworks.go.apiv1.pipelinesascodeinternal.representers.ConfigFileListsRepresenter;
 import com.thoughtworks.go.apiv8.admin.shared.representers.PipelineConfigRepresenter;
+import com.thoughtworks.go.apiv8.admin.shared.representers.materials.MaterialsRepresenter;
 import com.thoughtworks.go.apiv8.admin.shared.representers.stages.ConfigHelperOptions;
 import com.thoughtworks.go.config.ConfigRepoPlugin;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.GoConfigPluginService;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.PasswordDeserializer;
+import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.config.update.CreatePipelineConfigCommand;
+import com.thoughtworks.go.domain.materials.Material;
+import com.thoughtworks.go.domain.materials.MaterialConfig;
+import com.thoughtworks.go.domain.materials.Modification;
+import com.thoughtworks.go.plugin.access.configrepo.ConfigFileList;
 import com.thoughtworks.go.plugin.access.configrepo.ExportedConfig;
-import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.server.service.PipelineConfigService;
+import com.thoughtworks.go.server.service.*;
+import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
+import com.thoughtworks.go.util.FileUtil;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -44,11 +53,16 @@ import spark.HaltException;
 import spark.Request;
 import spark.Response;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseOfReason;
-import static com.thoughtworks.go.spark.Routes.PaC.BASE_INTERNAL_API;
-import static com.thoughtworks.go.spark.Routes.PaC.PREVIEW;
+import static com.thoughtworks.go.plugin.domain.common.PluginConstants.CONFIG_REPO_EXTENSION;
+import static com.thoughtworks.go.spark.Routes.PaC.*;
 import static java.lang.String.format;
 import static spark.Spark.*;
 
@@ -60,6 +74,11 @@ public class PipelinesAsCodeInternalControllerV1 extends ApiController implement
     private final GoConfigService goConfigService;
     private final GoConfigPluginService pluginService;
     private final PipelineConfigService pipelineService;
+    private DefaultPluginInfoFinder defaultPluginInfoFinder;
+    private MaterialService materialService;
+    private final MaterialConfigConverter materialConfigConverter;
+    private final SubprocessExecutionContext subprocessExecutionContext;
+    private ConfigRepoService configRepoService;
 
     @Autowired
     public PipelinesAsCodeInternalControllerV1(
@@ -67,13 +86,23 @@ public class PipelinesAsCodeInternalControllerV1 extends ApiController implement
             PasswordDeserializer passwordDeserializer,
             GoConfigService goConfigService,
             GoConfigPluginService pluginService,
-            PipelineConfigService pipelineService) {
+            PipelineConfigService pipelineService,
+            DefaultPluginInfoFinder defaultPluginInfoFinder,
+            MaterialService materialService,
+            MaterialConfigConverter materialConfigConverter,
+            SubprocessExecutionContext subprocessExecutionContext,
+            ConfigRepoService configRepoService) {
         super(ApiVersion.v1);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
         this.passwordDeserializer = passwordDeserializer;
         this.goConfigService = goConfigService;
         this.pluginService = pluginService;
         this.pipelineService = pipelineService;
+        this.defaultPluginInfoFinder = defaultPluginInfoFinder;
+        this.materialService = materialService;
+        this.materialConfigConverter = materialConfigConverter;
+        this.subprocessExecutionContext = subprocessExecutionContext;
+        this.configRepoService = configRepoService;
     }
 
     @Override
@@ -85,9 +114,49 @@ public class PipelinesAsCodeInternalControllerV1 extends ApiController implement
     public void setupRoutes() {
         path(controllerBasePath(), () -> {
             before(PREVIEW, this.mimeType, this::setContentType, this::verifyContentType, this.apiAuthenticationHelper::checkAdminUserAnd403);
+            before(CONFIG_FILES, this.mimeType, this::setContentType, this::verifyContentType, this.apiAuthenticationHelper::checkAdminUserAnd403);
 
             post(PREVIEW, this.mimeType, this::preview);
+
+            post(CONFIG_FILES, this.mimeType, this::configFiles);
         });
+    }
+
+    String configFiles(Request req, Response res) {
+        File folder = FileUtil.createTempFolder();
+        String responseText;
+        try {
+            JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(req.body());
+
+            ConfigHelperOptions options = new ConfigHelperOptions(goConfigService.getCurrentConfig(), passwordDeserializer);
+            MaterialConfig materialConfig = MaterialsRepresenter.fromJSON(jsonReader, options);
+
+            if (configRepoService.hasConfigRepoByFingerprint(materialConfig.getFingerprint())) {
+                res.status(409);
+                responseText = MessageJson.create("Material is already being used as a config repository");
+            } else {
+                Map<String, ConfigFileList> pacPluginFiles = new HashMap<>();
+                checkoutFromMaterialConfig(materialConfig, folder);
+                defaultPluginInfoFinder.pluginDisplayNameToPluginId(CONFIG_REPO_EXTENSION).forEach((k, pluginId) -> {
+                    ConfigRepoPlugin crPlugin = (ConfigRepoPlugin) pluginService.partialConfigProviderFor(pluginId);
+                    pacPluginFiles.put(pluginId, crPlugin.getConfigFiles(folder, new ArrayList<>()));
+                });
+                responseText = jsonizeAsTopLevelObject(req, w -> ConfigFileListsRepresenter.toJSON(w, pacPluginFiles));
+            }
+        } catch (Exception ex) {
+            res.status(500);
+            responseText = MessageJson.create(ex.getMessage());
+        } finally {
+            FileUtils.deleteQuietly(folder);
+        }
+
+        return responseText;
+    }
+
+    protected void checkoutFromMaterialConfig(MaterialConfig materialConfig, File folder) {
+        Material material = materialConfigConverter.toMaterial(materialConfig);
+        List<Modification> modifications = materialService.latestModification(material, folder, subprocessExecutionContext);
+        materialService.checkout(material, folder, Modification.latestRevision(modifications), subprocessExecutionContext);
     }
 
     String preview(Request req, Response res) {

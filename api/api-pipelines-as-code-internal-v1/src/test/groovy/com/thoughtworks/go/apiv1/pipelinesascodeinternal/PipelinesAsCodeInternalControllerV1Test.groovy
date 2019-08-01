@@ -23,8 +23,15 @@ import com.thoughtworks.go.config.CruiseConfig
 import com.thoughtworks.go.config.GoConfigPluginService
 import com.thoughtworks.go.config.PipelineConfig
 import com.thoughtworks.go.config.materials.PasswordDeserializer
+import com.thoughtworks.go.config.materials.SubprocessExecutionContext
 import com.thoughtworks.go.config.update.CreatePipelineConfigCommand
+import com.thoughtworks.go.domain.materials.MaterialConfig
+import com.thoughtworks.go.plugin.access.configrepo.ConfigFileList
+import com.thoughtworks.go.server.service.ConfigRepoService
+import com.thoughtworks.go.server.service.MaterialConfigConverter
+import com.thoughtworks.go.server.service.MaterialService
 import com.thoughtworks.go.server.service.PipelineConfigService
+import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder
 import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.SecurityServiceTrait
@@ -45,6 +52,10 @@ class PipelinesAsCodeInternalControllerV1Test implements SecurityServiceTrait, C
   private static final String PLUGIN_ID = "test.config.plugin"
   private static final String GROUP_NAME = "test-group"
   private static final String PIPELINE_NAME = "test-pipeline"
+  private static final String MATERIAL_URL = "git@someplace.com"
+  private static final String MATERIAL_BRANCH = "master"
+  private static final String MATERIAL_TYPE = "git"
+
 
   @Mock
   GoConfigPluginService pluginService
@@ -58,6 +69,21 @@ class PipelinesAsCodeInternalControllerV1Test implements SecurityServiceTrait, C
   @Mock
   PipelineConfigService pipelineService
 
+  @Mock
+  DefaultPluginInfoFinder defaultPluginInfoFinder
+
+  @Mock
+  MaterialService materialService
+
+  @Mock
+  MaterialConfigConverter materialConfigConverter
+
+  @Mock
+  SubprocessExecutionContext subprocessExecutionContext
+
+  @Mock
+  ConfigRepoService configRepoService
+
   @BeforeEach
   void setUp() {
     initMocks(this)
@@ -65,7 +91,151 @@ class PipelinesAsCodeInternalControllerV1Test implements SecurityServiceTrait, C
 
   @Override
   PipelinesAsCodeInternalControllerV1 createControllerInstance() {
-    new PipelinesAsCodeInternalControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), passwordDeserializer, goConfigService, pluginService, pipelineService)
+    new PipelinesAsCodeInternalControllerV1(
+      new ApiAuthenticationHelper(securityService, goConfigService),
+      passwordDeserializer,
+      goConfigService,
+      pluginService,
+      pipelineService,
+      defaultPluginInfoFinder,
+      materialService,
+      materialConfigConverter,
+      subprocessExecutionContext,
+      configRepoService
+    )
+  }
+
+  @Nested
+  class ConfigFiles {
+    @Nested
+    class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Override
+      String getControllerMethodUnderTest() {
+        return "configFiles"
+      }
+
+      @Override
+      void makeHttpCall() {
+        postWithApiHeader(controller.controllerPath("config_files"), [:], [
+          type: MATERIAL_TYPE,
+          attributes: [
+            url: MATERIAL_URL,
+            branch: MATERIAL_BRANCH
+          ]
+        ])
+      }
+    }
+
+    @Nested
+    class AsAdmin {
+
+      @BeforeEach
+      void setUp() {
+        enableSecurity()
+        loginAsAdmin()
+      }
+
+      @Test
+      void 'should get a list of config files for multiple pac plugins'() {
+        when(configRepoService.hasConfigRepoByFingerprint(any(String))).thenReturn(false)
+        when(pluginService.partialConfigProviderFor(PLUGIN_ID)).thenReturn(configRepoPlugin)
+        when(pluginService.partialConfigProviderFor("plugin2")).thenReturn(configRepoPlugin)
+        when(configRepoPlugin.getConfigFiles(any(File), any(List))).thenReturn(ConfigFileList.from(new ArrayList<String>()))
+        Map<String, String> plugins = new HashMap<>();
+        plugins.put("test", PLUGIN_ID);
+        plugins.put("testing", "plugin2");
+        when(defaultPluginInfoFinder.pluginDisplayNameToPluginId(any(String))).thenReturn(plugins)
+
+        doNothing().when(controller).checkoutFromMaterialConfig(any(MaterialConfig), any(File))
+
+        postWithApiHeader(controller.controllerPath("config_files"), [:], [
+          type: MATERIAL_TYPE,
+          attributes: [
+            url: MATERIAL_URL,
+            branch: MATERIAL_BRANCH
+          ]
+        ])
+
+        assertThatResponse()
+          .isOk()
+          .hasJsonBody([
+          plugins: [
+            [
+              plugin_id: PLUGIN_ID,
+              files: [],
+              errors: ""
+            ],
+            [
+              plugin_id: "plugin2",
+              files: [],
+              errors: ""
+            ]
+          ]
+        ])
+      }
+
+      @Test
+      void 'should return message saying that the repo is already being used with pac'() {
+        when(configRepoService.hasConfigRepoByFingerprint(any(String))).thenReturn(true)
+
+        postWithApiHeader(controller.controllerPath("config_files"), [:], [
+          type: MATERIAL_TYPE,
+          attributes: [
+            url: MATERIAL_URL,
+            branch: MATERIAL_BRANCH
+          ]
+        ])
+
+        assertThatResponse()
+          .isConflict()
+          .hasJsonMessage("Material is already being used as a config repository")
+      }
+
+      @Test
+      void 'should return empty plugins list if no pac plugins available'() {
+        when(configRepoService.hasConfigRepoByFingerprint(any(String))).thenReturn(false)
+        Map<String, String> plugins = new HashMap<>();
+        when(defaultPluginInfoFinder.pluginDisplayNameToPluginId(any(String))).thenReturn(plugins)
+
+        doNothing().when(controller).checkoutFromMaterialConfig(any(MaterialConfig), any(File))
+
+        postWithApiHeader(controller.controllerPath("config_files"), [:], [
+          type: MATERIAL_TYPE,
+          attributes: [
+            url: MATERIAL_URL,
+            branch: MATERIAL_BRANCH
+          ]
+        ])
+
+        assertThatResponse()
+          .isOk()
+          .hasJsonBody([
+          plugins: []
+        ])
+      }
+
+      @Test
+      void 'should provide error message when there is an exception'() {
+        when(configRepoService.hasConfigRepoByFingerprint(any(String))).thenReturn(false)
+        Map<String, String> plugins = new HashMap<>();
+        plugins.put("test", PLUGIN_ID)
+        when(defaultPluginInfoFinder.pluginDisplayNameToPluginId(any(String))).thenReturn(plugins)
+
+        doThrow(new RuntimeException("An error")).when(controller).checkoutFromMaterialConfig(any(MaterialConfig), any(File))
+
+        postWithApiHeader(controller.controllerPath("config_files"), [:], [
+          type: MATERIAL_TYPE,
+          attributes: [
+            url: MATERIAL_URL,
+            branch: MATERIAL_BRANCH
+          ]
+        ])
+
+        assertThatResponse()
+          .isInternalServerError()
+          .hasJsonMessage("An error")
+      }
+    }
   }
 
   @Nested

@@ -27,6 +27,7 @@ import spark.TemplateEngine;
 
 import java.util.HashMap;
 
+import static com.thoughtworks.go.server.service.datasharing.DataSharingUsageStatisticsReportingService.USAGE_DATA_IGNORE_LAST_UPDATED_AT;
 import static com.thoughtworks.go.spark.Routes.PipelineConfig.SPA_BASE;
 import static com.thoughtworks.go.spark.Routes.PipelineConfig.SPA_CREATE;
 import static com.thoughtworks.go.server.service.datasharing.DataSharingUsageDataService.ADD_PIPELINE_CTA;
@@ -61,8 +62,9 @@ public class PipelinesController implements SparkController {
             put("viewTitle", "Create a pipeline");
         }};
 
-        if(Toggles.isToggleOn(Toggles.TEST_DRIVE)) {
+        if(Toggles.isToggleOn(Toggles.TEST_DRIVE) && !goCache.getOrDefault(ADD_PIPELINE_CTA, false)) {
             goCache.put(ADD_PIPELINE_CTA, true);
+            goCache.put(USAGE_DATA_IGNORE_LAST_UPDATED_AT, true);
         }
 
         return new ModelAndView(object, null);

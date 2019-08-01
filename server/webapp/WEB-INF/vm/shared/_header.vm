@@ -55,7 +55,6 @@
   data-show-analytics-dashboard="$showAnalyticsDashboard"
   data-user-display-name="$principal"
   data-user-anonymous="$isAnonymousUser"
-  data-show-secret-config-spa="$show_secret_config_spa"
   data-is-server-in-maintenance-mode="${maintenanceModeService.isMaintenanceMode()}"
   #if($maintenanceModeService.isMaintenanceMode())
       data-maintenance-mode-updated-on = "${maintenanceModeService.updatedOn()}"

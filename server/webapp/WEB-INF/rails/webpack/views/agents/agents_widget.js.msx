@@ -193,7 +193,7 @@ const AgentsWidget = {
                            onEnvironmentsUpdate={ctrl.updateEnvironments.bind(ctrl)}/>
 
           <div class="agents-search-panel">
-            <div className="show-for-large">
+            <div class="show-for-large">
               <AgentStateCountWidget agents={ctrl.filteredAndSortedAgents.bind(ctrl)}/>
             </div>
             <div class="search-bar">

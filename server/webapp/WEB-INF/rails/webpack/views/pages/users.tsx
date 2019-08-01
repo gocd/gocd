@@ -169,7 +169,7 @@ export class UsersPage extends Page<null, State> {
 
     return (
       <div>
-        <div className={styles.flashMessageWrapperContainer}>
+        <div class={styles.flashMessageWrapperContainer}>
           {bannerToDisplay}
           <FlashMessage message={this.flashMessage.message} type={this.flashMessage.type} dismissible={false}/>
         </div>

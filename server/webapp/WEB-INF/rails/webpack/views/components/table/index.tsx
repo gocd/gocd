@@ -13,14 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {bind} from "classnames/bind";
+import classnames from "classnames";
 import {MithrilComponent, MithrilViewComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
 import * as s from "underscore.string";
 import * as styles from "./index.scss";
-
-const classnames = bind(styles);
 
 export abstract class TableSortHandler {
   private __currentSortedColumnIndex: number = -1;
@@ -71,10 +69,10 @@ class TableHeader extends MithrilViewComponent<HeaderAttrs> {
 
   private static sortButton(vnode: m.Vnode<HeaderAttrs>) {
     if (TableHeader.isSortable(vnode)) {
-      return <th className={styles.sortableColumn}
+      return <th class={styles.sortableColumn}
                  onclick={() => vnode.attrs.sortCallBackHandler!.onColumnHeaderClick(vnode.attrs.columnIndex)}>
         {vnode.attrs.name}
-        <span className={classnames(styles.sortButton,
+        <span class={classnames(styles.sortButton,
                                     {[styles.inActive]: !TableHeader.isSortedByCurrentColumn(vnode)})}>
           <i class="fas fa-sort"/>
       </span></th>;
@@ -148,7 +146,7 @@ export class Table extends MithrilComponent<Attrs, State> {
       draggableColHeader = <th></th>;
       tableCss           = styles.draggable;
     }
-    return <table className={classnames(styles.table, tableCss)}
+    return <table class={classnames(styles.table, tableCss)}
                   data-test-id={vnode.attrs["data-test-id"] || "table"}>
       <thead data-test-id="table-header">
       <tr data-test-id="table-header-row">
@@ -187,7 +185,7 @@ export class Table extends MithrilComponent<Attrs, State> {
               <td
                 data-id={index}
                 onmouseover={Table.disableEvent.bind(this)}>
-                <i className={styles.dragIcon}></i>
+                <i class={styles.dragIcon}></i>
               </td>
               {_.map(rows,
                      ((row) => <td draggable={false}

@@ -13,20 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.server;
 
-import com.thoughtworks.go.server.service.support.toggle.Toggles;
+@import "../../global/common";
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+$error-container-width: 450px;
 
-public class SparkOrRailsToggle {
+.error-response {
+  margin-right: 2ex;
+  margin-top: 7px;
+  color: $go-danger;
+  display: inline-block;
+  max-width: $error-container-width;
+  white-space: normal;
+  float: left;
 
-    private void basedOnToggle(String toggle, HttpServletRequest request) {
-        if (Toggles.isToggleOn(toggle)) {
-            request.setAttribute("sparkOrRails", "rails");
-        } else {
-            request.setAttribute("sparkOrRails", "spark");
-        }
-    }
+  &:empty {
+    margin-right: 0;
+  }
+
+  ol {
+    float: left;
+    max-width: inherit;
+  }
 }
+

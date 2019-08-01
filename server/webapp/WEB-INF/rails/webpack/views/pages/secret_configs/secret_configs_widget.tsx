@@ -42,7 +42,7 @@ export class SecretConfigsWidget extends MithrilViewComponent<Attrs> {
         <FlashMessage type={MessageType.info} message="No secret plugin installed."/>;
     }
     if (vnode.attrs.secretConfigs === null || vnode.attrs.secretConfigs().length === 0) {
-      return (<div className={styles.tips}>
+      return (<div class={styles.tips}>
         {noSecretPluginInstalled}
         <ul data-test-id="secret-config-info">
           <li>Click on "Add" to add new secret configuration.</li>

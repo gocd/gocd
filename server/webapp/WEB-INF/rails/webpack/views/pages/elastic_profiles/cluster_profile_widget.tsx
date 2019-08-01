@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {bind} from "classnames/bind";
+import classnames from "classnames";
 import * as Routes from "gen/ts-routes";
 import {MithrilComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
@@ -37,7 +37,6 @@ import {Attrs as ElasticProfilesWidgetAttrs, ElasticProfilesWidget} from "views/
 import {AddOperation, CloneOperation, DeleteOperation, EditOperation} from "views/pages/page_operations";
 import * as styles from ".//index.scss";
 
-const classnames = bind(styles);
 export type ClusterProfileOperations = EditOperation<ClusterProfile> & DeleteOperation<string> & AddOperation<void> & CloneOperation<ClusterProfile>;
 
 export interface Attrs extends ElasticProfilesWidgetAttrs {
@@ -65,7 +64,7 @@ interface HeaderAttrs {
 
 class ClusterProfileHeaderWidget extends MithrilComponent<HeaderAttrs> {
   view(vnode: m.Vnode<HeaderAttrs, State>) {
-    const title = <div data-test-id="cluster-profile-name" className={styles.clusterProfileName}><span>{vnode.attrs.clusterProfileId}</span></div>;
+    const title = <div data-test-id="cluster-profile-name" class={styles.clusterProfileName}><span>{vnode.attrs.clusterProfileId}</span></div>;
     return (<KeyValueTitle title={title} image={vnode.attrs.image}/>);
   }
 }
@@ -138,7 +137,7 @@ export class ClusterProfileWidget extends MithrilComponent<ClusterProfileWidgetA
         Elastic Agent Profile
       </Buttons.Secondary>);
 
-    actionButtons.push(<div className={styles.clusterProfileCrudActions}>
+    actionButtons.push(<div class={styles.clusterProfileCrudActions}>
       <IconGroup>
         <Icons.Edit data-test-id="edit-cluster-profile" onclick={vnode.attrs.clusterProfileOperations.onEdit.bind(this, vnode.attrs.clusterProfile)} disabled={!pluginInfo}/>
         <Icons.Clone data-test-id="clone-cluster-profile" onclick={vnode.attrs.clusterProfileOperations.onClone.bind(this, vnode.attrs.clusterProfile)} disabled={!pluginInfo}/>
@@ -161,9 +160,9 @@ export class ClusterProfileWidget extends MithrilComponent<ClusterProfileWidgetA
                                                ...Array.from(clusterProfileProperties)
                                              ]);
     return (
-      <div className={styles.clusterProfileDetailsContainer}>
-        <h5 className={classnames(styles.clusterProfileDetailsHeader, {[styles.expanded]: vnode.state.clusterProfileDetailsExpanded()})} onclick={this.toggle.bind(this, vnode)} data-test-id="cluster-profile-details-header">Cluster configuration</h5>
-        <div className={classnames(styles.clusterProfileDetails, {[styles.expanded]: vnode.state.clusterProfileDetailsExpanded()})} data-test-id="cluster-profile-details">
+      <div class={styles.clusterProfileDetailsContainer}>
+        <h5 class={classnames(styles.clusterProfileDetailsHeader, {[styles.expanded]: vnode.state.clusterProfileDetailsExpanded()})} onclick={this.toggle.bind(this, vnode)} data-test-id="cluster-profile-details-header">Cluster configuration</h5>
+        <div class={classnames(styles.clusterProfileDetails, {[styles.expanded]: vnode.state.clusterProfileDetailsExpanded()})} data-test-id="cluster-profile-details">
           <KeyValuePair data={clusterProfileDetails}/>
         </div>
       </div>

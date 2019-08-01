@@ -50,8 +50,7 @@ Rails.application.routes.draw do
   get "admin/:stage_parent/:pipeline_name/materials" => "admin/materials#index", constraints: {stage_parent: "pipelines", pipeline_name: PIPELINE_NAME_FORMAT}, defaults: {stage_parent: "pipelines"}, as: :admin_material_index
   delete "admin/:stage_parent/:pipeline_name/materials/:finger_print" => "admin/materials#destroy", constraints: {stage_parent: "pipelines", pipeline_name: PIPELINE_NAME_FORMAT}, defaults: {stage_parent: "pipelines"}, as: :admin_material_delete
 
-  get "admin/pipeline/new" => "admin/pipelines#new", as: :pipeline_new
-  get "admin/pipelines/create" => "admin/pipelines#new", as: :new_pipeline_new
+  get "admin/pipelines/create" => "admin/pipelines#new", as: :spark_pipelines_new
   post "admin/pipelines" => "admin/pipelines#create", as: :pipeline_create
   get "admin/pipeline/:pipeline_name/clone" => "admin/pipelines#clone", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :pipeline_clone
   post "admin/pipeline/save_clone" => "admin/pipelines#save_clone", as: :pipeline_save_clone
@@ -211,7 +210,6 @@ Rails.application.routes.draw do
 
       namespace :admin do
         namespace :security do
-          resources :auth_configs, param: :auth_config_id, except: [:new, :edit,], constraints: {auth_config_id: ALLOW_DOTS}
           resources :roles, param: :role_name, except: [:new, :edit], constraints: {role_name: ROLE_NAME_FORMAT}
         end
 
@@ -220,14 +218,11 @@ Rails.application.routes.draw do
           put ':template_name/authorization' => 'authorization#update', constraints: {template_name: TEMPLATE_NAME_FORMAT}
         end
 
-        post 'internal/security/auth_configs/verify_connection' => 'security/auth_configs#verify_connection', as: :internal_verify_connection
-
         resources :templates, param: :template_name, except: [:new, :edit], constraints: {template_name: TEMPLATE_NAME_FORMAT}
 
         get 'environments/:environment_name/merged' => 'merged_environments#show', constraints: MERGED_ENVIRONMENT_NAME_CONSTRAINT, as: :merged_environment_show
         get 'environments/merged' => 'merged_environments#index', as: :merged_environment_index
         resources :repositories, param: :repo_id, only: [:show, :index, :destroy, :create, :update], constraints: {repo_id: ALLOW_DOTS}
-        resources :plugin_settings, param: :plugin_id, only: [:show, :create, :update], constraints: {plugin_id: ALLOW_DOTS}
 
         resources :packages, param: :package_id, only: [:show, :destroy, :index, :create, :update], constraints: {package_id: ALLOW_DOTS}
         namespace :internal do
@@ -241,7 +236,6 @@ Rails.application.routes.draw do
           resources :environments, only: [:index]
           resources :command_snippets, only: [:index]
         end
-        resources :scms, param: :material_name, controller: :pluggable_scms, only: [:index, :show, :create, :update], constraints: {material_name: ALLOW_DOTS}
       end
 
       get 'version_infos/stale', controller: :version_infos, action: :stale, as: :stale_version_info

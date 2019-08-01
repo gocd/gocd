@@ -284,10 +284,6 @@ module ApplicationHelper
     SystemEnvironment.goSpaRefreshInterval()
   end
 
-  def use_new_add_pipeline_flow?
-    Toggles.isToggleOn(Toggles.NEW_ADD_PIPELINE_FLOW)
-  end
-
   def version
     @@version ||= com.thoughtworks.go.CurrentGoCDVersion.getInstance().formatted()
   end
@@ -511,10 +507,6 @@ module ApplicationHelper
 
   def edit_path_for_pipeline(pipeline_name)
     pipeline_edit_path(:pipeline_name => pipeline_name, :current_tab => 'general')
-  end
-
-  def show_secret_config_spa?
-    Toggles.isToggleOn(Toggles.SHOW_SECRET_CONFIG_SPA)
   end
 
   def plugin_supports_status_report?(plugin_id)

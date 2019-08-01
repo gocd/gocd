@@ -12,43 +12,13 @@
       "value": false
     },
     {
-      "key": "new_add_pipeline_flow",
-      "description": "New add pipeline flow.",
-      "value": false
-    },
-    {
       "key": "test_drive",
       "description": "test drive instance.",
       "value": false
     },
     {
-      "key": "add_pipeline_button_styling",
-      "description": "Makes the add pipeline buttons for pipeline groups on dashboard styled like a primary button.",
-      "value": false
-    },
-    {
       "key": "allow_empty_pipeline_groups_dashboard",
       "description": "Coupled with queryParam allowEmpty=true will show empty pipeline groups on the dashboard.",
-      "value": false
-    },
-    {
-      "key": "use_old_pluggable_scms_api",
-      "description": "Switch to using rails based pluggable scms API.",
-      "value": false
-    },
-    {
-      "key": "show_secret_config_spa",
-      "description": "Show Secret Config SPA in menu for admin. Default: true",
-      "value": true
-    },
-    {
-      "key": "plugin_settings_api_using_rails",
-      "description": "Switch Plugin Settings API to use rails.",
-      "value": false
-    },
-    {
-      "key": "security_auth_config_use_rails_api",
-      "description": "Switch to rails based api. Defaults to spark",
       "value": false
     }
   ]

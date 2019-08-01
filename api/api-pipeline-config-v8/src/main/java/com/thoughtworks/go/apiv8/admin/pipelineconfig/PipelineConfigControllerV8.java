@@ -51,6 +51,7 @@ import java.util.function.Consumer;
 
 import static com.thoughtworks.go.api.util.HaltApiResponses.*;
 import static com.thoughtworks.go.server.service.datasharing.DataSharingUsageDataService.SAVE_AND_RUN_CTA;
+import static com.thoughtworks.go.server.service.datasharing.DataSharingUsageStatisticsReportingService.USAGE_DATA_IGNORE_LAST_UPDATED_AT;
 import static java.lang.String.format;
 import static spark.Spark.*;
 
@@ -155,8 +156,9 @@ public class PipelineConfigControllerV8 extends ApiController implements SparkSp
         if (shouldPausePipeline(req)) {
             String pauseCause = getUserSpecifiedOrDefaultPauseCause(req);
             pipelinePauseService.pause(pipelineConfigFromRequest.name().toString(), pauseCause, userName);
-        } else if (Toggles.isToggleOn(Toggles.TEST_DRIVE)){
+        } else if (Toggles.isToggleOn(Toggles.TEST_DRIVE) && !goCache.getOrDefault(SAVE_AND_RUN_CTA, false)){
             goCache.put(SAVE_AND_RUN_CTA, true);
+            goCache.put(USAGE_DATA_IGNORE_LAST_UPDATED_AT, true);
         }
 
         return handleCreateOrUpdateResponse(req, res, pipelineConfigFromRequest, result);

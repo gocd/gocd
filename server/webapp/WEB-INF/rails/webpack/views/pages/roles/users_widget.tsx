@@ -34,13 +34,13 @@ export class UsersWidget extends MithrilViewComponent<UsersWidgetAttrs> {
       let mayBeDeleteButton;
       if (!UsersWidget.readOnlyView(vnode)) {
         mayBeDeleteButton = (
-          <span aria-hidden="true" className={styles.roleUserDeleteIcon}
+          <span aria-hidden="true" class={styles.roleUserDeleteIcon}
                 onclick={UsersWidget.deleteUserFromRole.bind(this,
                                                              vnode.attrs.roleAttributes,
                                                              user)}>&times;</span>);
       }
       return (
-        <div data-alert className={classForUser}>
+        <div data-alert class={classForUser}>
           <span>{user}</span>
           {mayBeDeleteButton}
         </div>

@@ -27,24 +27,20 @@ const GroupHeading = {
   view(vnode) {
     const vm    = vnode.attrs.vm;
     const paths = vm.routes();
-    const useNewAddPipelineFlow = vnode.attrs.useNewAddPipelineFlow;
-    let addPipeline = "";
-
-    if (paths.newPipeline && vm.canAdminister) {
-      if (vnode.attrs.addPipelineButtonStyling) {
-        addPipeline = <Buttons.Primary align="right" icon={Buttons.ButtonIcon.ADD} disabled={!vm.canAdminister} aria-label={vm.ariaLabelForNewPipeline()} title={vm.titleForNewPipeline()} onclick={this.goToAddPipeline.bind(null, useNewAddPipelineFlow? paths.new : paths.newPipeline)}>New Pipeline</Buttons.Primary>;
-      } else {
-        addPipeline = <div class="dashboard-group_add_pipeline"><f.link class="icon_add" disabled={!vm.canAdminister} href={useNewAddPipelineFlow? paths.new : paths.newPipeline}
-                    tooltipText={vm.tooltipForNewPipeline()} title={vm.titleForNewPipeline()} aria-label={vm.ariaLabelForNewPipeline()}>New Pipeline</f.link></div>;
-      }
-    }
 
     return <div class="dashboard-group_title">
       <f.link disabled={!vm.canAdminister} href={paths.show} class="dashboard-group_name"
               aria-label={vm.label()}>{vm.name || "Pipelines not in any Environment"}</f.link>
       {vm.name && <f.link class="edit_config dashboard-group_edit-config" disabled={!vm.canAdminister} href={paths.edit}
                           tooltipText={vm.tooltipForEdit()} title={vm.titleForEdit()} aria-label={vm.ariaLabelForEdit()}/>}
-      {addPipeline}
+      { vm.canAdminister && paths.new ? <Buttons.Primary align="right"
+                                            icon={Buttons.ButtonIcon.ADD}
+                                            disabled={!vm.canAdminister}
+                                            aria-label={vm.ariaLabelForNewPipeline()}
+                                            title={vm.titleForNewPipeline()}
+                                            onclick={this.goToAddPipeline.bind(null, paths.new)}>
+                             New Pipeline
+                           </Buttons.Primary> : "" }
     </div>;
   }
 };

@@ -13,20 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.server;
 
-import com.thoughtworks.go.server.service.support.toggle.Toggles;
+export class ConfigRepoCapabilities {
+  readonly supportsPipelineExport: boolean;
+  readonly supportsParseContent: boolean;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+  constructor(supportsPipelineExport: boolean, supportsParseContent: boolean) {
+    this.supportsPipelineExport = supportsPipelineExport;
+    this.supportsParseContent = supportsParseContent;
+  }
 
-public class SparkOrRailsToggle {
-
-    private void basedOnToggle(String toggle, HttpServletRequest request) {
-        if (Toggles.isToggleOn(toggle)) {
-            request.setAttribute("sparkOrRails", "rails");
-        } else {
-            request.setAttribute("sparkOrRails", "spark");
-        }
-    }
+  static fromJSON(data: any): ConfigRepoCapabilities {
+    return new ConfigRepoCapabilities(
+      data && data.supports_pipeline_export,
+      data && data.supports_parse_content,
+    );
+  }
 }

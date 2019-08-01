@@ -54,8 +54,8 @@ export class BackupWidget extends MithrilComponent<Attrs> {
                 Perform Backup
               </Buttons.Primary>
             </div>
-            <div className={styles.backupInfo}>
-              <p className={styles.availableDiskSpace}>
+            <div class={styles.backupInfo}>
+              <p class={styles.availableDiskSpace}>
                 <span>Available disk space in backup directory:</span> {vnode.attrs.availableDiskSpace}
               </p>
               {this.lastBackupDetails(vnode)}

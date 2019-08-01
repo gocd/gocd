@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-import {bind} from "classnames/bind";
+import classnames from "classnames";
 
 import {MithrilComponent} from "jsx/mithril-component";
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
 import * as styles from "./index.scss";
-
-const classnames = bind(styles);
 
 interface Attrs {
   text: string;
@@ -50,20 +48,20 @@ export class Ellipsize extends MithrilComponent<Attrs, State> {
 
   view(vnode: m.Vnode<Attrs, State>): m.Children | void | null {
     if (!vnode.attrs.text) {
-      return <span className={styles.wrapper}>{vnode.attrs.text}</span>;
+      return <span class={styles.wrapper}>{vnode.attrs.text}</span>;
     }
 
     const charactersToShow = Math.min((vnode.attrs.size || Ellipsize.DEFAULT_SIZE), vnode.attrs.text.length);
 
     if (vnode.attrs.fixed) {
-      return <span className={classnames(styles.wrapper, styles.fixEllipsized)}>{vnode.attrs.text}</span>;
+      return <span class={classnames(styles.wrapper, styles.fixEllipsized)}>{vnode.attrs.text}</span>;
     }
 
     if (Ellipsize.ellipsisNotRequired(vnode)) {
-      return <span className={styles.wrapper}>{vnode.attrs.text}</span>;
+      return <span class={styles.wrapper}>{vnode.attrs.text}</span>;
     }
 
-    return <span className={styles.wrapper}>
+    return <span class={styles.wrapper}>
       <span
         data-test-id="ellipsized-content">
         {vnode.state.expanded() ? vnode.attrs.text : Ellipsize.getEllipsizedString(vnode, charactersToShow)}
@@ -82,7 +80,7 @@ export class Ellipsize extends MithrilComponent<Attrs, State> {
   }
 
   private static element(vnode: m.Vnode<Attrs, State>, text: string, state: boolean) {
-    return <span className={styles.ellipsisActionButton}
+    return <span class={styles.ellipsisActionButton}
                  onclick={vnode.state.setExpandedTo.bind(this, state)}>{text}</span>;
   }
 }

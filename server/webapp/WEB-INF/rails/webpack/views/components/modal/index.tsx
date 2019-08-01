@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {bind} from "classnames/bind";
+import classnames from "classnames";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
@@ -23,8 +23,6 @@ import * as styles from "./index.scss";
 import {ModalManager} from "./modal_manager";
 
 const uuid4 = require("uuid/v4");
-
-const classnames = bind(styles);
 
 //todo: Remove extraLargeHackForEAProfiles once we fix plugins view to provide the modal container dimensions
 export enum Size {small, medium, large, extraLargeHackForEaProfiles}
@@ -77,21 +75,21 @@ export abstract class Modal extends MithrilViewComponent<any> {
 
   view() {
     const spinner = this.isLoading() ? (<Spinner/>) : null;
-    return <div className={classnames(styles.overlay, Size[this.size])}>
-      <header className={styles.overlayHeader}>
+    return <div class={classnames(styles.overlay, Size[this.size])}>
+      <header class={styles.overlayHeader}>
         <h3 data-test-id="modal-title">{this.title()}</h3>
-        <button className={styles.overlayClose} onclick={this.close.bind(this)}><i className={styles.closeIcon}/>
+        <button class={styles.overlayClose} onclick={this.close.bind(this)}><i class={styles.closeIcon}/>
         </button>
       </header>
       <div
-        className={classnames(styles.overlayContent, {[styles.spinnerWrapper]: this.isLoading()})}
+        class={classnames(styles.overlayContent, {[styles.spinnerWrapper]: this.isLoading()})}
         data-test-id="modal-body">
-        <div className={classnames({[styles.modalBodyOverlay]: this.isLoading()})}>
+        <div class={classnames({[styles.modalBodyOverlay]: this.isLoading()})}>
           {spinner}
         </div>
         {this.body()}
       </div>
-      <footer className={styles.overlayFooter}>
+      <footer class={styles.overlayFooter}>
         {
           _.forEach(_.reverse(this.buttons()), (button) => {
             return button;

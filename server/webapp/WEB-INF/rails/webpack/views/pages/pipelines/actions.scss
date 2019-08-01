@@ -18,32 +18,11 @@
 @import "fillable_section";
 @import "../../components/buttons/index";
 
-$error-container-width: 450px;
-
 .actions {
   @extend .fillable;
 
   .save-btns {
     white-space: nowrap;
-  }
-
-  .error-response {
-    margin-right: 2ex;
-    margin-top: 7px;
-    color: $go-danger;
-    display: inline-block;
-    max-width: $error-container-width;
-    white-space: normal;
-    float: left;
-
-    &:empty {
-      margin-right: 0;
-    }
-
-    ol {
-      float: left;
-      max-width: inherit;
-    }
   }
 }
 

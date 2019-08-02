@@ -199,7 +199,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         try {
             if (isAnyOperationPerformedOnBulkAgents(emptyList(), emptyList(), envsConfig, emptyList(), TriState.TRUE, result)) {
                 validator.validate();
-
+                uuidsToAssociateWithEnv = (uuidsToAssociateWithEnv == null) ? emptyList() : uuidsToAssociateWithEnv;
                 List<String> uuidsToRemoveEnvFrom = getUUIDsToRemoveEnvFrom(uuidsToAssociateWithEnv, uuidsAssociatedWithEnv);
                 List<String> uuidsToAddEnvTo = getUUIDsToAddEnvTo(uuidsToAssociateWithEnv, uuidsAssociatedWithEnv);
 
@@ -398,7 +398,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     }
 
     public void disableAgents(String... uuids) {
-        if(uuids != null) {
+        if (uuids != null) {
             agentDao.enableOrDisableAgents(asList(uuids), true);
         }
     }
@@ -621,7 +621,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     }
 
     private boolean validateThatAllAgentsExistAndPopulateAgents(List<String> uuids, List<AgentInstance> agents, OperationResult result) {
-        if(isEmpty(uuids)){
+        if (isEmpty(uuids)) {
             return true;
         }
 
@@ -685,8 +685,8 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         return true;
     }
 
-    private String getFailedToDeleteMessage(int numOfAgents){
-        if(numOfAgents == 1){
+    private String getFailedToDeleteMessage(int numOfAgents) {
+        if (numOfAgents == 1) {
             return "Failed to delete an agent, as it is not in a disabled state or is still building.";
         } else {
             return "Could not delete any agents, as one or more agents might not be disabled or are still building.";

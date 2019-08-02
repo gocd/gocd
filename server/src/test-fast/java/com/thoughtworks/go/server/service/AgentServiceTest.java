@@ -210,6 +210,26 @@ class AgentServiceTest {
         }
 
         @Test
+        void shouldNotDoAnythingIfEmptyAgentsUuidListAndNoAgentAssociationConfiguredWithEnvConfig() {
+            Username username = new Username(new CaseInsensitiveString("test"));
+            agent.setEnvironments("test");
+
+            EnvironmentsConfig envConfigs = new EnvironmentsConfig();
+            BasicEnvironmentConfig testEnv = new BasicEnvironmentConfig(new CaseInsensitiveString("test"));
+            envConfigs.add(testEnv);
+
+            when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
+            when(goConfigService.getEnvironments()).thenReturn(envConfigs);
+
+            HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+            agentService.updateAgentsAssociationWithSpecifiedEnv(testEnv, emptyStrList, result);
+
+            verifyNoMoreInteractions(agentDao);
+            assertTrue(result.isSuccessful());
+            assertThat(result.message(), is(nullValue()));
+        }
+
+        @Test
         void shouldReturnMapOfAgentInstanceToSortedEnvironments() {
             String envs1 = "qa1,dev,test,prod,qa2,stage,perf";
             String[] splitEnvs = envs1.split("\\s*,\\s*");

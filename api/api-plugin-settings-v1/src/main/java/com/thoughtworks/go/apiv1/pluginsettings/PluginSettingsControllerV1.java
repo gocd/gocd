@@ -25,7 +25,6 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.pluginsettings.representers.PluginSettingsRepresenter;
 import com.thoughtworks.go.config.exceptions.EntityType;
-import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
 import com.thoughtworks.go.plugin.domain.common.PluginInfo;
@@ -79,8 +78,6 @@ public class PluginSettingsControllerV1 extends ApiController implements SparkSp
 
             post("", mimeType, this::create);
             put(Routes.PluginSettingsAPI.ID, mimeType, this::update);
-
-            exception(HttpException.class, this::httpException);
         });
     }
 

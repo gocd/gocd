@@ -28,7 +28,6 @@ import com.thoughtworks.go.apiv1.backupconfig.representers.BackupConfigRepresent
 import com.thoughtworks.go.config.BackupConfig;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
-import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.config.update.CreateOrUpdateBackupConfigCommand;
 import com.thoughtworks.go.config.update.DeleteBackupConfigCommand;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -78,8 +77,6 @@ public class BackupConfigControllerV1 extends ApiController implements SparkSpri
             put("", mimeType, this::createOrUpdate);
 
             delete("", mimeType, this::deleteBackupConfig);
-
-            exception(HttpException.class, this::httpException);
         });
     }
 

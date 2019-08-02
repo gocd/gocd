@@ -20,8 +20,6 @@ import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.apiv1.elasticprofileoperation.representers.ElasticProfileUsageRepresenter;
-import com.thoughtworks.go.config.exceptions.HttpException;
-import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.ElasticProfileUsage;
 import com.thoughtworks.go.server.service.ElasticProfileService;
 import com.thoughtworks.go.spark.Routes;
@@ -63,8 +61,6 @@ public class ElasticProfileOperationControllerV1 extends ApiController implement
             before("/*", mimeType, apiAuthenticationHelper::checkAdminUserOrGroupAdminUserAnd403);
 
             get(Routes.ElasticProfileAPI.ID + Routes.ElasticProfileAPI.USAGES, mimeType, this::usages);
-
-            exception(HttpException.class, this::httpException);
         });
     }
 

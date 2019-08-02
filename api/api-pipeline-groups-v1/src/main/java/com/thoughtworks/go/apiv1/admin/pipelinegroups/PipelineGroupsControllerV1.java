@@ -84,8 +84,6 @@ public class PipelineGroupsControllerV1 extends ApiController implements SparkSp
             get(Routes.PipelineGroupsAdmin.NAME_PATH, mimeType, this::show);
             put(Routes.PipelineGroupsAdmin.NAME_PATH, mimeType, this::update);
             delete(Routes.PipelineGroupsAdmin.NAME_PATH, mimeType, this::destroy);
-
-            exception(HttpException.class, this::httpException);
         });
 
     }

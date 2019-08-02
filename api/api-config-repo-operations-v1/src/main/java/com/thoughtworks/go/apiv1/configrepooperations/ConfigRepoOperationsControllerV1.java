@@ -96,7 +96,6 @@ public class ConfigRepoOperationsControllerV1 extends ApiController implements S
             before(PREFLIGHT_PATH, mimeType, this::setMultipartUpload);
 
             post(PREFLIGHT_PATH, mimeType, this::preflight);
-            exception(HttpException.class, this::httpException);
         });
     }
 

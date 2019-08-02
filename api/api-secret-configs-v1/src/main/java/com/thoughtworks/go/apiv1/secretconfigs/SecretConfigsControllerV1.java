@@ -27,7 +27,6 @@ import com.thoughtworks.go.apiv1.secretconfigs.representers.SecretConfigsReprese
 import com.thoughtworks.go.config.SecretConfig;
 import com.thoughtworks.go.config.SecretConfigs;
 import com.thoughtworks.go.config.exceptions.EntityType;
-import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.SecretConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -42,9 +41,7 @@ import spark.Response;
 import java.io.IOException;
 import java.util.function.Consumer;
 
-import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseEntityAlreadyExists;
-import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseEtagDoesNotMatch;
-import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseRenameOfEntityIsNotSupported;
+import static com.thoughtworks.go.api.util.HaltApiResponses.*;
 import static spark.Spark.*;
 
 @Component
@@ -82,8 +79,6 @@ public class SecretConfigsControllerV1 extends ApiController implements SparkSpr
             post("", mimeType, this::create);
             put(Routes.SecretConfigsAPI.ID, mimeType, this::update);
             delete(Routes.SecretConfigsAPI.ID, mimeType, this::destroy);
-
-            exception(HttpException.class, this::httpException);
         });
     }
 

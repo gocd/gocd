@@ -20,8 +20,6 @@ package com.thoughtworks.go.api;
 import com.thoughtworks.go.api.base.JsonOutputWriter;
 import com.thoughtworks.go.api.base.OutputListWriter;
 import com.thoughtworks.go.api.base.OutputWriter;
-import com.thoughtworks.go.api.util.MessageJson;
-import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.spark.RequestContext;
@@ -67,11 +65,6 @@ public interface ControllerMethods {
     default String notModified(Response res) {
         res.status(304);
         return NOTHING;
-    }
-
-    default void httpException(HttpException ex, Request req, Response res) {
-        res.status(ex.getStatus().value());
-        res.body(MessageJson.create(ex.getMessage()));
     }
 
     default void setEtagHeader(Response res, String value) {

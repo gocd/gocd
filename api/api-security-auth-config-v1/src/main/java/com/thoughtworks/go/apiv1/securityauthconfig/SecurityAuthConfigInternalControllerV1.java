@@ -24,19 +24,14 @@ import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.securityauthconfig.representers.SecurityAuthConfigRepresenter;
-import com.thoughtworks.go.apiv1.securityauthconfig.representers.SecurityAuthConfigsRepresenter;
 import com.thoughtworks.go.apiv1.securityauthconfig.representers.VerifyConnectionResponseRepresenter;
 import com.thoughtworks.go.config.SecurityAuthConfig;
-import com.thoughtworks.go.config.SecurityAuthConfigs;
 import com.thoughtworks.go.config.exceptions.EntityType;
-import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.plugin.domain.common.VerifyConnectionResponse;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.SecurityAuthConfigService;
-import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import spark.Request;
@@ -45,7 +40,6 @@ import spark.Response;
 import java.io.IOException;
 import java.util.function.Consumer;
 
-import static com.thoughtworks.go.api.util.HaltApiResponses.*;
 import static spark.Spark.*;
 
 @Component
@@ -75,8 +69,6 @@ public class SecurityAuthConfigInternalControllerV1 extends ApiController implem
             before(Routes.SecurityAuthConfigAPI.VERIFY_CONNECTION, mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
 
             post(Routes.SecurityAuthConfigAPI.VERIFY_CONNECTION, mimeType, this::verifyConnection);
-
-            exception(HttpException.class, this::httpException);
         });
     }
 

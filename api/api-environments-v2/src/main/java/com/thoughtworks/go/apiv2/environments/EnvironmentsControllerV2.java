@@ -34,7 +34,6 @@ import com.thoughtworks.go.config.EnvironmentConfig;
 import com.thoughtworks.go.config.EnvironmentVariableConfig;
 import com.thoughtworks.go.config.EnvironmentVariablesConfig;
 import com.thoughtworks.go.config.exceptions.EntityType;
-import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
 import com.thoughtworks.go.domain.ConfigElementForEdit;
 import com.thoughtworks.go.server.service.EntityHashingService;
@@ -93,8 +92,6 @@ public class EnvironmentsControllerV2 extends ApiController implements SparkSpri
             put(Routes.Environments.NAME, mimeType, this::update);
             patch(Routes.Environments.NAME, mimeType, this::partialUpdate);
             delete(Routes.Environments.NAME, mimeType, this::remove);
-
-            exception(HttpException.class, this::httpException);
         });
     }
 

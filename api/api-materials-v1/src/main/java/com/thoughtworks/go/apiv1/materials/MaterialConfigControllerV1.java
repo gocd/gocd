@@ -20,10 +20,8 @@ import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.apiv1.materials.representers.MaterialConfigsRepresenter;
-import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.server.service.MaterialConfigService;
-import com.thoughtworks.go.server.service.MaterialService;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,7 +61,6 @@ public class MaterialConfigControllerV1 extends ApiController implements SparkSp
             before("", this.mimeType, this.apiAuthenticationHelper::checkUserAnd403);
             before("/*", this.mimeType, this.apiAuthenticationHelper::checkUserAnd403);
             get("", mimeType, this::index);
-            exception(HttpException.class, this::httpException);
         });
     }
 

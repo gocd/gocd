@@ -29,7 +29,6 @@ import com.thoughtworks.go.apiv4.admin.templateconfig.representers.TemplatesConf
 import com.thoughtworks.go.config.PipelineTemplateConfig;
 import com.thoughtworks.go.config.TemplateToPipelines;
 import com.thoughtworks.go.config.exceptions.EntityType;
-import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.service.EntityHashingService;
@@ -113,8 +112,6 @@ public class TemplateConfigControllerV4 extends ApiController implements SparkSp
             get(Routes.PipelineTemplateConfig.NAME, mimeType, this::show);
             put(Routes.PipelineTemplateConfig.NAME, mimeType, this::update);
             delete(Routes.PipelineTemplateConfig.NAME, mimeType, this::destroy);
-
-            exception(HttpException.class, this::httpException);
         });
     }
 

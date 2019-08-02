@@ -26,7 +26,6 @@ import com.thoughtworks.go.apiv2.configrepos.representers.PartialConfigRepresent
 import com.thoughtworks.go.config.GoRepoConfigDataSource;
 import com.thoughtworks.go.config.PartialConfigParseResult;
 import com.thoughtworks.go.config.exceptions.EntityType;
-import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
@@ -89,8 +88,6 @@ public class ConfigReposInternalControllerV2 extends ApiController implements Sp
             get(ConfigRepos.STATUS_PATH, mimeType, this::inProgress);
             post(ConfigRepos.TRIGGER_UPDATE_PATH, mimeType, this::triggerUpdate);
             get(ConfigRepos.DEFINITIONS_PATH, mimeType, this::definedConfigs);
-
-            exception(HttpException.class, this::httpException);
         });
     }
 

@@ -75,8 +75,6 @@ public class CurrentUserAccessTokenControllerV1 extends AbstractUserAccessTokenC
             post("", mimeType, this::createAccessToken);
             post(Routes.CurrentUserAccessToken.REVOKE, mimeType, this::revokeAccessToken);
             get(Routes.CurrentUserAccessToken.ID, mimeType, this::getAccessToken);
-
-            exception(HttpException.class, this::httpException);
         });
     }
 

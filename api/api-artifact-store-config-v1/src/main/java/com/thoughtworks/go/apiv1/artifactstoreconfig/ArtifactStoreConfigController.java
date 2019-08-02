@@ -29,7 +29,6 @@ import com.thoughtworks.go.apiv1.artifactstoreconfig.representers.ArtifactStores
 import com.thoughtworks.go.config.ArtifactStore;
 import com.thoughtworks.go.config.ArtifactStores;
 import com.thoughtworks.go.config.exceptions.EntityType;
-import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.server.service.ArtifactStoreService;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -107,8 +106,6 @@ public class ArtifactStoreConfigController extends ApiController implements Spar
             post("", mimeType, this::create);
             put(Routes.ArtifactStoreConfig.ID, mimeType, this::update);
             delete(Routes.ArtifactStoreConfig.ID, mimeType, this::destroy);
-
-            exception(HttpException.class, this::httpException);
         });
     }
 

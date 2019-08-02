@@ -80,8 +80,6 @@ public class ConfigReposControllerV2 extends ApiController implements SparkSprin
             post(ConfigRepos.CREATE_PATH, mimeType, this::createRepo);
             put(ConfigRepos.UPDATE_PATH, mimeType, this::updateRepo);
             delete(ConfigRepos.DELETE_PATH, mimeType, this::deleteRepo);
-
-            exception(HttpException.class, this::httpException);
         });
     }
 

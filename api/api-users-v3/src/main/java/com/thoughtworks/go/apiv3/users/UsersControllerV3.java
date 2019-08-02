@@ -28,7 +28,6 @@ import com.thoughtworks.go.apiv3.users.representers.UserRepresenter;
 import com.thoughtworks.go.apiv3.users.representers.UsersRepresenter;
 import com.thoughtworks.go.config.RolesConfig;
 import com.thoughtworks.go.config.exceptions.EntityType;
-import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.NullUser;
 import com.thoughtworks.go.domain.User;
@@ -51,7 +50,8 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import static com.thoughtworks.go.api.util.HaltApiResponses.*;
+import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseEntityAlreadyExists;
+import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseRenameOfEntityIsNotSupported;
 import static spark.Spark.*;
 
 @Component
@@ -98,8 +98,6 @@ public class UsersControllerV3 extends ApiController implements SparkSpringContr
             patch(Routes.Users.USER_NAME, this.mimeType, this::patchUser);
             delete(Routes.Users.USER_NAME, this.mimeType, this::deleteUser);
             patch(Routes.Users.USER_STATE, this.mimeType, this::bulkUpdateUsersState);
-
-            exception(HttpException.class, this::httpException);
         });
     }
 

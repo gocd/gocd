@@ -24,7 +24,6 @@ import com.thoughtworks.go.config.ConfigRepoPlugin;
 import com.thoughtworks.go.config.GoConfigPluginService;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.exceptions.EntityType;
-import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.plugin.access.configrepo.ExportedConfig;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -72,8 +71,6 @@ public class ExportControllerV1 extends ApiController implements SparkSpringCont
             before(Export.PIPELINES_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupAdminUserAnd403);
 
             get(Export.PIPELINES_PATH, mimeType, this::exportPipeline);
-
-            exception(HttpException.class, this::httpException);
         });
     }
 

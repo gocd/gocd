@@ -26,7 +26,6 @@ import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.scms.representers.SCMRepresenter;
 import com.thoughtworks.go.apiv1.scms.representers.SCMsRepresenter;
 import com.thoughtworks.go.config.exceptions.EntityType;
-import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.server.service.EntityHashingService;
@@ -83,8 +82,6 @@ public class SCMControllerV1 extends ApiController implements SparkSpringControl
             post("", mimeType, this::create);
             get(Routes.SCM.ID, mimeType, this::show);
             put(Routes.SCM.ID, mimeType, this::update);
-
-            exception(HttpException.class, this::httpException);
         });
     }
 

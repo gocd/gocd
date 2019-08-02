@@ -68,7 +68,6 @@ public class MaterialNotifyControllerV1 extends ApiController implements SparkSp
             post(Routes.MaterialNotify.GIT, mimeType, this::gitNotify);
             post(Routes.MaterialNotify.HG, mimeType, this::hgNotify);
             post(Routes.MaterialNotify.SCM, mimeType, this::scmNotify);
-            exception(HttpException.class, this::httpException);
         });
     }
 

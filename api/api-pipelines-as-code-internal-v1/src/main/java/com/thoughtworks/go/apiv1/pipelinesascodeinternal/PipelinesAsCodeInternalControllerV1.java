@@ -30,7 +30,6 @@ import com.thoughtworks.go.config.ConfigRepoPlugin;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.GoConfigPluginService;
 import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.config.materials.PasswordDeserializer;
 import com.thoughtworks.go.config.update.CreatePipelineConfigCommand;
 import com.thoughtworks.go.plugin.access.configrepo.ExportedConfig;
@@ -88,8 +87,6 @@ public class PipelinesAsCodeInternalControllerV1 extends ApiController implement
             before(PREVIEW, this.mimeType, this::setContentType, this::verifyContentType, this.apiAuthenticationHelper::checkAdminUserAnd403);
 
             post(PREVIEW, this.mimeType, this::preview);
-
-            exception(HttpException.class, this::httpException);
         });
     }
 

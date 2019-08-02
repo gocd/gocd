@@ -33,7 +33,6 @@ import com.thoughtworks.go.apiv4.agents.representers.AgentRepresenter;
 import com.thoughtworks.go.apiv4.agents.representers.AgentUpdateRequestRepresenter;
 import com.thoughtworks.go.apiv4.agents.representers.AgentsRepresenter;
 import com.thoughtworks.go.config.exceptions.EntityType;
-import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.NullAgentInstance;
 import com.thoughtworks.go.server.service.AgentService;
@@ -92,8 +91,6 @@ public class AgentsControllerV4 extends ApiController implements SparkSpringCont
             patch("", mimeType, this::bulkUpdate);
             delete(Routes.AgentsAPI.UUID, mimeType, this::deleteAgent);
             delete("", mimeType, this::bulkDeleteAgents);
-
-            exception(HttpException.class, this::httpException);
         });
     }
 

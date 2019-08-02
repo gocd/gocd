@@ -28,7 +28,6 @@ import com.thoughtworks.go.apiv1.clusterprofiles.representers.ClusterProfilesRep
 import com.thoughtworks.go.config.PluginProfiles;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.exceptions.EntityType;
-import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.server.service.ClusterProfilesService;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -81,8 +80,6 @@ public class ClusterProfilesControllerV1 extends ApiController implements SparkS
             post("", mimeType, this::create);
             delete(Routes.ClusterProfilesAPI.ID, mimeType, this::deleteClusterProfile);
             put(Routes.ClusterProfilesAPI.ID, mimeType, this::update);
-
-            exception(HttpException.class, this::httpException);
         });
     }
 

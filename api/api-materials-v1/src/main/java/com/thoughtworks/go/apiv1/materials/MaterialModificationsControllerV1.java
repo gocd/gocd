@@ -72,7 +72,6 @@ public class MaterialModificationsControllerV1 extends ApiController implements 
             before("/*", this.mimeType, this.apiAuthenticationHelper::checkUserAnd403);
             get("", mimeType, this::modifications);
             get(Routes.MaterialModifications.OFFSET, mimeType, this::modifications);
-            exception(HttpException.class, this::httpException);
         });
     }
 

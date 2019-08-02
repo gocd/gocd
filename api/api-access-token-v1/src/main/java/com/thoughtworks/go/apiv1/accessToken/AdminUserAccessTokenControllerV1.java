@@ -60,8 +60,6 @@ public class AdminUserAccessTokenControllerV1 extends AbstractUserAccessTokenCon
             get("", mimeType, this::getAllAccessTokens);
             post(Routes.AdminUserAccessToken.REVOKE, mimeType, this::revokeAccessToken);
             get(Routes.AdminUserAccessToken.ID, mimeType, this::getAccessToken);
-
-            exception(HttpException.class, this::httpException);
         });
     }
 

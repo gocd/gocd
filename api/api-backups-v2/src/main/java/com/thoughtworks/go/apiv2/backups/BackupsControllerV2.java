@@ -22,7 +22,6 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.apiv2.backups.representers.BackupRepresenter;
 import com.thoughtworks.go.config.exceptions.BadRequestException;
 import com.thoughtworks.go.config.exceptions.EntityType;
-import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.server.domain.ServerBackup;
 import com.thoughtworks.go.server.service.BackupService;
@@ -74,7 +73,6 @@ public class BackupsControllerV2 extends ApiController implements SparkSpringCon
 
             post("", mimeType, this::create);
             get(ID_PATH, mimeType, this::show);
-            exception(HttpException.class, this::httpException);
         });
     }
 

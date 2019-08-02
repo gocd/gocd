@@ -67,8 +67,6 @@ public class BuildCauseController extends ApiController implements SparkSpringCo
             before("/*", mimeType, this::verifyContentType);
 
             get("", mimeType, this::index);
-
-            exception(HttpException.class, this::httpException);
         });
     }
 

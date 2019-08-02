@@ -28,7 +28,6 @@ import com.thoughtworks.go.apiv1.securityauthconfig.representers.SecurityAuthCon
 import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.config.SecurityAuthConfigs;
 import com.thoughtworks.go.config.exceptions.EntityType;
-import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.SecurityAuthConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -82,8 +81,6 @@ public class SecurityAuthConfigControllerV1 extends ApiController implements Spa
             post("", mimeType, this::create);
             put(Routes.SecurityAuthConfigAPI.ID, mimeType, this::update);
             delete(Routes.SecurityAuthConfigAPI.ID, mimeType, this::deleteAuthConfig);
-
-            exception(HttpException.class, this::httpException);
         });
     }
 

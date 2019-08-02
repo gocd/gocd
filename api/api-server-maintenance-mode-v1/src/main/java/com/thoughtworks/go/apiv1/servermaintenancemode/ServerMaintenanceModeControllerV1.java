@@ -20,7 +20,6 @@ import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.apiv1.servermaintenancemode.representers.MaintenanceModeInfoRepresenter;
-import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobInstance;
@@ -93,8 +92,6 @@ public class ServerMaintenanceModeControllerV1 extends ApiController implements 
             post(Routes.MaintenanceMode.DISABLE, mimeType, this::disableMaintenanceModeState);
 
             get(Routes.MaintenanceMode.INFO, mimeType, this::getMaintenanceModeInfo);
-
-            exception(HttpException.class, this::httpException);
         });
     }
 

@@ -83,8 +83,6 @@ public class MailServerControllerV1 extends ApiController implements SparkSpring
             delete("", mimeType, this::deleteMailConfig);
 
             post(Routes.MailServer.TEST_EMAIL, mimeType, this::sendTestEmail);
-
-            exception(HttpException.class, this::httpException);
         });
     }
 

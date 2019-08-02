@@ -18,6 +18,7 @@ package com.thoughtworks.go.spark;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
+import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.apache.http.HttpStatus;
@@ -56,6 +57,8 @@ public class RoutesHelper {
         controllers.forEach(SparkSpringController::setupRoutes);
         sparkControllers.forEach(SparkController::setupRoutes);
 
+        exception(HttpException.class, this::httpException);
+
         exception(JsonParseException.class, this::invalidJsonPayload);
         exception(UnprocessableEntityException.class, this::unprocessableEntity);
 
@@ -63,13 +66,18 @@ public class RoutesHelper {
     }
 
     private void unprocessableEntity(UnprocessableEntityException exception, Request request, Response response) {
-        response.body(new Gson().toJson(Collections.singletonMap("message", "Your request could not be processed. " + exception.getMessage())));
         response.status(HttpStatus.SC_UNPROCESSABLE_ENTITY);
+        response.body(new Gson().toJson(Collections.singletonMap("message", "Your request could not be processed. " + exception.getMessage())));
+    }
+
+    private void httpException(HttpException ex, Request req, Response res) {
+        res.status(ex.getStatus().value());
+        res.body(new Gson().toJson(Collections.singletonMap("message", ex.getMessage())));
     }
 
     private void invalidJsonPayload(JsonParseException ex, Request req, Response res) {
-        res.body(new Gson().toJson(Collections.singletonMap("error", "Payload data is not valid JSON: " + ex.getMessage())));
         res.status(HttpStatus.SC_BAD_REQUEST);
+        res.body(new Gson().toJson(Collections.singletonMap("error", "Payload data is not valid JSON: " + ex.getMessage())));
     }
 
     private class RuntimeHeaderEmitter {

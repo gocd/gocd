@@ -27,7 +27,6 @@ import com.thoughtworks.go.apiv8.admin.shared.representers.PipelineConfigReprese
 import com.thoughtworks.go.apiv8.admin.shared.representers.stages.ConfigHelperOptions;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.exceptions.EntityType;
-import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.config.materials.PasswordDeserializer;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.Username;
@@ -97,8 +96,6 @@ public class PipelineConfigControllerV8 extends ApiController implements SparkSp
             get(Routes.PipelineConfig.NAME, mimeType, this::show);
             put(Routes.PipelineConfig.NAME, mimeType, this::update);
             delete(Routes.PipelineConfig.NAME, mimeType, this::destroy);
-
-            exception(HttpException.class, this::httpException);
         });
     }
 

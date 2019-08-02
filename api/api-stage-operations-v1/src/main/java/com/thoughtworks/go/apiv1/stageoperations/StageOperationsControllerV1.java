@@ -99,8 +99,6 @@ public class StageOperationsControllerV1 extends ApiController implements SparkS
             get(Routes.Stage.INSTANCE_BY_COUNTER, mimeType, this::instanceByCounter);
             get(Routes.Stage.STAGE_HISTORY, mimeType, this::history);
             get(Routes.Stage.STAGE_HISTORY_OFFSET, mimeType, this::history);
-
-            exception(HttpException.class, this::httpException);
         });
     }
 

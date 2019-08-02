@@ -21,7 +21,6 @@ import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.apiv6.plugininfos.representers.PluginInfoRepresenter;
 import com.thoughtworks.go.apiv6.plugininfos.representers.PluginInfosRepresenter;
-import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
 import com.thoughtworks.go.plugin.access.ExtensionsRegistry;
@@ -82,8 +81,6 @@ public class PluginInfosControllerV6 extends ApiController implements SparkSprin
 
             get("", mimeType, this::index);
             get(Routes.PluginInfoAPI.ID, mimeType, this::show);
-
-            exception(HttpException.class, this::httpException);
         });
     }
 

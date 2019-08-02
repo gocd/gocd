@@ -29,7 +29,6 @@ import com.thoughtworks.go.apiv2.rolesconfig.representers.RolesRepresenter;
 import com.thoughtworks.go.config.Role;
 import com.thoughtworks.go.config.RolesConfig;
 import com.thoughtworks.go.config.exceptions.EntityType;
-import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.config.update.GoCDRolesBulkUpdateRequest;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.service.EntityHashingService;
@@ -80,8 +79,6 @@ public class RolesControllerV2 extends ApiController implements SparkSpringContr
             get(Routes.Roles.NAME_PATH, mimeType, this::show);
             put(Routes.Roles.NAME_PATH, mimeType, this::update);
             delete(Routes.Roles.NAME_PATH, mimeType, this::destroy);
-
-            exception(HttpException.class, this::httpException);
         });
     }
 

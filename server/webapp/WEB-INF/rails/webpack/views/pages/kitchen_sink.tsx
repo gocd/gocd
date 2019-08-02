@@ -24,6 +24,7 @@ import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {Ellipsize} from "views/components/ellipsize";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {AutocompleteField, SuggestionProvider} from "views/components/forms/autocomplete";
+import {IdentifierInputField} from "views/components/forms/common_validating_inputs";
 import {EncryptedValue} from "views/components/forms/encrypted_value";
 import {Form} from "views/components/forms/form";
 import {
@@ -34,6 +35,7 @@ import {
   TextField,
   TriStateCheckboxField
 } from "views/components/forms/input_fields";
+import {LiveValidatingInputField} from "views/components/forms/live_validating_input";
 import {HeaderPanel} from "views/components/header_panel";
 import {IconGroup} from "views/components/icons";
 import * as Icons from "views/components/icons/index";
@@ -63,6 +65,9 @@ export class KitchenSink extends MithrilViewComponent<null> {
 
   view(vnode: m.Vnode<null>) {
     const model: Stream<string> = stream();
+    const textValue: Stream<string> = stream();
+    const name: Stream<string> = stream();
+
     return (
       <div>
         <HeaderPanel title="Kitchen Sink" sectionName={"Admin"}/>
@@ -252,6 +257,19 @@ export class KitchenSink extends MithrilViewComponent<null> {
           "Content for two"]}/>
 
         <br/>
+
+        <h3>Validate-as-you-type field (i.e., LiveValidatingInputField)</h3>
+
+        <LiveValidatingInputField label="Enter some numbers. But if you're adventurous, try any other character -- oh my, the suspense!" property={textValue} validator={(s) => {
+          if (!(/^\d*$/.test(s))) {
+            return "Only numbers are allowed! You'd better settle down, you rebel, you!";
+          }
+        }} />
+
+        <h3>Validate-as-you-type Name field (just a special case of LiveValidatingInputField)</h3>
+
+        <IdentifierInputField label={`GoCD identier (a.k.a., "name")`} property={name}/>
+
         <h3>Dynamic autocomplete</h3>
         <AutocompleteField label="Dynamic" property={model} provider={this.provider}/>
 

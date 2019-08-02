@@ -151,6 +151,19 @@ export default class {
     return `/go/api/internal/config_repos/${id}/trigger_update`;
   }
 
+  static pacPreview(pluginId: string, group: string, validate?: boolean): string {
+    const url = `/go/api/admin/internal/pac/preview/${pluginId}`;
+
+    const q = new URLSearchParams();
+    q.append("group", group);
+
+    if (void 0 !== validate) {
+      q.append("validate", "" + validate);
+    }
+
+    return `${url}?${q}`;
+  }
+
   static materialConnectionCheck(): string {
     return `/go/api/admin/internal/material_test`;
   }

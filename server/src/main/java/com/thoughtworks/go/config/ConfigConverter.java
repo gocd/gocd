@@ -27,6 +27,7 @@ import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.domain.KillAllChildProcessTask;
+import com.thoughtworks.go.domain.NullTask;
 import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.domain.config.Arguments;
@@ -784,7 +785,9 @@ public class ConfigConverter {
         }
 
         for (Task task : jobConfig.tasks()) {
-            job.addTask(taskToCRTask(task));
+            if (!(task instanceof NullTask)) {
+                job.addTask(taskToCRTask(task));
+            }
         }
 
         if (jobConfig.getTimeout() != null) {
@@ -887,7 +890,7 @@ public class ConfigConverter {
 
     private void commonCRTaskMembers(CRTask crTask, AbstractTask task) {
         Task taskOnCancel = task.cancelTask();
-        if (taskOnCancel != null && !(taskOnCancel instanceof KillAllChildProcessTask))
+        if (taskOnCancel != null && !(taskOnCancel instanceof KillAllChildProcessTask) && !(taskOnCancel instanceof NullTask))
             crTask.setOnCancel(taskToCRTask(taskOnCancel));
         crTask.setRunIf(crRunIfs(task.runIfConfigs));
     }

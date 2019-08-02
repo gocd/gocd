@@ -14,19 +14,21 @@
  * limitations under the License.
  */
 
-import {MithrilViewComponent} from "jsx/mithril-component";
+import {RestyleAttrs, RestyleComponent} from "jsx/mithril-component";
 import * as m from "mithril";
 import * as css from "./user_input_pane.scss";
 
-interface Attrs {
-  heading: string;
+interface Attrs extends RestyleAttrs<typeof css> {
+  heading: m.Children;
 }
 
-export class UserInputPane extends MithrilViewComponent<Attrs> {
+export class UserInputPane extends RestyleComponent<typeof css, Attrs> {
+  css: typeof css = css;
+
   view(vnode: m.Vnode<Attrs>) {
-    return <section class={css.userInput}>
-      <h3 class={css.sectionHeading}>{vnode.attrs.heading}</h3>
-      <p class={css.sectionNote}><span class={css.attention}>*</span> denotes a required field</p>
+    return <section class={this.css.userInput}>
+      <h3 class={this.css.sectionHeading}>{vnode.attrs.heading}</h3>
+      <p class={this.css.sectionNote}><span class={this.css.attention}>*</span> denotes a required field</p>
       {vnode.children}
     </section>;
   }

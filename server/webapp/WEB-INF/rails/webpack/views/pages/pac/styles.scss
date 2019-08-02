@@ -14,16 +14,28 @@
  * limitations under the License.
  */
 
-import {RestyleComponent} from "jsx/mithril-component";
-import * as m from "mithril";
-import * as defaultStyles from "./fillable_section.scss";
+@import "../../global/common";
+@import "~prismjs/themes/prism"; // don't add the `.css` extension!! See https://github.com/sass/node-sass/issues/2362#issuecomment-388634848
 
-export class FillableSection extends RestyleComponent<typeof defaultStyles, {}> {
-  css = defaultStyles;
+$syntax-bg: #282923;
 
-  view(vnode: m.Vnode) {
-    return <article class={this.css.fillable}>
-      {vnode.children}
-    </article>;
+.builder-form {
+  max-width: 50%;
+}
+
+.preview-pane[class*="language-"] { // scss-lint:disable-line
+  // background-color: lighten($syntax-bg, 5%);
+  width: 50%;
+}
+
+.logical-section {
+  margin-bottom: 2em;
+
+  &:last-of-type {
+    margin-bottom: 0;
   }
+}
+
+.download-action {
+  white-space: nowrap;
 }

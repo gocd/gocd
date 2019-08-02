@@ -183,6 +183,7 @@ export class TaskEditor extends MithrilViewComponent<Attrs> {
 
   private writeTasksToModel(tasks: NodeListOf<Element>) {
     this.model!(_.map(tasks, TaskEditor.toTask));
+    this.terminal!.dispatchEvent(new Event("change", { bubbles: true, cancelable: true }));
   }
 }
 

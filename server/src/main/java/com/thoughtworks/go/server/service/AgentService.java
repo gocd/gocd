@@ -58,7 +58,6 @@ import static com.thoughtworks.go.serverhealth.HealthStateScope.GLOBAL;
 import static com.thoughtworks.go.serverhealth.HealthStateType.general;
 import static com.thoughtworks.go.util.CommaSeparatedString.append;
 import static com.thoughtworks.go.util.CommaSeparatedString.remove;
-import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
@@ -123,7 +122,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         return Streams.stream(agentInstances.getAllAgents()).collect(toMap(e -> e, AgentService::getSortedEnvironmentList));
     }
 
-    public AgentsViewModel registeredAgents() {
+    public AgentsViewModel getRegisteredAgentsViewModel() {
         return toAgentViewModels(agentInstances.findRegisteredAgents());
     }
 
@@ -242,34 +241,6 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         }
     }
 
-    private boolean validateAndPopulateAgents(List<String> uuids, List<AgentInstance> agents, HttpOperationResult result) {
-        if (!validateThatAllAgentsExistAndPopulateAgents(uuids, agents, result)) {
-            return false;
-        }
-        if (!validateThatAllAgentsCanBeDeleted(agents, result)) {
-            return false;
-        }
-        return true;
-    }
-
-    private boolean validateThatAllAgentsCanBeDeleted(List<AgentInstance> agents, HttpOperationResult result) {
-        for (AgentInstance agentInstance : agents) {
-            if (!agentInstance.canBeDeleted()) {
-                result.notAcceptable(getFailedToDeleteMessage(agents.size()), general(GLOBAL));
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private String getFailedToDeleteMessage(int numOfAgents){
-        if(numOfAgents == 1){
-            return "Failed to delete an agent, as it is not in a disabled state or is still building.";
-        } else {
-            return "Could not delete any agents, as one or more agents might not be disabled or are still building.";
-        }
-    }
-
     public void updateRuntimeInfo(AgentRuntimeInfo agentRuntimeInfo) {
         bombIfAgentDoesNotHaveACookie(agentRuntimeInfo);
 
@@ -322,7 +293,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     @Deprecated
     public void approve(String uuid) {
         AgentInstance agentInstance = findAgentAndRefreshStatus(uuid);
-        boolean hasAgent = hasAgent(agentInstance.getUuid());
+        boolean hasAgent = isRegistered(agentInstance.getUuid());
         agentInstance.enable();
         if (hasAgent) {
             LOGGER.warn("Registered agent with the same uuid [{}] already approved.", agentInstance);
@@ -374,7 +345,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         return null;
     }
 
-    public AgentsViewModel filter(List<String> uuids) {
+    public AgentsViewModel filterAgentsViewModel(List<String> uuids) {
         AgentsViewModel agentsViewModel = new AgentsViewModel();
         for (AgentInstance agentInstance : agentInstances.filter(uuids)) {
             agentsViewModel.add(new AgentViewModel(agentInstance));
@@ -401,7 +372,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         saveOrUpdate(agent);
     }
 
-    public boolean hasAgent(String uuid) {
+    public boolean isRegistered(String uuid) {
         AgentInstance agentInstance = agentInstances.findAgent(uuid);
         return !agentInstance.isNullAgent() && agentInstance.isRegistered();
     }
@@ -531,12 +502,6 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
 
     private static Collection<String> getSortedEnvironmentList(AgentInstance agentInstance) {
         return agentInstance.getAgent().getEnvironmentsAsList().stream().sorted().collect(toList());
-    }
-
-    private List<Agent> filterAgents(List<String> uuids) {
-        return agentInstances.values().stream().filter(agentInstance -> uuids.contains(agentInstance.getUuid()))
-                .map(AgentInstance::getAgent)
-                .collect(toList());
     }
 
     private void bombIfAgentHasADuplicateCookie(AgentRuntimeInfo agentRuntimeInfo) {
@@ -698,6 +663,34 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
             return true;
         }
         return false;
+    }
+
+    private boolean validateAndPopulateAgents(List<String> uuids, List<AgentInstance> agents, HttpOperationResult result) {
+        if (!validateThatAllAgentsExistAndPopulateAgents(uuids, agents, result)) {
+            return false;
+        }
+        if (!validateThatAllAgentsCanBeDeleted(agents, result)) {
+            return false;
+        }
+        return true;
+    }
+
+    private boolean validateThatAllAgentsCanBeDeleted(List<AgentInstance> agents, HttpOperationResult result) {
+        for (AgentInstance agentInstance : agents) {
+            if (!agentInstance.canBeDeleted()) {
+                result.notAcceptable(getFailedToDeleteMessage(agents.size()), general(GLOBAL));
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private String getFailedToDeleteMessage(int numOfAgents){
+        if(numOfAgents == 1){
+            return "Failed to delete an agent, as it is not in a disabled state or is still building.";
+        } else {
+            return "Could not delete any agents, as one or more agents might not be disabled or are still building.";
+        }
     }
 
     private boolean isAnyOperationPerformedOnAgent(String hostname, EnvironmentsConfig environments,

@@ -127,7 +127,7 @@ describe EnvironmentsController do
       create_environment_called = false
       expect(@environment_config_service).to receive(:getAllLocalPipelinesForUser).with(user).and_return([EnvironmentPipelineModel.new("foo", nil), EnvironmentPipelineModel.new("bar", nil)])
       expect(@environment_config_service).to receive(:getAllRemotePipelinesForUserInEnvironment).with(anything, anything).and_return([])
-      allow(@agent_service).to receive(:registeredAgents).and_return(AgentsViewModel.new)
+      allow(@agent_service).to receive(:getRegisteredAgentsViewModel).and_return(AgentsViewModel.new)
       expect(@environment_config_service).to receive(:createEnvironment) do |env_config, user, result|
         expect(env_config.name()).to eq(CaseInsensitiveString.new(environment_name))
         expect(env_config.getPipelineNames().to_a).to eq([CaseInsensitiveString.new("first_pipeline"), CaseInsensitiveString.new("second_pipeline")])
@@ -240,7 +240,7 @@ describe EnvironmentsController do
       result = HttpLocalizedOperationResult.new()
       expect(@environment_config_service).to receive(:getMergedEnvironmentforDisplay).with(@environment_name, an_instance_of(HttpLocalizedOperationResult)).and_return(com.thoughtworks.go.domain.ConfigElementForEdit.new(@environment, "md5"))
       allow(@environment_config_service).to receive(:getEnvironmentForEdit).and_return(@environment)
-      allow(@agent_service).to receive(:registeredAgents).and_return(AgentsViewModel.new)
+      allow(@agent_service).to receive(:getRegisteredAgentsViewModel).and_return(AgentsViewModel.new)
       expect(@environment_config_service).to receive(:getAllLocalPipelinesForUser).with(@user).and_return([])
       expect(@environment_config_service).to receive(:getAllRemotePipelinesForUserInEnvironment).with(@user, @environment).and_return([])
 
@@ -262,7 +262,7 @@ describe EnvironmentsController do
     it "should return error message if environment name is blank" do
       expect(@environment_config_service).to receive(:getMergedEnvironmentforDisplay).with(@environment_name, an_instance_of(HttpLocalizedOperationResult)).and_return(com.thoughtworks.go.domain.ConfigElementForEdit.new(@environment, "md5"))
       allow(@environment_config_service).to receive(:getEnvironmentForEdit).with(@environment_name).and_return(@environment)
-      allow(@agent_service).to receive(:registeredAgents).and_return(AgentsViewModel.new)
+      allow(@agent_service).to receive(:getRegisteredAgentsViewModel).and_return(AgentsViewModel.new)
       expect(@environment_config_service).to receive(:getAllLocalPipelinesForUser).with(@user).and_return([])
       expect(@environment_config_service).to receive(:getAllRemotePipelinesForUserInEnvironment).with(@user, @environment).and_return([])
 
@@ -291,7 +291,7 @@ describe EnvironmentsController do
       result = HttpLocalizedOperationResult.new()
       expect(@environment_config_service).to receive(:getMergedEnvironmentforDisplay).with(@environment_name, an_instance_of(HttpLocalizedOperationResult)).and_return(com.thoughtworks.go.domain.ConfigElementForEdit.new(@environment, "md5"))
       allow(@environment_config_service).to receive(:getEnvironmentForEdit).and_return(@environment)
-      allow(@agent_service).to receive(:registeredAgents).and_return(AgentsViewModel.new)
+      allow(@agent_service).to receive(:getRegisteredAgentsViewModel).and_return(AgentsViewModel.new)
       expect(@environment_config_service).to receive(:getAllLocalPipelinesForUser).with(@user).and_return([])
       expect(@environment_config_service).to receive(:getAllRemotePipelinesForUserInEnvironment).with(@user, @environment).and_return([])
 
@@ -320,7 +320,7 @@ describe EnvironmentsController do
       expect(@environment_config_service).to receive(:getMergedEnvironmentforDisplay).with(anything, anything).and_return(com.thoughtworks.go.domain.ConfigElementForEdit.new(config_new, "md5"))
       expect(@environment_config_service).to receive(:getAllLocalPipelinesForUser).with(any_args).and_return([])
       expect(@environment_config_service).to receive(:getAllRemotePipelinesForUserInEnvironment).with(anything, anything).and_return([])
-      allow(@agent_service).to receive(:registeredAgents).and_return(AgentsViewModel.new)
+      allow(@agent_service).to receive(:getRegisteredAgentsViewModel).and_return(AgentsViewModel.new)
       environment_config = BasicEnvironmentConfig.new(CaseInsensitiveString.new("foo_env"))
       allow(@environment_config_service).to receive(:getEnvironmentForEdit).with("foo_env").and_return(environment_config)
 
@@ -359,7 +359,7 @@ describe EnvironmentsController do
       expect(@environment_config_service).to receive(:getMergedEnvironmentforDisplay).with(anything, anything).and_return(com.thoughtworks.go.domain.ConfigElementForEdit.new(config_new, "md5"))
       expect(@environment_config_service).to receive(:getAllLocalPipelinesForUser).with(any_args).and_return([])
       expect(@environment_config_service).to receive(:getAllRemotePipelinesForUserInEnvironment).with(anything, anything).and_return([])
-      allow(@agent_service).to receive(:registeredAgents).and_return(AgentsViewModel.new)
+      allow(@agent_service).to receive(:getRegisteredAgentsViewModel).and_return(AgentsViewModel.new)
       environment_config = BasicEnvironmentConfig.new(CaseInsensitiveString.new("foo_env"))
       allow(@environment_config_service).to receive(:getEnvironmentForEdit).with("foo_env").and_return(environment_config)
 
@@ -385,7 +385,7 @@ describe EnvironmentsController do
       expect(@environment_config_service).to receive(:getMergedEnvironmentforDisplay).with(anything, anything).and_return(com.thoughtworks.go.domain.ConfigElementForEdit.new(config_new, "md5"))
       expect(@environment_config_service).to receive(:getAllLocalPipelinesForUser).with(any_args).and_return([])
       expect(@environment_config_service).to receive(:getAllRemotePipelinesForUserInEnvironment).with(anything, anything).and_return([])
-      allow(@agent_service).to receive(:registeredAgents).and_return(AgentsViewModel.new)
+      allow(@agent_service).to receive(:getRegisteredAgentsViewModel).and_return(AgentsViewModel.new)
       environment_config = BasicEnvironmentConfig.new(CaseInsensitiveString.new("foo_env"))
       allow(@environment_config_service).to receive(:getEnvironmentForEdit).with("foo_env").and_return(environment_config)
 
@@ -417,7 +417,7 @@ describe EnvironmentsController do
       expect(@environment_config_service).to receive(:getMergedEnvironmentforDisplay).with(anything, anything).and_return(com.thoughtworks.go.domain.ConfigElementForEdit.new(config_new, "md5"))
       expect(@environment_config_service).to receive(:getAllLocalPipelinesForUser).with(any_args).and_return([])
       expect(@environment_config_service).to receive(:getAllRemotePipelinesForUserInEnvironment).with(anything, anything).and_return([])
-      allow(@agent_service).to receive(:registeredAgents).and_return(AgentsViewModel.new)
+      allow(@agent_service).to receive(:getRegisteredAgentsViewModel).and_return(AgentsViewModel.new)
       environment_config = BasicEnvironmentConfig.new(CaseInsensitiveString.new("foo_env"))
       allow(@environment_config_service).to receive(:getEnvironmentForEdit).with("foo_env").and_return(environment_config)
 
@@ -502,7 +502,7 @@ describe EnvironmentsController do
       expect(@environment_config_service).to receive(:getEnvironmentForEdit).with(@environment_name).and_return(@environment)
       expect(@environment_config_service).to receive(:getAllLocalPipelinesForUser).with(user).and_return([EnvironmentPipelineModel.new("foo", @environment_name), EnvironmentPipelineModel.new("bar", "another_env"), EnvironmentPipelineModel.new("baz", nil)])
       expect(@environment_config_service).to receive(:getAllRemotePipelinesForUserInEnvironment).with(anything, anything).and_return([])
-      expect(@agent_service).to receive(:registeredAgents).and_return(AgentsViewModel.new)
+      expect(@agent_service).to receive(:getRegisteredAgentsViewModel).and_return(AgentsViewModel.new)
 
       get :edit_pipelines, params: {:name => "foo-environment", :no_layout => true}
 

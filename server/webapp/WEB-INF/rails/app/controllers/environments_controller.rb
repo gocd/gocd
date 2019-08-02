@@ -200,7 +200,7 @@ class EnvironmentsController < ApplicationController
       collection << pipeline
     end
 
-    @agents = agent_service.registeredAgents()
+    @agents = agent_service.getRegisteredAgentsViewModel()
     @agents.sortBy(AgentViewModel.HOSTNAME_COMPARATOR, SortOrder::ASC)
   end
 

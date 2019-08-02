@@ -160,7 +160,7 @@ public class X509AuthenticationFilterTest {
             serverConfig.ensureTokenGenerationKeyExists();
 
             when(goConfigService.serverConfig()).thenReturn(serverConfig);
-            when(agentService.hasAgent("blah")).thenReturn(true);
+            when(agentService.isRegistered("blah")).thenReturn(true);
 
             X509AuthenticationFilter filter = new X509AuthenticationFilter(goConfigService, clock, agentService);
 
@@ -189,7 +189,7 @@ public class X509AuthenticationFilterTest {
             serverConfig.ensureTokenGenerationKeyExists();
 
             when(goConfigService.serverConfig()).thenReturn(serverConfig);
-            when(agentService.hasAgent("blah")).thenReturn(false);
+            when(agentService.isRegistered("blah")).thenReturn(false);
 
             X509AuthenticationFilter filter = new X509AuthenticationFilter(goConfigService, clock, agentService);
 
@@ -214,7 +214,7 @@ public class X509AuthenticationFilterTest {
             serverConfig.ensureTokenGenerationKeyExists();
 
             when(goConfigService.serverConfig()).thenReturn(serverConfig);
-            when(agentService.hasAgent("blah")).thenReturn(true);
+            when(agentService.isRegistered("blah")).thenReturn(true);
 
             X509AuthenticationFilter filter = new X509AuthenticationFilter(goConfigService, clock, agentService);
 
@@ -263,7 +263,7 @@ public class X509AuthenticationFilterTest {
             serverConfig.ensureTokenGenerationKeyExists();
 
             when(goConfigService.serverConfig()).thenReturn(serverConfig);
-            when(agentService.hasAgent(uuid)).thenReturn(true);
+            when(agentService.isRegistered(uuid)).thenReturn(true);
 
             X509AuthenticationFilter filter = new X509AuthenticationFilter(goConfigService, clock, agentService);
 

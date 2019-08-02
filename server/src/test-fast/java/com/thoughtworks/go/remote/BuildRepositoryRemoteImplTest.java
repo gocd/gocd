@@ -182,14 +182,14 @@ public class BuildRepositoryRemoteImplTest {
     }
 
     @Test
-    public void shouldUnderstandGetingCookie() {
+    public void getCookieShouldReturnAssignedCookie() {
         when(agentService.assignCookie(info.getIdentifier())).thenReturn("cookie");
         assertThat(buildRepository.getCookie(info.getIdentifier(), "/foo/bar"), is("cookie"));
         assertThat(logFixture.getRawMessages(), hasItem("[Agent Cookie] Agent [Agent [host, 192.168.1.1, uuid]] at location [/foo/bar] asked for a new cookie, assigned [cookie]"));
     }
 
     @Test
-    public void shouldPropagateExceptionWhenGettingCookie() {
+    public void GetCookieShouldThrowExceptionWhenAssigningCookieThrowsException() {
         RuntimeException runtimeException = new RuntimeException("holy smoke");
         when(agentService.assignCookie(info.getIdentifier())).thenThrow(runtimeException);
         try {

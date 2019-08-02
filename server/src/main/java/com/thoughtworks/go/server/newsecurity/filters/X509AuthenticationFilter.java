@@ -101,7 +101,7 @@ public class X509AuthenticationFilter extends OncePerRequestFilter {
         String uuid = request.getHeader("X-Agent-GUID");
         String token = request.getHeader("Authorization");
 
-        if (!agentService.hasAgent(uuid)) {
+        if (!agentService.isRegistered(uuid)) {
             LOGGER.debug("Denying access, agent with uuid '{}' is not registered.", uuid);
             response.setStatus(403);
             return;

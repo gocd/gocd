@@ -40,7 +40,7 @@ public class EnvironmentViewModel {
     }
 
     public void setAgentViewModels(AgentService agentService) {
-        this.agentViewModels = agentService.filter(environmentConfig.getAgents().getUuids());
+        this.agentViewModels = agentService.filterAgentsViewModel(environmentConfig.getAgents().getUuids());
     }
 
     public AgentsViewModel getAgentViewModels() {

@@ -184,7 +184,7 @@ public class JobController {
         data.put("websocketEnabled", Toggles.isToggleOn(Toggles.BROWSER_CONSOLE_LOG_WS));
         data.put("useIframeSandbox", systemEnvironment.useIframeSandbox());
         data.put("isEditableViaUI", goConfigService.isPipelineEditable(jobDetail.getPipelineName()));
-        data.put("isAgentAlive", agentService.hasAgent(jobDetail.getAgentUuid()));
+        data.put("isAgentAlive", agentService.isRegistered(jobDetail.getAgentUuid()));
         data.put("disallowPropertiesAccess", disallowPropertiesAccess);
         addElasticAgentInfo(jobDetail, data);
         return new ModelAndView("build_detail/build_detail_page", data);

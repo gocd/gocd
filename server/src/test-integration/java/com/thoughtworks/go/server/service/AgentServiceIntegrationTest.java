@@ -52,6 +52,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.net.InetAddress;
 import java.util.*;
 
+import static com.thoughtworks.go.domain.AgentConfigStatus.Pending;
+import static com.thoughtworks.go.helper.AgentInstanceMother.*;
 import static com.thoughtworks.go.server.service.AgentRuntimeInfo.fromServer;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static java.lang.String.format;
@@ -244,19 +246,18 @@ public class AgentServiceIntegrationTest {
             "classpath:testPropertyConfigurer.xml", "classpath:WEB-INF/spring-all-servlet.xml"})
     class PendingAgents {
         @Test
-        void registeredAgentListShouldNotIncludePendingAgents() {
-            AgentInstance idle = AgentInstanceMother.updateUuid(AgentInstanceMother.idle(new Date(), "CCeDev01"), UUID);
-            AgentInstance pending = AgentInstanceMother.pending();
-            AgentInstance building = AgentInstanceMother.building();
-            AgentInstance denied = AgentInstanceMother.disabled();
+        void getRegisteredAgentsViewModelShouldNotReturnPendingAgentsViewModel() {
+            AgentInstance idle = AgentInstanceMother.updateUuid(idle(new Date(), "CCeDev01"), UUID);
+            AgentInstance pending = pending();
+            AgentInstance building = building();
+            AgentInstance denied = disabled();
 
             AgentInstances instances = new AgentInstances(new SystemEnvironment(), agentStatusChangeListener(), idle, pending, building, denied);
             AgentService agentService = getAgentService(instances);
 
-            AgentsViewModel agentViewModels = agentService.registeredAgents();
+            AgentsViewModel agentViewModels = agentService.getRegisteredAgentsViewModel();
             assertThat(agentViewModels.size(), is(3));
-
-            agentViewModels.forEach(agentViewModel -> assertThat(agentViewModel.getStatus().getConfigStatus(), not(is(AgentConfigStatus.Pending))));
+            agentViewModels.forEach(agentViewModel -> assertThat(agentViewModel.getStatus().getConfigStatus(), not(is(Pending))));
         }
 
         @Test
@@ -572,7 +573,7 @@ public class AgentServiceIntegrationTest {
 
         @Test
         void shouldThrowExceptionWhenADuplicateAgentTriesToUpdateStatus() {
-            AgentInstance buildingAgentInstance = AgentInstanceMother.building();
+            AgentInstance buildingAgentInstance = building();
             AgentService agentService = getAgentService(new AgentInstances(new SystemEnvironment(), agentStatusChangeListener(), buildingAgentInstance));
             AgentInstances agentInstances = agentService.findRegisteredAgents();
 
@@ -644,7 +645,7 @@ public class AgentServiceIntegrationTest {
 
         @Test
         void shouldUpdateAgentStatus() {
-            AgentInstance buildingAgentInstance = AgentInstanceMother.building();
+            AgentInstance buildingAgentInstance = building();
             AgentService agentService = getAgentService(new AgentInstances(new SystemEnvironment(), agentStatusChangeListener(), buildingAgentInstance));
             AgentInstances registeredAgentInstances = agentService.findRegisteredAgents();
 
@@ -686,8 +687,8 @@ public class AgentServiceIntegrationTest {
 
         @Test
         void shouldThrowBadRequestIfNoOperationToPerformOnBulkUpdatingAgents() {
-            AgentInstance pendingAgent = AgentInstanceMother.pending();
-            AgentInstance registeredAgent = AgentInstanceMother.disabled();
+            AgentInstance pendingAgent = pending();
+            AgentInstance registeredAgent = disabled();
 
             AgentInstances instances = new AgentInstances(new SystemEnvironment(), agentStatusChangeListener(), pendingAgent);
             AgentService agentService = getAgentService(instances);
@@ -746,7 +747,7 @@ public class AgentServiceIntegrationTest {
         void shouldMarkAgentAsLostContactWhenAgentDoesNotPingWithinTimeoutPeriod() {
             new SystemEnvironment().setProperty("agent.connection.timeout", "-1");
             Date date = new Date(70, 1, 1, 1, 1, 1);
-            AgentInstance instance = AgentInstanceMother.idle(date, "CCeDev01");
+            AgentInstance instance = idle(date, "CCeDev01");
             ((AgentRuntimeInfo) ReflectionUtil.getField(instance, "agentRuntimeInfo")).setOperatingSystem("Minix");
 
             AgentService agentService = new AgentService(new SystemEnvironment(), agentDao, new UuidGenerator(),
@@ -766,7 +767,7 @@ public class AgentServiceIntegrationTest {
             CONFIG_HELPER.addMailHost(new MailHost("ghost.name", 25, "loser", "boozer", true, false, "go@foo.mail.com", "admin@foo.mail.com"));
 
             Date date = new Date(70, 1, 1, 1, 1, 1);
-            AgentInstance idleAgentInstance = AgentInstanceMother.idle(date, "CCeDev01");
+            AgentInstance idleAgentInstance = idle(date, "CCeDev01");
             ((AgentRuntimeInfo) ReflectionUtil.getField(idleAgentInstance, "agentRuntimeInfo")).setOperatingSystem("Minix");
 
             EmailSender mailSender = mock(EmailSender.class);
@@ -908,7 +909,7 @@ public class AgentServiceIntegrationTest {
 
         @Test
         void shouldBeAbleToRegisterPendingAgent() {
-            AgentInstance pendingAgentInstance = AgentInstanceMother.pending();
+            AgentInstance pendingAgentInstance = pending();
             Agent pendingAgent = pendingAgentInstance.getAgent();
 
             agentService.requestRegistration(fromServer(pendingAgent, false, "var/lib",
@@ -923,7 +924,7 @@ public class AgentServiceIntegrationTest {
 
         @Test
         void shouldRegisterAgentOnlyOnce() {
-            Agent pendingAgent = AgentInstanceMother.pending().getAgent();
+            Agent pendingAgent = pending().getAgent();
             AgentRuntimeInfo agentRuntimeInfo1 = fromServer(pendingAgent, false, "var/lib", 0L,
                     "linux", false);
             agentService.requestRegistration(agentRuntimeInfo1);
@@ -965,10 +966,10 @@ public class AgentServiceIntegrationTest {
     class LoadingAgents {
         @Test
         void shouldLoadAllAgents() {
-            AgentInstance idleAgentInstance = AgentInstanceMother.idle(new Date(), "CCeDev01");
-            AgentInstance pendingAgentInstance = AgentInstanceMother.pending();
-            AgentInstance buildingAgentInstance = AgentInstanceMother.building();
-            AgentInstance deniedAgentInstance = AgentInstanceMother.disabled();
+            AgentInstance idleAgentInstance = idle(new Date(), "CCeDev01");
+            AgentInstance pendingAgentInstance = pending();
+            AgentInstance buildingAgentInstance = building();
+            AgentInstance deniedAgentInstance = disabled();
 
             AgentInstances agentInstances = new AgentInstances(new SystemEnvironment(), agentStatusChangeListener(),
                     idleAgentInstance, pendingAgentInstance, buildingAgentInstance, deniedAgentInstance);

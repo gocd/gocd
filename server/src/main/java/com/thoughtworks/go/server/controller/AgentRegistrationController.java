@@ -261,7 +261,7 @@ public class AgentRegistrationController {
                 agent.setElasticPluginId(elasticPluginId);
             }
 
-            if (goConfigService.serverConfig().shouldAutoRegisterAgentWith(agentAutoRegisterKey) && !agentService.hasAgent(uuid)) {
+            if (goConfigService.serverConfig().shouldAutoRegisterAgentWith(agentAutoRegisterKey) && !agentService.isRegistered(uuid)) {
                 LOG.info("[Agent Auto Registration] Auto registering agent with uuid {} ", uuid);
                 agentService.register(agent, agentAutoRegisterResources, agentAutoRegisterEnvironments);
                 if (agent.hasErrors()) {
@@ -269,7 +269,7 @@ public class AgentRegistrationController {
                 }
             }
 
-            boolean registeredAlready = agentService.hasAgent(uuid);
+            boolean registeredAlready = agentService.isRegistered(uuid);
             long usableSpace = Long.parseLong(usablespaceAsString);
 
             AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromServer(agent, registeredAlready, location, usableSpace, operatingSystem);
@@ -311,7 +311,7 @@ public class AgentRegistrationController {
             return new ResponseEntity<>(message, CONFLICT);
         }
         final AgentInstance agentInstance = agentService.findAgent(uuid);
-        if ((!agentInstance.isNullAgent() && agentInstance.isPending()) || agentService.hasAgent(uuid)) {
+        if ((!agentInstance.isNullAgent() && agentInstance.isPending()) || agentService.isRegistered(uuid)) {
             String message = "A token has already been issued for this agent.";
             LOG.error("Rejecting request for token. Error: HttpCode=[{}] Message=[{}] Pending=[{}] UUID=[{}]",
                     CONFLICT, message, agentInstance.isPending(), uuid);

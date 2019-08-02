@@ -22,15 +22,17 @@ import com.thoughtworks.go.plugin.access.notification.NotificationPluginRegistry
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import static com.thoughtworks.go.plugin.access.notification.NotificationExtension.AGENT_STATUS_CHANGE_NOTIFICATION;
+
 @Component
 public class AgentStatusChangeNotifier implements AgentStatusChangeListener {
     private NotificationPluginRegistry notificationPluginRegistry;
     private PluginNotificationService pluginNotificationService;
 
     @Autowired
-    public AgentStatusChangeNotifier(NotificationPluginRegistry notificationPluginRegistry, PluginNotificationService pluginNotificationService) {
-        this.notificationPluginRegistry = notificationPluginRegistry;
-        this.pluginNotificationService = pluginNotificationService;
+    public AgentStatusChangeNotifier(NotificationPluginRegistry pluginRegistry, PluginNotificationService notificationService) {
+        this.notificationPluginRegistry = pluginRegistry;
+        this.pluginNotificationService = notificationService;
     }
 
     @Override
@@ -40,8 +42,7 @@ public class AgentStatusChangeNotifier implements AgentStatusChangeListener {
         }
     }
 
-
     private boolean isAnyPluginInterestedInAgentStatus() {
-        return notificationPluginRegistry.isAnyPluginInterestedIn(NotificationExtension.AGENT_STATUS_CHANGE_NOTIFICATION);
+        return notificationPluginRegistry.isAnyPluginInterestedIn(AGENT_STATUS_CHANGE_NOTIFICATION);
     }
 }

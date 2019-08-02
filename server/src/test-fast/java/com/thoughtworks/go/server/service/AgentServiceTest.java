@@ -21,9 +21,7 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
-import com.thoughtworks.go.domain.NullAgentInstance;
 import com.thoughtworks.go.helper.AgentInstanceMother;
-import com.thoughtworks.go.helper.AgentMother;
 import com.thoughtworks.go.listener.AgentStatusChangeListener;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.domain.AgentInstances;
@@ -34,7 +32,6 @@ import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.server.ui.AgentViewModel;
 import com.thoughtworks.go.server.ui.AgentsViewModel;
 import com.thoughtworks.go.server.util.UuidGenerator;
-import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.LogFixture;
@@ -49,8 +46,7 @@ import java.util.*;
 
 import static com.thoughtworks.go.CurrentGoCDVersion.docsUrl;
 import static com.thoughtworks.go.domain.AgentInstance.createFromLiveAgent;
-import static com.thoughtworks.go.helper.AgentInstanceMother.building;
-import static com.thoughtworks.go.helper.AgentInstanceMother.pendingInstance;
+import static com.thoughtworks.go.helper.AgentInstanceMother.*;
 import static com.thoughtworks.go.server.service.AgentRuntimeInfo.fromServer;
 import static com.thoughtworks.go.serverhealth.HealthStateScope.forAgent;
 import static com.thoughtworks.go.serverhealth.HealthStateType.duplicateAgent;
@@ -344,6 +340,52 @@ class AgentServiceTest {
 
     @Nested
     class AgentUpdateAttributes {
+        @Nested
+        class BulkAgentUpdate {
+            @Test
+            void shouldBulkUpdateAgentsAttributes() {
+                AgentInstance agentInstance1 = mock(AgentInstance.class);
+                AgentInstance agentInstance2 = mock(AgentInstance.class);
+                HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+                Username username = new Username(new CaseInsensitiveString("test"));
+
+                when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
+                when(goConfigService.getEnvironments()).thenReturn(new EnvironmentsConfig());
+                when(agentInstances.findAgent("uuid1")).thenReturn(agentInstance1);
+                when(agentInstances.findAgent("uuid2")).thenReturn(agentInstance2);
+
+                agentService.bulkUpdateAgentAttributes(asList("uuid1", "uuid2"), asList("R1", "R2"), emptyStrList, createEnvironmentsConfigWith("test", "prod"), emptyStrList, TriState.TRUE, result);
+
+                verify(agentDao).bulkUpdateAttributes(anyList(), anyMap(), eq(TriState.TRUE));
+                assertThat(result.isSuccessful(), is(true));
+                assertThat(result.message(), is("Updated agent(s) with uuid(s): [uuid1, uuid2]."));
+            }
+
+            @Test
+            void shouldBulkEnableAgents() {
+                Username username = new Username(new CaseInsensitiveString("test"));
+                AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromAgent(agentIdentifier, AgentRuntimeStatus.Unknown, "cookie", false);
+                AgentInstance pending = createFromLiveAgent(agentRuntimeInfo, new SystemEnvironment(), null);
+
+                Agent agent = new Agent("UUID2", "remote-host", "50.40.30.20");
+                agent.disable();
+                AgentInstance fromConfigFile = AgentInstance.createFromAgent(agent, new SystemEnvironment(), null);
+
+                when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
+                when(goConfigService.getEnvironments()).thenReturn(new EnvironmentsConfig());
+                when(agentInstances.findAgent("uuid")).thenReturn(pending);
+                when(agentInstances.findAgent("UUID2")).thenReturn(fromConfigFile);
+
+                List<String> uuids = asList(pending.getUuid(), fromConfigFile.getUuid());
+                HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+                agentService.bulkUpdateAgentAttributes(uuids, emptyStrList, emptyStrList, emptyEnvsConfig, emptyStrList, TriState.TRUE, result);
+
+                verify(agentDao).bulkUpdateAttributes(anyList(), anyMap(), eq(TriState.TRUE));
+                assertThat(result.isSuccessful(), is(true));
+                assertThat(result.message(), is("Updated agent(s) with uuid(s): [uuid, UUID2]."));
+            }
+        }
+
         @Test
         void shouldUpdateTheAgentAttributes() {
             String uuid = "uuid";
@@ -508,45 +550,6 @@ class AgentServiceTest {
             assertThat(agentFromService.getEnvironments(), is("env1,env2"));
             assertFalse(agentFromService.isDisabled());
         }
-    }
-
-    @Test
-    void shouldAssociateCookieForAnAgent() {
-        when(uuidGenerator.randomUuid()).thenReturn("foo");
-        assertThat(agentService.assignCookie(agentIdentifier), is("foo"));
-        verify(agentDao).associateCookie(eq(agentIdentifier), any(String.class));
-    }
-
-    @Test
-    void filterShouldReturnAgentsViewModelForSpecifiedUUIDs() {
-        SystemEnvironment sysEnv = new SystemEnvironment();
-
-        Agent agent1 = new Agent("uuid-1", "host-1", "192.168.1.2");
-        AgentRuntimeInfo runtimeInfo1 = fromServer(agent1, true, "/foo/bar", 100l, "linux", false);
-        AgentInstance instance1 = createFromLiveAgent(runtimeInfo1, sysEnv, null);
-
-        Agent agent3 = new Agent("uuid-3", "host-3", "192.168.1.4");
-        AgentRuntimeInfo runtimeInfo3 = fromServer(agent3, true, "/baz/quux", 300l, "linux", false);
-        AgentInstance instance3 = createFromLiveAgent(runtimeInfo3, sysEnv, null);
-
-        List<String> uuids = asList("uuid-1", "uuid-3");
-        when(agentInstances.filter(uuids)).thenReturn(asList(instance1, instance3));
-
-        AgentsViewModel agentsViewModel = agentService.filter(uuids);
-        AgentViewModel view1 = new AgentViewModel(instance1);
-        AgentViewModel view2 = new AgentViewModel(instance3);
-
-        assertThat(agentsViewModel, is(new AgentsViewModel(view1, view2)));
-        verify(agentInstances).filter(uuids);
-    }
-
-    @Test
-    void filterShouldEmptyAgentsViewModelForNullOrEmptyListOfUUIDs() {
-        AgentsViewModel agentsViewModel = agentService.filter(emptyList());
-        assertThat(agentsViewModel, is(emptyList()));
-
-        agentsViewModel = agentService.filter(null);
-        assertThat(agentsViewModel, is(emptyList()));
     }
 
     @Nested
@@ -758,103 +761,103 @@ class AgentServiceTest {
         }
     }
 
-    @Test
-    void shouldBulkUpdateAgentsAttributes() {
-        AgentInstance agentInstance1 = mock(AgentInstance.class);
-        AgentInstance agentInstance2 = mock(AgentInstance.class);
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        Username username = new Username(new CaseInsensitiveString("test"));
+    @Nested
+    class IsRegistered {
+        @Test
+        void isRegisteredShouldReturnTrueIfSpecifiedUUIDIsRegistered() {
+            AgentInstance building = building();
+            when(agentInstances.findAgent("uuid")).thenReturn(building);
+            assertTrue(agentService.isRegistered("uuid"));
+        }
 
-        when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
-        when(goConfigService.getEnvironments()).thenReturn(new EnvironmentsConfig());
-        when(agentInstances.findAgent("uuid1")).thenReturn(agentInstance1);
-        when(agentInstances.findAgent("uuid2")).thenReturn(agentInstance2);
+        @Test
+        void isRegisteredShouldReturnFalseIfSpecifiedUUIDDoesNotExist() {
+            when(agentInstances.findAgent("uuid")).thenReturn(nullInstance());
+            assertFalse(agentService.isRegistered("uuid"));
+        }
 
-        agentService.bulkUpdateAgentAttributes(asList("uuid1", "uuid2"), asList("R1", "R2"), emptyStrList, createEnvironmentsConfigWith("test", "prod"), emptyStrList, TriState.TRUE, result);
-
-        verify(agentDao).bulkUpdateAttributes(anyList(), anyMap(), eq(TriState.TRUE));
-        assertThat(result.isSuccessful(), is(true));
-        assertThat(result.message(), is("Updated agent(s) with uuid(s): [uuid1, uuid2]."));
+        @Test
+        void isRegisteredShouldReturnFalseIfSpecifiedUUIDIsNotRegistered() {
+            when(agentInstances.findAgent("uuid")).thenReturn(pendingInstance());
+            assertFalse(agentService.isRegistered("uuid"));
+        }
     }
 
-    @Test
-    void shouldBulkEnableAgents() {
-        Username username = new Username(new CaseInsensitiveString("test"));
-        AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromAgent(agentIdentifier, AgentRuntimeStatus.Unknown, "cookie", false);
-        AgentInstance pending = createFromLiveAgent(agentRuntimeInfo, new SystemEnvironment(), null);
+    @Nested
+    class ListOfResourcesAcrossAgents {
+        @Test
+        void shouldReturnDistinctListOfResourcesFromAllAgents() {
+            AgentInstance agentInstance = building();
+            agentInstance.getAgent().setResources("a,b,c");
 
-        Agent agent = new Agent("UUID2", "remote-host", "50.40.30.20");
-        agent.disable();
-        AgentInstance fromConfigFile = AgentInstance.createFromAgent(agent, new SystemEnvironment(), null);
+            AgentInstance agentInstance1 = building();
+            agentInstance1.getAgent().setResources("d,e,a");
 
-        when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
-        when(goConfigService.getEnvironments()).thenReturn(new EnvironmentsConfig());
-        when(agentInstances.findAgent("uuid")).thenReturn(pending);
-        when(agentInstances.findAgent("UUID2")).thenReturn(fromConfigFile);
+            when(agentInstances.values()).thenReturn(asList(agentInstance, agentInstance1));
 
-        List<String> uuids = asList(pending.getUuid(), fromConfigFile.getUuid());
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        agentService.bulkUpdateAgentAttributes(uuids, emptyStrList, emptyStrList, emptyEnvsConfig, emptyStrList, TriState.TRUE, result);
+            assertEquals(asList("a", "b", "c", "d", "e"), agentService.getListOfResourcesAcrossAgents());
+        }
 
-        verify(agentDao).bulkUpdateAttributes(anyList(), anyMap(), eq(TriState.TRUE));
-        assertThat(result.isSuccessful(), is(true));
-        assertThat(result.message(), is("Updated agent(s) with uuid(s): [uuid, UUID2]."));
+        @Test
+        void shouldNotContainEmptyStringInReturnedListOfResourcesFromAllAgentsWhenSomeAgentsHaveNoResources() {
+            AgentInstance agentInstance = building();
+            agentInstance.getAgent().setResources("a,b,c");
+
+            AgentInstance agentInstance1 = AgentInstanceMother.idle();
+            agentInstance1.getAgent().setResources(" ");
+
+            AgentInstance agentInstance2 = AgentInstanceMother.pending();
+            agentInstance2.getAgent().setResources(null);
+
+            when(agentInstances.values()).thenReturn(asList(agentInstance, agentInstance1, agentInstance2));
+
+            assertEquals(asList("a", "b", "c"), agentService.getListOfResourcesAcrossAgents());
+        }
     }
 
-    @Test
-    void shouldReturnTrueIsGivenUuidIsPresentAndTheAgentInstanceIsNotNullAndRegistered() {
-        String uuid = "uuid";
-        AgentInstance agentInstance = building();
-        when(agentInstances.findAgent(uuid)).thenReturn(agentInstance);
+    @Nested
+    class FilterAgentsViewModel {
+        @Test
+        void filterShouldReturnAgentsViewModelForSpecifiedUUIDs() {
+            SystemEnvironment sysEnv = new SystemEnvironment();
 
-        assertTrue(agentService.hasAgent(uuid));
+            Agent agent1 = new Agent("uuid-1", "host-1", "192.168.1.2");
+            AgentRuntimeInfo runtimeInfo1 = fromServer(agent1, true, "/foo/bar", 100l, "linux", false);
+            AgentInstance instance1 = createFromLiveAgent(runtimeInfo1, sysEnv, null);
+
+            Agent agent3 = new Agent("uuid-3", "host-3", "192.168.1.4");
+            AgentRuntimeInfo runtimeInfo3 = fromServer(agent3, true, "/baz/quux", 300l, "linux", false);
+            AgentInstance instance3 = createFromLiveAgent(runtimeInfo3, sysEnv, null);
+
+            List<String> uuids = asList("uuid-1", "uuid-3");
+            when(agentInstances.filter(uuids)).thenReturn(asList(instance1, instance3));
+
+            AgentsViewModel agentsViewModel = agentService.filterAgentsViewModel(uuids);
+            AgentViewModel view1 = new AgentViewModel(instance1);
+            AgentViewModel view2 = new AgentViewModel(instance3);
+
+            assertThat(agentsViewModel, is(new AgentsViewModel(view1, view2)));
+            verify(agentInstances).filter(uuids);
+        }
+
+        @Test
+        void filterShouldEmptyAgentsViewModelForNullOrEmptyListOfUUIDs() {
+            AgentsViewModel agentsViewModel = agentService.filterAgentsViewModel(emptyList());
+            assertThat(agentsViewModel, is(emptyList()));
+
+            agentsViewModel = agentService.filterAgentsViewModel(null);
+            assertThat(agentsViewModel, is(emptyList()));
+        }
     }
 
-    @Test
-    void shouldReturnFalseIfUuidGivenDoesNotExist() {
-        String uuid = "uuid";
-        AgentInstance agentInstance = AgentInstanceMother.nullInstance();
-        when(agentInstances.findAgent(uuid)).thenReturn(agentInstance);
-
-        assertFalse(agentService.hasAgent(uuid));
-    }
-
-    @Test
-    void shouldReturnFalseIfAgentForTheUuidGivenExistButIsNotRegistered() {
-        String uuid = "uuid";
-        AgentInstance agentInstance = pendingInstance();
-        when(agentInstances.findAgent(uuid)).thenReturn(agentInstance);
-
-        assertFalse(agentService.hasAgent(uuid));
-    }
-
-    @Test
-    void shouldReturnDistinctListOfResourcesFromAllAgents() {
-        AgentInstance agentInstance = building();
-        agentInstance.getAgent().setResources("a,b,c");
-
-        AgentInstance agentInstance1 = building();
-        agentInstance1.getAgent().setResources("d,e,a");
-
-        when(agentInstances.values()).thenReturn(asList(agentInstance, agentInstance1));
-
-        assertEquals(asList("a","b","c","d","e"), agentService.getListOfResourcesAcrossAgents());
-    }
-
-    @Test
-    void shouldNotContainEmptyStringInReturnedListOfResourcesFromAllAgentsWhenSomeAgentsHaveNoResources() {
-        AgentInstance agentInstance = building();
-        agentInstance.getAgent().setResources("a,b,c");
-
-        AgentInstance agentInstance1 = AgentInstanceMother.idle();
-        agentInstance1.getAgent().setResources(" ");
-
-        AgentInstance agentInstance2 = AgentInstanceMother.pending();
-        agentInstance2.getAgent().setResources(null);
-
-        when(agentInstances.values()).thenReturn(asList(agentInstance, agentInstance1, agentInstance2));
-
-        assertEquals(asList("a","b","c"), agentService.getListOfResourcesAcrossAgents());
+    @Nested
+    class AssociateCookie {
+        @Test
+        void shouldAssociateCookieForAnAgent() {
+            when(uuidGenerator.randomUuid()).thenReturn("foo");
+            assertThat(agentService.assignCookie(agentIdentifier), is("foo"));
+            verify(agentDao).associateCookie(eq(agentIdentifier), any(String.class));
+        }
     }
 
     private EnvironmentsConfig createEnvironmentsConfigWith(String... envs) {

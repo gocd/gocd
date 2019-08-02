@@ -18,7 +18,10 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
-import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.domain.AgentInstance;
+import com.thoughtworks.go.domain.AgentRuntimeStatus;
+import com.thoughtworks.go.domain.AgentStatus;
+import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.helper.AgentMother;
 import com.thoughtworks.go.listener.AgentStatusChangeListener;
@@ -300,7 +303,7 @@ public class AgentServiceIntegrationTest {
 
         @Test
         void shouldNotAllowAnyUpdateOperationOnPendingAgent() {
-            AgentRuntimeInfo pendingAgent = fromServer(new Agent(UUID, "CCeDev03", "10.18.5.3", asList("db","web")),
+            AgentRuntimeInfo pendingAgent = fromServer(new Agent(UUID, "CCeDev03", "10.18.5.3", asList("db", "web")),
                     false, "/var/lib", 0L, "linux", false);
             agentService.requestRegistration(pendingAgent);
             assertThat(agentService.findAgent(UUID).isRegistered(), is(false));
@@ -885,6 +888,46 @@ public class AgentServiceIntegrationTest {
             assertThat(agentService.findAgent(UUID).getResourceConfigs(), contains(new ResourceConfig("resource1")));
             assertThat(agentService.findAgent(UUID2).getResourceConfigs().size(), is(0));
         }
+
+        @Test
+        void shouldThrowValidationErrorOnResourceNameForUpdateAgent() {
+            createAnIdleAgentAndDisableIt(UUID);
+
+            assertThat(agentService.getAgentInstances().size(), is(1));
+            assertThat(getFirstAgent().getResourceConfigs(), is(empty()));
+            assertThat(agentService.findAgent(UUID).getStatus(), is(AgentStatus.Disabled));
+
+            HttpOperationResult result = new HttpOperationResult();
+            AgentInstance agentInstance = agentService.updateAgentAttributes(UUID, null, "foo%", null, TriState.UNSET, result);
+
+            assertThat(result.httpCode(), is(422));
+            assertThat(result.message(), is("Updating agent failed."));
+
+            ConfigErrors configErrors = agentInstance.getAgent().errors();
+            assertFalse(configErrors.isEmpty());
+            assertEquals("Resource name 'foo%' is not valid. Valid names much match '^[-\\w\\s|.]*$'", configErrors.on("resources"));
+
+            assertThat(agentService.getAgentInstances().size(), is(1));
+            assertThat(getFirstAgent().getResourceConfigs().resourceNames(), is(emptyStrList));
+        }
+
+        @Test
+        void shouldThrowValidationErrorOnResourceNameForUpdateBulkAgent() {
+            createAnIdleAgentAndDisableIt(UUID);
+
+            assertThat(agentService.getAgentInstances().size(), is(1));
+            assertThat(getFirstAgent().getResourceConfigs(), is(empty()));
+            assertThat(agentService.findAgent(UUID).getStatus(), is(AgentStatus.Disabled));
+
+            HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+            agentService.bulkUpdateAgentAttributes(singletonList(UUID), singletonList("foo%"), emptyStrList, emptyEnvsConfig, emptyStrList, TriState.UNSET, result);
+
+            assertThat(result.httpCode(), is(422));
+            assertThat(result.message(), is("Validations failed for bulk update of agents. Error(s): {resources=[Resource name 'foo%' is not valid. Valid names much match '^[-\\w\\s|.]*$']}"));
+
+            assertThat(agentService.getAgentInstances().size(), is(1));
+            assertThat(getFirstAgent().getResourceConfigs(), is(empty()));
+        }
     }
 
     @Nested
@@ -1004,14 +1047,14 @@ public class AgentServiceIntegrationTest {
             envsConfig.add(CONFIG_HELPER.getEnvironment(prodEnv));
 
             agentService.bulkUpdateAgentAttributes(singletonList(UUID), singletonList("R1"),
-                                                   emptyList, envsConfig, emptyList, TriState.UNSET, result);
+                    emptyList, envsConfig, emptyList, TriState.UNSET, result);
 
             Agent agent = agentService.findAgent(UUID).getAgent();
             assertTrue(agent.getEnvironmentsAsList().size() == 1);
             assertTrue(agent.getEnvironmentsAsList().contains(prodEnv));
 
             agentService.bulkUpdateAgentAttributes(singletonList(UUID), singletonList("R2"),
-                                                   singletonList("R1"), null, emptyList, TriState.UNSET, result);
+                    singletonList("R1"), null, emptyList, TriState.UNSET, result);
 
             agent = agentService.findAgent(UUID).getAgent();
             assertTrue(agent.getEnvironmentsAsList().size() == 1);
@@ -1069,7 +1112,7 @@ public class AgentServiceIntegrationTest {
             EnvironmentsConfig prodEnvsConfig = new EnvironmentsConfig();
             prodEnvsConfig.add(prodEnvConfig);
             agentService.bulkUpdateAgentAttributes(singletonList(UUID), emptyStrList, emptyStrList,
-                                                   prodEnvsConfig, emptyStrList, TriState.UNSET, result);
+                    prodEnvsConfig, emptyStrList, TriState.UNSET, result);
 
             Agent agent = agentService.findAgent(UUID).getAgent();
             assertTrue(agent.getEnvironmentsAsList().isEmpty());

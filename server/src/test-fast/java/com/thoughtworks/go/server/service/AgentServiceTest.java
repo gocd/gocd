@@ -19,8 +19,10 @@ import ch.qos.logback.classic.Level;
 import com.google.common.collect.Ordering;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
+import com.thoughtworks.go.domain.AgentConfigStatus;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
+import com.thoughtworks.go.domain.AgentStatus;
 import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.listener.AgentStatusChangeListener;
 import com.thoughtworks.go.remote.AgentIdentifier;
@@ -45,7 +47,9 @@ import org.mockito.ArgumentCaptor;
 import java.util.*;
 
 import static com.thoughtworks.go.CurrentGoCDVersion.docsUrl;
+import static com.thoughtworks.go.domain.AgentInstance.FilterBy.*;
 import static com.thoughtworks.go.domain.AgentInstance.createFromLiveAgent;
+import static com.thoughtworks.go.domain.AgentStatus.fromConfig;
 import static com.thoughtworks.go.helper.AgentInstanceMother.*;
 import static com.thoughtworks.go.server.service.AgentRuntimeInfo.fromServer;
 import static com.thoughtworks.go.serverhealth.HealthStateScope.forAgent;
@@ -53,6 +57,7 @@ import static com.thoughtworks.go.serverhealth.HealthStateType.duplicateAgent;
 import static com.thoughtworks.go.serverhealth.ServerHealthState.warning;
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
+import static com.thoughtworks.go.util.TriState.TRUE;
 import static com.thoughtworks.go.utils.Timeout.THIRTY_SECONDS;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
@@ -97,7 +102,7 @@ class AgentServiceTest {
     }
 
     @Nested
-    class AgentAssociationWithEnvironment{
+    class AgentAssociationWithEnvironment {
         @Test
         void shouldAddAgentsAssociationToTheSpecifiedEnv() {
             AgentInstance agentInstance = mock(AgentInstance.class);
@@ -205,7 +210,7 @@ class AgentServiceTest {
         }
 
         @Test
-        void shouldReturnMapOfAgentInstanceToSortedEnvironments(){
+        void shouldReturnMapOfAgentInstanceToSortedEnvironments() {
             String envs1 = "qa1,dev,test,prod,qa2,stage,perf";
             String[] splitEnvs = envs1.split("\\s*,\\s*");
             sort(splitEnvs);
@@ -236,7 +241,7 @@ class AgentServiceTest {
         }
 
         @Test
-        void shouldReturnMapOfAgentInstanceToEmptyEnvironmentsWhenThereAreNoEnvironmentsAssociatedWithAnyAgent(){
+        void shouldReturnMapOfAgentInstanceToEmptyEnvironmentsWhenThereAreNoEnvironmentsAssociatedWithAnyAgent() {
             AgentInstance pendingInstance = pendingInstance();
             AgentInstance buildingInstance = building();
 
@@ -271,7 +276,7 @@ class AgentServiceTest {
             repoEnvConfig.addAgent(uuid);
             environmentConfigs.add(repoEnvConfig);
             environmentConfigs.add(new BasicEnvironmentConfig(new CaseInsensitiveString("non-config-repo-env")));
-            AgentInstance agentInstance = agentService.updateAgentAttributes(uuid, null, null, environmentConfigs, TriState.TRUE, result);
+            AgentInstance agentInstance = agentService.updateAgentAttributes(uuid, null, null, environmentConfigs, TRUE, result);
 
             verify(agentDao).saveOrUpdate(any(Agent.class));
             assertTrue(result.isSuccess());
@@ -282,7 +287,7 @@ class AgentServiceTest {
     }
 
     @Nested
-    class UpdateStatus{
+    class UpdateStatus {
         @Test
         void shouldUpdateStatus() {
             AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "pavanIsGreat", false);
@@ -354,9 +359,9 @@ class AgentServiceTest {
                 when(agentInstances.findAgent("uuid1")).thenReturn(agentInstance1);
                 when(agentInstances.findAgent("uuid2")).thenReturn(agentInstance2);
 
-                agentService.bulkUpdateAgentAttributes(asList("uuid1", "uuid2"), asList("R1", "R2"), emptyStrList, createEnvironmentsConfigWith("test", "prod"), emptyStrList, TriState.TRUE, result);
+                agentService.bulkUpdateAgentAttributes(asList("uuid1", "uuid2"), asList("R1", "R2"), emptyStrList, createEnvironmentsConfigWith("test", "prod"), emptyStrList, TRUE, result);
 
-                verify(agentDao).bulkUpdateAttributes(anyList(), anyMap(), eq(TriState.TRUE));
+                verify(agentDao).bulkUpdateAttributes(anyList(), anyMap(), eq(TRUE));
                 assertThat(result.isSuccessful(), is(true));
                 assertThat(result.message(), is("Updated agent(s) with uuid(s): [uuid1, uuid2]."));
             }
@@ -378,11 +383,101 @@ class AgentServiceTest {
 
                 List<String> uuids = asList(pending.getUuid(), fromConfigFile.getUuid());
                 HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-                agentService.bulkUpdateAgentAttributes(uuids, emptyStrList, emptyStrList, emptyEnvsConfig, emptyStrList, TriState.TRUE, result);
+                agentService.bulkUpdateAgentAttributes(uuids, emptyStrList, emptyStrList, emptyEnvsConfig, emptyStrList, TRUE, result);
 
-                verify(agentDao).bulkUpdateAttributes(anyList(), anyMap(), eq(TriState.TRUE));
+                verify(agentDao).bulkUpdateAttributes(anyList(), anyMap(), eq(TRUE));
                 assertThat(result.isSuccessful(), is(true));
                 assertThat(result.message(), is("Updated agent(s) with uuid(s): [uuid, UUID2]."));
+            }
+
+            @Test
+            void shouldNotDoAnythingIfNoOperationsArePerformed() {
+                HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+                agentService.bulkUpdateAgentAttributes(singletonList("uuid"), emptyStrList, emptyStrList, emptyEnvsConfig, emptyStrList, TriState.UNSET, result);
+
+                verifyZeroInteractions(agentDao);
+                assertEquals(400, result.httpCode());
+                assertEquals("No Operation performed on agents.", result.message());
+            }
+
+            @Test
+            void shouldThrow400IfAgentDoesNotExist() {
+                HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+                List<String> uuids = singletonList("uuid1");
+
+                when(agentInstances.filterBy(uuids, Null)).thenReturn(uuids);
+
+                agentService.bulkUpdateAgentAttributes(uuids, singletonList("resource"), emptyStrList, emptyEnvsConfig, emptyStrList, TriState.UNSET, result);
+
+                verifyZeroInteractions(agentDao);
+                assertEquals(400, result.httpCode());
+                assertEquals("Agents with uuids 'uuid1' were not found!", result.message());
+            }
+
+            @Test
+            void shouldThrow400IfResourcesForAnElasticAgentAreUpdated() {
+                HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+                List<String> uuids = singletonList("uuid1");
+
+                when(agentInstances.filterBy(uuids, Elastic)).thenReturn(uuids);
+
+                agentService.bulkUpdateAgentAttributes(uuids, singletonList("resource"), emptyStrList, emptyEnvsConfig, emptyStrList, TriState.UNSET, result);
+
+                verifyZeroInteractions(agentDao);
+                assertEquals(400, result.httpCode());
+                assertEquals("Resources on elastic agents with uuids [uuid1] can not be updated.", result.message());
+            }
+
+            @Test
+            void shouldThrow422IfResourceNamesAreInvalid() {
+                HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+                List<String> uuids = singletonList("uuid1");
+
+                agentService.bulkUpdateAgentAttributes(uuids, singletonList("foo%"), emptyStrList, emptyEnvsConfig, emptyStrList, TriState.UNSET, result);
+
+                verifyZeroInteractions(agentDao);
+                assertEquals(422, result.httpCode());
+                assertEquals("Validations failed for bulk update of agents. Error(s): {resources=[Resource name 'foo%' is not valid. Valid names much match '^[-\\w\\s|.]*$']}", result.message());
+            }
+
+            @Test
+            void shouldThrow400IfOperationsArePerformedOnAPendingAgentWithoutUpdatingTheState() {
+                HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+                List<String> uuids = singletonList("uuid1");
+
+                when(agentInstances.filterBy(uuids, Pending)).thenReturn(uuids);
+
+                agentService.bulkUpdateAgentAttributes(uuids, singletonList("resource"), emptyStrList, emptyEnvsConfig, emptyStrList, TriState.UNSET, result);
+
+                verifyZeroInteractions(agentDao);
+                assertEquals(400, result.httpCode());
+                assertEquals("Pending agents [uuid1] must be explicitly enabled or disabled when performing any operations on them.", result.message());
+            }
+
+            @Test
+            void shouldNotAddEnvsWhichAreAssociatedWithTheAgentFromConfigRepo() {
+                HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+                String uuid = "uuid";
+                List<String> uuids = singletonList(uuid);
+                List<Agent> agents = singletonList(agent);
+                AgentInstance agentInstance = mock(AgentInstance.class);
+
+                when(agentDao.getAgentsByUUIDs(uuids)).thenReturn(agents);
+                when(agentInstances.filterPendingAgents(uuids)).thenReturn(emptyList());
+                when(agentInstances.findAgent(uuid)).thenReturn(agentInstance);
+                when(agentInstance.getStatus()).thenReturn(fromConfig(AgentConfigStatus.Pending));
+
+                EnvironmentsConfig environmentConfigs = new EnvironmentsConfig();
+                BasicEnvironmentConfig environmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("config-repo-env"));
+                environmentConfig.setOrigins(new RepoConfigOrigin());
+                environmentConfigs.add(environmentConfig);
+
+                agentService.bulkUpdateAgentAttributes(uuids, emptyStrList, emptyStrList, environmentConfigs, emptyStrList, TRUE, result);
+
+                verify(agentDao).getAgentsByUUIDs(uuids);
+                verify(agentDao).bulkUpdateAttributes(eq(agents), anyMap(), eq(TRUE));
+                assertTrue(result.isSuccessful());
+                assertEquals("Updated agent(s) with uuid(s): [uuid].", result.message());
             }
         }
 
@@ -396,7 +491,7 @@ class AgentServiceTest {
             when(agentDao.getAgentByUUIDFromCacheOrDB(uuid)).thenReturn(agent);
             when(agentInstances.findAgent(uuid)).thenReturn(mock(AgentInstance.class));
 
-            AgentInstance agentInstance = agentService.updateAgentAttributes(uuid, "new-hostname", "resource1,resource2", createEnvironmentsConfigWith("env1", "env2"), TriState.TRUE, result);
+            AgentInstance agentInstance = agentService.updateAgentAttributes(uuid, "new-hostname", "resource1,resource2", createEnvironmentsConfigWith("env1", "env2"), TRUE, result);
 
             verify(agentDao).saveOrUpdate(any(Agent.class));
             assertTrue(result.isSuccess());
@@ -438,7 +533,7 @@ class AgentServiceTest {
             when(agentInstance.isNullAgent()).thenReturn(true);
             when(agentInstance.getUuid()).thenReturn(uuid);
 
-            agentService.updateAgentAttributes(uuid, "new-hostname", "resource1,resource2", createEnvironmentsConfigWith("env1", "env2"), TriState.TRUE, result);
+            agentService.updateAgentAttributes(uuid, "new-hostname", "resource1,resource2", createEnvironmentsConfigWith("env1", "env2"), TRUE, result);
 
             verify(agentDao, times(0)).saveOrUpdate(any(Agent.class));
             assertThat(result.httpCode(), is(404));
@@ -458,7 +553,7 @@ class AgentServiceTest {
             when(agentInstance.isNullAgent()).thenReturn(false);
             when(agentInstance.getUuid()).thenReturn(uuid);
 
-            agentService.updateAgentAttributes(uuid, "new-hostname", "resource1,resource2", emptyEnvsConfig, TriState.TRUE, result);
+            agentService.updateAgentAttributes(uuid, "new-hostname", "resource1,resource2", emptyEnvsConfig, TRUE, result);
 
             verify(agentDao, times(0)).saveOrUpdate(any(Agent.class));
             assertThat(result.httpCode(), is(400));
@@ -478,7 +573,7 @@ class AgentServiceTest {
             when(agentInstance.isNullAgent()).thenReturn(false);
             when(agentInstance.getUuid()).thenReturn(uuid);
 
-            agentService.updateAgentAttributes(uuid, "new-hostname", "", createEnvironmentsConfigWith("env1"), TriState.TRUE, result);
+            agentService.updateAgentAttributes(uuid, "new-hostname", "", createEnvironmentsConfigWith("env1"), TRUE, result);
 
             verify(agentDao, times(0)).saveOrUpdate(any(Agent.class));
             assertThat(result.httpCode(), is(400));
@@ -516,7 +611,7 @@ class AgentServiceTest {
             when(agentDao.getAgentByUUIDFromCacheOrDB(uuid)).thenReturn(agent);
             when(agentInstances.findAgent(uuid)).thenReturn(mock(AgentInstance.class));
 
-            AgentInstance agentInstance = agentService.updateAgentAttributes(uuid, "new-hostname", "res%^1", createEnvironmentsConfigWith("env1"), TriState.TRUE, result);
+            AgentInstance agentInstance = agentService.updateAgentAttributes(uuid, "new-hostname", "res%^1", createEnvironmentsConfigWith("env1"), TRUE, result);
 
             verify(agentDao, times(0)).saveOrUpdate(any(Agent.class));
             assertThat(result.httpCode(), is(422));
@@ -537,7 +632,7 @@ class AgentServiceTest {
             when(agentDao.getAgentByUUIDFromCacheOrDB(uuid)).thenReturn(agent);
             when(agentInstances.findAgent(uuid)).thenReturn(mock(AgentInstance.class));
 
-            AgentInstance agentInstance = agentService.updateAgentAttributes(uuid, null, null, createEnvironmentsConfigWith("env1", "env2"), TriState.TRUE, result);
+            AgentInstance agentInstance = agentService.updateAgentAttributes(uuid, null, null, createEnvironmentsConfigWith("env1", "env2"), TRUE, result);
 
             verify(agentDao).saveOrUpdate(any(Agent.class));
             assertTrue(result.isSuccess());

@@ -105,9 +105,15 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         agentDao.registerListener(this);
     }
 
-    private void syncAgentInstanceCacheFromAgentsInDB() {
-        Agents allAgentsFromDB = new Agents(agentDao.getAllAgents());
-        agentInstances.syncAgentInstancesFrom(allAgentsFromDB);
+    /**
+     * not for use externally, created for testing whether listeners are correctly registered or not
+     */
+    void setAgentChangeListeners(Set<AgentChangeListener> setOfListener){
+        if(setOfListener == null){
+            this.listeners = new HashSet<>();
+        } else {
+            this.listeners = setOfListener;
+        }
     }
 
     public AgentInstances getAgentInstances() {
@@ -243,13 +249,11 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
 
     public void updateRuntimeInfo(AgentRuntimeInfo agentRuntimeInfo) {
         bombIfAgentDoesNotHaveACookie(agentRuntimeInfo);
-
         bombIfAgentHasADuplicateCookie(agentRuntimeInfo);
 
         AgentInstance agentInstance = findAgentAndRefreshStatus(agentRuntimeInfo.getUUId());
         if (agentInstance.isIpChangeRequired(agentRuntimeInfo.getIpAdress())) {
             LOGGER.warn("Agent with UUID [{}] changed IP Address from [{}] to [{}]", agentRuntimeInfo.getUUId(), agentInstance.getAgent().getIpaddress(), agentRuntimeInfo.getIpAdress());
-
             Agent agent = (agentInstance.isRegistered() ? agentInstance.getAgent() : null);
             bombIfNull(agent, "Unable to set agent ipAddress; Agent [" + agentInstance.getAgent().getUuid() + "] not found.");
             agent.setIpaddress(agentRuntimeInfo.getIpAdress());
@@ -259,7 +263,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         agentInstances.updateAgentRuntimeInfo(agentRuntimeInfo);
     }
 
-    public Username agentUsername(String uuId, String ipAddress, String hostNameForDisplay) {
+    public Username createAgentUsername(String uuId, String ipAddress, String hostNameForDisplay) {
         return new Username(format("agent_%s_%s_%s", uuId, ipAddress, hostNameForDisplay));
     }
 
@@ -443,9 +447,15 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     }
 
     public void registerAgentChangeListeners(AgentChangeListener listener) {
-        listeners.add(listener);
+        if(listener != null) {
+            this.listeners.add(listener);
+        }
     }
 
+    private void syncAgentInstanceCacheFromAgentsInDB() {
+        Agents allAgentsFromDB = new Agents(agentDao.getAllAgents());
+        agentInstances.syncAgentInstancesFrom(allAgentsFromDB);
+    }
 
     private void setResourcesEnvironmentsAndState(Agent agent, List<String> resourcesToAdd, List<String> resourcesToRemove,
                                                   EnvironmentsConfig envsToAdd, List<String> envsToRemove, TriState state) {
@@ -463,7 +473,6 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     private void bombIfAgentHasErrors(Agent agent) {
         if (agent.hasErrors()) {
             List<ConfigErrors> errors = agent.errorsAsList();
-
             throw new GoConfigInvalidException(null, new AllConfigErrors(errors));
         }
     }

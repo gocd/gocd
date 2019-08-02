@@ -201,11 +201,11 @@ public class AgentRegistrationController {
     public ResponseEntity agentRequest(@RequestParam("hostname") String hostname,
                                        @RequestParam("uuid") String uuid,
                                        @RequestParam("location") String location,
-                                       @RequestParam("usablespace") String usablespaceAsString,
-                                       @RequestParam("operatingSystem") String operatingSystem,
+                                       @RequestParam("usablespace") String usableSpaceStr,
+                                       @RequestParam("operatingSystem") String os,
                                        @RequestParam("agentAutoRegisterKey") String agentAutoRegisterKey,
                                        @RequestParam("agentAutoRegisterResources") String agentAutoRegisterResources,
-                                       @RequestParam("agentAutoRegisterEnvironments") String agentAutoRegisterEnvironments,
+                                       @RequestParam("agentAutoRegisterEnvironments") String agentAutoRegisterEnvs,
                                        @RequestParam("agentAutoRegisterHostname") String agentAutoRegisterHostname,
                                        @RequestParam("elasticAgentId") String elasticAgentId,
                                        @RequestParam("elasticPluginId") String elasticPluginId,
@@ -263,16 +263,16 @@ public class AgentRegistrationController {
 
             if (goConfigService.serverConfig().shouldAutoRegisterAgentWith(agentAutoRegisterKey) && !agentService.isRegistered(uuid)) {
                 LOG.info("[Agent Auto Registration] Auto registering agent with uuid {} ", uuid);
-                agentService.register(agent, agentAutoRegisterResources, agentAutoRegisterEnvironments);
+                agentService.register(agent, agentAutoRegisterResources, agentAutoRegisterEnvs);
                 if (agent.hasErrors()) {
                     throw new GoConfigInvalidException(null, new AllConfigErrors(agent.errorsAsList()).asString());
                 }
             }
 
             boolean registeredAlready = agentService.isRegistered(uuid);
-            long usableSpace = Long.parseLong(usablespaceAsString);
+            long usableSpace = Long.parseLong(usableSpaceStr);
 
-            AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromServer(agent, registeredAlready, location, usableSpace, operatingSystem);
+            AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromServer(agent, registeredAlready, location, usableSpace, os);
 
             if (elasticAgentAutoregistrationInfoPresent(elasticAgentId, elasticPluginId)) {
                 agentRuntimeInfo = ElasticAgentRuntimeInfo.fromServer(agentRuntimeInfo, elasticAgentId, elasticPluginId);

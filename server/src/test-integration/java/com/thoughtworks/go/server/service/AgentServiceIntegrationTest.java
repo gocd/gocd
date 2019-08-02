@@ -244,25 +244,35 @@ public class AgentServiceIntegrationTest {
         }
     }
 
+    @Test
+    void getRegisteredAgentsViewModelShouldNotReturnNotRegisteredAgentsViewModel() {
+        AgentInstance idle = AgentInstanceMother.updateUuid(idle(new Date(), "CCeDev01"), UUID);
+        AgentInstance pending = pending();
+        AgentInstance building = building();
+        AgentInstance denied = disabled();
+
+        AgentInstances instances = new AgentInstances(new SystemEnvironment(), agentStatusChangeListener(), idle, pending, building, denied);
+        AgentService agentService = getAgentService(instances);
+
+        AgentsViewModel agentViewModels = agentService.getRegisteredAgentsViewModel();
+        assertThat(agentViewModels.size(), is(3));
+        agentViewModels.forEach(agentViewModel -> assertThat(agentViewModel.getStatus().getConfigStatus(), not(is(Pending))));
+    }
+
+    @Test
+    void getRegisteredAgentsViewModelShouldReturnEmptyRegisteredAgentsViewModelWhenThereAreNoRegisteredAgents() {
+        AgentInstances agentInstances = new AgentInstances(new SystemEnvironment(), agentStatusChangeListener());
+        AgentService agentService = getAgentService(agentInstances);
+
+        AgentsViewModel agentViewModels = agentService.getRegisteredAgentsViewModel();
+        assertThat(agentViewModels.size(), is(0));
+    }
+
+
     @Nested
     @ContextConfiguration(locations = {"classpath:WEB-INF/applicationContext-global.xml", "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
             "classpath:testPropertyConfigurer.xml", "classpath:WEB-INF/spring-all-servlet.xml"})
     class PendingAgents {
-        @Test
-        void getRegisteredAgentsViewModelShouldNotReturnPendingAgentsViewModel() {
-            AgentInstance idle = AgentInstanceMother.updateUuid(idle(new Date(), "CCeDev01"), UUID);
-            AgentInstance pending = pending();
-            AgentInstance building = building();
-            AgentInstance denied = disabled();
-
-            AgentInstances instances = new AgentInstances(new SystemEnvironment(), agentStatusChangeListener(), idle, pending, building, denied);
-            AgentService agentService = getAgentService(instances);
-
-            AgentsViewModel agentViewModels = agentService.getRegisteredAgentsViewModel();
-            assertThat(agentViewModels.size(), is(3));
-            agentViewModels.forEach(agentViewModel -> assertThat(agentViewModel.getStatus().getConfigStatus(), not(is(Pending))));
-        }
-
         @Test
         void shouldBeAbleToDisableAPendingAgent() {
             String uuid = DatabaseAccessHelper.AGENT_UUID;

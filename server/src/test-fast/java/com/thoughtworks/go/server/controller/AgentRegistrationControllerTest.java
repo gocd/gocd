@@ -95,7 +95,7 @@ public class AgentRegistrationControllerTest {
         when(agentService.isRegistered("blahAgent-uuid")).thenReturn(false);
         ServerConfig serverConfig = mockedServerConfig("token-generation-key", "someKey");
         when(goConfigService.serverConfig()).thenReturn(serverConfig);
-        when(agentService.agentUsername("blahAgent-uuid", request.getRemoteAddr(), "blahAgent-host")).thenReturn(new Username("some-agent-login-name"));
+        when(agentService.createAgentUsername("blahAgent-uuid", request.getRemoteAddr(), "blahAgent-host")).thenReturn(new Username("some-agent-login-name"));
 
         controller.agentRequest("blahAgent-host", "blahAgent-uuid", "blah-location", "34567", "osx", "", "", "", "", "", "", token("blahAgent-uuid", serverConfig.getTokenGenerationKey()), request);
 
@@ -110,7 +110,7 @@ public class AgentRegistrationControllerTest {
 
         when(agentService.isRegistered(uuid)).thenReturn(false);
         when(goConfigService.serverConfig()).thenReturn(serverConfig);
-        when(agentService.agentUsername(uuid, request.getRemoteAddr(), "host")).thenReturn(new Username("some-agent-login-name"));
+        when(agentService.createAgentUsername(uuid, request.getRemoteAddr(), "host")).thenReturn(new Username("some-agent-login-name"));
 
         controller.agentRequest("host", uuid, "location", "233232", "osx", "someKey", "", "", "", "", "", token, request);
 
@@ -124,7 +124,7 @@ public class AgentRegistrationControllerTest {
         when(agentService.isRegistered(uuid)).thenReturn(false);
         ServerConfig serverConfig = mockedServerConfig("token-generation-key", "someKey");
         when(goConfigService.serverConfig()).thenReturn(serverConfig);
-        when(agentService.agentUsername(uuid, request.getRemoteAddr(), "autoregister-hostname")).thenReturn(new Username("some-agent-login-name"));
+        when(agentService.createAgentUsername(uuid, request.getRemoteAddr(), "autoregister-hostname")).thenReturn(new Username("some-agent-login-name"));
 
         controller.agentRequest("host", uuid, "location", "233232", "osx", "someKey", "", "", "autoregister-hostname", "", "", token(uuid, serverConfig.getTokenGenerationKey()), request);
 
@@ -140,7 +140,7 @@ public class AgentRegistrationControllerTest {
         ServerConfig serverConfig = mockedServerConfig("token-generation-key", "someKey");
         when(goConfigService.serverConfig()).thenReturn(serverConfig);
 
-        when(agentService.agentUsername(uuid, request.getRemoteAddr(), "host")).thenReturn(new Username("some-agent-login-name"));
+        when(agentService.createAgentUsername(uuid, request.getRemoteAddr(), "host")).thenReturn(new Username("some-agent-login-name"));
         controller.agentRequest("host", uuid, "location", "233232", "osx", "", "", "", "", "", "", token(uuid, serverConfig.getTokenGenerationKey()), request);
 
         verify(agentService).requestRegistration(AgentRuntimeInfo.fromServer(new Agent(uuid, "host", request.getRemoteAddr()), false, "location", 233232L, "osx"));
@@ -350,7 +350,7 @@ public class AgentRegistrationControllerTest {
         when(agentService.isRegistered("blahAgent-uuid")).thenReturn(false);
         ServerConfig serverConfig = mockedServerConfig("token-generation-key", "someKey");
         when(goConfigService.serverConfig()).thenReturn(serverConfig);
-        when(agentService.agentUsername("blahAgent-uuid", request.getRemoteAddr(), "blahAgent-host")).thenReturn(new Username("some-agent-login-name"));
+        when(agentService.createAgentUsername("blahAgent-uuid", request.getRemoteAddr(), "blahAgent-host")).thenReturn(new Username("some-agent-login-name"));
 
         ResponseEntity responseEntity = controller.agentRequest("blahAgent-host", "blahAgent-uuid", "blah-location", "34567", "osx", "", "", "", "", "", "", "an-invalid-token", request);
 

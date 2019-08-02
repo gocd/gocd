@@ -18,14 +18,16 @@ package com.thoughtworks.go.server.service;
 import ch.qos.logback.classic.Level;
 import com.google.common.collect.Ordering;
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.AgentConfigStatus;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
-import com.thoughtworks.go.domain.AgentStatus;
 import com.thoughtworks.go.helper.AgentInstanceMother;
+import com.thoughtworks.go.listener.AgentChangeListener;
 import com.thoughtworks.go.listener.AgentStatusChangeListener;
 import com.thoughtworks.go.remote.AgentIdentifier;
+import com.thoughtworks.go.security.Registration;
 import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.persistence.AgentDao;
@@ -49,8 +51,10 @@ import java.util.*;
 import static com.thoughtworks.go.CurrentGoCDVersion.docsUrl;
 import static com.thoughtworks.go.domain.AgentInstance.FilterBy.*;
 import static com.thoughtworks.go.domain.AgentInstance.createFromLiveAgent;
+import static com.thoughtworks.go.domain.AgentRuntimeStatus.Idle;
 import static com.thoughtworks.go.domain.AgentStatus.fromConfig;
 import static com.thoughtworks.go.helper.AgentInstanceMother.*;
+import static com.thoughtworks.go.security.Registration.createNullPrivateKeyEntry;
 import static com.thoughtworks.go.server.service.AgentRuntimeInfo.fromServer;
 import static com.thoughtworks.go.serverhealth.HealthStateScope.forAgent;
 import static com.thoughtworks.go.serverhealth.HealthStateType.duplicateAgent;
@@ -307,18 +311,19 @@ class AgentServiceTest {
     }
 
     @Nested
-    class UpdateStatus {
+    class UpdateRuntimeInfo {
         @Test
-        void shouldUpdateStatus() {
-            AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "pavanIsGreat", false);
-            when(agentDao.cookieFor(runtimeInfo.getIdentifier())).thenReturn("pavanIsGreat");
+        void shouldUpdateRuntimeInfo() {
+            String cookie = "cookie";
+            AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(agentIdentifier, Idle, currentWorkingDirectory(), cookie, false);
+            when(agentDao.cookieFor(runtimeInfo.getIdentifier())).thenReturn(cookie);
             agentService.updateRuntimeInfo(runtimeInfo);
             verify(agentInstances).updateAgentRuntimeInfo(runtimeInfo);
         }
 
         @Test
-        void shouldThrowExceptionWhenAgentWithNoCookieTriesToUpdateStatus() {
-            AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), null, false);
+        void shouldThrowExceptionWhenAgentWithNoCookieTriesToUpdateRuntimeInfo() {
+            AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(agentIdentifier, Idle, currentWorkingDirectory(), null, false);
 
             try (LogFixture logFixture = logFixtureFor(AgentService.class, Level.DEBUG)) {
                 try {
@@ -334,10 +339,10 @@ class AgentServiceTest {
         }
 
         @Test
-        void shouldThrowExceptionWhenADuplicateAgentTriesToUpdateStatus() {
-            AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), null, false);
+        void shouldThrowExceptionWhenADuplicateAgentTriesToUpdateRuntimeInfo() {
+            AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(agentIdentifier, Idle, currentWorkingDirectory(), null, false);
             runtimeInfo.setCookie("invalid_cookie");
-            AgentInstance original = createFromLiveAgent(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), null, false), new SystemEnvironment(), null);
+            AgentInstance original = createFromLiveAgent(new AgentRuntimeInfo(agentIdentifier, Idle, currentWorkingDirectory(), null, false), new SystemEnvironment(), null);
 
             try (LogFixture logFixture = logFixtureFor(AgentService.class, Level.DEBUG)) {
                 try {
@@ -973,6 +978,104 @@ class AgentServiceTest {
             assertThat(agentService.assignCookie(agentIdentifier), is("foo"));
             verify(agentDao).associateCookie(eq(agentIdentifier), any(String.class));
         }
+    }
+
+    @Test
+    void shouldRegisterAgentChangeListener(){
+        Set<AgentChangeListener> setOfListeners = new HashSet<>();
+        agentService.setAgentChangeListeners(setOfListeners);
+
+        AgentChangeListener mockListener = mock(AgentChangeListener.class);
+        agentService.registerAgentChangeListeners(mockListener);
+
+        assertThat(setOfListeners.size(), is(1));
+        setOfListeners.forEach(listener -> assertThat(listener, is(mockListener)));
+    }
+
+    @Nested
+    class RequestRegistration{
+        @Test
+        void requestRegistrationShouldReturnNullPrivateKeyRegistrationWhenCalledWithPendingAgent(){
+            AgentRuntimeInfo runtimeInfo = fromServer(pending().getAgent(), false, "sandbox",0l, "linux", false);
+            AgentInstance agentInstance = mock(AgentInstance.class);
+            Agent agent = mock(Agent.class);
+
+            when(agentInstances.register(runtimeInfo)).thenReturn(agentInstance);
+            Registration registrationWithNullPrivateKey = createNullPrivateKeyEntry();
+            when(agentInstance.assignCertification()).thenReturn(registrationWithNullPrivateKey);
+            when(agentInstance.getAgent()).thenReturn(agent);
+
+            Registration registration = agentService.requestRegistration(runtimeInfo);
+            assertThat(registration, is(registrationWithNullPrivateKey));
+            verifyZeroInteractions(agentDao);
+            verify(agent, never()).getCookie();
+            verify(agent, never()).setCookie(anyString());
+            verify(agent, never()).validate();
+            verify(agent, never()).hasErrors();
+        }
+
+        @Test
+        void requestRegistrationShouldReturnValidRegistrationWhenCalledWithRegisteredAgent(){
+            AgentRuntimeInfo runtimeInfo = fromServer(building().getAgent(), false, "sandbox",0l, "linux", false);
+            AgentInstance agentInstance = mock(AgentInstance.class);
+            Agent agent = mock(Agent.class);
+
+            when(agentInstances.register(runtimeInfo)).thenReturn(agentInstance);
+            Registration mockRegistration = mock(Registration.class);
+            when(agentInstance.assignCertification()).thenReturn(mockRegistration);
+            when(agentInstance.getAgent()).thenReturn(agent);
+            when(agentInstance.isRegistered()).thenReturn(true);
+
+            String cookie = "cookie";
+            when(uuidGenerator.randomUuid()).thenReturn(cookie);
+
+            Registration requestedRegistration = agentService.requestRegistration(runtimeInfo);
+            assertThat(requestedRegistration, is(mockRegistration));
+
+            verify(agentDao, only()).saveOrUpdate(agent);
+            verify(agent, times(1)).getCookie();
+            verify(agent, times(1)).setCookie(cookie);
+            verify(agent, times(1)).validate();
+            verify(agent, times(2)).hasErrors();
+        }
+
+        @Test
+        void requestRegistrationShouldBombIfAgentToBeRegisteredHasValidationErrors(){
+            AgentInstance mockAgentInstance = mock(AgentInstance.class);
+            Agent mockAgent = mock(Agent.class);
+            Registration mockRegistration = mock(Registration.class);
+
+            AgentRuntimeInfo runtimeInfo = fromServer(building().getAgent(), false, "sandbox",0l, "linux", false);
+
+            when(agentInstances.register(runtimeInfo)).thenReturn(mockAgentInstance);
+            when(mockAgentInstance.assignCertification()).thenReturn(mockRegistration);
+            when(mockAgentInstance.getAgent()).thenReturn(mockAgent);
+            when(mockAgentInstance.isRegistered()).thenReturn(true);
+
+            when(mockAgent.hasErrors()).thenReturn(true);
+
+            String cookie = "cookie";
+            when(uuidGenerator.randomUuid()).thenReturn(cookie);
+
+            assertThrows(GoConfigInvalidException.class, () -> agentService.requestRegistration(runtimeInfo));
+        }
+    }
+
+    @Test
+    void shouldCreateAgentUsernameUsingSpecifiedInput(){
+        String uuid = "uuid1";
+        String ip = "127.0.0.1";
+        String hostNameForDisplay = "localhost";
+        Username username = agentService.createAgentUsername(uuid, ip, hostNameForDisplay);
+        assertThat(username.getDisplayName(), is("agent_uuid1_127.0.0.1_localhost"));
+    }
+
+    @Test
+    void shouldDoNothingWhenRegisterAgentChangeListenerIsCalledWithNullListener(){
+        Set<AgentChangeListener> setOfListeners = new HashSet<>();
+        agentService.setAgentChangeListeners(setOfListeners);
+        agentService.registerAgentChangeListeners(null);
+        assertThat(setOfListeners.size(), is(0));
     }
 
     private EnvironmentsConfig createEnvironmentsConfigWith(String... envs) {

@@ -23,8 +23,11 @@ import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.AgentConfigStatus;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
+import com.thoughtworks.go.domain.NullAgentInstance;
 import com.thoughtworks.go.helper.AgentInstanceMother;
+import com.thoughtworks.go.helper.AgentMother;
 import com.thoughtworks.go.listener.AgentChangeListener;
+import com.thoughtworks.go.listener.AgentChangedEvent;
 import com.thoughtworks.go.listener.AgentStatusChangeListener;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.security.Registration;
@@ -45,6 +48,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 
 import java.util.*;
 
@@ -1058,6 +1062,60 @@ class AgentServiceTest {
             when(uuidGenerator.randomUuid()).thenReturn(cookie);
 
             assertThrows(GoConfigInvalidException.class, () -> agentService.requestRegistration(runtimeInfo));
+        }
+    }
+
+    @Nested
+    class AgentChangeListenerMethods{
+        @Test
+        void whenAgentIsUpdatedInDBEntityChangedMethodShouldRefreshAgentInstanceCacheWithUpdatedAgent(){
+            AgentInstance agentInstanceBeforeUpdate = AgentInstanceMother.pending();
+            Agent agentBeforeUpdate = agentInstanceBeforeUpdate.getAgent();
+            Agent agentAfterUpdate = AgentMother.approvedAgent();
+            agentBeforeUpdate.setUuid(agentAfterUpdate.getUuid());
+
+            AgentChangeListener listener = mock(AgentChangeListener.class);
+            agentService.registerAgentChangeListeners(listener);
+
+            when(agentInstances.findAgent(agentBeforeUpdate.getUuid())).thenReturn(agentInstanceBeforeUpdate);
+            agentService.entityChanged(agentAfterUpdate);
+            assertThat(agentInstanceBeforeUpdate.getAgent(), is(agentAfterUpdate));
+            AgentChangedEvent agentChangedEvent = new AgentChangedEvent(agentBeforeUpdate, agentAfterUpdate);
+            verify(listener).agentChanged(agentChangedEvent);
+        }
+
+        @Test
+        void whenAgentIsCreatedInDBEntityChangedMethodShouldAddNewlyCreatedAgentToCache(){
+            Agent agentAfterUpdate = AgentMother.approvedAgent();
+            String uuid = agentAfterUpdate.getUuid();
+            when(agentInstances.findAgent(uuid)).thenReturn(new NullAgentInstance(uuid));
+
+            agentService.entityChanged(agentAfterUpdate);
+
+            verify(agentInstances).add(any(AgentInstance.class));
+        }
+
+        @Test
+        void WhenMultipleAgentsAreUpdatedInDBBulkEntitiesChangedMethodShouldCallEntityChangedMethodForEachUpdatedAgent(){
+            Agents listOf2UpdatedAgents = createTwoAgentsAndAddItToListOfAgents();
+
+            AgentService agentServiceSpy = Mockito.spy(agentService);
+            doNothing().when(agentServiceSpy).entityChanged(nullable(Agent.class));
+
+            agentServiceSpy.bulkEntitiesChanged(listOf2UpdatedAgents);
+
+            listOf2UpdatedAgents.forEach(agent -> verify(agentServiceSpy).entityChanged(agent));
+        }
+
+        private Agents createTwoAgentsAndAddItToListOfAgents() {
+            Agent updatedAgent1 = AgentMother.approvedAgent();
+            Agent updatedAgent2 = AgentMother.elasticAgent();
+
+            Agents updatedAgents = new Agents();
+            updatedAgents.add(updatedAgent1);
+            updatedAgents.add(updatedAgent2);
+
+            return updatedAgents;
         }
     }
 

@@ -36,7 +36,6 @@ import com.thoughtworks.go.presentation.environment.EnvironmentPipelineModel;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.ui.EnvironmentViewModel;
-import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -112,7 +111,7 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
         if (environments.isPipelineAssociatedWithAnyEnvironment(pipelineName)) {
             EnvironmentConfig pipelineEnvConfig = environments.findEnvironmentForPipeline(pipelineName);
             for (EnvironmentAgentConfig envAgentConfig : pipelineEnvConfig.getAgents()) {
-                agents.add(agentService.agentByUuid(envAgentConfig.getUuid()));
+                agents.add(agentService.getAgentByUUID(envAgentConfig.getUuid()));
             }
 
         } else {

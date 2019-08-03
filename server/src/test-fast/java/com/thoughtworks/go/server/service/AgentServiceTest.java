@@ -20,10 +20,7 @@ import com.google.common.collect.Ordering;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
-import com.thoughtworks.go.domain.AgentConfigStatus;
-import com.thoughtworks.go.domain.AgentInstance;
-import com.thoughtworks.go.domain.AgentRuntimeStatus;
-import com.thoughtworks.go.domain.NullAgentInstance;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.helper.AgentMother;
 import com.thoughtworks.go.listener.AgentChangeListener;
@@ -702,6 +699,62 @@ class AgentServiceTest {
     }
 
     @Nested
+    class GetAgent{
+        @Test
+        void shouldGetAgentByUUID() {
+            String uuid = "uuid";
+
+            AgentInstance mockAgentInstance = mock(AgentInstance.class);
+            Agent mockAgent = mock(Agent.class);
+
+            when(agentInstances.findAgent(uuid)).thenReturn(mockAgentInstance);
+            when(mockAgentInstance.getAgent()).thenReturn(mockAgent);
+
+            Agent foundAgent = agentService.getAgentByUUID(uuid);
+            assertThat(foundAgent, is(mockAgent));
+        }
+
+        @Test
+        void getAgentByUUIDShouldReturnNullAgentIfAgentIsNotFound() {
+            String nonExistingUUID = "non-existing-nonExistingUUID";
+
+            NullAgentInstance nullAgentInstance = new NullAgentInstance(nonExistingUUID);
+            when(agentInstances.findAgent(nonExistingUUID)).thenReturn(nullAgentInstance);
+
+            Agent foundAgent = agentService.getAgentByUUID(nonExistingUUID);
+            assertThat(foundAgent instanceof NullAgent, is(true));
+        }
+
+        @Test
+        void shouldGetAllRegisteredAgentUUIDs(){
+            AgentInstance agentInstance1 = AgentInstanceMother.idle();
+            AgentInstance agentInstance2 = AgentInstanceMother.building();
+            AgentInstance agentInstance3 = AgentInstanceMother.pending();
+
+            List<AgentInstance> agentInstanceList = asList(agentInstance1, agentInstance2, agentInstance3);
+            when(agentInstances.values()).thenReturn(agentInstanceList);
+
+            List<String> allAgentUUIDs = agentService.getAllRegisteredAgentUUIDs();
+            assertThat(allAgentUUIDs.size(), is(2));
+        }
+
+        @Test
+        void getAllRegisteredAgentUUIDsShouldReturnEmptyListOfUUIDsIfThereAreNoAgentInstancesInCache(){
+            when(agentInstances.values()).thenReturn(emptyList());
+            List<String> allAgentUUIDs = agentService.getAllRegisteredAgentUUIDs();
+            assertTrue(allAgentUUIDs.isEmpty());
+        }
+
+        @Test
+        void getAllRegisteredAgentUUIDsShouldReturnEmptyListOfUUIDsIfThereAreNoRegisteredAgentInstancesInCache(){
+            AgentInstance notRegisteredAgentInstance = AgentInstanceMother.pending();
+            when(agentInstances.values()).thenReturn(singletonList(notRegisteredAgentInstance));
+            List<String> allAgentUUIDs = agentService.getAllRegisteredAgentUUIDs();
+            assertTrue(allAgentUUIDs.isEmpty());
+        }
+    }
+
+    @Nested
     class DisableAgents {
         @Test
         void shouldDoNothingIfDisableAgentsIsCalledWithEmptyListOfUUIDs() {
@@ -1149,6 +1202,36 @@ class AgentServiceTest {
         }
     }
 
+    @Nested
+    class SaveOrUpdateAgent {
+        @Test
+        void shouldSaveOrUpdateAgent() {
+            Agent mockAgent = mock(Agent.class);
+            doNothing().when(mockAgent).validate();
+            when(mockAgent.hasErrors()).thenReturn(false);
+
+            agentService.saveOrUpdate(mockAgent);
+
+            verify(mockAgent).validate();
+            verify(mockAgent).hasErrors();
+            verify(agentDao).saveOrUpdate(mockAgent);
+            verify(agentDao).saveOrUpdate(mockAgent);
+        }
+
+        @Test
+        void shouldNotSaveOrUpdateAgentIfAgentHasValidationErrors() {
+            Agent mockAgent = mock(Agent.class);
+            doNothing().when(mockAgent).validate();
+            when(mockAgent.hasErrors()).thenReturn(true);
+
+            agentService.saveOrUpdate(mockAgent);
+
+            verify(mockAgent).validate();
+            verify(mockAgent).hasErrors();
+            verify(agentDao, never()).saveOrUpdate(mockAgent);
+        }
+    }
+
     @Test
     void shouldCreateAgentUsernameUsingSpecifiedInput(){
         String uuid = "uuid1";
@@ -1186,6 +1269,58 @@ class AgentServiceTest {
         agentService.registerAgentChangeListeners(null);
 
         assertThat(setOfListeners.size(), is(0));
+    }
+
+    @Test
+    void registerShouldSetResourcesEnvironmentsAndSaveAgentToDBWhenAgentWithCookieIsPassed(){
+        String agentAutoRegisterResources = "r1,r2";
+        String agentAutoRegisterEnvs = "e1,e2";
+
+        Agent mockAgent = mock(Agent.class);
+        when(mockAgent.getCookie()).thenReturn("cookie");
+        when(mockAgent.hasErrors()).thenReturn(false);
+        doNothing().when(mockAgent).setResources(agentAutoRegisterResources);
+        doNothing().when(mockAgent).setEnvironments(agentAutoRegisterEnvs);
+        doNothing().when(mockAgent).validate();
+
+        agentService.register(mockAgent, agentAutoRegisterResources, agentAutoRegisterEnvs);
+
+        String cookie = verify(uuidGenerator, never()).randomUuid();
+        verify(mockAgent).getCookie();
+        verify(mockAgent, never()).setCookie(cookie);
+
+        verify(mockAgent).setResources(agentAutoRegisterResources);
+        verify(mockAgent).setEnvironments(agentAutoRegisterEnvs);
+        verify(mockAgent).validate();
+        verify(mockAgent).hasErrors();
+
+        verify(agentDao).saveOrUpdate(mockAgent);
+    }
+
+    @Test
+    void registerShouldGenerateCookieSetResourcesEnvironmentsAndSaveAgentToDBWhenAgentWithoutCookieIsPassed(){
+        String agentAutoRegisterResources = "r1,r2";
+        String agentAutoRegisterEnvs = "e1,e2";
+
+        Agent mockAgent = mock(Agent.class);
+        when(mockAgent.getCookie()).thenReturn(null);
+        when(mockAgent.hasErrors()).thenReturn(false);
+        doNothing().when(mockAgent).setResources(agentAutoRegisterResources);
+        doNothing().when(mockAgent).setEnvironments(agentAutoRegisterEnvs);
+        doNothing().when(mockAgent).validate();
+
+        agentService.register(mockAgent, agentAutoRegisterResources, agentAutoRegisterEnvs);
+
+        String cookie = verify(uuidGenerator).randomUuid();
+        verify(mockAgent).getCookie();
+        verify(mockAgent).setCookie(cookie);
+
+        verify(mockAgent).setResources(agentAutoRegisterResources);
+        verify(mockAgent).setEnvironments(agentAutoRegisterEnvs);
+        verify(mockAgent).validate();
+        verify(mockAgent).hasErrors();
+
+        verify(agentDao).saveOrUpdate(mockAgent);
     }
 
     @Test

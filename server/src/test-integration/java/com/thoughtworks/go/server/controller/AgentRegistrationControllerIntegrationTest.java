@@ -24,8 +24,6 @@ import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.util.UuidGenerator;
-import com.thoughtworks.go.util.SystemEnvironment;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -88,7 +86,7 @@ public class AgentRegistrationControllerIntegrationTest {
         String uuid = UUID.randomUUID().toString();
         MockHttpServletRequest request = new MockHttpServletRequest();
         final ResponseEntity responseEntity = controller.agentRequest("hostname", uuid, "sandbox", "100", null, null, null, null, null, null, null, false, token(uuid, goConfigService.serverConfig().getTokenGenerationKey()), request);
-        Agent agent = agentService.agentByUuid(uuid);
+        Agent agent = agentService.getAgentByUUID(uuid);
 
         assertThat(agent.getHostname(), is("hostname"));
         assertThat(responseEntity.getStatusCode(), is(HttpStatus.OK));
@@ -115,7 +113,7 @@ public class AgentRegistrationControllerIntegrationTest {
                 "elastic-plugin-id",
                 token(uuid, goConfigService.serverConfig().getTokenGenerationKey()),
                 request);
-        Agent agent = agentService.agentByUuid(uuid);
+        Agent agent = agentService.getAgentByUUID(uuid);
 
         assertTrue(agent.isElastic());
         assertThat(responseEntity.getStatusCode(), is(HttpStatus.OK));
@@ -143,7 +141,7 @@ public class AgentRegistrationControllerIntegrationTest {
                 "elastic-plugin-id",
                 token(uuid, goConfigService.serverConfig().getTokenGenerationKey()),
                 request);
-        Agent agent = agentService.agentByUuid(uuid);
+        Agent agent = agentService.getAgentByUUID(uuid);
         assertTrue(agent.isElastic());
 
         final ResponseEntity responseEntity = controller.agentRequest("elastic-agent-hostname",

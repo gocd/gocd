@@ -1455,7 +1455,7 @@ public class AgentServiceIntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         agentService.bulkUpdateAgentAttributes(asList(agent.getUuid()), emptyStrList,
                 emptyStrList, emptyEnvsConfig, emptyStrList, TriState.FALSE, result);
-        Agent updatedAgent = agentService.agentByUuid(agent.getUuid());
+        Agent updatedAgent = agentService.getAgentByUUID(agent.getUuid());
         assertThat(isDisabled(updatedAgent), is(true));
 
         return updatedAgent;

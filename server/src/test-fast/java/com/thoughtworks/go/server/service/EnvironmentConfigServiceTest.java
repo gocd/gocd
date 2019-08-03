@@ -174,7 +174,7 @@ class EnvironmentConfigServiceTest {
         environmentConfigService.syncEnvironmentsFromConfig(environments("uat", "prod"));
         environmentConfigService.syncAssociatedAgentsFromDB();
 
-        List<JobPlan> filtered = environmentConfigService.filterJobsByAgent(jobs("no-env", "uat", "prod"), OMNIPRESENT_AGENT);
+        List<JobPlan> filtered = environmentConfigService.filterJobsByAgent(jobs("no-env", "uat", "prod"), EnvironmentConfigMother.OMNIPRESENT_AGENT);
 
         assertThat(filtered.size()).isEqualTo(2);
         assertThat(filtered.get(0).getPipelineName()).isEqualTo("uat-pipeline");
@@ -204,10 +204,10 @@ class EnvironmentConfigServiceTest {
         environmentConfigService.syncEnvironmentsFromConfig(environments("uat", "prod"));
         environmentConfigService.syncAssociatedAgentsFromDB();
         Agent agentUnderEnv = new Agent("uat-agent", "localhost", "127.0.0.1");
-        Agent omnipresentAgent = new Agent(OMNIPRESENT_AGENT, "localhost", "127.0.0.2");
+        Agent omnipresentAgent = new Agent(EnvironmentConfigMother.OMNIPRESENT_AGENT, "localhost", "127.0.0.2");
 
-        Mockito.when(agentService.agentByUuid("uat-agent")).thenReturn(agentUnderEnv);
-        Mockito.when(agentService.agentByUuid(OMNIPRESENT_AGENT)).thenReturn(omnipresentAgent);
+        Mockito.when(agentService.getAgentByUUID("uat-agent")).thenReturn(agentUnderEnv);
+        Mockito.when(agentService.getAgentByUUID(EnvironmentConfigMother.OMNIPRESENT_AGENT)).thenReturn(omnipresentAgent);
 
         assertThat(environmentConfigService.agentsForPipeline(new CaseInsensitiveString("uat-pipeline")).size()).isEqualTo(2);
         assertThat(environmentConfigService.agentsForPipeline(new CaseInsensitiveString("uat-pipeline"))).contains(agentUnderEnv);

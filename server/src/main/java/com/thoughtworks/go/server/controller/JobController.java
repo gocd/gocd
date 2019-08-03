@@ -162,7 +162,7 @@ public class JobController {
         String pipelineName = current.getIdentifier().getPipelineName();
         String stageName = current.getIdentifier().getStageName();
         JobInstances recent25 = jobInstanceService.latestCompletedJobs(pipelineName, stageName, current.getName());
-        Agent agent = agentService.agentByUuid(current.getAgentUuid());
+        Agent agent = agentService.getAgentByUUID(current.getAgentUuid());
         Pipeline pipelineWithOneBuild = pipelineService.wrapBuildDetails(current);
         Tabs customizedTabs = goConfigService.getCustomizedTabs(pipelineWithOneBuild.getName(),
                 pipelineWithOneBuild.getFirstStage().getName(), current.getName());
@@ -209,7 +209,7 @@ public class JobController {
         final ElasticAgentPluginInfo pluginInfo = elasticAgentMetadataStore.getPluginInfo(pluginId);
 
         if (pluginInfo != null && pluginInfo.getCapabilities().supportsAgentStatusReport()) {
-            final Agent agent = agentService.agentByUuid(jobInstance.getAgentUuid());
+            final Agent agent = agentService.getAgentByUUID(jobInstance.getAgentUuid());
 
             if (agent != null && agent.isElastic()) {
                 data.put("elasticAgentPluginId", agent.getElasticPluginId());

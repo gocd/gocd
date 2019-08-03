@@ -92,7 +92,7 @@ public class UpdateAgentStatusTest {
 
     @Test
     public void shouldUpdateAgentIPAddressWhenItChanges_asAgent() throws Exception {
-        String oldIp = agentService.agentByUuid("uuid").getIpaddress();
+        String oldIp = agentService.getAgentByUUID("uuid").getIpaddress();
         assertThat(oldIp, is("10.81.2.1"));
 
         AgentIdentifier agentIdentifier1 = new AgentIdentifier("localhost", "10.18.3.95", "uuid");
@@ -101,7 +101,7 @@ public class UpdateAgentStatusTest {
 
         agentService.updateRuntimeInfo(agentRuntimeInfo1);
 
-        String newIp = agentService.agentByUuid("uuid").getIpaddress();
+        String newIp = agentService.getAgentByUUID("uuid").getIpaddress();
         assertThat(newIp, is("10.18.3.95"));
     }
 

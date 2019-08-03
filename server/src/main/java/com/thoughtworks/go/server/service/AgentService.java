@@ -381,16 +381,13 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         return !agentInstance.isNullAgent() && agentInstance.isRegistered();
     }
 
-    public Agent agentByUuid(String agentUuid) {
-        Agent agent = agentInstances.findAgent(agentUuid).getAgent();
-        if (agent == null) {
-            agent = NullAgent.createNullAgent();
-        }
-        return agent;
+    public Agent getAgentByUUID(String uuid) {
+        return agentInstances.findAgent(uuid).getAgent();
     }
 
-    public List<String> getAllAgentUUIDs() {
-        return agentInstances.values().stream().filter(AgentInstance::isRegistered)
+    public List<String> getAllRegisteredAgentUUIDs() {
+        return agentInstances.values().stream()
+                .filter(AgentInstance::isRegistered)
                 .map(AgentInstance::getUuid)
                 .collect(toList());
     }

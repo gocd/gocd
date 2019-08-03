@@ -984,18 +984,6 @@ class AgentServiceTest {
         }
     }
 
-    @Test
-    void shouldRegisterAgentChangeListener(){
-        Set<AgentChangeListener> setOfListeners = new HashSet<>();
-        agentService.setAgentChangeListeners(setOfListeners);
-
-        AgentChangeListener mockListener = mock(AgentChangeListener.class);
-        agentService.registerAgentChangeListeners(mockListener);
-
-        assertThat(setOfListeners.size(), is(1));
-        setOfListeners.forEach(listener -> assertThat(listener, is(mockListener)));
-    }
-
     @Nested
     class RequestRegistration{
         @Test
@@ -1119,21 +1107,97 @@ class AgentServiceTest {
         }
     }
 
+    @Nested
+    class UpdateAgentApprovalStatus {
+        @Test
+        void shouldBombIfUpdateAgentApprovalStatusIsCalledWithNonExistingAgentUUID() {
+            String nonExistingUUID = "some-non-existing-uuid";
+            when(agentInstances.findAgent(nonExistingUUID)).thenReturn(new NullAgentInstance(nonExistingUUID));
+
+            RuntimeException e = assertThrows(RuntimeException.class, () -> agentService.updateAgentApprovalStatus(nonExistingUUID, true));
+            assertThat(e.getMessage(), is("Unable to update agent approval status; Agent [" + nonExistingUUID + "] not found."));
+        }
+
+        @Test
+        void shouldBombIfUpdateAgentApprovalStatusIsCalledWithUnregisteredUUID() {
+            AgentInstance mockInstance = mock(AgentInstance.class);
+            String pendingUUID = "uuid1";
+            when(agentInstances.findAgent(pendingUUID)).thenReturn(mockInstance);
+            when(mockInstance.isRegistered()).thenReturn(false);
+
+            RuntimeException e = assertThrows(RuntimeException.class, () -> agentService.updateAgentApprovalStatus(pendingUUID, true));
+            assertThat(e.getMessage(), is("Unable to update agent approval status; Agent [" + pendingUUID + "] not found."));
+        }
+
+        @Test
+        void shouldUpdateAgentApprovalStatusWhenCalledWithRegisteredUUID() {
+            String registeredUUID = "registeredUUID";
+            AgentInstance mockInstance = mock(AgentInstance.class);
+            Agent mockAgent = mock(Agent.class);
+
+            when(agentInstances.findAgent(registeredUUID)).thenReturn(mockInstance);
+            when(mockInstance.isRegistered()).thenReturn(true);
+            when(mockInstance.getAgent()).thenReturn(mockAgent);
+
+            agentService.updateAgentApprovalStatus(registeredUUID, true);
+
+            verify(mockAgent).setDisabled(true);
+            verify(mockAgent).validate();
+            verify(mockAgent).hasErrors();
+
+            verify(agentDao).saveOrUpdate(mockAgent);
+        }
+    }
+
     @Test
     void shouldCreateAgentUsernameUsingSpecifiedInput(){
         String uuid = "uuid1";
         String ip = "127.0.0.1";
         String hostNameForDisplay = "localhost";
+
         Username username = agentService.createAgentUsername(uuid, ip, hostNameForDisplay);
         assertThat(username.getDisplayName(), is("agent_uuid1_127.0.0.1_localhost"));
     }
 
     @Test
+    void notifyJobCancelledEventShouldCallUpdateAgentAboutCancelledBuildOnItsAgentInstances(){
+        String uuid = "uuid";
+        doNothing().when(agentInstances).updateAgentAboutCancelledBuild(uuid, true);
+
+        agentService.notifyJobCancelledEvent(uuid);
+        verify(agentInstances).updateAgentAboutCancelledBuild(uuid, true);
+    }
+
+    @Test
+    void buildingMethodShouldDelegateToBuildingMethodOfAgentInstances(){
+        String uuid = "uuid";
+        AgentBuildingInfo mockAgentBuildingInfo = mock(AgentBuildingInfo.class);
+        doNothing().when(agentInstances).building(uuid, mockAgentBuildingInfo);
+
+        agentService.building(uuid, mockAgentBuildingInfo);
+        verify(agentInstances).building(uuid, mockAgentBuildingInfo);
+    }
+
+    @Test
     void shouldDoNothingWhenRegisterAgentChangeListenerIsCalledWithNullListener(){
         Set<AgentChangeListener> setOfListeners = new HashSet<>();
+
         agentService.setAgentChangeListeners(setOfListeners);
         agentService.registerAgentChangeListeners(null);
+
         assertThat(setOfListeners.size(), is(0));
+    }
+
+    @Test
+    void shouldRegisterAgentChangeListener(){
+        Set<AgentChangeListener> setOfListeners = new HashSet<>();
+        agentService.setAgentChangeListeners(setOfListeners);
+
+        AgentChangeListener mockListener = mock(AgentChangeListener.class);
+        agentService.registerAgentChangeListeners(mockListener);
+
+        assertThat(setOfListeners.size(), is(1));
+        setOfListeners.forEach(listener -> assertThat(listener, is(mockListener)));
     }
 
     private EnvironmentsConfig createEnvironmentsConfigWith(String... envs) {

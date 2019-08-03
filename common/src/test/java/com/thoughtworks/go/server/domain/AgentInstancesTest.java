@@ -25,6 +25,7 @@ import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.helper.AgentMother;
 import com.thoughtworks.go.listener.AgentStatusChangeListener;
 import com.thoughtworks.go.remote.AgentIdentifier;
+import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.ElasticAgentRuntimeInfo;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -32,6 +33,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.Date;
@@ -53,8 +55,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 class AgentInstancesTest {
@@ -424,14 +425,14 @@ class AgentInstancesTest {
 
     @Test
     void getAllAgentsShouldReturnAllAgentInstancesInMemoryCache() {
-        AgentInstances agentInstaces = createAgentInstancesWithAgentInstanceInVariousState();
+        AgentInstances agentInstances = createAgentInstancesWithAgentInstanceInVariousState();
 
-        AgentInstances allAgents = agentInstaces.getAllAgents();
+        AgentInstances allAgents = agentInstances.getAllAgents();
         assertThat(allAgents.size(), is(5));
 
-        agentInstaces.add(createElasticAgentInstance(999, "go.cd.elastic-agent-plugin.docker"));
+        agentInstances.add(createElasticAgentInstance(999, "go.cd.elastic-agent-plugin.docker"));
 
-        allAgents = agentInstaces.getAllAgents();
+        allAgents = agentInstances.getAllAgents();
         assertThat(allAgents.size(), is(6));
     }
 
@@ -462,6 +463,22 @@ class AgentInstancesTest {
         agentInstances.refresh();
         assertThat(agentInstances.getAllAgents().size(), is(2));
         assertThat(agentInstances.findAgentAndRefreshStatus(pending.getUuid()), is(instanceOf(NullAgentInstance.class)));
+    }
+
+    @Test
+    void buildingShouldRefreshAgentInstanceAndDelegateToBuildingMethodOfAgentInstance() {
+        String uuid = "uuid";
+
+        AgentInstances agentInstances = createAgentInstancesWithAgentInstanceInVariousState();
+        AgentInstances agentInstancesSpy = Mockito.spy(agentInstances);
+        AgentInstance mockAgentInstance = mock(AgentInstance.class);
+        when(agentInstancesSpy.findAgentAndRefreshStatus(uuid)).thenReturn(mockAgentInstance);
+
+        AgentBuildingInfo mockAgentBuildingInfo = mock(AgentBuildingInfo.class);
+        doNothing().when(mockAgentInstance).building(mockAgentBuildingInfo);
+
+        agentInstancesSpy.building(uuid, mockAgentBuildingInfo);
+        verify(mockAgentInstance).building(mockAgentBuildingInfo);
     }
 
     private AgentInstances createAgentInstancesWithAgentInstanceInVariousState() {

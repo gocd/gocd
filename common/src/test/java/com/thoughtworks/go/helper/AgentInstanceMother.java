@@ -62,6 +62,12 @@ public class AgentInstanceMother {
         return agentInstance;
     }
 
+    public static AgentInstance disabledWith(String uuid) {
+        final AgentInstance disabled = disabled();
+        disabled.syncAgentFrom(new Agent(uuid, disabled.getHostname(), disabled.getIpAddress()));
+        return disabled;
+    }
+
     public static AgentInstance idleWith(String uuid, String hostname, String ipAddress, String location, long space, String os, List<String> resourceList) {
 
         Agent agent = new Agent(uuid, hostname, ipAddress);

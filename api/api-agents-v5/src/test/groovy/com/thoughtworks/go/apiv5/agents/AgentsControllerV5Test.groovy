@@ -42,12 +42,13 @@ import org.mockito.invocation.InvocationOnMock
 import java.util.stream.Stream
 
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
-import static com.thoughtworks.go.helper.AgentInstanceMother.idle
-import static com.thoughtworks.go.helper.AgentInstanceMother.idleWith
+import static com.thoughtworks.go.helper.AgentInstanceMother.*
 import static com.thoughtworks.go.helper.EnvironmentConfigMother.environment
+import static com.thoughtworks.go.serverhealth.HealthStateScope.GLOBAL
+import static com.thoughtworks.go.serverhealth.HealthStateType.general
+import static java.lang.String.format
 import static java.util.Arrays.asList
-import static java.util.Collections.singleton
-import static java.util.Collections.singletonList
+import static java.util.Collections.*
 import static java.util.stream.Collectors.toSet
 import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.*
@@ -703,6 +704,27 @@ class AgentsControllerV5Test implements SecurityServiceTrait, ControllerTrait<Ag
     }
 
     @Test
+    void 'delete agent should throw 404 when called with UUID that does not exist'() {
+      loginAsAdmin()
+
+      def nonExistingUUID = "non-existing-uuid"
+
+      when(agentService.findAgent(nonExistingUUID)).thenReturn(new NullAgentInstance(nonExistingUUID))
+
+      doAnswer({ InvocationOnMock invocation ->
+        def result = invocation.getArgument(1) as HttpOperationResult
+        result.notFound("Not Found", format("Agent '%s' not found", nonExistingUUID), general(GLOBAL))
+      }).when(agentService).deleteAgents(eq(singletonList(nonExistingUUID)), any() as HttpOperationResult)
+
+      deleteWithApiHeader(controller.controllerPath(nonExistingUUID))
+
+      assertThatResponse()
+        .isNotFound()
+        .hasContentType(controller.mimeType)
+        .hasJsonMessage("Not Found { Agent 'non-existing-uuid' not found }")
+    }
+
+    @Test
     void 'should render result in case of error'() {
       loginAsAdmin()
 
@@ -736,46 +758,185 @@ class AgentsControllerV5Test implements SecurityServiceTrait, ControllerTrait<Ag
       }
     }
 
-    @Test
-    void 'should delete agents with uuids'() {
-      loginAsAdmin()
+    @Nested
+    class Positive {
+      @Test
+      void 'should delete agents with uuids'() {
+        loginAsAdmin()
 
-      when(agentService.findAgent("agent-1")).thenReturn(idleWith("agent-1"))
-      when(agentService.findAgent("agent-2")).thenReturn(idleWith("agent-2"))
+        when(agentService.findAgent("agent-1")).thenReturn(idleWith("agent-1"))
+        when(agentService.findAgent("agent-2")).thenReturn(idleWith("agent-2"))
 
-      doAnswer({ InvocationOnMock invocation ->
-        def result = invocation.getArgument(1) as HttpOperationResult
-        result.ok("Deleted 2 agent(s).")
-      }).when(agentService).deleteAgents(eq(asList("agent-1", "agent-2")), any() as HttpOperationResult)
+        doAnswer({ InvocationOnMock invocation ->
+          def result = invocation.getArgument(1) as HttpOperationResult
+          result.ok("Deleted 2 agent(s).")
+        }).when(agentService).deleteAgents(eq(asList("agent-1", "agent-2")), any() as HttpOperationResult)
 
-      def requestBody = ["uuids": ["agent-1", "agent-2"]]
+        def requestBody = ["uuids": ["agent-1", "agent-2"]]
 
-      deleteWithApiHeader(controller.controllerPath(), requestBody)
+        deleteWithApiHeader(controller.controllerPath(), requestBody)
 
-      assertThatResponse()
-        .isOk()
-        .hasContentType(controller.mimeType)
-        .hasJsonMessage("Deleted 2 agent(s).")
-    }
+        assertThatResponse()
+          .isOk()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage("Deleted 2 agent(s).")
+      }
 
-    @Test
-    void 'should render result in case of error'() {
-      loginAsAdmin()
+      @Test
+      void 'should delete agents with uuids when all specified UUIDs are disabled'() {
+        loginAsAdmin()
 
-      doAnswer({ InvocationOnMock invocation ->
-        def result = invocation.getArgument(1) as HttpOperationResult
-        def message = "Failed to delete agent."
-        result.unprocessibleEntity(message, "Some description", null)
-      }).when(agentService).deleteAgents(eq(asList("agent-1", "agent-2")), any() as HttpOperationResult)
+        def disabledUUID1 = "uuid1"
+        def disabledUUID2 = "uuid2"
 
-      def requestBody = ["uuids": ["agent-1", "agent-2"]]
+        def disabledAgent1 = disabledWith(disabledUUID1)
+        def disabledAgent2 = disabledWith(disabledUUID2)
 
-      deleteWithApiHeader(controller.controllerPath(), requestBody)
+        when(agentService.findAgent(disabledUUID1)).thenReturn(disabledAgent1)
+        when(agentService.findAgent(disabledUUID2)).thenReturn(disabledAgent2)
 
-      assertThatResponse()
-        .isUnprocessableEntity()
-        .hasContentType(controller.mimeType)
-        .hasJsonMessage("Failed to delete agent. { Some description }")
+        doAnswer({ InvocationOnMock invocation ->
+          def result = invocation.getArgument(1) as HttpOperationResult
+          result.ok("Deleted 2 agent(s).")
+        }).when(agentService).deleteAgents(eq(asList(disabledUUID1, disabledUUID2)), any() as HttpOperationResult)
+
+        def requestBody = ["uuids": [disabledUUID1, disabledUUID2]]
+
+        deleteWithApiHeader(controller.controllerPath(), requestBody)
+
+        assertThatResponse()
+          .isOk()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage("Deleted 2 agent(s).")
+      }
+
+      @Test
+      void 'should delete agents with uuids when list of UUIDs is passed as null'() {
+        loginAsAdmin()
+
+        doAnswer({ InvocationOnMock invocation ->
+          def result = invocation.getArgument(1) as HttpOperationResult
+          result.ok("Deleted 0 agent(s).")
+        }).when(agentService).deleteAgents(eq(emptyList()), any() as HttpOperationResult)
+
+        def requestBody = null
+
+        deleteWithApiHeader(controller.controllerPath(), requestBody)
+
+        assertThatResponse()
+          .isOk()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage("Deleted 0 agent(s).")
+      }
+
+      @Test
+      void 'should delete agents with uuids when empty list of UUIDs is passed'() {
+        loginAsAdmin()
+
+        doAnswer({ InvocationOnMock invocation ->
+          def result = invocation.getArgument(1) as HttpOperationResult
+          result.ok("Deleted 0 agent(s).")
+        }).when(agentService).deleteAgents(eq(emptyList()), any() as HttpOperationResult)
+
+        def requestBody = [ "uuids":[] ]
+
+        deleteWithApiHeader(controller.controllerPath(), requestBody)
+
+        assertThatResponse()
+          .isOk()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage("Deleted 0 agent(s).")
+      }
+  }
+
+    @Nested
+    class Negative {
+      @Test
+      void 'delete agents should throw 404 when called with list of UUIDs that do not exist'() {
+        loginAsAdmin()
+
+        def nonExistingUUID = "non-existing-uuid"
+
+        when(agentService.findAgent(nonExistingUUID)).thenReturn(new NullAgentInstance(nonExistingUUID))
+
+        doAnswer({ InvocationOnMock invocation ->
+          def result = invocation.getArgument(1) as HttpOperationResult
+          result.notFound("Not Found", format("Agent '%s' not found", nonExistingUUID), general(GLOBAL))
+        }).when(agentService).deleteAgents(eq(singletonList(nonExistingUUID)), any() as HttpOperationResult)
+
+        def requestBody = ["uuids": [nonExistingUUID]]
+        deleteWithApiHeader(controller.controllerPath(), requestBody)
+
+        assertThatResponse()
+          .isNotFound()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage("Not Found { Agent 'non-existing-uuid' not found }")
+      }
+
+      @Test
+      void 'delete agents should throw 406 when called with list of UUIDs containing non disabled agent'() {
+        loginAsAdmin()
+
+        def disabledAgent = disabled()
+        def building = building()
+
+        when(agentService.findAgent(disabledAgent.getUuid())).thenReturn(disabledAgent)
+        when(agentService.findAgent(building.getUuid())).thenReturn(building)
+
+        doAnswer({ InvocationOnMock invocation ->
+          def result = invocation.getArgument(1) as HttpOperationResult
+          result.notAcceptable("Could not delete any agents, as one or more agents might not be disabled or are still building.", general(GLOBAL))
+        }).when(agentService).deleteAgents(eq(asList(disabledAgent.getUuid(), building.getUuid())), any() as HttpOperationResult)
+
+        def requestBody = ["uuids": [disabledAgent.getUuid(), building.getUuid()]]
+        deleteWithApiHeader(controller.controllerPath(), requestBody)
+
+        assertThatResponse()
+          .hasStatus(406)
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage("Could not delete any agents, as one or more agents might not be disabled or are still building.")
+      }
+
+      @Test
+      void 'delete agents should throw 406 when called with list of single non disabled UUID'() {
+        loginAsAdmin()
+
+        def building = building()
+
+        when(agentService.findAgent(building.getUuid())).thenReturn(building)
+
+        doAnswer({ InvocationOnMock invocation ->
+          def result = invocation.getArgument(1) as HttpOperationResult
+          result.notAcceptable("Failed to delete an agent, as it is not in a disabled state or is still building.", general(GLOBAL))
+        }).when(agentService).deleteAgents(eq(singletonList(building.getUuid())), any() as HttpOperationResult)
+
+        def requestBody = ["uuids": [building.getUuid()]]
+        deleteWithApiHeader(controller.controllerPath(), requestBody)
+
+        assertThatResponse()
+          .hasStatus(406)
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage("Failed to delete an agent, as it is not in a disabled state or is still building.")
+      }
+
+      @Test
+      void 'should render result in case of internal server error'() {
+        loginAsAdmin()
+
+        doAnswer({ InvocationOnMock invocation ->
+          def result = invocation.getArgument(1) as HttpOperationResult
+          result.internalServerError("Some error description of why deleting agents failed", null)
+        }).when(agentService).deleteAgents(eq(asList("agent-1", "agent-2")), any() as HttpOperationResult)
+
+        def requestBody = ["uuids": ["agent-1", "agent-2"]]
+
+        deleteWithApiHeader(controller.controllerPath(), requestBody)
+
+        assertThatResponse()
+          .isInternalServerError()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage("Some error description of why deleting agents failed")
+      }
     }
   }
 }

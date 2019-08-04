@@ -449,6 +449,11 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         }
     }
 
+    void entityDeleted(String uuid) {
+        notifyAgentDeleteListener(uuid);
+        this.agentInstances.removeAgent(uuid);
+    }
+
     private void syncAgentInstanceCacheFromAgentsInDB() {
         Agents allAgentsFromDB = new Agents(agentDao.getAllAgents());
         agentInstances.syncAgentInstancesFrom(allAgentsFromDB);
@@ -656,11 +661,6 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         EnvironmentsConfig envsConfig = new EnvironmentsConfig();
         envsConfig.add(envConfig);
         return envsConfig;
-    }
-
-    private void entityDeleted(String uuid) {
-        notifyAgentDeleteListener(uuid);
-        this.agentInstances.removeAgent(uuid);
     }
 
     private boolean isAgentNotFound(Agent agent, OperationResult result) {

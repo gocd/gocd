@@ -825,7 +825,7 @@ class AgentServiceTest {
             }
 
             @Test
-            void shouldThrow406WhenDeleteAgentsIsCalledWithMultipleAgentsWithOneNotDisabledAgent() {
+            void shouldThrow406WhenDeleteAgentsIsCalledWithMultipleAgentsWithOneBeingNonDisabledAgent() {
                 String uuid1 = "1234";
                 String uuid2 = "4321";
                 Username username = new Username(new CaseInsensitiveString("test"));
@@ -1146,6 +1146,17 @@ class AgentServiceTest {
             agentServiceSpy.bulkEntitiesChanged(listOf2UpdatedAgents);
 
             listOf2UpdatedAgents.forEach(agent -> verify(agentServiceSpy).entityChanged(agent));
+        }
+
+        @Test
+        void WhenMultipleAgentsAreDeletedInDBBulkEntitiesDeletedMethodShouldCallEntityDeletedMethodForEachDeletedAgent(){
+            AgentService agentServiceSpy = Mockito.spy(agentService);
+            doNothing().when(agentServiceSpy).entityDeleted(anyString());
+
+            List<String> deletedUUIDs = asList("uuid1", "uuid2");
+            agentServiceSpy.bulkEntitiesDeleted(deletedUUIDs);
+
+            deletedUUIDs.forEach(uuid -> verify(agentServiceSpy).entityDeleted(uuid));
         }
 
         private Agents createTwoAgentsAndAddItToListOfAgents() {

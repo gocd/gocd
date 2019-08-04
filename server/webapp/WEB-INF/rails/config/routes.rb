@@ -232,7 +232,6 @@ Rails.application.routes.draw do
             post :package_check_connection, [action: :package_check_connection]
           end
           resources :pipelines, only: [:index]
-          resources :resources, only: [:index]
           resources :environments, only: [:index]
           resources :command_snippets, only: [:index]
         end

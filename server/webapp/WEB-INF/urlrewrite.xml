@@ -36,12 +36,6 @@
   </rule>
 
   <rule>
-    <name>Internal Resources API</name>
-    <from>^/api/admin/internal/resources$</from>
-    <to last="true">/spark/api/admin/internal/resources</to>
-  </rule>
-
-  <rule>
     <name>Backup Config API</name>
     <from>^/api/config/backup$</from>
     <to last="true">/spark/api/config/backup</to>

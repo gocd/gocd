@@ -33,10 +33,6 @@ public class Routes {
         String base();
     }
 
-    public static class InternalResources {
-        public static final String BASE = "/api/admin/internal/resources";
-    }
-
     public static class Backups {
         public static final String BASE = "/api/backups";
         public static final String DOC = apiDocsUrl("#backups");

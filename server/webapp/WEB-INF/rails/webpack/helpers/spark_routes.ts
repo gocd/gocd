@@ -34,6 +34,10 @@ export default class {
     return `/go/admin/pipelines/create`;
   }
 
+  static createPipelineAsCodePath(): string {
+    return `/go/admin/pipelines/as-code`;
+  }
+
   static pipelineConfigCreatePath(): string {
     return `/go/api/admin/pipelines`;
   }

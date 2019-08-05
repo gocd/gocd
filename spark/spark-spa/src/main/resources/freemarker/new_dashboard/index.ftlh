@@ -16,6 +16,7 @@
 
 <div id="dashboard" class="dashboard"
   data-show-empty-pipeline-groups="${showEmptyPipelineGroups?c}"
+  data-new-pipeline-dropdown="${newPipelineDropdown?c}"
   data-should-show-analytics-icon="${shouldShowAnalyticsIcon?c}">
   <span class="page-spinner"/>
 </div>

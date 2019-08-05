@@ -181,6 +181,35 @@ body {
   margin:        5px;
 }
 
+.new-pipeline-selector {
+  position: relative;
+  float:    right;
+
+  &:hover {
+    .new-pipeline-items {
+      display: block;
+    }
+  }
+}
+
+.new-pipeline-items {
+  list-style-type: none;
+  cursor:          default;
+  display:         none;
+  position:        absolute;
+  right:           0;
+  background:      #fff;
+  border:          1px solid #d6e0e2;
+  border-radius:   0 0 3px 3px;
+  width:           100%;
+}
+
+.new-pipeline-item {
+  &:hover {
+    background: rgba(0, 0, 0, 0.2);
+  }
+}
+
 .pipeline {
   position: relative;
 }

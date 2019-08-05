@@ -27,20 +27,49 @@ const GroupHeading = {
   view(vnode) {
     const vm    = vnode.attrs.vm;
     const paths = vm.routes();
+    let addPipeline = "";
+
+    if (vm.canAdminister && paths.new) {
+      vnode.attrs.newPipelineDropdown ?
+        addPipeline = <Dropdown vm={vm}/> :
+        addPipeline = <Buttons.Primary align="right"
+            icon={Buttons.ButtonIcon.ADD}
+            disabled={!vm.canAdminister}
+            aria-label={vm.ariaLabelForNewPipeline()}
+            title={vm.titleForNewPipeline()}
+            onclick={this.goToAddPipeline.bind(null, paths.new)}>
+            New Pipeline
+          </Buttons.Primary>;
+    }
 
     return <div class="dashboard-group_title">
       <f.link disabled={!vm.canAdminister} href={paths.show} class="dashboard-group_name"
               aria-label={vm.label()}>{vm.name || "Pipelines not in any Environment"}</f.link>
       {vm.name && <f.link class="edit_config dashboard-group_edit-config" disabled={!vm.canAdminister} href={paths.edit}
                           tooltipText={vm.tooltipForEdit()} title={vm.titleForEdit()} aria-label={vm.ariaLabelForEdit()}/>}
-      { vm.canAdminister && paths.new ? <Buttons.Primary align="right"
-                                            icon={Buttons.ButtonIcon.ADD}
-                                            disabled={!vm.canAdminister}
-                                            aria-label={vm.ariaLabelForNewPipeline()}
-                                            title={vm.titleForNewPipeline()}
-                                            onclick={this.goToAddPipeline.bind(null, paths.new)}>
-                             New Pipeline
-                           </Buttons.Primary> : "" }
+      { addPipeline }
+    </div>;
+  }
+};
+
+const Dropdown = {
+  view(vnode) {
+    const vm = vnode.attrs.vm;
+    const paths = vm.routes();
+
+    return <div class="new-pipeline-selector">
+      <Buttons.Primary
+        icon       = {Buttons.ButtonIcon.ADD}
+        disabled   = {!vm.canAdminister}
+        aria-label = {vm.ariaLabelForNewPipeline()}
+        title      = {vm.titleForNewPipeline()}>
+        New Pipeline
+      </Buttons.Primary>
+
+      <ul class="new-pipeline-items">
+        <li class="new-pipeline-item"><a href={paths.new}>Add manually</a></li>
+        <li class="new-pipeline-item"><a href={paths.asCode}>Add pipeline as code</a></li>
+      </ul>
     </div>;
   }
 };

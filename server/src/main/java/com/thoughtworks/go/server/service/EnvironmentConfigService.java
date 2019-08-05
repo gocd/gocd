@@ -41,7 +41,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.str;
 import static com.thoughtworks.go.i18n.LocalizedMessage.entityConfigValidationFailed;
+import static java.util.Collections.sort;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -96,7 +98,7 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
     String envForPipeline(String pipelineName) {
         return matchers.stream()
                 .filter(matcher -> matcher.hasPipeline(pipelineName))
-                .map(matcher -> CaseInsensitiveString.str(matcher.name()))
+                .map(matcher -> str(matcher.name()))
                 .findFirst()
                 .orElse(null);
     }
@@ -208,15 +210,18 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
     }
 
     public List<EnvironmentPipelineModel> getAllRemotePipelinesForUserInEnvironment(Username user, EnvironmentConfig envConfig) {
-        List<EnvironmentPipelineModel> pipelines = new ArrayList<>();
-        for (EnvironmentPipelineConfig pipelineConfig : envConfig.getRemotePipelines()) {
-            String pipelineName = CaseInsensitiveString.str(pipelineConfig.getName());
+        List<EnvironmentPipelineModel> envPipelineModelList = new ArrayList<>();
+
+        for (EnvironmentPipelineConfig envPipeline : envConfig.getRemotePipelines()) {
+            String pipelineName = str(envPipeline.getName());
             if (securityService.hasViewPermissionForPipeline(user, pipelineName)) {
-                pipelines.add(new EnvironmentPipelineModel(pipelineName, CaseInsensitiveString.str(envConfig.name())));
+                String envName = str(envConfig.name());
+                envPipelineModelList.add(new EnvironmentPipelineModel(pipelineName, envName));
             }
         }
-        Collections.sort(pipelines);
-        return pipelines;
+        sort(envPipelineModelList);
+
+        return envPipelineModelList;
     }
 
     public void updateEnvironment(final String oldEnvName, final EnvironmentConfig envConfig, final Username username,
@@ -349,18 +354,20 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
 
     private List<EnvironmentPipelineModel> getAllPipelinesForUser(Username user, List<PipelineConfig> pipelineConfigs) {
         List<EnvironmentPipelineModel> pipelines = new ArrayList<>();
+
         for (PipelineConfig pipelineConfig : pipelineConfigs) {
-            String pipelineName = CaseInsensitiveString.str(pipelineConfig.name());
+            String pipelineName = str(pipelineConfig.name());
             if (securityService.hasViewPermissionForPipeline(user, pipelineName)) {
                 EnvironmentConfig environment = environments.findEnvironmentForPipeline(new CaseInsensitiveString(pipelineName));
                 if (environment != null) {
-                    pipelines.add(new EnvironmentPipelineModel(pipelineName, CaseInsensitiveString.str(environment.name())));
+                    pipelines.add(new EnvironmentPipelineModel(pipelineName, str(environment.name())));
                 } else {
                     pipelines.add(new EnvironmentPipelineModel(pipelineName));
                 }
             }
         }
-        Collections.sort(pipelines);
+        sort(pipelines);
+
         return pipelines;
     }
 

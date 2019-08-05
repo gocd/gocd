@@ -88,17 +88,18 @@ class AgentsControllerV5Test implements SecurityServiceTrait, ControllerTrait<Ag
 
     @Test
     void "should return a list of agents"() {
-      def instances = mock(AgentInstances.class)
-      def collection = new ArrayList<AgentInstance>()
       def instance = idle()
-      collection.add(instance)
-      when(agentService.getAgentInstances()).thenReturn(instances)
-      when(instances.values()).thenReturn(collection)
+      def instanceList = new ArrayList<AgentInstance>()
+      instanceList.add(instance)
 
-      def environmentConfigs = new HashSet<EnvironmentConfig>()
-      environmentConfigs.add(environment("env1"))
-      environmentConfigs.add(environment("env2"))
-      when(environmentConfigService.environmentConfigsFor(instance.getUuid())).thenReturn(environmentConfigs)
+      def instances = mock(AgentInstances.class)
+      when(agentService.getAgentInstances()).thenReturn(instances)
+      when(instances.values()).thenReturn(instanceList)
+
+      def envConfigs = new HashSet<EnvironmentConfig>()
+      envConfigs.add(environment("env1"))
+      envConfigs.add(environment("env2"))
+      when(environmentConfigService.environmentConfigsFor(instance.getUuid())).thenReturn(envConfigs)
 
       getWithApiHeader(controller.controllerPath())
 

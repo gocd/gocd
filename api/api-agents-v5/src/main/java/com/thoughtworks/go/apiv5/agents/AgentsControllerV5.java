@@ -105,8 +105,8 @@ public class AgentsControllerV5 extends ApiController implements SparkSpringCont
         Map<AgentInstance, Collection<EnvironmentConfig>> agentToEnvConfigsMap = new HashMap<>();
 
         agentService.getAgentInstances().values().forEach(agentInstance -> {
-            Set<EnvironmentConfig> environmentConfigs = environmentConfigService.environmentConfigsFor(agentInstance.getUuid());
-            agentToEnvConfigsMap.put(agentInstance, environmentConfigs);
+            Set<EnvironmentConfig> envConfigSet = environmentConfigService.environmentConfigsFor(agentInstance.getUuid());
+            agentToEnvConfigsMap.put(agentInstance, envConfigSet);
         });
 
         return writerForTopLevelObject(request, response,

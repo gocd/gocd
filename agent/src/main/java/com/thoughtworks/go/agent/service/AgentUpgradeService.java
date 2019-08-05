@@ -57,7 +57,7 @@ public class AgentUpgradeService {
     }
 
     @Autowired
-    AgentUpgradeService(URLService urlService, GoAgentServerHttpClient httpClient, SystemEnvironment systemEnvironment) throws Exception {
+    AgentUpgradeService(URLService urlService, GoAgentServerHttpClient httpClient, SystemEnvironment systemEnvironment) {
         this(urlService, httpClient, systemEnvironment, new DefaultJvmExitter());
     }
 

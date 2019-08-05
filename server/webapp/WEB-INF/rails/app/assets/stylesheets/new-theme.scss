@@ -1574,11 +1574,11 @@ input[type='submit'], input[type='submit']:hover, button.submit, button.submit:h
 }
 
 #new-pipeline-history .failed-stage {
-  @include icon-before($failed-icon, 12px, 0);
+  @include icon-after($failed-icon, 12px, 0);
 }
 
 #new-pipeline-history .cancelled-stage {
-  @include icon-before($cancelled-icon, 12px, 0);
+  @include icon-after($cancelled-icon, 12px, 0);
 }
 
 .color_code, .color_code_small {
@@ -1612,17 +1612,17 @@ input[type='submit'], input[type='submit']:hover, button.submit, button.submit:h
 
   &.Passed {
     color: white;
-    @include icon-before($passed-icon, $margin: 0);
+    @include icon-after($passed-icon, $margin: 0, $line-height: 1.2em);
   }
 
   &.Failed {
     color: white;
-    @include icon-before($failed-icon, $margin: 0);
+    @include icon-after($failed-icon, $margin: 0, $line-height: 1.2em);
   }
 
   &.Cancelled {
-    color: black;
-    @include icon-before($cancelled-icon, $margin: 0);
+    color: $icon-txt;
+    @include icon-after($cancelled-icon, $margin: 0, $line-height: 1.2em);
   }
 }
 
@@ -1633,12 +1633,12 @@ input[type='submit'], input[type='submit']:hover, button.submit, button.submit:h
 
   &:after {
     content:          "";
-    background-image: linear-gradient(-45deg, rgba(255, 255, 255, .2) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .2) 50%, rgba(255, 255, 255, .2) 75%, transparent 75%, transparent);
+    background-image: image_url("building.png");
     position:         absolute;
     top:              0;
     left:             0;
     bottom:           0;
-    background-size:  50px 50px;
+    background-size:  40px 16px;
     right:            0;
   }
 }
@@ -2705,12 +2705,11 @@ button.check_connection + .connection_test_message pre {
 
 .Building, .building-stage {
   position:        relative;
-  background:      $building image_url('building.gif') repeat-x 50% 50%;
+  background:      $building image_url('building.gif') repeat-x;
 }
 
 .stage_bar.Building {
-  background:      $building image_url('building.svg') repeat-x 50% 50%;
-  background-size: 20%;
+  background:      $building image_url('building.gif') repeat-x;
 }
 
 @keyframes move {

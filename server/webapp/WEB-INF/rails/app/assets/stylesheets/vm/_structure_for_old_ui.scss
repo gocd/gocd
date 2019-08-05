@@ -409,7 +409,7 @@ a.xlink_as_button {
 }
 
 .Failing {
-    background-image: image_url('g9/backgrounds/bg_status_diagonal.png');
+    background-image: image_url('failing.png');
     background-repeat: repeat-x;
     background-color: #fa2d2d;
 }
@@ -419,13 +419,13 @@ a.xlink_as_button {
 
 .Building,
 .Active{
-    background-image: image_url('g9/backgrounds/bg_status_diagonal.png');
+    background-image: image_url('building.png');
     background-repeat: repeat-x;
     background-color: #ffc11b;
 }
 
 .Cancelled {
-    background-image: image_url('g9/backgrounds/bg_status_diagonal.png');
+    background-image: image_url('building.png');
     background-repeat: repeat-x;
     background-color: #ffc11b;
     text-align: center;

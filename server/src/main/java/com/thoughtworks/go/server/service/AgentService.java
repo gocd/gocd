@@ -19,7 +19,6 @@ import com.google.common.collect.Streams;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.exceptions.InvalidPendingAgentOperationException;
-import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.update.AgentUpdateValidator;
 import com.thoughtworks.go.config.update.AgentsUpdateValidator;
 import com.thoughtworks.go.domain.*;
@@ -108,8 +107,8 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     /**
      * not for use externally, created for testing whether listeners are correctly registered or not
      */
-    void setAgentChangeListeners(Set<AgentChangeListener> setOfListener){
-        if(setOfListener == null){
+    void setAgentChangeListeners(Set<AgentChangeListener> setOfListener) {
+        if (setOfListener == null) {
             this.listeners = new HashSet<>();
         } else {
             this.listeners = setOfListener;
@@ -136,11 +135,13 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         return agentInstances.findRegisteredAgents();
     }
 
-    public AgentInstance updateAgentAttributes(String uuid, String hostname, String resources,
-                                               EnvironmentsConfig environments, TriState state, HttpOperationResult result) {
-        AgentUpdateValidator validator
-                = new AgentUpdateValidator(agentInstances.findAgent(uuid), environments, resources, state, result);
-        Agent agent = agentDao.getAgentByUUIDFromCacheOrDB(uuid);
+    public AgentInstance updateAgentAttributes(String uuid, String hostname, String resources, EnvironmentsConfig environments, TriState state, HttpOperationResult result) {
+        AgentInstance agentInstance = agentInstances.findAgent(uuid);
+        if (isAgentNotFound(agentInstance, result)) {
+            return null;
+        }
+        AgentUpdateValidator validator = new AgentUpdateValidator(agentInstance, environments, resources, state, result);
+        Agent agent = agentDao.fetchAgentFromDBByUUID(uuid);
         try {
             if (isAnyOperationPerformedOnAgent(hostname, environments, resources, state, result)) {
                 validator.validate();
@@ -155,7 +156,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
                     result.ok(format("Updated agent with uuid %s.", agent.getUuid()));
                 }
             }
-        } catch (InvalidPendingAgentOperationException | IllegalArgumentException | RecordNotFoundException e) {
+        } catch (InvalidPendingAgentOperationException | IllegalArgumentException e) {
             LOGGER.error(e.getMessage(), e);
             return null;
         } catch (Exception e) {
@@ -444,7 +445,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     }
 
     public void registerAgentChangeListeners(AgentChangeListener listener) {
-        if(listener != null) {
+        if (listener != null) {
             this.listeners.add(listener);
         }
     }
@@ -666,6 +667,15 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     private boolean isAgentNotFound(Agent agent, OperationResult result) {
         if (agent.isNull()) {
             result.notFound("Not Found", format("Agent '%s' not found", agent.getUuid()), general(GLOBAL));
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isAgentNotFound(AgentInstance agentInstance, OperationResult result) {
+        if (agentInstance.isNullAgent()) {
+            String agentNotFoundMessage = format("Agent '%s' not found.", agentInstance.getUuid());
+            result.notFound(agentNotFoundMessage, agentNotFoundMessage, general(GLOBAL));
             return true;
         }
         return false;

@@ -63,6 +63,7 @@ import static com.thoughtworks.go.serverhealth.ServerHealthState.warning;
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static com.thoughtworks.go.util.TriState.TRUE;
+import static com.thoughtworks.go.util.TriState.UNSET;
 import static com.thoughtworks.go.utils.Timeout.THIRTY_SECONDS;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
@@ -292,8 +293,11 @@ class AgentServiceTest {
             Username username = new Username(new CaseInsensitiveString("test"));
 
             when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
-            when(agentDao.getAgentByUUIDFromCacheOrDB(uuid)).thenReturn(agent);
-            when(agentInstances.findAgent(uuid)).thenReturn(mock(AgentInstance.class));
+            when(agentDao.fetchAgentFromDBByUUID(uuid)).thenReturn(agent);
+            AgentInstance agentInstance = mock(AgentInstance.class);
+            when(agentInstances.findAgent(uuid)).thenReturn(agentInstance);
+            when(agentInstance.isNullAgent()).thenReturn(false);
+            when(agentInstance.getUuid()).thenReturn(uuid);
 
             EnvironmentsConfig environmentConfigs = new EnvironmentsConfig();
             EnvironmentConfig repoEnvConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("config-repo-env"));
@@ -301,13 +305,13 @@ class AgentServiceTest {
             repoEnvConfig.addAgent(uuid);
             environmentConfigs.add(repoEnvConfig);
             environmentConfigs.add(new BasicEnvironmentConfig(new CaseInsensitiveString("non-config-repo-env")));
-            AgentInstance agentInstance = agentService.updateAgentAttributes(uuid, null, null, environmentConfigs, TRUE, result);
+            AgentInstance resultAgentInstance = agentService.updateAgentAttributes(uuid, null, null, environmentConfigs, TRUE, result);
 
             verify(agentDao).saveOrUpdate(any(Agent.class));
             assertTrue(result.isSuccess());
             assertThat(result.message(), is("Updated agent with uuid uuid."));
 
-            assertThat(agentInstance.getAgent().getEnvironments(), is("non-config-repo-env"));
+            assertThat(resultAgentInstance.getAgent().getEnvironments(), is("non-config-repo-env"));
         }
     }
 
@@ -507,15 +511,25 @@ class AgentServiceTest {
             }
         }
 
+        private String uuid;
+        private AgentInstance agentInstance;
+
+        @BeforeEach
+        void setUp() {
+            uuid = "uuid";
+            agentInstance = mock(AgentInstance.class);
+            when(agentInstances.findAgent(uuid)).thenReturn(agentInstance);
+            when(agentInstance.isNullAgent()).thenReturn(false);
+            when(agentInstance.getUuid()).thenReturn(uuid);
+        }
+
         @Test
         void shouldUpdateTheAgentAttributes() {
-            String uuid = "uuid";
             HttpOperationResult result = new HttpOperationResult();
             Username username = new Username(new CaseInsensitiveString("test"));
 
             when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
-            when(agentDao.getAgentByUUIDFromCacheOrDB(uuid)).thenReturn(agent);
-            when(agentInstances.findAgent(uuid)).thenReturn(mock(AgentInstance.class));
+            when(agentDao.fetchAgentFromDBByUUID(uuid)).thenReturn(agent);
 
             AgentInstance agentInstance = agentService.updateAgentAttributes(uuid, "new-hostname", "resource1,resource2", createEnvironmentsConfigWith("env1", "env2"), TRUE, result);
 
@@ -533,11 +547,9 @@ class AgentServiceTest {
 
         @Test
         void shouldThrow400IfNoOperationToPerform() {
-            String uuid = "uuid";
             HttpOperationResult result = new HttpOperationResult();
 
-            when(agentDao.getAgentByUUIDFromCacheOrDB(uuid)).thenReturn(agent);
-            when(agentInstances.findAgent(uuid)).thenReturn(mock(AgentInstance.class));
+            when(agentDao.fetchAgentFromDBByUUID(uuid)).thenReturn(agent);
 
             agentService.updateAgentAttributes(uuid, null, null, null, TriState.UNSET, result);
 
@@ -554,7 +566,7 @@ class AgentServiceTest {
             AgentInstance agentInstance = mock(AgentInstance.class);
 
             when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
-            when(agentDao.getAgentByUUIDFromCacheOrDB(uuid)).thenReturn(agent);
+            when(agentDao.fetchAgentFromDBByUUID(uuid)).thenReturn(agent);
             when(agentInstances.findAgent(uuid)).thenReturn(agentInstance);
             when(agentInstance.isNullAgent()).thenReturn(true);
             when(agentInstance.getUuid()).thenReturn(uuid);
@@ -563,21 +575,35 @@ class AgentServiceTest {
 
             verify(agentDao, times(0)).saveOrUpdate(any(Agent.class));
             assertThat(result.httpCode(), is(404));
-            assertThat(result.message(), is("Agent 'non-existent-uuid' not found."));
+            assertThat(result.message(), is(format("Agent '%s' not found.", uuid)));
         }
 
         @Test
-        void shouldThrow400IfEnvironmentsSpecifiedAsBlank() {
-            String uuid = "uuid";
+        void shouldThrow404IfAgentUuidIsIncorrectAndNoOpertionsArePeformedOnIt() {
+            String uuid = "non-existent-uuid";
             HttpOperationResult result = new HttpOperationResult();
             Username username = new Username(new CaseInsensitiveString("test"));
             AgentInstance agentInstance = mock(AgentInstance.class);
 
             when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
-            when(agentDao.getAgentByUUIDFromCacheOrDB(uuid)).thenReturn(agent);
             when(agentInstances.findAgent(uuid)).thenReturn(agentInstance);
-            when(agentInstance.isNullAgent()).thenReturn(false);
+            when(agentInstance.isNullAgent()).thenReturn(true);
             when(agentInstance.getUuid()).thenReturn(uuid);
+
+            agentService.updateAgentAttributes(uuid, "", "", new EnvironmentsConfig(), UNSET, result);
+
+            verify(agentDao, times(0)).saveOrUpdate(any(Agent.class));
+            assertThat(result.httpCode(), is(404));
+            assertThat(result.message(), is("Agent not found."));
+        }
+
+        @Test
+        void shouldThrow400IfEnvironmentsSpecifiedAsBlank() {
+            HttpOperationResult result = new HttpOperationResult();
+            Username username = new Username(new CaseInsensitiveString("test"));
+
+            when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
+            when(agentDao.getAgentByUUIDFromCacheOrDB(uuid)).thenReturn(agent);
 
             agentService.updateAgentAttributes(uuid, "new-hostname", "resource1,resource2", emptyEnvsConfig, TRUE, result);
 
@@ -588,16 +614,11 @@ class AgentServiceTest {
 
         @Test
         void shouldThrow400IfResourcesSpecifiedAsBlank() {
-            String uuid = "uuid";
             HttpOperationResult result = new HttpOperationResult();
             Username username = new Username(new CaseInsensitiveString("test"));
-            AgentInstance agentInstance = mock(AgentInstance.class);
 
             when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
             when(agentDao.getAgentByUUIDFromCacheOrDB(uuid)).thenReturn(agent);
-            when(agentInstances.findAgent(uuid)).thenReturn(agentInstance);
-            when(agentInstance.isNullAgent()).thenReturn(false);
-            when(agentInstance.getUuid()).thenReturn(uuid);
 
             agentService.updateAgentAttributes(uuid, "new-hostname", "", createEnvironmentsConfigWith("env1"), TRUE, result);
 
@@ -608,17 +629,12 @@ class AgentServiceTest {
 
         @Test
         void shouldThrow400IfOperationsPerformedOnPendingAgentWithoutUpdatingTheState() {
-            String uuid = "uuid";
             HttpOperationResult result = new HttpOperationResult();
             Username username = new Username(new CaseInsensitiveString("test"));
-            AgentInstance agentInstance = mock(AgentInstance.class);
 
             when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
             when(agentDao.getAgentByUUIDFromCacheOrDB(uuid)).thenReturn(agent);
-            when(agentInstances.findAgent(uuid)).thenReturn(agentInstance);
-            when(agentInstance.isNullAgent()).thenReturn(false);
             when(agentInstance.isPending()).thenReturn(true);
-            when(agentInstance.getUuid()).thenReturn(uuid);
 
             agentService.updateAgentAttributes(uuid, "new-hostname", "resource1", createEnvironmentsConfigWith("env1"), TriState.UNSET, result);
 
@@ -629,13 +645,11 @@ class AgentServiceTest {
 
         @Test
         void shouldThrow422IfResourceNamesAreInvalid() {
-            String uuid = "uuid";
             HttpOperationResult result = new HttpOperationResult();
             Username username = new Username(new CaseInsensitiveString("test"));
 
             when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
-            when(agentDao.getAgentByUUIDFromCacheOrDB(uuid)).thenReturn(agent);
-            when(agentInstances.findAgent(uuid)).thenReturn(mock(AgentInstance.class));
+            when(agentDao.fetchAgentFromDBByUUID(uuid)).thenReturn(agent);
 
             AgentInstance agentInstance = agentService.updateAgentAttributes(uuid, "new-hostname", "res%^1", createEnvironmentsConfigWith("env1"), TRUE, result);
 
@@ -650,13 +664,11 @@ class AgentServiceTest {
 
         @Test
         void shouldOnlyUpdateAttributesThatAreSpecified() {
-            String uuid = "uuid";
             HttpOperationResult result = new HttpOperationResult();
             Username username = new Username(new CaseInsensitiveString("test"));
 
             when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
-            when(agentDao.getAgentByUUIDFromCacheOrDB(uuid)).thenReturn(agent);
-            when(agentInstances.findAgent(uuid)).thenReturn(mock(AgentInstance.class));
+            when(agentDao.fetchAgentFromDBByUUID(uuid)).thenReturn(agent);
 
             AgentInstance agentInstance = agentService.updateAgentAttributes(uuid, null, null, createEnvironmentsConfigWith("env1", "env2"), TRUE, result);
 
@@ -699,7 +711,7 @@ class AgentServiceTest {
     }
 
     @Nested
-    class GetAgent{
+    class GetAgent {
         @Test
         void shouldGetAgentByUUID() {
             String uuid = "uuid";
@@ -726,7 +738,7 @@ class AgentServiceTest {
         }
 
         @Test
-        void shouldGetAllRegisteredAgentUUIDs(){
+        void shouldGetAllRegisteredAgentUUIDs() {
             AgentInstance agentInstance1 = AgentInstanceMother.idle();
             AgentInstance agentInstance2 = AgentInstanceMother.building();
             AgentInstance agentInstance3 = AgentInstanceMother.pending();
@@ -739,14 +751,14 @@ class AgentServiceTest {
         }
 
         @Test
-        void getAllRegisteredAgentUUIDsShouldReturnEmptyListOfUUIDsIfThereAreNoAgentInstancesInCache(){
+        void getAllRegisteredAgentUUIDsShouldReturnEmptyListOfUUIDsIfThereAreNoAgentInstancesInCache() {
             when(agentInstances.values()).thenReturn(emptyList());
             List<String> allAgentUUIDs = agentService.getAllRegisteredAgentUUIDs();
             assertTrue(allAgentUUIDs.isEmpty());
         }
 
         @Test
-        void getAllRegisteredAgentUUIDsShouldReturnEmptyListOfUUIDsIfThereAreNoRegisteredAgentInstancesInCache(){
+        void getAllRegisteredAgentUUIDsShouldReturnEmptyListOfUUIDsIfThereAreNoRegisteredAgentInstancesInCache() {
             AgentInstance notRegisteredAgentInstance = AgentInstanceMother.pending();
             when(agentInstances.values()).thenReturn(singletonList(notRegisteredAgentInstance));
             List<String> allAgentUUIDs = agentService.getAllRegisteredAgentUUIDs();
@@ -1038,10 +1050,10 @@ class AgentServiceTest {
     }
 
     @Nested
-    class RequestRegistration{
+    class RequestRegistration {
         @Test
-        void requestRegistrationShouldReturnNullPrivateKeyRegistrationWhenCalledWithPendingAgent(){
-            AgentRuntimeInfo runtimeInfo = fromServer(pending().getAgent(), false, "sandbox",0l, "linux", false);
+        void requestRegistrationShouldReturnNullPrivateKeyRegistrationWhenCalledWithPendingAgent() {
+            AgentRuntimeInfo runtimeInfo = fromServer(pending().getAgent(), false, "sandbox", 0l, "linux", false);
             AgentInstance agentInstance = mock(AgentInstance.class);
             Agent agent = mock(Agent.class);
 
@@ -1060,8 +1072,8 @@ class AgentServiceTest {
         }
 
         @Test
-        void requestRegistrationShouldReturnValidRegistrationWhenCalledWithRegisteredAgent(){
-            AgentRuntimeInfo runtimeInfo = fromServer(building().getAgent(), false, "sandbox",0l, "linux", false);
+        void requestRegistrationShouldReturnValidRegistrationWhenCalledWithRegisteredAgent() {
+            AgentRuntimeInfo runtimeInfo = fromServer(building().getAgent(), false, "sandbox", 0l, "linux", false);
             AgentInstance agentInstance = mock(AgentInstance.class);
             Agent agent = mock(Agent.class);
 
@@ -1085,12 +1097,12 @@ class AgentServiceTest {
         }
 
         @Test
-        void requestRegistrationShouldBombIfAgentToBeRegisteredHasValidationErrors(){
+        void requestRegistrationShouldBombIfAgentToBeRegisteredHasValidationErrors() {
             AgentInstance mockAgentInstance = mock(AgentInstance.class);
             Agent mockAgent = mock(Agent.class);
             Registration mockRegistration = mock(Registration.class);
 
-            AgentRuntimeInfo runtimeInfo = fromServer(building().getAgent(), false, "sandbox",0l, "linux", false);
+            AgentRuntimeInfo runtimeInfo = fromServer(building().getAgent(), false, "sandbox", 0l, "linux", false);
 
             when(agentInstances.register(runtimeInfo)).thenReturn(mockAgentInstance);
             when(mockAgentInstance.assignCertification()).thenReturn(mockRegistration);
@@ -1107,9 +1119,9 @@ class AgentServiceTest {
     }
 
     @Nested
-    class AgentChangeListenerMethods{
+    class AgentChangeListenerMethods {
         @Test
-        void whenAgentIsUpdatedInDBEntityChangedMethodShouldRefreshAgentInstanceCacheWithUpdatedAgent(){
+        void whenAgentIsUpdatedInDBEntityChangedMethodShouldRefreshAgentInstanceCacheWithUpdatedAgent() {
             AgentInstance agentInstanceBeforeUpdate = AgentInstanceMother.pending();
             Agent agentBeforeUpdate = agentInstanceBeforeUpdate.getAgent();
             Agent agentAfterUpdate = AgentMother.approvedAgent();
@@ -1126,7 +1138,7 @@ class AgentServiceTest {
         }
 
         @Test
-        void whenAgentIsCreatedInDBEntityChangedMethodShouldAddNewlyCreatedAgentToCache(){
+        void whenAgentIsCreatedInDBEntityChangedMethodShouldAddNewlyCreatedAgentToCache() {
             Agent agentAfterUpdate = AgentMother.approvedAgent();
             String uuid = agentAfterUpdate.getUuid();
             when(agentInstances.findAgent(uuid)).thenReturn(new NullAgentInstance(uuid));
@@ -1137,7 +1149,7 @@ class AgentServiceTest {
         }
 
         @Test
-        void WhenMultipleAgentsAreUpdatedInDBBulkEntitiesChangedMethodShouldCallEntityChangedMethodForEachUpdatedAgent(){
+        void WhenMultipleAgentsAreUpdatedInDBBulkEntitiesChangedMethodShouldCallEntityChangedMethodForEachUpdatedAgent() {
             Agents listOf2UpdatedAgents = createTwoAgentsAndAddItToListOfAgents();
 
             AgentService agentServiceSpy = Mockito.spy(agentService);
@@ -1149,7 +1161,7 @@ class AgentServiceTest {
         }
 
         @Test
-        void WhenMultipleAgentsAreDeletedInDBBulkEntitiesDeletedMethodShouldCallEntityDeletedMethodForEachDeletedAgent(){
+        void WhenMultipleAgentsAreDeletedInDBBulkEntitiesDeletedMethodShouldCallEntityDeletedMethodForEachDeletedAgent() {
             AgentService agentServiceSpy = Mockito.spy(agentService);
             doNothing().when(agentServiceSpy).entityDeleted(anyString());
 
@@ -1244,7 +1256,7 @@ class AgentServiceTest {
     }
 
     @Test
-    void shouldCreateAgentUsernameUsingSpecifiedInput(){
+    void shouldCreateAgentUsernameUsingSpecifiedInput() {
         String uuid = "uuid1";
         String ip = "127.0.0.1";
         String hostNameForDisplay = "localhost";
@@ -1254,7 +1266,7 @@ class AgentServiceTest {
     }
 
     @Test
-    void notifyJobCancelledEventShouldCallUpdateAgentAboutCancelledBuildOnItsAgentInstances(){
+    void notifyJobCancelledEventShouldCallUpdateAgentAboutCancelledBuildOnItsAgentInstances() {
         String uuid = "uuid";
         doNothing().when(agentInstances).updateAgentAboutCancelledBuild(uuid, true);
 
@@ -1263,7 +1275,7 @@ class AgentServiceTest {
     }
 
     @Test
-    void buildingMethodShouldDelegateToBuildingMethodOfAgentInstances(){
+    void buildingMethodShouldDelegateToBuildingMethodOfAgentInstances() {
         String uuid = "uuid";
         AgentBuildingInfo mockAgentBuildingInfo = mock(AgentBuildingInfo.class);
         doNothing().when(agentInstances).building(uuid, mockAgentBuildingInfo);
@@ -1273,7 +1285,7 @@ class AgentServiceTest {
     }
 
     @Test
-    void shouldDoNothingWhenRegisterAgentChangeListenerIsCalledWithNullListener(){
+    void shouldDoNothingWhenRegisterAgentChangeListenerIsCalledWithNullListener() {
         Set<AgentChangeListener> setOfListeners = new HashSet<>();
 
         agentService.setAgentChangeListeners(setOfListeners);
@@ -1283,7 +1295,7 @@ class AgentServiceTest {
     }
 
     @Test
-    void registerShouldSetResourcesEnvironmentsAndSaveAgentToDBWhenAgentWithCookieIsPassed(){
+    void registerShouldSetResourcesEnvironmentsAndSaveAgentToDBWhenAgentWithCookieIsPassed() {
         String agentAutoRegisterResources = "r1,r2";
         String agentAutoRegisterEnvs = "e1,e2";
 
@@ -1309,7 +1321,7 @@ class AgentServiceTest {
     }
 
     @Test
-    void registerShouldGenerateCookieSetResourcesEnvironmentsAndSaveAgentToDBWhenAgentWithoutCookieIsPassed(){
+    void registerShouldGenerateCookieSetResourcesEnvironmentsAndSaveAgentToDBWhenAgentWithoutCookieIsPassed() {
         String agentAutoRegisterResources = "r1,r2";
         String agentAutoRegisterEnvs = "e1,e2";
 
@@ -1335,7 +1347,7 @@ class AgentServiceTest {
     }
 
     @Test
-    void shouldRegisterAgentChangeListener(){
+    void shouldRegisterAgentChangeListener() {
         Set<AgentChangeListener> setOfListeners = new HashSet<>();
         agentService.setAgentChangeListeners(setOfListeners);
 

@@ -78,18 +78,6 @@ class AgentUpdateValidatorTest {
         }
 
         @Test
-        void shouldThrowExceptionWhenAgentsToBeUpdatedDoesNotExist() {
-            agentInstance = AgentInstanceMother.nullInstance();
-
-            assertThatCode(() -> newAgentUpdateValidator().validate())
-                    .isInstanceOf(RecordNotFoundException.class)
-                    .hasMessage(format("Agent with uuid '%s' was not found!", agentInstance.getUuid()));
-
-            assertEquals(404, result.httpCode());
-            assertEquals(format("Agent '%s' not found.", agentInstance.getUuid()), result.message());
-        }
-
-        @Test
         void shouldThrowExceptionWhenOpsArePerformedOnPendingAgents() {
             state = TriState.UNSET;
             agentInstance = AgentInstanceMother.pending();

@@ -47,7 +47,6 @@ public class AgentUpdateValidator {
     }
 
     public void validate() throws Exception {
-        bombWhenAgentsDoesNotExist();
         bombIfEnvironmentsSpecifiedAsEmpty(environments);
         bombIfResourcesSpecifiedAsBlank(resources);
         bombIfAnyOperationOnPendingAgent();
@@ -66,14 +65,6 @@ public class AgentUpdateValidator {
             String msg = "Resources are specified but they are blank.";
             result.badRequest(msg, msg, general(GLOBAL));
             throw new IllegalArgumentException(msg);
-        }
-    }
-
-    private void bombWhenAgentsDoesNotExist() {
-        if (agentInstance.isNullAgent()) {
-            String agentNotFoundMessage = format("Agent '%s' not found.", agentInstance.getUuid());
-            result.notFound(agentNotFoundMessage, agentNotFoundMessage, general(GLOBAL));
-            throw new RecordNotFoundException(EntityType.Agent, agentInstance.getUuid());
         }
     }
 

@@ -110,7 +110,7 @@ public class AgentsControllerV4 extends ApiController implements SparkSpringCont
         return writerForTopLevelObject(request, response, outputWriter -> AgentRepresenter.toJSON(outputWriter, agentInstance, environmentConfigService.environmentsFor(request.params("uuid")), securityService, currentUsername()));
     }
 
-    public String update(Request request, Response response) throws IOException {
+    public String update(Request request, Response response) {
         final String uuid = request.params("uuid");
         final AgentUpdateRequest agentUpdateRequest = AgentUpdateRequestRepresenter.fromJSON(request.body());
         final HttpOperationResult result = new HttpOperationResult();

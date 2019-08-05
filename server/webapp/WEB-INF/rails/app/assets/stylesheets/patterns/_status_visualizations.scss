@@ -32,27 +32,26 @@
 /**
  * =STATUS_TREATMENTS
 **/
-.Passed{
-  background-image: image_url('g9/backgrounds/bg_status_gradient.png');
-  background-repeat: repeat-x;
-  background-color: #78C42D;
+.Passed {
+  background-image:    image_url('g9/backgrounds/bg_status_gradient.png');
+  background-repeat:   repeat-x;
+  background-color:    #78C42D;
   background-position: bottom left;
 }
 
-.Failed{
-  background-image: image_url('g9/backgrounds/bg_status_gradient.png');
-  background-repeat: repeat-x;
-  background-color: #FA2D2D;
+.Failed {
+  background-image:    image_url('g9/backgrounds/bg_status_gradient.png');
+  background-repeat:   repeat-x;
+  background-color:    #FA2D2D;
   background-position: bottom left;
 }
 
 .Failing {
-  background: #f77e7f image_url('failing.gif') repeat-x 50% 50%;
+  background: #f77e7f image_url('failing.gif') repeat-x;
 }
 
 .stage_bar.Failing {
-  background: #f77e7f image_url('failing.svg') repeat-x 50% 50%;
-  background-size: 20%;
+  background: #f77e7f image_url('failing.gif') repeat-x;
 }
 
 .vsm-entity {
@@ -68,14 +67,14 @@
 
 .Building,
 .Active{
-  background-image: image_url('g9/backgrounds/bg_status_diagonal.png');
+  background-image: image_url('building.png');
   background-repeat: repeat-x;
   background-color: #FFC11B;
   background-position: bottom left;
 }
 
 .Cancelled {
-  background-image: image_url('g9/backgrounds/bg_status_diagonal.png');
+  background-image: image_url('building.png');
   background-repeat: repeat-x;
   background-color: #FFC11B;
   background-position: bottom left;

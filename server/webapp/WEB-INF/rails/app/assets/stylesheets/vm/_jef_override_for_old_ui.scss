@@ -188,20 +188,18 @@ h2#pipeline_activity_header,
 }
 
 #new-pipeline-history .failing-stage {
-    background: #f77e7f image_url('failing.gif') repeat-x 50% 50%;
+    background: #f77e7f image_url('failing.gif') repeat-x;
 }
 
 #new-pipeline-history .building-stage {
-    background:        transparent image_url('building.gif') repeat-x 50% 50%;
-    background-repeat: repeat-x;
-    background-color:  #ffc11b;
-    text-align:        center;
-    background-size:   100%;
+    background:       transparent image_url('building.gif') repeat-x;
+    background-color: #ffc11b;
+    text-align:       center;
 }
 
 #new-pipeline-history .cancelled-stage {
     background: none;
-    background-image: image_url('g9/backgrounds/bg_status_diagonal.png');
+    background-image: image_url('building.png');
     background-repeat: repeat-x;
     background-color: #ffc11b;
     text-align: center;

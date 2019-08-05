@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import sparkRoutes from "helpers/spark_routes";
+
 const $                = require('jquery');
 const _                = require('lodash');
 const mrequest         = require('helpers/mrequest');
 const TriStateCheckbox = require('models/agents/tri_state_checkbox');
-const Routes           = require('gen/js-routes');
 
 const getSortedResources = (resources, selectedAgents) => {
   const selectedAgentsResources = _.map(selectedAgents, (agent) => agent.resources());
@@ -32,7 +34,7 @@ Resources.all = (selectedAgents) => $.Deferred(function () {
 
   const jqXHR = $.ajax({
     method:      'GET',
-    url:         Routes.apiv1AdminInternalResourcesPath(),
+    url:         sparkRoutes.apiAdminInternalResourcesPath(),
     timeout:     mrequest.timeout,
     beforeSend:  mrequest.xhrConfig.forVersion('v1'),
     contentType: false

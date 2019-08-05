@@ -333,4 +333,8 @@ export default class {
   static mailServerConfigPath() {
     return "/go/api/config/mailserver";
   }
+
+  static apiAdminInternalResourcesPath() {
+    return "/go/api/admin/internal/resources";
+  }
 }

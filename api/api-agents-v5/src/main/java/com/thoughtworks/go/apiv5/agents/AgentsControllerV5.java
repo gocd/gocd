@@ -56,9 +56,12 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.apiv5.agents.representers.AgentRepresenter.toJSON;
+import static com.thoughtworks.go.apiv5.agents.representers.AgentUpdateRequestRepresenter.fromJSON;
 import static com.thoughtworks.go.util.CommaSeparatedString.commaSeparatedStrToList;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toCollection;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static spark.Spark.*;
 
 @SuppressWarnings("ALL")
@@ -124,13 +127,13 @@ public class AgentsControllerV5 extends ApiController implements SparkSpringCont
 
     public String update(Request request, Response response) {
         String uuid = request.params("uuid");
-        AgentUpdateRequest req = AgentUpdateRequestRepresenter.fromJSON(request.body());
+        AgentUpdateRequest req = fromJSON(request.body());
 
-        EnvironmentsConfig envsConfig = createEnvironmentsConfigFrom(req.getEnvironments());
         String hostname = req.getHostname();
         String resources = req.getResources();
         TriState configState = req.getAgentConfigState();
 
+        EnvironmentsConfig envsConfig = createEnvironmentsConfigFrom(req.getEnvironments());
         HttpOperationResult result = new HttpOperationResult();
         AgentInstance updatedAgentInstance = agentService.updateAgentAttributes(uuid, hostname, resources, envsConfig, configState, result);
 
@@ -155,25 +158,24 @@ public class AgentsControllerV5 extends ApiController implements SparkSpringCont
         return renderHTTPOperationResult(result, request, response);
     }
 
-    private EnvironmentsConfig createEnvironmentsConfigFrom(String commaSeparatedEnvironments) {
-        if (commaSeparatedEnvironments == null) {
+    private EnvironmentsConfig createEnvironmentsConfigFrom(String commaSeparatedEnvs) {
+        if (commaSeparatedEnvs == null) {
             return null;
         }
-        EnvironmentsConfig environmentConfigs = new EnvironmentsConfig();
-        if (StringUtils.isBlank(commaSeparatedEnvironments)) {
-            return environmentConfigs;
+
+        if (isBlank(commaSeparatedEnvs)) {
+            return new EnvironmentsConfig();
         }
 
-        return createEnvironmentsConfigFrom(commaSeparatedStrToList(commaSeparatedEnvironments));
+        return createEnvironmentsConfigFrom(commaSeparatedStrToList(commaSeparatedEnvs));
     }
 
     private EnvironmentsConfig createEnvironmentsConfigFrom(List<String> envList) {
         if (envList != null) {
-            EnvironmentsConfig collect = envList.stream()
+            return envList.stream()
                     .filter(StringUtils::isNotBlank)
                     .map(environmentConfigService::findOrDefault)
-                    .collect(Collectors.toCollection(EnvironmentsConfig::new));
-            return collect;
+                    .collect(toCollection(EnvironmentsConfig::new));
         }
         return new EnvironmentsConfig();
     }

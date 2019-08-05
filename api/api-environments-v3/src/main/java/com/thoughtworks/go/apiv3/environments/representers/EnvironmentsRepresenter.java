@@ -23,15 +23,15 @@ import com.thoughtworks.go.spark.Routes;
 import java.util.Collection;
 
 public class EnvironmentsRepresenter {
-    public static void toJSON(OutputWriter writer, Collection<EnvironmentConfig> environmentViewModelList) {
+    public static void toJSON(OutputWriter writer, Collection<EnvironmentConfig> envConfigList) {
         writer.addLinks(
                 outputLinkWriter -> outputLinkWriter
                         .addLink("self", Routes.Environments.BASE)
                         .addAbsoluteLink("doc", Routes.Environments.DOC))
                 .addChild("_embedded",
                         embeddedWriter -> embeddedWriter.addChildList("environments",
-                                                environmentsWriter -> environmentViewModelList.forEach(
-                                                        environment -> environmentsWriter.addChild(
-                                                                environmentWriter -> EnvironmentRepresenter.toJSON(environmentWriter, environment)))));
+                                environmentsWriter -> envConfigList.forEach(
+                                        environment -> environmentsWriter.addChild(
+                                                environmentWriter -> EnvironmentRepresenter.toJSON(environmentWriter, environment)))));
     }
 }

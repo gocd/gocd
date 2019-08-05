@@ -63,6 +63,89 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
   }
 
   @Nested
+  class Index {
+    @Nested
+    class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Override
+      String getControllerMethodUnderTest() {
+        return 'index'
+      }
+
+      @Override
+      void makeHttpCall() {
+        getWithApiHeader(controller.controllerPath())
+      }
+    }
+
+    @Nested
+    class AsAdmin {
+      @BeforeEach
+      void setUp() {
+        enableSecurity()
+        loginAsAdmin()
+      }
+
+      @Test
+      void 'should return sorted list of environments by name'() {
+        def prodEnv = new BasicEnvironmentConfig(new CaseInsensitiveString("prod"))
+        def devEnv = new BasicEnvironmentConfig(new CaseInsensitiveString("dev"))
+        def qaEnv = new BasicEnvironmentConfig(new CaseInsensitiveString("qa"))
+
+        prodEnv.addEnvironmentVariable("JAVA_HOME", "/bin/java")
+        prodEnv.addPipeline(new CaseInsensitiveString("Pipeline1"))
+        prodEnv.addPipeline(new CaseInsensitiveString("Pipeline2"))
+
+        def envConfigSet = new HashSet([qaEnv, devEnv, prodEnv])
+        when(environmentConfigService.getEnvironments()).thenReturn(envConfigSet)
+
+        getWithApiHeader(controller.controllerBasePath())
+
+        def sortedEnvConfigList = [devEnv, prodEnv, qaEnv]
+        assertThatResponse().hasBodyWithJsonObject(sortedEnvConfigList, EnvironmentsRepresenter)
+      }
+
+      @Test
+      void 'should return empty environments when there are no environments'() {
+        def expectedResponse = [
+          "_embedded": [
+            "environments": []
+          ],
+          "_links"   : [
+            "doc" : [
+              "href": "https://api.go.cd/current/#environment-config"
+            ],
+            "self": [
+              "href": "http://test.host/go/api/admin/environments"
+            ]
+          ]
+        ]
+
+        when(environmentConfigService.getEnvironments()).thenReturn(new HashSet<>([]))
+
+        getWithApiHeader(controller.controllerBasePath())
+
+        assertThatResponse().hasJsonBody(expectedResponse)
+      }
+
+      @Test
+      void 'should sort set of environment config'() {
+        EnvironmentConfig stageEnv = new BasicEnvironmentConfig(new CaseInsensitiveString("stage"))
+        EnvironmentConfig prodEnv = new BasicEnvironmentConfig(new CaseInsensitiveString("prod"))
+        EnvironmentConfig qa1Env = new BasicEnvironmentConfig(new CaseInsensitiveString("qa1"))
+        EnvironmentConfig qa2Env = new BasicEnvironmentConfig(new CaseInsensitiveString("qa2"))
+
+        def envConfigs = [qa1Env, stageEnv, prodEnv, qa2Env]
+
+        def sortedEnvConfigList = controller.toSortedEnvironmentConfigList(envConfigs as HashSet)
+        def expectedSortedList = envConfigs as ArrayList
+
+        expectedSortedList.sort{it.name()}
+        assert expectedSortedList == sortedEnvConfigList
+      }
+    }
+  }
+
+  @Nested
   class Show {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
@@ -86,7 +169,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
       }
 
       @Test
-      void 'should return a environment with given name'() {
+      void 'should return an environment config for a specified environment name'() {
         def env1 = new BasicEnvironmentConfig(new CaseInsensitiveString("env1"))
         env1.addEnvironmentVariable("JAVA_HOME", "/bin/java")
         env1.addPipeline(new CaseInsensitiveString("Pipeline1"))
@@ -104,7 +187,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
       }
 
       @Test
-      void 'should return error when environment with specified name is not found'() {
+      void 'should return 404 when environment with specified name is not found'() {
         when(environmentConfigService.getMergedEnvironmentforDisplay(eq("env1"), any(HttpLocalizedOperationResult.class)))
           .then({ InvocationOnMock invocation ->
           HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.getArguments().last()
@@ -157,7 +240,6 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
       }
     }
   }
-
 
   @Nested
   class Remove {
@@ -219,7 +301,6 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
       }
     }
   }
-
 
   @Nested
   class Update {
@@ -395,7 +476,6 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
     }
   }
 
-
   @Nested
   class PartialUpdate {
     @Nested
@@ -552,7 +632,6 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
     }
   }
 
-
   @Nested
   class Create {
     @Nested
@@ -575,7 +654,6 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
         enableSecurity()
         loginAsAdmin()
       }
-
 
       @Test
       void 'should create environment with specified parameters'() {
@@ -670,76 +748,6 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
         assertThatResponse()
           .isUnprocessableEntity()
           .hasJsonMessage("Failed to add environment 'env1'. Another environment with the same name already exists.")
-      }
-    }
-  }
-
-  @Nested
-  class Index {
-    @Nested
-    class Security implements SecurityTestTrait, AdminUserSecurity {
-      @Override
-      String getControllerMethodUnderTest() {
-        return 'index'
-      }
-
-      @Override
-      void makeHttpCall() {
-        getWithApiHeader(controller.controllerPath())
-      }
-    }
-
-    @Nested
-    class AsAdmin {
-      @BeforeEach
-      void setUp() {
-        enableSecurity()
-        loginAsAdmin()
-      }
-
-      @Test
-      void 'should sort environments by name and return all configured environments'() {
-        def prodEnv = new BasicEnvironmentConfig(new CaseInsensitiveString("prod"))
-        prodEnv.addEnvironmentVariable("JAVA_HOME", "/bin/java")
-        prodEnv.addPipeline(new CaseInsensitiveString("Pipeline1"))
-        prodEnv.addPipeline(new CaseInsensitiveString("Pipeline2"))
-
-        def devEnv = new BasicEnvironmentConfig(new CaseInsensitiveString("dev"))
-        def qaEnv = new BasicEnvironmentConfig(new CaseInsensitiveString("qa"))
-
-        def listOfEnvironmentConfigs = new HashSet([qaEnv, devEnv, prodEnv])
-
-        when(environmentConfigService.getEnvironments()).thenReturn(listOfEnvironmentConfigs)
-
-        getWithApiHeader(controller.controllerBasePath())
-
-        def environmentsConfigSortedByName = new LinkedHashSet([devEnv, prodEnv, qaEnv])
-        assertThatResponse()
-          .hasBodyWithJsonObject(environmentsConfigSortedByName, EnvironmentsRepresenter)
-      }
-
-
-      @Test
-      void 'should return empty environments when no environements are configured'() {
-        def expectedResponse = [
-          "_embedded": [
-            "environments": []
-          ],
-          "_links"   : [
-            "doc" : [
-              "href": "https://api.go.cd/current/#environment-config"
-            ],
-            "self": [
-              "href": "http://test.host/go/api/admin/environments"
-            ]
-          ]
-        ]
-
-        when(environmentConfigService.getEnvironments()).thenReturn(new HashSet<>([]))
-
-        getWithApiHeader(controller.controllerBasePath())
-
-        assertThatResponse().hasJsonBody(expectedResponse)
       }
     }
   }

@@ -89,17 +89,17 @@ class AgentsControllerV5Test implements SecurityServiceTrait, ControllerTrait<Ag
     @Test
     void "should return a list of agents"() {
       def instance = idle()
-      def instanceList = new ArrayList<AgentInstance>()
-      instanceList.add(instance)
+      def agentInstanceList = new ArrayList<AgentInstance>()
+      agentInstanceList.add(instance)
 
       def instances = mock(AgentInstances.class)
       when(agentService.getAgentInstances()).thenReturn(instances)
-      when(instances.values()).thenReturn(instanceList)
+      when(instances.values()).thenReturn(agentInstanceList)
 
-      def envConfigs = new HashSet<EnvironmentConfig>()
-      envConfigs.add(environment("env1"))
-      envConfigs.add(environment("env2"))
-      when(environmentConfigService.environmentConfigsFor(instance.getUuid())).thenReturn(envConfigs)
+      def environmentConfigs = new HashSet<EnvironmentConfig>()
+      environmentConfigs.add(environment("env1"))
+      environmentConfigs.add(environment("env2"))
+      when(environmentConfigService.environmentConfigsFor(instance.getUuid())).thenReturn(environmentConfigs)
 
       getWithApiHeader(controller.controllerPath())
 
@@ -171,6 +171,32 @@ class AgentsControllerV5Test implements SecurityServiceTrait, ControllerTrait<Ag
               "build_state"       : "Idle"
             ]
           ]
+        ]
+      ])
+    }
+
+    @Test
+    void "should return an empty list of agents if there are no agents available"() {
+      def mockAgentInstances = mock(AgentInstances.class)
+      when(mockAgentInstances.values()).thenReturn(new ArrayList<AgentInstance>())
+      when(agentService.getAgentInstances()).thenReturn(mockAgentInstances)
+
+      getWithApiHeader(controller.controllerPath())
+
+      assertThatResponse()
+        .isOk()
+        .hasContentType(controller.mimeType)
+        .hasJsonBody([
+        "_links"   : [
+          "self": [
+            "href": "http://test.host/go/api/agents"
+          ],
+          "doc" : [
+            "href": apiDocsUrl("#agents")
+          ]
+        ],
+        "_embedded": [
+          "agents": []
         ]
       ])
     }
@@ -277,17 +303,17 @@ class AgentsControllerV5Test implements SecurityServiceTrait, ControllerTrait<Ag
       loginAsAdmin()
       AgentInstance updatedAgentInstance = idleWith("uuid2", "agent02.example.com", "10.0.0.1", "/var/lib/bar", 10, "", asList("psql", "java"))
 
-      def environmentsConfig = new EnvironmentsConfig()
-      def environmentConfig = environment("env1")
-      when(environmentConfigService.findOrDefault("env1")).thenReturn(environmentConfig)
-      when(environmentConfigService.environmentConfigsFor("uuid2")).thenReturn(singleton(environmentConfig))
+      def envsConfig = new EnvironmentsConfig()
+      def envConfig = environment("env1")
+      when(environmentConfigService.findOrDefault("env1")).thenReturn(envConfig)
+      when(environmentConfigService.environmentConfigsFor("uuid2")).thenReturn(singleton(envConfig))
 
-      environmentsConfig.add(environmentConfig)
+      envsConfig.add(envConfig)
       when(agentService.updateAgentAttributes(
         eq("uuid2"),
         eq("agent02.example.com"),
         eq("java,psql"),
-        eq(environmentsConfig),
+        eq(envsConfig),
         eq(TriState.TRUE),
         any() as HttpOperationResult)
       ).thenReturn(updatedAgentInstance)
@@ -726,7 +752,7 @@ class AgentsControllerV5Test implements SecurityServiceTrait, ControllerTrait<Ag
     }
 
     @Test
-    void 'should render result in case of error'() {
+    void 'should throw 422 in case of any errors'() {
       loginAsAdmin()
 
       doAnswer({ InvocationOnMock invocation ->

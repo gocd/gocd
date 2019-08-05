@@ -26,7 +26,6 @@ import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.apiv3.environments.model.PatchEnvironmentRequest;
 import com.thoughtworks.go.apiv3.environments.representers.EnvironmentRepresenter;
-import com.thoughtworks.go.apiv3.environments.representers.EnvironmentsRepresenter;
 import com.thoughtworks.go.apiv3.environments.representers.PatchEnvironmentRequestRepresenter;
 import com.thoughtworks.go.config.BasicEnvironmentConfig;
 import com.thoughtworks.go.config.EnvironmentConfig;
@@ -55,7 +54,10 @@ import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.api.representers.EnvironmentVariableRepresenter.toJSONArray;
 import static com.thoughtworks.go.api.util.HaltApiResponses.*;
+import static com.thoughtworks.go.apiv3.environments.representers.EnvironmentsRepresenter.toJSON;
 import static java.lang.String.format;
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toList;
 import static spark.Spark.*;
 
 @Component
@@ -99,13 +101,14 @@ public class EnvironmentsControllerV3 extends ApiController implements SparkSpri
     }
 
     public String index(Request request, Response response) throws IOException {
-        List<EnvironmentConfig> environmentViewModelList = environmentConfigService.getEnvironments().stream()
-                .sorted(Comparator.comparing(EnvironmentConfig::name)).collect(Collectors.toList());
+        Set<EnvironmentConfig> envConfigSet = environmentConfigService.getEnvironments();
+        List<EnvironmentConfig> envViewModelList = toSortedEnvironmentConfigList(envConfigSet);
+        setEtagHeader(response, calculateEtag(envViewModelList));
+        return writerForTopLevelObject(request, response, outputWriter -> toJSON(outputWriter, envViewModelList));
+    }
 
-        setEtagHeader(response, calculateEtag(environmentViewModelList));
-
-        return writerForTopLevelObject(request, response,
-                outputWriter -> EnvironmentsRepresenter.toJSON(outputWriter, environmentViewModelList));
+    List<EnvironmentConfig> toSortedEnvironmentConfigList(Set<EnvironmentConfig> envConfigSet) {
+        return envConfigSet.stream().sorted(comparing(EnvironmentConfig::name)).collect(toList());
     }
 
     public String show(Request request, Response response) throws IOException {

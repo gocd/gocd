@@ -24,15 +24,15 @@ module ApiV1
     end
 
     link :current_user do |opts|
-      opts[:url_builder].apiv1_current_user_url
+      spark_url_for(opts, SparkRoutes::CurrentUser::BASE)
     end
 
     link :self do |opts|
-      opts[:url_builder].apiv1_user_url(login_name: login_name)
+      spark_url_for(opts, SparkRoutes::UserSummary.self(login_name))
     end
 
     link :find do |opts|
-      opts[:url_builder].apiv1_user_url(login_name: '__login_name__').gsub(/__login_name__/, ':login_name')
+      spark_url_for(opts, SparkRoutes::UserSummary.find())
     end
 
     property :login_name, exec_context: :decorator

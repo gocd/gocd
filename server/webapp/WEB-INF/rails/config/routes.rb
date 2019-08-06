@@ -199,26 +199,13 @@ Rails.application.routes.draw do
   scope :api, as: :apiv1, format: false do
     api_version(:module => 'ApiV1', header: {name: 'Accept', value: 'application/vnd.go.cd.v1+json'}) do
 
-      get 'current_user', controller: 'current_user', action: 'show'
-      patch 'current_user', controller: 'current_user', action: 'update'
-
       resources :notification_filters, only: [:index, :create, :destroy]
 
-      resources :users, param: :login_name, only: [:create, :index, :show, :destroy], constraints: {login_name: /(.*?)/} do
-        patch :update, on: :member
-      end
-
       namespace :admin do
-        namespace :security do
-          resources :roles, param: :role_name, except: [:new, :edit], constraints: {role_name: ROLE_NAME_FORMAT}
-        end
-
         namespace :templates do
           get ':template_name/authorization' => 'authorization#show', constraints: {template_name: TEMPLATE_NAME_FORMAT}
           put ':template_name/authorization' => 'authorization#update', constraints: {template_name: TEMPLATE_NAME_FORMAT}
         end
-
-        resources :templates, param: :template_name, except: [:new, :edit], constraints: {template_name: TEMPLATE_NAME_FORMAT}
 
         get 'environments/:environment_name/merged' => 'merged_environments#show', constraints: MERGED_ENVIRONMENT_NAME_CONSTRAINT, as: :merged_environment_show
         get 'environments/merged' => 'merged_environments#index', as: :merged_environment_index
@@ -227,10 +214,6 @@ Rails.application.routes.draw do
         resources :packages, param: :package_id, only: [:show, :destroy, :index, :create, :update], constraints: {package_id: ALLOW_DOTS}
         namespace :internal do
           post :material_test, controller: :material_test, action: :test, as: :material_test
-          controller :package_repository_check_connection do
-            post :repository_check_connection, [action: :repository_check_connection]
-            post :package_check_connection, [action: :package_check_connection]
-          end
           resources :pipelines, only: [:index]
           resources :environments, only: [:index]
         end
@@ -239,17 +222,6 @@ Rails.application.routes.draw do
       get 'version_infos/stale', controller: :version_infos, action: :stale, as: :stale_version_info
       get 'version_infos/latest_version', controller: :version_infos, action: :latest_version, as: :latest_version_info
       patch 'version_infos/go_server', controller: :version_infos, action: :update_server, as: :update_server_version_info
-
-      match '*url', via: :all, to: 'errors#not_found'
-    end
-  end
-
-  scope :api, as: :apiv2, format: false do
-    api_version(:module => 'ApiV2', header: {name: 'Accept', value: 'application/vnd.go.cd.v2+json'}) do
-      # These user routes are intentionally left behind for url helpers. These will actually be pointing to v3 in spark.
-      resources :users, param: :login_name, only: [:create, :index, :show, :destroy], constraints: {login_name: /(.*?)/}
-      delete 'users', controller: 'users', action: 'bulk_delete'
-      patch 'users/:login_name', to: 'users#update', constraints: {login_name: /(.*?)/}
 
       match '*url', via: :all, to: 'errors#not_found'
     end

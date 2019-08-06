@@ -20,7 +20,7 @@
   <h2 class="my-notifications">My Notifications</h2>
 
   <div id="notification-prefs" class="notification-content"
-       data-user-url="<%= apiv1_current_user_path(current_user.username.to_s) %>"
+       data-user-url="/go/api/current_user"
        data-filters-url="<%= apiv1_notification_filters_path(current_user.username.to_s) %>"
        data-pipelines="<%= @pipelines.to_json %>"
        data-smtp-configured="<%= go_config_service.isSmtpEnabled %>">

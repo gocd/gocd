@@ -18,7 +18,7 @@ require 'rails_helper'
 
 describe ApiV1::NotificationFiltersController do
   include ApiHeaderSetupForRouting
-  include ApiV4::ApiVersionHelper
+  include ApiV1::ApiVersionHelper
 
   before(:each) do
     login_as_user

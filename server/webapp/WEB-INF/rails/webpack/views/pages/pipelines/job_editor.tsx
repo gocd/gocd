@@ -17,8 +17,8 @@
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
 import {Job} from "models/pipeline_configs/job";
+import {IdentifierInputField} from "views/components/forms/common_validating_inputs";
 import {Form, FormBody} from "views/components/forms/form";
-import {TextField} from "views/components/forms/input_fields";
 import {IDENTIFIER_FORMAT_HELP_MESSAGE} from "./messages";
 
 interface Attrs {
@@ -29,7 +29,7 @@ export class JobEditor extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     return <FormBody>
       <Form last={true} compactForm={true}>
-        <TextField label="Job Name" helpText={IDENTIFIER_FORMAT_HELP_MESSAGE} placeholder="e.g., run-unit-tests" property={vnode.attrs.job.name} errorText={vnode.attrs.job.errors().errorsForDisplay("name")} required={true}/>
+        <IdentifierInputField label="Job Name" helpText={IDENTIFIER_FORMAT_HELP_MESSAGE} placeholder="e.g., run-unit-tests" property={vnode.attrs.job.name} errorText={vnode.attrs.job.errors().errorsForDisplay("name")} required={true}/>
       </Form>
     </FormBody>;
   }

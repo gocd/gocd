@@ -17,8 +17,8 @@
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
 import {Stage} from "models/pipeline_configs/stage";
+import {IdentifierInputField} from "views/components/forms/common_validating_inputs";
 import {Form, FormBody} from "views/components/forms/form";
-import {TextField} from "views/components/forms/input_fields";
 import {SwitchBtn} from "views/components/switch/index";
 import {TooltipSize} from "views/components/tooltip";
 import * as Tooltip from "views/components/tooltip";
@@ -35,7 +35,7 @@ export class StageEditor extends MithrilViewComponent<Attrs> {
 
     return <FormBody>
       <Form last={true} compactForm={true}>
-        <TextField label="Stage Name" helpText={IDENTIFIER_FORMAT_HELP_MESSAGE} placeholder="e.g., Test-and-Report" property={stage.name} errorText={stage.errors().errorsForDisplay("name")} required={true}/>
+        <IdentifierInputField label="Stage Name" helpText={IDENTIFIER_FORMAT_HELP_MESSAGE} placeholder="e.g., Test-and-Report" property={stage.name} errorText={stage.errors().errorsForDisplay("name")} required={true}/>
 
         <AdvancedSettings>
           <SwitchBtn label={<div>

@@ -76,7 +76,7 @@ class InternalCommandSnippetsControllerV1Test implements SecurityServiceTrait, C
 
 
       @Test
-      void 'should render 400 if no prefix is provided'() {
+      void 'should return 400 if no prefix is provided'() {
         def prefix = ""
         getWithApiHeader(controller.controllerPath([prefix: prefix]))
 
@@ -101,7 +101,7 @@ class InternalCommandSnippetsControllerV1Test implements SecurityServiceTrait, C
       }
 
       @Test
-      void 'should render not modified when ETag matches'() {
+      void 'should return not modified when ETag matches'() {
         def prefix = "curl"
         List<CommandSnippet> snippets = new ArrayList<>()
         when(commandRepositoryService.lookupCommand(prefix)).thenReturn(snippets)

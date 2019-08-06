@@ -17,11 +17,7 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.BasicCruiseConfig;
-import com.thoughtworks.go.config.BasicEnvironmentConfig;
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.EnvironmentsConfig;
 import com.thoughtworks.go.config.exceptions.InvalidPendingAgentOperationException;
-import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.helper.GoConfigMother;
@@ -31,8 +27,6 @@ import com.thoughtworks.go.util.TriState;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-
-import java.util.Arrays;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -45,8 +39,6 @@ class AgentUpdateValidatorTest {
     private HttpOperationResult result;
     private GoConfigService goConfigService;
     private AgentInstance agentInstance;
-    private EnvironmentsConfig environmentsConfig;
-    private String resources;
     private TriState state;
 
     @BeforeEach
@@ -59,26 +51,18 @@ class AgentUpdateValidatorTest {
         when(goConfigService.getEnvironments()).thenReturn(cruiseConfig.getEnvironments());
     }
 
-    private AgentUpdateValidator newAgentUpdateValidator() {
-        return new AgentUpdateValidator(agentInstance, environmentsConfig, resources, state, result);
-    }
-
     @Nested
     class Validations {
         @Test
-        void shouldNotThrowExceptionIfTheInputsAreValid() {
+        void shouldNotThrowValidationRelatedExceptionWhenAllSpecifiedAgentAttributesAreValid() {
             agentInstance = AgentInstanceMother.idle();
             state = TriState.TRUE;
-            environmentsConfig = createEnvironmentsConfigWith("uat");
 
-            assertThatCode(() -> newAgentUpdateValidator().validate())
-                    .doesNotThrowAnyException();
-
+            assertThatCode(() -> newAgentUpdateValidator().validate()).doesNotThrowAnyException();
             assertTrue(result.isSuccess());
         }
-
         @Test
-        void shouldThrowExceptionWhenOpsArePerformedOnPendingAgents() {
+        void shouldThrowExceptionWhenAnyOperationIsPerformedOnPendingAgent() {
             state = TriState.UNSET;
             agentInstance = AgentInstanceMother.pending();
 
@@ -92,45 +76,13 @@ class AgentUpdateValidatorTest {
 
         @Test
         void shouldPassValidationWhenEnvironmentsSpecifiedDoesNotExistsInConfigXML() {
-            environmentsConfig = createEnvironmentsConfigWith("prod", "dev");
-
             agentInstance = AgentInstanceMother.disabled();
-
-            assertThatCode(() -> newAgentUpdateValidator().validate())
-                    .doesNotThrowAnyException();
-
+            assertThatCode(() -> newAgentUpdateValidator().validate()).doesNotThrowAnyException();
             assertTrue(result.isSuccess());
         }
 
-        @Test
-        void shouldBombIfEnvsSpecifiedAsBlank() {
-            environmentsConfig = new EnvironmentsConfig();
-            AgentUpdateValidator agentUpdateValidator = newAgentUpdateValidator();
-
-            assertThatCode(() -> newAgentUpdateValidator().validate())
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessage("Environments are specified but they are blank.");
-
-            assertEquals(400, result.httpCode());
-            assertEquals("Environments are specified but they are blank.", result.message());
+        private AgentUpdateValidator newAgentUpdateValidator() {
+            return new AgentUpdateValidator(agentInstance, state, result);
         }
-
-        @Test
-        void shouldBombIfResourcesAreSpecifiedAsBlank() {
-            environmentsConfig = createEnvironmentsConfigWith("env");
-            resources = "";
-
-            assertThatCode(() -> newAgentUpdateValidator().validate())
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessage("Resources are specified but they are blank.");
-            assertEquals(400, result.httpCode());
-            assertEquals("Resources are specified but they are blank.", result.message());
-        }
-    }
-
-    private EnvironmentsConfig createEnvironmentsConfigWith(String... envs) {
-        EnvironmentsConfig envsConfig = new EnvironmentsConfig();
-        Arrays.stream(envs).forEach(env -> envsConfig.add(new BasicEnvironmentConfig(new CaseInsensitiveString(env))));
-        return envsConfig;
     }
 }

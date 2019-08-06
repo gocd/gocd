@@ -82,17 +82,18 @@ public class AgentsUpdateValidator {
     }
 
     private void bombWhenAnyOperationOnPendingAgents() throws InvalidPendingAgentOperationException {
-        List<String> pendingAgentUUIDs = agentInstances.filterBy(uuids, Pending);
+        List<String> pendingUUIDs = agentInstances.filterBy(uuids, Pending);
 
-        if (isEmpty(pendingAgentUUIDs)) {
+        if (isEmpty(pendingUUIDs)) {
             return;
         }
 
-        if (!(state.isTrue() || state.isFalse())) {
-            result.badRequest(format("Pending agents [%s] must be explicitly enabled or disabled when performing any operations on them.",
-                    commaSeparate(pendingAgentUUIDs)));
-            throw new InvalidPendingAgentOperationException(pendingAgentUUIDs);
+        if (state.isTrue() || state.isFalse()) {
+            return;
         }
+
+        result.badRequest(format("Pending agents [%s] must be explicitly enabled or disabled when performing any operations on them.", commaSeparate(pendingUUIDs)));
+        throw new InvalidPendingAgentOperationException(pendingUUIDs);
     }
 
     private void bombWhenElasticAgentResourcesAreUpdated() throws ElasticAgentsResourceUpdateException {

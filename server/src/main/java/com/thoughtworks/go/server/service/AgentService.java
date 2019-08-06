@@ -61,6 +61,7 @@ import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.*;
+import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.*;
 import static java.util.stream.StreamSupport.stream;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
@@ -135,19 +136,18 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         return agentInstances.findRegisteredAgents();
     }
 
-    public AgentInstance updateAgentAttributes(String uuid, String hostname, String resources, EnvironmentsConfig environments, TriState state, HttpOperationResult result) {
+    public AgentInstance updateAgentAttributes(String uuid, String hostname, String resources, EnvironmentsConfig envsConfig,
+                                               TriState state, HttpOperationResult result) {
         AgentInstance agentInstance = agentInstances.findAgent(uuid);
         if (isAgentNotFound(agentInstance, result)) {
             return null;
         }
-        AgentUpdateValidator validator = new AgentUpdateValidator(agentInstance, environments, resources, state, result);
+        AgentUpdateValidator validator = new AgentUpdateValidator(agentInstance, state, result);
         Agent agent = agentDao.fetchAgentFromDBByUUID(uuid);
         try {
-            if (isAnyOperationPerformedOnAgent(hostname, environments, resources, state, result)) {
+            if (isAnyOperationPerformedOnAgent(hostname, envsConfig, resources, state, result)) {
                 validator.validate();
-
-                setAgentAttributes(hostname, resources, environments, state, agent);
-
+                setAgentAttributes(hostname, resources, envsConfig, state, agent);
                 saveOrUpdate(agent);
 
                 if (agent.hasErrors()) {
@@ -178,7 +178,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
                 validator.validate();
 
                 List<Agent> agents = this.agentDao.getAgentsByUUIDs(uuids);
-                if (state.isTrue() || state.isFalse()) {
+                if (stateIsSet(state)) {
                     agents.addAll(agentInstances.filterPendingAgents(uuids));
                 }
 
@@ -612,9 +612,9 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         }
     }
 
-    private void setOnlyThoseEnvsThatAreNotAssociatedWithAgentFromConfigRepo(EnvironmentsConfig envsToSet, Agent agent) {
-        if (envsToSet != null) {
-            ArrayList<String> envsToSetList = envsToSet.stream()
+    private void setOnlyThoseEnvsThatAreNotAssociatedWithAgentFromConfigRepo(EnvironmentsConfig envsConfig, Agent agent) {
+        if (envsConfig != null) {
+            ArrayList<String> envsToSetList = envsConfig.stream()
                     .filter(env -> !env.containsAgentRemotely(agent.getUuid()))
                     .map(env -> env.name().toString())
                     .collect(toCollection(ArrayList::new));
@@ -711,12 +711,17 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
 
     private boolean isAnyOperationPerformedOnAgent(String hostname, EnvironmentsConfig environments,
                                                    String resources, TriState state, HttpOperationResult result) {
-        boolean performed = isNotBlank(resources) || isNotEmpty(environments) || isNotBlank(hostname) || state.isTrue() || state.isFalse();
-        if (!performed) {
+        boolean anyOperationPerformed = (resources != null || environments != null || hostname != null || stateIsSet(state));
+        if (!anyOperationPerformed) {
             String msg = "No Operation performed on agent.";
             result.badRequest(msg, msg, general(GLOBAL));
+            return false;
         }
-        return performed;
+        return true;
+    }
+
+    private boolean stateIsSet(TriState state) {
+        return state.isTrue() || state.isFalse();
     }
 
     private boolean isAnyOperationPerformedOnBulkAgents(List<String> resourcesToAdd, List<String> resourcesToRemove,

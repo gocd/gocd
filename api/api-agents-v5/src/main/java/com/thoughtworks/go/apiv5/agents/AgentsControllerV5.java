@@ -29,7 +29,6 @@ import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.apiv5.agents.model.AgentBulkUpdateRequest;
 import com.thoughtworks.go.apiv5.agents.model.AgentUpdateRequest;
 import com.thoughtworks.go.apiv5.agents.representers.AgentBulkUpdateRequestRepresenter;
-import com.thoughtworks.go.apiv5.agents.representers.AgentUpdateRequestRepresenter;
 import com.thoughtworks.go.apiv5.agents.representers.AgentsRepresenter;
 import com.thoughtworks.go.config.EnvironmentConfig;
 import com.thoughtworks.go.config.EnvironmentsConfig;
@@ -53,7 +52,6 @@ import spark.Response;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.apiv5.agents.representers.AgentRepresenter.toJSON;
 import static com.thoughtworks.go.apiv5.agents.representers.AgentUpdateRequestRepresenter.fromJSON;

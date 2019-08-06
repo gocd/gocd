@@ -172,6 +172,7 @@ public class AgentsControllerV5 extends ApiController implements SparkSpringCont
         if (envList != null) {
             return envList.stream()
                     .filter(StringUtils::isNotBlank)
+                    .map(String::trim)
                     .map(environmentConfigService::findOrDefault)
                     .collect(toCollection(EnvironmentsConfig::new));
         }

@@ -119,7 +119,7 @@ describe EnvironmentsController do
       assert_flash_message_and_class(controller.flash_message_service.get(flash_guid), "Added environment 'foo-environment'", 'success')
     end
 
-    it "should create a new environment with pipeline selections" do
+    it "should create a new environment with pipeline and agent selections" do
       allow(controller).to receive(:agent_service).and_return(@agent_service = double(AgentService))
       user = com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new('user_foo'))
       allow(controller).to receive(:current_user).and_return(user)
@@ -154,6 +154,7 @@ describe EnvironmentsController do
   end
 
   describe "create environment shows errors" do
+    include AgentMother
     render_views
 
     before :each do
@@ -212,6 +213,25 @@ describe EnvironmentsController do
 
       expect(response.status).to eq(400)
       expect(response.body).to have_selector("input[type='checkbox'][name='environment[pipelines][][name]'][id='pipeline_first'][checked='checked']")
+    end
+
+    it "should retain agent selection on error" do
+      allow(controller).to receive(:agent_service).and_return(@agent_service = double(AgentService))
+      current_user = com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new('user_foo'))
+      allow(controller).to receive(:current_user).and_return(current_user)
+      expect(@environment_config_service).to receive(:getAllLocalPipelinesForUser).with(current_user).and_return([])
+
+      agent1 = idle_agent()
+
+      agents_view_model = AgentsViewModel.new()
+      agents_view_model.add(agent1)
+
+      expect(@agent_service).to receive(:getRegisteredAgentsViewModel).and_return(agents_view_model)
+
+      post :create, params: {:no_layout => true, :environment => {'agents' => [{'uuid' => "uuid2"}]}}
+
+      expect(response.status).to eq(400)
+      expect(response.body).to have_selector("input[type='checkbox'][name='environment[agents][][uuid]'][value='uuid2'][checked='true']")
     end
   end
 
@@ -296,7 +316,7 @@ describe EnvironmentsController do
       expect(@environment_config_service).to receive(:getAllRemotePipelinesForUserInEnvironment).with(@user, @environment).and_return([])
 
       expect(@agent_service).to receive(:updateAgentsAssociationWithSpecifiedEnv).with(@environment, ['uuid-1'], result) do
-        result.badRequest("Updated agent(s) with uuid(s): [uuid-1]")
+        result.setMessage("Updated agent(s) with uuid(s): [uuid-1]")
       end
       expect(@environment_config_service).to receive(:updateEnvironment).with(@environment_name, @environment, @user, 'md5', anything) do |old_config, new_config, user, md5, result1|
         result1.setMessage("Updated environment 'foo_env'.")
@@ -330,13 +350,11 @@ describe EnvironmentsController do
       config_new.setAgents(env_agents_conf)
 
       expect(@agent_service).to receive(:updateAgentsAssociationWithSpecifiedEnv).with(config_new, ["uuid-1"], anything) do |env_config, agents, result|
-        puts '\n\nSetting bad request on result object\n\n'
         result.badRequest("Request is bad!")
       end
 
       put :update, params: {:no_layout => true, :environment => {'agents' => [{'uuid' => "uuid-1"}], 'name' => 'foo_env'},
                             :name => "foo_env", :cruise_config_md5 => 'md5'}
-      puts "Response : #{response}"
       expect(response.status).to eq(400)
       expect(response.body).to match('Request is bad!')
     end
@@ -400,7 +418,8 @@ describe EnvironmentsController do
         result.setMessage("Updated agent(s) with uuid(s): [uuid-1, 'uuid-3'].")
       end
 
-      put :update, params: {:no_layout => true, :environment => {'agents' => [{'uuid' => "uuid-1"}, {'uuid' => "uuid-3"}], 'name' => 'foo_env'},
+      put :update, params: {:no_layout => true,
+                            :environment => {'agents' => [{'uuid' => "uuid-1"}, {'uuid' => "uuid-3"}], 'name' => 'foo_env'},
                             :name => "foo_env", :cruise_config_md5 => 'md5'}
       expect(response).to be_success
       expect(response.location).to match(/^\/admin\/environments\?.*?fm=/)
@@ -429,12 +448,11 @@ describe EnvironmentsController do
       config_new.setAgents(env_agents_conf)
 
       expect(@agent_service).to receive(:updateAgentsAssociationWithSpecifiedEnv).with(config_new, ["uuid-1"], anything) do
-        result.setMessage("Updated agent(s) with uuid(s): [uuid-1, 'uuid-2'].")
+        result.setMessage("Updated agent(s) with uuid(s): [uuid-1].")
       end
 
       put :update, params: {:no_layout => true, :environment => {'agents' => [{'uuid' => "uuid-1"}], 'name' => 'foo_env'},
                             :name => "foo_env", :cruise_config_md5 => 'md5'}
-      puts "response: #{response.body}"
       expect(response).to be_success
       expect(response.location).to match(/^\/admin\/environments\?.*?fm=/)
       flash_guid = $1 if response.location =~ /environments\?.*?fm=(.+)/
@@ -446,7 +464,11 @@ describe EnvironmentsController do
   end
 
   describe "edit" do
+    include AgentMother
     render_views
+
+    user = com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new('user_foo'))
+
     before(:each) do
       @environment_name = "foo-environment"
       @environment = BasicEnvironmentConfig.new(CaseInsensitiveString.new(@environment_name))
@@ -456,11 +478,10 @@ describe EnvironmentsController do
       allow(controller).to receive(:environment_config_service).and_return(@environment_config_service = double('environment_config_service', :isEnvironmentFeatureEnabled => true))
       allow(controller).to receive(:agent_service).and_return(@agent_service = double('agent_service'))
       allow(controller).to receive(:security_service).and_return(@security_service = double(SecurityService))
-      user = com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new('user_foo'))
       @config_helper = com.thoughtworks.go.util.GoConfigFileHelper.new
       @config_helper.onSetUp()
       @config_helper.using_cruise_config_dao(Spring.bean('goConfigDao'))
-      allow(controller).to receive(:current_user).and_return(com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new('user_foo')))
+      allow(controller).to receive(:current_user).and_return(user)
       @config_helper.addAdmins(["user_foo"].to_java(:string))
       @config_helper.addEnvironments([@environment_name])
       @config_helper.addEnvironmentVariablesToEnvironment(@environment_name, "name_foo", "value_bar")
@@ -489,7 +510,6 @@ describe EnvironmentsController do
     end
 
     it "should load existing pipelines as checked for pipeline edit" do
-      user = com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new('user_foo'))
       @config_helper.addPipelineWithGroup("foo-group", "foo", "dev", ["unit"].to_java(:string))
       @config_helper.addPipelineToEnvironment(@environment_name, "foo")
 
@@ -511,6 +531,31 @@ describe EnvironmentsController do
       expect(response.body).to have_selector("input[type='checkbox'][name='environment[pipelines][][name]'][value='foo'][checked='checked']")
       expect(response.body).to have_selector("label", "bar (another_env)")
       expect(response.body).to have_selector("form input[type='checkbox'][name='environment[pipelines][][name]'][value='baz']")
+    end
+
+    it 'should load existing agents as checked for agents edit' do
+      @environment.addAgent("uuid2")
+      expect(@environment_config_service).to receive(:getMergedEnvironmentforDisplay).with(@environment_name, an_instance_of(HttpLocalizedOperationResult)).and_return(com.thoughtworks.go.domain.ConfigElementForEdit.new(@environment, "md5"))
+      expect(@environment_config_service).to receive(:getEnvironmentForEdit).with(@environment_name).and_return(@environment)
+      expect(@environment_config_service).to receive(:getAllLocalPipelinesForUser).with(user).and_return([])
+      expect(@environment_config_service).to receive(:getAllRemotePipelinesForUserInEnvironment).with(anything, anything).and_return([])
+
+      agent1 = idle_agent({:environments => [@environment_name]})
+      agent2 = building_agent({:environments => ["another-env"]})
+
+      agents_view_model = AgentsViewModel.new()
+      agents_view_model.add(agent1)
+      agents_view_model.add(agent2)
+
+      expect(@agent_service).to receive(:getRegisteredAgentsViewModel).and_return(agents_view_model)
+
+      get :edit_agents, params: {:name => "foo-environment", :no_layout => true}
+
+      expect(assigns[:environment]).to_not be_nil
+
+      expect(response.body).to have_selector("input[type='checkbox'][name='environment[agents][][uuid]'][value='uuid2'][checked='true']")
+      expect(response.body).to have_selector("input[type='checkbox'][name='environment[agents][][uuid]'][value='uuid3']")
+
     end
 
     it "should fail agent_edit for a non existing environment" do

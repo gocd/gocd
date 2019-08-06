@@ -573,6 +573,171 @@ class AgentsControllerV4Test implements SecurityServiceTrait, ControllerTrait<Ag
         .hasContentType(controller.mimeType)
         .hasJsonMessage("Updated agent(s) with uuid(s): [agent-1, agent-2].")
     }
+
+    @Nested
+    class Environments {
+      @Test
+      void 'should pass proper environments config object to service given list of environments'() {
+        loginAsAdmin()
+
+        def environmentsConfig = new EnvironmentsConfig()
+        def environmentConfig = environment("env1")
+        def environmentConfig1 = environment("env2")
+        environmentsConfig.add(environmentConfig)
+        environmentsConfig.add(environmentConfig1)
+
+        when(environmentConfigService.findOrDefault("env1")).thenReturn(environmentConfig)
+        when(environmentConfigService.findOrDefault("env2")).thenReturn(environmentConfig1)
+        when(environmentConfigService.environmentsFor("uuid2")).thenReturn(singleton("env1"))
+
+        doAnswer({ InvocationOnMock invocation ->
+          def result = invocation.getArgument(6) as HttpLocalizedOperationResult
+          result.setMessage("Updated agent(s) with uuid(s): [uuid2].")
+
+        }).when(agentService).bulkUpdateAgentAttributes(
+          any() as List<String>,
+          any() as List<String>,
+          any() as List<String>,
+          any() as EnvironmentsConfig,
+          any() as List<String>,
+          any() as TriState,
+          any() as LocalizedOperationResult)
+
+        def requestBody = [
+          "uuids"             : [
+            "uuid2"
+          ],
+          "operations"        : [
+            "environments": [
+              "add"   : ["   env1", " env2 "],
+              "remove": ["Production"]
+            ]
+          ],
+          "agent_config_state": "enabled"
+        ]
+
+        patchWithApiHeader(controller.controllerPath(), requestBody)
+
+        verify(agentService).bulkUpdateAgentAttributes(
+          eq(singletonList("uuid2")),
+          eq(emptyList()),
+          eq(emptyList()),
+          eq(environmentsConfig),
+          eq(singletonList("Production")),
+          eq(TriState.TRUE),
+          any() as LocalizedOperationResult)
+
+        assertThatResponse()
+          .isOk()
+          .hasContentType(controller.mimeType)
+          .hasJsonBody([
+          "message": "Updated agent(s) with uuid(s): [uuid2]."
+        ])
+      }
+
+      @Test
+      void 'should pass empty environments config object to service given empty list of environments'() {
+        loginAsAdmin()
+
+        def environmentsConfig = new EnvironmentsConfig()
+
+        doAnswer({ InvocationOnMock invocation ->
+          def result = invocation.getArgument(6) as HttpLocalizedOperationResult
+          result.setMessage("Updated agent(s) with uuid(s): [uuid2].")
+
+        }).when(agentService).bulkUpdateAgentAttributes(
+          any() as List<String>,
+          any() as List<String>,
+          any() as List<String>,
+          any() as EnvironmentsConfig,
+          any() as List<String>,
+          any() as TriState,
+          any() as LocalizedOperationResult)
+
+        def requestBody = [
+          "uuids"             : [
+            "uuid2"
+          ],
+          "operations"        : [
+            "environments": [
+              "add"   : [" "],
+              "remove": ["Production"]
+            ]
+          ],
+          "agent_config_state": "enabled"
+        ]
+
+        def expectedJson = [
+          "message": "Updated agent(s) with uuid(s): [uuid2]."
+        ]
+
+        patchWithApiHeader(controller.controllerPath(), requestBody)
+
+        verify(agentService).bulkUpdateAgentAttributes(
+          eq(singletonList("uuid2")),
+          eq(emptyList()),
+          eq(emptyList()),
+          eq(environmentsConfig),
+          eq(singletonList("Production")),
+          eq(TriState.TRUE),
+          any() as LocalizedOperationResult)
+
+        assertThatResponse()
+          .isOk()
+          .hasContentType(controller.mimeType)
+          .hasJsonBody(expectedJson)
+      }
+
+      @Test
+      void 'should pass empty environments config object to service given null list of environments'() {
+        loginAsAdmin()
+
+        def environmentsConfig = new EnvironmentsConfig()
+
+        doAnswer({ InvocationOnMock invocation ->
+          def result = invocation.getArgument(6) as HttpLocalizedOperationResult
+          result.setMessage("Updated agent(s) with uuid(s): [uuid2].")
+        }).when(agentService).bulkUpdateAgentAttributes(
+          any() as List<String>,
+          any() as List<String>,
+          any() as List<String>,
+          any() as EnvironmentsConfig,
+          any() as List<String>,
+          any() as TriState,
+          any() as LocalizedOperationResult)
+
+        def requestBody = [
+          "uuids"             : [
+            "uuid2"
+          ],
+          "operations"        : [
+            "environments": [
+              "remove": ["Production"]
+            ]
+          ],
+          "agent_config_state": "enabled"
+        ]
+
+        def expectedJson = [
+          "message": "Updated agent(s) with uuid(s): [uuid2]."
+        ]
+        patchWithApiHeader(controller.controllerPath(), requestBody)
+
+        verify(agentService).bulkUpdateAgentAttributes(
+          eq(singletonList("uuid2")),
+          eq(emptyList()),
+          eq(emptyList()),
+          eq(environmentsConfig),
+          eq(singletonList("Production")),
+          eq(TriState.TRUE),
+          any() as LocalizedOperationResult)
+
+        assertThatResponse()
+          .isOk()
+          .hasContentType(controller.mimeType)
+          .hasJsonBody(expectedJson)
+      }
+    }
   }
 
   @Nested
@@ -722,7 +887,7 @@ class AgentsControllerV4Test implements SecurityServiceTrait, ControllerTrait<Ag
       }
 
       @Test
-      void 'should delete agents with uuids when list of UUIDs is passed as null'() {
+      void 'should result in sucess when list of UUIDs to be deleted is passed as null'() {
         loginAsAdmin()
 
         doAnswer({ InvocationOnMock invocation ->
@@ -741,7 +906,7 @@ class AgentsControllerV4Test implements SecurityServiceTrait, ControllerTrait<Ag
       }
 
       @Test
-      void 'should delete agents with uuids when empty list of UUIDs is passed'() {
+      void 'should result in success when empty list of UUIDs to be deleted is passed'() {
         loginAsAdmin()
 
         doAnswer({ InvocationOnMock invocation ->
@@ -749,7 +914,7 @@ class AgentsControllerV4Test implements SecurityServiceTrait, ControllerTrait<Ag
           result.ok("Deleted 0 agent(s).")
         }).when(agentService).deleteAgents(eq(emptyList()), any() as HttpOperationResult)
 
-        def requestBody = [ "uuids":[] ]
+        def requestBody = ["uuids": []]
 
         deleteWithApiHeader(controller.controllerPath(), requestBody)
 

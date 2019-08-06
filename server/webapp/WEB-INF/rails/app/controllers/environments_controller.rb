@@ -60,39 +60,23 @@ class EnvironmentsController < ApplicationController
     result2 = HttpLocalizedOperationResult.new
 
     if !selectedUUIDs.empty?
-        puts 'There are selected agents...'
-        puts
         agent_service.updateAgentsAssociationWithSpecifiedEnv(original_env_config, selectedUUIDs, result1)
 
-        puts 'Agents are updated in DB...'
-        puts
         @result = result1
         if result1.isSuccessful()
-          # Environment is created successfully in config XML. Now let's associate that env with agents in DB."
-          puts 'Adding environment in config XML...'
-          puts
+          # Env were successfully associated with agents in DB. Now creating env in the config
           environment_config_service.createEnvironment(@environment, current_user, result2)
-          puts 'Hurray....! Environment is successfully added in config XML!'
-          puts
           @result = result2
         end
 
         if result1.isSuccessful() && !result2.isSuccessful()
-          # Error while associating that env with agents in DB. So rolling back (deleting environment from) config XML
-          puts 'Rolling back DB changes...'
-          puts
+          # Error while creating that env in config. So rolling back (deleting environment association from agents) in DB
           result3 = HttpLocalizedOperationResult.new
           agent_service.updateAgentsAssociationWithSpecifiedEnv(original_env_config, [], result3)
-          puts 'Rollback done!'
-          puts
         end
     else
-        puts 'No agents are selected, hence just adding an environment in config XML...'
-        puts
         environment_config_service.createEnvironment(@environment, current_user, result1)
 
-        puts 'Hurray....! Environment is successfully added in config XML!'
-        puts
         @result = result1
     end
 

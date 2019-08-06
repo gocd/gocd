@@ -139,7 +139,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
         def sortedEnvConfigList = controller.toSortedEnvironmentConfigList(envConfigs as HashSet)
         def expectedSortedList = envConfigs as ArrayList
 
-        expectedSortedList.sort{it.name()}
+        expectedSortedList.sort { it.name() }
         assert expectedSortedList == sortedEnvConfigList
       }
     }
@@ -325,7 +325,6 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
         loginAsAdmin()
       }
 
-
       @Test
       void 'should error out on update if environment rename is attempted'() {
         def existingConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("env1"))
@@ -396,7 +395,6 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
           .hasBodyWithJsonObject(env1, EnvironmentRepresenter)
       }
 
-
       @Test
       void 'should error out if there are errors in parsing environment config'() {
         def json = [
@@ -457,7 +455,6 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
           .isUnprocessableEntity()
           .hasJsonBody(expectedResponse)
       }
-
 
       @Test
       void 'should error out if the environment does not exist'() {
@@ -527,8 +524,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
             result.setMessage("Updated environment '\" + oldEnvironmentConfigName + \"'.")
         })
 
-
-        patchWithApiHeader(controller.controllerPath("env1"), [
+        def patchRequestJson = [
           "pipelines"            : [
             "add"   : [
               "Pipeline1", "Pipeline2"
@@ -548,7 +544,9 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
               "URL"
             ]
           ]
-        ])
+        ]
+
+        patchWithApiHeader(controller.controllerPath("env1"), patchRequestJson)
 
         assertThatResponse()
           .isOk()
@@ -584,8 +582,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
             result.setMessage("Updated environment '\" + oldEnvironmentConfigName + \"'.")
         })
 
-
-        patchWithApiHeader(controller.controllerPath("env1"), [
+        def patchRequestJson = [
           "pipelines"            : [
             "add"   : [
               "Pipeline1", "Pipeline2"
@@ -605,29 +602,33 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
               "URL"
             ]
           ]
-        ])
+        ]
 
-        assertThatResponse()
-          .hasJsonBody([
-          "data": [
+        def expectedJson = [
+          "data"   : [
             "environment_variables": [
               [
                 "encrypted_value": new GoCipher().encrypt("/bin/java"),
-                "errors": [
+                "errors"         : [
                   "encrypted_value": [
                     "You may only specify `value` or `encrypted_value`, not both!"
                   ],
-                  "value": [
+                  "value"          : [
                     "You may only specify `value` or `encrypted_value`, not both!"
                   ]
                 ],
-                "name": "JAVA_HOME",
-                "secure": true
+                "name"           : "JAVA_HOME",
+                "secure"         : true
               ]
             ]
           ],
           "message": "Error parsing patch request"
-        ])
+        ]
+
+        patchWithApiHeader(controller.controllerPath("env1"), patchRequestJson)
+
+        assertThatResponse()
+          .hasJsonBody(expectedJson)
       }
     }
   }

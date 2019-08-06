@@ -14,9 +14,23 @@
 -- limitations under the License.
 --
 
--- even though the elastic profile ID definition in the config XML allows only 255 chars
+-- even though the elastic profile ID and plugin ID definition in the config XML allows only 255 chars
 -- agents (during testing) can possibly register with more number of characters. So we keep
 -- it to 2K.
-ALTER TABLE agents ADD COLUMN elasticAgentId VARCHAR(2048) DEFAULT NULL;
+
+ALTER TABLE agents
+  ADD COLUMN elasticAgentId VARCHAR(2048) DEFAULT NULL,
+  ADD COLUMN elasticPluginId VARCHAR(2048) DEFAULT NULL,
+  ADD COLUMN disabled BOOLEAN DEFAULT TRUE,
+  ADD COLUMN environments CLOB DEFAULT NULL,
+  ADD COLUMN resources CLOB DEFAULT NULL,
+  ADD COLUMN deleted BOOLEAN DEFAULT FALSE;
 
 --//@UNDO
+ALTER TABLE agents
+  DROP COLUMN elasticAgentId,
+  DROP COLUMN elasticPluginId,
+  DROP COLUMN disabled,
+  DROP COLUMN environments,
+  DROP COLUMN resources,
+  DROP COLUMN deleted;

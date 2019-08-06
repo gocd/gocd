@@ -105,6 +105,10 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
 
     @Override
     public ConfigFileList getConfigFiles(String pluginId, final String destinationFolder, final Collection<CRConfigurationProperty> configurations) {
+        String resolvedExtensionVersion = pluginManager.resolveExtensionVersion(pluginId, CONFIG_REPO_EXTENSION, goSupportedVersions);
+        if (resolvedExtensionVersion.equals("1.0") || resolvedExtensionVersion.equals("2.0")) {
+            return ConfigFileList.withError("Unsupported Operation", "This plugin version does not support list config files");
+        }
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_CONFIG_FILES, new DefaultPluginInteractionCallback<ConfigFileList>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {

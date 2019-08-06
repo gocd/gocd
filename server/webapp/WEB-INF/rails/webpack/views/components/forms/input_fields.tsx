@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import classnames from "classnames";
+import {bind} from "classnames/bind";
 import * as clipboard from "clipboard-polyfill";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
@@ -26,6 +26,8 @@ import * as Buttons from "views/components/buttons";
 import {EncryptedValue} from "views/components/forms/encrypted_value";
 import {SwitchBtn} from "views/components/switch";
 import * as styles from "./forms.scss";
+
+const classnames = bind(styles);
 
 export interface RequiredFieldAttr {
   required?: boolean;

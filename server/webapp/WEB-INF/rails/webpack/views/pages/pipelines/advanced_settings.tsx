@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-import classnames from "classnames";
+import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
 import * as css from "./advanced_settings.scss";
+
+const cls = bind(css);
 
 interface Attrs {
   forceOpen?: boolean;
@@ -40,7 +42,7 @@ export class AdvancedSettings extends MithrilViewComponent<Attrs> {
   }
 
   view(vnode: m.Vnode<Attrs>): m.Children | void | null {
-    return <dl class={classnames(css.advancedSettings, {[css.lockOpen]: vnode.attrs.forceOpen})}>
+    return <dl class={cls(css.advancedSettings, {[css.lockOpen]: vnode.attrs.forceOpen})}>
       <dt class={css.summary}>Advanced Settings</dt>
       <dd class={css.details}>{vnode.children}</dd>
     </dl>;

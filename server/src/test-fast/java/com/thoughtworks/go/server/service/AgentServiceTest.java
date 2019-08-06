@@ -33,6 +33,7 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.persistence.AgentDao;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
+import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.server.ui.AgentViewModel;
 import com.thoughtworks.go.server.ui.AgentsViewModel;
 import com.thoughtworks.go.server.util.UuidGenerator;
@@ -107,6 +108,104 @@ class AgentServiceTest {
     }
 
     @Nested
+    class AnyOperationPerformedOnAgents {
+        final String NOT_NULL_VALUE = "any.not.null.value-even.empty.string.would.have.worked";
+
+        @Nested
+        class SingleAgent {
+            @Test
+            void shouldReturnTrueIfOnlyHostNameValueIsSpecifiedAsNotNull() {
+                HttpOperationResult result = new HttpOperationResult();
+                TriState unsetState = TriState.UNSET;
+                boolean anyOpsPerformed = agentService.isAnyOperationPerformedOnAgent(NOT_NULL_VALUE, null, null, unsetState, result);
+                assertThat(anyOpsPerformed, is(true));
+            }
+
+            @Test
+            void shouldReturnTrueIfOnlyEnvironmentsValueIsSpecifiedAsNotNull() {
+                HttpOperationResult result = new HttpOperationResult();
+                TriState unsetState = TriState.UNSET;
+                boolean anyOpsPerformed = agentService.isAnyOperationPerformedOnAgent(null, emptyEnvsConfig, null, unsetState, result);
+                assertThat(anyOpsPerformed, is(true));
+            }
+
+            @Test
+            void shouldReturnTrueIfOnlyResourcesValueIsSpecifiedAsNotNull() {
+                HttpOperationResult result = new HttpOperationResult();
+                TriState unsetState = TriState.UNSET;
+                boolean anyOpsPerformed = agentService.isAnyOperationPerformedOnAgent(null, null, NOT_NULL_VALUE, unsetState, result);
+                assertThat(anyOpsPerformed, is(true));
+            }
+
+            @Test
+            void shouldReturnTrueIfOnlyTriStateValueIsSpecifiedAsTrueOrFalse() {
+                HttpOperationResult result = new HttpOperationResult();
+                boolean anyOpsPerformed = agentService.isAnyOperationPerformedOnAgent(null, null, null, TriState.TRUE, result);
+                assertThat(anyOpsPerformed, is(true));
+            }
+
+            @Test
+            void shouldReturnFalseOnlyIfNoneOfTheAgentAttributesAreSpecified() {
+                HttpOperationResult result = new HttpOperationResult();
+                TriState unsetState = TriState.UNSET;
+                boolean anyOpsPerformed = agentService.isAnyOperationPerformedOnAgent(null, null, null, unsetState, result);
+                assertThat(anyOpsPerformed, is(false));
+            }
+        }
+
+        @Nested
+        class BulkAgents {
+            @Test
+            void shouldReturnTrueIfOnlyResouecesToAddListIsNotEmpty(){
+                LocalizedOperationResult result = new HttpLocalizedOperationResult();
+                TriState unsetState = TriState.UNSET;
+                boolean anyOpsPerformed = agentService.isAnyOperationPerformedOnBulkAgents(singletonList("r1"), emptyList(), null, emptyList(), unsetState, result);
+                assertThat(anyOpsPerformed, is(true));
+            }
+
+            @Test
+            void shouldReturnTrueIfOnlyResouecesToRemoveListIsNotEmpty(){
+                LocalizedOperationResult result = new HttpLocalizedOperationResult();
+                TriState unsetState = TriState.UNSET;
+                boolean anyOpsPerformed = agentService.isAnyOperationPerformedOnBulkAgents(emptyList(), singletonList("r1"), null, emptyList(), unsetState, result);
+                assertThat(anyOpsPerformed, is(true));
+            }
+
+            @Test
+            void shouldReturnTrueIfOnlyEnvsToAddListIsNotEmpty(){
+                LocalizedOperationResult result = new HttpLocalizedOperationResult();
+                TriState unsetState = TriState.UNSET;
+                EnvironmentsConfig envsConfig = new EnvironmentsConfig();
+                envsConfig.add(new BasicEnvironmentConfig(new CaseInsensitiveString("env1")));
+                boolean anyOpsPerformed = agentService.isAnyOperationPerformedOnBulkAgents(emptyList(), null, envsConfig, emptyList(), unsetState, result);
+                assertThat(anyOpsPerformed, is(true));
+            }
+
+            @Test
+            void shouldReturnTrueIfOnlyEnvsToRemoveListIsNotEmpty(){
+                LocalizedOperationResult result = new HttpLocalizedOperationResult();
+                TriState unsetState = TriState.UNSET;
+                boolean anyOpsPerformed = agentService.isAnyOperationPerformedOnBulkAgents(emptyList(), null, emptyEnvsConfig, singletonList("env1"), unsetState, result);
+                assertThat(anyOpsPerformed, is(true));
+            }
+
+            @Test
+            void shouldReturnTrueIfOnlyTriStateIsSetToTrueOrFalse(){
+                LocalizedOperationResult result = new HttpLocalizedOperationResult();
+                boolean anyOpsPerformed = agentService.isAnyOperationPerformedOnBulkAgents(emptyList(), null, emptyEnvsConfig, emptyList(), TriState.TRUE, result);
+                assertThat(anyOpsPerformed, is(true));
+            }
+
+            @Test
+            void shouldReturnFalseOnlyIfNoneOfTheAgentAttributesAreSpecified(){
+                LocalizedOperationResult result = new HttpLocalizedOperationResult();
+                boolean anyOpsPerformed = agentService.isAnyOperationPerformedOnBulkAgents(emptyList(), null, emptyEnvsConfig, emptyList(), TriState.UNSET, result);
+                assertThat(anyOpsPerformed, is(false));
+            }
+        }
+    }
+
+    @Nested
     class UpdateSingleOrBulkAgentAttributes {
         private String uuid;
         private AgentInstance agentInstance;
@@ -167,13 +266,13 @@ class AgentServiceTest {
             }
 
             @Test
-            void shouldNotDoAnythingIfNoOperationsArePerformed() {
+            void shouldThrow400BadRequestWhenNoOperationIsSpecifiedToBePerformedOnAgents() {
                 HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
                 agentService.bulkUpdateAgentAttributes(singletonList("uuid"), emptyStrList, emptyStrList, emptyEnvsConfig, emptyStrList, TriState.UNSET, result);
 
                 verifyZeroInteractions(agentDao);
                 assertEquals(400, result.httpCode());
-                assertEquals("No Operation performed on agents.", result.message());
+                assertEquals("Bad Request. No operation is specified in the request to be performed on agents.", result.message());
             }
 
             @Test
@@ -340,7 +439,7 @@ class AgentServiceTest {
             @Nested
             class NegativeTests {
                 @Test
-                void shouldThrow400IfNoOperationToPerform() {
+                void shouldThrow400BadRequestWhenNoOperationIsSpecifiedToBePerformedOnAgent() {
                     HttpOperationResult result = new HttpOperationResult();
                     when(agentDao.fetchAgentFromDBByUUID(uuid)).thenReturn(agent);
 
@@ -348,7 +447,7 @@ class AgentServiceTest {
 
                     verify(agentDao, times(0)).saveOrUpdate(any(Agent.class));
                     assertThat(result.httpCode(), is(400));
-                    assertThat(result.message(), is("No Operation performed on agent."));
+                    assertThat(result.message(), is("Bad Request. No operation is specified in the request to be performed on agent."));
                 }
 
                 @Test

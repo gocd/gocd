@@ -691,7 +691,7 @@ public class AgentServiceIntegrationTest {
             agentService.updateAgentAttributes(UUID, notSpecifying, notSpecifying, null, TriState.UNSET, result1);
 
             assertThat(result1.httpCode(), is(400));
-            assertThat(result1.message(), is("No Operation performed on agent."));
+            assertThat(result1.message(), is("Bad Request. No operation is specified in the request to be performed on agent."));
 
             assertThat(agentService.getAgentInstances().size(), is(1));
             assertThat(getFirstAgent().getHostname(), is(originalHostname));
@@ -714,7 +714,7 @@ public class AgentServiceIntegrationTest {
             agentService.bulkUpdateAgentAttributes(uuids, emptyStrList, emptyStrList, emptyEnvsConfig, emptyStrList, TriState.UNSET, result);
 
             HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-            expectedResult.badRequest("No Operation performed on agents.");
+            expectedResult.badRequest("Bad Request. No operation is specified in the request to be performed on agents.");
 
             assertThat(result, is(expectedResult));
         }

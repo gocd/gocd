@@ -383,6 +383,143 @@ class AgentsControllerV5Test implements SecurityServiceTrait, ControllerTrait<Ag
     }
 
     @Test
+    void 'should throw 400 - bad request when there is no operation specified in the request to be performed on agent'() {
+      loginAsAdmin()
+
+      doAnswer({ InvocationOnMock invocation ->
+        def result = invocation.getArgument(5) as HttpOperationResult
+        def msg = "Bad Request. No operation is specified in the request to be performed on agent."
+        result.badRequest(msg, msg, general(GLOBAL))
+        return null
+      }).when(agentService).updateAgentAttributes(
+        eq("uuid2"),
+        eq(null),
+        eq(null),
+        eq(null),
+        eq(TriState.UNSET),
+        any() as HttpOperationResult)
+
+      def requestBody = ""
+      patchWithApiHeader(controller.controllerPath("/uuid2"), requestBody)
+
+      println "\n\nResponse : \n\n" + response
+      assertThatResponse()
+        .isBadRequest()
+        .hasContentType(controller.mimeType)
+        .hasJsonMessage("Bad Request. No operation is specified in the request to be performed on agent.")
+    }
+
+    @Test
+    void 'should reset agents environment attribute value to null in db when environments is specified as empty array in the request payload'() {
+      loginAsAdmin()
+      def resources = asList("psql", "java")
+      AgentInstance agentWithoutEnvs = idleWith("uuid2", "agent02.example.com", "10.0.0.1", "/var/lib/bar", 10, "", resources)
+
+      def emptyEnvsConfig = new EnvironmentsConfig()
+
+      when(environmentConfigService.environmentConfigsFor("uuid2")).thenReturn(emptySet())
+      when(agentService.updateAgentAttributes(
+        eq("uuid2"),
+        eq("agent02.example.com"),
+        eq("java,psql"),
+        eq(emptyEnvsConfig),
+        eq(TriState.TRUE),
+        any() as HttpOperationResult)
+      ).thenReturn(agentWithoutEnvs)
+
+      def requestBody = ["hostname"          : "agent02.example.com",
+                         "agent_config_state": "Enabled",
+                         "resources"         : ["java", "psql"],
+                         "environments"      : []
+      ]
+      patchWithApiHeader(controller.controllerPath("/uuid2"), requestBody)
+
+      assertThatResponse()
+        .isOk()
+        .hasContentType(controller.mimeType)
+        .hasJsonBody([
+        "_links"            : [
+          "self": [
+            "href": "http://test.host/go/api/agents/uuid2"
+          ],
+          "doc" : [
+            "href": apiDocsUrl("#agents")
+          ],
+          "find": [
+            "href": "http://test.host/go/api/agents/:uuid"
+          ]
+        ],
+        "uuid"              : "uuid2",
+        "hostname"          : "agent02.example.com",
+        "ip_address"        : "10.0.0.1",
+        "sandbox"           : "/var/lib/bar",
+        "operating_system"  : "",
+        "free_space"        : 10,
+        "agent_config_state": "Enabled",
+        "agent_state"       : "Idle",
+        "resources"         : ["java", "psql"],
+        "environments"      : [],
+        "build_state"       : "Idle"
+      ])
+    }
+
+    @Test
+    void 'should reset agents resources attribute value to null in db when resources is specified as empty array in the request payload'() {
+      loginAsAdmin()
+
+      def resources = emptyList()
+      AgentInstance agentWithoutEnvsAndResources = idleWith("uuid2", "agent02.example.com", "10.0.0.1", "/var/lib/bar", 10, "", resources)
+
+      def emptyEnvsConfig = new EnvironmentsConfig()
+      when(environmentConfigService.environmentConfigsFor("uuid2")).thenReturn(emptySet())
+      when(agentService.updateAgentAttributes(
+        eq("uuid2"),
+        eq("agent02.example.com"),
+        eq(""),
+        eq(emptyEnvsConfig),
+        eq(TriState.TRUE),
+        any() as HttpOperationResult)
+      ).thenReturn(agentWithoutEnvsAndResources)
+
+      def requestBody = ["hostname"          : "agent02.example.com",
+                         "agent_config_state": "Enabled",
+                         "resources"         : [],
+                         "environments"      : []
+      ]
+      patchWithApiHeader(controller.controllerPath("/uuid2"), requestBody)
+
+      println "\n\nResponse is \n\n" + response
+
+      assertThatResponse()
+        .isOk()
+        .hasContentType(controller.mimeType)
+        .hasJsonBody([
+        "_links"            : [
+          "self": [
+            "href": "http://test.host/go/api/agents/uuid2"
+          ],
+          "doc" : [
+            "href": apiDocsUrl("#agents")
+          ],
+          "find": [
+            "href": "http://test.host/go/api/agents/:uuid"
+          ]
+        ],
+        "uuid"              : "uuid2",
+        "hostname"          : "agent02.example.com",
+        "ip_address"        : "10.0.0.1",
+        "sandbox"           : "/var/lib/bar",
+        "operating_system"  : "",
+        "free_space"        : 10,
+        "agent_config_state": "Enabled",
+        "agent_state"       : "Idle",
+        "resources"         : [],
+        "environments"      : [],
+        "build_state"       : "Idle"
+      ])
+    }
+
+    @Test
     void 'should error out when operation is unsuccessful'() {
       loginAsAdmin()
       when(agentService.updateAgentAttributes(anyString(), anyString(), anyString(), anyList() as EnvironmentsConfig,
@@ -858,6 +995,38 @@ class AgentsControllerV5Test implements SecurityServiceTrait, ControllerTrait<Ag
           .hasJsonBody(expectedJson)
       }
     }
+
+    @Test
+    void 'should throw 400 - bad request when no operation is specified in the request to be performed on agents'() {
+      loginAsAdmin()
+      def uuids = [
+        "adb9540a-b954-4571-9d9b-2f330739d4da",
+        "adb528b2-b954-1234-9d9b-b27ag4h568e1"
+      ] as List<String>
+
+      doAnswer({ InvocationOnMock invocation ->
+        def result = invocation.getArgument(6) as HttpLocalizedOperationResult
+        result.badRequest("Bad Request. No operation is specified in the request to be performed on agents.")
+      }).when(agentService).bulkUpdateAgentAttributes(
+        eq(uuids) as List<String>,
+        eq(emptyList()) as List<String>,
+        eq(emptyList()) as List<String>,
+        eq(new EnvironmentsConfig()) as EnvironmentsConfig,
+        eq(emptyList()) as List<String>,
+        eq(TriState.UNSET) as TriState,
+        any() as LocalizedOperationResult
+      )
+
+      def requestBody = [
+          "uuids" : uuids
+      ]
+      patchWithApiHeader(controller.controllerPath(), requestBody)
+
+      assertThatResponse()
+        .isBadRequest()
+        .hasContentType(controller.mimeType)
+        .hasJsonMessage("Bad Request. No operation is specified in the request to be performed on agents.")
+    }
   }
 
   @Nested
@@ -1011,7 +1180,7 @@ class AgentsControllerV5Test implements SecurityServiceTrait, ControllerTrait<Ag
           result.ok("Deleted 0 agent(s).")
         }).when(agentService).deleteAgents(eq(emptyList()), any() as HttpOperationResult)
 
-        def requestBody = null
+        def requestBody = ""
 
         deleteWithApiHeader(controller.controllerPath(), requestBody)
 

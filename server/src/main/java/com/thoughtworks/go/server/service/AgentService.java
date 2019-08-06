@@ -53,6 +53,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import java.util.*;
 
 import static com.thoughtworks.go.CurrentGoCDVersion.docsUrl;
+import static com.thoughtworks.go.domain.AgentInstance.createFromAgent;
 import static com.thoughtworks.go.serverhealth.HealthStateScope.GLOBAL;
 import static com.thoughtworks.go.serverhealth.HealthStateType.general;
 import static com.thoughtworks.go.util.CommaSeparatedString.append;
@@ -61,11 +62,9 @@ import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.*;
-import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.*;
 import static java.util.stream.StreamSupport.stream;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.commons.lang3.StringUtils.join;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
@@ -155,18 +154,16 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
                 } else {
                     result.ok(format("Updated agent with uuid %s.", agent.getUuid()));
                 }
+                return createFromAgent(agent, systemEnvironment, agentStatusChangeNotifier);
             }
-        } catch (InvalidPendingAgentOperationException | IllegalArgumentException e) {
+        } catch (InvalidPendingAgentOperationException e) {
             LOGGER.error(e.getMessage(), e);
-            return null;
         } catch (Exception e) {
             String msg = "Updating agent failed: " + e.getMessage();
             LOGGER.error(msg, e);
             result.internalServerError(msg, general(GLOBAL));
-            return null;
         }
-
-        return AgentInstance.createFromAgent(agent, systemEnvironment, agentStatusChangeNotifier);
+        return null;
     }
 
     public void bulkUpdateAgentAttributes(List<String> uuids, List<String> resourcesToAdd, List<String> resourcesToRemove,
@@ -435,7 +432,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         AgentInstance agentInstanceBeforeUpdate = agentInstances.findAgent(agentAfterUpdate.getUuid());
 
         if (agentInstanceBeforeUpdate instanceof NullAgentInstance) {
-            agentInstanceBeforeUpdate = AgentInstance.createFromAgent(agentAfterUpdate, new SystemEnvironment(), agentStatusChangeNotifier);
+            agentInstanceBeforeUpdate = createFromAgent(agentAfterUpdate, new SystemEnvironment(), agentStatusChangeNotifier);
             this.agentInstances.add(agentInstanceBeforeUpdate);
         } else {
             Agent agentBeforeUpdate = agentInstanceBeforeUpdate.getAgent();
@@ -709,11 +706,11 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         }
     }
 
-    private boolean isAnyOperationPerformedOnAgent(String hostname, EnvironmentsConfig environments,
-                                                   String resources, TriState state, HttpOperationResult result) {
+    boolean isAnyOperationPerformedOnAgent(String hostname, EnvironmentsConfig environments,
+                                           String resources, TriState state, HttpOperationResult result) {
         boolean anyOperationPerformed = (resources != null || environments != null || hostname != null || stateIsSet(state));
         if (!anyOperationPerformed) {
-            String msg = "No Operation performed on agent.";
+            String msg = "Bad Request. No operation is specified in the request to be performed on agent.";
             result.badRequest(msg, msg, general(GLOBAL));
             return false;
         }
@@ -724,19 +721,19 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         return state.isTrue() || state.isFalse();
     }
 
-    private boolean isAnyOperationPerformedOnBulkAgents(List<String> resourcesToAdd, List<String> resourcesToRemove,
-                                                        EnvironmentsConfig envsToAdd, List<String> envsToRemove,
-                                                        TriState state, LocalizedOperationResult result) {
-        boolean performed
-                = !resourcesToAdd.isEmpty()
-                || !resourcesToRemove.isEmpty()
-                || !envsToAdd.isEmpty()
-                || !envsToRemove.isEmpty()
-                || state.isTrue()
-                || state.isFalse();
-        if (!performed) {
-            result.badRequest("No Operation performed on agents.");
+    boolean isAnyOperationPerformedOnBulkAgents(List<String> resourcesToAdd, List<String> resourcesToRemove,
+                                                EnvironmentsConfig envsToAdd, List<String> envsToRemove,
+                                                TriState state, LocalizedOperationResult result) {
+        boolean anyOperationPerformed
+                = isNotEmpty(resourcesToAdd)
+                || isNotEmpty(resourcesToRemove)
+                || isNotEmpty(envsToAdd)
+                || isNotEmpty(envsToRemove)
+                || stateIsSet(state);
+        if (!anyOperationPerformed) {
+            result.badRequest("Bad Request. No operation is specified in the request to be performed on agents.");
+            return false;
         }
-        return performed;
+        return true;
     }
 }

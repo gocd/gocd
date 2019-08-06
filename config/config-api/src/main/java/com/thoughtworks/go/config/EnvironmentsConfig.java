@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 import static com.thoughtworks.go.config.CaseInsensitiveString.str;
 import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 
 /**
  * @understands the current persistent information related to multiple logical groupings of machines
@@ -143,14 +144,12 @@ public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implem
 
     public TreeSet<String> environmentsForAgent(String uuid) {
         return environmentConfigsForAgent(uuid).stream()
-                .map(environmentConfig -> str(environmentConfig.name()))
+                .map(envConfig -> str(envConfig.name()))
                 .collect(toCollection(() -> new TreeSet<>(new AlphaAsciiComparator())));
     }
 
     public Set<EnvironmentConfig> environmentConfigsForAgent(String uuid) {
-        return this.stream()
-                .filter(environmentConfig -> environmentConfig.hasAgent(uuid))
-                .collect(Collectors.toSet());
+        return this.stream().filter(envConfig -> envConfig.hasAgent(uuid)).collect(toSet());
     }
 
     public boolean hasEnvironmentNamed(CaseInsensitiveString environmentName) {

@@ -21,8 +21,9 @@ import * as stream from "mithril/stream";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {DefaultCache, PipelineGroupCache} from "models/pipeline_configs/pipeline_groups_cache";
 import {TemplateCache} from "models/pipeline_configs/templates_cache";
+import {IdentifierInputField} from "views/components/forms/common_validating_inputs";
 import {Form, FormBody} from "views/components/forms/form";
-import {Option, SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
+import {Option, SelectField, SelectFieldOptions} from "views/components/forms/input_fields";
 import {AdvancedSettings} from "views/pages/pipelines/advanced_settings";
 import {TemplateEditor} from "views/pages/pipelines/template_editor";
 import {IDENTIFIER_FORMAT_HELP_MESSAGE} from "./messages";
@@ -51,7 +52,7 @@ export class PipelineInfoEditor extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     return <FormBody>
       <Form last={true} compactForm={true}>
-        <TextField label="Pipeline Name" helpText={IDENTIFIER_FORMAT_HELP_MESSAGE} placeholder="e.g., My-New-Pipeline" property={vnode.attrs.pipelineConfig.name} errorText={vnode.attrs.pipelineConfig.errors().errorsForDisplay("name")} required={true}/>
+        <IdentifierInputField label="Pipeline Name" helpText={IDENTIFIER_FORMAT_HELP_MESSAGE} placeholder="e.g., My-New-Pipeline" property={vnode.attrs.pipelineConfig.name} errorText={vnode.attrs.pipelineConfig.errors().errorsForDisplay("name")} required={true}/>
       <AdvancedSettings forceOpen={this.hasErrors(vnode)}>
         <SelectField label="Pipeline Group" property={vnode.attrs.pipelineConfig.group} errorText={vnode.attrs.pipelineConfig.errors().errorsForDisplay("group")} required={true}>
           <SelectFieldOptions selected={this.selectedGroup(vnode)} items={this.pipelineGroups()}/>

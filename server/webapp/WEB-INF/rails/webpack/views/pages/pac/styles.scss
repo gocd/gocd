@@ -24,7 +24,6 @@ $syntax-bg: #282923;
 }
 
 .preview-pane[class*="language-"] { // scss-lint:disable-line
-  // background-color: lighten($syntax-bg, 5%);
   width: 50%;
 }
 

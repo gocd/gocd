@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-import classnames from "classnames";
+import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
 import * as s from "underscore.string";
 import * as styles from "./index.scss";
+
+const classnames = bind(styles);
 
 export interface CountsAttr {
   label: string;

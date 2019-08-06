@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import classnames from "classnames";
+import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
 import * as styles from "./forms.scss";
+
+const classnames = bind(styles);
 
 interface Attrs {
   dataTestId?: string;

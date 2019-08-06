@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import classnames from "classnames";
+import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
@@ -27,6 +27,8 @@ import {
 } from "views/pages/users/super_admin_toggle_widget";
 import {State as UserActionsState, UsersActionsWidget} from "views/pages/users/user_actions_widget";
 import * as styles from "./index.scss";
+
+const classnames = bind(styles);
 
 export interface Attrs extends UserActionsState, SuperAdminPrivilegeSwitchAttrs, RequiresUserViewHelper {
 

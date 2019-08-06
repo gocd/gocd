@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import classnames from "classnames";
+import {bind} from "classnames/bind";
 import {MithrilComponent, MithrilViewComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
 import * as s from "underscore.string";
 import * as styles from "./index.scss";
+
+const classnames = bind(styles);
 
 export abstract class TableSortHandler {
   private __currentSortedColumnIndex: number = -1;

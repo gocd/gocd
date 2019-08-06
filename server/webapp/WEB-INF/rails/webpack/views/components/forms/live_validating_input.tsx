@@ -26,12 +26,24 @@ interface State {
   errors(): string | undefined;
 }
 
+/**
+ * Only report the validation message if we set one explicitly on the input; otherwise, if
+ * the `required` attribute is set, the default error message will show and the input field
+ * will show an error on initial page load. This implies that the validator function set on
+ * the LiveValidatingInputField should check the `required` attribute and handle empty values
+ * _if so desired_.
+ */
+function liveValidationError(dom: HTMLInputElement) {
+  return dom.validity.customError ? dom.validationMessage : "";
+}
+
 export class LiveValidatingInputField extends MithrilComponent<LiveInputAttrs, State> {
   oncreate(vnode: m.VnodeDOM<LiveInputAttrs, State>) {
     const dom = vnode.dom.querySelector("input") as HTMLInputElement;
-    const validator = vnode.attrs.validator;
+    dom.setCustomValidity("");
 
-    vnode.state.errors = () => (dom.validationMessage || vnode.attrs.errorText);
+    const validator = vnode.attrs.validator;
+    vnode.state.errors = () => (liveValidationError(dom) || vnode.attrs.errorText);
 
     if ("function" === typeof validator) {
       dom.addEventListener("input", (e) => {

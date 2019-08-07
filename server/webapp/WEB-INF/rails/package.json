@@ -96,7 +96,7 @@
     "simulate-event": "^1.4.0",
     "sourcemapped-stacktrace": "^1.1.9",
     "stats-webpack-plugin": "^0.7.0",
-    "style-loader": "^0.23.1",
+    "style-loader": "^1.0.0",
     "synchronize": "^2.0.0",
     "tslint": "^5.18.0",
     "typescript": "^3.5.3",

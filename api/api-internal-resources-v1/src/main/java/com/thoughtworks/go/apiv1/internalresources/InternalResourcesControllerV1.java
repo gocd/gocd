@@ -20,7 +20,6 @@ import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.base.JsonOutputWriter;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
-import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
@@ -60,8 +59,6 @@ public class InternalResourcesControllerV1 extends ApiController implements Spar
             before("", mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
 
             get("", mimeType, this::index);
-
-            exception(HttpException.class, this::httpException);
         });
     }
 

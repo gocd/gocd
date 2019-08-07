@@ -21,7 +21,6 @@ import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.HaltApiResponses;
 import com.thoughtworks.go.apiv1.internalcommandsnippets.representers.CommandSnippetsRepresenter;
-import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.lookups.CommandRepositoryService;
 import com.thoughtworks.go.server.service.lookups.CommandSnippet;
@@ -68,8 +67,6 @@ public class InternalCommandSnippetsControllerV1 extends ApiController implement
             before("", mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
 
             get("", mimeType, this::index);
-
-            exception(HttpException.class, this::httpException);
         });
     }
 

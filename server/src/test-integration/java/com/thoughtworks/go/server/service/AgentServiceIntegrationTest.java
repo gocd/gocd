@@ -1185,8 +1185,8 @@ public class AgentServiceIntegrationTest {
 
             assertThat(result.httpCode(), is(200));
             assertThat(result.message(), is("Updated agent(s) with uuid(s): [uuid, uuid2]."));
-            assertThat(environmentConfigService.environmentsFor(UUID), containsSet("uat", "prod"));
-            assertThat(environmentConfigService.environmentsFor(UUID2), containsSet("uat", "prod"));
+            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID), containsSet("uat", "prod"));
+            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID2), containsSet("uat", "prod"));
         }
 
         @Test
@@ -1202,8 +1202,8 @@ public class AgentServiceIntegrationTest {
 
             assertThat(result.httpCode(), is(200));
             assertThat(result.message(), is("Updated agent(s) with uuid(s): [uuid, uuid2]."));
-            assertThat(environmentConfigService.environmentsFor(UUID), containsSet("uat"));
-            assertThat(environmentConfigService.environmentsFor(UUID2), containsSet("uat"));
+            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID), containsSet("uat"));
+            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID2), containsSet("uat"));
         }
 
         @Test
@@ -1229,8 +1229,8 @@ public class AgentServiceIntegrationTest {
             assertThat(result.httpCode(), is(200));
             assertThat(result.message(), is("Updated agent(s) with uuid(s): []."));
 
-            assertThat(environmentConfigService.environmentsFor(UUID), containsSet());
-            assertThat(environmentConfigService.environmentsFor(UUID2), containsSet());
+            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID), containsSet());
+            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID2), containsSet());
         }
 
         @Test
@@ -1257,9 +1257,9 @@ public class AgentServiceIntegrationTest {
             assertThat(result.httpCode(), is(200));
             assertThat(result.message(), is("Updated agent(s) with uuid(s): [uuid, uuid3]."));
 
-            assertThat(environmentConfigService.environmentsFor(UUID), containsSet("uat"));
-            assertThat(environmentConfigService.environmentsFor(UUID2), containsSet());
-            assertThat(environmentConfigService.environmentsFor(UUID3), containsSet("uat"));
+            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID), containsSet("uat"));
+            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID2), containsSet());
+            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID3), containsSet("uat"));
         }
 
         @Test
@@ -1280,8 +1280,8 @@ public class AgentServiceIntegrationTest {
                     createEnvironmentsConfigWith("uat"), emptyStrList, TriState.TRUE, result);
 
             assertTrue(result.isSuccessful());
-            assertThat(environmentConfigService.environmentsFor(UUID), containsSet("uat"));
-            assertThat(environmentConfigService.environmentsFor(UUID2), containsSet("uat"));
+            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID), containsSet("uat"));
+            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID2), containsSet("uat"));
         }
 
         @Test
@@ -1303,10 +1303,10 @@ public class AgentServiceIntegrationTest {
             assertTrue(result.isSuccessful());
             assertThat(result.message(), is("Updated agent(s) with uuid(s): [uuid, uuid2]."));
 
-            assertTrue(environmentConfigService.environmentsFor(UUID).isEmpty());
+            assertTrue(environmentConfigService.getAgentEnvironmentNames(UUID).isEmpty());
 
-            assertTrue(environmentConfigService.environmentsFor(UUID2).size() == 1);
-            assertThat(environmentConfigService.environmentsFor(UUID2), containsSet("prod"));
+            assertTrue(environmentConfigService.getAgentEnvironmentNames(UUID2).size() == 1);
+            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID2), containsSet("prod"));
         }
 
         @Test
@@ -1329,11 +1329,11 @@ public class AgentServiceIntegrationTest {
             assertThat(result.message(), is("Updated agent(s) with uuid(s): [uuid, uuid2]."));
 
             String[] expectedEnvs = new String[]{"perf", "dev", "test"};
-            assertThat(environmentConfigService.environmentsFor(UUID).size(), is(3));
-            assertThat(environmentConfigService.environmentsFor(UUID), containsSet(expectedEnvs));
+            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID).size(), is(3));
+            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID), containsSet(expectedEnvs));
 
-            assertThat(environmentConfigService.environmentsFor(UUID2).size(), is(3));
-            assertThat(environmentConfigService.environmentsFor(UUID2), containsSet(expectedEnvs));
+            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID2).size(), is(3));
+            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID2), containsSet(expectedEnvs));
         }
 
         private TypeSafeMatcher<Set<String>> containsSet(final String... items) {
@@ -1469,7 +1469,7 @@ public class AgentServiceIntegrationTest {
     }
 
     private Set<String> getEnvironments(String uuid) {
-        return environmentConfigService.environmentsFor(uuid);
+        return environmentConfigService.getAgentEnvironmentNames(uuid);
     }
 
     private AgentStatusChangeNotifier agentStatusChangeNotifier() {

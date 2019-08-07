@@ -144,12 +144,12 @@ public class EnvironmentsConfigTest {
 
     @Test
     public void shouldUnderstandEnvironmentsForAgent() {
-        assertThat(envsConfig.environmentsForAgent("agent-one"), hasItem("uat"));
+        assertThat(envsConfig.getAgentEnvironmentNames("agent-one"), hasItem("uat"));
     }
 
     @Test
     public void shouldFindEnvironmentConfigsForAgent() {
-        Set<EnvironmentConfig> environmentConfigs = envsConfig.environmentConfigsForAgent("agent-one");
+        Set<EnvironmentConfig> environmentConfigs = envsConfig.getAgentEnvironments("agent-one");
         assertThat(environmentConfigs, hasItem(basicEnvConfig));
         assertThat(environmentConfigs, hasSize(1));
     }
@@ -180,16 +180,16 @@ public class EnvironmentsConfigTest {
 
         assertThat(envsConfig.get(0).getAgents().size(), is(1));
         assertThat(envsConfig.get(1).getAgents().size(), is(2));
-        assertThat(envsConfig.environmentsForAgent("agent-one").size(), is(2));
+        assertThat(envsConfig.getAgentEnvironmentNames("agent-one").size(), is(2));
 
         envsConfig.removeAgentFromAllEnvironments("agent-one");
 
         assertThat(envsConfig.get(0).getAgents().size(), is(0));
         assertThat(envsConfig.get(1).getAgents().size(), is(1));
         assertThat(envsConfig.get(2).getAgents().size(), is(2));
-        assertThat(envsConfig.environmentsForAgent("agent-one").size(), is(0));
-        assertThat(envsConfig.environmentsForAgent("agent-two").size(), is(2));
-        assertThat(envsConfig.environmentsForAgent("agent-three").size(), is(1));
+        assertThat(envsConfig.getAgentEnvironmentNames("agent-one").size(), is(0));
+        assertThat(envsConfig.getAgentEnvironmentNames("agent-two").size(), is(2));
+        assertThat(envsConfig.getAgentEnvironmentNames("agent-three").size(), is(1));
     }
 
     @Test

@@ -142,13 +142,13 @@ public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implem
         return this.stream().map(EnvironmentConfig::name).collect(toList());
     }
 
-    public TreeSet<String> environmentsForAgent(String uuid) {
-        return environmentConfigsForAgent(uuid).stream()
+    public TreeSet<String> getAgentEnvironmentNames(String uuid) {
+        return getAgentEnvironments(uuid).stream()
                 .map(envConfig -> str(envConfig.name()))
                 .collect(toCollection(() -> new TreeSet<>(new AlphaAsciiComparator())));
     }
 
-    public Set<EnvironmentConfig> environmentConfigsForAgent(String uuid) {
+    public Set<EnvironmentConfig> getAgentEnvironments(String uuid) {
         return this.stream().filter(envConfig -> envConfig.hasAgent(uuid)).collect(toSet());
     }
 

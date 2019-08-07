@@ -131,20 +131,20 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
         return environments.named(environmentName).getPipelineNames();
     }
 
-    public List<CaseInsensitiveString> environmentNames() {
-        return environments.names();
+    public List<String> getEnvironmentNames() {
+        return environments.names().stream().map(CaseInsensitiveString::toString).collect(toList());
     }
 
     public Set<EnvironmentConfig> getEnvironments() {
         return new HashSet<>(environments);
     }
 
-    public Set<String> environmentsFor(String uuid) {
-        return environments.environmentsForAgent(uuid);
+    public Set<String> getAgentEnvironmentNames(String uuid) {
+        return environments.getAgentEnvironmentNames(uuid);
     }
 
-    public Set<EnvironmentConfig> environmentConfigsFor(String uuid) {
-        return environments.environmentConfigsForAgent(uuid);
+    public Set<EnvironmentConfig> getAgentEnvironments(String uuid) {
+        return environments.getAgentEnvironments(uuid);
     }
 
     public EnvironmentConfig getEnvironmentConfig(String envName) {
@@ -164,14 +164,14 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
         return cloner.deepClone(goConfigService.getConfigForEditing().getEnvironments().find(new CaseInsensitiveString(envName)));
     }
 
-    public List<EnvironmentConfig> getAllLocalEnvironments() {
-        return environmentNames().stream()
-                .map(environmentName -> EnvironmentConfigService.this.getEnvironmentForEdit(environmentName.toString()))
+    List<EnvironmentConfig> getAllLocalEnvironments() {
+        return getEnvironmentNames().stream()
+                .map(this::getEnvironmentForEdit)
                 .collect(toList());
     }
 
     public List<EnvironmentConfig> getAllMergedEnvironments() {
-        return environmentNames().stream()
+        return getEnvironmentNames().stream()
                 .map(env -> EnvironmentConfigService.this.getMergedEnvironmentforDisplay(env.toString(), new HttpLocalizedOperationResult()).getConfigElement())
                 .collect(toList());
     }
@@ -272,60 +272,60 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
                 .filter(env -> !beforeUpdateEnvList.contains(env))
                 .collect(toList());
 
-        removeAgentFromEnvironments(agentBeforeUpdate, removedEnvList);
+        removeAgentFromSpecifiedEnvironments(agentBeforeUpdate, removedEnvList);
 
         addAgentToEnvironments(agentAfterUpdate.getUuid(), addedEnvList);
 
-        matchers = this.environments.matchers();
+        matchers = environments.matchers();
     }
 
     @Override
     public void agentDeleted(Agent agent) {
         List<String> envList = agent.getEnvironmentsAsList();
-        removeAgentFromEnvironments(agent, envList);
-        matchers = this.environments.matchers();
+        removeAgentFromSpecifiedEnvironments(agent, envList);
+        matchers = environments.matchers();
     }
 
-    public void syncEnvironmentsFromConfig(EnvironmentsConfig environments) {
-        this.environments = environments;
-        matchers = this.environments.matchers();
+    public void syncEnvironmentsFromConfig(EnvironmentsConfig envsConfig) {
+        environments = envsConfig;
+        matchers = envsConfig.matchers();
     }
 
     public void onConfigChange(CruiseConfig newCruiseConfig) {
         syncEnvironmentsFromConfig(newCruiseConfig.getEnvironments());
-        syncAgentsFromDB();
+        syncAssociatedAgentsFromDB();
     }
 
-    public void syncAgentsFromDB() {
-        agentService.agents().forEach(agent -> {
-            String agentEnvironments = agent.getEnvironments();
-            if (agentEnvironments != null) {
-                Arrays.stream(agentEnvironments.split(",")).forEach(env -> {
-                    EnvironmentConfig environmentConfig = this.environments.find(new CaseInsensitiveString(env));
-                    if (environmentConfig != null && !environmentConfig.hasAgent(agent.getUuid())) {
-                        environmentConfig.addAgent(agent.getUuid());
-                    }
-                });
-            }
-
-        });
-        matchers = this.environments.matchers();
-    }
+//    public void syncAgentsFromDB() {
+//        agentService.agents().forEach(agent -> {
+//            String agentEnvironments = agent.getEnvironments();
+//            if (agentEnvironments != null) {
+//                Arrays.stream(agentEnvironments.split(",")).forEach(env -> {
+//                    EnvironmentConfig environmentConfig = environments.find(new CaseInsensitiveString(env));
+//                    if (environmentConfig != null && !environmentConfig.hasAgent(agent.getUuid())) {
+//                        environmentConfig.addAgent(agent.getUuid());
+//                    }
+//                });
+//            }
+//
+//        });
+//        matchers = environments.matchers();
+//    }
 
     public void syncAssociatedAgentsFromDB() {
         agentService.agents()
                 .forEach(agent -> {
-                    List<String> associatedEnvNames = agent.getEnvironmentsAsList();
-                    addAgentToEnvironments(agent.getUuid(), associatedEnvNames);
-                    removeAgentFromNonExcludedEnvironments(agent.getUuid(), associatedEnvNames);
+                    List<String> envNames = agent.getEnvironmentsAsList();
+                    addAgentToEnvironments(agent.getUuid(), envNames);
+                    removeAgentFromPreviouslyAssociatedEnvironments(agent.getUuid(), envNames);
                 });
-        matchers = this.environments.matchers();
+        matchers = environments.matchers();
     }
 
-    private void removeAgentFromEnvironments(Agent agent, List<String> envList) {
-        envList.forEach(env -> {
+    private void removeAgentFromSpecifiedEnvironments(Agent agent, List<String> envNames) {
+        envNames.forEach(envName -> {
             String uuid = agent.getUuid();
-            EnvironmentConfig envConfig = this.environments.find(new CaseInsensitiveString(env));
+            EnvironmentConfig envConfig = environments.find(new CaseInsensitiveString(envName));
             if (envConfig != null && envConfig.hasAgent(uuid)
                     && !envConfig.containsAgentRemotely(uuid)) {
                 envConfig.removeAgent(uuid);
@@ -333,21 +333,21 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
         });
     }
 
-    private void removeAgentFromNonExcludedEnvironments(String uuid, List<String> envToExcludeList) {
-        this.environments.stream()
-                .filter(env -> !(envToExcludeList.contains(env.name().toString())))
-                .forEach(env -> {
-                    if (env.hasAgent(uuid)) {
-                        env.removeAgent(uuid);
+    private void removeAgentFromPreviouslyAssociatedEnvironments(String uuid, List<String> newlyAssociatedEnvNames) {
+        environments.stream()
+                .filter(env -> !(newlyAssociatedEnvNames.contains(env.name().toString())))
+                .forEach(otherEnv -> {
+                    if (otherEnv.hasAgent(uuid)) {
+                        otherEnv.removeAgent(uuid);
                     }
                 });
     }
 
-    private void addAgentToEnvironments(String agentUuid, List<String> envList) {
-        envList.forEach(env -> {
-            EnvironmentConfig envConfig = this.environments.find(new CaseInsensitiveString(env));
-            if (envConfig != null && !envConfig.hasAgent(agentUuid)) {
-                envConfig.addAgent(agentUuid);
+    private void addAgentToEnvironments(String uuid, List<String> envNames) {
+        envNames.forEach(envName -> {
+            EnvironmentConfig envConfig = environments.find(new CaseInsensitiveString(envName));
+            if (envConfig != null && !envConfig.hasAgent(uuid)) {
+                envConfig.addAgent(uuid);
             }
         });
     }

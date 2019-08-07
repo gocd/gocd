@@ -109,7 +109,7 @@ public class AgentsControllerV6 extends ApiController implements SparkSpringCont
         Map<AgentInstance, Collection<EnvironmentConfig>> agentToEnvConfigsMap = new HashMap<>();
 
         agentService.getAgentInstances().values().forEach(agentInstance -> {
-            Set<EnvironmentConfig> envConfigSet = environmentConfigService.environmentConfigsFor(agentInstance.getUuid());
+            Set<EnvironmentConfig> envConfigSet = environmentConfigService.getAgentEnvironments(agentInstance.getUuid());
             agentToEnvConfigsMap.put(agentInstance, envConfigSet);
         });
 
@@ -122,7 +122,7 @@ public class AgentsControllerV6 extends ApiController implements SparkSpringCont
         final AgentInstance agentInstance = fetchEntityFromConfig(uuid);
 
         return writerForTopLevelObject(request, response,
-                outputWriter -> toJSON(outputWriter, agentInstance, environmentConfigService.environmentConfigsFor(uuid),
+                outputWriter -> toJSON(outputWriter, agentInstance, environmentConfigService.getAgentEnvironments(uuid),
                         securityService, currentUsername()));
     }
 
@@ -223,7 +223,7 @@ public class AgentsControllerV6 extends ApiController implements SparkSpringCont
     @Override
     public Consumer<OutputWriter> jsonWriter(AgentInstance agentInstance) {
         return outputWriter -> toJSON(outputWriter, agentInstance,
-                environmentConfigService.environmentConfigsFor(agentInstance.getUuid()),
+                environmentConfigService.getAgentEnvironments(agentInstance.getUuid()),
                 securityService, currentUsername());
     }
 

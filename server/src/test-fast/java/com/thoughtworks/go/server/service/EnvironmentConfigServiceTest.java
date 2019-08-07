@@ -236,23 +236,23 @@ class EnvironmentConfigServiceTest {
     @Test
     void shouldReturnEnvironmentNames() {
         environmentConfigService.syncEnvironmentsFromConfig(environments("uat", "prod"));
-        List<CaseInsensitiveString> environmentNames = environmentConfigService.environmentNames();
-        assertThat(environmentNames.size()).isEqualTo(2);
-        assertThat(environmentNames).contains(new CaseInsensitiveString("uat"));
-        assertThat(environmentNames).contains(new CaseInsensitiveString("prod"));
+        List<String> envNames = environmentConfigService.getEnvironmentNames();
+        assertThat(envNames.size()).isEqualTo(2);
+        assertThat(envNames).contains("uat");
+        assertThat(envNames).contains("prod");
     }
 
     @Test
     void shouldReturnEnvironmentsForAnAgent() {
         environmentConfigService.syncEnvironmentsFromConfig(environments("uat", "prod"));
         environmentConfigService.syncAssociatedAgentsFromDB();
-        Set<String> envForUat = environmentConfigService.environmentsFor("uat-agent");
+        Set<String> envForUat = environmentConfigService.getAgentEnvironmentNames("uat-agent");
         assertThat(envForUat.size()).isEqualTo(1);
         assertThat(envForUat).contains("uat");
-        Set<String> envForProd = environmentConfigService.environmentsFor("prod-agent");
+        Set<String> envForProd = environmentConfigService.getAgentEnvironmentNames("prod-agent");
         assertThat(envForProd.size()).isEqualTo(1);
         assertThat(envForProd).contains("prod");
-        Set<String> envForOmniPresent = environmentConfigService.environmentsFor(OMNIPRESENT_AGENT);
+        Set<String> envForOmniPresent = environmentConfigService.getAgentEnvironmentNames(OMNIPRESENT_AGENT);
         assertThat(envForOmniPresent.size()).isEqualTo(2);
         assertThat(envForOmniPresent).contains("uat");
         assertThat(envForOmniPresent).contains("prod");
@@ -264,15 +264,15 @@ class EnvironmentConfigServiceTest {
         environmentConfigService.syncEnvironmentsFromConfig(envConfigs);
         environmentConfigService.syncAssociatedAgentsFromDB();
 
-        Set<EnvironmentConfig> envConfigSet = environmentConfigService.environmentConfigsFor("uat-agent");
+        Set<EnvironmentConfig> envConfigSet = environmentConfigService.getAgentEnvironments("uat-agent");
         assertThat(envConfigSet.size()).isEqualTo(1);
         assertThat(envConfigSet).contains(envConfigs.named(new CaseInsensitiveString("uat")));
 
-        envConfigSet = environmentConfigService.environmentConfigsFor("prod-agent");
+        envConfigSet = environmentConfigService.getAgentEnvironments("prod-agent");
         assertThat(envConfigSet.size()).isEqualTo(1);
         assertThat(envConfigSet).contains(envConfigs.named(new CaseInsensitiveString("prod")));
 
-        envConfigSet = environmentConfigService.environmentConfigsFor(OMNIPRESENT_AGENT);
+        envConfigSet = environmentConfigService.getAgentEnvironments(OMNIPRESENT_AGENT);
         assertThat(envConfigSet.size()).isEqualTo(2);
         assertThat(envConfigSet).contains(envConfigs.named(new CaseInsensitiveString("uat")));
         assertThat(envConfigSet).contains(envConfigs.named(new CaseInsensitiveString("prod")));
@@ -763,7 +763,7 @@ class EnvironmentConfigServiceTest {
         agents.add(agent);
         when(agentService.agents()).thenReturn(agents);
 
-        environmentConfigService.syncAgentsFromDB();
+        environmentConfigService.syncAssociatedAgentsFromDB();
 
         EnvironmentConfig afterUpdateEnvConfig = environmentConfigService.getEnvironmentConfig(environmentName);
         EnvironmentAgentsConfig afterUpdateEnvConfigAgents = afterUpdateEnvConfig.getAgents();

@@ -99,7 +99,7 @@ class AgentsControllerV6Test implements SecurityServiceTrait, ControllerTrait<Ag
       def environmentConfigs = new HashSet<EnvironmentConfig>()
       environmentConfigs.add(environment("env1"))
       environmentConfigs.add(environment("env2"))
-      when(environmentConfigService.environmentConfigsFor(instance.getUuid())).thenReturn(environmentConfigs)
+      when(environmentConfigService.getAgentEnvironments(instance.getUuid())).thenReturn(environmentConfigs)
 
       getWithApiHeader(controller.controllerPath())
 
@@ -221,7 +221,7 @@ class AgentsControllerV6Test implements SecurityServiceTrait, ControllerTrait<Ag
     void 'should return agent json'() {
       when(agentService.findAgent("uuid2")).thenReturn(idle())
       def environments = Stream.of(environment("env1"), environment("env2")).collect(toSet())
-      when(environmentConfigService.environmentConfigsFor("uuid2")).thenReturn(environments)
+      when(environmentConfigService.getAgentEnvironments("uuid2")).thenReturn(environments)
 
       getWithApiHeader(controller.controllerPath("/uuid2"))
 
@@ -319,7 +319,7 @@ class AgentsControllerV6Test implements SecurityServiceTrait, ControllerTrait<Ag
       def envsConfig = new EnvironmentsConfig()
       def envConfig = environment("env1")
       when(environmentConfigService.findOrDefault("env1")).thenReturn(envConfig)
-      when(environmentConfigService.environmentConfigsFor("uuid2")).thenReturn(singleton(envConfig))
+      when(environmentConfigService.getAgentEnvironments("uuid2")).thenReturn(singleton(envConfig))
 
       envsConfig.add(envConfig)
       when(agentService.updateAgentAttributes(
@@ -417,7 +417,7 @@ class AgentsControllerV6Test implements SecurityServiceTrait, ControllerTrait<Ag
 
       def emptyEnvsConfig = new EnvironmentsConfig()
 
-      when(environmentConfigService.environmentConfigsFor("uuid2")).thenReturn(emptySet())
+      when(environmentConfigService.getAgentEnvironments("uuid2")).thenReturn(emptySet())
       when(agentService.updateAgentAttributes(
         eq("uuid2"),
         eq("agent02.example.com"),
@@ -471,7 +471,7 @@ class AgentsControllerV6Test implements SecurityServiceTrait, ControllerTrait<Ag
       AgentInstance agentWithoutEnvsAndResources = idleWith("uuid2", "agent02.example.com", "10.0.0.1", "/var/lib/bar", 10, "", resources)
 
       def emptyEnvsConfig = new EnvironmentsConfig()
-      when(environmentConfigService.environmentConfigsFor("uuid2")).thenReturn(emptySet())
+      when(environmentConfigService.getAgentEnvironments("uuid2")).thenReturn(emptySet())
       when(agentService.updateAgentAttributes(
         eq("uuid2"),
         eq("agent02.example.com"),
@@ -577,7 +577,7 @@ class AgentsControllerV6Test implements SecurityServiceTrait, ControllerTrait<Ag
         when(environmentConfigService.findOrDefault("env1")).thenReturn(environmentConfig)
         when(environmentConfigService.findOrDefault("env2")).thenReturn(environmentConfig1)
 
-        when(environmentConfigService.environmentConfigsFor("uuid2")).thenReturn(singleton(environmentConfig))
+        when(environmentConfigService.getAgentEnvironments("uuid2")).thenReturn(singleton(environmentConfig))
 
         when(agentService.updateAgentAttributes(
           eq("uuid2"),
@@ -845,7 +845,7 @@ class AgentsControllerV6Test implements SecurityServiceTrait, ControllerTrait<Ag
 
         when(environmentConfigService.findOrDefault("env1")).thenReturn(environmentConfig)
         when(environmentConfigService.findOrDefault("env2")).thenReturn(environmentConfig1)
-        when(environmentConfigService.environmentsFor("uuid2")).thenReturn(singleton("env1"))
+        when(environmentConfigService.getAgentEnvironmentNames("uuid2")).thenReturn(singleton("env1"))
 
         doAnswer({ InvocationOnMock invocation ->
           def result = invocation.getArgument(6) as HttpLocalizedOperationResult

@@ -85,8 +85,8 @@ export class ConfigRepoVM {
     this.repo = repo;
     this.results = cache;
 
-    this.on("expand", () => cache.prime(m.redraw));
-    this.on("refresh", () => cache.invalidate());
+    this.on("expand", () => !cache.failed() && cache.prime(m.redraw));
+    this.on("refresh", () => (cache.invalidate(), cache.prime(m.redraw)));
 
     this.reparseRepo = (e) => {
       e.stopPropagation();

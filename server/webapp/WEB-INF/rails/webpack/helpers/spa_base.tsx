@@ -60,30 +60,10 @@ class MainPage extends MithrilViewComponent<Attrs> {
   }
 }
 
-export abstract class Page {
-  private readonly pageToMount: any;
-
-  constructor(pageToMount: any) {
-    this.pageToMount = pageToMount;
-    this.render();
-  }
-
-  protected showHeader() {
-    return true;
-  }
-
-  protected showFooter() {
-    return true;
-  }
-
-  protected enableUsageDataAndVersionUpdating() {
-    return true;
-  }
-
-  private render() {
-    const page = this;
+abstract class AbstractPage {
+  protected render() {
     window.addEventListener("DOMContentLoaded", () => {
-      if (page.enableUsageDataAndVersionUpdating()) {
+      if (this.enableUsageDataAndVersionUpdating()) {
         UsageDataReporter.report();
         VersionUpdater.update();
       }
@@ -118,19 +98,71 @@ export abstract class Page {
         isAnonymous
       };
 
-      m.mount(body, {
-        view() {
-          return (
-            <MainPage headerData={headerData}
-                      footerData={footerData}
-                      showHeader={page.showHeader()}
-                      showFooter={page.showFooter()}>
-              {m(page.pageToMount as any)}
-            </MainPage>
-          );
-        }
-      });
+      this.contents({ headerData, footerData, showHeader: this.showHeader(), showFooter: this.showFooter() });
       ModalManager.onPageLoad();
+    });
+  }
+
+  protected abstract contents(pageAttrs: Attrs): void;
+
+  protected showHeader() {
+    return true;
+  }
+
+  protected showFooter() {
+    return true;
+  }
+
+  protected enableUsageDataAndVersionUpdating() {
+    return true;
+  }
+}
+
+type GoCDComponentTypes = (new(...args: any[]) => m.Component<any, any>) | (() => m.Component<any, any>); // slightly more specialized than m.ComponentTypes
+
+interface RoutesTable {
+  [route: string]: GoCDComponentTypes;
+}
+
+export abstract class RoutedPage extends AbstractPage {
+  private readonly routes: RoutesTable;
+
+  constructor(routes: RoutesTable) {
+    super();
+    this.routes = routes;
+    this.render();
+  }
+
+  contents(attrs: Attrs) {
+    const routes = Object.keys(this.routes);
+    const table: m.RouteDefs = {};
+
+    for (const route of routes) {
+      table[route] = this.componentToDisplay(this.routes[route], attrs);
+    }
+
+    m.route(document.body, "", table);
+  }
+
+  componentToDisplay(contents: m.ComponentTypes<any, any>, attrs: Attrs): m.Component<any, any> {
+    return {
+      view: () => <MainPage {...attrs}>{ m(contents) }</MainPage>
+    };
+  }
+}
+
+export abstract class Page extends AbstractPage {
+  private readonly pageToMount: GoCDComponentTypes;
+
+  constructor(pageToMount: GoCDComponentTypes) {
+    super();
+    this.pageToMount = pageToMount;
+    this.render();
+  }
+
+  contents(attrs: Attrs) {
+    m.mount(document.body, {
+      view: () => <MainPage {...attrs}>{ m(this.pageToMount) }</MainPage>
     });
   }
 }

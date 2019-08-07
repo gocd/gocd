@@ -21,6 +21,7 @@ import {Stream} from "mithril/stream";
 import stream from "mithril/stream";
 import {ConfigRepo, ParseInfo} from "models/config_repos/types";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import {Anchor, ScrollManager} from "views/components/anchor/anchor";
 import {Code} from "views/components/code";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {FlashMessage, MessageType} from "views/components/flash_message";
@@ -35,10 +36,12 @@ import styles from "./index.scss";
 
 interface CollectionAttrs extends RequiresPluginInfos {
   models: Stream<ConfigRepoVM[]>;
+  sm: ScrollManager;
 }
 
 interface SingleAttrs extends CRVMAware {
   pluginInfo?: PluginInfo<any>;
+  sm: ScrollManager;
 }
 
 class HeaderWidget extends MithrilViewComponent<SingleAttrs> {
@@ -158,21 +161,31 @@ class MaybeWarning extends MithrilViewComponent<WarningAttrs> {
 class ConfigRepoWidget extends MithrilComponent<SingleAttrs> {
   expanded: Stream<boolean> = stream();
 
-  view(vnode: m.Vnode<SingleAttrs>): m.Children | void | null {
-    const vm = vnode.attrs.vm;
+  oninit(vnode: m.Vnode<SingleAttrs, {}>) {
+    const {sm, vm, pluginInfo} = vnode.attrs;
     const repo = vm.repo;
-    const pluginInfo = vnode.attrs.pluginInfo;
+    const parseInfo = repo.lastParse();
+    const linked = sm.getTarget() === repo.id();
+
+    // set the initial state of the collapsible panel; alternative to setting `expanded` attribute
+    // and, perhaps, more obvious that this is only matters for first load
+    this.expanded(linked || !pluginInfo || _.isEmpty(parseInfo) || !!parseInfo!.error());
+  }
+
+  view(vnode: m.Vnode<SingleAttrs>): m.Children | void | null {
+    const {sm, vm, pluginInfo} = vnode.attrs;
+    const repo = vm.repo;
     const parseInfo = repo.lastParse();
     const maybeWarning = <MaybeWarning parseInfo={parseInfo} pluginInfo={pluginInfo}/>;
     const configRepoHasErrors = !pluginInfo || _.isEmpty(parseInfo) || !!parseInfo!.error();
 
-    return (
+    return <Anchor id={repo.id()} sm={sm} onnavigate={() => this.expanded(true)}>
       <CollapsiblePanel error={configRepoHasErrors}
-                        header={<HeaderWidget {...vnode.attrs} />}
+                        header={<HeaderWidget {...vnode.attrs}/>}
                         dataTestId={"config-repo-details-panel"}
                         actions={<CRPanelActions inProgress={repo.materialUpdateInProgress()} vm={vm}/>}
                         vm={this}
-                        expanded={configRepoHasErrors} onexpand={() => vm.notify("expand")}>
+                        onexpand={() => vm.notify("expand")}>
         {maybeWarning}
 
         {this.renderedConfigs(parseInfo, vm)}
@@ -181,7 +194,7 @@ class ConfigRepoWidget extends MithrilComponent<SingleAttrs> {
         {this.configRepoMetaConfigDetails(repo.id(), repo.pluginId())}
         {this.materialConfigDetails(repo)}
       </CollapsiblePanel>
-    );
+    </Anchor>;
   }
 
   private renderedConfigs(parseInfo: ParseInfo | null, vm: ConfigRepoVM): m.Children {
@@ -248,7 +261,7 @@ class ConfigRepoWidget extends MithrilComponent<SingleAttrs> {
 
 export class ConfigReposWidget extends MithrilViewComponent<CollectionAttrs> {
   view(vnode: m.Vnode<CollectionAttrs>): m.Children | void | null {
-    const models = (vnode.attrs.models());
+    const models = vnode.attrs.models();
 
     if (!models.length) {
       return (
@@ -261,7 +274,7 @@ export class ConfigReposWidget extends MithrilViewComponent<CollectionAttrs> {
       {models.map((vm) => {
         const repo = vm.repo;
         const pluginInfo = _.find(vnode.attrs.pluginInfos(), {id: repo.pluginId()});
-        return <ConfigRepoWidget key={repo.id()} vm={vm} pluginInfo={pluginInfo}/>;
+        return <ConfigRepoWidget key={repo.id()} vm={vm} pluginInfo={pluginInfo} sm={vnode.attrs.sm}/>;
       })}
     </div>;
   }

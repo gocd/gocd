@@ -843,7 +843,7 @@ task newSPA {
       * limitations under the License.
       """.stripIndent().trim()
 
-    String javaOrJavaScriptLicencseHeader = "/*\n${licenseHeader.lines().collect{eachLine -> " ${eachLine}"}.join("\n")}\n */\n\n"
+    String javaOrJavaScriptLicencseHeader = "/*\n${licenseHeader.split('\n').collect{eachLine -> " ${eachLine}"}.join("\n")}\n */\n\n"
 
 
     file("${mountPoint}/${spaName}.tsx").withWriter { out ->

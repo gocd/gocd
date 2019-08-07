@@ -18,15 +18,10 @@ import classnames from "classnames";
 import {MithrilComponent} from "jsx/mithril-component";
 import * as m from "mithril";
 import * as stream from "mithril/stream";
-import {Stream} from "mithril/stream";
 import * as styles from "./index.scss";
 
-// for now, just allow the state to be manipulated; however,
-// it may be desirable in the future to add the ability to fire
-// event handlers. Currently, this is handled in other ways but
-// this can be added when necessary.
-export interface CollapsibleStateModel {
-  expanded: Stream<boolean>;
+interface CollapsibleStateModel {
+  expanded: (newVal?: boolean) => boolean;
 }
 
 interface Attrs {
@@ -52,19 +47,27 @@ interface Attrs {
 
 interface State extends CollapsibleStateModel {
   toggle: () => void;
-  fireEvents: () => void;
+  fireEvents: (expanded: boolean) => void;
 }
 
 export class CollapsiblePanel extends MithrilComponent<Attrs, State> {
   oninit(vnode: m.Vnode<Attrs, State>) {
-    const vm = vnode.attrs.vm;
-    vnode.state.expanded = vm ? vm.expanded : stream();
+    const defaultState = stream(false);
 
-    const initial = !!(void 0 === vnode.attrs.expanded ? (vm && vm.expanded()) : vnode.attrs.expanded);
-    vnode.state.expanded(initial);
+    vnode.state.expanded = (val?: boolean) => {
+      const {vm} = vnode.attrs; // Don't optimize! Read from attrs within the method body because vm instance may be different on subsequent invocations
+      const state = vm ? vm.expanded : defaultState;
 
-    vnode.state.fireEvents = () => {
-      if (vnode.state.expanded()) {
+      if (void 0 !== val) {
+        state(val);
+        vnode.state.fireEvents(val);
+      }
+
+      return state();
+    };
+
+    vnode.state.fireEvents = (expanded: boolean) => {
+      if (expanded) {
         if ("function" === typeof vnode.attrs.onexpand) {
           vnode.attrs.onexpand();
         }
@@ -77,10 +80,13 @@ export class CollapsiblePanel extends MithrilComponent<Attrs, State> {
 
     vnode.state.toggle = () => {
       vnode.state.expanded(!vnode.state.expanded());
-      vnode.state.fireEvents();
     };
 
-    vnode.state.fireEvents();
+    if (void 0 !== vnode.attrs.expanded) { // set the initial value, if provided
+      vnode.state.expanded(vnode.attrs.expanded);
+    } else {
+      vnode.state.fireEvents(vnode.state.expanded());
+    }
   }
 
   view(vnode: m.Vnode<Attrs, State>) {

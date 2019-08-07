@@ -336,6 +336,12 @@
   </rule>
 
   <rule>
+    <name>Rails Template Authorization Config API</name>
+    <from>^/api/admin/templates/([^/]+)/authorization(/?)$</from>
+    <to last="true">/rails/api/admin/templates/${escape:$1}/authorization</to>
+  </rule>
+
+  <rule>
     <name>Spark Template Config API</name>
     <from>^/api/admin/templates/(.*)$</from>
     <to last="true">/spark/api/admin/templates/${escape:$1}</to>

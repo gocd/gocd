@@ -7167,12 +7167,12 @@ sass-graph@^2.2.4:
     scss-tokenizer "^0.2.3"
     yargs "^7.0.0"
 
-sass-lint-webpack@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/sass-lint-webpack/-/sass-lint-webpack-1.0.1.tgz#9e82f6253590f2b148b2d231d5dc94753f115748"
-  integrity sha512-lE3KjDnW0+CFEpue6bmGU8xeZmEDClRKAf/jZSEQwetmDgVbkpjFEkMGh/7IvxfU2EbqvmrIt5lQCfS4Fq9zsg==
+sass-lint-webpack@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/sass-lint-webpack/-/sass-lint-webpack-1.0.2.tgz#7c3d8bd8fd557591cfa7411f19c1c56cfd6bf69c"
+  integrity sha512-Kx/H9x7PCEiSTbYVH9zhAS3/xY/MH3E8VmQw/QEbTn8d3ot6fp1NDq+uL6dYZAAFbehqUM3jRoMIsPNIykhGrA==
   dependencies:
-    chalk "^2.4.1"
+    chalk "^2.4.2"
 
 sass-lint@^1.13.1:
   version "1.13.1"

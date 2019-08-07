@@ -19,41 +19,6 @@ describe("value_stream_map_renderer", function () {
             "</div>");
     });
 
-    xit("testShouldRenderGraphForASimplePipelineWithDotInTheName", function () {
-        /*
-         hg_fingerprint -> p2.dot -> p3.dot
-         */
-        var node1 = scmMaterialNode('hg_fingerprint', '../manual-testing/ant_hg/dummy', "hg", '["p2.dot"]', 1, '[]');
-        var node2 = pipelineNode("p2.dot", '["hg_fingerprint"]', '["p3.dot"]', 1, "", '[]');
-        var node3 = pipelineNode("p3.dot", '["p2.dot"]', '[]', 1, "", '[]');
-        var vsm = eval('({"current_pipeline":"p2.dot","levels":[{"nodes":[' + node1 + ']},{"nodes":[' + node2 + ']},{"nodes":[' + node3 + ']}]})');
-        new Graph_Renderer("#vsm-container").invoke(vsm);
-        assertEquals("scm node is missing", 1, jQuery("#vsm-container #hg_fingerprint").length)
-        assertEquals("pipeline node p2.dot is missing", 1, jQuery("#vsm-container #p2_id-dot").length)
-        assertEquals("pipeline node p3.dot is missing", 1, jQuery("#vsm-container #p3_id-dot").length)
-        assertEquals("invalid number of paths", 2, (jQuery("svg#svg").find('path').length))
-        assertEquals("path missing from hg to p2", 'dependency hg_fingerprint p2_id-dot', jQuery("svg#svg .hg_fingerprint.p2_id-dot").attr('class'))
-
-        var grid = new VsmGrid("#vsm-container");
-        assertEquals("graph has overlap", true, grid.hasNoOverlap())
-        assertEquals("incorrect node position", 'hg_fingerprint', grid.nodeIdAt(0, 0))
-        assertEquals("incorrect node position", 'p2_id-dot', grid.nodeIdAt(1, 0))
-        assertEquals("incorrect node position", 'p3_id-dot', grid.nodeIdAt(2, 0))
-
-        assertEquals("does not have expected edge", true, grid.hasAnEdgeBetween('hg_fingerprint', 'p2_id-dot'))
-        assertEquals("does not have expected edge", true, grid.hasAnEdgeBetween('p2_id-dot', 'p3_id-dot'))
-
-        // pinning
-        jQuery("#p2_id-dot .pin").click(); // click on pin
-        assertEquals("does not have edge highlighted - 1 - hg_fingerprint to p2\\.dot", true, grid.hasHighlightedEdgeBetween('hg_fingerprint', 'p2_id-dot'))
-        assertEquals("does not have edge highlighted - 1 - p2\\.dot to p3\\.dot", true, grid.hasHighlightedEdgeBetween('p2_id-dot', 'p3_id-dot'))
-        jQuery("#hg_fingerprint").click(); // remove focus from pinned pipeline
-        assertEquals("does not have edge highlighted - 2 - hg_fingerprint to p2\\.dot", true, grid.hasHighlightedEdgeBetween('hg_fingerprint', 'p2_id-dot'))
-        assertEquals("does not have edge highlighted - 2 - p2\\.dot to p3\\.dot", true, grid.hasHighlightedEdgeBetween('p2_id-dot', 'p3_id-dot'))
-
-        assertIfItIsStartNode(grid.nodeIdAt(0, 0))
-    });
-
     it("testCurrentPipelineShouldHaveHighlightingBackground", function () {
         var hg_material = scmMaterialNode('hg_fingerprint', '../manual-testing/ant_hg/dummy', "hg", '["p1"]', 1,
           '[{"modifications": [{"revision": "revision1","comment":"comment1","user":"user1","modified_time":"modified_time1"}, ' +
@@ -85,158 +50,6 @@ describe("value_stream_map_renderer", function () {
 
         assertEquals("Should have message if pipeline has not run and waiting", jQuery('#vsm-container #sample .waiting').length, 1);
     });
-
-    xit("testShouldRenderGraphForASimplePipeline", function () {
-        /*
-         hg_fingerprint -> p2
-         */
-        var node1 = scmMaterialNode('hg_fingerprint', '../manual-testing/ant_hg/dummy', "hg", '["p2"]', 1, '[]');
-        var node2 = pipelineNode("p2", '["hg_fingerprint"]', '[]', 1, "", '[]');
-        var vsm = eval('({"current_pipeline":"p2","levels":[{"nodes":[' + node1 + ']},{"nodes":[' + node2 + ']}]})');
-        new Graph_Renderer("#vsm-container").invoke(vsm);
-        assertEquals("scm node is missing", 1, jQuery("#vsm-container #hg_fingerprint").length)
-        assertEquals("pipeline node p2 is missing", 1, jQuery("#vsm-container #p2").length)
-        assertEquals("invalid number of paths", 1, (jQuery("svg#svg").find('path').length))
-        assertEquals("path missing from hg to p2", 'dependency hg_fingerprint p2', jQuery("svg#svg .hg_fingerprint.p2").attr('class'))
-
-        var grid = new VsmGrid("#vsm-container");
-        assertEquals("graph has overlap", true, grid.hasNoOverlap())
-        assertEquals("incorrect node position", 'hg_fingerprint', grid.nodeIdAt(0, 0))
-        assertEquals("incorrect node position", 'p2', grid.nodeIdAt(1, 0))
-
-        assertEquals("does not have expected edge", true, grid.hasAnEdgeBetween('hg_fingerprint', 'p2'))
-
-        assertIfItIsStartNode(grid.nodeIdAt(0, 0))
-    });
-
-
-    xit("testShouldRenderGraphForTriangleCrossLevelDependency", function () {
-        /*  hg_fingerprint ---> p2 ---> p4
-         |                   ^
-         +-----------X-------+
-         */
-        var node1 = scmMaterialNode('hg_fingerprint', '../manual-testing/ant_hg/dummy', "hg", '["p2","uuid"]', 1, '[]');
-        var node2 = pipelineNode("p2", '["hg_fingerprint"]', '["p4"]', 1, "", '[]');
-        var dummy = dummyNode("uuid", "dummy-uuid", '["hg_fingerprint"]', '["p4"]', 2);
-        var node3 = pipelineNode("p4", '["p2","uuid"]', '[]', 1, "", '[]');
-        var vsm = eval('({"current_pipeline":"p4","levels":[{"nodes":[' + node1 + ']},{"nodes":[' + node2 + ',' + dummy + ']},{"nodes":[' + node3 + ']}]})');
-        new Graph_Renderer("#vsm-container").invoke(vsm);
-
-        hasNodeWithType("#hg_fingerprint", "material hg");
-        hasNodeWithType("#p2", "PIPELINE");
-        hasNodeWithType("#p4", "PIPELINE current");
-        hasNodeWithType("#uuid", "DUMMY");
-        assertEquals("invalid number of paths", 3, (jQuery("svg#svg").find('path').length))
-        assertEquals("path missing from hg to p2", 'dependency hg_fingerprint p2', jQuery("svg#svg .hg_fingerprint.p2").attr('class'))
-        assertEquals("path missing from hg_fingerprint to p4", 'dependency hg_fingerprint p4', jQuery("svg#svg .hg_fingerprint.p4").attr('class'))
-        assertEquals("path missing from p2 to p4", 'dependency p2 p4', jQuery("svg#svg .p2.p4").attr('class'))
-
-        var grid = new VsmGrid("#vsm-container");
-        assertEquals("graph has overlap", true, grid.hasNoOverlap())
-        assertEquals("incorrect node position", 'hg_fingerprint', grid.nodeIdAt(0, 0))
-        assertEquals("incorrect node position", 'p2', grid.nodeIdAt(1, 0))
-        assertEquals("incorrect node position", 'uuid', grid.nodeIdAt(1, 1))
-        assertEquals("incorrect node position", 'p4', grid.nodeIdAt(2, 0))
-
-        assertEquals("does not have expected edge", true, grid.hasAnEdgeBetween('hg_fingerprint', 'p2'))
-        assertEquals("does not have expected edge", true, grid.hasAnEdgeBetween('p2', 'p4'))
-        // assertEquals("does not have expected edge", true, grid.hasAnEdgeBetween('hg_fingerprint', 'p4'))
-
-        assertIfItIsStartNode(grid.nodeIdAt(0, 0))
-    });
-
-
-    xit("testShouldRenderGraphForADiamondDependency", function () {
-        /* hg_fingerprint ---> p2 ---> p3
-         |                  ^
-         +--------> p1 -----+
-         */
-        var node1 = scmMaterialNode('hg_fingerprint', '../manual-testing/ant_hg/dummy', "hg", '["p2","p1"]', 1, '[]');
-        var node2 = pipelineNode("p2", '["hg_fingerprint"]', '["p3"]', 1, "", '[]');
-        var node3 = pipelineNode("p1", '["hg_fingerprint"]', '["p3"]', 2, "", '[]');
-        var node4 = pipelineNode("p3", '["p1", "p2"]', '[]', 1, "", '[]');
-        var vsm = eval('({"current_pipeline":"p3","levels":[{"nodes":[' + node1 + ']},{"nodes":[' + node2 + ',' + node3 + ']},{"nodes":[' + node4 + ']}]})');
-        new Graph_Renderer("#vsm-container").invoke(vsm);
-        assertEquals("scm node is missing", 1, jQuery("#vsm-container #hg_fingerprint").length)
-        assertEquals("pipeline node p2 is missing", 1, jQuery("#vsm-container #p2").length)
-        assertEquals("pipeline node p3 is missing", 1, jQuery("#vsm-container #p3").length)
-        assertEquals("pipeline node p1 is missing", 1, jQuery("#vsm-container #p1").length)
-        assertEquals("invalid number of paths", 4, (jQuery("svg#svg").find('path').length))
-        assertEquals("path missing from hg to p2", 'dependency hg_fingerprint p2', jQuery("svg#svg .hg_fingerprint.p2").attr('class'))
-        assertEquals("path missing from hg to p1", 'dependency hg_fingerprint p1', jQuery("svg#svg .hg_fingerprint.p1").attr('class'))
-        assertEquals("path missing from p2 to p3", 'dependency p2 p3', jQuery("svg#svg .p2.p3").attr('class'))
-        assertEquals("path missing from p1 to p3", 'dependency p1 p3', jQuery("svg#svg .p1.p3").attr('class'))
-
-        var grid = new VsmGrid("#vsm-container");
-        assertEquals("graph has overlap", true, grid.hasNoOverlap())
-        assertEquals("incorrect node position", 'hg_fingerprint', grid.nodeIdAt(0, 0))
-        assertEquals("incorrect node position", 'p2', grid.nodeIdAt(1, 0))
-        assertEquals("incorrect node position", 'p1', grid.nodeIdAt(1, 1))
-        assertEquals("incorrect node position", 'p3', grid.nodeIdAt(2, 0))
-
-        assertEquals("does not have expected edge", true, grid.hasAnEdgeBetween('hg_fingerprint', 'p2'))
-        assertEquals("does not have expected edge", true, grid.hasAnEdgeBetween('hg_fingerprint', 'p1'))
-        assertEquals("does not have expected edge", true, grid.hasAnEdgeBetween('p2', 'p3'))
-        assertEquals("does not have expected edge", true, grid.hasAnEdgeBetween('p1', 'p3'))
-
-        assertIfItIsStartNode(grid.nodeIdAt(0, 0))
-    });
-
-
-    xit("testShouldRenderNodesAtTheRightDepth", function () {
-        /*                  g1----> p
-         /  ^
-         /   /
-         hg1--->p1  /
-         \    /
-         \ /
-         hg2-->p2
-
-         */
-        var node1 = scmMaterialNode('hg1', '../manual-testing/ant_hg/dummy', "hg", '["p1","p2"]', 2, '[]');
-        var node2 = scmMaterialNode('hg2', '../manual-testing/ant_hg/second', "hg", '["p2"]', 3, '[]');
-        var node3 = scmMaterialNode('g1', '../git_repo', "hg", '["p"]', 1, '[]');
-        var node4 = pipelineNode("p1", '["hg1"]', '["p"]', 2, "", '[]');
-        var node5 = pipelineNode("p2", '["hg1","hg2"]', '["p"]', 3, "", '[]');
-        var node6 = pipelineNode("p", '["g1","p1", "p2"]', '[]', 1, "", '[]');
-
-
-        var vsm = eval('({"current_pipeline":"p","levels":[{"nodes":[' + node1 + ',' + node2 + ']},{"nodes":[' + node3 + ',' + node4 + ',' + node5 + ']},{"nodes":[' + node6 + ']}]})');
-        new Graph_Renderer("#vsm-container").invoke(vsm);
-        assertEquals("hg1 scm node is missing", 1, jQuery("#vsm-container #hg1").length)
-        assertEquals("hg2 scm node is missing", 1, jQuery("#vsm-container #hg2").length)
-        assertEquals("g1 scm node is missing", 1, jQuery("#vsm-container #g1").length)
-        assertEquals("pipeline node p1 is missing", 1, jQuery("#vsm-container #p1").length)
-        assertEquals("pipeline node p2 is missing", 1, jQuery("#vsm-container #p2").length)
-        assertEquals("pipeline node p is missing", 1, jQuery("#vsm-container #p").length)
-        assertEquals("invalid number of paths", 6, (jQuery("svg#svg").find('path').length))
-        assertEquals("path missing from hg1 to p1", 'dependency hg1 p1', jQuery("svg#svg .hg1.p1").attr('class'))
-        assertEquals("path missing from hg1 to p2", 'dependency hg1 p2', jQuery("svg#svg .hg1.p2").attr('class'))
-        assertEquals("path missing from hg2 to p2", 'dependency hg2 p2', jQuery("svg#svg .hg2.p2").attr('class'))
-        assertEquals("path missing from g1 to p", 'dependency g1 p', jQuery("svg#svg .g1.p").attr('class'))
-        assertEquals("path missing from p1 to p", 'dependency p1 p', jQuery("svg#svg .p1.p").attr('class'))
-        assertEquals("path missing from p2 to p", 'dependency p2 p', jQuery("svg#svg .p2.p").attr('class'))
-
-        var grid = new VsmGrid("#vsm-container");
-        assertEquals("graph has overlap", true, grid.hasNoOverlap())
-        assertEquals("incorrect node position", 'hg1', grid.nodeIdAt(0, 1))
-        assertEquals("incorrect node position", 'hg2', grid.nodeIdAt(0, 2))
-        assertEquals("incorrect node position", 'g1', grid.nodeIdAt(1, 0))
-        assertEquals("incorrect node position", 'p1', grid.nodeIdAt(1, 1))
-        assertEquals("incorrect node position", 'p2', grid.nodeIdAt(1, 2))
-        assertEquals("incorrect node position", 'p', grid.nodeIdAt(2, 0))
-
-        assertEquals("does not have expected edge", true, grid.hasAnEdgeBetween('hg1', 'p1'))
-        assertEquals("does not have expected edge", true, grid.hasAnEdgeBetween('hg1', 'p2'))
-        assertEquals("does not have expected edge", true, grid.hasAnEdgeBetween('hg2', 'p2'))
-        assertEquals("does not have expected edge", true, grid.hasAnEdgeBetween('g1', 'p'))
-        assertEquals("does not have expected edge", true, grid.hasAnEdgeBetween('p1', 'p'))
-        assertEquals("does not have expected edge", true, grid.hasAnEdgeBetween('p2', 'p'))
-
-        assertIfItIsStartNode(grid.nodeIdAt(0, 1))
-        assertIfItIsStartNode(grid.nodeIdAt(0, 2))
-    });
-
 
     it("testShouldRenderNodeWithRestrictions_WhenUserDoesNotHavePermissionToViewPipelineOrPipelineHasBeenDeleted", function () {
         /*
@@ -490,31 +303,6 @@ describe("value_stream_map_renderer", function () {
     assertEquals("Duration: In Progress", jQuery("#p1 .duration").text());
   });
 
-    function assertIfItIsStartNode(nodeId) {
-        var nodeIdSelector = "#" + nodeId;
-        var nodeHeight = jQuery(nodeIdSelector).css("height").replace(/px/, "");
-        var nodeWidth = jQuery(nodeIdSelector).css("width").replace(/px/, "");
-        var nodeBorderRadius = jQuery(nodeIdSelector).css("border-bottom-left-radius").replace(/px/, "");
-        var nodeBorderRadiusBottomRight = jQuery(nodeIdSelector).css("border-bottom-right-radius").replace(/px/, "");
-        var nodeBorderRadiusTopLeft = jQuery(nodeIdSelector).css("border-top-left-radius").replace(/px/, "");
-        var nodeBorderRadiusTopRight = jQuery(nodeIdSelector).css("border-top-right-radius").replace(/px/, "");
-
-        assertEquals("border radius should be equal across all edges", nodeBorderRadius, nodeBorderRadiusBottomRight);
-        assertEquals("border radius should be equal across all edges", nodeBorderRadius, nodeBorderRadiusTopLeft);
-        assertEquals("border radius should be equal across all edges", nodeBorderRadius, nodeBorderRadiusTopRight);
-
-        assertEquals("height and width of scm node should be same", 0, (nodeHeight - nodeWidth));
-
-        var expectedBorderRadius = ((nodeHeight / 2) + 10);
-        assertEquals("border radius should be more than 50% of height/width", true, Math.round(expectedBorderRadius - nodeBorderRadius) < 1);
-    }
-
-
-    function dummyNode(nodeId, nodeName, parents, dependents, depth) {
-        return'{"node_type":"' + "DUMMY" + '","name":"' + nodeName + '","parents":' + parents + ',"dependents":' + dependents +
-            ',"id":"' + nodeId + '", "depth":' + depth + ', "locator":' + '""' + '}';
-    }
-
     function scmMaterialNode(nodeId, nodeName, type, dependents, depth, material_revisions) {
         return '{"node_type":"' + type + '","name":"' + nodeName + '","parents":' + '[]' + ',"dependents":' + dependents +
             ',"id":"' + nodeId + '", "depth":' + depth + ', "locator":' + '""' + ', "material_revisions":' + material_revisions + '}';
@@ -528,12 +316,6 @@ describe("value_stream_map_renderer", function () {
     function pipelineNodeWithRestriction(type, nodeName, parents, dependents, depth, view_type, message) {
         return '{"node_type":"' + type + '","name":"' + nodeName + '","parents":' + parents + ',"dependents":' + dependents +
             ',"id":"' + nodeName + '", "depth":' + depth + ', "locator":' + '""' + ', "view_type":"' + view_type + '", "message":"' + message + '"}';
-    }
-
-    function hasNodeWithType(nodeId, entity_type) {
-        var node = jQuery("#vsm-container " + nodeId);
-        assertEquals("Missing node : " + nodeId, 1, node.length)
-        assertEquals("Missing node entity_type : " + entity_type, "vsm-entity " + entity_type.toLowerCase(), node.attr('class'))
     }
 
     VsmNode = function () {

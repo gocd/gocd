@@ -162,55 +162,6 @@ describe("package_material_definition_for_new_pipeline_wizard", function () {
         }
     );
 
-    xit("testShouldPopulateRelevantPackageOptionsAndConfigWhenSwitchingFromAddNewToChooseExisting", function () {
-            var callToGetShowConfig = false;
-            jQuery.ajax = function (options) {
-                if (options.url == "show_path") {
-                    callToGetShowConfig = true;
-                }
-            };
-            new PackageMaterialDefinitionForNewPipelineWizard(data, null, null, "show_path", "new_path", "oops...no plugin!!!").init();
-            selectRepositoryOption("tw-repo2");
-            selectPackageOption("p3");
-            assertEquals(true, callToGetShowConfig);
-            callToGetShowConfig = false;
-
-            selectAddNewOrExistingOption('create');
-
-            selectAddNewOrExistingOption('associate');
-            assertEquals("disabled", false, jQuery("#package").is(":disabled"));
-            assertEquals("hidden", false, jQuery("#package").is(":hidden"));
-
-            verifyPackageOptionsIsForRepo2WithSelectedValue("");
-//            assertEquals(true, callToGetShowConfig);
-        }
-    );
-
-    xit("testShouldDisableAndDisplayErrorMessageIfSelectedRepoIsAssociatedToAMissingPlugin", function () {
-            new PackageMaterialDefinitionForNewPipelineWizard(data, null, null, "show_path", "new_path", "oops...plugin ''{0}'' missing!!!").init();
-            var packageConfigDiv = jQuery(".package_configuration");
-
-            selectRepositoryOption("tw-repo3");
-            var displayedError = "oops...plugin 'missing_plugin' missing!!!";
-            assertEquals("1", displayedError, packageConfigDiv.text());
-
-            selectAddNewOrExistingOption('create');
-            assertEquals("2", displayedError, packageConfigDiv.text());
-
-            selectAddNewOrExistingOption('associate');
-            assertEquals("3", displayedError, packageConfigDiv.text());
-
-            selectRepositoryOption("tw-repo2");
-            assertEquals("4", "", packageConfigDiv.text());
-
-            selectAddNewOrExistingOption('create');
-            assertEquals("5", "", packageConfigDiv.text());
-
-            selectRepositoryOption("tw-repo3");
-            assertEquals("6", displayedError, packageConfigDiv.text());
-        }
-    );
-
     it("testShouldClearErrorMessagesForChooseExistingScenarioIfUserSwitchesToCreateNewOption", function () {
         new PackageMaterialDefinitionForNewPipelineWizard(data, null, null, "show_path", "new_path", "oops...no plugin!!!").init();
         selectRepositoryOption("tw-repo2");

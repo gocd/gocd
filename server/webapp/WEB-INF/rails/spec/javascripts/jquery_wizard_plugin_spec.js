@@ -141,15 +141,4 @@ describe("jquery_wizard_plugin", function(){
         assertEquals('getting-started-02 does not have first step as current', false, jQuery('#getting-started-02 #step6').hasClass('current'));
     });
 
-    xit("test_wizard_should_add_events_to_navigation_element", function() {
-        //TODO
-    });
-
-    xit("test_wizard_should_reset_event_handlers_when_initialized_again", function() {
-        //TODO:
-    });
-
-    xit("test_wizard_should_affect_only_elements_in_scope", function() {
-        //TODO:
-    });
 });

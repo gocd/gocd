@@ -71,27 +71,6 @@ describe("dashboard_periodical_executor", function(){
         assertEquals('The server encountered a problem (json error).', msg);
     });
 
-    /* Disabled, because we don't want to show the error message when user leave some page
-     The browser will return a empty transport object when user cancel the transfer and leave the page.
-     */    xit("should_show_error_when_got_no_response_text", function(){
-        var invoked = false;
-        var msg;
-        window.flash = {error: function(title, body){
-            invoked = true;
-            msg = title;
-        }}
-        prepareMockRequest({status: 200}, null);
-        var fakeOb = {notify: function(){}};
-        dashboard_periodical_executor.clean();
-        dashboard_periodical_executor.register(fakeOb);
-        assertEquals(1, dashboard_periodical_executor.observers.size());
-        dashboard_periodical_executor.start();
-        dashboard_periodical_executor.fireNow();
-
-        assertTrue(invoked);
-        assertEquals('Server cannot be reached. Either there is a network problem or the server is down.', msg);
-    });
-
     it("test_should_show_404_error_when_response_header_is_404", function(){
         var invoked = false;
         var msg;

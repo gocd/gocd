@@ -39,14 +39,6 @@ describe("word_break_inserter", function () {
         assertEquals('ad<wbr>dp<wbr>r', content);
     });
 
-    xit("test_should_insert_shy_to_individual_element_not_in_firefox", function () {
-        Prototype.Browser.Gecko = false;
-        new WordBreaker(2).word_break($('wbr1'));
-        var content = $('wbr1').innerHTML.toLowerCase().unescapeHTML();
-        var specialchar = '&shy;'.unescapeHTML();
-        assertEquals('ad' + specialchar + 'dp' + specialchar + 'r', content);
-    });
-
     it("test_should_not_insert_wbr_when_wbr_already_exist", function () {
         Prototype.Browser.Gecko = true;
         var wbr = new WordBreaker(3);

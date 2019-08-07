@@ -22,11 +22,13 @@ import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.spark.Routes;
 
+import static com.thoughtworks.go.api.representers.EnvironmentVariableRepresenter.fromJSONArray;
+
 public class EnvironmentRepresenter {
-    public static void toJSON(OutputWriter outputWriter, EnvironmentConfig environmentViewModel) {
-        String envName = environmentViewModel.name().toString();
-        EnvironmentPipelinesConfig pipelines = environmentViewModel.getPipelines();
-        EnvironmentVariablesConfig environmentVariableConfigs = environmentViewModel.getVariables();
+    public static void toJSON(OutputWriter outputWriter, EnvironmentConfig envConfig) {
+        String envName = envConfig.name().toString();
+        EnvironmentPipelinesConfig envPipelineConfig = envConfig.getPipelines();
+        EnvironmentVariablesConfig envVarsConfig = envConfig.getVariables();
 
         outputWriter
             .addLinks(linksWriter -> linksWriter
@@ -34,23 +36,25 @@ public class EnvironmentRepresenter {
                 .addAbsoluteLink("doc", Routes.Environments.DOC)
                 .addLink("find", Routes.Environments.find()))
             .add("name", envName)
-            .addChildList("pipelines", listWriter ->
-                pipelines.forEach(pipelineConfig ->
-                        listWriter.addChild(propertyWriter -> PipelineRepresenter.toJSON(propertyWriter, pipelineConfig))))
-            .addChildList("environment_variables", environmentListWriter ->
-                environmentVariableConfigs.forEach(environmentVariable ->
-                        environmentListWriter.addChild(propertyWriter -> EnvironmentVariableRepresenter.toJSON(propertyWriter, environmentVariable))
-                )
+            .addChildList("pipelines",
+                    pipelinesWriter -> envPipelineConfig.forEach(
+                        pipelineConfig -> pipelinesWriter.addChild(pipelineWriter -> PipelineRepresenter.toJSON(pipelineWriter, pipelineConfig))))
+            .addChildList("environment_variables",
+                    envVarListWriter -> envVarsConfig.forEach(
+                            envVar -> envVarListWriter.addChild(envVarWriter -> EnvironmentVariableRepresenter.toJSON(envVarWriter, envVar)))
             );
     }
 
     public static EnvironmentConfig fromJSON(JsonReader jsonReader) {
-        BasicEnvironmentConfig environmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(jsonReader.getString("name")));
+        String envName = jsonReader.getString("name");
+        BasicEnvironmentConfig envConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(envName));
 
-        jsonReader.readArrayIfPresent("pipelines", array -> array.forEach(element -> environmentConfig.addPipeline(new CaseInsensitiveString(element.getAsJsonObject().get("name").getAsString()))));
+        jsonReader.readArrayIfPresent("pipelines", pipelines -> pipelines.forEach(pipeline -> {
+            String pipelineName = pipeline.getAsJsonObject().get("name").getAsString();
+            envConfig.addPipeline(new CaseInsensitiveString(pipelineName));
+        }));
 
-        EnvironmentVariableRepresenter.fromJSONArray(jsonReader).stream().forEach(environmentConfig::addEnvironmentVariable);
-
-        return environmentConfig;
+        fromJSONArray(jsonReader).stream().forEach(envConfig::addEnvironmentVariable);
+        return envConfig;
     }
 }

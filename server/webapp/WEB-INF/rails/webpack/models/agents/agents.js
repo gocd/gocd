@@ -213,7 +213,7 @@ export const Agents = function (data) {
 
 };
 
-Agents.API_VERSION = 'v5';
+Agents.API_VERSION = 'v6';
 
 CrudMixins.Index({
   type:     Agents,

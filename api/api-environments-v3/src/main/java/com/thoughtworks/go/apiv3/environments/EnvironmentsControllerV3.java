@@ -56,8 +56,11 @@ import static com.thoughtworks.go.api.representers.EnvironmentVariableRepresente
 import static com.thoughtworks.go.api.util.HaltApiResponses.*;
 import static com.thoughtworks.go.apiv3.environments.representers.EnvironmentsRepresenter.toJSON;
 import static java.lang.String.format;
+import static java.lang.String.valueOf;
 import static java.util.Comparator.comparing;
+import static java.util.Objects.hash;
 import static java.util.stream.Collectors.toList;
+import static org.apache.commons.codec.digest.DigestUtils.md5Hex;
 import static spark.Spark.*;
 
 @Component
@@ -105,10 +108,6 @@ public class EnvironmentsControllerV3 extends ApiController implements SparkSpri
         List<EnvironmentConfig> envViewModelList = toSortedEnvironmentConfigList(envConfigSet);
         setEtagHeader(response, calculateEtag(envViewModelList));
         return writerForTopLevelObject(request, response, outputWriter -> toJSON(outputWriter, envViewModelList));
-    }
-
-    List<EnvironmentConfig> toSortedEnvironmentConfigList(Set<EnvironmentConfig> envConfigSet) {
-        return envConfigSet.stream().sorted(comparing(EnvironmentConfig::name)).collect(toList());
     }
 
     public String show(Request request, Response response) throws IOException {
@@ -208,7 +207,7 @@ public class EnvironmentsControllerV3 extends ApiController implements SparkSpri
     @Override
     public String etagFor(EnvironmentConfig entityFromServer) {
         if (entityFromServer instanceof MergeEnvironmentConfig) {
-            return DigestUtils.md5Hex(String.valueOf(Objects.hash(entityFromServer)));
+            return md5Hex(valueOf(hash(entityFromServer)));
         }
         return entityHashingService.md5ForEntity(entityFromServer);
     }
@@ -232,6 +231,10 @@ public class EnvironmentsControllerV3 extends ApiController implements SparkSpri
     @Override
     public Consumer<OutputWriter> jsonWriter(EnvironmentConfig environmentConfig) {
         return writer -> EnvironmentRepresenter.toJSON(writer, environmentConfig);
+    }
+
+    List<EnvironmentConfig> toSortedEnvironmentConfigList(Set<EnvironmentConfig> envConfigSet) {
+        return envConfigSet.stream().sorted(comparing(EnvironmentConfig::name)).collect(toList());
     }
 
     private void haltIfEntityWithSameNameExists(EnvironmentConfig environmentConfig) {

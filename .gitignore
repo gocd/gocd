@@ -447,3 +447,7 @@ api/api-scms-v2/out/
 api/api-scms-v2/target/
 api/api-scms-v2/logs/
 api/api-scms-v2/config/
+api/api-agents-v6/out/
+api/api-agents-v6/target/
+api/api-agents-v6/logs/
+api/api-agents-v6/config/

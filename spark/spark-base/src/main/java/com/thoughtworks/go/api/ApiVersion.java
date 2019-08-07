@@ -15,6 +15,14 @@
  */
 package com.thoughtworks.go.api;
 
+import com.google.common.collect.ImmutableSet;
+
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 public enum ApiVersion {
     v1(),
     v2(),
@@ -23,7 +31,26 @@ public enum ApiVersion {
     v5(),
     v6(),
     v7(),
-    v8();
+    v8(),
+    v9(),
+    v10(),
+    v11();
+
+    public static final String LATEST_VERSION_MIMETYPE = "application/vnd.go.cd+json";
+
+    private static Set<String> VALID_HEADERS =
+            ImmutableSet.<String>builder()
+                    .add(LATEST_VERSION_MIMETYPE)
+                    .addAll(Arrays.stream(ApiVersion.values()).map(ApiVersion::mimeType).collect(Collectors.toSet()))
+                    .build();
+
+    private static Map<String, ApiVersion> HEADER_TO_VERSION_MAP = new LinkedHashMap<>();
+
+    static {
+        Arrays.stream(ApiVersion.values()).forEach(apiVersion -> {
+            HEADER_TO_VERSION_MAP.put(apiVersion.mimeType(), apiVersion);
+        });
+    }
 
     private final String mimeType;
 
@@ -33,5 +60,14 @@ public enum ApiVersion {
 
     public String mimeType() {
         return this.mimeType;
+    }
+
+    public static ApiVersion parse(String mimeType) {
+        return HEADER_TO_VERSION_MAP.get(mimeType);
+    }
+
+
+    public static boolean isValid(String mimeType) {
+        return VALID_HEADERS.contains(mimeType);
     }
 }

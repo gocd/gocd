@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.spark.spring;
 
+import com.thoughtworks.go.spark.RerouteLatestApis;
 import com.thoughtworks.go.spark.RoutesHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -25,10 +26,11 @@ import spark.servlet.SparkApplication;
 public class Application implements SparkApplication {
 
     @Autowired
-    public Application(SparkSpringController... controllers) {
+    public Application(RerouteLatestApis rerouteLatestApis, SparkSpringController... controllers) {
         ServletFlag.runFromServlet();
         RoutesHelper routesHelper = new RoutesHelper(controllers);
         routesHelper.init();
+        rerouteLatestApis.registerLatest();
     }
 
     @Override

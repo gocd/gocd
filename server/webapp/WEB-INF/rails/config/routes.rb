@@ -196,34 +196,36 @@ Rails.application.routes.draw do
   end
   get "admin/environments(.:format)" => 'environments#index', defaults: {:format => :html}, as: :environments
 
-  scope :api, as: :apiv1, format: false do
-    api_version(:module => 'ApiV1', header: {name: 'Accept', value: 'application/vnd.go.cd.v1+json'}) do
+  {'application/vnd.go.cd.v1+json' => :apiv1, 'application/vnd.go.cd+json' => :latest}.each do |header, as|
+    scope :api, as: as, format: false do
+      api_version(:module => 'ApiV1', header: {name: 'Accept', value: header}) do
 
-      resources :notification_filters, only: [:index, :create, :destroy]
+        resources :notification_filters, only: [:index, :create, :destroy]
 
-      namespace :admin do
-        namespace :templates do
-          get ':template_name/authorization' => 'authorization#show', constraints: {template_name: TEMPLATE_NAME_FORMAT}
-          put ':template_name/authorization' => 'authorization#update', constraints: {template_name: TEMPLATE_NAME_FORMAT}
+        namespace :admin do
+          namespace :templates do
+            get ':template_name/authorization' => 'authorization#show', constraints: {template_name: TEMPLATE_NAME_FORMAT}
+            put ':template_name/authorization' => 'authorization#update', constraints: {template_name: TEMPLATE_NAME_FORMAT}
+          end
+
+          get 'environments/:environment_name/merged' => 'merged_environments#show', constraints: MERGED_ENVIRONMENT_NAME_CONSTRAINT, as: :merged_environment_show
+          get 'environments/merged' => 'merged_environments#index', as: :merged_environment_index
+          resources :repositories, param: :repo_id, only: [:show, :index, :destroy, :create, :update], constraints: {repo_id: ALLOW_DOTS}
+
+          resources :packages, param: :package_id, only: [:show, :destroy, :index, :create, :update], constraints: {package_id: ALLOW_DOTS}
+          namespace :internal do
+            post :material_test, controller: :material_test, action: :test, as: :material_test
+            resources :pipelines, only: [:index]
+            resources :environments, only: [:index]
+          end
         end
 
-        get 'environments/:environment_name/merged' => 'merged_environments#show', constraints: MERGED_ENVIRONMENT_NAME_CONSTRAINT, as: :merged_environment_show
-        get 'environments/merged' => 'merged_environments#index', as: :merged_environment_index
-        resources :repositories, param: :repo_id, only: [:show, :index, :destroy, :create, :update], constraints: {repo_id: ALLOW_DOTS}
+        get 'version_infos/stale', controller: :version_infos, action: :stale, as: :stale_version_info
+        get 'version_infos/latest_version', controller: :version_infos, action: :latest_version, as: :latest_version_info
+        patch 'version_infos/go_server', controller: :version_infos, action: :update_server, as: :update_server_version_info
 
-        resources :packages, param: :package_id, only: [:show, :destroy, :index, :create, :update], constraints: {package_id: ALLOW_DOTS}
-        namespace :internal do
-          post :material_test, controller: :material_test, action: :test, as: :material_test
-          resources :pipelines, only: [:index]
-          resources :environments, only: [:index]
-        end
+        match '*url', via: :all, to: 'errors#not_found'
       end
-
-      get 'version_infos/stale', controller: :version_infos, action: :stale, as: :stale_version_info
-      get 'version_infos/latest_version', controller: :version_infos, action: :latest_version, as: :latest_version_info
-      patch 'version_infos/go_server', controller: :version_infos, action: :update_server, as: :update_server_version_info
-
-      match '*url', via: :all, to: 'errors#not_found'
     end
   end
 

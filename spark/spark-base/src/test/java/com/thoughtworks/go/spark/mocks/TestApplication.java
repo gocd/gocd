@@ -33,8 +33,8 @@ public class TestApplication implements SparkApplication {
 
     private final RoutesHelper routesHelper;
 
-    public TestApplication(SparkController sparkController) {
-        routesHelper = new RoutesHelper(sparkController);
+    public TestApplication(SparkController... sparkControllers) {
+        routesHelper = new RoutesHelper(sparkControllers);
     }
 
     @Override

@@ -119,6 +119,7 @@ configurations {
   // this dependency is a "provided" dependency
   compile.exclude(group: 'ch.qos.logback', module: 'logback-classic')
   runtime.exclude(group: 'ch.qos.logback', module: 'logback-classic')
+  apiBase.exclude(group: 'ch.qos.logback', module: 'logback-classic')
   api.exclude(group: 'ch.qos.logback', module: 'logback-classic')
   spark.exclude(group: 'ch.qos.logback', module: 'logback-classic')
 }
@@ -131,6 +132,7 @@ project.ext.railsClasspath = project.sourceSets.test.runtimeClasspath +
   project.sourceSets.sharedTest.runtimeClasspath +
   project.sourceSets.fastUnitTest.runtimeClasspath +
   project.configurations.spark +
+  project.configurations.apiBase +
   project.rootProject.findProject(':test:test-utils').files("resource-include-in-all-projects")
 
 project.ext.jrubyOptimizationJvmArgs = [
@@ -236,6 +238,7 @@ project.ext.testSystemProperties = props
 dependencies {
   jrubyGems group: 'rubygems', name: 'bundler', version: '1.17.2'
 
+  apiBase project(':api:api-base')
   api project(':api').subprojects
   spark project(':spark').subprojects
   compile project(':addon-api:database')

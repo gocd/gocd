@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.spark;
 
+import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.server.util.ServletHelper;
 import com.thoughtworks.go.spark.spring.Application;
 import org.springframework.web.context.WebApplicationContext;
@@ -66,7 +67,8 @@ public class SparkPreFilter extends SparkFilter {
             return true;
         }
 
-        return !acceptHeader.matches("application/vnd\\.go\\.cd\\.v(\\d+)\\+json");
+
+        return !ApiVersion.isValid(acceptHeader);
     }
 
     private String getAcceptHeader(HttpServletRequest req) {

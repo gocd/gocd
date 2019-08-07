@@ -32,7 +32,7 @@ import static spark.Spark.path;
 public class EnvironmentsControllerV2 extends ApiController implements SparkSpringController {
     private final ApiAuthenticationHelper apiAuthenticationHelper;
 
-    private static final String unsupportedAPIName = "Environments";
+    private static final String UNSUPPORTED_API_NAME = "Environments";
 
     @Autowired
     public EnvironmentsControllerV2(ApiAuthenticationHelper apiAuthenticationHelper) {
@@ -55,10 +55,10 @@ public class EnvironmentsControllerV2 extends ApiController implements SparkSpri
             before("/*", mimeType, apiAuthenticationHelper::checkAdminUserAnd403);
 
             before("", mimeType, (req, resp) -> {
-                throw HaltApiResponses.haltBecauseOfUnsupportedAPIVersion(mimeType, unsupportedAPIName);
+                throw HaltApiResponses.haltBecauseOfUnsupportedAPIVersion(mimeType, UNSUPPORTED_API_NAME);
             });
             before("/*", mimeType, (req, resp) -> {
-                throw HaltApiResponses.haltBecauseOfUnsupportedAPIVersion(mimeType, unsupportedAPIName);
+                throw HaltApiResponses.haltBecauseOfUnsupportedAPIVersion(mimeType, UNSUPPORTED_API_NAME);
             });
         });
     }

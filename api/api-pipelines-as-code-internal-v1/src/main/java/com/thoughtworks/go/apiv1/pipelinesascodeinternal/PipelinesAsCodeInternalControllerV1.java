@@ -155,6 +155,7 @@ public class PipelinesAsCodeInternalControllerV1 extends ApiController implement
 
     protected void checkoutFromMaterialConfig(MaterialConfig materialConfig, File folder) {
         Material material = materialConfigConverter.toMaterial(materialConfig);
+        subprocessExecutionContext.setGitShallowClone(true);
         List<Modification> modifications = materialService.latestModification(material, folder, subprocessExecutionContext);
         materialService.checkout(material, folder, Modification.latestRevision(modifications), subprocessExecutionContext);
     }

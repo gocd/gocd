@@ -52,4 +52,9 @@ public class ServerSubprocessExecutionContext implements SubprocessExecutionCont
     public boolean isServer() {
         return true;
     }
+
+    @Override
+    public void setGitShallowClone(boolean value) {
+        systemEnvironment.set(SystemEnvironment.GO_SERVER_SHALLOW_CLONE, value);
+    }
 }

@@ -25,4 +25,5 @@ public interface SubprocessExecutionContext {
     Map<String, String> getDefaultEnvironmentVariables();
     Boolean isGitShallowClone();
     boolean isServer();
+    void setGitShallowClone(boolean value);
 }

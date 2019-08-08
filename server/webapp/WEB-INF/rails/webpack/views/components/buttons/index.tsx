@@ -42,6 +42,7 @@ export interface Attrs extends OnClickHandler, RestyleAttrs<Styles> {
   disabled?: boolean;
   dropdown?: boolean;
   align?: Alignment;
+  dataTestId?: string;
 }
 
 abstract class Button extends RestyleViewComponent<Styles, Attrs> {
@@ -78,6 +79,7 @@ abstract class Button extends RestyleViewComponent<Styles, Attrs> {
 
     return (
       <button {...Button.onlyHtmlAttrs(vnode.attrs)}
+              data-test-id={vnode.attrs.dataTestId}
               class={classnames(
                 this.css.button,
                 {[this.css.btnSmall]: isSmall, [this.css.btnDropdown]: isDropdown},

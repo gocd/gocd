@@ -347,8 +347,9 @@ export class KitchenSink extends MithrilViewComponent<null> {
 
   private wizards() {
     return new Wizard()
-      .addStep("Cluster Profile", <div>This is a cluster profile</div>)
-      .addStep("Elastic Profile", <div>This is a elastic profile</div>)
+      .addStep("Cluster Profile", <div>This is a cluster profile.</div>)
+      .addStep("Elastic Profile", <div>This is an elastic profile.</div>)
+      .addStep("Associate Jobs", <div>This is just an example.</div>)
       .render();
   }
 }

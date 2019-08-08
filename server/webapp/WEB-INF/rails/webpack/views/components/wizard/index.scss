@@ -43,16 +43,16 @@
 }
 
 .wizard-footer {
-  background:  $white;
-  border-top:  1px solid $border-color;
-  height:      40px;
-  padding:     10px 15px;
-  position:    absolute;
-  bottom:      0;
-  width:       calc(100% - 30px);
-  display:     flex;
-  align-items: center;
-  flex-flow:   row-reverse;
+  background:      $white;
+  border-top:      1px solid $border-color;
+  height:          40px;
+  padding:         10px 15px;
+  position:        absolute;
+  bottom:          0;
+  width:           calc(100% - 30px);
+  display:         flex;
+  align-items:     center;
+  justify-content: flex-end;
 }
 
 .wizard-body {

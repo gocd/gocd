@@ -22,7 +22,10 @@ import * as styles from "../index.scss";
 describe("WizardSpec", () => {
   let wizard: Wizard;
   beforeEach(() => {
-    wizard = new Wizard();
+    wizard = new Wizard()
+      .addStep("Step 1", "This is step one")
+      .addStep("Step 2", "This is step two")
+      .addStep("Step 3", "This is step three");
   });
 
   afterEach(() => {
@@ -34,13 +37,15 @@ describe("WizardSpec", () => {
     return $(`.${className}`);
   }
 
+  function findByDataTestId(id: string) {
+    return $(`[data-test-id='${id}']`);
+  }
+
   function findIn(parent: string, childClass: string) {
     return $(`.${parent} .${childClass}`);
   }
 
   it("should display wizard", () => {
-    wizard.addStep("Step 1", "This is step one");
-
     expect(findByClass(styles.wizard)).not.toBeInDOM();
 
     wizard.render();
@@ -48,12 +53,17 @@ describe("WizardSpec", () => {
     expect(findByClass(styles.wizard)).toBeInDOM();
   });
 
+  it("should select the given step", () => {
+    wizard
+      .defaultStepIndex(2)
+      .render();
+
+    expect(findIn(styles.wizardHeader, styles.stepHeader).eq(1)).toHaveClass(styles.selected);
+    expect(findIn(styles.wizardBody, styles.stepBody)).toHaveText("This is step two");
+  });
+
   describe("Wizard steps", () => {
     it("should list all the wizard steps in the header", () => {
-      wizard
-        .addStep("Step 1", "This is step one")
-        .addStep("Step 2", "This is step two");
-
       wizard.render();
 
       expect(findByClass(styles.wizard)).toBeInDOM();
@@ -62,10 +72,6 @@ describe("WizardSpec", () => {
     });
 
     it("should show content of the first step by default", () => {
-      wizard
-        .addStep("Step 1", "This is step one")
-        .addStep("Step 2", "This is step two");
-
       wizard.render();
 
       expect(findByClass(styles.wizard)).toBeInDOM();
@@ -75,10 +81,6 @@ describe("WizardSpec", () => {
     });
 
     it("should switch to step on click of the step name", () => {
-      wizard
-        .addStep("Step 1", "This is step one")
-        .addStep("Step 2", "This is step two");
-
       wizard.render();
 
       expect(findByClass(styles.wizard)).toBeInDOM();
@@ -96,6 +98,7 @@ describe("WizardSpec", () => {
       wizard.render();
 
       expect(findByClass(btnCss.btnCancel)).toBeInDOM();
+      expect(findByClass(btnCss.btnCancel)).toHaveText("Cancel");
     });
 
     it("should close wizard on click", () => {
@@ -110,4 +113,49 @@ describe("WizardSpec", () => {
     });
   });
 
+  describe("Previous button", () => {
+    it("should show previous button", () => {
+      wizard.render();
+
+      expect(findByDataTestId("previous")).toBeInDOM();
+      expect(findByDataTestId("previous")).toHaveText("Previous");
+    });
+
+    it("should go to previous step when clicked", () => {
+      wizard.defaultStepIndex(2).render();
+      expect(findIn(styles.wizardBody, styles.stepBody)).toHaveText("This is step two");
+
+      simulateEvent.simulate(findByDataTestId("previous").get(0), "click");
+
+      expect(findIn(styles.wizardBody, styles.stepBody)).toHaveText("This is step one");
+    });
+
+    it("should disable previous button on first step", () => {
+      wizard.defaultStepIndex(1).render();
+      expect(findByDataTestId("previous")).toBeDisabled();
+    });
+  });
+
+  describe("Next Button", () => {
+    it("should show next button", () => {
+      wizard.render();
+
+      expect(findByDataTestId("next")).toBeInDOM();
+      expect(findByDataTestId("next")).toHaveText("Next");
+    });
+
+    it("should go to next step when clicked", () => {
+      wizard.defaultStepIndex(1).render();
+      expect(findIn(styles.wizardBody, styles.stepBody)).toHaveText("This is step one");
+
+      simulateEvent.simulate(findByDataTestId("next").get(0), "click");
+
+      expect(findIn(styles.wizardBody, styles.stepBody)).toHaveText("This is step two");
+    });
+
+    it("should disable next button on last step", () => {
+      wizard.defaultStepIndex(3).render();
+      expect(findByDataTestId("next")).toBeDisabled();
+    });
+  });
 });

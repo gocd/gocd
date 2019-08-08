@@ -33,7 +33,8 @@ export abstract class Step {
 
   footer(wizard: Wizard): m.Children {
     return [
-      <Buttons.Cancel onclick={wizard.close.bind(wizard)}>Cancel</Buttons.Cancel>,
+      <Buttons.Cancel onclick={wizard.close.bind(wizard)}
+                      dataTestId="cancel">Cancel</Buttons.Cancel>,
       <Buttons.Primary dataTestId="previous" onclick={wizard.previous.bind(wizard)}
                        disabled={wizard.isFirstStep()}>Previous</Buttons.Primary>,
       <Buttons.Primary dataTestId="next" onclick={wizard.next.bind(wizard)}

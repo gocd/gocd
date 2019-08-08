@@ -24,6 +24,12 @@
 
 <urlrewrite>
   <rule>
+    <name>new-agent UI</name>
+    <from>^/new-agents(/?)$</from>
+    <to last="true">/spark/new-agents</to>
+  </rule>
+
+  <rule>
     <name>mail_server UI</name>
     <from>^/admin/mail_server(/?)$</from>
     <to last="true">/spark/admin/mail_server</to>

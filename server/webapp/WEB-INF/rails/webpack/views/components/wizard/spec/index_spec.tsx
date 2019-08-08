@@ -18,7 +18,6 @@ import * as m from "mithril";
 import * as simulateEvent from "simulate-event";
 import * as Buttons from "views/components/buttons";
 import {Step, Wizard} from "views/components/wizard/index";
-import * as btnCss from "../../buttons/index.scss";
 import * as styles from "../index.scss";
 
 describe("WizardSpec", () => {
@@ -87,17 +86,17 @@ describe("WizardSpec", () => {
     it("should show cancel button", () => {
       wizard.render();
 
-      expect(findByClass(btnCss.btnCancel)).toBeInDOM();
-      expect(findByClass(btnCss.btnCancel)).toHaveText("Cancel");
+      expect(findByDataTestId("cancel")).toBeInDOM();
+      expect(findByDataTestId("cancel")).toHaveText("Cancel");
     });
 
     it("should close wizard on click", () => {
       wizard.render();
 
       expect(findByClass(styles.wizard)).toBeInDOM();
-      expect(findByClass(btnCss.btnCancel)).toBeInDOM();
+      expect(findByDataTestId("cancel")).toBeInDOM();
 
-      simulateEvent.simulate(findByClass(btnCss.btnCancel)[0], "click");
+      simulateEvent.simulate(findByDataTestId("cancel")[0], "click");
 
       expect(findByClass(styles.wizard)).not.toBeInDOM();
     });

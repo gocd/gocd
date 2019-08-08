@@ -16,6 +16,8 @@
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
+import {Wizard} from "views/components/wizard";
+import * as wizardStyles from "../wizard/index.scss";
 import {Modal} from "./index";
 import * as styles from "./index.scss";
 
@@ -25,7 +27,7 @@ export namespace ModalManager {
 
   interface ModalEntry {
     key: string;
-    value: Modal;
+    value: Modal | Wizard;
   }
 
   const allModals: ModalEntry[] = [];
@@ -43,10 +45,17 @@ export namespace ModalManager {
       view() {
         return (
           _.map(allModals, (entry) => {
+            if (entry.value instanceof Modal) {
+              return <div key={entry.key}
+                          data-test-id={entry.key}
+                          class={styles.overlayBg}
+                          onclick={(event) => overlayBackgroundClicked(event,
+                                                                       entry.value as Modal)}>{m(entry.value)}</div>;
+            }
+
             return <div key={entry.key}
                         data-test-id={entry.key}
-                        class={styles.overlayBg}
-                        onclick={(event) => overlayBackgroundClicked(event, entry.value)}>{m(entry.value)}</div>;
+                        class={wizardStyles.overlay}>{m(entry.value)}</div>;
           })
         );
       }
@@ -54,13 +63,13 @@ export namespace ModalManager {
     m.mount(modalContainer, ModalDialogs);
   }
 
-  export function render(modal: Modal) {
+  export function render(modal: Modal | Wizard) {
     allModals.push({key: modal.id, value: modal});
     document.body.classList.add(styles.fixed);
     m.redraw();
   }
 
-  export function close(modal: Modal) {
+  export function close(modal: Modal | Wizard) {
     _.remove(allModals, (entry) => entry.key === modal.id);
     document.body.classList.remove(styles.fixed);
     m.redraw();

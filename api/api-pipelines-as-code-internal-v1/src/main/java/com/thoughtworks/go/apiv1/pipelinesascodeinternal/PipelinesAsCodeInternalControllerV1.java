@@ -58,11 +58,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.*;
 import java.util.function.Consumer;
 
 import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseOfReason;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.CONFIG_REPO_EXTENSION;
 import static com.thoughtworks.go.spark.Routes.PaC.*;
+import static com.thoughtworks.go.utils.Timeout.ONE_MINUTE;
 import static java.lang.String.format;
 import static spark.Spark.*;
 
@@ -153,11 +155,20 @@ public class PipelinesAsCodeInternalControllerV1 extends ApiController implement
         return responseText;
     }
 
-    protected void checkoutFromMaterialConfig(MaterialConfig materialConfig, File folder) {
+    protected void checkoutFromMaterialConfig(MaterialConfig materialConfig, File folder) throws ExecutionException, InterruptedException {
         Material material = materialConfigConverter.toMaterial(materialConfig);
         subprocessExecutionContext.setGitShallowClone(true);
-        List<Modification> modifications = materialService.latestModification(material, folder, subprocessExecutionContext);
-        materialService.checkout(material, folder, Modification.latestRevision(modifications), subprocessExecutionContext);
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Future future = executor.submit(() -> {
+            List<Modification> modifications = materialService.latestModification(material, folder, subprocessExecutionContext);
+            materialService.checkout(material, folder, Modification.latestRevision(modifications), subprocessExecutionContext);
+        });
+        try {
+            future.get(2l, TimeUnit.MINUTES);
+        } catch (TimeoutException e) {
+            future.cancel(true);
+            throw new RuntimeException("Request couldn't be completed because we failed to clone the repo within 2 minutes");
+        }
     }
 
     String preview(Request req, Response res) {

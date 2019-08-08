@@ -17,7 +17,7 @@
 import * as m from "mithril";
 import * as simulateEvent from "simulate-event";
 import * as Buttons from "views/components/buttons";
-import {Step, Wizard, WizardState} from "views/components/wizard/index";
+import {Step, Wizard} from "views/components/wizard/index";
 import * as btnCss from "../../buttons/index.scss";
 import * as styles from "../index.scss";
 
@@ -48,7 +48,7 @@ describe("WizardSpec", () => {
       .defaultStepIndex(2)
       .render();
 
-    expect(findIn(styles.wizardHeader, styles.stepHeader).eq(1)).toHaveClass(styles.selected);
+    expect(findIn(styles.wizardHeader, styles.stepHeader)[1]).toHaveClass(styles.selected);
     expect(findIn(styles.wizardBody, styles.stepBody)).toHaveText("This is step two");
   });
 
@@ -57,8 +57,8 @@ describe("WizardSpec", () => {
       wizard.render();
 
       expect(findByClass(styles.wizard)).toBeInDOM();
-      expect(findIn(styles.wizardHeader, styles.stepHeader).eq(0)).toHaveText("Step 1");
-      expect(findIn(styles.wizardHeader, styles.stepHeader).eq(1)).toHaveText("Step 2");
+      expect(findIn(styles.wizardHeader, styles.stepHeader)[0]).toHaveText("Step 1");
+      expect(findIn(styles.wizardHeader, styles.stepHeader)[1]).toHaveText("Step 2");
     });
 
     it("should show content of the first step by default", () => {
@@ -66,8 +66,8 @@ describe("WizardSpec", () => {
 
       expect(findByClass(styles.wizard)).toBeInDOM();
       expect(findIn(styles.wizardBody, styles.stepBody).length).toBe(1);
-      expect(findIn(styles.wizardBody, styles.stepBody).eq(0)).toHaveText("This is step one");
-      expect(findIn(styles.wizardBody, styles.stepBody).eq(0)).toBeVisible();
+      expect(findIn(styles.wizardBody, styles.stepBody)[0]).toHaveText("This is step one");
+      expect(findIn(styles.wizardBody, styles.stepBody)[0]).toBeVisible();
     });
 
     it("should switch to step on click of the step name", () => {
@@ -75,11 +75,11 @@ describe("WizardSpec", () => {
 
       expect(findByClass(styles.wizard)).toBeInDOM();
       expect(findIn(styles.wizardBody, styles.stepBody).length).toBe(1);
-      expect(findIn(styles.wizardBody, styles.stepBody).eq(0)).toHaveText("This is step one");
+      expect(findIn(styles.wizardBody, styles.stepBody)[0]).toHaveText("This is step one");
 
-      simulateEvent.simulate($(`.${styles.wizardHeader} .${styles.stepHeader}`).get(1), "click");
+      simulateEvent.simulate(findIn(styles.wizardHeader, styles.stepHeader)[1], "click");
 
-      expect(findIn(styles.wizardBody, styles.stepBody).eq(0)).toHaveText("This is step two");
+      expect(findIn(styles.wizardBody, styles.stepBody)[0]).toHaveText("This is step two");
     });
   });
 
@@ -97,7 +97,7 @@ describe("WizardSpec", () => {
       expect(findByClass(styles.wizard)).toBeInDOM();
       expect(findByClass(btnCss.btnCancel)).toBeInDOM();
 
-      simulateEvent.simulate(findByClass(btnCss.btnCancel).get(0), "click");
+      simulateEvent.simulate(findByClass(btnCss.btnCancel)[0], "click");
 
       expect(findByClass(styles.wizard)).not.toBeInDOM();
     });
@@ -115,7 +115,7 @@ describe("WizardSpec", () => {
       wizard.defaultStepIndex(2).render();
       expect(findIn(styles.wizardBody, styles.stepBody)).toHaveText("This is step two");
 
-      simulateEvent.simulate(findByDataTestId("previous").get(0), "click");
+      simulateEvent.simulate(findByDataTestId("previous")[0], "click");
 
       expect(findIn(styles.wizardBody, styles.stepBody)).toHaveText("This is step one");
     });
@@ -138,7 +138,7 @@ describe("WizardSpec", () => {
       wizard.defaultStepIndex(1).render();
       expect(findIn(styles.wizardBody, styles.stepBody)).toHaveText("This is step one");
 
-      simulateEvent.simulate(findByDataTestId("next").get(0), "click");
+      simulateEvent.simulate(findByDataTestId("next")[0], "click");
 
       expect(findIn(styles.wizardBody, styles.stepBody)).toHaveText("This is step two");
     });
@@ -162,15 +162,15 @@ describe("WizardSpec", () => {
   });
 
   function findByClass(className: string) {
-    return $(`.${className}`);
+    return document.getElementsByClassName(className);
   }
 
   function findByDataTestId(id: string) {
-    return $(`[data-test-id='${id}']`);
+    return document.querySelectorAll(`[data-test-id='${id}']`);
   }
 
   function findIn(parent: string, childClass: string) {
-    return $(`.${parent} .${childClass}`);
+    return document.querySelectorAll(`.${parent} .${childClass}`);
   }
 });
 
@@ -187,13 +187,13 @@ class SampleStep extends Step {
 
   }
 
-  body(vnode: m.Vnode<any, WizardState>) {
+  body() {
     return this.content;
   }
 
-  footer(wizard: Wizard, vnode: m.Vnode<any, WizardState>): m.Children {
+  footer(wizard: Wizard): m.Children {
     return (<div>
-      {super.footer(wizard, vnode)}
+      {super.footer(wizard)}
       {this.buttons}
     </div>);
   }

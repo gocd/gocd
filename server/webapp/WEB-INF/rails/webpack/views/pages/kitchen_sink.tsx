@@ -46,7 +46,7 @@ import {Tabs} from "views/components/tab";
 import {Table, TableSortHandler} from "views/components/table";
 import * as Tooltip from "views/components/tooltip";
 import {TooltipSize} from "views/components/tooltip";
-import {Wizard} from "views/components/wizard";
+import {Step, Wizard, WizardState} from "views/components/wizard";
 
 let type               = "a";
 const formValue        = stream("initial value");
@@ -346,11 +346,43 @@ export class KitchenSink extends MithrilViewComponent<null> {
   }
 
   private wizards() {
+    const stepWithCustomFooter = new SampleStep("3. Associate Jobs", <div>This is just an example.</div>,
+      <Buttons.Primary>Custom
+        Button</Buttons.Primary>);
     return new Wizard()
-      .addStep("Cluster Profile", <div>This is a cluster profile.</div>)
-      .addStep("Elastic Profile", <div>This is an elastic profile.</div>)
-      .addStep("Associate Jobs", <div>This is just an example.</div>)
+      .addStep(new SampleStep("1. Cluster Profile", <div>This is an cluster profile.</div>))
+      .addStep(new SampleStep("2. Elastic Profile", <div>This is an elastic profile.</div>))
+      .addStep(stepWithCustomFooter)
       .render();
+  }
+}
+
+class SampleStep extends Step {
+  private readonly name: string;
+  private readonly content: m.Children;
+  private readonly buttons: m.Children;
+
+  constructor(name: string, body: m.Children, footer?: m.Children) {
+    super();
+    this.name    = name;
+    this.content = body;
+    this.buttons = footer;
+
+  }
+
+  body(vnode: m.Vnode<any, WizardState>) {
+    return this.content;
+  }
+
+  footer(wizard: Wizard, vnode: m.Vnode<any, WizardState>): m.Children {
+    return (<div>
+      {super.footer(wizard, vnode)}
+      {this.buttons}
+    </div>);
+  }
+
+  header() {
+    return this.name;
   }
 }
 

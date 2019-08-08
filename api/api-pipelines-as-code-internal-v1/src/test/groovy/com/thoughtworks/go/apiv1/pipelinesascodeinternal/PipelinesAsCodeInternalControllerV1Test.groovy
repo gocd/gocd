@@ -35,6 +35,7 @@ import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinde
 import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.SecurityServiceTrait
+import com.thoughtworks.go.util.SystemEnvironment
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -84,6 +85,9 @@ class PipelinesAsCodeInternalControllerV1Test implements SecurityServiceTrait, C
   @Mock
   ConfigRepoService configRepoService
 
+  @Mock
+  SystemEnvironment systemEnvironment
+
   @BeforeEach
   void setUp() {
     initMocks(this)
@@ -101,6 +105,7 @@ class PipelinesAsCodeInternalControllerV1Test implements SecurityServiceTrait, C
       materialService,
       materialConfigConverter,
       subprocessExecutionContext,
+      systemEnvironment,
       configRepoService
     )
   }

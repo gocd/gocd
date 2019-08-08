@@ -223,6 +223,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     private static GoSystemProperty<Integer> GO_SPA_TIMEOUT = new GoIntSystemProperty("go.spa.timeout", 60000);
     private static GoSystemProperty<Integer> GO_SPA_REFRESH_INTERVAL = new GoIntSystemProperty("go.spa.refresh.interval", 10000);
+    private static GoSystemProperty<Long> GO_PAC_CLONE_TIMEOUT = new GoLongSystemProperty("go.pac.clone.timeout", 2 * 60 * 1000L);
 
     private static GoSystemProperty<Boolean> ENABLE_ANALYTICS_ONLY_FOR_ADMINS = new GoBooleanSystemProperty("go.enable.analytics.only.for.admins", false);
     public static final GoSystemProperty<Boolean> FAIL_STARTUP_ON_DATA_ERROR = new GoBooleanSystemProperty("gocd.fail.startup.on.data.error", false);
@@ -842,6 +843,10 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public Boolean getAgentStatusEnabled() {
         return AGENT_STATUS_API_ENABLED.getValue();
+    }
+
+    public long getPacCloneTimeout() {
+        return GO_PAC_CLONE_TIMEOUT.getValue();
     }
 
     public String getAgentStatusHostname() {

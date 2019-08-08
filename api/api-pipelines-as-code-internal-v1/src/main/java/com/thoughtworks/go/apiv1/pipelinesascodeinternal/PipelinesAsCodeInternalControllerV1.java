@@ -44,6 +44,7 @@ import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import com.thoughtworks.go.util.FileUtil;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,7 +65,6 @@ import java.util.function.Consumer;
 import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseOfReason;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.CONFIG_REPO_EXTENSION;
 import static com.thoughtworks.go.spark.Routes.PaC.*;
-import static com.thoughtworks.go.utils.Timeout.ONE_MINUTE;
 import static java.lang.String.format;
 import static spark.Spark.*;
 
@@ -80,6 +80,7 @@ public class PipelinesAsCodeInternalControllerV1 extends ApiController implement
     private MaterialService materialService;
     private final MaterialConfigConverter materialConfigConverter;
     private final SubprocessExecutionContext subprocessExecutionContext;
+    private SystemEnvironment systemEnvironment;
     private ConfigRepoService configRepoService;
 
     @Autowired
@@ -93,6 +94,7 @@ public class PipelinesAsCodeInternalControllerV1 extends ApiController implement
             MaterialService materialService,
             MaterialConfigConverter materialConfigConverter,
             SubprocessExecutionContext subprocessExecutionContext,
+            SystemEnvironment systemEnvironment,
             ConfigRepoService configRepoService) {
         super(ApiVersion.v1);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
@@ -104,6 +106,7 @@ public class PipelinesAsCodeInternalControllerV1 extends ApiController implement
         this.materialService = materialService;
         this.materialConfigConverter = materialConfigConverter;
         this.subprocessExecutionContext = subprocessExecutionContext;
+        this.systemEnvironment = systemEnvironment;
         this.configRepoService = configRepoService;
     }
 
@@ -164,7 +167,7 @@ public class PipelinesAsCodeInternalControllerV1 extends ApiController implement
             materialService.checkout(material, folder, Modification.latestRevision(modifications), subprocessExecutionContext);
         });
         try {
-            future.get(2l, TimeUnit.MINUTES);
+            future.get(systemEnvironment.getPacCloneTimeout(), TimeUnit.MILLISECONDS);
         } catch (TimeoutException e) {
             future.cancel(true);
             throw new RuntimeException("Request couldn't be completed because we failed to clone the repo within 2 minutes");

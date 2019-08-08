@@ -32,7 +32,7 @@ public class Logger {
     private final String loggerName;
 
     public static Logger getLoggerFor(Class loggerClass) {
-        String id = null;
+        String id;
         try {
             Class<?> defaultGoPluginActivator = loggerClass.getClassLoader().loadClass("com.thoughtworks.go.plugin.activation.DefaultGoPluginActivator");
             id = (String) getStaticField(defaultGoPluginActivator, "pluginId");
@@ -40,7 +40,11 @@ public class Logger {
             id = "UNKNOWN";
             System.err.println("Could not find pluginId for logger: " + loggerClass.toString());
         }
-        return new Logger(loggerClass.getName(), id);
+        return getLoggerFor(loggerClass, id);
+    }
+
+    public static Logger getLoggerFor(Class loggerClass, String pluginId) {
+        return new Logger(loggerClass.getName(), pluginId);
     }
 
     public static void initialize(LoggingService loggingService) {

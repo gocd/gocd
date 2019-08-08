@@ -36,4 +36,16 @@ public class LoggerTest {
 
         verify(loggingService).error(anyString(), eq(this.getClass().getName()), eq("message"), eq(exception));
     }
+
+    @Test
+    public void shouldLogAMessageUsingTheLoggerPluginID() {
+        LoggingService loggingService = mock(LoggingService.class);
+        Logger.initialize(loggingService);
+
+        Logger logger = Logger.getLoggerFor(this.getClass(), "someOtherPluginID");
+
+        logger.error("message");
+
+        verify(loggingService).error(eq("someOtherPluginID"), eq(this.getClass().getName()), eq("message"));
+    }
 }

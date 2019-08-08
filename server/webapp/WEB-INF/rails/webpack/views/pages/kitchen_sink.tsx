@@ -46,7 +46,7 @@ import {Tabs} from "views/components/tab";
 import {Table, TableSortHandler} from "views/components/table";
 import * as Tooltip from "views/components/tooltip";
 import {TooltipSize} from "views/components/tooltip";
-import {Step, Wizard, WizardState} from "views/components/wizard";
+import {Step, Wizard} from "views/components/wizard";
 
 let type               = "a";
 const formValue        = stream("initial value");
@@ -370,13 +370,13 @@ class SampleStep extends Step {
 
   }
 
-  body(vnode: m.Vnode<any, WizardState>) {
+  body() {
     return this.content;
   }
 
-  footer(wizard: Wizard, vnode: m.Vnode<any, WizardState>): m.Children {
+  footer(wizard: Wizard): m.Children {
     return (<div>
-      {super.footer(wizard, vnode)}
+      {super.footer(wizard)}
       {this.buttons}
     </div>);
   }

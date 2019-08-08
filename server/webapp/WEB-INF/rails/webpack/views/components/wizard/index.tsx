@@ -24,21 +24,40 @@ import {ModalManager} from "views/components/modal/modal_manager";
 import * as styles from "./index.scss";
 
 const classnames = bind(styles);
+const uuid4      = require("uuid/v4");
 
-interface State {
-  selectedStep: Stream<string>;
+export interface WizardState {
+  selectedStep: Stream<m.Children | any>;
 }
 
-export class Wizard extends MithrilComponent<any, State> {
-  public id: string                                     = "" + Math.random();
-  private stepNameToContentMap: Map<string, m.Children> = new Map<string, m.Children>();
-  private selectedStepIndex: Stream<number>             = stream(0);
+export abstract class Step {
+  abstract header(): m.Children;
 
-  oninit(vnode: m.Vnode<any, State>) {
+  abstract body(vnode: m.Vnode<any, WizardState>): m.Children;
+
+  footer(wizard: Wizard, vnode: m.Vnode<any, WizardState>): m.Children {
+    return [
+      <Buttons.Cancel onclick={wizard.close.bind(wizard)}>Cancel</Buttons.Cancel>,
+      <Buttons.Primary dataTestId="previous" onclick={wizard.previous.bind(wizard, vnode)}
+                       disabled={wizard.isFirstStep(vnode)}>Previous</Buttons.Primary>,
+      <Buttons.Primary dataTestId="next" onclick={wizard.next.bind(wizard, vnode)}
+                       disabled={wizard.isLastStep(vnode)}>Next</Buttons.Primary>
+    ];
+  }
+}
+
+export class Wizard extends MithrilComponent<any, WizardState> {
+  public id: string                                   = `modal-${uuid4()}`;
+  private stepNameToContentMap: Map<m.Children, Step> = new Map<m.Children, Step>();
+  private selectedStepIndex: Stream<number>           = stream(0);
+
+  oninit(vnode: m.Vnode<any, WizardState>) {
     vnode.state.selectedStep = stream(Array.from(this.stepNameToContentMap.keys())[this.selectedStepIndex()]);
   }
 
-  view(vnode: m.Vnode<any, State>): m.Vnode<any, any> {
+  view(vnode: m.Vnode<any, WizardState>): m.Vnode<any, any> {
+    const selectedStep = this.stepNameToContentMap.get(vnode.state.selectedStep());
+    const footer       = selectedStep!.footer(this, vnode);
     return (<div class={styles.wizard}>
       <header class={styles.wizardHeader}>
         {Array.from(this.stepNameToContentMap.keys()).map((key) => {
@@ -47,23 +66,12 @@ export class Wizard extends MithrilComponent<any, State> {
         })}
       </header>
       <div class={styles.wizardBody}>
-        <div class={styles.stepBody}>{this.stepNameToContentMap.get(vnode.state.selectedStep())}</div>
+        <div class={styles.stepBody}>{selectedStep!.body(vnode)}</div>
       </div>
       <footer class={styles.wizardFooter}>
-        {this.buttons(vnode)}
+        {footer}
       </footer>
     </div>);
-  }
-
-  buttons(vnode: m.Vnode<any, State>) {
-    const steps = Array.from(this.stepNameToContentMap.keys());
-    return [
-      <Buttons.Cancel onclick={this.close.bind(this)}>Cancel</Buttons.Cancel>,
-      <Buttons.Primary dataTestId="previous" onclick={this.previous.bind(this, vnode)}
-                       disabled={steps.indexOf(vnode.state.selectedStep()) === 0}>Previous</Buttons.Primary>,
-      <Buttons.Primary dataTestId="next" onclick={this.next.bind(this, vnode)}
-                       disabled={steps.indexOf(vnode.state.selectedStep()) === steps.length - 1}>Next</Buttons.Primary>
-    ];
   }
 
   render() {
@@ -74,16 +82,26 @@ export class Wizard extends MithrilComponent<any, State> {
     ModalManager.close(this);
   }
 
-  previous(vnode: m.Vnode<any, State>) {
+  previous(vnode: m.Vnode<any, WizardState>) {
     const steps        = Array.from(this.stepNameToContentMap.keys());
     const currentIndex = steps.indexOf(vnode.state.selectedStep());
     vnode.state.selectedStep(steps[currentIndex - 1]);
   }
 
-  next(vnode: m.Vnode<any, State>) {
+  next(vnode: m.Vnode<any, WizardState>) {
     const steps        = Array.from(this.stepNameToContentMap.keys());
     const currentIndex = steps.indexOf(vnode.state.selectedStep());
     vnode.state.selectedStep(steps[currentIndex + 1]);
+  }
+
+  isFirstStep(vnode: m.Vnode<any, WizardState>) {
+    return Array.from(this.stepNameToContentMap.keys())
+                .indexOf(vnode.state.selectedStep()) === 0;
+  }
+
+  isLastStep(vnode: m.Vnode<any, WizardState>) {
+    const steps = Array.from(this.stepNameToContentMap.keys());
+    return steps.indexOf(vnode.state.selectedStep()) === steps.length - 1;
   }
 
   defaultStepIndex(index: number) {
@@ -94,8 +112,8 @@ export class Wizard extends MithrilComponent<any, State> {
     return this;
   }
 
-  public addStep(name: string, content: m.Children): Wizard {
-    this.stepNameToContentMap.set(name, content);
+  public addStep(step: Step): Wizard {
+    this.stepNameToContentMap.set(step.header(), step);
     return this;
   }
 }

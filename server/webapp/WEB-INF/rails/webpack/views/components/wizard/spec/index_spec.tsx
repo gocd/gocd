@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
+import * as m from "mithril";
 import * as simulateEvent from "simulate-event";
-import {Wizard} from "views/components/wizard/index";
+import * as Buttons from "views/components/buttons";
+import {Step, Wizard, WizardState} from "views/components/wizard/index";
 import * as btnCss from "../../buttons/index.scss";
 import * as styles from "../index.scss";
 
@@ -23,27 +25,15 @@ describe("WizardSpec", () => {
   let wizard: Wizard;
   beforeEach(() => {
     wizard = new Wizard()
-      .addStep("Step 1", "This is step one")
-      .addStep("Step 2", "This is step two")
-      .addStep("Step 3", "This is step three");
+      .addStep(new SampleStep("Step 1", "This is step one"))
+      .addStep(new SampleStep("Step 2", "This is step two"))
+      .addStep(new SampleStep("Step 3", "This is step three"));
   });
 
   afterEach(() => {
     wizard.close();
     expect(findByClass(styles.wizard)).not.toBeInDOM();
   });
-
-  function findByClass(className: string) {
-    return $(`.${className}`);
-  }
-
-  function findByDataTestId(id: string) {
-    return $(`[data-test-id='${id}']`);
-  }
-
-  function findIn(parent: string, childClass: string) {
-    return $(`.${parent} .${childClass}`);
-  }
 
   it("should display wizard", () => {
     expect(findByClass(styles.wizard)).not.toBeInDOM();
@@ -158,4 +148,57 @@ describe("WizardSpec", () => {
       expect(findByDataTestId("next")).toBeDisabled();
     });
   });
+
+  describe("Custom Footer", () => {
+    it("should render wizard with custom footer", () => {
+      const customButton = <Buttons.Primary dataTestId="customButton">Custom Button</Buttons.Primary>;
+      wizard.addStep(new SampleStep("last Step", "this is last step", customButton));
+
+      wizard.defaultStepIndex(4).render();
+
+      expect(findByDataTestId("customButton")).toBeInDOM();
+      expect(findByDataTestId("customButton")).toHaveText("Custom Button");
+    });
+  });
+
+  function findByClass(className: string) {
+    return $(`.${className}`);
+  }
+
+  function findByDataTestId(id: string) {
+    return $(`[data-test-id='${id}']`);
+  }
+
+  function findIn(parent: string, childClass: string) {
+    return $(`.${parent} .${childClass}`);
+  }
 });
+
+class SampleStep extends Step {
+  private readonly name: string;
+  private readonly content: m.Children;
+  private readonly buttons: m.Children;
+
+  constructor(name: string, body: m.Children, footer?: m.Children) {
+    super();
+    this.name    = name;
+    this.content = body;
+    this.buttons = footer;
+
+  }
+
+  body(vnode: m.Vnode<any, WizardState>) {
+    return this.content;
+  }
+
+  footer(wizard: Wizard, vnode: m.Vnode<any, WizardState>): m.Children {
+    return (<div>
+      {super.footer(wizard, vnode)}
+      {this.buttons}
+    </div>);
+  }
+
+  header() {
+    return this.name;
+  }
+}

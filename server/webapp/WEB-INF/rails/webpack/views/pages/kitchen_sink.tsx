@@ -46,6 +46,7 @@ import {Tabs} from "views/components/tab";
 import {Table, TableSortHandler} from "views/components/table";
 import * as Tooltip from "views/components/tooltip";
 import {TooltipSize} from "views/components/tooltip";
+import {Wizard} from "views/components/wizard";
 
 let type               = "a";
 const formValue        = stream("initial value");
@@ -64,9 +65,9 @@ export class KitchenSink extends MithrilViewComponent<null> {
   provider: DynamicSuggestionProvider = new DynamicSuggestionProvider(type);
 
   view(vnode: m.Vnode<null>) {
-    const model: Stream<string> = stream();
+    const model: Stream<string>     = stream();
     const textValue: Stream<string> = stream();
-    const name: Stream<string> = stream();
+    const name: Stream<string>      = stream();
 
     return (
       <div>
@@ -102,6 +103,10 @@ export class KitchenSink extends MithrilViewComponent<null> {
         <Buttons.Primary onclick={() => {
           this.createModal(Size.large);
         }}>Open Large Modal</Buttons.Primary>
+
+        <Buttons.Primary onclick={() => {
+          this.wizards();
+        }}>Open Wizard</Buttons.Primary>
 
         <h3>Tooltip</h3>
         Small Info tooltip: <Tooltip.Info content={"this is a very small information tooltip."}/>
@@ -260,11 +265,13 @@ export class KitchenSink extends MithrilViewComponent<null> {
 
         <h3>Validate-as-you-type field (i.e., LiveValidatingInputField)</h3>
 
-        <LiveValidatingInputField label="Enter some numbers. But if you're adventurous, try any other character -- oh my, the suspense!" property={textValue} validator={(s) => {
+        <LiveValidatingInputField
+          label="Enter some numbers. But if you're adventurous, try any other character -- oh my, the suspense!"
+          property={textValue} validator={(s) => {
           if (!(/^\d*$/.test(s))) {
             return "Only numbers are allowed! You'd better settle down, you rebel, you!";
           }
-        }} />
+        }}/>
 
         <h3>Validate-as-you-type Name field (just a special case of LiveValidatingInputField)</h3>
 
@@ -336,6 +343,13 @@ export class KitchenSink extends MithrilViewComponent<null> {
 
   private createModal(size: Size) {
     new SampleModal(size).render();
+  }
+
+  private wizards() {
+    return new Wizard()
+      .addStep("Cluster Profile", <div>This is a cluster profile</div>)
+      .addStep("Elastic Profile", <div>This is a elastic profile</div>)
+      .render();
   }
 }
 

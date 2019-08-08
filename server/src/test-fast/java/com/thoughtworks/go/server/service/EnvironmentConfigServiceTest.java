@@ -27,8 +27,10 @@ import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.helper.EnvironmentConfigMother;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.presentation.environment.EnvironmentPipelineModel;
+import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -72,7 +74,16 @@ class EnvironmentConfigServiceTest {
         Agent omnipresentAgent = new Agent(OMNIPRESENT_AGENT, "host3", "127.0.0.1", "cookie3");
         omnipresentAgent.setEnvironments("uat,prod");
 
+        AgentInstances agentInstances = new AgentInstances(null);
+
+        AgentInstance agentInstance1 = AgentInstance.createFromAgent(agentUat, new SystemEnvironment(), null);
+        AgentInstance agentInstance2 = AgentInstance.createFromAgent(agentProd, new SystemEnvironment(), null);
+        AgentInstance agentInstance3 = AgentInstance.createFromAgent(omnipresentAgent, new SystemEnvironment(), null);
+        agentInstances.add(agentInstance1);
+        agentInstances.add(agentInstance2);
+        agentInstances.add(agentInstance3);
         when(agentService.agents()).thenReturn(new Agents(agentUat, agentProd, omnipresentAgent));
+        when(agentService.getAgentInstances()).thenReturn(agentInstances);
     }
 
     @Test
@@ -597,13 +608,18 @@ class EnvironmentConfigServiceTest {
         }
 
         private void initializeAgents() {
-            Agent agentConf1 = new Agent("uuid1");
-            agentConf1.setEnvironments("dev,test");
-            Agent agentConf2 = new Agent("uuid2");
-            agentConf2.setEnvironments("stage,prod");
+            AgentInstances agentInstances = new AgentInstances(null);
+            Agent agent1 = new Agent("uuid1");
+            agent1.setEnvironments("dev,test");
 
-            Agents agents = new Agents(agentConf1, agentConf2);
-            when(agentService.agents()).thenReturn(agents);
+            Agent agent2 = new Agent("uuid2");
+            agent2.setEnvironments("stage,prod");
+
+            AgentInstance agentInstance1 = AgentInstance.createFromAgent(agent1, new SystemEnvironment(), null);
+            AgentInstance agentInstance2 = AgentInstance.createFromAgent(agent2, new SystemEnvironment(), null);
+            agentInstances.add(agentInstance1);
+            agentInstances.add(agentInstance2);
+            when(agentService.getAgentInstances()).thenReturn(agentInstances);
         }
 
         private void assertThatAgentAndEnvsAssociationsAreInSync(String uuid1, String uuid2) {
@@ -757,12 +773,15 @@ class EnvironmentConfigServiceTest {
         EnvironmentConfig environmentConfig = environmentConfigService.getEnvironmentConfig(environmentName);
         assertThat(environmentConfig.getAgents().size()).isEqualTo(0);
 
+        AgentInstances agentInstances = new AgentInstances(null);
         Agents agents = new Agents();
         Agent agent = new Agent(uuid);
         agent.addEnvironment(environmentName);
         agents.add(agent);
-        when(agentService.agents()).thenReturn(agents);
+        AgentInstance agentInstance = AgentInstance.createFromAgent(agent, new SystemEnvironment(), null);
+        agentInstances.add(agentInstance);
 
+        when(agentService.getAgentInstances()).thenReturn(agentInstances);
         environmentConfigService.syncAssociatedAgentsFromDB();
 
         EnvironmentConfig afterUpdateEnvConfig = environmentConfigService.getEnvironmentConfig(environmentName);
@@ -789,7 +808,10 @@ class EnvironmentConfigServiceTest {
 
         Agent agent = new Agent(uuid);
         agent.addEnvironment(envName);
-        when(agentService.agents()).thenReturn(new Agents(agent));
+        AgentInstances agentInstances = new AgentInstances(null);
+        AgentInstance agentInstance = AgentInstance.createFromAgent(agent, new SystemEnvironment(), null);
+        agentInstances.add(agentInstance);
+        when(agentService.getAgentInstances()).thenReturn(agentInstances);
 
         environmentConfigService.syncAssociatedAgentsFromDB();
 

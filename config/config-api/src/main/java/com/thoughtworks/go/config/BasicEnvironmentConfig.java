@@ -396,14 +396,7 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
 
     @Override
     public boolean containsAgentRemotely(String uuid) {
-        if (this.isLocal()) {
-            return false;
-        }
-        if (!this.hasAgent(uuid)) {
-            return false;
-        }
-
-        return true;
+        return !this.isLocal() && this.hasAgent(uuid);
     }
 
     @Override

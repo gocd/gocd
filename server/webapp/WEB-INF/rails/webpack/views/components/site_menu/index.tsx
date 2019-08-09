@@ -129,8 +129,9 @@ export default class SiteMenu extends MithrilViewComponent<Attrs> {
     const analyticsMenu: m.Children = vnode.attrs.showAnalytics ?
       <SiteNavItem href="/go/analytics" text="Analytics"/> : null;
 
-    let adminMenu = null;
-    const linkToAccessTokenManagementSPA = <SiteSubNavItem href="/go/admin/admin_access_tokens" text="Access Tokens Management"/>;
+    let adminMenu                        = null;
+    const linkToAccessTokenManagementSPA = <SiteSubNavItem href="/go/admin/admin_access_tokens"
+                                                           text="Access Tokens Management"/>;
 
     if (vnode.attrs.canViewAdminPage) {
       if (vnode.attrs.isUserAdmin) {
@@ -145,7 +146,7 @@ export default class SiteMenu extends MithrilViewComponent<Attrs> {
                 <SiteSubNavItem href="/go/admin/package_repositories/new" text="Package Repositories"/>
               </SiteSubNav>
               <SiteSubNav>
-                <SiteSubNavItem href="/go/admin/elastic_profiles" text="Elastic Profiles"/>
+                <SiteSubNavItem href="/go/admin/elastic_profiles" text="Elastic Agent Configurations"/>
                 <SiteSubNavItem href="/go/admin/config_repos" text="Config Repositories"/>
                 <SiteSubNavItem href="/go/admin/artifact_stores" text="Artifact Stores"/>
                 <SiteSubNavItem href="/go/admin/secret_configs" text="Secret Management"/>
@@ -175,7 +176,7 @@ export default class SiteMenu extends MithrilViewComponent<Attrs> {
             <SiteSubNav>
               <SiteSubNavItem href="/go/admin/pipelines" text="Pipelines"/>
               <SiteSubNavItem href="/go/admin/templates" text="Templates"/>
-              <SiteSubNavItem href="/go/admin/elastic_profiles" text="Elastic Agent Profiles"/>
+              <SiteSubNavItem href="/go/admin/elastic_profiles" text="Elastic Agent Configurations"/>
               <SiteSubNavItem href="/go/admin/pipelines/snippet" text="Config XML"/>
               <SiteSubNavItem href="/go/admin/plugins" text="Plugins"/>
               <SiteSubNavItem href="/go/admin/package_repositories/new" text="Package Repositories"/>

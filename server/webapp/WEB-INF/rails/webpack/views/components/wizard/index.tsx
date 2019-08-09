@@ -34,10 +34,10 @@ export abstract class Step {
   footer(wizard: Wizard): m.Children {
     return [
       <Buttons.Cancel onclick={wizard.close.bind(wizard)}
-                      dataTestId="cancel">Cancel</Buttons.Cancel>,
-      <Buttons.Primary dataTestId="previous" onclick={wizard.previous.bind(wizard)}
+                      data-test-id="cancel">Cancel</Buttons.Cancel>,
+      <Buttons.Primary data-test-id="previous" onclick={wizard.previous.bind(wizard)}
                        disabled={wizard.isFirstStep()}>Previous</Buttons.Primary>,
-      <Buttons.Primary dataTestId="next" onclick={wizard.next.bind(wizard)}
+      <Buttons.Primary data-test-id="next" onclick={wizard.next.bind(wizard)}
                        disabled={wizard.isLastStep()}>Next</Buttons.Primary>
     ];
   }

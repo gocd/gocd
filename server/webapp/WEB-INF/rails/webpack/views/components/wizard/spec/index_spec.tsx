@@ -150,7 +150,7 @@ describe("WizardSpec", () => {
 
   describe("Custom Footer", () => {
     it("should render wizard with custom footer", () => {
-      const customButton = <Buttons.Primary dataTestId="customButton">Custom Button</Buttons.Primary>;
+      const customButton = <Buttons.Primary data-test-id="customButton">Custom Button</Buttons.Primary>;
       wizard.addStep(new SampleStep("last Step", "this is last step", customButton));
 
       wizard.defaultStepIndex(4).render();

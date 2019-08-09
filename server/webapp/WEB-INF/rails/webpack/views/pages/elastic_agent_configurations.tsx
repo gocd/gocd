@@ -182,7 +182,7 @@ export class ElasticProfilesPage extends Page<null, State> {
   }
 
   pageName() {
-    return "Elastic Profiles";
+    return "Elastic Agent Configurations";
   }
 
   componentToDisplay(vnode: m.Vnode<null, State>) {

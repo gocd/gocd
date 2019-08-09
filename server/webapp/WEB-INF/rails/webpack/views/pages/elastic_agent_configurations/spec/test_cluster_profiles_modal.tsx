@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {ClusterProfile} from "models/elastic_profiles/types";
+import {ClusterProfile} from "models/elastic_agent_configurations/types";
 import {Extension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {BaseClusterProfileModal, ModalType} from "views/pages/elastic_agent_configurations/cluster_profiles_modals";

@@ -21,7 +21,7 @@ import * as _ from "lodash";
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
-import {ClusterProfile, ElasticAgentProfile, ElasticAgentProfiles} from "models/elastic_profiles/types";
+import {ClusterProfile, ElasticAgentProfile, ElasticAgentProfiles} from "models/elastic_agent_configurations/types";
 import {Configurations} from "models/shared/configuration";
 import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
 import {Extension} from "models/shared/plugin_infos_new/extensions";

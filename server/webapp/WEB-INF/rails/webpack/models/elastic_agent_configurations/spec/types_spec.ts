@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {ClusterProfile, ElasticAgentProfile, ElasticAgentProfiles} from "models/elastic_profiles/types";
+import {ClusterProfile, ElasticAgentProfile, ElasticAgentProfiles} from "models/elastic_agent_configurations/types";
 import {EncryptedValue, PlainTextValue} from "models/shared/config_value";
 import {Configuration, Configurations} from "models/shared/configuration";
 

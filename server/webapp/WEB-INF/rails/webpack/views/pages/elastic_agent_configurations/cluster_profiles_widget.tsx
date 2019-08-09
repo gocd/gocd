@@ -16,7 +16,7 @@
 import {MithrilComponent} from "jsx/mithril-component";
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
-import {ClusterProfiles} from "models/elastic_profiles/types";
+import {ClusterProfiles} from "models/elastic_agent_configurations/types";
 import {Extension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {FlashMessage, MessageType} from "views/components/flash_message";

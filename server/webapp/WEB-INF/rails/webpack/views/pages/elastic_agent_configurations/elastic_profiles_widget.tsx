@@ -16,7 +16,7 @@
 import {MithrilComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
-import {ElasticAgentProfile, ElasticAgentProfiles} from "models/elastic_profiles/types";
+import {ElasticAgentProfile, ElasticAgentProfiles} from "models/elastic_agent_configurations/types";
 import {Extension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {CollapsiblePanel} from "views/components/collapsible_panel";

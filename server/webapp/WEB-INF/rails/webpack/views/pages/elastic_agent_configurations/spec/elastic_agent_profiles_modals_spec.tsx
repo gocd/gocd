@@ -15,7 +15,7 @@
  */
 
 import * as _ from "lodash";
-import {ClusterProfile, ClusterProfiles, ElasticAgentProfile} from "models/elastic_profiles/types";
+import {ClusterProfile, ClusterProfiles, ElasticAgentProfile} from "models/elastic_agent_configurations/types";
 import {Configurations} from "models/shared/configuration";
 import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
 import {ElasticAgentSettings} from "models/shared/plugin_infos_new/extensions";

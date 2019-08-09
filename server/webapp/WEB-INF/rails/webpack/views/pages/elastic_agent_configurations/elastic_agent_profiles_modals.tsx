@@ -18,8 +18,8 @@ import {ApiResult, ErrorResponse, ObjectWithEtag} from "helpers/api_request_buil
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
-import {ElasticAgentProfilesCRUD} from "models/elastic_profiles/elastic_agent_profiles_crud";
-import {ClusterProfile, ClusterProfiles, ElasticAgentProfile, ProfileUsage} from "models/elastic_profiles/types";
+import {ElasticAgentProfilesCRUD} from "models/elastic_agent_configurations/elastic_agent_profiles_crud";
+import {ClusterProfile, ClusterProfiles, ElasticAgentProfile, ProfileUsage} from "models/elastic_agent_configurations/types";
 import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
 import {ElasticAgentSettings, Extension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";

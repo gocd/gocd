@@ -15,8 +15,8 @@
  */
 
 import {ApiResult, SuccessResponse} from "helpers/api_request_builder";
-import {ClusterProfilesCRUD} from "models/elastic_profiles/cluster_profiles_crud";
-import {ClusterProfile, ClusterProfiles} from "models/elastic_profiles/types";
+import {ClusterProfilesCRUD} from "models/elastic_agent_configurations/cluster_profiles_crud";
+import {ClusterProfile, ClusterProfiles} from "models/elastic_agent_configurations/types";
 
 describe("ClusterProfileCRUD", () => {
   beforeEach(() => jasmine.Ajax.install());

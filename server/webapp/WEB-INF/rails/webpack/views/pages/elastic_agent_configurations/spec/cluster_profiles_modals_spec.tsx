@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {ClusterProfile} from "models/elastic_profiles/types";
+import {ClusterProfile} from "models/elastic_agent_configurations/types";
 import {Errors} from "models/mixins/errors";
 import {Configurations} from "models/shared/configuration";
 import {Extension} from "models/shared/plugin_infos_new/extensions";

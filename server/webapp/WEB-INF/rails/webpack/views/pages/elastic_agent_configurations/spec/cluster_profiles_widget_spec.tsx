@@ -17,7 +17,7 @@
 import * as _ from "lodash";
 import * as m from "mithril";
 import * as stream from "mithril/stream";
-import {ClusterProfile, ClusterProfiles, ElasticAgentProfile, ElasticAgentProfiles} from "models/elastic_profiles/types";
+import {ClusterProfile, ClusterProfiles, ElasticAgentProfile, ElasticAgentProfiles} from "models/elastic_agent_configurations/types";
 import {Extension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import * as collapsiblePanelStyles from "views/components/collapsible_panel/index.scss";

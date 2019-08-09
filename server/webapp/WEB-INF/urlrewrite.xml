@@ -391,6 +391,12 @@
 
   <rule>
     <name>Elastic Agent Configurations SPA</name>
+    <from>^/admin/elastic_profiles(/?)$</from>
+    <to last="true">/spark/admin/elastic_agent_configurations</to>
+  </rule>
+
+  <rule>
+    <name>Elastic Agent Configurations SPA</name>
     <from>^/admin/elastic_agent_configurations(/?)$</from>
     <to last="true">/spark/admin/elastic_agent_configurations</to>
   </rule>

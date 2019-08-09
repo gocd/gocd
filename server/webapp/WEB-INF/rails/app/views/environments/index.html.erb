@@ -5,7 +5,8 @@
 <div id="ajax_environments" class="environments">
   <% @environments.each do |env_in_environments| %>
     <div id="<%= env_dom_id(env_in_environments.getEnvironmentConfig().name().to_s) %>">
-      <%= render :partial => "show_env", :locals => {:scope => {:show_edit_environments => @show_add_environments, :environment_view_model => env_in_environments}} %>
+      <% @can_edit_env= @show_add_environments && !env_in_environments.getEnvironmentConfig().isUnknown() %>
+      <%= render :partial => "show_env", :locals => {:scope => {:show_edit_environments => @can_edit_env, :environment_view_model => env_in_environments}} %>
     </div>
   <% end %>
 </div>

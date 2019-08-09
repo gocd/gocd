@@ -27,10 +27,7 @@ import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.apiv3.environments.model.PatchEnvironmentRequest;
 import com.thoughtworks.go.apiv3.environments.representers.EnvironmentRepresenter;
 import com.thoughtworks.go.apiv3.environments.representers.PatchEnvironmentRequestRepresenter;
-import com.thoughtworks.go.config.BasicEnvironmentConfig;
-import com.thoughtworks.go.config.EnvironmentConfig;
-import com.thoughtworks.go.config.EnvironmentVariableConfig;
-import com.thoughtworks.go.config.EnvironmentVariablesConfig;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
@@ -144,6 +141,11 @@ public class EnvironmentsControllerV3 extends ApiController implements SparkSpri
         EnvironmentConfig oldEnvironmentConfig = fetchEntityFromConfig(environmentName);
         HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
 
+        if (oldEnvironmentConfig.isUnknown()) {
+            operationResult.unprocessableEntity(format("Environment '%s' is not defined in config. Hence, it can't be updated.", environmentName));
+            return handleCreateOrUpdateResponse(request, response, environmentConfig, operationResult);
+        }
+
         if (!environmentConfig.getAllErrors().isEmpty()) {
             operationResult.unprocessableEntity("Error parsing environment config from the request");
             return handleCreateOrUpdateResponse(request, response, environmentConfig, operationResult);
@@ -157,8 +159,7 @@ public class EnvironmentsControllerV3 extends ApiController implements SparkSpri
             throw haltBecauseRenameOfEntityIsNotSupported("environment");
         }
 
-        environmentConfigService.updateEnvironment(environmentConfig.name().toString(),
-                environmentConfig, currentUsername(), etagFor(oldEnvironmentConfig), operationResult);
+        environmentConfigService.updateEnvironment(environmentConfig.name().toString(), environmentConfig, currentUsername(), etagFor(oldEnvironmentConfig), operationResult);
 
         setEtagHeader(environmentConfig, response);
         return handleCreateOrUpdateResponse(request, response, environmentConfig, operationResult);
@@ -172,22 +173,27 @@ public class EnvironmentsControllerV3 extends ApiController implements SparkSpri
         String environmentName = request.params("name");
         EnvironmentConfig environmentConfig = fetchEntityFromConfig(environmentName);
 
+        if (environmentConfig.isUnknown()) {
+            result.unprocessableEntity(format("Environment '%s' is not defined in config. Hence, it can't be updated.", environmentName));
+            return handleCreateOrUpdateResponse(request, response, environmentConfig, result);
+        }
+
         Optional<EnvironmentVariableConfig> parsingErrors = req.getEnvironmentVariablesToAdd().stream()
-                                                                                              .filter(envVar -> !envVar.errors().isEmpty())
-                                                                                              .findFirst();
+                .filter(envVar -> !envVar.errors().isEmpty())
+                .findFirst();
 
         if (parsingErrors.isPresent()) {
             EnvironmentVariablesConfig configs = new EnvironmentVariablesConfig(req.getEnvironmentVariablesToAdd());
             String errorMessage = MessageJson.create("Error parsing patch request",
-                                                      writer -> toJSONArray(writer, "environment_variables", configs));
+                    writer -> toJSONArray(writer, "environment_variables", configs));
             response.status(422);
             return errorMessage;
         }
 
         List<String> dummyAgentList = new ArrayList<>();
         environmentConfigService.patchEnvironment(environmentConfig, req.getPipelineToAdd(), req.getPipelineToRemove(),
-                                                  dummyAgentList, dummyAgentList, req.getEnvironmentVariablesToAdd(),
-                                                  req.getEnvironmentVariablesToRemove(), currentUsername(), result);
+                dummyAgentList, dummyAgentList, req.getEnvironmentVariablesToAdd(),
+                req.getEnvironmentVariablesToRemove(), currentUsername(), result);
 
         EnvironmentConfig updateConfigElement = fetchEntityFromConfig(environmentName);
 
@@ -206,7 +212,7 @@ public class EnvironmentsControllerV3 extends ApiController implements SparkSpri
 
     @Override
     public String etagFor(EnvironmentConfig entityFromServer) {
-        if (entityFromServer instanceof MergeEnvironmentConfig) {
+        if (entityFromServer instanceof MergeEnvironmentConfig || entityFromServer instanceof UnknownEnvironmentConfig) {
             return md5Hex(valueOf(hash(entityFromServer)));
         }
         return entityHashingService.md5ForEntity(entityFromServer);

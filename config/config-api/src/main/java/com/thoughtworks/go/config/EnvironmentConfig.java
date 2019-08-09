@@ -130,4 +130,12 @@ public interface EnvironmentConfig extends ParamsAttributeAware, Validatable, En
     default SecretParams getSecretParams() {
         return getVariables().getSecretParams();
     }
+
+    /**
+     * @return false
+     * override if the environment config is unknown (does not exist in config xml or config repo)
+     */
+    default boolean isUnknown(){
+        return false;
+    }
 }

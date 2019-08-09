@@ -13,29 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.thoughtworks.go.config.remote;
 
-/**
- * @understands where configuration comes from.
- */
-public interface ConfigOrigin {
-    /**
-     * @return true when configuration source can be modified.
-     */
-    boolean canEdit();
-
-    /**
-     * @return true when origin is local
-     */
-    boolean isLocal();
-
-    String displayName();
-
-    /**
-     * @return false
-     * need to override if the origin is unknown
-     */
-    default boolean isUnknown() {
+public class UnknownOrigin implements ConfigOrigin {
+    @Override
+    public boolean canEdit() {
         return false;
+    }
+
+    @Override
+    public boolean isLocal() {
+        return false;
+    }
+
+    @Override
+    public String displayName() {
+        return "Unknown";
+    }
+
+    @Override
+    public boolean isUnknown() {
+        return true;
     }
 }

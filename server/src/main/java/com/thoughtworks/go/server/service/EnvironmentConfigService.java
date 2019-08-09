@@ -40,7 +40,10 @@ import com.thoughtworks.go.server.ui.EnvironmentViewModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.str;
 import static com.thoughtworks.go.i18n.LocalizedMessage.entityConfigValidationFailed;
@@ -77,6 +80,7 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
             @Override
             public void onEntityConfigChange(EnvironmentConfig entity) {
                 syncEnvironmentsFromConfig(goConfigService.getEnvironments());
+                syncAssociatedAgentsFromDB();
             }
         });
 
@@ -128,10 +132,6 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
         return agents;
     }
 
-    public List<CaseInsensitiveString> pipelinesFor(final CaseInsensitiveString environmentName) {
-        return environments.named(environmentName).getPipelineNames();
-    }
-
     public List<String> getEnvironmentNames() {
         return environments.names().stream().map(CaseInsensitiveString::toString).collect(toList());
     }
@@ -152,11 +152,11 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
         return environments.named(new CaseInsensitiveString(envName));
     }
 
-    public EnvironmentConfig findOrDefault(String envName) {
+    public EnvironmentConfig findOrUnknown(String envName) {
         CaseInsensitiveString environmentName = new CaseInsensitiveString((envName));
         EnvironmentConfig environmentConfig = environments.find(environmentName);
         if (environmentConfig == null) {
-            environmentConfig = new BasicEnvironmentConfig(environmentName);
+            environmentConfig = new UnknownEnvironmentConfig(environmentName);
         }
         return environmentConfig;
     }
@@ -173,7 +173,7 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
 
     public List<EnvironmentConfig> getAllMergedEnvironments() {
         return getEnvironmentNames().stream()
-                .map(env -> EnvironmentConfigService.this.getMergedEnvironmentforDisplay(env.toString(), new HttpLocalizedOperationResult()).getConfigElement())
+                .map(env -> getMergedEnvironmentforDisplay(env, new HttpLocalizedOperationResult()).getConfigElement())
                 .collect(toList());
     }
 
@@ -270,7 +270,7 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
         matchers = environments.matchers();
     }
 
-    private void removeAgentFromCurrentlyAssociatedEnvironments(String uuid, List<String> envsBeforeUpdate, List<String> envsAfterUpdate){
+    private void removeAgentFromCurrentlyAssociatedEnvironments(String uuid, List<String> envsBeforeUpdate, List<String> envsAfterUpdate) {
         List<String> removedEnvs = filter1stListOfEnvironmentsThatDoNotExistInList2(envsBeforeUpdate, envsAfterUpdate);
         removeAgentFromCurrentlyAssociatedEnvironments(uuid, removedEnvs);
     }
@@ -282,16 +282,16 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
     }
 
     private void addAgentToNewlyAssociatedEnvironments(String uuid, List<String> envNames) {
-        envNames.stream().map(this::find)
+        envNames.stream().map(this::findOrUnknown)
                 .filter(envConfig -> isEnvironmentNotAssociatedWithAgent(envConfig, uuid))
-                .forEach(envConfig -> envConfig.addAgent(uuid));
+                .peek(envConfig -> envConfig.addAgent(uuid))
+                .filter(envConfig -> envConfig.isUnknown() && !environments.contains(envConfig))
+                .forEach(envConfig-> environments.add(envConfig));
     }
 
     private void addAgentToNewlyAssociatedEnvironments(String uuid, List<String> envsBeforeUpdate, List<String> envsAfterUpdate) {
         List<String> addedEnvs = filter1stListOfEnvironmentsThatDoNotExistInList2(envsAfterUpdate, envsBeforeUpdate);
-        addedEnvs.stream().map(this::find)
-                .filter(envConfig -> isEnvironmentNotAssociatedWithAgent(envConfig, uuid))
-                .forEach(envConfig -> envConfig.addAgent(uuid));
+        addAgentToNewlyAssociatedEnvironments(uuid, addedEnvs);
     }
 
     private List<String> filter1stListOfEnvironmentsThatDoNotExistInList2(List<String> envList1, List<String> envList2) {
@@ -349,7 +349,7 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
         return envConfig != null && !envConfig.hasAgent(uuid);
     }
 
-    private EnvironmentConfig find(String envName){
+    private EnvironmentConfig find(String envName) {
         return environments.find(new CaseInsensitiveString(envName));
     }
 

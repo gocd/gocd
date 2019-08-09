@@ -19,6 +19,7 @@ import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.config.remote.UIConfigOrigin;
+import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.EnvironmentPipelineMatcher;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
@@ -27,7 +28,12 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
+import static com.thoughtworks.go.config.ConfigSaveValidationContext.forChain;
+import static com.thoughtworks.go.helper.EnvironmentConfigMother.environment;
+import static com.thoughtworks.go.helper.EnvironmentConfigMother.remote;
 import static com.thoughtworks.go.util.command.EnvironmentVariableContext.GO_ENVIRONMENT_NAME;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -96,9 +102,8 @@ class BasicEnvironmentConfigTest extends EnvironmentConfigTestBase {
         assertThat(environmentConfig.name()).isEqualTo(new CaseInsensitiveString("PROD"));
     }
 
-
     @Nested
-    class validate {
+    class Validate {
         @Test
         void shouldNotAllowToReferencePipelineDefinedInConfigRepo_WhenEnvironmentDefinedInFile() {
             ConfigOrigin pipelineOrigin = new RepoConfigOrigin();
@@ -111,7 +116,7 @@ class BasicEnvironmentConfigTest extends EnvironmentConfigTestBase {
             environmentConfig.addPipeline(new CaseInsensitiveString("pipe1"));
             cruiseConfig.addEnvironment(environmentConfig);
 
-            environmentConfig.validate(ConfigSaveValidationContext.forChain(cruiseConfig, environmentConfig));
+            environmentConfig.validate(forChain(cruiseConfig, environmentConfig));
             EnvironmentPipelineConfig reference = environmentConfig.getPipelines().first();
 
             assertThat(reference.errors()).isNotEmpty();
@@ -155,10 +160,93 @@ class BasicEnvironmentConfigTest extends EnvironmentConfigTestBase {
         environmentConfig.addPipeline(new CaseInsensitiveString("unknown"));
         cruiseConfig.addEnvironment(environmentConfig);
 
-        environmentConfig.validate(ConfigSaveValidationContext.forChain(cruiseConfig, environmentConfig));
+        environmentConfig.validate(forChain(cruiseConfig, environmentConfig));
         EnvironmentPipelineConfig reference = environmentConfig.getPipelines().first();
 
         assertThat(reference.errors().isEmpty()).isTrue();
+    }
+
+    @Nested
+    class ValidateTree {
+        @Test
+        void shouldNotAllowToReferencePipelineDefinedInConfigRepo_WhenEnvironmentDefinedInFile() {
+            ConfigOrigin pipelineOrigin = new RepoConfigOrigin();
+            ConfigOrigin envOrigin = new FileConfigOrigin();
+
+            BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("pipe1");
+            cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("pipe1")).setOrigin(pipelineOrigin);
+            BasicEnvironmentConfig environmentConfig = (BasicEnvironmentConfig) BasicEnvironmentConfigTest.this.environmentConfig;
+            environmentConfig.setOrigins(envOrigin);
+            environmentConfig.addPipeline(new CaseInsensitiveString("pipe1"));
+            cruiseConfig.addEnvironment(environmentConfig);
+
+            environmentConfig.validateTree(forChain(cruiseConfig, environmentConfig), cruiseConfig);
+            EnvironmentPipelineConfig reference = environmentConfig.getPipelines().first();
+
+            assertThat(reference.errors()).isNotEmpty();
+            assertThat(reference.errors().on(EnvironmentPipelineConfig.ORIGIN)).startsWith("Environment defined in");
+        }
+
+        @Test
+        void shouldAllowToReferencePipelineDefinedInConfigRepo_WhenEnvironmentDefinedInConfigRepo() {
+            ConfigOrigin pipelineOrigin = new RepoConfigOrigin();
+            ConfigOrigin envOrigin = new RepoConfigOrigin();
+
+            passReferenceValidationHelperForValidateTree(pipelineOrigin, envOrigin);
+        }
+
+        @Test
+        void shouldAllowToReferencePipelineDefinedInFile_WhenEnvironmentDefinedInFile() {
+            ConfigOrigin pipelineOrigin = new FileConfigOrigin();
+            ConfigOrigin envOrigin = new FileConfigOrigin();
+
+            passReferenceValidationHelperForValidateTree(pipelineOrigin, envOrigin);
+        }
+
+        @Test
+        void shouldAllowToReferencePipelineDefinedInFile_WhenEnvironmentDefinedInConfigRepo() {
+            ConfigOrigin pipelineOrigin = new FileConfigOrigin();
+            ConfigOrigin envOrigin = new RepoConfigOrigin();
+
+            passReferenceValidationHelperForValidateTree(pipelineOrigin, envOrigin);
+        }
+
+        @Test
+        void shouldValidateEnvVariables() {
+            ConfigOrigin repoConfigOrigin = new RepoConfigOrigin();
+
+            BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("pipe1");
+            cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("pipe1")).setOrigin(repoConfigOrigin);
+            BasicEnvironmentConfig environmentConfig = (BasicEnvironmentConfig) BasicEnvironmentConfigTest.this.environmentConfig;
+            environmentConfig.setOrigins(repoConfigOrigin);
+            environmentConfig.addPipeline(new CaseInsensitiveString("pipe1"));
+            environmentConfig.addEnvironmentVariable("  ", "bar");
+            cruiseConfig.addEnvironment(environmentConfig);
+
+            boolean validate = environmentConfig.validateTree(forChain(cruiseConfig, environmentConfig), cruiseConfig);
+            List<ConfigErrors> configErrors = environmentConfig.getAllErrors();
+            assertThat(validate).isFalse();
+            assertThat(configErrors).isNotEmpty();
+            assertThat(configErrors.get(0).on("name")).isEqualTo("Environment Variable cannot have an empty name for environment 'UAT'.");
+        }
+
+        @Test
+        void shouldValidateViaValidateTreeWhenPipelineNotFound() {
+            ConfigOrigin pipelineOrigin = new RepoConfigOrigin();
+            ConfigOrigin envOrigin = new FileConfigOrigin();
+
+            BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("pipe1");
+            cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("pipe1")).setOrigin(pipelineOrigin);
+            BasicEnvironmentConfig environmentConfig = (BasicEnvironmentConfig) BasicEnvironmentConfigTest.this.environmentConfig;
+            environmentConfig.setOrigins(envOrigin);
+            environmentConfig.addPipeline(new CaseInsensitiveString("unknown"));
+            cruiseConfig.addEnvironment(environmentConfig);
+
+            environmentConfig.validate(forChain(cruiseConfig, environmentConfig));
+            EnvironmentPipelineConfig reference = environmentConfig.getPipelines().first();
+
+            assertThat(reference.errors().isEmpty()).isTrue();
+        }
     }
 
     @Test
@@ -178,6 +266,7 @@ class BasicEnvironmentConfigTest extends EnvironmentConfigTestBase {
         assertThat(environmentContext.getProperty(GO_ENVIRONMENT_NAME)).isEqualTo(environmentConfig.name().toString());
         assertThat(environmentContext.getProperty("foo")).isEqualTo("bar");
     }
+
     @Test
     void shouldAddErrorToTheConfig() {
         assertTrue(environmentConfig.errors().isEmpty());
@@ -240,6 +329,75 @@ class BasicEnvironmentConfigTest extends EnvironmentConfigTestBase {
         assertFalse(environmentConfig.isEnvironmentEmpty());
     }
 
+    @Nested
+    class ContainsAgentRemotely {
+
+        @Test
+        void shouldReturnTrueIfTheEnvAgentAssociationIsFromConfigRepo() {
+            BasicEnvironmentConfig environmentConfig = remote("env1");
+            String uuid = "uuid";
+            environmentConfig.addAgent(uuid);
+
+            assertThat(environmentConfig.containsAgentRemotely(uuid)).isTrue();
+        }
+
+        @Test
+        void shouldReturnFalseIfTheAgentIsNotPresentInTheEnvFromConfigRepo() {
+            BasicEnvironmentConfig environmentConfig = remote("env1");
+            String uuid = "uuid";
+
+            assertThat(environmentConfig.containsAgentRemotely(uuid)).isFalse();
+        }
+
+        @Test
+        void shouldReturnFalseIfTheEnvAgentAssociationIsFromConfigXml() {
+            BasicEnvironmentConfig environmentConfig = environment("env1");
+            String uuid = "uuid";
+            environmentConfig.addAgent(uuid);
+
+            assertThat(environmentConfig.containsAgentRemotely(uuid)).isFalse();
+        }
+
+        @Test
+        void shouldReturnFalseIfTheOriginIsNull() {
+            BasicEnvironmentConfig environmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("env1"));
+            String uuid = "uuid";
+            environmentConfig.addAgent(uuid);
+
+            assertThat(environmentConfig.getOrigin()).isNull();
+            assertThat(environmentConfig.containsAgentRemotely(uuid)).isFalse();
+        }
+    }
+
+    @Test
+    void shouldReturnEmptyOptionalIfEnvDoesNotContainTheAgent() {
+        Optional<ConfigOrigin> originForAgent = this.environmentConfig.originForAgent("uuid");
+
+        assertThat(originForAgent.isPresent()).isFalse();
+    }
+
+    @Test
+    void shouldReturnOriginIfEnvContainsTheAgent() {
+        String uuid = "uuid";
+        this.environmentConfig.addAgent(uuid);
+        this.environmentConfig.setOrigins(new FileConfigOrigin());
+        Optional<ConfigOrigin> originForAgent = this.environmentConfig.originForAgent(uuid);
+
+        assertThat(originForAgent.isPresent()).isTrue();
+        assertThat(originForAgent.get().displayName()).isEqualTo("cruise-config.xml");
+    }
+
+    @Test
+    void shouldReturnFalseIfEnvDoesNotContainTheSpecifiedAgentUuid() {
+        assertThat(this.environmentConfig.hasAgent("uuid")).isFalse();
+    }
+
+    @Test
+    void shouldReturnTrueIfEnvContainsTheSpecifiedAgentUuid() {
+        this.environmentConfig.addAgent("uuid");
+        assertThat(this.environmentConfig.hasAgent("uuid")).isTrue();
+    }
+
     private void passReferenceValidationHelper(ConfigOrigin pipelineOrigin, ConfigOrigin envOrigin) {
         BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("pipe1");
         cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("pipe1")).setOrigin(pipelineOrigin);
@@ -248,7 +406,21 @@ class BasicEnvironmentConfigTest extends EnvironmentConfigTestBase {
         environmentConfig.addPipeline(new CaseInsensitiveString("pipe1"));
         cruiseConfig.addEnvironment(environmentConfig);
 
-        environmentConfig.validate(ConfigSaveValidationContext.forChain(cruiseConfig, environmentConfig));
+        environmentConfig.validate(forChain(cruiseConfig, environmentConfig));
+        EnvironmentPipelineConfig reference = environmentConfig.getPipelines().first();
+
+        assertThat(reference.errors().isEmpty()).isTrue();
+    }
+
+    private void passReferenceValidationHelperForValidateTree(ConfigOrigin pipelineOrigin, ConfigOrigin envOrigin) {
+        BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("pipe1");
+        cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("pipe1")).setOrigin(pipelineOrigin);
+        BasicEnvironmentConfig environmentConfig = (BasicEnvironmentConfig) this.environmentConfig;
+        environmentConfig.setOrigins(envOrigin);
+        environmentConfig.addPipeline(new CaseInsensitiveString("pipe1"));
+        cruiseConfig.addEnvironment(environmentConfig);
+
+        environmentConfig.validateTree(forChain(cruiseConfig, environmentConfig), cruiseConfig);
         EnvironmentPipelineConfig reference = environmentConfig.getPipelines().first();
 
         assertThat(reference.errors().isEmpty()).isTrue();

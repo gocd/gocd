@@ -118,6 +118,11 @@ h4 {
     overflow:      hidden;
     white-space:   nowrap;
     text-overflow: ellipsis;
+
+    &.disabled {
+      color:      #999;
+      font-style: italic;
+    }
   }
 
   .key-value-pair {

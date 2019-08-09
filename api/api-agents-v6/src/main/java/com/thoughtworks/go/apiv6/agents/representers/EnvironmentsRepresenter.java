@@ -46,6 +46,10 @@ public class EnvironmentsRepresenter {
     }
 
     private static void origin(OutputWriter writer, EnvironmentConfig environment, String agentUuid) {
+        if (environment.isUnknown()) {
+            writer.add("type", "unknown");
+            return;
+        }
         if (environment.containsAgentRemotely(agentUuid)) {
             ConfigOrigin originForAgent = environment.originForAgent(agentUuid)
                     .orElseThrow(() -> bomb(String.format("Did not expect config origin to be null for Environment: %s, Agent: %s",

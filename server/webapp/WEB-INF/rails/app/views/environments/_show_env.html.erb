@@ -2,7 +2,7 @@
 <%= content_wrapper_tag %>
 <div class="environment-listview" id="environment_entity_<%= environment.name() %>">
   <div class="environment-header">
-    <h2 class="entity_title">
+    <h2 class="entity_title <%= scope[:show_edit_environments]? "" : "disabled" %>">
       <%= environment.name() %>
     </h2>
     <div class="key-value-pair">

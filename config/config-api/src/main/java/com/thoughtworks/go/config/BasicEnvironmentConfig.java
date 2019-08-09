@@ -319,6 +319,7 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
             pipelines.setConfigAttributes(attributeMap.get(PIPELINES_FIELD));
         }
         if (attributeMap.containsKey(AGENTS_FIELD)) {
+            //todo : Saurabh/Kritika revisit this to check if this is really needed anymore
             agents.setConfigAttributes(attributeMap.get(AGENTS_FIELD));
         }
         if (attributeMap.containsKey(VARIABLES_FIELD)) {

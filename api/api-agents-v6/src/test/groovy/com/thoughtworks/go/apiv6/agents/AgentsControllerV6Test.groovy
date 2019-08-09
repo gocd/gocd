@@ -318,7 +318,7 @@ class AgentsControllerV6Test implements SecurityServiceTrait, ControllerTrait<Ag
 
       def envsConfig = new EnvironmentsConfig()
       def envConfig = environment("env1")
-      when(environmentConfigService.findOrDefault("env1")).thenReturn(envConfig)
+      when(environmentConfigService.findOrUnknown("env1")).thenReturn(envConfig)
       when(environmentConfigService.getAgentEnvironments("uuid2")).thenReturn(singleton(envConfig))
 
       envsConfig.add(envConfig)
@@ -574,8 +574,8 @@ class AgentsControllerV6Test implements SecurityServiceTrait, ControllerTrait<Ag
 
         def commaSeparatedEnvs = "   env1, env2 "
 
-        when(environmentConfigService.findOrDefault("env1")).thenReturn(environmentConfig)
-        when(environmentConfigService.findOrDefault("env2")).thenReturn(environmentConfig1)
+        when(environmentConfigService.findOrUnknown("env1")).thenReturn(environmentConfig)
+        when(environmentConfigService.findOrUnknown("env2")).thenReturn(environmentConfig1)
 
         when(environmentConfigService.getAgentEnvironments("uuid2")).thenReturn(singleton(environmentConfig))
 
@@ -843,8 +843,8 @@ class AgentsControllerV6Test implements SecurityServiceTrait, ControllerTrait<Ag
         environmentsConfig.add(environmentConfig)
         environmentsConfig.add(environmentConfig1)
 
-        when(environmentConfigService.findOrDefault("env1")).thenReturn(environmentConfig)
-        when(environmentConfigService.findOrDefault("env2")).thenReturn(environmentConfig1)
+        when(environmentConfigService.findOrUnknown("env1")).thenReturn(environmentConfig)
+        when(environmentConfigService.findOrUnknown("env2")).thenReturn(environmentConfig1)
         when(environmentConfigService.getAgentEnvironmentNames("uuid2")).thenReturn(singleton("env1"))
 
         doAnswer({ InvocationOnMock invocation ->

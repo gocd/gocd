@@ -206,14 +206,6 @@ class EnvironmentConfigServiceTest {
     }
 
     @Test
-    void shouldFindPipelinesNamesForAGivenEnvironmentName() {
-        environmentConfigService.syncEnvironmentsFromConfig(environments("uat", "prod"));
-        assertThat(environmentConfigService.pipelinesFor(new CaseInsensitiveString("uat")).size()).isEqualTo(1);
-        assertThat(environmentConfigService.pipelinesFor(new CaseInsensitiveString("uat"))).contains(new CaseInsensitiveString("uat-pipeline"));
-        assertThat(environmentConfigService.pipelinesFor(new CaseInsensitiveString("prod"))).contains(new CaseInsensitiveString("prod-pipeline"));
-    }
-
-    @Test
     void shouldFindAgentsForPipelineUnderEnvironment() {
         environmentConfigService.syncEnvironmentsFromConfig(environments("uat", "prod"));
         environmentConfigService.syncAssociatedAgentsFromDB();
@@ -493,12 +485,15 @@ class EnvironmentConfigServiceTest {
     }
 
     @Test
-    void shouldReturnDefaultBasicEnvConfigWhenEnvironmentIsAbsent() {
+    void shouldReturnUnknownConfigWhenEnvIsNotPresent() {
         String environmentName = "foo-environment";
         String pipelineName = "up42";
         environmentConfigService.syncEnvironmentsFromConfig(environmentsConfig(environmentName, pipelineName));
 
-        assertThat(environmentConfigService.findOrDefault("invalid-environment-name")).isEqualTo(new BasicEnvironmentConfig(new CaseInsensitiveString("invalid-environment-name")));
+        EnvironmentConfig envConfig = environmentConfigService.findOrUnknown("invalid-environment-name");
+
+        assertThat(envConfig).isNotNull();
+        assertThat(envConfig.isUnknown()).isTrue();
     }
 
     @Nested
@@ -711,32 +706,58 @@ class EnvironmentConfigServiceTest {
         assertEquals(result.message(), "Failed to delete environment 'env_name'. ");
     }
 
-    @Test
-    void shouldUpdateEnvironmentCacheOnAgentChange() {
-        String uuid = "uuid";
-        String environmentName = "foo-environment";
-        EnvironmentsConfig environments = new EnvironmentsConfig();
-        BasicEnvironmentConfig config = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
-        config.addAgent(uuid);
-        environments.add(config);
-        environmentConfigService.syncEnvironmentsFromConfig(environments);
+    @Nested
+    class AgentChanged {
+        @Test
+        void shouldUpdateEnvironmentCacheOnAgentChange() {
+            String uuid = "uuid";
+            String environmentName = "foo-environment";
+            EnvironmentsConfig environments = new EnvironmentsConfig();
+            BasicEnvironmentConfig config = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
+            config.addAgent(uuid);
+            environments.add(config);
+            environmentConfigService.syncEnvironmentsFromConfig(environments);
 
-        EnvironmentConfig environmentConfig = environmentConfigService.getEnvironmentConfig(environmentName);
-        EnvironmentAgentsConfig environmentConfigAgents = environmentConfig.getAgents();
-        assertThat(environmentConfigAgents.size()).isEqualTo(1);
-        assertThat(environmentConfigAgents.get(0).getUuid()).isEqualTo(uuid);
+            EnvironmentConfig environmentConfig = environmentConfigService.getEnvironmentConfig(environmentName);
+            EnvironmentAgentsConfig environmentConfigAgents = environmentConfig.getAgents();
+            assertThat(environmentConfigAgents.size()).isEqualTo(1);
+            assertThat(environmentConfigAgents.get(0).getUuid()).isEqualTo(uuid);
 
-        String newEnvironmentName = "new-environment";
-        Agent agentBeforeUpdate = new Agent(uuid);
-        agentBeforeUpdate.addEnvironment(environmentName);
-        Agent agentAfterUpdate = new Agent(uuid);
-        agentAfterUpdate.addEnvironment(newEnvironmentName);
-        AgentChangedEvent agentChangedEvent = new AgentChangedEvent(agentBeforeUpdate, agentAfterUpdate);
+            String newEnvironmentName = "new-environment";
+            Agent agentBeforeUpdate = new Agent(uuid);
+            agentBeforeUpdate.addEnvironment(environmentName);
+            Agent agentAfterUpdate = new Agent(uuid);
+            agentAfterUpdate.addEnvironment(newEnvironmentName);
+            AgentChangedEvent agentChangedEvent = new AgentChangedEvent(agentBeforeUpdate, agentAfterUpdate);
 
-        environmentConfigService.agentChanged(agentChangedEvent);
+            environmentConfigService.agentChanged(agentChangedEvent);
 
-        EnvironmentConfig afterUpdateEnvConfig = environmentConfigService.getEnvironmentConfig(environmentName);
-        assertThat(afterUpdateEnvConfig.getAgents().size()).isEqualTo(0);
+            EnvironmentConfig afterUpdateEnvConfig = environmentConfigService.getEnvironmentConfig(environmentName);
+            assertThat(afterUpdateEnvConfig.getAgents().size()).isEqualTo(0);
+        }
+
+        @Test
+        void shouldAddEnvironmentToCacheIfNotAlreadyPresent() {
+            String uuid = "uuid";
+            String environmentName = "foo-environment";
+            EnvironmentsConfig environments = new EnvironmentsConfig();
+            environmentConfigService.syncEnvironmentsFromConfig(environments);
+
+            assertThatCode(() -> environmentConfigService.getEnvironmentConfig(environmentName))
+                    .isInstanceOf(RecordNotFoundException.class);
+
+            Agent agentBeforeUpdate = new Agent(uuid);
+            Agent agentAfterUpdate = new Agent(uuid);
+            agentAfterUpdate.addEnvironment(environmentName);
+            AgentChangedEvent agentChangedEvent = new AgentChangedEvent(agentBeforeUpdate, agentAfterUpdate);
+
+            environmentConfigService.agentChanged(agentChangedEvent);
+
+            EnvironmentConfig afterUpdateEnvConfig = environmentConfigService.getEnvironmentConfig(environmentName);
+            EnvironmentAgentsConfig agentConfigs = afterUpdateEnvConfig.getAgents();
+            assertThat(agentConfigs.size()).isEqualTo(1);
+            assertThat(agentConfigs.get(0).getUuid()).isEqualTo(uuid);
+        }
     }
 
     @Test

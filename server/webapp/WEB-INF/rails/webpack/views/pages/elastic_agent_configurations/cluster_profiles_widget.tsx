@@ -20,8 +20,8 @@ import {ClusterProfiles} from "models/elastic_profiles/types";
 import {Extension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {FlashMessage, MessageType} from "views/components/flash_message";
-import {ClusterProfileWidget} from "views/pages/elastic_profiles/cluster_profile_widget";
-import {Attrs as ClusterProfileWidgetAttrs} from "views/pages/elastic_profiles/cluster_profile_widget";
+import {ClusterProfileWidget} from "views/pages/elastic_agent_configurations/cluster_profile_widget";
+import {Attrs as ClusterProfileWidgetAttrs} from "views/pages/elastic_agent_configurations/cluster_profile_widget";
 
 interface Attrs {
   pluginInfos: Stream<Array<PluginInfo<Extension>>>;

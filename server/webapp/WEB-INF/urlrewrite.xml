@@ -23,11 +23,11 @@
 -->
 
 <urlrewrite>
-<rule>
-  <name>mail_server UI</name>
-  <from>^/admin/mail_server(/?)$</from>
-  <to last="true">/spark/admin/mail_server</to>
-</rule>
+  <rule>
+    <name>mail_server UI</name>
+    <from>^/admin/mail_server(/?)$</from>
+    <to last="true">/spark/admin/mail_server</to>
+  </rule>
 
   <rule>
     <name>Mailhost API</name>
@@ -390,9 +390,9 @@
   </rule>
 
   <rule>
-    <name>Elastic Profiles SPA</name>
-    <from>^/admin/elastic_profiles(/?)$</from>
-    <to last="true">/spark/admin/elastic_profiles</to>
+    <name>Elastic Agent Configurations SPA</name>
+    <from>^/admin/elastic_agent_configurations(/?)$</from>
+    <to last="true">/spark/admin/elastic_agent_configurations</to>
   </rule>
 
   <rule>

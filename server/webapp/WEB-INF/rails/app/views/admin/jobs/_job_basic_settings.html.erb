@@ -24,7 +24,7 @@
             <%= scope[:form].label "elasticProfileId", "Elastic Profile Id" %>
 
                 <%= scope[:form].text_field "elasticProfileId", :class => 'elastic_profile_id', :value => scope[:job].getElasticProfileId() %>
-                <div class="contextual_help has_go_tip_right" title="Elastic Profile that this job requires to run.<br/><a href='<%= '/go/admin/elastic_profiles' %>' target='_blank'>Click here</a> to see and manage all elastic profiles."></div>
+                <div class="contextual_help has_go_tip_right" title="Elastic Profile that this job requires to run.<br/><a href='<%= '/go/admin/elastic_agent_configurations' %>' target='_blank'>Click here</a> to see and manage all elastic profiles."></div>
                 <%= error_message_on(scope[:job], "elasticProfileId", :css_class => "form_error") %>
 
          </div>

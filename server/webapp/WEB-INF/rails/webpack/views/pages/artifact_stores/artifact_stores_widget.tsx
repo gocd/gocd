@@ -24,7 +24,7 @@ import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderIcon} from "views/components/header_icon";
 import {Clone, Delete, Edit, IconGroup} from "views/components/icons";
 import {KeyValuePair, KeyValueTitle} from "views/components/key_value_pair";
-import * as styles from "views/pages/elastic_profiles/index.scss";
+import * as styles from "views/pages/elastic_agent_configurations/index.scss";
 import {CloneOperation, DeleteOperation, EditOperation, RequiresPluginInfos} from "views/pages/page_operations";
 
 interface Attrs extends RequiresPluginInfos, EditOperation<ArtifactStore>, CloneOperation<ArtifactStore>, DeleteOperation<ArtifactStore> {

@@ -33,7 +33,7 @@ import {Form, FormHeader} from "views/components/forms/form";
 import {SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
 import {Modal, Size} from "views/components/modal";
 import {Spinner} from "views/components/spinner";
-import * as styles from "views/pages/elastic_profiles/index.scss";
+import * as styles from "views/pages/elastic_agent_configurations/index.scss";
 import * as foundationStyles from "views/pages/new_plugins/foundation_hax.scss";
 
 const foundationClassNames = bind(foundationStyles);

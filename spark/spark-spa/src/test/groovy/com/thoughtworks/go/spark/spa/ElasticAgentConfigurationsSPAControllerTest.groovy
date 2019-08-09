@@ -24,11 +24,11 @@ import org.junit.jupiter.api.Nested
 
 import static org.mockito.MockitoAnnotations.initMocks
 
-class ElasticProfilesControllerTest implements ControllerTrait<ElasticProfilesController>, SecurityServiceTrait {
+class ElasticAgentConfigurationsSPAControllerTest implements ControllerTrait<ElasticAgentConfigurationsController>, SecurityServiceTrait {
 
   @Override
-  ElasticProfilesController createControllerInstance() {
-    return new ElasticProfilesController(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine)
+  ElasticAgentConfigurationsController createControllerInstance() {
+    return new ElasticAgentConfigurationsController(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine)
   }
 
   @Nested

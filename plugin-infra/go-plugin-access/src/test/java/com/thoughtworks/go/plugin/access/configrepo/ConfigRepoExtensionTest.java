@@ -138,6 +138,23 @@ public class ConfigRepoExtensionTest {
     }
 
     @Test
+    public void shouldGracefullyHandleV1AndV2Incompatability() {
+        ConfigFileList expected = ConfigFileList.withError("Unsupported Operation", "This plugin version does not support list config files");
+
+        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, CONFIG_REPO_EXTENSION, new ArrayList<>(Arrays.asList("1.0", "2.0", "3.0")))).thenReturn("1.0");
+        ConfigFileList responseV1 = extension.getConfigFiles(PLUGIN_ID, "dir", null);
+
+        assertTrue("should have errors", responseV1.hasErrors());
+        assertThat(responseV1.getErrors().getErrorsAsText(), is(expected.getErrors().getErrorsAsText()));
+
+        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, CONFIG_REPO_EXTENSION, new ArrayList<>(Arrays.asList("1.0", "2.0", "3.0")))).thenReturn("2.0");
+        ConfigFileList responseV2 = extension.getConfigFiles(PLUGIN_ID, "dir", null);
+
+        assertTrue("should have errors", responseV2.hasErrors());
+        assertThat(responseV2.getErrors().getErrorsAsText(), is(expected.getErrors().getErrorsAsText()));
+    }
+
+    @Test
     public void shouldRequestCapabilities() {
         Capabilities capabilities = new Capabilities(true, true);
         when(jsonMessageHandler2.getCapabilitiesFromResponse(responseBody)).thenReturn(capabilities);

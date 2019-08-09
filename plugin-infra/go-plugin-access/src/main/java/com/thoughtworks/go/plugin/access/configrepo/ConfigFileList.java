@@ -18,6 +18,7 @@ package com.thoughtworks.go.plugin.access.configrepo;
 
 import com.thoughtworks.go.plugin.configrepo.contract.ErrorCollection;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ConfigFileList {
@@ -35,6 +36,12 @@ public class ConfigFileList {
 
     public void setFiles(List<String> files) {
         this.files = files;
+    }
+
+    public static ConfigFileList withError(String location, String err) {
+        ErrorCollection errs = new ErrorCollection();
+        errs.addError(location, err);
+        return new ConfigFileList(new ArrayList<>(), errs);
     }
 
     public static ConfigFileList from(List<String> files) {

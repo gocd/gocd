@@ -13,17 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.config.materials;
+
+package com.thoughtworks.go.apiv1.pipelinesascodeinternal.representers;
+
+import com.thoughtworks.go.api.base.OutputWriter;
+import com.thoughtworks.go.plugin.access.configrepo.ConfigFileList;
 
 import java.util.Map;
 
-/**
- * @understands environmental information of process performing material update
- */
-public interface SubprocessExecutionContext {
-    String getProcessNamespace(String fingerprint);
-    Map<String, String> getDefaultEnvironmentVariables();
-    Boolean isGitShallowClone();
-    boolean isServer();
-    void setGitShallowClone(boolean value);
+public class ConfigFileListsRepresenter {
+    public static void toJSON(OutputWriter jsonWriter, Map<String, ConfigFileList> pacablePlugins) {
+        jsonWriter.addChildList("plugins", pluginsWriter -> {
+          pacablePlugins.forEach((pluginId, fileList) -> {
+              pluginsWriter.addChild(pluginWriter -> ConfigFileListRepresenter.toJSON(pluginWriter, pluginId, fileList));
+          });
+        });
+    }
 }

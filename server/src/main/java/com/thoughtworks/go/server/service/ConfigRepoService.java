@@ -108,6 +108,10 @@ public class ConfigRepoService {
         update(username, configRepo.getId(), result, command);
     }
 
+    public Boolean hasConfigRepoByFingerprint(String fingerprint) {
+       return null != findByFingerprint(fingerprint);
+    }
+
     public ConfigRepoConfig findByFingerprint(String fingerprint) {
         return getConfigRepos().stream()
                 .filter(configRepo -> configRepo.getMaterialConfig().getFingerprint().equalsIgnoreCase(fingerprint))

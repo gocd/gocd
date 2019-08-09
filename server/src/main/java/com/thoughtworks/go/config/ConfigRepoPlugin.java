@@ -18,6 +18,7 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
+import com.thoughtworks.go.plugin.access.configrepo.ConfigFileList;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
 import com.thoughtworks.go.plugin.access.configrepo.ExportedConfig;
 import com.thoughtworks.go.plugin.access.configrepo.InvalidPartialConfigException;
@@ -70,6 +71,10 @@ public class ConfigRepoPlugin implements PartialConfigProvider {
     public ExportedConfig pipelineExport(PipelineConfig pipelineConfig, String groupName) {
         CRPipeline crPipeline = configConverter.pipelineConfigToCRPipeline(pipelineConfig, groupName);
         return this.crExtension.pipelineExport(this.pluginId, crPipeline);
+    }
+
+    public ConfigFileList getConfigFiles(File configRepoCheckoutDirectory, Collection<CRConfigurationProperty> crConfigurationProperties) {
+        return this.crExtension.getConfigFiles(this.pluginId, configRepoCheckoutDirectory.getAbsolutePath(), crConfigurationProperties);
     }
 
     public PartialConfig parseContent(Map<String, String> content, PartialConfigLoadContext context) {

@@ -238,17 +238,19 @@ public class MaterialServiceTest {
     @Theory
     public void shouldGetLatestModificationsForGivenMaterial(RequestDataPoints data) {
         MaterialService spy = spy(materialService);
+        SubprocessExecutionContext execCtx = mock(SubprocessExecutionContext.class);
         doReturn(data.klass).when(spy).getMaterialClass(data.material);
-        List<Modification> actual = spy.latestModification(data.material, null, null);
+        List<Modification> actual = spy.latestModification(data.material, null, execCtx);
         assertThat(actual, is(MODIFICATIONS));
     }
 
     @Theory
     public void shouldGetModificationsSinceARevisionForGivenMaterial(RequestDataPoints data) {
         Revision revision = mock(Revision.class);
+        SubprocessExecutionContext execCtx = mock(SubprocessExecutionContext.class);
         MaterialService spy = spy(materialService);
         doReturn(data.klass).when(spy).getMaterialClass(data.material);
-        List<Modification> actual = spy.modificationsSince(data.material, null, revision, null);
+        List<Modification> actual = spy.modificationsSince(data.material, null, revision, execCtx);
         assertThat(actual, is(MODIFICATIONS));
     }
 

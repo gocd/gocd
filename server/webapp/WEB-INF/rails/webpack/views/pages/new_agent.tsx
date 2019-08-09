@@ -28,6 +28,8 @@ interface State {
 
 export class NewAgentPage extends Page<null, State> {
   oninit(vnode: m.Vnode<null, State>) {
+    vnode.state.agents = new Agents([]);
+
     new AjaxPoller({
                      repeaterFn: this.fetchData.bind(this, vnode),
                      intervalSeconds: 10
@@ -45,8 +47,8 @@ export class NewAgentPage extends Page<null, State> {
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {
     return AgentsCRUD.all().then((result) =>
                                    result.do((successResponse) => {
-                                     vnode.state.agents = successResponse.body;
-                                     this.pageState     = PageState.OK;
+                                     vnode.state.agents.initializeWith(successResponse.body);
+                                     this.pageState = PageState.OK;
                                    }, this.setErrorState));
   }
 }

@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+import _ = require("lodash");
+import {Stream} from "mithril/stream";
+import * as stream from "mithril/stream";
 import {TableSortHandler} from "views/components/table";
 
 enum AgentConfigState {
@@ -83,6 +86,17 @@ export class Agent {
     this.buildState       = buildState;
   }
 
+  hasFilterText(filterText: string): boolean {
+    const lowerCaseFilterText = filterText.toLowerCase();
+
+    return _.includes(this.hostname.toLowerCase(), lowerCaseFilterText) ||
+      _.includes(this.sandbox.toLowerCase(), lowerCaseFilterText) ||
+      _.includes(this.operatingSystem.toLowerCase(), lowerCaseFilterText) ||
+      _.includes(this.ipAddress.toLowerCase(), lowerCaseFilterText) ||
+      _.includes(this.freeSpace.toString().toLowerCase(), lowerCaseFilterText) ||
+      _.includes(this.resources.join(", ").toLowerCase(), lowerCaseFilterText);
+  }
+
   static fromJSON(data: AgentJSON) {
     return new Agent(data.uuid,
                      data.hostname,
@@ -104,13 +118,20 @@ enum SortOrder {
 export class Agents extends TableSortHandler {
   private sortOnColumn: number;
   private sortOrder: SortOrder;
-  private readonly agentList: Agent[];
+  private agentList: Agent[];
+  public readonly filterText: Stream<string> = stream("");
 
   constructor(agentsList: Agent[]) {
     super();
     this.agentList    = agentsList;
     this.sortOrder    = SortOrder.ASC;
     this.sortOnColumn = this.getSortableColumns()[0];
+    this.sort();
+  }
+
+  initializeWith(agents: Agents) {
+    //todo: This method is also responsible to preserve the agent checkbox selections once implemented.
+    this.agentList = agents.agentList;
     this.sort();
   }
 
@@ -142,7 +163,7 @@ export class Agents extends TableSortHandler {
   }
 
   list(): Agent[] {
-    return this.agentList;
+    return this.agentList.filter((agent: Agent) => agent.hasFilterText(this.filterText()));
   }
 
   private getSortableColumnsAssociates(): string[] {

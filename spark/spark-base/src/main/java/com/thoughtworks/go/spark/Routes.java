@@ -614,8 +614,8 @@ public class Routes {
         public static final String SHOW_PATH = ":plugin_id/:type/:id";
     }
 
-    public class ElasticProfilesSPA {
-        public static final String BASE = "/admin/elastic_profiles";
+    public class ElasticAgentConfigSPA {
+        public static final String BASE = "/admin/elastic_agent_configurations";
     }
 
     public class NewDashboardSPA {

@@ -146,7 +146,7 @@ export default class SiteMenu extends MithrilViewComponent<Attrs> {
                 <SiteSubNavItem href="/go/admin/package_repositories/new" text="Package Repositories"/>
               </SiteSubNav>
               <SiteSubNav>
-                <SiteSubNavItem href="/go/admin/elastic_profiles" text="Elastic Agent Configurations"/>
+                <SiteSubNavItem href="/go/admin/elastic_agent_configurations" text="Elastic Agent Configurations"/>
                 <SiteSubNavItem href="/go/admin/config_repos" text="Config Repositories"/>
                 <SiteSubNavItem href="/go/admin/artifact_stores" text="Artifact Stores"/>
                 <SiteSubNavItem href="/go/admin/secret_configs" text="Secret Management"/>
@@ -176,7 +176,7 @@ export default class SiteMenu extends MithrilViewComponent<Attrs> {
             <SiteSubNav>
               <SiteSubNavItem href="/go/admin/pipelines" text="Pipelines"/>
               <SiteSubNavItem href="/go/admin/templates" text="Templates"/>
-              <SiteSubNavItem href="/go/admin/elastic_profiles" text="Elastic Agent Configurations"/>
+              <SiteSubNavItem href="/go/admin/elastic_agent_configurations" text="Elastic Agent Configurations"/>
               <SiteSubNavItem href="/go/admin/pipelines/snippet" text="Config XML"/>
               <SiteSubNavItem href="/go/admin/plugins" text="Plugins"/>
               <SiteSubNavItem href="/go/admin/package_repositories/new" text="Package Repositories"/>

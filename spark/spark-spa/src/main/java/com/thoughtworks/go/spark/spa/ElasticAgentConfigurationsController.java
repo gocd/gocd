@@ -27,19 +27,19 @@ import java.util.HashMap;
 
 import static spark.Spark.*;
 
-public class ElasticProfilesController implements SparkController {
+public class ElasticAgentConfigurationsController implements SparkController {
 
     private final SPAAuthenticationHelper authenticationHelper;
     private final TemplateEngine engine;
 
-    public ElasticProfilesController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine) {
+    public ElasticAgentConfigurationsController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine) {
         this.authenticationHelper = authenticationHelper;
         this.engine = engine;
     }
 
     @Override
     public String controllerBasePath() {
-        return Routes.ElasticProfilesSPA.BASE;
+        return Routes.ElasticAgentConfigSPA.BASE;
     }
 
     @Override
@@ -52,7 +52,7 @@ public class ElasticProfilesController implements SparkController {
 
     public ModelAndView index(Request request, Response response) {
         HashMap<Object, Object> object = new HashMap<Object, Object>() {{
-            put("viewTitle", "Elastic Profiles");
+            put("viewTitle", "Elastic Agent Configurations");
         }};
 
         return new ModelAndView(object, null);

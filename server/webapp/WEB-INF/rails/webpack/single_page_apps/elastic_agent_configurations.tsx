@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import Page from "helpers/spa_base";
-import {ElasticProfilesPage} from "views/pages/elastic_profiles";
+import {ElasticProfilesPage} from "views/pages/elastic_agent_configurations";
 
 export class ElasticProfilesSPA extends Page {
   constructor() {

@@ -33,7 +33,7 @@ import {HeaderIcon} from "views/components/header_icon";
 import * as Icons from "views/components/icons";
 import {IconGroup} from "views/components/icons";
 import {KeyValuePair, KeyValueTitle} from "views/components/key_value_pair";
-import {Attrs as ElasticProfilesWidgetAttrs, ElasticProfilesWidget} from "views/pages/elastic_profiles/elastic_profiles_widget";
+import {Attrs as ElasticProfilesWidgetAttrs, ElasticProfilesWidget} from "views/pages/elastic_agent_configurations/elastic_profiles_widget";
 import {AddOperation, CloneOperation, DeleteOperation, EditOperation} from "views/pages/page_operations";
 import * as styles from ".//index.scss";
 

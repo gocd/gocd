@@ -28,9 +28,9 @@ import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
 import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
-import {CloneClusterProfileModal, EditClusterProfileModal, NewClusterProfileModal} from "views/pages/elastic_profiles/cluster_profiles_modals";
-import {ClusterProfilesWidget, ClusterProfilesWidgetAttrs} from "views/pages/elastic_profiles/cluster_profiles_widget";
-import {CloneElasticProfileModal, EditElasticProfileModal, NewElasticProfileModal, UsageElasticProfileModal} from "views/pages/elastic_profiles/elastic_agent_profiles_modals";
+import {CloneClusterProfileModal, EditClusterProfileModal, NewClusterProfileModal} from "views/pages/elastic_agent_configurations/cluster_profiles_modals";
+import {ClusterProfilesWidget, ClusterProfilesWidgetAttrs} from "views/pages/elastic_agent_configurations/cluster_profiles_widget";
+import {CloneElasticProfileModal, EditElasticProfileModal, NewElasticProfileModal, UsageElasticProfileModal} from "views/pages/elastic_agent_configurations/elastic_agent_profiles_modals";
 import {SaveOperation} from "views/pages/page_operations";
 
 import {Page, PageState} from "./page";

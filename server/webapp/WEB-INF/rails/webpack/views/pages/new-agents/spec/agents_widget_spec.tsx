@@ -19,12 +19,14 @@ import m from "mithril";
 import {Agents, AgentsJSON} from "models/new-agent/agents";
 import {AgentsWidget} from "views/pages/new-agents/agents_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
+import * as simulateEvent from "simulate-event";
 
 describe("New Agents Widget", () => {
   const helper = new TestHelper();
-  const agents = Agents.fromJSON(agentsJSON());
+  let agents: Agents;
 
   beforeEach(() => {
+    agents = Agents.fromJSON(agentsJSON());
     helper.mount(() => <AgentsWidget agents={agents}/>);
   });
 
@@ -67,6 +69,28 @@ describe("New Agents Widget", () => {
     expect(helper.findByDataTestId(`agent-ip-address-of-${agentUUID1}`)).toContainText(agent1.ip_address);
     expect(helper.findByDataTestId(`agent-free-space-of-${agentUUID1}`)).toContainText(agent1.free_space.toString());
     expect(helper.findByDataTestId(`agent-resources-of-${agentUUID1}`)).toContainText(agent1.resources.join(", "));
+  });
+
+  it("should render a serach box", () => {
+    const searchBox = helper.findByDataTestId("form-field-input-search-for-agents");
+    expect(searchBox).toBeInDOM();
+  });
+
+  it("should filter agents based on the searched value", () => {
+    const agents    = agentsJSON();
+    const agentUUID1 = agents._embedded.agents[0].uuid;
+    const agentUUID2 = agents._embedded.agents[1].uuid;
+    const searchBox = helper.findByDataTestId("form-field-input-search-for-agents");
+
+    expect(helper.findByDataTestId("table-body").children()).toHaveLength(2);
+    expect(helper.findByDataTestId(`agent-hostname-of-${agentUUID1}`)).toBeInDOM();
+    expect(helper.findByDataTestId(`agent-hostname-of-${agentUUID2}`)).toBeInDOM();
+
+    searchBox.val("wind");
+    simulateEvent.simulate(searchBox.get(0), "input");
+
+    expect(helper.findByDataTestId("table-body").children()).toHaveLength(1);
+    expect(helper.findByDataTestId(`agent-hostname-of-${agentUUID1}`)).toBeInDOM();
   });
 
   function agentsJSON(): AgentsJSON {

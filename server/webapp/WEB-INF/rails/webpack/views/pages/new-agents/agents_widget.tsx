@@ -17,6 +17,7 @@
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import {Agent, Agents} from "models/new-agent/agents";
+import {SearchField} from "views/components/forms/input_fields";
 import {Table} from "views/components/table";
 
 interface Attrs {
@@ -39,6 +40,9 @@ export class AgentsWidget extends MithrilViewComponent<Attrs> {
     });
 
     return <div>
+      <SearchField placeholder="Search"
+                   label="Search for agents"
+                   property={vnode.attrs.agents.filterText}/>
       <Table data={tableData}
              headers={["Agent Name", "Sandbox", "OS", "IP Address", "Status", "Free Space", "Resources", "Environments"]}
              sortHandler={vnode.attrs.agents}/>

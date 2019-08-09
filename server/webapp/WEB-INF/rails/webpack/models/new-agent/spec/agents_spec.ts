@@ -38,6 +38,9 @@ describe("Agents Model", () => {
       expect(agent.freeSpace).toEqual(agent1JSON.free_space);
       expect(agent.resources).toEqual(agent1JSON.resources);
     });
+  });
+
+  describe("Sort", () => {
 
     it("should get the sortable column index", () => {
       const agents = Agents.fromJSON(agentsJSON);
@@ -102,6 +105,71 @@ describe("Agents Model", () => {
     });
   });
 
+  describe("Search", () => {
+    let agents: Agents, agent1: Agent, agent2: Agent;
+    beforeEach(() => {
+      agents = Agents.fromJSON(agentsJSON);
+      agent1 = Agent.fromJSON(agent1JSON);
+      agent2 = Agent.fromJSON(agent2JSON);
+    });
+
+    it("should search agents based on hostname", () => {
+      expect(agents.list().length).toEqual(2);
+
+      agents.filterText("windows");
+      expect(agents.list().length).toEqual(1);
+      expect(agents.list()).toEqual([agent1]);
+    });
+
+    it("should search agents based on sandbox", () => {
+      expect(agents.list().length).toEqual(2);
+
+      agents.filterText("xy");
+      expect(agents.list().length).toEqual(1);
+      expect(agents.list()).toEqual([agent2]);
+    });
+
+    it("should search agents based on os", () => {
+      expect(agents.list().length).toEqual(2);
+
+      agents.filterText("mac");
+      expect(agents.list().length).toEqual(1);
+      expect(agents.list()).toEqual([agent2]);
+    });
+
+    it("should search agents based on ip address", () => {
+      expect(agents.list().length).toEqual(2);
+
+      agents.filterText(".5");
+      expect(agents.list().length).toEqual(1);
+      expect(agents.list()).toEqual([agent1]);
+    });
+
+    it("should search agents based on free space", () => {
+      expect(agents.list().length).toEqual(2);
+
+      agents.filterText("2598");
+      expect(agents.list().length).toEqual(1);
+      expect(agents.list()).toEqual([agent1]);
+    });
+
+    it("should search agents based on resources", () => {
+      expect(agents.list().length).toEqual(2);
+
+      agents.filterText("fire");
+      expect(agents.list().length).toEqual(2);
+      expect(agents.list()).toEqual([agent2, agent1]);
+    });
+
+    it("should search agents case-insensitively", () => {
+      expect(agents.list().length).toEqual(2);
+
+      agents.filterText("WinDow");
+      expect(agents.list().length).toEqual(1);
+      expect(agents.list()).toEqual([agent1]);
+    });
+  });
+
   const agent1JSON: AgentJSON = {
     uuid: "uuid1",
     hostname: "windows-10-pro",
@@ -142,7 +210,7 @@ describe("Agents Model", () => {
     // @ts-ignore
     build_state: "Idle",
     free_space: 93259825152,
-    resources: ["dev", "fat", "ie9", "windows"]
+    resources: ["dev", "fat", "ie9", "windows", "firefox"]
   };
 
   const agent2JSON: AgentJSON = {

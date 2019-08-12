@@ -32,7 +32,7 @@ export class AgentsWidget extends MithrilViewComponent<Attrs> {
         <div data-test-id={`agent-sandbox-of-${agent.uuid}`}>{agent.sandbox}</div>,
         <div data-test-id={`agent-operating-system-of-${agent.uuid}`}>{agent.operatingSystem}</div>,
         <div data-test-id={`agent-ip-address-of-${agent.uuid}`}>{agent.ipAddress}</div>,
-        <div data-test-id={`agent-status-of-${agent.uuid}`}>Status</div>,
+        <div data-test-id={`agent-status-of-${agent.uuid}`}>{agent.status()}</div>,
         <div data-test-id={`agent-free-space-of-${agent.uuid}`}>{agent.readableFreeSpace()}</div>,
         <div
           data-test-id={`agent-resources-of-${agent.uuid}`}>{AgentsWidget.joinOrNoneSpecified(agent.resources)}</div>,

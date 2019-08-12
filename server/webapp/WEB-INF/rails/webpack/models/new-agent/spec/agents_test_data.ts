@@ -41,13 +41,7 @@ export class AgentsTestData {
   }
 
   static agentWithEnvironments(...envs: string[]) {
-    const agent        = this.agent("37af8492-d64d-4a3f-b1f2-4ea37dd0d201",
-                                    "Aaaaa",
-                                    "Zzzzz",
-                                    "Windows 10",
-                                    undefined,
-                                    "10.1.0.5",
-                                    ["dev", "fat", "ie9", "firefox"]);
+    const agent        = this.agent("37af8492-d64d-4a3f-b1f2-4ea37dd0d201", "Aaaaa");
     agent.environments = envs.map((env) => {
       return {
         name: env,
@@ -55,6 +49,43 @@ export class AgentsTestData {
       };
     });
     return agent;
+  }
+
+  static pendingAgent() {
+    return this.agentWithState("Pending");
+  }
+
+  static disabledAgent() {
+    return this.agentWithState("Disabled", "Idle", "Idle");
+  }
+
+  static disabledBuildingAgent() {
+    return this.agentWithState("Disabled", "Building", "Building");
+  }
+
+  static disabledCancelledAgent() {
+    return this.agentWithState("Disabled", "Building", "Cancelled");
+  }
+
+  static buildingAgent() {
+    return this.agentWithState("Enabled", "Building", "Building");
+  }
+
+  static buildingCancelledAgent() {
+    return this.agentWithState("Enabled", "Building", "Cancelled");
+  }
+
+  static idleAgent() {
+    return this.agentWithState("Enabled", "Idle", "Idle");
+  }
+
+
+  static missingAgent() {
+    return this.agentWithState("Enabled", "Missing");
+  }
+
+  static lostContactAgent() {
+    return this.agentWithState("Enabled", "LostContact");
   }
 
   static agent(uuid: string, hostname: string,
@@ -112,5 +143,13 @@ export class AgentsTestData {
 
   private static getRandomIntegerInRange(min: number, max: number) {
     return Math.ceil(Math.random() * (max - min) + min);
+  }
+
+  private static agentWithState(configState: string, agentState: string = "", buildState: string = "") {
+    const agent              = this.agent("37af8492-d64d-4a3f-b1f2-4ea37dd0d201", "Aaaaa");
+    agent.agent_config_state = configState;
+    agent.build_state        = buildState;
+    agent.agent_state        = agentState;
+    return agent;
   }
 }

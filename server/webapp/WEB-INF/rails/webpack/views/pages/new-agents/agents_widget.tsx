@@ -33,7 +33,7 @@ export class AgentsWidget extends MithrilViewComponent<Attrs> {
         <div data-test-id={`agent-operating-system-of-${agent.uuid}`}>{agent.operatingSystem}</div>,
         <div data-test-id={`agent-ip-address-of-${agent.uuid}`}>{agent.ipAddress}</div>,
         <div data-test-id={`agent-status-of-${agent.uuid}`}>Status</div>,
-        <div data-test-id={`agent-free-space-of-${agent.uuid}`}>{agent.freeSpace}</div>,
+        <div data-test-id={`agent-free-space-of-${agent.uuid}`}>{agent.readableFreeSpace()}</div>,
         <div data-test-id={`agent-resources-of-${agent.uuid}`}>{agent.resources.join(", ")}</div>,
         <div data-test-id={`agent-environments-of-${agent.uuid}`}>Environment</div>,
       ];
@@ -48,4 +48,6 @@ export class AgentsWidget extends MithrilViewComponent<Attrs> {
              sortHandler={vnode.attrs.agents}/>
     </div>;
   }
+
+
 }

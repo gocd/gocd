@@ -961,10 +961,10 @@
   dependencies:
     "@types/webpack" "*"
 
-"@types/mithril@^1.1.17":
-  version "1.1.17"
-  resolved "https://registry.yarnpkg.com/@types/mithril/-/mithril-1.1.17.tgz#1a5dde2a653ef6011cd36ef70eefe6bac0cb92e4"
-  integrity sha512-U/wwKZT8hjstY2Q470bLMGVh/fjT2+SgBMzIILn0Z4nmgzzG6j+n18UOAxQ63aI8vXIOkQsbkAdbESt8+jIQdQ==
+"@types/mithril@2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@types/mithril/-/mithril-2.0.0.tgz#f9a9e523264af6dc8c2027029bcd400a459739bb"
+  integrity sha512-Bjjs5a7xc6eC207ZE1tR7ssnMoF8d3VVcupmzbhFaP2nM4G1Jpm1oqrvAiu+ys0OLKYUQjxNALUerHDPHbuwfA==
 
 "@types/node@*", "@types/node@^12.7.1":
   version "12.7.1"
@@ -5679,10 +5679,10 @@ mississippi@^3.0.0:
     stream-each "^1.1.0"
     through2 "^2.0.0"
 
-mithril@^1.1.6:
-  version "1.1.6"
-  resolved "https://registry.yarnpkg.com/mithril/-/mithril-1.1.6.tgz#bd2cc0de3d3c86076a6a7a30367a601a1bd108f3"
-  integrity sha512-fWcUrQTCqu8M916rj1MFGlHaPh65rznPu6U/N2U9g81H89klDCIptSK5bnkNkC+jyi3sJIXjyGhSQjUnR8jzZA==
+mithril@2:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/mithril/-/mithril-2.0.3.tgz#5c28c6e497d87cd2a87ab6c0c7d82cf24af2fb7b"
+  integrity sha512-iIbfChQswUJJf4Vc24NMBwfE2hV7SBwpyVoJ7raO9YhAjCCvLQ+G1Nvpz1jDMsPJQc46EHSplxiDGe0rAi/vqQ==
 
 mixin-deep@^1.2.0:
   version "1.3.2"

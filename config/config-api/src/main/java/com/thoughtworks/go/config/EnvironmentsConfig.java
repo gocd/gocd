@@ -27,9 +27,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.str;
-import static java.util.stream.Collectors.toCollection;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Collectors.*;
 
 /**
  * @understands the current persistent information related to multiple logical groupings of machines
@@ -153,7 +151,8 @@ public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implem
     }
 
     public boolean hasEnvironmentNamed(CaseInsensitiveString environmentName) {
-        return find(environmentName) != null;
+        EnvironmentConfig environmentConfig = find(environmentName);
+        return environmentConfig != null && !environmentConfig.isUnknown();
     }
 
     public void removeAgentFromAllEnvironments(String uuid) {
@@ -172,7 +171,7 @@ public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implem
                 .findAny()
                 .orElse(null);
 
-        if(envConfig == null) {
+        if (envConfig == null) {
             envConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(envName));
             add(envConfig);
         }

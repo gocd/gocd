@@ -54,13 +54,13 @@ class EnvironmentsController < ApplicationController
     end
 
     env_agents_config = @environment.getAgents()
-    selectedUUIDs = env_agents_config.getUuids()
+    selected_uuids = env_agents_config.getUuids()
 
     result1 = HttpLocalizedOperationResult.new
     result2 = HttpLocalizedOperationResult.new
 
-    if !selectedUUIDs.empty?
-        agent_service.updateAgentsAssociationWithSpecifiedEnv(original_env_config, selectedUUIDs, result1)
+    if !selected_uuids.empty?
+        agent_service.updateAgentsAssociationWithSpecifiedEnv(original_env_config, selected_uuids, result1)
 
         @result = result1
         if result1.isSuccessful()

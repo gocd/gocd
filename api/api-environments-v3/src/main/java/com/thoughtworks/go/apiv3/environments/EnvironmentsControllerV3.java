@@ -30,6 +30,7 @@ import com.thoughtworks.go.apiv3.environments.representers.PatchEnvironmentReque
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.HttpException;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
 import com.thoughtworks.go.domain.ConfigElementForEdit;
 import com.thoughtworks.go.server.service.EntityHashingService;
@@ -102,7 +103,7 @@ public class EnvironmentsControllerV3 extends ApiController implements SparkSpri
 
     public String index(Request request, Response response) throws IOException {
         Set<EnvironmentConfig> envConfigSet = environmentConfigService.getEnvironments();
-        List<EnvironmentConfig> envViewModelList = toSortedEnvironmentConfigList(envConfigSet);
+        List<EnvironmentConfig> envViewModelList = filterUnknownAndSortEnvConfigs(envConfigSet);
         setEtagHeader(response, calculateEtag(envViewModelList));
         return writerForTopLevelObject(request, response, outputWriter -> toJSON(outputWriter, envViewModelList));
     }
@@ -141,11 +142,6 @@ public class EnvironmentsControllerV3 extends ApiController implements SparkSpri
         EnvironmentConfig oldEnvironmentConfig = fetchEntityFromConfig(environmentName);
         HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
 
-        if (oldEnvironmentConfig.isUnknown()) {
-            operationResult.unprocessableEntity(format("Environment '%s' is not defined in config. Hence, it can't be updated.", environmentName));
-            return handleCreateOrUpdateResponse(request, response, environmentConfig, operationResult);
-        }
-
         if (!environmentConfig.getAllErrors().isEmpty()) {
             operationResult.unprocessableEntity("Error parsing environment config from the request");
             return handleCreateOrUpdateResponse(request, response, environmentConfig, operationResult);
@@ -172,11 +168,6 @@ public class EnvironmentsControllerV3 extends ApiController implements SparkSpri
 
         String environmentName = request.params("name");
         EnvironmentConfig environmentConfig = fetchEntityFromConfig(environmentName);
-
-        if (environmentConfig.isUnknown()) {
-            result.unprocessableEntity(format("Environment '%s' is not defined in config. Hence, it can't be updated.", environmentName));
-            return handleCreateOrUpdateResponse(request, response, environmentConfig, result);
-        }
 
         Optional<EnvironmentVariableConfig> parsingErrors = req.getEnvironmentVariablesToAdd().stream()
                 .filter(envVar -> !envVar.errors().isEmpty())
@@ -229,6 +220,15 @@ public class EnvironmentsControllerV3 extends ApiController implements SparkSpri
     }
 
     @Override
+    public EnvironmentConfig fetchEntityFromConfig(String nameOrId) {
+        EnvironmentConfig entity = doFetchEntityFromConfig(nameOrId);
+        if (entity == null || entity.isUnknown()) {
+            throw new RecordNotFoundException(getEntityType(), nameOrId);
+        }
+        return entity;
+    }
+
+    @Override
     public EnvironmentConfig buildEntityFromRequestBody(Request req) {
         JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(req.body());
         return EnvironmentRepresenter.fromJSON(jsonReader);
@@ -239,15 +239,17 @@ public class EnvironmentsControllerV3 extends ApiController implements SparkSpri
         return writer -> EnvironmentRepresenter.toJSON(writer, environmentConfig);
     }
 
-    List<EnvironmentConfig> toSortedEnvironmentConfigList(Set<EnvironmentConfig> envConfigSet) {
-        return envConfigSet.stream().sorted(comparing(EnvironmentConfig::name)).collect(toList());
+    List<EnvironmentConfig> filterUnknownAndSortEnvConfigs(Set<EnvironmentConfig> envConfigSet) {
+        return envConfigSet.stream()
+                .filter(envConfig -> !envConfig.isUnknown())
+                .sorted(comparing(EnvironmentConfig::name))
+                .collect(toList());
     }
 
     private void haltIfEntityWithSameNameExists(EnvironmentConfig environmentConfig) {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        ConfigElementForEdit<EnvironmentConfig> existingEnvConfig
-                = environmentConfigService.getMergedEnvironmentforDisplay(environmentConfig.name().toString(), result);
-        if (existingEnvConfig == null) {
+        ConfigElementForEdit<EnvironmentConfig> existingEnvConfig = environmentConfigService.getMergedEnvironmentforDisplay(environmentConfig.name().toString(), result);
+        if (existingEnvConfig == null || existingEnvConfig.getConfigElement().isUnknown()) {
             return;
         }
 

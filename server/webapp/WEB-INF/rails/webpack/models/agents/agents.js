@@ -337,6 +337,10 @@ Agents.Agent.Environment = function (data) {
   this.associatedFromConfigRepo = () => {
     return this.originType() === "config-repo";
   };
+
+  this.isUnknown = () => {
+    return this.originType() === "unknown";
+  };
 };
 
 Agents.Agent.Environment.fromJSON = (data) => {

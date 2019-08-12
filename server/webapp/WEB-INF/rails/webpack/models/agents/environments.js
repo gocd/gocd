@@ -31,12 +31,30 @@ const shouldBeDisabled = (environmentName, selectedAgents) => {
     .reduce(((accumulator, currentValue) => currentValue || accumulator), false); //for at least one of the selected agents
 };
 
+const isUnknown = (environmentName, selectedAgents) => {
+  if (!selectedAgents) {
+    return false;
+  }
+  return selectedAgents
+    .flatMap((agent) => agent.environments()) //all environments of selected agents
+    .some((env) => (env.name() === environmentName) && env.isUnknown()); //which have the right name
+};
+
+const getToolTip = (disabled, unknown) => {
+  if(disabled) {
+    return "Cannot edit Environment associated from Config Repo";
+  } else if(unknown){
+    return "Environment is not defined in config XML";
+  }
+  return  "";
+};
+
 const getSortedEnvironments = (environments, selectedAgents) => {
   const selectedAgentsEnvironmentNames = _.map(selectedAgents, (agent) => agent.environmentNames());
 
   return _.map(environments.sort(), (environment) => {
     const disabled = shouldBeDisabled(environment, selectedAgents);
-    const tooltip  = disabled ? "Cannot edit Environment associated from Config Repo" : "";
+    const tooltip = getToolTip(disabled, isUnknown(environment, selectedAgents));
     return new TriStateCheckbox(environment, selectedAgentsEnvironmentNames, disabled, tooltip);
   });
 };

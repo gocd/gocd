@@ -35,6 +35,7 @@ import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.*
 import static com.thoughtworks.go.helper.AgentInstanceMother.*
 import static com.thoughtworks.go.helper.EnvironmentConfigMother.environment
+import static com.thoughtworks.go.helper.EnvironmentConfigMother.unknown
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.assertj.core.api.Assertions.assertThat
 import static org.mockito.ArgumentMatchers.anyString
@@ -58,7 +59,7 @@ class AgentRepresenterTest {
     envFromConfigRepo.setOrigins(new RepoConfigOrigin(new ConfigRepoConfig(null, "yaml", "foo"), "revision"))
     envFromConfigRepo.addAgent("some-uuid")
     def json = toObjectString({
-      def environments = Stream.of(environment("uat"), environment("load_test"), envFromConfigRepo)
+      def environments = Stream.of(environment("uat"), environment("load_test"), envFromConfigRepo, unknown("non-existent-env"))
         .collect()
       AgentRepresenter.toJSON(it, agentInstance, environments, securityService, null)
     })
@@ -114,6 +115,12 @@ class AgentRepresenterTest {
                 "href": apiDocsUrl("#get-configuration")
               ]
             ]
+          ]
+        ],
+        [
+          "name"  : "non-existent-env",
+          "origin": [
+            "type": "unknown"
           ]
         ],
         [

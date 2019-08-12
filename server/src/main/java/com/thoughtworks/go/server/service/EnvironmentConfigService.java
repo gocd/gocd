@@ -44,6 +44,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.str;
 import static com.thoughtworks.go.i18n.LocalizedMessage.entityConfigValidationFailed;
@@ -55,14 +56,17 @@ import static java.util.stream.Collectors.toList;
  */
 @Service
 public class EnvironmentConfigService implements ConfigChangedListener, AgentChangeListener {
-    public final GoConfigService goConfigService;
-    private final SecurityService securityService;
+    public GoConfigService goConfigService;
+    private SecurityService securityService;
     private EntityHashingService entityHashingService;
     private AgentService agentService;
 
     private EnvironmentsConfig environments;
     private EnvironmentPipelineMatchers matchers;
     private static final Cloner cloner = new Cloner();
+
+    public EnvironmentConfigService() {
+    }
 
     @Autowired
     public EnvironmentConfigService(GoConfigService goConfigService, SecurityService securityService,
@@ -179,12 +183,10 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
 
     // don't remove - used in rails
     public List<EnvironmentViewModel> listAllMergedEnvironments() {
-        ArrayList<EnvironmentViewModel> environmentViewModels = new ArrayList<>();
-        List<EnvironmentConfig> allMergedEnvironments = getAllMergedEnvironments();
-        for (EnvironmentConfig environmentConfig : allMergedEnvironments) {
-            environmentViewModels.add(new EnvironmentViewModel(environmentConfig));
-        }
-        return environmentViewModels;
+        return getAllMergedEnvironments().stream()
+                .filter(environmentConfig -> !environmentConfig.isUnknown())
+                .map(EnvironmentViewModel::new)
+                .collect(Collectors.toList());
     }
 
     public ConfigElementForEdit<EnvironmentConfig> getMergedEnvironmentforDisplay(String envName, HttpLocalizedOperationResult result) {
@@ -286,7 +288,7 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
                 .filter(envConfig -> isEnvironmentNotAssociatedWithAgent(envConfig, uuid))
                 .peek(envConfig -> envConfig.addAgent(uuid))
                 .filter(envConfig -> envConfig.isUnknown() && !environments.contains(envConfig))
-                .forEach(envConfig-> environments.add(envConfig));
+                .forEach(envConfig -> environments.add(envConfig));
     }
 
     private void addAgentToNewlyAssociatedEnvironments(String uuid, List<String> envsBeforeUpdate, List<String> envsAfterUpdate) {

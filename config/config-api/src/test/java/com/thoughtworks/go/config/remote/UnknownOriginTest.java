@@ -16,35 +16,41 @@
 
 package com.thoughtworks.go.config.remote;
 
-public class UnknownOrigin implements ConfigOrigin {
-    @Override
-    public boolean canEdit() {
-        return false;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class UnknownOriginTest {
+    private ConfigOrigin origin;
+
+    @BeforeEach
+    void setUp() {
+        origin = new UnknownOrigin();
     }
 
-    @Override
-    public boolean isLocal() {
-        return false;
+    @Test
+    void canEdit() {
+        assertFalse(origin.canEdit());
     }
 
-    @Override
-    public String displayName() {
-        return "Unknown";
+    @Test
+    void isLocal() {
+        assertFalse(origin.isLocal());
     }
 
-    @Override
-    public boolean isUnknown() {
-        return true;
+    @Test
+    void displayName() {
+        assertEquals("Unknown", origin.displayName());
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        return o != null && this.getClass() == o.getClass();
+    @Test
+    void isUnknown() {
+        assertTrue(origin.isUnknown());
     }
 
-    @Override
-    public int hashCode() {
-        return 1379812425;
+    @Test
+    void shouldMatchTheHash() {
+        assertEquals(1379812425, origin.hashCode());
     }
 }

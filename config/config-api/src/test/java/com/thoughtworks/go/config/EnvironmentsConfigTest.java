@@ -330,4 +330,14 @@ public class EnvironmentsConfigTest {
     void shouldReturnFalseIfDoesNotContainTheGivenEnvName() {
         assertFalse(envsConfig.hasEnvironmentNamed(new CaseInsensitiveString("prod")));
     }
+
+    @Test
+    void shouldReturnFalseIfTheGivenEnvNameReturnsUnknownEnvironmentConfig() {
+        CaseInsensitiveString envName = new CaseInsensitiveString("non-existent-env");
+        UnknownEnvironmentConfig envConfig = new UnknownEnvironmentConfig(envName);
+
+        envsConfig.add(envConfig);
+
+        assertFalse(envsConfig.hasEnvironmentNamed(envName));
+    }
 }

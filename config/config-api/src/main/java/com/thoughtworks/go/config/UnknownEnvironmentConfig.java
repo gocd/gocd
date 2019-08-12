@@ -45,7 +45,7 @@ public class UnknownEnvironmentConfig implements EnvironmentConfig {
 
     @Override
     public void validate(ValidationContext validationContext) {
-//        throw new UnsupportedOperationException("Cannot validate an UnknownEnvironmentConfig!");
+        throw new UnsupportedOperationException("Cannot validate an UnknownEnvironmentConfig!");
     }
 
     @Override
@@ -203,7 +203,7 @@ public class UnknownEnvironmentConfig implements EnvironmentConfig {
 
     @Override
     public boolean isEnvironmentEmpty() {
-        return true;
+        return agents.isEmpty();
     }
 
     @Override

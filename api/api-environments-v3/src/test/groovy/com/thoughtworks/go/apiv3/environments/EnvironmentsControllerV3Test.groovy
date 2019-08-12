@@ -20,10 +20,7 @@ import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv3.environments.representers.EnvironmentRepresenter
 import com.thoughtworks.go.apiv3.environments.representers.EnvironmentsRepresenter
-import com.thoughtworks.go.config.BasicEnvironmentConfig
-import com.thoughtworks.go.config.CaseInsensitiveString
-import com.thoughtworks.go.config.EnvironmentConfig
-import com.thoughtworks.go.config.EnvironmentVariableConfig
+import com.thoughtworks.go.config.*
 import com.thoughtworks.go.domain.ConfigElementForEdit
 import com.thoughtworks.go.security.GoCipher
 import com.thoughtworks.go.server.service.EntityHashingService
@@ -128,17 +125,18 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
       }
 
       @Test
-      void 'should sort set of environment config'() {
+      void 'should filter out unknown environment and sort set of environment config'() {
         EnvironmentConfig stageEnv = new BasicEnvironmentConfig(new CaseInsensitiveString("stage"))
         EnvironmentConfig prodEnv = new BasicEnvironmentConfig(new CaseInsensitiveString("prod"))
+        EnvironmentConfig unknownConfig = new UnknownEnvironmentConfig(new CaseInsensitiveString("non-existent"))
         EnvironmentConfig qa1Env = new BasicEnvironmentConfig(new CaseInsensitiveString("qa1"))
         EnvironmentConfig qa2Env = new BasicEnvironmentConfig(new CaseInsensitiveString("qa2"))
 
-        def envConfigs = [qa1Env, stageEnv, prodEnv, qa2Env]
+        def envConfigs = [qa1Env, stageEnv, unknownConfig, prodEnv, qa2Env]
 
-        def sortedEnvConfigList = controller.toSortedEnvironmentConfigList(envConfigs as HashSet)
+        def sortedEnvConfigList = controller.filterUnknownAndSortEnvConfigs(envConfigs as HashSet)
         def expectedSortedList = envConfigs as ArrayList
-
+        expectedSortedList.remove(unknownConfig)
         expectedSortedList.sort { it.name() }
         assert expectedSortedList == sortedEnvConfigList
       }
@@ -188,11 +186,18 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
 
       @Test
       void 'should return 404 when environment with specified name is not found'() {
-        when(environmentConfigService.getMergedEnvironmentforDisplay(eq("env1"), any(HttpLocalizedOperationResult.class)))
-          .then({ InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.getArguments().last()
-          result.badRequest("No such environment")
-        })
+        getWithApiHeader(controller.controllerPath("env1"))
+
+        assertThatResponse()
+          .isNotFound()
+          .hasJsonMessage(controller.entityType.notFoundMessage("env1"))
+      }
+
+      @Test
+      void 'should return 404 when environment with specified name is not defined in any config'() {
+        def envConfig = new UnknownEnvironmentConfig(new CaseInsensitiveString("env1"))
+
+        when(environmentConfigService.getEnvironmentConfig("env1")).thenReturn(envConfig)
 
         getWithApiHeader(controller.controllerPath("env1"))
 
@@ -292,6 +297,19 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
           HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.getArguments().last()
           result.badRequest("No such environment")
         })
+
+        getWithApiHeader(controller.controllerPath("env1"))
+
+        assertThatResponse()
+          .isNotFound()
+          .hasJsonMessage(controller.entityType.notFoundMessage("env1"))
+      }
+
+      @Test
+      void 'should error out if the environment is not defined in any config'() {
+        def envConfig = new UnknownEnvironmentConfig(new CaseInsensitiveString("env1"))
+
+        when(environmentConfigService.getEnvironmentConfig("env1")).thenReturn(envConfig)
 
         getWithApiHeader(controller.controllerPath("env1"))
 
@@ -470,6 +488,19 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
           .isNotFound()
           .hasJsonMessage(controller.entityType.notFoundMessage("env1"))
       }
+
+      @Test
+      void 'should error out if the environment is not defined in any config'() {
+        def envConfig = new UnknownEnvironmentConfig(new CaseInsensitiveString("env1"))
+
+        when(environmentConfigService.getEnvironmentConfig("env1")).thenReturn(envConfig)
+
+        putWithApiHeader(controller.controllerPath("env1"), [name: "env1"])
+
+        assertThatResponse()
+          .isNotFound()
+          .hasJsonMessage(controller.entityType.notFoundMessage("env1"))
+      }
     }
   }
 
@@ -562,6 +593,18 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
             def result = (HttpLocalizedOperationResult) invocation.arguments.last()
             result.badRequest("The environment does not exist")
         })
+        patchWithApiHeader(controller.controllerPath("env1"), [name: "env1"])
+
+        assertThatResponse()
+          .isNotFound()
+          .hasJsonMessage(controller.entityType.notFoundMessage("env1"))
+      }
+
+      @Test
+      void 'should error out if the environment is not defined in any config'() {
+        def envConfig = new UnknownEnvironmentConfig(new CaseInsensitiveString("env1"))
+
+        when(environmentConfigService.getEnvironmentConfig("env1")).thenReturn(envConfig)
         patchWithApiHeader(controller.controllerPath("env1"), [name: "env1"])
 
         assertThatResponse()

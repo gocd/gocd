@@ -30,6 +30,7 @@ import com.thoughtworks.go.presentation.environment.EnvironmentPipelineModel;
 import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import com.thoughtworks.go.server.ui.EnvironmentViewModel;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -159,6 +160,25 @@ class EnvironmentConfigServiceTest {
 
         assertThat(environmentConfigService.getAllMergedEnvironments()).isEqualTo(singletonList(env));
         assertThat(result.isSuccessful()).isTrue();
+    }
+
+    @Test
+    void shouldReturnOnlyTheKnownEnvConfigViewModels() {
+        BasicEnvironmentConfig envConfig1 = new BasicEnvironmentConfig(new CaseInsensitiveString("foo"));
+        envConfig1.addPipeline(new CaseInsensitiveString("bar"));
+        envConfig1.addAgent("baz");
+
+        UnknownEnvironmentConfig envConfig2 = new UnknownEnvironmentConfig(new CaseInsensitiveString("unknown"));
+        envConfig1.addAgent("foo");
+
+        List<EnvironmentConfig> envConfigList = new ArrayList<>();
+        envConfigList.add(envConfig1);
+        envConfigList.add(envConfig2);
+        EnvironmentConfigService spyEnvConfigService = Mockito.spy(EnvironmentConfigService.class);
+
+        doReturn(envConfigList).when(spyEnvConfigService).getAllMergedEnvironments();
+
+        assertThat(spyEnvConfigService.listAllMergedEnvironments()).isEqualTo(singletonList(new EnvironmentViewModel(envConfig1)));
     }
 
     @Test

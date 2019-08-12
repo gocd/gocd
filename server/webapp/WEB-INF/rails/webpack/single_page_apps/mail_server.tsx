@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import Page from "helpers/spa_base";
+import {Page} from "helpers/spa_base";
 import {MailServerPage} from "views/pages/mail_server";
 
 export class MailServerSPA extends Page {

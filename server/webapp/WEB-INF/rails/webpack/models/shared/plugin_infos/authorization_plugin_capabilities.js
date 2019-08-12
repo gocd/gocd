@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const Stream = require('mithril/stream');
+import Stream from "mithril/stream";
 
-const Capabilities = function (data) {
+export const Capabilities = function (data) {
   this.canSearch           = Stream(data.canSearch);
   this.supportedAuthType   = Stream(data.supportedAuthType);
   this.canAuthorize        = Stream(data.canAuthorize);
@@ -27,4 +27,3 @@ Capabilities.fromJSON = (data = {}) => new Capabilities({
   canAuthorize:        data.can_authorize,
 });
 
-module.exports = Capabilities;

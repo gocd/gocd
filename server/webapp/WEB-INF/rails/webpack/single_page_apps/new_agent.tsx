@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import Page from "helpers/spa_base";
+import {Page} from "helpers/spa_base";
 import {NewAgentPage} from "views/pages/new_agent";
 
 export class NewAgentSPA extends Page {

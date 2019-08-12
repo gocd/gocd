@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const _      = require("lodash");
-const _s      = require("underscore.string");
-const Stream = require("mithril/stream");
+import _ from "lodash";
+import Stream from "mithril/stream";
+import _s from "underscore.string";
 
-function PipelineListVM(pipelinesByGroup, currentSelection) {
+export function PipelineListVM(pipelinesByGroup, currentSelection) {
 
   const searchTerm = Stream("");
 
@@ -129,4 +129,3 @@ _.assign(PipelineListVM, {
   }
 });
 
-module.exports = PipelineListVM;

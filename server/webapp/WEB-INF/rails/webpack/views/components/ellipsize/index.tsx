@@ -17,10 +17,10 @@
 import {bind} from "classnames/bind";
 
 import {MithrilComponent} from "jsx/mithril-component";
-import * as m from "mithril";
+import m from "mithril";
 import {Stream} from "mithril/stream";
-import * as stream from "mithril/stream";
-import * as styles from "./index.scss";
+import stream from "mithril/stream";
+import styles from "./index.scss";
 
 const classnames = bind(styles);
 

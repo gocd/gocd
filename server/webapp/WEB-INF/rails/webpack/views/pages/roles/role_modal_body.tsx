@@ -16,8 +16,8 @@
 
 import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as _ from "lodash";
-import * as m from "mithril";
+import _ from "lodash";
+import m from "mithril";
 import {Stream} from "mithril/stream";
 import {AuthConfig, AuthConfigs} from "models/auth_configs/auth_configs";
 import {GoCDRole, PluginRole, RoleType} from "models/roles/roles";
@@ -27,7 +27,7 @@ import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Spinner} from "views/components/spinner";
 import * as foundationStyles from "views/pages/new_plugins/foundation_hax.scss";
 import {GoCDRoleModalBodyWidget, PluginRoleModalBodyWidget} from "views/pages/roles/role_modal_body_widget";
-import * as styles from "./index.scss";
+import styles from "./index.scss";
 
 const foundationClassNames = bind(foundationStyles);
 

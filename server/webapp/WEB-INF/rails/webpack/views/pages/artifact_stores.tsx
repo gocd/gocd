@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import * as m from "mithril";
-import stream = require("mithril/stream");
+import m from "mithril";
+import stream from "mithril/stream";
 import {ArtifactStore, ArtifactStores} from "models/artifact_stores/artifact_stores";
 import {ArtifactStoresCRUD} from "models/artifact_stores/artifact_stores_crud";
 import {Configurations} from "models/shared/configuration";

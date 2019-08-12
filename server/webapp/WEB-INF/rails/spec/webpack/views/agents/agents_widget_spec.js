@@ -13,25 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import SparkRoutes from "helpers/spark_routes";
+import {SparkRoutes} from "helpers/spark_routes";
 import {TestHelper} from "views/pages/spec/test_helper";
+import {VM as AgentsVM} from "views/agents/models/agents_widget_view_model";
+import {AgentsWidget} from "views/agents/agents_widget";
+import {Agents} from "models/agents/agents";
+import simulateEvent from "simulate-event";
+import {SortOrder} from "views/agents/models/route_handler";
+import _ from "lodash";
+import Stream from "mithril/stream";
+import m from "mithril";
+import $ from "jquery";
+import "jasmine-ajax";
+import "jasmine-jquery";
 
 describe("Agents Widget", () => {
-
-  const $            = require("jquery");
-  const m            = require('mithril');
-  const Stream       = require('mithril/stream');
-  const _            = require('lodash');
-  const RouteHandler = require('views/agents/models/route_handler');
-
-  const simulateEvent = require('simulate-event');
-
-  require('jasmine-jquery');
-  require('jasmine-ajax');
-
-  const Agents       = require('models/agents/agents');
-  const AgentsWidget = require("views/agents/agents_widget");
-  const AgentsVM     = require("views/agents/models/agents_widget_view_model");
   const helper       = new TestHelper();
 
   const showSpinner      = Stream();
@@ -44,7 +40,7 @@ describe("Agents Widget", () => {
   let shouldShowAnalyticsIcon = false;
 
   beforeEach(() => {
-    routeHandler           = Stream(new RouteHandler());
+    routeHandler           = Stream(new SortOrder());
     routeHandler().perform = _.noop;
   });
 

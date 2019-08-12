@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as _ from "lodash";
-import * as uuid4 from "uuid/v4";
+import _ from "lodash";
+import uuid4 from "uuid/v4";
 
 export class Notification {
   id: string;

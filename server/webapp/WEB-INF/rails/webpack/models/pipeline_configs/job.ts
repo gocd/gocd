@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import JsonUtils from "helpers/json_utils";
-import * as _ from "lodash";
-import * as stream from "mithril/stream";
+import {JsonUtils} from "helpers/json_utils";
+import _ from "lodash";
 import {Stream} from "mithril/stream";
+import stream from "mithril/stream";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {EnvironmentVariableConfig} from "models/pipeline_configs/environment_variable_config";
 import {Task} from "models/pipeline_configs/task";

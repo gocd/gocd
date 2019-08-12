@@ -15,8 +15,8 @@
  */
 import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as m from "mithril";
-import * as styles from "./index.scss";
+import m from "mithril";
+import styles from "./index.scss";
 
 const classnames = bind(styles);
 
@@ -123,7 +123,7 @@ export interface Attrs {
   showAnalytics: boolean;
 }
 
-export default class SiteMenu extends MithrilViewComponent<Attrs> {
+export class SiteMenu extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
 
     const analyticsMenu: m.Children = vnode.attrs.showAnalytics ?

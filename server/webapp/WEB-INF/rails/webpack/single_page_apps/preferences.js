@@ -13,20 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import m from "mithril";
+import Stream from "mithril/stream";
+import {f} from "helpers/form_helper";
+import {EmailSettingsWidget} from "views/preferences/email_settings_widget";
+import {NotificationFiltersListWidget} from "views/preferences/notification_filters_list_widget";
+import {AddNotificationFilterWidget} from "views/preferences/add_notification_filter_widget";
+import {EmailSettings} from "models/preferences/email_settings";
+import {NotificationFilters} from "models/preferences/notification_filters";
+import {Pipelines} from "models/preferences/pipelines";
+
 ;(function () { // eslint-disable-line no-extra-semi
   "use strict";
-
-  const m      = require("mithril");
-  const Stream = require("mithril/stream");
-  const f      = require("helpers/form_helper");
-
-  const EmailSettingsWidget           = require("views/preferences/email_settings_widget");
-  const NotificationFiltersListWidget = require("views/preferences/notification_filters_list_widget");
-  const AddNotificationFilterWidget   = require("views/preferences/add_notification_filter_widget");
-
-  const EmailSettings       = require("models/preferences/email_settings");
-  const NotificationFilters = require("models/preferences/notification_filters");
-  const Pipelines           = require("models/preferences/pipelines");
 
   function dataAttr(node, name) {
     return node.getAttribute(`data-${name}`);

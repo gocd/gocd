@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const m = require("mithril");
-const $ = require("jquery");
-const f = require("helpers/form_helper");
-const _ = require("lodash");
+import m from "mithril";
+import $ from "jquery";
+import {f} from "helpers/form_helper";
+import _ from "lodash";
 
 let _root;
 let _uid = 0;
@@ -103,7 +103,7 @@ const ModalSet = {
   }
 };
 
-function Modal(options) {
+export function Modal(options) {
   showBg();
 
   let config = _.assign({ id: uid() }, DEFAULT, options);
@@ -230,5 +230,3 @@ function teardown() {
 $.extend(Modal, { init, teardown, close, closeAll });
 
 $(Modal.init);
-
-module.exports = Modal;

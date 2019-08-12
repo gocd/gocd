@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 import {CaseInsensitiveMap} from "helpers/collections";
-import * as _ from "lodash";
-import * as m from "mithril";
+import _ from "lodash";
+import m from "mithril";
 import {Stream} from "mithril/stream";
 
 export enum ApiVersion {v1, v2, v3, v4, v5, v6, v7, v8}

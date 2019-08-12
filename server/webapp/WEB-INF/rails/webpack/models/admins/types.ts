@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import * as _ from "lodash";
-import * as stream from "mithril/stream";
+import _ from "lodash";
 import {Stream} from "mithril/stream";
+import stream from "mithril/stream";
 
 export interface SystemAdminsJSON {
   roles: string[];

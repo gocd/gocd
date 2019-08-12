@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const $        = require('jquery');
-const _        = require('lodash');
-const s        = require('string-plus');
-const mrequest = require('helpers/mrequest');
+import $ from "jquery";
+import _ from "lodash";
+import {mixins as s} from "helpers/string-plus";
+import {mrequest} from "helpers/mrequest";
 
-const CrudMixins = {};
+export const CrudMixins = {};
 
 mrequest.globalAjaxErrorHandler();
 
@@ -216,4 +216,3 @@ const validateEntity = function (entity, deferred) {
   return entity.validate()._isEmpty();
 };
 
-module.exports = CrudMixins;

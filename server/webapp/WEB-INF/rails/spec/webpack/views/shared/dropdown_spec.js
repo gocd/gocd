@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 import {TestHelper} from "views/pages/spec/test_helper";
-
-const m             = require('mithril');
-const Stream        = require('mithril/stream');
-const Dropdown      = require('views/shared/dropdown');
+import {Dropdown} from "views/shared/dropdown";
+import Stream from "mithril/stream";
+import m from "mithril";
 
 describe('Dropdown widget', () => {
 

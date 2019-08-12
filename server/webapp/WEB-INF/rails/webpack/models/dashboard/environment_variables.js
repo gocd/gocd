@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const _      = require('lodash');
-const Stream = require('mithril/stream');
-const s      = require('helpers/string-plus');
-
-const Mixins         = require('models/mixins/model_mixins');
-const EncryptedValue = require('models/pipeline_configs/encrypted_value');
+import _ from "lodash";
+import Stream from "mithril/stream";
+import {mixins as s} from "helpers/string-plus";
+import {Mixins} from "models/mixins/model_mixins";
+import {EncryptedValue} from "models/pipeline_configs/encrypted_value";
 
 function plainOrCipherValue({secure, value}) {
   if (secure) {
@@ -41,9 +40,7 @@ EnvironmentVariable.fromJSON = (json) => {
   return new EnvironmentVariable(json);
 };
 
-const EnvironmentVariables    = {};
+export const EnvironmentVariables    = {};
 EnvironmentVariables.fromJSON = (json) => {
   return _.map(json, (variable) => EnvironmentVariable.fromJSON(variable));
 };
-
-module.exports = EnvironmentVariables;

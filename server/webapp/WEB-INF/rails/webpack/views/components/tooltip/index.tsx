@@ -15,12 +15,12 @@
  */
 
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as m from "mithril";
+import m from "mithril";
 
 import {bind} from "classnames/bind";
 import {InfoCircle, QuestionCircle} from "views/components/icons";
 import * as Icons from "views/components/icons";
-import * as styles from "./index.scss";
+import styles from "./index.scss";
 
 const classnames = bind(styles);
 

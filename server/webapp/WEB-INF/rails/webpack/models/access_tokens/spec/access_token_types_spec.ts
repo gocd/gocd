@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
+import {timeFormatter} from "helpers/time_formatter";
 import {AccessTokenTestData} from "models/access_tokens/spec/access_token_test_data";
 import {AccessToken, AccessTokens} from "models/access_tokens/types";
-
-const TimeFormatter = require("helpers/time_formatter");
 
 describe("AccessTokenTypesSpec", () => {
   describe("AccessTokens", () => {
@@ -34,20 +33,20 @@ describe("AccessTokenTypesSpec", () => {
       expect(accessTokens[0]().revoked()).toEqual(false);
       expect(accessTokens[0]().revokedAt()).toBeUndefined();
       expect(accessTokens[0]().createdAt())
-        .toEqual(TimeFormatter.toDate(validAccessTokenJSON.created_at));
+        .toEqual(timeFormatter.toDate(validAccessTokenJSON.created_at));
       expect(accessTokens[0]().lastUsedAt())
-        .toEqual(TimeFormatter.toDate(validAccessTokenJSON.last_used_at));
+        .toEqual(timeFormatter.toDate(validAccessTokenJSON.last_used_at));
 
       expect(accessTokens[1]().id()).toEqual(revokedAccessTokenJSON.id);
       expect(accessTokens[1]().description()).toEqual(revokedAccessTokenJSON.description);
       expect(accessTokens[1]().revokedBecauseUserDeleted()).toEqual(true);
       expect(accessTokens[1]().revoked()).toEqual(true);
       expect(accessTokens[1]().revokedAt())
-        .toEqual(TimeFormatter.toDate(revokedAccessTokenJSON.revoked_at));
+        .toEqual(timeFormatter.toDate(revokedAccessTokenJSON.revoked_at));
       expect(accessTokens[1]().createdAt())
-        .toEqual(TimeFormatter.toDate(revokedAccessTokenJSON.created_at));
+        .toEqual(timeFormatter.toDate(revokedAccessTokenJSON.created_at));
       expect(accessTokens[1]().lastUsedAt())
-        .toEqual(TimeFormatter.toDate(revokedAccessTokenJSON.last_used_at));
+        .toEqual(timeFormatter.toDate(revokedAccessTokenJSON.last_used_at));
     });
 
     it("should filter access token with matching search text", () => {

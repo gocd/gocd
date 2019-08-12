@@ -23,6 +23,8 @@
     "jsxFactory": "m",
     "allowJs": false,
     "strictBindCallApply": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "strictFunctionTypes": true
   },
   "include": [

@@ -13,46 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-;(function () { // eslint-disable-line no-extra-semi
-  "use strict";
+import m from "mithril";
+import _ from "lodash";
 
-  const m = require("mithril");
-  const _ = require("lodash");
+export const NotificationFiltersListWidget = {
+  oninit(vnode) {
+    vnode.attrs.model.load();
+  },
+  view(vnode) {
+    const model = vnode.attrs.model;
 
-  const NotificationFiltersListWidget = {
-    oninit(vnode) {
-      vnode.attrs.model.load();
-    },
-    view(vnode) {
-      const model = vnode.attrs.model;
-
-      return <table class="notification-filters-list">
-        <thead>
-          <tr>
-            <th>Pipeline</th>
-            <th>Stage</th>
-            <th>Event</th>
-            <th>Check-ins Matcher</th>
-            <th />
-          </tr>
-        </thead>
-        <tbody>
-          {_.map(model.filters(), (filter) => {
-            return <tr>
-              <td>{filter.pipeline}</td>
-              <td>{filter.stage}</td>
-              <td>{filter.event}</td>
-              <td>{filter.match_commits ? "Mine" : "All"}</td>
-              <td>
-                <button data-filter-id={filter.id} onclick={model.delete}>Delete</button>
-              </td>
-            </tr>;
-          })}
-        </tbody>
-      </table>;
-    }
-  };
-
-  module.exports = NotificationFiltersListWidget;
-})();
-
+    return <table class="notification-filters-list">
+      <thead>
+      <tr>
+        <th>Pipeline</th>
+        <th>Stage</th>
+        <th>Event</th>
+        <th>Check-ins Matcher</th>
+        <th/>
+      </tr>
+      </thead>
+      <tbody>
+      {_.map(model.filters(), (filter) => {
+        return <tr>
+          <td>{filter.pipeline}</td>
+          <td>{filter.stage}</td>
+          <td>{filter.event}</td>
+          <td>{filter.match_commits ? "Mine" : "All"}</td>
+          <td>
+            <button data-filter-id={filter.id} onclick={model.delete}>Delete</button>
+          </td>
+        </tr>;
+      })}
+      </tbody>
+    </table>;
+  }
+};

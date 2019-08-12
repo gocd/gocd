@@ -15,10 +15,10 @@
  */
 
 import {ApiResult} from "helpers/api_request_builder";
-import * as _ from "lodash";
-import * as m from "mithril";
-import * as stream from "mithril/stream";
+import _ from "lodash";
+import m from "mithril";
 import {Stream} from "mithril/stream";
+import stream from "mithril/stream";
 import {AbstractObjCache, ObjectCache, rejectAsString} from "models/base/cache";
 import {ConfigReposCRUD} from "models/config_repos/config_repos_crud";
 import {DefinedStructures} from "models/config_repos/defined_structures";

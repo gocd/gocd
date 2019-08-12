@@ -15,7 +15,7 @@
  */
 
 import {RestyleAttrs, RestyleComponent} from "jsx/mithril-component";
-import * as m from "mithril";
+import m from "mithril";
 import {Stream} from "mithril/stream";
 import {Errors} from "models/mixins/errors";
 import * as defaultStyles from "views/pages/pipelines/server_errors.scss";

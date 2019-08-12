@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import SparkRoutes from "helpers/spark_routes";
+import {SparkRoutes} from "helpers/spark_routes";
 import {ConfigReposCRUD as ConfigReposCrud} from "models/config_repos/config_repos_crud";
 
 describe("Config Repo CRUD model", () => {

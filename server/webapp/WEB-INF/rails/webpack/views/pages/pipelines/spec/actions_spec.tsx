@@ -17,12 +17,12 @@
 import * as Routes from "gen/ts-routes";
 import {ApiResult} from "helpers/api_request_builder";
 import {asSelector} from "helpers/css_proxies";
-import * as m from "mithril";
+import m from "mithril";
 import {GitMaterialAttributes, Material} from "models/materials/types";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {LocationHandler, PipelineActions} from "../actions";
-import * as css from "../actions.scss";
+import css from "../actions.scss";
 import * as errCss from "../server_errors.scss";
 
 class TestLocationHandler implements LocationHandler {

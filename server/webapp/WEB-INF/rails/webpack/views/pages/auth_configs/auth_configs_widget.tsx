@@ -15,8 +15,8 @@
  */
 
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as _ from "lodash";
-import * as m from "mithril";
+import _ from "lodash";
+import m from "mithril";
 import {AuthConfig, AuthConfigs} from "models/auth_configs/auth_configs";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {CollapsiblePanel} from "views/components/collapsible_panel";

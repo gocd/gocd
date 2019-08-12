@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {timeFormatter} from "helpers/time_formatter";
 import {
   Filter,
   Material,
@@ -21,8 +22,6 @@ import {
   ScmAttributesJSON,
   ScmMaterialAttributes, TfsMaterialAttributesJSON
 } from "models/maintenance_mode/material";
-
-const TimeFormatter = require("helpers/time_formatter");
 
 describe("Material specs", () => {
 
@@ -33,7 +32,7 @@ describe("Material specs", () => {
     const materialAttributes = material.attributes() as ScmMaterialAttributes;
 
     expect(material.type()).toEqual("git");
-    expect(material.mduStartTime()).toEqual(TimeFormatter.formatInDate(materialJSON.mdu_start_time));
+    expect(material.mduStartTime()).toEqual(timeFormatter.toDate(materialJSON.mdu_start_time));
     expect(materialAttributes.name()).toEqual(scmAttributesJSON.name);
     expect(materialAttributes.url()).toEqual(scmAttributesJSON.url);
     expect(materialAttributes.autoUpdate()).toEqual(scmAttributesJSON.auto_update);
@@ -49,7 +48,7 @@ describe("Material specs", () => {
     const materialAttributes = material.attributes() as ScmMaterialAttributes;
 
     expect(material.type()).toEqual("svn");
-    expect(material.mduStartTime()).toEqual(TimeFormatter.formatInDate(materialJSON.mdu_start_time));
+    expect(material.mduStartTime()).toEqual(timeFormatter.toDate(materialJSON.mdu_start_time));
     expect(materialAttributes.name()).toEqual(attributesJSON.name);
     expect(materialAttributes.url()).toEqual(attributesJSON.url);
     expect(materialAttributes.autoUpdate()).toEqual(attributesJSON.auto_update);
@@ -65,7 +64,7 @@ describe("Material specs", () => {
     const materialAttributes = material.attributes() as ScmMaterialAttributes;
 
     expect(material.type()).toEqual("hg");
-    expect(material.mduStartTime()).toEqual(TimeFormatter.formatInDate(materialJSON.mdu_start_time));
+    expect(material.mduStartTime()).toEqual(timeFormatter.toDate(materialJSON.mdu_start_time));
 
     expect(materialAttributes.name()).toEqual(attributesJSON.name);
     expect(materialAttributes.url()).toEqual(attributesJSON.url);

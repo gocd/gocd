@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const $                 = require("jquery");
-const m                 = require("mithril");
-const COMPARATOR        = require("string-plus").caseInsensitiveCompare;
-const Stream            = require("mithril/stream");
-const AnalyticsEndpoint = require("rails-shared/plugin-endpoint");
-const AnalyticsWidget   = require("views/analytics/analytics_widget");
-const PluginInfos       = require("models/shared/plugin_infos");
+import $ from "jquery";
+import m from "mithril";
+import Stream from "mithril/stream";
+import AnalyticsEndpoint from "rails-shared/plugin-endpoint";
+import {AnalyticsWidget} from "views/analytics/analytics_widget";
+import {PluginInfos} from "models/shared/plugin_infos";
+import {mixins} from "../helpers/string-plus";
 
 function metricsInfo(infos, method) {
   const metrics = {};
@@ -33,7 +33,7 @@ AnalyticsEndpoint.ensure("v1");
 
 $(() => {
   const analyticsElem = $('.analytics-container');
-  const pipelines     = JSON.parse(analyticsElem.attr('data-pipeline-list')).sort(COMPARATOR);
+  const pipelines     = JSON.parse(analyticsElem.attr('data-pipeline-list')).sort(mixins.caseInsensitiveCompare);
 
   function onSuccess(pluginInfos) {
     const pipelineMetrics = metricsInfo(pluginInfos, "supportedPipelineAnalytics");

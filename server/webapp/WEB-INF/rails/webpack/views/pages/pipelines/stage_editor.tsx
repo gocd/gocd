@@ -15,7 +15,7 @@
  */
 
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as m from "mithril";
+import m from "mithril";
 import {Stage} from "models/pipeline_configs/stage";
 import {IdentifierInputField} from "views/components/forms/common_validating_inputs";
 import {Form, FormBody} from "views/components/forms/form";

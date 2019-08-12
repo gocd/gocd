@@ -13,81 +13,73 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-(function () {
-  "use strict";
+import m from "mithril";
+import $ from "jquery";
+import _ from "lodash";
+import {f} from "helpers/form_helper";
+import Interactions from "models/shared/analytics_interaction_manager";
+import {init} from "rails-shared/plugin-endpoint";
+import {AnalyticsiFrameWidget} from "views/shared/analytics_iframe_widget";
 
-  const m = require("mithril");
-  const $ = require("jquery");
-  const _ = require('lodash');
-  const f = require("helpers/form_helper");
+const Models = Interactions.ensure().ns("PipelineMetrics");
 
-  const Interactions = require("models/shared/analytics_interaction_manager");
-  const Models       = Interactions.ensure().ns("PipelineMetrics");
-  const init         = require("rails-shared/plugin-endpoint").init;
+function pipelineParams(pipeline) {
+  return {pipeline_name: pipeline, context: "dashboard"}; // eslint-disable-line camelcase
+}
 
-  const AnalyticsiFrameWidget = require('views/shared/analytics_iframe_widget');
+let currentPipeline = null;
 
-  function pipelineParams(pipeline) {
-    return {pipeline_name: pipeline, context: "dashboard"}; // eslint-disable-line camelcase
-  }
-
-  let currentPipeline = null;
-
-  const PipelineDropdown = {
-    oninit(vnode) {
-      if (!currentPipeline) {
-        currentPipeline = vnode.attrs.pipelines[0];
-      }
-    },
-
-    view(vnode) {
-      const pipelineOptions = _.map(vnode.attrs.pipelines, (pipeline) => {
-        return <option selected={pipeline === currentPipeline}>{pipeline}</option>;
-      });
-
-      const select = m("select", {
-        onchange() {
-          currentPipeline = $(this).val();
-          $.each(Models.all(), (uid, m) => {
-            m.url(Models.toUrl(uid, pipelineParams(currentPipeline)));
-          });
-        }
-      }, pipelineOptions);
-
-      return <div class="chart-pipeline-selector">Analytics For Pipeline: {select}</div>;
+const PipelineDropdown = {
+  oninit(vnode) {
+    if (!currentPipeline) {
+      currentPipeline = vnode.attrs.pipelines[0];
     }
-  };
+  },
 
-  const PipelineMetrics = {
-    oninit(vnode) {
-      if (!currentPipeline) {
-        currentPipeline = vnode.attrs.pipelines[0];
-      }
-    },
+  view(vnode) {
+    const pipelineOptions = _.map(vnode.attrs.pipelines, (pipeline) => {
+      return <option selected={pipeline === currentPipeline}>{pipeline}</option>;
+    });
 
-    view(vnode) {
-      const elements = [<PipelineDropdown pipelines={vnode.attrs.pipelines}/>];
-
-      $.each(vnode.attrs.metrics, (pluginId, supportedAnalytics) => {
-        $.each(supportedAnalytics, (idx, sa) => {
-          const uid   = Models.uid(idx, pluginId, sa.type, sa.id),
-                title = sa.title,
-                model = Models.modelFor(uid, pipelineParams(currentPipeline));
-
-          elements.push(m(AnalyticsiFrameWidget, {model, pluginId, uid, title, init}));
+    const select = m("select", {
+      onchange() {
+        currentPipeline = $(this).val();
+        $.each(Models.all(), (uid, m) => {
+          m.url(Models.toUrl(uid, pipelineParams(currentPipeline)));
         });
-      });
-
-      if (elements.length === 1) { // check for length 1, as the pipeline dropdown has already been added
-        return (<div class="message">
-          <f.callout type="info">No analytics plugin supports pipeline analytics.</f.callout>
-        </div>);
       }
+    }, pipelineOptions);
 
-      return elements;
+    return <div class="chart-pipeline-selector">Analytics For Pipeline: {select}</div>;
+  }
+};
+
+export const PipelineMetrics = {
+  oninit(vnode) {
+    if (!currentPipeline) {
+      currentPipeline = vnode.attrs.pipelines[0];
     }
-  };
+  },
 
-  module.exports = PipelineMetrics;
+  view(vnode) {
+    const elements = [<PipelineDropdown pipelines={vnode.attrs.pipelines}/>];
 
-})();
+    $.each(vnode.attrs.metrics, (pluginId, supportedAnalytics) => {
+      $.each(supportedAnalytics, (idx, sa) => {
+        const uid   = Models.uid(idx, pluginId, sa.type, sa.id),
+              title = sa.title,
+              model = Models.modelFor(uid, pipelineParams(currentPipeline));
+
+        elements.push(m(AnalyticsiFrameWidget, {model, pluginId, uid, title, init}));
+      });
+    });
+
+    if (elements.length === 1) { // check for length 1, as the pipeline dropdown has already been added
+      return (<div class="message">
+        <f.callout type="info">No analytics plugin supports pipeline analytics.</f.callout>
+      </div>);
+    }
+
+    return elements;
+  }
+};

@@ -15,7 +15,7 @@
  */
 
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as m from "mithril";
+import m from "mithril";
 import {
   GitMaterialAttributes,
   HgMaterialAttributes,

@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-import * as _ from "lodash";
-import * as m from "mithril";
+import _ from "lodash";
+import m from "mithril";
 import "mithril/promise/promise";
-import * as stream from "mithril/stream";
 import {Stream} from "mithril/stream";
+import stream from "mithril/stream";
 import * as events from "simulate-event";
 import {AutocompleteField, SuggestionProvider} from "views/components/forms/autocomplete";
 import {TestHelper} from "views/pages/spec/test_helper";
-import * as css from "../autocomplete.scss";
+import css from "../autocomplete.scss";
 
 describe("AutocompleteField", () => {
   const helper = new TestHelper();

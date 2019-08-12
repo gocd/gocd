@@ -20,7 +20,7 @@ import {ConfigRepoCapabilities} from "./config_repo_capabilities";
 import {ElasticPluginCapabilities} from "./elastic_plugin_capabilities";
 import {ExtensionType} from "./extension_type";
 
-const stream = require("mithril/stream");
+import stream from "mithril/stream";
 
 class Configuration {
   readonly key: string;

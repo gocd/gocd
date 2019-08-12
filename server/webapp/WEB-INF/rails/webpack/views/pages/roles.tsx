@@ -15,8 +15,8 @@
  */
 
 import {ErrorResponse} from "helpers/api_request_builder";
-import * as _ from "lodash";
-import * as m from "mithril";
+import _ from "lodash";
+import m from "mithril";
 import {AuthConfigs} from "models/auth_configs/auth_configs";
 import {AuthConfigsCRUD} from "models/auth_configs/auth_configs_crud";
 import {GoCDAttributes, GoCDRole, PluginRole, Roles} from "models/roles/roles";

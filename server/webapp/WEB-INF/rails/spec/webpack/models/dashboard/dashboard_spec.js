@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {DashboardGroups} from "models/dashboard/dashboard_groups";
+import {Dashboard} from "models/dashboard/dashboard";
+import {Pipelines} from "models/dashboard/pipelines";
+import _ from "lodash";
+
 describe("Dashboard", () => {
 
   describe('Dashboard Model', () => {
-    const _ = require('lodash');
-
-    const Dashboard        = require('models/dashboard/dashboard');
-    const DashboardGroups   = require('models/dashboard/dashboard_groups');
-    const Pipelines        = require('models/dashboard/pipelines');
     const originalDebounce = _.debounce;
 
     let dashboard;
@@ -112,10 +112,10 @@ describe("Dashboard", () => {
         "pipelines":       [
           {
             "_links":                 {
-              "self":                 {
+              "self": {
                 "href": "http://localhost:8153/go/api/pipelines/up42/history"
               },
-              "doc":                  {
+              "doc":  {
                 "href": "https://api.go.cd/current/#pipelines"
               }
             },
@@ -131,10 +131,10 @@ describe("Dashboard", () => {
               "instances": [
                 {
                   "_links":       {
-                    "self":            {
+                    "self": {
                       "href": "http://localhost:8153/go/api/pipelines/up42/instance/1"
                     },
-                    "doc":             {
+                    "doc":  {
                       "href": "https://api.go.cd/current/#get-pipeline-instance"
                     }
                   },

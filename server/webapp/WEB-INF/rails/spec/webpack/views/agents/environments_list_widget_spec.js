@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 import {TestHelper} from "views/pages/spec/test_helper";
+import {EnvironmentsListWidget} from "views/agents/environments_list_widget";
+import {TriStateCheckbox} from "models/agents/tri_state_checkbox";
+import Stream from "mithril/stream";
+import m from "mithril";
+import $ from "jquery";
+import _ from "lodash";
+import "jasmine-ajax";
+import "jasmine-jquery";
+import "foundation-sites";
 
 describe("Environments List Widget", () => {
-  const _                = require('lodash');
-  const $                = require("jquery");
-  const m                = require("mithril");
-  const Stream           = require("mithril/stream");
-  const TriStateCheckbox = require('models/agents/tri_state_checkbox');
 
-  require("foundation-sites");
-  require("jasmine-jquery");
-  require('jasmine-ajax');
-
-  const EnvironmentsListWidget = require("views/agents/environments_list_widget");
   const helper = new TestHelper();
 
   let  environments;

@@ -17,10 +17,10 @@
 import {bind} from "classnames/bind";
 import * as Routes from "gen/ts-routes";
 import {MithrilComponent} from "jsx/mithril-component";
-import * as _ from "lodash";
-import * as m from "mithril";
+import _ from "lodash";
+import m from "mithril";
 import {Stream} from "mithril/stream";
-import * as stream from "mithril/stream";
+import stream from "mithril/stream";
 import {ClusterProfile, ElasticAgentProfile, ElasticAgentProfiles} from "models/elastic_profiles/types";
 import {Configurations} from "models/shared/configuration";
 import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
@@ -35,7 +35,7 @@ import {IconGroup} from "views/components/icons";
 import {KeyValuePair, KeyValueTitle} from "views/components/key_value_pair";
 import {Attrs as ElasticProfilesWidgetAttrs, ElasticProfilesWidget} from "views/pages/elastic_agent_configurations/elastic_profiles_widget";
 import {AddOperation, CloneOperation, DeleteOperation, EditOperation} from "views/pages/page_operations";
-import * as styles from ".//index.scss";
+import styles from ".//index.scss";
 
 const classnames = bind(styles);
 export type ClusterProfileOperations = EditOperation<ClusterProfile> & DeleteOperation<string> & AddOperation<void> & CloneOperation<ClusterProfile>;

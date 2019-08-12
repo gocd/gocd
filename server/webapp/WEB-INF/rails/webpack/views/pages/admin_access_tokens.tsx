@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import * as m from "mithril";
+import m from "mithril";
 import {Stream} from "mithril/stream";
-import * as stream from "mithril/stream";
+import stream from "mithril/stream";
 import {AccessToken, AccessTokens} from "models/access_tokens/types";
 import {AdminAccessTokenCRUD} from "models/admin_access_tokens/admin_access_token_crud";
 import {FlashMessage, MessageType} from "views/components/flash_message";

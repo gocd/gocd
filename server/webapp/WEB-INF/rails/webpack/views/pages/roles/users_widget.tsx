@@ -15,10 +15,10 @@
  */
 
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as m from "mithril";
+import m from "mithril";
 import {Stream} from "mithril/stream";
 import {GoCDAttributes} from "models/roles/roles";
-import * as styles from "./index.scss";
+import styles from "./index.scss";
 
 interface UsersWidgetAttrs {
   roleAttributes: Stream<GoCDAttributes>;

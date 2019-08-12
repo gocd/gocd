@@ -15,7 +15,7 @@
  */
 
 import {ApiRequestBuilder, ApiResult, ApiVersion, ObjectWithEtag} from "helpers/api_request_builder";
-import SparkRoutes from "helpers/spark_routes";
+import {SparkRoutes} from "helpers/spark_routes";
 import {AuthConfig, AuthConfigJSON, AuthConfigs} from "models/auth_configs/auth_configs";
 
 export class AuthConfigsCRUD {

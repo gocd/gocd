@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const _ = require("lodash");
-const m = require("mithril");
-const f = require("helpers/form_helper");
+import _ from "lodash";
+import m from "mithril";
+import {f} from "helpers/form_helper";
 
-const ActionableMessage = {
+export const ActionableMessage = {
   view(vnode) {
     const vm = vnode.attrs.vm;
     const config = vm.actionPopup();
@@ -40,5 +40,3 @@ const ActionableMessage = {
     }
   }
 };
-
-module.exports = ActionableMessage;

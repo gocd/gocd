@@ -15,10 +15,10 @@
  */
 
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as _ from "lodash";
-import * as m from "mithril";
-import * as stream from "mithril/stream";
+import _ from "lodash";
+import m from "mithril";
 import {Stream} from "mithril/stream";
+import stream from "mithril/stream";
 import {AuthConfig, AuthConfigs} from "models/auth_configs/auth_configs";
 import {GoCDAttributes, GoCDRole, PluginAttributes, PluginRole} from "models/roles/roles";
 import {Configurations} from "models/shared/configuration";
@@ -29,9 +29,9 @@ import * as Buttons from "views/components/buttons";
 import {Form} from "views/components/forms/form";
 import {Option, SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
 import {UsersWidget} from "views/pages/roles/users_widget";
-import * as styles from "./index.scss";
+import styles from "./index.scss";
 
-const AngularPluginNew = require("views/shared/angular_plugin_new");
+const AngularPluginNew = require('views/shared/angular_plugin_new').AngularPluginNew;
 
 interface ModalAttrs {
   role: GoCDRole | PluginRole;

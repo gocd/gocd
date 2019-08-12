@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const m = require('mithril');
+import m from "mithril";
 
-const PageLoadError = {
+export const PageLoadError = {
 
   oninit() {
   },
@@ -31,4 +31,3 @@ const PageLoadError = {
   }
 };
 
-module.exports = PageLoadError;

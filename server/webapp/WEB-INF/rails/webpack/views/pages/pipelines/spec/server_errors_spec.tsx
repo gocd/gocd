@@ -15,10 +15,10 @@
  */
 
 import {asSelector} from "helpers/css_proxies";
-import * as m from "mithril";
-import * as stream from "mithril/stream";
+import m from "mithril";
+import stream from "mithril/stream";
 import {Errors} from "models/mixins/errors";
-import * as css from "views/pages/pipelines/server_errors.scss";
+import css from "views/pages/pipelines/server_errors.scss";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {ServerErrors} from "../server_errors";
 

@@ -13,13 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const m = require('mithril');
-const _ = require('lodash');
+import m from "mithril";
+import _ from "lodash";
+import {PipelineInstanceWidget} from "views/dashboard/pipeline_instance_widget";
+import {PipelineHeaderWidget} from "views/dashboard/pipeline_header_widget";
 
-const PipelineInstanceWidget = require('views/dashboard/pipeline_instance_widget');
-const PipelineHeaderWidget   = require('views/dashboard/pipeline_header_widget');
-
-const PipelineWidget = {
+export const PipelineWidget = {
   view: (vnode) => {
     const pipeline = vnode.attrs.pipeline;
     let pipelineInstances;
@@ -60,5 +59,3 @@ const PipelineWidget = {
     );
   }
 };
-
-module.exports = PipelineWidget;

@@ -16,7 +16,7 @@
 import {PluginInfo} from "../plugin_info";
 import {ExtensionType} from "../extension_type";
 import {AnalyticsCapability} from "../analytics_plugin_capabilities";
-import * as _ from "lodash";
+import _ from "lodash";
 import {SecretPluginInfo} from "./test_data";
 
 describe('PluginInfos New', () => {

@@ -15,7 +15,7 @@
  */
 
 import {ApiRequestBuilder, ApiResult, ApiVersion, ObjectWithEtag} from "helpers/api_request_builder";
-import SparkRoutes from "helpers/spark_routes";
+import {SparkRoutes} from "helpers/spark_routes";
 import {SecretConfig, SecretConfigs} from "models/secret_configs/secret_configs";
 import {SecretConfigsJSON} from "models/secret_configs/secret_configs_json";
 

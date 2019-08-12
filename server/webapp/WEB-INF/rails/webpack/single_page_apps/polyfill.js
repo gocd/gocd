@@ -13,4 +13,5 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-require('babel-polyfill');
+import "core-js/stable";
+import "regenerator-runtime/runtime";

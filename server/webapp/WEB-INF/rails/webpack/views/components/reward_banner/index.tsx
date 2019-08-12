@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const s = require('string-plus');
-
+import {mixins as s} from "helpers/string-plus";
 import {MithrilComponent} from "jsx/mithril-component";
-import * as m from "mithril";
+import m from "mithril";
 import {Stream} from "mithril/stream";
-import * as stream from "mithril/stream";
+import stream from "mithril/stream";
 import * as style from "./index.scss";
 
 interface Attrs {

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import * as _ from "lodash";
-import * as m from "mithril";
-import * as stream from "mithril/stream";
+import _ from "lodash";
+import m from "mithril";
+import stream from "mithril/stream";
 import {MailServer} from "models/mail_server/types";
 import {MailServerWidget} from "views/pages/mail_server/mail_server_widget";
 import {TestHelper} from "views/pages/spec/test_helper";

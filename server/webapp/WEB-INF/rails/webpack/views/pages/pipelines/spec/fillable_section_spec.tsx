@@ -15,10 +15,10 @@
  */
 
 import {asSelector} from "helpers/css_proxies";
-import * as m from "mithril";
+import m from "mithril";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {FillableSection} from "../fillable_section";
-import * as css from "../fillable_section.scss";
+import css from "../fillable_section.scss";
 
 describe("AddPipeline: FillableSection", () => {
   const sel = asSelector<typeof css>(css);

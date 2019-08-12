@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import * as Awesomplete from "awesomplete";
+import Awesomplete from "awesomplete";
 import {RestyleAttrs, RestyleViewComponent} from "jsx/mithril-component";
-import * as _ from "lodash";
-import * as m from "mithril";
+import _ from "lodash";
+import m from "mithril";
 import {TextField, TextFieldAttrs} from "views/components/forms/input_fields";
 import * as defaultStyles from "./autocomplete.scss";
 

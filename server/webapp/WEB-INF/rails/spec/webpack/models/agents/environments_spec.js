@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {Environments} from "models/agents/environments";
+import {Agents} from "models/agents/agents";
+import 'jasmine-ajax';
+
 describe('Agent Environments Model', () => {
 
-  const Environments = require('models/agents/environments');
-  const Agents       = require('models/agents/agents');
 
-  require('jasmine-ajax');
 
   it("should initialize the environments in sorted order", () => {
     jasmine.Ajax.withMock(() => {

@@ -13,17 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const $          = require('jquery');
-const Stream     = require('mithril/stream');
-const _          = require('lodash');
-const s          = require('string-plus');
-const Mixins     = require('models/mixins/model_mixins');
-const filesize   = require('filesize');
-const mrequest   = require('helpers/mrequest');
-const CrudMixins = require('models/mixins/crud_mixins');
-import SparkRoutes from "helpers/spark_routes";
-
-require('lodash-inflection');
+import $ from "jquery";
+import {SparkRoutes} from "helpers/spark_routes";
+import Stream from "mithril/stream";
+import _ from "lodash";
+import {mixins as s} from "helpers/string-plus";
+import {Mixins} from "models/mixins/model_mixins";
+import filesize from "filesize";
+import {mrequest} from "helpers/mrequest";
+import {CrudMixins} from "models/mixins/crud_mixins";
+import "lodash-inflection";
 
 const statusComparator = (agent) => {
   const rank = {
@@ -54,7 +53,7 @@ const reject = (deferred) => (jqXHR, _textStatus, _errorThrown) => {
   deferred.reject(mrequest.unwrapErrorExtractMessage(jqXHR.responseJSON, jqXHR));
 };
 
-const Agents = function (data) {
+export const Agents = function (data) {
   Mixins.HasMany.call(this, {factory: Agents.Agent.create, as: 'Agent', collection: data, uniqueOn: 'uuid'});
 
   const agentsWithState = function (state) {
@@ -376,5 +375,3 @@ Mixins.fromJSONCollection({
   childType:  Agents.Agent,
   via:        'addAgent'
 });
-
-module.exports = Agents;

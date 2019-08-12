@@ -13,15 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as $ from "jquery";
-import * as m from "mithril";
+import "foundation-sites";
+import $ from "jquery";
+import m from "mithril";
 import {UsageDataReporter} from "models/shared/usage_data_reporter";
 import {VersionUpdater} from "models/shared/version_updater";
 import {ModalManager} from "views/components/modal/modal_manager";
 import {SiteFooter} from "views/pages/partials/site_footer";
 import {Attrs, SiteHeader} from "views/pages/partials/site_header";
-
-require("foundation-sites");
 
 $(() => {
   window.addEventListener("DOMContentLoaded", () => {
@@ -37,16 +36,16 @@ $(() => {
       return JSON.parse(body.getAttribute(attribute) as string);
     }
 
-    const showAnalyticsDashboard     = extractBoolean(body, "data-show-analytics-dashboard");
-    const canViewAdminPage           = extractBoolean(body, "data-can-user-view-admin");
-    const isUserAdmin                = extractBoolean(body, "data-is-user-admin");
-    const isGroupAdmin               = extractBoolean(body, "data-is-user-group-admin");
-    const canViewTemplates           = extractBoolean(body, "data-can-user-view-templates");
-    const isAnonymous                = extractBoolean(body, "data-user-anonymous");
-    const isServerInMaintenanceMode  = extractBoolean(body, "data-is-server-in-maintenance-mode");
-    const userDisplayName            = body.getAttribute("data-user-display-name") || "";
-    const maintenanceModeUpdatedOn   = body.getAttribute("data-maintenance-mode-updated-on");
-    const maintenanceModeUpdatedBy   = body.getAttribute("data-maintenance-mode-updated-by");
+    const showAnalyticsDashboard    = extractBoolean(body, "data-show-analytics-dashboard");
+    const canViewAdminPage          = extractBoolean(body, "data-can-user-view-admin");
+    const isUserAdmin               = extractBoolean(body, "data-is-user-admin");
+    const isGroupAdmin              = extractBoolean(body, "data-is-user-group-admin");
+    const canViewTemplates          = extractBoolean(body, "data-can-user-view-templates");
+    const isAnonymous               = extractBoolean(body, "data-user-anonymous");
+    const isServerInMaintenanceMode = extractBoolean(body, "data-is-server-in-maintenance-mode");
+    const userDisplayName           = body.getAttribute("data-user-display-name") || "";
+    const maintenanceModeUpdatedOn  = body.getAttribute("data-maintenance-mode-updated-on");
+    const maintenanceModeUpdatedBy  = body.getAttribute("data-maintenance-mode-updated-by");
 
     const footerData = {
       maintenanceModeUpdatedOn,

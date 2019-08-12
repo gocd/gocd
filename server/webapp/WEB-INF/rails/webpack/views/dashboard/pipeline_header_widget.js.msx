@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const m = require('mithril');
-const $ = require('jquery');
-const f = require('helpers/form_helper');
 
-const PipelineOperationsWidget = require('views/dashboard/pipeline_operations_widget');
-const PipelineAnalyticsWidget  = require('views/dashboard/pipeline_analytics_widget');
+import m from "mithril";
+import $ from "jquery";
+import {f} from "helpers/form_helper";
+import {PipelineOperationsWidget} from "views/dashboard/pipeline_operations_widget";
+import {PipelineAnalyticsWidget} from "views/dashboard/pipeline_analytics_widget";
 
-const PipelineHeaderWidget = {
+export const PipelineHeaderWidget = {
   oninit(vnode) {
     const self              = vnode.state;
     const operationMessages = vnode.attrs.operationMessages;
@@ -44,9 +44,11 @@ const PipelineHeaderWidget = {
     const analyticsIcons = [];
     if (pipeline.canAdminister && !pipeline.isDefinedInConfigRepo()) {
       const settingsPath = pipeline.settingsPath;
-      settingsButton     = (<a class={`edit_config`} aria-label={`Edit Configuration for Pipeline ${pipeline.name}`} title={'Edit Pipeline Configuration'} href={settingsPath}/>);
+      settingsButton     = (<a class={`edit_config`} aria-label={`Edit Configuration for Pipeline ${pipeline.name}`}
+                               title={'Edit Pipeline Configuration'} href={settingsPath}/>);
     } else {
-      settingsButton = (<f.link class="edit_config disabled" aria-label={pipeline.getSettingsDisabledTooltipText()} title={'Edit Configuration Disabled'}
+      settingsButton = (<f.link class="edit_config disabled" aria-label={pipeline.getSettingsDisabledTooltipText()}
+                                title={'Edit Configuration Disabled'}
                                 tooltipText={pipeline.getSettingsDisabledTooltipText()}/>);
     }
 
@@ -59,7 +61,8 @@ const PipelineHeaderWidget = {
     let pipelineLockButton;
     if (pipeline.isLocked) {
       pipelineLockButton = pipeline.canUnlock
-        ? (<button onclick={vnode.state.unlock.bind(vnode.state, pipeline)} aria-label="Pipeline Locked" title="Pipeline Locked" class="pipeline_locked"/>)
+        ? (<button onclick={vnode.state.unlock.bind(vnode.state, pipeline)} aria-label="Pipeline Locked"
+                   title="Pipeline Locked" class="pipeline_locked"/>)
         : (<f.button class="pipeline_locked disabled"
                      tooltipText={pipeline.getLockDisabledTooltipText()}/>);
     }
@@ -83,5 +86,3 @@ const PipelineHeaderWidget = {
     );
   }
 };
-
-module.exports = PipelineHeaderWidget;

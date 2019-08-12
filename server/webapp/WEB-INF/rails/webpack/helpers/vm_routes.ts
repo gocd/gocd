@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-export default class VMRoutes {
+export class VMRoutes {
   static pipelineHistoryPath(pipelineName: string) {
     return `/go/tab/pipeline/history/${pipelineName}`;
   }

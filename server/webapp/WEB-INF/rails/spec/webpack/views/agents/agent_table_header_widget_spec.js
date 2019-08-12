@@ -16,24 +16,21 @@
 //for skipped tests, jasmine isnt calling afterEach,
 // so skipped the test suit to make sure randomize doesnt cause any problem
 import {TestHelper} from "views/pages/spec/test_helper";
+import {SortOrder} from "views/agents/models/route_handler";
+import {AgentsTableHeader} from "views/agents/agent_table_header";
+import Stream from "mithril/stream";
+import m from "mithril";
+import _ from "lodash";
+import $ from "jquery";
+import "jasmine-jquery";
 
 describe("Agent Table Header Widget", () => {
-
-  const $      = require("jquery");
-  const _      = require('lodash');
-  const m      = require("mithril");
-  const Stream = require("mithril/stream");
-
-  require('jasmine-jquery');
-
-  const AgentsTableHeader = require("views/agents/agent_table_header");
-  const RouteHandler      = require('views/agents/models/route_handler');
   const helper            = new TestHelper();
 
   let routeHandler;
 
   beforeEach(() => {
-    routeHandler           = Stream(new RouteHandler());
+    routeHandler           = Stream(new SortOrder());
     routeHandler().perform = _.noop;
     route(true);
   });

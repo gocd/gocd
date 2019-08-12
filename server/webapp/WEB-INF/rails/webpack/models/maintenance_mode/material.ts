@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as _ from "lodash";
+
+import {timeFormatter} from "helpers/time_formatter";
+import _ from "lodash";
 import {Stream} from "mithril/stream";
-import * as stream from "mithril/stream";
+import stream from "mithril/stream";
 import {ErrorMessages} from "models/mixins/error_messages";
 import {Errors, ErrorsJSON} from "models/mixins/errors";
 import {applyMixins} from "models/mixins/mixins";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {EncryptedValue, plainOrCipherValue} from "views/components/forms/encrypted_value";
-
-const TimeFormatter = require("helpers/time_formatter");
 
 export interface MaterialJSON {
   type: string;
@@ -397,7 +397,7 @@ export class Material {
   static fromJSON(material: MaterialJSON): Material {
     return new Material(material.type,
                         MaterialAttributes.fromJSON(material),
-                        TimeFormatter.formatInDate(material.mdu_start_time));
+                        timeFormatter.toDate(material.mdu_start_time));
   }
 
   attributesAsMap() {

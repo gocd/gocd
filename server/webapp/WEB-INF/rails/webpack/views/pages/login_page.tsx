@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import * as m from "mithril";
+import m from "mithril";
 import {AuthPluginInfo} from "models/authentication/auth_plugin_info";
 import {LoginPageWidget} from "views/pages/login_page/login_page_widget";
 import {Page} from "views/pages/page";

@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const _               = require("lodash");
-const Stream          = require("mithril/stream");
-const Personalization = require("models/dashboard/personalization");
-const DashboardFilter = require("models/dashboard/dashboard_filter");
+import _ from "lodash";
+import Stream from "mithril/stream";
+import {Personalization} from "models/dashboard/personalization";
+import {DashboardFilter} from "../../../models/dashboard/dashboard_filter";
 
-function PersonalizationVM(currentView) {
+export function PersonalizationVM(currentView) {
   const names             = Stream([]);
   const tabSettingsDD     = Stream(false);
   const tabsListDD        = Stream(false);
@@ -28,10 +28,10 @@ function PersonalizationVM(currentView) {
   const errorMessage      = Stream();
   const loadingView       = Stream(false);
 
-  const paged             = Stream(false); // flag indicating whether the view tabs need scrollable behavior
-  const currentVnode      = Stream(); // handle on current tab's vnode; allows sharing state between components
-  const stagedSort        = Stream(null);
-  const actionPopup       = Stream(null);
+  const paged        = Stream(false); // flag indicating whether the view tabs need scrollable behavior
+  const currentVnode = Stream(); // handle on current tab's vnode; allows sharing state between components
+  const stagedSort   = Stream(null);
+  const actionPopup  = Stream(null);
 
   let requestPending, tick;
 
@@ -49,10 +49,14 @@ function PersonalizationVM(currentView) {
   }
 
   function checkForUpdates(etag) {
-    if (!arguments.length) { return checksum(); }
+    if (!arguments.length) {
+      return checksum();
+    }
 
     if (requestPending) {
-      if ("number" === typeof tick) { tick = clearTimeout(tick); } // only allow 1 queued request
+      if ("number" === typeof tick) {
+        tick = clearTimeout(tick);
+      } // only allow 1 queued request
       tick = setTimeout(() => checkForUpdates(etag), 100);
       return;
     }
@@ -65,9 +69,25 @@ function PersonalizationVM(currentView) {
 
   const changeListeners = [];
 
-  _.assign(this, {model, names, currentView, fetchPersonalization, etag: checkForUpdates, checksum, errorMessage, loadingView, paged, currentVnode, stagedSort, actionPopup, pipelinesChecksum});
+  _.assign(this, {
+    model,
+    names,
+    currentView,
+    fetchPersonalization,
+    etag: checkForUpdates,
+    checksum,
+    errorMessage,
+    loadingView,
+    paged,
+    currentVnode,
+    stagedSort,
+    actionPopup,
+    pipelinesChecksum
+  });
 
-  this.tabs = () => _.map(stagedSort() ? stagedSort().names() : names(), (name) => { return {id: name, name}; });
+  this.tabs = () => _.map(stagedSort() ? stagedSort().names() : names(), (name) => {
+    return {id: name, name};
+  });
 
   this.updatePipelineGroups = () => {
     return Personalization.getPipelines(pipelinesChecksum()).then((data, _textStatus, xhr) => {
@@ -116,7 +136,11 @@ function PersonalizationVM(currentView) {
   };
 
   this.actionHandler = (fn) => {
-    return (e) => { e.stopPropagation(); this.hideAllDropdowns(); fn(); };
+    return (e) => {
+      e.stopPropagation();
+      this.hideAllDropdowns();
+      fn();
+    };
   };
 
   this.onchange = function registerOrExec(fn) {
@@ -125,7 +149,9 @@ function PersonalizationVM(currentView) {
       return;
     }
 
-    if ("function" !== typeof fn || _.includes(changeListeners, fn)) { return; }
+    if ("function" !== typeof fn || _.includes(changeListeners, fn)) {
+      return;
+    }
 
     changeListeners.push(fn);
   };
@@ -135,10 +161,15 @@ function PersonalizationVM(currentView) {
   };
 }
 
-function parseEtag(req) { return (req.getResponseHeader("ETag") || "").replace(/"/g, "").replace(/--(gzip|deflate)$/, ""); }
+function parseEtag(req) {
+  return (req.getResponseHeader("ETag") || "").replace(/"/g, "").replace(/--(gzip|deflate)$/, "");
+}
 
 /** Case-insensitive functions */
-function eq(a, b) { return a.toLowerCase() === b.toLowerCase(); }
-function contains(arr, el) { return _.includes(_.map(arr, (a) => a.toLowerCase()), el.toLowerCase()); }
+function eq(a, b) {
+  return a.toLowerCase() === b.toLowerCase();
+}
 
-module.exports = PersonalizationVM;
+function contains(arr, el) {
+  return _.includes(_.map(arr, (a) => a.toLowerCase()), el.toLowerCase());
+}

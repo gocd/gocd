@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import {ApiResult} from "helpers/api_request_builder";
-import * as m from "mithril";
+import m from "mithril";
 import {Extension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";

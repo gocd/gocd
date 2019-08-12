@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import Page from "helpers/spa_base";
+import {Page} from "helpers/spa_base";
 import {AuthConfigsPage} from "views/pages/auth_configs";
 
 //tslint:disable-next-line

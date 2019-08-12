@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const _      = require('lodash');
-const Stream = require('mithril/stream');
+import _ from "lodash";
+import Stream from "mithril/stream";
 
-const TriggerWithOptionsVM = function () {
+export const TriggerWithOptionsVM = function () {
   const materialsState = {};
   const tabsState      = {};
 
@@ -58,5 +58,3 @@ const TriggerWithOptionsVM = function () {
   return viewModel;
 };
 
-
-module.exports = TriggerWithOptionsVM;

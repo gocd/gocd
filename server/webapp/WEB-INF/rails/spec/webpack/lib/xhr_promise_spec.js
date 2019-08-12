@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const XhrPromise = require("rails-shared/xhr_promise");
+import XhrPromise from "rails-shared/xhr_promise";
 
 describe("XhrPromise", () => {
   if ("function" !== typeof Promise) {

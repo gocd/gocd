@@ -13,22 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const _ = require('lodash');
+import _ from "lodash";
 
-function renderComment(text, trackingTool) {
+export interface TrackingTool {
+  regex: string;
+  link: string;
+}
+
+export function renderComment(text: string, trackingTool: TrackingTool) {
   if (!trackingTool || !trackingTool.regex) {
     return _.escape(text);
   }
 
   try {
-    const regex = new RegExp(trackingTool.regex);
+    const regex              = new RegExp(trackingTool.regex);
     const commentStringParts = [];
     let matchResult          = text.match(regex);
     while (matchResult !== null) {
       commentStringParts.push(_.escape(text.substr(0, matchResult.index)));
       const linkifiedWord = toLink(matchResult[0]);
       commentStringParts.push(linkifiedWord);
-      text        = text.substr(matchResult.index + matchResult[0].length);
+      text        = text.substr(matchResult!.index! + matchResult[0].length);
       matchResult = text.match(regex);
     }
     commentStringParts.push(_.escape(text));
@@ -37,7 +42,7 @@ function renderComment(text, trackingTool) {
     return _.escape(text);
   }
 
-  function firstMatchingGroup(matchResult) {
+  function firstMatchingGroup(matchResult: RegExpMatchArray) {
     if (matchResult === null || matchResult.length === 0) {
       return null;
     }
@@ -49,12 +54,12 @@ function renderComment(text, trackingTool) {
     return null;
   }
 
-  function hasGroups(regex) {
-    return (new RegExp(`${regex}|`)).exec('').length - 1;
+  function hasGroups(regex: string) {
+    return (new RegExp(`${regex}|`)).exec("")!.length - 1;
   }
 
-  function toLink(matchedWord) {
-    const trackingId = firstMatchingGroup(matchedWord.match(trackingTool.regex));
+  function toLink(matchedWord: string) {
+    const trackingId = firstMatchingGroup(matchedWord.match(trackingTool.regex)!);
     if (trackingId) {
       const href = trackingTool.link.replace("${ID}", trackingId);
       return `<a target="story_tracker" href="${href}">${_.escape(matchedWord)}</a>`;
@@ -66,5 +71,3 @@ function renderComment(text, trackingTool) {
     }
   }
 }
-
-module.exports = renderComment;

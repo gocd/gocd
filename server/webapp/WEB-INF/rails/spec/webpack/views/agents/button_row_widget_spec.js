@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 import {TestHelper} from "views/pages/spec/test_helper";
+import {VM as AgentsVM} from "views/agents/models/agents_widget_view_model";
+import {ButtonRowWidget} from "views/agents/button_row_widget";
+import {Agents} from "models/agents/agents";
+import Stream from "mithril/stream";
+import m from "mithril";
+
+import 'jasmine-jquery';
 
 describe("Button Row Widget", () => {
-  const m      = require('mithril');
-  const Stream = require('mithril/stream');
 
-  require('jasmine-jquery');
-
-  const Agents          = require('models/agents/agents');
-  const ButtonRowWidget = require("views/agents/button_row_widget");
-  const AgentsVM        = require("views/agents/models/agents_widget_view_model");
 
   let agents;
 

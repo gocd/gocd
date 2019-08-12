@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import * as Awesomplete from "awesomplete";
+import Awesomplete from "awesomplete";
 import {MithrilComponent} from "jsx/mithril-component";
-import * as m from "mithril";
+import m from "mithril";
 import {Stream} from "mithril/stream";
-import * as stream from "mithril/stream";
+import stream from "mithril/stream";
 import {DependencyMaterialAutocomplete, PipelineNameCache} from "models/materials/dependency_autocomplete_cache";
 import {DependencyMaterialAttributes, Material, MaterialAttributes} from "models/materials/types";
 import {AutocompleteField, SuggestionProvider} from "views/components/forms/autocomplete";

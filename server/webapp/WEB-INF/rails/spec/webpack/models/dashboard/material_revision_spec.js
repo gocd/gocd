@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {MaterialRevision} from "models/dashboard/material_revision";
+
 describe("Dashboard", () => {
   describe('Material Revision Model', () => {
-    const MaterialRevision = require('models/dashboard/material_revision');
 
     describe("scm material modifications", () => {
       it("should deserialize from json", () => {

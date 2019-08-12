@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 import {MithrilComponent} from "jsx/mithril-component";
-import * as _ from "lodash";
-import * as m from "mithril";
+import _ from "lodash";
+import m from "mithril";
 import {ElasticAgentProfile, ElasticAgentProfiles} from "models/elastic_profiles/types";
 import {Extension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as m from "mithril";
+import m from "mithril";
 import {AuthConfigs} from "models/auth_configs/auth_configs";
 import {TestData} from "models/auth_configs/spec/test_data";
 import {GoCDRole, PluginRole, Role, Roles} from "models/roles/roles";
@@ -21,7 +21,7 @@ import {Extension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {AuthorizationPluginInfo} from "models/shared/plugin_infos_new/spec/test_data";
 import * as simulateEvent from "simulate-event";
-import * as s from "underscore.string";
+import s from "underscore.string";
 import {RolesWidget} from "views/pages/roles/roles_widget";
 import {RolesTestData} from "views/pages/roles/spec/test_data";
 import {TestHelper} from "views/pages/spec/test_helper";

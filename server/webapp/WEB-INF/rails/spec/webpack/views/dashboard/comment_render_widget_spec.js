@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 import {TestHelper} from "views/pages/spec/test_helper";
+import {CommentRenderWidget} from "views/dashboard/comment_render_widget";
+import m from "mithril";
 
 describe("Comment Render Widget", () => {
-  const m = require("mithril");
-
-  const CommentRenderWidget = require("views/dashboard/comment_render_widget");
 
   const helper = new TestHelper();
 

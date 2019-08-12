@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const m = require('mithril');
-const _ = require('lodash');
+import m from "mithril";
+import _ from "lodash";
 
-const StagesInstanceWidget = {
+export const StagesInstanceWidget = {
   view: (vnode) => {
     const stages        = vnode.attrs.stages;
     const stageInstance = _.map(stages, (stage) => {
@@ -44,4 +44,3 @@ const StagesInstanceWidget = {
   }
 };
 
-module.exports = StagesInstanceWidget;

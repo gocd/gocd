@@ -15,9 +15,10 @@
  */
 import {bind} from "classnames/bind";
 import {ApiResult, ErrorResponse, ObjectWithEtag} from "helpers/api_request_builder";
-import * as m from "mithril";
+import _ from "lodash";
+import m from "mithril";
+import stream from "mithril/stream";
 import {Stream} from "mithril/stream";
-import * as stream from "mithril/stream";
 import {ElasticAgentProfilesCRUD} from "models/elastic_profiles/elastic_agent_profiles_crud";
 import {ClusterProfile, ClusterProfiles, ElasticAgentProfile, ProfileUsage} from "models/elastic_profiles/types";
 import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
@@ -30,12 +31,12 @@ import {SelectField, SelectFieldOptions, TextField} from "views/components/forms
 import {Modal, Size} from "views/components/modal";
 import {Spinner} from "views/components/spinner";
 import {Table} from "views/components/table";
-import * as styles from "views/pages/elastic_agent_configurations/index.scss";
+import styles from "views/pages/elastic_agent_configurations/index.scss";
 import * as foundationStyles from "views/pages/new_plugins/foundation_hax.scss";
 
+const AngularPluginNew = require('views/shared/angular_plugin_new').AngularPluginNew;
+
 const foundationClassNames = bind(foundationStyles);
-const AngularPluginNew     = require("views/shared/angular_plugin_new");
-import * as _ from "lodash";
 
 enum ModalType {
   edit, clone, create

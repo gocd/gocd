@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const m = require("mithril");
-const _ = require("lodash");
-const f = require("helpers/form_helper");
-
+import m from "mithril";
 import {SearchBox} from "views/components/search_box";
 import {docsUrl} from "gen/gocd_version";
+
+import _ from "lodash";
+import {f} from "helpers/form_helper";
 
 const FilterNameInput = {
   oncreate(vnode) {
@@ -160,7 +160,7 @@ const Tooltip = {
   }
 };
 
-const PersonalizationModalWidget = {
+export const PersonalizationModalWidget = {
   view(vnode) {
     const vm = vnode.attrs.vm;
 
@@ -212,4 +212,3 @@ function rightEdge(el) {
   return rect.x + rect.width;
 }
 
-module.exports = PersonalizationModalWidget;

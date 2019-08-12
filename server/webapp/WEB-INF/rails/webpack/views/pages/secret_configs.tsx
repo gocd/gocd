@@ -15,9 +15,9 @@
  */
 
 import {ErrorResponse, SuccessResponse} from "helpers/api_request_builder";
-import * as m from "mithril";
+import m from "mithril";
 import {Stream} from "mithril/stream";
-import * as stream from "mithril/stream";
+import stream from "mithril/stream";
 import {EnvironmentCRUD} from "models/environments/environment_crud";
 import {PipelineGroupCRUD} from "models/pipeline_configs/pipeline_groups_cache";
 import {Rule, Rules} from "models/secret_configs/rules";

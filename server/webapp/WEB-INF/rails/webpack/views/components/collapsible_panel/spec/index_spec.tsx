@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as m from "mithril";
+import m from "mithril";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {CollapsiblePanel} from "../index";
-import * as styles from "../index.scss";
+import styles from "../index.scss";
+
+import * as simulateEvent from "simulate-event";
 
 describe("Collapsible Panel Component", () => {
-  const simulateEvent = require("simulate-event");
 
   const pageTitle = "Test Header";
   const body      = [<div class="collapse-content">This is body</div>];

@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const m = require('mithril');
+import m from "mithril";
 
-const ConsentInformationWidget = {
+export const ConsentInformationWidget = {
   view() {
     return <div class="consent-description">
       <p>We strive to understand our users better and provide the best product experience. You can help us! Please give
@@ -25,5 +25,3 @@ const ConsentInformationWidget = {
     </div>;
   }
 };
-
-module.exports = ConsentInformationWidget;

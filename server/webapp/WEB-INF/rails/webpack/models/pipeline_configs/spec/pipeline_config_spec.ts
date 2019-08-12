@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import SparkRoutes from "helpers/spark_routes";
+import {SparkRoutes} from "helpers/spark_routes";
 import {GitMaterialAttributes, Material} from "models/materials/types";
 import {EnvironmentVariableConfig} from "models/pipeline_configs/environment_variable_config";
 import {Job} from "models/pipeline_configs/job";

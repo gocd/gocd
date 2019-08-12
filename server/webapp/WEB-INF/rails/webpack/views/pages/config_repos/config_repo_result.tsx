@@ -16,16 +16,16 @@
 
 import classnames from "classnames";
 import {override} from "helpers/css_proxies";
-import VMRoutes from "helpers/vm_routes";
+import {VMRoutes} from "helpers/vm_routes";
 import {MithrilComponent} from "jsx/mithril-component";
-import * as _ from "lodash";
-import * as m from "mithril";
+import _ from "lodash";
+import m from "mithril";
 import {ObjectCache} from "models/base/cache";
 import {treeMap} from "models/base/traversable";
 import {DefinedEnvironment, DefinedGroup, DefinedPipeline, DefinedStructures, NamedTree} from "models/config_repos/defined_structures";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Tree} from "views/components/hierarchy/tree";
-import * as css from "./defined_structs.scss";
+import css from "./defined_structs.scss";
 
 // @ts-ignore
 import * as Routes from "gen/js-routes";

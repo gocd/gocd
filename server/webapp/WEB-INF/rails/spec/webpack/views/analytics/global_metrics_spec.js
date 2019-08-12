@@ -13,13 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import m from "mithril";
 import {TestHelper} from "views/pages/spec/test_helper";
+import {GlobalMetrics} from "views/analytics/global_metrics";
+import  "jasmine-jquery";
 
 describe("Global Dashboard Metrics", () => {
-  const m = require('mithril');
-  require('jasmine-jquery');
-
-  const GlobalMetrics = require('views/analytics/global_metrics');
   const helper = new TestHelper();
 
   const supportedMetrics = {

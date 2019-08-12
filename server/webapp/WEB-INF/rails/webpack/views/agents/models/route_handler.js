@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const m = require('mithril');
+import m from "mithril";
 
-const SortOrder = function () {
+export const SortOrder = function () {
   let sortBy  = 'agentState';
   let orderBy = 'asc';
   let search  = '';
@@ -58,4 +58,3 @@ const SortOrder = function () {
   };
 };
 
-module.exports = SortOrder;

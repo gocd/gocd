@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- const FilterValidations = require("views/dashboard/models/filter_validations");
+import {FilterValidations} from "views/dashboard/models/filter_validations";
 
- describe("FilterValidations", () => {
+describe("FilterValidations", () => {
   it("should accept valid name", () => {
     const obj = validatable({ name: () => "a new tab" });
 

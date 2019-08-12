@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import {ApiRequestBuilder, ApiResult, ApiVersion, ObjectWithEtag} from "helpers/api_request_builder";
-import SparkRoutes from "helpers/spark_routes";
+import {SparkRoutes} from "helpers/spark_routes";
 import {ElasticAgentProfile, ElasticAgentProfiles, ElasticProfileJSON, ProfileUsage, ProfileUsageJSON} from "./types";
 
 export class ElasticAgentProfilesCRUD {

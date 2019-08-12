@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 import {TestHelper} from "views/pages/spec/test_helper";
+import {f} from "helpers/form_helper";
+import Stream from "mithril/stream";
+import m from "mithril";
+import $ from "jquery";
 
 describe("Form Helper", () => {
-  const $      = require("jquery");
-  const m      = require('mithril');
-  const Stream = require('mithril/stream');
-  const f      = require('helpers/form_helper');
+
 
   const helper = new TestHelper();
 

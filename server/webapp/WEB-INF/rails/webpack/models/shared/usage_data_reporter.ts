@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import {ApiRequestBuilder, ApiResult} from "helpers/api_request_builder";
-import * as _ from "lodash";
+import _ from "lodash";
 import {DataReporting} from "./data_sharing/data_reporting";
 import {EncryptedData, EncryptionKeys, UsageData} from "./data_sharing/usage_data";
 

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import * as stream from "mithril/stream";
 import {Stream} from "mithril/stream";
+import stream from "mithril/stream";
 import {BackupConfig} from "models/backup_config/types";
 import {BackupConfigModal} from "views/pages/backup/backup_config_modal";
 import {TestHelper} from "views/pages/spec/test_helper";

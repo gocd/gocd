@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as m from "mithril";
+import m from "mithril";
 import {KeyValuePair, KeyValueTitle} from "views/components/key_value_pair/index";
 import {TestHelper} from "views/pages/spec/test_helper";
-import * as styles from "../index.scss";
+import styles from "../index.scss";
 
 describe("KeyValuePair", () => {
   const helper = new TestHelper();

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import Page from "helpers/spa_base";
+import {Page} from "helpers/spa_base";
 import {ArtifactStoresPage} from "views/pages/artifact_stores";
 
 //tslint:disable-next-line

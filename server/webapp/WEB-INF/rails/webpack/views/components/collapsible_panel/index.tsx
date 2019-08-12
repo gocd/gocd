@@ -16,9 +16,9 @@
 
 import classnames from "classnames";
 import {MithrilComponent} from "jsx/mithril-component";
-import * as m from "mithril";
-import * as stream from "mithril/stream";
-import * as styles from "./index.scss";
+import m from "mithril";
+import stream from "mithril/stream";
+import styles from "./index.scss";
 
 interface CollapsibleStateModel {
   expanded: (newVal?: boolean) => boolean;

@@ -35,7 +35,6 @@ export class AccessTokenTestData {
       revoke_cause: "",
       revoked_by: "",
       revoked: false,
-      revoked_at: null,
       created_at: "2019-02-05T06:41:58Z",
       last_used_at: "2019-02-05T07:41:58Z",
     } as AccessTokenJSON;
@@ -51,7 +50,6 @@ export class AccessTokenTestData {
       revoked_by: "",
       token: "05724e1de425eeeaf750b7cb2ee98636abdf",
       revoked: false,
-      revoked_at: null,
       created_at: "2019-02-05T06:41:58Z",
       last_used_at: "2019-02-05T07:41:58Z"
     } as AccessTokenJSON;

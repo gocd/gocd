@@ -15,13 +15,13 @@
  */
 
 import {asSelector} from "helpers/css_proxies";
-import * as _ from "lodash";
-import * as m from "mithril";
-import * as stream from "mithril/stream";
+import _ from "lodash";
+import m from "mithril";
 import {Stream} from "mithril/stream";
+import stream from "mithril/stream";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {IdentifierInputField} from "../common_validating_inputs";
-import * as css from "../forms.scss";
+import css from "../forms.scss";
 
 describe("Common Validating Input Fields:", () => {
   const helper = new TestHelper();

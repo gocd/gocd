@@ -16,7 +16,7 @@
 
 import {ApiResult} from "helpers/api_request_builder";
 import {asSelector} from "helpers/css_proxies";
-import * as m from "mithril";
+import m from "mithril";
 import {ConfigRepo} from "models/config_repos/types";
 import * as buttonStyles from "views/components/buttons/index.scss";
 import {TestHelper} from "views/pages/spec/test_helper";

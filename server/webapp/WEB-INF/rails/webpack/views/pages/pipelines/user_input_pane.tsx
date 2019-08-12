@@ -15,8 +15,8 @@
  */
 
 import {RestyleAttrs, RestyleComponent} from "jsx/mithril-component";
-import * as m from "mithril";
-import * as css from "./user_input_pane.scss";
+import m from "mithril";
+import css from "./user_input_pane.scss";
 
 interface Attrs extends RestyleAttrs<typeof css> {
   heading: m.Children;

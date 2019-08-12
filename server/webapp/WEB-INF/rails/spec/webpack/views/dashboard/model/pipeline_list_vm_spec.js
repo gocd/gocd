@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const _              = require("lodash");
-const Stream         = require("mithril/stream");
-const PipelineListVM = require("views/dashboard/models/pipeline_list_vm");
+import _ from "lodash";
+import Stream from "mithril/stream";
+import {PipelineListVM} from "views/dashboard/models/pipeline_list_vm";
 
 describe("Pipeline List View Model", () => {
   it("restores prior expand/collapse state after clearing search", () => {

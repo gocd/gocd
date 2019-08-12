@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import JsonUtils from "helpers/json_utils";
+import {JsonUtils} from "helpers/json_utils";
 import {Stream} from "mithril/stream";
-import * as stream from "mithril/stream";
+import stream from "mithril/stream";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {Job} from "./job";
 import {NameableSet} from "./nameable_set";

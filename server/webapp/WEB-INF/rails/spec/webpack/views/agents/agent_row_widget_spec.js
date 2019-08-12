@@ -14,19 +14,17 @@
  * limitations under the License.
  */
 import {TestHelper} from "views/pages/spec/test_helper";
+import {VM as AgentsVM} from "views/agents/models/agents_widget_view_model";
+import {AgentRowWidget as AgentsRowWidget} from "views/agents/agent_row_widget";
+import {Agents} from "models/agents/agents";
+import {PluginInfos} from "models/shared/plugin_infos";
+import {Modal} from "views/shared/new_modal";
+import Stream from "mithril/stream";
+import m from "mithril";
+import $ from "jquery";
+import  "jasmine-jquery";
 
 describe("Agent Row Widget", () => {
-  const $      = require("jquery");
-  const m      = require('mithril');
-  const Stream = require('mithril/stream');
-  const Modal  = require('views/shared/new_modal');
-  require('jasmine-jquery');
-
-  const PluginInfos = require('models/shared/plugin_infos');
-
-  const Agents          = require('models/agents/agents');
-  const AgentsRowWidget = require("views/agents/agent_row_widget");
-  const AgentsVM        = require("views/agents/models/agents_widget_view_model");
   const agents          = Stream();
   const agentsVM        = new AgentsVM();
 

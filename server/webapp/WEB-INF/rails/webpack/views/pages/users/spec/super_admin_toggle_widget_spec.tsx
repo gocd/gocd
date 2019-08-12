@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import * as m from "mithril";
-import * as stream from "mithril/stream";
+import m from "mithril";
 import {Stream} from "mithril/stream";
+import stream from "mithril/stream";
 import {User} from "models/users/users";
 import "views/components/table/spec/table_matchers";
 import {TestHelper} from "views/pages/spec/test_helper";

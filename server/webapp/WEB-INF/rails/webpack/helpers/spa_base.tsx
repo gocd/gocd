@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as m from "mithril";
+import m from "mithril";
 import {VersionUpdater} from "models/shared/version_updater";
-import * as styles from "./spa_base.scss";
+import styles from "./spa_base.scss";
 
 import {MithrilViewComponent} from "jsx/mithril-component";
 import {UsageDataReporter} from "models/shared/usage_data_reporter";
@@ -58,7 +58,7 @@ class MainPage extends MithrilViewComponent<Attrs> {
   }
 }
 
-export default abstract class Page {
+export abstract class Page {
   private readonly pageToMount: any;
 
   constructor(pageToMount: any) {

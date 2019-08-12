@@ -13,12 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {mixins as s} from "helpers/string-plus";
 import {Notification, SystemNotifications} from "models/notifications/system_notifications";
 
 describe("SystemNotifications", () => {
-
-  const s = require("string-plus");
-
   const notificationJSON     = {
     id: "id1",
     message: "message 1.",
@@ -79,13 +77,13 @@ describe("SystemNotifications", () => {
   it("should serialize a notification to JSON", () => {
     const notification = Notification.fromJSON(notificationJSON);
     expect(JSON.parse(JSON.stringify(notification, s.snakeCaser))).toEqual({
-      id: "id1",
-      message: "message 1.",
-      read: false,
-      type: "UpdateCheck",
-      link: "link_1",
-      link_text: "read more"
-    });
+                                                                             id: "id1",
+                                                                             message: "message 1.",
+                                                                             read: false,
+                                                                             type: "UpdateCheck",
+                                                                             link: "link_1",
+                                                                             link_text: "read more"
+                                                                           });
   });
 
   describe("all", () => {
@@ -107,7 +105,10 @@ describe("SystemNotifications", () => {
 
   describe("notifyNewMessage", () => {
     it("should create a new notification in localstorage", () => {
-      SystemNotifications.notifyNewMessage(notificationJSON.type, notificationJSON.message, notificationJSON.link, notificationJSON.linkText);
+      SystemNotifications.notifyNewMessage(notificationJSON.type,
+                                           notificationJSON.message,
+                                           notificationJSON.link,
+                                           notificationJSON.linkText);
       const fromBrowserLocalStorage = JSON.parse(localStorage.getItem("system_notifications") || "[]");
       expect(fromBrowserLocalStorage.length).toBe(1);
       expect(fromBrowserLocalStorage[0].message).toBe(notificationJSON.message);
@@ -117,17 +118,25 @@ describe("SystemNotifications", () => {
       expect(fromBrowserLocalStorage[0].id).not.toBeUndefined();
     });
 
-    it("should not create duplicate notifications for a given notification type in localstorage, it should update the existing one", () => {
-      SystemNotifications.notifyNewMessage(notificationJSON.type, notificationJSON.message, notificationJSON.link, notificationJSON.linkText);
-      SystemNotifications.notifyNewMessage(notificationJSON.type, notificationJSON.message, notificationJSON.link, notificationJSON.linkText);
-      const fromBrowserLocalStorage = JSON.parse(localStorage.getItem("system_notifications") || "[]");
-      expect(fromBrowserLocalStorage.length).toBe(1);
-      expect(fromBrowserLocalStorage[0].message).toBe(notificationJSON.message);
-      expect(fromBrowserLocalStorage[0].type).toBe(notificationJSON.type);
-      expect(fromBrowserLocalStorage[0].link).toBe(notificationJSON.link);
-      expect(fromBrowserLocalStorage[0].linkText).toBe(notificationJSON.linkText);
-      expect(fromBrowserLocalStorage[0].id).not.toBeUndefined();
-    });
+    it(
+      "should not create duplicate notifications for a given notification type in localstorage, it should update the existing one",
+      () => {
+        SystemNotifications.notifyNewMessage(notificationJSON.type,
+                                             notificationJSON.message,
+                                             notificationJSON.link,
+                                             notificationJSON.linkText);
+        SystemNotifications.notifyNewMessage(notificationJSON.type,
+                                             notificationJSON.message,
+                                             notificationJSON.link,
+                                             notificationJSON.linkText);
+        const fromBrowserLocalStorage = JSON.parse(localStorage.getItem("system_notifications") || "[]");
+        expect(fromBrowserLocalStorage.length).toBe(1);
+        expect(fromBrowserLocalStorage[0].message).toBe(notificationJSON.message);
+        expect(fromBrowserLocalStorage[0].type).toBe(notificationJSON.type);
+        expect(fromBrowserLocalStorage[0].link).toBe(notificationJSON.link);
+        expect(fromBrowserLocalStorage[0].linkText).toBe(notificationJSON.linkText);
+        expect(fromBrowserLocalStorage[0].id).not.toBeUndefined();
+      });
   });
 
   describe("SystemNotifications.Notification.markAsRead", () => {
@@ -136,7 +145,8 @@ describe("SystemNotifications", () => {
       const notification = Notification.fromJSON(allNotificationsJSON[0]);
       notification.markAsRead();
 
-      const reloadedSystemNotifications = SystemNotifications.fromJSON(JSON.parse(localStorage.getItem("system_notifications") || "[]"));
+      const reloadedSystemNotifications = SystemNotifications.fromJSON(JSON.parse(localStorage.getItem(
+        "system_notifications") || "[]"));
 
       const actualNotification1 = reloadedSystemNotifications.find((n) => {
         return n.id === allNotificationsJSON[0].id;

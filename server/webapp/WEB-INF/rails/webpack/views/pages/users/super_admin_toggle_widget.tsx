@@ -15,15 +15,15 @@
  */
 
 import {MithrilComponent} from "jsx/mithril-component";
-import * as m from "mithril";
-import * as stream from "mithril/stream";
+import m from "mithril";
 import {Stream} from "mithril/stream";
+import stream from "mithril/stream";
 import {User} from "models/users/users";
 import {SwitchBtn} from "views/components/switch";
 import * as Tooltip from "views/components/tooltip";
 import {TooltipSize} from "views/components/tooltip";
 import {UserViewHelper} from "views/pages/users/user_view_helper";
-import * as styles from "./index.scss";
+import styles from "./index.scss";
 
 interface ToggleAdminOperation<T> {
   onToggleAdmin: (e: MouseEvent, obj: T) => void;

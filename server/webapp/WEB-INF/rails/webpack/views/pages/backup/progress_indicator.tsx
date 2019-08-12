@@ -15,10 +15,10 @@
  */
 
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as m from "mithril";
+import m from "mithril";
 import {BackupProgressStatus, BackupStatus} from "models/backups/types";
 import {FlashMessage, MessageType} from "views/components/flash_message";
-import * as styles from "./progress_indicator.scss";
+import styles from "./progress_indicator.scss";
 
 export interface Attrs {
   status: BackupStatus;

@@ -16,16 +16,16 @@
 import {bind} from "classnames/bind";
 import * as clipboard from "clipboard-polyfill";
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as _ from "lodash";
-import * as m from "mithril";
+import _ from "lodash";
+import m from "mithril";
 import {TriStateCheckbox} from "models/tri_state_checkbox";
-import * as s from "underscore.string";
-import * as uuid from "uuid/v4";
+import s from "underscore.string";
+import uuid from "uuid/v4";
 import {OnClickHandler} from "views/components/buttons";
 import * as Buttons from "views/components/buttons";
 import {EncryptedValue} from "views/components/forms/encrypted_value";
 import {SwitchBtn} from "views/components/switch";
-import * as styles from "./forms.scss";
+import styles from "./forms.scss";
 
 const classnames = bind(styles);
 

@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as _ from "lodash";
-import * as m from "mithril";
+import _ from "lodash";
+import m from "mithril";
 import {ElasticAgentProfiles} from "models/elastic_profiles/types";
 import {Extension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import * as simulateEvent from "simulate-event";
 import * as collapsiblePanelStyles from "views/components/collapsible_panel/index.scss";
 import {TestData} from "views/pages/elastic_agent_configurations/spec/test_data";
 import {TestHelper} from "views/pages/spec/test_helper";
@@ -25,7 +26,6 @@ import {ElasticProfilesWidget} from "../elastic_profiles_widget";
 
 describe("Elastic Agent Profiles Widget", () => {
   const helper        = new TestHelper();
-  const simulateEvent = require("simulate-event");
 
   const pluginInfo = PluginInfo.fromJSON(TestData.dockerPluginJSON(), TestData.dockerPluginJSON()._links);
 

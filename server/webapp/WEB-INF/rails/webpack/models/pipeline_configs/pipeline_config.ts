@@ -15,10 +15,10 @@
  */
 
 import {ApiRequestBuilder, ApiVersion} from "helpers/api_request_builder";
-import JsonUtils from "helpers/json_utils";
-import SparkRoutes from "helpers/spark_routes";
+import {JsonUtils} from "helpers/json_utils";
+import {SparkRoutes} from "helpers/spark_routes";
 import {Stream} from "mithril/stream";
-import * as stream from "mithril/stream";
+import stream from "mithril/stream";
 import {Material} from "models/materials/types";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {NameableSet} from "./nameable_set";

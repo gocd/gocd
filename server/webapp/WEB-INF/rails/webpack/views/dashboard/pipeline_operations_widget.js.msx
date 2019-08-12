@@ -14,19 +14,17 @@
  * limitations under the License.
  */
 
-const m             = require('mithril');
-const Stream        = require('mithril/stream');
-const f             = require('helpers/form_helper');
-const TimeFormatter = require('helpers/time_formatter');
+import m from "mithril";
+import Stream from "mithril/stream";
+import {f} from "helpers/form_helper";
+import {timeFormatter} from "helpers/time_formatter";
+import {TriggerWithOptionsInfo} from "models/dashboard/trigger_with_options_info";
+import {Modal} from "views/shared/new_modal";
+import {PipelinePauseModalBody} from "views/dashboard/pipeline_pause_modal_body";
+import {TriggerWithOptionsVM} from "views/dashboard/models/trigger_with_options_vm";
+import {ModalBody as PipelineTriggerWithOptionsModalBody} from "views/dashboard/trigger_with_options/modal_body";
 
-const TriggerWithOptionsInfo = require('models/dashboard/trigger_with_options_info');
-
-const Modal                               = require('views/shared/new_modal');
-const PipelinePauseModalBody              = require('views/dashboard/pipeline_pause_modal_body');
-const TriggerWithOptionsVM                = require('views/dashboard/models/trigger_with_options_vm');
-const PipelineTriggerWithOptionsModalBody = require('views/dashboard/trigger_with_options/modal_body');
-
-const PipelineOperationsWidget = {
+export const PipelineOperationsWidget = {
   oninit(vnode) {
     const self              = vnode.state;
     const operationMessages = vnode.attrs.operationMessages;
@@ -195,8 +193,8 @@ const PipelineOperationsWidget = {
     if (pipeline.isPaused) {
       let pausedTimeMsg;
       if (pipeline.pausedAt) {
-        const pausedAtLocalTime  = TimeFormatter.format(pipeline.pausedAt);
-        const pausedAtServerTime = TimeFormatter.formatInServerTime(pipeline.pausedAt);
+        const pausedAtLocalTime  = timeFormatter.format(pipeline.pausedAt);
+        const pausedAtServerTime = timeFormatter.formatInServerTime(pipeline.pausedAt);
         pausedTimeMsg            = <div title={pausedAtServerTime}>on {pausedAtLocalTime}</div>;
       }
       pipelinePauseMessage = (<div
@@ -233,5 +231,3 @@ const PipelineOperationsWidget = {
     );
   }
 };
-
-module.exports = PipelineOperationsWidget;

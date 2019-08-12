@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {TriggerWithOptionsVM} from "views/dashboard/models/trigger_with_options_vm";
+import {TriggerWithOptionsInfo} from "models/dashboard/trigger_with_options_info";
+
 describe("Dashboard Trigger With Options View Model", () => {
-  const TriggerWithOptionsVM   = require("views/dashboard/models/trigger_with_options_vm");
-  const TriggerWithOptionsInfo = require('models/dashboard/trigger_with_options_info');
 
   describe('initialize', () => {
     let vm;

@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const Stream         = require('mithril/stream');
-const _              = require('lodash');
-const s              = require('string-plus');
-const Mixins         = require('models/mixins/model_mixins');
-const EncryptedValue = function (data) {
+import Stream from "mithril/stream";
+import _ from "lodash";
+import {mixins as s} from "helpers/string-plus";
+import {Mixins} from "models/mixins/model_mixins";
+
+export const EncryptedValue = function (data) {
   this.constructor.modelType = 'encryptedValue';
   Mixins.HasUUID.call(this);
 
@@ -90,4 +91,3 @@ const EncryptedValue = function (data) {
   };
 };
 
-module.exports = EncryptedValue;

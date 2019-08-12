@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-const _          = require("lodash");
-const Stream     = require("mithril/stream");
-const AjaxHelper = require("helpers/ajax_helper");
+import _ from "lodash";
+import {SparkRoutes} from "helpers/spark_routes";
+import Stream from "mithril/stream";
+import {AjaxHelper} from "helpers/ajax_helper";
+import {DashboardGroups} from "models/dashboard/dashboard_groups";
+import {Pipelines} from "./pipelines";
 
-const DashboardGroups = require("models/dashboard/dashboard_groups");
-const Pipelines       = require("models/dashboard/pipelines");
-
-import SparkRoutes from "helpers/spark_routes";
-
-function Dashboard() {
+export function Dashboard() {
   let pipelineGroups = DashboardGroups.fromPipelineGroupsJSON([]);
   let environments   = DashboardGroups.fromEnvironmentsJSON([]);
   let pipelines      = Pipelines.fromJSON([]);
@@ -32,9 +30,9 @@ function Dashboard() {
   this.getPipelineGroups = () => pipelineGroups;
   this.getEnvironments   = () => environments;
 
-  this.getPipelines      = () => pipelines.pipelines;
-  this.allPipelineNames  = () => Object.keys(pipelines.pipelines);
-  this.findPipeline      = (pipelineName) => pipelines.find(pipelineName);
+  this.getPipelines     = () => pipelines.pipelines;
+  this.allPipelineNames = () => Object.keys(pipelines.pipelines);
+  this.findPipeline     = (pipelineName) => pipelines.find(pipelineName);
 
   this.initialize = (json, showEmptyGroups) => {
     const newPipelineGroups = DashboardGroups.fromPipelineGroupsJSON(_.get(json, '_embedded.pipeline_groups', []), showEmptyGroups);
@@ -42,7 +40,11 @@ function Dashboard() {
     const newPipelines      = Pipelines.fromJSON(_.get(json, '_embedded.pipelines', []));
 
     const pipelinesNoEnv = _.difference(Object.keys(newPipelines.pipelines), _.reduce(newEnvironments.groups, (memo, group) => memo.concat(group.pipelines), []));
-    newEnvironments.groups.push(new DashboardGroups.Environment({name: null, can_administer: false, pipelines: pipelinesNoEnv})); // eslint-disable-line camelcase
+    newEnvironments.groups.push(new DashboardGroups.Environment({
+      name:           null,
+      can_administer: false,// eslint-disable-line camelcase
+      pipelines:      pipelinesNoEnv
+    }));
 
     //set it on the current object only on a successful deserialization of both pipeline groups and pipelines
     pipelineGroups = newPipelineGroups;
@@ -55,10 +57,9 @@ Dashboard.API_VERSION = "v4";
 
 Dashboard.get = (viewName, etag, allowEmpty) => {
   return AjaxHelper.GET({
-    url: SparkRoutes.showDashboardPath(viewName, !!allowEmpty),
+    url:        SparkRoutes.showDashboardPath(viewName, !!allowEmpty),
     apiVersion: Dashboard.API_VERSION,
     etag
   });
 };
 
-module.exports = Dashboard;

@@ -13,21 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as _ from "lodash";
-import * as m from "mithril";
+import _ from "lodash";
+import m from "mithril";
 import {ElasticAgentProfile} from "models/elastic_profiles/types";
 import {Extension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
-
+import * as simulateEvent from "simulate-event";
 import * as collapsiblePanelStyles from "views/components/collapsible_panel/index.scss";
 import * as keyValuePairStyles from "views/components/key_value_pair/index.scss";
 import {TestData} from "views/pages/elastic_agent_configurations/spec/test_data";
 import {TestHelper} from "views/pages/spec/test_helper";
-
 import {ElasticProfileWidget} from "../elastic_profiles_widget";
 
 describe("New Elastic Agent Profile Widget", () => {
-  const simulateEvent  = require("simulate-event");
+
   const pluginInfo     = PluginInfo.fromJSON(TestData.dockerPluginJSON(), TestData.dockerPluginJSON()._links);
   const elasticProfile = ElasticAgentProfile.fromJSON(TestData.dockerElasticProfile());
   const helper         = new TestHelper();

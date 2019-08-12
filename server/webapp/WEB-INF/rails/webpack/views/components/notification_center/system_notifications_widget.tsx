@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 import {MithrilComponent} from "jsx/mithril-component";
-import * as m from "mithril";
+import m from "mithril";
 import {Stream} from "mithril/stream";
 import {Notification, SystemNotifications} from "models/notifications/system_notifications";
 import {SystemNotificationWidget} from "views/components/notification_center/system_notification_widget";
-
-const styles                   = require("./system_notifications.scss");
+import styles from "./system_notifications.scss";
 
 interface Attrs {
   systemNotifications: Stream<SystemNotifications>;

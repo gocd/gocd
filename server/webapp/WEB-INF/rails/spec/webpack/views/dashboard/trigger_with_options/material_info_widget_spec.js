@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 import {TestHelper} from "../../../../../webpack/views/pages/spec/test_helper";
+import {timeFormatter} from "helpers/time_formatter";
+import {MaterialInfoWidget} from "views/dashboard/trigger_with_options/material_info_widget";
+import {TriggerWithOptionsInfo} from "models/dashboard/trigger_with_options_info";
+import m from "mithril";
 
 describe("Dashboard Trigger With Options Material Info Widget", () => {
-  const m = require("mithril");
 
-  const TriggerWithOptionsInfo = require('models/dashboard/trigger_with_options_info');
-  const MaterialInfoWidget     = require("views/dashboard/trigger_with_options/material_info_widget");
-  const TimeFormatter          = require('helpers/time_formatter');
 
   const helper = new TestHelper();
   afterEach(helper.unmount.bind(helper));
@@ -53,7 +53,7 @@ describe("Dashboard Trigger With Options Material Info Widget", () => {
 
     expect(helper.find('.name-value .destination')).toContainText(material.folder);
 
-    expect(helper.find('.name-value .date')).toContainText(TimeFormatter.format(material.revision.date));
+    expect(helper.find('.name-value .date')).toContainText(timeFormatter.format(material.revision.date));
 
     expect(helper.find('.name-value .user')).toContainText(material.revision.user);
 

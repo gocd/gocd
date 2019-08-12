@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const m                     = require('mithril');
-const AgentStateCountWidget = require('views/agents/agent_state_count_widget');
-const AgentRowWidget        = require('views/agents/agent_row_widget');
-const AgentTableHeader      = require('views/agents/agent_table_header');
-const ButtonRowWidget       = require('views/agents/button_row_widget');
+import m from "mithril";
+import {AgentStateCountWidget} from "views/agents/agent_state_count_widget";
+import {AgentRowWidget} from "views/agents/agent_row_widget";
+import {AgentsTableHeader} from "views/agents/agent_table_header";
+import {ButtonRowWidget} from "views/agents/button_row_widget";
+import Stream from "mithril/stream";
+import _ from "lodash";
 
-const Stream = require('mithril/stream');
-const _      = require('lodash');
-
-const AgentsWidget = {
+export const AgentsWidget = {
   oninit(vnode) {
     const args = vnode.attrs;
 
@@ -211,7 +210,7 @@ const AgentsWidget = {
         <div class={_.join(classForTableBody, ' ').trim()}>
           <div class="agents-table-container">
             <table class="agents-table stack">
-              <AgentTableHeader
+              <AgentsTableHeader
                 shouldShowAnalyticsIcon={args.shouldShowAnalyticsIcon}
                 sortOrder={args.sortOrder}
                 onCheckboxClick={ctrl.selectAllAgents.bind(ctrl)}
@@ -246,4 +245,3 @@ const AgentsWidget = {
   }
 };
 
-module.exports = AgentsWidget;

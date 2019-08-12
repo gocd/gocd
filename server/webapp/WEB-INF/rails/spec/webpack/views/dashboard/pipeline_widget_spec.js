@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 import {TestHelper} from "views/pages/spec/test_helper";
+import {Modal} from "views/shared/new_modal";
+import {DashboardViewModel as DashboardVM} from "views/dashboard/models/dashboard_view_model";
+import {Dashboard} from "models/dashboard/dashboard";
+import {Pipelines} from "models/dashboard/pipelines";
+import {PipelineWidget} from "views/dashboard/pipeline_widget";
+import {timeFormatter} from "helpers/time_formatter";
+import simulateEvent from "simulate-event";
+import $ from "jquery";
+import _ from "lodash";
+import m from "mithril";
+import "jasmine-ajax";
 
 describe("Dashboard Pipeline Widget", () => {
-  const m             = require("mithril");
-  const _             = require("lodash");
-  const $             = require('jquery');
-  const simulateEvent = require('simulate-event');
-  const TimeFormatter = require('helpers/time_formatter');
-  require('jasmine-ajax');
 
-  const PipelineWidget = require("views/dashboard/pipeline_widget");
-  const Pipelines      = require('models/dashboard/pipelines');
-  const Dashboard      = require('models/dashboard/dashboard');
-  const DashboardVM    = require("views/dashboard/models/dashboard_view_model");
-  const Modal          = require('views/shared/new_modal');
   const pipelineName   = 'up42';
 
   let dashboardViewModel, dashboard, pipelinesJson, dashboardJSON, pipeline, doCancelPolling,
@@ -358,8 +358,8 @@ describe("Dashboard Pipeline Widget", () => {
         expect(doRefreshImmediately).toHaveBeenCalled();
 
         expect(helper.find('.pipeline_pause-message')).toBeInDOM();
-        expect(helper.find('.pipeline_pause-message')).toContainText(`on ${TimeFormatter.format(pauseInfo.paused_at)}`);
-        expect(helper.find('.pipeline_pause-message div').get(0).title).toEqual(TimeFormatter.formatInServerTime(pauseInfo.paused_at));
+        expect(helper.find('.pipeline_pause-message')).toContainText(`on ${timeFormatter.format(pauseInfo.paused_at)}`);
+        expect(helper.find('.pipeline_pause-message div').get(0).title).toEqual(timeFormatter.formatInServerTime(pauseInfo.paused_at));
         expect(helper.find('.pipeline_message')).toContainText(responseMessage);
         expect(helper.find('.pipeline_message')).toHaveClass("success");
       });

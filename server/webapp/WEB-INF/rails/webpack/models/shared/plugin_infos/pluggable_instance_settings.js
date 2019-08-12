@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const _      = require('lodash');
-const Stream = require('mithril/stream');
-const Mixins = require('models/mixins/model_mixins');
+import _ from "lodash";
+import Stream from "mithril/stream";
+import {Mixins} from "models/mixins/model_mixins";
 
-const PluggableInstanceSettings = function({viewTemplate, configurations}) {
+export const PluggableInstanceSettings = function({viewTemplate, configurations}) {
   this.viewTemplate   = Stream(viewTemplate);
   this.configurations = Stream(configurations);
 
@@ -65,5 +65,3 @@ Mixins.fromJSONCollection({
   via:        'addConfiguration'
 });
 
-
-module.exports = PluggableInstanceSettings;

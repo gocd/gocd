@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as m from "mithril";
+import m from "mithril";
 import {Notification, SystemNotifications} from "models/notifications/system_notifications";
 import {Attrs, SiteHeader} from "views/pages/partials/site_header";
 import {TestHelper} from "views/pages/spec/test_helper";
-import * as styles from "../site_header.scss";
+import styles from "../site_header.scss";
 
 describe("Site Header", () => {
 

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import Page from "helpers/spa_base";
+import {Page} from "helpers/spa_base";
 import {PluginsPage} from "views/pages/plugins";
 
 export class PluginsSPA extends Page {

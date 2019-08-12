@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import * as m from "mithril";
+import m from "mithril";
 import {Stage} from "models/pipeline_configs/stage";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {StageEditor} from "../stage_editor";

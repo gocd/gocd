@@ -16,15 +16,15 @@
 
 import classnames from "classnames";
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as m from "mithril";
+import m from "mithril";
 import {Stream} from "mithril/stream";
-import * as stream from "mithril/stream";
+import stream from "mithril/stream";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {DefaultTemplatesCache, TemplateCache} from "models/pipeline_configs/templates_cache";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Option, SelectField, SelectFieldOptions} from "views/components/forms/input_fields";
 import {SwitchBtn} from "views/components/switch/index";
-import * as css from "./template_editor.scss";
+import css from "./template_editor.scss";
 
 interface Attrs {
   pipelineConfig: PipelineConfig;

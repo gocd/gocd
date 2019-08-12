@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import * as m from "mithril";
-import * as stream from "mithril/stream";
+import m from "mithril";
+import stream from "mithril/stream";
 import {SecretConfigs} from "models/secret_configs/secret_configs";
 import {secretConfigsTestData} from "models/secret_configs/spec/test_data";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";

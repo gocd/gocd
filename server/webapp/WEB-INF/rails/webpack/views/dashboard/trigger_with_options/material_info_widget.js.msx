@@ -13,13 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const $ = require('jquery');
-const m = require('mithril');
+import $ from "jquery";
+import m from "mithril";
+import {timeFormatter} from "helpers/time_formatter";
+import {MaterialSearchResultsWidget} from "views/dashboard/trigger_with_options/material_search_results_widget";
 
-const TimeFormatter               = require('helpers/time_formatter');
-const MaterialSearchResultsWidget = require('views/dashboard/trigger_with_options/material_search_results_widget');
-
-const MaterialInfoWidget = {
+export const MaterialInfoWidget = {
   oninit(vnode) {
     vnode.attrs.material.performSearch();
   },
@@ -52,7 +51,7 @@ const MaterialInfoWidget = {
 
     if (material.revision.revision) {
       comment = material.revision.comment ? material.revision.comment : <em>not specified</em>;
-      date    = material.revision.date ? TimeFormatter.format(material.revision.date) : <em>not specified</em>;
+      date    = material.revision.date ? timeFormatter.format(material.revision.date) : <em>not specified</em>;
       lastRun = material.revision.revision ? material.revision.revision : <em>not specified</em>;
       user    = material.revision.user ? material.revision.user : <em>not specified</em>;
     }
@@ -115,6 +114,3 @@ const MaterialInfoWidget = {
     );
   }
 };
-
-
-module.exports = MaterialInfoWidget;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import * as m from "mithril";
+import m from "mithril";
 import {AccessTokens} from "models/access_tokens/types";
 import {AccessTokensPage} from "views/pages/access_tokens";
 import {PageState} from "views/pages/page";

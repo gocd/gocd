@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-import * as m from "mithril";
+import filesize from "filesize";
+import m from "mithril";
 import {ServerInfoWidget} from "views/pages/server_info/server_info_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
-
-const filesize = require("filesize");
 
 describe("Server Info Widget", () => {
   const helper = new TestHelper();

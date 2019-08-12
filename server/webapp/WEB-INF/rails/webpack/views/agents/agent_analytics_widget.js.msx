@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const _ = require('lodash');
-const m = require('mithril');
+import _ from "lodash";
+import m from "mithril";
+import Interactions from "models/shared/analytics_interaction_manager";
+import PluginEndpoint from "rails-shared/plugin-endpoint";
+import {Modal} from "views/shared/new_modal";
+import {AnalyticsiFrameWidget} from "views/shared/analytics_iframe_widget";
+import PluginEndpointRequestHandler from "rails-shared/plugin-endpoint-request-handler";
 
-const Interactions                 = require("models/shared/analytics_interaction_manager");
 const Models                       = Interactions.ensure().ns("AgentMetrics");
-const PluginEndpoint               = require('rails-shared/plugin-endpoint');
-const Modal                        = require('views/shared/new_modal');
-const AnalyticsiFrameWidget        = require('views/shared/analytics_iframe_widget');
-const PluginEndpointRequestHandler = require('rails-shared/plugin-endpoint-request-handler');
 
 function createModel(index, pluginId, metric, agent) {
   const uid    = Models.uid(index, pluginId, "agent", metric),
@@ -68,8 +68,7 @@ function createModal(supportedAnalytics, agent) {
   modal.render();
 }
 
-
-const AgentAnalyticsWidget = {
+export const AgentAnalyticsWidget = {
   view: (vnode) => {
     return m("a", {
       class:   "agent-analytics",
@@ -80,4 +79,3 @@ const AgentAnalyticsWidget = {
   }
 };
 
-module.exports = AgentAnalyticsWidget;

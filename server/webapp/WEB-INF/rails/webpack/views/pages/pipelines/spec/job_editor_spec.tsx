@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import * as m from "mithril";
+import m from "mithril";
 import {Job} from "models/pipeline_configs/job";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {JobEditor} from "../job_editor";

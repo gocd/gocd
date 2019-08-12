@@ -15,21 +15,21 @@
  */
 
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as _ from "lodash";
-import * as m from "mithril";
+import _ from "lodash";
+import m from "mithril";
 import {AuthConfigs} from "models/auth_configs/auth_configs";
 import {GoCDRole, PluginAttributes, PluginRole, Roles} from "models/roles/roles";
 import {Configuration} from "models/shared/configuration";
 import {Extension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
-import * as s from "underscore.string";
+import s from "underscore.string";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {HeaderIcon} from "views/components/header_icon";
 import {Clone, Delete, Edit, IconGroup} from "views/components/icons";
 import {KeyValuePair} from "views/components/key_value_pair";
 import {CloneOperation, DeleteOperation, EditOperation} from "views/pages/page_operations";
 import {UsersWidget} from "views/pages/roles/users_widget";
-import * as styles from "./index.scss";
+import styles from "./index.scss";
 
 const gocdIcon = require("../../../../app/assets/images/gocd.svg");
 

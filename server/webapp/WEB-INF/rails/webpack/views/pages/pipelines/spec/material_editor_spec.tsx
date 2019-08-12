@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import * as m from "mithril";
+import m from "mithril";
 import {GitMaterialAttributes, Material, P4MaterialAttributes} from "models/materials/types";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {MaterialEditor} from "../material_editor";

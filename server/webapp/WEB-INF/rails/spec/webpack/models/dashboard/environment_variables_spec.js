@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {EnvironmentVariables} from "models/dashboard/environment_variables";
+
 describe("Dashboard", () => {
   describe('Environment Variables Model', () => {
 
-    const EnvironmentVariables = require('models/dashboard/environment_variables');
 
     it("should deserialize from json", () => {
       const envVars = EnvironmentVariables.fromJSON(json);

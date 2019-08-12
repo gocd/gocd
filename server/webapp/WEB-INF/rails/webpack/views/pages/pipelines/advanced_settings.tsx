@@ -16,8 +16,8 @@
 
 import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as m from "mithril";
-import * as css from "./advanced_settings.scss";
+import m from "mithril";
+import css from "./advanced_settings.scss";
 
 const cls = bind(css);
 

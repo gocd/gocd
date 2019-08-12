@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as $ from "jquery";
-import * as m from "mithril";
+import $ from "jquery";
+import m from "mithril";
 import * as simulateEvent from "simulate-event";
 import {Page} from "views/pages/page";
 

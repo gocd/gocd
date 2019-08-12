@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 import {HTMLAttributes} from "jsx/dom";
-import * as _ from "lodash";
-import * as m from "mithril";
+import _ from "lodash";
+import m from "mithril";
 
 import {MithrilViewComponent} from "jsx/mithril-component";
 
 import classnames from "classnames";
-import * as styles from "./index.scss";
+import styles from "./index.scss";
 
 export interface Attrs extends HTMLAttributes {
   onclick?: (e: MouseEvent) => void;

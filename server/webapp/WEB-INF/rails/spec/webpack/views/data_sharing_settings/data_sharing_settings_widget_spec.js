@@ -16,14 +16,14 @@
 import {UsageData} from "models/shared/data_sharing/usage_data";
 import {DataSharingSettings} from "models/shared/data_sharing/data_sharing_settings";
 import {TestHelper} from "views/pages/spec/test_helper";
+import {DataSharingSettingsWidget} from "views/data_sharing_settings/data_sharing_settings_widget";
+import simulateEvent from "simulate-event";
+import m from "mithril";
+import $ from "jquery";
 
 describe("Data Sharing Settings Widget", () => {
-  const $             = require("jquery");
-  const m             = require("mithril");
-  const simulateEvent = require('simulate-event');
   const helper        = new TestHelper();
 
-  const DataSharingSettingsWidget = require("views/data_sharing_settings/data_sharing_settings_widget");
 
   afterEach(helper.unmount.bind(helper));
 

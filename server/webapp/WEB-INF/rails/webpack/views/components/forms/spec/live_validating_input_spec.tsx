@@ -15,10 +15,10 @@
  */
 
 import {asSelector} from "helpers/css_proxies";
-import * as m from "mithril";
-import * as stream from "mithril/stream";
+import m from "mithril";
+import stream from "mithril/stream";
 import {TestHelper} from "views/pages/spec/test_helper";
-import * as css from "../forms.scss";
+import css from "../forms.scss";
 import {LiveValidatingInputField} from "../live_validating_input";
 
 describe("LiveValidatingInputField", () => {

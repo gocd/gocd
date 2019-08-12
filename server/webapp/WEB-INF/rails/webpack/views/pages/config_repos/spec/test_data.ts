@@ -18,7 +18,7 @@ import {ObjectCache} from "models/base/cache";
 import {DefinedStructures} from "models/config_repos/defined_structures";
 import {ConfigRepo} from "models/config_repos/types";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
-import * as uuid from "uuid/v4";
+import uuid from "uuid/v4";
 
 class MockCache implements ObjectCache<DefinedStructures> {
   ready: () => boolean;

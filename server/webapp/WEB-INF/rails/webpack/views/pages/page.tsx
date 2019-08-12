@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import {MithrilComponent} from "jsx/mithril-component";
-import * as m from "mithril";
+import m from "mithril";
 import {FlashMessageModelWithTimeout} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
 import {PageLoadError} from "views/components/page_load_error";

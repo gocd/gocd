@@ -15,8 +15,8 @@
  */
 
 import {ApiRequestBuilder, ApiResult, ApiVersion} from "helpers/api_request_builder";
-import JsonUtils from "helpers/json_utils";
-import SparkRoutes from "helpers/spark_routes";
+import {JsonUtils} from "helpers/json_utils";
+import {SparkRoutes} from "helpers/spark_routes";
 import {MailServer} from "models/mail_server/types";
 
 export class MailServerCrud {

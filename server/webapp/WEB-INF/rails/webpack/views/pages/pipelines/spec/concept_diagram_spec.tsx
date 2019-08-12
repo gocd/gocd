@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import * as m from "mithril";
+import m from "mithril";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {ConceptDiagram} from "../concept_diagram";
 

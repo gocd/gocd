@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const m      = require('mithril');
-const _      = require('lodash');
-const $      = require('jquery');
-const Stream = require('mithril/stream');
+import m from "mithril";
+import _ from "lodash";
+import $ from "jquery";
+import Stream from "mithril/stream";
 
 function selectionChange(model, attrName, state, event) {
   model[attrName]($(event.target).attr('data-id'));
@@ -42,7 +42,7 @@ function getSelectedText(options, model, attrName) {
   return _.find(options, (item) => item.id === model[attrName]()).text;
 }
 
-class Dropdown {
+export class Dropdown {
 
   oncreate(vnode) {
     window.addEventListener('click', hideOnBlur.bind(this, vnode.dom, vnode.state));
@@ -84,4 +84,3 @@ class Dropdown {
   }
 }
 
-module.exports = Dropdown;

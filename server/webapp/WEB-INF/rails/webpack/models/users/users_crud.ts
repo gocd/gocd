@@ -15,7 +15,7 @@
  */
 
 import {ApiRequestBuilder, ApiResult, ApiVersion} from "helpers/api_request_builder";
-import SparkRoutes from "helpers/spark_routes";
+import {SparkRoutes} from "helpers/spark_routes";
 import {BulkUserOperationJSON, BulkUserUpdateJSON, User, UserJSON, Users, UsersJSON} from "models/users/users";
 
 export class UsersCRUD {

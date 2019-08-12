@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const m             = require('mithril');
-const _             = require('lodash');
-const TimeFormatter = require('helpers/time_formatter');
-
-const CommentWidget = require('views/dashboard/comment_render_widget');
+import m from "mithril";
+import _ from "lodash";
+import {timeFormatter as TimeFormatter} from "helpers/time_formatter";
+import {CommentRenderWidget} from "views/dashboard/comment_render_widget";
 
 const PipelineModificationWidget = (modification) => {
   const modifiedAtLocalTime  = TimeFormatter.format(modification.modifiedTime);
@@ -47,7 +46,7 @@ const SCMModificationWidget = (modification, trackingTool) => {
       <span>{modification.username}</span>
       <span title={modifiedAtServerTime}>{modifiedAtLocalTime}</span>
     </div>
-    <CommentWidget text={modification.comment} trackingTool={trackingTool}/>
+    <CommentRenderWidget text={modification.comment} trackingTool={trackingTool}/>
     <div class="item revision">
       <span class="revision_id wrapped_word">{modification.revision}</span>
       {' '}-{' '}
@@ -56,7 +55,7 @@ const SCMModificationWidget = (modification, trackingTool) => {
   </div>);
 };
 
-const MaterialRevisionWidget = {
+export const MaterialRevisionWidget = {
   oninit(_vnode) {
     const self = this;
 
@@ -83,5 +82,3 @@ const MaterialRevisionWidget = {
     </div>);
   }
 };
-
-module.exports = MaterialRevisionWidget;

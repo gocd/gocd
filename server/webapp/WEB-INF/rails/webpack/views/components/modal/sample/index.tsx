@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as m from 'mithril';
+import m from 'mithril';
 import * as Buttons from "../../buttons";
 import {Modal, Size} from "../index";
-import * as styles from './index.scss';
+import styles from './index.scss';
 import {Sample2} from "./sample2";
 
 export class SampleModal extends Modal {

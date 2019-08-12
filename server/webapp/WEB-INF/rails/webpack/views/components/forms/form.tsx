@@ -15,8 +15,8 @@
  */
 import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as m from "mithril";
-import * as styles from "./forms.scss";
+import m from "mithril";
+import styles from "./forms.scss";
 
 const classnames = bind(styles);
 

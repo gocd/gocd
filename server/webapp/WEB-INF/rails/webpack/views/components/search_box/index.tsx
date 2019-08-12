@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as m from 'mithril';
-import * as style from './index.scss';
+import m from 'mithril';
+import style from './index.scss';
 
-const f = require("helpers/form_helper");
+const f = require('helpers/form_helper').f;
 
 export interface Attrs {
   disabled?: boolean;

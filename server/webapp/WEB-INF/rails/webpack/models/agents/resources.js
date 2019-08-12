@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import sparkRoutes from "helpers/spark_routes";
+import {SparkRoutes} from "helpers/spark_routes";
 
-const $                = require('jquery');
-const _                = require('lodash');
-const mrequest         = require('helpers/mrequest');
-const TriStateCheckbox = require('models/agents/tri_state_checkbox');
+import {TriStateCheckbox} from "models/agents/tri_state_checkbox";
+import {mrequest} from "helpers/mrequest";
+import _ from "lodash";
+import $ from "jquery";
 
 const getSortedResources = (resources, selectedAgents) => {
   const selectedAgentsResources = _.map(selectedAgents, (agent) => agent.resources());
@@ -27,14 +27,14 @@ const getSortedResources = (resources, selectedAgents) => {
   return _.map(resources.sort(), (resource) => new TriStateCheckbox(resource, selectedAgentsResources));
 };
 
-const Resources = {};
+export const Resources = {};
 
 Resources.all = (selectedAgents) => $.Deferred(function () {
   const deferred = this;
 
   const jqXHR = $.ajax({
     method:      'GET',
-    url:         sparkRoutes.apiAdminInternalResourcesPath(),
+    url:         SparkRoutes.apiAdminInternalResourcesPath(),
     timeout:     mrequest.timeout,
     beforeSend:  mrequest.xhrConfig.forVersion('v1'),
     contentType: false
@@ -51,4 +51,3 @@ Resources.all = (selectedAgents) => $.Deferred(function () {
   jqXHR.then(didFulfill, didReject);
 }).promise();
 
-module.exports = Resources;

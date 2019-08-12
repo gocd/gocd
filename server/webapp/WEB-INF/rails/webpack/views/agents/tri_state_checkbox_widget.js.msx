@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import m from "mithril";
 import * as Tooltip from "views/components/tooltip";
+import _ from "lodash";
 
-const m = require('mithril');
-const _ = require('lodash');
-
-const TriStateCheckboxWidget = {
+export const TriStateCheckboxWidget = {
   view(vnode) {
     const args = vnode.attrs;
     let tooltip;
@@ -47,4 +47,3 @@ const TriStateCheckboxWidget = {
   }
 };
 
-module.exports = TriStateCheckboxWidget;

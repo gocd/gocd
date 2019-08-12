@@ -13,79 +13,76 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-;(function() { // eslint-disable-line no-extra-semi
-  "use strict";
+import m from "mithril";
+import Stream from "mithril/stream";
+import _ from "lodash";
+import {f} from "helpers/form_helper";
 
-  const m  = require("mithril"),
-    Stream = require("mithril/stream"),
-    _      = require("lodash"),
-    f      = require("helpers/form_helper");
+function EmailSettingsFormEditableState(model, smtpEnabled) {
+  const readonly    = this.readonly = Stream(true);
+  this.rejectToggle = readonly.map((value) => !smtpEnabled || value);
 
-  function EmailSettingsFormEditableState(model, smtpEnabled) {
-    const readonly    = this.readonly = Stream(true);
-    this.rejectToggle = readonly.map((value) => !smtpEnabled || value);
+  this.enterEditMode = function enterEditMode(e) {
+    if (e) {
+      e.preventDefault();
+    }
 
-    this.enterEditMode = function enterEditMode(e) {
-      if (e) {
-        e.preventDefault();
-      }
+    readonly(false);
+    model.reset();
+  };
 
-      readonly(false);
-      model.reset();
-    };
+  this.exitEditMode = function exitEditMode(e) {
+    if (e) {
+      e.preventDefault();
+    }
 
-    this.exitEditMode = function exitEditMode(e) {
-      if (e) {
-        e.preventDefault();
-      }
+    readonly(true);
+    model.reset();
+  };
+}
 
-      readonly(true);
-      model.reset();
-    };
+export const EmailSettingsWidget = {
+  oninit(vnode) {
+    const model = vnode.attrs.model;
+    this.es     = new EmailSettingsFormEditableState(model, vnode.attrs.smtpEnabled);
+    model.load();
+  },
+
+  view(vnode) {
+    const model    = vnode.attrs.model,
+          readonly = this.es.readonly();
+
+    return <form {...model.config({class: "email-settings"}, this.es.exitEditMode)}>
+      <legend>Email Settings</legend>
+      <fieldset>
+        <LockableInput name="email" label="Email" type="email" model={model} attrName="email" readonly={readonly}
+                       placeholder="Email not set"/>
+        <f.checkbox name="email_me" label="Enable email notification" model={model} attrName="enableNotifications"
+                    disabled={this.es.rejectToggle()}/>
+        <LockableInput name="checkin_aliases" label="My check-in aliases" model={model} attrName="checkinAliases"
+                       readonly={readonly} placeholder="No matchers defined"/>
+      </fieldset>
+      <fieldset>
+        {readonly ? <input type="button" value="Edit" onclick={this.es.enterEditMode}/> : [
+          <input type="submit" value="Save" class="primary"/>,
+          <input type="reset" value="Cancel" onclick={this.es.exitEditMode}/>
+        ]}
+      </fieldset>
+    </form>;
   }
+};
 
-  const EmailSettingsWidget = {
-    oninit(vnode) {
-      const model = vnode.attrs.model;
-      this.es = new EmailSettingsFormEditableState(model, vnode.attrs.smtpEnabled);
-      model.load();
-    },
+const LockableInput = {
+  view(vnode) {
+    const args     = _.assign({}, vnode.attrs),
+          value    = args.model[args.attrName],
+          readonly = args.readonly;
 
-    view(vnode) {
-      const model     = vnode.attrs.model,
-        readonly      = this.es.readonly();
+    args.autocomplete = "on"; // it's nice to remember past entries for things like "email"
 
-      return <form {...model.config({class: "email-settings"}, this.es.exitEditMode)}>
-        <legend>Email Settings</legend>
-        <fieldset>
-          <LockableInput name="email" label="Email" type="email" model={model} attrName="email" readonly={readonly} placeholder="Email not set" />
-          <f.checkbox name="email_me" label="Enable email notification" model={model} attrName="enableNotifications" disabled={this.es.rejectToggle()} />
-          <LockableInput name="checkin_aliases" label="My check-in aliases" model={model} attrName="checkinAliases" readonly={readonly} placeholder="No matchers defined" />
-        </fieldset>
-        <fieldset>
-          {readonly ? <input type="button" value="Edit" onclick={this.es.enterEditMode} /> : [
-            <input type="submit" value="Save" class="primary" />,
-            <input type="reset" value="Cancel" onclick={this.es.exitEditMode} />
-          ]}
-        </fieldset>
-      </form>;
-    }
-  };
-
-  const LockableInput = {
-    view(vnode) {
-      const args = _.assign({}, vnode.attrs),
-        value    = args.model[args.attrName],
-        readonly = args.readonly;
-
-      args.autocomplete = "on"; // it's nice to remember past entries for things like "email"
-
-      return readonly ? <label>
-        <span>{args.label}</span>
-        <span class="value">{value() || args.placeholder}</span>
-      </label> : <f.input {...args} />;
-    }
-  };
-
-  module.exports = EmailSettingsWidget;
-})();
+    return readonly ? <label>
+      <span>{args.label}</span>
+      <span class="value">{value() || args.placeholder}</span>
+    </label> : <f.input {...args} />;
+  }
+};

@@ -867,7 +867,7 @@ task newSPA {
     file("${pagesBase}/${spaName}.tsx").withWriter { out ->
       def contents =
         """
-          import * as m from "mithril";
+          import m from "mithril";
           import {${entityName}} from "models/${spaName}/${spaName}";
           import {${entityName}Widget} from "views/pages/${spaName}/${spaName}_widget";
           import {Page} from "views/pages/page";

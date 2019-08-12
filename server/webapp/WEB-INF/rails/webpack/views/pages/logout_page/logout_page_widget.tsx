@@ -15,9 +15,9 @@
  */
 
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as m from "mithril";
+import m from "mithril";
 import {AuthPluginInfo} from "models/authentication/auth_plugin_info";
-import * as styles from "views/pages/login_page/login_page_widget.scss";
+import styles from "views/pages/login_page/login_page_widget.scss";
 
 const LOGIN_PAGE_URL = "/go/auth/login";
 const loggedOut      = require("./icon_loggedout.svg");

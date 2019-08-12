@@ -16,7 +16,7 @@
 import {docsUrl} from "gen/gocd_version";
 import * as Routes from "gen/ts-routes";
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as m from "mithril";
+import m from "mithril";
 import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
 import {ElasticAgentSettings, Extension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
@@ -26,7 +26,7 @@ import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {HeaderIcon} from "views/components/header_icon";
 import * as Icons from "views/components/icons";
 import {KeyValuePair, KeyValueTitle} from "views/components/key_value_pair";
-import * as styles from "./index.scss";
+import styles from "./index.scss";
 
 interface PluginHeaderAttrs {
   image: m.Children;

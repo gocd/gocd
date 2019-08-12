@@ -15,7 +15,7 @@
  */
 
 import {ApiRequestBuilder, ApiResult, ApiVersion} from "helpers/api_request_builder";
-import SparkRoutes from "helpers/spark_routes";
+import {SparkRoutes} from "helpers/spark_routes";
 import {Environments} from "models/environments/types";
 
 export class EnvironmentCRUD {

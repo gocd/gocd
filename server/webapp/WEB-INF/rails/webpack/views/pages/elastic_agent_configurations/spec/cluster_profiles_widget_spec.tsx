@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import * as _ from "lodash";
-import * as m from "mithril";
-import * as stream from "mithril/stream";
+import _ from "lodash";
+import m from "mithril";
+import stream from "mithril/stream";
 import {ClusterProfile, ClusterProfiles, ElasticAgentProfile, ElasticAgentProfiles} from "models/elastic_profiles/types";
 import {Extension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
@@ -26,7 +26,7 @@ import * as elasticProfilePageStyles from "views/pages/elastic_agent_configurati
 import {TestData} from "views/pages/elastic_agent_configurations/spec/test_data";
 import {TestHelper} from "views/pages/spec/test_helper";
 
-const simulateEvent = require("simulate-event");
+import simulateEvent from "simulate-event";
 
 describe("ClusterProfilesWidget", () => {
   const helper                                                 = new TestHelper();

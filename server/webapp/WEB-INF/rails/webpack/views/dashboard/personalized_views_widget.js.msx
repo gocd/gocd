@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const m = require("mithril");
+import m from "mithril";
+import {ScrollableViewTabs} from "views/dashboard/scrollable_view_tabs";
+import {personalizeEditor as Editor} from "views/dashboard/personalization_editor";
+import {ActionableMessage} from "views/dashboard/actionable_message";
+import {TabsListDropdown} from "views/dashboard/tabs_list_dropdown";
 
-const ScrollableViewTabs = require("views/dashboard/scrollable_view_tabs");
-const Editor             = require("views/dashboard/personalization_editor");
-const ActionableMessage  = require("views/dashboard/actionable_message");
-const TabsListDropdown    = require("views/dashboard/tabs_list_dropdown");
-
-const PersonalizedViewsWidget = {
+export const PersonalizedViewsWidget = {
   oninit(vnode) {
     const vm = vnode.attrs.vm;
     if (!vm.canonicalCurrentName()) { vm.currentView("Default"); }
@@ -46,5 +45,3 @@ const AddTab = {
     </button>;
   }
 };
-
-module.exports = PersonalizedViewsWidget;

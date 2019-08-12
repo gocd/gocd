@@ -15,12 +15,12 @@
  */
 
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as m from "mithril";
+import m from "mithril";
 import {Table} from "views/components/table";
 import {MetaJSON} from "views/pages/server_info";
-import * as styles from "./index.scss";
+import styles from "./index.scss";
 
-const filesize = require("filesize");
+import filesize from "filesize";
 
 interface Attrs {
   meta: MetaJSON;

@@ -15,7 +15,7 @@
  */
 
 import {RestyleComponent} from "jsx/mithril-component";
-import * as m from "mithril";
+import m from "mithril";
 import * as defaultStyles from "./fillable_section.scss";
 
 export class FillableSection extends RestyleComponent<typeof defaultStyles, {}> {

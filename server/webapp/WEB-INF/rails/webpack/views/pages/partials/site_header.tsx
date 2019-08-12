@@ -15,11 +15,11 @@
  */
 import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as m from "mithril";
+import m from "mithril";
 import {NotificationCenter} from "views/components/notification_center";
 import {ServerHealthSummary} from "views/components/server_health_summary/server_health_summary";
-import SiteMenu, {SiteSubNavItem} from "views/components/site_menu";
-import * as styles from "./site_header.scss";
+import {SiteMenu, SiteSubNavItem} from "views/components/site_menu";
+import styles from "./site_header.scss";
 
 const classnames          = bind(styles);
 

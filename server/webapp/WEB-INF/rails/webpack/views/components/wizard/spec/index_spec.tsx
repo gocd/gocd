@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import * as m from "mithril";
+import m from "mithril";
 import * as simulateEvent from "simulate-event";
 import * as Buttons from "views/components/buttons";
 import {Step, Wizard} from "views/components/wizard/index";
-import * as styles from "../index.scss";
+import styles from "../index.scss";
 
 describe("WizardSpec", () => {
   let wizard: Wizard;

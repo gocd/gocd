@@ -15,8 +15,8 @@
  */
 
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as _ from "lodash";
-import * as m from "mithril";
+import _ from "lodash";
+import m from "mithril";
 import {Stream} from "mithril/stream";
 import {SecretConfig, SecretConfigs} from "models/secret_configs/secret_configs";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
@@ -27,7 +27,7 @@ import {HeaderIcon} from "views/components/header_icon";
 import {Clone, Delete, Edit, IconGroup} from "views/components/icons";
 import {KeyValuePair} from "views/components/key_value_pair";
 import {CloneOperation, DeleteOperation, EditOperation, RequiresPluginInfos} from "views/pages/page_operations";
-import * as styles from "views/pages/secret_configs/index.scss";
+import styles from "views/pages/secret_configs/index.scss";
 import {RulesInfoWidget} from "views/pages/secret_configs/rules_widget";
 
 interface Attrs extends RequiresPluginInfos, EditOperation<SecretConfig>, CloneOperation<SecretConfig>, DeleteOperation<SecretConfig> {

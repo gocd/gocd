@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import _ from "lodash";
+import {DashboardViewModel as DashboardVM} from "views/dashboard/models/dashboard_view_model";
+import {Dashboard} from "models/dashboard/dashboard";
+
 describe("Dashboard View Model", () => {
-  const _           = require('lodash');
-  const DashboardVM = require("views/dashboard/models/dashboard_view_model");
-  const Dashboard   = require("models/dashboard/dashboard");
 
   describe("FilterMixin", () => {
     let pipelinesCountMap, dashboard, dashboardVM;

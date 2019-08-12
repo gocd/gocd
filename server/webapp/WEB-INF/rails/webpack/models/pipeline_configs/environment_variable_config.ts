@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import JsonUtils from "helpers/json_utils";
-import * as _ from "lodash";
+import {JsonUtils} from "helpers/json_utils";
+import _ from "lodash";
 import {Stream} from "mithril/stream";
-import * as stream from "mithril/stream";
+import stream from "mithril/stream";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 
 export class EnvironmentVariableConfig extends ValidatableMixin {

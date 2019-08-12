@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const Stream = require('mithril/stream');
-const _      = require('lodash');
+import Stream from "mithril/stream";
+import _ from "lodash";
 
-const Capabilities = function (data) {
+export const Capabilities = function (data) {
   this.supportedAgentAnalytics            = Stream(data.supportedAgentAnalytics);
   this.supportedPipelineAnalytics         = Stream(data.supportedPipelineAnalytics);
   this.supportedAnalyticsDashboardMetrics = Stream(data.supportedAnalyticsDashboardMetrics);
@@ -28,4 +28,3 @@ Capabilities.fromJSON = (data = {}) => new Capabilities({
   supportedAnalyticsDashboardMetrics: _.filter(data, {type: 'dashboard'})
 });
 
-module.exports = Capabilities;

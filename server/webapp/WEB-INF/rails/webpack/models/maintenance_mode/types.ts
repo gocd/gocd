@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as _ from "lodash";
-import * as stream from "mithril/stream";
+import {timeFormatter} from "helpers/time_formatter";
+import _ from "lodash";
 import {Stream} from "mithril/stream";
+import stream from "mithril/stream";
 import {MaterialJSON, Materials} from "models/maintenance_mode/material";
-
-const TimeFormatter = require("helpers/time_formatter");
 
 export interface JobJSON {
   name: string;
@@ -116,7 +115,7 @@ export class Job {
                    job.pipeline_name,
                    job.stage_counter,
                    job.stage_name,
-                   TimeFormatter.format(job.scheduled_date),
+                   timeFormatter.toDate(job.scheduled_date),
                    job.state,
                    job.agent_uuid);
   }
@@ -209,7 +208,7 @@ export class MaintenanceModeMetadata {
 
   constructor(updatedBy: string, updatedOn: string) {
     this.updatedBy = updatedBy;
-    this.updatedOn = TimeFormatter.format(updatedOn);
+    this.updatedOn = timeFormatter.format(updatedOn);
   }
 
   static fromJSON(json: MaintenanceModeMetadataJSON) {

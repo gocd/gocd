@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {Frame} from "models/shared/frame";
+
 function FakeWindow() {
   const location = {search: ""};
   this.location = location;
@@ -25,7 +27,6 @@ function FakeWindow() {
 const TEST_URL = "http://test.tld/path";
 
 describe("Frame", () => {
-  const Frame = require("models/shared/frame");
 
   describe("url()", () => {
     it("should only pass through ui=test query parameter", () => {

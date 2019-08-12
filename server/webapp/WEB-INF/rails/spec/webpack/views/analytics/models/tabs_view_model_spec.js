@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {VM as TabsVM} from "views/analytics/models/tabs_view_model";
+
 describe("Analytics Tabs View Model", () => {
-  const TabsVM = require('views/analytics/models/tabs_view_model');
 
   let vm;
   beforeEach(() => {

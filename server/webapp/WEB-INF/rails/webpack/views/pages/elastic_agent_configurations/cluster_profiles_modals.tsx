@@ -13,14 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const AngularPluginNew = require("views/shared/angular_plugin_new");
-
 import {bind} from "classnames/bind";
 import {ApiResult, ErrorResponse, ObjectWithEtag} from "helpers/api_request_builder";
-import * as _ from "lodash";
-import * as m from "mithril";
+import _ from "lodash";
+import m from "mithril";
 import {Stream} from "mithril/stream";
-import * as stream from "mithril/stream";
+import stream from "mithril/stream";
 import {ClusterProfilesCRUD} from "models/elastic_profiles/cluster_profiles_crud";
 import {ClusterProfile} from "models/elastic_profiles/types";
 import {Configurations} from "models/shared/configuration";
@@ -33,8 +31,10 @@ import {Form, FormHeader} from "views/components/forms/form";
 import {SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
 import {Modal, Size} from "views/components/modal";
 import {Spinner} from "views/components/spinner";
-import * as styles from "views/pages/elastic_agent_configurations/index.scss";
+import styles from "views/pages/elastic_agent_configurations/index.scss";
 import * as foundationStyles from "views/pages/new_plugins/foundation_hax.scss";
+
+const AngularPluginNew = require('views/shared/angular_plugin_new').AngularPluginNew;
 
 const foundationClassNames = bind(foundationStyles);
 

@@ -15,11 +15,11 @@
  */
 
 import {ErrorResponse} from "helpers/api_request_builder";
-import * as m from "mithril";
+import m from "mithril";
 import {BulkUserOperationJSON} from "models/users/users";
 import {UsersCRUD} from "models/users/users_crud";
 import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
-import * as styles from "./index.scss";
+import styles from "./index.scss";
 
 export class DeleteUserConfirmModal extends DeleteConfirmModal {
   private readonly onSuccessfulSave: (msg: m.Children) => any;

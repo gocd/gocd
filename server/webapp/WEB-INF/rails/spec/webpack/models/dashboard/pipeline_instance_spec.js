@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import sparkRoutes from "helpers/spark_routes";
+import {SparkRoutes} from "helpers/spark_routes";
+import {PipelineInstance} from "models/dashboard/pipeline_instance";
 
 describe("Dashboard", () => {
   describe('Pipeline Instance Model', () => {
     const pipelineName     = "up42";
-    const PipelineInstance = require('models/dashboard/pipeline_instance');
 
     it("should deserialize from json", () => {
       const pipelineInstance = new PipelineInstance(pipelineInstanceJson, pipelineName);
@@ -59,7 +59,7 @@ describe("Dashboard", () => {
       const pipelineInstance = new PipelineInstance(pipelineInstanceJson, pipelineName);
 
       jasmine.Ajax.withMock(() => {
-        jasmine.Ajax.stubRequest(sparkRoutes.buildCausePath(pipelineName, pipelineInstance.counter), undefined, 'GET').andReturn({
+        jasmine.Ajax.stubRequest(SparkRoutes.buildCausePath(pipelineName, pipelineInstance.counter), undefined, 'GET').andReturn({
           responseText:    JSON.stringify(buildCauseJson),
           responseHeaders: {'Content-Type': 'application/vnd.go.cd.v1+json'},
           status:          200

@@ -15,10 +15,10 @@
  */
 
 import {asSelector} from "helpers/css_proxies";
-import * as m from "mithril";
+import m from "mithril";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {Tree} from "../tree";
-import * as css from "../tree.scss";
+import css from "../tree.scss";
 
 describe("<Tree/>", () => {
   const sel = asSelector<typeof css>(css);

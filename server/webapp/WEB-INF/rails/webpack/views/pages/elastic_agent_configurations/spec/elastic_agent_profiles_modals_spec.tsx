@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import * as _ from "lodash";
+import _ from "lodash";
 import {ClusterProfile, ClusterProfiles, ElasticAgentProfile} from "models/elastic_profiles/types";
 import {Configurations} from "models/shared/configuration";
 import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";

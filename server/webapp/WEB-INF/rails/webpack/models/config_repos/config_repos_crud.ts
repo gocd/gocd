@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 import {ApiRequestBuilder, ApiResult, ApiVersion, ObjectWithEtag} from "helpers/api_request_builder";
-import JsonUtils from "helpers/json_utils";
-import SparkRoutes from "helpers/spark_routes";
+import {JsonUtils} from "helpers/json_utils";
+import {SparkRoutes} from "helpers/spark_routes";
 import {ConfigRepoJSON, ConfigReposJSON} from "models/config_repos/serialization";
 import {ConfigRepo, ConfigRepos} from "models/config_repos/types";
 

@@ -13,17 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const $               = require('jquery');
-const m               = require('mithril');
-const Stream          = require('mithril/stream');
-const DashboardVM     = require('views/dashboard/models/dashboard_view_model');
-const Dashboard       = require('models/dashboard/dashboard');
-const DashboardWidget = require('views/dashboard/dashboard_widget');
-const PluginInfos     = require('models/shared/plugin_infos');
-const AjaxPoller      = require('helpers/ajax_poller').AjaxPoller;
-const PageLoadError   = require('views/shared/page_load_error');
-
-const PersonalizeVM   = require('views/dashboard/models/personalization_vm');
+import $ from "jquery";
+import m from "mithril";
+import Stream from "mithril/stream";
+import {DashboardViewModel as DashboardVM} from "views/dashboard/models/dashboard_view_model";
+import {Dashboard} from "models/dashboard/dashboard";
+import {DashboardWidget} from "views/dashboard/dashboard_widget";
+import {AjaxPoller} from "helpers/ajax_poller";
+import {PageLoadError} from "views/shared/page_load_error";
+import {PersonalizationVM as PersonalizeVM} from "views/dashboard/models/personalization_vm";
+import {PluginInfos} from "../models/shared/plugin_infos";
 
 $(() => {
   const dashboardElem              = $('#dashboard');
@@ -70,16 +69,18 @@ $(() => {
    * });
    * ```
    */
-  function currentView(viewName, replace=false) {
+  function currentView(viewName, replace = false) {
     const current = queryObject();
-    if (!arguments.length) { return current.viewName || personalizeVM.names()[0]; }
+    if (!arguments.length) {
+      return current.viewName || personalizeVM.names()[0];
+    }
 
     const route = window.location.hash.replace(/^#!/, "");
 
     if (current.viewName !== viewName) {
       const path = [
         window.location.pathname,
-        viewName ? `?${m.buildQueryString($.extend({}, current, { viewName }))}` : "",
+        viewName ? `?${m.buildQueryString($.extend({}, current, {viewName}))}` : "",
         route ? `#!${route}` : ""
       ].join("");
 
@@ -122,13 +123,17 @@ $(() => {
     dashboard.message(message);
   }
 
-  function parseEtag(req) { return (req.getResponseHeader("ETag") || "").replace(/"/g, "").replace(/--(gzip|deflate)$/, ""); }
+  function parseEtag(req) {
+    return (req.getResponseHeader("ETag") || "").replace(/"/g, "").replace(/--(gzip|deflate)$/, "");
+  }
 
   function createRepeater() {
     const onsuccess = (data, _textStatus, jqXHR) => {
       const etag = parseEtag(jqXHR);
 
-      if (jqXHR.status === 304) { return; }
+      if (jqXHR.status === 304) {
+        return;
+      }
 
       if (jqXHR.status === 202) {
         const message = {
@@ -146,7 +151,7 @@ $(() => {
       onResponse(data);
     };
 
-    const onerror   = (jqXHR, textStatus, errorThrown) => {
+    const onerror = (jqXHR, textStatus, errorThrown) => {
       // fix for issue #5391
       //forcefully remove the ETag if server backup is in progress,
       //so that on next dashboard request, the server will send a 200 and re-render the page

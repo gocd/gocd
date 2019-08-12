@@ -16,14 +16,14 @@
 
 import {docsUrl} from "gen/gocd_version";
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as m from "mithril";
+import m from "mithril";
 import {Stream} from "mithril/stream";
 import {MailServer} from "models/mail_server/types";
 import {ButtonIcon, Primary} from "views/components/buttons";
 import {Form, FormBody} from "views/components/forms/form";
 import {CheckboxField, NumberField, PasswordField, TextField} from "views/components/forms/input_fields";
 import {OperationState} from "views/pages/page_operations";
-import * as styles from "./index.scss";
+import styles from "./index.scss";
 
 export interface Attrs {
   operationState: Stream<OperationState>;

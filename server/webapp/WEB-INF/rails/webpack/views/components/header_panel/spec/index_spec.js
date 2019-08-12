@@ -16,7 +16,7 @@
 import {HeaderPanel} from "../index";
 import {TestHelper} from "../../../pages/spec/test_helper";
 
-const m = require("mithril");
+import m from "mithril";
 
 describe("Header Panel Component", () => {
 

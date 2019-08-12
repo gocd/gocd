@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import Page from "helpers/spa_base";
+import {Page} from "helpers/spa_base";
 import {AccessTokensPage} from "views/pages/access_tokens";
 
 export class AccessTokensSPA extends Page {

@@ -16,7 +16,7 @@
 
 import {docsUrl} from "gen/gocd_version";
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as m from "mithril";
+import m from "mithril";
 import {Stream} from "mithril/stream";
 import {BackupConfig} from "models/backup_config/types";
 import {ButtonIcon, Cancel, Primary} from "views/components/buttons";

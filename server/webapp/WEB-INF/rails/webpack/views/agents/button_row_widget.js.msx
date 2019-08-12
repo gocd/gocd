@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const m                      = require('mithril');
-const f                      = require('helpers/form_helper');
-const ResourcesListWidget    = require('views/agents/resources_list_widget');
-const EnvironmentsListWidget = require('views/agents/environments_list_widget');
+import m from "mithril";
+import {f} from "helpers/form_helper";
+import {ResourcesListWidget} from "views/agents/resources_list_widget";
+import {EnvironmentsListWidget} from "views/agents/environments_list_widget";
+import Stream from "mithril/stream";
+import {Resources} from "models/agents/resources";
+import {Environments} from "models/agents/environments";
 
-const Stream       = require('mithril/stream');
-const Resources    = require('models/agents/resources');
-const Environments = require('models/agents/environments');
-
-const ButtonRowWidget = {
+export const ButtonRowWidget = {
   oninit (vnode) {
     const args                  = vnode.attrs;
     const self                  = this;
@@ -121,4 +120,3 @@ const ButtonRowWidget = {
     );
   }
 };
-module.exports        = ButtonRowWidget;

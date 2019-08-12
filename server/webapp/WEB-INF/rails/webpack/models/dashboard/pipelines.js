@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const _        = require('lodash');
-const Pipeline = require('models/dashboard/pipeline');
+import _ from "lodash";
+import {Pipeline} from "models/dashboard/pipeline";
 
-const Pipelines = function (pipelines) {
+export const Pipelines = function (pipelines) {
   const self = this;
 
   self.pipelines = pipelines;
@@ -37,5 +37,4 @@ Pipelines.fromJSON = (json) => {
   return new Pipelines(pipelines);
 };
 
-module.exports = Pipelines;
 

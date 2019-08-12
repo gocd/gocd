@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const m                       = require('mithril');
-const f                       = require('helpers/form_helper');
-const _                       = require('lodash');
-const ComponentMixins         = require('helpers/mithril_component_mixins');
-const DashboardGroupsWidget   = require('views/dashboard/dashboard_groups_widget');
-const PersonalizedViewsWidget = require('views/dashboard/personalized_views_widget');
-const Dropdown                = require('views/shared/dropdown');
-
+import m from "mithril";
 import {RewardBanner} from "views/components/reward_banner";
 import {SearchBox} from "views/components/search_box";
+import {f} from "helpers/form_helper";
+import _ from "lodash";
+import {ComponentMixins} from "helpers/mithril_component_mixins";
+import {DashboardGroupsWidget} from "views/dashboard/dashboard_groups_widget";
+import {PersonalizedViewsWidget} from "views/dashboard/personalized_views_widget";
+import {Dropdown} from "views/shared/dropdown";
 
 const GroupingSwitch = {
   view(vnode) {
@@ -36,7 +35,7 @@ const GroupingSwitch = {
   }
 };
 
-const DashboardWidget = {
+export const DashboardWidget = {
   oninit(vnode) {
     ComponentMixins.HasViewModel.call(vnode.state);
   },
@@ -95,5 +94,3 @@ const DashboardWidget = {
     );
   }
 };
-
-module.exports = DashboardWidget;

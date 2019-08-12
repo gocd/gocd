@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import SparkRoutes from "helpers/spark_routes";
+import {SparkRoutes} from "helpers/spark_routes";
 import {DependencyMaterialAutocomplete} from "models/materials/dependency_autocomplete_cache";
 
 describe("DependencyMaterial Suggestions Model", () => {

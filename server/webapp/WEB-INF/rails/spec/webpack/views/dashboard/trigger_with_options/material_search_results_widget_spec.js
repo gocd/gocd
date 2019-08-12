@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 import {TestHelper} from "views/pages/spec/test_helper";
+import {MaterialSearchResultsWidget} from "views/dashboard/trigger_with_options/material_search_results_widget";
+import {timeFormatter} from "helpers/time_formatter";
+import {Material} from "models/dashboard/material";
+import m from "mithril";
 
 describe("Dashboard Material Search Results Widget", () => {
-  const m                           = require("mithril");
-  const Material                    = require('models/dashboard/material');
-  const TimeFormatter               = require('helpers/time_formatter');
-  const MaterialSearchResultsWidget = require("views/dashboard/trigger_with_options/material_search_results_widget");
   const helper                      = new TestHelper();
 
   let material;
@@ -53,7 +53,7 @@ describe("Dashboard Material Search Results Widget", () => {
 
     expect(helper.find('.commit_info .rev').get(0)).toContainText(json[0].revision);
     expect(helper.find('.commit_info .committer').get(0)).toContainText(json[0].user);
-    expect(helper.find('.commit_info .time').get(0)).toContainText(TimeFormatter.format(json[0].date));
+    expect(helper.find('.commit_info .time').get(0)).toContainText(timeFormatter.format(json[0].date));
     expect(helper.find('.commit_info .commit_message').get(0)).toContainText(json[0].comment);
   });
 

@@ -15,7 +15,8 @@
  */
 // This is the starting point for booting up jasmine
 
-require('babel-polyfill');
+import "core-js";
+import "regenerator-runtime/runtime";
 
 function importAll(r) {
   r.keys().forEach(r);

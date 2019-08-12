@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const DashboardFilter = require("models/dashboard/dashboard_filter");
+import {DashboardFilter} from "models/dashboard/dashboard_filter";
 
 describe("DashboardFilter", () => {
   describe("pipeline status filtering", () => {

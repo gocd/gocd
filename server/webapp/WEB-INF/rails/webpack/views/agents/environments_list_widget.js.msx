@@ -13,13 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const m                      = require('mithril');
-const f                      = require('helpers/form_helper');
-const TriStateCheckboxWidget = require('views/agents/tri_state_checkbox_widget');
+import m from "mithril";
+import {f} from "helpers/form_helper";
+import {TriStateCheckboxWidget} from "views/agents/tri_state_checkbox_widget";
+import _ from "lodash";
 
-const _ = require('lodash');
-
-const EnvironmentsListWidget = {
+export const EnvironmentsListWidget = {
   oninit (vnode) {
     const args              = vnode.attrs;
     this.updateEnvironments = function (callback) {
@@ -95,4 +94,3 @@ const EnvironmentsListWidget = {
   }
 };
 
-module.exports = EnvironmentsListWidget;

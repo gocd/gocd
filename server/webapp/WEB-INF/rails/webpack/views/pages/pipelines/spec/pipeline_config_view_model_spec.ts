@@ -15,7 +15,7 @@
  */
 
 import {ApiRequestBuilder, ApiResult, ApiVersion} from "helpers/api_request_builder";
-import SparkRoutes from "helpers/spark_routes";
+import {SparkRoutes} from "helpers/spark_routes";
 import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
 import {ConfigRepoSettings} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";

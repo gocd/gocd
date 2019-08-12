@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as _ from "lodash";
+import _ from "lodash";
 import {ConfigValue, EncryptedValue, PlainTextValue} from "models/shared/config_value";
 
 export interface PropertyJSON {

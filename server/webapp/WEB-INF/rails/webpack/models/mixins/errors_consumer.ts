@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import * as stream from "mithril/stream";
+import stream from "mithril/stream";
 import {Errors} from "models/mixins/errors";
-import * as s from "underscore.string";
+import s from "underscore.string";
 
 /**
  * This class can either be used as a base class or a mixin. Currently, this is the base class

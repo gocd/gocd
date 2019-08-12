@@ -13,20 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import SparkRoutes from "helpers/spark_routes";
+import {SparkRoutes} from "helpers/spark_routes";
 import {TestHelper} from "views/pages/spec/test_helper";
+import {DashboardViewModel as DashboardVM} from "views/dashboard/models/dashboard_view_model";
+import {Dashboard} from "models/dashboard/dashboard";
+import {PipelineInstance} from "models/dashboard/pipeline_instance";
+import {PipelineInstanceWidget} from "views/dashboard/pipeline_instance_widget";
+import {timeFormatter} from "helpers/time_formatter";
+import _ from "lodash";
+import m from "mithril";
 
 describe("Dashboard Pipeline Instance Widget", () => {
-
-  const m             = require("mithril");
-  const _             = require("lodash");
-  const TimeFormatter = require('helpers/time_formatter');
-
-  const PipelineInstanceWidget = require("views/dashboard/pipeline_instance_widget");
-  const PipelineInstance       = require('models/dashboard/pipeline_instance');
-  const Dashboard              = require('models/dashboard/dashboard');
-  const DashboardVM            = require("views/dashboard/models/dashboard_view_model");
-
 
   const helper = new TestHelper();
 
@@ -115,12 +112,12 @@ describe("Dashboard Pipeline Instance Widget", () => {
 
   it("should render triggered by information", () => {
     expect(helper.find('.pipeline_instance-details div:nth-child(1)').text()).toEqual(`${pipelineInstanceJson.triggered_by}`);
-    const expectedTime = `on ${TimeFormatter.format(pipelineInstanceJson.scheduled_at)}`;
+    const expectedTime = `on ${timeFormatter.format(pipelineInstanceJson.scheduled_at)}`;
     expect(helper.find('.pipeline_instance-details div:nth-child(2)').text()).toEqual(expectedTime);
   });
 
   it("should show server triggered by information on hover", () => {
-    const expectedTime = TimeFormatter.formatInServerTime(pipelineInstanceJson.scheduled_at);
+    const expectedTime = timeFormatter.formatInServerTime(pipelineInstanceJson.scheduled_at);
     expect(helper.find('.pipeline_instance-details div:nth-child(2)').get(0).title).toEqual(expectedTime);
   });
 

@@ -13,13 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as _ from "lodash";
+import {timeFormatter} from "helpers/time_formatter";
+import _ from "lodash";
 import {Stream} from "mithril/stream";
-import * as stream from "mithril/stream";
+import stream from "mithril/stream";
 import {Errors} from "models/mixins/errors";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
-
-const TimeFormatter = require("helpers/time_formatter");
 
 export interface AccessTokenJSON {
   id: number;
@@ -29,9 +28,9 @@ export interface AccessTokenJSON {
   revoked: boolean;
   revoke_cause: string;
   revoked_by: string;
-  revoked_at: string | null;
+  revoked_at?: string;
   created_at: string;
-  last_used_at: string | null;
+  last_used_at?: string;
   revoked_because_user_deleted?: boolean;
   errors?: { [key: string]: string[] };
 }
@@ -56,32 +55,32 @@ export class AccessTokens extends Array<Stream<AccessToken>> {
   }
 
   sortByCreateDate() {
-    return new AccessTokens(...(_.orderBy(this, (accessToken) => {
+    return new AccessTokens(...(_.orderBy(this, (accessToken: Stream<AccessToken>) => {
       return accessToken().createdAt().getTime();
     }, "desc")));
   }
 
   activeTokens() {
-    return new AccessTokens(..._.filter(this, (accessToken) => !accessToken().revoked()));
+    return new AccessTokens(..._.filter(this, (accessToken: Stream<AccessToken>) => !accessToken().revoked()));
   }
 
   revokedTokens() {
-    return new RevokedTokens(_.filter(this, (accessToken) => accessToken().revoked()));
+    return new RevokedTokens(_.filter(this, (accessToken: Stream<AccessToken>) => accessToken().revoked()));
   }
 
   filterBySearchText(searchText: string) {
-    return new AccessTokens(..._.filter(this, (accessToken) => accessToken().matches(searchText)));
+    return new AccessTokens(..._.filter(this, (accessToken: Stream<AccessToken>) => accessToken().matches(searchText)));
   }
 }
 
 export class RevokedTokens extends AccessTokens {
   constructor(access_tokens: Array<Stream<AccessToken>>) {
-    super(..._.filter(access_tokens, (accessToken) => accessToken().revoked()));
+    super(..._.filter(access_tokens, (accessToken: Stream<AccessToken>) => accessToken().revoked()));
     Object.setPrototypeOf(this, Object.create(RevokedTokens.prototype));
   }
 
   sortByRevokeTime() {
-    return new AccessTokens(...(_.orderBy(this, (accessToken) => {
+    return new AccessTokens(...(_.orderBy(this, (accessToken: Stream<AccessToken>) => {
       return accessToken().revokedAt()!.getTime();
     }, "desc")));
   }
@@ -136,7 +135,7 @@ export class AccessToken extends ValidatableMixin {
                            data.revoked,
                            data.revoked_by,
                            AccessToken.parseDate(data.revoked_at),
-                           AccessToken.parseDate(data.created_at),
+                           AccessToken.parseDate(data.created_at) as Date,
                            AccessToken.parseDate(data.last_used_at),
                            data.revoke_cause,
                            data.revoked_because_user_deleted || false,
@@ -158,9 +157,9 @@ export class AccessToken extends ValidatableMixin {
     return true;
   }
 
-  private static parseDate(dateString: string | null) {
+  private static parseDate(dateString?: string) {
     if (dateString) {
-      return TimeFormatter.toDate(dateString);
+      return timeFormatter.toDate(dateString);
     }
     return undefined;
   }

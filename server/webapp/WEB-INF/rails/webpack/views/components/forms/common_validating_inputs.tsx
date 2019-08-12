@@ -15,7 +15,7 @@
  */
 
 import {MithrilComponent} from "jsx/mithril-component";
-import * as m from "mithril";
+import m from "mithril";
 import {TextFieldAttrs} from "./input_fields";
 import {LiveValidatingInputField} from "./live_validating_input";
 

@@ -15,10 +15,10 @@
  */
 
 import {MithrilComponent, MithrilViewComponent} from "jsx/mithril-component";
-import * as _ from "lodash";
-import * as m from "mithril";
-import * as stream from "mithril/stream";
+import _ from "lodash";
+import m from "mithril";
 import {Stream} from "mithril/stream";
+import stream from "mithril/stream";
 import {ConfigRepo, ParseInfo} from "models/config_repos/types";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {Code} from "views/components/code";
@@ -31,7 +31,7 @@ import {RequiresPluginInfos} from "views/pages/page_operations";
 import {allAttributes, resolveHumanReadableAttributes} from "./config_repo_attribute_helper";
 import {CRResult} from "./config_repo_result";
 import {ConfigRepoVM, CRVMAware} from "./config_repo_view_model";
-import * as styles from "./index.scss";
+import styles from "./index.scss";
 
 interface CollectionAttrs extends RequiresPluginInfos {
   models: Stream<ConfigRepoVM[]>;

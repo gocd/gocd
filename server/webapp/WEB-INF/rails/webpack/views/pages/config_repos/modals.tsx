@@ -15,10 +15,10 @@
  */
 import {ApiResult, ErrorResponse, ObjectWithEtag} from "helpers/api_request_builder";
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as _ from "lodash";
-import * as m from "mithril";
+import _ from "lodash";
+import m from "mithril";
 import {Stream} from "mithril/stream";
-import * as stream from "mithril/stream";
+import stream from "mithril/stream";
 import {ConfigReposCRUD} from "models/config_repos/config_repos_crud";
 import {
   ConfigRepo,
@@ -46,7 +46,7 @@ import {
 import {TestConnection} from "views/components/materials/test_connection";
 import {Modal, Size} from "views/components/modal";
 import {Spinner} from "views/components/spinner";
-import * as styles from "views/pages/config_repos/index.scss";
+import styles from "views/pages/config_repos/index.scss";
 import {RequiresPluginInfos, SaveOperation} from "views/pages/page_operations";
 
 type EditableMaterial = SaveOperation

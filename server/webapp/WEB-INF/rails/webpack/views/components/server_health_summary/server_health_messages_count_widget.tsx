@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 import {MithrilComponent} from "jsx/mithril-component";
-import * as m from "mithril";
+import m from "mithril";
 import {Stream} from "mithril/stream";
 import {ServerHealthMessages} from "models/shared/server_health_messages/server_health_messages";
-import * as styles from "./server_health_messages_count_widget.scss";
+import styles from "./server_health_messages_count_widget.scss";
 import {ServerHealthMessagesModal} from "./server_health_messages_modal";
 
 interface Attrs {

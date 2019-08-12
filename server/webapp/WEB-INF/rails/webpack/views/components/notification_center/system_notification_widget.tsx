@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as m from "mithril";
+import m from "mithril";
 import {Notification} from "models/notifications/system_notifications";
 import * as style from "./system_notifications.scss";
 

@@ -16,11 +16,11 @@
 
 import {ApiResult, ErrorResponse} from "helpers/api_request_builder";
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as m from "mithril";
+import m from "mithril";
 import {Material} from "models/materials/types";
 import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
-import * as styles from "./test_connection.scss";
+import styles from "./test_connection.scss";
 
 interface Attrs {
   material: Material;

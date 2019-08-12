@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as m from 'mithril';
+import m from 'mithril';
 import {Modal} from "../index";
 
 export class Sample2 extends Modal {

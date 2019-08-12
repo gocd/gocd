@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {DashboardGroups} from "models/dashboard/dashboard_groups";
+
 describe("DashboardGroups", () => {
 
-  const DashboardGroups = require('models/dashboard/dashboard_groups');
 
   it("should deserialize pipeline groups from json", () => {
     const pipelineGroups = DashboardGroups.fromPipelineGroupsJSON(pipelineGroupsData);

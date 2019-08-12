@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import * as m from "mithril";
+import m from "mithril";
 import {Page} from "views/pages/page";
 import {ServerInfoWidget} from "views/pages/server_info/server_info_widget.tsx";
 

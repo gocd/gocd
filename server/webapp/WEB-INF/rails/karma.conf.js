@@ -17,7 +17,6 @@
 
 const path                = require('path');
 const process             = require('process');
-const os                  = require('os');
 const jasmineSeedReporter = require('karma-jasmine-seed-reporter');
 const childProcess        = require('child_process');
 

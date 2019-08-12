@@ -13,18 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import SparkRoutes from "helpers/spark_routes";
+import {SparkRoutes} from "helpers/spark_routes";
 import {TestHelper} from "../../../../../webpack/views/pages/spec/test_helper";
+import 'jasmine-ajax';
+import {TriggerWithOptionsInfo} from "models/dashboard/trigger_with_options_info";
+import {TriggerWithOptionsVM} from "views/dashboard/models/trigger_with_options_vm";
+import {ModalBody} from "views/dashboard/trigger_with_options/modal_body";
+import {Modal} from "views/shared/new_modal";
+import Stream from "mithril/stream";
+import m from "mithril";
 
 describe("Dashboard Pipeline Trigger With Options Modal Body", () => {
-  const m                           = require("mithril");
-  const Stream                      = require("mithril/stream");
-  const Modal                       = require('views/shared/new_modal');
-  const TriggerWithOptionsModalBody = require("views/dashboard/trigger_with_options/modal_body");
-  require('jasmine-ajax');
-
-  const TriggerWithOptionsVM   = require('views/dashboard/models/trigger_with_options_vm');
-  const TriggerWithOptionsInfo = require("models/dashboard/trigger_with_options_info");
 
   const json = {
     "variables": [
@@ -159,7 +158,7 @@ describe("Dashboard Pipeline Trigger With Options Modal Body", () => {
       }
     };
 
-    helper.mount(() => m(TriggerWithOptionsModalBody, {
+    helper.mount(() => m(ModalBody, {
       triggerWithOptionsInfo,
       vm: Stream(vm),
       message: errorMessage,

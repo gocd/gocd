@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 import * as Routes from "gen/ts-routes";
-import * as $ from "jquery";
-import * as _ from "lodash";
+import $ from "jquery";
+import _ from "lodash";
 import {SystemNotifications} from "models/notifications/system_notifications";
 
-const mrequest = require("helpers/mrequest");
+import {mrequest} from "helpers/mrequest";
 
 interface VersionCheckInfo {
   last_updated_at: number;

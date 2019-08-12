@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {Resources} from "models/agents/resources";
+import 'jasmine-ajax';
+
 describe('Resources Model', () => {
-
-  const Resources = require('models/agents/resources');
-
-  require('jasmine-ajax');
 
   it("should initialize the resources in sorted order", () => {
     jasmine.Ajax.withMock(() => {

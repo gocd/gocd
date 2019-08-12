@@ -15,12 +15,10 @@
  */
 import {UsageData as DataSharingUsageData} from "models/shared/data_sharing/usage_data";
 import {DataSharingSettings} from "models/shared/data_sharing/data_sharing_settings";
-
-const $ = require('jquery');
-const m = require('mithril');
-
-const PageLoadError             = require('views/shared/page_load_error');
-const DataSharingSettingsWidget = require('views/data_sharing_settings/data_sharing_settings_widget');
+import {DataSharingSettingsWidget} from "views/data_sharing_settings/data_sharing_settings_widget";
+import {PageLoadError} from "views/shared/page_load_error";
+import m from "mithril";
+import $ from "jquery";
 
 $(() => {
   const container = $("#data-sharing-settings-container").get(0);

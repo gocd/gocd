@@ -16,10 +16,10 @@
 
 // utils
 import {ApiRequestBuilder, ApiVersion} from "helpers/api_request_builder";
-import SparkRoutes from "helpers/spark_routes";
-import * as m from "mithril";
-import * as stream from "mithril/stream";
-import * as s from "underscore.string";
+import {SparkRoutes} from "helpers/spark_routes";
+import m from "mithril";
+import stream from "mithril/stream";
+import s from "underscore.string";
 
 // models and such
 import {ConfigRepo} from "models/config_repos/types";

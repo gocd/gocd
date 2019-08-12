@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const _                 = require('lodash');
-const s                 = require('string-plus');
-const Errors            = require('models/mixins/errors').Errors;
-const Mixins            = require('models/mixins/model_mixins');
+import _ from "lodash";
+import {mixins as s} from "helpers/string-plus";
+import {Errors} from "models/mixins/errors";
+import {Mixins} from "models/mixins/model_mixins";
+
 const PresenceValidator = function ({condition, message}) {
   this.validate = (entity, attr) => {
     if (condition && (!condition(entity))) {
@@ -67,7 +68,7 @@ const FormatValidator = function({format, message}) {
   };
 };
 
-const Validatable = function({errors}) {
+export const Validatable = function({errors}) {
   const self                   = this;
   const attrToValidators       = {};
   const associationsToValidate = [];
@@ -156,4 +157,3 @@ Validatable.DefaultOptions = {
   }
 };
 
-module.exports = Validatable;

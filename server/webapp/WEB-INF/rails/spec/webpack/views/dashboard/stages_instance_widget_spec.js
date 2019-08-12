@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 import {TestHelper} from "views/pages/spec/test_helper";
+import {PipelineInstance} from "models/dashboard/pipeline_instance";
+import {StagesInstanceWidget} from "views/dashboard/stages_instance_widget";
+import m from "mithril";
 
 describe("Dashboard Stages Instance Widget", () => {
-  const m = require("mithril");
-
-  const StagesInstanceWidget = require("views/dashboard/stages_instance_widget");
-  const PipelineInstance     = require('models/dashboard/pipeline_instance');
 
   const helper = new TestHelper();
   afterEach(helper.unmount.bind(helper));

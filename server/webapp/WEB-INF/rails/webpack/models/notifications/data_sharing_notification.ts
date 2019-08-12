@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import {ApiResult} from "helpers/api_request_builder";
-import DataSharingNotificationPermission from "models/notifications/data_sharing_notification_permissions";
+import {DataSharingNotificationPermission} from "models/notifications/data_sharing_notification_permissions";
 import {Notification, SystemNotifications} from "models/notifications/system_notifications";
 
 /*

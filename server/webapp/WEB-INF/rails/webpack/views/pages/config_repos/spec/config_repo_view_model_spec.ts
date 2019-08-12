@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import SparkRoutes from "helpers/spark_routes";
-import * as stream from "mithril/stream";
+import {SparkRoutes} from "helpers/spark_routes";
 import {Stream} from "mithril/stream";
+import stream from "mithril/stream";
 import {ConfigRepo} from "models/config_repos/types";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {FlashContainer, RequiresPluginInfos, SaveOperation} from "views/pages/page_operations";

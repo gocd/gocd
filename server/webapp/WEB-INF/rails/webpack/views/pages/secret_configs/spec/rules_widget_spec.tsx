@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import * as m from "mithril";
-import * as stream from "mithril/stream";
+import m from "mithril";
+import stream from "mithril/stream";
 import {Rule, Rules} from "models/secret_configs/rules";
 import {rulesTestData, ruleTestData} from "models/secret_configs/spec/test_data";
 import * as simulateEvent from "simulate-event";

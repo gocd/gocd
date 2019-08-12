@@ -13,13 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import {SecretPluginInfo} from "../../../../webpack/models/shared/plugin_infos_new/spec/test_data";
+import {PluginInfos} from "models/shared/plugin_infos";
+import {SecretPluginInfo} from "models/shared/plugin_infos_new/spec/test_data";
+import _ from "lodash";
 
 describe('PluginInfos', () => {
-
-  const PluginInfos = require("models/shared/plugin_infos");
-  const _           = require("lodash");
 
   const pluginInfoWithElasticAgentExtensionV4 = {
     "id":         "cd.go.contrib.elastic-agent.docker",

@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const m = require('mithril');
+import m from "mithril";
 
-const BuildDetailsWidget = {
+export const BuildDetailsWidget = {
 
   oninit (vnode) {
     const args = vnode.attrs;
@@ -42,4 +42,3 @@ const BuildDetailsWidget = {
   }
 };
 
-module.exports = BuildDetailsWidget;

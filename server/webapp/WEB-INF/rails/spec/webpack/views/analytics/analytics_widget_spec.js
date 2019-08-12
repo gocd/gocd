@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 import {TestHelper} from "views/pages/spec/test_helper";
+import m from "mithril";
+import {AnalyticsWidget} from "views/analytics/analytics_widget";
+import 'jasmine-jquery';
 
 describe("Analytics Widget", () => {
-  const m = require('mithril');
-  require('jasmine-jquery');
-
-  const AnalyticsWidget = require('views/analytics/analytics_widget');
 
   const helper = new TestHelper();
   afterEach(helper.unmount.bind(helper));

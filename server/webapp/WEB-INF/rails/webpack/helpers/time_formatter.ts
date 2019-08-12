@@ -13,20 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const _         = require('lodash');
-const CONSTANTS = require('helpers/constants');
-const moment    = require("moment");
+import * as CONSTANTS from "helpers/constants";
+import _ from "lodash";
+import {LRUMap} from "lru_map";
+import moment from "moment";
+import "moment-duration-format";
 
-const LRUMap = require('lru_map').LRUMap;
-require("moment-duration-format");
-
-const utcOffsetInMinutes = parseInt(CONSTANTS.SERVER_TIMEZONE_UTC_OFFSET) / 60000;
+const utcOffsetInMinutes = CONSTANTS.SERVER_TIMEZONE_UTC_OFFSET / 60000;
 const CACHE_SIZE         = 10000;
-const DATE_FORMAT        = 'DD MMM YYYY';
-const LOCAL_TIME_FORMAT  = 'DD MMM, YYYY [at] HH:mm:ss [Local Time]';
-const SERVER_TIME_FORMAT = 'DD MMM, YYYY [at] HH:mm:ss Z [Server Time]';
+const DATE_FORMAT        = "DD MMM YYYY";
+const LOCAL_TIME_FORMAT  = "DD MMM, YYYY [at] HH:mm:ss [Local Time]";
+const SERVER_TIME_FORMAT = "DD MMM, YYYY [at] HH:mm:ss Z [Server Time]";
 // the default timestamp format rendered by the server
-const defaultFormat      = 'YYYY-MM-DDTHH:mm:ssZ';
+const defaultFormat      = "YYYY-MM-DDTHH:mm:ssZ";
 
 const format = _.memoize((time) => {
   return moment(time, defaultFormat).format(LOCAL_TIME_FORMAT);
@@ -38,15 +37,15 @@ const formatInServerTime = _.memoize((time) => {
 });
 formatInServerTime.cache = new LRUMap(CACHE_SIZE);
 
-const formatInDate = (time) => {
+const formatInDate = (time?: moment.MomentInput) => {
   return moment(time, defaultFormat).format(DATE_FORMAT);
 };
 
-const toDate = (time) => {
-  return moment(time, defaultFormat)._d;
+const toDate = (time?: moment.MomentInput) => {
+  return moment(time, defaultFormat).toDate();
 };
 
-module.exports = {
+export const timeFormatter = {
   format,
   toDate,
   formatInDate,

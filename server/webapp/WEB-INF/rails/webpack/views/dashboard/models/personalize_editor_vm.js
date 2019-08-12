@@ -13,13 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const _      = require("lodash");
-const Stream = require("mithril/stream");
+import _ from "lodash";
+import Stream from "mithril/stream";
+import {FilterValidations} from "views/dashboard/models/filter_validations";
+import {PipelineListVM} from "views/dashboard/models/pipeline_list_vm";
 
-const FilterValidations = require("views/dashboard/models/filter_validations");
-const PipelineListVM    = require("views/dashboard/models/pipeline_list_vm");
-
-function PersonalizeEditorVM(opts) { // opts is usually the current filter
+export function PersonalizeEditorVM(opts) { // opts is usually the current filter
   normalize(opts);
 
   FilterValidations.call(this, opts);
@@ -90,4 +89,3 @@ function boolToList(model, stream, attr) {
   };
 }
 
-module.exports = PersonalizeEditorVM;

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import * as m from "mithril";
-import * as stream from "mithril/stream";
+import m from "mithril";
+import stream from "mithril/stream";
 import {AuthConfigs} from "models/auth_configs/auth_configs";
 import {TestData} from "models/auth_configs/spec/test_data";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";

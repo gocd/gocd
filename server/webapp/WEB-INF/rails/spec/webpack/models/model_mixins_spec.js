@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-describe("Model Mixins", () => {
+import Stream from "mithril/stream";
+import {Mixins} from "models/mixins/model_mixins";
 
-  const Stream = require('mithril/stream');
-  const Mixin  = require('models/mixins/model_mixins');
+describe("Model Mixins", () => {
 
   describe("TogglingGetterSetter", () => {
     let model;
     beforeEach(() => {
-      model = Mixin.TogglingGetterSetter(Stream('foo'));
+      model = Mixins.TogglingGetterSetter(Stream('foo'));
     });
 
     it("should set a value for the first time", () => {

@@ -13,41 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-(function () {
-  "use strict";
 
-  const m = require("mithril");
-  const $ = require("jquery");
-  const f = require("helpers/form_helper");
+import m from "mithril";
+import $ from "jquery";
+import {f} from "helpers/form_helper";
+import Interactions from "models/shared/analytics_interaction_manager";
+import {AnalyticsiFrameWidget} from "views/shared/analytics_iframe_widget";
+import {init} from "rails-shared/plugin-endpoint";
 
-  const init                  = require("rails-shared/plugin-endpoint").init;
-  const AnalyticsiFrameWidget = require("views/shared/analytics_iframe_widget");
-  const Interactions          = require("models/shared/analytics_interaction_manager");
-  const Models                = Interactions.ensure().ns("GlobalMetrics");
+const Models = Interactions.ensure().ns("GlobalMetrics");
 
-  const GlobalMetrics = {
-    view(vnode) {
-      const elements = [];
-      $.each(vnode.attrs.metrics, (pluginId, supportedAnalytics) => {
-        $.each(supportedAnalytics, (idx, sa) => {
-          const uid   = Models.uid(idx, pluginId, sa.type, sa.id),
-                title = sa.title,
-                model = Models.modelFor(uid);
+export const GlobalMetrics = {
+  view(vnode) {
+    const elements = [];
+    $.each(vnode.attrs.metrics, (pluginId, supportedAnalytics) => {
+      $.each(supportedAnalytics, (idx, sa) => {
+        const uid   = Models.uid(idx, pluginId, sa.type, sa.id),
+              title = sa.title,
+              model = Models.modelFor(uid);
 
-          elements.push(m(AnalyticsiFrameWidget, {model, pluginId, uid, title, init}));
-        });
+        elements.push(m(AnalyticsiFrameWidget, {model, pluginId, uid, title, init}));
       });
+    });
 
-      if (elements.length === 0) {
-        return (<div class="message">
-          <f.callout type="info">No analytics plugin supports global analytics.</f.callout>
-        </div>);
-      }
-
-      return elements;
+    if (elements.length === 0) {
+      return (<div class="message">
+        <f.callout type="info">No analytics plugin supports global analytics.</f.callout>
+      </div>);
     }
-  };
 
-  module.exports = GlobalMetrics;
-
-})();
+    return elements;
+  }
+};

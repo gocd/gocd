@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as _ from "lodash";
-import * as stream from "mithril/stream";
+import _ from "lodash";
 import {Stream} from "mithril/stream";
+import stream from "mithril/stream";
 import {ErrorMessages} from "models/mixins/error_messages";
 import {applyMixins} from "models/mixins/mixins";
 import {ValidatableMixin, Validator, ValidatorOptions} from "models/mixins/new_validatable_mixin";
-import * as s from "underscore.string";
+import s from "underscore.string";
 
 describe("Validatable", () => {
   describe("validateNonEmptyCollection", () => {

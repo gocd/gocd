@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {Pipelines} from "models/dashboard/pipelines";
+import {Pipeline} from "models/dashboard/pipeline";
+
 describe("Dashboard", () => {
   describe('Pipelines Model', () => {
 
-    const Pipelines = require('models/dashboard/pipelines');
-    const Pipeline  = require('models/dashboard/pipeline');
 
     it("should deserialize from json", () => {
       const pipelines = Pipelines.fromJSON(pipelinesData);

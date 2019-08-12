@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-const $                = require('jquery');
-const _                = require('lodash');
-const mrequest         = require('helpers/mrequest');
-const TriStateCheckbox = require('models/agents/tri_state_checkbox');
-const Routes           = require('gen/js-routes');
+import $ from "jquery";
+import _ from "lodash";
+import {mrequest} from "helpers/mrequest";
+import {TriStateCheckbox} from "models/agents/tri_state_checkbox";
+import Routes from "gen/js-routes";
 
 const shouldBeDisabled = (environmentName, selectedAgents) => {
   if (!selectedAgents) {
@@ -36,12 +36,12 @@ const getSortedEnvironments = (environments, selectedAgents) => {
 
   return _.map(environments.sort(), (environment) => {
     const disabled = shouldBeDisabled(environment, selectedAgents);
-    const tooltip = disabled ? "Cannot edit Environment associated from Config Repo" : "";
+    const tooltip  = disabled ? "Cannot edit Environment associated from Config Repo" : "";
     return new TriStateCheckbox(environment, selectedAgentsEnvironmentNames, disabled, tooltip);
   });
 };
 
-const Environments = {};
+export const Environments = {};
 
 Environments.all = (selectedAgents) => $.Deferred(function () {
   const deferred = this;
@@ -65,4 +65,3 @@ Environments.all = (selectedAgents) => $.Deferred(function () {
   jqXHR.then(didFulfill, didReject);
 }).promise();
 
-module.exports = Environments;

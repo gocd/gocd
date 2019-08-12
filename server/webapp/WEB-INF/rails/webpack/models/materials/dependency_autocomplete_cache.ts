@@ -15,8 +15,8 @@
  */
 
 import {ApiRequestBuilder, ApiVersion} from "helpers/api_request_builder";
-import SparkRoutes from "helpers/spark_routes";
-import * as _ from "lodash";
+import {SparkRoutes} from "helpers/spark_routes";
+import _ from "lodash";
 import {AbstractObjCache, ObjectCache, rejectAsString} from "models/base/cache";
 
 interface PipelineSuggestion {

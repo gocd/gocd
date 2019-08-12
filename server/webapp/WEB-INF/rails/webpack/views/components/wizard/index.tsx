@@ -16,15 +16,16 @@
 
 import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as m from "mithril";
+import m from "mithril";
 import {Stream} from "mithril/stream";
-import * as stream from "mithril/stream";
+import stream from "mithril/stream";
 import * as Buttons from "views/components/buttons/index";
 import {ModalManager} from "views/components/modal/modal_manager";
-import * as styles from "./index.scss";
+import styles from "./index.scss";
+
+import uuid4 from "uuid/v4";
 
 const classnames = bind(styles);
-const uuid4      = require("uuid/v4");
 
 export abstract class Step {
   abstract header(): m.Children;

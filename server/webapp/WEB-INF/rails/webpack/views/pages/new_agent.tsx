@@ -15,7 +15,7 @@
  */
 
 import {AjaxPoller} from "helpers/ajax_poller";
-import * as m from "mithril";
+import m from "mithril";
 import {Agents} from "models/new-agent/agents";
 import {AgentsCRUD} from "models/new-agent/agents_crud";
 import {AgentsWidget} from "views/pages/new-agents/agents_widget";

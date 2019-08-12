@@ -15,10 +15,10 @@
  */
 
 import {ApiRequestBuilder, ApiVersion} from "helpers/api_request_builder";
-import SparkRoutes from "helpers/spark_routes";
-import * as _ from "lodash";
+import {SparkRoutes} from "helpers/spark_routes";
+import _ from "lodash";
 import {Stream} from "mithril/stream";
-import * as stream from "mithril/stream";
+import stream from "mithril/stream";
 import {Traversable} from "models/base/traversable";
 
 export interface NamedTree extends Traversable {

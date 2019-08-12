@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as _ from "lodash";
+import _ from "lodash";
 import {ErrorMessages} from "models/mixins/error_messages";
 import {Errors} from "models/mixins/errors";
 import {BaseErrorsConsumer, ErrorsConsumer} from "models/mixins/errors_consumer";
-import * as s from "underscore.string";
+import s from "underscore.string";
 
 export interface ValidatorOptions {
   message?: string;

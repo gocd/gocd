@@ -39,7 +39,7 @@ export function remapCss<T>(obj: T, transform: (key: keyof T) => maybeString): T
  *
  * Example:
  *
- * import * as styles from "./index.scss";
+ * import styles from "./index.scss";
  * import {asSelector} from "helpers/css_proxies";
  *
  * const sel = asSelector<typeof styles>(styles);

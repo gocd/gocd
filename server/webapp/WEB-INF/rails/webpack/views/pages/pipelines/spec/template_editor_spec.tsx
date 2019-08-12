@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import * as m from "mithril";
-import * as stream from "mithril/stream";
+import m from "mithril";
 import {Stream} from "mithril/stream";
+import stream from "mithril/stream";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {TemplateCache} from "models/pipeline_configs/templates_cache";
 import {Option} from "views/components/forms/input_fields";

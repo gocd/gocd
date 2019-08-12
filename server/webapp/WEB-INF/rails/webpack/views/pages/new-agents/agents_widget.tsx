@@ -15,7 +15,7 @@
  */
 
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as m from "mithril";
+import m from "mithril";
 import {Agent, Agents} from "models/new-agent/agents";
 import {Table} from "views/components/table";
 

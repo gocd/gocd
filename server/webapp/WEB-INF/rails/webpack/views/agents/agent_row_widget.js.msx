@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const _                    = require('lodash');
-const m                    = require('mithril');
-const f                    = require('helpers/form_helper');
-const BuildDetailsWidget   = require('views/agents/build_details_widget');
-const AgentAnalyticsWidget = require('views/agents/agent_analytics_widget');
-
+import _ from "lodash";
+import m from "mithril";
+import {f} from "helpers/form_helper";
+import {BuildDetailsWidget} from "views/agents/build_details_widget";
+import {AgentAnalyticsWidget} from "views/agents/agent_analytics_widget";
 
 const joinOrNoneSpecified = function (things) {
   if (things.length === 0) {
@@ -47,7 +46,7 @@ const getHostnameLink = function (isUserAdmin, agent) {
   return <a href={agentJobHistoryPath(agent.uuid())}>{agent.hostname()}</a>;
 };
 
-const AgentRowWidget = {
+export const AgentRowWidget = {
   oninit(vnode) {
     const args = vnode.attrs;
 
@@ -179,4 +178,3 @@ const AgentRowWidget = {
   }
 };
 
-module.exports = AgentRowWidget;

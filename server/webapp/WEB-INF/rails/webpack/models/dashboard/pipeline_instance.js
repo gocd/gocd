@@ -13,13 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import sparkRoutes from "helpers/spark_routes";
-
-const _                = require('lodash');
-const Routes           = require('gen/js-routes');
-const VMRoutes         = require('helpers/vm_routes').default;
-const AjaxHelper       = require('helpers/ajax_helper');
-const MaterialRevision = require('models/dashboard/material_revision');
+import {SparkRoutes} from "helpers/spark_routes";
+import {MaterialRevision} from "models/dashboard/material_revision";
+import {AjaxHelper} from "helpers/ajax_helper";
+import {VMRoutes} from "helpers/vm_routes";
+import Routes from "gen/js-routes";
+import _ from "lodash";
 
 const StageInstance = function (json, pipelineName, pipelineCounter) {
   this.name                  = json.name;
@@ -34,7 +33,7 @@ const StageInstance = function (json, pipelineName, pipelineCounter) {
   this.isCancelled           = () => json.status === 'Cancelled';
 };
 
-const PipelineInstance = function (info, pipelineName) {
+export const PipelineInstance = function (info, pipelineName) {
   const self = this;
 
   this.pipelineName = pipelineName;
@@ -52,7 +51,7 @@ const PipelineInstance = function (info, pipelineName) {
 
   this.getBuildCause = () => {
     return AjaxHelper.GET({
-      url:        sparkRoutes.buildCausePath(this.pipelineName, this.counter),
+      url:        SparkRoutes.buildCausePath(this.pipelineName, this.counter),
       apiVersion: 'v1',
     }).then((buildCause) => {
       return _.map(buildCause.material_revisions, (revision) => new MaterialRevision(revision));
@@ -60,5 +59,4 @@ const PipelineInstance = function (info, pipelineName) {
   };
 };
 
-module.exports = PipelineInstance;
 

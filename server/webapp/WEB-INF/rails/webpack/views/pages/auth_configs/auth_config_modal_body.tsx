@@ -15,9 +15,9 @@
  */
 
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as _ from "lodash";
-import * as m from "mithril";
-import stream = require("mithril/stream");
+import _ from "lodash";
+import m from "mithril";
+import stream from "mithril/stream";
 import {AuthConfig} from "models/auth_configs/auth_configs";
 import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
 import {AuthorizationSettings} from "models/shared/plugin_infos_new/extensions";
@@ -27,7 +27,7 @@ import {Form, FormHeader} from "views/components/forms/form";
 import {SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
 import {Message} from "views/pages/maintenance_mode";
 
-const AngularPluginNew = require("views/shared/angular_plugin_new");
+const AngularPluginNew = require('views/shared/angular_plugin_new').AngularPluginNew;
 
 interface Attrs {
   pluginInfos: Array<PluginInfo<any>>;

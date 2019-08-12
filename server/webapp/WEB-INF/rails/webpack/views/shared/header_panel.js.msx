@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const m = require('mithril');
-const f = require('helpers/form_helper');
 
-const HeaderPanel = function () {
+import m from "mithril";
+import {f} from "helpers/form_helper";
+
+export const HeaderPanel = function () {
 
   function oninit() {
   }
@@ -47,5 +48,3 @@ const HeaderPanel = function () {
   return {oninit, view};
 
 }();
-
-module.exports = HeaderPanel;

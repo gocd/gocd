@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 import {TestHelper} from "views/pages/spec/test_helper";
+import {PipelineMetrics} from "views/analytics/pipeline_metrics";
+import $ from "jquery";
+import "jasmine-jquery";
+import m from "mithril";
 
 describe("Pipeline Dashboard Metrics", () => {
-  const m      = require('mithril');
-  require('jasmine-jquery');
-  const $ = require("jquery");
-
-  const PipelineMetrics = require('views/analytics/pipeline_metrics');
 
   const supportedMetrics = () => ({
     "plugin-id-x": [{type: "pipeline", id: "metric-1"}],

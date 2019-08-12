@@ -16,9 +16,9 @@
 
 import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as m from "mithril";
+import m from "mithril";
 import {Stream} from "mithril/stream";
-import * as stream from "mithril/stream";
+import stream from "mithril/stream";
 import {GoCDRole, Roles} from "models/roles/roles";
 import {TriStateCheckbox} from "models/tri_state_checkbox";
 import {UserFilters} from "models/users/user_filters";
@@ -42,7 +42,7 @@ import {
   TriStateCheckboxField
 } from "views/components/forms/input_fields";
 import {DeleteOperation, DisableOperation, EnableOperation} from "views/pages/page_operations";
-import * as styles from "./index.scss";
+import styles from "./index.scss";
 
 const classnames = bind(styles);
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import Page from "helpers/spa_base";
+import {Page} from "helpers/spa_base";
 import {UsersPage} from "views/pages/users";
 
 export class UsersSPA extends Page {

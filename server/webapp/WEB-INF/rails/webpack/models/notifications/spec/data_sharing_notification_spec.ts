@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import "jasmine-ajax";
 import {DataSharingNotification} from "models/notifications/data_sharing_notification";
 import {Notification, SystemNotifications} from "models/notifications/system_notifications";
 
 describe("DataSharingNotification", () => {
-  require("jasmine-ajax");
 
   beforeEach(() => {
     jasmine.Ajax.install();

@@ -15,7 +15,7 @@
  */
 
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as m from "mithril";
+import m from "mithril";
 import {Stream} from "mithril/stream";
 import {AccessToken, AccessTokens, RevokedTokens} from "models/access_tokens/types";
 import * as Buttons from "views/components/buttons";
@@ -23,9 +23,9 @@ import {Ellipsize} from "views/components/ellipsize";
 import {SearchField} from "views/components/forms/input_fields";
 import {Tabs} from "views/components/tab";
 import {Table} from "views/components/table";
-import * as styles from "views/pages/access_tokens/index.scss";
+import styles from "views/pages/access_tokens/index.scss";
 
-const TimeFormatter = require("helpers/time_formatter");
+import {timeFormatter as TimeFormatter} from "helpers/time_formatter";
 
 export function getLastUsedInformation(accessToken: AccessToken) {
   const lastUsedAt = accessToken.lastUsedAt();
@@ -229,12 +229,12 @@ export class AccessTokensWidgetForAdmin extends MithrilViewComponent<AdminAttrs>
 
   private getActiveTokensData(accessTokens: AccessTokens,
                               onRevoke: (accessToken: Stream<AccessToken>, e: MouseEvent) => void,
-                              searchText?: string): m.Child[][] {
+                              searchText?: string) {
     return this.filterBySearchText(accessTokens, searchText)
                .sortByCreateDate()
                .map((accessToken) => {
                  return [
-                   accessToken().username,
+                   accessToken().username(),
                    <Ellipsize text={accessToken().description()}/>,
                    formatTimeInformation(accessToken().createdAt()),
                    getLastUsedInformation(accessToken()),
@@ -243,12 +243,12 @@ export class AccessTokensWidgetForAdmin extends MithrilViewComponent<AdminAttrs>
                });
   }
 
-  private getRevokedTokensData(revokedTokens: RevokedTokens, searchText?: string): m.Child[][] {
+  private getRevokedTokensData(revokedTokens: RevokedTokens, searchText?: string) {
     return this.filterBySearchText(revokedTokens.sortByRevokeTime(), searchText)
                .map((accessToken) => {
                  const revokedAt = accessToken().revokedAt();
                  return [
-                   accessToken().username,
+                   accessToken().username(),
                    <Ellipsize text={accessToken().description()}/>,
                    formatTimeInformation(accessToken().createdAt()),
                    getLastUsedInformation(accessToken()),

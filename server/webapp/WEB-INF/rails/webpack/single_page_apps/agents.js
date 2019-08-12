@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const $              = require('jquery');
-const m              = require('mithril');
-const Stream         = require('mithril/stream');
-const Agents         = require('models/agents/agents');
-const AgentsWidget   = require('views/agents/agents_widget');
-const PageLoadError  = require('views/shared/page_load_error');
-const AgentsVM       = require('views/agents/models/agents_widget_view_model');
-const RouteHandler   = require('views/agents/models/route_handler');
-const PluginInfos    = require('models/shared/plugin_infos');
-const AjaxPoller     = require('helpers/ajax_poller').AjaxPoller;
+import $ from "jquery";
+import m from "mithril";
+import Stream from "mithril/stream";
+import {Agents} from "models/agents/agents";
+import {AgentsWidget} from "views/agents/agents_widget";
+import {PageLoadError} from "views/shared/page_load_error";
+import {VM as AgentsVM} from "views/agents/models/agents_widget_view_model";
+import {SortOrder} from "views/agents/models/route_handler";
+import {PluginInfos} from "models/shared/plugin_infos";
+import {AjaxPoller} from "helpers/ajax_poller";
 
 $(() => {
   const $agentElem = $('#agents');
@@ -47,7 +47,7 @@ $(() => {
 
   const agents           = Stream(new Agents());
   const showSpinner      = Stream(true);
-  const sortOrder        = Stream(new RouteHandler());
+  const sortOrder        = Stream(new SortOrder());
   const agentsViewModel  = new AgentsVM(sortOrder().searchText);
   const permanentMessage = Stream({});
   const currentRepeater  = Stream(createRepeater());

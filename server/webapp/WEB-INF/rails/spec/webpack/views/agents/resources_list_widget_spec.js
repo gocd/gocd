@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 import {TestHelper} from "views/pages/spec/test_helper";
+import {TriStateCheckbox} from "models/agents/tri_state_checkbox";
+import Stream from "mithril/stream";
+import m from "mithril";
+import simulateEvent from "simulate-event";
+import $ from "jquery";
+import "foundation-sites";
+import {ResourcesListWidget} from "views/agents/resources_list_widget";
 
 describe("ResourcesListWidget", () => {
-  const $                = require("jquery");
-  const simulateEvent    = require('simulate-event');
-  const m                = require('mithril');
-  const Stream           = require('mithril/stream');
-  const TriStateCheckbox = require('models/agents/tri_state_checkbox');
-  require("foundation-sites");
 
-  const ResourcesListWidget = require("views/agents/resources_list_widget");
-  const helper = new TestHelper();
+  const helper              = new TestHelper();
 
   let resources;
 
@@ -172,10 +172,13 @@ describe("ResourcesListWidget", () => {
     });
   });
 
-  const mount = (resources, resourcesFetchError = () => {}) => {
+  const mount = (resources, resourcesFetchError = () => {
+  }) => {
     helper.mount(() => m(ResourcesListWidget, {
-      hideDropDown: () => {},
-      dropDownReset: () => {},
+      hideDropDown:        () => {
+      },
+      dropDownReset:       () => {
+      },
       resourcesFetchError,
       'onResourcesUpdate': Stream(),
       'resources':         Stream(resources)

@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const Stream = require('mithril/stream');
-const s      = require('string-plus');
+import Stream from "mithril/stream";
+import {mixins as s} from "helpers/string-plus";
 
-const Capabilities = function (data) {
+export const Capabilities = function (data) {
   this.supportsPluginStatusReport  = Stream(s.defaultToIfBlank(data.supportsPluginStatusReport, false));
   this.supportsAgentStatusReport   = Stream(s.defaultToIfBlank(data.supportsAgentStatusReport, false));
   this.supportsClusterStatusReport = Stream(s.defaultToIfBlank(data.supportsClusterStatusReport, false));
@@ -28,4 +28,3 @@ Capabilities.fromJSON = (data = {}) => new Capabilities({
   supportsClusterStatusReport: data && data.supports_cluster_status_report
 });
 
-module.exports = Capabilities;

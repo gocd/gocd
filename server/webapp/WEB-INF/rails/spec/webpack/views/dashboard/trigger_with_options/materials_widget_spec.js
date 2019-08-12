@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 import {TestHelper} from "../../../../../webpack/views/pages/spec/test_helper";
+import {MaterialsForTriggerWidget} from "views/dashboard/trigger_with_options/materials_widget";
+import {TriggerWithOptionsInfo} from "models/dashboard/trigger_with_options_info";
+import {TriggerWithOptionsVM} from "views/dashboard/models/trigger_with_options_vm";
+import Stream from "mithril/stream";
+import m from "mithril";
+import _ from "lodash";
 
 describe("Dashboard Trigger With Options Material Widget", () => {
-  const _      = require("lodash");
-  const m      = require("mithril");
-  const Stream = require("mithril/stream");
-
-  const TriggerWithOptionsVM   = require("views/dashboard/models/trigger_with_options_vm");
-  const TriggerWithOptionsInfo = require('models/dashboard/trigger_with_options_info');
-
-  const MaterialForTriggerWidget = require("views/dashboard/trigger_with_options/materials_widget");
 
   const helper = new TestHelper();
   afterEach(helper.unmount.bind(helper));
@@ -43,7 +41,7 @@ describe("Dashboard Trigger With Options Material Widget", () => {
       material.isRevisionSelected    = jasmine.createSpy('isRevisionSelected');
     });
 
-    helper.mount(() => m(MaterialForTriggerWidget, {
+    helper.mount(() => m(MaterialsForTriggerWidget, {
       materials: info.materials,
       vm:        Stream(vm)
     }));

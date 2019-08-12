@@ -15,8 +15,8 @@
  */
 
 import {RestyleAttrs, RestyleViewComponent} from "jsx/mithril-component";
-import * as _ from "lodash";
-import * as m from "mithril";
+import _ from "lodash";
+import m from "mithril";
 import * as defaultStyles from "./tree.scss";
 
 type Styles = typeof defaultStyles;

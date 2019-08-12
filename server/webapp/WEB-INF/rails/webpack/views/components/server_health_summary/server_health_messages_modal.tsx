@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 import {bind} from "classnames/bind";
-import * as m from "mithril";
+import m from "mithril";
 import {Stream} from "mithril/stream";
 import {
   ServerHealthMessage,
   ServerHealthMessages
 } from "models/shared/server_health_messages/server_health_messages";
-import * as s from "underscore.string";
+import s from "underscore.string";
 import {Modal, Size} from "../modal";
-import * as styles from "./server_health_messages_count_widget.scss";
+import styles from "./server_health_messages_count_widget.scss";
+
+import {timeFormatter as TimeFormatter} from "helpers/time_formatter";
 
 const classnames    = bind(styles);
-const TimeFormatter = require("helpers/time_formatter");
 
 export class ServerHealthMessagesModal extends Modal {
 

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import * as m from "mithril";
+import m from "mithril";
 import {Stream} from "mithril/stream";
-import * as stream from "mithril/stream";
+import stream from "mithril/stream";
 import {AccessTokenCRUD} from "models/access_tokens/access_token_crud";
 import {AccessToken, AccessTokens} from "models/access_tokens/types";
 import * as Buttons from "views/components/buttons";

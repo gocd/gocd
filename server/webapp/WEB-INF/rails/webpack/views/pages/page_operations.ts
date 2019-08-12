@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as m from "mithril";
+import m from "mithril";
 import {Stream} from "mithril/stream";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {FlashProvider} from "views/components/flash_message";

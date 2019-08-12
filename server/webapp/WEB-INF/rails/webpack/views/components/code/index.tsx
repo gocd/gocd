@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 import {MithrilComponent} from "jsx/mithril-component";
-import * as m from "mithril";
-import * as styles from "./index.scss";
+import m from "mithril";
+import styles from "./index.scss";
 
 export class Code extends MithrilComponent {
   view(vnode: m.Vnode) {

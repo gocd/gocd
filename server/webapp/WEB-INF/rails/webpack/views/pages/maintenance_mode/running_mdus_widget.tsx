@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {timeFormatter} from "helpers/time_formatter";
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as m from "mithril";
+import m from "mithril";
 import {Materials, ScmMaterialAttributes} from "models/maintenance_mode/material";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {KeyValuePair} from "views/components/key_value_pair";
-import * as styles from "views/pages/maintenance_mode/index.scss";
+import styles from "views/pages/maintenance_mode/index.scss";
 
 class MDUInfoAttrs {
   materials?: Materials;
@@ -37,7 +38,7 @@ export class MDUInfoWidget extends MithrilViewComponent<MDUInfoAttrs> {
         const headerMap  = new Map([
                                      ["Type", material.type()],
                                      ["Name", nameOrUrl],
-                                     ["Started At", material.mduStartTime().toString()]
+                                     ["Started At", timeFormatter.format(material.mduStartTime())]
                                    ]);
 
         const dataTestId = `${nameOrUrl.replace(" ", "-").toLowerCase()}`;

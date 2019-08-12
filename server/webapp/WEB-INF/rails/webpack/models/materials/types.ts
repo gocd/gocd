@@ -15,11 +15,11 @@
  */
 
 import {ApiRequestBuilder, ApiVersion} from "helpers/api_request_builder";
-import JsonUtils from "helpers/json_utils";
-import SparkRoutes from "helpers/spark_routes";
-import * as _ from "lodash";
+import {JsonUtils} from "helpers/json_utils";
+import {SparkRoutes} from "helpers/spark_routes";
+import _ from "lodash";
 import {Stream} from "mithril/stream";
-import * as stream from "mithril/stream";
+import stream from "mithril/stream";
 import {
   DependencyMaterialAttributesJSON,
   GitMaterialAttributesJSON,
@@ -34,9 +34,8 @@ import {ErrorMessages} from "models/mixins/error_messages";
 import {Errors} from "models/mixins/errors";
 import {ErrorsConsumer} from "models/mixins/errors_consumer";
 import {ValidatableMixin, Validator} from "models/mixins/new_validatable_mixin";
+import urlParse from "url-parse";
 import {EncryptedValue, plainOrCipherValue} from "views/components/forms/encrypted_value";
-
-const urlParse = require("url-parse");
 
 //tslint:disable-next-line
 export interface Material extends ValidatableMixin {

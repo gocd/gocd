@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import * as _ from "lodash";
+import _ from "lodash";
 import {Stream} from "mithril/stream";
-import * as stream from "mithril/stream";
+import stream from "mithril/stream";
 import {User, Users} from "models/users/users";
 
 const flag: (val?: boolean) => Stream<boolean> = stream;

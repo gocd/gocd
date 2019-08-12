@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import Page from "helpers/spa_base";
+import {Page} from "helpers/spa_base";
 import {RolesPage} from "views/pages/roles";
 
 //tslint:disable-next-line

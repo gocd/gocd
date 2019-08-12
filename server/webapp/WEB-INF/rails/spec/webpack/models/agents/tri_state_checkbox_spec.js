@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-describe('TriStateCheckbox (Resource/Environment) Model', () => {
+import {TriStateCheckbox} from "models/agents/tri_state_checkbox";
 
-  const TriStateCheckbox = require('models/agents/tri_state_checkbox');
+describe('TriStateCheckbox (Resource/Environment) Model', () => {
 
   it("should create a checked state checkbox if it present on all of the agent-values-set", () => {
     const resource = new TriStateCheckbox('Linux', [['Linux']]);

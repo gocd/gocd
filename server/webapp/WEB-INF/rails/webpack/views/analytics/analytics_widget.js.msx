@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const m               = require('mithril');
-const f               = require("helpers/form_helper");
-const TabsVM          = require('views/analytics/models/tabs_view_model');
-const GlobalMetrics   = require('views/analytics/global_metrics');
-const PipelineMetrics = require('views/analytics/pipeline_metrics');
+import m from "mithril";
+import {f} from "helpers/form_helper";
+import {VM as TabsVM} from "views/analytics/models/tabs_view_model";
+import {GlobalMetrics} from "views/analytics/global_metrics";
+import {PipelineMetrics} from "views/analytics/pipeline_metrics";
 
-const AnalyticsWidget = {
+export const AnalyticsWidget = {
   oninit(vnode) {
     vnode.state.vm = new TabsVM();
   },
@@ -71,4 +71,3 @@ const AnalyticsWidget = {
   }
 };
 
-module.exports = AnalyticsWidget;

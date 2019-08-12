@@ -13,77 +13,71 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-(function () {
-  "use strict";
+import m from "mithril";
 
-  const m = require("mithril");
+export const AnalyticsiFrameWidget = function () {
+  let currentUrl = null;
 
-  const AnalyticsiFrameWidget = function () {
-    let currentUrl = null;
+  function loadFrameContent(vnode) {
+    const iframe    = vnode.dom.querySelector("iframe"),
+          container = vnode.dom;
 
-    function loadFrameContent(vnode) {
-      const iframe = vnode.dom.querySelector("iframe"),
-         container = vnode.dom;
-
-      function beforeLoad() {
-        container.classList.add("loading-analytics");
-      }
-
-      function afterLoad() {
-        container.classList.remove("loading-analytics");
-        m.redraw();
-      }
-
-      iframe.onload = function initContent() {
-        vnode.attrs.init(iframe.contentWindow, {
-          uid:         vnode.attrs.uid,
-          pluginId:    vnode.attrs.pluginId,
-          initialData: vnode.attrs.model.data()
-        });
-      };
-
-      currentUrl = vnode.attrs.model.url();
-
-      vnode.attrs.model.load(beforeLoad, afterLoad);
+    function beforeLoad() {
+      container.classList.add("loading-analytics");
     }
 
-    function oncreate(vnode) {
+    function afterLoad() {
+      container.classList.remove("loading-analytics");
+      m.redraw();
+    }
+
+    iframe.onload = function initContent() {
+      vnode.attrs.init(iframe.contentWindow, {
+        uid:         vnode.attrs.uid,
+        pluginId:    vnode.attrs.pluginId,
+        initialData: vnode.attrs.model.data()
+      });
+    };
+
+    currentUrl = vnode.attrs.model.url();
+
+    vnode.attrs.model.load(beforeLoad, afterLoad);
+  }
+
+  function oncreate(vnode) {
+    loadFrameContent.apply(this, [vnode]);
+  }
+
+  function onupdate(vnode) {
+    if (vnode.attrs && vnode.attrs.model && currentUrl !== vnode.attrs.model.url()) {
       loadFrameContent.apply(this, [vnode]);
     }
+  }
 
-    function onupdate(vnode) {
-      if (vnode.attrs && vnode.attrs.model && currentUrl !== vnode.attrs.model.url()) {
-        loadFrameContent.apply(this, [vnode]);
-      }
+  function view(vnode) {
+    const model    = vnode.attrs.model;
+    const attrs    = {src: model.view(), scrolling: "no"};
+    const errorXHR = model.errors();
+
+    if (errorXHR && errorXHR.getResponseHeader("content-type").indexOf("text/html") !== -1) {
+      return (<div class="frame-container">
+        <iframe src={`data:text/html;charset=utf-8,${errorXHR.responseText}`}/>
+      </div>);
     }
 
-    function view(vnode) {
-      const model    = vnode.attrs.model;
-      const attrs    = {src: model.view(), scrolling: "no"};
-      const errorXHR = model.errors();
-
-      if (errorXHR && errorXHR.getResponseHeader("content-type").indexOf("text/html") !== -1) {
-        return (<div class="frame-container">
-          <iframe src={`data:text/html;charset=utf-8,${errorXHR.responseText}`}/>
-        </div>);
-      }
-
-      const errorAttrs = errorXHR ? {"data-error-text": errorXHR.responseText} : {};
-      return <div class="frame-container" {...errorAttrs}>
-        <div class="loading-overlay">
-          <span class="page-spinner"></span>
-          <span class="loading-message">
+    const errorAttrs = errorXHR ? {"data-error-text": errorXHR.responseText} : {};
+    return <div class="frame-container" {...errorAttrs}>
+      <div class="loading-overlay">
+        <span class="page-spinner"></span>
+        <span class="loading-message">
             <span class="loading-sub">Loading Analytics</span>
             <span class="analytics-title">{vnode.attrs.title}</span>
           </span>
-        </div>
-        <iframe sandbox="allow-scripts" {...attrs}/>
-      </div>;
-    }
+      </div>
+      <iframe sandbox="allow-scripts" {...attrs}/>
+    </div>;
+  }
 
-    return {oncreate, view, onupdate};
-  };
+  return {oncreate, view, onupdate};
+};
 
-  module.exports = AnalyticsiFrameWidget;
-
-})();

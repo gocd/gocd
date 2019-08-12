@@ -13,20 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const m                      = require('mithril');
-const f                      = require('helpers/form_helper');
-const TriStateCheckboxWidget = require('views/agents/tri_state_checkbox_widget');
-
-const Stream           = require('mithril/stream');
-const _                = require('lodash');
-const TriStateCheckbox = require('models/agents/tri_state_checkbox');
+import m from "mithril";
+import {f} from "helpers/form_helper";
+import {TriStateCheckboxWidget} from "views/agents/tri_state_checkbox_widget";
+import Stream from "mithril/stream";
+import _ from "lodash";
+import {TriStateCheckbox} from "models/agents/tri_state_checkbox";
 
 const NewResourceVM = {
   newResource: Stream(''),
   error:       Stream('')
 };
 
-const ResourcesListWidget = {
+export const ResourcesListWidget = {
   oninit (vnode) {
     this.addNewResource = function () {
       const currentResources = vnode.attrs.resources();
@@ -132,4 +131,3 @@ const ResourcesListWidget = {
   }
 };
 
-module.exports = ResourcesListWidget;

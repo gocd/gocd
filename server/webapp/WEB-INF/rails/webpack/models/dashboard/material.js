@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const _           = require('lodash');
-const m           = require('mithril');
-const Stream      = require('mithril/stream');
-const AjaxHelper  = require('helpers/ajax_helper');
+import _ from "lodash";
+import {SparkRoutes} from "helpers/spark_routes";
+import m from "mithril";
+import Stream from "mithril/stream";
+import {AjaxHelper} from "helpers/ajax_helper";
 
-import sparkRoutes from "helpers/spark_routes";
-
-class Material {
+export class Material {
   selectRevision     = (revision) => {
     this.updateSearchText(revision);
     this.selection(revision);
@@ -36,7 +35,7 @@ class Material {
   performSearch      = () => {
     this.searchInProgress(true);
     return AjaxHelper.GET({
-      url:        sparkRoutes.pipelineMaterialSearchPath(this.pipelineName, this.fingerprint, this.searchText),
+      url:        SparkRoutes.pipelineMaterialSearchPath(this.pipelineName, this.fingerprint, this.searchText),
       apiVersion: 'v1',
     }).then((result) => {
       this.searchResults(result);
@@ -77,4 +76,3 @@ class Material {
   }
 }
 
-module.exports = Material;

@@ -15,7 +15,7 @@
  */
 
 import {asSelector} from "helpers/css_proxies";
-import * as m from "mithril";
+import m from "mithril";
 import {ExecTask} from "models/pipeline_configs/task";
 import * as events from "simulate-event";
 import {PipelineConfigVM} from "views/pages/pipelines/pipeline_config_view_model";

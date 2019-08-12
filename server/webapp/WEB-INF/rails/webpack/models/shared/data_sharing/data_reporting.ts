@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import SparkRoutes from "helpers/spark_routes";
-import {Stream} from 'mithril/stream';
 
-const stream     = require('mithril/stream');
-const AjaxHelper = require('helpers/ajax_helper');
+import {SparkRoutes} from "helpers/spark_routes";
+import {Stream} from 'mithril/stream';
+import stream from "mithril/stream";
+
+const AjaxHelper = require("helpers/ajax_helper").AjaxHelper;
 
 interface DataReportingInfo {
   server_id: string;

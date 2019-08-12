@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const m                      = require('mithril');
-const _                      = require('lodash');
-const TimeFormatter          = require('helpers/time_formatter');
-const StagesInstanceWidget   = require('views/dashboard/stages_instance_widget');
-const MaterialRevisionWidget = require('views/dashboard/trigger_with_options/material_revision_widget');
+import m from "mithril";
+import _ from "lodash";
+import {timeFormatter} from "helpers/time_formatter";
+import {StagesInstanceWidget} from "views/dashboard/stages_instance_widget";
+import {MaterialRevisionWidget} from "views/dashboard/trigger_with_options/material_revision_widget";
 
-const PipelineInstanceWidget = {
+export const PipelineInstanceWidget = {
   oninit(vnode) {
     this.toggleDropdown = function (e) {
       vnode.attrs.buildCause(undefined);
@@ -47,8 +47,8 @@ const PipelineInstanceWidget = {
     const dropdown        = vnode.attrs.dropdown;
     const pipelineName    = vnode.attrs.pipelineName;
 
-    const scheduledAtLocalTime  = `on ${TimeFormatter.format(instance.scheduledAt)}`;
-    const scheduledAtServerTime = TimeFormatter.formatInServerTime(instance.scheduledAt);
+    const scheduledAtLocalTime  = `on ${timeFormatter.format(instance.scheduledAt)}`;
+    const scheduledAtServerTime = timeFormatter.formatInServerTime(instance.scheduledAt);
 
     let dropdownWidget;
     if (dropdown.isOpen(pipelineName, instanceCounter)) {
@@ -90,5 +90,3 @@ const PipelineInstanceWidget = {
     );
   }
 };
-
-module.exports = PipelineInstanceWidget;

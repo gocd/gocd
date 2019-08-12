@@ -15,10 +15,9 @@
  */
 import {ModalManager} from "views/components/modal/modal_manager";
 
-require('jasmine-jquery');
-require('jasmine-ajax');
-
-const Modal = require('views/shared/new_modal');
+import {Modal} from "views/shared/new_modal";
+import "jasmine-ajax";
+import "jasmine-jquery";
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 1000;
 

@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as m from "mithril";
-import * as stream from "mithril/stream";
+import m from "mithril";
+import stream from "mithril/stream";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {SwitchBtn} from "../index";
-import * as styles from "../index.scss";
+import styles from "../index.scss";
 
 describe("SwitchBtn component", () => {
   const switchStream = stream(false);

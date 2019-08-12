@@ -15,15 +15,15 @@
  */
 
 import {ApiResult, ErrorResponse, ObjectWithEtag, SuccessResponse} from "helpers/api_request_builder";
-import * as m from "mithril";
+import m from "mithril";
 import {Stream} from "mithril/stream";
-import * as stream from "mithril/stream";
+import stream from "mithril/stream";
 import {AccessToken, AccessTokens} from "models/access_tokens/types";
 import * as Buttons from "views/components/buttons";
 import {Size, TextAreaField} from "views/components/forms/input_fields";
 import {Modal} from "views/components/modal";
 import {Spinner} from "views/components/spinner";
-import * as styles from "views/pages/access_tokens/index.scss";
+import styles from "views/pages/access_tokens/index.scss";
 import {PageState} from "views/pages/page";
 
 export abstract class BaseModal extends Modal {

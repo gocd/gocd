@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as _ from "lodash";
+import _ from "lodash";
 import {Stream} from "mithril/stream";
-import * as stream from "mithril/stream";
+import stream from "mithril/stream";
 
-const s = require("helpers/string-plus");
+import {mixins as s} from "helpers/string-plus";
 
 interface ClearTextData {
   clearText?: string;
@@ -127,6 +127,6 @@ export function plainOrCipherValue(passwordLike: PasswordLike): EncryptedValue {
   if (passwordLike.cipherText) {
     return new EncryptedValue({cipherText: s.defaultToIfBlank(passwordLike.cipherText, "")});
   } else {
-    return new EncryptedValue({clearText: s.defaultToIfBlank(passwordLike.plainText, "")});
+    return new EncryptedValue({clearText: s.defaultToIfBlank(passwordLike.plainText!, "")});
   }
 }

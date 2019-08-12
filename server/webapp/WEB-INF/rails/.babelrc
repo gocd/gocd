@@ -1,12 +1,12 @@
 {
+  "sourceType": "unambiguous",
   "presets": [
     [
-      "stage-2"
-    ],
-    [
-      "env",
+      "@babel/preset-env",
       {
-        "debug": true,
+        "debug": false,
+        "corejs": 3,
+        "useBuiltIns": "entry",
         "targets": {
           "browsers": [
             "> 0.5%",
@@ -14,21 +14,23 @@
             "Firefox ESR",
             "not IE > 0",
             "not IE_Mob > 0",
-            "not BlackBerry > 0",
+            "not BlackBerry > 0"
             // see http://browserl.ist/?q=defaults and https://github.com/ai/browserslist#queries
           ]
         }
+      }
+    ],
+    [
+      "@babel/preset-react",
+      {
+        "debug": true,
+        "pragma": "m"
       }
     ]
   ],
   "plugins": [
     [
-      "transform-react-jsx",
-      {
-        "debug": true,
-        "pragma": "m"
-      }
-    ],
-    "transform-class-properties"
+      "@babel/plugin-proposal-class-properties"
+    ]
   ]
 }

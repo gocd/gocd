@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {Pipeline} from "models/dashboard/pipeline";
+import 'jasmine-jquery';
+
 describe("Dashboard", () => {
-  const Pipeline = require('models/dashboard/pipeline');
-  require('jasmine-jquery');
 
   let pipelineJson, defaultPauseInfo;
   beforeEach(() => {

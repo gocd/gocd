@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import * as _ from "lodash";
-import * as m from "mithril";
+import _ from "lodash";
+import m from "mithril";
 import {Stream} from "mithril/stream";
-import * as stream from "mithril/stream";
+import stream from "mithril/stream";
 import {Rule, Rules} from "models/secret_configs/rules";
 import {SecretConfig, SecretConfigs} from "models/secret_configs/secret_configs";
 import {SecretConfigsCRUD} from "models/secret_configs/secret_configs_crud";
@@ -37,10 +37,10 @@ import {
 } from "views/components/forms/input_fields";
 import {Size} from "views/components/modal";
 import {EntityModal} from "views/components/modal/entity_modal";
-import * as styles from "views/pages/secret_configs/index.scss";
+import styles from "views/pages/secret_configs/index.scss";
 import {RulesWidget} from "views/pages/secret_configs/rules_widget";
 
-const AngularPluginNew = require("views/shared/angular_plugin_new");
+const AngularPluginNew = require('views/shared/angular_plugin_new').AngularPluginNew;
 
 export abstract class SecretConfigModal extends EntityModal<SecretConfig> {
   protected readonly originalEntityId: string;

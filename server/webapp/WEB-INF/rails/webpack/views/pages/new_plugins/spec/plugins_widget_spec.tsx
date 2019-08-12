@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as m from "mithril";
+import m from "mithril";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import * as simulateEvent from "simulate-event";
 import * as collapsiblePanelStyles from "views/components/collapsible_panel/index.scss";
 import * as headerIconStyles from "views/components/header_icon/index.scss";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {PluginsWidget} from "../plugins_widget";
 
 describe("New Plugins Widget", () => {
-  const simulateEvent = require("simulate-event");
 
   const pluginInfos = [PluginInfo.fromJSON(getEAPluginInfo(), getEAPluginInfo()._links),
     PluginInfo.fromJSON(getNotificationPluginInfo(), undefined),

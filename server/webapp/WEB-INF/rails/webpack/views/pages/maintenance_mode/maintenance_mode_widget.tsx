@@ -15,7 +15,7 @@
  */
 import {docsUrl} from "gen/gocd_version";
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as m from "mithril";
+import m from "mithril";
 import {MaintenanceModeInfo, RunningSystem, StageLocator} from "models/maintenance_mode/types";
 import {Link} from "views/components/link";
 import {SwitchBtn} from "views/components/switch";
@@ -24,7 +24,7 @@ import * as Tooltip from "views/components/tooltip";
 import {DisabledSubsystemsWidget} from "views/pages/maintenance_mode/disabled_susbsystems_widget";
 import {JobInfoWidget} from "views/pages/maintenance_mode/running_jobs_widget.tsx";
 import {MDUInfoWidget} from "views/pages/maintenance_mode/running_mdus_widget";
-import * as styles from "./index.scss";
+import styles from "./index.scss";
 
 interface Attrs {
   maintenanceModeInfo: MaintenanceModeInfo;

@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as m from "mithril";
+import m from "mithril";
 import {PluginInfoQuery} from "models/shared/plugin_infos_new/plugin_info_crud";
 
-export default class {
+export class SparkRoutes {
 
   static serverHealthMessagesPath() {
     return `/go/api/server_health_messages`;

@@ -15,10 +15,10 @@
  */
 import {bind} from "classnames/bind";
 import {ApiResult, ErrorResponse, ObjectWithEtag, SuccessResponse} from "helpers/api_request_builder";
-import _ = require("lodash");
-import * as m from "mithril";
-import * as stream from "mithril/stream";
+import _ from "lodash";
+import m from "mithril";
 import {Stream} from "mithril/stream";
+import stream from "mithril/stream";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {Extension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
@@ -27,7 +27,7 @@ import {ButtonGroup} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Modal, ModalState, Size} from "views/components/modal/index";
 import * as foundationStyles from "views/pages/new_plugins/foundation_hax.scss";
-import * as styles from "./index.scss";
+import styles from "./index.scss";
 
 const foundationClassNames = bind(foundationStyles);
 
@@ -36,8 +36,8 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
   protected readonly pluginInfos: Array<PluginInfo<Extension>>;
   protected readonly errorMessage: Stream<string> = stream();
   protected readonly onSuccessfulSave: (msg: m.Children) => any;
-  protected readonly isStale = stream(true);
-  protected readonly etag: Stream<string> = stream();
+  protected readonly isStale                      = stream(true);
+  protected readonly etag: Stream<string>         = stream();
 
   constructor(entity: T,
               pluginInfos: Array<PluginInfo<any>>,

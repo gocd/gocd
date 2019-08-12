@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 import {ApiRequestBuilder, ApiResult, ApiVersion} from "helpers/api_request_builder";
-import * as Stream from "mithril/stream";
+import Stream from "mithril/stream";
 
 interface PermissionJSON {
   show_notification: boolean;
 }
 
-export default class DataSharingNotificationPermission {
+export class DataSharingNotificationPermission {
 
   static API_VERSION: ApiVersion = ApiVersion.v1;
   public showNotification: Stream.Stream<boolean>;

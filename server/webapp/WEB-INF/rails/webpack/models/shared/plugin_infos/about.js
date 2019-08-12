@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const Stream = require('mithril/stream');
+import Stream from "mithril/stream";
 
-const About = function (data) {
+export const About = function (data) {
   this.name                   = Stream(data.name);
   this.version                = Stream(data.version);
   this.targetGoVersion        = Stream(data.targetGoVersion);
@@ -43,4 +43,3 @@ About.Vendor.fromJSON = (data = {}) => new About.Vendor({
   url:  data.url
 });
 
-module.exports = About;

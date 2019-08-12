@@ -13,19 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const m   = require("mithril");
-const $   = require("jquery");
-const raf = require("helpers/throttle-raf");
+import m from "mithril";
+import $ from "jquery";
+import {throttleRaf} from "helpers/throttle-raf";
+import {SortableViewTabs} from "views/dashboard/sortable_view_tabs";
 
-const SortableViewTabs = require("views/dashboard/sortable_view_tabs");
-
-const ScrollableViewTabs = {
+export const ScrollableViewTabs = {
   oncreate(vnode) {
     const vm = vnode.attrs.vm;
     const padding = 0;
 
     if (!vnode.state.attached) {
-      window.addEventListener("resize", raf(() => {
+      window.addEventListener("resize", throttleRaf(() => {
         const previous = vm.paged();
         vm.paged(detectPaging(vnode, padding));
 
@@ -107,4 +106,3 @@ function ensureCurrentTabInView(viewable) {
   }
 }
 
-module.exports = ScrollableViewTabs;

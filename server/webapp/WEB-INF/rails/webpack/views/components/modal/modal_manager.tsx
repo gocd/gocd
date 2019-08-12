@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as _ from "lodash";
-import * as m from "mithril";
+import _ from "lodash";
+import m from "mithril";
 import {Wizard} from "views/components/wizard";
 import * as wizardStyles from "../wizard/index.scss";
 import {Modal} from "./index";
-import * as styles from "./index.scss";
+import styles from "./index.scss";
 
 let modalContainer: Element;
 

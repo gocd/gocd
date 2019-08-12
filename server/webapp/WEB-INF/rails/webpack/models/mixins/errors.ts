@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as _ from "lodash";
+import _ from "lodash";
 
-const s = require("string-plus");
+import {mixins as s} from "helpers/string-plus";
 
 export interface ErrorsJSON { [key: string]: string[]; }
 

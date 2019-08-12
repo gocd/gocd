@@ -15,16 +15,16 @@
  */
 
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as _ from "lodash";
-import * as m from "mithril";
-import * as stream from "mithril/stream";
+import _ from "lodash";
+import m from "mithril";
 import {Stream} from "mithril/stream";
+import stream from "mithril/stream";
 import {EnvironmentVariableConfig} from "models/pipeline_configs/environment_variable_config";
 import * as Buttons from "views/components/buttons";
 import {Form, FormBody} from "views/components/forms/form";
 import {SimplePasswordField, TextField} from "views/components/forms/input_fields";
 import {Table} from "views/components/table";
-import * as css from "./environment_variables_editor.scss";
+import css from "./environment_variables_editor.scss";
 
 interface Attrs {
   variables: Stream<EnvironmentVariableConfig[]>;

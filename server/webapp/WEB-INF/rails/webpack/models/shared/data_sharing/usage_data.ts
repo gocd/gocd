@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import SparkRoutes from 'helpers/spark_routes';
+import {SparkRoutes} from 'helpers/spark_routes';
 
-const AjaxHelper = require('helpers/ajax_helper');
+const AjaxHelper = require("helpers/ajax_helper").AjaxHelper;
 
 export interface EncryptionKeys {
   signature: string;

@@ -16,11 +16,11 @@
 
 import {docsUrl} from "gen/gocd_version";
 import {MithrilComponent} from "jsx/mithril-component";
-import * as m from "mithril";
+import m from "mithril";
 import {BackupProgressStatus, BackupStatus} from "models/backups/types";
 import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
-import * as styles from "./index.scss";
+import styles from "./index.scss";
 import {ProgressIndicator} from "./progress_indicator";
 
 export interface Attrs {

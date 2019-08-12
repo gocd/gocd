@@ -16,7 +16,7 @@
 
 import classnames from "classnames";
 import {MithrilComponent} from "jsx/mithril-component";
-import * as m from "mithril";
+import m from "mithril";
 import * as Prism from "prismjs";
 import * as defaultStyles from "views/pages/pac/styles.scss";
 

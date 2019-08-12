@@ -13,21 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const $         = require('jquery');
-const CONSTANTS = require('helpers/constants');
 
-const setHeaders = (xhr, version) => {
+import * as CONSTANTS from "helpers/constants";
+import $ from "jquery";
+
+const setHeaders = (xhr: JQuery.jqXHR, version: string) => {
   xhr.setRequestHeader("Content-Type", "application/json");
   xhr.setRequestHeader("Accept", mrequest.versionHeader(version));
   xhr.setRequestHeader("X-GoCD-Confirm", "true");
-  const csrfToken = $('meta[name=csrf-token]').attr('content');
+  const csrfToken = $("meta[name=csrf-token]").attr("content");
   if (csrfToken) {
-    xhr.setRequestHeader('X-CSRF-Token', csrfToken);
+    xhr.setRequestHeader("X-CSRF-Token", csrfToken);
   }
 };
 
-const mrequest = {
-  timeout:   CONSTANTS.SPA_REQUEST_TIMEOUT,
+export const mrequest = {
+  timeout: CONSTANTS.SPA_REQUEST_TIMEOUT,
   globalAjaxErrorHandler: () => {
     $(document).ajaxError((_event, jqXHR) => {
       if (jqXHR.status === 401) {
@@ -35,31 +36,31 @@ const mrequest = {
       }
     });
   },
-  versionHeader(version) {
+  versionHeader(version: string) {
     return `application/vnd.go.cd.${version}+json`;
   },
   xhrConfig: {
-    v1:         (xhr) => {
-      setHeaders(xhr, 'v1');
+    v1: (xhr: JQuery.jqXHR) => {
+      setHeaders(xhr, "v1");
     },
-    v2:         (xhr) => {
-      setHeaders(xhr, 'v2');
+    v2: (xhr: JQuery.jqXHR) => {
+      setHeaders(xhr, "v2");
     },
-    v3:         (xhr) => {
-      setHeaders(xhr, 'v3');
+    v3: (xhr: JQuery.jqXHR) => {
+      setHeaders(xhr, "v3");
     },
-    v4:         (xhr) => {
-      setHeaders(xhr, 'v4');
+    v4: (xhr: JQuery.jqXHR) => {
+      setHeaders(xhr, "v4");
     },
-    forVersion: (version) => (xhr) => {
+    forVersion: (version: string) => (xhr: JQuery.jqXHR) => {
       setHeaders(xhr, version);
     }
   },
 
-  unwrapMessageOrEntity:     (type, originalEtag) => (data, xhr) => {
+  unwrapMessageOrEntity: (type: any, originalEtag: string) => (data: any, xhr: JQuery.jqXHR) => {
     if (xhr.status === 200) {
       const entity = type.fromJSON(data);
-      entity.etag(xhr.getResponseHeader('ETag'));
+      entity.etag(xhr.getResponseHeader("ETag"));
       return entity;
     }
     if (xhr.status === 422 && !!data.data) {
@@ -70,12 +71,12 @@ const mrequest = {
       return mrequest.unwrapErrorExtractMessage(data, xhr);
     }
   },
-  unwrapMessage:             (data) => {
+  unwrapMessage: (data: any) => {
     if (data && data.message) {
       return data.message;
     }
   },
-  unwrapErrorExtractMessage: (data, xhr, defaultMessage = "There was an unknown error performing the operation") => {
+  unwrapErrorExtractMessage: (data: any, xhr: JQuery.jqXHR, defaultMessage = "There was an unknown error performing the operation") => {
     if (mrequest.unwrapMessage(data)) {
       return mrequest.unwrapMessage(data);
     } else {
@@ -87,5 +88,3 @@ const mrequest = {
     }
   }
 };
-module.exports = mrequest;
-

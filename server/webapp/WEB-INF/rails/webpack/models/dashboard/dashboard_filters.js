@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const _ = require("lodash");
+import _ from "lodash";
 
-function DashboardFilters(filters) {
+export function DashboardFilters(filters) {
   this.clone = function clone() {
     return new DashboardFilters(_.map(this.filters, (f) => _.cloneDeep(f)));
   };
@@ -81,4 +81,3 @@ function matchName(name) {
   return (f) => n === f.name.toLowerCase();
 }
 
-module.exports = DashboardFilters;

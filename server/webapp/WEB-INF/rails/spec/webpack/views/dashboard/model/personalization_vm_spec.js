@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const Stream            = require("mithril/stream");
-const DashboardFilters  = require("models/dashboard/dashboard_filters");
-const PersonalizationVM = require("views/dashboard/models/personalization_vm");
-
-import SparkRoutes from "helpers/spark_routes";
+import Stream from "mithril/stream";
+import {SparkRoutes} from "helpers/spark_routes";
+import {PersonalizationVM} from "views/dashboard/models/personalization_vm";
+import {DashboardFilters} from "models/dashboard/dashboard_filters";
 
 describe("Personalization View Model", () => {
   it("active() tests if a view name matches the current view case-insensitively", () => {

@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 import {MithrilComponent} from "jsx/mithril-component";
-import * as _ from "lodash";
-import * as m from "mithril";
-import * as s from "underscore.string";
-import * as styles from "./index.scss";
+import _ from "lodash";
+import m from "mithril";
+import s from "underscore.string";
+import styles from "./index.scss";
 
 interface Attrs {
   imageUrl?: string; //an image URL of the icon

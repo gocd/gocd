@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 import {docsUrl} from "gen/gocd_version";
-import * as m from "mithril";
+import {timeFormatter} from "helpers/time_formatter";
+import m from "mithril";
 import {MaintenanceModeWidget} from "views/pages/maintenance_mode/maintenance_mode_widget";
 import {TestData} from "views/pages/maintenance_mode/spec/test_data";
 import {TestHelper} from "views/pages/spec/test_helper";
@@ -23,8 +24,6 @@ describe("Maintenance Mode Widget", () => {
   const toggleMaintenanceMode = jasmine.createSpy("onToggle");
   const onCancelStage         = jasmine.createSpy("onCancelStage");
   const helper                = new TestHelper();
-
-  const TimeFormatter = require("helpers/time_formatter");
 
   beforeEach(() => {
     helper.mount(() => <MaintenanceModeWidget toggleMaintenanceMode={toggleMaintenanceMode}
@@ -49,7 +48,7 @@ describe("Maintenance Mode Widget", () => {
   });
 
   it("should provide the maintenance mode updated information", () => {
-    const updatedOn             = TimeFormatter.format(TestData.UPDATED_ON);
+    const updatedOn             = timeFormatter.format(TestData.UPDATED_ON);
     const expectedUpdatedByInfo = `${TestData.info().metdata.updatedBy} changed the maintenance mode state on ${updatedOn}.`;
     expect(helper.findByDataTestId("maintenance-mode-updated-by-info")).toContainText(expectedUpdatedByInfo);
   });

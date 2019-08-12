@@ -16,7 +16,7 @@
 // tslint:disable
 /// <reference path="./modal_matchers.d.ts"/>
 
-import * as _ from "lodash";
+import _ from "lodash";
 import {Modal} from "views/components/modal";
 import * as spinnerStyles from "views/components/spinner/index.scss";
 import {addMatchers} from "add-matchers";

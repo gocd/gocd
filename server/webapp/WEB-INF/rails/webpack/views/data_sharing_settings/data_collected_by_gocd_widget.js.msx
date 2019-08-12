@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const m = require('mithril');
+import m from "mithril";
 
-const DataCollectedByGoCDWidget = {
+export const DataCollectedByGoCDWidget = {
   view(vnode) {
     const msg = vnode.attrs.settings.allowed() ? 'Data that will be sent:' : 'Data that would have been sent, if allowed:';
 
@@ -25,5 +25,3 @@ const DataCollectedByGoCDWidget = {
     </div>;
   }
 };
-
-module.exports = DataCollectedByGoCDWidget;

@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-import * as m from "mithril";
+import m from "mithril";
 import {GoCDRole, Role} from "models/roles/roles";
 import * as simulateEvent from "simulate-event";
 import {GoCDRoleModalBodyWidget} from "views/pages/roles/role_modal_body_widget";
 import {RolesTestData} from "views/pages/roles/spec/test_data";
 import {TestHelper} from "views/pages/spec/test_helper";
-import * as styles from "../index.scss";
+import styles from "../index.scss";
 
 describe("GoCDRoleModalBodyWidget", () => {
   const helper = new TestHelper();

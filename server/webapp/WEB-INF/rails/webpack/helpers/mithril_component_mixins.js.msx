@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const m = require('mithril');
-const f = require('helpers/form_helper');
+import m from "mithril";
+import {f} from "helpers/form_helper";
+import {mixins as s} from "helpers/string-plus";
+import _ from "lodash";
 
-const s               = require('string-plus');
-const _               = require('lodash');
-const ComponentMixins = {};
+export const ComponentMixins = {};
 
 ComponentMixins.HasViewModel = function () {
   let vm;
@@ -81,5 +81,3 @@ ComponentMixins.ManagesCollection = function (options) {
 
   options.onInitialize && options.onInitialize.call(this);
 };
-
-module.exports = ComponentMixins;

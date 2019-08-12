@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import SparkRoutes from "helpers/spark_routes";
-import * as m from "mithril";
+import {SparkRoutes} from "helpers/spark_routes";
+import m from "mithril";
 import {GitMaterialAttributes, Material} from "models/materials/types";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {TestConnection} from "../test_connection";
-import * as styles from "../test_connection.scss";
+import styles from "../test_connection.scss";
 
 describe("Materials: TestConnection", () => {
   const helper = new TestHelper();

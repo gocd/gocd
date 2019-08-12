@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import * as m from "mithril";
+import m from "mithril";
 
 import {Agents, AgentsJSON} from "models/new-agent/agents";
 import {AgentsWidget} from "views/pages/new-agents/agents_widget";

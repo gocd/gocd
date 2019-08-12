@@ -13,18 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const m = require("mithril");
+import m from "mithril";
+import {PersonalizeEditorVM} from "views/dashboard/models/personalize_editor_vm";
+import {PersonalizationModalWidget} from "views/dashboard/personalization_modal_widget";
+import {Modal} from "views/shared/schmodal";
+import {mrequest} from "helpers/mrequest";
 
-const PersonalizeEditorVM        = require("views/dashboard/models/personalize_editor_vm");
-const PersonalizationModalWidget = require("views/dashboard/personalization_modal_widget");
-const Modal                      = require("views/shared/schmodal");
-const mrequest                   = require("helpers/mrequest");
-
-function personalizeEditor(opts, personalization, model) {
+export function personalizeEditor(opts, personalization, model) {
   // evaluate every time in case personalization is updated while the modal is open
   opts.names = () => personalization().names();
 
-  const vm = new PersonalizeEditorVM(opts, personalization().pipelineGroups());
+  const vm       = new PersonalizeEditorVM(opts, personalization().pipelineGroups());
   const existing = opts.name;
 
   model.updatePipelineGroups().then(() => {
@@ -33,7 +32,9 @@ function personalizeEditor(opts, personalization, model) {
 
   function save() {
     vm.validate();
-    if (vm.invalid()) { return; }
+    if (vm.invalid()) {
+      return;
+    }
 
     const newFilter = vm.asFilter();
 
@@ -53,15 +54,15 @@ function personalizeEditor(opts, personalization, model) {
 
   function deleteView() {
     const dialog = new Modal({
-      title: "Delete View",
-      size: "overlay-delete-view",
-      body: () => m("span", null, [
+      title:   "Delete View",
+      size:    "overlay-delete-view",
+      body:    () => m("span", null, [
         "Do you want to delete view ",
-        m("span", { "class": "personalization-view-name" }, existing),
+        m("span", {"class": "personalization-view-name"}, existing),
         "?"
       ]),
       buttons: [{
-        text: "Yes",
+        text:    "Yes",
         onclick: () => {
           personalization().removeFilter(existing, model.etag()).done((data) => {
             model.names(personalization().names());
@@ -73,13 +74,13 @@ function personalizeEditor(opts, personalization, model) {
           }).fail((xhr) => {
             const reason = mrequest.unwrapErrorExtractMessage(xhr.responseText);
             dialog.replace({
-              title: "Delete View",
-              size: "overlay-delete-view",
-              body: () => m("span", { "class": "server-error-response" }, [
-                m("i", { "class": "icon_alert" }),
-                m("span", { "class": "reason" }, [
+              title:   "Delete View",
+              size:    "overlay-delete-view",
+              body:    () => m("span", {"class": "server-error-response"}, [
+                m("i", {"class": "icon_alert"}),
+                m("span", {"class": "reason"}, [
                   "Failed to delete view ",
-                  m("span", { "class": "personalization-view-name" }, name),
+                  m("span", {"class": "personalization-view-name"}, name),
                   ": ", reason
                 ])
               ]),
@@ -92,23 +93,25 @@ function personalizeEditor(opts, personalization, model) {
   }
 
   const buttons = [
-    {text: "Save", class:"btn-save", disabled: vm.invalid, onclick: save, tooltipText: vm.firstError},
+    {text: "Save", class: "btn-save", disabled: vm.invalid, onclick: save, tooltipText: vm.firstError},
     {text: "Cancel", class: "btn-cancel btn-link"}
   ];
 
-  const disabled = () => (model.names().length < 2);
+  const disabled    = () => (model.names().length < 2);
   const tooltipText = () => {
     if (disabled()) {
       return "Cannot delete the last view. You must have at least one.";
     }
   };
 
-  if (existing) { buttons.unshift({text: "Delete View", class: "btn-delete", onclick: deleteView, disabled, tooltipText }); }
+  if (existing) {
+    buttons.unshift({text: "Delete View", class: "btn-delete", onclick: deleteView, disabled, tooltipText});
+  }
 
   this.modal = new Modal({
-    title: existing ? `Edit ${opts.name}`: "Create new view",
-    size: "overlay-personalize-editor",
-    body: () => m(PersonalizationModalWidget, { vm, save }),
+    title:       existing ? `Edit ${opts.name}` : "Create new view",
+    size:        "overlay-personalize-editor",
+    body:        () => m(PersonalizationModalWidget, {vm, save}),
     globalClick: () => {
       if (vm.tooltip()) {
         vm.tooltip(null);
@@ -118,5 +121,3 @@ function personalizeEditor(opts, personalization, model) {
     buttons
   });
 }
-
-module.exports = { open: personalizeEditor };

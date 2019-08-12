@@ -13,15 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const _                    = require('lodash');
-const s                    = require('helpers/string-plus');
-const AjaxHelper           = require('helpers/ajax_helper');
-const Material             = require('models/dashboard/material');
-const EnvironmentVariables = require('models/dashboard/environment_variables');
+import _ from "lodash";
+import {SparkRoutes} from "helpers/spark_routes";
+import {mixins as s} from "helpers/string-plus";
+import {AjaxHelper} from "helpers/ajax_helper";
+import {Material} from "models/dashboard/material";
+import {EnvironmentVariables} from "models/dashboard/environment_variables";
 
-import sparkRoutes from "helpers/spark_routes";
-
-const TriggerWithOptionsInfo = function (materials, plainTextVariables, secureVariables) {
+export const TriggerWithOptionsInfo = function (materials, plainTextVariables, secureVariables) {
   const self = this;
 
   this.materials          = materials;
@@ -100,11 +99,10 @@ TriggerWithOptionsInfo.fromJSON = (json, pipelineName) => {
 
 TriggerWithOptionsInfo.all = function (pipelineName) {
   return AjaxHelper.GET({
-    url:        sparkRoutes.pipelineTriggerWithOptionsViewPath(pipelineName),
+    url:        SparkRoutes.pipelineTriggerWithOptionsViewPath(pipelineName),
     apiVersion: 'v1',
   }).then((data) => {
     return TriggerWithOptionsInfo.fromJSON(data, pipelineName);
   });
 };
 
-module.exports = TriggerWithOptionsInfo;

@@ -16,8 +16,8 @@
 
 import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as _ from "lodash";
-import * as m from "mithril";
+import _ from "lodash";
+import m from "mithril";
 import {User, Users} from "models/users/users";
 import * as Icons from "views/components/icons";
 import {
@@ -26,7 +26,7 @@ import {
   SuperAdminPrivilegeSwitchAttrs
 } from "views/pages/users/super_admin_toggle_widget";
 import {State as UserActionsState, UsersActionsWidget} from "views/pages/users/user_actions_widget";
-import * as styles from "./index.scss";
+import styles from "./index.scss";
 
 const classnames = bind(styles);
 

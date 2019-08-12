@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import JsonUtils from "helpers/json_utils";
-import * as m from "mithril";
-import * as stream from "mithril/stream";
+import {JsonUtils} from "helpers/json_utils";
+import m from "mithril";
 import {Stream} from "mithril/stream";
+import stream from "mithril/stream";
 import {MailServerCrud} from "models/mail_server/mail_server_crud";
 import {MailServer} from "models/mail_server/types";
 import {FlashMessage, MessageType} from "views/components/flash_message";

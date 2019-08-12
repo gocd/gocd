@@ -14,5 +14,4 @@
  * limitations under the License.
  */
 require('./lib/angular.min.js');
-
-module.exports = angular;
+export const angular = window.angular;

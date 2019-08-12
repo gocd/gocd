@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 import {TestHelper} from "views/pages/spec/test_helper";
+import {AnalyticsiFrameWidget} from "views/shared/analytics_iframe_widget";
+import Stream from "mithril/stream";
+import m from "mithril";
+import "jasmine-jquery";
 
 describe("Analytics iFrame Widget", () => {
-  const m      = require('mithril');
-  const Stream = require('mithril/stream');
-  require('jasmine-jquery');
-
-  const AnalyticsiFrameWidget = require('views/shared/analytics_iframe_widget');
-
   const helper = new TestHelper();
 
   function newModel(loadedData, loadedView) {

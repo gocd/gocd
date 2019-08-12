@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const _           = require("lodash");
-const Validatable = require("models/mixins/validatable_mixin");
+import _ from "lodash";
+import {Validatable} from "models/mixins/validatable_mixin";
 
 const PADDED_SPACES = /^(?! ).*[\S]$/; // deny leading/trailing spaces
 const ASCII_PR_CHAR = /^[\x20-\x7E]+$/; // ASCII printable characters only (codes 32 - 126)
@@ -26,7 +26,7 @@ const MSG_DUPE_NAME = "Another view with this name already exists";
 const MSG_NO_SELECT = "At least one pipeline must be selected";
 
 /** Mixin to provide validations on personalization modal */
-function FilterValidations(opts) {
+export function FilterValidations(opts) {
   Validatable.call(this, {});
   this.validatePresenceOf("name");
   this.validateFormatOf("name", {format: PADDED_SPACES, message: MSG_PAD_SPACE});
@@ -66,4 +66,3 @@ function uniquenessValidator({names, name}, message) {
 
 function contains(arr, el) { return !!el && _.includes(_.map(arr, (a) => a.toLowerCase()), el.toLowerCase()); }
 
-module.exports = FilterValidations;

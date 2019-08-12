@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 import {TestHelper} from "views/pages/spec/test_helper";
+import Stream from "mithril/stream";
+import m from "mithril";
+import "jasmine-jquery";
+import {AgentStateCountWidget} from "views/agents/agent_state_count_widget";
+import {Agents} from "models/agents/agents";
 
 describe("Agent State Count Widget", () => {
-  const m      = require('mithril');
-  const Stream = require('mithril/stream');
   const helper = new TestHelper();
-  require("jasmine-jquery");
-
-
-  const Agents                = require('models/agents/agents');
-  const AgentStateCountWidget = require("views/agents/agent_state_count_widget");
 
   beforeEach(() => {
     const agents    = Stream();

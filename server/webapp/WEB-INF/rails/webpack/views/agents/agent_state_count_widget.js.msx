@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const m                       = require('mithril');
-const AgentStateCountWidget = {
+import m from "mithril";
+
+export const AgentStateCountWidget = {
   view (vnode) {
     const args = vnode.attrs;
 
@@ -46,4 +47,3 @@ const AgentStateCountWidget = {
   }
 };
 
-module.exports = AgentStateCountWidget;

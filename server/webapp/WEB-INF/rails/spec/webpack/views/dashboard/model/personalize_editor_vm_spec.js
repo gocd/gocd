@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const PersonalizeEditorVM = require("views/dashboard/models/personalize_editor_vm");
+import {PersonalizeEditorVM} from "views/dashboard/models/personalize_editor_vm";
 
 describe("Personalization Editor View Model", () => {
   it("blank config yields a wildcard filter", () => {

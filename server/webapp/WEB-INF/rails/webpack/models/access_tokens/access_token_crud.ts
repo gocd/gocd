@@ -15,7 +15,7 @@
  */
 
 import {ApiRequestBuilder, ApiResult, ApiVersion, ObjectWithEtag} from "helpers/api_request_builder";
-import SparkRoutes from "helpers/spark_routes";
+import {SparkRoutes} from "helpers/spark_routes";
 import {AccessToken, AccessTokens, AccessTokensJSON} from "models/access_tokens/types";
 
 export class AccessTokenCRUD {

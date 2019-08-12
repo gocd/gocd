@@ -16,12 +16,12 @@
 
 import {docsUrl} from "gen/gocd_version";
 import {MithrilComponent, MithrilViewComponent} from "jsx/mithril-component";
-import * as m from "mithril";
+import m from "mithril";
 import {AuthPluginInfo} from "models/authentication/auth_plugin_info";
-import * as s from "underscore.string";
-import * as uuid from "uuid/v4";
+import s from "underscore.string";
+import uuid from "uuid/v4";
 import {FlashMessage, MessageType} from "views/components/flash_message";
-import * as styles from "./login_page_widget.scss";
+import styles from "./login_page_widget.scss";
 
 const gocdLogo = require("./gocd_logo.svg");
 

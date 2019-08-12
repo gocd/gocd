@@ -13,40 +13,50 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const _        = require("lodash");
-const m        = require("mithril");
-const Sortable = require("@shopify/draggable/lib/es5/sortable").default; // es5 bundle => IE11 support
-const Editor   = require("views/dashboard/personalization_editor");
-const raf      = require("helpers/throttle-raf");
+import _ from "lodash";
+import m from "mithril";
+import Sortable from "@shopify/draggable/lib/es5/sortable";
+// es5 bundle => IE11 support
+import {personalizeEditor as Editor} from "views/dashboard/personalization_editor";
+import {throttleRaf} from "helpers/throttle-raf";
 
-const SortableViewTabs = {
+export const SortableViewTabs = {
   oncreate: initSortable,
 
   view(vnode) {
-    const vm = vnode.attrs.vm;
-    const attrs = { class: "dashboard-tabs-sortable", "aria-label": "Dashboard Views", onscroll: raf(() => vm.hideAllDropdowns()) };
+    const vm    = vnode.attrs.vm;
+    const attrs = {
+      class:        "dashboard-tabs-sortable",
+      "aria-label": "Dashboard Views",
+      onscroll:     throttleRaf(() => vm.hideAllDropdowns())
+    };
 
-    return m("nav", attrs, _.map(vm.tabs(), (tab) => <ViewTab {...vnode.attrs} key={tab.id} name={tab.name} />));
+    return m("nav", attrs, _.map(vm.tabs(), (tab) => <ViewTab {...vnode.attrs} key={tab.id} name={tab.name}/>));
   }
 };
 
 const ViewTab = {
   view(vnode) {
-    const vm = vnode.attrs.vm;
-    const name = vnode.attrs.name;
+    const vm      = vnode.attrs.vm;
+    const name    = vnode.attrs.name;
     const current = vm.active(name);
-    const model = vm.model;
-    const edit = vm.actionHandler(() => Editor.open(model().namedFilter(name), model, vm));
+    const model   = vm.model;
+    const edit    = vm.actionHandler(() => Editor.open(model().namedFilter(name), model, vm));
 
-    function switchTab(e) { e.stopPropagation(); vm.activate(name); }
+    function switchTab(e) {
+      e.stopPropagation();
+      vm.activate(name);
+    }
 
-    if (current) { vm.currentVnode(vnode); }
+    if (current) {
+      vm.currentVnode(vnode);
+    }
 
     return <div class={current ? "dashboard-tab current" : "dashboard-tab"} onclick={current || switchTab}
                 data-name={name} aria-label={current ? `'${name}' is selected` : name} title={name} tabIndex="0">
-      <i class="icon_drag" />
+      <i class="icon_drag"/>
       <div class="tab-name" title={name} aria-label={name}>{name}</div>
-      <button class="edit-tab"  onclick={edit} ><i class="icon_edit"/></button>
+      <button class="edit-tab" onclick={edit}><i class="icon_edit"/></button>
     </div>;
   }
 };
@@ -58,10 +68,10 @@ function initSortable(vnode) {
 
   new Sortable([vnode.dom], {
     draggable: ".dashboard-tab",
-    handle: ".icon_drag",
+    handle:    ".icon_drag",
     // increase delay to 200 (from 100) to reduce accidental drags, but not by enough so as to be annoying
-    delay: 200,
-     mirror: {
+    delay:     200,
+    mirror:    {
       constrainDimensions: true,
     }
   }).on("drag:start", (e) => {
@@ -88,7 +98,12 @@ function initSortable(vnode) {
 }
 
 function initSavePopup(vm) {
-  const onreset = () => { vm.stagedSort(null); vm.actionPopup(null); m.redraw(); vm.onchange(); };
+  const onreset = () => {
+    vm.stagedSort(null);
+    vm.actionPopup(null);
+    m.redraw();
+    vm.onchange();
+  };
 
   const onsave = () => {
     vm.model().updateFilters(vm.stagedSort(), vm.etag()).done((data) => {
@@ -97,8 +112,8 @@ function initSavePopup(vm) {
       onreset();
     }).fail((xhr) => {
       vm.actionPopup({
-        class: "personalization-update-failed",
-        body: <span class="server-error-response">
+        class:   "personalization-update-failed",
+        body:    <span class="server-error-response">
           <i class="icon_alert"></i>
           <span class="reason">{JSON.parse(xhr.responseText).message}</span>
         </span>,
@@ -111,8 +126,8 @@ function initSavePopup(vm) {
   };
 
   vm.actionPopup({
-    class: "save-tab-order-confirmation",
-    body: <span class="save-tab-order-message">Save view order?</span>,
+    class:   "save-tab-order-confirmation",
+    body:    <span class="save-tab-order-message">Save view order?</span>,
     onabort: onreset,
     buttons: [
       {class: "btn-link", text: "Revert", onclick: onreset},
@@ -120,5 +135,3 @@ function initSavePopup(vm) {
     ]
   });
 }
-
-module.exports = SortableViewTabs;

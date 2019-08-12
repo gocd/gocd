@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import Stream from "mithril/stream";
+import _ from "lodash";
+import {mixins as s} from "helpers/string-plus";
+import {Validatable} from "models/mixins/validatable_mixin";
+import {Mixins} from "models/mixins/model_mixins";
+
 describe('Validatable', () => {
 
-  const Stream      = require('mithril/stream');
-  const _           = require('lodash');
-  const s           = require('string-plus');
-  const Validatable = require('models/mixins/validatable_mixin');
-  const Mixins      = require('models/mixins/model_mixins');
 
   describe('errors', () => {
     const Material = function (data) {

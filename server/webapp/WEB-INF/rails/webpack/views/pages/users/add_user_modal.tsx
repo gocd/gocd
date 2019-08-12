@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 import {bind} from "classnames/bind";
-import * as _ from "lodash";
-import * as m from "mithril";
-import * as stream from "mithril/stream";
+import _ from "lodash";
+import m from "mithril";
 import {Stream} from "mithril/stream";
+import stream from "mithril/stream";
 import {UserJSON} from "models/users/users";
 import {UsersCRUD, UserSearchCRUD} from "models/users/users_crud";
-import * as uuid from "uuid/v4";
+import uuid from "uuid/v4";
 import * as Buttons from "views/components/buttons";
 import {FlashMessage, FlashMessageModel, MessageType} from "views/components/flash_message";
 import {SearchFieldWithButton} from "views/components/forms/input_fields";
 import {Modal, Size} from "views/components/modal";
 import {Spinner} from "views/components/spinner";
 import {Table} from "views/components/table";
-import * as styles from "views/pages/users/index.scss";
+import styles from "views/pages/users/index.scss";
 
 const classnames = bind(styles);
 

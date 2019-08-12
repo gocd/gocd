@@ -15,7 +15,7 @@
  */
 
 import {ApiRequestBuilder, ApiResult, ApiVersion, ObjectWithEtag} from "helpers/api_request_builder";
-import SparkRoutes from "helpers/spark_routes";
+import {SparkRoutes} from "helpers/spark_routes";
 import {PluginSettings} from "models/shared/plugin_infos_new/plugin_settings/plugin_settings";
 
 export class PluginSettingsCRUD {

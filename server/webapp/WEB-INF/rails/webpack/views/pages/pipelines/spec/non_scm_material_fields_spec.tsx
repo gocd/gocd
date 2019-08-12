@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import * as m from "mithril";
+import m from "mithril";
 import {DependencyMaterialAttributes, Material} from "models/materials/types";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {DependencyFields, SuggestionCache} from "../non_scm_material_fields";

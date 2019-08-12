@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import * as stream from "mithril/stream";
+import stream from "mithril/stream";
 import {SystemAdmins} from "models/admins/types";
 import {User} from "models/users/users";
 import {FlashMessageModelWithTimeout, MessageType} from "views/components/flash_message";

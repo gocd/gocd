@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const m = require('mithril');
-const f = require('helpers/form_helper');
-
-const _     = require('lodash');
-const $     = require('jquery');
-const uuid4 = require('uuid/v4');
+import m from "mithril";
+import {f} from "helpers/form_helper";
+import _ from "lodash";
+import $ from "jquery";
+import uuid4 from "uuid/v4";
 // instead of each modal being a top level component of its own (and causing a redraw of everything else on the page)
 // we manage a single component that's always mounted as soon as the page loads up, creating a new modal will create
 // a sub-component in the top level component.
@@ -38,7 +37,7 @@ const defaultOptions = {
   onclose: _.noop()
 };
 
-const Modal = function (options) {
+export const Modal = function (options) {
   const self    = this;
   const modalId = `modal-${uuid4()}`;
   options       = _.assign({}, defaultOptions, options);
@@ -159,5 +158,3 @@ Modal.destroyAll = function () {
 Modal.count = function () {
   return _.keys(allModals).length;
 };
-
-module.exports = Modal;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import Page from "helpers/spa_base";
+import {Page} from "helpers/spa_base";
 import {PipelinesAsCodeCreatePage} from "views/pages/pipelines_as_code";
 
 export class PipelineAsCodeSPA extends Page {

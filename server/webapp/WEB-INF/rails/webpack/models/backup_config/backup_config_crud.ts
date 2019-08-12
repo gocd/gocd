@@ -15,8 +15,8 @@
  */
 
 import {ApiRequestBuilder, ApiResult, ApiVersion} from "helpers/api_request_builder";
-import JsonUtils from "helpers/json_utils";
-import SparkRoutes from "helpers/spark_routes";
+import {JsonUtils} from "helpers/json_utils";
+import {SparkRoutes} from "helpers/spark_routes";
 import {BackupConfig} from "models/backup_config/types";
 
 export class BackupConfigCrud {

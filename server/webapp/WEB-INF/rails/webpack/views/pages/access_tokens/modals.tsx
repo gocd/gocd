@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import * as _ from "lodash";
-import * as m from "mithril";
+import _ from "lodash";
+import m from "mithril";
 import {Stream} from "mithril/stream";
-import * as stream from "mithril/stream";
+import stream from "mithril/stream";
 import {AccessTokenCRUD} from "models/access_tokens/access_token_crud";
 import {AccessToken, AccessTokens} from "models/access_tokens/types";
 import {AdminAccessTokenCRUD} from "models/admin_access_tokens/admin_access_token_crud";
@@ -26,7 +26,7 @@ import {FlashMessage, MessageType} from "views/components/flash_message";
 import {CopyField, Size, TextAreaField} from "views/components/forms/input_fields";
 import {Spinner} from "views/components/spinner";
 import {BaseModal, RevokeTokenModal} from "views/pages/access_tokens/commons/modals";
-import * as styles from "views/pages/access_tokens/index.scss";
+import styles from "views/pages/access_tokens/index.scss";
 import {PageState} from "views/pages/page";
 
 export class GenerateTokenModal extends BaseModal {

@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 import {TestHelper} from "views/pages/spec/test_helper";
+import {TriStateCheckbox} from "models/agents/tri_state_checkbox";
+import {TriStateCheckboxWidget} from "views/agents/tri_state_checkbox_widget";
+import m from "mithril";
+import 'jasmine-jquery';
 
 describe("TriStateCheckboxWidget", () => {
-  const m = require("mithril");
 
-  require('jasmine-jquery');
-
-  const TriStateCheckboxWidget = require("views/agents/tri_state_checkbox_widget");
-  const TriStateCheckbox       = require("models/agents/tri_state_checkbox");
   const helper                 = new TestHelper();
 
   const resources = [['Firefox'], ['Firefox', 'Chrome']];

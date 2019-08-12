@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 import {TestHelper} from "views/pages/spec/test_helper";
+import {EnvironmentVariables} from "models/dashboard/environment_variables";
+import * as EnvironmentVariablesWidget from "views/dashboard/trigger_with_options/environment_variables_widget";
+import simulateEvent from "simulate-event";
+import $ from "jquery";
+import m from "mithril";
 
 describe("Dashboard Environment Variables Trigger Widget", () => {
-  const m             = require("mithril");
-  const $             = require("jquery");
-  const simulateEvent = require('simulate-event');
-
-  const EnvironmentVariablesWidget = require("views/dashboard/trigger_with_options/environment_variables_widget");
-  const EnvironmentVariables       = require('models/dashboard/environment_variables');
 
   const helper = new TestHelper();
 
@@ -44,7 +43,7 @@ describe("Dashboard Environment Variables Trigger Widget", () => {
 
     beforeEach(() => {
       variables = EnvironmentVariables.fromJSON(json);
-      helper.mount(() => m(EnvironmentVariablesWidget['Plain'], {
+      helper.mount(() => m(EnvironmentVariablesWidget.Plain, {
         variables
       }));
     });
@@ -94,7 +93,7 @@ describe("Dashboard Environment Variables Trigger Widget", () => {
     const variables = EnvironmentVariables.fromJSON(json);
 
     beforeEach(() => {
-      helper.mount(() => m(EnvironmentVariablesWidget['Secure'], {
+      helper.mount(() => m(EnvironmentVariablesWidget.Secure, {
         variables
       }));
     });

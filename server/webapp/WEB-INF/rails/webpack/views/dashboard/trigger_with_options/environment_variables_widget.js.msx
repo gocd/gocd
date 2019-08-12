@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const m = require('mithril');
-const _ = require('lodash');
+import m from "mithril";
+import _ from "lodash";
 
-const Plain = {
+export const Plain = {
   view(vnode) {
     return (
       <div class="environment-variables-tab-content">
@@ -54,7 +54,7 @@ const Plain = {
   }
 };
 
-const Secure = {
+export const Secure = {
 
   oninit(vnode) {
     vnode.state.override = (variable) => {
@@ -106,8 +106,4 @@ const Secure = {
       </div>
     );
   }
-};
-
-module.exports = {
-  Plain, Secure
 };

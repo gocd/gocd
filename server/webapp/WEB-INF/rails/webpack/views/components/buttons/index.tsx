@@ -15,7 +15,7 @@
  */
 import classnames from "classnames";
 import {RestyleAttrs, RestyleComponent, RestyleViewComponent} from "jsx/mithril-component";
-import * as m from "mithril";
+import m from "mithril";
 import {Stream} from "mithril/stream";
 import * as defaultStyles from "./index.scss";
 

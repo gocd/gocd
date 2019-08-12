@@ -15,17 +15,17 @@
  */
 
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as _ from "lodash";
-import * as m from "mithril";
+import _ from "lodash";
+import m from "mithril";
 import {Stream} from "mithril/stream";
-import * as stream from "mithril/stream";
+import stream from "mithril/stream";
 import {Rule, Rules} from "models/secret_configs/rules";
 import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {AutocompleteField} from "views/components/forms/autocomplete";
 import {SelectField, SelectFieldOptions} from "views/components/forms/input_fields";
 import {Table} from "views/components/table";
-import * as styles from "views/pages/secret_configs/index.scss";
+import styles from "views/pages/secret_configs/index.scss";
 import {ResourceSuggestionProvider} from "views/pages/secret_configs/suggestion_provider";
 
 interface Attrs {

@@ -13,24 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import SparkRoutes from "helpers/spark_routes";
+import {SparkRoutes} from "helpers/spark_routes";
 import {TestHelper} from "views/pages/spec/test_helper";
-import * as css from "views/components/buttons/index.scss";
+import css from "views/components/buttons/index.scss";
 import {asSelector} from "helpers/css_proxies";
+import {Personalization} from "models/dashboard/personalization";
+import {PersonalizationVM} from "views/dashboard/models/personalization_vm";
+import {Modal} from "views/shared/new_modal";
+import {DashboardViewModel as DashboardVM} from "views/dashboard/models/dashboard_view_model";
+import {Dashboard} from "models/dashboard/dashboard";
+import {DashboardWidget} from "views/dashboard/dashboard_widget";
+import simulateEvent from "simulate-event";
+import _ from "lodash";
+import $ from "jquery";
+import Stream from "mithril/stream";
+import m from "mithril";
 
 describe("Dashboard Widget", () => {
-  const m               = require("mithril");
-  const Stream          = require("mithril/stream");
-  const $               = require("jquery");
-  const _               = require("lodash");
-  const simulateEvent   = require("simulate-event");
-  const DashboardWidget = require("views/dashboard/dashboard_widget");
-  const Dashboard       = require('models/dashboard/dashboard');
-  const DashboardVM     = require("views/dashboard/models/dashboard_view_model");
-  const Modal           = require("views/shared/new_modal");
-
-  const PersonalizeVM   = require('views/dashboard/models/personalization_vm');
-  const Personalization = require('models/dashboard/personalization');
 
   const sel = asSelector(css);
 
@@ -388,7 +387,7 @@ describe("Dashboard Widget", () => {
             "can_administer": canAdminister
           }
         ],
-        "environments": [
+        "environments":    [
           {
             "_links":         {
               "self": {
@@ -522,11 +521,11 @@ describe("Dashboard Widget", () => {
     };
 
     dashboard           = new Dashboard();
-    const personalizeVM = new PersonalizeVM(Stream("Default"));
+    const personalizeVM = new PersonalizationVM(Stream("Default"));
     personalizeVM.model(new Personalization([{name: "Default", state: []}], []));
     dashboard.initialize(dashboardJson);
 
-    vm = new DashboardVM(dashboard);
+    vm                 = new DashboardVM(dashboard);
     vm._performRouting = _.noop;
     helper.mount(() => m(DashboardWidget, {
       personalizeVM,

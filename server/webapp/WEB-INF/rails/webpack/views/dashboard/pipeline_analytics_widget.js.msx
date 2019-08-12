@@ -13,15 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const m = require('mithril');
+import m from "mithril";
+import Interactions from "models/shared/analytics_interaction_manager";
+import {init} from "rails-shared/plugin-endpoint";
+import {Modal} from "views/shared/new_modal";
+import {AnalyticsiFrameWidget} from "views/shared/analytics_iframe_widget";
+import AnalyticsEndpoint from "rails-shared/plugin-endpoint";
 
-const Interactions          = require("models/shared/analytics_interaction_manager");
 const Models                = Interactions.ensure().ns("PipelineMetrics");
-const init                  = require("rails-shared/plugin-endpoint").init;
-
-const Modal                 = require("views/shared/new_modal");
-const AnalyticsiFrameWidget = require("views/shared/analytics_iframe_widget");
-const AnalyticsEndpoint     = require("rails-shared/plugin-endpoint");
 
 function createModal(pluginId, metricId, pipeline) {
   const uid = Models.uid(0, pluginId, "pipeline", metricId),
@@ -43,7 +42,7 @@ function createModal(pluginId, metricId, pipeline) {
   modal.render();
 }
 
-const PipelineAnalyticsWidget = {
+export const PipelineAnalyticsWidget = {
   view(vnode) {
     return m("a", {
       class: "pipeline-analytics",
@@ -53,5 +52,3 @@ const PipelineAnalyticsWidget = {
     });
   }
 };
-
-module.exports = PipelineAnalyticsWidget;

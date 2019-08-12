@@ -13,17 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const m             = require('mithril');
-const renderComment = require('helpers/render_comment');
+import {renderComment, TrackingTool} from "helpers/render_comment";
+import {MithrilViewComponent} from "jsx/mithril-component";
+import m from "mithril";
 
-const CommentRenderWidget = {
+export interface Attrs {
+  text: string;
+  trackingTool: TrackingTool;
+}
 
-  view(vnode) {
+export class CommentRenderWidget extends MithrilViewComponent<Attrs> {
+  view(vnode: m.Vnode<Attrs>) {
     const text         = vnode.attrs.text;
     const trackingTool = vnode.attrs.trackingTool;
 
     return (<div class="item comment"><p>{m.trust(renderComment(text, trackingTool))}</p></div>);
   }
-};
-
-module.exports = CommentRenderWidget;
+}

@@ -15,8 +15,8 @@
  */
 
 // utils
-import * as _ from "lodash";
-import * as m from "mithril";
+import _ from "lodash";
+import m from "mithril";
 import {Page, PageState} from "views/pages/page";
 
 // models

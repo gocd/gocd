@@ -15,10 +15,10 @@
  */
 
 import {SuccessResponse} from "helpers/api_request_builder";
-import SparkRoutes from "helpers/spark_routes";
-import * as m from "mithril";
-import * as stream from "mithril/stream";
+import {SparkRoutes} from "helpers/spark_routes";
+import m from "mithril";
 import {Stream} from "mithril/stream";
+import stream from "mithril/stream";
 import {BackupConfigCrud} from "models/backup_config/backup_config_crud";
 import {BackupConfig} from "models/backup_config/types";
 import {ServerBackupAPI} from "models/backups/server_backup_api";

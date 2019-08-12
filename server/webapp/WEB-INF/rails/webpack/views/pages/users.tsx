@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import * as m from "mithril";
-import * as stream from "mithril/stream";
+import m from "mithril";
 import {Stream} from "mithril/stream";
+import stream from "mithril/stream";
 import {AdminsCRUD, BulkUpdateSystemAdminJSON} from "models/admins/admin_crud";
 import {BulkUserRoleUpdateJSON, GoCDAttributes, GoCDRole, Roles} from "models/roles/roles";
 import {RolesCRUD} from "models/roles/roles_crud";
@@ -35,7 +35,7 @@ import {DeleteUserConfirmModal} from "views/pages/users/delete_user_confirmation
 import {State as UserActionsState, UsersActionsWidget} from "views/pages/users/user_actions_widget";
 import {UserViewHelper} from "views/pages/users/user_view_helper";
 import {Attrs as UsersWidgetState, UsersTableWidget} from "views/pages/users/users_widget";
-import * as styles from "./users/index.scss";
+import styles from "./users/index.scss";
 
 interface State extends UserActionsState, AddOperation<Users>, UsersWidgetState {
   initialUsers: Stream<Users>;

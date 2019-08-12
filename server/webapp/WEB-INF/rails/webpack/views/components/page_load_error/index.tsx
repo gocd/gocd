@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as m from "mithril";
+import m from "mithril";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 
 export interface Attrs {

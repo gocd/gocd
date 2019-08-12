@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const m      = require('mithril');
-const f      = require("helpers/form_helper");
-const Stream = require('mithril/stream');
+import m from "mithril";
+import {f} from "helpers/form_helper";
+import Stream from "mithril/stream";
+import {HeaderPanel} from "views/shared/header_panel";
+import {ToggleConsentWidget} from "views/data_sharing_settings/toggle_consent_widget";
+import {DataCollectedByGoCDWidget} from "views/data_sharing_settings/data_collected_by_gocd_widget";
+import {ConsentInformationWidget} from "views/data_sharing_settings/data_sharing_information_widget";
 
-const HeaderPanel               = require('views/shared/header_panel');
-const ToggleConsentWidget       = require('views/data_sharing_settings/toggle_consent_widget');
-const DataCollectedByGoCDWidget = require('views/data_sharing_settings/data_collected_by_gocd_widget');
-const ConsentInformationWidget  = require('views/data_sharing_settings/data_sharing_information_widget');
-
-const DataSharingSettingsWidget = {
+export const DataSharingSettingsWidget = {
   oninit(vnode) {
     this.flashMessage     = Stream();
     this.flashMessageType = Stream();
@@ -69,20 +68,18 @@ const DataSharingSettingsWidget = {
 
     return (<div>
       <HeaderPanel title="Help improve GoCD by sharing technical data"/>
-        <div class="data-sharing">
-            {flashMessage}
-            <ConsentInformationWidget/>
-            <div class="share-box">
-                <ToggleConsentWidget settings={settings}/>
-                <DataCollectedByGoCDWidget settings={settings} usageData={vnode.attrs.usageData}/>
-            </div>
-            <div class="button-wrapper">
-                <f.button class="update-consent" onclick={vnode.state.save.bind(this, settings)}>Save</f.button>
-                <f.button class="reset-consent" onclick={vnode.state.reset.bind(this, settings)}>Reset</f.button>
-            </div>
+      <div class="data-sharing">
+        {flashMessage}
+        <ConsentInformationWidget/>
+        <div class="share-box">
+          <ToggleConsentWidget settings={settings}/>
+          <DataCollectedByGoCDWidget settings={settings} usageData={vnode.attrs.usageData}/>
         </div>
+        <div class="button-wrapper">
+          <f.button class="update-consent" onclick={vnode.state.save.bind(this, settings)}>Save</f.button>
+          <f.button class="reset-consent" onclick={vnode.state.reset.bind(this, settings)}>Reset</f.button>
+        </div>
+      </div>
     </div>);
   }
 };
-
-module.exports = DataSharingSettingsWidget;

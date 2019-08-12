@@ -15,9 +15,9 @@
  */
 
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as m from "mithril";
+import m from "mithril";
 
-import * as styles from "./index.scss";
+import styles from "./index.scss";
 
 export interface Attrs {
   target?: string;

@@ -15,7 +15,7 @@
  */
 
 import {ApiRequestBuilder, ApiResult, ApiVersion, ObjectWithEtag} from "helpers/api_request_builder";
-import SparkRoutes from "helpers/spark_routes";
+import {SparkRoutes} from "helpers/spark_routes";
 import {BulkUserRoleUpdateJSON, GoCDRole, PluginRole, Role, Roles} from "models/roles/roles";
 
 export class RolesCRUD {

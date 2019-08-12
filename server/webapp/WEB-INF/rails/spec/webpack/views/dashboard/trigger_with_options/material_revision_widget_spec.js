@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 import {TestHelper} from "../../../../../webpack/views/pages/spec/test_helper";
+import {timeFormatter} from "helpers/time_formatter";
+import {MaterialRevision} from "models/dashboard/material_revision";
+import {MaterialRevisionWidget} from "views/dashboard/trigger_with_options/material_revision_widget";
+import m from "mithril";
 
 describe("Dashboard Material Revision Widget", () => {
-  const m = require("mithril");
-
-  const MaterialRevisionWidget = require("views/dashboard/trigger_with_options/material_revision_widget");
-  const MaterialRevision       = require('models/dashboard/material_revision');
-  const TimeFormatter          = require('helpers/time_formatter');
 
   const helper = new TestHelper();
 
@@ -64,7 +63,7 @@ describe("Dashboard Material Revision Widget", () => {
       const modification       = gitRevisionJson.modifications[0];
       expect(modificationWidget).toContainText(modification.user_name);
       expect(modificationWidget).toContainText(modification.revision);
-      expect(modificationWidget).toContainText(TimeFormatter.format(modification.modified_time));
+      expect(modificationWidget).toContainText(timeFormatter.format(modification.modified_time));
       expect(modificationWidget).toContainText(modification.comment);
       expect(modificationWidget).toContainText("VSM");
 
@@ -114,7 +113,7 @@ describe("Dashboard Material Revision Widget", () => {
       const modification       = pipelineRevisionJson.modifications[0];
 
       expect(modificationWidget).toContainText(modification.revision);
-      expect(modificationWidget).toContainText(TimeFormatter.format(modification.modified_time));
+      expect(modificationWidget).toContainText(timeFormatter.format(modification.modified_time));
       expect(modificationWidget).toContainText(modification.pipeline_label);
     });
 
@@ -171,7 +170,7 @@ describe("Dashboard Material Revision Widget", () => {
       const modification       = packageRevisionJson.modifications[0];
 
       expect(modificationWidget).toContainText(modification.user_name);
-      expect(modificationWidget).toContainText(TimeFormatter.format(modification.modified_time));
+      expect(modificationWidget).toContainText(timeFormatter.format(modification.modified_time));
       expect(modificationWidget).toContainText(modification.revision);
       expect(modificationWidget).toContainText("VSM");
       expect(modificationWidget).toContainText("Trackback: Not Provided");

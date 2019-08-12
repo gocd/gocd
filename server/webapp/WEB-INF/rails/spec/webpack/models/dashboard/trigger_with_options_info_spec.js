@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import _ from "lodash";
+import {TriggerWithOptionsInfo} from "models/dashboard/trigger_with_options_info";
+
 describe("Dashboard", () => {
   describe('Trigger With Option Information Model', () => {
-    const _ = require('lodash');
-
-    const TriggerWithOptionsInfo = require('models/dashboard/trigger_with_options_info');
 
     it("should deserialize from json", () => {
       const info = TriggerWithOptionsInfo.fromJSON(json);

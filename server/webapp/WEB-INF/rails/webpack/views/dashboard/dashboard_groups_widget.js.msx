@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const m              = require("mithril");
-const _              = require("lodash");
-const f              = require("helpers/form_helper");
-const PipelineWidget = require("views/dashboard/pipeline_widget");
-const Buttons        = require("views/components/buttons/index");
+import m from "mithril";
+import _ from "lodash";
+import {f} from "helpers/form_helper";
+import {PipelineWidget} from "views/dashboard/pipeline_widget";
+import * as Buttons from "views/components/buttons/index";
 
 const GroupHeading = {
   goToAddPipeline(url) {
@@ -92,7 +92,7 @@ const Group = {
   }
 };
 
-const DashboardGroupsWidget = {
+export const DashboardGroupsWidget = {
   view(vnode) {
     const sharedArgs = _.assign({}, vnode.attrs);
     delete sharedArgs.groups;
@@ -103,4 +103,3 @@ const DashboardGroupsWidget = {
   }
 };
 
-module.exports = DashboardGroupsWidget;

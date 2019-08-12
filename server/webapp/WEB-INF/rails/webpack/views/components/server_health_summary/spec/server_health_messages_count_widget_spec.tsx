@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-import * as $ from "jquery";
-import * as m from "mithril";
-import * as stream from "mithril/stream";
+import {timeFormatter} from "helpers/time_formatter";
+import $ from "jquery";
+import m from "mithril";
+import stream from "mithril/stream";
 import {ServerHealthMessages} from "models/shared/server_health_messages/server_health_messages";
-import * as s from "underscore.string";
+import s from "underscore.string";
 import {ModalManager} from "views/components/modal/modal_manager";
 import {ServerHealthMessagesCountWidget} from "views/components/server_health_summary/server_health_messages_count_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("ServerHealthMessagesCountWidget", () => {
-  const TimeFormatter = require("helpers/time_formatter");
 
   const jsonData             = [
     {
@@ -65,7 +65,7 @@ describe("ServerHealthMessagesCountWidget", () => {
     expect($(`.component-modal-container [data-test-id='server-health-message-for-${s.slugify(jsonData[0].message)}'] [data-test-class='server-health-message_detail']:first`))
       .toContainText(jsonData[0].detail);
     expect($(`.component-modal-container [data-test-id='server-health-message-for-${s.slugify(jsonData[0].message)}'] [data-test-class='server-health-message_timestamp']:first`))
-      .toContainText(TimeFormatter.format(jsonData[0].time));
+      .toContainText(timeFormatter.format(jsonData[0].time));
   });
 
   it("should trust html messages in modal", () => {
@@ -84,7 +84,7 @@ describe("ServerHealthMessagesCountWidget", () => {
     expect($(".component-modal-container [data-test-id='server-health-message-for-test-message'] [data-test-class='server-health-message_detail']"))
       .toContainHtml(`This is a <a href="http://example.com">link</a>`);
     expect($($(".component-modal-container [data-test-id='server-health-message-for-test-message'] [data-test-class='server-health-message_timestamp']")))
-      .toContainText(TimeFormatter.format("2018-01-30T07:34:43Z"));
+      .toContainText(timeFormatter.format("2018-01-30T07:34:43Z"));
   });
 
 });

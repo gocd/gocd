@@ -15,14 +15,14 @@
  */
 import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as _ from "lodash";
-import * as m from "mithril";
+import _ from "lodash";
+import m from "mithril";
 import {Spinner} from "views/components/spinner";
 import * as Buttons from "../buttons";
-import * as styles from "./index.scss";
+import styles from "./index.scss";
 import {ModalManager} from "./modal_manager";
 
-const uuid4 = require("uuid/v4");
+import uuid4 from "uuid/v4";
 
 const classnames = bind(styles);
 

@@ -15,7 +15,7 @@
  */
 
 import {Stream} from "mithril/stream";
-import * as stream from "mithril/stream";
+import stream from "mithril/stream";
 import {BaseErrorsConsumer, ErrorsConsumer} from "models/mixins/errors_consumer";
 
 describe("ErrorsConsumer", () => {

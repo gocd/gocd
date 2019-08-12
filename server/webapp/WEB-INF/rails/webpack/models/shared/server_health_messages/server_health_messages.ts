@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 import {ApiRequestBuilder, ApiResult, ApiVersion} from "helpers/api_request_builder";
-import SparkRoutes from "helpers/spark_routes";
-import * as _ from "lodash";
+import {SparkRoutes} from "helpers/spark_routes";
+import _ from "lodash";
 
 const inflection = require("lodash-inflection");
 

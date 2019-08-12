@@ -13,22 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import _ from "lodash";
+import m from "mithril";
+import {SortOrder} from "views/agents/models/route_handler";
+
 describe("Agents Route Handler", () => {
 
-  const _            = require('lodash');
-  const m            = require('mithril');
-  const RouteHandler = require('views/agents/models/route_handler');
 
   it("should default to correct values", () => {
-    expect(new RouteHandler().sortBy()).toEqual('agentState');
-    expect(new RouteHandler().orderBy()).toEqual('asc');
+    expect(new SortOrder().sortBy()).toEqual('agentState');
+    expect(new SortOrder().orderBy()).toEqual('asc');
 
-    expect(new RouteHandler().searchText()).toEqual('');
+    expect(new SortOrder().searchText()).toEqual('');
   });
 
   describe('toggleSortingOrder', () => {
     it("should toggle sort order on existing column", () => {
-      const routeHandler   = new RouteHandler();
+      const routeHandler   = new SortOrder();
       routeHandler.perform = _.noop;
 
       routeHandler.toggleSortingOrder(routeHandler.sortBy());
@@ -41,7 +43,7 @@ describe("Agents Route Handler", () => {
     });
 
     it("should reset sort order (to asc) when column changes", () => {
-      const routeHandler   = new RouteHandler();
+      const routeHandler   = new SortOrder();
       routeHandler.perform = _.noop;
 
       routeHandler.toggleSortingOrder('bar');
@@ -52,7 +54,7 @@ describe("Agents Route Handler", () => {
 
   describe("isSortedOn", () => {
     it("should return true if current sort column is the same as the one passed in", () => {
-      const routeHandler = new RouteHandler();
+      const routeHandler = new SortOrder();
 
       expect(routeHandler.isSortedOn(routeHandler.sortBy())).toBe(true);
       expect(routeHandler.isSortedOn('blah')).toBe(false);
@@ -61,14 +63,14 @@ describe("Agents Route Handler", () => {
 
   describe('searchText', () => {
     it('should return searchText value when no params are provided', () => {
-      const routeHandler   = new RouteHandler();
+      const routeHandler   = new SortOrder();
       routeHandler.perform = _.noop;
 
       expect(routeHandler.searchText()).toEqual('');
     });
 
     it('should set searchText provided search value', () => {
-      const routeHandler   = new RouteHandler();
+      const routeHandler   = new SortOrder();
       routeHandler.perform = _.noop;
 
       expect(routeHandler.searchText()).toEqual('');
@@ -80,7 +82,7 @@ describe("Agents Route Handler", () => {
     });
 
     it('should perform routing when search Text is updated', () => {
-      const routeHandler = new RouteHandler();
+      const routeHandler = new SortOrder();
       const performSpy   = spyOn(routeHandler, "perform");
 
       expect(performSpy).not.toHaveBeenCalled();
@@ -93,7 +95,7 @@ describe("Agents Route Handler", () => {
 
   describe("initialize", () => {
     it("should initialize sortBy, orderBy and searchText values based on the routing params", () => {
-      const routeHandler   = new RouteHandler();
+      const routeHandler   = new SortOrder();
       routeHandler.perform = _.noop;
 
       spyOn(m.route, "param").and.returnValues('resources', 'desc', 'filterText');
@@ -106,7 +108,7 @@ describe("Agents Route Handler", () => {
     });
 
     it("should initialize sortBy, orderBy and searchText values to default when routing params are not present", () => {
-      const routeHandler   = new RouteHandler();
+      const routeHandler   = new SortOrder();
       routeHandler.perform = _.noop;
 
       spyOn(m.route, "param").and.returnValues(undefined, undefined, undefined);
@@ -119,7 +121,7 @@ describe("Agents Route Handler", () => {
     });
 
     it("should perform routing on initialize", () => {
-      const routeHandler = new RouteHandler();
+      const routeHandler = new SortOrder();
 
       const performSpy = spyOn(routeHandler, "perform");
 

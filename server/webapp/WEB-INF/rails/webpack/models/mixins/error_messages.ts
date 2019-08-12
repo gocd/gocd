@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import * as s from "underscore.string";
+import s from "underscore.string";
 
 export namespace ErrorMessages {
   export function duplicate(attribute: string) {

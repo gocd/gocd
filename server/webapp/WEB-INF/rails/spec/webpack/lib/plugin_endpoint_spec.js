@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- describe("AnalyticsEndpoint", () => {
+import AnalyticsEndpoint from "rails-shared/plugin-endpoint";
 
-  const AnalyticsEndpoint = require('rails-shared/plugin-endpoint');
+describe("AnalyticsEndpoint", () => {
 
   beforeEach(() => AnalyticsEndpoint.reset());
   afterEach(() => AnalyticsEndpoint.reset());

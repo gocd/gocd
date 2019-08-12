@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-const m        = require('mithril');
-const $        = require('jquery');
-const mrequest = require('helpers/mrequest');
+import m from 'mithril';
+import $ from 'jquery';
+import {mrequest} from "helpers/mrequest";
 
 function makeRequest({method, url, apiVersion, type, timeout = mrequest.timeout, payload, etag, contentType = false} = {}) {
   return $.Deferred(function () {
@@ -51,7 +51,7 @@ function makeRequest({method, url, apiVersion, type, timeout = mrequest.timeout,
 
 }
 
-module.exports = {
+export const AjaxHelper = {
   GET({url, apiVersion, type, timeout = mrequest.timeout, etag} = {}) {
     return makeRequest({method: 'GET', url, apiVersion, type, timeout, etag});
   },

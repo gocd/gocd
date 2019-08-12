@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const m = require("mithril");
-const _ = require("lodash");
+import m from "mithril";
+import _ from "lodash";
 
-const TabsListDropdown = {
+export const TabsListDropdown = {
   view(vnode) {
     const vm = vnode.attrs.vm;
     return <div class={vm.paged() ? "tabs-list-dropdown-widget paged" : "tabs-list-dropdown-widget"}>
@@ -51,5 +51,3 @@ const ViewTabsDropdownToggle = {
     </button>;
   }
 };
-
-module.exports = TabsListDropdown;

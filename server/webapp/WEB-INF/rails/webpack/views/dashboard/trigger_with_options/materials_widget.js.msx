@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-const m = require('mithril');
-const f = require("helpers/form_helper");
-const _ = require('lodash');
+import m from "mithril";
+import {f} from "helpers/form_helper";
+import _ from "lodash";
+import {MaterialInfoWidget} from "views/dashboard/trigger_with_options/material_info_widget";
 
-const MaterialInfoWidget = require('views/dashboard/trigger_with_options/material_info_widget');
-
-const MaterialsForTriggerWidget = {
+export const MaterialsForTriggerWidget = {
   oninit(vnode) {
     const self = vnode.state;
 
@@ -77,6 +76,3 @@ const MaterialsForTriggerWidget = {
       </div>);
   }
 };
-
-module.exports = MaterialsForTriggerWidget;
-

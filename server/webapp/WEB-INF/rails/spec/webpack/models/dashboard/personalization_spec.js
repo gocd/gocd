@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const Personalization = require("models/dashboard/personalization");
-import SparkRoutes from "helpers/spark_routes";
+import {Personalization} from "models/dashboard/personalization";
+import {SparkRoutes} from "helpers/spark_routes";
 
 describe("Personalization", () => {
   it('should fetch previously selected pipelines with appropriate headers', () => {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import * as _ from "lodash";
+import _ from "lodash";
 
 export function treeMap<A extends Traversable, B extends Traversable>(tree: A, fn: (tree: A) => B): B {
   return makeTree<B>(fn(tree), _.map(childrenOf<A>(tree), (child) => treeMap(child, fn)));

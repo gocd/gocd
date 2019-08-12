@@ -14,17 +14,15 @@
  * limitations under the License.
  */
 
-import SparkRoutes from "helpers/spark_routes";
+import {SparkRoutes} from "helpers/spark_routes";
+import {PipelineInstance} from "models/dashboard/pipeline_instance";
+import Routes from "gen/js-routes";
+import {AjaxHelper} from "helpers/ajax_helper";
+import {VMRoutes} from "helpers/vm_routes";
+import Stream from "mithril/stream";
+import _ from "lodash";
 
-const _           = require('lodash');
-const Stream      = require('mithril/stream');
-const VMRoutes    = require('helpers/vm_routes').default;
-const AjaxHelper  = require('helpers/ajax_helper');
-const Routes      = require('gen/js-routes');
-
-const PipelineInstance = require('models/dashboard/pipeline_instance');
-
-const Pipeline = function (info) {
+export const Pipeline = function (info) {
   const self = this;
   this.name  = info.name;
 
@@ -144,4 +142,3 @@ const Pipeline = function (info) {
   };
 };
 
-module.exports = Pipeline;

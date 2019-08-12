@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const Stream = require('mithril/stream');
+import Stream from "mithril/stream";
 
-const VM = function () {
+export const VM = function () {
   const GLOBAL_KEY   = 'global';
   const PIPELINE_KEY = 'pipeline';
 
@@ -28,4 +28,3 @@ const VM = function () {
   this.setPipelineTabSelection = () => selection(PIPELINE_KEY);
 };
 
-module.exports = VM;

@@ -17,14 +17,14 @@
 import * as Routes from "gen/ts-routes";
 import {ErrorResponse} from "helpers/api_request_builder";
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as m from "mithril";
+import m from "mithril";
 import {Stream} from "mithril/stream";
-import * as stream from "mithril/stream";
+import stream from "mithril/stream";
 import {Errors} from "models/mixins/errors";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import * as Buttons from "views/components/buttons";
 import {ServerErrors} from "views/pages/pipelines/server_errors";
-import * as css from "./actions.scss";
+import css from "./actions.scss";
 
 interface Attrs {
   pipelineConfig: PipelineConfig;

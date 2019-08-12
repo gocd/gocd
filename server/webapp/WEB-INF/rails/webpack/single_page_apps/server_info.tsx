@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import Page from "helpers/spa_base";
+import {Page} from "helpers/spa_base";
 import {ServerInfoPage} from "views/pages/server_info";
 
 export class ServerInfoSPA extends Page {

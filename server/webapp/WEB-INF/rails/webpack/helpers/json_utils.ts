@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-const s = require("string-plus");
+import {mixins as s} from "helpers/string-plus";
 
-export default class JsonUtils {
+export class JsonUtils {
 
   static toSnakeCasedObject(o: object): any {
     return JSON.parse(this.toSnakeCasedJSON(o));

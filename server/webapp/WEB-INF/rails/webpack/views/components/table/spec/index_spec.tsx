@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as m from "mithril";
-import * as stream from "mithril/stream";
+import m from "mithril";
 import {Stream} from "mithril/stream";
+import stream from "mithril/stream";
 import * as simulateEvent from "simulate-event";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {Table, TableSortHandler} from "../index";
-import * as styles from "../index.scss";
+import styles from "../index.scss";
 
 describe("TableComponent", () => {
   const helper  = new TestHelper();

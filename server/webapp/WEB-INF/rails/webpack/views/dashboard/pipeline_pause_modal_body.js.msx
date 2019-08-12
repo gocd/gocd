@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const m = require("mithril");
-const f = require('helpers/form_helper');
+import m from "mithril";
+import {f} from "helpers/form_helper";
 
-const PipelinePauseModalBody = {
+export const PipelinePauseModalBody = {
   oncreate(vnode) {
     const input = vnode.dom.querySelector('input');
     if (input !== null) {
@@ -39,5 +39,3 @@ const PipelinePauseModalBody = {
     </div>);
   }
 };
-
-module.exports = PipelinePauseModalBody;

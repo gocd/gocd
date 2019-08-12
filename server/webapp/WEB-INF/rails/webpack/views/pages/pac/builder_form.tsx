@@ -16,9 +16,9 @@
 
 // utils
 import {override} from "helpers/css_proxies";
-import * as _ from "lodash";
-import * as m from "mithril";
-import * as stream from "mithril/stream";
+import _ from "lodash";
+import m from "mithril";
+import stream from "mithril/stream";
 
 // components
 import {MithrilComponent} from "jsx/mithril-component";

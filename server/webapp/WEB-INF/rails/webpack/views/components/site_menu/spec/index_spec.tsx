@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as m from "mithril";
-import SiteMenu, {Attrs} from "views/components/site_menu/index";
-import * as styles from "views/components/site_menu/index.scss";
+import m from "mithril";
+import {Attrs, SiteMenu} from "views/components/site_menu/index";
+import styles from "views/components/site_menu/index.scss";
 import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("Site Menu", () => {

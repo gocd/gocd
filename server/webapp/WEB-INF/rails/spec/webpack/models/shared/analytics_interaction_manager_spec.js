@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import _ from "lodash";
+
+import Interactions from "models/shared/analytics_interaction_manager";
+import AnalyticsEndpoint from "rails-shared/plugin-endpoint";
+
 function noop() {}
 
 function fakeReq(key, body) {
   return {head: {type: "request", reqId: 0, key}, body};
 }
-
-const _                 = require("lodash");
-const AnalyticsEndpoint = require("rails-shared/plugin-endpoint");
-const Interactions      = require("models/shared/analytics_interaction_manager");
 
 const BASE64_RE         = /^[A-Za-z0-9/+]+(?:[=]{1,2})?$/;
 

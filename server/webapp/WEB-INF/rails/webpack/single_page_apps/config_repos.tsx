@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import Page from "helpers/spa_base";
+import {Page} from "helpers/spa_base";
 import {ConfigReposPage} from "views/pages/config_repos";
 
 export class ConfigReposSPA extends Page {

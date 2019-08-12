@@ -18,7 +18,7 @@
  *
  * Useful for event handlers that may fire very rapidly (e.g. resize, scroll, etc)
  */
-function throttleRaf(fn, win=window) {
+export function throttleRaf(fn, win=window) {
   let isRunning, self, args;
 
   function run() {
@@ -39,4 +39,3 @@ function throttleRaf(fn, win=window) {
   };
 }
 
-module.exports = throttleRaf;

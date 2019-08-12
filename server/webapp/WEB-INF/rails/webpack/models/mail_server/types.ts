@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import * as _ from "lodash";
+import _ from "lodash";
 import {Stream} from "mithril/stream";
-import * as stream from "mithril/stream";
+import stream from "mithril/stream";
 import {BackupConfig} from "models/backup_config/types";
 import {ErrorMessages} from "models/mixins/error_messages";
 import {Errors} from "models/mixins/errors";
@@ -24,7 +24,7 @@ import {applyMixins} from "models/mixins/mixins";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {EncryptedValue, plainOrCipherValue} from "views/components/forms/encrypted_value";
 
-const s = require("helpers/string-plus");
+import {mixins as s} from "helpers/string-plus";
 
 interface MailServerJSON {
   hostname: string;

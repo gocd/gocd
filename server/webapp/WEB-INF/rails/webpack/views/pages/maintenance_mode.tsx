@@ -15,8 +15,8 @@
  */
 import {AjaxPoller} from "helpers/ajax_poller";
 import {ApiRequestBuilder, ErrorResponse, SuccessResponse} from "helpers/api_request_builder";
-import SparkRoutes from "helpers/spark_routes";
-import * as m from "mithril";
+import {SparkRoutes} from "helpers/spark_routes";
+import m from "mithril";
 import {MaintenanceModeAPIs} from "models/maintenance_mode/maintenance_mode_apis";
 import {MaintenanceModeInfo, StageLocator} from "models/maintenance_mode/types";
 import {FlashMessage, MessageType} from "views/components/flash_message";

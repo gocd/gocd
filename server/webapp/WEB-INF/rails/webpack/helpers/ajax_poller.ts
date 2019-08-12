@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 import * as CONSTANTS from "helpers/constants";
-import * as _ from "lodash";
-import * as m from "mithril";
+import _ from "lodash";
+import m from "mithril";
 import {Stream} from "mithril/stream";
-import * as stream from "mithril/stream";
+import stream from "mithril/stream";
 
 export interface Options<T> {
   intervalSeconds: number;

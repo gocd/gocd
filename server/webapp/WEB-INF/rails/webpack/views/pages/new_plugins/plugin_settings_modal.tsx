@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 import {ApiResult, ErrorResponse, ObjectWithEtag} from "helpers/api_request_builder";
-import * as m from "mithril";
+import m from "mithril";
+import Stream from "mithril/stream";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {PluginSettings} from "models/shared/plugin_infos_new/plugin_settings/plugin_settings";
 import {PluginSettingsCRUD} from "models/shared/plugin_infos_new/plugin_settings/plugin_settings_crud";
@@ -23,10 +24,9 @@ import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Modal, Size} from "views/components/modal";
 import {Spinner} from "views/components/spinner";
 import * as foundationStyles from "./foundation_hax.scss";
-import * as styles from "./index.scss";
+import styles from "./index.scss";
 
-const AngularPluginNew = require("views/shared/angular_plugin_new");
-const Stream           = require("mithril/stream");
+const AngularPluginNew = require('views/shared/angular_plugin_new').AngularPluginNew;
 
 export class PluginSettingsModal extends Modal {
   private readonly pluginInfo: PluginInfo<any>;

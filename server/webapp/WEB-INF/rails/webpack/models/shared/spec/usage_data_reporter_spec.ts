@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import "jasmine-ajax";
 import {EncryptionKeys} from "models/shared/data_sharing/usage_data";
 import {UsageDataReporter} from "models/shared/usage_data_reporter";
-
-require('jasmine-ajax');
 
 describe('Usage Data Reporter', () => {
   const USAGE_DATA_LAST_REPORTED_TIME_KEY = "last_usage_data_reporting_check_time";

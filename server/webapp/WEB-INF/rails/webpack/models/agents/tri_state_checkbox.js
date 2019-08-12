@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const Stream         = require('mithril/stream');
-const _              = require('lodash');
+import Stream from "mithril/stream";
+import _ from "lodash";
+
 const isPresentOnAll = (setOfValues, value) => _.every(setOfValues, (values) => _.includes(values, value));
 
 const isPresentOnAny = (setOfValues, value) => _.some(setOfValues, (values) => _.includes(values, value));
 
-const TriStateCheckbox = function (value, setOfValues, disabled = false, tooltip = "") {
+export const TriStateCheckbox = function (value, setOfValues, disabled = false, tooltip = "") {
   const isChecked       = isPresentOnAll(setOfValues, value);
   const isIndeterminate = !isChecked && isPresentOnAny(setOfValues, value);
 
@@ -68,4 +69,3 @@ const TriStateCheckbox = function (value, setOfValues, disabled = false, tooltip
   };
 };
 
-module.exports = TriStateCheckbox;

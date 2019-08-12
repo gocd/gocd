@@ -15,15 +15,15 @@
  */
 
 import {asSelector} from "helpers/css_proxies";
-import * as _ from "lodash";
-import * as m from "mithril";
-import * as stream from "mithril/stream";
+import _ from "lodash";
+import m from "mithril";
 import {Stream} from "mithril/stream";
+import stream from "mithril/stream";
 import {ExecTask, Task} from "models/pipeline_configs/task";
 import * as events from "simulate-event";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {TaskTerminalField} from "../task_editor";
-import * as css from "../task_terminal.scss";
+import css from "../task_terminal.scss";
 
 describe("AddPipeline: TaskTerminalField", () => {
   const helper = new TestHelper();

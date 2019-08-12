@@ -15,14 +15,14 @@
  */
 
 import {asSelector} from "helpers/css_proxies";
-import * as m from "mithril";
+import m from "mithril";
 import {ObjectCache} from "models/base/cache";
 import {DefinedStructures} from "models/config_repos/defined_structures";
 import {EventAware} from "models/mixins/event_aware";
 import * as flashCss from "views/components/flash_message/index.scss";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {CRResult} from "../config_repo_result";
-import * as css from "../defined_structs.scss";
+import css from "../defined_structs.scss";
 import {emptyTree, mockResultsCache} from "./test_data";
 
 describe("<CRResult/>", () => {

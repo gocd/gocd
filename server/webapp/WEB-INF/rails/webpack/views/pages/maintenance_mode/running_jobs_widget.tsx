@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as m from "mithril";
+import m from "mithril";
 import {Job, Stage, StageLocator} from "models/maintenance_mode/types";
 import * as Buttons from "views/components/buttons";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import * as Icons from "views/components/icons/index";
 import {KeyValuePair} from "views/components/key_value_pair";
 import {Table} from "views/components/table";
-import * as styles from "views/pages/maintenance_mode/index.scss";
+import styles from "views/pages/maintenance_mode/index.scss";
 
 interface JobInfoAttrs {
   stages: Stage[];

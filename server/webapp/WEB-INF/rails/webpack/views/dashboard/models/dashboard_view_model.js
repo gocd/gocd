@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const m      = require('mithril');
-const _      = require('lodash');
-const Stream = require('mithril/stream');
+import m from "mithril";
+import _ from "lodash";
+import Stream from "mithril/stream";
 
 function FilterMixin() {
   const self = this;
@@ -106,7 +106,7 @@ function GroupingMixin() {
   });
 }
 
-function DashboardViewModel(dashboard) {
+export function DashboardViewModel(dashboard) {
   OperationMessagingMixin.call(this);
   GroupingMixin.call(this);
   FilterMixin.call(this);
@@ -139,5 +139,3 @@ function DashboardViewModel(dashboard) {
     buildCause: Stream()
   });
 }
-
-module.exports = DashboardViewModel;

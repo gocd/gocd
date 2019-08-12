@@ -13,19 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const _                               = require('lodash');
-const Stream                          = require('mithril/stream');
-const Mixins                          = require('models/mixins/model_mixins');
-const CrudMixins                      = require('models/mixins/crud_mixins');
-const PluggableInstanceSettings       = require('models/shared/plugin_infos/pluggable_instance_settings');
-const AuthorizationPluginCapabilities = require('models/shared/plugin_infos/authorization_plugin_capabilities');
-const ElasticPluginCapabilities       = require('models/shared/plugin_infos/elastic_plugin_capabilities');
-const AnalyticsPluginCapabilities     = require('models/shared/plugin_infos/analytics_plugin_capabilities');
-const About                           = require('models/shared/plugin_infos/about');
+import _ from "lodash";
+import {SparkRoutes} from "helpers/spark_routes";
+import Stream from "mithril/stream";
+import {Mixins} from "models/mixins/model_mixins";
+import {CrudMixins} from "models/mixins/crud_mixins";
+import {PluggableInstanceSettings} from "models/shared/plugin_infos/pluggable_instance_settings";
+import {Capabilities as AuthorizationPluginCapabilities} from "models/shared/plugin_infos/authorization_plugin_capabilities";
+import {Capabilities as ElasticPluginCapabilities} from "models/shared/plugin_infos/elastic_plugin_capabilities";
+import {Capabilities as AnalyticsPluginCapabilities} from "models/shared/plugin_infos/analytics_plugin_capabilities";
+import {About} from "models/shared/plugin_infos/about";
 
-import SparkRoutes from "helpers/spark_routes";
-
-const PluginInfos = function (data) {
+export const PluginInfos = function (data) {
   Mixins.HasMany.call(this, {
     factory:    PluginInfos.PluginInfo.createByType,
     as:         'PluginInfo',
@@ -231,4 +230,3 @@ Mixins.fromJSONCollection({
   via:        'addPluginInfo'
 });
 
-module.exports = PluginInfos;

@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const DashboardFilters = require("models/dashboard/dashboard_filters");
+
+import {DashboardFilters} from "models/dashboard/dashboard_filters";
 
 describe("DashboardFilters", () => {
   it("names() returns an array of filter names", () => {

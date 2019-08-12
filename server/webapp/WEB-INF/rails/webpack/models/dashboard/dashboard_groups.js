@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import SparkRoutes from "helpers/spark_routes";
-
-const _      = require('lodash');
-const Routes = require("gen/js-routes");
+import {SparkRoutes} from "helpers/spark_routes";
+import _ from 'lodash';
+import Routes from "gen/js-routes";
 
 class Group {
 
@@ -27,6 +26,7 @@ class Group {
     this.pipelines        = pipelines;
     this.definesPipelines = has_defined_structures;
   }
+
   /* eslint-enable camelcase */
 
   resolvePipelines(resolver) {
@@ -96,7 +96,7 @@ class PipelineGroup extends Group {
 
   subset(pipelines) {
     return new PipelineGroup({
-      name: this.name, pipelines,
+      name:           this.name, pipelines,
       can_administer: this.canAdminister, has_defined_structures: this.definesPipelines // eslint-disable-line camelcase
     });
   }
@@ -106,9 +106,9 @@ class PipelineGroup extends Group {
       return {};
     }
     return {
-      show: `${Routes.pipelineGroupsPath()}#group-${this.name}`,
-      edit: Routes.pipelineGroupEditPath(this.name),
-      new: `${SparkRoutes.newCreatePipelinePath()}?group=${this.name}`,
+      show:   `${Routes.pipelineGroupsPath()}#group-${this.name}`,
+      edit:   Routes.pipelineGroupEditPath(this.name),
+      new:    `${SparkRoutes.newCreatePipelinePath()}?group=${this.name}`,
       asCode: `${SparkRoutes.createPipelineAsCodePath()}?group=${this.name}`
     };
   }
@@ -159,7 +159,7 @@ class Environment extends Group {
 
   subset(pipelines) {
     return new Environment({
-      name: this.name, pipelines,
+      name:           this.name, pipelines,
       can_administer: this.canAdminister, has_defined_structures: this.definesPipelines // eslint-disable-line camelcase
     });
   }
@@ -175,7 +175,7 @@ class Environment extends Group {
   }
 }
 
-function DashboardGroups(groups) {
+export function DashboardGroups(groups) {
   this.groups = groups;
 
   this.select = (filter) => {
@@ -194,6 +194,4 @@ DashboardGroups.fromEnvironmentsJSON = (json) => {
 };
 
 DashboardGroups.PipelineGroup = PipelineGroup;
-DashboardGroups.Environment = Environment;
-
-module.exports = DashboardGroups;
+DashboardGroups.Environment   = Environment;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import * as m from "mithril";
+import m from "mithril";
 import {ArtifactStore} from "models/artifact_stores/artifact_stores";
 import {Configurations} from "models/shared/configuration";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";

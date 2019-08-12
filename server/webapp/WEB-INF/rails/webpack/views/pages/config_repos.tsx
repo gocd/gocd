@@ -16,10 +16,10 @@
 
 import {AjaxPoller} from "helpers/ajax_poller";
 import {ApiResult} from "helpers/api_request_builder";
-import * as _ from "lodash";
-import * as m from "mithril";
-import * as stream from "mithril/stream";
+import _ from "lodash";
+import m from "mithril";
 import {Stream} from "mithril/stream";
+import stream from "mithril/stream";
 import {ConfigReposCRUD} from "models/config_repos/config_repos_crud";
 import {ConfigRepo} from "models/config_repos/types";
 import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
@@ -34,7 +34,7 @@ import {ConfigReposWidget} from "views/pages/config_repos/config_repos_widget";
 import {NewConfigRepoModal} from "views/pages/config_repos/modals";
 import {Page, PageState} from "views/pages/page";
 import {AddOperation, FlashContainer, RequiresPluginInfos, SaveOperation} from "views/pages/page_operations";
-import * as styles from "./config_repos/index.scss";
+import styles from "./config_repos/index.scss";
 
 interface SearchOperation {
   unfilteredModels: Stream<ConfigRepoVM[]>;

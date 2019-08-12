@@ -15,8 +15,8 @@
  */
 
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as m from "mithril";
-import * as css from "./concept_diagram.scss";
+import m from "mithril";
+import css from "./concept_diagram.scss";
 
 interface Attrs {
   image: string;

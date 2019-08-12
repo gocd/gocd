@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const _ = require('lodash');
+import _ from "lodash";
 
 const Modifications = {};
 
@@ -42,7 +42,7 @@ Modifications.Modification.SCM = function (modification, materialType) {
   this.vsmPath  = modification._links.vsm.href;
 };
 
-const MaterialRevision = function (info) {
+export const MaterialRevision = function (info) {
   const self = this;
 
   this.materialType         = info.material_type;
@@ -62,5 +62,3 @@ const getModificationsFor = (info) => {
     return new Modifications.Modification[kindOfMaterial](modification, materialType);
   });
 };
-
-module.exports = MaterialRevision;

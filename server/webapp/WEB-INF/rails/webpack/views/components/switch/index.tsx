@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as m from "mithril";
+import m from "mithril";
 import {Stream} from "mithril/stream";
 
 import classnames from "classnames";
-import * as styles from "./index.scss";
+import styles from "./index.scss";
 
-const uuid4 = require("uuid/v4");
+import uuid4 from "uuid/v4";
 
 export interface Attrs {
   inProgress?: boolean;

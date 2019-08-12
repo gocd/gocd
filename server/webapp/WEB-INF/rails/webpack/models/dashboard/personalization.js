@@ -13,13 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const Stream           = require('mithril/stream');
-const DashboardFilters = require('models/dashboard/dashboard_filters');
-const AjaxHelper       = require('helpers/ajax_helper');
+import Stream from "mithril/stream";
+import {SparkRoutes} from "helpers/spark_routes";
+import {DashboardFilters} from "models/dashboard/dashboard_filters";
+import {AjaxHelper} from "helpers/ajax_helper";
 
-import SparkRoutes from "helpers/spark_routes";
-
-function Personalization(filters) {
+export function Personalization(filters) {
   let filterSet       = new DashboardFilters(filters);
   this.pipelineGroups = Stream();
 
@@ -51,7 +50,9 @@ function Personalization(filters) {
   };
 
   this.updateFilters = (filters, etag) => {
-    if (!(filters instanceof DashboardFilters)) { filters = new DashboardFilters(filters); }
+    if (!(filters instanceof DashboardFilters)) {
+      filters = new DashboardFilters(filters);
+    }
 
     return Personalization.update(filters, etag).done(() => {
       filterSet = filters; // only changes local copy when successful
@@ -89,4 +90,3 @@ Personalization.update = (payload, etag) => {
   });
 };
 
-module.exports = Personalization;

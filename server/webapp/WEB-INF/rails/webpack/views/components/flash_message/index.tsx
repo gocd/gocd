@@ -15,10 +15,10 @@
  */
 import classnames from "classnames";
 import {MithrilComponent} from "jsx/mithril-component";
-import * as _ from "lodash";
-import * as m from "mithril";
+import _ from "lodash";
+import m from "mithril";
 import * as Icons from "../icons";
-import * as styles from "./index.scss";
+import styles from "./index.scss";
 
 type callback = () => void;
 

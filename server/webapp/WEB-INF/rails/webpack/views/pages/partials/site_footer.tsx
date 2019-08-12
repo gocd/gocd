@@ -15,11 +15,11 @@
  */
 import {apiDocsUrl, docsUrl, GoCDVersion} from "gen/gocd_version";
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as m from "mithril";
+import m from "mithril";
 import {Link} from "views/components/link";
-import * as styles from "./site_footer.scss";
+import styles from "./site_footer.scss";
 
-const TimeFormatter = require("helpers/time_formatter");
+import {timeFormatter as TimeFormatter} from "helpers/time_formatter";
 
 export interface Attrs {
   maintenanceModeUpdatedOn: string | null;

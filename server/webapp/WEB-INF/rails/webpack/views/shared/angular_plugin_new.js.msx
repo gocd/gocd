@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const m = require('mithril');
 
-const Stream  = require('mithril/stream');
-const _       = require('lodash');
-const $       = require('jquery');
-const angular = require('angular');
+import m from "mithril";
+import Stream from "mithril/stream";
+import _ from "lodash";
+import $ from "jquery";
+import {angular} from 'angular';
 
 const appName = function (configuration) {
   return `app-${configuration.uuid}`;
@@ -107,7 +107,7 @@ function onUpdate(scope, args) {
   };
 }
 
-const AngularPluginNew = {
+export const AngularPluginNew = {
   template(template) {
     return $('<div></div>').html(template.replace(/GOINPUTNAME\[([^\]]*)\]/g, (_match, name) => {
       return `GOINPUTNAME['${name}']`;
@@ -129,5 +129,3 @@ const AngularPluginNew = {
     );
   }
 };
-
-module.exports = AngularPluginNew;

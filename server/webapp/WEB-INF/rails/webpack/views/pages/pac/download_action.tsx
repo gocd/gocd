@@ -16,12 +16,12 @@
 
 import {el} from "helpers/dom";
 import {MithrilComponent} from "jsx/mithril-component";
-import * as m from "mithril";
-import * as stream from "mithril/stream";
+import m from "mithril";
 import {Stream} from "mithril/stream";
+import stream from "mithril/stream";
 import {Errors} from "models/mixins/errors";
 import {Primary} from "views/components/buttons";
-import * as css from "views/pages/pac/styles.scss";
+import css from "views/pages/pac/styles.scss";
 import {PipelineConfigVMAware as Attrs} from "views/pages/pipelines/pipeline_config_view_model";
 import {ServerErrors} from "views/pages/pipelines/server_errors";
 

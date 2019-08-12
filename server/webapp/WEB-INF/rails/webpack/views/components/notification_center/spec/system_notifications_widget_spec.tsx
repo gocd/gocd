@@ -13,17 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as m from "mithril";
-import * as Stream from "mithril/stream";
+import "jasmine-ajax";
+import "jasmine-jquery";
+import m from "mithril";
+import Stream from "mithril/stream";
 import {Notification, SystemNotifications} from "models/notifications/system_notifications";
+import * as simulateEvent from "simulate-event";
 import {SystemNotificationsWidget} from "views/components/notification_center/system_notifications_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("SystemNotificationsWidget", () => {
-  const simulateEvent = require("simulate-event");
-
-  require("jasmine-jquery");
-  require("jasmine-ajax");
 
   const helper = new TestHelper();
   afterEach(helper.unmount.bind(helper));

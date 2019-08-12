@@ -20,7 +20,7 @@ import {
   ApiVersion,
   ObjectWithEtag
 } from "helpers/api_request_builder";
-import SparkRoutes from "helpers/spark_routes";
+import {SparkRoutes} from "helpers/spark_routes";
 import {
   ArtifactStore,
   ArtifactStoreJSON,

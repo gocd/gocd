@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const Stream = require('mithril/stream');
-const _      = require('lodash');
+import Stream from "mithril/stream";
+import _ from "lodash";
 
-const VM         = (searchText) => {
+export const VM         = (searchText) => {
   const dropdownStates     = {};
   const agentCheckedStates = {};
   const allAgentsSelected  = Stream(false);
@@ -132,4 +132,3 @@ const VM         = (searchText) => {
   };
   return viewModel;
 };
-module.exports = VM;

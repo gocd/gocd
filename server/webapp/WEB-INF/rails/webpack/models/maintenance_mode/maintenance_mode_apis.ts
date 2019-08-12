@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import {ApiRequestBuilder, ApiResult, ApiVersion} from "helpers/api_request_builder";
-import SparkRoutes from "helpers/spark_routes";
+import {SparkRoutes} from "helpers/spark_routes";
 import {MaintenanceModeInfo, MaintenanceModeInfoJSON} from "models/maintenance_mode/types";
 
 export class MaintenanceModeAPIs {

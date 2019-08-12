@@ -17,12 +17,12 @@
 import {asSelector} from "helpers/css_proxies";
 import {el, empty, isHtmlElement, replaceWith} from "helpers/dom";
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as _ from "lodash";
-import * as m from "mithril";
+import _ from "lodash";
+import m from "mithril";
 import {ExecTask, Task} from "models/pipeline_configs/task";
 import Shellwords from "shellwords-ts";
 import {BaseAttrs, FormField, RequiredFieldAttr} from "views/components/forms/input_fields";
-import * as css from "./task_terminal.scss";
+import css from "./task_terminal.scss";
 
 const sel = asSelector<typeof css>(css);
 const CLICKABLE_SELECTORS = `button,a,input[type="button"],input[type="button"],input[type="submit"],input[type="reset"],input[type="radio"],input[type="checkbox"]`;

@@ -15,7 +15,7 @@
  */
 
 import {MithrilComponent} from "jsx/mithril-component";
-import * as m from "mithril";
+import m from "mithril";
 import {TextField, TextFieldAttrs} from "views/components/forms/input_fields";
 
 export interface LiveInputAttrs extends TextFieldAttrs {

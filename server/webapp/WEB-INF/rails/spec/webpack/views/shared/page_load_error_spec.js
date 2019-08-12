@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 import {TestHelper} from "views/pages/spec/test_helper";
+import {PageLoadError} from "views/shared/page_load_error";
+import m from "mithril";
 
 describe("Page Load Error Widget", () => {
 
-  const m             = require('mithril');
-  const PageLoadError = require('views/shared/page_load_error');
   const helper        = new TestHelper();
 
   afterEach(helper.unmount.bind(helper));

@@ -15,9 +15,9 @@
  */
 import {AjaxPoller} from "helpers/ajax_poller";
 import {MithrilComponent} from "jsx/mithril-component";
-import * as m from "mithril";
-import * as stream from "mithril/stream";
+import m from "mithril";
 import {Stream} from "mithril/stream";
+import stream from "mithril/stream";
 import {ServerHealthMessages} from "models/shared/server_health_messages/server_health_messages";
 import {ServerHealthMessagesCountWidget} from "./server_health_messages_count_widget";
 

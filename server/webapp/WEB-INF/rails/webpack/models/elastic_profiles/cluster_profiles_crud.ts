@@ -15,7 +15,7 @@
  */
 
 import {ApiRequestBuilder, ApiResult, ApiVersion, ObjectWithEtag} from "helpers/api_request_builder";
-import SparkRoutes from "helpers/spark_routes";
+import {SparkRoutes} from "helpers/spark_routes";
 import {ClusterProfile, ClusterProfileJSON, ClusterProfiles} from "./types";
 
 export class ClusterProfilesCRUD {

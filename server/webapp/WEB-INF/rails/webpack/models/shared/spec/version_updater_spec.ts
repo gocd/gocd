@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import "jasmine-ajax";
 import {SystemNotifications} from "models/notifications/system_notifications";
 import {Notification} from "models/notifications/system_notifications";
 import {VersionUpdater} from "models/shared/version_updater";
 
-require("jasmine-ajax");
 describe("VersionUpdater", () => {
 
   describe("update", () => {

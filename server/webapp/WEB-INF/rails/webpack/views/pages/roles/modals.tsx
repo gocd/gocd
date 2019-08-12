@@ -15,9 +15,9 @@
  */
 
 import {ApiResult, ErrorResponse, ObjectWithEtag} from "helpers/api_request_builder";
-import * as m from "mithril";
+import m from "mithril";
 import {Stream} from "mithril/stream";
-import * as stream from "mithril/stream";
+import stream from "mithril/stream";
 import {AuthConfigs} from "models/auth_configs/auth_configs";
 import {
   GoCDAttributes,

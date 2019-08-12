@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const _      = require('lodash');
-const s      = require('string-plus');
-const uuid4  = require('uuid/v4');
-const Stream = require('mithril/stream');
+import _ from "lodash";
+import {mixins as s} from "helpers/string-plus";
+import uuid4 from "uuid/v4";
+import Stream from "mithril/stream";
 
-const Mixins = {};
+export const Mixins = {};
 
 Mixins.HasUUID = function () {
   this.uuid = Mixins.GetterSetter(`${this.constructor.modelType}-${uuid4()}`);
@@ -194,4 +194,3 @@ Mixins.ErrorMessages = {
   }
 };
 
-module.exports = Mixins;

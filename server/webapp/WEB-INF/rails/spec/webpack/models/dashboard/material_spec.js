@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import sparkRoutes from "helpers/spark_routes";
+import {SparkRoutes} from "helpers/spark_routes";
+import {Material} from "models/dashboard/material";
+import Stream from "mithril/stream";
 
 describe("Dashboard", () => {
   describe('Material Model', () => {
-    const Stream      = require('mithril/stream');
-    const Material    = require('models/dashboard/material');
 
     it('should validate selected material when it is invalid', () => {
       const material = new Material({
@@ -52,7 +52,7 @@ describe("Dashboard", () => {
 
     it('should perform search', () => {
       jasmine.Ajax.withMock(() => {
-        jasmine.Ajax.stubRequest(sparkRoutes.pipelineMaterialSearchPath('pipelineName', 'fingerprint', 'foo'), undefined, 'GET')
+        jasmine.Ajax.stubRequest(SparkRoutes.pipelineMaterialSearchPath('pipelineName', 'fingerprint', 'foo'), undefined, 'GET')
           .andReturn({
             responseText:    JSON.stringify(json),
             responseHeaders: {'Content-Type': 'application/vnd.go.cd.v1+json'},

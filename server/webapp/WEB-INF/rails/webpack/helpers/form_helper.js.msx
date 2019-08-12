@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const m     = require('mithril');
-const $     = require('jquery');
-const _     = require('lodash');
-const uuid4 = require('uuid/v4');
-const s     = require('string-plus');
-require('foundation-sites');
-const Stream            = require('mithril/stream');
+import m from "mithril";
+import $ from "jquery";
+import _ from "lodash";
+import uuid4 from "uuid/v4";
+import Stream from "mithril/stream";
+import {mixins as s} from "helpers/string-plus";
+import 'foundation-sites';
 
 function deleteKeyAndReturnValue(object, key, defaultValue) {
   if (_.isNil(object)) {
@@ -48,6 +48,7 @@ function teardownFoundation(el) {
     $(el).foundation('destroy');
   }
 }
+
 // ensures the input is either an array or is wrapped in an array.
 // also removes blank members (empty strings, null, etc) and optionally
 // applies a transform on each item.
@@ -82,19 +83,24 @@ function wireUpModel(attrs, property = "value", listener = "onchange") {
     let attrName;
     attrs["data-model-type"] = deleteKeyAndReturnValue(attrs, "modelType", (model.constructor ? model.constructor.modelType : null));
     attrs["data-prop-name"]  = attrName = deleteKeyAndReturnValue(attrs, "attrName");
-    attrs[property] = deleteKeyAndReturnValue(attrs, property, model[attrName]());
+    attrs[property]          = deleteKeyAndReturnValue(attrs, property, model[attrName]());
 
     const chainedCallback = deleteKeyAndReturnValue(attrs, "onModelUpdate"),
           onUpdate        = deleteKeyAndReturnValue(attrs, listener, m.withAttr(property, model[attrName]));
 
-    attrs[listener] = ("function" === typeof chainedCallback) ? function chained(e) { onUpdate(e); chainedCallback(e); } : onUpdate;
+    attrs[listener] = ("function" === typeof chainedCallback) ? function chained(e) {
+      onUpdate(e);
+      chainedCallback(e);
+    } : onUpdate;
   }
 
   return model;
 }
 
 function validateModel(model, attrs) {
-  if (!model) { return; }
+  if (!model) {
+    return;
+  }
 
   const performValidations = deleteKeyAndReturnValue(attrs, 'validate', false),
         attrName           = attrs["attrName"] || attrs["data-prop-name"];
@@ -105,14 +111,14 @@ function validateModel(model, attrs) {
     attrs["onblur"] = model.validate.bind(model, performValidations !== "all" ? attrName : undefined);
 
     if (model.errors().hasErrors(attrName)) {
-      validationErrors = <span class='form-error is-visible'>{model.errors().errorsForDisplay(attrName)}</span>;
+      validationErrors = <span class="form-error is-visible">{model.errors().errorsForDisplay(attrName)}</span>;
     }
   }
 
   return validationErrors;
 }
 
-const f = {
+export const f = {
   row: {
     view(vnode) {
       const args     = vnode.attrs;
@@ -159,8 +165,8 @@ const f = {
         prop:           "value"
       };
 
-      const args = _.assign({}, defaultAttrs, vnode.attrs); // copy attrs instead of modifying in-place
-      const prop = deleteKeyAndReturnValue(args, "prop");
+      const args   = _.assign({}, defaultAttrs, vnode.attrs); // copy attrs instead of modifying in-place
+      const prop   = deleteKeyAndReturnValue(args, "prop");
       const listen = deleteKeyAndReturnValue(args, "listen");
 
       const model            = wireUpModel(args, prop, listen),
@@ -297,18 +303,19 @@ const f = {
       };
     },
 
-    view (vnode) {
+    view(vnode) {
       const ctrl        = vnode.state;
       const args        = vnode.attrs;
       const tooltipText = deleteKeyAndReturnValue(args, "tooltipText");
       return (
         <div style="position: relative; display: inline">
-          <a href="javascript:void(0)" onmouseover={ctrl.hasFocus.bind(ctrl, true)} onmouseout={ctrl.hasFocus.bind(ctrl, false)}
+          <a href="javascript:void(0)" onmouseover={ctrl.hasFocus.bind(ctrl, true)}
+             onmouseout={ctrl.hasFocus.bind(ctrl, false)}
              class={compactClasses(vnode.attrs, 'has-tip')} {...vnode.attrs}
              data-hover-delay={100} data-tooltip-id={this.tooltipId}>
             {vnode.children}
           </a>
-          <div id={this.tooltipId} class="tooltip"  role="tooltip" style={ctrl.tooltipDisplayStyle()}>{tooltipText}</div>
+          <div id={this.tooltipId} class="tooltip" role="tooltip" style={ctrl.tooltipDisplayStyle()}>{tooltipText}</div>
         </div>);
     }
   },
@@ -316,9 +323,11 @@ const f = {
   link: {
     view(vnode) {
       const disabled = vnode.attrs.disabled;
-      const args = _.assign(vnode.attrs);
+      const args = _.assign({}, vnode.attrs);
 
-      if (args.hasOwnProperty("disabled")) { delete args.disabled; } // eslint-disable-line no-prototype-builtins
+      if (args.hasOwnProperty("disabled")) { // eslint-disable-line no-prototype-builtins
+        delete args.disabled;
+      }
 
       const tooltipText = args.tooltipText;
 
@@ -369,14 +378,14 @@ const f = {
 
       return (
         <span class={_.compact(['tooltip-wrapper', clazz]).join(' ')}>
-          <a href='javascript:void(0)'
+          <a href="javascript:void(0)"
              data-toggle={tooltipId}
              class={`tooltip-${type}`}/>
           <f.dropdown id={tooltipId}
                       class={_.compact(['f-dropdown', 'dropdown-pane', 'content', 'tooltip-content', size, direction]).join(' ')}
                       data-dropdown
-                      data-hover='true'
-                      data-hover-pane='true'>
+                      data-hover="true"
+                      data-hover-pane="true">
             {content}
           </f.dropdown>
         </span>
@@ -476,4 +485,3 @@ const f = {
   }
 };
 
-module.exports = f;

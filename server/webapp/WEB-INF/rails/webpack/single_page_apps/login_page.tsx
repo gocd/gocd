@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import Page from "helpers/spa_base";
+import {Page} from "helpers/spa_base";
 import {LoginPage} from "views/pages/login_page";
 
 export class LoginPageSPA extends Page {

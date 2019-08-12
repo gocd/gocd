@@ -13,13 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {mixins as s} from "string-plus";
+import 'jasmine-ajax';
+import _ from "lodash";
+import {Agents} from "models/agents/agents";
+
 describe('Agent Model', () => {
-
-  const s = require('string-plus');
-  const _ = require('lodash');
-  require('jasmine-ajax');
-
-  const Agents = require('models/agents/agents');
 
   it("should deserialize from json", () => {
     const agent = Agents.Agent.fromJSON(agentData[0]);

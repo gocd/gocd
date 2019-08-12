@@ -28,12 +28,13 @@ describe("NewAgentsWidget", () => {
 
   beforeEach(() => {
     agents = Agents.fromJSON(AgentsTestData.list());
-    helper.mount(() => <AgentsWidget agents={agents}/>);
   });
 
   afterEach(helper.unmount.bind(helper));
 
   it("should render table headers", () => {
+    mount(agents);
+
     const headers = helper.findByDataTestId("table-header-row");
 
     expect(headers.children()).toHaveLength(8);
@@ -48,6 +49,8 @@ describe("NewAgentsWidget", () => {
   });
 
   it("should render agents in the table", () => {
+    mount(agents);
+
     const tableBody = helper.findByDataTestId("table-body");
     expect(tableBody.children()).toHaveLength(3);
 
@@ -57,11 +60,16 @@ describe("NewAgentsWidget", () => {
   });
 
   it("should render a serach box", () => {
+    mount(agents);
+
     const searchBox = helper.findByDataTestId("form-field-input-search-for-agents");
+
     expect(searchBox).toBeInDOM();
   });
 
   it("should filter agents based on the searched value", () => {
+    mount(agents);
+
     const agentA    = agents.list()[0],
           agentB    = agents.list()[1],
           agentC    = agents.list()[2];
@@ -79,12 +87,46 @@ describe("NewAgentsWidget", () => {
     assertAgentRow(agentA);
   });
 
+  describe("Resources", () => {
+    it("should list comma separated resources", () => {
+      const agent  = Agent.fromJSON(AgentsTestData.agentWithResources(["psql", "firefox", "chrome"]));
+      const agents = new Agents([agent]);
+
+      mount(agents);
+
+      expect(helper.findByDataTestId(`agent-resources-of-${agent.uuid}`)).toContainText("psql, firefox, chrome");
+    });
+
+    it("should show 'none specified' when agent has no resources specified", () => {
+      const agent  = Agent.fromJSON(AgentsTestData.agentWithResources([]));
+      const agents = new Agents([agent]);
+
+      mount(agents);
+
+      expect(helper.findByDataTestId(`agent-resources-of-${agent.uuid}`)).toContainText("none specified");
+    });
+
+    it("should show 'none specified' when resources are null", () => {
+      const agent  = Agent.fromJSON(AgentsTestData.elasticAgent("32197397439"));
+      const agents = new Agents([agent]);
+
+      mount(agents);
+
+      expect(helper.findByDataTestId(`agent-resources-of-${agent.uuid}`)).toContainText("none specified");
+    });
+  });
+
+  function mount(agents: Agents) {
+    helper.mount(() => <AgentsWidget agents={agents}/>);
+  }
+
   function assertAgentRow(agent: Agent) {
     expect(helper.findByDataTestId(`agent-hostname-of-${agent.uuid}`)).toContainText(agent.hostname);
     expect(helper.findByDataTestId(`agent-sandbox-of-${agent.uuid}`)).toContainText(agent.sandbox);
     expect(helper.findByDataTestId(`agent-operating-system-of-${agent.uuid}`)).toContainText(agent.operatingSystem);
     expect(helper.findByDataTestId(`agent-ip-address-of-${agent.uuid}`)).toContainText(agent.ipAddress);
     expect(helper.findByDataTestId(`agent-free-space-of-${agent.uuid}`)).toContainText(agent.readableFreeSpace());
-    expect(helper.findByDataTestId(`agent-resources-of-${agent.uuid}`)).toContainText(agent.resources.join(", "));
+    expect(helper.findByDataTestId(`agent-resources-of-${agent.uuid}`))
+      .toContainText(AgentsWidget.joinOrNoneSpecified(agent.resources));
   }
 });

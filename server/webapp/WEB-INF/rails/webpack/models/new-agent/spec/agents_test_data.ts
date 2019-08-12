@@ -15,6 +15,7 @@
  */
 
 import {AgentJSON, AgentsJSON} from "models/new-agent/agents";
+import * as uuid from "uuid/v4";
 
 export class AgentsTestData {
   static list() {
@@ -29,11 +30,22 @@ export class AgentsTestData {
     } as AgentsJSON;
   }
 
+  static agentWithResources(resources: string[]) {
+    return this.agent("37af8492-d64d-4a3f-b1f2-4ea37dd0d201",
+                      "Aaaaa",
+                      "Zzzzz",
+                      "Windows 10",
+                      undefined,
+                      "10.1.0.5",
+                      resources);
+  }
+
   static agent(uuid: string, hostname: string,
                sandbox: string   = "go",
                os: string        = "windows",
                freeSpace: number = 93259825152,
-               ipAddr: string    = "10.1.0." + AgentsTestData.getRandomIntegerInRange(1, 255)) {
+               ipAddr: string    = "10.1.0." + AgentsTestData.getRandomIntegerInRange(1, 255),
+               resources         = ["dev", "fat", "ie9", "firefox"]) {
     // @ts-ignore
     return {
       uuid: uuid,
@@ -52,7 +64,32 @@ export class AgentsTestData {
       }],
       build_state: "Idle",
       free_space: freeSpace,
-      resources: ["dev", "fat", "ie9", "firefox"]
+      resources: resources
+    } as AgentJSON;
+
+  }
+
+  static elasticAgent(hostname: string) {
+    // @ts-ignore
+    return {
+      uuid: uuid(),
+      hostname: hostname,
+      ip_address: "10.1.0." + AgentsTestData.getRandomIntegerInRange(1, 255),
+      sandbox: "go",
+      operating_system: "windows",
+      agent_config_state: "Enabled",
+      agent_state: "Idle",
+      environments: [{
+        name: "gocd",
+        origin: {type: "gocd"}
+      }, {
+        name: "internal",
+        origin: {type: "gocd"}
+      }],
+      build_state: "Idle",
+      free_space: 93259825152,
+      elastic_plugin_id: "cd.go.elastic-agents.docker",
+      elastic_agent_id: `ea-${uuid()}`
     } as AgentJSON;
   }
 

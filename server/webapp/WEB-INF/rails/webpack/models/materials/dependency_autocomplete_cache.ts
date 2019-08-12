@@ -44,7 +44,7 @@ export class DependencyMaterialAutocomplete<P, S> extends AbstractObjCache<Pipel
       res.do((s) => {
         resolve(JSON.parse(s.body));
       }, (e) => {
-        reject(e.message);
+        reject(JSON.parse(e.body!).message);
       });
     }).catch(rejectAsString(reject));
   }

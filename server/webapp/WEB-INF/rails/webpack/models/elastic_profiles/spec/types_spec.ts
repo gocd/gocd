@@ -94,9 +94,9 @@ describe("Types", () => {
         expect(elasticProfile.id()).toEqual("docker1");
         expect(elasticProfile.pluginId()).toEqual("cd.go.docker");
         expect(elasticProfile.clusterProfileId()).toEqual("prod-cluster");
-        expect(elasticProfile.properties().count()).toBe(2);
-        expect(elasticProfile.properties().valueFor("image")).toEqual("gocd/server");
-        expect(elasticProfile.properties().valueFor("memory")).toEqual("10M");
+        expect(elasticProfile.properties()!.count()).toBe(2);
+        expect(elasticProfile.properties()!.valueFor("image")).toEqual("gocd/server");
+        expect(elasticProfile.properties()!.valueFor("memory")).toEqual("10M");
       });
 
       it("should serialize encrypted value as value when updated", () => {
@@ -109,7 +109,7 @@ describe("Types", () => {
                                new Configuration("secret", new EncryptedValue("alskdad"))
                              ]));
 
-        elasticProfile.properties().setConfiguration("secret", "foo");
+        elasticProfile.properties()!.setConfiguration("secret", "foo");
 
         expect(JSON.parse(JSON.stringify(elasticProfile.toJSON()))).toEqual({
                                                                               id: "docker1",
@@ -199,9 +199,9 @@ describe("Types", () => {
 
         expect(clusterProfile.id()).toEqual("docker1");
         expect(clusterProfile.pluginId()).toEqual("cd.go.docker");
-        expect(clusterProfile.properties().count()).toBe(2);
-        expect(clusterProfile.properties().valueFor("image")).toEqual("gocd/server");
-        expect(clusterProfile.properties().valueFor("memory")).toEqual("10M");
+        expect(clusterProfile.properties()!.count()).toBe(2);
+        expect(clusterProfile.properties()!.valueFor("image")).toEqual("gocd/server");
+        expect(clusterProfile.properties()!.valueFor("memory")).toEqual("10M");
       });
 
       it("should serialize encrypted value as value when updated", () => {
@@ -213,7 +213,7 @@ describe("Types", () => {
                                new Configuration("secret", new EncryptedValue("alskdad"))
                              ]));
 
-        clusterProfile.properties().setConfiguration("secret", "foo");
+        clusterProfile.properties()!.setConfiguration("secret", "foo");
 
         expect(JSON.parse(JSON.stringify(clusterProfile.toJSON()))).toEqual({
                                                                               id: "docker1",

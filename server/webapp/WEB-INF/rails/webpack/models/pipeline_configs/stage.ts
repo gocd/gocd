@@ -15,8 +15,7 @@
  */
 
 import {JsonUtils} from "helpers/json_utils";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {Job} from "./job";
 import {NameableSet} from "./nameable_set";
@@ -24,12 +23,12 @@ import {NameableSet} from "./nameable_set";
 enum ApprovalType { success = "success", manual = "manual" }
 
 class Approval extends ValidatableMixin {
-  type: Stream<ApprovalType> = stream();
+  type: Stream<ApprovalType> = Stream();
   state: (value?: boolean) => boolean;
 
   //authorization must be present for server side validations
   //even though it's not editable from the create pipeline page
-  authorization: Stream<any> = stream({});
+  authorization: Stream<any> = Stream({});
 
   constructor() {
     super();
@@ -51,19 +50,19 @@ class Approval extends ValidatableMixin {
 
 export class Stage extends ValidatableMixin {
   name: Stream<string>;
-  approval: Stream<Approval> = stream(new Approval());
+  approval: Stream<Approval> = Stream(new Approval());
   jobs: Stream<NameableSet<Job>>;
 
   constructor(name: string, jobs: Job[]) {
     super();
 
-    this.name = stream(name);
+    this.name = Stream(name);
     this.validatePresenceOf("name");
     this.validateIdFormat("name");
 
     this.validateAssociated("approval");
 
-    this.jobs = stream(new NameableSet(jobs));
+    this.jobs = Stream(new NameableSet(jobs));
     this.validateNonEmptyCollection("jobs", {message: `A stage must have at least one job`});
     this.validateAssociated("jobs");
   }

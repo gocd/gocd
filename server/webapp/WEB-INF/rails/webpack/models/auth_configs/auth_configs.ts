@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {Errors} from "models/mixins/errors";
 import {applyMixins} from "models/mixins/mixins";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
@@ -37,16 +36,16 @@ export interface AuthConfigsJSON {
 }
 
 export class AuthConfig extends ValidatableMixin {
-  id: Stream<string>;
-  pluginId: Stream<string>;
-  properties: Stream<Configurations>;
+  id: Stream<string | undefined>;
+  pluginId: Stream<string | undefined>;
+  properties: Stream<Configurations | undefined>;
 
   constructor(id?: string, pluginId?: string, properties?: Configurations, errors: Errors = new Errors()) {
     super();
     ValidatableMixin.call(this);
-    this.id         = stream(id);
-    this.pluginId   = stream(pluginId);
-    this.properties = stream(properties);
+    this.id         = Stream(id);
+    this.pluginId   = Stream(pluginId);
+    this.properties = Stream(properties);
     this.errors(errors);
 
     this.validatePresenceOf("pluginId");

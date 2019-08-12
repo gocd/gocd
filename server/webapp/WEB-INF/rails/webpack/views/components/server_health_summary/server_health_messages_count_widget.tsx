@@ -15,7 +15,7 @@
  */
 import {MithrilComponent} from "jsx/mithril-component";
 import m from "mithril";
-import {Stream} from "mithril/stream";
+import Stream from "mithril/stream";
 import {ServerHealthMessages} from "models/shared/server_health_messages/server_health_messages";
 import styles from "./server_health_messages_count_widget.scss";
 import {ServerHealthMessagesModal} from "./server_health_messages_modal";

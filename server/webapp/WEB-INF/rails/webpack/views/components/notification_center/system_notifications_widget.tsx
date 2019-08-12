@@ -15,7 +15,7 @@
  */
 import {MithrilComponent} from "jsx/mithril-component";
 import m from "mithril";
-import {Stream} from "mithril/stream";
+import Stream from "mithril/stream";
 import {Notification, SystemNotifications} from "models/notifications/system_notifications";
 import {SystemNotificationWidget} from "views/components/notification_center/system_notification_widget";
 import styles from "./system_notifications.scss";

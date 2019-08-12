@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 
 export function rejectAsString(reject: (r: string) => void) {
   return (reason: any) => {
@@ -43,8 +42,8 @@ export interface ObjectCache<T> {
 export abstract class AbstractObjCache<T> implements ObjectCache<T> {
   private primed: boolean = false;
   private syncing: boolean = false;
-  private data: Stream<T> = stream();
-  private error: Stream<string> = stream();
+  private data: Stream<T> = Stream();
+  private error: Stream<string> = Stream();
 
   prime(onSuccess: () => void, onError?: () => void) {
     if (this.busy() || this.ready()) {
@@ -53,7 +52,7 @@ export abstract class AbstractObjCache<T> implements ObjectCache<T> {
 
     this.lock();
 
-    this.error = stream();
+    this.error = Stream();
 
     this.doFetch((data: T) => {
       this.data(data);
@@ -94,7 +93,7 @@ export abstract class AbstractObjCache<T> implements ObjectCache<T> {
   }
 
   protected empty() {
-    this.data = stream();
+    this.data = Stream();
   }
 
   private busy(): boolean {

@@ -16,8 +16,7 @@
 
 import {timeFormatter} from "helpers/time_formatter";
 import _ from "lodash";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {ErrorMessages} from "models/mixins/error_messages";
 import {Errors, ErrorsJSON} from "models/mixins/errors";
 import {applyMixins} from "models/mixins/mixins";
@@ -91,7 +90,7 @@ export class Filter {
   ignore: Stream<string[]>;
 
   constructor(ignore: string[]) {
-    this.ignore = stream(ignore);
+    this.ignore = Stream(ignore);
   }
 
   static fromJSON(filter?: FilterJSON) {
@@ -108,8 +107,8 @@ export abstract class MaterialAttributes extends ValidatableMixin {
                         autoUpdate: boolean,
                         errors: { [key: string]: string[] } = {}) {
     super();
-    this.name       = stream(name);
-    this.autoUpdate = stream(autoUpdate);
+    this.name       = Stream(name);
+    this.autoUpdate = Stream(autoUpdate);
     ValidatableMixin.call(this);
     this.errors(new Errors(errors));
   }
@@ -158,10 +157,10 @@ export abstract class ScmMaterialAttributes extends MaterialAttributes {
                         invertFilter: boolean,
                         errors: { [key: string]: string[] } = {}) {
     super(name, autoUpdate, errors);
-    this.url          = stream(url);
-    this.destination  = stream(destination);
-    this.filter       = stream(filter);
-    this.invertFilter = stream(invertFilter);
+    this.url          = Stream(url);
+    this.destination  = Stream(destination);
+    this.filter       = Stream(filter);
+    this.invertFilter = Stream(invertFilter);
     ValidatableMixin.call(this);
     this.validatePresenceOf("url");
   }
@@ -181,7 +180,7 @@ export class GitMaterialAttributes extends ScmMaterialAttributes {
               invertFilter: boolean,
               errors: { [key: string]: string[] } = {}) {
     super(url, autoUpdate, name, destination, filter, invertFilter, errors);
-    this.branch = stream(branch);
+    this.branch = Stream(branch);
   }
 
   static deserialize(json: GitMaterialAttributesJSON) {
@@ -217,9 +216,9 @@ export class SvnMaterialAttributes extends ScmMaterialAttributes {
               invertFilter: boolean,
               errors: { [key: string]: string[] } = {}) {
     super(url, autoUpdate, name, destination, filter, invertFilter, errors);
-    this.checkExternals = stream(checkExternals);
-    this.username       = stream(username);
-    this.password       = stream(plainOrCipherValue({plainText: password, cipherText: encryptedPassword}));
+    this.checkExternals = Stream(checkExternals);
+    this.username       = Stream(username);
+    this.password       = Stream(plainOrCipherValue({plainText: password, cipherText: encryptedPassword}));
   }
 
   static deserialize(json: SvnMaterialAttributesJSON) {
@@ -305,11 +304,11 @@ export class P4MaterialAttributes extends ScmMaterialAttributes {
               invertFilter: boolean,
               errors: { [key: string]: string[] } = {}) {
     super(url, autoUpdate, name, destination, filter, invertFilter, errors);
-    this.port       = stream(port);
-    this.useTickets = stream(useTickets);
-    this.view       = stream(view);
-    this.username   = stream(username);
-    this.password   = stream(plainOrCipherValue({plainText: password, cipherText: encryptedPassword}));
+    this.port       = Stream(port);
+    this.useTickets = Stream(useTickets);
+    this.view       = Stream(view);
+    this.username   = Stream(username);
+    this.password   = Stream(plainOrCipherValue({plainText: password, cipherText: encryptedPassword}));
     this.validatePresenceOf("view");
     this.validatePresenceOf("port", {message: ErrorMessages.mustBePresent("Host and Port")});
   }
@@ -354,10 +353,10 @@ export class TfsMaterialAttributes extends ScmMaterialAttributes {
               invertFilter: boolean,
               errors: { [key: string]: string[] } = {}) {
     super(url, autoUpdate, name, destination, filter, invertFilter, errors);
-    this.domain      = stream(domain);
-    this.projectPath = stream(projectPath);
-    this.username    = stream(username);
-    this.password    = stream(plainOrCipherValue({plainText: password, cipherText: encryptedPassword}));
+    this.domain      = Stream(domain);
+    this.projectPath = Stream(projectPath);
+    this.username    = Stream(username);
+    this.password    = Stream(plainOrCipherValue({plainText: password, cipherText: encryptedPassword}));
     this.validatePresenceOf("projectPath");
     this.validatePresenceOf("username");
     this.validatePresenceOfPassword("password");
@@ -389,9 +388,9 @@ export class Material {
   attributes: Stream<MaterialAttributes>;
 
   constructor(type: string, attributes: MaterialAttributes, mduStartTime: Date) {
-    this.type         = stream(type);
-    this.attributes   = stream(attributes);
-    this.mduStartTime = stream(mduStartTime);
+    this.type         = Stream(type);
+    this.attributes   = Stream(attributes);
+    this.mduStartTime = Stream(mduStartTime);
   }
 
   static fromJSON(material: MaterialJSON): Material {

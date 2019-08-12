@@ -17,8 +17,7 @@
 import {asSelector} from "helpers/css_proxies";
 import _ from "lodash";
 import m from "mithril";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {ExecTask, Task} from "models/pipeline_configs/task";
 import * as events from "simulate-event";
 import {TestHelper} from "views/pages/spec/test_helper";
@@ -31,7 +30,7 @@ describe("AddPipeline: TaskTerminalField", () => {
   let tasks: Stream<Task[]>;
 
   beforeEach(() => {
-    tasks = stream();
+    tasks = Stream();
     helper.mount(() => {
       return <TaskTerminalField property={tasks}/>;
     });

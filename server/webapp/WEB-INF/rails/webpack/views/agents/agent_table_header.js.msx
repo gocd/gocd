@@ -15,6 +15,12 @@
  */
 import m from "mithril";
 
+function withAttr(attrName, callback1, context) {
+  return function(e) {
+    callback1.call(context || this, attrName in e.currentTarget ? e.currentTarget[attrName] : e.currentTarget.getAttribute(attrName));
+  };
+}
+
 const SortHeaderWidget = {
   view (vnode) {
     return (
@@ -44,7 +50,7 @@ export const AgentsTableHeader = {
         <input type="checkbox"
                class="select-agent show-for-large"
                checked={vnode.attrs.checkboxValue()}
-               onclick={m.withAttr('checked', vnode.attrs.onCheckboxClick)}/>
+               onclick={withAttr('checked', vnode.attrs.onCheckboxClick)}/>
       );
     }
 

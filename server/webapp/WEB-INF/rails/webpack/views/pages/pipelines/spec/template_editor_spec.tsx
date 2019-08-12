@@ -15,8 +15,7 @@
  */
 
 import m from "mithril";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {TemplateCache} from "models/pipeline_configs/templates_cache";
 import {Option} from "views/components/forms/input_fields";
@@ -25,7 +24,7 @@ import {TemplateEditor} from "../template_editor";
 
 describe("AddPipeline: TemplateEditor", () => {
   const helper = new TestHelper();
-  const isUsingTemplate: Stream<boolean> = stream();
+  const isUsingTemplate: Stream<boolean> = Stream();
   let config: PipelineConfig;
 
   beforeEach(() => {

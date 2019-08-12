@@ -15,10 +15,8 @@
  */
 
 import {ApiResult} from "helpers/api_request_builder";
-import _ from "lodash";
 import m from "mithril";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {AbstractObjCache, ObjectCache, rejectAsString} from "models/base/cache";
 import {ConfigReposCRUD} from "models/config_repos/config_repos_crud";
 import {DefinedStructures} from "models/config_repos/defined_structures";
@@ -32,7 +30,7 @@ interface PageResources extends SaveOperation, RequiresPluginInfos, FlashContain
 
 class CRResultCache extends AbstractObjCache<DefinedStructures> {
   private repoId: string;
-  private etag: Stream<string> = stream();
+  private etag: Stream<string> = Stream();
 
   constructor(repoId: string) {
     super();
@@ -60,7 +58,7 @@ class CRResultCache extends AbstractObjCache<DefinedStructures> {
 
   empty() {
     // don't dump contents, just force a fresh set of data
-    this.etag = stream();
+    this.etag = Stream();
   }
 }
 
@@ -77,7 +75,7 @@ export class ConfigRepoVM {
   showDeleteModal: (e: Propagable) => void;
 
   constructor(repo: ConfigRepo, page: PageResources, results?: ObjectCache<DefinedStructures>) {
-    const cache = results || new CRResultCache(repo.id());
+    const cache = results || new CRResultCache(repo.id()!);
 
     Object.assign(ConfigRepoVM.prototype, EventAware.prototype);
     EventAware.call(this);
@@ -92,7 +90,7 @@ export class ConfigRepoVM {
       e.stopPropagation();
       page.flash.clear();
 
-      const repoId = this.repo.id();
+      const repoId = this.repo.id()!;
 
       return ConfigReposCRUD.triggerUpdate(repoId).then((result: ApiResult<any>) => {
         result.do(() => {
@@ -108,7 +106,7 @@ export class ConfigRepoVM {
       e.stopPropagation();
       page.flash.clear();
 
-      new EditConfigRepoModal(this.repo.id(),
+      new EditConfigRepoModal(this.repo.id()!,
                               page.onSuccessfulSave,
                               page.onError,
                               page.pluginInfos).render();
@@ -118,7 +116,7 @@ export class ConfigRepoVM {
       e.stopPropagation();
       page.flash.clear();
 
-      const message = ["Are you sure you want to delete the config repository ", m("strong", this.repo.id), "?"];
+      const message = ["Are you sure you want to delete the config repository ", m("strong", this.repo.id()), "?"];
       const modal   = new DeleteConfirmModal(message, () => {
         ConfigReposCRUD.delete(this.repo).then((resp) => {
           resp.do(

@@ -35,7 +35,7 @@ export class Material {
   performSearch      = () => {
     this.searchInProgress(true);
     return AjaxHelper.GET({
-      url:        SparkRoutes.pipelineMaterialSearchPath(this.pipelineName, this.fingerprint, this.searchText),
+      url:        SparkRoutes.pipelineMaterialSearchPath(this.pipelineName, this.fingerprint, this.searchText()),
       apiVersion: 'v1',
     }).then((result) => {
       this.searchResults(result);

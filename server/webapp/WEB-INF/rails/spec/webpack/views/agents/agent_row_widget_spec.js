@@ -23,6 +23,7 @@ import Stream from "mithril/stream";
 import m from "mithril";
 import $ from "jquery";
 import  "jasmine-jquery";
+import * as simulateEvent from "simulate-event";
 
 describe("Agent Row Widget", () => {
   const agents          = Stream();
@@ -180,7 +181,7 @@ describe("Agent Row Widget", () => {
     const checkbox = $(row).find('input');
     expect(model()).toBe(false);
     $(checkbox).click();
-    m.redraw();
+    m.redraw.sync();
     expect(model()).toBe(true);
   });
 
@@ -213,8 +214,8 @@ describe("Agent Row Widget", () => {
     mount(agents(), model, true, false);
     expect(helper.find('.agent-analytics')).toBeInDOM();
 
-    $('.agent-analytics').click();
-    m.redraw();
+    simulateEvent.simulate($('.agent-analytics').get(0), 'click');
+    m.redraw.sync();
 
     expect($('.new-modal-container')).toBeInDOM();
     expect($('.modal-title')).toContainText(`Analytics for agent: host-3`);

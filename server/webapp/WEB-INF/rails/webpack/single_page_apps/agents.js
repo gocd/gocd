@@ -80,8 +80,8 @@ $(() => {
       }
     };
 
-    m.route($agentElem.get(0), '', {
-      '':                         component,
+    m.route($agentElem.get(0), '/', {
+      '/':                        component,
       '/:sortBy/:orderBy':        component,
       '/:sortBy/:orderBy/':       component,
       '/:sortBy/:orderBy/:query': component

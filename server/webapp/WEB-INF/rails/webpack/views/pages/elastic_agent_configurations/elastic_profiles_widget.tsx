@@ -60,8 +60,8 @@ export class ElasticProfilesWidget extends MithrilComponent<Attrs & PluginInfoAt
                                                           pluginInfo={vnode.attrs.pluginInfo}
                                                           onEdit={vnode.attrs.elasticAgentOperations.onEdit.bind(vnode.attrs, profile)}
                                                           onClone={vnode.attrs.elasticAgentOperations.onClone.bind(vnode.attrs, profile)}
-                                                          onDelete={vnode.attrs.elasticAgentOperations.onDelete.bind(vnode.attrs, profile.id())}
-                                                          onShowUsage={vnode.attrs.onShowUsages.bind(vnode.attrs, profile.id())}
+                                                          onDelete={vnode.attrs.elasticAgentOperations.onDelete.bind(vnode.attrs, profile.id()!)}
+                                                          onShowUsage={vnode.attrs.onShowUsages.bind(vnode.attrs, profile.id()!)}
                                     />
               );
             })
@@ -103,8 +103,8 @@ export class ElasticProfileWidget extends MithrilComponent<ProfileAttrs> {
       </IconGroup>
     ];
     return (
-      <CollapsiblePanel header={ElasticProfileWidget.profileHeader(elasticProfile.id())} actions={actions} dataTestId={"elastic-profile-header"}>
-        <KeyValuePair data={new Map(elasticProfile.properties() != null ? elasticProfile.properties().asMap() : [])}/>
+      <CollapsiblePanel header={ElasticProfileWidget.profileHeader(elasticProfile.id()!)} actions={actions} dataTestId={"elastic-profile-header"}>
+        <KeyValuePair data={new Map(elasticProfile.properties() != null ? elasticProfile.properties()!.asMap() : [])}/>
       </CollapsiblePanel>
     );
   }

@@ -15,8 +15,7 @@
  */
 
 import m from "mithril";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {AccessToken, AccessTokens} from "models/access_tokens/types";
 import {AdminAccessTokenCRUD} from "models/admin_access_tokens/admin_access_token_crud";
 import {FlashMessage, MessageType} from "views/components/flash_message";
@@ -32,8 +31,8 @@ interface State {
 
 export class AdminAccessTokensPage extends Page<null, State> {
   oninit(vnode: m.Vnode<null, State>) {
-    vnode.state.accessTokens = stream();
-    vnode.state.searchText = stream();
+    vnode.state.accessTokens = Stream();
+    vnode.state.searchText = Stream();
     super.oninit(vnode);
 
     vnode.state.onRevoke = (accessToken: Stream<AccessToken>, e: MouseEvent) => {

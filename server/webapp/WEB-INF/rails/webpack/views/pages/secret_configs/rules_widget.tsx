@@ -17,8 +17,7 @@
 import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {Rule, Rules} from "models/secret_configs/rules";
 import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
@@ -128,7 +127,7 @@ class RulesWidgetBody {
 
   getData(): m.Child[][] {
     return _.map(this.rules(), (rule) => {
-      const provider = stream(new ResourceSuggestionProvider(rule, this.resourceAutocompleteHelper));
+      const provider = Stream(new ResourceSuggestionProvider(rule, this.resourceAutocompleteHelper));
       return [<SelectField dataTestId="rule-directive"
                            property={rule().directive}
                            required={true}

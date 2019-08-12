@@ -18,8 +18,7 @@ import {bind} from "classnames/bind";
 
 import {MithrilComponent} from "jsx/mithril-component";
 import m from "mithril";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import styles from "./index.scss";
 
 const classnames = bind(styles);
@@ -35,7 +34,7 @@ interface State {
   setExpandedTo: (state: boolean, e: MouseEvent) => void;
 }
 
-const flag: (val?: boolean) => Stream<boolean> = stream;
+const flag: (val?: boolean) => Stream<boolean> = Stream;
 
 export class Ellipsize extends MithrilComponent<Attrs, State> {
   private static readonly DEFAULT_SIZE: number = 40;

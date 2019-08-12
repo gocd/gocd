@@ -18,8 +18,7 @@ import {ApiRequestBuilder, ApiVersion} from "helpers/api_request_builder";
 import {JsonUtils} from "helpers/json_utils";
 import {SparkRoutes} from "helpers/spark_routes";
 import _ from "lodash";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {
   DependencyMaterialAttributesJSON,
   GitMaterialAttributesJSON,
@@ -78,18 +77,18 @@ export class Materials {
 export class Material extends ValidatableMixin {
   private static API_VERSION_HEADER = ApiVersion.v1;
 
-  type: Stream<string>;
-  attributes: Stream<MaterialAttributes>;
+  type: Stream<string | undefined>;
+  attributes: Stream<MaterialAttributes | undefined>;
 
   constructor(type?: string, attributes?: MaterialAttributes) {
     super();
-    this.attributes = stream(attributes);
-    this.type       = stream(type);
+    this.attributes = Stream(attributes);
+    this.type       = Stream(type);
     this.validateAssociated("attributes");
   }
 
   name(): string {
-    return this.attributes().name() || "";
+    return this.attributes()!.name() || "";
   }
 
   typeProxy(value?: any): string {
@@ -103,7 +102,7 @@ export class Material extends ValidatableMixin {
       }
       this.type(newType);
     }
-    return this.type();
+    return this.type()!;
   }
 
   materialUrl(): string {
@@ -112,7 +111,7 @@ export class Material extends ValidatableMixin {
   }
 
   errorContainerFor(subkey: string): ErrorsConsumer {
-    return "type" === subkey ? this : this.attributes();
+    return "type" === subkey ? this : this.attributes()!;
   }
 
   toApiPayload() {
@@ -143,13 +142,13 @@ export class Material extends ValidatableMixin {
 }
 
 export abstract class MaterialAttributes extends ValidatableMixin {
-  name: Stream<string>;
-  autoUpdate: Stream<boolean>;
+  name: Stream<string | undefined>;
+  autoUpdate: Stream<boolean | undefined>;
 
   protected constructor(name?: string, autoUpdate?: boolean) {
     super();
-    this.name       = stream(name);
-    this.autoUpdate = stream(autoUpdate);
+    this.name       = Stream(name);
+    this.autoUpdate = Stream(autoUpdate);
     this.validateIdFormat("name");
   }
 
@@ -195,8 +194,8 @@ export abstract class MaterialAttributes extends ValidatableMixin {
 export abstract class ScmMaterialAttributes extends MaterialAttributes {
   static readonly DESTINATION_REGEX = new RegExp(
     "^(?!\\/)((([\\.]\\/)?[\\.][^. ]+)|([^. ].+[^. ])|([^. ][^. ])|([^. ]))$");
-  destination: Stream<string>       = stream();
-  username: Stream<string>;
+  destination: Stream<string>       = Stream();
+  username: Stream<string | undefined>;
   password: Stream<EncryptedValue>;
 
   constructor(name?: string, autoUpdate?: boolean, username?: string, password?: string, encryptedPassword?: string) {
@@ -205,8 +204,8 @@ export abstract class ScmMaterialAttributes extends MaterialAttributes {
                           ScmMaterialAttributes.DESTINATION_REGEX,
                           {message: "Must be a relative path within the pipeline's working directory"});
 
-    this.username = stream(username);
-    this.password = stream(plainOrCipherValue({plainText: password, cipherText: encryptedPassword}));
+    this.username = Stream(username);
+    this.password = Stream(plainOrCipherValue({plainText: password, cipherText: encryptedPassword}));
   }
 }
 
@@ -233,16 +232,16 @@ class AuthNotSetInUrlAndUserPassFieldsValidator extends Validator {
 }
 
 export class GitMaterialAttributes extends ScmMaterialAttributes {
-  url: Stream<string>;
-  branch: Stream<string>;
+  url: Stream<string | undefined>;
+  branch: Stream<string | undefined>;
 
   constructor(name?: string, autoUpdate?: boolean, url?: string, branch?: string,
               username?: string,
               password?: string,
               encryptedPassword?: string) {
     super(name, autoUpdate, username, password, encryptedPassword);
-    this.url    = stream(url);
-    this.branch = stream(branch);
+    this.url    = Stream(url);
+    this.branch = Stream(branch);
 
     this.validatePresenceOf("url");
     this.validateWith(new AuthNotSetInUrlAndUserPassFieldsValidator(), "url");
@@ -267,8 +266,8 @@ export class GitMaterialAttributes extends ScmMaterialAttributes {
 }
 
 export class SvnMaterialAttributes extends ScmMaterialAttributes {
-  url: Stream<string>;
-  checkExternals: Stream<boolean>;
+  url: Stream<string | undefined>;
+  checkExternals: Stream<boolean | undefined>;
 
   constructor(name?: string,
               autoUpdate?: boolean,
@@ -278,8 +277,8 @@ export class SvnMaterialAttributes extends ScmMaterialAttributes {
               password?: string,
               encryptedPassword?: string) {
     super(name, autoUpdate, username, password, encryptedPassword);
-    this.url            = stream(url);
-    this.checkExternals = stream(checkExternals);
+    this.url            = Stream(url);
+    this.checkExternals = Stream(checkExternals);
 
     this.validatePresenceOf("url");
   }
@@ -303,8 +302,8 @@ export class SvnMaterialAttributes extends ScmMaterialAttributes {
 }
 
 export class HgMaterialAttributes extends ScmMaterialAttributes {
-  url: Stream<string>;
-  branch: Stream<string>;
+  url: Stream<string | undefined>;
+  branch: Stream<string | undefined>;
 
   constructor(name?: string, autoUpdate?: boolean, url?: string,
               username?: string,
@@ -312,8 +311,8 @@ export class HgMaterialAttributes extends ScmMaterialAttributes {
               encryptedPassword?: string,
               branch?: string) {
     super(name, autoUpdate, username, password, encryptedPassword);
-    this.url    = stream(url);
-    this.branch = stream(branch);
+    this.url    = Stream(url);
+    this.branch = Stream(branch);
 
     this.validatePresenceOf("url");
     this.validateWith(new AuthNotSetInUrlAndUserPassFieldsValidator(), "url");
@@ -338,9 +337,9 @@ export class HgMaterialAttributes extends ScmMaterialAttributes {
 }
 
 export class P4MaterialAttributes extends ScmMaterialAttributes {
-  port: Stream<string>;
-  useTickets: Stream<boolean>;
-  view: Stream<string>;
+  port: Stream<string | undefined>;
+  useTickets: Stream<boolean | undefined>;
+  view: Stream<string | undefined>;
 
   constructor(name?: string,
               autoUpdate?: boolean,
@@ -351,9 +350,9 @@ export class P4MaterialAttributes extends ScmMaterialAttributes {
               password?: string,
               encryptedPassword?: string) {
     super(name, autoUpdate, username, password, encryptedPassword);
-    this.port       = stream(port);
-    this.useTickets = stream(useTickets);
-    this.view       = stream(view);
+    this.port       = Stream(port);
+    this.useTickets = Stream(useTickets);
+    this.view       = Stream(view);
 
     this.validatePresenceOf("view");
     this.validatePresenceOf("port", {message: ErrorMessages.mustBePresent("Host and Port")});
@@ -380,9 +379,9 @@ export class P4MaterialAttributes extends ScmMaterialAttributes {
 }
 
 export class TfsMaterialAttributes extends ScmMaterialAttributes {
-  url: Stream<string>;
-  domain: Stream<string>;
-  projectPath: Stream<string>;
+  url: Stream<string | undefined>;
+  domain: Stream<string | undefined>;
+  projectPath: Stream<string | undefined>;
 
   constructor(name?: string,
               autoUpdate?: boolean,
@@ -393,9 +392,9 @@ export class TfsMaterialAttributes extends ScmMaterialAttributes {
               password?: string,
               encryptedPassword?: string) {
     super(name, autoUpdate, username, password, encryptedPassword);
-    this.url         = stream(url);
-    this.domain      = stream(domain);
-    this.projectPath = stream(projectPath);
+    this.url         = Stream(url);
+    this.domain      = Stream(domain);
+    this.projectPath = Stream(projectPath);
 
     this.validatePresenceOf("url");
     this.validatePresenceOf("projectPath");
@@ -423,13 +422,13 @@ export class TfsMaterialAttributes extends ScmMaterialAttributes {
 }
 
 export class DependencyMaterialAttributes extends MaterialAttributes {
-  pipeline: Stream<string>;
-  stage: Stream<string>;
+  pipeline: Stream<string | undefined>;
+  stage: Stream<string | undefined>;
 
   constructor(name?: string, autoUpdate?: boolean, pipeline?: string, stage?: string) {
     super(name, autoUpdate);
-    this.pipeline = stream(pipeline);
-    this.stage    = stream(stage);
+    this.pipeline = Stream(pipeline);
+    this.stage    = Stream(stage);
 
     this.validatePresenceOf("pipeline");
     this.validatePresenceOf("stage");

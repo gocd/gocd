@@ -21,6 +21,13 @@ import Stream from "mithril/stream";
 import {mixins as s} from "helpers/string-plus";
 import 'foundation-sites';
 
+
+function withAttr(attrName, callback1, context) {
+  return function(e) {
+    callback1.call(context || this, attrName in e.currentTarget ? e.currentTarget[attrName] : e.currentTarget.getAttribute(attrName));
+  };
+}
+
 function deleteKeyAndReturnValue(object, key, defaultValue) {
   if (_.isNil(object)) {
     return defaultValue;
@@ -86,7 +93,7 @@ function wireUpModel(attrs, property = "value", listener = "onchange") {
     attrs[property]          = deleteKeyAndReturnValue(attrs, property, model[attrName]());
 
     const chainedCallback = deleteKeyAndReturnValue(attrs, "onModelUpdate"),
-          onUpdate        = deleteKeyAndReturnValue(attrs, listener, m.withAttr(property, model[attrName]));
+          onUpdate        = deleteKeyAndReturnValue(attrs, listener, withAttr(property, model[attrName]));
 
     attrs[listener] = ("function" === typeof chainedCallback) ? function chained(e) {
       onUpdate(e);

@@ -22,6 +22,7 @@ import {PipelineInstanceWidget} from "views/dashboard/pipeline_instance_widget";
 import {timeFormatter} from "helpers/time_formatter";
 import _ from "lodash";
 import m from "mithril";
+import * as simulateEvent from "simulate-event";
 
 describe("Dashboard Pipeline Instance Widget", () => {
 
@@ -147,7 +148,9 @@ describe("Dashboard Pipeline Instance Widget", () => {
         responseHeaders: {'Content-Type': 'application/vnd.go.cd.v1+json'},
         status:          200
       });
-      helper.find('.info a').get(1).click();
+
+      simulateEvent.simulate(helper.find('.info a').get(1), 'click');
+      m.redraw.sync();
     });
 
     expect(helper.find('.material_changes')).toBeInDOM();

@@ -21,6 +21,12 @@ import {ButtonRowWidget} from "views/agents/button_row_widget";
 import Stream from "mithril/stream";
 import _ from "lodash";
 
+function withAttr(attrName, callback1, context) {
+  return function(e) {
+    callback1.call(context || this, attrName in e.currentTarget ? e.currentTarget[attrName] : e.currentTarget.getAttribute(attrName));
+  };
+}
+
 export const AgentsWidget = {
   oninit(vnode) {
     const args = vnode.attrs;
@@ -197,7 +203,7 @@ export const AgentsWidget = {
             </div>
             <div class="search-bar">
               <input type="text"
-                     oninput={m.withAttr("value", args.vm.filterText)}
+                     oninput={withAttr("value", args.vm.filterText)}
                      value={filterText}
                      placeholder="Filter Agents"
                      id="filter-agent"

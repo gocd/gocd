@@ -18,7 +18,7 @@ import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
-import {Stream} from "mithril/stream";
+import Stream from "mithril/stream";
 import {AuthConfig, AuthConfigs} from "models/auth_configs/auth_configs";
 import {GoCDRole, PluginRole, RoleType} from "models/roles/roles";
 import {Extension} from "models/shared/plugin_infos_new/extensions";

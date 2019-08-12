@@ -16,8 +16,7 @@
 
 import _ from "lodash";
 import m from "mithril";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {GoCDRole, Roles} from "models/roles/roles";
 import {TriStateCheckbox} from "models/tri_state_checkbox";
 import {UserFilters} from "models/users/user_filters";
@@ -26,7 +25,7 @@ import {TestHelper} from "views/pages/spec/test_helper";
 import {UserViewHelper} from "views/pages/users/user_view_helper";
 import {Attrs, UsersWidget} from "views/pages/users/users_widget";
 
-const flag: (val?: boolean) => Stream<boolean> = stream;
+const flag: (val?: boolean) => Stream<boolean> = Stream;
 
 describe("UsersWidget", () => {
   const helper = new TestHelper();
@@ -36,22 +35,22 @@ describe("UsersWidget", () => {
 
   beforeEach(() => {
     attrs = {
-      users: stream(new Users(bob(), alice())),
+      users: Stream(new Users(bob(), alice())),
       user: bob(),
-      roles: stream(new Roles()),
-      userFilters: stream(new UserFilters()),
+      roles: Stream(new Roles()),
+      userFilters: Stream(new UserFilters()),
       initializeRolesDropdownAttrs: _.noop,
       showRoles: flag(false),
       showFilters: flag(false),
-      rolesSelection: stream(new Map<GoCDRole, TriStateCheckbox>()),
+      rolesSelection: Stream(new Map<GoCDRole, TriStateCheckbox>()),
       onEnable: _.noop,
       onDisable: _.noop,
       onDelete: _.noop,
       onRolesUpdate: _.noop,
-      roleNameToAdd: stream(),
+      roleNameToAdd: Stream(),
       onRolesAdd: _.noop,
       onToggleAdmin: _.noop,
-      userViewHelper: stream(new UserViewHelper())
+      userViewHelper: Stream(new UserViewHelper())
     };
 
     attrs.userViewHelper().systemAdmins().users([bob().loginName()]);
@@ -108,7 +107,7 @@ describe("UsersWidget", () => {
     const user = attrs.users()[0];
     attrs.userViewHelper().userUpdateInProgress(user);
 
-    m.redraw();
+    m.redraw.sync();
 
     expect(helper.findIn(helper.findByDataTestId("user-super-admin-switch")[0], "Spinner-icon")).toBeInDOM();
   });
@@ -117,7 +116,7 @@ describe("UsersWidget", () => {
     const user = attrs.users()[0];
     attrs.userViewHelper().userUpdateSuccessful(user);
 
-    m.redraw();
+    m.redraw.sync();
 
     expect(helper.findByDataTestId("user-super-admin-switch"));
     expect(helper.findIn(helper.findByDataTestId("user-super-admin-switch")[0], "update-successful")).toBeInDOM();
@@ -127,7 +126,7 @@ describe("UsersWidget", () => {
     const user = attrs.users()[0];
     attrs.userViewHelper().userUpdateFailure(user, "boom!");
 
-    m.redraw();
+    m.redraw.sync();
 
     expect(helper.findIn(helper.findByDataTestId("user-super-admin-switch")[0], "update-unsuccessful")).toBeInDOM();
     expect(helper.findByDataTestId("user-update-error-message")).toContainText("boom!");

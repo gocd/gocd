@@ -15,7 +15,7 @@
  */
 
 import m from "mithril";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {AuthConfig, AuthConfigs} from "models/auth_configs/auth_configs";
 import {AuthConfigsCRUD} from "models/auth_configs/auth_configs_crud";
 import {Configurations} from "models/shared/configuration";
@@ -45,7 +45,7 @@ interface State extends AddOperation<AuthConfig>, RequiresPluginInfos, EditOpera
 export class AuthConfigsPage extends Page<null, State> {
   oninit(vnode: m.Vnode<null, State>) {
     super.oninit(vnode);
-    vnode.state.pluginInfos = stream();
+    vnode.state.pluginInfos = Stream();
 
     vnode.state.onSuccessfulSave = (msg: m.Children) => {
       this.flashMessage.setMessage(MessageType.success, msg);

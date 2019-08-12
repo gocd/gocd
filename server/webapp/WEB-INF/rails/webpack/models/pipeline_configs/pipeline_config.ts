@@ -17,35 +17,34 @@
 import {ApiRequestBuilder, ApiVersion} from "helpers/api_request_builder";
 import {JsonUtils} from "helpers/json_utils";
 import {SparkRoutes} from "helpers/spark_routes";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {Material} from "models/materials/types";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {NameableSet} from "./nameable_set";
 import {Stage} from "./stage";
 
 export class PipelineConfig extends ValidatableMixin {
-  group: Stream<string> = stream();
+  group: Stream<string> = Stream();
   name: Stream<string>;
-  template: Stream<string> = stream();
+  template: Stream<string> = Stream();
   materials: Stream<NameableSet<Material>>;
   stages: Stream<NameableSet<Stage>>;
 
   constructor(name: string, materials: Material[], stages: Stage[]) {
     super();
 
-    this.name = stream(name);
+    this.name = Stream(name);
     this.validatePresenceOf("name");
     this.validateIdFormat("name");
 
     this.validatePresenceOf("group");
     this.validateIdFormat("group");
 
-    this.materials = stream(new NameableSet(materials));
+    this.materials = Stream(new NameableSet(materials));
     this.validateNonEmptyCollection("materials", {message: `A pipeline must have at least one material`});
     this.validateAssociated("materials");
 
-    this.stages = stream(new NameableSet(stages));
+    this.stages = Stream(new NameableSet(stages));
     this.validateAssociated("stages");
 
     this.validateMutualExclusivityOf("template", "stages", { message: "Pipeline stages must not be defined when using a pipeline template" });

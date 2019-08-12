@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 import m from "mithril";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
+
 import {AccessToken, AccessTokens} from "models/access_tokens/types";
 import {
   AccessTokensWidgetForAdmin,
@@ -43,15 +44,15 @@ describe("AccessTokensWidgetForAdminSpec", () => {
     document.body.removeAttribute("data-username");
   });
 
-  function mount(accessTokens = allAccessTokens, searchText = stream("")) {
-    helper.mount(() => <AccessTokensWidgetForAdmin accessTokens={stream(accessTokens)}
+  function mount(accessTokens = allAccessTokens, searchText = Stream("")) {
+    helper.mount(() => <AccessTokensWidgetForAdmin accessTokens={Stream(accessTokens)}
                                                    onRevoke={onRevoke}
                                                    searchText={searchText}/>);
   }
 
   it("should be able to render info when no access tokens have been created", () => {
-    helper.mount(() => <AccessTokensWidgetForAdmin accessTokens={stream(new AccessTokens())} onRevoke={onRevoke}
-                                                   searchText={stream("")}/>);
+    helper.mount(() => <AccessTokensWidgetForAdmin accessTokens={Stream(new AccessTokens())} onRevoke={onRevoke}
+                                                   searchText={Stream("")}/>);
 
     expect(helper.findByDataTestId("access_token_info")).toBeInDOM();
     expect(helper.findByDataTestId("access_token_info").text())
@@ -118,7 +119,7 @@ describe("AccessTokensWidgetForAdminSpec", () => {
 
   describe("Search By Description", () => {
     it("should filter active tokens", () => {
-      const searchText = stream("");
+      const searchText = Stream("");
       mount(allAccessTokens, searchText);
 
       let activeTokenTableRows = helper.findIn(helper.findByDataTestId("tab-content-0"), "table-row");
@@ -135,7 +136,7 @@ describe("AccessTokensWidgetForAdminSpec", () => {
     });
 
     it("should filter revoked tokens", () => {
-      const searchText = stream("");
+      const searchText = Stream("");
       mount(allAccessTokens, searchText);
 
       let activeTokenTableRows = helper.findIn(helper.findByDataTestId("tab-content-1"), "table-row");
@@ -151,7 +152,7 @@ describe("AccessTokensWidgetForAdminSpec", () => {
     });
 
     it("should show message if the search query results in empty array for active tokens", () => {
-      const searchText = stream("");
+      const searchText = Stream("");
       mount(allAccessTokens, searchText);
 
       const activeTokenTableRows = helper.findIn(helper.findByDataTestId("tab-content-0"), "table-row");
@@ -165,7 +166,7 @@ describe("AccessTokensWidgetForAdminSpec", () => {
     });
 
     it("should show message if the search query results in empty array for revoked tokens", () => {
-      const searchText = stream("");
+      const searchText = Stream("");
       mount(allAccessTokens, searchText);
 
       const activeTokenTableRows = helper.findIn(helper.findByDataTestId("tab-content-1"), "table-row");
@@ -181,7 +182,7 @@ describe("AccessTokensWidgetForAdminSpec", () => {
 
   describe("Search By Username", () => {
     it("should filter active tokens", () => {
-      const searchText = stream("");
+      const searchText = Stream("");
       mount(allAccessTokens, searchText);
 
       let activeTokenTableRows = helper.findIn(helper.findByDataTestId("tab-content-0"), "table-row");
@@ -197,7 +198,7 @@ describe("AccessTokensWidgetForAdminSpec", () => {
     });
 
     it("should filter revoked tokens", () => {
-      const searchText = stream("");
+      const searchText = Stream("");
       mount(allAccessTokens, searchText);
 
       let activeTokenTableRows = helper.findIn(helper.findByDataTestId("tab-content-1"), "table-row");
@@ -231,7 +232,7 @@ describe("AccessTokensWidgetForAdminSpec", () => {
     expect(columns.eq(2)).toContainText(formatTimeInformation(accessToken.createdAt()));
     expect(columns.eq(3)).toContainText(getLastUsedInformation(accessToken));
     expect(columns.eq(4)).toContainText(getRevokedBy(accessToken.revokedBy()));
-    expect(columns.eq(5)).toContainText(formatTimeInformation(accessToken.revokedAt()));
-    expect(columns.eq(6)).toContainText(accessToken.revokeCause());
+    expect(columns.eq(5)).toContainText(formatTimeInformation(accessToken.revokedAt()!));
+    expect(columns.eq(6)).toContainText(accessToken.revokeCause()!);
   }
 });

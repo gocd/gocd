@@ -16,8 +16,7 @@
 
 import _ from "lodash";
 import m from "mithril";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {Rule, Rules} from "models/secret_configs/rules";
 import {SecretConfig, SecretConfigs} from "models/secret_configs/secret_configs";
 import {SecretConfigsCRUD} from "models/secret_configs/secret_configs_crud";
@@ -117,9 +116,9 @@ export abstract class SecretConfigModal extends EntityModal<SecretConfig> {
       <div>
         <div class="row collapse">
           <AngularPluginNew
-            pluginInfoSettings={stream(pluginSettings)}
+            pluginInfoSettings={Stream(pluginSettings)}
             configuration={this.entity().properties()}
-            key={this.entity().id}/>
+            key={this.entity().id()}/>
         </div>
       </div>
       <RulesWidget rules={this.entity().rules} resourceAutocompleteHelper={this.resourceAutocompleteHelper}/>
@@ -136,7 +135,7 @@ export abstract class SecretConfigModal extends EntityModal<SecretConfig> {
                                  entity().description(),
                                  pluginInfo.id,
                                  new Configurations([]),
-                                 new Rules(stream(new Rule("deny", "refer", "pipeline_group", "")))));
+                                 new Rules(Stream(new Rule("deny", "refer", "pipeline_group", "")))));
   }
 
   protected parseJsonToEntity(json: object): SecretConfig {
@@ -148,7 +147,7 @@ export abstract class SecretConfigModal extends EntityModal<SecretConfig> {
   }
 
   protected addNewRule() {
-    this.entity().rules().push(stream(new Rule("", "refer", "", "")));
+    this.entity().rules().push(Stream(new Rule("", "refer", "", "")));
   }
 
   protected afterSuccess(): void {

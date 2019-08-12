@@ -15,8 +15,7 @@
  */
 
 import {SparkRoutes} from "helpers/spark_routes";
-import {Stream} from 'mithril/stream';
-import stream from "mithril/stream";
+import Stream from 'mithril/stream';
 
 const AjaxHelper = require("helpers/ajax_helper").AjaxHelper;
 
@@ -44,7 +43,7 @@ export class DataReporting {
 
   constructor(initialData: DataReportingJSON) {
     this.data          = initialData._embedded;
-    this.lastReportedAt = stream(new Date(this.data.last_reported_at));
+    this.lastReportedAt = Stream(new Date(this.data.last_reported_at));
 
     this.serverId                        = () => this.data.server_id;
     this.dataSharingServerUrl            = () => this.data.data_sharing_server_url;

@@ -38,7 +38,6 @@ describe("ArtifactModalBodyWidget", () => {
     expect(helper.findByDataTestId("form-field-input-id").val()).toEqual("");
 
     expect(helper.findByDataTestId("form-field-label-plugin-id")).toContainText("Plugin Id");
-    expect(helper.findByDataTestId("form-field-input-plugin-id").val()).toEqual("cd.go.artifact.docker.registry");
 
     expect(helper.find(".plugin-view")).toContainText("This is store config view.");
   });

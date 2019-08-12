@@ -88,7 +88,7 @@ describe("RoleCRUD", () => {
     expect(request.method).toEqual("DELETE");
     expect(request.data()).toEqual(toJSON({} as RoleJSON));
     expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v2+json");
-    expect(request.requestHeaders["Content-Type"]).toEqual("application/json; charset=utf-8");
+    expect(request.requestHeaders["Content-Type"]).toEqual(undefined!);
     expect(request.requestHeaders["X-GoCD-Confirm"]).toEqual("true");
   });
 });

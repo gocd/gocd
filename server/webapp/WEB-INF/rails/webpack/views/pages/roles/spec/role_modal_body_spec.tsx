@@ -15,7 +15,7 @@
  */
 
 import m from "mithril";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {AuthConfigs} from "models/auth_configs/auth_configs";
 import {TestData} from "models/auth_configs/spec/test_data";
 import {Role, RoleType} from "models/roles/roles";
@@ -37,7 +37,7 @@ describe("RoleModalBody", () => {
 
   describe("ErrorMessage", () => {
     it("should show error message", () => {
-      helper.mount(() => <RoleModalBody role={stream(gocdRole)}
+      helper.mount(() => <RoleModalBody role={Stream(gocdRole)}
                                         message="Something went wrong contact your admin!!!"
                                         pluginInfos={pluginInfos}
                                         authConfigs={authConfigs}
@@ -47,7 +47,7 @@ describe("RoleModalBody", () => {
     });
 
     it("should not show error message when one is not present", () => {
-      helper.mount(() => <RoleModalBody role={stream(gocdRole)}
+      helper.mount(() => <RoleModalBody role={Stream(gocdRole)}
                                         pluginInfos={pluginInfos}
                                         authConfigs={authConfigs}
                                         action={Action.NEW}
@@ -59,7 +59,7 @@ describe("RoleModalBody", () => {
 
   describe("RoleTypeSelector", () => {
     it("should show role type selector", () => {
-      helper.mount(() => <RoleModalBody role={stream(gocdRole)}
+      helper.mount(() => <RoleModalBody role={Stream(gocdRole)}
                                         action={Action.NEW}
                                         pluginInfos={pluginInfos}
                                         authConfigs={authConfigs}
@@ -69,7 +69,7 @@ describe("RoleModalBody", () => {
     });
 
     it("should not show role type selector for clone action", () => {
-      helper.mount(() => <RoleModalBody role={stream(gocdRole)}
+      helper.mount(() => <RoleModalBody role={Stream(gocdRole)}
                                         pluginInfos={pluginInfos}
                                         authConfigs={authConfigs}
                                         action={Action.CLONE}
@@ -79,7 +79,7 @@ describe("RoleModalBody", () => {
     });
 
     it("should not show role type selector for edit action", () => {
-      helper.mount(() => <RoleModalBody role={stream(gocdRole)}
+      helper.mount(() => <RoleModalBody role={Stream(gocdRole)}
                                         pluginInfos={pluginInfos}
                                         authConfigs={authConfigs}
                                         action={Action.EDIT}
@@ -92,7 +92,7 @@ describe("RoleModalBody", () => {
 
   describe("DisablePluginRoleType", () => {
     it("should disable when no auth configs defined", () => {
-      helper.mount(() => <RoleModalBody role={stream(gocdRole)}
+      helper.mount(() => <RoleModalBody role={Stream(gocdRole)}
                                         action={Action.NEW}
                                         pluginInfos={pluginInfos}
                                         authConfigs={new AuthConfigs()}
@@ -102,7 +102,7 @@ describe("RoleModalBody", () => {
     });
 
     it("should enable when auth configs are defined", () => {
-      helper.mount(() => <RoleModalBody role={stream(gocdRole)}
+      helper.mount(() => <RoleModalBody role={Stream(gocdRole)}
                                         action={Action.NEW}
                                         pluginInfos={pluginInfos}
                                         authConfigs={authConfigs}
@@ -115,7 +115,7 @@ describe("RoleModalBody", () => {
 
   describe("ChangeRoleType", () => {
     it("should change role type on click of radio button", () => {
-      helper.mount(() => <RoleModalBody role={stream(gocdRole)}
+      helper.mount(() => <RoleModalBody role={Stream(gocdRole)}
                                         action={Action.NEW}
                                         pluginInfos={pluginInfos}
                                         authConfigs={authConfigs}

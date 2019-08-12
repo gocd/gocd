@@ -17,8 +17,7 @@
 import {asSelector} from "helpers/css_proxies";
 import _ from "lodash";
 import m from "mithril";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {EnvironmentVariableConfig} from "models/pipeline_configs/environment_variable_config";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {EnvironmentVariablesEditor} from "../environment_variables_editor";
@@ -27,7 +26,7 @@ import css from "../environment_variables_editor.scss";
 describe("EnvironmentVariablesEditor", () => {
   const helper = new TestHelper();
   const sel = asSelector<typeof css>(css);
-  const variables: Stream<EnvironmentVariableConfig[]> = stream();
+  const variables: Stream<EnvironmentVariableConfig[]> = Stream();
 
   beforeEach(() => {
     variables([]);

@@ -15,7 +15,7 @@
  */
 
 import m from "mithril";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {SecretConfigs} from "models/secret_configs/secret_configs";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {SecretPluginInfo} from "models/shared/plugin_infos_new/spec/test_data";
@@ -64,8 +64,8 @@ class StubbedPage extends SecretConfigsPage {
 
   fetchData(vnode: m.Vnode<any, any>): Promise<any> {
     this.pageState            = PageState.OK;
-    vnode.state.secretConfigs = stream(new SecretConfigs());
-    vnode.state.pluginInfos   = stream(this.pluginInfos);
+    vnode.state.secretConfigs = Stream(new SecretConfigs());
+    vnode.state.pluginInfos   = Stream(this.pluginInfos);
     return Promise.resolve();
   }
 }

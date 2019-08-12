@@ -70,7 +70,7 @@ describe("Dashboard Environment Variables Trigger Widget", () => {
       const newValue = "ldap";
       $(valueInputField).val(newValue);
       simulateEvent.simulate(valueInputField, 'input');
-      m.redraw();
+      m.redraw.sync();
 
       expect(variables[0].value()).toBe(newValue);
       expect(valueInputField).toHaveValue(newValue);
@@ -119,20 +119,20 @@ describe("Dashboard Environment Variables Trigger Widget", () => {
       expect(helper.find('.reset')).not.toBeInDOM();
 
       simulateEvent.simulate(helper.find('.override').get(0), 'click');
-      m.redraw();
+      m.redraw.sync();
       expect(valueInputField).not.toBeDisabled();
       expect(helper.find('.reset')).toBeInDOM();
 
       const newValue = "ldap";
       $(valueInputField).val(newValue);
       simulateEvent.simulate(valueInputField, 'input');
-      m.redraw();
+      m.redraw.sync();
 
       expect(variables[0].value()).toBe(newValue);
       expect(valueInputField).toHaveValue(newValue);
 
       simulateEvent.simulate(helper.find('.reset').get(0), 'click');
-      m.redraw();
+      m.redraw.sync();
       expect(valueInputField).toBeDisabled();
       expect(helper.find('.reset')).not.toBeInDOM();
     });

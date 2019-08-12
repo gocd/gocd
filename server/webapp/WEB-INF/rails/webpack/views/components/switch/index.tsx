@@ -15,7 +15,7 @@
  */
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
-import {Stream} from "mithril/stream";
+import Stream from "mithril/stream";
 
 import classnames from "classnames";
 import styles from "./index.scss";

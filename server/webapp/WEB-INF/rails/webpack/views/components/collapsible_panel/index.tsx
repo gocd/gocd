@@ -17,7 +17,7 @@
 import classnames from "classnames";
 import {MithrilComponent} from "jsx/mithril-component";
 import m from "mithril";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import styles from "./index.scss";
 
 interface CollapsibleStateModel {
@@ -52,7 +52,7 @@ interface State extends CollapsibleStateModel {
 
 export class CollapsiblePanel extends MithrilComponent<Attrs, State> {
   oninit(vnode: m.Vnode<Attrs, State>) {
-    const defaultState = stream(false);
+    const defaultState = Stream(false);
 
     vnode.state.expanded = (val?: boolean) => {
       const {vm} = vnode.attrs; // Don't optimize! Read from attrs within the method body because vm instance may be different on subsequent invocations

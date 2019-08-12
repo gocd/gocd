@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Stream} from "mithril/stream";
 import {AnalyticsCapabilities} from "./analytics_plugin_capabilities";
 import {AuthCapabilities} from "./authorization_plugin_capabilities";
 import {ConfigRepoCapabilities} from "./config_repo_capabilities";
 import {ElasticPluginCapabilities} from "./elastic_plugin_capabilities";
 import {ExtensionType} from "./extension_type";
 
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 
 class Configuration {
   readonly key: string;
@@ -41,8 +40,8 @@ class PluginSettings {
   viewTemplate?: Stream<string>;
 
   constructor(configurations: Configuration[], viewTemplate: string) {
-    this.configurations = stream(configurations);
-    this.viewTemplate   = stream(viewTemplate);
+    this.configurations = Stream(configurations);
+    this.viewTemplate   = Stream(viewTemplate);
   }
 
   static tryParsing(data: any) {

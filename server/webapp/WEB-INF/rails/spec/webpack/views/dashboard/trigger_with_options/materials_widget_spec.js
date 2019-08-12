@@ -20,6 +20,7 @@ import {TriggerWithOptionsVM} from "views/dashboard/models/trigger_with_options_
 import Stream from "mithril/stream";
 import m from "mithril";
 import _ from "lodash";
+import * as simulateEvent from "simulate-event";
 
 describe("Dashboard Trigger With Options Material Widget", () => {
 
@@ -82,7 +83,8 @@ describe("Dashboard Trigger With Options Material Widget", () => {
     expect(helper.find('.v-tab_tab-head li').get(0)).toHaveClass('active');
     expect(helper.find('#material1').get(0)).not.toHaveClass('hidden');
 
-    helper.find('.v-tab_tab-head li').get(1).click();
+    simulateEvent.simulate(helper.find('.v-tab_tab-head li').get(1), "click");
+    helper.redraw();
 
     expect(helper.find('.v-tab_tab-head li').get(1)).toHaveClass('active');
     expect(helper.find('#material1').get(1)).not.toHaveClass('hidden');

@@ -98,7 +98,7 @@ describe("Api Request Builder", () => {
       mockInternalServerError();
       ApiRequestBuilder.GET("/foo", ApiVersion.v1).then((result) => {
         // @ts-ignore
-        expect(result.unwrap().message).toEqual("There was an unknown error performing the operation.");
+        expect(result.unwrap()).toEqual("Message from nginx");
         expect(result.getEtag()).toBeNull();
         expect(result.getStatusCode()).toEqual(500);
         done();

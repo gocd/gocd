@@ -16,13 +16,13 @@
 
 import {asSelector} from "helpers/css_proxies";
 import m from "mithril";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {TestHelper} from "views/pages/spec/test_helper";
 import css from "../forms.scss";
 import {LiveValidatingInputField} from "../live_validating_input";
 
 describe("LiveValidatingInputField", () => {
-  const data = stream("");
+  const data = Stream("");
   const sel = asSelector(css);
   const helper = new TestHelper();
 

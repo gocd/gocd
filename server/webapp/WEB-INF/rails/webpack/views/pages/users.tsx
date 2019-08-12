@@ -15,8 +15,7 @@
  */
 
 import m from "mithril";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {AdminsCRUD, BulkUpdateSystemAdminJSON} from "models/admins/admin_crud";
 import {BulkUserRoleUpdateJSON, GoCDAttributes, GoCDRole, Roles} from "models/roles/roles";
 import {RolesCRUD} from "models/roles/roles_crud";
@@ -41,21 +40,21 @@ interface State extends UserActionsState, AddOperation<Users>, UsersWidgetState 
   initialUsers: Stream<Users>;
 }
 
-const flag: (val?: boolean) => Stream<boolean> = stream;
+const flag: (val?: boolean) => Stream<boolean> = Stream;
 
 export class UsersPage extends Page<null, State> {
   oninit(vnode: m.Vnode<null, State>) {
     super.oninit(vnode);
 
-    vnode.state.initialUsers   = stream(new Users());
-    vnode.state.userViewHelper = stream(new UserViewHelper());
-    vnode.state.userFilters    = stream(new UserFilters());
-    vnode.state.roles          = stream(new Roles());
-    vnode.state.rolesSelection = stream(new Map<GoCDRole, TriStateCheckbox>());
+    vnode.state.initialUsers   = Stream(new Users());
+    vnode.state.userViewHelper = Stream(new UserViewHelper());
+    vnode.state.userFilters    = Stream(new UserFilters());
+    vnode.state.roles          = Stream(new Roles());
+    vnode.state.rolesSelection = Stream(new Map<GoCDRole, TriStateCheckbox>());
 
     vnode.state.showFilters   = flag(false);
     vnode.state.showRoles     = flag(false);
-    vnode.state.roleNameToAdd = stream();
+    vnode.state.roleNameToAdd = Stream();
 
     vnode.state.initializeRolesDropdownAttrs = () => {
       if (vnode.state.showRoles()) {

@@ -15,7 +15,7 @@
  */
 
 import m from "mithril";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {BuilderForm} from "views/pages/pac/builder_form";
 import {DownloadAction} from "views/pages/pac/download_action";
 import {PreviewPane} from "views/pages/pac/preview_pane";
@@ -25,14 +25,14 @@ import {PipelineConfigVM} from "views/pages/pipelines/pipeline_config_view_model
 
 export class PipelinesAsCodeCreatePage extends Page {
   private model = new PipelineConfigVM();
-  private content = stream("");
-  private mimeType = stream("application/x-yaml");
+  private content = Stream("");
+  private mimeType = Stream("application/x-yaml");
 
   oninit(vnode: m.Vnode) {
     this.pageState = PageState.OK;
     const group = m.parseQueryString(window.location.search).group;
     if ("" !== String(group || "").trim()) {
-      this.model.pipeline.group(group);
+      this.model.pipeline.group(group as string);
     }
   }
 

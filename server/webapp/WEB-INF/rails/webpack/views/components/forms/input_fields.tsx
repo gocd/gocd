@@ -87,7 +87,7 @@ interface SizeAttr {
 
 interface BindingsAttr<T> {
   onchange?: (evt: any) => void;
-  property: (newValue?: T) => T;
+  property: (newValue?: T) => T | undefined;
 }
 
 export type BaseAttrs<T> = DataTestIdAttr & HelpTextAttr & ErrorTextAttr & LabelAttr & BindingsAttr<T> & ReadonlyAttr;
@@ -297,12 +297,11 @@ export abstract class FormField<T, V = {}> extends MithrilViewComponent<BaseAttr
 
   view(vnode: m.Vnode<BaseAttrs<T> & V>) {
     return (
-      <li class={classnames(styles.formGroup,
-                                {[styles.formHasError]: ErrorText.hasErrorText(vnode.attrs)})}>
-        <Label {...vnode.attrs} fieldId={this.id}/>
+      <li class={classnames(styles.formGroup, {[styles.formHasError]: ErrorText.hasErrorText(vnode.attrs)})}>
+        {[<Label {...vnode.attrs} fieldId={this.id}/>]}
         {this.renderInputField(vnode)}
-        <ErrorText {...vnode.attrs} errorId={this.errorId}/>
-        <HelpText {...vnode.attrs} helpTextId={this.helpTextId}/>
+        {[<ErrorText {...vnode.attrs} errorId={this.errorId}/>]}
+        {[<HelpText {...vnode.attrs} helpTextId={this.helpTextId}/>]}
       </li>
     );
   }
@@ -432,17 +431,17 @@ export class PasswordField extends FormField<EncryptedValue, RequiredFieldAttr &
 
   protected defaultAttributes(attrs: BaseAttrs<EncryptedValue> & RequiredFieldAttr & PlaceholderAttr): any {
     return _.assign(super.defaultAttributes(attrs), textInputFieldDefaultAttrs, {
-      readonly: !attrs.property().isEditing()
+      readonly: !attrs.property()!.isEditing()
     });
   }
 
   protected bindingAttributes(attrs: BaseAttrs<EncryptedValue>,
                               eventName: string,
                               propertyAttribute: string): any {
-    if (attrs.property().isEditing()) {
+    if (attrs.property()!.isEditing()) {
       return {
-        [eventName]: (evt: any) => attrs.property().value(evt.currentTarget.value),
-        [propertyAttribute]: attrs.property().value()
+        [eventName]: (evt: any) => attrs.property()!.value(evt.currentTarget.value),
+        [propertyAttribute]: attrs.property()!.value()
       };
     } else {
       return {
@@ -453,12 +452,12 @@ export class PasswordField extends FormField<EncryptedValue, RequiredFieldAttr &
   }
 
   private static resetOrOverride(vnode: m.Vnode<BaseAttrs<EncryptedValue> & RequiredFieldAttr & PlaceholderAttr>) {
-    if (vnode.attrs.property().isEditing()) {
+    if (vnode.attrs.property()!.isEditing()) {
       return <FormResetButton
-        onclick={vnode.attrs.property().resetToOriginal.bind(vnode.attrs.property())}>Reset</FormResetButton>;
+        onclick={vnode.attrs.property()!.resetToOriginal.bind(vnode.attrs.property())}>Reset</FormResetButton>;
     } else {
       return <FormResetButton
-        onclick={vnode.attrs.property().edit.bind(vnode.attrs.property())}>Change</FormResetButton>;
+        onclick={vnode.attrs.property()!.edit.bind(vnode.attrs.property())}>Change</FormResetButton>;
     }
   }
 }
@@ -543,7 +542,7 @@ export class TriStateCheckboxField extends FormField<TriStateCheckbox> {
   protected bindingAttributes(attrs: BaseAttrs<TriStateCheckbox>,
                               eventName: string,
                               propertyAttribute: string): any {
-    const triStateCheckbox = attrs.property();
+    const triStateCheckbox = attrs.property()!;
 
     const bindingAttributes: any = {
       [propertyAttribute]: triStateCheckbox.isChecked(),
@@ -715,7 +714,7 @@ export class CopyField extends TextFieldWithButton {
 
   protected onButtonClick(vnode: m.Vnode<TextFieldWithButtonAttrs>) {
     return () => {
-      clipboard.writeText(vnode.attrs.property());
+      clipboard.writeText(vnode.attrs.property()!);
     };
   }
 }

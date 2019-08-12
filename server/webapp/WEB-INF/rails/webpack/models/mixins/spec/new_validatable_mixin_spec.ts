@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 import _ from "lodash";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {ErrorMessages} from "models/mixins/error_messages";
 import {applyMixins} from "models/mixins/mixins";
 import {ValidatableMixin, Validator, ValidatorOptions} from "models/mixins/new_validatable_mixin";
@@ -92,7 +91,7 @@ describe("Validatable", () => {
         readonly name: Stream<string>;
 
         constructor(name: string) {
-          this.name = stream(name);
+          this.name = Stream(name);
           ValidatableMixin.call(this);
           this.validatePresenceOf("name");
         }
@@ -119,8 +118,8 @@ describe("Validatable", () => {
 
         constructor() {
           ValidatableMixin.call(this);
-          this.name  = stream("");
-          this.value = stream("");
+          this.name  = Stream("");
+          this.value = Stream("");
           this.validatePresenceOf("value", {condition: () => !s.isBlank(this.name())});
         }
       }
@@ -145,8 +144,8 @@ describe("Validatable", () => {
 
       constructor(key: string) {
         ValidatableMixin.call(this);
-        this.key    = stream(key);
-        this.parent = stream();
+        this.key    = Stream(key);
+        this.parent = Stream();
         this.validateUniquenessOf("key", () => this.parent().variables()
                                                    .filter((variable: Variable) => this !== variable));
       }
@@ -156,7 +155,7 @@ describe("Validatable", () => {
       variables: Stream<Variable[]>;
 
       constructor(variables: Variable[]) {
-        this.variables = stream(variables);
+        this.variables = Stream(variables);
       }
     }
 
@@ -210,7 +209,7 @@ describe("Validatable", () => {
 
       constructor(url: string) {
         ValidatableMixin.call(this);
-        this.url = stream(url);
+        this.url = Stream(url);
         this.validateUrlPattern("url");
       }
     }
@@ -246,7 +245,7 @@ describe("Validatable", () => {
 
       constructor(url: string) {
         ValidatableMixin.call(this);
-        this.url = stream(url);
+        this.url = Stream(url);
         this.validateFormatOf("url", new RegExp("^http(s)?:\\/\\/.+"), {message: "Url format is invalid"});
       }
     }
@@ -283,7 +282,7 @@ describe("Validatable", () => {
 
         constructor(id: string) {
           ValidatableMixin.call(this);
-          this.id = stream(id);
+          this.id = Stream(id);
           this.validateIdFormat("id");
         }
       }
@@ -311,7 +310,7 @@ describe("Validatable", () => {
 
         constructor(id: string) {
           ValidatableMixin.call(this);
-          this.id = stream(id);
+          this.id = Stream(id);
           this.validateIdFormat("id", {message: "Id is invalid"});
         }
       }
@@ -361,8 +360,8 @@ describe("Validatable", () => {
 
       constructor(url: string, name: string) {
         ValidatableMixin.call(this);
-        this.url  = stream(url);
-        this.name = stream(name);
+        this.url  = Stream(url);
+        this.name = Stream(name);
         this.validateWith<CustomUrlValidator>(new CustomUrlValidator(), "url");
         this.validateWith<NameValidator>(new NameValidator(), "name");
       }
@@ -391,7 +390,7 @@ describe("Validatable", () => {
 
       constructor(url: string) {
         ValidatableMixin.call(this);
-        this.url = stream(url);
+        this.url = Stream(url);
         this.validatePresenceOf("url");
       }
     }
@@ -407,7 +406,7 @@ describe("Validatable", () => {
 
       constructor(material: Material) {
         ValidatableMixin.call(this);
-        this.material = stream(material);
+        this.material = Stream(material);
         this.validateAssociated("material");
       }
     }
@@ -437,8 +436,8 @@ describe("Validatable", () => {
 
       constructor(username: string, password: string) {
         ValidatableMixin.call(this);
-        this.username = stream("");
-        this.password = stream("");
+        this.username = Stream("");
+        this.password = Stream("");
         this.validatePresenceOf("username");
         this.validatePresenceOf("password");
       }
@@ -510,9 +509,9 @@ describe("Validatable", () => {
 
       constructor(key: string) {
         ValidatableMixin.call(this);
-        this.key    = stream(key);
-        this.name   = stream("");
-        this.parent = stream();
+        this.key    = Stream(key);
+        this.name   = Stream("");
+        this.parent = Stream();
         this.validatePresenceOf("name");
         this.validateUniquenessOf("key", () => this.parent().variables().filter((variable) => this !== variable));
       }
@@ -522,7 +521,7 @@ describe("Validatable", () => {
       variables: Stream<Variable[]>;
 
       constructor(variables: Variable[]) {
-        this.variables = stream(variables);
+        this.variables = Stream(variables);
       }
     }
 
@@ -552,7 +551,7 @@ describe("Validatable", () => {
 
         constructor(url: string) {
           ValidatableMixin.call(this);
-          this.url = stream(url);
+          this.url = Stream(url);
           this.validatePresenceOf("url");
         }
       }
@@ -568,7 +567,7 @@ describe("Validatable", () => {
 
         constructor(command: string) {
           ValidatableMixin.call(this);
-          this.command = stream(command);
+          this.command = Stream(command);
           this.validatePresenceOf("command");
         }
       }
@@ -585,8 +584,8 @@ describe("Validatable", () => {
 
         constructor(material: Material, task: Task) {
           ValidatableMixin.call(this);
-          this.material = stream(material);
-          this.task     = stream(task);
+          this.material = Stream(material);
+          this.task     = Stream(task);
           this.validateAssociated("material");
           this.validateAssociated("task");
         }
@@ -613,7 +612,7 @@ describe("Validatable", () => {
 
       constructor(key: string) {
         ValidatableMixin.call(this);
-        this.key = stream(key);
+        this.key = Stream(key);
         this.validateMaxLength("key", 10);
       }
     }

@@ -17,7 +17,7 @@
 import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {ArtifactStore} from "models/artifact_stores/artifact_stores";
 import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
 import {ArtifactSettings} from "models/shared/plugin_infos_new/extensions";
@@ -54,7 +54,7 @@ export class ArtifactStoreModalBody extends MithrilViewComponent<Attrs> {
                        required={true}/>
 
             <SelectField label="Plugin Id"
-                         property={vnode.attrs.pluginIdProxy.bind(this)}
+                         property={vnode.attrs.pluginIdProxy}
                          required={true}
                          errorText={vnode.attrs.artifactStore.errors().errorsForDisplay("pluginId")}>
               <SelectFieldOptions selected={vnode.attrs.artifactStore.pluginId()}
@@ -66,7 +66,7 @@ export class ArtifactStoreModalBody extends MithrilViewComponent<Attrs> {
         <div>
           <div class="row collapse">
             <AngularPluginNew
-              pluginInfoSettings={stream(pluginSettings)}
+              pluginInfoSettings={Stream(pluginSettings)}
               configuration={vnode.attrs.artifactStore.properties()}
               key={pluginInfo.id}/>
           </div>

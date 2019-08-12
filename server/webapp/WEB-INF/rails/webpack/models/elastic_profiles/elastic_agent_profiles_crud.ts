@@ -43,7 +43,7 @@ export class ElasticAgentProfilesCRUD {
   }
 
   static update(updatedProfile: ElasticAgentProfile, etag: string) {
-    return ApiRequestBuilder.PUT(SparkRoutes.elasticProfilePath(updatedProfile.id()),
+    return ApiRequestBuilder.PUT(SparkRoutes.elasticProfilePath(updatedProfile.id()!),
                                  this.API_VERSION_HEADER,
                                  {payload: updatedProfile, etag})
                             .then(this.extractObjectWithEtag());

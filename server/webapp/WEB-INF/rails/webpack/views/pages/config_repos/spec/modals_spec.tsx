@@ -15,8 +15,7 @@
  */
 
 import m from "mithril";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {ConfigRepo} from "models/config_repos/types";
 import {GitMaterialAttributes, Material} from "models/materials/types";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
@@ -56,7 +55,7 @@ class TestConfigRepoModal extends ConfigRepoModal {
 
 describe("ConfigRepoModal", () => {
   const helper           = new TestHelper();
-  const pluginInfos      = stream([configRepoPluginInfo()]);
+  const pluginInfos      = Stream([configRepoPluginInfo()]);
   const onSuccessfulSave = jasmine.createSpy("onSuccessfulSave");
   const onError          = jasmine.createSpy("onError");
 

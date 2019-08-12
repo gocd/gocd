@@ -17,8 +17,7 @@
 import {MithrilComponent, MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {ConfigRepo, ParseInfo} from "models/config_repos/types";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {Anchor, ScrollManager} from "views/components/anchor/anchor";
@@ -50,14 +49,14 @@ class HeaderWidget extends MithrilViewComponent<SingleAttrs> {
 
   view(vnode: m.Vnode<SingleAttrs>): m.Children | void | null {
     const repo = vnode.attrs.vm.repo;
-    const materialUrl = repo.material().materialUrl();
+    const materialUrl = repo.material()!.materialUrl();
     return [
       this.pluginIcon(vnode.attrs.pluginInfo),
       <div class={styles.headerTitle}>
         <h4 class={styles.headerTitleText}>{repo.id()}</h4>
         <span class={styles.headerTitleUrl}>{materialUrl}</span>
       </div>,
-      <div>{this.latestCommitDetails(repo.lastParse())}</div>
+      <div>{this.latestCommitDetails(repo.lastParse()!)}</div>
     ];
   }
 
@@ -159,7 +158,7 @@ class MaybeWarning extends MithrilViewComponent<WarningAttrs> {
 }
 
 class ConfigRepoWidget extends MithrilComponent<SingleAttrs> {
-  expanded: Stream<boolean> = stream();
+  expanded: Stream<boolean> = Stream();
 
   oninit(vnode: m.Vnode<SingleAttrs, {}>) {
     const {sm, vm, pluginInfo} = vnode.attrs;
@@ -175,11 +174,11 @@ class ConfigRepoWidget extends MithrilComponent<SingleAttrs> {
   view(vnode: m.Vnode<SingleAttrs>): m.Children | void | null {
     const {sm, vm, pluginInfo} = vnode.attrs;
     const repo = vm.repo;
-    const parseInfo = repo.lastParse();
+    const parseInfo = repo.lastParse()!;
     const maybeWarning = <MaybeWarning parseInfo={parseInfo} pluginInfo={pluginInfo}/>;
     const configRepoHasErrors = !pluginInfo || _.isEmpty(parseInfo) || !!parseInfo!.error();
 
-    return <Anchor id={repo.id()} sm={sm} onnavigate={() => this.expanded(true)}>
+    return <Anchor id={repo.id()!} sm={sm} onnavigate={() => this.expanded(true)}>
       <CollapsiblePanel error={configRepoHasErrors}
                         header={<HeaderWidget {...vnode.attrs}/>}
                         dataTestId={"config-repo-details-panel"}
@@ -191,7 +190,7 @@ class ConfigRepoWidget extends MithrilComponent<SingleAttrs> {
         {this.renderedConfigs(parseInfo, vm)}
         {this.latestModificationDetails(parseInfo)}
         {this.lastGoodModificationDetails(parseInfo)}
-        {this.configRepoMetaConfigDetails(repo.id(), repo.pluginId())}
+        {this.configRepoMetaConfigDetails(repo.id()!, repo.pluginId()!)}
         {this.materialConfigDetails(repo)}
       </CollapsiblePanel>
     </Anchor>;
@@ -271,7 +270,7 @@ export class ConfigReposWidget extends MithrilViewComponent<CollectionAttrs> {
     }
 
     return <div>
-      {models.map((vm) => {
+      {models.map((vm: any) => {
         const repo = vm.repo;
         const pluginInfo = _.find(vnode.attrs.pluginInfos(), {id: repo.pluginId()});
         return <ConfigRepoWidget key={repo.id()} vm={vm} pluginInfo={pluginInfo} sm={vnode.attrs.sm}/>;

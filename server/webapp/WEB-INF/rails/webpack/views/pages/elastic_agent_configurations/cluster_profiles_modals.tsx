@@ -17,8 +17,7 @@ import {bind} from "classnames/bind";
 import {ApiResult, ErrorResponse, ObjectWithEtag} from "helpers/api_request_builder";
 import _ from "lodash";
 import m from "mithril";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {ClusterProfilesCRUD} from "models/elastic_profiles/cluster_profiles_crud";
 import {ClusterProfile} from "models/elastic_profiles/types";
 import {Configurations} from "models/shared/configuration";
@@ -51,9 +50,9 @@ export abstract class BaseClusterProfileModal extends Modal {
 
   protected constructor(pluginInfos: Array<PluginInfo<Extension>>, type: ModalType, clusterProfile?: ClusterProfile) {
     super(Size.extraLargeHackForEaProfiles);
-    this.clusterProfile         = stream(clusterProfile);
+    this.clusterProfile         = Stream(clusterProfile!);
     this.pluginInfos            = pluginInfos;
-    this.elasticAgentPluginInfo = stream();
+    this.elasticAgentPluginInfo = Stream();
     this.modalType              = type;
   }
 
@@ -114,7 +113,7 @@ export abstract class BaseClusterProfileModal extends Modal {
     let clusterProfileForm, alertMessage;
 
     if (this.supportsClusterProfile()) {
-      clusterProfileForm = <AngularPluginNew pluginInfoSettings={stream(elasticAgentSettings.clusterProfileSettings)}
+      clusterProfileForm = <AngularPluginNew pluginInfoSettings={Stream(elasticAgentSettings.clusterProfileSettings)}
                                              configuration={this.clusterProfile().properties()}
                                              key={this.elasticAgentPluginInfo().id}/>;
     } else {

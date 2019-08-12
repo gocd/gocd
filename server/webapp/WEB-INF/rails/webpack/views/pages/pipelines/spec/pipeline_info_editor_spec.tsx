@@ -15,8 +15,7 @@
  */
 
 import m from "mithril";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {PipelineGroupCache} from "models/pipeline_configs/pipeline_groups_cache";
 import {TemplateCache} from "models/pipeline_configs/templates_cache";
@@ -24,7 +23,7 @@ import {Option} from "views/components/forms/input_fields";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {PipelineInfoEditor} from "../pipeline_info_editor";
 
-const flag: (val?: boolean) => Stream<boolean> = stream;
+const flag: (val?: boolean) => Stream<boolean> = Stream;
 
 describe("AddPipeline: PipelineInfoEditor", () => {
   const helper = new TestHelper();

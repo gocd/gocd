@@ -28,20 +28,20 @@ export const TriStateCheckboxWidget = {
 
     return (
       <li>
-        <input type="checkbox"
-               id={`checkbox-${args.index.toString()}`}
-               class="select-resource"
-               key={args.triStateCheckbox.name()}
-               checked={args.triStateCheckbox.isChecked()}
-               indeterminate={args.triStateCheckbox.isIndeterminate()}
-               value={args.triStateCheckbox.name()}
-               disabled={args.triStateCheckbox.disabled()}
-               onchange={args.triStateCheckbox.click}>
-        </input>
+        {[<input type="checkbox"
+                 id={`checkbox-${args.index.toString()}`}
+                 class="select-resource"
+                 key={args.triStateCheckbox.name()}
+                 checked={args.triStateCheckbox.isChecked()}
+                 indeterminate={args.triStateCheckbox.isIndeterminate()}
+                 value={args.triStateCheckbox.name()}
+                 disabled={args.triStateCheckbox.disabled()}
+                 onchange={args.triStateCheckbox.click}>
+        </input>]}
         <label for={`checkbox-${args.index.toString()}`} title={args.triStateCheckbox.name()}>
           {_.truncate(args.triStateCheckbox.name(), {'length': 25})}
         </label>
-        {tooltip}
+        {[m.fragment({key: `tooltip-${args.triStateCheckbox.name()}`}, [tooltip])]}
       </li>
     );
   }

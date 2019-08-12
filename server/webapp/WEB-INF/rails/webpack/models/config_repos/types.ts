@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 import _ from "lodash";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {
   ConfigRepoJSON,
   ConfigReposJSON, MaterialModificationJSON,
@@ -41,14 +40,14 @@ export class ConfigRepo implements ValidatableMixin {
   static readonly FILE_PATTERN                                 = "file_pattern";
   static readonly JSON_PLUGIN_ID                               = "json.config.plugin";
   static readonly YAML_PLUGIN_ID                               = "yaml.config.plugin";
-                  id: Stream<string>;
-                  pluginId: Stream<string>;
-                  material: Stream<Material>;
-                  configuration: Stream<Configuration[]>;
-                  lastParse: Stream<ParseInfo | null>;
-                  __jsonPluginPipelinesPattern: Stream<string> = stream("");
-                  __jsonPluginEnvPattern: Stream<string>       = stream("");
-                  __yamlPluginPattern: Stream<string>          = stream("");
+                  id: Stream<string | undefined>;
+                  pluginId: Stream<string | undefined>;
+                  material: Stream<Material | undefined>;
+                  configuration: Stream<Configuration[] | undefined>;
+                  lastParse: Stream<ParseInfo | null | undefined>;
+                  __jsonPluginPipelinesPattern: Stream<string> = Stream("");
+                  __jsonPluginEnvPattern: Stream<string>       = Stream("");
+                  __yamlPluginPattern: Stream<string>          = Stream("");
                   materialUpdateInProgress: Stream<boolean>;
 
   constructor(id?: string,
@@ -57,18 +56,18 @@ export class ConfigRepo implements ValidatableMixin {
               configuration?: Configuration[],
               lastParse?: ParseInfo | null,
               materialUpdateInProgress?: boolean) {
-    this.id                       = stream(id);
-    this.pluginId                 = stream(pluginId);
-    this.material                 = stream(material);
-    this.configuration            = stream(configuration);
-    this.lastParse                = stream(lastParse);
-    this.materialUpdateInProgress = stream(materialUpdateInProgress || false);
+    this.id                       = Stream(id);
+    this.pluginId                 = Stream(pluginId);
+    this.material                 = Stream(material);
+    this.configuration            = Stream(configuration);
+    this.lastParse                = Stream(lastParse);
+    this.materialUpdateInProgress = Stream(materialUpdateInProgress || false);
     if (configuration) {
-      this.__jsonPluginPipelinesPattern = stream(ConfigRepo.findConfigurationValue(configuration,
+      this.__jsonPluginPipelinesPattern = Stream(ConfigRepo.findConfigurationValue(configuration,
                                                                                    ConfigRepo.PIPELINE_PATTERN));
-      this.__jsonPluginEnvPattern       = stream(ConfigRepo.findConfigurationValue(configuration,
+      this.__jsonPluginEnvPattern       = Stream(ConfigRepo.findConfigurationValue(configuration,
                                                                                    ConfigRepo.ENVIRONMENT_PATTERN));
-      this.__yamlPluginPattern          = stream(ConfigRepo.findConfigurationValue(configuration,
+      this.__yamlPluginPattern          = Stream(ConfigRepo.findConfigurationValue(configuration,
                                                                                    ConfigRepo.FILE_PATTERN));
     }
     ValidatableMixin.call(this);
@@ -123,7 +122,7 @@ export class ConfigRepo implements ValidatableMixin {
     const id             = this.id();
     const goodRevision   = this.lastParse() && this.lastParse()!.goodRevision();
     const latestRevision = this.lastParse() && this.lastParse()!.latestRevision();
-    const materialUrl    = this.material().materialUrl();
+    const materialUrl    = this.material()!.materialUrl();
     return [
       id,
       goodRevision,
@@ -168,7 +167,7 @@ export class MaterialModification {
 }
 
 export class ParseInfo {
-  error: Stream<string | null>;
+  error: Stream<string | null | undefined>;
   readonly latestParsedModification: MaterialModification | null;
   readonly goodModification: MaterialModification | null;
 
@@ -177,7 +176,7 @@ export class ParseInfo {
               error: string | undefined | null) {
     this.latestParsedModification = latestParsedModification;
     this.goodModification         = goodModification;
-    this.error                    = stream(error);
+    this.error                    = Stream(error);
   }
 
   static fromJSON(json: ParseInfoJSON) {

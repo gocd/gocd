@@ -15,8 +15,7 @@
  */
 
 import _ from "lodash";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 
 export interface UsersJSON {
   _embedded: EmbeddedJSON;
@@ -55,25 +54,25 @@ export interface UserJSON {
 }
 
 export class User {
-  checked = stream(false);
+  checked = Stream(false);
   loginName: Stream<string>;
   isAdmin: Stream<boolean>;
-  displayName: Stream<string>;
-  email: Stream<string>;
-  emailMe: Stream<boolean>;
-  enabled: Stream<boolean>;
-  checkinAliases: Stream<string[]>;
-  roles: Stream<UserRoleJSON[]>;
+  displayName: Stream<string | undefined>;
+  email: Stream<string | undefined>;
+  emailMe: Stream<boolean | undefined>;
+  enabled: Stream<boolean | undefined>;
+  checkinAliases: Stream<string[] | undefined>;
+  roles: Stream<UserRoleJSON[] | undefined>;
 
   constructor(json: UserJSON) {
-    this.loginName      = stream(json.login_name);
-    this.displayName    = stream(json.display_name);
-    this.enabled        = stream(json.enabled);
-    this.email          = stream(json.email);
-    this.emailMe        = stream(json.email_me);
-    this.isAdmin        = stream(json.is_admin);
-    this.checkinAliases = stream(json.checkin_aliases);
-    this.roles          = stream(json.roles);
+    this.loginName      = Stream(json.login_name);
+    this.displayName    = Stream(json.display_name);
+    this.enabled        = Stream(json.enabled);
+    this.email          = Stream(json.email);
+    this.emailMe        = Stream(json.email_me);
+    this.isAdmin        = Stream(json.is_admin);
+    this.checkinAliases = Stream(json.checkin_aliases);
+    this.roles          = Stream(json.roles);
   }
 
   static fromJSON(json: UserJSON) {
@@ -95,8 +94,8 @@ export class User {
   matches(searchText: string) {
     searchText               = searchText.toLowerCase();
     const matchesLoginName   = this.loginName().toLowerCase().includes(searchText);
-    const matchesDisplayName = this.displayName() ? this.displayName().toLowerCase().includes(searchText) : false;
-    const matchesEmail       = this.email() ? this.email().toLowerCase().includes(searchText) : false;
+    const matchesDisplayName = this.displayName() ? this.displayName()!.toLowerCase().includes(searchText) : false;
+    const matchesEmail       = this.email() ? this.email()!.toLowerCase().includes(searchText) : false;
 
     return (matchesLoginName || matchesDisplayName || matchesEmail);
   }
@@ -169,7 +168,7 @@ export class Users extends Array<User> {
   }
 
   enabledUsers() {
-    return new Users(..._.filter(this, (user) => user.enabled()));
+    return new Users(..._.filter(this, (user) => user.enabled()!));
   }
 
   private disabledUsers() {

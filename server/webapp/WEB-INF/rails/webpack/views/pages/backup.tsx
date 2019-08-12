@@ -17,8 +17,7 @@
 import {SuccessResponse} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
 import m from "mithril";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {BackupConfigCrud} from "models/backup_config/backup_config_crud";
 import {BackupConfig} from "models/backup_config/types";
 import {ServerBackupAPI} from "models/backups/server_backup_api";
@@ -114,11 +113,11 @@ export class BackupPage extends Page<null, State> {
   }
 
   private static openBackupSettings() {
-    const backupConfig = stream(new BackupConfig());
-    const isLoading    = stream(true);
+    const backupConfig = Stream(new BackupConfig());
+    const isLoading    = Stream(true);
 
-    const isSaving                     = stream(false);
-    const errorMessage: Stream<string> = stream();
+    const isSaving                     = Stream(false);
+    const errorMessage: Stream<string> = Stream();
 
     const onsave = (modal: BackupConfigModal) => {
       isSaving(true);

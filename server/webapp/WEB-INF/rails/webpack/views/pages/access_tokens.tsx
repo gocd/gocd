@@ -15,8 +15,7 @@
  */
 
 import m from "mithril";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {AccessTokenCRUD} from "models/access_tokens/access_token_crud";
 import {AccessToken, AccessTokens} from "models/access_tokens/types";
 import * as Buttons from "views/components/buttons";
@@ -35,7 +34,7 @@ interface State extends AddOperation<AccessToken>, SaveOperation {
 
 export class AccessTokensPage extends Page<null, State> {
   oninit(vnode: m.Vnode<null, State>) {
-    vnode.state.accessTokens = stream();
+    vnode.state.accessTokens = Stream();
     vnode.state.meta         = JSON.parse(document.body.getAttribute("data-meta") || "{}") as MetaJSON;
     super.oninit(vnode);
 

@@ -15,8 +15,7 @@
  */
 
 import {JsonUtils} from "helpers/json_utils";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {ErrorsConsumer} from "models/mixins/errors_consumer";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 
@@ -36,7 +35,7 @@ export interface TaskAttributes extends ValidatableMixin {
 
 abstract class AbstractTask extends ValidatableMixin implements Task {
   abstract type: ValidTypes;
-  attributes: Stream<TaskAttributes> = stream();
+  attributes: Stream<TaskAttributes> = Stream();
 
   constructor() {
     super();
@@ -56,8 +55,8 @@ abstract class AbstractTask extends ValidatableMixin implements Task {
 }
 
 abstract class AbstractTaskAttributes extends ValidatableMixin implements TaskAttributes {
-  runIf: Stream<RunIfCondition[]> = stream([] as RunIfCondition[]);
-  onCancel: Stream<Task> = stream();
+  runIf: Stream<RunIfCondition[]> = Stream([] as RunIfCondition[]);
+  onCancel: Stream<Task> = Stream();
 
   constructor() {
     super();
@@ -68,7 +67,7 @@ abstract class AbstractTaskAttributes extends ValidatableMixin implements TaskAt
 
 export class ExecTask extends AbstractTask {
   readonly type: ValidTypes = "exec";
-  workingDirectory: Stream<string> = stream();
+  workingDirectory: Stream<string> = Stream();
 
   constructor(cmd: string, args: string[]) {
     super();
@@ -83,10 +82,10 @@ export class ExecTaskAttributes extends AbstractTaskAttributes {
 
   constructor(cmd: string, args: string[]) {
     super();
-    this.command = stream(cmd);
+    this.command = Stream(cmd);
     this.validatePresenceOf("command");
 
-    this.arguments = stream(args || []);
+    this.arguments = Stream(args || []);
   }
 
   toApiPayload(): any {

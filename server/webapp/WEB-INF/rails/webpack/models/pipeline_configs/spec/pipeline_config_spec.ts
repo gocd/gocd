@@ -97,8 +97,8 @@ describe("PipelineConfig model", () => {
     expect(pip.errors().errorsForDisplay("name")).toBe("this name is fugly.");
 
     const materials = Array.from(pip.materials());
-    expect(materials[0].attributes().errors().hasErrors()).toBe(false);
-    expect(materials[1].attributes().errors().errorsForDisplay("url")).toBe("you dolt! you can't have a blank url.");
+    expect(materials[0].attributes()!.errors().hasErrors()).toBe(false);
+    expect(materials[1].attributes()!.errors().errorsForDisplay("url")).toBe("you dolt! you can't have a blank url.");
 
     const stages = Array.from(pip.stages());
     expect(stages[0].errors().errorsForDisplay("name")).toBe("yay.");

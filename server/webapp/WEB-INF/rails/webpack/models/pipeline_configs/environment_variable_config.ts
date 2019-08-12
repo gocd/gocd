@@ -16,14 +16,13 @@
 
 import {JsonUtils} from "helpers/json_utils";
 import _ from "lodash";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 
 export class EnvironmentVariableConfig extends ValidatableMixin {
-  name: Stream<string>    = stream();
-  value: Stream<string>   = stream();
-  secure: Stream<boolean> = stream();
+  name: Stream<string>    = Stream();
+  value: Stream<string>   = Stream();
+  secure: Stream<boolean> = Stream();
 
   constructor(secure: boolean, name: string, value: string) {
     super();

@@ -39,9 +39,10 @@ describe("AddPaC: DownloadAction", () => {
         resolve(ApiResult.error(JSON.stringify({data: { errors: { foo: ["boom"] } } }), "that didn't go so well", 422, new Map()));
       }).then((result) => {
         setTimeout(() => {
+          m.redraw.sync();
           expect(helper.text(selErr.errorResponse)).toBe("that didn't go so well: pipelineConfig.foo: boom.");
           done();
-        }, 0);
+        }, 10);
         return result;
       });
     });

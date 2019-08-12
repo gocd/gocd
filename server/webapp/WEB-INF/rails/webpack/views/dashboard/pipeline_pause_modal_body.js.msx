@@ -16,6 +16,12 @@
 import m from "mithril";
 import {f} from "helpers/form_helper";
 
+function withAttr(attrName, callback1, context) {
+  return function(e) {
+    callback1.call(context || this, attrName in e.currentTarget ? e.currentTarget[attrName] : e.currentTarget.getAttribute(attrName));
+  };
+}
+
 export const PipelinePauseModalBody = {
   oncreate(vnode) {
     const input = vnode.dom.querySelector('input');
@@ -29,7 +35,7 @@ export const PipelinePauseModalBody = {
     const pauseMessage  = vnode.attrs.message;
 
     return (<div>
-      <f.input oninput={m.withAttr("value", pauseMessage)}
+      <f.input oninput={withAttr("value", pauseMessage)}
                value={pauseMessage()}
                label={[
                  <span

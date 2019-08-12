@@ -18,6 +18,7 @@ import {f} from "helpers/form_helper";
 import Stream from "mithril/stream";
 import m from "mithril";
 import $ from "jquery";
+import * as simulateEvent from "simulate-event";
 
 describe("Form Helper", () => {
 
@@ -43,9 +44,12 @@ describe("Form Helper", () => {
     expect(tooltip).toExist();
     expect(tooltip).toHaveText("show me on hover");
     expect(tooltip).not.toBeVisible();
-    $(buttonWithTooltip).trigger('mouseover');
+    simulateEvent.simulate(buttonWithTooltip[0], 'mouseover');
+    m.redraw.sync();
     expect(tooltip).toBeVisible();
-    $(buttonWithTooltip).trigger('mouseout');
+
+    simulateEvent.simulate(buttonWithTooltip[0], 'mouseout');
+    m.redraw.sync();
     expect(tooltip).not.toBeVisible();
   });
 
@@ -62,9 +66,11 @@ describe("Form Helper", () => {
     expect(tooltip).toExist();
     expect(tooltip).toHaveText("show me on hover");
     expect(tooltip).not.toBeVisible();
-    $(linkWithTooltip).trigger('mouseover');
+    simulateEvent.simulate(linkWithTooltip[0], 'mouseover');
+    m.redraw.sync();
     expect(tooltip).toBeVisible();
-    $(linkWithTooltip).trigger('mouseout');
+    simulateEvent.simulate(linkWithTooltip[0], 'mouseout');
+    m.redraw.sync();
     expect(tooltip).not.toBeVisible();
   });
 });

@@ -17,7 +17,7 @@
 import {docsUrl} from "gen/gocd_version";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
-import {Stream} from "mithril/stream";
+import Stream from "mithril/stream";
 import {MailServer} from "models/mail_server/types";
 import {ButtonIcon, Primary} from "views/components/buttons";
 import {Form, FormBody} from "views/components/forms/form";

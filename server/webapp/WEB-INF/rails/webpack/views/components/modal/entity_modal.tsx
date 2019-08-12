@@ -17,8 +17,7 @@ import {bind} from "classnames/bind";
 import {ApiResult, ErrorResponse, ObjectWithEtag, SuccessResponse} from "helpers/api_request_builder";
 import _ from "lodash";
 import m from "mithril";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {Extension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
@@ -34,17 +33,17 @@ const foundationClassNames = bind(foundationStyles);
 export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
   protected entity: Stream<T>;
   protected readonly pluginInfos: Array<PluginInfo<Extension>>;
-  protected readonly errorMessage: Stream<string> = stream();
+  protected readonly errorMessage: Stream<string> = Stream();
   protected readonly onSuccessfulSave: (msg: m.Children) => any;
-  protected readonly isStale                      = stream(true);
-  protected readonly etag: Stream<string>         = stream();
+  protected readonly isStale                      = Stream(true);
+  protected readonly etag: Stream<string>         = Stream();
 
   constructor(entity: T,
               pluginInfos: Array<PluginInfo<any>>,
               onSuccessfulSave: (msg: m.Children) => any,
               size: Size = Size.large) {
     super(size);
-    this.entity           = stream(entity);
+    this.entity           = Stream(entity);
     this.pluginInfos      = pluginInfos;
     this.onSuccessfulSave = onSuccessfulSave;
   }
@@ -116,7 +115,8 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
 
   protected pluginIdProxy(newPluginId?: string): any {
     if (!newPluginId) {
-      return newPluginId;
+      //@ts-ignore
+      return this.entity().pluginId();
     }
 
     //@ts-ignore
@@ -124,6 +124,7 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
       const pluginInfo = _.find(this.pluginInfos, (pluginInfo) => pluginInfo.id === newPluginId) as PluginInfo<any>;
       this.onPluginChange(this.entity, pluginInfo);
     }
+
     return newPluginId;
   }
 
@@ -157,11 +158,8 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
   }
 
   private onError(errorResponse: ErrorResponse, statusCode: number) {
-    if (422 === statusCode && errorResponse.body) {
-      const json = JSON.parse(errorResponse.body);
-      if (json.data) {
-        this.entity(this.parseJsonToEntity(json.data));
-      }
+    if (422 === statusCode && errorResponse.data) {
+      this.entity(this.parseJsonToEntity(errorResponse.data));
     } else {
       this.errorMessage(errorResponse.message);
     }

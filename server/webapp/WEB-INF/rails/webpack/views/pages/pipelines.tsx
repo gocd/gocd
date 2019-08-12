@@ -51,7 +51,7 @@ export class PipelineCreatePage extends Page {
     this.pageState = PageState.OK;
     const group = m.parseQueryString(window.location.search).group;
     if ("" !== String(group || "").trim()) {
-      this.model.pipeline.group(group);
+      this.model.pipeline.group(group as string);
     }
   }
 
@@ -64,7 +64,7 @@ export class PipelineCreatePage extends Page {
           <MaterialEditor material={material}/>
         </UserInputPane>
         <ConceptDiagram image={materialImg}>
-          A <strong>material</strong> triggers your pipeline to run. Typically this is a <strong>source repository</strong> or an <strong>upstream pipeline</strong>.
+          A <strong>material</strong> triggers your pipeline to run. Typically this is a <strong>source repository</strong> or an <strong>upStream pipeline</strong>.
         </ConceptDiagram>
       </FillableSection>,
 

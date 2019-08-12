@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {Errors, ErrorsJSON} from "models/mixins/errors";
 import {applyMixins} from "models/mixins/mixins";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
@@ -37,10 +36,10 @@ export class Rule extends ValidatableMixin {
   constructor(directive: string, action: string, type: string, resource: string, errors: Errors = new Errors()) {
     super();
     ValidatableMixin.call(this);
-    this.directive = stream(directive);
-    this.action    = stream(action);
-    this.type      = stream(type);
-    this.resource  = stream(resource);
+    this.directive = Stream(directive);
+    this.action    = Stream(action);
+    this.type      = Stream(type);
+    this.resource  = Stream(resource);
     this.errors(errors);
     this.validatePresenceOf("directive");
     this.validatePresenceOf("action");
@@ -66,6 +65,6 @@ export class Rules extends Array<Stream<Rule>> {
     if (!rulesJSON) {
       return [];
     }
-    return new Rules(...rulesJSON.map((rule) => stream(Rule.fromJSON(rule))));
+    return new Rules(...rulesJSON.map((rule) => Stream(Rule.fromJSON(rule))));
   }
 }

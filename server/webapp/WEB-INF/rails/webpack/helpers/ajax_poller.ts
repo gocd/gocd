@@ -16,8 +16,7 @@
 import * as CONSTANTS from "helpers/constants";
 import _ from "lodash";
 import m from "mithril";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 
 export interface Options<T> {
   intervalSeconds: number;
@@ -41,7 +40,7 @@ export class AjaxPoller<T> {
   private readonly options: Options<T>;
 
   private abort: boolean                          = false;
-  private readonly currentXHR: Stream<Promise<T>> = stream();
+  private readonly currentXHR: Stream<Promise<T>> = Stream();
   private timeout: number | undefined;
 
   constructor(options: (() => Promise<T>) | Partial<Options<T>>) {

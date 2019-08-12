@@ -80,14 +80,14 @@ describe("New Plugins Widget", () => {
 
     //expand ea plugin info
     simulateEvent.simulate(EAPluginInfoHeader, "click");
-    m.redraw();
+    m.redraw.sync();
 
     expect(EAPluginInfoHeader).toHaveClass(collapsiblePanelStyles.expanded);
     expect(NotificationPluginInfoHeader).not.toHaveClass(collapsiblePanelStyles.expanded);
 
     //expand notification plugin info
     simulateEvent.simulate(NotificationPluginInfoHeader, "click");
-    m.redraw();
+    m.redraw.sync();
 
     expect(EAPluginInfoHeader).toHaveClass(collapsiblePanelStyles.expanded);
     expect(NotificationPluginInfoHeader).toHaveClass(collapsiblePanelStyles.expanded);
@@ -95,7 +95,7 @@ describe("New Plugins Widget", () => {
     //collapse both ea and notification plugin info
     simulateEvent.simulate(EAPluginInfoHeader, "click");
     simulateEvent.simulate(NotificationPluginInfoHeader, "click");
-    m.redraw();
+    m.redraw.sync();
 
     expect(EAPluginInfoHeader).not.toHaveClass(collapsiblePanelStyles.expanded);
     expect(NotificationPluginInfoHeader).not.toHaveClass(collapsiblePanelStyles.expanded);

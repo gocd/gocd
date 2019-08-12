@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {BaseErrorsConsumer, ErrorsConsumer} from "models/mixins/errors_consumer";
 
 describe("ErrorsConsumer", () => {
@@ -203,10 +202,10 @@ describe("ErrorsConsumer", () => {
     });
 
     class Dummy extends BaseErrorsConsumer {
-      one: Stream<Sub1> = stream();
-      many: Stream<Sub2[]> = stream();
+      one: Stream<Sub1> = Stream();
+      many: Stream<Sub2[]> = Stream();
 
-      plain: Stream<string> = stream("plain");
+      plain: Stream<string> = Stream("plain");
       raw: string = "raw";
 
       constructor() {
@@ -217,8 +216,8 @@ describe("ErrorsConsumer", () => {
     }
 
     class Sub1 extends BaseErrorsConsumer {
-      name: Stream<string> = stream("subby 1");
-      sub: Stream<Sub2> = stream();
+      name: Stream<string> = Stream("subby 1");
+      sub: Stream<Sub2> = Stream();
       readonly kind: string = "sub-1";
 
       constructor() {
@@ -228,7 +227,7 @@ describe("ErrorsConsumer", () => {
     }
 
     class Sub2 extends BaseErrorsConsumer {
-      name: Stream<string> = stream("subby 2");
+      name: Stream<string> = Stream("subby 2");
       readonly kind: string = "sub-2";
     }
   });
@@ -251,11 +250,11 @@ describe("ErrorsConsumer", () => {
     });
 
     class Foo extends BaseErrorsConsumer {
-      bar = stream(new Bar());
+      bar = Stream(new Bar());
     }
 
     class Bar extends BaseErrorsConsumer {
-      attrs = stream(new Baz());
+      attrs = Stream(new Baz());
 
       errorContainerFor(key: string): ErrorsConsumer {
         return this.attrs();

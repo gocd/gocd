@@ -16,7 +16,7 @@
 
 import _ from "lodash";
 import m from "mithril";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {ClusterProfile, ClusterProfiles, ElasticAgentProfile, ElasticAgentProfiles} from "models/elastic_profiles/types";
 import {Extension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
@@ -214,12 +214,14 @@ describe("ClusterProfilesWidget", () => {
       expect(clusterProfilePanelHeader).not.toHaveClass(collapsiblePanelStyles.expanded);
 
       simulateEvent.simulate(clusterProfilePanelHeader, "click");
+      m.redraw.sync();
 
       expect(clusterProfilePanelHeader).toHaveClass(collapsiblePanelStyles.expanded);
     });
 
     it("should toggle expanded state of cluster profile show details on click", () => {
       simulateEvent.simulate(clusterProfilePanelHeader, "click");
+      m.redraw.sync();
 
       const clusterProfileInfoHeader = helper.findIn(helper.findByDataTestId("cluster-profile-panel"), "cluster-profile-details-header")[0];
 
@@ -227,6 +229,7 @@ describe("ClusterProfilesWidget", () => {
       expect(helper.findIn(helper.findByDataTestId("cluster-profile-panel"), "cluster-profile-details")[0]).not.toHaveClass(elasticProfilePageStyles.expanded);
 
       simulateEvent.simulate(clusterProfileInfoHeader, "click");
+      m.redraw.sync();
 
       expect(clusterProfileInfoHeader).toHaveClass(elasticProfilePageStyles.expanded);
       expect(helper.findIn(helper.findByDataTestId("cluster-profile-panel"), "cluster-profile-details")[0]).toHaveClass(elasticProfilePageStyles.expanded);
@@ -234,10 +237,12 @@ describe("ClusterProfilesWidget", () => {
 
     it("should toggle expanded state of elastic agent profile show details on click", () => {
       simulateEvent.simulate(clusterProfilePanelHeader, "click");
+      m.redraw.sync();
 
       const elasticAgentProfileInfoHeader = helper.findIn(helper.findByDataTestId("elastic-profile-header")[0], "collapse-header")[0];
 
       simulateEvent.simulate(elasticAgentProfileInfoHeader, "click");
+      m.redraw.sync();
 
       expect(elasticAgentProfileInfoHeader).toHaveClass(collapsiblePanelStyles.expanded);
     });
@@ -251,7 +256,7 @@ describe("ClusterProfilesWidget", () => {
       onDelete: noop,
       onAdd: noop
     };
-    helper.mount(() => <ClusterProfilesWidget pluginInfos={stream(pluginInfos)}
+    helper.mount(() => <ClusterProfilesWidget pluginInfos={Stream(pluginInfos)}
                                               clusterProfiles={clusterProfiles}
                                               elasticProfiles={elasticAgentProfiles}
                                               elasticAgentOperations={operations}

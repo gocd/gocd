@@ -15,7 +15,7 @@
  */
 
 import m from "mithril";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {SecretConfigs} from "models/secret_configs/secret_configs";
 import {secretConfigsTestData} from "models/secret_configs/spec/test_data";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
@@ -153,8 +153,8 @@ describe("SecretConfigsWidget", () => {
   });
 
   function mount(secretConfigs: SecretConfigs, pluginInfos: Array<PluginInfo<any>>) {
-    helper.mount(() => <SecretConfigsWidget pluginInfos={stream(pluginInfos)}
-                                            secretConfigs={stream(secretConfigs)}
+    helper.mount(() => <SecretConfigsWidget pluginInfos={Stream(pluginInfos)}
+                                            secretConfigs={Stream(secretConfigs)}
                                             onEdit={onEdit}
                                             onClone={onClone}
                                             onDelete={onDelete}/>);

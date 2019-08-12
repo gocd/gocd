@@ -84,7 +84,7 @@ export class TestConnection extends MithrilViewComponent<Attrs> {
 
   private testConnectionFailed(err: ErrorResponse) {
     this.testConnectionButtonIcon = styles.testConnectionFailure;
-    this.testConnectionMessage    = <FlashMessage type={MessageType.alert} message={<pre>{err.message}</pre>}/>;
+    this.testConnectionMessage    = <FlashMessage type={MessageType.alert} message={<pre>{JSON.parse(err.body!).message}</pre>}/>;
   }
 
   private testConnectionSuccessful() {

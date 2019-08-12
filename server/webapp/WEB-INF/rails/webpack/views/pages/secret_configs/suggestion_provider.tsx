@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {Stream} from "mithril/stream";
+import Stream from "mithril/stream";
 import {Rule} from "models/secret_configs/rules";
 import {SuggestionProvider} from "views/components/forms/autocomplete";
 

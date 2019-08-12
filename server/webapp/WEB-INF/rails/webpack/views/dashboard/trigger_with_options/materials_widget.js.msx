@@ -69,7 +69,7 @@ export const MaterialsForTriggerWidget = {
         </ul>
 
         <div class="v-tab_container">
-          {errorSection}
+            {m.fragment({key: `material-info-error-for-${materialThatShouldBeVisible.name}`}, [errorSection])}
             <MaterialInfoWidget key={materialThatShouldBeVisible.name}
                                 material={materialThatShouldBeVisible}/>
         </div>

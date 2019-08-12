@@ -15,8 +15,7 @@
  */
 import {SparkRoutes} from "helpers/spark_routes";
 import {timeFormatter as TimeFormatter} from "helpers/time_formatter";
-import {Stream} from 'mithril/stream';
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 
 const AjaxHelper = require("helpers/ajax_helper").AjaxHelper;
 
@@ -43,9 +42,9 @@ export class DataSharingSettings {
     this.etag              = etag;
     this.originallyAllowed = data._embedded.allow;
 
-    this.allowed   = stream(data._embedded.allow);
-    this.updatedBy = stream(data._embedded.updated_by);
-    this.updatedOn = stream(TimeFormatter.formatInDate(data._embedded.updated_on));
+    this.allowed   = Stream(data._embedded.allow);
+    this.updatedBy = Stream(data._embedded.updated_by);
+    this.updatedOn = Stream(TimeFormatter.formatInDate(data._embedded.updated_on));
   }
 
   static fromJSON(json: DataSharingJSON, jqXHR: any) {

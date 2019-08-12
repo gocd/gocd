@@ -16,7 +16,7 @@
 
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
-import {Stream} from "mithril/stream";
+import Stream from "mithril/stream";
 import {AccessToken, AccessTokens, RevokedTokens} from "models/access_tokens/types";
 import * as Buttons from "views/components/buttons";
 import {Ellipsize} from "views/components/ellipsize";
@@ -139,7 +139,7 @@ export class AccessTokensWidgetForCurrentUser extends MithrilViewComponent<Attrs
         getLastUsedInformation(accessToken()),
         getRevokedBy(accessToken().revokedBy()),
         revokedAt ? formatTimeInformation(revokedAt) : null,
-        <Ellipsize text={accessToken().revokeCause()}/>
+        <Ellipsize text={accessToken().revokeCause()!}/>
       ];
     });
   }
@@ -254,7 +254,7 @@ export class AccessTokensWidgetForAdmin extends MithrilViewComponent<AdminAttrs>
                    getLastUsedInformation(accessToken()),
                    getRevokedBy(accessToken().revokedBy()),
                    revokedAt ? formatTimeInformation(revokedAt) : null,
-                   <Ellipsize text={accessToken().revokeCause()}/>
+                   <Ellipsize text={accessToken().revokeCause()!}/>
                  ];
                });
   }

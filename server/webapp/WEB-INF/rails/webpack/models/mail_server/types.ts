@@ -15,8 +15,7 @@
  */
 
 import _ from "lodash";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {BackupConfig} from "models/backup_config/types";
 import {ErrorMessages} from "models/mixins/error_messages";
 import {Errors} from "models/mixins/errors";
@@ -44,13 +43,13 @@ export interface MailServer extends ValidatableMixin {
 }
 
 export class MailServer extends ValidatableMixin {
-  hostname: Stream<string>;
-  port: Stream<number>;
-  username: Stream<string>;
+  hostname: Stream<string | undefined>;
+  port: Stream<number | undefined>;
+  username: Stream<string | undefined>;
   password: Stream<EncryptedValue>;
-  tls: Stream<boolean>;
-  senderEmail: Stream<string>;
-  adminEmail: Stream<string>;
+  tls: Stream<boolean | undefined>;
+  senderEmail: Stream<string | undefined>;
+  adminEmail: Stream<string | undefined>;
 
   constructor(hostname?: string,
               port?: number,
@@ -64,13 +63,13 @@ export class MailServer extends ValidatableMixin {
     super();
     ValidatableMixin.call(this);
 
-    this.hostname    = stream(hostname);
-    this.port        = stream(port);
-    this.username    = stream(username);
-    this.password    = stream(plainOrCipherValue({plainText: password, cipherText: encryptedPassword}));
-    this.tls         = stream(tls);
-    this.senderEmail = stream(senderEmail);
-    this.adminEmail  = stream(adminEmail);
+    this.hostname    = Stream(hostname);
+    this.port        = Stream(port);
+    this.username    = Stream(username);
+    this.password    = Stream(plainOrCipherValue({plainText: password, cipherText: encryptedPassword}));
+    this.tls         = Stream(tls);
+    this.senderEmail = Stream(senderEmail);
+    this.adminEmail  = Stream(adminEmail);
 
     this.validatePresenceOf("hostname");
     this.validatePresenceOf("port");
@@ -79,7 +78,7 @@ export class MailServer extends ValidatableMixin {
 
     this.validatePresenceOfPassword("password", {
       condition: () => {
-        return !s.isBlank(this.username());
+        return !s.isBlank(this.username()!);
       },
       message: ErrorMessages.mustBePresentIf("password", "username is specified")
     });

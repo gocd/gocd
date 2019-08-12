@@ -25,6 +25,12 @@ const NewResourceVM = {
   error:       Stream('')
 };
 
+function withAttr(attrName, callback1, context) {
+  return function(e) {
+    callback1.call(context || this, attrName in e.currentTarget ? e.currentTarget[attrName] : e.currentTarget.getAttribute(attrName));
+  };
+}
+
 export const ResourcesListWidget = {
   oninit (vnode) {
     this.addNewResource = function () {
@@ -107,7 +113,7 @@ export const ResourcesListWidget = {
             {_.isEqual('', NewResourceVM.error()) ? "" : <span class="resource-error">{NewResourceVM.error()}</span> }
             <div class="small-9 columns">
               <input type="text"
-                     oninput={m.withAttr("value", vnode.state.newResourceInputValue)}
+                     oninput={withAttr("value", vnode.state.newResourceInputValue)}
                      value={NewResourceVM.newResource()}
                      placeholder="Add resource" class="add-resource-input"/>
             </div>

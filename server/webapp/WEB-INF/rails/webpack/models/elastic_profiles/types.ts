@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 import _ from "lodash";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {Errors} from "models/mixins/errors";
 import {applyMixins} from "models/mixins/mixins";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
@@ -25,7 +24,7 @@ export class ClusterProfiles {
   private readonly profiles: Stream<ClusterProfile[]>;
 
   constructor(profiles: ClusterProfile[]) {
-    this.profiles = stream(profiles);
+    this.profiles = Stream(profiles);
   }
 
   static fromJSON(profilesJson: ClusterProfileJSON[]): ClusterProfiles {
@@ -48,7 +47,7 @@ export class ElasticAgentProfiles {
   private readonly profiles: Stream<ElasticAgentProfile[]>;
 
   constructor(profiles: ElasticAgentProfile[]) {
-    this.profiles = stream(profiles);
+    this.profiles = Stream(profiles);
   }
 
   static fromJSON(profilesJson: ElasticProfileJSON[]): ElasticAgentProfiles {
@@ -66,7 +65,7 @@ export class ElasticAgentProfiles {
   inferPluginIdFromReferencedCluster(clusterProfiles: ClusterProfiles): void {
     const profilesWithoutPluginId = this.profiles();
     this.profiles(profilesWithoutPluginId.map((profile) => {
-      profile.pluginId(clusterProfiles.findCluster(profile.clusterProfileId()).pluginId());
+      profile.pluginId(clusterProfiles.findCluster(profile.clusterProfileId()!).pluginId());
       return profile;
     }));
   }
@@ -102,19 +101,19 @@ export class ProfileUsage {
   pipelineName: Stream<string>;
   jobName: Stream<string>;
   stageName: Stream<string>;
-  templateName: Stream<string>;
-  pipelineConfigOrigin: Stream<string>;
+  templateName: Stream<string | undefined>;
+  pipelineConfigOrigin: Stream<string | undefined>;
 
   constructor(pipelineName: string,
               stageName: string,
               jobName: string,
               templateName?: string,
               pipelineConfigOrigin?: string) {
-    this.pipelineName         = stream(pipelineName);
-    this.stageName            = stream(stageName);
-    this.jobName              = stream(jobName);
-    this.templateName         = stream(templateName);
-    this.pipelineConfigOrigin = stream(pipelineConfigOrigin);
+    this.pipelineName         = Stream(pipelineName);
+    this.stageName            = Stream(stageName);
+    this.jobName              = Stream(jobName);
+    this.templateName         = Stream(templateName);
+    this.pipelineConfigOrigin = Stream(pipelineConfigOrigin);
   }
 
   static fromJSON(usageJson: ProfileUsageJSON) {
@@ -150,16 +149,16 @@ export interface ElasticAgentProfile extends ValidatableMixin {
 }
 
 export class ElasticAgentProfile implements ValidatableMixin {
-  id: Stream<string>;
-  pluginId: Stream<string>;
-  clusterProfileId: Stream<string>;
-  properties: Stream<Configurations>;
+  id: Stream<string | undefined>;
+  pluginId: Stream<string | undefined>;
+  clusterProfileId: Stream<string | undefined>;
+  properties: Stream<Configurations | undefined>;
 
   constructor(id?: string, pluginId?: string, clusterProfileId?: string, properties?: Configurations) {
-    this.id               = stream(id);
-    this.pluginId         = stream(pluginId);
-    this.clusterProfileId = stream(clusterProfileId);
-    this.properties       = stream(properties);
+    this.id               = Stream(id);
+    this.pluginId         = Stream(pluginId);
+    this.clusterProfileId = Stream(clusterProfileId);
+    this.properties       = Stream(properties);
 
     ValidatableMixin.call(this);
     this.validatePresenceOf("clusterProfileId");
@@ -198,14 +197,14 @@ export interface ClusterProfile extends ValidatableMixin {
 }
 
 export class ClusterProfile implements ValidatableMixin {
-  id: Stream<string>;
-  pluginId: Stream<string>;
-  properties: Stream<Configurations>;
+  id: Stream<string | undefined>;
+  pluginId: Stream<string | undefined>;
+  properties: Stream<Configurations | undefined>;
 
   constructor(id?: string, pluginId?: string, properties?: Configurations) {
-    this.id         = stream(id);
-    this.pluginId   = stream(pluginId);
-    this.properties = stream(properties);
+    this.id         = Stream(id);
+    this.pluginId   = Stream(pluginId);
+    this.properties = Stream(properties);
 
     ValidatableMixin.call(this);
     this.validatePresenceOf("pluginId");

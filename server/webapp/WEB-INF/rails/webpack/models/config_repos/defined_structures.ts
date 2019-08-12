@@ -17,8 +17,7 @@
 import {ApiRequestBuilder, ApiVersion} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
 import _ from "lodash";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {Traversable} from "models/base/traversable";
 
 export interface NamedTree extends Traversable {
@@ -31,7 +30,7 @@ abstract class NamedConcept implements NamedTree {
   abstract children: NamedTree[];
 
   constructor(name: string) {
-    this.name = stream(name);
+    this.name = Stream(name);
   }
 }
 

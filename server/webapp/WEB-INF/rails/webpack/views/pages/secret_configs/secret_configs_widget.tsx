@@ -17,7 +17,7 @@
 import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
-import {Stream} from "mithril/stream";
+import Stream from "mithril/stream";
 import {SecretConfig, SecretConfigs} from "models/secret_configs/secret_configs";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {isBlank} from "underscore.string";

@@ -17,8 +17,7 @@
 import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {EnvironmentVariableConfig} from "models/pipeline_configs/environment_variable_config";
 import * as Buttons from "views/components/buttons";
 import {Form, FormBody} from "views/components/forms/form";
@@ -31,7 +30,7 @@ interface Attrs {
 }
 
 export class EnvironmentVariablesEditor extends MithrilViewComponent<Attrs> {
-  variableList: Stream<EnvironmentVariableConfig[]> = stream();
+  variableList: Stream<EnvironmentVariableConfig[]> = Stream();
 
   oninit(vnode: m.Vnode<Attrs, this>) {
     this.variableList([

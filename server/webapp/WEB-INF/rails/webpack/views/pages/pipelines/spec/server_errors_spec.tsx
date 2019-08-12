@@ -16,7 +16,7 @@
 
 import {asSelector} from "helpers/css_proxies";
 import m from "mithril";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {Errors} from "models/mixins/errors";
 import css from "views/pages/pipelines/server_errors.scss";
 import {TestHelper} from "views/pages/spec/test_helper";
@@ -29,7 +29,7 @@ describe("AddPipeline: ServerErrors", () => {
   afterEach(() => helper.unmount());
 
   it("displays a message", () => {
-    helper.mount(() => <ServerErrors message={stream("you suck")} details={stream()}/>);
+    helper.mount(() => <ServerErrors message={Stream("you suck")} details={Stream()}/>);
     expect(helper.q(sel.errorResponse)).toBeInDOM();
     expect(helper.q(`${sel.errorResponse} ol`)).not.toBeInDOM();
     expect(helper.q(`${sel.errorResponse} li`)).not.toBeInDOM();
@@ -37,7 +37,7 @@ describe("AddPipeline: ServerErrors", () => {
   });
 
   it("displays a message with details", () => {
-    helper.mount(() => <ServerErrors message={stream("you suck")} details={stream(new Errors({
+    helper.mount(() => <ServerErrors message={Stream("you suck")} details={Stream(new Errors({
       a: ["one", "two"],
       b: ["three"],
     }))}/>);

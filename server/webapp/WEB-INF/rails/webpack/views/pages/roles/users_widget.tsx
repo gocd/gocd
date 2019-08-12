@@ -16,7 +16,7 @@
 
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
-import {Stream} from "mithril/stream";
+import Stream from "mithril/stream";
 import {GoCDAttributes} from "models/roles/roles";
 import styles from "./index.scss";
 

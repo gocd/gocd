@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 import _ from "lodash";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 
 import {mixins as s} from "helpers/string-plus";
 
@@ -38,10 +37,10 @@ export class EncryptedValue {
       throw new Error("You cannot initialize an encrypted value with both clear text and cipher text!");
     }
 
-    this._originalValue = stream(_.has(data, "cipherText") ? _.get(data, "cipherText") : _.get(data, "clearText"));
-    this._value         = stream(_.has(data, "cipherText") ? _.get(data, "cipherText") : _.get(data, "clearText"));
-    this._isEncrypted   = stream(_.has(data, "cipherText"));
-    this._canEdit       = stream(!this.isSecure());
+    this._originalValue = Stream(_.has(data, "cipherText") ? _.get(data, "cipherText") : _.get(data, "clearText"));
+    this._value         = Stream(_.has(data, "cipherText") ? _.get(data, "cipherText") : _.get(data, "clearText"));
+    this._isEncrypted   = Stream(_.has(data, "cipherText"));
+    this._canEdit       = Stream(!this.isSecure());
   }
 
   value(...args: any): string {

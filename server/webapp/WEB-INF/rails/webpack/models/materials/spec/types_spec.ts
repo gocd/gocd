@@ -40,25 +40,25 @@ describe("Material Types", () => {
       const material = new Material("git", new GitMaterialAttributes());
       expect(material.isValid()).toBe(false);
       expect(material.errors().count()).toBe(0);
-      expect(material.attributes().errors().count()).toBe(1);
-      expect(material.attributes().errors().keys()).toEqual(["url"]);
+      expect(material.attributes()!.errors().count()).toBe(1);
+      expect(material.attributes()!.errors().keys()).toEqual(["url"]);
     });
 
     it("should should validate SVN material attributes", () => {
       const material = new Material("svn", new SvnMaterialAttributes());
       expect(material.isValid()).toBe(false);
       expect(material.errors().count()).toBe(0);
-      expect(material.attributes().errors().count()).toBe(1);
-      expect(material.attributes().errors().keys()).toEqual(["url"]);
+      expect(material.attributes()!.errors().count()).toBe(1);
+      expect(material.attributes()!.errors().keys()).toEqual(["url"]);
     });
 
     it("should should validate P4 material attributes", () => {
       const material = new Material("p4", new P4MaterialAttributes());
       expect(material.isValid()).toBe(false);
       expect(material.errors().count()).toBe(0);
-      expect(material.attributes().errors().count()).toBe(2);
-      expect(material.attributes().errors().keys()).toEqual(["view", "port"]);
-      expect(material.attributes().errors().errorsForDisplay("port"))
+      expect(material.attributes()!.errors().count()).toBe(2);
+      expect(material.attributes()!.errors().keys()).toEqual(["view", "port"]);
+      expect(material.attributes()!.errors().errorsForDisplay("port"))
         .toEqual("Host and port must be present.");
     });
 
@@ -66,16 +66,16 @@ describe("Material Types", () => {
       const material = new Material("hg", new HgMaterialAttributes());
       expect(material.isValid()).toBe(false);
       expect(material.errors().count()).toBe(0);
-      expect(material.attributes().errors().count()).toBe(1);
-      expect(material.attributes().errors().keys()).toEqual(["url"]);
+      expect(material.attributes()!.errors().count()).toBe(1);
+      expect(material.attributes()!.errors().keys()).toEqual(["url"]);
     });
 
     it("should should validate TFS material attributes", () => {
       const material = new Material("tfs", new TfsMaterialAttributes());
       expect(material.isValid()).toBe(false);
       expect(material.errors().count()).toBe(0);
-      expect(material.attributes().errors().count()).toBe(4);
-      expect(material.attributes().errors().keys())
+      expect(material.attributes()!.errors().count()).toBe(4);
+      expect(material.attributes()!.errors().keys())
         .toEqual(["url", "projectPath", "username", "password"]);
     });
 
@@ -83,13 +83,13 @@ describe("Material Types", () => {
       const material = new Material("git", new GitMaterialAttributes(undefined, true, "http://host"));
       expect(material.isValid()).toBe(true);
 
-      material.attributes().name("foo bar baz");
+      material.attributes()!.name("foo bar baz");
       expect(material.name()).toBe("foo bar baz");
 
       expect(material.isValid()).toBe(false);
-      expect(material.attributes().errors().count()).toBe(1);
-      expect(material.attributes().errors().keys()).toEqual(["name"]);
-      expect(material.attributes().errors().errorsForDisplay("name"))
+      expect(material.attributes()!.errors().count()).toBe(1);
+      expect(material.attributes()!.errors().keys()).toEqual(["name"]);
+      expect(material.attributes()!.errors().errorsForDisplay("name"))
         .toBe(
           "Invalid name. This must be alphanumeric and can contain hyphens, underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
     });
@@ -137,16 +137,16 @@ describe("Material Types", () => {
       const material = new Material("git", new GitMaterialAttributes(undefined, true, "git@host:repo.git"));
       expect(material.isValid()).toBe(true);
       expect(material.errors().count()).toBe(0);
-      expect(material.attributes().isValid()).toBe(true);
-      expect(material.attributes().errors().count()).toBe(0);
+      expect(material.attributes()!.isValid()).toBe(true);
+      expect(material.attributes()!.errors().count()).toBe(0);
     });
 
     it("should should allow SSH URLs", () => {
       const material = new Material("git", new GitMaterialAttributes(undefined, true, "ssh://git@host/repo.git"));
       expect(material.isValid()).toBe(true);
       expect(material.errors().count()).toBe(0);
-      expect(material.attributes().isValid()).toBe(true);
-      expect(material.attributes().errors().count()).toBe(0);
+      expect(material.attributes()!.isValid()).toBe(true);
+      expect(material.attributes()!.errors().count()).toBe(0);
     });
 
     it("should should validate Git URL credentials", () => {
@@ -159,9 +159,9 @@ describe("Material Types", () => {
                                                               "pass"));
       expect(material.isValid()).toBe(false);
       expect(material.errors().count()).toBe(0);
-      expect(material.attributes().errors().count()).toBe(1);
-      expect(material.attributes().errors().keys()).toEqual(["url"]);
-      expect(material.attributes().errors().errorsForDisplay("url"))
+      expect(material.attributes()!.errors().count()).toBe(1);
+      expect(material.attributes()!.errors().keys()).toEqual(["url"]);
+      expect(material.attributes()!.errors().errorsForDisplay("url"))
         .toBe("URL credentials must be set in either the URL or the username+password fields, but not both.");
     });
 
@@ -170,9 +170,9 @@ describe("Material Types", () => {
                                     new HgMaterialAttributes(undefined, true, "http://user:pass@host", "user", "pass"));
       expect(material.isValid()).toBe(false);
       expect(material.errors().count()).toBe(0);
-      expect(material.attributes().errors().count()).toBe(1);
-      expect(material.attributes().errors().keys()).toEqual(["url"]);
-      expect(material.attributes().errors().errorsForDisplay("url"))
+      expect(material.attributes()!.errors().count()).toBe(1);
+      expect(material.attributes()!.errors().keys()).toEqual(["url"]);
+      expect(material.attributes()!.errors().errorsForDisplay("url"))
         .toBe("URL credentials must be set in either the URL or the username+password fields, but not both.");
     });
   });

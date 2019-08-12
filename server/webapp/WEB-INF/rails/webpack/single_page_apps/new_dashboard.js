@@ -213,7 +213,7 @@ $(() => {
     };
 
     m.route(dashboardElem.get(0), '', {
-      '':             component,
+      '/':            component,
       '/:searchedBy': component
     });
 

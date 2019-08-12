@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import m from "mithril";
-import {Stream} from "mithril/stream";
+import Stream from "mithril/stream";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {FlashProvider} from "views/components/flash_message";
 

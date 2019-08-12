@@ -16,8 +16,7 @@
 
 import _ from "lodash";
 import m from "mithril";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {AccessTokenCRUD} from "models/access_tokens/access_token_crud";
 import {AccessToken, AccessTokens} from "models/access_tokens/types";
 import {AdminAccessTokenCRUD} from "models/admin_access_tokens/admin_access_token_crud";
@@ -33,7 +32,7 @@ export class GenerateTokenModal extends BaseModal {
   constructor(accessTokens: Stream<AccessTokens>,
               onSuccessfulSave: (msg: m.Children) => void,
               onError: (msg: m.Children) => void) {
-    super(accessTokens, stream(AccessToken.new()), onSuccessfulSave, onError);
+    super(accessTokens, Stream(AccessToken.new()), onSuccessfulSave, onError);
     this.closeModalOnOverlayClick = false;
   }
 

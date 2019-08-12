@@ -15,8 +15,7 @@
  */
 
 import {SparkRoutes} from "helpers/spark_routes";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {ConfigRepo} from "models/config_repos/types";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {FlashContainer, RequiresPluginInfos, SaveOperation} from "views/pages/page_operations";
@@ -74,7 +73,7 @@ function createVm() {
 class MockResources implements FlashContainer, RequiresPluginInfos, SaveOperation {
   // tslint:disable-next-line no-empty
   flash = { clear() {}, success() {}, alert() {} };
-  pluginInfos: Stream<Array<PluginInfo<any>>> = stream();
+  pluginInfos: Stream<Array<PluginInfo<any>>> = Stream();
   // tslint:disable-next-line no-empty
   onError() {}
   // tslint:disable-next-line no-empty

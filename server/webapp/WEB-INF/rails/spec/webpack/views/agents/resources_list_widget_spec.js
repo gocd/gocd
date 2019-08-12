@@ -116,7 +116,7 @@ describe("ResourcesListWidget", () => {
     expect(inputBox).toHaveValue('Chrome');
     const addButton = helper.find('.add-resource .add-resource-btn')[0];
     simulateEvent.simulate(addButton, 'click');
-    m.redraw();
+    m.redraw.sync();
 
     allResources = helper.find('.resources-items :checkbox');
     expect(allResources).toHaveLength(5);
@@ -130,7 +130,7 @@ describe("ResourcesListWidget", () => {
     expect(inputBox).toHaveValue('Chrome');
     const addButton = helper.find('.add-resource button')[0];
     addButton.click();
-    m.redraw();
+    m.redraw.sync();
 
     inputBox = helper.find('.add-resource input');
     expect(inputBox).toHaveValue('');
@@ -146,7 +146,7 @@ describe("ResourcesListWidget", () => {
 
     const addButton = helper.find('.add-resource :button')[1];
     addButton.click();
-    m.redraw();
+    m.redraw.sync();
 
     allResources = helper.find('.resources-items input[type="Checkbox"]');
     expect(allResources).toHaveLength(4);

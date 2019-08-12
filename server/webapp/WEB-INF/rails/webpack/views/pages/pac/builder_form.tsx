@@ -18,7 +18,7 @@
 import {override} from "helpers/css_proxies";
 import _ from "lodash";
 import m from "mithril";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 
 // components
 import {MithrilComponent} from "jsx/mithril-component";
@@ -46,7 +46,7 @@ interface Attrs extends PipelineConfigVMAware {
 }
 
 export class BuilderForm extends MithrilComponent<Attrs> {
-  private hash = stream("");
+  private hash = Stream("");
 
   oncreate(vnode: m.VnodeDOM<Attrs, {}>) {
     vnode.dom.addEventListener("change", (e) => {

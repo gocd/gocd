@@ -19,8 +19,7 @@ import * as Routes from "gen/ts-routes";
 import {MithrilComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {ClusterProfile, ElasticAgentProfile, ElasticAgentProfiles} from "models/elastic_profiles/types";
 import {Configurations} from "models/shared/configuration";
 import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
@@ -70,7 +69,7 @@ class ClusterProfileHeaderWidget extends MithrilComponent<HeaderAttrs> {
   }
 }
 
-const flag: (val?: boolean) => Stream<boolean> = stream;
+const flag: (val?: boolean) => Stream<boolean> = Stream;
 
 export class ClusterProfileWidget extends MithrilComponent<ClusterProfileWidgetAttrs, State> {
   oninit(vnode: m.Vnode<ClusterProfileWidgetAttrs, State>) {
@@ -78,12 +77,12 @@ export class ClusterProfileWidget extends MithrilComponent<ClusterProfileWidgetA
   }
 
   view(vnode: m.Vnode<ClusterProfileWidgetAttrs, State>) {
-    const filteredElasticAgentProfiles = vnode.attrs.elasticProfiles.filterByClusterProfile(vnode.attrs.clusterProfile.id());
+    const filteredElasticAgentProfiles = vnode.attrs.elasticProfiles.filterByClusterProfile(vnode.attrs.clusterProfile.id()!);
     const pluginInfo                   = this.pluginInfo(vnode);
     const pluginImageTag               = ClusterProfileWidget.createImageTag(pluginInfo);
     const pluginName                   = pluginInfo ? pluginInfo.about.name : "";
     return <CollapsiblePanel key={vnode.attrs.clusterProfile.id()}
-                             header={<ClusterProfileHeaderWidget clusterProfileId={vnode.attrs.clusterProfile.id()} pluginName={pluginName} image={pluginImageTag}/>}
+                             header={<ClusterProfileHeaderWidget clusterProfileId={vnode.attrs.clusterProfile.id()!} pluginName={pluginName} image={pluginImageTag}/>}
                              actions={this.getActionButtons(vnode)}
                              dataTestId={"cluster-profile-panel"}>
       {this.getClusterProfileDetails(vnode)}
@@ -120,7 +119,7 @@ export class ClusterProfileWidget extends MithrilComponent<ClusterProfileWidgetA
     const actionButtons = [];
     const pluginInfo    = this.pluginInfo(vnode);
     if (pluginInfo != null && ClusterProfileWidget.supportsClusterStatusReport(pluginInfo)) {
-      const statusReportPath: string = Routes.adminClusterStatusReportPath(vnode.attrs.clusterProfile.pluginId(), vnode.attrs.clusterProfile.id());
+      const statusReportPath: string = Routes.adminClusterStatusReportPath(vnode.attrs.clusterProfile.pluginId()!, vnode.attrs.clusterProfile.id()!);
 
       actionButtons.push(
         <Buttons.Secondary onclick={this.goToStatusReportPage.bind(this, statusReportPath)}
@@ -142,7 +141,7 @@ export class ClusterProfileWidget extends MithrilComponent<ClusterProfileWidgetA
       <IconGroup>
         <Icons.Edit data-test-id="edit-cluster-profile" onclick={vnode.attrs.clusterProfileOperations.onEdit.bind(this, vnode.attrs.clusterProfile)} disabled={!pluginInfo}/>
         <Icons.Clone data-test-id="clone-cluster-profile" onclick={vnode.attrs.clusterProfileOperations.onClone.bind(this, vnode.attrs.clusterProfile)} disabled={!pluginInfo}/>
-        <Icons.Delete data-test-id="delete-cluster-profile" onclick={vnode.attrs.clusterProfileOperations.onDelete.bind(this, vnode.attrs.clusterProfile.id())}/>
+        <Icons.Delete data-test-id="delete-cluster-profile" onclick={vnode.attrs.clusterProfileOperations.onDelete.bind(this, vnode.attrs.clusterProfile.id()!)}/>
       </IconGroup>
     </div>);
 
@@ -154,7 +153,7 @@ export class ClusterProfileWidget extends MithrilComponent<ClusterProfileWidgetA
   }
 
   private getClusterProfileDetails(vnode: m.Vnode<ClusterProfileWidgetAttrs, State>) {
-    const clusterProfileProperties = vnode.attrs.clusterProfile.properties() ? vnode.attrs.clusterProfile.properties().asMap() : [];
+    const clusterProfileProperties = vnode.attrs.clusterProfile.properties() ? vnode.attrs.clusterProfile.properties()!.asMap() : [];
     const clusterProfileDetails    = new Map([
                                                ["Id", vnode.attrs.clusterProfile.id()],
                                                ["PluginId", vnode.attrs.clusterProfile.pluginId()],

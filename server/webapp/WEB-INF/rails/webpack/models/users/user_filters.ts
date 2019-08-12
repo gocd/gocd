@@ -15,19 +15,18 @@
  */
 
 import _ from "lodash";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {User, Users} from "models/users/users";
 
-const flag: (val?: boolean) => Stream<boolean> = stream;
+const flag: (val?: boolean) => Stream<boolean> = Stream;
 
 export class UserFilters {
-  searchText: Stream<string>                                             = stream("");
-  superAdmins                                                            = stream(false);
-  normalUsers                                                            = stream(false);
-  enabledUsers                                                           = stream(false);
-  disabledUsers                                                          = stream(false);
-  private readonly __selectedRoles: Stream<Map<string, Stream<boolean>>> = stream(new Map());
+  searchText: Stream<string>                                             = Stream("");
+  superAdmins                                                            = Stream(false);
+  normalUsers                                                            = Stream(false);
+  enabledUsers                                                           = Stream(false);
+  disabledUsers                                                          = Stream(false);
+  private readonly __selectedRoles: Stream<Map<string, Stream<boolean>>> = Stream(new Map());
 
   resetFilters() {
     this.superAdmins(false);
@@ -112,7 +111,7 @@ export class UserFilters {
 
     let filterOnUserState = !this.isAnyUserStateFilterApplied();
     if (this.enabledUsers()) {
-      filterOnUserState = filterOnUserState || user.enabled();
+      filterOnUserState = filterOnUserState || user.enabled()!;
     }
 
     if (this.disabledUsers()) {

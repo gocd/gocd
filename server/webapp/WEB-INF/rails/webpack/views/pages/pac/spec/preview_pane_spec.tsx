@@ -16,7 +16,7 @@
 
 import {asSelector} from "helpers/css_proxies";
 import m from "mithril";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {PreviewPane} from "../preview_pane";
 import * as defaultStyles from "../styles.scss";
@@ -25,8 +25,8 @@ describe("AddPaC: PreviewPane", () => {
   const helper = new TestHelper();
   const sel = asSelector<typeof defaultStyles>(defaultStyles);
 
-  const content = stream("");
-  const mime = stream("");
+  const content = Stream("");
+  const mime = Stream("");
 
   beforeEach(() => {
     content("");
@@ -38,12 +38,12 @@ describe("AddPaC: PreviewPane", () => {
 
   it("renders message on empty content", () => {
     mime("application/x-yaml");
-    m.redraw();
+    m.redraw.sync();
 
     expect(helper.text(sel.previewPane)).toBe("# Your Pipelines as Code definition will automatically update here");
 
     mime("application/json");
-    m.redraw();
+    m.redraw.sync();
 
     expect(helper.text(sel.previewPane)).toBe("// Your Pipelines as Code definition will automatically update here");
   });
@@ -51,7 +51,7 @@ describe("AddPaC: PreviewPane", () => {
   it("renders content when available", () => {
     mime("application/x-yaml");
     content(`---\nformat_version: 5\n`);
-    m.redraw();
+    m.redraw.sync();
 
     expect(helper.text(sel.previewPane)).toBe(`---\nformat_version: 5`);
     expect(helper.textAll(sel.token)).toEqual(["---", "format_version", ":", "5"]);

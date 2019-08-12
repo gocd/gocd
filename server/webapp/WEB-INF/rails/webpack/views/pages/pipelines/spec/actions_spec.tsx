@@ -108,10 +108,11 @@ describe("AddPipeline: Actions Section", () => {
 
     createPromise.then(() => {
       setTimeout(() => { // allow the outer promise.then() wrapping createPromise to finish
+        m.redraw.sync();
         expect(helper.text(errSel.errorResponse)).toBe("uh-oh!");
         const mat = Array.from(config.materials()).pop()!;
-        expect(mat.attributes().errors().hasErrors("url")).toBe(true);
-        expect(mat.attributes().errors().errorsForDisplay("url")).toBe("This url is bogus.");
+        expect(mat.attributes()!.errors().hasErrors("url")).toBe(true);
+        expect(mat.attributes()!.errors().errorsForDisplay("url")).toBe("This url is bogus.");
         done();
       }, 0);
     });
@@ -129,10 +130,11 @@ describe("AddPipeline: Actions Section", () => {
 
     createPromise.then(() => {
       setTimeout(() => { // allow the outer promise.then() wrapping createPromise to finish
+        m.redraw.sync();
         expect(helper.text(errSel.errorResponse)).toBe("uh-oh!: pipelineConfig.materials[0].something: unknown. error.");
         const mat = Array.from(config.materials()).pop()!;
-        expect(mat.attributes().errors().hasErrors("url")).toBe(true);
-        expect(mat.attributes().errors().errorsForDisplay("url")).toBe("This url is bogus.");
+        expect(mat.attributes()!.errors().hasErrors("url")).toBe(true);
+        expect(mat.attributes()!.errors().errorsForDisplay("url")).toBe("This url is bogus.");
         done();
       }, 0);
     });

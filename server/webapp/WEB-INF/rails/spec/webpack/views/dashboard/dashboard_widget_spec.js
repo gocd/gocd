@@ -80,14 +80,14 @@ describe("Dashboard Widget", () => {
   it('should render an info message', () => {
     expect(helper.find('.dashboard-message')).not.toBeInDOM();
     dashboard.message({content: 'some message', type: 'info'});
-    m.redraw();
+    m.redraw.sync();
     expect(helper.find('.callout.info .dashboard-message')).toContainText('some message');
   });
 
   it('should render an alert message', () => {
     expect(helper.find('.dashboard-message')).not.toBeInDOM();
     dashboard.message({content: 'some error message', type: 'alert'});
-    m.redraw();
+    m.redraw.sync();
     expect(helper.find('.callout.alert .dashboard-message')).toContainText('some error message');
   });
 
@@ -99,7 +99,7 @@ describe("Dashboard Widget", () => {
     $(searchField).val('foo');
     simulateEvent.simulate(searchField, 'input');
 
-    m.redraw();
+    m.redraw.sync();
 
     pipelinesCountOnPage = helper.find('.pipeline');
     expect(pipelinesCountOnPage).toHaveLength(0);
@@ -107,7 +107,7 @@ describe("Dashboard Widget", () => {
     $(searchField).val('up42');
     simulateEvent.simulate(searchField, 'input');
 
-    m.redraw();
+    m.redraw.sync();
 
     pipelinesCountOnPage = helper.find('.pipeline');
     expect(pipelinesCountOnPage).toHaveLength(1);
@@ -115,7 +115,7 @@ describe("Dashboard Widget", () => {
     $(searchField).val('up43');
     simulateEvent.simulate(searchField, 'input');
 
-    m.redraw();
+    m.redraw.sync();
 
     pipelinesCountOnPage = helper.find('.pipeline');
     expect(pipelinesCountOnPage).toHaveLength(1);
@@ -123,7 +123,7 @@ describe("Dashboard Widget", () => {
     $(searchField).val('UP43');
     simulateEvent.simulate(searchField, 'input');
 
-    m.redraw();
+    m.redraw.sync();
 
     pipelinesCountOnPage = helper.find('.pipeline');
     expect(pipelinesCountOnPage).toHaveLength(1);
@@ -131,7 +131,7 @@ describe("Dashboard Widget", () => {
     $(searchField).val('up');
     simulateEvent.simulate(searchField, 'input');
 
-    m.redraw();
+    m.redraw.sync();
 
     pipelinesCountOnPage = helper.find('.pipeline');
     expect(pipelinesCountOnPage).toHaveLength(2);
@@ -139,7 +139,7 @@ describe("Dashboard Widget", () => {
     $(searchField).val('');
     simulateEvent.simulate(searchField, 'input');
 
-    m.redraw();
+    m.redraw.sync();
 
     pipelinesCountOnPage = helper.find('.pipeline');
     expect(pipelinesCountOnPage).toHaveLength(2);
@@ -151,11 +151,12 @@ describe("Dashboard Widget", () => {
 
     $(searchField).val('up42');
     simulateEvent.simulate(searchField, 'input');
-    m.redraw();
+    m.redraw.sync();
 
     expect(helper.find('.pipeline')).toHaveLength(1);
 
     simulateEvent.simulate(helper.find('.pause').get(0), 'click');
+    m.redraw.sync();
     expect($('.modal-body').text()).toEqual('Specify a reason for pausing schedule on pipeline up42');
 
     //close specify pause cause popup for up42 pipeline
@@ -163,11 +164,13 @@ describe("Dashboard Widget", () => {
 
     $(searchField).val('up43');
     simulateEvent.simulate(searchField, 'input');
-    m.redraw();
+    m.redraw.sync();
+    m.redraw.sync();
 
     expect(helper.find('.pipeline')).toHaveLength(1);
 
     simulateEvent.simulate(helper.find('.pause').get(0), 'click');
+    m.redraw.sync();
     expect($('.modal-body').text()).toEqual('Specify a reason for pausing schedule on pipeline up43');
 
     //close specify pause cause popup for up43 pipeline
@@ -188,16 +191,19 @@ describe("Dashboard Widget", () => {
       });
 
       simulateEvent.simulate(helper.find('.pause').get(0), 'click');
+      m.redraw.sync();
       expect($('.modal-body').text()).toEqual('Specify a reason for pausing schedule on pipeline up42');
       $('.reveal input').val(pauseCause);
       expect($('.reveal input')).toHaveValue(pauseCause);
 
       simulateEvent.simulate($('.reveal .primary').get(0), 'click');
+      m.redraw.sync();
 
       expect(helper.find('.pipeline_message')).toContainText(responseMessage);
       expect(helper.find('.pipeline_message')).toHaveClass("success");
 
       simulateEvent.simulate(helper.find('.pause').get(0), 'click');
+      m.redraw.sync();
       expect($('.reveal input')).toHaveValue('');
 
       Modal.destroyAll();
@@ -212,7 +218,7 @@ describe("Dashboard Widget", () => {
 
     $(searchField).val('up42');
     simulateEvent.simulate(searchField, 'input');
-    m.redraw();
+    m.redraw.sync();
 
     expect(helper.find('.pipeline')).toHaveLength(1);
     expect(helper.find('.material_changes')).not.toBeInDOM();
@@ -223,14 +229,16 @@ describe("Dashboard Widget", () => {
         responseHeaders: {'Content-Type': 'application/vnd.go.cd.v1+json'},
         status:          200
       });
-      helper.find('.info a').get(1).click();
+
+      simulateEvent.simulate(helper.find('.info a').get(1), 'click');
+      m.redraw.sync();
     });
 
     expect(helper.find('.material_changes')).toBeInDOM();
 
     $(searchField).val('up43');
     simulateEvent.simulate(searchField, 'input');
-    m.redraw();
+    m.redraw.sync();
 
     expect(helper.find('.pipeline')).toHaveLength(1);
     expect(helper.find('.material_changes')).not.toBeInDOM();
@@ -241,7 +249,9 @@ describe("Dashboard Widget", () => {
         responseHeaders: {'Content-Type': 'application/vnd.go.cd.v1+json'},
         status:          200
       });
-      helper.find('.info a').get(1).click();
+
+      simulateEvent.simulate(helper.find('.info a').get(1), 'click');
+      m.redraw.sync();
     });
 
     expect(helper.find('.material_changes')).toBeInDOM();
@@ -263,7 +273,7 @@ describe("Dashboard Widget", () => {
 
       $(searchField).val('up43');
       simulateEvent.simulate(searchField, 'input');
-      m.redraw();
+      m.redraw.sync();
 
       expect(helper.find('.pipeline')).toHaveLength(1);
 
@@ -271,6 +281,7 @@ describe("Dashboard Widget", () => {
       expect(doRefreshImmediately).not.toHaveBeenCalled();
 
       simulateEvent.simulate(helper.find('.pipeline_locked').get(0), 'click');
+      m.redraw.sync();
 
       expect(doCancelPolling).toHaveBeenCalled();
       expect(doRefreshImmediately).toHaveBeenCalled();
@@ -312,7 +323,7 @@ describe("Dashboard Widget", () => {
 
   it("should not show pipeline add icon when grouped by environments for admin users", () => {
     vm.groupByEnvironment(true);
-    m.redraw();
+    m.redraw.sync();
     expect(helper.q(sel.btnPrimary, helper.q(".dashboard-group_title"))).not.toBeInDOM();
   });
 

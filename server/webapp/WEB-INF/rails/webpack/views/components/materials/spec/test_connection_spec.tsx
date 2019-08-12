@@ -47,6 +47,7 @@ describe("Materials: TestConnection", () => {
         expect(helper.byTestId("test-connection-button").matches("[disabled]")).toBe(true); // disabled while connection is in progress
 
         setTimeout(() => { // make this async so as to allow mithril to update the dom
+          m.redraw.sync();
           expect(helper.byTestId("test-connection-button").matches("[disabled]")).toBe(false); // enabled on complete
           expect(helper.byTestId("test-connection-icon")).toHaveClass(styles.testConnectionSuccess);
           expect(helper.byTestId("flash-message-success").querySelector("p")).toContainText("Connection OK");
@@ -78,11 +79,12 @@ describe("Materials: TestConnection", () => {
         expect(helper.byTestId("test-connection-button").matches("[disabled]")).toBe(true); // disabled while connection is in progress
 
         setTimeout(() => { // make this async so as to allow mithril to update the dom
+          m.redraw.sync();
           expect(helper.byTestId("test-connection-button").matches("[disabled]")).toBe(false); // enabled on complete
           expect(helper.byTestId("test-connection-icon")).toHaveClass(styles.testConnectionFailure);
           expect(helper.byTestId("flash-message-alert").querySelector("pre")).toContainText("Error while parsing material URL");
           done();
-        }, 0);
+        }, 10);
       }}/>);
 
       expect(helper.byTestId('test-connection-button')).toBeVisible();

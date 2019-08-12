@@ -31,6 +31,8 @@ describe("WizardSpec", () => {
 
   afterEach(() => {
     wizard.close();
+    m.redraw.sync();
+
     expect(findByClass(styles.wizard)).not.toBeInDOM();
   });
 
@@ -38,14 +40,16 @@ describe("WizardSpec", () => {
     expect(findByClass(styles.wizard)).not.toBeInDOM();
 
     wizard.render();
+    m.redraw.sync();
 
-    expect(findByClass(styles.wizard)).toBeInDOM();
+    expect(findByClass(styles.wizard)).not.toBeNull();
   });
 
   it("should select the given step", () => {
     wizard
       .defaultStepIndex(2)
       .render();
+    m.redraw.sync();
 
     expect(findIn(styles.wizardHeader, styles.stepHeader)[1]).toHaveClass(styles.selected);
     expect(findIn(styles.wizardBody, styles.stepBody)).toHaveText("This is step two");
@@ -54,16 +58,18 @@ describe("WizardSpec", () => {
   describe("Wizard steps", () => {
     it("should list all the wizard steps in the header", () => {
       wizard.render();
+      m.redraw.sync();
 
-      expect(findByClass(styles.wizard)).toBeInDOM();
+      expect(findByClass(styles.wizard)).not.toBeNull();
       expect(findIn(styles.wizardHeader, styles.stepHeader)[0]).toHaveText("Step 1");
       expect(findIn(styles.wizardHeader, styles.stepHeader)[1]).toHaveText("Step 2");
     });
 
     it("should show content of the first step by default", () => {
       wizard.render();
+      m.redraw.sync();
 
-      expect(findByClass(styles.wizard)).toBeInDOM();
+      expect(findByClass(styles.wizard)).not.toBeNull();
       expect(findIn(styles.wizardBody, styles.stepBody).length).toBe(1);
       expect(findIn(styles.wizardBody, styles.stepBody)[0]).toHaveText("This is step one");
       expect(findIn(styles.wizardBody, styles.stepBody)[0]).toBeVisible();
@@ -71,12 +77,14 @@ describe("WizardSpec", () => {
 
     it("should switch to step on click of the step name", () => {
       wizard.render();
+      m.redraw.sync();
 
-      expect(findByClass(styles.wizard)).toBeInDOM();
+      expect(findByClass(styles.wizard)).not.toBeNull();
       expect(findIn(styles.wizardBody, styles.stepBody).length).toBe(1);
       expect(findIn(styles.wizardBody, styles.stepBody)[0]).toHaveText("This is step one");
 
       simulateEvent.simulate(findIn(styles.wizardHeader, styles.stepHeader)[1], "click");
+      m.redraw.sync();
 
       expect(findIn(styles.wizardBody, styles.stepBody)[0]).toHaveText("This is step two");
     });
@@ -85,6 +93,7 @@ describe("WizardSpec", () => {
   describe("Cancel button", () => {
     it("should show cancel button", () => {
       wizard.render();
+      m.redraw.sync();
 
       expect(findByDataTestId("cancel")).toBeInDOM();
       expect(findByDataTestId("cancel")).toHaveText("Cancel");
@@ -92,11 +101,13 @@ describe("WizardSpec", () => {
 
     it("should close wizard on click", () => {
       wizard.render();
+      m.redraw.sync();
 
-      expect(findByClass(styles.wizard)).toBeInDOM();
+      expect(findByClass(styles.wizard)).not.toBeNull();
       expect(findByDataTestId("cancel")).toBeInDOM();
 
       simulateEvent.simulate(findByDataTestId("cancel")[0], "click");
+      m.redraw.sync();
 
       expect(findByClass(styles.wizard)).not.toBeInDOM();
     });
@@ -105,6 +116,7 @@ describe("WizardSpec", () => {
   describe("Previous button", () => {
     it("should show previous button", () => {
       wizard.render();
+      m.redraw.sync();
 
       expect(findByDataTestId("previous")).toBeInDOM();
       expect(findByDataTestId("previous")).toHaveText("Previous");
@@ -112,15 +124,20 @@ describe("WizardSpec", () => {
 
     it("should go to previous step when clicked", () => {
       wizard.defaultStepIndex(2).render();
+      m.redraw.sync();
+
       expect(findIn(styles.wizardBody, styles.stepBody)).toHaveText("This is step two");
 
       simulateEvent.simulate(findByDataTestId("previous")[0], "click");
+      m.redraw.sync();
 
       expect(findIn(styles.wizardBody, styles.stepBody)).toHaveText("This is step one");
     });
 
     it("should disable previous button on first step", () => {
       wizard.defaultStepIndex(1).render();
+      m.redraw.sync();
+
       expect(findByDataTestId("previous")).toBeDisabled();
     });
   });
@@ -128,6 +145,7 @@ describe("WizardSpec", () => {
   describe("Next Button", () => {
     it("should show next button", () => {
       wizard.render();
+      m.redraw.sync();
 
       expect(findByDataTestId("next")).toBeInDOM();
       expect(findByDataTestId("next")).toHaveText("Next");
@@ -135,15 +153,20 @@ describe("WizardSpec", () => {
 
     it("should go to next step when clicked", () => {
       wizard.defaultStepIndex(1).render();
+      m.redraw.sync();
+
       expect(findIn(styles.wizardBody, styles.stepBody)).toHaveText("This is step one");
 
       simulateEvent.simulate(findByDataTestId("next")[0], "click");
+      m.redraw.sync();
 
       expect(findIn(styles.wizardBody, styles.stepBody)).toHaveText("This is step two");
     });
 
     it("should disable next button on last step", () => {
       wizard.defaultStepIndex(3).render();
+      m.redraw.sync();
+
       expect(findByDataTestId("next")).toBeDisabled();
     });
   });
@@ -154,6 +177,7 @@ describe("WizardSpec", () => {
       wizard.addStep(new SampleStep("last Step", "this is last step", customButton));
 
       wizard.defaultStepIndex(4).render();
+      m.redraw.sync();
 
       expect(findByDataTestId("customButton")).toBeInDOM();
       expect(findByDataTestId("customButton")).toHaveText("Custom Button");
@@ -161,7 +185,7 @@ describe("WizardSpec", () => {
   });
 
   function findByClass(className: string) {
-    return document.getElementsByClassName(className);
+    return document.getElementsByClassName(className)[0];
   }
 
   function findByDataTestId(id: string) {

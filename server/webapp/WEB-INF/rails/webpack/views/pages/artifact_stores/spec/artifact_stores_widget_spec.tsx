@@ -15,7 +15,7 @@
  */
 
 import m from "mithril";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {ArtifactStore, ArtifactStores} from "models/artifact_stores/artifact_stores";
 import {ArtifactStoreTestData} from "models/artifact_stores/spec/test_data";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
@@ -133,7 +133,7 @@ describe("ArtifactStoresModal", () => {
   });
 
   function mount(artifactStores: ArtifactStores, pluginInfos: Array<PluginInfo<any>>) {
-    helper.mount(() => <ArtifactStoresWidget pluginInfos={stream(pluginInfos)}
+    helper.mount(() => <ArtifactStoresWidget pluginInfos={Stream(pluginInfos)}
                                              artifactStores={artifactStores}
                                              onEdit={onEdit}
                                              onClone={onClone}

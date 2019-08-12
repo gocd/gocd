@@ -17,8 +17,7 @@
 import Awesomplete from "awesomplete";
 import {MithrilComponent} from "jsx/mithril-component";
 import m from "mithril";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {DependencyMaterialAutocomplete, PipelineNameCache} from "models/materials/dependency_autocomplete_cache";
 import {DependencyMaterialAttributes, Material, MaterialAttributes} from "models/materials/types";
 import {AutocompleteField, SuggestionProvider} from "views/components/forms/autocomplete";
@@ -74,10 +73,10 @@ export class DependencyFields extends MithrilComponent<Attrs, State> {
     const mat = vnode.attrs.material.attributes() as DependencyMaterialAttributes;
     const cache = vnode.attrs.cache;
     const EMPTY: Option[] = [{id: "", text: "-"}];
-    vnode.state.stages = stream(EMPTY);
+    vnode.state.stages = Stream(EMPTY);
 
     vnode.state.provider = new DependencySuggestionProvider(vnode.attrs.cache);
-    vnode.state.stages = mat.pipeline.map<Option[]>((val: string) => {
+    vnode.state.stages = mat.pipeline.map<Option[]>((val: string | undefined) => {
       mat.stage("");
       return val ? EMPTY.concat(cache.stages(val)) : [];
     });

@@ -16,8 +16,7 @@
 
 import {ApiResult, ErrorResponse, ObjectWithEtag, SuccessResponse} from "helpers/api_request_builder";
 import m from "mithril";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {AccessToken, AccessTokens} from "models/access_tokens/types";
 import * as Buttons from "views/components/buttons";
 import {Size, TextAreaField} from "views/components/forms/input_fields";
@@ -28,7 +27,7 @@ import {PageState} from "views/pages/page";
 
 export abstract class BaseModal extends Modal {
   protected accessToken: Stream<AccessToken>;
-  protected operationState = stream(PageState.OK);
+  protected operationState = Stream(PageState.OK);
 
   protected constructor(accessTokens: Stream<AccessTokens>,
                         accessToken: Stream<AccessToken>,
@@ -85,7 +84,7 @@ export abstract class BaseModal extends Modal {
 }
 
 export abstract class RevokeTokenModal extends BaseModal {
-  protected cause: Stream<string> = stream();
+  protected cause: Stream<string> = Stream();
 
   constructor(accessTokens: Stream<AccessTokens>,
               accessToken: Stream<AccessToken>,

@@ -15,8 +15,7 @@
  */
 import {timeFormatter} from "helpers/time_formatter";
 import _ from "lodash";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {Errors} from "models/mixins/errors";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 
@@ -50,7 +49,7 @@ export class AccessTokens extends Array<Stream<AccessToken>> {
   }
 
   static fromJSON(json: AccessTokensJSON) {
-    return new AccessTokens(...json._embedded.access_tokens.map((accessTokenJSON) => stream(AccessToken.fromJSON(
+    return new AccessTokens(...json._embedded.access_tokens.map((accessTokenJSON) => Stream(AccessToken.fromJSON(
       accessTokenJSON))));
   }
 
@@ -91,12 +90,12 @@ export class AccessToken extends ValidatableMixin {
   description: Stream<string>;
   username: Stream<string>;
   createdAt: Stream<Date>;
-  lastUsedAt: Stream<Date>;
-  token: Stream<string> = stream();
+  lastUsedAt: Stream<Date | undefined>;
+  token: Stream<string> = Stream();
   revoked: Stream<boolean>;
-  revokedAt: Stream<Date>;
+  revokedAt: Stream<Date | undefined>;
   revokedBy: Stream<string>;
-  revokeCause: Stream<string>;
+  revokeCause: Stream<string | undefined>;
   revokedBecauseUserDeleted: Stream<boolean>;
 
   private constructor(id: number,
@@ -113,17 +112,17 @@ export class AccessToken extends ValidatableMixin {
                       errors: Errors = new Errors()) {
     super();
     ValidatableMixin.call(this);
-    this.id                        = stream(id);
-    this.description               = stream(description);
-    this.username                  = stream(username);
-    this.createdAt                 = stream(createdAt);
-    this.lastUsedAt                = stream(lastUsedAt);
-    this.token                     = stream(token);
-    this.revoked                   = stream(revoked);
-    this.revokedAt                 = stream(revokedAt);
-    this.revokedBy                 = stream(revokedBy);
-    this.revokeCause               = stream(revokeCause);
-    this.revokedBecauseUserDeleted = stream(revokedBecauseUserDeleted || false);
+    this.id                        = Stream(id);
+    this.description               = Stream(description);
+    this.username                  = Stream(username);
+    this.createdAt                 = Stream(createdAt);
+    this.lastUsedAt                = Stream(lastUsedAt);
+    this.token                     = Stream(token);
+    this.revoked                   = Stream(revoked);
+    this.revokedAt                 = Stream(revokedAt);
+    this.revokedBy                 = Stream(revokedBy);
+    this.revokeCause               = Stream(revokeCause);
+    this.revokedBecauseUserDeleted = Stream(revokedBecauseUserDeleted || false);
     this.errors(errors);
     this.validatePresenceOf("description");
   }

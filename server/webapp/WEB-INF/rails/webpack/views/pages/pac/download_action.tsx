@@ -17,8 +17,7 @@
 import {el} from "helpers/dom";
 import {MithrilComponent} from "jsx/mithril-component";
 import m from "mithril";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {Errors} from "models/mixins/errors";
 import {Primary} from "views/components/buttons";
 import css from "views/pages/pac/styles.scss";
@@ -26,8 +25,8 @@ import {PipelineConfigVMAware as Attrs} from "views/pages/pipelines/pipeline_con
 import {ServerErrors} from "views/pages/pipelines/server_errors";
 
 export class DownloadAction extends MithrilComponent<Attrs> {
-  private globalError: Stream<string> = stream();
-  private globalErrorDetail: Stream<Errors> = stream();
+  private globalError: Stream<string> = Stream();
+  private globalErrorDetail: Stream<Errors> = Stream();
 
   view(vnode: m.Vnode<Attrs>) {
     return <div class={css.downloadAction}>
@@ -72,7 +71,7 @@ export class DownloadAction extends MithrilComponent<Attrs> {
   }
 
   clearErrors() {
-    this.globalError = stream();
-    this.globalErrorDetail = stream();
+    this.globalError = Stream();
+    this.globalErrorDetail = Stream();
   }
 }

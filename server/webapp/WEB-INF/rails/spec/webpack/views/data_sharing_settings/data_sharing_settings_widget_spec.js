@@ -73,7 +73,7 @@ describe("Data Sharing Settings Widget", () => {
 
   it('should not show the last updated by time and username', () => {
     settings.updatedBy('Bob');
-    m.redraw();
+    m.redraw.sync();
 
     const updatedByMessage = `${settings.updatedBy()} changed the data sharing permission on ${settings.updatedOn()}.`;
 
@@ -93,7 +93,7 @@ describe("Data Sharing Settings Widget", () => {
     expect(helper.find('.switch input')).toBeChecked();
 
     simulateEvent.simulate(helper.find('.switch input').get(0), 'click');
-    m.redraw();
+    m.redraw.sync();
 
     expect(settings.allowed()).toBe(false);
     expect(helper.find('.switch input')).not.toBeChecked();
@@ -104,7 +104,7 @@ describe("Data Sharing Settings Widget", () => {
     expect(helper.find('.human-readable-consent')).toContainText('Yes');
 
     settings.toggleConsent();
-    m.redraw();
+    m.redraw.sync();
 
     expect(settings.allowed()).toBe(false);
     expect(helper.find('.human-readable-consent')).toContainText('No');
@@ -185,7 +185,7 @@ describe("Data Sharing Settings Widget", () => {
   it('should show what data would have been sent when GoCD data sharing is not allowed', () => {
     settings.allowed(false);
 
-    m.redraw();
+    m.redraw.sync();
 
     expect(settings.allowed()).toBe(false);
 
@@ -208,7 +208,7 @@ describe("Data Sharing Settings Widget", () => {
       expect(settings.allowed()).toBe(false);
 
       simulateEvent.simulate(helper.find('.reset-consent').get(0), 'click');
-      m.redraw();
+      m.redraw.sync();
 
       expect(settings.allowed()).toBe(true);
     });
@@ -219,7 +219,7 @@ describe("Data Sharing Settings Widget", () => {
       expect(settings.allowed()).toBe(false);
 
       simulateEvent.simulate(helper.find('.reset-consent').get(0), 'click');
-      m.redraw();
+      m.redraw.sync();
 
       expect(settings.allowed()).toBe(true);
 
@@ -242,7 +242,7 @@ describe("Data Sharing Settings Widget", () => {
         expect(settings.allowed()).toBe(false);
 
         simulateEvent.simulate(helper.find('.update-consent').get(0), 'click');
-        m.redraw();
+        m.redraw.sync();
 
         expect(settings.allowed()).toBe(false);
       });
@@ -275,7 +275,7 @@ describe("Data Sharing Settings Widget", () => {
         expect(helper.find('.callout')).not.toBeInDOM();
 
         simulateEvent.simulate(helper.find('.update-consent').get(0), 'click');
-        m.redraw();
+        m.redraw.sync();
 
         expect(helper.find('.callout')).toBeInDOM();
         expect(helper.find('.callout')).toHaveClass('success');
@@ -301,7 +301,7 @@ describe("Data Sharing Settings Widget", () => {
         expect(helper.find('.callout')).not.toBeInDOM();
 
         simulateEvent.simulate(helper.find('.update-consent').get(0), 'click');
-        m.redraw();
+        m.redraw.sync();
 
         expect(helper.find('.callout')).toBeInDOM();
         expect(helper.find('.callout')).toHaveClass('alert');
@@ -326,13 +326,14 @@ describe("Data Sharing Settings Widget", () => {
         expect(helper.find('.callout')).not.toBeInDOM();
 
         simulateEvent.simulate(helper.find('.update-consent').get(0), 'click');
-        m.redraw();
+        m.redraw.sync();
 
         expect(helper.find('.callout')).toBeInDOM();
         expect(helper.find('.callout')).toHaveClass('alert');
         expect(helper.find('.callout')).toContainText(response.message);
 
         jasmine.clock().tick(5001);
+        m.redraw.sync();
 
         expect(helper.find('.callout')).not.toBeInDOM();
       });

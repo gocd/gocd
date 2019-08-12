@@ -46,6 +46,13 @@ const getHostnameLink = function (isUserAdmin, agent) {
   return <a href={agentJobHistoryPath(agent.uuid())}>{agent.hostname()}</a>;
 };
 
+function withAttr(attrName, callback1, context) {
+  return function(e) {
+    callback1.call(context || this, attrName in e.currentTarget ? e.currentTarget[attrName] : e.currentTarget.getAttribute(attrName));
+  };
+}
+
+
 export const AgentRowWidget = {
   oninit(vnode) {
     const args = vnode.attrs;
@@ -114,7 +121,7 @@ export const AgentRowWidget = {
         <input type="checkbox"
                class="select-agent"
                checked={args.checkBoxModel()}
-               onclick={m.withAttr('checked', args.checkBoxModel)}/>
+               onclick={withAttr('checked', args.checkBoxModel)}/>
       );
     }
 
@@ -172,7 +179,7 @@ export const AgentRowWidget = {
           <label class="hide-for-large">Environments</label>
           <span class="content">{environmentNames}</span>
         </td>
-        {analyticsIcon}
+        {m.fragment({key: `analytics-icon-for-${agent.uuid()}`}, [analyticsIcon])}
       </tr>
     );
   }

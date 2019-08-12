@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import m from "mithril";
 import * as simulateEvent from "simulate-event";
 import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
 import {ModalManager} from "views/components/modal/modal_manager";
@@ -20,13 +22,17 @@ import "views/components/modal/spec/modal_matchers";
 
 describe("DeleteConfirmModal", () => {
 
-  afterEach(ModalManager.closeAll);
+  afterEach(() => {
+    ModalManager.closeAll();
+    m.redraw.sync();
+  });
 
   it("should render", () => {
     const spy = jasmine.createSpy("delete callback");
 
     const modal = new DeleteConfirmModal("You will no longer be able to time travel!", spy, "Delete flux capacitor?");
     modal.render();
+    m.redraw.sync();
 
     expect(modal).toContainTitle("Delete flux capacitor?");
     expect(modal).toContainButtons(["No", "Yes Delete"]);
@@ -38,10 +44,12 @@ describe("DeleteConfirmModal", () => {
 
     const modal = new DeleteConfirmModal("You will no longer be able to time travel!", spy, "Delete flux capacitor?");
     modal.render();
+    m.redraw.sync();
 
     // @ts-ignore
     expect(document.querySelector(".component-modal-container").children.length).toBe(1);
     simulateEvent.simulate(document.body, "keydown", {key: "Escape", keyCode: 27});
+    m.redraw.sync();
     // @ts-ignore
     expect(document.querySelector(".component-modal-container").children.length).toBe(0);
   });
@@ -51,10 +59,12 @@ describe("DeleteConfirmModal", () => {
 
     const modal = new DeleteConfirmModal("You will no longer be able to time travel!", spy, "Delete flux capacitor?");
     modal.render();
+    m.redraw.sync();
 
     expect(spy).not.toHaveBeenCalled();
 
     simulateEvent.simulate(document.querySelector("[data-test-id='button-delete']") as Element, "click");
+    m.redraw.sync();
 
     expect(spy).toHaveBeenCalled();
   });
@@ -64,10 +74,12 @@ describe("DeleteConfirmModal", () => {
 
     const modal = new DeleteConfirmModal("You will no longer be able to time travel!", spy, "Delete flux capacitor?");
     modal.render();
+    m.redraw.sync();
 
     expect(spy).not.toHaveBeenCalled();
 
     simulateEvent.simulate(document.querySelector("[data-test-id='button-no-delete']") as Element, "click");
+    m.redraw.sync();
 
     expect(spy).not.toHaveBeenCalled();
     // @ts-ignore

@@ -15,8 +15,7 @@
  */
 
 import m from "mithril";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {User} from "models/users/users";
 import "views/components/table/spec/table_matchers";
 import {TestHelper} from "views/pages/spec/test_helper";
@@ -31,7 +30,7 @@ describe("Super Admin Toggle", () => {
       onToggleAdmin: (e: MouseEvent, user: User) => void;
 
   beforeEach(() => {
-    userViewHelper = stream(new UserViewHelper());
+    userViewHelper = Stream(new UserViewHelper());
     userViewHelper().systemAdmins().users(["bob"]);
     user          = bob();
     onToggleAdmin = jasmine.createSpy("onRemoveAdmin");

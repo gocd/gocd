@@ -15,7 +15,7 @@
  */
 
 import m from "mithril";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {Rule, Rules} from "models/secret_configs/rules";
 import {rulesTestData, ruleTestData} from "models/secret_configs/spec/test_data";
 import * as simulateEvent from "simulate-event";
@@ -36,7 +36,7 @@ describe("RulesWidget", () => {
 
   it("should show rule if it is present", () => {
     const ruleJSON = ruleTestData();
-    const rules    = new Rules(stream(Rule.fromJSON(ruleJSON)));
+    const rules    = new Rules(Stream(Rule.fromJSON(ruleJSON)));
 
     mount(rules);
 
@@ -82,6 +82,6 @@ describe("RulesWidget", () => {
   });
 
   function mount(rules: Rules, resources: Map<string, string[]> = new Map()) {
-    helper.mount(() => <RulesWidget rules={stream(rules)} resourceAutocompleteHelper={resources} minChars={0}/>);
+    helper.mount(() => <RulesWidget rules={Stream(rules)} resourceAutocompleteHelper={resources} minChars={0}/>);
   }
 });

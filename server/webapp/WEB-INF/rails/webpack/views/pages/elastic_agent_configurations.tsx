@@ -15,8 +15,7 @@
  */
 import {ErrorResponse} from "helpers/api_request_builder";
 import m from "mithril";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {ClusterProfilesCRUD} from "models/elastic_profiles/cluster_profiles_crud";
 import {ElasticAgentProfilesCRUD} from "models/elastic_profiles/elastic_agent_profiles_crud";
 import {ClusterProfile, ClusterProfiles, ElasticAgentProfile, ElasticAgentProfiles} from "models/elastic_profiles/types";
@@ -47,7 +46,7 @@ export interface State extends RequiresPluginInfos, ClusterProfilesWidgetAttrs, 
 
 export class ElasticProfilesPage extends Page<null, State> {
   oninit(vnode: m.Vnode<null, State>) {
-    vnode.state.pluginInfos     = stream();
+    vnode.state.pluginInfos     = Stream();
     vnode.state.clusterProfiles = new ClusterProfiles([]);
     vnode.state.elasticProfiles = new ElasticAgentProfiles([]);
 
@@ -58,14 +57,14 @@ export class ElasticProfilesPage extends Page<null, State> {
         event.stopPropagation();
         this.flashMessage.clear();
 
-        new CloneElasticProfileModal(elasticProfile.id(), elasticProfile.pluginId(), vnode.state.pluginInfos(), vnode.state.clusterProfiles, vnode.state.onSuccessfulSave).render();
+        new CloneElasticProfileModal(elasticProfile.id()!, elasticProfile.pluginId()!, vnode.state.pluginInfos(), vnode.state.clusterProfiles, vnode.state.onSuccessfulSave).render();
       },
 
       onEdit: (elasticProfile: ElasticAgentProfile, event: MouseEvent) => {
         event.stopPropagation();
         this.flashMessage.clear();
 
-        new EditElasticProfileModal(elasticProfile.id(), elasticProfile.pluginId(), vnode.state.pluginInfos(), vnode.state.clusterProfiles, vnode.state.onSuccessfulSave).render();
+        new EditElasticProfileModal(elasticProfile.id()!, elasticProfile.pluginId()!, vnode.state.pluginInfos(), vnode.state.clusterProfiles, vnode.state.onSuccessfulSave).render();
       },
 
       onDelete: (id: string, event: MouseEvent) => {
@@ -108,7 +107,7 @@ export class ElasticProfilesPage extends Page<null, State> {
         event.stopPropagation();
         this.flashMessage.clear();
 
-        new EditClusterProfileModal(clusterProfile.id(), vnode.state.pluginInfos(), vnode.state.onSuccessfulSave).render();
+        new EditClusterProfileModal(clusterProfile.id()!, vnode.state.pluginInfos(), vnode.state.onSuccessfulSave).render();
       },
 
       onDelete: (clusterProfileId: string, event: MouseEvent) => {
@@ -149,7 +148,7 @@ export class ElasticProfilesPage extends Page<null, State> {
         event.stopPropagation();
         this.flashMessage.clear();
 
-        new CloneClusterProfileModal(clusterProfile.id(), vnode.state.pluginInfos(), vnode.state.onSuccessfulSave).render();
+        new CloneClusterProfileModal(clusterProfile.id()!, vnode.state.pluginInfos(), vnode.state.onSuccessfulSave).render();
       },
     };
 
@@ -158,7 +157,7 @@ export class ElasticProfilesPage extends Page<null, State> {
     };
 
     const onOperationError = (errorResponse: ErrorResponse) => {
-      vnode.state.onError(errorResponse.message);
+      vnode.state.onError(JSON.parse(errorResponse.body!).message);
     };
 
     vnode.state.onSuccessfulSave = (msg: m.Children) => {

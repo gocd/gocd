@@ -17,7 +17,7 @@
 import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {AuthConfig} from "models/auth_configs/auth_configs";
 import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
 import {AuthorizationSettings} from "models/shared/plugin_infos_new/extensions";
@@ -43,7 +43,7 @@ export class AuthConfigModalBody extends MithrilViewComponent<Attrs> {
       return {id: pluginInfo.id, text: pluginInfo.about.name};
     });
 
-    const pluginInfo     = this.findPluginInfo(vnode.attrs.pluginInfos, vnode.attrs.authConfig.pluginId());
+    const pluginInfo     = this.findPluginInfo(vnode.attrs.pluginInfos, vnode.attrs.authConfig.pluginId()!);
     const pluginSettings = (pluginInfo.extensionOfType(ExtensionType.AUTHORIZATION)! as AuthorizationSettings).authConfigSettings;
     let mayBeMessage: any;
     if (vnode.attrs.message) {
@@ -73,7 +73,7 @@ export class AuthConfigModalBody extends MithrilViewComponent<Attrs> {
         <div>
           <div class="row collapse">
             <AngularPluginNew
-              pluginInfoSettings={stream(pluginSettings)}
+              pluginInfoSettings={Stream(pluginSettings)}
               configuration={vnode.attrs.authConfig.properties()}
               key={pluginInfo.id}/>
           </div>

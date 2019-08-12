@@ -77,7 +77,9 @@ export class UsersTableWidget extends MithrilViewComponent<Attrs> {
                   <div class={styles.tableCell}>
                     <input type="checkbox" class={styles.formCheck}
                            checked={user.checked()}
-                           onclick={m.withAttr("checked", user.checked)}/>
+                           onclick={() => {
+                             user.checked(!user.checked());
+                           }}/>
                   </div>
                   <div class={styles.tableCell} data-test-id="user-username">
                     <span>{user.loginName()}</span>

@@ -52,7 +52,7 @@ describe("TabComponent", () => {
     expect(helper.findByDataTestId("tab-content-1")).toBeHidden();
 
     simulateEvent.simulate(helper.findByDataTestId("tab-header-1").get(0), "click");
-    m.redraw();
+    m.redraw.sync();
 
     expect(helper.findByDataTestId("tab-header-0")).not.toHaveClass(styles.active);
     expect(helper.findByDataTestId("tab-content-0")).toBeHidden();

@@ -15,9 +15,7 @@
  */
 
 import {JsonUtils} from "helpers/json_utils";
-import _ from "lodash";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {EnvironmentVariableConfig} from "models/pipeline_configs/environment_variable_config";
 import {Task} from "models/pipeline_configs/task";
@@ -30,9 +28,9 @@ export class Job extends ValidatableMixin {
   constructor(name: string, tasks: Task[], envVars?: EnvironmentVariableConfig[]) {
     super();
 
-    this.name = stream(name);
-    this.tasks = stream(tasks);
-    this.environmentVariables = stream(envVars);
+    this.name = Stream(name);
+    this.tasks = Stream(tasks);
+    this.environmentVariables = Stream(envVars!);
     this.validatePresenceOf("name");
     this.validateIdFormat("name");
 

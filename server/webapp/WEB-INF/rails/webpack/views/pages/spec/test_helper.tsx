@@ -140,7 +140,7 @@ export class TestHelper {
   }
 
   redraw() {
-    m.redraw();
+    m.redraw.sync();
   }
 
   dump() {

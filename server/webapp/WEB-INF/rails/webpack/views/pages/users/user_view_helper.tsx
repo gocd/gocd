@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {SystemAdmins} from "models/admins/types";
 import {User} from "models/users/users";
 import {FlashMessageModelWithTimeout, MessageType} from "views/components/flash_message";
 
 export class UserViewHelper {
-  readonly systemAdmins      = stream(new SystemAdmins([], []));
+  readonly systemAdmins      = Stream(new SystemAdmins([], []));
   private readonly viewState = new Map<string, FlashMessageModelWithTimeout>();
 
   noAdminsConfigured(): boolean {

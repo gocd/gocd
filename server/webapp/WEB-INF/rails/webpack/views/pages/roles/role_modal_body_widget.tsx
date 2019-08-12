@@ -17,8 +17,7 @@
 import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {AuthConfig, AuthConfigs} from "models/auth_configs/auth_configs";
 import {GoCDAttributes, GoCDRole, PluginAttributes, PluginRole} from "models/roles/roles";
 import {Configurations} from "models/shared/configuration";
@@ -44,7 +43,7 @@ interface PluginModalAttrs extends ModalAttrs {
 }
 
 export class GoCDRoleModalBodyWidget extends MithrilViewComponent<ModalAttrs> {
-  private newUser: Stream<string> = stream();
+  private newUser: Stream<string> = Stream();
   private lastUserAdded?: string;
 
   view(vnode: m.Vnode<ModalAttrs>): m.Children | void | null {
@@ -76,7 +75,7 @@ export class GoCDRoleModalBodyWidget extends MithrilViewComponent<ModalAttrs> {
     if (this.newUser && this.newUser() && this.newUser().length > 0) {
       (vnode.attrs.role.attributes() as GoCDAttributes).addUser(this.newUser());
       this.lastUserAdded = this.newUser();
-      this.newUser       = stream("");
+      this.newUser       = Stream("");
     }
   }
 }
@@ -99,11 +98,11 @@ export class PluginRoleModalBodyWidget extends MithrilViewComponent<PluginModalA
       if (!authConfigOfInstalledPlugin) {
         return;
       }
-      authID = authConfigOfInstalledPlugin.id();
+      authID = authConfigOfInstalledPlugin.id()!;
     }
 
     const authConfig              = vnode.attrs.authConfigs.findById(authID);
-    pluginAttributes.authConfigId = authConfig.id();
+    pluginAttributes.authConfigId = authConfig.id()!;
     const pluginInfo              = _.find(vnode.attrs.pluginInfos, (pl) => pl.id === authConfig.pluginId());
 
     if (!pluginInfo) {
@@ -150,7 +149,7 @@ export class PluginRoleModalBodyWidget extends MithrilViewComponent<PluginModalA
         <div>
           <div class="row collapse">
             <AngularPluginNew
-              pluginInfoSettings={stream(pluginSettings)}
+              pluginInfoSettings={Stream(pluginSettings)}
               configuration={new Configurations(pluginAttributes.properties())}
               key={pluginInfo.id}/>
           </div>
@@ -164,7 +163,7 @@ export class PluginRoleModalBodyWidget extends MithrilViewComponent<PluginModalA
     if (newValue && attributes.authConfigId !== newValue) {
       const authConfig = vnode.attrs.authConfigs.findById(newValue);
       if (authConfig) {
-        attributes.authConfigId = authConfig.id();
+        attributes.authConfigId = authConfig.id()!;
       }
     }
     return attributes.authConfigId;

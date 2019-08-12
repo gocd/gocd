@@ -15,7 +15,7 @@
  */
 
 import m from "mithril";
-import {Stream} from "mithril/stream";
+import Stream from "mithril/stream";
 import {ArtifactStore, ArtifactStoreJSON} from "models/artifact_stores/artifact_stores";
 import {ArtifactStoresCRUD} from "models/artifact_stores/artifact_stores_crud";
 import {Configurations} from "models/shared/configuration";

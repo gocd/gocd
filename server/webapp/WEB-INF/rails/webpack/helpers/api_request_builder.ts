@@ -16,7 +16,7 @@
 import {CaseInsensitiveMap} from "helpers/collections";
 import _ from "lodash";
 import m from "mithril";
-import {Stream} from "mithril/stream";
+import Stream from "mithril/stream";
 
 export enum ApiVersion {v1, v2, v3, v4, v5, v6, v7, v8}
 
@@ -32,6 +32,7 @@ export interface SuccessResponse<T> {
 export interface ErrorResponse {
   message: string; //more fields can be added if needed
   body?: string;
+  data?: object;
 }
 
 export class ApiResult<T> {
@@ -110,6 +111,15 @@ export class ApiResult<T> {
     if (this.successResponse) {
       return this.successResponse;
     } else {
+      if (this.errorResponse!.body) {
+        try {
+          return JSON.parse(this.errorResponse!.body);
+        } catch (e) {
+          //may be parse of the json failed, return the string response as is..
+          return this.errorResponse!.body;
+        }
+      }
+
       return this.errorResponse;
     }
   }
@@ -210,7 +220,7 @@ export class ApiRequestBuilder {
                                        url,
                                        method,
                                        headers,
-                                       data: payload,
+                                       body: payload,
                                        extract: _.identity,
                                        deserialize: _.identity,
                                        config: (xhr) => {
@@ -223,7 +233,10 @@ export class ApiRequestBuilder {
     }).catch((reason) => {
       const unknownError = "There was an unknown error performing the operation.";
       try {
-        return ApiResult.error(reason.responseText, JSON.parse(reason.message).message || unknownError, reason.status, new Map());
+        return ApiResult.error(reason.responseText,
+                               JSON.parse(reason.message).message || unknownError,
+                               reason.status,
+                               new Map());
       } catch {
         return ApiResult.error(reason.responseText, unknownError, reason.status, new Map());
       }

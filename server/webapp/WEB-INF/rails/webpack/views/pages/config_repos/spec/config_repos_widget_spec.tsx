@@ -15,8 +15,7 @@
  */
 
 import m from "mithril";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {ConfigRepo} from "models/config_repos/types";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {ScrollManager} from "views/components/anchor/anchor";
@@ -65,8 +64,8 @@ describe("ConfigReposWidget", () => {
     showEditModal   = jasmine.createSpy("showEditModal");
     reparseRepo     = jasmine.createSpy("reparseRepo");
     sm              = stubAllMethods(["shouldScroll", "getTarget", "setTarget", "scrollToEl"]);
-    models          = stream([] as ConfigRepoVM[]);
-    pluginInfos     = stream([] as Array<PluginInfo<any>>);
+    models          = Stream([] as ConfigRepoVM[]);
+    pluginInfos     = Stream([] as Array<PluginInfo<any>>);
 
     helper.mount(() => <ConfigReposWidget {...{
       models,
@@ -196,8 +195,8 @@ describe("ConfigReposWidget", () => {
     expect(helper.byTestId("plugin-icon"))
       .toHaveAttr("src", "http://localhost:8153/go/api/plugin_images/json.config.plugin/f787");
 
-    expect(repoIds[0]).toContainText(repo1.id());
-    expect(repoIds[1]).toContainText(repo2.id());
+    expect(repoIds[0]).toContainText(repo1.id()!);
+    expect(repoIds[1]).toContainText(repo2.id()!);
   });
 
   it("should render config repo's plugin-id, material url, commit-message, username and revision in header", () => {

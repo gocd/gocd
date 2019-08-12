@@ -16,8 +16,7 @@
 
 import {ErrorResponse, SuccessResponse} from "helpers/api_request_builder";
 import m from "mithril";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {EnvironmentCRUD} from "models/environments/environment_crud";
 import {PipelineGroupCRUD} from "models/pipeline_configs/pipeline_groups_cache";
 import {Rule, Rules} from "models/secret_configs/rules";
@@ -53,7 +52,7 @@ interface State extends RequiresPluginInfos, AddOperation<SecretConfig>, EditOpe
 export class SecretConfigsPage extends Page<null, State> {
   oninit(vnode: m.Vnode<null, State>) {
     super.oninit(vnode);
-    vnode.state.resourceAutocompleteHelper = stream(new Map());
+    vnode.state.resourceAutocompleteHelper = Stream(new Map());
 
     vnode.state.onAdd = (e) => {
       e.stopPropagation();
@@ -63,7 +62,7 @@ export class SecretConfigsPage extends Page<null, State> {
                                                    "",
                                                    id,
                                                    new Configurations([]),
-                                                   new Rules(stream(new Rule("deny", "refer", "*", "*")))),
+                                                   new Rules(Stream(new Rule("deny", "refer", "*", "*")))),
                                   vnode.state.pluginInfos(),
                                   vnode.state.onSuccessfulSave, vnode.state.resourceAutocompleteHelper()).render();
     };
@@ -140,13 +139,13 @@ export class SecretConfigsPage extends Page<null, State> {
     return Promise.all([PluginInfoCRUD.all({type: ExtensionType.SECRETS}), SecretConfigsCRUD.all(), PipelineGroupCRUD.all(), EnvironmentCRUD.all()])
                   .then((results) => {
                     results[0].do((successResponse) => {
-                      vnode.state.pluginInfos = stream(successResponse.body);
+                      vnode.state.pluginInfos = Stream(successResponse.body);
                       this.pageState          = PageState.OK;
                     }, () => this.setErrorState());
 
                     results[1].do((successResponse) => {
                       this.pageState            = PageState.OK;
-                      vnode.state.secretConfigs = stream(successResponse.body);
+                      vnode.state.secretConfigs = Stream(successResponse.body);
                     }, () => this.setErrorState());
 
                     results[2].do((successResponse) => {

@@ -22,6 +22,7 @@ import {ModalBody} from "views/dashboard/trigger_with_options/modal_body";
 import {Modal} from "views/shared/new_modal";
 import Stream from "mithril/stream";
 import m from "mithril";
+import * as simulateEvent from "simulate-event";
 
 describe("Dashboard Pipeline Trigger With Options Modal Body", () => {
 
@@ -120,7 +121,8 @@ describe("Dashboard Pipeline Trigger With Options Modal Body", () => {
     expect(envContent).toHaveClass('hidden');
     expect(secureEnvContent).toHaveClass('hidden');
 
-    helper.find('.pipeline_options-heading li').get(1).click();
+    simulateEvent.simulate(helper.find('.pipeline_options-heading li').get(1), 'click');
+    m.redraw.sync();
 
     expect(helper.find('.pipeline_options-heading li').get(1)).toHaveClass('active');
 
@@ -132,7 +134,7 @@ describe("Dashboard Pipeline Trigger With Options Modal Body", () => {
   it('should not render the environment variables tab and content if no environment variables are present', () => {
     triggerWithOptionsInfo(TriggerWithOptionsInfo.fromJSON({variables: [], materials: json.materials}));
     vm.initialize(triggerWithOptionsInfo());
-    m.redraw();
+    m.redraw.sync();
     const headings = helper.find('.pipeline_options-heading li');
 
     expect(headings.length).toBe(1);

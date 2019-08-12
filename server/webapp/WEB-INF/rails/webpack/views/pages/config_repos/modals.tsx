@@ -17,8 +17,7 @@ import {ApiResult, ErrorResponse, ObjectWithEtag} from "helpers/api_request_buil
 import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {ConfigReposCRUD} from "models/config_repos/config_repos_crud";
 import {
   ConfigRepo,
@@ -75,10 +74,10 @@ class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
                                   items={pluginList}/>
             </SelectField>
             <SelectField label={"Material type"}
-                         property={vnode.attrs.repo.material().typeProxy.bind(vnode.attrs.repo.material())}
+                         property={vnode.attrs.repo.material()!.typeProxy.bind(vnode.attrs.repo.material()!)}
                          required={true}
                          errorText={vnode.attrs.repo.errors().errorsForDisplay("material")}>
-              <SelectFieldOptions selected={vnode.attrs.repo.material().type()}
+              <SelectFieldOptions selected={vnode.attrs.repo.material()!.type()}
                                   items={this.materialSelectOptions()}/>
             </SelectField>
             <TextField label="Config repository ID"
@@ -96,7 +95,7 @@ class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
                 </Form>
               </FormBody>
               <div class={styles.materialTestConnectionWrapper}>
-                <TestConnection material={vnode.attrs.repo.material()}/>
+                <TestConnection material={vnode.attrs.repo.material()!}/>
               </div>
             </div>
             <div class={styles.pluginFilePatternConfigWrapper}>
@@ -147,7 +146,7 @@ const NewMaterialComponent = {
 const MATERIAL_TO_COMPONENT_MAP: { [key: string]: MithrilViewComponent<EditableMaterial> } = {
   git: {
     view(vnode: m.Vnode<EditableMaterial>) {
-      const materialAttributes = vnode.attrs.repo.material().attributes() as GitMaterialAttributes;
+      const materialAttributes = vnode.attrs.repo.material()!.attributes() as GitMaterialAttributes;
 
       return (
         <MaterialEditWidget {...vnode.attrs}>
@@ -173,7 +172,7 @@ const MATERIAL_TO_COMPONENT_MAP: { [key: string]: MithrilViewComponent<EditableM
 
   svn: {
     view(vnode: m.Vnode<EditableMaterial>) {
-      const materialAttributes = vnode.attrs.repo.material().attributes() as SvnMaterialAttributes;
+      const materialAttributes = vnode.attrs.repo.material()!.attributes() as SvnMaterialAttributes;
 
       return (
         <MaterialEditWidget {...vnode.attrs}>
@@ -197,7 +196,7 @@ const MATERIAL_TO_COMPONENT_MAP: { [key: string]: MithrilViewComponent<EditableM
 
   hg: {
     view(vnode: m.Vnode<EditableMaterial>) {
-      const materialAttributes = vnode.attrs.repo.material().attributes() as HgMaterialAttributes;
+      const materialAttributes = vnode.attrs.repo.material()!.attributes() as HgMaterialAttributes;
 
       return (
         <MaterialEditWidget {...vnode.attrs}>
@@ -222,7 +221,7 @@ const MATERIAL_TO_COMPONENT_MAP: { [key: string]: MithrilViewComponent<EditableM
 
   p4: {
     view(vnode: m.Vnode<EditableMaterial>) {
-      const materialAttributes = vnode.attrs.repo.material().attributes() as P4MaterialAttributes;
+      const materialAttributes = vnode.attrs.repo.material()!.attributes() as P4MaterialAttributes;
       return (
         <MaterialEditWidget {...vnode.attrs}>
           <TextField label={humanizedMaterialAttributeName("port")}
@@ -250,7 +249,7 @@ const MATERIAL_TO_COMPONENT_MAP: { [key: string]: MithrilViewComponent<EditableM
 
   tfs: {
     view(vnode: m.Vnode<EditableMaterial>) {
-      const materialAttributes = vnode.attrs.repo.material().attributes() as TfsMaterialAttributes;
+      const materialAttributes = vnode.attrs.repo.material()!.attributes() as TfsMaterialAttributes;
 
       return (
         <MaterialEditWidget {...vnode.attrs}>
@@ -310,10 +309,11 @@ export abstract class ConfigRepoModal extends Modal {
     }
     let materialtocomponentmapElement;
 
-    if (!this.getRepo().material().type()) {
+    const material = this.getRepo().material()!;
+    if (!material.type()) {
       materialtocomponentmapElement = NewMaterialComponent;
     } else {
-      materialtocomponentmapElement = MATERIAL_TO_COMPONENT_MAP[this.getRepo().material().type()];
+      materialtocomponentmapElement = MATERIAL_TO_COMPONENT_MAP[material.type()!];
     }
 
     return m(materialtocomponentmapElement,
@@ -338,7 +338,7 @@ export abstract class ConfigRepoModal extends Modal {
   abstract performSave(): void;
 
   protected handleAutoUpdateError() {
-    const errors = this.getRepo().material().attributes().errors();
+    const errors = this.getRepo().material()!.attributes()!.errors();
     if (errors.hasErrors("auto_update")) {
       this.error = errors.errorsForDisplay("auto_update");
     }
@@ -348,7 +348,7 @@ export abstract class ConfigRepoModal extends Modal {
 }
 
 export class NewConfigRepoModal extends ConfigRepoModal {
-  private readonly repo: Stream<ConfigRepo> = stream();
+  private readonly repo: Stream<ConfigRepo> = Stream();
 
   constructor(onSuccessfulSave: (msg: (m.Children)) => any,
               onError: (msg: (m.Children)) => any,
@@ -384,7 +384,7 @@ export class NewConfigRepoModal extends ConfigRepoModal {
   }
 
   private onSuccess() {
-    this.onSuccessfulSave(<span>The config repository <em>{this.repo().id}</em> was created successfully!</span>);
+    this.onSuccessfulSave(<span>The config repository <em>{this.repo().id()}</em> was created successfully!</span>);
     this.close();
   }
 
@@ -402,7 +402,7 @@ export class NewConfigRepoModal extends ConfigRepoModal {
 
 export class EditConfigRepoModal extends ConfigRepoModal {
   private readonly repoId: string;
-  private repoWithEtag: Stream<ObjectWithEtag<ConfigRepo>> = stream();
+  private repoWithEtag: Stream<ObjectWithEtag<ConfigRepo>> = Stream();
 
   constructor(repoId: string,
               onSuccessfulSave: (msg: (m.Children)) => any,
@@ -439,7 +439,7 @@ export class EditConfigRepoModal extends ConfigRepoModal {
   }
 
   private onSuccess() {
-    this.onSuccessfulSave(<span>The config repository <em>{this.getRepo().id}</em> was updated successfully!</span>);
+    this.onSuccessfulSave(<span>The config repository <em>{this.getRepo().id()}</em> was updated successfully!</span>);
     this.close();
   }
 

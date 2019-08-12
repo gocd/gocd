@@ -17,8 +17,7 @@
 import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import * as Buttons from "views/components/buttons/index";
 import {ModalManager} from "views/components/modal/modal_manager";
 import styles from "./index.scss";
@@ -47,7 +46,7 @@ export abstract class Step {
 export class Wizard extends MithrilViewComponent<{}> {
   public id: string                         = `modal-${uuid4()}`;
   private steps: Step[]                     = [];
-  private selectedStepIndex: Stream<number> = stream(0);
+  private selectedStepIndex: Stream<number> = Stream(0);
 
   view(vnode: m.Vnode<{}>): m.Vnode<{}> {
     const selectedStep = this.steps[this.selectedStepIndex()];

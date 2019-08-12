@@ -16,8 +16,7 @@
 
 import {ApiResult, ErrorResponse, ObjectWithEtag} from "helpers/api_request_builder";
 import m from "mithril";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {AuthConfigs} from "models/auth_configs/auth_configs";
 import {
   GoCDAttributes,
@@ -40,14 +39,14 @@ abstract class BaseRoleModal extends Modal {
   protected readonly pluginInfos: Array<PluginInfo<Extension>>;
   protected readonly authConfigs: AuthConfigs;
   protected readonly onSuccessfulSave: (msg: m.Children) => any;
-  protected readonly errorMessage: Stream<string> = stream();
+  protected readonly errorMessage: Stream<string> = Stream();
 
   constructor(role: GoCDRole | PluginRole,
               pluginInfos: Array<PluginInfo<Extension>>,
               authConfigsOfInstalledPlugin: AuthConfigs,
               onSuccessfulSave: (msg: m.Children) => any) {
     super(Size.large);
-    this.role             = stream(role);
+    this.role             = Stream(role);
     this.pluginInfos      = pluginInfos;
     this.authConfigs      = authConfigsOfInstalledPlugin;
     this.onSuccessfulSave = onSuccessfulSave;
@@ -71,7 +70,7 @@ abstract class BaseRoleModal extends Modal {
         role = new GoCDRole("", new GoCDAttributes([]));
         break;
     }
-    this.role = stream(role);
+    this.role = Stream(role);
   }
 
   validateAndPerformSave() {
@@ -150,8 +149,8 @@ export class NewRoleModal extends BaseRoleModal {
 }
 
 abstract class ModalWithFetch extends BaseRoleModal {
-  protected etag: Stream<string> = stream();
-  protected isStale = stream(true);
+  protected etag: Stream<string> = Stream();
+  protected isStale = Stream(true);
 
   constructor(role: GoCDRole | PluginRole,
               pluginInfos: Array<PluginInfo<Extension>>,

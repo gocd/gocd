@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {Errors} from "models/mixins/errors";
 import {applyMixins} from "models/mixins/mixins";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
@@ -34,8 +33,8 @@ export interface BackupConfig extends ValidatableMixin {
 }
 
 export class BackupConfig extends ValidatableMixin {
-  schedule: Stream<string>;
-  postBackupScript: Stream<string>;
+  schedule: Stream<string | undefined>;
+  postBackupScript: Stream<string | undefined>;
   emailOnSuccess: Stream<boolean>;
   emailOnFailure: Stream<boolean>;
 
@@ -46,10 +45,10 @@ export class BackupConfig extends ValidatableMixin {
               errors: Errors          = new Errors()) {
     super();
     ValidatableMixin.call(this);
-    this.schedule         = stream(schedule);
-    this.postBackupScript = stream(postBackupScript);
-    this.emailOnSuccess   = stream(emailOnSuccess);
-    this.emailOnFailure   = stream(emailOnFailure);
+    this.schedule         = Stream(schedule);
+    this.postBackupScript = Stream(postBackupScript);
+    this.emailOnSuccess   = Stream(emailOnSuccess);
+    this.emailOnFailure   = Stream(emailOnFailure);
     this.errors(errors);
   }
 

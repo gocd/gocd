@@ -41,28 +41,28 @@ describe("Config Repo Types", () => {
       const configRepo = new ConfigRepo("id", "pluginId", new Material("git", new GitMaterialAttributes()));
       expect(configRepo.isValid()).toBe(false);
       expect(configRepo.errors().count()).toBe(0);
-      expect(configRepo.material().errors().count()).toBe(0);
-      expect(configRepo.material().attributes().errors().count()).toBe(1);
-      expect(configRepo.material().attributes().errors().keys()).toEqual(["url"]);
+      expect(configRepo.material()!.errors().count()).toBe(0);
+      expect(configRepo.material()!.attributes()!.errors().count()).toBe(1);
+      expect(configRepo.material()!.attributes()!.errors().keys()).toEqual(["url"]);
     });
 
     it("should should validate SVN material attributes", () => {
       const configRepo = new ConfigRepo("id", "pluginId", new Material("svn", new SvnMaterialAttributes()));
       expect(configRepo.isValid()).toBe(false);
       expect(configRepo.errors().count()).toBe(0);
-      expect(configRepo.material().errors().count()).toBe(0);
-      expect(configRepo.material().attributes().errors().count()).toBe(1);
-      expect(configRepo.material().attributes().errors().keys()).toEqual(["url"]);
+      expect(configRepo.material()!.errors().count()).toBe(0);
+      expect(configRepo.material()!.attributes()!.errors().count()).toBe(1);
+      expect(configRepo.material()!.attributes()!.errors().keys()).toEqual(["url"]);
     });
 
     it("should should validate P4 material attributes", () => {
       const configRepo = new ConfigRepo("id", "pluginId", new Material("p4", new P4MaterialAttributes()));
       expect(configRepo.isValid()).toBe(false);
       expect(configRepo.errors().count()).toBe(0);
-      expect(configRepo.material().errors().count()).toBe(0);
-      expect(configRepo.material().attributes().errors().count()).toBe(2);
-      expect(configRepo.material().attributes().errors().keys()).toEqual(["view", "port"]);
-      expect(configRepo.material().attributes().errors().errorsForDisplay("port"))
+      expect(configRepo.material()!.errors().count()).toBe(0);
+      expect(configRepo.material()!.attributes()!.errors().count()).toBe(2);
+      expect(configRepo.material()!.attributes()!.errors().keys()).toEqual(["view", "port"]);
+      expect(configRepo.material()!.attributes()!.errors().errorsForDisplay("port"))
         .toEqual("Host and port must be present.");
     });
 
@@ -70,18 +70,18 @@ describe("Config Repo Types", () => {
       const configRepo = new ConfigRepo("id", "pluginId", new Material("hg", new HgMaterialAttributes()));
       expect(configRepo.isValid()).toBe(false);
       expect(configRepo.errors().count()).toBe(0);
-      expect(configRepo.material().errors().count()).toBe(0);
-      expect(configRepo.material().attributes().errors().count()).toBe(1);
-      expect(configRepo.material().attributes().errors().keys()).toEqual(["url"]);
+      expect(configRepo.material()!.errors().count()).toBe(0);
+      expect(configRepo.material()!.attributes()!.errors().count()).toBe(1);
+      expect(configRepo.material()!.attributes()!.errors().keys()).toEqual(["url"]);
     });
 
     it("should should validate TFS material attributes", () => {
       const configRepo = new ConfigRepo("id", "pluginId", new Material("tfs", new TfsMaterialAttributes()));
       expect(configRepo.isValid()).toBe(false);
       expect(configRepo.errors().count()).toBe(0);
-      expect(configRepo.material().errors().count()).toBe(0);
-      expect(configRepo.material().attributes().errors().count()).toBe(4);
-      expect(configRepo.material().attributes().errors().keys())
+      expect(configRepo.material()!.errors().count()).toBe(0);
+      expect(configRepo.material()!.attributes()!.errors().count()).toBe(4);
+      expect(configRepo.material()!.attributes()!.errors().keys())
         .toEqual(["url", "projectPath", "username", "password"]);
     });
 

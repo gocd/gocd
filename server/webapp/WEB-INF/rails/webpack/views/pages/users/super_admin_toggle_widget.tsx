@@ -16,8 +16,7 @@
 
 import {MithrilComponent} from "jsx/mithril-component";
 import m from "mithril";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {User} from "models/users/users";
 import {SwitchBtn} from "views/components/switch";
 import * as Tooltip from "views/components/tooltip";
@@ -37,11 +36,11 @@ export interface SuperAdminPrivilegeSwitchAttrs extends ToggleAdminOperation<Use
   user: User;
 }
 
-export class SuperAdminPrivilegeSwitch extends MithrilComponent<SuperAdminPrivilegeSwitchAttrs> {
+export class  SuperAdminPrivilegeSwitch extends MithrilComponent<SuperAdminPrivilegeSwitchAttrs> {
   view(vnode: m.Vnode<SuperAdminPrivilegeSwitchAttrs>): m.Children {
     let optionalTooltip;
     let isAdminText          = vnode.attrs.user.isAdmin() ? "YES" : "NO";
-    const loginName          = vnode.attrs.user.loginName;
+    const loginName          = vnode.attrs.user.loginName();
     const userViewHelper     = vnode.attrs.userViewHelper();
     const isUserActualAdmin  = (!userViewHelper.noAdminsConfigured() && vnode.attrs.user.isAdmin());
     const isUserGroupedAdmin = isUserActualAdmin && !userViewHelper.isIndividualAdmin(vnode.attrs.user);
@@ -60,7 +59,7 @@ export class SuperAdminPrivilegeSwitch extends MithrilComponent<SuperAdminPrivil
     }
 
     return <div class={styles.adminSwitchWrapper} data-test-id="admin-switch-wrapper">
-      <SwitchBtn field={stream((vnode.attrs.user.isAdmin() && !userViewHelper.noAdminsConfigured()))}
+      <SwitchBtn field={Stream((vnode.attrs.user.isAdmin() && !userViewHelper.noAdminsConfigured()))}
                  small={true}
                  disabled={isUserGroupedAdmin || !vnode.attrs.user.enabled() || userViewHelper
                    .isInProgress(vnode.attrs.user)}

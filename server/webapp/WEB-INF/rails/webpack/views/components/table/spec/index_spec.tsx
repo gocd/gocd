@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 import m from "mithril";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import * as simulateEvent from "simulate-event";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {Table, TableSortHandler} from "../index";
@@ -70,7 +69,7 @@ describe("TableComponent", () => {
       expect(helper.find(`[data-test-id='${"table-row"}']`)).toHaveText(initialOrderOfData);
 
       simulateEvent.simulate(helper.find(`.${styles.sortableColumn}`).get(0), "click");
-      m.redraw();
+      m.redraw.sync();
 
       expect(helper.find(`[data-test-id='${"table-row"}']`)).toHaveText(ascendingOrder);
     });
@@ -82,12 +81,12 @@ describe("TableComponent", () => {
       expect(helper.find(`[data-test-id='${"table-row"}']`)).toHaveText(initialOrderOfData);
 
       simulateEvent.simulate(helper.find(`.${styles.sortableColumn}`).get(0), "click");
-      m.redraw();
+      m.redraw.sync();
 
       expect(helper.find(`[data-test-id='${"table-row"}']`)).toHaveText(ascendingOrder);
 
       simulateEvent.simulate(helper.find(`.${styles.sortableColumn}`).get(0), "click");
-      m.redraw();
+      m.redraw.sync();
 
       expect(helper.find(`[data-test-id='${"table-row"}']`)).toHaveText(descendingOrder);
     });
@@ -98,13 +97,13 @@ describe("TableComponent", () => {
       expect(helper.find(`.${styles.sortButton}`)).toHaveClass(styles.inActive);
 
       simulateEvent.simulate(helper.find(`.${styles.sortableColumn}`).get(0), "click");
-      m.redraw();
+      m.redraw.sync();
 
       expect(helper.find(`.${styles.sortButton}`).eq(0)).not.toHaveClass(styles.inActive);
       expect(helper.find(`.${styles.sortButton}`).eq(1)).toHaveClass(styles.inActive);
 
       simulateEvent.simulate(helper.find(`.${styles.sortableColumn}`).get(1), "click");
-      m.redraw();
+      m.redraw.sync();
 
       expect(helper.find(`.${styles.sortButton}`).eq(0)).toHaveClass(styles.inActive);
       expect(helper.find(`.${styles.sortButton}`).eq(1)).not.toHaveClass(styles.inActive);
@@ -147,16 +146,16 @@ describe("TableComponent", () => {
       rowFirst.dispatchEvent(new DragEvent("dragstart", {
         dataTransfer
       }));
-      m.redraw();
+      m.redraw.sync();
       rowSecond.dispatchEvent(new DragEvent("dragover"));
-      m.redraw();
+      m.redraw.sync();
 
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).toHaveBeenCalledWith(0, 1);
       expect(helper.find(`.${styles.draggableOver}`)).toBeInDOM();
 
       rowFirst.dispatchEvent(new DragEvent("dragend"));
-      m.redraw();
+      m.redraw.sync();
 
       expect(rowFirst.textContent).toBe("CXN");
       expect(rowSecond.textContent).toBe("AZM");
@@ -170,7 +169,7 @@ describe("TableComponent", () => {
 });
 
 function getTestData() {
-  return stream(
+  return Stream(
     [
       ["A", "Z", "M"],
       ["C", "X", "N"],
@@ -178,7 +177,7 @@ function getTestData() {
     ]);
 }
 
-const testdata = stream([
+const testdata = Stream([
                           ["A", "Z", "M"],
                           ["C", "X", "N"],
                           ["B", "Y", "L"]]);

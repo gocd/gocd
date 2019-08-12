@@ -15,8 +15,7 @@
  */
 import {timeFormatter} from "helpers/time_formatter";
 import _ from "lodash";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {MaterialJSON, Materials} from "models/maintenance_mode/material";
 
 export interface JobJSON {
@@ -226,7 +225,7 @@ export class MaintenanceModeInfo {
               maintenanceModeMetadata: MaintenanceModeMetadata,
               hasRunningSystems?: boolean,
               runningSystem?: RunningSystem) {
-    this.maintenanceModeState = stream(isMaintenanceMode);
+    this.maintenanceModeState = Stream(isMaintenanceMode);
     this.hasRunningSystems    = hasRunningSystems;
     this.metdata              = maintenanceModeMetadata;
     this.runningSystem        = runningSystem;

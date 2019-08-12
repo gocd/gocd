@@ -18,8 +18,7 @@ import {AjaxPoller} from "helpers/ajax_poller";
 import {ApiResult} from "helpers/api_request_builder";
 import _ from "lodash";
 import m from "mithril";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {ConfigReposCRUD} from "models/config_repos/config_repos_crud";
 import {ConfigRepo} from "models/config_repos/types";
 import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
@@ -49,14 +48,13 @@ interface State extends AddOperation<ConfigRepo>, SaveOperation, SearchOperation
 const sm: ScrollManager = new AnchorVM();
 
 export class ConfigReposPage extends Page<null, State> {
-  etag: Stream<string> = stream();
-
+  etag: Stream<string> = Stream();
   oninit(vnode: m.Vnode<null, State>) {
-    vnode.state.pluginInfos       = stream();
-    vnode.state.unfilteredModels  = stream();
-    vnode.state.searchText        = stream();
+    vnode.state.pluginInfos       = Stream();
+    vnode.state.unfilteredModels  = Stream();
+    vnode.state.searchText        = Stream();
     vnode.state.flash             = this.flashMessage;
-    vnode.state.filteredModels    = stream.combine<ConfigRepoVM[]>(
+    vnode.state.filteredModels    = Stream.combine<ConfigRepoVM[]>(
       (collection: Stream<ConfigRepoVM[]>) => _.filter(collection(), (vm) => vm.repo.matches(vnode.state.searchText())),
       [vnode.state.unfilteredModels]
     );

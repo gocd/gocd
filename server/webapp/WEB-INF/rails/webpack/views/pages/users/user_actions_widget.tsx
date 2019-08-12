@@ -17,8 +17,7 @@
 import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {GoCDRole, Roles} from "models/roles/roles";
 import {TriStateCheckbox} from "models/tri_state_checkbox";
 import {UserFilters} from "models/users/user_filters";
@@ -165,7 +164,7 @@ class RolesDropdown extends Dropdown<RolesViewAttrs> {
         return;
       }
 
-      return <TriStateCheckboxField label={role.name()} property={stream(triStateCheckbox)}/>;
+      return <TriStateCheckboxField label={role.name()} property={Stream(triStateCheckbox)}/>;
     });
 
     return (

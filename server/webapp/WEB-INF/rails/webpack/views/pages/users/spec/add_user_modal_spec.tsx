@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import m from "mithril";
 import {FlashMessageModel} from "views/components/flash_message";
 import {ModalManager} from "views/components/modal/modal_manager";
 import "views/components/table/spec/table_matchers";
@@ -27,6 +29,7 @@ describe("UserSearchModal", () => {
   it("should render modal", () => {
        const modal = new UserSearchModal(flashMessageModel, refreshUsers);
        modal.render();
+       m.redraw.sync();
        expect(modal).toContainTitle("Import User");
        expect(modal).toContainButtons(["Cancel", "Import"]);
        expect($(`[data-test-id='${modal.id}'] [data-test-id='user-search-query']`)).toBeInDOM();
@@ -50,6 +53,8 @@ describe("UserSearchModal", () => {
                        }
                      ]);
     modal.render();
+    m.redraw.sync();
+
     expect($(`[data-test-id='${modal.id}'] table`)).toContainHeaderCells(["", "Username", "Display name", "Email"]);
   });
 

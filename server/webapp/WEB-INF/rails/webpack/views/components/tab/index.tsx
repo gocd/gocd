@@ -17,8 +17,7 @@
 import {bind} from "classnames/bind";
 import {MithrilComponent} from "jsx/mithril-component";
 import m from "mithril";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import styles from "./index.scss";
 
 const classnames = bind(styles);
@@ -35,7 +34,7 @@ interface State {
 
 export class Tabs extends MithrilComponent<Attrs, State> {
   oninit(vnode: m.Vnode<Attrs, State>): any {
-    vnode.state.selectedTabIndex = stream(0);
+    vnode.state.selectedTabIndex = Stream(0);
     vnode.state.isSelected       = (index: number) => {
       return vnode.state.selectedTabIndex() === index;
     };

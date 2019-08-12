@@ -53,13 +53,13 @@ describe("Elastic Agent Profiles Widget", () => {
 
       //expand elastic agent profile info
       simulateEvent.simulate(elasticProfileListHeader, "click");
-      m.redraw();
+      m.redraw.sync();
 
       expect(elasticProfileListHeader).toHaveClass(collapsiblePanelStyles.expanded);
 
       //collapse elastic agent profile info
       simulateEvent.simulate(elasticProfileListHeader, "click");
-      m.redraw();
+      m.redraw.sync();
 
       expect(elasticProfileListHeader).not.toHaveClass(collapsiblePanelStyles.expanded);
     });

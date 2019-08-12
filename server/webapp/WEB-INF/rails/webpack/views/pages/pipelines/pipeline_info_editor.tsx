@@ -16,8 +16,7 @@
 
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {DefaultCache, PipelineGroupCache} from "models/pipeline_configs/pipeline_groups_cache";
 import {TemplateCache} from "models/pipeline_configs/templates_cache";
@@ -36,7 +35,7 @@ interface Attrs {
 }
 
 export class PipelineInfoEditor extends MithrilViewComponent<Attrs> {
-  private pipelineGroups: Stream<Option[]> = stream();
+  private pipelineGroups: Stream<Option[]> = Stream();
   private cache: PipelineGroupCache<Option> = new DefaultCache();
 
   oninit(vnode: m.Vnode<Attrs, {}>) {

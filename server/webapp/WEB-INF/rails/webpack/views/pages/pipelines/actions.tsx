@@ -18,8 +18,7 @@ import * as Routes from "gen/ts-routes";
 import {ErrorResponse} from "helpers/api_request_builder";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {Errors} from "models/mixins/errors";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import * as Buttons from "views/components/buttons";
@@ -43,8 +42,8 @@ class WindowLocation implements LocationHandler {
 
 export class PipelineActions extends MithrilViewComponent<Attrs> {
   private location: LocationHandler = new WindowLocation();
-  private globalError: Stream<string> = stream();
-  private globalErrorDetail: Stream<Errors> = stream();
+  private globalError: Stream<string> = Stream();
+  private globalErrorDetail: Stream<Errors> = Stream();
 
   oninit(vnode: m.Vnode<Attrs, {}>) {
     if (vnode.attrs.loc) {
@@ -102,7 +101,7 @@ export class PipelineActions extends MithrilViewComponent<Attrs> {
   }
 
   clearErrors() {
-    this.globalError = stream();
-    this.globalErrorDetail = stream();
+    this.globalError = Stream();
+    this.globalErrorDetail = Stream();
   }
 }

@@ -40,9 +40,9 @@ describe("Agent Table Header Widget", () => {
   });
 
   const route = (isUserAdmin) => {
-    helper.route('', () => {
+    helper.route('/', () => {
       return {
-        '':                  {
+        '/':                  {
           view() {
             return agentTableHeaderComponent(isUserAdmin);
           }
@@ -55,8 +55,8 @@ describe("Agent Table Header Widget", () => {
       };
     });
 
-    m.route.set('');
-    m.redraw();
+    m.route.set('/');
+    m.redraw.sync();
   };
 
   const unmount = () => {
@@ -78,7 +78,7 @@ describe("Agent Table Header Widget", () => {
 
   it('should add the ascending css class to table header cell attribute when table is sorted ascending on the corresponding attribute', () => {
     routeHandler().toggleSortingOrder('hostname');
-    m.redraw();
+    m.redraw.sync();
     const headerAttribute = helper.find("th:contains('Agent Name') .sort");
     expect(headerAttribute).toHaveClass('asc');
   });
@@ -86,7 +86,7 @@ describe("Agent Table Header Widget", () => {
   it('should add the descending css class to table header cell attribute when table is sorted descending on the corresponding attribute', () => {
     routeHandler().toggleSortingOrder('hostname');
     routeHandler().toggleSortingOrder('hostname');
-    m.redraw();
+    m.redraw.sync();
     const headerAttribute = helper.find("th:contains('Agent Name') .sort");
     expect(headerAttribute).toHaveClass('desc');
   });

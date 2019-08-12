@@ -68,12 +68,12 @@ export const DashboardWidget = {
       <div class="pipeline_wrapper">
         <PersonalizedViewsWidget vm={personalizeVM}/>
 
-        <div class="dashboard-container" key="dashboard-content">
-          <RewardBanner
+        <div class="dashboard-container">
+          {[<RewardBanner
             rewardText="Congratulations! You just created your first pipeline in GoCD!"
             key="addPipeline"
             query={m.parseQueryString(window.location.search).new_pipeline_name}
-          />
+          />]}
 
           <section class="dashboard-modifiers">
             <GroupingSwitch vm={vm}/>

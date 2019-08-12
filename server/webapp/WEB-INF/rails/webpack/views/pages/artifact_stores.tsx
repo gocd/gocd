@@ -15,7 +15,7 @@
  */
 
 import m from "mithril";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {ArtifactStore, ArtifactStores} from "models/artifact_stores/artifact_stores";
 import {ArtifactStoresCRUD} from "models/artifact_stores/artifact_stores_crud";
 import {Configurations} from "models/shared/configuration";
@@ -46,7 +46,7 @@ interface State extends RequiresPluginInfos, AddOperation<ArtifactStore>, EditOp
 export class ArtifactStoresPage extends Page<null, State> {
   oninit(vnode: m.Vnode<null, State>) {
     super.oninit(vnode);
-    vnode.state.pluginInfos = stream();
+    vnode.state.pluginInfos = Stream();
 
     vnode.state.onSuccessfulSave = (msg: m.Children) => {
       this.flashMessage.setMessage(MessageType.success, msg);

@@ -319,7 +319,7 @@ export class SparkRoutes {
   }
 
   static apiPluginInfoPath(query: PluginInfoQuery) {
-    const queryString = m.buildQueryString(query);
+    const queryString = m.buildQueryString(query as m.Params);
     return `/go/api/admin/plugin_info?${queryString}`;
   }
 

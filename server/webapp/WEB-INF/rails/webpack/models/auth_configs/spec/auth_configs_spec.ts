@@ -26,17 +26,17 @@ describe("AuthorizationConfigurationModel", () => {
 
     expect(authConfigs[0].id()).toEqual("ldap");
     expect(authConfigs[0].pluginId()).toEqual("cd.go.authorization.ldap");
-    expect(authConfigs[0].properties().count()).toEqual(3);
-    expect(authConfigs[0].properties().valueFor("Url")).toEqual("ldap://ldap.server.url");
-    expect(authConfigs[0].properties().valueFor("ManagerDN")).toEqual("uid=admin,ou=system");
-    expect(authConfigs[0].properties().valueFor("Password")).toEqual("gGx7G+4+BAQ=");
+    expect(authConfigs[0].properties()!.count()).toEqual(3);
+    expect(authConfigs[0].properties()!.valueFor("Url")).toEqual("ldap://ldap.server.url");
+    expect(authConfigs[0].properties()!.valueFor("ManagerDN")).toEqual("uid=admin,ou=system");
+    expect(authConfigs[0].properties()!.valueFor("Password")).toEqual("gGx7G+4+BAQ=");
 
     expect(authConfigs[1].id()).toEqual("github");
     expect(authConfigs[1].pluginId()).toEqual("cd.go.authorization.github");
-    expect(authConfigs[1].properties().count()).toEqual(3);
-    expect(authConfigs[1].properties().valueFor("Url")).toEqual("https://foo.github.com");
-    expect(authConfigs[1].properties().valueFor("ClientKey")).toEqual("some-key");
-    expect(authConfigs[1].properties().valueFor("ClientSecret")).toEqual("gGx7G+4+BAQ=");
+    expect(authConfigs[1].properties()!.count()).toEqual(3);
+    expect(authConfigs[1].properties()!.valueFor("Url")).toEqual("https://foo.github.com");
+    expect(authConfigs[1].properties()!.valueFor("ClientKey")).toEqual("some-key");
+    expect(authConfigs[1].properties()!.valueFor("ClientSecret")).toEqual("gGx7G+4+BAQ=");
   });
 
   it("should validate presence of plugin id", () => {

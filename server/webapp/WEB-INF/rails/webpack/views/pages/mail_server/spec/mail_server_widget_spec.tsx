@@ -16,7 +16,7 @@
 
 import _ from "lodash";
 import m from "mithril";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {MailServer} from "models/mail_server/types";
 import {MailServerWidget} from "views/pages/mail_server/mail_server_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
@@ -39,7 +39,7 @@ describe("MailServerWidget", () => {
   });
 
   function mount(mailServer: MailServer) {
-    helper.mount(() => <MailServerWidget mailserver={stream(mailServer)} onsave={_.noop} operationState={stream()}/>);
+    helper.mount(() => <MailServerWidget mailserver={Stream(mailServer)} onsave={_.noop} operationState={Stream()}/>);
   }
 
 });

@@ -15,8 +15,7 @@
  */
 
 import m from "mithril";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {AccessTokenTestData} from "models/access_tokens/spec/access_token_test_data";
 import {AccessToken, AccessTokens} from "models/access_tokens/types";
 import * as simulateEvent from "simulate-event";
@@ -35,7 +34,7 @@ describe("AccessTokensWidgetForCurrentUserSpec", () => {
   const revokedToken    = AccessToken.fromJSON(AccessTokenTestData.revokedAccessToken());
 
   it("should be able to render info when no access tokens have been created", () => {
-    mount(stream(new AccessTokens()));
+    mount(Stream(new AccessTokens()));
 
     expect(helper.findByDataTestId("access-token-info")).toBeInDOM();
     expect(helper.findByDataTestId("access-token-info").text())
@@ -47,7 +46,7 @@ describe("AccessTokensWidgetForCurrentUserSpec", () => {
   });
 
   it("should render two tabs", () => {
-    mount(stream(allAccessTokens));
+    mount(Stream(allAccessTokens));
 
     expect(helper.findByDataTestId("access-token-info")).not.toBeInDOM();
     expect(helper.findByDataTestId("tab-header-0")).toBeInDOM();
@@ -57,7 +56,7 @@ describe("AccessTokensWidgetForCurrentUserSpec", () => {
   });
 
   it("should list all active tokens under active tokens tab", () => {
-    mount(stream(new AccessTokens(stream(validToken))));
+    mount(Stream(new AccessTokens(Stream(validToken))));
 
     const activeTokensTab = helper.findByDataTestId("tab-header-0");
     expect(activeTokensTab).toBeInDOM();
@@ -80,7 +79,7 @@ describe("AccessTokensWidgetForCurrentUserSpec", () => {
   });
 
   it("should list all revoked tokens under revoked tokens tab", () => {
-    mount(stream(new AccessTokens(stream(revokedToken))));
+    mount(Stream(new AccessTokens(Stream(revokedToken))));
 
     const activeTokensTab = helper.findByDataTestId("tab-header-0");
     expect(activeTokensTab).toHaveText("Active Tokens");
@@ -127,7 +126,7 @@ describe("AccessTokensWidgetForCurrentUserSpec", () => {
     expect(columns.eq(1)).toContainText(formatTimeInformation(accessToken.createdAt()));
     expect(columns.eq(2)).toContainText(getLastUsedInformation(accessToken));
     expect(columns.eq(3)).toContainText(getRevokedBy(accessToken.revokedBy()));
-    expect(columns.eq(4)).toContainText(formatTimeInformation(accessToken.revokedAt()));
-    expect(columns.eq(5)).toContainText(accessToken.revokeCause());
+    expect(columns.eq(4)).toContainText(formatTimeInformation(accessToken.revokedAt()!));
+    expect(columns.eq(5)).toContainText(accessToken.revokeCause()!);
   }
 });

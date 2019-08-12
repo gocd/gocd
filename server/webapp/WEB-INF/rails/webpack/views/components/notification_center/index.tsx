@@ -16,8 +16,7 @@
 import {AjaxPoller} from "helpers/ajax_poller";
 import {MithrilComponent} from "jsx/mithril-component";
 import m from "mithril";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {DataSharingNotification} from "models/notifications/data_sharing_notification";
 import {SystemNotifications} from "models/notifications/system_notifications";
 import {SystemNotificationsWidget} from "views/components/notification_center/system_notifications_widget";
@@ -31,7 +30,7 @@ export class NotificationCenter extends MithrilComponent<{}, State> {
   oninit(vnode: m.Vnode<{}, State>) {
     DataSharingNotification.createIfNotPresent();
     vnode.state.repeater            = this.createRepeater(vnode);
-    vnode.state.systemNotifications = stream(new SystemNotifications());
+    vnode.state.systemNotifications = Stream(new SystemNotifications());
     vnode.state.repeater.start();
   }
 

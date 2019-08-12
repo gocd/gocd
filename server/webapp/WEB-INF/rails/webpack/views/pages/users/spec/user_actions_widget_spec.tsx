@@ -16,8 +16,7 @@
 
 import _ from "lodash";
 import m from "mithril";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {GoCDRole, Roles} from "models/roles/roles";
 import {TriStateCheckbox} from "models/tri_state_checkbox";
 import {UserFilters} from "models/users/user_filters";
@@ -25,7 +24,7 @@ import {User, Users} from "models/users/users";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {State as UserActionsState, UsersActionsWidget} from "views/pages/users/user_actions_widget";
 
-const flag: (val?: boolean) => Stream<boolean> = stream;
+const flag: (val?: boolean) => Stream<boolean> = Stream;
 
 describe("User Actions Widget", () => {
   let attrs: UserActionsState;
@@ -33,20 +32,20 @@ describe("User Actions Widget", () => {
   const helper = new TestHelper();
 
   beforeEach(() => {
-    users = stream(new Users());
+    users = Stream(new Users());
     attrs = {
       users,
-      roles: stream(new Roles()),
-      userFilters: stream(new UserFilters()),
+      roles: Stream(new Roles()),
+      userFilters: Stream(new UserFilters()),
       initializeRolesDropdownAttrs: _.noop,
       showRoles: flag(false),
       showFilters: flag(false),
-      rolesSelection: stream(new Map<GoCDRole, TriStateCheckbox>()),
+      rolesSelection: Stream(new Map<GoCDRole, TriStateCheckbox>()),
       onEnable: _.noop,
       onDisable: _.noop,
       onDelete: _.noop,
       onRolesUpdate: _.noop,
-      roleNameToAdd: stream(),
+      roleNameToAdd: Stream(),
       onRolesAdd: _.noop
     };
   });
@@ -95,7 +94,7 @@ describe("User Actions Widget", () => {
 
   it("should display the number of enabled and disabled users", () => {
     users(new Users(bob(), alice(), john()));
-    m.redraw();
+    m.redraw.sync();
 
     expect(helper.findByDataTestId("users-total")).toHaveText("3");
     expect(helper.findByDataTestId("users-enabled")).toHaveText("1");

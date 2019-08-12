@@ -17,8 +17,7 @@
 import classnames from "classnames";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {DefaultTemplatesCache, TemplateCache} from "models/pipeline_configs/templates_cache";
 import {FlashMessage, MessageType} from "views/components/flash_message";
@@ -34,7 +33,7 @@ interface Attrs {
 
 export class TemplateEditor extends MithrilViewComponent<Attrs> {
   private cache: TemplateCache<Option> = new DefaultTemplatesCache();
-  private templates: Stream<Option[]> = stream();
+  private templates: Stream<Option[]> = Stream();
 
   oninit(vnode: m.Vnode<Attrs, {}>) {
     if (vnode.attrs.cache) {
@@ -88,7 +87,7 @@ export class TemplateEditor extends MithrilViewComponent<Attrs> {
         pipelineConfig.template(this.templates()[0].id);
       }
     } else {
-      pipelineConfig.template = stream();
+      pipelineConfig.template = Stream();
     }
   }
 }

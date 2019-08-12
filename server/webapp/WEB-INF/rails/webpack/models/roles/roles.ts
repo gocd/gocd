@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {Errors, ErrorsJSON} from "models/mixins/errors";
 import {applyMixins} from "models/mixins/mixins";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
@@ -142,9 +141,9 @@ export abstract class Role<T> extends ValidatableMixin {
     super();
     ValidatableMixin.call(this);
 
-    this.type       = stream(type);
-    this.name       = stream(name);
-    this.attributes = stream(attributes);
+    this.type       = Stream(type);
+    this.name       = Stream(name);
+    this.attributes = Stream(attributes);
     this.errors(errors);
 
     this.validatePresenceOf("name");

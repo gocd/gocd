@@ -50,7 +50,7 @@ describe("Button Row Widget", () => {
     agents(allAgents);
     const areOperationsAllowed = Stream(false);
     mount(areOperationsAllowed);
-    m.redraw();
+    m.redraw.sync();
   });
 
   afterEach(helper.unmount.bind(helper));

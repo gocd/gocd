@@ -58,7 +58,7 @@ export class AuthConfigsWidget extends MithrilViewComponent<Attrs> {
                     onclick={vnode.attrs.onDelete.bind(vnode.attrs, authConfig)}/>
           </IconGroup>];
         return <CollapsiblePanel header={header} actions={actionButtons}>
-          <KeyValuePair data={authConfig.properties().asMap()}/>
+          <KeyValuePair data={authConfig.properties()!.asMap()}/>
         </CollapsiblePanel>;
       })}
     </div>;

@@ -53,7 +53,7 @@ describe("Analytics Widget", () => {
 
   it('should render global chart contents when global tab is selected', () => {
     helper.find('.dashboard-tabs li').get(1).click();
-    m.redraw();
+    m.redraw.sync();
 
     expect(helper.find('.dashboard-tabs li').get(1)).toContainText("Pipeline");
     expect(helper.find('.dashboard-tabs li').get(1)).toHaveClass("current");

@@ -16,8 +16,7 @@
 import {mixins as s} from "helpers/string-plus";
 import {MithrilComponent} from "jsx/mithril-component";
 import m from "mithril";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import * as style from "./index.scss";
 
 interface Attrs {
@@ -29,7 +28,7 @@ interface Attrs {
 const STORAGE_KEY_PREFIX = "gocd.reward";
 
 export class RewardBanner extends MithrilComponent<Attrs> {
-  show: Stream<boolean> = stream();
+  show: Stream<boolean> = Stream();
 
   oninit(vnode: m.Vnode<Attrs>) {
     const storageKey = STORAGE_KEY_PREFIX.concat(".", vnode.attrs.key);

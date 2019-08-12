@@ -66,7 +66,7 @@ describe("GoCDRoleModalBodyWidget", () => {
     helper.findByDataTestId("form-field-input-role-users").val("John");
     simulateEvent.simulate(helper.findByDataTestId("form-field-input-role-users").get(0), "input");
     helper.findByDataTestId("role-add-user-button").click();
-    m.redraw();
+    m.redraw.sync();
 
     expect(gocdRole.attributes().hasUser("John")).toBeTruthy();
   });
@@ -77,7 +77,7 @@ describe("GoCDRoleModalBodyWidget", () => {
     expect(gocdRole.attributes().users.length).toEqual(3);
 
     simulateEvent.simulate(helper.find(`.${styles.roleUserDeleteIcon}`).get(0), "click");
-    m.redraw();
+    m.redraw.sync();
 
     expect(gocdRole.attributes().users.length).toEqual(2);
   });

@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 import m from "mithril";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {SwitchBtn} from "../index";
 import styles from "../index.scss";
 
 describe("SwitchBtn component", () => {
-  const switchStream = stream(false);
+  const switchStream = Stream(false);
 
   const helper = new TestHelper();
 

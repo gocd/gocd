@@ -17,8 +17,7 @@ import {bind} from "classnames/bind";
 import {ApiResult, ErrorResponse, ObjectWithEtag} from "helpers/api_request_builder";
 import _ from "lodash";
 import m from "mithril";
-import stream from "mithril/stream";
-import {Stream} from "mithril/stream";
+import Stream from "mithril/stream";
 import {ElasticAgentProfilesCRUD} from "models/elastic_profiles/elastic_agent_profiles_crud";
 import {ClusterProfile, ClusterProfiles, ElasticAgentProfile, ProfileUsage} from "models/elastic_profiles/types";
 import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
@@ -57,9 +56,9 @@ abstract class BaseElasticProfileModal extends Modal {
                         elasticProfile?: ElasticAgentProfile) {
     super(Size.extraLargeHackForEaProfiles);
     this.clusterProfiles = clusterProfiles;
-    this.elasticProfile  = stream(elasticProfile);
+    this.elasticProfile  = Stream(elasticProfile!);
     this.pluginInfos     = pluginInfos;
-    this.pluginInfo      = stream();
+    this.pluginInfo      = Stream();
     this.modalType       = type;
   }
 
@@ -77,7 +76,7 @@ abstract class BaseElasticProfileModal extends Modal {
   showErrors(apiResult: ApiResult<ObjectWithEtag<ElasticAgentProfile>>, errorResponse: ErrorResponse) {
     if (apiResult.getStatusCode() === 422 && errorResponse.body) {
       const profile = ElasticAgentProfile.fromJSON(JSON.parse(errorResponse.body).data);
-      profile.pluginId(this.clusterProfiles.findCluster(profile.clusterProfileId()).pluginId());
+      profile.pluginId(this.clusterProfiles.findCluster(profile.clusterProfileId()!).pluginId());
       this.elasticProfile(profile);
     }
   }
@@ -142,7 +141,7 @@ abstract class BaseElasticProfileModal extends Modal {
                            required={true}
                            errorText={this.elasticProfile().errors().errorsForDisplay("pluginId")}>
                 <SelectFieldOptions selected={this.elasticProfile().clusterProfileId()}
-                                    items={clustersList}/>
+                                    items={clustersList as any}/>
               </SelectField>
             </Form>
           </FormHeader>
@@ -151,7 +150,7 @@ abstract class BaseElasticProfileModal extends Modal {
         <div class={styles.elasticProfileModalFormBody}>
           <div class="row collapse">
             <AngularPluginNew
-              pluginInfoSettings={stream(elasticProfileConfigurations)}
+              pluginInfoSettings={Stream(elasticProfileConfigurations)}
               configuration={this.elasticProfile().properties()}
               key={this.pluginInfo().id}/>
           </div>

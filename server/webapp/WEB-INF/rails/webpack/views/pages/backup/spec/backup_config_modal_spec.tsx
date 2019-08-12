@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {BackupConfig} from "models/backup_config/types";
 import {BackupConfigModal} from "views/pages/backup/backup_config_modal";
 import {TestHelper} from "views/pages/spec/test_helper";
@@ -31,10 +30,10 @@ describe("BackupConfigModal", () => {
   let modal: BackupConfigModal;
 
   beforeEach(() => {
-    backupConfig = stream(new BackupConfig());
-    showSpinner  = stream(false) as Stream<boolean>;
-    errorMessage = stream();
-    isSaving     = stream(false) as Stream<boolean>;
+    backupConfig = Stream(new BackupConfig());
+    showSpinner  = Stream(false) as Stream<boolean>;
+    errorMessage = Stream();
+    isSaving     = Stream(false) as Stream<boolean>;
     onSave       = jasmine.createSpy("callback");
     modal        = new BackupConfigModal(backupConfig, showSpinner, errorMessage, isSaving, onSave);
     helper.mount(modal.body.bind(modal));

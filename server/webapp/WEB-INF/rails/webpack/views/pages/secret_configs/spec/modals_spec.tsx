@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import stream from "mithril/stream";
+import m from "mithril";
+import Stream from "mithril/stream";
 import {SecretConfig, SecretConfigs} from "models/secret_configs/secret_configs";
 import {secretConfigsTestData, secretConfigTestData} from "models/secret_configs/spec/test_data";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
@@ -31,7 +32,7 @@ describe("SecretConfigModal", () => {
   const onSuccessfulSave = jasmine.createSpy("onSuccessfulSave");
 
   it("should render modal title and fields", () => {
-    const modal = new TestSecretConfigModal(stream(secretConfigs),
+    const modal = new TestSecretConfigModal(Stream(secretConfigs),
                                             SecretConfig.fromJSON(secretConfigTestData()),
                                             pluginInfos,
                                             onSuccessfulSave);
@@ -50,7 +51,7 @@ describe("SecretConfigModal", () => {
   });
 
   it("should display error message", () => {
-    const modal = new TestSecretConfigModal(stream(secretConfigs),
+    const modal = new TestSecretConfigModal(Stream(secretConfigs),
                                             SecretConfig.fromJSON(secretConfigTestData()),
                                             pluginInfos,
                                             onSuccessfulSave);
@@ -66,7 +67,7 @@ describe("SecretConfigModal", () => {
   it("should display error message if there is error on a field", () => {
     const secretConfig = SecretConfig.fromJSON(secretConfigTestData());
     secretConfig.errors().add("id", "should be unique");
-    const modal = new TestSecretConfigModal(stream(secretConfigs),
+    const modal = new TestSecretConfigModal(Stream(secretConfigs),
                                             secretConfig,
                                             pluginInfos,
                                             onSuccessfulSave);
@@ -79,7 +80,7 @@ describe("SecretConfigModal", () => {
 
   describe("EditModal", () => {
     it("should disable id while editing secret config", () => {
-      const modal = new TestSecretConfigModal(stream(secretConfigs),
+      const modal = new TestSecretConfigModal(Stream(secretConfigs),
                                               SecretConfig.fromJSON(secretConfigTestData()),
                                               pluginInfos,
                                               onSuccessfulSave, resourceHelper, true);
@@ -93,7 +94,7 @@ describe("SecretConfigModal", () => {
 
   describe("CreateModal", () => {
     it("should not disable id while creating secret config", () => {
-      const modal = new TestSecretConfigModal(stream(secretConfigs),
+      const modal = new TestSecretConfigModal(Stream(secretConfigs),
                                               SecretConfig.fromJSON(secretConfigTestData()),
                                               pluginInfos,
                                               onSuccessfulSave);
@@ -106,7 +107,7 @@ describe("SecretConfigModal", () => {
     });
 
     it("should callback the add function when add new rule is clicked", () => {
-      const modal = new TestSecretConfigModal(stream(secretConfigs),
+      const modal = new TestSecretConfigModal(Stream(secretConfigs),
                                               SecretConfig.fromJSON(secretConfigTestData()),
                                               pluginInfos,
                                               onSuccessfulSave);
@@ -116,6 +117,7 @@ describe("SecretConfigModal", () => {
 
       const addRuleButton = helper.findByDataTestId("add-rule-button")[0];
       simulateEvent.simulate(addRuleButton, "click");
+      m.redraw.sync();
 
       expect(helper.findByDataTestId("table-body").find("tr").length).toBe(3);
 

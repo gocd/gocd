@@ -23,7 +23,7 @@ interface PermissionJSON {
 export class DataSharingNotificationPermission {
 
   static API_VERSION: ApiVersion = ApiVersion.v1;
-  public showNotification: Stream.Stream<boolean>;
+  public showNotification: Stream<boolean>;
 
   constructor(permission: PermissionJSON) {
     this.showNotification = Stream(permission.show_notification);

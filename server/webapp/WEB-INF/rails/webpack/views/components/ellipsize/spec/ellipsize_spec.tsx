@@ -15,8 +15,7 @@
  */
 
 import m from "mithril";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import * as simulateEvent from "simulate-event";
 import {Ellipsize} from "views/components/ellipsize/index";
 import {TestHelper} from "views/pages/spec/test_helper";
@@ -66,7 +65,7 @@ describe("EllipsizeComponent", () => {
       expect(helper.findByClass(styles.ellipsisActionButton)).toHaveText("more");
 
       simulateEvent.simulate(helper.findByClass(styles.ellipsisActionButton)[0], "click");
-      m.redraw();
+      m.redraw.sync();
 
       expect(helper.findByDataTestId("ellipsized-content")).toHaveText("This is small");
       expect(helper.findByClass(styles.ellipsisActionButton)).toBeInDOM();
@@ -82,21 +81,21 @@ describe("EllipsizeComponent", () => {
       expect(helper.findByClass(styles.ellipsisActionButton)).toHaveText("more");
 
       simulateEvent.simulate(helper.findByClass(styles.ellipsisActionButton)[0], "click");
-      m.redraw();
+      m.redraw.sync();
 
       expect(helper.findByDataTestId("ellipsized-content")).toHaveText("This is small");
       expect(helper.findByClass(styles.ellipsisActionButton)).toBeInDOM();
       expect(helper.findByClass(styles.ellipsisActionButton)).toHaveText("less");
 
       simulateEvent.simulate(helper.findByClass(styles.ellipsisActionButton)[0], "click");
-      m.redraw();
+      m.redraw.sync();
 
       expect(helper.findByDataTestId("ellipsized-content")).toHaveText("This ...");
     });
   });
 
   it("should render empty span if the text value is null", () => {
-    const textValue = stream(null) as Stream<any>;
+    const textValue = Stream(null) as Stream<any>;
     helper.mount(() => <Ellipsize text={textValue()} size={20} fixed={false}/>);
 
     expect(helper.findByClass(styles.wrapper)).toBeInDOM();
@@ -105,7 +104,7 @@ describe("EllipsizeComponent", () => {
   });
 
   it("should render empty span if the text value is undefined", () => {
-    const textValue = stream(undefined) as Stream<any>;
+    const textValue = Stream(undefined) as Stream<any>;
     helper.mount(() => <Ellipsize text={textValue()} size={20} fixed={false}/>);
 
     expect(helper.findByClass(styles.wrapper)).toBeInDOM();

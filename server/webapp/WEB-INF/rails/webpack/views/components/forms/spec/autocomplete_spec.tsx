@@ -17,8 +17,7 @@
 import _ from "lodash";
 import m from "mithril";
 import "mithril/promise/promise";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import * as events from "simulate-event";
 import {AutocompleteField, SuggestionProvider} from "views/components/forms/autocomplete";
 import {TestHelper} from "views/pages/spec/test_helper";
@@ -30,7 +29,7 @@ describe("AutocompleteField", () => {
   afterEach(helper.unmount.bind(helper));
 
   it("generates element structure", () => {
-    const model: Stream<string> = stream();
+    const model: Stream<string> = Stream();
     helper.mount(() => {
       return <AutocompleteField label="Business Speak" property={model} provider={new CrazyBusinessSpeakProvider()}/>;
     });
@@ -43,7 +42,7 @@ describe("AutocompleteField", () => {
   });
 
   it("binds a model", () => {
-    const model: Stream<string> = stream();
+    const model: Stream<string> = Stream();
     helper.mount(() => {
       return <AutocompleteField label="Business Speak" property={model} provider={new CrazyBusinessSpeakProvider()}/>;
     });
@@ -54,7 +53,7 @@ describe("AutocompleteField", () => {
   });
 
   it("suggests an item by partial match", (done) => {
-    const model: Stream<string> = stream();
+    const model: Stream<string> = Stream();
     const provider = new CrazyBusinessSpeakProvider();
 
     provider.onFinally(() => {

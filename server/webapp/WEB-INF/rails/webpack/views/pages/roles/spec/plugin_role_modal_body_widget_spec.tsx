@@ -64,8 +64,8 @@ describe("PluginRoleModalBodyWidget", () => {
     const authConfigDropDown = helper.findByDataTestId("form-field-input-auth-config-id");
     authConfigDropDown.val("github");
     simulateEvent.simulate(authConfigDropDown.get(0), "change");
-    //Had to do this as m.redraw() was't working :(
-    m.redraw();
+    //Had to do this as m.redraw.sync() was't working :(
+    m.redraw.sync();
 
     expect(helper.find(".plugin-view")).toContainText("This is github role config view.");
   });

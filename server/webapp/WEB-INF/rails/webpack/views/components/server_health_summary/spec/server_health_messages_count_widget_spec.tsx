@@ -17,7 +17,7 @@
 import {timeFormatter} from "helpers/time_formatter";
 import $ from "jquery";
 import m from "mithril";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {ServerHealthMessages} from "models/shared/server_health_messages/server_health_messages";
 import s from "underscore.string";
 import {ModalManager} from "views/components/modal/modal_manager";
@@ -50,13 +50,13 @@ describe("ServerHealthMessagesCountWidget", () => {
   });
 
   it("should render the count of errors and warnings", () => {
-    helper.mount(() => <ServerHealthMessagesCountWidget serverHealthMessages={stream(serverHealthMessages)}/>);
+    helper.mount(() => <ServerHealthMessagesCountWidget serverHealthMessages={Stream(serverHealthMessages)}/>);
 
     expect(helper.find("a")).toContainText("1 error and 1 warning");
   });
 
   it("should render the list of messages in modal on click", () => {
-    helper.mount(() => <ServerHealthMessagesCountWidget serverHealthMessages={stream(serverHealthMessages)}/>);
+    helper.mount(() => <ServerHealthMessagesCountWidget serverHealthMessages={Stream(serverHealthMessages)}/>);
 
     helper.click('a');
 
@@ -69,7 +69,7 @@ describe("ServerHealthMessagesCountWidget", () => {
   });
 
   it("should trust html messages in modal", () => {
-    helper.mount(() => <ServerHealthMessagesCountWidget serverHealthMessages={stream(new ServerHealthMessages([{
+    helper.mount(() => <ServerHealthMessagesCountWidget serverHealthMessages={Stream(new ServerHealthMessages([{
       message: "Test Message",
       detail: `This is a <a href="http://example.com">link</a>`,
       level: "ERROR",

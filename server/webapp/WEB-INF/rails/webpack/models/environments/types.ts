@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 
 interface PipelineJSON {
   name: string;
@@ -51,7 +50,7 @@ class Agent {
   uuid: Stream<string>;
 
   constructor(uuid: string) {
-    this.uuid = stream(uuid);
+    this.uuid = Stream(uuid);
   }
 
   static fromJSON(data: AgentJSON) {
@@ -74,7 +73,7 @@ class Pipeline {
   name: Stream<string>;
 
   constructor(name: string) {
-    this.name = stream(name);
+    this.name = Stream(name);
   }
 
   static fromJSON(data: PipelineJSON) {
@@ -100,10 +99,10 @@ class EnvironmentVariable {
   encryptedValue: Stream<string>;
 
   constructor(name: string, value: string, secure: boolean, encryptedValue: string) {
-    this.secure         = stream(secure);
-    this.name           = stream(name);
-    this.value          = stream(value);
-    this.encryptedValue = stream(encryptedValue);
+    this.secure         = Stream(secure);
+    this.name           = Stream(name);
+    this.value          = Stream(value);
+    this.encryptedValue = Stream(encryptedValue);
   }
 
   static fromJSON(data: EnvironmentVariableJSON) {
@@ -132,10 +131,10 @@ class Environment {
               agents: Agents,
               pipelines: Pipelines,
               environmentVariables: EnvironmentVariables) {
-    this.name                 = stream(name);
-    this.agents               = stream(agents);
-    this.pipelines            = stream(pipelines);
-    this.environmentVariables = stream(environmentVariables);
+    this.name                 = Stream(name);
+    this.agents               = Stream(agents);
+    this.pipelines            = Stream(pipelines);
+    this.environmentVariables = Stream(environmentVariables);
   }
 
   static fromJSON(data: EnvironmentJSON) {

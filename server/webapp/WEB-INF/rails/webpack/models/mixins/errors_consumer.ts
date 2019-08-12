@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {Errors} from "models/mixins/errors";
 import s from "underscore.string";
 
@@ -33,7 +33,7 @@ export class BaseErrorsConsumer implements ErrorsConsumer {
   static consume = consume;
 
   // hide this from JSON serialization
-  private __errors = stream(new Errors());
+  private __errors = Stream(new Errors());
 
   errors(newVal?: Errors): Errors {
     if (arguments.length) {

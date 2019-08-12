@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {Errors} from "models/mixins/errors";
 import {applyMixins} from "models/mixins/mixins";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
@@ -38,11 +37,11 @@ export class SecretConfig extends ValidatableMixin {
               errors: Errors = new Errors()) {
     super();
     ValidatableMixin.call(this);
-    this.id          = stream(id);
-    this.description = stream(description);
-    this.pluginId    = stream(pluginId);
-    this.properties  = stream(properties);
-    this.rules       = stream(rules);
+    this.id          = Stream(id);
+    this.description = Stream(description);
+    this.pluginId    = Stream(pluginId);
+    this.properties  = Stream(properties);
+    this.rules       = Stream(rules);
     this.errors(errors);
     this.validatePresenceOf("id");
     this.validateIdFormat("id");
@@ -81,7 +80,7 @@ export class SecretConfigs extends Array<Stream<SecretConfig>> {
     const secretConfigs = data
       ._embedded
       .secret_configs
-      .map((secretConfigJson) => stream(SecretConfig.fromJSON(secretConfigJson)));
+      .map((secretConfigJson) => Stream(SecretConfig.fromJSON(secretConfigJson)));
 
     return new SecretConfigs(...secretConfigs);
   }

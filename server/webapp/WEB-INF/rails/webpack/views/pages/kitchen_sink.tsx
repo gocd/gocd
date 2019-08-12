@@ -15,8 +15,7 @@
  */
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {TriStateCheckbox} from "models/tri_state_checkbox";
 import {ButtonGroup, ButtonIcon} from "views/components/buttons";
 import * as Buttons from "views/components/buttons/index";
@@ -49,25 +48,25 @@ import {TooltipSize} from "views/components/tooltip";
 import {Step, Wizard} from "views/components/wizard";
 
 let type               = "a";
-const formValue        = stream("initial value");
-const searchFieldValue = stream("");
-const checkboxField    = stream(false);
+const formValue        = Stream("initial value");
+const searchFieldValue = Stream("");
+const checkboxField    = Stream(false);
 
-const passwordValue          = stream(new EncryptedValue({clearText: "p@ssword"}));
-const encryptedPasswordValue = stream(new EncryptedValue({cipherText: "AES:junk:more-junk"}));
+const passwordValue          = Stream(new EncryptedValue({clearText: "p@ssword"}));
+const encryptedPasswordValue = Stream(new EncryptedValue({cipherText: "AES:junk:more-junk"}));
 
-const triStateCheckbox = stream(new TriStateCheckbox());
+const triStateCheckbox = Stream(new TriStateCheckbox());
 
-const switchStream   = stream(false);
+const switchStream   = Stream(false);
 const reallyLongText = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.";
 
 export class KitchenSink extends MithrilViewComponent<null> {
   provider: DynamicSuggestionProvider = new DynamicSuggestionProvider(type);
 
   view(vnode: m.Vnode<null>) {
-    const model: Stream<string>     = stream();
-    const textValue: Stream<string> = stream();
-    const name: Stream<string>      = stream();
+    const model: Stream<string>     = Stream();
+    const textValue: Stream<string> = Stream();
+    const name: Stream<string>      = Stream();
 
     return (
       <div>
@@ -403,7 +402,7 @@ class Pipeline {
   }
 }
 
-const pipelines = stream([
+const pipelines = Stream([
                            new Pipeline("WindowsPR", "test", "jasmine"),
                            new Pipeline("WindowsPR", "build", "installer"),
                            new Pipeline("WindowsPR", "upload", "upload"),
@@ -412,7 +411,7 @@ const pipelines = stream([
                            new Pipeline("LinuxPR", "build", "clean")
                          ]);
 
-const pipelineData = stream(pipelines().map((e, i) => e.tableData()));
+const pipelineData = Stream(pipelines().map((e, i) => e.tableData()));
 
 function updateModel(oldIndex: number, newIndex: number) {
   pipelines().splice(newIndex, 0, pipelines().splice(oldIndex, 1)[0]);

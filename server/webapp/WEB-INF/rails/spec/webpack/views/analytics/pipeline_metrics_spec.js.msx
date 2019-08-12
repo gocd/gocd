@@ -18,6 +18,7 @@ import {PipelineMetrics} from "views/analytics/pipeline_metrics";
 import $ from "jquery";
 import "jasmine-jquery";
 import m from "mithril";
+import * as simulateEvent from "simulate-event";
 
 describe("Pipeline Dashboard Metrics", () => {
 
@@ -52,7 +53,8 @@ describe("Pipeline Dashboard Metrics", () => {
   });
 
   it('should change displayed graphs when new pipeline is selected', () => {
-    helper.find("select").val("p2").trigger("change");
+    simulateEvent.simulate(helper.find("select").val("p2")[0], "change");
+    m.redraw.sync();
     const requests = jasmine.Ajax.requests;
     expect(requests.count()).toBe(4);
     expect(requests.at(2).url).toBe('/go/analytics/plugin-id-x/pipeline/metric-1?pipeline_name=p2&context=dashboard');

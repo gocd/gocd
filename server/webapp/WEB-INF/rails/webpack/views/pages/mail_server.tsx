@@ -16,8 +16,7 @@
 
 import {JsonUtils} from "helpers/json_utils";
 import m from "mithril";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {MailServerCrud} from "models/mail_server/mail_server_crud";
 import {MailServer} from "models/mail_server/types";
 import {FlashMessage, MessageType} from "views/components/flash_message";
@@ -43,8 +42,8 @@ export class MailServerPage extends Page<null, State> {
   }
 
   oninit(vnode: m.Vnode<null, State>) {
-    vnode.state.operationState = stream(OperationState.UNKNOWN) as Stream<OperationState>;
-    vnode.state.mailserver     = stream(new MailServer());
+    vnode.state.operationState = Stream(OperationState.UNKNOWN) as Stream<OperationState>;
+    vnode.state.mailserver     = Stream(new MailServer());
 
     vnode.state.onSuccessfulSave = (msg: m.Children) => {
       vnode.state.operationState(OperationState.DONE);

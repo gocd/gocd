@@ -18,7 +18,7 @@
 import {ApiRequestBuilder, ApiVersion} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
 import m from "mithril";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import s from "underscore.string";
 
 // models and such
@@ -35,12 +35,12 @@ import {PluginInfosCache} from "models/shared/plugin_infos_new/plugin_infos_cach
 import {Option} from "views/components/forms/input_fields";
 
 export class PipelineConfigVM {
-  pluginId = stream(ConfigRepo.YAML_PLUGIN_ID);
+  pluginId = Stream(ConfigRepo.YAML_PLUGIN_ID);
   material: Material = new Material("git", new GitMaterialAttributes());
   job: Job = new Job("", [], []);
   stage: Stage = new Stage("", [this.job]);
   pipeline: PipelineConfig = new PipelineConfig("", [this.material], []);
-  isUsingTemplate = stream(false);
+  isUsingTemplate = Stream(false);
 
   private pluginCache = new PluginInfosCache<ConfigRepoSettings, Option>(ExtensionType.CONFIG_REPO, toOption, onlyExportPlugins);
 

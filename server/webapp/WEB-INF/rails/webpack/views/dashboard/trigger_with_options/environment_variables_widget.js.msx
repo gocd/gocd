@@ -16,6 +16,12 @@
 import m from "mithril";
 import _ from "lodash";
 
+function withAttr(attrName, callback1, context) {
+  return function(e) {
+    callback1.call(context || this, attrName in e.currentTarget ? e.currentTarget[attrName] : e.currentTarget.getAttribute(attrName));
+  };
+}
+
 export const Plain = {
   view(vnode) {
     return (
@@ -41,7 +47,7 @@ export const Plain = {
                       <input class="small"
                              type="text"
                              value={variable.value()}
-                             oninput={m.withAttr('value', variable.value)}/>
+                             oninput={withAttr('value', variable.value)}/>
                       {mayBeOverridenText}
                     </dd>
                   </span>
@@ -94,7 +100,7 @@ export const Secure = {
                     <input class="small"
                            type="password"
                            value={variable.isEditingValue() ? variable.value() : '*****'}
-                           oninput={m.withAttr('value', variable.value)}
+                           oninput={withAttr('value', variable.value)}
                            disabled={!variable.isEditingValue()}/>
                     {overrideOrResetBtn}
                   </dd>

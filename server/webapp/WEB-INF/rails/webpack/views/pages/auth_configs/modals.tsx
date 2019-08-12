@@ -16,8 +16,7 @@
 
 import {ApiResult} from "helpers/api_request_builder";
 import m from "mithril";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {AuthConfig, AuthConfigJSON} from "models/auth_configs/auth_configs";
 import {AuthConfigsCRUD} from "models/auth_configs/auth_configs_crud";
 import {Configurations} from "models/shared/configuration";
@@ -33,7 +32,7 @@ import {Message} from "views/pages/maintenance_mode";
 abstract class AuthConfigModal extends EntityModal<AuthConfig> {
   protected readonly originalEntityId: string;
   private disableId: boolean;
-  private message: Stream<Message> = stream();
+  private message: Stream<Message> = Stream();
 
   constructor(entity: AuthConfig,
               pluginInfos: Array<PluginInfo<any>>,
@@ -42,7 +41,7 @@ abstract class AuthConfigModal extends EntityModal<AuthConfig> {
               size: Size         = Size.large) {
     super(entity, pluginInfos, onSuccessfulSave, size);
     this.disableId        = disableId;
-    this.originalEntityId = entity.id();
+    this.originalEntityId = entity.id()!;
   }
 
   performCheckConnection() {

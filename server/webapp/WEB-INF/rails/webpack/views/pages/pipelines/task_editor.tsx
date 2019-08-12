@@ -28,7 +28,7 @@ const sel = asSelector<typeof css>(css);
 const CLICKABLE_SELECTORS = `button,a,input[type="button"],input[type="button"],input[type="submit"],input[type="reset"],input[type="radio"],input[type="checkbox"]`;
 
 interface Attrs {
-  tasks: (newValue?: Task[]) => Task[];
+  tasks: (newValue?: Task[]) => Task[] | undefined;
 }
 
 interface ParsedCommand {
@@ -45,7 +45,7 @@ export class TaskTerminalField extends FormField<Task[], RequiredFieldAttr> {
 }
 
 export class TaskEditor extends MithrilViewComponent<Attrs> {
-  model?: (newValue?: Task[]) => Task[];
+  model?: (newValue?: Task[]) => Task[] | undefined;
   terminal?: HTMLElement;
 
   view(vnode: m.Vnode<Attrs, {}>) {

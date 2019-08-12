@@ -16,8 +16,7 @@
 import {bind} from "classnames/bind";
 import _ from "lodash";
 import m from "mithril";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {UserJSON} from "models/users/users";
 import {UsersCRUD, UserSearchCRUD} from "models/users/users_crud";
 import uuid from "uuid/v4";
@@ -33,11 +32,11 @@ const classnames = bind(styles);
 
 export class UserSearchModal extends Modal {
 
-  readonly userResult: Stream<UserJSON[]>               = stream();
+  readonly userResult: Stream<UserJSON[]>               = Stream();
   private readonly radioName                            = `user-search-${uuid()}`;
-  private readonly searchText: Stream<string>           = stream();
-  private readonly searchStatus                         = stream(false);
-  private readonly selectedUser: Stream<UserJSON>       = stream();
+  private readonly searchText: Stream<string>           = Stream();
+  private readonly searchStatus                         = Stream(false);
+  private readonly selectedUser: Stream<UserJSON>       = Stream();
   private readonly modalLevelMessage: FlashMessageModel = new FlashMessageModel();
 
   private pageLevelMessage: FlashMessageModel;

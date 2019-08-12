@@ -20,11 +20,11 @@ import {Dashboard} from "models/dashboard/dashboard";
 import {Pipelines} from "models/dashboard/pipelines";
 import {PipelineWidget} from "views/dashboard/pipeline_widget";
 import {timeFormatter} from "helpers/time_formatter";
-import simulateEvent from "simulate-event";
 import $ from "jquery";
 import _ from "lodash";
 import m from "mithril";
 import "jasmine-ajax";
+import * as simulateEvent from "simulate-event";
 
 describe("Dashboard Pipeline Widget", () => {
 
@@ -196,10 +196,6 @@ describe("Dashboard Pipeline Widget", () => {
         expect(helper.find('.unpause')).toHaveClass('disabled');
       });
 
-      it('should add onclick handler for admin users', () => {
-        expect(_.isFunction(helper.find('.unpause').get(0).onclick)).toBe(true);
-      });
-
       it('should not add onclick handler for non admin users', () => {
         helper.unmount();
         mount(true, pauseInfo, undefined, false);
@@ -308,9 +304,6 @@ describe("Dashboard Pipeline Widget", () => {
         expect(helper.find('.pause')).toHaveClass('disabled');
       });
 
-      it('should add onclick handler for admin users', () => {
-        expect(_.isFunction(helper.find('.pause').get(0).onclick)).toBe(true);
-      });
 
       it('should not add onclick handler for non admin users', () => {
         helper.unmount();
@@ -353,6 +346,7 @@ describe("Dashboard Pipeline Widget", () => {
 
         doRefreshImmediately.and.callFake(() => pipeline.isPaused = true);
         simulateEvent.simulate($('.reveal .primary').get(0), 'click');
+        m.redraw.sync();
 
         expect(doCancelPolling).toHaveBeenCalled();
         expect(doRefreshImmediately).toHaveBeenCalled();
@@ -373,12 +367,15 @@ describe("Dashboard Pipeline Widget", () => {
           },
           status:          409
         });
+
         expect(doCancelPolling).not.toHaveBeenCalled();
         expect(doRefreshImmediately).not.toHaveBeenCalled();
 
         helper.click('.pause');
+
         $('.reveal input').val("test");
         simulateEvent.simulate($('.reveal .primary').get(0), 'click');
+        m.redraw.sync();
 
         expect(doCancelPolling).toHaveBeenCalled();
         expect(doRefreshImmediately).toHaveBeenCalled();
@@ -401,9 +398,9 @@ describe("Dashboard Pipeline Widget", () => {
         expect($('.reveal:visible')).toBeInDOM();
         const pausePopupTextBox = $('.reveal input');
         pausePopupTextBox.val("test");
-        const keydownEvent = $.Event("keydown");
-        keydownEvent.key   = "Enter";
-        pausePopupTextBox.trigger(keydownEvent);
+
+        simulateEvent.simulate(pausePopupTextBox.get(0), 'keydown', { key: 'Enter' });
+        m.redraw.sync();
 
         expect($('.reveal:visible')).not.toBeInDOM();
         expect(helper.find('.pipeline_message')).toContainText(responseMessage);
@@ -413,9 +410,10 @@ describe("Dashboard Pipeline Widget", () => {
       it("should close pause popup when escape is pressed", () => {
         helper.click('.pause');
         expect($('.reveal:visible')).toBeInDOM();
-        const keydownEvent = $.Event("keydown");
-        keydownEvent.key   = "Escape";
-        $('body').trigger(keydownEvent);
+
+        simulateEvent.simulate($('body').get(0), 'keydown', { key: 'Escape' });
+        m.redraw.sync();
+
         expect($('.reveal:visible')).not.toBeInDOM();
       });
 
@@ -471,6 +469,7 @@ describe("Dashboard Pipeline Widget", () => {
 
         doRefreshImmediately.and.callFake(() => pipeline.isPaused = true);
         simulateEvent.simulate($('.reveal .primary').get(0), 'click');
+        m.redraw.sync();
 
         expect(doCancelPolling).toHaveBeenCalled();
         expect(doRefreshImmediately).toHaveBeenCalled();
@@ -626,10 +625,6 @@ describe("Dashboard Pipeline Widget", () => {
         expect(_.isFunction(helper.find('.play').get(0).onclick)).toBe(false);
       });
 
-      it('should add onclick handler for admin users', () => {
-        expect(_.isFunction(helper.find('.play').get(0).onclick)).toBe(true);
-      });
-
       it('should not add onclick handler for non admin users', () => {
         helper.unmount();
         mount(true, {}, {}, false, false);
@@ -748,9 +743,6 @@ describe("Dashboard Pipeline Widget", () => {
         expect(_.isFunction(helper.find('.play_with_options').get(0).onclick)).toBe(false);
       });
 
-      it('should add onclick handler for admin users', () => {
-        expect(_.isFunction(helper.find('.play_with_options').get(0).onclick)).toBe(true);
-      });
 
       it('should not add onclick handler for non admin users', () => {
         helper.unmount();
@@ -775,7 +767,7 @@ describe("Dashboard Pipeline Widget", () => {
         expect($('.reveal:visible')).not.toBeInDOM();
 
         helper.click('.play_with_options');
-        m.redraw();
+        m.redraw.sync();
 
         expect($('.reveal:visible')).toBeInDOM();
         expect($('.callout.alert')).toBeInDOM();
@@ -802,7 +794,8 @@ describe("Dashboard Pipeline Widget", () => {
         expect($('.pipeline_options-heading')).toContainText('Materials');
 
         //close trigger with options modal
-        $('.modal-buttons .button.save.secondary').click();
+        simulateEvent.simulate($('.modal-buttons .button.save.secondary').get(0), 'click');
+        m.redraw.sync();
 
         //open again trigger with options modal
         expect($('.reveal:visible')).not.toBeInDOM();
@@ -829,7 +822,8 @@ describe("Dashboard Pipeline Widget", () => {
 
         helper.click('.play_with_options');
 
-        $('.modal-buttons .button.save.primary').click();
+        simulateEvent.simulate($('.modal-buttons .button.save.primary').get(0), 'click');
+        m.redraw.sync();
 
         expect(pipeline.triggerDisabled()).toBe(true);
 

@@ -44,6 +44,7 @@ describe("Modal", () => {
     })();
 
     testModal.render();
+    m.redraw.sync();
     expect($(`.${styles.overlayHeader} h3`)).toContainText("Test Modal");
     expect($(`.${styles.overlayContent} p`)).toContainText("Hello World!");
     const buttonsSelector = `.${styles.overlayFooter} button`;
@@ -59,10 +60,12 @@ describe("Modal", () => {
     const testModal = aModal();
 
     testModal.render();
+    m.redraw.sync();
 
     const modalSelector = `.${styles.overlayHeader} h3`;
     expect($(modalSelector)).toBeInDOM();
     simulateEvent.simulate($(modalSelector).get(0), "keydown", {key: "Escape", keyCode: 27});
+    m.redraw.sync();
     expect($(modalSelector)).not.toBeInDOM();
     testModal.close();
   });
@@ -71,6 +74,7 @@ describe("Modal", () => {
     const testModal = aModal();
 
     testModal.render();
+    m.redraw.sync();
     const buttonsSelector = `.${styles.overlayFooter} button`;
     expect($(buttonsSelector).length).toBe(1);
     expect($(buttonsSelector).get(0)).toContainText("OK");
@@ -80,11 +84,13 @@ describe("Modal", () => {
   it("should close the modal when the overlay outside is clicked", () => {
     const testModal = aModal();
     testModal.render();
+    m.redraw.sync();
 
     const modalSelector = `.${styles.overlayHeader} h3`;
     const bgSelector    = `.${styles.overlayBg}`;
     expect($(modalSelector)).toBeInDOM();
     simulateEvent.simulate($(bgSelector).get(0), "click");
+    m.redraw.sync();
     expect($(modalSelector)).not.toBeInDOM();
     testModal.close();
   });
@@ -92,10 +98,12 @@ describe("Modal", () => {
   it("should not close the modal when clicked inside", () => {
     const testModal = aModal();
     testModal.render();
+    m.redraw.sync();
 
     const modalSelector = `.${styles.overlayHeader} h3`;
     expect($(modalSelector)).toBeInDOM();
     simulateEvent.simulate($("#modal-inside").get(0), "click");
+    m.redraw.sync();
     expect($(modalSelector)).toBeInDOM();
     testModal.close();
   });

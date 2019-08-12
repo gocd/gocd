@@ -15,8 +15,7 @@
  */
 
 import _ from "lodash";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 
 export interface SystemAdminsJSON {
   roles: string[];
@@ -28,8 +27,8 @@ export class SystemAdmins {
   readonly roles: Stream<string[]>;
 
   constructor(users: string[], roles: string[]) {
-    this.users = stream(users);
-    this.roles = stream(roles);
+    this.users = Stream(users);
+    this.roles = Stream(roles);
   }
 
   static fromJSON(json: SystemAdminsJSON) {

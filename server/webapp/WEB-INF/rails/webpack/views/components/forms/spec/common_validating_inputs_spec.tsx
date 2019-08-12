@@ -17,8 +17,7 @@
 import {asSelector} from "helpers/css_proxies";
 import _ from "lodash";
 import m from "mithril";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {IdentifierInputField} from "../common_validating_inputs";
 import css from "../forms.scss";
@@ -28,8 +27,8 @@ describe("Common Validating Input Fields:", () => {
   const sel = asSelector(css);
 
   describe("IdentifierInputField", () => {
-    const data: Stream<string> = stream();
-    const required: Stream<boolean> = stream();
+    const data: Stream<string> = Stream();
+    const required: Stream<boolean> = Stream();
 
     beforeEach(() => {
       data("");

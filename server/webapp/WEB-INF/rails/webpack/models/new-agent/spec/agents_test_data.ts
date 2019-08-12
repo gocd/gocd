@@ -40,6 +40,23 @@ export class AgentsTestData {
                       resources);
   }
 
+  static agentWithEnvironments(...envs: string[]) {
+    const agent        = this.agent("37af8492-d64d-4a3f-b1f2-4ea37dd0d201",
+                                    "Aaaaa",
+                                    "Zzzzz",
+                                    "Windows 10",
+                                    undefined,
+                                    "10.1.0.5",
+                                    ["dev", "fat", "ie9", "firefox"]);
+    agent.environments = envs.map((env) => {
+      return {
+        name: env,
+        origin: {type: "gocd"}
+      };
+    });
+    return agent;
+  }
+
   static agent(uuid: string, hostname: string,
                sandbox: string   = "go",
                os: string        = "windows",

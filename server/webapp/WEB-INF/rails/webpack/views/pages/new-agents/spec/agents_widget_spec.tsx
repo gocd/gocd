@@ -116,6 +116,26 @@ describe("NewAgentsWidget", () => {
     });
   });
 
+  describe("Environments", () => {
+    it("should list comma separated environments", () => {
+      const agent  = Agent.fromJSON(AgentsTestData.agentWithEnvironments("prod", "dev", "qa"));
+      const agents = new Agents([agent]);
+
+      mount(agents);
+
+      expect(helper.findByDataTestId(`agent-environments-of-${agent.uuid}`)).toContainText("prod, dev, qa");
+    });
+
+    it("should show 'none specified' when agent has no resources specified", () => {
+      const agent  = Agent.fromJSON(AgentsTestData.agentWithEnvironments());
+      const agents = new Agents([agent]);
+
+      mount(agents);
+
+      expect(helper.findByDataTestId(`agent-environments-of-${agent.uuid}`)).toContainText("none specified");
+    });
+  });
+
   function mount(agents: Agents) {
     helper.mount(() => <AgentsWidget agents={agents}/>);
   }
@@ -128,5 +148,6 @@ describe("NewAgentsWidget", () => {
     expect(helper.findByDataTestId(`agent-free-space-of-${agent.uuid}`)).toContainText(agent.readableFreeSpace());
     expect(helper.findByDataTestId(`agent-resources-of-${agent.uuid}`))
       .toContainText(AgentsWidget.joinOrNoneSpecified(agent.resources));
+    expect(helper.findByDataTestId(`agent-environments-of-${agent.uuid}`)).toContainText(AgentsWidget.joinOrNoneSpecified(agent.environmentNames()));
   }
 });

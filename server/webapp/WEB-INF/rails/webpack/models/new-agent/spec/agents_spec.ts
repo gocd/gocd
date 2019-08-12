@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {Agent, Agents} from "models/new-agent/agents";
+import {Agent, Agents, AgentsEnvironment} from "models/new-agent/agents";
 import {AgentsTestData} from "models/new-agent/spec/agents_test_data";
 
 describe("AgentsModel", () => {
@@ -54,6 +54,36 @@ describe("AgentsModel", () => {
 
       expect(agent.readableFreeSpace()).toEqual("5.5 GB");
 
+    });
+
+    it("should return environments", function () {
+      const agentJSON = AgentsTestData.agentWithEnvironments("prod", "dev", "qa");
+
+      const agent = Agent.fromJSON(agentJSON);
+
+      expect(agent.environments).toHaveLength(3);
+      expect(agent.environments[0]).toEqual(new AgentsEnvironment("prod", "gocd"));
+      expect(agent.environments[1]).toEqual(new AgentsEnvironment("dev", "gocd"));
+      expect(agent.environments[2]).toEqual(new AgentsEnvironment("qa", "gocd"));
+    });
+
+    it("should return environments name", function () {
+      const agentJSON = AgentsTestData.agentWithEnvironments("prod", "dev", "qa");
+
+      const agent = Agent.fromJSON(agentJSON);
+
+      expect(agent.environmentNames()).toHaveLength(3);
+      expect(agent.environmentNames()[0]).toEqual("prod");
+      expect(agent.environmentNames()[1]).toEqual("dev");
+      expect(agent.environmentNames()[2]).toEqual("qa");
+    });
+
+    it("should return empty array when agent is not associated with any environments", function () {
+      const agentJSON = AgentsTestData.agentWithEnvironments();
+
+      const agent = Agent.fromJSON(agentJSON);
+
+      expect(agent.environmentNames()).toHaveLength(0);
     });
   });
 

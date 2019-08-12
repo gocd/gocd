@@ -33,6 +33,15 @@ enum BuildState {
   Idle, Building, Cancelled, Unknown
 }
 
+interface Origin {
+  type: string;
+}
+
+export interface AgentEnvironmentJSON {
+  name: string;
+  origin: Origin;
+}
+
 export interface AgentJSON {
   uuid: string;
   hostname: string;
@@ -44,6 +53,7 @@ export interface AgentJSON {
   agent_state: AgentState;
   resources: string[];
   build_state: BuildState;
+  environments: AgentEnvironmentJSON[]
 }
 
 interface EmbeddedJSON {
@@ -52,6 +62,16 @@ interface EmbeddedJSON {
 
 export interface AgentsJSON {
   _embedded: EmbeddedJSON;
+}
+
+export class AgentsEnvironment {
+  public readonly name: string;
+  public readonly originType: string;
+
+  constructor(name: string, originType: string) {
+    this.name       = name;
+    this.originType = originType;
+  }
 }
 
 export class Agent {
@@ -65,6 +85,7 @@ export class Agent {
   public readonly agentState: AgentState;
   public readonly resources: string[];
   public readonly buildState: BuildState;
+  public readonly environments: AgentsEnvironment[];
 
   constructor(uuid: string,
               hostname: string,
@@ -75,7 +96,8 @@ export class Agent {
               agentConfigState: AgentConfigState,
               agentState: AgentState,
               resources: string[],
-              buildState: BuildState) {
+              buildState: BuildState,
+              environments: AgentsEnvironment[]) {
     this.uuid             = uuid;
     this.hostname         = hostname;
     this.ipAddress        = ipAddress;
@@ -86,6 +108,7 @@ export class Agent {
     this.agentState       = agentState;
     this.resources        = resources;
     this.buildState       = buildState;
+    this.environments     = environments;
   }
 
   hasFilterText(filterText: string): boolean {
@@ -109,7 +132,8 @@ export class Agent {
                      data.agent_config_state,
                      data.agent_state,
                      data.resources,
-                     data.build_state);
+                     data.build_state,
+                     data.environments.map((envJson) => new AgentsEnvironment(envJson.name, envJson.origin.type)));
   }
 
   readableFreeSpace() {
@@ -122,6 +146,13 @@ export class Agent {
     } catch (e) {
       return "Unknown";
     }
+  };
+
+  environmentNames() {
+    if (!this.environments || this.environments.length === 0) {
+      return [];
+    }
+    return this.environments.map((env) => env.name);
   };
 }
 

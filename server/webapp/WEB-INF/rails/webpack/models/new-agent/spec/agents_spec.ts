@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {Agent, Agents, AgentsEnvironment} from "models/new-agent/agents";
+import {Agent, AgentConfigState, Agents, AgentsEnvironment, AgentState, BuildState} from "models/new-agent/agents";
 import {AgentsTestData} from "models/new-agent/spec/agents_test_data";
 
 describe("AgentsModel", () => {
@@ -35,9 +35,9 @@ describe("AgentsModel", () => {
       expect(agent.sandbox).toEqual(agentJSON.sandbox);
       expect(agent.operatingSystem).toEqual(agentJSON.operating_system);
       expect(agent.operatingSystem).toEqual(agentJSON.operating_system);
-      expect(agent.agentConfigState).toEqual(agentJSON.agent_config_state);
-      expect(agent.agentState).toEqual(agentJSON.agent_state);
-      expect(agent.buildState).toEqual(agentJSON.build_state);
+      expect(agent.agentConfigState).toEqual(AgentConfigState.Enabled);
+      expect(agent.agentState).toEqual(AgentState.Idle);
+      expect(agent.buildState).toEqual(BuildState.Idle);
       expect(agent.freeSpace).toEqual(agentJSON.free_space);
       expect(agent.resources).toEqual(agentJSON.resources);
     });
@@ -217,6 +217,84 @@ describe("AgentsModel", () => {
 
       expect(agents.list().length).toEqual(1);
       expect(agents.list()).toEqual([agentA]);
+    });
+  });
+
+  describe("Agent Status", () => {
+    it("should show as pending when agent is in pending state", () => {
+      const agentInPendingState = Agent.fromJSON(AgentsTestData.pendingAgent());
+
+      const agentStatus = agentInPendingState.status();
+
+      expect(agentStatus).toEqual("Pending");
+    });
+
+    describe("Enabled", () => {
+      it("should show as Building (Cancelled) when agent is enabled and job is cancelled", () => {
+        const agentInPendingState = Agent.fromJSON(AgentsTestData.buildingCancelledAgent());
+
+        const agentStatus = agentInPendingState.status();
+
+        expect(agentStatus).toEqual("Building (Cancelled)");
+      });
+
+      it("should show as Building when agent is enabled and building a job", () => {
+        const agentInPendingState = Agent.fromJSON(AgentsTestData.buildingAgent());
+
+        const agentStatus = agentInPendingState.status();
+
+        expect(agentStatus).toEqual("Building");
+      });
+
+      it("should show as Idle when agent is idle", () => {
+        const agentInPendingState = Agent.fromJSON(AgentsTestData.idleAgent());
+
+        const agentStatus = agentInPendingState.status();
+
+        expect(agentStatus).toEqual("Idle");
+      });
+
+      it("should show as Missing when agent is in missing state", () => {
+        const agentInPendingState = Agent.fromJSON(AgentsTestData.missingAgent());
+
+        const agentStatus = agentInPendingState.status();
+
+        expect(agentStatus).toEqual("Missing");
+      });
+
+      it("should show as LostContact when agent is in lost contact state", () => {
+        const agentInPendingState = Agent.fromJSON(AgentsTestData.lostContactAgent());
+
+        const agentStatus = agentInPendingState.status();
+
+        expect(agentStatus).toEqual("LostContact");
+      });
+    });
+
+    describe("Disabled", () => {
+      it("should show as Disabled(Building) when agent is disabled and job is running", () => {
+        const agentInPendingState = Agent.fromJSON(AgentsTestData.disabledBuildingAgent());
+
+        const agentStatus = agentInPendingState.status();
+
+        expect(agentStatus).toEqual("Disabled (Building)");
+      });
+
+      it("should show as Disabled(Cancelled) when agent is disabled and job is cancelled", () => {
+        const agentInPendingState = Agent.fromJSON(AgentsTestData.disabledCancelledAgent());
+
+        const agentStatus = agentInPendingState.status();
+
+        expect(agentStatus).toEqual("Disabled (Cancelled)");
+      });
+
+      it("should show as Disabled when agent is disabled and job is not running", () => {
+        const agentInPendingState = Agent.fromJSON(AgentsTestData.disabledAgent());
+
+        const agentStatus = agentInPendingState.status();
+
+        expect(agentStatus).toEqual("Disabled");
+      });
     });
   });
 });

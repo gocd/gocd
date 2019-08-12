@@ -21,15 +21,15 @@ import {TableSortHandler} from "views/components/table";
 
 const filesize = require("filesize");
 
-enum AgentConfigState {
-  Enabled, Disabled
+export enum AgentConfigState {
+  Enabled, Disabled, Pending
 }
 
-enum AgentState {
+export enum AgentState {
   Idle, Building, LostContact, Missing, Cancelled, Unknown
 }
 
-enum BuildState {
+export enum BuildState {
   Idle, Building, Cancelled, Unknown
 }
 
@@ -49,10 +49,10 @@ export interface AgentJSON {
   sandbox: string;
   operating_system: string;
   free_space: string | number;
-  agent_config_state: AgentConfigState;
-  agent_state: AgentState;
+  agent_config_state: string;
+  agent_state: string;
   resources: string[];
-  build_state: BuildState;
+  build_state: string;
   environments: AgentEnvironmentJSON[]
 }
 
@@ -81,11 +81,11 @@ export class Agent {
   public readonly freeSpace: string | number;
   public readonly sandbox: string;
   public readonly operatingSystem: string;
+  public readonly resources: string[];
+  public readonly environments: AgentsEnvironment[];
   public readonly agentConfigState: AgentConfigState;
   public readonly agentState: AgentState;
-  public readonly resources: string[];
   public readonly buildState: BuildState;
-  public readonly environments: AgentsEnvironment[];
 
   constructor(uuid: string,
               hostname: string,
@@ -129,10 +129,10 @@ export class Agent {
                      data.free_space,
                      data.sandbox,
                      data.operating_system,
-                     data.agent_config_state,
-                     data.agent_state,
+                     (<any>AgentConfigState)[data.agent_config_state],
+                     (<any>AgentState)[data.agent_state],
                      data.resources,
-                     data.build_state,
+                     (<any>BuildState)[data.build_state],
                      data.environments.map((envJson) => new AgentsEnvironment(envJson.name, envJson.origin.type)));
   }
 
@@ -154,6 +154,26 @@ export class Agent {
     }
     return this.environments.map((env) => env.name);
   };
+
+  status() {
+    if (this.agentConfigState === AgentConfigState.Pending) {
+      return "Pending";
+    }
+
+    if (this.agentConfigState === AgentConfigState.Disabled) {
+      if (this.buildState === BuildState.Building) {
+        return "Disabled (Building)";
+      } else if (this.buildState === BuildState.Cancelled) {
+        return "Disabled (Cancelled)";
+      }
+      return "Disabled";
+    }
+
+    if (this.agentState === AgentState.Building) {
+      return this.buildState === BuildState.Cancelled ? "Building (Cancelled)" : "Building";
+    }
+    return AgentState[this.agentState];
+  }
 }
 
 enum SortOrder {

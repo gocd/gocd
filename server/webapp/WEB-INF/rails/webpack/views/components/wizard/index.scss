@@ -18,7 +18,7 @@
 .overlay {
   border:   none;
   position: fixed;
-  z-index:  map_get($zindex, 'modal-overlay');
+  z-index:  map_get($zindex, 'wizard-overlay');
   top:      40px;
   left:     0;
   right:    0;

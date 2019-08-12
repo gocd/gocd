@@ -16,17 +16,18 @@
 
 import m from "mithril";
 
-import {Agents, AgentsJSON} from "models/new-agent/agents";
+import {Agent, Agents} from "models/new-agent/agents";
+import {AgentsTestData} from "models/new-agent/spec/agents_test_data";
 import {AgentsWidget} from "views/pages/new-agents/agents_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
 import * as simulateEvent from "simulate-event";
 
-describe("New Agents Widget", () => {
+describe("NewAgentsWidget", () => {
   const helper = new TestHelper();
   let agents: Agents;
 
   beforeEach(() => {
-    agents = Agents.fromJSON(agentsJSON());
+    agents = Agents.fromJSON(AgentsTestData.list());
     helper.mount(() => <AgentsWidget agents={agents}/>);
   });
 
@@ -47,28 +48,12 @@ describe("New Agents Widget", () => {
   });
 
   it("should render agents in the table", () => {
-    const agents    = agentsJSON();
     const tableBody = helper.findByDataTestId("table-body");
-    expect(tableBody.children()).toHaveLength(2);
+    expect(tableBody.children()).toHaveLength(3);
 
-    const agent1     = agents._embedded.agents[0];
-    const agent2     = agents._embedded.agents[1];
-    const agentUUID1 = agent1.uuid;
-    const agentUUID2 = agent2.uuid;
-
-    expect(helper.findByDataTestId(`agent-hostname-of-${agentUUID2}`)).toContainText(agent2.hostname);
-    expect(helper.findByDataTestId(`agent-sandbox-of-${agentUUID2}`)).toContainText(agent2.sandbox);
-    expect(helper.findByDataTestId(`agent-operating-system-of-${agentUUID2}`)).toContainText(agent2.operating_system);
-    expect(helper.findByDataTestId(`agent-ip-address-of-${agentUUID2}`)).toContainText(agent2.ip_address);
-    expect(helper.findByDataTestId(`agent-free-space-of-${agentUUID2}`)).toContainText(agent2.free_space.toString());
-    expect(helper.findByDataTestId(`agent-resources-of-${agentUUID2}`)).toContainText(agent2.resources.join(", "));
-
-    expect(helper.findByDataTestId(`agent-hostname-of-${agentUUID1}`)).toContainText(agent1.hostname);
-    expect(helper.findByDataTestId(`agent-sandbox-of-${agentUUID1}`)).toContainText(agent1.sandbox);
-    expect(helper.findByDataTestId(`agent-operating-system-of-${agentUUID1}`)).toContainText(agent1.operating_system);
-    expect(helper.findByDataTestId(`agent-ip-address-of-${agentUUID1}`)).toContainText(agent1.ip_address);
-    expect(helper.findByDataTestId(`agent-free-space-of-${agentUUID1}`)).toContainText(agent1.free_space.toString());
-    expect(helper.findByDataTestId(`agent-resources-of-${agentUUID1}`)).toContainText(agent1.resources.join(", "));
+    assertAgentRow(agents.list()[0]);
+    assertAgentRow(agents.list()[1]);
+    assertAgentRow(agents.list()[2]);
   });
 
   it("should render a serach box", () => {
@@ -77,113 +62,29 @@ describe("New Agents Widget", () => {
   });
 
   it("should filter agents based on the searched value", () => {
-    const agents    = agentsJSON();
-    const agentUUID1 = agents._embedded.agents[0].uuid;
-    const agentUUID2 = agents._embedded.agents[1].uuid;
+    const agentA    = agents.list()[0],
+          agentB    = agents.list()[1],
+          agentC    = agents.list()[2];
     const searchBox = helper.findByDataTestId("form-field-input-search-for-agents");
 
-    expect(helper.findByDataTestId("table-body").children()).toHaveLength(2);
-    expect(helper.findByDataTestId(`agent-hostname-of-${agentUUID1}`)).toBeInDOM();
-    expect(helper.findByDataTestId(`agent-hostname-of-${agentUUID2}`)).toBeInDOM();
+    expect(helper.findByDataTestId("table-body").children()).toHaveLength(3);
+    assertAgentRow(agentA);
+    assertAgentRow(agentB);
+    assertAgentRow(agentC);
 
     searchBox.val("wind");
     simulateEvent.simulate(searchBox.get(0), "input");
 
     expect(helper.findByDataTestId("table-body").children()).toHaveLength(1);
-    expect(helper.findByDataTestId(`agent-hostname-of-${agentUUID1}`)).toBeInDOM();
+    assertAgentRow(agentA);
   });
 
-  function agentsJSON(): AgentsJSON {
-    return {
-      _embedded: {
-        agents: [
-          {
-            uuid: "uuid1",
-            hostname: "windows-10-pro",
-            ip_address: "10.1.0.5",
-            sandbox: "C:\\go",
-            operating_system: "Windows 10",
-            // @ts-ignore
-            agent_config_state: "Enabled",
-            // @ts-ignore
-            agent_state: "Idle",
-            environments: [{
-              name: "gocd",
-              origin: {
-                type: "gocd",
-                _links: {
-                  self: {
-                    href: "https://build.gocd.org/go/admin/config_xml"
-                  },
-                  doc: {
-                    href: "https://api.gocd.org/19.8.0/#get-configuration"
-                  }
-                }
-              }
-            },
-              {
-                name: "internal",
-                origin: {
-                  type: "gocd",
-                  _links: {
-                    self: {
-                      href: "https://build.gocd.org/go/admin/config_xml"
-                    },
-                    doc: {
-                      href: "https://api.gocd.org/19.8.0/#get-configuration"
-                    }
-                  }
-                }
-              }],
-            // @ts-ignore
-            build_state: "Idle",
-            free_space: 93259825152,
-            resources: ["dev", "fat", "ie9", "windows"]
-          },
-          {
-            uuid: "uuid2",
-            hostname: "mac-mini",
-            ip_address: "10.1.0.10",
-            sandbox: "/var/run/",
-            operating_system: "Mac OS X",
-            // @ts-ignore
-            agent_config_state: "Disabled",
-            // @ts-ignore
-            agent_state: "Idle",
-            environments: [{
-              name: "gocd",
-              origin: {
-                type: "gocd",
-                _links: {
-                  self: {
-                    href: "https://build.gocd.org/go/admin/config_xml"
-                  },
-                  doc: {
-                    href: "https://api.gocd.org/19.8.0/#get-configuration"
-                  }
-                }
-              }
-            }, {
-              name: "internal",
-              origin: {
-                type: "gocd",
-                _links: {
-                  self: {
-                    href: "https://build.gocd.org/go/admin/config_xml"
-                  },
-                  doc: {
-                    href: "https://api.gocd.org/19.8.0/#get-configuration"
-                  }
-                }
-              }
-            }],
-            // @ts-ignore
-            build_state: "Building",
-            // @ts-ignore
-            free_space: "unknown",
-            resources: ["firefox"]
-          }]
-      }
-    };
+  function assertAgentRow(agent: Agent) {
+    expect(helper.findByDataTestId(`agent-hostname-of-${agent.uuid}`)).toContainText(agent.hostname);
+    expect(helper.findByDataTestId(`agent-sandbox-of-${agent.uuid}`)).toContainText(agent.sandbox);
+    expect(helper.findByDataTestId(`agent-operating-system-of-${agent.uuid}`)).toContainText(agent.operatingSystem);
+    expect(helper.findByDataTestId(`agent-ip-address-of-${agent.uuid}`)).toContainText(agent.ipAddress);
+    expect(helper.findByDataTestId(`agent-free-space-of-${agent.uuid}`)).toContainText(agent.readableFreeSpace());
+    expect(helper.findByDataTestId(`agent-resources-of-${agent.uuid}`)).toContainText(agent.resources.join(", "));
   }
 });

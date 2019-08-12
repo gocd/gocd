@@ -19,6 +19,8 @@ import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
 import {TableSortHandler} from "views/components/table";
 
+const filesize = require("filesize");
+
 enum AgentConfigState {
   Enabled, Disabled
 }
@@ -37,7 +39,7 @@ export interface AgentJSON {
   ip_address: string;
   sandbox: string;
   operating_system: string;
-  free_space: number;
+  free_space: string | number;
   agent_config_state: AgentConfigState;
   agent_state: AgentState;
   resources: string[];
@@ -56,7 +58,7 @@ export class Agent {
   public readonly uuid: string;
   public readonly hostname: string;
   public readonly ipAddress: string;
-  public readonly freeSpace: number;
+  public readonly freeSpace: string | number;
   public readonly sandbox: string;
   public readonly operatingSystem: string;
   public readonly agentConfigState: AgentConfigState;
@@ -67,7 +69,7 @@ export class Agent {
   constructor(uuid: string,
               hostname: string,
               ipAddress: string,
-              freeSpace: number,
+              freeSpace: string | number,
               sandbox: string,
               operatingSystem: string,
               agentConfigState: AgentConfigState,
@@ -109,6 +111,18 @@ export class Agent {
                      data.resources,
                      data.build_state);
   }
+
+  readableFreeSpace() {
+    try {
+      if (_.isNumber(this.freeSpace)) {
+        return filesize(this.freeSpace);
+      } else {
+        return "Unknown";
+      }
+    } catch (e) {
+      return "Unknown";
+    }
+  };
 }
 
 enum SortOrder {

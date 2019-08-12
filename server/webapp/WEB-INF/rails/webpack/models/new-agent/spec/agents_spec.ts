@@ -14,253 +14,179 @@
  * limitations under the License.
  */
 
-import {Agent, AgentJSON, Agents, AgentsJSON} from "models/new-agent/agents";
+import {Agent, Agents} from "models/new-agent/agents";
+import {AgentsTestData} from "models/new-agent/spec/agents_test_data";
 
-describe("Agents Model", () => {
+describe("AgentsModel", () => {
   describe("Deserialize", () => {
     it("should deserialize all agents from JSON", () => {
-      const agents = Agents.fromJSON(agentsJSON);
-      expect(agents.count()).toBe(2);
+      const agents = Agents.fromJSON(AgentsTestData.list());
+
+      expect(agents.count()).toBe(3);
     });
 
     it("should deserialize agent from JSON", () => {
-      const agent = Agent.fromJSON(agent1JSON);
+      const agentJSON = AgentsTestData.agent("45583959-97e2-4b8e-8eab-2f98d73f2e23", "1773fcad85d8");
+      const agent     = Agent.fromJSON(agentJSON);
 
-      expect(agent.uuid).toEqual(agent1JSON.uuid);
-      expect(agent.hostname).toEqual(agent1JSON.hostname);
-      expect(agent.ipAddress).toEqual(agent1JSON.ip_address);
-      expect(agent.sandbox).toEqual(agent1JSON.sandbox);
-      expect(agent.operatingSystem).toEqual(agent1JSON.operating_system);
-      expect(agent.operatingSystem).toEqual(agent1JSON.operating_system);
-      expect(agent.agentConfigState).toEqual(agent1JSON.agent_config_state);
-      expect(agent.agentState).toEqual(agent1JSON.agent_state);
-      expect(agent.buildState).toEqual(agent1JSON.build_state);
-      expect(agent.freeSpace).toEqual(agent1JSON.free_space);
-      expect(agent.resources).toEqual(agent1JSON.resources);
+      expect(agent.uuid).toEqual(agentJSON.uuid);
+      expect(agent.hostname).toEqual(agentJSON.hostname);
+      expect(agent.ipAddress).toEqual(agentJSON.ip_address);
+      expect(agent.sandbox).toEqual(agentJSON.sandbox);
+      expect(agent.operatingSystem).toEqual(agentJSON.operating_system);
+      expect(agent.operatingSystem).toEqual(agentJSON.operating_system);
+      expect(agent.agentConfigState).toEqual(agentJSON.agent_config_state);
+      expect(agent.agentState).toEqual(agentJSON.agent_state);
+      expect(agent.buildState).toEqual(agentJSON.build_state);
+      expect(agent.freeSpace).toEqual(agentJSON.free_space);
+      expect(agent.resources).toEqual(agentJSON.resources);
+    });
+
+    it("should return free space in human readable format", () => {
+      const agentFreeSpaceInGB = 5.5 * 1024 * 1024 * 1024;
+      const agentJSON          = AgentsTestData.agent("45583959-97e2-4b8e-8eab-2f98d73f2e23",
+                                                      "1773fcad85d8",
+                                                      undefined,
+                                                      undefined,
+                                                      agentFreeSpaceInGB);
+
+      const agent = Agent.fromJSON(agentJSON);
+
+      expect(agent.readableFreeSpace()).toEqual("5.5 GB");
+
     });
   });
 
   describe("Sort", () => {
 
     it("should get the sortable column index", () => {
-      const agents = Agents.fromJSON(agentsJSON);
+      const agents = Agents.fromJSON(AgentsTestData.list());
 
       expect(agents.getSortableColumns()).toEqual([0, 1, 2, 3, 4, 5, 6, 7]);
     });
 
     it("should sort the data based on the column clicked", () => {
-      const agents = Agents.fromJSON(agentsJSON);
-      const agent1 = Agent.fromJSON(agent1JSON);
-      const agent2 = Agent.fromJSON(agent2JSON);
+      const agents = Agents.fromJSON(AgentsTestData.list());
+      const agentA = agents.list()[0];
+      const agentB = agents.list()[1];
+      const agentC = agents.list()[2];
 
-      expect(agents.list()).toEqual([agent2, agent1]);
+      expect(agents.list()).toEqual([agentA, agentB, agentC]);
 
       agents.onColumnClick(1);
-      expect(agents.list()).toEqual([agent1, agent2]);
+
+      expect(agents.list()).toEqual([agentB, agentC, agentA]);
     });
 
     it("should sort the data in reverser order when the same column is clicked", () => {
-      const agents = Agents.fromJSON(agentsJSON);
-      const agent1 = Agent.fromJSON(agent1JSON);
-      const agent2 = Agent.fromJSON(agent2JSON);
+      const agents = Agents.fromJSON(AgentsTestData.list());
+      const agentA = agents.list()[0];
+      const agentB = agents.list()[1];
+      const agentC = agents.list()[2];
 
-      const agentsToRepresent = agents.list();
-      const expected          = [agent2, agent1];
-      expect(agentsToRepresent).toEqual(expected);
+      expect(agents.list()).toEqual([agentA, agentB, agentC]);
 
       agents.onColumnClick(1);
       const agentsToRepresentAfterClick = agents.list();
-      const expectedAfterClick          = [agent1, agent2];
+      const expectedAfterClick          = [agentB, agentC, agentA];
       expect(agentsToRepresentAfterClick).toEqual(expectedAfterClick);
 
       agents.onColumnClick(1);
       const agentsToRepresentAfterClickOnSameColumn = agents.list();
-      const expectedAfterClickOnSameColumn          = [agent2, agent1];
+      const expectedAfterClickOnSameColumn          = [agentA, agentC, agentB];
       expect(agentsToRepresentAfterClickOnSameColumn).toEqual(expectedAfterClickOnSameColumn);
     });
 
     it("should always sort a new column in ascending order regardless of previous column's sort order", () => {
-      const agents = Agents.fromJSON(agentsJSON);
-      const agent1 = Agent.fromJSON(agent1JSON);
-      const agent2 = Agent.fromJSON(agent2JSON);
+      const agents = Agents.fromJSON(AgentsTestData.list());
+      const agentA = agents.list()[0];
+      const agentB = agents.list()[1];
+      const agentC = agents.list()[2];
 
-      const agentsToRepresent = agents.list();
-      const expected          = [agent2, agent1];
-      expect(agentsToRepresent).toEqual(expected);
+      expect(agents.list()).toEqual([agentA, agentB, agentC]);
 
       agents.onColumnClick(1);
       const agentsToRepresentAfterClick = agents.list();
-      const expectedAfterClick          = [agent1, agent2];
+      const expectedAfterClick          = [agentB, agentC, agentA];
       expect(agentsToRepresentAfterClick).toEqual(expectedAfterClick);
-
-      agents.onColumnClick(1);
-      const agentsToRepresentAfterClickOnSameColumn = agents.list();
-      const expectedAfterClickOnSameColumn          = [agent2, agent1];
-      expect(agentsToRepresentAfterClickOnSameColumn).toEqual(expectedAfterClickOnSameColumn);
 
       agents.onColumnClick(0);
       const agentsToRepresentAfterClickOnAnotherColumn = agents.list();
-      const expectedAfterClickOnAnotherColumn          = [agent2, agent1];
+      const expectedAfterClickOnAnotherColumn          = [agentA, agentB, agentC];
       expect(agentsToRepresentAfterClickOnAnotherColumn).toEqual(expectedAfterClickOnAnotherColumn);
     });
   });
 
   describe("Search", () => {
-    let agents: Agents, agent1: Agent, agent2: Agent;
+    let agents: Agents, agentA: Agent, agentB: Agent, agentC: Agent;
     beforeEach(() => {
-      agents = Agents.fromJSON(agentsJSON);
-      agent1 = Agent.fromJSON(agent1JSON);
-      agent2 = Agent.fromJSON(agent2JSON);
+      agents = Agents.fromJSON(AgentsTestData.list());
+      agentA = agents.list()[0];
+      agentB = agents.list()[1];
+      agentC = agents.list()[2];
     });
 
     it("should search agents based on hostname", () => {
-      expect(agents.list().length).toEqual(2);
+      expect(agents.list().length).toEqual(3);
 
       agents.filterText("windows");
+
       expect(agents.list().length).toEqual(1);
-      expect(agents.list()).toEqual([agent1]);
+      expect(agents.list()).toEqual([agentA]);
     });
 
     it("should search agents based on sandbox", () => {
-      expect(agents.list().length).toEqual(2);
+      expect(agents.list().length).toEqual(3);
 
-      agents.filterText("xy");
+      agents.filterText("Xx");
+
       expect(agents.list().length).toEqual(1);
-      expect(agents.list()).toEqual([agent2]);
+      expect(agents.list()).toEqual([agentB]);
     });
 
     it("should search agents based on os", () => {
-      expect(agents.list().length).toEqual(2);
+      expect(agents.list().length).toEqual(3);
 
       agents.filterText("mac");
+
       expect(agents.list().length).toEqual(1);
-      expect(agents.list()).toEqual([agent2]);
+      expect(agents.list()).toEqual([agentC]);
     });
 
     it("should search agents based on ip address", () => {
-      expect(agents.list().length).toEqual(2);
+      expect(agents.list().length).toEqual(3);
 
       agents.filterText(".5");
+
       expect(agents.list().length).toEqual(1);
-      expect(agents.list()).toEqual([agent1]);
+      expect(agents.list()).toEqual([agentA]);
     });
 
     it("should search agents based on free space", () => {
-      expect(agents.list().length).toEqual(2);
+      expect(agents.list().length).toEqual(3);
 
-      agents.filterText("2598");
+      agents.filterText("2859");
+
       expect(agents.list().length).toEqual(1);
-      expect(agents.list()).toEqual([agent1]);
+      expect(agents.list()).toEqual([agentB]);
     });
 
     it("should search agents based on resources", () => {
-      expect(agents.list().length).toEqual(2);
+      expect(agents.list().length).toEqual(3);
 
       agents.filterText("fire");
-      expect(agents.list().length).toEqual(2);
-      expect(agents.list()).toEqual([agent2, agent1]);
+
+      expect(agents.list().length).toEqual(3);
+      expect(agents.list()).toEqual([agentA, agentB, agentC]);
     });
 
     it("should search agents case-insensitively", () => {
-      expect(agents.list().length).toEqual(2);
+      expect(agents.list().length).toEqual(3);
 
       agents.filterText("WinDow");
+
       expect(agents.list().length).toEqual(1);
-      expect(agents.list()).toEqual([agent1]);
+      expect(agents.list()).toEqual([agentA]);
     });
   });
-
-  const agent1JSON: AgentJSON = {
-    uuid: "uuid1",
-    hostname: "windows-10-pro",
-    ip_address: "10.1.0.5",
-    sandbox: "go",
-    operating_system: "Windows 10",
-    // @ts-ignore
-    agent_config_state: "Enabled",
-    // @ts-ignore
-    agent_state: "Idle",
-    environments: [{
-      name: "gocd",
-      origin: {
-        type: "gocd",
-        _links: {
-          self: {
-            href: "https://build.gocd.org/go/admin/config_xml"
-          },
-          doc: {
-            href: "https://api.gocd.org/19.8.0/#get-configuration"
-          }
-        }
-      }
-    }, {
-      name: "internal",
-      origin: {
-        type: "gocd",
-        _links: {
-          self: {
-            href: "https://build.gocd.org/go/admin/config_xml"
-          },
-          doc: {
-            href: "https://api.gocd.org/19.8.0/#get-configuration"
-          }
-        }
-      }
-    }],
-    // @ts-ignore
-    build_state: "Idle",
-    free_space: 93259825152,
-    resources: ["dev", "fat", "ie9", "windows", "firefox"]
-  };
-
-  const agent2JSON: AgentJSON = {
-    uuid: "uuid2",
-    hostname: "mac-mini",
-    ip_address: "10.1.0.10",
-    sandbox: "xyz",
-    operating_system: "Mac OS X",
-    // @ts-ignore
-    agent_config_state: "Disabled",
-    // @ts-ignore
-    agent_state: "Idle",
-    environments: [{
-      name: "gocd",
-      origin: {
-        type: "gocd",
-        _links: {
-          self: {
-            href: "https://build.gocd.org/go/admin/config_xml"
-          },
-          doc: {
-            href: "https://api.gocd.org/19.8.0/#get-configuration"
-          }
-        }
-      }
-    }, {
-      name: "internal",
-      origin: {
-        type: "gocd",
-        _links: {
-          self: {
-            href: "https://build.gocd.org/go/admin/config_xml"
-          },
-          doc: {
-            href: "https://api.gocd.org/19.8.0/#get-configuration"
-          }
-        }
-      }
-    }],
-    // @ts-ignore
-    build_state: "Building",
-    // @ts-ignore
-    free_space: "unknown",
-    resources: ["firefox"]
-  };
-
-  const agentsJSON: AgentsJSON = {
-    _embedded: {
-      agents: [agent1JSON, agent2JSON]
-    }
-  };
-
 });

@@ -36,7 +36,8 @@ export class AgentsWidget extends MithrilViewComponent<Attrs> {
         <div data-test-id={`agent-free-space-of-${agent.uuid}`}>{agent.readableFreeSpace()}</div>,
         <div
           data-test-id={`agent-resources-of-${agent.uuid}`}>{AgentsWidget.joinOrNoneSpecified(agent.resources)}</div>,
-        <div data-test-id={`agent-environments-of-${agent.uuid}`}>Environment</div>,
+        <div
+          data-test-id={`agent-environments-of-${agent.uuid}`}>{AgentsWidget.joinOrNoneSpecified(agent.environmentNames())}</div>,
       ];
     });
 
@@ -50,11 +51,11 @@ export class AgentsWidget extends MithrilViewComponent<Attrs> {
     </div>;
   }
 
-  static joinOrNoneSpecified(array: string[]): string {
+  static joinOrNoneSpecified(array: string[]): m.Children {
     if (array && array.length > 0) {
       return array.join(", ");
     } else {
-      return "<em>none specified</em>";
+      return (<em>none specified</em>);
     }
   }
 }

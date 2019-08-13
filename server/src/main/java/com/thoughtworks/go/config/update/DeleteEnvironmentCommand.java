@@ -22,14 +22,13 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 
 public class DeleteEnvironmentCommand extends EnvironmentCommand {
-
     public DeleteEnvironmentCommand(GoConfigService goConfigService, EnvironmentConfig environmentConfig, Username username, String actionFailed, HttpLocalizedOperationResult result) {
         super(actionFailed, environmentConfig, result, goConfigService, username);
     }
 
     @Override
     public void update(CruiseConfig preprocessedConfig) {
-        preprocessedConfig.getEnvironments().remove(environmentConfig);
+        preprocessedConfig.getEnvironments().removeIf(envConfig -> environmentConfig.name().equals(envConfig.name()));
     }
 
     @Override

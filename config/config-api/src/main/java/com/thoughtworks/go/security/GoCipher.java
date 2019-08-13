@@ -27,7 +27,6 @@ import java.util.Objects;
 public class GoCipher implements Serializable {
 
     final Encrypter aesEncrypter;
-    final Encrypter desEncrypter;
 
     public GoCipher() {
         this(new SystemEnvironment());
@@ -35,16 +34,6 @@ public class GoCipher implements Serializable {
 
     public GoCipher(SystemEnvironment systemEnvironment) {
         this.aesEncrypter = new AESEncrypter(new AESCipherProvider(systemEnvironment));
-
-        if (desCipherFileExists(systemEnvironment)) {
-            this.desEncrypter = new DESEncrypter(new DESCipherProvider(systemEnvironment));
-        } else {
-            this.desEncrypter = null;
-        }
-    }
-
-    private boolean desCipherFileExists(SystemEnvironment systemEnvironment) {
-        return systemEnvironment.getDESCipherFile().exists();
     }
 
     public String encrypt(String plainText) throws CryptoException {
@@ -132,17 +121,4 @@ public class GoCipher implements Serializable {
         }
         return false;
     }
-
-    // used for XSLT, needs to be static
-    public static String desToAES(String cipherText) throws CryptoException {
-        return new GoCipher()._desToAES(cipherText);
-    }
-
-    private String _desToAES(String cipherText) throws CryptoException {
-        Assert.notNull(desEncrypter, "DES encrypter not set");
-
-        String plainText = desEncrypter.decrypt(cipherText);
-        return encrypt(plainText);
-    }
-
 }

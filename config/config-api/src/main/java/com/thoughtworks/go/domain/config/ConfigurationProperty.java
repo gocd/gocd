@@ -268,6 +268,10 @@ public class ConfigurationProperty implements Serializable, Validatable {
         }
     }
 
+    public void setEncryptedValue(String encryptedValue) {
+        setEncryptedValue(new EncryptedConfigurationValue(encryptedValue));
+    }
+
     public void validateKeyUniqueness(HashMap<String, ConfigurationProperty> map, String entity) {
         String name = configurationKey.getName().toLowerCase();
         ConfigurationProperty propertyWithSameKey = map.get(name);

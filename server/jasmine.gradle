@@ -190,6 +190,8 @@ task jasmineOld(type: ExecuteUnderRailsTask) {
   ]
 
   args = ['-S', 'rails', 'jasmine:ci']
+  // setup max heap, this is typically required on windows.
+  jvmArgs('-Xmx2g')
 
   doFirst {
     def additionalPaths = [

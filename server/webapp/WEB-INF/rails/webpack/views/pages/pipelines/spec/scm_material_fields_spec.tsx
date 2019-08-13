@@ -53,6 +53,7 @@ describe("AddPipeline: SCM Material Fields", () => {
 
     assertLabelledInputsPresent({
       "repository-url":          "Repository URL*",
+      "repository-branch":       "Repository Branch",
       "username":                "Username",
       "password":                "Password",
       "alternate-checkout-path": "Alternate Checkout Path",

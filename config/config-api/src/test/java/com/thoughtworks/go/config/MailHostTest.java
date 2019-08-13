@@ -43,7 +43,6 @@ public class MailHostTest {
     public void shouldDecryptMailHostPassword() throws CryptoException {
         GoCipher mockGoCipher = mock(GoCipher.class);
         when(mockGoCipher.decrypt("encrypted")).thenReturn("password");
-        when(mockGoCipher.maybeReEncryptForPostConstructWithoutExceptions("encrypted")).thenReturn("encrypted");
 
         MailHost mailHost = new MailHost("hostname", 42, "username", null, null, true, true, "from", "mail@admin.com", mockGoCipher);
         ReflectionUtil.setField(mailHost, "encryptedPassword", "encrypted");

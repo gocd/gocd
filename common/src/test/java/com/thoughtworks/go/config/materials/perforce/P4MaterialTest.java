@@ -102,7 +102,6 @@ public class P4MaterialTest extends P4MaterialTestBase {
     void shouldEncryptP4Password() throws Exception {
         GoCipher mockGoCipher = mock(GoCipher.class);
         when(mockGoCipher.encrypt("password")).thenReturn("encrypted");
-        when(mockGoCipher.maybeReEncryptForPostConstructWithoutExceptions("encrypted")).thenReturn("encrypted");
 
         P4Material p4Material = new P4Material("example.com:1818", "view", mockGoCipher);
         p4Material.setPassword("password");

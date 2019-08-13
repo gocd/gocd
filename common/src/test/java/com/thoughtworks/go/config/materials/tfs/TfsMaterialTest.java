@@ -143,7 +143,6 @@ public class TfsMaterialTest {
     void shouldEncryptTfsPasswordAndMarkPasswordAsNull() throws Exception {
         GoCipher mockGoCipher = mock(GoCipher.class);
         when(mockGoCipher.encrypt("password")).thenReturn("encrypted");
-        when(mockGoCipher.maybeReEncryptForPostConstructWithoutExceptions("encrypted")).thenReturn("encrypted");
 
         TfsMaterial tfsMaterial = new TfsMaterial(mockGoCipher, new UrlArgument("/foo"), "username", DOMAIN, "password", "");
         tfsMaterial.ensureEncrypted();
@@ -156,7 +155,6 @@ public class TfsMaterialTest {
     void shouldDecryptTfsPassword() throws Exception {
         GoCipher mockGoCipher = mock(GoCipher.class);
         when(mockGoCipher.decrypt("encrypted")).thenReturn("password");
-        when(mockGoCipher.maybeReEncryptForPostConstructWithoutExceptions("encrypted")).thenReturn("encrypted");
 
         TfsMaterial tfsMaterial = new TfsMaterial(mockGoCipher, new UrlArgument("/foo"), "username", DOMAIN, null, "");
 

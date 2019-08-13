@@ -51,7 +51,7 @@ public class PasswordDeserializer {
                 config.addError(ENCRYPTED_PASSWORD, "Encrypted value for password is invalid. This usually happens when the cipher text is invalid.");
             }
 
-            return goCipher.maybeReEncryptForPostConstructWithoutExceptions(encryptedPassword);
+            return encryptedPassword;
         }
         return null;
     }

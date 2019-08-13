@@ -145,17 +145,4 @@ public class GoCipher implements Serializable {
         return encrypt(plainText);
     }
 
-    public String maybeReEncryptForPostConstructWithoutExceptions(String encryptedValue) {
-        try {
-            if (isAES(encryptedValue)) {
-                return encryptedValue;
-            } else {
-                return _desToAES(encryptedValue);
-            }
-        } catch (Exception ignore) {
-            // this method is called at the time of deserializing from xml or APIs.
-            // The validation done after this will handle exceptions due to bad cipher texts
-            return encryptedValue;
-        }
-    }
 }

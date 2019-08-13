@@ -266,14 +266,6 @@ public class ConfigurationProperty implements Serializable, Validatable {
         if (configurationValue == null && encryptedValue == null) {
             configurationValue = new ConfigurationValue("");
         }
-
-        if (encryptedValue != null && isNotBlank(encryptedValue.getValue())) {
-            setEncryptedValue(cipher.maybeReEncryptForPostConstructWithoutExceptions(encryptedValue.getValue()));
-        }
-    }
-
-    private void setEncryptedValue(String encryptedValue) {
-        setEncryptedValue(new EncryptedConfigurationValue(encryptedValue));
     }
 
     public void validateKeyUniqueness(HashMap<String, ConfigurationProperty> map, String entity) {
@@ -324,7 +316,7 @@ public class ConfigurationProperty implements Serializable, Validatable {
         }
 
         if (isNotBlank(encryptedValue)) {
-            setEncryptedValue(new EncryptedConfigurationValue(new GoCipher().maybeReEncryptForPostConstructWithoutExceptions(encryptedValue)));
+            setEncryptedValue(new EncryptedConfigurationValue(encryptedValue));
         }
 
         if (isNotBlank(value)) {

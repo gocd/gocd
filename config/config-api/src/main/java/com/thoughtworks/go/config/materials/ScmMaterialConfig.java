@@ -141,10 +141,6 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
     public final void ensureEncrypted() {
         this.userName = stripToNull(this.userName);
         setPasswordIfNotBlank(password);
-
-        if (encryptedPassword != null) {
-            setEncryptedPassword(goCipher.maybeReEncryptForPostConstructWithoutExceptions(encryptedPassword));
-        }
     }
 
     private void setPasswordIfNotBlank(String password) {

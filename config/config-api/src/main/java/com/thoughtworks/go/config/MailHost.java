@@ -147,10 +147,6 @@ public class MailHost implements Validatable, PasswordEncrypter {
         this.username = StringUtils.stripToNull(username);
 
         setPasswordIfNotBlank(password);
-
-        if (encryptedPassword != null) {
-            setEncryptedPassword(goCipher.maybeReEncryptForPostConstructWithoutExceptions(encryptedPassword));
-        }
     }
 
     public void setEncryptedPassword(String encryptedPassword) {

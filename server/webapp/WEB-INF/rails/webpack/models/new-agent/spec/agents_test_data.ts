@@ -15,16 +15,29 @@
  */
 
 import {AgentJSON, AgentsJSON} from "models/new-agent/agents";
-import * as uuid from "uuid/v4";
+import stream from "mithril/stream";
+import uuid from "uuid/v4";
 
 export class AgentsTestData {
   static list() {
     return {
       _embedded: {
         agents: [
-          this.agent("37af8492-d64d-4a3f-b1f2-4ea37dd0d201", "Aaaaa", "Zzzzz", "Windows 10", undefined, "10.1.0.5"),
-          this.agent("45583959-97e2-4b8e-8eab-2f98d73f2e23", "Bbbbb", "Xxxxx", "Centos 7", 2859, "10.1.0.4"),
-          this.agent("40c2e45a-3d1f-47e5-8a3e-94d2e4ba5266", "Ccccc", "Yyyyy", "Mac", undefined, "10.1.1.7")
+          this.agent("37af8492-d64d-4a3f-b1f2-4ea37dd0d201",
+                     "Aaaaa",
+                     "Zzzzz",
+                     "Windows 10",
+                     "Building",
+                     undefined,
+                     "10.1.0.5"),
+          this.agent("45583959-97e2-4b8e-8eab-2f98d73f2e23",
+                     "Bbbbb",
+                     "Xxxxx",
+                     "Centos 7",
+                     "LostContact",
+                     2859,
+                     "10.1.0.4"),
+          this.agent("40c2e45a-3d1f-47e5-8a3e-94d2e4ba5266", "Ccccc", "Yyyyy", "Mac", "Idle", 9854, "10.1.1.7")
         ]
       }
     } as AgentsJSON;
@@ -35,6 +48,7 @@ export class AgentsTestData {
                       "Aaaaa",
                       "Zzzzz",
                       "Windows 10",
+                      "Building",
                       undefined,
                       "10.1.0.5",
                       resources);
@@ -52,7 +66,7 @@ export class AgentsTestData {
   }
 
   static pendingAgent() {
-    return this.agentWithState("Pending");
+    return this.agentWithState("Pending", "Unknown");
   }
 
   static disabledAgent() {
@@ -89,20 +103,22 @@ export class AgentsTestData {
   }
 
   static agent(uuid: string, hostname: string,
-               sandbox: string   = "go",
-               os: string        = "windows",
-               freeSpace: number = 93259825152,
-               ipAddr: string    = "10.1.0." + AgentsTestData.getRandomIntegerInRange(1, 255),
-               resources         = ["dev", "fat", "ie9", "firefox"]) {
+               sandbox: string    = "go",
+               os: string         = "windows",
+               agentState: string = "Idle",
+               freeSpace: number  = 93259825152,
+               ipAddr: string     = "10.1.0." + AgentsTestData.getRandomIntegerInRange(1, 255),
+               resources          = ["dev", "fat", "ie9", "firefox"]) {
     // @ts-ignore
     return {
+      selected: stream(false),
       uuid: uuid,
       hostname: hostname,
       ip_address: ipAddr,
       sandbox: sandbox,
       operating_system: os,
       agent_config_state: "Enabled",
-      agent_state: "Idle",
+      agent_state: agentState,
       environments: [{
         name: "gocd",
         origin: {type: "gocd"}
@@ -146,10 +162,23 @@ export class AgentsTestData {
   }
 
   private static agentWithState(configState: string, agentState: string = "", buildState: string = "") {
-    const agent              = this.agent("37af8492-d64d-4a3f-b1f2-4ea37dd0d201", "Aaaaa");
+    const agent              = this.agent(uuid(), "Aaaaa");
     agent.agent_config_state = configState;
     agent.build_state        = buildState;
     agent.agent_state        = agentState;
+
+    if (agentState === "Building") {
+      agent.build_details = {
+        pipeline_name: "up42",
+        stage_name: "up42_stage",
+        job_name: "up42_job",
+        _links: {
+          job: {href: "job_url"},
+          stage: {href: "stage_url"},
+          pipeline: {href: "pipeline_url"}
+        }
+      };
+    }
     return agent;
   }
 }

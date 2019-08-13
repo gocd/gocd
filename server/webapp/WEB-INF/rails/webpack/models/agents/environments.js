@@ -52,12 +52,21 @@ const getToolTip = (disabled, unknown) => {
 const getSortedEnvironments = (environments, selectedAgents) => {
   const selectedAgentsEnvironmentNames = _.map(selectedAgents, (agent) => agent.environmentNames());
 
-  return _.map(environments.sort(), (environment) => {
+  const allAgentEnvs = _.flatMap(selectedAgentsEnvironmentNames);
+  const environmentList = _.uniq(environments.concat(allAgentEnvs));
+
+  return _.map(environmentList.sort(), (environment) => {
     const disabled = shouldBeDisabled(environment, selectedAgents);
+    const isUnknownEnv = isUnknownAndAssociatedWithOneAgent(environment, selectedAgents);
     const tooltip = getToolTip(disabled, isUnknown(environment, selectedAgents));
-    return new TriStateCheckbox(environment, selectedAgentsEnvironmentNames, disabled, tooltip);
+    return new TriStateCheckbox(environment, selectedAgentsEnvironmentNames, (disabled || isUnknownEnv), tooltip);
   });
 };
+
+
+function isUnknownAndAssociatedWithOneAgent(environment, selectedAgents) {
+  return isUnknown(environment, selectedAgents) && selectedAgents.length !== 1;
+}
 
 export const Environments = {};
 

@@ -45,11 +45,12 @@ describe('Agent Environments Model', () => {
       environments() {
         return [
           new Agents.Agent.Environment({name: 'Test', origin: {type: "config-repo"}}),
+          new Agents.Agent.Environment({name: 'Unknown', origin: {type: "unknown"}}),
           new Agents.Agent.Environment({name: 'QA', origin: {type: "gocd"}})
         ];
       },
       environmentNames() {
-        return ['Test', 'QA'];
+        return ['Test', 'Unknown', 'QA'];
       }
     }, {
       environments() {
@@ -71,10 +72,11 @@ describe('Agent Environments Model', () => {
       });
 
       const successCallback = jasmine.createSpy().and.callFake((environments) => {
-        expect(environments.length).toBe(3);
+        expect(environments.length).toBe(4);
         expect(environments[0].name()).toBe('Dev');
         expect(environments[1].name()).toBe('QA');
         expect(environments[2].name()).toBe('Test');
+        expect(environments[3].name()).toBe('Unknown');
 
         expect(environments[0].isChecked()).toBe(false);
         expect(environments[0].isIndeterminate()).toBe(true);
@@ -88,6 +90,11 @@ describe('Agent Environments Model', () => {
         expect(environments[2].isIndeterminate()).toBe(false);
         expect(environments[2].disabled()).toBe(true);
         expect(environments[2].tooltip()).toBe("Cannot edit Environment associated from Config Repo");
+
+        expect(environments[3].isChecked()).toBe(false);
+        expect(environments[3].isIndeterminate()).toBe(true);
+        expect(environments[3].disabled()).toBe(true);
+        expect(environments[3].tooltip()).toBe("Environment is not defined in config XML");
       });
 
       Environments.all(checkedAgents).then(successCallback);

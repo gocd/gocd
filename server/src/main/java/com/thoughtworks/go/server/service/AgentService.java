@@ -157,7 +157,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
                 return createFromAgent(agent, systemEnvironment, agentStatusChangeNotifier);
             }
         } catch (InvalidPendingAgentOperationException e) {
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.debug(e.getMessage(), e);
         } catch (Exception e) {
             String msg = "Updating agent failed: " + e.getMessage();
             LOGGER.error(msg, e);

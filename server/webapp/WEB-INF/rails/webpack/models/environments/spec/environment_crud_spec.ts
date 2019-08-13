@@ -31,7 +31,7 @@ describe("EnvironmentCRUD", () => {
     expect(request.url).toEqual("/go/api/admin/environments");
     expect(request.method).toEqual("GET");
     expect(request.data()).toEqual(toJSON({} as EnvironmentsJSON));
-    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v2+json");
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v3+json");
   });
 });
 
@@ -43,7 +43,7 @@ function listEnvironmentResponse() {
   return {
     status: 200,
     responseHeaders: {
-      "Content-Type": "application/vnd.go.cd.v2+json; charset=utf-8"
+      "Content-Type": "application/vnd.go.cd.v3+json; charset=utf-8"
     },
     responseText: JSON.stringify(TestData.environmentList(TestData.newEnvironment()))
   };

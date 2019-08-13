@@ -39,8 +39,7 @@ import org.mockito.Mockito;
 
 import java.util.*;
 
-import static com.thoughtworks.go.helper.EnvironmentConfigMother.OMNIPRESENT_AGENT;
-import static com.thoughtworks.go.helper.EnvironmentConfigMother.environments;
+import static com.thoughtworks.go.helper.EnvironmentConfigMother.*;
 import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -260,6 +259,17 @@ class EnvironmentConfigServiceTest {
     void shouldReturnEnvironmentNames() {
         environmentConfigService.syncEnvironmentsFromConfig(environments("uat", "prod"));
         List<String> envNames = environmentConfigService.getEnvironmentNames();
+        assertThat(envNames.size()).isEqualTo(2);
+        assertThat(envNames).contains("uat");
+        assertThat(envNames).contains("prod");
+    }
+
+    @Test
+    void shouldReturnEnvironmentNamesOnlyForKnownEnvironments() {
+        EnvironmentsConfig envsConfig = environments("uat", "prod");
+        envsConfig.add(unknown("unknown"));
+        environmentConfigService.syncEnvironmentsFromConfig(envsConfig);
+        List<String> envNames = environmentConfigService.getKnownEnvironmentNames();
         assertThat(envNames.size()).isEqualTo(2);
         assertThat(envNames).contains("uat");
         assertThat(envNames).contains("prod");

@@ -140,6 +140,13 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
         return environments.names().stream().map(CaseInsensitiveString::toString).collect(toList());
     }
 
+    public List<String> getKnownEnvironmentNames() {
+        return environments.stream()
+                .filter(environmentConfig -> !environmentConfig.isUnknown())
+                .map(environmentConfig -> environmentConfig.name().toString())
+                .collect(toList());
+    }
+
     public Set<EnvironmentConfig> getEnvironments() {
         return new HashSet<>(environments);
     }

@@ -16,13 +16,38 @@
 
 import {ApiRequestBuilder, ApiResult, ApiVersion} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
-import {Agents} from "models/new-agent/agents";
+import {AgentConfigState, Agents} from "models/new-agent/agents";
 
 export class AgentsCRUD {
   private static API_VERSION_HEADER = ApiVersion.v5;
 
   static all() {
     return ApiRequestBuilder.GET(SparkRoutes.agentsPath(), this.API_VERSION_HEADER)
+                            .then((result: ApiResult<string>) => result.map((body) => {
+                              return Agents.fromJSON(JSON.parse(body));
+                            }));
+  }
+
+  static delete(agentUUID: string[]) {
+    return ApiRequestBuilder.DELETE(SparkRoutes.agentsPath(), this.API_VERSION_HEADER, {payload: {uuids: agentUUID}})
+                            .then((result: ApiResult<string>) => result.map((body) => {
+                              return Agents.fromJSON(JSON.parse(body));
+                            }));
+  }
+
+  static agentsToEnable(agentsUUID: string[]) {
+    return ApiRequestBuilder.PATCH(SparkRoutes.agentsPath(),
+                                   this.API_VERSION_HEADER,
+                                   {payload: {uuids: agentsUUID, agent_config_state: AgentConfigState[AgentConfigState.Enabled]}})
+                            .then((result: ApiResult<string>) => result.map((body) => {
+                              return Agents.fromJSON(JSON.parse(body));
+                            }));
+  }
+
+  static agentsToDisable(agentsUUID: string[]) {
+    return ApiRequestBuilder.PATCH(SparkRoutes.agentsPath(),
+                                   this.API_VERSION_HEADER,
+                                   {payload: {uuids: agentsUUID, agent_config_state: AgentConfigState[AgentConfigState.Disabled]}})
                             .then((result: ApiResult<string>) => result.map((body) => {
                               return Agents.fromJSON(JSON.parse(body));
                             }));

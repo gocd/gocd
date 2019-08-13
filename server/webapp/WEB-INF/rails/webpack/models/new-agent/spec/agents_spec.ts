@@ -18,6 +18,9 @@ import {Agent, AgentConfigState, Agents, AgentsEnvironment, AgentState, BuildSta
 import {AgentsTestData} from "models/new-agent/spec/agents_test_data";
 
 describe("AgentsModel", () => {
+  // beforeEach(() => jasmine.Ajax.install());
+  // afterEach(() => jasmine.Ajax.uninstall());
+
   describe("Deserialize", () => {
     it("should deserialize all agents from JSON", () => {
       const agents = Agents.fromJSON(AgentsTestData.list());
@@ -34,7 +37,6 @@ describe("AgentsModel", () => {
       expect(agent.ipAddress).toEqual(agentJSON.ip_address);
       expect(agent.sandbox).toEqual(agentJSON.sandbox);
       expect(agent.operatingSystem).toEqual(agentJSON.operating_system);
-      expect(agent.operatingSystem).toEqual(agentJSON.operating_system);
       expect(agent.agentConfigState).toEqual(AgentConfigState.Enabled);
       expect(agent.agentState).toEqual(AgentState.Idle);
       expect(agent.buildState).toEqual(BuildState.Idle);
@@ -48,6 +50,7 @@ describe("AgentsModel", () => {
                                                       "1773fcad85d8",
                                                       undefined,
                                                       undefined,
+                                                      "Building",
                                                       agentFreeSpaceInGB);
 
       const agent = Agent.fromJSON(agentJSON);
@@ -56,7 +59,7 @@ describe("AgentsModel", () => {
 
     });
 
-    it("should return environments", function () {
+    it("should return environments", () => {
       const agentJSON = AgentsTestData.agentWithEnvironments("prod", "dev", "qa");
 
       const agent = Agent.fromJSON(agentJSON);
@@ -67,7 +70,7 @@ describe("AgentsModel", () => {
       expect(agent.environments[2]).toEqual(new AgentsEnvironment("qa", "gocd"));
     });
 
-    it("should return environments name", function () {
+    it("should return environments name", () => {
       const agentJSON = AgentsTestData.agentWithEnvironments("prod", "dev", "qa");
 
       const agent = Agent.fromJSON(agentJSON);
@@ -78,12 +81,82 @@ describe("AgentsModel", () => {
       expect(agent.environmentNames()[2]).toEqual("qa");
     });
 
-    it("should return empty array when agent is not associated with any environments", function () {
+    it("should return empty array when agent is not associated with any environments", () => {
       const agentJSON = AgentsTestData.agentWithEnvironments();
 
       const agent = Agent.fromJSON(agentJSON);
 
       expect(agent.environmentNames()).toHaveLength(0);
+    });
+
+    it("should deserialize build details", () => {
+      const agentJSON = AgentsTestData.buildingAgent();
+
+      const agent = Agent.fromJSON(agentJSON);
+
+      expect(agent.buildDetails!.pipelineName).toEqual("up42");
+      expect(agent.buildDetails!.stageName).toEqual("up42_stage");
+      expect(agent.buildDetails!.jobName).toEqual("up42_job");
+      expect(agent.buildDetails!.pipelineUrl).toEqual("pipeline_url");
+      expect(agent.buildDetails!.stageUrl).toEqual("stage_url");
+      expect(agent.buildDetails!.jobUrl).toEqual("job_url");
+    });
+  });
+
+  describe("InitializeWith", () => {
+    it("should have all the agents", () => {
+      const agents = new Agents([]);
+      expect(agents.list()).toHaveLength(0);
+
+      agents.initializeWith(Agents.fromJSON(AgentsTestData.list()));
+
+      expect(agents.list()).toHaveLength(3);
+    });
+
+    it("should remove previously known agent which is now unknown", () => {
+      const previouslyKnownAgent = Agent.fromJSON(AgentsTestData.agent("agent-a", "host-a"));
+      const agents               = new Agents([previouslyKnownAgent]);
+      expect(agents.list()).toHaveLength(1);
+      expect(agents.isKnownAgent(previouslyKnownAgent.uuid)).toBeTruthy();
+
+      agents.initializeWith(Agents.fromJSON(AgentsTestData.list()));
+
+      expect(agents.list()).toHaveLength(3);
+      expect(agents.isKnownAgent(previouslyKnownAgent.uuid)).toBeFalsy();
+    });
+
+    it("should persist agent selection", () => {
+      const originalAgentsJSON = AgentsTestData.list();
+      const agents             = Agents.fromJSON(originalAgentsJSON);
+      agents.list()[0].selected(true);
+
+      expect(agents.list()[0].selected()).toBeTruthy();
+      expect(agents.list()[1].selected()).toBeFalsy();
+      expect(agents.list()[2].selected()).toBeFalsy();
+
+      agents.initializeWith(Agents.fromJSON(originalAgentsJSON));
+
+      expect(agents.list()[0].selected()).toBeTruthy();
+      expect(agents.list()[1].selected()).toBeFalsy();
+      expect(agents.list()[2].selected()).toBeFalsy();
+    });
+  });
+
+  describe("isBuilding", () => {
+    it("should be true if building", () => {
+      const agentJSON = AgentsTestData.buildingAgent();
+
+      const agent = Agent.fromJSON(agentJSON);
+
+      expect(agent.isBuilding()).toBeTruthy();
+    });
+
+    it("should be false if not building", () => {
+      const agentJSON = AgentsTestData.idleAgent();
+
+      const agent = Agent.fromJSON(agentJSON);
+
+      expect(agent.isBuilding()).toBeFalsy();
     });
   });
 
@@ -92,7 +165,7 @@ describe("AgentsModel", () => {
     it("should get the sortable column index", () => {
       const agents = Agents.fromJSON(AgentsTestData.list());
 
-      expect(agents.getSortableColumns()).toEqual([0, 1, 2, 3, 4, 5, 6, 7]);
+      expect(agents.getSortableColumns()).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
     });
 
     it("should sort the data based on the column clicked", () => {
@@ -103,7 +176,7 @@ describe("AgentsModel", () => {
 
       expect(agents.list()).toEqual([agentA, agentB, agentC]);
 
-      agents.onColumnClick(1);
+      agents.onColumnClick(2);
 
       expect(agents.list()).toEqual([agentB, agentC, agentA]);
     });
@@ -116,12 +189,12 @@ describe("AgentsModel", () => {
 
       expect(agents.list()).toEqual([agentA, agentB, agentC]);
 
-      agents.onColumnClick(1);
+      agents.onColumnClick(2);
       const agentsToRepresentAfterClick = agents.list();
       const expectedAfterClick          = [agentB, agentC, agentA];
       expect(agentsToRepresentAfterClick).toEqual(expectedAfterClick);
 
-      agents.onColumnClick(1);
+      agents.onColumnClick(2);
       const agentsToRepresentAfterClickOnSameColumn = agents.list();
       const expectedAfterClickOnSameColumn          = [agentA, agentC, agentB];
       expect(agentsToRepresentAfterClickOnSameColumn).toEqual(expectedAfterClickOnSameColumn);
@@ -135,16 +208,158 @@ describe("AgentsModel", () => {
 
       expect(agents.list()).toEqual([agentA, agentB, agentC]);
 
-      agents.onColumnClick(1);
+      agents.onColumnClick(2);
       const agentsToRepresentAfterClick = agents.list();
       const expectedAfterClick          = [agentB, agentC, agentA];
       expect(agentsToRepresentAfterClick).toEqual(expectedAfterClick);
 
-      agents.onColumnClick(0);
+      agents.onColumnClick(1);
       const agentsToRepresentAfterClickOnAnotherColumn = agents.list();
       const expectedAfterClickOnAnotherColumn          = [agentA, agentB, agentC];
       expect(agentsToRepresentAfterClickOnAnotherColumn).toEqual(expectedAfterClickOnAnotherColumn);
     });
+
+    it("should sort a column according to agent state in ascending order when click on status column", () => {
+      const agents = Agents.fromJSON(AgentsTestData.list());
+      const agentA = agents.list()[0];
+      const agentB = agents.list()[1];
+      const agentC = agents.list()[2];
+
+      expect(agents.list()).toEqual([agentA, agentB, agentC]);
+
+      agents.onColumnClick(5);
+      const agentsToRepresentAfterClick = agents.list();
+      const expectedAfterClick          = [agentA, agentC, agentB];
+      expect(agentsToRepresentAfterClick).toEqual(expectedAfterClick);
+    });
+
+    it("should sort a column according to agent state in descending order when click on status column twice", () => {
+      const agents = Agents.fromJSON(AgentsTestData.list());
+      const agentA = agents.list()[0];
+      const agentB = agents.list()[1];
+      const agentC = agents.list()[2];
+
+      expect(agents.list()).toEqual([agentA, agentB, agentC]);
+
+      agents.onColumnClick(5);
+      const agentsToRepresentAfterClick = agents.list();
+      const expectedAfterClick          = [agentA, agentC, agentB];
+      expect(agentsToRepresentAfterClick).toEqual(expectedAfterClick);
+
+      agents.onColumnClick(5);
+      const agentsToRepresentAfterSecondClick = agents.list();
+      const expectedAfterSecondClick          = [agentB, agentC, agentA];
+      expect(agentsToRepresentAfterSecondClick).toEqual(expectedAfterSecondClick);
+    });
+
+    it("should sort a column according to free space in ascending order when click on free space column", () => {
+      const agents = Agents.fromJSON(AgentsTestData.list());
+      const agentA = agents.list()[0];
+      const agentB = agents.list()[1];
+      const agentC = agents.list()[2];
+
+      expect(agents.list()).toEqual([agentA, agentB, agentC]);
+
+      agents.onColumnClick(6);
+      const agentsToRepresentAfterClick = agents.list();
+      const expectedAfterClick          = [agentB, agentC, agentA];
+      expect(agentsToRepresentAfterClick).toEqual(expectedAfterClick);
+    });
+
+    it("should sort a column according to free space in descending order when click on free space column twice", () => {
+      const agents = Agents.fromJSON(AgentsTestData.list());
+      const agentA = agents.list()[0];
+      const agentB = agents.list()[1];
+      const agentC = agents.list()[2];
+
+      expect(agents.list()).toEqual([agentA, agentB, agentC]);
+
+      agents.onColumnClick(6);
+      const agentsToRepresentAfterClick = agents.list();
+      const expectedAfterClick          = [agentB, agentC, agentA];
+      expect(agentsToRepresentAfterClick).toEqual(expectedAfterClick);
+
+      agents.onColumnClick(6);
+      const agentsToRepresentAfterSecondClick = agents.list();
+      const expectedAfterSecondClick          = [agentA, agentC, agentB];
+      expect(agentsToRepresentAfterSecondClick).toEqual(expectedAfterSecondClick);
+    });
+
+    it("should sort a column according to resources in ascending order when click on resource column", () => {
+      const agentA = Agent.fromJSON(AgentsTestData.agentWithResources(["dev", "fat"]));
+      const agentB = Agent.fromJSON(AgentsTestData.agentWithResources(["firefox"]));
+      const agentC = Agent.fromJSON(AgentsTestData.agentWithResources(["chrome"]));
+      const agentD = Agent.fromJSON(AgentsTestData.agentWithResources([]));
+
+      const agents = new Agents([agentA, agentB, agentC, agentD]);
+
+      expect(agents.list()).toEqual([agentA, agentB, agentC, agentD]);
+
+      agents.onColumnClick(7);
+      const agentsToRepresentAfterClick = agents.list();
+      const expectedAfterClick          = [agentC, agentA, agentB, agentD];
+      expect(agentsToRepresentAfterClick).toEqual(expectedAfterClick);
+    });
+
+    it("should sort a column according to resources in descending order when click on resource column twice", () => {
+      const agentA = Agent.fromJSON(AgentsTestData.agentWithResources(["dev", "fat"]));
+      const agentB = Agent.fromJSON(AgentsTestData.agentWithResources(["firefox"]));
+      const agentC = Agent.fromJSON(AgentsTestData.agentWithResources(["chrome"]));
+      const agentD = Agent.fromJSON(AgentsTestData.agentWithResources([]));
+
+      const agents = new Agents([agentA, agentB, agentC, agentD]);
+
+      expect(agents.list()).toEqual([agentA, agentB, agentC, agentD]);
+
+      agents.onColumnClick(7);
+      const agentsToRepresentAfterClick = agents.list();
+      const expectedAfterClick          = [agentC, agentA, agentB, agentD];
+      expect(agentsToRepresentAfterClick).toEqual(expectedAfterClick);
+
+      agents.onColumnClick(7);
+      const agentsToRepresentAfterSecondClick = agents.list();
+      const expectedAfterSecondClick          = [agentD, agentB, agentA, agentC];
+      expect(agentsToRepresentAfterSecondClick).toEqual(expectedAfterSecondClick);
+
+    });
+
+    it("should sort a column according to environment name in ascending order when click on environment column", () => {
+      const agentA = Agent.fromJSON(AgentsTestData.agentWithEnvironments("prod", "dev", "qa"));
+      const agentB = Agent.fromJSON(AgentsTestData.agentWithEnvironments("dev"));
+      const agentC = Agent.fromJSON(AgentsTestData.agentWithEnvironments("qa"));
+      const agentD = Agent.fromJSON(AgentsTestData.agentWithEnvironments());
+
+      const agents = new Agents([agentA, agentB, agentC, agentD]);
+
+      expect(agents.list()).toEqual([agentA, agentB, agentC, agentD]);
+
+      agents.onColumnClick(8);
+      const agentsToRepresentAfterClick = agents.list();
+      const expectedAfterClick          = [agentB, agentA, agentC, agentD];
+      expect(agentsToRepresentAfterClick).toEqual(expectedAfterClick);
+    });
+
+    it("should sort a column according to environment name in descending order when click on environment column twice",
+       () => {
+         const agentA = Agent.fromJSON(AgentsTestData.agentWithEnvironments("prod", "dev", "qa"));
+         const agentB = Agent.fromJSON(AgentsTestData.agentWithEnvironments("dev"));
+         const agentC = Agent.fromJSON(AgentsTestData.agentWithEnvironments("qa"));
+         const agentD = Agent.fromJSON(AgentsTestData.agentWithEnvironments());
+
+         const agents = new Agents([agentA, agentB, agentC, agentD]);
+
+         expect(agents.list()).toEqual([agentA, agentB, agentC, agentD]);
+
+         agents.onColumnClick(8);
+         const agentsToRepresentAfterClick = agents.list();
+         const expectedAfterClick          = [agentB, agentA, agentC, agentD];
+         expect(agentsToRepresentAfterClick).toEqual(expectedAfterClick);
+
+         agents.onColumnClick(8);
+         const agentsToRepresentAfterSecondClick = agents.list();
+         const expectedAfterSecondClick          = [agentD, agentC, agentA, agentB];
+         expect(agentsToRepresentAfterSecondClick).toEqual(expectedAfterSecondClick);
+       });
   });
 
   describe("Search", () => {
@@ -208,6 +423,20 @@ describe("AgentsModel", () => {
 
       expect(agents.list().length).toEqual(3);
       expect(agents.list()).toEqual([agentA, agentB, agentC]);
+    });
+
+    it("should search agents based on environments", () => {
+      const agentA = Agent.fromJSON(AgentsTestData.agentWithEnvironments("test", "qa")),
+            agentB = Agent.fromJSON(AgentsTestData.agentWithEnvironments("prod")),
+            agentC = Agent.fromJSON(AgentsTestData.agentWithEnvironments("qa"));
+      const agents = new Agents([agentA, agentB, agentC]);
+
+      expect(agents.list().length).toEqual(3);
+
+      agents.filterText("test");
+
+      expect(agents.list().length).toEqual(1);
+      expect(agents.list()).toEqual([agentA]);
     });
 
     it("should search agents case-insensitively", () => {
@@ -297,4 +526,182 @@ describe("AgentsModel", () => {
       });
     });
   });
+
+  describe("Agent selection", () => {
+    describe("AreAllFilteredAgentsSelected", () => {
+      it("should return false if no agent is selected", () => {
+        const agents = Agents.fromJSON(AgentsTestData.list());
+
+        expect(agents.areAllFilteredAgentsSelected()).toBeFalsy();
+      });
+
+      it("should return true if all agents are selected with given filter", () => {
+        const agentA = Agent.fromJSON(AgentsTestData.idleAgent()),
+              agentB = Agent.fromJSON(AgentsTestData.buildingAgent()),
+              agentC = Agent.fromJSON(AgentsTestData.pendingAgent());
+        const agents = new Agents([agentA, agentB, agentC]);
+
+        agents.filterText("Building");
+        expect(agents.areAllFilteredAgentsSelected()).toBeFalsy();
+
+        agentB.selected(true);
+
+        expect(agents.areAllFilteredAgentsSelected()).toBeTruthy();
+      });
+
+      it("should return true if all agents are selected and filter is not applied", () => {
+        const agents = Agents.fromJSON(AgentsTestData.list()),
+              agentA = agents.list()[0],
+              agentB = agents.list()[1],
+              agentC = agents.list()[2];
+
+        expect(agents.areAllFilteredAgentsSelected()).toBeFalsy();
+
+        agentA.selected(true);
+        agentB.selected(true);
+        agentC.selected(true);
+
+        expect(agents.areAllFilteredAgentsSelected()).toBeTruthy();
+      });
+
+      it("should return false if any agent is not selected", () => {
+        const agents = Agents.fromJSON(AgentsTestData.list());
+        const agentA = agents.list()[0];
+        const agentC = agents.list()[2];
+
+        expect(agents.areAllFilteredAgentsSelected()).toBeFalsy();
+
+        agentA.selected(true);
+        agentC.selected(true);
+
+        expect(agents.areAllFilteredAgentsSelected()).toBeFalsy();
+      });
+    });
+
+    describe("ToggleFilteredAgentsSelection", () => {
+      it("should select all the agents when none of the agent is selected when not filtered", () => {
+        const agents = Agents.fromJSON(AgentsTestData.list()),
+              agentA = agents.list()[0],
+              agentB = agents.list()[1],
+              agentC = agents.list()[2];
+
+        expect(agents.areAllFilteredAgentsSelected()).toBeFalsy();
+
+        agents.toggleFilteredAgentsSelection();
+
+        expect(agents.areAllFilteredAgentsSelected()).toBeTruthy();
+        expect(agentA.selected()).toBeTruthy();
+        expect(agentB.selected()).toBeTruthy();
+        expect(agentC.selected()).toBeTruthy();
+      });
+
+      it("should select all the agents when part of the agents are selected when no filter applied", () => {
+        const agents = Agents.fromJSON(AgentsTestData.list()),
+              agentA = agents.list()[0],
+              agentB = agents.list()[1],
+              agentC = agents.list()[2];
+        agentA.selected(true);
+        agentB.selected(true);
+        expect(agentC.selected()).toBeFalsy();
+
+        agents.toggleFilteredAgentsSelection();
+
+        expect(agents.areAllFilteredAgentsSelected()).toBeTruthy();
+        expect(agentA.selected()).toBeTruthy();
+        expect(agentB.selected()).toBeTruthy();
+        expect(agentC.selected()).toBeTruthy();
+      });
+
+      it("should deselect all the agents when all the agents are selected when no filter applied", () => {
+        const agents = Agents.fromJSON(AgentsTestData.list()),
+              agentA = agents.list()[0],
+              agentB = agents.list()[1],
+              agentC = agents.list()[2];
+        agentA.selected(true);
+        agentB.selected(true);
+        agentC.selected(true);
+
+        expect(agents.areAllFilteredAgentsSelected()).toBeTruthy();
+
+        agents.toggleFilteredAgentsSelection();
+
+        expect(agents.areAllFilteredAgentsSelected()).toBeFalsy();
+        expect(agentA.selected()).toBeFalsy();
+        expect(agentB.selected()).toBeFalsy();
+        expect(agentC.selected()).toBeFalsy();
+      });
+
+      it("should select all the agents when none of the agent is selected when filter applied", () => {
+        const agentA = Agent.fromJSON(AgentsTestData.idleAgent()),
+              agentB = Agent.fromJSON(AgentsTestData.buildingAgent()),
+              agentC = Agent.fromJSON(AgentsTestData.pendingAgent());
+        const agents = new Agents([agentA, agentB, agentC]);
+
+        agents.filterText("Building");
+        expect(agents.areAllFilteredAgentsSelected()).toBeFalsy();
+        expect(agentA.selected()).toBeFalsy();
+        expect(agentB.selected()).toBeFalsy();
+        expect(agentC.selected()).toBeFalsy();
+
+        agents.toggleFilteredAgentsSelection();
+
+        expect(agents.areAllFilteredAgentsSelected()).toBeTruthy();
+        expect(agentB.selected()).toBeTruthy();
+        expect(agentA.selected()).toBeFalsy();
+        expect(agentC.selected()).toBeFalsy();
+      });
+
+      it("should persist the selected agent before applying filter", () => {
+        const agentA = Agent.fromJSON(AgentsTestData.idleAgent()),
+              agentB = Agent.fromJSON(AgentsTestData.buildingAgent()),
+              agentC = Agent.fromJSON(AgentsTestData.pendingAgent());
+        const agents = new Agents([agentA, agentB, agentC]);
+        agentA.selected(true);
+
+        agents.filterText("Building");
+        expect(agents.areAllFilteredAgentsSelected()).toBeFalsy();
+        expect(agentA.selected()).toBeTruthy();
+        expect(agentB.selected()).toBeFalsy();
+        expect(agentC.selected()).toBeFalsy();
+
+        agents.toggleFilteredAgentsSelection();
+
+        expect(agents.areAllFilteredAgentsSelected()).toBeTruthy();
+        expect(agentA.selected()).toBeTruthy();
+        expect(agentB.selected()).toBeTruthy();
+        expect(agentC.selected()).toBeFalsy();
+
+        agents.toggleFilteredAgentsSelection();
+
+        expect(agents.areAllFilteredAgentsSelected()).toBeFalsy();
+        expect(agentA.selected()).toBeTruthy();
+        expect(agentB.selected()).toBeFalsy();
+        expect(agentC.selected()).toBeFalsy();
+      });
+    });
+  });
+
+  // it("should disable selected agents if checkbox is selected and disable button is clicked", () => {
+  //   const agents = Agents.fromJSON(AgentsTestData.list());
+  //   const agentA = agents.list()[0];
+  //   const agentB = agents.list()[1];
+  //   const agentC = agents.list()[2];
+  //
+  //   expect(agentA.agentConfigState).toBe(AgentConfigState.Enabled);
+  //   expect(agentB.agentConfigState).toBe(AgentConfigState.Enabled);
+  //   expect(agentC.agentConfigState).toBe(AgentConfigState.Enabled);
+  //
+  //   expect(agentA.selected()).toBeFalsy();
+  //
+  //   agentA.selected(true);
+  //
+  //   expect(agentA.selected()).toBeTruthy();
+  //
+  //   agents.disableSelectedAgents();
+  //
+  //   expect(agentA.agentConfigState).toBe(AgentConfigState.Disabled);
+  //   expect(agentB.agentConfigState).toBe(AgentConfigState.Enabled);
+  //   expect(agentC.agentConfigState).toBe(AgentConfigState.Enabled);
+  // });
+
 });

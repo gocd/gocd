@@ -24,11 +24,33 @@ import {Page, PageState} from "views/pages/page";
 interface State {
   agents: Agents;
   repeater: AjaxPoller<void>;
+  onEnable: (e: MouseEvent) => void;
+  onDisable: (e: MouseEvent) => void;
+  onDelete: (e: MouseEvent) => void;
 }
 
 export class NewAgentPage extends Page<null, State> {
   oninit(vnode: m.Vnode<null, State>) {
+    const self         = this;
     vnode.state.agents = new Agents([]);
+
+    vnode.state.onEnable = function () {
+      this.agents.enableSelectedAgents().finally(() => {
+        self.fetchData(vnode);
+      });
+    };
+
+    vnode.state.onDisable = function () {
+      this.agents.disableSelectedAgents().finally(() => {
+        self.fetchData(vnode);
+      });
+    };
+
+    vnode.state.onDelete    = function () {
+      this.agents.deleteSelectedAgents().finally(() => {
+        self.fetchData(vnode);
+      });
+    };
 
     new AjaxPoller({
                      repeaterFn: this.fetchData.bind(this, vnode),
@@ -37,7 +59,10 @@ export class NewAgentPage extends Page<null, State> {
   }
 
   componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
-    return <AgentsWidget agents={vnode.state.agents}/>;
+    return <AgentsWidget agents={vnode.state.agents}
+                         onEnable={vnode.state.onEnable.bind(vnode.state)}
+                         onDisable={vnode.state.onDisable.bind(vnode.state)}
+                         onDelete={vnode.state.onDelete.bind(vnode.state)}/>;
   }
 
   pageName(): string {

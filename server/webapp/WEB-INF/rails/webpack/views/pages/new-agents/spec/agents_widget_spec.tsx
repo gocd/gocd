@@ -22,11 +22,18 @@ import {AgentsWidget} from "views/pages/new-agents/agents_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("NewAgentsWidget", () => {
-  const helper = new TestHelper();
-  let agents: Agents;
+  const helper                   = new TestHelper(),
+        onEnable: jasmine.Spy    = jasmine.createSpy("onEnable"),
+        onDisable: jasmine.Spy   = jasmine.createSpy("onDisable"),
+        onDelete: jasmine.Spy    = jasmine.createSpy("onDelete");
+
+  let agents: Agents, agentA: Agent, agentB: Agent, agentC: Agent;
 
   beforeEach(() => {
     agents = Agents.fromJSON(AgentsTestData.list());
+    agentA = agents.list()[0];
+    agentB = agents.list()[1];
+    agentC = agents.list()[2];
   });
 
   afterEach(helper.unmount.bind(helper));
@@ -36,15 +43,15 @@ describe("NewAgentsWidget", () => {
 
     const headers = helper.byTestId("table-header-row");
 
-    expect(headers.children).toHaveLength(8);
-    expect(headers.children[0]).toContainText("Agent Name");
-    expect(headers.children[1]).toContainText("Sandbox");
-    expect(headers.children[2]).toContainText("OS");
-    expect(headers.children[3]).toContainText("IP Address");
-    expect(headers.children[4]).toContainText("Status");
-    expect(headers.children[5]).toContainText("Free Space");
-    expect(headers.children[6]).toContainText("Resources");
-    expect(headers.children[7]).toContainText("Environments");
+    expect(headers.children).toHaveLength(9);
+    expect(headers.children[1]).toContainText("Agent Name");
+    expect(headers.children[2]).toContainText("Sandbox");
+    expect(headers.children[3]).toContainText("OS");
+    expect(headers.children[4]).toContainText("IP Address");
+    expect(headers.children[5]).toContainText("Status");
+    expect(headers.children[6]).toContainText("Free Space");
+    expect(headers.children[7]).toContainText("Resources");
+    expect(headers.children[8]).toContainText("Environments");
   });
 
   it("should render agents in the table", () => {
@@ -68,10 +75,6 @@ describe("NewAgentsWidget", () => {
 
   it("should filter agents based on the searched value", () => {
     mount(agents);
-
-    const agentA    = agents.list()[0],
-          agentB    = agents.list()[1],
-          agentC    = agents.list()[2];
     const searchBox = helper.byTestId("form-field-input-search-for-agents");
 
     expect(helper.byTestId("table-body").children).toHaveLength(3);
@@ -143,10 +146,97 @@ describe("NewAgentsWidget", () => {
 
       expect(helper.byTestId(`agent-status-of-${agent.uuid}`)).toContainText("Disabled (Building)");
     });
+
+    it("should show a hyperlink when agent is building", () => {
+      const agent  = Agent.fromJSON(AgentsTestData.buildingAgent());
+      const agents = new Agents([agent]);
+
+      mount(agents);
+
+      const statusCell = helper.byTestId(`agent-status-of-${agent.uuid}`);
+      expect(helper.q("a", statusCell)).toContainText("Building");
+
+      const buildDetails     = helper.byTestId(`agent-build-details-of-${agent.uuid}`);
+      const buildDetailsItem = helper.qa("a", buildDetails);
+      expect(buildDetailsItem).toHaveLength(3);
+      expect(buildDetailsItem[0]).toContainText("up42");
+      expect(buildDetailsItem[0]).toHaveAttr("href", "pipeline_url");
+      expect(buildDetailsItem[1]).toContainText("up42_stage");
+      expect(buildDetailsItem[1]).toHaveAttr("href", "stage_url");
+      expect(buildDetailsItem[2]).toContainText("up42_job");
+      expect(buildDetailsItem[2]).toHaveAttr("href", "job_url");
+    });
+
+    it("should show build details info on click of status", () => {
+      const agent  = Agent.fromJSON(AgentsTestData.buildingAgent());
+      const agents = new Agents([agent]);
+      mount(agents);
+      expect(helper.byTestId(`agent-build-details-of-${agent.uuid}`)).not.toBeVisible();
+
+      helper.click(helper.byTestId(`agent-status-text-${agent.uuid}`));
+
+      expect(helper.byTestId(`agent-build-details-of-${agent.uuid}`)).toBeVisible();
+    });
+
+    it("should hide the build details when clicked on status twice", () => {
+      const agent  = Agent.fromJSON(AgentsTestData.buildingAgent());
+      const agents = new Agents([agent]);
+      mount(agents);
+      expect(helper.byTestId(`agent-build-details-of-${agent.uuid}`)).not.toBeVisible();
+
+      helper.click(helper.byTestId(`agent-status-text-${agent.uuid}`));
+
+      expect(helper.byTestId(`agent-build-details-of-${agent.uuid}`)).toBeVisible();
+
+      helper.click(helper.byTestId(`agent-status-text-${agent.uuid}`));
+
+      expect(helper.byTestId(`agent-build-details-of-${agent.uuid}`)).not.toBeVisible();
+    });
+
+    // it("should hide the build details when clicked outside", () => {
+    //   const agent  = Agent.fromJSON(AgentsTestData.buildingAgent());
+    //   const agents = new Agents([agent]);
+    //   mount(agents);
+    //   helper.click(helper.byTestId(`agent-status-text-${agent.uuid}`));
+    //   expect(helper.byTestId(`agent-build-details-of-${agent.uuid}`)).toBeVisible();
+    //
+    //   helper.click(helper.byTestId(`agent-hostname-of-${agent.uuid}`));
+    //
+    //   expect(helper.byTestId(`agent-build-details-of-${agent.uuid}`)).not.toBeVisible();
+    // });
+
+
+  });
+
+  describe("AgentSelection", () => {
+    it("should render page with no agent selected", () => {
+      mount(agents);
+
+      expect(helper.byTestId("select-all-agents")).not.toBeChecked();
+      expect(helper.byTestId(`agent-checkbox-of-${agentA.uuid}`)).not.toBeChecked();
+      expect(helper.byTestId(`agent-checkbox-of-${agentB.uuid}`)).not.toBeChecked();
+      expect(helper.byTestId(`agent-checkbox-of-${agentC.uuid}`)).not.toBeChecked();
+    });
+
+    it("should select all on click of global checkbox", () => {
+      mount(agents);
+      expect(helper.byTestId(`agent-checkbox-of-${agentA.uuid}`)).not.toBeChecked();
+      expect(helper.byTestId(`agent-checkbox-of-${agentB.uuid}`)).not.toBeChecked();
+      expect(helper.byTestId(`agent-checkbox-of-${agentC.uuid}`)).not.toBeChecked();
+
+      helper.click(helper.byTestId("select-all-agents"));
+
+      expect(helper.byTestId(`agent-checkbox-of-${agentA.uuid}`)).toBeChecked();
+      expect(helper.byTestId(`agent-checkbox-of-${agentB.uuid}`)).toBeChecked();
+      expect(helper.byTestId(`agent-checkbox-of-${agentC.uuid}`)).toBeChecked();
+    });
   });
 
   function mount(agents: Agents) {
-    helper.mount(() => <AgentsWidget agents={agents}/>);
+    helper.mount(() => <AgentsWidget agents={agents}
+                                     onEnable={onEnable}
+                                     onDisable={onDisable}
+                                     onDelete={onDelete}/>);
   }
 
   function assertAgentRow(agent: Agent) {

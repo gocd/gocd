@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 /* Pipeline Observer: check the pipeline status in specific interval. */
+/* eslint-disable */
 var PipelineObserver = Class.create();
 
 PipelineObserver.prototype = {

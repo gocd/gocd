@@ -24,8 +24,6 @@ import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.api.util.HaltApiResponses;
 import com.thoughtworks.go.apiv1.stageoperations.representers.StageInstancesRepresenter;
 import com.thoughtworks.go.apiv1.stageoperations.representers.StageRepresenter;
-import com.thoughtworks.go.config.exceptions.HttpException;
-import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.NullStage;
 import com.thoughtworks.go.domain.Stage;
@@ -33,6 +31,7 @@ import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels;
 import com.thoughtworks.go.server.service.PipelineService;
 import com.thoughtworks.go.server.service.ScheduleService;
 import com.thoughtworks.go.server.service.StageService;
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
@@ -90,12 +89,14 @@ public class StageOperationsControllerV1 extends ApiController implements SparkS
             before(Routes.Stage.TRIGGER_STAGE_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateUserAnd403);
             before(Routes.Stage.TRIGGER_FAILED_JOBS_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateUserAnd403);
             before(Routes.Stage.TRIGGER_SELECTED_JOBS_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateUserAnd403);
+            before(Routes.Stage.CANCEL_STAGE_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateUserAnd403);
             before(Routes.Stage.INSTANCE_BY_COUNTER, mimeType, apiAuthenticationHelper::checkPipelineViewPermissionsAnd403);
             before(Routes.Stage.STAGE_HISTORY, mimeType, apiAuthenticationHelper::checkPipelineViewPermissionsAnd403);
             before(Routes.Stage.STAGE_HISTORY_OFFSET, mimeType, apiAuthenticationHelper::checkPipelineViewPermissionsAnd403);
             post(Routes.Stage.TRIGGER_STAGE_PATH, mimeType, this::triggerStage);
             post(Routes.Stage.TRIGGER_FAILED_JOBS_PATH, mimeType, this::rerunFailedJobs);
             post(Routes.Stage.TRIGGER_SELECTED_JOBS_PATH, mimeType, this::rerunSelectedJobs);
+            post(Routes.Stage.CANCEL_STAGE_PATH, mimeType, this::cancelStage);
             get(Routes.Stage.INSTANCE_BY_COUNTER, mimeType, this::instanceByCounter);
             get(Routes.Stage.STAGE_HISTORY, mimeType, this::history);
             get(Routes.Stage.STAGE_HISTORY_OFFSET, mimeType, this::history);
@@ -158,6 +159,18 @@ public class StageOperationsControllerV1 extends ApiController implements SparkS
 
         scheduleService.rerunStage(pipelineName, pipelineCounterValue.get(), stageName, result);
         return renderHTTPOperationResult(result, req, res);
+    }
+
+    public String cancelStage(Request req, Response res) throws IOException, Exception {
+        HttpOperationResult result = new HttpOperationResult();
+        Optional<Stage> optionalStage = getStageFromRequestParam(req, result);
+        if (!result.isSuccess()) {
+            return renderHTTPOperationResult(result, req, res);
+        }
+
+        HttpLocalizedOperationResult localizedOperationResult = new HttpLocalizedOperationResult();
+        scheduleService.cancelAndTriggerRelevantStages(optionalStage.get().getId(), currentUsername(), localizedOperationResult);
+        return renderHTTPOperationResult(localizedOperationResult, req, res);
     }
 
     public String instanceByCounter(Request req, Response res) throws IOException {

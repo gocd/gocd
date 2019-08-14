@@ -35,13 +35,6 @@ class Api::StagesController < Api::ApiController
     end
   end
 
-  def cancel
-    stage_id = Integer(params[:id])
-    result = HttpLocalizedOperationResult.new
-    schedule_service.cancelAndTriggerRelevantStages(stage_id, current_user, result)
-    render_localized_operation_result result
-  end
-
   def cancel_stage_using_pipeline_stage_name
     pipeline_name = params[:pipeline_name]
     stage_name = params[:stage_name]

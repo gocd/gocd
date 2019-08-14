@@ -25,12 +25,12 @@ import com.thoughtworks.go.presentation.pipelinehistory.JobHistory
 import com.thoughtworks.go.presentation.pipelinehistory.JobHistoryItem
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModel
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels
-import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.service.PipelineService
 import com.thoughtworks.go.server.service.ScheduleService
 import com.thoughtworks.go.server.service.SchedulingCheckerService
 import com.thoughtworks.go.server.service.StageService
 import com.thoughtworks.go.server.service.result.HttpOperationResult
+import com.thoughtworks.go.server.service.result.LocalizedOperationResult
 import com.thoughtworks.go.server.util.Pagination
 import com.thoughtworks.go.serverhealth.HealthStateScope
 import com.thoughtworks.go.serverhealth.HealthStateType
@@ -358,6 +358,89 @@ class StageOperationsControllerV1Test implements SecurityServiceTrait, Controlle
   }
 
   @Nested
+  class CancelStageByIdentifier {
+    @Nested
+    class Security implements SecurityTestTrait, PipelineGroupOperateUserSecurity {
+
+      @Override
+      String getControllerMethodUnderTest() {
+        return "cancelStage"
+      }
+
+      @Override
+      void makeHttpCall() {
+        postWithApiHeader(controller.controllerPath("up42", "3", "stage1", "1", 'cancel'), [:])
+      }
+
+      @Override
+      String getPipelineName() {
+        return "up42"
+      }
+    }
+
+    @Nested
+    class AsGroupOperateUser {
+      @BeforeEach
+      void setUp() {
+        enableSecurity()
+        loginAsGroupOperateUser("up42")
+      }
+
+      @Test
+      void 'cancels running stage'() {
+        Stage stage = new Stage()
+        stage.setId(42)
+
+        String expectedResponseBody = "Stage is cancelled!"
+
+        when(stageService.findStageWithIdentifier(eq("up42"), eq(3), eq("stage1"), eq("1"), anyString(), any() as HttpOperationResult)).thenReturn(stage)
+        when(scheduleService.cancelAndTriggerRelevantStages(eq(stage.getId()), eq(currentUsername()), any() as LocalizedOperationResult)).then({ InvocationOnMock invocation ->
+          LocalizedOperationResult operationResult = invocation.getArgument(2)
+          operationResult.accepted(expectedResponseBody)
+          return stage
+        })
+
+        postWithApiHeader(controller.controllerPath("up42", "3", "stage1", "1", 'cancel'), [:])
+
+        assertThatResponse()
+          .isAccepted()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage(expectedResponseBody)
+
+        verify(scheduleService).cancelAndTriggerRelevantStages(eq(stage.getId()), eq(currentUsername()), any() as LocalizedOperationResult)
+      }
+
+      @Test
+      void 'should not call schedule service if stage is instance of NullStage'() {
+        when(stageService.findStageWithIdentifier(anyString(), anyInt(), anyString(), anyString(), anyString(), any() as HttpOperationResult)).thenReturn(new NullStage("foo"))
+
+        postWithApiHeader(controller.controllerPath("up42", "3", "stage1", "1", 'cancel'), [:])
+
+        assertThatResponse()
+          .isNotFound()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage("Not Found { Stage 'stage1' with counter '1' not found. Please make sure specified stage or stage run with specified counter exists. }")
+
+        verifyZeroInteractions(scheduleService)
+      }
+
+      @Test
+      void 'should not call schedule service if stage does not exist'() {
+        when(stageService.findStageWithIdentifier(anyString(), anyInt(), anyString(), anyString(), anyString(), any() as HttpOperationResult)).thenReturn(null)
+
+        postWithApiHeader(controller.controllerPath("up42", "3", "stage1", "1", 'cancel'), [:])
+
+        assertThatResponse()
+          .isNotFound()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage("Not Found { Stage 'stage1' with counter '1' not found. Please make sure specified stage or stage run with specified counter exists. }")
+
+        verifyZeroInteractions(scheduleService)
+      }
+    }
+  }
+
+  @Nested
   class InstanceByCounter {
     String pipelineName = "up42"
     String pipelineCounter = "1"
@@ -453,7 +536,6 @@ class StageOperationsControllerV1Test implements SecurityServiceTrait, Controlle
 
     }
   }
-
 
   @Nested
   class History {

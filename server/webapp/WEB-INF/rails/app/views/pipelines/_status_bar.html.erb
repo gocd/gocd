@@ -25,7 +25,7 @@
             %>
                     <li style='<%= scope[:pipeline].numberOfStages() < 9 ? "width: " + stage_width_percent(scope[:pipeline].numberOfStages(), scope[:selected], 100) : "max-width: 300px" %>' class="<%= scope[:stage_class] %>">
                         <div class="wrapper">
-                            <%= render :partial => "pipelines/pipeline_stage_bar.html", :locals => {:scope => {:idx_in_status_bar => idx_in_status_bar, :stage_in_status_bar => stage_in_status_bar, :stage_name => scope[:stage_name], :stage_details_action => scope[:stage_details_action]}} -%>
+                            <%= render :partial => "pipelines/pipeline_stage_bar.html", :locals => {:scope => {:idx_in_status_bar => idx_in_status_bar, :stage_in_status_bar => stage_in_status_bar, :pipeline_name => scope[:pipeline_name], :pipeline_counter => scope[:pipeline_counter], :stage_name => scope[:stage_name], :stage_counter => scope[:stage_counter], :stage_details_action => scope[:stage_details_action]}} -%>
                         </div>
                     </li>
             <% end %>

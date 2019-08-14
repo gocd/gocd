@@ -597,4 +597,10 @@ module ApplicationHelper
     options.reverse_merge!(params.slice(:pipeline_name, :pipeline_counter, :stage_name))
     "/go/api/stages/#{options[:pipeline_name]}/#{options[:pipeline_counter]}/#{options[:stage_name]}/run"
   end
+
+  def cancel_stage_path(options)
+    options = options.with_indifferent_access
+    options.reverse_merge!(params.slice(:pipeline_name, :pipeline_counter, :stage_name, :stage_counter))
+    "/go/api/stages/#{options[:pipeline_name]}/#{options[:pipeline_counter]}/#{options[:stage_name]}/#{options[:stage_counter]}/cancel"
+  end
 end

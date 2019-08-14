@@ -47,30 +47,6 @@ describe Api::StagesController do
     end
   end
 
-  describe "cancel" do
-    before :each do
-      @schedule_service = double('schedule_service')
-      allow(controller).to receive(:schedule_service).and_return(@schedule_service)
-    end
-
-    it "should resolve route to cancel" do
-      allow_any_instance_of(HeaderConstraint).to receive(:matches?).with(any_args).and_return(true)
-      expect(:post => '/api/stages/424242/cancel').to route_to(:controller => "api/stages", :action => "cancel", :no_layout => true, :id => "424242")
-    end
-
-    it "should not resolve route to cancel when constraint is not met" do
-      allow_any_instance_of(HeaderConstraint).to receive(:matches?).with(any_args).and_return(false)
-      expect(:post => '/api/stages/424242/cancel').to_not route_to(:controller => "api/stages", :action => "cancel", :no_layout => true, :id => "424242")
-    end
-
-    it "should cancel stage" do
-      user = Username.new(CaseInsensitiveString.new("sriki"))
-      allow(@controller).to receive(:current_user).and_return(user)
-      expect(@schedule_service).to receive(:cancelAndTriggerRelevantStages).with(42, user, an_instance_of(HttpLocalizedOperationResult))
-      post :cancel, params:{:id => "42", :no_layout => true}
-    end
-  end
-
   describe "cancel_stage_using_pipeline_stage_name" do
     before :each do
       @schedule_service = double('schedule_service')

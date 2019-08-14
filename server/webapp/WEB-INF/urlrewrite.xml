@@ -550,9 +550,8 @@
   </rule>
 
   <rule>
-    <name>Spark Stage Operations APIs for re-rerun</name>
-    <condition type="header" name="Accept">application\/vnd\.go\.cd\.v1\+json</condition>
-    <from>^/api/stages/([^/]+)/([^/]+)/([^/]+)/([^/]+)/(run-failed-jobs|run-selected-jobs)(/?)</from>
+    <name>Spark Stage Operations APIs for re-rerun/cancel</name>
+    <from>^/api/stages/([^/]+)/([^/]+)/([^/]+)/([^/]+)/(run-failed-jobs|run-selected-jobs|cancel)(/?)</from>
     <to last="true">/spark/api/stages/${escape:$1}/${escape:$2}/${escape:$3}/${escape:$4}/${escape:$5}</to>
   </rule>
 

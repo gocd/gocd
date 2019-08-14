@@ -49,7 +49,7 @@ describe ApplicationController do
     end
     it "should generate run stage url" do
       expect(run_stage_path(pipeline_name: "pipeline_name", stage_name: "stage_name",
-                            pipeline_counter: 10)).to eq("/go/api/stages/pipeline_name/10/stage_name")
+                            pipeline_counter: 10)).to eq("/go/api/stages/pipeline_name/10/stage_name/run")
     end
   end
 

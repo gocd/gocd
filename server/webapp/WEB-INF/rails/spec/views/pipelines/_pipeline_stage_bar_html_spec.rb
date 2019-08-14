@@ -27,6 +27,10 @@ describe 'pipelines/_pipeline_stage_bar.html.erb' do
   end
 
   it "should show cancel button" do
+    params[:pipeline_name] = 'pipeline_name'
+    params[:stage_name] = 'stage_name'
+    params[:pipeline_counter] = 111
+    params[:stage_counter] = 222
     allow(@sim).to receive(:isRunning).and_return(true)
     allow(@sim).to receive(:canRun).and_return(false)
     allow(@sim).to receive(:getState).and_return(StageState::Building)
@@ -40,7 +44,7 @@ describe 'pipelines/_pipeline_stage_bar.html.erb' do
 
     render :partial => 'pipelines/pipeline_stage_bar', :locals => {:scope => {:stage_in_status_bar => @sim, :idx_in_status_bar => 1, :stage_name => 'stage_name'}}
     Capybara.string(response.body).find("#operate_stage_name").tap do |f|
-      expect(f).to have_selector("a[onclick=\"AjaxRefreshers.disableAjax();spinny('operate_stage_name'); new Ajax.Request('/api/stages/42/cancel', {asynchronous:true, evalScripts:true, method:'post', on401:function(request){redirectToLoginPage('/auth/login');}, onComplete:function(request){AjaxRefreshers.enableAjax();}, requestHeaders:{'Confirm':'true'}}); return false;\"]")
+      expect(f).to have_selector("a[onclick=\"AjaxRefreshers.disableAjax();spinny('operate_stage_name'); new Ajax.Request('/go/api/stages/pipeline_name/111/stage_name/222/cancel', {asynchronous:true, contentType:'application/json', evalScripts:true, method:'post', on401:function(request){redirectToLoginPage('/auth/login');}, onComplete:function(request){AjaxRefreshers.enableAjax();}, requestHeaders:{'X-GoCD-Confirm':'true', 'Accept':'application/vnd.go.cd+json'}}); return false;\"]")
     end
   end
 end

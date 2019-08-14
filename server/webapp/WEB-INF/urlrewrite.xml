@@ -512,7 +512,6 @@
 
   <rule>
     <name>Spark Stage History Offset API</name>
-    <condition type="header" name="Accept">application\/vnd\.go\.cd\.v1\+json</condition>
     <from>^/api/stages/([^/]+)/([^/]+)/history/([^/]+)(/?)</from>
     <to last="true">/spark/api/stages/${escape:$1}/${escape:$2}/history/${escape:$3}</to>
   </rule>

@@ -18,7 +18,7 @@ import $ from "jquery";
 import _ from "lodash";
 import {mrequest} from "helpers/mrequest";
 import {TriStateCheckbox} from "models/agents/tri_state_checkbox";
-import Routes from "gen/js-routes";
+import {SparkRoutes} from "helpers/spark_routes";
 
 const shouldBeDisabled = (environmentName, selectedAgents) => {
   if (!selectedAgents) {
@@ -48,7 +48,7 @@ Environments.all = (selectedAgents) => $.Deferred(function () {
 
   const jqXHR = $.ajax({
     method:      'GET',
-    url:         Routes.apiv1AdminInternalEnvironmentsPath(),
+    url:         SparkRoutes.apiAdminInternalEnvironmentsPath(),
     timeout:     mrequest.timeout,
     beforeSend:  mrequest.xhrConfig.forVersion('v1'),
     contentType: false

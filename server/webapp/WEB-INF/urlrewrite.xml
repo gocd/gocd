@@ -81,7 +81,6 @@
 
   <rule>
     <name>Spark Material Notify API</name>
-    <condition name="Accept">application\/vnd\.go\.cd\.v1\+json</condition>
     <from>^/api/admin/materials/(svn|git|hg|scm)/notify(/?)$</from>
     <to last="true">/spark/api/admin/materials/${escape:$1}/notify</to>
   </rule>

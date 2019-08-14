@@ -341,4 +341,8 @@ export class SparkRoutes {
   static apiAdminInternalResourcesPath() {
     return "/go/api/admin/internal/resources";
   }
+
+  static apiAdminInternalEnvironmentsPath() {
+    return "/go/api/admin/internal/environments";
+  }
 }

@@ -60,7 +60,7 @@ class EnvironmentsController < ApplicationController
     result2 = HttpLocalizedOperationResult.new
 
     if !selected_uuids.empty?
-        agent_service.updateAgentsAssociationWithSpecifiedEnv(original_env_config, selected_uuids, result1)
+        agent_service.updateAgentsAssociationOfEnvironment(original_env_config, selected_uuids, result1)
 
         @result = result1
         if result1.isSuccessful()
@@ -72,7 +72,7 @@ class EnvironmentsController < ApplicationController
         if result1.isSuccessful() && !result2.isSuccessful()
           # Error while creating that env in config. So rolling back (deleting environment association from agents) in DB
           result3 = HttpLocalizedOperationResult.new
-          agent_service.updateAgentsAssociationWithSpecifiedEnv(original_env_config, [], result3)
+          agent_service.updateAgentsAssociationOfEnvironment(original_env_config, [], result3)
         end
     else
         environment_config_service.createEnvironment(@environment, current_user, result1)
@@ -105,7 +105,7 @@ class EnvironmentsController < ApplicationController
         return render :plain => message, :location => url_options_with_flash(message, {:action => :index, :class => 'success', :only_path => true})
       end
 
-      agent_service.updateAgentsAssociationWithSpecifiedEnv(original_env_config, finalUUIDsToAssociate, result)
+      agent_service.updateAgentsAssociationOfEnvironment(original_env_config, finalUUIDsToAssociate, result)
       if !result.isSuccessful()
         message = result.message()
         return render_error_response message, result.httpCode(), true

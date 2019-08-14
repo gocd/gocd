@@ -599,12 +599,9 @@ class AgentServiceTest {
         @Test
         void shouldUpdateAgentApprovalStatusWhenCalledWithRegisteredUUID() {
             String registeredUUID = "registeredUUID";
-            AgentInstance mockInstance = mock(AgentInstance.class);
             Agent mockAgent = mock(Agent.class);
 
-            when(agentInstances.findAgent(registeredUUID)).thenReturn(mockInstance);
-            when(mockInstance.isRegistered()).thenReturn(true);
-            when(mockInstance.getAgent()).thenReturn(mockAgent);
+            when(agentInstances.findRegisteredAgentOrNull(registeredUUID)).thenReturn(mockAgent);
 
             agentService.updateAgentApprovalStatus(registeredUUID, true);
 
@@ -1018,7 +1015,7 @@ class AgentServiceTest {
             when(agentInstances.findAgent("uuid1")).thenReturn(mock(AgentInstance.class));
 
             HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-            agentService.updateAgentsAssociationWithSpecifiedEnv(testEnv, asList(uuid, "uuid1"), result);
+            agentService.updateAgentsAssociationOfEnvironment(testEnv, asList(uuid, "uuid1"), result);
 
             ArgumentCaptor<List<Agent>> argument = ArgumentCaptor.forClass(List.class);
 
@@ -1034,7 +1031,7 @@ class AgentServiceTest {
         }
 
         @Test
-        void shouldUpdateAgentsAssociationWithSpecifiedEnv() {
+        void shouldupdateAgentsAssociationOfEnvironment() {
             AgentInstance agentInstance = mock(AgentInstance.class);
             Username username = new Username(new CaseInsensitiveString("test"));
             String uuid = "uuid";
@@ -1057,7 +1054,7 @@ class AgentServiceTest {
             when(agentInstances.findAgent("uuid2")).thenReturn(mock(AgentInstance.class));
 
             HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-            agentService.updateAgentsAssociationWithSpecifiedEnv(testEnv, asList(uuid, "uuid2"), result);
+            agentService.updateAgentsAssociationOfEnvironment(testEnv, asList(uuid, "uuid2"), result);
 
             verify(agentDao).bulkUpdateAttributes(anyList(), anyMap(), eq(TriState.UNSET));
             assertTrue(result.isSuccessful());
@@ -1089,7 +1086,7 @@ class AgentServiceTest {
             when(agentInstances.findAgent("uuid1")).thenReturn(mock(AgentInstance.class));
 
             HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-            agentService.updateAgentsAssociationWithSpecifiedEnv(testEnv, emptyList(), result);
+            agentService.updateAgentsAssociationOfEnvironment(testEnv, emptyList(), result);
 
             List<Agent> agents = asList(agentConfigForUUID1, agent);
 
@@ -1117,7 +1114,7 @@ class AgentServiceTest {
             when(goConfigService.getEnvironments()).thenReturn(envConfigs);
 
             HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-            agentService.updateAgentsAssociationWithSpecifiedEnv(testEnv, emptyStrList, result);
+            agentService.updateAgentsAssociationOfEnvironment(testEnv, emptyStrList, result);
 
             verifyNoMoreInteractions(agentDao);
             assertTrue(result.isSuccessful());

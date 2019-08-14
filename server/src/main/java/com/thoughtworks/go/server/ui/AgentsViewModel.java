@@ -22,6 +22,9 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
 
+import static java.util.Arrays.asList;
+import static org.apache.commons.collections4.CollectionUtils.exists;
+
 /**
  * @understands collection of agents view model
  */
@@ -91,10 +94,7 @@ public class AgentsViewModel extends BaseCollection<AgentViewModel> {
     }
 
     private boolean agentFiltersHas(final String enumKey) {
-        return CollectionUtils.exists(Arrays.asList(AgentFilters.values()), o -> {
-            AgentFilters filter = (AgentFilters) o;
-            return filter.name().equals(enumKey.toUpperCase());
-        });
+        return exists(asList(AgentFilters.values()), agentFilters -> agentFilters.name().equals(enumKey.toUpperCase()));
     }
 
     private int count(AgentStatus status) {
@@ -143,7 +143,7 @@ enum AgentFilters {
 
     static boolean matchesFilter(Collection collection, final String searchCriteria) {
         final SearchCriteria criteria = new SearchCriteria(searchCriteria);
-        return CollectionUtils.exists(collection, o -> criteria.matches((String) o));
+        return exists(collection, o -> criteria.matches((String) o));
     }
 
     static boolean matchesFilter(String agentValue, String searchCriteria) {

@@ -31,6 +31,7 @@ import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.thoughtworks.go.domain.AgentInstance.createFromAgent;
@@ -106,9 +107,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
 
     public AgentInstances getAllAgents() {
         AgentInstances allAgentInstances = new AgentInstances(agentStatusChangeListener);
-        Collection<AgentInstance> currentAgentInstances = currentInstances();
-
-        currentAgentInstances.forEach(allAgentInstances::add);
+        currentInstances().forEach(allAgentInstances::add);
         return allAgentInstances;
     }
 
@@ -136,6 +135,11 @@ public class AgentInstances implements Iterable<AgentInstance> {
 
     public Integer size() {
         return uuidToAgentInstanceMap.size();
+    }
+
+    public Agent findRegisteredAgentOrNull(String uuid){
+        AgentInstance agentInstance = findAgent(uuid);
+        return agentInstance.isRegistered() ? agentInstance.getAgent() : null;
     }
 
     public void refresh() {

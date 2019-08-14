@@ -1198,7 +1198,7 @@ public class AgentServiceIntegrationTest {
 
             HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
             BasicEnvironmentConfig uat = new BasicEnvironmentConfig(new CaseInsensitiveString("uat"));
-            agentService.updateAgentsAssociationWithSpecifiedEnv(uat, asList(UUID, UUID2), result);
+            agentService.updateAgentsAssociationOfEnvironment(uat, asList(UUID, UUID2), result);
 
             assertThat(result.httpCode(), is(200));
             assertThat(result.message(), is("Updated agent(s) with uuid(s): [uuid, uuid2]."));
@@ -1224,7 +1224,7 @@ public class AgentServiceIntegrationTest {
             uat.addAgent(UUID);
             uat.addAgent(UUID2);
             List<String> noAgents = emptyList();
-            agentService.updateAgentsAssociationWithSpecifiedEnv(uat, noAgents, result);
+            agentService.updateAgentsAssociationOfEnvironment(uat, noAgents, result);
 
             assertThat(result.httpCode(), is(200));
             assertThat(result.message(), is("Updated agent(s) with uuid(s): []."));
@@ -1252,7 +1252,7 @@ public class AgentServiceIntegrationTest {
             BasicEnvironmentConfig uat = new BasicEnvironmentConfig(new CaseInsensitiveString("uat"));
             uat.addAgent(UUID);
             uat.addAgent(UUID2);
-            agentService.updateAgentsAssociationWithSpecifiedEnv(uat, asList(UUID, UUID3), result);
+            agentService.updateAgentsAssociationOfEnvironment(uat, asList(UUID, UUID3), result);
 
             assertThat(result.httpCode(), is(200));
             assertThat(result.message(), is("Updated agent(s) with uuid(s): [uuid, uuid3]."));

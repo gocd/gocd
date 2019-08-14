@@ -17,7 +17,6 @@ package com.thoughtworks.go.server.messaging.notifications;
 
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.listener.AgentStatusChangeListener;
-import com.thoughtworks.go.plugin.access.notification.NotificationExtension;
 import com.thoughtworks.go.plugin.access.notification.NotificationPluginRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

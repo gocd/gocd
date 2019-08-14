@@ -136,7 +136,7 @@ describe EnvironmentsController do
         create_environment_called = true
       end
 
-      expect(@agent_service).to receive(:updateAgentsAssociationWithSpecifiedEnv) do |env_config, uuids, result|
+      expect(@agent_service).to receive(:updateAgentsAssociationOfEnvironment) do |env_config, uuids, result|
         expect(env_config.name()).to eq(CaseInsensitiveString.new(environment_name))
         expect(env_config.getAgents().map(&:getUuid)).to eq(["agent_1_uuid"])
         expect(uuids).to include('agent_1_uuid')
@@ -264,7 +264,7 @@ describe EnvironmentsController do
       expect(@environment_config_service).to receive(:getAllLocalPipelinesForUser).with(@user).and_return([])
       expect(@environment_config_service).to receive(:getAllRemotePipelinesForUserInEnvironment).with(@user, @environment).and_return([])
 
-      expect(@agent_service).to receive(:updateAgentsAssociationWithSpecifiedEnv).with(@environment, ['uuid-1'], result) do
+      expect(@agent_service).to receive(:updateAgentsAssociationOfEnvironment).with(@environment, ['uuid-1'], result) do
         result.badRequest("Failed to update Agents [uuid-1]")
       end
       expect(@environment_config_service).to receive(:updateEnvironment).with(@environment_name, @environment, @user, md5, anything) do |old_config, new_config, user, md5, result1|
@@ -315,7 +315,7 @@ describe EnvironmentsController do
       expect(@environment_config_service).to receive(:getAllLocalPipelinesForUser).with(@user).and_return([])
       expect(@environment_config_service).to receive(:getAllRemotePipelinesForUserInEnvironment).with(@user, @environment).and_return([])
 
-      expect(@agent_service).to receive(:updateAgentsAssociationWithSpecifiedEnv).with(@environment, ['uuid-1'], result) do
+      expect(@agent_service).to receive(:updateAgentsAssociationOfEnvironment).with(@environment, ['uuid-1'], result) do
         result.setMessage("Updated agent(s) with uuid(s): [uuid-1]")
       end
       expect(@environment_config_service).to receive(:updateEnvironment).with(@environment_name, @environment, @user, 'md5', anything) do |old_config, new_config, user, md5, result1|
@@ -349,7 +349,7 @@ describe EnvironmentsController do
       env_agents_conf.add(env_agent_conf_1)
       config_new.setAgents(env_agents_conf)
 
-      expect(@agent_service).to receive(:updateAgentsAssociationWithSpecifiedEnv).with(config_new, ["uuid-1"], anything) do |env_config, agents, result|
+      expect(@agent_service).to receive(:updateAgentsAssociationOfEnvironment).with(config_new, ["uuid-1"], anything) do |env_config, agents, result|
         result.badRequest("Request is bad!")
       end
 
@@ -414,7 +414,7 @@ describe EnvironmentsController do
       env_agents_conf.add(env_agent_conf_2)
       config_new.setAgents(env_agents_conf)
 
-      expect(@agent_service).to receive(:updateAgentsAssociationWithSpecifiedEnv).with(config_new, ['uuid-1', 'uuid-3'], anything) do
+      expect(@agent_service).to receive(:updateAgentsAssociationOfEnvironment).with(config_new, ['uuid-1', 'uuid-3'], anything) do
         result.setMessage("Updated agent(s) with uuid(s): [uuid-1, 'uuid-3'].")
       end
 
@@ -447,7 +447,7 @@ describe EnvironmentsController do
       env_agents_conf.add(env_agent_conf_2)
       config_new.setAgents(env_agents_conf)
 
-      expect(@agent_service).to receive(:updateAgentsAssociationWithSpecifiedEnv).with(config_new, ["uuid-1"], anything) do
+      expect(@agent_service).to receive(:updateAgentsAssociationOfEnvironment).with(config_new, ["uuid-1"], anything) do
         result.setMessage("Updated agent(s) with uuid(s): [uuid-1].")
       end
 

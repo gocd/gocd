@@ -59,12 +59,15 @@ import static com.thoughtworks.go.serverhealth.HealthStateType.general;
 import static com.thoughtworks.go.util.CommaSeparatedString.append;
 import static com.thoughtworks.go.util.CommaSeparatedString.remove;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
+import static com.thoughtworks.go.util.TriState.TRUE;
+import static com.thoughtworks.go.util.TriState.UNSET;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.*;
 import static java.util.stream.Collectors.*;
 import static java.util.stream.StreamSupport.stream;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
+import static org.apache.commons.collections4.ListUtils.union;
 import static org.apache.commons.lang3.StringUtils.join;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
@@ -179,8 +182,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
                     agents.addAll(agentInstances.filterPendingAgents(uuids));
                 }
 
-                agents.forEach(agent -> setResourcesEnvironmentsAndState(agent, resourcesToAdd, resourcesToRemove,
-                        envsToAdd, envsToRemove, state));
+                agents.forEach(agent -> setResourcesEnvsAndState(agent, resourcesToAdd, resourcesToRemove, envsToAdd, envsToRemove, state));
                 agentDao.bulkUpdateAttributes(agents, createAgentToStatusMap(agents), state);
                 result.setMessage("Updated agent(s) with uuid(s): [" + join(uuids, ", ") + "].");
             }
@@ -192,33 +194,27 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         }
     }
 
-    public void updateAgentsAssociationWithSpecifiedEnv(EnvironmentConfig envConfig, List<String> uuidsToAssociateWithEnv, LocalizedOperationResult result) {
+    public void updateAgentsAssociationOfEnvironment(EnvironmentConfig envConfig, List<String> uuids, LocalizedOperationResult result) {
         if (envConfig == null) {
             return;
         }
 
-        List<String> uuidsAssociatedWithEnv = getAssociatedUUIDs(envConfig.getAgents());
-        EnvironmentsConfig envsConfig = getEnvironmentsConfigFrom(envConfig);
-        AgentsUpdateValidator validator = new AgentsUpdateValidator(agentInstances, uuidsToAssociateWithEnv, TriState.TRUE, emptyList(), emptyList(), result);
+        AgentsUpdateValidator validator = new AgentsUpdateValidator(agentInstances, uuids, TRUE, emptyList(), emptyList(), result);
         try {
-            if (isAnyOperationPerformedOnBulkAgents(emptyList(), emptyList(), envsConfig, emptyList(), TriState.TRUE, result)) {
+            EnvironmentsConfig envsConfig = getEnvironmentsConfigFrom(envConfig);
+            if (isAnyOperationPerformedOnBulkAgents(emptyList(), emptyList(), envsConfig, emptyList(), TRUE, result)) {
                 validator.validate();
-                uuidsToAssociateWithEnv = (uuidsToAssociateWithEnv == null) ? emptyList() : uuidsToAssociateWithEnv;
-                List<String> uuidsToRemoveEnvFrom = getUUIDsToRemoveEnvFrom(uuidsToAssociateWithEnv, uuidsAssociatedWithEnv);
-                List<String> uuidsToAddEnvTo = getUUIDsToAddEnvTo(uuidsToAssociateWithEnv, uuidsAssociatedWithEnv);
 
-                String env = envConfig.name().toString();
-                List<Agent> agentsToRemoveEnvFromList = getAgentsToRemoveEnvFromList(uuidsToRemoveEnvFrom, env);
-                List<Agent> agents = new ArrayList<>(agentsToRemoveEnvFromList);
-                List<Agent> agentsToAddEnvToList = getAgentsToAddEnvToList(uuidsToAddEnvTo, env);
-                agents.addAll(agentsToAddEnvToList);
+                List<String> uuidsToAssociate  = (uuids == null) ? emptyList() : uuids;
+                List<Agent> agents = getAgentsToAddEnvToOrRemoveEnvFrom(envConfig, uuidsToAssociate);
 
                 if (agents.isEmpty()) {
                     return;
                 }
 
-                agentDao.bulkUpdateAttributes(agents, emptyMap(), TriState.UNSET);
-                String message = "Updated agent(s) with uuid(s): [" + join(uuidsToAssociateWithEnv, ", ") + "].";
+                agentDao.bulkUpdateAttributes(agents, emptyMap(), UNSET);
+
+                String message = "Updated agent(s) with uuid(s): [" + join(uuidsToAssociate, ", ") + "].";
                 result.setMessage(message);
                 LOGGER.debug(message);
             }
@@ -244,8 +240,8 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     }
 
     public void updateRuntimeInfo(AgentRuntimeInfo agentRuntimeInfo) {
-        bombIfAgentDoesNotHaveACookie(agentRuntimeInfo);
-        bombIfAgentHasADuplicateCookie(agentRuntimeInfo);
+        bombIfAgentDoesNotHaveCookie(agentRuntimeInfo);
+        bombIfAgentHasDuplicateCookie(agentRuntimeInfo);
 
         AgentInstance agentInstance = findAgentAndRefreshStatus(agentRuntimeInfo.getUUId());
         if (agentInstance.isIpChangeRequired(agentRuntimeInfo.getIpAdress())) {
@@ -281,9 +277,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     }
 
     public void updateAgentApprovalStatus(final String uuid, final Boolean isDenied) {
-        AgentInstance agentInstance = agentInstances.findAgent(uuid);
-
-        Agent agent = (agentInstance.isRegistered() ? agentInstance.getAgent() : null);
+        Agent agent = agentInstances.findRegisteredAgentOrNull(uuid);
         bombIfNull(agent, "Unable to update agent approval status; Agent [" + uuid + "] not found.");
 
         agent.setDisabled(isDenied);
@@ -293,9 +287,10 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     @Deprecated
     public void approve(String uuid) {
         AgentInstance agentInstance = findAgentAndRefreshStatus(uuid);
-        boolean hasAgent = isRegistered(agentInstance.getUuid());
+        boolean doesAgentExistAndIsRegistered = isRegistered(agentInstance.getUuid());
         agentInstance.enable();
-        if (hasAgent) {
+
+        if (doesAgentExistAndIsRegistered) {
             LOGGER.warn("Registered agent with the same uuid [{}] already approved.", agentInstance);
         } else {
             Agent agent = agentInstance.getAgent();
@@ -346,11 +341,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     }
 
     public AgentsViewModel filterAgentsViewModel(List<String> uuids) {
-        AgentsViewModel agentsViewModel = new AgentsViewModel();
-        for (AgentInstance agentInstance : agentInstances.filter(uuids)) {
-            agentsViewModel.add(new AgentViewModel(agentInstance));
-        }
-        return agentsViewModel;
+        return agentInstances.filter(uuids).stream().map(AgentViewModel::new).collect(toCollection(AgentsViewModel::new));
     }
 
     public AgentViewModel findAgentViewModel(String uuid) {
@@ -430,13 +421,21 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         AgentInstance agentInstanceBeforeUpdate = agentInstances.findAgent(agentAfterUpdate.getUuid());
 
         if (agentInstanceBeforeUpdate instanceof NullAgentInstance) {
-            agentInstanceBeforeUpdate = createFromAgent(agentAfterUpdate, new SystemEnvironment(), agentStatusChangeNotifier);
-            this.agentInstances.add(agentInstanceBeforeUpdate);
+            createNewAgentInstanceAndAddToCache(agentAfterUpdate);
         } else {
-            Agent agentBeforeUpdate = agentInstanceBeforeUpdate.getAgent();
-            notifyAgentChangeListener(agentBeforeUpdate, agentAfterUpdate);
-            agentInstanceBeforeUpdate.syncAgentFrom(agentAfterUpdate);
+            notifyAgentChangeListenersAndSyncAgentFromUpdatedAgent(agentAfterUpdate, agentInstanceBeforeUpdate);
         }
+    }
+
+    private void notifyAgentChangeListenersAndSyncAgentFromUpdatedAgent(Agent agentAfterUpdate, AgentInstance agentInstanceBeforeUpdate) {
+        Agent agentBeforeUpdate = agentInstanceBeforeUpdate.getAgent();
+        notifyAgentChangeListeners(agentBeforeUpdate, agentAfterUpdate);
+        agentInstanceBeforeUpdate.syncAgentFrom(agentAfterUpdate);
+    }
+
+    private void createNewAgentInstanceAndAddToCache(Agent agentAfterUpdate) {
+        AgentInstance agentInstanceBeforeUpdate = createFromAgent(agentAfterUpdate, new SystemEnvironment(), agentStatusChangeNotifier);
+        this.agentInstances.add(agentInstanceBeforeUpdate);
     }
 
     public void registerAgentChangeListeners(AgentChangeListener listener) {
@@ -446,7 +445,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     }
 
     void entityDeleted(String uuid) {
-        notifyAgentDeleteListener(uuid);
+        notifyAgentDeleteListeners(uuid);
         this.agentInstances.removeAgent(uuid);
     }
 
@@ -455,8 +454,8 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         agentInstances.syncAgentInstancesFrom(allAgentsFromDB);
     }
 
-    private void setResourcesEnvironmentsAndState(Agent agent, List<String> resourcesToAdd, List<String> resourcesToRemove,
-                                                  EnvironmentsConfig envsToAdd, List<String> envsToRemove, TriState state) {
+    private void setResourcesEnvsAndState(Agent agent, List<String> resourcesToAdd, List<String> resourcesToRemove,
+                                          EnvironmentsConfig envsToAdd, List<String> envsToRemove, TriState state) {
         addRemoveEnvsAndResources(agent, envsToAdd, envsToRemove, resourcesToAdd, resourcesToRemove);
         enableDisableAgent(state, agent);
     }
@@ -495,12 +494,12 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         setOnlyThoseEnvsThatAreNotAssociatedWithAgentFromConfigRepo(environments, agent);
     }
 
-    private void notifyAgentChangeListener(Agent agentBeforeUpdate, Agent agentAfterUpdate) {
+    private void notifyAgentChangeListeners(Agent agentBeforeUpdate, Agent agentAfterUpdate) {
         AgentChangedEvent event = new AgentChangedEvent(agentBeforeUpdate, agentAfterUpdate);
         listeners.forEach(listener -> listener.agentChanged(event));
     }
 
-    private void notifyAgentDeleteListener(String uuid) {
+    private void notifyAgentDeleteListeners(String uuid) {
         listeners.forEach(listener -> {
             AgentInstance agent = agentInstances.findAgent(uuid);
             listener.agentDeleted(agent.getAgent());
@@ -511,7 +510,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         return agentInstance.getAgent().getEnvironmentsAsList().stream().sorted().collect(toList());
     }
 
-    private void bombIfAgentHasADuplicateCookie(AgentRuntimeInfo agentRuntimeInfo) {
+    private void bombIfAgentHasDuplicateCookie(AgentRuntimeInfo agentRuntimeInfo) {
         if (agentRuntimeInfo.hasDuplicateCookie(agentDao.cookieFor(agentRuntimeInfo.getIdentifier()))) {
             LOGGER.warn("Found agent [{}] with duplicate uuid. Please check the agent installation.", agentRuntimeInfo.agentInfoDebugString());
             serverHealthService.update(
@@ -522,7 +521,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         }
     }
 
-    private void bombIfAgentDoesNotHaveACookie(AgentRuntimeInfo agentRuntimeInfo) {
+    private void bombIfAgentDoesNotHaveCookie(AgentRuntimeInfo agentRuntimeInfo) {
         if (!agentRuntimeInfo.hasCookie()) {
             LOGGER.warn("Agent [{}] has no cookie set", agentRuntimeInfo.agentInfoDebugString());
             throw new AgentNoCookieSetException(format("Agent [%s] has no cookie set", agentRuntimeInfo.agentInfoDebugString()));
@@ -541,29 +540,35 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
                 .collect(toList());
     }
 
-    private List<Agent> getAgentsToAddEnvToList(List<String> uuidsToAddEnvsTo, String env) {
-        return uuidsToAddEnvsTo.stream()
-                .map(uuid -> {
-                    Agent agent = agentDao.getAgentByUUIDFromCacheOrDB(uuid);
-                    String envsToSet = append(agent.getEnvironments(), singletonList(env));
-                    agent.setEnvironments(envsToSet);
-                    return agent;
-                })
+    private List<Agent> getAgentsFromDBToAddEnvTo(List<String> uuids, List<String> associatedUUIDs, String env) {
+        List<String> uuidsToAddEnvTo = getUUIDsToAddEnvTo(uuids, associatedUUIDs);
+        return uuidsToAddEnvTo.stream()
+                .map(uuid -> getAgentFromDBAfterAddingEnvToExistingEnvs(env, uuid))
                 .collect(toList());
     }
 
-    private List<Agent> getAgentsToRemoveEnvFromList(List<String> agentsToRemoveEnvFrom, String env) {
-        return agentsToRemoveEnvFrom.stream()
-                .map(uuid -> {
-                    Agent agent = agentDao.getAgentByUUIDFromCacheOrDB(uuid);
-                    String envsToSet = remove(agent.getEnvironments(), singletonList(env));
-                    agent.setEnvironments(envsToSet);
-                    return agent;
-                })
+    private Agent getAgentFromDBAfterAddingEnvToExistingEnvs(String env, String uuid) {
+        Agent agent = agentDao.getAgentByUUIDFromCacheOrDB(uuid);
+        String envsToSet = append(agent.getEnvironments(), singletonList(env));
+        agent.setEnvironments(envsToSet);
+        return agent;
+    }
+
+    private List<Agent> getAgentsFromDBToRemoveEnvFrom(List<String> uuids, List<String> associatedUUIDs, String env) {
+        List<String> uuidsToRemoveEnvFrom = getUUIDsToRemoveEnvFrom(uuids, associatedUUIDs);
+        return uuidsToRemoveEnvFrom.stream()
+                .map(uuid -> getAgentFromDBAfterRemovingEnvFromExistingEnvs(env, uuid))
                 .collect(toList());
     }
 
-    private List<String> getAssociatedUUIDs(EnvironmentAgentsConfig asssociatedAgents) {
+    private Agent getAgentFromDBAfterRemovingEnvFromExistingEnvs(String env, String uuid) {
+        Agent agent = agentDao.getAgentByUUIDFromCacheOrDB(uuid);
+        String envsToSet = remove(agent.getEnvironments(), singletonList(env));
+        agent.setEnvironments(envsToSet);
+        return agent;
+    }
+
+    private List<String> toUUIDList(EnvironmentAgentsConfig asssociatedAgents) {
         List<String> associatedUUIDs = emptyList();
 
         if (!isEmpty(asssociatedAgents)) {
@@ -573,22 +578,16 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         return associatedUUIDs;
     }
 
-    private HashMap<String, AgentConfigStatus> createAgentToStatusMap(List<Agent> agents) {
-        HashMap<String, AgentConfigStatus> agentToStatusMap = new HashMap<>();
-
-        agents.forEach(agent -> {
-            AgentInstance agentInstance = agentInstances.findAgent(agent.getUuid());
-            AgentConfigStatus agentConfigStatus = agentInstance.getStatus().getConfigStatus();
-            agentToStatusMap.put(agent.getUuid(), agentConfigStatus);
-        });
-
-        return agentToStatusMap;
+    private Map<String, AgentConfigStatus> createAgentToStatusMap(List<Agent> agents) {
+        return agents.stream()
+                .map(agent -> findAgent(agent.getUuid()))
+                .collect(toMap(AgentInstance::getUuid, agentInstance -> agentInstance.getStatus().getConfigStatus()));
     }
 
-    private void enableDisableAgent(TriState enable, Agent agent) {
-        if (enable.isTrue()) {
+    private void enableDisableAgent(TriState triState, Agent agent) {
+        if (triState.isTrue()) {
             agent.setDisabled(false);
-        } else if (enable.isFalse()) {
+        } else if (triState.isFalse()) {
             agent.setDisabled(true);
         }
     }
@@ -717,5 +716,15 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
             return false;
         }
         return true;
+    }
+
+    private List<Agent> getAgentsToAddEnvToOrRemoveEnvFrom(EnvironmentConfig envConfig, List<String> uuids) {
+        List<String> associatedUUIDs = toUUIDList(envConfig.getAgents());
+        String envName = envConfig.name().toString();
+
+        List<Agent> removeEnvFromAgents = getAgentsFromDBToRemoveEnvFrom(uuids, associatedUUIDs, envName);
+        List<Agent> addEnvToAgents = getAgentsFromDBToAddEnvTo(uuids, associatedUUIDs, envName);
+
+        return union(removeEnvFromAgents, addEnvToAgents);
     }
 }

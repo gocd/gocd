@@ -159,24 +159,14 @@ public class AgentViewModel implements Comparable<AgentViewModel>{
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
         AgentViewModel that = (AgentViewModel) o;
-
-        if (agentInstance != null ? !agentInstance.equals(that.agentInstance) : that.agentInstance != null) {
-            return false;
-        }
-        if (environments != null ? !environments.equals(that.environments) : that.environments != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(agentInstance, that.agentInstance)
+                && Objects.equals(environments, that.environments);
     }
 
     @Override
     public int hashCode() {
-        int result = agentInstance != null ? agentInstance.hashCode() : 0;
-        result = 31 * result + (environments != null ? environments.hashCode() : 0);
-        return result;
+        return Objects.hash(agentInstance, environments);
     }
 
     public ConfigErrors errors() {

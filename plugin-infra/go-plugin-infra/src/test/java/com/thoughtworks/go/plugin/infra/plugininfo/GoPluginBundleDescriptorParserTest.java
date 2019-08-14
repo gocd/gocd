@@ -32,6 +32,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 public class GoPluginBundleDescriptorParserTest {
     @Test
@@ -54,6 +55,18 @@ public class GoPluginBundleDescriptorParserTest {
                 "Plugin 2", "2.0.0", "19.5",
                 "Example plugin 2", "Some other org", "www.example.com", singletonList("Linux"),
                 asList("cd.go.contrib.package2.TaskExtension", "cd.go.contrib.package2.AnalyticsExtension"));
+    }
+
+    @Test
+    public void shouldNotAllowPluginWithEmptyListOfExtensionsInABundle() throws IOException {
+        InputStream pluginXml = getClass().getClassLoader().getResourceAsStream("defaultFiles/gocd-bundle-with-no-extension-classes.xml");
+
+        try {
+            GoPluginBundleDescriptorParser.parseXML(pluginXml, "/tmp/a.jar", new File("/tmp/"), true);
+            fail("Expected this to throw an exception");
+        } catch (SAXException e) {
+            assertThat(e.getCause().getMessage(), is("cvc-complex-type.2.4.b: The content of element 'extensions' is not complete. One of '{extension}' is expected."));
+        }
     }
 
     private void assertPluginDescriptor(GoPluginDescriptor pluginDescriptor, String pluginID, String pluginName,

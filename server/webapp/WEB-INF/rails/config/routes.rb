@@ -216,7 +216,6 @@ Rails.application.routes.draw do
           namespace :internal do
             post :material_test, controller: :material_test, action: :test, as: :material_test
             resources :pipelines, only: [:index]
-            resources :environments, only: [:index]
           end
         end
 

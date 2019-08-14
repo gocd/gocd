@@ -16,10 +16,9 @@
 
 package com.thoughtworks.go.server.controller;
 
-import com.thoughtworks.go.config.exceptions.StageNotFoundException;
 import com.thoughtworks.go.config.exceptions.NotAuthorizedException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
-import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
+import com.thoughtworks.go.config.exceptions.StageNotFoundException;
 import com.thoughtworks.go.server.security.HeaderConstraint;
 import com.thoughtworks.go.server.service.PipelineService;
 import com.thoughtworks.go.server.service.ScheduleService;
@@ -94,24 +93,6 @@ public class StageController {
         } catch (Exception e) {
             LOGGER.error("Error while rerunning {}/{}/{}", pipelineName, pipelineCounter, stageName, e);
             return ResponseCodeView.create(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
-        }
-    }
-
-    @RequestMapping(value = "/**/cancel.json", method = RequestMethod.POST)
-    public ModelAndView cancelViaPost(@RequestParam(value = "id") Long stageId, HttpServletResponse response,
-                                      HttpServletRequest request) {
-        if (!headerConstraint.isSatisfied(request)) {
-            return ResponseCodeView.create(HttpServletResponse.SC_BAD_REQUEST, "Missing required header 'Confirm'");
-        }
-
-        try {
-            HttpLocalizedOperationResult cancelResult = new HttpLocalizedOperationResult();
-            scheduleService.cancelAndTriggerRelevantStages(stageId, SessionUtils.currentUsername(), cancelResult);
-            return handleResult(cancelResult, response);
-        } catch (NotAuthorizedException e) {
-            return ResponseCodeView.create(HttpServletResponse.SC_FORBIDDEN, e.getMessage());
-        } catch (Exception e) {
-            return ResponseCodeView.create(HttpServletResponse.SC_NOT_ACCEPTABLE, e.getMessage());
         }
     }
 

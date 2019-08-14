@@ -346,12 +346,12 @@ var PipelineActions = Class.create({
         this.spinningPauseButton = $A();
         this.spinningCancelButton = $A();
     },
-    cancelPipeline: function(stageId, link) {
+    cancelPipeline: function(pipelineName, pipelineCounter, stageName, stageCounter, stageId, link) {
         if(this.spinningCancelButton.include(stageId)){
             return;/* Can't duplicate submit when submitting */
         }
 
-        var url = contextPath + "/cancel.json?id=" + stageId;
+        var url = contextPath + "/api/stages/" + pipelineName + '/' + pipelineCounter + '/' + stageName + '/' + stageCounter + '/cancel';
         var confirmed = confirm("This will cancel all active jobs in this stage. Are you sure?");
         if (confirmed) {
             if(link) {
@@ -361,10 +361,8 @@ var PipelineActions = Class.create({
             this.rememberButtonIsSpinning('Cancel', stageId);
 
             new Ajax.Request(url, {
-                method: 'put',
-                requestHeaders: {
-                    Confirm: 'true'
-                },
+                method: 'post',
+                requestHeaders: {'X-GoCD-Confirm': 'true', 'Accept': 'application/vnd.go.cd+json', 'Content-Type': 'application/json'},
                 onComplete: function() {
                     dashboard_periodical_executor.fireNow();
                 }

@@ -150,7 +150,7 @@
                                 {/if}
                                 {if stage.getCanCancel == 'true'}
                                 <a id="cancel-${% data.pipelineName %}-${% pipeline.counterOrLabel %}-${% stage.stageName %}" class="cancel" title="Cancel this stage"
-                                        href="javascript:pipelineActions.cancelPipeline('${% stage.stageId %}', 'cancel-${% data.pipelineName %}-${% pipeline.counterOrLabel %}-${% stage.stageName %}');">Cancel</a>
+                                        href="javascript:pipelineActions.cancelPipeline('${% data.pipelineName %}', '${% pipeline.counterOrLabel %}', '${% stage.stageName %}', '${% stage.stageCounter %}', '${% stage.stageId %}', 'cancel-${% data.pipelineName %}-${% pipeline.counterOrLabel %}-${% stage.stageName %}');">Cancel</a>
                                 {/if}
                                 <a id="stage-detail-${% pipeline.pipelineId %}-${% stage.stageName %}-link" class="detail" title="see the details of this stage"
                                         href="$req.getContextPath()/pipelines/${% stage.stageLocator %}{if 'failed' == stage.stageStatus}#tab-failures{/if}{if 'passed' == stage.stageStatus}#tab-artifacts{/if}">

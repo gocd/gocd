@@ -16,10 +16,9 @@
 
 package com.thoughtworks.go.apiv1.internalenvironments;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
+import com.thoughtworks.go.api.base.JsonOutputWriter;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.server.service.EnvironmentConfigService;
@@ -41,7 +40,6 @@ public class InternalEnvironmentsControllerV1 extends ApiController implements S
 
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final EnvironmentConfigService environmentConfigService;
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     @Autowired
     public InternalEnvironmentsControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, EnvironmentConfigService environmentConfigService) {
@@ -70,6 +68,6 @@ public class InternalEnvironmentsControllerV1 extends ApiController implements S
     public String index(Request request, Response response) throws IOException {
         List<String> environmentNames = environmentConfigService.environmentNames()
                 .stream().map(CaseInsensitiveString::toString).collect(Collectors.toList());
-        return GSON.toJson(environmentNames);
+        return JsonOutputWriter.OBJECT_MAPPER.writeValueAsString(environmentNames);
     }
 }

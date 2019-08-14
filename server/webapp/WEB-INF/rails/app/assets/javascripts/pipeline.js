@@ -508,12 +508,10 @@ var StageActions = Class.create({
                 $(link).removeClassName('rerun').addClassName('submiting-rerun');
             }
 
-            var url = contextPath + "/run/" + pipelineName + "/" + pipelineLabel + "/" + stageName;
+            var url = contextPath + "/api/stages/" + pipelineName + "/" + pipelineLabel + "/" + stageName + '/run';
             new Ajax.Request(url, {
                 method: 'post',
-                requestHeaders: {
-                    Confirm: 'true'
-                },
+                requestHeaders: {'X-GoCD-Confirm': 'true', 'Accept': 'application/vnd.go.cd+json', 'Content-Type': 'application/json'},
                 onComplete: function() {
                     dashboard_periodical_executor.fireNow();
                 },

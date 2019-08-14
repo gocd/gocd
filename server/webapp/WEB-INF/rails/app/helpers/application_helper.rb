@@ -595,6 +595,6 @@ module ApplicationHelper
   def run_stage_path(options)
     options = options.with_indifferent_access
     options.reverse_merge!(params.slice(:pipeline_name, :pipeline_counter, :stage_name))
-    "/go/run/#{options[:pipeline_name]}/#{options[:pipeline_counter]}/#{options[:stage_name]}"
+    "/go/api/stages/#{options[:pipeline_name]}/#{options[:pipeline_counter]}/#{options[:stage_name]}/run"
   end
 end

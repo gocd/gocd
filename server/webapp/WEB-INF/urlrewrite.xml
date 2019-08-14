@@ -495,7 +495,6 @@
 
   <rule>
     <name>Spark Stage Operations API</name>
-    <condition type="header" name="Accept">application\/vnd\.go\.cd\.v1\+json</condition>
     <from>^/api/stages/([^/]+)/([^/]+)/([^/]+)/run(/?)</from>
     <to last="true">/spark/api/stages/${escape:$1}/${escape:$2}/${escape:$3}/run</to>
   </rule>

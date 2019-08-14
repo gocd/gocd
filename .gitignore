@@ -426,3 +426,7 @@ api/api-internal-command-snippets-v1/out/
 api/api-internal-command-snippets-v1/target/
 api/api-internal-command-snippets-v1/logs/
 api/api-internal-command-snippets-v1/config/
+api/api-internal-environments-v1/out/
+api/api-internal-environments-v1/target/
+api/api-internal-environments-v1/logs/
+api/api-internal-environments-v1/config/

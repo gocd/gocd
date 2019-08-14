@@ -676,9 +676,12 @@ class AgentServiceTest {
 
                 when(securityService.hasOperatePermissionForAgents(username)).thenReturn(true);
                 when(mockAgentInstance.canBeDeleted()).thenReturn(true);
+
                 when(agentInstances.findAgentAndRefreshStatus(uuid)).thenReturn(mockAgentInstance);
                 when(mockAgentInstance.getAgent()).thenReturn(mockAgent);
-                when(mockAgent.isNull()).thenReturn(true);
+
+                when(mockAgentInstance.isNullAgent()).thenReturn(true);
+                when(mockAgentInstance.getUuid()).thenReturn(uuid);
                 when(mockAgentInstance.getAgent().getUuid()).thenReturn(uuid);
 
                 AgentService agentService = new AgentService(new SystemEnvironment(), agentInstances,

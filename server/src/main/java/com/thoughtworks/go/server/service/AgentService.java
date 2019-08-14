@@ -232,12 +232,10 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
 
     public void deleteAgents(List<String> uuids, HttpOperationResult result) {
         try {
-            List<AgentInstance> agents = new ArrayList<>();
-            if (!validateAndPopulateAgents(uuids, agents, result)) {
-                return;
+            if (validateThatAllAgentsExistAndCanBeDeleted(uuids, result)) {
+                agentDao.bulkSoftDelete(uuids);
+                result.ok(format("Deleted %s agent(s).", uuids == null ? 0 : uuids.size()));
             }
-            agentDao.bulkSoftDelete(uuids);
-            result.ok(format("Deleted %s agent(s).", agents.size()));
         } catch (Exception e) {
             String errMsg = "Deleting agents failed.";
             LOGGER.error(errMsg, e);
@@ -629,20 +627,32 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         agent.removeResources(resourcesToRemove);
     }
 
-    private boolean validateThatAllAgentsExistAndPopulateAgents(List<String> uuids, List<AgentInstance> agents, OperationResult result) {
+    private boolean validateThatAllAgentsExistAndCanBeDeleted(List<String> uuids, OperationResult result) {
         if (isEmpty(uuids)) {
             return true;
         }
+        return uuids.stream().allMatch(uuid -> validateThatAgentExistAndCanBeDeleted(uuid, uuids.size(), result));
+    }
 
-        for (String uuid : uuids) {
-            AgentInstance agentInstance = findAgentAndRefreshStatus(uuid);
-            if (isAgentNotFound(agentInstance.getAgent(), result)) {
-                return false;
-            }
-            agents.add(agentInstance);
+    private boolean validateThatAgentExists(AgentInstance agentInstance, OperationResult result) {
+        if (agentInstance.isNullAgent()) {
+            result.notFound("Not Found", format("Agent '%s' not found", agentInstance.getUuid()), general(GLOBAL));
+            return false;
         }
-
         return true;
+    }
+
+    private boolean validateThatAgentExistAndCanBeDeleted(String uuid, int totalAgentsToValidate, OperationResult result) {
+        AgentInstance agentInstance = findAgentAndRefreshStatus(uuid);
+        return validateThatAgentExists(agentInstance, result) && validateThatAgentCanBeDeleted(agentInstance, totalAgentsToValidate, result);
+    }
+
+    private boolean validateThatAgentCanBeDeleted(AgentInstance agentInstance, int totalAgentToValidate, OperationResult result) {
+        if (agentInstance.canBeDeleted()) {
+            return true;
+        }
+        result.notAcceptable(getFailedToDeleteMessage(totalAgentToValidate), general(GLOBAL));
+        return false;
     }
 
     private AgentsViewModel toAgentViewModels(AgentInstances agentInstances) {
@@ -661,14 +671,6 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         return envsConfig;
     }
 
-    private boolean isAgentNotFound(Agent agent, OperationResult result) {
-        if (agent.isNull()) {
-            result.notFound("Not Found", format("Agent '%s' not found", agent.getUuid()), general(GLOBAL));
-            return true;
-        }
-        return false;
-    }
-
     private boolean isAgentNotFound(AgentInstance agentInstance, OperationResult result) {
         if (agentInstance.isNullAgent()) {
             String agentNotFoundMessage = format("Agent '%s' not found.", agentInstance.getUuid());
@@ -676,26 +678,6 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
             return true;
         }
         return false;
-    }
-
-    private boolean validateAndPopulateAgents(List<String> uuids, List<AgentInstance> agents, HttpOperationResult result) {
-        if (!validateThatAllAgentsExistAndPopulateAgents(uuids, agents, result)) {
-            return false;
-        }
-        if (!validateThatAllAgentsCanBeDeleted(agents, result)) {
-            return false;
-        }
-        return true;
-    }
-
-    private boolean validateThatAllAgentsCanBeDeleted(List<AgentInstance> agents, HttpOperationResult result) {
-        for (AgentInstance agentInstance : agents) {
-            if (!agentInstance.canBeDeleted()) {
-                result.notAcceptable(getFailedToDeleteMessage(agents.size()), general(GLOBAL));
-                return false;
-            }
-        }
-        return true;
     }
 
     private String getFailedToDeleteMessage(int numOfAgents) {

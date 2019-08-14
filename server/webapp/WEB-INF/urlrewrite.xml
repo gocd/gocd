@@ -68,6 +68,7 @@
   <rule>
     <name>Spark Materials Index API</name>
     <condition name="Accept">application\/vnd\.go\.cd\.v1\+json</condition>
+    <condition name="Accept">application\/vnd\.go\.cd\+json</condition>
     <from>^/api/config/materials(/?)$</from>
     <to last="true">/spark/api/config/materials</to>
   </rule>
@@ -75,6 +76,7 @@
   <rule>
     <name>Spark Material Modifications API</name>
     <condition name="Accept">application\/vnd\.go\.cd\.v1\+json</condition>
+    <condition name="Accept">application\/vnd\.go\.cd\+json</condition>
     <from>^/api/materials/([^/]+)/modifications(/?)$</from>
     <to last="true">/spark/api/materials/${escape:$1}/modifications</to>
   </rule>
@@ -88,6 +90,7 @@
   <rule>
     <name>Spark Material Modifications with offset API</name>
     <condition name="Accept">application\/vnd\.go\.cd\.v1\+json</condition>
+    <condition name="Accept">application\/vnd\.go\.cd\+json</condition>
     <from>^/api/materials/([^/]+)/modifications/([^/+])(/?)$</from>
     <to last="true">/spark/api/materials/${escape:$1}/modifications/${escape:$2}</to>
   </rule>

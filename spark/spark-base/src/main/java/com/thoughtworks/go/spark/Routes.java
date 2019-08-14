@@ -37,6 +37,10 @@ public class Routes {
         public static final String BASE = "/api/admin/internal/resources";
     }
 
+    public static class InternalEnvironments {
+        public static final String BASE = "/api/admin/internal/environments";
+    }
+
     public static class InternalCommandSnippets {
         public static final String BASE = "/api/admin/internal/command_snippets";
 

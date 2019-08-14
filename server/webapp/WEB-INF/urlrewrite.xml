@@ -48,6 +48,12 @@
   </rule>
 
   <rule>
+    <name>Internal Environment API</name>
+    <from>^/api/admin/internal/environments$</from>
+    <to last="true">/spark/api/admin/internal/environments</to>
+  </rule>
+
+  <rule>
     <name>Internal Command Snippets API</name>
     <from>^/api/admin/internal/command_snippets$</from>
     <to last="true">/spark/api/admin/internal/command_snippets</to>

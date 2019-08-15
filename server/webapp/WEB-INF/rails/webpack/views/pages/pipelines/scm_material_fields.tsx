@@ -88,6 +88,7 @@ export class HgFields extends ScmFields {
   extraFields(attrs: MaterialAttributes): m.Children {
     const mat = attrs as HgMaterialAttributes;
     return [
+      <TextField label="Repository Branch" property={mat.branch} placeholder="default"/>,
       <TextField label="Username" property={mat.username}/>,
       <PasswordField label="Password" property={mat.password}/>,
     ];

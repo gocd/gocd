@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import m from "mithril";
 import {VersionUpdater} from "models/shared/version_updater";
 import styles from "./spa_base.scss";
 
+import {flagAttr} from "helpers/dom";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import {UsageDataReporter} from "models/shared/usage_data_reporter";
 import {ModalManager} from "views/components/modal/modal_manager";
@@ -47,7 +49,7 @@ class MainPage extends MithrilViewComponent<Attrs> {
 
   private showFooter(vnode: m.Vnode<Attrs>) {
     if (vnode.attrs.showFooter) {
-      return <SiteFooter {...vnode.attrs.footerData} />;
+      return <SiteFooter {...vnode.attrs.footerData}/>;
     }
   }
 
@@ -66,10 +68,6 @@ export abstract class Page {
     this.render();
   }
 
-  extractBoolean(body: Element, attribute: string): boolean {
-    return JSON.parse(body.getAttribute(attribute) as string);
-  }
-
   protected showHeader() {
     return true;
   }
@@ -85,33 +83,32 @@ export abstract class Page {
   private render() {
     const page = this;
     window.addEventListener("DOMContentLoaded", () => {
-
       if (page.enableUsageDataAndVersionUpdating()) {
         UsageDataReporter.report();
         VersionUpdater.update();
       }
 
-      const body: Element = document.querySelector("body") as Element;
+      const body = document.body;
 
-      const showAnalyticsDashboard     = this.extractBoolean(body, "data-show-analytics-dashboard");
-      const canViewAdminPage           = this.extractBoolean(body, "data-can-user-view-admin");
-      const isUserAdmin                = this.extractBoolean(body, "data-is-user-admin");
-      const isGroupAdmin               = this.extractBoolean(body, "data-is-user-group-admin");
-      const canViewTemplates           = this.extractBoolean(body, "data-can-user-view-templates");
-      const isAnonymous                = this.extractBoolean(body, "data-user-anonymous");
-      const isServerInMaintenanceMode  = this.extractBoolean(body, "data-is-server-in-maintenance-mode");
+      const showAnalyticsDashboard     = flagAttr(body, "data-show-analytics-dashboard");
+      const canViewAdminPage           = flagAttr(body, "data-can-user-view-admin");
+      const isUserAdmin                = flagAttr(body, "data-is-user-admin");
+      const isGroupAdmin               = flagAttr(body, "data-is-user-group-admin");
+      const canViewTemplates           = flagAttr(body, "data-can-user-view-templates");
+      const isAnonymous                = flagAttr(body, "data-user-anonymous");
+      const isServerInMaintenanceMode  = flagAttr(body, "data-is-server-in-maintenance-mode");
       const userDisplayName            = body.getAttribute("data-user-display-name") || "";
       const maintenanceModeUpdatedOn   = body.getAttribute("data-maintenance-mode-updated-on");
       const maintenanceModeUpdatedBy   = body.getAttribute("data-maintenance-mode-updated-by");
 
-      const footerData = {
+      const footerData: SiteFooterAttrs = {
         maintenanceModeUpdatedOn,
         maintenanceModeUpdatedBy,
         isServerInMaintenanceMode,
         isSupportedBrowser: !/(MSIE|Trident)/i.test(navigator.userAgent)
-      } as SiteFooterAttrs;
+      };
 
-      const headerData = {
+      const headerData: SiteHeaderAttrs = {
         showAnalyticsDashboard,
         canViewAdminPage,
         isUserAdmin,

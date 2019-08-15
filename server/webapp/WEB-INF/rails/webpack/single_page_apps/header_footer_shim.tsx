@@ -13,48 +13,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import "foundation-sites";
+import {flagAttr} from "helpers/dom";
 import $ from "jquery";
 import m from "mithril";
 import {UsageDataReporter} from "models/shared/usage_data_reporter";
 import {VersionUpdater} from "models/shared/version_updater";
 import {ModalManager} from "views/components/modal/modal_manager";
-import {SiteFooter} from "views/pages/partials/site_footer";
-import {Attrs, SiteHeader} from "views/pages/partials/site_header";
+import {Attrs as FooterAttrs, SiteFooter} from "views/pages/partials/site_footer";
+import {Attrs as HeaderAttrs, SiteHeader} from "views/pages/partials/site_header";
 
 $(() => {
   window.addEventListener("DOMContentLoaded", () => {
-    // @ts-ignore
     $(document).foundation();
     ModalManager.onPageLoad();
     UsageDataReporter.report();
     VersionUpdater.update();
 
-    const body = document.querySelector("body") as Element;
+    const body = document.body;
 
-    function extractBoolean(body: Element, attribute: string): boolean {
-      return JSON.parse(body.getAttribute(attribute) as string);
-    }
-
-    const showAnalyticsDashboard    = extractBoolean(body, "data-show-analytics-dashboard");
-    const canViewAdminPage          = extractBoolean(body, "data-can-user-view-admin");
-    const isUserAdmin               = extractBoolean(body, "data-is-user-admin");
-    const isGroupAdmin              = extractBoolean(body, "data-is-user-group-admin");
-    const canViewTemplates          = extractBoolean(body, "data-can-user-view-templates");
-    const isAnonymous               = extractBoolean(body, "data-user-anonymous");
-    const isServerInMaintenanceMode = extractBoolean(body, "data-is-server-in-maintenance-mode");
+    const showAnalyticsDashboard    = flagAttr(body, "data-show-analytics-dashboard");
+    const canViewAdminPage          = flagAttr(body, "data-can-user-view-admin");
+    const isUserAdmin               = flagAttr(body, "data-is-user-admin");
+    const isGroupAdmin              = flagAttr(body, "data-is-user-group-admin");
+    const canViewTemplates          = flagAttr(body, "data-can-user-view-templates");
+    const isAnonymous               = flagAttr(body, "data-user-anonymous");
+    const isServerInMaintenanceMode = flagAttr(body, "data-is-server-in-maintenance-mode");
     const userDisplayName           = body.getAttribute("data-user-display-name") || "";
     const maintenanceModeUpdatedOn  = body.getAttribute("data-maintenance-mode-updated-on");
     const maintenanceModeUpdatedBy  = body.getAttribute("data-maintenance-mode-updated-by");
 
-    const footerData = {
+    const footerData: FooterAttrs = {
       maintenanceModeUpdatedOn,
       maintenanceModeUpdatedBy,
       isServerInMaintenanceMode,
       isSupportedBrowser: !/(MSIE|Trident)/i.test(navigator.userAgent)
     };
 
-    const headerData = {
+    const headerData: HeaderAttrs = {
       showAnalyticsDashboard,
       canViewAdminPage,
       isUserAdmin,
@@ -62,28 +59,28 @@ $(() => {
       canViewTemplates,
       userDisplayName,
       isAnonymous
-    } as Attrs;
+    };
 
-    const menuMountPoint = document.querySelector("#app-menu");
+    const menuMountPoint = document.getElementById("app-menu");
+
     if (menuMountPoint) {
-      const component = {
+      m.mount(menuMountPoint, {
         view() {
-          return (<SiteHeader {...headerData}/>);
+          return <SiteHeader {...headerData}/>;
         }
-      };
-      m.mount(menuMountPoint, component);
+      });
     } else {
       throw Error("Could not find menu mount point");
     }
 
-    const footerMountPoint = document.querySelector("#app-footer");
+    const footerMountPoint = document.getElementById("app-footer");
+
     if (footerMountPoint) {
-      const component = {
+      m.mount(footerMountPoint, {
         view() {
-          return (<SiteFooter {...footerData}/>);
+          return <SiteFooter {...footerData}/>;
         }
-      };
-      m.mount(footerMountPoint, component);
+      });
     } else {
       throw Error("Could not find footer mount point");
     }

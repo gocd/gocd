@@ -128,6 +128,15 @@ export class Material extends ValidatableMixin {
     return raw;
   }
 
+  pacConfigFiles() {
+    const payload = this.toApiPayload();
+    return ApiRequestBuilder.POST(
+      SparkRoutes.pacListConfigFiles(),
+      Material.API_VERSION_HEADER,
+      {payload}
+    );
+  }
+
   checkConnection(pipelineGroup?: string) {
     const payload = this.toApiPayload();
     if (pipelineGroup) {

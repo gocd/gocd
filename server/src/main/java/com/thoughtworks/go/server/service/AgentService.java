@@ -51,8 +51,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.*;
+import java.util.function.Function;
 
 import static com.thoughtworks.go.CurrentGoCDVersion.docsUrl;
+import static com.thoughtworks.go.domain.AgentConfigStatus.Pending;
 import static com.thoughtworks.go.domain.AgentInstance.createFromAgent;
 import static com.thoughtworks.go.serverhealth.HealthStateScope.GLOBAL;
 import static com.thoughtworks.go.serverhealth.HealthStateType.general;
@@ -127,7 +129,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     }
 
     public Map<AgentInstance, Collection<String>> getAgentInstanceToSortedEnvMap() {
-        return Streams.stream(agentInstances.getAllAgents()).collect(toMap(e -> e, AgentService::getSortedEnvironmentList));
+        return Streams.stream(agentInstances.getAllAgents()).collect(toMap(Function.identity(), AgentService::getSortedEnvironmentList));
     }
 
     public AgentsViewModel getRegisteredAgentsViewModel() {
@@ -170,20 +172,21 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     }
 
     public void bulkUpdateAgentAttributes(List<String> uuids, List<String> resourcesToAdd, List<String> resourcesToRemove,
-                                          EnvironmentsConfig envsToAdd, List<String> envsToRemove, TriState state, LocalizedOperationResult result) {
-        AgentsUpdateValidator validator
-                = new AgentsUpdateValidator(agentInstances, uuids, state, resourcesToAdd, resourcesToRemove, result);
+                                          EnvironmentsConfig envsToAdd, List<String> envsToRemove, TriState state,
+                                          LocalizedOperationResult result) {
+        AgentsUpdateValidator validator = new AgentsUpdateValidator(agentInstances, uuids, state, resourcesToAdd, resourcesToRemove, result);
         try {
             if (isAnyOperationPerformedOnBulkAgents(resourcesToAdd, resourcesToRemove, envsToAdd, envsToRemove, state, result)) {
                 validator.validate();
 
-                List<Agent> agents = this.agentDao.getAgentsByUUIDs(uuids);
+                List<Agent> agents = agentDao.getAgentsByUUIDs(uuids);
                 if (stateIsSet(state)) {
                     agents.addAll(agentInstances.filterPendingAgents(uuids));
                 }
 
                 agents.forEach(agent -> setResourcesEnvsAndState(agent, resourcesToAdd, resourcesToRemove, envsToAdd, envsToRemove, state));
-                agentDao.bulkUpdateAttributes(agents, createAgentToStatusMap(agents), state);
+                updateIdsAndGenerateCookiesForPendingAgents(agents, state);
+                agentDao.bulkUpdateAttributes(agents, state);
                 result.setMessage("Updated agent(s) with uuid(s): [" + join(uuids, ", ") + "].");
             }
         } catch (Exception e) {
@@ -212,7 +215,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
                     return;
                 }
 
-                agentDao.bulkUpdateAttributes(agents, emptyMap(), UNSET);
+                agentDao.bulkUpdateAttributes(agents, UNSET);
 
                 String message = "Updated agent(s) with uuid(s): [" + join(uuidsToAssociate, ", ") + "].";
                 result.setMessage(message);
@@ -457,7 +460,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     private void setResourcesEnvsAndState(Agent agent, List<String> resourcesToAdd, List<String> resourcesToRemove,
                                           EnvironmentsConfig envsToAdd, List<String> envsToRemove, TriState state) {
         addRemoveEnvsAndResources(agent, envsToAdd, envsToRemove, resourcesToAdd, resourcesToRemove);
-        enableDisableAgent(state, agent);
+        enableOrDisableAgent(agent, state);
     }
 
     private void generateAndAddCookieIfAgentDoesNotHaveCookie(Agent agent) {
@@ -584,7 +587,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
                 .collect(toMap(AgentInstance::getUuid, agentInstance -> agentInstance.getStatus().getConfigStatus()));
     }
 
-    private void enableDisableAgent(TriState triState, Agent agent) {
+    private void enableOrDisableAgent(Agent agent, TriState triState) {
         if (triState.isTrue()) {
             agent.setDisabled(false);
         } else if (triState.isFalse()) {
@@ -726,5 +729,23 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         List<Agent> addEnvToAgents = getAgentsFromDBToAddEnvTo(uuids, associatedUUIDs, envName);
 
         return union(removeEnvFromAgents, addEnvToAgents);
+    }
+
+    void updateIdsAndGenerateCookiesForPendingAgents(List<Agent> agents, TriState state) {
+        if (stateIsSet(state)) {
+            agents.stream()
+                    .filter(agent -> {
+                        AgentInstance agentInstance = findAgent(agent.getUuid());
+                        AgentStatus agentStatus = agentInstance.getStatus();
+                        System.out.println("Agent id [" + agentInstance.getUuid() + "] status is [" + agentStatus.getConfigStatus() + "]");
+                        return agentStatus.getConfigStatus() == Pending;
+                    })
+                    .forEach(this::updateIdAndGenerateCookieForPendingAgent);
+        }
+    }
+
+    private void updateIdAndGenerateCookieForPendingAgent(Agent pendingAgent) {
+        agentDao.updateAgentIdFromDBIfAgentDoesNotHaveAnIdAndAgentExistInDB(pendingAgent);
+        generateAndAddCookieIfAgentDoesNotHaveCookie(pendingAgent);
     }
 }

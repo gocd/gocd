@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server.persistence;
 
 import com.thoughtworks.go.config.Agent;
-import com.thoughtworks.go.domain.AgentConfigStatus;
 import com.thoughtworks.go.listener.DatabaseEntityChangeListener;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.cache.GoCache;
@@ -36,7 +35,6 @@ import org.springframework.transaction.support.TransactionSynchronizationAdapter
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import static java.lang.String.format;
@@ -188,7 +186,7 @@ public class AgentDao extends HibernateDaoSupport {
         });
     }
 
-    private void updateAgentIdFromDBIfAgentDoesNotHaveAnIdAndAgentExistInDB(Agent agent) {
+    public void updateAgentIdFromDBIfAgentDoesNotHaveAnIdAndAgentExistInDB(Agent agent) {
         Long idFromDB = (Long) getHibernateTemplate().execute(session -> {
             Query query = session.createQuery("select id from Agent where uuid = :uuid");
             query.setString("uuid", agent.getUuid());
@@ -217,19 +215,7 @@ public class AgentDao extends HibernateDaoSupport {
         }
     }
 
-    public void bulkUpdateAttributes(List<Agent> agents, Map<String, AgentConfigStatus> agentToStatusMap, TriState enable) {
-        if (enable.isTrue() || enable.isFalse()) {
-            agents.stream()
-                    .filter(agent -> agentToStatusMap.get(agent.getUuid()) == AgentConfigStatus.Pending)
-                    .forEach(agent -> {
-                        updateAgentIdFromDBIfAgentDoesNotHaveAnIdAndAgentExistInDB(agent);
-                        if (agent.getCookie() == null) {
-                            String cookie = uuidGenerator.randomUuid();
-                            agent.setCookie(cookie);
-                        }
-                    });
-        }
-
+    public void bulkUpdateAttributes(List<Agent> agents, TriState state) {
         synchronized (agents) {
             transactionTemplate.execute(new TransactionCallbackWithoutResult() {
                 @Override

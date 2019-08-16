@@ -29,6 +29,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
+import static java.util.stream.Collectors.toList;
 
 public abstract class AbstractVersionableElasticAgentProcessor implements VersionableElasticAgentProcessor {
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
@@ -46,7 +47,7 @@ public abstract class AbstractVersionableElasticAgentProcessor implements Versio
         if (elasticAgents == null) {
             metadata = new ArrayList<>();
         } else {
-            metadata = elasticAgents.stream().map(ElasticAgentPluginService::toAgentMetadata).collect(Collectors.toList());
+            metadata = elasticAgents.stream().map(ElasticAgentPluginService::toAgentMetadata).collect(toList());
         }
         return metadata;
     }
@@ -63,7 +64,7 @@ public abstract class AbstractVersionableElasticAgentProcessor implements Versio
         return agentMetadataListFromRequest.stream()
                 .map(input -> agentService.findElasticAgent(input.elasticAgentId(), pluginId))
                 .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
     protected void deleteAgents(String pluginId, Collection<AgentMetadata> agentsToDelete) {
@@ -75,7 +76,7 @@ public abstract class AbstractVersionableElasticAgentProcessor implements Versio
         }
 
         LOGGER.debug("Deleting agents from plugin {} {}", pluginId, agentInstances);
-        agentService.deleteAgents(agentInstances.stream().map(agentInstance -> agentInstance.getUuid()).collect(Collectors.toList()), new HttpOperationResult());
+        agentService.deleteAgents(agentInstances.stream().map(agentInstance -> agentInstance.getUuid()).collect(toList()), new HttpOperationResult());
         LOGGER.debug("Done deleting agents from plugin {} {}", pluginId, agentInstances);
     }
 
@@ -88,7 +89,7 @@ public abstract class AbstractVersionableElasticAgentProcessor implements Versio
         }
 
         LOGGER.debug("Disabling agents from plugin {} {}", pluginId, agentInstances);
-        agentService.disableAgents(usernameFor(pluginId), agentInstances.toArray(new AgentInstance[agentInstances.size()]));
+        agentService.disableAgents(agentInstances.stream().map(AgentInstance::getUuid).collect(toList()));
         LOGGER.debug("Done disabling agents from plugin {} {}", pluginId, agentInstances);
     }
 }

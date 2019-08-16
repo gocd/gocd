@@ -324,7 +324,7 @@ public class AgentDaoTest {
             agent1.removeEnvironments(asList("e1", "e3"));
             agent3.removeEnvironments(asList("e1", "e3"));
 
-            agentDao.bulkUpdateAttributes(asList(agent1, agent3), agentToStatusMap, TriState.UNSET);
+            agentDao.bulkUpdateAttributes(asList(agent1, agent3), TriState.UNSET);
 
             assertThat(agentDao.getAgentByUUIDFromCacheOrDB(agent1.getUuid()).getResources(), is("r3,r4"));
             assertThat(agentDao.getAgentByUUIDFromCacheOrDB(agent2.getUuid()).getResources(), is("r1"));

@@ -51,13 +51,7 @@ public class AgentsViewModel extends BaseCollection<AgentViewModel> {
     }
 
     public int enabledCount() {
-        int count = 0;
-        for (AgentViewModel agentViewModel : this) {
-            if (agentViewModel.getStatus().isEnabled()) {
-                count++;
-            }
-        }
-        return count;
+        return Math.toIntExact(this.stream().filter(agentViewModel -> agentViewModel.getStatus().isEnabled()).count());
     }
 
     public void filter(String filterCriteria) {
@@ -98,15 +92,9 @@ public class AgentsViewModel extends BaseCollection<AgentViewModel> {
     }
 
     private int count(AgentStatus status) {
-        int count = 0;
-        for (AgentViewModel agentViewModel : this) {
-            if (agentViewModel.getStatus().equals(status)) {
-                count++;
-            }
-        }
-        return count;
+        long countMatchingStatus = this.stream().filter(agentViewModel -> agentViewModel.getStatus().equals(status)).count();
+        return Math.toIntExact(countMatchingStatus);
     }
-
 }
 
 enum AgentFilters {

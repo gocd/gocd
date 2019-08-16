@@ -20,7 +20,10 @@ import com.google.common.collect.Ordering;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
-import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.domain.AgentInstance;
+import com.thoughtworks.go.domain.AgentRuntimeStatus;
+import com.thoughtworks.go.domain.NullAgent;
+import com.thoughtworks.go.domain.NullAgentInstance;
 import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.helper.AgentMother;
 import com.thoughtworks.go.listener.AgentChangeListener;
@@ -51,7 +54,9 @@ import org.mockito.Mockito;
 import java.util.*;
 
 import static com.thoughtworks.go.CurrentGoCDVersion.docsUrl;
-import static com.thoughtworks.go.domain.AgentInstance.FilterBy.*;
+import static com.thoughtworks.go.domain.AgentConfigStatus.Pending;
+import static com.thoughtworks.go.domain.AgentInstance.FilterBy.Elastic;
+import static com.thoughtworks.go.domain.AgentInstance.FilterBy.Null;
 import static com.thoughtworks.go.domain.AgentInstance.createFromLiveAgent;
 import static com.thoughtworks.go.domain.AgentRuntimeStatus.Idle;
 import static com.thoughtworks.go.domain.AgentStatus.fromConfig;
@@ -64,6 +69,7 @@ import static com.thoughtworks.go.serverhealth.ServerHealthState.warning;
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static com.thoughtworks.go.util.TriState.TRUE;
+import static com.thoughtworks.go.util.TriState.UNSET;
 import static com.thoughtworks.go.utils.Timeout.THIRTY_SECONDS;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
@@ -116,7 +122,7 @@ class AgentServiceTest {
             @Test
             void shouldReturnTrueIfOnlyHostNameValueIsSpecifiedAsNotNull() {
                 HttpOperationResult result = new HttpOperationResult();
-                TriState unsetState = TriState.UNSET;
+                TriState unsetState = UNSET;
                 boolean anyOpsPerformed = agentService.isAnyOperationPerformedOnAgent(NOT_NULL_VALUE, null, null, unsetState, result);
                 assertThat(anyOpsPerformed, is(true));
             }
@@ -124,7 +130,7 @@ class AgentServiceTest {
             @Test
             void shouldReturnTrueIfOnlyEnvironmentsValueIsSpecifiedAsNotNull() {
                 HttpOperationResult result = new HttpOperationResult();
-                TriState unsetState = TriState.UNSET;
+                TriState unsetState = UNSET;
                 boolean anyOpsPerformed = agentService.isAnyOperationPerformedOnAgent(null, emptyEnvsConfig, null, unsetState, result);
                 assertThat(anyOpsPerformed, is(true));
             }
@@ -132,7 +138,7 @@ class AgentServiceTest {
             @Test
             void shouldReturnTrueIfOnlyResourcesValueIsSpecifiedAsNotNull() {
                 HttpOperationResult result = new HttpOperationResult();
-                TriState unsetState = TriState.UNSET;
+                TriState unsetState = UNSET;
                 boolean anyOpsPerformed = agentService.isAnyOperationPerformedOnAgent(null, null, NOT_NULL_VALUE, unsetState, result);
                 assertThat(anyOpsPerformed, is(true));
             }
@@ -140,14 +146,14 @@ class AgentServiceTest {
             @Test
             void shouldReturnTrueIfOnlyTriStateValueIsSpecifiedAsTrueOrFalse() {
                 HttpOperationResult result = new HttpOperationResult();
-                boolean anyOpsPerformed = agentService.isAnyOperationPerformedOnAgent(null, null, null, TriState.TRUE, result);
+                boolean anyOpsPerformed = agentService.isAnyOperationPerformedOnAgent(null, null, null, TRUE, result);
                 assertThat(anyOpsPerformed, is(true));
             }
 
             @Test
             void shouldReturnFalseOnlyIfNoneOfTheAgentAttributesAreSpecified() {
                 HttpOperationResult result = new HttpOperationResult();
-                TriState unsetState = TriState.UNSET;
+                TriState unsetState = UNSET;
                 boolean anyOpsPerformed = agentService.isAnyOperationPerformedOnAgent(null, null, null, unsetState, result);
                 assertThat(anyOpsPerformed, is(false));
             }
@@ -158,7 +164,7 @@ class AgentServiceTest {
             @Test
             void shouldReturnTrueIfOnlyResouecesToAddListIsNotEmpty(){
                 LocalizedOperationResult result = new HttpLocalizedOperationResult();
-                TriState unsetState = TriState.UNSET;
+                TriState unsetState = UNSET;
                 boolean anyOpsPerformed = agentService.isAnyOperationPerformedOnBulkAgents(singletonList("r1"), emptyList(), null, emptyList(), unsetState, result);
                 assertThat(anyOpsPerformed, is(true));
             }
@@ -166,7 +172,7 @@ class AgentServiceTest {
             @Test
             void shouldReturnTrueIfOnlyResouecesToRemoveListIsNotEmpty(){
                 LocalizedOperationResult result = new HttpLocalizedOperationResult();
-                TriState unsetState = TriState.UNSET;
+                TriState unsetState = UNSET;
                 boolean anyOpsPerformed = agentService.isAnyOperationPerformedOnBulkAgents(emptyList(), singletonList("r1"), null, emptyList(), unsetState, result);
                 assertThat(anyOpsPerformed, is(true));
             }
@@ -174,7 +180,7 @@ class AgentServiceTest {
             @Test
             void shouldReturnTrueIfOnlyEnvsToAddListIsNotEmpty(){
                 LocalizedOperationResult result = new HttpLocalizedOperationResult();
-                TriState unsetState = TriState.UNSET;
+                TriState unsetState = UNSET;
                 EnvironmentsConfig envsConfig = new EnvironmentsConfig();
                 envsConfig.add(new BasicEnvironmentConfig(new CaseInsensitiveString("env1")));
                 boolean anyOpsPerformed = agentService.isAnyOperationPerformedOnBulkAgents(emptyList(), null, envsConfig, emptyList(), unsetState, result);
@@ -184,7 +190,7 @@ class AgentServiceTest {
             @Test
             void shouldReturnTrueIfOnlyEnvsToRemoveListIsNotEmpty(){
                 LocalizedOperationResult result = new HttpLocalizedOperationResult();
-                TriState unsetState = TriState.UNSET;
+                TriState unsetState = UNSET;
                 boolean anyOpsPerformed = agentService.isAnyOperationPerformedOnBulkAgents(emptyList(), null, emptyEnvsConfig, singletonList("env1"), unsetState, result);
                 assertThat(anyOpsPerformed, is(true));
             }
@@ -192,14 +198,14 @@ class AgentServiceTest {
             @Test
             void shouldReturnTrueIfOnlyTriStateIsSetToTrueOrFalse(){
                 LocalizedOperationResult result = new HttpLocalizedOperationResult();
-                boolean anyOpsPerformed = agentService.isAnyOperationPerformedOnBulkAgents(emptyList(), null, emptyEnvsConfig, emptyList(), TriState.TRUE, result);
+                boolean anyOpsPerformed = agentService.isAnyOperationPerformedOnBulkAgents(emptyList(), null, emptyEnvsConfig, emptyList(), TRUE, result);
                 assertThat(anyOpsPerformed, is(true));
             }
 
             @Test
             void shouldReturnFalseOnlyIfNoneOfTheAgentAttributesAreSpecified(){
                 LocalizedOperationResult result = new HttpLocalizedOperationResult();
-                boolean anyOpsPerformed = agentService.isAnyOperationPerformedOnBulkAgents(emptyList(), null, emptyEnvsConfig, emptyList(), TriState.UNSET, result);
+                boolean anyOpsPerformed = agentService.isAnyOperationPerformedOnBulkAgents(emptyList(), null, emptyEnvsConfig, emptyList(), UNSET, result);
                 assertThat(anyOpsPerformed, is(false));
             }
         }
@@ -234,9 +240,11 @@ class AgentServiceTest {
                 when(agentInstances.findAgent("uuid1")).thenReturn(agentInstance1);
                 when(agentInstances.findAgent("uuid2")).thenReturn(agentInstance2);
 
-                agentService.bulkUpdateAgentAttributes(asList("uuid1", "uuid2"), asList("R1", "R2"), emptyStrList, createEnvironmentsConfigWith("test", "prod"), emptyStrList, TRUE, result);
+                AgentService agentServiceSpy = Mockito.spy(agentService);
+                agentServiceSpy.bulkUpdateAgentAttributes(asList("uuid1", "uuid2"), asList("R1", "R2"), emptyStrList, createEnvironmentsConfigWith("test", "prod"), emptyStrList, TRUE, result);
 
-                verify(agentDao).bulkUpdateAttributes(anyList(), anyMap(), eq(TRUE));
+                verify(agentDao).bulkUpdateAttributes(anyList(), eq(TRUE));
+                verify(agentServiceSpy).updateIdsAndGenerateCookiesForPendingAgents(anyList(), eq(TRUE));
                 assertThat(result.isSuccessful(), is(true));
                 assertThat(result.message(), is("Updated agent(s) with uuid(s): [uuid1, uuid2]."));
             }
@@ -258,9 +266,11 @@ class AgentServiceTest {
 
                 List<String> uuids = asList(pending.getUuid(), fromConfigFile.getUuid());
                 HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-                agentService.bulkUpdateAgentAttributes(uuids, emptyStrList, emptyStrList, emptyEnvsConfig, emptyStrList, TRUE, result);
+                AgentService agentServiceSpy = Mockito.spy(agentService);
+                agentServiceSpy.bulkUpdateAgentAttributes(uuids, emptyStrList, emptyStrList, emptyEnvsConfig, emptyStrList, TRUE, result);
 
-                verify(agentDao).bulkUpdateAttributes(anyList(), anyMap(), eq(TRUE));
+                verify(agentDao).bulkUpdateAttributes(anyList(), eq(TRUE));
+                verify(agentServiceSpy).updateIdsAndGenerateCookiesForPendingAgents(anyList(), eq(TRUE));
                 assertThat(result.isSuccessful(), is(true));
                 assertThat(result.message(), is("Updated agent(s) with uuid(s): [uuid, UUID2]."));
             }
@@ -268,7 +278,7 @@ class AgentServiceTest {
             @Test
             void shouldThrow400BadRequestWhenNoOperationIsSpecifiedToBePerformedOnAgents() {
                 HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-                agentService.bulkUpdateAgentAttributes(singletonList("uuid"), emptyStrList, emptyStrList, emptyEnvsConfig, emptyStrList, TriState.UNSET, result);
+                agentService.bulkUpdateAgentAttributes(singletonList("uuid"), emptyStrList, emptyStrList, emptyEnvsConfig, emptyStrList, UNSET, result);
 
                 verifyZeroInteractions(agentDao);
                 assertEquals(400, result.httpCode());
@@ -282,7 +292,7 @@ class AgentServiceTest {
 
                 when(agentInstances.filterBy(uuids, Null)).thenReturn(uuids);
 
-                agentService.bulkUpdateAgentAttributes(uuids, singletonList("resource"), emptyStrList, emptyEnvsConfig, emptyStrList, TriState.UNSET, result);
+                agentService.bulkUpdateAgentAttributes(uuids, singletonList("resource"), emptyStrList, emptyEnvsConfig, emptyStrList, UNSET, result);
 
                 verifyZeroInteractions(agentDao);
                 assertEquals(400, result.httpCode());
@@ -296,7 +306,7 @@ class AgentServiceTest {
 
                 when(agentInstances.filterBy(uuids, Elastic)).thenReturn(uuids);
 
-                agentService.bulkUpdateAgentAttributes(uuids, singletonList("resource"), emptyStrList, emptyEnvsConfig, emptyStrList, TriState.UNSET, result);
+                agentService.bulkUpdateAgentAttributes(uuids, singletonList("resource"), emptyStrList, emptyEnvsConfig, emptyStrList, UNSET, result);
 
                 verifyZeroInteractions(agentDao);
                 assertEquals(400, result.httpCode());
@@ -308,7 +318,7 @@ class AgentServiceTest {
                 HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
                 List<String> uuids = singletonList("uuid1");
 
-                agentService.bulkUpdateAgentAttributes(uuids, singletonList("foo%"), emptyStrList, emptyEnvsConfig, emptyStrList, TriState.UNSET, result);
+                agentService.bulkUpdateAgentAttributes(uuids, singletonList("foo%"), emptyStrList, emptyEnvsConfig, emptyStrList, UNSET, result);
 
                 verifyZeroInteractions(agentDao);
                 assertEquals(422, result.httpCode());
@@ -319,9 +329,9 @@ class AgentServiceTest {
                 HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
                 List<String> uuids = singletonList("uuid1");
 
-                when(agentInstances.filterBy(uuids, Pending)).thenReturn(uuids);
+                when(agentInstances.filterBy(uuids, AgentInstance.FilterBy.Pending)).thenReturn(uuids);
 
-                agentService.bulkUpdateAgentAttributes(uuids, singletonList("resource"), emptyStrList, emptyEnvsConfig, emptyStrList, TriState.UNSET, result);
+                agentService.bulkUpdateAgentAttributes(uuids, singletonList("resource"), emptyStrList, emptyEnvsConfig, emptyStrList, UNSET, result);
 
                 verifyZeroInteractions(agentDao);
                 assertEquals(400, result.httpCode());
@@ -339,21 +349,69 @@ class AgentServiceTest {
                 when(agentDao.getAgentsByUUIDs(uuids)).thenReturn(agents);
                 when(agentInstances.filterPendingAgents(uuids)).thenReturn(emptyList());
                 when(agentInstances.findAgent(uuid)).thenReturn(agentInstance);
-                when(agentInstance.getStatus()).thenReturn(fromConfig(AgentConfigStatus.Pending));
+                when(agentInstance.getStatus()).thenReturn(fromConfig(Pending));
 
                 EnvironmentsConfig environmentConfigs = new EnvironmentsConfig();
                 BasicEnvironmentConfig environmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("config-repo-env"));
                 environmentConfig.setOrigins(new RepoConfigOrigin());
                 environmentConfigs.add(environmentConfig);
 
-                agentService.bulkUpdateAgentAttributes(uuids, emptyStrList, emptyStrList, environmentConfigs, emptyStrList, TRUE, result);
+                AgentService agentServiceSpy = Mockito.spy(agentService);
+                agentServiceSpy.bulkUpdateAgentAttributes(uuids, emptyStrList, emptyStrList, environmentConfigs, emptyStrList, TRUE, result);
 
                 verify(agentDao).getAgentsByUUIDs(uuids);
-                verify(agentDao).bulkUpdateAttributes(eq(agents), anyMap(), eq(TRUE));
+                verify(agentDao).bulkUpdateAttributes(eq(agents), eq(TRUE));
+                verify(agentServiceSpy).updateIdsAndGenerateCookiesForPendingAgents(eq(agents), eq(TRUE));
+
                 assertTrue(result.isSuccessful());
                 assertEquals("Updated agent(s) with uuid(s): [uuid].", result.message());
             }
 
+            @Test
+            void shouldUpdateIdsAndGenerateCookiesOnlyForPendingAgentsAndOnlyWhenTriStateIsSet() {
+                Agent buildingAgent = setupBuildingAgent();
+                Agent pendingAgent = setupPendingAgent();
+                Agent disabledAgent = setupDisabledAgent();
+
+                String cookie = "generated-cookie";
+                when(uuidGenerator.randomUuid()).thenReturn(cookie);
+
+                assertAllAgentsCookieIs(null, pendingAgent, disabledAgent, buildingAgent);
+                agentService.updateIdsAndGenerateCookiesForPendingAgents(asList(buildingAgent, pendingAgent, disabledAgent), UNSET);
+                assertAllAgentsCookieIs(null, pendingAgent, disabledAgent, buildingAgent);
+
+                assertAllAgentsCookieIs(null, pendingAgent, disabledAgent, buildingAgent);
+                agentService.updateIdsAndGenerateCookiesForPendingAgents(asList(buildingAgent, pendingAgent, disabledAgent), TRUE);
+                assertAllAgentsCookieIs(cookie, pendingAgent);
+                assertAllAgentsCookieIs(null, disabledAgent, buildingAgent);
+
+                verify(agentDao).updateAgentIdFromDBIfAgentDoesNotHaveAnIdAndAgentExistInDB(pendingAgent);
+            }
+
+            private Agent setupBuildingAgent(){
+                AgentInstance buildingInstance = AgentInstanceMother.building();
+                Agent buildingAgent = buildingInstance.getAgent();
+                when(agentInstances.findAgent(buildingInstance.getUuid())).thenReturn(buildingInstance);
+                return buildingAgent;
+            }
+
+            private Agent setupPendingAgent(){
+                AgentInstance pendingInstance = AgentInstanceMother.pending();
+                Agent pendingAgent = pendingInstance.getAgent();
+                when(agentInstances.findAgent(pendingInstance.getUuid())).thenReturn(pendingInstance);
+                return pendingAgent;
+            }
+
+            private Agent setupDisabledAgent(){
+                AgentInstance disabledInstance = AgentInstanceMother.disabled();
+                Agent disabledAgent = disabledInstance.getAgent();
+                when(agentInstances.findAgent(disabledInstance.getUuid())).thenReturn(disabledInstance);
+                return disabledAgent;
+            }
+
+            private void assertAllAgentsCookieIs(String value, Agent... agents){
+                Arrays.stream(agents).forEach(agent -> assertThat(agent.getCookie(), is(value)));
+            }
         }
 
         @Nested
@@ -443,7 +501,7 @@ class AgentServiceTest {
                     HttpOperationResult result = new HttpOperationResult();
                     when(agentDao.fetchAgentFromDBByUUID(uuid)).thenReturn(agent);
 
-                    agentService.updateAgentAttributes(uuid, null, null, null, TriState.UNSET, result);
+                    agentService.updateAgentAttributes(uuid, null, null, null, UNSET, result);
 
                     verify(agentDao, times(0)).saveOrUpdate(any(Agent.class));
                     assertThat(result.httpCode(), is(400));
@@ -479,7 +537,7 @@ class AgentServiceTest {
                     when(agentDao.getAgentByUUIDFromCacheOrDB(uuid)).thenReturn(agent);
                     when(agentInstance.isPending()).thenReturn(true);
 
-                    agentService.updateAgentAttributes(uuid, "new-hostname", "resource1", createEnvironmentsConfigWith("env1"), TriState.UNSET, result);
+                    agentService.updateAgentAttributes(uuid, "new-hostname", "resource1", createEnvironmentsConfigWith("env1"), UNSET, result);
 
                     verify(agentDao, times(0)).saveOrUpdate(any(Agent.class));
                     assertThat(result.httpCode(), is(400));
@@ -1021,7 +1079,7 @@ class AgentServiceTest {
 
             List<Agent> agents = asList(agentConfigForUUID1, agent);
 
-            verify(agentDao).bulkUpdateAttributes(argument.capture(), anyMap(), eq(TriState.UNSET));
+            verify(agentDao).bulkUpdateAttributes(argument.capture(), eq(UNSET));
             assertEquals(agents.size(), argument.getValue().size());
             assertTrue(argument.getValue().contains(agents.get(0)));
             assertTrue(argument.getValue().contains(agents.get(1)));
@@ -1056,7 +1114,7 @@ class AgentServiceTest {
             HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
             agentService.updateAgentsAssociationOfEnvironment(testEnv, asList(uuid, "uuid2"), result);
 
-            verify(agentDao).bulkUpdateAttributes(anyList(), anyMap(), eq(TriState.UNSET));
+            verify(agentDao).bulkUpdateAttributes(anyList(), eq(UNSET));
             assertTrue(result.isSuccessful());
             assertThat(result.message(), is("Updated agent(s) with uuid(s): [uuid, uuid2]."));
         }
@@ -1092,7 +1150,7 @@ class AgentServiceTest {
 
             ArgumentCaptor<List<Agent>> argument = ArgumentCaptor.forClass(List.class);
 
-            verify(agentDao).bulkUpdateAttributes(argument.capture(), anyMap(), eq(TriState.UNSET));
+            verify(agentDao).bulkUpdateAttributes(argument.capture(), eq(UNSET));
             assertEquals(agents.size(), argument.getValue().size());
             assertTrue(argument.getValue().contains(agents.get(0)));
             assertTrue(argument.getValue().contains(agents.get(1)));

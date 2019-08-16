@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {mixins as s} from "string-plus";
+import {mixins as s} from "helpers/string-plus";
 
 describe("caseInsensitiveCompare()", () => {
   it("allows case insensitive sorting", () => {

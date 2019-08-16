@@ -13,9 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-module.exports = function (content) {
-  if (/Copyright \d+ ThoughtWorks/.test(content) && content.indexOf('/*!') >= 0) {
-    throw new Error(`Files copyright by thoughtworks should not contain loud comments (/*!). The content was ${content}`);
-  }
-  return content;
+
+import path from "path";
+import webpack from "webpack";
+import {tempDir} from "../variables";
+
+export const cacheLoader: webpack.RuleSetUseItem = {
+  loader: "cache-loader",
+  options: {
+    cacheDirectory: path.join(tempDir, "cache-loader")
+  },
 };

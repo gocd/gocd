@@ -7431,9 +7431,9 @@ shelljs@^0.6.0:
   integrity sha1-7GIRvtGSBEIIj+D3Cyg3Iy7SyKg=
 
 shellwords-ts@^2.0.3:
-  version "2.0.3"
-  resolved "https://registry.yarnpkg.com/shellwords-ts/-/shellwords-ts-2.0.3.tgz#c5a615168169b960efd46afd02aeedf8afc398e0"
-  integrity sha512-oZJ8R2ljEGzOt4u+66/Z3U1Iv/DuuTKsbscK1e+L/mUi9Tt66Bj0Si34C5ZV/yxGZVtFAIinSlfYzPUMbZhATg==
+  version "2.0.4"
+  resolved "https://registry.yarnpkg.com/shellwords-ts/-/shellwords-ts-2.0.4.tgz#f817223f5ca81888b58538d5f6bf8558a274c07d"
+  integrity sha512-qEhCihxp13V5V2PJG/gN/j4AC2jVmbr57AKJsU/mTNEts2E9BibLIrsr+cmwlM86GYQGjoiODDiNO8wnboVI0w==
 
 shellwords@^0.1.1:
   version "0.1.1"

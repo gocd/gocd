@@ -15,10 +15,8 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.ConfigCache;
-import com.thoughtworks.go.config.EnvironmentConfig;
-import com.thoughtworks.go.config.MagicalGoConfigXmlWriter;
-import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.server.cache.GoCache;
@@ -109,6 +107,30 @@ public class EntityHashingServiceTest {
         String checksum = entityHashingService.md5ForEntity(pipelineConfig);
         assertThat(checksum, is("foo"));
         verify(goCache).get("GO_ETAG_CACHE", "com.thoughtworks.go.config.PipelineConfig.upper_case_name");
+        verifyNoMoreInteractions(goCache);
+    }
+
+    @Test
+    public void shouldNotAccessCacheIfTheEnvironmentConfigIsAnInstanceOfMergeOrUnknownEnvConfig() {
+        BasicEnvironmentConfig basicEnvConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("env"));
+        MergeEnvironmentConfig mergeEnvConfig = new MergeEnvironmentConfig(basicEnvConfig);
+        UnknownEnvironmentConfig unknownEnvConfig = new UnknownEnvironmentConfig(new CaseInsensitiveString("unknown"));
+
+        entityHashingService.md5ForEntity(mergeEnvConfig);
+        entityHashingService.md5ForEntity(unknownEnvConfig);
+
+        verifyZeroInteractions(goCache);
+    }
+
+    @Test
+    public void shouldAccessCacheIfTheEnvironmentConfigIsAnInstanceOfBasicEnvConfig() {
+        BasicEnvironmentConfig basicEnvConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("env"));
+        when(goCache.get("GO_ETAG_CACHE", "com.thoughtworks.go.config.BasicEnvironmentConfig.env")).thenReturn("foo");
+
+        String md5 = entityHashingService.md5ForEntity(basicEnvConfig);
+
+        assertThat(md5, is("foo"));
+        verify(goCache).get("GO_ETAG_CACHE", "com.thoughtworks.go.config.BasicEnvironmentConfig.env");
         verifyNoMoreInteractions(goCache);
     }
 }

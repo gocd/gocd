@@ -217,7 +217,7 @@ public class AgentsControllerV6 extends ApiController implements SparkSpringCont
 
     @Override
     public AgentInstance buildEntityFromRequestBody(Request req) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override

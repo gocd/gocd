@@ -22,12 +22,15 @@ import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.ConfigElementForEdit;
 import com.thoughtworks.go.helper.PartialConfigMother;
+import com.thoughtworks.go.helper.AgentMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.util.UuidGenerator;
 import com.thoughtworks.go.util.GoConfigFileHelper;
+import org.hibernate.Cache;
+import org.hibernate.SessionFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -60,6 +63,8 @@ public class EnvironmentConfigServiceIntegrationTest {
     private EntityHashingService entityHashingService;
     @Autowired
     private AgentService agentService;
+    @Autowired
+    private SessionFactory sessionFactory;
     @Autowired
     private EnvironmentConfigService environmentConfigService;
     @Autowired
@@ -240,7 +245,7 @@ public class EnvironmentConfigServiceIntegrationTest {
     }
 
     @Test
-    public void shouldDeleteAnEnvironment() throws Exception {
+    public void shouldDeleteAnEnvironment() {
         String environmentName = "dev";
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         goConfigService.addEnvironment(new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName)));
@@ -248,6 +253,31 @@ public class EnvironmentConfigServiceIntegrationTest {
         assertTrue(goConfigService.hasEnvironmentNamed(new CaseInsensitiveString(environmentName)));
         environmentConfigService.deleteEnvironment(environmentConfigService.getEnvironmentConfig(environmentName), new Username(new CaseInsensitiveString("foo")), result);
         assertFalse(goConfigService.hasEnvironmentNamed(new CaseInsensitiveString(environmentName)));
+        assertThat(result.message(), is(EntityType.Environment.deleteSuccessful(environmentName)));
+    }
+
+    @Test
+    public void shouldDeleteAnEnvWhichContainsAgents() {
+        String environmentName = "dev";
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        CaseInsensitiveString envName = new CaseInsensitiveString(environmentName);
+        goConfigService.addEnvironment(new BasicEnvironmentConfig(envName));
+
+        Agent agent = AgentMother.approvedAgent();
+        agentService.register(agent, "", environmentName);
+
+        // clearing out the hibernate cache so that the services fetches from the DB
+        Cache cache = sessionFactory.getCache();
+        if (cache != null) {
+            cache.evictDefaultQueryRegion();
+        }
+
+        assertTrue(goConfigService.hasEnvironmentNamed(envName));
+        assertTrue(environmentConfigService.getEnvironmentConfig(environmentName).hasAgent("uuid"));
+
+        environmentConfigService.deleteEnvironment(environmentConfigService.getEnvironmentConfig(environmentName), new Username(new CaseInsensitiveString("foo")), result);
+
+        assertFalse(goConfigService.hasEnvironmentNamed(envName));
         assertThat(result.message(), is(EntityType.Environment.deleteSuccessful(environmentName)));
     }
 

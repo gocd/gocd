@@ -317,6 +317,44 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
           .isNotFound()
           .hasJsonMessage(controller.entityType.notFoundMessage("env1"))
       }
+
+      @Test
+      void 'should render not modified when ETag matches'() {
+        def env1 = new BasicEnvironmentConfig(new CaseInsensitiveString("env1"))
+        env1.addAgent("agent1")
+        env1.addAgent("agent2")
+        env1.addEnvironmentVariable("JAVA_HOME", "/bin/java")
+        env1.addPipeline(new CaseInsensitiveString("Pipeline1"))
+        env1.addPipeline(new CaseInsensitiveString("Pipeline2"))
+
+        when(entityHashingService.md5ForEntity(env1)).thenReturn("md5-hash")
+        when(environmentConfigService.getEnvironmentConfig(eq("env1"))).thenReturn(env1)
+
+        getWithApiHeader(controller.controllerPath("env1"), ['if-none-match': 'md5-hash'])
+
+        assertThatResponse()
+          .isNotModified()
+      }
+
+      @Test
+      void 'should return 200 when ETag does not match'() {
+        def env1 = new BasicEnvironmentConfig(new CaseInsensitiveString("env1"))
+        env1.addAgent("agent1")
+        env1.addAgent("agent2")
+        env1.addEnvironmentVariable("JAVA_HOME", "/bin/java")
+        env1.addPipeline(new CaseInsensitiveString("Pipeline1"))
+        env1.addPipeline(new CaseInsensitiveString("Pipeline2"))
+
+        when(entityHashingService.md5ForEntity(env1)).thenReturn("md5-hash")
+        when(environmentConfigService.getEnvironmentConfig(eq("env1"))).thenReturn(env1)
+
+        getWithApiHeader(controller.controllerPath("env1"), ['if-none-match': 'md5-old-hash'])
+
+        assertThatResponse()
+          .isOk()
+          .hasEtag('"md5-hash"')
+          .hasBodyWithJsonObject(env1, EnvironmentRepresenter)
+      }
     }
   }
 
@@ -671,6 +709,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
         patchWithApiHeader(controller.controllerPath("env1"), patchRequestJson)
 
         assertThatResponse()
+          .isUnprocessableEntity()
           .hasJsonBody(expectedJson)
       }
     }

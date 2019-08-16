@@ -334,7 +334,6 @@ public class SvnMaterialTest {
     void shouldEncryptSvnPasswordAndMarkPasswordAsNull() throws Exception {
         GoCipher mockGoCipher = mock(GoCipher.class);
         when(mockGoCipher.encrypt("password")).thenReturn("encrypted");
-        when(mockGoCipher.maybeReEncryptForPostConstructWithoutExceptions("encrypted")).thenReturn("encrypted");
 
         SvnMaterial material = new SvnMaterial("/foo", "username", "password", false, mockGoCipher);
         material.ensureEncrypted();
@@ -347,7 +346,6 @@ public class SvnMaterialTest {
     void shouldDecryptSvnPassword() throws Exception {
         GoCipher mockGoCipher = mock(GoCipher.class);
         when(mockGoCipher.decrypt("encrypted")).thenReturn("password");
-        when(mockGoCipher.maybeReEncryptForPostConstructWithoutExceptions("encrypted")).thenReturn("encrypted");
 
         SvnMaterial material = new SvnMaterial("/foo", "username", null, false, mockGoCipher);
         ReflectionUtil.setField(material, "encryptedPassword", "encrypted");

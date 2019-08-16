@@ -15,7 +15,7 @@
   ~ limitations under the License.
   -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-                xmlns:goCipherClass="com.thoughtworks.go.security.GoCipher"
+                xmlns:migratorClass="com.thoughtworks.go.security.DesToAesMigrator"
                 version="1.0">
   <xsl:template match="/cruise/@schemaVersion">
     <xsl:attribute name="schemaVersion">109</xsl:attribute>
@@ -30,7 +30,7 @@
 
   <xsl:template name="reKeyCipher">
     <xsl:param name="encryptedValue"/>
-    <xsl:value-of select="goCipherClass:desToAES($encryptedValue)"/>
+    <xsl:value-of select="migratorClass:desToAES($encryptedValue)"/>
   </xsl:template>
 
 

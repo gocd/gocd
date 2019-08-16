@@ -145,9 +145,6 @@ public abstract class ScmMaterial extends AbstractMaterial implements SecretPara
     public void ensureEncrypted() {
         this.userName = StringUtils.stripToNull(this.userName);
         setPasswordIfNotBlank(password);
-        if (encryptedPassword != null) {
-            setEncryptedPassword(goCipher.maybeReEncryptForPostConstructWithoutExceptions(encryptedPassword));
-        }
     }
 
     public void setUserName(String userName) {

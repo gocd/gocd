@@ -94,18 +94,4 @@ public class PasswordDeserializerTest {
         String encrypted = passwordDeserializer.deserialize(null, "", svnMaterialConfig);
         assertNull(encrypted);
     }
-
-    @Test
-    public void shouldReEncryptedDESPasswords() throws IOException {
-        resetCipher.setupAESCipherFile();
-        resetCipher.setupDESCipherFile();
-
-        SvnMaterialConfig svnMaterialConfig = svn();
-        PasswordDeserializer passwordDeserializer = new PasswordDeserializer();
-
-        String encrypted = passwordDeserializer.deserialize(null, "mvcX9yrQsM4iPgm1tDxN1A==", svnMaterialConfig);
-        assertThat(encrypted, startsWith("AES:"));
-    }
-
-
 }

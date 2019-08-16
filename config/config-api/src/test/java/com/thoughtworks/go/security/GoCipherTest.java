@@ -27,7 +27,6 @@ import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
 
 public class GoCipherTest {
 
@@ -81,35 +80,5 @@ public class GoCipherTest {
 
         assertThat(desCipherFile.exists()).isFalse();
         assertThat(aesCipherFile.exists()).isFalse();
-    }
-
-    @Test
-    public void shouldNotCreateDesCipherIfCipherFileMissing() {
-        assertThat(desCipherFile).doesNotExist();
-
-        GoCipher goCipher = new GoCipher(systemEnvironment);
-        assertThat(goCipher.aesEncrypter).isNotNull();
-        assertThat(goCipher.desEncrypter).isNull();
-    }
-
-    @Test
-    public void shouldCreateDesEncryptorIfCipherFileIsPresent() throws IOException {
-        resetCipher.setupDESCipherFile();
-        assertThat(desCipherFile).exists();
-
-        GoCipher goCipher = new GoCipher(systemEnvironment);
-
-        assertThat(goCipher.aesEncrypter).isNotNull();
-        assertThat(goCipher.desEncrypter).isNotNull();
-    }
-
-    @Test
-    public void shouldConvertFromDESEncryptedTextToAES() throws IOException, CryptoException {
-        resetCipher.setupAESCipherFile();
-        resetCipher.setupDESCipherFile();
-
-        GoCipher goCipher = new GoCipher(systemEnvironment);
-        String cipherText = goCipher.desToAES("mvcX9yrQsM4iPgm1tDxN1A==");
-        assertThat(cipherText).startsWith("AES:");
     }
 }

@@ -17,6 +17,10 @@
 import s from "underscore.string";
 
 export namespace ErrorMessages {
+  export function idFormat(attr: string) {
+    return `Invalid ${attr}. This must be alphanumeric and can contain hyphens, underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.`;
+  }
+
   export function duplicate(attribute: string) {
     return `${humanize(attribute)} is a duplicate`;
   }

@@ -21,6 +21,7 @@ import Stream from "mithril/stream";
 import {Material} from "models/materials/types";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {NameableSet} from "./nameable_set";
+import {PipelineParameters} from "./parameters";
 import {Stage} from "./stage";
 
 export class PipelineConfig extends ValidatableMixin {
@@ -29,6 +30,7 @@ export class PipelineConfig extends ValidatableMixin {
   template: Stream<string> = Stream();
   materials: Stream<NameableSet<Material>>;
   stages: Stream<NameableSet<Stage>>;
+  parameters = Stream([] as PipelineParameters[]);
 
   constructor(name: string, materials: Material[], stages: Stage[]) {
     super();
@@ -48,6 +50,7 @@ export class PipelineConfig extends ValidatableMixin {
     this.validateAssociated("stages");
 
     this.validateMutualExclusivityOf("template", "stages", { message: "Pipeline stages must not be defined when using a pipeline template" });
+    this.validateChildAttrIsUnique("parameters", "name", {message: "Parameter names must be unique"});
   }
 
   withGroup(group: string) {

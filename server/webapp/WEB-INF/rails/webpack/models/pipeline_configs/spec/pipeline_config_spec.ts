@@ -18,6 +18,7 @@ import {SparkRoutes} from "helpers/spark_routes";
 import {GitMaterialAttributes, Material} from "models/materials/types";
 import {EnvironmentVariableConfig} from "models/pipeline_configs/environment_variable_config";
 import {Job} from "models/pipeline_configs/job";
+import {PipelineParameters} from "models/pipeline_configs/parameters";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {Stage} from "models/pipeline_configs/stage";
 import {ExecTask} from "models/pipeline_configs/task";
@@ -54,6 +55,16 @@ describe("PipelineConfig model", () => {
 
     pip.stages().clear();
     expect(pip.isValid()).toBe(true);
+  });
+
+  it("should validate parameters don't have duplicate names", () => {
+    const pip = new PipelineConfig("name", defaultMaterials, defaultStages).withGroup("foo");
+    const param1 = new PipelineParameters("same_name", "foo");
+    pip.parameters([param1, new PipelineParameters("same_name", "bar")]);
+
+    expect(pip.isValid()).toBe(false);
+    expect(pip.errors().keys()).toContain("parameters");
+    expect(param1.errors().errorsForDisplay("name")).toBe("Parameter names must be unique.");
   });
 
   it("should include a material", () => {

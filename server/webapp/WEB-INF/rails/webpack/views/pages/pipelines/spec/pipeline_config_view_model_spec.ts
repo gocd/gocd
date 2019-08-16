@@ -80,7 +80,8 @@ describe("PipelineConfig View Model", () => {
         payload: {
           name: "** UNNAMED PIPELINE **",
           materials: [{attributes: {password: ""}, type: "git"}],
-          stages: []
+          stages: [],
+          parameters: []
         }
       }
     );

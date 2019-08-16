@@ -13,19 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {HTMLAttributes} from "jsx/dom";
+
 import _ from "lodash";
 import m from "mithril";
 
-import {MithrilViewComponent} from "jsx/mithril-component";
-
 import classnames from "classnames";
+import {HTMLAttributes} from "jsx/dom";
+import {MithrilViewComponent} from "jsx/mithril-component";
 import styles from "./index.scss";
 
 export interface Attrs extends HTMLAttributes {
   onclick?: (e: MouseEvent) => void;
   disabled?: boolean;
   iconOnly?: boolean;
+  title?: string;
 }
 
 class Icon extends MithrilViewComponent<Attrs> {
@@ -39,22 +40,23 @@ class Icon extends MithrilViewComponent<Attrs> {
   }
 
   view(vnode: m.Vnode<Attrs>) {
+    const title = "string" === typeof vnode.attrs.title ? vnode.attrs.title : this.title;
     if (vnode.attrs.iconOnly) {
       return (
-        <i title={this.title}
+        <i title={title}
            data-test-id={`${this.title}-icon`}
            data-test-disabled-element={vnode.attrs.disabled}
            class={classnames(this.name, {disabled: vnode.attrs.disabled})}
            {...vnode.attrs}/>
       );
-    }
+  }
 
     return (
-      <button title={this.title}
+      <button title={title}
               data-test-disabled-element={vnode.attrs.disabled}
               class={(classnames(styles.btnIcon, {disabled: vnode.attrs.disabled}))}
               {...vnode.attrs}>
-        <i class={classnames(this.name)}/>
+        <i class={this.name}/>
       </button>
     );
   }

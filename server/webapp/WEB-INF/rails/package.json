@@ -24,7 +24,7 @@
     "bourbon": "^6.0.0",
     "classnames": "^2.2.6",
     "clipboard-polyfill": "^2.8.1",
-    "core-js": "3",
+    "core-js": "^3.2.1",
     "filesize": "^4.1.2",
     "font-awesome": "^4.7.0",
     "foundation-sites": "^6.2.3",

@@ -19,6 +19,7 @@ import {Stream} from "mithril/stream";
 import stream from "mithril/stream";
 import {ConfigRepo} from "models/config_repos/types";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import {ScrollManager} from "views/components/anchor/anchor";
 import * as collapsiblePanelStyles from "views/components/collapsible_panel/index.scss";
 import * as headerIconStyles from "views/components/header_icon/index.scss";
 import {ConfigRepoVM} from "views/pages/config_repos/config_repo_view_model";
@@ -30,7 +31,7 @@ import {
   createConfigRepoParsedWithError,
   createConfigRepoWithError
 } from "views/pages/config_repos/spec/test_data";
-import {TestHelper} from "views/pages/spec/test_helper";
+import {stubAllMethods, TestHelper} from "views/pages/spec/test_helper";
 
 describe("ConfigReposWidget", () => {
   let showDeleteModal: jasmine.Spy;
@@ -38,6 +39,7 @@ describe("ConfigReposWidget", () => {
   let reparseRepo: jasmine.Spy;
   let models: Stream<ConfigRepoVM[]>;
   let pluginInfos: Stream<Array<PluginInfo<any>>>;
+  let sm: ScrollManager;
 
   const helper = new TestHelper();
 
@@ -62,12 +64,14 @@ describe("ConfigReposWidget", () => {
     showDeleteModal = jasmine.createSpy("showDeleteModal");
     showEditModal   = jasmine.createSpy("showEditModal");
     reparseRepo     = jasmine.createSpy("reparseRepo");
+    sm              = stubAllMethods(["shouldScroll", "getTarget", "setTarget", "scrollToEl"]);
     models          = stream([] as ConfigRepoVM[]);
     pluginInfos     = stream([] as Array<PluginInfo<any>>);
 
     helper.mount(() => <ConfigReposWidget {...{
       models,
-      pluginInfos
+      pluginInfos,
+      sm
     }}/>);
   });
 

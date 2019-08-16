@@ -14,17 +14,33 @@
  * limitations under the License.
  */
 
-import {RoutedPage} from "helpers/spa_base";
-import {ConfigReposPage} from "views/pages/config_repos";
+type fn = () => void;
 
-export class ConfigReposSPA extends RoutedPage {
+/** A simple task scheduler that ensures each task runs after the page `load` event has fired. */
+export class Scheduler {
+  private queue: fn[] = [];
+  private hasLoaded: boolean = false;
+
   constructor() {
-    super({
-      "": ConfigReposPage,
-      "/:id": ConfigReposPage
+    if ("complete" === document.readyState) {
+      this.hasLoaded = true;
+      return;
+    }
+
+    window.addEventListener("load", () => {
+      this.hasLoaded = true;
+
+      for (const fn of this.queue) {
+        fn();
+      }
     });
   }
-}
 
-// tslint:disable-next-line
-new ConfigReposSPA();
+  schedule(task: fn) {
+    if (this.hasLoaded) {
+      task();
+    } else {
+      this.queue.push(task);
+    }
+  }
+}

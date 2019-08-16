@@ -25,6 +25,7 @@ import {ConfigRepo} from "models/config_repos/types";
 import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
+import {AnchorVM, ScrollManager} from "views/components/anchor/anchor";
 import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {SearchField} from "views/components/forms/input_fields";
@@ -44,8 +45,12 @@ interface SearchOperation {
 
 interface State extends AddOperation<ConfigRepo>, SaveOperation, SearchOperation, RequiresPluginInfos, FlashContainer {}
 
+// This instance will be shared with all config repo widgets and never changes
+const sm: ScrollManager = new AnchorVM();
+
 export class ConfigReposPage extends Page<null, State> {
   etag: Stream<string> = stream();
+
   oninit(vnode: m.Vnode<null, State>) {
     vnode.state.pluginInfos       = stream();
     vnode.state.unfilteredModels  = stream();
@@ -77,6 +82,8 @@ export class ConfigReposPage extends Page<null, State> {
   }
 
   componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
+    this.parseRepoLink(sm);
+
     if (vnode.state.searchText() && _.isEmpty(vnode.state.filteredModels())) {
       return <div><FlashMessage type={MessageType.info}>No Results</FlashMessage>
       </div>;
@@ -86,6 +93,7 @@ export class ConfigReposPage extends Page<null, State> {
       <FlashMessage type={this.flashMessage.type} message={this.flashMessage.message}/>
       <ConfigReposWidget models={vnode.state.filteredModels}
                          pluginInfos={vnode.state.pluginInfos}
+                         sm={sm}
       />
     </div>;
   }
@@ -125,6 +133,10 @@ export class ConfigReposPage extends Page<null, State> {
 
   refreshConfigRepos(vnode: m.Vnode<null, State>) {
     return ConfigReposCRUD.all(this.etag()).then((response) => this.onConfigReposAPIResponse(response, vnode));
+  }
+
+  parseRepoLink(sm: ScrollManager) {
+    sm.setTarget(m.route.param().id || "");
   }
 
   pageName(): string {

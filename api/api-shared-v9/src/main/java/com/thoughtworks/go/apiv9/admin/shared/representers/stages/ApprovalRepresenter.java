@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv8.admin.shared.representers.stages;
+package com.thoughtworks.go.apiv9.admin.shared.representers.stages;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.ErrorGetter;
@@ -34,12 +34,16 @@ public class ApprovalRepresenter {
         }
 
         jsonWriter.add("type", approval.getType());
+        if (approval.isAllowOnlyOnSuccess()) {
+            jsonWriter.add(Approval.ALLOW_ONLY_ON_SUCCESS, approval.isAllowOnlyOnSuccess());
+        }
         jsonWriter.addChild("authorization", authConfigWriter -> StageAuthorizationRepresenter.toJSON(authConfigWriter, approval.getAuthConfig()));
     }
 
     public static Approval fromJSON(JsonReader jsonReader) {
         Approval approval = new Approval();
         jsonReader.readStringIfPresent("type", approval::setType);
+        jsonReader.readBooleanIfPresent(Approval.ALLOW_ONLY_ON_SUCCESS, approval::setAllowOnlyOnSuccess);
         AuthConfig authConfig = StageAuthorizationRepresenter.fromJSON(jsonReader.readJsonObject("authorization"));
         approval.setAuthConfig(authConfig);
         return approval;

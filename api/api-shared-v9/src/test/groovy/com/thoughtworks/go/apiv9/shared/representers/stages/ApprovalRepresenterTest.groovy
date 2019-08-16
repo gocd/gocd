@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv8.shared.representers.stages
+package com.thoughtworks.go.apiv9.shared.representers.stages
 
 import com.thoughtworks.go.api.util.GsonTransformer
-import com.thoughtworks.go.apiv8.admin.shared.representers.stages.ApprovalRepresenter
+import com.thoughtworks.go.apiv9.admin.shared.representers.stages.ApprovalRepresenter
 import com.thoughtworks.go.config.*
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -62,6 +62,81 @@ class ApprovalRepresenterTest {
     def approval = ApprovalRepresenter.fromJSON(jsonReader)
 
     assertThat(getApproval()).isEqualTo(approval)
+  }
+
+  @Nested
+  class AllowOnlyOnSuccess {
+    @Test
+    void 'should convert hash with allow_only_on_success'() {
+      def jsonReader = GsonTransformer.instance.jsonReaderFrom(inputHash)
+      def actualObject = ApprovalRepresenter.fromJSON(jsonReader)
+
+      assertThat(approvalObject().getType()).isEqualTo(actualObject.getType())
+      assertThat(actualObject.allowOnlyOnSuccess).isTrue()
+    }
+
+    @Test
+    void 'should serialize approval object'() {
+      def actualJson = toObjectString({ ApprovalRepresenter.toJSON(it, approvalObject()) })
+
+      assertThatJson(actualJson).isEqualTo(inputHash)
+    }
+
+    @Test
+    void 'should not serialize allow_only_on_success if type is success'() {
+      Approval successApproval = Approval.automaticApproval()
+      def expectedJSON = [
+        type         : "success",
+        authorization: [
+          roles: [],
+          users: []
+        ]
+      ]
+
+      def actualJson = toObjectString({ ApprovalRepresenter.toJSON(it, successApproval) })
+
+      assertThatJson(actualJson).isEqualTo(expectedJSON)
+    }
+
+    @Test
+    void 'should not serialize allow_only_on_success if it is not set'() {
+      def approval = approvalObject()
+      approval.allowOnlyOnSuccess = false
+      def actualJson = toObjectString({ ApprovalRepresenter.toJSON(it, approval) })
+
+      def expectedJSON = inputHash
+      expectedJSON.remove("allow_only_on_success")
+
+      assertThatJson(actualJson).isEqualTo(expectedJSON)
+
+    }
+
+    @Test
+    void 'should deserialize allow_only_on_success if type is success'() {
+      def inputJSON = inputHash
+      inputJSON.replace("type", "success")
+
+      def jsonReader = GsonTransformer.instance.jsonReaderFrom(inputJSON)
+      def actualObject = ApprovalRepresenter.fromJSON(jsonReader)
+
+      assertThat(actualObject.getType()).isEqualTo("success")
+      assertThat(actualObject.isAllowOnlyOnSuccess()).isTrue()
+    }
+
+    def inputHash = [
+      type               : "manual",
+      allow_only_on_success: true,
+      authorization      : [
+        roles: [],
+        users: []
+      ]
+    ]
+
+    static def approvalObject() {
+      def manualApproval = Approval.manualApproval()
+      manualApproval.allowOnlyOnSuccess = true
+      return manualApproval;
+    }
   }
 
   def approvalHash =

@@ -37,8 +37,8 @@
     "moment-duration-format": "^2.3.2",
     "normalize-scss": "^7.0.1",
     "opensans": "file:vendor/assets/fonts/opensans",
-    "prismjs": "^1.16.0",
-    "shellwords-ts": "^2.0.2",
+    "prismjs": "^1.17.1",
+    "shellwords-ts": "^2.0.3",
     "underscore.string": "^3.3.5",
     "url-parse": "^1.4.7",
     "uuid": "^3.3.2"

@@ -18,16 +18,23 @@ package com.thoughtworks.go.server.ui;
 import com.thoughtworks.go.domain.AgentStatus;
 import com.thoughtworks.go.domain.BaseCollection;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Map;
+import java.util.stream.Stream;
 
+import static com.thoughtworks.go.domain.AgentStatus.Disabled;
+import static com.thoughtworks.go.domain.AgentStatus.Pending;
 import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toMap;
 import static org.apache.commons.collections4.CollectionUtils.exists;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
  * @understands collection of agents view model
  */
+@SuppressWarnings("deprecation")
 @Deprecated
 public class AgentsViewModel extends BaseCollection<AgentViewModel> {
 
@@ -43,11 +50,11 @@ public class AgentsViewModel extends BaseCollection<AgentViewModel> {
     }
 
     public int disabledCount() {
-        return count(AgentStatus.Disabled);
+        return count(Disabled);
     }
 
     public int pendingCount() {
-        return count(AgentStatus.Pending);
+        return count(Pending);
     }
 
     public int enabledCount() {
@@ -55,40 +62,29 @@ public class AgentsViewModel extends BaseCollection<AgentViewModel> {
     }
 
     public void filter(String filterCriteria) {
-
-        if (StringUtils.isBlank(filterCriteria)) {
-            return;
-        }
-        final Map<String, String> filters = filters(filterCriteria);
-
-        if (filters.isEmpty()) {
+        if (isBlank(filterCriteria)) {
             return;
         }
 
-        CollectionUtils.filter(this, agent -> {
-            boolean finalResult = false;
-            for (Map.Entry<String, String> entry : filters.entrySet()) {
-                AgentFilters filter = AgentFilters.valueOf(entry.getKey().toUpperCase());
-                finalResult = finalResult || filter.matches(agent, entry.getValue());
-            }
-            return finalResult;
-        });
+        final Map<String, String> criterionMap = getFilterCriterionMap(filterCriteria);
+        if (criterionMap.isEmpty()) {
+            return;
+        }
+
+        CollectionUtils.filter(this,
+                agent -> criterionMap.entrySet().stream().anyMatch(entry -> AgentFilters.valueOf(entry.getKey().toUpperCase()).matches(agent, entry.getValue())));
     }
 
-    private Map<String, String> filters(String filterCriteria) {
-        String[] filters = filterCriteria.split(",");
-        Map<String, String> filterMap = new HashMap<>();
-        for (String filter : filters) {
-            String[] keyValue = filter.split(":");
-            if (keyValue.length == 2 && agentFiltersHas(keyValue[0].trim())) {
-                filterMap.put(keyValue[0].trim(), keyValue[1].trim());
-            }
-        }
-        return filterMap;
+    private Map<String, String> getFilterCriterionMap(String filterCriteria) {
+        return Stream.of(filterCriteria.split(","))
+                .map(filterCriterion -> filterCriterion.split(":"))
+                .filter(keyValPair -> keyValPair.length == 2)
+                .filter(keyValPair -> agentFiltersHas(keyValPair[0].trim()))
+                .collect(toMap(keyValPair -> keyValPair[0].trim(), keyValPair -> keyValPair[1].trim()));
     }
 
     private boolean agentFiltersHas(final String enumKey) {
-        return exists(asList(AgentFilters.values()), agentFilters -> agentFilters.name().equals(enumKey.toUpperCase()));
+        return CollectionUtils.exists(asList(AgentFilters.values()), agentFilters -> agentFilters.name().equals(enumKey.toUpperCase()));
     }
 
     private int count(AgentStatus status) {
@@ -97,35 +93,37 @@ public class AgentsViewModel extends BaseCollection<AgentViewModel> {
     }
 }
 
+
+@SuppressWarnings("deprecation")
 enum AgentFilters {
     RESOURCE {
         @Override public boolean matches(AgentViewModel agent, final String searchCriteria) {
-            return this.matchesFilter(agent.getResources(), searchCriteria);
+            return matchesFilter(agent.getResources(), searchCriteria);
         }
     },
     STATUS {
         @Override public boolean matches(AgentViewModel agent, String searchCriteria) {
-            return this.matchesFilter(agent.getStatusForDisplay(), searchCriteria);
+            return matchesFilter(agent.getStatusForDisplay(), searchCriteria);
         }
     },
     NAME {
         @Override public boolean matches(AgentViewModel agent, String searchCriteria) {
-            return this.matchesFilter(agent.getHostname(), searchCriteria);
+            return matchesFilter(agent.getHostname(), searchCriteria);
         }
     },
     IP {
         @Override public boolean matches(AgentViewModel agent, String searchCriteria) {
-            return this.matchesFilter(agent.getIpAddress(), searchCriteria);
+            return matchesFilter(agent.getIpAddress(), searchCriteria);
         }
     },
     OS {
         @Override public boolean matches(AgentViewModel agent, String searchCriteria) {
-            return this.matchesFilter(agent.getOperatingSystem(), searchCriteria);
+            return matchesFilter(agent.getOperatingSystem(), searchCriteria);
         }
     },
     ENVIRONMENT {
         @Override public boolean matches(AgentViewModel agent, final String searchCriteria) {
-            return this.matchesFilter(agent.getEnvironments(), searchCriteria);
+            return matchesFilter(agent.getEnvironments(), searchCriteria);
         }
     };
 

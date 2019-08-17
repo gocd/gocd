@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
+import {ConfigOptions} from "config/variables";
 import webpack from "webpack";
 
-export function getStaticAssetsLoader(production: boolean): webpack.RuleSetRule {
+export function getStaticAssetsLoader(configOptions: ConfigOptions): webpack.RuleSetRule {
   return {
     test: /\.(woff|woff2|ttf|eot|svg|png|gif|jpeg|jpg)(\?v=\d+\.\d+\.\d+)?$/,
     use: [
       {
         loader: "file-loader",
         options: {
-          name: production ? "[name]-[hash].[ext]" : "[name].[ext]",
-          outputPath: production ? "media/" : "fonts/"
+          name: configOptions.production ? "[name]-[hash].[ext]" : "[name].[ext]",
+          outputPath: configOptions.production ? "media/" : "fonts/"
         }
       }
     ]

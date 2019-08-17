@@ -16,22 +16,46 @@
 
 import fsExtra from "fs-extra";
 import _ from "lodash";
+import path from "path";
 import webpack from "webpack";
 import {loaders} from "./loaders";
 import {plugins} from "./plugins";
-import {getEntries, getModules, outputDir} from "./variables";
+import {getEntries, getModules} from "./variables";
 
 const SpeedMeasurePlugin = require("speed-measure-webpack-plugin");
 const TerserPlugin       = require("terser-webpack-plugin");
 
+function getConfigOptions(argv: any, env: any) {
+  const assetsDir              = path.join(__dirname, "..");
+  const railsRoot              = path.join(assetsDir, "..");
+  const production             = argv.mode === "production";
+  const watch                  = argv.watch;
+  const singlePageAppModuleDir = path.join(assetsDir, "single_page_apps");
+  const tempDir                = path.join(railsRoot, "tmp");
+  const outputDir              = env.outputDir || path.join(railsRoot, "public", "assets", "webpack");
+  const licenseReportFile      = env.licenseReportFile || path.join(railsRoot,
+                                                                    "yarn-license-report",
+                                                                    `used-packages-${production ? "prod" : "dev"}.json`);
+  return {
+    production,
+    watch,
+    assetsDir,
+    singlePageAppModuleDir,
+    railsRoot,
+    tempDir,
+    outputDir,
+    licenseReportFile
+  };
+}
+
 function configuration(env: any, argv: any): webpack.Configuration {
-  env = _.assign({}, env);
+  env  = _.assign({}, env);
+  argv = _.assign({}, argv);
 
-  const production     = argv.mode === "production";
-  const watch: boolean = !!argv.watch;
+  const configOptions = getConfigOptions(argv, env);
 
-  if (production) {
-    fsExtra.removeSync(outputDir);
+  if (configOptions.production) {
+    fsExtra.removeSync(configOptions.outputDir);
   }
 
   const optimization: webpack.Options.Optimization = {
@@ -46,29 +70,29 @@ function configuration(env: any, argv: any): webpack.Configuration {
     }
   };
 
-  if (production) {
+  if (configOptions.production) {
     optimization.minimizer = [new TerserPlugin()];
   }
 
   return {
-    entry: getEntries(production),
+    entry: getEntries(configOptions),
     output: {
-      path: outputDir,
+      path: configOptions.outputDir,
       publicPath: "/go/assets/webpack/",
-      filename: production ? "[name]-[chunkhash].js" : "[name].js"
+      filename: configOptions.production ? "[name]-[chunkhash].js" : "[name].js"
     },
     cache: true,
     bail: true,
-    devtool: production ? "source-map" : "inline-source-map",
+    devtool: configOptions.production ? "source-map" : "inline-source-map",
     optimization,
     resolve: {
       extensions: [".js", ".js.msx", ".msx", ".tsx", ".ts"],
-      modules: getModules(production),
+      modules: getModules(configOptions),
     },
     module: {
-      rules: loaders(watch, production)
+      rules: loaders(configOptions)
     },
-    plugins: plugins(watch, production),
+    plugins: plugins(configOptions),
   };
 }
 

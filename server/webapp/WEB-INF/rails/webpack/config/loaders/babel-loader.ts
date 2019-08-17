@@ -16,23 +16,23 @@
 
 import path from "path";
 import webpack from "webpack";
-import {tempDir} from "../variables";
-import {cacheLoader} from "./cache-loader";
+import {ConfigOptions} from "../variables";
+import {getCacheLoader} from "./cache-loader";
 import {threadLoader} from "./thread-loader";
 
-export function getBabelLoader(watch: boolean): webpack.RuleSetRule {
+export function getBabelLoader(configOptions: ConfigOptions): webpack.RuleSetRule {
   const loaderName = "babel-loader";
 
   return {
     test: /\.(msx|js)$/,
     exclude: /node_modules/,
     use: [
-      threadLoader(watch),
-      cacheLoader,
+      threadLoader(configOptions),
+      getCacheLoader(configOptions),
       {
         loader: loaderName,
         options: {
-          cacheDirectory: path.join(tempDir, loaderName)
+          cacheDirectory: path.join(configOptions.tempDir, loaderName)
         }
       }
     ]

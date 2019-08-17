@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
+import {ConfigOptions} from "config/variables";
 import path from "path";
 import webpack from "webpack";
-import {tempDir} from "../variables";
 
-export const cacheLoader: webpack.RuleSetUseItem = {
-  loader: "cache-loader",
-  options: {
-    cacheDirectory: path.join(tempDir, "cache-loader")
-  },
-};
+export function getCacheLoader(configOptions: ConfigOptions): webpack.RuleSetUseItem {
+  return {
+    loader: "cache-loader",
+    options: {
+      cacheDirectory: path.join(configOptions.tempDir, "cache-loader")
+    }
+  };
+}

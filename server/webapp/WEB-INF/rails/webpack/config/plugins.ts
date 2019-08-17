@@ -19,9 +19,10 @@ import fs from "fs";
 import HtmlWebpackPlugin from "html-webpack-plugin";
 import _ from "lodash";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
+import OptimizeCssAssetsPlugin from "optimize-css-assets-webpack-plugin";
 import path from "path";
 import webpack from "webpack";
-import {getEntries, railsRoot} from "./variables";
+import {ConfigOptions, getEntries} from "./variables";
 import {LicensePlugins} from "./webpack-license-plugin";
 
 const jasmineCore                = require("jasmine-core");
@@ -30,11 +31,7 @@ const SassLintPlugin             = require("sass-lint-webpack");
 const UnusedFilesWebpackPlugin   = require("unused-files-webpack-plugin").default;
 const WebpackBuildNotifierPlugin = require("webpack-build-notifier");
 
-function licenseReportFile(production: boolean) {
-  return path.join(railsRoot, "yarn-license-report", `used-packages-${production ? "prod" : "dev"}.json`);
-}
-
-export function plugins(watch: boolean, production: boolean): webpack.Plugin[] {
+export function plugins(configOptions: ConfigOptions): webpack.Plugin[] {
   const plugins = [
     new UnusedFilesWebpackPlugin({
                                    patterns: ["webpack/**/*.*", "spec/webpack/**/*.*"],
@@ -55,31 +52,32 @@ export function plugins(watch: boolean, production: boolean): webpack.Plugin[] {
                                 "jQuery": "jquery",
                                 "window.jQuery": "jquery"
                               }) as webpack.Plugin,
-    new LicensePlugins(licenseReportFile(production)),
+    new LicensePlugins(configOptions.licenseReportFile),
     new ForkTsCheckerWebpackPlugin({
                                      checkSyntacticErrors: true,
                                      useTypescriptIncrementalApi: true,
                                    })
   ];
 
-  if (production) {
+  if (configOptions.production) {
     plugins.push(new MiniCssExtractPlugin({
                                             // Options similar to the same options in webpackOptions.output
                                             // both options are optional
                                             filename: "[name]-[hash].css",
                                             chunkFilename: "[id]-[hash].css",
                                           }));
+    plugins.push(new OptimizeCssAssetsPlugin());
   } else {
     const jasmineFiles = jasmineCore.files;
 
-    const entries = getEntries(production);
+    const entries = getEntries(configOptions);
     delete entries.specRoot;
 
     const jasmineIndexPage = {
       inject: true,
       xhtml: true,
       filename: "_specRunner.html",
-      template: path.join(railsRoot, "spec", "webpack", "_specRunner.html.ejs"),
+      template: path.join(configOptions.railsRoot, "spec", "webpack", "_specRunner.html.ejs"),
       jasmineJsFiles: _.map(jasmineFiles.jsFiles.concat(jasmineFiles.bootFiles), (file) => {
         return `__jasmine/${file}`;
       }),

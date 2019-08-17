@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
+import {ConfigOptions} from "config/variables";
 import {getBabelLoader} from "./loaders/babel-loader";
 import {getMiniCssExtractLoader} from "./loaders/css-loader";
 import {getEslintLoader} from "./loaders/eslint-loader";
 import {getStaticAssetsLoader} from "./loaders/static-assets-loader";
 import {getTypescriptLoader} from "./loaders/ts-loader";
 
-export function loaders(watch: boolean, production: boolean) {
+export function loaders(configOptions: ConfigOptions) {
   return [
-    getEslintLoader(watch),
-    getTypescriptLoader(watch),
-    getBabelLoader(watch),
-    getMiniCssExtractLoader(watch, production),
-    getStaticAssetsLoader(production)
+    getEslintLoader(configOptions),
+    getTypescriptLoader(configOptions),
+    getBabelLoader(configOptions),
+    getMiniCssExtractLoader(configOptions),
+    getStaticAssetsLoader(configOptions)
   ];
 }

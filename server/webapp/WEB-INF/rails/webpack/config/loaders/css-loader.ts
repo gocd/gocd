@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
+import {ConfigOptions} from "config/variables";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
 import path from "path";
 import webpack from "webpack";
-import {cacheLoader} from "./cache-loader";
 
-export function getMiniCssExtractLoader(watch: boolean, production: boolean): webpack.RuleSetRule {
+export function getMiniCssExtractLoader(configOptions: ConfigOptions): webpack.RuleSetRule {
   return {
     test: /\.(s)?css$/,
     exclude: /node_modules/,
     use: [
-      cacheLoader,
       {
-        loader: production ? MiniCssExtractPlugin.loader : "style-loader",
+        loader: configOptions.production ? MiniCssExtractPlugin.loader : "style-loader",
       },
       {
         loader: "typings-for-css-modules-loader", // translates CSS into CommonJS

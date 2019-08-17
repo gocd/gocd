@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
+import {ConfigOptions} from "config/variables";
 import webpack from "webpack";
 
-export function threadLoader(watch: boolean): webpack.RuleSetUseItem {
+export function threadLoader(configOptions: ConfigOptions): webpack.RuleSetUseItem {
   return {
     loader: "thread-loader",
     options: {
       workers: 2,
       // keep workers alive in watch mode
-      poolTimeout: watch ? Infinity : 500
+      poolTimeout: configOptions.watch ? Infinity : 500
     }
   };
 }

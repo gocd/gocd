@@ -16,29 +16,29 @@
 
 import path from "path";
 import webpack from "webpack";
-import {railsRoot, tempDir} from "../variables";
-import {cacheLoader} from "./cache-loader";
+import {ConfigOptions} from "../variables";
+import {getCacheLoader} from "./cache-loader";
 import {threadLoader} from "./thread-loader";
 
-export function getTypescriptLoader(watch: boolean): webpack.RuleSetRule {
+export function getTypescriptLoader(configOptions: ConfigOptions): webpack.RuleSetRule {
   const loaderName = "ts-loader";
 
   return {
     test: /\.ts(x)?$/,
     exclude: /node_modules/,
     use: [
-      threadLoader(watch),
-      cacheLoader,
+      threadLoader(configOptions),
+      getCacheLoader(configOptions),
       {
         loader: "babel-loader",
         options: {
-          cacheDirectory: path.join(tempDir, "babel-loader")
+          cacheDirectory: path.join(configOptions.tempDir, "babel-loader")
         }
       },
       {
         loader: loaderName,
         options: {
-          configFile: path.join(railsRoot, "tsconfig.json"),
+          configFile: path.join(configOptions.railsRoot, "tsconfig.json"),
           transpileOnly: true, // perform typechecking using fork-ts-checker-webpack-plugin
           // technically, we do not use happypack, but this is still required.
           happyPackMode: true,

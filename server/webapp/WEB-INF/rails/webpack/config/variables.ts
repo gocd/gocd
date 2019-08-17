@@ -14,37 +14,41 @@
  * limitations under the License.
  */
 
+import fs from "fs";
 import _ from "lodash";
 import path from "path";
 import webpack from "webpack";
 
-import fs = require("fs");
+export interface ConfigOptions {
+  production: boolean;
+  watch: boolean;
+  assetsDir: string;
+  singlePageAppModuleDir: string;
+  railsRoot: string;
+  tempDir: string;
+  outputDir: string;
+  licenseReportFile: string;
+}
 
-export const assetsDir              = path.join(__dirname, "..");
-export const singlePageAppModuleDir = path.join(assetsDir, "single_page_apps");
-export const railsRoot              = path.join(assetsDir, "..");
-export const tempDir                = path.join(railsRoot, "tmp");
-export const outputDir              = path.join(railsRoot, "public", "assets", "webpack");
-
-export function getModules(production: boolean) {
-  const modules = [assetsDir, path.join(railsRoot, "node_modules")];
-  if (!production) {
-    modules.unshift(path.join(railsRoot, "spec", "webpack"));
-    modules.unshift(path.join(railsRoot, "spec", "webpack", "patches"));
+export function getModules(configOptions: ConfigOptions) {
+  const modules = [configOptions.assetsDir, path.join(configOptions.railsRoot, "node_modules")];
+  if (!configOptions.production) {
+    modules.unshift(path.join(configOptions.railsRoot, "spec", "webpack"));
+    modules.unshift(path.join(configOptions.railsRoot, "spec", "webpack", "patches"));
   }
   return modules;
 }
 
-export function getEntries(production: boolean): webpack.Entry {
-  const entries = _.reduce(fs.readdirSync(singlePageAppModuleDir), (memo, file) => {
+export function getEntries(configOptions: ConfigOptions): webpack.Entry {
+  const entries = _.reduce(fs.readdirSync(configOptions.singlePageAppModuleDir), (memo, file) => {
     const fileName   = path.basename(file);
     const moduleName = `single_page_apps/${_.split(fileName, ".")[0]}`;
-    memo[moduleName] = path.join(singlePageAppModuleDir, file);
+    memo[moduleName] = path.join(configOptions.singlePageAppModuleDir, file);
     return memo;
   }, {} as webpack.Entry);
 
-  if (!production) {
-    entries.specRoot = path.join(railsRoot, "spec", "webpack", "specRoot.js");
+  if (!configOptions.production) {
+    entries.specRoot = path.join(configOptions.railsRoot, "spec", "webpack", "specRoot.js");
   }
   return entries;
 }

@@ -16,11 +16,11 @@
 
 import path from "path";
 import webpack from "webpack";
-import {tempDir} from "../variables";
-import {cacheLoader} from "./cache-loader";
+import {ConfigOptions} from "../variables";
+import {getCacheLoader} from "./cache-loader";
 import {threadLoader} from "./thread-loader";
 
-export function getEslintLoader(watch: boolean): webpack.RuleSetRule {
+export function getEslintLoader(configOptions: ConfigOptions): webpack.RuleSetRule {
   const loaderName = "eslint-loader";
   return {
     enforce: "pre",
@@ -30,12 +30,12 @@ export function getEslintLoader(watch: boolean): webpack.RuleSetRule {
       /js-routes\.js$/
     ],
     use: [
-      threadLoader(watch),
-      cacheLoader,
+      threadLoader(configOptions),
+      getCacheLoader(configOptions),
       {
         loader: loaderName,
         options: {
-          cache: path.join(tempDir, loaderName),
+          cache: path.join(configOptions.tempDir, loaderName),
 
         }
       }

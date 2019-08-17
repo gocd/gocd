@@ -384,13 +384,13 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
 
     public void disableAgents(List<String> uuids) {
         if (!isEmpty(uuids)) {
-            agentDao.enableOrDisableAgents(uuids, true);
+            agentDao.disableAgents(uuids);
         }
     }
 
     public void disableAgents(String... uuids) {
         if (uuids != null) {
-            agentDao.enableOrDisableAgents(asList(uuids), true);
+            agentDao.disableAgents(asList(uuids));
         }
     }
 

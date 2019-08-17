@@ -197,14 +197,14 @@ public class AgentDao extends HibernateDaoSupport {
         }
     }
 
-    public void enableOrDisableAgents(final List<String> uuids, final boolean disabled) {
+    public void disableAgents(final List<String> uuids) {
         synchronized (uuids) {
             transactionTemplate.execute(new TransactionCallbackWithoutResult() {
                 @Override
                 protected void doInTransactionWithoutResult(TransactionStatus status) {
                     String queryString = format("update Agent set disabled = :disabled where uuid in (:uuids)");
                     Query query = sessionFactory.getCurrentSession().createQuery(queryString);
-                    query.setParameter("disabled", disabled);
+                    query.setParameter("disabled", true);
                     query.setParameterList("uuids", uuids);
                     query.executeUpdate();
 

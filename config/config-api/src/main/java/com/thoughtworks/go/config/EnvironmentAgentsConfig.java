@@ -18,6 +18,7 @@ package com.thoughtworks.go.config;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
@@ -45,21 +46,14 @@ public class EnvironmentAgentsConfig extends BaseCollection<EnvironmentAgentConf
     }
 
     public List<String> getUuids() {
-        List<String> uuids = new ArrayList<>();
-        for(EnvironmentAgentConfig config : this) {
-            uuids.add(config.getUuid());
-        }
-        return uuids;
+        return this.stream().map(EnvironmentAgentConfig::getUuid).collect(Collectors.toList());
     }
 
     @Override
     public void setConfigAttributes(Object attributes) {
         if (attributes != null) {
-            List<Map> agentAttributes = (List) attributes;
             this.clear();
-            for (Map attributeMap : agentAttributes) {
-                this.add(new EnvironmentAgentConfig((String) attributeMap.get("uuid")));
-            }
+            ((List<Map<String, String>>)attributes).forEach(attributeMap -> this.add(new EnvironmentAgentConfig(attributeMap.get("uuid"))));
         }
     }
 }

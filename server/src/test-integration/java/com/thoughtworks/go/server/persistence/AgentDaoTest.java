@@ -352,28 +352,20 @@ public class AgentDaoTest {
         }
 
         @Test
-        public void shouldBulkEnableDisableAgents() {
+        public void shouldBulkDisableAgents() {
             String disabledUUID1 = "uuid1";
             String disabledUUID2 = "uuid2";
 
-            String enabledUUID = "uuid";
-
-            Agent agent1 = new Agent(disabledUUID1, "localhost", "127.0.0.1", "cookie");
-            Agent agent2 = new Agent(enabledUUID, "localhost2", "127.0.0.2", "cookie2");
-            Agent agent3 = new Agent(disabledUUID2, "localhost3", "127.0.0.3", "cookie3");
+            Agent agent1 = new Agent(disabledUUID1, "localhost1", "127.0.0.1", "cookie");
+            Agent agent2 = new Agent(disabledUUID2, "localhost2", "127.0.0.2", "cookie3");
 
             agentDao.saveOrUpdate(agent1);
             agentDao.saveOrUpdate(agent2);
-            agentDao.saveOrUpdate(agent3);
 
             List<String> disabledUuids = asList(disabledUUID1, disabledUUID2);
-            List<String> enabledUuids = singletonList(enabledUUID);
-
-            agentDao.enableOrDisableAgents(disabledUuids, true);
-            agentDao.enableOrDisableAgents(enabledUuids, false);
+            agentDao.disableAgents(disabledUuids);
 
             disabledUuids.forEach(uuid -> assertThat(agentDao.getAgentByUUIDFromCacheOrDB(uuid).isDisabled(), is(true)));
-            enabledUuids.forEach(uuid -> assertThat(agentDao.getAgentByUUIDFromCacheOrDB(uuid).isDisabled(), is(false)));
         }
     }
 

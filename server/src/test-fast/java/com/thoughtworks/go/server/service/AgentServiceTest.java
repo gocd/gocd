@@ -706,14 +706,14 @@ class AgentServiceTest {
         @Test
         void shouldDoNothingIfDisableAgentsIsCalledWithEmptyListOfUUIDs() {
             agentService.disableAgents(emptyList());
-            verify(agentDao, times(0)).enableOrDisableAgents(anyList(), anyBoolean());
+            verify(agentDao, times(0)).disableAgents(anyList());
         }
 
         @Test
         void shouldDisableAgentsWhenCalledWithNonEmptyListOfUUIDs() {
             List<String> uuids = asList("uuid1", "uuid2");
             agentService.disableAgents(uuids);
-            verify(agentDao).enableOrDisableAgents(uuids, true);
+            verify(agentDao).disableAgents(uuids);
         }
     }
 

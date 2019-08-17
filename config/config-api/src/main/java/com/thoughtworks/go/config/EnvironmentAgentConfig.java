@@ -20,6 +20,7 @@ import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import com.thoughtworks.go.domain.ConfigErrors;

@@ -17,7 +17,7 @@ import _ from "lodash";
 import m from "mithril";
 import Sortable from "@shopify/draggable/lib/es5/sortable";
 // es5 bundle => IE11 support
-import {personalizeEditor as Editor} from "views/dashboard/personalization_editor";
+import {personalizeEditor} from "views/dashboard/personalization_editor";
 import {throttleRaf} from "helpers/throttle-raf";
 
 export const SortableViewTabs = {
@@ -41,7 +41,7 @@ const ViewTab = {
     const name    = vnode.attrs.name;
     const current = vm.active(name);
     const model   = vm.model;
-    const edit    = vm.actionHandler(() => Editor.open(model().namedFilter(name), model, vm));
+    const edit    = vm.actionHandler(() => personalizeEditor(model().namedFilter(name), model, vm));
 
     function switchTab(e) {
       e.stopPropagation();

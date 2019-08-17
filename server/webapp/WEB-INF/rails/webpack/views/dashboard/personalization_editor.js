@@ -19,7 +19,7 @@ import {PersonalizationModalWidget} from "views/dashboard/personalization_modal_
 import {Modal} from "views/shared/schmodal";
 import {mrequest} from "helpers/mrequest";
 
-export function personalizeEditor(opts, personalization, model) {
+function personalizeEditor(opts, personalization, model) {
   // evaluate every time in case personalization is updated while the modal is open
   opts.names = () => personalization().names();
 
@@ -121,3 +121,5 @@ export function personalizeEditor(opts, personalization, model) {
     buttons
   });
 }
+
+export const Editor = {open: personalizeEditor};

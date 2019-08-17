@@ -15,7 +15,7 @@
  */
 import m from "mithril";
 import {ScrollableViewTabs} from "views/dashboard/scrollable_view_tabs";
-import {personalizeEditor} from "views/dashboard/personalization_editor";
+import {Editor} from "views/dashboard/personalization_editor";
 import {ActionableMessage} from "views/dashboard/actionable_message";
 import {TabsListDropdown} from "views/dashboard/tabs_list_dropdown";
 
@@ -27,7 +27,7 @@ export const PersonalizedViewsWidget = {
 
   view(vnode) {
     const vm = vnode.attrs.vm;
-    const doAddView = vm.actionHandler(() => !vm.locked() && personalizeEditor({}, vm.model, vm, vnode.attrs.onchange));
+    const doAddView = vm.actionHandler(() => !vm.locked() && Editor.open({}, vm.model, vm, vnode.attrs.onchange));
 
     return <div class={vm.loadingView() ? "dashboard-tabs loading" : "dashboard-tabs"}>
       <ActionableMessage vm={vm} />

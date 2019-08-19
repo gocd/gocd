@@ -29,8 +29,6 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.util.UuidGenerator;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import org.hibernate.Cache;
-import org.hibernate.SessionFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -63,8 +61,6 @@ public class EnvironmentConfigServiceIntegrationTest {
     private EntityHashingService entityHashingService;
     @Autowired
     private AgentService agentService;
-    @Autowired
-    private SessionFactory sessionFactory;
     @Autowired
     private EnvironmentConfigService environmentConfigService;
     @Autowired
@@ -266,11 +262,8 @@ public class EnvironmentConfigServiceIntegrationTest {
         Agent agent = AgentMother.approvedAgent();
         agentService.register(agent, "", environmentName);
 
-        // clearing out the hibernate cache so that the services fetches from the DB
-        Cache cache = sessionFactory.getCache();
-        if (cache != null) {
-            cache.evictDefaultQueryRegion();
-        }
+        // required to force update the cache from the DB
+        environmentConfigService.syncAssociatedAgentsFromDB();
 
         assertTrue(goConfigService.hasEnvironmentNamed(envName));
         assertTrue(environmentConfigService.getEnvironmentConfig(environmentName).hasAgent("uuid"));

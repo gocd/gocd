@@ -23,30 +23,36 @@ import {threadLoader} from "./thread-loader";
 export function getTypescriptLoader(configOptions: ConfigOptions): webpack.RuleSetRule {
   const loaderName = "ts-loader";
 
+  const loaders = [];
+
+  if (configOptions.watch) {
+    loaders.push(threadLoader(configOptions));
+  }
+
+  loaders.push(
+    getCacheLoader(configOptions),
+    {
+      loader: "babel-loader",
+      options: {
+        cacheDirectory: path.join(configOptions.tempDir, "babel-loader")
+      }
+    },
+    {
+      loader: loaderName,
+      options: {
+        configFile: path.join(configOptions.railsRoot, "tsconfig.json"),
+        transpileOnly: configOptions.watch, // perform typechecking using fork-ts-checker-webpack-plugin
+        // technically, we do not use happypack, but this is still required.
+        happyPackMode: configOptions.watch,
+        reportFiles: [
+          "**/*.{ts,tsx}"
+        ]
+      }
+    });
+
   return {
     test: /\.ts(x)?$/,
     exclude: /node_modules/,
-    use: [
-      threadLoader(configOptions),
-      getCacheLoader(configOptions),
-      {
-        loader: "babel-loader",
-        options: {
-          cacheDirectory: path.join(configOptions.tempDir, "babel-loader")
-        }
-      },
-      {
-        loader: loaderName,
-        options: {
-          configFile: path.join(configOptions.railsRoot, "tsconfig.json"),
-          transpileOnly: true, // perform typechecking using fork-ts-checker-webpack-plugin
-          // technically, we do not use happypack, but this is still required.
-          happyPackMode: true,
-          reportFiles: [
-            "**/*.{ts,tsx}"
-          ]
-        }
-      },
-    ]
+    use: loaders
   };
 }

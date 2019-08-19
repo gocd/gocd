@@ -1092,6 +1092,17 @@ class ConfigConverterTest {
     }
 
     @Test
+    void shouldConvertApprovalWhenAllowOnlyOnSuccessIsSet() {
+        CRApproval crApproval = new CRApproval(CRApprovalCondition.success);
+        crApproval.setAllowOnlyOnSuccess(true);
+
+        Approval approval = configConverter.toApproval(crApproval);
+        assertThat(approval.isManual()).isFalse();
+        assertThat(approval.isAuthorizationDefined()).isFalse();
+        assertThat(approval.isAllowOnlyOnSuccess()).isTrue();
+    }
+
+    @Test
     void shouldConvertStage() {
         CRApproval approval = new CRApproval(CRApprovalCondition.manual);
         approval.addAuthorizedUser("authUser");
@@ -1334,6 +1345,7 @@ class ConfigConverterTest {
         AdminUser user = new AdminUser(new CaseInsensitiveString("a_user"));
         Approval approval = new Approval();
         approval.addAdmin(user, role);
+        approval.setAllowOnlyOnSuccess(true);
 
         StageConfig stage = new StageConfig(new CaseInsensitiveString("stageName"), new JobConfigs(), approval);
         stage.setVariables(envVars);
@@ -1342,10 +1354,12 @@ class ConfigConverterTest {
         stage.setArtifactCleanupProhibited(true);
 
         CRStage crStage = configConverter.stageToCRStage(stage);
+        CRApproval crStageApproval = crStage.getApproval();
 
         assertThat(crStage.getName()).isEqualTo("stageName");
-        assertThat(crStage.getApproval().getRoles()).contains("a_role");
-        assertThat(crStage.getApproval().getUsers()).contains("a_user");
+        assertThat(crStageApproval.getRoles()).contains("a_role");
+        assertThat(crStageApproval.getUsers()).contains("a_user");
+        assertThat(crStageApproval.isAllowOnlyOnSuccess()).isTrue();
         assertThat(crStage.isFetchMaterials()).isTrue();
         assertThat(crStage.isCleanWorkingDirectory()).isTrue();
         assertThat(crStage.isNeverCleanupArtifacts()).isTrue();

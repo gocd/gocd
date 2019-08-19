@@ -753,6 +753,7 @@ public class ConfigConverter {
             crApproval.setApprovalCondition(CRApprovalCondition.manual);
 
         }
+        crApproval.setAllowOnlyOnSuccess(approval.isAllowOnlyOnSuccess());
 
         return crApproval;
     }

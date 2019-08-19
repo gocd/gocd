@@ -28,7 +28,7 @@ module ApplicationHelper
     url, params = url.split("?")
     url = "#{url.gsub(/\/$/, "")}/#{path}"
     if params
-      if url =~/\?/
+      if url =~ /\?/
         "#{url}&#{params}"
       else
         "#{url}?#{params}"
@@ -57,9 +57,9 @@ module ApplicationHelper
   def path_for_stage(stage_identifier)
     stage_identifier = stage_identifier.getIdentifier() if stage_identifier.respond_to? :getIdentifier
     stage_detail_tab_path_for pipeline_name: stage_identifier.getPipelineName(),
-                          pipeline_counter: stage_identifier.getPipelineCounter(),
-                          stage_name: stage_identifier.getStageName(),
-                          stage_counter: stage_identifier.getStageCounter()
+                              pipeline_counter: stage_identifier.getPipelineCounter(),
+                              stage_name: stage_identifier.getStageName(),
+                              stage_counter: stage_identifier.getStageCounter()
   end
 
   def stage_identifier_for_locator(stage_locator_string)
@@ -76,7 +76,7 @@ module ApplicationHelper
     tab_with_display_name(name, display_name, options)
   end
 
-  def tab_with_display_name(name, display_name, options={})
+  def tab_with_display_name(name, display_name, options = {})
     options.reverse_merge!(link: :enabled, class: "", anchor_class: "", url: name)
     url = url_for_path(options[:url])
     css_class = "current" if ((@current_tab_name == name) || url.match(/#{url_for}$/))
@@ -123,7 +123,7 @@ module ApplicationHelper
     [on_click_lambda, options]
   end
 
-  def submit_button name, options={}
+  def submit_button name, options = {}
     # DESIGN TODO: this is used for action/submit buttons on environments, pipeline dashboard, etc.  Probably not 100% complete to match the features above
     options = HashWithIndifferentAccess.new(options)
     options.reverse_merge!(type: 'submit')
@@ -134,10 +134,10 @@ module ApplicationHelper
       button_body = image_button(name, options_without_onclick)
     else
       button_body = options[:type] == "select" ?
-        select_button(name, options_without_onclick) :
-        options[:type] == "header_select" ?
-          header_select_button(name, options_without_onclick) :
-          default_button(name, options_without_onclick)
+                      select_button(name, options_without_onclick) :
+                      options[:type] == "header_select" ?
+                        header_select_button(name, options_without_onclick) :
+                        default_button(name, options_without_onclick)
     end
     button_body + lambda_text
   end
@@ -253,7 +253,7 @@ module ApplicationHelper
   end
 
 
-  def render_json(options={})
+  def render_json(options = {})
     options = options.merge({locals: {scope: {}}}) unless options.has_key? :locals
     render(options).to_json
   end
@@ -266,7 +266,7 @@ module ApplicationHelper
     end
     @page_name = controller_name.gsub("/", "_")
     if !flash[:error].nil?
-      @page_name= @page_name + " page_error"
+      @page_name = @page_name + " page_error"
     end
 
     return @page_name
@@ -372,8 +372,8 @@ module ApplicationHelper
     end
 
     function = update.empty? ?
-      "new Ajax.Request(" :
-      "new Ajax.Updater(#{update}, "
+                 "new Ajax.Request(" :
+                 "new Ajax.Updater(#{update}, "
 
     url_options = options[:url]
     url_options = url_options.merge(escape: false) if url_options.is_a?(Hash)
@@ -399,7 +399,7 @@ module ApplicationHelper
     "</form>".html_safe
   end
 
-  def check_for_cancelled_contents(state, options={})
+  def check_for_cancelled_contents(state, options = {})
     # DESIGN TODO: this is used to see if an X should be placed inside an element (usually a status bar, or color_code block)
     if state.to_s == 'Cancelled'
       contents = "<img src='#{image_path('g9/stage_bar_cancelled_icon.png')}' alt='' />"
@@ -409,7 +409,7 @@ module ApplicationHelper
     return contents.html_safe
   end
 
-  def content_wrapper_tag(options={})
+  def content_wrapper_tag(options = {})
     "<div class=\"content_wrapper_outer\"><div class=\"content_wrapper_inner\">".html_safe
   end
 
@@ -423,7 +423,7 @@ module ApplicationHelper
     end
   end
 
-  def to_operation_result_json(localized_result, success_msg=localized_result.message())
+  def to_operation_result_json(localized_result, success_msg = localized_result.message())
     if localized_result.isSuccessful()
       {success: success_msg}.to_json
     else
@@ -457,7 +457,7 @@ module ApplicationHelper
     if (required != nil)
       text = text + "<span class='asterisk'>#{'*'}</span>"
     end
-    text = text + "<span class='hint'>"+hint+"</span>"
+    text = text + "<span class='hint'>" + hint + "</span>"
     form.label(name, text.html_safe)
   end
 
@@ -551,6 +551,7 @@ module ApplicationHelper
   end
 
   private
+
   def show_analytics_only_for_admins?
     system_environment.enableAnalyticsOnlyForAdmins
   end
@@ -598,9 +599,8 @@ module ApplicationHelper
     "/go/api/stages/#{options[:pipeline_name]}/#{options[:pipeline_counter]}/#{options[:stage_name]}/run"
   end
 
-  def cancel_stage_path(options)
-    options = options.with_indifferent_access
-    options.reverse_merge!(params.slice(:pipeline_name, :pipeline_counter, :stage_name, :stage_counter))
-    "/go/api/stages/#{options[:pipeline_name]}/#{options[:pipeline_counter]}/#{options[:stage_name]}/#{options[:stage_counter]}/cancel"
+  def cancel_stage_path(pipeline_instance_modal)
+    active_stage = pipeline_instance_modal.activeStage
+    "/go/api/stages/#{active_stage.getPipelineName}/#{active_stage.getPipelineCounter}/#{active_stage.getName}/#{active_stage.getCounter}/cancel"
   end
 end

@@ -46,7 +46,14 @@ export function el(tag: HTMLElement | string, options: any, children: Child | Ch
 }
 
 export function replaceWith<T extends ChildNode>(src: T, dst: T): T {
-  src.replaceWith(dst);
+  if ("function" === typeof src.replaceWith) {
+    src.replaceWith(dst);
+  } else {
+    if (src.parentElement) {
+      src.parentElement.replaceChild(dst, src);
+    }
+  }
+
   return dst;
 }
 

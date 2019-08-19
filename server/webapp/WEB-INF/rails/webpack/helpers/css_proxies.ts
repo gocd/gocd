@@ -22,14 +22,23 @@ type Partial<T> = { [P in keyof T]?: maybeString }; // represents a subset of at
  * and applies an arbitrary lambda transformation to a given CSS className.
  */
 export function remapCss<T>(obj: T, transform: (key: keyof T) => maybeString): T {
-  return new Proxy(obj, {
-    get: (target: any, key: (keyof T)) => {
-      if (key in target) {
-        return transform(key);
+  if ("function" === typeof Proxy) {
+    return new Proxy(obj, {
+      get: (target: any, key: (keyof T)) => {
+        if (key in target) {
+          return transform(key);
+        }
+        throw new ReferenceError(`Cannot find classname ${key}`);
       }
-      throw new ReferenceError(`Cannot find classname ${key}`);
-    }
-  });
+    });
+  }
+
+  return (Object.keys(obj) as Array<keyof T>).reduce((result, key) => {
+    Object.defineProperty(result, key, {
+      get() { return transform(key); }
+    });
+    return result;
+  }, {} as T);
 }
 
 /**

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {closest, getClipboardAsPlaintext, insertTextFromClipboard, makeEvent, matches} from "helpers/compat";
 import {asSelector} from "helpers/css_proxies";
 import {el, empty, isHtmlElement, replaceWith} from "helpers/dom";
 import {MithrilViewComponent} from "jsx/mithril-component";
@@ -77,7 +78,7 @@ export class TaskEditor extends MithrilViewComponent<Attrs> {
       self.saveCommand(EDITOR, true);
 
       // allow click through for button actions
-      if (isMouseEvent(e) && isHtmlElement(e.relatedTarget) && e.relatedTarget.closest(CLICKABLE_SELECTORS)) {
+      if (isMouseEvent(e) && isHtmlElement(e.relatedTarget) && closest(e.relatedTarget, CLICKABLE_SELECTORS)) {
         e.relatedTarget.click();
       }
     });
@@ -103,13 +104,22 @@ export class TaskEditor extends MithrilViewComponent<Attrs> {
 
       const el = e.target as HTMLElement;
 
-      if (el.matches(`${sel.task},${sel.task} *`)) {
+      if (matches(el, `${sel.task},${sel.task} *`)) {
         e.stopPropagation();
 
-        self.editCommand(el.closest(sel.task) as HTMLElement, EDITOR);
+        self.editCommand(closest(el, sel.task) as HTMLElement, EDITOR);
       } else {
         EDITOR.focus();
       }
+    });
+
+    // intercept paste and remove formatting
+    term.addEventListener("paste", (e) => {
+      e.preventDefault();
+
+      insertTextFromClipboard(
+        getClipboardAsPlaintext(e)
+      );
     });
   }
 
@@ -183,7 +193,7 @@ export class TaskEditor extends MithrilViewComponent<Attrs> {
 
   private writeTasksToModel(tasks: NodeListOf<Element>) {
     this.model!(_.map(tasks, TaskEditor.toTask));
-    this.terminal!.dispatchEvent(new Event("change", { bubbles: true, cancelable: true }));
+    this.terminal!.dispatchEvent(makeEvent("change", true, true));
   }
 }
 

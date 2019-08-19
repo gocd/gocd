@@ -1469,7 +1469,7 @@ public class GoConfigMigrationIntegrationTest {
                         "  </server>" +
                         "</cruise>";
 
-        final String migratedXml = migrateXmlString(configXml, 124, 125);
+        final String migratedXml = migrateXmlString(configXml, 124);
         XmlAssert.assertThat(migratedXml).and(expectedConfig).areIdentical();
     }
 
@@ -1491,7 +1491,7 @@ public class GoConfigMigrationIntegrationTest {
                         "  </server>" +
                         "</cruise>";
 
-        final String migratedXml = migrateXmlString(configXml, 124, 125);
+        final String migratedXml = migrateXmlString(configXml, 124);
         XmlAssert.assertThat(migratedXml).and(expectedConfig).areIdentical();
     }
 
@@ -1527,7 +1527,7 @@ public class GoConfigMigrationIntegrationTest {
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
                         "<cruise schemaVersion=\"126\">" + originalConfig + "</cruise>";
 
-        final String migratedXml = migrateXmlString(configXml, 125, 126);
+        final String migratedXml = migrateXmlString(configXml, 125);
         XmlAssert.assertThat(migratedXml).and(expectedConfig).areIdentical();
     }
 

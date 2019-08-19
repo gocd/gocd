@@ -16,8 +16,10 @@
 
 package com.thoughtworks.go.listener;
 
-public interface DatabaseEntityChangeListener<T> {
-    public abstract void onBulkEntityChange();
+import java.util.List;
 
-    public abstract void onEntityChange(T entity);
+public interface DatabaseEntityChangeListener<T> {
+    void bulkEntitiesChanged(List<T> changedEntities);
+    void bulkEntitiesDeleted(List<String> uuids);
+    void entityChanged(T changedEntity);
 }

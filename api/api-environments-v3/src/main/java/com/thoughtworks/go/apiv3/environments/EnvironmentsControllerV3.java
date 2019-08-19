@@ -60,8 +60,6 @@ import static spark.Spark.*;
 
 @Component
 public class EnvironmentsControllerV3 extends ApiController implements SparkSpringController, CrudController<EnvironmentConfig> {
-
-    private static final String SEP_CHAR = "/";
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final EnvironmentConfigService environmentConfigService;
     private final EntityHashingService entityHashingService;
@@ -93,8 +91,6 @@ public class EnvironmentsControllerV3 extends ApiController implements SparkSpri
             put(Routes.Environments.NAME, mimeType, this::update);
             patch(Routes.Environments.NAME, mimeType, this::partialUpdate);
             delete(Routes.Environments.NAME, mimeType, this::remove);
-
-            exception(HttpException.class, this::httpException);
         });
     }
 
@@ -176,10 +172,9 @@ public class EnvironmentsControllerV3 extends ApiController implements SparkSpri
 
         if (parsingErrors.isPresent()) {
             EnvironmentVariablesConfig configs = new EnvironmentVariablesConfig(req.getEnvironmentVariablesToAdd());
-            String errorMessage = MessageJson.create("Error parsing patch request",
-                    writer -> toJSONArray(writer, "environment_variables", configs));
             response.status(422);
-            return errorMessage;
+            return MessageJson.create("Error parsing patch request",
+                    writer -> toJSONArray(writer, "environment_variables", configs));
         }
 
         List<String> dummyAgentList = new ArrayList<>();

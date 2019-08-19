@@ -581,7 +581,6 @@ public class ScheduleServiceIntegrationTest {
         assertThat(serverHealthState.getMessage(), is("Cannot schedule ft as the previous stage dev has Failed!"));
     }
 
-    private AgentIdentifier agent(AgentConfig agentConfig) {
     private AgentIdentifier agent(Agent agent) {
         agentService.initialize();
         agentService.approve(agent.getUuid());

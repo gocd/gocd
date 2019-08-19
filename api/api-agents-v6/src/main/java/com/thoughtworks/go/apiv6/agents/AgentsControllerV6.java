@@ -100,8 +100,6 @@ public class AgentsControllerV6 extends ApiController implements SparkSpringCont
             patch("", mimeType, this::bulkUpdate);
             delete(Routes.AgentsAPI.UUID, mimeType, this::deleteAgent);
             delete("", mimeType, this::bulkDeleteAgents);
-
-            exception(HttpException.class, this::httpException);
         });
     }
 

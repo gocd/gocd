@@ -70,9 +70,7 @@ public class InternalEnvironmentsControllerV1 extends ApiController implements S
     }
 
     public String index(Request request, Response response) throws IOException {
-        List<String> environmentNames = environmentConfigService.environmentNames()
-                .stream().map(CaseInsensitiveString::toString).collect(Collectors.toList());
-        return JsonOutputWriter.OBJECT_MAPPER.writeValueAsString(environmentNames);
+        return JsonOutputWriter.OBJECT_MAPPER.writeValueAsString(environmentConfigService.getKnownEnvironmentNames());
     }
 
     public String indexMergedEnvironments(Request request, Response response) throws IOException {

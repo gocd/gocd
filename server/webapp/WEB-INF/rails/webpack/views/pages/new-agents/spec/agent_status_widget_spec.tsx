@@ -78,6 +78,8 @@ describe("AgentStatusWidget", () => {
   });
 
   function mount(agent: Agent) {
-    helper.mount(() => <AgentStatusWidget agent={agent} buildDetailsForAgent={buildDetailsForAgent}/>);
+    helper.mount(() => <AgentStatusWidget agent={agent}
+                                          buildDetailsForAgent={buildDetailsForAgent}
+                                          cssClasses=""/>);
   }
 });

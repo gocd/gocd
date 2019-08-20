@@ -19,6 +19,7 @@ $build_details_z_index: 2;
 $building_bg_color: #ffeda0;
 $enable_count_bg_color: #50e3c2;
 $disable_count_bg_color: #ee6161;
+$disabled-text-color: #999;
 .agent-status {
   @include icon-after($type: $fa-var-caret-down, $color: $icon-color);
   position:        relative;
@@ -84,6 +85,11 @@ $disable_count_bg_color: #ee6161;
 
 .building {
   background: $building_bg_color;
+}
+
+.disabled-agent {
+  color:      $disabled-text-color;
+  font-style: italic;
 }
 
 .header-panel {

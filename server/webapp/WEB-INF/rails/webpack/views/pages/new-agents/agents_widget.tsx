@@ -17,7 +17,7 @@
 import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
-import {Agent, Agents} from "models/new-agent/agents";
+import {Agent, AgentConfigState, Agents} from "models/new-agent/agents";
 import {FlashMessage, FlashMessageModelWithTimeout} from "views/components/flash_message";
 import {CheckboxField} from "views/components/forms/input_fields";
 import {Table} from "views/components/table";
@@ -44,27 +44,29 @@ export class AgentsWidget extends MithrilViewComponent<AgentsWidgetAttrs> {
     }
 
     const tableData = vnode.attrs.agents.list().map((agent: Agent) => {
+      const tableCellClasses = this.tableCellClasses(agent);
       return [
         <div key={agent.uuid}
-             class={classnames(style.tableCell, style.agentCheckbox, {[style.building]: agent.isBuilding()})}>
+             class={classnames(tableCellClasses, style.agentCheckbox)}>
           <CheckboxField dataTestId={`agent-checkbox-of-${agent.uuid}`}
                          required={true}
                          property={agent.selected}/>
         </div>,
-        <div class={classnames(style.tableCell, {[style.building]: agent.isBuilding()})}
+        <div class={tableCellClasses}
              data-test-id={`agent-hostname-of-${agent.uuid}`}>{agent.hostname}</div>,
-        <div class={classnames(style.tableCell, {[style.building]: agent.isBuilding()})}
+        <div class={tableCellClasses}
              data-test-id={`agent-sandbox-of-${agent.uuid}`}>{agent.sandbox}</div>,
-        <div class={classnames(style.tableCell, {[style.building]: agent.isBuilding()})}
+        <div class={tableCellClasses}
              data-test-id={`agent-operating-system-of-${agent.uuid}`}>{agent.operatingSystem}</div>,
-        <div class={classnames(style.tableCell, {[style.building]: agent.isBuilding()})}
+        <div class={tableCellClasses}
              data-test-id={`agent-ip-address-of-${agent.uuid}`}>{agent.ipAddress}</div>,
-        <AgentStatusWidget agent={agent} buildDetailsForAgent={vnode.attrs.agents.buildDetailsForAgent}/>,
-        <div class={classnames(style.tableCell, {[style.building]: agent.isBuilding()})}
+        <AgentStatusWidget agent={agent} buildDetailsForAgent={vnode.attrs.agents.buildDetailsForAgent}
+                           cssClasses={tableCellClasses}/>,
+        <div class={tableCellClasses}
              data-test-id={`agent-free-space-of-${agent.uuid}`}>{agent.readableFreeSpace()}</div>,
-        <div class={classnames(style.tableCell, {[style.building]: agent.isBuilding()})}
+        <div class={tableCellClasses}
              data-test-id={`agent-resources-of-${agent.uuid}`}>{AgentsWidget.joinOrNoneSpecified(agent.resources)}</div>,
-        <div class={classnames(style.tableCell, {[style.building]: agent.isBuilding()})}
+        <div class={tableCellClasses}
              data-test-id={`agent-environments-of-${agent.uuid}`}>{AgentsWidget.joinOrNoneSpecified(agent.environmentNames())}</div>,
       ];
     });
@@ -94,5 +96,11 @@ export class AgentsWidget extends MithrilViewComponent<AgentsWidgetAttrs> {
 
   private static hideBuildDetails(agents: Agents) {
     agents.buildDetailsForAgent("");
+  }
+
+  private tableCellClasses(agent: Agent) {
+    return classnames(style.tableCell,
+                      {[style.building]: agent.isBuilding()},
+                      {[style.disabledAgent]: agent.agentConfigState === AgentConfigState.Disabled});
   }
 }

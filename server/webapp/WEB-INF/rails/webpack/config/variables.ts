@@ -34,7 +34,6 @@ export function getModules(configOptions: ConfigOptions) {
   const modules = [configOptions.assetsDir, path.join(configOptions.railsRoot, "node_modules")];
   if (!configOptions.production) {
     modules.unshift(path.join(configOptions.railsRoot, "spec", "webpack"));
-    modules.unshift(path.join(configOptions.railsRoot, "spec", "webpack", "patches"));
   }
   return modules;
 }

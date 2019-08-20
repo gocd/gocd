@@ -1504,6 +1504,22 @@ public class BasicCruiseConfig implements CruiseConfig {
         return groups.canDeletePluggableSCMMaterial(scmConfig);
     }
 
+    @Override
+    public List<CaseInsensitiveString> pipelinesAssociatedWithPluggableSCM(SCM scmConfig) {
+        List<CaseInsensitiveString> pipelines = new ArrayList<>();
+        if (scmConfig != null) {
+            for (PipelineConfig pipelineConfig : getAllPipelineConfigs()) {
+                for (PluggableSCMMaterialConfig pluggableSCMMaterialConfig : pipelineConfig.pluggableSCMMaterialConfigs()) {
+                    if (pluggableSCMMaterialConfig.getScmId().equals(scmConfig.getId())) {
+                        pipelines.add(pipelineConfig.getName());
+                        break;
+                    }
+                }
+            }
+        }
+        return pipelines;
+    }
+
     public List<PipelineConfig> getAllLocalPipelineConfigs() {
         return strategy.getAllLocalPipelineConfigs(false);
     }

@@ -16,7 +16,9 @@
 package com.thoughtworks.go.server.service.materials;
 
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.update.CreateSCMConfigCommand;
+import com.thoughtworks.go.config.update.DeleteSCMConfigCommand;
 import com.thoughtworks.go.config.update.UpdateSCMConfigCommand;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.scm.SCM;
@@ -129,6 +131,14 @@ public class PluggableScmService {
     public void updatePluggableScmMaterial(final Username currentUser, final SCM globalScmConfig, final LocalizedOperationResult result, String md5) {
         UpdateSCMConfigCommand command = new UpdateSCMConfigCommand(globalScmConfig, this, goConfigService, currentUser, result, md5, entityHashingService);
         update(currentUser, result, command);
+    }
+
+    public void deletePluggableSCM(final Username currentUser, final SCM globalScmConfig, final LocalizedOperationResult result) {
+        DeleteSCMConfigCommand command = new DeleteSCMConfigCommand(globalScmConfig, this,  result, currentUser, goConfigService);
+        update(currentUser, result, command);
+        if (result.isSuccessful()) {
+            result.setMessage(EntityType.SCM.deleteSuccessful(globalScmConfig.getName()));
+        }
     }
 
     private void update(Username currentUser, LocalizedOperationResult result, EntityConfigUpdateCommand command) {

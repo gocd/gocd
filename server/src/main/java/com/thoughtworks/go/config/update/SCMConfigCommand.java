@@ -25,6 +25,7 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.materials.PluggableScmService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
+import com.thoughtworks.go.serverhealth.HealthStateType;
 
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 
@@ -32,7 +33,7 @@ public abstract class SCMConfigCommand implements EntityConfigUpdateCommand<SCM>
     protected final SCM globalScmConfig;
     protected final LocalizedOperationResult result;
     private final PluggableScmService pluggableScmService;
-    private SCM preprocessedGlobalScmConfig;
+    protected SCM preprocessedGlobalScmConfig;
     protected final GoConfigService goConfigService;
     protected final Username currentUser;
 
@@ -80,5 +81,16 @@ public abstract class SCMConfigCommand implements EntityConfigUpdateCommand<SCM>
             return false;
         }
         return true;
+    }
+
+    SCM findSCM(CruiseConfig cruiseConfig) {
+        SCMs scms = cruiseConfig.getSCMs();
+        SCM existingSCM = scms.find(globalScmConfig.getSCMId());
+        if (existingSCM == null) {
+            result.notFound(EntityType.SCM.notFoundMessage(globalScmConfig.getSCMId()), HealthStateType.notFound());
+            throw new NullPointerException(String.format("The pluggable scm material with id '%s' is not found.", globalScmConfig.getSCMId()));
+        } else {
+            return existingSCM;
+        }
     }
 }

@@ -898,7 +898,7 @@ task newSPA {
       def contents =
         """
           import {MithrilViewComponent} from "jsx/mithril-component";
-          import * as m from "mithril";
+          import m from "mithril";
           import {${entityName}} from "models/${spaName}/${spaName}";
 
           interface Attrs {

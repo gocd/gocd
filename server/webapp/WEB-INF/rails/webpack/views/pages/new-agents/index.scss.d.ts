@@ -5,3 +5,6 @@ export const buildDetails: string;
 export const show: string;
 export const searchField: string;
 export const agentCheckbox: string;
+export const agentsTable: string;
+export const tableCell: string;
+export const building: string;

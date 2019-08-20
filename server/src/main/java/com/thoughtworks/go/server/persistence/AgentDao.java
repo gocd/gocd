@@ -23,6 +23,7 @@ import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.util.UuidGenerator;
 import com.thoughtworks.go.util.TriState;
+import lombok.*;
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,10 +36,13 @@ import org.springframework.transaction.support.TransactionSynchronizationAdapter
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -52,11 +56,13 @@ public class AgentDao extends HibernateDaoSupport {
     private final TransactionSynchronizationManager synchronizationManager;
     private final SessionFactory sessionFactory;
     private final UuidGenerator uuidGenerator;
+    private final AgentMutexes agentMutexes = new AgentMutexes();
 
     private Set<DatabaseEntityChangeListener<Agent>> agentEntityChangeListenerSet = new HashSet<>();
 
     @Autowired
-    public AgentDao(SessionFactory sessionFactory, GoCache cache, TransactionTemplate transactionTemplate, TransactionSynchronizationManager transactionSynchronizationManager, UuidGenerator uuidGenerator) {
+    public AgentDao(SessionFactory sessionFactory, GoCache cache, TransactionTemplate transactionTemplate,
+                    TransactionSynchronizationManager transactionSynchronizationManager, UuidGenerator uuidGenerator) {
         this.sessionFactory = sessionFactory;
         this.cache = cache;
         this.transactionTemplate = transactionTemplate;
@@ -79,13 +85,16 @@ public class AgentDao extends HibernateDaoSupport {
         Agent agent = (Agent) cache.get(key);
 
         if (agent == null) {
-            synchronized (key) {
+            List<String> uuids = singletonList(uuid);
+            AgentMutex mutex = agentMutexes.acquire(uuids);
+            synchronized (mutex) {
                 agent = (Agent) cache.get(key);
                 if (agent != null) {
                     return agent;
                 }
                 agent = fetchAgentFromDBByUUID(uuid);
                 cache.put(key, agent);
+                agentMutexes.release(uuids, mutex);
             }
         }
 
@@ -96,7 +105,9 @@ public class AgentDao extends HibernateDaoSupport {
         final String uuid = agentIdentifier.getUuid();
         final String key = agentCacheKey(uuid);
 
-        synchronized (key) {
+        List<String> uuids = singletonList(agentIdentifier.getUuid());
+        AgentMutex mutex = agentMutexes.acquire(uuids);
+        synchronized (mutex) {
             transactionTemplate.execute(new TransactionCallbackWithoutResult() {
                 @Override
                 protected void doInTransactionWithoutResult(TransactionStatus status) {
@@ -112,6 +123,7 @@ public class AgentDao extends HibernateDaoSupport {
                     registerCommitCallback(() -> clearCacheAndNotifyAgentEntityChangeListeners(key, updatedAgent));
                 }
             });
+            agentMutexes.release(uuids, mutex);
         }
     }
 
@@ -132,27 +144,41 @@ public class AgentDao extends HibernateDaoSupport {
     }
 
     public List<Agent> getAgentsByUUIDs(List<String> uuids) {
-        return ((List<Agent>) transactionTemplate.execute((TransactionCallback) transactionStatus -> {
-            Query query = sessionFactory.getCurrentSession().createQuery("FROM Agent where uuid in :uuids and deleted = false");
-            query.setCacheable(true);
-            query.setParameterList("uuids", uuids);
-            return query.list();
-        }));
+        AgentMutex mutex = agentMutexes.acquire(uuids);
+        synchronized (mutex) {
+            List<Agent> agents = (List<Agent>) transactionTemplate.execute((TransactionCallback) transactionStatus -> {
+                Query query = sessionFactory.getCurrentSession().createQuery("FROM Agent where uuid in :uuids and deleted = false");
+                query.setCacheable(true);
+                query.setParameterList("uuids", uuids);
+                return query.list();
+            });
+            agentMutexes.release(uuids, mutex);
+            return agents;
+        }
     }
 
     public Agent fetchAgentFromDBByUUID(final String uuid) {
-        return (Agent) transactionTemplate.execute((TransactionCallback) transactionStatus -> {
-            Query query = sessionFactory.getCurrentSession().createQuery("FROM Agent where uuid = :uuid and deleted = false");
-            query.setCacheable(true);
-            query.setParameter("uuid", uuid);
-            return query.uniqueResult();
-        });
+        List<String> uuids = singletonList(uuid);
+        AgentMutex mutex = agentMutexes.acquire(uuids);
+        synchronized (mutex) {
+            Agent agent = (Agent) transactionTemplate.execute((TransactionCallback) transactionStatus -> {
+                Query query = sessionFactory.getCurrentSession().createQuery("FROM Agent where uuid = :uuid and deleted = false");
+                query.setCacheable(true);
+                query.setParameter("uuid", uuid);
+                return query.uniqueResult();
+            });
+            agentMutexes.release(uuids, mutex);
+            return agent;
+        }
     }
 
     public void saveOrUpdate(Agent agent) {
         final String key = agentCacheKey(agent.getUuid());
         updateAgentIdFromDBIfAgentDoesNotHaveAnIdAndAgentExistInDB(agent);
-        synchronized (key) {
+        List<String> uuids = singletonList(agent.getUuid());
+        AgentMutex mutex = agentMutexes.acquire(uuids);
+
+        synchronized (mutex) {
             transactionTemplate.execute(new TransactionCallbackWithoutResult() {
                 @Override
                 protected void doInTransactionWithoutResult(TransactionStatus status) {
@@ -166,6 +192,7 @@ public class AgentDao extends HibernateDaoSupport {
                     sessionFactory.getCurrentSession().saveOrUpdate(agent);
                 }
             });
+            agentMutexes.release(uuids, mutex);
         }
     }
 
@@ -198,7 +225,8 @@ public class AgentDao extends HibernateDaoSupport {
     }
 
     public void disableAgents(final List<String> uuids) {
-        synchronized (uuids) {
+        AgentMutex mutex = agentMutexes.acquire(uuids);
+        synchronized (mutex) {
             transactionTemplate.execute(new TransactionCallbackWithoutResult() {
                 @Override
                 protected void doInTransactionWithoutResult(TransactionStatus status) {
@@ -211,11 +239,14 @@ public class AgentDao extends HibernateDaoSupport {
                     registerCommitCallbackToClearCacheAndNotifyBulkChangeListeners(synchronizationManager, uuids);
                 }
             });
+            agentMutexes.release(uuids, mutex);
         }
     }
 
     public void bulkUpdateAttributes(List<Agent> agents, TriState state) {
-        synchronized (agents) {
+        List<String> uuids = agents.stream().map(agent -> agent.getUuid()).collect(toList());
+        AgentMutex mutex = agentMutexes.acquire(uuids);
+        synchronized (mutex) {
             transactionTemplate.execute(new TransactionCallbackWithoutResult() {
                 @Override
                 protected void doInTransactionWithoutResult(TransactionStatus status) {
@@ -224,11 +255,13 @@ public class AgentDao extends HibernateDaoSupport {
                     registerCommitCallbackToClearCacheAndNotifyBulkChangeListeners(synchronizationManager, uuids);
                 }
             });
+            agentMutexes.release(uuids, mutex);
         }
     }
 
     public void bulkSoftDelete(List<String> uuids) {
-        synchronized (uuids) {
+        AgentMutex mutex = agentMutexes.acquire(uuids);
+        synchronized (mutex) {
             transactionTemplate.execute(new TransactionCallbackWithoutResult() {
                 @Override
                 protected void doInTransactionWithoutResult(TransactionStatus status) {
@@ -240,6 +273,7 @@ public class AgentDao extends HibernateDaoSupport {
                     registerCommitCallbackToClearCacheAndNotifyBulkDeleteListeners(synchronizationManager, uuids);
                 }
             });
+            agentMutexes.release(uuids, mutex);
         }
     }
 
@@ -283,5 +317,58 @@ public class AgentDao extends HibernateDaoSupport {
      */
     public void clearListeners() {
         this.agentEntityChangeListenerSet.clear();
+    }
+}
+
+class AgentMutexes {
+    private Map<String, AgentMutex> uuidToMutexMap = new ConcurrentHashMap<>();
+
+    @Override
+    public String toString() {
+        return "AgentMutexes ( uuidToMutexMap=" + uuidToMutexMap + " )";
+    }
+
+    public synchronized void release(List<String> uuids, AgentMutex mutex) {
+        mutex.setUsedByCount(mutex.getUsedByCount() - 1);
+        if (mutex.getUsedByCount() <= 0) {
+            uuids.forEach(uuid -> uuidToMutexMap.remove(uuid));
+            uuidToMutexMap.entrySet().removeIf(entry -> entry.getValue().equals(mutex));
+        }
+    }
+
+    public synchronized AgentMutex acquire(List<String> uuids) {
+        return uuids.stream()
+                .filter(uuid -> uuidToMutexMap.containsKey(uuid))
+                .map(this::getExistingMutexWithIncrementedUsedByCount)
+                .findAny()
+                .orElseGet(() -> createNewMutex(uuids));
+    }
+
+    private AgentMutex createNewMutex(List<String> uuids) {
+        String mutexId = "Mutex-" + new UuidGenerator().randomUuid();
+        AgentMutex mutex = new AgentMutex(mutexId, 1);
+        uuids.forEach(uuid -> uuidToMutexMap.putIfAbsent(uuid, mutex));
+        return mutex;
+    }
+
+    private AgentMutex getExistingMutexWithIncrementedUsedByCount(String uuid) {
+        AgentMutex mutex = uuidToMutexMap.get(uuid);
+        mutex.setUsedByCount(mutex.getUsedByCount() + 1);
+        return mutex;
+    }
+}
+
+@Getter
+@Setter
+@EqualsAndHashCode
+@NoArgsConstructor
+@AllArgsConstructor
+class AgentMutex {
+    private String id;
+    private long usedByCount;
+
+    @Override
+    public synchronized String toString() {
+        return "Agent Mutex { id=[" + id + "]" + ", usedByCount=[" + usedByCount + "] }";
     }
 }

@@ -368,7 +368,7 @@ export class KitchenSink extends MithrilViewComponent<null> {
         Button</Buttons.Primary>);
     return new Wizard()
       .addStep(new SampleStep("1. Cluster Profile", <div>This is an cluster profile.</div>))
-      .addStep(new SampleStep("2. Elastic Profile", <div>This is an elastic profile.</div>))
+      .addStep(new SampleStep("2. Elastic Profile", generateLoremIpsmeParagraphs(200)))
       .addStep(stepWithCustomFooter)
       .render();
   }
@@ -494,4 +494,13 @@ class DynamicSuggestionProvider extends SuggestionProvider {
       resolve([]);
     });
   }
+}
+
+function generateLoremIpsmeParagraphs(count: number): m.Children {
+  const paragraphs = [];
+  for (let i = 0; i < count; i++) {
+    paragraphs.push(<p>{reallyLongText}</p>);
+  }
+
+  return paragraphs;
 }

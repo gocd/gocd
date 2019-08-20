@@ -43,12 +43,12 @@ export abstract class Step {
   }
 }
 
-export class Wizard extends MithrilViewComponent<{}> {
+export class Wizard extends MithrilViewComponent {
   public id: string                         = `modal-${uuid4()}`;
   private steps: Step[]                     = [];
   private selectedStepIndex: Stream<number> = Stream(0);
 
-  view(vnode: m.Vnode<{}>): m.Vnode<{}> {
+  view(vnode: m.Vnode): m.Vnode {
     const selectedStep = this.steps[this.selectedStepIndex()];
     const footer       = selectedStep!.footer(this);
     return (<div class={styles.wizard}>

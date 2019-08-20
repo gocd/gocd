@@ -32,14 +32,14 @@ describe("AgentStatusWidget", () => {
   it("should render agent status", () => {
     const agent = Agent.fromJSON(AgentsTestData.disabledBuildingAgent());
 
-    mount(agent, buildDetailsForAgent);
+    mount(agent);
 
     expect(helper.byTestId(`agent-status-of-${agent.uuid}`)).toContainText("Disabled (Building)");
   });
 
   it("should show a hyperlink when agent is building", () => {
     const agent = Agent.fromJSON(AgentsTestData.buildingAgent());
-    mount(agent, buildDetailsForAgent);
+    mount(agent);
 
     const statusCell = helper.byTestId(`agent-status-of-${agent.uuid}`);
     expect(helper.q("a", statusCell)).toContainText("Building");
@@ -57,7 +57,7 @@ describe("AgentStatusWidget", () => {
 
   it("should show build details info on click of status", () => {
     const agent = Agent.fromJSON(AgentsTestData.buildingAgent());
-    mount(agent, buildDetailsForAgent);
+    mount(agent);
     expect(helper.byTestId(`agent-build-details-of-${agent.uuid}`)).not.toBeVisible();
 
     helper.click(helper.byTestId(`agent-status-text-${agent.uuid}`));
@@ -67,7 +67,7 @@ describe("AgentStatusWidget", () => {
 
   it("should hide the build details when clicked on status twice", () => {
     const agent = Agent.fromJSON(AgentsTestData.buildingAgent());
-    mount(agent, buildDetailsForAgent);
+    mount(agent);
     expect(helper.byTestId(`agent-build-details-of-${agent.uuid}`)).not.toBeVisible();
 
     helper.click(helper.byTestId(`agent-status-text-${agent.uuid}`));
@@ -77,19 +77,7 @@ describe("AgentStatusWidget", () => {
     expect(helper.byTestId(`agent-build-details-of-${agent.uuid}`)).not.toBeVisible();
   });
 
-  // it("should hide the build details when clicked outside", () => {
-  //   const agent  = Agent.fromJSON(AgentsTestData.buildingAgent());
-  //   const agents = new Agents([agent]);
-  //   mount(agents);
-  //   helper.click(helper.byTestId(`agent-status-text-${agent.uuid}`));
-  //   expect(helper.byTestId(`agent-build-details-of-${agent.uuid}`)).toBeVisible();
-  //
-  //   helper.click(helper.byTestId(`agent-hostname-of-${agent.uuid}`));
-  //
-  //   expect(helper.byTestId(`agent-build-details-of-${agent.uuid}`)).not.toBeVisible();
-  // });
-
-  function mount(agent: Agent, buildDetailsForAgent: Stream<string>) {
+  function mount(agent: Agent) {
     helper.mount(() => <AgentStatusWidget agent={agent} buildDetailsForAgent={buildDetailsForAgent}/>);
   }
 });

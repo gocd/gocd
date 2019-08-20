@@ -63,7 +63,7 @@ export class AgentsWidget extends MithrilViewComponent<AgentsWidgetAttrs> {
       ];
     });
 
-    return <div class={style.agentsTable}>
+    return <div class={style.agentsTable} onclick={AgentsWidget.hideBuildDetails.bind(this, vnode.attrs.agents)}>
       <KeyValuePair inline={true} data={new Map(
         [
           ["Total", vnode.attrs.agents.count()],
@@ -107,5 +107,9 @@ export class AgentsWidget extends MithrilViewComponent<AgentsWidgetAttrs> {
     } else {
       return (<em>none specified</em>);
     }
+  }
+
+  private static hideBuildDetails(agents: Agents) {
+    agents.buildDetailsForAgent("");
   }
 }

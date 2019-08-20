@@ -1,0 +1,121 @@
+/*
+ * Copyright 2019 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+@import "../../global/common";
+
+$c-dropdown_height: 34px;
+$c-dropdown_border-color: #d6e0e2;
+$c-dropdown_text-color: #000;
+$c-dropdown_bg-hover: rgba(0, 0, 0, 0.2);
+
+$c-dropdown-open-z-index: 5;
+$c-dropdown-head-z-index: 2;
+$c-dropdown-arrow-z-index: 6;
+
+$c-dropdown-background: #fff;
+
+.groupby {
+  display:     flex;
+  align-items: Center;
+}
+
+.grouping_label {
+  white-space: nowrap;
+  margin:      0 10px 0 0;
+  display:     inline-block;
+}
+
+%dropdownwidth {
+  min-width: 150px;
+  display:   inherit;
+}
+
+.c-dropdown {
+  @extend %dropdownwidth;
+  position:  relative;
+  font-size: 13px;
+
+  &.open {
+    z-index: $c-dropdown-open-z-index;
+
+    .c-dropdown_body {
+      display: block;
+    }
+  }
+}
+
+.c-dropdown_head {
+  display:       inline-block;
+  position:      relative;
+  z-index:       $c-dropdown-head-z-index;
+  height:        $c-dropdown_height;
+  line-height:   32px;
+  padding:       0 20px 0 15px;
+  border:        1px solid $c-dropdown_border-color;
+  border-radius: 3px;
+  background:    $c-dropdown-background;
+  width:         100%;
+  cursor:        pointer;
+  font-weight:   600;
+  color:         $c-dropdown_text-color;
+
+  .open & {
+    border-radius: 3px 3px 0 0;
+  }
+
+  &:hover, &:active, &:focus, &:visited {
+    color:   $c-dropdown_text-color;
+    outline: none;
+  }
+}
+
+.c-dropdown_body {
+  @extend %dropdownwidth;
+  position:      absolute;
+  border-radius: 0 0 3px 3px;
+  background:    $c-dropdown-background;
+  top:           $c-dropdown_height;
+  display:       none;
+  border:        1px solid $c-dropdown_border-color;
+  border-top:    none;
+  color:         $c-dropdown_text-color;
+}
+
+.c-dropdown_item {
+  text-decoration: none;
+  display:         block;
+  padding:         7px 20px;
+  cursor:          default;
+  color:           $c-dropdown_text-color;
+
+  &:first-child {
+    border: none;
+  }
+
+  &:hover {
+    color:      $c-dropdown_text-color;
+    background: $c-dropdown_bg-hover;
+  }
+}
+
+.c-down-arrow {
+  @include icon-before($type: $fa-var-angle-down);
+  position:  absolute;
+  right:     9px;
+  top:       5px;
+  cursor:    pointer;
+  z-index:   $c-dropdown-arrow-z-index;
+  font-size: 15px;
+}

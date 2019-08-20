@@ -15,63 +15,18 @@
  */
 
 import {bind} from "classnames/bind";
-import {MithrilComponent, MithrilViewComponent} from "jsx/mithril-component";
+import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
-import {Agent, AgentConfigState, Agents, BuildDetails} from "models/new-agent/agents";
+import {Agent, AgentConfigState, Agents} from "models/new-agent/agents";
 import {ButtonGroup} from "views/components/buttons";
 import * as Buttons from "views/components/buttons";
 import {CheckboxField, SearchField} from "views/components/forms/input_fields";
 import {KeyValuePair} from "views/components/key_value_pair";
 import {Table} from "views/components/table";
+import {AgentStatusWidget} from "views/pages/new-agents/agent_status_widget";
 import style from "./index.scss";
-import Stream from "mithril/stream";
 
 const classnames = bind(style);
-
-interface BuildDetailsWidgetAttrs {
-  agent: Agent;
-  buildDetailsForAgent: Stream<string>;
-}
-
-interface BuildDetailsWidgetState {
-  showBuildDetails: boolean;
-}
-
-export class BuildDetailsWidget extends MithrilComponent<BuildDetailsWidgetAttrs, BuildDetailsWidgetState> {
-  oninit(vnode: m.Vnode<BuildDetailsWidgetAttrs, BuildDetailsWidgetState>): any {
-    vnode.state.showBuildDetails = false;
-  }
-
-  view(vnode: m.Vnode<BuildDetailsWidgetAttrs, BuildDetailsWidgetState>) {
-    const agent        = vnode.attrs.agent;
-    const buildDetails = agent.buildDetails as BuildDetails;
-
-    if (!agent.isBuilding()) {
-      return agent.status();
-    }
-
-    return (<div>
-      <a href={"javascript:void(0)"}
-         class={style.agentStatus}
-         data-test-id={`agent-status-text-${agent.uuid}`}
-         onclick={BuildDetailsWidget.toggleBuildDetails.bind(this, vnode, agent.uuid)}>{agent.status()}</a>
-      <ul data-test-id={`agent-build-details-of-${agent.uuid}`}
-          class={classnames(style.buildDetails, {[style.show]: vnode.attrs.buildDetailsForAgent() === agent.uuid})}>
-        <li><a href={buildDetails.pipelineUrl}>Pipeline - {buildDetails.pipelineName}</a></li>
-        <li><a href={buildDetails.stageUrl}>Stage - {buildDetails.stageName}</a></li>
-        <li><a href={buildDetails.jobUrl}>Job - {buildDetails.jobName}</a></li>
-      </ul>
-    </div>);
-  }
-
-  static toggleBuildDetails(vnode: m.Vnode<BuildDetailsWidgetAttrs, BuildDetailsWidgetState>, agentUUID: string) {
-    if (vnode.attrs.buildDetailsForAgent() === agentUUID) {
-      vnode.attrs.buildDetailsForAgent("");
-    } else {
-      vnode.attrs.buildDetailsForAgent(agentUUID);
-    }
-  }
-}
 
 interface AgentsWidgetAttrs {
   agents: Agents;
@@ -98,10 +53,7 @@ export class AgentsWidget extends MithrilViewComponent<AgentsWidgetAttrs> {
              data-test-id={`agent-operating-system-of-${agent.uuid}`}>{agent.operatingSystem}</div>,
         <div class={classnames(style.tableCell, {[style.building]: agent.isBuilding()})}
              data-test-id={`agent-ip-address-of-${agent.uuid}`}>{agent.ipAddress}</div>,
-        <div class={classnames(style.tableCell, {[style.building]: agent.isBuilding()})}
-             data-test-id={`agent-status-of-${agent.uuid}`}>
-          <BuildDetailsWidget agent={agent} buildDetailsForAgent={vnode.attrs.agents.buildDetailsForAgent}/>
-        </div>,
+        <AgentStatusWidget agent={agent} buildDetailsForAgent={vnode.attrs.agents.buildDetailsForAgent}/>,
         <div class={classnames(style.tableCell, {[style.building]: agent.isBuilding()})}
              data-test-id={`agent-free-space-of-${agent.uuid}`}>{agent.readableFreeSpace()}</div>,
         <div class={classnames(style.tableCell, {[style.building]: agent.isBuilding()})}

@@ -42,7 +42,7 @@
     "shellwords-ts": "^2.0.4",
     "underscore.string": "^3.3.5",
     "url-parse": "^1.4.7",
-    "uuid": "^3.3.2"
+    "uuid": "^3.3.3"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0",
@@ -70,7 +70,7 @@
     "@types/jasmine-ajax": "^3.1.40",
     "@types/jasmine-jquery": "^1.5.33",
     "@types/license-checker": "^25.0.0",
-    "@types/lodash": "^4.14.136",
+    "@types/lodash": "^4.14.137",
     "@types/mini-css-extract-plugin": "^0.8.0",
     "@types/mithril": "2.0.0",
     "@types/node": "^12.7.2",
@@ -84,7 +84,7 @@
     "babel-eslint": "^10.0.2",
     "babel-loader": "^8.0.0",
     "cache-loader": "^4.1.0",
-    "css-loader": "^1.0.1",
+    "css-loader": "^3.2.0",
     "eslint": "^6.1.0",
     "eslint-loader": "^2.2.1",
     "eslint-plugin-es5": "^1.4.1",
@@ -108,7 +108,7 @@
     "karma-junit-reporter": "^1.2.0",
     "karma-safari-launcher": "^1.0.0",
     "karma-sourcemap-loader": "^0.3.7",
-    "license-checker": "^24.0.1",
+    "license-checker": "^25.0.1",
     "mini-css-extract-plugin": "^0.8.0",
     "node-sass": "^4.12.0",
     "optimize-css-assets-webpack-plugin": "^5.0.3",
@@ -126,12 +126,11 @@
     "ts-node": "^8.3.0",
     "tslint": "^5.18.0",
     "typescript": "^3.5.3",
-    "typings-for-css-modules-loader": "^1.7.0",
     "unused-files-webpack-plugin": "^3.4.0",
     "upath": "^1.1.2",
     "url-loader": "^2.1.0",
     "webpack": "^4.39.2",
-    "webpack-build-notifier": "^1.0.3",
+    "webpack-build-notifier": "^2.0.0-alpha.3",
     "webpack-cli": "^3.3.7"
   }
 }

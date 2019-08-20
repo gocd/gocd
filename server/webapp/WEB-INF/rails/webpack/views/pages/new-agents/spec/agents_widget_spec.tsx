@@ -101,6 +101,21 @@ describe("NewAgentsWidget", () => {
     assertAgentNotBuilding(agentC);
   });
 
+  it("should hide the build details when clicked outside", () => {
+    const agentA = Agent.fromJSON(AgentsTestData.idleAgent()),
+          agentB = Agent.fromJSON(AgentsTestData.buildingAgent()),
+          agentC = Agent.fromJSON(AgentsTestData.pendingAgent());
+    const agents = new Agents([agentA, agentB, agentC]);
+    mount(agents);
+
+    helper.click(helper.byTestId(`agent-status-text-${agentB.uuid}`));
+    expect(helper.byTestId(`agent-build-details-of-${agentB.uuid}`)).toBeVisible();
+
+    helper.click(helper.byTestId(`agent-hostname-of-${agentA.uuid}`));
+
+    expect(helper.byTestId(`agent-build-details-of-${agentB.uuid}`)).not.toBeVisible();
+  });
+
   describe("Resources", () => {
     it("should list comma separated resources", () => {
       const agent  = Agent.fromJSON(AgentsTestData.agentWithResources(["psql", "firefox", "chrome"]));

@@ -128,7 +128,7 @@ export class ApiResult<T> {
     if (this.successResponse) {
       return this.successResponse.body;
     } else if (this.errorResponse) {
-      throw new Error(this.JSON.parse(errorResponse.body!).message);
+      throw new Error(JSON.parse(this.errorResponse.body!).message);
     } else {
       throw new Error();
     }

@@ -15,14 +15,18 @@
  */
 @import "../../global/common";
 
+$navbar-height:        40px;
+$wizard-height:        calc(100vh - #{$navbar-height});
+$wizard-header-height: 45px;
+$wizard-footer-height: 56px;
 .overlay {
   border:   none;
   position: fixed;
   z-index:  map_get($zindex, 'wizard-overlay');
-  top:      40px;
+  top:      $navbar-height;
   left:     0;
   right:    0;
-  height:   calc(100vh - 40px);
+  height:   $wizard-height;
   display:  flex;
 }
 
@@ -30,36 +34,44 @@
   display:        flex;
   width:          100%;
   background:     $white;
-  height:         calc(100vh - 40px);
+  height:         $wizard-height;
   flex-direction: column;
 }
 
 .wizard-header {
-  max-height:    40px;
-  border-bottom: 3px solid $border-color;
-  display:       flex;
-  align-items:   center;
-  height:        40px;
+  $border-bottom-size: 3px;
+  max-height:          $wizard-header-height - $border-bottom-size;
+  height:              $wizard-header-height - $border-bottom-size;
+  border-bottom:       $border-bottom-size solid $border-color;
+  display:             flex;
+  align-items:         center;
+  position:            fixed;
+  background:          $white;
+  width:               100%;
 }
 
 .wizard-footer {
-  background:      $white;
-  border-top:      1px solid $border-color;
-  height:          40px;
-  padding:         10px 15px;
-  position:        absolute;
+  position:        relative;
   bottom:          0;
-  width:           calc(100% - 30px);
   display:         flex;
   align-items:     center;
   justify-content: flex-end;
+  background:      $white;
+  border-top:      1px solid $border-color;
+  height:          $wizard-footer-height;
+  max-height:      $wizard-footer-height;
+  padding:         10px 15px;
+  flex:            0;
 }
 
 .wizard-body {
+  position:   relative;
+  top:        $wizard-header-height;
   display:    flex;
   padding:    10px 15px;
   background: $primary-bg;
   flex-grow:  1;
+  overflow-y: auto;
 }
 
 .step-header {

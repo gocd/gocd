@@ -26,6 +26,7 @@ const classnames = bind(style);
 interface AgentStatusWidgetAttrs {
   agent: Agent;
   buildDetailsForAgent: Stream<string>;
+  cssClasses: string;
 }
 
 export class AgentStatusWidget extends MithrilComponent<AgentStatusWidgetAttrs> {
@@ -34,10 +35,10 @@ export class AgentStatusWidget extends MithrilComponent<AgentStatusWidgetAttrs> 
     const buildDetails = agent.buildDetails as BuildDetails;
 
     if (!agent.isBuilding()) {
-      return agent.status();
+      return <div class={vnode.attrs.cssClasses}>{agent.status()}</div>;
     }
 
-    return (<div class={classnames(style.tableCell, {[style.building]: agent.isBuilding()})}
+    return (<div class={vnode.attrs.cssClasses}
                  data-test-id={`agent-status-of-${agent.uuid}`}>
       <a href={"javascript:void(0)"}
          class={style.agentStatus}

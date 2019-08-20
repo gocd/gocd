@@ -7,6 +7,7 @@ export const agentCheckbox: string;
 export const agentsTable: string;
 export const tableCell: string;
 export const building: string;
+export const disabledAgent: string;
 export const headerPanel: string;
 export const count: string;
 export const enabled: string;

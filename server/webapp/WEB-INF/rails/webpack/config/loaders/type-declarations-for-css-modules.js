@@ -87,7 +87,7 @@ module.exports = function createTypeDeclarations(content, map, meta) {
     }
   }
 
-  for (const key of cssClassnames) {
+  for (const key of cssClassnames.sort()) {
     typeDecls += `export const ${key}: string;\n`;
   }
 

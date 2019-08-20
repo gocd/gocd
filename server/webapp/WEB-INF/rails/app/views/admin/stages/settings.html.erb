@@ -17,10 +17,10 @@
         <%= error_message_on(@stage, "name", :css_class => "form_error") %>
       </div>
       <div class="form_item_block checkbox_row">
-        <label>Stage Type in stage settings:</label>
+        <label>Stage Type:</label>
         <span class="stage_approval contextual_help has_go_tip_right" title="'On Success' option will automatically schedule the stage after the preceding stage completes successfully. The 'Manual' option will require a user to manually trigger the stage. For the first stage in a pipeline, setting type to 'on success' is the same as checking 'Automatic Pipeline Scheduling' on the pipeline config.">&nbsp;</span>
         <%= f.fields_for com.thoughtworks.go.config.StageConfig::APPROVAL, @stage.approval do |approval| %>
-          <div>
+          <div class="stage_approval_container">
             <%= approval.radio_button com.thoughtworks.go.config.Approval::TYPE, com.thoughtworks.go.config.Approval::SUCCESS, :id => "auto" %>
             <label for="auto">On Success</label>
 
@@ -29,9 +29,8 @@
 
             <div id="div_allow_on_success">
               <%= approval.check_box "allowOnlyOnSuccess", {}, "true", "false" %>
-              <label for="stage_approval_allowOnlyOnSuccess">Allow Only On Success</label>
-
-              <span class="stage_approval_allowOnlyOnSuccess contextual_help has_go_tip_right" title="Only allow stage to be scheduled if the previous stage run is successful.">&nbsp;</span>
+              <label for="stage_approval_allowOnlyOnSuccess">Allow Scheduling Only If Previous Stage Succeed</label>
+              <span class="stage_approval_allowOnlyOnSuccess contextual_help has_go_tip_right" title="If checked, can be manually triggered only if the previous stage run is successful.">&nbsp;</span>
             </div>
 
           </div>

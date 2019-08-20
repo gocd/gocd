@@ -20,12 +20,13 @@ import {Agent, Agents} from "models/new-agent/agents";
 import {AgentsTestData} from "models/new-agent/spec/agents_test_data";
 import {AgentsWidget} from "views/pages/new-agents/agents_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
+import styles from "../index.scss";
 
 describe("NewAgentsWidget", () => {
-  const helper                   = new TestHelper(),
-        onEnable: jasmine.Spy    = jasmine.createSpy("onEnable"),
-        onDisable: jasmine.Spy   = jasmine.createSpy("onDisable"),
-        onDelete: jasmine.Spy    = jasmine.createSpy("onDelete");
+  const helper                 = new TestHelper(),
+        onEnable: jasmine.Spy  = jasmine.createSpy("onEnable"),
+        onDisable: jasmine.Spy = jasmine.createSpy("onDisable"),
+        onDelete: jasmine.Spy  = jasmine.createSpy("onDelete");
 
   let agents: Agents, agentA: Agent, agentB: Agent, agentC: Agent;
 
@@ -86,6 +87,18 @@ describe("NewAgentsWidget", () => {
 
     expect(helper.byTestId("table-body").children).toHaveLength(1);
     assertAgentRow(agentA);
+  });
+
+  it("should highlight building agents", () => {
+    const agentA = Agent.fromJSON(AgentsTestData.idleAgent()),
+          agentB = Agent.fromJSON(AgentsTestData.buildingAgent()),
+          agentC = Agent.fromJSON(AgentsTestData.pendingAgent());
+    const agents = new Agents([agentA, agentB, agentC]);
+    mount(agents);
+
+    assertAgentBuilding(agentB);
+    assertAgentNotBuilding(agentA);
+    assertAgentNotBuilding(agentC);
   });
 
   describe("Resources", () => {
@@ -249,5 +262,25 @@ describe("NewAgentsWidget", () => {
       .toContainText(AgentsWidget.joinOrNoneSpecified(agent.resources) as string);
     expect(helper.byTestId(`agent-environments-of-${agent.uuid}`))
       .toContainText(AgentsWidget.joinOrNoneSpecified(agent.environmentNames()) as string);
+  }
+
+  function assertAgentBuilding(agent: Agent) {
+    expect(helper.byTestId(`agent-hostname-of-${agent.uuid}`)).toHaveClass(styles.building);
+    expect(helper.byTestId(`agent-sandbox-of-${agent.uuid}`)).toHaveClass(styles.building);
+    expect(helper.byTestId(`agent-operating-system-of-${agent.uuid}`)).toHaveClass(styles.building);
+    expect(helper.byTestId(`agent-ip-address-of-${agent.uuid}`)).toHaveClass(styles.building);
+    expect(helper.byTestId(`agent-free-space-of-${agent.uuid}`)).toHaveClass(styles.building);
+    expect(helper.byTestId(`agent-resources-of-${agent.uuid}`)).toHaveClass(styles.building);
+    expect(helper.byTestId(`agent-environments-of-${agent.uuid}`)).toHaveClass(styles.building);
+  }
+
+  function assertAgentNotBuilding(agent: Agent) {
+    expect(helper.byTestId(`agent-hostname-of-${agent.uuid}`)).not.toHaveClass(styles.building);
+    expect(helper.byTestId(`agent-sandbox-of-${agent.uuid}`)).not.toHaveClass(styles.building);
+    expect(helper.byTestId(`agent-operating-system-of-${agent.uuid}`)).not.toHaveClass(styles.building);
+    expect(helper.byTestId(`agent-ip-address-of-${agent.uuid}`)).not.toHaveClass(styles.building);
+    expect(helper.byTestId(`agent-free-space-of-${agent.uuid}`)).not.toHaveClass(styles.building);
+    expect(helper.byTestId(`agent-resources-of-${agent.uuid}`)).not.toHaveClass(styles.building);
+    expect(helper.byTestId(`agent-environments-of-${agent.uuid}`)).not.toHaveClass(styles.building);
   }
 });

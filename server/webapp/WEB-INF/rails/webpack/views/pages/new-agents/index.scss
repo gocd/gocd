@@ -16,7 +16,7 @@
 @import "../../global/common";
 
 $build_details_z_index: 2;
-
+$building_bg_color: #ffeda0;
 .agent-status {
   @include icon-after($type: $fa-var-caret-down, $color: $icon-color);
   position:        relative;
@@ -72,3 +72,20 @@ $build_details_z_index: 2;
     height: 12px;
   }
 }
+
+.agents-table {
+  padding: 0;
+
+  table tbody td {
+    padding: 0;
+  }
+
+  table tbody .table-cell {
+    padding: 10px;
+  }
+}
+
+.building {
+  background: $building_bg_color;
+}
+

@@ -68,6 +68,72 @@ describe("AgentHeaderPanel", () => {
     expect(helper.byTestId("key-value-value-disabled")).toHaveText("0");
   });
 
+  describe("Actions", () => {
+    it("should render disabled action buttons when no agent is selected", () => {
+      const agentA = Agent.fromJSON(AgentsTestData.pendingAgent()),
+            agentB = Agent.fromJSON(AgentsTestData.buildingAgent()),
+            agentC = Agent.fromJSON(AgentsTestData.idleAgent());
+      const agents = new Agents([agentA, agentB, agentC]);
+      mount(agents);
+
+      expect(helper.byTestId("delete-agents")).toBeDisabled();
+      expect(helper.byTestId("enable-agents")).toBeDisabled();
+      expect(helper.byTestId("disable-agents")).toBeDisabled();
+    });
+
+    it("should enable the actions when one of the agent is selected", () => {
+      const agentA = Agent.fromJSON(AgentsTestData.pendingAgent()),
+            agentB = Agent.fromJSON(AgentsTestData.buildingAgent()),
+            agentC = Agent.fromJSON(AgentsTestData.idleAgent());
+      const agents = new Agents([agentA, agentB, agentC]);
+      mount(agents);
+
+      expect(helper.byTestId("delete-agents")).toBeDisabled();
+      expect(helper.byTestId("enable-agents")).toBeDisabled();
+      expect(helper.byTestId("disable-agents")).toBeDisabled();
+
+      agentA.selected(true);
+      m.redraw.sync();
+
+      expect(helper.byTestId("delete-agents")).not.toBeDisabled();
+      expect(helper.byTestId("enable-agents")).not.toBeDisabled();
+      expect(helper.byTestId("disable-agents")).not.toBeDisabled();
+    });
+
+    it("should call onDelete on click of delete button", () => {
+      const agentA = Agent.fromJSON(AgentsTestData.pendingAgent());
+      agentA.selected(true);
+      const agents = new Agents([agentA]);
+      mount(agents);
+
+      helper.clickByTestId("delete-agents");
+
+      expect(onDelete).toHaveBeenCalled();
+    });
+
+    it("should call onEnable on click of enable button", () => {
+      const agentA = Agent.fromJSON(AgentsTestData.pendingAgent());
+      agentA.selected(true);
+      const agents = new Agents([agentA]);
+      mount(agents);
+
+      helper.clickByTestId("enable-agents");
+
+      expect(onEnable).toHaveBeenCalled();
+    });
+
+    it("should call onDisable on click of disable button", () => {
+      const agentA = Agent.fromJSON(AgentsTestData.idleAgent());
+      agentA.selected(true);
+      const agents = new Agents([agentA]);
+      mount(agents);
+
+      helper.clickByTestId("disable-agents");
+
+      expect(onDisable).toHaveBeenCalled();
+    });
+  });
+
 
   function mount(agents: Agents) {
     helper.mount(() => <AgentHeaderPanel agents={agents}

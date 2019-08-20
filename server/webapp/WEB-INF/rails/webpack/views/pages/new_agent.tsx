@@ -15,9 +15,11 @@
  */
 
 import {AjaxPoller} from "helpers/ajax_poller";
+import {ApiResult, ErrorResponse} from "helpers/api_request_builder";
 import m from "mithril";
 import {Agents} from "models/new-agent/agents";
 import {AgentsCRUD} from "models/new-agent/agents_crud";
+import {MessageType} from "views/components/flash_message";
 import {AgentsWidget} from "views/pages/new-agents/agents_widget";
 import {Page, PageState} from "views/pages/page";
 
@@ -34,22 +36,28 @@ export class NewAgentPage extends Page<null, State> {
     const self         = this;
     vnode.state.agents = new Agents([]);
 
+
     vnode.state.onEnable = function () {
-      this.agents.enableSelectedAgents().finally(() => {
-        self.fetchData(vnode);
-      });
+      const uuids = this.agents.getSelectedAgentsUUID();
+      AgentsCRUD.agentsToEnable(uuids)
+                .then((result) => self.onResult(result, "Enabled", uuids.length))
+                .then(this.agents.unselectAll.bind(this.agents))
+                .finally(self.fetchData.bind(self, vnode));
     };
 
     vnode.state.onDisable = function () {
-      this.agents.disableSelectedAgents().finally(() => {
-        self.fetchData(vnode);
-      });
+      const uuids = this.agents.getSelectedAgentsUUID();
+      AgentsCRUD.agentsToDisable(uuids)
+                .then((result) => self.onResult(result, "Disabled", uuids.length))
+                .then(this.agents.unselectAll.bind(this.agents))
+                .finally(self.fetchData.bind(self, vnode));
     };
 
-    vnode.state.onDelete    = function () {
-      this.agents.deleteSelectedAgents().finally(() => {
-        self.fetchData(vnode);
-      });
+    vnode.state.onDelete = function () {
+      const uuids = this.agents.getSelectedAgentsUUID();
+      AgentsCRUD.delete(uuids)
+                .then((result) => self.onResult(result, "Deleted", uuids.length))
+                .finally(self.fetchData.bind(self, vnode));
     };
 
     new AjaxPoller({
@@ -62,7 +70,8 @@ export class NewAgentPage extends Page<null, State> {
     return <AgentsWidget agents={vnode.state.agents}
                          onEnable={vnode.state.onEnable.bind(vnode.state)}
                          onDisable={vnode.state.onDisable.bind(vnode.state)}
-                         onDelete={vnode.state.onDelete.bind(vnode.state)}/>;
+                         onDelete={vnode.state.onDelete.bind(vnode.state)}
+                         flashMessage={this.flashMessage}/>;
   }
 
   pageName(): string {
@@ -75,5 +84,21 @@ export class NewAgentPage extends Page<null, State> {
                                      vnode.state.agents.initializeWith(successResponse.body);
                                      this.pageState = PageState.OK;
                                    }, this.setErrorState));
+  }
+
+  private onResult(result: ApiResult<string>, action: string, count: number) {
+    result.do(this.onSuccess.bind(this, action, count), this.onFailure.bind(this));
+  }
+
+  private onSuccess(action: string, count: number) {
+    this.flashMessage.setMessage(MessageType.success, `${action} ${count} ${NewAgentPage.pluralizeAgent(count)}`);
+  }
+
+  private onFailure(errorResponse: ErrorResponse) {
+    this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
+  }
+
+  private static pluralizeAgent(count: number) {
+    return count > 1 ? "agents" : "agent";
   }
 }

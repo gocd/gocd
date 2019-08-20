@@ -16,7 +16,6 @@
 
 import _ = require("lodash");
 import Stream from "mithril/stream";
-import {AgentsCRUD} from "models/new-agent/agents_crud";
 import {TableSortHandler} from "views/components/table";
 
 const filesize = require("filesize");
@@ -288,28 +287,16 @@ export class Agents extends TableSortHandler {
     return this.list().every((agent: Agent) => agent.selected());
   }
 
+  isNoneSelected(): boolean {
+    return !this.list().some((agent: Agent) => agent.selected());
+  }
+
   toggleFilteredAgentsSelection(): void {
     if (this.areAllFilteredAgentsSelected()) {
       this.list().forEach((agent: Agent) => agent.selected(false));
     } else {
       this.list().forEach((agent: Agent) => agent.selected(true));
     }
-  }
-
-  //TODO: should this be on all agents or on filtered list
-  deleteSelectedAgents(): Promise<any> {
-    let agentsUUID: string[] = (this.agentList.filter(agent => agent.selected())).map(agent => agent.uuid);
-    return AgentsCRUD.delete(agentsUUID);
-  }
-
-  enableSelectedAgents(): Promise<any> {
-    let agentsUUID: string[] = (this.agentList.filter(agent => agent.selected())).map(agent => agent.uuid);
-    return AgentsCRUD.agentsToEnable(agentsUUID);
-  }
-
-  disableSelectedAgents(): Promise<any> {
-    let agentsUUID: string[] = (this.agentList.filter(agent => agent.selected())).map(agent => agent.uuid);
-    return AgentsCRUD.agentsToDisable(agentsUUID);
   }
 
   getSortableColumns(): number[] {
@@ -345,6 +332,15 @@ export class Agents extends TableSortHandler {
 
   filterBy(agentConfigState: AgentConfigState) {
     return this.list().filter(agent => agent.agentConfigState === agentConfigState);
+  }
+
+  getSelectedAgentsUUID(): string[] {
+    return this.list().filter(agent => agent.selected())
+               .map(agent => agent.uuid);
+  }
+
+  unselectAll(){
+    this.list().forEach(agent => agent.selected(false));
   }
 
   private getSortableColumnsAssociates(): string[] {

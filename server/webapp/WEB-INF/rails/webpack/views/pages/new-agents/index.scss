@@ -110,4 +110,9 @@ $disable_count_bg_color: #ee6161;
   .disabled {
     color: $disable_count_bg_color;
   }
+
+  .search-field {
+    display:     inline-flex;
+    margin-left: 30px;
+  }
 }

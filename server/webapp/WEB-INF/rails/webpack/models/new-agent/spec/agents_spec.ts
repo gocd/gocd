@@ -676,6 +676,28 @@ describe("AgentsModel", () => {
         expect(agentC.selected()).toBeFalsy();
       });
     });
+
+    describe("isNoneSelected", () => {
+      it("should be false when at least one agent is selected", () => {
+        const agentA = Agent.fromJSON(AgentsTestData.idleAgent()),
+              agentB = Agent.fromJSON(AgentsTestData.buildingAgent()),
+              agentC = Agent.fromJSON(AgentsTestData.pendingAgent());
+        const agents = new Agents([agentA, agentB, agentC]);
+
+        agentA.selected(true);
+
+        expect(agents.isNoneSelected()).toBeFalsy();
+      });
+
+      it("should be true when no agent is selected", () => {
+        const agentA = Agent.fromJSON(AgentsTestData.idleAgent()),
+              agentB = Agent.fromJSON(AgentsTestData.buildingAgent()),
+              agentC = Agent.fromJSON(AgentsTestData.pendingAgent());
+        const agents = new Agents([agentA, agentB, agentC]);
+
+        expect(agents.isNoneSelected()).toBeTruthy();
+      });
+    });
   });
 
   describe("FilterByAgentConfigState", () => {
@@ -719,6 +741,65 @@ describe("AgentsModel", () => {
 
       filteredAgents = agents.filterBy(AgentConfigState.Disabled);
       expect(filteredAgents).toHaveLength(0);
+    });
+  });
+
+  describe("getSelectedAgentsUUID", function () {
+    it("should return selected agents uuid", () => {
+      const agentA = Agent.fromJSON(AgentsTestData.disabledAgent()),
+            agentB = Agent.fromJSON(AgentsTestData.buildingAgent()),
+            agentC = Agent.fromJSON(AgentsTestData.pendingAgent());
+      const agents = new Agents([agentA, agentB, agentC]);
+      agentA.selected(true);
+
+      expect(agents.getSelectedAgentsUUID()).toContain(agentA.uuid);
+    });
+
+    it("should return selected agents uuid from the filtered list", () => {
+      const agentA = Agent.fromJSON(AgentsTestData.disabledAgent()),
+            agentB = Agent.fromJSON(AgentsTestData.buildingAgent()),
+            agentC = Agent.fromJSON(AgentsTestData.pendingAgent());
+      const agents = new Agents([agentA, agentB, agentC]);
+      agentA.selected(true);
+      agentB.selected(true);
+      expect(agents.getSelectedAgentsUUID()).toContain(agentA.uuid, agentB.uuid);
+
+      agents.filterText("Building");
+      expect(agents.getSelectedAgentsUUID()).toContain(agentB.uuid);
+    });
+  });
+  describe("unselectAll", function () {
+    it("should unselect current selection", () => {
+      const agentA = Agent.fromJSON(AgentsTestData.disabledAgent()),
+            agentB = Agent.fromJSON(AgentsTestData.buildingAgent()),
+            agentC = Agent.fromJSON(AgentsTestData.pendingAgent());
+      const agents = new Agents([agentA, agentB, agentC]);
+      agentA.selected(true);
+
+      expect(agents.getSelectedAgentsUUID()).toContain(agentA.uuid);
+
+      agents.unselectAll();
+
+      expect(agents.isNoneSelected()).toBeTruthy();
+    });
+
+    it("should unselect current selection only on filtered list", () => {
+      const agentA = Agent.fromJSON(AgentsTestData.disabledAgent()),
+            agentB = Agent.fromJSON(AgentsTestData.buildingAgent()),
+            agentC = Agent.fromJSON(AgentsTestData.pendingAgent());
+      const agents = new Agents([agentA, agentB, agentC]);
+      agentA.selected(true);
+      agentB.selected(true);
+      expect(agents.getSelectedAgentsUUID()).toContain(agentA.uuid, agentB.uuid);
+
+      agents.filterText("Building");
+      expect(agents.getSelectedAgentsUUID()).toContain(agentB.uuid);
+
+      agents.unselectAll();
+      expect(agents.isNoneSelected()).toBeTruthy();
+
+      agents.filterText("");
+      expect(agents.getSelectedAgentsUUID()).toContain(agentA.uuid);
     });
   });
 });

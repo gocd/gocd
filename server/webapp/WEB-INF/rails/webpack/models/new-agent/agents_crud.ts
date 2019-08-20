@@ -29,27 +29,27 @@ export class AgentsCRUD {
   }
 
   static delete(agentUUID: string[]) {
-    return ApiRequestBuilder.DELETE(SparkRoutes.agentsPath(), this.API_VERSION_HEADER, {payload: {uuids: agentUUID}})
-                            .then((result: ApiResult<string>) => result.map((body) => {
-                              return Agents.fromJSON(JSON.parse(body));
-                            }));
+    return ApiRequestBuilder.DELETE(SparkRoutes.agentsPath(), this.API_VERSION_HEADER, {payload: {uuids: agentUUID}});
   }
 
   static agentsToEnable(agentsUUID: string[]) {
     return ApiRequestBuilder.PATCH(SparkRoutes.agentsPath(),
                                    this.API_VERSION_HEADER,
-                                   {payload: {uuids: agentsUUID, agent_config_state: AgentConfigState[AgentConfigState.Enabled]}})
-                            .then((result: ApiResult<string>) => result.map((body) => {
-                              return Agents.fromJSON(JSON.parse(body));
-                            }));
+                                   this.patchPayload(agentsUUID, AgentConfigState.Enabled));
   }
 
   static agentsToDisable(agentsUUID: string[]) {
     return ApiRequestBuilder.PATCH(SparkRoutes.agentsPath(),
                                    this.API_VERSION_HEADER,
-                                   {payload: {uuids: agentsUUID, agent_config_state: AgentConfigState[AgentConfigState.Disabled]}})
-                            .then((result: ApiResult<string>) => result.map((body) => {
-                              return Agents.fromJSON(JSON.parse(body));
-                            }));
+                                   this.patchPayload(agentsUUID, AgentConfigState.Disabled));
+  }
+
+  private static patchPayload(agentsUUID: string[], agentConfigState: AgentConfigState) {
+    return {
+      payload: {
+        uuids: agentsUUID,
+        agent_config_state: AgentConfigState[agentConfigState]
+      }
+    };
   }
 }

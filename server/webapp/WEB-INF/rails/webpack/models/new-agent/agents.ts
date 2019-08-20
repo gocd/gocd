@@ -15,8 +15,7 @@
  */
 
 import _ = require("lodash");
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {AgentsCRUD} from "models/new-agent/agents_crud";
 import {TableSortHandler} from "views/components/table";
 
@@ -139,7 +138,7 @@ export class Agent {
   public readonly agentState: AgentState;
   public readonly buildState: BuildState;
   public readonly buildDetails?: BuildDetails;
-  public readonly selected: Stream<boolean> = stream();
+  public readonly selected: Stream<boolean> = Stream();
 
   constructor(uuid: string,
               hostname: string,
@@ -254,8 +253,8 @@ export class Agents extends TableSortHandler {
   private sortOnColumn: number;
   private sortOrder: SortOrder;
   private agentList: Agent[];
-  public readonly filterText: Stream<string>           = stream("");
-  public readonly buildDetailsForAgent: Stream<string> = stream();
+  public readonly filterText: Stream<string>           = Stream("");
+  public readonly buildDetailsForAgent: Stream<string> = Stream();
 
   constructor(agentsList: Agent[]) {
     super();

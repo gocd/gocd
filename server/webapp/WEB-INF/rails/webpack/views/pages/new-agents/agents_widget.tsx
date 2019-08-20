@@ -24,7 +24,7 @@ import {CheckboxField, SearchField} from "views/components/forms/input_fields";
 import {KeyValuePair} from "views/components/key_value_pair";
 import {Table} from "views/components/table";
 import style from "./index.scss";
-import {Stream} from "mithril/stream";
+import Stream from "mithril/stream";
 
 const classnames = bind(style);
 
@@ -112,26 +112,26 @@ export class AgentsWidget extends MithrilViewComponent<AgentsWidgetAttrs> {
     });
 
     return <div class={style.agentsTable}>
-        <KeyValuePair inline={true} data={new Map(
-          [
-            ["Total", vnode.attrs.agents.count()],
-            ["Pending", this.filter(vnode.attrs.agents, AgentConfigState.Pending)],
-            ["Enabled", this.filter(vnode.attrs.agents, AgentConfigState.Enabled)],
-            ["Disabled", this.filter(vnode.attrs.agents, AgentConfigState.Disabled)]
-          ])
-        }/>
+      <KeyValuePair inline={true} data={new Map(
+        [
+          ["Total", vnode.attrs.agents.count()],
+          ["Pending", this.filter(vnode.attrs.agents, AgentConfigState.Pending)],
+          ["Enabled", this.filter(vnode.attrs.agents, AgentConfigState.Enabled)],
+          ["Disabled", this.filter(vnode.attrs.agents, AgentConfigState.Disabled)]
+        ])
+      }/>
 
-        <ButtonGroup>
-          <Buttons.Primary onclick={vnode.attrs.onDelete}>DELETE</Buttons.Primary>
-          <Buttons.Primary onclick={vnode.attrs.onEnable}>ENABLE</Buttons.Primary>
-          <Buttons.Primary onclick={vnode.attrs.onDisable}>DISABLE</Buttons.Primary>
-        </ButtonGroup>
+      <ButtonGroup>
+        <Buttons.Primary onclick={vnode.attrs.onDelete}>DELETE</Buttons.Primary>
+        <Buttons.Primary onclick={vnode.attrs.onEnable}>ENABLE</Buttons.Primary>
+        <Buttons.Primary onclick={vnode.attrs.onDisable}>DISABLE</Buttons.Primary>
+      </ButtonGroup>
 
-        <div class={style.searchField}>
-          <SearchField placeholder="Filter Agents"
-                       label="Search for agents"
-                       property={vnode.attrs.agents.filterText}/>
-        </div>
+      <div class={style.searchField}>
+        <SearchField placeholder="Filter Agents"
+                     label="Search for agents"
+                     property={vnode.attrs.agents.filterText}/>
+      </div>
 
       <Table data={tableData}
              headers={[

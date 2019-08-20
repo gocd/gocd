@@ -15,7 +15,7 @@
  */
 
 import {AgentJSON, AgentsJSON} from "models/new-agent/agents";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import uuid from "uuid/v4";
 
 export class AgentsTestData {
@@ -111,7 +111,7 @@ export class AgentsTestData {
                resources          = ["dev", "fat", "ie9", "firefox"]) {
     // @ts-ignore
     return {
-      selected: stream(false),
+      selected: Stream(false),
       uuid: uuid,
       hostname: hostname,
       ip_address: ipAddr,

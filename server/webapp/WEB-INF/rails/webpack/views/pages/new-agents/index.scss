@@ -59,27 +59,32 @@ $disabled-text-color: #999;
 }
 
 .agent-checkbox {
-  height:      20px;
-  margin:      0;
-  padding:     0;
-  display:     flex;
-  align-items: flex-start;
+  margin:  0;
+  padding: 0;
 
   input[type="checkbox"] { // sass-lint:disable-line no-qualifying-elements
-    width:  12px;
-    height: 12px;
+    width:      12px;
+    height:     12px;
+    margin-top: -5px;
   }
 }
 
 .agents-table {
   padding: 0;
 
+  table {
+    height: 100%;
+  }
+
   table tbody td {
-    padding: 0;
+    padding:        0;
+    display:        table-cell;
+    vertical-align: middle;
   }
 
   table tbody .table-cell {
     padding: 10px;
+    height:  100%;
   }
 }
 

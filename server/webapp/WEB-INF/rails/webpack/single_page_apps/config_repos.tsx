@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import {RoutedPage} from "helpers/spa_base";
+import {RoutedSinglePageApp} from "helpers/spa_base";
 import {ConfigReposPage} from "views/pages/config_repos";
 
-export class ConfigReposSPA extends RoutedPage {
+export class ConfigReposSPA extends RoutedSinglePageApp {
   constructor() {
     super({
       "/": ConfigReposPage,

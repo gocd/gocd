@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import {Page} from "helpers/spa_base";
+import {SinglePageAppBase} from "helpers/spa_base";
 import {AccessTokensPage} from "views/pages/access_tokens";
 
-export class AccessTokensSPA extends Page {
+export class AccessTokensSPA extends SinglePageAppBase {
   constructor() {
     super(AccessTokensPage);
   }

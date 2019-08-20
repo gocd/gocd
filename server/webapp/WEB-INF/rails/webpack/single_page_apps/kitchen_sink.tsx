@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Page} from "helpers/spa_base";
+import {SinglePageAppBase} from "helpers/spa_base";
 import {KitchenSink} from "views/pages/kitchen_sink";
 
-export class KitchenSinkSPA extends Page {
+export class KitchenSinkSPA extends SinglePageAppBase {
   constructor() {
     super(KitchenSink);
   }

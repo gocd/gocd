@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import {Page} from "helpers/spa_base";
+import {SinglePageAppBase} from "helpers/spa_base";
 import {AuthConfigsPage} from "views/pages/auth_configs";
 
 //tslint:disable-next-line
-new class extends Page {
+new class extends SinglePageAppBase {
   constructor() {
     super(AuthConfigsPage);
   }

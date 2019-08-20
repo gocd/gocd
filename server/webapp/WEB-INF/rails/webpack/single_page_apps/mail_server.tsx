@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import {Page} from "helpers/spa_base";
+import {SinglePageAppBase} from "helpers/spa_base";
 import {MailServerPage} from "views/pages/mail_server";
 
-export class MailServerSPA extends Page {
+export class MailServerSPA extends SinglePageAppBase {
   constructor() {
     super(MailServerPage);
   }

@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Page} from "helpers/spa_base";
+import {SinglePageAppBase} from "helpers/spa_base";
 import {MaintenanceModePage} from "views/pages/maintenance_mode";
 
-export class MaintenanceModeSPA extends Page {
+export class MaintenanceModeSPA extends SinglePageAppBase {
   constructor() {
     super(MaintenanceModePage);
   }

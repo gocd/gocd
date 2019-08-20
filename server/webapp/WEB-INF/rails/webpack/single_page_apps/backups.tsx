@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import {Page} from "helpers/spa_base";
+import {SinglePageAppBase} from "helpers/spa_base";
 import {BackupPage} from "views/pages/backup";
 
-export class BackupSPA extends Page {
+export class BackupSPA extends SinglePageAppBase {
   constructor() {
     super(BackupPage);
   }

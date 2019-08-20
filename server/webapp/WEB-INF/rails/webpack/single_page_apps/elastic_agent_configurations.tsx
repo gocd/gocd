@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Page} from "helpers/spa_base";
+import {SinglePageAppBase} from "helpers/spa_base";
 import {ElasticProfilesPage} from "views/pages/elastic_agent_configurations";
 
-export class ElasticProfilesSPA extends Page {
+export class ElasticProfilesSPA extends SinglePageAppBase {
   constructor() {
     super(ElasticProfilesPage);
   }

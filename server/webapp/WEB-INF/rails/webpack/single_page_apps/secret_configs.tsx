@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import {Page} from "helpers/spa_base";
+import {SinglePageAppBase} from "helpers/spa_base";
 import {SecretConfigsPage} from "views/pages/secret_configs";
 
-export class SecretConfigsSPA extends Page {
+export class SecretConfigsSPA extends SinglePageAppBase {
   constructor() {
     super(SecretConfigsPage);
   }

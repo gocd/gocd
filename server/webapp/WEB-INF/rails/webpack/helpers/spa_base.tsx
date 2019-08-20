@@ -124,7 +124,7 @@ interface RoutesTable {
   [route: string]: GoCDComponentTypes;
 }
 
-export abstract class RoutedPage extends AbstractPage {
+export abstract class RoutedSinglePageApp extends AbstractPage {
   private readonly routes: RoutesTable;
 
   constructor(routes: RoutesTable) {
@@ -151,7 +151,7 @@ export abstract class RoutedPage extends AbstractPage {
   }
 }
 
-export abstract class Page extends AbstractPage {
+export abstract class SinglePageAppBase extends AbstractPage {
   private readonly pageToMount: GoCDComponentTypes;
 
   constructor(pageToMount: GoCDComponentTypes) {

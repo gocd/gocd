@@ -72,7 +72,7 @@ export abstract class BaseModal extends Modal {
         this.close();
       }
     } else {
-      this.onFailedSave(errorResponse.message);
+      this.onFailedSave(JSON.parse(errorResponse.body!).message);
       this.close();
     }
   }

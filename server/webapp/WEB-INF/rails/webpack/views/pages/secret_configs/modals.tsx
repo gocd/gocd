@@ -62,8 +62,8 @@ export abstract class SecretConfigModal extends EntityModal<SecretConfig> {
   }
 
   operationError(errorResponse: any, statusCode: number) {
-    if (!this.hasErrors() && errorResponse.message) {
-      this.errorMessage(errorResponse.message);
+    if (!this.hasErrors() && JSON.parse(errorResponse.body!).message) {
+      this.errorMessage(JSON.parse(errorResponse.body!).message);
     } else {
       this.errorMessage("");
     }

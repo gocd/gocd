@@ -95,7 +95,7 @@ abstract class BaseRoleModal extends Modal {
     if (apiResult.getStatusCode() === 422 && errorResponse.body) {
       this.role(Role.fromJSON(JSON.parse(errorResponse.body).data));
     } else {
-      this.errorMessage(errorResponse.message);
+      this.errorMessage(JSON.parse(errorResponse.body!).message);
     }
   }
 

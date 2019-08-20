@@ -63,7 +63,7 @@ export class MailServerPage extends Page<null, State> {
             if (result.getStatusCode() === 422 && errorResponse.body) {
               vnode.state.mailserver(MailServer.fromJSON(JsonUtils.toCamelCasedObject(JSON.parse(errorResponse.body)).data));
             } else {
-              vnode.state.onError(errorResponse.message);
+              vnode.state.onError(JSON.parse(errorResponse.body!).message);
             }
           });
       });

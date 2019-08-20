@@ -120,7 +120,7 @@ export class ConfigReposPage extends Page<null, State> {
           this.pageState = PageState.OK;
         },
         (errorResponse) => {
-          state.onError(errorResponse.message);
+          state.onError(JSON.parse(errorResponse.body!).message);
           this.pageState = PageState.FAILED;
         }
       );
@@ -157,7 +157,7 @@ export class ConfigReposPage extends Page<null, State> {
         vnode.state.unfilteredModels(models);
       },
       (errorResponse) => {
-        vnode.state.onError(errorResponse.message);
+        vnode.state.onError(JSON.parse(errorResponse.body!).message);
         this.pageState = PageState.FAILED;
       }
     );

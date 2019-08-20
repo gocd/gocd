@@ -90,7 +90,7 @@ export class PluginSettingsModal extends Modal {
         this.pluginSettings = new PluginSettings(this.pluginInfo.id);
         this.errorMessage   = null;
       } else {
-        this.errorMessage = errorResponse.message;
+        this.errorMessage = JSON.parse(errorResponse.body!).message;
       }
     });
   }
@@ -131,6 +131,6 @@ export class PluginSettingsModal extends Modal {
 
     apiResult.do(() => {
       // do nothing
-    }, (errorResponse) => {this.errorMessage = errorResponse.message; });
+    }, (errorResponse) => {this.errorMessage = JSON.parse(errorResponse.body!).message; });
   }
 }

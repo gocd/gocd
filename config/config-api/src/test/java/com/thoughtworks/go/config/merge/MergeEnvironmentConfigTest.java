@@ -29,7 +29,6 @@ import java.util.List;
 
 import static com.thoughtworks.go.util.command.EnvironmentVariableContext.GO_ENVIRONMENT_NAME;
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.junit.jupiter.api.Assertions.*;
@@ -58,9 +57,11 @@ class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
 
     @Test
     void shouldNotAllowPartsWithDifferentNames() {
-        assertThatCode(() -> new MergeEnvironmentConfig(new BasicEnvironmentConfig(new CaseInsensitiveString("UAT")),
-                new BasicEnvironmentConfig(new CaseInsensitiveString("Two"))))
-                .isInstanceOf(IllegalArgumentException.class);
+        assertThatCode(() -> {
+            BasicEnvironmentConfig part1WithEnvName1 = new BasicEnvironmentConfig(new CaseInsensitiveString("envName1"));
+            BasicEnvironmentConfig part2WithEnvName2 = new BasicEnvironmentConfig(new CaseInsensitiveString("envName2"));
+            new MergeEnvironmentConfig(part1WithEnvName1, part2WithEnvName2);
+        }).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -128,7 +129,8 @@ class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
             List<CaseInsensitiveString> pipelineNames = pairEnvironmentConfig.getPipelineNames();
 
             assertThat(pipelineNames).hasSize(2)
-                    .contains(new CaseInsensitiveString("deployment"), new CaseInsensitiveString("testing"));
+                    .contains(new CaseInsensitiveString("deployment"),
+                            new CaseInsensitiveString("testing"));
         }
 
         @Test
@@ -159,7 +161,6 @@ class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
         void shouldHaveAgentsFrom2Parts() {
             pairEnvironmentConfig.get(0).addAgent("123");
             pairEnvironmentConfig.get(1).addAgent("345");
-            EnvironmentAgentsConfig agents = pairEnvironmentConfig.getAgents();
 
             assertThat(pairEnvironmentConfig.hasAgent("123")).isTrue();
             assertThat(pairEnvironmentConfig.hasAgent("345")).isTrue();
@@ -357,9 +358,7 @@ class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
     class GetFirstEditablePart {
         @Test
         void shouldReturnFirstEditablePart() {
-            EnvironmentConfig firstEditablePart = singleEnvironmentConfig.getFirstEditablePartOrNull();
-
-            assertNotNull(firstEditablePart);
+            assertNotNull(singleEnvironmentConfig.getFirstEditablePartOrNull());
         }
 
         @Test
@@ -367,9 +366,7 @@ class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
             BasicEnvironmentConfig basicEnvironmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("repo"));
             basicEnvironmentConfig.setOrigins(new RepoConfigOrigin());
 
-            MergeEnvironmentConfig mergeEnvironmentConfig = new MergeEnvironmentConfig(basicEnvironmentConfig);
-
-            assertNull(mergeEnvironmentConfig.getFirstEditablePartOrNull());
+            assertNull(new MergeEnvironmentConfig(basicEnvironmentConfig).getFirstEditablePartOrNull());
         }
 
         @Test
@@ -378,7 +375,6 @@ class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
             basicEnvironmentConfig.setOrigins(new RepoConfigOrigin());
 
             MergeEnvironmentConfig mergeEnvironmentConfig = new MergeEnvironmentConfig(basicEnvironmentConfig);
-
             assertThatCode(mergeEnvironmentConfig::getFirstEditablePart)
                     .isInstanceOf(RuntimeException.class)
                     .hasMessage("No editable configuration part");
@@ -386,8 +382,7 @@ class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
 
         @Test
         void shouldNotThrowExceptionIfEditablePartExists() {
-            assertThatCode(singleEnvironmentConfig::getFirstEditablePart)
-                    .doesNotThrowAnyException();
+            assertThatCode(singleEnvironmentConfig::getFirstEditablePart).doesNotThrowAnyException();
         }
 
         @Test
@@ -399,7 +394,6 @@ class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
 
             assertThatCode(() -> {
                 EnvironmentConfig environmentConfig = mergeEnvironmentConfig.getFirstEditablePartWithoutThrowingException();
-
                 assertNull(environmentConfig);
             }).doesNotThrowAnyException();
         }

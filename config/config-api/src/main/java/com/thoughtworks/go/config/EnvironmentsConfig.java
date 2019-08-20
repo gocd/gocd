@@ -140,11 +140,11 @@ public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implem
         return this.stream().map(EnvironmentConfig::name).collect(toList());
     }
 
-    public TreeSet<String> getAgentEnvironmentNames(String uuid) {
+    public Set<String> getAgentEnvironmentNames(String uuid) {
         return this.stream()
                 .filter(envConfig -> envConfig.hasAgent(uuid))
                 .map(envConfig -> str(envConfig.name()))
-                .collect(toCollection(() -> new TreeSet<>(new AlphaAsciiComparator())));
+                .collect(toCollection(HashSet::new));
     }
 
     public Set<EnvironmentConfig> getAgentEnvironments(String uuid) {
@@ -163,20 +163,19 @@ public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implem
     public EnvironmentsConfig getLocal() {
         return this.stream()
                 .filter(envConfig -> envConfig.getLocal() != null)
-                .collect(Collectors.toCollection(EnvironmentsConfig::new));
+                .collect(toCollection(EnvironmentsConfig::new));
     }
 
     private EnvironmentConfig getOrCreateEnvironment(String envName) {
-        EnvironmentConfig envConfig = this.stream()
-                .filter(config -> config.hasName(new CaseInsensitiveString(envName)))
+        return this.stream()
+                .filter(envConfig -> envConfig.hasName(new CaseInsensitiveString(envName)))
                 .findAny()
-                .orElse(null);
+                .orElseGet(() -> createNewEnvironmentConfigAndAddToList(envName));
+    }
 
-        if (envConfig == null) {
-            envConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(envName));
-            add(envConfig);
-        }
-
-        return envConfig;
+    private EnvironmentConfig createNewEnvironmentConfigAndAddToList(String envName) {
+        BasicEnvironmentConfig newEnvConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(envName));
+        add(newEnvConfig);
+        return newEnvConfig;
     }
 }

@@ -15,13 +15,13 @@
  */
 package com.thoughtworks.go.config;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
+
+import java.util.List;
+import java.util.Map;
+
+import static java.util.stream.Collectors.toList;
 
 /**
 * @understands references to existing agents that are associated to an Environment
@@ -46,7 +46,7 @@ public class EnvironmentAgentsConfig extends BaseCollection<EnvironmentAgentConf
     }
 
     public List<String> getUuids() {
-        return this.stream().map(EnvironmentAgentConfig::getUuid).collect(Collectors.toList());
+        return this.stream().map(EnvironmentAgentConfig::getUuid).collect(toList());
     }
 
     @Override

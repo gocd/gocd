@@ -74,6 +74,7 @@ import static org.apache.commons.lang3.StringUtils.join;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 @Service
+@SuppressWarnings("deprecation")
 public class AgentService implements DatabaseEntityChangeListener<Agent> {
     private final SystemEnvironment systemEnvironment;
     private final UuidGenerator uuidGenerator;
@@ -180,7 +181,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
                 validator.validate();
 
                 List<Agent> agents = agentDao.getAgentsByUUIDs(uuids);
-                if (stateIsSet(state)) {
+                if (isTriStateSet(state)) {
                     agents.addAll(agentInstances.filterPendingAgents(uuids));
                 }
 
@@ -443,7 +444,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         this.agentInstances.add(agentInstanceBeforeUpdate);
     }
 
-    public void registerAgentChangeListeners(AgentChangeListener listener) {
+    void registerAgentChangeListeners(AgentChangeListener listener) {
         if (listener != null) {
             this.listeners.add(listener);
         }
@@ -504,10 +505,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     }
 
     private void notifyAgentDeleteListeners(String uuid) {
-        listeners.forEach(listener -> {
-            AgentInstance agent = agentInstances.findAgent(uuid);
-            listener.agentDeleted(agent.getAgent());
-        });
+        listeners.forEach(listener -> listener.agentDeleted(agentInstances.findAgent(uuid).getAgent()));
     }
 
     private static Collection<String> getSortedEnvironmentList(AgentInstance agentInstance) {
@@ -580,12 +578,6 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         }
 
         return associatedUUIDs;
-    }
-
-    private Map<String, AgentConfigStatus> createAgentToStatusMap(List<Agent> agents) {
-        return agents.stream()
-                .map(agent -> findAgent(agent.getUuid()))
-                .collect(toMap(AgentInstance::getUuid, agentInstance -> agentInstance.getStatus().getConfigStatus()));
     }
 
     private void enableOrDisableAgent(Agent agent, TriState triState) {
@@ -693,7 +685,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
 
     boolean isAnyOperationPerformedOnAgent(String hostname, EnvironmentsConfig environments,
                                            String resources, TriState state, HttpOperationResult result) {
-        boolean anyOperationPerformed = (resources != null || environments != null || hostname != null || stateIsSet(state));
+        boolean anyOperationPerformed = (resources != null || environments != null || hostname != null || isTriStateSet(state));
         if (!anyOperationPerformed) {
             String msg = "Bad Request. No operation is specified in the request to be performed on agent.";
             result.badRequest(msg, msg, general(GLOBAL));
@@ -702,7 +694,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         return true;
     }
 
-    private boolean stateIsSet(TriState state) {
+    private boolean isTriStateSet(TriState state) {
         return state.isTrue() || state.isFalse();
     }
 
@@ -714,7 +706,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
                 || isNotEmpty(resourcesToRemove)
                 || isNotEmpty(envsToAdd)
                 || isNotEmpty(envsToRemove)
-                || stateIsSet(state);
+                || isTriStateSet(state);
         if (!anyOperationPerformed) {
             result.badRequest("Bad Request. No operation is specified in the request to be performed on agents.");
             return false;
@@ -733,14 +725,9 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     }
 
     void updateIdsAndGenerateCookiesForPendingAgents(List<Agent> agents, TriState state) {
-        if (stateIsSet(state)) {
+        if (isTriStateSet(state)) {
             agents.stream()
-                    .filter(agent -> {
-                        AgentInstance agentInstance = findAgent(agent.getUuid());
-                        AgentStatus agentStatus = agentInstance.getStatus();
-                        System.out.println("Agent id [" + agentInstance.getUuid() + "] status is [" + agentStatus.getConfigStatus() + "]");
-                        return agentStatus.getConfigStatus() == Pending;
-                    })
+                    .filter(agent -> findAgent(agent.getUuid()).getStatus().getConfigStatus() == Pending)
                     .forEach(this::updateIdAndGenerateCookieForPendingAgent);
         }
     }

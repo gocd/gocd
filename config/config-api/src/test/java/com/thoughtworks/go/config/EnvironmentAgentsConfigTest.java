@@ -58,7 +58,6 @@ class EnvironmentAgentsConfigTest {
         map2.put("uuid", "agent-2");
 
         List<Map> mapList = new ArrayList<>(asList(map1, map2));
-
         envAgentsConfig.setConfigAttributes(mapList);
 
         assertThat(envAgentsConfig.size(), is(2));

@@ -163,12 +163,9 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
     }
 
     public EnvironmentConfig findOrUnknown(String envName) {
-        CaseInsensitiveString environmentName = new CaseInsensitiveString((envName));
-        EnvironmentConfig environmentConfig = environments.find(environmentName);
-        if (environmentConfig == null) {
-            environmentConfig = new UnknownEnvironmentConfig(environmentName);
-        }
-        return environmentConfig;
+        CaseInsensitiveString caseInsensitiveEnvStr = new CaseInsensitiveString((envName));
+        EnvironmentConfig envConfig = environments.find(caseInsensitiveEnvStr);
+        return ((envConfig != null) ? envConfig : new UnknownEnvironmentConfig(caseInsensitiveEnvStr));
     }
 
     public EnvironmentConfig getEnvironmentForEdit(String envName) {

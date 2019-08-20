@@ -44,10 +44,14 @@ import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 class EnvironmentConfigServiceTest {
@@ -116,7 +120,7 @@ class EnvironmentConfigServiceTest {
 
         when(mockGoConfigService.getConfigForEditing()).thenReturn(cruiseConfig);
 
-        assertThat(environmentConfigService.getEnvironmentForEdit(uat)).isEqualTo(expectedToEdit);
+        assertThat(environmentConfigService.getEnvironmentForEdit(uat), is(expectedToEdit));
     }
 
     @Test
@@ -141,7 +145,7 @@ class EnvironmentConfigServiceTest {
 
         when(mockGoConfigService.getConfigForEditing()).thenReturn(cruiseConfig);
 
-        assertThat(environmentConfigService.getAllLocalEnvironments()).isEqualTo(expectedToEdit);
+        assertThat(environmentConfigService.getAllLocalEnvironments(), is(expectedToEdit));
     }
 
     @Test
@@ -157,8 +161,8 @@ class EnvironmentConfigServiceTest {
         environmentConfigService.syncEnvironmentsFromConfig(environments);
         when(mockGoConfigService.getMergedConfigForEditing()).thenReturn(config);
 
-        assertThat(environmentConfigService.getAllMergedEnvironments()).isEqualTo(singletonList(env));
-        assertThat(result.isSuccessful()).isTrue();
+        assertThat(environmentConfigService.getAllMergedEnvironments(), is(singletonList(env)));
+        assertThat(result.isSuccessful(), is(true));
     }
 
     @Test
@@ -177,7 +181,7 @@ class EnvironmentConfigServiceTest {
 
         doReturn(envConfigList).when(spyEnvConfigService).getAllMergedEnvironments();
 
-        assertThat(spyEnvConfigService.listAllMergedEnvironments()).isEqualTo(singletonList(new EnvironmentViewModel(envConfig1)));
+        assertThat(spyEnvConfigService.listAllMergedEnvironments(), is(singletonList(new EnvironmentViewModel(envConfig1))));
     }
 
     @Test
@@ -187,8 +191,8 @@ class EnvironmentConfigServiceTest {
 
         List<JobPlan> filtered = environmentConfigService.filterJobsByAgent(jobs("no-env", "uat", "prod"), "no-env-uuid");
 
-        assertThat(filtered.size()).isEqualTo(1);
-        assertThat(filtered.get(0).getPipelineName()).isEqualTo("no-env-pipeline");
+        assertThat(filtered.size(), is(1));
+        assertThat(filtered.get(0).getPipelineName(), is("no-env-pipeline"));
     }
 
     @Test
@@ -198,8 +202,8 @@ class EnvironmentConfigServiceTest {
 
         List<JobPlan> filtered = environmentConfigService.filterJobsByAgent(jobs("no-env", "uat", "prod"), "uat-agent");
 
-        assertThat(filtered.size()).isEqualTo(1);
-        assertThat(filtered.get(0).getPipelineName()).isEqualTo("uat-pipeline");
+        assertThat(filtered.size(), is(1));
+        assertThat(filtered.get(0).getPipelineName(), is("uat-pipeline"));
     }
 
     @Test
@@ -209,9 +213,9 @@ class EnvironmentConfigServiceTest {
 
         List<JobPlan> filtered = environmentConfigService.filterJobsByAgent(jobs("no-env", "uat", "prod"), OMNIPRESENT_AGENT);
 
-        assertThat(filtered.size()).isEqualTo(2);
-        assertThat(filtered.get(0).getPipelineName()).isEqualTo("uat-pipeline");
-        assertThat(filtered.get(1).getPipelineName()).isEqualTo("prod-pipeline");
+        assertThat(filtered.size(), is(2));
+        assertThat(filtered.get(0).getPipelineName(), is("uat-pipeline"));
+        assertThat(filtered.get(1).getPipelineName(), is("prod-pipeline"));
     }
 
     @Test
@@ -221,7 +225,7 @@ class EnvironmentConfigServiceTest {
 
         List<JobPlan> filtered = environmentConfigService.filterJobsByAgent(jobs("no-env", "prod"), "uat-agent");
 
-        assertThat(filtered.size()).isEqualTo(0);
+        assertThat(filtered.size(), is(0));
     }
 
     @Test
@@ -234,9 +238,9 @@ class EnvironmentConfigServiceTest {
         Mockito.when(agentService.getAgentByUUID("uat-agent")).thenReturn(agentUnderEnv);
         Mockito.when(agentService.getAgentByUUID(OMNIPRESENT_AGENT)).thenReturn(omnipresentAgent);
 
-        assertThat(environmentConfigService.agentsForPipeline(new CaseInsensitiveString("uat-pipeline")).size()).isEqualTo(2);
-        assertThat(environmentConfigService.agentsForPipeline(new CaseInsensitiveString("uat-pipeline"))).contains(agentUnderEnv);
-        assertThat(environmentConfigService.agentsForPipeline(new CaseInsensitiveString("uat-pipeline"))).contains(omnipresentAgent);
+        assertThat(environmentConfigService.agentsForPipeline(new CaseInsensitiveString("uat-pipeline")).size(), is(2));
+        assertTrue(environmentConfigService.agentsForPipeline(new CaseInsensitiveString("uat-pipeline")).contains(agentUnderEnv));
+        assertTrue(environmentConfigService.agentsForPipeline(new CaseInsensitiveString("uat-pipeline")).contains(omnipresentAgent));
     }
 
     @Test
@@ -251,17 +255,17 @@ class EnvironmentConfigServiceTest {
         Mockito.when(agentService.agents()).thenReturn(agents);
 
 
-        assertThat(environmentConfigService.agentsForPipeline(new CaseInsensitiveString("no-env-pipeline")).size()).isEqualTo(1);
-        assertThat(environmentConfigService.agentsForPipeline(new CaseInsensitiveString("no-env-pipeline"))).contains(noEnvAgent);
+        assertThat(environmentConfigService.agentsForPipeline(new CaseInsensitiveString("no-env-pipeline")).size(), is(1));
+        assertTrue(environmentConfigService.agentsForPipeline(new CaseInsensitiveString("no-env-pipeline")).contains(noEnvAgent));
     }
 
     @Test
     void shouldReturnEnvironmentNames() {
         environmentConfigService.syncEnvironmentsFromConfig(environments("uat", "prod"));
         List<String> envNames = environmentConfigService.getEnvironmentNames();
-        assertThat(envNames.size()).isEqualTo(2);
-        assertThat(envNames).contains("uat");
-        assertThat(envNames).contains("prod");
+        assertThat(envNames.size(), is(2));
+        assertTrue(envNames.contains("uat"));
+        assertTrue(envNames.contains("prod"));
     }
 
     @Test
@@ -270,9 +274,9 @@ class EnvironmentConfigServiceTest {
         envsConfig.add(unknown("unknown"));
         environmentConfigService.syncEnvironmentsFromConfig(envsConfig);
         List<String> envNames = environmentConfigService.getKnownEnvironmentNames();
-        assertThat(envNames.size()).isEqualTo(2);
-        assertThat(envNames).contains("uat");
-        assertThat(envNames).contains("prod");
+        assertThat(envNames.size(), is(2));
+        assertTrue(envNames.contains("uat"));
+        assertTrue(envNames.contains("prod"));
     }
 
     @Test
@@ -280,15 +284,15 @@ class EnvironmentConfigServiceTest {
         environmentConfigService.syncEnvironmentsFromConfig(environments("uat", "prod"));
         environmentConfigService.syncAssociatedAgentsFromDB();
         Set<String> envForUat = environmentConfigService.getAgentEnvironmentNames("uat-agent");
-        assertThat(envForUat.size()).isEqualTo(1);
-        assertThat(envForUat).contains("uat");
+        assertThat(envForUat.size(), is(1));
+        assertTrue(envForUat.contains("uat"));
         Set<String> envForProd = environmentConfigService.getAgentEnvironmentNames("prod-agent");
-        assertThat(envForProd.size()).isEqualTo(1);
-        assertThat(envForProd).contains("prod");
+        assertThat(envForProd.size(), is(1));
+        assertTrue(envForProd.contains("prod"));
         Set<String> envForOmniPresent = environmentConfigService.getAgentEnvironmentNames(OMNIPRESENT_AGENT);
-        assertThat(envForOmniPresent.size()).isEqualTo(2);
-        assertThat(envForOmniPresent).contains("uat");
-        assertThat(envForOmniPresent).contains("prod");
+        assertThat(envForOmniPresent.size(), is(2));
+        assertTrue(envForOmniPresent.contains("uat"));
+        assertTrue(envForOmniPresent.contains("prod"));
     }
 
     @Test
@@ -298,17 +302,17 @@ class EnvironmentConfigServiceTest {
         environmentConfigService.syncAssociatedAgentsFromDB();
 
         Set<EnvironmentConfig> envConfigSet = environmentConfigService.getAgentEnvironments("uat-agent");
-        assertThat(envConfigSet.size()).isEqualTo(1);
-        assertThat(envConfigSet).contains(envConfigs.named(new CaseInsensitiveString("uat")));
+        assertThat(envConfigSet.size(), is(1));
+        assertTrue(envConfigSet.contains(envConfigs.named(new CaseInsensitiveString("uat"))));
 
         envConfigSet = environmentConfigService.getAgentEnvironments("prod-agent");
-        assertThat(envConfigSet.size()).isEqualTo(1);
-        assertThat(envConfigSet).contains(envConfigs.named(new CaseInsensitiveString("prod")));
+        assertThat(envConfigSet.size(), is(1));
+        assertTrue(envConfigSet.contains(envConfigs.named(new CaseInsensitiveString("prod"))));
 
         envConfigSet = environmentConfigService.getAgentEnvironments(OMNIPRESENT_AGENT);
-        assertThat(envConfigSet.size()).isEqualTo(2);
-        assertThat(envConfigSet).contains(envConfigs.named(new CaseInsensitiveString("uat")));
-        assertThat(envConfigSet).contains(envConfigs.named(new CaseInsensitiveString("prod")));
+        assertThat(envConfigSet.size(), is(2));
+        assertTrue(envConfigSet.contains(envConfigs.named(new CaseInsensitiveString("uat"))));
+        assertTrue(envConfigSet.contains(envConfigs.named(new CaseInsensitiveString("prod"))));
     }
 
     @Nested
@@ -323,7 +327,7 @@ class EnvironmentConfigServiceTest {
             when(mockGoConfigService.hasEnvironmentNamed(new CaseInsensitiveString(environmentName))).thenReturn(false);
             environmentConfigService.createEnvironment(env(environmentName, new ArrayList<>(), new ArrayList<>(), selectedAgents), user, result);
 
-            assertThat(result.isSuccessful()).isTrue();
+            assertThat(result.isSuccessful(), is(true));
         }
 
         @Test
@@ -336,7 +340,7 @@ class EnvironmentConfigServiceTest {
 
             environmentConfigService.createEnvironment(env(environmentName, new ArrayList<>(), new ArrayList<>(), singletonList("agent-guid-1")), user, result);
 
-            assertThat(result.isSuccessful()).isTrue();
+            assertThat(result.isSuccessful(), is(true));
             BasicEnvironmentConfig envConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
             envConfig.addAgent("agent-guid-1");
         }
@@ -352,7 +356,7 @@ class EnvironmentConfigServiceTest {
             List<Map<String, String>> envVariables = new ArrayList<>(Arrays.asList(envVar("SHELL", "/bin/zsh"), envVar("HOME", "/home/cruise")));
             environmentConfigService.createEnvironment(env(environmentName, new ArrayList<>(), envVariables, selectedAgents), user, result);
 
-            assertThat(result.isSuccessful()).isTrue();
+            assertThat(result.isSuccessful(), is(true));
             BasicEnvironmentConfig expectedConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
             expectedConfig.addEnvironmentVariable("SHELL", "/bin/zsh");
             expectedConfig.addEnvironmentVariable("HOME", "/home/cruise");
@@ -368,7 +372,7 @@ class EnvironmentConfigServiceTest {
             List<String> selectedPipelines = asList("first", "second");
             environmentConfigService.createEnvironment(env(environmentName, selectedPipelines, new ArrayList<>(), new ArrayList<>()), user, result);
 
-            assertThat(result.isSuccessful()).isTrue();
+            assertThat(result.isSuccessful(), is(true));
             BasicEnvironmentConfig config = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
             config.addPipeline(new CaseInsensitiveString("first"));
             config.addPipeline(new CaseInsensitiveString("second"));
@@ -403,8 +407,8 @@ class EnvironmentConfigServiceTest {
         List<EnvironmentPipelineModel> pipelines = environmentConfigService.getAllLocalPipelinesForUser(user);
 
 
-        assertThat(pipelines.size()).isEqualTo(2);
-        assertThat(pipelines).isEqualTo(asList(new EnvironmentPipelineModel(barPipeline), new EnvironmentPipelineModel(fooPipeline, "foo-env")));
+        assertThat(pipelines.size(), is(2));
+        assertThat(pipelines, is(asList(new EnvironmentPipelineModel(barPipeline), new EnvironmentPipelineModel(fooPipeline, "foo-env"))));
     }
 
     @Test
@@ -420,8 +424,8 @@ class EnvironmentConfigServiceTest {
         environmentConfigService.syncEnvironmentsFromConfig(environmentsConfig("foo-env", "foo"));
         List<EnvironmentPipelineModel> pipelines = environmentConfigService.getAllLocalPipelinesForUser(user);
 
-        assertThat(pipelines.size()).isEqualTo(2);
-        assertThat(pipelines).isEqualTo(asList(new EnvironmentPipelineModel("bar"), new EnvironmentPipelineModel("foo", "foo-env")));
+        assertThat(pipelines.size(), is(2));
+        assertThat(pipelines, is(asList(new EnvironmentPipelineModel("bar"), new EnvironmentPipelineModel("foo", "foo-env"))));
     }
 
     @Test
@@ -441,8 +445,8 @@ class EnvironmentConfigServiceTest {
         List<EnvironmentPipelineModel> pipelines = environmentConfigService.getAllRemotePipelinesForUserInEnvironment(user, fooEnv);
 
 
-        assertThat(pipelines.size()).isEqualTo(1);
-        assertThat(pipelines).isEqualTo(singletonList(new EnvironmentPipelineModel("foo", "foo-env")));
+        assertThat(pipelines.size(), is(1));
+        assertThat(pipelines, is(singletonList(new EnvironmentPipelineModel("foo", "foo-env"))));
     }
 
     @Test
@@ -457,8 +461,8 @@ class EnvironmentConfigServiceTest {
         environments.add(env);
         environmentConfigService.syncEnvironmentsFromConfig(environments);
         when(mockGoConfigService.getMergedConfigForEditing()).thenReturn(config);
-        assertThat(environmentConfigService.getMergedEnvironmentforDisplay("foo", result).getConfigElement()).isEqualTo(env);
-        assertThat(result.isSuccessful()).isTrue();
+        assertThat(environmentConfigService.getMergedEnvironmentforDisplay("foo", result).getConfigElement(), is(env));
+        assertThat(result.isSuccessful(), is(true));
     }
 
     @Test
@@ -475,8 +479,8 @@ class EnvironmentConfigServiceTest {
         String md5 = "md5";
         environmentConfigService.updateEnvironment(environmentConfig.name().toString(), environmentConfig, user, md5, result);
 
-        assertThat(result.isSuccessful()).isTrue();
-        assertThat(result.message()).isEqualTo("Updated environment 'env_name'.");
+        assertThat(result.isSuccessful(), is(true));
+        assertThat(result.message(), is("Updated environment 'env_name'."));
     }
 
     @Test
@@ -491,8 +495,8 @@ class EnvironmentConfigServiceTest {
         String md5 = "md5";
         environmentConfigService.updateEnvironment(environmentConfig.name().toString(), environmentConfig, user, md5, result);
 
-        assertThat(result.isSuccessful()).isTrue();
-        assertThat(result.message()).isEqualTo("Updated environment 'env_name'.");
+        assertThat(result.isSuccessful(), is(true));
+        assertThat(result.message(), is("Updated environment 'env_name'."));
     }
 
     @Test
@@ -502,7 +506,7 @@ class EnvironmentConfigServiceTest {
         environmentConfigService.syncEnvironmentsFromConfig(environmentsConfig(environmentName, pipelineName));
         EnvironmentConfig expectedEnvironmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
         expectedEnvironmentConfig.addPipeline(new CaseInsensitiveString(pipelineName));
-        assertThat(environmentConfigService.getEnvironmentConfig(environmentName)).isEqualTo(expectedEnvironmentConfig);
+        assertThat(environmentConfigService.getEnvironmentConfig(environmentName), is(expectedEnvironmentConfig));
     }
 
     @Test
@@ -516,14 +520,27 @@ class EnvironmentConfigServiceTest {
 
     @Test
     void shouldReturnUnknownConfigWhenEnvIsNotPresent() {
-        String environmentName = "foo-environment";
+        String envName = "foo-environment";
         String pipelineName = "up42";
-        environmentConfigService.syncEnvironmentsFromConfig(environmentsConfig(environmentName, pipelineName));
+        environmentConfigService.syncEnvironmentsFromConfig(environmentsConfig(envName, pipelineName));
 
         EnvironmentConfig envConfig = environmentConfigService.findOrUnknown("invalid-environment-name");
 
-        assertThat(envConfig).isNotNull();
-        assertThat(envConfig.isUnknown()).isTrue();
+        assertThat(envConfig, is(not(nullValue())));
+        assertThat(envConfig.isUnknown(), is(true));
+    }
+
+    @Test
+    void shouldReturnEnvironmeConfigWhenEnvIsPresent() {
+        String envName = "foo-environment";
+        String pipelineName = "up42";
+        environmentConfigService.syncEnvironmentsFromConfig(environmentsConfig(envName, pipelineName));
+
+        EnvironmentConfig envConfig = environmentConfigService.findOrUnknown(envName);
+
+        assertThat(envConfig, is(not(nullValue())));
+        assertThat(envConfig.isUnknown(), is(false));
+        assertThat(envConfig.name(), is(new CaseInsensitiveString(envName)));
     }
 
     @Nested
@@ -535,8 +552,7 @@ class EnvironmentConfigServiceTest {
             EnvironmentsConfig environmentsConfig = environmentsConfig(environmentName, pipelineName);
             environmentConfigService.syncEnvironmentsFromConfig(environmentsConfig);
 
-            assertThat(environmentConfigService.environmentForPipeline("up42"))
-                    .isEqualTo(environmentsConfig.get(0));
+            assertThat(environmentConfigService.environmentForPipeline("up42"), is(environmentsConfig.get(0)));
         }
 
         @Test
@@ -546,8 +562,7 @@ class EnvironmentConfigServiceTest {
             EnvironmentsConfig environmentConfig = environmentsConfig(environmentName, pipelineName);
             environmentConfigService.syncEnvironmentsFromConfig(environmentConfig);
 
-            assertThat(environmentConfigService.environmentForPipeline("foo"))
-                    .isNull();
+            assertThat(environmentConfigService.environmentForPipeline("foo"), is(nullValue()));
         }
     }
 
@@ -630,11 +645,11 @@ class EnvironmentConfigServiceTest {
             envConfigs.forEach(env -> {
                 String envName = env.name().toString();
                 if (envName.equalsIgnoreCase("dev") || envName.equalsIgnoreCase("test")) {
-                    assertThat(env.hasAgent(uuid1)).isTrue();
-                    assertThat(env.hasAgent(uuid2)).isFalse();
+                    assertThat(env.hasAgent(uuid1), is(true));
+                    assertThat(env.hasAgent(uuid2), is(false));
                 } else if (envName.equalsIgnoreCase("stage") || envName.equalsIgnoreCase("prod")) {
-                    assertThat(env.hasAgent(uuid2)).isTrue();
-                    assertThat(env.hasAgent(uuid1)).isFalse();
+                    assertThat(env.hasAgent(uuid2), is(true));
+                    assertThat(env.hasAgent(uuid1), is(false));
                 }
             });
         }
@@ -662,8 +677,8 @@ class EnvironmentConfigServiceTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         environmentConfigService.patchEnvironment(environmentConfig, singletonList("pipeline1"), emptyList(), emptyList(), emptyList(), emptyList(), emptyList(), user, result);
 
-        assertThat(result.isSuccessful()).isTrue();
-        assertThat(result.message()).isEqualTo("Updated environment 'env_name'.");
+        assertThat(result.isSuccessful(), is(true));
+        assertThat(result.message(), is("Updated environment 'env_name'."));
     }
 
     @Test
@@ -693,8 +708,8 @@ class EnvironmentConfigServiceTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         environmentConfigService.deleteEnvironment(environmentConfig, user, result);
 
-        assertThat(result.isSuccessful()).isTrue();
-        assertThat(result.message()).isEqualTo("Environment with name 'env_name' was deleted successfully!");
+        assertThat(result.isSuccessful(), is(true));
+        assertThat(result.message(), is("Environment with name 'env_name' was deleted successfully!"));
     }
 
     @Test
@@ -728,8 +743,8 @@ class EnvironmentConfigServiceTest {
 
             EnvironmentConfig environmentConfig = environmentConfigService.getEnvironmentConfig(environmentName);
             EnvironmentAgentsConfig environmentConfigAgents = environmentConfig.getAgents();
-            assertThat(environmentConfigAgents.size()).isEqualTo(1);
-            assertThat(environmentConfigAgents.get(0).getUuid()).isEqualTo(uuid);
+            assertThat(environmentConfigAgents.size(), is(1));
+            assertThat(environmentConfigAgents.get(0).getUuid(), is(uuid));
 
             String newEnvironmentName = "new-environment";
             Agent agentAfterUpdate = new Agent(uuid);
@@ -738,7 +753,7 @@ class EnvironmentConfigServiceTest {
             environmentConfigService.agentChanged(agentAfterUpdate);
 
             EnvironmentConfig afterUpdateEnvConfig = environmentConfigService.getEnvironmentConfig(environmentName);
-            assertThat(afterUpdateEnvConfig.getAgents().size()).isEqualTo(0);
+            assertThat(afterUpdateEnvConfig.getAgents().size(), is(0));
         }
 
         @Test
@@ -758,8 +773,8 @@ class EnvironmentConfigServiceTest {
 
             EnvironmentConfig afterUpdateEnvConfig = environmentConfigService.getEnvironmentConfig(environmentName);
             EnvironmentAgentsConfig agentConfigs = afterUpdateEnvConfig.getAgents();
-            assertThat(agentConfigs.size()).isEqualTo(1);
-            assertThat(agentConfigs.get(0).getUuid()).isEqualTo(uuid);
+            assertThat(agentConfigs.size(), is(1));
+            assertThat(agentConfigs.get(0).getUuid(), is(uuid));
         }
     }
 
@@ -775,15 +790,15 @@ class EnvironmentConfigServiceTest {
 
         EnvironmentConfig environmentConfig = environmentConfigService.getEnvironmentConfig(environmentName);
         EnvironmentAgentsConfig environmentConfigAgents = environmentConfig.getAgents();
-        assertThat(environmentConfigAgents.size()).isEqualTo(1);
-        assertThat(environmentConfigAgents.get(0).getUuid()).isEqualTo(uuid);
+        assertThat(environmentConfigAgents.size(), is(1));
+        assertThat(environmentConfigAgents.get(0).getUuid(), is(uuid));
 
         Agent agentDeleted = new Agent(uuid);
         agentDeleted.addEnvironment(environmentName);
         environmentConfigService.agentDeleted(agentDeleted);
 
         EnvironmentConfig afterUpdateEnvConfig = environmentConfigService.getEnvironmentConfig(environmentName);
-        assertThat(afterUpdateEnvConfig.getAgents().size()).isEqualTo(0);
+        assertThat(afterUpdateEnvConfig.getAgents().size(), is(0));
     }
 
     @Test
@@ -795,14 +810,13 @@ class EnvironmentConfigServiceTest {
         environmentConfigService.syncEnvironmentsFromConfig(environments);
 
         EnvironmentConfig environmentConfig = environmentConfigService.getEnvironmentConfig(environmentName);
-        assertThat(environmentConfig.getAgents().size()).isEqualTo(0);
+        assertThat(environmentConfig.getAgents().size(), is(0));
 
-        AgentInstances agentInstances = new AgentInstances(null);
-        Agents agents = new Agents();
         Agent agent = new Agent(uuid);
         agent.addEnvironment(environmentName);
-        agents.add(agent);
+
         AgentInstance agentInstance = AgentInstance.createFromAgent(agent, new SystemEnvironment(), null);
+        AgentInstances agentInstances = new AgentInstances(null);
         agentInstances.add(agentInstance);
 
         when(agentService.getAgentInstances()).thenReturn(agentInstances);
@@ -810,8 +824,8 @@ class EnvironmentConfigServiceTest {
 
         EnvironmentConfig afterUpdateEnvConfig = environmentConfigService.getEnvironmentConfig(environmentName);
         EnvironmentAgentsConfig afterUpdateEnvConfigAgents = afterUpdateEnvConfig.getAgents();
-        assertThat(afterUpdateEnvConfigAgents.size()).isEqualTo(1);
-        assertThat(afterUpdateEnvConfigAgents.get(0).getUuid()).isEqualTo(uuid);
+        assertThat(afterUpdateEnvConfigAgents.size(), is(1));
+        assertThat(afterUpdateEnvConfigAgents.get(0).getUuid(), is(uuid));
     }
 
     @Test
@@ -827,8 +841,8 @@ class EnvironmentConfigServiceTest {
         environmentConfigService.syncEnvironmentsFromConfig(environments);
 
         EnvironmentAgentsConfig envConfigAgents1 = environmentConfigService.getEnvironmentConfig(envName1).getAgents();
-        assertThat(envConfigAgents1.size()).isEqualTo(1);
-        assertThat(envConfigAgents1.get(0).getUuid()).isEqualTo(uuid);
+        assertThat(envConfigAgents1.size(), is(1));
+        assertThat(envConfigAgents1.get(0).getUuid(), is(uuid));
 
         Agent agent = new Agent(uuid);
         agent.addEnvironments(asList(envName, envName1));
@@ -840,11 +854,11 @@ class EnvironmentConfigServiceTest {
         environmentConfigService.syncAssociatedAgentsFromDB();
 
         EnvironmentAgentsConfig afterUpdateEnvConfigAgents = environmentConfigService.getEnvironmentConfig(envName).getAgents();
-        assertThat(afterUpdateEnvConfigAgents.size()).isEqualTo(1);
-        assertThat(afterUpdateEnvConfigAgents.get(0).getUuid()).isEqualTo(uuid);
+        assertThat(afterUpdateEnvConfigAgents.size(), is(1));
+        assertThat(afterUpdateEnvConfigAgents.get(0).getUuid(), is(uuid));
 
         EnvironmentAgentsConfig afterUpdateEnvConfigAgents1 = environmentConfigService.getEnvironmentConfig(envName1).getAgents();
-        assertThat(afterUpdateEnvConfigAgents1.size()).isEqualTo(1);
+        assertThat(afterUpdateEnvConfigAgents1.size(), is(1));
 
     }
 

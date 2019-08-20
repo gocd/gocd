@@ -30,17 +30,16 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Set;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class EnvironmentsConfigTest {
+class EnvironmentsConfigTest {
     private EnvironmentsConfig envsConfig;
     private BasicEnvironmentConfig basicEnvConfig;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         envsConfig = new EnvironmentsConfig();
 
         basicEnvConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("uat"));
@@ -50,187 +49,191 @@ public class EnvironmentsConfigTest {
         envsConfig.add(basicEnvConfig);
     }
 
-    @Test
-    public void shouldAddPipelinesToEnvironment() {
-        String prodPipelineName = "production";
-        String stagePipelineName = "stage";
+    @Nested
+    class AddPipelinesToEnvironment {
+        @Test
+        void shouldAddPipelinesToEnvironment() {
+            String prodPipelineName = "production";
+            String stagePipelineName = "stage";
 
-        String nonExistingEnv = "env-that-does-not-exist";
-        envsConfig.addPipelinesToEnvironment(nonExistingEnv, prodPipelineName, stagePipelineName);
+            String nonExistingEnv = "env-that-does-not-exist";
+            envsConfig.addPipelinesToEnvironment(nonExistingEnv, prodPipelineName, stagePipelineName);
 
-        CaseInsensitiveString prodPipelineEnv = envsConfig.findEnvironmentNameForPipeline(new CaseInsensitiveString(prodPipelineName));
-        CaseInsensitiveString stagePipelineEnv = envsConfig.findEnvironmentNameForPipeline(new CaseInsensitiveString(stagePipelineName));
+            CaseInsensitiveString prodPipelineEnv = envsConfig.findEnvironmentNameForPipeline(new CaseInsensitiveString(prodPipelineName));
+            CaseInsensitiveString stagePipelineEnv = envsConfig.findEnvironmentNameForPipeline(new CaseInsensitiveString(stagePipelineName));
 
-        assertThat(prodPipelineEnv.toString(), equalTo(nonExistingEnv));
-        assertThat(stagePipelineEnv.toString(), equalTo(nonExistingEnv));
-    }
+            assertThat(prodPipelineEnv.toString(), equalTo(nonExistingEnv));
+            assertThat(stagePipelineEnv.toString(), equalTo(nonExistingEnv));
+        }
 
-    @Test
-    public void shouldAddPipelinesToNonExistingEnvironment() {
-        envsConfig.addPipelinesToEnvironment("uat", "production", "stage");
-        CaseInsensitiveString prodPipelineEnv = envsConfig.findEnvironmentNameForPipeline(new CaseInsensitiveString("production"));
-        CaseInsensitiveString stagePipelineEnv = envsConfig.findEnvironmentNameForPipeline(new CaseInsensitiveString("stage"));
-        assertThat(prodPipelineEnv.toString(), equalTo("uat"));
-        assertThat(stagePipelineEnv.toString(), equalTo("uat"));
-    }
-
-    @Test
-    public void shouldFindFirstEnvironmentPipelineMatcherForPipeline() {
-        BasicEnvironmentConfig testEnvConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("test"));
-
-        String deploymentPipeline = "deployment";
-
-        testEnvConfig.addPipeline(new CaseInsensitiveString(deploymentPipeline));
-        testEnvConfig.addAgent("agent-two");
-        envsConfig.add(testEnvConfig);
-
-        EnvironmentPipelineMatcher matcher = envsConfig.matchersForPipeline(deploymentPipeline);
-
-        assertNotNull(matcher);
-        assertTrue(matcher.hasPipeline(deploymentPipeline));
-        assertTrue(matcher.match(deploymentPipeline, "agent-one"));
-        assertThat(matcher.name().toString(), equalTo("uat"));
-    }
-
-    @Test
-    public void shouldFindNullEnvironmentPipelineMatcherForNotExistingPipeline() {
-        BasicEnvironmentConfig testEnvConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("test"));
-
-        String deploymentPipeline = "deployment";
-
-        testEnvConfig.addPipeline(new CaseInsensitiveString(deploymentPipeline));
-        testEnvConfig.addAgent("agent-two");
-        envsConfig.add(testEnvConfig);
-
-        EnvironmentPipelineMatcher matcher = envsConfig.matchersForPipeline("non-existing-pipeline");
-
-        assertNull(matcher);
-    }
-
-    @Test
-    public void shouldFindEnvironmentGivenPipelineName() {
-        assertThat(envsConfig.findEnvironmentForPipeline(new CaseInsensitiveString("deployment")), is(basicEnvConfig));
-    }
-
-    @Test
-    public void shouldReturnNullAsEnvironmentGivenNonExistingPipelineName() {
-        assertThat(envsConfig.findEnvironmentForPipeline(new CaseInsensitiveString("non-existing-pipeline")), nullValue());
-    }
-
-    @Test
-    public void shouldFindIfAGivenPipelineBelongsToAnyEnvironment() {
-        assertThat(envsConfig.isPipelineAssociatedWithAnyEnvironment(new CaseInsensitiveString("deployment")), is(true));
-    }
-
-    @Test
-    public void shouldFindOutIfAGivenPipelineDoesNotBelongsToAnyEnvironment() {
-        assertThat(envsConfig.isPipelineAssociatedWithAnyEnvironment(new CaseInsensitiveString("unit-test")), is(false));
-    }
-
-    @Test
-    public void shouldFindOutIfGivenAgentUUIDIsReferencedByAnyEnvironment() {
-        assertThat(envsConfig.isAgentAssociatedWithEnvironment("agent-one"), is(true));
-    }
-
-    @Test
-    public void shouldFindOutIfGivenAgentUUIDIsNotReferencedByAnyEnvironment() {
-        assertThat(envsConfig.isAgentAssociatedWithEnvironment("agent-not-in-any-basicEnvConfig"), is(false));
-    }
-
-    @Test
-    public void shouldFindEnvironmentConfigGivenAnEnvironmentName() {
-        assertThat(envsConfig.named(new CaseInsensitiveString("uat")), is(basicEnvConfig));
-    }
-
-    @Test
-    public void shouldUnderstandEnvironmentsForAgent() {
-        assertThat(envsConfig.getAgentEnvironmentNames("agent-one"), hasItem("uat"));
-    }
-
-    @Test
-    public void shouldFindEnvironmentConfigsForAgent() {
-        Set<EnvironmentConfig> environmentConfigs = envsConfig.getAgentEnvironments("agent-one");
-        assertThat(environmentConfigs, hasItem(basicEnvConfig));
-        assertThat(environmentConfigs, hasSize(1));
-    }
-
-    @Test
-    public void shouldThrowExceptionIfTheEnvironmentDoesNotExist() {
-        try {
-            envsConfig.named(new CaseInsensitiveString("not-exist"));
-            fail("Should throw exception if the environment does not exist");
-        } catch (RecordNotFoundException e) {
-            assertThat(e.getMessage(), is(EntityType.Environment.notFoundMessage("not-exist")));
+        @Test
+        void shouldAddPipelinesToNonExistingEnvironment() {
+            envsConfig.addPipelinesToEnvironment("uat", "production", "stage");
+            CaseInsensitiveString prodPipelineEnv = envsConfig.findEnvironmentNameForPipeline(new CaseInsensitiveString("production"));
+            CaseInsensitiveString stagePipelineEnv = envsConfig.findEnvironmentNameForPipeline(new CaseInsensitiveString("stage"));
+            assertThat(prodPipelineEnv.toString(), equalTo("uat"));
+            assertThat(stagePipelineEnv.toString(), equalTo("uat"));
         }
     }
 
-    @Test
-    public void shouldRemoveAgentFromAllEnvironments() {
-        BasicEnvironmentConfig env2 = new BasicEnvironmentConfig(new CaseInsensitiveString("prod"));
-        env2.addPipeline(new CaseInsensitiveString("test"));
-        env2.addAgent("agent-one");
-        env2.addAgent("agent-two");
-        envsConfig.add(env2);
+    @Nested
+    class MatchersForPipeline {
+        @Test
+        void shouldFindFirstEnvironmentPipelineMatcherForPipeline() {
+            BasicEnvironmentConfig testEnvConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("test"));
 
-        BasicEnvironmentConfig env3 = new BasicEnvironmentConfig(new CaseInsensitiveString("dev"));
-        env3.addPipeline(new CaseInsensitiveString("build"));
-        env3.addAgent("agent-two");
-        env3.addAgent("agent-three");
-        envsConfig.add(env3);
+            String deploymentPipeline = "deployment";
 
-        assertThat(envsConfig.get(0).getAgents().size(), is(1));
-        assertThat(envsConfig.get(1).getAgents().size(), is(2));
-        assertThat(envsConfig.getAgentEnvironmentNames("agent-one").size(), is(2));
+            testEnvConfig.addPipeline(new CaseInsensitiveString(deploymentPipeline));
+            testEnvConfig.addAgent("agent-two");
+            envsConfig.add(testEnvConfig);
 
-        envsConfig.removeAgentFromAllEnvironments("agent-one");
+            EnvironmentPipelineMatcher matcher = envsConfig.matchersForPipeline(deploymentPipeline);
 
-        assertThat(envsConfig.get(0).getAgents().size(), is(0));
-        assertThat(envsConfig.get(1).getAgents().size(), is(1));
-        assertThat(envsConfig.get(2).getAgents().size(), is(2));
-        assertThat(envsConfig.getAgentEnvironmentNames("agent-one").size(), is(0));
-        assertThat(envsConfig.getAgentEnvironmentNames("agent-two").size(), is(2));
-        assertThat(envsConfig.getAgentEnvironmentNames("agent-three").size(), is(1));
+            assertThat(matcher, is(not(nullValue())));
+            assertThat(matcher.hasPipeline(deploymentPipeline), is(true));
+            assertThat(matcher.match(deploymentPipeline, "agent-one"), is(true));
+            assertThat(matcher.name().toString(), equalTo("uat"));
+        }
+
+        @Test
+        void shouldFindNullEnvironmentPipelineMatcherForNotExistingPipeline() {
+            BasicEnvironmentConfig testEnvConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("test"));
+
+            String deploymentPipeline = "deployment";
+
+            testEnvConfig.addPipeline(new CaseInsensitiveString(deploymentPipeline));
+            testEnvConfig.addAgent("agent-two");
+            envsConfig.add(testEnvConfig);
+
+            EnvironmentPipelineMatcher matcher = envsConfig.matchersForPipeline("non-existing-pipeline");
+
+            assertThat(matcher, is(nullValue()));
+        }
     }
 
-    @Test
-    public void shouldGetLocalPartsWhenOriginIsNull() {
-        assertThat(envsConfig.getLocal().size(), is(1));
-        assertThat(envsConfig.getLocal().get(0), is(basicEnvConfig));
+    @Nested
+    class FindEnvironmentForPipeline {
+        @Test
+        void shouldFindEnvironmentGivenPipelineName() {
+            assertThat(envsConfig.findEnvironmentForPipeline(new CaseInsensitiveString("deployment")), is(basicEnvConfig));
+        }
+
+        @Test
+        void shouldReturnNullAsEnvironmentGivenNonExistingPipelineName() {
+            assertThat(envsConfig.findEnvironmentForPipeline(new CaseInsensitiveString("non-existing-pipeline")), nullValue());
+        }
     }
 
-    @Test
-    public void shouldGetLocalPartsWhenOriginIsFile() {
-        basicEnvConfig.setOrigins(new FileConfigOrigin());
-        assertThat(envsConfig.getLocal().size(), is(1));
-        assertThat(envsConfig.getLocal().get(0), is(basicEnvConfig));
+    @Nested
+    class IsPipelineAssociatedWithAnyEnvironment {
+        @Test
+        void shouldFindIfAGivenPipelineBelongsToAnyEnvironment() {
+            assertThat(envsConfig.isPipelineAssociatedWithAnyEnvironment(new CaseInsensitiveString("deployment")), is(true));
+        }
+
+        @Test
+        void shouldFindOutIfAGivenPipelineDoesNotBelongsToAnyEnvironment() {
+            assertThat(envsConfig.isPipelineAssociatedWithAnyEnvironment(new CaseInsensitiveString("unit-test")), is(false));
+        }
     }
 
-    @Test
-    public void shouldGetLocalPartsWhenOriginIsRepo() {
-        basicEnvConfig.setOrigins(new RepoConfigOrigin());
-        assertThat(envsConfig.getLocal().size(), is(0));
+    @Nested
+    class isAgentAssociatedWithAnyEnvironment {
+        @Test
+        void shouldFindOutIfGivenAgentUUIDIsReferencedByAnyEnvironment() {
+            assertThat(envsConfig.isAgentAssociatedWithEnvironment("agent-one"), is(true));
+        }
+
+        @Test
+        void shouldFindOutIfGivenAgentUUIDIsNotReferencedByAnyEnvironment() {
+            assertThat(envsConfig.isAgentAssociatedWithEnvironment("agent-not-in-any-basicEnvConfig"), is(false));
+        }
     }
 
-    @Test
-    public void shouldGetLocalPartsWhenOriginIsMixed() {
-        basicEnvConfig.setOrigins(new FileConfigOrigin());
+    @Nested
+    class Named {
+        @Test
+        void shouldFindEnvironmentConfigGivenAnEnvironmentName() {
+            assertThat(envsConfig.named(new CaseInsensitiveString("uat")), is(basicEnvConfig));
+        }
 
-        BasicEnvironmentConfig prodLocalPart = new BasicEnvironmentConfig(new CaseInsensitiveString("PROD"));
-        prodLocalPart.addAgent("1235");
-        prodLocalPart.setOrigins(new FileConfigOrigin());
-        BasicEnvironmentConfig prodRemotePart = new BasicEnvironmentConfig(new CaseInsensitiveString("PROD"));
-        prodRemotePart.setOrigins(new RepoConfigOrigin());
-        MergeEnvironmentConfig pairEnvironmentConfig = new MergeEnvironmentConfig(prodLocalPart, prodRemotePart);
+        @Test
+        void shouldThrowRecondNotFoundExceptionIfTheEnvironmentDoesNotExist() {
+            String envName = "not-existing-env-name";
+            RecordNotFoundException e = assertThrows(RecordNotFoundException.class, () -> envsConfig.named(new CaseInsensitiveString(envName)));
+            assertThat(e.getMessage(), is(EntityType.Environment.notFoundMessage(envName)));
+        }
+    }
 
-        envsConfig.add(pairEnvironmentConfig);
+    @Nested
+    class HasEnvironmentNamed {
 
-        assertThat(envsConfig.getLocal().size(), is(2));
-        assertThat(envsConfig.getLocal(), hasItem(basicEnvConfig));
-        assertThat(envsConfig.getLocal(), hasItem(prodLocalPart));
+        @Test
+        void shouldReturnTrueIfContainsTheGivenEnvName() {
+            assertThat(envsConfig.hasEnvironmentNamed(new CaseInsensitiveString("uat")), is(true));
+        }
+        @Test
+        void shouldReturnFalseIfDoesNotContainTheGivenEnvName() {
+            assertThat(envsConfig.hasEnvironmentNamed(new CaseInsensitiveString("prod")), is(false));
+        }
+
+        @Test
+        void shouldReturnFalseIfTheGivenEnvNameReturnsUnknownEnvironmentConfig() {
+            CaseInsensitiveString envName = new CaseInsensitiveString("non-existent-env");
+            UnknownEnvironmentConfig envConfig = new UnknownEnvironmentConfig(envName);
+
+            envsConfig.add(envConfig);
+            assertThat(envsConfig.hasEnvironmentNamed(envName), is(false));
+        }
+    }
+
+    @Nested
+    class GetLocalParts {
+
+        @Test
+        void shouldGetLocalPartsWhenOriginIsNull() {
+            assertThat(envsConfig.getLocal().size(), is(1));
+            assertThat(envsConfig.getLocal().get(0), is(basicEnvConfig));
+        }
+
+        @Test
+        void shouldGetLocalPartsWhenOriginIsFile() {
+            basicEnvConfig.setOrigins(new FileConfigOrigin());
+            assertThat(envsConfig.getLocal().size(), is(1));
+            assertThat(envsConfig.getLocal().get(0), is(basicEnvConfig));
+        }
+
+        @Test
+        void shouldGetLocalPartsWhenOriginIsRepo() {
+            basicEnvConfig.setOrigins(new RepoConfigOrigin());
+            assertThat(envsConfig.getLocal().size(), is(0));
+        }
+
+        @Test
+        void shouldGetLocalPartsWhenOriginIsMixed() {
+            basicEnvConfig.setOrigins(new FileConfigOrigin());
+
+            BasicEnvironmentConfig prodLocalPart = new BasicEnvironmentConfig(new CaseInsensitiveString("PROD"));
+            prodLocalPart.addAgent("1235");
+            prodLocalPart.setOrigins(new FileConfigOrigin());
+
+            BasicEnvironmentConfig prodRemotePart = new BasicEnvironmentConfig(new CaseInsensitiveString("PROD"));
+            prodRemotePart.setOrigins(new RepoConfigOrigin());
+
+            MergeEnvironmentConfig pairEnvironmentConfig = new MergeEnvironmentConfig(prodLocalPart, prodRemotePart);
+            envsConfig.add(pairEnvironmentConfig);
+
+            assertThat(envsConfig.getLocal().size(), is(2));
+            assertThat(envsConfig.getLocal(), hasItem(basicEnvConfig));
+            assertThat(envsConfig.getLocal(), hasItem(prodLocalPart));
+        }
+
     }
 
     @Nested
     class Validate {
+
         CruiseConfig config;
         ConfigSaveValidationContext validationContext;
 
@@ -245,7 +248,7 @@ public class EnvironmentsConfigTest {
         void shouldValidateEnvsConfig() {
             envsConfig.validate(validationContext);
 
-            assertTrue(envsConfig.get(0).errors().isEmpty());
+            assertThat(envsConfig.get(0).errors().isEmpty(), is(true));
         }
 
         @Test
@@ -259,9 +262,9 @@ public class EnvironmentsConfigTest {
             envsConfig.add(clone);
             envsConfig.validate(validationContext);
 
-            assertTrue(envsConfig.get(0).errors().isEmpty());
+            assertThat(envsConfig.get(0).errors().isEmpty(), is(true));
             ConfigErrors configErrors = envsConfig.get(1).errors();
-            assertFalse(configErrors.isEmpty());
+            assertThat(configErrors.isEmpty(), is(false));
             assertThat(configErrors.on("name"), is("Environment with name 'prod' already exists."));
         }
 
@@ -276,7 +279,7 @@ public class EnvironmentsConfigTest {
             envsConfig.validate(validationContext);
 
             ConfigErrors configErrors = envsConfig.get(0).errors();
-            assertFalse(configErrors.isEmpty());
+            assertThat(configErrors.isEmpty(), is(false));
             assertThat(configErrors.on("pipeline"), is("Environment 'prod' refers to an unknown pipeline 'non-existent-pipeline'."));
         }
 
@@ -294,50 +297,74 @@ public class EnvironmentsConfigTest {
 
             envsConfig.validate(validationContext);
 
-            assertTrue(envsConfig.get(0).errors().isEmpty());
+            assertThat(envsConfig.get(0).errors().isEmpty(), is(true));
             ConfigErrors configErrors = envsConfig.get(1).errors();
-            assertFalse(configErrors.isEmpty());
+            assertThat(configErrors.isEmpty(), is(false));
             assertThat(configErrors.on("pipeline"), is("Associating pipeline(s) which is already part of prod environment"));
         }
+
     }
 
-    @Test
-    void shouldAddErrorsToTheConfig() {
-        assertTrue(envsConfig.errors().isEmpty());
+    @Nested
+    class Remaining {
+        @Test
+        void shouldReturnUniqueEnvironmentNames() {
+            assertThat(envsConfig.getAgentEnvironmentNames("agent-one"), hasItem("uat"));
+        }
 
-        envsConfig.addError("field-name", "some error message");
+        @Test
+        void shouldFindEnvironmentConfigsForAgent() {
+            Set<EnvironmentConfig> environmentConfigs = envsConfig.getAgentEnvironments("agent-one");
+            assertThat(environmentConfigs, hasItem(basicEnvConfig));
+            assertThat(environmentConfigs, hasSize(1));
+        }
 
-        ConfigErrors errors = envsConfig.errors();
-        assertFalse(errors.isEmpty());
-        assertThat(errors.size(), is(1));
-        assertThat(errors.on("field-name"), is("some error message"));
-    }
+        @Test
+        void shouldRemoveAgentFromAllEnvironments() {
+            BasicEnvironmentConfig env2 = new BasicEnvironmentConfig(new CaseInsensitiveString("prod"));
+            env2.addPipeline(new CaseInsensitiveString("test"));
+            env2.addAgent("agent-one");
+            env2.addAgent("agent-two");
+            envsConfig.add(env2);
 
-    @Test
-    void shouldReturnAListOfAllEnvConfigNames() {
-        List<CaseInsensitiveString> names = envsConfig.names();
+            BasicEnvironmentConfig env3 = new BasicEnvironmentConfig(new CaseInsensitiveString("dev"));
+            env3.addPipeline(new CaseInsensitiveString("build"));
+            env3.addAgent("agent-two");
+            env3.addAgent("agent-three");
+            envsConfig.add(env3);
 
-        assertThat(names.size(), is(1));
-        assertThat(names.get(0).toString(), is("uat"));
-    }
+            assertThat(envsConfig.get(0).getAgents().size(), is(1));
+            assertThat(envsConfig.get(1).getAgents().size(), is(2));
+            assertThat(envsConfig.getAgentEnvironmentNames("agent-one").size(), is(2));
 
-    @Test
-    void shouldReturnTrueIfContainsTheGivenEnvName() {
-        assertTrue(envsConfig.hasEnvironmentNamed(new CaseInsensitiveString("uat")));
-    }
+            envsConfig.removeAgentFromAllEnvironments("agent-one");
 
-    @Test
-    void shouldReturnFalseIfDoesNotContainTheGivenEnvName() {
-        assertFalse(envsConfig.hasEnvironmentNamed(new CaseInsensitiveString("prod")));
-    }
+            assertThat(envsConfig.get(0).getAgents().size(), is(0));
+            assertThat(envsConfig.get(1).getAgents().size(), is(1));
+            assertThat(envsConfig.get(2).getAgents().size(), is(2));
+            assertThat(envsConfig.getAgentEnvironmentNames("agent-one").size(), is(0));
+            assertThat(envsConfig.getAgentEnvironmentNames("agent-two").size(), is(2));
+            assertThat(envsConfig.getAgentEnvironmentNames("agent-three").size(), is(1));
+        }
 
-    @Test
-    void shouldReturnFalseIfTheGivenEnvNameReturnsUnknownEnvironmentConfig() {
-        CaseInsensitiveString envName = new CaseInsensitiveString("non-existent-env");
-        UnknownEnvironmentConfig envConfig = new UnknownEnvironmentConfig(envName);
+        @Test
+        void addErrorShouldAddErrorToTheConfig() {
+            assertThat(envsConfig.errors().isEmpty(), is(true));
 
-        envsConfig.add(envConfig);
+            envsConfig.addError("field-name", "some error message");
 
-        assertFalse(envsConfig.hasEnvironmentNamed(envName));
+            ConfigErrors errors = envsConfig.errors();
+            assertThat(errors.isEmpty(), is(false));
+            assertThat(errors.size(), is(1));
+            assertThat(errors.on("field-name"), is("some error message"));
+        }
+
+        @Test
+        void shouldReturnAListOfAllEnvConfigNames() {
+            List<CaseInsensitiveString> names = envsConfig.names();
+
+            assertThat(names.size(), is(1));
+            assertThat(names.get(0).toString(), is("uat"));
+        }
     }
 }

@@ -27,7 +27,6 @@ import com.thoughtworks.go.domain.NullAgentInstance;
 import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.helper.AgentMother;
 import com.thoughtworks.go.listener.AgentChangeListener;
-import com.thoughtworks.go.listener.AgentChangedEvent;
 import com.thoughtworks.go.listener.AgentStatusChangeListener;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.security.Registration;
@@ -1286,8 +1285,7 @@ class AgentServiceTest {
             when(agentInstances.findAgent(agentBeforeUpdate.getUuid())).thenReturn(agentInstanceBeforeUpdate);
             agentService.entityChanged(agentAfterUpdate);
             assertThat(agentInstanceBeforeUpdate.getAgent(), is(agentAfterUpdate));
-            AgentChangedEvent agentChangedEvent = new AgentChangedEvent(agentBeforeUpdate, agentAfterUpdate);
-            verify(listener).agentChanged(agentChangedEvent);
+            verify(listener).agentChanged(agentAfterUpdate);
         }
 
         @Test

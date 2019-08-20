@@ -208,7 +208,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
             if (isAnyOperationPerformedOnBulkAgents(emptyList(), emptyList(), envsConfig, emptyList(), TRUE, result)) {
                 validator.validate();
 
-                List<String> uuidsToAssociate  = (uuids == null) ? emptyList() : uuids;
+                List<String> uuidsToAssociate = (uuids == null) ? emptyList() : uuids;
                 List<Agent> agents = getAgentsToAddEnvToOrRemoveEnvFrom(envConfig, uuidsToAssociate);
 
                 if (agents.isEmpty()) {
@@ -432,8 +432,10 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
 
     private void notifyAgentChangeListenersAndSyncAgentFromUpdatedAgent(Agent agentAfterUpdate, AgentInstance agentInstanceBeforeUpdate) {
         Agent agentBeforeUpdate = agentInstanceBeforeUpdate.getAgent();
-        notifyAgentChangeListeners(agentBeforeUpdate, agentAfterUpdate);
-        agentInstanceBeforeUpdate.syncAgentFrom(agentAfterUpdate);
+        if (!agentBeforeUpdate.equals(agentAfterUpdate)) {
+            notifyAgentChangeListeners(agentAfterUpdate);
+            agentInstanceBeforeUpdate.syncAgentFrom(agentAfterUpdate);
+        }
     }
 
     private void createNewAgentInstanceAndAddToCache(Agent agentAfterUpdate) {
@@ -497,9 +499,8 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         setOnlyThoseEnvsThatAreNotAssociatedWithAgentFromConfigRepo(environments, agent);
     }
 
-    private void notifyAgentChangeListeners(Agent agentBeforeUpdate, Agent agentAfterUpdate) {
-        AgentChangedEvent event = new AgentChangedEvent(agentBeforeUpdate, agentAfterUpdate);
-        listeners.forEach(listener -> listener.agentChanged(event));
+    private void notifyAgentChangeListeners(Agent agentAfterUpdate) {
+        listeners.forEach(listener -> listener.agentChanged(agentAfterUpdate));
     }
 
     private void notifyAgentDeleteListeners(String uuid) {

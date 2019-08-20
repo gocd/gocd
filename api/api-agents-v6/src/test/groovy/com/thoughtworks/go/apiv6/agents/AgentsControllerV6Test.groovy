@@ -845,7 +845,6 @@ class AgentsControllerV6Test implements SecurityServiceTrait, ControllerTrait<Ag
 
         when(environmentConfigService.findOrUnknown("env1")).thenReturn(environmentConfig)
         when(environmentConfigService.findOrUnknown("env2")).thenReturn(environmentConfig1)
-        when(environmentConfigService.getAgentEnvironmentNames("uuid2")).thenReturn(singleton("env1"))
 
         doAnswer({ InvocationOnMock invocation ->
           def result = invocation.getArgument(6) as HttpLocalizedOperationResult

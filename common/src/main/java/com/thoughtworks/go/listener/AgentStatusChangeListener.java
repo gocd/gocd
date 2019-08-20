@@ -15,8 +15,9 @@
  */
 package com.thoughtworks.go.listener;
 
-import com.thoughtworks.go.domain.AgentInstance;
+import com.thoughtworks.go.config.Agent;
 
-public interface AgentStatusChangeListener {
-    void onAgentStatusChange(AgentInstance agentInstance);
+public interface AgentChangeListener {
+    void agentChanged(Agent agent);
+    void agentDeleted(Agent agent);
 }

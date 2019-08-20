@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.server.service;
 
+import com.google.common.collect.Sets;
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
@@ -31,6 +32,7 @@ import com.thoughtworks.go.domain.ConfigElementForEdit;
 import com.thoughtworks.go.domain.EnvironmentPipelineMatchers;
 import com.thoughtworks.go.domain.JobPlan;
 import com.thoughtworks.go.i18n.LocalizedMessage;
+import com.thoughtworks.go.listener.AgentChangeListener;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.presentation.environment.EnvironmentPipelineModel;
@@ -40,10 +42,7 @@ import com.thoughtworks.go.server.ui.EnvironmentViewModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.str;
@@ -267,46 +266,19 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
     }
 
     @Override
-    public void agentChanged(AgentChangedEvent event) {
-        String uuid = event.getAgentBeforeUpdate().getUuid();
+    public void agentChanged(Agent agent) {
+        String uuid = agent.getUuid();
 
-        List<String> envsBeforeUpdate = event.getAgentBeforeUpdate().getEnvironmentsAsList();
-        List<String> envsAfterUpdate = event.getAgentAfterUpdate().getEnvironmentsAsList();
+        Set<String> originalEnvNames = getAgentEnvironmentNames(uuid);
+        HashSet<String> newEnvNames = new HashSet<>(agent.getEnvironmentsAsList());
 
-        removeAgentFromCurrentlyAssociatedEnvironments(uuid, envsBeforeUpdate, envsAfterUpdate);
-        addAgentToNewlyAssociatedEnvironments(uuid, envsBeforeUpdate, envsAfterUpdate);
+        Set<String> envsToRemove = Sets.difference(originalEnvNames, newEnvNames);
+        Set<String> envToAdd = Sets.difference(newEnvNames, originalEnvNames);
+
+        removeAgentFromCurrentlyAssociatedEnvironments(uuid, new ArrayList<>(envsToRemove));
+        addAgentToNewlyAssociatedEnvironments(uuid, new ArrayList<>(envToAdd));
 
         matchers = environments.matchers();
-    }
-
-    private void removeAgentFromCurrentlyAssociatedEnvironments(String uuid, List<String> envsBeforeUpdate, List<String> envsAfterUpdate) {
-        List<String> removedEnvs = filter1stListOfEnvironmentsThatDoNotExistInList2(envsBeforeUpdate, envsAfterUpdate);
-        removeAgentFromCurrentlyAssociatedEnvironments(uuid, removedEnvs);
-    }
-
-    private void removeAgentFromCurrentlyAssociatedEnvironments(String uuid, List<String> envNames) {
-        envNames.stream().map(this::find)
-                .filter(envConfig -> isEnvironmentAssociatedWithAgentLocally(envConfig, uuid))
-                .forEach(envConfig -> envConfig.removeAgent(uuid));
-    }
-
-    private void addAgentToNewlyAssociatedEnvironments(String uuid, List<String> envNames) {
-        envNames.stream().map(this::findOrUnknown)
-                .filter(envConfig -> isEnvironmentNotAssociatedWithAgent(envConfig, uuid))
-                .peek(envConfig -> envConfig.addAgent(uuid))
-                .filter(envConfig -> envConfig.isUnknown() && !environments.contains(envConfig))
-                .forEach(envConfig -> environments.add(envConfig));
-    }
-
-    private void addAgentToNewlyAssociatedEnvironments(String uuid, List<String> envsBeforeUpdate, List<String> envsAfterUpdate) {
-        List<String> addedEnvs = filter1stListOfEnvironmentsThatDoNotExistInList2(envsAfterUpdate, envsBeforeUpdate);
-        addAgentToNewlyAssociatedEnvironments(uuid, addedEnvs);
-    }
-
-    private List<String> filter1stListOfEnvironmentsThatDoNotExistInList2(List<String> envList1, List<String> envList2) {
-        return envList1.stream()
-                .filter(env -> !envList2.contains(env))
-                .collect(toList());
     }
 
     @Override
@@ -326,9 +298,23 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
         syncAssociatedAgentsFromDB();
     }
 
-    public void syncAssociatedAgentsFromDB() {
+    void syncAssociatedAgentsFromDB() {
         agentService.getAgentInstances().forEach(this::syncAssociatedAgentFromDB);
         matchers = environments.matchers();
+    }
+
+    private void removeAgentFromCurrentlyAssociatedEnvironments(String uuid, List<String> envNames) {
+        envNames.stream().map(this::find)
+                .filter(envConfig -> isEnvironmentAssociatedWithAgentLocally(envConfig, uuid))
+                .forEach(envConfig -> envConfig.removeAgent(uuid));
+    }
+
+    private void addAgentToNewlyAssociatedEnvironments(String uuid, List<String> envNames) {
+        envNames.stream().map(this::findOrUnknown)
+                .filter(envConfig -> isEnvironmentNotAssociatedWithAgent(envConfig, uuid))
+                .peek(envConfig -> envConfig.addAgent(uuid))
+                .filter(envConfig -> envConfig.isUnknown() && !environments.contains(envConfig))
+                .forEach(envConfig -> environments.add(envConfig));
     }
 
     private void syncAssociatedAgentFromDB(AgentInstance agentInstance) {
@@ -337,21 +323,10 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
         List<String> envNames = agent.getEnvironmentsAsList();
 
         addAgentToNewlyAssociatedEnvironments(uuid, envNames);
-        removeAgentFromPreviouslyAssociatedEnvironments(uuid, envNames);
     }
 
     private boolean isEnvironmentAssociatedWithAgentLocally(EnvironmentConfig envConfig, String uuid) {
         return envConfig != null && envConfig.hasAgent(uuid) && !envConfig.containsAgentRemotely(uuid);
-    }
-
-    private void removeAgentFromPreviouslyAssociatedEnvironments(String uuid, List<String> currentlyAssociatedEnvNames) {
-        environments.stream()
-                .filter(env -> isEnvironmentPreviouslyAssociatedWithAgent(env, uuid, currentlyAssociatedEnvNames))
-                .forEach(otherEnv -> otherEnv.removeAgent(uuid));
-    }
-
-    private boolean isEnvironmentPreviouslyAssociatedWithAgent(EnvironmentConfig env, String uuid, List<String> newlyAssociatedEnvNames) {
-        return !(newlyAssociatedEnvNames.contains(env.name().toString())) && env.hasAgent(uuid);
     }
 
     private boolean isEnvironmentNotAssociatedWithAgent(EnvironmentConfig envConfig, String uuid) {

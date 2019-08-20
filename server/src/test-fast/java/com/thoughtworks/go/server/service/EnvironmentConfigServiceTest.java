@@ -566,8 +566,8 @@ class EnvironmentConfigServiceTest {
         void shouldSyncEnvironmentsFromAgentAssociationInDB1() {
             shouldSyncEnvironmentsFromAgentAssociationInDB(ImmutableMap.of(
                     "dev", "uuid1",
-                    "test", "uuid2",
-                    "stage", "uuid1",
+                    "test", "uuid1",
+                    "stage", "uuid2",
                     "prod", "uuid2"
             ));
         }
@@ -575,40 +575,18 @@ class EnvironmentConfigServiceTest {
         @Test
         void shouldSyncEnvironmentsFromAgentAssociationInDB2() {
             shouldSyncEnvironmentsFromAgentAssociationInDB(ImmutableMap.of(
-                    "dev", "uuid2",
-                    "test", "uuid2",
-                    "stage", "uuid1",
-                    "prod", "uuid1"
-            ));
-        }
-
-        @Test
-        void shouldSyncEnvironmentsFromAgentAssociationInDB3() {
-            shouldSyncEnvironmentsFromAgentAssociationInDB(ImmutableMap.of(
                     "dev", "uuid1",
-                    "test", "uuid1",
-                    "stage", "uuid1",
-                    "prod", "uuid2"
-            ));
-        }
-
-        @Test
-        void shouldSyncEnvironmentsFromAgentAssociationInDB4() {
-            shouldSyncEnvironmentsFromAgentAssociationInDB(ImmutableMap.of(
-                    "dev", "uuid2",
-                    "test", "uuid2",
-                    "stage", "uuid2",
-                    "prod", "uuid2"
+                    "stage", "uuid2"
             ));
         }
 
         @Test
         void shouldSyncEnvironmentsFromAgentAssociationInDB5() {
             shouldSyncEnvironmentsFromAgentAssociationInDB(ImmutableMap.of(
-                    "dev", "uuid1",
-                    "test", "uuid1",
-                    "stage", "uuid1",
-                    "prod", "uuid1"
+                    "dev", "uuid3",
+                    "test", "uuid3",
+                    "stage", "uuid3",
+                    "prod", "uuid3"
             ));
         }
 
@@ -754,13 +732,10 @@ class EnvironmentConfigServiceTest {
             assertThat(environmentConfigAgents.get(0).getUuid()).isEqualTo(uuid);
 
             String newEnvironmentName = "new-environment";
-            Agent agentBeforeUpdate = new Agent(uuid);
-            agentBeforeUpdate.addEnvironment(environmentName);
             Agent agentAfterUpdate = new Agent(uuid);
             agentAfterUpdate.addEnvironment(newEnvironmentName);
-            AgentChangedEvent agentChangedEvent = new AgentChangedEvent(agentBeforeUpdate, agentAfterUpdate);
 
-            environmentConfigService.agentChanged(agentChangedEvent);
+            environmentConfigService.agentChanged(agentAfterUpdate);
 
             EnvironmentConfig afterUpdateEnvConfig = environmentConfigService.getEnvironmentConfig(environmentName);
             assertThat(afterUpdateEnvConfig.getAgents().size()).isEqualTo(0);
@@ -776,12 +751,10 @@ class EnvironmentConfigServiceTest {
             assertThatCode(() -> environmentConfigService.getEnvironmentConfig(environmentName))
                     .isInstanceOf(RecordNotFoundException.class);
 
-            Agent agentBeforeUpdate = new Agent(uuid);
             Agent agentAfterUpdate = new Agent(uuid);
             agentAfterUpdate.addEnvironment(environmentName);
-            AgentChangedEvent agentChangedEvent = new AgentChangedEvent(agentBeforeUpdate, agentAfterUpdate);
 
-            environmentConfigService.agentChanged(agentChangedEvent);
+            environmentConfigService.agentChanged(agentAfterUpdate);
 
             EnvironmentConfig afterUpdateEnvConfig = environmentConfigService.getEnvironmentConfig(environmentName);
             EnvironmentAgentsConfig agentConfigs = afterUpdateEnvConfig.getAgents();
@@ -858,7 +831,7 @@ class EnvironmentConfigServiceTest {
         assertThat(envConfigAgents1.get(0).getUuid()).isEqualTo(uuid);
 
         Agent agent = new Agent(uuid);
-        agent.addEnvironment(envName);
+        agent.addEnvironments(asList(envName, envName1));
         AgentInstances agentInstances = new AgentInstances(null);
         AgentInstance agentInstance = AgentInstance.createFromAgent(agent, new SystemEnvironment(), null);
         agentInstances.add(agentInstance);
@@ -871,7 +844,7 @@ class EnvironmentConfigServiceTest {
         assertThat(afterUpdateEnvConfigAgents.get(0).getUuid()).isEqualTo(uuid);
 
         EnvironmentAgentsConfig afterUpdateEnvConfigAgents1 = environmentConfigService.getEnvironmentConfig(envName1).getAgents();
-        assertThat(afterUpdateEnvConfigAgents1.size()).isEqualTo(0);
+        assertThat(afterUpdateEnvConfigAgents1.size()).isEqualTo(1);
 
     }
 

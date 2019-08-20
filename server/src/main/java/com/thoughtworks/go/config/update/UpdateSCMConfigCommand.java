@@ -46,7 +46,6 @@ public class UpdateSCMConfigCommand extends SCMConfigCommand {
 
     }
 
-
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
         return super.canContinue(cruiseConfig) && isRequestFresh(cruiseConfig);
@@ -61,16 +60,4 @@ public class UpdateSCMConfigCommand extends SCMConfigCommand {
 
         return freshRequest;
     }
-
-    private SCM findSCM(CruiseConfig modifiedConfig) {
-        SCMs scms = modifiedConfig.getSCMs();
-        SCM existingSCM = scms.find(globalScmConfig.getSCMId());
-        if (existingSCM == null) {
-            result.notFound(EntityType.SCM.notFoundMessage(globalScmConfig.getSCMId()), HealthStateType.notFound());
-            throw new NullPointerException(String.format("The pluggable scm material with id '%s' is not found.", globalScmConfig.getSCMId()));
-        } else {
-            return existingSCM;
-        }
-    }
-
 }

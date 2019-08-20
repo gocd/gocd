@@ -16,6 +16,7 @@
 package com.thoughtworks.go.server.service.materials;
 
 import com.thoughtworks.go.ClearSingleton;
+import com.thoughtworks.go.config.update.DeleteSCMConfigCommand;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
@@ -27,8 +28,10 @@ import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -205,6 +208,16 @@ public class PluggableScmServiceTest {
         when(goConfigService.getSCMs()).thenReturn(scms);
 
         assertNull(pluggableScmService.findPluggableScmMaterial("bar"));
+    }
+
+    @Test
+    public void shouldDeleteSCMConfigIfValid() {
+        doNothing().when(goConfigService).updateConfig(any(), any());
+        SCM scm = new SCM("id", "name");
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        pluggableScmService.deletePluggableSCM(new Username("admin"), scm, result);
+
+        assertThat(result.isSuccessful(), is(true));
     }
 
     @Test

@@ -253,6 +253,8 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
 
     boolean canDeletePluggableSCMMaterial(SCM scmConfig);
 
+    List<CaseInsensitiveString> pipelinesAssociatedWithPluggableSCM(SCM scmConfig);
+
     List<PipelineConfig> getAllLocalPipelineConfigs();
 
     void setPartials(List<PartialConfig> partials);

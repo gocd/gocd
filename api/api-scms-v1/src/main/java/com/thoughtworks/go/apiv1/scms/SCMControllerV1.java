@@ -82,6 +82,7 @@ public class SCMControllerV1 extends ApiController implements SparkSpringControl
             post("", mimeType, this::create);
             get(Routes.SCM.ID, mimeType, this::show);
             put(Routes.SCM.ID, mimeType, this::update);
+            delete(Routes.SCM.ID, mimeType, this::destroy);
         });
     }
 
@@ -109,7 +110,7 @@ public class SCMControllerV1 extends ApiController implements SparkSpringControl
         return writerForTopLevelObject(request, response, writer -> SCMRepresenter.toJSON(writer, scm));
     }
 
-    public String create(Request request, Response response) throws IOException {
+    public String create(Request request, Response response) {
         SCM scmFromRequest = buildEntityFromRequestBody(request, false);
 
         scmFromRequest.ensureIdExists();
@@ -123,7 +124,7 @@ public class SCMControllerV1 extends ApiController implements SparkSpringControl
         return handleCreateOrUpdateResponse(request, response, scmFromRequest, result);
     }
 
-    public String update(Request request, Response response) throws IOException {
+    public String update(Request request, Response response) {
         final String materialName = request.params(MATERIAL_NAME);
         final SCM existingSCM = fetchEntityFromConfig(materialName);
         final SCM scmFromRequest = buildEntityFromRequestBody(request);
@@ -141,6 +142,15 @@ public class SCMControllerV1 extends ApiController implements SparkSpringControl
         pluggableScmService.updatePluggableScmMaterial(currentUsername(), scmFromRequest, operationResult, getIfMatch(request));
 
         return handleCreateOrUpdateResponse(request, response, scmFromRequest, operationResult);
+    }
+
+    public String destroy(Request request, Response response) throws IOException {
+        final String materialName = request.params(MATERIAL_NAME);
+        SCM scm = fetchEntityFromConfig(materialName);
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        pluggableScmService.deletePluggableSCM(currentUsername(), scm, result);
+
+        return renderHTTPOperationResult(result, request, response);
     }
 
     @Override

@@ -328,7 +328,7 @@ export class Agents extends TableSortHandler {
   }
 
   count(): number {
-    return this.agentList.length;
+    return this.list().length;
   }
 
   list(): Agent[] {
@@ -341,6 +341,10 @@ export class Agents extends TableSortHandler {
 
   find(uuid: string): Agent | undefined {
     return this.agentList.find((agent) => agent.uuid === uuid);
+  }
+
+  filterBy(agentConfigState: AgentConfigState) {
+    return this.list().filter(agent => agent.agentConfigState === agentConfigState);
   }
 
   private getSortableColumnsAssociates(): string[] {

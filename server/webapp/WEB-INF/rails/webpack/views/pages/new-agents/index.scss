@@ -17,6 +17,8 @@
 
 $build_details_z_index: 2;
 $building_bg_color: #ffeda0;
+$enable_count_bg_color: #50e3c2;
+$disable_count_bg_color: #ee6161;
 .agent-status {
   @include icon-after($type: $fa-var-caret-down, $color: $icon-color);
   position:        relative;
@@ -55,11 +57,6 @@ $building_bg_color: #ffeda0;
   color:           $link-color;
 }
 
-.search-field {
-  padding-bottom: 5px;
-  float:          right;
-}
-
 .agent-checkbox {
   height:      20px;
   margin:      0;
@@ -89,3 +86,28 @@ $building_bg_color: #ffeda0;
   background: $building_bg_color;
 }
 
+.header-panel {
+  display:         flex;
+  justify-content: space-between;
+  align-items:     center;
+  margin-bottom:   10px;
+
+  ul li label {
+    font-size: 14px;
+  }
+
+  .count {
+    font-size:   16px;
+    font-weight: 600;
+    display:     block;
+    margin-top:  -2px;
+  }
+
+  .enabled {
+    color: $enable_count_bg_color;
+  }
+
+  .disabled {
+    color: $disable_count_bg_color;
+  }
+}

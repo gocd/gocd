@@ -53,7 +53,7 @@ class HeaderWidget extends MithrilViewComponent<SingleAttrs> {
     return [
       this.pluginIcon(vnode.attrs.pluginInfo),
       <div class={styles.headerTitle}>
-        <h4 class={styles.headerTitleText}>{repo.id()}</h4>
+        <h4 data-test-id="config-repo-header" class={styles.headerTitleText}>{repo.id()}</h4>
         <span class={styles.headerTitleUrl}>{materialUrl}</span>
       </div>,
       <div>{this.latestCommitDetails(repo.lastParse()!)}</div>

@@ -33,7 +33,7 @@
 }
 
 @include font-face($font-family: 'FontAwesome',
-                   $file-path: 'font-awesome/fonts/fontawesome-webfont',
+                   $file-path: '~font-awesome/fonts/fontawesome-webfont',
                    $file-formats: ("woff2", "woff", "ttf", "svg", "eot")) {
   font-weight: normal;
   font-style:  normal;
@@ -85,7 +85,7 @@ $opensans-variants: (
 @each $variant-name in map-keys($opensans-variants) {
   $variant: map-get($opensans-variants, $variant-name);
   @include font-face($font-family: 'Open Sans',
-                     $file-path: 'opensans/OpenSans-#{$variant-name}-webfont',
+                     $file-path: '~opensans/OpenSans-#{$variant-name}-webfont',
                      $file-formats: ("eot", "woff", "ttf")
   ) {
     font-style:  map-get($variant, 'font-style');

@@ -17,28 +17,28 @@
 @import "../views/global/common";
 
 @include font-face($font-family: "Hack",
-                   $file-path: "hack-font/build/web/fonts/hack-regular",
+                   $file-path: "~hack-font/build/web/fonts/hack-regular",
                    $file-formats: ("woff2", "woff")) {
   font-weight: 400;
   font-style:  normal;
 }
 
 @include font-face($font-family: "Hack",
-                   $file-path: "hack-font/build/web/fonts/hack-bold",
+                   $file-path: "~hack-font/build/web/fonts/hack-bold",
                    $file-formats: ("woff2", "woff")) {
   font-weight: 700;
   font-style:  normal;
 }
 
 @include font-face($font-family: "Hack",
-                   $file-path: "hack-font/build/web/fonts/hack-italic",
+                   $file-path: "~hack-font/build/web/fonts/hack-italic",
                    $file-formats: ("woff2", "woff")) {
   font-weight: 400;
   font-style:  italic;
 }
 
 @include font-face($font-family: "Hack",
-                   $file-path: "hack-font/build/web/fonts/hack-bolditalic",
+                   $file-path: "~hack-font/build/web/fonts/hack-bolditalic",
                    $file-formats: ("woff2", "woff")) {
   font-weight: 700;
   font-style:  italic;

@@ -56,6 +56,7 @@ const RESERVED_WORDS = new Set([
   "yield"
 ]);
 
+const EXPORT_LOCALS_RE   = /(^|\n)exports\.locals[\s]*=[\s]*{/;
 const CSS_MODULE_KEY_RE  = /"([^\\"]+)":/g;
 const WORD_ONLY_CHARS_RE = /^\w+$/i;
 
@@ -76,7 +77,7 @@ module.exports = function createTypeDeclarations(content, map, meta) {
 
   // content includes a huge payload which introduces extra/unwanted keys in the *.scss..d.ts
   // so we strip them out by focusing on the locals
-  const locals = content.split("// Exports\nexports.locals = ").pop() || "";
+  const locals = content.split(EXPORT_LOCALS_RE).pop() || "";
 
   while (match = CSS_MODULE_KEY_RE.exec(locals), !!match) {
     const key = match[1];

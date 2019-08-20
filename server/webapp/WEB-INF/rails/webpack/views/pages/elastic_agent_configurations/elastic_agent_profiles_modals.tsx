@@ -205,7 +205,7 @@ export class EditElasticProfileModal extends BaseElasticProfileModal {
             this.elasticProfile().pluginId(pluginId);
             this.etag = successResponse.body.etag;
           },
-          ((errorResponse) => this.onError(errorResponse.message))
+          ((errorResponse) => this.onError(JSON.parse(errorResponse.body!).message))
         );
       });
   }
@@ -258,7 +258,7 @@ export class CloneElasticProfileModal extends BaseElasticProfileModal {
             elasticProfile.pluginId(pluginId);
             this.elasticProfile(elasticProfile);
           },
-          (errorResponse) => this.onError(errorResponse.message)
+          (errorResponse) => this.onError(JSON.parse(errorResponse.body!).message)
         );
       });
   }

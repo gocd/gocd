@@ -103,7 +103,7 @@ abstract class AuthConfigModal extends EntityModal<AuthConfig> {
       this.message(new Message(MessageType.alert, json.message));
       this.entity(this.parseJsonToEntity(json.auth_config));
     } else {
-      this.errorMessage(errorResponse.message);
+      this.errorMessage(JSON.parse(errorResponse.body!).message);
     }
   }
 }

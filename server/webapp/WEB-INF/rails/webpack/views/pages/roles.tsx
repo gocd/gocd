@@ -51,7 +51,7 @@ export class RolesPage extends Page<null, State> {
     super.oninit(vnode);
 
     const onOperationError = (errorResponse: ErrorResponse) => {
-      vnode.state.onError(errorResponse.message);
+      vnode.state.onError(JSON.parse(errorResponse.body!).message);
     };
 
     vnode.state.onSuccessfulSave = (msg: m.Children) => {

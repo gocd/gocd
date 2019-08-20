@@ -131,7 +131,7 @@ export class BackupPage extends Page<null, State> {
             if (result.getStatusCode() === 422 && errorResponse.body) {
               backupConfig(BackupConfig.fromJSON(JSON.parse(errorResponse.body).data));
             } else {
-              errorMessage(errorResponse.message);
+              errorMessage(JSON.parse(errorResponse.body!).message);
             }
           }
         );
@@ -148,7 +148,7 @@ export class BackupPage extends Page<null, State> {
           errorMessage(undefined as any as string);
         },
         (errorResponse) => {
-          errorMessage(errorResponse.message);
+          errorMessage(JSON.parse(errorResponse.body!).message);
         });
     });
 

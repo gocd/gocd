@@ -229,7 +229,7 @@ export class EditClusterProfileModal extends BaseClusterProfileModal {
                              this.clusterProfile(successResponse.body.object);
                              this.etag = successResponse.body.etag;
                            },
-                           ((errorResponse) => this.onError(errorResponse.message))
+                           ((errorResponse) => this.onError(JSON.parse(errorResponse.body!).message))
                          );
                        });
   }
@@ -244,7 +244,7 @@ export class EditClusterProfileModal extends BaseClusterProfileModal {
             this.close();
           },
           (errorResponse) => {
-            this.onError(errorResponse.message);
+            this.onError(JSON.parse(errorResponse.body!).message);
             this.showErrors(result, errorResponse);
           }
         );
@@ -272,7 +272,7 @@ export class CloneClusterProfileModal extends BaseClusterProfileModal {
                              this.clusterProfile(successResponse.body.object);
                              this.clusterProfile().id("");
                            },
-                           ((errorResponse) => this.onError(errorResponse.message))
+                           ((errorResponse) => this.onError(JSON.parse(errorResponse.body!).message))
                          );
                        });
   }
@@ -286,7 +286,7 @@ export class CloneClusterProfileModal extends BaseClusterProfileModal {
                              this.close();
                            },
                            (errorResponse) => {
-                             this.onError(errorResponse.message);
+                             this.onError(JSON.parse(errorResponse.body!).message);
                              this.showErrors(result, errorResponse);
                            }
                          );

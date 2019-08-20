@@ -91,7 +91,7 @@ export class UserSearchModal extends Modal {
                  this.refreshUsers();
                  this.close();
                }, (errorResponse) => {
-                 this.modalLevelMessage.setMessage(MessageType.alert, errorResponse.message);
+                 this.modalLevelMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);
                });
              }).finally(m.redraw);
   }
@@ -104,7 +104,7 @@ export class UserSearchModal extends Modal {
                     apiResult.do((successResponse) => {
                       this.userResult(successResponse.body);
                     }, (errorResponse) => {
-                      // vnode.state.onError(errorResponse.message);
+                      // vnode.state.onError(JSON.parse(errorResponse.body!).message);
                     });
                   });
 

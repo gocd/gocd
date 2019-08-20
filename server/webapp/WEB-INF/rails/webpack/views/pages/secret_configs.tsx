@@ -100,7 +100,7 @@ export class SecretConfigsPage extends Page<null, State> {
                   });
                   vnode.state.secretConfigs(filteredEntities);
                 },
-                (errorResponse: ErrorResponse) => vnode.state.onError(errorResponse.message));
+                (errorResponse: ErrorResponse) => vnode.state.onError(JSON.parse(errorResponse.body!).message));
             })
             .then(deleteModal.close.bind(deleteModal));
         }

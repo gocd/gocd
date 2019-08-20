@@ -112,7 +112,7 @@ export class UsersPage extends Page<null, State> {
                                    this.scrollToTop();
                                  },
                                  (errorResponse) => {
-                                   this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
+                                   this.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);
                                    this.fetchData(vnode);
                                    this.scrollToTop();
                                  })
@@ -143,7 +143,7 @@ export class UsersPage extends Page<null, State> {
                    vnode.state.roles().push(role);
                    vnode.state.rolesSelection().set(role, new TriStateCheckbox(TristateState.on));
                  }, (errorResponse) => {
-                   this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
+                   this.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);
                  });
                });
     };
@@ -202,7 +202,7 @@ export class UsersPage extends Page<null, State> {
                       vnode.state.initialUsers(successResponse.body);
                       this.pageState = PageState.OK;
                     }, (errorResponse) => {
-                      this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
+                      this.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);
                       this.pageState = PageState.FAILED;
                     }
       );
@@ -211,7 +211,7 @@ export class UsersPage extends Page<null, State> {
                        vnode.state.roles(successResponse.body);
                        this.pageState = PageState.OK;
                      }, (errorResponse) => {
-                       this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
+                       this.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);
                        this.pageState = PageState.FAILED;
                      }
       );
@@ -221,7 +221,7 @@ export class UsersPage extends Page<null, State> {
                         this.pageState = PageState.OK;
                       },
                       (errorResponse) => {
-                        this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
+                        this.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);
                         this.pageState = PageState.FAILED;
                       });
     });
@@ -238,7 +238,7 @@ export class UsersPage extends Page<null, State> {
                               this.scrollToTop();
                             },
                             (errorResponse) => {
-                              this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
+                              this.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);
                               this.fetchData(vnode);
                               this.scrollToTop();
                             });
@@ -257,7 +257,7 @@ export class UsersPage extends Page<null, State> {
                                });
                              },
                              (errorResponse) => {
-                               vnode.state.userViewHelper().userUpdateFailure(user, errorResponse.message);
+                               vnode.state.userViewHelper().userUpdateFailure(user, JSON.parse(errorResponse.body!).message);
                              });
               });
   }
@@ -271,7 +271,7 @@ export class UsersPage extends Page<null, State> {
                               this.fetchData(vnode);
                             },
                             (errorResponse) => {
-                              this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
+                              this.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);
                               this.fetchData(vnode);
                             });
              });

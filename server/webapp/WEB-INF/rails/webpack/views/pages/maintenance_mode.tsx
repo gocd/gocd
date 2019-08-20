@@ -84,7 +84,7 @@ export class MaintenanceModePage extends Page<null, State> {
     };
 
     vnode.state.onError = (errorResponse: ErrorResponse) => {
-      vnode.state.message = new Message(MessageType.alert, errorResponse.message);
+      vnode.state.message = new Message(MessageType.alert, JSON.parse(errorResponse.body!).message);
     };
 
     const options = {

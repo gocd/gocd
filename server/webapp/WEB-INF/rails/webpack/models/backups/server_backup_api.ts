@@ -34,7 +34,7 @@ export class ServerBackupAPI {
                                            onCompletion,
                                            onError);
                        }, (errorResponse) => {
-                         onError(errorResponse.message);
+                         onError(JSON.parse(errorResponse.body!).message);
                        });
                      });
   }
@@ -76,7 +76,7 @@ export class ServerBackupAPI {
           onCompletion(serverBackup);
         }
       }, (errorResponse) => {
-        onError(`Failed to poll for serverBackup. Reason: ${errorResponse.message}`);
+        onError(`Failed to poll for serverBackup. Reason: ${JSON.parse(errorResponse.body!).message}`);
       });
     });
   }

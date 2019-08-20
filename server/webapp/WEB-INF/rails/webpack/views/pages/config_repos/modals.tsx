@@ -394,7 +394,7 @@ export class NewConfigRepoModal extends ConfigRepoModal {
       this.repo(ConfigRepo.fromJSON(json.data));
       this.handleAutoUpdateError();
     } else {
-      this.onError(errorResponse.message);
+      this.onError(JSON.parse(errorResponse.body!).message);
       this.close();
     }
   }
@@ -435,7 +435,7 @@ export class EditConfigRepoModal extends ConfigRepoModal {
   }
 
   private onRepoGetFailure(errorResponse: ErrorResponse) {
-    this.error = errorResponse.message;
+    this.error = JSON.parse(errorResponse.body!).message;
   }
 
   private onSuccess() {
@@ -450,7 +450,7 @@ export class EditConfigRepoModal extends ConfigRepoModal {
       this.repoWithEtag({etag, object: ConfigRepo.fromJSON(json.data)});
       this.handleAutoUpdateError();
     } else {
-      this.onError(errorResponse.message);
+      this.onError(JSON.parse(errorResponse.body!).message);
       this.close();
     }
   }

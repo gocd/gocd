@@ -98,7 +98,7 @@ export class TestHelper {
 
   textAll(selector: string, context?: Element): string[] {
     const result: string[] = [];
-    const elements = Array.from(this.qa(selector, context));
+    const elements         = Array.from(this.qa(selector, context));
 
     for (const el of elements) {
       result.push((el.textContent || "").trim());
@@ -109,14 +109,14 @@ export class TestHelper {
 
   onchange(selector: string | Element, value: string, context?: Element) {
     const input: ElementWithValue = this._el(selector, context) as ElementWithValue;
-    input.value = value;
+    input.value                   = value;
     simulateEvent.simulate(input, "change");
     this.redraw();
   }
 
   oninput(selector: string | Element, value: string, context?: Element) {
     const input: ElementWithInput = this._el(selector, context) as ElementWithInput;
-    input.value = value;
+    input.value                   = value;
     simulateEvent.simulate(input, "input");
     this.redraw();
   }
@@ -129,6 +129,12 @@ export class TestHelper {
     simulateEvent.simulate(element, "click");
     this.redraw();
   }
+
+  clickByTestId(selector: string) {
+    this.click(this.byTestId(selector));
+    this.redraw();
+  }
+
 
   clickButtonOnActiveModal(buttonSelector: string) {
     const element = document.querySelector(`.new-modal-container ${buttonSelector}`);

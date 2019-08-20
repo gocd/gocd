@@ -18,6 +18,7 @@ import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import {Agent, Agents} from "models/new-agent/agents";
+import {FlashMessage, FlashMessageModelWithTimeout} from "views/components/flash_message";
 import {CheckboxField} from "views/components/forms/input_fields";
 import {Table} from "views/components/table";
 import {AgentHeaderPanel} from "views/pages/new-agents/agent_header_panel";
@@ -31,10 +32,17 @@ interface AgentsWidgetAttrs {
   onEnable: (e: MouseEvent) => void;
   onDisable: (e: MouseEvent) => void;
   onDelete: (e: MouseEvent) => void;
+  flashMessage: FlashMessageModelWithTimeout;
 }
 
 export class AgentsWidget extends MithrilViewComponent<AgentsWidgetAttrs> {
   view(vnode: m.Vnode<AgentsWidgetAttrs>) {
+    let flashMessage;
+
+    if (vnode.attrs.flashMessage) {
+      flashMessage = <FlashMessage message={vnode.attrs.flashMessage.message} type={vnode.attrs.flashMessage.type}/>;
+    }
+
     const tableData = vnode.attrs.agents.list().map((agent: Agent) => {
       return [
         <div key={agent.uuid}
@@ -63,6 +71,7 @@ export class AgentsWidget extends MithrilViewComponent<AgentsWidgetAttrs> {
 
     return <div class={style.agentsTable} onclick={AgentsWidget.hideBuildDetails.bind(this, vnode.attrs.agents)}>
       <AgentHeaderPanel {...vnode.attrs}/>
+      {flashMessage}
       <Table data={tableData}
              headers={[
                <input type="checkbox"

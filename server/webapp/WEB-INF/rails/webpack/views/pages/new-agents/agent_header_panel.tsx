@@ -36,7 +36,7 @@ interface AgentHeaderPanelAttrs {
 export class AgentHeaderPanel extends MithrilViewComponent<AgentHeaderPanelAttrs> {
   view(vnode: m.Vnode<AgentHeaderPanelAttrs, this>) {
     const agents = vnode.attrs.agents;
-    return (<div class={style.headerPanel} key={`${agents.count()}`}>
+    return (<div class={style.headerPanel}>
       <KeyValuePair inline={true} data={new Map(
         [
           ["Total", this.span(agents.count())],
@@ -48,14 +48,20 @@ export class AgentHeaderPanel extends MithrilViewComponent<AgentHeaderPanelAttrs
 
       <div>
         <ButtonGroup>
-          <Buttons.Primary onclick={vnode.attrs.onDelete}>DELETE</Buttons.Primary>
-          <Buttons.Primary onclick={vnode.attrs.onEnable}>ENABLE</Buttons.Primary>
-          <Buttons.Primary onclick={vnode.attrs.onDisable}>DISABLE</Buttons.Primary>
+          <Buttons.Primary data-test-id="delete-agents"
+                           disabled={agents.isNoneSelected()}
+                           onclick={vnode.attrs.onDelete}>DELETE</Buttons.Primary>
+          <Buttons.Primary data-test-id="enable-agents"
+                           disabled={agents.isNoneSelected()}
+                           onclick={vnode.attrs.onEnable}>ENABLE</Buttons.Primary>
+          <Buttons.Primary data-test-id="disable-agents"
+                           disabled={agents.isNoneSelected()}
+                           onclick={vnode.attrs.onDisable}>DISABLE</Buttons.Primary>
         </ButtonGroup>
 
-        <SearchField placeholder="Filter Agents"
-                     label="Search for agents"
-                     property={agents.filterText}/>
+        <div class={style.searchField}>
+          <SearchField placeholder="Filter Agents" label="Search for agents" property={agents.filterText}/>
+        </div>
       </div>
     </div>);
   }

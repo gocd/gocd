@@ -18,9 +18,6 @@ import {Agent, AgentConfigState, Agents, AgentsEnvironment, AgentState, BuildSta
 import {AgentsTestData} from "models/new-agent/spec/agents_test_data";
 
 describe("AgentsModel", () => {
-  // beforeEach(() => jasmine.Ajax.install());
-  // afterEach(() => jasmine.Ajax.uninstall());
-
   describe("Deserialize", () => {
     it("should deserialize all agents from JSON", () => {
       const agents = Agents.fromJSON(AgentsTestData.list());
@@ -681,27 +678,47 @@ describe("AgentsModel", () => {
     });
   });
 
-  // it("should disable selected agents if checkbox is selected and disable button is clicked", () => {
-  //   const agents = Agents.fromJSON(AgentsTestData.list());
-  //   const agentA = agents.list()[0];
-  //   const agentB = agents.list()[1];
-  //   const agentC = agents.list()[2];
-  //
-  //   expect(agentA.agentConfigState).toBe(AgentConfigState.Enabled);
-  //   expect(agentB.agentConfigState).toBe(AgentConfigState.Enabled);
-  //   expect(agentC.agentConfigState).toBe(AgentConfigState.Enabled);
-  //
-  //   expect(agentA.selected()).toBeFalsy();
-  //
-  //   agentA.selected(true);
-  //
-  //   expect(agentA.selected()).toBeTruthy();
-  //
-  //   agents.disableSelectedAgents();
-  //
-  //   expect(agentA.agentConfigState).toBe(AgentConfigState.Disabled);
-  //   expect(agentB.agentConfigState).toBe(AgentConfigState.Enabled);
-  //   expect(agentC.agentConfigState).toBe(AgentConfigState.Enabled);
-  // });
+  describe("FilterByAgentConfigState", () => {
+    it("should return all agents by agent config state", () => {
+      const agentA = Agent.fromJSON(AgentsTestData.disabledAgent()),
+            agentB = Agent.fromJSON(AgentsTestData.buildingAgent()),
+            agentC = Agent.fromJSON(AgentsTestData.pendingAgent()),
+            agentD = Agent.fromJSON(AgentsTestData.idleAgent()),
+            agentE = Agent.fromJSON(AgentsTestData.pendingAgent());
+      const agents = new Agents([agentA, agentB, agentC, agentD, agentE]);
 
+      let filteredAgents = agents.filterBy(AgentConfigState.Pending);
+      expect(filteredAgents).toHaveLength(2);
+      expect(filteredAgents).toContain(agentC, agentE);
+
+      filteredAgents = agents.filterBy(AgentConfigState.Enabled);
+      expect(filteredAgents).toHaveLength(2);
+      expect(filteredAgents).toContain(agentB, agentD);
+
+      filteredAgents = agents.filterBy(AgentConfigState.Disabled);
+      expect(filteredAgents).toHaveLength(1);
+      expect(filteredAgents).toContain(agentA);
+    });
+
+    it("should return agents by agent config state after applying search filter", () => {
+      const agentA = Agent.fromJSON(AgentsTestData.disabledAgent()),
+            agentB = Agent.fromJSON(AgentsTestData.buildingAgent()),
+            agentC = Agent.fromJSON(AgentsTestData.pendingAgent()),
+            agentD = Agent.fromJSON(AgentsTestData.idleAgent()),
+            agentE = Agent.fromJSON(AgentsTestData.pendingAgent());
+      const agents = new Agents([agentA, agentB, agentC, agentD, agentE]);
+
+      agents.filterText("Building");
+
+      let filteredAgents = agents.filterBy(AgentConfigState.Pending);
+      expect(filteredAgents).toHaveLength(0);
+
+      filteredAgents = agents.filterBy(AgentConfigState.Enabled);
+      expect(filteredAgents).toHaveLength(1);
+      expect(filteredAgents).toContain(agentB);
+
+      filteredAgents = agents.filterBy(AgentConfigState.Disabled);
+      expect(filteredAgents).toHaveLength(0);
+    });
+  });
 });

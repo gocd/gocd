@@ -17,12 +17,10 @@
 import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
-import {Agent, AgentConfigState, Agents} from "models/new-agent/agents";
-import {ButtonGroup} from "views/components/buttons";
-import * as Buttons from "views/components/buttons";
-import {CheckboxField, SearchField} from "views/components/forms/input_fields";
-import {KeyValuePair} from "views/components/key_value_pair";
+import {Agent, Agents} from "models/new-agent/agents";
+import {CheckboxField} from "views/components/forms/input_fields";
 import {Table} from "views/components/table";
+import {AgentHeaderPanel} from "views/pages/new-agents/agent_header_panel";
 import {AgentStatusWidget} from "views/pages/new-agents/agent_status_widget";
 import style from "./index.scss";
 
@@ -64,27 +62,7 @@ export class AgentsWidget extends MithrilViewComponent<AgentsWidgetAttrs> {
     });
 
     return <div class={style.agentsTable} onclick={AgentsWidget.hideBuildDetails.bind(this, vnode.attrs.agents)}>
-      <KeyValuePair inline={true} data={new Map(
-        [
-          ["Total", vnode.attrs.agents.count()],
-          ["Pending", this.filter(vnode.attrs.agents, AgentConfigState.Pending)],
-          ["Enabled", this.filter(vnode.attrs.agents, AgentConfigState.Enabled)],
-          ["Disabled", this.filter(vnode.attrs.agents, AgentConfigState.Disabled)]
-        ])
-      }/>
-
-      <ButtonGroup>
-        <Buttons.Primary onclick={vnode.attrs.onDelete}>DELETE</Buttons.Primary>
-        <Buttons.Primary onclick={vnode.attrs.onEnable}>ENABLE</Buttons.Primary>
-        <Buttons.Primary onclick={vnode.attrs.onDisable}>DISABLE</Buttons.Primary>
-      </ButtonGroup>
-
-      <div class={style.searchField}>
-        <SearchField placeholder="Filter Agents"
-                     label="Search for agents"
-                     property={vnode.attrs.agents.filterText}/>
-      </div>
-
+      <AgentHeaderPanel {...vnode.attrs}/>
       <Table data={tableData}
              headers={[
                <input type="checkbox"
@@ -95,10 +73,6 @@ export class AgentsWidget extends MithrilViewComponent<AgentsWidgetAttrs> {
              sortHandler={vnode.attrs.agents}/>
 
     </div>;
-  }
-
-  private filter(agents: Agents, matcher: number) {
-    return agents.list().filter(agent => agent.agentConfigState === matcher).length;
   }
 
   static joinOrNoneSpecified(array: string[]): m.Children {

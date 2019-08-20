@@ -18,6 +18,7 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
 import {ConfigFileList} from "models/materials/config_file_list";
+import styles from "./material_check.scss";
 
 interface Attrs {
   configFileList: ConfigFileList;
@@ -28,12 +29,12 @@ export class ConfigFileListEditor extends MithrilViewComponent<Attrs> {
     const list = vnode.attrs.configFileList;
     let filesList;
     if (list.hasErrors()) {
-      filesList = (<li>{list.errors()}</li>);
+      filesList = (<li data-test-id="material-check-plugin-error">{list.errors()}</li>);
     } else if (list.isEmpty()) {
       return;
     } else {
       filesList = _.map(list.files(), (file) => {
-        return <li>
+        return <li data-test-id="material-check-plugin-file" class={styles.materialCheckFile}>
           {file}
           </li>;
       });

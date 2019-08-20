@@ -26,9 +26,9 @@ import {
   SvnMaterialAttributes,
   TfsMaterialAttributes
 } from "models/materials/types";
+import {MaterialCheck} from "views/components/config_repos/material_check";
 import {CheckboxField, PasswordField, TextField} from "views/components/forms/input_fields";
-// import {TestConnection} from "views/components/materials/test_connection";
-import {CheckMaterial} from "views/components/materials/check_material";
+import {TestConnection} from "views/components/materials/test_connection";
 import {TooltipSize} from "views/components/tooltip";
 import * as Tooltip from "views/components/tooltip";
 import {AdvancedSettings} from "views/pages/pipelines/advanced_settings";
@@ -47,8 +47,8 @@ abstract class ScmFields extends MithrilViewComponent<Attrs> {
     const mattrs = vnode.attrs.material.attributes() as ScmMaterialAttributes;
     return [
       this.requiredFields(mattrs),
-      // <TestConnection material={vnode.attrs.material}/>,
-      <CheckMaterial material={vnode.attrs.material}/>,
+      <TestConnection material={vnode.attrs.material}/>,
+      <MaterialCheck material={vnode.attrs.material}/>,
       <AdvancedSettings forceOpen={mattrs.errors().hasErrors("name") || mattrs.errors().hasErrors("destination")}>
         {this.extraFields(mattrs)}
         <TextField label={[

@@ -19,6 +19,7 @@ import _ from "lodash";
 import m from "mithril";
 import {MaterialConfigFiles} from "models/materials/material_config_files";
 import {ConfigFileListEditor} from "./config_file_list_editor";
+import styles from "./material_check.scss";
 
 interface Attrs {
   materialConfigFiles: MaterialConfigFiles;
@@ -27,11 +28,15 @@ interface Attrs {
 export class MaterialConfigFilesEditor extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>): m.Children | void | null {
     return (
-      <div>
-        We found the following Configuration files.
-        {_.map(vnode.attrs.materialConfigFiles.pluginConfigFiles(), (cfgList) => {
-          return (<ConfigFileListEditor configFileList={cfgList}/>);
-        })}
+      <div class={styles.materialConfigFiles}>
+        <span class={styles.resultsTitle}>
+          We found the following Configuration files.
+        </span>
+        <div class={styles.pluginConfigFiles}>
+          {_.map(vnode.attrs.materialConfigFiles.pluginConfigFiles(), (cfgList) => {
+            return (<ConfigFileListEditor configFileList={cfgList}/>);
+          })}
+        </div>
       </div>
     );
   }

@@ -16,9 +16,19 @@
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {TriStateCheckbox} from "models/tri_state_checkbox";
-import {ButtonGroup, ButtonIcon} from "views/components/buttons";
-import * as Buttons from "views/components/buttons/index";
+import {TriStateCheckbox, TristateState} from "models/tri_state_checkbox";
+import {
+  ButtonGroup,
+  ButtonIcon,
+  Cancel,
+  Danger,
+  Default,
+  Link,
+  Primary,
+  Reset,
+  Secondary
+} from "views/components/buttons";
+import {DummyDropdownButton} from "views/components/buttons/sample";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {Dropdown, DropdownElement} from "views/components/dropdown";
 import {Ellipsize} from "views/components/ellipsize";
@@ -106,19 +116,19 @@ export class KitchenSink extends MithrilViewComponent<null> {
         {/*<SearchField width={350} attrName="search" model={null} placeholder="Some placeholder"/>*/}
 
         <h3>Modal</h3>
-        <Buttons.Primary onclick={() => {
+        <Primary onclick={() => {
           this.createModal(Size.small);
-        }}>Open Small Modal</Buttons.Primary>
-        <Buttons.Primary onclick={() => {
+        }}>Open Small Modal</Primary>
+        <Primary onclick={() => {
           this.createModal(Size.medium);
-        }}>Open Medium Modal</Buttons.Primary>
-        <Buttons.Primary onclick={() => {
+        }}>Open Medium Modal</Primary>
+        <Primary onclick={() => {
           this.createModal(Size.large);
-        }}>Open Large Modal</Buttons.Primary>
+        }}>Open Large Modal</Primary>
 
-        <Buttons.Primary onclick={() => {
+        <Primary onclick={() => {
           this.wizards();
-        }}>Open Wizard</Buttons.Primary>
+        }}>Open Wizard</Primary>
 
         <h3>Tooltip</h3>
         Small Info tooltip: <Tooltip.Info content={"this is a very small information tooltip."}/>
@@ -182,45 +192,61 @@ export class KitchenSink extends MithrilViewComponent<null> {
         <br/>
 
         <h3>Buttons without a grouping:</h3>
-        <Buttons.Secondary>Button</Buttons.Secondary>
-        <Buttons.Secondary>Secondary Button</Buttons.Secondary>
-        <Buttons.Reset>Reset Button</Buttons.Reset>
-        <Buttons.Cancel>Cancel</Buttons.Cancel>
-        <Buttons.Danger>Delete</Buttons.Danger>
+        <Secondary>Button</Secondary>
+        <Secondary>Secondary Button</Secondary>
+        <Reset>Reset Button</Reset>
+        <Cancel>Cancel</Cancel>
+        <Danger>Delete</Danger>
         <hr/>
 
         <h3>Button with icon:</h3>
-        <Buttons.Default dropdown={true} icon={ButtonIcon.FILTER}>Button with icon</Buttons.Default>
+        <Default dropdown={true} icon={ButtonIcon.FILTER}>Button with icon</Default>
 
         <h3>Button link:</h3>
-        <Buttons.Link>Button link</Buttons.Link>
+        <Link>Button link</Link>
 
         <h3>Button group with buttons:</h3>
         <ButtonGroup>
-          <Buttons.Secondary>Button</Buttons.Secondary>
-          <Buttons.Secondary>Button</Buttons.Secondary>
-          <Buttons.Secondary>Button</Buttons.Secondary>
-          <Buttons.Secondary>Button</Buttons.Secondary>
-          <Buttons.Secondary>Button</Buttons.Secondary>
+          <Secondary>Button</Secondary>
+          <Secondary>Button</Secondary>
+          <Secondary>Button</Secondary>
+          <Secondary>Button</Secondary>
+          <Secondary>Button</Secondary>
+        </ButtonGroup>
+        <hr/>
+
+        <h3>Button group with dropdown buttons buttons:</h3>
+        <ButtonGroup>
+          <DummyDropdownButton show={Stream()} name="Resources">
+            <TriStateCheckboxField label={"Psql"} property={Stream(new TriStateCheckbox())}/>
+            <TriStateCheckboxField label={"Java"} property={Stream(new TriStateCheckbox(TristateState.indeterminate))}/>
+          </DummyDropdownButton>
+          <DummyDropdownButton show={Stream()} name="Environments">
+            <TriStateCheckboxField label={"Prod"} property={Stream(new TriStateCheckbox())}/>
+            <TriStateCheckboxField label={"Dev"} property={Stream((new TriStateCheckbox(TristateState.on)))}/>
+            <TriStateCheckboxField label={"QA"} property={Stream(new TriStateCheckbox())}/>
+          </DummyDropdownButton>
+          <Secondary>Normal Button</Secondary>
+          <DummyDropdownButton show={Stream()} name="Four">This just a text</DummyDropdownButton>
         </ButtonGroup>
         <hr/>
 
         <h3>Button group with disabled buttons:</h3>
         <ButtonGroup>
-          <Buttons.Primary disabled={true}>Disabled Primary Button</Buttons.Primary>
-          <Buttons.Secondary disabled={true}>Disabled Secondary Button</Buttons.Secondary>
-          <Buttons.Reset disabled={true}>Disabled Reset Button</Buttons.Reset>
-          <Buttons.Cancel disabled={true}>Disabled Cancel</Buttons.Cancel>
-          <Buttons.Danger disabled={true}>Disabled Danger</Buttons.Danger>
+          <Primary disabled={true}>Disabled Primary Button</Primary>
+          <Secondary disabled={true}>Disabled Secondary Button</Secondary>
+          <Reset disabled={true}>Disabled Reset Button</Reset>
+          <Cancel disabled={true}>Disabled Cancel</Cancel>
+          <Danger disabled={true}>Disabled Danger</Danger>
         </ButtonGroup>
 
         <br/>
         <h3>Small Buttons:</h3>
         <ButtonGroup>
-          <Buttons.Primary small={true}>Small Primary Button</Buttons.Primary>
-          <Buttons.Secondary small={true}>Small Secondary Button</Buttons.Secondary>
-          <Buttons.Reset small={true}>Small Reset Button</Buttons.Reset>
-          <Buttons.Cancel small={true}>Cancel</Buttons.Cancel>
+          <Primary small={true}>Small Primary Button</Primary>
+          <Secondary small={true}>Small Secondary Button</Secondary>
+          <Reset small={true}>Small Reset Button</Reset>
+          <Cancel small={true}>Cancel</Cancel>
         </ButtonGroup>
 
         <h3>Some examples of key value pairs</h3>
@@ -297,7 +323,7 @@ export class KitchenSink extends MithrilViewComponent<null> {
         <h3>Dynamic autocomplete</h3>
         <AutocompleteField label="Dynamic" property={model} provider={this.provider}/>
 
-        <Buttons.Primary onclick={this.toggleType.bind(this)}>Click to change type!</Buttons.Primary>
+        <Primary onclick={this.toggleType.bind(this)}>Click to change type!</Primary>
 
         <br/>
         <h3>Draggable Table</h3>
@@ -364,8 +390,8 @@ export class KitchenSink extends MithrilViewComponent<null> {
 
   private wizards() {
     const stepWithCustomFooter = new SampleStep("3. Associate Jobs", <div>This is just an example.</div>,
-      <Buttons.Primary>Custom
-        Button</Buttons.Primary>);
+      <Primary>Custom
+        Button</Primary>);
     return new Wizard()
       .addStep(new SampleStep("1. Cluster Profile", <div>This is an cluster profile.</div>))
       .addStep(new SampleStep("2. Elastic Profile", generateLoremIpsmeParagraphs(200)))

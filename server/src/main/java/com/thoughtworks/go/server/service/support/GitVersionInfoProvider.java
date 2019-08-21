@@ -13,31 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.thoughtworks.go.server.service.support;
 
-import com.thoughtworks.go.CurrentGoCDVersion;
+import com.thoughtworks.go.domain.materials.git.GitVersion;
+import com.thoughtworks.go.util.NamedProcessTag;
+import com.thoughtworks.go.util.command.CommandLine;
 import org.springframework.stereotype.Component;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Component
-public class ServerBasicInfoProvider implements ServerInfoProvider {
-
+public class GitVersionInfoProvider implements ServerInfoProvider {
     @Override
     public double priority() {
-        return 1.0;
+        return 7.5;
     }
 
     @Override
     public Map<String, Object> asJson() {
         LinkedHashMap<String, Object> json = new LinkedHashMap<>();
-        json.put("Version", CurrentGoCDVersion.getInstance().formatted());
+        String gitVersionString = CommandLine.createCommandLine("git").withEncoding("UTF-8").withArgs("version").runOrBomb(new NamedProcessTag("git version check")).outputAsString();
+        json.put("Version", GitVersion.parse(gitVersionString).getVersion());
         return json;
     }
 
     @Override
     public String name() {
-        return "Go Server Information";
+        return "Git Version Information";
     }
 }

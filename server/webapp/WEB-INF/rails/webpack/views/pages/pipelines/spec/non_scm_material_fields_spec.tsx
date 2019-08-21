@@ -26,7 +26,7 @@ describe("AddPipeline: Non-SCM Material Fields", () => {
 
   it("DependencyFields structure", () => {
     const material = new Material("dependency", new DependencyMaterialAttributes());
-    helper.mount(() => <DependencyFields material={material} cache={new DummyCache()}/>);
+    helper.mount(() => <DependencyFields material={material} cache={new DummyCache()} showAdvanced={true}/>);
 
     assertLabelledInputsPresent({
       "upstream-pipeline": "Upstream Pipeline*",
@@ -35,14 +35,37 @@ describe("AddPipeline: Non-SCM Material Fields", () => {
     });
   });
 
+  it("does not display advanced settings when `showAdvanced` === false", () => {
+    const material = new Material("dependency", new DependencyMaterialAttributes());
+    helper.mount(() => <DependencyFields material={material} cache={new DummyCache()} showAdvanced={false}/>);
+
+    assertLabelledInputsPresent({
+      "upstream-pipeline": "Upstream Pipeline*",
+      "upstream-stage":    "Upstream Stage*",
+    });
+
+    assertLabelledInputsAbsent(
+      "material-name",
+    );
+  });
+
   function assertLabelledInputsPresent(idsToLabels: {[key: string]: string}) {
     const keys = Object.keys(idsToLabels);
     expect(keys.length > 0).toBe(true);
 
     for (const id of keys) {
-      expect(helper.byTestId(`form-field-label-${id}`)).toBeTruthy();
+      expect(helper.byTestId(`form-field-label-${id}`)).toBeInDOM();
       expect(helper.byTestId(`form-field-label-${id}`).textContent!.startsWith(idsToLabels[id])).toBe(true);
-      expect(helper.byTestId(`form-field-input-${id}`)).toBeTruthy();
+      expect(helper.byTestId(`form-field-input-${id}`)).toBeInDOM();
+    }
+  }
+
+  function assertLabelledInputsAbsent(...keys: string[]) {
+    expect(keys.length > 0).toBe(true);
+
+    for (const id of keys) {
+      expect(helper.byTestId(`form-field-label-${id}`)).toBe(null!);
+      expect(helper.byTestId(`form-field-input-${id}`)).toBe(null!);
     }
   }
 });

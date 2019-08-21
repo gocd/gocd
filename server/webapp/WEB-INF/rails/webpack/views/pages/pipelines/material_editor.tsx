@@ -33,6 +33,8 @@ import {GitFields, HgFields, P4Fields, SvnFields, TfsFields} from "./scm_materia
 interface Attrs {
   material: Material;
   cache?: SuggestionCache;
+  showAdvanced?: boolean;
+  scmOnly?: boolean;
 }
 
 export class MaterialEditor extends MithrilViewComponent<Attrs> {
@@ -45,65 +47,74 @@ export class MaterialEditor extends MithrilViewComponent<Attrs> {
   }
 
   view(vnode: m.Vnode<Attrs>) {
+    const attrs = vnode.attrs;
+    const showAdvanced = "showAdvanced" in attrs ? !!attrs.showAdvanced : true;
+    const scmOnly = !!attrs.scmOnly;
+
     return <FormBody>
       <SelectField label="Material Type" property={vnode.attrs.material.type} required={true}>
-        <SelectFieldOptions selected={vnode.attrs.material.type()} items={this.supportedMaterials()}/>
+        <SelectFieldOptions selected={vnode.attrs.material.type()} items={this.supportedMaterials(scmOnly)}/>
       </SelectField>
 
       <Form last={true} compactForm={true}>
-        {this.fieldsForType(vnode.attrs.material, this.cache)}
+        {this.fieldsForType(vnode.attrs.material, this.cache, showAdvanced)}
       </Form>
     </FormBody>;
   }
 
-  supportedMaterials(): Option[] {
-    return [
+  supportedMaterials(scmOnly: boolean): Option[] {
+    const options = [
       {id: "git", text: "Git"},
       {id: "hg", text: "Mercurial"},
       {id: "svn", text: "Subversion"},
       {id: "p4", text: "Perforce"},
       {id: "tfs", text: "Team Foundation Server"},
-      {id: "dependency", text: "Another Pipeline"},
     ];
+
+    if (!scmOnly) {
+      options.push({id: "dependency", text: "Another Pipeline"});
+    }
+
+    return options;
   }
 
-  fieldsForType(material: Material, cacheable: SuggestionCache): m.Children {
+  fieldsForType(material: Material, cacheable: SuggestionCache, showAdvanced: boolean): m.Children {
     switch (material.type()) {
       case "git":
         if (!(material.attributes() instanceof GitMaterialAttributes)) {
           material.attributes(new GitMaterialAttributes());
         }
-        return <GitFields material={material}/>;
+        return <GitFields material={material} showAdvanced={showAdvanced}/>;
         break;
       case "hg":
         if (!(material.attributes() instanceof HgMaterialAttributes)) {
           material.attributes(new HgMaterialAttributes());
         }
-        return <HgFields material={material}/>;
+        return <HgFields material={material} showAdvanced={showAdvanced}/>;
         break;
       case "svn":
         if (!(material.attributes() instanceof SvnMaterialAttributes)) {
           material.attributes(new SvnMaterialAttributes());
         }
-        return <SvnFields material={material}/>;
+        return <SvnFields material={material} showAdvanced={showAdvanced}/>;
         break;
       case "p4":
         if (!(material.attributes() instanceof P4MaterialAttributes)) {
           material.attributes(new P4MaterialAttributes());
         }
-        return <P4Fields material={material}/>;
+        return <P4Fields material={material} showAdvanced={showAdvanced}/>;
         break;
       case "tfs":
         if (!(material.attributes() instanceof TfsMaterialAttributes)) {
           material.attributes(new TfsMaterialAttributes());
         }
-        return <TfsFields material={material}/>;
+        return <TfsFields material={material} showAdvanced={showAdvanced}/>;
         break;
       case "dependency":
         if (!(material.attributes() instanceof DependencyMaterialAttributes)) {
           material.attributes(new DependencyMaterialAttributes());
         }
-        return <DependencyFields material={material} cache={cacheable}/>;
+        return <DependencyFields material={material} cache={cacheable} showAdvanced={showAdvanced}/>;
         break;
       default:
         break;

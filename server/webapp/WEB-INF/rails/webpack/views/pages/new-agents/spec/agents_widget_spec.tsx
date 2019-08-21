@@ -27,7 +27,9 @@ describe("NewAgentsWidget", () => {
   const helper                 = new TestHelper(),
         onEnable: jasmine.Spy  = jasmine.createSpy("onEnable"),
         onDisable: jasmine.Spy = jasmine.createSpy("onDisable"),
-        onDelete: jasmine.Spy  = jasmine.createSpy("onDelete");
+        onDelete: jasmine.Spy  = jasmine.createSpy("onDelete"),
+        updateEnvironments = jasmine.createSpy("updateEnvironments"),
+        updateResources    = jasmine.createSpy("updateResources");
 
   let agents: Agents, agentA: Agent, agentB: Agent, agentC: Agent;
 
@@ -195,6 +197,8 @@ describe("NewAgentsWidget", () => {
                                      onEnable={onEnable}
                                      onDisable={onDisable}
                                      onDelete={onDelete}
+                                     updateEnvironments={updateEnvironments}
+                                     updateResources={updateResources}
                                      flashMessage={new FlashMessageModelWithTimeout()}/>);
   }
 

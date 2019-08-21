@@ -33,6 +33,8 @@ interface AgentsWidgetAttrs {
   onDisable: (e: MouseEvent) => void;
   onDelete: (e: MouseEvent) => void;
   flashMessage: FlashMessageModelWithTimeout;
+  updateEnvironments: (environmentsToAdd: string[], environmentsToRemove: string[]) => Promise<any>;
+  updateResources: (resourcesToAdd: string[], resourcesToRemove: string[]) => Promise<any>;
 }
 
 export class AgentsWidget extends MithrilViewComponent<AgentsWidgetAttrs> {

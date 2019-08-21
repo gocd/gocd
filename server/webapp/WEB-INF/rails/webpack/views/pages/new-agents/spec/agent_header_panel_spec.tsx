@@ -22,10 +22,12 @@ import Style from "../index.scss";
 import m from "mithril";
 
 describe("AgentHeaderPanel", () => {
-  const helper    = new TestHelper(),
-        onEnable  = jasmine.createSpy("onEnable"),
-        onDisable = jasmine.createSpy("onDisable"),
-        onDelete  = jasmine.createSpy("onDelete");
+  const helper             = new TestHelper(),
+        onEnable           = jasmine.createSpy("onEnable"),
+        onDisable          = jasmine.createSpy("onDisable"),
+        onDelete           = jasmine.createSpy("onDelete"),
+        updateEnvironments = jasmine.createSpy("updateEnvironments"),
+        updateResources    = jasmine.createSpy("updateResources");
 
   afterEach(helper.unmount.bind(helper));
 
@@ -139,7 +141,9 @@ describe("AgentHeaderPanel", () => {
     helper.mount(() => <AgentHeaderPanel agents={agents}
                                          onDelete={onDelete}
                                          onEnable={onEnable}
-                                         onDisable={onDisable}/>);
+                                         onDisable={onDisable}
+                                         updateEnvironments={updateEnvironments}
+                                         updateResources={updateResources}/>);
   }
 
 });

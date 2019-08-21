@@ -29,6 +29,8 @@ interface State {
   onEnable: (e: MouseEvent) => void;
   onDisable: (e: MouseEvent) => void;
   onDelete: (e: MouseEvent) => void;
+  updateEnvironments: (environmentsToAdd: string[], environmentsToRemove: string[]) => Promise<any>;
+  updateResources: (resourcesToAdd: string[], resourcesToRemove: string[]) => Promise<any>;
 }
 
 export class NewAgentPage extends Page<null, State> {
@@ -37,27 +39,41 @@ export class NewAgentPage extends Page<null, State> {
     vnode.state.agents = new Agents([]);
 
 
-    vnode.state.onEnable = function () {
-      const uuids = this.agents.getSelectedAgentsUUID();
+    vnode.state.onEnable = () => {
+      const uuids = vnode.state.agents.getSelectedAgentsUUID();
       AgentsCRUD.agentsToEnable(uuids)
                 .then((result) => self.onResult(result, "Enabled", uuids.length))
-                .then(this.agents.unselectAll.bind(this.agents))
+                .then(vnode.state.agents.unselectAll.bind(vnode.state.agents))
                 .finally(self.fetchData.bind(self, vnode));
     };
 
-    vnode.state.onDisable = function () {
-      const uuids = this.agents.getSelectedAgentsUUID();
+    vnode.state.onDisable = () => {
+      const uuids = vnode.state.agents.getSelectedAgentsUUID();
       AgentsCRUD.agentsToDisable(uuids)
                 .then((result) => self.onResult(result, "Disabled", uuids.length))
-                .then(this.agents.unselectAll.bind(this.agents))
+                .then(vnode.state.agents.unselectAll.bind(vnode.state.agents))
                 .finally(self.fetchData.bind(self, vnode));
     };
 
-    vnode.state.onDelete = function () {
-      const uuids = this.agents.getSelectedAgentsUUID();
+    vnode.state.onDelete = () => {
+      const uuids = vnode.state.agents.getSelectedAgentsUUID();
       AgentsCRUD.delete(uuids)
                 .then((result) => self.onResult(result, "Deleted", uuids.length))
                 .finally(self.fetchData.bind(self, vnode));
+    };
+
+    vnode.state.updateEnvironments = (environmentsToAdd: string[], environmentsToRemove: string[]) => {
+      const uuids = vnode.state.agents.getSelectedAgentsUUID();
+      return AgentsCRUD.updateEnvironmentsAssociation(uuids, environmentsToAdd, environmentsToRemove)
+                       .then(vnode.state.agents.unselectAll.bind(vnode.state.agents))
+                       .finally(self.fetchData.bind(self, vnode));
+    };
+
+    vnode.state.updateResources = (resourcesToAdd: string[], resourcesToRemove: string[]) => {
+      const uuids = vnode.state.agents.getSelectedAgentsUUID();
+      return AgentsCRUD.updateResources(uuids, resourcesToAdd, resourcesToRemove)
+                       .then(vnode.state.agents.unselectAll.bind(vnode.state.agents))
+                       .finally(self.fetchData.bind(self, vnode));
     };
 
     new AjaxPoller({
@@ -71,7 +87,9 @@ export class NewAgentPage extends Page<null, State> {
                          onEnable={vnode.state.onEnable.bind(vnode.state)}
                          onDisable={vnode.state.onDisable.bind(vnode.state)}
                          onDelete={vnode.state.onDelete.bind(vnode.state)}
-                         flashMessage={this.flashMessage}/>;
+                         flashMessage={this.flashMessage}
+                         updateEnvironments={vnode.state.updateEnvironments.bind(vnode.state)}
+                         updateResources={vnode.state.updateResources.bind(vnode.state)}/>;
   }
 
   pageName(): string {

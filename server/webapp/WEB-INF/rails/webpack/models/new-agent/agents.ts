@@ -251,6 +251,8 @@ export class Agents extends TableSortHandler {
   private agentList: Agent[];
   public readonly filterText: Stream<string>           = Stream("");
   public readonly buildDetailsForAgent: Stream<string> = Stream();
+  public readonly showEnvironments: Stream<boolean>    = Stream();
+  public readonly showResources: Stream<boolean>       = Stream();
 
   constructor(agentsList: Agent[]) {
     super();
@@ -334,6 +336,10 @@ export class Agents extends TableSortHandler {
   getSelectedAgentsUUID(): string[] {
     return this.list().filter(agent => agent.selected())
                .map(agent => agent.uuid);
+  }
+
+  getSelectedAgents(): Agent[] {
+    return this.list().filter(agent => agent.selected());
   }
 
   unselectAll() {

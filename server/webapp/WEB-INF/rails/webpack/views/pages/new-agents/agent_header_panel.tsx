@@ -21,6 +21,7 @@ import {ButtonGroup} from "views/components/buttons";
 import * as Buttons from "views/components/buttons";
 import {SearchField} from "views/components/forms/input_fields";
 import {KeyValuePair} from "views/components/key_value_pair";
+import {EnvironmentsDropdownButton, ResourcesDropdownButton} from "./environments_and_resources_dropdown_button";
 import style from "./index.scss";
 import m from "mithril";
 
@@ -31,22 +32,15 @@ interface AgentHeaderPanelAttrs {
   onEnable: (e: MouseEvent) => void;
   onDisable: (e: MouseEvent) => void;
   onDelete: (e: MouseEvent) => void;
+  updateEnvironments: (environmentsToAdd: string[], environmentsToRemove: string[]) => Promise<any>;
+  updateResources: (resourcesToAdd: string[], resourcesToRemove: string[]) => Promise<any>;
 }
 
 export class AgentHeaderPanel extends MithrilViewComponent<AgentHeaderPanelAttrs> {
   view(vnode: m.Vnode<AgentHeaderPanelAttrs, this>) {
     const agents = vnode.attrs.agents;
     return (<div class={style.headerPanel}>
-      <KeyValuePair inline={true} data={new Map(
-        [
-          ["Total", this.span(agents.count())],
-          ["Pending", this.span(agents.filterBy(AgentConfigState.Pending).length)],
-          ["Enabled", this.span(agents.filterBy(AgentConfigState.Enabled).length, style.enabled)],
-          ["Disabled", this.span(agents.filterBy(AgentConfigState.Disabled).length, style.disabled)]
-        ])
-      }/>
-
-      <div>
+      <div class={style.leftContainer}>
         <ButtonGroup>
           <Buttons.Primary data-test-id="delete-agents"
                            disabled={agents.isNoneSelected()}
@@ -57,12 +51,25 @@ export class AgentHeaderPanel extends MithrilViewComponent<AgentHeaderPanelAttrs
           <Buttons.Primary data-test-id="disable-agents"
                            disabled={agents.isNoneSelected()}
                            onclick={vnode.attrs.onDisable}>DISABLE</Buttons.Primary>
+          <EnvironmentsDropdownButton show={vnode.attrs.agents.showEnvironments}
+                                      updateEnvironments={vnode.attrs.updateEnvironments}
+                                      agents={agents}/>
+          <ResourcesDropdownButton show={vnode.attrs.agents.showResources}
+                                   updateResources={vnode.attrs.updateResources}
+                                   agents={agents}/>
         </ButtonGroup>
 
-        <div class={style.searchField}>
-          <SearchField placeholder="Filter Agents" label="Search for agents" property={agents.filterText}/>
-        </div>
+        <KeyValuePair inline={true} data={new Map(
+          [
+            ["Total", this.span(agents.count())],
+            ["Pending", this.span(agents.filterBy(AgentConfigState.Pending).length)],
+            ["Enabled", this.span(agents.filterBy(AgentConfigState.Enabled).length, style.enabled)],
+            ["Disabled", this.span(agents.filterBy(AgentConfigState.Disabled).length, style.disabled)]
+          ])
+        }/>
       </div>
+
+      <SearchField placeholder="Filter Agents" label="Search for agents" property={agents.filterText}/>
     </div>);
   }
 

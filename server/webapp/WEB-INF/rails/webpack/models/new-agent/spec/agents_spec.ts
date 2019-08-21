@@ -157,208 +157,6 @@ describe("AgentsModel", () => {
     });
   });
 
-  describe("Sort", () => {
-
-    it("should get the sortable column index", () => {
-      const agents = Agents.fromJSON(AgentsTestData.list());
-
-      expect(agents.getSortableColumns()).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
-    });
-
-    it("should sort the data based on the column clicked", () => {
-      const agents = Agents.fromJSON(AgentsTestData.list());
-      const agentA = agents.list()[0];
-      const agentB = agents.list()[1];
-      const agentC = agents.list()[2];
-
-      expect(agents.list()).toEqual([agentA, agentB, agentC]);
-
-      agents.onColumnClick(2);
-
-      expect(agents.list()).toEqual([agentB, agentC, agentA]);
-    });
-
-    it("should sort the data in reverser order when the same column is clicked", () => {
-      const agents = Agents.fromJSON(AgentsTestData.list());
-      const agentA = agents.list()[0];
-      const agentB = agents.list()[1];
-      const agentC = agents.list()[2];
-
-      expect(agents.list()).toEqual([agentA, agentB, agentC]);
-
-      agents.onColumnClick(2);
-      const agentsToRepresentAfterClick = agents.list();
-      const expectedAfterClick          = [agentB, agentC, agentA];
-      expect(agentsToRepresentAfterClick).toEqual(expectedAfterClick);
-
-      agents.onColumnClick(2);
-      const agentsToRepresentAfterClickOnSameColumn = agents.list();
-      const expectedAfterClickOnSameColumn          = [agentA, agentC, agentB];
-      expect(agentsToRepresentAfterClickOnSameColumn).toEqual(expectedAfterClickOnSameColumn);
-    });
-
-    it("should always sort a new column in ascending order regardless of previous column's sort order", () => {
-      const agents = Agents.fromJSON(AgentsTestData.list());
-      const agentA = agents.list()[0];
-      const agentB = agents.list()[1];
-      const agentC = agents.list()[2];
-
-      expect(agents.list()).toEqual([agentA, agentB, agentC]);
-
-      agents.onColumnClick(2);
-      const agentsToRepresentAfterClick = agents.list();
-      const expectedAfterClick          = [agentB, agentC, agentA];
-      expect(agentsToRepresentAfterClick).toEqual(expectedAfterClick);
-
-      agents.onColumnClick(1);
-      const agentsToRepresentAfterClickOnAnotherColumn = agents.list();
-      const expectedAfterClickOnAnotherColumn          = [agentA, agentB, agentC];
-      expect(agentsToRepresentAfterClickOnAnotherColumn).toEqual(expectedAfterClickOnAnotherColumn);
-    });
-
-    it("should sort a column according to agent state in ascending order when click on status column", () => {
-      const agents = Agents.fromJSON(AgentsTestData.list());
-      const agentA = agents.list()[0];
-      const agentB = agents.list()[1];
-      const agentC = agents.list()[2];
-
-      expect(agents.list()).toEqual([agentA, agentB, agentC]);
-
-      agents.onColumnClick(5);
-      const agentsToRepresentAfterClick = agents.list();
-      const expectedAfterClick          = [agentA, agentC, agentB];
-      expect(agentsToRepresentAfterClick).toEqual(expectedAfterClick);
-    });
-
-    it("should sort a column according to agent state in descending order when click on status column twice", () => {
-      const agents = Agents.fromJSON(AgentsTestData.list());
-      const agentA = agents.list()[0];
-      const agentB = agents.list()[1];
-      const agentC = agents.list()[2];
-
-      expect(agents.list()).toEqual([agentA, agentB, agentC]);
-
-      agents.onColumnClick(5);
-      const agentsToRepresentAfterClick = agents.list();
-      const expectedAfterClick          = [agentA, agentC, agentB];
-      expect(agentsToRepresentAfterClick).toEqual(expectedAfterClick);
-
-      agents.onColumnClick(5);
-      const agentsToRepresentAfterSecondClick = agents.list();
-      const expectedAfterSecondClick          = [agentB, agentC, agentA];
-      expect(agentsToRepresentAfterSecondClick).toEqual(expectedAfterSecondClick);
-    });
-
-    it("should sort a column according to free space in ascending order when click on free space column", () => {
-      const agents = Agents.fromJSON(AgentsTestData.list());
-      const agentA = agents.list()[0];
-      const agentB = agents.list()[1];
-      const agentC = agents.list()[2];
-
-      expect(agents.list()).toEqual([agentA, agentB, agentC]);
-
-      agents.onColumnClick(6);
-      const agentsToRepresentAfterClick = agents.list();
-      const expectedAfterClick          = [agentB, agentC, agentA];
-      expect(agentsToRepresentAfterClick).toEqual(expectedAfterClick);
-    });
-
-    it("should sort a column according to free space in descending order when click on free space column twice", () => {
-      const agents = Agents.fromJSON(AgentsTestData.list());
-      const agentA = agents.list()[0];
-      const agentB = agents.list()[1];
-      const agentC = agents.list()[2];
-
-      expect(agents.list()).toEqual([agentA, agentB, agentC]);
-
-      agents.onColumnClick(6);
-      const agentsToRepresentAfterClick = agents.list();
-      const expectedAfterClick          = [agentB, agentC, agentA];
-      expect(agentsToRepresentAfterClick).toEqual(expectedAfterClick);
-
-      agents.onColumnClick(6);
-      const agentsToRepresentAfterSecondClick = agents.list();
-      const expectedAfterSecondClick          = [agentA, agentC, agentB];
-      expect(agentsToRepresentAfterSecondClick).toEqual(expectedAfterSecondClick);
-    });
-
-    it("should sort a column according to resources in ascending order when click on resource column", () => {
-      const agentA = Agent.fromJSON(AgentsTestData.agentWithResources(["dev", "fat"]));
-      const agentB = Agent.fromJSON(AgentsTestData.agentWithResources(["firefox"]));
-      const agentC = Agent.fromJSON(AgentsTestData.agentWithResources(["chrome"]));
-      const agentD = Agent.fromJSON(AgentsTestData.agentWithResources([]));
-
-      const agents = new Agents([agentA, agentB, agentC, agentD]);
-
-      expect(agents.list()).toEqual([agentA, agentB, agentC, agentD]);
-
-      agents.onColumnClick(7);
-      const agentsToRepresentAfterClick = agents.list();
-      const expectedAfterClick          = [agentC, agentA, agentB, agentD];
-      expect(agentsToRepresentAfterClick).toEqual(expectedAfterClick);
-    });
-
-    it("should sort a column according to resources in descending order when click on resource column twice", () => {
-      const agentA = Agent.fromJSON(AgentsTestData.agentWithResources(["dev", "fat"]));
-      const agentB = Agent.fromJSON(AgentsTestData.agentWithResources(["firefox"]));
-      const agentC = Agent.fromJSON(AgentsTestData.agentWithResources(["chrome"]));
-      const agentD = Agent.fromJSON(AgentsTestData.agentWithResources([]));
-
-      const agents = new Agents([agentA, agentB, agentC, agentD]);
-
-      expect(agents.list()).toEqual([agentA, agentB, agentC, agentD]);
-
-      agents.onColumnClick(7);
-      const agentsToRepresentAfterClick = agents.list();
-      const expectedAfterClick          = [agentC, agentA, agentB, agentD];
-      expect(agentsToRepresentAfterClick).toEqual(expectedAfterClick);
-
-      agents.onColumnClick(7);
-      const agentsToRepresentAfterSecondClick = agents.list();
-      const expectedAfterSecondClick          = [agentD, agentB, agentA, agentC];
-      expect(agentsToRepresentAfterSecondClick).toEqual(expectedAfterSecondClick);
-
-    });
-
-    it("should sort a column according to environment name in ascending order when click on environment column", () => {
-      const agentA = Agent.fromJSON(AgentsTestData.agentWithEnvironments("prod", "dev", "qa"));
-      const agentB = Agent.fromJSON(AgentsTestData.agentWithEnvironments("dev"));
-      const agentC = Agent.fromJSON(AgentsTestData.agentWithEnvironments("qa"));
-      const agentD = Agent.fromJSON(AgentsTestData.agentWithEnvironments());
-
-      const agents = new Agents([agentA, agentB, agentC, agentD]);
-
-      expect(agents.list()).toEqual([agentA, agentB, agentC, agentD]);
-
-      agents.onColumnClick(8);
-      const agentsToRepresentAfterClick = agents.list();
-      const expectedAfterClick          = [agentB, agentA, agentC, agentD];
-      expect(agentsToRepresentAfterClick).toEqual(expectedAfterClick);
-    });
-
-    it("should sort a column according to environment name in descending order when click on environment column twice",
-       () => {
-         const agentA = Agent.fromJSON(AgentsTestData.agentWithEnvironments("prod", "dev", "qa"));
-         const agentB = Agent.fromJSON(AgentsTestData.agentWithEnvironments("dev"));
-         const agentC = Agent.fromJSON(AgentsTestData.agentWithEnvironments("qa"));
-         const agentD = Agent.fromJSON(AgentsTestData.agentWithEnvironments());
-
-         const agents = new Agents([agentA, agentB, agentC, agentD]);
-
-         expect(agents.list()).toEqual([agentA, agentB, agentC, agentD]);
-
-         agents.onColumnClick(8);
-         const agentsToRepresentAfterClick = agents.list();
-         const expectedAfterClick          = [agentB, agentA, agentC, agentD];
-         expect(agentsToRepresentAfterClick).toEqual(expectedAfterClick);
-
-         agents.onColumnClick(8);
-         const agentsToRepresentAfterSecondClick = agents.list();
-         const expectedAfterSecondClick          = [agentD, agentC, agentA, agentB];
-         expect(agentsToRepresentAfterSecondClick).toEqual(expectedAfterSecondClick);
-       });
-  });
-
   describe("Search", () => {
     let agents: Agents, agentA: Agent, agentB: Agent, agentC: Agent;
     beforeEach(() => {
@@ -744,7 +542,7 @@ describe("AgentsModel", () => {
     });
   });
 
-  describe("getSelectedAgentsUUID", function () {
+  describe("getSelectedAgentsUUID", () => {
     it("should return selected agents uuid", () => {
       const agentA = Agent.fromJSON(AgentsTestData.disabledAgent()),
             agentB = Agent.fromJSON(AgentsTestData.buildingAgent()),
@@ -768,7 +566,8 @@ describe("AgentsModel", () => {
       expect(agents.getSelectedAgentsUUID()).toContain(agentB.uuid);
     });
   });
-  describe("unselectAll", function () {
+
+  describe("unselectAll", () => {
     it("should unselect current selection", () => {
       const agentA = Agent.fromJSON(AgentsTestData.disabledAgent()),
             agentB = Agent.fromJSON(AgentsTestData.buildingAgent()),
@@ -800,6 +599,64 @@ describe("AgentsModel", () => {
 
       agents.filterText("");
       expect(agents.getSelectedAgentsUUID()).toContain(agentA.uuid);
+    });
+  });
+
+  describe("TableSortHandler", () => {
+    it("should get the sortable column index", () => {
+      const agents = Agents.fromJSON(AgentsTestData.list());
+      expect(agents.getSortableColumns()).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
+    });
+
+    it("should sort the data based on the column clicked", () => {
+      const agents = Agents.fromJSON(AgentsTestData.list());
+      const agentA = agents.list()[0];
+      const agentB = agents.list()[1];
+      const agentC = agents.list()[2];
+
+      expect(agents.list()).toEqual([agentA, agentB, agentC]);
+
+      agents.onColumnClick(2);
+
+      expect(agents.list()).toEqual([agentB, agentC, agentA]);
+    });
+
+    it("should sort the data in reverser order when the same column is clicked", () => {
+      const agents = Agents.fromJSON(AgentsTestData.list());
+      const agentA = agents.list()[0];
+      const agentB = agents.list()[1];
+      const agentC = agents.list()[2];
+
+      expect(agents.list()).toEqual([agentA, agentB, agentC]);
+
+      agents.onColumnClick(2);
+      const agentsToRepresentAfterClick = agents.list();
+      const expectedAfterClick          = [agentB, agentC, agentA];
+      expect(agentsToRepresentAfterClick).toEqual(expectedAfterClick);
+
+      agents.onColumnClick(2);
+      const agentsToRepresentAfterClickOnSameColumn = agents.list();
+      const expectedAfterClickOnSameColumn          = [agentA, agentC, agentB];
+      expect(agentsToRepresentAfterClickOnSameColumn).toEqual(expectedAfterClickOnSameColumn);
+    });
+
+    it("should always sort a new column in ascending order regardless of previous column's sort order", () => {
+      const agents = Agents.fromJSON(AgentsTestData.list());
+      const agentA = agents.list()[0];
+      const agentB = agents.list()[1];
+      const agentC = agents.list()[2];
+
+      expect(agents.list()).toEqual([agentA, agentB, agentC]);
+
+      agents.onColumnClick(2);
+      const agentsToRepresentAfterClick = agents.list();
+      const expectedAfterClick          = [agentB, agentC, agentA];
+      expect(agentsToRepresentAfterClick).toEqual(expectedAfterClick);
+
+      agents.onColumnClick(1);
+      const agentsToRepresentAfterClickOnAnotherColumn = agents.list();
+      const expectedAfterClickOnAnotherColumn          = [agentA, agentB, agentC];
+      expect(agentsToRepresentAfterClickOnAnotherColumn).toEqual(expectedAfterClickOnAnotherColumn);
     });
   });
 });

@@ -33,6 +33,7 @@ import {GitFields, HgFields, P4Fields, SvnFields, TfsFields} from "./scm_materia
 interface Attrs {
   material: Material;
   cache?: SuggestionCache;
+  materialCheck?: boolean;
 }
 
 export class MaterialEditor extends MithrilViewComponent<Attrs> {
@@ -51,7 +52,7 @@ export class MaterialEditor extends MithrilViewComponent<Attrs> {
       </SelectField>
 
       <Form last={true} compactForm={true}>
-        {this.fieldsForType(vnode.attrs.material, this.cache)}
+        {this.fieldsForType(vnode.attrs.material, vnode.attrs.materialCheck, this.cache)}
       </Form>
     </FormBody>;
   }
@@ -67,37 +68,37 @@ export class MaterialEditor extends MithrilViewComponent<Attrs> {
     ];
   }
 
-  fieldsForType(material: Material, cacheable: SuggestionCache): m.Children {
+  fieldsForType(material: Material, materialCheck: boolean, cacheable: SuggestionCache): m.Children {
     switch (material.type()) {
       case "git":
         if (!(material.attributes() instanceof GitMaterialAttributes)) {
           material.attributes(new GitMaterialAttributes());
         }
-        return <GitFields material={material}/>;
+        return <GitFields material={material} materialCheck={materialCheck}/>;
         break;
       case "hg":
         if (!(material.attributes() instanceof HgMaterialAttributes)) {
           material.attributes(new HgMaterialAttributes());
         }
-        return <HgFields material={material}/>;
+        return <HgFields material={material} materialCheck={materialCheck}/>;
         break;
       case "svn":
         if (!(material.attributes() instanceof SvnMaterialAttributes)) {
           material.attributes(new SvnMaterialAttributes());
         }
-        return <SvnFields material={material}/>;
+        return <SvnFields material={material} materialCheck={materialCheck}/>;
         break;
       case "p4":
         if (!(material.attributes() instanceof P4MaterialAttributes)) {
           material.attributes(new P4MaterialAttributes());
         }
-        return <P4Fields material={material}/>;
+        return <P4Fields material={material} materialCheck={materialCheck}/>;
         break;
       case "tfs":
         if (!(material.attributes() instanceof TfsMaterialAttributes)) {
           material.attributes(new TfsMaterialAttributes());
         }
-        return <TfsFields material={material}/>;
+        return <TfsFields material={material} materialCheck={materialCheck}/>;
         break;
       case "dependency":
         if (!(material.attributes() instanceof DependencyMaterialAttributes)) {

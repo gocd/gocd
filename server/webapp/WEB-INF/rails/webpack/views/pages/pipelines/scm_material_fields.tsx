@@ -37,6 +37,7 @@ import {DESTINATION_DIR_HELP_MESSAGE, IDENTIFIER_FORMAT_HELP_MESSAGE} from "./me
 interface Attrs {
   material: Material;
   materialCheck?: boolean;
+  showAdvanced: boolean;
 }
 
 abstract class ScmFields extends MithrilViewComponent<Attrs> {
@@ -46,14 +47,20 @@ abstract class ScmFields extends MithrilViewComponent<Attrs> {
 
   view(vnode: m.Vnode<Attrs>): m.Children {
     const mattrs = vnode.attrs.material.attributes() as ScmMaterialAttributes;
-    let materialTest = <TestConnection material={vnode.attrs.material}/>;
-    if (vnode.attrs.materialCheck) {
-      materialTest = <MaterialCheck material={vnode.attrs.material}/>;
-    }
+    const materialTest = vnode.attrs.materialCheck ?
+      <TestConnection material={vnode.attrs.material}/> :
+      <MaterialCheck material={vnode.attrs.material}/>;
+
     return [
       this.requiredFields(mattrs),
       materialTest,
-      <AdvancedSettings forceOpen={mattrs.errors().hasErrors("name") || mattrs.errors().hasErrors("destination")}>
+      this.advancedOptions(mattrs, vnode.attrs.showAdvanced),
+    ];
+  }
+
+  advancedOptions(mattrs: ScmMaterialAttributes, showAdvanced: boolean): m.Children {
+    if (showAdvanced) {
+      return <AdvancedSettings forceOpen={mattrs.errors().hasErrors("name") || mattrs.errors().hasErrors("destination")}>
         {this.extraFields(mattrs)}
         <TextField label={[
           "Alternate Checkout Path",
@@ -61,8 +68,8 @@ abstract class ScmFields extends MithrilViewComponent<Attrs> {
           <Tooltip.Help size={TooltipSize.medium} content={DESTINATION_DIR_HELP_MESSAGE}/>
         ]} property={mattrs.destination} errorText={this.errs(mattrs, "destination")}/>
         <TextField label="Material Name" helpText={IDENTIFIER_FORMAT_HELP_MESSAGE} placeholder="A human-friendly label for this material" property={mattrs.name} errorText={this.errs(mattrs, "name")}/>
-      </AdvancedSettings>
-    ];
+      </AdvancedSettings>;
+    }
   }
 
   abstract requiredFields(attrs: MaterialAttributes): m.Children;

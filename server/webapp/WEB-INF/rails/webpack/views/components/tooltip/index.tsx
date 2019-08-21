@@ -49,10 +49,10 @@ class Tooltip extends MithrilViewComponent<Attrs> {
 
     return (
       <div data-test-id="tooltip-wrapper" class={styles.tooltipWrapper}>
-        {m(this.tooltipType, {iconOnly: true, title: ""})}
+        {m(this.tooltipType, {iconOnly: true, title: "", describedBy: "tooltip-desc"})}
         <div data-test-id="tooltip-content"
              class={classnames(styles.tooltipContent, size)}>
-          <p>{vnode.attrs.content}</p>
+          <p role="tooltip" id="tooltip-desc">{vnode.attrs.content}</p>
         </div>
       </div>);
   }

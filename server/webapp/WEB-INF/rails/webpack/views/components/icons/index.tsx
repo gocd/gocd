@@ -27,6 +27,7 @@ export interface Attrs extends HTMLAttributes {
   disabled?: boolean;
   iconOnly?: boolean;
   title?: string;
+  describedBy?: string;
 }
 
 class Icon extends MithrilViewComponent<Attrs> {
@@ -47,6 +48,7 @@ class Icon extends MithrilViewComponent<Attrs> {
            data-test-id={`${this.title}-icon`}
            data-test-disabled-element={vnode.attrs.disabled}
            class={classnames(this.name, {disabled: vnode.attrs.disabled})}
+           aria-describedby={vnode.attrs.describedBy}
            {...vnode.attrs}/>
       );
   }

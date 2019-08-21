@@ -336,6 +336,27 @@ public class AgentServiceIntegrationTest {
             expectedResult.badRequest("Pending agents [" + pendingAgent.getUUId() + "] must be explicitly enabled or disabled when performing any operations on them.");
             assertThat(actualResult, is(expectedResult));
         }
+
+        @Test
+        void shouldBeAbleToUpdatePendingAgentProvidedTheStateIsSet() {
+            String uuid = DatabaseAccessHelper.AGENT_UUID;
+            Agent agent = new Agent(uuid, "agentName", "50.40.30.9");
+            AgentRuntimeInfo agentRuntime = new AgentRuntimeInfo(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false);
+            agentRuntime.busy(new AgentBuildingInfo("path", "buildLocator"));
+            agentService.requestRegistration(agentRuntime);
+
+            HttpOperationResult result = new HttpOperationResult();
+            AgentInstance agentInstance = agentService.updateAgentAttributes(uuid, "new-hostname", "resources", createEnvironmentsConfigWith("env1"), TRUE, result);
+
+            assertThat(result.httpCode(), is(200));
+            assertThat(result.message(), is(String.format("Updated agent with uuid %s.", uuid)));
+
+            AgentInstances agents = agentService.getAgentInstances();
+
+            assertThat(agents.size(), is(1));
+            assertThat(agentInstance.isDisabled(), is(false));
+            assertThat(agentInstance.getStatus(), is(AgentStatus.Missing));
+        }
     }
 
     @Nested
@@ -1390,14 +1411,14 @@ public class AgentServiceIntegrationTest {
         }
     }
 
-    private void bulkUpdateEnvironments(Agent... agents){
+    private void bulkUpdateEnvironments(Agent... agents) {
         List<String> uuids = Stream.of(agents).map(Agent::getUuid).collect(toList());
         EnvironmentsConfig envsConfig = createEnvironmentsConfigWith(randomName("env"), randomName("env"), randomName("env"));
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         agentService.bulkUpdateAgentAttributes(uuids, null, null, envsConfig, null, TRUE, result);
     }
 
-    private void bulkUpdateResources(Agent... agents){
+    private void bulkUpdateResources(Agent... agents) {
         List<String> uuids = Stream.of(agents).map(Agent::getUuid).collect(toList());
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         String res1 = randomName("res");

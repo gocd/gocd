@@ -120,12 +120,12 @@ public class EnvironmentsControllerV3 extends ApiController implements SparkSpri
         final BasicEnvironmentConfig environmentConfigToCreate = (BasicEnvironmentConfig) buildEntityFromRequestBody(request);
         final HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
 
+        haltIfEntityWithSameNameExists(environmentConfigToCreate);
+
         if (!environmentConfigToCreate.getAllErrors().isEmpty()) {
             operationResult.unprocessableEntity("Error parsing environment config from the request");
             return handleCreateOrUpdateResponse(request, response, environmentConfigToCreate, operationResult);
         }
-
-        haltIfEntityWithSameNameExists(environmentConfigToCreate);
 
         environmentConfigService.createEnvironment(environmentConfigToCreate, currentUsername(), operationResult);
 
@@ -139,6 +139,10 @@ public class EnvironmentsControllerV3 extends ApiController implements SparkSpri
         EnvironmentConfig oldEnvironmentConfig = fetchEntityFromConfig(environmentName);
         HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
 
+        if (!StringUtils.equals(environmentName, environmentConfig.name().toString())) {
+            throw haltBecauseRenameOfEntityIsNotSupported("environment");
+        }
+
         if (!environmentConfig.getAllErrors().isEmpty()) {
             operationResult.unprocessableEntity("Error parsing environment config from the request");
             return handleCreateOrUpdateResponse(request, response, environmentConfig, operationResult);
@@ -146,10 +150,6 @@ public class EnvironmentsControllerV3 extends ApiController implements SparkSpri
 
         if (isPutRequestStale(request, oldEnvironmentConfig)) {
             throw haltBecauseEtagDoesNotMatch("environment", environmentName);
-        }
-
-        if (!StringUtils.equals(environmentName, environmentConfig.name().toString())) {
-            throw haltBecauseRenameOfEntityIsNotSupported("environment");
         }
 
         environmentConfigService.updateEnvironment(environmentConfig.name().toString(), environmentConfig, currentUsername(), etagFor(oldEnvironmentConfig), operationResult);

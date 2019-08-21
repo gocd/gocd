@@ -67,8 +67,7 @@ import static com.thoughtworks.go.serverhealth.HealthStateType.duplicateAgent;
 import static com.thoughtworks.go.serverhealth.ServerHealthState.warning;
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
-import static com.thoughtworks.go.util.TriState.TRUE;
-import static com.thoughtworks.go.util.TriState.UNSET;
+import static com.thoughtworks.go.util.TriState.*;
 import static com.thoughtworks.go.utils.Timeout.THIRTY_SECONDS;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
@@ -491,6 +490,24 @@ class AgentServiceTest {
 
                     assertThatUpdateIsSuccessfulWithSpecifiedValues(agentInstance.getAgent(), hostname, "e1,e2", null, false, result);
                 }
+
+                @Test
+                void shouldUpdatePendingAgentAttributesProvidedItIsEnableOrDisabled() {
+                    HttpOperationResult result = new HttpOperationResult();
+                    Username username = new Username(new CaseInsensitiveString("test"));
+
+                    when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
+                    when(agentInstance.isPending()).thenReturn(true);
+                    when(agentInstance.getAgent()).thenReturn(agent);
+
+                    String hostname = "new-hostname";
+                    String resources = "resource1,resource2";
+                    EnvironmentsConfig envsConfig = createEnvironmentsConfigWith("env1", "env2");
+                    TriState state = FALSE;
+
+                    AgentInstance agentInstance = agentService.updateAgentAttributes(uuid, hostname, resources, envsConfig, state, result);
+                    assertThatUpdateIsSuccessfulWithSpecifiedValues(agentInstance.getAgent(), hostname, "env1,env2", resources, true, result);
+                }
             }
 
             @Nested
@@ -533,8 +550,8 @@ class AgentServiceTest {
                     Username username = new Username(new CaseInsensitiveString("test"));
 
                     when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
-                    when(agentDao.getAgentByUUIDFromCacheOrDB(uuid)).thenReturn(agent);
                     when(agentInstance.isPending()).thenReturn(true);
+                    when(agentInstance.getAgent()).thenReturn(agent);
 
                     agentService.updateAgentAttributes(uuid, "new-hostname", "resource1", createEnvironmentsConfigWith("env1"), UNSET, result);
 

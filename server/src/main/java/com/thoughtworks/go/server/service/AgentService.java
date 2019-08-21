@@ -148,7 +148,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
             return null;
         }
         AgentUpdateValidator validator = new AgentUpdateValidator(agentInstance, state, result);
-        Agent agent = agentDao.fetchAgentFromDBByUUID(uuid);
+        Agent agent = getAgentForUpdate(agentInstance);
         try {
             if (isAnyOperationPerformedOnAgent(hostname, envsConfig, resources, state, result)) {
                 validator.validate();
@@ -298,7 +298,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
             LOGGER.warn("Registered agent with the same uuid [{}] already approved.", agentInstance);
         } else {
             Agent agent = agentInstance.getAgent();
-            if(!agent.cookieAssigned()) {
+            if (!agent.cookieAssigned()) {
                 generateAndAddCookie(agent);
             }
             saveOrUpdate(agent);
@@ -473,6 +473,15 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
             List<ConfigErrors> errors = agent.errorsAsList();
             throw new GoConfigInvalidException(null, new AllConfigErrors(errors));
         }
+    }
+
+    private Agent getAgentForUpdate(AgentInstance agentInstance) {
+        if (agentInstance.isPending()) {
+            Agent agent = agentInstance.getAgent();
+            generateAndAddCookie(agent);
+            return agent;
+        }
+        return agentDao.fetchAgentFromDBByUUID(agentInstance.getUuid());
     }
 
     private void setAgentAttributes(String newHostname, String resources, EnvironmentsConfig environments, TriState state, Agent agent) {

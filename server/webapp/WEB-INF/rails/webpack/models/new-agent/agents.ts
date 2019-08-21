@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-import _ = require("lodash");
+import _ from "lodash";
 import Stream from "mithril/stream";
+import {AgentComparator, SortOrder} from "models/new-agent/agent_comparator";
 import {TableSortHandler} from "views/components/table";
 
 const filesize = require("filesize");
@@ -244,10 +245,6 @@ export class Agent {
   }
 }
 
-enum SortOrder {
-  ASC, DESC
-}
-
 export class Agents extends TableSortHandler {
   private sortOnColumn: number;
   private sortOrder: SortOrder;
@@ -339,7 +336,7 @@ export class Agents extends TableSortHandler {
                .map(agent => agent.uuid);
   }
 
-  unselectAll(){
+  unselectAll() {
     this.list().forEach(agent => agent.selected(false));
   }
 
@@ -349,81 +346,7 @@ export class Agents extends TableSortHandler {
 
   private sort() {
     const columnName = this.getSortableColumnsAssociates()[this.sortOnColumn];
-
-    if (columnName === "freeSpace") {
-      const agentsWithFreeSpace = this.agentList.filter(agent => agent[columnName] != "unknown")
-                                      .sort((agent1: Agent, agent2: Agent) => {
-                                        //@ts-ignore
-                                        const first = agent1[columnName];
-                                        //@ts-ignore
-                                        const other = agent2[columnName];
-                                        //@ts-ignore
-                                        return this.sortOrder === SortOrder.ASC ? first - other : other - first;
-                                      });
-
-      const agentsWithUnknownFreeSpace = this.agentList.filter(agent => agent[columnName] === "unknown");
-
-      this.agentList = this.sortOrder === SortOrder.ASC ? agentsWithFreeSpace.concat(agentsWithUnknownFreeSpace) : agentsWithUnknownFreeSpace.concat(
-        agentsWithFreeSpace);
-
-    } else if (columnName === "resources") {
-      const agentsWithResource    = this.agentList.filter(agent => agent[columnName].join(", ") != "")
-                                        .sort((agent1: Agent, agent2: Agent) => {
-                                          //@ts-ignore
-                                          const first = agent1[columnName].join(", ");
-                                          //@ts-ignore
-                                          const other = agent2[columnName].join(", ");
-
-                                          return this.sortOrder === SortOrder.ASC ? first.localeCompare(other) : other.localeCompare(
-                                            first);
-                                        });
-      const agentsWithNoResources = this.agentList.filter(agent => agent[columnName].join(", ") === "");
-
-      this.agentList = this.sortOrder === SortOrder.ASC ? agentsWithResource.concat(agentsWithNoResources) : agentsWithNoResources.concat(
-        agentsWithResource);
-
-    } else if (columnName === "environments") {
-      const agentsWithEnvironments = this.agentList.filter(agent => agent[columnName].join(", ") != "")
-                                         .sort((agent1: Agent, agent2: Agent) => {
-                                           //@ts-ignore
-                                           const first = agent1[columnName].map(env => env.name).join(", ");
-                                           //@ts-ignore
-                                           const other = agent2[columnName].map(env => env.name).join(", ");
-
-                                           return this.sortOrder === SortOrder.ASC ? first.localeCompare(other) : other.localeCompare(
-                                             first);
-                                         });
-
-      const agentsWithNoEnvironment = this.agentList.filter(agent => agent[columnName].join(", ") === "");
-
-      this.agentList = this.sortOrder === SortOrder.ASC ? agentsWithEnvironments.concat(agentsWithNoEnvironment) : agentsWithNoEnvironment.concat(
-        agentsWithEnvironments);
-
-    } else if (columnName === "agentState") {
-      const enabledAgents  = this.agentList.filter(agent => agent["agentConfigState"] === AgentConfigState.Enabled)
-                                 .sort((agent1: Agent, agent2: Agent) => {
-                                   //@ts-ignore
-                                   const first = AgentState[agent1[columnName]];
-                                   //@ts-ignore
-                                   const other = AgentState[agent2[columnName]];
-
-                                   return this.sortOrder === SortOrder.ASC ? first.localeCompare(other) : other.localeCompare(
-                                     first);
-                                 });
-      const disabledAgents = this.agentList.filter(agent => agent["agentConfigState"] === AgentConfigState.Disabled);
-
-      this.agentList = this.sortOrder === SortOrder.ASC ? enabledAgents.concat(disabledAgents) : disabledAgents.concat(
-        enabledAgents);
-
-    } else {
-      this.agentList.sort((agent1: Agent, agent2: Agent) => {
-        //@ts-ignore
-        const first = agent1[columnName];
-        //@ts-ignore
-        const other = agent2[columnName];
-
-        return this.sortOrder === SortOrder.ASC ? first.localeCompare(other) : other.localeCompare(first);
-      });
-    }
+    const comparator = new AgentComparator(columnName, this.sortOrder);
+    this.agentList.sort(comparator.compare.bind(comparator));
   }
 }

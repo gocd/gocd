@@ -37,7 +37,13 @@ export class AgentsTestData {
                      "LostContact",
                      2859,
                      "10.1.0.4"),
-          this.agent("40c2e45a-3d1f-47e5-8a3e-94d2e4ba5266", "Ccccc", "Yyyyy", "Mac", "Idle", 9854, "10.1.1.7")
+          this.agent("40c2e45a-3d1f-47e5-8a3e-94d2e4ba5266",
+                     "Ccccc",
+                     "Yyyyy",
+                     "Mac",
+                     "Idle",
+                     9854,
+                     "10.1.1.7")
         ]
       }
     } as AgentsJSON;
@@ -63,6 +69,15 @@ export class AgentsTestData {
       };
     });
     return agent;
+  }
+
+  static agentWithFreespace(freespace: number | string) {
+    return this.agent(uuid(),
+                      "Ccccc",
+                      "Yyyyy",
+                      "Mac",
+                      "Idle",
+                      freespace);
   }
 
   static pendingAgent() {
@@ -103,12 +118,12 @@ export class AgentsTestData {
   }
 
   static agent(uuid: string, hostname: string,
-               sandbox: string    = "go",
-               os: string         = "windows",
-               agentState: string = "Idle",
-               freeSpace: number  = 93259825152,
-               ipAddr: string     = "10.1.0." + AgentsTestData.getRandomIntegerInRange(1, 255),
-               resources          = ["dev", "fat", "ie9", "firefox"]) {
+               sandbox: string            = "go",
+               os: string                 = "windows",
+               agentState: string         = "Idle",
+               freeSpace: number | string = 93259825152,
+               ipAddr: string             = "10.1.0." + AgentsTestData.getRandomIntegerInRange(1, 255),
+               resources                  = ["dev", "fat", "ie9", "firefox"]) {
     // @ts-ignore
     return {
       selected: Stream(false),

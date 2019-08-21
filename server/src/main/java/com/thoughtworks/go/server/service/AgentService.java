@@ -432,11 +432,8 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     }
 
     private void notifyAgentChangeListenersAndSyncAgentFromUpdatedAgent(Agent agentAfterUpdate, AgentInstance agentInstanceBeforeUpdate) {
-        Agent agentBeforeUpdate = agentInstanceBeforeUpdate.getAgent();
-        if (!agentBeforeUpdate.equals(agentAfterUpdate)) {
-            notifyAgentChangeListeners(agentAfterUpdate);
-            agentInstanceBeforeUpdate.syncAgentFrom(agentAfterUpdate);
-        }
+        notifyAgentChangeListeners(agentAfterUpdate);
+        agentInstanceBeforeUpdate.syncAgentFrom(agentAfterUpdate);
     }
 
     private void createNewAgentInstanceAndAddToCache(Agent agentAfterUpdate) {

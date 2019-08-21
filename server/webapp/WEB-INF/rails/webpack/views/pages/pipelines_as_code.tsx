@@ -71,9 +71,9 @@ export class PipelinesAsCodeCreatePage extends Page {
 
       <FillableSection>
         <div>
-          <div>Use the 'Check Material' button to verify that the configuration file is corretly placed</div>
+          <span>Use the 'Check Material' button to verify that the configuration file is corretly placed</span>
 
-          <MaterialEditor material={vm.material} materialCheck={true}/>
+          <MaterialEditor material={vm.material} materialCheck={true} scmOnly={true}/>
         </div>
       </FillableSection>
     ];

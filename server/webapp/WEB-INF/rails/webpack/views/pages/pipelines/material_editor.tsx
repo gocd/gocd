@@ -34,6 +34,7 @@ interface Attrs {
   material: Material;
   cache?: SuggestionCache;
   materialCheck?: boolean;
+  scmOnly?: boolean;
 }
 
 export class MaterialEditor extends MithrilViewComponent<Attrs> {
@@ -46,9 +47,10 @@ export class MaterialEditor extends MithrilViewComponent<Attrs> {
   }
 
   view(vnode: m.Vnode<Attrs>) {
+    const supportedMats = vnode.attrs.scmOnly ? this.scmMaterials() : this.supportedMaterials();
     return <FormBody>
       <SelectField label="Material Type" property={vnode.attrs.material.type} required={true}>
-        <SelectFieldOptions selected={vnode.attrs.material.type()} items={this.supportedMaterials()}/>
+        <SelectFieldOptions selected={vnode.attrs.material.type()} items={supportedMats}/>
       </SelectField>
 
       <Form last={true} compactForm={true}>
@@ -57,15 +59,20 @@ export class MaterialEditor extends MithrilViewComponent<Attrs> {
     </FormBody>;
   }
 
-  supportedMaterials(): Option[] {
+  scmMaterials(): Option[] {
     return [
       {id: "git", text: "Git"},
       {id: "hg", text: "Mercurial"},
       {id: "svn", text: "Subversion"},
       {id: "p4", text: "Perforce"},
       {id: "tfs", text: "Team Foundation Server"},
-      {id: "dependency", text: "Another Pipeline"},
     ];
+  }
+
+  supportedMaterials(): Option[] {
+    return this.scmMaterials().concat(
+      {id: "dependency", text: "Another Pipeline"},
+    );
   }
 
   fieldsForType(material: Material, materialCheck: boolean, cacheable: SuggestionCache): m.Children {

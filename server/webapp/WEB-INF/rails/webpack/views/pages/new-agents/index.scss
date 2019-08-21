@@ -122,8 +122,22 @@ $disabled-text-color: #999;
     color: $disable_count_bg_color;
   }
 
-  .search-field {
-    display:     inline-flex;
-    margin-left: 30px;
+  .left-container {
+    display:     flex;
+    align-items: center;
   }
+
+  .left-container ul {
+    margin-left: 20px;
+  }
+}
+
+.dropdown-content {
+  background:    $white;
+  position:      absolute;
+  border-radius: $global-border-radius;
+  padding:       20px;
+  box-shadow:    0 2px 4px $box-shadow-color;
+  width:         250px;
+  right:         0;
 }

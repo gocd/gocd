@@ -35,21 +35,63 @@ export class AgentsCRUD {
   static agentsToEnable(agentsUUID: string[]) {
     return ApiRequestBuilder.PATCH(SparkRoutes.agentsPath(),
                                    this.API_VERSION_HEADER,
-                                   this.patchPayload(agentsUUID, AgentConfigState.Enabled));
+                                   this.patchPayloadWithConfigState(agentsUUID, AgentConfigState.Enabled));
   }
 
   static agentsToDisable(agentsUUID: string[]) {
     return ApiRequestBuilder.PATCH(SparkRoutes.agentsPath(),
                                    this.API_VERSION_HEADER,
-                                   this.patchPayload(agentsUUID, AgentConfigState.Disabled));
+                                   this.patchPayloadWithConfigState(agentsUUID, AgentConfigState.Disabled));
   }
 
-  private static patchPayload(agentsUUID: string[], agentConfigState: AgentConfigState) {
+  static updateEnvironmentsAssociation(agentsUUID: string[],
+                                       environmentsToAdd: string[],
+                                       environmentsToRemove: string[]) {
+    return ApiRequestBuilder.PATCH(SparkRoutes.agentsPath(),
+                                   this.API_VERSION_HEADER,
+                                   this.patchPayloadEnvironments(agentsUUID, environmentsToAdd, environmentsToRemove));
+  }
+
+  static updateResources(agentsUUID: string[],
+                         resourcesToAdd: string[], resourcesToRemove: string[]) {
+    return ApiRequestBuilder.PATCH(SparkRoutes.agentsPath(),
+                                   this.API_VERSION_HEADER,
+                                   this.patchPayloadResources(agentsUUID, resourcesToAdd, resourcesToRemove));
+  }
+
+  private static patchPayloadWithConfigState(agentsUUID: string[], agentConfigState: AgentConfigState) {
+    return {payload: {uuids: agentsUUID, agent_config_state: AgentConfigState[agentConfigState]}};
+  }
+
+  private static patchPayloadEnvironments(agentsUUID: string[], environmentsToAdd: string[],
+                                          environmentsToRemove: string[]) {
     return {
       payload: {
         uuids: agentsUUID,
-        agent_config_state: AgentConfigState[agentConfigState]
+        operations: {environments: {add: environmentsToAdd, remove: environmentsToRemove}}
       }
     };
+  }
+
+  private static patchPayloadResources(agentsUUID: string[], resourcesToAdd: string[], resourcesToRemove: string[]) {
+    return {
+      payload: {
+        uuids: agentsUUID,
+        operations: {resources: {add: resourcesToAdd, remove: resourcesToRemove}}
+      }
+    };
+  }
+}
+
+export class EnvCRUD {
+  static all() {
+    return ApiRequestBuilder.GET(SparkRoutes.apiAdminInternalEnvironmentsPath(), ApiVersion.v1);
+  }
+}
+
+
+export class ResourcesCRUD {
+  static all() {
+    return ApiRequestBuilder.GET(SparkRoutes.apiAdminInternalResourcesPath(), ApiVersion.v1);
   }
 }

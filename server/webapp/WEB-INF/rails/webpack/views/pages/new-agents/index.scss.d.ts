@@ -12,4 +12,5 @@ export const headerPanel: string;
 export const count: string;
 export const enabled: string;
 export const disabled: string;
-export const searchField: string;
+export const leftContainer: string;
+export const dropdownContent: string;

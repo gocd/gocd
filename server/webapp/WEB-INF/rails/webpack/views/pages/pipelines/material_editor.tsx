@@ -54,7 +54,7 @@ export class MaterialEditor extends MithrilViewComponent<Attrs> {
       </SelectField>
 
       <Form last={true} compactForm={true}>
-        {this.fieldsForType(vnode.attrs.material, vnode.attrs.materialCheck, this.cache)}
+        {this.fieldsForType(vnode.attrs.material, !!vnode.attrs.materialCheck, this.cache)}
       </Form>
     </FormBody>;
   }

@@ -87,7 +87,7 @@ export class MaterialCheck extends MithrilViewComponent<Attrs> {
 
   private materialCheckFailed(err: ErrorResponse) {
     this.materialCheckButtonIcon = styles.materialCheckFailure;
-    this.materialCheckMessage    = <FlashMessage type={MessageType.alert} message={<pre>{err.message}</pre>}/>;
+    this.materialCheckMessage    = <FlashMessage type={MessageType.alert} message={<pre>{JSON.parse(err.body!).message}</pre>}/>;
   }
 
   private materialCheckSuccessful(json: string) {

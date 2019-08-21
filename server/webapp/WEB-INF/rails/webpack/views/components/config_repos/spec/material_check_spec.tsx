@@ -16,7 +16,6 @@
 
 import {SparkRoutes} from "helpers/spark_routes";
 import m from "mithril";
-// import {MaterialConfigFiles} from "models/materials/material_config_files";
 import {GitMaterialAttributes, Material} from "models/materials/types";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {MaterialCheck} from "../material_check";
@@ -57,6 +56,7 @@ describe("ConfigRepos: MaterialCheck", () => {
         expect(helper.byTestId("material-check-button").matches("[disabled]")).toBe(true); // disabled while connection is in progress
 
         setTimeout(() => { // make this async so as to allow mithril to update the dom
+          m.redraw.sync();
           expect(helper.byTestId("material-check-button").matches("[disabled]")).toBe(false); // enabled on complete
           expect(helper.byTestId("material-check-icon")).toHaveClass(styles.materialCheckSuccess);
           expect(helper.allByTestId("material-check-plugin-file").length).toBe(4);
@@ -97,6 +97,7 @@ describe("ConfigRepos: MaterialCheck", () => {
         expect(helper.byTestId("material-check-button").matches("[disabled]")).toBe(true); // disabled while connection is in progress
 
         setTimeout(() => { // make this async so as to allow mithril to update the dom
+          m.redraw.sync();
           expect(helper.byTestId("material-check-button").matches("[disabled]")).toBe(false); // enabled on complete
           expect(helper.byTestId("material-check-icon")).toHaveClass(styles.materialCheckSuccess);
           expect(helper.allByTestId("material-check-plugin-file").length).toBe(3);
@@ -139,6 +140,7 @@ describe("ConfigRepos: MaterialCheck", () => {
         expect(helper.byTestId("material-check-button").matches("[disabled]")).toBe(true); // disabled while connection is in progress
 
         setTimeout(() => { // make this async so as to allow mithril to update the dom
+          m.redraw.sync();
           expect(helper.byTestId("material-check-button").matches("[disabled]")).toBe(false); // enabled on complete
           expect(helper.byTestId("material-check-icon")).toHaveClass(styles.materialCheckSuccess);
           expect(helper.byTestId("flash-message-info").querySelector("pre")).toContainText("No config files found");
@@ -168,6 +170,7 @@ describe("ConfigRepos: MaterialCheck", () => {
         expect(helper.byTestId("material-check-button").matches("[disabled]")).toBe(true); // disabled while connection is in progress
 
         setTimeout(() => { // make this async so as to allow mithril to update the dom
+          m.redraw.sync();
           expect(helper.byTestId("material-check-button").matches("[disabled]")).toBe(false); // enabled on complete
           expect(helper.byTestId("material-check-icon")).toHaveClass(styles.materialCheckFailure);
           expect(helper.byTestId("flash-message-alert").querySelector("pre")).toContainText("eek barba durkle, there was an error");

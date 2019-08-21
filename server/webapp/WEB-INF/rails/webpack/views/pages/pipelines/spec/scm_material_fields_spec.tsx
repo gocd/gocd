@@ -33,7 +33,7 @@ describe("AddPipeline: SCM Material Fields", () => {
 
   it("GitFields structure", () => {
     const material = new Material("git", new GitMaterialAttributes());
-    helper.mount(() => <GitFields material={material}/>);
+    helper.mount(() => <GitFields material={material} showAdvanced={true}/>);
 
     assertLabelledInputsPresent({
       "repository-url":          "Repository URL*",
@@ -44,12 +44,12 @@ describe("AddPipeline: SCM Material Fields", () => {
       "material-name":           "Material Name",
     });
 
-    expect(helper.byTestId("test-connection-button")).toBeTruthy();
+    expect(helper.byTestId("test-connection-button")).toBeInDOM();
   });
 
   it("HgFields structure", () => {
     const material = new Material("hg", new HgMaterialAttributes());
-    helper.mount(() => <HgFields material={material}/>);
+    helper.mount(() => <HgFields material={material} showAdvanced={true}/>);
 
     assertLabelledInputsPresent({
       "repository-url":          "Repository URL*",
@@ -60,12 +60,12 @@ describe("AddPipeline: SCM Material Fields", () => {
       "material-name":           "Material Name",
     });
 
-    expect(helper.byTestId("test-connection-button")).toBeTruthy();
+    expect(helper.byTestId("test-connection-button")).toBeInDOM();
   });
 
   it("SvnFields structure", () => {
     const material = new Material("svn", new SvnMaterialAttributes());
-    helper.mount(() => <SvnFields material={material}/>);
+    helper.mount(() => <SvnFields material={material} showAdvanced={true}/>);
 
     assertLabelledInputsPresent({
       "repository-url":          "Repository URL*",
@@ -76,12 +76,12 @@ describe("AddPipeline: SCM Material Fields", () => {
       "material-name":           "Material Name",
     });
 
-    expect(helper.byTestId("test-connection-button")).toBeTruthy();
+    expect(helper.byTestId("test-connection-button")).toBeInDOM();
   });
 
   it("P4Fields structure", () => {
     const material = new Material("p4", new P4MaterialAttributes());
-    helper.mount(() => <P4Fields material={material}/>);
+    helper.mount(() => <P4Fields material={material} showAdvanced={true}/>);
 
     assertLabelledInputsPresent({
       "p4-protocol-host-port":     "P4 [Protocol:][Host:]Port*",
@@ -93,12 +93,12 @@ describe("AddPipeline: SCM Material Fields", () => {
       "material-name":             "Material Name",
     });
 
-    expect(helper.byTestId("test-connection-button")).toBeTruthy();
+    expect(helper.byTestId("test-connection-button")).toBeInDOM();
   });
 
   it("TfsFields structure", () => {
     const material = new Material("tfs", new TfsMaterialAttributes());
-    helper.mount(() => <TfsFields material={material}/>);
+    helper.mount(() => <TfsFields material={material} showAdvanced={true}/>);
 
     assertLabelledInputsPresent({
       "repository-url":          "Repository URL*",
@@ -110,7 +110,26 @@ describe("AddPipeline: SCM Material Fields", () => {
       "material-name":           "Material Name",
     });
 
-    expect(helper.byTestId("test-connection-button")).toBeTruthy();
+    expect(helper.byTestId("test-connection-button")).toBeInDOM();
+  });
+
+  it("does not display advanced settings when `showAdvanced` === false", () => {
+    const material = new Material("git", new GitMaterialAttributes());
+    helper.mount(() => <GitFields material={material} showAdvanced={false}/>);
+
+    assertLabelledInputsPresent({
+      "repository-url":          "Repository URL*"
+    });
+
+    assertLabelledInputsAbsent(
+      "repository-branch",
+      "username",
+      "password",
+      "alternate-checkout-path",
+      "material-name",
+    );
+
+    expect(helper.byTestId("test-connection-button")).toBeInDOM();
   });
 
   function assertLabelledInputsPresent(idsToLabels: {[key: string]: string}) {
@@ -118,9 +137,18 @@ describe("AddPipeline: SCM Material Fields", () => {
     expect(keys.length > 0).toBe(true);
 
     for (const id of keys) {
-      expect(helper.byTestId(`form-field-label-${id}`)).toBeTruthy();
+      expect(helper.byTestId(`form-field-label-${id}`)).toBeInDOM();
       expect(helper.byTestId(`form-field-label-${id}`).textContent!.startsWith(idsToLabels[id])).toBe(true);
-      expect(helper.byTestId(`form-field-input-${id}`)).toBeTruthy();
+      expect(helper.byTestId(`form-field-input-${id}`)).toBeInDOM();
+    }
+  }
+
+  function assertLabelledInputsAbsent(...keys: string[]) {
+    expect(keys.length > 0).toBe(true);
+
+    for (const id of keys) {
+      expect(helper.byTestId(`form-field-label-${id}`)).toBe(null!);
+      expect(helper.byTestId(`form-field-input-${id}`)).toBe(null!);
     }
   }
 });

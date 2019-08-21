@@ -37,6 +37,19 @@ class AgentTest {
         assertEquals(origAgent, copiedAgent);
     }
 
+
+    @Test
+    void cookieAssignedShouldReturnTrueWhenAgentHasCookie() {
+        Agent agent = new Agent("uuid", "host", "127.0.0.1", "cookie");
+        assertThat(agent.cookieAssigned(), is(true));
+    }
+
+    @Test
+    void cookieAssignedShouldReturnFalseWhenAgentDoesNotHaveCookie() {
+        Agent agent = new Agent("uuid", "host", "127.0.0.1");
+        assertThat(agent.cookieAssigned(), is(false));
+    }
+
     @Nested
     class IPAddress {
         @Test

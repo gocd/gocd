@@ -269,9 +269,9 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         AgentInstance agentInstance = agentInstances.register(agentRuntimeInfo);
         Registration registration = agentInstance.assignCertification();
 
-        if (agentInstance.isRegistered()) {
-            Agent agent = agentInstance.getAgent();
-            generateAndAddCookieIfAgentDoesNotHaveCookie(agent);
+        Agent agent = agentInstance.getAgent();
+        if (agentInstance.isRegistered() && !agent.cookieAssigned()) {
+            generateAndAddCookie(agent);
             saveOrUpdate(agentInstance.getAgent());
             bombIfAgentHasErrors(agent);
             LOGGER.debug("New Agent approved {}", agentRuntimeInfo);
@@ -298,7 +298,9 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
             LOGGER.warn("Registered agent with the same uuid [{}] already approved.", agentInstance);
         } else {
             Agent agent = agentInstance.getAgent();
-            generateAndAddCookieIfAgentDoesNotHaveCookie(agent);
+            if(!agent.cookieAssigned()) {
+                generateAndAddCookie(agent);
+            }
             saveOrUpdate(agent);
         }
     }
@@ -360,10 +362,8 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         return agentInstances.findElasticAgent(elasticAgentId, elasticPluginId);
     }
 
-    public void register(Agent agent, String agentAutoRegisterResources, String agentAutoRegisterEnvironments) {
-        generateAndAddCookieIfAgentDoesNotHaveCookie(agent);
-        agent.setResources(agentAutoRegisterResources);
-        agent.setEnvironments(agentAutoRegisterEnvironments);
+    public void register(Agent agent) {
+        generateAndAddCookie(agent);
         saveOrUpdate(agent);
     }
 
@@ -463,11 +463,9 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         enableOrDisableAgent(agent, state);
     }
 
-    private void generateAndAddCookieIfAgentDoesNotHaveCookie(Agent agent) {
-        if (agent.getCookie() == null) {
-            String cookie = uuidGenerator.randomUuid();
-            agent.setCookie(cookie);
-        }
+    private void generateAndAddCookie(Agent agent) {
+        String cookie = uuidGenerator.randomUuid();
+        agent.setCookie(cookie);
     }
 
     private void bombIfAgentHasErrors(Agent agent) {
@@ -731,6 +729,6 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
 
     private void updateIdAndGenerateCookieForPendingAgent(Agent pendingAgent) {
         agentDao.updateAgentIdFromDBIfAgentDoesNotHaveAnIdAndAgentExistInDB(pendingAgent);
-        generateAndAddCookieIfAgentDoesNotHaveCookie(pendingAgent);
+        generateAndAddCookie(pendingAgent);
     }
 }

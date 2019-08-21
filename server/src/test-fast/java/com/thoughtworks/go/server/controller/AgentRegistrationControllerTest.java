@@ -115,7 +115,7 @@ public class AgentRegistrationControllerTest {
         controller.agentRequest("host", uuid, "location", "233232", "osx", "someKey", "", "", "", "", "", token, request);
 
         verify(agentService).requestRegistration(AgentRuntimeInfo.fromServer(new Agent(uuid, "host", request.getRemoteAddr()), false, "location", 233232L, "osx"));
-        verify(agentService).register(any(Agent.class), eq(""), eq(""));
+        verify(agentService).register(any(Agent.class));
     }
 
     @Test
@@ -130,7 +130,7 @@ public class AgentRegistrationControllerTest {
 
         verify(agentService).requestRegistration(AgentRuntimeInfo.fromServer(
                 new Agent(uuid, "autoregister-hostname", request.getRemoteAddr()), false, "location", 233232L, "osx"));
-        verify(agentService).register(any(Agent.class), eq(""), eq(""));
+        verify(agentService).register(any(Agent.class));
     }
 
     @Test

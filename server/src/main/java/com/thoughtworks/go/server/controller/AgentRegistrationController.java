@@ -235,7 +235,7 @@ public class AgentRegistrationController {
                 }
             }
 
-            Agent agent = new Agent(uuid, preferredHostname, ipAddress);
+            Agent agent = createAgentFromRequest(uuid, preferredHostname, ipAddress, elasticAgentId, elasticPluginId, agentAutoRegisterEnvs, agentAutoRegisterResources);
             agent.validate();
             if (agent.hasErrors()) {
                 List<ConfigErrors> errors = agent.errorsAsList();
@@ -256,14 +256,9 @@ public class AgentRegistrationController {
                 return new ResponseEntity<>(message, UNPROCESSABLE_ENTITY);
             }
 
-            if (elasticAgentAutoregistrationInfoPresent(elasticAgentId, elasticPluginId)) {
-                agent.setElasticAgentId(elasticAgentId);
-                agent.setElasticPluginId(elasticPluginId);
-            }
-
             if (goConfigService.serverConfig().shouldAutoRegisterAgentWith(agentAutoRegisterKey) && !agentService.isRegistered(uuid)) {
                 LOG.info("[Agent Auto Registration] Auto registering agent with uuid {} ", uuid);
-                agentService.register(agent, agentAutoRegisterResources, agentAutoRegisterEnvs);
+                agentService.register(agent);
                 if (agent.hasErrors()) {
                     throw new GoConfigInvalidException(null, new AllConfigErrors(agent.errorsAsList()).asString());
                 }
@@ -318,6 +313,22 @@ public class AgentRegistrationController {
             return new ResponseEntity<>(message, CONFLICT);
         }
         return new ResponseEntity<>(encodeBase64String(hmac().doFinal(uuid.getBytes())), OK);
+    }
+
+    private Agent createAgentFromRequest(String uuid, String hostname, String ip,
+                                         String elasticAgentId, String elasticPluginId,
+                                         String resources, String envs) {
+        Agent agent = new Agent(uuid, hostname, ip);
+
+        if (elasticAgentAutoregistrationInfoPresent(elasticAgentId, elasticPluginId)) {
+            agent.setElasticAgentId(elasticAgentId);
+            agent.setElasticPluginId(elasticPluginId);
+        }
+
+        agent.setEnvironments(envs);
+        agent.setResources(resources);
+
+        return agent;
     }
 
     private String getAgentExtraProperties() {

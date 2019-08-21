@@ -260,7 +260,7 @@ public class EnvironmentConfigServiceIntegrationTest {
         goConfigService.addEnvironment(new BasicEnvironmentConfig(envName));
 
         Agent agent = AgentMother.approvedAgent();
-        agentService.register(agent, "", environmentName);
+        agentService.register(agent);
 
         // required to force update the cache from the DB
         environmentConfigService.syncAssociatedAgentsFromDB();

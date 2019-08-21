@@ -476,7 +476,7 @@ public class AgentServiceIntegrationTest {
             Agent agent = new Agent(UUID2, "remote-host1", "50.40.30.21");
 
             agentService.requestRegistration(pendingAgent);
-            agentService.register(agent, null, null);
+            agentService.register(agent);
             agentService.disableAgents(agent.getUuid());
 
             assertThat(agentService.findAgent(UUID).isRegistered(), is(false));
@@ -498,8 +498,8 @@ public class AgentServiceIntegrationTest {
             Agent agent = new Agent(UUID, "remote-host1", "50.40.30.21");
             Agent agent1 = new Agent(UUID2, "remote-host2", "50.40.30.22");
 
-            agentService.register(agent, null, null);
-            agentService.register(agent1, null, null);
+            agentService.register(agent);
+            agentService.register(agent1);
 
             assertFalse(agentService.findAgent(agent.getUuid()).isDisabled());
             assertFalse(agentService.findAgent(agent1.getUuid()).isDisabled());
@@ -522,8 +522,8 @@ public class AgentServiceIntegrationTest {
             Agent agent = new Agent(UUID, "remote-host1", "50.40.30.21");
             Agent agent1 = new Agent(UUID2, "remote-host2", "50.40.30.22");
 
-            agentService.register(agent, null, null);
-            agentService.register(agent1, null, null);
+            agentService.register(agent);
+            agentService.register(agent1);
 
             assertFalse(agentService.findAgent(agent.getUuid()).isDisabled());
             assertFalse(agentService.findAgent(agent1.getUuid()).isDisabled());
@@ -866,7 +866,7 @@ public class AgentServiceIntegrationTest {
         void shouldNotUpdateResourcesOnElasticAgents() {
             Agent elasticAgent = AgentMother.elasticAgent();
 
-            agentService.register(elasticAgent, null, null);
+            agentService.register(elasticAgent);
 
             HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
             List<String> uuids = singletonList(elasticAgent.getUuid());
@@ -886,9 +886,11 @@ public class AgentServiceIntegrationTest {
         void shouldRemoveResourcesFromTheSpecifiedAgents() {
             Agent agent = new Agent(UUID, "remote-host1", "50.40.30.21");
             Agent agent1 = new Agent(UUID2, "remote-host1", "50.40.30.22");
+            agent.setResources("resource1,resource2");
+            agent1.setResources("resource2");
 
-            agentService.register(agent, "resource1,resource2", null);
-            agentService.register(agent1, "resource2", null);
+            agentService.register(agent);
+            agentService.register(agent1);
 
             List<String> uuids = asList(UUID, UUID2);
             List<String> resourcesToRemove = singletonList("resource2");
@@ -1012,7 +1014,7 @@ public class AgentServiceIntegrationTest {
         @Test
         void shouldUpdateAgentApprovalStatusByUuid() {
             Agent agent = new Agent(UUID, "test", "127.0.0.1", singletonList("java"));
-            agentService.register(agent, null, null);
+            agentService.register(agent);
 
             agentService.updateAgentApprovalStatus(agent.getUuid(), Boolean.TRUE);
 
@@ -1433,7 +1435,7 @@ public class AgentServiceIntegrationTest {
             futures.add(execService.submit(() -> bulkUpdateResources(agent1, agent2, agent3)));
             futures.add(execService.submit(() -> updateAgentHostnames(agent1)));
             futures.add(execService.submit(() -> agentService.getAgentByUUID(agent1.getUuid())));
-            futures.add(execService.submit(() -> agentService.register(AgentMother.localAgent(), "r1,r2,r3", "e1,e2")));
+            futures.add(execService.submit(() -> agentService.register(AgentMother.localAgent())));
         }
 
         joinFutures(futures, numOfThreads);

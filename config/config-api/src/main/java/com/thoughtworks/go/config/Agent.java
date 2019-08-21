@@ -124,6 +124,10 @@ public class Agent extends PersistentObject {
         validateResources();
     }
 
+    public boolean cookieAssigned(){
+        return cookie != null;
+    }
+
     private void validateResources() {
         ResourceConfigs resourceConfigs = new ResourceConfigs(getResources());
         if (isElastic() && !resourceConfigs.isEmpty()) {

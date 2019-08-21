@@ -919,51 +919,17 @@ class AgentServiceTest {
         }
 
         @Test
-        void registerShouldSetResourcesEnvironmentsAndSaveAgentToDBWhenAgentWithCookieIsPassed() {
-            String agentAutoRegisterResources = "r1,r2";
-            String agentAutoRegisterEnvs = "e1,e2";
-
-            Agent mockAgent = mock(Agent.class);
-            when(mockAgent.getCookie()).thenReturn("cookie");
-            when(mockAgent.hasErrors()).thenReturn(false);
-            doNothing().when(mockAgent).setResources(agentAutoRegisterResources);
-            doNothing().when(mockAgent).setEnvironments(agentAutoRegisterEnvs);
-            doNothing().when(mockAgent).validate();
-
-            agentService.register(mockAgent, agentAutoRegisterResources, agentAutoRegisterEnvs);
-
-            String cookie = verify(uuidGenerator, never()).randomUuid();
-            verify(mockAgent).getCookie();
-            verify(mockAgent, never()).setCookie(cookie);
-
-            verify(mockAgent).setResources(agentAutoRegisterResources);
-            verify(mockAgent).setEnvironments(agentAutoRegisterEnvs);
-            verify(mockAgent).validate();
-            verify(mockAgent).hasErrors();
-
-            verify(agentDao).saveOrUpdate(mockAgent);
-        }
-
-        @Test
-        void registerShouldGenerateCookieSetResourcesEnvironmentsAndSaveAgentToDBWhenAgentWithoutCookieIsPassed() {
-            String agentAutoRegisterResources = "r1,r2";
-            String agentAutoRegisterEnvs = "e1,e2";
-
+        void registerShouldGenerateCookieAndSaveAgentToDB() {
             Agent mockAgent = mock(Agent.class);
             when(mockAgent.getCookie()).thenReturn(null);
             when(mockAgent.hasErrors()).thenReturn(false);
-            doNothing().when(mockAgent).setResources(agentAutoRegisterResources);
-            doNothing().when(mockAgent).setEnvironments(agentAutoRegisterEnvs);
             doNothing().when(mockAgent).validate();
 
-            agentService.register(mockAgent, agentAutoRegisterResources, agentAutoRegisterEnvs);
+            agentService.register(mockAgent);
 
             String cookie = verify(uuidGenerator).randomUuid();
-            verify(mockAgent).getCookie();
             verify(mockAgent).setCookie(cookie);
 
-            verify(mockAgent).setResources(agentAutoRegisterResources);
-            verify(mockAgent).setEnvironments(agentAutoRegisterEnvs);
             verify(mockAgent).validate();
             verify(mockAgent).hasErrors();
 
@@ -1022,7 +988,7 @@ class AgentServiceTest {
             assertThat(requestedRegistration, is(mockRegistration));
 
             verify(agentDao, only()).saveOrUpdate(agent);
-            verify(agent, times(1)).getCookie();
+            verify(agent, times(1)).cookieAssigned();
             verify(agent, times(1)).setCookie(cookie);
             verify(agent, times(1)).validate();
             verify(agent, times(2)).hasErrors();

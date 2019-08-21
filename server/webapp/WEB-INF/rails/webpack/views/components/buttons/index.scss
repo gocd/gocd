@@ -21,14 +21,6 @@
   pointer-events: none;
 }
 
-.btn-small {
-  padding:     0 10px;
-  height:      $form-element-height-small;
-  line-height: $form-element-height-small;
-  font-weight: 400;
-  font-size:   13px;
-}
-
 .right-align {
   float: right;
 }
@@ -71,6 +63,14 @@
   @include button($background-color: $white);
   color:  $text-color;
   border: 1px solid $border-color;
+}
+
+.btn-small {
+  padding:     0 10px;
+  height:      $form-element-height-small;
+  line-height: $form-element-height-small;
+  font-weight: 400;
+  font-size:   13px;
 }
 
 .btn-dropdown {

@@ -80,10 +80,11 @@ abstract class Button extends RestyleViewComponent<Styles, Attrs> {
       <button {...Button.onlyHtmlAttrs(vnode.attrs)}
               class={classnames(
                 this.css.button,
-                {[this.css.btnSmall]: isSmall, [this.css.btnDropdown]: isDropdown},
+                {[this.css.btnDropdown]: isDropdown},
                 Button.iconClass(vnode.attrs.icon, this.css),
                 Button.alignClass(vnode.attrs.align, this.css),
-                this.type()
+                this.type(),
+                {[this.css.btnSmall]: isSmall}
               )}>
         {vnode.children}
       </button>

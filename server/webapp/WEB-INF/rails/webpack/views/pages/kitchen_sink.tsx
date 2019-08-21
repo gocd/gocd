@@ -247,6 +247,7 @@ export class KitchenSink extends MithrilViewComponent<null> {
           <Secondary small={true}>Small Secondary Button</Secondary>
           <Reset small={true}>Small Reset Button</Reset>
           <Cancel small={true}>Cancel</Cancel>
+          <Danger small={true}>Disabled Danger</Danger>
         </ButtonGroup>
 
         <h3>Some examples of key value pairs</h3>

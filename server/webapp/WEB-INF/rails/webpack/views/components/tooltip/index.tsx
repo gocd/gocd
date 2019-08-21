@@ -36,23 +36,28 @@ export interface Attrs {
 }
 
 class Tooltip extends MithrilViewComponent<Attrs> {
+  private static currentId = 0;
+
   tooltipType: QuestionCircle | InfoCircle;
+  private readonly id: number;
 
   constructor(tooltipType: any) {
     super();
     this.tooltipType = tooltipType;
+    this.id = Tooltip.currentId++; // added to support accessibility
   }
 
   view(vnode: m.Vnode<Attrs>) {
     // @ts-ignore
     const size = styles[TooltipSize[vnode.attrs.size || TooltipSize.small]];
+    const a11yId = `tooltip-desc-${this.id}`;
 
     return (
       <div data-test-id="tooltip-wrapper" class={styles.tooltipWrapper}>
-        {m(this.tooltipType, {iconOnly: true, title: "", describedBy: "tooltip-desc"})}
+        {m(this.tooltipType, {iconOnly: true, title: "", describedBy: a11yId})}
         <div data-test-id="tooltip-content"
              class={classnames(styles.tooltipContent, size)}>
-          <p role="tooltip" id="tooltip-desc">{vnode.attrs.content}</p>
+          <p role="tooltip" id={a11yId}>{vnode.attrs.content}</p>
         </div>
       </div>);
   }

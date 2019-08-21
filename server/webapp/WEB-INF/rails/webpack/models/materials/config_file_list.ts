@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import s from "underscore.string";
 
 export interface ConfigFileListJSON {
@@ -30,9 +29,9 @@ export class ConfigFileList {
   errors: Stream<string>;
 
   constructor(pluginId: string, files: string[], errors: string) {
-    this.pluginId = stream(pluginId);
-    this.files = stream(files);
-    this.errors = stream(errors);
+    this.pluginId = Stream(pluginId);
+    this.files = Stream(files);
+    this.errors = Stream(errors);
   }
 
   static fromJSON(json: ConfigFileListJSON) {

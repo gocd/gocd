@@ -15,8 +15,7 @@
  */
 
 import _ from "lodash";
-import {Stream} from "mithril/stream";
-import stream from "mithril/stream";
+import Stream from "mithril/stream";
 import {ConfigFileList, ConfigFileListJSON} from "./config_file_list";
 
 export interface MaterialConfigFilesJSON {
@@ -27,7 +26,7 @@ export class MaterialConfigFiles {
   pluginConfigFiles: Stream<ConfigFileList[]>;
 
   constructor(pluginConfigFiles: ConfigFileList[]) {
-    this.pluginConfigFiles = stream(pluginConfigFiles);
+    this.pluginConfigFiles = Stream(pluginConfigFiles);
   }
 
   static fromJSON(json: MaterialConfigFilesJSON) {

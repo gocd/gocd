@@ -700,4 +700,8 @@ public class Routes {
     public class NewAgent {
         public static final String SPA_BASE = "/new-agents";
     }
+
+    public class PipelineConfigs {
+        public static final String SPA_BASE = "/admin/pipeline_configs";
+    }
 }

@@ -16,6 +16,7 @@
 
 import m from "mithril";
 import Stream from "mithril/stream";
+import {Material, MaterialAttributes} from "models/materials/types";
 import {BuilderForm} from "views/pages/pac/builder_form";
 import {DownloadAction} from "views/pages/pac/download_action";
 import {PreviewPane} from "views/pages/pac/preview_pane";
@@ -28,6 +29,8 @@ export class PipelinesAsCodeCreatePage extends Page {
   private model = new PipelineConfigVM();
   private content = Stream("");
   private mimeType = Stream("application/x-yaml");
+
+  private material = Stream(new Material(this.model.material.type()));
 
   oninit(vnode: m.Vnode) {
     this.pageState = PageState.OK;
@@ -48,6 +51,10 @@ export class PipelinesAsCodeCreatePage extends Page {
       <FillableSection>
         <BuilderForm vm={vm} onContentChange={(updated) => {
           if (updated) {
+            if (pacSupportedMaterial(vm.material)) {
+              this.material(cloneMaterialForPaC(vm.material));
+            }
+
             vm.preview(vm.pluginId()).then((result) => {
               if (304 === result.getStatusCode()) {
                 return;
@@ -73,11 +80,27 @@ export class PipelinesAsCodeCreatePage extends Page {
         <div>
           <span>Use the 'Check Material' button to verify that the configuration file is corretly placed</span>
 
-          <MaterialEditor material={vm.material} materialCheck={true} scmOnly={true}/>
+          <MaterialEditor material={this.material()} materialCheck={true} scmOnly={true} showLocalWorkingCopyOptions={false}/>
         </div>
       </FillableSection>
     ];
   }
 
   fetchData() { return new Promise(() => null); }
+}
+
+// tests if we can use a given material for config repos
+function pacSupportedMaterial(material: Material) {
+  const type = material.type();
+  return !!type && !["dependency", "package", "plugin"].includes(type);
+}
+
+// duplicates a material for use with config repos; this removes the material
+// name and destination from the copy
+function cloneMaterialForPaC(orig: Material): Material {
+  const json = orig.toApiPayload();
+  delete json.attributes.name;
+  delete json.attributes.destination;
+
+  return new Material(json.type, MaterialAttributes.deserialize(json));
 }

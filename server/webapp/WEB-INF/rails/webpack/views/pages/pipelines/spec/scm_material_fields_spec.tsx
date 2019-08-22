@@ -113,12 +113,37 @@ describe("AddPipeline: SCM Material Fields", () => {
     expect(helper.byTestId("test-connection-button")).toBeInDOM();
   });
 
+  it("displays material check button instead of test connection when `materialCheck` === true", () => {
+    const material = new Material("git", new GitMaterialAttributes());
+    helper.mount(() => <GitFields material={material} materialCheck={true} showAdvanced={true}/>);
+
+    assertLabelledInputsPresent({
+      "repository-url":          "Repository URL*",
+      "repository-branch":       "Repository Branch",
+      "username":                "Username",
+      "password":                "Password",
+      "alternate-checkout-path": "Alternate Checkout Path",
+      "material-name":           "Material Name",
+    });
+
+    expect(helper.byTestId("test-connection-button")).toBe(null!);
+    expect(helper.byTestId("material-check-button")).toBeInDOM();
+  });
+
+  it("displays test connection button by default when `materialCheck` is falsey (e.g., unspecified)", () => {
+    const material = new Material("git", new GitMaterialAttributes());
+    helper.mount(() => <GitFields material={material} showAdvanced={true}/>);
+
+    expect(helper.byTestId("test-connection-button")).toBeInDOM();
+    expect(helper.byTestId("material-check-button")).toBe(null!);
+  });
+
   it("does not display advanced settings when `showAdvanced` === false", () => {
     const material = new Material("git", new GitMaterialAttributes());
     helper.mount(() => <GitFields material={material} showAdvanced={false}/>);
 
     assertLabelledInputsPresent({
-      "repository-url":          "Repository URL*"
+      "repository-url": "Repository URL*"
     });
 
     assertLabelledInputsAbsent(

@@ -48,8 +48,8 @@ abstract class ScmFields extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>): m.Children {
     const mattrs = vnode.attrs.material.attributes() as ScmMaterialAttributes;
     const materialTest = vnode.attrs.materialCheck ?
-      <TestConnection material={vnode.attrs.material}/> :
-      <MaterialCheck material={vnode.attrs.material}/>;
+      <MaterialCheck material={vnode.attrs.material}/> :
+      <TestConnection material={vnode.attrs.material}/>;
 
     return [
       this.requiredFields(mattrs),

@@ -17,6 +17,7 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.BasicCruiseConfig;
+import com.thoughtworks.go.config.exceptions.BadRequestException;
 import com.thoughtworks.go.config.exceptions.InvalidPendingAgentOperationException;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.helper.AgentInstanceMother;
@@ -67,11 +68,8 @@ class AgentUpdateValidatorTest {
             agentInstance = AgentInstanceMother.pending();
 
             assertThatCode(() -> newAgentUpdateValidator().validate())
-                    .isInstanceOf(InvalidPendingAgentOperationException.class)
-                    .hasMessage("Invalid operation performed on pending agents: [uuid4]");
-
-            assertEquals(400, result.httpCode());
-            assertEquals(format("Pending agent [%s] must be explicitly enabled or disabled when performing any operation on it.", agentInstance.getUuid()), result.message());
+                    .isInstanceOf(BadRequestException.class)
+                    .hasMessage("Pending agent [uuid4] must be explicitly enabled or disabled when performing any operation on it.");
         }
 
         @Test
@@ -82,7 +80,7 @@ class AgentUpdateValidatorTest {
         }
 
         private AgentUpdateValidator newAgentUpdateValidator() {
-            return new AgentUpdateValidator(agentInstance, state, result);
+            return new AgentUpdateValidator(agentInstance, state);
         }
     }
 }

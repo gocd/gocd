@@ -17,8 +17,10 @@ package com.thoughtworks.go.server.service;
 
 import com.google.common.collect.Streams;
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.exceptions.BadRequestException;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
-import com.thoughtworks.go.config.exceptions.InvalidPendingAgentOperationException;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.update.AgentUpdateValidator;
 import com.thoughtworks.go.config.update.AgentsUpdateValidator;
 import com.thoughtworks.go.domain.*;
@@ -141,34 +143,21 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         return agentInstances.findRegisteredAgents();
     }
 
-    public AgentInstance updateAgentAttributes(String uuid, String hostname, String resources, EnvironmentsConfig envsConfig,
-                                               TriState state, HttpOperationResult result) {
+    public AgentInstance updateAgentAttributes(String uuid, String hostname, String resources,
+                                               EnvironmentsConfig envsConfig, TriState state) {
         AgentInstance agentInstance = agentInstances.findAgent(uuid);
-        if (isAgentNotFound(agentInstance, result)) {
-            return null;
+        if (agentInstance.isNullAgent()) {
+            throw new RecordNotFoundException(EntityType.Agent, uuid);
         }
-        AgentUpdateValidator validator = new AgentUpdateValidator(agentInstance, state, result);
-        Agent agent = getAgentForUpdate(agentInstance);
-        try {
-            if (isAnyOperationPerformedOnAgent(hostname, envsConfig, resources, state, result)) {
-                validator.validate();
-                setAgentAttributes(hostname, resources, envsConfig, state, agent);
-                saveOrUpdate(agent);
 
-                if (agent.hasErrors()) {
-                    result.unprocessibleEntity("Updating agent failed.", "", general(GLOBAL));
-                } else {
-                    result.ok(format("Updated agent with uuid %s.", agent.getUuid()));
-                }
-                return createFromAgent(agent, systemEnvironment, agentStatusChangeNotifier);
-            }
-        } catch (InvalidPendingAgentOperationException e) {
-            LOGGER.debug(e.getMessage(), e);
-        } catch (Exception e) {
-            String msg = "Updating agent failed: " + e.getMessage();
-            LOGGER.error(msg, e);
-            result.internalServerError(msg, general(GLOBAL));
+        Agent agent = getAgentFromDBOrCache(agentInstance);
+        if (validateAnyOperationPerformedOnAgent(hostname, envsConfig, resources, state)) {
+            new AgentUpdateValidator(agentInstance, state).validate();
+            setAgentAttributes(hostname, resources, envsConfig, state, agent);
+            saveOrUpdate(agent);
+            return createFromAgent(agent, systemEnvironment, agentStatusChangeNotifier);
         }
+
         return null;
     }
 
@@ -467,7 +456,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         }
     }
 
-    private Agent getAgentForUpdate(AgentInstance agentInstance) {
+    private Agent getAgentFromDBOrCache(AgentInstance agentInstance) {
         if (agentInstance.isPending()) {
             Agent agent = new Agent(agentInstance.getAgent());
             generateAndAddCookie(agent);
@@ -662,15 +651,6 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         return envsConfig;
     }
 
-    private boolean isAgentNotFound(AgentInstance agentInstance, OperationResult result) {
-        if (agentInstance.isNullAgent()) {
-            String agentNotFoundMessage = format("Agent '%s' not found.", agentInstance.getUuid());
-            result.notFound(agentNotFoundMessage, agentNotFoundMessage, general(GLOBAL));
-            return true;
-        }
-        return false;
-    }
-
     private String getFailedToDeleteMessage(int numOfAgents) {
         if (numOfAgents == 1) {
             return "Failed to delete an agent, as it is not in a disabled state or is still building.";
@@ -679,13 +659,11 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         }
     }
 
-    boolean isAnyOperationPerformedOnAgent(String hostname, EnvironmentsConfig environments,
-                                           String resources, TriState state, HttpOperationResult result) {
+    boolean validateAnyOperationPerformedOnAgent(String hostname, EnvironmentsConfig environments,
+                                                 String resources, TriState state) {
         boolean anyOperationPerformed = (resources != null || environments != null || hostname != null || isTriStateSet(state));
         if (!anyOperationPerformed) {
-            String msg = "Bad Request. No operation is specified in the request to be performed on agent.";
-            result.badRequest(msg, msg, general(GLOBAL));
-            return false;
+            throw new BadRequestException("Bad Request. No operation is specified in the request to be performed on agent.");
         }
         return true;
     }

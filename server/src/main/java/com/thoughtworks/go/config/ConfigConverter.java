@@ -91,7 +91,7 @@ public class ConfigConverter {
     private void validatePartialConfigEnvironments(PartialConfig partialConfig) {
         HashSet<String> uniqueAgentUuids = new HashSet<>(agentService.getAllRegisteredAgentUUIDs());
         partialConfig.getEnvironments().forEach(environmentConfig -> {
-            environmentConfig.validateContainsOnlyUuids(uniqueAgentUuids);
+            environmentConfig.validateContainsAgentUUIDsFrom(uniqueAgentUuids);
         });
     }
 

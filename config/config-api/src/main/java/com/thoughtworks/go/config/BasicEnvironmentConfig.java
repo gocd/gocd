@@ -24,7 +24,9 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.*;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.str;
 import static com.thoughtworks.go.util.command.EnvironmentVariableContext.GO_ENVIRONMENT_NAME;
+import static java.util.stream.Collectors.toCollection;
 
 /**
  * @understands the current persistent information related to a logical grouping of machines
@@ -37,11 +39,10 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
     @ConfigSubtag
     private EnvironmentVariablesConfig variables = new EnvironmentVariablesConfig();
 
-    private EnvironmentAgentsConfig agents = new EnvironmentAgentsConfig();
-
     @ConfigSubtag
     private EnvironmentPipelinesConfig pipelines = new EnvironmentPipelinesConfig();
 
+    private EnvironmentAgentsConfig agents = new EnvironmentAgentsConfig();
     private final ConfigErrors configErrors = new ConfigErrors();
     private ConfigOrigin origin;
 
@@ -112,21 +113,12 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
 
     @Override
     public boolean hasAgent(String uuid) {
-        for (EnvironmentAgentConfig agent : agents) {
-            if (agent.hasUuid(uuid)) {
-                return true;
-            }
-        }
-        return false;
+        return agents.stream().anyMatch(agent -> agent.hasUuid(uuid));
     }
 
     @Override
-    public boolean validateContainsOnlyUuids(Set<String> uuids) {
-        boolean isValid = true;
-        for (EnvironmentAgentConfig agent : agents) {
-            isValid = agent.validateUuidPresent(name, uuids) && isValid;
-        }
-        return isValid;
+    public boolean validateContainsAgentUUIDsFrom(Set<String> uuids) {
+        return agents.stream().allMatch(agent -> agent.validateUuidPresent(name, uuids));
     }
 
     @Override
@@ -175,17 +167,6 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
     @Override
     public void validateContainsOnlyPipelines(List<CaseInsensitiveString> pipelineNames) {
         pipelines.validateContainsOnlyPipelines(name, pipelineNames);
-    }
-
-    @Override
-    public boolean hasSamePipelinesAs(EnvironmentConfig other) {
-        for (EnvironmentPipelineConfig pipeline : pipelines) {
-            for (CaseInsensitiveString name : other.getPipelineNames()) {
-                if (name.equals(pipeline.getName()))
-                    return true;
-            }
-        }
-        return false;
     }
 
     @Override
@@ -266,20 +247,14 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
 
     @Override
     public EnvironmentVariableContext createEnvironmentContext() {
-        EnvironmentVariableContext context = new EnvironmentVariableContext(
-                GO_ENVIRONMENT_NAME, CaseInsensitiveString.str(name));
+        EnvironmentVariableContext context = new EnvironmentVariableContext(GO_ENVIRONMENT_NAME, str(name));
         variables.addTo(context);
         return context;
-
     }
 
     @Override
     public List<CaseInsensitiveString> getPipelineNames() {
-        ArrayList<CaseInsensitiveString> pipelineNames = new ArrayList<>();
-        for (EnvironmentPipelineConfig pipeline : pipelines) {
-            pipelineNames.add(pipeline.getName());
-        }
-        return pipelineNames;
+        return pipelines.stream().map(EnvironmentPipelineConfig::getName).collect(toCollection(ArrayList::new));
     }
 
     @Override
@@ -311,6 +286,7 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
         if (attributes == null) {
             return;
         }
+
         Map attributeMap = (Map) attributes;
         if (attributeMap.containsKey(NAME_FIELD)) {
             name = new CaseInsensitiveString((String) attributeMap.get(NAME_FIELD));
@@ -339,10 +315,7 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
 
     @Override
     public EnvironmentConfig getLocal() {
-        if (this.isLocal())
-            return this;
-        else
-            return null;
+        return this.isLocal() ? this : null;
     }
 
     @Override
@@ -353,25 +326,17 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
     @Override
     public void setOrigins(ConfigOrigin origins) {
         this.origin = origins;
-        for (EnvironmentVariableConfig environmentVariableConfig : this.variables) {
-            environmentVariableConfig.setOrigins(origins);
-        }
+        this.variables.forEach(envVarConfig -> envVarConfig.setOrigins(origins));
     }
 
     @Override
     public EnvironmentPipelinesConfig getRemotePipelines() {
-        if (this.isLocal())
-            return new EnvironmentPipelinesConfig();
-        else
-            return this.pipelines;
+        return this.isLocal() ? new EnvironmentPipelinesConfig() : this.pipelines;
     }
 
     @Override
     public EnvironmentAgentsConfig getLocalAgents() {
-        if (this.isLocal())
-            return this.agents;
-        else
-            return new EnvironmentAgentsConfig();
+        return this.isLocal() ? this.agents : new EnvironmentAgentsConfig();
     }
 
     @Override
@@ -381,18 +346,12 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
 
     @Override
     public boolean isEnvironmentEmpty() {
-        return this.variables.isEmpty() && this.agents.isEmpty() && this.pipelines.isEmpty();
+        return variables.isEmpty() && agents.isEmpty() && pipelines.isEmpty();
     }
 
     @Override
     public boolean containsPipelineRemotely(CaseInsensitiveString pipelineName) {
-        if (this.isLocal()) {
-            return false;
-        }
-        if (!this.containsPipeline(pipelineName)) {
-            return false;
-        }
-        return true;
+        return !this.isLocal() && this.containsPipeline(pipelineName);
     }
 
     @Override
@@ -402,13 +361,6 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
 
     @Override
     public boolean containsEnvironmentVariableRemotely(String variableName) {
-        if (this.isLocal()) {
-            return false;
-        }
-        if (!this.getVariables().hasVariable(variableName)) {
-            return false;
-        }
-
-        return true;
+        return !this.isLocal() && this.getVariables().hasVariable(variableName);
     }
 }

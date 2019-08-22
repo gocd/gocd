@@ -30,10 +30,12 @@ import com.thoughtworks.go.apiv6.agents.model.AgentBulkUpdateRequest;
 import com.thoughtworks.go.apiv6.agents.model.AgentUpdateRequest;
 import com.thoughtworks.go.apiv6.agents.representers.AgentBulkUpdateRequestRepresenter;
 import com.thoughtworks.go.apiv6.agents.representers.AgentsRepresenter;
+import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.config.EnvironmentConfig;
 import com.thoughtworks.go.config.EnvironmentsConfig;
+import com.thoughtworks.go.config.exceptions.BadRequestException;
 import com.thoughtworks.go.config.exceptions.EntityType;
-import com.thoughtworks.go.config.exceptions.HttpException;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.NullAgentInstance;
 import com.thoughtworks.go.server.service.AgentService;
@@ -56,7 +58,10 @@ import java.util.function.Consumer;
 
 import static com.thoughtworks.go.apiv6.agents.representers.AgentRepresenter.toJSON;
 import static com.thoughtworks.go.apiv6.agents.representers.AgentUpdateRequestRepresenter.fromJSON;
+import static com.thoughtworks.go.serverhealth.HealthStateScope.GLOBAL;
+import static com.thoughtworks.go.serverhealth.HealthStateType.general;
 import static com.thoughtworks.go.util.CommaSeparatedString.commaSeparatedStrToList;
+import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toCollection;
@@ -106,37 +111,51 @@ public class AgentsControllerV6 extends ApiController implements SparkSpringCont
     public String index(Request request, Response response) throws IOException {
         Map<AgentInstance, Collection<EnvironmentConfig>> agentToEnvConfigsMap = new HashMap<>();
 
-        agentService.getAgentInstances().values().forEach(agentInstance -> {
-            Set<EnvironmentConfig> envConfigSet = environmentConfigService.getAgentEnvironments(agentInstance.getUuid());
-            agentToEnvConfigsMap.put(agentInstance, envConfigSet);
-        });
+        agentService.getAgentInstances().values().forEach(instance -> agentToEnvConfigsMap.put(instance, environmentConfigService.getAgentEnvironments(instance.getUuid())));
 
-        return writerForTopLevelObject(request, response,
-                outputWriter -> AgentsRepresenter.toJSON(outputWriter, agentToEnvConfigsMap, securityService, currentUsername()));
+        return writerForTopLevelObject(request, response, outputWriter -> AgentsRepresenter.toJSON(outputWriter, agentToEnvConfigsMap, securityService, currentUsername()));
     }
 
     public String show(Request request, Response response) throws IOException {
         String uuid = request.params("uuid");
         final AgentInstance agentInstance = fetchEntityFromConfig(uuid);
 
-        return writerForTopLevelObject(request, response,
-                outputWriter -> toJSON(outputWriter, agentInstance, environmentConfigService.getAgentEnvironments(uuid),
-                        securityService, currentUsername()));
+        return writerForTopLevelObject(request, response, outputWriter -> toJSON(outputWriter, agentInstance, environmentConfigService.getAgentEnvironments(uuid), securityService, currentUsername()));
     }
 
     public String update(Request request, Response response) {
-        String uuid = request.params("uuid");
         AgentUpdateRequest req = fromJSON(request.body());
 
         String hostname = req.getHostname();
         String resources = req.getResources();
         TriState configState = req.getAgentConfigState();
-
-        EnvironmentsConfig envsConfig = createEnvironmentsConfigFrom(req.getEnvironments());
         HttpOperationResult result = new HttpOperationResult();
-        AgentInstance updatedAgentInstance = agentService.updateAgentAttributes(uuid, hostname, resources, envsConfig, configState, result);
+        AgentInstance updatedAgentInstance = null;
+
+        try {
+            EnvironmentsConfig envsConfig = createEnvironmentsConfigFrom(req.getEnvironments());
+            updatedAgentInstance = agentService.updateAgentAttributes(request.params("uuid"), hostname, resources, envsConfig, configState);
+            handleUpdateAgentResponse(updatedAgentInstance, result);
+        } catch (BadRequestException e) {
+            result.badRequest(e.getMessage(), "", general(GLOBAL));
+        } catch (RecordNotFoundException e){
+            result.notFound(e.getMessage(), "", general(GLOBAL));
+        } catch (Exception e){
+            result.internalServerError(e.getMessage(), general(GLOBAL));
+        }
 
         return handleCreateOrUpdateResponse(request, response, updatedAgentInstance, result);
+    }
+
+    private void handleUpdateAgentResponse(AgentInstance updatedAgentInstance, HttpOperationResult result) {
+        if(updatedAgentInstance != null){
+            Agent agent = updatedAgentInstance.getAgent();
+            if(agent.hasErrors()){
+                result.unprocessibleEntity("Updating agent failed.", "", general(GLOBAL));
+            } else {
+                result.ok(format("Updated agent with uuid %s.", agent.getUuid()));
+            }
+        }
     }
 
     public String bulkUpdate(Request request, Response response) throws IOException {
@@ -247,7 +266,7 @@ public class AgentsControllerV6 extends ApiController implements SparkSpringCont
         } else {
             res.status(result.httpCode());
             String errorMessage = result.message();
-            return null == agentInstance ? MessageJson.create(errorMessage) : MessageJson.create(errorMessage, jsonWriter(agentInstance));
+            return agentInstance == null ? MessageJson.create(errorMessage) : MessageJson.create(errorMessage, jsonWriter(agentInstance));
         }
     }
 }

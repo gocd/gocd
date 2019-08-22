@@ -132,7 +132,7 @@ class UnknownEnvironmentConfigTest {
 
         @Test
         void shouldValidateOnEmpty() {
-            assertTrue(environmentConfig.validateContainsOnlyUuids(emptySet()));
+            assertTrue(environmentConfig.validateContainsAgentUUIDsFrom(emptySet()));
         }
 
         @Test
@@ -142,7 +142,7 @@ class UnknownEnvironmentConfigTest {
             HashSet<String> input = new HashSet<>();
             input.add(AGENT_UUID);
 
-            assertTrue(environmentConfig.validateContainsOnlyUuids(input));
+            assertTrue(environmentConfig.validateContainsAgentUUIDsFrom(input));
         }
 
         @Test
@@ -150,7 +150,7 @@ class UnknownEnvironmentConfigTest {
             HashSet<String> input = new HashSet<>();
             input.add(AGENT_UUID);
 
-            assertTrue(environmentConfig.validateContainsOnlyUuids(input));
+            assertTrue(environmentConfig.validateContainsAgentUUIDsFrom(input));
         }
 
         @Test
@@ -161,7 +161,7 @@ class UnknownEnvironmentConfigTest {
             HashSet<String> input = new HashSet<>();
             input.add(AGENT_UUID);
 
-            assertFalse(environmentConfig.validateContainsOnlyUuids(input));
+            assertFalse(environmentConfig.validateContainsAgentUUIDsFrom(input));
         }
     }
 
@@ -220,12 +220,6 @@ class UnknownEnvironmentConfigTest {
     @Test
     void shouldMatchEnvName() {
         assertTrue(environmentConfig.hasName(envName));
-    }
-
-    @Test
-    void shouldReturnFalseOnPipelineComparison() {
-        BasicEnvironmentConfig other = new BasicEnvironmentConfig(envName);
-        assertFalse(environmentConfig.hasSamePipelinesAs(other));
     }
 
     @Test

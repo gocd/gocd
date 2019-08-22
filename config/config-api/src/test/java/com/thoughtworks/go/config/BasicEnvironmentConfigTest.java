@@ -28,6 +28,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,6 +37,7 @@ import static com.thoughtworks.go.helper.EnvironmentConfigMother.environment;
 import static com.thoughtworks.go.helper.EnvironmentConfigMother.remote;
 import static com.thoughtworks.go.util.command.EnvironmentVariableContext.GO_ENVIRONMENT_NAME;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.junit.jupiter.api.Assertions.*;
@@ -63,6 +65,31 @@ class BasicEnvironmentConfigTest extends EnvironmentConfigTestBase {
     void shouldReturnTrueThatLocalWhenOriginIsNotSet() {
         environmentConfig.setOrigins(null);
         assertThat(environmentConfig.isLocal()).isTrue();
+    }
+
+    @Test
+    void shouldSetOriginSetOriginForEnvConfigAndEnvVariables(){
+        environmentConfig.addEnvironmentVariable("var1", "value1");
+        environmentConfig.addEnvironmentVariable("var2", "value2");
+
+        FileConfigOrigin fileOrigin = new FileConfigOrigin();
+        environmentConfig.setOrigins(fileOrigin);
+
+        assertThat(environmentConfig.getOrigin()).isEqualTo(fileOrigin);
+        assertThat(environmentConfig.getVariables().size() == 2);
+        environmentConfig.getVariables().forEach(var -> assertThat(var.getOrigin()).isEqualTo(fileOrigin));
+    }
+
+    @Test
+    void shouldSetOriginSetOriginToNullForEnvConfigAndEnvVariables(){
+        environmentConfig.addEnvironmentVariable("var1", "value1");
+        environmentConfig.addEnvironmentVariable("var2", "value2");
+
+        environmentConfig.setOrigins(null);
+
+        assertThat(environmentConfig.getOrigin()).isNull();
+        assertThat(environmentConfig.getVariables().size() == 2);
+        environmentConfig.getVariables().forEach(var -> assertThat(var.getOrigin()).isNull());
     }
 
     @Test
@@ -104,6 +131,36 @@ class BasicEnvironmentConfigTest extends EnvironmentConfigTestBase {
 
     @Nested
     class Validate {
+        @Test
+        void shouldReturnTrueIfAssociatedAgentUUIDsAreFromSpecifiedSetOfUUIDs(){
+            environmentConfig.addAgent("uuid1");
+            environmentConfig.addAgent("uuid2");
+            environmentConfig.addAgent("uuid3");
+
+            boolean result = environmentConfig.validateContainsAgentUUIDsFrom(new HashSet<>(asList("uuid1", "uuid2", "uuid3", "uuid4")));
+            assertThat(result).isTrue();
+        }
+
+        @Test
+        void shouldReturnFalseIfAssociatedAgentUUIDsAreNotFromSpecifiedSetOfUUIDs(){
+            environmentConfig.addAgent("uuid1");
+            environmentConfig.addAgent("uuid2");
+            environmentConfig.addAgent("uuid3");
+
+            boolean result = environmentConfig.validateContainsAgentUUIDsFrom(new HashSet<>(asList("uuid1", "uuid2", "uuid4")));
+            assertThat(result).isFalse();
+        }
+
+        @Test
+        void shouldReturnFalseIfAssociatedAgentUUIDsAreNotFromSpecifiedSetOfUUIDsBecauseSpecifiedSetIsEmpty(){
+            environmentConfig.addAgent("uuid1");
+            environmentConfig.addAgent("uuid2");
+            environmentConfig.addAgent("uuid3");
+
+            boolean result = environmentConfig.validateContainsAgentUUIDsFrom(new HashSet<>(emptyList()));
+            assertThat(result).isFalse();
+        }
+
         @Test
         void shouldNotAllowToReferencePipelineDefinedInConfigRepo_WhenEnvironmentDefinedInFile() {
             ConfigOrigin pipelineOrigin = new RepoConfigOrigin();
@@ -147,6 +204,22 @@ class BasicEnvironmentConfigTest extends EnvironmentConfigTestBase {
             passReferenceValidationHelper(pipelineOrigin, envOrigin);
         }
     }
+
+    @Test
+    void shouldReturnPipelineNames() {
+        CaseInsensitiveString pipeline1 = new CaseInsensitiveString("Pipeline1");
+        CaseInsensitiveString pipeline2 = new CaseInsensitiveString("Pipeline2");
+
+        environmentConfig.addPipeline(pipeline1);
+        environmentConfig.addPipeline(pipeline2);
+        assertThat(environmentConfig.getPipelineNames()).isEqualTo(asList(pipeline1, pipeline2));
+    }
+
+    @Test
+    void shouldReturnEmptyListAsPipelineNamesWhenThereAreNoPipelinesAssociated() {
+        assertThat(environmentConfig.getPipelineNames()).isEqualTo(emptyList());
+    }
+
 
     @Test
     void shouldValidateWhenPipelineNotFound() {
@@ -366,6 +439,73 @@ class BasicEnvironmentConfigTest extends EnvironmentConfigTestBase {
 
             assertThat(environmentConfig.getOrigin()).isNull();
             assertThat(environmentConfig.containsAgentRemotely(uuid)).isFalse();
+        }
+    }
+
+    @Nested
+    class ContainsPipelineRemotely {
+
+        @Test
+        void shouldReturnTrueIfTheEnvPipelineAssociationIsFromConfigRepo() {
+            BasicEnvironmentConfig environmentConfig = remote("env1");
+            CaseInsensitiveString pipeline = new CaseInsensitiveString("Pipeline");
+            environmentConfig.addPipeline(pipeline);
+            assertThat(environmentConfig.containsPipelineRemotely(pipeline)).isTrue();
+        }
+
+        @Test
+        void shouldReturnFalseIfThePipelineIsNotPresentInTheEnvFromConfigRepo() {
+            BasicEnvironmentConfig environmentConfig = remote("env1");
+            CaseInsensitiveString pipeline = new CaseInsensitiveString("Pipeline");
+            assertThat(environmentConfig.containsPipelineRemotely(pipeline)).isFalse();
+        }
+
+        @Test
+        void shouldReturnFalseIfTheEnvPipelineAssociationIsFromConfigXml() {
+            BasicEnvironmentConfig environmentConfig = environment("env1");
+            assertThat(environmentConfig.getRemotePipelines()).isEqualTo(emptyList());
+            assertThat(environmentConfig.getPipelines()).size().isEqualTo(1);
+            environmentConfig.getPipelineNames().forEach(pipeline -> assertThat(environmentConfig.containsPipelineRemotely(pipeline)).isFalse());
+        }
+
+        @Test
+        void shouldReturnFalseIfTheOriginIsNull() {
+            BasicEnvironmentConfig environmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("env1"));
+            CaseInsensitiveString pipeline = new CaseInsensitiveString("Pipeline");
+            environmentConfig.addPipeline(pipeline);
+            assertThat(environmentConfig.getOrigin()).isNull();
+            assertThat(environmentConfig.containsPipelineRemotely(pipeline)).isFalse();
+        }
+    }
+
+    @Nested
+    class ContainsEnvironmentVariablesRemotely {
+        @Test
+        void shouldReturnTrueIfTheEnvVarAssociationIsFromConfigRepo() {
+            BasicEnvironmentConfig environmentConfig = remote("env1");
+            environmentConfig.addEnvironmentVariable("var1", "value1");
+            assertThat(environmentConfig.containsEnvironmentVariableRemotely("var1")).isTrue();
+        }
+
+        @Test
+        void shouldReturnFalseIfTheVarIsNotPresentInTheEnvFromConfigRepo() {
+            BasicEnvironmentConfig environmentConfig = remote("env1");
+            assertThat(environmentConfig.containsEnvironmentVariableRemotely("var1")).isFalse();
+        }
+
+        @Test
+        void shouldReturnFalseIfTheEnvVarAssociationIsFromConfigXml() {
+            BasicEnvironmentConfig environmentConfig = environment("env1");
+            environmentConfig.addEnvironmentVariable("var1", "value1");
+            environmentConfig.getVariables().forEach(var -> assertThat(environmentConfig.containsEnvironmentVariableRemotely("var1")).isFalse());
+        }
+
+        @Test
+        void shouldReturnFalseIfTheOriginIsNull() {
+            BasicEnvironmentConfig environmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("env1"));
+            environmentConfig.addEnvironmentVariable("var1", "value1");
+            assertThat(environmentConfig.getOrigin()).isNull();
+            assertThat(environmentConfig.containsEnvironmentVariableRemotely("var1")).isFalse();
         }
     }
 

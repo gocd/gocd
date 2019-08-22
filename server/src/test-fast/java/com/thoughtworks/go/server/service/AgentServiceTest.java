@@ -18,7 +18,9 @@ package com.thoughtworks.go.server.service;
 import ch.qos.logback.classic.Level;
 import com.google.common.collect.Ordering;
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.exceptions.BadRequestException;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
@@ -121,7 +123,7 @@ class AgentServiceTest {
             void shouldReturnTrueIfOnlyHostNameValueIsSpecifiedAsNotNull() {
                 HttpOperationResult result = new HttpOperationResult();
                 TriState unsetState = UNSET;
-                boolean anyOpsPerformed = agentService.isAnyOperationPerformedOnAgent(NOT_NULL_VALUE, null, null, unsetState, result);
+                boolean anyOpsPerformed = agentService.validateAnyOperationPerformedOnAgent(NOT_NULL_VALUE, null, null, unsetState);
                 assertThat(anyOpsPerformed, is(true));
             }
 
@@ -129,7 +131,7 @@ class AgentServiceTest {
             void shouldReturnTrueIfOnlyEnvironmentsValueIsSpecifiedAsNotNull() {
                 HttpOperationResult result = new HttpOperationResult();
                 TriState unsetState = UNSET;
-                boolean anyOpsPerformed = agentService.isAnyOperationPerformedOnAgent(null, emptyEnvsConfig, null, unsetState, result);
+                boolean anyOpsPerformed = agentService.validateAnyOperationPerformedOnAgent(null, emptyEnvsConfig, null, unsetState);
                 assertThat(anyOpsPerformed, is(true));
             }
 
@@ -137,23 +139,21 @@ class AgentServiceTest {
             void shouldReturnTrueIfOnlyResourcesValueIsSpecifiedAsNotNull() {
                 HttpOperationResult result = new HttpOperationResult();
                 TriState unsetState = UNSET;
-                boolean anyOpsPerformed = agentService.isAnyOperationPerformedOnAgent(null, null, NOT_NULL_VALUE, unsetState, result);
+                boolean anyOpsPerformed = agentService.validateAnyOperationPerformedOnAgent(null, null, NOT_NULL_VALUE, unsetState);
                 assertThat(anyOpsPerformed, is(true));
             }
 
             @Test
             void shouldReturnTrueIfOnlyTriStateValueIsSpecifiedAsTrueOrFalse() {
-                HttpOperationResult result = new HttpOperationResult();
-                boolean anyOpsPerformed = agentService.isAnyOperationPerformedOnAgent(null, null, null, TRUE, result);
+                boolean anyOpsPerformed = agentService.validateAnyOperationPerformedOnAgent(null, null, null, TRUE);
                 assertThat(anyOpsPerformed, is(true));
             }
 
             @Test
             void shouldReturnFalseOnlyIfNoneOfTheAgentAttributesAreSpecified() {
-                HttpOperationResult result = new HttpOperationResult();
                 TriState unsetState = UNSET;
-                boolean anyOpsPerformed = agentService.isAnyOperationPerformedOnAgent(null, null, null, unsetState, result);
-                assertThat(anyOpsPerformed, is(false));
+                BadRequestException e = assertThrows(BadRequestException.class, () -> agentService.validateAnyOperationPerformedOnAgent(null, null, null, unsetState));
+                assertThat(e.getMessage(), is("Bad Request. No operation is specified in the request to be performed on agent."));
             }
         }
 
@@ -419,10 +419,8 @@ class AgentServiceTest {
             @Nested
             class PositiveTests {
                 private void assertThatUpdateIsSuccessfulWithSpecifiedValues(Agent updatedAgent, String hostname, String envs,
-                                                                             String resources, boolean isDisabled, HttpOperationResult result) {
+                                                                             String resources, boolean isDisabled) {
                     verify(agentDao).saveOrUpdate(any(Agent.class));
-                    assertTrue(result.isSuccess());
-                    assertThat(result.message(), is("Updated agent with uuid uuid."));
 
                     assertThat(updatedAgent.getHostname(), is(hostname));
                     assertThat(updatedAgent.getResources(), is(resources));
@@ -432,7 +430,6 @@ class AgentServiceTest {
 
                 @Test
                 void shouldUpdateAgentAttributes() {
-                    HttpOperationResult result = new HttpOperationResult();
                     Username username = new Username(new CaseInsensitiveString("test"));
 
                     when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
@@ -443,26 +440,24 @@ class AgentServiceTest {
                     EnvironmentsConfig envsConfig = createEnvironmentsConfigWith("env1", "env2");
                     TriState state = TRUE;
 
-                    AgentInstance agentInstance = agentService.updateAgentAttributes(uuid, hostname, resources, envsConfig, state, result);
-                    assertThatUpdateIsSuccessfulWithSpecifiedValues(agentInstance.getAgent(), hostname, "env1,env2", resources, false, result);
+                    AgentInstance agentInstance = agentService.updateAgentAttributes(uuid, hostname, resources, envsConfig, state);
+                    assertThatUpdateIsSuccessfulWithSpecifiedValues(agentInstance.getAgent(), hostname, "env1,env2", resources, false);
                 }
 
                 @Test
                 void shouldOnlyUpdateAttributesThatAreSpecified() {
-                    HttpOperationResult result = new HttpOperationResult();
                     Username username = new Username(new CaseInsensitiveString("test"));
 
                     when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
                     when(agentDao.fetchAgentFromDBByUUID(uuid)).thenReturn(agent);
 
                     EnvironmentsConfig envsConfig = createEnvironmentsConfigWith("env1", "env2");
-                    AgentInstance agentInstance = agentService.updateAgentAttributes(uuid, null, null, envsConfig, TRUE, result);
-                    assertThatUpdateIsSuccessfulWithSpecifiedValues(agentInstance.getAgent(), "host", "env1,env2", "", false, result);
+                    AgentInstance agentInstance = agentService.updateAgentAttributes(uuid, null, null, envsConfig, TRUE);
+                    assertThatUpdateIsSuccessfulWithSpecifiedValues(agentInstance.getAgent(), "host", "env1,env2", "", false);
                 }
 
                 @Test
                 void shouldResetEnvironmentsWhenEmptyEnvironmentsConfigIsSpecified() {
-                    HttpOperationResult result = new HttpOperationResult();
                     Username username = new Username(new CaseInsensitiveString("test"));
 
                     when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
@@ -471,14 +466,13 @@ class AgentServiceTest {
                     String hostname = "new-hostname";
                     String resources = "resource1,resource2";
                     EnvironmentsConfig envsConfig = createEnvironmentsConfigWith();
-                    AgentInstance agentInstance = agentService.updateAgentAttributes(uuid, hostname, resources, envsConfig, TRUE, result);
+                    AgentInstance agentInstance = agentService.updateAgentAttributes(uuid, hostname, resources, envsConfig, TRUE);
 
-                    assertThatUpdateIsSuccessfulWithSpecifiedValues(agentInstance.getAgent(), hostname, null, resources, false, result);
+                    assertThatUpdateIsSuccessfulWithSpecifiedValues(agentInstance.getAgent(), hostname, null, resources, false);
                 }
 
                 @Test
                 void shouldResetResourcesWhenEmptyCommaSeparatedStringOfResourcesIsSpecified() {
-                    HttpOperationResult result = new HttpOperationResult();
                     Username username = new Username(new CaseInsensitiveString("test"));
 
                     when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
@@ -487,14 +481,13 @@ class AgentServiceTest {
                     String hostname = "new-hostname";
                     String resources = "  ";
                     EnvironmentsConfig envsConfig = createEnvironmentsConfigWith("e1", "e2");
-                    AgentInstance agentInstance = agentService.updateAgentAttributes(uuid, hostname, resources, envsConfig, TRUE, result);
+                    AgentInstance agentInstance = agentService.updateAgentAttributes(uuid, hostname, resources, envsConfig, TRUE);
 
-                    assertThatUpdateIsSuccessfulWithSpecifiedValues(agentInstance.getAgent(), hostname, "e1,e2", null, false, result);
+                    assertThatUpdateIsSuccessfulWithSpecifiedValues(agentInstance.getAgent(), hostname, "e1,e2", null, false);
                 }
 
                 @Test
                 void shouldUpdatePendingAgentAttributesProvidedItIsEnableOrDisabled() {
-                    HttpOperationResult result = new HttpOperationResult();
                     Username username = new Username(new CaseInsensitiveString("test"));
 
                     when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
@@ -506,8 +499,8 @@ class AgentServiceTest {
                     EnvironmentsConfig envsConfig = createEnvironmentsConfigWith("env1", "env2");
                     TriState state = FALSE;
 
-                    AgentInstance agentInstance = agentService.updateAgentAttributes(uuid, hostname, resources, envsConfig, state, result);
-                    assertThatUpdateIsSuccessfulWithSpecifiedValues(agentInstance.getAgent(), hostname, "env1,env2", resources, true, result);
+                    AgentInstance agentInstance = agentService.updateAgentAttributes(uuid, hostname, resources, envsConfig, state);
+                    assertThatUpdateIsSuccessfulWithSpecifiedValues(agentInstance.getAgent(), hostname, "env1,env2", resources, true);
                 }
 
                 @Test
@@ -527,7 +520,7 @@ class AgentServiceTest {
                     EnvironmentsConfig envsConfig = createEnvironmentsConfigWith("env1", "env2");
                     TriState state = FALSE;
 
-                    assertThrows(RuntimeException.class, () -> agentService.updateAgentAttributes(uuid, hostname, resources, envsConfig, state, result));
+                    assertThrows(RuntimeException.class, () -> agentService.updateAgentAttributes(uuid, hostname, resources, envsConfig, state));
                     assertThat(pending.getAgentConfigStatus(), is(Pending));
                     assertThat(pending.getAgent().getResources(), is(""));
                     assertThat(pending.getAgent().getEnvironments(), is(""));
@@ -539,20 +532,16 @@ class AgentServiceTest {
             class NegativeTests {
                 @Test
                 void shouldThrow400BadRequestWhenNoOperationIsSpecifiedToBePerformedOnAgent() {
-                    HttpOperationResult result = new HttpOperationResult();
                     when(agentDao.fetchAgentFromDBByUUID(uuid)).thenReturn(agent);
-
-                    agentService.updateAgentAttributes(uuid, null, null, null, UNSET, result);
+                    BadRequestException e = assertThrows(BadRequestException.class, () -> agentService.updateAgentAttributes(uuid, null, null, null, UNSET));
 
                     verify(agentDao, times(0)).saveOrUpdate(any(Agent.class));
-                    assertThat(result.httpCode(), is(400));
-                    assertThat(result.message(), is("Bad Request. No operation is specified in the request to be performed on agent."));
+                    assertThat(e.getMessage(), is("Bad Request. No operation is specified in the request to be performed on agent."));
                 }
 
                 @Test
                 void shouldThrow404IfAgentDoesNotExist() {
                     String uuid = "non-existent-uuid";
-                    HttpOperationResult result = new HttpOperationResult();
                     Username username = new Username(new CaseInsensitiveString("test"));
                     AgentInstance mockAgentInstance = mock(AgentInstance.class);
 
@@ -562,42 +551,36 @@ class AgentServiceTest {
                     when(mockAgentInstance.isNullAgent()).thenReturn(true);
                     when(mockAgentInstance.getUuid()).thenReturn(uuid);
 
-                    agentService.updateAgentAttributes(uuid, "new-hostname", "resource1,resource2", createEnvironmentsConfigWith("env1", "env2"), TRUE, result);
+                    RecordNotFoundException e = assertThrows(RecordNotFoundException.class, () -> agentService.updateAgentAttributes(uuid, "new-hostname", "resource1,resource2", createEnvironmentsConfigWith("env1", "env2"), TRUE));
 
                     verify(agentDao, times(0)).saveOrUpdate(any(Agent.class));
-                    assertThat(result.httpCode(), is(404));
-                    assertThat(result.message(), is(format("Agent '%s' not found.", uuid)));
+                    assertThat(e.getMessage(), is(format("Agent with uuid 'non-existent-uuid' was not found!", uuid)));
                 }
 
                 @Test
                 void shouldThrow400IfOperationsPerformedOnPendingAgentWithoutUpdatingTheState() {
-                    HttpOperationResult result = new HttpOperationResult();
                     Username username = new Username(new CaseInsensitiveString("test"));
 
                     when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
                     when(agentInstance.isPending()).thenReturn(true);
                     when(agentInstance.getAgent()).thenReturn(agent);
 
-                    agentService.updateAgentAttributes(uuid, "new-hostname", "resource1", createEnvironmentsConfigWith("env1"), UNSET, result);
+                    BadRequestException e = assertThrows(BadRequestException.class, () -> agentService.updateAgentAttributes(uuid, "new-hostname", "resource1", createEnvironmentsConfigWith("env1"), UNSET));
 
                     verify(agentDao, times(0)).saveOrUpdate(any(Agent.class));
-                    assertThat(result.httpCode(), is(400));
-                    assertThat(result.message(), is("Pending agent [uuid] must be explicitly enabled or disabled when performing any operation on it."));
+                    assertThat(e.getMessage(), is("Pending agent [uuid] must be explicitly enabled or disabled when performing any operation on it."));
                 }
 
                 @Test
                 void shouldThrow422IfSpecifiedResourceNamesAreInvalid() {
-                    HttpOperationResult result = new HttpOperationResult();
                     Username username = new Username(new CaseInsensitiveString("test"));
 
                     when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
                     when(agentDao.fetchAgentFromDBByUUID(uuid)).thenReturn(agent);
 
-                    AgentInstance agentInstance = agentService.updateAgentAttributes(uuid, "new-hostname", "res%^1", createEnvironmentsConfigWith("env1"), TRUE, result);
+                    AgentInstance agentInstance = agentService.updateAgentAttributes(uuid, "new-hostname", "res%^1", createEnvironmentsConfigWith("env1"), TRUE);
 
                     verify(agentDao, times(0)).saveOrUpdate(any(Agent.class));
-                    assertThat(result.httpCode(), is(422));
-                    assertThat(result.message(), is("Updating agent failed."));
 
                     Agent agent = agentInstance.getAgent();
                     assertTrue(agent.hasErrors());
@@ -1201,7 +1184,6 @@ class AgentServiceTest {
         @Test
         void shouldNotAddEnvsWhichAreAssociatedWithTheAgentFromConfigRepo() {
             String uuid = "uuid";
-            HttpOperationResult result = new HttpOperationResult();
             Username username = new Username(new CaseInsensitiveString("test"));
 
             when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
@@ -1217,11 +1199,10 @@ class AgentServiceTest {
             repoEnvConfig.addAgent(uuid);
             environmentConfigs.add(repoEnvConfig);
             environmentConfigs.add(new BasicEnvironmentConfig(new CaseInsensitiveString("non-config-repo-env")));
-            AgentInstance resultAgentInstance = agentService.updateAgentAttributes(uuid, null, null, environmentConfigs, TRUE, result);
+
+            AgentInstance resultAgentInstance = agentService.updateAgentAttributes(uuid, null, null, environmentConfigs, TRUE);
 
             verify(agentDao).saveOrUpdate(any(Agent.class));
-            assertTrue(result.isSuccess());
-            assertThat(result.message(), is("Updated agent with uuid uuid."));
 
             assertThat(resultAgentInstance.getAgent().getEnvironments(), is("non-config-repo-env"));
         }

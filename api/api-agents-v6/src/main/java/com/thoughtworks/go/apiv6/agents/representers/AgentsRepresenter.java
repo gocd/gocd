@@ -27,7 +27,6 @@ import java.util.Collection;
 import java.util.Map;
 
 public class AgentsRepresenter {
-
     public static void toJSON(OutputWriter writer, Map<AgentInstance, Collection<EnvironmentConfig>> agentInstanceCollectionMap, SecurityService securityService, Username username) {
         writer.addLinks(
                 outputLinkWriter -> outputLinkWriter

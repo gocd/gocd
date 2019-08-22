@@ -99,27 +99,6 @@ class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
     }
 
     @Nested
-    class hasSamePipelinesAs {
-        @Test
-        void shouldReturnTrueWhenAnyPipelineNameIsEqualToOther() {
-            pairEnvironmentConfig.get(0).addPipeline(new CaseInsensitiveString("pipe1"));
-            pairEnvironmentConfig.get(1).addPipeline(new CaseInsensitiveString("pipe2"));
-            BasicEnvironmentConfig config = new BasicEnvironmentConfig();
-            config.addPipeline(new CaseInsensitiveString("pipe2"));
-            assertThat(pairEnvironmentConfig.hasSamePipelinesAs(config)).isTrue();
-        }
-
-        @Test
-        void shouldReturnFalseWhenNoneOfOtherPipelinesIsEqualToOther() {
-            pairEnvironmentConfig.get(0).addPipeline(new CaseInsensitiveString("pipe1"));
-            pairEnvironmentConfig.get(1).addPipeline(new CaseInsensitiveString("pipe2"));
-            BasicEnvironmentConfig config = new BasicEnvironmentConfig();
-            config.addPipeline(new CaseInsensitiveString("pipe3"));
-            assertThat(pairEnvironmentConfig.hasSamePipelinesAs(config)).isFalse();
-        }
-    }
-
-    @Nested
     class getPipelineNames {
         @Test
         void shouldReturnPipelineNamesFrom2Parts() {

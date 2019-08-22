@@ -68,7 +68,7 @@ public class UnknownEnvironmentConfig implements EnvironmentConfig {
     }
 
     @Override
-    public boolean validateContainsOnlyUuids(Set<String> uuids) {
+    public boolean validateContainsAgentUUIDsFrom(Set<String> uuids) {
         return agents.stream().allMatch(agent -> agent.validateUuidPresent(name, uuids));
     }
 
@@ -118,11 +118,6 @@ public class UnknownEnvironmentConfig implements EnvironmentConfig {
     @Override
     public void validateContainsOnlyPipelines(List<CaseInsensitiveString> pipelineNames) {
 
-    }
-
-    @Override
-    public boolean hasSamePipelinesAs(EnvironmentConfig other) {
-        return false;
     }
 
     @Override

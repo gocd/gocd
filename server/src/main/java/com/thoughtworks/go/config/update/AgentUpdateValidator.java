@@ -15,32 +15,26 @@
  */
 package com.thoughtworks.go.config.update;
 
-import com.thoughtworks.go.config.exceptions.InvalidPendingAgentOperationException;
+import com.thoughtworks.go.config.exceptions.BadRequestException;
 import com.thoughtworks.go.domain.AgentInstance;
-import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.util.TriState;
 
-import static com.thoughtworks.go.serverhealth.HealthStateScope.GLOBAL;
-import static com.thoughtworks.go.serverhealth.HealthStateType.general;
 import static java.lang.String.format;
-import static java.util.Collections.singletonList;
 
 public class AgentUpdateValidator {
     private final AgentInstance agentInstance;
-    private final HttpOperationResult result;
     private final TriState state;
 
-    public AgentUpdateValidator(AgentInstance agentInstance, TriState state, HttpOperationResult result) {
+    public AgentUpdateValidator(AgentInstance agentInstance, TriState state) {
         this.agentInstance = agentInstance;
         this.state = state;
-        this.result = result;
     }
 
-    public void validate() throws Exception {
+    public void validate() {
         bombIfAnyOperationOnPendingAgent();
     }
 
-    private void bombIfAnyOperationOnPendingAgent() throws InvalidPendingAgentOperationException {
+    private void bombIfAnyOperationOnPendingAgent() {
         if (!agentInstance.isPending()) {
             return;
         }
@@ -48,9 +42,7 @@ public class AgentUpdateValidator {
         if (state.isTrue() || state.isFalse()) {
             return;
         }
-
         String msg = format("Pending agent [%s] must be explicitly enabled or disabled when performing any operation on it.", agentInstance.getUuid());
-        result.badRequest(msg, msg, general(GLOBAL));
-        throw new InvalidPendingAgentOperationException(singletonList(agentInstance.getUuid()));
+        throw new BadRequestException(msg);
     }
 }

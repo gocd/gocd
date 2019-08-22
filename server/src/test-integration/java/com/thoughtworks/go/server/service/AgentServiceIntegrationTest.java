@@ -16,6 +16,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.exceptions.BadRequestException;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.AgentInstance;
@@ -345,11 +346,7 @@ public class AgentServiceIntegrationTest {
             agentRuntime.busy(new AgentBuildingInfo("path", "buildLocator"));
             agentService.requestRegistration(agentRuntime);
 
-            HttpOperationResult result = new HttpOperationResult();
-            AgentInstance agentInstance = agentService.updateAgentAttributes(uuid, "new-hostname", "resources", createEnvironmentsConfigWith("env1"), TRUE, result);
-
-            assertThat(result.httpCode(), is(200));
-            assertThat(result.message(), is(String.format("Updated agent with uuid %s.", uuid)));
+            AgentInstance agentInstance = agentService.updateAgentAttributes(uuid, "new-hostname", "resources", createEnvironmentsConfigWith("env1"), TRUE);
 
             AgentInstances agents = agentService.getAgentInstances();
 
@@ -370,11 +367,7 @@ public class AgentServiceIntegrationTest {
             assertThat(agentService.getAgentInstances().size(), is(1));
             assertThat(getFirstAgent().isDisabled(), is(false));
 
-            HttpOperationResult result = new HttpOperationResult();
-            agentService.updateAgentAttributes(UUID2, null, null, null, TriState.FALSE, result);
-
-            assertThat(result.httpCode(), is(200));
-            assertThat(result.message(), is("Updated agent with uuid uuid2."));
+            agentService.updateAgentAttributes(UUID2, null, null, null, TriState.FALSE);
 
             assertThat(agentService.getAgentInstances().size(), is(1));
             assertThat(getFirstAgent().isDisabled(), is(true));
@@ -480,10 +473,10 @@ public class AgentServiceIntegrationTest {
             assertThat(agentService.findAgentAndRefreshStatus("disabled").getAgent().isDisabled(), is(true));
 
             HttpOperationResult result = new HttpOperationResult();
-            agentService.updateAgentAttributes("enabled", "new.enabled.hostname", "linux,java", null, TriState.UNSET, result);
+            agentService.updateAgentAttributes("enabled", "new.enabled.hostname", "linux,java", null, TriState.UNSET);
             assertThat(result.httpCode(), is(200));
 
-            agentService.updateAgentAttributes("disabled", "new.disabled.hostname", "linux,java", null, TriState.UNSET, result);
+            agentService.updateAgentAttributes("disabled", "new.disabled.hostname", "linux,java", null, TriState.UNSET);
             assertThat(result.httpCode(), is(200));
 
             assertThat(agentService.getAgentInstances().size(), is(2));
@@ -597,13 +590,10 @@ public class AgentServiceIntegrationTest {
             assertThat(agentService.getAgentInstances().size(), is(1));
             assertThat(getFirstAgent().getHostname(), is(not("some-hostname")));
 
-            HttpOperationResult result = new HttpOperationResult();
             String invalidResourceName = "lin!ux";
             AgentInstance agentInstance = agentService.updateAgentAttributes(UUID, "some-hostname",
-                    invalidResourceName, null, TriState.UNSET, result);
+                    invalidResourceName, null, TriState.UNSET);
 
-            assertThat(result.httpCode(), is(422));
-            assertThat(result.message(), is("Updating agent failed."));
             assertThat(agentInstance.getAgent().errors().on(JobConfig.RESOURCES),
                     is("Resource name 'lin!ux' is not valid. Valid names much match '^[-\\w\\s|.]*$'"));
 
@@ -648,11 +638,7 @@ public class AgentServiceIntegrationTest {
             String someHostName = "some-hostname";
             assertThat(getFirstAgent().getHostname(), is(not(someHostName)));
 
-            HttpOperationResult result = new HttpOperationResult();
-            agentService.updateAgentAttributes(UUID, someHostName, null, null, TriState.UNSET, result);
-
-            assertThat(result.httpCode(), is(200));
-            assertThat(result.message(), is("Updated agent with uuid uuid."));
+            agentService.updateAgentAttributes(UUID, someHostName, null, null, TriState.UNSET);
 
             assertThat(agentService.getAgentInstances().size(), is(1));
             assertThat(getFirstAgent().getHostname(), is(someHostName));
@@ -667,15 +653,11 @@ public class AgentServiceIntegrationTest {
             assertThat(getFirstAgent().getHostname(), is(not("some-hostname")));
             assertThat(getFirstAgent().isDisabled(), is(true));
 
-            HttpOperationResult result = new HttpOperationResult();
             agentService.updateAgentAttributes(UUID, "some-hostname",
-                    "linux,java", createEnvironmentsConfigWith("a", "b"), TRUE, result);
+                    "linux,java", createEnvironmentsConfigWith("a", "b"), TRUE);
 
             AgentInstance firstAgent = getFirstAgent();
             List<String> resourceNames = firstAgent.getResourceConfigs().resourceNames();
-
-            assertThat(result.httpCode(), is(200));
-            assertThat(result.message(), is("Updated agent with uuid uuid."));
 
             assertThat(agentService.getAgentInstances().size(), is(1));
             assertThat(firstAgent.getHostname(), is("some-hostname"));
@@ -714,12 +696,9 @@ public class AgentServiceIntegrationTest {
             assertThat(result.message(), is("Updated agent(s) with uuid(s): [" + StringUtils.join(asList(UUID), ", ") + "]."));
             assertThat(agentService.getAgentInstances().size(), is(1));
 
-            HttpOperationResult result1 = new HttpOperationResult();
             String notSpecifying = null;
-            agentService.updateAgentAttributes(UUID, notSpecifying, notSpecifying, null, TriState.UNSET, result1);
-
-            assertThat(result1.httpCode(), is(400));
-            assertThat(result1.message(), is("Bad Request. No operation is specified in the request to be performed on agent."));
+            BadRequestException e = assertThrows(BadRequestException.class, () -> agentService.updateAgentAttributes(UUID, notSpecifying, notSpecifying, null, TriState.UNSET));
+            assertThat(e.getMessage(), is("Bad Request. No operation is specified in the request to be performed on agent."));
 
             assertThat(agentService.getAgentInstances().size(), is(1));
             assertThat(getFirstAgent().getHostname(), is(originalHostname));
@@ -850,11 +829,7 @@ public class AgentServiceIntegrationTest {
             assertThat(getFirstAgent().getResourceConfigs(), is(empty()));
             assertThat(agentService.findAgent(UUID).getStatus(), is(AgentStatus.Disabled));
 
-            HttpOperationResult result = new HttpOperationResult();
-            agentService.updateAgentAttributes(UUID, null, "linux,java", null, TriState.UNSET, result);
-
-            assertThat(result.httpCode(), is(200));
-            assertThat(result.message(), is("Updated agent with uuid uuid."));
+            agentService.updateAgentAttributes(UUID, null, "linux,java", null, TriState.UNSET);
 
             assertThat(agentService.getAgentInstances().size(), is(1));
             assertThat(getFirstAgent().getResourceConfigs().resourceNames(), is(asList("java", "linux")));
@@ -937,11 +912,9 @@ public class AgentServiceIntegrationTest {
             assertThat(getFirstAgent().getResourceConfigs(), is(empty()));
             assertThat(agentService.findAgent(UUID).getStatus(), is(AgentStatus.Disabled));
 
-            HttpOperationResult result = new HttpOperationResult();
-            AgentInstance agentInstance = agentService.updateAgentAttributes(UUID, null, "foo%", null, TriState.UNSET, result);
+            AgentInstance agentInstance = agentService.updateAgentAttributes(UUID, null, "foo%", null, TriState.UNSET);
 
-            assertThat(result.httpCode(), is(422));
-            assertThat(result.message(), is("Updating agent failed."));
+            assertThat(agentInstance.getAgent().hasErrors(), is(true));
 
             ConfigErrors configErrors = agentInstance.getAgent().errors();
             assertFalse(configErrors.isEmpty());
@@ -1151,7 +1124,7 @@ public class AgentServiceIntegrationTest {
             HttpOperationResult result = new HttpOperationResult();
             EnvironmentsConfig prodEnvsConfig = new EnvironmentsConfig();
             prodEnvsConfig.add(prodEnvConfig);
-            agentService.updateAgentAttributes(UUID, null, null, prodEnvsConfig, TriState.UNSET, result);
+            agentService.updateAgentAttributes(UUID, null, null, prodEnvsConfig, TriState.UNSET);
 
             Agent agent = agentService.findAgent(UUID).getAgent();
             assertTrue(agent.getEnvironmentsAsList().isEmpty());
@@ -1172,11 +1145,7 @@ public class AgentServiceIntegrationTest {
             assertThat(getFirstAgent().getResourceConfigs(), is(empty()));
             assertThat(getFirstAgent().getAgent().getEnvironmentsAsList(), is(Arrays.asList("a", "b", "c")));
 
-            HttpOperationResult result1 = new HttpOperationResult();
-            agentService.updateAgentAttributes(UUID, null, null, createEnvironmentsConfigWith("c", "d", "e"), TriState.UNSET, result1);
-
-            assertThat(result1.httpCode(), is(200));
-            assertThat(result1.message(), is("Updated agent with uuid uuid."));
+            agentService.updateAgentAttributes(UUID, null, null, createEnvironmentsConfigWith("c", "d", "e"), TriState.UNSET);
 
             assertThat(agentService.getAgentInstances().size(), is(1));
             assertThat(getFirstAgent().getAgent().getEnvironmentsAsList(), is(Arrays.asList("c", "d", "e")));
@@ -1409,7 +1378,7 @@ public class AgentServiceIntegrationTest {
     private void updateAgentHostnames(Agent... agents){
         List<String> uuids = Stream.of(agents).map(Agent::getUuid).collect(toList());
         HttpOperationResult result = new HttpOperationResult();
-        uuids.forEach(uuid -> agentService.updateAgentAttributes(uuid, randomName("hostname"), null, new EnvironmentsConfig(), TRUE, result));
+        uuids.forEach(uuid -> agentService.updateAgentAttributes(uuid, randomName("hostname"), null, new EnvironmentsConfig(), TRUE));
     }
 
     private String randomName(String namePrefix){

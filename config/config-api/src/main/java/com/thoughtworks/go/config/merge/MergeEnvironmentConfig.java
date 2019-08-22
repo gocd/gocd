@@ -28,6 +28,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
+import static java.util.Arrays.asList;
 
 /**
  * Composite of many EnvironmentConfig instances. Hides elementary environment configurations.
@@ -161,7 +162,7 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig> im
     }
 
     @Override
-    public boolean validateContainsOnlyUuids(Set<String> uuids) {
+    public boolean validateContainsAgentUUIDsFrom(Set<String> uuids) {
         boolean isValid = true;
         for (EnvironmentAgentConfig agent : this.getAgents()) {
             isValid = agent.validateUuidPresent(this.name(), uuids) && isValid;
@@ -255,17 +256,6 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig> im
         for (EnvironmentConfig part : this) {
             if (part.hasVariable(variableName))
                 return true;
-        }
-        return false;
-    }
-
-    @Override
-    public boolean hasSamePipelinesAs(EnvironmentConfig other) {
-        for (CaseInsensitiveString pipeline : getPipelineNames()) {
-            for (CaseInsensitiveString name : other.getPipelineNames()) {
-                if (name.equals(pipeline))
-                    return true;
-            }
         }
         return false;
     }

@@ -26,6 +26,7 @@ import {
   SvnMaterialAttributes,
   TfsMaterialAttributes
 } from "models/materials/types";
+import {MaterialCheck} from "views/components/config_repos/material_check";
 import {CheckboxField, PasswordField, TextField} from "views/components/forms/input_fields";
 import {TestConnection} from "views/components/materials/test_connection";
 import {TooltipSize} from "views/components/tooltip";
@@ -35,6 +36,7 @@ import {DESTINATION_DIR_HELP_MESSAGE, IDENTIFIER_FORMAT_HELP_MESSAGE} from "./me
 
 interface Attrs {
   material: Material;
+  materialCheck?: boolean;
   showAdvanced: boolean;
 }
 
@@ -45,9 +47,13 @@ abstract class ScmFields extends MithrilViewComponent<Attrs> {
 
   view(vnode: m.Vnode<Attrs>): m.Children {
     const mattrs = vnode.attrs.material.attributes() as ScmMaterialAttributes;
+    const materialTest = vnode.attrs.materialCheck ?
+      <MaterialCheck material={vnode.attrs.material}/> :
+      <TestConnection material={vnode.attrs.material}/>;
+
     return [
       this.requiredFields(mattrs),
-      <TestConnection material={vnode.attrs.material}/>,
+      materialTest,
       this.advancedOptions(mattrs, vnode.attrs.showAdvanced),
     ];
   }

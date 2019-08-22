@@ -41,6 +41,18 @@ describe("AddPipeline: Material Editor", () => {
       .toEqual(["Git", "Mercurial", "Subversion", "Perforce", "Team Foundation Server", "Another Pipeline"]);
   });
 
+  it("Generates scm only structure", () => {
+    helper.unmount();
+    helper.mount(() => {
+      return <MaterialEditor material={new Material()} scmOnly={true}/>;
+    });
+    expect(helper.q("select")).toBeTruthy();
+    expect(helper.q("label")).toBeTruthy();
+    expect(helper.q("label").textContent).toBe("Material Type*");
+    expect(helper.textAll("option"))
+      .toEqual(["Git", "Mercurial", "Subversion", "Perforce", "Team Foundation Server"]);
+  });
+
   it("Selecting a material updates the model type", () => {
     expect(material.type()).toBeUndefined();
     expect(material.attributes()).toBeUndefined();

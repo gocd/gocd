@@ -21,6 +21,7 @@ import {DownloadAction} from "views/pages/pac/download_action";
 import {PreviewPane} from "views/pages/pac/preview_pane";
 import {Page, PageState} from "views/pages/page";
 import {FillableSection} from "views/pages/pipelines/fillable_section";
+import {MaterialEditor} from "views/pages/pipelines/material_editor";
 import {PipelineConfigVM} from "views/pages/pipelines/pipeline_config_view_model";
 
 export class PipelinesAsCodeCreatePage extends Page {
@@ -66,6 +67,14 @@ export class PipelinesAsCodeCreatePage extends Page {
         <div>Download this as a file and put it in your repo (I need some proper copy here).</div>
 
         <DownloadAction vm={vm}/>
+      </FillableSection>,
+
+      <FillableSection>
+        <div>
+          <span>Use the 'Check Material' button to verify that the configuration file is corretly placed</span>
+
+          <MaterialEditor material={vm.material} materialCheck={true} scmOnly={true}/>
+        </div>
       </FillableSection>
     ];
   }

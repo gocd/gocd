@@ -215,7 +215,7 @@ export class KitchenSink extends MithrilViewComponent<null> {
         </ButtonGroup>
         <hr/>
 
-        <h3>Button group with dropdown buttons buttons:</h3>
+        <h3>Button group with dropdown buttons:</h3>
         <ButtonGroup>
           <DummyDropdownButton show={Stream()} name="Resources">
             <TriStateCheckboxField label={"Psql"} property={Stream(new TriStateCheckbox())}/>
@@ -227,7 +227,7 @@ export class KitchenSink extends MithrilViewComponent<null> {
             <TriStateCheckboxField label={"QA"} property={Stream(new TriStateCheckbox())}/>
           </DummyDropdownButton>
           <Secondary>Normal Button</Secondary>
-          <DummyDropdownButton show={Stream()} name="Four">This just a text</DummyDropdownButton>
+          <DummyDropdownButton show={Stream()} name="Four">This is just a text</DummyDropdownButton>
         </ButtonGroup>
         <hr/>
 

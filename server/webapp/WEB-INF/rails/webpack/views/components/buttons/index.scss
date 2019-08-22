@@ -164,13 +164,13 @@
     }
 
     &:first-child {
-      > .button {
+      > .btn-dropdown {
         border-radius: $global-border-radius 0 0 $global-border-radius;
       }
     }
 
     &:last-child {
-      .button {
+      > .btn-dropdown {
         border-radius: 0 $global-border-radius $global-border-radius 0;
       }
     }

@@ -130,12 +130,6 @@ export class TestHelper {
     this.redraw();
   }
 
-  clickByTestId(selector: string) {
-    this.click(this.byTestId(selector));
-    this.redraw();
-  }
-
-
   clickButtonOnActiveModal(buttonSelector: string) {
     const element = document.querySelector(`.new-modal-container ${buttonSelector}`);
     if (!element) {

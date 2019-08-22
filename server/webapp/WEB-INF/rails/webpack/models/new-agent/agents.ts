@@ -70,7 +70,7 @@ export interface AgentJSON {
   agent_state: string;
   resources: string[];
   build_state: string;
-  build_details: BuildDetailsJSON
+  build_details?: BuildDetailsJSON
   environments: AgentEnvironmentJSON[]
 }
 
@@ -114,7 +114,7 @@ export class BuildDetails {
     this.jobUrl       = jobUrl;
   }
 
-  static fromJSON(json: BuildDetailsJSON) {
+  static fromJSON(json?: BuildDetailsJSON) {
     return json ? new BuildDetails(json.pipeline_name,
                                    json.stage_name,
                                    json.job_name,

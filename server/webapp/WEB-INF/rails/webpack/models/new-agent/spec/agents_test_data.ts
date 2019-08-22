@@ -124,7 +124,6 @@ export class AgentsTestData {
                freeSpace: number | string = 93259825152,
                ipAddr: string             = "10.1.0." + AgentsTestData.getRandomIntegerInRange(1, 255),
                resources                  = ["dev", "fat", "ie9", "firefox"]) {
-    // @ts-ignore
     return {
       selected: Stream(false),
       uuid: uuid,
@@ -149,7 +148,6 @@ export class AgentsTestData {
   }
 
   static elasticAgent(hostname: string) {
-    // @ts-ignore
     return {
       uuid: uuid(),
       hostname: hostname,
@@ -165,6 +163,7 @@ export class AgentsTestData {
         name: "internal",
         origin: {type: "gocd"}
       }],
+      resources: [],
       build_state: "Idle",
       free_space: 93259825152,
       elastic_plugin_id: "cd.go.elastic-agents.docker",

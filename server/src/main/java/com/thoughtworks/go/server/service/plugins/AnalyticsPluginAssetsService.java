@@ -49,7 +49,7 @@ public class AnalyticsPluginAssetsService implements ServletContextAware, Plugin
     private static final String PLUGIN_ENDPOINT_JS = "plugin-endpoint.js";
 
     // TODO: actually rename source file later
-    private static final String DESTINATION_JS = "analytics-endpoint.js";
+    private static final String DESTINATION_JS = "gocd-server-comms.js";
 
     private AnalyticsExtension analyticsExtension;
     private ServletContext servletContext;

@@ -168,7 +168,7 @@ public class AnalyticsPluginAssetsServiceTest {
 
         assetsService.onPluginMetadataCreate(PLUGIN_ID);
 
-        Path actualPath = Paths.get(railsRoot.getAbsolutePath(), "public", assetsService.assetPathFor(PLUGIN_ID), "analytics-endpoint.js");
+        Path actualPath = Paths.get(railsRoot.getAbsolutePath(), "public", assetsService.assetPathFor(PLUGIN_ID), "gocd-server-comms.js");
 
         assertTrue(pluginDirPath.toFile().exists());
         assertTrue(actualPath.toFile().exists());

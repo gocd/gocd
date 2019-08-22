@@ -23,7 +23,7 @@ import * as Buttons from "views/components/buttons";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {FlashMessageModelWithTimeout, MessageType} from "views/components/flash_message";
-import {TriStateCheckboxField} from "views/components/forms/input_fields";
+import {QuickAddField, TriStateCheckboxField} from "views/components/forms/input_fields";
 import {Spinner} from "views/components/spinner";
 import Style from "./index.scss";
 
@@ -103,7 +103,7 @@ abstract class AbstractDropdownButton<V extends Attrs> extends Dropdown<V> {
                 }, []);
   }
 
-  private buildTriStateCheckBox(vnode: m.Vnode<DropdownAttrs & V>) {
+  protected buildTriStateCheckBox(vnode: m.Vnode<DropdownAttrs & V>) {
     this.triStateCheckboxMap.clear();
     this.data().map((item) => {
       const selectedAgents                 = vnode.attrs.agents.getSelectedAgents();
@@ -162,6 +162,8 @@ interface ResourcesAttrs extends Attrs {
 }
 
 export class ResourcesDropdownButton extends AbstractDropdownButton<ResourcesAttrs> {
+  private newResource: Stream<string> = Stream();
+
   protected updatePromise(vnode: m.Vnode<DropdownAttrs & ResourcesAttrs>) {
     return vnode.attrs.updateResources(this.getKeysOfSelectedCheckBoxes(), this.getKeysOfUnselectedCheckBoxes());
   }
@@ -178,14 +180,22 @@ export class ResourcesDropdownButton extends AbstractDropdownButton<ResourcesAtt
 
   protected body(vnode: m.Vnode<DropdownAttrs & ResourcesAttrs>) {
     return (<div class={Style.dropdownContent}>
-      {Array.from(this.triStateCheckboxMap).map(([environment, triStateCheckbox]) => {
-        return <TriStateCheckboxField label={environment} property={Stream(triStateCheckbox)}/>;
+      {Array.from(this.triStateCheckboxMap).map(([resource, triStateCheckbox]) => {
+        return <TriStateCheckboxField label={resource} property={Stream(triStateCheckbox)}/>;
       })}
+      <QuickAddField property={this.newResource} buttonDisableReason=""
+                     onclick={this.addNewResource.bind(this)}/>
       <Primary onclick={this.apply.bind(this, vnode)}>Apply</Primary>
     </div>);
   }
 
   protected hasAssociationWith(agent: Agent, resource: string) {
     return agent.resources.includes(resource);
+  }
+
+  private addNewResource() {
+    this.data().push(this.newResource());
+    this.triStateCheckboxMap.set(this.newResource(), new TriStateCheckbox(TristateState.on));
+    this.newResource("");
   }
 }

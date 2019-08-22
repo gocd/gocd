@@ -34,7 +34,7 @@ interface Attrs {
   material: Material;
   cache?: SuggestionCache;
   materialCheck?: boolean;
-  showAdvanced?: boolean;
+  showLocalWorkingCopyOptions?: boolean;
   scmOnly?: boolean;
 }
 
@@ -49,7 +49,7 @@ export class MaterialEditor extends MithrilViewComponent<Attrs> {
 
   view(vnode: m.Vnode<Attrs>) {
     const attrs = vnode.attrs;
-    const showAdvanced = "showAdvanced" in attrs ? !!attrs.showAdvanced : true;
+    const showLocalWorkingCopyOptions = "showLocalWorkingCopyOptions" in attrs ? !!attrs.showLocalWorkingCopyOptions : true;
     const scmOnly = !!attrs.scmOnly;
     const materialCheck = !!vnode.attrs.materialCheck;
 
@@ -59,7 +59,7 @@ export class MaterialEditor extends MithrilViewComponent<Attrs> {
       </SelectField>
 
       <Form last={true} compactForm={true}>
-        {this.fieldsForType(vnode.attrs.material, this.cache, showAdvanced, materialCheck)}
+        {this.fieldsForType(vnode.attrs.material, this.cache, showLocalWorkingCopyOptions, materialCheck)}
       </Form>
     </FormBody>;
   }
@@ -80,39 +80,39 @@ export class MaterialEditor extends MithrilViewComponent<Attrs> {
     return options;
   }
 
-  fieldsForType(material: Material, cacheable: SuggestionCache, showAdvanced: boolean, materialCheck: boolean): m.Children {
+  fieldsForType(material: Material, cacheable: SuggestionCache, showLocalWorkingCopyOptions: boolean, materialCheck: boolean): m.Children {
     switch (material.type()) {
       case "git":
         if (!(material.attributes() instanceof GitMaterialAttributes)) {
           material.attributes(new GitMaterialAttributes());
         }
 
-        return <GitFields material={material} materialCheck={materialCheck} showAdvanced={showAdvanced}/>;
+        return <GitFields material={material} materialCheck={materialCheck} showLocalWorkingCopyOptions={showLocalWorkingCopyOptions}/>;
       case "hg":
         if (!(material.attributes() instanceof HgMaterialAttributes)) {
           material.attributes(new HgMaterialAttributes());
         }
-        return <HgFields material={material} materialCheck={materialCheck} showAdvanced={showAdvanced}/>;
+        return <HgFields material={material} materialCheck={materialCheck} showLocalWorkingCopyOptions={showLocalWorkingCopyOptions}/>;
       case "svn":
         if (!(material.attributes() instanceof SvnMaterialAttributes)) {
           material.attributes(new SvnMaterialAttributes());
         }
-        return <SvnFields material={material} materialCheck={materialCheck} showAdvanced={showAdvanced}/>;
+        return <SvnFields material={material} materialCheck={materialCheck} showLocalWorkingCopyOptions={showLocalWorkingCopyOptions}/>;
       case "p4":
         if (!(material.attributes() instanceof P4MaterialAttributes)) {
           material.attributes(new P4MaterialAttributes());
         }
-        return <P4Fields material={material} materialCheck={materialCheck} showAdvanced={showAdvanced}/>;
+        return <P4Fields material={material} materialCheck={materialCheck} showLocalWorkingCopyOptions={showLocalWorkingCopyOptions}/>;
       case "tfs":
         if (!(material.attributes() instanceof TfsMaterialAttributes)) {
           material.attributes(new TfsMaterialAttributes());
         }
-        return <TfsFields material={material} materialCheck={materialCheck} showAdvanced={showAdvanced}/>;
+        return <TfsFields material={material} materialCheck={materialCheck} showLocalWorkingCopyOptions={showLocalWorkingCopyOptions}/>;
       case "dependency":
         if (!(material.attributes() instanceof DependencyMaterialAttributes)) {
           material.attributes(new DependencyMaterialAttributes());
         }
-        return <DependencyFields material={material} cache={cacheable} showAdvanced={showAdvanced}/>;
+        return <DependencyFields material={material} cache={cacheable} showLocalWorkingCopyOptions={showLocalWorkingCopyOptions}/>;
       default:
         break;
     }

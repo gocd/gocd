@@ -33,7 +33,7 @@ describe("AddPipeline: SCM Material Fields", () => {
 
   it("GitFields structure", () => {
     const material = new Material("git", new GitMaterialAttributes());
-    helper.mount(() => <GitFields material={material} showAdvanced={true}/>);
+    helper.mount(() => <GitFields material={material} showLocalWorkingCopyOptions={true}/>);
 
     assertLabelledInputsPresent({
       "repository-url":          "Repository URL*",
@@ -49,7 +49,7 @@ describe("AddPipeline: SCM Material Fields", () => {
 
   it("HgFields structure", () => {
     const material = new Material("hg", new HgMaterialAttributes());
-    helper.mount(() => <HgFields material={material} showAdvanced={true}/>);
+    helper.mount(() => <HgFields material={material} showLocalWorkingCopyOptions={true}/>);
 
     assertLabelledInputsPresent({
       "repository-url":          "Repository URL*",
@@ -65,7 +65,7 @@ describe("AddPipeline: SCM Material Fields", () => {
 
   it("SvnFields structure", () => {
     const material = new Material("svn", new SvnMaterialAttributes());
-    helper.mount(() => <SvnFields material={material} showAdvanced={true}/>);
+    helper.mount(() => <SvnFields material={material} showLocalWorkingCopyOptions={true}/>);
 
     assertLabelledInputsPresent({
       "repository-url":          "Repository URL*",
@@ -81,7 +81,7 @@ describe("AddPipeline: SCM Material Fields", () => {
 
   it("P4Fields structure", () => {
     const material = new Material("p4", new P4MaterialAttributes());
-    helper.mount(() => <P4Fields material={material} showAdvanced={true}/>);
+    helper.mount(() => <P4Fields material={material} showLocalWorkingCopyOptions={true}/>);
 
     assertLabelledInputsPresent({
       "p4-protocol-host-port":     "P4 [Protocol:][Host:]Port*",
@@ -98,7 +98,7 @@ describe("AddPipeline: SCM Material Fields", () => {
 
   it("TfsFields structure", () => {
     const material = new Material("tfs", new TfsMaterialAttributes());
-    helper.mount(() => <TfsFields material={material} showAdvanced={true}/>);
+    helper.mount(() => <TfsFields material={material} showLocalWorkingCopyOptions={true}/>);
 
     assertLabelledInputsPresent({
       "repository-url":          "Repository URL*",
@@ -115,7 +115,7 @@ describe("AddPipeline: SCM Material Fields", () => {
 
   it("displays material check button instead of test connection when `materialCheck` === true", () => {
     const material = new Material("git", new GitMaterialAttributes());
-    helper.mount(() => <GitFields material={material} materialCheck={true} showAdvanced={true}/>);
+    helper.mount(() => <GitFields material={material} materialCheck={true} showLocalWorkingCopyOptions={true}/>);
 
     assertLabelledInputsPresent({
       "repository-url":          "Repository URL*",
@@ -132,24 +132,24 @@ describe("AddPipeline: SCM Material Fields", () => {
 
   it("displays test connection button by default when `materialCheck` is falsey (e.g., unspecified)", () => {
     const material = new Material("git", new GitMaterialAttributes());
-    helper.mount(() => <GitFields material={material} showAdvanced={true}/>);
+    helper.mount(() => <GitFields material={material} showLocalWorkingCopyOptions={true}/>);
 
     expect(helper.byTestId("test-connection-button")).toBeInDOM();
     expect(helper.byTestId("material-check-button")).toBe(null!);
   });
 
-  it("does not display advanced settings when `showAdvanced` === false", () => {
+  it("does not display certain advanced settings when `showLocalWorkingCopyOptions` === false", () => {
     const material = new Material("git", new GitMaterialAttributes());
-    helper.mount(() => <GitFields material={material} showAdvanced={false}/>);
+    helper.mount(() => <GitFields material={material} showLocalWorkingCopyOptions={false}/>);
 
     assertLabelledInputsPresent({
-      "repository-url": "Repository URL*"
+      "repository-url":    "Repository URL*",
+      "repository-branch": "Repository Branch",
+      "username":          "Username",
+      "password":          "Password",
     });
 
     assertLabelledInputsAbsent(
-      "repository-branch",
-      "username",
-      "password",
       "alternate-checkout-path",
       "material-name",
     );

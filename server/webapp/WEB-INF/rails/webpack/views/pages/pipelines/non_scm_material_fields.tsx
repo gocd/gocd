@@ -28,7 +28,7 @@ import {IDENTIFIER_FORMAT_HELP_MESSAGE} from "./messages";
 interface Attrs {
   material: Material;
   cache: SuggestionCache;
-  showAdvanced: boolean;
+  showLocalWorkingCopyOptions: boolean;
 }
 
 interface State {
@@ -91,12 +91,12 @@ export class DependencyFields extends MithrilComponent<Attrs, State> {
       <SelectField label="Upstream Stage" property={mat.stage} errorText={this.errs(mat, "stage")} required={true}>
         <SelectFieldOptions selected={mat.stage()} items={vnode.state.stages()}/>
       </SelectField>,
-      this.advanced(mat, vnode.attrs.showAdvanced),
+      this.advanced(mat, vnode.attrs.showLocalWorkingCopyOptions),
     ];
   }
 
-  advanced(mat: DependencyMaterialAttributes, showAdvanced: boolean): m.Children {
-    if (showAdvanced) {
+  advanced(mat: DependencyMaterialAttributes, showLocalWorkingCopyOptions: boolean): m.Children {
+    if (showLocalWorkingCopyOptions) {
       return <AdvancedSettings forceOpen={mat.errors().hasErrors("name")}>
         <TextField label="Material Name" helpText={IDENTIFIER_FORMAT_HELP_MESSAGE} placeholder="A human-friendly label for this material" property={mat.name}/>
       </AdvancedSettings>;

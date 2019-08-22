@@ -37,7 +37,7 @@ import {DESTINATION_DIR_HELP_MESSAGE, IDENTIFIER_FORMAT_HELP_MESSAGE} from "./me
 interface Attrs {
   material: Material;
   materialCheck?: boolean;
-  showAdvanced: boolean;
+  showLocalWorkingCopyOptions: boolean;
 }
 
 abstract class ScmFields extends MithrilViewComponent<Attrs> {
@@ -54,35 +54,40 @@ abstract class ScmFields extends MithrilViewComponent<Attrs> {
     return [
       this.requiredFields(mattrs),
       materialTest,
-      this.advancedOptions(mattrs, vnode.attrs.showAdvanced),
+      this.advancedOptions(mattrs, vnode.attrs.showLocalWorkingCopyOptions),
     ];
   }
 
-  advancedOptions(mattrs: ScmMaterialAttributes, showAdvanced: boolean): m.Children {
-    if (showAdvanced) {
-      return <AdvancedSettings forceOpen={mattrs.errors().hasErrors("name") || mattrs.errors().hasErrors("destination")}>
-        {this.extraFields(mattrs)}
+  advancedOptions(mattrs: ScmMaterialAttributes, showLocalWorkingCopyOptions: boolean): m.Children {
+    let settings = this.extraFields(mattrs);
+
+    if (showLocalWorkingCopyOptions) {
+      settings = settings.concat([
         <TextField label={[
           "Alternate Checkout Path",
           " ",
           <Tooltip.Help size={TooltipSize.medium} content={DESTINATION_DIR_HELP_MESSAGE}/>
-        ]} property={mattrs.destination} errorText={this.errs(mattrs, "destination")}/>
+        ]} property={mattrs.destination} errorText={this.errs(mattrs, "destination")}/>,
         <TextField label="Material Name" helpText={IDENTIFIER_FORMAT_HELP_MESSAGE} placeholder="A human-friendly label for this material" property={mattrs.name} errorText={this.errs(mattrs, "name")}/>
-      </AdvancedSettings>;
+      ]);
     }
+
+    return <AdvancedSettings forceOpen={mattrs.errors().hasErrors("name") || mattrs.errors().hasErrors("destination")}>
+      {settings}
+    </AdvancedSettings>;
   }
 
-  abstract requiredFields(attrs: MaterialAttributes): m.Children;
-  abstract extraFields(attrs: MaterialAttributes): m.Children;
+  abstract requiredFields(attrs: MaterialAttributes): m.ChildArray;
+  abstract extraFields(attrs: MaterialAttributes): m.ChildArray;
 }
 
 export class GitFields extends ScmFields {
-  requiredFields(attrs: MaterialAttributes): m.Children {
+  requiredFields(attrs: MaterialAttributes): m.ChildArray {
     const mat = attrs as GitMaterialAttributes;
     return [<TextField label="Repository URL" property={mat.url} errorText={this.errs(attrs, "url")} required={true}/>];
   }
 
-  extraFields(attrs: MaterialAttributes): m.Children {
+  extraFields(attrs: MaterialAttributes): m.ChildArray {
     const mat = attrs as GitMaterialAttributes;
     return [
       <TextField label="Repository Branch" property={mat.branch} placeholder="master"/>,
@@ -93,12 +98,12 @@ export class GitFields extends ScmFields {
 }
 
 export class HgFields extends ScmFields {
-  requiredFields(attrs: MaterialAttributes): m.Children {
+  requiredFields(attrs: MaterialAttributes): m.ChildArray {
     const mat = attrs as HgMaterialAttributes;
     return [<TextField label="Repository URL" property={mat.url} errorText={this.errs(attrs, "url")} required={true}/>];
   }
 
-  extraFields(attrs: MaterialAttributes): m.Children {
+  extraFields(attrs: MaterialAttributes): m.ChildArray {
     const mat = attrs as HgMaterialAttributes;
     return [
       <TextField label="Repository Branch" property={mat.branch} placeholder="default"/>,
@@ -109,12 +114,12 @@ export class HgFields extends ScmFields {
 }
 
 export class SvnFields extends ScmFields {
-  requiredFields(attrs: MaterialAttributes): m.Children {
+  requiredFields(attrs: MaterialAttributes): m.ChildArray {
     const mat = attrs as SvnMaterialAttributes;
     return [<TextField label="Repository URL" property={mat.url} errorText={this.errs(attrs, "url")} required={true}/>];
   }
 
-  extraFields(attrs: MaterialAttributes): m.Children {
+  extraFields(attrs: MaterialAttributes): m.ChildArray {
     const mat = attrs as SvnMaterialAttributes;
     return [
       <TextField label="Username" property={mat.username}/>,
@@ -125,7 +130,7 @@ export class SvnFields extends ScmFields {
 }
 
 export class P4Fields extends ScmFields {
-  requiredFields(attrs: MaterialAttributes): m.Children {
+  requiredFields(attrs: MaterialAttributes): m.ChildArray {
     const mat = attrs as P4MaterialAttributes;
     return [
       <TextField label="P4 [Protocol:][Host:]Port" property={mat.port} errorText={this.errs(attrs, "port")} required={true}/>,
@@ -133,7 +138,7 @@ export class P4Fields extends ScmFields {
     ];
   }
 
-  extraFields(attrs: MaterialAttributes): m.Children {
+  extraFields(attrs: MaterialAttributes): m.ChildArray {
     const mat = attrs as P4MaterialAttributes;
     return [
       <TextField label="Username" property={mat.username}/>,
@@ -144,7 +149,7 @@ export class P4Fields extends ScmFields {
 }
 
 export class TfsFields extends ScmFields {
-  requiredFields(attrs: MaterialAttributes): m.Children {
+  requiredFields(attrs: MaterialAttributes): m.ChildArray {
     const mat = attrs as TfsMaterialAttributes;
     return [
       <TextField label="Repository URL" property={mat.url} errorText={this.errs(attrs, "url")} required={true}/>,
@@ -154,7 +159,7 @@ export class TfsFields extends ScmFields {
     ];
   }
 
-  extraFields(attrs: MaterialAttributes): m.Children {
+  extraFields(attrs: MaterialAttributes): m.ChildArray {
     const mat = attrs as TfsMaterialAttributes;
     return [<TextField label="Domain" property={mat.domain}/>];
   }

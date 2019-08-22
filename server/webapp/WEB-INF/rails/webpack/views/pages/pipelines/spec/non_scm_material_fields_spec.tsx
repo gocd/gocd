@@ -26,7 +26,7 @@ describe("AddPipeline: Non-SCM Material Fields", () => {
 
   it("DependencyFields structure", () => {
     const material = new Material("dependency", new DependencyMaterialAttributes());
-    helper.mount(() => <DependencyFields material={material} cache={new DummyCache()} showAdvanced={true}/>);
+    helper.mount(() => <DependencyFields material={material} cache={new DummyCache()} showLocalWorkingCopyOptions={true}/>);
 
     assertLabelledInputsPresent({
       "upstream-pipeline": "Upstream Pipeline*",
@@ -35,9 +35,9 @@ describe("AddPipeline: Non-SCM Material Fields", () => {
     });
   });
 
-  it("does not display advanced settings when `showAdvanced` === false", () => {
+  it("does not display advanced settings when `showLocalWorkingCopyOptions` === false", () => {
     const material = new Material("dependency", new DependencyMaterialAttributes());
-    helper.mount(() => <DependencyFields material={material} cache={new DummyCache()} showAdvanced={false}/>);
+    helper.mount(() => <DependencyFields material={material} cache={new DummyCache()} showLocalWorkingCopyOptions={false}/>);
 
     assertLabelledInputsPresent({
       "upstream-pipeline": "Upstream Pipeline*",

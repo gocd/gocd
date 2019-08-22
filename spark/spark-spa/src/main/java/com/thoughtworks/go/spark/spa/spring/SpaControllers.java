@@ -54,6 +54,7 @@ public class SpaControllers implements SparkSpringController {
         LayoutTemplateProvider defaultTemplate = () -> DEFAULT_LAYOUT_PATH;
         LayoutTemplateProvider componentTemplate = () -> COMPONENT_LAYOUT_PATH;
 
+		sparkControllers.add(new PipelineConfigsController(authenticationHelper, templateEngineFactory.create(PipelineConfigsController.class, () -> COMPONENT_LAYOUT_PATH)));
 		sparkControllers.add(new NewAgentController(authenticationHelper, templateEngineFactory.create(NewAgentController.class, () -> COMPONENT_LAYOUT_PATH)));
 		sparkControllers.add(new MailServerController(authenticationHelper, templateEngineFactory.create(MailServerController.class, () -> COMPONENT_LAYOUT_PATH)));
         sparkControllers.add(new ServerInfoController(authenticationHelper, templateEngineFactory.create(ServerInfoController.class, () -> COMPONENT_LAYOUT_PATH), artifactsDirHolder, systemService, pipelineConfigService));

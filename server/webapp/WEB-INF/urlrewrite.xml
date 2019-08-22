@@ -24,6 +24,11 @@
 
 <urlrewrite>
   <rule>
+    <name>pipeline_configs UI</name>
+    <from>^/admin/pipeline_configs(/?)$</from>
+    <to last="true">/spark/admin/pipeline_configs</to>
+  </rule>
+  <rule>
     <name>new-agent UI</name>
     <from>^/new-agents(/?)$</from>
     <to last="true">/spark/new-agents</to>

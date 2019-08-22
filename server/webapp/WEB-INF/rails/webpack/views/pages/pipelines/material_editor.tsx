@@ -86,7 +86,6 @@ export class MaterialEditor extends MithrilViewComponent<Attrs> {
         if (!(material.attributes() instanceof GitMaterialAttributes)) {
           material.attributes(new GitMaterialAttributes());
         }
-
         return <GitFields material={material} materialCheck={materialCheck} showLocalWorkingCopyOptions={showLocalWorkingCopyOptions}/>;
       case "hg":
         if (!(material.attributes() instanceof HgMaterialAttributes)) {

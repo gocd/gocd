@@ -260,10 +260,11 @@ public class EnvironmentConfigServiceIntegrationTest {
         goConfigService.addEnvironment(new BasicEnvironmentConfig(envName));
 
         Agent agent = AgentMother.approvedAgent();
+        agent.addEnvironment(environmentName);
         agentService.register(agent);
 
         // required to force update the cache from the DB
-        environmentConfigService.syncAssociatedAgentsFromDB();
+        environmentConfigService.syncEnvironments(goConfigService.getEnvironments());
 
         assertTrue(goConfigService.hasEnvironmentNamed(envName));
         assertTrue(environmentConfigService.getEnvironmentConfig(environmentName).hasAgent("uuid"));

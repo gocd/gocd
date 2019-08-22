@@ -82,8 +82,7 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
         goConfigService.register(new EntityConfigChangedListener<EnvironmentConfig>() {
             @Override
             public void onEntityConfigChange(EnvironmentConfig entity) {
-                syncEnvironmentsFromConfig(goConfigService.getEnvironments());
-                syncAssociatedAgentsFromDB();
+                syncEnvironments(goConfigService.getEnvironments());
             }
         });
 
@@ -285,19 +284,16 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
         matchers = environments.matchers();
     }
 
-    public void syncEnvironmentsFromConfig(EnvironmentsConfig envsConfig) {
-        environments = envsConfig;
-        matchers = envsConfig.matchers();
+    void syncEnvironments(EnvironmentsConfig envsConfig) {
+        if (envsConfig != null) {
+            environments = envsConfig;
+            agentService.getAgentInstances().forEach(this::syncAssociatedAgentFromDB);
+            matchers = envsConfig.matchers();
+        }
     }
 
     public void onConfigChange(CruiseConfig newCruiseConfig) {
-        syncEnvironmentsFromConfig(newCruiseConfig.getEnvironments());
-        syncAssociatedAgentsFromDB();
-    }
-
-    void syncAssociatedAgentsFromDB() {
-        agentService.getAgentInstances().forEach(this::syncAssociatedAgentFromDB);
-        matchers = environments.matchers();
+        syncEnvironments(newCruiseConfig.getEnvironments());
     }
 
     private void removeAgentFromCurrentlyAssociatedEnvironments(String uuid, List<String> envNames) {

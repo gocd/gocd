@@ -111,7 +111,7 @@ class EnvironmentConfigServiceTest {
         EnvironmentsConfig environments = new EnvironmentsConfig();
         environments.add(merged);
 
-        environmentConfigService.syncEnvironmentsFromConfig(environments);
+        environmentConfigService.syncEnvironments(environments);
 
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
         BasicEnvironmentConfig env = (BasicEnvironmentConfig) environmentConfigService.getEnvironmentConfig(uat).getLocal();
@@ -136,7 +136,9 @@ class EnvironmentConfigServiceTest {
         EnvironmentsConfig environments = new EnvironmentsConfig();
         environments.add(merged);
 
-        environmentConfigService.syncEnvironmentsFromConfig(environments);
+        when(agentService.getAgentInstances()).thenReturn(new AgentInstances(null));
+
+        environmentConfigService.syncEnvironments(environments);
 
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
         BasicEnvironmentConfig env = (BasicEnvironmentConfig) environmentConfigService.getEnvironmentConfig(uat).getLocal();
@@ -158,7 +160,8 @@ class EnvironmentConfigServiceTest {
         env.addEnvironmentVariable("quux", "bang");
         EnvironmentsConfig environments = config.getEnvironments();
         environments.add(env);
-        environmentConfigService.syncEnvironmentsFromConfig(environments);
+        when(agentService.getAgentInstances()).thenReturn(new AgentInstances(null));
+        environmentConfigService.syncEnvironments(environments);
         when(mockGoConfigService.getMergedConfigForEditing()).thenReturn(config);
 
         assertThat(environmentConfigService.getAllMergedEnvironments(), is(singletonList(env)));
@@ -186,8 +189,7 @@ class EnvironmentConfigServiceTest {
 
     @Test
     void shouldFilterWhenAgentIsNotInAnEnvironment() {
-        environmentConfigService.syncEnvironmentsFromConfig(environments("uat", "prod"));
-        environmentConfigService.syncAssociatedAgentsFromDB();
+        environmentConfigService.syncEnvironments(environments("uat", "prod"));
 
         List<JobPlan> filtered = environmentConfigService.filterJobsByAgent(jobs("no-env", "uat", "prod"), "no-env-uuid");
 
@@ -197,8 +199,7 @@ class EnvironmentConfigServiceTest {
 
     @Test
     void shouldFilterWhenAgentIsInTheSameEnvironment() {
-        environmentConfigService.syncEnvironmentsFromConfig(environments("uat", "prod"));
-        environmentConfigService.syncAssociatedAgentsFromDB();
+        environmentConfigService.syncEnvironments(environments("uat", "prod"));
 
         List<JobPlan> filtered = environmentConfigService.filterJobsByAgent(jobs("no-env", "uat", "prod"), "uat-agent");
 
@@ -208,8 +209,7 @@ class EnvironmentConfigServiceTest {
 
     @Test
     void shouldFilterWhenAgentIsInMultipleEnvironments() {
-        environmentConfigService.syncEnvironmentsFromConfig(environments("uat", "prod"));
-        environmentConfigService.syncAssociatedAgentsFromDB();
+        environmentConfigService.syncEnvironments(environments("uat", "prod"));
 
         List<JobPlan> filtered = environmentConfigService.filterJobsByAgent(jobs("no-env", "uat", "prod"), OMNIPRESENT_AGENT);
 
@@ -220,8 +220,7 @@ class EnvironmentConfigServiceTest {
 
     @Test
     void shouldFilterWhenAgentIsInAnotherEnvironment() {
-        environmentConfigService.syncEnvironmentsFromConfig(environments("uat", "prod"));
-        environmentConfigService.syncAssociatedAgentsFromDB();
+        environmentConfigService.syncEnvironments(environments("uat", "prod"));
 
         List<JobPlan> filtered = environmentConfigService.filterJobsByAgent(jobs("no-env", "prod"), "uat-agent");
 
@@ -230,8 +229,7 @@ class EnvironmentConfigServiceTest {
 
     @Test
     void shouldFindAgentsForPipelineUnderEnvironment() {
-        environmentConfigService.syncEnvironmentsFromConfig(environments("uat", "prod"));
-        environmentConfigService.syncAssociatedAgentsFromDB();
+        environmentConfigService.syncEnvironments(environments("uat", "prod"));
         Agent agentUnderEnv = new Agent("uat-agent", "localhost", "127.0.0.1");
         Agent omnipresentAgent = new Agent(OMNIPRESENT_AGENT, "localhost", "127.0.0.2");
 
@@ -245,8 +243,7 @@ class EnvironmentConfigServiceTest {
 
     @Test
     void shouldFindAgentsForPipelineUnderNoEnvironment() {
-        environmentConfigService.syncEnvironmentsFromConfig(environments("uat", "prod"));
-        environmentConfigService.syncAssociatedAgentsFromDB();
+        environmentConfigService.syncEnvironments(environments("uat", "prod"));
         Agent noEnvAgent = new Agent("no-env-agent", "localhost", "127.0.0.1");
 
         Agents agents = new Agents();
@@ -261,7 +258,7 @@ class EnvironmentConfigServiceTest {
 
     @Test
     void shouldReturnEnvironmentNames() {
-        environmentConfigService.syncEnvironmentsFromConfig(environments("uat", "prod"));
+        environmentConfigService.syncEnvironments(environments("uat", "prod"));
         List<String> envNames = environmentConfigService.getEnvironmentNames();
         assertThat(envNames.size(), is(2));
         assertTrue(envNames.contains("uat"));
@@ -272,7 +269,7 @@ class EnvironmentConfigServiceTest {
     void shouldReturnEnvironmentNamesOnlyForKnownEnvironments() {
         EnvironmentsConfig envsConfig = environments("uat", "prod");
         envsConfig.add(unknown("unknown"));
-        environmentConfigService.syncEnvironmentsFromConfig(envsConfig);
+        environmentConfigService.syncEnvironments(envsConfig);
         List<String> envNames = environmentConfigService.getKnownEnvironmentNames();
         assertThat(envNames.size(), is(2));
         assertTrue(envNames.contains("uat"));
@@ -281,8 +278,7 @@ class EnvironmentConfigServiceTest {
 
     @Test
     void shouldReturnEnvironmentsForAnAgent() {
-        environmentConfigService.syncEnvironmentsFromConfig(environments("uat", "prod"));
-        environmentConfigService.syncAssociatedAgentsFromDB();
+        environmentConfigService.syncEnvironments(environments("uat", "prod"));
         Set<String> envForUat = environmentConfigService.getAgentEnvironmentNames("uat-agent");
         assertThat(envForUat.size(), is(1));
         assertTrue(envForUat.contains("uat"));
@@ -298,8 +294,7 @@ class EnvironmentConfigServiceTest {
     @Test
     void shouldReturnEnvironmentConfigsForSpecifiedUUID() {
         EnvironmentsConfig envConfigs = environments("uat", "prod");
-        environmentConfigService.syncEnvironmentsFromConfig(envConfigs);
-        environmentConfigService.syncAssociatedAgentsFromDB();
+        environmentConfigService.syncEnvironments(envConfigs);
 
         Set<EnvironmentConfig> envConfigSet = environmentConfigService.getAgentEnvironments("uat-agent");
         assertThat(envConfigSet.size(), is(1));
@@ -403,7 +398,7 @@ class EnvironmentConfigServiceTest {
         when(securityService.hasViewPermissionForPipeline(user, barPipeline)).thenReturn(true);
         when(securityService.hasViewPermissionForPipeline(user, bazPipeline)).thenReturn(false);
 
-        environmentConfigService.syncEnvironmentsFromConfig(environmentsConfig("foo-env", fooPipeline));
+        environmentConfigService.syncEnvironments(environmentsConfig("foo-env", fooPipeline));
         List<EnvironmentPipelineModel> pipelines = environmentConfigService.getAllLocalPipelinesForUser(user);
 
 
@@ -421,7 +416,7 @@ class EnvironmentConfigServiceTest {
         when(securityService.hasViewPermissionForPipeline(user, "bar")).thenReturn(true);
         when(securityService.hasViewPermissionForPipeline(user, "baz")).thenReturn(false);
 
-        environmentConfigService.syncEnvironmentsFromConfig(environmentsConfig("foo-env", "foo"));
+        environmentConfigService.syncEnvironments(environmentsConfig("foo-env", "foo"));
         List<EnvironmentPipelineModel> pipelines = environmentConfigService.getAllLocalPipelinesForUser(user);
 
         assertThat(pipelines.size(), is(2));
@@ -441,7 +436,7 @@ class EnvironmentConfigServiceTest {
         EnvironmentsConfig environmentConfigs = environmentsConfig("foo-env", "foo");
         EnvironmentConfig fooEnv = environmentConfigs.named(new CaseInsensitiveString("foo-env"));
         fooEnv.setOrigins(new RepoConfigOrigin());
-        environmentConfigService.syncEnvironmentsFromConfig(environmentConfigs);
+        environmentConfigService.syncEnvironments(environmentConfigs);
         List<EnvironmentPipelineModel> pipelines = environmentConfigService.getAllRemotePipelinesForUserInEnvironment(user, fooEnv);
 
 
@@ -459,7 +454,7 @@ class EnvironmentConfigServiceTest {
         env.addEnvironmentVariable("quux", "bang");
         EnvironmentsConfig environments = config.getEnvironments();
         environments.add(env);
-        environmentConfigService.syncEnvironmentsFromConfig(environments);
+        environmentConfigService.syncEnvironments(environments);
         when(mockGoConfigService.getMergedConfigForEditing()).thenReturn(config);
         assertThat(environmentConfigService.getMergedEnvironmentforDisplay("foo", result).getConfigElement(), is(env));
         assertThat(result.isSuccessful(), is(true));
@@ -470,7 +465,7 @@ class EnvironmentConfigServiceTest {
         String environmentName = "env_name";
         EnvironmentConfig environmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
         Username user = new Username(new CaseInsensitiveString("user"));
-        environmentConfigService.syncEnvironmentsFromConfig(environments("uat", "prod", "env_name"));
+        environmentConfigService.syncEnvironments(environments("uat", "prod", "env_name"));
 
         when(securityService.isUserAdmin(user)).thenReturn(true);
         when(mockGoConfigService.updateConfig(any(UpdateConfigCommand.class))).thenReturn(ConfigSaveState.MERGED);
@@ -503,7 +498,7 @@ class EnvironmentConfigServiceTest {
     void shouldReturnEnvironmentConfig() {
         String environmentName = "foo-environment";
         String pipelineName = "up42";
-        environmentConfigService.syncEnvironmentsFromConfig(environmentsConfig(environmentName, pipelineName));
+        environmentConfigService.syncEnvironments(environmentsConfig(environmentName, pipelineName));
         EnvironmentConfig expectedEnvironmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
         expectedEnvironmentConfig.addPipeline(new CaseInsensitiveString(pipelineName));
         assertThat(environmentConfigService.getEnvironmentConfig(environmentName), is(expectedEnvironmentConfig));
@@ -513,7 +508,7 @@ class EnvironmentConfigServiceTest {
     void shouldThrowExceptionWhenEnvironmentIsAbsent() {
         String environmentName = "foo-environment";
         String pipelineName = "up42";
-        environmentConfigService.syncEnvironmentsFromConfig(environmentsConfig(environmentName, pipelineName));
+        environmentConfigService.syncEnvironments(environmentsConfig(environmentName, pipelineName));
         assertThatCode(() -> environmentConfigService.getEnvironmentConfig("invalid-environment-name"))
                 .isInstanceOf(RecordNotFoundException.class);
     }
@@ -522,7 +517,7 @@ class EnvironmentConfigServiceTest {
     void shouldReturnUnknownConfigWhenEnvIsNotPresent() {
         String envName = "foo-environment";
         String pipelineName = "up42";
-        environmentConfigService.syncEnvironmentsFromConfig(environmentsConfig(envName, pipelineName));
+        environmentConfigService.syncEnvironments(environmentsConfig(envName, pipelineName));
 
         EnvironmentConfig envConfig = environmentConfigService.findOrUnknown("invalid-environment-name");
 
@@ -534,7 +529,7 @@ class EnvironmentConfigServiceTest {
     void shouldReturnEnvironmeConfigWhenEnvIsPresent() {
         String envName = "foo-environment";
         String pipelineName = "up42";
-        environmentConfigService.syncEnvironmentsFromConfig(environmentsConfig(envName, pipelineName));
+        environmentConfigService.syncEnvironments(environmentsConfig(envName, pipelineName));
 
         EnvironmentConfig envConfig = environmentConfigService.findOrUnknown(envName);
 
@@ -550,7 +545,7 @@ class EnvironmentConfigServiceTest {
             String environmentName = "foo-environment";
             String pipelineName = "up42";
             EnvironmentsConfig environmentsConfig = environmentsConfig(environmentName, pipelineName);
-            environmentConfigService.syncEnvironmentsFromConfig(environmentsConfig);
+            environmentConfigService.syncEnvironments(environmentsConfig);
 
             assertThat(environmentConfigService.environmentForPipeline("up42"), is(environmentsConfig.get(0)));
         }
@@ -560,7 +555,7 @@ class EnvironmentConfigServiceTest {
             String environmentName = "foo-environment";
             String pipelineName = "up42";
             EnvironmentsConfig environmentConfig = environmentsConfig(environmentName, pipelineName);
-            environmentConfigService.syncEnvironmentsFromConfig(environmentConfig);
+            environmentConfigService.syncEnvironments(environmentConfig);
 
             assertThat(environmentConfigService.environmentForPipeline("foo"), is(nullValue()));
         }
@@ -610,8 +605,7 @@ class EnvironmentConfigServiceTest {
             String uuid1 = "uuid1";
             String uuid2 = "uuid2";
 
-            environmentConfigService.syncEnvironmentsFromConfig(createEnvironments(envNameToAgentMap));
-            environmentConfigService.syncAssociatedAgentsFromDB();
+            environmentConfigService.syncEnvironments(createEnvironments(envNameToAgentMap));
             assertThatAgentAndEnvsAssociationsAreInSync(uuid1, uuid2);
         }
 
@@ -660,7 +654,7 @@ class EnvironmentConfigServiceTest {
         String environmentName = "foo-environment";
         String pipelineName = "up42";
         EnvironmentsConfig environmentConfig = environmentsConfig(environmentName, pipelineName);
-        environmentConfigService.syncEnvironmentsFromConfig(environmentConfig);
+        environmentConfigService.syncEnvironments(environmentConfig);
 
         assertThatCode(() -> environmentConfigService.getEnvironmentConfig("non-existent-env-name"))
                 .isInstanceOf(RecordNotFoundException.class)
@@ -672,7 +666,7 @@ class EnvironmentConfigServiceTest {
         String environmentName = "env_name";
         EnvironmentConfig environmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
         Username user = new Username(new CaseInsensitiveString("user"));
-        environmentConfigService.syncEnvironmentsFromConfig(environments("uat", "prod", "env_name"));
+        environmentConfigService.syncEnvironments(environments("uat", "prod", "env_name"));
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         environmentConfigService.patchEnvironment(environmentConfig, singletonList("pipeline1"), emptyList(), emptyList(), emptyList(), emptyList(), emptyList(), user, result);
@@ -686,7 +680,7 @@ class EnvironmentConfigServiceTest {
         String environmentName = "env_name";
         EnvironmentConfig environmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
         Username user = new Username(new CaseInsensitiveString("user"));
-        environmentConfigService.syncEnvironmentsFromConfig(environments("uat", "prod", "env_name"));
+        environmentConfigService.syncEnvironments(environments("uat", "prod", "env_name"));
 
         doThrow(ConfigUpdateCheckFailedException.class)
                 .when(mockGoConfigService).updateConfig(any(EntityConfigUpdateCommand.class), any(Username.class));
@@ -703,7 +697,7 @@ class EnvironmentConfigServiceTest {
         String environmentName = "env_name";
         EnvironmentConfig environmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
         Username user = new Username(new CaseInsensitiveString("user"));
-        environmentConfigService.syncEnvironmentsFromConfig(environments("uat", "prod", "env_name"));
+        environmentConfigService.syncEnvironments(environments("uat", "prod", "env_name"));
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         environmentConfigService.deleteEnvironment(environmentConfig, user, result);
@@ -717,7 +711,7 @@ class EnvironmentConfigServiceTest {
         String environmentName = "env_name";
         EnvironmentConfig environmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
         Username user = new Username(new CaseInsensitiveString("user"));
-        environmentConfigService.syncEnvironmentsFromConfig(environments("uat", "prod", "env_name"));
+        environmentConfigService.syncEnvironments(environments("uat", "prod", "env_name"));
 
         doThrow(ConfigUpdateCheckFailedException.class)
                 .when(mockGoConfigService).updateConfig(any(EntityConfigUpdateCommand.class), any(Username.class));
@@ -739,7 +733,7 @@ class EnvironmentConfigServiceTest {
             BasicEnvironmentConfig config = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
             config.addAgent(uuid);
             environments.add(config);
-            environmentConfigService.syncEnvironmentsFromConfig(environments);
+            environmentConfigService.syncEnvironments(environments);
 
             EnvironmentConfig environmentConfig = environmentConfigService.getEnvironmentConfig(environmentName);
             EnvironmentAgentsConfig environmentConfigAgents = environmentConfig.getAgents();
@@ -761,7 +755,7 @@ class EnvironmentConfigServiceTest {
             String uuid = "uuid";
             String environmentName = "foo-environment";
             EnvironmentsConfig environments = new EnvironmentsConfig();
-            environmentConfigService.syncEnvironmentsFromConfig(environments);
+            environmentConfigService.syncEnvironments(environments);
 
             assertThatCode(() -> environmentConfigService.getEnvironmentConfig(environmentName))
                     .isInstanceOf(RecordNotFoundException.class);
@@ -786,7 +780,7 @@ class EnvironmentConfigServiceTest {
         BasicEnvironmentConfig config = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
         config.addAgent(uuid);
         environments.add(config);
-        environmentConfigService.syncEnvironmentsFromConfig(environments);
+        environmentConfigService.syncEnvironments(environments);
 
         EnvironmentConfig environmentConfig = environmentConfigService.getEnvironmentConfig(environmentName);
         EnvironmentAgentsConfig environmentConfigAgents = environmentConfig.getAgents();
@@ -807,7 +801,7 @@ class EnvironmentConfigServiceTest {
         String environmentName = "foo-environment";
         EnvironmentsConfig environments = new EnvironmentsConfig();
         environments.add(new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName)));
-        environmentConfigService.syncEnvironmentsFromConfig(environments);
+        environmentConfigService.syncEnvironments(environments);
 
         EnvironmentConfig environmentConfig = environmentConfigService.getEnvironmentConfig(environmentName);
         assertThat(environmentConfig.getAgents().size(), is(0));
@@ -820,7 +814,7 @@ class EnvironmentConfigServiceTest {
         agentInstances.add(agentInstance);
 
         when(agentService.getAgentInstances()).thenReturn(agentInstances);
-        environmentConfigService.syncAssociatedAgentsFromDB();
+        environmentConfigService.syncEnvironments(environments);
 
         EnvironmentConfig afterUpdateEnvConfig = environmentConfigService.getEnvironmentConfig(environmentName);
         EnvironmentAgentsConfig afterUpdateEnvConfigAgents = afterUpdateEnvConfig.getAgents();
@@ -838,7 +832,7 @@ class EnvironmentConfigServiceTest {
         BasicEnvironmentConfig envConfig1 = new BasicEnvironmentConfig(new CaseInsensitiveString(envName1));
         envConfig1.addAgent(uuid);
         environments.add(envConfig1);
-        environmentConfigService.syncEnvironmentsFromConfig(environments);
+        environmentConfigService.syncEnvironments(environments);
 
         EnvironmentAgentsConfig envConfigAgents1 = environmentConfigService.getEnvironmentConfig(envName1).getAgents();
         assertThat(envConfigAgents1.size(), is(1));
@@ -851,7 +845,7 @@ class EnvironmentConfigServiceTest {
         agentInstances.add(agentInstance);
         when(agentService.getAgentInstances()).thenReturn(agentInstances);
 
-        environmentConfigService.syncAssociatedAgentsFromDB();
+        environmentConfigService.syncEnvironments(environments);
 
         EnvironmentAgentsConfig afterUpdateEnvConfigAgents = environmentConfigService.getEnvironmentConfig(envName).getAgents();
         assertThat(afterUpdateEnvConfigAgents.size(), is(1));
@@ -860,6 +854,25 @@ class EnvironmentConfigServiceTest {
         EnvironmentAgentsConfig afterUpdateEnvConfigAgents1 = environmentConfigService.getEnvironmentConfig(envName1).getAgents();
         assertThat(afterUpdateEnvConfigAgents1.size(), is(1));
 
+    }
+
+    @Test
+    void shouldNotUpdateTheCacheIfNullIsPassedForSync() {
+        EnvironmentsConfig environments = new EnvironmentsConfig();
+        environments.add(new BasicEnvironmentConfig(new CaseInsensitiveString("uat")));
+        environments.add(new BasicEnvironmentConfig(new CaseInsensitiveString("prod")));
+
+        environmentConfigService.syncEnvironments(environments);
+
+        assertThat(environmentConfigService.getEnvironments().size(), is(2));
+        assertThat(environmentConfigService.getEnvironmentNames(), containsInAnyOrder("uat", "prod"));
+
+        environmentConfigService.syncEnvironments(null);
+
+        // only 1 time (for the first sync call)
+        verify(agentService, times(1)).getAgentInstances();
+        assertThat(environmentConfigService.getEnvironments().size(), is(2));
+        assertThat(environmentConfigService.getEnvironmentNames(), containsInAnyOrder("uat", "prod"));
     }
 
     private List<JobPlan> jobs(String... envNames) {

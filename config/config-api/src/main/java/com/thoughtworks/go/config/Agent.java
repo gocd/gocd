@@ -26,8 +26,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
-import static com.thoughtworks.go.util.CommaSeparatedString.*;
 import static com.thoughtworks.go.util.CommaSeparatedString.remove;
+import static com.thoughtworks.go.util.CommaSeparatedString.*;
 import static com.thoughtworks.go.util.SystemUtil.isLocalhost;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
@@ -72,7 +72,7 @@ public class Agent extends PersistentObject {
         setElasticPluginId(anotherAgent.getElasticPluginId());
         setEnvironments(anotherAgent.getEnvironments());
 
-        this.resources = anotherAgent.getResources();
+        setResources(anotherAgent.getResources());
 
         setId(anotherAgent.getId());
         setDeleted(anotherAgent.isDeleted());
@@ -124,7 +124,7 @@ public class Agent extends PersistentObject {
         validateResources();
     }
 
-    public boolean cookieAssigned(){
+    public boolean cookieAssigned() {
         return cookie != null;
     }
 

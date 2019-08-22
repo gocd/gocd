@@ -280,14 +280,6 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         return registration;
     }
 
-    public void updateAgentApprovalStatus(final String uuid, final Boolean isDenied) {
-        Agent agent = agentInstances.findRegisteredAgentOrNull(uuid);
-        bombIfNull(agent, "Unable to update agent approval status; Agent [" + uuid + "] not found.");
-
-        agent.setDisabled(isDenied);
-        saveOrUpdate(agent);
-    }
-
     @Deprecated
     public void approve(String uuid) {
         AgentInstance agentInstance = findAgentAndRefreshStatus(uuid);
@@ -477,7 +469,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
 
     private Agent getAgentForUpdate(AgentInstance agentInstance) {
         if (agentInstance.isPending()) {
-            Agent agent = agentInstance.getAgent();
+            Agent agent = new Agent(agentInstance.getAgent());
             generateAndAddCookie(agent);
             return agent;
         }

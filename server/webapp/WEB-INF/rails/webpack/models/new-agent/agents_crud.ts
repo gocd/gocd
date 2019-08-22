@@ -83,15 +83,18 @@ export class AgentsCRUD {
   }
 }
 
-export class EnvCRUD {
-  static all() {
+export interface GetAllService {
+  all(): Promise<ApiResult<string>>
+}
+
+export class EnvironmentsService implements GetAllService {
+  all(): Promise<ApiResult<string>> {
     return ApiRequestBuilder.GET(SparkRoutes.apiAdminInternalEnvironmentsPath(), ApiVersion.v1);
   }
 }
 
-
-export class ResourcesCRUD {
-  static all() {
+export class ResourcesService implements GetAllService {
+  all(): Promise<ApiResult<string>> {
     return ApiRequestBuilder.GET(SparkRoutes.apiAdminInternalResourcesPath(), ApiVersion.v1);
   }
 }

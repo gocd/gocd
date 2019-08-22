@@ -17,8 +17,10 @@
 import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import {AgentConfigState, Agents} from "models/new-agent/agents";
+import {EnvironmentsService, ResourcesService} from "models/new-agent/agents_crud";
 import {ButtonGroup} from "views/components/buttons";
 import * as Buttons from "views/components/buttons";
+import {FlashMessageModelWithTimeout} from "views/components/flash_message";
 import {SearchField} from "views/components/forms/input_fields";
 import {KeyValuePair} from "views/components/key_value_pair";
 import {EnvironmentsDropdownButton, ResourcesDropdownButton} from "./environments_and_resources_dropdown_button";
@@ -32,6 +34,7 @@ interface AgentHeaderPanelAttrs {
   onEnable: (e: MouseEvent) => void;
   onDisable: (e: MouseEvent) => void;
   onDelete: (e: MouseEvent) => void;
+  flashMessage: FlashMessageModelWithTimeout;
   updateEnvironments: (environmentsToAdd: string[], environmentsToRemove: string[]) => Promise<any>;
   updateResources: (resourcesToAdd: string[], resourcesToRemove: string[]) => Promise<any>;
 }
@@ -52,11 +55,15 @@ export class AgentHeaderPanel extends MithrilViewComponent<AgentHeaderPanelAttrs
                            disabled={agents.isNoneSelected()}
                            onclick={vnode.attrs.onDisable}>DISABLE</Buttons.Primary>
           <EnvironmentsDropdownButton show={vnode.attrs.agents.showEnvironments}
+                                      agents={agents}
                                       updateEnvironments={vnode.attrs.updateEnvironments}
-                                      agents={agents}/>
+                                      flashMessage={vnode.attrs.flashMessage}
+                                      service={new EnvironmentsService()}/>
           <ResourcesDropdownButton show={vnode.attrs.agents.showResources}
+                                   agents={agents}
                                    updateResources={vnode.attrs.updateResources}
-                                   agents={agents}/>
+                                   flashMessage={vnode.attrs.flashMessage}
+                                   service={new ResourcesService()}/>
         </ButtonGroup>
 
         <KeyValuePair inline={true} data={new Map(

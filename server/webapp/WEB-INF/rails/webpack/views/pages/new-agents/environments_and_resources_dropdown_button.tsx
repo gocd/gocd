@@ -16,17 +16,23 @@
 
 import {ApiResult, ErrorResponse, SuccessResponse} from "helpers/api_request_builder";
 import {Agent, Agents} from "models/new-agent/agents";
-import {EnvCRUD, ResourcesCRUD} from "models/new-agent/agents_crud";
+import {GetAllService} from "models/new-agent/agents_crud";
 import {TriStateCheckbox, TristateState} from "models/tri_state_checkbox";
 import {Dropdown, DropdownAttrs, Primary} from "views/components/buttons";
 import * as Buttons from "views/components/buttons";
 import m from "mithril";
 import Stream from "mithril/stream";
+import {FlashMessageModelWithTimeout, MessageType} from "views/components/flash_message";
 import {TriStateCheckboxField} from "views/components/forms/input_fields";
 import {Spinner} from "views/components/spinner";
 import Style from "./index.scss";
 
-abstract class AbstractDropdownButton<V = {}> extends Dropdown<V> {
+interface Attrs {
+  service: GetAllService;
+  flashMessage: FlashMessageModelWithTimeout;
+}
+
+abstract class AbstractDropdownButton<V extends Attrs> extends Dropdown<V> {
   protected readonly data: Stream<string[]>                             = Stream();
   protected readonly operationInProgress: Stream<boolean>               = Stream();
   protected readonly triStateCheckboxMap: Map<string, TriStateCheckbox> = new Map<string, TriStateCheckbox>();
@@ -35,13 +41,11 @@ abstract class AbstractDropdownButton<V = {}> extends Dropdown<V> {
     super.toggleDropdown(vnode, e);
     if (vnode.attrs.show()) {
       this.operationInProgress(true);
-      this.fetchPromise()
-          .then((result: ApiResult<string>) => this.onResult(result))
-          .finally(this.buildTriStateCheckBox.bind(this, vnode));
+      vnode.attrs.service.all()
+           .then((result: ApiResult<string>) => this.onResult(result, vnode))
+           .finally(this.buildTriStateCheckBox.bind(this, vnode));
     }
   }
-
-  protected abstract fetchPromise(): Promise<any>;
 
   protected abstract updatePromise(vnode: m.Vnode<DropdownAttrs & V>): Promise<any>;
 
@@ -66,18 +70,17 @@ abstract class AbstractDropdownButton<V = {}> extends Dropdown<V> {
     this.updatePromise(vnode).finally(() => vnode.attrs.show(false));
   }
 
-  private onResult(result: ApiResult<string>) {
+  private onResult(result: ApiResult<string>, vnode: m.Vnode<DropdownAttrs & V>) {
     this.operationInProgress(false);
-    result.do(this.onSuccess.bind(this), this.onFailure.bind(this));
+    result.do(this.onSuccess.bind(this), (errorResponse) => this.onFailure(errorResponse, vnode));
   }
 
   private onSuccess(successResponse: SuccessResponse<string>) {
     this.data(JSON.parse(successResponse.body));
   }
 
-  //TODO: Update the message
-  private onFailure(errorResponse: ErrorResponse) {
-    console.log(errorResponse.message);
+  private onFailure(errorResponse: ErrorResponse, vnode: m.Vnode<DropdownAttrs & V>) {
+    vnode.attrs.flashMessage.setMessage(MessageType.alert, errorResponse.message);
   }
 
   protected getKeysOfSelectedCheckBoxes() {
@@ -119,16 +122,12 @@ abstract class AbstractDropdownButton<V = {}> extends Dropdown<V> {
   protected abstract hasAssociationWith(agent: Agent, item: string): boolean;
 }
 
-interface EnvAttrs {
+interface EnvAttrs extends Attrs {
   agents: Agents;
   updateEnvironments: (environmentsToAdd: string[], environmentsToRemove: string[]) => Promise<any>;
 }
 
 export class EnvironmentsDropdownButton extends AbstractDropdownButton<EnvAttrs> {
-  protected fetchPromise() {
-    return EnvCRUD.all();
-  }
-
   protected updatePromise(vnode: m.Vnode<DropdownAttrs & EnvAttrs>) {
     return vnode.attrs.updateEnvironments(this.getKeysOfSelectedCheckBoxes(), this.getKeysOfUnselectedCheckBoxes());
   }
@@ -157,16 +156,12 @@ export class EnvironmentsDropdownButton extends AbstractDropdownButton<EnvAttrs>
   }
 }
 
-interface ResourcesAttrs {
+interface ResourcesAttrs extends Attrs {
   agents: Agents;
   updateResources: (resourcesToAdd: string[], resourcesToRemove: string[]) => Promise<any>;
 }
 
 export class ResourcesDropdownButton extends AbstractDropdownButton<ResourcesAttrs> {
-  protected fetchPromise() {
-    return ResourcesCRUD.all();
-  }
-
   protected updatePromise(vnode: m.Vnode<DropdownAttrs & ResourcesAttrs>) {
     return vnode.attrs.updateResources(this.getKeysOfSelectedCheckBoxes(), this.getKeysOfUnselectedCheckBoxes());
   }

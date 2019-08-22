@@ -16,6 +16,7 @@
 
 import {Agent, Agents} from "models/new-agent/agents";
 import {AgentsTestData} from "models/new-agent/spec/agents_test_data";
+import {FlashMessageModelWithTimeout} from "views/components/flash_message";
 import {AgentHeaderPanel} from "views/pages/new-agents/agent_header_panel";
 import {TestHelper} from "views/pages/spec/test_helper";
 import Style from "../index.scss";
@@ -27,7 +28,8 @@ describe("AgentHeaderPanel", () => {
         onDisable          = jasmine.createSpy("onDisable"),
         onDelete           = jasmine.createSpy("onDelete"),
         updateEnvironments = jasmine.createSpy("updateEnvironments"),
-        updateResources    = jasmine.createSpy("updateResources");
+        updateResources    = jasmine.createSpy("updateResources"),
+        flashMessage       = new FlashMessageModelWithTimeout();
 
   afterEach(helper.unmount.bind(helper));
 
@@ -108,7 +110,7 @@ describe("AgentHeaderPanel", () => {
       const agents = new Agents([agentA]);
       mount(agents);
 
-      helper.clickByTestId("delete-agents");
+      helper.clickByDataTestId("delete-agents");
 
       expect(onDelete).toHaveBeenCalled();
     });
@@ -119,7 +121,7 @@ describe("AgentHeaderPanel", () => {
       const agents = new Agents([agentA]);
       mount(agents);
 
-      helper.clickByTestId("enable-agents");
+      helper.clickByDataTestId("enable-agents");
 
       expect(onEnable).toHaveBeenCalled();
     });
@@ -130,7 +132,7 @@ describe("AgentHeaderPanel", () => {
       const agents = new Agents([agentA]);
       mount(agents);
 
-      helper.clickByTestId("disable-agents");
+      helper.clickByDataTestId("disable-agents");
 
       expect(onDisable).toHaveBeenCalled();
     });
@@ -142,6 +144,7 @@ describe("AgentHeaderPanel", () => {
                                          onDelete={onDelete}
                                          onEnable={onEnable}
                                          onDisable={onDisable}
+                                         flashMessage={flashMessage}
                                          updateEnvironments={updateEnvironments}
                                          updateResources={updateResources}/>);
   }

@@ -154,6 +154,18 @@ export class QuestionCircle extends Icon {
   }
 }
 
+export class CaretDown extends Icon {
+  constructor() {
+    super(styles.caretDown, "Caret Down");
+  }
+}
+
+export class Forward extends Icon {
+  constructor() {
+    super(styles.forward, "Forward");
+  }
+}
+
 export class IconGroup extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     return (

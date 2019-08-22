@@ -123,6 +123,14 @@ $btn-group-border-radius: $global-border-radius;
   @include icon-before($type: $fa-var-question-circle);
 }
 
+.caret-down {
+  @include icon-before($type: $fa-var-caret-down);
+}
+
+.forward {
+  @include icon-before($type: $fa-var-forward);
+}
+
 .icon-group {
   border:        1px solid $border-color;
   border-radius: $btn-group-border-radius;

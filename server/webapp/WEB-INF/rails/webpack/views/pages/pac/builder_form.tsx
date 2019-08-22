@@ -16,6 +16,7 @@
 
 // utils
 import {override} from "helpers/css_proxies";
+import {sha256} from "helpers/digest";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
@@ -79,12 +80,12 @@ export class BuilderForm extends MithrilComponent<Attrs> {
         <PipelineInfoEditor pipelineConfig={pipeline} isUsingTemplate={isUsingTemplate}/>
       </UserInputPane>
 
-      <PipelineStructure {...vnode.attrs}/>
+      <PipelineBodyEditor {...vnode.attrs}/>
     </div>;
   }
 }
 
-class PipelineStructure extends MithrilComponent<Attrs> {
+class PipelineBodyEditor extends MithrilComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     const { stage, job } = vnode.attrs.vm;
 
@@ -102,29 +103,4 @@ class PipelineStructure extends MithrilComponent<Attrs> {
       </UserInputPane>
     ]);
   }
-}
-
-/** produces a Promise<string>, resolving a sha-256 hex digest of specified string content */
-function sha256(subj: string): Promise<string> {
-  return new Promise<string>((res, rej) => {
-    crypto.subtle.digest("SHA-256", encode(subj)).then((buf) => {
-      const ba = new Uint8Array(buf);
-      const hexes = new Array(ba.length);
-
-      for (let i = ba.length - 1; i >= 0; i--) {
-        hexes[i] = ba[i].toString(16).padStart(2, "0");
-      }
-
-      res(hexes.join(""));
-    }, (err) => rej(err));
-  });
-}
-
-function encode(subj: string): Uint8Array {
-  if ("function" === typeof TextEncoder) {
-    return new TextEncoder().encode(subj);
-  }
-
-  // Pre-Chromium MS Edge browsers do not support TextEncoder
-  return Uint8Array.from(subj.split("").map((s) => s.charCodeAt(0)));
 }

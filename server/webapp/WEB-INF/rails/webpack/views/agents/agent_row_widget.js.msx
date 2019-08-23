@@ -77,7 +77,7 @@ export const AgentRowWidget = {
         if (p.extensions().analytics) {
           const agentAnalytics = p.extensions().analytics.capabilities().supportedAgentAnalytics();
           if (agentAnalytics.length > 0) {
-            agentAnalyticsPlugins[p.id] = agentAnalytics;
+            agentAnalyticsPlugins[p.id()] = agentAnalytics;
           }
         }
       });

@@ -17,10 +17,7 @@ package com.thoughtworks.go.server.service;
 
 import com.google.common.collect.Streams;
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.exceptions.BadRequestException;
-import com.thoughtworks.go.config.exceptions.EntityType;
-import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
-import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+import com.thoughtworks.go.config.exceptions.*;
 import com.thoughtworks.go.config.update.AgentUpdateValidator;
 import com.thoughtworks.go.config.update.AgentsUpdateValidator;
 import com.thoughtworks.go.domain.*;
@@ -33,9 +30,7 @@ import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.messaging.notifications.AgentStatusChangeNotifier;
 import com.thoughtworks.go.server.persistence.AgentDao;
-import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import com.thoughtworks.go.server.service.result.OperationResult;
 import com.thoughtworks.go.server.ui.AgentViewModel;
 import com.thoughtworks.go.server.ui.AgentsViewModel;
 import com.thoughtworks.go.server.util.UuidGenerator;
@@ -219,16 +214,9 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         }
     }
 
-    public void deleteAgents(List<String> uuids, HttpOperationResult result) {
-        try {
-            if (validateThatAllAgentsExistAndCanBeDeleted(uuids, result)) {
-                agentDao.bulkSoftDelete(uuids);
-                result.ok(format("Deleted %s agent(s).", uuids == null ? 0 : uuids.size()));
-            }
-        } catch (Exception e) {
-            String errMsg = "Deleting agents failed.";
-            LOGGER.error(errMsg, e);
-            result.internalServerError(errMsg + e.getMessage(), general(GLOBAL));
+    public void deleteAgents(List<String> uuids) {
+        if (validateThatAllAgentsExistAndCanBeDeleted(uuids)) {
+            agentDao.bulkSoftDelete(uuids);
         }
     }
 
@@ -607,32 +595,30 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         agent.removeResources(resourcesToRemove);
     }
 
-    private boolean validateThatAllAgentsExistAndCanBeDeleted(List<String> uuids, OperationResult result) {
+    private boolean validateThatAllAgentsExistAndCanBeDeleted(List<String> uuids) {
         if (isEmpty(uuids)) {
             return true;
         }
-        return uuids.stream().allMatch(uuid -> validateThatAgentExistAndCanBeDeleted(uuid, uuids.size(), result));
+        return uuids.stream().allMatch(uuid -> validateThatAgentExistAndCanBeDeleted(uuid, uuids.size()));
     }
 
-    private boolean validateThatAgentExists(AgentInstance agentInstance, OperationResult result) {
+    private boolean validateThatAgentExists(AgentInstance agentInstance) {
         if (agentInstance.isNullAgent()) {
-            result.notFound("Not Found", format("Agent '%s' not found", agentInstance.getUuid()), general(GLOBAL));
-            return false;
+            throw new RecordNotFoundException(EntityType.Agent, agentInstance.getUuid());
         }
         return true;
     }
 
-    private boolean validateThatAgentExistAndCanBeDeleted(String uuid, int totalAgentsToValidate, OperationResult result) {
+    private boolean validateThatAgentExistAndCanBeDeleted(String uuid, int totalAgentsToValidate) {
         AgentInstance agentInstance = findAgentAndRefreshStatus(uuid);
-        return validateThatAgentExists(agentInstance, result) && validateThatAgentCanBeDeleted(agentInstance, totalAgentsToValidate, result);
+        return validateThatAgentExists(agentInstance) && validateThatAgentCanBeDeleted(agentInstance, totalAgentsToValidate);
     }
 
-    private boolean validateThatAgentCanBeDeleted(AgentInstance agentInstance, int totalAgentToValidate, OperationResult result) {
-        if (agentInstance.canBeDeleted()) {
-            return true;
+    private boolean validateThatAgentCanBeDeleted(AgentInstance agentInstance, int totalAgentToValidate) {
+        if (!agentInstance.canBeDeleted()) {
+            throw new UnprocessableEntityException(getFailedToDeleteMessage(totalAgentToValidate));
         }
-        result.notAcceptable(getFailedToDeleteMessage(totalAgentToValidate), general(GLOBAL));
-        return false;
+        return true;
     }
 
     private AgentsViewModel toAgentViewModels(AgentInstances agentInstances) {

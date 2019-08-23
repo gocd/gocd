@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.BadRequestException;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
@@ -727,12 +728,8 @@ class AgentServiceTest {
                 AgentService agentService = new AgentService(new SystemEnvironment(), agentInstances,
                         agentDao, uuidGenerator, serverHealthService = mock(ServerHealthService.class), null);
 
-                HttpOperationResult result = new HttpOperationResult();
-                agentService.deleteAgents(singletonList(uuid), result);
-
-                assertThat(result.httpCode(), is(404));
-                assertThat(result.message(), is("Not Found"));
-                assertThat(result.getServerHealthState().getDescription(), is(format("Agent '%s' not found", uuid)));
+                RecordNotFoundException e = assertThrows(RecordNotFoundException.class, () -> agentService.deleteAgents(singletonList(uuid)));
+                assertThat(e.getMessage(), is("Agent with uuid '1234' was not found!"));
             }
 
             @Test
@@ -752,11 +749,8 @@ class AgentServiceTest {
                 AgentService agentService = new AgentService(new SystemEnvironment(), agentInstances,
                         agentDao, uuidGenerator, serverHealthService = mock(ServerHealthService.class), null);
 
-                HttpOperationResult result = new HttpOperationResult();
-                agentService.deleteAgents(singletonList(uuid), result);
-
-                assertThat(result.httpCode(), is(406));
-                assertThat(result.message(), is("Failed to delete an agent, as it is not in a disabled state or is still building."));
+                UnprocessableEntityException e = assertThrows(UnprocessableEntityException.class, () -> agentService.deleteAgents(singletonList(uuid)));
+                assertThat(e.getMessage(), is("Failed to delete an agent, as it is not in a disabled state or is still building."));
             }
 
             @Test
@@ -785,11 +779,8 @@ class AgentServiceTest {
                 AgentService agentService = new AgentService(new SystemEnvironment(), agentInstances,
                         agentDao, uuidGenerator, serverHealthService = mock(ServerHealthService.class), null);
 
-                HttpOperationResult result = new HttpOperationResult();
-                agentService.deleteAgents(asList(uuid1, uuid2), result);
-
-                assertThat(result.httpCode(), is(406));
-                assertThat(result.message(), is("Could not delete any agents, as one or more agents might not be disabled or are still building."));
+                UnprocessableEntityException e = assertThrows(UnprocessableEntityException.class, () -> agentService.deleteAgents(asList(uuid1, uuid2)));
+                assertThat(e.getMessage(), is("Could not delete any agents, as one or more agents might not be disabled or are still building."));
             }
         }
 
@@ -814,11 +805,7 @@ class AgentServiceTest {
                 AgentService agentService = new AgentService(new SystemEnvironment(), agentInstances,
                         agentDao, uuidGenerator, serverHealthService = mock(ServerHealthService.class), null);
 
-                HttpOperationResult result = new HttpOperationResult();
-                agentService.deleteAgents(singletonList(uuid), result);
-
-                assertThat(result.httpCode(), is(200));
-                assertThat(result.message(), is("Deleted 1 agent(s)."));
+                assertDoesNotThrow(() -> agentService.deleteAgents(singletonList(uuid)));
                 verify(agentDao).bulkSoftDelete(singletonList(uuid));
             }
 
@@ -828,18 +815,14 @@ class AgentServiceTest {
 
                 when(securityService.hasOperatePermissionForAgents(username)).thenReturn(true);
 
-                AgentService agentService = new AgentService(new SystemEnvironment(), agentInstances,
-                        agentDao, uuidGenerator, serverHealthService = mock(ServerHealthService.class), null);
+                serverHealthService = mock(ServerHealthService.class);
+                AgentService agentService = new AgentService(new SystemEnvironment(), agentInstances, agentDao, uuidGenerator, serverHealthService, null);
 
-                HttpOperationResult result = new HttpOperationResult();
-                agentService.deleteAgents(null, result);
-
-                assertThat(result.httpCode(), is(200));
-                assertThat(result.message(), is("Deleted 0 agent(s)."));
+                assertDoesNotThrow(() -> agentService.deleteAgents(null));
             }
 
             @Test
-            void shouldReturn200WhenDeleteAgentsIsCalledMultipleDisabledAgents() {
+            void shouldReturn200WhenDeleteAgentsIsCalledWithMultipleDisabledAgents() {
                 String uuid1 = "1234";
                 String uuid2 = "4321";
                 Username username = new Username(new CaseInsensitiveString("test"));
@@ -861,14 +844,10 @@ class AgentServiceTest {
 
                 when(mockAgent.isNull()).thenReturn(false);
 
-                AgentService agentService = new AgentService(new SystemEnvironment(), agentInstances,
-                        agentDao, uuidGenerator, serverHealthService = mock(ServerHealthService.class), null);
+                serverHealthService = mock(ServerHealthService.class);
+                AgentService agentService = new AgentService(new SystemEnvironment(), agentInstances, agentDao, uuidGenerator, serverHealthService, null);
 
-                HttpOperationResult result = new HttpOperationResult();
-                agentService.deleteAgents(asList(uuid1, uuid2), result);
-
-                assertThat(result.httpCode(), is(200));
-                assertThat(result.message(), is("Deleted 2 agent(s)."));
+                assertDoesNotThrow(() -> agentService.deleteAgents(asList(uuid1, uuid2)));
             }
         }
     }

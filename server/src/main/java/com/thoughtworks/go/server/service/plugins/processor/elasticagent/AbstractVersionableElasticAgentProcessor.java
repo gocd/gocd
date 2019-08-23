@@ -21,12 +21,10 @@ import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.ElasticAgentPluginService;
-import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
@@ -76,7 +74,7 @@ public abstract class AbstractVersionableElasticAgentProcessor implements Versio
         }
 
         LOGGER.debug("Deleting agents from plugin {} {}", pluginId, agentInstances);
-        agentService.deleteAgents(agentInstances.stream().map(agentInstance -> agentInstance.getUuid()).collect(toList()), new HttpOperationResult());
+        agentService.deleteAgents(agentInstances.stream().map(agentInstance -> agentInstance.getUuid()).collect(toList()));
         LOGGER.debug("Done deleting agents from plugin {} {}", pluginId, agentInstances);
     }
 

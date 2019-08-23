@@ -18,6 +18,8 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.BadRequestException;
 import com.thoughtworks.go.config.exceptions.EntityType;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
@@ -75,6 +77,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
@@ -155,17 +158,10 @@ public class AgentServiceIntegrationTest {
             createEnabledAgent(UUID2);
 
             assertThat(agentService.getAgentInstances().size(), is(2));
+            assertDoesNotThrow(() -> agentService.deleteAgents(singletonList(UUID)));
 
-            HttpOperationResult result = new HttpOperationResult();
-
-            agentService.deleteAgents(singletonList(UUID), result);
-            assertThat(result.httpCode(), is(200));
-            assertThat(result.message(), is("Deleted 1 agent(s)."));
-
-            result = new HttpOperationResult();
-            agentService.deleteAgents(singletonList(UUID2), result);
-            assertThat(result.httpCode(), is(406));
-            assertThat(result.message(), is("Failed to delete an agent, as it is not in a disabled state or is still building."));
+            UnprocessableEntityException e = assertThrows(UnprocessableEntityException.class, () -> agentService.deleteAgents(singletonList(UUID2)));
+            assertThat(e.getMessage(), is("Failed to delete an agent, as it is not in a disabled state or is still building."));
 
             assertThat(agentService.getAgentInstances().size(), is(1));
             assertTrue(agentService.getAgentInstances().hasAgent(UUID2));
@@ -179,18 +175,12 @@ public class AgentServiceIntegrationTest {
 
             assertThat(agentService.getAgentInstances().size(), is(3));
 
-            HttpOperationResult result = new HttpOperationResult();
-            agentService.deleteAgents(asList(UUID, UUID2, UUID3), result);
-
-            assertThat(result.httpCode(), is(406));
-            assertThat(result.message(), is("Could not delete any agents, as one or more agents might not be disabled or are still building."));
+            UnprocessableEntityException e = assertThrows(UnprocessableEntityException.class, () -> agentService.deleteAgents(asList(UUID, UUID2, UUID3)));
+            assertThat(e.getMessage(), is("Could not delete any agents, as one or more agents might not be disabled or are still building."));
 
             assertThat(agentService.getAgentInstances().size(), is(3));
 
-            agentService.deleteAgents(asList(UUID, UUID2), result);
-
-            assertThat(result.httpCode(), is(200));
-            assertThat(result.message(), is("Deleted 2 agent(s)."));
+            agentService.deleteAgents(asList(UUID, UUID2));
 
             assertThat(agentService.getAgentInstances().size(), is(1));
         }
@@ -201,11 +191,8 @@ public class AgentServiceIntegrationTest {
 
             assertThat(agentService.getAgentInstances().size(), is(1));
 
-            HttpOperationResult result = new HttpOperationResult();
-            agentService.deleteAgents(asList(UUID), result);
-
-            assertThat(result.httpCode(), is(406));
-            assertThat(result.message(), is("Failed to delete an agent, as it is not in a disabled state or is still building."));
+            UnprocessableEntityException e = assertThrows(UnprocessableEntityException.class, () -> agentService.deleteAgents(asList(UUID)));
+            assertThat(e.getMessage(), is("Failed to delete an agent, as it is not in a disabled state or is still building."));
 
             assertThat(agentService.getAgentInstances().size(), is(1));
             assertTrue(agentService.getAgentInstances().hasAgent(UUID));
@@ -232,23 +219,16 @@ public class AgentServiceIntegrationTest {
 
             assertThat(agentService.getAgentInstances().size(), is(2));
 
-            HttpOperationResult result = new HttpOperationResult();
-            agentService.deleteAgents(singletonList(UUID), result);
-
-            assertThat(result.httpCode(), is(200));
-            assertThat(result.message(), is("Deleted 1 agent(s)."));
+            assertDoesNotThrow(() -> agentService.deleteAgents(singletonList(UUID)));
 
             assertThat(agentService.getAgentInstances().size(), is(1));
         }
 
         @Test
         void shouldReturn404WhenDeleteAgentsIsCalledWithUnknownAgentUUID() {
-            HttpOperationResult result = new HttpOperationResult();
             String unknownUUID = "unknown-agent-id";
-            agentService.deleteAgents(singletonList(unknownUUID), result);
-            assertThat(result.httpCode(), is(404));
-            assertThat(result.message(), is("Not Found"));
-            assertThat(result.getServerHealthState().getDescription(), is(format("Agent '%s' not found", unknownUUID)));
+            RecordNotFoundException e = assertThrows(RecordNotFoundException.class, () -> agentService.deleteAgents(singletonList(unknownUUID)));
+            assertThat(e.getMessage(), is("Agent with uuid 'unknown-agent-id' was not found!"));
         }
     }
 
@@ -573,12 +553,8 @@ public class AgentServiceIntegrationTest {
         @Test
         void shouldReturn404WhenAgentToBeDeletedDoesNotExist() {
             String unknownUUID = "unknown-agent-id";
-            HttpOperationResult result = new HttpOperationResult();
-
-            agentService.deleteAgents(singletonList(unknownUUID), result);
-            assertThat(result.httpCode(), is(404));
-            assertThat(result.message(), is("Not Found"));
-            assertThat(result.getServerHealthState().getDescription(), is(format("Agent '%s' not found", unknownUUID)));
+            RecordNotFoundException e = assertThrows(RecordNotFoundException.class, () -> agentService.deleteAgents(singletonList(unknownUUID)));
+            assertThat(e.getMessage(), is("Agent with uuid 'unknown-agent-id' was not found!"));
         }
 
         @Test

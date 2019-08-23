@@ -24,7 +24,6 @@ import com.thoughtworks.go.plugin.api.response.GoApiResponse;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
 import com.thoughtworks.go.server.service.AgentService;
-import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -107,7 +106,7 @@ public class ElasticAgentRequestProcessorV1Test {
         processor.process(pluginDescriptor, request);
 
         verify(agentService, times(1)).findElasticAgent("foo", "cd.go.example.plugin");
-        verify(agentService, times(1)).deleteAgents(eq(singletonList(agentInstance.getUuid())), any(HttpOperationResult.class));
+        verify(agentService, times(1)).deleteAgents(eq(singletonList(agentInstance.getUuid())));
     }
 
     @Test

@@ -47,6 +47,8 @@ import com.thoughtworks.go.spark.spring.SparkSpringController;
 import com.thoughtworks.go.util.TriState;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import spark.Request;
@@ -71,6 +73,8 @@ import static spark.Spark.*;
 @SuppressWarnings("ALL")
 @Component
 public class AgentsControllerV6 extends ApiController implements SparkSpringController, CrudController<AgentInstance> {
+    private static final Logger LOG = LoggerFactory.getLogger(AgentsControllerV6.class);
+
     private final AgentService agentService;
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final SecurityService securityService;
@@ -138,7 +142,7 @@ public class AgentsControllerV6 extends ApiController implements SparkSpringCont
             handleUpdateAgentResponse(updatedAgentInstance, result);
         } catch (HttpException e) {
             throw e;
-        } catch (Exception e){
+        } catch (Exception e) {
             throw halt(HttpStatus.SC_INTERNAL_SERVER_ERROR, MessageJson.create(e.getMessage()));
         }
 
@@ -146,9 +150,9 @@ public class AgentsControllerV6 extends ApiController implements SparkSpringCont
     }
 
     private void handleUpdateAgentResponse(AgentInstance updatedAgentInstance, HttpOperationResult result) {
-        if(updatedAgentInstance != null){
+        if (updatedAgentInstance != null) {
             Agent agent = updatedAgentInstance.getAgent();
-            if(agent.hasErrors()){
+            if (agent.hasErrors()) {
                 result.unprocessibleEntity("Updating agent failed.", "", general(GLOBAL));
             } else {
                 result.ok(format("Updated agent with uuid %s.", agent.getUuid()));
@@ -198,19 +202,14 @@ public class AgentsControllerV6 extends ApiController implements SparkSpringCont
     }
 
     public String deleteAgent(Request request, Response response) throws IOException {
-        final HttpOperationResult result = new HttpOperationResult();
-        agentService.deleteAgents(singletonList(request.params("uuid")), result);
-        return renderHTTPOperationResult(result, request, response);
+        List<String> uuids = singletonList(request.params("uuid"));
+        return deleteAgents(request, response, uuids);
     }
 
     public String bulkDeleteAgents(Request request, Response response) throws IOException {
         final JsonReader reader = GsonTransformer.getInstance().jsonReaderFrom(request.body());
         final List<String> uuids = toList(reader.optJsonArray("uuids").orElse(new JsonArray()));
-
-        final HttpOperationResult result = new HttpOperationResult();
-        agentService.deleteAgents(uuids, result);
-
-        return renderHTTPOperationResult(result, request, response);
+        return deleteAgents(request, response, uuids);
     }
 
     @Override
@@ -265,6 +264,21 @@ public class AgentsControllerV6 extends ApiController implements SparkSpringCont
             response.status(result.httpCode());
             String errorMessage = result.message();
             return agentInstance == null ? MessageJson.create(errorMessage) : MessageJson.create(errorMessage, jsonWriter(agentInstance));
+        }
+    }
+
+    private String deleteAgents(Request request, Response response, List<String> uuids){
+        try {
+            agentService.deleteAgents(uuids);
+            final HttpOperationResult result = new HttpOperationResult();
+            result.ok(format("Deleted %s agent(s).", uuids == null ? 0 : uuids.size()));
+            return renderHTTPOperationResult(result, request, response);
+        } catch (HttpException e) {
+            throw e;
+        } catch (Exception e) {
+            String msg = "Shoot! This is unexpected. Something went wrong while deleting agent(s)! More details : ";
+            LOG.error(msg, e);
+            throw halt(HttpStatus.SC_INTERNAL_SERVER_ERROR, MessageJson.create(msg + e.getMessage()));
         }
     }
 }

@@ -23,9 +23,9 @@ import com.thoughtworks.go.config.EnvironmentsConfig
 import com.thoughtworks.go.config.exceptions.BadRequestException
 import com.thoughtworks.go.config.exceptions.EntityType
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException
+import com.thoughtworks.go.config.exceptions.UnprocessableEntityException
 import com.thoughtworks.go.domain.AgentInstance
 import com.thoughtworks.go.domain.NullAgentInstance
-import com.thoughtworks.go.helper.AgentInstanceMother
 import com.thoughtworks.go.server.domain.AgentInstances
 import com.thoughtworks.go.server.service.AgentService
 import com.thoughtworks.go.server.service.EnvironmentConfigService
@@ -47,11 +47,7 @@ import java.util.stream.Stream
 
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.helper.AgentInstanceMother.*
-import static com.thoughtworks.go.helper.AgentInstanceMother.agentWithConfigErrors
 import static com.thoughtworks.go.helper.EnvironmentConfigMother.environment
-import static com.thoughtworks.go.serverhealth.HealthStateScope.GLOBAL
-import static com.thoughtworks.go.serverhealth.HealthStateType.general
-import static java.lang.String.format
 import static java.util.Arrays.asList
 import static java.util.Collections.*
 import static java.util.stream.Collectors.toSet
@@ -1114,12 +1110,8 @@ class AgentsControllerV6Test implements SecurityServiceTrait, ControllerTrait<Ag
             loginAsAdmin()
 
             def uuid = "uuid"
-
             when(agentService.findAgent(uuid)).thenReturn(idle())
-            doAnswer({ InvocationOnMock invocation ->
-                def result = invocation.getArgument(1) as HttpOperationResult
-                result.ok("Deleted 1 agent(s).")
-            }).when(agentService).deleteAgents(eq(asList(uuid)), any() as HttpOperationResult)
+            doNothing().when(agentService).deleteAgents(eq(asList(uuid)))
 
             deleteWithApiHeader(controller.controllerPath(uuid))
 
@@ -1136,36 +1128,32 @@ class AgentsControllerV6Test implements SecurityServiceTrait, ControllerTrait<Ag
             def nonExistingUUID = "non-existing-uuid"
 
             when(agentService.findAgent(nonExistingUUID)).thenReturn(new NullAgentInstance(nonExistingUUID))
-
             doAnswer({ InvocationOnMock invocation ->
-                def result = invocation.getArgument(1) as HttpOperationResult
-                result.notFound("Not Found", format("Agent '%s' not found", nonExistingUUID), general(GLOBAL))
-            }).when(agentService).deleteAgents(eq(singletonList(nonExistingUUID)), any() as HttpOperationResult)
+                throw new RecordNotFoundException(EntityType.Agent, nonExistingUUID)
+            }).when(agentService).deleteAgents(eq(singletonList(nonExistingUUID)))
 
             deleteWithApiHeader(controller.controllerPath(nonExistingUUID))
 
             assertThatResponse()
                     .isNotFound()
                     .hasContentType(controller.mimeType)
-                    .hasJsonMessage("Not Found { Agent 'non-existing-uuid' not found }")
+                    .hasJsonMessage("Agent with uuid 'non-existing-uuid' was not found!")
         }
 
         @Test
-        void 'should throw 422 in case of any errors'() {
+        void 'should throw 422 in case of agent(s) can not be deleted'() {
             loginAsAdmin()
 
             doAnswer({ InvocationOnMock invocation ->
-                def result = invocation.getArgument(1) as HttpOperationResult
-                def message = "Failed to delete agent."
-                result.unprocessibleEntity(message, "Some description", null)
-            }).when(agentService).deleteAgents(eq(asList("uuid2")), any() as HttpOperationResult)
+                throw new UnprocessableEntityException("Some message")
+            }).when(agentService).deleteAgents(eq(asList("uuid2")))
 
             deleteWithApiHeader(controller.controllerPath("uuid2"))
 
             assertThatResponse()
                     .isUnprocessableEntity()
                     .hasContentType(controller.mimeType)
-                    .hasJsonMessage("Failed to delete agent. { Some description }")
+                    .hasJsonMessage("Your request could not be processed. Some message")
         }
     }
 
@@ -1193,13 +1181,9 @@ class AgentsControllerV6Test implements SecurityServiceTrait, ControllerTrait<Ag
                 when(agentService.findAgent("agent-1")).thenReturn(idleWith("agent-1"))
                 when(agentService.findAgent("agent-2")).thenReturn(idleWith("agent-2"))
 
-                doAnswer({ InvocationOnMock invocation ->
-                    def result = invocation.getArgument(1) as HttpOperationResult
-                    result.ok("Deleted 2 agent(s).")
-                }).when(agentService).deleteAgents(eq(asList("agent-1", "agent-2")), any() as HttpOperationResult)
+                doNothing().when(agentService).deleteAgents(eq(asList("agent-1", "agent-2")))
 
                 def requestBody = ["uuids": ["agent-1", "agent-2"]]
-
                 deleteWithApiHeader(controller.controllerPath(), requestBody)
 
                 assertThatResponse()
@@ -1221,13 +1205,9 @@ class AgentsControllerV6Test implements SecurityServiceTrait, ControllerTrait<Ag
                 when(agentService.findAgent(disabledUUID1)).thenReturn(disabledAgent1)
                 when(agentService.findAgent(disabledUUID2)).thenReturn(disabledAgent2)
 
-                doAnswer({ InvocationOnMock invocation ->
-                    def result = invocation.getArgument(1) as HttpOperationResult
-                    result.ok("Deleted 2 agent(s).")
-                }).when(agentService).deleteAgents(eq(asList(disabledUUID1, disabledUUID2)), any() as HttpOperationResult)
+                doNothing().when(agentService).deleteAgents(eq(asList(disabledUUID1, disabledUUID2)))
 
                 def requestBody = ["uuids": [disabledUUID1, disabledUUID2]]
-
                 deleteWithApiHeader(controller.controllerPath(), requestBody)
 
                 assertThatResponse()
@@ -1240,13 +1220,9 @@ class AgentsControllerV6Test implements SecurityServiceTrait, ControllerTrait<Ag
             void 'should delete agents with uuids when list of UUIDs is passed as null'() {
                 loginAsAdmin()
 
-                doAnswer({ InvocationOnMock invocation ->
-                    def result = invocation.getArgument(1) as HttpOperationResult
-                    result.ok("Deleted 0 agent(s).")
-                }).when(agentService).deleteAgents(eq(emptyList()), any() as HttpOperationResult)
+                doNothing().when(agentService).deleteAgents(eq(emptyList()))
 
                 def requestBody = ""
-
                 deleteWithApiHeader(controller.controllerPath(), requestBody)
 
                 assertThatResponse()
@@ -1259,13 +1235,9 @@ class AgentsControllerV6Test implements SecurityServiceTrait, ControllerTrait<Ag
             void 'should delete agents with uuids when empty list of UUIDs is passed'() {
                 loginAsAdmin()
 
-                doAnswer({ InvocationOnMock invocation ->
-                    def result = invocation.getArgument(1) as HttpOperationResult
-                    result.ok("Deleted 0 agent(s).")
-                }).when(agentService).deleteAgents(eq(emptyList()), any() as HttpOperationResult)
+                doNothing().when(agentService).deleteAgents(eq(emptyList()))
 
                 def requestBody = ["uuids": []]
-
                 deleteWithApiHeader(controller.controllerPath(), requestBody)
 
                 assertThatResponse()
@@ -1282,13 +1254,11 @@ class AgentsControllerV6Test implements SecurityServiceTrait, ControllerTrait<Ag
                 loginAsAdmin()
 
                 def nonExistingUUID = "non-existing-uuid"
-
                 when(agentService.findAgent(nonExistingUUID)).thenReturn(new NullAgentInstance(nonExistingUUID))
 
                 doAnswer({ InvocationOnMock invocation ->
-                    def result = invocation.getArgument(1) as HttpOperationResult
-                    result.notFound("Not Found", format("Agent '%s' not found", nonExistingUUID), general(GLOBAL))
-                }).when(agentService).deleteAgents(eq(singletonList(nonExistingUUID)), any() as HttpOperationResult)
+                    throw new RecordNotFoundException(EntityType.Agent, nonExistingUUID)
+                }).when(agentService).deleteAgents(eq(singletonList(nonExistingUUID)))
 
                 def requestBody = ["uuids": [nonExistingUUID]]
                 deleteWithApiHeader(controller.controllerPath(), requestBody)
@@ -1296,7 +1266,7 @@ class AgentsControllerV6Test implements SecurityServiceTrait, ControllerTrait<Ag
                 assertThatResponse()
                         .isNotFound()
                         .hasContentType(controller.mimeType)
-                        .hasJsonMessage("Not Found { Agent 'non-existing-uuid' not found }")
+                        .hasJsonMessage("Agent with uuid 'non-existing-uuid' was not found!")
             }
 
             @Test
@@ -1310,17 +1280,16 @@ class AgentsControllerV6Test implements SecurityServiceTrait, ControllerTrait<Ag
                 when(agentService.findAgent(building.getUuid())).thenReturn(building)
 
                 doAnswer({ InvocationOnMock invocation ->
-                    def result = invocation.getArgument(1) as HttpOperationResult
-                    result.notAcceptable("Could not delete any agents, as one or more agents might not be disabled or are still building.", general(GLOBAL))
-                }).when(agentService).deleteAgents(eq(asList(disabledAgent.getUuid(), building.getUuid())), any() as HttpOperationResult)
+                    throw new UnprocessableEntityException("Could not delete any agents, as one or more agents might not be disabled or are still building.")
+                }).when(agentService).deleteAgents(eq(asList(disabledAgent.getUuid(), building.getUuid())))
 
                 def requestBody = ["uuids": [disabledAgent.getUuid(), building.getUuid()]]
                 deleteWithApiHeader(controller.controllerPath(), requestBody)
 
                 assertThatResponse()
-                        .hasStatus(406)
+                        .isUnprocessableEntity()
                         .hasContentType(controller.mimeType)
-                        .hasJsonMessage("Could not delete any agents, as one or more agents might not be disabled or are still building.")
+                        .hasJsonMessage("Your request could not be processed. Could not delete any agents, as one or more agents might not be disabled or are still building.")
             }
 
             @Test
@@ -1332,17 +1301,16 @@ class AgentsControllerV6Test implements SecurityServiceTrait, ControllerTrait<Ag
                 when(agentService.findAgent(building.getUuid())).thenReturn(building)
 
                 doAnswer({ InvocationOnMock invocation ->
-                    def result = invocation.getArgument(1) as HttpOperationResult
-                    result.notAcceptable("Failed to delete an agent, as it is not in a disabled state or is still building.", general(GLOBAL))
-                }).when(agentService).deleteAgents(eq(singletonList(building.getUuid())), any() as HttpOperationResult)
+                    throw new UnprocessableEntityException("Failed to delete an agent, as it is not in a disabled state or is still building.")
+                }).when(agentService).deleteAgents(eq(singletonList(building.getUuid())))
 
                 def requestBody = ["uuids": [building.getUuid()]]
                 deleteWithApiHeader(controller.controllerPath(), requestBody)
 
                 assertThatResponse()
-                        .hasStatus(406)
+                        .isUnprocessableEntity()
                         .hasContentType(controller.mimeType)
-                        .hasJsonMessage("Failed to delete an agent, as it is not in a disabled state or is still building.")
+                        .hasJsonMessage("Your request could not be processed. Failed to delete an agent, as it is not in a disabled state or is still building.")
             }
 
             @Test
@@ -1350,9 +1318,8 @@ class AgentsControllerV6Test implements SecurityServiceTrait, ControllerTrait<Ag
                 loginAsAdmin()
 
                 doAnswer({ InvocationOnMock invocation ->
-                    def result = invocation.getArgument(1) as HttpOperationResult
-                    result.internalServerError("Some error description of why deleting agents failed", null)
-                }).when(agentService).deleteAgents(eq(asList("agent-1", "agent-2")), any() as HttpOperationResult)
+                    throw new RuntimeException("Error deleting agents", null)
+                }).when(agentService).deleteAgents(eq(asList("agent-1", "agent-2")))
 
                 def requestBody = ["uuids": ["agent-1", "agent-2"]]
 
@@ -1361,7 +1328,7 @@ class AgentsControllerV6Test implements SecurityServiceTrait, ControllerTrait<Ag
                 assertThatResponse()
                         .isInternalServerError()
                         .hasContentType(controller.mimeType)
-                        .hasJsonMessage("Some error description of why deleting agents failed")
+                        .hasJsonMessage("Shoot! This is unexpected. Something went wrong while deleting agent(s)! More details : Error deleting agents")
             }
         }
     }

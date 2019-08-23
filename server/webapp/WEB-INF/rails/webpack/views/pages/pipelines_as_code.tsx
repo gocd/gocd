@@ -14,16 +14,22 @@
  * limitations under the License.
  */
 
+// utils
+import {queryParamAsString} from "helpers/url";
 import m from "mithril";
 import Stream from "mithril/stream";
+
+// models
 import {Material, MaterialAttributes} from "models/materials/types";
+import {PipelineConfigVM} from "views/pages/pipelines/pipeline_config_view_model";
+
+// components
 import {BuilderForm} from "views/pages/pac/builder_form";
 import {DownloadAction} from "views/pages/pac/download_action";
 import {PreviewPane} from "views/pages/pac/preview_pane";
 import {Page, PageState} from "views/pages/page";
 import {FillableSection} from "views/pages/pipelines/fillable_section";
 import {MaterialEditor} from "views/pages/pipelines/material_editor";
-import {PipelineConfigVM} from "views/pages/pipelines/pipeline_config_view_model";
 
 export class PipelinesAsCodeCreatePage extends Page {
   private model = new PipelineConfigVM();
@@ -34,9 +40,10 @@ export class PipelinesAsCodeCreatePage extends Page {
 
   oninit(vnode: m.Vnode) {
     this.pageState = PageState.OK;
-    const group = m.parseQueryString(window.location.search).group;
-    if ("" !== String(group || "").trim()) {
-      this.model.pipeline.group(group as string);
+    const group = queryParamAsString(window.location.search, "group").trim();
+
+    if ("" !== group) {
+      this.model.pipeline.group(group);
     }
   }
 

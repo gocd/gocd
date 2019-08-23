@@ -16,8 +16,11 @@
 
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
+import Stream from "mithril/stream";
+import {StageConfig} from "models/new_pipeline_configs/stage_configuration";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {IdentifierInputField} from "views/components/forms/common_validating_inputs";
+import {StageSettingsWidget} from "views/pages/pipeline_configs/stages/settings/stage_settings_widget";
 import styles from "./index.scss";
 
 interface Attrs {
@@ -26,6 +29,7 @@ interface Attrs {
 
 export class PipelineConfigCreateWidget extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
+    /*todo: @Ganeshpl will move this stage settings to appropriate place*/
     return <div class={styles.pipelineDetailsContainer} data-test-id="pipeline-details-container">
       <IdentifierInputField dataTestId="pipeline-name-input"
                             required={true}
@@ -33,6 +37,7 @@ export class PipelineConfigCreateWidget extends MithrilViewComponent<Attrs> {
                             label="Pipeline name"
                             placeholder="e.g. build-and-deploy"
                             property={vnode.attrs.pipelineConfig.name}/>
+      <StageSettingsWidget stageConfig={Stream(new StageConfig("up42_stage"))}/>
     </div>;
   }
 }

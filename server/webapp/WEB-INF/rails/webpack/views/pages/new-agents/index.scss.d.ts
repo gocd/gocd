@@ -10,6 +10,7 @@ export const disabledAgent: string;
 export const dropdownContent: string;
 export const enabled: string;
 export const headerPanel: string;
+export const hostname: string;
 export const leftContainer: string;
 export const show: string;
 export const tableCell: string;

@@ -80,6 +80,11 @@ export abstract class Page<Attrs = {}, State = {}> extends MithrilComponent<Attr
                     });
   }
 
+  protected static isUserAnAdmin() {
+    const attribute = document.body.getAttribute("data-is-user-admin");
+    return attribute ? attribute === "true" : false;
+  }
+
   private _onSuccess() {
     this.pageState = PageState.OK;
   }

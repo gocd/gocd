@@ -35,6 +35,7 @@ interface AgentsWidgetAttrs {
   flashMessage: FlashMessageModelWithTimeout;
   updateEnvironments: (environmentsToAdd: string[], environmentsToRemove: string[]) => Promise<any>;
   updateResources: (resourcesToAdd: string[], resourcesToRemove: string[]) => Promise<any>;
+  isUserAdmin: boolean;
 }
 
 export class AgentsWidget extends MithrilViewComponent<AgentsWidgetAttrs> {
@@ -46,16 +47,14 @@ export class AgentsWidget extends MithrilViewComponent<AgentsWidgetAttrs> {
     }
 
     const tableData = vnode.attrs.agents.list().map((agent: Agent) => {
-      const tableCellClasses = this.tableCellClasses(agent);
+      const tableCellClasses = AgentsWidget.tableCellClasses(agent);
       return [
-        <div key={agent.uuid}
-             class={classnames(tableCellClasses, style.agentCheckbox)}>
-          <CheckboxField dataTestId={`agent-checkbox-of-${agent.uuid}`}
-                         required={true}
-                         property={agent.selected}/>
+        <div key={agent.uuid} class={classnames(tableCellClasses, style.agentCheckbox)}>
+          {AgentsWidget.checkBoxFor(agent, vnode)}
         </div>,
-        <div class={tableCellClasses}
-             data-test-id={`agent-hostname-of-${agent.uuid}`}>{agent.hostname}</div>,
+        <div class={classnames(tableCellClasses, style.hostname)}
+             data-test-id={`agent-hostname-of-${agent.uuid}`}>{AgentsWidget.getHostnameLink(vnode.attrs.isUserAdmin,
+                                                                                            agent)}</div>,
         <div class={tableCellClasses}
              data-test-id={`agent-sandbox-of-${agent.uuid}`}>{agent.sandbox}</div>,
         <div class={tableCellClasses}
@@ -78,10 +77,7 @@ export class AgentsWidget extends MithrilViewComponent<AgentsWidgetAttrs> {
       {flashMessage}
       <Table data={tableData}
              headers={[
-               <input type="checkbox"
-                      data-test-id={"select-all-agents"}
-                      checked={vnode.attrs.agents.areAllFilteredAgentsSelected()}
-                      onclick={() => vnode.attrs.agents.toggleFilteredAgentsSelection()}/>,
+               AgentsWidget.globalCheckBox(vnode),
                "Agent Name", "Sandbox", "OS", "IP Address", "Status", "Free Space", "Resources", "Environments"]}
              sortHandler={vnode.attrs.agents}/>
 
@@ -100,9 +96,35 @@ export class AgentsWidget extends MithrilViewComponent<AgentsWidgetAttrs> {
     agents.buildDetailsForAgent("");
   }
 
-  private tableCellClasses(agent: Agent) {
+  private static tableCellClasses(agent: Agent) {
     return classnames(style.tableCell,
                       {[style.building]: agent.isBuilding()},
                       {[style.disabledAgent]: agent.agentConfigState === AgentConfigState.Disabled});
+  }
+
+  private static getHostnameLink(isUserAdmin: boolean, agent: Agent) {
+    if (!isUserAdmin) {
+      return (<span>{agent.hostname}</span>);
+    }
+
+    return <a href={`/go/agents/${agent.uuid}/job_run_history`}>{agent.hostname}</a>;
+  };
+
+  private static globalCheckBox(vnode: m.Vnode<AgentsWidgetAttrs>) {
+    if (vnode.attrs.isUserAdmin) {
+      return <input type="checkbox"
+                    data-test-id={"select-all-agents"}
+                    checked={vnode.attrs.agents.areAllFilteredAgentsSelected()}
+                    onclick={() => vnode.attrs.agents.toggleFilteredAgentsSelection()}/>;
+    }
+
+    return null;
+  }
+
+  private static checkBoxFor(agent: Agent, vnode: m.Vnode<AgentsWidgetAttrs>) {
+    if (vnode.attrs.isUserAdmin) {
+      return <CheckboxField dataTestId={`agent-checkbox-of-${agent.uuid}`} required={true} property={agent.selected}/>;
+    }
+    return null;
   }
 }

@@ -15,6 +15,7 @@
  */
 
 // utils
+import {queryParamAsString} from "helpers/url";
 import _ from "lodash";
 import m from "mithril";
 import {Page, PageState} from "views/pages/page";
@@ -49,9 +50,10 @@ export class PipelineCreatePage extends Page {
 
   oninit(vnode: m.Vnode) {
     this.pageState = PageState.OK;
-    const group = m.parseQueryString(window.location.search).group;
-    if ("" !== String(group || "").trim()) {
-      this.model.pipeline.group(group as string);
+    const group = queryParamAsString(window.location.search, "group").trim();
+
+    if ("" !== group) {
+      this.model.pipeline.group(group);
     }
   }
 

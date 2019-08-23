@@ -33,9 +33,8 @@ import com.thoughtworks.go.apiv6.agents.representers.AgentsRepresenter;
 import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.config.EnvironmentConfig;
 import com.thoughtworks.go.config.EnvironmentsConfig;
-import com.thoughtworks.go.config.exceptions.BadRequestException;
 import com.thoughtworks.go.config.exceptions.EntityType;
-import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.NullAgentInstance;
 import com.thoughtworks.go.server.service.AgentService;
@@ -47,6 +46,7 @@ import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import com.thoughtworks.go.util.TriState;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import spark.Request;
@@ -136,12 +136,10 @@ public class AgentsControllerV6 extends ApiController implements SparkSpringCont
             EnvironmentsConfig envsConfig = createEnvironmentsConfigFrom(req.getEnvironments());
             updatedAgentInstance = agentService.updateAgentAttributes(request.params("uuid"), hostname, resources, envsConfig, configState);
             handleUpdateAgentResponse(updatedAgentInstance, result);
-        } catch (BadRequestException e) {
-            result.badRequest(e.getMessage(), "", general(GLOBAL));
-        } catch (RecordNotFoundException e){
-            result.notFound(e.getMessage(), "", general(GLOBAL));
+        } catch (HttpException e) {
+            throw e;
         } catch (Exception e){
-            result.internalServerError(e.getMessage(), general(GLOBAL));
+            throw halt(HttpStatus.SC_INTERNAL_SERVER_ERROR, MessageJson.create(e.getMessage()));
         }
 
         return handleCreateOrUpdateResponse(request, response, updatedAgentInstance, result);
@@ -260,11 +258,11 @@ public class AgentsControllerV6 extends ApiController implements SparkSpringCont
         return list;
     }
 
-    private String handleCreateOrUpdateResponse(Request req, Response res, AgentInstance agentInstance, HttpOperationResult result) {
+    private String handleCreateOrUpdateResponse(Request request, Response response, AgentInstance agentInstance, HttpOperationResult result) {
         if (result.isSuccess()) {
-            return jsonize(req, agentInstance);
+            return jsonize(request, agentInstance);
         } else {
-            res.status(result.httpCode());
+            response.status(result.httpCode());
             String errorMessage = result.message();
             return agentInstance == null ? MessageJson.create(errorMessage) : MessageJson.create(errorMessage, jsonWriter(agentInstance));
         }

@@ -121,8 +121,4 @@ public abstract class HaltApiResponses {
         return halt(HttpStatus.UNPROCESSABLE_ENTITY.value(), MessageJson.create(HaltApiMessages.haltBecauseSecurityIsNotEnabled()));
 
     }
-
-    public static HaltException haltBecauseOfUnsupportedAPIVersion(String apiVersionAcceptHeader, String apiName) {
-        return halt(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value(), MessageJson.create(HaltApiMessages.unsupportedAPIVersion(apiVersionAcceptHeader, apiName)));
-    }
 }

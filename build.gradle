@@ -1198,8 +1198,6 @@ task newApi {
                       // change the line below to enable appropriate security
                       before("", mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
                       // to be implemented
-
-                      exception(HttpException.class, this::httpException);
                   });
               }
               
@@ -1260,25 +1258,50 @@ task newApi {
 
           package ${packageName}
 
+          import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
           import com.thoughtworks.go.spark.ControllerTrait
           import com.thoughtworks.go.spark.SecurityServiceTrait
+          import org.junit.jupiter.api.BeforeEach
           import org.junit.jupiter.api.Nested
           import org.junit.jupiter.api.Test
 
           class ${controllerClassName}Test implements SecurityServiceTrait, ControllerTrait<${controllerClassName}> {
 
+            @BeforeEach
+            void setUp() {
+              initMocks(this)
+            }
+
             @Override
             ${controllerClassName} createControllerInstance() {
-              new ${controllerClassName}()
+              new ${controllerClassName}(new ApiAuthenticationHelper(securityService, goConfigService))
             }
 
             @Nested
             class Index {
 
+              @BeforeEach
+              void setUp() {
+                loginAsUser()
+              }
+
               @Test
               void 'test a request'() {
               }
 
+              @Nested
+              class Security implements SecurityTestTrait, AdminUserSecurity {
+
+                @Override
+                String getControllerMethodUnderTest() {
+                  return "index"
+                }
+
+                @Override
+                void makeHttpCall() {
+                  getWithApiHeader(controller.controllerBasePath())
+                }
+              }
             }
           }
         """

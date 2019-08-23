@@ -318,6 +318,11 @@ def configureLinuxPackage(DefaultTask packageTask, InstallerType installerType, 
             List<String> segments = fcd.relativePath.segments
             segments.remove(0)
             fcd.relativePath = new RelativePath(!fcd.isDirectory(), (segments as String[]))
+            // Remove write access of JRE files for user group `others`.
+            // Perform `&` operation on existing mode with `0775`.
+            // eg. if existing mode is `0777`, the mode will be changed to `0775` after following operation
+            // eg. if existing mode is `0477`, the mode will be changed to `0475` after following operation
+            fcd.setMode(fcd.getMode() & 0775)
           }
           includeEmptyDirs = false
         }

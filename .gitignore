@@ -438,3 +438,7 @@ api/api-shared-v9/out/
 api/api-shared-v9/target/
 api/api-shared-v9/logs/
 api/api-shared-v9/config/
+api/api-internal-pipeline-structure-v1/out/
+api/api-internal-pipeline-structure-v1/target/
+api/api-internal-pipeline-structure-v1/logs/
+api/api-internal-pipeline-structure-v1/config/

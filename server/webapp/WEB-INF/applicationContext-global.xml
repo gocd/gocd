@@ -26,6 +26,7 @@
 
   <context:annotation-config/>
 
+  <context:component-scan base-package="com.thoughtworks.go.apiv1.internalpipelinestructure"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv1.internalenvironments"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv1.mailserver"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv1.internalresources"/>

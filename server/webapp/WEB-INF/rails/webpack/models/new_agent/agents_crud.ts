@@ -84,7 +84,7 @@ export class AgentsCRUD {
 }
 
 export interface GetAllService {
-  all(): Promise<ApiResult<string>>
+  all(): Promise<ApiResult<string>>;
 }
 
 export class EnvironmentsService implements GetAllService {

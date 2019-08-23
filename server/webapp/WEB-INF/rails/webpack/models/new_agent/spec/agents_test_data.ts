@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {AgentJSON, AgentsJSON} from "models/new_agent/agents";
 import Stream from "mithril/stream";
+import {AgentJSON, AgentsJSON} from "models/new_agent/agents";
 import uuid from "uuid/v4";
 
 export class AgentsTestData {
@@ -108,7 +108,6 @@ export class AgentsTestData {
     return this.agentWithState("Enabled", "Idle", "Idle");
   }
 
-
   static missingAgent() {
     return this.agentWithState("Enabled", "Missing");
   }
@@ -126,10 +125,10 @@ export class AgentsTestData {
                resources                  = ["dev", "fat", "ie9", "firefox"]) {
     return {
       selected: Stream(false),
-      uuid: uuid,
-      hostname: hostname,
+      uuid,
+      hostname,
       ip_address: ipAddr,
-      sandbox: sandbox,
+      sandbox,
       operating_system: os,
       agent_config_state: "Enabled",
       agent_state: agentState,
@@ -142,7 +141,7 @@ export class AgentsTestData {
       }],
       build_state: "Idle",
       free_space: freeSpace,
-      resources: resources
+      resources
     } as AgentJSON;
 
   }
@@ -150,7 +149,7 @@ export class AgentsTestData {
   static elasticAgent(hostname: string) {
     return {
       uuid: uuid(),
-      hostname: hostname,
+      hostname,
       ip_address: "10.1.0." + AgentsTestData.getRandomIntegerInRange(1, 255),
       sandbox: "go",
       operating_system: "windows",

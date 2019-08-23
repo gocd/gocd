@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
+import m from "mithril";
 import {Agent, Agents} from "models/new_agent/agents";
 import {AgentsTestData} from "models/new_agent/spec/agents_test_data";
 import {FlashMessageModelWithTimeout} from "views/components/flash_message";
 import {AgentHeaderPanel} from "views/pages/new_agents/agent_header_panel";
 import {TestHelper} from "views/pages/spec/test_helper";
 import Style from "../index.scss";
-import m from "mithril";
 
 describe("AgentHeaderPanel", () => {
   const helper             = new TestHelper(),
@@ -137,7 +137,6 @@ describe("AgentHeaderPanel", () => {
       expect(onDisable).toHaveBeenCalled();
     });
   });
-
 
   function mount(agents: Agents) {
     helper.mount(() => <AgentHeaderPanel agents={agents}

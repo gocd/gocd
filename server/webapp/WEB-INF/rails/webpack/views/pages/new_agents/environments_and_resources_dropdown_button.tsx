@@ -15,13 +15,13 @@
  */
 
 import {ApiResult, ErrorResponse, SuccessResponse} from "helpers/api_request_builder";
+import m from "mithril";
+import Stream from "mithril/stream";
 import {Agent, Agents} from "models/new_agent/agents";
 import {GetAllService} from "models/new_agent/agents_crud";
 import {TriStateCheckbox, TristateState} from "models/tri_state_checkbox";
 import {Dropdown, DropdownAttrs, Primary} from "views/components/buttons";
 import * as Buttons from "views/components/buttons";
-import m from "mithril";
-import Stream from "mithril/stream";
 import {FlashMessageModelWithTimeout, MessageType} from "views/components/flash_message";
 import {QuickAddField, TriStateCheckboxField} from "views/components/forms/input_fields";
 import {Spinner} from "views/components/spinner";
@@ -70,19 +70,6 @@ abstract class AbstractDropdownButton<V extends Attrs> extends Dropdown<V> {
     this.updatePromise(vnode).finally(() => vnode.attrs.show(false));
   }
 
-  private onResult(result: ApiResult<string>, vnode: m.Vnode<DropdownAttrs & V>) {
-    this.operationInProgress(false);
-    result.do(this.onSuccess.bind(this), (errorResponse) => this.onFailure(errorResponse, vnode));
-  }
-
-  private onSuccess(successResponse: SuccessResponse<string>) {
-    this.data(JSON.parse(successResponse.body));
-  }
-
-  private onFailure(errorResponse: ErrorResponse, vnode: m.Vnode<DropdownAttrs & V>) {
-    vnode.attrs.flashMessage.setMessage(MessageType.alert, errorResponse.message);
-  }
-
   protected getKeysOfSelectedCheckBoxes() {
     return Array.from(this.triStateCheckboxMap.keys())
                 .reduce((listOfEnvs: string[], environment: string) => {
@@ -120,6 +107,19 @@ abstract class AbstractDropdownButton<V extends Attrs> extends Dropdown<V> {
   }
 
   protected abstract hasAssociationWith(agent: Agent, item: string): boolean;
+
+  private onResult(result: ApiResult<string>, vnode: m.Vnode<DropdownAttrs & V>) {
+    this.operationInProgress(false);
+    result.do(this.onSuccess.bind(this), (errorResponse) => this.onFailure(errorResponse, vnode));
+  }
+
+  private onSuccess(successResponse: SuccessResponse<string>) {
+    this.data(JSON.parse(successResponse.body));
+  }
+
+  private onFailure(errorResponse: ErrorResponse, vnode: m.Vnode<DropdownAttrs & V>) {
+    vnode.attrs.flashMessage.setMessage(MessageType.alert, errorResponse.message);
+  }
 }
 
 interface EnvAttrs extends Attrs {

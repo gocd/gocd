@@ -16,9 +16,9 @@
 
 import {bind} from "classnames/bind";
 import {MithrilComponent} from "jsx/mithril-component";
-import {Agent, BuildDetails} from "models/new_agent/agents";
-import Stream from "mithril/stream";
 import m from "mithril";
+import Stream from "mithril/stream";
+import {Agent, BuildDetails} from "models/new_agent/agents";
 import style from "views/pages/new_agents/index.scss";
 
 const classnames = bind(style);
@@ -30,6 +30,16 @@ interface AgentStatusWidgetAttrs {
 }
 
 export class AgentStatusWidget extends MithrilComponent<AgentStatusWidgetAttrs> {
+
+  static toggleBuildDetails(event: Event, vnode: m.Vnode<AgentStatusWidgetAttrs>, agentUUID: string) {
+    event.stopImmediatePropagation();
+    if (vnode.attrs.buildDetailsForAgent() === agentUUID) {
+      vnode.attrs.buildDetailsForAgent("");
+    } else {
+      vnode.attrs.buildDetailsForAgent(agentUUID);
+    }
+  }
+
   view(vnode: m.Vnode<AgentStatusWidgetAttrs>) {
     const agent        = vnode.attrs.agent;
     const buildDetails = agent.buildDetails as BuildDetails;
@@ -51,14 +61,5 @@ export class AgentStatusWidget extends MithrilComponent<AgentStatusWidgetAttrs> 
         <li><a href={buildDetails.jobUrl}>Job - {buildDetails.jobName}</a></li>
       </ul>
     </div>);
-  }
-
-  static toggleBuildDetails(event: Event, vnode: m.Vnode<AgentStatusWidgetAttrs>, agentUUID: string) {
-    event.stopImmediatePropagation();
-    if (vnode.attrs.buildDetailsForAgent() === agentUUID) {
-      vnode.attrs.buildDetailsForAgent("");
-    } else {
-      vnode.attrs.buildDetailsForAgent(agentUUID);
-    }
   }
 }

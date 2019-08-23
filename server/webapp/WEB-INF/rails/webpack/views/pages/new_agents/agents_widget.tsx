@@ -40,6 +40,15 @@ interface AgentsWidgetAttrs {
 }
 
 export class AgentsWidget extends MithrilViewComponent<AgentsWidgetAttrs> {
+
+  static joinOrNoneSpecified(array: string[]): m.Children {
+    if (array && array.length > 0) {
+      return array.join(", ");
+    } else {
+      return (<em>none specified</em>);
+    }
+  }
+
   view(vnode: m.Vnode<AgentsWidgetAttrs>) {
     let flashMessage;
 
@@ -85,14 +94,6 @@ export class AgentsWidget extends MithrilViewComponent<AgentsWidgetAttrs> {
     </div>;
   }
 
-  static joinOrNoneSpecified(array: string[]): m.Children {
-    if (array && array.length > 0) {
-      return array.join(", ");
-    } else {
-      return (<em>none specified</em>);
-    }
-  }
-
   private static hideBuildDetails(agents: Agents) {
     agents.buildDetailsForAgent("");
   }
@@ -109,7 +110,7 @@ export class AgentsWidget extends MithrilViewComponent<AgentsWidgetAttrs> {
     }
 
     return <a href={`/go/agents/${agent.uuid}/job_run_history`}>{agent.hostname}</a>;
-  };
+  }
 
   private static globalCheckBox(vnode: m.Vnode<AgentsWidgetAttrs>) {
     if (vnode.attrs.isUserAdmin) {

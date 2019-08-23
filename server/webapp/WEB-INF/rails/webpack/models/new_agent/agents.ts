@@ -70,8 +70,8 @@ export interface AgentJSON {
   agent_state: string;
   resources: string[];
   build_state: string;
-  build_details?: BuildDetailsJSON
-  environments: AgentEnvironmentJSON[]
+  build_details?: BuildDetailsJSON;
+  environments: AgentEnvironmentJSON[];
 }
 
 interface EmbeddedJSON {
@@ -166,6 +166,21 @@ export class Agent {
     this.buildDetails     = buildDetails;
   }
 
+  static fromJSON(data: AgentJSON) {
+    return new Agent(data.uuid,
+                     data.hostname,
+                     data.ip_address,
+                     data.free_space,
+                     data.sandbox,
+                     data.operating_system,
+                     (AgentConfigState as any)[data.agent_config_state],
+                     (AgentState as any)[data.agent_state],
+                     (BuildState as any)[data.build_state],
+                     data.resources,
+                     data.environments.map((envJson) => new AgentsEnvironment(envJson.name, envJson.origin.type)),
+                     BuildDetails.fromJSON(data.build_details));
+  }
+
   hasFilterText(filterText: string): boolean {
     if (!filterText || filterText.trim().length === 0) {
       return true;
@@ -182,21 +197,6 @@ export class Agent {
       _.includes(this.getOrEmpty(this.environmentNames().join(", ")), lowerCaseFilterText);
   }
 
-  static fromJSON(data: AgentJSON) {
-    return new Agent(data.uuid,
-                     data.hostname,
-                     data.ip_address,
-                     data.free_space,
-                     data.sandbox,
-                     data.operating_system,
-                     (<any>AgentConfigState)[data.agent_config_state],
-                     (<any>AgentState)[data.agent_state],
-                     (<any>BuildState)[data.build_state],
-                     data.resources,
-                     data.environments.map((envJson) => new AgentsEnvironment(envJson.name, envJson.origin.type)),
-                     BuildDetails.fromJSON(data.build_details));
-  }
-
   readableFreeSpace() {
     try {
       if (_.isNumber(this.freeSpace)) {
@@ -207,15 +207,13 @@ export class Agent {
     } catch (e) {
       return "Unknown";
     }
-  };
-
+  }
   environmentNames() {
     if (!this.environments || this.environments.length === 0) {
       return [];
     }
     return this.environments.map((env) => env.name);
-  };
-
+  }
   isBuilding() {
     return !!this.buildDetails;
   }
@@ -246,13 +244,13 @@ export class Agent {
 }
 
 export class Agents extends TableSortHandler {
-  private sortOnColumn: number;
-  private sortOrder: SortOrder;
-  private agentList: Agent[];
   public readonly filterText: Stream<string>           = Stream("");
   public readonly buildDetailsForAgent: Stream<string> = Stream();
   public readonly showEnvironments: Stream<boolean>    = Stream();
   public readonly showResources: Stream<boolean>       = Stream();
+  private sortOnColumn: number;
+  private sortOrder: SortOrder;
+  private agentList: Agent[];
 
   constructor(agentsList: Agent[]) {
     super();
@@ -260,6 +258,14 @@ export class Agents extends TableSortHandler {
     this.sortOrder    = SortOrder.ASC;
     this.sortOnColumn = this.getSortableColumns()[0] - 1;
     this.sort();
+  }
+
+  static fromJSON(data: AgentsJSON): Agents {
+    const agents: Agent[] = data._embedded.agents.map((json: AgentJSON) => {
+      return Agent.fromJSON(json);
+    });
+
+    return new Agents(agents);
   }
 
   initializeWith(newAgents: Agents) {
@@ -272,14 +278,6 @@ export class Agents extends TableSortHandler {
 
     this.agentList = newAgents.agentList;
     this.sort();
-  }
-
-  static fromJSON(data: AgentsJSON): Agents {
-    const agents: Agent[] = data._embedded.agents.map((json: AgentJSON) => {
-      return Agent.fromJSON(json);
-    });
-
-    return new Agents(agents);
   }
 
   areAllFilteredAgentsSelected(): boolean {
@@ -330,20 +328,20 @@ export class Agents extends TableSortHandler {
   }
 
   filterBy(agentConfigState: AgentConfigState) {
-    return this.list().filter(agent => agent.agentConfigState === agentConfigState);
+    return this.list().filter((agent) => agent.agentConfigState === agentConfigState);
   }
 
   getSelectedAgentsUUID(): string[] {
-    return this.list().filter(agent => agent.selected())
-               .map(agent => agent.uuid);
+    return this.list().filter((agent) => agent.selected())
+               .map((agent) => agent.uuid);
   }
 
   getSelectedAgents(): Agent[] {
-    return this.list().filter(agent => agent.selected());
+    return this.list().filter((agent) => agent.selected());
   }
 
   unselectAll() {
-    this.list().forEach(agent => agent.selected(false));
+    this.list().forEach((agent) => agent.selected(false));
   }
 
   private getSortableColumnsAssociates(): string[] {

@@ -21,9 +21,8 @@ import {AuthConfigs} from "models/auth_configs/auth_configs";
 import {AuthConfigsCRUD} from "models/auth_configs/auth_configs_crud";
 import {GoCDAttributes, GoCDRole, PluginRole, Roles} from "models/roles/roles";
 import {RolesCRUD} from "models/roles/roles_crud";
-import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
-import {AuthorizationSettings, Extension} from "models/shared/plugin_infos_new/extensions";
-import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
+import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
 import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
@@ -40,7 +39,7 @@ import {CloneRoleModal, DeleteRoleConfirmModal, EditRoleModal, NewRoleModal} fro
 import {RolesWidget} from "views/pages/roles/roles_widget";
 
 export interface State extends AddOperation<GoCDRole | PluginRole>, EditOperation<GoCDRole | PluginRole>, CloneOperation<GoCDRole | PluginRole>, DeleteOperation<GoCDRole | PluginRole>, SaveOperation {
-  pluginInfos: Array<PluginInfo<Extension>>;
+  pluginInfos: PluginInfos;
   authConfigs: AuthConfigs;
   roles: Roles;
 }
@@ -128,12 +127,12 @@ export class RolesPage extends Page<null, State> {
   }
 
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {
-    return Promise.all([PluginInfoCRUD.all({type: ExtensionType.AUTHORIZATION}), AuthConfigsCRUD.all(), RolesCRUD.all()])
+    return Promise.all([PluginInfoCRUD.all({type: ExtensionTypeString.AUTHORIZATION}), AuthConfigsCRUD.all(), RolesCRUD.all()])
                   .then((results) => {
                     results[0].do((successResponse) => {
                       this.pageState           = PageState.OK;
                       const allAuthPluginInfos = successResponse.body;
-                      vnode.state.pluginInfos  = this.getPluginInfosWithAuthorizeCapabilities(allAuthPluginInfos);
+                      vnode.state.pluginInfos  = allAuthPluginInfos.getPluginInfosWithAuthorizeCapabilities();
                     }, () => this.setErrorState());
 
                     results[1].do((successResponse) => {
@@ -148,10 +147,4 @@ export class RolesPage extends Page<null, State> {
                   });
   }
 
-  private getPluginInfosWithAuthorizeCapabilities(allAuthPluginInfos: Array<PluginInfo<Extension>>) {
-    return _.filter(allAuthPluginInfos, (value: PluginInfo<Extension>) => {
-      const authorizationSettings = value.extensionOfType(ExtensionType.AUTHORIZATION) as AuthorizationSettings;
-      return authorizationSettings && authorizationSettings.capabilities.canAuthorize;
-    });
-  }
 }

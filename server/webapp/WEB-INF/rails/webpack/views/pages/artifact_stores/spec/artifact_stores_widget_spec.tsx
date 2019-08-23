@@ -18,7 +18,7 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {ArtifactStore, ArtifactStores} from "models/artifact_stores/artifact_stores";
 import {ArtifactStoreTestData} from "models/artifact_stores/spec/test_data";
-import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {ArtifactPluginInfo} from "models/shared/plugin_infos_new/spec/test_data";
 import * as simulateEvent from "simulate-event";
 import {ArtifactStoresWidget} from "views/pages/artifact_stores/artifact_stores_widget";
@@ -34,7 +34,7 @@ describe("ArtifactStoresModal", () => {
   afterEach((done) => helper.unmount(done));
 
   it("should show flash message when no artifact plugin installed", () => {
-    mount(new ArtifactStores(), []);
+    mount(new ArtifactStores(), new PluginInfos());
 
     expect(helper.findByDataTestId("flash-message-info")).toBeInDOM();
     expect(helper.findByDataTestId("flash-message-info").text()).toEqual("No artifact plugin installed.");
@@ -42,7 +42,7 @@ describe("ArtifactStoresModal", () => {
 
   it("should render action buttons", () => {
     const artifactStores = new ArtifactStores(dockerArtifactStore);
-    mount(artifactStores, [PluginInfo.fromJSON(ArtifactPluginInfo.docker())]);
+    mount(artifactStores, new PluginInfos(PluginInfo.fromJSON(ArtifactPluginInfo.docker())));
 
     const groups = helper.findByDataTestId("artifact-stores-group");
 
@@ -55,7 +55,7 @@ describe("ArtifactStoresModal", () => {
   });
 
   it("should disable edit and clone button when plugin is not installed", () => {
-    mount(new ArtifactStores(dockerArtifactStore), []);
+    mount(new ArtifactStores(dockerArtifactStore), new PluginInfos());
 
     const groups = helper.findByDataTestId("artifact-stores-group");
 
@@ -69,7 +69,7 @@ describe("ArtifactStoresModal", () => {
 
   it("should render artifact store properties", () => {
     const artifactStores = new ArtifactStores(dockerArtifactStore);
-    mount(artifactStores, [PluginInfo.fromJSON(ArtifactPluginInfo.docker())]);
+    mount(artifactStores, new PluginInfos(PluginInfo.fromJSON(ArtifactPluginInfo.docker())));
 
     const groups = helper.findByDataTestId("artifact-stores-group");
 
@@ -83,7 +83,7 @@ describe("ArtifactStoresModal", () => {
 
   it("should callback the edit function when edit button is clicked", () => {
     const artifactStores = new ArtifactStores(dockerArtifactStore);
-    mount(artifactStores, [PluginInfo.fromJSON(ArtifactPluginInfo.docker())]);
+    mount(artifactStores, new PluginInfos(PluginInfo.fromJSON(ArtifactPluginInfo.docker())));
 
     simulateEvent.simulate(helper.findByDataTestId("artifact-store-edit").get(0), "click");
 
@@ -92,7 +92,7 @@ describe("ArtifactStoresModal", () => {
 
   it("should callback the clone function when clone button is clicked", () => {
     const artifactStores = new ArtifactStores(dockerArtifactStore);
-    mount(artifactStores, [PluginInfo.fromJSON(ArtifactPluginInfo.docker())]);
+    mount(artifactStores, new PluginInfos(PluginInfo.fromJSON(ArtifactPluginInfo.docker())));
 
     simulateEvent.simulate(helper.findByDataTestId("artifact-store-clone").get(0), "click");
 
@@ -101,7 +101,7 @@ describe("ArtifactStoresModal", () => {
 
   it("should callback the delete function when delete button is clicked", () => {
     const artifactStores = new ArtifactStores(dockerArtifactStore);
-    mount(artifactStores, [PluginInfo.fromJSON(ArtifactPluginInfo.docker())]);
+    mount(artifactStores, new PluginInfos(PluginInfo.fromJSON(ArtifactPluginInfo.docker())));
 
     simulateEvent.simulate(helper.findByDataTestId("artifact-store-delete").get(0), "click");
 
@@ -111,7 +111,7 @@ describe("ArtifactStoresModal", () => {
   it("should list artifact stores", () => {
     const mavenArtifactStore = ArtifactStore.fromJSON(ArtifactStoreTestData.mavenArtifactStore());
     const artifactStores     = new ArtifactStores(dockerArtifactStore, mavenArtifactStore);
-    mount(artifactStores, [PluginInfo.fromJSON(ArtifactPluginInfo.docker())]);
+    mount(artifactStores, new PluginInfos(PluginInfo.fromJSON(ArtifactPluginInfo.docker())));
 
     const groups = helper.findByDataTestId("artifact-stores-group");
 
@@ -132,7 +132,7 @@ describe("ArtifactStoresModal", () => {
       .toEqual("maven.central");
   });
 
-  function mount(artifactStores: ArtifactStores, pluginInfos: Array<PluginInfo<any>>) {
+  function mount(artifactStores: ArtifactStores, pluginInfos: PluginInfos) {
     helper.mount(() => <ArtifactStoresWidget pluginInfos={Stream(pluginInfos)}
                                              artifactStores={artifactStores}
                                              onEdit={onEdit}

@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {ElasticAgentCapabilitiesJSON} from "models/shared/plugin_infos_new/serialization";
+
 export class ElasticPluginCapabilities {
   readonly supportsPluginStatusReport: boolean;
   readonly supportsAgentStatusReport: boolean;
@@ -26,7 +28,7 @@ export class ElasticPluginCapabilities {
     this.supportsClusterStatusReport = supportsClusterStatusReport;
   }
 
-  static fromJSON(data: any) {
+  static fromJSON(data: ElasticAgentCapabilitiesJSON) {
     return new ElasticPluginCapabilities(
       data && data.supports_plugin_status_report,
       data && data.supports_agent_status_report,

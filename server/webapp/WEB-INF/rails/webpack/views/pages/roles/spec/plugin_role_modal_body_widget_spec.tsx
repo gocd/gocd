@@ -18,7 +18,7 @@ import m from "mithril";
 import {AuthConfigs} from "models/auth_configs/auth_configs";
 import {TestData} from "models/auth_configs/spec/test_data";
 import {Role} from "models/roles/roles";
-import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {AuthorizationPluginInfo} from "models/shared/plugin_infos_new/spec/test_data";
 import * as simulateEvent from "simulate-event";
 import {PluginRoleModalBodyWidget} from "views/pages/roles/role_modal_body_widget";
@@ -26,10 +26,10 @@ import {RolesTestData} from "views/pages/roles/spec/test_data";
 import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("PluginRoleModalBodyWidget", () => {
-  const pluginInfos = [
+  const pluginInfos = new PluginInfos(
     PluginInfo.fromJSON(AuthorizationPluginInfo.ldap()),
     PluginInfo.fromJSON(AuthorizationPluginInfo.github())
-  ];
+  );
   const authConfigs = AuthConfigs.fromJSON(
     TestData.authConfigList(TestData.ldapAuthConfig(), TestData.gitHubAuthConfig())
   );

@@ -13,23 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {bind} from "classnames/bind";
-import {ApiResult, ErrorResponse, ObjectWithEtag} from "helpers/api_request_builder";
+import { bind } from "classnames/bind";
+import { ApiResult, ErrorResponse, ObjectWithEtag } from "helpers/api_request_builder";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {ClusterProfilesCRUD} from "models/elastic_profiles/cluster_profiles_crud";
-import {ClusterProfile} from "models/elastic_profiles/types";
-import {Configurations} from "models/shared/configuration";
-import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
-import {ElasticAgentSettings, Extension} from "models/shared/plugin_infos_new/extensions";
-import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import { ClusterProfilesCRUD } from "models/elastic_profiles/cluster_profiles_crud";
+import { ClusterProfile } from "models/elastic_profiles/types";
+import { Configurations } from "models/shared/configuration";
+import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
+import { ElasticAgentExtension} from "models/shared/plugin_infos_new/extensions";
+import { PluginInfo, PluginInfos } from "models/shared/plugin_infos_new/plugin_info";
 import * as Buttons from "views/components/buttons";
-import {FlashMessage, MessageType} from "views/components/flash_message";
-import {Form, FormHeader} from "views/components/forms/form";
-import {SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
-import {Modal, Size} from "views/components/modal";
-import {Spinner} from "views/components/spinner";
+import { FlashMessage, MessageType } from "views/components/flash_message";
+import { Form, FormHeader } from "views/components/forms/form";
+import { SelectField, SelectFieldOptions, TextField } from "views/components/forms/input_fields";
+import { Modal, Size } from "views/components/modal";
+import { Spinner } from "views/components/spinner";
 import styles from "views/pages/elastic_agent_configurations/index.scss";
 import * as foundationStyles from "views/pages/new_plugins/foundation_hax.scss";
 
@@ -43,17 +43,17 @@ export enum ModalType {
 
 export abstract class BaseClusterProfileModal extends Modal {
   protected clusterProfile: Stream<ClusterProfile>;
-  private readonly elasticAgentPluginInfo: Stream<PluginInfo<Extension>>;
-  private readonly pluginInfos: Array<PluginInfo<Extension>>;
+  private readonly elasticAgentPluginInfo: Stream<PluginInfo>;
+  private readonly pluginInfos: PluginInfos;
   private readonly modalType: ModalType;
   private errorMessage: string | undefined | null = null;
 
-  protected constructor(pluginInfos: Array<PluginInfo<Extension>>, type: ModalType, clusterProfile?: ClusterProfile) {
+  protected constructor(pluginInfos: PluginInfos, type: ModalType, clusterProfile?: ClusterProfile) {
     super(Size.extraLargeHackForEaProfiles);
-    this.clusterProfile         = Stream(clusterProfile!);
-    this.pluginInfos            = pluginInfos;
+    this.clusterProfile = Stream(clusterProfile!);
+    this.pluginInfos = pluginInfos;
     this.elasticAgentPluginInfo = Stream();
-    this.modalType              = type;
+    this.modalType = type;
   }
 
   abstract performSave(): void;
@@ -84,7 +84,7 @@ export abstract class BaseClusterProfileModal extends Modal {
   supportsClusterProfile() {
     const extensionPluginInfo = this.pluginInfo();
     if (extensionPluginInfo) {
-      const elasticAgentExtensionInfo = extensionPluginInfo.extensionOfType(ExtensionType.ELASTIC_AGENTS) as ElasticAgentSettings;
+      const elasticAgentExtensionInfo = extensionPluginInfo.extensionOfType(ExtensionTypeString.ELASTIC_AGENTS) as ElasticAgentExtension;
       return elasticAgentExtensionInfo && elasticAgentExtensionInfo.supportsClusterProfiles;
     }
     return false;
@@ -94,34 +94,34 @@ export abstract class BaseClusterProfileModal extends Modal {
     let errorSection: m.Children;
 
     if (this.errorMessage) {
-      errorSection = (<FlashMessage type={MessageType.alert} message={this.errorMessage}/>);
+      errorSection = (<FlashMessage type={MessageType.alert} message={this.errorMessage} />);
     }
 
     if (!this.clusterProfile()) {
-      return <div class={styles.spinnerWrapper} data-test-id="spinner-wrapper"><Spinner/></div>;
+      return <div class={styles.spinnerWrapper} data-test-id="spinner-wrapper"><Spinner /></div>;
     }
 
-    const pluginList = _.map(this.pluginInfos, (pluginInfo: PluginInfo<any>) => {
-      return {id: pluginInfo.id, text: pluginInfo.about.name};
+    const pluginList = _.map(this.pluginInfos, (pluginInfo: PluginInfo) => {
+      return { id: pluginInfo.id, text: pluginInfo.about.name };
     });
 
     const extensionPluginInfo = this.pluginInfo();
     this.elasticAgentPluginInfo(extensionPluginInfo || this.pluginInfos[0]);
 
-    const elasticAgentSettings = this.elasticAgentPluginInfo().extensionOfType(ExtensionType.ELASTIC_AGENTS) as ElasticAgentSettings;
+    const elasticAgentSettings = this.elasticAgentPluginInfo().extensionOfType(ExtensionTypeString.ELASTIC_AGENTS) as ElasticAgentExtension;
 
     let clusterProfileForm, alertMessage;
 
     if (this.supportsClusterProfile()) {
       clusterProfileForm = <AngularPluginNew pluginInfoSettings={Stream(elasticAgentSettings.clusterProfileSettings)}
-                                             configuration={this.clusterProfile().properties()}
-                                             key={this.elasticAgentPluginInfo().id}/>;
+        configuration={this.clusterProfile().properties()}
+        key={this.elasticAgentPluginInfo().id} />;
     } else {
       const pluginName = extensionPluginInfo ? extensionPluginInfo.about.name : "";
       if (this.modalType === ModalType.create) {
-        alertMessage = <FlashMessage type={MessageType.alert} message={`Can not define Cluster profiles for '${pluginName}' plugin as it does not support cluster profiles.`}/>;
+        alertMessage = <FlashMessage type={MessageType.alert} message={`Can not define Cluster profiles for '${pluginName}' plugin as it does not support cluster profiles.`} />;
       } else {
-        alertMessage = <FlashMessage type={MessageType.warning} message={`Can not edit Cluster profile for '${pluginName}' plugin as it does not support cluster profiles.`}/>;
+        alertMessage = <FlashMessage type={MessageType.warning} message={`Can not edit Cluster profile for '${pluginName}' plugin as it does not support cluster profiles.`} />;
       }
     }
 
@@ -132,17 +132,17 @@ export abstract class BaseClusterProfileModal extends Modal {
             {alertMessage}
             <Form>
               <TextField label="Id"
-                         readonly={this.modalType === ModalType.edit}
-                         property={this.clusterProfile().id}
-                         errorText={this.clusterProfile().errors().errorsForDisplay("id")}
-                         required={true}/>
+                readonly={this.modalType === ModalType.edit}
+                property={this.clusterProfile().id}
+                errorText={this.clusterProfile().errors().errorsForDisplay("id")}
+                required={true} />
 
               <SelectField label="Plugin ID"
-                           property={this.pluginIdProxy.bind(this)}
-                           required={true}
-                           errorText={this.clusterProfile().errors().errorsForDisplay("pluginId")}>
+                property={this.pluginIdProxy.bind(this)}
+                required={true}
+                errorText={this.clusterProfile().errors().errorsForDisplay("pluginId")}>
                 <SelectFieldOptions selected={this.clusterProfile().pluginId()}
-                                    items={pluginList}/>
+                  items={pluginList} />
               </SelectField>
             </Form>
           </FormHeader>
@@ -167,11 +167,17 @@ export abstract class BaseClusterProfileModal extends Modal {
     this.errorMessage = error;
   }
 
-  private pluginIdProxy(newValue ?: string) {
+  private pluginIdProxy(newValue?: string) {
     if (newValue) {
       if (this.elasticAgentPluginInfo().id !== newValue) {
         const pluginInfo = _.find(this.pluginInfos, (p) => p.id === newValue);
         this.elasticAgentPluginInfo(pluginInfo!);
+        this.clusterProfile(new ClusterProfile(
+          this.clusterProfile().id(),
+          pluginInfo!.id,
+          new Configurations([])
+        ));
+
         this.clusterProfile(new ClusterProfile(
           this.clusterProfile().id(),
           pluginInfo!.id,
@@ -186,7 +192,7 @@ export abstract class BaseClusterProfileModal extends Modal {
 export class NewClusterProfileModal extends BaseClusterProfileModal {
   private readonly onSuccessfulSave: (msg: m.Children) => any;
 
-  constructor(pluginInfos: Array<PluginInfo<Extension>>, onSuccessfulSave: (msg: m.Children) => any) {
+  constructor(pluginInfos: PluginInfos, onSuccessfulSave: (msg: m.Children) => any) {
     const clusterProfile = new ClusterProfile("", pluginInfos[0].id, new Configurations([]));
     super(pluginInfos, ModalType.create, clusterProfile);
     this.onSuccessfulSave = onSuccessfulSave;
@@ -194,17 +200,17 @@ export class NewClusterProfileModal extends BaseClusterProfileModal {
 
   performSave() {
     ClusterProfilesCRUD.create(this.clusterProfile())
-                       .then((result) => {
-                         result.do(
-                           () => {
-                             this.onSuccessfulSave(<span>The cluster profile <em>{this.clusterProfile().id()}</em> was created successfully!</span>);
-                             this.close();
-                           },
-                           (errorResponse) => {
-                             this.showErrors(result, errorResponse);
-                           }
-                         );
-                       });
+      .then((result) => {
+        result.do(
+          () => {
+            this.onSuccessfulSave(<span>The cluster profile <em>{this.clusterProfile().id()}</em> was created successfully!</span>);
+            this.close();
+          },
+          (errorResponse) => {
+            this.showErrors(result, errorResponse);
+          }
+        );
+      });
   }
 
   modalTitle() {
@@ -217,21 +223,21 @@ export class EditClusterProfileModal extends BaseClusterProfileModal {
   private etag?: string;
   private readonly clusterProfileId: string;
 
-  constructor(clusterProfileId: string, pluginInfos: Array<PluginInfo<Extension>>, onSuccessfulSave: (msg: m.Children) => any) {
+  constructor(clusterProfileId: string, pluginInfos: PluginInfos, onSuccessfulSave: (msg: m.Children) => any) {
     super(pluginInfos, ModalType.edit);
     this.clusterProfileId = clusterProfileId;
     this.onSuccessfulSave = onSuccessfulSave;
 
     ClusterProfilesCRUD.get(clusterProfileId)
-                       .then((result) => {
-                         result.do(
-                           (successResponse) => {
-                             this.clusterProfile(successResponse.body.object);
-                             this.etag = successResponse.body.etag;
-                           },
-                           ((errorResponse) => this.onError(JSON.parse(errorResponse.body!).message))
-                         );
-                       });
+      .then((result) => {
+        result.do(
+          (successResponse) => {
+            this.clusterProfile(successResponse.body.object);
+            this.etag = successResponse.body.etag;
+          },
+          ((errorResponse) => this.onError(JSON.parse(errorResponse.body!).message))
+        );
+      });
   }
 
   performSave() {
@@ -260,37 +266,37 @@ export class CloneClusterProfileModal extends BaseClusterProfileModal {
   private readonly onSuccessfulSave: (msg: m.Children) => any;
   private readonly clusterProfileId: string;
 
-  constructor(clusterProfileId: string, pluginInfos: Array<PluginInfo<Extension>>, onSuccessfulSave: (msg: m.Children) => any) {
+  constructor(clusterProfileId: string, pluginInfos: PluginInfos, onSuccessfulSave: (msg: m.Children) => any) {
     super(pluginInfos, ModalType.create);
     this.clusterProfileId = clusterProfileId;
     this.onSuccessfulSave = onSuccessfulSave;
 
     ClusterProfilesCRUD.get(clusterProfileId)
-                       .then((result) => {
-                         result.do(
-                           (successResponse) => {
-                             this.clusterProfile(successResponse.body.object);
-                             this.clusterProfile().id("");
-                           },
-                           ((errorResponse) => this.onError(JSON.parse(errorResponse.body!).message))
-                         );
-                       });
+      .then((result) => {
+        result.do(
+          (successResponse) => {
+            this.clusterProfile(successResponse.body.object);
+            this.clusterProfile().id("");
+          },
+          ((errorResponse) => this.onError(JSON.parse(errorResponse.body!).message))
+        );
+      });
   }
 
   performSave() {
     ClusterProfilesCRUD.create(this.clusterProfile())
-                       .then((result) => {
-                         result.do(
-                           () => {
-                             this.onSuccessfulSave(<span>The cluster profile <em>{this.clusterProfile().id()}</em> was created successfully!</span>);
-                             this.close();
-                           },
-                           (errorResponse) => {
-                             this.onError(JSON.parse(errorResponse.body!).message);
-                             this.showErrors(result, errorResponse);
-                           }
-                         );
-                       });
+      .then((result) => {
+        result.do(
+          () => {
+            this.onSuccessfulSave(<span>The cluster profile <em>{this.clusterProfile().id()}</em> was created successfully!</span>);
+            this.close();
+          },
+          (errorResponse) => {
+            this.onError(JSON.parse(errorResponse.body!).message);
+            this.showErrors(result, errorResponse);
+          }
+        );
+      });
   }
 
   modalTitle() {

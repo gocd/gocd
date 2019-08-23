@@ -17,8 +17,8 @@ import {docsUrl} from "gen/gocd_version";
 import * as Routes from "gen/ts-routes";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
-import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
-import {ElasticAgentSettings, Extension} from "models/shared/plugin_infos_new/extensions";
+import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
+import {ElasticAgentExtension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import * as Buttons from "views/components/buttons";
 import {ButtonIcon} from "views/components/buttons";
@@ -52,7 +52,7 @@ class PluginHeaderWidget extends MithrilViewComponent<PluginHeaderAttrs> {
 }
 
 export interface Attrs {
-  pluginInfo: PluginInfo<any>;
+  pluginInfo: PluginInfo;
   isUserAnAdmin: boolean;
   onEdit: (e: MouseEvent) => void;
 }
@@ -87,7 +87,9 @@ export class PluginWidget extends MithrilViewComponent<Attrs> {
     }
 
     if (this.deprecatedPluginInfo(pluginInfo)) {
-      const content            = <p>Version {pluginInfo.about.version} of plugin is deprecated as it does not support <a onclick={(e) => this.goToClusterProfileDocs(e)} href={"#"}>ClusterProfiles</a>. This version of plugin will stop working in upcoming release of GoCD, update to latest version of the plugin.</p>;
+      const content            = <p>Version {pluginInfo.about.version} of plugin is deprecated as it does not support <a
+        onclick={(e) => this.goToClusterProfileDocs(e)} href={"#"}>ClusterProfiles</a>. This version of plugin will stop
+        working in upcoming release of GoCD, update to latest version of the plugin.</p>;
       deprecationWarningButton = <PluginDeprecationWarning content={content}/>;
     }
 
@@ -106,10 +108,11 @@ export class PluginWidget extends MithrilViewComponent<Attrs> {
 
     return (
       <CollapsiblePanel dataTestId="plugin-row"
-                        header={<PluginHeaderWidget image={<HeaderIcon name="Plugin Icon" imageUrl={pluginInfo.imageUrl}/>}
-                                                    pluginName={pluginInfo.about.name}
-                                                    pluginVersion={pluginInfo.about.version}
-                                                    pluginId={pluginInfo.id}/>}
+                        header={<PluginHeaderWidget
+                          image={<HeaderIcon name="Plugin Icon" imageUrl={pluginInfo.imageUrl}/>}
+                          pluginName={pluginInfo.about.name}
+                          pluginVersion={pluginInfo.about.version}
+                          pluginId={pluginInfo.id}/>}
                         actions={[deprecationWarningButton, statusReportButton, settingsButton]}
                         error={pluginInfo.hasErrors()}
                         warning={this.hasWarnings(pluginInfo)}
@@ -119,7 +122,7 @@ export class PluginWidget extends MithrilViewComponent<Attrs> {
     );
   }
 
-  private getAuthorInfo(pluginInfo: PluginInfo<any>): m.Children {
+  private getAuthorInfo(pluginInfo: PluginInfo): m.Children {
     return (
       <a target="_blank" href={pluginInfo.about.vendor.url}>
         {pluginInfo.about.vendor.name}
@@ -132,8 +135,8 @@ export class PluginWidget extends MithrilViewComponent<Attrs> {
     window.location.href = statusReportHref;
   }
 
-  private deprecatedPluginInfo(pluginInfo: PluginInfo<Extension>) {
-    const elasticAgentExtension = pluginInfo.extensionOfType(ExtensionType.ELASTIC_AGENTS) as ElasticAgentSettings;
+  private deprecatedPluginInfo(pluginInfo: PluginInfo) {
+    const elasticAgentExtension = pluginInfo.extensionOfType(ExtensionTypeString.ELASTIC_AGENTS) as ElasticAgentExtension;
     return elasticAgentExtension && !elasticAgentExtension.supportsClusterProfiles;
   }
 
@@ -142,7 +145,7 @@ export class PluginWidget extends MithrilViewComponent<Attrs> {
     window.open(docsUrl("configuration/elastic_agents.html"), "_blank");
   }
 
-  private hasWarnings(pluginInfo: PluginInfo<Extension>): boolean {
+  private hasWarnings(pluginInfo: PluginInfo): boolean {
     return this.deprecatedPluginInfo(pluginInfo);
   }
 }

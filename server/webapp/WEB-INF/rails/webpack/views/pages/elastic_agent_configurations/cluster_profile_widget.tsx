@@ -22,9 +22,9 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {ClusterProfile, ElasticAgentProfile, ElasticAgentProfiles} from "models/elastic_profiles/types";
 import {Configurations} from "models/shared/configuration";
-import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
-import {Extension} from "models/shared/plugin_infos_new/extensions";
-import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
+import {ElasticAgentExtension} from "models/shared/plugin_infos_new/extensions";
+import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {ButtonIcon} from "views/components/buttons";
 import * as Buttons from "views/components/buttons";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
@@ -40,7 +40,7 @@ const classnames = bind(styles);
 export type ClusterProfileOperations = EditOperation<ClusterProfile> & DeleteOperation<string> & AddOperation<void> & CloneOperation<ClusterProfile>;
 
 export interface Attrs extends ElasticProfilesWidgetAttrs {
-  pluginInfos: Stream<Array<PluginInfo<Extension>>>;
+  pluginInfos: Stream<PluginInfos>;
   elasticProfiles: ElasticAgentProfiles;
   isUserAnAdmin: boolean;
   clusterProfileOperations: ClusterProfileOperations;
@@ -95,15 +95,15 @@ export class ClusterProfileWidget extends MithrilComponent<ClusterProfileWidgetA
     </CollapsiblePanel>;
   }
 
-  private static supportsClusterStatusReport(pluginInfo: PluginInfo<any> | undefined) {
-    if (pluginInfo && pluginInfo.extensionOfType(ExtensionType.ELASTIC_AGENTS)) {
-      const extension = pluginInfo.extensionOfType(ExtensionType.ELASTIC_AGENTS);
+  private static supportsClusterStatusReport(pluginInfo?: PluginInfo) {
+    if (pluginInfo && pluginInfo.extensionOfType(ExtensionTypeString.ELASTIC_AGENTS)) {
+      const extension = pluginInfo.extensionOfType<ElasticAgentExtension>(ExtensionTypeString.ELASTIC_AGENTS);
       return extension && extension.capabilities && extension.capabilities.supportsClusterStatusReport;
     }
     return false;
   }
 
-  private static createImageTag(pluginInfo: PluginInfo<any> | undefined) {
+  private static createImageTag(pluginInfo?: PluginInfo) {
     if (pluginInfo && pluginInfo.imageUrl) {
       return <HeaderIcon name="Plugin Icon" imageUrl={pluginInfo.imageUrl}/>;
     }

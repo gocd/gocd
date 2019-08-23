@@ -17,16 +17,16 @@
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {Rule, Rules} from "models/secret_configs/rules";
-import {SecretConfig, SecretConfigs} from "models/secret_configs/secret_configs";
-import {SecretConfigsCRUD} from "models/secret_configs/secret_configs_crud";
-import {SecretConfigJSON} from "models/secret_configs/secret_configs_json";
-import {Configurations} from "models/shared/configuration";
-import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
-import {SecretSettings} from "models/shared/plugin_infos_new/extensions";
-import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import { Rule, Rules } from "models/secret_configs/rules";
+import { SecretConfig, SecretConfigs } from "models/secret_configs/secret_configs";
+import { SecretConfigsCRUD } from "models/secret_configs/secret_configs_crud";
+import { SecretConfigJSON } from "models/secret_configs/secret_configs_json";
+import { Configurations } from "models/shared/configuration";
+import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
+import { SecretExtension } from "models/shared/plugin_infos_new/extensions";
+import { PluginInfo, PluginInfos } from "models/shared/plugin_infos_new/plugin_info";
 import * as Buttons from "views/components/buttons";
-import {Form, FormHeader} from "views/components/forms/form";
+import { Form, FormHeader } from "views/components/forms/form";
 import {
   SelectField,
   SelectFieldOptions,
@@ -34,10 +34,10 @@ import {
   TextAreaField,
   TextField
 } from "views/components/forms/input_fields";
-import {Size} from "views/components/modal";
-import {EntityModal} from "views/components/modal/entity_modal";
+import { Size } from "views/components/modal";
+import { EntityModal } from "views/components/modal/entity_modal";
 import styles from "views/pages/secret_configs/index.scss";
-import {RulesWidget} from "views/pages/secret_configs/rules_widget";
+import { RulesWidget } from "views/pages/secret_configs/rules_widget";
 
 const AngularPluginNew = require('views/shared/angular_plugin_new').AngularPluginNew;
 
@@ -49,16 +49,16 @@ export abstract class SecretConfigModal extends EntityModal<SecretConfig> {
 
   constructor(entities: Stream<SecretConfigs>,
               entity: SecretConfig,
-              pluginInfos: Array<PluginInfo<any>>,
+              pluginInfos: PluginInfos,
               onSuccessfulSave: (msg: m.Children) => any,
               resourceAutocompleteHelper: Map<string, string[]>,
               disableId: boolean = false,
-              size: Size         = Size.large) {
+              size: Size = Size.large) {
     super(entity, pluginInfos, onSuccessfulSave, size);
     this.resourceAutocompleteHelper = resourceAutocompleteHelper;
-    this.entities                   = entities;
-    this.originalEntityId           = entity.id();
-    this.disableId                  = disableId;
+    this.entities = entities;
+    this.originalEntityId = entity.id();
+    this.disableId = disableId;
   }
 
   operationError(errorResponse: any, statusCode: number) {
@@ -77,40 +77,40 @@ export abstract class SecretConfigModal extends EntityModal<SecretConfig> {
   }
 
   protected modalBody(): m.Children {
-    const pluginList     = _.map(this.pluginInfos, (pluginInfo: PluginInfo<any>) => {
-      return {id: pluginInfo.id, text: pluginInfo.about.name};
+    const pluginList = _.map(this.pluginInfos, (pluginInfo: PluginInfo) => {
+      return { id: pluginInfo.id, text: pluginInfo.about.name };
     });
-    const pluginInfo     = this.findPluginInfo(this.pluginInfos, this.entity().pluginId());
-    const pluginSettings = (pluginInfo.extensionOfType(ExtensionType.SECRETS)! as SecretSettings).secretConfigSettings;
+    const pluginInfo = this.findPluginInfo(this.pluginInfos, this.entity().pluginId());
+    const pluginSettings = (pluginInfo.extensionOfType(ExtensionTypeString.SECRETS)! as SecretExtension).secretConfigSettings;
 
     return <div>
       <FormHeader>
         <Form>
           <TextField label="Id"
-                     placeholder="Enter any unique identifier"
-                     property={this.entity().id}
-                     errorText={this.entity().errors().errorsForDisplay("id")}
-                     readonly={this.disableId}
-                     required={true}/>
+            placeholder="Enter any unique identifier"
+            property={this.entity().id}
+            errorText={this.entity().errors().errorsForDisplay("id")}
+            readonly={this.disableId}
+            required={true} />
 
           <SelectField label="Plugin"
-                       property={this.pluginIdProxy.bind(this)}
-                       required={true}
-                       errorText={this.entity().errors().errorsForDisplay("pluginId")}>
+            property={this.pluginIdProxy.bind(this)}
+            required={true}
+            errorText={this.entity().errors().errorsForDisplay("pluginId")}>
             <SelectFieldOptions selected={this.entity().pluginId()}
-                                items={pluginList}/>
+              items={pluginList} />
           </SelectField>
         </Form>
       </FormHeader>
 
       <div class={styles.widthSmall}>
         <TextAreaField label={"Description"}
-                       property={this.entity().description}
-                       resizable={true}
-                       rows={2}
-                       size={TextAreaSize.MATCH_PARENT}
-                       errorText={this.entity().errors().errorsForDisplay("description")}
-                       placeholder="What's this secret config used for?"/>
+          property={this.entity().description}
+          resizable={true}
+          rows={2}
+          size={TextAreaSize.MATCH_PARENT}
+          errorText={this.entity().errors().errorsForDisplay("description")}
+          placeholder="What's this secret config used for?" />
       </div>
 
       <div>
@@ -118,10 +118,10 @@ export abstract class SecretConfigModal extends EntityModal<SecretConfig> {
           <AngularPluginNew
             pluginInfoSettings={Stream(pluginSettings)}
             configuration={this.entity().properties()}
-            key={this.entity().id()}/>
+            key={this.entity().id()} />
         </div>
       </div>
-      <RulesWidget rules={this.entity().rules} resourceAutocompleteHelper={this.resourceAutocompleteHelper}/>
+      <RulesWidget rules={this.entity().rules} resourceAutocompleteHelper={this.resourceAutocompleteHelper} />
       <div class={styles.addRule}>
         <Buttons.Secondary data-test-id="add-rule-button" onclick={this.addNewRule.bind(this)}>
           + New Rule
@@ -130,12 +130,12 @@ export abstract class SecretConfigModal extends EntityModal<SecretConfig> {
     </div>;
   }
 
-  protected onPluginChange(entity: Stream<SecretConfig>, pluginInfo: PluginInfo<any>): void {
+  protected onPluginChange(entity: Stream<SecretConfig>, pluginInfo: PluginInfo): void {
     this.entity(new SecretConfig(entity().id(),
-                                 entity().description(),
-                                 pluginInfo.id,
-                                 new Configurations([]),
-                                 new Rules(Stream(new Rule("deny", "refer", "pipeline_group", "")))));
+      entity().description(),
+      pluginInfo.id,
+      new Configurations([]),
+      new Rules(Stream(new Rule("deny", "refer", "pipeline_group", "")))));
   }
 
   protected parseJsonToEntity(json: object): SecretConfig {
@@ -154,8 +154,8 @@ export abstract class SecretConfigModal extends EntityModal<SecretConfig> {
     this.entities().push(this.entity);
   }
 
-  private findPluginInfo(pluginInfos: Array<PluginInfo<any>>, pluginId: string): PluginInfo<any> {
-    return pluginInfos.find((pluginInfo) => pluginInfo.id === pluginId) as PluginInfo<any>;
+  private findPluginInfo(pluginInfos: PluginInfos, pluginId: string): PluginInfo {
+    return pluginInfos.find((pluginInfo) => pluginInfo.id === pluginId) as PluginInfo;
   }
 }
 
@@ -163,7 +163,7 @@ export class CreateSecretConfigModal extends SecretConfigModal {
 
   constructor(entities: Stream<SecretConfigs>,
               entity: SecretConfig,
-              pluginInfos: Array<PluginInfo<any>>,
+              pluginInfos: PluginInfos,
               onSuccessfulSave: (msg: m.Children) => any,
               resourceAutocompleteHelper: Map<string, string[]>) {
     super(entities, entity, pluginInfos, onSuccessfulSave, resourceAutocompleteHelper, false);
@@ -186,7 +186,7 @@ export class CreateSecretConfigModal extends SecretConfigModal {
 export class EditSecretConfigModal extends SecretConfigModal {
   constructor(entities: Stream<SecretConfigs>,
               entity: SecretConfig,
-              pluginInfos: Array<PluginInfo<any>>,
+              pluginInfos: PluginInfos,
               onSuccessfulSave: (msg: m.Children) => any,
               resourceAutocompleteHelper: Map<string, string[]>) {
     super(entities, entity, pluginInfos, onSuccessfulSave, resourceAutocompleteHelper, true);
@@ -217,7 +217,7 @@ export class EditSecretConfigModal extends SecretConfigModal {
 export class CloneSecretConfigModal extends SecretConfigModal {
   constructor(entities: Stream<SecretConfigs>,
               entity: SecretConfig,
-              pluginInfos: Array<PluginInfo<any>>,
+              pluginInfos: PluginInfos,
               onSuccessfulSave: (msg: m.Children) => any,
               resourceAutocompleteHelper: Map<string, string[]>) {
     super(entities, entity, pluginInfos, onSuccessfulSave, resourceAutocompleteHelper, false);

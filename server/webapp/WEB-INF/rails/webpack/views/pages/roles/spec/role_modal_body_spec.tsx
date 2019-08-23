@@ -19,7 +19,7 @@ import Stream from "mithril/stream";
 import {AuthConfigs} from "models/auth_configs/auth_configs";
 import {TestData} from "models/auth_configs/spec/test_data";
 import {Role, RoleType} from "models/roles/roles";
-import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {AuthorizationPluginInfo} from "models/shared/plugin_infos_new/spec/test_data";
 import * as simulateEvent from "simulate-event";
 import {Action, RoleModalBody} from "views/pages/roles/role_modal_body";
@@ -28,7 +28,7 @@ import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("RoleModalBody", () => {
   const gocdRole       = Role.fromJSON(RolesTestData.GoCDRoleJSON());
-  const pluginInfos    = [PluginInfo.fromJSON(AuthorizationPluginInfo.ldap())];
+  const pluginInfos    = new PluginInfos(PluginInfo.fromJSON(AuthorizationPluginInfo.ldap()));
   const authConfigs    = AuthConfigs.fromJSON(TestData.authConfigList(TestData.ldapAuthConfig()));
   const changeRoleType = jasmine.createSpy("changeRoleType");
 

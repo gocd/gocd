@@ -17,7 +17,6 @@ import {MithrilComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
 import {ElasticAgentProfile, ElasticAgentProfiles} from "models/elastic_profiles/types";
-import {Extension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {FlashMessage, MessageType} from "views/components/flash_message";
@@ -30,7 +29,11 @@ interface ElasticAgentProfileAddOperation {
   onAdd: (elasticAgentProfile: ElasticAgentProfile, e: MouseEvent) => void;
 }
 
-export type ElasticAgentOperations = EditOperation<ElasticAgentProfile> & DeleteOperation<string> & CloneOperation<ElasticAgentProfile> & ElasticAgentProfileAddOperation;
+export type ElasticAgentOperations =
+  EditOperation<ElasticAgentProfile>
+  & DeleteOperation<string>
+  & CloneOperation<ElasticAgentProfile>
+  & ElasticAgentProfileAddOperation;
 
 export interface Attrs {
   elasticProfiles: ElasticAgentProfiles;
@@ -40,14 +43,15 @@ export interface Attrs {
 }
 
 interface PluginInfoAttrs {
-  pluginInfo: PluginInfo<Extension> | undefined;
+  pluginInfo?: PluginInfo;
 }
 
 export class ElasticProfilesWidget extends MithrilComponent<Attrs & PluginInfoAttrs, {}> {
 
   view(vnode: m.Vnode<Attrs & PluginInfoAttrs, {}>) {
     if (vnode.attrs.pluginInfo !== undefined && ElasticProfilesWidget.noElasticProfileConfigured(vnode)) {
-      return <FlashMessage type={MessageType.info} message="Click on 'Add' button to create new elastic agent profile."/>;
+      return <FlashMessage type={MessageType.info}
+                           message="Click on 'Add' button to create new elastic agent profile."/>;
     }
 
     return (
@@ -58,10 +62,15 @@ export class ElasticProfilesWidget extends MithrilComponent<Attrs & PluginInfoAt
               return profiles.map((profile: ElasticAgentProfile) =>
                                     <ElasticProfileWidget key={profile.id()} elasticProfile={profile}
                                                           pluginInfo={vnode.attrs.pluginInfo}
-                                                          onEdit={vnode.attrs.elasticAgentOperations.onEdit.bind(vnode.attrs, profile)}
-                                                          onClone={vnode.attrs.elasticAgentOperations.onClone.bind(vnode.attrs, profile)}
-                                                          onDelete={vnode.attrs.elasticAgentOperations.onDelete.bind(vnode.attrs, profile.id()!)}
-                                                          onShowUsage={vnode.attrs.onShowUsages.bind(vnode.attrs, profile.id()!)}
+                                                          onEdit={vnode.attrs.elasticAgentOperations.onEdit.bind(vnode.attrs,
+                                                                                                                 profile)}
+                                                          onClone={vnode.attrs.elasticAgentOperations.onClone.bind(vnode.attrs,
+                                                                                                                   profile)}
+                                                          onDelete={vnode.attrs.elasticAgentOperations.onDelete.bind(
+                                                            vnode.attrs,
+                                                            profile.id()!)}
+                                                          onShowUsage={vnode.attrs.onShowUsages.bind(vnode.attrs,
+                                                                                                     profile.id()!)}
                                     />
               );
             })
@@ -77,7 +86,7 @@ export class ElasticProfilesWidget extends MithrilComponent<Attrs & PluginInfoAt
 }
 
 export interface ProfileAttrs {
-  pluginInfo: PluginInfo<Extension> | undefined;
+  pluginInfo?: PluginInfo;
   elasticProfile: ElasticAgentProfile;
   onEdit: (e: MouseEvent) => void;
   onClone: (e: MouseEvent) => void;
@@ -96,14 +105,17 @@ export class ElasticProfileWidget extends MithrilComponent<ProfileAttrs> {
     const elasticProfile = vnode.attrs.elasticProfile;
     const actions        = [
       <IconGroup>
-        <Icons.Edit data-test-id="edit-elastic-profile" onclick={vnode.attrs.onEdit} disabled={!vnode.attrs.pluginInfo}/>
-        <Icons.Clone data-test-id="clone-elastic-profile" onclick={vnode.attrs.onClone} disabled={!vnode.attrs.pluginInfo}/>
+        <Icons.Edit data-test-id="edit-elastic-profile" onclick={vnode.attrs.onEdit}
+                    disabled={!vnode.attrs.pluginInfo}/>
+        <Icons.Clone data-test-id="clone-elastic-profile" onclick={vnode.attrs.onClone}
+                     disabled={!vnode.attrs.pluginInfo}/>
         <Icons.Delete data-test-id="delete-elastic-profile" onclick={vnode.attrs.onDelete}/>
         <Icons.Usage data-test-id="show-usage-elastic-profile" onclick={vnode.attrs.onShowUsage}/>
       </IconGroup>
     ];
     return (
-      <CollapsiblePanel header={ElasticProfileWidget.profileHeader(elasticProfile.id()!)} actions={actions} dataTestId={"elastic-profile-header"}>
+      <CollapsiblePanel header={ElasticProfileWidget.profileHeader(elasticProfile.id()!)} actions={actions}
+                        dataTestId={"elastic-profile-header"}>
         <KeyValuePair data={new Map(elasticProfile.properties() != null ? elasticProfile.properties()!.asMap() : [])}/>
       </CollapsiblePanel>
     );

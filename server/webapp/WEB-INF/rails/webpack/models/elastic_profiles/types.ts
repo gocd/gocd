@@ -41,6 +41,14 @@ export class ClusterProfiles {
   all(): ClusterProfile[] {
     return this.profiles();
   }
+
+  empty(): boolean {
+    return this.size() === 0;
+  }
+
+  size(): number {
+    return this.profiles() == null ? 0 : this.profiles().length;
+  }
 }
 
 export class ElasticAgentProfiles {

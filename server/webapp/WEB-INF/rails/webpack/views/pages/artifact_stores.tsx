@@ -19,7 +19,8 @@ import Stream from "mithril/stream";
 import {ArtifactStore, ArtifactStores} from "models/artifact_stores/artifact_stores";
 import {ArtifactStoresCRUD} from "models/artifact_stores/artifact_stores_crud";
 import {Configurations} from "models/shared/configuration";
-import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
+import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
+import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
 import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
@@ -83,7 +84,7 @@ export class ArtifactStoresPage extends Page<null, State> {
       e.stopPropagation();
       this.flashMessage.clear();
 
-      new DeleteArtifactStoreModal(artifactStore, [], vnode.state.onSuccessfulSave,
+      new DeleteArtifactStoreModal(artifactStore, new PluginInfos(), vnode.state.onSuccessfulSave,
                                    this.flashMessage.setMessage.bind(this.flashMessage)).render();
     };
   }
@@ -114,7 +115,7 @@ export class ArtifactStoresPage extends Page<null, State> {
   }
 
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {
-    return Promise.all([PluginInfoCRUD.all({type: ExtensionType.ARTIFACT}), ArtifactStoresCRUD.all()])
+    return Promise.all([PluginInfoCRUD.all({type: ExtensionTypeString.ARTIFACT}), ArtifactStoresCRUD.all()])
                   .then((results) => {
                     results[0].do((successResponse) => {
                       vnode.state.pluginInfos(successResponse.body);

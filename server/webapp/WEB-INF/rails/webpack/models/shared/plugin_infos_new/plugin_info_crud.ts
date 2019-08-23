@@ -16,25 +16,24 @@
 
 import {ApiRequestBuilder, ApiResult, ApiVersion} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
-import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
-import {Extension} from "models/shared/plugin_infos_new/extensions";
-import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
+import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 
 export interface PluginInfoQuery {
   include_bad?: boolean;
-  type?: ExtensionType | undefined;
+  type?: ExtensionTypeString;
 }
 
 export class PluginInfoCRUD {
   private static API_VERSION_HEADER = ApiVersion.v6;
 
-  static all<T extends Extension>(options: PluginInfoQuery): Promise<ApiResult<Array<PluginInfo<T>>>> {
+  static all(options: PluginInfoQuery): Promise<ApiResult<PluginInfos>> {
     return ApiRequestBuilder.GET(SparkRoutes.apiPluginInfoPath(options), this.API_VERSION_HEADER)
-      .then((result: ApiResult<string>) => {
-        return result.map((str) => {
-          const data = JSON.parse(str);
-          return data._embedded.plugin_info.map((pluginInfo: any) => PluginInfo.fromJSON(pluginInfo, pluginInfo._links));
-        });
-      });
+                            .then((result: ApiResult<string>) => {
+                              return result.map((str) => {
+                                const data = JSON.parse(str);
+                                return PluginInfos.fromJSON(data);
+                              });
+                            });
   }
 }

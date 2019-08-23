@@ -21,8 +21,7 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {AuthConfig, AuthConfigs} from "models/auth_configs/auth_configs";
 import {GoCDRole, PluginRole, RoleType} from "models/roles/roles";
-import {Extension} from "models/shared/plugin_infos_new/extensions";
-import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Spinner} from "views/components/spinner";
 import * as foundationStyles from "views/pages/new_plugins/foundation_hax.scss";
@@ -37,7 +36,7 @@ export enum Action {
 
 interface RoleModalAttrs {
   role: Stream<GoCDRole | PluginRole>;
-  pluginInfos: Array<PluginInfo<Extension>>;
+  pluginInfos: PluginInfos;
   authConfigs: AuthConfigs;
   action: Action;
   message?: string;

@@ -15,24 +15,24 @@
  */
 
 // utils
-import {ApiRequestBuilder, ApiVersion} from "helpers/api_request_builder";
-import {SparkRoutes} from "helpers/spark_routes";
+import { ApiRequestBuilder, ApiVersion } from "helpers/api_request_builder";
+import { SparkRoutes } from "helpers/spark_routes";
 import m from "mithril";
 import Stream from "mithril/stream";
+import {ConfigRepoExtension} from "models/shared/plugin_infos_new/extensions";
 import s from "underscore.string";
 
 // models and such
-import {ConfigRepo} from "models/config_repos/types";
-import {GitMaterialAttributes, Material} from "models/materials/types";
-import {Job} from "models/pipeline_configs/job";
-import {NameableSet} from "models/pipeline_configs/nameable_set";
-import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
-import {Stage} from "models/pipeline_configs/stage";
-import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
-import {ConfigRepoSettings} from "models/shared/plugin_infos_new/extensions";
-import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
-import {PluginInfosCache} from "models/shared/plugin_infos_new/plugin_infos_cache";
-import {Option} from "views/components/forms/input_fields";
+import { ConfigRepo } from "models/config_repos/types";
+import { GitMaterialAttributes, Material } from "models/materials/types";
+import { Job } from "models/pipeline_configs/job";
+import { NameableSet } from "models/pipeline_configs/nameable_set";
+import { PipelineConfig } from "models/pipeline_configs/pipeline_config";
+import { Stage } from "models/pipeline_configs/stage";
+import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
+import { PluginInfo } from "models/shared/plugin_infos_new/plugin_info";
+import { PluginInfosCache } from "models/shared/plugin_infos_new/plugin_infos_cache";
+import { Option } from "views/components/forms/input_fields";
 
 export class PipelineConfigVM {
   pluginId = Stream(ConfigRepo.YAML_PLUGIN_ID);
@@ -42,12 +42,12 @@ export class PipelineConfigVM {
   pipeline: PipelineConfig = new PipelineConfig("", [this.material], []);
   isUsingTemplate = Stream(false);
 
-  private pluginCache = new PluginInfosCache<ConfigRepoSettings, Option>(ExtensionType.CONFIG_REPO, toOption, onlyExportPlugins);
+  private pluginCache = new PluginInfosCache<Option>(ExtensionTypeString.CONFIG_REPO, toOption, onlyExportPlugins);
 
   whenTemplateAbsent(fn: () => m.Children) {
     const { pipeline, stage, isUsingTemplate } = this;
 
-    if (!isUsingTemplate() ) {
+    if (!isUsingTemplate()) {
       if (!pipeline.stages().has(stage)) {
         pipeline.stages(new NameableSet([stage]));
       }
@@ -61,7 +61,7 @@ export class PipelineConfigVM {
   }
 
   preview(pluginId: string, validate?: boolean) {
-    const {group, pipeline} = this.pipeline.toApiPayload();
+    const { group, pipeline } = this.pipeline.toApiPayload();
 
     if (!validate) {
       if (s.isBlank(pipeline.name)) {
@@ -91,10 +91,10 @@ export interface PipelineConfigVMAware {
   vm: PipelineConfigVM;
 }
 
-function toOption(plugin: PluginInfo<ConfigRepoSettings>): Option {
+function toOption(plugin: PluginInfo): Option {
   return { id: plugin.id, text: plugin.about.name };
 }
 
-function onlyExportPlugins(plugin: PluginInfo<ConfigRepoSettings>): boolean {
-  return "active" === plugin.status.state && plugin.extensions.some((ext) => ext.capabilities.supportsPipelineExport);
+function onlyExportPlugins(plugin: PluginInfo): boolean {
+  return "active" === plugin.status.state && plugin.extensions.some((ext: any) => (ext as ConfigRepoExtension).capabilities.supportsPipelineExport);
 }

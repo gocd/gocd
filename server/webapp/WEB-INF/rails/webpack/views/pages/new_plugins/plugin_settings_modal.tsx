@@ -29,13 +29,13 @@ import styles from "./index.scss";
 const AngularPluginNew = require('views/shared/angular_plugin_new').AngularPluginNew;
 
 export class PluginSettingsModal extends Modal {
-  private readonly pluginInfo: PluginInfo<any>;
+  private readonly pluginInfo: PluginInfo;
   private pluginSettings?: PluginSettings;
   private etag?: string;
   private errorMessage: string | undefined | null = null;
   private successCallback: (msg: string) => void;
 
-  constructor(pluginInfo: PluginInfo<any>, successCallback: (msg: string) => void) {
+  constructor(pluginInfo: PluginInfo, successCallback: (msg: string) => void) {
     super(Size.large);
     this.pluginInfo      = pluginInfo;
     this.successCallback = successCallback;
@@ -64,7 +64,7 @@ export class PluginSettingsModal extends Modal {
         <div class={foundationStyles.foundationFormHax}>
           <div class="row collapse">
             <AngularPluginNew
-              pluginInfoSettings={Stream(this.pluginInfo.firstExtensionWithPluginSettings().pluginSettings)}
+              pluginInfoSettings={Stream(this.pluginInfo.firstExtensionWithPluginSettings()!.pluginSettings)}
               configuration={this.pluginSettings}
               key={this.pluginInfo.id}/>
           </div>

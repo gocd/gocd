@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
+import {ConfigRepoCapabilitiesJSON} from "models/shared/plugin_infos_new/serialization";
+
 export class ConfigRepoCapabilities {
   readonly supportsPipelineExport: boolean;
   readonly supportsParseContent: boolean;
 
   constructor(supportsPipelineExport: boolean, supportsParseContent: boolean) {
     this.supportsPipelineExport = supportsPipelineExport;
-    this.supportsParseContent = supportsParseContent;
+    this.supportsParseContent   = supportsParseContent;
   }
 
-  static fromJSON(data: any): ConfigRepoCapabilities {
+  static fromJSON(data: ConfigRepoCapabilitiesJSON): ConfigRepoCapabilities {
     return new ConfigRepoCapabilities(
       data && data.supports_pipeline_export,
       data && data.supports_parse_content,

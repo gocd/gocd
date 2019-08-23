@@ -18,7 +18,7 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {AuthConfigs} from "models/auth_configs/auth_configs";
 import {TestData} from "models/auth_configs/spec/test_data";
-import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {AuthorizationPluginInfo} from "models/shared/plugin_infos_new/spec/test_data";
 import * as simulateEvent from "simulate-event";
 import {AuthConfigsWidget} from "views/pages/auth_configs/auth_configs_widget";
@@ -30,13 +30,13 @@ describe("AuthorizationConfigurationWidget", () => {
   const onDelete = jasmine.createSpy("onDelete");
 
   const authConfigs = AuthConfigs.fromJSON(TestData.authConfigList(TestData.ldapAuthConfig()));
-  const pluginInfos = [PluginInfo.fromJSON(AuthorizationPluginInfo.ldap())];
+  const pluginInfos = new PluginInfos(PluginInfo.fromJSON(AuthorizationPluginInfo.ldap()));
 
   const helper = new TestHelper();
   afterEach(helper.unmount.bind(helper));
 
   it("should render info message when authorization plugins are not installed on the server", () => {
-    mount(new AuthConfigs(), []);
+    mount(new AuthConfigs(), new PluginInfos());
     expect(helper.findByDataTestId("flash-message-info")).toContainText("No authorization plugin installed.");
   });
 
@@ -56,7 +56,7 @@ describe("AuthorizationConfigurationWidget", () => {
   });
 
   it("should disable edit & clone button when plugin is not installed", () => {
-    mount(authConfigs, []);
+    mount(authConfigs, new PluginInfos());
     expect(helper.findByDataTestId("auth-config-edit")).toBeDisabled();
     expect(helper.findByDataTestId("auth-config-clone")).toBeDisabled();
     expect(helper.findByDataTestId("auth-config-delete")).not.toBeDisabled();
@@ -93,7 +93,7 @@ describe("AuthorizationConfigurationWidget", () => {
     expect(onDelete).toHaveBeenCalledWith(authConfigs[0], jasmine.any(Event));
   });
 
-  function mount(authConfigs: AuthConfigs, pluginInfos: Array<PluginInfo<any>>) {
+  function mount(authConfigs: AuthConfigs, pluginInfos: PluginInfos) {
     helper.mount(() => <AuthConfigsWidget authConfigs={authConfigs}
                                           pluginInfos={Stream(pluginInfos)}
                                           onEdit={onEdit}

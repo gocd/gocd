@@ -15,32 +15,33 @@
  */
 
 import {AbstractObjCache} from "models/base/cache";
-import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
-import {Extension} from "models/shared/plugin_infos_new/extensions";
-import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
+import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
 
-export class PluginInfosCache<S extends Extension, T> extends AbstractObjCache<T[]> {
-  private readonly type: ExtensionType;
-  private readonly transform: (plugin: PluginInfo<S>) => T;
-  private readonly filter?: (plugin: PluginInfo<S>) => boolean;
+export class PluginInfosCache<T> extends AbstractObjCache<T[]> {
+  private readonly type: ExtensionTypeString;
+  private readonly transform: (plugin: PluginInfo) => T;
+  private readonly filter?: (plugin: PluginInfo) => boolean;
 
-  constructor(type: ExtensionType, transform: (plugin: PluginInfo<S>) => T, filter?: (plugin: PluginInfo<S>) => boolean) {
+  constructor(type: ExtensionTypeString,
+              transform: (plugin: PluginInfo) => T,
+              filter?: (plugin: PluginInfo) => boolean) {
     super();
-    this.type = type;
+    this.type      = type;
     this.transform = transform;
-    this.filter = filter;
+    this.filter    = filter;
   }
 
   doFetch(resolve: (data: T[]) => void, reject: (reason: string) => void) {
-    PluginInfoCRUD.all<S>({type: this.type}).then((result) => {
+    PluginInfoCRUD.all({type: this.type}).then((result) => {
       result.do((res) => {
         resolve(this.applyFilter(res.body).map(this.transform));
       }, (err) => reject(err.message));
     });
   }
 
-  applyFilter(data: Array<PluginInfo<S>>) {
+  applyFilter(data: PluginInfos) {
     return "function" === typeof this.filter ?
       data.filter(this.filter) :
       data;

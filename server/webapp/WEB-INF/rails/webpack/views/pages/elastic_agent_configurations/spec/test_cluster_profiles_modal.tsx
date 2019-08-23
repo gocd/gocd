@@ -15,12 +15,11 @@
  */
 
 import {ClusterProfile} from "models/elastic_profiles/types";
-import {Extension} from "models/shared/plugin_infos_new/extensions";
-import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {BaseClusterProfileModal, ModalType} from "views/pages/elastic_agent_configurations/cluster_profiles_modals";
 
 export class TestClusterProfile extends BaseClusterProfileModal {
-  constructor(pluginInfos: Array<PluginInfo<Extension>>, type: ModalType, clusterProfile?: ClusterProfile) {
+  constructor(pluginInfos: PluginInfos, type: ModalType, clusterProfile?: ClusterProfile) {
     super(pluginInfos, type, clusterProfile);
   }
 

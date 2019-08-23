@@ -20,7 +20,7 @@ import Stream from "mithril/stream";
 import {AuthConfig, AuthConfigJSON} from "models/auth_configs/auth_configs";
 import {AuthConfigsCRUD} from "models/auth_configs/auth_configs_crud";
 import {Configurations} from "models/shared/configuration";
-import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {ButtonGroup} from "views/components/buttons";
 import * as Buttons from "views/components/buttons";
 import {MessageType} from "views/components/flash_message";
@@ -35,7 +35,7 @@ abstract class AuthConfigModal extends EntityModal<AuthConfig> {
   private message: Stream<Message> = Stream();
 
   constructor(entity: AuthConfig,
-              pluginInfos: Array<PluginInfo<any>>,
+              pluginInfos: PluginInfos,
               onSuccessfulSave: (msg: m.Children) => any,
               disableId: boolean = false,
               size: Size         = Size.large) {
@@ -52,7 +52,7 @@ abstract class AuthConfigModal extends EntityModal<AuthConfig> {
     AuthConfigsCRUD.verifyConnection(this.entity()).then(this.onVerifyConnectionResult.bind(this));
   }
 
-  onPluginChange(entity: Stream<AuthConfig>, pluginInfo: PluginInfo<any>): void {
+  onPluginChange(entity: Stream<AuthConfig>, pluginInfo: PluginInfo): void {
     entity(new AuthConfig(entity().id(), pluginInfo!.id, new Configurations([])));
   }
 
@@ -110,7 +110,7 @@ abstract class AuthConfigModal extends EntityModal<AuthConfig> {
 
 export class CreateAuthConfigModal extends AuthConfigModal {
   constructor(entity: AuthConfig,
-              pluginInfos: Array<PluginInfo<any>>,
+              pluginInfos: PluginInfos,
               onSuccessfulSave: (msg: m.Children) => any) {
     super(entity, pluginInfos, onSuccessfulSave);
     this.isStale(false);
@@ -130,7 +130,7 @@ export class CreateAuthConfigModal extends AuthConfigModal {
 }
 
 export class EditAuthConfigModal extends AuthConfigModal {
-  constructor(entity: AuthConfig, pluginInfos: Array<PluginInfo<any>>, onSuccessfulSave: (msg: m.Children) => any) {
+  constructor(entity: AuthConfig, pluginInfos: PluginInfos, onSuccessfulSave: (msg: m.Children) => any) {
     super(entity, pluginInfos, onSuccessfulSave, true);
   }
 
@@ -148,7 +148,7 @@ export class EditAuthConfigModal extends AuthConfigModal {
 }
 
 export class CloneAuthConfigModal extends AuthConfigModal {
-  constructor(entity: AuthConfig, pluginInfos: Array<PluginInfo<any>>, onSuccessfulSave: (msg: m.Children) => any) {
+  constructor(entity: AuthConfig, pluginInfos: PluginInfos, onSuccessfulSave: (msg: m.Children) => any) {
     super(entity, pluginInfos, onSuccessfulSave, false);
   }
 
@@ -172,7 +172,7 @@ export class CloneAuthConfigModal extends AuthConfigModal {
 export class DeleteAuthConfigModal extends AuthConfigModal {
   private setMessage: (msg: m.Children, type: MessageType) => void;
 
-  constructor(entity: AuthConfig, pluginInfos: Array<PluginInfo<any>>,
+  constructor(entity: AuthConfig, pluginInfos: PluginInfos,
               onSuccessfulSave: (msg: m.Children) => any,
               setMessage: (msg: m.Children, type: MessageType) => void) {
     super(entity, pluginInfos, onSuccessfulSave, true, Size.small);

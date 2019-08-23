@@ -104,7 +104,7 @@ export class SecretConfigsWidget extends MithrilViewComponent<Attrs> {
     return map;
   }
 
-  private headerIcon(pluginInfo?: PluginInfo<any>) {
+  private headerIcon(pluginInfo?: PluginInfo) {
     if (pluginInfo && pluginInfo.imageUrl) {
       return <HeaderIcon name="Plugin Icon" imageUrl={pluginInfo.imageUrl}/>;
     }

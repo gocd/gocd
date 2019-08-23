@@ -23,7 +23,7 @@ import {Rule, Rules} from "models/secret_configs/rules";
 import {SecretConfig, SecretConfigs} from "models/secret_configs/secret_configs";
 import {SecretConfigsCRUD} from "models/secret_configs/secret_configs_crud";
 import {Configurations} from "models/shared/configuration";
-import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
+import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
 import * as Buttons from "views/components/buttons/index";
 import {FlashMessage, MessageType} from "views/components/flash_message";
@@ -136,7 +136,7 @@ export class SecretConfigsPage extends Page<null, State> {
   }
 
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {
-    return Promise.all([PluginInfoCRUD.all({type: ExtensionType.SECRETS}), SecretConfigsCRUD.all(), PipelineGroupCRUD.all(), EnvironmentCRUD.all()])
+    return Promise.all([PluginInfoCRUD.all({type: ExtensionTypeString.SECRETS}), SecretConfigsCRUD.all(), PipelineGroupCRUD.all(), EnvironmentCRUD.all()])
                   .then((results) => {
                     results[0].do((successResponse) => {
                       vnode.state.pluginInfos = Stream(successResponse.body);

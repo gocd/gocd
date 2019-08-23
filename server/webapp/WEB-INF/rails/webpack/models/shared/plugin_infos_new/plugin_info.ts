@@ -14,49 +14,52 @@
  * limitations under the License.
  */
 import _ from "lodash";
+import {
+  AboutJSON,
+  ExtensionJSON,
+  PluginInfoJSON,
+  PluginInfosJSON,
+  PluginState,
+  StatusJSON
+} from "models/shared/plugin_infos_new/serialization";
 import {About} from "./about";
-import {ExtensionType} from "./extension_type";
-import {Extension} from "./extensions";
-
-enum State {
-  active  = "active",
-  invalid = "invalid"
-}
+import {ExtensionType, ExtensionTypeString} from "./extension_type";
+import {AuthorizationExtension, Extension} from "./extensions";
 
 class Status {
-  readonly state: State;
+  readonly state: PluginState;
   readonly messages?: string[];
 
-  constructor(state: State, messages?: string[]) {
+  constructor(state: PluginState, messages?: string[]) {
     this.state    = state;
     this.messages = messages;
   }
 
-  static fromJSON(data: any) {
+  static fromJSON(data: StatusJSON) {
     return new Status(data.state, data.messages);
   }
 
   isInvalid() {
-    return this.state === State.invalid;
+    return this.state === "invalid";
   }
 }
 
-export class PluginInfo<T extends Extension> {
+export class PluginInfo {
   readonly id: string;
   readonly about: About;
-  readonly imageUrl: string;
+  readonly imageUrl?: string;
   readonly status: Status;
   readonly pluginFileLocation: string;
   readonly bundledPlugin: boolean;
-  readonly extensions: T[];
+  readonly extensions: Extension[];
 
   constructor(id: string,
               about: About,
-              imageUrl: string,
+              imageUrl: string | undefined,
               status: Status,
               pluginFileLocation: string,
               bundledPlugin: boolean,
-              extensions: T[]) {
+              extensions: Extension[]) {
     this.id                 = id;
     this.about              = about;
     this.imageUrl           = imageUrl;
@@ -66,11 +69,17 @@ export class PluginInfo<T extends Extension> {
     this.extensions         = extensions;
   }
 
-  static fromJSON(data: any, links?: any) {
-    const extensions: Extension[] = data.extensions.map((extension: any) => Extension.fromJSON(extension));
-    const imageUrl                = (links && links.image && links.image.href) || "";
-    return new PluginInfo(data.id, About.fromJSON(data.about || {}), imageUrl, Status.fromJSON(data.status),
-      data.plugin_file_location, data.bundled_plugin, extensions);
+  static fromJSON(data: PluginInfoJSON): PluginInfo {
+    const extensions: Extension[] = data.extensions.map((extension: ExtensionJSON) => Extension.fromJSON(extension));
+    const links                   = data._links;
+    const imageUrl                = (links && links.image && links.image.href);
+    return new PluginInfo(data.id,
+                          About.fromJSON(data.about || {} as AboutJSON),
+                          imageUrl,
+                          Status.fromJSON(data.status),
+                          data.plugin_file_location,
+                          data.bundled_plugin,
+                          extensions);
   }
 
   supportsPluginSettings(): boolean {
@@ -81,16 +90,16 @@ export class PluginInfo<T extends Extension> {
     return this.extensions.map((ext: Extension) => ext.type);
   }
 
-  extensionOfType(type: ExtensionType): T | undefined {
-    return this.extensions.find((ext: T) => ext.type === type);
+  extensionOfType<T extends Extension>(type: ExtensionTypeString): T | undefined {
+    return this.extensions.find((ext: Extension) => ext.type === type) as T;
   }
 
-  firstExtensionWithPluginSettings(): T | undefined {
+  firstExtensionWithPluginSettings() {
     return this.extensions.find((ext) => ext.hasPluginSettings());
   }
 
   hasErrors(): boolean {
-    return this.status.state === State.invalid;
+    return this.status.state === "invalid";
   }
 
   getErrors(): string {
@@ -102,10 +111,44 @@ export class PluginInfo<T extends Extension> {
 
   supportsStatusReport() {
     if (this.extensions) {
-      const elasticAgentExtensionInfo = this.extensionOfType(ExtensionType.ELASTIC_AGENTS);
+      const elasticAgentExtensionInfo = this.extensionOfType(ExtensionTypeString.ELASTIC_AGENTS);
       // @ts-ignore
       return elasticAgentExtensionInfo && elasticAgentExtensionInfo.capabilities && elasticAgentExtensionInfo.capabilities.supportsPluginStatusReport;
     }
     return false;
   }
+}
+
+export class PluginInfos extends Array<PluginInfo> {
+
+  constructor(...pluginInfos: PluginInfo[]) {
+    super(...pluginInfos);
+    Object.setPrototypeOf(this, Object.create(PluginInfos.prototype));
+  }
+
+  static fromJSON(json: PluginInfosJSON) {
+    return new PluginInfos(...json._embedded.plugin_info.map((pluginInfo) => PluginInfo.fromJSON(pluginInfo)));
+  }
+
+  optionsForDropdown() {
+    return _.map(this, (pluginInfo: PluginInfo) => {
+      return {id: pluginInfo.id, text: pluginInfo.about.name};
+    });
+  }
+
+  findByPluginId(pluginId: string) {
+    return _.find(this, (pluginInfo) => pluginInfo.id === pluginId);
+  }
+
+  getPluginInfosWithAuthorizeCapabilities(): PluginInfos {
+
+    const filterFn = (value: PluginInfo) => {
+      const authorizationSettings = value.extensionOfType(ExtensionTypeString.AUTHORIZATION) as AuthorizationExtension;
+      return authorizationSettings && authorizationSettings.capabilities.canAuthorize;
+    };
+
+    const filteredPluginInfos = _.filter(this, filterFn) as unknown as PluginInfo[];
+    return new PluginInfos(...filteredPluginInfos);
+  }
+
 }

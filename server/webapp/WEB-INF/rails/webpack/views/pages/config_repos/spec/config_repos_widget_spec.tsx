@@ -17,7 +17,7 @@
 import m from "mithril";
 import Stream from "mithril/stream";
 import {ConfigRepo} from "models/config_repos/types";
-import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {ScrollManager} from "views/components/anchor/anchor";
 import * as collapsiblePanelStyles from "views/components/collapsible_panel/index.scss";
 import * as headerIconStyles from "views/components/header_icon/index.scss";
@@ -37,7 +37,7 @@ describe("ConfigReposWidget", () => {
   let showEditModal: jasmine.Spy;
   let reparseRepo: jasmine.Spy;
   let models: Stream<ConfigRepoVM[]>;
-  let pluginInfos: Stream<Array<PluginInfo<any>>>;
+  let pluginInfos: Stream<PluginInfos>;
   let sm: ScrollManager;
 
   const helper = new TestHelper();
@@ -65,7 +65,7 @@ describe("ConfigReposWidget", () => {
     reparseRepo     = jasmine.createSpy("reparseRepo");
     sm              = stubAllMethods(["shouldScroll", "getTarget", "setTarget", "scrollToEl"]);
     models          = Stream([] as ConfigRepoVM[]);
-    pluginInfos     = Stream([] as Array<PluginInfo<any>>);
+    pluginInfos     = Stream(new PluginInfos());
 
     helper.mount(() => <ConfigReposWidget {...{
       models,
@@ -186,7 +186,7 @@ describe("ConfigReposWidget", () => {
     const repo1 = createConfigRepoParsedWithError();
     const repo2 = createConfigRepoParsedWithError();
     models([vm(repo1), vm(repo2)]);
-    pluginInfos([configRepoPluginInfo()]);
+    pluginInfos(new PluginInfos(configRepoPluginInfo()));
     helper.redraw();
 
     const repoIds = Array.from(helper.allByTestId("collapse-header"));
@@ -256,7 +256,7 @@ describe("ConfigReposWidget", () => {
     const repo = createConfigRepoParsedWithError();
     repo.lastParse(null);
     models([vm(repo)]);
-    pluginInfos([configRepoPluginInfo()]);
+    pluginInfos(new PluginInfos(configRepoPluginInfo()));
     helper.redraw();
     expect(helper.byTestId("flash-message-info")).toHaveText("This configuration repository has not been parsed yet.");
   });
@@ -264,7 +264,7 @@ describe("ConfigReposWidget", () => {
   it("should render a warning message when parsing failed and there is no latest modification", () => {
     const repo = createConfigRepoWithError();
     models([vm(repo)]);
-    pluginInfos([configRepoPluginInfo()]);
+    pluginInfos(new PluginInfos(configRepoPluginInfo()));
     helper.redraw();
     expect(helper.byTestId("flash-message-alert")).toContainText("There was an error parsing this configuration repository:");
     expect(helper.byTestId("flash-message-alert")).toContainText("blah!");
@@ -273,7 +273,7 @@ describe("ConfigReposWidget", () => {
   it("should render in-progress icon when material update is in progress", () => {
     const repo = createConfigRepoParsedWithError({material_update_in_progress: true});
     models([vm(repo)]);
-    pluginInfos([configRepoPluginInfo()]);
+    pluginInfos(new PluginInfos(configRepoPluginInfo()));
     helper.redraw();
     expect(helper.byTestId("repo-update-in-progress-icon")).toBeInDOM();
     expect(helper.byTestId("repo-update-in-progress-icon")).toHaveClass(styles.configRepoUpdateInProgress);
@@ -282,7 +282,7 @@ describe("ConfigReposWidget", () => {
   it("should render red top border and expand the widget to indicate error in config repo parsing", () => {
     const repo = createConfigRepoParsedWithError();
     models([vm(repo)]);
-    pluginInfos([configRepoPluginInfo()]);
+    pluginInfos(new PluginInfos(configRepoPluginInfo()));
     helper.redraw();
     const detailsPanel = helper.byTestId("config-repo-details-panel");
     expect(detailsPanel).toBeInDOM();
@@ -296,7 +296,7 @@ describe("ConfigReposWidget", () => {
       repo.lastParse()!.error(null);
     }
     models([vm(repo)]);
-    pluginInfos([configRepoPluginInfo()]);
+    pluginInfos(new PluginInfos(configRepoPluginInfo()));
     helper.redraw();
     const detailsPanel = helper.byTestId("config-repo-details-panel");
     expect(detailsPanel).toBeInDOM();

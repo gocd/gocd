@@ -16,7 +16,6 @@
 import _ from "lodash";
 import m from "mithril";
 import {ElasticAgentProfile} from "models/elastic_profiles/types";
-import {Extension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import * as simulateEvent from "simulate-event";
 import * as collapsiblePanelStyles from "views/components/collapsible_panel/index.scss";
@@ -27,7 +26,7 @@ import {ElasticProfileWidget} from "../elastic_profiles_widget";
 
 describe("New Elastic Agent Profile Widget", () => {
 
-  const pluginInfo     = PluginInfo.fromJSON(TestData.dockerPluginJSON(), TestData.dockerPluginJSON()._links);
+  const pluginInfo     = PluginInfo.fromJSON(TestData.dockerPluginJSON());
   const elasticProfile = ElasticAgentProfile.fromJSON(TestData.dockerElasticProfile());
   const helper         = new TestHelper();
 
@@ -100,7 +99,7 @@ describe("New Elastic Agent Profile Widget", () => {
     helper.unmount();
   });
 
-  function mount(pluginInfo: PluginInfo<Extension> | undefined, elasticProfile: ElasticAgentProfile) {
+  function mount(pluginInfo: PluginInfo | undefined, elasticProfile: ElasticAgentProfile) {
     const noop = _.noop;
     helper.mount(() => <ElasticProfileWidget pluginInfo={pluginInfo}
                                              elasticProfile={elasticProfile}

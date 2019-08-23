@@ -64,7 +64,7 @@ export class AuthConfigsWidget extends MithrilViewComponent<Attrs> {
     </div>;
   }
 
-  private headerMap(authConfig: AuthConfig, pluginInfo?: PluginInfo<any>) {
+  private headerMap(authConfig: AuthConfig, pluginInfo?: PluginInfo) {
     const map = new Map();
     map.set("Id", authConfig.id());
     if (pluginInfo) {
@@ -73,7 +73,7 @@ export class AuthConfigsWidget extends MithrilViewComponent<Attrs> {
     return map;
   }
 
-  private headerIcon(pluginInfo?: PluginInfo<any>) {
+  private headerIcon(pluginInfo?: PluginInfo) {
     if (pluginInfo && pluginInfo.imageUrl) {
       return <HeaderIcon name="Plugin Icon" imageUrl={pluginInfo.imageUrl}/>;
     }

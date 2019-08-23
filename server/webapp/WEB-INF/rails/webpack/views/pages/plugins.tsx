@@ -15,15 +15,14 @@
  */
 import {ApiResult} from "helpers/api_request_builder";
 import m from "mithril";
-import {Extension} from "models/shared/plugin_infos_new/extensions";
-import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
 import {PluginsWidget} from "views/pages/new_plugins/plugins_widget";
 import {Page} from "./page";
 
 export class PluginsPage extends Page {
 
-  private pluginInfos?: Array<PluginInfo<Extension>>;
+  private pluginInfos?: PluginInfos;
 
   pageName() {
     return "Plugins";
@@ -40,7 +39,7 @@ export class PluginsPage extends Page {
     return PluginInfoCRUD.all({include_bad: true}).then(this.onSuccess.bind(this));
   }
 
-  private onSuccess(pluginInfos: ApiResult<Array<PluginInfo<Extension>>>) {
+  private onSuccess(pluginInfos: ApiResult<PluginInfos>) {
     pluginInfos.do(
       (successResponse) => this.pluginInfos = successResponse.body,
       () => this.setErrorState()

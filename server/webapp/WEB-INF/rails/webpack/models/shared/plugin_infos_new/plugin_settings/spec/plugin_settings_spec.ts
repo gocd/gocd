@@ -56,7 +56,7 @@ describe("Plugin Settings", () => {
     ]
   };
 
-  const json: any = {
+  const json = {
     ...links,
     ...jsonWithoutLinks
   };

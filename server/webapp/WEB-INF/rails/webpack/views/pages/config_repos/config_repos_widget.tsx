@@ -39,7 +39,7 @@ interface CollectionAttrs extends RequiresPluginInfos {
 }
 
 interface SingleAttrs extends CRVMAware {
-  pluginInfo?: PluginInfo<any>;
+  pluginInfo?: PluginInfo;
   sm: ScrollManager;
 }
 
@@ -86,7 +86,7 @@ class HeaderWidget extends MithrilViewComponent<SingleAttrs> {
     return parseStatus;
   }
 
-  private pluginIcon(pluginInfo?: PluginInfo<any>) {
+  private pluginIcon(pluginInfo?: PluginInfo) {
     if (pluginInfo && pluginInfo.imageUrl) {
       return <HeaderIcon name="Plugin Icon" imageUrl={pluginInfo.imageUrl}/>;
     } else {
@@ -132,7 +132,7 @@ class CRPanelActions extends MithrilViewComponent<ActionsAttrs> {
 
 interface WarningAttrs {
   parseInfo: ParseInfo | null;
-  pluginInfo?: PluginInfo<any>;
+  pluginInfo?: PluginInfo;
 }
 
 class MaybeWarning extends MithrilViewComponent<WarningAttrs> {

@@ -19,7 +19,7 @@ import Stream from "mithril/stream";
 import {ArtifactStore, ArtifactStoreJSON} from "models/artifact_stores/artifact_stores";
 import {ArtifactStoresCRUD} from "models/artifact_stores/artifact_stores_crud";
 import {Configurations} from "models/shared/configuration";
-import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import * as Buttons from "views/components/buttons";
 import {MessageType} from "views/components/flash_message";
 import {Size} from "views/components/modal";
@@ -31,7 +31,7 @@ abstract class ArtifactStoreModal extends EntityModal<ArtifactStore> {
   protected readonly originalEntityId: string;
 
   protected constructor(entity: ArtifactStore,
-                        pluginInfos: Array<PluginInfo<any>>,
+                        pluginInfos: PluginInfos,
                         onSuccessfulSave: (msg: m.Children) => any,
                         disableId: boolean = false,
                         size: Size         = Size.large) {
@@ -40,7 +40,7 @@ abstract class ArtifactStoreModal extends EntityModal<ArtifactStore> {
     this.originalEntityId = entity.id();
   }
 
-  onPluginChange(entity: Stream<ArtifactStore>, pluginInfo: PluginInfo<any>): void {
+  onPluginChange(entity: Stream<ArtifactStore>, pluginInfo: PluginInfo): void {
     entity(new ArtifactStore(entity().id(), pluginInfo!.id, new Configurations([])));
   }
 
@@ -64,7 +64,7 @@ abstract class ArtifactStoreModal extends EntityModal<ArtifactStore> {
 
 export class CreateArtifactStoreModal extends ArtifactStoreModal {
   constructor(entity: ArtifactStore,
-              pluginInfos: Array<PluginInfo<any>>,
+              pluginInfos: PluginInfos,
               onSuccessfulSave: (msg: m.Children) => any) {
     super(entity, pluginInfos, onSuccessfulSave);
     this.isStale(false);
@@ -84,7 +84,7 @@ export class CreateArtifactStoreModal extends ArtifactStoreModal {
 }
 
 export class EditArtifactStoreModal extends ArtifactStoreModal {
-  constructor(entity: ArtifactStore, pluginInfos: Array<PluginInfo<any>>, onSuccessfulSave: (msg: m.Children) => any) {
+  constructor(entity: ArtifactStore, pluginInfos: PluginInfos, onSuccessfulSave: (msg: m.Children) => any) {
     super(entity, pluginInfos, onSuccessfulSave, true);
   }
 
@@ -102,7 +102,7 @@ export class EditArtifactStoreModal extends ArtifactStoreModal {
 }
 
 export class CloneArtifactStoreModal extends ArtifactStoreModal {
-  constructor(entity: ArtifactStore, pluginInfos: Array<PluginInfo<any>>, onSuccessfulSave: (msg: m.Children) => any) {
+  constructor(entity: ArtifactStore, pluginInfos: PluginInfos, onSuccessfulSave: (msg: m.Children) => any) {
     super(entity, pluginInfos, onSuccessfulSave, false);
   }
 
@@ -126,7 +126,7 @@ export class CloneArtifactStoreModal extends ArtifactStoreModal {
 export class DeleteArtifactStoreModal extends ArtifactStoreModal {
   protected readonly setMessage: (type: MessageType, msg: m.Children) => void;
 
-  constructor(entity: ArtifactStore, pluginInfos: Array<PluginInfo<any>>,
+  constructor(entity: ArtifactStore, pluginInfos: PluginInfos,
               onSuccessfulSave: (msg: m.Children) => any,
               setMessage: (type: MessageType, msg: m.Children) => void) {
     super(entity, pluginInfos, onSuccessfulSave, true, Size.small);

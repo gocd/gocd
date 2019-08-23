@@ -18,8 +18,7 @@ import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {ClusterProfile, ClusterProfiles, ElasticAgentProfile, ElasticAgentProfiles} from "models/elastic_profiles/types";
-import {Extension} from "models/shared/plugin_infos_new/extensions";
-import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import * as collapsiblePanelStyles from "views/components/collapsible_panel/index.scss";
 import {ClusterProfilesWidget} from "views/pages/elastic_agent_configurations/cluster_profiles_widget";
 import * as elasticProfilePageStyles from "views/pages/elastic_agent_configurations/index.scss";
@@ -34,10 +33,10 @@ describe("ClusterProfilesWidget", () => {
   kubernetesPluginJSON.extensions[0].supports_cluster_profiles = true;
   kubernetesPluginJSON.extensions[0].cluster_profile_settings  = kubernetesPluginJSON.extensions[0].plugin_settings;
 
-  const pluginInfos = [
-    PluginInfo.fromJSON(TestData.dockerPluginJSON(), TestData.dockerPluginJSON()._links),
-    PluginInfo.fromJSON(kubernetesPluginJSON, kubernetesPluginJSON._links)
-  ];
+  const pluginInfos = new PluginInfos(
+    PluginInfo.fromJSON(TestData.dockerPluginJSON()),
+    PluginInfo.fromJSON(kubernetesPluginJSON)
+  );
 
   it("should render all cluster profiles", () => {
     const clusterProfiles = new ClusterProfiles([ClusterProfile.fromJSON(TestData.dockerClusterProfile()), ClusterProfile.fromJSON(TestData.kubernetesClusterProfile())]);
@@ -49,7 +48,7 @@ describe("ClusterProfilesWidget", () => {
   });
 
   it("should display the message in absence of elastic plugin", () => {
-    mount([], new ClusterProfiles([]), new ElasticAgentProfiles([]));
+    mount(new PluginInfos(), new ClusterProfiles([]), new ElasticAgentProfiles([]));
 
     expect(helper.findByDataTestId("flash-message-info").text()).toEqual("No elastic agent plugin installed.");
 
@@ -103,9 +102,9 @@ describe("ClusterProfilesWidget", () => {
   });
 
   it("should not contain plugin icon in header if not specified in plugin info", () => {
-    const links = TestData.dockerPluginJSON()._links;
-    delete links.image;
-    const pluginInfos     = [PluginInfo.fromJSON(TestData.dockerPluginJSON(), links)];
+    const data            = TestData.dockerPluginJSON();
+    delete data._links.image;
+    const pluginInfos = new PluginInfos(PluginInfo.fromJSON(data));
     const clusterProfiles = new ClusterProfiles([ClusterProfile.fromJSON(TestData.dockerClusterProfile())]);
     mount(pluginInfos, clusterProfiles, new ElasticAgentProfiles([]));
 
@@ -184,7 +183,7 @@ describe("ClusterProfilesWidget", () => {
 
   it("should disable action buttons if no elastic agent plugin installed", () => {
     const clusterProfiles = new ClusterProfiles([ClusterProfile.fromJSON(TestData.dockerClusterProfile())]);
-    mount([], clusterProfiles, new ElasticAgentProfiles([]));
+    mount(new PluginInfos(), clusterProfiles, new ElasticAgentProfiles([]));
 
     const dockerClusterProfilePanel = helper.findByDataTestId("cluster-profile-panel")[0];
     expect(helper.findIn(dockerClusterProfilePanel, "edit-cluster-profile")).toBeDisabled();
@@ -248,7 +247,7 @@ describe("ClusterProfilesWidget", () => {
     });
   });
 
-  function mount(pluginInfos: Array<PluginInfo<Extension>>, clusterProfiles: ClusterProfiles, elasticAgentProfiles: ElasticAgentProfiles) {
+  function mount(pluginInfos: PluginInfos, clusterProfiles: ClusterProfiles, elasticAgentProfiles: ElasticAgentProfiles) {
     const noop       = _.noop;
     const operations = {
       onEdit: noop,

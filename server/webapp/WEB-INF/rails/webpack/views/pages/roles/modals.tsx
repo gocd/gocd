@@ -26,8 +26,7 @@ import {
 } from "models/roles/roles";
 import {RolesCRUD} from "models/roles/roles_crud";
 import {Configurations} from "models/shared/configuration";
-import {Extension} from "models/shared/plugin_infos_new/extensions";
-import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import * as Buttons from "views/components/buttons";
 import {ButtonGroup} from "views/components/buttons";
 import {Modal, Size} from "views/components/modal";
@@ -36,13 +35,13 @@ import {Action, RoleModalBody} from "views/pages/roles/role_modal_body";
 
 abstract class BaseRoleModal extends Modal {
   protected role: Stream<GoCDRole | PluginRole>;
-  protected readonly pluginInfos: Array<PluginInfo<Extension>>;
+  protected readonly pluginInfos: PluginInfos;
   protected readonly authConfigs: AuthConfigs;
   protected readonly onSuccessfulSave: (msg: m.Children) => any;
   protected readonly errorMessage: Stream<string> = Stream();
 
   constructor(role: GoCDRole | PluginRole,
-              pluginInfos: Array<PluginInfo<Extension>>,
+              pluginInfos: PluginInfos,
               authConfigsOfInstalledPlugin: AuthConfigs,
               onSuccessfulSave: (msg: m.Children) => any) {
     super(Size.large);
@@ -108,7 +107,7 @@ abstract class BaseRoleModal extends Modal {
 
 export class NewRoleModal extends BaseRoleModal {
   constructor(role: GoCDRole | PluginRole,
-              pluginInfos: Array<PluginInfo<Extension>>,
+              pluginInfos: PluginInfos,
               authConfigsOfInstalledPlugin: AuthConfigs,
               onSuccessfulSave: (msg: m.Children) => any) {
     super(role,
@@ -153,7 +152,7 @@ abstract class ModalWithFetch extends BaseRoleModal {
   protected isStale = Stream(true);
 
   constructor(role: GoCDRole | PluginRole,
-              pluginInfos: Array<PluginInfo<Extension>>,
+              pluginInfos: PluginInfos,
               authConfigsOfInstalledPlugin: AuthConfigs,
               onSuccessfulSave: (msg: m.Children) => any) {
     super(role, pluginInfos, authConfigsOfInstalledPlugin, onSuccessfulSave);
@@ -194,7 +193,7 @@ abstract class ModalWithFetch extends BaseRoleModal {
 
 export class EditRoleModal extends ModalWithFetch {
   constructor(role: GoCDRole | PluginRole,
-              pluginInfos: Array<PluginInfo<Extension>>,
+              pluginInfos: PluginInfos,
               authConfigsOfInstalledPlugin: AuthConfigs,
               onSuccessfulSave: (msg: m.Children) => any) {
     super(role, pluginInfos, authConfigsOfInstalledPlugin, onSuccessfulSave);
@@ -231,7 +230,7 @@ export class CloneRoleModal extends ModalWithFetch {
   private readonly originalRoleName: string;
 
   constructor(role: GoCDRole | PluginRole,
-              pluginInfos: Array<PluginInfo<Extension>>,
+              pluginInfos: PluginInfos,
               authConfigsOfInstalledPlugin: AuthConfigs,
               onSuccessfulSave: (msg: m.Children) => any) {
     super(role, pluginInfos, authConfigsOfInstalledPlugin, onSuccessfulSave);

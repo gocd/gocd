@@ -15,7 +15,7 @@
  */
 import m from "mithril";
 import Stream from "mithril/stream";
-import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {FlashProvider} from "views/components/flash_message";
 
 export enum OperationState {
@@ -59,7 +59,7 @@ export interface DisableOperation<T> {
 }
 
 export interface RequiresPluginInfos {
-  pluginInfos: Stream<Array<PluginInfo<any>>>;
+  pluginInfos: Stream<PluginInfos>;
 }
 
 export interface FlashContainer {

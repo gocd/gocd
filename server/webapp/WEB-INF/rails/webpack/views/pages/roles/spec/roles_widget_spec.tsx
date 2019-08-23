@@ -17,8 +17,7 @@ import m from "mithril";
 import {AuthConfigs} from "models/auth_configs/auth_configs";
 import {TestData} from "models/auth_configs/spec/test_data";
 import {GoCDRole, PluginRole, Role, Roles} from "models/roles/roles";
-import {Extension} from "models/shared/plugin_infos_new/extensions";
-import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {AuthorizationPluginInfo} from "models/shared/plugin_infos_new/spec/test_data";
 import * as simulateEvent from "simulate-event";
 import s from "underscore.string";
@@ -33,14 +32,14 @@ describe("RolesWidgetSpec", () => {
 
   const roles       = Roles.fromJSON(RolesTestData.GetAllRoles());
   const authConfigs = AuthConfigs.fromJSON(TestData.authConfigList(TestData.ldapAuthConfig()));
-  const pluginInfos = [PluginInfo.fromJSON(AuthorizationPluginInfo.ldap())];
+  const pluginInfos = new PluginInfos(PluginInfo.fromJSON(AuthorizationPluginInfo.ldap()));
   const helper      = new TestHelper();
 
   afterEach((done) => helper.unmount(done));
 
   function mount(roles: Array<GoCDRole | PluginRole>,
                  authConfigs: AuthConfigs,
-                 pluginInfos: Array<PluginInfo<Extension>>) {
+                 pluginInfos: PluginInfos) {
     helper.mount(() => <RolesWidget roles={roles}
                               authConfigs={authConfigs}
                               pluginInfos={pluginInfos}
@@ -131,7 +130,7 @@ describe("RolesWidgetSpec", () => {
   });
 
   it("should disable edit & clone button when no authorization plugin installed.", () => {
-    mount(new Roles(Role.fromJSON(RolesTestData.LdapPluginRoleJSON())), authConfigs, []);
+    mount(new Roles(Role.fromJSON(RolesTestData.LdapPluginRoleJSON())), authConfigs, new PluginInfos());
     expect(helper.findByDataTestId("role-edit")).toBeDisabled();
     expect(helper.findByDataTestId("role-clone")).toBeDisabled();
     expect(helper.findByDataTestId("role-delete")).not.toBeDisabled();

@@ -29,7 +29,7 @@ import {
   Material, P4MaterialAttributes,
   SvnMaterialAttributes, TfsMaterialAttributes,
 } from "models/materials/types";
-import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Form, FormBody, FormHeader} from "views/components/forms/form";
@@ -56,7 +56,7 @@ type EditableMaterial = SaveOperation
 
 class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
   view(vnode: m.Vnode<EditableMaterial>) {
-    const pluginList = _.map(vnode.attrs.pluginInfos(), (pluginInfo: PluginInfo<any>) => {
+    const pluginList = _.map(vnode.attrs.pluginInfos(), (pluginInfo: PluginInfo) => {
       return {id: pluginInfo.id, text: pluginInfo.about.name};
     });
 
@@ -287,11 +287,11 @@ export abstract class ConfigRepoModal extends Modal {
   protected readonly onSuccessfulSave: (msg: m.Children) => any;
   protected readonly onError: (msg: m.Children) => any;
   protected isNew: boolean = false;
-  protected pluginInfos: Stream<Array<PluginInfo<any>>>;
+  protected pluginInfos: Stream<PluginInfos>;
 
   protected constructor(onSuccessfulSave: (msg: m.Children) => any,
                         onError: (msg: m.Children) => any,
-                        pluginInfos: Stream<Array<PluginInfo<any>>>) {
+                        pluginInfos: Stream<PluginInfos>) {
     super(Size.medium);
     this.onSuccessfulSave = onSuccessfulSave;
     this.onError          = onError;
@@ -352,7 +352,7 @@ export class NewConfigRepoModal extends ConfigRepoModal {
 
   constructor(onSuccessfulSave: (msg: (m.Children)) => any,
               onError: (msg: (m.Children)) => any,
-              pluginInfos: Stream<Array<PluginInfo<any>>>) {
+              pluginInfos: Stream<PluginInfos>) {
     super(onSuccessfulSave, onError, pluginInfos);
 
     // prefer the YAML plugin and fallback to the first plugin when not present
@@ -407,7 +407,7 @@ export class EditConfigRepoModal extends ConfigRepoModal {
   constructor(repoId: string,
               onSuccessfulSave: (msg: (m.Children)) => any,
               onError: (msg: (m.Children)) => any,
-              pluginInfos: Stream<Array<PluginInfo<any>>>) {
+              pluginInfos: Stream<PluginInfos>) {
     super(onSuccessfulSave, onError, pluginInfos);
     this.repoId = repoId;
 

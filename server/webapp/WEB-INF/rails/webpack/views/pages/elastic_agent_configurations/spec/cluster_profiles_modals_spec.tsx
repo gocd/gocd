@@ -17,20 +17,19 @@
 import {ClusterProfile} from "models/elastic_profiles/types";
 import {Errors} from "models/mixins/errors";
 import {Configurations} from "models/shared/configuration";
-import {Extension} from "models/shared/plugin_infos_new/extensions";
-import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {ModalType} from "views/pages/elastic_agent_configurations/cluster_profiles_modals";
 import {TestClusterProfile} from "views/pages/elastic_agent_configurations/spec/test_cluster_profiles_modal";
 import {TestData} from "views/pages/elastic_agent_configurations/spec/test_data";
 import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("ClusterProfileModal", () => {
-  let pluginInfos: Array<PluginInfo<Extension>>, helper: TestHelper, modal: TestClusterProfile;
+  let pluginInfos: PluginInfos, helper: TestHelper, modal: TestClusterProfile;
   beforeEach(() => {
-    pluginInfos = [
-      PluginInfo.fromJSON(TestData.dockerPluginJSON(), TestData.dockerPluginJSON()._links),
-      PluginInfo.fromJSON(TestData.kubernetesPluginJSON(), TestData.kubernetesPluginJSON()._links)
-    ];
+    pluginInfos = new PluginInfos(
+      PluginInfo.fromJSON(TestData.dockerPluginJSON()),
+      PluginInfo.fromJSON(TestData.kubernetesPluginJSON())
+    );
 
     helper = new TestHelper();
   });

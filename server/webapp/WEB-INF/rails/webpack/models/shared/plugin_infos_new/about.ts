@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 import _ from "lodash";
+import {AboutJSON, VendorJSON} from "models/shared/plugin_infos_new/serialization";
 
 export class About {
-  name: string;
-  version: string;
-  targetGoVersion: string;
-  description: string;
-  targetOperatingSystems: string[];
-  vendor: Vendor;
+  readonly name: string;
+  readonly version: string;
+  readonly targetGoVersion: string;
+  readonly description: string;
+  readonly targetOperatingSystems: string[];
+  readonly vendor: Vendor;
 
   constructor(name: string,
               version: string,
@@ -37,13 +38,13 @@ export class About {
     this.vendor                 = vendor;
   }
 
-  static fromJSON(data: any) {
-    return new About(data.name || "",
-      data.version || "",
-      data.target_go_version || "",
-      data.description || "",
-      data.target_operating_systems || "",
-      Vendor.fromJSON(data.vendor || {})
+  static fromJSON(data: AboutJSON) {
+    return new About(data.name,
+                     data.version,
+                     data.target_go_version,
+                     data.description,
+                     data.target_operating_systems,
+                     Vendor.fromJSON(data.vendor || {})
     );
   }
 
@@ -56,15 +57,15 @@ export class About {
 }
 
 export class Vendor {
-  name: string;
-  url: string;
+  readonly name: string;
+  readonly url: string;
 
   constructor(name: string, url: string) {
     this.name = name;
     this.url  = url;
   }
 
-  static fromJSON(data: any) {
-    return new Vendor(data.name || "", data.url || "");
+  static fromJSON(data: VendorJSON) {
+    return new Vendor(data.name, data.url);
   }
 }

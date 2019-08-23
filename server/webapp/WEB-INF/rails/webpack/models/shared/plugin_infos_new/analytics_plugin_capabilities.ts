@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {AnalyticsCapabilitiesJSON, AnalyticsCapabilityJSON} from "models/shared/plugin_infos_new/serialization";
+
 export class AnalyticsCapability {
   readonly id: string;
-  //readonly title: string;
   readonly type: string;
 
   constructor(id: string, type: string) {
@@ -23,7 +24,7 @@ export class AnalyticsCapability {
     this.type = type;
   }
 
-  static fromJSON(data: any) {
+  static fromJSON(data: AnalyticsCapabilityJSON) {
     return new AnalyticsCapability(data.id, data.type);
   }
 
@@ -36,20 +37,20 @@ export class AnalyticsCapabilities {
     this.supportedAnalytics = supportedAnalytics;
   }
 
-  static fromJSON(data: any) {
-    return new AnalyticsCapabilities(data.supported_analytics.map((it: any) => AnalyticsCapability.fromJSON(it)));
+  static fromJSON(data: AnalyticsCapabilitiesJSON) {
+    return new AnalyticsCapabilities(data.supported_analytics.map((it) => AnalyticsCapability.fromJSON(it)));
   }
 
   dashboardSupport() {
-    return this.supportedAnalytics.filter((it) => it.type === 'dashboard');
+    return this.supportedAnalytics.filter((it) => it.type === "dashboard");
   }
 
   pipelineSupport() {
-    return this.supportedAnalytics.filter((it) => it.type === 'pipeline');
+    return this.supportedAnalytics.filter((it) => it.type === "pipeline");
   }
 
   agentSupport() {
-    return this.supportedAnalytics.filter((it) => it.type === 'agent');
+    return this.supportedAnalytics.filter((it) => it.type === "agent");
   }
 
 }

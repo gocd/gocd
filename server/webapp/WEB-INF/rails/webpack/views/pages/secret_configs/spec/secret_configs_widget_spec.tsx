@@ -18,7 +18,7 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {SecretConfigs} from "models/secret_configs/secret_configs";
 import {secretConfigsTestData} from "models/secret_configs/spec/test_data";
-import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {SecretPluginInfo} from "models/shared/plugin_infos_new/spec/test_data";
 import * as simulateEvent from "simulate-event";
 import {SecretConfigsWidget} from "views/pages/secret_configs/secret_configs_widget";
@@ -31,12 +31,12 @@ describe("SecretConfigsWidget", () => {
   const onDelete = jasmine.createSpy("onDelete");
 
   const secretConfigs = SecretConfigs.fromJSON(secretConfigsTestData());
-  const pluginInfos   = [PluginInfo.fromJSON(SecretPluginInfo.file())];
+  const pluginInfos   = new PluginInfos(PluginInfo.fromJSON(SecretPluginInfo.file()));
 
   afterEach((done) => helper.unmount(done));
 
   it("should show flash message when no secret plugin installed", () => {
-    mount([], []);
+    mount([], new PluginInfos());
 
     expect(helper.findByDataTestId("flash-message-info")).toBeInDOM();
     expect(helper.findByDataTestId("flash-message-info").text()).toEqual("No secret plugin installed.");
@@ -55,7 +55,7 @@ describe("SecretConfigsWidget", () => {
   });
 
   it("should disable edit and clone button when plugin is not installed", () => {
-    mount(secretConfigs, []);
+    mount(secretConfigs, new PluginInfos());
     const groups = helper.findByDataTestId("secret-configs-group");
 
     expect(helper.findIn(groups.eq(0), "secret-config-edit")).toBeInDOM();
@@ -152,7 +152,7 @@ describe("SecretConfigsWidget", () => {
 
   });
 
-  function mount(secretConfigs: SecretConfigs, pluginInfos: Array<PluginInfo<any>>) {
+  function mount(secretConfigs: SecretConfigs, pluginInfos: PluginInfos) {
     helper.mount(() => <SecretConfigsWidget pluginInfos={Stream(pluginInfos)}
                                             secretConfigs={Stream(secretConfigs)}
                                             onEdit={onEdit}

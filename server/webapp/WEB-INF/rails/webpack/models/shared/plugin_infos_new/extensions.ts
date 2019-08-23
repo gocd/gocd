@@ -13,55 +13,68 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import Stream from "mithril/stream";
+import {
+  AnalyticsExtensionJSON,
+  ArtifactExtensionJSON,
+  AuthorizationExtensionJSON,
+  ConfigRepoExtensionJSON, ConfigurationJSON,
+  ElasticAgentExtensionJSON,
+  ExtensionJSON, HasPluginSettings, MetadataJSON,
+  NotificationExtensionJSON,
+  PackageRepoExtensionJSON, PluginSettingJSON,
+  SCMExtensionJSON,
+  SecretConfigExtensionJSON,
+  TaskExtensionJSON
+} from "models/shared/plugin_infos_new/serialization";
+import s from "underscore.string";
 import {AnalyticsCapabilities} from "./analytics_plugin_capabilities";
 import {AuthCapabilities} from "./authorization_plugin_capabilities";
 import {ConfigRepoCapabilities} from "./config_repo_capabilities";
 import {ElasticPluginCapabilities} from "./elastic_plugin_capabilities";
-import {ExtensionType} from "./extension_type";
-
-import Stream from "mithril/stream";
+import {ExtensionType, ExtensionTypeString} from "./extension_type";
 
 class Configuration {
   readonly key: string;
-  readonly metadata: any;
+  readonly metadata: MetadataJSON;
 
-  constructor(key: any, metadata: any) {
+  constructor(key: string, metadata: MetadataJSON) {
     this.key      = key;
     this.metadata = metadata;
   }
 
-  static fromJSON(data: any) {
+  static fromJSON(data: ConfigurationJSON) {
     return new Configuration(data.key, data.metadata);
   }
 }
 
 class PluginSettings {
-  configurations?: Stream<Configuration[]>;
-  viewTemplate?: Stream<string>;
+  readonly configurations: Stream<Configuration[]>;
+  readonly viewTemplate: Stream<string | undefined>;
 
-  constructor(configurations: Configuration[], viewTemplate: string) {
-    this.configurations = Stream(configurations);
+  constructor(configurations: Configuration[], viewTemplate?: string) {
+    this.configurations = Stream(configurations || []);
     this.viewTemplate   = Stream(viewTemplate);
   }
 
-  static tryParsing(data: any) {
+  static tryParsing(data: HasPluginSettings) {
     if (data.plugin_settings) {
       return PluginSettings.fromJSON(data.plugin_settings);
     }
   }
 
-  static fromJSON(pluginSettingsJson: any): PluginSettings {
-    let configurations;
+  static fromJSON(pluginSettingsJson: PluginSettingJSON): PluginSettings {
+    let configurations: Configuration[] = [];
     if (pluginSettingsJson && pluginSettingsJson.configurations) {
-      configurations = pluginSettingsJson.configurations.map((config: any) => Configuration.fromJSON(config));
+      configurations = pluginSettingsJson.configurations.map((config: ConfigurationJSON) => Configuration.fromJSON(
+        config));
     }
     const viewTemplate = pluginSettingsJson && pluginSettingsJson.view ? pluginSettingsJson.view.template : undefined;
     return new PluginSettings(configurations, viewTemplate);
   }
 
   hasView() {
-    return this.viewTemplate !== undefined && this.viewTemplate() !== undefined && this.viewTemplate()
-                                                                                       .trim().length > 0;
+     return !s.isBlank(this.viewTemplate() as string);
   }
 
   hasConfigurations() {
@@ -70,42 +83,20 @@ class PluginSettings {
 }
 
 export abstract class Extension {
-  readonly type: ExtensionType;
+  readonly type: ExtensionTypeString;
   readonly pluginSettings?: PluginSettings;
 
-  protected constructor(type: ExtensionType, pluginSettings?: PluginSettings) {
+  protected constructor(type: ExtensionTypeString, pluginSettings?: PluginSettings) {
     this.type           = type;
     this.pluginSettings = pluginSettings;
   }
 
-  static fromJSON(data: any): Extension | undefined {
-    const type: ExtensionType = data.type;
-    switch (type) {
-      case ExtensionType.ARTIFACT:
-        return ArtifactSettings.fromJSON(data);
-      case ExtensionType.ANALYTICS:
-        return AnalyticsSettings.fromJSON(data);
-      case ExtensionType.AUTHORIZATION:
-        return AuthorizationSettings.fromJSON(data);
-      case ExtensionType.CONFIG_REPO:
-        return ConfigRepoSettings.fromJSON(data);
-      case ExtensionType.ELASTIC_AGENTS:
-        return ElasticAgentSettings.fromJSON(data);
-      case ExtensionType.NOTIFICATION:
-        return NotificationSettings.fromJSON(data);
-      case ExtensionType.PACKAGE_REPO:
-        return PackageRepoSettings.fromJSON(data);
-      case ExtensionType.SCM:
-        return ScmSettings.fromJSON(data);
-      case ExtensionType.TASK:
-        return TaskSettings.fromJSON(data);
-      case ExtensionType.SECRETS:
-        return SecretSettings.fromJSON(data);
-    }
+  static fromJSON(data: ExtensionJSON): Extension {
+    return ExtensionType.fromString(data.type).fromJSON(data);
   }
 
   hasView(): boolean {
-    return this.pluginSettings !== undefined && this.pluginSettings.hasView();
+    return this.pluginSettings ? this.pluginSettings.hasView() : false;
   }
 
   hasConfigurations(): boolean {
@@ -118,7 +109,7 @@ export abstract class Extension {
 
 }
 
-export class ArtifactSettings extends Extension {
+export class ArtifactExtension extends Extension {
 
   readonly storeConfigSettings: PluginSettings;
   readonly artifactConfigSettings: PluginSettings;
@@ -128,37 +119,37 @@ export class ArtifactSettings extends Extension {
               artifactConfigSettings: PluginSettings,
               fetchArtifactSettings: PluginSettings,
               pluginSettings?: PluginSettings) {
-    super(ExtensionType.ARTIFACT, pluginSettings);
+    super(ExtensionTypeString.ARTIFACT, pluginSettings);
     this.storeConfigSettings    = storeConfigSettings;
     this.artifactConfigSettings = artifactConfigSettings;
     this.fetchArtifactSettings  = fetchArtifactSettings;
   }
 
-  static fromJSON(data: any) {
-    return new ArtifactSettings(PluginSettings.fromJSON(data.store_config_settings),
-                                PluginSettings.fromJSON(data.artifact_config_settings),
-                                PluginSettings.fromJSON(data.fetch_artifact_settings),
-                                PluginSettings.tryParsing(data));
+  static fromJSON(data: ArtifactExtensionJSON) {
+    return new ArtifactExtension(PluginSettings.fromJSON(data.store_config_settings),
+                                 PluginSettings.fromJSON(data.artifact_config_settings),
+                                 PluginSettings.fromJSON(data.fetch_artifact_settings),
+                                 PluginSettings.tryParsing(data));
   }
 }
 
-export class ConfigRepoSettings extends Extension {
+export class ConfigRepoExtension extends Extension {
   readonly capabilities: ConfigRepoCapabilities;
 
   constructor(capabilities: ConfigRepoCapabilities, pluginSettings?: PluginSettings) {
-    super(ExtensionType.CONFIG_REPO, pluginSettings);
+    super(ExtensionTypeString.CONFIG_REPO, pluginSettings);
     this.capabilities = capabilities;
   }
 
-  static fromJSON(data: any) {
-    return new ConfigRepoSettings(
+  static fromJSON(data: ConfigRepoExtensionJSON) {
+    return new ConfigRepoExtension(
       ConfigRepoCapabilities.fromJSON(data.capabilities),
-      PluginSettings.fromJSON(data.plugin_settings),
+      PluginSettings.fromJSON(data.plugin_settings || {}),
     );
   }
 }
 
-export class ElasticAgentSettings extends Extension {
+export class ElasticAgentExtension extends Extension {
   readonly profileSettings: PluginSettings;
   readonly capabilities: ElasticPluginCapabilities;
   readonly clusterProfileSettings?: PluginSettings;
@@ -169,23 +160,23 @@ export class ElasticAgentSettings extends Extension {
               capabilities: ElasticPluginCapabilities,
               pluginSettings?: PluginSettings,
               clusterProfileSettings?: PluginSettings) {
-    super(ExtensionType.ELASTIC_AGENTS, pluginSettings);
+    super(ExtensionTypeString.ELASTIC_AGENTS, pluginSettings);
     this.supportsClusterProfiles = supportsClusterProfiles;
     this.profileSettings         = profileSettings;
     this.clusterProfileSettings  = clusterProfileSettings;
     this.capabilities            = capabilities;
   }
 
-  static fromJSON(data: any) {
-    const supportsClusterProfiles: boolean = data.supports_cluster_profiles;
+  static fromJSON(data: ElasticAgentExtensionJSON) {
+    const supportsClusterProfiles = data.supports_cluster_profiles;
 
     let clusterProfileSettings: PluginSettings | undefined;
 
     if (supportsClusterProfiles) {
-      clusterProfileSettings = PluginSettings.fromJSON(data.cluster_profile_settings);
+      clusterProfileSettings = PluginSettings.fromJSON(data.cluster_profile_settings!);
     }
 
-    return new ElasticAgentSettings(
+    return new ElasticAgentExtension(
       supportsClusterProfiles,
       PluginSettings.fromJSON(data.elastic_agent_profile_settings),
       ElasticPluginCapabilities.fromJSON(data.capabilities),
@@ -195,7 +186,7 @@ export class ElasticAgentSettings extends Extension {
   }
 }
 
-export class AuthorizationSettings extends Extension {
+export class AuthorizationExtension extends Extension {
   readonly authConfigSettings: PluginSettings;
   readonly roleSettings: PluginSettings;
   readonly capabilities: AuthCapabilities;
@@ -204,104 +195,104 @@ export class AuthorizationSettings extends Extension {
               roleSettings: PluginSettings,
               capabilities: AuthCapabilities,
               pluginSettings?: PluginSettings) {
-    super(ExtensionType.AUTHORIZATION, pluginSettings);
+    super(ExtensionTypeString.AUTHORIZATION, pluginSettings);
     this.authConfigSettings = authConfigSettings;
     this.roleSettings       = roleSettings;
     this.capabilities       = capabilities;
   }
 
-  static fromJSON(data: any) {
-    return new AuthorizationSettings(PluginSettings.fromJSON(data.auth_config_settings),
-                                     PluginSettings.fromJSON(data.role_settings),
-                                     AuthCapabilities.fromJSON(data.capabilities),
-                                     PluginSettings.tryParsing(data));
+  static fromJSON(data: AuthorizationExtensionJSON) {
+    return new AuthorizationExtension(PluginSettings.fromJSON(data.auth_config_settings),
+                                      PluginSettings.fromJSON(data.role_settings),
+                                      AuthCapabilities.fromJSON(data.capabilities),
+                                      PluginSettings.tryParsing(data));
   }
 }
 
-class ScmSettings extends Extension {
+export class ScmExtension extends Extension {
   readonly displayName: string;
   readonly scmSettings: PluginSettings;
 
   constructor(displayName: string, scmSettings: PluginSettings, pluginSettings?: PluginSettings) {
-    super(ExtensionType.SCM, pluginSettings);
+    super(ExtensionTypeString.SCM, pluginSettings);
     this.displayName = displayName;
     this.scmSettings = scmSettings;
   }
 
-  static fromJSON(data: any) {
-    return new ScmSettings(data.display_name,
-                           PluginSettings.fromJSON(data.scm_settings),
-                           PluginSettings.tryParsing(data));
-  }
-}
-
-class TaskSettings extends Extension {
-  readonly displayName: string;
-  readonly taskSettings: PluginSettings;
-
-  constructor(displayName: string, taskSettings: PluginSettings, pluginSettings?: PluginSettings) {
-    super(ExtensionType.TASK, pluginSettings);
-    this.displayName  = displayName;
-    this.taskSettings = taskSettings;
-  }
-
-  static fromJSON(data: any) {
-    return new TaskSettings(data.display_name,
-                            PluginSettings.fromJSON(data.task_settings),
+  static fromJSON(data: SCMExtensionJSON) {
+    return new ScmExtension(data.display_name,
+                            PluginSettings.fromJSON(data.scm_settings),
                             PluginSettings.tryParsing(data));
   }
 }
 
-class PackageRepoSettings extends Extension {
+export class TaskExtension extends Extension {
+  readonly displayName: string;
+  readonly taskSettings: PluginSettings;
+
+  constructor(displayName: string, taskSettings: PluginSettings, pluginSettings?: PluginSettings) {
+    super(ExtensionTypeString.TASK, pluginSettings);
+    this.displayName  = displayName;
+    this.taskSettings = taskSettings;
+  }
+
+  static fromJSON(data: TaskExtensionJSON) {
+    return new TaskExtension(data.display_name,
+                             PluginSettings.fromJSON(data.task_settings),
+                             PluginSettings.tryParsing(data));
+  }
+}
+
+export class PackageRepoExtension extends Extension {
   readonly packageSettings: PluginSettings;
   readonly repositorySettings: PluginSettings;
 
   constructor(packageSettings: PluginSettings, repositorySettings: PluginSettings, pluginSettings?: PluginSettings) {
-    super(ExtensionType.PACKAGE_REPO, pluginSettings);
+    super(ExtensionTypeString.PACKAGE_REPO, pluginSettings);
     this.packageSettings    = packageSettings;
     this.repositorySettings = repositorySettings;
   }
 
-  static fromJSON(data: any) {
-    return new PackageRepoSettings(PluginSettings.fromJSON(data.package_settings),
-                                   PluginSettings.fromJSON(data.repository_settings), PluginSettings.tryParsing(data));
+  static fromJSON(data: PackageRepoExtensionJSON) {
+    return new PackageRepoExtension(PluginSettings.fromJSON(data.package_settings),
+                                    PluginSettings.fromJSON(data.repository_settings), PluginSettings.tryParsing(data));
   }
 }
 
-class NotificationSettings extends Extension {
+export class NotificationExtension extends Extension {
 
   constructor(pluginSettings?: PluginSettings) {
-    super(ExtensionType.NOTIFICATION, pluginSettings);
+    super(ExtensionTypeString.NOTIFICATION, pluginSettings);
   }
 
-  static fromJSON(data: any) {
-    return new NotificationSettings(PluginSettings.tryParsing(data));
+  static fromJSON(data: NotificationExtensionJSON) {
+    return new NotificationExtension(PluginSettings.tryParsing(data));
   }
 }
 
-class AnalyticsSettings extends Extension {
+export class AnalyticsExtension extends Extension {
   readonly capabilities: AnalyticsCapabilities;
 
   constructor(capabilities: AnalyticsCapabilities, pluginSettings?: PluginSettings) {
-    super(ExtensionType.ANALYTICS, pluginSettings);
+    super(ExtensionTypeString.ANALYTICS, pluginSettings);
     this.capabilities = capabilities;
   }
 
-  static fromJSON(data: any) {
-    return new AnalyticsSettings(AnalyticsCapabilities.fromJSON(data.capabilities), PluginSettings.tryParsing(data));
+  static fromJSON(data: AnalyticsExtensionJSON) {
+    return new AnalyticsExtension(AnalyticsCapabilities.fromJSON(data.capabilities), PluginSettings.tryParsing(data));
   }
 }
 
-export class SecretSettings extends Extension {
+export class SecretExtension extends Extension {
   readonly secretConfigSettings: PluginSettings;
 
   constructor(secretConfigSettings: PluginSettings,
               pluginSettings?: PluginSettings) {
-    super(ExtensionType.SECRETS, pluginSettings);
+    super(ExtensionTypeString.SECRETS, pluginSettings);
     this.secretConfigSettings = secretConfigSettings;
   }
 
-  static fromJSON(data: any) {
-    return new SecretSettings(PluginSettings.fromJSON(data.secret_config_settings), PluginSettings.tryParsing(data));
+  static fromJSON(data: SecretConfigExtensionJSON) {
+    return new SecretExtension(PluginSettings.fromJSON(data.secret_config_settings), PluginSettings.tryParsing(data));
   }
 }

@@ -18,24 +18,40 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {ClusterProfilesCRUD} from "models/elastic_profiles/cluster_profiles_crud";
 import {ElasticAgentProfilesCRUD} from "models/elastic_profiles/elastic_agent_profiles_crud";
-import {ClusterProfile, ClusterProfiles, ElasticAgentProfile, ElasticAgentProfiles} from "models/elastic_profiles/types";
-import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
-import {Extension} from "models/shared/plugin_infos_new/extensions";
-import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import {
+  ClusterProfile,
+  ClusterProfiles,
+  ElasticAgentProfile,
+  ElasticAgentProfiles
+} from "models/elastic_profiles/types";
+import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
+import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
 import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
 import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
-import {CloneClusterProfileModal, EditClusterProfileModal, NewClusterProfileModal} from "views/pages/elastic_agent_configurations/cluster_profiles_modals";
-import {ClusterProfilesWidget, ClusterProfilesWidgetAttrs} from "views/pages/elastic_agent_configurations/cluster_profiles_widget";
-import {CloneElasticProfileModal, EditElasticProfileModal, NewElasticProfileModal, UsageElasticProfileModal} from "views/pages/elastic_agent_configurations/elastic_agent_profiles_modals";
+import {
+  CloneClusterProfileModal,
+  EditClusterProfileModal,
+  NewClusterProfileModal
+} from "views/pages/elastic_agent_configurations/cluster_profiles_modals";
+import {
+  ClusterProfilesWidget,
+  ClusterProfilesWidgetAttrs
+} from "views/pages/elastic_agent_configurations/cluster_profiles_widget";
+import {
+  CloneElasticProfileModal,
+  EditElasticProfileModal,
+  NewElasticProfileModal,
+  UsageElasticProfileModal
+} from "views/pages/elastic_agent_configurations/elastic_agent_profiles_modals";
 import {SaveOperation} from "views/pages/page_operations";
 
 import {Page, PageState} from "./page";
 
 export interface RequiresPluginInfos {
-  pluginInfos: Stream<Array<PluginInfo<Extension>>>;
+  pluginInfos: Stream<PluginInfos>;
 }
 
 export interface State extends RequiresPluginInfos, ClusterProfilesWidgetAttrs, SaveOperation {
@@ -57,14 +73,22 @@ export class ElasticProfilesPage extends Page<null, State> {
         event.stopPropagation();
         this.flashMessage.clear();
 
-        new CloneElasticProfileModal(elasticProfile.id()!, elasticProfile.pluginId()!, vnode.state.pluginInfos(), vnode.state.clusterProfiles, vnode.state.onSuccessfulSave).render();
+        new CloneElasticProfileModal(elasticProfile.id()!,
+                                     elasticProfile.pluginId()!,
+                                     vnode.state.pluginInfos(),
+                                     vnode.state.clusterProfiles,
+                                     vnode.state.onSuccessfulSave).render();
       },
 
       onEdit: (elasticProfile: ElasticAgentProfile, event: MouseEvent) => {
         event.stopPropagation();
         this.flashMessage.clear();
 
-        new EditElasticProfileModal(elasticProfile.id()!, elasticProfile.pluginId()!, vnode.state.pluginInfos(), vnode.state.clusterProfiles, vnode.state.onSuccessfulSave).render();
+        new EditElasticProfileModal(elasticProfile.id()!,
+                                    elasticProfile.pluginId()!,
+                                    vnode.state.pluginInfos(),
+                                    vnode.state.clusterProfiles,
+                                    vnode.state.onSuccessfulSave).render();
       },
 
       onDelete: (id: string, event: MouseEvent) => {
@@ -98,7 +122,10 @@ export class ElasticProfilesPage extends Page<null, State> {
         e.stopPropagation();
         this.flashMessage.clear();
 
-        new NewElasticProfileModal(vnode.state.pluginInfos(), vnode.state.clusterProfiles, elasticAgentProfile, vnode.state.onSuccessfulSave).render();
+        new NewElasticProfileModal(vnode.state.pluginInfos(),
+                                   vnode.state.clusterProfiles,
+                                   elasticAgentProfile,
+                                   vnode.state.onSuccessfulSave).render();
       }
     };
 
@@ -107,7 +134,9 @@ export class ElasticProfilesPage extends Page<null, State> {
         event.stopPropagation();
         this.flashMessage.clear();
 
-        new EditClusterProfileModal(clusterProfile.id()!, vnode.state.pluginInfos(), vnode.state.onSuccessfulSave).render();
+        new EditClusterProfileModal(clusterProfile.id()!,
+                                    vnode.state.pluginInfos(),
+                                    vnode.state.onSuccessfulSave).render();
       },
 
       onDelete: (clusterProfileId: string, event: MouseEvent) => {
@@ -148,7 +177,9 @@ export class ElasticProfilesPage extends Page<null, State> {
         event.stopPropagation();
         this.flashMessage.clear();
 
-        new CloneClusterProfileModal(clusterProfile.id()!, vnode.state.pluginInfos(), vnode.state.onSuccessfulSave).render();
+        new CloneClusterProfileModal(clusterProfile.id()!,
+                                     vnode.state.pluginInfos(),
+                                     vnode.state.onSuccessfulSave).render();
       },
     };
 
@@ -200,7 +231,8 @@ export class ElasticProfilesPage extends Page<null, State> {
   headerPanel(vnode: m.Vnode<null, State>) {
     const headerButtons = [];
     const hasPlugins    = vnode.state.pluginInfos() && vnode.state.pluginInfos().length > 0;
-    headerButtons.push(<Buttons.Primary disabled={!hasPlugins} onclick={vnode.state.clusterProfileOperations.onAdd.bind(vnode.state)}>
+    headerButtons.push(<Buttons.Primary disabled={!hasPlugins}
+                                        onclick={vnode.state.clusterProfileOperations.onAdd.bind(vnode.state)}>
       <span title={!hasPlugins ? "Install some elastic agent plugins to add a cluster profile." : undefined}>Add Cluster Profile</span>
     </Buttons.Primary>);
 
@@ -209,7 +241,7 @@ export class ElasticProfilesPage extends Page<null, State> {
 
   fetchData(vnode: m.Vnode<null, State>) {
     return Promise.all([
-                         PluginInfoCRUD.all({type: ExtensionType.ELASTIC_AGENTS}),
+                         PluginInfoCRUD.all({type: ExtensionTypeString.ELASTIC_AGENTS}),
                          ClusterProfilesCRUD.all(),
                          ElasticAgentProfilesCRUD.all()
                        ]).then((results) => {
@@ -227,7 +259,7 @@ export class ElasticProfilesPage extends Page<null, State> {
 
           results[2].do(
             (successResponse) => {
-              this.pageState              = PageState.OK;
+              this.pageState = PageState.OK;
               successResponse.body.inferPluginIdFromReferencedCluster(vnode.state.clusterProfiles);
               vnode.state.elasticProfiles = successResponse.body;
             },

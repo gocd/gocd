@@ -18,7 +18,7 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {SecretConfig, SecretConfigs} from "models/secret_configs/secret_configs";
 import {secretConfigsTestData, secretConfigTestData} from "models/secret_configs/spec/test_data";
-import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {SecretPluginInfo} from "models/shared/plugin_infos_new/spec/test_data";
 import * as simulateEvent from "simulate-event";
 import {TestSecretConfigModal} from "views/pages/secret_configs/spec/test_modal";
@@ -27,7 +27,7 @@ import {TestHelper} from "views/pages/spec/test_helper";
 describe("SecretConfigModal", () => {
   const helper           = new TestHelper();
   const secretConfigs    = SecretConfigs.fromJSON(secretConfigsTestData());
-  const pluginInfos      = [PluginInfo.fromJSON(SecretPluginInfo.file())];
+  const pluginInfos      = new PluginInfos(PluginInfo.fromJSON(SecretPluginInfo.file()));
   const resourceHelper   = new Map();
   const onSuccessfulSave = jasmine.createSpy("onSuccessfulSave");
 

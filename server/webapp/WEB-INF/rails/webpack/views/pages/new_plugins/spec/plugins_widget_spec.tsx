@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 import m from "mithril";
-import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
+import {LinksJSON, NotificationExtensionJSON, PluginInfoJSON} from "models/shared/plugin_infos_new/serialization";
+import {pluginImageLink} from "models/shared/plugin_infos_new/spec/test_data";
 import * as simulateEvent from "simulate-event";
 import * as collapsiblePanelStyles from "views/components/collapsible_panel/index.scss";
 import * as headerIconStyles from "views/components/header_icon/index.scss";
@@ -23,12 +25,12 @@ import {PluginsWidget} from "../plugins_widget";
 
 describe("New Plugins Widget", () => {
 
-  const pluginInfos = [PluginInfo.fromJSON(getEAPluginInfo(), getEAPluginInfo()._links),
-    PluginInfo.fromJSON(getNotificationPluginInfo(), undefined),
-    PluginInfo.fromJSON(getYumPluginInfo(), undefined),
-    PluginInfo.fromJSON(getInvalidPluginInfo(), undefined),
-    PluginInfo.fromJSON(getEAPluginInfoSupportingClusterProfile(), undefined)
-  ];
+  const pluginInfos = new PluginInfos(PluginInfo.fromJSON(getEAPluginInfo()),
+                                      PluginInfo.fromJSON(getNotificationPluginInfo()),
+                                      PluginInfo.fromJSON(getYumPluginInfo()),
+                                      PluginInfo.fromJSON(getInvalidPluginInfo()),
+                                      PluginInfo.fromJSON(getEAPluginInfoSupportingClusterProfile())
+  );
 
   const helper = new TestHelper();
   afterEach(helper.unmount.bind(helper));
@@ -44,9 +46,10 @@ describe("New Plugins Widget", () => {
   it("should render plugin name and image", () => {
     expect(helper.findByDataTestId("plugins-list").get(0).children).toHaveLength(5);
 
-    expect(helper.findByDataTestId("plugin-name").get(0)).toContainText(getEAPluginInfo().about.name);
-    expect(helper.find(`.${headerIconStyles.headerIcon} img`).get(0)).toHaveAttr("src", getEAPluginInfo()._links.image.href);
-    expect(helper.findByDataTestId("plugin-name").get(2)).toContainText(getNotificationPluginInfo().about.name);
+    expect(helper.findByDataTestId("plugin-name").get(0)).toContainText(getEAPluginInfo().about!.name);
+    expect(helper.find(`.${headerIconStyles.headerIcon} img`).get(0))
+      .toHaveAttr("src", getEAPluginInfo()._links.image!.href);
+    expect(helper.findByDataTestId("plugin-name").get(2)).toContainText(getNotificationPluginInfo().about!.name);
   });
 
   it("should render plugin version", () => {
@@ -56,10 +59,11 @@ describe("New Plugins Widget", () => {
     const notificationPluginHeader = helper.findByDataTestId("collapse-header").get(2);
 
     expect(helper.findIn(EAPluginHeader, "key-value-key-version")).toContainText("Version");
-    expect(helper.findIn(EAPluginHeader, "key-value-value-version")).toContainText(getEAPluginInfo().about.version);
+    expect(helper.findIn(EAPluginHeader, "key-value-value-version")).toContainText(getEAPluginInfo().about!.version);
 
     expect(helper.findIn(notificationPluginHeader, "key-value-key-version")).toContainText("Version");
-    expect(helper.findIn(notificationPluginHeader, "key-value-value-version")).toContainText(getNotificationPluginInfo().about.version);
+    expect(helper.findIn(notificationPluginHeader, "key-value-value-version"))
+      .toContainText(getNotificationPluginInfo().about!.version);
   });
 
   it("should render all invalid plugin infos expanded", () => {
@@ -115,10 +119,10 @@ describe("New Plugins Widget", () => {
     expect(EAPluginInfoBody).toContainText(getEAPluginInfo().id);
 
     expect(EAPluginInfoBody).toContainText("Description");
-    expect(EAPluginInfoBody).toContainText(getEAPluginInfo().about.description);
+    expect(EAPluginInfoBody).toContainText(getEAPluginInfo().about!.description);
 
     expect(EAPluginInfoBody).toContainText("Author");
-    expect(EAPluginInfoBody).toContainText(getEAPluginInfo().about.vendor.name);
+    expect(EAPluginInfoBody).toContainText(getEAPluginInfo().about!.vendor.name);
 
     expect(EAPluginInfoBody).toContainText("Supported operating systems");
     expect(EAPluginInfoBody).toContainText("No restrictions");
@@ -132,10 +136,10 @@ describe("New Plugins Widget", () => {
     const NotificationPluginInfoBody = helper.findByDataTestId("collapse-body").get(2);
 
     expect(NotificationPluginInfoBody).toContainText("Description");
-    expect(NotificationPluginInfoBody).toContainText(getNotificationPluginInfo().about.description);
+    expect(NotificationPluginInfoBody).toContainText(getNotificationPluginInfo().about!.description);
 
     expect(NotificationPluginInfoBody).toContainText("Author");
-    expect(NotificationPluginInfoBody).toContainText(getNotificationPluginInfo().about.vendor.name);
+    expect(NotificationPluginInfoBody).toContainText(getNotificationPluginInfo().about!.vendor.name);
 
     expect(NotificationPluginInfoBody).toContainText("Supported operating systems");
     expect(NotificationPluginInfoBody).toContainText("No restrictions");
@@ -161,31 +165,43 @@ describe("New Plugins Widget", () => {
   it("should render error messages for plugins in invalid/error state", () => {
     const yumPluginInfoBody = helper.findByDataTestId("collapse-body").get(4);
     expect(yumPluginInfoBody).toContainText("There were errors loading the plugin");
-    expect(yumPluginInfoBody).toContainText("Plugin with ID (yum) is not valid: Incompatible with current operating system 'Mac OS X'. Valid operating systems are: [Linux].");
+    expect(yumPluginInfoBody)
+      .toContainText(
+        "Plugin with ID (yum) is not valid: Incompatible with current operating system 'Mac OS X'. Valid operating systems are: [Linux].");
     expect(helper.find(`.${collapsiblePanelStyles.collapse}`).get(3)).toHaveClass(collapsiblePanelStyles.error);
   });
 
   it("should display deprecation message for elastic agent plugins not supporting cluster profile", () => {
-    expect(helper.findByDataTestId("collapse-header").get(0)).toContainText(getEAPluginInfo().about.name);
+    expect(helper.findByDataTestId("collapse-header").get(0)).toContainText(getEAPluginInfo().about!.name);
     expect(helper.findIn(helper.findByDataTestId("collapse-header").get(0), "deprecation-warning-icon")).toBeInDOM();
     expect(helper.findByDataTestId("collapse-header").get(0)).toHaveClass(collapsiblePanelStyles.warning);
     expect(helper.findIn(helper.findByDataTestId("collapse-header").get(0), "deprecation-warning-tooltip-content"))
-      .toHaveText("Version 0.6.1 of plugin is deprecated as it does not support ClusterProfiles. This version of plugin will stop working in upcoming release of GoCD, update to latest version of the plugin.");
+      .toHaveText(
+        "Version 0.6.1 of plugin is deprecated as it does not support ClusterProfiles. This version of plugin will stop working in upcoming release of GoCD, update to latest version of the plugin.");
   });
 
   it("should not display deprecation message for elastic agent plugins supporting cluster profile", () => {
-    expect(helper.findByDataTestId("collapse-header").get(1)).toContainText(getEAPluginInfoSupportingClusterProfile().about.name);
-    expect(helper.findIn(helper.findByDataTestId("collapse-header").get(1), "deprecation-warning-icon")).not.toBeInDOM();
-    expect(helper.findIn(helper.findByDataTestId("collapse-header").get(1), "deprecation-warning-tooltip-content")).not.toBeInDOM();
+    expect(helper.findByDataTestId("collapse-header").get(1))
+      .toContainText(getEAPluginInfoSupportingClusterProfile().about!.name);
+    expect(helper.findIn(helper.findByDataTestId("collapse-header").get(1), "deprecation-warning-icon"))
+      .not
+      .toBeInDOM();
+    expect(helper.findIn(helper.findByDataTestId("collapse-header").get(1), "deprecation-warning-tooltip-content"))
+      .not
+      .toBeInDOM();
   });
 
   it("should not display deprecation message for plugins not using elastic agent extension", () => {
-    expect(helper.findByDataTestId("collapse-header").get(4)).toContainText(getYumPluginInfo().about.name);
-    expect(helper.findIn(helper.findByDataTestId("collapse-header").get(4), "deprecation-warning-icon")).not.toBeInDOM();
-    expect(helper.findIn(helper.findByDataTestId("collapse-header").get(4), "deprecation-warning-tooltip-content")).not.toBeInDOM();
+    expect(helper.findByDataTestId("collapse-header").get(4)).toContainText(getYumPluginInfo().about!.name);
+    expect(helper.findIn(helper.findByDataTestId("collapse-header").get(4), "deprecation-warning-icon"))
+      .not
+      .toBeInDOM();
+    expect(helper.findIn(helper.findByDataTestId("collapse-header").get(4), "deprecation-warning-tooltip-content"))
+      .not
+      .toBeInDOM();
   });
 
-  function getEAPluginInfo() {
+  function getEAPluginInfo(): PluginInfoJSON {
     return {
       _links: {
         image: {
@@ -193,6 +209,8 @@ describe("New Plugins Widget", () => {
         }
       },
       id: "cd.go.contrib.elastic-agent.docker",
+      plugin_file_location: '/tmp/foo.jar',
+      bundled_plugin: false,
       status: {
         state: "active"
       },
@@ -262,12 +280,33 @@ describe("New Plugins Widget", () => {
     };
   }
 
-  function getNotificationPluginInfo() {
+  function getNotificationPluginInfo(): PluginInfoJSON {
+    const extension: NotificationExtensionJSON = {
+      type: "notification",
+      plugin_settings: {
+        configurations: [
+          {
+            key: "hostname",
+            metadata: {
+              secure: false,
+              required: true
+            }
+          }
+        ],
+        view: {
+          template: "notification plugin view"
+        }
+      }
+    };
+
     return {
+      _links: pluginImageLink(),
       id: "github.pr.status",
       status: {
         state: "active"
       },
+      plugin_file_location: '/tmp/foo.jar',
+      bundled_plugin: false,
       about: {
         name: "GitHub Pull Requests status notifier",
         version: "1.2",
@@ -280,29 +319,14 @@ describe("New Plugins Widget", () => {
         }
       },
       extensions: [
-        {
-          type: "notification",
-          plugin_settings: {
-            configurations: [
-              {
-                key: "hostname",
-                metadata: {
-                  secure: false,
-                  required: true
-                }
-              }
-            ],
-            view: {
-              template: "notification plugin view"
-            }
-          }
-        }
+        extension
       ]
     };
   }
 
-  function getYumPluginInfo() {
+  function getYumPluginInfo(): PluginInfoJSON {
     return {
+      _links: pluginImageLink(),
       id: "yum",
       status: {
         state: "invalid",
@@ -329,7 +353,7 @@ describe("New Plugins Widget", () => {
     };
   }
 
-  function getInvalidPluginInfo() {
+  function getInvalidPluginInfo(): PluginInfoJSON {
     return {
       _links: {
         self: {
@@ -341,7 +365,7 @@ describe("New Plugins Widget", () => {
         find: {
           href: "http://localhost:8153/go/api/admin/plugin_info/:plugin_id"
         }
-      },
+      } as LinksJSON,
       id: "plugin-common.jar",
       status: {
         state: "invalid",
@@ -352,16 +376,18 @@ describe("New Plugins Widget", () => {
       plugin_file_location: "/Users/ganeshp/projects/gocd/gocd/server/plugins/external/plugin-common.jar",
       bundled_plugin: false,
       extensions: []
-    };
+    } as PluginInfoJSON;
   }
 
-  function getEAPluginInfoSupportingClusterProfile() {
+  function getEAPluginInfoSupportingClusterProfile(): PluginInfoJSON {
     return {
       _links: {
         image: {
           href: "some-image-link"
         }
       },
+      plugin_file_location: '/tmp/foo.jar',
+      bundled_plugin: false,
       id: "cd.go.contrib.elasticagent.kubernetes",
       status: {
         state: "active"

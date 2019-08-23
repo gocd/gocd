@@ -17,14 +17,14 @@
 import m from "mithril";
 import {ArtifactStore} from "models/artifact_stores/artifact_stores";
 import {Configurations} from "models/shared/configuration";
-import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {ArtifactPluginInfo} from "models/shared/plugin_infos_new/spec/test_data";
 import {ArtifactStoreModalBody} from "views/pages/artifact_stores/artifact_store_modal_body";
 import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("ArtifactModalBodyWidget", () => {
   const helper        = new TestHelper();
-  const pluginInfos   = [PluginInfo.fromJSON(ArtifactPluginInfo.docker())];
+  const pluginInfos   = new PluginInfos(PluginInfo.fromJSON(ArtifactPluginInfo.docker()));
   const pluginIdProxy = jasmine.createSpy("pluginIdProxy");
 
   afterEach((done) => helper.unmount(done));

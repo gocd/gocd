@@ -20,8 +20,7 @@ import m from "mithril";
 import {AuthConfigs} from "models/auth_configs/auth_configs";
 import {GoCDRole, PluginAttributes, PluginRole, Roles} from "models/roles/roles";
 import {Configuration} from "models/shared/configuration";
-import {Extension} from "models/shared/plugin_infos_new/extensions";
-import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import s from "underscore.string";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {HeaderIcon} from "views/components/header_icon";
@@ -34,7 +33,7 @@ import styles from "./index.scss";
 const gocdIcon = require("../../../../app/assets/images/gocd.svg");
 
 interface Attrs extends EditOperation<GoCDRole | PluginRole>, CloneOperation<GoCDRole | PluginRole>, DeleteOperation<GoCDRole | PluginRole> {
-  pluginInfos: Array<PluginInfo<Extension>>;
+  pluginInfos: PluginInfos;
   authConfigs: AuthConfigs;
   roles: Roles;
 }
@@ -44,7 +43,7 @@ interface RoleAttrs extends EditOperation<GoCDRole | PluginRole>, CloneOperation
 }
 
 interface PluginRoleAttrs extends RoleAttrs {
-  pluginInfos: Array<PluginInfo<Extension>>;
+  pluginInfos: PluginInfos;
   authConfigs: AuthConfigs;
 }
 

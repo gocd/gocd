@@ -17,7 +17,7 @@ import _ from "lodash";
 import m from "mithril";
 
 import {MithrilComponent} from "jsx/mithril-component";
-import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Spinner} from "views/components/spinner";
 import {PluginSettingsModal} from "./plugin_settings_modal";
@@ -25,7 +25,7 @@ import {PluginWidget} from "./plugin_widget";
 
 export interface Attrs {
   isUserAnAdmin: boolean;
-  pluginInfos: Array<PluginInfo<any>>;
+  pluginInfos: PluginInfos;
 }
 
 interface HasSuccessMessage {
@@ -67,7 +67,7 @@ export class PluginsWidget extends MithrilComponent<Attrs, State> {
     return (
       <div data-test-id="plugins-list">
         <FlashMessage type={MessageType.success} message={vnode.state.successMessage}/>
-        {_.sortBy(vnode.attrs.pluginInfos, (pluginInfo) => pluginInfo.id).map((pluginInfo: PluginInfo<any>) => {
+        {_.sortBy(vnode.attrs.pluginInfos, (pluginInfo) => pluginInfo.id).map((pluginInfo: PluginInfo) => {
           return (
             <PluginWidget key={pluginInfo.id}
                           pluginInfo={pluginInfo}

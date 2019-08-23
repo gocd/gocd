@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-import {MithrilViewComponent} from "jsx/mithril-component";
+import { MithrilViewComponent } from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {AuthConfig, AuthConfigs} from "models/auth_configs/auth_configs";
-import {GoCDAttributes, GoCDRole, PluginAttributes, PluginRole} from "models/roles/roles";
-import {Configurations} from "models/shared/configuration";
-import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
-import {AuthorizationSettings, Extension} from "models/shared/plugin_infos_new/extensions";
-import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import { AuthConfig, AuthConfigs } from "models/auth_configs/auth_configs";
+import { GoCDAttributes, GoCDRole, PluginAttributes, PluginRole } from "models/roles/roles";
+import { Configurations } from "models/shared/configuration";
+import { ExtensionTypeString } from "models/shared/plugin_infos_new/extension_type";
+import { AuthorizationExtension} from "models/shared/plugin_infos_new/extensions";
+import { PluginInfos } from "models/shared/plugin_infos_new/plugin_info";
 import * as Buttons from "views/components/buttons";
-import {Form} from "views/components/forms/form";
-import {Option, SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
-import {UsersWidget} from "views/pages/roles/users_widget";
+import { Form } from "views/components/forms/form";
+import { Option, SelectField, SelectFieldOptions, TextField } from "views/components/forms/input_fields";
+import { UsersWidget } from "views/pages/roles/users_widget";
 import styles from "./index.scss";
 
 const AngularPluginNew = require('views/shared/angular_plugin_new').AngularPluginNew;
@@ -38,7 +38,7 @@ interface ModalAttrs {
 }
 
 interface PluginModalAttrs extends ModalAttrs {
-  readonly pluginInfos: Array<PluginInfo<Extension>>;
+  readonly pluginInfos: PluginInfos;
   readonly authConfigs: AuthConfigs;
 }
 
@@ -50,18 +50,18 @@ export class GoCDRoleModalBodyWidget extends MithrilViewComponent<ModalAttrs> {
     const role = vnode.attrs.role as GoCDRole;
     return (<Form>
       <TextField label="Role name"
-                 readonly={vnode.attrs.isNameDisabled}
-                 property={role.name}
-                 errorText={role.errors().errorsForDisplay("name")}
-                 required={true}/>
+        readonly={vnode.attrs.isNameDisabled}
+        property={role.name}
+        errorText={role.errors().errorsForDisplay("name")}
+        required={true} />
 
       <li class={styles.usersInRole}>
         <UsersWidget roleAttributes={role.attributes}
-                     selectedUser={this.lastUserAdded}
-                     readOnly={false}/>
+          selectedUser={this.lastUserAdded}
+          readOnly={false} />
       </li>
 
-      <TextField label="Role users" required={false} property={this.newUser}/>
+      <TextField label="Role users" required={false} property={this.newUser} />
 
       <li class={styles.addUserToRole}>
         <Buttons.Primary
@@ -75,7 +75,7 @@ export class GoCDRoleModalBodyWidget extends MithrilViewComponent<ModalAttrs> {
     if (this.newUser && this.newUser() && this.newUser().length > 0) {
       (vnode.attrs.role.attributes() as GoCDAttributes).addUser(this.newUser());
       this.lastUserAdded = this.newUser();
-      this.newUser       = Stream("");
+      this.newUser = Stream("");
     }
   }
 }
@@ -84,13 +84,13 @@ export class PluginRoleModalBodyWidget extends MithrilViewComponent<PluginModalA
 
   view(vnode: m.Vnode<PluginModalAttrs>): m.Children | void | null {
     const pluginAttributes = (vnode.attrs.role.attributes() as PluginAttributes);
-    let authID             = pluginAttributes.authConfigId;
+    let authID = pluginAttributes.authConfigId;
     if (!authID) {
       const authConfigOfInstalledPlugin = _.find(vnode.attrs.authConfigs, (authConfig) => {
         const authConfigWithPlugin = _.find(vnode.attrs.pluginInfos,
-                                            (pluginInfo) => {
-                                              return authConfig.pluginId() === pluginInfo.id;
-                                            });
+          (pluginInfo) => {
+            return authConfig.pluginId() === pluginInfo.id;
+          });
         if (authConfigWithPlugin) {
           return authConfig;
         }
@@ -101,21 +101,21 @@ export class PluginRoleModalBodyWidget extends MithrilViewComponent<PluginModalA
       authID = authConfigOfInstalledPlugin.id()!;
     }
 
-    const authConfig              = vnode.attrs.authConfigs.findById(authID);
+    const authConfig = vnode.attrs.authConfigs.findById(authID);
     pluginAttributes.authConfigId = authConfig.id()!;
-    const pluginInfo              = _.find(vnode.attrs.pluginInfos, (pl) => pl.id === authConfig.pluginId());
+    const pluginInfo = _.find(vnode.attrs.pluginInfos, (pl) => pl.id === authConfig.pluginId());
 
     if (!pluginInfo) {
       return;
     }
     const pluginSettings = (pluginInfo
-      .extensionOfType(ExtensionType.AUTHORIZATION)! as AuthorizationSettings).roleSettings;
+      .extensionOfType(ExtensionTypeString.AUTHORIZATION)! as AuthorizationExtension).roleSettings;
 
     let authConfigs = _.map(vnode.attrs.authConfigs, (authConfig: AuthConfig) => {
       const authConfigWithPlugin = _.find(vnode.attrs.pluginInfos,
-                                          (pluginInfo) => {
-                                            return authConfig.pluginId() === pluginInfo.id;
-                                          });
+        (pluginInfo) => {
+          return authConfig.pluginId() === pluginInfo.id;
+        });
       if (authConfigWithPlugin) {
         return {
           id: authConfig.id(),
@@ -123,7 +123,7 @@ export class PluginRoleModalBodyWidget extends MithrilViewComponent<PluginModalA
         };
       }
     }) as Option[];
-    authConfigs     = _.filter(authConfigs, (value) => {
+    authConfigs = _.filter(authConfigs, (value) => {
       return !!value;
     }) as Option[];
 
@@ -132,17 +132,17 @@ export class PluginRoleModalBodyWidget extends MithrilViewComponent<PluginModalA
         <div>
           <Form>
             <TextField label="Role name"
-                       readonly={vnode.attrs.isNameDisabled}
-                       property={vnode.attrs.role.name}
-                       errorText={vnode.attrs.role.errors().errorsForDisplay("name")}
-                       required={true}/>
+              readonly={vnode.attrs.isNameDisabled}
+              property={vnode.attrs.role.name}
+              errorText={vnode.attrs.role.errors().errorsForDisplay("name")}
+              required={true} />
 
             <SelectField label="Auth Config Id"
-                         property={this.authConfigIdProxy.bind(this, vnode)}
-                         required={true}
-                         errorText={vnode.attrs.role.errors().errorsForDisplay("auth_config_id")}>
+              property={this.authConfigIdProxy.bind(this, vnode)}
+              required={true}
+              errorText={vnode.attrs.role.errors().errorsForDisplay("auth_config_id")}>
               <SelectFieldOptions selected={authConfig.pluginId()}
-                                  items={authConfigs}/>
+                items={authConfigs} />
             </SelectField>
           </Form>
         </div>
@@ -151,14 +151,14 @@ export class PluginRoleModalBodyWidget extends MithrilViewComponent<PluginModalA
             <AngularPluginNew
               pluginInfoSettings={Stream(pluginSettings)}
               configuration={new Configurations(pluginAttributes.properties())}
-              key={pluginInfo.id}/>
+              key={pluginInfo.id} />
           </div>
         </div>
       </div>);
   }
 
   private authConfigIdProxy(vnode: m.Vnode<PluginModalAttrs>, newValue?: string) {
-    const role       = vnode.attrs.role as PluginRole;
+    const role = vnode.attrs.role as PluginRole;
     const attributes = role.attributes() as PluginAttributes;
     if (newValue && attributes.authConfigId !== newValue) {
       const authConfig = vnode.attrs.authConfigs.findById(newValue);

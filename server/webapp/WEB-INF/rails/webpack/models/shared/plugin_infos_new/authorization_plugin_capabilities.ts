@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {AuthorizationCapabilitiesJSON} from "models/shared/plugin_infos_new/serialization";
+
 export class AuthCapabilities {
   readonly canSearch: boolean;
   readonly canAuthorize: boolean;
@@ -24,7 +26,7 @@ export class AuthCapabilities {
     this.supportedAuthType = supportedAuthType;
   }
 
-  static fromJSON(data: any) {
+  static fromJSON(data: AuthorizationCapabilitiesJSON) {
     return new AuthCapabilities(data.can_search, data.can_authorize, data.supported_auth_type);
   }
 }

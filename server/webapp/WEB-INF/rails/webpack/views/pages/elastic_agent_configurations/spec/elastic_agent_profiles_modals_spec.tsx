@@ -15,27 +15,27 @@
  */
 
 import _ from "lodash";
-import {ClusterProfile, ClusterProfiles, ElasticAgentProfile} from "models/elastic_profiles/types";
-import {Configurations} from "models/shared/configuration";
-import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
-import {ElasticAgentSettings} from "models/shared/plugin_infos_new/extensions";
-import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
-import {NewElasticProfileModal} from "views/pages/elastic_agent_configurations/elastic_agent_profiles_modals";
-import {TestData} from "views/pages/elastic_agent_configurations/spec/test_data";
-import {TestHelper} from "views/pages/spec/test_helper";
+import { ClusterProfile, ClusterProfiles, ElasticAgentProfile } from "models/elastic_profiles/types";
+import { Configurations } from "models/shared/configuration";
+import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
+import { ElasticAgentExtension } from "models/shared/plugin_infos_new/extensions";
+import { PluginInfo, PluginInfos } from "models/shared/plugin_infos_new/plugin_info";
+import { NewElasticProfileModal } from "views/pages/elastic_agent_configurations/elastic_agent_profiles_modals";
+import { TestData } from "views/pages/elastic_agent_configurations/spec/test_data";
+import { TestHelper } from "views/pages/spec/test_helper";
 
 describe("New Elastic Agent Profile Modals Spec", () => {
-  let pluginInfo: PluginInfo<any>, clusterProfiles: ClusterProfile[] = [], helper: TestHelper;
+  let pluginInfo: PluginInfo, clusterProfiles: ClusterProfile[] = [], helper: TestHelper;
 
   beforeEach(() => {
     clusterProfiles = [];
-    pluginInfo      = PluginInfo.fromJSON(TestData.dockerPluginJSON(), TestData.dockerPluginJSON()._links);
-    helper          = new TestHelper();
+    pluginInfo = PluginInfo.fromJSON(TestData.dockerPluginJSON());
+    helper = new TestHelper();
   });
 
   function mountModal() {
     const modal = new NewElasticProfileModal(
-      [pluginInfo],
+      new PluginInfos(pluginInfo),
       new ClusterProfiles(clusterProfiles),
       new ElasticAgentProfile(undefined, undefined, undefined, new Configurations([])), _.noop);
 
@@ -44,7 +44,7 @@ describe("New Elastic Agent Profile Modals Spec", () => {
 
   it("should get modal title", () => {
     const modal = new NewElasticProfileModal(
-      [pluginInfo],
+      new PluginInfos(pluginInfo),
       new ClusterProfiles(clusterProfiles),
       new ElasticAgentProfile(undefined, undefined, undefined, new Configurations([])), _.noop);
 
@@ -54,8 +54,8 @@ describe("New Elastic Agent Profile Modals Spec", () => {
   it("it should render an error message when plugin infos supports cluster profiles and no cluster profiles are defined", () => {
     mountModal();
 
-    const extension = pluginInfo.extensionOfType(ExtensionType.ELASTIC_AGENTS);
-    expect(!!(extension as ElasticAgentSettings).supportsClusterProfiles).toEqual(true);
+    const extension = pluginInfo.extensionOfType<ElasticAgentExtension>(ExtensionTypeString.ELASTIC_AGENTS)!;
+    expect(extension.supportsClusterProfiles).toEqual(true);
 
     const expectedErrorMessage = "Can not create Elastic Agent Profile for plugin 'cd.go.contrib.elastic-agent.docker'. A Cluster Profile must be configured first in order to define a new Elastic Agent Profile.";
 
@@ -75,8 +75,8 @@ describe("New Elastic Agent Profile Modals Spec", () => {
 
     mountModal();
 
-    const extension = pluginInfo.extensionOfType(ExtensionType.ELASTIC_AGENTS);
-    expect(!!(extension as ElasticAgentSettings).supportsClusterProfiles).toEqual(true);
+    const extension = pluginInfo.extensionOfType<ElasticAgentExtension>(ExtensionTypeString.ELASTIC_AGENTS)!;
+    expect(extension.supportsClusterProfiles).toEqual(true);
 
     expect(find("form-field-label-cluster-profile-id")).toBeInDOM();
     expect(find("form-field-input-cluster-profile-id")).toBeInDOM();
@@ -97,8 +97,8 @@ describe("New Elastic Agent Profile Modals Spec", () => {
 
     mountModal();
 
-    const extension = pluginInfo.extensionOfType(ExtensionType.ELASTIC_AGENTS);
-    expect(!!(extension as ElasticAgentSettings).supportsClusterProfiles).toEqual(true);
+    const extension = pluginInfo.extensionOfType<ElasticAgentExtension>(ExtensionTypeString.ELASTIC_AGENTS)!;
+    expect(extension.supportsClusterProfiles).toEqual(true);
 
     expect(find("form-field-label-cluster-profile-id")).toBeInDOM();
     expect(find("form-field-input-cluster-profile-id")).toBeInDOM();
@@ -116,8 +116,8 @@ describe("New Elastic Agent Profile Modals Spec", () => {
 
     data.extensions[0].supports_cluster_profiles = true;
 
-    const pluginInfos = [PluginInfo.fromJSON(TestData.dockerPluginJSON()), PluginInfo.fromJSON(data)];
-    clusterProfiles   = [new ClusterProfile("cluster1", pluginInfo.id), new ClusterProfile("cluster2", data.id)];
+    const pluginInfos = new PluginInfos(PluginInfo.fromJSON(TestData.dockerPluginJSON()), PluginInfo.fromJSON(data));
+    clusterProfiles = [new ClusterProfile("cluster1", pluginInfo.id), new ClusterProfile("cluster2", data.id)];
 
     const elasticAgentProfile = new ElasticAgentProfile("", data.id, "cluster2", new Configurations([]));
 
@@ -136,8 +136,8 @@ describe("New Elastic Agent Profile Modals Spec", () => {
 
     data.extensions[0].supports_cluster_profiles = true;
 
-    const pluginInfos = [PluginInfo.fromJSON(TestData.dockerPluginJSON()), PluginInfo.fromJSON(data)];
-    clusterProfiles   = [new ClusterProfile("cluster1", pluginInfo.id), new ClusterProfile("cluster2", pluginInfo.id)];
+    const pluginInfos = new PluginInfos(PluginInfo.fromJSON(TestData.dockerPluginJSON()), PluginInfo.fromJSON(data));
+    clusterProfiles = [new ClusterProfile("cluster1", pluginInfo.id), new ClusterProfile("cluster2", pluginInfo.id)];
 
     const elasticAgentProfile = new ElasticAgentProfile("", "", "", new Configurations([]));
 

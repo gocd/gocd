@@ -19,8 +19,7 @@ import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
-import {Extension} from "models/shared/plugin_infos_new/extensions";
-import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import * as Buttons from "views/components/buttons";
 import {ButtonGroup} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
@@ -32,14 +31,14 @@ const foundationClassNames = bind(foundationStyles);
 
 export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
   protected entity: Stream<T>;
-  protected readonly pluginInfos: Array<PluginInfo<Extension>>;
+  protected readonly pluginInfos: PluginInfos;
   protected readonly errorMessage: Stream<string> = Stream();
   protected readonly onSuccessfulSave: (msg: m.Children) => any;
   protected readonly isStale                      = Stream(true);
   protected readonly etag: Stream<string>         = Stream();
 
   constructor(entity: T,
-              pluginInfos: Array<PluginInfo<any>>,
+              pluginInfos: PluginInfos,
               onSuccessfulSave: (msg: m.Children) => any,
               size: Size = Size.large) {
     super(size);
@@ -101,7 +100,7 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
     return super.isLoading() || !this.entity;
   }
 
-  protected abstract onPluginChange(entity: Stream<T>, pluginInfo: PluginInfo<any>): void;
+  protected abstract onPluginChange(entity: Stream<T>, pluginInfo: PluginInfo): void;
 
   protected abstract operationPromise(): Promise<any>;
 
@@ -121,7 +120,7 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
 
     //@ts-ignore
     if (newPluginId !== this.entity().pluginId()) {
-      const pluginInfo = _.find(this.pluginInfos, (pluginInfo) => pluginInfo.id === newPluginId) as PluginInfo<any>;
+      const pluginInfo = _.find(this.pluginInfos, (pluginInfo) => pluginInfo.id === newPluginId) as PluginInfo;
       this.onPluginChange(this.entity, pluginInfo);
     }
 

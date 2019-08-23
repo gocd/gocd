@@ -17,14 +17,14 @@
 import m from "mithril";
 import Stream from "mithril/stream";
 import {SecretConfig, SecretConfigs} from "models/secret_configs/secret_configs";
-import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {SecretConfigModal} from "views/pages/secret_configs/modals";
 
 export class TestSecretConfigModal extends SecretConfigModal {
 
   constructor(entities: Stream<SecretConfigs>,
               entity: SecretConfig,
-              pluginInfos: Array<PluginInfo<any>>,
+              pluginInfos: PluginInfos,
               onSuccessfulSave: (msg: m.Children) => any,
               resourceAutoCompleteHelper: Map<string, string[]> = new Map(),
               disableId: boolean                                = false) {

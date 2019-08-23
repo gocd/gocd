@@ -20,9 +20,9 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {ElasticAgentProfilesCRUD} from "models/elastic_profiles/elastic_agent_profiles_crud";
 import {ClusterProfile, ClusterProfiles, ElasticAgentProfile, ProfileUsage} from "models/elastic_profiles/types";
-import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
-import {ElasticAgentSettings, Extension} from "models/shared/plugin_infos_new/extensions";
-import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
+import {ElasticAgentExtension} from "models/shared/plugin_infos_new/extensions";
+import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Form, FormHeader} from "views/components/forms/form";
@@ -33,7 +33,7 @@ import {Table} from "views/components/table";
 import styles from "views/pages/elastic_agent_configurations/index.scss";
 import * as foundationStyles from "views/pages/new_plugins/foundation_hax.scss";
 
-const AngularPluginNew = require('views/shared/angular_plugin_new').AngularPluginNew;
+const AngularPluginNew = require("views/shared/angular_plugin_new").AngularPluginNew;
 
 const foundationClassNames = bind(foundationStyles);
 
@@ -43,14 +43,14 @@ enum ModalType {
 
 abstract class BaseElasticProfileModal extends Modal {
   protected elasticProfile: Stream<ElasticAgentProfile>;
-  private readonly pluginInfo: Stream<PluginInfo<Extension>>;
-  private readonly pluginInfos: Array<PluginInfo<Extension>>;
+  private readonly pluginInfo: Stream<PluginInfo>;
+  private readonly pluginInfos: PluginInfos;
   private readonly modalType: ModalType;
   private errorMessage: string | undefined;
   private noClusterProfileError: string | undefined;
   private readonly clusterProfiles: ClusterProfiles;
 
-  protected constructor(pluginInfos: Array<PluginInfo<Extension>>,
+  protected constructor(pluginInfos: PluginInfos,
                         type: ModalType,
                         clusterProfiles: ClusterProfiles,
                         elasticProfile?: ElasticAgentProfile) {
@@ -119,11 +119,12 @@ abstract class BaseElasticProfileModal extends Modal {
           .clusterProfileId(this.elasticProfile().clusterProfileId() || clustersBelongingToPlugin[0].id());
     }
 
-    const clustersList = _.map(clustersBelongingToPlugin, (clusterProfile: ClusterProfile) => {
+    const clustersList                 = _.map(clustersBelongingToPlugin, (clusterProfile: ClusterProfile) => {
       return {id: clusterProfile.id(), text: `${clusterProfile.id()} (${this.pluginInfo().about.name})`};
     }) || [];
-    const elasticAgentExtension        = this.pluginInfo().extensionOfType(ExtensionType.ELASTIC_AGENTS);
-    const elasticProfileConfigurations = (elasticAgentExtension as ElasticAgentSettings).profileSettings;
+    const elasticAgentExtension        = this.pluginInfo()
+                                             .extensionOfType(ExtensionTypeString.ELASTIC_AGENTS);
+    const elasticProfileConfigurations = (elasticAgentExtension as ElasticAgentExtension).profileSettings;
 
     return (
       <div class={foundationClassNames(foundationStyles.foundationGridHax, foundationStyles.foundationFormHax)}>
@@ -167,7 +168,7 @@ abstract class BaseElasticProfileModal extends Modal {
     this.errorMessage = error;
   }
 
-  private clusterProfileIdProxy(newValue ?: string) {
+  private clusterProfileIdProxy(newValue?: string) {
     if (newValue) {
       if (this.elasticProfile().id() !== newValue) {
         this.elasticProfile(new ElasticAgentProfile(this.elasticProfile().id(),
@@ -188,7 +189,7 @@ export class EditElasticProfileModal extends BaseElasticProfileModal {
 
   constructor(elasticProfileId: string,
               pluginId: string,
-              pluginInfos: Array<PluginInfo<Extension>>,
+              pluginInfos: PluginInfos,
               clusterProfiles: ClusterProfiles,
               onSuccessfulSave: (msg: m.Children) => any
   ) {
@@ -218,7 +219,7 @@ export class EditElasticProfileModal extends BaseElasticProfileModal {
           () => {
             this.onSuccessfulSave(
               <span>
-                      The elastic agent profile <em>{this.elasticProfile().id()}</em> was updated successfully!
+                The elastic agent profile <em>{this.elasticProfile().id()}</em> was updated successfully!
                      </span>
             );
             this.close();
@@ -241,7 +242,7 @@ export class CloneElasticProfileModal extends BaseElasticProfileModal {
 
   constructor(elasticProfileId: string,
               pluginId: string,
-              pluginInfos: Array<PluginInfo<Extension>>,
+              pluginInfos: PluginInfos,
               clusterProfiles: ClusterProfiles,
               onSuccessfulSave: (msg: m.Children) => any) {
     super(pluginInfos, ModalType.create, clusterProfiles);
@@ -271,7 +272,7 @@ export class CloneElasticProfileModal extends BaseElasticProfileModal {
           () => {
             this.onSuccessfulSave(
               <span>
-                      The elastic agent profile <em>{this.elasticProfile().id()}</em> was created successfully!
+                The elastic agent profile <em>{this.elasticProfile().id()}</em> was created successfully!
                      </span>
             );
             this.close();
@@ -291,7 +292,7 @@ export class CloneElasticProfileModal extends BaseElasticProfileModal {
 export class NewElasticProfileModal extends BaseElasticProfileModal {
   private readonly onSuccessfulSave: (msg: m.Children) => any;
 
-  constructor(pluginInfos: Array<PluginInfo<Extension>>,
+  constructor(pluginInfos: PluginInfos,
               clusterProfiles: ClusterProfiles,
               elasticAgentProfile: ElasticAgentProfile,
               onSuccessfulSave: (msg: m.Children) => any) {

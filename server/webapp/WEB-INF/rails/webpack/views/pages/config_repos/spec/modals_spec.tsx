@@ -18,7 +18,7 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {ConfigRepo} from "models/config_repos/types";
 import {GitMaterialAttributes, Material} from "models/materials/types";
-import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {ConfigRepoModal} from "views/pages/config_repos/modals";
 import {configRepoPluginInfo, createConfigRepoParsedWithError} from "views/pages/config_repos/spec/test_data";
 import {TestHelper} from "views/pages/spec/test_helper";
@@ -27,7 +27,7 @@ class TestConfigRepoModal extends ConfigRepoModal {
 
   constructor(onSuccessfulSave: (msg: m.Children) => any,
               onError: (msg: m.Children) => any,
-              pluginInfos: Stream<Array<PluginInfo<any>>>, isNew: boolean = true) {
+              pluginInfos: Stream<PluginInfos>, isNew: boolean = true) {
     super(onSuccessfulSave, onError, pluginInfos);
     this.isNew = isNew;
   }
@@ -55,7 +55,7 @@ class TestConfigRepoModal extends ConfigRepoModal {
 
 describe("ConfigRepoModal", () => {
   const helper           = new TestHelper();
-  const pluginInfos      = Stream([configRepoPluginInfo()]);
+  const pluginInfos      = Stream(new PluginInfos(configRepoPluginInfo()));
   const onSuccessfulSave = jasmine.createSpy("onSuccessfulSave");
   const onError          = jasmine.createSpy("onError");
 

@@ -13,31 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export class PluginInfoTestData {
+import {
+  AuthorizationExtensionJSON,
+  LinksJSON,
+  PluginInfoJSON,
+  SecretConfigExtensionJSON
+} from "models/shared/plugin_infos_new/serialization";
 
-  static list(...objects: any[]) {
-    return {
-      _links: {
-        self: {
-          href: "https://ci.example.com/go/api/admin/plugin_info"
-        },
-        find: {
-          href: "https://ci.example.com/go/api/admin/plugin_info/:plugin_id"
-        },
-        doc: {
-          href: "https://api.gocd.org/#plugin-info"
-        }
-      },
-      _embedded: {
-        plugin_info: objects
-      }
-    };
-  }
+export function pluginImageLink() {
+  return {
+    image: {
+      href: "https://example.com/image"
+    }
+  } as LinksJSON;
 }
 
 export class ArtifactPluginInfo {
   static docker() {
     return {
+      _links: pluginImageLink(),
       id: "cd.go.artifact.docker.registry",
       status: {
         state: "active"
@@ -58,7 +52,6 @@ export class ArtifactPluginInfo {
       extensions: [
         {
           type: "artifact",
-          capabilities: {},
           store_config_settings: {
             configurations: [
               {
@@ -123,17 +116,20 @@ export class ArtifactPluginInfo {
           }
         }
       ]
-    };
+    } as PluginInfoJSON;
   }
 }
 
 export class AuthorizationPluginInfo {
   static ldap() {
     return {
+      _links: pluginImageLink(),
       id: "cd.go.authorization.ldap",
       status: {
         state: "active"
       },
+      plugin_file_location: "/go-working-dir/plugins/external/github-oauth-authorization.jar",
+      bundled_plugin: false,
       about: {
         name: "LDAP Authorization Plugin for GoCD",
         version: "0.0.1",
@@ -223,13 +219,14 @@ export class AuthorizationPluginInfo {
             can_search: false,
             supported_auth_type: "web"
           }
-        }
+        } as AuthorizationExtensionJSON
       ]
-    };
+    } as PluginInfoJSON;
   }
 
   static github() {
     return {
+      _links: pluginImageLink(),
       id: "cd.go.authorization.github",
       status: {
         state: "active"
@@ -299,17 +296,20 @@ export class AuthorizationPluginInfo {
           }
         }
       ]
-    };
+    } as PluginInfoJSON;
   }
 }
 
 export class SecretPluginInfo {
   static file() {
     return {
+      _links: pluginImageLink(),
       id: "cd.go.secrets.file",
       status: {
         state: "active"
       },
+      plugin_file_location: "/go-working-dir/plugins/external/github-oauth-authorization.jar",
+      bundled_plugin: false,
       about: {
         name: "File based secrets plugin",
         version: "0.0.1",
@@ -345,8 +345,8 @@ export class SecretPluginInfo {
               template: "<div class=\"form_item_block\">This is secret config view.</div>"
             }
           }
-        }
+        } as SecretConfigExtensionJSON
       ]
-    };
+    } as PluginInfoJSON;
   }
 }

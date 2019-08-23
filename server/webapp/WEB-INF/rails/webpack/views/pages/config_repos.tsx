@@ -21,8 +21,8 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {ConfigReposCRUD} from "models/config_repos/config_repos_crud";
 import {ConfigRepo} from "models/config_repos/types";
-import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
-import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
+import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
 import {AnchorVM, ScrollManager} from "views/components/anchor/anchor";
 import * as Buttons from "views/components/buttons";
@@ -112,8 +112,8 @@ export class ConfigReposPage extends Page<null, State> {
     state.unfilteredModels([]);
     this.pageState = PageState.LOADING;
 
-    return Promise.all([PluginInfoCRUD.all({type: ExtensionType.CONFIG_REPO}), ConfigReposCRUD.all(this.etag())]).then((args) => {
-      const pluginInfosResponse: ApiResult<Array<PluginInfo<any>>> = args[0];
+    return Promise.all([PluginInfoCRUD.all({type: ExtensionTypeString.CONFIG_REPO}), ConfigReposCRUD.all(this.etag())]).then((args) => {
+      const pluginInfosResponse: ApiResult<PluginInfos> = args[0];
       pluginInfosResponse.do(
         (successResponse) => {
           state.pluginInfos(successResponse.body);

@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-import {MithrilViewComponent} from "jsx/mithril-component";
+import { MithrilViewComponent } from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {AuthConfig} from "models/auth_configs/auth_configs";
-import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
-import {AuthorizationSettings} from "models/shared/plugin_infos_new/extensions";
-import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
-import {FlashMessage} from "views/components/flash_message";
-import {Form, FormHeader} from "views/components/forms/form";
-import {SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
-import {Message} from "views/pages/maintenance_mode";
+import { AuthConfig } from "models/auth_configs/auth_configs";
+import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
+import { AuthorizationExtension } from "models/shared/plugin_infos_new/extensions";
+import { PluginInfo, PluginInfos } from "models/shared/plugin_infos_new/plugin_info";
+import { FlashMessage } from "views/components/flash_message";
+import { Form, FormHeader } from "views/components/forms/form";
+import { SelectField, SelectFieldOptions, TextField } from "views/components/forms/input_fields";
+import { Message } from "views/pages/maintenance_mode";
 
 const AngularPluginNew = require('views/shared/angular_plugin_new').AngularPluginNew;
 
 interface Attrs {
-  pluginInfos: Array<PluginInfo<any>>;
+  pluginInfos: PluginInfos;
   authConfig: AuthConfig;
   disableId: boolean;
   pluginIdProxy: (newPluginId?: string) => any;
@@ -39,15 +39,15 @@ interface Attrs {
 
 export class AuthConfigModalBody extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>): m.Children | void | null {
-    const pluginList = _.map(vnode.attrs.pluginInfos, (pluginInfo: PluginInfo<any>) => {
-      return {id: pluginInfo.id, text: pluginInfo.about.name};
+    const pluginList = _.map(vnode.attrs.pluginInfos, (pluginInfo: PluginInfo) => {
+      return { id: pluginInfo.id, text: pluginInfo.about.name };
     });
 
-    const pluginInfo     = this.findPluginInfo(vnode.attrs.pluginInfos, vnode.attrs.authConfig.pluginId()!);
-    const pluginSettings = (pluginInfo.extensionOfType(ExtensionType.AUTHORIZATION)! as AuthorizationSettings).authConfigSettings;
+    const pluginInfo = this.findPluginInfo(vnode.attrs.pluginInfos, vnode.attrs.authConfig.pluginId()!);
+    const pluginSettings = pluginInfo.extensionOfType<AuthorizationExtension>(ExtensionTypeString.AUTHORIZATION)!.authConfigSettings;
     let mayBeMessage: any;
     if (vnode.attrs.message) {
-      mayBeMessage = <FlashMessage type={vnode.attrs.message.type} message={vnode.attrs.message.message}/>;
+      mayBeMessage = <FlashMessage type={vnode.attrs.message.type} message={vnode.attrs.message.message} />;
     }
     return (
       <div>
@@ -55,17 +55,17 @@ export class AuthConfigModalBody extends MithrilViewComponent<Attrs> {
           {mayBeMessage}
           <Form>
             <TextField label="Id"
-                       readonly={vnode.attrs.disableId}
-                       property={vnode.attrs.authConfig.id}
-                       errorText={vnode.attrs.authConfig.errors().errorsForDisplay("id")}
-                       required={true}/>
+              readonly={vnode.attrs.disableId}
+              property={vnode.attrs.authConfig.id}
+              errorText={vnode.attrs.authConfig.errors().errorsForDisplay("id")}
+              required={true} />
 
             <SelectField label="Plugin"
-                         property={vnode.attrs.pluginIdProxy.bind(this)}
-                         required={true}
-                         errorText={vnode.attrs.authConfig.errors().errorsForDisplay("pluginId")}>
+              property={vnode.attrs.pluginIdProxy.bind(this)}
+              required={true}
+              errorText={vnode.attrs.authConfig.errors().errorsForDisplay("pluginId")}>
               <SelectFieldOptions selected={vnode.attrs.authConfig.pluginId()}
-                                  items={pluginList}/>
+                items={pluginList} />
             </SelectField>
           </Form>
         </FormHeader>
@@ -75,14 +75,14 @@ export class AuthConfigModalBody extends MithrilViewComponent<Attrs> {
             <AngularPluginNew
               pluginInfoSettings={Stream(pluginSettings)}
               configuration={vnode.attrs.authConfig.properties()}
-              key={pluginInfo.id}/>
+              key={pluginInfo.id} />
           </div>
         </div>
       </div>
     );
   }
 
-  private findPluginInfo(pluginInfos: Array<PluginInfo<any>>, pluginId: string): PluginInfo<any> {
-    return pluginInfos.find((pluginInfo) => pluginInfo.id === pluginId) as PluginInfo<any>;
+  private findPluginInfo(pluginInfos: PluginInfos, pluginId: string): PluginInfo {
+    return pluginInfos.find((pluginInfo) => pluginInfo.id === pluginId) as PluginInfo;
   }
 }

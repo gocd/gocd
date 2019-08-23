@@ -55,7 +55,7 @@ export class ArtifactStoresWidget extends MithrilViewComponent<Attrs> {
 
   private static viewForArtifactStore(vnode: m.Vnode<Attrs>,
                                       artifactStore: ArtifactStore,
-                                      pluginInfo?: PluginInfo<any>) {
+                                      pluginInfo?: PluginInfo) {
     const header = [
       <KeyValuePair inline={true} data={new Map([["Id", artifactStore.id()]])}/>];
     return <CollapsiblePanel header={header}
@@ -66,7 +66,7 @@ export class ArtifactStoresWidget extends MithrilViewComponent<Attrs> {
 
   private static getActionButtons(vnode: m.Vnode<Attrs>,
                                   artifactStore: ArtifactStore,
-                                  pluginInfo?: PluginInfo<any>) {
+                                  pluginInfo?: PluginInfo) {
     return [
       <IconGroup>
         <Edit data-test-id="artifact-store-edit"
@@ -80,7 +80,7 @@ export class ArtifactStoresWidget extends MithrilViewComponent<Attrs> {
       </IconGroup>];
   }
 
-  private static groupHeader(pluginId: string, pluginInfo?: PluginInfo<any>) {
+  private static groupHeader(pluginId: string, pluginInfo?: PluginInfo) {
     return [
       <KeyValueTitle title={ArtifactStoresWidget.createPluginNameElement(pluginInfo)}
                      image={ArtifactStoresWidget.headerIcon(pluginInfo)}/>,
@@ -88,7 +88,7 @@ export class ArtifactStoresWidget extends MithrilViewComponent<Attrs> {
     ];
   }
 
-  private static createPluginNameElement(pluginInfo?: PluginInfo<any>) {
+  private static createPluginNameElement(pluginInfo?: PluginInfo) {
     if (pluginInfo) {
       return (<div data-test-id="plugin-name" class={styles.pluginName}>{pluginInfo!.about.name}</div>);
     }
@@ -96,7 +96,7 @@ export class ArtifactStoresWidget extends MithrilViewComponent<Attrs> {
     return (<div data-test-id="plugin-name" class={styles.pluginNotInstalled}>Plugin is not installed</div>);
   }
 
-  private static headerIcon(pluginInfo?: PluginInfo<any>) {
+  private static headerIcon(pluginInfo?: PluginInfo) {
     if (pluginInfo && pluginInfo.imageUrl) {
       return <HeaderIcon name="Plugin Icon" imageUrl={pluginInfo.imageUrl}/>;
     }

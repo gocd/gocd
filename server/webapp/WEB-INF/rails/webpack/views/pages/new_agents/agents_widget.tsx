@@ -15,6 +15,7 @@
  */
 
 import {bind} from "classnames/bind";
+import {ApiResult} from "helpers/api_request_builder";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import {Agent, AgentConfigState, Agents} from "models/new_agent/agents";
@@ -33,8 +34,8 @@ interface AgentsWidgetAttrs {
   onDisable: (e: MouseEvent) => void;
   onDelete: (e: MouseEvent) => void;
   flashMessage: FlashMessageModelWithTimeout;
-  updateEnvironments: (environmentsToAdd: string[], environmentsToRemove: string[]) => Promise<any>;
-  updateResources: (resourcesToAdd: string[], resourcesToRemove: string[]) => Promise<any>;
+  updateEnvironments: (environmentsToAdd: string[], environmentsToRemove: string[]) => Promise<ApiResult<string>>;
+  updateResources: (resourcesToAdd: string[], resourcesToRemove: string[]) => Promise<ApiResult<string>>;
   isUserAdmin: boolean;
 }
 

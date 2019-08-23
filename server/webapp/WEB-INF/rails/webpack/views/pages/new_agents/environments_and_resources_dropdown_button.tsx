@@ -47,7 +47,7 @@ abstract class AbstractDropdownButton<V extends Attrs> extends Dropdown<V> {
     }
   }
 
-  protected abstract updatePromise(vnode: m.Vnode<DropdownAttrs & V>): Promise<any>;
+  protected abstract updatePromise(vnode: m.Vnode<DropdownAttrs & V>): Promise<ApiResult<string>>;
 
   protected abstract body(vnode: m.Vnode<DropdownAttrs & V>): m.Children;
 
@@ -124,7 +124,7 @@ abstract class AbstractDropdownButton<V extends Attrs> extends Dropdown<V> {
 
 interface EnvAttrs extends Attrs {
   agents: Agents;
-  updateEnvironments: (environmentsToAdd: string[], environmentsToRemove: string[]) => Promise<any>;
+  updateEnvironments: (environmentsToAdd: string[], environmentsToRemove: string[]) => Promise<ApiResult<string>>;
 }
 
 export class EnvironmentsDropdownButton extends AbstractDropdownButton<EnvAttrs> {
@@ -158,7 +158,7 @@ export class EnvironmentsDropdownButton extends AbstractDropdownButton<EnvAttrs>
 
 interface ResourcesAttrs extends Attrs {
   agents: Agents;
-  updateResources: (resourcesToAdd: string[], resourcesToRemove: string[]) => Promise<any>;
+  updateResources: (resourcesToAdd: string[], resourcesToRemove: string[]) => Promise<ApiResult<string>>;
 }
 
 export class ResourcesDropdownButton extends AbstractDropdownButton<ResourcesAttrs> {

@@ -15,6 +15,7 @@
  */
 
 import {bind} from "classnames/bind";
+import {ApiResult} from "helpers/api_request_builder";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import {AgentConfigState, Agents} from "models/new_agent/agents";
 import {EnvironmentsService, ResourcesService} from "models/new_agent/agents_crud";
@@ -35,8 +36,8 @@ interface AgentHeaderPanelAttrs {
   onDisable: (e: MouseEvent) => void;
   onDelete: (e: MouseEvent) => void;
   flashMessage: FlashMessageModelWithTimeout;
-  updateEnvironments: (environmentsToAdd: string[], environmentsToRemove: string[]) => Promise<any>;
-  updateResources: (resourcesToAdd: string[], resourcesToRemove: string[]) => Promise<any>;
+  updateEnvironments: (environmentsToAdd: string[], environmentsToRemove: string[]) => Promise<ApiResult<string>>;
+  updateResources: (resourcesToAdd: string[], resourcesToRemove: string[]) => Promise<ApiResult<string>>;
 }
 
 export class AgentHeaderPanel extends MithrilViewComponent<AgentHeaderPanelAttrs> {

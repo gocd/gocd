@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import {Page} from "helpers/spa_base";
+import {SinglePageAppBase} from "helpers/spa_base";
 import {CreatePipelinePage} from "views/pages/create_pipeline_page";
 
-export class PipelineConfigsSPA extends Page {
+export class PipelineConfigsSPA extends SinglePageAppBase {
   constructor() {
     super(CreatePipelinePage);
   }

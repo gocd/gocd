@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@import "../views/global/common";
+@import "./common";
 
 @include font-face($font-family: "Hack",
                    $file-path: "~hack-font/build/web/fonts/hack-regular",

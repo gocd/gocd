@@ -89,7 +89,8 @@ export class NewAgentPage extends Page<null, State> {
                          onDelete={vnode.state.onDelete.bind(vnode.state)}
                          flashMessage={this.flashMessage}
                          updateEnvironments={vnode.state.updateEnvironments.bind(vnode.state)}
-                         updateResources={vnode.state.updateResources.bind(vnode.state)}/>;
+                         updateResources={vnode.state.updateResources.bind(vnode.state)}
+                         isUserAdmin={Page.isUserAnAdmin()}/>;
   }
 
   pageName(): string {

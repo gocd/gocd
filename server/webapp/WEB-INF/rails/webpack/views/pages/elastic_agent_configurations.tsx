@@ -270,9 +270,4 @@ export class ElasticProfilesPage extends Page<null, State> {
       );
     });
   }
-
-  private static isUserAnAdmin() {
-    const attribute = document.body.getAttribute("data-is-user-admin");
-    return attribute ? attribute === "true" : false;
-  }
 }

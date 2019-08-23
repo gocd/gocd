@@ -58,6 +58,13 @@ $disabled-text-color: #999;
   color:           $link-color;
 }
 
+.hostname {
+  a {
+    text-decoration: none;
+    color:           $link-color;
+  }
+}
+
 .agent-checkbox {
   margin:  0;
   padding: 0;

@@ -28,8 +28,8 @@ describe("NewAgentsWidget", () => {
         onEnable: jasmine.Spy  = jasmine.createSpy("onEnable"),
         onDisable: jasmine.Spy = jasmine.createSpy("onDisable"),
         onDelete: jasmine.Spy  = jasmine.createSpy("onDelete"),
-        updateEnvironments = jasmine.createSpy("updateEnvironments"),
-        updateResources    = jasmine.createSpy("updateResources");
+        updateEnvironments     = jasmine.createSpy("updateEnvironments"),
+        updateResources        = jasmine.createSpy("updateResources");
 
   let agents: Agents, agentA: Agent, agentB: Agent, agentC: Agent;
 
@@ -168,7 +168,45 @@ describe("NewAgentsWidget", () => {
     });
   });
 
+  describe("Hostname", () => {
+    it("should render hostname as link when user is an admin", () => {
+      mount(new Agents([agentA]), true);
+
+      const anchor = helper.q("a", helper.byTestId(`agent-hostname-of-${agentA.uuid}`));
+      expect(anchor).toContainText(agentA.hostname);
+      expect(anchor).toHaveAttr("href", `/go/agents/${agentA.uuid}/job_run_history`);
+    });
+
+    it("should render hostname as text when user is not an admin", () => {
+      mount(new Agents([agentA]), false);
+
+      const hostnameCell = helper.byTestId(`agent-hostname-of-${agentA.uuid}`);
+      const anchor       = helper.q("a", hostnameCell);
+      expect(hostnameCell).toBeInDOM();
+      expect(hostnameCell).toContainText(agentA.hostname);
+      expect(anchor).not.toBeInDOM();
+    });
+  });
+
   describe("AgentSelection", () => {
+    it("should not render checkboxes when user is not an admin", () => {
+      mount(agents, false);
+
+      expect(helper.byTestId("select-all-agents")).not.toBeInDOM();
+      expect(helper.byTestId(`agent-checkbox-of-${agentA.uuid}`)).not.toBeInDOM();
+      expect(helper.byTestId(`agent-checkbox-of-${agentB.uuid}`)).not.toBeInDOM();
+      expect(helper.byTestId(`agent-checkbox-of-${agentC.uuid}`)).not.toBeInDOM();
+    });
+
+    it("should render checkboxes when user is an admin", () => {
+      mount(agents, true);
+
+      expect(helper.byTestId("select-all-agents")).toBeInDOM();
+      expect(helper.byTestId(`agent-checkbox-of-${agentA.uuid}`)).toBeInDOM();
+      expect(helper.byTestId(`agent-checkbox-of-${agentB.uuid}`)).toBeInDOM();
+      expect(helper.byTestId(`agent-checkbox-of-${agentC.uuid}`)).toBeInDOM();
+    });
+
     it("should render page with no agent selected", () => {
       mount(agents);
 
@@ -192,13 +230,14 @@ describe("NewAgentsWidget", () => {
     });
   });
 
-  function mount(agents: Agents) {
+  function mount(agents: Agents, isUserAdmin: boolean = true) {
     helper.mount(() => <AgentsWidget agents={agents}
                                      onEnable={onEnable}
                                      onDisable={onDisable}
                                      onDelete={onDelete}
                                      updateEnvironments={updateEnvironments}
                                      updateResources={updateResources}
+                                     isUserAdmin={isUserAdmin}
                                      flashMessage={new FlashMessageModelWithTimeout()}/>);
   }
 

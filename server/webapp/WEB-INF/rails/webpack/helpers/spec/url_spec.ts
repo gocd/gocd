@@ -17,7 +17,7 @@
 import {queryParamAsString} from "../url";
 
 describe("URL helpers", () => {
-  it("queryParamAsString() parses params in any postion", () => {
+  it("queryParamAsString() parses params in any position", () => {
     const search = "?foo=bar&baz=foo&quu=baz";
 
     expect(queryParamAsString(search, "foo")).toBe("bar");

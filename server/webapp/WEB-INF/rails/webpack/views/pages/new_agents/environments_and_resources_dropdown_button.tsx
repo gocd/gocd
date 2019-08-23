@@ -15,8 +15,8 @@
  */
 
 import {ApiResult, ErrorResponse, SuccessResponse} from "helpers/api_request_builder";
-import {Agent, Agents} from "models/new-agent/agents";
-import {GetAllService} from "models/new-agent/agents_crud";
+import {Agent, Agents} from "models/new_agent/agents";
+import {GetAllService} from "models/new_agent/agents_crud";
 import {TriStateCheckbox, TristateState} from "models/tri_state_checkbox";
 import {Dropdown, DropdownAttrs, Primary} from "views/components/buttons";
 import * as Buttons from "views/components/buttons";

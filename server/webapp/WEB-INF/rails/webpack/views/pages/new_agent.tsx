@@ -17,10 +17,10 @@
 import {AjaxPoller} from "helpers/ajax_poller";
 import {ApiResult, ErrorResponse} from "helpers/api_request_builder";
 import m from "mithril";
-import {Agents} from "models/new-agent/agents";
-import {AgentsCRUD} from "models/new-agent/agents_crud";
+import {Agents} from "models/new_agent/agents";
+import {AgentsCRUD} from "models/new_agent/agents_crud";
 import {MessageType} from "views/components/flash_message";
-import {AgentsWidget} from "views/pages/new-agents/agents_widget";
+import {AgentsWidget} from "views/pages/new_agents/agents_widget";
 import {Page, PageState} from "views/pages/page";
 
 interface State {

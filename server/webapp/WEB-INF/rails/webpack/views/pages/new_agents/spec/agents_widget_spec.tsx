@@ -16,10 +16,10 @@
 
 import m from "mithril";
 
-import {Agent, Agents} from "models/new-agent/agents";
-import {AgentsTestData} from "models/new-agent/spec/agents_test_data";
+import {Agent, Agents} from "models/new_agent/agents";
+import {AgentsTestData} from "models/new_agent/spec/agents_test_data";
 import {FlashMessageModelWithTimeout} from "views/components/flash_message";
-import {AgentsWidget} from "views/pages/new-agents/agents_widget";
+import {AgentsWidget} from "views/pages/new_agents/agents_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
 import styles from "../index.scss";
 

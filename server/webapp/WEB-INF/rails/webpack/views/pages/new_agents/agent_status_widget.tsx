@@ -16,10 +16,10 @@
 
 import {bind} from "classnames/bind";
 import {MithrilComponent} from "jsx/mithril-component";
-import {Agent, BuildDetails} from "models/new-agent/agents";
+import {Agent, BuildDetails} from "models/new_agent/agents";
 import Stream from "mithril/stream";
 import m from "mithril";
-import style from "views/pages/new-agents/index.scss";
+import style from "views/pages/new_agents/index.scss";
 
 const classnames = bind(style);
 

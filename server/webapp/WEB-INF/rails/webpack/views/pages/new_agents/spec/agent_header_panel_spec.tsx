@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import {Agent, Agents} from "models/new-agent/agents";
-import {AgentsTestData} from "models/new-agent/spec/agents_test_data";
+import {Agent, Agents} from "models/new_agent/agents";
+import {AgentsTestData} from "models/new_agent/spec/agents_test_data";
 import {FlashMessageModelWithTimeout} from "views/components/flash_message";
-import {AgentHeaderPanel} from "views/pages/new-agents/agent_header_panel";
+import {AgentHeaderPanel} from "views/pages/new_agents/agent_header_panel";
 import {TestHelper} from "views/pages/spec/test_helper";
 import Style from "../index.scss";
 import m from "mithril";

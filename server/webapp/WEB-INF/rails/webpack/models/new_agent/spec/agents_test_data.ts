@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {AgentJSON, AgentsJSON} from "models/new-agent/agents";
+import {AgentJSON, AgentsJSON} from "models/new_agent/agents";
 import Stream from "mithril/stream";
 import uuid from "uuid/v4";
 

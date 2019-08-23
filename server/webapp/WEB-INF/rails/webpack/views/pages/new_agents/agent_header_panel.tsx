@@ -16,8 +16,8 @@
 
 import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
-import {AgentConfigState, Agents} from "models/new-agent/agents";
-import {EnvironmentsService, ResourcesService} from "models/new-agent/agents_crud";
+import {AgentConfigState, Agents} from "models/new_agent/agents";
+import {EnvironmentsService, ResourcesService} from "models/new_agent/agents_crud";
 import {ButtonGroup} from "views/components/buttons";
 import * as Buttons from "views/components/buttons";
 import {FlashMessageModelWithTimeout} from "views/components/flash_message";

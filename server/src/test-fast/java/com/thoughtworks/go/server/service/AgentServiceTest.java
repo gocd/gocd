@@ -242,7 +242,7 @@ class AgentServiceTest {
                 AgentService agentServiceSpy = Mockito.spy(agentService);
                 agentServiceSpy.bulkUpdateAgentAttributes(asList("uuid1", "uuid2"), asList("R1", "R2"), emptyStrList, createEnvironmentsConfigWith("test", "prod"), emptyStrList, TRUE, result);
 
-                verify(agentDao).bulkUpdateAttributes(anyList(), eq(TRUE));
+                verify(agentDao).bulkUpdateAgents(anyList());
                 verify(agentServiceSpy).updateIdsAndGenerateCookiesForPendingAgents(anyList(), eq(TRUE));
                 assertThat(result.isSuccessful(), is(true));
                 assertThat(result.message(), is("Updated agent(s) with uuid(s): [uuid1, uuid2]."));
@@ -268,7 +268,7 @@ class AgentServiceTest {
                 AgentService agentServiceSpy = Mockito.spy(agentService);
                 agentServiceSpy.bulkUpdateAgentAttributes(uuids, emptyStrList, emptyStrList, emptyEnvsConfig, emptyStrList, TRUE, result);
 
-                verify(agentDao).bulkUpdateAttributes(anyList(), eq(TRUE));
+                verify(agentDao).bulkUpdateAgents(anyList());
                 verify(agentServiceSpy).updateIdsAndGenerateCookiesForPendingAgents(anyList(), eq(TRUE));
                 assertThat(result.isSuccessful(), is(true));
                 assertThat(result.message(), is("Updated agent(s) with uuid(s): [uuid, UUID2]."));
@@ -360,7 +360,7 @@ class AgentServiceTest {
                 agentServiceSpy.bulkUpdateAgentAttributes(uuids, emptyStrList, emptyStrList, environmentConfigs, emptyStrList, TRUE, result);
 
                 verify(agentDao).getAgentsByUUIDs(uuids);
-                verify(agentDao).bulkUpdateAttributes(eq(agents), eq(TRUE));
+                verify(agentDao).bulkUpdateAgents(eq(agents));
                 verify(agentServiceSpy).updateIdsAndGenerateCookiesForPendingAgents(eq(agents), eq(TRUE));
 
                 assertTrue(result.isSuccessful());
@@ -1009,7 +1009,7 @@ class AgentServiceTest {
 
             List<Agent> agents = asList(agentConfigForUUID1, agent);
 
-            verify(agentDao).bulkUpdateAttributes(argument.capture(), eq(UNSET));
+            verify(agentDao).bulkUpdateAgents(argument.capture());
             assertEquals(agents.size(), argument.getValue().size());
             assertTrue(argument.getValue().contains(agents.get(0)));
             assertTrue(argument.getValue().contains(agents.get(1)));
@@ -1044,7 +1044,7 @@ class AgentServiceTest {
             HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
             agentService.updateAgentsAssociationOfEnvironment(testEnv, asList(uuid, "uuid2"), result);
 
-            verify(agentDao).bulkUpdateAttributes(anyList(), eq(UNSET));
+            verify(agentDao).bulkUpdateAgents(anyList());
             assertTrue(result.isSuccessful());
             assertThat(result.message(), is("Updated agent(s) with uuid(s): [uuid, uuid2]."));
         }
@@ -1080,7 +1080,7 @@ class AgentServiceTest {
 
             ArgumentCaptor<List<Agent>> argument = ArgumentCaptor.forClass(List.class);
 
-            verify(agentDao).bulkUpdateAttributes(argument.capture(), eq(UNSET));
+            verify(agentDao).bulkUpdateAgents(argument.capture());
             assertEquals(agents.size(), argument.getValue().size());
             assertTrue(argument.getValue().contains(agents.get(0)));
             assertTrue(argument.getValue().contains(agents.get(1)));

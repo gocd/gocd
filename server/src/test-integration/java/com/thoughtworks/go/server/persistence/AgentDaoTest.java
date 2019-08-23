@@ -23,7 +23,6 @@ import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.TriState;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -324,7 +323,7 @@ public class AgentDaoTest {
             agent1.removeEnvironments(asList("e1", "e3"));
             agent3.removeEnvironments(asList("e1", "e3"));
 
-            agentDao.bulkUpdateAttributes(asList(agent1, agent3), TriState.UNSET);
+            agentDao.bulkUpdateAgents(asList(agent1, agent3));
 
             assertThat(agentDao.getAgentByUUIDFromCacheOrDB(agent1.getUuid()).getResources(), is("r3,r4"));
             assertThat(agentDao.getAgentByUUIDFromCacheOrDB(agent2.getUuid()).getResources(), is("r1"));

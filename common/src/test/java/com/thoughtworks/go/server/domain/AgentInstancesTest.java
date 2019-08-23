@@ -192,18 +192,6 @@ class AgentInstancesTest {
         }
 
         @Test
-        void shouldFindRegisteredAgentOrNull() {
-            AgentInstances agentInstances = createAgentInstancesWithAgentInstanceInVariousState();
-
-            Agent agent = agentInstances.findRegisteredAgentOrNull(idle.getUuid());
-            assertThat(agent.isNull(), is(false));
-            assertThat(agent.getUuid(), equalTo(idle.getUuid()));
-
-            agent = agentInstances.findRegisteredAgentOrNull(pending.getUuid());
-            assertThat(agent, is(nullValue()));
-        }
-
-        @Test
         void shouldReturnEmptyAgentInstancesWhenThereAreNoRegisteredAgents() {
             AgentInstances agentInstances = new AgentInstances(mock(AgentStatusChangeListener.class));
 

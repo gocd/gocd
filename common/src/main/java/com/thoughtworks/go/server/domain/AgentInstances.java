@@ -136,11 +136,6 @@ public class AgentInstances implements Iterable<AgentInstance> {
         return uuidToAgentInstanceMap.size();
     }
 
-    public Agent findRegisteredAgentOrNull(String uuid){
-        AgentInstance agentInstance = findAgent(uuid);
-        return agentInstance.isRegistered() ? agentInstance.getAgent() : null;
-    }
-
     public void refresh() {
         currentInstances().forEach(AgentInstance::refresh);
         getRemovableAgents().forEach(agentInstance -> removeAgent(agentInstance.getAgent().getUuid()));

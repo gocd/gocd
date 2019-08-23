@@ -53,13 +53,10 @@ import java.util.function.Function;
 import static com.thoughtworks.go.CurrentGoCDVersion.docsUrl;
 import static com.thoughtworks.go.domain.AgentConfigStatus.Pending;
 import static com.thoughtworks.go.domain.AgentInstance.createFromAgent;
-import static com.thoughtworks.go.serverhealth.HealthStateScope.GLOBAL;
-import static com.thoughtworks.go.serverhealth.HealthStateType.general;
 import static com.thoughtworks.go.util.CommaSeparatedString.append;
 import static com.thoughtworks.go.util.CommaSeparatedString.remove;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 import static com.thoughtworks.go.util.TriState.TRUE;
-import static com.thoughtworks.go.util.TriState.UNSET;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.*;
@@ -171,7 +168,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
 
                 agents.forEach(agent -> setResourcesEnvsAndState(agent, resourcesToAdd, resourcesToRemove, envsToAdd, envsToRemove, state));
                 updateIdsAndGenerateCookiesForPendingAgents(agents, state);
-                agentDao.bulkUpdateAttributes(agents, state);
+                agentDao.bulkUpdateAgents(agents);
                 result.setMessage("Updated agent(s) with uuid(s): [" + join(uuids, ", ") + "].");
             }
         } catch (Exception e) {
@@ -200,7 +197,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
                     return;
                 }
 
-                agentDao.bulkUpdateAttributes(agents, UNSET);
+                agentDao.bulkUpdateAgents(agents);
 
                 String message = "Updated agent(s) with uuid(s): [" + join(uuidsToAssociate, ", ") + "].";
                 result.setMessage(message);

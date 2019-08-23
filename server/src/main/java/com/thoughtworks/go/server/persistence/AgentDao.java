@@ -22,7 +22,6 @@ import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.util.UuidGenerator;
-import com.thoughtworks.go.util.TriState;
 import lombok.*;
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
@@ -243,7 +242,7 @@ public class AgentDao extends HibernateDaoSupport {
         }
     }
 
-    public void bulkUpdateAttributes(List<Agent> agents, TriState state) {
+    public void bulkUpdateAgents(List<Agent> agents) {
         List<String> uuids = agents.stream().map(agent -> agent.getUuid()).collect(toList());
         AgentMutex mutex = agentMutexes.acquire(uuids);
         synchronized (mutex) {

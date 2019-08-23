@@ -25,10 +25,12 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
 import static com.thoughtworks.go.util.command.EnvironmentVariableContext.GO_ENVIRONMENT_NAME;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.junit.jupiter.api.Assertions.*;
@@ -55,22 +57,53 @@ class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
         super.environmentConfig = pairEnvironmentConfig;
     }
 
-    @Test
-    void shouldNotAllowPartsWithDifferentNames() {
-        assertThatCode(() -> {
-            BasicEnvironmentConfig part1WithEnvName1 = new BasicEnvironmentConfig(new CaseInsensitiveString("envName1"));
-            BasicEnvironmentConfig part2WithEnvName2 = new BasicEnvironmentConfig(new CaseInsensitiveString("envName2"));
-            new MergeEnvironmentConfig(part1WithEnvName1, part2WithEnvName2);
-        }).isInstanceOf(IllegalArgumentException.class);
+    @Nested
+    class MergeEnvironmentPartsWithSameName {
+        @Test
+        void shouldNotAllowPartsWithDifferentNames() {
+            BasicEnvironmentConfig part1 = new BasicEnvironmentConfig(new CaseInsensitiveString("PROD"));
+            BasicEnvironmentConfig part2 = new BasicEnvironmentConfig(new CaseInsensitiveString("PROD"));
+            BasicEnvironmentConfig part3 = new BasicEnvironmentConfig(new CaseInsensitiveString("STAGE"));
+
+            assertThrows(IllegalArgumentException.class, () -> new MergeEnvironmentConfig(part1, part2, part3));
+        }
+
+        @Test
+        void ShouldContainSameNameAsOfPartialEnvironments() {
+            BasicEnvironmentConfig part1 = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
+            BasicEnvironmentConfig part2 = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
+            BasicEnvironmentConfig part3 = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
+
+            MergeEnvironmentConfig mergeEnv = new MergeEnvironmentConfig(part1, part2, part3);
+            assertThat(mergeEnv.name()).isEqualTo(part1.name());
+        }
     }
 
-    @Test
-    void ShouldContainSameNameAsOfPartialEnvironments() {
-        BasicEnvironmentConfig local = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
-        BasicEnvironmentConfig remote = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
-        MergeEnvironmentConfig mergeEnv = new MergeEnvironmentConfig(local, remote);
+    @Nested
+    class MergeEnvironmentFirstEditablePart {
+        @Test
+        void shouldReturnFirstEditablePart() {
+            BasicEnvironmentConfig part1 = new BasicEnvironmentConfig(new CaseInsensitiveString("PROD"));
+            BasicEnvironmentConfig part2 = new BasicEnvironmentConfig(new CaseInsensitiveString("PROD"));
+            BasicEnvironmentConfig part3 = new BasicEnvironmentConfig(new CaseInsensitiveString("PROD"));
 
-        assertThat(mergeEnv.name()).isEqualTo(local.name());
+            MergeEnvironmentConfig merged = new MergeEnvironmentConfig(part1, part2, part3);
+            assertThat(merged.getFirstEditablePartOrNull()).isEqualTo(part1);
+        }
+
+        @Test
+        void shouldReturnFirstEditablePartAsNullWhenThereAreNoPartsWithEditableOrigin() {
+            BasicEnvironmentConfig part1 = new BasicEnvironmentConfig(new CaseInsensitiveString("PROD"));
+            BasicEnvironmentConfig part2 = new BasicEnvironmentConfig(new CaseInsensitiveString("PROD"));
+            BasicEnvironmentConfig part3 = new BasicEnvironmentConfig(new CaseInsensitiveString("PROD"));
+
+            part1.setOrigins(new RepoConfigOrigin());
+            part2.setOrigins(new RepoConfigOrigin());
+            part3.setOrigins(new RepoConfigOrigin());
+
+            MergeEnvironmentConfig merged = new MergeEnvironmentConfig(part1, part2, part3);
+            assertThat(merged.getFirstEditablePartOrNull()).isNull();
+        }
     }
 
     @Nested
@@ -86,16 +119,6 @@ class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
             uatRemotePart.addPipeline(new CaseInsensitiveString("pipe"));
             assertThat(environmentConfig.getRemotePipelines().isEmpty()).isFalse();
         }
-    }
-
-    @Test
-    void shouldReturnFalseThatLocal() {
-        assertThat(environmentConfig.isLocal()).isFalse();
-    }
-
-    @Test
-    void shouldGetLocalPartWhenOriginFile() {
-        assertThat(environmentConfig.getLocal()).isEqualTo(uatLocalPart2);
     }
 
     @Nested
@@ -143,6 +166,8 @@ class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
 
             assertThat(pairEnvironmentConfig.hasAgent("123")).isTrue();
             assertThat(pairEnvironmentConfig.hasAgent("345")).isTrue();
+
+            assertThat(pairEnvironmentConfig.hasAgent("3456")).isFalse();
         }
 
         @Test
@@ -164,6 +189,155 @@ class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
             assertThat(agents).hasSize(1);
             assertThat(agents.getUuids()).contains("123");
         }
+    }
+
+    @Nested
+    class validate {
+        @Test
+        void shouldValidateDuplicatePipelines() {
+            pairEnvironmentConfig.get(0).addPipeline(new CaseInsensitiveString("up40"));
+            pairEnvironmentConfig.get(0).addPipeline(new CaseInsensitiveString("up41"));
+            pairEnvironmentConfig.get(0).addPipeline(new CaseInsensitiveString("up42"));
+
+            pairEnvironmentConfig.get(1).addPipeline(new CaseInsensitiveString("up43"));
+            pairEnvironmentConfig.get(1).addPipeline(new CaseInsensitiveString("up44"));
+            pairEnvironmentConfig.get(1).addPipeline(new CaseInsensitiveString("up40"));
+
+            pairEnvironmentConfig.validate(null);
+
+            assertThat(pairEnvironmentConfig.errors().size()).isGreaterThan(0);
+            assertThat(pairEnvironmentConfig.errors().firstError()).isEqualTo("Environment pipeline 'up40' is defined more than once.");
+        }
+
+        @Test
+        void shouldValidateDuplicateEnvironmentVariables() {
+            pairEnvironmentConfig.get(0).addEnvironmentVariable("var1", "value1");
+            pairEnvironmentConfig.get(0).addEnvironmentVariable("var1", "value1");
+
+            pairEnvironmentConfig.get(1).addEnvironmentVariable("var3", "value3");
+            pairEnvironmentConfig.get(1).addEnvironmentVariable("var1", "value4");
+
+            pairEnvironmentConfig.validate(null);
+
+            assertThat(pairEnvironmentConfig.errors().isEmpty()).isFalse();
+
+            assertThat(pairEnvironmentConfig.errors().firstError()).isEqualTo("Environment variable 'var1' is defined more than once with different values");
+        }
+
+        @Test
+        void shouldValidateDuplicateAgents() {
+            pairEnvironmentConfig.get(0).addAgent("uuid1");
+            pairEnvironmentConfig.get(0).addAgent("uuid2");
+            pairEnvironmentConfig.get(0).addAgent("uuid3");
+
+            pairEnvironmentConfig.get(1).addAgent("uuid11");
+            pairEnvironmentConfig.get(1).addAgent("uuid1");
+            pairEnvironmentConfig.get(1).addAgent("uuid13");
+
+            pairEnvironmentConfig.validate(null);
+
+            assertThat(pairEnvironmentConfig.errors().size()).isGreaterThan(0);
+            assertThat(pairEnvironmentConfig.errors().firstError()).isEqualTo("Environment agent 'uuid1' is defined more than once.");
+        }
+
+        @Test
+        void shouldValidateDuplicateAgentsWhenThereAreNoAgentsAssociatedWithAnyParts() {
+            pairEnvironmentConfig.validate(null);
+            assertThat(pairEnvironmentConfig.errors().size()).isEqualTo(0);
+        }
+
+        @Test
+        void shouldReturnTrueIfAssociatedAgentUUIDsAreFromSpecifiedSetOfUUIDs(){
+            pairEnvironmentConfig.addAgent("uuid1");
+            pairEnvironmentConfig.addAgent("uuid2");
+            pairEnvironmentConfig.addAgent("uuid3");
+
+            boolean result = pairEnvironmentConfig.validateContainsAgentUUIDsFrom(new HashSet<>(asList("uuid1", "uuid2", "uuid3", "uuid4")));
+            assertThat(result).isTrue();
+        }
+
+        @Test
+        void shouldReturnFalseIfAssociatedAgentUUIDsAreNotFromSpecifiedSetOfUUIDs(){
+            pairEnvironmentConfig.addAgent("uuid1");
+            pairEnvironmentConfig.addAgent("uuid2");
+            pairEnvironmentConfig.addAgent("uuid3");
+
+            boolean result = pairEnvironmentConfig.validateContainsAgentUUIDsFrom(new HashSet<>(asList("uuid1", "uuid2", "uuid4")));
+            assertThat(result).isFalse();
+        }
+
+        @Test
+        void shouldReturnFalseIfAssociatedAgentUUIDsAreNotFromSpecifiedSetOfUUIDsBecauseSpecifiedSetIsEmpty(){
+            environmentConfig.addAgent("uuid1");
+            environmentConfig.addAgent("uuid2");
+            environmentConfig.addAgent("uuid3");
+
+            boolean result = environmentConfig.validateContainsAgentUUIDsFrom(new HashSet<>(emptyList()));
+            assertThat(result).isFalse();
+        }
+    }
+
+    @Nested
+    class GetFirstEditablePart {
+        @Test
+        void shouldReturnFirstEditablePart() {
+            assertNotNull(singleEnvironmentConfig.getFirstEditablePartOrNull());
+        }
+
+        @Test
+        void shouldReturnNullAsFirstEditablePart() {
+            BasicEnvironmentConfig basicEnvironmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("repo"));
+            basicEnvironmentConfig.setOrigins(new RepoConfigOrigin());
+
+            assertNull(new MergeEnvironmentConfig(basicEnvironmentConfig).getFirstEditablePartOrNull());
+        }
+
+        @Test
+        void shouldThrowExceptionIfNoEditablePartExists() {
+            BasicEnvironmentConfig basicEnvironmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("repo"));
+            basicEnvironmentConfig.setOrigins(new RepoConfigOrigin());
+
+            MergeEnvironmentConfig mergeEnvironmentConfig = new MergeEnvironmentConfig(basicEnvironmentConfig);
+            assertThatCode(mergeEnvironmentConfig::getFirstEditablePart)
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessage("No editable configuration part");
+        }
+
+        @Test
+        void shouldNotThrowExceptionIfEditablePartExists() {
+            assertThatCode(singleEnvironmentConfig::getFirstEditablePart).doesNotThrowAnyException();
+        }
+
+        @Test
+        void shouldNotThrowExceptionIfNoEditablePartExistsAndShouldReturnNull() {
+            BasicEnvironmentConfig basicEnvironmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("repo"));
+            basicEnvironmentConfig.setOrigins(new RepoConfigOrigin());
+
+            MergeEnvironmentConfig mergeEnvironmentConfig = new MergeEnvironmentConfig(basicEnvironmentConfig);
+            assertThatCode(() -> {
+                EnvironmentConfig environmentConfig = mergeEnvironmentConfig.getFirstEditablePartOrNull();
+                assertNull(environmentConfig);
+            }).doesNotThrowAnyException();
+        }
+    }
+
+    @Test
+    void ShouldThrowExceptionAllPartialEnvsDoesNotContainSameName() {
+        BasicEnvironmentConfig local1 = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
+        BasicEnvironmentConfig local2 = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
+        BasicEnvironmentConfig remote = new BasicEnvironmentConfig(new CaseInsensitiveString("PROD"));
+
+        assertThrows(IllegalArgumentException.class, () -> new MergeEnvironmentConfig(local1, local2, remote));
+    }
+
+    @Test
+    void shouldReturnFalseThatLocal() {
+        assertThat(environmentConfig.isLocal()).isFalse();
+    }
+
+    @Test
+    void shouldGetLocalPartWhenOriginFile() {
+        assertThat(environmentConfig.getLocal()).isEqualTo(uatLocalPart2);
     }
 
     @Test
@@ -231,33 +405,6 @@ class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
 
         assertThat(pairEnvironmentConfig.errors().size()).isEqualTo(1);
         assertThat(pairEnvironmentConfig.errors().on("field-name")).isEqualTo("some error message.");
-    }
-
-    @Nested
-    class validate {
-        @Test
-        void shouldValidateDuplicatePipelines() {
-            pairEnvironmentConfig.get(0).addPipeline(new CaseInsensitiveString("up42"));
-            pairEnvironmentConfig.get(1).addPipeline(new CaseInsensitiveString("up42"));
-
-            pairEnvironmentConfig.validate(ConfigSaveValidationContext.forChain(pairEnvironmentConfig));
-
-            assertThat(pairEnvironmentConfig.errors().isEmpty()).isFalse();
-
-            assertThat(pairEnvironmentConfig.errors().firstError()).isEqualTo("Environment pipeline 'up42' is defined more than once.");
-        }
-
-        @Test
-        void shouldValidateDuplicateAgents() {
-            pairEnvironmentConfig.get(0).addAgent("random-uuid");
-            pairEnvironmentConfig.get(1).addAgent("random-uuid");
-
-            pairEnvironmentConfig.validate(ConfigSaveValidationContext.forChain(pairEnvironmentConfig));
-
-            assertThat(pairEnvironmentConfig.errors().isEmpty()).isFalse();
-
-            assertThat(pairEnvironmentConfig.errors().firstError()).isEqualTo("Environment agent 'random-uuid' is defined more than once.");
-        }
     }
 
     @Test
@@ -333,51 +480,6 @@ class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
         assertThat(environmentConfig.getOriginForAgent(remoteAgent)).isEqualTo(new RepoConfigOrigin());
     }
 
-    @Nested
-    class GetFirstEditablePart {
-        @Test
-        void shouldReturnFirstEditablePart() {
-            assertNotNull(singleEnvironmentConfig.getFirstEditablePartOrNull());
-        }
-
-        @Test
-        void shouldReturnNullAsFirstEditablePart() {
-            BasicEnvironmentConfig basicEnvironmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("repo"));
-            basicEnvironmentConfig.setOrigins(new RepoConfigOrigin());
-
-            assertNull(new MergeEnvironmentConfig(basicEnvironmentConfig).getFirstEditablePartOrNull());
-        }
-
-        @Test
-        void shouldThrowExceptionIfNoEditablePartExists() {
-            BasicEnvironmentConfig basicEnvironmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("repo"));
-            basicEnvironmentConfig.setOrigins(new RepoConfigOrigin());
-
-            MergeEnvironmentConfig mergeEnvironmentConfig = new MergeEnvironmentConfig(basicEnvironmentConfig);
-            assertThatCode(mergeEnvironmentConfig::getFirstEditablePart)
-                    .isInstanceOf(RuntimeException.class)
-                    .hasMessage("No editable configuration part");
-        }
-
-        @Test
-        void shouldNotThrowExceptionIfEditablePartExists() {
-            assertThatCode(singleEnvironmentConfig::getFirstEditablePart).doesNotThrowAnyException();
-        }
-
-        @Test
-        void shouldNotThrowExceptionIfNoEditablePartExistsAndShouldReturnNull() {
-            BasicEnvironmentConfig basicEnvironmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("repo"));
-            basicEnvironmentConfig.setOrigins(new RepoConfigOrigin());
-
-            MergeEnvironmentConfig mergeEnvironmentConfig = new MergeEnvironmentConfig(basicEnvironmentConfig);
-
-            assertThatCode(() -> {
-                EnvironmentConfig environmentConfig = mergeEnvironmentConfig.getFirstEditablePartWithoutThrowingException();
-                assertNull(environmentConfig);
-            }).doesNotThrowAnyException();
-        }
-    }
-
     @Test
     void shouldReturnMatchersWithTheProperties() {
         singleEnvironmentConfig.addPipeline(new CaseInsensitiveString("pipeline-1"));
@@ -428,5 +530,30 @@ class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
     void shouldReturnFalseIfNotEmpty() {
         singleEnvironmentConfig.addPipeline(new CaseInsensitiveString("pipeline1"));
         assertFalse(singleEnvironmentConfig.isEnvironmentEmpty());
+    }
+
+    @Test
+    void shouldAddAgentIfNew(){
+        pairEnvironmentConfig.addAgentIfNew("uuid1");
+        pairEnvironmentConfig.addAgentIfNew("uuid2");
+        pairEnvironmentConfig.addAgentIfNew("uuid3");
+        pairEnvironmentConfig.addAgentIfNew("uuid3");
+
+        assertThat(pairEnvironmentConfig.getAgents().size()).isEqualTo(3);
+    }
+
+    @Test
+    void shouldAddAgentIfNewAndIfAnyPartIsEditable(){
+        BasicEnvironmentConfig part1 = new BasicEnvironmentConfig(new CaseInsensitiveString("env1"));
+        BasicEnvironmentConfig part2 = new BasicEnvironmentConfig(new CaseInsensitiveString("env1"));
+
+        part1.setOrigins(new RepoConfigOrigin());
+        part2.setOrigins(new RepoConfigOrigin());
+        MergeEnvironmentConfig merged = new MergeEnvironmentConfig(part1, part2);
+
+        merged.addAgentIfNew("uuid1");
+        merged.addAgentIfNew("uuid2");
+
+        assertThat(merged.getAgents().size()).isEqualTo(0);
     }
 }

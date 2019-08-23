@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -137,8 +138,9 @@ public class AgentDao extends HibernateDaoSupport {
             try {
                 return query.list();
             } catch (Exception e) {
-                return emptyList();
+                bomb("Error while retrieving list of all agents from DB.", e);
             }
+            return emptyList();
         }));
     }
 

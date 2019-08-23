@@ -78,7 +78,6 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
 
     public void initialize() {
         goConfigService.register(this);
-
         goConfigService.register(new EntityConfigChangedListener<EnvironmentConfig>() {
             @Override
             public void onEntityConfigChange(EnvironmentConfig entity) {
@@ -90,7 +89,7 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
             @Override
             public void onEntityConfigChange(ConfigRepoConfig entity) {
                 if(!goConfigService.getCurrentConfig().getConfigRepos().hasConfigRepo(entity.getId())) {
-                    syncEnvironmentsFromConfig(goConfigService.getEnvironments());
+                    syncEnvironments(goConfigService.getEnvironments());
                 }
             }
         });

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {Agent} from "models/new_agent/agents";
 import _ from "lodash";
+import {Agent} from "models/new_agent/agents";
 
 export enum SortOrder {
   ASC, DESC
@@ -44,6 +44,31 @@ export class AgentComparator {
     }
   }
 
+  private static getAgentStatusRank(status: string): number {
+    switch (status) {
+      case "Pending":
+        return 1;
+      case "LostContact":
+        return 2;
+      case "Missing":
+        return 3;
+      case "Building":
+        return 4;
+      case "Building (Cancelled)":
+        return 5;
+      case "Idle":
+        return 6;
+      case "Disabled (Building)":
+        return 7;
+      case "Disabled (Cancelled)":
+        return 8;
+      case "Disabled":
+        return 9;
+      default:
+        return Number.MAX_SAFE_INTEGER;
+    }
+  }
+
   private getColumnValue(agent: Agent) {
     switch (this.columnName) {
       case "environments":
@@ -69,37 +94,12 @@ export class AgentComparator {
   }
 
   private compareFreespace(first: string, other: string) {
-    const firstAsNumber = _.isNaN(parseInt(first)) ? Number.MAX_SAFE_INTEGER : parseInt(first);
-    const otherAsNumber = _.isNaN(parseInt(other)) ? Number.MAX_SAFE_INTEGER : parseInt(other);
+    const firstAsNumber = _.isNaN(parseInt(first, 10)) ? Number.MAX_SAFE_INTEGER : parseInt(first, 10);
+    const otherAsNumber = _.isNaN(parseInt(other, 10)) ? Number.MAX_SAFE_INTEGER : parseInt(other, 10);
     return this.sortOrder === SortOrder.ASC ? firstAsNumber - otherAsNumber : otherAsNumber - firstAsNumber;
   }
 
   private compareString(first: string, other: string) {
     return this.sortOrder === SortOrder.ASC ? first.localeCompare(other) : other.localeCompare(first);
-  }
-
-  private static getAgentStatusRank(status: string): number {
-    switch (status) {
-      case "Pending":
-        return 1;
-      case "LostContact":
-        return 2;
-      case "Missing":
-        return 3;
-      case "Building":
-        return 4;
-      case "Building (Cancelled)":
-        return 5;
-      case "Idle":
-        return 6;
-      case "Disabled (Building)":
-        return 7;
-      case "Disabled (Cancelled)":
-        return 8;
-      case "Disabled":
-        return 9;
-      default:
-        return Number.MAX_SAFE_INTEGER;
-    }
   }
 }

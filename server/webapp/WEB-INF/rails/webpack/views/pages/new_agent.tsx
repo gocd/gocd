@@ -38,7 +38,6 @@ export class NewAgentPage extends Page<null, State> {
     const self         = this;
     vnode.state.agents = new Agents([]);
 
-
     vnode.state.onEnable = () => {
       const uuids = vnode.state.agents.getSelectedAgentsUUID();
       AgentsCRUD.agentsToEnable(uuids)
@@ -105,6 +104,10 @@ export class NewAgentPage extends Page<null, State> {
                                    }, this.setErrorState));
   }
 
+  private static pluralizeAgent(count: number) {
+    return count > 1 ? "agents" : "agent";
+  }
+
   private onResult(result: ApiResult<string>, action: string, count: number) {
     result.do(this.onSuccess.bind(this, action, count), this.onFailure.bind(this));
   }
@@ -115,9 +118,5 @@ export class NewAgentPage extends Page<null, State> {
 
   private onFailure(errorResponse: ErrorResponse) {
     this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
-  }
-
-  private static pluralizeAgent(count: number) {
-    return count > 1 ? "agents" : "agent";
   }
 }

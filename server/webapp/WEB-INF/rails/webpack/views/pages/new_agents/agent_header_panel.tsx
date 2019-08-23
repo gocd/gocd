@@ -17,6 +17,7 @@
 import {bind} from "classnames/bind";
 import {ApiResult} from "helpers/api_request_builder";
 import {MithrilViewComponent} from "jsx/mithril-component";
+import m from "mithril";
 import {AgentConfigState, Agents} from "models/new_agent/agents";
 import {EnvironmentsService, ResourcesService} from "models/new_agent/agents_crud";
 import {ButtonGroup} from "views/components/buttons";
@@ -26,7 +27,6 @@ import {SearchField} from "views/components/forms/input_fields";
 import {KeyValuePair} from "views/components/key_value_pair";
 import {EnvironmentsDropdownButton, ResourcesDropdownButton} from "./environments_and_resources_dropdown_button";
 import style from "./index.scss";
-import m from "mithril";
 
 const classnames = bind(style);
 

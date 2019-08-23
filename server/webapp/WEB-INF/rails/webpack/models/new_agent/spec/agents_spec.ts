@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {Agent, AgentConfigState, Agents, AgentsEnvironment, AgentState, BuildState} from "models/new-agent/agents";
-import {AgentsTestData} from "models/new-agent/spec/agents_test_data";
+import {Agent, AgentConfigState, Agents, AgentsEnvironment, AgentState, BuildState} from "models/new_agent/agents";
+import {AgentsTestData} from "models/new_agent/spec/agents_test_data";
 
 describe("AgentsModel", () => {
   describe("Deserialize", () => {

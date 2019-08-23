@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {Agent} from "models/new-agent/agents";
+import {Agent} from "models/new_agent/agents";
 import _ from "lodash";
 
 export enum SortOrder {

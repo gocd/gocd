@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import {AgentComparator, SortOrder} from "models/new-agent/agent_comparator";
-import {Agent} from "models/new-agent/agents";
-import {AgentsTestData} from "models/new-agent/spec/agents_test_data";
+import {AgentComparator, SortOrder} from "models/new_agent/agent_comparator";
+import {Agent} from "models/new_agent/agents";
+import {AgentsTestData} from "models/new_agent/spec/agents_test_data";
 
 describe("AgentComparator", () => {
   let originalOrder: Agent[];

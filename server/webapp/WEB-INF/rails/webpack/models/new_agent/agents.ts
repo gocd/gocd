@@ -16,7 +16,7 @@
 
 import _ from "lodash";
 import Stream from "mithril/stream";
-import {AgentComparator, SortOrder} from "models/new-agent/agent_comparator";
+import {AgentComparator, SortOrder} from "models/new_agent/agent_comparator";
 import {TableSortHandler} from "views/components/table";
 
 const filesize = require("filesize");

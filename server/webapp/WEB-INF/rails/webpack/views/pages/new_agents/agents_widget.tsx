@@ -17,12 +17,12 @@
 import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
-import {Agent, AgentConfigState, Agents} from "models/new-agent/agents";
+import {Agent, AgentConfigState, Agents} from "models/new_agent/agents";
 import {FlashMessage, FlashMessageModelWithTimeout} from "views/components/flash_message";
 import {CheckboxField} from "views/components/forms/input_fields";
 import {Table} from "views/components/table";
-import {AgentHeaderPanel} from "views/pages/new-agents/agent_header_panel";
-import {AgentStatusWidget} from "views/pages/new-agents/agent_status_widget";
+import {AgentHeaderPanel} from "views/pages/new_agents/agent_header_panel";
+import {AgentStatusWidget} from "views/pages/new_agents/agent_status_widget";
 import style from "./index.scss";
 
 const classnames = bind(style);

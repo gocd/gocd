@@ -16,7 +16,7 @@
 
 import {ApiRequestBuilder, ApiResult, ApiVersion} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
-import {AgentConfigState, Agents} from "models/new-agent/agents";
+import {AgentConfigState, Agents} from "models/new_agent/agents";
 
 export class AgentsCRUD {
   private static API_VERSION_HEADER = ApiVersion.v5;

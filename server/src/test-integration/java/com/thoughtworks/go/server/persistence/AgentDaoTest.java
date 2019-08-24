@@ -42,11 +42,8 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Fail.fail;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.emptyString;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -393,7 +390,7 @@ public class AgentDaoTest {
 
     private DatabaseEntityChangeListener<Agent> registerMockListener() {
         DatabaseEntityChangeListener<Agent> mockListener = mock(DatabaseEntityChangeListener.class);
-        agentDao.registerListener(mockListener);
+        agentDao.registerDatabaseAgentEntityChangeListener(mockListener);
         return mockListener;
     }
 }

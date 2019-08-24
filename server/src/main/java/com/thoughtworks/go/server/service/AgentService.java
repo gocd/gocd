@@ -101,7 +101,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
 
     public void initialize() {
         this.syncAgentInstanceCacheFromAgentsInDB();
-        agentDao.registerListener(this);
+        agentDao.registerDatabaseAgentEntityChangeListener(this);
     }
 
     /**

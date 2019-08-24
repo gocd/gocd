@@ -71,7 +71,7 @@ public class AgentDao extends HibernateDaoSupport {
         setSessionFactory(sessionFactory);
     }
 
-    public void registerListener(DatabaseEntityChangeListener<Agent> listener) {
+    public void registerDatabaseAgentEntityChangeListener(DatabaseEntityChangeListener<Agent> listener) {
         this.agentEntityChangeListenerSet.add(listener);
     }
 
@@ -120,7 +120,7 @@ public class AgentDao extends HibernateDaoSupport {
                     getHibernateTemplate().saveOrUpdate(agent);
 
                     final Agent updatedAgent = agent;
-                    registerCommitCallback(() -> clearCacheAndNotifyAgentEntityChangeListeners(key, updatedAgent));
+                    registerAfterCommitCallback(() -> clearCacheAndNotifyAgentEntityChangeListeners(key, updatedAgent));
                 }
             });
             agentMutexes.release(uuids, mutex);
@@ -133,9 +133,9 @@ public class AgentDao extends HibernateDaoSupport {
 
     public List<Agent> getAllAgents() {
         return ((List<Agent>) transactionTemplate.execute((TransactionCallback) transactionStatus -> {
-            Query query = sessionFactory.getCurrentSession().createQuery("FROM Agent where deleted = false");
-            query.setCacheable(true);
-            try {
+            try{
+                Query query = sessionFactory.getCurrentSession().createQuery("FROM Agent where deleted = false");
+                query.setCacheable(true);
                 return query.list();
             } catch (Exception e) {
                 bomb("Error while retrieving list of all agents from DB.", e);
@@ -183,13 +183,7 @@ public class AgentDao extends HibernateDaoSupport {
             transactionTemplate.execute(new TransactionCallbackWithoutResult() {
                 @Override
                 protected void doInTransactionWithoutResult(TransactionStatus status) {
-                    synchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
-                        @Override
-                        public void afterCommit() {
-                            cache.remove(key);
-                            notifyAgentEntityChangeListeners(agent);
-                        }
-                    });
+                    registerAfterCommitCallback(() -> clearCacheAndNotifyAgentEntityChangeListeners(key, agent));
                     sessionFactory.getCurrentSession().saveOrUpdate(agent);
                 }
             });
@@ -237,7 +231,7 @@ public class AgentDao extends HibernateDaoSupport {
                     query.setParameterList("uuids", uuids);
                     query.executeUpdate();
 
-                    registerCommitCallbackToClearCacheAndNotifyBulkChangeListeners(synchronizationManager, uuids);
+                    registerAfterCommitCallback(() -> clearCacheAndNotifyBulkAgentEntityChangeListeners(uuids));
                 }
             });
             agentMutexes.release(uuids, mutex);
@@ -253,7 +247,7 @@ public class AgentDao extends HibernateDaoSupport {
                 protected void doInTransactionWithoutResult(TransactionStatus status) {
                     agents.forEach(agent -> sessionFactory.getCurrentSession().saveOrUpdate(Agent.class.getName(), agent));
                     List<String> uuids = agents.stream().map(Agent::getUuid).collect(toList());
-                    registerCommitCallbackToClearCacheAndNotifyBulkChangeListeners(synchronizationManager, uuids);
+                    registerAfterCommitCallback(() -> clearCacheAndNotifyBulkAgentEntityChangeListeners(uuids));
                 }
             });
             agentMutexes.release(uuids, mutex);
@@ -271,7 +265,7 @@ public class AgentDao extends HibernateDaoSupport {
                     query.setParameterList("uuids", uuids);
                     query.executeUpdate();
 
-                    registerCommitCallbackToClearCacheAndNotifyBulkDeleteListeners(synchronizationManager, uuids);
+                    registerAfterCommitCallback(() -> clearCacheAndNotifyBulkAgentEntityDeleteListeners(uuids));
                 }
             });
             agentMutexes.release(uuids, mutex);
@@ -279,16 +273,12 @@ public class AgentDao extends HibernateDaoSupport {
     }
 
     private synchronized void clearCacheAndNotifyBulkAgentEntityChangeListeners(List<String> uuids) {
-        for (String uuid : uuids) {
-            cache.remove(agentCacheKey(uuid));
-        }
+        uuids.stream().map(this::agentCacheKey).forEach(cache::remove);
         notifyBulkAgentEntityChangeListeners(uuids);
     }
 
     private synchronized void clearCacheAndNotifyBulkAgentEntityDeleteListeners(List<String> uuids) {
-        for (String uuid : uuids) {
-            cache.remove(agentCacheKey(uuid));
-        }
+        uuids.stream().map(this::agentCacheKey).forEach(cache::remove);
         notifyBulkAgentEntityDeleteListeners(uuids);
     }
 
@@ -296,15 +286,7 @@ public class AgentDao extends HibernateDaoSupport {
         agentEntityChangeListenerSet.forEach(listener -> listener.bulkEntitiesDeleted(uuids));
     }
 
-    private void registerCommitCallbackToClearCacheAndNotifyBulkChangeListeners(TransactionSynchronizationManager synchronizationManager, List<String> uuids) {
-        registerCommitCallback(() -> clearCacheAndNotifyBulkAgentEntityChangeListeners(uuids));
-    }
-
-    private void registerCommitCallbackToClearCacheAndNotifyBulkDeleteListeners(TransactionSynchronizationManager synchronizationManager, List<String> uuids) {
-        registerCommitCallback(() -> clearCacheAndNotifyBulkAgentEntityDeleteListeners(uuids));
-    }
-
-    private void registerCommitCallback(Runnable runnable){
+    private void registerAfterCommitCallback(Runnable runnable){
         synchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
             @Override
             public void afterCommit() {

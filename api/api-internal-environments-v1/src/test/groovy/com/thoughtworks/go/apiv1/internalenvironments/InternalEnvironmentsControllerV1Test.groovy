@@ -77,7 +77,7 @@ class InternalEnvironmentsControllerV1Test implements SecurityServiceTrait, Cont
       void 'test should return environments fetched from environments config service'() {
         List<String> envNames = ['environment1','environment2']
 
-        when(environmentConfigService.getKnownEnvironmentNames()).thenReturn(envNames)
+        when(environmentConfigService.getEnvironmentNames()).thenReturn(envNames)
 
         getWithApiHeader(controller.controllerBasePath())
 
@@ -88,7 +88,7 @@ class InternalEnvironmentsControllerV1Test implements SecurityServiceTrait, Cont
 
       @Test
       void 'test should return empty environments list when no environment exists'() {
-        when(environmentConfigService.getKnownEnvironmentNames()).thenReturn([])
+        when(environmentConfigService.getEnvironmentNames()).thenReturn([])
 
         getWithApiHeader(controller.controllerBasePath())
 

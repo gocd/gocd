@@ -719,20 +719,17 @@ public class GoConfigFileHelper {
         return pipelineConfig;
     }
 
-
     public void requireApproval(String pipelineName, String stageName) {
         CruiseConfig cruiseConfig = loadForEdit();
         cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(pipelineName)).findBy(new CaseInsensitiveString(stageName)).updateApproval(Approval.manualApproval());
         writeConfigFile(cruiseConfig);
     }
 
-
     public void setDependencyOn(PipelineConfig product, String pipelineName, String stageName) {
         CruiseConfig cruiseConfig = loadForEdit();
         goConfigMother.setDependencyOn(cruiseConfig, product, pipelineName, stageName);
         writeConfigFile(cruiseConfig);
     }
-
 
     public void writeConfigFile(CruiseConfig cruiseConfig) {
         try {
@@ -860,7 +857,7 @@ public class GoConfigFileHelper {
         writeConfigFile(config);
     }
 
-    public EnvironmentConfig getEnvironment(String env){
+    public EnvironmentConfig getEnvironment(String env) {
         CruiseConfig config = load();
         return config.getEnvironments().find(new CaseInsensitiveString(env));
     }
@@ -995,7 +992,6 @@ public class GoConfigFileHelper {
     public static EnvironmentVariablesConfig env(String name, String value) {
         return EnvironmentVariablesConfigMother.env(name, value);
     }
-
 
     public static EnvironmentVariablesConfig env(String[] names, String[] values) {
         return EnvironmentVariablesConfigMother.env(names, values);

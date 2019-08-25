@@ -24,6 +24,8 @@ import com.thoughtworks.go.config.exceptions.BadRequestException
 import com.thoughtworks.go.config.exceptions.EntityType
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException
 import com.thoughtworks.go.config.exceptions.UnprocessableEntityException
+import com.thoughtworks.go.config.remote.ConfigRepoConfig
+import com.thoughtworks.go.config.remote.RepoConfigOrigin
 import com.thoughtworks.go.domain.AgentInstance
 import com.thoughtworks.go.domain.NullAgentInstance
 import com.thoughtworks.go.server.domain.AgentInstances
@@ -45,6 +47,7 @@ import java.util.stream.Stream
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.helper.AgentInstanceMother.*
 import static com.thoughtworks.go.helper.EnvironmentConfigMother.environment
+import static com.thoughtworks.go.helper.EnvironmentConfigMother.remote
 import static java.util.Arrays.asList
 import static java.util.Collections.*
 import static java.util.stream.Collectors.toSet
@@ -53,1250 +56,1235 @@ import static org.mockito.Mockito.*
 import static org.mockito.MockitoAnnotations.initMocks
 
 class AgentsControllerV6Test implements SecurityServiceTrait, ControllerTrait<AgentsControllerV6> {
-    @Mock
-    private AgentService agentService
+  @Mock
+  private AgentService agentService
 
-    @Mock
-    private EnvironmentConfigService environmentConfigService
+  @Mock
+  private EnvironmentConfigService environmentConfigService
 
-    @BeforeEach
-    void setUp() {
-        initMocks(this)
-    }
+  @BeforeEach
+  void setUp() {
+    initMocks(this)
+  }
 
-    @Override
-    AgentsControllerV6 createControllerInstance() {
-        return new AgentsControllerV6(agentService, new ApiAuthenticationHelper(securityService, goConfigService), securityService, environmentConfigService)
-    }
+  @Override
+  AgentsControllerV6 createControllerInstance() {
+    return new AgentsControllerV6(agentService, new ApiAuthenticationHelper(securityService, goConfigService), securityService, environmentConfigService)
+  }
 
+  @Nested
+  class Index {
     @Nested
-    class Index {
-        @Nested
-        class Security implements SecurityTestTrait, NormalUserSecurity {
-            @Override
-            String getControllerMethodUnderTest() {
-                return 'index'
-            }
+    class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Override
+      String getControllerMethodUnderTest() {
+        return 'index'
+      }
 
-            @Override
-            void makeHttpCall() {
-                getWithApiHeader(controller.controllerPath())
-            }
-        }
+      @Override
+      void makeHttpCall() {
+        getWithApiHeader(controller.controllerPath())
+      }
+    }
 
-        @Test
-        void "should return a list of agents"() {
-            def instance = idle()
-            def agentInstanceList = new ArrayList<AgentInstance>()
-            agentInstanceList.add(instance)
+    @Test
+    void "should return a list of agents"() {
+      def instance = idle()
+      instance.getAgent().setEnvironments("env1,env2,unknown-env")
+      def agentInstanceList = new ArrayList<AgentInstance>()
+      agentInstanceList.add(instance)
 
-            def instances = mock(AgentInstances.class)
-            when(agentService.getAgentInstances()).thenReturn(instances)
-            when(instances.values()).thenReturn(agentInstanceList)
+      def instances = mock(AgentInstances.class)
+      when(agentService.getAgentInstances()).thenReturn(instances)
+      when(instances.values()).thenReturn(agentInstanceList)
 
-            def environmentConfigs = new HashSet<EnvironmentConfig>()
-            environmentConfigs.add(environment("env1"))
-            environmentConfigs.add(environment("env2"))
-            when(environmentConfigService.getAgentEnvironments(instance.getUuid())).thenReturn(environmentConfigs)
+      def environmentConfigs = new HashSet<EnvironmentConfig>()
+      environmentConfigs.add(environment("env1"))
+      environmentConfigs.add(environment("env2"))
+      when(environmentConfigService.getAgentEnvironments(instance.getUuid())).thenReturn(environmentConfigs)
 
-            getWithApiHeader(controller.controllerPath())
+      getWithApiHeader(controller.controllerPath())
 
-            assertThatResponse()
-                    .isOk()
-                    .hasContentType(controller.mimeType)
-                    .hasJsonBody([
-                    "_links"   : [
-                            "self": [
-                                    "href": "http://test.host/go/api/agents"
-                            ],
-                            "doc" : [
-                                    "href": apiDocsUrl("#agents")
-                            ]
-                    ],
-                    "_embedded": [
-                            "agents": [
-                                    [
-                                            "_links"            : [
-                                                    "self": [
-                                                            "href": "http://test.host/go/api/agents/uuid2"
-                                                    ],
-                                                    "doc" : [
-                                                            "href": apiDocsUrl("#agents")
-                                                    ],
-                                                    "find": [
-                                                            "href": "http://test.host/go/api/agents/:uuid"
-                                                    ]
-                                            ],
-                                            "uuid"              : "uuid2",
-                                            "hostname"          : "CCeDev01",
-                                            "ip_address"        : "10.18.5.1",
-                                            "sandbox"           : "/var/lib/foo",
-                                            "operating_system"  : "",
-                                            "free_space"        : 10240,
-                                            "agent_config_state": "Enabled",
-                                            "agent_state"       : "Idle",
-                                            "resources"         : [],
-                                            "environments"      : [
-                                                    [
-                                                            name  : "env1",
-                                                            origin: [
-                                                                    type    : "gocd",
-                                                                    "_links": [
-                                                                            "self": [
-                                                                                    "href": "http://test.host/go/admin/config_xml"
-                                                                            ],
-                                                                            "doc" : [
-                                                                                    "href": apiDocsUrl("#get-configuration")
-                                                                            ]
-                                                                    ]
-                                                            ]
-                                                    ],
-                                                    [
-                                                            name  : "env2",
-                                                            origin: [
-                                                                    type    : "gocd",
-                                                                    "_links": [
-                                                                            "self": [
-                                                                                    "href": "http://test.host/go/admin/config_xml"
-                                                                            ],
-                                                                            "doc" : [
-                                                                                    "href": apiDocsUrl("#get-configuration")
-                                                                            ]
-                                                                    ]
-                                                            ]
-                                                    ]
-                                            ],
-                                            "build_state"       : "Idle"
-                                    ]
-                            ]
+      assertThatResponse()
+        .isOk()
+        .hasContentType(controller.mimeType)
+        .hasJsonBody([
+        "_links"   : [
+          "self": [
+            "href": "http://test.host/go/api/agents"
+          ],
+          "doc" : [
+            "href": apiDocsUrl("#agents")
+          ]
+        ],
+        "_embedded": [
+          "agents": [
+            [
+              "_links"            : [
+                "self": [
+                  "href": "http://test.host/go/api/agents/uuid2"
+                ],
+                "doc" : [
+                  "href": apiDocsUrl("#agents")
+                ],
+                "find": [
+                  "href": "http://test.host/go/api/agents/:uuid"
+                ]
+              ],
+              "uuid"              : "uuid2",
+              "hostname"          : "CCeDev01",
+              "ip_address"        : "10.18.5.1",
+              "sandbox"           : "/var/lib/foo",
+              "operating_system"  : "",
+              "free_space"        : 10240,
+              "agent_config_state": "Enabled",
+              "agent_state"       : "Idle",
+              "resources"         : [],
+              "environments"      : [
+                [
+                  name  : "env1",
+                  origin: [
+                    type    : "gocd",
+                    "_links": [
+                      "self": [
+                        "href": "http://test.host/go/admin/config_xml"
+                      ],
+                      "doc" : [
+                        "href": apiDocsUrl("#get-configuration")
+                      ]
                     ]
-            ])
-        }
-
-        @Test
-        void "should return an empty list of agents if there are no agents available"() {
-            def mockAgentInstances = mock(AgentInstances.class)
-            when(mockAgentInstances.values()).thenReturn(new ArrayList<AgentInstance>())
-            when(agentService.getAgentInstances()).thenReturn(mockAgentInstances)
-
-            getWithApiHeader(controller.controllerPath())
-
-            assertThatResponse()
-                    .isOk()
-                    .hasContentType(controller.mimeType)
-                    .hasJsonBody([
-                    "_links"   : [
-                            "self": [
-                                    "href": "http://test.host/go/api/agents"
-                            ],
-                            "doc" : [
-                                    "href": apiDocsUrl("#agents")
-                            ]
-                    ],
-                    "_embedded": [
-                            "agents": []
+                  ]
+                ],
+                [
+                  name  : "env2",
+                  origin: [
+                    type    : "gocd",
+                    "_links": [
+                      "self": [
+                        "href": "http://test.host/go/admin/config_xml"
+                      ],
+                      "doc" : [
+                        "href": apiDocsUrl("#get-configuration")
+                      ]
                     ]
-            ])
-        }
+                  ]
+                ],
+                [
+                  name  : "unknown-env",
+                  origin: [
+                    type: "unknown"
+                  ]
+                ]
+              ],
+              "build_state"       : "Idle"
+            ]
+          ]
+        ]
+      ])
+    }
+
+    @Test
+    void "should return an empty list of agents if there are no agents available"() {
+      def mockAgentInstances = mock(AgentInstances.class)
+      when(mockAgentInstances.values()).thenReturn(new ArrayList<AgentInstance>())
+      when(agentService.getAgentInstances()).thenReturn(mockAgentInstances)
+
+      getWithApiHeader(controller.controllerPath())
+
+      assertThatResponse()
+        .isOk()
+        .hasContentType(controller.mimeType)
+        .hasJsonBody([
+        "_links"   : [
+          "self": [
+            "href": "http://test.host/go/api/agents"
+          ],
+          "doc" : [
+            "href": apiDocsUrl("#agents")
+          ]
+        ],
+        "_embedded": [
+          "agents": []
+        ]
+      ])
+    }
+  }
+
+  @Nested
+  class Show {
+    @Nested
+    class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Override
+      String getControllerMethodUnderTest() {
+        return 'show'
+      }
+
+      @Override
+      void makeHttpCall() {
+        getWithApiHeader(controller.controllerPath("/some-uuid"))
+      }
+    }
+
+    @Test
+    void 'should return agent json'() {
+      def agentInstance = idle()
+      agentInstance.getAgent().setEnvironments("env1,env2,unknown-env")
+      when(agentService.findAgent("uuid2")).thenReturn(agentInstance)
+      def environments = Stream.of(environment("env1"), environment("env2")).collect(toSet())
+      when(environmentConfigService.getAgentEnvironments("uuid2")).thenReturn(environments)
+
+      getWithApiHeader(controller.controllerPath("/uuid2"))
+
+      assertThatResponse()
+        .isOk()
+        .hasContentType(controller.mimeType)
+        .hasJsonBody([
+        "_links"            : [
+          "self": [
+            "href": "http://test.host/go/api/agents/uuid2"
+          ],
+          "doc" : [
+            "href": apiDocsUrl("#agents")
+          ],
+          "find": [
+            "href": "http://test.host/go/api/agents/:uuid"
+          ]
+        ],
+        "uuid"              : "uuid2",
+        "hostname"          : "CCeDev01",
+        "ip_address"        : "10.18.5.1",
+        "sandbox"           : "/var/lib/foo",
+        "operating_system"  : "",
+        "free_space"        : 10240,
+        "agent_config_state": "Enabled",
+        "agent_state"       : "Idle",
+        "resources"         : [],
+        "environments"      : [
+          [
+            name  : "env1",
+            origin: [
+              type    : "gocd",
+              "_links": [
+                "self": [
+                  "href": "http://test.host/go/admin/config_xml"
+                ],
+                "doc" : [
+                  "href": apiDocsUrl("#get-configuration")
+                ]
+              ]
+            ]
+          ],
+          [
+            name  : "env2",
+            origin: [
+              type    : "gocd",
+              "_links": [
+                "self": [
+                  "href": "http://test.host/go/admin/config_xml"
+                ],
+                "doc" : [
+                  "href": apiDocsUrl("#get-configuration")
+                ]
+              ]
+            ]
+          ],
+          [
+            name  : "unknown-env",
+            origin: [
+              type: "unknown"
+            ]
+          ]
+        ],
+        "build_state"       : "Idle"
+      ])
+    }
+
+    @Test
+    void 'should return 404 when agent with uuid does not exist'() {
+      when(agentService.findAgent("uuid2")).thenReturn(new NullAgentInstance())
+
+      getWithApiHeader(controller.controllerPath("/uuid2"))
+
+      assertThatResponse()
+        .isNotFound()
+        .hasJsonMessage(controller.entityType.notFoundMessage("uuid2"))
+        .hasContentType(controller.mimeType)
+    }
+  }
+
+  @Nested
+  class Update {
+    @Nested
+    class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Override
+      String getControllerMethodUnderTest() {
+        return 'update'
+      }
+
+      @Override
+      void makeHttpCall() {
+        patchWithApiHeader(controller.controllerPath("/some-uuid"), [])
+      }
+    }
+
+    @Test
+    void 'should update agent information'() {
+      loginAsAdmin()
+      AgentInstance updatedAgentInstance = idleWith("uuid2", "agent02.example.com", "10.0.0.1", "/var/lib/bar", 10, "", asList("psql", "java"))
+      updatedAgentInstance.getAgent().setEnvironments("env1,unknown-env")
+
+      def envsConfig = new EnvironmentsConfig()
+      def envConfig = environment("env1")
+      when(environmentConfigService.find("env1")).thenReturn(envConfig)
+      when(environmentConfigService.getAgentEnvironments("uuid2")).thenReturn(singleton(envConfig))
+
+      envsConfig.add(envConfig)
+      when(agentService.updateAgentAttributes(
+        eq("uuid2"),
+        eq("agent02.example.com"),
+        eq("java,psql"),
+        eq("env1,unknown-env"),
+        eq(TriState.TRUE)
+      )
+      ).thenReturn(updatedAgentInstance)
+
+      def requestBody = ["hostname"          : "agent02.example.com",
+                         "agent_config_state": "Enabled",
+                         "resources"         : ["java", "psql"],
+                         "environments"      : ["env1", "unknown-env"]
+      ]
+      patchWithApiHeader(controller.controllerPath("/uuid2"), requestBody)
+
+      assertThatResponse()
+        .isOk()
+        .hasContentType(controller.mimeType)
+        .hasJsonBody([
+        "_links"            : [
+          "self": [
+            "href": "http://test.host/go/api/agents/uuid2"
+          ],
+          "doc" : [
+            "href": apiDocsUrl("#agents")
+          ],
+          "find": [
+            "href": "http://test.host/go/api/agents/:uuid"
+          ]
+        ],
+        "uuid"              : "uuid2",
+        "hostname"          : "agent02.example.com",
+        "ip_address"        : "10.0.0.1",
+        "sandbox"           : "/var/lib/bar",
+        "operating_system"  : "",
+        "free_space"        : 10,
+        "agent_config_state": "Enabled",
+        "agent_state"       : "Idle",
+        "resources"         : ["java", "psql"],
+        "environments"      : [
+          [
+            name  : "env1",
+            origin: [
+              type    : "gocd",
+              "_links": [
+                "self": [
+                  "href": "http://test.host/go/admin/config_xml"
+                ],
+                "doc" : [
+                  "href": apiDocsUrl("#get-configuration")
+                ]
+              ]
+            ]
+          ],
+          [
+            name  : "unknown-env",
+            origin: [
+              type: "unknown"
+            ]
+          ]
+        ],
+        "build_state"       : "Idle"
+      ])
+    }
+
+    @Test
+    void 'should throw 400 - bad request when there is no operation specified in the request to be performed on agent'() {
+      loginAsAdmin()
+
+      doAnswer({ InvocationOnMock invocation ->
+        def msg = "Bad Request. No operation is specified in the request to be performed on agent."
+        throw new BadRequestException(msg)
+      }).when(agentService).updateAgentAttributes(
+        eq("uuid2"),
+        eq(null),
+        eq(null),
+        eq(null),
+        eq(TriState.UNSET))
+
+      def requestBody = ""
+      patchWithApiHeader(controller.controllerPath("/uuid2"), requestBody)
+
+      assertThatResponse()
+        .isBadRequest()
+        .hasContentType(controller.mimeType)
+        .hasJsonMessage("Bad Request. No operation is specified in the request to be performed on agent.")
+    }
+
+    @Test
+    void 'should reset agents environment attribute value to null in db when environments is specified as empty string in the request payload'() {
+      loginAsAdmin()
+      def resources = asList("psql", "java")
+      AgentInstance agentWithoutEnvs = idleWith("uuid2", "agent02.example.com", "10.0.0.1", "/var/lib/bar", 10, "", resources)
+
+      when(environmentConfigService.getAgentEnvironments("uuid2")).thenReturn(emptySet())
+      when(agentService.updateAgentAttributes(
+        eq("uuid2"),
+        eq("agent02.example.com"),
+        eq("java,psql"),
+        eq(""),
+        eq(TriState.TRUE)
+      )
+      ).thenReturn(agentWithoutEnvs)
+
+      def requestBody = ["hostname"          : "agent02.example.com",
+                         "agent_config_state": "Enabled",
+                         "resources"         : ["java", "psql"],
+                         "environments"      : []
+      ]
+      patchWithApiHeader(controller.controllerPath("/uuid2"), requestBody)
+
+      assertThatResponse()
+        .isOk()
+        .hasContentType(controller.mimeType)
+        .hasJsonBody([
+        "_links"            : [
+          "self": [
+            "href": "http://test.host/go/api/agents/uuid2"
+          ],
+          "doc" : [
+            "href": apiDocsUrl("#agents")
+          ],
+          "find": [
+            "href": "http://test.host/go/api/agents/:uuid"
+          ]
+        ],
+        "uuid"              : "uuid2",
+        "hostname"          : "agent02.example.com",
+        "ip_address"        : "10.0.0.1",
+        "sandbox"           : "/var/lib/bar",
+        "operating_system"  : "",
+        "free_space"        : 10,
+        "agent_config_state": "Enabled",
+        "agent_state"       : "Idle",
+        "resources"         : ["java", "psql"],
+        "environments"      : [],
+        "build_state"       : "Idle"
+      ])
+    }
+
+    @Test
+    void 'should reset agents resources attribute value to null in db when resources is specified as empty array in the request payload'() {
+      loginAsAdmin()
+
+      def resources = emptyList()
+      AgentInstance agentWithoutEnvsAndResources = idleWith("uuid2", "agent02.example.com", "10.0.0.1", "/var/lib/bar", 10, "", resources)
+
+      def emptyEnvsConfig = new EnvironmentsConfig()
+      when(environmentConfigService.getAgentEnvironments("uuid2")).thenReturn(emptySet())
+      when(agentService.updateAgentAttributes(
+        eq("uuid2"),
+        eq("agent02.example.com"),
+        eq(""),
+        eq(""),
+        eq(TriState.TRUE)
+      )
+      ).thenReturn(agentWithoutEnvsAndResources)
+
+      def requestBody = ["hostname"          : "agent02.example.com",
+                         "agent_config_state": "Enabled",
+                         "resources"         : [],
+                         "environments"      : []
+      ]
+      patchWithApiHeader(controller.controllerPath("/uuid2"), requestBody)
+
+      println "\n\nResponse is \n\n" + response
+
+      assertThatResponse()
+        .isOk()
+        .hasContentType(controller.mimeType)
+        .hasJsonBody([
+        "_links"            : [
+          "self": [
+            "href": "http://test.host/go/api/agents/uuid2"
+          ],
+          "doc" : [
+            "href": apiDocsUrl("#agents")
+          ],
+          "find": [
+            "href": "http://test.host/go/api/agents/:uuid"
+          ]
+        ],
+        "uuid"              : "uuid2",
+        "hostname"          : "agent02.example.com",
+        "ip_address"        : "10.0.0.1",
+        "sandbox"           : "/var/lib/bar",
+        "operating_system"  : "",
+        "free_space"        : 10,
+        "agent_config_state": "Enabled",
+        "agent_state"       : "Idle",
+        "resources"         : [],
+        "environments"      : [],
+        "build_state"       : "Idle"
+      ])
+    }
+
+    @Test
+    void 'should error out with 500 code when there is internal server error'() {
+      loginAsAdmin()
+      when(agentService.updateAgentAttributes(anyString(), anyString(), anyString(), anyString(), any() as TriState))
+        .thenAnswer({ InvocationOnMock invocation -> throw new Exception("Oops! something went wrong!")
+      })
+
+      def requestBody = [
+        "hostname"          : "agent02.example.com",
+        "agent_config_state": "",
+        "resources"         : "Java,Linux",
+        "environments"      : ["Foo"]
+      ]
+
+      patchWithApiHeader(controller.controllerPath("/uuid2"), requestBody)
+      assertThatResponse()
+        .isInternalServerError()
+        .hasContentType(controller.mimeType)
+        .hasJsonMessage("Oops! something went wrong!")
+    }
+
+    @Test
+    void 'should error out with 400 code when no operation is performed on agent'() {
+      loginAsAdmin()
+      when(agentService.updateAgentAttributes(anyString(), anyString(), anyString(), anyString(), any() as TriState))
+        .thenAnswer({ InvocationOnMock invocation -> throw new BadRequestException("Bad Request. No operation performed on agent!")
+      })
+
+      def requestBody = [
+        "hostname"          : "agent02.example.com",
+        "agent_config_state": "",
+        "resources"         : "Java,Linux",
+        "environments"      : ["Foo"]
+      ]
+
+      patchWithApiHeader(controller.controllerPath("/uuid2"), requestBody)
+      assertThatResponse()
+        .isBadRequest()
+        .hasContentType(controller.mimeType)
+        .hasJsonMessage("Bad Request. No operation performed on agent!")
+    }
+
+    @Test
+    void 'should error out with 404 code when agent being updated is not found'() {
+      loginAsAdmin()
+      when(agentService.updateAgentAttributes(anyString(), anyString(), anyString(), anyString(), any() as TriState))
+        .thenAnswer({ InvocationOnMock invocation -> throw new RecordNotFoundException(EntityType.Agent, "uuid2")
+      })
+
+      def requestBody = [
+        "hostname"          : "agent02.example.com",
+        "agent_config_state": "",
+        "resources"         : "Java,Linux",
+        "environments"      : ["Foo"]
+      ]
+
+      patchWithApiHeader(controller.controllerPath("/uuid2"), requestBody)
+      assertThatResponse()
+        .isNotFound()
+        .hasContentType(controller.mimeType)
+        .hasJsonMessage("Agent with uuid 'uuid2' was not found!")
+    }
+
+    @Test
+    void 'should error out with 422 code when update fails due to agent validation error'() {
+      loginAsAdmin()
+      when(agentService.updateAgentAttributes(anyString(), anyString(), anyString(), anyString(), any() as TriState))
+        .thenAnswer({ InvocationOnMock invocation ->
+        def agentInstance = agentWithConfigErrors()
+        return agentInstance
+      })
+
+      def requestBody = [
+        "hostname"          : "agent02.example.com",
+        "agent_config_state": "",
+        "resources"         : "Java,Linux",
+        "environments"      : ["Foo"]
+      ]
+
+      patchWithApiHeader(controller.controllerPath("/uuid"), requestBody)
+      assertThatResponse()
+        .isUnprocessableEntity()
+        .hasContentType(controller.mimeType)
+        .hasJsonBody([
+        "message": "Updating agent failed.",
+        "data"   : [
+          "uuid"              : "uuid",
+          "hostname"          : "host",
+          "ip_address"        : "IP",
+          "sandbox"           : "",
+          "operating_system"  : "",
+          "free_space"        : "unknown",
+          "agent_config_state": "Enabled",
+          "agent_state"       : "Missing",
+          "resources"         : ["bar\$", "foo%"],
+          "environments"      : [],
+          "build_state"       : "Unknown",
+          "errors"            : [
+            "ip_address": ["'IP' is an invalid IP address."],
+            "resources" : [
+              "Resource name 'foo%' is not valid. Valid names much match '^[-\\w\\s|.]*\$\'",
+              "Resource name 'bar\$' is not valid. Valid names much match '^[-\\w\\s|.]*\$\'"
+            ]
+          ]
+        ]
+      ])
     }
 
     @Nested
-    class Show {
-        @Nested
-        class Security implements SecurityTestTrait, NormalUserSecurity {
-            @Override
-            String getControllerMethodUnderTest() {
-                return 'show'
-            }
+    class Environments {
+      @Test
+      void 'should pass empty environments string to service given empty comma separated list of environments'() {
+        loginAsAdmin()
+        AgentInstance updatedAgentInstance = idleWith("uuid2", "agent02.example.com", "10.0.0.1", "/var/lib/bar", 10, "", asList("psql", "java"))
 
-            @Override
-            void makeHttpCall() {
-                getWithApiHeader(controller.controllerPath("/some-uuid"))
-            }
-        }
+        def commaSeparatedEnvs = "             "
 
-        @Test
-        void 'should return agent json'() {
-            when(agentService.findAgent("uuid2")).thenReturn(idle())
-            def environments = Stream.of(environment("env1"), environment("env2")).collect(toSet())
-            when(environmentConfigService.getAgentEnvironments("uuid2")).thenReturn(environments)
+        when(agentService.updateAgentAttributes(
+          eq("uuid2"),
+          eq("agent02.example.com"),
+          eq("java,psql"),
+          eq(""),
+          eq(TriState.TRUE)
+        )
+        ).thenReturn(updatedAgentInstance)
 
-            getWithApiHeader(controller.controllerPath("/uuid2"))
+        def requestBody = ["hostname"          : "agent02.example.com",
+                           "agent_config_state": "Enabled",
+                           "resources"         : ["java", "psql"],
+                           "environments"      : commaSeparatedEnvs
+        ]
+        patchWithApiHeader(controller.controllerPath("/uuid2"), requestBody)
 
-            assertThatResponse()
-                    .isOk()
-                    .hasContentType(controller.mimeType)
-                    .hasJsonBody([
-                    "_links"            : [
-                            "self": [
-                                    "href": "http://test.host/go/api/agents/uuid2"
-                            ],
-                            "doc" : [
-                                    "href": apiDocsUrl("#agents")
-                            ],
-                            "find": [
-                                    "href": "http://test.host/go/api/agents/:uuid"
-                            ]
-                    ],
-                    "uuid"              : "uuid2",
-                    "hostname"          : "CCeDev01",
-                    "ip_address"        : "10.18.5.1",
-                    "sandbox"           : "/var/lib/foo",
-                    "operating_system"  : "",
-                    "free_space"        : 10240,
-                    "agent_config_state": "Enabled",
-                    "agent_state"       : "Idle",
-                    "resources"         : [],
-                    "environments"      : [
-                            [
-                                    name  : "env1",
-                                    origin: [
-                                            type    : "gocd",
-                                            "_links": [
-                                                    "self": [
-                                                            "href": "http://test.host/go/admin/config_xml"
-                                                    ],
-                                                    "doc" : [
-                                                            "href": apiDocsUrl("#get-configuration")
-                                                    ]
-                                            ]
-                                    ]
-                            ],
-                            [
-                                    name  : "env2",
-                                    origin: [
-                                            type    : "gocd",
-                                            "_links": [
-                                                    "self": [
-                                                            "href": "http://test.host/go/admin/config_xml"
-                                                    ],
-                                                    "doc" : [
-                                                            "href": apiDocsUrl("#get-configuration")
-                                                    ]
-                                            ]
-                                    ]
-                            ]
-                    ],
-                    "build_state"       : "Idle"
-            ])
-        }
+        verify(agentService).updateAgentAttributes(
+          eq("uuid2"),
+          eq("agent02.example.com"),
+          eq("java,psql"),
+          eq(""),
+          eq(TriState.TRUE)
+        )
 
-        @Test
-        void 'should return 404 when agent with uuid does not exist'() {
-            when(agentService.findAgent("uuid2")).thenReturn(new NullAgentInstance())
+        assertThatResponse()
+          .isOk()
+          .hasContentType(controller.mimeType)
+          .hasJsonBody([
+          "_links"            : [
+            "self": [
+              "href": "http://test.host/go/api/agents/uuid2"
+            ],
+            "doc" : [
+              "href": apiDocsUrl("#agents")
+            ],
+            "find": [
+              "href": "http://test.host/go/api/agents/:uuid"
+            ]
+          ],
+          "uuid"              : "uuid2",
+          "hostname"          : "agent02.example.com",
+          "ip_address"        : "10.0.0.1",
+          "sandbox"           : "/var/lib/bar",
+          "operating_system"  : "",
+          "free_space"        : 10,
+          "agent_config_state": "Enabled",
+          "agent_state"       : "Idle",
+          "resources"         : ["java", "psql"],
+          "environments"      : [],
+          "build_state"       : "Idle"
+        ])
+      }
 
-            getWithApiHeader(controller.controllerPath("/uuid2"))
+      @Test
+      void 'should pass null as environments string to service given null comma separated list of environments'() {
+        loginAsAdmin()
+        AgentInstance updatedAgentInstance = idleWith("uuid2", "agent02.example.com", "10.0.0.1", "/var/lib/bar", 10, "", asList("psql", "java"))
+        when(agentService.updateAgentAttributes(
+          eq("uuid2"),
+          eq("agent02.example.com"),
+          eq("java,psql"),
+          isNull() as String,
+          eq(TriState.TRUE))
+        ).thenReturn(updatedAgentInstance)
 
-            assertThatResponse()
-                    .isNotFound()
-                    .hasJsonMessage(controller.entityType.notFoundMessage("uuid2"))
-                    .hasContentType(controller.mimeType)
-        }
+        def requestBody = ["hostname"          : "agent02.example.com",
+                           "agent_config_state": "Enabled",
+                           "resources"         : ["java", "psql"]
+        ]
+        patchWithApiHeader(controller.controllerPath("/uuid2"), requestBody)
+
+        verify(agentService).updateAgentAttributes(
+          eq("uuid2"),
+          eq("agent02.example.com"),
+          eq("java,psql"),
+          isNull() as String,
+          eq(TriState.TRUE)
+        )
+
+        assertThatResponse()
+          .isOk()
+          .hasContentType(controller.mimeType)
+          .hasJsonBody([
+          "_links"            : [
+            "self": [
+              "href": "http://test.host/go/api/agents/uuid2"
+            ],
+            "doc" : [
+              "href": apiDocsUrl("#agents")
+            ],
+            "find": [
+              "href": "http://test.host/go/api/agents/:uuid"
+            ]
+          ],
+          "uuid"              : "uuid2",
+          "hostname"          : "agent02.example.com",
+          "ip_address"        : "10.0.0.1",
+          "sandbox"           : "/var/lib/bar",
+          "operating_system"  : "",
+          "free_space"        : 10,
+          "agent_config_state": "Enabled",
+          "agent_state"       : "Idle",
+          "resources"         : ["java", "psql"],
+          "environments"      : [],
+          "build_state"       : "Idle"
+        ])
+      }
+
+      @Test
+      void 'should filter out environments which are associated via config-repo'() {
+        loginAsAdmin()
+        AgentInstance updatedAgentInstance = idleWith("uuid2", "agent02.example.com", "10.0.0.1", "/var/lib/bar", 10, "", asList("psql", "java"))
+        updatedAgentInstance.getAgent().setEnvironments("env1,config-repo-env")
+
+        def localEnvName = "env1"
+        def remoteEnvName = "config-repo-env"
+        def envConfig = environment(localEnvName)
+        def remoteEnvConfig = remote(remoteEnvName)
+        def configRepoConfig = mock(ConfigRepoConfig.class)
+        remoteEnvConfig.setOrigins(new RepoConfigOrigin(configRepoConfig, "revision"))
+        remoteEnvConfig.addAgent("uuid2")
+        def envsConfig = new HashSet<EnvironmentConfig>()
+        envsConfig.add(envConfig)
+        envsConfig.add(remoteEnvConfig)
+        when(environmentConfigService.find(localEnvName)).thenReturn(envConfig)
+        when(environmentConfigService.find(remoteEnvName)).thenReturn(remoteEnvConfig)
+        when(environmentConfigService.getAgentEnvironments("uuid2")).thenReturn(envsConfig)
+        when(configRepoConfig.id).thenReturn("id")
+
+        when(agentService.updateAgentAttributes(
+          eq("uuid2"),
+          eq("agent02.example.com"),
+          eq("java,psql"),
+          eq(localEnvName),
+          eq(TriState.TRUE)
+        )
+        ).thenReturn(updatedAgentInstance)
+
+        def requestBody = ["hostname"          : "agent02.example.com",
+                           "agent_config_state": "Enabled",
+                           "resources"         : ["java", "psql"],
+                           "environments"      : [localEnvName, remoteEnvName]
+        ]
+        patchWithApiHeader(controller.controllerPath("/uuid2"), requestBody)
+
+        verify(agentService).updateAgentAttributes(
+          eq("uuid2"),
+          eq("agent02.example.com"),
+          eq("java,psql"),
+          eq(localEnvName),
+          eq(TriState.TRUE)
+        )
+
+        def expectedJson = [
+          "_links"            : [
+            "self": [
+              "href": "http://test.host/go/api/agents/uuid2"
+            ],
+            "doc" : [
+              "href": apiDocsUrl("#agents")
+            ],
+            "find": [
+              "href": "http://test.host/go/api/agents/:uuid"
+            ]
+          ],
+          "uuid"              : "uuid2",
+          "hostname"          : "agent02.example.com",
+          "ip_address"        : "10.0.0.1",
+          "sandbox"           : "/var/lib/bar",
+          "operating_system"  : "",
+          "free_space"        : 10,
+          "agent_config_state": "Enabled",
+          "agent_state"       : "Idle",
+          "resources"         : ["java", "psql"],
+          "environments"      : [
+            [
+              "name"  : "config-repo-env",
+              "origin": [
+                "type"  : "config-repo",
+                "_links": [
+                  "self": [
+                    "href": "http://test.host/go/api/admin/config_repos/id"
+                  ],
+                  "doc" : [
+                    "href": "https://api.gocd.org/19.8.0/#config-repos"
+                  ],
+                  "find": [
+                    "href": "http://test.host/go/api/admin/config_repos/:id"
+                  ]
+                ]
+              ]
+            ], [
+              "name"  : "env1",
+              "origin": [
+                "type"  : "gocd",
+                "_links": [
+                  "self": [
+                    "href": "http://test.host/go/admin/config_xml"
+                  ],
+                  "doc" : [
+                    "href": "https://api.gocd.org/19.8.0/#get-configuration"
+                  ]
+                ]
+              ]
+            ]
+          ],
+          "build_state"       : "Idle"
+        ]
+
+        assertThatResponse()
+          .isOk()
+          .hasContentType(controller.mimeType)
+          .hasJsonBody(expectedJson)
+      }
+
+      @Test
+      void 'should pass in the env name even if it is not defined'() {
+        loginAsAdmin()
+        AgentInstance updatedAgentInstance = idleWith("uuid2", "agent02.example.com", "10.0.0.1", "/var/lib/bar", 10, "", asList("psql", "java"))
+        updatedAgentInstance.getAgent().setEnvironments("env1,non-existent-env")
+
+        def localEnvName = "env1"
+        def undefinedEnvName = "non-existent-env"
+        def envConfig = environment(localEnvName)
+        def envsConfig = new HashSet<EnvironmentConfig>()
+        envsConfig.add(envConfig)
+        when(environmentConfigService.find(localEnvName)).thenReturn(envConfig)
+        when(environmentConfigService.getAgentEnvironments("uuid2")).thenReturn(envsConfig)
+
+        def envs = "$localEnvName,$undefinedEnvName".toString()
+        when(agentService.updateAgentAttributes(
+          eq("uuid2"),
+          eq("agent02.example.com"),
+          eq("java,psql"),
+          eq(envs),
+          eq(TriState.TRUE)
+        )
+        ).thenReturn(updatedAgentInstance)
+
+        def requestBody = ["hostname"          : "agent02.example.com",
+                           "agent_config_state": "Enabled",
+                           "resources"         : ["java", "psql"],
+                           "environments"      : [localEnvName, undefinedEnvName]
+        ]
+        patchWithApiHeader(controller.controllerPath("/uuid2"), requestBody)
+
+        verify(agentService).updateAgentAttributes(
+          eq("uuid2"),
+          eq("agent02.example.com"),
+          eq("java,psql"),
+          eq(envs),
+          eq(TriState.TRUE)
+        )
+
+        def expectedJson = [
+          "_links"            : [
+            "self": [
+              "href": "http://test.host/go/api/agents/uuid2"
+            ],
+            "doc" : [
+              "href": apiDocsUrl("#agents")
+            ],
+            "find": [
+              "href": "http://test.host/go/api/agents/:uuid"
+            ]
+          ],
+          "uuid"              : "uuid2",
+          "hostname"          : "agent02.example.com",
+          "ip_address"        : "10.0.0.1",
+          "sandbox"           : "/var/lib/bar",
+          "operating_system"  : "",
+          "free_space"        : 10,
+          "agent_config_state": "Enabled",
+          "agent_state"       : "Idle",
+          "resources"         : ["java", "psql"],
+          "environments"      : [
+            [
+              "name"  : "env1",
+              "origin": [
+                "type"  : "gocd",
+                "_links": [
+                  "self": [
+                    "href": "http://test.host/go/admin/config_xml"
+                  ],
+                  "doc" : [
+                    "href": "https://api.gocd.org/19.8.0/#get-configuration"
+                  ]
+                ]
+              ]
+            ],
+            [
+              name  : undefinedEnvName,
+              origin: [
+                type: "unknown"
+              ]
+            ]
+          ],
+          "build_state"       : "Idle"
+        ]
+
+        assertThatResponse()
+          .isOk()
+          .hasContentType(controller.mimeType)
+          .hasJsonBody(expectedJson)
+      }
+    }
+  }
+
+  @Nested
+  class BulkUpdate {
+    @Nested
+    class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Override
+      String getControllerMethodUnderTest() {
+        return 'bulkUpdate'
+      }
+
+      @Override
+      void makeHttpCall() {
+        patchWithApiHeader(controller.controllerPath(), [])
+      }
+    }
+
+    @Test
+    void 'should update agents information for specified agents'() {
+      loginAsAdmin()
+      doNothing().when(agentService).bulkUpdateAgentAttributes(
+        any() as List<String>,
+        any() as List<String>,
+        any() as List<String>,
+        any() as List<String>,
+        any() as List<String>,
+        any() as TriState,
+        any() as EnvironmentConfigService
+      )
+
+      def requestBody = [
+        "uuids"             : [
+          "adb9540a-b954-4571-9d9b-2f330739d4da",
+          "adb528b2-b954-1234-9d9b-b27ag4h568e1"
+        ],
+        "operations"        : [
+          "environments": [
+            "add"   : ["Dev", "Test"],
+            "remove": ["Production"]
+          ],
+          "resources"   : [
+            "add"   : ["Linux", "Firefox"],
+            "remove": ["Chrome"]
+          ]
+        ],
+        "agent_config_state": "enabled"
+      ]
+      patchWithApiHeader(controller.controllerPath(), requestBody)
+      assertThatResponse()
+        .isOk()
+        .hasContentType(controller.mimeType)
+        .hasJsonMessage("Updated agent(s) with uuid(s): [adb9540a-b954-4571-9d9b-2f330739d4da, adb528b2-b954-1234-9d9b-b27ag4h568e1].")
+    }
+
+    @Test
+    void 'should throw 400 - bad request when no operation is specified in the request to be performed on agents'() {
+      loginAsAdmin()
+      def uuids = [
+        "adb9540a-b954-4571-9d9b-2f330739d4da",
+        "adb528b2-b954-1234-9d9b-b27ag4h568e1"
+      ] as List<String>
+
+      doAnswer({ InvocationOnMock invocation ->
+        throw new BadRequestException("Bad Request. No operation is specified in the request to be performed on agents.")
+      }).when(agentService).bulkUpdateAgentAttributes(
+        eq(uuids) as List<String>,
+        eq(emptyList()) as List<String>,
+        eq(emptyList()) as List<String>,
+        eq(emptyList()) as List<String>,
+        eq(emptyList()) as List<String>,
+        eq(TriState.UNSET) as TriState,
+        any() as EnvironmentConfigService
+      )
+
+      def requestBody = [
+        "uuids": uuids
+      ]
+      patchWithApiHeader(controller.controllerPath(), requestBody)
+      assertThatResponse()
+        .isBadRequest()
+        .hasContentType(controller.mimeType)
+        .hasJsonMessage("Bad Request. No operation is specified in the request to be performed on agents.")
+    }
+  }
+
+  @Nested
+  class Delete {
+    @Nested
+    class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Override
+      String getControllerMethodUnderTest() {
+        return 'deleteAgent'
+      }
+
+      @Override
+      void makeHttpCall() {
+        deleteWithApiHeader(controller.controllerPath("some-uuid"))
+      }
+    }
+
+    @Test
+    void 'should delete agent with given uuid'() {
+      loginAsAdmin()
+
+      def uuid = "uuid"
+      when(agentService.findAgent(uuid)).thenReturn(idle())
+      doNothing().when(agentService).deleteAgents(eq(asList(uuid)))
+
+      deleteWithApiHeader(controller.controllerPath(uuid))
+
+      assertThatResponse()
+        .isOk()
+        .hasContentType(controller.mimeType)
+        .hasJsonMessage("Deleted 1 agent(s).")
+    }
+
+    @Test
+    void 'delete agent should throw 404 when called with UUID that does not exist'() {
+      loginAsAdmin()
+
+      def nonExistingUUID = "non-existing-uuid"
+
+      when(agentService.findAgent(nonExistingUUID)).thenReturn(new NullAgentInstance(nonExistingUUID))
+      doAnswer({ InvocationOnMock invocation ->
+        throw new RecordNotFoundException(EntityType.Agent, nonExistingUUID)
+      }).when(agentService).deleteAgents(eq(singletonList(nonExistingUUID)))
+
+      deleteWithApiHeader(controller.controllerPath(nonExistingUUID))
+
+      assertThatResponse()
+        .isNotFound()
+        .hasContentType(controller.mimeType)
+        .hasJsonMessage("Agent with uuid 'non-existing-uuid' was not found!")
+    }
+
+    @Test
+    void 'should throw 422 in case of agent(s) can not be deleted'() {
+      loginAsAdmin()
+
+      doAnswer({ InvocationOnMock invocation ->
+        throw new UnprocessableEntityException("Some message")
+      }).when(agentService).deleteAgents(eq(asList("uuid2")))
+
+      deleteWithApiHeader(controller.controllerPath("uuid2"))
+
+      assertThatResponse()
+        .isUnprocessableEntity()
+        .hasContentType(controller.mimeType)
+        .hasJsonMessage("Your request could not be processed. Some message")
+    }
+  }
+
+  @Nested
+  class BulkDelete {
+    @Nested
+    class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Override
+      String getControllerMethodUnderTest() {
+        return 'bulkDeleteAgents'
+      }
+
+      @Override
+      void makeHttpCall() {
+        deleteWithApiHeader(controller.controllerPath())
+      }
     }
 
     @Nested
-    class Update {
-        @Nested
-        class Security implements SecurityTestTrait, AdminUserSecurity {
-            @Override
-            String getControllerMethodUnderTest() {
-                return 'update'
-            }
+    class Positive {
+      @Test
+      void 'should delete agents with uuids'() {
+        loginAsAdmin()
 
-            @Override
-            void makeHttpCall() {
-                patchWithApiHeader(controller.controllerPath("/some-uuid"), [])
-            }
-        }
+        when(agentService.findAgent("agent-1")).thenReturn(idleWith("agent-1"))
+        when(agentService.findAgent("agent-2")).thenReturn(idleWith("agent-2"))
 
-        @Test
-        void 'should update agent information'() {
-            loginAsAdmin()
-            AgentInstance updatedAgentInstance = idleWith("uuid2", "agent02.example.com", "10.0.0.1", "/var/lib/bar", 10, "", asList("psql", "java"))
+        doNothing().when(agentService).deleteAgents(eq(asList("agent-1", "agent-2")))
 
-            def envsConfig = new EnvironmentsConfig()
-            def envConfig = environment("env1")
-            when(environmentConfigService.findOrUnknown("env1")).thenReturn(envConfig)
-            when(environmentConfigService.getAgentEnvironments("uuid2")).thenReturn(singleton(envConfig))
+        def requestBody = ["uuids": ["agent-1", "agent-2"]]
+        deleteWithApiHeader(controller.controllerPath(), requestBody)
 
-            envsConfig.add(envConfig)
-            when(agentService.updateAgentAttributes(
-                    eq("uuid2"),
-                    eq("agent02.example.com"),
-                    eq("java,psql"),
-                    eq(envsConfig),
-                    eq(TriState.TRUE)
-            )
-            ).thenReturn(updatedAgentInstance)
+        assertThatResponse()
+          .isOk()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage("Deleted 2 agent(s).")
+      }
 
-            def requestBody = ["hostname"          : "agent02.example.com",
-                               "agent_config_state": "Enabled",
-                               "resources"         : ["java", "psql"],
-                               "environments"      : ["env1"]
-            ]
-            patchWithApiHeader(controller.controllerPath("/uuid2"), requestBody)
+      @Test
+      void 'should delete agents with uuids when all specified UUIDs are disabled'() {
+        loginAsAdmin()
 
-            assertThatResponse()
-                    .isOk()
-                    .hasContentType(controller.mimeType)
-                    .hasJsonBody([
-                    "_links"            : [
-                            "self": [
-                                    "href": "http://test.host/go/api/agents/uuid2"
-                            ],
-                            "doc" : [
-                                    "href": apiDocsUrl("#agents")
-                            ],
-                            "find": [
-                                    "href": "http://test.host/go/api/agents/:uuid"
-                            ]
-                    ],
-                    "uuid"              : "uuid2",
-                    "hostname"          : "agent02.example.com",
-                    "ip_address"        : "10.0.0.1",
-                    "sandbox"           : "/var/lib/bar",
-                    "operating_system"  : "",
-                    "free_space"        : 10,
-                    "agent_config_state": "Enabled",
-                    "agent_state"       : "Idle",
-                    "resources"         : ["java", "psql"],
-                    "environments"      : [
-                            [
-                                    name  : "env1",
-                                    origin: [
-                                            type    : "gocd",
-                                            "_links": [
-                                                    "self": [
-                                                            "href": "http://test.host/go/admin/config_xml"
-                                                    ],
-                                                    "doc" : [
-                                                            "href": apiDocsUrl("#get-configuration")
-                                                    ]
-                                            ]
-                                    ]
-                            ]
-                    ],
-                    "build_state"       : "Idle"
-            ])
-        }
+        def disabledUUID1 = "uuid1"
+        def disabledUUID2 = "uuid2"
 
-        @Test
-        void 'should throw 400 - bad request when there is no operation specified in the request to be performed on agent'() {
-            loginAsAdmin()
+        def disabledAgent1 = disabledWith(disabledUUID1)
+        def disabledAgent2 = disabledWith(disabledUUID2)
 
-            doAnswer({ InvocationOnMock invocation ->
-                def msg = "Bad Request. No operation is specified in the request to be performed on agent."
-                throw new BadRequestException(msg)
-            }).when(agentService).updateAgentAttributes(
-                    eq("uuid2"),
-                    eq(null),
-                    eq(null),
-                    eq(null),
-                    eq(TriState.UNSET))
+        when(agentService.findAgent(disabledUUID1)).thenReturn(disabledAgent1)
+        when(agentService.findAgent(disabledUUID2)).thenReturn(disabledAgent2)
 
-            def requestBody = ""
-            patchWithApiHeader(controller.controllerPath("/uuid2"), requestBody)
+        doNothing().when(agentService).deleteAgents(eq(asList(disabledUUID1, disabledUUID2)))
 
-            assertThatResponse()
-                    .isBadRequest()
-                    .hasContentType(controller.mimeType)
-                    .hasJsonMessage("Bad Request. No operation is specified in the request to be performed on agent.")
-        }
+        def requestBody = ["uuids": [disabledUUID1, disabledUUID2]]
+        deleteWithApiHeader(controller.controllerPath(), requestBody)
 
-        @Test
-        void 'should reset agents environment attribute value to null in db when environments is specified as empty array in the request payload'() {
-            loginAsAdmin()
-            def resources = asList("psql", "java")
-            AgentInstance agentWithoutEnvs = idleWith("uuid2", "agent02.example.com", "10.0.0.1", "/var/lib/bar", 10, "", resources)
+        assertThatResponse()
+          .isOk()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage("Deleted 2 agent(s).")
+      }
 
-            def emptyEnvsConfig = new EnvironmentsConfig()
+      @Test
+      void 'should delete agents with uuids when list of UUIDs is passed as null'() {
+        loginAsAdmin()
 
-            when(environmentConfigService.getAgentEnvironments("uuid2")).thenReturn(emptySet())
-            when(agentService.updateAgentAttributes(
-                    eq("uuid2"),
-                    eq("agent02.example.com"),
-                    eq("java,psql"),
-                    eq(emptyEnvsConfig),
-                    eq(TriState.TRUE)
-            )
-            ).thenReturn(agentWithoutEnvs)
+        doNothing().when(agentService).deleteAgents(eq(emptyList()))
 
-            def requestBody = ["hostname"          : "agent02.example.com",
-                               "agent_config_state": "Enabled",
-                               "resources"         : ["java", "psql"],
-                               "environments"      : []
-            ]
-            patchWithApiHeader(controller.controllerPath("/uuid2"), requestBody)
+        def requestBody = ""
+        deleteWithApiHeader(controller.controllerPath(), requestBody)
 
-            assertThatResponse()
-                    .isOk()
-                    .hasContentType(controller.mimeType)
-                    .hasJsonBody([
-                    "_links"            : [
-                            "self": [
-                                    "href": "http://test.host/go/api/agents/uuid2"
-                            ],
-                            "doc" : [
-                                    "href": apiDocsUrl("#agents")
-                            ],
-                            "find": [
-                                    "href": "http://test.host/go/api/agents/:uuid"
-                            ]
-                    ],
-                    "uuid"              : "uuid2",
-                    "hostname"          : "agent02.example.com",
-                    "ip_address"        : "10.0.0.1",
-                    "sandbox"           : "/var/lib/bar",
-                    "operating_system"  : "",
-                    "free_space"        : 10,
-                    "agent_config_state": "Enabled",
-                    "agent_state"       : "Idle",
-                    "resources"         : ["java", "psql"],
-                    "environments"      : [],
-                    "build_state"       : "Idle"
-            ])
-        }
+        assertThatResponse()
+          .isOk()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage("Deleted 0 agent(s).")
+      }
 
-        @Test
-        void 'should reset agents resources attribute value to null in db when resources is specified as empty array in the request payload'() {
-            loginAsAdmin()
+      @Test
+      void 'should delete agents with uuids when empty list of UUIDs is passed'() {
+        loginAsAdmin()
 
-            def resources = emptyList()
-            AgentInstance agentWithoutEnvsAndResources = idleWith("uuid2", "agent02.example.com", "10.0.0.1", "/var/lib/bar", 10, "", resources)
+        doNothing().when(agentService).deleteAgents(eq(emptyList()))
 
-            def emptyEnvsConfig = new EnvironmentsConfig()
-            when(environmentConfigService.getAgentEnvironments("uuid2")).thenReturn(emptySet())
-            when(agentService.updateAgentAttributes(
-                    eq("uuid2"),
-                    eq("agent02.example.com"),
-                    eq(""),
-                    eq(emptyEnvsConfig),
-                    eq(TriState.TRUE)
-            )
-            ).thenReturn(agentWithoutEnvsAndResources)
+        def requestBody = ["uuids": []]
+        deleteWithApiHeader(controller.controllerPath(), requestBody)
 
-            def requestBody = ["hostname"          : "agent02.example.com",
-                               "agent_config_state": "Enabled",
-                               "resources"         : [],
-                               "environments"      : []
-            ]
-            patchWithApiHeader(controller.controllerPath("/uuid2"), requestBody)
-
-            println "\n\nResponse is \n\n" + response
-
-            assertThatResponse()
-                    .isOk()
-                    .hasContentType(controller.mimeType)
-                    .hasJsonBody([
-                    "_links"            : [
-                            "self": [
-                                    "href": "http://test.host/go/api/agents/uuid2"
-                            ],
-                            "doc" : [
-                                    "href": apiDocsUrl("#agents")
-                            ],
-                            "find": [
-                                    "href": "http://test.host/go/api/agents/:uuid"
-                            ]
-                    ],
-                    "uuid"              : "uuid2",
-                    "hostname"          : "agent02.example.com",
-                    "ip_address"        : "10.0.0.1",
-                    "sandbox"           : "/var/lib/bar",
-                    "operating_system"  : "",
-                    "free_space"        : 10,
-                    "agent_config_state": "Enabled",
-                    "agent_state"       : "Idle",
-                    "resources"         : [],
-                    "environments"      : [],
-                    "build_state"       : "Idle"
-            ])
-        }
-
-        @Test
-        void 'should error out with 500 code when there is internal server error'() {
-            loginAsAdmin()
-            when(agentService.updateAgentAttributes(anyString(), anyString(), anyString(),anyList() as EnvironmentsConfig,
-                    any() as TriState)).thenAnswer({ InvocationOnMock invocation ->
-                throw new Exception("Oops! something went wrong!")
-            })
-
-            def requestBody = [
-                    "hostname"          : "agent02.example.com",
-                    "agent_config_state": "",
-                    "resources"         : "Java,Linux",
-                    "environments"      : ["Foo"]
-            ]
-
-            patchWithApiHeader(controller.controllerPath("/uuid2"), requestBody)
-            assertThatResponse()
-                    .isInternalServerError()
-                    .hasContentType(controller.mimeType)
-                    .hasJsonMessage("Oops! something went wrong!")
-        }
-
-        @Test
-        void 'should error out with 400 code when no operation is performed on agent'() {
-            loginAsAdmin()
-            when(agentService.updateAgentAttributes(anyString(), anyString(), anyString(),anyList() as EnvironmentsConfig,
-                    any() as TriState)).thenAnswer({ InvocationOnMock invocation ->
-                throw new BadRequestException("Bad Request. No operation performed on agent!")
-            })
-
-            def requestBody = [
-                    "hostname"          : "agent02.example.com",
-                    "agent_config_state": "",
-                    "resources"         : "Java,Linux",
-                    "environments"      : ["Foo"]
-            ]
-
-            patchWithApiHeader(controller.controllerPath("/uuid2"), requestBody)
-            assertThatResponse()
-                    .isBadRequest()
-                    .hasContentType(controller.mimeType)
-                    .hasJsonMessage("Bad Request. No operation performed on agent!")
-        }
-
-        @Test
-        void 'should error out with 404 code when agent being updated is not found'() {
-            loginAsAdmin()
-            when(agentService.updateAgentAttributes(anyString(), anyString(), anyString(),anyList() as EnvironmentsConfig,
-                    any() as TriState)).thenAnswer({ InvocationOnMock invocation ->
-                throw new RecordNotFoundException(EntityType.Agent, "uuid2")
-            })
-
-            def requestBody = [
-                    "hostname"          : "agent02.example.com",
-                    "agent_config_state": "",
-                    "resources"         : "Java,Linux",
-                    "environments"      : ["Foo"]
-            ]
-
-            patchWithApiHeader(controller.controllerPath("/uuid2"), requestBody)
-            assertThatResponse()
-                    .isNotFound()
-                    .hasContentType(controller.mimeType)
-                    .hasJsonMessage("Agent with uuid 'uuid2' was not found!")
-        }
-
-        @Test
-        void 'should error out with 422 code when update fails due to agent validation error'() {
-            loginAsAdmin()
-            when(agentService.updateAgentAttributes(anyString(), anyString(), anyString(),anyList() as EnvironmentsConfig,
-                    any() as TriState)).thenAnswer({ InvocationOnMock invocation ->
-                def agentInstance= agentWithConfigErrors()
-                return agentInstance
-            })
-
-            def requestBody = [
-                    "hostname"          : "agent02.example.com",
-                    "agent_config_state": "",
-                    "resources"         : "Java,Linux",
-                    "environments"      : ["Foo"]
-            ]
-
-            patchWithApiHeader(controller.controllerPath("/uuid"), requestBody)
-            assertThatResponse()
-                    .isUnprocessableEntity()
-                    .hasContentType(controller.mimeType)
-                    .hasJsonBody([
-                    "message": "Updating agent failed.",
-                    "data"   : [
-                            "uuid"              : "uuid",
-                            "hostname"          : "host",
-                            "ip_address"        : "IP",
-                            "sandbox"           : "",
-                            "operating_system"  : "",
-                            "free_space"        : "unknown",
-                            "agent_config_state": "Enabled",
-                            "agent_state"       : "Missing",
-                            "resources"         : ["bar\$","foo%"],
-                            "environments"      : [],
-                            "build_state"       : "Unknown",
-                            "errors"            : [
-                                    "ip_address": ["'IP' is an invalid IP address."],
-                                    "resources" : [
-                                            "Resource name 'foo%' is not valid. Valid names much match '^[-\\w\\s|.]*\$\'",
-                                            "Resource name 'bar\$' is not valid. Valid names much match '^[-\\w\\s|.]*\$\'"
-                                    ]
-                            ]
-                    ]
-            ])
-        }
-
-        @Nested
-        class Environments {
-            @Test
-            void 'should pass proper environments config object to service given comma separated list of environments'() {
-                loginAsAdmin()
-                AgentInstance updatedAgentInstance = idleWith("uuid2", "agent02.example.com", "10.0.0.1", "/var/lib/bar", 10, "", asList("psql", "java"))
-
-                def environmentsConfig = new EnvironmentsConfig()
-                def environmentConfig = environment("env1")
-                def environmentConfig1 = environment("env2")
-                environmentsConfig.add(environmentConfig)
-                environmentsConfig.add(environmentConfig1)
-
-                def commaSeparatedEnvs = "   env1, env2 "
-
-                when(environmentConfigService.findOrUnknown("env1")).thenReturn(environmentConfig)
-                when(environmentConfigService.findOrUnknown("env2")).thenReturn(environmentConfig1)
-
-                when(environmentConfigService.getAgentEnvironments("uuid2")).thenReturn(singleton(environmentConfig))
-
-                when(agentService.updateAgentAttributes(
-                        eq("uuid2"),
-                        eq("agent02.example.com"),
-                        eq("java,psql"),
-                        eq(environmentsConfig),
-                        eq(TriState.TRUE)
-                )
-                ).thenReturn(updatedAgentInstance)
-
-                def requestBody = ["hostname"          : "agent02.example.com",
-                                   "agent_config_state": "Enabled",
-                                   "resources"         : ["java", "psql"],
-                                   "environments"      : commaSeparatedEnvs
-                ]
-                patchWithApiHeader(controller.controllerPath("/uuid2"), requestBody)
-
-                verify(agentService).updateAgentAttributes(
-                        eq("uuid2"),
-                        eq("agent02.example.com"),
-                        eq("java,psql"),
-                        eq(environmentsConfig),
-                        eq(TriState.TRUE)
-                )
-
-                assertThatResponse()
-                        .isOk()
-                        .hasContentType(controller.mimeType)
-                        .hasJsonBody([
-                        "_links"            : [
-                                "self": [
-                                        "href": "http://test.host/go/api/agents/uuid2"
-                                ],
-                                "doc" : [
-                                        "href": apiDocsUrl("#agents")
-                                ],
-                                "find": [
-                                        "href": "http://test.host/go/api/agents/:uuid"
-                                ]
-                        ],
-                        "uuid"              : "uuid2",
-                        "hostname"          : "agent02.example.com",
-                        "ip_address"        : "10.0.0.1",
-                        "sandbox"           : "/var/lib/bar",
-                        "operating_system"  : "",
-                        "free_space"        : 10,
-                        "agent_config_state": "Enabled",
-                        "agent_state"       : "Idle",
-                        "resources"         : ["java", "psql"],
-                        "environments"      : [
-                                [
-                                        name  : "env1",
-                                        origin: [
-                                                type    : "gocd",
-                                                "_links": [
-                                                        "self": [
-                                                                "href": "http://test.host/go/admin/config_xml"
-                                                        ],
-                                                        "doc" : [
-                                                                "href": apiDocsUrl("#get-configuration")
-                                                        ]
-                                                ]
-                                        ]
-                                ]
-                        ],
-                        "build_state"       : "Idle"
-                ])
-            }
-
-            @Test
-            void 'should pass empty environments config object to service given empty comma separated list of environments'() {
-                loginAsAdmin()
-                AgentInstance updatedAgentInstance = idleWith("uuid2", "agent02.example.com", "10.0.0.1", "/var/lib/bar", 10, "", asList("psql", "java"))
-
-                def environmentsConfig = new EnvironmentsConfig()
-
-                def commaSeparatedEnvs = "             "
-
-                when(agentService.updateAgentAttributes(
-                        eq("uuid2"),
-                        eq("agent02.example.com"),
-                        eq("java,psql"),
-                        eq(environmentsConfig),
-                        eq(TriState.TRUE)
-                )
-                ).thenReturn(updatedAgentInstance)
-
-                def requestBody = ["hostname"          : "agent02.example.com",
-                                   "agent_config_state": "Enabled",
-                                   "resources"         : ["java", "psql"],
-                                   "environments"      : commaSeparatedEnvs
-                ]
-                patchWithApiHeader(controller.controllerPath("/uuid2"), requestBody)
-
-                verify(agentService).updateAgentAttributes(
-                        eq("uuid2"),
-                        eq("agent02.example.com"),
-                        eq("java,psql"),
-                        eq(environmentsConfig),
-                        eq(TriState.TRUE)
-                )
-
-                assertThatResponse()
-                        .isOk()
-                        .hasContentType(controller.mimeType)
-                        .hasJsonBody([
-                        "_links"            : [
-                                "self": [
-                                        "href": "http://test.host/go/api/agents/uuid2"
-                                ],
-                                "doc" : [
-                                        "href": apiDocsUrl("#agents")
-                                ],
-                                "find": [
-                                        "href": "http://test.host/go/api/agents/:uuid"
-                                ]
-                        ],
-                        "uuid"              : "uuid2",
-                        "hostname"          : "agent02.example.com",
-                        "ip_address"        : "10.0.0.1",
-                        "sandbox"           : "/var/lib/bar",
-                        "operating_system"  : "",
-                        "free_space"        : 10,
-                        "agent_config_state": "Enabled",
-                        "agent_state"       : "Idle",
-                        "resources"         : ["java", "psql"],
-                        "environments"      : [],
-                        "build_state"       : "Idle"
-                ])
-            }
-
-            @Test
-            void 'should pass null as environments config object to service given null comma separated list of environments'() {
-                loginAsAdmin()
-                AgentInstance updatedAgentInstance = idleWith("uuid2", "agent02.example.com", "10.0.0.1", "/var/lib/bar", 10, "", asList("psql", "java"))
-                def environmentsConfig = new EnvironmentsConfig()
-                when(agentService.updateAgentAttributes(
-                        eq("uuid2"),
-                        eq("agent02.example.com"),
-                        eq("java,psql"),
-                        eq(null),
-                        eq(TriState.TRUE))
-                ).thenReturn(updatedAgentInstance)
-
-                def requestBody = ["hostname"          : "agent02.example.com",
-                                   "agent_config_state": "Enabled",
-                                   "resources"         : ["java", "psql"]
-                ]
-                patchWithApiHeader(controller.controllerPath("/uuid2"), requestBody)
-
-                verify(agentService).updateAgentAttributes(
-                        eq("uuid2"),
-                        eq("agent02.example.com"),
-                        eq("java,psql"),
-                        eq(null),
-                        eq(TriState.TRUE)
-                )
-
-                assertThatResponse()
-                        .isOk()
-                        .hasContentType(controller.mimeType)
-                        .hasJsonBody([
-                        "_links"            : [
-                                "self": [
-                                        "href": "http://test.host/go/api/agents/uuid2"
-                                ],
-                                "doc" : [
-                                        "href": apiDocsUrl("#agents")
-                                ],
-                                "find": [
-                                        "href": "http://test.host/go/api/agents/:uuid"
-                                ]
-                        ],
-                        "uuid"              : "uuid2",
-                        "hostname"          : "agent02.example.com",
-                        "ip_address"        : "10.0.0.1",
-                        "sandbox"           : "/var/lib/bar",
-                        "operating_system"  : "",
-                        "free_space"        : 10,
-                        "agent_config_state": "Enabled",
-                        "agent_state"       : "Idle",
-                        "resources"         : ["java", "psql"],
-                        "environments"      : [],
-                        "build_state"       : "Idle"
-                ])
-            }
-        }
+        assertThatResponse()
+          .isOk()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage("Deleted 0 agent(s).")
+      }
     }
 
     @Nested
-    class BulkUpdate {
-        @Nested
-        class Security implements SecurityTestTrait, AdminUserSecurity {
-            @Override
-            String getControllerMethodUnderTest() {
-                return 'bulkUpdate'
-            }
+    class Negative {
+      @Test
+      void 'delete agents should throw 404 when called with list of UUIDs that do not exist'() {
+        loginAsAdmin()
 
-            @Override
-            void makeHttpCall() {
-                patchWithApiHeader(controller.controllerPath(), [])
-            }
-        }
+        def nonExistingUUID = "non-existing-uuid"
+        when(agentService.findAgent(nonExistingUUID)).thenReturn(new NullAgentInstance(nonExistingUUID))
 
-        @Test
-        void 'should update agents information for specified agents'() {
-            loginAsAdmin()
-            doNothing().when(agentService).bulkUpdateAgentAttributes(
-                    any() as List<String>,
-                    any() as List<String>,
-                    any() as List<String>,
-                    any() as EnvironmentsConfig,
-                    any() as List<String>,
-                    any() as TriState
-            )
+        doAnswer({ InvocationOnMock invocation ->
+          throw new RecordNotFoundException(EntityType.Agent, nonExistingUUID)
+        }).when(agentService).deleteAgents(eq(singletonList(nonExistingUUID)))
 
-            def requestBody = [
-                    "uuids"             : [
-                            "adb9540a-b954-4571-9d9b-2f330739d4da",
-                            "adb528b2-b954-1234-9d9b-b27ag4h568e1"
-                    ],
-                    "operations"        : [
-                            "environments": [
-                                    "add"   : ["Dev", "Test"],
-                                    "remove": ["Production"]
-                            ],
-                            "resources"   : [
-                                    "add"   : ["Linux", "Firefox"],
-                                    "remove": ["Chrome"]
-                            ]
-                    ],
-                    "agent_config_state": "enabled"
-            ]
-            patchWithApiHeader(controller.controllerPath(), requestBody)
-            assertThatResponse()
-                    .isOk()
-                    .hasContentType(controller.mimeType)
-                    .hasJsonMessage("Updated agent(s) with uuid(s): [adb9540a-b954-4571-9d9b-2f330739d4da, adb528b2-b954-1234-9d9b-b27ag4h568e1].")
-        }
+        def requestBody = ["uuids": [nonExistingUUID]]
+        deleteWithApiHeader(controller.controllerPath(), requestBody)
 
-        @Nested
-        class Environments {
-            @Test
-            void 'should pass proper environments config object to service given list of environments'() {
-                loginAsAdmin()
+        assertThatResponse()
+          .isNotFound()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage("Agent with uuid 'non-existing-uuid' was not found!")
+      }
 
-                def environmentsConfig = new EnvironmentsConfig()
-                def environmentConfig = environment("env1")
-                def environmentConfig1 = environment("env2")
-                environmentsConfig.add(environmentConfig)
-                environmentsConfig.add(environmentConfig1)
+      @Test
+      void 'delete agents should throw 406 when called with list of UUIDs containing non disabled agent'() {
+        loginAsAdmin()
 
-                when(environmentConfigService.findOrUnknown("env1")).thenReturn(environmentConfig)
-                when(environmentConfigService.findOrUnknown("env2")).thenReturn(environmentConfig1)
+        def disabledAgent = disabled()
+        def building = building()
 
-                doNothing().when(agentService).bulkUpdateAgentAttributes(
-                        any() as List<String>,
-                        any() as List<String>,
-                        any() as List<String>,
-                        any() as EnvironmentsConfig,
-                        any() as List<String>,
-                        any() as TriState
-                )
+        when(agentService.findAgent(disabledAgent.getUuid())).thenReturn(disabledAgent)
+        when(agentService.findAgent(building.getUuid())).thenReturn(building)
 
-                def requestBody = [
-                        "uuids"             : [
-                                "uuid2"
-                        ],
-                        "operations"        : [
-                                "environments": [
-                                        "add"   : ["   env1", " env2 "],
-                                        "remove": ["Production"]
-                                ]
-                        ],
-                        "agent_config_state": "enabled"
-                ]
+        doAnswer({ InvocationOnMock invocation ->
+          throw new UnprocessableEntityException("Could not delete any agents, as one or more agents might not be disabled or are still building.")
+        }).when(agentService).deleteAgents(eq(asList(disabledAgent.getUuid(), building.getUuid())))
 
-                patchWithApiHeader(controller.controllerPath(), requestBody)
-                verify(agentService).bulkUpdateAgentAttributes(
-                        eq(singletonList("uuid2")),
-                        eq(emptyList()),
-                        eq(emptyList()),
-                        eq(environmentsConfig),
-                        eq(singletonList("Production")),
-                        eq(TriState.TRUE)
-                )
-                assertThatResponse()
-                        .isOk()
-                        .hasContentType(controller.mimeType)
-                        .hasJsonBody([
-                        "message": "Updated agent(s) with uuid(s): [uuid2]."
-                ])
-            }
+        def requestBody = ["uuids": [disabledAgent.getUuid(), building.getUuid()]]
+        deleteWithApiHeader(controller.controllerPath(), requestBody)
 
-            @Test
-            void 'should pass empty environments config object to service given empty list of environments'() {
-                loginAsAdmin()
+        assertThatResponse()
+          .isUnprocessableEntity()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage("Your request could not be processed. Could not delete any agents, as one or more agents might not be disabled or are still building.")
+      }
 
-                def environmentsConfig = new EnvironmentsConfig()
-                doNothing().when(agentService).bulkUpdateAgentAttributes(
-                        any() as List<String>,
-                        any() as List<String>,
-                        any() as List<String>,
-                        any() as EnvironmentsConfig,
-                        any() as List<String>,
-                        any() as TriState
-                )
+      @Test
+      void 'delete agents should throw 406 when called with list of single non disabled UUID'() {
+        loginAsAdmin()
 
-                def requestBody = [
-                        "uuids"             : [
-                                "uuid2"
-                        ],
-                        "operations"        : [
-                                "environments": [
-                                        "add"   : [" "],
-                                        "remove": ["Production"]
-                                ]
-                        ],
-                        "agent_config_state": "enabled"
-                ]
+        def building = building()
 
-                def expectedJson = [
-                      "message": "Updated agent(s) with uuid(s): [uuid2]."
-                ]
+        when(agentService.findAgent(building.getUuid())).thenReturn(building)
 
-                patchWithApiHeader(controller.controllerPath(), requestBody)
-                verify(agentService).bulkUpdateAgentAttributes(
-                        eq(singletonList("uuid2")),
-                        eq(emptyList()),
-                        eq(emptyList()),
-                        eq(environmentsConfig),
-                        eq(singletonList("Production")),
-                        eq(TriState.TRUE)
-                )
-                assertThatResponse()
-                        .isOk()
-                        .hasContentType(controller.mimeType)
-                        .hasJsonBody(expectedJson)
-            }
+        doAnswer({ InvocationOnMock invocation ->
+          throw new UnprocessableEntityException("Failed to delete an agent, as it is not in a disabled state or is still building.")
+        }).when(agentService).deleteAgents(eq(singletonList(building.getUuid())))
 
-            @Test
-            void 'should pass empty environments config object to service given null list of environments'() {
-                loginAsAdmin()
+        def requestBody = ["uuids": [building.getUuid()]]
+        deleteWithApiHeader(controller.controllerPath(), requestBody)
 
-                def environmentsConfig = new EnvironmentsConfig()
-                doNothing().when(agentService).bulkUpdateAgentAttributes(
-                        any() as List<String>,
-                        any() as List<String>,
-                        any() as List<String>,
-                        any() as EnvironmentsConfig,
-                        any() as List<String>,
-                        any() as TriState
-                )
+        assertThatResponse()
+          .isUnprocessableEntity()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage("Your request could not be processed. Failed to delete an agent, as it is not in a disabled state or is still building.")
+      }
 
-                def requestBody = [
-                        "uuids"             : [
-                                "uuid2"
-                        ],
-                        "operations"        : [
-                                "environments": [
-                                        "remove": ["Production"]
-                                ]
-                        ],
-                        "agent_config_state": "enabled"
-                ]
-                def expectedJson = [
-                        "message": "Updated agent(s) with uuid(s): [uuid2]."
-                ]
-                patchWithApiHeader(controller.controllerPath(), requestBody)
-                verify(agentService).bulkUpdateAgentAttributes(
-                        eq(singletonList("uuid2")),
-                        eq(emptyList()),
-                        eq(emptyList()),
-                        eq(environmentsConfig),
-                        eq(singletonList("Production")),
-                        eq(TriState.TRUE)
-                )
-                assertThatResponse()
-                        .isOk()
-                        .hasContentType(controller.mimeType)
-                        .hasJsonBody(expectedJson)
-            }
-        }
+      @Test
+      void 'should render result in case of internal server error'() {
+        loginAsAdmin()
 
-        @Test
-        void 'should throw 400 - bad request when no operation is specified in the request to be performed on agents'() {
-            loginAsAdmin()
-            def uuids = [
-                    "adb9540a-b954-4571-9d9b-2f330739d4da",
-                    "adb528b2-b954-1234-9d9b-b27ag4h568e1"
-            ] as List<String>
+        doAnswer({ InvocationOnMock invocation ->
+          throw new RuntimeException("Error deleting agents", null)
+        }).when(agentService).deleteAgents(eq(asList("agent-1", "agent-2")))
 
-            doAnswer({ InvocationOnMock invocation ->
-                throw new BadRequestException("Bad Request. No operation is specified in the request to be performed on agents.")
-            }).when(agentService).bulkUpdateAgentAttributes(
-                    eq(uuids) as List<String>,
-                    eq(emptyList()) as List<String>,
-                    eq(emptyList()) as List<String>,
-                    eq(new EnvironmentsConfig()) as EnvironmentsConfig,
-                    eq(emptyList()) as List<String>,
-                    eq(TriState.UNSET) as TriState
-            )
+        def requestBody = ["uuids": ["agent-1", "agent-2"]]
 
-            def requestBody = [
-                    "uuids": uuids
-            ]
-            patchWithApiHeader(controller.controllerPath(), requestBody)
-            assertThatResponse()
-                    .isBadRequest()
-                    .hasContentType(controller.mimeType)
-                    .hasJsonMessage("Bad Request. No operation is specified in the request to be performed on agents.")
-        }
+        deleteWithApiHeader(controller.controllerPath(), requestBody)
+
+        assertThatResponse()
+          .isInternalServerError()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage("Shoot! This is unexpected. Something went wrong while deleting agent(s)! More details : Error deleting agents")
+      }
     }
+  }
 
-    @Nested
-    class Delete {
-        @Nested
-        class Security implements SecurityTestTrait, AdminUserSecurity {
-            @Override
-            String getControllerMethodUnderTest() {
-                return 'deleteAgent'
-            }
-
-            @Override
-            void makeHttpCall() {
-                deleteWithApiHeader(controller.controllerPath("some-uuid"))
-            }
-        }
-
-        @Test
-        void 'should delete agent with given uuid'() {
-            loginAsAdmin()
-
-            def uuid = "uuid"
-            when(agentService.findAgent(uuid)).thenReturn(idle())
-            doNothing().when(agentService).deleteAgents(eq(asList(uuid)))
-
-            deleteWithApiHeader(controller.controllerPath(uuid))
-
-            assertThatResponse()
-                    .isOk()
-                    .hasContentType(controller.mimeType)
-                    .hasJsonMessage("Deleted 1 agent(s).")
-        }
-
-        @Test
-        void 'delete agent should throw 404 when called with UUID that does not exist'() {
-            loginAsAdmin()
-
-            def nonExistingUUID = "non-existing-uuid"
-
-            when(agentService.findAgent(nonExistingUUID)).thenReturn(new NullAgentInstance(nonExistingUUID))
-            doAnswer({ InvocationOnMock invocation ->
-                throw new RecordNotFoundException(EntityType.Agent, nonExistingUUID)
-            }).when(agentService).deleteAgents(eq(singletonList(nonExistingUUID)))
-
-            deleteWithApiHeader(controller.controllerPath(nonExistingUUID))
-
-            assertThatResponse()
-                    .isNotFound()
-                    .hasContentType(controller.mimeType)
-                    .hasJsonMessage("Agent with uuid 'non-existing-uuid' was not found!")
-        }
-
-        @Test
-        void 'should throw 422 in case of agent(s) can not be deleted'() {
-            loginAsAdmin()
-
-            doAnswer({ InvocationOnMock invocation ->
-                throw new UnprocessableEntityException("Some message")
-            }).when(agentService).deleteAgents(eq(asList("uuid2")))
-
-            deleteWithApiHeader(controller.controllerPath("uuid2"))
-
-            assertThatResponse()
-                    .isUnprocessableEntity()
-                    .hasContentType(controller.mimeType)
-                    .hasJsonMessage("Your request could not be processed. Some message")
-        }
-    }
-
-    @Nested
-    class BulkDelete {
-        @Nested
-        class Security implements SecurityTestTrait, AdminUserSecurity {
-            @Override
-            String getControllerMethodUnderTest() {
-                return 'bulkDeleteAgents'
-            }
-
-            @Override
-            void makeHttpCall() {
-                deleteWithApiHeader(controller.controllerPath())
-            }
-        }
-
-        @Nested
-        class Positive {
-            @Test
-            void 'should delete agents with uuids'() {
-                loginAsAdmin()
-
-                when(agentService.findAgent("agent-1")).thenReturn(idleWith("agent-1"))
-                when(agentService.findAgent("agent-2")).thenReturn(idleWith("agent-2"))
-
-                doNothing().when(agentService).deleteAgents(eq(asList("agent-1", "agent-2")))
-
-                def requestBody = ["uuids": ["agent-1", "agent-2"]]
-                deleteWithApiHeader(controller.controllerPath(), requestBody)
-
-                assertThatResponse()
-                        .isOk()
-                        .hasContentType(controller.mimeType)
-                        .hasJsonMessage("Deleted 2 agent(s).")
-            }
-
-            @Test
-            void 'should delete agents with uuids when all specified UUIDs are disabled'() {
-                loginAsAdmin()
-
-                def disabledUUID1 = "uuid1"
-                def disabledUUID2 = "uuid2"
-
-                def disabledAgent1 = disabledWith(disabledUUID1)
-                def disabledAgent2 = disabledWith(disabledUUID2)
-
-                when(agentService.findAgent(disabledUUID1)).thenReturn(disabledAgent1)
-                when(agentService.findAgent(disabledUUID2)).thenReturn(disabledAgent2)
-
-                doNothing().when(agentService).deleteAgents(eq(asList(disabledUUID1, disabledUUID2)))
-
-                def requestBody = ["uuids": [disabledUUID1, disabledUUID2]]
-                deleteWithApiHeader(controller.controllerPath(), requestBody)
-
-                assertThatResponse()
-                        .isOk()
-                        .hasContentType(controller.mimeType)
-                        .hasJsonMessage("Deleted 2 agent(s).")
-            }
-
-            @Test
-            void 'should delete agents with uuids when list of UUIDs is passed as null'() {
-                loginAsAdmin()
-
-                doNothing().when(agentService).deleteAgents(eq(emptyList()))
-
-                def requestBody = ""
-                deleteWithApiHeader(controller.controllerPath(), requestBody)
-
-                assertThatResponse()
-                        .isOk()
-                        .hasContentType(controller.mimeType)
-                        .hasJsonMessage("Deleted 0 agent(s).")
-            }
-
-            @Test
-            void 'should delete agents with uuids when empty list of UUIDs is passed'() {
-                loginAsAdmin()
-
-                doNothing().when(agentService).deleteAgents(eq(emptyList()))
-
-                def requestBody = ["uuids": []]
-                deleteWithApiHeader(controller.controllerPath(), requestBody)
-
-                assertThatResponse()
-                        .isOk()
-                        .hasContentType(controller.mimeType)
-                        .hasJsonMessage("Deleted 0 agent(s).")
-            }
-        }
-
-        @Nested
-        class Negative {
-            @Test
-            void 'delete agents should throw 404 when called with list of UUIDs that do not exist'() {
-                loginAsAdmin()
-
-                def nonExistingUUID = "non-existing-uuid"
-                when(agentService.findAgent(nonExistingUUID)).thenReturn(new NullAgentInstance(nonExistingUUID))
-
-                doAnswer({ InvocationOnMock invocation ->
-                    throw new RecordNotFoundException(EntityType.Agent, nonExistingUUID)
-                }).when(agentService).deleteAgents(eq(singletonList(nonExistingUUID)))
-
-                def requestBody = ["uuids": [nonExistingUUID]]
-                deleteWithApiHeader(controller.controllerPath(), requestBody)
-
-                assertThatResponse()
-                        .isNotFound()
-                        .hasContentType(controller.mimeType)
-                        .hasJsonMessage("Agent with uuid 'non-existing-uuid' was not found!")
-            }
-
-            @Test
-            void 'delete agents should throw 406 when called with list of UUIDs containing non disabled agent'() {
-                loginAsAdmin()
-
-                def disabledAgent = disabled()
-                def building = building()
-
-                when(agentService.findAgent(disabledAgent.getUuid())).thenReturn(disabledAgent)
-                when(agentService.findAgent(building.getUuid())).thenReturn(building)
-
-                doAnswer({ InvocationOnMock invocation ->
-                    throw new UnprocessableEntityException("Could not delete any agents, as one or more agents might not be disabled or are still building.")
-                }).when(agentService).deleteAgents(eq(asList(disabledAgent.getUuid(), building.getUuid())))
-
-                def requestBody = ["uuids": [disabledAgent.getUuid(), building.getUuid()]]
-                deleteWithApiHeader(controller.controllerPath(), requestBody)
-
-                assertThatResponse()
-                        .isUnprocessableEntity()
-                        .hasContentType(controller.mimeType)
-                        .hasJsonMessage("Your request could not be processed. Could not delete any agents, as one or more agents might not be disabled or are still building.")
-            }
-
-            @Test
-            void 'delete agents should throw 406 when called with list of single non disabled UUID'() {
-                loginAsAdmin()
-
-                def building = building()
-
-                when(agentService.findAgent(building.getUuid())).thenReturn(building)
-
-                doAnswer({ InvocationOnMock invocation ->
-                    throw new UnprocessableEntityException("Failed to delete an agent, as it is not in a disabled state or is still building.")
-                }).when(agentService).deleteAgents(eq(singletonList(building.getUuid())))
-
-                def requestBody = ["uuids": [building.getUuid()]]
-                deleteWithApiHeader(controller.controllerPath(), requestBody)
-
-                assertThatResponse()
-                        .isUnprocessableEntity()
-                        .hasContentType(controller.mimeType)
-                        .hasJsonMessage("Your request could not be processed. Failed to delete an agent, as it is not in a disabled state or is still building.")
-            }
-
-            @Test
-            void 'should render result in case of internal server error'() {
-                loginAsAdmin()
-
-                doAnswer({ InvocationOnMock invocation ->
-                    throw new RuntimeException("Error deleting agents", null)
-                }).when(agentService).deleteAgents(eq(asList("agent-1", "agent-2")))
-
-                def requestBody = ["uuids": ["agent-1", "agent-2"]]
-
-                deleteWithApiHeader(controller.controllerPath(), requestBody)
-
-                assertThatResponse()
-                        .isInternalServerError()
-                        .hasContentType(controller.mimeType)
-                        .hasJsonMessage("Shoot! This is unexpected. Something went wrong while deleting agent(s)! More details : Error deleting agents")
-            }
-        }
-    }
 }

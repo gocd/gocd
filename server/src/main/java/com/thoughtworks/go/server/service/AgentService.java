@@ -20,7 +20,10 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.*;
 import com.thoughtworks.go.config.update.AgentUpdateValidator;
 import com.thoughtworks.go.config.update.AgentsUpdateValidator;
-import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.domain.AgentInstance;
+import com.thoughtworks.go.domain.AllConfigErrors;
+import com.thoughtworks.go.domain.ConfigErrors;
+import com.thoughtworks.go.domain.NullAgentInstance;
 import com.thoughtworks.go.listener.AgentChangeListener;
 import com.thoughtworks.go.listener.DatabaseEntityChangeListener;
 import com.thoughtworks.go.remote.AgentIdentifier;
@@ -58,12 +61,12 @@ import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 import static com.thoughtworks.go.util.TriState.TRUE;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
-import static java.util.Collections.*;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.*;
 import static java.util.stream.StreamSupport.stream;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.apache.commons.collections4.ListUtils.union;
-import static org.apache.commons.lang3.StringUtils.join;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 @Service
@@ -134,15 +137,14 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         return agentInstances.findRegisteredAgents();
     }
 
-    public AgentInstance updateAgentAttributes(String uuid, String hostname, String resources,
-                                               EnvironmentsConfig envsConfig, TriState state) {
+    public AgentInstance updateAgentAttributes(String uuid, String hostname, String resources, String environments, TriState state) {
         AgentInstance agentInstance = agentInstances.findAgent(uuid);
         validateThatAgentExists(agentInstance);
 
         Agent agent = getAgentFromDBOrCache(agentInstance);
-        if (validateAnyOperationPerformedOnAgent(hostname, envsConfig, resources, state)) {
+        if (validateAnyOperationPerformedOnAgent(hostname, environments, resources, state)) {
             new AgentUpdateValidator(agentInstance, state).validate();
-            setAgentAttributes(hostname, resources, envsConfig, state, agent);
+            setAgentAttributes(hostname, resources, environments, state, agent);
             saveOrUpdate(agent);
             return createFromAgent(agent, systemEnvironment, agentStatusChangeNotifier);
         }
@@ -151,7 +153,8 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     }
 
     public void bulkUpdateAgentAttributes(List<String> uuids, List<String> resourcesToAdd, List<String> resourcesToRemove,
-                                          EnvironmentsConfig envsToAdd, List<String> envsToRemove, TriState state) {
+                                          List<String> envsToAdd, List<String> envsToRemove, TriState state,
+                                          EnvironmentConfigService environmentConfigService) {
         if (isAnyOperationPerformedOnBulkAgents(resourcesToAdd, resourcesToRemove, envsToAdd, envsToRemove, state)) {
             AgentsUpdateValidator validator = new AgentsUpdateValidator(agentInstances, uuids, state, resourcesToAdd, resourcesToRemove);
             validator.validate();
@@ -161,7 +164,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
                 agents.addAll(agentInstances.filterPendingAgents(uuids));
             }
 
-            agents.forEach(agent -> setResourcesEnvsAndState(agent, resourcesToAdd, resourcesToRemove, envsToAdd, envsToRemove, state));
+            agents.forEach(agent -> setResourcesEnvsAndState(agent, resourcesToAdd, resourcesToRemove, envsToAdd, envsToRemove, state, environmentConfigService));
             updateIdsAndGenerateCookiesForPendingAgents(agents, state);
             agentDao.bulkUpdateAgents(agents);
         }
@@ -173,8 +176,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         }
 
         AgentsUpdateValidator validator = new AgentsUpdateValidator(agentInstances, uuids, TRUE, emptyList(), emptyList());
-        EnvironmentsConfig envsConfig = getEnvironmentsConfigFrom(envConfig);
-        if (isAnyOperationPerformedOnBulkAgents(emptyList(), emptyList(), envsConfig, emptyList(), TRUE)) {
+        if (isAnyOperationPerformedOnBulkAgents(emptyList(), emptyList(), singletonList(envConfig.name().toString()), emptyList(), TRUE)) {
             validator.validate();
 
             List<String> uuidsToAssociate = (uuids == null) ? emptyList() : uuids;
@@ -400,8 +402,8 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     }
 
     private void setResourcesEnvsAndState(Agent agent, List<String> resourcesToAdd, List<String> resourcesToRemove,
-                                          EnvironmentsConfig envsToAdd, List<String> envsToRemove, TriState state) {
-        addRemoveEnvsAndResources(agent, envsToAdd, envsToRemove, resourcesToAdd, resourcesToRemove);
+                                          List<String> envsToAdd, List<String> envsToRemove, TriState state, EnvironmentConfigService environmentConfigService) {
+        addRemoveEnvsAndResources(agent, envsToAdd, envsToRemove, resourcesToAdd, resourcesToRemove, environmentConfigService);
         enableOrDisableAgent(agent, state);
     }
 
@@ -426,7 +428,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         return agentDao.fetchAgentFromDBByUUID(agentInstance.getUuid());
     }
 
-    private void setAgentAttributes(String newHostname, String resources, EnvironmentsConfig environments, TriState state, Agent agent) {
+    private void setAgentAttributes(String newHostname, String resources, String environments, TriState state, Agent agent) {
         if (state.isTrue()) {
             agent.enable();
         }
@@ -442,8 +444,9 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         if (resources != null) {
             agent.setResources(resources);
         }
-
-        setOnlyThoseEnvsThatAreNotAssociatedWithAgentFromConfigRepo(environments, agent);
+        if (environments != null) {
+            agent.setEnvironments(environments);
+        }
     }
 
     private void notifyAgentChangeListeners(Agent agentAfterUpdate) {
@@ -534,34 +537,23 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         }
     }
 
-    private void addOnlyThoseEnvsThatAreNotAssociatedWithAgentFromConfigRepo(EnvironmentsConfig envsToAdd, Agent agent) {
+    private void addOnlyThoseEnvsThatAreNotAssociatedWithAgentFromConfigRepo(List<String> envsToAdd, Agent agent, EnvironmentConfigService environmentConfigService) {
         if (envsToAdd != null) {
             String uuid = agent.getUuid();
-            envsToAdd.forEach(env -> {
-                if (env.containsAgentRemotely(uuid)) {
-                    LOGGER.info(format("Not adding Agent [%s] to Environment [%s] as it is already associated from a Config Repo", uuid, env.name().toString()));
+            envsToAdd.forEach(envName -> {
+                EnvironmentConfig env = environmentConfigService.find(envName);
+                if (env != null && env.containsAgentRemotely(uuid)) {
+                    LOGGER.info(format("Not adding Agent [%s] to Environment [%s] as it is already associated from a Config Repo", uuid, envName));
                 } else {
-                    String envName = env.name().toString();
                     agent.addEnvironment(envName);
                 }
             });
         }
     }
 
-    private void setOnlyThoseEnvsThatAreNotAssociatedWithAgentFromConfigRepo(EnvironmentsConfig envsConfig, Agent agent) {
-        if (envsConfig != null) {
-            ArrayList<String> envsToSetList = envsConfig.stream()
-                    .filter(env -> !env.containsAgentRemotely(agent.getUuid()))
-                    .map(env -> env.name().toString())
-                    .collect(toCollection(ArrayList::new));
-
-            agent.setEnvironmentsFrom(envsToSetList);
-        }
-    }
-
-    private void addRemoveEnvsAndResources(Agent agent, EnvironmentsConfig envsToAdd, List<String> envsToRemove,
-                                           List<String> resourcesToAdd, List<String> resourcesToRemove) {
-        addOnlyThoseEnvsThatAreNotAssociatedWithAgentFromConfigRepo(envsToAdd, agent);
+    private void addRemoveEnvsAndResources(Agent agent, List<String> envsToAdd, List<String> envsToRemove,
+                                           List<String> resourcesToAdd, List<String> resourcesToRemove, EnvironmentConfigService environmentConfigService) {
+        addOnlyThoseEnvsThatAreNotAssociatedWithAgentFromConfigRepo(envsToAdd, agent, environmentConfigService);
         agent.removeEnvironments(envsToRemove);
 
         agent.addResources(resourcesToAdd);
@@ -604,12 +596,6 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         return new AgentViewModel(instance, instance.getAgent().getEnvironmentsAsList());
     }
 
-    private EnvironmentsConfig getEnvironmentsConfigFrom(EnvironmentConfig envConfig) {
-        EnvironmentsConfig envsConfig = new EnvironmentsConfig();
-        envsConfig.add(envConfig);
-        return envsConfig;
-    }
-
     private String getFailedToDeleteMessage(int numOfAgents) {
         if (numOfAgents == 1) {
             return "Failed to delete an agent, as it is not in a disabled state or is still building.";
@@ -618,8 +604,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         }
     }
 
-    boolean validateAnyOperationPerformedOnAgent(String hostname, EnvironmentsConfig environments,
-                                                 String resources, TriState state) {
+    boolean validateAnyOperationPerformedOnAgent(String hostname, String environments, String resources, TriState state) {
         boolean anyOperationPerformed = (resources != null || environments != null || hostname != null || isTriStateSet(state));
         if (!anyOperationPerformed) {
             throw new BadRequestException("Bad Request. No operation is specified in the request to be performed on agent.");
@@ -632,7 +617,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     }
 
     boolean isAnyOperationPerformedOnBulkAgents(List<String> resourcesToAdd, List<String> resourcesToRemove,
-                                                EnvironmentsConfig envsToAdd, List<String> envsToRemove,
+                                                List<String> envsToAdd, List<String> envsToRemove,
                                                 TriState state) {
         boolean anyOperationPerformed
                 = isNotEmpty(resourcesToAdd)

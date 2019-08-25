@@ -57,11 +57,13 @@ import spark.Response;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.apiv6.agents.representers.AgentRepresenter.toJSON;
 import static com.thoughtworks.go.apiv6.agents.representers.AgentUpdateRequestRepresenter.fromJSON;
 import static com.thoughtworks.go.serverhealth.HealthStateScope.GLOBAL;
 import static com.thoughtworks.go.serverhealth.HealthStateType.general;
+import static com.thoughtworks.go.util.CommaSeparatedString.append;
 import static com.thoughtworks.go.util.CommaSeparatedString.commaSeparatedStrToList;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
@@ -129,17 +131,18 @@ public class AgentsControllerV6 extends ApiController implements SparkSpringCont
     }
 
     public String update(Request request, Response response) {
+        String uuid = request.params("uuid");
         AgentUpdateRequest req = fromJSON(request.body());
 
         String hostname = req.getHostname();
         String resources = req.getResources();
+        String environments = filterOutEnvsWhichAreAssociatedViaConfigRepo(uuid, req.getEnvironments());
         TriState configState = req.getAgentConfigState();
         HttpOperationResult result = new HttpOperationResult();
         AgentInstance updatedAgentInstance = null;
 
         try {
-            EnvironmentsConfig envsConfig = createEnvironmentsConfigFrom(req.getEnvironments());
-            updatedAgentInstance = agentService.updateAgentAttributes(request.params("uuid"), hostname, resources, envsConfig, configState);
+            updatedAgentInstance = agentService.updateAgentAttributes(uuid, hostname, resources, environments, configState);
             handleUpdateAgentResponse(updatedAgentInstance, result);
         } catch (HttpException e) {
             throw e;
@@ -150,29 +153,20 @@ public class AgentsControllerV6 extends ApiController implements SparkSpringCont
         return handleCreateOrUpdateResponse(request, response, updatedAgentInstance, result);
     }
 
-    private void handleUpdateAgentResponse(AgentInstance updatedAgentInstance, HttpOperationResult result) {
-        if (updatedAgentInstance != null) {
-            Agent agent = updatedAgentInstance.getAgent();
-            if (agent.hasErrors()) {
-                result.unprocessibleEntity("Updating agent failed.", "", general(GLOBAL));
-            } else {
-                result.ok(format("Updated agent with uuid %s.", agent.getUuid()));
-            }
-        }
-    }
-
     public String bulkUpdate(Request request, Response response) throws IOException {
         final AgentBulkUpdateRequest req = AgentBulkUpdateRequestRepresenter.fromJSON(request.body());
 
         final HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+
         try {
             agentService.bulkUpdateAgentAttributes(
                     req.getUuids(),
                     req.getOperations().getResources().toAdd(),
                     req.getOperations().getResources().toRemove(),
-                    createEnvironmentsConfigFrom(req.getOperations().getEnvironments().toAdd()),
+                    req.getOperations().getEnvironments().toAdd(),
                     req.getOperations().getEnvironments().toRemove(),
-                    req.getAgentConfigState()
+                    req.getAgentConfigState(),
+                    environmentConfigService
             );
             result.setMessage("Updated agent(s) with uuid(s): [" + join(req.getUuids(), ", ") + "].");
         } catch (HttpException e) {
@@ -201,7 +195,8 @@ public class AgentsControllerV6 extends ApiController implements SparkSpringCont
             return envList.stream()
                     .filter(StringUtils::isNotBlank)
                     .map(String::trim)
-                    .map(environmentConfigService::findOrUnknown)
+                    .map(environmentConfigService::find)
+                    .filter(envConfig -> envConfig != null)
                     .collect(toCollection(EnvironmentsConfig::new));
         }
         return new EnvironmentsConfig();
@@ -273,7 +268,39 @@ public class AgentsControllerV6 extends ApiController implements SparkSpringCont
         }
     }
 
-    private String deleteAgents(Request request, Response response, List<String> uuids){
+    private void handleUpdateAgentResponse(AgentInstance updatedAgentInstance, HttpOperationResult result) {
+        if (updatedAgentInstance != null) {
+            Agent agent = updatedAgentInstance.getAgent();
+            if (agent.hasErrors()) {
+                result.unprocessibleEntity("Updating agent failed.", "", general(GLOBAL));
+            } else {
+                result.ok(format("Updated agent with uuid %s.", agent.getUuid()));
+            }
+        }
+    }
+
+    private String filterOutEnvsWhichAreAssociatedViaConfigRepo(String uuid, String commaSeparatedEnvs) {
+        if (commaSeparatedEnvs == null) {
+            return commaSeparatedEnvs;
+        }
+        if (isBlank(commaSeparatedEnvs)) {
+            return commaSeparatedEnvs.trim();
+        }
+        List<String> filteredEnvs = commaSeparatedStrToList(commaSeparatedEnvs).stream()
+                .filter(envName -> isAgentNotAssoicatedRemotely(uuid, envName))
+                .collect(Collectors.toList());
+        return append("", filteredEnvs);
+    }
+
+    private boolean isAgentNotAssoicatedRemotely(String uuid, String envName) {
+        EnvironmentConfig envConfig = environmentConfigService.find(envName);
+        if (envConfig == null || !envConfig.containsAgentRemotely(uuid)) {
+            return true;
+        }
+        return false;
+    }
+
+    private String deleteAgents(Request request, Response response, List<String> uuids) {
         try {
             agentService.deleteAgents(uuids);
             final HttpOperationResult result = new HttpOperationResult();

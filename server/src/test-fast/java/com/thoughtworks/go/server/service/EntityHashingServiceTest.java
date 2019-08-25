@@ -111,13 +111,11 @@ public class EntityHashingServiceTest {
     }
 
     @Test
-    public void shouldNotAccessCacheIfTheEnvironmentConfigIsAnInstanceOfMergeOrUnknownEnvConfig() {
+    public void shouldNotAccessCacheIfTheEnvironmentConfigIsAnInstanceOfMergeEnvConfig() {
         BasicEnvironmentConfig basicEnvConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("env"));
         MergeEnvironmentConfig mergeEnvConfig = new MergeEnvironmentConfig(basicEnvConfig);
-        UnknownEnvironmentConfig unknownEnvConfig = new UnknownEnvironmentConfig(new CaseInsensitiveString("unknown"));
 
         entityHashingService.md5ForEntity(mergeEnvConfig);
-        entityHashingService.md5ForEntity(unknownEnvConfig);
 
         verifyZeroInteractions(goCache);
     }

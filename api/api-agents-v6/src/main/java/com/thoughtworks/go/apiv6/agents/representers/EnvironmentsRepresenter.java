@@ -18,38 +18,46 @@ package com.thoughtworks.go.apiv6.agents.representers;
 
 import com.thoughtworks.go.api.base.OutputListWriter;
 import com.thoughtworks.go.api.base.OutputWriter;
+import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.EnvironmentConfig;
+import com.thoughtworks.go.config.EnvironmentsConfig;
 import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
+import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.spark.Routes;
 
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
+import static java.util.stream.Collectors.toList;
 
 public class EnvironmentsRepresenter {
-    public static void toJSON(OutputListWriter writer, Collection<EnvironmentConfig> environments, String agentUuid) {
-        List<EnvironmentConfig> sortedEnvironmentConfigs = environments.stream()
-                .sorted(new EnvironmentConfigComparator())
-                .collect(Collectors.toList());
-
-        for (EnvironmentConfig environment : sortedEnvironmentConfigs) {
-            writer.addChild((childWriter) -> {
-                childWriter.add("name", environment.name());
-                childWriter.addChild("origin", (originWriter) -> origin(originWriter, environment, agentUuid));
-            });
+    public static void toJSON(OutputListWriter writer, Collection<EnvironmentConfig> environments, AgentInstance agentInstance) {
+        List<String> sortedEnvNames = agentInstance.getAgent().getEnvironmentsAsList().stream()
+                .sorted()
+                .collect(toList());
+        EnvironmentsConfig envConfigs = new EnvironmentsConfig();
+        envConfigs.addAll(environments);
+        for (String envName : sortedEnvNames) {
+            EnvironmentConfig envConfig = envConfigs.find(new CaseInsensitiveString(envName));
+            if (envConfig != null) {
+                writer.addChild((childWriter) -> {
+                    childWriter.add("name", envName);
+                    childWriter.addChild("origin", (originWriter) -> origin(originWriter, envConfig, agentInstance.getUuid()));
+                });
+            } else {
+                writer.addChild((childWriter) -> {
+                    childWriter.add("name", envName);
+                    childWriter.addChild("origin", (originWriter) -> originWriter.add("type", "unknown"));
+                });
+            }
         }
     }
 
     private static void origin(OutputWriter writer, EnvironmentConfig environment, String agentUuid) {
-        if (environment.isUnknown()) {
-            writer.add("type", "unknown");
-            return;
-        }
         if (environment.containsAgentRemotely(agentUuid)) {
             ConfigOrigin originForAgent = environment.originForAgent(agentUuid)
                     .orElseThrow(() -> bomb(String.format("Did not expect config origin to be null for Environment: %s, Agent: %s",

@@ -30,12 +30,4 @@ public interface ConfigOrigin {
     boolean isLocal();
 
     String displayName();
-
-    /**
-     * @return false
-     * need to override if the origin is unknown
-     */
-    default boolean isUnknown() {
-        return false;
-    }
 }

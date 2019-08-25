@@ -70,7 +70,7 @@ public class InternalEnvironmentsControllerV1 extends ApiController implements S
     }
 
     public String index(Request request, Response response) throws IOException {
-        return JsonOutputWriter.OBJECT_MAPPER.writeValueAsString(environmentConfigService.getKnownEnvironmentNames());
+        return JsonOutputWriter.OBJECT_MAPPER.writeValueAsString(environmentConfigService.getEnvironmentNames());
     }
 
     public String indexMergedEnvironments(Request request, Response response) throws IOException {

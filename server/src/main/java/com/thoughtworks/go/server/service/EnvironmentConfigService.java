@@ -137,13 +137,6 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
         return environments.names().stream().map(CaseInsensitiveString::toString).collect(toList());
     }
 
-    public List<String> getKnownEnvironmentNames() {
-        return environments.stream()
-                .filter(environmentConfig -> !environmentConfig.isUnknown())
-                .map(environmentConfig -> environmentConfig.name().toString())
-                .collect(toList());
-    }
-
     public Set<EnvironmentConfig> getEnvironments() {
         return new HashSet<>(environments);
     }
@@ -160,10 +153,8 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
         return environments.named(new CaseInsensitiveString(envName));
     }
 
-    public EnvironmentConfig findOrUnknown(String envName) {
-        CaseInsensitiveString caseInsensitiveEnvStr = new CaseInsensitiveString((envName));
-        EnvironmentConfig envConfig = environments.find(caseInsensitiveEnvStr);
-        return ((envConfig != null) ? envConfig : new UnknownEnvironmentConfig(caseInsensitiveEnvStr));
+    public EnvironmentConfig find(String envName) {
+        return environments.find(new CaseInsensitiveString((envName)));
     }
 
     public EnvironmentConfig getEnvironmentForEdit(String envName) {
@@ -185,7 +176,6 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
     // don't remove - used in rails
     public List<EnvironmentViewModel> listAllMergedEnvironments() {
         return getAllMergedEnvironments().stream()
-                .filter(environmentConfig -> !environmentConfig.isUnknown())
                 .map(EnvironmentViewModel::new)
                 .collect(Collectors.toList());
     }
@@ -302,11 +292,9 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
     }
 
     private void addAgentToNewlyAssociatedEnvironments(String uuid, List<String> envNames) {
-        envNames.stream().map(this::findOrUnknown)
+        envNames.stream().map(this::find)
                 .filter(envConfig -> isEnvironmentNotAssociatedWithAgent(envConfig, uuid))
-                .peek(envConfig -> envConfig.addAgent(uuid))
-                .filter(envConfig -> envConfig.isUnknown() && !environments.contains(envConfig))
-                .forEach(envConfig -> environments.add(envConfig));
+                .forEach(envConfig -> envConfig.addAgent(uuid));
     }
 
     private void syncAssociatedAgentFromDB(AgentInstance agentInstance) {
@@ -323,10 +311,6 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
 
     private boolean isEnvironmentNotAssociatedWithAgent(EnvironmentConfig envConfig, String uuid) {
         return envConfig != null && !envConfig.hasAgent(uuid);
-    }
-
-    private EnvironmentConfig find(String envName) {
-        return environments.find(new CaseInsensitiveString(envName));
     }
 
     private List<EnvironmentPipelineModel> getAllPipelinesForUser(Username user, List<PipelineConfig> pipelineConfigs) {

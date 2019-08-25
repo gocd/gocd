@@ -18,7 +18,6 @@ package com.thoughtworks.go.helper;
 import com.thoughtworks.go.config.BasicEnvironmentConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.EnvironmentsConfig;
-import com.thoughtworks.go.config.UnknownEnvironmentConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 
 public class EnvironmentConfigMother {
@@ -54,13 +53,5 @@ public class EnvironmentConfigMother {
             config.addPipeline(new CaseInsensitiveString(pipeline));
         }
         return config;
-    }
-
-    public static UnknownEnvironmentConfig unknown(String name, String... agentUuids) {
-        UnknownEnvironmentConfig unknownEnvConfig = new UnknownEnvironmentConfig(new CaseInsensitiveString(name));
-        for (String agentUuid : agentUuids) {
-            unknownEnvConfig.addAgent(agentUuid);
-        }
-        return unknownEnvConfig;
     }
 }

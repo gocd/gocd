@@ -110,7 +110,7 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
     }
 
     public String md5ForEntity(EnvironmentConfig config) {
-        if (config instanceof MergeEnvironmentConfig || config instanceof UnknownEnvironmentConfig) {
+        if (config instanceof MergeEnvironmentConfig) {
             return md5Hex(valueOf(hash(config)));
         }
 

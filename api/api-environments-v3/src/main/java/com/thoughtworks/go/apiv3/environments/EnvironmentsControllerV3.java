@@ -29,8 +29,6 @@ import com.thoughtworks.go.apiv3.environments.representers.EnvironmentRepresente
 import com.thoughtworks.go.apiv3.environments.representers.PatchEnvironmentRequestRepresenter;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.EntityType;
-import com.thoughtworks.go.config.exceptions.HttpException;
-import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.ConfigElementForEdit;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.EnvironmentConfigService;
@@ -96,7 +94,7 @@ public class EnvironmentsControllerV3 extends ApiController implements SparkSpri
 
     public String index(Request request, Response response) throws IOException {
         Set<EnvironmentConfig> envConfigSet = environmentConfigService.getEnvironments();
-        EnvironmentsConfig envViewModelList = filterUnknownAndSortEnvConfigs(envConfigSet);
+        EnvironmentsConfig envViewModelList = sortEnvConfigs(envConfigSet);
         setEtagHeader(response, calculateEtag(envViewModelList));
         return writerForTopLevelObject(request, response, outputWriter -> toJSON(outputWriter, envViewModelList));
     }
@@ -213,15 +211,6 @@ public class EnvironmentsControllerV3 extends ApiController implements SparkSpri
     }
 
     @Override
-    public EnvironmentConfig fetchEntityFromConfig(String nameOrId) {
-        EnvironmentConfig entity = doFetchEntityFromConfig(nameOrId);
-        if (entity == null || entity.isUnknown()) {
-            throw new RecordNotFoundException(getEntityType(), nameOrId);
-        }
-        return entity;
-    }
-
-    @Override
     public EnvironmentConfig buildEntityFromRequestBody(Request req) {
         JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(req.body());
         return EnvironmentRepresenter.fromJSON(jsonReader);
@@ -232,9 +221,8 @@ public class EnvironmentsControllerV3 extends ApiController implements SparkSpri
         return writer -> EnvironmentRepresenter.toJSON(writer, environmentConfig);
     }
 
-    EnvironmentsConfig filterUnknownAndSortEnvConfigs(Set<EnvironmentConfig> envConfigSet) {
+    EnvironmentsConfig sortEnvConfigs(Set<EnvironmentConfig> envConfigSet) {
         return envConfigSet.stream()
-                .filter(envConfig -> !envConfig.isUnknown())
                 .sorted(comparing(EnvironmentConfig::name))
                 .collect(toCollection(EnvironmentsConfig::new));
     }
@@ -242,7 +230,7 @@ public class EnvironmentsControllerV3 extends ApiController implements SparkSpri
     private void haltIfEntityWithSameNameExists(EnvironmentConfig environmentConfig) {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         ConfigElementForEdit<EnvironmentConfig> existingEnvConfig = environmentConfigService.getMergedEnvironmentforDisplay(environmentConfig.name().toString(), result);
-        if (existingEnvConfig == null || existingEnvConfig.getConfigElement().isUnknown()) {
+        if (existingEnvConfig == null) {
             return;
         }
 

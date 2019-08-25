@@ -29,7 +29,6 @@ import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static com.thoughtworks.go.helper.AgentInstanceMother.*
 import static com.thoughtworks.go.helper.EnvironmentConfigMother.environment
-import static com.thoughtworks.go.helper.EnvironmentConfigMother.unknown
 import static java.util.Arrays.asList
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.mockito.ArgumentMatchers.any
@@ -48,11 +47,19 @@ class AgentsRepresenterTest {
 
   @Test
   void 'should represent agents'() {
+    def idle = idle()
+    def missing = missing()
+    def building = building("up42/1/up_42_stage/1/up42_job")
+
+    idle.getAgent().setEnvironments("uat,load_test")
+    missing.getAgent().setEnvironments("unit")
+    building.getAgent().setEnvironments("integration,functional_test")
+
     Map<AgentInstance, Collection<EnvironmentConfig>> agentEnvironmentMap = new LinkedHashMap<AgentInstance, Collection<EnvironmentConfig>>() {
       {
-        put(idle(), asList(environment("uat"), environment("load_test")))
-        put(missing(), asList(environment("unit"), unknown("non-existent-env")))
-        put(building("up42/1/up_42_stage/1/up42_job"), asList(environment("integration"), environment("functional_test")))
+        put(idle, asList(environment("uat"), environment("load_test")))
+        put(missing, asList(environment("unit")))
+        put(building, asList(environment("integration"), environment("functional_test")))
       }
     }
 
@@ -148,12 +155,6 @@ class AgentsRepresenterTest {
             "agent_state"       : "Missing",
             "resources"         : [],
             "environments"      : [
-              [
-                "name"  : "non-existent-env",
-                "origin": [
-                  "type": "unknown"
-                ]
-              ],
               [
                 name  : "unit",
                 origin: [

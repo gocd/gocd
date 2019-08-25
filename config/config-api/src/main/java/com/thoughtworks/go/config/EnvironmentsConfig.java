@@ -153,7 +153,7 @@ public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implem
 
     public boolean hasEnvironmentNamed(CaseInsensitiveString environmentName) {
         EnvironmentConfig environmentConfig = find(environmentName);
-        return environmentConfig != null && !environmentConfig.isUnknown();
+        return environmentConfig != null;
     }
 
     public void removeAgentFromAllEnvironments(String uuid) {

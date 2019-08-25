@@ -30,7 +30,6 @@ import com.thoughtworks.go.presentation.environment.EnvironmentPipelineModel;
 import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import com.thoughtworks.go.server.ui.EnvironmentViewModel;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -170,25 +169,6 @@ class EnvironmentConfigServiceTest {
     }
 
     @Test
-    void shouldReturnOnlyTheKnownEnvConfigViewModels() {
-        BasicEnvironmentConfig envConfig1 = new BasicEnvironmentConfig(new CaseInsensitiveString("foo"));
-        envConfig1.addPipeline(new CaseInsensitiveString("bar"));
-        envConfig1.addAgent("baz");
-
-        UnknownEnvironmentConfig envConfig2 = new UnknownEnvironmentConfig(new CaseInsensitiveString("unknown"));
-        envConfig1.addAgent("foo");
-
-        List<EnvironmentConfig> envConfigList = new ArrayList<>();
-        envConfigList.add(envConfig1);
-        envConfigList.add(envConfig2);
-        EnvironmentConfigService spyEnvConfigService = Mockito.spy(EnvironmentConfigService.class);
-
-        doReturn(envConfigList).when(spyEnvConfigService).getAllMergedEnvironments();
-
-        assertThat(spyEnvConfigService.listAllMergedEnvironments(), is(singletonList(new EnvironmentViewModel(envConfig1))));
-    }
-
-    @Test
     void shouldFilterWhenAgentIsNotInAnEnvironment() {
         environmentConfigService.syncEnvironments(environments("uat", "prod"));
 
@@ -261,17 +241,6 @@ class EnvironmentConfigServiceTest {
     void shouldReturnEnvironmentNames() {
         environmentConfigService.syncEnvironments(environments("uat", "prod"));
         List<String> envNames = environmentConfigService.getEnvironmentNames();
-        assertThat(envNames.size(), is(2));
-        assertTrue(envNames.contains("uat"));
-        assertTrue(envNames.contains("prod"));
-    }
-
-    @Test
-    void shouldReturnEnvironmentNamesOnlyForKnownEnvironments() {
-        EnvironmentsConfig envsConfig = environments("uat", "prod");
-        envsConfig.add(unknown("unknown"));
-        environmentConfigService.syncEnvironments(envsConfig);
-        List<String> envNames = environmentConfigService.getKnownEnvironmentNames();
         assertThat(envNames.size(), is(2));
         assertTrue(envNames.contains("uat"));
         assertTrue(envNames.contains("prod"));
@@ -515,27 +484,25 @@ class EnvironmentConfigServiceTest {
     }
 
     @Test
-    void shouldReturnUnknownConfigWhenEnvIsNotPresent() {
+    void shouldReturnNullWhenEnvIsNotPresent() {
         String envName = "foo-environment";
         String pipelineName = "up42";
         environmentConfigService.syncEnvironments(environmentsConfig(envName, pipelineName));
 
-        EnvironmentConfig envConfig = environmentConfigService.findOrUnknown("invalid-environment-name");
+        EnvironmentConfig envConfig = environmentConfigService.find("invalid-environment-name");
 
-        assertThat(envConfig, is(not(nullValue())));
-        assertThat(envConfig.isUnknown(), is(true));
+        assertThat(envConfig, is(nullValue()));
     }
 
     @Test
-    void shouldReturnEnvironmeConfigWhenEnvIsPresent() {
+    void shouldReturnEnvConfigWhenEnvIsPresent() {
         String envName = "foo-environment";
         String pipelineName = "up42";
         environmentConfigService.syncEnvironments(environmentsConfig(envName, pipelineName));
 
-        EnvironmentConfig envConfig = environmentConfigService.findOrUnknown(envName);
+        EnvironmentConfig envConfig = environmentConfigService.find(envName);
 
         assertThat(envConfig, is(not(nullValue())));
-        assertThat(envConfig.isUnknown(), is(false));
         assertThat(envConfig.name(), is(new CaseInsensitiveString(envName)));
     }
 
@@ -752,7 +719,7 @@ class EnvironmentConfigServiceTest {
         }
 
         @Test
-        void shouldAddEnvironmentToCacheIfNotAlreadyPresent() {
+        void shouldNotAddEnvironmentToCacheIfNotAlreadyPresent() {
             String uuid = "uuid";
             String environmentName = "foo-environment";
             EnvironmentsConfig environments = new EnvironmentsConfig();
@@ -766,10 +733,8 @@ class EnvironmentConfigServiceTest {
 
             environmentConfigService.agentChanged(agentAfterUpdate);
 
-            EnvironmentConfig afterUpdateEnvConfig = environmentConfigService.getEnvironmentConfig(environmentName);
-            EnvironmentAgentsConfig agentConfigs = afterUpdateEnvConfig.getAgents();
-            assertThat(agentConfigs.size(), is(1));
-            assertThat(agentConfigs.get(0).getUuid(), is(uuid));
+            assertThatCode(() -> environmentConfigService.getEnvironmentConfig(environmentName))
+                    .isInstanceOf(RecordNotFoundException.class);
         }
     }
 

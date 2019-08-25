@@ -35,7 +35,6 @@ import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.*
 import static com.thoughtworks.go.helper.AgentInstanceMother.*
 import static com.thoughtworks.go.helper.EnvironmentConfigMother.environment
-import static com.thoughtworks.go.helper.EnvironmentConfigMother.unknown
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.assertj.core.api.Assertions.assertThat
 import static org.mockito.ArgumentMatchers.anyString
@@ -55,11 +54,12 @@ class AgentRepresenterTest {
   @Test
   void 'renders an agent with hal representation'() {
     AgentInstance agentInstance = idleWith("some-uuid", "agent01.example.com", "127.0.0.1", "/var/lib/go-server", 10l, "Linux", Arrays.asList("linux", "firefox"))
+    agentInstance.getAgent().setEnvironments("uat,load_test,dev,non-existent-env")
     def envFromConfigRepo = environment("dev")
     envFromConfigRepo.setOrigins(new RepoConfigOrigin(new ConfigRepoConfig(null, "yaml", "foo"), "revision"))
     envFromConfigRepo.addAgent("some-uuid")
     def json = toObjectString({
-      def environments = Stream.of(environment("uat"), environment("load_test"), envFromConfigRepo, unknown("non-existent-env"))
+      def environments = Stream.of(environment("uat"), environment("load_test"), envFromConfigRepo)
         .collect()
       AgentRepresenter.toJSON(it, agentInstance, environments, securityService, null)
     })
@@ -87,34 +87,34 @@ class AgentRepresenterTest {
       "resources"         : ["firefox", "linux"],
       "environments"      : [
         [
-          name  : "dev",
-          origin: [
-            type    : "config-repo",
+          "name"  : "dev",
+          "origin": [
             "_links": [
-              "self": [
-                "href": "http://test.host/go/api/admin/config_repos/foo"
-              ],
               "doc" : [
-                "href": apiDocsUrl("#config-repos")
+                "href": "https://api.gocd.org/19.8.0/#config-repos"
               ],
               "find": [
                 "href": "http://test.host/go/api/admin/config_repos/:id"
+              ],
+              "self": [
+                "href": "http://test.host/go/api/admin/config_repos/foo"
               ]
-            ]
+            ],
+            "type"  : "config-repo"
           ]
         ],
         [
-          name  : "load_test",
-          origin: [
-            type    : "gocd",
+          "name"  : "load_test",
+          "origin": [
             "_links": [
+              "doc" : [
+                "href": "https://api.gocd.org/19.8.0/#get-configuration"
+              ],
               "self": [
                 "href": "http://test.host/go/admin/config_xml"
-              ],
-              "doc" : [
-                "href": apiDocsUrl("#get-configuration")
               ]
-            ]
+            ],
+            "type"  : "gocd"
           ]
         ],
         [
@@ -124,17 +124,17 @@ class AgentRepresenterTest {
           ]
         ],
         [
-          name  : "uat",
-          origin: [
-            type    : "gocd",
+          "name"  : "uat",
+          "origin": [
             "_links": [
+              "doc" : [
+                "href": "https://api.gocd.org/19.8.0/#get-configuration"
+              ],
               "self": [
                 "href": "http://test.host/go/admin/config_xml"
-              ],
-              "doc" : [
-                "href": apiDocsUrl("#get-configuration")
               ]
-            ]
+            ],
+            "type"  : "gocd"
           ]
         ]
       ],

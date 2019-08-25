@@ -30,7 +30,6 @@ import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.messaging.notifications.AgentStatusChangeNotifier;
 import com.thoughtworks.go.server.persistence.AgentDao;
-import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.server.ui.AgentViewModel;
 import com.thoughtworks.go.server.ui.AgentsViewModel;
 import com.thoughtworks.go.server.util.UuidGenerator;
@@ -138,9 +137,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     public AgentInstance updateAgentAttributes(String uuid, String hostname, String resources,
                                                EnvironmentsConfig envsConfig, TriState state) {
         AgentInstance agentInstance = agentInstances.findAgent(uuid);
-        if (agentInstance.isNullAgent()) {
-            throw new RecordNotFoundException(EntityType.Agent, uuid);
-        }
+        validateThatAgentExists(agentInstance);
 
         Agent agent = getAgentFromDBOrCache(agentInstance);
         if (validateAnyOperationPerformedOnAgent(hostname, envsConfig, resources, state)) {
@@ -154,60 +151,39 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     }
 
     public void bulkUpdateAgentAttributes(List<String> uuids, List<String> resourcesToAdd, List<String> resourcesToRemove,
-                                          EnvironmentsConfig envsToAdd, List<String> envsToRemove, TriState state,
-                                          LocalizedOperationResult result) {
-        AgentsUpdateValidator validator = new AgentsUpdateValidator(agentInstances, uuids, state, resourcesToAdd, resourcesToRemove, result);
-        try {
-            if (isAnyOperationPerformedOnBulkAgents(resourcesToAdd, resourcesToRemove, envsToAdd, envsToRemove, state, result)) {
-                validator.validate();
+                                          EnvironmentsConfig envsToAdd, List<String> envsToRemove, TriState state) {
+        if (isAnyOperationPerformedOnBulkAgents(resourcesToAdd, resourcesToRemove, envsToAdd, envsToRemove, state)) {
+            AgentsUpdateValidator validator = new AgentsUpdateValidator(agentInstances, uuids, state, resourcesToAdd, resourcesToRemove);
+            validator.validate();
 
-                List<Agent> agents = agentDao.getAgentsByUUIDs(uuids);
-                if (isTriStateSet(state)) {
-                    agents.addAll(agentInstances.filterPendingAgents(uuids));
-                }
+            List<Agent> agents = agentDao.getAgentsByUUIDs(uuids);
+            if (isTriStateSet(state)) {
+                agents.addAll(agentInstances.filterPendingAgents(uuids));
+            }
 
-                agents.forEach(agent -> setResourcesEnvsAndState(agent, resourcesToAdd, resourcesToRemove, envsToAdd, envsToRemove, state));
-                updateIdsAndGenerateCookiesForPendingAgents(agents, state);
-                agentDao.bulkUpdateAgents(agents);
-                result.setMessage("Updated agent(s) with uuid(s): [" + join(uuids, ", ") + "].");
-            }
-        } catch (Exception e) {
-            LOGGER.error("There was an error bulk updating agents", e);
-            if (!result.hasMessage()) {
-                result.internalServerError("Server error occured. Check log for details.");
-            }
+            agents.forEach(agent -> setResourcesEnvsAndState(agent, resourcesToAdd, resourcesToRemove, envsToAdd, envsToRemove, state));
+            updateIdsAndGenerateCookiesForPendingAgents(agents, state);
+            agentDao.bulkUpdateAgents(agents);
         }
     }
 
-    public void updateAgentsAssociationOfEnvironment(EnvironmentConfig envConfig, List<String> uuids, LocalizedOperationResult result) {
+    public void updateAgentsAssociationOfEnvironment(EnvironmentConfig envConfig, List<String> uuids) {
         if (envConfig == null) {
             return;
         }
 
-        AgentsUpdateValidator validator = new AgentsUpdateValidator(agentInstances, uuids, TRUE, emptyList(), emptyList(), result);
-        try {
-            EnvironmentsConfig envsConfig = getEnvironmentsConfigFrom(envConfig);
-            if (isAnyOperationPerformedOnBulkAgents(emptyList(), emptyList(), envsConfig, emptyList(), TRUE, result)) {
-                validator.validate();
+        AgentsUpdateValidator validator = new AgentsUpdateValidator(agentInstances, uuids, TRUE, emptyList(), emptyList());
+        EnvironmentsConfig envsConfig = getEnvironmentsConfigFrom(envConfig);
+        if (isAnyOperationPerformedOnBulkAgents(emptyList(), emptyList(), envsConfig, emptyList(), TRUE)) {
+            validator.validate();
 
-                List<String> uuidsToAssociate = (uuids == null) ? emptyList() : uuids;
-                List<Agent> agents = getAgentsToAddEnvToOrRemoveEnvFrom(envConfig, uuidsToAssociate);
+            List<String> uuidsToAssociate = (uuids == null) ? emptyList() : uuids;
+            List<Agent> agents = getAgentsToAddEnvToOrRemoveEnvFrom(envConfig, uuidsToAssociate);
 
-                if (agents.isEmpty()) {
-                    return;
-                }
-
-                agentDao.bulkUpdateAgents(agents);
-
-                String message = "Updated agent(s) with uuid(s): [" + join(uuidsToAssociate, ", ") + "].";
-                result.setMessage(message);
-                LOGGER.debug(message);
+            if (agents.isEmpty()) {
+                return;
             }
-        } catch (Exception e) {
-            LOGGER.error("There was an error bulk updating agents", e);
-            if (!result.hasMessage()) {
-                result.internalServerError("Server error occured. Check log for details.");
-            }
+            agentDao.bulkUpdateAgents(agents);
         }
     }
 
@@ -657,7 +633,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
 
     boolean isAnyOperationPerformedOnBulkAgents(List<String> resourcesToAdd, List<String> resourcesToRemove,
                                                 EnvironmentsConfig envsToAdd, List<String> envsToRemove,
-                                                TriState state, LocalizedOperationResult result) {
+                                                TriState state) {
         boolean anyOperationPerformed
                 = isNotEmpty(resourcesToAdd)
                 || isNotEmpty(resourcesToRemove)
@@ -665,8 +641,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
                 || isNotEmpty(envsToRemove)
                 || isTriStateSet(state);
         if (!anyOperationPerformed) {
-            result.badRequest("Bad Request. No operation is specified in the request to be performed on agents.");
-            return false;
+            throw new BadRequestException("Bad Request. No operation is specified in the request to be performed on agents.");
         }
         return true;
     }

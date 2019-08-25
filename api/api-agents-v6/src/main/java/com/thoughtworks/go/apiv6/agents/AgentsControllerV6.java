@@ -68,6 +68,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toCollection;
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.join;
 import static spark.Spark.*;
 
 @SuppressWarnings("ALL")
@@ -164,16 +165,21 @@ public class AgentsControllerV6 extends ApiController implements SparkSpringCont
         final AgentBulkUpdateRequest req = AgentBulkUpdateRequestRepresenter.fromJSON(request.body());
 
         final HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-
-        EnvironmentsConfig envsConfig = createEnvironmentsConfigFrom(req.getOperations().getEnvironments().toAdd());
-        agentService.bulkUpdateAgentAttributes(
-                req.getUuids(),
-                req.getOperations().getResources().toAdd(),
-                req.getOperations().getResources().toRemove(),
-                envsConfig,
-                req.getOperations().getEnvironments().toRemove(),
-                req.getAgentConfigState(),
-                result);
+        try {
+            agentService.bulkUpdateAgentAttributes(
+                    req.getUuids(),
+                    req.getOperations().getResources().toAdd(),
+                    req.getOperations().getResources().toRemove(),
+                    createEnvironmentsConfigFrom(req.getOperations().getEnvironments().toAdd()),
+                    req.getOperations().getEnvironments().toRemove(),
+                    req.getAgentConfigState()
+            );
+            result.setMessage("Updated agent(s) with uuid(s): [" + join(req.getUuids(), ", ") + "].");
+        } catch (HttpException e) {
+            throw e;
+        } catch (Exception e) {
+            throw halt(HttpStatus.SC_INTERNAL_SERVER_ERROR, MessageJson.create(e.getMessage()));
+        }
 
         return renderHTTPOperationResult(result, request, response);
     }

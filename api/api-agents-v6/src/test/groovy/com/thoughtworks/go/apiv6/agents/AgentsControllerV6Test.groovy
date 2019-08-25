@@ -29,9 +29,6 @@ import com.thoughtworks.go.domain.NullAgentInstance
 import com.thoughtworks.go.server.domain.AgentInstances
 import com.thoughtworks.go.server.service.AgentService
 import com.thoughtworks.go.server.service.EnvironmentConfigService
-import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
-import com.thoughtworks.go.server.service.result.HttpOperationResult
-import com.thoughtworks.go.server.service.result.LocalizedOperationResult
 import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
@@ -853,18 +850,13 @@ class AgentsControllerV6Test implements SecurityServiceTrait, ControllerTrait<Ag
         @Test
         void 'should update agents information for specified agents'() {
             loginAsAdmin()
-            doAnswer({ InvocationOnMock invocation ->
-                def result = invocation.getArgument(6) as HttpLocalizedOperationResult
-                result.setMessage("Updated agent(s) with uuid(s): [agent-1, agent-2].")
-
-            }).when(agentService).bulkUpdateAgentAttributes(
+            doNothing().when(agentService).bulkUpdateAgentAttributes(
                     any() as List<String>,
                     any() as List<String>,
                     any() as List<String>,
                     any() as EnvironmentsConfig,
                     any() as List<String>,
-                    any() as TriState,
-                    any() as LocalizedOperationResult
+                    any() as TriState
             )
 
             def requestBody = [
@@ -884,13 +876,11 @@ class AgentsControllerV6Test implements SecurityServiceTrait, ControllerTrait<Ag
                     ],
                     "agent_config_state": "enabled"
             ]
-
             patchWithApiHeader(controller.controllerPath(), requestBody)
-
             assertThatResponse()
                     .isOk()
                     .hasContentType(controller.mimeType)
-                    .hasJsonMessage("Updated agent(s) with uuid(s): [agent-1, agent-2].")
+                    .hasJsonMessage("Updated agent(s) with uuid(s): [adb9540a-b954-4571-9d9b-2f330739d4da, adb528b2-b954-1234-9d9b-b27ag4h568e1].")
         }
 
         @Nested
@@ -908,18 +898,14 @@ class AgentsControllerV6Test implements SecurityServiceTrait, ControllerTrait<Ag
                 when(environmentConfigService.findOrUnknown("env1")).thenReturn(environmentConfig)
                 when(environmentConfigService.findOrUnknown("env2")).thenReturn(environmentConfig1)
 
-                doAnswer({ InvocationOnMock invocation ->
-                    def result = invocation.getArgument(6) as HttpLocalizedOperationResult
-                    result.setMessage("Updated agent(s) with uuid(s): [uuid2].")
-
-                }).when(agentService).bulkUpdateAgentAttributes(
+                doNothing().when(agentService).bulkUpdateAgentAttributes(
                         any() as List<String>,
                         any() as List<String>,
                         any() as List<String>,
                         any() as EnvironmentsConfig,
                         any() as List<String>,
-                        any() as TriState,
-                        any() as LocalizedOperationResult)
+                        any() as TriState
+                )
 
                 def requestBody = [
                         "uuids"             : [
@@ -935,16 +921,14 @@ class AgentsControllerV6Test implements SecurityServiceTrait, ControllerTrait<Ag
                 ]
 
                 patchWithApiHeader(controller.controllerPath(), requestBody)
-
                 verify(agentService).bulkUpdateAgentAttributes(
                         eq(singletonList("uuid2")),
                         eq(emptyList()),
                         eq(emptyList()),
                         eq(environmentsConfig),
                         eq(singletonList("Production")),
-                        eq(TriState.TRUE),
-                        any() as LocalizedOperationResult)
-
+                        eq(TriState.TRUE)
+                )
                 assertThatResponse()
                         .isOk()
                         .hasContentType(controller.mimeType)
@@ -958,19 +942,14 @@ class AgentsControllerV6Test implements SecurityServiceTrait, ControllerTrait<Ag
                 loginAsAdmin()
 
                 def environmentsConfig = new EnvironmentsConfig()
-
-                doAnswer({ InvocationOnMock invocation ->
-                    def result = invocation.getArgument(6) as HttpLocalizedOperationResult
-                    result.setMessage("Updated agent(s) with uuid(s): [uuid2].")
-
-                }).when(agentService).bulkUpdateAgentAttributes(
+                doNothing().when(agentService).bulkUpdateAgentAttributes(
                         any() as List<String>,
                         any() as List<String>,
                         any() as List<String>,
                         any() as EnvironmentsConfig,
                         any() as List<String>,
-                        any() as TriState,
-                        any() as LocalizedOperationResult)
+                        any() as TriState
+                )
 
                 def requestBody = [
                         "uuids"             : [
@@ -986,20 +965,18 @@ class AgentsControllerV6Test implements SecurityServiceTrait, ControllerTrait<Ag
                 ]
 
                 def expectedJson = [
-                        "message": "Updated agent(s) with uuid(s): [uuid2]."
+                      "message": "Updated agent(s) with uuid(s): [uuid2]."
                 ]
 
                 patchWithApiHeader(controller.controllerPath(), requestBody)
-
                 verify(agentService).bulkUpdateAgentAttributes(
                         eq(singletonList("uuid2")),
                         eq(emptyList()),
                         eq(emptyList()),
                         eq(environmentsConfig),
                         eq(singletonList("Production")),
-                        eq(TriState.TRUE),
-                        any() as LocalizedOperationResult)
-
+                        eq(TriState.TRUE)
+                )
                 assertThatResponse()
                         .isOk()
                         .hasContentType(controller.mimeType)
@@ -1011,18 +988,14 @@ class AgentsControllerV6Test implements SecurityServiceTrait, ControllerTrait<Ag
                 loginAsAdmin()
 
                 def environmentsConfig = new EnvironmentsConfig()
-
-                doAnswer({ InvocationOnMock invocation ->
-                    def result = invocation.getArgument(6) as HttpLocalizedOperationResult
-                    result.setMessage("Updated agent(s) with uuid(s): [uuid2].")
-                }).when(agentService).bulkUpdateAgentAttributes(
+                doNothing().when(agentService).bulkUpdateAgentAttributes(
                         any() as List<String>,
                         any() as List<String>,
                         any() as List<String>,
                         any() as EnvironmentsConfig,
                         any() as List<String>,
-                        any() as TriState,
-                        any() as LocalizedOperationResult)
+                        any() as TriState
+                )
 
                 def requestBody = [
                         "uuids"             : [
@@ -1035,21 +1008,18 @@ class AgentsControllerV6Test implements SecurityServiceTrait, ControllerTrait<Ag
                         ],
                         "agent_config_state": "enabled"
                 ]
-
                 def expectedJson = [
                         "message": "Updated agent(s) with uuid(s): [uuid2]."
                 ]
                 patchWithApiHeader(controller.controllerPath(), requestBody)
-
                 verify(agentService).bulkUpdateAgentAttributes(
                         eq(singletonList("uuid2")),
                         eq(emptyList()),
                         eq(emptyList()),
                         eq(environmentsConfig),
                         eq(singletonList("Production")),
-                        eq(TriState.TRUE),
-                        any() as LocalizedOperationResult)
-
+                        eq(TriState.TRUE)
+                )
                 assertThatResponse()
                         .isOk()
                         .hasContentType(controller.mimeType)
@@ -1066,23 +1036,20 @@ class AgentsControllerV6Test implements SecurityServiceTrait, ControllerTrait<Ag
             ] as List<String>
 
             doAnswer({ InvocationOnMock invocation ->
-                def result = invocation.getArgument(6) as HttpLocalizedOperationResult
-                result.badRequest("Bad Request. No operation is specified in the request to be performed on agents.")
+                throw new BadRequestException("Bad Request. No operation is specified in the request to be performed on agents.")
             }).when(agentService).bulkUpdateAgentAttributes(
                     eq(uuids) as List<String>,
                     eq(emptyList()) as List<String>,
                     eq(emptyList()) as List<String>,
                     eq(new EnvironmentsConfig()) as EnvironmentsConfig,
                     eq(emptyList()) as List<String>,
-                    eq(TriState.UNSET) as TriState,
-                    any() as LocalizedOperationResult
+                    eq(TriState.UNSET) as TriState
             )
 
             def requestBody = [
                     "uuids": uuids
             ]
             patchWithApiHeader(controller.controllerPath(), requestBody)
-
             assertThatResponse()
                     .isBadRequest()
                     .hasContentType(controller.mimeType)

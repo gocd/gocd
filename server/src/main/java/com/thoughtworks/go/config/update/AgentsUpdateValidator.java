@@ -17,12 +17,11 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.Agents;
 import com.thoughtworks.go.config.ResourceConfigs;
-import com.thoughtworks.go.config.exceptions.ElasticAgentsResourceUpdateException;
+import com.thoughtworks.go.config.exceptions.BadRequestException;
 import com.thoughtworks.go.config.exceptions.EntityType;
-import com.thoughtworks.go.config.exceptions.InvalidPendingAgentOperationException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
 import com.thoughtworks.go.server.domain.AgentInstances;
-import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.util.TriState;
 
 import java.util.List;
@@ -35,7 +34,6 @@ import static org.apache.commons.lang3.StringUtils.join;
 
 public class AgentsUpdateValidator {
     private AgentInstances agentInstances;
-    private final LocalizedOperationResult result;
     private final List<String> uuids;
     private final TriState state;
     private final List<String> resourcesToAdd;
@@ -43,10 +41,8 @@ public class AgentsUpdateValidator {
     public Agents agents;
 
     public AgentsUpdateValidator(AgentInstances agentInstances, List<String> uuids, TriState state,
-                                 List<String> resourcesToAdd, List<String> resourcesToRemove,
-                                 LocalizedOperationResult result) {
+                                 List<String> resourcesToAdd, List<String> resourcesToRemove) {
         this.agentInstances = agentInstances;
-        this.result = result;
         this.uuids = uuids;
         this.state = state;
 
@@ -54,7 +50,7 @@ public class AgentsUpdateValidator {
         this.resourcesToRemove = actualOrEmptyList(resourcesToRemove);
     }
 
-    public void validate() throws Exception {
+    public void validate() {
         bombWhenAgentsDoesNotExist();
         bombWhenElasticAgentResourcesAreUpdated();
         bombWhenResourceNamesToAddAreInvalid();
@@ -67,8 +63,7 @@ public class AgentsUpdateValidator {
         resourceConfigs.validate(null);
 
         if (!resourceConfigs.errors().isEmpty()) {
-            result.unprocessableEntity("Validations failed for bulk update of agents. Error(s): " + resourceConfigs.errors());
-            throw new IllegalArgumentException(resourceConfigs.errors().toString());
+            throw new UnprocessableEntityException("Validations failed for bulk update of agents. Error(s): " + resourceConfigs.errors());
         }
     }
 
@@ -76,12 +71,11 @@ public class AgentsUpdateValidator {
         List<String> notFoundUUIDs = agentInstances.filterBy(uuids, Null);
 
         if (!isEmpty(notFoundUUIDs)) {
-            result.badRequest(EntityType.Agent.notFoundMessage(notFoundUUIDs));
             throw new RecordNotFoundException(EntityType.Agent, notFoundUUIDs);
         }
     }
 
-    private void bombWhenAnyOperationOnPendingAgents() throws InvalidPendingAgentOperationException {
+    private void bombWhenAnyOperationOnPendingAgents() {
         List<String> pendingUUIDs = agentInstances.filterBy(uuids, Pending);
 
         if (isEmpty(pendingUUIDs)) {
@@ -92,11 +86,10 @@ public class AgentsUpdateValidator {
             return;
         }
 
-        result.badRequest(format("Pending agents [%s] must be explicitly enabled or disabled when performing any operations on them.", commaSeparate(pendingUUIDs)));
-        throw new InvalidPendingAgentOperationException(pendingUUIDs);
+        throw new BadRequestException(format("Pending agents [%s] must be explicitly enabled or disabled when performing any operations on them.", commaSeparate(pendingUUIDs)));
     }
 
-    private void bombWhenElasticAgentResourcesAreUpdated() throws ElasticAgentsResourceUpdateException {
+    private void bombWhenElasticAgentResourcesAreUpdated() {
         if (resourcesAreNotUpdated()) {
             return;
         }
@@ -106,8 +99,7 @@ public class AgentsUpdateValidator {
             return;
         }
 
-        result.badRequest(format("Resources on elastic agents with uuids [%s] can not be updated.", commaSeparate(elasticAgentUUIDs)));
-        throw new ElasticAgentsResourceUpdateException(elasticAgentUUIDs);
+        throw new BadRequestException(format("Resources on elastic agents with uuids [%s] can not be updated.", commaSeparate(elasticAgentUUIDs)));
     }
 
     private boolean resourcesAreNotUpdated() {

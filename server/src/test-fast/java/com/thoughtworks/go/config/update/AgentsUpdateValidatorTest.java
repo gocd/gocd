@@ -16,9 +16,9 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.Agent;
-import com.thoughtworks.go.config.exceptions.ElasticAgentsResourceUpdateException;
-import com.thoughtworks.go.config.exceptions.InvalidPendingAgentOperationException;
+import com.thoughtworks.go.config.exceptions.BadRequestException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.helper.AgentMother;
@@ -36,7 +36,9 @@ import static com.thoughtworks.go.domain.AgentInstance.FilterBy.*;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -87,11 +89,8 @@ public class AgentsUpdateValidatorTest {
             when(agentInstances.filterBy(uuids, Pending)).thenReturn(singletonList(pendingAgent.getUuid()));
 
             assertThatCode(() -> newAgentsUpdateValidator().validate())
-                    .isInstanceOf(InvalidPendingAgentOperationException.class)
-                    .hasMessage("Invalid operation performed on pending agents: [uuid4]");
-
-            assertEquals(400, result.httpCode());
-            assertEquals("Pending agents [uuid4] must be explicitly enabled or disabled when performing any operations on them.", result.message());
+                    .isInstanceOf(BadRequestException.class)
+                    .hasMessage("Pending agents [uuid4] must be explicitly enabled or disabled when performing any operations on them.");
         }
 
         @Test
@@ -106,9 +105,8 @@ public class AgentsUpdateValidatorTest {
             uuids.add(disabledAgent.getUuid());
 
             assertThatCode(() -> newAgentsUpdateValidator().validate())
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessage("{resources=[Resource name 'fire!fox' is not valid. Valid names much match '^[-\\w\\s|.]*$']}");
-            assertTrue(result.message().contains("Resource name 'fire!fox' is not valid"));
+                    .isInstanceOf(UnprocessableEntityException.class)
+                    .hasMessage("Validations failed for bulk update of agents. Error(s): {resources=[Resource name 'fire!fox' is not valid. Valid names much match '^[-\\w\\s|.]*$']}");
         }
 
         @Test
@@ -118,32 +116,25 @@ public class AgentsUpdateValidatorTest {
 
             when(agentInstances.filterBy(uuids, Null)).thenReturn(singletonList(nonExistingUuid));
 
-            assertThatCode(() -> newAgentsUpdateValidator().validate())
-                    .isInstanceOf(RecordNotFoundException.class)
-                    .hasMessage("Agents with uuids 'non-existing-uuid' were not found!");
-
-            assertEquals(400, result.httpCode());
-            assertEquals(format("Agents with uuids '%s' were not found!", nonExistingUuid), result.message());
+            RecordNotFoundException e = assertThrows(RecordNotFoundException.class, () -> newAgentsUpdateValidator().validate());
+            assertThat(e.getMessage(), is("Agents with uuids 'non-existing-uuid' were not found!"));
         }
 
         @Test
         public void shouldThrowExceptionWhenElasticAgentResourcesAreBeingUpdated() {
             resourcesToAdd.add("Linux");
             Agent elasticAgent = AgentMother.elasticAgent();
-            uuids.add(elasticAgent.getUuid());
+            String uuid = elasticAgent.getUuid();
+            uuids.add(uuid);
 
-            when(agentInstances.filterBy(uuids, Elastic)).thenReturn(singletonList(elasticAgent.getUuid()));
-            String errMsg = "Resources on elastic agents with uuids [" + elasticAgent.getUuid() + "] can not be updated.";
-
+            when(agentInstances.filterBy(uuids, Elastic)).thenReturn(singletonList(uuid));
             assertThatCode(() -> newAgentsUpdateValidator().validate())
-                    .isInstanceOf(ElasticAgentsResourceUpdateException.class)
-                    .hasMessage(format("Can not update resources on Elastic Agents [%s]", elasticAgent.getUuid()));
-            assertEquals(400, result.httpCode());
-            assertEquals(errMsg, result.message());
+                    .isInstanceOf(BadRequestException.class)
+                    .hasMessage(format("Resources on elastic agents with uuids [%s] can not be updated.", uuid));
         }
     }
 
     private AgentsUpdateValidator newAgentsUpdateValidator() {
-        return new AgentsUpdateValidator(agentInstances, uuids, triState, resourcesToAdd, resourcesToRemove, result);
+        return new AgentsUpdateValidator(agentInstances, uuids, triState, resourcesToAdd, resourcesToRemove);
     }
 }

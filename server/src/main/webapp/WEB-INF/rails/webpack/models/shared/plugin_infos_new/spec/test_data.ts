@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 import {
-  AnalyticsCapabilityJSON,
-  AnalyticsExtensionJSON,
+  AboutJSON,
+  AnalyticsCapabilityJSON, AnalyticsExtensionJSON,
   AuthorizationExtensionJSON,
+  ElasticAgentExtensionJSON,
   LinksJSON,
   PluginInfoJSON,
-  SecretConfigExtensionJSON
+  SecretConfigExtensionJSON, StatusJSON, VendorJSON, ViewJSON
 } from "models/shared/plugin_infos_new/serialization";
 
 export function pluginImageLink() {
@@ -57,6 +58,91 @@ class BasePluginInfo {
     } as PluginInfoJSON;
   }
 }
+
+export const someVendor: VendorJSON = {
+  name: "GoCD Contributors",
+  url: "https://github.com/gocd-contrib/docker-elastic-agents"
+};
+
+export const about: AboutJSON = {
+  name: "Docker Elastic Agent Plugin",
+  version: "0.6.1",
+  target_go_version: "16.12.0",
+  description: "Docker Based Elastic Agent Plugins for GoCD",
+  target_operating_systems: [
+    "Linux",
+    "Mac OS X"
+  ],
+  vendor: someVendor
+};
+
+export const activeStatus: StatusJSON = {
+  state: "active"
+};
+
+export const view: ViewJSON = {
+  template: "<div>some view for plugin</div>"
+};
+
+export const pluginInfoWithElasticAgentExtensionV5: PluginInfoJSON = {
+  _links: pluginImageLink(),
+  id: "cd.go.contrib.elastic-agent.docker",
+  status: activeStatus,
+  plugin_file_location: "/foo/bar.jar",
+  bundled_plugin: false,
+  about,
+  extensions: [
+    {
+      type: "elastic-agent",
+      cluster_profile_settings: {
+        configurations: [
+          {
+            key: "instance_type",
+            metadata: {
+              secure: false,
+              required: true
+            }
+          }
+        ],
+        view: {
+          template: "elastic agent plugin settings view"
+        }
+      },
+      elastic_agent_profile_settings: {
+        configurations: [
+          {
+            key: "Image",
+            metadata: {
+              secure: false,
+              required: true
+            }
+          },
+          {
+            key: "Command",
+            metadata: {
+              secure: false,
+              required: false
+            }
+          },
+          {
+            key: "Environment",
+            metadata: {
+              secure: false,
+              required: false
+            }
+          }
+        ],
+        view
+      },
+      capabilities: {
+        supports_plugin_status_report: true,
+        supports_cluster_status_report: true,
+        supports_agent_status_report: true
+      },
+      supports_cluster_profiles: true
+    } as ElasticAgentExtensionJSON
+  ]
+};
 
 export class ArtifactPluginInfo {
   static docker() {

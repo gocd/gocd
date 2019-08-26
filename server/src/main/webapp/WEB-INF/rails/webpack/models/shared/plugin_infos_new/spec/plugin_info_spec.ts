@@ -38,44 +38,24 @@ import {
   PluginInfoJSON,
   SCMExtensionJSON, SCMMetadataJSON,
   SecretConfigExtensionJSON,
-  StatusJSON,
   TaskExtensionJSON,
   VendorJSON,
-  ViewJSON
 } from "models/shared/plugin_infos_new/serialization";
 import {AnalyticsCapability} from "../analytics_plugin_capabilities";
 import {ExtensionTypeString} from "../extension_type";
 import {PluginInfo} from "../plugin_info";
-import {AnalyticsPluginInfo, pluginImageLink, SecretPluginInfo} from "./test_data";
+import {
+  about,
+  activeStatus, AnalyticsPluginInfo,
+  pluginImageLink,
+  pluginInfoWithElasticAgentExtensionV5,
+  SecretPluginInfo,
+  view
+} from "./test_data";
 
 describe("PluginInfos New", () => {
 
-  const someVendor: VendorJSON = {
-    name: "GoCD Contributors",
-    url: "https://github.com/gocd-contrib/docker-elastic-agents"
-  };
-
-  const about: AboutJSON = {
-    name: "Docker Elastic Agent Plugin",
-    version: "0.6.1",
-    target_go_version: "16.12.0",
-    description: "Docker Based Elastic Agent Plugins for GoCD",
-    target_operating_systems: [
-      "Linux",
-      "Mac OS X"
-    ],
-    vendor: someVendor
-  };
-
-  const activeStatus: StatusJSON = {
-    state: "active"
-  };
-
-  const view: ViewJSON = {
-    template: "<div></div>"
-  };
-
-  const elasticAgentExtensionJSON: ElasticAgentExtensionJSON  = {
+  const elasticAgentExtensionJSON: ElasticAgentExtensionJSON = {
     type: "elastic-agent",
     plugin_settings: {
       configurations: [
@@ -124,6 +104,7 @@ describe("PluginInfos New", () => {
     },
     supports_cluster_profiles: false
   };
+
   const pluginInfoWithElasticAgentExtensionV4: PluginInfoJSON = {
     _links: pluginImageLink(),
     id: "cd.go.contrib.elastic-agent.docker",
@@ -133,66 +114,6 @@ describe("PluginInfos New", () => {
     about,
     extensions: [
       elasticAgentExtensionJSON
-    ]
-  };
-
-  const pluginInfoWithElasticAgentExtensionV5: PluginInfoJSON = {
-    _links: pluginImageLink(),
-    id: "cd.go.contrib.elastic-agent.docker",
-    status: activeStatus,
-    plugin_file_location: "/foo/bar.jar",
-    bundled_plugin: false,
-    about,
-    extensions: [
-      {
-        type: "elastic-agent",
-        cluster_profile_settings: {
-          configurations: [
-            {
-              key: "instance_type",
-              metadata: {
-                secure: false,
-                required: true
-              }
-            }
-          ],
-          view: {
-            template: "elastic agent plugin settings view"
-          }
-        },
-        elastic_agent_profile_settings: {
-          configurations: [
-            {
-              key: "Image",
-              metadata: {
-                secure: false,
-                required: true
-              }
-            },
-            {
-              key: "Command",
-              metadata: {
-                secure: false,
-                required: false
-              }
-            },
-            {
-              key: "Environment",
-              metadata: {
-                secure: false,
-                required: false
-              }
-            }
-          ],
-          view
-        },
-        capabilities: {
-          supports_plugin_status_report: true,
-          supports_cluster_status_report: true,
-          supports_agent_status_report: true
-        },
-        supports_cluster_profiles: true
-      } as ElasticAgentExtensionJSON
     ]
   };
 

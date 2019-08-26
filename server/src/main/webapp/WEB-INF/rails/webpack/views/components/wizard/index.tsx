@@ -59,7 +59,7 @@ export class Wizard extends MithrilViewComponent {
             onclick={() => this.selectedStepIndex(index)}>{step.header()}</span>;
         })}
       </header>
-      <div class={styles.wizardBody}>
+      <div class={styles.wizardBody} data-test-id="modal-body">
         <div class={styles.stepBody}>{selectedStep!.body()}</div>
       </div>
       <footer class={styles.wizardFooter}>
@@ -70,18 +70,19 @@ export class Wizard extends MithrilViewComponent {
 
   render() {
     ModalManager.render(this);
+    return this;
   }
 
   close() {
     ModalManager.close(this);
   }
 
-  previous() {
-    this.selectedStepIndex(this.selectedStepIndex() - 1);
+  previous(skip = 1) {
+    this.selectedStepIndex(this.selectedStepIndex() - skip);
   }
 
-  next() {
-    this.selectedStepIndex(this.selectedStepIndex() + 1);
+  next(skip = 1) {
+    this.selectedStepIndex(this.selectedStepIndex() + skip);
   }
 
   isFirstStep() {

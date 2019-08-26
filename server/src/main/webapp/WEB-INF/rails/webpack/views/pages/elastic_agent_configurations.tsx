@@ -25,7 +25,6 @@ import {
   ElasticAgentProfiles
 } from "models/elastic_profiles/types";
 import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
-import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
 import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
@@ -46,13 +45,9 @@ import {
   NewElasticProfileModal,
   UsageElasticProfileModal
 } from "views/pages/elastic_agent_configurations/elastic_agent_profiles_modals";
-import {SaveOperation} from "views/pages/page_operations";
+import {RequiresPluginInfos, SaveOperation} from "views/pages/page_operations";
 
 import {Page, PageState} from "./page";
-
-export interface RequiresPluginInfos {
-  pluginInfos: Stream<PluginInfos>;
-}
 
 export interface State extends RequiresPluginInfos, ClusterProfilesWidgetAttrs, SaveOperation {
   onShowUsages: (profileId: string, event: MouseEvent) => void;

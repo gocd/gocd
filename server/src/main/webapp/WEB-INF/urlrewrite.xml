@@ -91,6 +91,12 @@
   </rule>
 
   <rule>
+    <name>New Elastic Agent Configuration Page</name>
+    <from>^/admin/elastic_agents(/?)$</from>
+    <to last="true">/spark/admin/elastic_agents</to>
+  </rule>
+
+  <rule>
     <name>default-job-timeout</name>
     <from>^/api/admin/config/server/default_job_timeout$</from>
     <to last="true">/spark/api/admin/config/server/default_job_timeout</to>

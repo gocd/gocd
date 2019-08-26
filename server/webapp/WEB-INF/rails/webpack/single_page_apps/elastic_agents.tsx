@@ -13,24 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/// <reference types="jasmine"/>
 
-declare namespace jasmine {
-  interface Matchers<T> {
-    toContainSpinner(): boolean;
+import {RoutedSinglePageApp} from "helpers/spa_base";
+import {ElasticAgentsPage} from "views/pages/elastic_agents";
 
-    toContainError(msg: string): boolean;
-
-    toContainTitle(title: string): boolean;
-
-    toContainBody(body: string): boolean;
-
-    toContainInBody(body: string): boolean;
-
-    toContainSelectorInBody(selector: string): boolean;
-
-    toContainElementWithDataTestId(selector: string): boolean;
-
-    toContainButtons(buttons: string[]): boolean;
+export class ElasticAgentsSPA extends RoutedSinglePageApp {
+  constructor() {
+    super({"/": ElasticAgentsPage});
   }
 }
+
+//tslint:disable-next-line
+new ElasticAgentsSPA();

@@ -116,13 +116,13 @@ export class PluginAttributes {
   }
 
   properties() {
-    return this.__properties.allConfigurations();
+    return this.__properties;
   }
 
   toJSON() {
     return {
       auth_config_id: this.authConfigId,
-      properties: this.properties().map((config) => {
+      properties: this.properties().allConfigurations().map((config) => {
         return {
           key: config.key,
           value: config.displayValue()

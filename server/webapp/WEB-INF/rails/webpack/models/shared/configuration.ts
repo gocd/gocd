@@ -55,13 +55,7 @@ export class Configurations {
   }
 
   public asMap(): Map<string, string> {
-    const result = new Map<string, string>();
-
-    this.configurations.forEach((config) => {
-      result.set(config.key, config.displayValue());
-    });
-
-    return result;
+    return new Map<string, string>(this.configurations.map((config) => [config.key, config.displayValue()] as [string, string]));
   }
 
   public allConfigurations(): Configuration[] {

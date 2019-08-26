@@ -19,14 +19,85 @@ import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 
 enum ApprovalType { success = "success", manual = "manual" }
 
+export interface StringListInterface {
+  type(): string;
+
+  add(element: string): void;
+
+  remove(element: string): void;
+
+  list(): string[];
+}
+
+abstract class StringList implements StringListInterface {
+  private readonly internalList: Stream<string[]>;
+
+  constructor(list?: string[]) {
+    this.internalList = Stream(list || []);
+  }
+
+  add(element: string): void {
+    if (!this.exists(element)) {
+      this.internalList().push(element);
+    }
+  }
+
+  remove(element: string) {
+    if (this.exists(element)) {
+      this.internalList(this.internalList().filter((user) => user !== element));
+    }
+  }
+
+  list() {
+    return this.internalList();
+  }
+
+  abstract type(): string;
+
+  private exists(element: string): boolean {
+    return this.internalList().indexOf(element) !== -1;
+  }
+}
+
+class Users extends StringList {
+  type(): string {
+    return "User";
+  }
+}
+
+class Roles extends StringList {
+  type(): string {
+    return "Role";
+  }
+}
+
+export class StageAuthorization extends ValidatableMixin {
+  public readonly users: Users;
+  public readonly roles: Roles;
+
+  constructor(users?: string[], roles?: string[]) {
+    super();
+
+    this.users = new Users(users);
+    this.roles = new Roles(roles);
+
+    this.validatePresenceOf("users");
+    this.validatePresenceOf("roles");
+  }
+}
+
 class Approval extends ValidatableMixin {
   public readonly type: Stream<ApprovalType> = Stream();
   public readonly state: (value?: boolean) => boolean;
+  public readonly inheritFromPipelineGroup: (value?: boolean) => boolean;
+  public readonly authorization: Stream<StageAuthorization | undefined>;
 
-  constructor() {
+  constructor(authorization?: StageAuthorization) {
     super();
 
     this.type(ApprovalType.success);
+    this.authorization = Stream(authorization);
+
     this.validatePresenceOf("type");
 
     this.state = (value?: boolean) => {
@@ -34,6 +105,14 @@ class Approval extends ValidatableMixin {
         this.type(value ? ApprovalType.success : ApprovalType.manual);
       }
       return ApprovalType.success === this.type();
+    };
+
+    this.inheritFromPipelineGroup = (value?: boolean) => {
+      if ("boolean" === typeof value) {
+        value ? this.authorization(undefined) : this.authorization(new StageAuthorization());
+      }
+
+      return !this.authorization();
     };
   }
 }

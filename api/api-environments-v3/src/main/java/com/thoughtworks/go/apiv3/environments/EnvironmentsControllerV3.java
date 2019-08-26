@@ -137,7 +137,7 @@ public class EnvironmentsControllerV3 extends ApiController implements SparkSpri
         EnvironmentConfig oldEnvironmentConfig = fetchEntityFromConfig(environmentName);
         HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
 
-        if (!StringUtils.equals(environmentName, environmentConfig.name().toString())) {
+        if (!StringUtils.equalsIgnoreCase(environmentName, environmentConfig.name().toString())) {
             throw haltBecauseRenameOfEntityIsNotSupported("environment");
         }
 

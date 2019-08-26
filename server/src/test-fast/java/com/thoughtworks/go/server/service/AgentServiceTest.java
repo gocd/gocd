@@ -1234,7 +1234,7 @@ class AgentServiceTest {
             AgentInstance agentInstance3 = AgentInstanceMother.pending();
 
             List<AgentInstance> agentInstanceList = asList(agentInstance1, agentInstance2, agentInstance3);
-            when(agentInstances.values()).thenReturn(agentInstanceList);
+            when(agentInstances.spliterator()).thenReturn(agentInstanceList.spliterator());
 
             List<String> allAgentUUIDs = agentService.getAllRegisteredAgentUUIDs();
             assertThat(allAgentUUIDs.size(), is(2));
@@ -1242,7 +1242,7 @@ class AgentServiceTest {
 
         @Test
         void getAllRegisteredAgentUUIDsShouldReturnEmptyListOfUUIDsIfThereAreNoAgentInstancesInCache() {
-            when(agentInstances.values()).thenReturn(emptyList());
+            when(agentInstances.spliterator()).thenReturn(new ArrayList<AgentInstance>().spliterator());
             List<String> allAgentUUIDs = agentService.getAllRegisteredAgentUUIDs();
             assertTrue(allAgentUUIDs.isEmpty());
         }
@@ -1250,7 +1250,7 @@ class AgentServiceTest {
         @Test
         void getAllRegisteredAgentUUIDsShouldReturnEmptyListOfUUIDsIfThereAreNoRegisteredAgentInstancesInCache() {
             AgentInstance notRegisteredAgentInstance = AgentInstanceMother.pending();
-            when(agentInstances.values()).thenReturn(singletonList(notRegisteredAgentInstance));
+            when(agentInstances.spliterator()).thenReturn(singletonList(notRegisteredAgentInstance).spliterator());
             List<String> allAgentUUIDs = agentService.getAllRegisteredAgentUUIDs();
             assertTrue(allAgentUUIDs.isEmpty());
         }
@@ -1266,7 +1266,7 @@ class AgentServiceTest {
             AgentInstance agentInstance1 = building();
             agentInstance1.getAgent().setResources("d,e,a");
 
-            when(agentInstances.values()).thenReturn(asList(agentInstance, agentInstance1));
+            when(agentInstances.spliterator()).thenReturn(asList(agentInstance, agentInstance1).spliterator());
 
             assertEquals(asList("a", "b", "c", "d", "e"), agentService.getListOfResourcesAcrossAgents());
         }
@@ -1282,7 +1282,7 @@ class AgentServiceTest {
             AgentInstance agentInstance2 = AgentInstanceMother.pending();
             agentInstance2.getAgent().setResources(null);
 
-            when(agentInstances.values()).thenReturn(asList(agentInstance, agentInstance1, agentInstance2));
+            when(agentInstances.spliterator()).thenReturn(asList(agentInstance, agentInstance1, agentInstance2).spliterator());
 
             assertEquals(asList("a", "b", "c"), agentService.getListOfResourcesAcrossAgents());
         }

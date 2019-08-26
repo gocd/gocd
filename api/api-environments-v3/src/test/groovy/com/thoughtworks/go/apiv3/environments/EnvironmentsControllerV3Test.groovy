@@ -20,7 +20,10 @@ import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv3.environments.representers.EnvironmentRepresenter
 import com.thoughtworks.go.apiv3.environments.representers.EnvironmentsRepresenter
-import com.thoughtworks.go.config.*
+import com.thoughtworks.go.config.BasicEnvironmentConfig
+import com.thoughtworks.go.config.CaseInsensitiveString
+import com.thoughtworks.go.config.EnvironmentConfig
+import com.thoughtworks.go.config.EnvironmentVariableConfig
 import com.thoughtworks.go.domain.ConfigElementForEdit
 import com.thoughtworks.go.security.GoCipher
 import com.thoughtworks.go.server.service.EntityHashingService
@@ -374,6 +377,29 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
         assertThatResponse()
           .isUnprocessableEntity()
           .hasJsonMessage("Renaming of environment is not supported by this API.")
+      }
+
+      @Test
+      void 'should not error out on update if the environment name provided has is case different only'() {
+        def existingConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("env1"))
+        existingConfig.addEnvironmentVariable("JAVA_HOME", "/bin/java")
+        existingConfig.addPipeline(new CaseInsensitiveString("Pipeline1"))
+
+        def newConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("Env1"))
+        newConfig.addEnvironmentVariable("JAVA_HOME", "/bin/java")
+        newConfig.addPipeline(new CaseInsensitiveString("Pipeline1"))
+
+        when(entityHashingService.md5ForEntity(existingConfig)).thenReturn("ffff")
+        when(environmentConfigService.getEnvironmentConfig(eq("env1"))).thenReturn(existingConfig)
+
+        def json = toObjectString({ EnvironmentRepresenter.toJSON(it, newConfig) })
+
+        putWithApiHeader(controller.controllerPath("env1"), ['if-match': 'ffff'], json)
+
+        assertThatResponse()
+          .isOk()
+          .hasEtag('"ffff"')
+          .hasBodyWithJsonObject(newConfig, EnvironmentRepresenter)
       }
 
       @Test

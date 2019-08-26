@@ -122,7 +122,9 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     }
 
     public Agents agents() {
-        return agentInstances.values().stream().map(AgentInstance::getAgent).collect(toCollection(Agents::new));
+        return stream(agentInstances.spliterator(), false)
+                .map(AgentInstance::getAgent)
+                .collect(toCollection(Agents::new));
     }
 
     public Map<AgentInstance, Collection<String>> getAgentInstanceToSortedEnvMap() {
@@ -321,7 +323,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     }
 
     public List<String> getAllRegisteredAgentUUIDs() {
-        return agentInstances.values().stream()
+        return stream(agentInstances.spliterator(), false)
                 .filter(AgentInstance::isRegistered)
                 .map(AgentInstance::getUuid)
                 .collect(toList());

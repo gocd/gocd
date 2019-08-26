@@ -91,12 +91,9 @@ class AgentsControllerV6Test implements SecurityServiceTrait, ControllerTrait<Ag
     void "should return a list of agents"() {
       def instance = idle()
       instance.getAgent().setEnvironments("env1,env2,unknown-env")
-      def agentInstanceList = new ArrayList<AgentInstance>()
-      agentInstanceList.add(instance)
 
-      def instances = mock(AgentInstances.class)
+      def instances = new AgentInstances(null, null, instance)
       when(agentService.getAgentInstances()).thenReturn(instances)
-      when(instances.values()).thenReturn(agentInstanceList)
 
       def environmentConfigs = new HashSet<EnvironmentConfig>()
       environmentConfigs.add(environment("env1"))
@@ -186,7 +183,6 @@ class AgentsControllerV6Test implements SecurityServiceTrait, ControllerTrait<Ag
     @Test
     void "should return an empty list of agents if there are no agents available"() {
       def mockAgentInstances = mock(AgentInstances.class)
-      when(mockAgentInstances.values()).thenReturn(new ArrayList<AgentInstance>())
       when(agentService.getAgentInstances()).thenReturn(mockAgentInstances)
 
       getWithApiHeader(controller.controllerPath())

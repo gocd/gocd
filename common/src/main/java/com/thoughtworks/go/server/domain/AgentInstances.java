@@ -58,7 +58,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
         this(listener);
         this.systemEnvironment = sysEnv;
 
-        if(agentInstances != null) {
+        if (agentInstances != null) {
             Stream.of(agentInstances).forEach(this::add);
         }
     }
@@ -98,10 +98,6 @@ public class AgentInstances implements Iterable<AgentInstance> {
 
     public void clearAll() {
         uuidToAgentInstanceMap.clear();
-    }
-
-    public Collection<AgentInstance> values() {
-        return uuidToAgentInstanceMap.values();
     }
 
     public AgentInstances getAllAgents() {
@@ -194,7 +190,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
     }
 
     public List<AgentInstance> filter(List<String> uuids) {
-        if(CollectionUtils.isEmpty(uuids)){
+        if (CollectionUtils.isEmpty(uuids)) {
             return emptyList();
         }
 

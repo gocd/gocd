@@ -87,7 +87,6 @@ public class GoConfigMigrator {
         try {
             return upgrade();
         } catch (Exception e) {
-            e.printStackTrace();
             upgradeFailedHandler.handle(e);
         }
         return null;
@@ -114,7 +113,7 @@ public class GoConfigMigrator {
 
     private GoConfigHolder upgradeVersionedConfigFile(Exception originalException) throws Exception {
         GoConfigRevision currentConfigRevision = configRepository.getCurrentRevision();
-        if(currentConfigRevision == null) {
+        if (currentConfigRevision == null) {
             LOGGER.warn("There is no versioned configuration to fallback for migration.");
             throw originalException;
         }

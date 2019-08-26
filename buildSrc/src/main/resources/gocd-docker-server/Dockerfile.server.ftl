@@ -18,6 +18,7 @@
 ###############################################################################################
 
 FROM alpine:latest as gocd-server-unzip
+ARG UID=1000
 <#if useFromArtifact >
 COPY go-server-${fullVersion}.zip /tmp/go-server-${fullVersion}.zip
 <#else>
@@ -27,7 +28,7 @@ RUN \
   curl --fail --location --silent --show-error "https://download.gocd.org/binaries/${fullVersion}/generic/go-server-${fullVersion}.zip" > /tmp/go-server-${fullVersion}.zip
 </#if>
 RUN unzip /tmp/go-server-${fullVersion}.zip -d /
-RUN mv /go-server-${goVersion} /go-server
+RUN mv /go-server-${goVersion} /go-server && chown -R ${r"${UID}"}:0 /go-server && chmod -R g=u /go-server
 
 FROM ${distro.name()}:${distroVersion.releaseName}
 MAINTAINER ThoughtWorks, Inc. <support@thoughtworks.com>
@@ -89,8 +90,8 @@ COPY --chown=go:root logback-include.xml /go-server/config/logback-include.xml
 COPY --chown=go:root install-gocd-plugins /usr/local/sbin/install-gocd-plugins
 COPY --chown=go:root git-clone-config /usr/local/sbin/git-clone-config
 
-RUN chown -R go:root /go-server /docker-entrypoint.d /go-working-dir /godata /docker-entrypoint.sh \
-    && chmod -R g=u /go-server /docker-entrypoint.d /go-working-dir /godata /docker-entrypoint.sh
+RUN chown -R go:root /docker-entrypoint.d /go-working-dir /godata /docker-entrypoint.sh \
+    && chmod -R g=u /docker-entrypoint.d /go-working-dir /godata /docker-entrypoint.sh
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 

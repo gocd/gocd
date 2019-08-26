@@ -39,9 +39,9 @@ describe("RoleModel", () => {
     expect(pluginRole.name()).toEqual("blackbird");
     expect(pluginRole.type()).toEqual(RoleType.plugin);
     expect(pluginRole.attributes().authConfigId).toEqual("ldap");
-    expect(pluginRole.attributes().properties()).toHaveLength(2);
-    expect(pluginRole.attributes().properties()[0].key).toEqual("UserGroupMembershipAttribute");
-    expect(pluginRole.attributes().properties()[0].displayValue()).toEqual("memberOf");
+    expect(pluginRole.attributes().properties().allConfigurations()).toHaveLength(2);
+    expect(pluginRole.attributes().properties().allConfigurations()[0].key).toEqual("UserGroupMembershipAttribute");
+    expect(pluginRole.attributes().properties().allConfigurations()[0].displayValue()).toEqual("memberOf");
   });
 
   it("should validate the presence of name", () => {

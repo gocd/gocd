@@ -20,7 +20,6 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import { AuthConfig, AuthConfigs } from "models/auth_configs/auth_configs";
 import { GoCDAttributes, GoCDRole, PluginAttributes, PluginRole } from "models/roles/roles";
-import { Configurations } from "models/shared/configuration";
 import { ExtensionTypeString } from "models/shared/plugin_infos_new/extension_type";
 import { AuthorizationExtension} from "models/shared/plugin_infos_new/extensions";
 import { PluginInfos } from "models/shared/plugin_infos_new/plugin_info";
@@ -150,7 +149,7 @@ export class PluginRoleModalBodyWidget extends MithrilViewComponent<PluginModalA
           <div class="row collapse">
             <AngularPluginNew
               pluginInfoSettings={Stream(pluginSettings)}
-              configuration={new Configurations(pluginAttributes.properties())}
+              configuration={pluginAttributes.properties()}
               key={pluginInfo.id} />
           </div>
         </div>

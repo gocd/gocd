@@ -19,7 +19,6 @@ import _ from "lodash";
 import m from "mithril";
 import {AuthConfigs} from "models/auth_configs/auth_configs";
 import {GoCDRole, PluginAttributes, PluginRole, Roles} from "models/roles/roles";
-import {Configuration} from "models/shared/configuration";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import s from "underscore.string";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
@@ -162,11 +161,6 @@ export class GoCDRoleWidget extends RoleWidget {
 export class PluginRoleWidget extends RoleWidget {
   viewForRole(vnode: m.Vnode<RoleAttrs | PluginRoleAttrs>): m.Children {
     const pluginRole = vnode.attrs.role as PluginRole;
-    return (<KeyValuePair data={this.asMap(pluginRole.attributes().properties())}/>);
-  }
-
-  asMap(configurations: Configuration[]): Map<string, string> {
-    return new Map<string, string>(configurations
-                                     .map((prop) => [prop.key, prop.displayValue()] as [string, string]));
+    return (<KeyValuePair data={pluginRole.attributes().properties().asMap()}/>);
   }
 }

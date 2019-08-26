@@ -23,13 +23,13 @@ import {ErrorMessages} from "models/mixins/error_messages";
 import {Errors} from "models/mixins/errors";
 import {ErrorsConsumer} from "models/mixins/errors_consumer";
 import {ValidatableMixin, Validator} from "models/mixins/new_validatable_mixin";
+import {NameableSet} from "models/new_pipeline_configs/nameable_set";
 import urlParse from "url-parse";
 import {EncryptedValue, plainOrCipherValue} from "views/components/forms/encrypted_value";
 import {
   DependencyMaterialAttributesJSON,
   GitMaterialAttributesJSON,
   HgMaterialAttributesJSON,
-  MaterialAttributesJSON,
   MaterialJSON,
   P4MaterialAttributesJSON,
   SvnMaterialAttributesJSON,
@@ -68,9 +68,9 @@ export interface TfsMaterialAttributes extends ValidatableMixin {
 export interface DependencyMaterialAttributes extends ValidatableMixin {
 }
 
-export class Materials {
-  static fromJSON(material: MaterialJSON): Material {
-    return new Material(material.type, MaterialAttributes.deserialize(material));
+export class Materials extends NameableSet<Material> {
+  constructor(...materials: Material[]) {
+    super(materials);
   }
 }
 
@@ -86,22 +86,22 @@ export class Material extends ValidatableMixin {
       let materialAttributes;
       switch (type) {
         case "git":
-          materialAttributes = new GitMaterialAttributes("", "");
+          materialAttributes = new GitMaterialAttributes("");
           break;
         case "hg":
-          materialAttributes = new HgMaterialAttributes("", "");
+          materialAttributes = new HgMaterialAttributes("");
           break;
         case "svn":
-          materialAttributes = new SvnMaterialAttributes("", "");
+          materialAttributes = new SvnMaterialAttributes("");
           break;
         case "p4":
-          materialAttributes = new P4MaterialAttributes("", "", "");
+          materialAttributes = new P4MaterialAttributes("", "");
           break;
         case "tfs":
-          materialAttributes = new TfsMaterialAttributes("", "", "");
+          materialAttributes = new TfsMaterialAttributes("", "");
           break;
         case "dependency":
-          materialAttributes = new DependencyMaterialAttributes("", "", "");
+          materialAttributes = new DependencyMaterialAttributes("", "");
       }
       this.attributes = Stream(materialAttributes as MaterialAttributes);
     } else {
@@ -116,23 +116,22 @@ export class Material extends ValidatableMixin {
     return this.attributes().name() || "";
   }
 
-  typeProxy(value?: any): string {
-    if (arguments.length > 0) {
-      const newType = value;
-      if (this.type() !== newType) {
-        this.attributes(MaterialAttributes.deserialize({
-                                                         type: newType,
-                                                         attributes: ({} as MaterialAttributesJSON)
-                                                       }));
-      }
-      this.type(newType);
-    }
-    return this.type();
-  }
-
   materialUrl(): string {
-    // @ts-ignore
-    return this.type() === "p4" ? this.attributes().port() : this.attributes().url();
+    switch (this.type()) {
+      case "git":
+        return (this.attributes() as GitMaterialAttributes).url();
+      case "hg":
+        return (this.attributes() as HgMaterialAttributes).url();
+      case "svn":
+        return (this.attributes() as SvnMaterialAttributes).url();
+      case "p4":
+        return (this.attributes() as P4MaterialAttributes).port();
+      case "tfs":
+        return (this.attributes() as SvnMaterialAttributes).url();
+      case "dependency":
+        return (this.attributes() as DependencyMaterialAttributes).url();
+    }
+    return "";
   }
 
   errorContainerFor(subkey: string): ErrorsConsumer {
@@ -151,15 +150,6 @@ export class Material extends ValidatableMixin {
     }
 
     return raw;
-  }
-
-  pacConfigFiles() {
-    const payload = this.toApiPayload();
-    return ApiRequestBuilder.POST(
-      SparkRoutes.pacListConfigFiles(),
-      Material.API_VERSION_HEADER,
-      {payload}
-    );
   }
 
   checkConnection(pipelineGroup?: string) {
@@ -463,7 +453,7 @@ export class DependencyMaterialAttributes extends MaterialAttributes {
   pipeline: Stream<string>;
   stage: Stream<string>;
 
-  constructor(pipeline: string, stage: string, name: string, autoUpdate?: boolean) {
+  constructor(pipeline: string, stage: string, name?: string, autoUpdate?: boolean) {
     super(name, autoUpdate);
     this.pipeline = Stream(pipeline);
     this.stage    = Stream(stage);
@@ -481,5 +471,9 @@ export class DependencyMaterialAttributes extends MaterialAttributes {
     );
     attrs.errors(new Errors(json.errors));
     return attrs;
+  }
+
+  url(): string {
+    return this.pipeline() + " / " + this.stage();
   }
 }

@@ -13,16 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@import "../../global/common";
-
-.pipeline-details-container {
-  display:       flex;
-  background:    $element-bg;
-  border:        1px solid $line-color;
-  padding:       20px 30px 10px;
-  margin-bottom: 20px;
-}
-
-.text-align-right {
-  text-align: right;
-}
+​
+export const IDENTIFIER_FORMAT_HELP_MESSAGE = "No spaces. Only letters, numbers, hyphens, underscores, and periods. Max 255 chars.";
+export const DESTINATION_DIR_HELP_MESSAGE   = "Specify a different path to clone/checkout this repository. Must be a relative path within the pipeline’s working directory. Defaults to the root of the pipeline's working directory.";

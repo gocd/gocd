@@ -19,7 +19,7 @@ import {JsonUtils} from "helpers/json_utils";
 import {SparkRoutes} from "helpers/spark_routes";
 import Stream from "mithril/stream";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
-import {Material} from "./materials";
+import {Material, Materials} from "./materials";
 import {NameableSet} from "./nameable_set";
 import {StageConfig} from "./stage_configuration";
 
@@ -27,7 +27,7 @@ export class PipelineConfig extends ValidatableMixin {
   group: Stream<string>    = Stream();
   name: Stream<string>;
   template: Stream<string> = Stream();
-  materials: Stream<NameableSet<Material>>;
+  materials: Stream<Materials>;
   stages: Stream<NameableSet<StageConfig>>;
 
   constructor(name: string, materials: Material[], stages: StageConfig[]) {

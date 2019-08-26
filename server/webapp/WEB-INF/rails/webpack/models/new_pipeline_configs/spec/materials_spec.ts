@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {GitMaterialAttributes, HgMaterialAttributes, Material, ScmMaterialAttributes} from "../materials";
+import {DependencyMaterialAttributes, GitMaterialAttributes, HgMaterialAttributes, Material, P4MaterialAttributes, ScmMaterialAttributes, SvnMaterialAttributes, TfsMaterialAttributes} from "../materials";
 import {Hg} from "./material_test_data";
 
 describe("Material Types", () => {
@@ -155,6 +155,67 @@ describe("Material Types", () => {
       expect(material.attributes().errors().count()).toBe(1);
       expect(material.attributes().errors().keys()).toEqual(["url"]);
       expect(material.attributes().errors().errorsForDisplay("url")).toBe("URL credentials must be set in either the URL or the username+password fields, but not both.");
+    });
+  });
+
+  describe("materialUrl()", () => {
+    it("should return url for Git material", () => {
+      const material = new Material("git", new GitMaterialAttributes("http://foo.bar"));
+
+      expect(material.materialUrl()).toEqual("http://foo.bar");
+    });
+
+    it("should return url for Svn material", () => {
+      const material = new Material("svn", new SvnMaterialAttributes("svn://127.0.0.1/foo"));
+
+      expect(material.materialUrl()).toEqual("svn://127.0.0.1/foo");
+    });
+
+    it("should return url for Hg material", () => {
+      const material = new Material("hg", new HgMaterialAttributes("http://foo.bar"));
+
+      expect(material.materialUrl()).toEqual("http://foo.bar");
+    });
+
+    it("should return url for P4 material", () => {
+      const material = new Material("p4", new P4MaterialAttributes("http://foo.bar:3000", "view"));
+
+      expect(material.materialUrl()).toEqual("http://foo.bar:3000");
+    });
+
+    it("should return url for tfs material", () => {
+      const material = new Material("tfs", new TfsMaterialAttributes("http://foo.bar", "project/path"));
+
+      expect(material.materialUrl()).toEqual("http://foo.bar");
+    });
+
+    it("should return url for dependency material", () => {
+      const material = new Material("dependency", new DependencyMaterialAttributes("pipeline", "stage"));
+
+      expect(material.materialUrl()).toEqual("pipeline / stage");
+    });
+
+    it("should return blank string in case of unknown type or type is not specified", () => {
+      const material = new Material("");
+
+      expect(material.materialUrl()).toEqual("");
+
+      material.type("some random type");
+      expect(material.materialUrl()).toEqual("");
+    });
+  });
+
+  describe("name()", () => {
+    it("should return name of material if specified", () => {
+      const material = new Material("git", new GitMaterialAttributes("http://foo.bar", "Git material"));
+
+      expect(material.name()).toEqual("Git material");
+    });
+
+    it("should return blank string if material name is not specified", () => {
+      const material = new Material("git", new GitMaterialAttributes("http://foo.bar"));
+
+      expect(material.name()).toEqual("");
     });
   });
 });

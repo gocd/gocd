@@ -18,7 +18,7 @@ import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
 
-export enum ApiVersion {v1, v2, v3, v4, v5, v6, v7, v8}
+export enum ApiVersion { latest, v1, v2, v3, v4, v5, v6, v7, v8}
 
 export interface ObjectWithEtag<T> {
   etag: string;
@@ -271,7 +271,11 @@ export class ApiRequestBuilder {
   }
 
   private static versionHeader(version: ApiVersion): string {
-    return `application/vnd.go.cd.${ApiVersion[version]}+json`;
+    if (version === ApiVersion.latest) {
+      return `application/vnd.go.cd+json`;
+    } else {
+      return `application/vnd.go.cd.${ApiVersion[version]}+json`;
+    }
   }
 
   private static etagHeaderName(method: string) {

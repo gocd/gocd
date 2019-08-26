@@ -43,6 +43,26 @@ describe("PipelineConfig model", () => {
     expect(pip.errors().errorsForDisplay("name")).toBe(expectedErrorMsg);
   });
 
+  it("should include a group", () => {
+    const pip = new PipelineConfig("name", defaultMaterials, defaultStages).withGroup("foo");
+    expect(pip.isValid()).toBe(true);
+    expect(pip.errors().count()).toBe(0);
+
+    pip.group("");
+    expect(pip.isValid()).toBe(false);
+    expect(pip.errors().count()).toBe(1);
+  });
+
+  it("validate group format", () => {
+    const pip              = new PipelineConfig("pipeline", defaultMaterials, defaultStages).withGroup("foo bar");
+    const expectedErrorMsg = "Invalid group. This must be alphanumeric and can contain hyphens, underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.";
+
+    expect(pip.isValid()).toBe(false);
+    expect(pip.errors().count()).toBe(1);
+    expect(pip.errors().keys()).toEqual(["group"]);
+    expect(pip.errors().errorsForDisplay("group")).toBe(expectedErrorMsg);
+  });
+
   it("should validate mutual exclusivity of template and stages", () => {
     const pip = new PipelineConfig("name", defaultMaterials, defaultStages).withGroup("foo");
     expect(pip.isValid()).toBe(true);
@@ -64,6 +84,11 @@ describe("PipelineConfig model", () => {
     pip = new PipelineConfig("name", [], defaultStages).withGroup("foo");
     expect(pip.isValid()).toBe(false);
     expect(pip.errors().count()).toBe(1);
+  });
+
+  it("should assign a group when called `withGroup()`", () => {
+    const pip = new PipelineConfig("pipeline", defaultMaterials, defaultStages).withGroup("foo");
+    expect(pip.group()).toBe("foo");
   });
 
   it("create()", (done) => {

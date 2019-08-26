@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import _ from "lodash";
 import m from "mithril";
 import {PipelineConfig} from "models/new_pipeline_configs/pipeline_config";
 import * as simulateEvent from "simulate-event";
@@ -23,9 +24,14 @@ import {TestHelper} from "views/pages/spec/test_helper";
 describe("PipelineCreateWidgetSpec", () => {
   const helper         = new TestHelper();
   const pipelineConfig = new PipelineConfig("", [], []);
+  const noop           = _.noop;
+  const operations     = {
+    onDelete: noop,
+    onAdd: noop
+  };
 
   beforeEach(() => {
-    helper.mount(() => <PipelineConfigCreateWidget pipelineConfig={pipelineConfig}/>);
+    helper.mount(() => <PipelineConfigCreateWidget materialOperations={operations} pipelineConfig={pipelineConfig}/>);
   });
 
   afterEach(() => {

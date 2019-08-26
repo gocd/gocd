@@ -20,11 +20,14 @@ import Stream from "mithril/stream";
 import {PipelineConfig} from "models/new_pipeline_configs/pipeline_config";
 import {StageConfig} from "models/new_pipeline_configs/stage_configuration";
 import {IdentifierInputField} from "views/components/forms/common_validating_inputs";
+import {MaterialOperations} from "views/pages/create_pipeline_page";
+import {MaterialsWidget} from "views/pages/pipeline_configs/materials";
 import {StagesWidget} from "views/pages/pipeline_configs/stages_widget";
 import styles from "./index.scss";
 
 interface Attrs {
   pipelineConfig: PipelineConfig;
+  materialOperations: MaterialOperations;
 }
 
 const stages = Array.apply(null, Array(10)).map((x, i) => new StageConfig('Stage' + (i + 1)));
@@ -41,6 +44,7 @@ export class PipelineConfigCreateWidget extends MithrilViewComponent<Attrs> {
                               placeholder="e.g. build-and-deploy"
                               property={vnode.attrs.pipelineConfig.name}/>
       </div>
+      <MaterialsWidget materialOperations={vnode.attrs.materialOperations} materials={vnode.attrs.pipelineConfig.materials()}/>
       <StagesWidget stages={Stream(stages)}/>
     </div>;
   }

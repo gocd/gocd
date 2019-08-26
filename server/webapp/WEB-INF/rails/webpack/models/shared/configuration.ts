@@ -54,13 +54,6 @@ export class Configurations {
     return _.find(this.configurations, ["key", key]);
   }
 
-  public asKeyValuePair() {
-    return this.configurations.reduce((map, property) => {
-      map[property.key] = property.displayValue();
-      return map;
-    }, {} as { [key: string]: string });
-  }
-
   public asMap(): Map<string, string> {
     const result = new Map<string, string>();
 

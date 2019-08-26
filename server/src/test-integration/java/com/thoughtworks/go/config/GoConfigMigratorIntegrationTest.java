@@ -1363,10 +1363,10 @@ public class GoConfigMigratorIntegrationTest {
                 "    </environment>\n" +
                 "  </environments>" +
                 "  <agents>" +
-                "    <agent uuid='" + randomUUID().toString() + "' hostname='one-host' ipaddress='127.0.0.1'/>" +
-                "    <agent uuid='" + randomUUID().toString() + "' hostname='two-host' ipaddress='127.0.0.2'/>" +
-                "    <agent uuid='elastic-" + randomUUID().toString() + "' hostname='one-elastic-host' ipaddress='172.10.20.30' elasticAgentId='docker.foo1' elasticPluginId='docker'/>" +
-                "    <agent uuid='elastic-" + randomUUID().toString() + "' hostname='two-elastic-host' ipaddress='172.10.20.31' elasticAgentId='docker.foo2' elasticPluginId='docker'/>" +
+                "    <agent uuid='one' hostname='one-host' ipaddress='127.0.0.1'/>" +
+                "    <agent uuid='two' hostname='two-host' ipaddress='127.0.0.2'/>" +
+                "    <agent uuid='elastic-one' hostname='one-elastic-host' ipaddress='172.10.20.30' elasticAgentId='docker.foo1' elasticPluginId='docker'/>" +
+                "    <agent uuid='elastic-two' hostname='two-elastic-host' ipaddress='172.10.20.31' elasticAgentId='docker.foo2' elasticPluginId='docker'/>" +
                 "  </agents>";
 
         String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"

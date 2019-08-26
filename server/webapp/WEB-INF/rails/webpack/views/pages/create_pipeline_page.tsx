@@ -15,7 +15,7 @@
  */
 
 import m from "mithril";
-import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
+import {PipelineConfig} from "models/new_pipeline_configs/pipeline_config";
 import {Page} from "views/pages/page";
 import {PipelineConfigCreateWidget} from "views/pages/pipeline_configs/pipeline_config_create_widget";
 

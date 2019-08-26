@@ -20,6 +20,7 @@ describe("Pipeline Config - Stages Model", () => {
   describe("Stage model", () => {
     it("should include a name", () => {
       let stage = new StageConfig("stage1");
+
       expect(stage.isValid()).toBe(true);
       expect(stage.errors().count()).toBe(0);
 
@@ -31,6 +32,7 @@ describe("Pipeline Config - Stages Model", () => {
 
     it("should set approval to success by default", () => {
       const stage = new StageConfig("stage1");
+
       expect(stage.isValid()).toBe(true);
       expect(stage.errors().count()).toBe(0);
 
@@ -40,6 +42,7 @@ describe("Pipeline Config - Stages Model", () => {
 
     it("should toggle approval type when state is toggled", () => {
       const stage = new StageConfig("stage1");
+
       expect(stage.isValid()).toBe(true);
       expect(stage.errors().count()).toBe(0);
 
@@ -96,14 +99,27 @@ describe("Pipeline Config - Stages Model", () => {
 
     it("validates name format", () => {
       const expectedError = "Invalid name. This must be alphanumeric and can contain hyphens, underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.";
+      const stage         = new StageConfig("my awesome stage that has a terrible name");
 
-      const stage = new StageConfig("my awesome stage that has a terrible name");
       expect(stage.isValid()).toBe(false);
       expect(stage.errors().count()).toBe(1);
       expect(stage.errors().keys()).toEqual(["name"]);
       expect(stage.errors().errorsForDisplay("name")).toBe(expectedError);
     });
 
+    it("should serialize correctly", () => {
+      const stage = new StageConfig("stage");
+
+      expect(stage.toApiPayload()).toEqual({
+                                             name: "stage",
+                                             approval: {
+                                               type: "success"
+                                             },
+                                             fetch_materials: false,
+                                             clean_working_directory: false,
+                                             never_cleanup_artifacts: false
+                                           });
+    });
     describe("Stage Authorization", () => {
       it("should define stage authorization to inherit from pipeline group by default", () => {
         const stage = new StageConfig("stage1");

@@ -15,7 +15,7 @@
  */
 
 import m from "mithril";
-import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
+import {PipelineConfig} from "models/new_pipeline_configs/pipeline_config";
 import * as simulateEvent from "simulate-event";
 import {PipelineConfigCreateWidget} from "views/pages/pipeline_configs/pipeline_config_create_widget";
 import {TestHelper} from "views/pages/spec/test_helper";

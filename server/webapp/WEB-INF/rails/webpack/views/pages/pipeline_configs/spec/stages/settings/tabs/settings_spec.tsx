@@ -101,23 +101,6 @@ describe("Pipeline Config - Stage Settings Modal - Stage Settings Tab", () => {
     expect((helper.findByDataTestId("form-field-input-fetch-materials")[0] as HTMLInputElement).checked).toEqual(true);
   });
 
-  it("should render fetch materials checkbox", () => {
-    expect(helper.findByDataTestId("form-field-input-fetch-materials")).toBeInDOM();
-    expect(helper.findByDataTestId("form-field-label-fetch-materials")).toBeInDOM();
-
-    expect((helper.findByDataTestId("form-field-input-fetch-materials")[0] as HTMLInputElement).checked).toEqual(false);
-    expect(helper.findByDataTestId("form-field-label-fetch-materials")).toContainText("Fetch Materials");
-  });
-
-  it("should allow toggling fetch materials checkbox", () => {
-    expect((helper.findByDataTestId("form-field-input-fetch-materials")[0] as HTMLInputElement).checked).toEqual(false);
-
-    helper.findByDataTestId("form-field-input-fetch-materials").val("on");
-    simulateEvent.simulate(helper.findByDataTestId("form-field-input-fetch-materials")[0], "click");
-
-    expect((helper.findByDataTestId("form-field-input-fetch-materials")[0] as HTMLInputElement).checked).toEqual(true);
-  });
-
   it("should render Never Cleanup Artifacts checkbox", () => {
     expect(helper.findByDataTestId("form-field-input-never-cleanup-artifacts")).toBeInDOM();
     expect(helper.findByDataTestId("form-field-label-never-cleanup-artifacts")).toBeInDOM();

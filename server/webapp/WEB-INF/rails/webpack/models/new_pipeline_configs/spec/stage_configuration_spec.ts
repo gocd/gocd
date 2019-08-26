@@ -103,6 +103,105 @@ describe("Pipeline Config - Stages Model", () => {
       expect(stage.errors().keys()).toEqual(["name"]);
       expect(stage.errors().errorsForDisplay("name")).toBe(expectedError);
     });
-  });
 
+    describe("Stage Authorization", () => {
+      it("should define stage authorization to inherit from pipeline group by default", () => {
+        const stage = new StageConfig("stage1");
+        expect(stage.approval().inheritFromPipelineGroup()).toEqual(true);
+      });
+
+      it("should allow authorization to not inherit from pipeline group", () => {
+        const stage = new StageConfig("stage1");
+        expect(stage.approval().inheritFromPipelineGroup()).toEqual(true);
+        expect(stage.approval().authorization()).toEqual(undefined);
+
+        stage.approval().inheritFromPipelineGroup(false);
+        expect(stage.approval().authorization()).not.toEqual(undefined);
+      });
+
+      it("should allow adding users to the stage authorization", () => {
+        const stage = new StageConfig("stage1");
+        stage.approval().inheritFromPipelineGroup(false);
+        const users = stage.approval().authorization()!.users;
+
+        expect(users.list()).toEqual([]);
+        users.add("Bob");
+        expect(users.list()).toEqual(["Bob"]);
+      });
+
+      it("should allow removing users from the stage authorization", () => {
+        const stage = new StageConfig("stage1");
+        stage.approval().inheritFromPipelineGroup(false);
+        const users = stage.approval().authorization()!.users;
+
+        expect(users.list()).toEqual([]);
+        users.add("Bob");
+        expect(users.list()).toEqual(["Bob"]);
+        users.remove("Bob");
+        expect(users.list()).toEqual([]);
+      });
+
+      it("should not allow adding user which already exists in the stage authorization", () => {
+        const stage = new StageConfig("stage1");
+        stage.approval().inheritFromPipelineGroup(false);
+        const users = stage.approval().authorization()!.users;
+
+        expect(users.list()).toEqual([]);
+        users.add("Bob");
+        expect(users.list()).toEqual(["Bob"]);
+        users.add("Bob");
+        expect(users.list()).toEqual(["Bob"]);
+      });
+
+      it("should allow adding roles to the stage authorization", () => {
+        const stage = new StageConfig("stage1");
+        stage.approval().inheritFromPipelineGroup(false);
+        const roles = stage.approval().authorization()!.roles;
+
+        expect(roles.list()).toEqual([]);
+        roles.add("Admin");
+        expect(roles.list()).toEqual(["Admin"]);
+      });
+
+      it("should allow removing roles from the stage authorization", () => {
+        const stage = new StageConfig("stage1");
+        stage.approval().inheritFromPipelineGroup(false);
+        const roles = stage.approval().authorization()!.roles;
+
+        expect(roles.list()).toEqual([]);
+        roles.add("Admin");
+        expect(roles.list()).toEqual(["Admin"]);
+        roles.remove("Admin");
+        expect(roles.list()).toEqual([]);
+      });
+
+      it("should not allow adding role which already exists in the stage authorization", () => {
+        const stage = new StageConfig("stage1");
+        stage.approval().inheritFromPipelineGroup(false);
+        const roles = stage.approval().authorization()!.roles;
+
+        expect(roles.list()).toEqual([]);
+        roles.add("Admin");
+        expect(roles.list()).toEqual(["Admin"]);
+        roles.add("Admin");
+        expect(roles.list()).toEqual(["Admin"]);
+      });
+
+      it("should get the type of users authorization", () => {
+        const stage = new StageConfig("stage1");
+        stage.approval().inheritFromPipelineGroup(false);
+        const users = stage.approval().authorization()!.users;
+
+        expect(users.type()).toEqual("User");
+      });
+
+      it("should get the type of roles authorization", () => {
+        const stage = new StageConfig("stage1");
+        stage.approval().inheritFromPipelineGroup(false);
+        const roles = stage.approval().authorization()!.roles;
+
+        expect(roles.type()).toEqual("Role");
+      });
+    });
+  });
 });

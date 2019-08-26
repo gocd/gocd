@@ -17,6 +17,7 @@
 import m from "mithril";
 import Stream from "mithril/stream";
 import {StageConfig} from "models/new_pipeline_configs/stage_configuration";
+import * as simulateEvent from "simulate-event";
 import {StageSettingsModal} from "views/pages/pipeline_configs/stages/settings/stage_settings_modal";
 import {TestHelper} from "views/pages/spec/test_helper";
 
@@ -57,6 +58,35 @@ describe("Pipeline Config - Stage Settings Modal", () => {
 
     expect(helper.findIn(body, "tab-header-0")).toContainText("Stage Settings");
     expect(helper.findIn(body, "stage-settings-tab")).toBeInDOM();
+
+    expect(isHidden("tab-content-0")).toEqual(false);
+    expect(isHidden("tab-content-1")).toEqual(true);
+    expect(isHidden("tab-content-2")).toEqual(true);
   });
 
+  it("should render stage settings permission widget on click", () => {
+    const body = $("body");
+
+    expect(helper.findIn(body, "tab-header-0")).toContainText("Stage Settings");
+    expect(helper.findIn(body, "stage-settings-tab")).toBeInDOM();
+
+    expect(helper.findIn(body, "tab-header-2")).toContainText("Permissions");
+    expect(helper.findIn(body, "stage-permissions-tab")).toBeInDOM();
+
+    expect(isHidden("tab-content-0")).toEqual(false);
+    expect(isHidden("tab-content-1")).toEqual(true);
+    expect(isHidden("tab-content-2")).toEqual(true);
+
+    simulateEvent.simulate(helper.findIn(body, "tab-header-2")[0], "click");
+    m.redraw.sync();
+
+    expect(isHidden("tab-content-0")).toEqual(true);
+    expect(isHidden("tab-content-1")).toEqual(true);
+    expect(isHidden("tab-content-2")).toEqual(false);
+  });
+
+  function isHidden(tab: string) {
+    const classList = helper.findIn($("body"), tab)[0].classList;
+    return Array.from(classList).some((c: any) => c.indexOf("hide") >= 0);
+  }
 });

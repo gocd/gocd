@@ -19,7 +19,9 @@ import Stream from "mithril/stream";
 import {StageConfig} from "models/new_pipeline_configs/stage_configuration";
 import {Modal} from "views/components/modal";
 import {Tabs} from "views/components/tab";
+import {StagePermissionsTab} from "views/pages/pipeline_configs/stages/settings/tabs/permissions";
 import {StageSettingsTab} from "views/pages/pipeline_configs/stages/settings/tabs/settings";
+import styles from "./stage_settings.scss";
 
 export class StageSettingsModal extends Modal {
   private readonly stageConfig: Stream<StageConfig>;
@@ -30,9 +32,9 @@ export class StageSettingsModal extends Modal {
   }
 
   body(): m.Children {
-    const stageSettingsWidget        = <StageSettingsTab stageConfig={this.stageConfig}/>;
-    const environmentVariablesWidget = <div>This will render environment variables.</div>;
-    const permissionsWidget          = <div>This will render stage permissions.</div>;
+    const stageSettingsWidget        = <div class={styles.stageSettingsTabContentContainer}><StageSettingsTab stageConfig={this.stageConfig}/></div>;
+    const environmentVariablesWidget = <div className={styles.stageSettingsTabContentContainer}><div>This will render environment variables.</div></div>;
+    const permissionsWidget          = <div className={styles.stageSettingsTabContentContainer}><StagePermissionsTab stageConfig={this.stageConfig} /></div>;
 
     return <div data-test-id="stage-settings-modal">
       <Tabs tabs={["Stage Settings", "Environment Variables", "Permissions"]}

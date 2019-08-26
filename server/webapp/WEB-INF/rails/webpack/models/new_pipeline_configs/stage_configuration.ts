@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {JsonUtils} from "helpers/json_utils";
 import Stream from "mithril/stream";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 
@@ -145,5 +146,9 @@ export class StageConfig extends ValidatableMixin {
     this.validateIdFormat("name");
 
     this.validateAssociated("approval");
+  }
+
+  toApiPayload() {
+    return JsonUtils.toSnakeCasedObject(this);
   }
 }

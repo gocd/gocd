@@ -18,6 +18,9 @@
 ###############################################################################################
 
 FROM alpine:latest as gocd-agent-unzip
+
+ARG UID=1000
+
 <#if useFromArtifact >
 COPY go-agent-${fullVersion}.zip /tmp/go-agent-${fullVersion}.zip
 <#else>
@@ -28,7 +31,7 @@ RUN \
 </#if>
 
 RUN unzip /tmp/go-agent-${fullVersion}.zip -d /
-RUN mv /go-agent-${goVersion} /go-agent
+RUN mv /go-agent-${goVersion} /go-agent && chown -R ${r"${UID}"}:0 /go-agent && chmod -R g=u /go-agent
 
 FROM ${distro.name()}:${distroVersion.releaseName}
 MAINTAINER ThoughtWorks, Inc. <support@thoughtworks.com>
@@ -90,8 +93,8 @@ COPY --chown=go:root agent-bootstrapper-logback-include.xml agent-launcher-logba
 COPY --chown=root:root dockerd-sudo /etc/sudoers.d/dockerd-sudo
 </#if>
 
-RUN chown -R go:root /go-agent /docker-entrypoint.d /go /godata /docker-entrypoint.sh \
-    && chmod -R g=u /go-agent /docker-entrypoint.d /go /godata /docker-entrypoint.sh
+RUN chown -R go:root /docker-entrypoint.d /go /godata /docker-entrypoint.sh \
+    && chmod -R g=u /docker-entrypoint.d /go /godata /docker-entrypoint.sh
 
 <#if distro.name() == "docker">
   COPY --chown=root:root run-docker-daemon.sh /

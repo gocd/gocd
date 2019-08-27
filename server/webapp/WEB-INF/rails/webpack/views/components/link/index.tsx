@@ -25,7 +25,16 @@ export interface Attrs {
 }
 
 export class Link extends MithrilViewComponent<Attrs> {
+
+  maybeRel(attrs: Attrs) {
+    if (attrs.target) {
+      return {rel: "noopener noreferrer"};
+    }
+    return {};
+  }
+
   view(vnode: m.Vnode<Attrs>) {
-    return (<a {...vnode.attrs} class={styles.inlineLink}>{vnode.children}</a>);
+    const rel = this.maybeRel(vnode.attrs);
+    return (<a {...vnode.attrs} {...rel} class={styles.inlineLink}>{vnode.children}</a>);
   }
 }

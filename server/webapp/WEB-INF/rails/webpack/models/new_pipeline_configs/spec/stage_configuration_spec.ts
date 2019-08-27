@@ -117,9 +117,11 @@ describe("Pipeline Config - Stages Model", () => {
                                              },
                                              fetch_materials: false,
                                              clean_working_directory: false,
-                                             never_cleanup_artifacts: false
+                                             never_cleanup_artifacts: false,
+                                             environment_variables: []
                                            });
     });
+
     describe("Stage Authorization", () => {
       it("should define stage authorization to inherit from pipeline group by default", () => {
         const stage = new StageConfig("stage1");

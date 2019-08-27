@@ -34,27 +34,28 @@ export class SiteFooter extends MithrilViewComponent<Attrs> {
       {SiteFooter.maintenanceModeOrLegacyBrowserBanner(vnode)}
       <div class={styles.left}>
         <p class={styles.content}>Copyright &copy; {GoCDVersion.copyrightYear}&nbsp;
-          <a href="https://www.thoughtworks.com/products" target="_blank">ThoughtWorks, Inc.</a>
+          <Link href="https://www.thoughtworks.com/products" target="_blank">ThoughtWorks, Inc.</Link>
           &nbsp;Licensed under&nbsp;
-          <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank">
+          <Link href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank">
             Apache License, Version 2.0
-          </a>.
+          </Link>.
           GoCD includes&nbsp;
-          <a href={`/go/assets/dependency-license-report-${GoCDVersion.fullVersion}`} target="_blank">
+          <Link href={`/go/assets/dependency-license-report-${GoCDVersion.fullVersion}`} target="_blank">
             third-party software
-          </a>.
+          </Link>.
           <span class={styles.gocdVersion}>GoCD Version: {GoCDVersion.formattedVersion}.</span>
         </p>
       </div>
       <div class={styles.right}>
         <div class={styles.social}>
-          <a href="https://twitter.com/goforcd" title="twitter" class={styles.twitter} target="_blank"/>
-          <a href="https://github.com/gocd/gocd" title="github" class={styles.github} target="_blank"/>
-          <a href="https://groups.google.com/d/forum/go-cd" title="forums" class={styles.forums} target="_blank"/>
+          <a href="https://twitter.com/goforcd" title="twitter" rel="noopener noreferrer" class={styles.twitter} target="_blank"/>
+          <a href="https://github.com/gocd/gocd" title="github" rel="noopener noreferrer" class={styles.github} target="_blank"/>
+          <a href="https://groups.google.com/d/forum/go-cd" rel="noopener noreferrer" title="forums" class={styles.forums} target="_blank"/>
           <a href={docsUrl()} title="documentation" class={styles.documentation}
-             target="_blank"/>
-          <a href="https://www.gocd.org/plugins/" title="plugins" class={styles.plugins} target="_blank"/>
-          <a href={apiDocsUrl()} title="api" class={styles.api} target="_blank"/>
+             target="_blank" rel="noopener noreferrer"/>
+          <a href="https://www.gocd.org/plugins/" title="plugins" class={styles.plugins} target="_blank"
+             rel="noopener noreferrer"/>
+          <a href={apiDocsUrl()} title="api" class={styles.api} target="_blank" rel="noopener noreferrer"/>
           <a href="/go/about" title="about" class={styles.serverDetails} target="_blank"/>
           <a href="/go/cctray.xml" title="cctray" class={styles.cctray} target="_blank"/>
         </div>

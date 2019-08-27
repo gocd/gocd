@@ -46,7 +46,6 @@ class EnvironmentsController < ApplicationController
   end
 
   def create
-    original_env_config = @environment;
     @environment.setConfigAttributes(params[:environment])
     if @environment.name().blank?
       render_environment_create_error_with_message(@environment, 'Environment name is required', 400)
@@ -56,28 +55,26 @@ class EnvironmentsController < ApplicationController
     env_agents_config = @environment.getAgents()
     selected_uuids = env_agents_config.getUuids()
 
-    result1 = HttpLocalizedOperationResult.new
-    result2 = HttpLocalizedOperationResult.new
+    @result = HttpLocalizedOperationResult.new
 
     if !selected_uuids.empty?
-        agent_service.updateAgentsAssociationOfEnvironment(original_env_config, selected_uuids, result1)
+      original_env_config = BasicEnvironmentConfig.new(@environment.name())
+      begin
+        agent_service.updateAgentsAssociationOfEnvironment(original_env_config, selected_uuids)
 
-        @result = result1
-        if result1.isSuccessful()
-          # Env were successfully associated with agents in DB. Now creating env in the config
-          environment_config_service.createEnvironment(@environment, current_user, result2)
-          @result = result2
-        end
+        # Env were successfully associated with agents in DB. Now creating env in the config
+        environment_config_service.createEnvironment(@environment, current_user, @result)
 
-        if result1.isSuccessful() && !result2.isSuccessful()
+        if !@result.isSuccessful()
           # Error while creating that env in config. So rolling back (deleting environment association from agents) in DB
-          result3 = HttpLocalizedOperationResult.new
-          agent_service.updateAgentsAssociationOfEnvironment(original_env_config, [], result3)
+          agent_service.updateAgentsAssociationOfEnvironment(@environment, [])
         end
+      rescue Exception => ex
+        render_environment_create_error_with_message(@environment, ex.message, 400)
+        return
+      end
     else
-        environment_config_service.createEnvironment(@environment, current_user, result1)
-
-        @result = result1
+      environment_config_service.createEnvironment(@environment, current_user, @result)
     end
 
     render_environment_create_error_result(@environment)
@@ -104,11 +101,11 @@ class EnvironmentsController < ApplicationController
       if finalUUIDsToAssociate.empty? && original_agents.empty?
         return render :plain => message, :location => url_options_with_flash(message, {:action => :index, :class => 'success', :only_path => true})
       end
-
-      agent_service.updateAgentsAssociationOfEnvironment(original_env_config, finalUUIDsToAssociate, result)
-      if !result.isSuccessful()
-        message = result.message()
-        return render_error_response message, result.httpCode(), true
+      begin
+        agent_service.updateAgentsAssociationOfEnvironment(original_env_config, finalUUIDsToAssociate)
+      rescue Exception => ex
+        render_error_response ex.message, 400, true
+        return
       end
     end
 
@@ -191,4 +188,5 @@ class EnvironmentsController < ApplicationController
   def set_tab_name
     @current_tab_name = "environments"
   end
+
 end

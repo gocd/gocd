@@ -36,7 +36,7 @@ describe("Help Text on input fields", () => {
     const id              = `${helper.q("input").getAttribute("id")}-help-text`;
     const helpTextElement = helper.q(`#${id}`);
     expect(helpTextElement).toContainText("Enter your username here");
-    expect(helpTextElement).not.toContainText("More");
+    expect(helpTextElement).not.toContainText("Learn More");
   });
 
   it("should render help text with a documentation link", () => {
@@ -49,7 +49,7 @@ describe("Help Text on input fields", () => {
     const id              = `${helper.q("input").getAttribute("id")}-help-text`;
     const helpTextElement = helper.q(`#${id}`);
     expect(helpTextElement).toContainText("Enter your username here");
-    expect(helpTextElement).toContainText("More…");
+    expect(helpTextElement).toContainText("Learn More");
 
     const expectedUrl = docsUrl("foo/bar#baz");
     const link        = helper.q("a");

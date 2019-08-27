@@ -17,6 +17,7 @@
 import m from "mithril";
 import {Link} from "views/components/link/index";
 import {TestHelper} from "views/pages/spec/test_helper";
+import styles from "../index.scss";
 
 describe("Link", () => {
 
@@ -36,5 +37,11 @@ describe("Link", () => {
 
     const anchor = helper.q("a");
     expect(anchor).not.toHaveAttr("rel");
+  });
+
+  it("should show external link icon when specified", () => {
+    helper.mount(() => <Link target="_blank" href="docs.gocd.org" externalLinkIcon={true}/>);
+    const anchor = helper.q("a");
+    expect(anchor).toHaveClass(styles.externalIcon);
   });
 });

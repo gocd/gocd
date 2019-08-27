@@ -207,7 +207,7 @@ class HelpText extends MithrilViewComponent<HelpTextComponentAttrs> {
 
   static maybeDocLink(docLink?: string) {
     if (!_.isEmpty(docLink)) {
-      return <span>&nbsp;<Link href={docsUrl(docLink)} target="_blank">Learn More&#8230;</Link></span>;
+      return <span>&nbsp;<Link href={docsUrl(docLink)} target="_blank" externalLinkIcon={true}>Learn More</Link></span>;
     }
   }
 

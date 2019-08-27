@@ -17,6 +17,7 @@
 import {JsonUtils} from "helpers/json_utils";
 import Stream from "mithril/stream";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
+import {EnvironmentVariableConfig} from "models/new_pipeline_configs/environment_variable_config";
 
 enum ApprovalType { success = "success", manual = "manual" }
 
@@ -124,12 +125,14 @@ export class StageConfig extends ValidatableMixin {
   readonly fetchMaterials: Stream<boolean>;
   readonly cleanWorkingDirectory: Stream<boolean>;
   readonly neverCleanupArtifacts: Stream<boolean>;
+  readonly environmentVariables: Stream<EnvironmentVariableConfig[]>;
 
   constructor(name: string,
               approval?: Approval,
               fetchMaterials?: boolean,
               cleanWorkingDirectory?: boolean,
-              neverCleanupArtifacts?: boolean) {
+              neverCleanupArtifacts?: boolean,
+              environmentVariables?: EnvironmentVariableConfig[]) {
     super();
 
     this.name                  = Stream(name);
@@ -137,6 +140,7 @@ export class StageConfig extends ValidatableMixin {
     this.fetchMaterials        = Stream(!!fetchMaterials);
     this.cleanWorkingDirectory = Stream(!!cleanWorkingDirectory);
     this.neverCleanupArtifacts = Stream(!!neverCleanupArtifacts);
+    this.environmentVariables  = Stream(environmentVariables || []);
 
     this.validatePresenceOf("name");
     this.validatePresenceOf("fetchMaterials");

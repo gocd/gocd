@@ -21,6 +21,7 @@ import {Modal} from "views/components/modal";
 import {Tabs} from "views/components/tab";
 import {StagePermissionsTab} from "views/pages/pipeline_configs/stages/settings/tabs/permissions";
 import {StageSettingsTab} from "views/pages/pipeline_configs/stages/settings/tabs/settings";
+import {EnvironmentVariablesEditor} from "views/pages/pipelines/environment_variables_editor";
 import styles from "./stage_settings.scss";
 
 export class StageSettingsModal extends Modal {
@@ -33,7 +34,7 @@ export class StageSettingsModal extends Modal {
 
   body(): m.Children {
     const stageSettingsWidget        = <div class={styles.stageSettingsTabContentContainer}><StageSettingsTab stageConfig={this.stageConfig}/></div>;
-    const environmentVariablesWidget = <div className={styles.stageSettingsTabContentContainer}><div>This will render environment variables.</div></div>;
+    const environmentVariablesWidget = <div className={styles.stageSettingsTabContentContainer}><EnvironmentVariablesEditor variables={this.stageConfig().environmentVariables}/></div>;
     const permissionsWidget          = <div className={styles.stageSettingsTabContentContainer}><StagePermissionsTab stageConfig={this.stageConfig} /></div>;
 
     return <div data-test-id="stage-settings-modal">

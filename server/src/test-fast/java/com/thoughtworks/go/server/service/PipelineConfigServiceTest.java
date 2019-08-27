@@ -18,11 +18,14 @@ package com.thoughtworks.go.server.service;
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
+import com.thoughtworks.go.config.merge.MergePipelineConfigs;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
+import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.helper.JobConfigMother;
+import com.thoughtworks.go.helper.PartialConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.presentation.CanDeleteResult;
@@ -31,9 +34,7 @@ import com.thoughtworks.go.util.ReflectionUtil;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static com.thoughtworks.go.helper.EnvironmentConfigMother.environment;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
@@ -201,5 +202,51 @@ public class PipelineConfigServiceTest {
         when(goConfigService.getAllPipelineConfigs()).thenReturn(mergedCruiseConfig.getAllPipelineConfigs());
 
         assertThat(pipelineConfigService.totalPipelinesCount(), is(mergedCruiseConfig.allPipelines().size()));
+    }
+
+    @Test
+    public void shouldGetAllViewableMergePipelineConfigs() throws Exception {
+        CruiseConfig mergedCruiseConfig = new Cloner().deepClone(cruiseConfig);
+        ReflectionUtil.setField(mergedCruiseConfig, "allPipelineConfigs", null);
+        mergedCruiseConfig.addPipeline("group1", PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString()));
+        mergedCruiseConfig.addPipeline("group2", PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString()));
+        mergedCruiseConfig.addPipeline("group3", PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString()));
+
+        when(goConfigService.getMergedConfigForEditing()).thenReturn(mergedCruiseConfig);
+        when(goConfigService.getAllPipelineConfigs()).thenReturn(mergedCruiseConfig.getAllPipelineConfigs());
+
+        Username username = new Username("user1");
+
+        when(securityService.hasViewPermissionForGroup(CaseInsensitiveString.str(username.getUsername()), "group1")).thenReturn(true);
+        when(securityService.hasViewPermissionForGroup(CaseInsensitiveString.str(username.getUsername()), "group2")).thenReturn(true);
+        when(securityService.hasViewPermissionForGroup(CaseInsensitiveString.str(username.getUsername()), "group3")).thenReturn(false);
+
+        List<PipelineConfigs> pipelineConfigs = pipelineConfigService.viewableGroupsForUserIncludingConfigRepos(username);
+
+        assertThat(pipelineConfigs.size(), is(2));
+        assertThat(pipelineConfigs.get(0).getGroup(),is("group2"));
+        assertThat(pipelineConfigs.get(1).getGroup(),is("group1"));
+    }
+
+
+    @Test
+    public void shouldGetAllViewableGroups() throws Exception {
+        CruiseConfig cruiseConfig = new Cloner().deepClone(this.cruiseConfig);
+        ReflectionUtil.setField(cruiseConfig, "allPipelineConfigs", null);
+        cruiseConfig.addPipeline("group1", PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString()));
+        cruiseConfig.addPipeline("group2", PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString()));
+
+        when(goConfigService.cruiseConfig()).thenReturn(cruiseConfig);
+        when(goConfigService.getAllPipelineConfigs()).thenReturn(cruiseConfig.getAllPipelineConfigs());
+
+        Username username = new Username("user1");
+
+        when(securityService.hasViewPermissionForGroup(CaseInsensitiveString.str(username.getUsername()), "group1")).thenReturn(true);
+        when(securityService.hasViewPermissionForGroup(CaseInsensitiveString.str(username.getUsername()), "group2")).thenReturn(false);
+
+        List<PipelineConfigs> pipelineConfigs = pipelineConfigService.viewableGroupsFor(username);
+
+        assertThat(pipelineConfigs.size(), is(1));
+        assertThat(pipelineConfigs.get(0).getGroup(),is("group1"));
     }
 }

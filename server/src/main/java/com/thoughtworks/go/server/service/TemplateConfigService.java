@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.saveFailedWithReason;
 import static com.thoughtworks.go.serverhealth.HealthStateScope.GLOBAL;
@@ -184,7 +185,6 @@ public class TemplateConfigService {
         return findTemplate(templateName, result, goConfigService.getConfigHolder());
     }
 
-
     private boolean doesTemplateExist(String templateName, CruiseConfig cruiseConfig, HttpLocalizedOperationResult result) {
         TemplatesConfig templates = cruiseConfig.getTemplates();
         if (!templates.hasTemplateNamed(new CaseInsensitiveString(templateName))) {
@@ -225,5 +225,16 @@ public class TemplateConfigService {
             return null;
         }
         return configHolder.configForEdit.findTemplate(new CaseInsensitiveString(templateName));
+    }
+
+    public TemplatesConfig templateConfigsThatCanBeEditedBy(Username username) {
+        CruiseConfig cruiseConfig = goConfigService.cruiseConfig();
+
+        return cruiseConfig.getTemplates()
+                .stream()
+                .filter(templateConfig -> {
+                    return securityService.isAuthorizedToEditTemplate(templateConfig.name(),username);
+                })
+                .collect(Collectors.toCollection(TemplatesConfig::new));
     }
 }

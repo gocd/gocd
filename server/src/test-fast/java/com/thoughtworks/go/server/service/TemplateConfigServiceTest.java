@@ -27,6 +27,7 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.tasks.PluggableTaskService;
 import com.thoughtworks.go.server.ui.TemplatesViewModel;
+import com.thoughtworks.go.util.DataStructureUtils;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -34,6 +35,7 @@ import java.util.*;
 
 import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
 import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
@@ -445,6 +447,28 @@ public class TemplateConfigServiceTest {
         assertThat(service.getTemplateViewModels(templateViewUser), is(templatesForTemplateViewUser));
     }
 
+    @Test
+    public void shouldReturnAllTemplatesThatCanBeEditedByUser() {
+        BasicCruiseConfig cruiseConfig = getCruiseConfigWithSecurityEnabled();
+        CaseInsensitiveString username = new CaseInsensitiveString("template-edit-user");
+
+        PipelineTemplateConfig editableTemplate = PipelineTemplateConfigMother.createTemplate(
+                "editable-template",
+                new Authorization(new ViewConfig(new AdminUser(username))), StageConfigMother.manualStage("foo"));
+        PipelineTemplateConfig notEditableTemplate = PipelineTemplateConfigMother.createTemplate("not-editable-template");
+        TemplatesConfig templates = new TemplatesConfig();
+        templates.add(editableTemplate);
+        templates.add(notEditableTemplate);
+        cruiseConfig.setTemplates(templates);
+
+        when(goConfigService.cruiseConfig()).thenReturn(cruiseConfig);
+        when(securityService.isAuthorizedToEditTemplate(new CaseInsensitiveString("editable-template"), new Username(username))).thenReturn(true);
+
+        TemplatesConfig actual = service.templateConfigsThatCanBeEditedBy(new Username(username));
+        TemplatesConfig expected = new TemplatesConfig(editableTemplate);
+        assertThat(expected, is(actual));
+    }
+
     private PipelineConfig createPipelineWithTemplate(String pipelineName, PipelineTemplateConfig template) {
         PipelineConfig pipelineConfig = pipelineConfig(pipelineName);
         pipelineConfig.clear();
@@ -459,7 +483,7 @@ public class TemplateConfigServiceTest {
 
     private BasicCruiseConfig getCruiseConfigWithSecurityEnabled() {
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
-        ServerConfig serverConfig = new ServerConfig(new SecurityConfig( new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))), null);
+        ServerConfig serverConfig = new ServerConfig(new SecurityConfig(new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))), null);
         cruiseConfig.setServerConfig(serverConfig);
         GoConfigMother.enableSecurityWithPasswordFilePlugin(cruiseConfig);
         return cruiseConfig;

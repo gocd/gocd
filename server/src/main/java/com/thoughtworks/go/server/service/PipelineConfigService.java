@@ -141,8 +141,16 @@ public class PipelineConfigService {
     }
 
     public List<PipelineConfigs> viewableGroupsFor(Username username) {
+        return viewableGroups(username, goConfigService.cruiseConfig());
+    }
+
+    public List<PipelineConfigs> viewableGroupsForUserIncludingConfigRepos(Username username) {
+        return viewableGroups(username, goConfigService.getMergedConfigForEditing());
+    }
+
+    private List<PipelineConfigs> viewableGroups(Username username, CruiseConfig cruiseConfig) {
         ArrayList<PipelineConfigs> list = new ArrayList<>();
-        for (PipelineConfigs pipelineConfigs : goConfigService.cruiseConfig().getGroups()) {
+        for (PipelineConfigs pipelineConfigs : cruiseConfig.getGroups()) {
             if (securityService.hasViewPermissionForGroup(CaseInsensitiveString.str(username.getUsername()), pipelineConfigs.getGroup())) {
                 list.add(pipelineConfigs);
             }

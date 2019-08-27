@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 import {
+  AnalyticsCapabilityJSON,
+  AnalyticsExtensionJSON,
   AuthorizationExtensionJSON,
   LinksJSON,
   PluginInfoJSON,
@@ -347,6 +349,75 @@ export class SecretPluginInfo {
           }
         } as SecretConfigExtensionJSON
       ]
+    } as PluginInfoJSON;
+  }
+}
+
+export class AnalyticsPluginInfo {
+  static with(pluginId: string, name: string) {
+    return this.withExtension(this.analyticsExtension(), pluginId, name);
+  }
+
+  static withCapabilities(...capabilities: AnalyticsCapabilityJSON[]) {
+    const analyticsExtensionJSON                            = this.analyticsExtension();
+    analyticsExtensionJSON.capabilities.supported_analytics = capabilities;
+    return this.withExtension(analyticsExtensionJSON);
+  }
+
+  static analytics() {
+    return this.withExtension(this.analyticsExtension());
+  }
+
+  static analyticsExtension() {
+    return {
+      type: "analytics",
+      plugin_settings: {
+        configurations: [
+          {
+            key: "username",
+            metadata: {
+              secure: false,
+              required: true
+            }
+          }
+        ],
+        view: {
+          template: "analytics plugin view"
+        }
+      },
+      capabilities: {
+        supported_analytics: [
+          {type: "agent", id: "bar", title: "bar"},
+          {type: "pipeline", id: "rawr", title: "foo"},
+          {type: "dashboard", id: "foo", title: "something"}
+        ]
+      }
+    } as AnalyticsExtensionJSON;
+  }
+
+  private static withExtension(extension: AnalyticsExtensionJSON,
+                               pluginId: string = "gocd.analytics.plugin",
+                               name: string     = "Analytics plugin") {
+    return {
+      _links: pluginImageLink(),
+      id: pluginId,
+      status: {
+        state: "active"
+      },
+      plugin_file_location: "/foo/bar.jar",
+      bundled_plugin: false,
+      about: {
+        name,
+        version: "0.0.1",
+        target_go_version: "19.10.0",
+        description: "Some description about the plugin",
+        target_operating_systems: [],
+        vendor: {
+          name: "GoCD Contributors",
+          url: "https://foo/bar"
+        }
+      },
+      extensions: [extension],
     } as PluginInfoJSON;
   }
 }

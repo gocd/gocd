@@ -150,5 +150,4 @@ export class PluginInfos extends Array<PluginInfo> {
     const filteredPluginInfos = _.filter(this, filterFn) as unknown as PluginInfo[];
     return new PluginInfos(...filteredPluginInfos);
   }
-
 }

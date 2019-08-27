@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 import m from "mithril";
+import {AnalyticsCapability} from "models/shared/plugin_infos_new/analytics_plugin_capabilities";
 import {PluginInfoQuery} from "models/shared/plugin_infos_new/plugin_info_crud";
 
 export class SparkRoutes {
@@ -348,5 +349,9 @@ export class SparkRoutes {
 
   static apiAdminInternalEnvironmentsPath() {
     return "/go/api/admin/internal/environments";
+  }
+
+  static showAnalyticsPath(pluginId: string, metric: AnalyticsCapability, params: { [key: string]: string | number }) {
+    return `/go/analytics/${pluginId}/${metric.type}/${metric.id}?${m.buildQueryString(params)}`;
   }
 }

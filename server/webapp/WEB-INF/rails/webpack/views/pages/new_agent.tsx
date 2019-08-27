@@ -17,13 +17,16 @@
 import {AjaxPoller} from "helpers/ajax_poller";
 import {ApiResult, ErrorResponse} from "helpers/api_request_builder";
 import m from "mithril";
+import Stream from "mithril/stream";
 import {Agents} from "models/new_agent/agents";
 import {AgentsCRUD} from "models/new_agent/agents_crud";
+import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
 import {MessageType} from "views/components/flash_message";
 import {AgentsWidget} from "views/pages/new_agents/agents_widget";
 import {Page, PageState} from "views/pages/page";
+import {RequiresPluginInfos} from "views/pages/page_operations";
 
-interface State {
+interface State extends RequiresPluginInfos {
   agents: Agents;
   repeater: AjaxPoller<void>;
   onEnable: (e: MouseEvent) => void;
@@ -35,8 +38,9 @@ interface State {
 
 export class NewAgentPage extends Page<null, State> {
   oninit(vnode: m.Vnode<null, State>) {
-    const self         = this;
-    vnode.state.agents = new Agents([]);
+    const self              = this;
+    vnode.state.agents      = new Agents([]);
+    vnode.state.pluginInfos = Stream();
 
     vnode.state.onEnable = () => {
       const uuids = vnode.state.agents.getSelectedAgentsUUID();
@@ -89,6 +93,8 @@ export class NewAgentPage extends Page<null, State> {
                          flashMessage={this.flashMessage}
                          updateEnvironments={vnode.state.updateEnvironments.bind(vnode.state)}
                          updateResources={vnode.state.updateResources.bind(vnode.state)}
+                         showAnalyticsIcon={this.showAnalyticsIcon()}
+                         pluginInfos={vnode.state.pluginInfos}
                          isUserAdmin={Page.isUserAnAdmin()}/>;
   }
 
@@ -97,11 +103,15 @@ export class NewAgentPage extends Page<null, State> {
   }
 
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {
-    return AgentsCRUD.all().then((result) =>
-                                   result.do((successResponse) => {
-                                     vnode.state.agents.initializeWith(successResponse.body);
-                                     this.pageState = PageState.OK;
-                                   }, this.setErrorState));
+    return Promise.all([AgentsCRUD.all(), PluginInfoCRUD.all({})])
+                  .then((results) => {
+                    results[0].do((successResponse) => vnode.state.agents.initializeWith(successResponse.body),
+                                  this.setErrorState);
+                    results[1].do((successResponse) => vnode.state.pluginInfos(successResponse.body),
+                                  this.setErrorState);
+                  }).finally(() => {
+        this.pageState = PageState.OK;
+      });
   }
 
   private static pluralizeAgent(count: number) {
@@ -118,5 +128,17 @@ export class NewAgentPage extends Page<null, State> {
 
   private onFailure(errorResponse: ErrorResponse) {
     this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
+  }
+
+  private showAnalyticsIcon() {
+    const metaData = Page.readAttribute("data-meta");
+    if (metaData) {
+      const parsedMetadata = JSON.parse(metaData);
+      if (parsedMetadata.hasOwnProperty("data-should-show-analytics-icon")) {
+        return parsedMetadata["data-should-show-analytics-icon"];
+      }
+    }
+
+    return false;
   }
 }

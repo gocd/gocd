@@ -18,14 +18,16 @@ import {AnalyticsCapabilitiesJSON, AnalyticsCapabilityJSON} from "models/shared/
 export class AnalyticsCapability {
   readonly id: string;
   readonly type: string;
+  readonly title: string;
 
-  constructor(id: string, type: string) {
-    this.id   = id;
-    this.type = type;
+  constructor(id: string, type: string, title: string) {
+    this.id    = id;
+    this.type  = type;
+    this.title = title;
   }
 
   static fromJSON(data: AnalyticsCapabilityJSON) {
-    return new AnalyticsCapability(data.id, data.type);
+    return new AnalyticsCapability(data.id, data.type, data.title);
   }
 
 }

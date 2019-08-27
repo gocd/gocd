@@ -38,7 +38,7 @@ export class Link extends MithrilViewComponent<Attrs> {
 
   view(vnode: m.Vnode<Attrs>) {
     const rel = this.maybeRel(vnode.attrs);
-    return (<a {...vnode.attrs} {...rel}
+    return (<a target={vnode.attrs.target} href={vnode.attrs.href} {...rel}
                class={classnames(styles.inlineLink, {[styles.externalIcon]: vnode.attrs.externalLinkIcon})}>
       {vnode.children}</a>);
   }

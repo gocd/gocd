@@ -572,6 +572,58 @@ export class TriStateCheckboxField extends FormField<TriStateCheckbox> {
   }
 }
 
+export interface RadioButtonAttrs {
+  label: string;
+  errorText?: string;
+  disabled?: boolean;
+  required?: boolean;
+  property: (newValue?: string | boolean) => string | boolean;
+  possibleValues: Map<string, string | boolean>;
+}
+
+export class RadioField extends MithrilViewComponent<RadioButtonAttrs> {
+  protected readonly id: string = `input-${uuid()}`;
+
+  view(vnode: m.Vnode<RadioButtonAttrs>) {
+    const maybeRequired = this.isRequiredField(vnode) ?
+      <span className={styles.formLabelRequired}>*</span> : undefined;
+    return (
+      <li className={classnames(styles.formGroup, {[styles.formHasError]: this.hasErrorText(vnode)})}>
+        <label for={this.id} className={styles.formLabel}
+               data-test-id="form-field-label">{vnode.attrs.label}{maybeRequired}:</label>
+        {this.renderInputField(vnode)}
+      </li>
+    );
+  }
+
+  protected isRequiredField(vnode: m.Vnode<RadioButtonAttrs>) {
+    return vnode.attrs.required;
+  }
+
+  protected hasErrorText(vnode: m.Vnode<RadioButtonAttrs>) {
+    return !_.isEmpty(vnode.attrs.errorText);
+  }
+
+  private renderInputField(vnode: m.Vnode<RadioButtonAttrs>) {
+    const result: m.Children[] = [];
+
+    vnode.attrs.possibleValues.forEach((value, key) => {
+      const radioButtonId = `${this.id}-${s.slugify(key)}`;
+      result.push(
+        <div className={styles.formCheck}>
+          <input type="radio"
+                 id={radioButtonId}
+                 name={this.id} onchange={() => vnode.attrs.property(value)}/>
+          <label for={radioButtonId} className={styles.formLabel}
+                 data-test-id="form-field-label">{key}</label>
+        </div>
+      );
+    });
+
+    return result;
+  }
+}
+
 export class Switch extends FormField<boolean, SmallSizeAttr> {
   protected renderInputField(vnode: m.Vnode<BaseAttrs<boolean> & SmallSizeAttr>): m.Children {
     return <SwitchBtn small={vnode.attrs.small} field={vnode.attrs.property}/>;

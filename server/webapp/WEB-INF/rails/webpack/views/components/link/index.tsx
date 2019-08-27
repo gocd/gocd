@@ -14,18 +14,32 @@
  * limitations under the License.
  */
 
+import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
-
 import styles from "./index.scss";
+
+const classnames = bind(styles);
 
 export interface Attrs {
   target?: string;
   href?: string;
+  externalLinkIcon?: boolean;
 }
 
 export class Link extends MithrilViewComponent<Attrs> {
+
+  maybeRel(attrs: Attrs) {
+    if (attrs.target) {
+      return {rel: "noopener noreferrer"};
+    }
+    return {};
+  }
+
   view(vnode: m.Vnode<Attrs>) {
-    return (<a {...vnode.attrs} class={styles.inlineLink}>{vnode.children}</a>);
+    const rel = this.maybeRel(vnode.attrs);
+    return (<a target={vnode.attrs.target} href={vnode.attrs.href} {...rel}
+               class={classnames(styles.inlineLink, {[styles.externalIcon]: vnode.attrs.externalLinkIcon})}>
+      {vnode.children}</a>);
   }
 }

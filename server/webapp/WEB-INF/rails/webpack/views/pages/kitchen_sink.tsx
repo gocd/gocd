@@ -351,6 +351,7 @@ export class KitchenSink extends MithrilViewComponent<null> {
     return [
       <TextField required={true}
                  helpText="Enter your username here"
+                 docLink="configuration/quick_pipeline_setup.html#step-2-material"
                  label="Username"
                  placeholder="username"
                  property={formValue}/>,

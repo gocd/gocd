@@ -15,6 +15,7 @@
  */
 import {bind} from "classnames/bind";
 import * as clipboard from "clipboard-polyfill";
+import {docsUrl} from "gen/gocd_version";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
@@ -24,6 +25,7 @@ import uuid from "uuid/v4";
 import {OnClickHandler} from "views/components/buttons";
 import * as Buttons from "views/components/buttons";
 import {EncryptedValue} from "views/components/forms/encrypted_value";
+import {Link} from "views/components/link";
 import {SwitchBtn} from "views/components/switch";
 import styles from "./forms.scss";
 
@@ -44,6 +46,7 @@ interface ErrorTextAttr {
 
 interface HelpTextAttr {
   helpText?: m.Children;
+  docLink?: string;
 }
 
 interface PlaceholderAttr {
@@ -202,9 +205,16 @@ class HelpText extends MithrilViewComponent<HelpTextComponentAttrs> {
     }
   }
 
+  static maybeDocLink(docLink?: string) {
+    if (!_.isEmpty(docLink)) {
+      return <span>&nbsp;<Link href={docsUrl(docLink)} target="_blank" externalLinkIcon={true}>Learn More</Link></span>;
+    }
+  }
+
   view(vnode: m.Vnode<HelpTextComponentAttrs>) {
     if (!_.isEmpty(vnode.attrs.helpText)) {
-      return (<span id={vnode.attrs.helpTextId} class={classnames(styles.formHelp)}>{vnode.attrs.helpText}</span>);
+      return (<span id={vnode.attrs.helpTextId} class={classnames(styles.formHelp)}>
+        {vnode.attrs.helpText}{HelpText.maybeDocLink(vnode.attrs.docLink)}</span>);
     }
   }
 

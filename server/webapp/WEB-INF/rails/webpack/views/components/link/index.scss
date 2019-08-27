@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@import "../../global/common";
+
 $link-color: #0a8fcb;
 $link-hover-color: #0b5b7e;
 
@@ -24,4 +26,8 @@ $link-hover-color: #0b5b7e;
     text-decoration: underline;
     color:           $link-hover-color;
   }
+}
+
+.external-icon {
+  @include icon-after($type: $fa-var-external-link);
 }

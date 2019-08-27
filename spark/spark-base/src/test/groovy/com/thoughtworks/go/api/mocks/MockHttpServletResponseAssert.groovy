@@ -36,15 +36,31 @@ class MockHttpServletResponseAssert extends com.thoughtworks.go.http.mocks.MockH
     return this
   }
 
+  /**
+   * Use {@link #hasBodyWithJsonObject(java.lang.Class, java.lang.Object [])} instead
+   */
+  @Deprecated
   MockHttpServletResponseAssert hasBodyWithJsonObject(Object expected, Class representer) throws UnsupportedEncodingException {
-    def expectedJson = toObjectString({ representer.toJSON(it , expected) })
+    return hasBodyWithJsonObject(representer, expected)
+  }
+
+  MockHttpServletResponseAssert hasBodyWithJsonObject(Class representer, Object... representerArgs) throws UnsupportedEncodingException {
+    def expectedJson = toObjectString({ representer.toJSON(it, *representerArgs) })
 
     JsonFluentAssert.assertThatJson(actual.getContentAsString()).isEqualTo(expectedJson)
     return this
   }
 
+  /**
+   * Use {@link #hasBodyWithJsonArray(java.lang.Class, java.lang.Object [])} instead
+   */
+  @Deprecated
   MockHttpServletResponseAssert hasBodyWithJsonArray(Object expected, Class representer) throws UnsupportedEncodingException {
-    def expectedJson = toArrayString({ representer.toJSON(it, expected) })
+    return hasBodyWithJsonArray(representer, expected)
+  }
+
+  MockHttpServletResponseAssert hasBodyWithJsonArray(Class representer, Object... representerArgs) throws UnsupportedEncodingException {
+    def expectedJson = toArrayString({ representer.toJSON(it, *representerArgs) })
 
     JsonFluentAssert.assertThatJson(actual.getContentAsString()).isEqualTo(expectedJson)
     return this

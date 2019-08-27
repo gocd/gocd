@@ -15,11 +15,12 @@
  */
 @import "../../global/common";
 
-$build_details_z_index: 2;
-$building_bg_color: #ffeda0;
-$enable_count_bg_color: #50e3c2;
+$build_details_z_index:  2;
+$building_bg_color:      #ffeda0;
+$enable_count_bg_color:  #50e3c2;
 $disable_count_bg_color: #ee6161;
-$disabled-text-color: #999;
+$disabled-text-color:    #999;
+$icon-hover-color:       #000;
 .agent-status {
   @include icon-after($type: $fa-var-caret-down, $color: $icon-color);
   position:        relative;
@@ -147,4 +148,16 @@ $disabled-text-color: #999;
   box-shadow:    0 2px 4px $box-shadow-color;
   width:         250px;
   right:         0;
+}
+
+.agent-analytics a {
+  @include icon-before($type: $fa-var-bar-chart);
+  padding:   0;
+  font-size: 14px;
+  color:     $icon-color;
+  cursor:    pointer;
+
+  &:hover {
+    color: $icon-hover-color;
+  }
 }

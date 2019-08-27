@@ -92,6 +92,26 @@ export class TestHelper {
     return (context || this.root!).querySelectorAll(selector);
   }
 
+  fromModalByTestId(id: string): Element {
+    const modalContainer = this.q(".component-modal-container div:first-child", document.body);
+    if (!modalContainer) {
+      throw new Error("Did you forget to open a modal?");
+    }
+    return this.q(dataTestIdSelector(id), modalContainer);
+  }
+
+  closeModal() {
+    this.click(this.q("header button[class*=overlay-close]", this.modal()));
+  }
+
+  modal() {
+    const modalContainer = this.q(".component-modal-container div:first-child", document.body);
+    if (!modalContainer) {
+      throw new Error("Did you forget to open a modal?");
+    }
+    return modalContainer;
+  }
+
   text(selector: string, context?: Element): string {
     return (this.q(selector, context).textContent || "").trim();
   }

@@ -21,7 +21,7 @@ import {Modal} from "views/shared/new_modal";
 import {AnalyticsiFrameWidget} from "views/shared/analytics_iframe_widget";
 import PluginEndpointRequestHandler from "rails-shared/plugin-endpoint-request-handler";
 
-const Models                       = Interactions.ensure().ns("AgentMetrics");
+const Models = Interactions.ensure().ns("AgentMetrics");
 
 function createModel(index, pluginId, metric, agent) {
   const uid    = Models.uid(index, pluginId, "agent", metric),

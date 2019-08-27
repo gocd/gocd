@@ -46,7 +46,7 @@ import {
 import {AnalyticsCapability} from "../analytics_plugin_capabilities";
 import {ExtensionTypeString} from "../extension_type";
 import {PluginInfo} from "../plugin_info";
-import {pluginImageLink, SecretPluginInfo} from "./test_data";
+import {AnalyticsPluginInfo, pluginImageLink, SecretPluginInfo} from "./test_data";
 
 describe("PluginInfos New", () => {
 
@@ -611,42 +611,6 @@ describe("PluginInfos New", () => {
     ]
   };
 
-  const analyticsExtension: AnalyticsExtensionJSON       = {
-    type: "analytics",
-    plugin_settings: {
-      configurations: [
-        {
-          key: "username",
-          metadata: {
-            secure: false,
-            required: true
-          }
-        }
-      ],
-      view: {
-        template: "analytics plugin view"
-      }
-    },
-    capabilities: {
-      supported_analytics: [
-        {type: "agent", id: "bar", title: "bar"},
-        {type: "pipeline", id: "rawr", title: "foo"},
-        {type: "dashboard", id: "foo", title: "something"}
-      ]
-    }
-  };
-  const pluginInfoWithAnalyticsExtension: PluginInfoJSON = {
-    _links: pluginImageLink(),
-    id: "gocd.analytics.plugin",
-    status: activeStatus,
-    plugin_file_location: "/foo/bar.jar",
-    bundled_plugin: false,
-    about,
-    extensions: [
-      analyticsExtension,
-    ]
-  };
-
   it("should check if plugin settings is supported", () => {
     const withoutPluginSettingsProperty: PluginInfoJSON = {
       _links: pluginImageLink(),
@@ -997,12 +961,13 @@ describe("PluginInfos New", () => {
 
   describe("Analytics", () => {
     it("should deserialize", () => {
-      const pluginInfo = PluginInfo.fromJSON(pluginInfoWithAnalyticsExtension);
-      verifyBasicProperties(pluginInfo, pluginInfoWithAnalyticsExtension);
+      const pluginInfoJSON = AnalyticsPluginInfo.analytics();
+      const pluginInfo     = PluginInfo.fromJSON(pluginInfoJSON);
+      verifyBasicProperties(pluginInfo, pluginInfoJSON);
       const extension = pluginInfo.extensionOfType(ExtensionTypeString.ANALYTICS) as AnalyticsExtension;
 
       expect(extension.pluginSettings!.viewTemplate())
-        .toEqual((pluginInfoWithAnalyticsExtension.extensions[0] as AnalyticsExtensionJSON).plugin_settings!.view!.template);
+        .toEqual((pluginInfoJSON.extensions[0] as AnalyticsExtensionJSON).plugin_settings!.view!.template);
       expect(extension.pluginSettings!.configurations().length).toEqual(1);
       expect(extension.pluginSettings!.configurations().map((config) => config.key)).toEqual(["username"]);
       expect(extension.pluginSettings!.configurations()[0].metadata).toEqual({
@@ -1010,9 +975,10 @@ describe("PluginInfos New", () => {
                                                                                required: true
                                                                              });
 
-      expect(extension.capabilities.pipelineSupport()).toEqual([new AnalyticsCapability("rawr", "pipeline")]);
-      expect(extension.capabilities.dashboardSupport()).toEqual([new AnalyticsCapability("foo", "dashboard")]);
-      expect(extension.capabilities.agentSupport()).toEqual([new AnalyticsCapability("bar", "agent")]);
+      expect(extension.capabilities.pipelineSupport()).toEqual([new AnalyticsCapability("rawr", "pipeline", "foo")]);
+      expect(extension.capabilities.dashboardSupport())
+        .toEqual([new AnalyticsCapability("foo", "dashboard", "something")]);
+      expect(extension.capabilities.agentSupport()).toEqual([new AnalyticsCapability("bar", "agent", "bar")]);
     });
   });
 
@@ -1080,7 +1046,7 @@ describe("PluginInfos New", () => {
     });
 
     it("should deserialize", () => {
-      pluginInfoJSON.extensions = [pluginInfoWithAnalyticsExtension.extensions[0], pluginInfoWithNotificationExtension.extensions[0], pluginInfoWithPackageRepositoryExtension.extensions[0]];
+      pluginInfoJSON.extensions = [AnalyticsPluginInfo.analyticsExtension(), pluginInfoWithNotificationExtension.extensions[0], pluginInfoWithPackageRepositoryExtension.extensions[0]];
 
       const pluginInfo = PluginInfo.fromJSON(pluginInfoJSON);
       verifyBasicProperties(pluginInfo, pluginInfoJSON);
@@ -1092,9 +1058,9 @@ describe("PluginInfos New", () => {
 
       const analyticsExtensionInfo = pluginInfo.extensionOfType(ExtensionTypeString.ANALYTICS)! as AnalyticsExtension;
       expect(analyticsExtensionInfo.capabilities.pipelineSupport())
-        .toEqual([new AnalyticsCapability("rawr", "pipeline")]);
+        .toEqual([new AnalyticsCapability("rawr", "pipeline", "foo")]);
       expect(analyticsExtensionInfo.capabilities.dashboardSupport())
-        .toEqual([new AnalyticsCapability("foo", "dashboard")]);
+        .toEqual([new AnalyticsCapability("foo", "dashboard", "something")]);
 
       const packageRepositoryExtensionInfo = pluginInfo.extensionOfType(ExtensionTypeString.PACKAGE_REPO)! as PackageRepoExtension;
       expect(packageRepositoryExtensionInfo.packageSettings.configurations().length).toEqual(4);
@@ -1102,7 +1068,7 @@ describe("PluginInfos New", () => {
     });
 
     it("should find the first extension with the plugin settings to use as settings for the plugin", () => {
-      pluginInfoJSON.extensions = [pluginInfoWithNotificationExtension.extensions[0], pluginInfoWithAnalyticsExtension.extensions[0]];
+      pluginInfoJSON.extensions = [pluginInfoWithNotificationExtension.extensions[0], AnalyticsPluginInfo.analyticsExtension()];
 
       const pluginInfo = PluginInfo.fromJSON(pluginInfoJSON);
       expect(pluginInfo.firstExtensionWithPluginSettings()!.pluginSettings!.viewTemplate())

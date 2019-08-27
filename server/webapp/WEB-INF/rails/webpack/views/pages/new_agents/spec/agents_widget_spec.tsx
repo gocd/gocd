@@ -16,8 +16,11 @@
 
 import m from "mithril";
 
+import Stream from "mithril/stream";
 import {Agent, Agents} from "models/new_agent/agents";
 import {AgentsTestData} from "models/new_agent/spec/agents_test_data";
+import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
+import {AnalyticsPluginInfo, AuthorizationPluginInfo} from "models/shared/plugin_infos_new/spec/test_data";
 import {FlashMessageModelWithTimeout} from "views/components/flash_message";
 import {AgentsWidget} from "views/pages/new_agents/agents_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
@@ -47,7 +50,8 @@ describe("NewAgentsWidget", () => {
 
     const headers = helper.byTestId("table-header-row");
 
-    expect(headers.children).toHaveLength(9);
+    expect(headers.children).toHaveLength(10);
+    expect(headers.children[0].children).toContain(helper.byTestId("select-all-agents"));
     expect(headers.children[1]).toContainText("Agent Name");
     expect(headers.children[2]).toContainText("Sandbox");
     expect(headers.children[3]).toContainText("OS");
@@ -56,6 +60,7 @@ describe("NewAgentsWidget", () => {
     expect(headers.children[6]).toContainText("Free Space");
     expect(headers.children[7]).toContainText("Resources");
     expect(headers.children[8]).toContainText("Environments");
+    expect(headers.children[9]).toContainText("");
   });
 
   it("should render agents in the table", () => {
@@ -230,7 +235,65 @@ describe("NewAgentsWidget", () => {
     });
   });
 
-  function mount(agents: Agents, isUserAdmin: boolean = true) {
+  describe("AnalyticsIcon", () => {
+    it("should not render analytics icon when attribute showAnalyticsIcon is set to false", () => {
+      const pluginInfos = new PluginInfos(PluginInfo.fromJSON(AnalyticsPluginInfo.analytics()));
+      mount(agents, true, false, Stream(pluginInfos));
+
+      expect(helper.byTestId(`analytics-icon-${agentA.uuid}`)).not.toBeInDOM();
+      expect(helper.byTestId(`analytics-icon-${agentB.uuid}`)).not.toBeInDOM();
+      expect(helper.byTestId(`analytics-icon-${agentC.uuid}`)).not.toBeInDOM();
+    });
+
+    it("should show analytics icon when attribute showAnalyticsIcon is set to true", () => {
+      const pluginInfos = new PluginInfos(PluginInfo.fromJSON(AnalyticsPluginInfo.analytics()));
+
+      mount(agents, true, true, Stream(pluginInfos));
+
+      expect(helper.byTestId(`analytics-icon-${agentA.uuid}`)).toBeInDOM();
+      expect(helper.byTestId(`analytics-icon-${agentB.uuid}`)).toBeInDOM();
+      expect(helper.byTestId(`analytics-icon-${agentC.uuid}`)).toBeInDOM();
+    });
+
+    it("should not render analytics icon when none of the plugin supports", () => {
+      const pluginInfos = new PluginInfos(PluginInfo.fromJSON(AuthorizationPluginInfo.github()));
+
+      mount(agents, true, true, Stream(pluginInfos));
+
+      expect(helper.byTestId(`analytics-icon-${agentA.uuid}`)).not.toBeInDOM();
+      expect(helper.byTestId(`analytics-icon-${agentB.uuid}`)).not.toBeInDOM();
+      expect(helper.byTestId(`analytics-icon-${agentC.uuid}`)).not.toBeInDOM();
+    });
+
+    it("should not render analytics icon when none of the plugin supports agent analytics", () => {
+      const pipelineAnalyticsCapability = {type: "pipeline", id: "foo", title: "Foo"};
+      const pluginInfoJSON              = AnalyticsPluginInfo.withCapabilities(pipelineAnalyticsCapability);
+      const pluginInfos                 = new PluginInfos(PluginInfo.fromJSON(pluginInfoJSON));
+
+      mount(agents, true, true, Stream(pluginInfos));
+
+      expect(helper.byTestId(`analytics-icon-${agentA.uuid}`)).not.toBeInDOM();
+      expect(helper.byTestId(`analytics-icon-${agentB.uuid}`)).not.toBeInDOM();
+      expect(helper.byTestId(`analytics-icon-${agentC.uuid}`)).not.toBeInDOM();
+    });
+
+    it("should show analytics icon when plugin supports agent analytics", () => {
+      const agentAnalyticsCapability = {type: "agent", id: "foo", title: "Foo"};
+      const pluginInfoJSON           = AnalyticsPluginInfo.withCapabilities(agentAnalyticsCapability);
+      const pluginInfos              = new PluginInfos(PluginInfo.fromJSON(pluginInfoJSON));
+
+      mount(agents, true, true, Stream(pluginInfos));
+
+      expect(helper.byTestId(`analytics-icon-${agentA.uuid}`)).toBeInDOM();
+      expect(helper.byTestId(`analytics-icon-${agentB.uuid}`)).toBeInDOM();
+      expect(helper.byTestId(`analytics-icon-${agentC.uuid}`)).toBeInDOM();
+    });
+  });
+
+  function mount(agents: Agents,
+                 isUserAdmin: boolean             = true,
+                 showAnalyticsIcon: boolean       = true,
+                 pluginInfos: Stream<PluginInfos> = Stream(new PluginInfos())) {
     helper.mount(() => <AgentsWidget agents={agents}
                                      onEnable={onEnable}
                                      onDisable={onDisable}
@@ -238,6 +301,8 @@ describe("NewAgentsWidget", () => {
                                      updateEnvironments={updateEnvironments}
                                      updateResources={updateResources}
                                      isUserAdmin={isUserAdmin}
+                                     pluginInfos={pluginInfos}
+                                     showAnalyticsIcon={showAnalyticsIcon}
                                      flashMessage={new FlashMessageModelWithTimeout()}/>);
   }
 

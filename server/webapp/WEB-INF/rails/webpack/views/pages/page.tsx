@@ -80,9 +80,13 @@ export abstract class Page<Attrs = {}, State = {}> extends MithrilComponent<Attr
                     });
   }
 
+  protected static readAttribute(name: string) {
+    return document.body.getAttribute(name);
+  }
+
   protected static isUserAnAdmin() {
-    const attribute = document.body.getAttribute("data-is-user-admin");
-    return attribute ? attribute === "true" : false;
+    const attribute = Page.readAttribute("data-is-user-admin");
+    return attribute ? attribute.toLowerCase() === "true" : false;
   }
 
   private _onSuccess() {

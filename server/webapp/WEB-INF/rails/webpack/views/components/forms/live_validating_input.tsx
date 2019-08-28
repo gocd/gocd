@@ -24,7 +24,7 @@ export interface LiveInputAttrs extends TextFieldAttrs {
 }
 
 interface State {
-  errors(): string | undefined;
+  errors(errorText?: string): string | undefined;
 }
 
 /**
@@ -44,7 +44,9 @@ export class LiveValidatingInputField extends MithrilComponent<LiveInputAttrs, S
     dom.setCustomValidity("");
 
     const validator = vnode.attrs.validator;
-    vnode.state.errors = () => (liveValidationError(dom) || vnode.attrs.errorText);
+
+    // prefers errorText attribute and otherwise injects any validator error message
+    vnode.state.errors = (errorText) => (errorText || liveValidationError(dom));
 
     if ("function" === typeof validator) {
       dom.addEventListener("input", (e) => {
@@ -64,7 +66,7 @@ export class LiveValidatingInputField extends MithrilComponent<LiveInputAttrs, S
     delete attrs.validator;
 
     if ("function" === typeof vnode.state.errors) {
-      attrs.errorText = vnode.state.errors(); // injects validator error message, falling back to vnode.attrs.errorText
+      attrs.errorText = vnode.state.errors(vnode.attrs.errorText);
     }
 
     return <TextField {...attrs}/>;

@@ -23,6 +23,7 @@ import com.thoughtworks.go.config.CruiseConfig
 import com.thoughtworks.go.config.GoConfigPluginService
 import com.thoughtworks.go.config.PipelineConfig
 import com.thoughtworks.go.config.materials.PasswordDeserializer
+import com.thoughtworks.go.config.materials.ScmMaterialConfig
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext
 import com.thoughtworks.go.config.update.CreatePipelineConfigCommand
 import com.thoughtworks.go.domain.materials.MaterialConfig
@@ -122,9 +123,9 @@ class PipelinesAsCodeInternalControllerV1Test implements SecurityServiceTrait, C
       @Override
       void makeHttpCall() {
         postWithApiHeader(controller.controllerPath("config_files"), [:], [
-          type: MATERIAL_TYPE,
+          type      : MATERIAL_TYPE,
           attributes: [
-            url: MATERIAL_URL,
+            url   : MATERIAL_URL,
             branch: MATERIAL_BRANCH
           ]
         ])
@@ -146,17 +147,17 @@ class PipelinesAsCodeInternalControllerV1Test implements SecurityServiceTrait, C
         when(pluginService.partialConfigProviderFor(PLUGIN_ID)).thenReturn(configRepoPlugin)
         when(pluginService.partialConfigProviderFor("plugin2")).thenReturn(configRepoPlugin)
         when(configRepoPlugin.getConfigFiles(any(File), any(List))).thenReturn(ConfigFileList.from(new ArrayList<String>()))
-        Map<String, String> plugins = new HashMap<>();
-        plugins.put("test", PLUGIN_ID);
-        plugins.put("testing", "plugin2");
+        Map<String, String> plugins = new HashMap<>()
+        plugins.put("test", PLUGIN_ID)
+        plugins.put("testing", "plugin2")
         when(defaultPluginInfoFinder.pluginDisplayNameToPluginId(any(String))).thenReturn(plugins)
 
         doNothing().when(controller).checkoutFromMaterialConfig(any(MaterialConfig), any(File))
 
         postWithApiHeader(controller.controllerPath("config_files"), [:], [
-          type: MATERIAL_TYPE,
+          type      : MATERIAL_TYPE,
           attributes: [
-            url: MATERIAL_URL,
+            url   : MATERIAL_URL,
             branch: MATERIAL_BRANCH
           ]
         ])
@@ -164,19 +165,19 @@ class PipelinesAsCodeInternalControllerV1Test implements SecurityServiceTrait, C
         assertThatResponse()
           .isOk()
           .hasJsonBody([
-          plugins: [
-            [
-              plugin_id: PLUGIN_ID,
-              files: [],
-              errors: ""
-            ],
-            [
-              plugin_id: "plugin2",
-              files: [],
-              errors: ""
+            plugins: [
+              [
+                plugin_id: PLUGIN_ID,
+                files    : [],
+                errors   : ""
+              ],
+              [
+                plugin_id: "plugin2",
+                files    : [],
+                errors   : ""
+              ]
             ]
-          ]
-        ])
+          ])
       }
 
       @Test
@@ -184,9 +185,9 @@ class PipelinesAsCodeInternalControllerV1Test implements SecurityServiceTrait, C
         when(configRepoService.hasConfigRepoByFingerprint(any(String))).thenReturn(true)
 
         postWithApiHeader(controller.controllerPath("config_files"), [:], [
-          type: MATERIAL_TYPE,
+          type      : MATERIAL_TYPE,
           attributes: [
-            url: MATERIAL_URL,
+            url   : MATERIAL_URL,
             branch: MATERIAL_BRANCH
           ]
         ])
@@ -199,15 +200,15 @@ class PipelinesAsCodeInternalControllerV1Test implements SecurityServiceTrait, C
       @Test
       void 'should return empty plugins list if no pac plugins available'() {
         when(configRepoService.hasConfigRepoByFingerprint(any(String))).thenReturn(false)
-        Map<String, String> plugins = new HashMap<>();
+        Map<String, String> plugins = new HashMap<>()
         when(defaultPluginInfoFinder.pluginDisplayNameToPluginId(any(String))).thenReturn(plugins)
 
         doNothing().when(controller).checkoutFromMaterialConfig(any(MaterialConfig), any(File))
 
         postWithApiHeader(controller.controllerPath("config_files"), [:], [
-          type: MATERIAL_TYPE,
+          type      : MATERIAL_TYPE,
           attributes: [
-            url: MATERIAL_URL,
+            url   : MATERIAL_URL,
             branch: MATERIAL_BRANCH
           ]
         ])
@@ -215,23 +216,48 @@ class PipelinesAsCodeInternalControllerV1Test implements SecurityServiceTrait, C
         assertThatResponse()
           .isOk()
           .hasJsonBody([
-          plugins: []
+            plugins: []
+          ])
+      }
+
+      @Test
+      void 'validates material configuration and bubbles up any validation failures'() {
+        when(configRepoService.hasConfigRepoByFingerprint(any(String))).thenReturn(false)
+        Map<String, String> plugins = new HashMap<>()
+        plugins.put("test", PLUGIN_ID)
+        when(defaultPluginInfoFinder.pluginDisplayNameToPluginId(any(String))).thenReturn(plugins)
+
+        doAnswer({ InvocationOnMock invocation ->
+          ScmMaterialConfig material = (ScmMaterialConfig) invocation.getArgument(0)
+          material.errors().add("url", "that's a no-go.")
+        }).when(controller).validateMaterial(any(MaterialConfig))
+
+        postWithApiHeader(controller.controllerPath("config_files"), [:], [
+          type      : MATERIAL_TYPE,
+          attributes: [
+            url   : MATERIAL_URL,
+            branch: MATERIAL_BRANCH
+          ]
         ])
+
+        assertThatResponse()
+          .isUnprocessableEntity()
+          .hasJsonMessage("Please fix the following SCM configuration errors: that's a no-go.")
       }
 
       @Test
       void 'should provide error message when there is an exception'() {
         when(configRepoService.hasConfigRepoByFingerprint(any(String))).thenReturn(false)
-        Map<String, String> plugins = new HashMap<>();
+        Map<String, String> plugins = new HashMap<>()
         plugins.put("test", PLUGIN_ID)
         when(defaultPluginInfoFinder.pluginDisplayNameToPluginId(any(String))).thenReturn(plugins)
 
         doThrow(new RuntimeException("An error")).when(controller).checkoutFromMaterialConfig(any(MaterialConfig), any(File))
 
         postWithApiHeader(controller.controllerPath("config_files"), [:], [
-          type: MATERIAL_TYPE,
+          type      : MATERIAL_TYPE,
           attributes: [
-            url: MATERIAL_URL,
+            url   : MATERIAL_URL,
             branch: MATERIAL_BRANCH
           ]
         ])
@@ -343,7 +369,7 @@ class PipelinesAsCodeInternalControllerV1Test implements SecurityServiceTrait, C
       void "validates ad-hoc pipeline config when ?validate=true"() {
         CreatePipelineConfigCommand cmd = mock(CreatePipelineConfigCommand)
         CruiseConfig config = mock(CruiseConfig)
-        PipelineConfig pipeline = null;
+        PipelineConfig pipeline = null
 
         when(pluginService.isConfigRepoPlugin(PLUGIN_ID)).thenReturn(true)
         when(pluginService.supportsPipelineExport(PLUGIN_ID)).thenReturn(true)

@@ -28,11 +28,9 @@ import com.thoughtworks.go.apiv1.pipelinesascodeinternal.representers.ConfigFile
 import com.thoughtworks.go.apiv8.admin.shared.representers.PipelineConfigRepresenter;
 import com.thoughtworks.go.apiv8.admin.shared.representers.materials.MaterialsRepresenter;
 import com.thoughtworks.go.apiv8.admin.shared.representers.stages.ConfigHelperOptions;
-import com.thoughtworks.go.config.ConfigRepoPlugin;
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.GoConfigPluginService;
-import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.PasswordDeserializer;
+import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.config.update.CreatePipelineConfigCommand;
 import com.thoughtworks.go.domain.materials.Material;
@@ -129,33 +127,49 @@ public class PipelinesAsCodeInternalControllerV1 extends ApiController implement
 
     String configFiles(Request req, Response res) {
         File folder = FileUtil.createTempFolder();
-        String responseText;
+
         try {
             JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(req.body());
 
             ConfigHelperOptions options = new ConfigHelperOptions(goConfigService.getCurrentConfig(), passwordDeserializer);
             MaterialConfig materialConfig = MaterialsRepresenter.fromJSON(jsonReader, options);
 
-            if (configRepoService.hasConfigRepoByFingerprint(materialConfig.getFingerprint())) {
-                res.status(409);
-                responseText = MessageJson.create("Material is already being used as a config repository");
-            } else {
-                Map<String, ConfigFileList> pacPluginFiles = new HashMap<>();
-                checkoutFromMaterialConfig(materialConfig, folder);
-                defaultPluginInfoFinder.pluginDisplayNameToPluginId(CONFIG_REPO_EXTENSION).forEach((k, pluginId) -> {
-                    ConfigRepoPlugin crPlugin = (ConfigRepoPlugin) pluginService.partialConfigProviderFor(pluginId);
-                    pacPluginFiles.put(pluginId, crPlugin.getConfigFiles(folder, new ArrayList<>()));
-                });
-                responseText = jsonizeAsTopLevelObject(req, w -> ConfigFileListsRepresenter.toJSON(w, pacPluginFiles));
+            if (!(materialConfig instanceof ScmMaterialConfig)) {
+                res.status(HttpStatus.UNPROCESSABLE_ENTITY.value());
+                return MessageJson.create(format("This material check requires an SCM repository; instead, supplied material was of type: %s", materialConfig.getType()));
             }
+
+            validateMaterial(materialConfig);
+
+            if (materialConfig.errors().present()) {
+                res.status(HttpStatus.UNPROCESSABLE_ENTITY.value());
+                return MessageJson.create(format("Please fix the following SCM configuration errors: %s", materialConfig.errors().asString()));
+            }
+
+            if (configRepoService.hasConfigRepoByFingerprint(materialConfig.getFingerprint())) {
+                res.status(HttpStatus.CONFLICT.value());
+                return MessageJson.create("Material is already being used as a config repository");
+            }
+
+            Map<String, ConfigFileList> pacPluginFiles = new HashMap<>();
+            checkoutFromMaterialConfig(materialConfig, folder);
+            defaultPluginInfoFinder.pluginDisplayNameToPluginId(CONFIG_REPO_EXTENSION).forEach((k, pluginId) -> {
+                ConfigRepoPlugin crPlugin = (ConfigRepoPlugin) pluginService.partialConfigProviderFor(pluginId);
+                pacPluginFiles.put(pluginId, crPlugin.getConfigFiles(folder, new ArrayList<>()));
+            });
+
+            return jsonizeAsTopLevelObject(req, w -> ConfigFileListsRepresenter.toJSON(w, pacPluginFiles));
         } catch (Exception ex) {
-            res.status(500);
-            responseText = MessageJson.create(ex.getMessage());
+            res.status(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            return MessageJson.create(ex.getMessage());
         } finally {
             FileUtils.deleteQuietly(folder);
         }
+    }
 
-        return responseText;
+    protected void validateMaterial(MaterialConfig materialConfig) {
+        PipelineConfigSaveValidationContext vctx = PipelineConfigSaveValidationContext.forChain(false, null, goConfigService.getCurrentConfig(), materialConfig);
+        ((ScmMaterialConfig) materialConfig).validateConcreteScmMaterial(vctx);
     }
 
     protected void checkoutFromMaterialConfig(MaterialConfig materialConfig, File folder) throws ExecutionException, InterruptedException {
@@ -212,7 +226,6 @@ public class PipelinesAsCodeInternalControllerV1 extends ApiController implement
             res.header("Content-Disposition", format("attachment; filename=\"%s\"", export.getFilename()));
             return export.getContent();
         }
-
     }
 
     private boolean requiresFullValidation(Request req) {

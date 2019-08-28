@@ -16,12 +16,13 @@
 package com.thoughtworks.go.plugin.access.analytics;
 
 import com.thoughtworks.go.plugin.access.analytics.V1.AnalyticsMessageConverterV1;
+import com.thoughtworks.go.plugin.access.analytics.V2.AnalyticsMessageConverterV2;
 
 import java.util.Arrays;
 import java.util.List;
 
 public interface AnalyticsPluginConstants {
-    List<String> SUPPORTED_VERSIONS = Arrays.asList(AnalyticsMessageConverterV1.VERSION);
+    List<String> SUPPORTED_VERSIONS = Arrays.asList(AnalyticsMessageConverterV1.VERSION, AnalyticsMessageConverterV2.VERSION);
 
     String REQUEST_PREFIX = "go.cd.analytics";
     String REQUEST_GET_PLUGIN_ICON = REQUEST_PREFIX + ".get-icon";

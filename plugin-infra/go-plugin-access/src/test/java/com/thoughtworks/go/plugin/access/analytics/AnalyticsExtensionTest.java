@@ -42,6 +42,7 @@ import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -63,7 +64,7 @@ public class AnalyticsExtensionTest {
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, ANALYTICS_EXTENSION, Arrays.asList("1.0"))).thenReturn("1.0");
+        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, ANALYTICS_EXTENSION, Arrays.asList("1.0", "2.0"))).thenReturn("1.0", "2.0");
         when(pluginManager.isPluginOfType(ANALYTICS_EXTENSION, PLUGIN_ID)).thenReturn(true);
 
         analyticsExtension = new AnalyticsExtension(pluginManager, extensionsRegistry);
@@ -139,6 +140,12 @@ public class AnalyticsExtensionTest {
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ANALYTICS_EXTENSION), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, "{}"));
 
         analyticsExtension.getStaticAssets(PLUGIN_ID);
+    }
+
+    @Test
+    public void shouldVerifyGoSupportedVersion() {
+        assertTrue(analyticsExtension.goSupportedVersions().contains("1.0"));
+        assertTrue(analyticsExtension.goSupportedVersions().contains("2.0"));
     }
 
     private void assertRequest(GoPluginApiRequest goPluginApiRequest, String extensionName, String version, String requestName, String requestBody) {

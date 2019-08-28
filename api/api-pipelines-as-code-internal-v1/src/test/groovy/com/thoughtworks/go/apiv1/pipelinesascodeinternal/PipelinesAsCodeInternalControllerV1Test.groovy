@@ -221,6 +221,26 @@ class PipelinesAsCodeInternalControllerV1Test implements SecurityServiceTrait, C
       }
 
       @Test
+      void 'rejects non-SCM materials'() {
+        when(configRepoService.hasConfigRepoByFingerprint(any(String))).thenReturn(false)
+        Map<String, String> plugins = new HashMap<>()
+        plugins.put("test", PLUGIN_ID)
+        when(defaultPluginInfoFinder.pluginDisplayNameToPluginId(any(String))).thenReturn(plugins)
+
+        postWithApiHeader(controller.controllerPath("config_files"), [:], [
+          type      : "dependency",
+          attributes: [
+            pipeline: "whatever",
+            stage   : "meh"
+          ]
+        ])
+
+        assertThatResponse()
+          .isUnprocessableEntity()
+          .hasJsonMessage("This material check requires an SCM repository; instead, supplied material was of type: DependencyMaterial")
+      }
+
+      @Test
       void 'validates material configuration and bubbles up any validation failures'() {
         when(configRepoService.hasConfigRepoByFingerprint(any(String))).thenReturn(false)
         Map<String, String> plugins = new HashMap<>()

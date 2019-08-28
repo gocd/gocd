@@ -13,6 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-p {
-  margin: 0 0 20px 0;
-}
+
+// this loads up global css.
+// including global css in 'spa_base' caused older rails/vm pages to include global css causing rendering bugs.
+// spa_base, in case you're curious is required for the header/footer components in old pages.
+import css from "./hax-for-css.scss";
+
+css.toString();

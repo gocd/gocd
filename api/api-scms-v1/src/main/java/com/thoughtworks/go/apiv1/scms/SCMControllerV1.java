@@ -82,7 +82,6 @@ public class SCMControllerV1 extends ApiController implements SparkSpringControl
             post("", mimeType, this::create);
             get(Routes.SCM.ID, mimeType, this::show);
             put(Routes.SCM.ID, mimeType, this::update);
-            delete(Routes.SCM.ID, mimeType, this::destroy);
         });
     }
 
@@ -142,15 +141,6 @@ public class SCMControllerV1 extends ApiController implements SparkSpringControl
         pluggableScmService.updatePluggableScmMaterial(currentUsername(), scmFromRequest, operationResult, getIfMatch(request));
 
         return handleCreateOrUpdateResponse(request, response, scmFromRequest, operationResult);
-    }
-
-    public String destroy(Request request, Response response) throws IOException {
-        final String materialName = request.params(MATERIAL_NAME);
-        SCM scm = fetchEntityFromConfig(materialName);
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        pluggableScmService.deletePluggableSCM(currentUsername(), scm, result);
-
-        return renderHTTPOperationResult(result, request, response);
     }
 
     @Override

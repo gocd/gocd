@@ -21,8 +21,9 @@ import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.apiv1.internalpipelinestructure.representers.InternalPipelineStructuresRepresenter;
 import com.thoughtworks.go.config.PipelineConfigs;
-import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.config.TemplatesConfig;
 import com.thoughtworks.go.server.service.PipelineConfigService;
+import com.thoughtworks.go.server.service.TemplateConfigService;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,12 +41,16 @@ public class InternalPipelineStructureControllerV1 extends ApiController impleme
 
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final PipelineConfigService pipelineConfigService;
+    private final TemplateConfigService templateConfigService;
 
     @Autowired
-    public InternalPipelineStructureControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, PipelineConfigService pipelineConfigService) {
+    public InternalPipelineStructureControllerV1(ApiAuthenticationHelper apiAuthenticationHelper,
+                                                 PipelineConfigService pipelineConfigService,
+                                                 TemplateConfigService templateConfigService) {
         super(ApiVersion.v1);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
         this.pipelineConfigService = pipelineConfigService;
+        this.templateConfigService = templateConfigService;
     }
 
     @Override
@@ -71,9 +76,11 @@ public class InternalPipelineStructureControllerV1 extends ApiController impleme
     }
 
     public String index(Request request, Response response) throws IOException {
-        List<PipelineConfigs> groups = pipelineConfigService.viewableGroupsFor(currentUsername());
+        List<PipelineConfigs> groups = pipelineConfigService.viewableGroupsForUserIncludingConfigRepos(currentUsername());
 
-        return writerForTopLevelArray(request, response, outputWriter -> InternalPipelineStructuresRepresenter.toJSON(outputWriter, groups));
+        TemplatesConfig templateConfigs = templateConfigService.templateConfigsThatCanBeEditedBy(currentUsername());
+
+        return writerForTopLevelObject(request, response, outputWriter -> InternalPipelineStructuresRepresenter.toJSON(outputWriter, groups, templateConfigs));
     }
 
 }

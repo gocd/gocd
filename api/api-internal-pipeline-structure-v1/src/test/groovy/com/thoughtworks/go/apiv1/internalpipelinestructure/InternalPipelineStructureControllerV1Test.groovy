@@ -19,10 +19,11 @@ package com.thoughtworks.go.apiv1.internalpipelinestructure
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv1.internalpipelinestructure.representers.InternalPipelineStructuresRepresenter
+import com.thoughtworks.go.config.TemplatesConfig
 import com.thoughtworks.go.helper.PipelineConfigMother
+import com.thoughtworks.go.helper.PipelineTemplateConfigMother
 import com.thoughtworks.go.server.service.PipelineConfigService
-import com.thoughtworks.go.spark.AdminUserOnlyIfSecurityEnabled
-import com.thoughtworks.go.spark.AdminUserSecurity
+import com.thoughtworks.go.server.service.TemplateConfigService
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
@@ -30,7 +31,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
-import org.mockito.Mockito
 
 import static org.mockito.Mockito.when
 import static org.mockito.MockitoAnnotations.initMocks
@@ -39,6 +39,8 @@ class InternalPipelineStructureControllerV1Test implements SecurityServiceTrait,
 
   @Mock
   PipelineConfigService pipelineConfigService
+  @Mock
+  TemplateConfigService templateConfigService
 
   @BeforeEach
   void setUp() {
@@ -47,7 +49,7 @@ class InternalPipelineStructureControllerV1Test implements SecurityServiceTrait,
 
   @Override
   InternalPipelineStructureControllerV1 createControllerInstance() {
-    new InternalPipelineStructureControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), pipelineConfigService)
+    new InternalPipelineStructureControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), pipelineConfigService, templateConfigService)
   }
 
   @Nested
@@ -60,13 +62,15 @@ class InternalPipelineStructureControllerV1Test implements SecurityServiceTrait,
     @Test
     void 'test should render list of all pipeline groups'() {
       def group = PipelineConfigMother.createGroup("my-group", PipelineConfigMother.createPipelineConfig("my-pipeline", "my-stage", "my-job1", "my-job2"))
-      when(pipelineConfigService.viewableGroupsFor(currentUsername())).thenReturn([group])
+      def template = PipelineTemplateConfigMother.createTemplate("my-template")
+      when(pipelineConfigService.viewableGroupsForUserIncludingConfigRepos(currentUsername())).thenReturn([group])
+      when(templateConfigService.templateConfigsThatCanBeEditedBy(currentUsername())).thenReturn(new TemplatesConfig(template))
 
       getWithApiHeader(controller.controllerBasePath())
 
       assertThatResponse()
         .isOk()
-        .hasBodyWithJsonArray([group], InternalPipelineStructuresRepresenter.class)
+        .hasBodyWithJsonObject(InternalPipelineStructuresRepresenter.class, [group], [template])
     }
 
     @Nested

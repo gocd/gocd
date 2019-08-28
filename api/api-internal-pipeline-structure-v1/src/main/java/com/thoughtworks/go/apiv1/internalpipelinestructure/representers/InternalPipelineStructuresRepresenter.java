@@ -16,32 +16,49 @@
 
 package com.thoughtworks.go.apiv1.internalpipelinestructure.representers;
 
-import com.thoughtworks.go.api.base.OutputListWriter;
 import com.thoughtworks.go.api.base.OutputWriter;
-import com.thoughtworks.go.config.PipelineConfigs;
+import com.thoughtworks.go.config.*;
 
 import java.util.List;
 
 public class InternalPipelineStructuresRepresenter {
-    public static void toJSON(OutputListWriter outputWriter, List<PipelineConfigs> groups) {
-        groups.forEach(group -> {
-            outputWriter.addChild(o -> {
-                o.add("name", group.getGroup())
-                        .addChildList("pipelines",
-                                outputListWriter -> group.forEach(pipelineConfig -> {
-                                    outputListWriter.addChild(pipelineWriter -> {
-                                        pipelineWriter.add("name", pipelineConfig.name())
-                                                .addChildList("stages", stagesWriter -> {
-                                                    pipelineConfig.forEach(stage -> {
-                                                        stagesWriter.addChild(stageWriter -> {
-                                                            stageWriter.add("name", stage.name())
-                                                                    .addChildList("jobs", stage.getJobNames());
-                                                        });
-                                                    });
+    public static void toJSON(OutputWriter outputWriter, List<PipelineConfigs> groups, List<PipelineTemplateConfig> templatesList) {
+        outputWriter.
+                addChildList("groups", groupsWriter -> {
+                    groups.forEach(group -> {
+                        groupsWriter.addChild(groupWriter -> {
+                            groupWriter.add("name", group.getGroup())
+                                    .addChildList("pipelines",
+                                            outputListWriter -> group.forEach(pipelineConfig -> {
+                                                outputListWriter.addChild(pipelineWriter -> {
+                                                    pipelineWriter
+                                                            .add("name", pipelineConfig.name())
+                                                            .addIfNotNull("template_name", pipelineConfig.getTemplateName());
+                                                    renderStages(pipelineConfig, pipelineWriter);
                                                 });
-                                    });
-                                }));
-            });
-        });
+                                            }));
+                        });
+                    });
+                })
+                .addChildList("templates", templatesWriter -> {
+                    templatesList.forEach(template -> {
+                        templatesWriter.addChild(templateWriter -> {
+                            templateWriter.add("name", template.name());
+                            renderStages(template, templateWriter);
+                        });
+                    });
+                });
+    }
+
+    private static void renderStages(List<StageConfig> pipelineConfig, OutputWriter pipelineWriter) {
+        pipelineWriter
+                .addChildList("stages", stagesWriter -> {
+                    pipelineConfig.forEach(stage -> {
+                        stagesWriter.addChild(stageWriter -> {
+                            stageWriter.add("name", stage.name())
+                                    .addChildList("jobs", stage.getJobNames());
+                        });
+                    });
+                });
     }
 }

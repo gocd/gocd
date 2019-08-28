@@ -15,14 +15,10 @@
  */
 
 package com.thoughtworks.go.apiv1.internalpipelinestructure.representers
-
-import com.thoughtworks.go.config.PipelineConfigs
 import com.thoughtworks.go.helper.PipelineConfigMother
-import com.thoughtworks.go.spark.Routes
-import net.javacrumbs.jsonunit.fluent.JsonFluentAssert
+import com.thoughtworks.go.helper.PipelineTemplateConfigMother
 import org.junit.jupiter.api.Test
 
-import static com.thoughtworks.go.api.base.JsonUtils.toArrayString
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
@@ -30,27 +26,76 @@ class InternalPipelineStructuresRepresenterTest {
 
   @Test
   void 'should serialize'() {
-    def group = PipelineConfigMother.createGroup("my-group", PipelineConfigMother.createPipelineConfig("my-pipeline", "my-stage", "my-job1", "my-job2"))
+    def template = PipelineTemplateConfigMother.createTemplate("first-template");
+    def template2 = PipelineTemplateConfigMother.createTemplate("second-template");
+    def config = PipelineConfigMother.createPipelineConfig("my-pipeline", "my-stage", "my-job1", "my-job2")
+    def templateBasedPipeline = PipelineConfigMother.pipelineConfigWithTemplate("my-template-based-pipeline", "first-template");
+    def group = PipelineConfigMother.createGroup("first-group", config, templateBasedPipeline)
+    def group2 = PipelineConfigMother.createGroup("second-group", config, templateBasedPipeline)
 
-    def json = toArrayString({
-      InternalPipelineStructuresRepresenter.toJSON(it, [group])
+    def json = toObjectString({
+      InternalPipelineStructuresRepresenter.toJSON(it, [group, group2], [template, template2])
     })
 
     assertThatJson(json).isEqualTo([
-      [
-        name     : 'my-group',
-        pipelines: [
-          [
-            name  : 'my-pipeline',
-            stages: [
-              [
-                name: 'my-stage',
-                jobs: ['my-job1', 'my-job2']
-              ]
+      groups   : [[
+                    name     : 'first-group',
+                    pipelines: [
+                      [
+                        name  : 'my-pipeline',
+                        stages: [
+                          [
+                            name: 'my-stage',
+                            jobs: ['my-job1', 'my-job2']
+                          ]
+                        ]
+                      ],
+                      [
+                        name         : 'my-template-based-pipeline',
+                        template_name: "first-template",
+                        stages       : []
+                      ]
+                    ]],
+                  [
+                    name     : 'second-group',
+                    pipelines: [
+                      [
+                        name  : 'my-pipeline',
+                        stages: [
+                          [
+                            name: 'my-stage',
+                            jobs: ['my-job1', 'my-job2']
+                          ]
+                        ]
+                      ],
+                      [
+                        name         : 'my-template-based-pipeline',
+                        template_name: "first-template",
+                        stages       : []
+                      ]
+                    ]]
+      ],
+      templates: [
+        [
+          name  : 'first-template',
+          stages: [
+            [
+              name: 'defaultStage',
+              jobs: ['defaultJob']
+            ]
+          ]
+        ],
+        [
+          name  : 'second-template',
+          stages: [
+            [
+              name: 'defaultStage',
+              jobs: ['defaultJob']
             ]
           ]
         ]
       ]
+
     ])
   }
 }

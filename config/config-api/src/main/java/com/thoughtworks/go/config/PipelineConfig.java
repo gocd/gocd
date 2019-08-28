@@ -701,6 +701,10 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         this.templateName = templateName;
     }
 
+    public void setTemplateName(String templateName) {
+        setTemplateName(new CaseInsensitiveString(templateName));
+    }
+
     public void setMingleConfig(MingleConfig mingleConfig) {
         this.mingleConfig = mingleConfig;
     }

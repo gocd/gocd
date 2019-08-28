@@ -36,6 +36,9 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.TriState;
 import com.thoughtworks.go.util.comparator.AlphaAsciiCollectionComparator;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
@@ -49,6 +52,7 @@ import static org.apache.commons.lang3.StringUtils.join;
 
 @Service
 public class UserService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
     private final UserDao userDao;
     private final SecurityService securityService;
     private final GoConfigService goConfigService;
@@ -403,14 +407,35 @@ public class UserService {
         public abstract Comparator<UserModel> forColumn(SortableColumn column);
     }
 
-    public void addUserIfDoesNotExist(User user) {
+    public void addOrUpdateUser(User user) {
         synchronized (enableUserMutex) {
-            if (!(user.isAnonymous() || userExists(user))) {
-                assertUnknownUsersAreAllowedToLogin(user.getUsername());
-
-                userDao.saveOrUpdate(user);
+            if (!user.isAnonymous()) {
+                LOGGER.debug("User [{}] is not anonymous", user.getName());
+                User foundUser = userDao.findUser(user.getName());
+                if ((foundUser instanceof NullUser)) {
+                    LOGGER.debug("User [{}] is not present in the DB.", user.getName());
+                    assertUnknownUsersAreAllowedToLogin(user.getUsername());
+                    LOGGER.debug("Adding user [{}] to the DB.", user.getName());
+                    userDao.saveOrUpdate(user);
+                } else if (isUserUpdated(user, foundUser)) {
+                    foundUser.setDisplayName(user.getDisplayName());
+                    foundUser.setEmail(user.getEmail());
+                    userDao.saveOrUpdate(foundUser);
+                }
             }
         }
+    }
+
+    private boolean isUserUpdated(User newUser, User originalUser) {
+        boolean hasEmailChanged = !StringUtils.equals(originalUser.getEmail(), newUser.getEmail());
+        boolean hasDisplayNameChanged = !StringUtils.equals(originalUser.getDisplayName(), newUser.getDisplayName());
+        if (hasEmailChanged) {
+            LOGGER.debug("User [{}] has an email change. Updating the same in the DB.", originalUser.getName());
+        }
+        if (hasDisplayNameChanged) {
+            LOGGER.debug("User [{}] has a display name change. Updating the same in the DB.", originalUser.getName());
+        }
+        return hasEmailChanged || hasDisplayNameChanged;
     }
 
     public void withEnableUserMutex(Runnable runnable) {

@@ -239,7 +239,7 @@ class PasswordBasedPluginAuthenticationProviderTest {
 
             AuthenticationResponse response = new AuthenticationResponse(new User(USERNAME, "display-name", "test@test.com"), Collections.emptyList());
 
-            doThrow(new OnlyKnownUsersAllowedException(USERNAME, "Please ask the administrator to add you to GoCD.")).when(userService).addUserIfDoesNotExist(any());
+            doThrow(new OnlyKnownUsersAllowedException(USERNAME, "Please ask the administrator to add you to GoCD.")).when(userService).addOrUpdateUser(any());
             when(authorizationExtension.authenticateUser(PLUGIN_ID_2, USERNAME, PASSWORD, securityConfig.securityAuthConfigs().findByPluginId(PLUGIN_ID_2), securityConfig.getPluginRoles(PLUGIN_ID_2))).thenReturn(response);
 
             thrown.expect(OnlyKnownUsersAllowedException.class);
@@ -371,7 +371,7 @@ class PasswordBasedPluginAuthenticationProviderTest {
 
             AuthenticationResponse response = new AuthenticationResponse(new User(USERNAME, "display-name", "test@test.com"), Collections.emptyList());
 
-            doThrow(new OnlyKnownUsersAllowedException(USERNAME, "Please ask the administrator to add you to GoCD.")).when(userService).addUserIfDoesNotExist(any());
+            doThrow(new OnlyKnownUsersAllowedException(USERNAME, "Please ask the administrator to add you to GoCD.")).when(userService).addOrUpdateUser(any());
             when(authorizationExtension.authenticateUser(PLUGIN_ID_2, USERNAME, PASSWORD, securityConfig.securityAuthConfigs().findByPluginId(PLUGIN_ID_2), securityConfig.getPluginRoles(PLUGIN_ID_2))).thenReturn(response);
 
             thrown.expect(OnlyKnownUsersAllowedException.class);

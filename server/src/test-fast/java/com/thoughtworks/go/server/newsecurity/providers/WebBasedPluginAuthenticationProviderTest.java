@@ -141,7 +141,7 @@ class WebBasedPluginAuthenticationProviderTest {
             authenticationProvider.authenticate(CREDENTIALS, PLUGIN_ID);
 
             ArgumentCaptor<com.thoughtworks.go.domain.User> argumentCaptor = ArgumentCaptor.forClass(com.thoughtworks.go.domain.User.class);
-            verify(userService).addUserIfDoesNotExist(argumentCaptor.capture());
+            verify(userService).addOrUpdateUser(argumentCaptor.capture());
 
             com.thoughtworks.go.domain.User capturedUser = argumentCaptor.getValue();
             assertThat(capturedUser.getUsername().getUsername().toString())
@@ -231,7 +231,7 @@ class WebBasedPluginAuthenticationProviderTest {
             authenticationProvider.authenticate(CREDENTIALS, PLUGIN_ID);
 
             inOrder.verify(authorizationExtension).authenticateUser(eq(PLUGIN_ID), eq(CREDENTIALS.getCredentials()), anyList(), anyList());
-            inOrder.verify(userService).addUserIfDoesNotExist(any(com.thoughtworks.go.domain.User.class));
+            inOrder.verify(userService).addOrUpdateUser(any(com.thoughtworks.go.domain.User.class));
             inOrder.verify(pluginRoleService).updatePluginRoles(PLUGIN_ID, user.getUsername(), asList(new CaseInsensitiveString("admin")));
             inOrder.verify(authorityGranter).authorities(user.getUsername());
         }
@@ -242,7 +242,7 @@ class WebBasedPluginAuthenticationProviderTest {
             AuthenticationResponse authenticationResponse = new AuthenticationResponse(user, asList("admin"));
 
             when(authorizationExtension.authenticateUser(PLUGIN_ID, CREDENTIALS.getCredentials(), singletonList(githubSecurityAuthconfig), emptyList())).thenReturn(authenticationResponse);
-            doThrow(new OnlyKnownUsersAllowedException("username", "Please ask the administrator to add you to GoCD.")).when(userService).addUserIfDoesNotExist(any());
+            doThrow(new OnlyKnownUsersAllowedException("username", "Please ask the administrator to add you to GoCD.")).when(userService).addOrUpdateUser(any());
 
             thrown.expect(OnlyKnownUsersAllowedException.class);
             thrown.expectMessage("Please ask the administrator to add you to GoCD.");
@@ -303,7 +303,7 @@ class WebBasedPluginAuthenticationProviderTest {
             AuthenticationResponse authenticationResponse = new AuthenticationResponse(user, asList("admin"));
 
             when(authorizationExtension.authenticateUser(PLUGIN_ID, CREDENTIALS.getCredentials(), singletonList(githubSecurityAuthconfig), emptyList())).thenReturn(authenticationResponse);
-            doThrow(new OnlyKnownUsersAllowedException("username", "Please ask the administrator to add you to GoCD.")).when(userService).addUserIfDoesNotExist(any());
+            doThrow(new OnlyKnownUsersAllowedException("username", "Please ask the administrator to add you to GoCD.")).when(userService).addOrUpdateUser(any());
 
             thrown.expect(OnlyKnownUsersAllowedException.class);
             thrown.expectMessage("Please ask the administrator to add you to GoCD.");

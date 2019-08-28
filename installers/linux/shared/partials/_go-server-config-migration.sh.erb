@@ -22,6 +22,8 @@
 
             . "/etc/default/<%= name %>"
 
+            mv "/etc/default/<%= name %>" "/etc/default/<%= name %>.pre-migration"
+
             # these variables are not to be exported (even if users explicitly `export`ed them), so we filter them out
             env | sort | grep -v -E "^(GO_SERVER_PORT|GO_SERVER_SSL_PORT|SERVER_WORK_DIR|SERVER_MEM|SERVER_MAX_MEM|SERVER_MAX_PERM_GEN|GO_SERVER_PORT|GO_SERVER_SSL_PORT|GO_SERVER_SYSTEM_PROPERTIES|GO_JAVA_HOME)=" > $NEW_ENV_FILE
 

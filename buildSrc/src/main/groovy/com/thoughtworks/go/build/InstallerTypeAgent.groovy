@@ -79,8 +79,8 @@ class InstallerTypeAgent implements InstallerType {
   @Override
   Map<String, Object> getConfigFiles() {
     [
-      '/usr/share/go-agent/wrapper-config/wrapper.conf'           : [mode: 0640, owner: 'root', group: 'go', ownedByPackage: true],
-      '/usr/share/go-agent/wrapper-config/wrapper-properties.conf': [mode: 0640, owner: 'root', group: 'go', ownedByPackage: true],
+      '/usr/share/go-agent/wrapper-config/wrapper.conf'           : [mode: 0640, owner: 'root', group: 'go', ownedByPackage: true, confFile: true],
+      '/usr/share/go-agent/wrapper-config/wrapper-properties.conf': [mode: 0640, owner: 'root', group: 'go', ownedByPackage: true, confFile: true],
     ]
   }
 

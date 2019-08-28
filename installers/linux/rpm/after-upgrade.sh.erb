@@ -41,6 +41,7 @@
       echo "The contents of /etc/default/<%= name %> have been migrated to /usr/share/<%= name %>/wrapper-config/wrapper-properties.conf"
       echo "The following lines have been appended to /usr/share/<%= name %>/wrapper-config/wrapper-properties.conf:"
       cat "${MIGRATION_FILE}" | sed -e 's/^/  /g'
+      rm -rf "${MIGRATION_FILE}"
     fi
 
     if [ -e %{_localstatedir}/lib/rpm-state/<%= name %>/running ]; then

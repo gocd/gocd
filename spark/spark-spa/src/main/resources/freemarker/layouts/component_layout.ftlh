@@ -30,13 +30,13 @@
       <link href="${css}" media="screen" rel="stylesheet"/>
   </#list>
 
-  <#list webpackAssetsService.getJSAssetPathsFor("single_page_apps/polyfill", "single_page_apps/${controllerName}") as js>
+  <#list webpackAssetsService.getJSAssetPathsFor("single_page_apps/hax-for-css", "single_page_apps/polyfill", "single_page_apps/${controllerName}") as js>
       <script src="${js}"></script>
   </#list>
 
 </head>
 
-<body id="${controllerName}-page" class="component-layout-body"
+<body id="${controllerName}-page"
       data-controller-name="${controllerName}"
       data-current-gocd-version="${currentGoCDVersion}"
       data-is-user-admin="${securityService.isUserAdmin(currentUser)?c}"

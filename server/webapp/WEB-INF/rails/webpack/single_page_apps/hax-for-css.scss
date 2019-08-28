@@ -1,0 +1,159 @@
+/*
+ * Copyright 2019 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+@import "~normalize-scss/sass/normalize/import-now";
+@import '../views/global/common';
+
+$headings-margin-bottom: $global-margin-bottom;
+$headings-font-family: $font-family-base;
+$headings-font-weight: $global-font-weight;
+$headings-line-height: normal;
+$headings-color: #333;
+
+$h1-font-size: 17px;
+$h2-font-size: 16px;
+$h3-font-size: 15px;
+$h4-font-size: 14px;
+$h5-font-size: 13px;
+$h6-font-size: 12px;
+
+$hr-border-width: 1px;
+$hr-border-color: #d5dddf;
+
+h1, h2, h3, h4, h5, h6 {
+  margin-bottom: $headings-margin-bottom;
+  font-family:   $headings-font-family;
+  font-weight:   $headings-font-weight;
+  line-height:   $headings-line-height;
+  color:         $headings-color;
+}
+
+h1 {
+  font-size: $h1-font-size;
+}
+
+h2 {
+  font-size: $h2-font-size;
+}
+
+h3 {
+  font-size: $h3-font-size;
+}
+
+h4 {
+  font-size: $h4-font-size;
+}
+
+h5 {
+  font-size: $h5-font-size;
+}
+
+h6 {
+  font-size: $h6-font-size;
+}
+
+hr {
+  margin-top:    $global-margin-top;
+  margin-bottom: $global-margin-bottom;
+  border:        none;
+  border-top:    $hr-border-width solid $hr-border-color;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  margin:           0;
+  font-family:      $font-family-base;
+  font-size:        $font-size-base;
+  font-weight:      $font-weight-base;
+  line-height:      $line-height-base;
+  color:            $body-color;
+  text-align:       left;
+  background-color: $body-bg;
+}
+
+p {
+  margin: 0 0 20px 0;
+}
+
+
+@include font-face($font-family: 'FontAwesome',
+                   $file-path: '~font-awesome/fonts/fontawesome-webfont',
+                   $file-formats: ("woff2", "woff", "ttf", "svg", "eot")) {
+  font-weight: normal;
+  font-style:  normal;
+}
+
+
+$opensans-variants: (
+                      Light: (
+                        font-weight: 300,
+                        font-style: normal,
+                      ),
+                      LightItalic: (
+                        font-weight: 300,
+                        font-style: italic,
+                      ),
+                      Regular: (
+                        font-weight: normal,
+                        font-style: normal,
+                      ),
+                      Italic: (
+                        font-weight: normal,
+                        font-style: italic,
+                      ),
+                      Semibold: (
+                        font-weight: 600,
+                        font-style: normal,
+                      ),
+                      SemiboldItalic: (
+                        font-weight: 600,
+                        font-style: italic,
+                      ),
+                      Bold: (
+                        font-weight: bold,
+                        font-style: normal,
+                      ),
+                      BoldItalic: (
+                        font-weight: bold,
+                        font-style: italic,
+                      ),
+                      ExtraBold: (
+                        font-weight: 800,
+                        font-style: normal,
+                      ),
+                      ExtraBoldItalic: (
+                        font-weight: 800,
+                        font-style: italic,
+                      ),
+                    );
+
+
+@each $variant-name in map-keys($opensans-variants) {
+  $variant: map-get($opensans-variants, $variant-name);
+  @include font-face($font-family: 'Open Sans',
+                     $file-path: '~opensans/OpenSans-#{$variant-name}-webfont',
+                     $file-formats: ("eot", "woff", "ttf")
+  ) {
+    font-style:  map-get($variant, 'font-style');
+    font-weight: map-get($variant, 'font-weight');
+  }
+}
+
+.dummy {
+  display: inherit;
+}

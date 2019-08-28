@@ -18,14 +18,11 @@ package com.thoughtworks.go.server.service;
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
-import com.thoughtworks.go.config.merge.MergePipelineConfigs;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
-import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.helper.JobConfigMother;
-import com.thoughtworks.go.helper.PartialConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.presentation.CanDeleteResult;
@@ -34,7 +31,9 @@ import com.thoughtworks.go.util.ReflectionUtil;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import static com.thoughtworks.go.helper.EnvironmentConfigMother.environment;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;

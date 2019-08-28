@@ -562,6 +562,10 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
         return elasticProfileId;
     }
 
+    public boolean usesElasticAgent() {
+        return getElasticProfileId() != null;
+    }
+
     public void setElasticProfileId(String elasticProfileId) {
         this.elasticProfileId = elasticProfileId;
     }

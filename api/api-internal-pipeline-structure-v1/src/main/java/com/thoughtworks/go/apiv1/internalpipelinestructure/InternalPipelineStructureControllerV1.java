@@ -20,8 +20,8 @@ import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.apiv1.internalpipelinestructure.representers.InternalPipelineStructuresRepresenter;
-import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.config.TemplatesConfig;
+import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.server.service.PipelineConfigService;
 import com.thoughtworks.go.server.service.TemplateConfigService;
 import com.thoughtworks.go.spark.Routes;
@@ -32,7 +32,6 @@ import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
-import java.util.List;
 
 import static spark.Spark.*;
 
@@ -76,7 +75,7 @@ public class InternalPipelineStructureControllerV1 extends ApiController impleme
     }
 
     public String index(Request request, Response response) throws IOException {
-        List<PipelineConfigs> groups = pipelineConfigService.viewableGroupsForUserIncludingConfigRepos(currentUsername());
+        PipelineGroups groups = pipelineConfigService.viewableGroupsForUserIncludingConfigRepos(currentUsername());
 
         TemplatesConfig templateConfigs = templateConfigService.templateConfigsThatCanBeEditedBy(currentUsername());
 

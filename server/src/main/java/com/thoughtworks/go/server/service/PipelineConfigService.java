@@ -25,6 +25,7 @@ import com.thoughtworks.go.config.update.ConfigUpdateCheckFailedException;
 import com.thoughtworks.go.config.update.CreatePipelineConfigCommand;
 import com.thoughtworks.go.config.update.DeletePipelineConfigCommand;
 import com.thoughtworks.go.config.update.UpdatePipelineConfigCommand;
+import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.presentation.CanDeleteResult;
@@ -37,6 +38,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.str;
 import static com.thoughtworks.go.i18n.LocalizedMessage.entityConfigValidationFailed;
@@ -140,22 +142,20 @@ public class PipelineConfigService {
         update(currentUser, pipelineConfig, result, updatePipelineConfigCommand);
     }
 
-    public List<PipelineConfigs> viewableGroupsFor(Username username) {
+    public PipelineGroups viewableGroupsFor(Username username) {
         return viewableGroups(username, goConfigService.cruiseConfig());
     }
 
-    public List<PipelineConfigs> viewableGroupsForUserIncludingConfigRepos(Username username) {
+    public PipelineGroups viewableGroupsForUserIncludingConfigRepos(Username username) {
         return viewableGroups(username, goConfigService.getMergedConfigForEditing());
     }
 
-    private List<PipelineConfigs> viewableGroups(Username username, CruiseConfig cruiseConfig) {
-        ArrayList<PipelineConfigs> list = new ArrayList<>();
-        for (PipelineConfigs pipelineConfigs : cruiseConfig.getGroups()) {
-            if (securityService.hasViewPermissionForGroup(CaseInsensitiveString.str(username.getUsername()), pipelineConfigs.getGroup())) {
-                list.add(pipelineConfigs);
-            }
-        }
-        return list;
+    private PipelineGroups viewableGroups(Username username, CruiseConfig cruiseConfig) {
+        return cruiseConfig
+                .getGroups()
+                .stream()
+                .filter(pipelineConfigs -> securityService.hasViewPermissionForGroup(str(username.getUsername()), pipelineConfigs.getGroup()))
+                .collect(Collectors.toCollection(PipelineGroups::new));
     }
 
     public List<PipelineConfigs> viewableOrOperatableGroupsFor(Username username) {

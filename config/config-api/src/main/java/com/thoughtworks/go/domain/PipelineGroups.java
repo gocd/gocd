@@ -49,9 +49,7 @@ public class PipelineGroups extends BaseCollection<PipelineConfigs> implements V
     }
 
     private void addPipelineConfigs(List<PipelineConfigs> configses) {
-        for (PipelineConfigs configs : configses) {
-            this.add(configs);
-        }
+        this.addAll(configses);
     }
 
     public void update(String groupName, String pipelineName, PipelineConfig pipeline) {

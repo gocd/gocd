@@ -15,6 +15,12 @@
  */
 
 package com.thoughtworks.go.apiv1.internalpipelinestructure.representers
+
+import com.thoughtworks.go.config.TemplatesConfig
+import com.thoughtworks.go.config.remote.ConfigRepoConfig
+import com.thoughtworks.go.config.remote.FileConfigOrigin
+import com.thoughtworks.go.config.remote.RepoConfigOrigin
+import com.thoughtworks.go.domain.PipelineGroups
 import com.thoughtworks.go.helper.PipelineConfigMother
 import com.thoughtworks.go.helper.PipelineTemplateConfigMother
 import org.junit.jupiter.api.Test
@@ -28,13 +34,19 @@ class InternalPipelineStructuresRepresenterTest {
   void 'should serialize'() {
     def template = PipelineTemplateConfigMother.createTemplate("first-template");
     def template2 = PipelineTemplateConfigMother.createTemplate("second-template");
-    def config = PipelineConfigMother.createPipelineConfig("my-pipeline", "my-stage", "my-job1", "my-job2")
-    def templateBasedPipeline = PipelineConfigMother.pipelineConfigWithTemplate("my-template-based-pipeline", "first-template");
-    def group = PipelineConfigMother.createGroup("first-group", config, templateBasedPipeline)
-    def group2 = PipelineConfigMother.createGroup("second-group", config, templateBasedPipeline)
+
+    def pipeline1 = PipelineConfigMother.createPipelineConfig("my-pipeline-1", "my-stage", "my-job1", "my-job2")
+    pipeline1.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(null, null, "some-config-repo-id"), "123"))
+
+    def pipeline2 = PipelineConfigMother.createPipelineConfig("my-pipeline-2", "my-stage", "my-job1", "my-job2")
+    pipeline2.setOrigin(new FileConfigOrigin())
+
+    def templateBasedPipeline = PipelineConfigMother.pipelineConfigWithTemplate("my-template-based-pipeline", "first-template")
+    def group = PipelineConfigMother.createGroup("first-group", pipeline1)
+    def group2 = PipelineConfigMother.createGroup("second-group", pipeline2, templateBasedPipeline)
 
     def json = toObjectString({
-      InternalPipelineStructuresRepresenter.toJSON(it, [group, group2], [template, template2])
+      InternalPipelineStructuresRepresenter.toJSON(it, new PipelineGroups(group, group2), new TemplatesConfig(template, template2))
     })
 
     assertThatJson(json).isEqualTo([
@@ -42,36 +54,51 @@ class InternalPipelineStructuresRepresenterTest {
                     name     : 'first-group',
                     pipelines: [
                       [
-                        name  : 'my-pipeline',
+                        name  : 'my-pipeline-1',
+                        origin: [
+                          type: "config_repo",
+                          id  : 'some-config-repo-id'
+                        ],
                         stages: [
                           [
                             name: 'my-stage',
-                            jobs: ['my-job1', 'my-job2']
+                            jobs: [
+                              [name: 'my-job1', is_elastic: false],
+                              [name: 'my-job2', is_elastic: false]
+                            ]
                           ]
                         ]
-                      ],
-                      [
-                        name         : 'my-template-based-pipeline',
-                        template_name: "first-template",
-                        stages       : []
                       ]
                     ]],
                   [
                     name     : 'second-group',
                     pipelines: [
                       [
-                        name  : 'my-pipeline',
+                        name  : 'my-pipeline-2',
+                        origin: [
+                          type: 'gocd',
+                        ],
                         stages: [
                           [
                             name: 'my-stage',
-                            jobs: ['my-job1', 'my-job2']
+                            jobs: [
+                              [name: 'my-job1', is_elastic: false],
+                              [name: 'my-job2', is_elastic: false]
+                            ]
                           ]
                         ]
                       ],
                       [
                         name         : 'my-template-based-pipeline',
                         template_name: "first-template",
-                        stages       : []
+                        stages       : [
+                          [
+                            name: 'defaultStage',
+                            jobs: [
+                              [name: 'defaultJob', is_elastic: false]
+                            ]
+                          ]
+                        ]
                       ]
                     ]]
       ],
@@ -81,7 +108,9 @@ class InternalPipelineStructuresRepresenterTest {
           stages: [
             [
               name: 'defaultStage',
-              jobs: ['defaultJob']
+              jobs: [
+                [name: 'defaultJob', is_elastic: false]
+              ]
             ]
           ]
         ],
@@ -90,7 +119,9 @@ class InternalPipelineStructuresRepresenterTest {
           stages: [
             [
               name: 'defaultStage',
-              jobs: ['defaultJob']
+              jobs: [
+                [name: 'defaultJob', is_elastic: false]
+              ]
             ]
           ]
         ]

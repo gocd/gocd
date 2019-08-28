@@ -383,8 +383,4 @@ public class StageConfig implements Validatable, ParamsAttributeAware, Environme
     public boolean canBeOperatedBy(Role role) {
         return getOperateRoles().contains(new AdminRole(role));
     }
-
-    public List<String> getJobNames() {
-        return getJobs().stream().map(JobConfig::name).map(CaseInsensitiveString::toString).collect(Collectors.toList());
-    }
 }

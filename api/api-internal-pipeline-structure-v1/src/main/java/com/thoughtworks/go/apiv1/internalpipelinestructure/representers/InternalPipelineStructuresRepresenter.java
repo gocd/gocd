@@ -17,12 +17,17 @@
 package com.thoughtworks.go.apiv1.internalpipelinestructure.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.StageConfig;
+import com.thoughtworks.go.config.TemplatesConfig;
+import com.thoughtworks.go.config.remote.ConfigOrigin;
+import com.thoughtworks.go.config.remote.FileConfigOrigin;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
+import com.thoughtworks.go.domain.PipelineGroups;
 
 import java.util.List;
 
 public class InternalPipelineStructuresRepresenter {
-    public static void toJSON(OutputWriter outputWriter, List<PipelineConfigs> groups, List<PipelineTemplateConfig> templatesList) {
+    public static void toJSON(OutputWriter outputWriter, PipelineGroups groups, TemplatesConfig templatesList) {
         outputWriter.
                 addChildList("groups", groupsWriter -> {
                     groups.forEach(group -> {
@@ -34,7 +39,12 @@ public class InternalPipelineStructuresRepresenter {
                                                     pipelineWriter
                                                             .add("name", pipelineConfig.name())
                                                             .addIfNotNull("template_name", pipelineConfig.getTemplateName());
-                                                    renderStages(pipelineConfig, pipelineWriter);
+                                                    writeOrigin(pipelineWriter, pipelineConfig.getOrigin());
+                                                    if (pipelineConfig.hasTemplate()) {
+                                                        renderStages(templatesList.templateByName(pipelineConfig.getTemplateName()), pipelineWriter);
+                                                    } else {
+                                                        renderStages(pipelineConfig, pipelineWriter);
+                                                    }
                                                 });
                                             }));
                         });
@@ -50,13 +60,32 @@ public class InternalPipelineStructuresRepresenter {
                 });
     }
 
+    private static void writeOrigin(OutputWriter jsonWriter, ConfigOrigin origin) {
+        if (origin instanceof FileConfigOrigin) {
+            jsonWriter.addChild("origin", originWriter -> originWriter.add("type", "gocd"));
+        } else if (origin instanceof RepoConfigOrigin) {
+            jsonWriter.addChild("origin", originWriter -> {
+                originWriter.add("type", "config_repo");
+                originWriter.add("id", ((RepoConfigOrigin) origin).getConfigRepo().getId());
+            });
+        }
+    }
+
     private static void renderStages(List<StageConfig> pipelineConfig, OutputWriter pipelineWriter) {
         pipelineWriter
                 .addChildList("stages", stagesWriter -> {
                     pipelineConfig.forEach(stage -> {
                         stagesWriter.addChild(stageWriter -> {
                             stageWriter.add("name", stage.name())
-                                    .addChildList("jobs", stage.getJobNames());
+                                    .addChildList("jobs", (jobsWriter) -> {
+                                        stage.getJobs().forEach(job -> {
+                                            jobsWriter.addChild(jobWriter -> {
+                                                jobWriter.add("name", job.name())
+                                                        .add("is_elastic", job.usesElasticAgent());
+                                            });
+
+                                        });
+                                    });
                         });
                     });
                 });

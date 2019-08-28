@@ -387,14 +387,14 @@ export class KitchenSink extends MithrilViewComponent<null> {
                      placeholder="password"
                      property={encryptedPasswordValue}
                      helpText={"Lorem ipsum dolor sit amet, consectetur adipiscing."}/>,
-
       <RadioField label="Choose your favorite pizza topping"
                   property={radioValue}
-                  possibleValues={new Map([
-                                            ["Thin Crust", "thin-crust"],
-                                            ["Cheese burst", "cheese-burst"],
-                                            ["Boring regular", "regular"],
-                                          ])}>
+                  required={true}
+                  possibleValues={[
+                    {label: "Thin Crust", value: "thin-crust", helpText: "Thin italian-style crust"},
+                    {label: "Cheese burst", value: "cheese-burst", helpText: "Filled with cheese, good for the heart"},
+                    {label: "Boring regular", value: "regular", helpText: "A lack of imagination"},
+                  ]}>
       </RadioField>
     ];
   }

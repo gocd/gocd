@@ -96,6 +96,24 @@ $form-failed-field-background-color: lighten($form-failed-color, 35%);
   }
 }
 
+.radio-field {
+  list-style-type: none;
+  font-size:       14px;
+  margin-bottom:   5px;
+
+  .form-help {
+    display:    block;
+    font-size:  12px;
+    margin-left: 15px;
+    color:      $form-help-text-color;
+  }
+}
+
+.radio-label {
+  display: inline-block;
+  margin-left: 5px;
+}
+
 select.form-control { //sass-lint:disable-line no-qualifying-elements
   width: 270px;
 }

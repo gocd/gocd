@@ -20,6 +20,8 @@ export const inputMedium: string;
 export const inputSmall: string;
 export const last: string;
 export const quickAddButton: string;
+export const radioField: string;
+export const radioLabel: string;
 export const searchBoxInput: string;
 export const searchBoxWrapper: string;
 export const searchButton: string;

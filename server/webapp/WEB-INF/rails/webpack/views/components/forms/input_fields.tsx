@@ -572,13 +572,19 @@ export class TriStateCheckboxField extends FormField<TriStateCheckbox> {
   }
 }
 
+export interface RadioData {
+  label: string;
+  value: string;
+  helpText?: string;
+}
+
 export interface RadioButtonAttrs {
   label: string;
   errorText?: string;
   disabled?: boolean;
   required?: boolean;
-  property: (newValue?: string | boolean) => string | boolean;
-  possibleValues: Map<string, string | boolean>;
+  property: (newValue?: string) => string;
+  possibleValues: RadioData[];
 }
 
 export class RadioField extends MithrilViewComponent<RadioButtonAttrs> {
@@ -607,16 +613,18 @@ export class RadioField extends MithrilViewComponent<RadioButtonAttrs> {
   private renderInputField(vnode: m.Vnode<RadioButtonAttrs>) {
     const result: m.Children[] = [];
 
-    vnode.attrs.possibleValues.forEach((value, key) => {
-      const radioButtonId = `${this.id}-${s.slugify(key)}`;
+    vnode.attrs.possibleValues.forEach((radioData) => {
+      const radioButtonId = `${this.id}-${s.slugify(radioData.value)}`;
       result.push(
-        <div className={styles.formCheck}>
-          <input type="radio"
-                 id={radioButtonId}
-                 name={this.id} onchange={() => vnode.attrs.property(value)}/>
-          <label for={radioButtonId} className={styles.formLabel}
-                 data-test-id="form-field-label">{key}</label>
-        </div>
+        <li className={styles.radioField}>
+            <input type="radio"
+                   class={styles.formRadioInput}
+                   id={radioButtonId}
+                   name={this.id} onchange={() => vnode.attrs.property(radioData.value)}/>
+            <label for={radioButtonId} className={styles.radioLabel}
+                   data-test-id="form-field-label">{radioData.label}</label>
+          <HelpText helpText={radioData.helpText} helpTextId={`help-text-${radioButtonId}`}/>
+        </li>
       );
     });
 

@@ -15,8 +15,8 @@
  */
 import m from "mithril";
 
-import {bind} from 'classnames/bind';
-import styles from './index.scss';
+import {bind} from "classnames/bind";
+import styles from "./index.scss";
 
 const classnames = bind(styles);
 
@@ -24,14 +24,16 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 
 export interface Attrs {
   small?: boolean;
+  dataTestId?: string;
 }
 
 export class Spinner extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
-    const isSmall = vnode.attrs.small;
+    const isSmall    = vnode.attrs.small;
+    const dataTestId = vnode.attrs.dataTestId ? vnode.attrs.dataTestId : "spinner";
 
     return (
-      <span class={classnames(styles.pageSpinner, {[styles.small]: isSmall})}/>
+      <span class={classnames(styles.pageSpinner, {[styles.small]: isSmall})} data-test-id={dataTestId}/>
     );
   }
 }

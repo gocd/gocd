@@ -130,7 +130,7 @@
     "unused-files-webpack-plugin": "^3.4.0",
     "upath": "^1.1.2",
     "url-loader": "^2.1.0",
-    "webpack": "^4.39.2",
+    "webpack": "^4.39.3",
     "webpack-build-notifier": "^2.0.0-alpha.3",
     "webpack-cli": "^3.3.7"
   }

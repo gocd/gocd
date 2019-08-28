@@ -62,7 +62,7 @@ abstract class AbstractDropdownButton<V extends Attrs> extends Dropdown<V> {
       </div>;
     }
 
-    return this.body(vnode);
+    return <div class={Style.dropdownContent}>{this.body(vnode)}</div>;
   }
 
   protected apply(vnode: m.Vnode<DropdownAttrs & V>) {
@@ -143,12 +143,16 @@ export class EnvironmentsDropdownButton extends AbstractDropdownButton<EnvAttrs>
   }
 
   protected body(vnode: m.Vnode<DropdownAttrs & EnvAttrs>) {
-    return (<div class={Style.dropdownContent}>
-      {Array.from(this.triStateCheckboxMap).map(([environment, triStateCheckbox]) => {
+    if (this.triStateCheckboxMap.size === 0) {
+      return <strong>No environments are defined.</strong>;
+    }
+
+    return [
+      Array.from(this.triStateCheckboxMap).map(([environment, triStateCheckbox]) => {
         return <TriStateCheckboxField label={environment} property={Stream(triStateCheckbox)}/>;
-      })}
+      }),
       <Primary onclick={this.apply.bind(this, vnode)}>Apply</Primary>
-    </div>);
+    ];
   }
 
   protected hasAssociationWith(agent: Agent, environment: string) {
@@ -179,14 +183,13 @@ export class ResourcesDropdownButton extends AbstractDropdownButton<ResourcesAtt
   }
 
   protected body(vnode: m.Vnode<DropdownAttrs & ResourcesAttrs>) {
-    return (<div class={Style.dropdownContent}>
-      {Array.from(this.triStateCheckboxMap).map(([resource, triStateCheckbox]) => {
+    return [
+      Array.from(this.triStateCheckboxMap).map(([resource, triStateCheckbox]) => {
         return <TriStateCheckboxField label={resource} property={Stream(triStateCheckbox)}/>;
-      })}
-      <QuickAddField property={this.newResource} buttonDisableReason=""
-                     onclick={this.addNewResource.bind(this)}/>
+      }),
+      <QuickAddField property={this.newResource} buttonDisableReason="" onclick={this.addNewResource.bind(this)}/>,
       <Primary onclick={this.apply.bind(this, vnode)}>Apply</Primary>
-    </div>);
+    ];
   }
 
   protected hasAssociationWith(agent: Agent, resource: string) {

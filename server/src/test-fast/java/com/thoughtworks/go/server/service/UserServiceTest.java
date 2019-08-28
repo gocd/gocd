@@ -28,13 +28,15 @@ import com.thoughtworks.go.presentation.UserSourceType;
 import com.thoughtworks.go.server.dao.UserDao;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.exceptions.UserEnabledException;
+import com.thoughtworks.go.server.security.OnlyKnownUsersAllowedException;
 import com.thoughtworks.go.server.service.result.BulkUpdateUsersOperationResult;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.transaction.TestTransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TestTransactionTemplate;
 import com.thoughtworks.go.util.GoConstants;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
@@ -43,6 +45,7 @@ import java.util.List;
 import java.util.Set;
 
 import static com.thoughtworks.go.helper.SecurityConfigMother.securityConfigWithRole;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
@@ -56,21 +59,18 @@ public class UserServiceTest {
     private TestTransactionTemplate transactionTemplate;
     private TestTransactionSynchronizationManager transactionSynchronizationManager;
 
-    public UserServiceTest() {
+    @BeforeEach
+    void setUp() {
         userDao = mock(UserDao.class);
         goConfigService = mock(GoConfigService.class);
         securityService = mock(SecurityService.class);
         transactionSynchronizationManager = new TestTransactionSynchronizationManager();
         transactionTemplate = new TestTransactionTemplate(transactionSynchronizationManager);
-    }
-
-    @Before
-    public void setUp() {
         userService = new UserService(userDao, securityService, goConfigService, transactionTemplate);
     }
 
     @Test
-    public void shouldLoadAllUsersOrderedOnUsername() {
+    void shouldLoadAllUsersOrderedOnUsername() {
         User foo = new User("foo", Arrays.asList("fOO", "Foo"), "foo@cruise.com", false);
         User bar = new User("bar", Arrays.asList("bAR", "Bar"), "bar@go.com", true);
         User quux = new User("quux", Arrays.asList("qUUX", "Quux"), "quux@cruise.go", false);
@@ -84,7 +84,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldLoadAllUsersOrderedOnEmail() {
+    void shouldLoadAllUsersOrderedOnEmail() {
         User foo = new User("foo", Arrays.asList("fOO", "Foo"), "foo@cruise.com", false);
         User zoo = new User("bar", Arrays.asList("bAR", "Bar"), "zooboo@go.com", true);
         User quux = new User("quux", Arrays.asList("qUUX", "Quux"), "quux@cruise.go", false);
@@ -99,7 +99,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldLoadAllUsersOrderedOnRoles() {
+    void shouldLoadAllUsersOrderedOnRoles() {
         User foo = new User("foo", Arrays.asList("fOO", "Foo"), "foo@cruise.com", false);
         User bar = new User("bar", Arrays.asList("bAR", "Bar"), "zooboo@go.com", true);
         User quux = new User("quux", Arrays.asList("qUUX", "Quux"), "quux@cruise.go", false);
@@ -122,7 +122,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldLoadAllUsersOrderedOnMatchers() {
+    void shouldLoadAllUsersOrderedOnMatchers() {
         User foo = new User("foo", Arrays.asList("abc", "def"), "foo@cruise.com", false);
         User bar = new User("bar", Arrays.asList("ghi", "def"), "zooboo@go.com", true);
         User quux = new User("quux", Arrays.asList("ghi", "jkl"), "quux@cruise.go", false);
@@ -137,7 +137,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldLoadAllUsersOrderedOnIsAdmin() {
+    void shouldLoadAllUsersOrderedOnIsAdmin() {
         User foo = new User("foo", new ArrayList<>(), "foo@cruise.com", false);
         User bar = new User("bar", new ArrayList<>(), "zooboo@go.com", false);
         User quux = new User("quux", new ArrayList<>(), "quux@cruise.go", false);
@@ -169,7 +169,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldLoadAllUsersOrderedOnEnabled() {
+    void shouldLoadAllUsersOrderedOnEnabled() {
         User foo = new User("foo", new ArrayList<>(), "foo@cruise.com", false);
         User bar = new User("bar", new ArrayList<>(), "zooboo@go.com", false);
         User quux = new User("quux", new ArrayList<>(), "quux@cruise.go", false);
@@ -199,7 +199,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldLoadAllUsersWithRolesAndAdminFlag() {
+    void shouldLoadAllUsersWithRolesAndAdminFlag() {
         User foo = new User("foo", Arrays.asList("fOO", "Foo"), "foo@cruise.com", false);
         User bar = new User("bar", Arrays.asList("bAR", "Bar"), "bar@go.com", true);
 
@@ -215,7 +215,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldCreateNewUsers() throws Exception {
+    void shouldCreateNewUsers() throws Exception {
         UserSearchModel foo = new UserSearchModel(new User("fooUser", "Mr Foo", "foo@cruise.com"), UserSourceType.PLUGIN);
 
         doNothing().when(userDao).saveOrUpdate(foo.getUser());
@@ -228,7 +228,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldReturnConflictWhenUserAlreadyExists() {
+    void shouldReturnConflictWhenUserAlreadyExists() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
         User existsingUser = new User("existingUser", "Existing User", "existing@user.com");
@@ -241,7 +241,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldReturnErrorMessageWhenUserValidationsFail() throws Exception {
+    void shouldReturnErrorMessageWhenUserValidationsFail() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
         User invalidUser = new User("fooUser", "Foo User", "invalidEmail");
@@ -256,7 +256,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldReturnErrorMessageWhenTheLastAdminIsBeingDisabled() throws Exception {
+    void shouldReturnErrorMessageWhenTheLastAdminIsBeingDisabled() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
         when(userDao.enabledUsers()).thenReturn(Arrays.asList(new User("Jake"), new User("Pavan"), new User("Shilpa")));
@@ -271,7 +271,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldBeAbleToTurnOffAutoLoginWhenAdminsStillPresent() throws Exception {
+    void shouldBeAbleToTurnOffAutoLoginWhenAdminsStillPresent() {
         when(userDao.enabledUsers()).thenReturn(Arrays.asList(new User("Jake"), new User("Pavan"), new User("Shilpa")));
         configureAdmin("Jake", true);
 
@@ -280,14 +280,14 @@ public class UserServiceTest {
 
 
     @Test
-    public void shouldNotBeAbleToTurnOffAutoLoginWhenAdminsStillPresent() throws Exception {
+    void shouldNotBeAbleToTurnOffAutoLoginWhenAdminsStillPresent() {
         when(userDao.enabledUsers()).thenReturn(Arrays.asList(new User("Jake"), new User("Pavan"), new User("Shilpa")));
 
         assertThat(userService.canUserTurnOffAutoLogin(), is(false));
     }
 
     @Test
-    public void shouldNotFailToEnableTheSameUser() throws Exception {
+    void shouldNotFailToEnableTheSameUser() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
         when(userDao.enabledUsers()).thenReturn(Arrays.asList(new User("Jake")));
@@ -297,7 +297,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldReturnUsersInSortedOrderFromPipelineGroupWhoHaveOperatePermissions() {
+    void shouldReturnUsersInSortedOrderFromPipelineGroupWhoHaveOperatePermissions() {
         CruiseConfig config = new BasicCruiseConfig();
         SecurityConfig securityConfig = new SecurityConfig(null);
         securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("file", "cd.go.authentication.passwordfile"));
@@ -331,7 +331,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldGetAllUsernamesIfNoSecurityHasBeenDefinedOnTheGroup() throws Exception {
+    void shouldGetAllUsernamesIfNoSecurityHasBeenDefinedOnTheGroup() {
         CruiseConfig config = new BasicCruiseConfig();
         SecurityConfig securityConfig = securityConfigWithRole("role1", "user1", "user2");
         securityConfigWithRole(securityConfig, "role2", "user1", "user2", "user3");
@@ -353,7 +353,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldNotGetAnyUsernamesIfOnlyViewAndAdminPermissionsHaveBeenDefinedOnTheGroup() throws Exception {
+    void shouldNotGetAnyUsernamesIfOnlyViewAndAdminPermissionsHaveBeenDefinedOnTheGroup() {
         CruiseConfig config = new BasicCruiseConfig();
         SecurityConfig securityConfig = securityConfigWithRole("role1", "user1", "user2");
         securityConfigWithRole(securityConfig, "role2", "user1", "user2", "user3");
@@ -374,7 +374,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldGetAllRolesWithOperatePermissionFromPipelineGroups() throws Exception {
+    void shouldGetAllRolesWithOperatePermissionFromPipelineGroups() {
         CruiseConfig config = new BasicCruiseConfig();
         SecurityConfig securityConfig = securityConfigWithRole("role1", "user1", "user2");
         securityConfigWithRole(securityConfig, "role2", "user1", "user2", "user3");
@@ -397,7 +397,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldNotGetAnyRolesWhenGroupHasOnlyViewAndAdminPermissionDefined() throws Exception {
+    void shouldNotGetAnyRolesWhenGroupHasOnlyViewAndAdminPermissionDefined() {
         CruiseConfig config = new BasicCruiseConfig();
         SecurityConfig securityConfig = securityConfigWithRole("role1", "user1", "user2");
         securityConfigWithRole(securityConfig, "role2", "user1", "user2", "user3");
@@ -421,7 +421,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldGetAllRolesFromConfigWhenGroupDoesNotHaveAnyPermissionsDefined() throws Exception {
+    void shouldGetAllRolesFromConfigWhenGroupDoesNotHaveAnyPermissionsDefined() {
         CruiseConfig config = new BasicCruiseConfig();
         SecurityConfig securityConfig = securityConfigWithRole("role1", "user1", "user2");
         securityConfigWithRole(securityConfig, "role2", "user1", "user2", "user3");
@@ -443,7 +443,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldDeleteUserSuccessfully() {
+    void shouldDeleteUserSuccessfully() {
         String username = "username";
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         when(userDao.deleteUser(username, "currentUser")).thenReturn(true);
@@ -453,7 +453,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldFailWithErrorWhenDeletingAUserFails() {
+    void shouldFailWithErrorWhenDeletingAUserFails() {
         String username = "username";
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         when(userDao.deleteUser(username, "currentUser")).thenThrow(new RecordNotFoundException(EntityType.User, username));
@@ -463,7 +463,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldDeleteAllSpecifiedUsersSuccessfully() {
+    void shouldDeleteAllSpecifiedUsersSuccessfully() {
         List<String> usernames = Arrays.asList("john", "joan");
 
         User john = new User("john");
@@ -482,7 +482,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldFailWithErrorEvenIfOneUserDoesNotExistDuringBulkDelete() {
+    void shouldFailWithErrorEvenIfOneUserDoesNotExistDuringBulkDelete() {
         List<String> usernames = Arrays.asList("john", "joan");
         User john = new User("John");
         john.disable();
@@ -503,7 +503,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldFailWithErrorEvenIfOneUserIsEnabledDuringBulkDelete() {
+    void shouldFailWithErrorEvenIfOneUserIsEnabledDuringBulkDelete() {
         List<String> usernames = Arrays.asList("john", "joan");
         User john = new User("john");
         User joan = new User("joan");
@@ -525,7 +525,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldFailWithErrorIfNoUsersAreProvidedDuringBulkDelete() {
+    void shouldFailWithErrorIfNoUsersAreProvidedDuringBulkDelete() {
         List<String> usernames = null;
 
         BulkUpdateUsersOperationResult result = new BulkUpdateUsersOperationResult();
@@ -536,7 +536,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldFailWithErrorIfEmptyUsersAreProvidedDuringBulkDelete() {
+    void shouldFailWithErrorIfEmptyUsersAreProvidedDuringBulkDelete() {
         List<String> usernames = new ArrayList<>();
 
         BulkUpdateUsersOperationResult result = new BulkUpdateUsersOperationResult();
@@ -547,7 +547,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldEnableAllSpecifiedUsersSuccessfully() {
+    void shouldEnableAllSpecifiedUsersSuccessfully() {
         List<String> usernames = Arrays.asList("john", "joan");
 
         User john = new User("john");
@@ -567,7 +567,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldDisableAllSpecifiedUsersSuccessfully() {
+    void shouldDisableAllSpecifiedUsersSuccessfully() {
         User admin = new User("admin");
 
         List<String> usernames = Arrays.asList("john", "joan");
@@ -590,7 +590,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldFailWithErrorIfAllAdminUsersAreTriedToBeDisabled() {
+    void shouldFailWithErrorIfAllAdminUsersAreTriedToBeDisabled() {
         List<String> usernames = Arrays.asList("john", "joan");
 
         User john = new User("john");
@@ -610,7 +610,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldFailWithErrorEvenIfOneUserDoesNotExistDuringBulkEnableOrDisableUsers() {
+    void shouldFailWithErrorEvenIfOneUserDoesNotExistDuringBulkEnableOrDisableUsers() {
         List<String> usernames = Arrays.asList("john", "joan");
         User john = new User("John");
         john.disable();
@@ -631,7 +631,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldFailWithErrorIfNoUsersAreProvidedDuringBulkEnableOrDisableUsers() {
+    void shouldFailWithErrorIfNoUsersAreProvidedDuringBulkEnableOrDisableUsers() {
         List<String> usernames = null;
 
         BulkUpdateUsersOperationResult result = new BulkUpdateUsersOperationResult();
@@ -642,7 +642,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldFailWithErrorIfEmptyUsersAreProvidedDuringBulkEnableOrDisableUsers() {
+    void shouldFailWithErrorIfEmptyUsersAreProvidedDuringBulkEnableOrDisableUsers() {
         List<String> usernames = new ArrayList<>();
 
         BulkUpdateUsersOperationResult result = new BulkUpdateUsersOperationResult();
@@ -653,7 +653,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldFindUserHavingSubscriptionAndPermissionForPipeline() {
+    void shouldFindUserHavingSubscriptionAndPermissionForPipeline() {
         User foo = new User("foo", Arrays.asList("fOO", "Foo"), "foo@cruise.com", false);
         foo.addNotificationFilter(new NotificationFilter("p1", "s1", StageEvent.Passes, true));
         User bar = new User("bar", Arrays.asList("bAR", "Bar"), "bar@go.com", true);
@@ -668,7 +668,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldFindUserSubscribingForAnyPipelineAndThatHasPermission() {
+    void shouldFindUserSubscribingForAnyPipelineAndThatHasPermission() {
         User foo = new User("foo", Arrays.asList("fOO", "Foo"), "foo@cruise.com", false);
         foo.addNotificationFilter(new NotificationFilter(GoConstants.ANY_PIPELINE, GoConstants.ANY_STAGE, StageEvent.Passes, true));
         User bar = new User("bar", Arrays.asList("bAR", "Bar"), "bar@go.com", true);
@@ -681,13 +681,82 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldFailWithErrorWhenDeletingAnEnabledUserFails() {
+    void shouldFailWithErrorWhenDeletingAnEnabledUserFails() {
         String username = "username";
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         when(userDao.deleteUser(username, "currentUser")).thenThrow(new UserEnabledException());
         userService.deleteUser(username, "currentUser", result);
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.hasMessage(), is(true));
+    }
+
+    @Nested
+    class AddOrUpdateUser {
+        @Test
+        void shouldNotDoAnythingIfTheUserIsAnAnonymousUser() {
+            User anonymousUser = new User(CaseInsensitiveString.str(Username.ANONYMOUS.getUsername()));
+            userService.addOrUpdateUser(anonymousUser);
+            verifyZeroInteractions(userDao);
+        }
+
+        @Test
+        void shouldThrowIfTheUserDoesNotExistInDbAndUnknownUsersAreNotAllowed() {
+            String username = "new-user";
+            User user = new User(username);
+            when(userDao.findUser(username)).thenReturn(mock(NullUser.class));
+            when(goConfigService.isOnlyKnownUserAllowedToLogin()).thenReturn(true);
+            assertThatCode(() -> userService.addOrUpdateUser(user))
+                    .isInstanceOf(OnlyKnownUsersAllowedException.class)
+                    .hasMessage("Please ask the administrator to add you to GoCD.");
+
+            verify(userDao).findUser(username);
+            verifyNoMoreInteractions(userDao);
+        }
+
+        @Test
+        void shouldAddTheUserToTheDBIfItDoesNotExist() {
+            String username = "new-user";
+            User user = new User(username);
+            when(userDao.findUser(username)).thenReturn(mock(NullUser.class));
+            userService.addOrUpdateUser(user);
+
+            verify(userDao).saveOrUpdate(user);
+        }
+
+        @Test
+        void shouldUpdateTheUserInDBIfDisplayNameIsUpdated() {
+            String username = "new-user";
+            User originalUserInDB = new User(username, null, "");
+            originalUserInDB.setId(1);
+            when(userDao.findUser(username)).thenReturn(originalUserInDB);
+            User updatedUser = new User(username, "display-name", "");
+            userService.addOrUpdateUser(updatedUser);
+
+            verify(userDao).saveOrUpdate(updatedUser);
+        }
+
+        @Test
+        void shouldUpdateTheUserInDBIfEmailIsUpdated() {
+            String username = "new-user";
+            User originalUserInDB = new User(username, "", null);
+            originalUserInDB.setId(1);
+            when(userDao.findUser(username)).thenReturn(originalUserInDB);
+            User updatedUser = new User(username, "", "email");
+            userService.addOrUpdateUser(updatedUser);
+
+            verify(userDao).saveOrUpdate(updatedUser);
+        }
+
+        @Test
+        void shouldNotUpdateTheUserIfNeitherTheDisplayNameNorEmailChanged() {
+            String username = "new-user";
+            User user = new User(username, null, null);
+            when(userDao.findUser(username)).thenReturn(user);
+            userService.addOrUpdateUser(user);
+
+            verify(userDao).findUser(username);
+            verifyNoMoreInteractions(userDao);
+        }
     }
 
     private void configureAdmin(String username, boolean isAdmin) {

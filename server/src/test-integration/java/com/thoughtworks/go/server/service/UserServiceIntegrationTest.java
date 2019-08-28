@@ -17,8 +17,8 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.EntityType;
-import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.Users;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.config.Admin;
 import com.thoughtworks.go.domain.exception.ValidationException;
 import com.thoughtworks.go.helper.ConfigFileFixture;
@@ -29,11 +29,8 @@ import com.thoughtworks.go.presentation.UserSearchModel;
 import com.thoughtworks.go.presentation.UserSourceType;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
-import com.thoughtworks.go.server.dao.UserDao;
 import com.thoughtworks.go.server.dao.UserSqlMapDao;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.security.GoAuthority;
-import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.TriState;
@@ -52,11 +49,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -123,30 +116,43 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    public void addUserIfDoesNotExist_shouldAddUserIfDoesNotExist() {
+    public void addOrUpdateUser_shouldAddUserIfDoesNotExist() {
         assertThat(userDao.findUser("new_user"), isANullUser());
-        userService.addUserIfDoesNotExist(new User("new_user"));
+        userService.addOrUpdateUser(new User("new_user"));
         User loadedUser = userDao.findUser("new_user");
         assertThat(loadedUser, is(new User("new_user", "new_user", "")));
         assertThat(loadedUser, not(isANullUser()));
     }
 
     @Test
-    public void addUserIfDoesNotExist_shouldNotAddUserIfExists() {
+    public void addOrUpdateUser_shouldNotAddUserIfExistsAndIsNotUpdated() {
         User user = new User("old_user");
         addUser(user);
-        userService.addUserIfDoesNotExist(user);
+        userService.addOrUpdateUser(user);
     }
 
     @Test
-    public void addUserIfDoesNotExist_shouldNotAddUserIfAnonymous() {
-        userService.addUserIfDoesNotExist(new User(CaseInsensitiveString.str(Username.ANONYMOUS.getUsername())));
+    public void addOrUpdateUser_shouldUpdateUserIfExistsAndEitherEmailOrDisplayNameChanged() {
+        String name = "old_user";
+        User user = new User(name);
+        addUser(user);
+        User updatedUser = new User(name, name, "");
+        userService.addOrUpdateUser(updatedUser);
+
+        User loadedUser = userDao.findUser(name);
+        assertThat(loadedUser, is(updatedUser));
+        assertThat(loadedUser, not(isANullUser()));
+    }
+
+    @Test
+    public void addOrUpdateUser_shouldNotAddUserIfAnonymous() {
+        userService.addOrUpdateUser(new User(CaseInsensitiveString.str(Username.ANONYMOUS.getUsername())));
         assertThat(userDao.findUser(CaseInsensitiveString.str(Username.ANONYMOUS.getUsername())), isANullUser());
         assertThat(userDao.findUser(Username.ANONYMOUS.getDisplayName()), isANullUser());
     }
 
     @Test
-    public void shouldvalidateUser() {
+    public void shouldValidateUser() {
         try {
             userService.validate(new User("username", new String[]{"committer"}, "mail.com", false));
             fail("should have thrown when email is invalid");

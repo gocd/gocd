@@ -26,6 +26,7 @@ import {FlashMessageModelWithTimeout} from "views/components/flash_message";
 import {QuickAddField, TriStateCheckboxField} from "views/components/forms/input_fields";
 import {Spinner} from "views/components/spinner";
 import Style from "./index.scss";
+import spinnerCss from "./spinner.scss";
 
 export interface DropdownAttrs {
   service: GetAllService;
@@ -61,7 +62,7 @@ export abstract class AbstractDropdownButton<V extends DropdownAttrs> extends Dr
 
     if (this.operationInProgress()) {
       return <div class={Style.dropdownContent}>
-        <Spinner small={true}/>
+        <Spinner small={true} css={spinnerCss}/>
       </div>;
     }
 

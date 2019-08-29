@@ -41,8 +41,12 @@
   }
 }
 
-.material-check-button-wrapper {
+.material-check-container {
   width: 100%;
+}
+
+.material-check-control {
+  @include clearfix;
 }
 
 @mixin material-check-button-icon($type, $colors: $icon-light-color, $size: 5px) {

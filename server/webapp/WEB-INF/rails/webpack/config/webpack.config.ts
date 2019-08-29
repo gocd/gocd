@@ -22,7 +22,6 @@ import {plugins} from "./plugins";
 import {getEntries, getModules} from "./variables";
 
 const SpeedMeasurePlugin = require("speed-measure-webpack-plugin");
-const TerserPlugin       = require("terser-webpack-plugin");
 
 function getConfigOptions(argv: any, env: any) {
   const assetsDir              = path.join(__dirname, "..");
@@ -64,10 +63,6 @@ function configuration(env: any, argv: any): webpack.Configuration {
       }
     }
   };
-
-  if (configOptions.production) {
-    optimization.minimizer = [new TerserPlugin()];
-  }
 
   return {
     entry: getEntries(configOptions),

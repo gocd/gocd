@@ -19,7 +19,6 @@ import fs from "fs";
 import HtmlWebpackPlugin from "html-webpack-plugin";
 import _ from "lodash";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
-import OptimizeCssAssetsPlugin from "optimize-css-assets-webpack-plugin";
 import path from "path";
 import webpack from "webpack";
 import {ConfigOptions, getEntries} from "./variables";
@@ -69,7 +68,6 @@ export function plugins(configOptions: ConfigOptions): webpack.Plugin[] {
                                             chunkFilename: "[id]-[hash].css",
                                             ignoreOrder: true
                                           }));
-    plugins.push(new OptimizeCssAssetsPlugin());
   } else {
     const jasmineFiles = jasmineCore.files;
 

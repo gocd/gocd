@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {CleanWebpackPlugin} from "clean-webpack-plugin";
 import ForkTsCheckerWebpackPlugin from "fork-ts-checker-webpack-plugin";
 import fs from "fs";
 import HtmlWebpackPlugin from "html-webpack-plugin";
@@ -23,7 +24,6 @@ import path from "path";
 import webpack from "webpack";
 import {ConfigOptions, getEntries} from "./variables";
 import {LicensePlugins} from "./webpack-license-plugin";
-import {CleanWebpackPlugin} from "clean-webpack-plugin";
 
 const jasmineCore                = require("jasmine-core");
 const StatsPlugin                = require("stats-webpack-plugin");

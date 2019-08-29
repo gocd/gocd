@@ -41,7 +41,7 @@ export interface RestyleAttrs<T> {
   css?: T;
 }
 
-export abstract class RestyleViewComponent<S, Attrs extends RestyleAttrs<S>> extends MithrilViewComponent<Attrs> {
+export abstract class RestyleViewComponent<S, Attrs extends RestyleAttrs<S> = RestyleAttrs<S>> extends MithrilViewComponent<Attrs> {
   abstract css: S;
 
   oninit(vnode: m.Vnode<Attrs, {}>) {
@@ -49,7 +49,7 @@ export abstract class RestyleViewComponent<S, Attrs extends RestyleAttrs<S>> ext
   }
 }
 
-export abstract class RestyleComponent<S, Attrs extends RestyleAttrs<S>, State= {}> extends MithrilComponent<Attrs, State> {
+export abstract class RestyleComponent<S, Attrs extends RestyleAttrs<S> = RestyleAttrs<S>, State= {}> extends MithrilComponent<Attrs, State> {
   abstract css: S;
 
   oninit(vnode: m.Vnode<Attrs, State>) {

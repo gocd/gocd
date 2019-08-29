@@ -141,13 +141,15 @@ $icon-hover-color:       #000;
 }
 
 .dropdown-content {
-  background:    $white;
-  position:      absolute;
-  border-radius: $global-border-radius;
-  padding:       20px;
-  box-shadow:    0 2px 4px $box-shadow-color;
-  width:         250px;
-  right:         0;
+  background:      $white;
+  position:        absolute;
+  border-radius:   $global-border-radius;
+  padding:         20px;
+  box-shadow:      0 2px 4px $box-shadow-color;
+  width:           250px;
+  right:           0;
+  display:         flex;
+  justify-content: center;
 }
 
 .agent-analytics a {

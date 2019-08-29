@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {ApiRequestBuilder, ApiResult, ApiVersion} from "helpers/api_request_builder";
+import {ApiRequestBuilder, ApiResult, ApiVersion, ErrorResponse, SuccessResponse} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
 import {AgentConfigState, Agents} from "models/new_agent/agents";
 
@@ -84,17 +84,25 @@ export class AgentsCRUD {
 }
 
 export interface GetAllService {
-  all(): Promise<ApiResult<string>>;
+  all(onSuccess: (data: string) => void, onError: (message: string) => void): void;
 }
 
 export class EnvironmentsService implements GetAllService {
-  all(): Promise<ApiResult<string>> {
-    return ApiRequestBuilder.GET(SparkRoutes.apiAdminInternalEnvironmentsPath(), ApiVersion.v1);
+  all(onSuccess: (data: string) => void, onError: (message: string) => void): void {
+    ApiRequestBuilder.GET(SparkRoutes.apiAdminInternalEnvironmentsPath(), ApiVersion.v1)
+                     .then((result: ApiResult<string>) => {
+                       result.do((successResponse: SuccessResponse<string>) => onSuccess(successResponse.body),
+                                 (errorResponse: ErrorResponse) => onError(errorResponse.message));
+                     });
   }
 }
 
 export class ResourcesService implements GetAllService {
-  all(): Promise<ApiResult<string>> {
-    return ApiRequestBuilder.GET(SparkRoutes.apiAdminInternalResourcesPath(), ApiVersion.v1);
+  all(onSuccess: (data: string) => void, onError: (message: string) => void): void {
+    ApiRequestBuilder.GET(SparkRoutes.apiAdminInternalResourcesPath(), ApiVersion.v1)
+                     .then((result: ApiResult<string>) => {
+                       result.do((successResponse: SuccessResponse<string>) => onSuccess(successResponse.body),
+                                 (errorResponse: ErrorResponse) => onError(errorResponse.message));
+                     });
   }
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {ApiResult, ErrorResponse, SuccessResponse} from "helpers/api_request_builder";
+import {ApiResult} from "helpers/api_request_builder";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {Agent, Agents} from "models/new_agent/agents";
@@ -22,17 +22,18 @@ import {GetAllService} from "models/new_agent/agents_crud";
 import {TriStateCheckbox, TristateState} from "models/tri_state_checkbox";
 import {Dropdown, DropdownAttrs, Primary} from "views/components/buttons";
 import * as Buttons from "views/components/buttons";
-import {FlashMessageModelWithTimeout, MessageType} from "views/components/flash_message";
+import {FlashMessageModelWithTimeout} from "views/components/flash_message";
 import {QuickAddField, TriStateCheckboxField} from "views/components/forms/input_fields";
 import {Spinner} from "views/components/spinner";
 import Style from "./index.scss";
+import spinnerCss from "./spinner.scss";
 
-interface Attrs {
+export interface DropdownAttrs {
   service: GetAllService;
   flashMessage: FlashMessageModelWithTimeout;
 }
 
-abstract class AbstractDropdownButton<V extends Attrs> extends Dropdown<V> {
+export abstract class AbstractDropdownButton<V extends DropdownAttrs> extends Dropdown<V> {
   protected readonly data: Stream<string[]>                             = Stream();
   protected readonly operationInProgress: Stream<boolean>               = Stream();
   protected readonly triStateCheckboxMap: Map<string, TriStateCheckbox> = new Map<string, TriStateCheckbox>();
@@ -41,9 +42,12 @@ abstract class AbstractDropdownButton<V extends Attrs> extends Dropdown<V> {
     super.toggleDropdown(vnode, e);
     if (vnode.attrs.show()) {
       this.operationInProgress(true);
-      vnode.attrs.service.all()
-           .then((result: ApiResult<string>) => this.onResult(result, vnode))
-           .finally(this.buildTriStateCheckBox.bind(this, vnode));
+      vnode.attrs.service.all((data: string) => {
+        this.operationInProgress(false);
+        this.data(JSON.parse(data));
+        this.buildTriStateCheckBox(vnode);
+        m.redraw.sync();
+      }, () => "");
     }
   }
 
@@ -58,11 +62,11 @@ abstract class AbstractDropdownButton<V extends Attrs> extends Dropdown<V> {
 
     if (this.operationInProgress()) {
       return <div class={Style.dropdownContent}>
-        <Spinner small={true}/>
+        <Spinner small={true} css={spinnerCss}/>
       </div>;
     }
 
-    return this.body(vnode);
+    return <div data-test-id="association" class={Style.dropdownContent}>{this.body(vnode)}</div>;
   }
 
   protected apply(vnode: m.Vnode<DropdownAttrs & V>) {
@@ -107,56 +111,9 @@ abstract class AbstractDropdownButton<V extends Attrs> extends Dropdown<V> {
   }
 
   protected abstract hasAssociationWith(agent: Agent, item: string): boolean;
-
-  private onResult(result: ApiResult<string>, vnode: m.Vnode<DropdownAttrs & V>) {
-    this.operationInProgress(false);
-    result.do(this.onSuccess.bind(this), (errorResponse) => this.onFailure(errorResponse, vnode));
-  }
-
-  private onSuccess(successResponse: SuccessResponse<string>) {
-    this.data(JSON.parse(successResponse.body));
-  }
-
-  private onFailure(errorResponse: ErrorResponse, vnode: m.Vnode<DropdownAttrs & V>) {
-    vnode.attrs.flashMessage.setMessage(MessageType.alert, errorResponse.message);
-  }
 }
 
-interface EnvAttrs extends Attrs {
-  agents: Agents;
-  updateEnvironments: (environmentsToAdd: string[], environmentsToRemove: string[]) => Promise<ApiResult<string>>;
-}
-
-export class EnvironmentsDropdownButton extends AbstractDropdownButton<EnvAttrs> {
-  protected updatePromise(vnode: m.Vnode<DropdownAttrs & EnvAttrs>) {
-    return vnode.attrs.updateEnvironments(this.getKeysOfSelectedCheckBoxes(), this.getKeysOfUnselectedCheckBoxes());
-  }
-
-  protected doRenderButton(vnode: m.Vnode<DropdownAttrs & EnvAttrs>) {
-    return <Buttons.Primary data-test-id="modify-environments-association"
-                            dropdown={true}
-                            disabled={vnode.attrs.agents.isNoneSelected()}
-                            onclick={(e) => {
-                              vnode.attrs.agents.showResources(false);
-                              this.toggleDropdown(vnode, e);
-                            }}>ENVIRONMENTS</Buttons.Primary>;
-  }
-
-  protected body(vnode: m.Vnode<DropdownAttrs & EnvAttrs>) {
-    return (<div class={Style.dropdownContent}>
-      {Array.from(this.triStateCheckboxMap).map(([environment, triStateCheckbox]) => {
-        return <TriStateCheckboxField label={environment} property={Stream(triStateCheckbox)}/>;
-      })}
-      <Primary onclick={this.apply.bind(this, vnode)}>Apply</Primary>
-    </div>);
-  }
-
-  protected hasAssociationWith(agent: Agent, environment: string) {
-    return agent.environmentNames().includes(environment);
-  }
-}
-
-interface ResourcesAttrs extends Attrs {
+interface ResourcesAttrs extends DropdownAttrs {
   agents: Agents;
   updateResources: (resourcesToAdd: string[], resourcesToRemove: string[]) => Promise<ApiResult<string>>;
 }
@@ -169,7 +126,7 @@ export class ResourcesDropdownButton extends AbstractDropdownButton<ResourcesAtt
   }
 
   protected doRenderButton(vnode: m.Vnode<DropdownAttrs & ResourcesAttrs>) {
-    return <Buttons.Primary data-test-id="modify-environments-association"
+    return <Buttons.Primary data-test-id="modify-resources-association"
                             dropdown={true}
                             disabled={vnode.attrs.agents.isNoneSelected()}
                             onclick={(e) => {
@@ -179,14 +136,14 @@ export class ResourcesDropdownButton extends AbstractDropdownButton<ResourcesAtt
   }
 
   protected body(vnode: m.Vnode<DropdownAttrs & ResourcesAttrs>) {
-    return (<div class={Style.dropdownContent}>
-      {Array.from(this.triStateCheckboxMap).map(([resource, triStateCheckbox]) => {
+    return [
+      Array.from(this.triStateCheckboxMap).map(([resource, triStateCheckbox]) => {
         return <TriStateCheckboxField label={resource} property={Stream(triStateCheckbox)}/>;
-      })}
-      <QuickAddField property={this.newResource} buttonDisableReason=""
-                     onclick={this.addNewResource.bind(this)}/>
-      <Primary onclick={this.apply.bind(this, vnode)}>Apply</Primary>
-    </div>);
+      }),
+      <QuickAddField dataTestId={"resource-to-add"} property={this.newResource} buttonDisableReason=""
+                     onclick={this.addNewResource.bind(this)}/>,
+      <Primary data-test-id="resources-to-apply" onclick={this.apply.bind(this, vnode)}>Apply</Primary>
+    ];
   }
 
   protected hasAssociationWith(agent: Agent, resource: string) {

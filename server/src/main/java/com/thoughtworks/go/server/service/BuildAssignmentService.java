@@ -276,6 +276,8 @@ public class BuildAssignmentService implements ConfigChangedListener {
                 try {
                     pipeline = scheduledPipelineLoader.pipelineWithPasswordAwareBuildCauseByBuildId(job.getJobId());
                 } catch (StaleMaterialsOnBuildCause e) {
+                    // Detailed error msg is part of the exception object and it would be logged. Hence not adding msg while logging.
+                    LOGGER.error("", e);
                     return NO_WORK;
                 }
 

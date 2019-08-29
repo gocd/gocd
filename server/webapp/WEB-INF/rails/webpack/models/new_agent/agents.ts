@@ -243,7 +243,7 @@ export class Agent {
   }
 }
 
-export class Agents extends TableSortHandler {
+export class Agents implements TableSortHandler {
   public readonly filterText: Stream<string>           = Stream("");
   public readonly buildDetailsForAgent: Stream<string> = Stream();
   public readonly showEnvironments: Stream<boolean>    = Stream();
@@ -253,7 +253,6 @@ export class Agents extends TableSortHandler {
   private agentList: Agent[];
 
   constructor(agentsList: Agent[]) {
-    super();
     this.agentList    = agentsList;
     this.sortOrder    = SortOrder.ASC;
     this.sortOnColumn = this.getSortableColumns()[0] - 1;

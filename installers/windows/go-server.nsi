@@ -63,6 +63,8 @@ Function "PostInstall"
   ${LogText} "Postinstall"
   Call "OpenFirewallPorts"
   Call "CreateServerUrlShortcut"
+  Call InstallService
+  Call StartService
 FunctionEnd
 
 Function "DoParseCLI"

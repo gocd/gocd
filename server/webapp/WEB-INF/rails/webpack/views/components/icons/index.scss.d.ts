@@ -7,6 +7,7 @@ export const clone: string;
 export const close: string;
 export const disabled: string;
 export const edit: string;
+export const enabled: string;
 export const forward: string;
 export const iconGroup: string;
 export const infoCircle: string;

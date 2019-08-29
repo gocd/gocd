@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-import _ from "lodash";
-import m from "mithril";
-
-import classnames from "classnames";
+import {bind} from "classnames/bind";
 import {HTMLAttributes} from "jsx/dom";
 import {MithrilViewComponent} from "jsx/mithril-component";
+import m from "mithril";
 import styles from "./index.scss";
+
+const classnames = bind(styles);
 
 export interface Attrs extends HTMLAttributes {
   onclick?: (e: MouseEvent) => void;
@@ -47,11 +47,12 @@ class Icon extends MithrilViewComponent<Attrs> {
         <i title={title}
            data-test-id={`${this.title}-icon`}
            data-test-disabled-element={vnode.attrs.disabled}
-           class={classnames(this.name, {disabled: vnode.attrs.disabled})}
+           class={classnames({enabled: !vnode.attrs.disabled}, this.name, {disabled: vnode.attrs.disabled})}
            aria-describedby={vnode.attrs.describedBy}
-           {...vnode.attrs}/>
+           {...vnode.attrs}
+           onclick={vnode.attrs.disabled ? undefined : vnode.attrs.onclick}/>
       );
-  }
+    }
 
     return (
       <button title={title}

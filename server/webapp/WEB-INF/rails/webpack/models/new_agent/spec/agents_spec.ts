@@ -14,7 +14,14 @@
  * limitations under the License.
  */
 
-import {Agent, AgentConfigState, Agents, AgentsEnvironment, AgentState, BuildState} from "models/new_agent/agents";
+import {
+  Agent,
+  AgentConfigState,
+  Agents,
+  AgentsEnvironment,
+  AgentState,
+  BuildState
+} from "models/new_agent/agents";
 import {AgentsTestData} from "models/new_agent/spec/agents_test_data";
 
 describe("AgentsModel", () => {
@@ -54,6 +61,14 @@ describe("AgentsModel", () => {
 
       expect(agent.readableFreeSpace()).toEqual("5.5 GB");
 
+    });
+
+    it("should parse elastic agent id and elastic plugin id in-case of elastic agent", () => {
+      const agentJSON = AgentsTestData.elasticAgent("1773fcad85d8");
+      const agent     = Agent.fromJSON(agentJSON);
+
+      expect(agent.elasticAgentId).toBe(agentJSON.elastic_agent_id);
+      expect(agent.elasticPluginId).toBe(agentJSON.elastic_plugin_id);
     });
 
     it("should return environments", () => {
@@ -657,6 +672,40 @@ describe("AgentsModel", () => {
       const agentsToRepresentAfterClickOnAnotherColumn = agents.list();
       const expectedAfterClickOnAnotherColumn          = [agentA, agentB, agentC];
       expect(agentsToRepresentAfterClickOnAnotherColumn).toEqual(expectedAfterClickOnAnotherColumn);
+    });
+  });
+
+  describe("isElastic", () => {
+    it("should be false if agent is a normal agent", () => {
+      const agentJSON = AgentsTestData.idleAgent();
+      const agent     = Agent.fromJSON(agentJSON);
+
+      expect(agent.isElastic()).toBeFalsy();
+    });
+
+    it("should be false if elastic agent id is not present", () => {
+      const agentJSON = AgentsTestData.elasticAgent("1773fcad85d8");
+      delete agentJSON.elastic_agent_id;
+
+      const agent = Agent.fromJSON(agentJSON);
+
+      expect(agent.isElastic()).toBeFalsy();
+    });
+
+    it("should be false if elastic plugin id is not present", () => {
+      const agentJSON = AgentsTestData.elasticAgent("1773fcad85d8");
+      delete agentJSON.elastic_plugin_id;
+
+      const agent = Agent.fromJSON(agentJSON);
+
+      expect(agent.isElastic()).toBeFalsy();
+    });
+
+    it("should be true if agent is an elastic agent", () => {
+      const agentJSON = AgentsTestData.elasticAgent("1773fcad85d8");
+      const agent     = Agent.fromJSON(agentJSON);
+
+      expect(agent.isElastic()).toBeTruthy();
     });
   });
 });

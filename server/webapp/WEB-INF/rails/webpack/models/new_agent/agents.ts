@@ -17,6 +17,7 @@
 import _ from "lodash";
 import Stream from "mithril/stream";
 import {AgentComparator, SortOrder} from "models/new_agent/agent_comparator";
+import {AgentJSON, AgentsJSON, BuildDetailsJSON} from "models/new_agent/agents_json";
 import {TableSortHandler} from "views/components/table";
 
 const filesize = require("filesize");
@@ -31,55 +32,6 @@ export enum AgentState {
 
 export enum BuildState {
   Idle, Building, Cancelled, Unknown
-}
-
-interface Origin {
-  type: string;
-}
-
-interface AgentEnvironmentJSON {
-  name: string;
-  origin: Origin;
-}
-
-interface UrlJSON {
-  href: string;
-}
-
-interface LinkJSON {
-  job: UrlJSON;
-  stage: UrlJSON;
-  pipeline: UrlJSON;
-}
-
-export interface BuildDetailsJSON {
-  pipeline_name: string;
-  stage_name: string;
-  job_name: string;
-  _links: LinkJSON;
-}
-
-export interface AgentJSON {
-  uuid: string;
-  hostname: string;
-  ip_address: string;
-  sandbox: string;
-  operating_system: string;
-  free_space: string | number;
-  agent_config_state: string;
-  agent_state: string;
-  resources: string[];
-  build_state: string;
-  build_details?: BuildDetailsJSON;
-  environments: AgentEnvironmentJSON[];
-}
-
-interface EmbeddedJSON {
-  agents: AgentJSON[];
-}
-
-export interface AgentsJSON {
-  _embedded: EmbeddedJSON;
 }
 
 export class AgentsEnvironment {
@@ -138,6 +90,8 @@ export class Agent {
   public readonly agentState: AgentState;
   public readonly buildState: BuildState;
   public readonly buildDetails?: BuildDetails;
+  public readonly elasticAgentId?: string;
+  public readonly elasticPluginId?: string;
   public readonly selected: Stream<boolean> = Stream();
 
   constructor(uuid: string,
@@ -151,7 +105,9 @@ export class Agent {
               buildState: BuildState,
               resources: string[],
               environments: AgentsEnvironment[],
-              buildDetails?: BuildDetails) {
+              buildDetails?: BuildDetails,
+              elasticAgentId?: string,
+              elasticPluginId?: string) {
     this.uuid             = uuid;
     this.hostname         = hostname;
     this.ipAddress        = ipAddress;
@@ -164,6 +120,8 @@ export class Agent {
     this.buildState       = buildState;
     this.environments     = environments;
     this.buildDetails     = buildDetails;
+    this.elasticAgentId   = elasticAgentId;
+    this.elasticPluginId  = elasticPluginId;
   }
 
   static fromJSON(data: AgentJSON) {
@@ -178,7 +136,9 @@ export class Agent {
                      (BuildState as any)[data.build_state],
                      data.resources,
                      data.environments.map((envJson) => new AgentsEnvironment(envJson.name, envJson.origin.type)),
-                     BuildDetails.fromJSON(data.build_details));
+                     BuildDetails.fromJSON(data.build_details),
+                     data.elastic_agent_id,
+                     data.elastic_plugin_id);
   }
 
   hasFilterText(filterText: string): boolean {
@@ -208,12 +168,14 @@ export class Agent {
       return "Unknown";
     }
   }
+
   environmentNames() {
     if (!this.environments || this.environments.length === 0) {
       return [];
     }
     return this.environments.map((env) => env.name);
   }
+
   isBuilding() {
     return !!this.buildDetails;
   }
@@ -236,6 +198,10 @@ export class Agent {
       return this.buildState === BuildState.Cancelled ? "Building (Cancelled)" : "Building";
     }
     return AgentState[this.agentState];
+  }
+
+  isElastic() {
+    return this.elasticPluginId && this.elasticAgentId;
   }
 
   private getOrEmpty(str: string | number) {

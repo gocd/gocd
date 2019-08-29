@@ -15,7 +15,7 @@
  */
 
 import Stream from "mithril/stream";
-import {AgentJSON, AgentsJSON} from "models/new_agent/agents";
+import {AgentJSON, AgentsJSON} from "models/new_agent/agents_json";
 import uuid from "uuid/v4";
 
 export class AgentsTestData {
@@ -143,7 +143,6 @@ export class AgentsTestData {
       free_space: freeSpace,
       resources
     } as AgentJSON;
-
   }
 
   static elasticAgent(hostname: string) {

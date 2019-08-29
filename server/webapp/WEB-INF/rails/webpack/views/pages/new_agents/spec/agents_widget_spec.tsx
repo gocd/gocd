@@ -15,7 +15,6 @@
  */
 
 import m from "mithril";
-
 import Stream from "mithril/stream";
 import {Agent, Agents} from "models/new_agent/agents";
 import {AgentsTestData} from "models/new_agent/spec/agents_test_data";
@@ -23,6 +22,7 @@ import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_inf
 import {AnalyticsPluginInfo, AuthorizationPluginInfo} from "models/shared/plugin_infos_new/spec/test_data";
 import {FlashMessageModelWithTimeout} from "views/components/flash_message";
 import {AgentsWidget} from "views/pages/new_agents/agents_widget";
+import {StaticAgentsWidget} from "views/pages/new_agents/static_agents_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
 import styles from "../index.scss";
 
@@ -313,9 +313,9 @@ describe("NewAgentsWidget", () => {
     expect(helper.byTestId(`agent-ip-address-of-${agent.uuid}`)).toContainText(agent.ipAddress);
     expect(helper.byTestId(`agent-free-space-of-${agent.uuid}`)).toContainText(agent.readableFreeSpace());
     expect(helper.byTestId(`agent-resources-of-${agent.uuid}`))
-      .toContainText(AgentsWidget.joinOrNoneSpecified(agent.resources) as string);
+      .toContainText(StaticAgentsWidget.joinOrNoneSpecified(agent.resources) as string);
     expect(helper.byTestId(`agent-environments-of-${agent.uuid}`))
-      .toContainText(AgentsWidget.joinOrNoneSpecified(agent.environmentNames()) as string);
+      .toContainText(StaticAgentsWidget.joinOrNoneSpecified(agent.environmentNames()) as string);
   }
 
   function assertAgentBuilding(agent: Agent) {

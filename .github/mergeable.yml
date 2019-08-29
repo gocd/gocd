@@ -18,6 +18,12 @@ mergeable:
           # one or more chars
           regex: '.+'
           message: "Project must be specified"
+    pass:
+      - do: checks
+        status: success
+        payload:
+          title: "Result: success"
+          summary: "Okay to merge"
     fail:
       - do: checks
         status: failure

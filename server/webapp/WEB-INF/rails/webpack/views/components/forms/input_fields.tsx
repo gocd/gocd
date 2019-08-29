@@ -572,6 +572,66 @@ export class TriStateCheckboxField extends FormField<TriStateCheckbox> {
   }
 }
 
+interface RadioData {
+  label: string;
+  value: string;
+  helpText?: string;
+}
+
+export interface RadioButtonAttrs {
+  label: string;
+  errorText?: string;
+  disabled?: boolean;
+  required?: boolean;
+  property: (newValue?: string) => string;
+  possibleValues: RadioData[];
+}
+
+export class RadioField extends MithrilViewComponent<RadioButtonAttrs> {
+  protected readonly id: string = `input-${uuid()}`;
+
+  view(vnode: m.Vnode<RadioButtonAttrs>) {
+    const maybeRequired = this.isRequiredField(vnode) ?
+      <span className={styles.formLabelRequired}>*</span> : undefined;
+    return (
+      <li className={classnames(styles.formGroup, {[styles.formHasError]: this.hasErrorText(vnode)})}>
+        <label for={this.id} className={styles.formLabel}
+               data-test-id="form-field-label">{vnode.attrs.label}{maybeRequired}:</label>
+        {this.renderInputField(vnode)}
+      </li>
+    );
+  }
+
+  protected isRequiredField(vnode: m.Vnode<RadioButtonAttrs>) {
+    return vnode.attrs.required;
+  }
+
+  protected hasErrorText(vnode: m.Vnode<RadioButtonAttrs>) {
+    return !_.isEmpty(vnode.attrs.errorText);
+  }
+
+  private renderInputField(vnode: m.Vnode<RadioButtonAttrs>) {
+    const result: m.Children[] = [];
+
+    vnode.attrs.possibleValues.forEach((radioData) => {
+      const radioButtonId = `${this.id}-${s.slugify(radioData.value)}`;
+      result.push(
+        <li className={styles.radioField}>
+            <input type="radio"
+                   id={radioButtonId}
+                   checked={radioData.value === vnode.attrs.property()}
+                   name={this.id} onchange={() => vnode.attrs.property(radioData.value)}/>
+            <label for={radioButtonId} className={styles.radioLabel}
+                   data-test-id="form-field-label">{radioData.label}</label>
+          <HelpText helpText={radioData.helpText} helpTextId={`help-text-${radioButtonId}`}/>
+        </li>
+      );
+    });
+
+    return result;
+  }
+}
+
 export class Switch extends FormField<boolean, SmallSizeAttr> {
   protected renderInputField(vnode: m.Vnode<BaseAttrs<boolean> & SmallSizeAttr>): m.Children {
     return <SwitchBtn small={vnode.attrs.small} field={vnode.attrs.property}/>;

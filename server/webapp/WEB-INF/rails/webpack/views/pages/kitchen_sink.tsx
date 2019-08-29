@@ -39,7 +39,7 @@ import {EncryptedValue} from "views/components/forms/encrypted_value";
 import {Form} from "views/components/forms/form";
 import {
   CheckboxField, CopyField,
-  PasswordField, QuickAddField,
+  PasswordField, QuickAddField, RadioField,
   SearchField, SearchFieldWithButton,
   Switch,
   TextField,
@@ -67,6 +67,8 @@ const passwordValue          = Stream(new EncryptedValue({clearText: "p@ssword"}
 const encryptedPasswordValue = Stream(new EncryptedValue({cipherText: "AES:junk:more-junk"}));
 
 const triStateCheckbox = Stream(new TriStateCheckbox());
+
+const radioValue = Stream("thin-crust");
 
 const switchStream   = Stream(false);
 const reallyLongText = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.";
@@ -385,6 +387,15 @@ export class KitchenSink extends MithrilViewComponent<null> {
                      placeholder="password"
                      property={encryptedPasswordValue}
                      helpText={"Lorem ipsum dolor sit amet, consectetur adipiscing."}/>,
+      <RadioField label="Choose your favorite pizza topping"
+                  property={radioValue}
+                  required={true}
+                  possibleValues={[
+                    {label: "Thin Crust", value: "thin-crust", helpText: "Thin italian-style crust"},
+                    {label: "Cheese burst", value: "cheese-burst", helpText: "Filled with cheese, good for the heart"},
+                    {label: "Boring regular", value: "regular", helpText: "A lack of imagination"},
+                  ]}>
+      </RadioField>
     ];
   }
 

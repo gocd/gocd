@@ -87,7 +87,7 @@ export class PipelineActions extends MithrilViewComponent<Attrs> {
             });
           }
         }, (err: ErrorResponse) => {
-          this.globalError(err.message);
+          this.globalError(JSON.parse(err.body!).message);
           if (err.body) {
             this.globalErrorDetail(pipelineConfig.consumeErrorsResponse(JSON.parse(err.body).data));
           }

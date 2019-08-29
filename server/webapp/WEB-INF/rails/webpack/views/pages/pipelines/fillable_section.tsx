@@ -16,9 +16,9 @@
 
 import {RestyleComponent} from "jsx/mithril-component";
 import m from "mithril";
-import * as defaultStyles from "./fillable_section.scss";
+import defaultStyles from "./fillable_section.scss";
 
-export class FillableSection extends RestyleComponent<typeof defaultStyles, {}> {
+export class FillableSection extends RestyleComponent<typeof defaultStyles> {
   css = defaultStyles;
 
   view(vnode: m.Vnode) {

@@ -5,14 +5,19 @@ mergeable:
       - do: milestone
         no_empty:
           enabled: true
-          message: 'Milestone must be specified'
-      - do: project
-        no_empty:
-          enabled: true
-          message: 'Project must be specified'
+          message: "Milestone must be specified"
         must_include:
           # one or more chars
           regex: '.+'
+          message: "Milestone must be specified"
+      - do: project
+        no_empty:
+          enabled: true
+          message: "Project must be specified"
+        must_include:
+          # one or more chars
+          regex: '.+'
+          message: "Project must be specified"
     fail:
       - do: checks
         status: failure

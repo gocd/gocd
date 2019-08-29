@@ -175,10 +175,8 @@ public class EnvironmentsControllerV3 extends ApiController implements SparkSpri
                     writer -> toJSONArray(writer, "environment_variables", configs));
         }
 
-        List<String> dummyAgentList = new ArrayList<>();
         environmentConfigService.patchEnvironment(environmentConfig, req.getPipelineToAdd(), req.getPipelineToRemove(),
-                dummyAgentList, dummyAgentList, req.getEnvironmentVariablesToAdd(),
-                req.getEnvironmentVariablesToRemove(), currentUsername(), result);
+                req.getEnvironmentVariablesToAdd(), req.getEnvironmentVariablesToRemove(), currentUsername(), result);
 
         EnvironmentConfig updateConfigElement = fetchEntityFromConfig(environmentName);
 

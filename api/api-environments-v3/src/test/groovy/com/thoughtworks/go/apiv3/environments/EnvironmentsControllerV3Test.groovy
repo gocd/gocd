@@ -572,7 +572,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
         when(environmentConfigService.getEnvironmentConfig(eq("env1"))).thenReturn(oldConfig)
         when(environmentConfigService.getEnvironmentConfig(eq("env1"))).thenReturn(updatedConfig)
         when(environmentConfigService.patchEnvironment(
-          eq(oldConfig), anyList(), anyList(), anyList(), anyList(), anyList(), anyList(), eq(currentUsername()), any(HttpLocalizedOperationResult))
+          eq(oldConfig), anyList(), anyList(), anyList(), anyList(), eq(currentUsername()), any(HttpLocalizedOperationResult))
         ).then({
           InvocationOnMock invocation ->
             HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
@@ -630,7 +630,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
         when(environmentConfigService.getEnvironmentConfig(eq("env1"))).thenReturn(oldConfig)
         when(environmentConfigService.getEnvironmentConfig(eq("env1"))).thenReturn(updatedConfig)
         when(environmentConfigService.patchEnvironment(
-          eq(oldConfig), anyList(), anyList(), anyList(), anyList(), anyList(), anyList(), eq(currentUsername()), any(HttpLocalizedOperationResult))
+          eq(oldConfig), anyList(), anyList(), anyList(), anyList(), eq(currentUsername()), any(HttpLocalizedOperationResult))
         ).then({
           InvocationOnMock invocation ->
             HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()

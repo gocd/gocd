@@ -637,7 +637,7 @@ class EnvironmentConfigServiceTest {
         environmentConfigService.syncEnvironments(environments("uat", "prod", "env_name"));
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        environmentConfigService.patchEnvironment(environmentConfig, singletonList("pipeline1"), emptyList(), emptyList(), emptyList(), emptyList(), emptyList(), user, result);
+        environmentConfigService.patchEnvironment(environmentConfig, singletonList("pipeline1"), emptyList(), emptyList(), emptyList(), user, result);
 
         assertThat(result.isSuccessful(), is(true));
         assertThat(result.message(), is("Updated environment 'env_name'."));
@@ -654,7 +654,7 @@ class EnvironmentConfigServiceTest {
                 .when(mockGoConfigService).updateConfig(any(EntityConfigUpdateCommand.class), any(Username.class));
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        environmentConfigService.patchEnvironment(environmentConfig, singletonList("pipeline1"), emptyList(), emptyList(), emptyList(), emptyList(), emptyList(), user, result);
+        environmentConfigService.patchEnvironment(environmentConfig, singletonList("pipeline1"), emptyList(), emptyList(), emptyList(), user, result);
 
         assertFalse(result.isSuccessful());
         assertEquals(result.message(), "Failed to update environment 'env_name'. ");

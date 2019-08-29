@@ -26,8 +26,6 @@ import static java.util.stream.Collectors.toList;
 /**
 * @understands references to existing agents that are associated to an Environment
  */
-@ConfigTag("agents")
-@ConfigCollection(EnvironmentAgentConfig.class)
 public class EnvironmentAgentsConfig extends BaseCollection<EnvironmentAgentConfig> implements ParamsAttributeAware, Validatable {
     private final ConfigErrors configErrors = new ConfigErrors();
 

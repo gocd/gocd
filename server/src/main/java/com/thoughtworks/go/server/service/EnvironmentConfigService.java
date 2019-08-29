@@ -230,10 +230,10 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
     }
 
     public void patchEnvironment(final EnvironmentConfig envConfig, List<String> pipelinesToAdd, List<String> pipelinesToRemove,
-                                 List<String> agentsToAdd, List<String> agentsToRemove, List<EnvironmentVariableConfig> envVarsToAdd,
+                                 List<EnvironmentVariableConfig> envVarsToAdd,
                                  List<String> envVarsToRemove, final Username username, final HttpLocalizedOperationResult result) {
         String failedActionErrMsg = "Failed to update environment '" + envConfig.name() + "'.";
-        PatchEnvironmentCommand patchEnvCmd = new PatchEnvironmentCommand(goConfigService, envConfig, pipelinesToAdd, pipelinesToRemove, agentsToAdd, agentsToRemove, envVarsToAdd, envVarsToRemove, username, failedActionErrMsg, result);
+        PatchEnvironmentCommand patchEnvCmd = new PatchEnvironmentCommand(goConfigService, envConfig, pipelinesToAdd, pipelinesToRemove, envVarsToAdd, envVarsToRemove, username, failedActionErrMsg, result);
         update(patchEnvCmd, envConfig, username, result, failedActionErrMsg);
         if (result.isSuccessful()) {
             result.setMessage("Updated environment '" + envConfig.name() + "'.");

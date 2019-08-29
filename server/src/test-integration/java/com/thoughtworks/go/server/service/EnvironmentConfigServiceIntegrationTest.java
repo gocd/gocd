@@ -151,7 +151,7 @@ public class EnvironmentConfigServiceIntegrationTest {
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         BasicEnvironmentConfig environmentConfigBeingUpdated = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentBeingUpdated));
-        environmentConfigService.patchEnvironment(environmentConfigBeingUpdated, Arrays.asList(pipelineName), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),
+        environmentConfigService.patchEnvironment(environmentConfigBeingUpdated, Arrays.asList(pipelineName), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),
                 user, result);
         assertThat(result.message(), is("Failed to update environment 'environment-2'. Associating pipeline(s) which is already part of environment-1 environment"));
     }
@@ -301,7 +301,7 @@ public class EnvironmentConfigServiceIntegrationTest {
         envVarsToAdd.add(new EnvironmentVariableConfig("name", "val"));
         List<String> envVarsToRemove = new ArrayList<>();
 
-        environmentConfigService.patchEnvironment(environmentConfigService.getEnvironmentConfig(environmentName), pipelinesToAdd, pipelinesToRemove, Collections.emptyList(), Collections.emptyList(), envVarsToAdd, envVarsToRemove, user, result);
+        environmentConfigService.patchEnvironment(environmentConfigService.getEnvironmentConfig(environmentName), pipelinesToAdd, pipelinesToRemove, envVarsToAdd, envVarsToRemove, user, result);
         EnvironmentConfig updatedEnv = environmentConfigService.getEnvironmentConfig(env.name().toString());
 
         assertThat(updatedEnv.name(), is(new CaseInsensitiveString(environmentName)));
@@ -315,7 +315,7 @@ public class EnvironmentConfigServiceIntegrationTest {
         configHelper.enableSecurity();
         configHelper.addAdmins("super_hero");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        environmentConfigService.patchEnvironment(environmentConfigService.getEnvironmentConfig("foo"), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new Username(new CaseInsensitiveString("evil_hacker")), result);
+        environmentConfigService.patchEnvironment(environmentConfigService.getEnvironmentConfig("foo"), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new Username(new CaseInsensitiveString("evil_hacker")), result);
         assertThat(result.message(), is(EntityType.Environment.forbiddenToEdit("foo", "evil_hacker")));
     }
 

@@ -113,9 +113,9 @@ describe("AddPipeline: SCM Material Fields", () => {
     expect(helper.byTestId("test-connection-button")).toBeInDOM();
   });
 
-  it("displays material check button instead of test connection when `materialCheck` === true", () => {
+  it("hides test connection button when `hideTestConnection` === true", () => {
     const material = new Material("git", new GitMaterialAttributes());
-    helper.mount(() => <GitFields material={material} materialCheck={true} showLocalWorkingCopyOptions={true}/>);
+    helper.mount(() => <GitFields material={material} hideTestConnection={true} showLocalWorkingCopyOptions={true}/>);
 
     assertLabelledInputsPresent({
       "repository-url":          "Repository URL*",
@@ -127,15 +127,13 @@ describe("AddPipeline: SCM Material Fields", () => {
     });
 
     expect(helper.byTestId("test-connection-button")).toBe(null!);
-    expect(helper.byTestId("material-check-button")).toBeInDOM();
   });
 
-  it("displays test connection button by default when `materialCheck` is falsey (e.g., unspecified)", () => {
+  it("displays test connection button by default when `hideTestConnection` is falsey (e.g., unspecified)", () => {
     const material = new Material("git", new GitMaterialAttributes());
     helper.mount(() => <GitFields material={material} showLocalWorkingCopyOptions={true}/>);
 
     expect(helper.byTestId("test-connection-button")).toBeInDOM();
-    expect(helper.byTestId("material-check-button")).toBe(null!);
   });
 
   it("does not display certain advanced settings when `showLocalWorkingCopyOptions` === false", () => {

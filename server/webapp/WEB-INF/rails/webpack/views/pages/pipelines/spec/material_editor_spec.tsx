@@ -25,15 +25,13 @@ describe("AddPipeline: Material Editor", () => {
 
   beforeEach(() => {
     material = new Material();
-
-    helper.mount(() => {
-      return <MaterialEditor material={material}/>;
-    });
   });
 
-  afterEach(helper.unmount.bind(helper));
+  afterEach(() => helper.unmount());
 
   it("Generates structure", () => {
+    helper.mount(() => <MaterialEditor material={material}/>);
+
     expect(helper.q("select")).toBeTruthy();
     expect(helper.q("label")).toBeTruthy();
     expect(helper.q("label").textContent).toBe("Material Type*");
@@ -41,11 +39,19 @@ describe("AddPipeline: Material Editor", () => {
       .toEqual(["Git", "Mercurial", "Subversion", "Perforce", "Team Foundation Server", "Another Pipeline"]);
   });
 
+  it("`disabled` attribute makes all child fields disabled", () => {
+    helper.mount(() => <MaterialEditor material={material} disabled={true}/>);
+
+    const els = helper.qa("input,select");
+    expect(els.length).not.toBe(0);
+    for (const el of Array.from(els)) {
+      expect(el.matches("[disabled]")).toBe(true);
+    }
+  });
+
   it("Generates scm only structure", () => {
-    helper.unmount();
-    helper.mount(() => {
-      return <MaterialEditor material={new Material()} scmOnly={true}/>;
-    });
+    helper.mount(() => <MaterialEditor material={material} scmOnly={true}/>);
+
     expect(helper.q("select")).toBeTruthy();
     expect(helper.q("label")).toBeTruthy();
     expect(helper.q("label").textContent).toBe("Material Type*");
@@ -54,6 +60,8 @@ describe("AddPipeline: Material Editor", () => {
   });
 
   it("Selecting a material updates the model type", () => {
+    helper.mount(() => <MaterialEditor material={material}/>);
+
     expect(material.type()).toBeUndefined();
     expect(material.attributes()).toBeUndefined();
 

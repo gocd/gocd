@@ -29,6 +29,7 @@ interface Attrs {
   material: Material;
   cache: SuggestionCache;
   showLocalWorkingCopyOptions: boolean;
+  disabled?: boolean;
 }
 
 interface State {
@@ -71,6 +72,10 @@ class DependencySuggestionProvider extends SuggestionProvider {
 
 export class DependencyFields extends MithrilComponent<Attrs, State> {
   oninit(vnode: m.Vnode<Attrs, State>) {
+    if (vnode.attrs.disabled) {
+      return;
+    }
+
     const mat = vnode.attrs.material.attributes() as DependencyMaterialAttributes;
     const cache = vnode.attrs.cache;
     const EMPTY: Option[] = [{id: "", text: "-"}];
@@ -85,6 +90,15 @@ export class DependencyFields extends MithrilComponent<Attrs, State> {
 
   view(vnode: m.Vnode<Attrs, State>): m.Children {
     const mat = vnode.attrs.material.attributes() as DependencyMaterialAttributes;
+
+    if (vnode.attrs.disabled) {
+      return [
+        <TextField label="Upstream Pipeline" property={mat.pipeline} errorText={this.errs(mat, "pipeline")} required={true} readonly={true}/>,
+        <SelectField label="Upstream Stage" property={mat.stage} errorText={this.errs(mat, "stage")} required={true} readonly={true}>
+          <SelectFieldOptions selected={mat.stage()} items={vnode.state.stages()}/>
+        </SelectField>,
+      ];
+    }
 
     return [
       <AutocompleteField label="Upstream Pipeline" property={mat.pipeline} errorText={this.errs(mat, "pipeline")} required={true} maxItems={25} provider={vnode.state.provider}/>,

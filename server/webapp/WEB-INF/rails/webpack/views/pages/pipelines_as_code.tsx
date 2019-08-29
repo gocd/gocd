@@ -37,6 +37,7 @@ export class PipelinesAsCodeCreatePage extends Page {
   private mimeType = Stream("application/x-yaml");
 
   private material = Stream(new Material(this.model.material.type()));
+  private useSameRepoForPaC = Stream(true); // allow material sync to be toggleable
 
   oninit(vnode: m.Vnode) {
     this.pageState = PageState.OK;
@@ -53,12 +54,14 @@ export class PipelinesAsCodeCreatePage extends Page {
 
   componentToDisplay(vnode: m.Vnode) {
     const vm = this.model;
+    const isSupportedScm = pacSupportedMaterial(vm.material);
+    const syncConfigRepoWithMaterial = isSupportedScm ? this.useSameRepoForPaC : (val?: boolean) => false;
 
     return [
       <FillableSection>
         <BuilderForm vm={vm} onContentChange={(updated) => {
           if (updated) {
-            if (pacSupportedMaterial(vm.material)) {
+            if (this.useSameRepoForPaC() && isSupportedScm) {
               this.material(cloneMaterialForPaC(vm.material));
             }
 
@@ -87,7 +90,7 @@ export class PipelinesAsCodeCreatePage extends Page {
         <div>
           <span>Use the 'Check Material' button to verify that the configuration file is corretly placed</span>
 
-          <MaterialEditor material={this.material()} materialCheck={true} scmOnly={true} showLocalWorkingCopyOptions={false}/>
+          <MaterialEditor material={this.material()} hideTestConnection={syncConfigRepoWithMaterial()} scmOnly={true} showLocalWorkingCopyOptions={false} disabled={syncConfigRepoWithMaterial()}/>
         </div>
       </FillableSection>
     ];
@@ -105,6 +108,10 @@ function pacSupportedMaterial(material: Material) {
 // duplicates a material for use with config repos; this removes the material
 // name and destination from the copy
 function cloneMaterialForPaC(orig: Material): Material {
+  if (!pacSupportedMaterial(orig)) {
+    return new Material("git", MaterialAttributes.deserialize({ type: "git", attributes: {} as any }));
+  }
+
   const json = orig.toApiPayload();
   delete json.attributes.name;
   delete json.attributes.destination;

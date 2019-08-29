@@ -88,8 +88,8 @@ class InstallerTypeServer implements InstallerType {
   @Override
   Map<String, Object> getConfigFiles() {
     [
-      '/usr/share/go-server/wrapper-config/wrapper.conf'           : [mode: 0640, owner: 'root', group: 'go', ownedByPackage: true],
-      '/usr/share/go-server/wrapper-config/wrapper-properties.conf': [mode: 0640, owner: 'root', group: 'go', ownedByPackage: true],
+      '/usr/share/go-server/wrapper-config/wrapper.conf'           : [mode: 0640, owner: 'root', group: 'go', ownedByPackage: true, confFile: true],
+      '/usr/share/go-server/wrapper-config/wrapper-properties.conf': [mode: 0640, owner: 'root', group: 'go', ownedByPackage: true, confFile: true],
     ]
   }
 

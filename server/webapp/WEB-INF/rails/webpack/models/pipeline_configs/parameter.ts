@@ -19,7 +19,7 @@ import _ from "lodash";
 import Stream from "mithril/stream";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 
-export class PipelineParameters extends ValidatableMixin {
+export class PipelineParameter extends ValidatableMixin {
   name: Stream<string> = Stream();
   value: Stream<string> = Stream();
 

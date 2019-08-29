@@ -18,7 +18,7 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {PipelineParameters} from "models/pipeline_configs/parameters";
+import {PipelineParameter} from "models/pipeline_configs/parameter";
 import * as Buttons from "views/components/buttons";
 import {IdentifierInputField} from "views/components/forms/common_validating_inputs";
 import {Form, FormBody} from "views/components/forms/form";
@@ -29,14 +29,14 @@ import {TooltipSize} from "views/components/tooltip";
 import css from "./environment_variables_editor.scss";
 
 interface Attrs {
-  parameters: Stream<PipelineParameters[]>;
+  parameters: Stream<PipelineParameter[]>;
 }
 
 export class PipelineParametersEditor extends MithrilViewComponent<Attrs> {
-  paramList = Stream([] as PipelineParameters[]);
+  paramList = Stream([] as PipelineParameter[]);
 
   oninit(vnode: m.Vnode<Attrs>) {
-    this.paramList(vnode.attrs.parameters().filter((p) => !p.isEmpty()).concat(new PipelineParameters("", "")));
+    this.paramList(vnode.attrs.parameters().filter((p) => !p.isEmpty()).concat(new PipelineParameter("", "")));
   }
 
   view(vnode: m.Vnode<Attrs>) {
@@ -64,23 +64,23 @@ export class PipelineParametersEditor extends MithrilViewComponent<Attrs> {
     );
   }
 
-  update(params: Stream<PipelineParameters[]>, event?: Event) {
+  update(params: Stream<PipelineParameter[]>, event?: Event) {
     if (event) {event.stopPropagation(); }
     params(this.paramList().filter((p) => !p.isEmpty()));
   }
 
   add(event: Event) {
     event.stopPropagation();
-    this.paramList().push(new PipelineParameters("", ""));
+    this.paramList().push(new PipelineParameter("", ""));
   }
 
-  remove(params: Stream<PipelineParameters[]>, paramToDelete: PipelineParameters, event?: Event) {
+  remove(params: Stream<PipelineParameter[]>, paramToDelete: PipelineParameter, event?: Event) {
     if (event) {event.stopPropagation(); }
 
     this.paramList(this.paramList().filter((p) => p !== paramToDelete));
 
     if (!this.paramList().length) {
-      this.paramList([new PipelineParameters("", "")]);
+      this.paramList([new PipelineParameter("", "")]);
     }
 
     this.update(params);

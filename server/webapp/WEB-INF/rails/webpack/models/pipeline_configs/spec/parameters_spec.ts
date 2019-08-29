@@ -15,35 +15,35 @@
  */
 
 import {ErrorMessages} from "models/mixins/error_messages";
-import {PipelineParameters} from "models/pipeline_configs/parameters";
+import {PipelineParameter} from "models/pipeline_configs/parameter";
 
 describe("Parameters model", () => {
   it("should have a correctly formatted name", () => {
-    let param = new PipelineParameters("valid_name", "");
+    let param = new PipelineParameter("valid_name", "");
     expect(param.isValid()).toBe(true);
     expect(param.errors().count()).toBe(0);
 
-    param = new PipelineParameters("", "");
+    param = new PipelineParameter("", "");
     expect(param.isValid()).toBe(false);
     expect(param.errors().count()).toBe(1);
     expect(param.errors().errorsForDisplay("name")).toBe("Name must be present.");
 
-    param = new PipelineParameters("invalid name", "");
+    param = new PipelineParameter("invalid name", "");
     expect(param.isValid()).toBe(false);
     expect(param.errors().count()).toBe(1);
     expect(param.errors().errorsForDisplay("name")).toBe(ErrorMessages.idFormat("name"));
   });
 
   it("should serialize correctly", () => {
-    const param = new PipelineParameters("my-param", "lalala");
+    const param = new PipelineParameter("my-param", "lalala");
     expect(param.toApiPayload()).toEqual({ name: "my-param", value: "lalala"});
   });
 
   it("should know if it's empty", () => {
-    let param = new PipelineParameters("", "");
+    let param = new PipelineParameter("", "");
     expect(param.isEmpty()).toBeTruthy();
 
-    param = new PipelineParameters("my-param", "lalala");
+    param = new PipelineParameter("my-param", "lalala");
     expect(param.isEmpty()).toBeFalsy();
   });
 });

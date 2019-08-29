@@ -15,7 +15,7 @@
  */
 
 import m from "mithril";
-import {PipelineParameters} from "models/pipeline_configs/parameters";
+import {PipelineParameter} from "models/pipeline_configs/parameter";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {PipelineParametersEditor} from "../parameters_editor";
@@ -37,14 +37,14 @@ describe("ParametersEditor", () => {
     helper.oninput(helper.byTestId("form-field-input-param-name-0"), "my-param");
     helper.oninput(helper.byTestId("form-field-input-param-value-0"), "lalala");
 
-    expect(asJson(config.parameters())).toEqual(asJson([new PipelineParameters("my-param", "lalala")]));
+    expect(asJson(config.parameters())).toEqual(asJson([new PipelineParameter("my-param", "lalala")]));
   });
 
   it("should update model when parameter removed", () => {
     config.parameters([
-      new PipelineParameters("my-param", "lalala"),
-      new PipelineParameters("my-fav-param", "lalala"),
-      new PipelineParameters("my-other-param", "lalala")
+      new PipelineParameter("my-param", "lalala"),
+      new PipelineParameter("my-fav-param", "lalala"),
+      new PipelineParameter("my-other-param", "lalala")
     ]);
 
     const [param1, , param3] = config.parameters();
@@ -75,6 +75,6 @@ describe("ParametersEditor", () => {
   });
 });
 
-function asJson(params: PipelineParameters[]) {
+function asJson(params: PipelineParameter[]) {
   return params.map((p) => p.toApiPayload());
 }

@@ -21,7 +21,7 @@ import Stream from "mithril/stream";
 import {Material} from "models/materials/types";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {NameableSet} from "./nameable_set";
-import {PipelineParameters} from "./parameters";
+import {PipelineParameter} from "./parameter";
 import {Stage} from "./stage";
 
 export class PipelineConfig extends ValidatableMixin {
@@ -30,7 +30,7 @@ export class PipelineConfig extends ValidatableMixin {
   template: Stream<string> = Stream();
   materials: Stream<NameableSet<Material>>;
   stages: Stream<NameableSet<Stage>>;
-  parameters = Stream([] as PipelineParameters[]);
+  parameters = Stream([] as PipelineParameter[]);
 
   constructor(name: string, materials: Material[], stages: Stage[]) {
     super();

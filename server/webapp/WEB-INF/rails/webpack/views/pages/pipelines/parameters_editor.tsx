@@ -33,7 +33,11 @@ interface Attrs {
 }
 
 export class PipelineParametersEditor extends MithrilViewComponent<Attrs> {
-  paramList = Stream([new PipelineParameters("", "")]);
+  paramList = Stream([] as PipelineParameters[]);
+
+  oninit(vnode: m.Vnode<Attrs>) {
+    this.paramList(vnode.attrs.parameters().filter((p) => !p.isEmpty()).concat(new PipelineParameters("", "")));
+  }
 
   view(vnode: m.Vnode<Attrs>) {
     return (
@@ -46,10 +50,10 @@ export class PipelineParametersEditor extends MithrilViewComponent<Attrs> {
             </label>
             <Buttons.Cancel onclick={this.add.bind(this)} small={true} icon={Buttons.ButtonIcon.ADD} />
             <Table headers={["name", "optional default value", ""]} data={
-              _.map(this.paramList(), (param) => {
+              _.map(this.paramList(), (param, i) => {
                 return [
-                  <IdentifierInputField property={param.name} errorText={param.errors().errorsForDisplay("name")} onchange={this.update.bind(this, vnode.attrs.parameters)} />,
-                  <TextField property={param.value} onchange={this.update.bind(this, vnode.attrs.parameters)} />,
+                  <IdentifierInputField dataTestId={`form-field-input-param-name-${i}`} property={param.name} errorText={param.errors().errorsForDisplay("name")} onchange={this.update.bind(this, vnode.attrs.parameters)} />,
+                  <TextField dataTestId={`form-field-input-param-value-${i}`} property={param.value} onchange={this.update.bind(this, vnode.attrs.parameters)} />,
                   <Buttons.Cancel onclick={this.remove.bind(this, vnode.attrs.parameters, param)} small={true} icon={Buttons.ButtonIcon.REMOVE} />
                 ];
               })

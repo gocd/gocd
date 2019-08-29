@@ -26,17 +26,55 @@ describe("ParametersEditor", () => {
 
   beforeEach(() => {
     config = new PipelineConfig("", [], []);
-    helper.mount(() => <PipelineParametersEditor parameters={config.parameters} />);
   });
 
   afterEach(helper.unmount.bind(helper));
 
-  xit("should update the model when a parameter is updated", () => {
+  it("should update the model when a parameter is updated", () => {
+    helper.mount(() => <PipelineParametersEditor parameters={config.parameters} />);
     expect(config.parameters()).toEqual([]);
 
-    helper.oninput(helper.byTestId("form-field-input-"), "my-param");
-    helper.oninput(helper.byTestId("form-field-input-pipeline-name"), "lalala");
+    helper.oninput(helper.byTestId("form-field-input-param-name-0"), "my-param");
+    helper.oninput(helper.byTestId("form-field-input-param-value-0"), "lalala");
 
-    expect(config.parameters()).toEqual([new PipelineParameters("my-param", "lalala")]);
+    expect(asJson(config.parameters())).toEqual(asJson([new PipelineParameters("my-param", "lalala")]));
+  });
+
+  it("should update model when parameter removed", () => {
+    config.parameters([
+      new PipelineParameters("my-param", "lalala"),
+      new PipelineParameters("my-fav-param", "lalala"),
+      new PipelineParameters("my-other-param", "lalala")
+    ]);
+
+    const [param1, , param3] = config.parameters();
+    helper.mount(() => <PipelineParametersEditor parameters={config.parameters} />);
+
+    helper.click(helper.qa("table button").item(1));
+
+    expect(asJson(config.parameters())).toEqual(asJson([param1, param3]));
+  });
+
+  it("should at least have an empty param", () => {
+    //empty inputs on load
+    helper.mount(() => <PipelineParametersEditor parameters={config.parameters} />);
+    expect(helper.qa("table input[type=\"text\"]").length).toBe(2);
+    expect((helper.byTestId("form-field-input-param-name-0") as HTMLInputElement).value).toBe("");
+    expect((helper.byTestId("form-field-input-param-value-0") as HTMLInputElement).value).toBe("");
+
+    helper.oninput(helper.byTestId("form-field-input-param-name-0"), "my-param");
+    helper.oninput(helper.byTestId("form-field-input-param-value-0"), "lalala");
+    expect((helper.byTestId("form-field-input-param-name-0") as HTMLInputElement).value).toBe("my-param");
+    expect((helper.byTestId("form-field-input-param-value-0") as HTMLInputElement).value).toBe("lalala");
+    helper.click(helper.qa("table button").item(0));
+
+    //empty inputs when remove
+    expect(helper.qa("table input[type=\"text\"]").length).toBe(2);
+    expect((helper.byTestId("form-field-input-param-name-0") as HTMLInputElement).value).toBe("");
+    expect((helper.byTestId("form-field-input-param-value-0") as HTMLInputElement).value).toBe("");
   });
 });
+
+function asJson(params: PipelineParameters[]) {
+  return params.map((p) => p.toApiPayload());
+}

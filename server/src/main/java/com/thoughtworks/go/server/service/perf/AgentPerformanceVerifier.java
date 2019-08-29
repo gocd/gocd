@@ -17,15 +17,22 @@ package com.thoughtworks.go.server.service.perf;
 
 import com.google.common.collect.Sets;
 import com.thoughtworks.go.config.Agent;
-import com.thoughtworks.go.server.service.perf.commands.*;
 import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.EnvironmentConfigService;
+import com.thoughtworks.go.server.service.perf.commands.*;
+import com.thoughtworks.go.util.Csv;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.IntStream;
 
@@ -35,55 +42,92 @@ public class AgentPerformanceVerifier {
     private static final Logger LOG = LoggerFactory.getLogger(AgentPerformanceVerifier.class);
     private static final int DEFAULT_NO_OF_THREADS_TO_USE = 5;
 
-    private int noOfThredsToUse;
+    private int noOfThreadsToUse;
     private AgentService agentService;
     private EnvironmentConfigService environmentConfigService;
 
     public AgentPerformanceVerifier(AgentService agentService, EnvironmentConfigService environmentConfigService, int threadCount) {
         this.agentService = agentService;
         this.environmentConfigService = environmentConfigService;
-        this.noOfThredsToUse = threadCount > 0 ? threadCount : DEFAULT_NO_OF_THREADS_TO_USE;
+        this.noOfThreadsToUse = threadCount > 0 ? threadCount : DEFAULT_NO_OF_THREADS_TO_USE;
     }
 
     public void verify() {
-        ScheduledExecutorService execService = Executors.newScheduledThreadPool(noOfThredsToUse);
-        Collection<Future<Optional<String>>> futures = new ArrayList<>(noOfThredsToUse);
+        ScheduledExecutorService execService = Executors.newScheduledThreadPool(noOfThreadsToUse);
+        Collection<Future<Optional<String>>> futures = new ArrayList<>(noOfThreadsToUse);
 
+        registerSpecifiedNumberOfEnvironments(execService, futures);
         registerSpecifiedNumberOfAgents(execService, futures);
 
         IntStream.iterate(0, i -> i + 1)
-                .limit(noOfThredsToUse)
+                .limit(noOfThreadsToUse)
                 .forEach(val -> {
-                    UpdateAgentHostCommandAgent updateAgentHostCmd = new UpdateAgentHostCommandAgent(agentService);
+                    UpdateAgentHostCommand updateAgentHostCmd = new UpdateAgentHostCommand(agentService);
                     UpdateAgentResourcesCommand updateAgentResourcesCmd = new UpdateAgentResourcesCommand(agentService);
                     UpdateAgentEnvironmentsCommand updateAgentEnvsCmd = new UpdateAgentEnvironmentsCommand(agentService);
                     UpdateAllAgentAttributesCommand updateAllAgentDetailsCmd = new UpdateAllAgentAttributesCommand(agentService);
                     DisableAgentCommand disableAgentCmd = new DisableAgentCommand(agentService);
                     BulkUpdateAgentCommand bulkUpdateAgentCmd = new BulkUpdateAgentCommand(agentService, environmentConfigService);
 
-                    futures.add(execService.submit(new AgentPerformanceCommandDecorator(updateAgentHostCmd)));
-                    futures.add(execService.submit(new AgentPerformanceCommandDecorator(updateAgentResourcesCmd)));
-                    futures.add(execService.submit(new AgentPerformanceCommandDecorator(updateAgentEnvsCmd)));
-                    futures.add(execService.submit(new AgentPerformanceCommandDecorator(updateAllAgentDetailsCmd)));
-                    futures.add(execService.submit(new AgentPerformanceCommandDecorator(disableAgentCmd)));
-                    futures.add(execService.submit(new AgentPerformanceCommandDecorator(bulkUpdateAgentCmd)));
+                    futures.add(execService.submit(updateAgentHostCmd));
+                    futures.add(execService.submit(updateAgentResourcesCmd));
+                    futures.add(execService.submit(updateAgentEnvsCmd));
+                    futures.add(execService.submit(updateAllAgentDetailsCmd));
+                    futures.add(execService.submit(disableAgentCmd));
+                    futures.add(execService.submit(bulkUpdateAgentCmd));
                 });
 
         joinFutures(futures);
-        doAssertAgentCache();
+        generateReport();
+        doAssertAgentAndItsAssociationInDBAndCache();
+    }
+
+    private void generateReport() {
+        Csv csv = new Csv();
+        LinkedBlockingQueue<AgentPerformanceCommand> queue = AgentPerformanceCommand.queue;
+        try {
+            while (!queue.isEmpty()) {
+                AgentPerformanceCommand commandExecuted = queue.take();
+                addRowToCsv(csv, commandExecuted.getResult());
+            }
+            String logDir = System.getProperty("gocd.server.log.dir", "logs");
+            Path reportFilePath = Files.write(Paths.get(logDir + "/agent-perf-result.csv"), csv.toString().getBytes(), StandardOpenOption.CREATE);
+            LOG.info("Report is available at {}", reportFilePath.toAbsolutePath());
+        } catch (InterruptedException e) {
+            LOG.error("Error while dequeuing", e);
+        } catch (IOException e) {
+            LOG.error("Error while appending to csv file", e);
+        }
+    }
+
+    private void addRowToCsv(Csv csv, AgentPerformanceCommandResult result) {
+        csv.newRow()
+                .put("command_name", result.getName())
+                .put("agents", result.getAgentUuids())
+                .put("status", result.getStatus())
+                .put("failure_message", result.getFailureMessage())
+                .put("time_taken_in_millis", String.valueOf(result.getTimeTakenInMillis()));
     }
 
     private void registerSpecifiedNumberOfAgents(ScheduledExecutorService execService, Collection<Future<Optional<String>>> futures) {
         IntStream.iterate(0, i -> i + 1)
-                .limit(noOfThredsToUse)
+                .limit(noOfThreadsToUse)
                 .forEach(val -> {
                     RegisterAgentCommand registerAgentCmd = new RegisterAgentCommand(agentService);
-                    AgentPerformanceCommandDecorator cmdDecorator = new AgentPerformanceCommandDecorator(registerAgentCmd);
-                    futures.add(execService.submit(cmdDecorator));
+                    futures.add(execService.submit(registerAgentCmd));
                 });
     }
 
-    private void doAssertAgentCache(){
+    private void registerSpecifiedNumberOfEnvironments(ScheduledExecutorService execService, Collection<Future<Optional<String>>> futures) {
+        IntStream.iterate(0, i -> i + 1)
+                .limit(2)
+                .forEach(val -> {
+                    CreateEnvironmentCommand createEnvironmentCommand = new CreateEnvironmentCommand(environmentConfigService, "e" + val);
+                    futures.add(execService.submit(createEnvironmentCommand));
+                });
+    }
+
+    private void doAssertAgentAndItsAssociationInDBAndCache() {
         stream(agentService.getAgentInstances())
                 .filter(agentInstance -> agentInstance.getUuid().startsWith("Perf-Test-Agent-"))
                 .forEach(agentInstance -> {
@@ -105,14 +149,14 @@ public class AgentPerformanceVerifier {
         HashSet<String> knownEnvNames = new HashSet<>(environmentConfigService.getEnvironmentNames());
 
         boolean containsOnlyUnknownEnvs = (difference.isEmpty() || !knownEnvNames.containsAll(difference));
-        if(!containsOnlyUnknownEnvs){
+        if (!containsOnlyUnknownEnvs) {
             LOG.error("Throwing RuntimeException as verification of agent environments {} in db and environments cache has failed. There are some agent environment associations in DB that does not exist in environment cache", agentInCache.getUuid());
             throw new RuntimeException("WARNING : There is some threading issue found during agent performance test!!!");
         }
     }
 
     private void bombIfAgentEnvAssociationInDBAndEnvCacheAreDifferent(Agent agentInCache, Set<String> agentEnvsInDB, Set<String> agentEnvsInEnvCache) {
-        if(!agentEnvsInDB.containsAll(agentEnvsInEnvCache)){
+        if (!agentEnvsInDB.containsAll(agentEnvsInEnvCache)) {
             LOG.error("Throwing RuntimeException as verification of agent environments {} in db and environments cache has failed", agentInCache.getUuid());
             throw new RuntimeException("WARNING : There is some threading issue found during agent performance test!!!");
         }

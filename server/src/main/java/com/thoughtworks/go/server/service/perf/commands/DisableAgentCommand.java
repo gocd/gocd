@@ -29,7 +29,7 @@ public class DisableAgentCommand extends AgentPerformanceCommand {
     }
 
     @Override
-    public Optional<String> call() {
+    Optional<String> execute() {
         Optional<AgentInstance> anyRegisteredAgentInstance = findAnyRegisteredAgentInstance();
         anyRegisteredAgentInstance.map(instance1 -> instance1.getAgent().getUuid()).ifPresent(this::disableAgent);
         return anyRegisteredAgentInstance.map(instance -> instance.getAgent().getUuid());

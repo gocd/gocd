@@ -20,11 +20,11 @@ import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.EnvironmentConfigService;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Optional;
 
-import static com.thoughtworks.go.util.CommaSeparatedString.append;
 import static com.thoughtworks.go.util.TriState.UNSET;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
@@ -33,16 +33,16 @@ import static java.util.stream.StreamSupport.stream;
 public class BulkUpdateAgentCommand extends AgentPerformanceCommand {
     private EnvironmentConfigService envConfigService;
 
-    public BulkUpdateAgentCommand(AgentService agentService, EnvironmentConfigService envConfigService){
+    public BulkUpdateAgentCommand(AgentService agentService, EnvironmentConfigService envConfigService) {
         this.envConfigService = envConfigService;
         this.agentService = agentService;
     }
 
     @Override
-    public Optional<String> call() {
+    Optional<String> execute() {
         Optional<List<String>> anyRegisteredUUIDs = findAnyRegisteredUUIDs();
         anyRegisteredUUIDs.ifPresent(this::bulkUpdateAgent);
-        return Optional.ofNullable(append(null, anyRegisteredUUIDs.get()));
+        return Optional.ofNullable(StringUtils.join(anyRegisteredUUIDs.get(), " | "));
     }
 
     private void bulkUpdateAgent(List<String> uuids) {

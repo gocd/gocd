@@ -16,9 +16,11 @@
 package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.config.Agent;
+import com.thoughtworks.go.config.JobConfig;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import static com.thoughtworks.go.config.JobConfig.RESOURCES;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -260,7 +262,7 @@ class AgentTest {
             agent.validate();
 
             assertEquals(1, agent.errors().size());
-            assertThat(agent.errors().on("elasticAgentId"), is("Elastic agents cannot have resources."));
+            assertThat(agent.errors().on(RESOURCES), is("Elastic agents cannot have resources."));
         }
     }
 

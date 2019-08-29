@@ -24,14 +24,14 @@ import java.util.Optional;
 import static com.thoughtworks.go.util.TriState.UNSET;
 
 public class UpdateAllAgentAttributesCommand extends AgentPerformanceCommand {
-    public UpdateAllAgentAttributesCommand(AgentService agentService){
+    public UpdateAllAgentAttributesCommand(AgentService agentService) {
         this.agentService = agentService;
     }
 
     @Override
-    public Optional<String> call() {
+    Optional<String> execute() {
         Optional<AgentInstance> anyRegisteredAgentInstance = findAnyRegisteredAgentInstance();
-        anyRegisteredAgentInstance.map(instance1 -> instance1.getAgent().getUuid()).ifPresent(this::updateAgentDetails);
+        anyRegisteredAgentInstance.map(instance -> instance.getAgent().getUuid()).ifPresent(this::updateAgentDetails);
         return anyRegisteredAgentInstance.map(instance -> instance.getAgent().getUuid());
     }
 

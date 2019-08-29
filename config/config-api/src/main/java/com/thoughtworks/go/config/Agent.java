@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
+import static com.thoughtworks.go.config.JobConfig.RESOURCES;
 import static com.thoughtworks.go.util.CommaSeparatedString.remove;
 import static com.thoughtworks.go.util.CommaSeparatedString.*;
 import static com.thoughtworks.go.util.SystemUtil.isLocalhost;
@@ -131,7 +132,7 @@ public class Agent extends PersistentObject {
     private void validateResources() {
         ResourceConfigs resourceConfigs = new ResourceConfigs(getResources());
         if (isElastic() && !resourceConfigs.isEmpty()) {
-            errors.add("elasticAgentId", "Elastic agents cannot have resources.");
+            errors.add(RESOURCES, "Elastic agents cannot have resources.");
             return;
         }
 

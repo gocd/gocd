@@ -24,13 +24,13 @@ import java.util.UUID;
 
 import static com.thoughtworks.go.util.TriState.UNSET;
 
-public class UpdateAgentHostCommandAgent extends AgentPerformanceCommand {
-    public UpdateAgentHostCommandAgent(AgentService agentService){
+public class UpdateAgentHostCommand extends AgentPerformanceCommand {
+    public UpdateAgentHostCommand(AgentService agentService){
         this.agentService = agentService;
     }
 
     @Override
-    public Optional<String> call() {
+    Optional<String> execute() {
         Optional<AgentInstance> anyRegisteredAgentInstance = findAnyRegisteredAgentInstance();
         anyRegisteredAgentInstance.map(instance -> instance.getAgent().getUuid()).ifPresent(this::updateHostname);
         return anyRegisteredAgentInstance.map(instance -> instance.getAgent().getUuid());

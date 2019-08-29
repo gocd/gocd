@@ -28,12 +28,12 @@ import static com.thoughtworks.go.util.TriState.UNSET;
 public class UpdateAgentEnvironmentsCommand extends AgentPerformanceCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(UpdateAgentEnvironmentsCommand.class);
 
-    public UpdateAgentEnvironmentsCommand(AgentService agentService){
+    public UpdateAgentEnvironmentsCommand(AgentService agentService) {
         this.agentService = agentService;
     }
 
     @Override
-    public Optional<String> call() {
+    Optional<String> execute() {
         Optional<AgentInstance> anyRegisteredAgentInstance = findAnyRegisteredAgentInstance();
         anyRegisteredAgentInstance.map(instance -> instance.getAgent().getUuid()).ifPresent(this::updateAgentEnvironment);
         return anyRegisteredAgentInstance.map(instance -> instance.getAgent().getUuid());

@@ -29,7 +29,7 @@ public class UpdateAgentResourcesCommand extends AgentPerformanceCommand {
     }
 
     @Override
-    public Optional<String> call() {
+    Optional<String> execute() {
         Optional<AgentInstance> anyRegisteredAgentInstance = findAnyRegisteredAgentInstance();
         anyRegisteredAgentInstance.map(instance -> instance.getAgent().getUuid()).ifPresent(id -> agentService.updateAgentAttributes(id, null, "r1,r2,r3", null, UNSET));
         return anyRegisteredAgentInstance.map(instance -> instance.getAgent().getUuid());

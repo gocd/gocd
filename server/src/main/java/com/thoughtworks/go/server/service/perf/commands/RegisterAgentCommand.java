@@ -31,7 +31,7 @@ public class RegisterAgentCommand extends AgentPerformanceCommand {
     }
 
     @Override
-    public Optional<String> call() {
+    Optional<String> execute() {
         return registerAgent();
     }
 

@@ -50,7 +50,7 @@ FunctionEnd
 Function "PostInstall"
   ; Add to "Start menu"
   CreateDirectory "$SMPROGRAMS\Go ${COMPONENT_NAME}"
-  CreateShortCut "$SMPROGRAMS\Go Agent\Run Go Agent.lnk" "$INSTDIR\bin\go-agent.bat"
+  CreateShortCut "$SMPROGRAMS\Go ${COMPONENT_NAME}\Run Go Agent.lnk" "$INSTDIR\bin\go-agent.bat"
 
   Call MaybeCreateDefaultWrapperProperties
 

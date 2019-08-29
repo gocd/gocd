@@ -17,8 +17,13 @@ Function "un.PostUninstall"
   RMDir /r "$INSTDIR\logs"
   RMDir /r "$INSTDIR\run"
   RMDir /r "$INSTDIR\tanuki"
+  RMDir /r "$INSTDIR\wrapper"
   RMDir /r "$INSTDIR\tmp"
   RMDir /r "$INSTDIR\work"
+  RMDir /r "$INSTDIR\plugins_work"
+  RMDir /r "$INSTDIR\felix-cache"
+  Delete "$INSTDIR\gocd.ico"
+  Delete "$INSTDIR\cruise.war"
 FunctionEnd
 
 Function "BeforeUpgrade"

@@ -30,7 +30,7 @@
       <link href="${css}" media="screen" rel="stylesheet"/>
   </#list>
 
-  <#list webpackAssetsService.getJSAssetPathsFor("single_page_apps/polyfill", "single_page_apps/${controllerName}") as js>
+  <#list webpackAssetsService.getJSAssetPathsFor("single_page_apps/global", "single_page_apps/polyfill", "single_page_apps/${controllerName}") as js>
       <script src="${js}"></script>
   </#list>
 

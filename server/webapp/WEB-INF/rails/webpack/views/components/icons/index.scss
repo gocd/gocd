@@ -51,6 +51,10 @@ $btn-group-border-radius: $global-border-radius;
   }
 }
 
+.enabled {
+  cursor: pointer;
+}
+
 .settings {
   @include icon-before($type: $fa-var-cog);
 }

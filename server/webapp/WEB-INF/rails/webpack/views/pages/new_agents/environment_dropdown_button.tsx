@@ -20,6 +20,7 @@ import Stream from "mithril/stream";
 import {Agent, Agents} from "models/new_agent/agents";
 import {DropdownAttrs, Primary} from "views/components/buttons";
 import {TriStateCheckboxField} from "views/components/forms/input_fields";
+import Style from "views/pages/new_agents/index.scss";
 import {AbstractDropdownButton} from "./resources_dropdown_button";
 
 interface EnvAttrs extends DropdownAttrs {
@@ -51,7 +52,10 @@ export class EnvironmentsDropdownButton extends AbstractDropdownButton<EnvAttrs>
       Array.from(this.triStateCheckboxMap).map(([environment, triStateCheckbox]) => {
         return <TriStateCheckboxField label={environment} property={Stream(triStateCheckbox)}/>;
       }),
-      <Primary data-test-id="environment-to-apply" onclick={this.apply.bind(this, vnode)}>Apply</Primary>
+      <div class={Style.dropdownContentFooter}>
+        <Primary data-test-id="environment-to-apply"
+                 onclick={this.apply.bind(this, vnode)}>Apply</Primary>
+      </div>
     ];
   }
 

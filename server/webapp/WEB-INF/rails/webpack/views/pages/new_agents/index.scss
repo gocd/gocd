@@ -150,6 +150,24 @@ $icon-hover-color:       #000;
   right:           0;
   display:         flex;
   justify-content: center;
+  flex-direction:  column;
+
+  li {
+    margin-bottom: 10px;
+    border-bottom: 1px dotted $border-color;
+
+    div {
+      margin-bottom: 0;
+    }
+  }
+}
+
+.dropdown-content-footer {
+  align-self: flex-start;
+}
+
+.quick-add li {
+  border-bottom: none;
 }
 
 .agent-analytics a {

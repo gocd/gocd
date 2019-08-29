@@ -140,9 +140,14 @@ export class ResourcesDropdownButton extends AbstractDropdownButton<ResourcesAtt
       Array.from(this.triStateCheckboxMap).map(([resource, triStateCheckbox]) => {
         return <TriStateCheckboxField label={resource} property={Stream(triStateCheckbox)}/>;
       }),
-      <QuickAddField dataTestId={"resource-to-add"} property={this.newResource} buttonDisableReason=""
-                     onclick={this.addNewResource.bind(this)}/>,
-      <Primary data-test-id="resources-to-apply" onclick={this.apply.bind(this, vnode)}>Apply</Primary>
+      <div class={Style.quickAdd}>
+        <QuickAddField dataTestId={"resource-to-add"} property={this.newResource}
+                       buttonDisableReason=""
+                       onclick={this.addNewResource.bind(this)}/>
+      </div>,
+      <div class={Style.dropdownContentFooter}>
+        <Primary data-test-id="resources-to-apply" onclick={this.apply.bind(this, vnode)}>Apply</Primary>
+      </div>
     ];
   }
 

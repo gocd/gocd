@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import fsExtra from "fs-extra";
 import _ from "lodash";
 import path from "path";
 import webpack from "webpack";
@@ -53,10 +52,6 @@ function configuration(env: any, argv: any): webpack.Configuration {
   argv = _.assign({}, argv);
 
   const configOptions = getConfigOptions(argv, env);
-
-  if (configOptions.production) {
-    fsExtra.removeSync(configOptions.outputDir);
-  }
 
   const optimization: webpack.Options.Optimization = {
     splitChunks: {

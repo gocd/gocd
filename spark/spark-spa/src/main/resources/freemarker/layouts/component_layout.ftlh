@@ -26,11 +26,11 @@
   <title>${viewTitle} - Go</title>
 
   <link rel="shortcut icon" href="/go/${railsAssetsService.getAssetPath('cruise.ico')}"/>
-  <#list webpackAssetsService.getCSSAssetPathsFor("single_page_apps/${controllerName}") as css>
+  <#list webpackAssetsService.getCSSAssetPathsFor("single_page_apps/global", "single_page_apps/${controllerName}") as css>
       <link href="${css}" media="screen" rel="stylesheet"/>
   </#list>
 
-  <#list webpackAssetsService.getJSAssetPathsFor("single_page_apps/hax-for-css", "single_page_apps/polyfill", "single_page_apps/${controllerName}") as js>
+  <#list webpackAssetsService.getJSAssetPathsFor("single_page_apps/polyfill", "single_page_apps/${controllerName}") as js>
       <script src="${js}"></script>
   </#list>
 

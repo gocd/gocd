@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-// this loads up global css.
+// this is a "noop" entrypoint, that simply loads up global css.
 // including global css in 'spa_base' caused older rails/vm pages to include global css causing rendering bugs.
 // spa_base, in case you're curious is required for the header/footer components in old pages.
-import css from "./hax-for-css.scss";
+import css from "./global.scss";
 
 css.toString();

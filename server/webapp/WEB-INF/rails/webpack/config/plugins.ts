@@ -24,6 +24,7 @@ import path from "path";
 import webpack from "webpack";
 import {ConfigOptions, getEntries} from "./variables";
 import {LicensePlugins} from "./webpack-license-plugin";
+import {CleanWebpackPlugin} from "clean-webpack-plugin";
 
 const jasmineCore                = require("jasmine-core");
 const StatsPlugin                = require("stats-webpack-plugin");
@@ -33,6 +34,7 @@ const WebpackBuildNotifierPlugin = require("webpack-build-notifier");
 
 export function plugins(configOptions: ConfigOptions): webpack.Plugin[] {
   const plugins = [
+    new CleanWebpackPlugin(),
     new UnusedFilesWebpackPlugin({
                                    patterns: ["webpack/**/*.*", "spec/webpack/**/*.*"],
                                    globOptions: {
@@ -65,6 +67,7 @@ export function plugins(configOptions: ConfigOptions): webpack.Plugin[] {
                                             // both options are optional
                                             filename: "[name]-[hash].css",
                                             chunkFilename: "[id]-[hash].css",
+                                            ignoreOrder: true
                                           }));
     plugins.push(new OptimizeCssAssetsPlugin());
   } else {

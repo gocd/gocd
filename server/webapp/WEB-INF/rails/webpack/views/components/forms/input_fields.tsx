@@ -572,7 +572,7 @@ export class TriStateCheckboxField extends FormField<TriStateCheckbox> {
   }
 }
 
-export interface RadioData {
+interface RadioData {
   label: string;
   value: string;
   helpText?: string;
@@ -618,8 +618,8 @@ export class RadioField extends MithrilViewComponent<RadioButtonAttrs> {
       result.push(
         <li className={styles.radioField}>
             <input type="radio"
-                   class={styles.formRadioInput}
                    id={radioButtonId}
+                   checked={radioData.value === vnode.attrs.property()}
                    name={this.id} onchange={() => vnode.attrs.property(radioData.value)}/>
             <label for={radioButtonId} className={styles.radioLabel}
                    data-test-id="form-field-label">{radioData.label}</label>

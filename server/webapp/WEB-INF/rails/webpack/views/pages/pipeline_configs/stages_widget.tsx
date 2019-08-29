@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+//todo: Include types for shopify/draggable once available, watch out for PR: https://github.com/Shopify/draggable/pull/115
+//@ts-ignore
+import Sortable from "@shopify/draggable/lib/es5/sortable";
 import {MithrilComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
@@ -30,6 +33,7 @@ interface StageBoxState {
 
 interface StageBoxAttrs {
   stage: StageConfig;
+  isLastVisibleStage: Stream<boolean>;
 }
 
 export class StageBoxWidget extends MithrilComponent<StageBoxAttrs, StageBoxState> {
@@ -41,19 +45,27 @@ export class StageBoxWidget extends MithrilComponent<StageBoxAttrs, StageBoxStat
   }
 
   view(vnode: m.Vnode<StageBoxAttrs, StageBoxState>) {
-    return <div class={styles.stageBox}>
-      <div class={styles.stageNameHeader} data-test-id={`stage-header-for-${vnode.attrs.stage.name()}`}>
-        <span>{vnode.attrs.stage.name()}</span>
-        <div class={styles.stageSettingsIconWrapper}>
-          <Icons.Settings iconOnly={true} onclick={vnode.state.onStageSettingsClick}/>
+    const triggerNextStageIcon = vnode.attrs.isLastVisibleStage()
+      ? undefined
+      : <div className={styles.forwardIconWrapper}><Icons.Forward iconOnly={true}/></div>;
+
+    return <div class={`${styles.stageWithManualApprovalContainer} stage-box`}>
+      <div data-test-id="stage-box" className={styles.stageBox}>
+        <div className={styles.stageNameHeader} data-test-id={`stage-header-for-${vnode.attrs.stage.name()}`}>
+          <i className={`icon_drag_stage ${styles.iconDrag}`}/>
+          <span className={styles.stageName}>{vnode.attrs.stage.name()}</span>
+          <div className={styles.stageSettingsIconWrapper}>
+            <Icons.Settings iconOnly={true} onclick={vnode.state.onStageSettingsClick}/>
+          </div>
+        </div>
+        <div className={styles.stageContent} data-test-id={`stage-body-for-${vnode.attrs.stage.name()}`}>
+          {"Body for stage: " + vnode.attrs.stage.name()}
+        </div>
+        <div className={styles.stageBtnGroup} data-test-id={`stage-btn-group-for-${vnode.attrs.stage.name()}`}>
+          <Secondary small={true}>Add Job</Secondary>
         </div>
       </div>
-      <div class={styles.stageContent} data-test-id={`stage-body-for-${vnode.attrs.stage.name()}`}>
-        {"this is some text! ".repeat(Math.round(Math.random() * 30))}
-      </div>
-      <div class={styles.stageBtnGroup} data-test-id={`stage-btn-group-for-${vnode.attrs.stage.name()}`}>
-        <Secondary small={true}>Add Job</Secondary>
-      </div>
+      {triggerNextStageIcon}
     </div>;
   }
 }
@@ -73,7 +85,12 @@ interface Attrs {
 
 export class StagesWidget extends MithrilComponent<Attrs, State> {
   oninit(vnode: m.Vnode<Attrs, State>) {
-    vnode.state.visibleStagesCount     = Stream(5);
+    const totalWindow: number       = document.body.clientWidth;
+    const marginPaddings: number    = 300;
+    const eachStageBoxWidth: number = 280;
+    const numberOfStages            = Math.floor((totalWindow - marginPaddings) / eachStageBoxWidth);
+
+    vnode.state.visibleStagesCount     = Stream(numberOfStages > 0 ? numberOfStages : 1);
     vnode.state.firstVisibleStageIndex = Stream(0);
 
     vnode.state.canMoveToLeft = () => {
@@ -98,6 +115,23 @@ export class StagesWidget extends MithrilComponent<Attrs, State> {
     };
   }
 
+  oncreate(vnode: m.Vnode<Attrs, State>) {
+    const sortable = new Sortable(document.querySelectorAll(".stages-container"), {
+      draggable: ".stage-box",
+      handle: ".icon_drag_stage",
+    });
+
+    sortable.on("sortable:sorted", (event: any) => {
+      const stageToReorder = event.data.oldIndex;
+      const whereToPlace   = event.data.newIndex;
+      const stages         = vnode.attrs.stages();
+      stages.splice(whereToPlace, 0, stages.splice(stageToReorder, 1)[0]);
+      vnode.attrs.stages(stages);
+    });
+
+    sortable.on("sortable:stop", m.redraw);
+  }
+
   view(vnode: m.Vnode<Attrs, State>) {
     const firstVisibleStageIndex = vnode.state.firstVisibleStageIndex();
     const visibleStagesCount     = vnode.state.visibleStagesCount();
@@ -107,14 +141,13 @@ export class StagesWidget extends MithrilComponent<Attrs, State> {
       <CollapsiblePanel header={<div>Stages</div>} expanded={true}>
         <div class={styles.stagesBody}>
           <div onclick={vnode.state.moveStageToLeft} className={styles.moveStageToLeftRight}>{"<"}</div>
-          <div className={styles.stagesContainer}>
+          <div className={`stages-container ${styles.stagesContainer}`}>
             {
-              stagesToRender.map((stage: StageConfig, index) => [
-                <StageBoxWidget stage={stage}/>,
-                stagesToRender.length - 1 !== index
-                  ? <div className={styles.forwardIconWrapper}><Icons.Forward iconOnly={true}/></div>
-                  : undefined
-              ])
+              stagesToRender.map((stage: StageConfig, index) => {
+                return <StageBoxWidget stage={stage}
+                                       key={stage.name() + index}
+                                       isLastVisibleStage={Stream(stagesToRender.length - 1 === index)}/>;
+              })
             }
           </div>
           <div onclick={vnode.state.moveStageToRight} className={styles.moveStageToLeftRight}>{">"}</div>

@@ -27,10 +27,10 @@ interface Attrs {
   pipelineConfig: PipelineConfig;
 }
 
+const stages = Array.apply(null, Array(10)).map((x, i) => new StageConfig('Stage' + (i + 1)));
+
 export class PipelineConfigCreateWidget extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
-    const stages = Array.apply(null, Array(10)).map((x, i) => new StageConfig('Stage' + (i + 1)));
-
     //todo: @Viraj and @Vrushali will move the pipeline settings element into a different component of its own
     return <div>
       <div className={styles.pipelineDetailsContainer} data-test-id="pipeline-details-container">

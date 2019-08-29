@@ -13,12 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {bind} from "classnames/bind";
+import classnames from "classnames";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import styles from "./forms.scss";
-
-const classnames = bind(styles);
 
 interface Attrs {
   dataTestId?: string;
@@ -38,9 +36,9 @@ function dataTestIdAttrs(attrs: Attrs) {
 
 export class Form extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
-    return <ul class={classnames(styles.form, (vnode.attrs.compactForm ? styles.formCompact : styles.formResponsive), {[styles.last]: vnode.attrs.last})} {...dataTestIdAttrs(vnode.attrs)}>
+    return <div class={classnames(styles.form, (vnode.attrs.compactForm ? styles.formCompact : styles.formResponsive), {[styles.last]: vnode.attrs.last})} {...dataTestIdAttrs(vnode.attrs)}>
       {vnode.children}
-    </ul>;
+    </div>;
   }
 }
 

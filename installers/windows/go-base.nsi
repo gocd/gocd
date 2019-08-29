@@ -1,7 +1,7 @@
-SetCompress off
+#SetCompress off
 
-; SetCompressor /SOLID lzma
-; SetCompress auto
+SetCompressor /SOLID /FINAL lzma
+SetCompress auto
 
 !ifndef COMPONENT_NAME
   !error "COMPONENT_NAME not defined (Agent or Server)!"

@@ -148,6 +148,7 @@ Function ".onInit"
   ${Else}
     ${LogText} "Performing install (not upgrade)"
   ${EndIf}
+  ${LogSet} off
 FunctionEnd
 
 ; This section (being the first one, not because it's called Install) will be executed after the `.onInit` callback
@@ -156,6 +157,7 @@ Section "Install"
 
   SetOverWrite on
   SetOutPath $INSTDIR
+  ${LogSet} on
 
   ${If} $IsUpgrading == "true"
     ${LogText} "Performing an upgrade"

@@ -15,6 +15,7 @@
  */
 
 // utils
+import {override} from "helpers/css_proxies";
 import {queryParamAsString} from "helpers/url";
 import m from "mithril";
 import Stream from "mithril/stream";
@@ -24,12 +25,21 @@ import {Material, MaterialAttributes} from "models/materials/types";
 import {PipelineConfigVM} from "views/pages/pipelines/pipeline_config_view_model";
 
 // components
+import {MaterialCheck} from "views/components/config_repos/material_check.tsx";
+import {CheckboxField} from "views/components/forms/input_fields";
 import {BuilderForm} from "views/pages/pac/builder_form";
 import {DownloadAction} from "views/pages/pac/download_action";
 import {PreviewPane} from "views/pages/pac/preview_pane";
+import css from "views/pages/pac/styles.scss";
 import {Page, PageState} from "views/pages/page";
 import {FillableSection} from "views/pages/pipelines/fillable_section";
+import fillableCss from "views/pages/pipelines/fillable_section.scss";
 import {MaterialEditor} from "views/pages/pipelines/material_editor";
+import {UserInputPane} from "views/pages/pipelines/user_input_pane";
+
+const altFillStyles = override(fillableCss, {
+  fillable: [fillableCss.fillable, css.withSpanningHeading].join(" ")
+});
 
 export class PipelinesAsCodeCreatePage extends Page {
   private model = new PipelineConfigVM();
@@ -80,17 +90,32 @@ export class PipelinesAsCodeCreatePage extends Page {
         <PreviewPane content={this.content} mimeType={this.mimeType}/>
       </FillableSection>,
 
-      <FillableSection>
+      <FillableSection css={altFillStyles}>
+        <h3 class={css.subheading}>Add Your Pipelines as Code Definition to Your SCM Repository</h3>
         <div>Download this as a file and put it in your repo (I need some proper copy here).</div>
 
         <DownloadAction vm={vm}/>
       </FillableSection>,
 
       <FillableSection>
-        <div>
-          <span>Use the 'Check Material' button to verify that the configuration file is corretly placed</span>
+        <UserInputPane heading="Register Your Pipelines as Code Repo with GoCD">
+          <CheckboxField
+            property={syncConfigRepoWithMaterial}
+            label={<span>Use the same SCM repository from the form above to store my <strong>Pipelines as Code</strong> definitions <em class={css.hint}>(suitable for most setups)</em></span>}
+            readonly={!isSupportedScm}
+            onchange={() => {
+              if (syncConfigRepoWithMaterial()) {
+                this.material(cloneMaterialForPaC(vm.material));
+              }
+            }}
+          />
 
           <MaterialEditor material={this.material()} hideTestConnection={syncConfigRepoWithMaterial()} scmOnly={true} showLocalWorkingCopyOptions={false} disabled={syncConfigRepoWithMaterial()}/>
+        </UserInputPane>
+        <div class={css.verifyDefsInMaterial}>
+          <MaterialCheck material={this.material()} align="right" prerequisite={() => this.material().isValid()} label={
+            <p class={css.msg}>Click the button to verify that the configuration file is placed correctly in the repository</p>
+          }/>
         </div>
       </FillableSection>
     ];

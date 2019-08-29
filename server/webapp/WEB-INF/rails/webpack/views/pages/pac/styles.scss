@@ -35,6 +35,38 @@ $syntax-bg: #282923;
   }
 }
 
+.with-spanning-heading {
+  flex-wrap: wrap;
+
+  .subheading {
+    flex: none;
+
+    font-size: 24px;
+    font-weight: 600;
+
+    margin: 0 0 10px;
+    padding: 0;
+  }
+}
+
+.verify-defs-in-material {
+  padding:      0;
+  padding-top:  30px;
+  padding-left: 15px;
+  flex-basis:   50%;
+  border-left:  1px solid $line-color;
+
+  .msg {
+    float:     left;
+    margin:    0;
+    max-width: 75%;
+  }
+}
+
 .download-action {
   white-space: nowrap;
+}
+
+.hint {
+  color: lighten($text-color, 45%);
 }

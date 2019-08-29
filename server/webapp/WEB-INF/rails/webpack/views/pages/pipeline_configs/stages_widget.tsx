@@ -14,25 +14,39 @@
  * limitations under the License.
  */
 
-import {MithrilComponent, MithrilViewComponent} from "jsx/mithril-component";
+import {MithrilComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {StageConfig} from "models/new_pipeline_configs/stage_configuration";
 import {Secondary} from "views/components/buttons";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import * as Icons from "views/components/icons/index";
+import {StageSettingsModal} from "views/pages/pipeline_configs/stages/settings/stage_settings_modal";
 import styles from "./stages.scss";
+
+interface StageBoxState {
+  onStageSettingsClick: (e: MouseEvent) => void;
+}
 
 interface StageBoxAttrs {
   stage: StageConfig;
 }
 
-export class StageBoxWidget extends MithrilViewComponent<StageBoxAttrs> {
-  view(vnode: m.Vnode<StageBoxAttrs>) {
+export class StageBoxWidget extends MithrilComponent<StageBoxAttrs, StageBoxState> {
+  oninit(vnode: m.Vnode<StageBoxAttrs, StageBoxState>) {
+    vnode.state.onStageSettingsClick = (e: MouseEvent) => {
+      e.stopPropagation();
+      new StageSettingsModal(Stream(vnode.attrs.stage)).render();
+    };
+  }
+
+  view(vnode: m.Vnode<StageBoxAttrs, StageBoxState>) {
     return <div class={styles.stageBox}>
       <div class={styles.stageNameHeader} data-test-id={`stage-header-for-${vnode.attrs.stage.name()}`}>
         <span>{vnode.attrs.stage.name()}</span>
-        <div class={styles.stageSettingsIconWrapper}><Icons.Settings iconOnly={true}/></div>
+        <div class={styles.stageSettingsIconWrapper}>
+          <Icons.Settings iconOnly={true} onclick={vnode.state.onStageSettingsClick}/>
+        </div>
       </div>
       <div class={styles.stageContent} data-test-id={`stage-body-for-${vnode.attrs.stage.name()}`}>
         {"this is some text! ".repeat(Math.round(Math.random() * 30))}

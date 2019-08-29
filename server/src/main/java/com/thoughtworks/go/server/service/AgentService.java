@@ -377,6 +377,10 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         }
     }
 
+    public Agent fetchAgentFromDBByUUID(String uuid){
+        return agentDao.fetchAgentFromDBByUUID(uuid);
+    }
+
     private void notifyAgentChangeListenersAndSyncAgentFromUpdatedAgent(Agent agentAfterUpdate, AgentInstance agentInstanceBeforeUpdate) {
         notifyAgentChangeListeners(agentAfterUpdate);
         agentInstanceBeforeUpdate.syncAgentFrom(agentAfterUpdate);
@@ -557,7 +561,6 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
                                            List<String> resourcesToAdd, List<String> resourcesToRemove, EnvironmentConfigService environmentConfigService) {
         addOnlyThoseEnvsThatAreNotAssociatedWithAgentFromConfigRepo(envsToAdd, agent, environmentConfigService);
         agent.removeEnvironments(envsToRemove);
-
         agent.addResources(resourcesToAdd);
         agent.removeResources(resourcesToRemove);
     }

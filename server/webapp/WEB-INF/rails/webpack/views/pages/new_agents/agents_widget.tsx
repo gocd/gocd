@@ -17,14 +17,14 @@
 import {ApiResult} from "helpers/api_request_builder";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
-import {Agents} from "models/new_agent/agents";
+import {AgentsVM} from "models/new_agent/agents_vm";
 import {FlashMessageModelWithTimeout} from "views/components/flash_message";
 import {Tabs} from "views/components/tab";
 import {RequiresPluginInfos} from "views/pages/page_operations";
 import {StaticAgentsWidget} from "./static_agents_widget";
 
 interface AgentsWidgetAttrs extends RequiresPluginInfos {
-  agents: Agents;
+  agentsVM: AgentsVM;
   onEnable: (e: MouseEvent) => void;
   onDisable: (e: MouseEvent) => void;
   onDelete: (e: MouseEvent) => void;
@@ -38,7 +38,7 @@ interface AgentsWidgetAttrs extends RequiresPluginInfos {
 export class AgentsWidget extends MithrilViewComponent<AgentsWidgetAttrs> {
   view(vnode: m.Vnode<AgentsWidgetAttrs>) {
     return <Tabs tabs={["Static", "Elastic"]} contents={[
-      <StaticAgentsWidget agents={vnode.attrs.agents}
+      <StaticAgentsWidget agentsVM={vnode.attrs.agentsVM}
                           onEnable={vnode.attrs.onEnable}
                           onDisable={vnode.attrs.onDisable}
                           onDelete={vnode.attrs.onDelete}

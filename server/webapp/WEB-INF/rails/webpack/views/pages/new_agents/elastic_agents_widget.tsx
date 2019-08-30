@@ -60,7 +60,7 @@ export class ElasticAgentsWidget extends MithrilViewComponent<AgentsWidgetAttrs>
     return <div class={style.agentsTable} onclick={ElasticAgentsWidget.hideBuildDetails.bind(this, vnode.attrs.agents)}>
       <Table data={tableData}
              headers={["Agent Name", "Sandbox", "OS", "IP Address", "Status", "Free Space", "Environments"]}
-             sortHandler={vnode.attrs.agents.elasticAgents()}/>
+             sortHandler={vnode.attrs.agents}/>
     </div>;
   }
 

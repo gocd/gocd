@@ -17,8 +17,9 @@
 import {ApiResult} from "helpers/api_request_builder";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {Agent, Agents} from "models/new_agent/agents";
+import {Agent} from "models/new_agent/agents";
 import {GetAllService} from "models/new_agent/agents_crud";
+import {AgentsVM} from "models/new_agent/agents_vm";
 import {TriStateCheckbox, TristateState} from "models/tri_state_checkbox";
 import {Dropdown, DropdownAttrs, Primary} from "views/components/buttons";
 import * as Buttons from "views/components/buttons";
@@ -30,6 +31,7 @@ import spinnerCss from "./spinner.scss";
 
 export interface DropdownAttrs {
   service: GetAllService;
+  agentsVM: AgentsVM;
   flashMessage: FlashMessageModelWithTimeout;
 }
 
@@ -97,16 +99,24 @@ export abstract class AbstractDropdownButton<V extends DropdownAttrs> extends Dr
   protected buildTriStateCheckBox(vnode: m.Vnode<DropdownAttrs & V>) {
     this.triStateCheckboxMap.clear();
     this.data().map((item) => {
-      const selectedAgents                 = vnode.attrs.agents.getSelectedAgents();
-      const numberOfAgentsWithSpecifiedEnv = selectedAgents.reduce((count: number, agent: Agent) => {
-        if (this.hasAssociationWith(agent, item)) {
+      const numberOfAgentsWithSpecifiedEnv = vnode.attrs.agentsVM.list().reduce((count: number, agent: Agent) => {
+        if (vnode.attrs.agentsVM.isAgentSelected(agent.uuid) && this.hasAssociationWith(agent, item)) {
           count += 1;
         }
         return count;
       }, 0);
 
-      const state = numberOfAgentsWithSpecifiedEnv === selectedAgents.length ? TristateState.on : numberOfAgentsWithSpecifiedEnv === 0 ? TristateState.off : TristateState.indeterminate;
-      this.triStateCheckboxMap.set(item, new TriStateCheckbox(state));
+      switch (numberOfAgentsWithSpecifiedEnv) {
+        case 0:
+          this.triStateCheckboxMap.set(item, new TriStateCheckbox(TristateState.off));
+          break;
+        case vnode.attrs.agentsVM.selectedAgentsUUID().length:
+          this.triStateCheckboxMap.set(item, new TriStateCheckbox(TristateState.on));
+          break;
+        default:
+          this.triStateCheckboxMap.set(item, new TriStateCheckbox(TristateState.indeterminate));
+          break;
+      }
     });
   }
 
@@ -114,7 +124,6 @@ export abstract class AbstractDropdownButton<V extends DropdownAttrs> extends Dr
 }
 
 interface ResourcesAttrs extends DropdownAttrs {
-  agents: Agents;
   updateResources: (resourcesToAdd: string[], resourcesToRemove: string[]) => Promise<ApiResult<string>>;
 }
 
@@ -128,9 +137,9 @@ export class ResourcesDropdownButton extends AbstractDropdownButton<ResourcesAtt
   protected doRenderButton(vnode: m.Vnode<DropdownAttrs & ResourcesAttrs>) {
     return <Buttons.Primary data-test-id="modify-resources-association"
                             dropdown={true}
-                            disabled={vnode.attrs.agents.isNoneSelected()}
+                            disabled={vnode.attrs.agentsVM.selectedAgentsUUID().length === 0}
                             onclick={(e) => {
-                              vnode.attrs.agents.showEnvironments(false);
+                              vnode.attrs.agentsVM.showEnvironments(false);
                               this.toggleDropdown(vnode, e);
                             }}>RESOURCES</Buttons.Primary>;
   }

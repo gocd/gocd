@@ -16,9 +16,7 @@
 
 import _ from "lodash";
 import Stream from "mithril/stream";
-import {AgentComparator, SortOrder} from "models/new_agent/agent_comparator";
 import {AgentJSON, AgentsJSON, BuildDetailsJSON} from "models/new_agent/agents_json";
-import {TableSortHandler} from "views/components/table";
 
 const filesize = require("filesize");
 
@@ -141,22 +139,6 @@ export class Agent {
                      data.elastic_plugin_id);
   }
 
-  hasFilterText(filterText: string): boolean {
-    if (!filterText || filterText.trim().length === 0) {
-      return true;
-    }
-
-    const lowerCaseFilterText = filterText.toLowerCase();
-    return _.includes(this.getOrEmpty(this.hostname), lowerCaseFilterText) ||
-      _.includes(this.getOrEmpty(this.sandbox), lowerCaseFilterText) ||
-      _.includes(this.getOrEmpty(this.operatingSystem), lowerCaseFilterText) ||
-      _.includes(this.getOrEmpty(this.ipAddress), lowerCaseFilterText) ||
-      _.includes(this.getOrEmpty(this.freeSpace), lowerCaseFilterText) ||
-      _.includes(this.getOrEmpty(this.status()), lowerCaseFilterText) ||
-      _.includes(this.getOrEmpty(this.resources.join(", ")), lowerCaseFilterText) ||
-      _.includes(this.getOrEmpty(this.environmentNames().join(", ")), lowerCaseFilterText);
-  }
-
   readableFreeSpace() {
     try {
       if (_.isNumber(this.freeSpace)) {
@@ -203,119 +185,22 @@ export class Agent {
   isElastic() {
     return this.elasticPluginId && this.elasticAgentId;
   }
-
-  private getOrEmpty(str: string | number) {
-    return str ? str.toString().toLowerCase() : "";
-  }
 }
 
-export class Agents implements TableSortHandler {
-  public readonly filterText: Stream<string>           = Stream("");
-  public readonly buildDetailsForAgent: Stream<string> = Stream();
-  public readonly showEnvironments: Stream<boolean>    = Stream();
-  public readonly showResources: Stream<boolean>       = Stream();
-  private sortOnColumn: number;
-  private sortOrder: SortOrder;
-  private agentList: Agent[];
-
-  constructor(agentsList: Agent[]) {
-    this.agentList    = agentsList;
-    this.sortOrder    = SortOrder.ASC;
-    this.sortOnColumn = this.getSortableColumns()[0] - 1;
-    this.sort();
+export class Agents extends Array<Agent> {
+  constructor(...agents: Agent[]) {
+    super(...agents);
+    Object.setPrototypeOf(this, Object.create(Agents.prototype));
   }
 
   static fromJSON(data: AgentsJSON): Agents {
     const agents: Agent[] = data._embedded.agents.map((json: AgentJSON) => {
       return Agent.fromJSON(json);
     });
-
-    return new Agents(agents);
+    return new Agents(...agents);
   }
 
-  initializeWith(newAgents: Agents) {
-    newAgents.agentList.forEach((agent) => {
-      const existingAgent = this.find(agent.uuid);
-      if (existingAgent) {
-        agent.selected(existingAgent.selected());
-      }
-    });
-
-    this.agentList = newAgents.agentList;
-    this.sort();
-  }
-
-  areAllFilteredAgentsSelected(): boolean {
-    return this.list().every((agent: Agent) => agent.selected());
-  }
-
-  isNoneSelected(): boolean {
-    return !this.list().some((agent: Agent) => agent.selected());
-  }
-
-  toggleFilteredAgentsSelection(): void {
-    if (this.areAllFilteredAgentsSelected()) {
-      this.list().forEach((agent: Agent) => agent.selected(false));
-    } else {
-      this.list().forEach((agent: Agent) => agent.selected(true));
-    }
-  }
-
-  getSortableColumns(): number[] {
-    return [1, 2, 3, 4, 5, 6, 7, 8];
-  }
-
-  onColumnClick(columnIndex: number): void {
-    if (this.sortOnColumn === columnIndex - 1) {
-      this.sortOrder = this.sortOrder === SortOrder.ASC ? SortOrder.DESC : SortOrder.ASC;
-    } else {
-      this.sortOrder    = SortOrder.ASC;
-      this.sortOnColumn = columnIndex - 1;
-    }
-
-    this.sort();
-  }
-
-  count(): number {
-    return this.list().length;
-  }
-
-  list(): Agent[] {
-    return this.agentList.filter((agent: Agent) => agent.hasFilterText(this.filterText()));
-  }
-
-  isKnownAgent(uuid: string): boolean {
-    return this.agentList.findIndex((agent) => agent.uuid === uuid) > -1;
-  }
-
-  find(uuid: string): Agent | undefined {
-    return this.agentList.find((agent) => agent.uuid === uuid);
-  }
-
-  filterBy(agentConfigState: AgentConfigState) {
-    return this.list().filter((agent) => agent.agentConfigState === agentConfigState);
-  }
-
-  getSelectedAgentsUUID(): string[] {
-    return this.list().filter((agent) => agent.selected())
-               .map((agent) => agent.uuid);
-  }
-
-  getSelectedAgents(): Agent[] {
-    return this.list().filter((agent) => agent.selected());
-  }
-
-  unselectAll() {
-    this.list().forEach((agent) => agent.selected(false));
-  }
-
-  private getSortableColumnsAssociates(): string[] {
-    return ["hostname", "sandbox", "operatingSystem", "ipAddress", "agentState", "freeSpace", "resources", "environments"];
-  }
-
-  private sort() {
-    const columnName = this.getSortableColumnsAssociates()[this.sortOnColumn];
-    const comparator = new AgentComparator(columnName, this.sortOrder);
-    this.agentList.sort(comparator.compare.bind(comparator));
+  hasAgent(uuid: string) {
+    return this.findIndex((agent) => agent.uuid === uuid) > -1;
   }
 }

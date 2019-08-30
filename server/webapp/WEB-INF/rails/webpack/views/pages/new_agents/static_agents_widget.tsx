@@ -19,17 +19,13 @@ import {ApiResult} from "helpers/api_request_builder";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
-import {
-  Agent,
-  AgentConfigState,
-  Agents,
-} from "models/new_agent/agents";
+import {Agent, AgentConfigState} from "models/new_agent/agents";
+import {AgentsVM} from "models/new_agent/agents_vm";
 import {AnalyticsCapability} from "models/shared/plugin_infos_new/analytics_plugin_capabilities";
 import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
 import {AnalyticsExtension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {FlashMessage, FlashMessageModelWithTimeout} from "views/components/flash_message";
-import {CheckboxField} from "views/components/forms/input_fields";
 import {Table} from "views/components/table";
 import {AgentAnalyticsWidget} from "views/pages/new_agents/agent_analytics_widget";
 import {AgentHeaderPanel} from "views/pages/new_agents/agent_header_panel";
@@ -40,7 +36,7 @@ import style from "./index.scss";
 const classnames = bind(style);
 
 interface AgentsWidgetAttrs extends RequiresPluginInfos {
-  agents: Agents;
+  agentsVM: AgentsVM;
   onEnable: (e: MouseEvent) => void;
   onDisable: (e: MouseEvent) => void;
   onDelete: (e: MouseEvent) => void;
@@ -68,7 +64,7 @@ export class StaticAgentsWidget extends MithrilViewComponent<AgentsWidgetAttrs> 
       flashMessage = <FlashMessage message={vnode.attrs.flashMessage.message} type={vnode.attrs.flashMessage.type}/>;
     }
 
-    const tableData = vnode.attrs.agents.list().map((agent: Agent) => {
+    const tableData = vnode.attrs.agentsVM.list().map((agent: Agent) => {
       const tableCellClasses = StaticAgentsWidget.tableCellClasses(agent);
       return [
         <div key={agent.uuid} class={classnames(tableCellClasses, style.agentCheckbox)}>
@@ -83,7 +79,7 @@ export class StaticAgentsWidget extends MithrilViewComponent<AgentsWidgetAttrs> 
              data-test-id={`agent-operating-system-of-${agent.uuid}`}>{agent.operatingSystem}</div>,
         <div class={tableCellClasses}
              data-test-id={`agent-ip-address-of-${agent.uuid}`}>{agent.ipAddress}</div>,
-        <AgentStatusWidget agent={agent} buildDetailsForAgent={vnode.attrs.agents.buildDetailsForAgent}
+        <AgentStatusWidget agent={agent} buildDetailsForAgent={vnode.attrs.agentsVM.buildDetailsForAgent}
                            cssClasses={tableCellClasses}/>,
         <div class={tableCellClasses}
              data-test-id={`agent-free-space-of-${agent.uuid}`}>{agent.readableFreeSpace()}</div>,
@@ -96,20 +92,21 @@ export class StaticAgentsWidget extends MithrilViewComponent<AgentsWidgetAttrs> 
       ];
     });
 
-    return <div class={style.agentsTable} onclick={StaticAgentsWidget.hideBuildDetails.bind(this, vnode.attrs.agents)}>
+    return <div class={style.agentsTable}
+                onclick={StaticAgentsWidget.hideBuildDetails.bind(this, vnode.attrs.agentsVM)}>
       <AgentHeaderPanel {...vnode.attrs}/>
       {flashMessage}
       <Table data={tableData}
              headers={[
                StaticAgentsWidget.globalCheckBox(vnode),
                "Agent Name", "Sandbox", "OS", "IP Address", "Status", "Free Space", "Resources", "Environments", ""]}
-             sortHandler={vnode.attrs.agents}/>
+             sortHandler={vnode.attrs.agentsVM.staticAgentSortHandler()}/>
 
     </div>;
   }
 
-  private static hideBuildDetails(agents: Agents) {
-    agents.buildDetailsForAgent("");
+  private static hideBuildDetails(agentsVM: AgentsVM) {
+    agentsVM.buildDetailsForAgent("");
   }
 
   private static tableCellClasses(agent: Agent) {
@@ -130,8 +127,8 @@ export class StaticAgentsWidget extends MithrilViewComponent<AgentsWidgetAttrs> 
     if (vnode.attrs.isUserAdmin) {
       return <input type="checkbox"
                     data-test-id={"select-all-agents"}
-                    checked={vnode.attrs.agents.areAllFilteredAgentsSelected()}
-                    onclick={() => vnode.attrs.agents.toggleFilteredAgentsSelection()}/>;
+                    checked={vnode.attrs.agentsVM.isAllStaticAgentSelected()}
+                    onclick={() => vnode.attrs.agentsVM.toggleAgentsSelection()}/>;
     }
 
     return null;
@@ -139,7 +136,10 @@ export class StaticAgentsWidget extends MithrilViewComponent<AgentsWidgetAttrs> 
 
   private static checkBoxFor(agent: Agent, vnode: m.Vnode<AgentsWidgetAttrs>) {
     if (vnode.attrs.isUserAdmin) {
-      return <CheckboxField dataTestId={`agent-checkbox-of-${agent.uuid}`} required={true} property={agent.selected}/>;
+      return <input type="checkbox"
+                    data-test-id={`agent-checkbox-of-${agent.uuid}`}
+                    checked={vnode.attrs.agentsVM.isAgentSelected(agent.uuid)}
+                    onclick={() => vnode.attrs.agentsVM.toggleAgentSelection(agent.uuid)}/>;
     }
     return null;
   }

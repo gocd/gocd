@@ -16,6 +16,7 @@
 import m from "mithril";
 import {Agent, Agents} from "models/new_agent/agents";
 import {GetAllService} from "models/new_agent/agents_crud";
+import {AgentsVM} from "models/new_agent/agents_vm";
 import {AgentsTestData} from "models/new_agent/spec/agents_test_data";
 import {FlashMessageModelWithTimeout} from "views/components/flash_message";
 import {ResourcesDropdownButton} from "views/pages/new_agents/resources_dropdown_button";
@@ -25,45 +26,45 @@ describe("ResourcesDropdownButton", () => {
   const helper          = new TestHelper(),
         updateResources = jasmine.createSpy("updateResources");
 
-  let agent: Agent, agents: Agents;
+  let agent: Agent, agentsVM: AgentsVM;
   beforeEach(() => {
-    agent  = Agent.fromJSON(AgentsTestData.idleAgent());
-    agents = new Agents([agent]);
+    agent    = Agent.fromJSON(AgentsTestData.idleAgent());
+    agentsVM = new AgentsVM(new Agents(agent));
   });
 
   afterEach(helper.unmount.bind(helper));
 
   it("should render disable resources button when no agent is checked", () => {
-    mount(agents, new DummyService([]));
+    mount(agentsVM, new DummyService([]));
 
     expect(helper.byTestId("modify-resources-association")).toBeInDOM();
     expect(helper.byTestId("modify-resources-association")).toBeDisabled();
   });
 
   it("should enable resources button when agent is checked", () => {
-    agent.selected(true);
-    mount(agents, new DummyService([]));
+    agentsVM.selectAgent(agent.uuid);
+    mount(agentsVM, new DummyService([]));
 
     expect(helper.byTestId("modify-resources-association")).not.toBeDisabled();
   });
 
   it("should set showEnvironments to false on agents when button is clicked", () => {
-    agent.selected(true);
-    agents.showEnvironments(true);
-    mount(agents, new DummyService([]));
+    agentsVM.selectAgent(agent.uuid);
+    agentsVM.showEnvironments(true);
+    mount(agentsVM, new DummyService([]));
 
-    expect(agents.showEnvironments()).toBeTruthy();
-    expect(agents.showResources()).toBeFalsy();
+    expect(agentsVM.showEnvironments()).toBeTruthy();
+    expect(agentsVM.showResources()).toBeFalsy();
 
     helper.clickByDataTestId("modify-resources-association");
 
-    expect(agents.showEnvironments()).toBeFalsy();
-    expect(agents.showResources()).toBeTruthy();
+    expect(agentsVM.showEnvironments()).toBeFalsy();
+    expect(agentsVM.showResources()).toBeTruthy();
   });
 
   it("should render dropdown on click of resources button", () => {
-    agent.selected(true);
-    mount(agents, new DummyService([]));
+    agentsVM.selectAgent(agent.uuid);
+    mount(agentsVM, new DummyService([]));
 
     helper.clickByDataTestId("modify-resources-association");
     m.redraw.sync();
@@ -72,8 +73,8 @@ describe("ResourcesDropdownButton", () => {
   });
 
   it("should render dropdown with resources when resources are available", () => {
-    agent.selected(true);
-    mount(agents, new DummyService(["firefox", "chrome"]));
+    agentsVM.selectAgent(agent.uuid);
+    mount(agentsVM, new DummyService(["firefox", "chrome"]));
 
     helper.clickByDataTestId("modify-resources-association");
     m.redraw.sync();
@@ -86,8 +87,8 @@ describe("ResourcesDropdownButton", () => {
 
   describe("TriStateCheckBox", () => {
     it("should render checkboxes unchecked when none of the agents is associated with resources ", () => {
-      agent.selected(true);
-      mount(agents, new DummyService(["chrome", "test"]));
+      agentsVM.selectAgent(agent.uuid);
+      mount(agentsVM, new DummyService(["chrome", "test"]));
 
       helper.clickByDataTestId("modify-resources-association");
       m.redraw.sync();
@@ -97,9 +98,9 @@ describe("ResourcesDropdownButton", () => {
     });
 
     it("should render checkboxes checked when the agents is associated with resources ", () => {
-      agent.selected(true);
+      agentsVM.selectAgent(agent.uuid);
       agent.resources.push("chrome");
-      mount(agents, new DummyService(["chrome", "test"]));
+      mount(agentsVM, new DummyService(["chrome", "test"]));
 
       helper.clickByDataTestId("modify-resources-association");
       m.redraw.sync();
@@ -110,11 +111,11 @@ describe("ResourcesDropdownButton", () => {
 
     it("should render checkboxes indeterminate when the agents is associated with resources ", () => {
       const agentWithoutResource = Agent.fromJSON(AgentsTestData.buildingAgent());
-      agentWithoutResource.selected(true);
-      agent.selected(true);
+      agentsVM                   = new AgentsVM(new Agents(agent, agentWithoutResource));
+      agentsVM.selectAgent(agentWithoutResource.uuid);
+      agentsVM.selectAgent(agent.uuid);
       agent.resources.push("chrome");
-      agents = new Agents([agent, agentWithoutResource]);
-      mount(agents, new DummyService(["chrome", "test"]));
+      mount(agentsVM, new DummyService(["chrome", "test"]));
 
       helper.clickByDataTestId("modify-resources-association");
       m.redraw.sync();
@@ -124,8 +125,8 @@ describe("ResourcesDropdownButton", () => {
     });
 
     it("should add new resource and render checkbox in checked state", () => {
-      agent.selected(true);
-      mount(agents, new DummyService(["chrome"]));
+      agentsVM.selectAgent(agent.uuid);
+      mount(agentsVM, new DummyService(["chrome"]));
 
       helper.clickByDataTestId("modify-resources-association");
       m.redraw.sync();
@@ -139,10 +140,10 @@ describe("ResourcesDropdownButton", () => {
     });
   });
 
-  function mount(agents: Agents, dummyService: GetAllService) {
-    helper.mount(() => <ResourcesDropdownButton agents={agents}
+  function mount(agentsVM: AgentsVM, dummyService: GetAllService) {
+    helper.mount(() => <ResourcesDropdownButton agentsVM={agentsVM}
                                                 updateResources={updateResources}
-                                                show={agents.showResources}
+                                                show={agentsVM.showResources}
                                                 flashMessage={new FlashMessageModelWithTimeout()}
                                                 service={dummyService}/>);
   }

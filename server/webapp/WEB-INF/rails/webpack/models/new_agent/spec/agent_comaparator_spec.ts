@@ -59,10 +59,10 @@ describe("AgentComparator", () => {
   describe("Free Space", () => {
     let agentA: Agent, agentB: Agent, agentC: Agent, agentD: Agent;
     beforeEach(() => {
-      agentA        = Agent.fromJSON(AgentsTestData.agentWithFreespace(10000));
-      agentB        = Agent.fromJSON(AgentsTestData.agentWithFreespace(100000));
-      agentC        = Agent.fromJSON(AgentsTestData.agentWithFreespace(20000));
-      agentD        = Agent.fromJSON(AgentsTestData.agentWithFreespace("Unknown"));
+      agentA        = Agent.fromJSON(AgentsTestData.withFreespace(10000));
+      agentB        = Agent.fromJSON(AgentsTestData.withFreespace(100000));
+      agentC        = Agent.fromJSON(AgentsTestData.withFreespace(20000));
+      agentD        = Agent.fromJSON(AgentsTestData.withFreespace("Unknown"));
       originalOrder = [agentA, agentB, agentC, agentD];
     });
     it("should sort agents in ascending order", () => {
@@ -85,10 +85,10 @@ describe("AgentComparator", () => {
   describe("Resource", () => {
     let agentA: Agent, agentB: Agent, agentC: Agent, agentD: Agent;
     beforeEach(() => {
-      agentA        = Agent.fromJSON(AgentsTestData.agentWithResources(["dev", "fat"]));
-      agentB        = Agent.fromJSON(AgentsTestData.agentWithResources(["firefox"]));
-      agentC        = Agent.fromJSON(AgentsTestData.agentWithResources(["chrome"]));
-      agentD        = Agent.fromJSON(AgentsTestData.agentWithResources([]));
+      agentA        = Agent.fromJSON(AgentsTestData.withResources("dev", "fat"));
+      agentB        = Agent.fromJSON(AgentsTestData.withResources("firefox"));
+      agentC        = Agent.fromJSON(AgentsTestData.withResources("chrome"));
+      agentD        = Agent.fromJSON(AgentsTestData.withResources());
       originalOrder = [agentA, agentB, agentC, agentD];
     });
 
@@ -112,10 +112,10 @@ describe("AgentComparator", () => {
   describe("Environments", () => {
     let agentA: Agent, agentB: Agent, agentC: Agent, agentD: Agent;
     beforeEach(() => {
-      agentA        = Agent.fromJSON(AgentsTestData.agentWithEnvironments("prod", "dev", "qa"));
-      agentB        = Agent.fromJSON(AgentsTestData.agentWithEnvironments("dev"));
-      agentC        = Agent.fromJSON(AgentsTestData.agentWithEnvironments("qa"));
-      agentD        = Agent.fromJSON(AgentsTestData.agentWithEnvironments());
+      agentA        = Agent.fromJSON(AgentsTestData.withEnvironments("prod", "dev", "qa"));
+      agentB        = Agent.fromJSON(AgentsTestData.withEnvironments("dev"));
+      agentC        = Agent.fromJSON(AgentsTestData.withEnvironments("qa"));
+      agentD        = Agent.fromJSON(AgentsTestData.withEnvironments());
       originalOrder = [agentA, agentB, agentC, agentD];
     });
 

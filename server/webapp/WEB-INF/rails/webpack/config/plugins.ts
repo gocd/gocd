@@ -40,7 +40,7 @@ export function plugins(configOptions: ConfigOptions): webpack.Plugin[] {
                                      ignore: ["node_modules/**/*.*", "tmp/**/*", "**/tsconfig.json", "webpack/config/**/*.*"],
                                    }
                                  }) as webpack.Plugin,
-    new SassLintPlugin() as webpack.Plugin,
+    new SassLintPlugin({configPath: path.join(configOptions.assetsDir, ".sasslintrc")}) as webpack.Plugin,
     new StatsPlugin("manifest.json", {
       chunkModules: false,
       source: false,

@@ -15,7 +15,6 @@
     "tslint:spec": "tslint --format stylish --project spec/tsconfig.json --config tslint.json",
     "tslint:fix": "yarn run tslint:prod --fix && yarn run tslint:spec --fix"
   },
-  "sasslintConfig": ".webpack-sass-lintrc.json",
   "dependencies": {
     "@babel/polyfill": "^7.4.4",
     "@shopify/draggable": "^1.0.0-beta.8",

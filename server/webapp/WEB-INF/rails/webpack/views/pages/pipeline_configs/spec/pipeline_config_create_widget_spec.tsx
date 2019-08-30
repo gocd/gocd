@@ -29,9 +29,12 @@ describe("PipelineCreateWidgetSpec", () => {
     onDelete: noop,
     onAdd: noop
   };
+  const pipelineSettingsCallback = jasmine.createSpy();
 
   beforeEach(() => {
-    helper.mount(() => <PipelineConfigCreateWidget materialOperations={operations} pipelineConfig={pipelineConfig}/>);
+    helper.mount(() => <PipelineConfigCreateWidget pipelineConfig={pipelineConfig}
+                                                   materialOperations={operations}
+                                                   onPipelineSettingsEdit={pipelineSettingsCallback}/>);
   });
 
   afterEach(() => {
@@ -72,5 +75,11 @@ describe("PipelineCreateWidgetSpec", () => {
     m.redraw.sync();
 
     expect(helper.findByDataTestId("pipeline-details-container")).toContainText(errorText);
+  });
+
+  it("should open pipeline settings modal", () => {
+    const element = helper.findByDataTestId("pipeline-settings-button");
+    element.click();
+    expect(pipelineSettingsCallback).toHaveBeenCalled();
   });
 });

@@ -194,7 +194,7 @@ class Label extends MithrilViewComponent<LabelComponentAttrs> {
 
 }
 
-class HelpText extends MithrilViewComponent<HelpTextComponentAttrs> {
+export class HelpText extends MithrilViewComponent<HelpTextComponentAttrs> {
   static hasHelpText(attrs: HelpTextComponentAttrs) {
     return !_.isEmpty(attrs.helpText);
   }
@@ -579,7 +579,7 @@ interface RadioData {
 }
 
 export interface RadioButtonAttrs {
-  label: string;
+  label?: string;
   errorText?: string;
   disabled?: boolean;
   required?: boolean;
@@ -593,10 +593,13 @@ export class RadioField extends MithrilViewComponent<RadioButtonAttrs> {
   view(vnode: m.Vnode<RadioButtonAttrs>) {
     const maybeRequired = this.isRequiredField(vnode) ?
       <span className={styles.formLabelRequired}>*</span> : undefined;
+    const maybeLabel    = vnode.attrs.label ? <label for={this.id}
+                                                     className={styles.formLabel}
+                                                     data-test-id="form-field-label">
+      {vnode.attrs.label}{maybeRequired}:</label> : undefined;
     return (
       <li className={classnames(styles.formGroup, {[styles.formHasError]: this.hasErrorText(vnode)})}>
-        <label for={this.id} className={styles.formLabel}
-               data-test-id="form-field-label">{vnode.attrs.label}{maybeRequired}:</label>
+        {maybeLabel}
         {this.renderInputField(vnode)}
       </li>
     );
@@ -617,12 +620,12 @@ export class RadioField extends MithrilViewComponent<RadioButtonAttrs> {
       const radioButtonId = `${this.id}-${s.slugify(radioData.value)}`;
       result.push(
         <li className={styles.radioField}>
-            <input type="radio"
-                   id={radioButtonId}
-                   checked={radioData.value === vnode.attrs.property()}
-                   name={this.id} onchange={() => vnode.attrs.property(radioData.value)}/>
-            <label for={radioButtonId} className={styles.radioLabel}
-                   data-test-id="form-field-label">{radioData.label}</label>
+          <input type="radio"
+                 id={radioButtonId}
+                 checked={radioData.value === vnode.attrs.property()}
+                 name={this.id} onchange={() => vnode.attrs.property(radioData.value)}/>
+          <label for={radioButtonId} className={styles.radioLabel}
+                 data-test-id="form-field-label">{radioData.label}</label>
           <HelpText helpText={radioData.helpText} helpTextId={`help-text-${radioButtonId}`}/>
         </li>
       );

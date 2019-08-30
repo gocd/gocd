@@ -26,6 +26,11 @@ import {StageConfig} from "./stage_configuration";
 export class PipelineConfig extends ValidatableMixin {
   group: Stream<string>    = Stream();
   name: Stream<string>;
+  labelTemplate: Stream<string> = Stream("${COUNT}");
+  automaticScheduling: Stream<boolean> = Stream();
+  timerSpecification: Stream<string> = Stream();
+  runOnNewMaterial: Stream<boolean> = Stream();
+  lockingBehaviour: Stream<string> = Stream("multiple_instances");
   template: Stream<string> = Stream();
   materials: Stream<Materials>;
   stages: Stream<NameableSet<StageConfig>>;

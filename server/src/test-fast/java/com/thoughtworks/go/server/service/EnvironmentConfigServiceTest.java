@@ -736,6 +736,31 @@ class EnvironmentConfigServiceTest {
             assertThatCode(() -> environmentConfigService.getEnvironmentConfig(environmentName))
                     .isInstanceOf(RecordNotFoundException.class);
         }
+
+        @Test
+        void shouldNotAddAgentIfAlreadyAssociatedWithIt() {
+            String uuid = "uuid";
+            String environmentName = "foo-environment";
+            EnvironmentsConfig environments = new EnvironmentsConfig();
+            BasicEnvironmentConfig config = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
+            config.addAgent(uuid);
+            environments.add(config);
+            environmentConfigService.syncEnvironments(environments);
+
+            EnvironmentConfig environmentConfig = environmentConfigService.getEnvironmentConfig(environmentName);
+            EnvironmentAgentsConfig environmentConfigAgents = environmentConfig.getAgents();
+            assertThat(environmentConfigAgents.size(), is(1));
+            assertThat(environmentConfigAgents.get(0).getUuid(), is(uuid));
+
+            Agent agentAfterUpdate = new Agent(uuid);
+            agentAfterUpdate.addEnvironment(environmentName);
+
+            environmentConfigService.agentChanged(agentAfterUpdate);
+
+            EnvironmentConfig afterUpdateEnvConfig = environmentConfigService.getEnvironmentConfig(environmentName);
+            assertThat(afterUpdateEnvConfig.getAgents().size(), is(1));
+            assertThat(environmentConfigAgents.get(0).getUuid(), is(uuid));
+        }
     }
 
     @Test

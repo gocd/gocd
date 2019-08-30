@@ -294,7 +294,7 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
     private void addAgentToNewlyAssociatedEnvironments(String uuid, List<String> envNames) {
         envNames.stream().map(this::find)
                 .filter(envConfig -> isEnvironmentNotAssociatedWithAgent(envConfig, uuid))
-                .forEach(envConfig -> envConfig.addAgent(uuid));
+                .forEach(envConfig -> envConfig.addAgentIfNew(uuid));
     }
 
     private void syncAssociatedAgentFromDB(AgentInstance agentInstance) {

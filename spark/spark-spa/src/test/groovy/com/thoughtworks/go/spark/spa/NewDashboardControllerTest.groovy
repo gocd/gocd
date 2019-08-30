@@ -18,6 +18,7 @@ package com.thoughtworks.go.spark.spa
 import com.thoughtworks.go.config.Authorization
 import com.thoughtworks.go.config.BasicPipelineConfigs
 import com.thoughtworks.go.config.PipelineConfigs
+import com.thoughtworks.go.domain.PipelineGroups
 import com.thoughtworks.go.server.service.PipelineConfigService
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService
 import com.thoughtworks.go.server.service.support.toggle.Toggles
@@ -68,7 +69,7 @@ class NewDashboardControllerTest implements ControllerTrait<NewDashboardControll
 
       @Test
       void shouldRedirectToPipelineCreationIfNoPipelinesExist() {
-        when(pipelineConfigService.viewableGroupsFor(currentUsername())).thenReturn(new ArrayList<PipelineConfigs>())
+        when(pipelineConfigService.viewableGroupsFor(currentUsername())).thenReturn(new PipelineGroups())
         when(securityService.canCreatePipelines(currentUsername())).thenReturn(true)
 
         get(controller.controllerPath())
@@ -79,7 +80,7 @@ class NewDashboardControllerTest implements ControllerTrait<NewDashboardControll
 
       @Test
       void shouldNotRedirectToPipelineCreationIfUserDoesNotHavePermissions() {
-        when(pipelineConfigService.viewableGroupsFor(currentUsername())).thenReturn(new ArrayList<PipelineConfigs>())
+        when(pipelineConfigService.viewableGroupsFor(currentUsername())).thenReturn(new PipelineGroups())
         when(securityService.canCreatePipelines(currentUsername())).thenReturn(false)
 
         get(controller.controllerPath())
@@ -91,7 +92,7 @@ class NewDashboardControllerTest implements ControllerTrait<NewDashboardControll
 
       @Test
       void shouldNotRedirectToPipelineCreationIfPipelineGroupsArePresent() {
-        def pipelineConfigs = new ArrayList<PipelineConfigs>()
+        def pipelineConfigs = new PipelineGroups()
         pipelineConfigs.add(new BasicPipelineConfigs("group1", new Authorization()))
 
         when(pipelineConfigService.viewableGroupsFor(currentUsername())).thenReturn(pipelineConfigs)

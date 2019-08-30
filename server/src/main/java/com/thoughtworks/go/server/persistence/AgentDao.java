@@ -16,6 +16,7 @@
 package com.thoughtworks.go.server.persistence;
 
 import com.thoughtworks.go.config.Agent;
+import com.thoughtworks.go.domain.exception.UnregisteredAgentException;
 import com.thoughtworks.go.listener.DatabaseEntityChangeListener;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.cache.GoCache;
@@ -113,10 +114,9 @@ public class AgentDao extends HibernateDaoSupport {
                 protected void doInTransactionWithoutResult(TransactionStatus status) {
                     Agent agent = fetchAgentFromDBByUUID(uuid);
                     if (agent == null) {
-                        agent = new Agent(uuid, agentIdentifier.getHostName(), agentIdentifier.getIpAddress(), cookie);
-                    } else {
-                        agent.setFieldValues(cookie, agentIdentifier.getHostName(), agentIdentifier.getIpAddress());
+                        throw new UnregisteredAgentException(format("Agent [%s] is not registered.", uuid), uuid);
                     }
+                    agent.setFieldValues(cookie, agentIdentifier.getHostName(), agentIdentifier.getIpAddress());
                     getHibernateTemplate().saveOrUpdate(agent);
 
                     final Agent updatedAgent = agent;
@@ -133,7 +133,7 @@ public class AgentDao extends HibernateDaoSupport {
 
     public List<Agent> getAllAgents() {
         return ((List<Agent>) transactionTemplate.execute((TransactionCallback) transactionStatus -> {
-            try{
+            try {
                 Query query = sessionFactory.getCurrentSession().createQuery("FROM Agent where deleted = false");
                 query.setCacheable(true);
                 return query.list();
@@ -286,7 +286,7 @@ public class AgentDao extends HibernateDaoSupport {
         agentEntityChangeListenerSet.forEach(listener -> listener.bulkEntitiesDeleted(uuids));
     }
 
-    private void registerAfterCommitCallback(Runnable runnable){
+    private void registerAfterCommitCallback(Runnable runnable) {
         synchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
             @Override
             public void afterCommit() {

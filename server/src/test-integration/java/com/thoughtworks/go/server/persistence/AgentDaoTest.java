@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.persistence;
 import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.domain.AgentConfigStatus;
 import com.thoughtworks.go.domain.AgentInstance;
+import com.thoughtworks.go.domain.exception.UnregisteredAgentException;
 import com.thoughtworks.go.listener.DatabaseEntityChangeListener;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.cache.GoCache;
@@ -40,6 +41,7 @@ import java.util.List;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Fail.fail;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -84,7 +86,7 @@ public class AgentDaoTest {
             "classpath:testPropertyConfigurer.xml",
             "classpath:WEB-INF/spring-all-servlet.xml",
     })
-    class GetAgents{
+    class GetAgents {
         @Test
         void shouldGetAgentByUUID() {
             Agent agent = new Agent("uuid", "localhost", "127.0.0.1", "cookie");
@@ -179,7 +181,15 @@ public class AgentDaoTest {
             "classpath:testPropertyConfigurer.xml",
             "classpath:WEB-INF/spring-all-servlet.xml",
     })
-    class Cookie{
+    class Cookie {
+        @Test
+        void shouldThrowExceptionIfTheAgentIsNotPresentInDBWhileAssociatingCookie() {
+            AgentIdentifier unregisteredAgentIdentifier = new AgentIdentifier("host", "127.0.0.1", "uuid2");
+            assertThatCode(() -> agentDao.associateCookie(unregisteredAgentIdentifier, "cookie"))
+                    .isInstanceOf(UnregisteredAgentException.class)
+                    .hasMessage("Agent [uuid2] is not registered.");
+        }
+
         @Test
         public void shouldAssociateCookieAndNotifyListeners() {
             DatabaseEntityChangeListener<Agent> mockListener1 = registerMockListener();
@@ -188,8 +198,8 @@ public class AgentDaoTest {
             AgentIdentifier agentIdentifier = new AgentIdentifier("host", "127.0.0.1", "uuid1");
             associateCookieAndVerifyThatCookieIsAssociated(agentIdentifier, "cookie");
 
-            verify(mockListener1).entityChanged(any(Agent.class));
-            verify(mockListener2).entityChanged(any(Agent.class));
+            verify(mockListener1, times(2)).entityChanged(any(Agent.class));
+            verify(mockListener2, times(2)).entityChanged(any(Agent.class));
         }
 
         @Test
@@ -265,12 +275,18 @@ public class AgentDaoTest {
         }
 
         private void associateCookieAndVerifyFromDBThatCookieIsAssociated(AgentIdentifier agentIdentifier, String cookie) {
+            Agent agent = new Agent(agentIdentifier.getUuid(), agentIdentifier.getHostName(), agentIdentifier.getIpAddress());
+            agent.setCookie("dummy-cookie");
+            agentDao.saveOrUpdate(agent);
             agentDao.associateCookie(agentIdentifier, "cookie");
-            Agent agent = fetchAgentFromDBByUUID(agentIdentifier);
-            assertThat(agent.getCookie(), is(cookie));
+            Agent agentFromDB = fetchAgentFromDBByUUID(agentIdentifier);
+            assertThat(agentFromDB.getCookie(), is(cookie));
         }
 
         private void associateCookieAndVerifyThatCookieIsAssociated(AgentIdentifier agentIdentifier, String cookie) {
+            Agent agent = new Agent(agentIdentifier.getUuid(), agentIdentifier.getHostName(), agentIdentifier.getIpAddress());
+            agent.setCookie("dummy-cookie");
+            agentDao.saveOrUpdate(agent);
             agentDao.associateCookie(agentIdentifier, cookie);
             assertThat(agentDao.cookieFor(agentIdentifier), is(cookie));
         }
@@ -283,7 +299,7 @@ public class AgentDaoTest {
             "classpath:testPropertyConfigurer.xml",
             "classpath:WEB-INF/spring-all-servlet.xml",
     })
-    class Bulk{
+    class Bulk {
         @Test
         public void shouldBulkUpdateAttributes() {
             Agent agent1 = new Agent("uuid", "localhost", "127.0.0.1", "cookie");

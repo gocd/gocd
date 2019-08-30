@@ -27,6 +27,7 @@ import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.domain.AgentStatus;
 import com.thoughtworks.go.domain.ConfigErrors;
+import com.thoughtworks.go.domain.exception.UnregisteredAgentException;
 import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.helper.AgentMother;
 import com.thoughtworks.go.helper.PartialConfigMother;
@@ -256,6 +257,13 @@ public class AgentServiceIntegrationTest {
         assertThat(agentViewModels.size(), is(0));
     }
 
+    @Test
+    void shouldNotBeAbleToAssignCookieToAnUnregisteredAgent() {
+        Agent pendingAgent = pending().getAgent();
+        AgentIdentifier pendingAgentIdentifier = new AgentIdentifier(pendingAgent.getHostname(), pendingAgent.getIpaddress(), pendingAgent.getUuid());
+        UnregisteredAgentException exception = assertThrows(UnregisteredAgentException.class, () -> agentService.assignCookie(pendingAgentIdentifier));
+        assertEquals(format("Agent [%s] is not registered.", pendingAgent.getUuid()), exception.getMessage());
+    }
 
     @Nested
     @ContextConfiguration(locations = {"classpath:WEB-INF/applicationContext-global.xml", "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
@@ -543,6 +551,8 @@ public class AgentServiceIntegrationTest {
             assertThat(agentInstances.findAgentAndRefreshStatus(uuid).getStatus(), is(AgentStatus.Building));
 
             AgentIdentifier identifier = buildingAgentInstance.getAgent().getAgentIdentifier();
+            // register the agent - cookie can be associated only if the agent is a registered one
+            agentService.register(new Agent(identifier.getUuid(), identifier.getHostName(), identifier.getIpAddress()));
             agentDao.associateCookie(identifier, "new_cookie");
 
             AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(identifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "old_cookie");
@@ -606,6 +616,8 @@ public class AgentServiceIntegrationTest {
             assertThat(registeredAgentInstances.findAgentAndRefreshStatus(uuid).getStatus(), is(AgentStatus.Building));
 
             AgentIdentifier agentIdentifier = buildingAgentInstance.getAgent().getAgentIdentifier();
+            // register the agent - cookie can be associated only if the agent is a registered one
+            agentService.register(new Agent(agentIdentifier.getUuid(), agentIdentifier.getHostName(), agentIdentifier.getIpAddress()));
             String cookie = agentService.assignCookie(agentIdentifier);
             agentService.updateRuntimeInfo(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), cookie));
 
@@ -719,7 +731,7 @@ public class AgentServiceIntegrationTest {
 
             AgentInstance agentInstance = agents.findAgentAndRefreshStatus(idleAgentInstance.getAgent().getUuid());
             assertThat(agentInstance.getStatus(), is(AgentStatus.LostContact));
-            String body = String.format("The email has been sent out automatically by the Go server at (%s) to Go administrators.\n"
+            String body = format("The email has been sent out automatically by the Go server at (%s) to Go administrators.\n"
                     + "\n"
                     + "The Go server has lost contact with agent:\n"
                     + "\n"

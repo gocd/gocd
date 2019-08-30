@@ -1,4 +1,5 @@
 import groovy.json.JsonOutput
+
 /*
  * Copyright 2016 ThoughtWorks, Inc.
  *
@@ -34,6 +35,9 @@ dependencies {
 
 task versionFile {
   outputs.upToDateWhen { false }
+  File goConstantsFile = project(':base').file("src/main/java/com/thoughtworks/go/util/GoConstants.java")
+  def currentVersion = new Integer(goConstantsFile.readLines().grep(~/.*CONFIG_SCHEMA_VERSION\s*=\s*.*/).first().trim().split("=").last().trim().replace(";", ""))
+
   def versionFile = file("${project.buildDir}/${project.distsDirName}/meta/version.json")
 
   inputs.property('goVersion', rootProject.goVersion)
@@ -45,18 +49,19 @@ task versionFile {
     versionFile.getParentFile().mkdirs()
     versionFile.withWriter { out ->
       out.write(JsonOutput.prettyPrint(JsonOutput.toJson([
-        go_version         : rootProject.goVersion,
-        previous_go_version: rootProject.previousVersion,
-        next_go_version    : rootProject.nextVersion,
-        go_build_number    : rootProject.distVersion,
-        go_full_version    : rootProject.fullVersion,
-        git_sha            : rootProject.gitRevision,
-        pipeline_name      : System.getenv('GO_PIPELINE_NAME'),
-        pipeline_counter   : System.getenv('GO_PIPELINE_COUNTER'),
-        pipeline_label     : System.getenv('GO_PIPELINE_LABEL'),
-        stage_name         : System.getenv('GO_STAGE_NAME'),
-        stage_counter      : System.getenv('GO_STAGE_COUNTER'),
-        job_name           : System.getenv('GO_JOB_NAME')
+        go_version           : rootProject.goVersion,
+        previous_go_version  : rootProject.previousVersion,
+        next_go_version      : rootProject.nextVersion,
+        go_build_number      : rootProject.distVersion,
+        go_full_version      : rootProject.fullVersion,
+        git_sha              : rootProject.gitRevision,
+        config_schema_version: currentVersion,
+        pipeline_name        : System.getenv('GO_PIPELINE_NAME'),
+        pipeline_counter     : System.getenv('GO_PIPELINE_COUNTER'),
+        pipeline_label       : System.getenv('GO_PIPELINE_LABEL'),
+        stage_name           : System.getenv('GO_STAGE_NAME'),
+        stage_counter        : System.getenv('GO_STAGE_COUNTER'),
+        job_name             : System.getenv('GO_JOB_NAME')
       ])))
     }
   }

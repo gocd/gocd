@@ -189,6 +189,10 @@ export class TestHelper {
     return $(elem).find(dataTestIdSelector(id));
   }
 
+  findSelectorIn(elem: any, id: string) {
+    return $(elem).find(id);
+  }
+
   private _el(selector: string | Element, context?: Element): Element {
     return "string" === typeof selector ? this.q(selector, context) : selector;
   }

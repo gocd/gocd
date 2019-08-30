@@ -587,6 +587,7 @@ export interface RadioButtonAttrs {
   errorText?: string;
   disabled?: boolean;
   required?: boolean;
+  inline?: boolean;
   property: (newValue?: string) => string;
   possibleValues: RadioData[];
 }
@@ -604,7 +605,9 @@ export class RadioField extends MithrilViewComponent<RadioButtonAttrs> {
     return (
       <li className={classnames(styles.formGroup, {[styles.formHasError]: this.hasErrorText(vnode)})}>
         {maybeLabel}
-        {this.renderInputField(vnode)}
+        <div class={vnode.attrs.inline ? styles.inlineRadioBtns : undefined}>
+          {this.renderInputField(vnode)}
+        </div>
       </li>
     );
   }
@@ -623,7 +626,7 @@ export class RadioField extends MithrilViewComponent<RadioButtonAttrs> {
     vnode.attrs.possibleValues.forEach((radioData) => {
       const radioButtonId = `${this.id}-${s.slugify(radioData.value)}`;
       result.push(
-        <li className={styles.radioField}>
+        <li data-test-id={`input-field-for-${radioData.value}`} className={styles.radioField}>
           <input type="radio"
                  id={radioButtonId}
                  checked={radioData.value === vnode.attrs.property()}

@@ -21,6 +21,8 @@ import {Form} from "views/components/forms/form";
 import {CheckboxField, HelpText, RadioField, TextField} from "views/components/forms/input_fields";
 import {Modal, Size} from "views/components/modal";
 import {Tabs} from "views/components/tab";
+import {EnvironmentVariablesEditor} from "views/pages/pipeline_configs/environment_variables_editor";
+import {ParametersEditor} from "views/pages/pipeline_configs/parameters_editor";
 import styles from "./pipeline_settings_modal.scss";
 
 export class PipelineSettingsModal extends Modal {
@@ -36,8 +38,8 @@ export class PipelineSettingsModal extends Modal {
     return <Tabs tabs={["Basic Settings", "Environment Variables", "Parameters", "Project Management"]}
                  contents={[
                    this.basicSettings(),
-                   <p>Environment Variables</p>,
-                   <p>Parameters</p>,
+                   this.environmentVariables(),
+                   this.parameters(),
                    <p>Project Management</p>
                  ]}/>;
 
@@ -108,5 +110,13 @@ export class PipelineSettingsModal extends Modal {
                     ]}/>
       </div>
     </Form>;
+  }
+
+  private environmentVariables(): m.Children {
+    return <EnvironmentVariablesEditor variables={this.pipelineConfig.environmentVariables}/>;
+  }
+
+  private parameters(): m.Children {
+    return <ParametersEditor parameters={this.pipelineConfig.parameters}/>;
   }
 }

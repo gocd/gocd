@@ -19,6 +19,8 @@ import {JsonUtils} from "helpers/json_utils";
 import {SparkRoutes} from "helpers/spark_routes";
 import Stream from "mithril/stream";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
+import {EnvironmentVariableConfig} from "models/new_pipeline_configs/environment_variable_config";
+import {Parameter} from "models/new_pipeline_configs/parameter";
 import {Material, Materials} from "./materials";
 import {NameableSet} from "./nameable_set";
 import {StageConfig} from "./stage_configuration";
@@ -33,12 +35,16 @@ export class PipelineConfig extends ValidatableMixin {
   lockingBehaviour: Stream<string> = Stream("multiple_instances");
   template: Stream<string> = Stream();
   materials: Stream<Materials>;
+  environmentVariables: Stream<EnvironmentVariableConfig[]> = Stream();
+  parameters: Stream<Parameter[]> = Stream();
   stages: Stream<NameableSet<StageConfig>>;
 
   constructor(name: string, materials: Material[], stages: StageConfig[]) {
     super();
 
     this.name = Stream(name);
+    this.environmentVariables([]);
+    this.parameters([]);
     this.validatePresenceOf("name");
     this.validateIdFormat("name");
 

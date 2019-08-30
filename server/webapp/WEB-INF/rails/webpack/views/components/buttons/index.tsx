@@ -166,6 +166,14 @@ export class Default extends Button {
   }
 }
 
+export interface SimpleDDAttrs {
+  text: m.Children;
+  disabled?: boolean;
+  title?: string;
+  "aria-label"?: string;
+  classes?: string[];
+}
+
 export class ButtonGroup extends RestyleViewComponent<Styles, RestyleAttrs<Styles>> {
   css: Styles = defaultStyles;
 
@@ -231,4 +239,29 @@ export abstract class Dropdown<V = {}> extends RestyleComponent<Styles, Dropdown
   protected abstract doRenderButton(vnode: m.Vnode<DropdownAttrs & V>): m.Children;
 
   protected abstract doRenderDropdownContent(vnode: m.Vnode<DropdownAttrs & V>): m.Children;
+}
+
+export class SimpleDropdown extends Dropdown<SimpleDDAttrs> {
+  additionalClasses = "";
+
+  view(vnode: m.Vnode<DropdownAttrs & SimpleDDAttrs>) {
+    this.additionalClasses = (vnode.attrs.classes || []).join(" ");
+    return super.view(vnode);
+  }
+
+  protected doRenderButton(vnode: m.Vnode<DropdownAttrs & SimpleDDAttrs>) {
+    return <Primary dropdown={true} disabled={vnode.attrs.disabled} title={vnode.attrs.title} aria-label={vnode.attrs["aria-label"]} onclick={(e) => this.toggleDropdown(vnode, e)}>
+      {vnode.attrs.text}
+    </Primary>;
+  }
+
+  protected doRenderDropdownContent(vnode: m.Vnode<DropdownAttrs & SimpleDDAttrs>) {
+    if (vnode.attrs.show()) {
+      return vnode.children;
+    }
+  }
+
+  protected classNames() {
+    return this.additionalClasses;
+  }
 }

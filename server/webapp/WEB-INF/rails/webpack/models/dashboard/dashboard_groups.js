@@ -15,6 +15,7 @@
  */
 import {SparkRoutes} from "helpers/spark_routes";
 import _ from 'lodash';
+import Stream from 'mithril/stream';
 import Routes from "gen/js-routes";
 
 class Group {
@@ -36,6 +37,7 @@ class Group {
 
 class PipelineGroup extends Group {
   showEmptyGroups = false;
+  show = Stream(false);
 
   constructor(data, showEmptyGroups) {
     super(data);

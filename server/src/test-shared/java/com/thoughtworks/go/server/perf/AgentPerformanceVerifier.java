@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.server.service.perf;
+package com.thoughtworks.go.server.perf;
 
 import com.google.common.collect.Sets;
 import com.thoughtworks.go.config.Agent;
+import com.thoughtworks.go.server.perf.commands.*;
+import com.thoughtworks.go.server.persistence.AgentDao;
 import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.EnvironmentConfigService;
-import com.thoughtworks.go.server.service.perf.commands.*;
 import com.thoughtworks.go.util.Csv;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,16 +39,23 @@ import java.util.stream.IntStream;
 
 import static com.google.common.collect.Streams.stream;
 
+/**
+ * A test component which helps in verifying multi-threaded scenarios related to agents
+ * Usage: add the following line as a test. Make sure that the service objects passed are autowired ones.
+ *      new AgentPerformanceVerifier(agentService, agentDao, envConfigService, 10).verify();
+ */
 public class AgentPerformanceVerifier {
     private static final Logger LOG = LoggerFactory.getLogger(AgentPerformanceVerifier.class);
     private static final int DEFAULT_NO_OF_THREADS_TO_USE = 5;
 
     private int noOfThreadsToUse;
     private AgentService agentService;
+    private final AgentDao agentDao;
     private EnvironmentConfigService environmentConfigService;
 
-    public AgentPerformanceVerifier(AgentService agentService, EnvironmentConfigService environmentConfigService, int threadCount) {
+    public AgentPerformanceVerifier(AgentService agentService, AgentDao agentDao, EnvironmentConfigService environmentConfigService, int threadCount) {
         this.agentService = agentService;
+        this.agentDao = agentDao;
         this.environmentConfigService = environmentConfigService;
         this.noOfThreadsToUse = threadCount > 0 ? threadCount : DEFAULT_NO_OF_THREADS_TO_USE;
     }
@@ -132,7 +140,7 @@ public class AgentPerformanceVerifier {
                 .filter(agentInstance -> agentInstance.getUuid().startsWith("Perf-Test-Agent-"))
                 .forEach(agentInstance -> {
                     Agent agentInCache = agentInstance.getAgent();
-                    Agent agentInDB = agentService.fetchAgentFromDBByUUID(agentInCache.getUuid());
+                    Agent agentInDB = agentDao.fetchAgentFromDBByUUID(agentInCache.getUuid());
                     bombIfAgentInDBAndCacheAreDifferent(agentInCache, agentInDB);
 
                     Set<String> agentEnvsInEnvCache = environmentConfigService.getAgentEnvironmentNames(agentInCache.getUuid());
@@ -164,7 +172,7 @@ public class AgentPerformanceVerifier {
 
     private void bombIfAgentInDBAndCacheAreDifferent(Agent agentInCache, Agent agentInDB) {
         if (!agentInCache.equals(agentInDB)) {
-            LOG.error("Throwing RuntimeException as verification of agents {} in db and cache has failed", agentInCache.getUuid());
+            LOG.error("Throwing RuntimeException as verification of agents {} in db and cache has failed.\nAgent in DB: {}\nAgent in cache: {}", agentInCache.getUuid(), agentInDB, agentInCache);
             throw new RuntimeException("WARNING : There is some threading issue found during agent performance test!!!");
         }
     }

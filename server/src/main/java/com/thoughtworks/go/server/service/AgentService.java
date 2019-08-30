@@ -377,10 +377,6 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         }
     }
 
-    public Agent fetchAgentFromDBByUUID(String uuid){
-        return agentDao.fetchAgentFromDBByUUID(uuid);
-    }
-
     private void notifyAgentChangeListenersAndSyncAgentFromUpdatedAgent(Agent agentAfterUpdate, AgentInstance agentInstanceBeforeUpdate) {
         notifyAgentChangeListeners(agentAfterUpdate);
         agentInstanceBeforeUpdate.syncAgentFrom(agentAfterUpdate);

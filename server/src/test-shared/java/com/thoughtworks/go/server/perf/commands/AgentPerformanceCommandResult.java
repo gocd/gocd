@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.service.perf.commands;
+package com.thoughtworks.go.server.perf.commands;
 
 import lombok.Data;
 import lombok.experimental.Accessors;

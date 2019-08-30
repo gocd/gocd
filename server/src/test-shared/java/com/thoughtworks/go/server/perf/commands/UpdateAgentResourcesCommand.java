@@ -14,36 +14,24 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.service.perf.commands;
+package com.thoughtworks.go.server.perf.commands;
 
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.server.service.AgentService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
 import static com.thoughtworks.go.util.TriState.UNSET;
 
-public class UpdateAgentEnvironmentsCommand extends AgentPerformanceCommand {
-    private static final Logger LOGGER = LoggerFactory.getLogger(UpdateAgentEnvironmentsCommand.class);
-
-    public UpdateAgentEnvironmentsCommand(AgentService agentService) {
+public class UpdateAgentResourcesCommand extends AgentPerformanceCommand {
+    public UpdateAgentResourcesCommand(AgentService agentService){
         this.agentService = agentService;
     }
 
     @Override
     Optional<String> execute() {
         Optional<AgentInstance> anyRegisteredAgentInstance = findAnyRegisteredAgentInstance();
-        anyRegisteredAgentInstance.map(instance -> instance.getAgent().getUuid()).ifPresent(this::updateAgentEnvironment);
+        anyRegisteredAgentInstance.map(instance -> instance.getAgent().getUuid()).ifPresent(id -> agentService.updateAgentAttributes(id, null, "r1,r2,r3", null, UNSET));
         return anyRegisteredAgentInstance.map(instance -> instance.getAgent().getUuid());
-    }
-
-    private void updateAgentEnvironment(String id) {
-        try {
-            agentService.updateAgentAttributes(id, null, null, "e1,e2", UNSET);
-        } catch (Exception e) {
-            LOGGER.error("Error while updating agent environment for agent {}, error is {}", id, e.getMessage(), e);
-        }
     }
 }

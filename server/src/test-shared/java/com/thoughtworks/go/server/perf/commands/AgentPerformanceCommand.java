@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.service.perf.commands;
+package com.thoughtworks.go.server.perf.commands;
 
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.server.domain.AgentInstances;
+import com.thoughtworks.go.server.perf.Heartbeat;
 import com.thoughtworks.go.server.service.AgentService;
-import com.thoughtworks.go.server.service.perf.Heartbeat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +60,9 @@ public abstract class AgentPerformanceCommand implements Callable<Optional<Strin
 
     Optional<AgentInstance> findAnyRegisteredAgentInstance() {
         AgentInstances registeredAgents = agentService.findRegisteredAgents();
-        return stream(registeredAgents.spliterator(), false).findAny();
+        Optional<AgentInstance> anyAgentInstance = stream(registeredAgents.spliterator(), false).filter(agentInstance -> !agentInstance.isPending()).findAny();
+        if (!anyAgentInstance.isPresent()) LOG.debug("Returning empty agent instance: {} by {}", anyAgentInstance, this.getName());
+        return anyAgentInstance;
     }
 
     public AgentPerformanceCommandResult getResult() {

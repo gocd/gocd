@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.service.perf;
+package com.thoughtworks.go.server.perf;
 
 public class Heartbeat {
     private long startTime = 0;

@@ -14,29 +14,28 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.service.perf.commands;
+package com.thoughtworks.go.server.perf.commands;
 
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.server.service.AgentService;
 
 import java.util.Optional;
-import java.util.UUID;
 
 import static com.thoughtworks.go.util.TriState.UNSET;
 
-public class UpdateAgentHostCommand extends AgentPerformanceCommand {
-    public UpdateAgentHostCommand(AgentService agentService){
+public class UpdateAllAgentAttributesCommand extends AgentPerformanceCommand {
+    public UpdateAllAgentAttributesCommand(AgentService agentService) {
         this.agentService = agentService;
     }
 
     @Override
     Optional<String> execute() {
         Optional<AgentInstance> anyRegisteredAgentInstance = findAnyRegisteredAgentInstance();
-        anyRegisteredAgentInstance.map(instance -> instance.getAgent().getUuid()).ifPresent(this::updateHostname);
+        anyRegisteredAgentInstance.map(instance -> instance.getAgent().getUuid()).ifPresent(this::updateAgentDetails);
         return anyRegisteredAgentInstance.map(instance -> instance.getAgent().getUuid());
     }
 
-    private void updateHostname(String id) {
-        agentService.updateAgentAttributes(id, "host-name-" + UUID.randomUUID().toString(), null, null, UNSET);
+    private void updateAgentDetails(String id) {
+        agentService.updateAgentAttributes(id, null, null, "e1,e2", UNSET);
     }
 }

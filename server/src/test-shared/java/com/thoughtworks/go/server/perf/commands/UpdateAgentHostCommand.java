@@ -14,28 +14,29 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.service.perf.commands;
+package com.thoughtworks.go.server.perf.commands;
 
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.server.service.AgentService;
 
 import java.util.Optional;
+import java.util.UUID;
 
-import static com.thoughtworks.go.util.TriState.FALSE;
+import static com.thoughtworks.go.util.TriState.UNSET;
 
-public class DisableAgentCommand extends AgentPerformanceCommand {
-    public DisableAgentCommand(AgentService agentService){
+public class UpdateAgentHostCommand extends AgentPerformanceCommand {
+    public UpdateAgentHostCommand(AgentService agentService){
         this.agentService = agentService;
     }
 
     @Override
     Optional<String> execute() {
         Optional<AgentInstance> anyRegisteredAgentInstance = findAnyRegisteredAgentInstance();
-        anyRegisteredAgentInstance.map(instance1 -> instance1.getAgent().getUuid()).ifPresent(this::disableAgent);
+        anyRegisteredAgentInstance.map(instance -> instance.getAgent().getUuid()).ifPresent(this::updateHostname);
         return anyRegisteredAgentInstance.map(instance -> instance.getAgent().getUuid());
     }
 
-    private void disableAgent(String id) {
-        agentService.updateAgentAttributes(id, null, null, null, FALSE);
+    private void updateHostname(String id) {
+        agentService.updateAgentAttributes(id, "host-name-" + UUID.randomUUID().toString(), null, null, UNSET);
     }
 }

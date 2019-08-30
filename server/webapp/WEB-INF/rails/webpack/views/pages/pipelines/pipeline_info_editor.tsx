@@ -24,6 +24,7 @@ import {IdentifierInputField} from "views/components/forms/common_validating_inp
 import {Form, FormBody} from "views/components/forms/form";
 import {Option, SelectField, SelectFieldOptions} from "views/components/forms/input_fields";
 import {AdvancedSettings} from "views/pages/pipelines/advanced_settings";
+import { PipelineParametersEditor } from "views/pages/pipelines/parameters_editor";
 import {TemplateEditor} from "views/pages/pipelines/template_editor";
 import {IDENTIFIER_FORMAT_HELP_MESSAGE} from "./messages";
 
@@ -61,6 +62,7 @@ export class PipelineInfoEditor extends MithrilViewComponent<Attrs> {
           cache={vnode.attrs.templatesCache}
           isUsingTemplate={vnode.attrs.isUsingTemplate}
         />
+        <PipelineParametersEditor parameters={vnode.attrs.pipelineConfig.parameters} />
       </AdvancedSettings>
       </Form>
     </FormBody>;

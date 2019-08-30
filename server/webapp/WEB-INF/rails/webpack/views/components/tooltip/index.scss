@@ -22,6 +22,7 @@ $tooltip-large-width: 700px;
 .tooltip-wrapper {
   position: static;
   display:  inline-block;
+  cursor:   help;
   &:hover {
     .tooltip-content {
       display: block;

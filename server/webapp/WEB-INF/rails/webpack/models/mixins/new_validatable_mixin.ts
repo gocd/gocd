@@ -294,7 +294,7 @@ export class ValidatableMixin extends BaseErrorsConsumer implements Validatable,
   }
 
   validateIdFormat(attr: string, options?: ValidatorOptions): void {
-    const defaultMessage = `Invalid ${attr}. This must be alphanumeric and can contain hyphens, underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.`;
+    const defaultMessage = ErrorMessages.idFormat(attr);
     if (!options) {
       options = {message: defaultMessage};
     }

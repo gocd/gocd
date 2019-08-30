@@ -16,31 +16,26 @@
 
 package com.thoughtworks.go.server.perf.commands;
 
-import com.thoughtworks.go.config.BasicEnvironmentConfig;
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Optional;
 
-public class CreateEnvironmentCommand extends AgentPerformanceCommand {
+public class DeleteEnvironmentCommand extends AgentPerformanceCommand {
     private final GoConfigService goConfigService;
     private final String envName;
 
-    public CreateEnvironmentCommand(GoConfigService goConfigService, String envName) {
+    public DeleteEnvironmentCommand(GoConfigService goConfigService, String envName) {
         this.goConfigService = goConfigService;
         this.envName = envName;
     }
 
     @Override
     Optional<String> execute() {
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        BasicEnvironmentConfig envConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(envName));
-        goConfigService.addEnvironment(envConfig);
-        if (!result.isSuccessful()) {
-            throw new RuntimeException(result.message());
-        }
+        goConfigService.updateConfig(cruiseConfig -> {
+            cruiseConfig.getEnvironments().removeIf(environmentConfig -> StringUtils.equalsIgnoreCase(environmentConfig.name().toString(), envName));
+            return cruiseConfig;
+        });
         return Optional.of(envName);
     }
 }

@@ -60,7 +60,8 @@ public abstract class AgentPerformanceCommand implements Callable<Optional<Strin
 
     Optional<AgentInstance> findAnyRegisteredAgentInstance() {
         AgentInstances registeredAgents = agentService.findRegisteredAgents();
-        Optional<AgentInstance> anyAgentInstance = stream(registeredAgents.spliterator(), false).filter(agentInstance -> !agentInstance.isPending()).findAny();
+        LOG.debug("Registered Agent Instances size: {}",registeredAgents.size());
+        Optional<AgentInstance> anyAgentInstance = stream(registeredAgents.spliterator(), false).findAny();
         if (!anyAgentInstance.isPresent()) LOG.debug("Returning empty agent instance: {} by {}", anyAgentInstance, this.getName());
         return anyAgentInstance;
     }

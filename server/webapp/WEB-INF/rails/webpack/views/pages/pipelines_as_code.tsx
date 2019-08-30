@@ -24,6 +24,7 @@ import {Material, MaterialAttributes} from "models/materials/types";
 import {PipelineConfigVM} from "views/pages/pipelines/pipeline_config_view_model";
 
 // components
+import {PacActions} from "views/pages/pac/actions";
 import {BuilderForm} from "views/pages/pac/builder_form";
 import {DownloadAction} from "views/pages/pac/download_action";
 import {PreviewPane} from "views/pages/pac/preview_pane";
@@ -89,6 +90,10 @@ export class PipelinesAsCodeCreatePage extends Page {
 
           <MaterialEditor material={this.material()} materialCheck={true} scmOnly={true} showLocalWorkingCopyOptions={false}/>
         </div>
+      </FillableSection>,
+
+      <FillableSection>
+        <PacActions material={this.material} pluginId={vm.pluginId} />
       </FillableSection>
     ];
   }

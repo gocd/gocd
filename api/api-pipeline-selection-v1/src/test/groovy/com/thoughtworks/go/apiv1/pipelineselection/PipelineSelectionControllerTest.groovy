@@ -24,6 +24,7 @@ import com.thoughtworks.go.config.BasicPipelineConfigs
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.PipelineConfig
 import com.thoughtworks.go.config.PipelineConfigs
+import com.thoughtworks.go.domain.PipelineGroups
 import com.thoughtworks.go.server.domain.user.PipelineSelections
 import com.thoughtworks.go.server.service.PipelineConfigService
 import com.thoughtworks.go.server.service.PipelineSelectionsService
@@ -63,7 +64,7 @@ class PipelineSelectionControllerTest implements SecurityServiceTrait, Controlle
         group2.add(new PipelineConfig(name: new CaseInsensitiveString("pipeline1")))
         group2.add(new PipelineConfig(name: new CaseInsensitiveString("pipeline2")))
 
-        List<PipelineConfigs> pipelineConfigs = [group1, group2]
+        PipelineGroups pipelineConfigs = [group1, group2]
 
         when(pipelineSelectionsService.load(null, currentUserLoginId())).thenReturn(selections)
         when(pipelineConfigService.viewableGroupsFor(currentUsername())).thenReturn(pipelineConfigs)
@@ -91,7 +92,7 @@ class PipelineSelectionControllerTest implements SecurityServiceTrait, Controlle
         group2.add(new PipelineConfig(name: new CaseInsensitiveString("pipeline1")))
         group2.add(new PipelineConfig(name: new CaseInsensitiveString("pipeline2")))
 
-        List<PipelineConfigs> pipelineConfigs = [group1, group2]
+        PipelineGroups pipelineConfigs = [group1, group2]
 
         String cookieId = SecureRandom.hex()
 
@@ -124,7 +125,7 @@ class PipelineSelectionControllerTest implements SecurityServiceTrait, Controlle
         group2.add(new PipelineConfig(name: new CaseInsensitiveString("pipeline1")))
         group2.add(new PipelineConfig(name: new CaseInsensitiveString("pipeline2")))
 
-        List<PipelineConfigs> pipelineConfigs = [group1, group2]
+        PipelineGroups pipelineConfigs = [group1, group2]
 
         when(pipelineConfigService.viewableGroupsFor(currentUsername())).thenReturn(pipelineConfigs)
 
@@ -151,7 +152,7 @@ class PipelineSelectionControllerTest implements SecurityServiceTrait, Controlle
         group2.add(new PipelineConfig(name: new CaseInsensitiveString("pipeline1")))
         group2.add(new PipelineConfig(name: new CaseInsensitiveString("pipeline2")))
 
-        List<PipelineConfigs> pipelineConfigs = [group1, group2]
+        PipelineGroups pipelineConfigs = [group1, group2]
 
         String cookieId = SecureRandom.hex()
 

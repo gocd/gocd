@@ -20,6 +20,7 @@ import com.thoughtworks.go.api.mocks.MockHttpServletResponseAssert
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.PipelineConfig
 import com.thoughtworks.go.config.PipelineConfigs
+import com.thoughtworks.go.domain.PipelineGroups
 import com.thoughtworks.go.plugin.access.analytics.AnalyticsExtension
 import com.thoughtworks.go.plugin.domain.analytics.AnalyticsData
 import com.thoughtworks.go.server.service.PipelineConfigService
@@ -58,7 +59,8 @@ class AnalyticsControllerTest implements ControllerTrait<AnalyticsController>, S
       void "should provide pipeline config data"() {
         PipelineConfigs group1 = pipelinesFor("pipe1", "pipe2")
         PipelineConfigs group2 = pipelinesFor("pipe3", "pipe4")
-        when(pipelineConfigService.viewableGroupsFor(currentUsername())).thenReturn(Arrays.asList(group1, group2))
+        def pipelineGroups = new PipelineGroups(group1, group2)
+        when(pipelineConfigService.viewableGroupsFor(currentUsername())).thenReturn(pipelineGroups)
 
         get(controller.controllerPath())
 

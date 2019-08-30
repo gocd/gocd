@@ -124,6 +124,12 @@ $form-failed-field-background-color: lighten($form-failed-color, 35%);
   margin-left: 5px;
 }
 
+.inline-radio-btns {
+  display:         inline-flex;
+  justify-content: space-between;
+  width:           100%;
+}
+
 select.form-control { //sass-lint:disable-line no-qualifying-elements
   width: 270px;
 }

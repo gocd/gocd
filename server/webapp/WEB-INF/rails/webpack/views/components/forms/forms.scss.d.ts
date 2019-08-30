@@ -16,6 +16,7 @@ export const formLabel: string;
 export const formLabelRequired: string;
 export const formResponsive: string;
 export const inline: string;
+export const inlineRadioBtns: string;
 export const inputMatchParent: string;
 export const inputMedium: string;
 export const inputSmall: string;

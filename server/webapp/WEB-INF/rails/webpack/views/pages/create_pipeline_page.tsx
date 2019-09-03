@@ -39,7 +39,6 @@ export const SUPPORTED_MATERIALS = [
   {id: "dependency", text: "Another Pipeline"},
 ];
 
-
 export class CreatePipelinePage extends Page<null, State> {
   oninit(vnode: m.Vnode<null, State>) {
     super.oninit(vnode);

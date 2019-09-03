@@ -66,11 +66,13 @@ export class BuilderForm extends MithrilComponent<Attrs> {
     const { pipeline, material, isUsingTemplate, pluginId } = vnode.attrs.vm;
 
     return <div class={defaultStyles.builderForm}>
-      <UserInputPane css={uipCss} heading="Part 0: Select Config Language">
-        <SelectField property={pluginId} label="Choose a Pipelines as Code plugin">
-          <SelectFieldOptions selected={pluginId()} items={vnode.attrs.vm.exportPlugins()}/>
-        </SelectField>
-      </UserInputPane>
+      <div style="display: none;">
+        <UserInputPane css={uipCss} heading="Part 0: Select Config Language">
+          <SelectField property={pluginId} label="Choose a Pipelines as Code plugin">
+            <SelectFieldOptions selected={pluginId()} items={vnode.attrs.vm.exportPlugins()}/>
+          </SelectField>
+        </UserInputPane>
+      </div>
 
       <UserInputPane css={uipCss} heading="Part 1: Material">
         <MaterialEditor material={material}/>

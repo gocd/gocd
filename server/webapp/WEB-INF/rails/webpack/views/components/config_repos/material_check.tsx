@@ -19,16 +19,18 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import {MaterialConfigFiles} from "models/materials/material_config_files";
 import {Material} from "models/materials/types";
-import * as Buttons from "views/components/buttons";
+import {Alignment, Primary as PrimaryButton} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import styles from "./material_check.scss";
 import {MaterialConfigFilesEditor} from "./material_config_files_editor";
 
 interface Attrs {
   material: Material;
-  group?: string;
+  label?: m.Children;
+  align?: Alignment;
 
   // extra handlers will be fired in addition to defaults
+  prerequisite?: () => boolean;
   success?: (...args: any[]) => any;
   failure?: (err: ErrorResponse) => any;
   complete?: (...args: any[]) => any;
@@ -49,20 +51,24 @@ export class MaterialCheck extends MithrilViewComponent<Attrs> {
     this.failure  = vnode.attrs.failure;
     this.complete = vnode.attrs.complete;
 
-    return <div class={styles.materialCheckButtonWrapper}>
-      <Buttons.Secondary data-test-id="material-check-button"
-                         onclick={() => this.materialCheck(vnode.attrs.material, vnode.attrs.group)} disabled={this.busy}>
-        <span class={this.materialCheckButtonIcon} data-test-id="material-check-icon"/>
-        {this.materialCheckButtonText}
-      </Buttons.Secondary>
-      <div class={styles.materialCheckResult} data-test-id="material-check-result">
+    return <dl class={styles.materialCheckContainer}>
+      <dt class={styles.materialCheckControl}>
+        {vnode.attrs.label}
+        <PrimaryButton data-test-id="material-check-button" onclick={() => this.materialCheck(vnode.attrs)} align={vnode.attrs.align} disabled={this.busy}>
+          <span class={this.materialCheckButtonIcon} data-test-id="material-check-icon"/>
+          {this.materialCheckButtonText}
+        </PrimaryButton>
+      </dt>
+      <dd class={styles.materialCheckResult} data-test-id="material-check-result">
         {this.materialCheckMessage}
-      </div>
-    </div>;
+      </dd>
+    </dl>;
   }
 
-  private materialCheck(material: Material, pipelineGroup?: string) {
-    if (this.busy) { return; }
+  private materialCheck(options: { material: Material, prerequisite?: () => boolean }) {
+    const { material, prerequisite } = options;
+
+    if (this.busy || ("function" === typeof prerequisite && !prerequisite())) { return; }
 
     this.materialCheckInProgress();
     material.pacConfigFiles().then((result: ApiResult<any>) => {

@@ -40,6 +40,16 @@ $form-failed-field-background-color: lighten($form-failed-color, 35%);
   margin-bottom:   20px;
 }
 
+.form-disabled {
+  .form-label {
+    color: $form-help-text-color;
+  }
+
+  .form-control, .form-check-input {
+    cursor: not-allowed;
+  }
+}
+
 .form-label {
   display:       block;
   margin-bottom: 5px;

@@ -4,6 +4,7 @@ export const formCheck: string;
 export const formCheckInput: string;
 export const formCompact: string;
 export const formControl: string;
+export const formDisabled: string;
 export const formErrorText: string;
 export const formGroup: string;
 export const formGroupTextFieldWithButton: string;

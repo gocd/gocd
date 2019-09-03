@@ -32,7 +32,6 @@ import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type
 import {ElasticAgentExtension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {Default} from "views/components/buttons";
-import {Form, FormHeader} from "views/components/forms/form";
 import {
   SearchField,
   SelectField,
@@ -42,7 +41,7 @@ import {
 } from "views/components/forms/input_fields";
 import {Refresh} from "views/components/icons";
 import {KeyValuePair} from "views/components/key_value_pair";
-import {Step, Wizard} from "views/components/wizard";
+import {CloseListener, Step, Wizard} from "views/components/wizard";
 import * as foundationStyles from "views/pages/new_plugins/foundation_hax.scss";
 import styles from "./index.scss";
 
@@ -62,31 +61,36 @@ class NewClusterProfileWidget extends MithrilViewComponent<Attrs> {
     });
 
     return (
-      <div>
+      <div class={styles.container}>
         <div>
-          <FormHeader dataTestId={"form-header"}>
-            <Form>
-              <TextField label="Id"
-                         property={vnode.attrs.clusterProfile().id}
-                         errorText={vnode.attrs.clusterProfile().errors().errorsForDisplay("id")}
-                         required={true}/>
+          <div class={styles.profileForm}>
+            <div><TextField label="Id"
+                            property={vnode.attrs.clusterProfile().id}
+                            errorText={vnode.attrs.clusterProfile().errors().errorsForDisplay("id")}
+                            required={true}/></div>
 
-              <SelectField label="Plugin ID"
-                           property={this.pluginIdProxy.bind(this, vnode)}
-                           required={true}
-                           errorText={vnode.attrs.clusterProfile().errors().errorsForDisplay("pluginId")}>
-                <SelectFieldOptions selected={vnode.attrs.clusterProfile().pluginId()}
-                                    items={pluginList}/>
-              </SelectField>
-            </Form>
-          </FormHeader>
-        </div>
-        <div>
-          <div className={foundationClassNames(foundationStyles.foundationGridHax, foundationStyles.foundationFormHax)}>
-            <div class="row collapse" data-test-id="properties-form">
-              {this.clusterProfileForm(vnode)}
+            <div><SelectField label="Plugin ID"
+                              property={this.pluginIdProxy.bind(this, vnode)}
+                              required={true}
+                              errorText={vnode.attrs.clusterProfile().errors().errorsForDisplay("pluginId")}>
+              <SelectFieldOptions selected={vnode.attrs.clusterProfile().pluginId()}
+                                  items={pluginList}/>
+            </SelectField>
             </div>
           </div>
+          <div>
+            <div
+              className={foundationClassNames(foundationStyles.foundationGridHax, foundationStyles.foundationFormHax)}>
+              <div class="row collapse" data-test-id="properties-form">
+                {this.clusterProfileForm(vnode)}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h2>Cluster Profile</h2>
+          <img src="https://placeimg.com/200/200/tech"/>
+          <p>{new LoremIpsum().generateParagraphs(1)}</p>
         </div>
       </div>
     );
@@ -144,11 +148,9 @@ class NewElasticProfileWidget extends MithrilViewComponent<Attrs> {
     const elasticProfileConfigurations = elasticAgentExtension.profileSettings;
 
     return (
-      <div>
+      <div class={styles.container}>
         <div>
-          <FormHeader>
-            {/*<FlashMessage type={MessageType.alert} message={this.noClusterProfileError}/>*/}
-            <Form>
+          <div class={styles.profileForm}>
               <TextField label="Id"
                          property={vnode.attrs.elasticProfile().id}
                          errorText={vnode.attrs.elasticProfile().errors().errorsForDisplay("id")}
@@ -160,18 +162,23 @@ class NewElasticProfileWidget extends MithrilViewComponent<Attrs> {
               {/*<SelectFieldOptions selected={vnode.attrs.elasticProfile().clusterProfileId()}*/}
               {/*items={clustersList as any}/>*/}
               {/*</SelectField>*/}
-            </Form>
-          </FormHeader>
-        </div>
-        <div>
-          <div className={foundationClassNames(foundationStyles.foundationGridHax, foundationStyles.foundationFormHax)}>
-            <div class="row collapse" data-test-id="properties-form">
-              <AngularPluginNew
-                pluginInfoSettings={Stream(elasticProfileConfigurations)}
-                configuration={vnode.attrs.elasticProfile().properties()}
-                key={vnode.attrs.elasticProfile().pluginId}/>
+          </div>
+          <div>
+            <div
+              className={foundationClassNames(foundationStyles.foundationGridHax, foundationStyles.foundationFormHax)}>
+              <div class="row collapse" data-test-id="properties-form">
+                <AngularPluginNew
+                  pluginInfoSettings={Stream(elasticProfileConfigurations)}
+                  configuration={vnode.attrs.elasticProfile().properties()}
+                  key={vnode.attrs.elasticProfile().pluginId}/>
+              </div>
             </div>
           </div>
+        </div>
+        <div>
+          <h2>Elastic Profile</h2>
+          <img src="https://placeimg.com/200/200/tech"/>
+          <p>{new LoremIpsum().generateParagraphs(1)}</p>
         </div>
       </div>
     );
@@ -257,7 +264,7 @@ class AssociateToJobsStep extends Step {
 
   body(): m.Children {
     return (
-      <div class={styles.pipelineStructureContainer}>
+      <div class={styles.container}>
         <div>
           <div class={styles.searchFieldContainer}>
             <div class={styles.selectPipelinesButtons}>
@@ -286,9 +293,9 @@ class AssociateToJobsStep extends Step {
         </div>
 
         <div>
-          <h3>{new LoremIpsum().generateWords(3)}</h3>
+          <h2>Associate to jobs</h2>
           <img src="https://placeimg.com/200/200/tech"/>
-          <p>{new LoremIpsum().generateWords(20)}</p>
+          <p>{new LoremIpsum().generateParagraphs(1)}</p>
         </div>
       </div>
     );
@@ -392,11 +399,16 @@ class ReviewAndVerifyStep extends Step {
 export function openWizard(pluginInfos: Stream<PluginInfos>,
                            clusterProfile: Stream<ClusterProfile>,
                            elasticProfile: Stream<ElasticAgentProfile>,
-                           pipelineStructure: Stream<PipelineStructure>) {
-  return new Wizard()
+                           pipelineStructure: Stream<PipelineStructure>,
+                           closeListener?: CloseListener) {
+
+  let wizard = new Wizard()
     .addStep(new NewClusterProfileStep(pluginInfos, clusterProfile, elasticProfile))
     .addStep(new NewElasticProfileStep(pluginInfos, clusterProfile, elasticProfile))
     .addStep(new AssociateToJobsStep(pipelineStructure))
-    .addStep(new ReviewAndVerifyStep(clusterProfile, elasticProfile))
-    .render();
+    .addStep(new ReviewAndVerifyStep(clusterProfile, elasticProfile));
+  if (closeListener !== undefined) {
+    wizard = wizard.setCloseListener(closeListener);
+  }
+  return wizard.render();
 }

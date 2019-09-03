@@ -15,14 +15,14 @@
 */
 @import "../../global/common";
 
-.pipeline-structure-container {
+.container {
   width:           100%;
   display:         flex;
   justify-content: center;
 
   > div {
-    width:      40%;
-    padding:    20px;
+    width:      45%;
+    padding:    10px;
     max-height: calc(100vh - 280px);
     height:     calc(100vh - 280px);
   }
@@ -33,6 +33,7 @@
   flex-direction: column;
   overflow:       hidden;
   height:         100%;
+  margin-bottom:  10px;
 }
 
 .pipeline-structure {
@@ -77,4 +78,13 @@
 .checkbox {
   padding-left:  20px;
   border-radius: 3px;
+}
+
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  border-bottom: 2px solid $global-border-color ;
+  margin-bottom: 20px;
 }

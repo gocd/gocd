@@ -47,6 +47,7 @@ export class Wizard extends MithrilViewComponent {
   public id: string                         = `modal-${uuid4()}`;
   private steps: Step[]                     = [];
   private selectedStepIndex: Stream<number> = Stream(0);
+  private closeListener?: CloseListener;
 
   view(vnode: m.Vnode): m.Vnode {
     const selectedStep = this.steps[this.selectedStepIndex()];
@@ -75,6 +76,9 @@ export class Wizard extends MithrilViewComponent {
 
   close() {
     ModalManager.close(this);
+    if (this.closeListener !== undefined) {
+      this.closeListener.onClose();
+    }
   }
 
   previous(skip = 1) {
@@ -105,4 +109,13 @@ export class Wizard extends MithrilViewComponent {
     this.steps.push(step);
     return this;
   }
+
+  public setCloseListener(closeListener: CloseListener): Wizard {
+    this.closeListener = closeListener;
+    return this;
+  }
+}
+
+export interface CloseListener {
+  onClose(): void;
 }

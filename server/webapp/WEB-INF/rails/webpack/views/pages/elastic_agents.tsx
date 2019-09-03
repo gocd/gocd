@@ -37,6 +37,7 @@ import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
 import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
 import {NoPluginsOfTypeInstalled} from "views/components/no_plugins_installed";
+import {CloseListener} from "views/components/wizard";
 import {ElasticProfilesPage} from "views/pages/elastic_agent_configurations";
 import {ClusterProfileOperations} from "views/pages/elastic_agent_configurations/cluster_profile_widget";
 import {
@@ -64,6 +65,7 @@ export interface State extends RequiresPluginInfos, SaveOperation {
   pipelineStructure: Stream<PipelineStructure>;
   elasticAgentOperations: ElasticAgentOperations;
   clusterProfileOperations: ClusterProfileOperations;
+  isWizardOpen: Stream<boolean>;
 }
 
 export class PipelineStructureCRUD {
@@ -258,6 +260,7 @@ export class ElasticAgentsPage extends Page<null, State> {
     vnode.state.clusterProfileBeingEdited = Stream();
     vnode.state.elasticProfileBeingEdited = Stream();
     vnode.state.pipelineStructure         = Stream(new PipelineStructure([], []));
+    vnode.state.isWizardOpen              = Stream();
 
     return Promise.all(
       [
@@ -308,12 +311,14 @@ export class ElasticAgentsPage extends Page<null, State> {
 
   private buttons(vnode: m.Vnode<null, State>) {
     const hasPluginInstalled = vnode.state.pluginInfos().length !== 0;
-    if (hasPluginInstalled) {
+    const isWizardClose      = vnode.state.isWizardOpen !== undefined && !vnode.state.isWizardOpen();
+    if (hasPluginInstalled && isWizardClose) {
       return <Primary onclick={this.addNewClusterProfile.bind(this, vnode)}>Add</Primary>;
     }
   }
 
   private addNewClusterProfile(vnode: m.Vnode<null, State>) {
+    vnode.state.isWizardOpen(true);
     vnode.state.clusterProfileBeingEdited(new ClusterProfile("",
                                                              vnode.state.pluginInfos()[0].id,
                                                              new Configurations([])));
@@ -321,9 +326,15 @@ export class ElasticAgentsPage extends Page<null, State> {
                                                                   vnode.state.clusterProfileBeingEdited().pluginId(),
                                                                   vnode.state.clusterProfileBeingEdited().id(),
                                                                   new Configurations([])));
+    const closeListener: CloseListener = {
+      onClose(): void {
+        vnode.state.isWizardOpen(false);
+      }
+    };
+
     return openWizard(vnode.state.pluginInfos,
-               vnode.state.clusterProfileBeingEdited,
-               vnode.state.elasticProfileBeingEdited,
-               vnode.state.pipelineStructure);
+                      vnode.state.clusterProfileBeingEdited,
+                      vnode.state.elasticProfileBeingEdited,
+                      vnode.state.pipelineStructure, closeListener);
   }
 }

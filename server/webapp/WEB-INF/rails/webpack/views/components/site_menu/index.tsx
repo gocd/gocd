@@ -21,7 +21,7 @@ import styles from "./index.scss";
 const classnames = bind(styles);
 
 const activeItem = (href?: string): boolean => {
-  return href === window.location.pathname;
+  return new URL(href, window.location.origin).pathname === window.location.pathname;
 };
 
 interface SiteHeaderLinkAttrs {

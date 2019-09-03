@@ -15,6 +15,7 @@
  */
 
 import {ApiResult} from "helpers/api_request_builder";
+import {LocationHandler, WindowLocation} from "helpers/location_handler";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
@@ -28,16 +29,6 @@ interface Attrs {
   material: Stream<Material>;
   pluginId: Stream<string>;
   loc?: LocationHandler;
-}
-
-export interface LocationHandler {
-  go: (url: string) => void;
-}
-
-class WindowLocation implements LocationHandler {
-  go(url: string) {
-    window.location.href = url;
-  }
 }
 
 export class PacActions extends MithrilViewComponent<Attrs> {

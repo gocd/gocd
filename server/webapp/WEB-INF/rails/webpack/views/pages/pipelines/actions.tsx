@@ -16,6 +16,7 @@
 
 import * as Routes from "gen/ts-routes";
 import {ErrorResponse} from "helpers/api_request_builder";
+import {LocationHandler, WindowLocation} from "helpers/location_handler";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
@@ -28,16 +29,6 @@ import css from "./actions.scss";
 interface Attrs {
   pipelineConfig: PipelineConfig;
   loc?: LocationHandler;
-}
-
-export interface LocationHandler {
-  go: (url: string) => void;
-}
-
-class WindowLocation implements LocationHandler {
-  go(url: string) {
-    window.location.href = url;
-  }
 }
 
 export class PipelineActions extends MithrilViewComponent<Attrs> {

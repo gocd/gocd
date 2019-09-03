@@ -26,8 +26,7 @@ import {
   SvnMaterialAttributes,
   TfsMaterialAttributes
 } from "models/materials/types";
-import {MaterialCheck} from "views/components/config_repos/material_check";
-import {CheckboxField, PasswordField, TextField} from "views/components/forms/input_fields";
+import {CheckboxField, FormField, PasswordField, TextField} from "views/components/forms/input_fields";
 import {TestConnection} from "views/components/materials/test_connection";
 import {TooltipSize} from "views/components/tooltip";
 import * as Tooltip from "views/components/tooltip";
@@ -36,8 +35,28 @@ import {DESTINATION_DIR_HELP_MESSAGE, IDENTIFIER_FORMAT_HELP_MESSAGE} from "./me
 
 interface Attrs {
   material: Material;
-  materialCheck?: boolean;
+  hideTestConnection?: boolean;
   showLocalWorkingCopyOptions: boolean;
+  disabled?: boolean;
+}
+
+function markAllDisabled(vnodes: m.ChildArray) {
+  if (vnodes instanceof Array) {
+    for (const vnode of (vnodes as m.Vnode[])) {
+      if (vnode instanceof Array) {
+        markAllDisabled(vnode);
+      } else {
+        if (FormField.isPrototypeOf(vnode.tag)) {
+          (vnode.attrs as any).readonly = true;
+        } else {
+          if (vnode.children instanceof Array) {
+            markAllDisabled(vnode.children);
+          }
+        }
+      }
+    }
+  }
+  return vnodes;
 }
 
 abstract class ScmFields extends MithrilViewComponent<Attrs> {
@@ -47,15 +66,20 @@ abstract class ScmFields extends MithrilViewComponent<Attrs> {
 
   view(vnode: m.Vnode<Attrs>): m.Children {
     const mattrs = vnode.attrs.material.attributes() as ScmMaterialAttributes;
-    const materialTest = vnode.attrs.materialCheck ?
-      <MaterialCheck material={vnode.attrs.material}/> :
-      <TestConnection material={vnode.attrs.material}/>;
 
-    return [
-      this.requiredFields(mattrs),
-      materialTest,
-      this.advancedOptions(mattrs, vnode.attrs.showLocalWorkingCopyOptions),
-    ];
+    if (vnode.attrs.disabled) {
+      return markAllDisabled(this.requiredFields(mattrs));
+    }
+
+    const fields: m.Children = [this.requiredFields(mattrs)];
+
+    if (!vnode.attrs.hideTestConnection) {
+      fields.push(<TestConnection material={vnode.attrs.material}/>);
+    }
+
+    fields.push(this.advancedOptions(mattrs, vnode.attrs.showLocalWorkingCopyOptions));
+
+    return fields;
   }
 
   advancedOptions(mattrs: ScmMaterialAttributes, showLocalWorkingCopyOptions: boolean): m.Children {

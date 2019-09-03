@@ -307,12 +307,12 @@ export abstract class FormField<T, V = {}> extends MithrilViewComponent<BaseAttr
 
   view(vnode: m.Vnode<BaseAttrs<T> & V>) {
     return (
-      <li class={classnames(styles.formGroup, {[styles.formHasError]: ErrorText.hasErrorText(vnode.attrs)})}>
+      <div class={classnames(styles.formGroup, {[styles.formHasError]: ErrorText.hasErrorText(vnode.attrs), [styles.formDisabled]: vnode.attrs.readonly})}>
         {[<Label {...vnode.attrs} fieldId={this.id}/>]}
         {this.renderInputField(vnode)}
         {[<ErrorText {...vnode.attrs} errorId={this.errorId}/>]}
         {[<HelpText {...vnode.attrs} helpTextId={this.helpTextId}/>]}
-      </li>
+      </div>
     );
   }
 
@@ -505,15 +505,17 @@ export class SearchField extends FormField<string, PlaceholderAttr> {
 export class CheckboxField extends FormField<boolean> {
   view(vnode: m.Vnode<BaseAttrs<boolean>>) {
     return (
-      <li class={classnames(styles.formGroup,
-                                {[styles.formHasError]: ErrorText.hasErrorText(vnode.attrs as ErrorTextAttr)})}>
+      <div class={classnames(styles.formGroup, {
+        [styles.formHasError]: ErrorText.hasErrorText(vnode.attrs as ErrorTextAttr),
+        [styles.formDisabled]: vnode.attrs.readonly
+      })}>
         <div class={styles.formCheck}>
           {this.renderInputField(vnode)}
           <Label {...vnode.attrs as LabelAttr} fieldId={this.id}/>
           <ErrorText {...vnode.attrs as ErrorTextAttr} errorId={this.errorId}/>
           <HelpText {...vnode.attrs as HelpTextAttr} helpTextId={this.helpTextId}/>
         </div>
-      </li>
+      </div>
     );
   }
 
@@ -529,15 +531,17 @@ export class CheckboxField extends FormField<boolean> {
 export class TriStateCheckboxField extends FormField<TriStateCheckbox> {
   view(vnode: m.Vnode<BaseAttrs<TriStateCheckbox>>) {
     return (
-      <li class={classnames(styles.formGroup,
-                                {[styles.formHasError]: ErrorText.hasErrorText(vnode.attrs as ErrorTextAttr)})}>
+      <div class={classnames(styles.formGroup, {
+        [styles.formHasError]: ErrorText.hasErrorText(vnode.attrs as ErrorTextAttr),
+        [styles.formDisabled]: vnode.attrs.readonly
+      })}>
         <div class={styles.formCheck}>
           {this.renderInputField(vnode)}
           <Label {...vnode.attrs as LabelAttr} fieldId={this.id}/>
           <ErrorText {...vnode.attrs as ErrorTextAttr} errorId={this.errorId}/>
           <HelpText {...vnode.attrs as HelpTextAttr} helpTextId={this.helpTextId}/>
         </div>
-      </li>
+      </div>
     );
   }
 
@@ -709,10 +713,10 @@ abstract class TextFieldWithButton extends MithrilViewComponent<TextFieldWithBut
     }
 
     return (
-      <li class={classnames(styles.formGroup, styles.formGroupTextFieldWithButton)} {...defaultAttrs}>
+      <div class={classnames(styles.formGroup, styles.formGroupTextFieldWithButton, {[styles.formDisabled]: vnode.attrs.readonly})} {...defaultAttrs}>
         {this.renderInputField(vnode)}
         {this.renderButton(vnode)}
-      </li>
+      </div>
     );
   }
 

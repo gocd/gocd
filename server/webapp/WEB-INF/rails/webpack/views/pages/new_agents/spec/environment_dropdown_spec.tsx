@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 import m from "mithril";
-import {Agent, AgentsEnvironment, Agents} from "models/new_agent/agents";
+import {Agent, Agents, AgentsEnvironment} from "models/new_agent/agents";
 import {GetAllService} from "models/new_agent/agents_crud";
-import {AgentsVM} from "models/new_agent/agents_vm";
+import {StaticAgentsVM} from "models/new_agent/agents_vm";
 import {AgentsTestData} from "models/new_agent/spec/agents_test_data";
 import {FlashMessageModelWithTimeout} from "views/components/flash_message";
 import {EnvironmentsDropdownButton} from "views/pages/new_agents/environment_dropdown_button";
@@ -26,45 +26,45 @@ describe("EnvironmentsDropdownButton", () => {
   const helper             = new TestHelper(),
         updateEnvironments = jasmine.createSpy("updateEnvironments");
 
-  let agent: Agent, agentsVM: AgentsVM;
+  let agent: Agent, staticAgentsVM: StaticAgentsVM;
   beforeEach(() => {
     agent    = Agent.fromJSON(AgentsTestData.idleAgent());
-    agentsVM = new AgentsVM(new Agents(agent));
+    staticAgentsVM = new StaticAgentsVM(new Agents(agent));
   });
 
   afterEach(helper.unmount.bind(helper));
 
   it("should render disable environment button when no agent is selected", () => {
-    mount(agentsVM, new DummyService([]));
+    mount(staticAgentsVM, new DummyService([]));
 
     expect(helper.byTestId("modify-environments-association")).toBeInDOM();
     expect(helper.byTestId("modify-environments-association")).toBeDisabled();
   });
 
   it("should enable environment button when agent is selected", () => {
-    agentsVM.selectAgent(agent.uuid);
-    mount(agentsVM, new DummyService([]));
+    staticAgentsVM.selectAgent(agent.uuid);
+    mount(staticAgentsVM, new DummyService([]));
 
     expect(helper.byTestId("modify-environments-association")).not.toBeDisabled();
   });
 
   it("should set showResources to false on agents when button is clicked", () => {
-    agentsVM.selectAgent(agent.uuid);
-    agentsVM.showResources(true);
-    mount(agentsVM, new DummyService([]));
+    staticAgentsVM.selectAgent(agent.uuid);
+    staticAgentsVM.showResources(true);
+    mount(staticAgentsVM, new DummyService([]));
 
-    expect(agentsVM.showResources()).toBeTruthy();
-    expect(agentsVM.showEnvironments()).toBeFalsy();
+    expect(staticAgentsVM.showResources()).toBeTruthy();
+    expect(staticAgentsVM.showEnvironments()).toBeFalsy();
 
     helper.clickByDataTestId("modify-environments-association");
 
-    expect(agentsVM.showResources()).toBeFalsy();
-    expect(agentsVM.showEnvironments()).toBeTruthy();
+    expect(staticAgentsVM.showResources()).toBeFalsy();
+    expect(staticAgentsVM.showEnvironments()).toBeTruthy();
   });
 
   it("should render dropdown on click of environment button", () => {
-    agentsVM.selectAgent(agent.uuid);
-    mount(agentsVM, new DummyService([]));
+    staticAgentsVM.selectAgent(agent.uuid);
+    mount(staticAgentsVM, new DummyService([]));
 
     helper.clickByDataTestId("modify-environments-association");
     m.redraw.sync();
@@ -73,7 +73,7 @@ describe("EnvironmentsDropdownButton", () => {
   });
 
   it("should render spinner on click of the button while fetching the data", () => {
-    agentsVM.selectAgent(agent.uuid);
+    staticAgentsVM.selectAgent(agent.uuid);
 
     class MockService implements GetAllService {
       all(onSuccess: (data: string) => void, onError: (message: string) => void): void {
@@ -83,7 +83,7 @@ describe("EnvironmentsDropdownButton", () => {
       }
     }
 
-    mount(agentsVM, new MockService());
+    mount(staticAgentsVM, new MockService());
 
     helper.clickByDataTestId("modify-environments-association");
     m.redraw.sync();
@@ -92,8 +92,8 @@ describe("EnvironmentsDropdownButton", () => {
   });
 
   it("should show the message if no environments are available", () => {
-    agentsVM.selectAgent(agent.uuid);
-    mount(agentsVM, new DummyService([]));
+    staticAgentsVM.selectAgent(agent.uuid);
+    mount(staticAgentsVM, new DummyService([]));
 
     helper.clickByDataTestId("modify-environments-association");
     m.redraw.sync();
@@ -103,8 +103,8 @@ describe("EnvironmentsDropdownButton", () => {
   });
 
   it("should render dropdown with environments when environments are available", () => {
-    agentsVM.selectAgent(agent.uuid);
-    mount(agentsVM, new DummyService(["prod", "test"]));
+    staticAgentsVM.selectAgent(agent.uuid);
+    mount(staticAgentsVM, new DummyService(["prod", "test"]));
 
     helper.clickByDataTestId("modify-environments-association");
     m.redraw.sync();
@@ -116,8 +116,8 @@ describe("EnvironmentsDropdownButton", () => {
 
   describe("TriStateCheckBox", () => {
     it("should render checkboxes unselected when none of the agents is associated with environments ", () => {
-      agentsVM.selectAgent(agent.uuid);
-      mount(agentsVM, new DummyService(["prod", "test"]));
+      staticAgentsVM.selectAgent(agent.uuid);
+      mount(staticAgentsVM, new DummyService(["prod", "test"]));
 
       helper.clickByDataTestId("modify-environments-association");
       m.redraw.sync();
@@ -127,9 +127,9 @@ describe("EnvironmentsDropdownButton", () => {
     });
 
     it("should render checkboxes selected when the agents is associated with environments ", () => {
-      agentsVM.selectAgent(agent.uuid);
+      staticAgentsVM.selectAgent(agent.uuid);
       agent.environments.push(new AgentsEnvironment("prod", "gocd"));
-      mount(agentsVM, new DummyService(["prod", "test"]));
+      mount(staticAgentsVM, new DummyService(["prod", "test"]));
 
       helper.clickByDataTestId("modify-environments-association");
       m.redraw.sync();
@@ -140,11 +140,11 @@ describe("EnvironmentsDropdownButton", () => {
 
     it("should render checkboxes indeterminate when the agents is associated with environments ", () => {
       const agentWithoutEnv = Agent.fromJSON(AgentsTestData.buildingAgent());
-      agentsVM = new AgentsVM(new Agents(agent, agentWithoutEnv));
-      agentsVM.selectAgent(agentWithoutEnv.uuid);
-      agentsVM.selectAgent(agent.uuid);
+      staticAgentsVM = new StaticAgentsVM(new Agents(agent, agentWithoutEnv));
+      staticAgentsVM.selectAgent(agentWithoutEnv.uuid);
+      staticAgentsVM.selectAgent(agent.uuid);
       agent.environments.push(new AgentsEnvironment("prod", "gocd"));
-      mount(agentsVM, new DummyService(["prod", "test"]));
+      mount(staticAgentsVM, new DummyService(["prod", "test"]));
 
       helper.clickByDataTestId("modify-environments-association");
       m.redraw.sync();
@@ -154,7 +154,7 @@ describe("EnvironmentsDropdownButton", () => {
     });
   });
 
-  function mount(agentsVM: AgentsVM, dummyService: GetAllService) {
+  function mount(agentsVM: StaticAgentsVM, dummyService: GetAllService) {
     helper.mount(() => <EnvironmentsDropdownButton agentsVM={agentsVM}
                                                    updateEnvironments={updateEnvironments}
                                                    show={agentsVM.showEnvironments}

@@ -17,17 +17,16 @@
 import m from "mithril";
 import Stream from "mithril/stream";
 import {Agent, Agents} from "models/new_agent/agents";
-import {AgentsVM} from "models/new_agent/agents_vm";
+import {StaticAgentsVM} from "models/new_agent/agents_vm";
 import {AgentsTestData} from "models/new_agent/spec/agents_test_data";
 import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {AnalyticsPluginInfo, AuthorizationPluginInfo} from "models/shared/plugin_infos_new/spec/test_data";
 import {FlashMessageModelWithTimeout} from "views/components/flash_message";
-import {AgentsWidget} from "views/pages/new_agents/agents_widget";
 import {StaticAgentsWidget} from "views/pages/new_agents/static_agents_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
 import styles from "../index.scss";
 
-describe("NewAgentsWidget", () => {
+describe("NewStaticAgentsWidget", () => {
   const helper                 = new TestHelper(),
         onEnable: jasmine.Spy  = jasmine.createSpy("onEnable"),
         onDisable: jasmine.Spy = jasmine.createSpy("onDisable"),
@@ -35,19 +34,20 @@ describe("NewAgentsWidget", () => {
         updateEnvironments     = jasmine.createSpy("updateEnvironments"),
         updateResources        = jasmine.createSpy("updateResources");
 
-  let agentsVM: AgentsVM, agentA: Agent, agentB: Agent, agentC: Agent;
+  let staticAgentsVM: StaticAgentsVM, agentA: Agent, agentB: Agent, agentC: Agent, elasticAgent: Agent;
 
   beforeEach(() => {
-    agentA   = Agent.fromJSON(AgentsTestData.withOs("Windows"));
-    agentB   = Agent.fromJSON(AgentsTestData.withOs("MacOS"));
-    agentC   = Agent.fromJSON(AgentsTestData.withOs("Linux"));
-    agentsVM = new AgentsVM(new Agents(agentA, agentB, agentC));
+    agentA         = Agent.fromJSON(AgentsTestData.withOs("Windows"));
+    agentB         = Agent.fromJSON(AgentsTestData.withOs("MacOS"));
+    agentC         = Agent.fromJSON(AgentsTestData.withOs("Linux"));
+    elasticAgent   = Agent.fromJSON(AgentsTestData.elasticAgent());
+    staticAgentsVM = new StaticAgentsVM(new Agents(agentA, agentB, agentC, elasticAgent));
   });
 
   afterEach(helper.unmount.bind(helper));
 
   it("should render table headers", () => {
-    mount(agentsVM);
+    mount(staticAgentsVM);
 
     const headers = helper.byTestId("table-header-row");
 
@@ -64,45 +64,22 @@ describe("NewAgentsWidget", () => {
     expect(headers.children[9]).toContainText("");
   });
 
-  it("should render agents in the table", () => {
-    mount(agentsVM);
+  it("should render only static agents in the table", () => {
+    mount(staticAgentsVM);
 
     const tableBody = helper.byTestId("table-body");
     expect(tableBody.children).toHaveLength(3);
 
-    assertAgentRow(agentsVM.list()[0]);
-    assertAgentRow(agentsVM.list()[1]);
-    assertAgentRow(agentsVM.list()[2]);
-  });
-
-  it("should render a search box", () => {
-    mount(agentsVM);
-
-    const searchBox = helper.byTestId("form-field-input-search-for-agents");
-
-    expect(searchBox).toBeInDOM();
-  });
-
-  it("should filter agents based on the searched value", () => {
-    mount(agentsVM);
-    const searchBox = helper.byTestId("form-field-input-search-for-agents");
-
-    expect(helper.byTestId("table-body").children).toHaveLength(3);
     assertAgentRow(agentA);
     assertAgentRow(agentB);
     assertAgentRow(agentC);
-
-    helper.oninput(searchBox, "wind");
-
-    expect(helper.byTestId("table-body").children).toHaveLength(1);
-    assertAgentRow(agentA);
   });
 
   it("should highlight building agents", () => {
     const agentA   = Agent.fromJSON(AgentsTestData.idleAgent()),
           agentB   = Agent.fromJSON(AgentsTestData.buildingAgent()),
           agentC   = Agent.fromJSON(AgentsTestData.pendingAgent());
-    const agentsVM = new AgentsVM(new Agents(agentA, agentB, agentC));
+    const agentsVM = new StaticAgentsVM(new Agents(agentA, agentB, agentC));
     mount(agentsVM);
 
     assertAgentBuilding(agentB);
@@ -114,7 +91,7 @@ describe("NewAgentsWidget", () => {
     const agentA   = Agent.fromJSON(AgentsTestData.idleAgent()),
           agentB   = Agent.fromJSON(AgentsTestData.buildingAgent()),
           agentC   = Agent.fromJSON(AgentsTestData.pendingAgent());
-    const agentsVM = new AgentsVM(new Agents(agentA, agentB, agentC));
+    const agentsVM = new StaticAgentsVM(new Agents(agentA, agentB, agentC));
     mount(agentsVM);
 
     helper.click(helper.byTestId(`agent-status-text-${agentB.uuid}`));
@@ -128,7 +105,7 @@ describe("NewAgentsWidget", () => {
   describe("Resources", () => {
     it("should list comma separated resources", () => {
       const agent    = Agent.fromJSON(AgentsTestData.withResources("psql", "firefox", "chrome"));
-      const agentsVM = new AgentsVM(new Agents(agent));
+      const agentsVM = new StaticAgentsVM(new Agents(agent));
 
       mount(agentsVM);
 
@@ -137,7 +114,7 @@ describe("NewAgentsWidget", () => {
 
     it("should show 'none specified' when agent has no resources specified", () => {
       const agent    = Agent.fromJSON(AgentsTestData.withResources());
-      const agentsVM = new AgentsVM(new Agents(agent));
+      const agentsVM = new StaticAgentsVM(new Agents(agent));
 
       mount(agentsVM);
 
@@ -148,7 +125,7 @@ describe("NewAgentsWidget", () => {
   describe("Environments", () => {
     it("should list comma separated environments", () => {
       const agent    = Agent.fromJSON(AgentsTestData.withEnvironments("prod", "dev", "qa"));
-      const agentsVM = new AgentsVM(new Agents(agent));
+      const agentsVM = new StaticAgentsVM(new Agents(agent));
 
       mount(agentsVM);
 
@@ -157,7 +134,7 @@ describe("NewAgentsWidget", () => {
 
     it("should show 'none specified' when agent has no resources specified", () => {
       const agent    = Agent.fromJSON(AgentsTestData.withEnvironments());
-      const agentsVM = new AgentsVM(new Agents(agent));
+      const agentsVM = new StaticAgentsVM(new Agents(agent));
 
       mount(agentsVM);
 
@@ -167,7 +144,7 @@ describe("NewAgentsWidget", () => {
 
   describe("Hostname", () => {
     it("should render hostname as link when user is an admin", () => {
-      mount(new AgentsVM(new Agents(agentA)), true);
+      mount(new StaticAgentsVM(new Agents(agentA)), true);
 
       const anchor = helper.q("a", helper.byTestId(`agent-hostname-of-${agentA.uuid}`));
       expect(anchor).toContainText(agentA.hostname);
@@ -175,7 +152,7 @@ describe("NewAgentsWidget", () => {
     });
 
     it("should render hostname as text when user is not an admin", () => {
-      mount(new AgentsVM(new Agents(agentA)), false);
+      mount(new StaticAgentsVM(new Agents(agentA)), false);
 
       const hostnameCell = helper.byTestId(`agent-hostname-of-${agentA.uuid}`);
       const anchor       = helper.q("a", hostnameCell);
@@ -187,7 +164,7 @@ describe("NewAgentsWidget", () => {
 
   describe("AgentSelection", () => {
     it("should not render checkboxes when user is not an admin", () => {
-      mount(agentsVM, false);
+      mount(staticAgentsVM, false);
 
       expect(helper.byTestId("select-all-agents")).not.toBeInDOM();
       expect(helper.byTestId(`agent-checkbox-of-${agentA.uuid}`)).not.toBeInDOM();
@@ -196,7 +173,7 @@ describe("NewAgentsWidget", () => {
     });
 
     it("should render checkboxes when user is an admin", () => {
-      mount(agentsVM, true);
+      mount(staticAgentsVM, true);
 
       expect(helper.byTestId("select-all-agents")).toBeInDOM();
       expect(helper.byTestId(`agent-checkbox-of-${agentA.uuid}`)).toBeInDOM();
@@ -205,7 +182,7 @@ describe("NewAgentsWidget", () => {
     });
 
     it("should render page with no agent selected", () => {
-      mount(agentsVM);
+      mount(staticAgentsVM);
 
       expect(helper.byTestId("select-all-agents")).not.toBeChecked();
       expect(helper.byTestId(`agent-checkbox-of-${agentA.uuid}`)).not.toBeChecked();
@@ -214,7 +191,7 @@ describe("NewAgentsWidget", () => {
     });
 
     it("should select all on click of global checkbox", () => {
-      mount(agentsVM);
+      mount(staticAgentsVM);
       expect(helper.byTestId(`agent-checkbox-of-${agentA.uuid}`)).not.toBeChecked();
       expect(helper.byTestId(`agent-checkbox-of-${agentB.uuid}`)).not.toBeChecked();
       expect(helper.byTestId(`agent-checkbox-of-${agentC.uuid}`)).not.toBeChecked();
@@ -230,7 +207,7 @@ describe("NewAgentsWidget", () => {
   describe("AnalyticsIcon", () => {
     it("should not render analytics icon when attribute showAnalyticsIcon is set to false", () => {
       const pluginInfos = new PluginInfos(PluginInfo.fromJSON(AnalyticsPluginInfo.analytics()));
-      mount(agentsVM, true, false, Stream(pluginInfos));
+      mount(staticAgentsVM, true, false, Stream(pluginInfos));
 
       expect(helper.byTestId(`analytics-icon-${agentA.uuid}`)).not.toBeInDOM();
       expect(helper.byTestId(`analytics-icon-${agentB.uuid}`)).not.toBeInDOM();
@@ -240,7 +217,7 @@ describe("NewAgentsWidget", () => {
     it("should show analytics icon when attribute showAnalyticsIcon is set to true", () => {
       const pluginInfos = new PluginInfos(PluginInfo.fromJSON(AnalyticsPluginInfo.analytics()));
 
-      mount(agentsVM, true, true, Stream(pluginInfos));
+      mount(staticAgentsVM, true, true, Stream(pluginInfos));
 
       expect(helper.byTestId(`analytics-icon-${agentA.uuid}`)).toBeInDOM();
       expect(helper.byTestId(`analytics-icon-${agentB.uuid}`)).toBeInDOM();
@@ -250,7 +227,7 @@ describe("NewAgentsWidget", () => {
     it("should not render analytics icon when none of the plugin supports", () => {
       const pluginInfos = new PluginInfos(PluginInfo.fromJSON(AuthorizationPluginInfo.github()));
 
-      mount(agentsVM, true, true, Stream(pluginInfos));
+      mount(staticAgentsVM, true, true, Stream(pluginInfos));
 
       expect(helper.byTestId(`analytics-icon-${agentA.uuid}`)).not.toBeInDOM();
       expect(helper.byTestId(`analytics-icon-${agentB.uuid}`)).not.toBeInDOM();
@@ -262,7 +239,7 @@ describe("NewAgentsWidget", () => {
       const pluginInfoJSON              = AnalyticsPluginInfo.withCapabilities(pipelineAnalyticsCapability);
       const pluginInfos                 = new PluginInfos(PluginInfo.fromJSON(pluginInfoJSON));
 
-      mount(agentsVM, true, true, Stream(pluginInfos));
+      mount(staticAgentsVM, true, true, Stream(pluginInfos));
 
       expect(helper.byTestId(`analytics-icon-${agentA.uuid}`)).not.toBeInDOM();
       expect(helper.byTestId(`analytics-icon-${agentB.uuid}`)).not.toBeInDOM();
@@ -274,7 +251,7 @@ describe("NewAgentsWidget", () => {
       const pluginInfoJSON           = AnalyticsPluginInfo.withCapabilities(agentAnalyticsCapability);
       const pluginInfos              = new PluginInfos(PluginInfo.fromJSON(pluginInfoJSON));
 
-      mount(agentsVM, true, true, Stream(pluginInfos));
+      mount(staticAgentsVM, true, true, Stream(pluginInfos));
 
       expect(helper.byTestId(`analytics-icon-${agentA.uuid}`)).toBeInDOM();
       expect(helper.byTestId(`analytics-icon-${agentB.uuid}`)).toBeInDOM();
@@ -282,20 +259,20 @@ describe("NewAgentsWidget", () => {
     });
   });
 
-  function mount(agentsVM: AgentsVM,
+  function mount(staticAgentsVM: StaticAgentsVM,
                  isUserAdmin: boolean             = true,
                  showAnalyticsIcon: boolean       = true,
                  pluginInfos: Stream<PluginInfos> = Stream(new PluginInfos())) {
-    helper.mount(() => <AgentsWidget agentsVM={agentsVM}
-                                     onEnable={onEnable}
-                                     onDisable={onDisable}
-                                     onDelete={onDelete}
-                                     updateEnvironments={updateEnvironments}
-                                     updateResources={updateResources}
-                                     isUserAdmin={isUserAdmin}
-                                     pluginInfos={pluginInfos}
-                                     showAnalyticsIcon={showAnalyticsIcon}
-                                     flashMessage={new FlashMessageModelWithTimeout()}/>);
+    helper.mount(() => <StaticAgentsWidget agentsVM={staticAgentsVM}
+                                           onEnable={onEnable}
+                                           onDisable={onDisable}
+                                           onDelete={onDelete}
+                                           flashMessage={new FlashMessageModelWithTimeout()}
+                                           updateEnvironments={updateEnvironments}
+                                           updateResources={updateResources}
+                                           showAnalyticsIcon={showAnalyticsIcon}
+                                           pluginInfos={pluginInfos}
+                                           isUserAdmin={isUserAdmin}/>);
   }
 
   function assertAgentRow(agent: Agent) {

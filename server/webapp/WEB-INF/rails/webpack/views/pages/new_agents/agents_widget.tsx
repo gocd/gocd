@@ -17,14 +17,16 @@
 import {ApiResult} from "helpers/api_request_builder";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
-import {AgentsVM} from "models/new_agent/agents_vm";
+import {ElasticAgentVM, StaticAgentsVM} from "models/new_agent/agents_vm";
 import {FlashMessageModelWithTimeout} from "views/components/flash_message";
 import {Tabs} from "views/components/tab";
+import {ElasticAgentsWidget} from "views/pages/new_agents/elastic_agents_widget";
 import {RequiresPluginInfos} from "views/pages/page_operations";
 import {StaticAgentsWidget} from "./static_agents_widget";
 
 interface AgentsWidgetAttrs extends RequiresPluginInfos {
-  agentsVM: AgentsVM;
+  staticAgentsVM: StaticAgentsVM;
+  elasticAgentsVM: ElasticAgentVM;
   onEnable: (e: MouseEvent) => void;
   onDisable: (e: MouseEvent) => void;
   onDelete: (e: MouseEvent) => void;
@@ -38,7 +40,7 @@ interface AgentsWidgetAttrs extends RequiresPluginInfos {
 export class AgentsWidget extends MithrilViewComponent<AgentsWidgetAttrs> {
   view(vnode: m.Vnode<AgentsWidgetAttrs>) {
     return <Tabs tabs={["Static", "Elastic"]} contents={[
-      <StaticAgentsWidget agentsVM={vnode.attrs.agentsVM}
+      <StaticAgentsWidget agentsVM={vnode.attrs.staticAgentsVM}
                           onEnable={vnode.attrs.onEnable}
                           onDisable={vnode.attrs.onDisable}
                           onDelete={vnode.attrs.onDelete}
@@ -48,7 +50,9 @@ export class AgentsWidget extends MithrilViewComponent<AgentsWidgetAttrs> {
                           showAnalyticsIcon={vnode.attrs.showAnalyticsIcon}
                           pluginInfos={vnode.attrs.pluginInfos}
                           isUserAdmin={vnode.attrs.isUserAdmin}/>,
-      "Foo"
+      <ElasticAgentsWidget agentsVM={vnode.attrs.elasticAgentsVM}
+                           isUserAdmin={vnode.attrs.isUserAdmin}
+                           pluginInfos={vnode.attrs.pluginInfos}/>
     ]}/>;
   }
 }

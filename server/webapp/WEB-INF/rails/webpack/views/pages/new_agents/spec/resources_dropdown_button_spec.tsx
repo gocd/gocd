@@ -16,7 +16,7 @@
 import m from "mithril";
 import {Agent, Agents} from "models/new_agent/agents";
 import {GetAllService} from "models/new_agent/agents_crud";
-import {AgentsVM} from "models/new_agent/agents_vm";
+import {StaticAgentsVM} from "models/new_agent/agents_vm";
 import {AgentsTestData} from "models/new_agent/spec/agents_test_data";
 import {FlashMessageModelWithTimeout} from "views/components/flash_message";
 import {ResourcesDropdownButton} from "views/pages/new_agents/resources_dropdown_button";
@@ -26,10 +26,10 @@ describe("ResourcesDropdownButton", () => {
   const helper          = new TestHelper(),
         updateResources = jasmine.createSpy("updateResources");
 
-  let agent: Agent, agentsVM: AgentsVM;
+  let agent: Agent, agentsVM: StaticAgentsVM;
   beforeEach(() => {
     agent    = Agent.fromJSON(AgentsTestData.idleAgent());
-    agentsVM = new AgentsVM(new Agents(agent));
+    agentsVM = new StaticAgentsVM(new Agents(agent));
   });
 
   afterEach(helper.unmount.bind(helper));
@@ -111,7 +111,7 @@ describe("ResourcesDropdownButton", () => {
 
     it("should render checkboxes indeterminate when the agents is associated with resources ", () => {
       const agentWithoutResource = Agent.fromJSON(AgentsTestData.buildingAgent());
-      agentsVM                   = new AgentsVM(new Agents(agent, agentWithoutResource));
+      agentsVM                   = new StaticAgentsVM(new Agents(agent, agentWithoutResource));
       agentsVM.selectAgent(agentWithoutResource.uuid);
       agentsVM.selectAgent(agent.uuid);
       agent.resources.push("chrome");
@@ -140,7 +140,7 @@ describe("ResourcesDropdownButton", () => {
     });
   });
 
-  function mount(agentsVM: AgentsVM, dummyService: GetAllService) {
+  function mount(agentsVM: StaticAgentsVM, dummyService: GetAllService) {
     helper.mount(() => <ResourcesDropdownButton agentsVM={agentsVM}
                                                 updateResources={updateResources}
                                                 show={agentsVM.showResources}

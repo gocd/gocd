@@ -19,7 +19,7 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {Agent} from "models/new_agent/agents";
 import {GetAllService} from "models/new_agent/agents_crud";
-import {AgentsVM} from "models/new_agent/agents_vm";
+import {StaticAgentsVM} from "models/new_agent/agents_vm";
 import {TriStateCheckbox, TristateState} from "models/tri_state_checkbox";
 import {Dropdown, DropdownAttrs, Primary} from "views/components/buttons";
 import * as Buttons from "views/components/buttons";
@@ -31,7 +31,7 @@ import spinnerCss from "./spinner.scss";
 
 export interface DropdownAttrs {
   service: GetAllService;
-  agentsVM: AgentsVM;
+  agentsVM: StaticAgentsVM;
   flashMessage: FlashMessageModelWithTimeout;
 }
 

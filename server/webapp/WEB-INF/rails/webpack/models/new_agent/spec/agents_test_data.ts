@@ -78,6 +78,17 @@ export class AgentsTestData {
       .build();
   }
 
+  static buildingElasticAgent() {
+    const agentJSON             = new AgentJSONBuilder()
+      .withConfigState("Enabled")
+      .withAgentState("Building")
+      .withBuildState("Building")
+      .build();
+    agentJSON.elastic_plugin_id = "cd.go.elastic-agent.docker";
+    agentJSON.elastic_agent_id  = `ea-${agentJSON.uuid}`;
+    return agentJSON;
+  }
+
   static buildingAgent() {
     return new AgentJSONBuilder()
       .withConfigState("Enabled")
@@ -92,6 +103,17 @@ export class AgentsTestData {
       .withAgentState("Building")
       .withBuildState("Cancelled")
       .build();
+  }
+
+  static idleElasticAgent() {
+    const agentJSON             = new AgentJSONBuilder()
+      .withConfigState("Enabled")
+      .withAgentState("Idle")
+      .withBuildState("Idle")
+      .build();
+    agentJSON.elastic_plugin_id = "cd.go.elastic-agent.docker";
+    agentJSON.elastic_agent_id  = `ea-${agentJSON.uuid}`;
+    return agentJSON;
   }
 
   static idleAgent() {
@@ -123,6 +145,13 @@ export class AgentsTestData {
     return agentJSON;
   }
 
+  static elasticAgentWithEnvironments(...environments: string[]) {
+    const agentJSON             = new AgentJSONBuilder().withEnvironments(...environments).build();
+    agentJSON.elastic_plugin_id = "cd.go.elastic-agent.docker";
+    agentJSON.elastic_agent_id  = `ea-${agentJSON.uuid}`;
+    return agentJSON;
+  }
+
   static withResources(...resources: string[]) {
     return new AgentJSONBuilder().withResources(...resources).build();
   }
@@ -134,7 +163,7 @@ export class AgentsTestData {
 
 class AgentJSONBuilder {
   private agentJson = {
-    uuid: uuid(),
+    uuid: `${uuid()}`,
     hostname: AgentJSONBuilder.randomHostname(),
     ip_address: AgentJSONBuilder.randomIP(),
     sandbox: AgentJSONBuilder.randomSandbox(),

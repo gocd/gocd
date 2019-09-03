@@ -20,55 +20,76 @@ import {AgentComparator, SortOrder} from "models/new_agent/agent_comparator";
 import {Agent, AgentConfigState, Agents} from "models/new_agent/agents";
 import {TableSortHandler} from "views/components/table";
 
-export class AgentsVM {
-  readonly filterText: Stream<string>                    = Stream();
-  readonly buildDetailsForAgent: Stream<string>          = Stream();
-  readonly showResources: Stream<boolean>                = Stream();
-  readonly showEnvironments: Stream<boolean>             = Stream();
-  private agents: Agents;
-  private readonly _staticAgentSortHandler: AgentSortHandler;
-  private readonly _elasticAgentSortHandler: AgentSortHandler;
-  private readonly _selectedAgentsUUID: Stream<string[]> = Stream([] as string[]);
+export abstract class BaseVM {
+  protected agents: Agents;
+  readonly filterText: Stream<string>               = Stream();
+  readonly showBuildDetailsForAgent: Stream<string> = Stream();
+  readonly agentsSortHandler: AgentSortHandler;
 
-  constructor(agents: Agents = new Agents()) {
-    this.agents                   = agents;
-    this._staticAgentSortHandler  = new AgentSortHandler(agents, new Map(
-      [
-        [1, "hostname"], [2, "sandbox"], [3, "operatingSystem"], [4, "ipAddress"],
-        [5, "agentState"], [6, "freeSpace"], [7, "resources"], [8, "environments"],
-      ])
-    );
-    this._elasticAgentSortHandler = new AgentSortHandler(agents, new Map(
-      [
-        [0, "hostname"], [1, "sandbox"], [2, "operatingSystem"], [3, "ipAddress"],
-        [4, "agentState"], [5, "freeSpace"], [6, "environments"],
-      ])
-    );
-  }
-
-  totalCount() {
-    return this.agents.length;
+  protected constructor(agents: Agents) {
+    this.agents            = agents;
+    this.agentsSortHandler = this.getAgentSortHandler();
   }
 
   sync(agents: Agents) {
     this.agents = agents;
-    AgentsVM.syncAgentSelection(this._selectedAgentsUUID, this.selectedAgentsUUID(), this.agents);
+    this.agentsSortHandler.sort();
   }
 
-  list() {
+  list(): Agent[] {
     if (!this.filterText()) {
       return this.agents;
     }
-
     return this.agents.filter((agent) => this.searchPredicate(agent));
   }
 
-  staticAgentSortHandler() {
-    return this._staticAgentSortHandler;
+  filterBy(agentConfigState: AgentConfigState): Agent[] {
+    return this.list().filter((agent) => agent.agentConfigState === agentConfigState);
   }
 
-  elasticAgentSortHandler() {
-    return this._elasticAgentSortHandler;
+  all() {
+    return this.agents;
+  }
+
+  protected abstract getAgentSortHandler(): AgentSortHandler;
+
+  private static getOrEmpty(str: string | number) {
+    return str ? str.toString().toLowerCase() : "";
+  }
+
+  private searchPredicate(agent: Agent) {
+    const lowercaseFilterText = this.filterText().toLowerCase();
+    return _.includes(BaseVM.getOrEmpty(agent.hostname), lowercaseFilterText) ||
+      _.includes(BaseVM.getOrEmpty(agent.operatingSystem), lowercaseFilterText) ||
+      _.includes(BaseVM.getOrEmpty(agent.sandbox), lowercaseFilterText) ||
+      _.includes(BaseVM.getOrEmpty(agent.ipAddress), lowercaseFilterText) ||
+      _.includes(BaseVM.getOrEmpty(agent.freeSpace.toString()), lowercaseFilterText) ||
+      _.includes(BaseVM.getOrEmpty(agent.status()), lowercaseFilterText) ||
+      _.includes(BaseVM.getOrEmpty(agent.resources.join(", ")), lowercaseFilterText) ||
+      _.includes(BaseVM.getOrEmpty(agent.environmentNames().join(", ")), lowercaseFilterText);
+  }
+}
+
+export class StaticAgentsVM extends BaseVM {
+  readonly showResources: Stream<boolean>                = Stream();
+  readonly showEnvironments: Stream<boolean>             = Stream();
+  private readonly _selectedAgentsUUID: Stream<string[]> = Stream([] as string[]);
+
+  constructor(agents: Agents = new Agents()) {
+    super(agents);
+  }
+
+  sync(agents: Agents) {
+    super.sync(agents);
+    StaticAgentsVM.syncAgentSelection(this._selectedAgentsUUID, this.selectedAgentsUUID(), this.agents);
+  }
+
+  all() {
+    return this.agents;
+  }
+
+  totalCount() {
+    return this.agents.length;
   }
 
   selectedAgentsUUID() {
@@ -109,8 +130,17 @@ export class AgentsVM {
     this._selectedAgentsUUID([]);
   }
 
-  private static getOrEmpty(str: string | number) {
-    return str ? str.toString().toLowerCase() : "";
+  list() {
+    return super.list().filter((agent) => !agent.isElastic());
+  }
+
+  protected getAgentSortHandler() {
+    return new AgentSortHandler(this, new Map(
+      [
+        [1, "hostname"], [2, "sandbox"], [3, "operatingSystem"], [4, "ipAddress"],
+        [5, "agentState"], [6, "freeSpace"], [7, "resources"], [8, "environments"],
+      ])
+    );
   }
 
   private static syncAgentSelection(resultStream: Stream<string[]>,
@@ -127,29 +157,40 @@ export class AgentsVM {
 
     resultStream(agentsFromServer.reduce(reducerFn, []));
   }
+}
 
-  private searchPredicate(agent: Agent) {
-    const lowercaseFilterText = this.filterText().toLowerCase();
-    return _.includes(AgentsVM.getOrEmpty(agent.hostname), lowercaseFilterText) ||
-      _.includes(AgentsVM.getOrEmpty(agent.operatingSystem), lowercaseFilterText) ||
-      _.includes(AgentsVM.getOrEmpty(agent.sandbox), lowercaseFilterText) ||
-      _.includes(AgentsVM.getOrEmpty(agent.ipAddress), lowercaseFilterText) ||
-      _.includes(AgentsVM.getOrEmpty(agent.freeSpace.toString()), lowercaseFilterText) ||
-      _.includes(AgentsVM.getOrEmpty(agent.status()), lowercaseFilterText) ||
-      _.includes(AgentsVM.getOrEmpty(agent.resources.join(", ")), lowercaseFilterText) ||
-      _.includes(AgentsVM.getOrEmpty(agent.environmentNames().join(", ")), lowercaseFilterText);
+export class ElasticAgentVM extends BaseVM {
+  constructor(agents: Agents = new Agents()) {
+    super(agents);
+  }
+
+  sync(agents: Agents) {
+    super.sync(agents);
+  }
+
+  list() {
+    return super.list().filter((agent) => agent.isElastic());
+  }
+
+  protected getAgentSortHandler(): AgentSortHandler {
+    return new AgentSortHandler(this, new Map(
+      [
+        [1, "hostname"], [2, "sandbox"], [3, "operatingSystem"], [4, "ipAddress"],
+        [5, "agentState"], [6, "freeSpace"], [7, "environments"],
+      ])
+    );
   }
 }
 
 export class AgentSortHandler implements TableSortHandler {
   private readonly sortableColumns: Map<number, string>;
-  private readonly agents: Agents;
-  private sortOnColumn: number        = -1;
-  private sortOrder: SortOrder | null = null;
+  private readonly agentsVM: ElasticAgentVM | StaticAgentsVM;
+  private sortOnColumn: number = -1;
+  private sortOrder: SortOrder = SortOrder.ASC;
 
-  constructor(agents: Agents, sortableColumns: Map<number, string>) {
+  constructor(agentsVM: ElasticAgentVM | StaticAgentsVM, sortableColumns: Map<number, string>) {
     this.sortableColumns = sortableColumns;
-    this.agents          = agents;
+    this.agentsVM        = agentsVM;
   }
 
   getSortableColumns(): number[] {
@@ -164,7 +205,12 @@ export class AgentSortHandler implements TableSortHandler {
       this.sortOnColumn = columnIndex;
     }
 
-    this.agents.sort(new AgentComparator(this.sortableColumns.get(columnIndex) as string, this.sortOrder).compare);
+    this.sort();
+  }
+
+  sort() {
+    const agentComparator = new AgentComparator(this.sortableColumns.get(this.sortOnColumn) as string, this.sortOrder);
+    this.agentsVM.all().sort(agentComparator.compare.bind(agentComparator));
   }
 
   currentSortedColumnIndex(): number {

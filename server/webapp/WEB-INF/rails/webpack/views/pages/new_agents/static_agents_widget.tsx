@@ -20,7 +20,7 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
 import {Agent, AgentConfigState} from "models/new_agent/agents";
-import {AgentsVM} from "models/new_agent/agents_vm";
+import {StaticAgentsVM} from "models/new_agent/agents_vm";
 import {AnalyticsCapability} from "models/shared/plugin_infos_new/analytics_plugin_capabilities";
 import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
 import {AnalyticsExtension} from "models/shared/plugin_infos_new/extensions";
@@ -36,7 +36,7 @@ import style from "./index.scss";
 const classnames = bind(style);
 
 interface AgentsWidgetAttrs extends RequiresPluginInfos {
-  agentsVM: AgentsVM;
+  agentsVM: StaticAgentsVM;
   onEnable: (e: MouseEvent) => void;
   onDisable: (e: MouseEvent) => void;
   onDelete: (e: MouseEvent) => void;
@@ -79,7 +79,7 @@ export class StaticAgentsWidget extends MithrilViewComponent<AgentsWidgetAttrs> 
              data-test-id={`agent-operating-system-of-${agent.uuid}`}>{agent.operatingSystem}</div>,
         <div class={tableCellClasses}
              data-test-id={`agent-ip-address-of-${agent.uuid}`}>{agent.ipAddress}</div>,
-        <AgentStatusWidget agent={agent} buildDetailsForAgent={vnode.attrs.agentsVM.buildDetailsForAgent}
+        <AgentStatusWidget agent={agent} buildDetailsForAgent={vnode.attrs.agentsVM.showBuildDetailsForAgent}
                            cssClasses={tableCellClasses}/>,
         <div class={tableCellClasses}
              data-test-id={`agent-free-space-of-${agent.uuid}`}>{agent.readableFreeSpace()}</div>,
@@ -100,13 +100,13 @@ export class StaticAgentsWidget extends MithrilViewComponent<AgentsWidgetAttrs> 
              headers={[
                StaticAgentsWidget.globalCheckBox(vnode),
                "Agent Name", "Sandbox", "OS", "IP Address", "Status", "Free Space", "Resources", "Environments", ""]}
-             sortHandler={vnode.attrs.agentsVM.staticAgentSortHandler()}/>
+             sortHandler={vnode.attrs.agentsVM.agentsSortHandler}/>
 
     </div>;
   }
 
-  private static hideBuildDetails(agentsVM: AgentsVM) {
-    agentsVM.buildDetailsForAgent("");
+  private static hideBuildDetails(agentsVM: StaticAgentsVM) {
+    agentsVM.showBuildDetailsForAgent("");
   }
 
   private static tableCellClasses(agent: Agent) {

@@ -20,7 +20,7 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import {AgentConfigState} from "models/new_agent/agents";
 import {EnvironmentsService, ResourcesService} from "models/new_agent/agents_crud";
-import {AgentsVM} from "models/new_agent/agents_vm";
+import {StaticAgentsVM} from "models/new_agent/agents_vm";
 import {ButtonGroup} from "views/components/buttons";
 import * as Buttons from "views/components/buttons";
 import {FlashMessageModelWithTimeout} from "views/components/flash_message";
@@ -33,7 +33,7 @@ import style from "./index.scss";
 const classnames = bind(style);
 
 interface AgentHeaderPanelAttrs {
-  agentsVM: AgentsVM;
+  agentsVM: StaticAgentsVM;
   onEnable: (e: MouseEvent) => void;
   onDisable: (e: MouseEvent) => void;
   onDelete: (e: MouseEvent) => void;
@@ -83,7 +83,7 @@ export class AgentHeaderPanel extends MithrilViewComponent<AgentHeaderPanelAttrs
     </div>);
   }
 
-  private static isNoneSelected(agentsVM: AgentsVM) {
+  private static isNoneSelected(agentsVM: StaticAgentsVM) {
     return agentsVM.selectedAgentsUUID().length === 0;
   }
 

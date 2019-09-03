@@ -16,7 +16,7 @@
 
 import {SortOrder} from "models/new_agent/agent_comparator";
 import {Agent, AgentConfigState, Agents} from "models/new_agent/agents";
-import {AgentsVM} from "models/new_agent/agents_vm";
+import {ElasticAgentVM, StaticAgentsVM} from "models/new_agent/agents_vm";
 import {AgentsTestData} from "models/new_agent/spec/agents_test_data";
 
 describe("AgentVM", () => {
@@ -30,42 +30,42 @@ describe("AgentVM", () => {
 
   describe("Sync", () => {
     it("should sync agents", () => {
-      const agentsVM = new AgentsVM();
-      expect(agentsVM.totalCount()).toBe(0);
+      const staticAgentsVM = new StaticAgentsVM();
+      expect(staticAgentsVM.totalCount()).toBe(0);
 
-      agentsVM.sync(agents);
+      staticAgentsVM.sync(agents);
 
-      expect(agentsVM.totalCount()).toBe(3);
+      expect(staticAgentsVM.totalCount()).toBe(3);
     });
 
     it("should remove agent uuid from selected agents list when agent is removed from server", () => {
-      const agentOne   = Agent.fromJSON(AgentsTestData.idleAgent()),
-            agentTwo   = Agent.fromJSON(AgentsTestData.buildingAgent()),
-            agentThree = Agent.fromJSON(AgentsTestData.buildingCancelledAgent());
-      const agentsVM   = new AgentsVM(new Agents(agentOne, agentTwo, agentThree));
+      const agentOne       = Agent.fromJSON(AgentsTestData.idleAgent()),
+            agentTwo       = Agent.fromJSON(AgentsTestData.buildingAgent()),
+            agentThree     = Agent.fromJSON(AgentsTestData.buildingCancelledAgent());
+      const staticAgentsVM = new StaticAgentsVM(new Agents(agentOne, agentTwo, agentThree));
 
-      agentsVM.selectAgent(agentOne.uuid);
-      agentsVM.selectAgent(agentTwo.uuid);
-      expect(agentsVM.selectedAgentsUUID()).toEqual([agentOne.uuid, agentTwo.uuid]);
+      staticAgentsVM.selectAgent(agentOne.uuid);
+      staticAgentsVM.selectAgent(agentTwo.uuid);
+      expect(staticAgentsVM.selectedAgentsUUID()).toEqual([agentOne.uuid, agentTwo.uuid]);
 
-      agentsVM.sync(new Agents(agentTwo, agentThree));
+      staticAgentsVM.sync(new Agents(agentTwo, agentThree));
 
-      expect(agentsVM.selectedAgentsUUID()).toEqual([agentTwo.uuid]);
+      expect(staticAgentsVM.selectedAgentsUUID()).toEqual([agentTwo.uuid]);
     });
 
     it("should not modify selection when server returns an addition agents", () => {
-      const agentOne   = Agent.fromJSON(AgentsTestData.idleAgent()),
-            agentTwo   = Agent.fromJSON(AgentsTestData.buildingAgent()),
-            agentThree = Agent.fromJSON(AgentsTestData.buildingCancelledAgent());
-      const agentsVM   = new AgentsVM(new Agents(agentOne, agentTwo));
+      const agentOne       = Agent.fromJSON(AgentsTestData.idleAgent()),
+            agentTwo       = Agent.fromJSON(AgentsTestData.buildingAgent()),
+            agentThree     = Agent.fromJSON(AgentsTestData.buildingCancelledAgent());
+      const staticAgentsVM = new StaticAgentsVM(new Agents(agentOne, agentTwo));
 
-      agentsVM.selectAgent(agentOne.uuid);
-      agentsVM.selectAgent(agentTwo.uuid);
-      expect(agentsVM.selectedAgentsUUID()).toEqual([agentOne.uuid, agentTwo.uuid]);
+      staticAgentsVM.selectAgent(agentOne.uuid);
+      staticAgentsVM.selectAgent(agentTwo.uuid);
+      expect(staticAgentsVM.selectedAgentsUUID()).toEqual([agentOne.uuid, agentTwo.uuid]);
 
-      agentsVM.sync(new Agents(agentOne, agentTwo, agentThree));
+      staticAgentsVM.sync(new Agents(agentOne, agentTwo, agentThree));
 
-      expect(agentsVM.selectedAgentsUUID()).toEqual([agentOne.uuid, agentTwo.uuid]);
+      expect(staticAgentsVM.selectedAgentsUUID()).toEqual([agentOne.uuid, agentTwo.uuid]);
     });
   });
 
@@ -73,246 +73,246 @@ describe("AgentVM", () => {
     it("should return all the agents when filter text is not specified", () => {
       const productionAgent = Agent.fromJSON(AgentsTestData.withHostname("Hostname-A")),
             buildAgent      = Agent.fromJSON(AgentsTestData.withHostname("Hostname-B"));
-      const agentsVM        = new AgentsVM(new Agents(productionAgent, buildAgent));
+      const staticAgentsVM  = new StaticAgentsVM(new Agents(productionAgent, buildAgent));
 
-      expect(agentsVM.filterText()).toBeUndefined();
-      expect(agentsVM.list()).toHaveLength(2);
+      expect(staticAgentsVM.filterText()).toBeUndefined();
+      expect(staticAgentsVM.list()).toHaveLength(2);
     });
 
     it("should return all the agents when filter text is empty", () => {
       const productionAgent = Agent.fromJSON(AgentsTestData.withHostname("Hostname-A")),
             buildAgent      = Agent.fromJSON(AgentsTestData.withHostname("Hostname-B"));
-      const agentsVM        = new AgentsVM(new Agents(productionAgent, buildAgent));
+      const staticAgentsVM  = new StaticAgentsVM(new Agents(productionAgent, buildAgent));
 
-      agentsVM.filterText("");
+      staticAgentsVM.filterText("");
 
-      expect(agentsVM.filterText()).toBe("");
-      expect(agentsVM.list()).toHaveLength(2);
+      expect(staticAgentsVM.filterText()).toBe("");
+      expect(staticAgentsVM.list()).toHaveLength(2);
     });
 
     it("should filter by hostname", () => {
       const productionAgent = Agent.fromJSON(AgentsTestData.withHostname("Hostname-ABC")),
             buildAgent      = Agent.fromJSON(AgentsTestData.withHostname("Hostname-XYZ"));
-      const agentsVM        = new AgentsVM(new Agents(productionAgent, buildAgent));
-      expect(agentsVM.list()).toHaveLength(2);
+      const staticAgentsVM  = new StaticAgentsVM(new Agents(productionAgent, buildAgent));
+      expect(staticAgentsVM.list()).toHaveLength(2);
 
-      agentsVM.filterText("-AbC");
+      staticAgentsVM.filterText("-AbC");
 
-      expect(agentsVM.list()).toHaveLength(1);
-      expect(agentsVM.list()).toContain(productionAgent);
+      expect(staticAgentsVM.list()).toHaveLength(1);
+      expect(staticAgentsVM.list()).toContain(productionAgent);
     });
 
     it("should filter by os", () => {
       const productionAgent = Agent.fromJSON(AgentsTestData.withOs("Windows")),
             buildAgent      = Agent.fromJSON(AgentsTestData.withOs("Mac"));
-      const agentsVM        = new AgentsVM(new Agents(productionAgent, buildAgent));
-      expect(agentsVM.list()).toHaveLength(2);
+      const staticAgentsVM  = new StaticAgentsVM(new Agents(productionAgent, buildAgent));
+      expect(staticAgentsVM.list()).toHaveLength(2);
 
-      agentsVM.filterText("WiNdOwS");
+      staticAgentsVM.filterText("WiNdOwS");
 
-      expect(agentsVM.list()).toHaveLength(1);
-      expect(agentsVM.list()).toContain(productionAgent);
+      expect(staticAgentsVM.list()).toHaveLength(1);
+      expect(staticAgentsVM.list()).toContain(productionAgent);
     });
 
     it("should filter by sandbox", () => {
       const productionAgent = Agent.fromJSON(AgentsTestData.withSandbox("c://go/agent")),
             buildAgent      = Agent.fromJSON(AgentsTestData.withSandbox("/var/lib/go/agent"));
-      const agentsVM        = new AgentsVM(new Agents(productionAgent, buildAgent));
-      expect(agentsVM.list()).toHaveLength(2);
+      const staticAgentsVM  = new StaticAgentsVM(new Agents(productionAgent, buildAgent));
+      expect(staticAgentsVM.list()).toHaveLength(2);
 
-      agentsVM.filterText("/var/li");
+      staticAgentsVM.filterText("/var/li");
 
-      expect(agentsVM.list()).toHaveLength(1);
-      expect(agentsVM.list()).toContain(buildAgent);
+      expect(staticAgentsVM.list()).toHaveLength(1);
+      expect(staticAgentsVM.list()).toContain(buildAgent);
     });
 
     it("should filter by ip", () => {
-      const agentOne   = Agent.fromJSON(AgentsTestData.withIP("10.1.0.5")),
-            agentTwo   = Agent.fromJSON(AgentsTestData.withIP("10.1.0.6")),
-            agentThree = Agent.fromJSON(AgentsTestData.withIP("172.1.0.5"));
-      const agentsVM   = new AgentsVM(new Agents(agentOne, agentTwo, agentThree));
-      expect(agentsVM.list()).toHaveLength(3);
+      const agentOne       = Agent.fromJSON(AgentsTestData.withIP("10.1.0.5")),
+            agentTwo       = Agent.fromJSON(AgentsTestData.withIP("10.1.0.6")),
+            agentThree     = Agent.fromJSON(AgentsTestData.withIP("172.1.0.5"));
+      const staticAgentsVM = new StaticAgentsVM(new Agents(agentOne, agentTwo, agentThree));
+      expect(staticAgentsVM.list()).toHaveLength(3);
 
-      agentsVM.filterText("0.5");
+      staticAgentsVM.filterText("0.5");
 
-      expect(agentsVM.list()).toHaveLength(2);
-      expect(agentsVM.list()).toContain(agentOne);
-      expect(agentsVM.list()).toContain(agentThree);
+      expect(staticAgentsVM.list()).toHaveLength(2);
+      expect(staticAgentsVM.list()).toContain(agentOne);
+      expect(staticAgentsVM.list()).toContain(agentThree);
     });
 
     it("should filter by freespace", () => {
-      const agentOne   = Agent.fromJSON(AgentsTestData.withFreespace(1024)),
-            agentTwo   = Agent.fromJSON(AgentsTestData.withFreespace(2048)),
-            agentThree = Agent.fromJSON(AgentsTestData.withFreespace(10240));
-      const agentsVM   = new AgentsVM(new Agents(agentOne, agentTwo, agentThree));
-      expect(agentsVM.list()).toHaveLength(3);
+      const agentOne       = Agent.fromJSON(AgentsTestData.withFreespace(1024)),
+            agentTwo       = Agent.fromJSON(AgentsTestData.withFreespace(2048)),
+            agentThree     = Agent.fromJSON(AgentsTestData.withFreespace(10240));
+      const staticAgentsVM = new StaticAgentsVM(new Agents(agentOne, agentTwo, agentThree));
+      expect(staticAgentsVM.list()).toHaveLength(3);
 
-      agentsVM.filterText("024");
+      staticAgentsVM.filterText("024");
 
-      expect(agentsVM.list()).toHaveLength(2);
-      expect(agentsVM.list()).toContain(agentOne);
-      expect(agentsVM.list()).toContain(agentThree);
+      expect(staticAgentsVM.list()).toHaveLength(2);
+      expect(staticAgentsVM.list()).toContain(agentOne);
+      expect(staticAgentsVM.list()).toContain(agentThree);
     });
 
     it("should filter by status", () => {
-      const agentOne   = Agent.fromJSON(AgentsTestData.idleAgent()),
-            agentTwo   = Agent.fromJSON(AgentsTestData.buildingAgent()),
-            agentThree = Agent.fromJSON(AgentsTestData.buildingCancelledAgent());
-      const agentsVM   = new AgentsVM(new Agents(agentOne, agentTwo, agentThree));
-      expect(agentsVM.list()).toHaveLength(3);
+      const agentOne       = Agent.fromJSON(AgentsTestData.idleAgent()),
+            agentTwo       = Agent.fromJSON(AgentsTestData.buildingAgent()),
+            agentThree     = Agent.fromJSON(AgentsTestData.buildingCancelledAgent());
+      const staticAgentsVM = new StaticAgentsVM(new Agents(agentOne, agentTwo, agentThree));
+      expect(staticAgentsVM.list()).toHaveLength(3);
 
-      agentsVM.filterText("building");
+      staticAgentsVM.filterText("building");
 
-      expect(agentsVM.list()).toHaveLength(2);
-      expect(agentsVM.list()).toContain(agentTwo);
-      expect(agentsVM.list()).toContain(agentThree);
+      expect(staticAgentsVM.list()).toHaveLength(2);
+      expect(staticAgentsVM.list()).toContain(agentTwo);
+      expect(staticAgentsVM.list()).toContain(agentThree);
     });
 
     it("should filter by resources", () => {
-      const agentOne = Agent.fromJSON(AgentsTestData.withResources("Chrome", "Firefox")),
-            agentTwo = Agent.fromJSON(AgentsTestData.withResources("Chrome", "Safari"));
-      const agentsVM = new AgentsVM(new Agents(agentOne, agentTwo));
-      expect(agentsVM.list()).toHaveLength(2);
+      const agentOne       = Agent.fromJSON(AgentsTestData.withResources("Chrome", "Firefox")),
+            agentTwo       = Agent.fromJSON(AgentsTestData.withResources("Chrome", "Safari"));
+      const staticAgentsVM = new StaticAgentsVM(new Agents(agentOne, agentTwo));
+      expect(staticAgentsVM.list()).toHaveLength(2);
 
-      agentsVM.filterText("FiReFox");
+      staticAgentsVM.filterText("FiReFox");
 
-      expect(agentsVM.list()).toHaveLength(1);
-      expect(agentsVM.list()).toContain(agentOne);
+      expect(staticAgentsVM.list()).toHaveLength(1);
+      expect(staticAgentsVM.list()).toContain(agentOne);
     });
 
     it("should filter by environments", () => {
-      const agentOne = Agent.fromJSON(AgentsTestData.withEnvironments("Production")),
-            agentTwo = Agent.fromJSON(AgentsTestData.withEnvironments("Test", "QA"));
-      const agentsVM = new AgentsVM(new Agents(agentOne, agentTwo));
-      expect(agentsVM.list()).toHaveLength(2);
+      const agentOne       = Agent.fromJSON(AgentsTestData.withEnvironments("Production")),
+            agentTwo       = Agent.fromJSON(AgentsTestData.withEnvironments("Test", "QA"));
+      const staticAgentsVM = new StaticAgentsVM(new Agents(agentOne, agentTwo));
+      expect(staticAgentsVM.list()).toHaveLength(2);
 
-      agentsVM.filterText("PrOd");
+      staticAgentsVM.filterText("PrOd");
 
-      expect(agentsVM.list()).toHaveLength(1);
-      expect(agentsVM.list()).toContain(agentOne);
+      expect(staticAgentsVM.list()).toHaveLength(1);
+      expect(staticAgentsVM.list()).toContain(agentOne);
     });
 
     it("should filter skip agent if property is not defined", () => {
       const agentOneJson = AgentsTestData.withHostname("Hostname-AAA");
       delete agentOneJson.hostname;
 
-      const agentOne = Agent.fromJSON(agentOneJson),
-            agentTwo = Agent.fromJSON(AgentsTestData.withHostname("Hostname-BBB"));
-      const agentsVM = new AgentsVM(new Agents(agentOne, agentTwo));
-      expect(agentsVM.list()).toHaveLength(2);
+      const agentOne       = Agent.fromJSON(agentOneJson),
+            agentTwo       = Agent.fromJSON(AgentsTestData.withHostname("Hostname-BBB"));
+      const staticAgentsVM = new StaticAgentsVM(new Agents(agentOne, agentTwo));
+      expect(staticAgentsVM.list()).toHaveLength(2);
 
-      agentsVM.filterText("Hostname-");
+      staticAgentsVM.filterText("Hostname-");
 
-      expect(agentsVM.list()).toHaveLength(1);
-      expect(agentsVM.list()).toContain(agentTwo);
+      expect(staticAgentsVM.list()).toHaveLength(1);
+      expect(staticAgentsVM.list()).toContain(agentTwo);
     });
   });
 
   describe("StaticAgentSortHandler", () => {
     it("should initialize static agent sort handler", () => {
-      const agentVM = new AgentsVM(new Agents());
+      const staticAgentVM = new StaticAgentsVM(new Agents());
 
-      expect(agentVM.staticAgentSortHandler()).not.toBeNull();
-      expect(agentVM.staticAgentSortHandler().getSortableColumns()).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
+      expect(staticAgentVM.agentsSortHandler).not.toBeNull();
+      expect(staticAgentVM.agentsSortHandler.getSortableColumns()).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
     });
 
-    it("should update column index and sort order on click of a column", () => {
-      const agentVM = new AgentsVM(new Agents());
+    it("should update column index on click of a column", () => {
+      const staticAgentVM = new StaticAgentsVM(new Agents());
 
-      expect(agentVM.staticAgentSortHandler().currentSortedColumnIndex()).toBe(-1);
-      expect(agentVM.staticAgentSortHandler().currentSortOrder()).toBeNull();
+      expect(staticAgentVM.agentsSortHandler.currentSortedColumnIndex()).toBe(-1);
+      expect(staticAgentVM.agentsSortHandler.currentSortOrder()).toBe(SortOrder.ASC);
 
-      agentVM.staticAgentSortHandler().onColumnClick(3);
+      staticAgentVM.agentsSortHandler.onColumnClick(3);
 
-      expect(agentVM.staticAgentSortHandler().currentSortedColumnIndex()).toBe(3);
-      expect(agentVM.staticAgentSortHandler().currentSortOrder()).toBe(SortOrder.ASC);
+      expect(staticAgentVM.agentsSortHandler.currentSortedColumnIndex()).toBe(3);
+      expect(staticAgentVM.agentsSortHandler.currentSortOrder()).toBe(SortOrder.ASC);
     });
 
     it("should change the sort order if column clicked twice", () => {
-      const agentVM = new AgentsVM(new Agents());
+      const staticAgentVM = new StaticAgentsVM(new Agents());
 
-      agentVM.staticAgentSortHandler().onColumnClick(3);
-      expect(agentVM.staticAgentSortHandler().currentSortOrder()).toBe(SortOrder.ASC);
+      staticAgentVM.agentsSortHandler.onColumnClick(3);
+      expect(staticAgentVM.agentsSortHandler.currentSortOrder()).toBe(SortOrder.ASC);
 
-      agentVM.staticAgentSortHandler().onColumnClick(3);
-      expect(agentVM.staticAgentSortHandler().currentSortOrder()).toBe(SortOrder.DESC);
+      staticAgentVM.agentsSortHandler.onColumnClick(3);
+      expect(staticAgentVM.agentsSortHandler.currentSortOrder()).toBe(SortOrder.DESC);
     });
   });
 
   describe("ElasticAgentSortHandler", () => {
     it("should initialize elastic agent sort handler", () => {
-      const agentVM = new AgentsVM(new Agents());
+      const elasticAgentVM = new ElasticAgentVM(new Agents());
 
-      expect(agentVM.elasticAgentSortHandler()).not.toBeNull();
-      expect(agentVM.elasticAgentSortHandler().getSortableColumns()).toEqual([0, 1, 2, 3, 4, 5, 6]);
+      expect(elasticAgentVM.agentsSortHandler).not.toBeNull();
+      expect(elasticAgentVM.agentsSortHandler.getSortableColumns()).toEqual([1, 2, 3, 4, 5, 6, 7]);
     });
 
-    it("should update column index and sort order on click of the column on elastic agents", () => {
-      const agentVM = new AgentsVM(new Agents());
+    it("should update column index on click of the column on elastic agents", () => {
+      const elasticAgentVM = new ElasticAgentVM(new Agents());
 
-      expect(agentVM.elasticAgentSortHandler().currentSortedColumnIndex()).toBe(-1);
-      expect(agentVM.elasticAgentSortHandler().currentSortOrder()).toBeNull();
+      expect(elasticAgentVM.agentsSortHandler.currentSortedColumnIndex()).toBe(-1);
+      expect(elasticAgentVM.agentsSortHandler.currentSortOrder()).toBe(SortOrder.ASC);
 
-      agentVM.elasticAgentSortHandler().onColumnClick(3);
+      elasticAgentVM.agentsSortHandler.onColumnClick(3);
 
-      expect(agentVM.elasticAgentSortHandler().currentSortedColumnIndex()).toBe(3);
-      expect(agentVM.elasticAgentSortHandler().currentSortOrder()).toBe(SortOrder.ASC);
+      expect(elasticAgentVM.agentsSortHandler.currentSortedColumnIndex()).toBe(3);
+      expect(elasticAgentVM.agentsSortHandler.currentSortOrder()).toBe(SortOrder.ASC);
     });
 
     it("should change the sort order if column clicked twice", () => {
-      const agentVM = new AgentsVM(new Agents());
+      const elasticAgentVM = new ElasticAgentVM(new Agents());
 
-      agentVM.elasticAgentSortHandler().onColumnClick(3);
-      expect(agentVM.elasticAgentSortHandler().currentSortOrder()).toBe(SortOrder.ASC);
+      elasticAgentVM.agentsSortHandler.onColumnClick(3);
+      expect(elasticAgentVM.agentsSortHandler.currentSortOrder()).toBe(SortOrder.ASC);
 
-      agentVM.elasticAgentSortHandler().onColumnClick(3);
-      expect(agentVM.elasticAgentSortHandler().currentSortOrder()).toBe(SortOrder.DESC);
+      elasticAgentVM.agentsSortHandler.onColumnClick(3);
+      expect(elasticAgentVM.agentsSortHandler.currentSortOrder()).toBe(SortOrder.DESC);
     });
   });
 
   describe("selectAgent", () => {
     it("should select agent with uuid", () => {
-      const agentOne = Agent.fromJSON(AgentsTestData.idleAgent()),
-            agentTwo = Agent.fromJSON(AgentsTestData.buildingAgent());
-      const agentsVM = new AgentsVM(new Agents(agentOne, agentTwo));
+      const agentOne       = Agent.fromJSON(AgentsTestData.idleAgent()),
+            agentTwo       = Agent.fromJSON(AgentsTestData.buildingAgent());
+      const staticAgentsVM = new StaticAgentsVM(new Agents(agentOne, agentTwo));
 
-      expect(agentsVM.selectedAgentsUUID()).toHaveLength(0);
+      expect(staticAgentsVM.selectedAgentsUUID()).toHaveLength(0);
 
-      agentsVM.selectAgent(agentOne.uuid);
+      staticAgentsVM.selectAgent(agentOne.uuid);
 
-      expect(agentsVM.selectedAgentsUUID()).toHaveLength(1);
-      expect(agentsVM.selectedAgentsUUID()).toEqual([agentOne.uuid]);
+      expect(staticAgentsVM.selectedAgentsUUID()).toHaveLength(1);
+      expect(staticAgentsVM.selectedAgentsUUID()).toEqual([agentOne.uuid]);
     });
 
     it("should not add agent to selection list if it is already added", () => {
-      const agentOne = Agent.fromJSON(AgentsTestData.idleAgent()),
-            agentTwo = Agent.fromJSON(AgentsTestData.buildingAgent());
-      const agentsVM = new AgentsVM(new Agents(agentOne, agentTwo));
+      const agentOne       = Agent.fromJSON(AgentsTestData.idleAgent()),
+            agentTwo       = Agent.fromJSON(AgentsTestData.buildingAgent());
+      const staticAgentsVM = new StaticAgentsVM(new Agents(agentOne, agentTwo));
 
-      agentsVM.selectAgent(agentOne.uuid);
-      expect(agentsVM.selectedAgentsUUID()).toHaveLength(1);
-      expect(agentsVM.selectedAgentsUUID()).toEqual([agentOne.uuid]);
+      staticAgentsVM.selectAgent(agentOne.uuid);
+      expect(staticAgentsVM.selectedAgentsUUID()).toHaveLength(1);
+      expect(staticAgentsVM.selectedAgentsUUID()).toEqual([agentOne.uuid]);
 
-      agentsVM.selectAgent(agentOne.uuid);
-      expect(agentsVM.selectedAgentsUUID()).toHaveLength(1);
-      expect(agentsVM.selectedAgentsUUID()).toEqual([agentOne.uuid]);
+      staticAgentsVM.selectAgent(agentOne.uuid);
+      expect(staticAgentsVM.selectedAgentsUUID()).toHaveLength(1);
+      expect(staticAgentsVM.selectedAgentsUUID()).toEqual([agentOne.uuid]);
     });
   });
 
   describe("unselectAll", () => {
     it("should clear selection", () => {
-      const agentOne = Agent.fromJSON(AgentsTestData.idleAgent()),
-            agentTwo = Agent.fromJSON(AgentsTestData.buildingAgent());
-      const agentsVM = new AgentsVM(new Agents(agentOne, agentTwo));
+      const agentOne       = Agent.fromJSON(AgentsTestData.idleAgent()),
+            agentTwo       = Agent.fromJSON(AgentsTestData.buildingAgent());
+      const staticAgentsVM = new StaticAgentsVM(new Agents(agentOne, agentTwo));
 
-      agentsVM.selectAgent(agentOne.uuid);
-      expect(agentsVM.selectedAgentsUUID()).toHaveLength(1);
-      expect(agentsVM.selectedAgentsUUID()).toEqual([agentOne.uuid]);
+      staticAgentsVM.selectAgent(agentOne.uuid);
+      expect(staticAgentsVM.selectedAgentsUUID()).toHaveLength(1);
+      expect(staticAgentsVM.selectedAgentsUUID()).toEqual([agentOne.uuid]);
 
-      agentsVM.unselectAll();
+      staticAgentsVM.unselectAll();
 
-      expect(agentsVM.selectedAgentsUUID()).toHaveLength(0);
-      expect(agentsVM.selectedAgentsUUID()).toEqual([]);
+      expect(staticAgentsVM.selectedAgentsUUID()).toHaveLength(0);
+      expect(staticAgentsVM.selectedAgentsUUID()).toEqual([]);
     });
   });
 
@@ -321,107 +321,107 @@ describe("AgentVM", () => {
       const agentOne = Agent.fromJSON(AgentsTestData.idleAgent()),
             agentTwo = Agent.fromJSON(AgentsTestData.buildingAgent());
 
-      const agentsVM = new AgentsVM(new Agents(agentOne, agentTwo));
-      agentsVM.selectAgent(agentOne.uuid);
-      agentsVM.selectAgent(agentTwo.uuid);
+      const staticAgentsVM = new StaticAgentsVM(new Agents(agentOne, agentTwo));
+      staticAgentsVM.selectAgent(agentOne.uuid);
+      staticAgentsVM.selectAgent(agentTwo.uuid);
 
-      expect(agentsVM.selectedAgentsUUID()).toEqual([agentOne.uuid, agentTwo.uuid]);
-      expect(agentsVM.isAllStaticAgentSelected()).toBeTruthy();
+      expect(staticAgentsVM.selectedAgentsUUID()).toEqual([agentOne.uuid, agentTwo.uuid]);
+      expect(staticAgentsVM.isAllStaticAgentSelected()).toBeTruthy();
     });
 
     it("should be false when at least one agent is not selected", () => {
       const agentOne = Agent.fromJSON(AgentsTestData.idleAgent()),
             agentTwo = Agent.fromJSON(AgentsTestData.buildingAgent());
 
-      const agentsVM = new AgentsVM(new Agents(agentOne, agentTwo));
-      agentsVM.selectAgent(agentTwo.uuid);
+      const staticAgentsVM = new StaticAgentsVM(new Agents(agentOne, agentTwo));
+      staticAgentsVM.selectAgent(agentTwo.uuid);
 
-      expect(agentsVM.selectedAgentsUUID()).toEqual([agentTwo.uuid]);
-      expect(agentsVM.isAllStaticAgentSelected()).toBeFalsy();
+      expect(staticAgentsVM.selectedAgentsUUID()).toEqual([agentTwo.uuid]);
+      expect(staticAgentsVM.isAllStaticAgentSelected()).toBeFalsy();
     });
   });
 
   describe("toggleAgentsSelection", () => {
     it("should unselect all agents when all are selected", () => {
-      const agentOne = Agent.fromJSON(AgentsTestData.idleAgent()),
-            agentTwo = Agent.fromJSON(AgentsTestData.buildingAgent());
-      const agentsVM = new AgentsVM(new Agents(agentOne, agentTwo));
+      const agentOne       = Agent.fromJSON(AgentsTestData.idleAgent()),
+            agentTwo       = Agent.fromJSON(AgentsTestData.buildingAgent());
+      const staticAgentsVM = new StaticAgentsVM(new Agents(agentOne, agentTwo));
 
-      agentsVM.selectAgent(agentOne.uuid);
-      agentsVM.selectAgent(agentTwo.uuid);
-      expect(agentsVM.selectedAgentsUUID()).toEqual([agentOne.uuid, agentTwo.uuid]);
+      staticAgentsVM.selectAgent(agentOne.uuid);
+      staticAgentsVM.selectAgent(agentTwo.uuid);
+      expect(staticAgentsVM.selectedAgentsUUID()).toEqual([agentOne.uuid, agentTwo.uuid]);
 
-      agentsVM.toggleAgentsSelection();
+      staticAgentsVM.toggleAgentsSelection();
 
-      expect(agentsVM.selectedAgentsUUID()).toEqual([]);
+      expect(staticAgentsVM.selectedAgentsUUID()).toEqual([]);
     });
 
     it("should select all agents when all agents are unselected", () => {
-      const agentOne = Agent.fromJSON(AgentsTestData.idleAgent()),
-            agentTwo = Agent.fromJSON(AgentsTestData.buildingAgent());
-      const agentsVM = new AgentsVM(new Agents(agentOne, agentTwo));
+      const agentOne       = Agent.fromJSON(AgentsTestData.idleAgent()),
+            agentTwo       = Agent.fromJSON(AgentsTestData.buildingAgent());
+      const staticAgentsVM = new StaticAgentsVM(new Agents(agentOne, agentTwo));
 
-      expect(agentsVM.selectedAgentsUUID()).toHaveLength(0);
+      expect(staticAgentsVM.selectedAgentsUUID()).toHaveLength(0);
 
-      agentsVM.toggleAgentsSelection();
+      staticAgentsVM.toggleAgentsSelection();
 
-      expect(agentsVM.selectedAgentsUUID()).toEqual([agentOne.uuid, agentTwo.uuid]);
+      expect(staticAgentsVM.selectedAgentsUUID()).toEqual([agentOne.uuid, agentTwo.uuid]);
     });
 
     it("should select all agents when some agents are selected", () => {
-      const agentOne = Agent.fromJSON(AgentsTestData.idleAgent()),
-            agentTwo = Agent.fromJSON(AgentsTestData.buildingAgent());
-      const agentsVM = new AgentsVM(new Agents(agentOne, agentTwo));
-      agentsVM.selectAgent(agentOne.uuid);
+      const agentOne       = Agent.fromJSON(AgentsTestData.idleAgent()),
+            agentTwo       = Agent.fromJSON(AgentsTestData.buildingAgent());
+      const staticAgentsVM = new StaticAgentsVM(new Agents(agentOne, agentTwo));
+      staticAgentsVM.selectAgent(agentOne.uuid);
 
-      expect(agentsVM.selectedAgentsUUID()).toHaveLength(1);
+      expect(staticAgentsVM.selectedAgentsUUID()).toHaveLength(1);
 
-      agentsVM.toggleAgentsSelection();
+      staticAgentsVM.toggleAgentsSelection();
 
-      expect(agentsVM.selectedAgentsUUID()).toEqual([agentOne.uuid, agentTwo.uuid]);
+      expect(staticAgentsVM.selectedAgentsUUID()).toEqual([agentOne.uuid, agentTwo.uuid]);
     });
   });
 
   describe("FilterByAgentConfigState", () => {
     it("should return all agents by agent config state", () => {
-      const agentA   = Agent.fromJSON(AgentsTestData.disabledAgent()),
-            agentB   = Agent.fromJSON(AgentsTestData.buildingAgent()),
-            agentC   = Agent.fromJSON(AgentsTestData.pendingAgent()),
-            agentD   = Agent.fromJSON(AgentsTestData.idleAgent()),
-            agentE   = Agent.fromJSON(AgentsTestData.pendingAgent());
-      const agentsVM = new AgentsVM(new Agents(agentA, agentB, agentC, agentD, agentE));
+      const agentA         = Agent.fromJSON(AgentsTestData.disabledAgent()),
+            agentB         = Agent.fromJSON(AgentsTestData.buildingAgent()),
+            agentC         = Agent.fromJSON(AgentsTestData.pendingAgent()),
+            agentD         = Agent.fromJSON(AgentsTestData.idleAgent()),
+            agentE         = Agent.fromJSON(AgentsTestData.pendingAgent());
+      const staticAgentsVM = new StaticAgentsVM(new Agents(agentA, agentB, agentC, agentD, agentE));
 
-      let filteredAgents = agentsVM.filterBy(AgentConfigState.Pending);
+      let filteredAgents = staticAgentsVM.filterBy(AgentConfigState.Pending);
       expect(filteredAgents).toHaveLength(2);
       expect(filteredAgents).toEqual([agentC, agentE]);
 
-      filteredAgents = agentsVM.filterBy(AgentConfigState.Enabled);
+      filteredAgents = staticAgentsVM.filterBy(AgentConfigState.Enabled);
       expect(filteredAgents).toHaveLength(2);
       expect(filteredAgents).toEqual([agentB, agentD]);
 
-      filteredAgents = agentsVM.filterBy(AgentConfigState.Disabled);
+      filteredAgents = staticAgentsVM.filterBy(AgentConfigState.Disabled);
       expect(filteredAgents).toHaveLength(1);
       expect(filteredAgents).toContain(agentA);
     });
 
     it("should return agents by agent config state after applying search filter", () => {
-      const agentA   = Agent.fromJSON(AgentsTestData.disabledAgent()),
-            agentB   = Agent.fromJSON(AgentsTestData.buildingAgent()),
-            agentC   = Agent.fromJSON(AgentsTestData.pendingAgent()),
-            agentD   = Agent.fromJSON(AgentsTestData.idleAgent()),
-            agentE   = Agent.fromJSON(AgentsTestData.pendingAgent());
-      const agentsVM = new AgentsVM(new Agents(agentA, agentB, agentC, agentD, agentE));
+      const agentA         = Agent.fromJSON(AgentsTestData.disabledAgent()),
+            agentB         = Agent.fromJSON(AgentsTestData.buildingAgent()),
+            agentC         = Agent.fromJSON(AgentsTestData.pendingAgent()),
+            agentD         = Agent.fromJSON(AgentsTestData.idleAgent()),
+            agentE         = Agent.fromJSON(AgentsTestData.pendingAgent());
+      const staticAgentsVM = new StaticAgentsVM(new Agents(agentA, agentB, agentC, agentD, agentE));
 
-      agentsVM.filterText("Building");
+      staticAgentsVM.filterText("Building");
 
-      let filteredAgents = agentsVM.filterBy(AgentConfigState.Pending);
+      let filteredAgents = staticAgentsVM.filterBy(AgentConfigState.Pending);
       expect(filteredAgents).toHaveLength(0);
 
-      filteredAgents = agentsVM.filterBy(AgentConfigState.Enabled);
+      filteredAgents = staticAgentsVM.filterBy(AgentConfigState.Enabled);
       expect(filteredAgents).toHaveLength(1);
       expect(filteredAgents).toContain(agentB);
 
-      filteredAgents = agentsVM.filterBy(AgentConfigState.Disabled);
+      filteredAgents = staticAgentsVM.filterBy(AgentConfigState.Disabled);
       expect(filteredAgents).toHaveLength(0);
     });
   });

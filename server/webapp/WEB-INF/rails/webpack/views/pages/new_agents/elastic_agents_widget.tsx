@@ -17,11 +17,12 @@
 import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
-import {
-  Agent,
-  AgentConfigState,
-  Agents,
-} from "models/new_agent/agents";
+import {Agent, AgentConfigState} from "models/new_agent/agents";
+import {ElasticAgentVM} from "models/new_agent/agents_vm";
+import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
+import {SearchField} from "views/components/forms/input_fields";
+import {HeaderIcon} from "views/components/header_icon";
+import {KeyValuePair} from "views/components/key_value_pair";
 import {Table} from "views/components/table";
 import {AgentStatusWidget} from "views/pages/new_agents/agent_status_widget";
 import {RequiresPluginInfos} from "views/pages/page_operations";
@@ -30,25 +31,26 @@ import style from "./index.scss";
 const classnames = bind(style);
 
 interface AgentsWidgetAttrs extends RequiresPluginInfos {
-  agents: Agents;
+  agentsVM: ElasticAgentVM;
   isUserAdmin: boolean;
 }
 
 export class ElasticAgentsWidget extends MithrilViewComponent<AgentsWidgetAttrs> {
   view(vnode: m.Vnode<AgentsWidgetAttrs>) {
-    const tableData = vnode.attrs.agents.list().map((agent: Agent) => {
+    const tableData = vnode.attrs.agentsVM.list().map((agent: Agent) => {
       const tableCellClasses = ElasticAgentsWidget.tableCellClasses(agent);
       return [
+        <div class={tableCellClasses}>{this.pluginIcon(vnode.attrs.pluginInfos(), agent)}</div>,
         <div class={classnames(tableCellClasses, style.hostname)} data-test-id={`agent-hostname-of-${agent.uuid}`}>
           {ElasticAgentsWidget.getHostnameLink(vnode.attrs.isUserAdmin, agent)}
         </div>,
-        <div class={tableCellClasses}
-             data-test-id={`agent-sandbox-of-${agent.uuid}`}>{agent.sandbox}</div>,
+        <div class={tableCellClasses} data-test-id={`agent-sandbox-of-${agent.uuid}`}>{agent.sandbox}</div>,
         <div class={tableCellClasses}
              data-test-id={`agent-operating-system-of-${agent.uuid}`}>{agent.operatingSystem}</div>,
         <div class={tableCellClasses}
              data-test-id={`agent-ip-address-of-${agent.uuid}`}>{agent.ipAddress}</div>,
-        <AgentStatusWidget agent={agent} buildDetailsForAgent={vnode.attrs.agents.buildDetailsForAgent}
+        <AgentStatusWidget agent={agent}
+                           buildDetailsForAgent={vnode.attrs.agentsVM.showBuildDetailsForAgent}
                            cssClasses={tableCellClasses}/>,
         <div class={tableCellClasses}
              data-test-id={`agent-free-space-of-${agent.uuid}`}>{agent.readableFreeSpace()}</div>,
@@ -57,10 +59,25 @@ export class ElasticAgentsWidget extends MithrilViewComponent<AgentsWidgetAttrs>
       ];
     });
 
-    return <div class={style.agentsTable} onclick={ElasticAgentsWidget.hideBuildDetails.bind(this, vnode.attrs.agents)}>
+    return <div class={style.agentsTable}
+                onclick={ElasticAgentsWidget.hideBuildDetails.bind(this, vnode.attrs.agentsVM)}>
+      <div class={style.headerPanel}>
+        <div class={style.leftContainer}>
+          <KeyValuePair inline={true} data={new Map(
+            [
+              ["Total", this.span(vnode.attrs.agentsVM.list().length)],
+              ["Pending", this.span(vnode.attrs.agentsVM.filterBy(AgentConfigState.Pending).length)],
+              ["Enabled", this.span(vnode.attrs.agentsVM.filterBy(AgentConfigState.Enabled).length, style.enabled)],
+              ["Disabled", this.span(vnode.attrs.agentsVM.filterBy(AgentConfigState.Disabled).length, style.disabled)]
+            ])
+          }/>
+        </div>
+
+        <SearchField placeholder="Filter Agents" label="Search for agents" property={vnode.attrs.agentsVM.filterText}/>
+      </div>
       <Table data={tableData}
-             headers={["Agent Name", "Sandbox", "OS", "IP Address", "Status", "Free Space", "Environments"]}
-             sortHandler={vnode.attrs.agents}/>
+             headers={["", "Agent Name", "Sandbox", "OS", "IP Address", "Status", "Free Space", "Environments"]}
+             sortHandler={vnode.attrs.agentsVM.agentsSortHandler}/>
     </div>;
   }
 
@@ -72,8 +89,8 @@ export class ElasticAgentsWidget extends MithrilViewComponent<AgentsWidgetAttrs>
     }
   }
 
-  private static hideBuildDetails(agents: Agents) {
-    agents.buildDetailsForAgent("");
+  private static hideBuildDetails(agentsVM: ElasticAgentVM) {
+    agentsVM.showBuildDetailsForAgent("");
   }
 
   private static tableCellClasses(agent: Agent) {
@@ -88,5 +105,18 @@ export class ElasticAgentsWidget extends MithrilViewComponent<AgentsWidgetAttrs>
     }
 
     return <a href={`/go/agents/${agent.uuid}/job_run_history`}>{agent.hostname}</a>;
+  }
+
+  private span(count: number, className: string = ""): m.Children {
+    return <span class={classnames(style.count, className)}>{count}</span>;
+  }
+
+  private pluginIcon(pluginInfos: PluginInfos, agent: Agent) {
+    const pluginInfo = pluginInfos.findByPluginId(agent.elasticPluginId!);
+    if (pluginInfo && pluginInfo.imageUrl) {
+      return <HeaderIcon name="Plugin Icon" imageUrl={pluginInfo.imageUrl} noMargin={true}/>;
+    } else {
+      return <HeaderIcon name="Plugin does not have an icon" noMargin={true}/>;
+    }
   }
 }

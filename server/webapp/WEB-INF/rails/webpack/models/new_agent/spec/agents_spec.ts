@@ -17,9 +17,9 @@
 import {
   Agent,
   AgentConfigState,
+  Agents,
   AgentsEnvironment,
-  AgentState,
-  BuildState, Agents
+  AgentState, BuildState
 } from "models/new_agent/agents";
 import {AgentsTestData} from "models/new_agent/spec/agents_test_data";
 

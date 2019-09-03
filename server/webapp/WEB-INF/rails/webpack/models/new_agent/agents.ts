@@ -114,7 +114,7 @@ export class Agent {
     this.operatingSystem  = operatingSystem;
     this.agentConfigState = agentConfigState;
     this.agentState       = agentState;
-    this.resources        = resources;
+    this.resources        = resources || [];
     this.buildState       = buildState;
     this.environments     = environments;
     this.buildDetails     = buildDetails;

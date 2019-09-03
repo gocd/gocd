@@ -35,9 +35,9 @@ export abstract class Step {
     return [
       <Buttons.Cancel onclick={wizard.close.bind(wizard)}
                       data-test-id="cancel">Cancel</Buttons.Cancel>,
-      <Buttons.Primary data-test-id="previous" onclick={wizard.previous.bind(wizard)}
+      <Buttons.Primary data-test-id="previous" onclick={wizard.previous.bind(wizard, 1)} align="right"
                        disabled={wizard.isFirstStep()}>Previous</Buttons.Primary>,
-      <Buttons.Primary data-test-id="next" onclick={wizard.next.bind(wizard)}
+      <Buttons.Primary data-test-id="next" onclick={wizard.next.bind(wizard, 1)} align="right"
                        disabled={wizard.isLastStep()}>Next</Buttons.Primary>
     ];
   }

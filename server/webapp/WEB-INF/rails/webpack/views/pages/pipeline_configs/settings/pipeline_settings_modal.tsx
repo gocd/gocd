@@ -18,7 +18,7 @@ import m from "mithril";
 import {PipelineConfig} from "models/new_pipeline_configs/pipeline_config";
 import * as Buttons from "views/components/buttons";
 import {Form} from "views/components/forms/form";
-import {CheckboxField, HelpText, RadioField, TextField} from "views/components/forms/input_fields";
+import {CheckboxField, HelpText, RadioField, Switch, TextField} from "views/components/forms/input_fields";
 import {Modal, Size} from "views/components/modal";
 import {Tabs} from "views/components/tab";
 import {EnvironmentVariablesEditor} from "views/pages/pipeline_configs/environment_variables_editor";
@@ -40,7 +40,7 @@ export class PipelineSettingsModal extends Modal {
                    this.basicSettings(),
                    this.environmentVariables(),
                    this.parameters(),
-                   <p>Project Management</p>
+                   this.projectManagement()
                  ]}/>;
 
   }
@@ -118,5 +118,31 @@ export class PipelineSettingsModal extends Modal {
 
   private parameters(): m.Children {
     return <ParametersEditor parameters={this.pipelineConfig.parameters}/>;
+  }
+
+  private projectManagement(): m.Children {
+    let maybeTrackingTool;
+    if (this.pipelineConfig.useTrackingTool()) {
+      maybeTrackingTool = <div>
+        <TextField required={true}
+                   helpText="A regular expression to identify card or bug numbers from your checkin comments"
+                   label="Pattern"
+                   property={this.pipelineConfig.trackingTool.pattern}
+        placeholder="e.g. issue-##(\d+)"/>
+        <TextField required={true}
+                   helpText="The URI to your tracking tool. This must contain the string ${ID} which will be replaced with the number identified using the pattern"
+                   label="URI"
+                   placeholder="e.g. https://jira/project/${ID}"
+                   property={this.pipelineConfig.trackingTool.uri}/>
+      </div>;
+    }
+    return <Form compactForm={true}>
+      <h2>Tracking Tool Integration</h2>
+      <Switch label="Link to a tracking tool"
+              property={this.pipelineConfig.useTrackingTool}
+              docLink="/integration"
+              helpText="Specify links to an issue tracker. GoCD will construct a link based on the commit message that you can use to take you to your tracking tool (JIRA issue, Trac issue etc)."/>
+      {maybeTrackingTool}
+    </Form>;
   }
 }

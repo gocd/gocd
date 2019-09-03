@@ -38,6 +38,8 @@ export class PipelineConfig extends ValidatableMixin {
   environmentVariables: Stream<EnvironmentVariableConfig[]> = Stream();
   parameters: Stream<Parameter[]> = Stream();
   stages: Stream<NameableSet<StageConfig>>;
+  useTrackingTool: Stream<boolean> = Stream();
+  trackingTool: TrackingTool = new TrackingTool();
 
   constructor(name: string, materials: Material[], stages: StageConfig[]) {
     super();
@@ -45,6 +47,7 @@ export class PipelineConfig extends ValidatableMixin {
     this.name = Stream(name);
     this.environmentVariables([]);
     this.parameters([]);
+    this.useTrackingTool(false);
     this.validatePresenceOf("name");
     this.validateIdFormat("name");
 
@@ -86,4 +89,9 @@ export class PipelineConfig extends ValidatableMixin {
 
     return {group, pipeline: raw};
   }
+}
+
+class TrackingTool {
+  pattern: Stream<string> = Stream();
+  uri: Stream<string> = Stream();
 }

@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.util;
 import com.thoughtworks.go.database.Database;
 import com.thoughtworks.go.server.datamigration.DataMigrationRunner;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -27,6 +28,7 @@ import java.sql.SQLException;
 /**
  * @understands data source creation
  */
+@Component
 public class DatabaseUpgraderDataSourceFactory {
 
     private DataSource dataSource;

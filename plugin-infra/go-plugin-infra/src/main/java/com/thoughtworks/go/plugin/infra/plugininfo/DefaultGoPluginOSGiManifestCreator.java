@@ -13,23 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.server.database;
 
-import com.thoughtworks.go.database.Database;
-import org.hibernate.cache.EhCacheProvider;
-import org.hibernate.cfg.Environment;
-import org.springframework.beans.factory.annotation.Autowired;
+package com.thoughtworks.go.plugin.infra.plugininfo;
+
 import org.springframework.stereotype.Component;
 
-import java.util.Properties;
+import java.io.IOException;
 
 @Component
-public class HibernateProperties extends Properties {
-    @Autowired
-    public HibernateProperties(Database database) {
-        super.put(Environment.DIALECT, database.dialectForHibernate());
-        super.put(Environment.CACHE_PROVIDER, EhCacheProvider.class.getName());
-        super.put(Environment.USE_QUERY_CACHE, "true");
-        super.put(Environment.SHOW_SQL, "false");
+public class DefaultGoPluginOSGiManifestCreator implements GoPluginOSGiManifestGenerator {
+    public void updateManifestOf(GoPluginDescriptor descriptor) {
+        GoPluginOSGiManifest manifest = new GoPluginOSGiManifest(descriptor);
+        try {
+            manifest.update();
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to update MANIFEST.MF", e);
+        }
     }
 }

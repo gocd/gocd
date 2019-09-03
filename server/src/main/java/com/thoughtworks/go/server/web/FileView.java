@@ -20,6 +20,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import org.springframework.web.context.ServletContextAware;
 import org.springframework.web.servlet.View;
 
@@ -33,6 +34,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.zip.Deflater;
 
+@Component
 public class FileView implements View, ServletContextAware {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileView.class);

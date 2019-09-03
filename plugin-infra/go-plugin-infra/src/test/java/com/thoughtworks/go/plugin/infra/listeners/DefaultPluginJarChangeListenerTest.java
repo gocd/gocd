@@ -63,7 +63,7 @@ public class DefaultPluginJarChangeListenerTest {
         pluginDir = temporaryFolder.newFolder("pluginDir");
 
         registry = mock(DefaultPluginRegistry.class);
-        osgiManifestGenerator = mock(GoPluginOSGiManifest.DefaultGoPluginOSGiManifestCreator.class);
+        osgiManifestGenerator = mock(DefaultGoPluginOSGiManifestCreator.class);
         osgiFramework = mock(GoPluginOSGiFramework.class);
         goPluginDescriptorBuilder = mock(GoPluginDescriptorBuilder.class);
         systemEnvironment = mock(SystemEnvironment.class);

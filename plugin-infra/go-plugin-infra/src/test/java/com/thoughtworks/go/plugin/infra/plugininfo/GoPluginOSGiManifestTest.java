@@ -64,7 +64,7 @@ public class GoPluginOSGiManifestTest {
         manifestFile = new File(bundleLocation, "META-INF/MANIFEST.MF");
 
         bundleDependencyDir = new File(bundleLocation, "lib");
-        goPluginOSGiManifestGenerator = new GoPluginOSGiManifest.DefaultGoPluginOSGiManifestCreator();
+        goPluginOSGiManifestGenerator = new DefaultGoPluginOSGiManifestCreator();
     }
 
     @Test

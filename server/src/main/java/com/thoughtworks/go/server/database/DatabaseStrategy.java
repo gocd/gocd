@@ -15,16 +15,18 @@
  */
 package com.thoughtworks.go.server.database;
 
-import java.io.File;
-import java.lang.reflect.Constructor;
-import java.sql.SQLException;
-import javax.sql.DataSource;
-
 import com.thoughtworks.go.database.Database;
 import com.thoughtworks.go.database.QueryExtensions;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+import javax.sql.DataSource;
+import java.io.File;
+import java.lang.reflect.Constructor;
+import java.sql.SQLException;
+
+@Component
 public class DatabaseStrategy implements Database {
     private final Database database;
 

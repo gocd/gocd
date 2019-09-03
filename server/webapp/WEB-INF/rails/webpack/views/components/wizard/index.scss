@@ -16,14 +16,15 @@
 @import "../../global/common";
 
 $navbar-height:        40px;
-$wizard-height:        calc(100vh - #{$navbar-height});
+$page-header-height:   50px;
+$wizard-height:        calc(100vh - #{$navbar-height} - #{$page-header-height});
 $wizard-header-height: 45px;
 $wizard-footer-height: 56px;
 .overlay {
   border:   none;
   position: fixed;
   z-index:  map_get($zindex, 'wizard-overlay');
-  top:      $navbar-height;
+  top:      calc(#{$navbar-height} + #{$page-header-height});
   left:     0;
   right:    0;
   height:   $wizard-height;
@@ -53,9 +54,6 @@ $wizard-footer-height: 56px;
 .wizard-footer {
   position:        relative;
   bottom:          0;
-  display:         flex;
-  align-items:     center;
-  justify-content: flex-end;
   background:      $white;
   border-top:      1px solid $border-color;
   height:          $wizard-footer-height;
@@ -65,13 +63,15 @@ $wizard-footer-height: 56px;
 }
 
 .wizard-body {
-  position:   relative;
-  top:        $wizard-header-height;
-  display:    flex;
-  padding:    10px 15px;
-  background: $primary-bg;
-  flex-grow:  1;
-  overflow-y: auto;
+  position:      relative;
+  top:           $wizard-header-height;
+  display:       flex;
+  padding:       10px 15px;
+  background:    $white;
+  flex-grow:     1;
+  overflow-y:    auto;
+  overflow-x:    hidden;
+  margin-bottom: $navbar-height;
 }
 
 .step-header {

@@ -22,10 +22,10 @@ import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.helper.EnvironmentConfigMother;
+import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.presentation.environment.EnvironmentPipelineModel;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -33,7 +33,8 @@ import org.mockito.Mockito;
 
 import java.util.*;
 
-import static com.thoughtworks.go.helper.EnvironmentConfigMother.*;
+import static com.thoughtworks.go.helper.EnvironmentConfigMother.environment;
+import static com.thoughtworks.go.helper.EnvironmentConfigMother.environments;
 import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -57,6 +58,7 @@ class EnvironmentConfigServiceTest {
     void shouldRegisterAsACruiseConfigChangeListener() {
         environmentConfigService.initialize();
         Mockito.verify(mockGoConfigService).register(environmentConfigService);
+        verify(mockGoConfigService, times(3)).register(any(EntityConfigChangedListener.class));
     }
 
     @Test

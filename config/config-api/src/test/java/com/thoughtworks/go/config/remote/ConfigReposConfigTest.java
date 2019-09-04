@@ -105,4 +105,17 @@ public class ConfigReposConfigTest {
         assertThat(repo1.errors().isEmpty(), is(true));
         assertThat(repo2.errors().isEmpty(), is(true));
     }
+
+    @Test
+    public void shouldReturnTrueIfContainsConfigRepoWithTheSpecifiedId() {
+        ConfigRepoConfig repo = new ConfigRepoConfig(git("http://git1"), "myplugin", "id");
+        repos.add(repo);
+
+        assertThat(repos.hasConfigRepo(repo.getId()), is(true));
+    }
+
+    @Test
+    public void shouldReturnFalseIfDoesNotContainTheConfigRepoWithTheSpecifiedId() {
+        assertThat(repos.hasConfigRepo("unknown"), is(false));
+    }
 }

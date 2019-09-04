@@ -52,6 +52,7 @@
 .site-nav_item {
 
   line-height: 40px;
+  height:      40px;
   position:    relative;
   @media(min-width: $screen-md) {
     padding: 0 7px;
@@ -158,12 +159,12 @@
   }
   list-style-type: none;
   float:           none;
+  padding:         5px 0;
 }
 
 .site-sub-nav_link {
   @include hover-effect-for-top-menu;
   text-decoration: none;
-  padding:         5px 0;
   display:         inline-block;
   font-size:       13px;
   position:        relative;
@@ -176,10 +177,10 @@
       content:    "";
       position:   absolute;
       bottom:     0;
-      left:       0;
-      right:      0;
-      height:     1px;
-      width:      100%;
+      top:        0;
+      left:       -10px;
+      width:      2.5px;
+      height:     100%;
       background: $active-menu;
     }
   }

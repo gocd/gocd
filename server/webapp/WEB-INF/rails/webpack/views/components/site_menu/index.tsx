@@ -20,6 +20,14 @@ import styles from "./index.scss";
 
 const classnames = bind(styles);
 
+const activeItem = (href?: string): boolean => {
+  if (!!href) {
+    return new URL(href, window.location.origin).pathname === window.location.pathname;
+  } else {
+    return false;
+  }
+};
+
 interface SiteHeaderLinkAttrs {
   isNavLink?: boolean;
   target?: string;
@@ -28,9 +36,11 @@ interface SiteHeaderLinkAttrs {
 
 class SiteHeaderLink extends MithrilViewComponent<SiteHeaderLinkAttrs> {
   view(vnode: m.Vnode<SiteHeaderLinkAttrs>) {
+
     const classes = classnames({
                                  [styles.siteNavLink]: vnode.attrs.isNavLink,
                                  [styles.siteSubNavLink]: !vnode.attrs.isNavLink,
+                                 [styles.active]: !vnode.attrs.isNavLink && activeItem(vnode.attrs.href),
                                });
 
     return (
@@ -57,7 +67,10 @@ interface SiteNavItemAttrs extends TextWithLink {
 
 class SiteNavItem extends MithrilViewComponent<SiteNavItemAttrs> {
   view(vnode: m.Vnode<SiteNavItemAttrs>) {
-    const dropDownClass = classnames({[styles.isDropDown]: vnode.attrs.isDropDown}, styles.siteNavItem);
+    const dropDownClass = classnames({
+      [styles.isDropDown]: vnode.attrs.isDropDown,
+      [styles.active]: activeItem(vnode.attrs.href),
+    }, styles.siteNavItem);
 
     if (!vnode.attrs.isDropDown) {
       return (

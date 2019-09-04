@@ -54,9 +54,9 @@ export class PipelineConfig extends ValidatableMixin {
     this.validatePresenceOf("group");
     this.validateIdFormat("group");
 
-    this.materials = Stream(new NameableSet(materials));
-    this.validateNonEmptyCollection("materials", {message: `A pipeline must have at least one material`});
-    this.validateAssociated("materials");
+    this.materials = Stream(new Materials(...materials));
+    // this.validateNonEmptyCollection("materials", {message: `A pipeline must have at least one material`});
+    // this.validateAssociated("materials");
 
     this.stages = Stream(new NameableSet(stages));
     this.validateAssociated("stages");
@@ -64,6 +64,16 @@ export class PipelineConfig extends ValidatableMixin {
     this.validateMutualExclusivityOf("template",
                                      "stages",
                                      {message: "Pipeline stages must not be defined when using a pipeline template"});
+  }
+
+  isValid(): boolean {
+    let valid = ValidatableMixin.prototype.isValid.call(this);
+    this.materials().isValid();
+    if (this.materials().length === 0) {
+      this.errors().add("materials", `A pipeline must have at least one material`);
+      valid = false;
+    }
+    return valid;
   }
 
   withGroup(group: string) {

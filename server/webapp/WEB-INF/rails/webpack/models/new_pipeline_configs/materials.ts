@@ -23,7 +23,6 @@ import {ErrorMessages} from "models/mixins/error_messages";
 import {Errors} from "models/mixins/errors";
 import {ErrorsConsumer} from "models/mixins/errors_consumer";
 import {ValidatableMixin, Validator} from "models/mixins/new_validatable_mixin";
-import {NameableSet} from "models/new_pipeline_configs/nameable_set";
 import urlParse from "url-parse";
 import {EncryptedValue, plainOrCipherValue} from "views/components/forms/encrypted_value";
 import {
@@ -36,41 +35,23 @@ import {
   TfsMaterialAttributesJSON,
 } from "./materials_serialization";
 
-//tslint:disable-next-line
-export interface Material extends ValidatableMixin {
-}
-
-//tslint:disable-next-line
-export interface MaterialAttributes extends ValidatableMixin {
-}
-
-//tslint:disable-next-line
-export interface GitMaterialAttributes extends ValidatableMixin {
-}
-
-//tslint:disable-next-line
-export interface SvnMaterialAttributes extends ValidatableMixin {
-}
-
-//tslint:disable-next-line
-export interface HgMaterialAttributes extends ValidatableMixin {
-}
-
-//tslint:disable-next-line
-export interface P4MaterialAttributes extends ValidatableMixin {
-}
-
-//tslint:disable-next-line
-export interface TfsMaterialAttributes extends ValidatableMixin {
-}
-
-//tslint:disable-next-line
-export interface DependencyMaterialAttributes extends ValidatableMixin {
-}
-
-export class Materials extends NameableSet<Material> {
+export class Materials extends Array<Material> {
   constructor(...materials: Material[]) {
-    super(materials);
+    super(...materials);
+    Object.setPrototypeOf(this, Object.create(Materials.prototype));
+  }
+
+  remove(material: Material) {
+    const index = this.findIndex((record) => record === material);
+    this.splice(index, 1);
+  }
+
+  isValid(): boolean {
+    let valid = true;
+    this.forEach((material) => {
+      valid = valid && material.isValid();
+    });
+    return valid;
   }
 }
 

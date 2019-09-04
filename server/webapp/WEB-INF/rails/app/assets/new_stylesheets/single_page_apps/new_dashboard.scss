@@ -205,6 +205,14 @@ body {
       margin:      0;
       padding:     4px 10px;
       white-space: nowrap;
+
+      > a {
+        color: #000;
+      }
+
+      &:hover {
+        background: rgba(0, 0, 0, 0.2);
+      }
     }
   }
 }

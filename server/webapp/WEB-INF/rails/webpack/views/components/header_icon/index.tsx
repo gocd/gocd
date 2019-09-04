@@ -13,25 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {bind} from "classnames/bind";
 import {MithrilComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
 import s from "underscore.string";
+import style from "views/pages/new_agents/index.scss";
 import styles from "./index.scss";
+
+const classnames = bind(style);
 
 interface Attrs {
   imageUrl?: string; //an image URL of the icon
   name?: string;
+  noMargin?: boolean;
 }
 
 export class HeaderIcon extends MithrilComponent<Attrs> {
 
   view(vnode: m.Vnode<Attrs>) {
-    const name = vnode.attrs.name || "Unknown Icon";
+    const name       = vnode.attrs.name || "Unknown Icon";
     const dataTestId = s.slugify(name);
 
     if (vnode.attrs.imageUrl) {
-      return <div class={styles.headerIcon}>
+      return <div class={classnames(styles.headerIcon, {[styles.noMargin]: vnode.attrs.noMargin})}>
         <img alt={vnode.attrs.name} data-test-id={dataTestId} src={vnode.attrs.imageUrl}/>
       </div>;
     }
@@ -41,7 +46,7 @@ export class HeaderIcon extends MithrilComponent<Attrs> {
       </div>;
     }
     return <div class={styles.headerIcon}>
-      <span aria-label={name} class={styles.unknownIcon}/>
+      <span data-test-id={dataTestId} aria-label={name} class={styles.unknownIcon}/>
     </div>;
   }
 

@@ -19,6 +19,7 @@ import {Material} from "models/new_pipeline_configs/materials";
 import {PipelineConfig} from "models/new_pipeline_configs/pipeline_config";
 import {Page} from "views/pages/page";
 import {PipelineConfigCreateWidget} from "views/pages/pipeline_configs/pipeline_config_create_widget";
+import {PipelineSettingsModal} from "views/pages/pipeline_configs/settings/pipeline_settings_modal";
 
 export interface MaterialOperations {
   onAdd: (material: Material) => void;
@@ -28,6 +29,7 @@ export interface MaterialOperations {
 interface State {
   materialOperations: MaterialOperations;
   pipelineConfig: PipelineConfig;
+  showPipelineSettings: (e: Event) => void;
 }
 
 export const SUPPORTED_MATERIALS = [
@@ -53,14 +55,18 @@ export class CreatePipelinePage extends Page<null, State> {
       }
     };
 
+    vnode.state.showPipelineSettings = (e: Event) => {
+      e.stopPropagation();
+      new PipelineSettingsModal(vnode.state.pipelineConfig).render();
+    };
   }
 
   componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
-    return <PipelineConfigCreateWidget {...vnode.state}/>;
+    return <PipelineConfigCreateWidget {...vnode.state} onPipelineSettingsEdit={vnode.state.showPipelineSettings}/>;
   }
 
   pageName(): string {
-    return "Pipelines";
+    return "New Pipeline";
   }
 
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {

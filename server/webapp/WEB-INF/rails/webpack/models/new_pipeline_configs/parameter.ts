@@ -13,17 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@import "../../global/common";
 
-.pipeline-details-container {
-  display:       flex;
-  background:    $element-bg;
-  border:        1px solid $line-color;
-  padding:       20px 30px 10px;
-  margin-bottom: 20px;
-  justify-content: space-between;
-}
+import {JsonUtils} from "helpers/json_utils";
+import Stream from "mithril/stream";
+import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 
-.text-align-right {
-  text-align: right;
+export class Parameter extends ValidatableMixin {
+  name: Stream<string>    = Stream();
+  value: Stream<string>   = Stream();
+
+  constructor(name: string, value: string) {
+    super();
+    this.name(name);
+    this.value(value);
+
+    this.validatePresenceOf("name", {message: "Name is required"});
+  }
+
+  toApiPayload() {
+    return JsonUtils.toSnakeCasedObject(this);
+  }
 }

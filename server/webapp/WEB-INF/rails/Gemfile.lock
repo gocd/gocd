@@ -241,7 +241,6 @@ DEPENDENCIES
   jasmine-jquery-rails
   jasmine_selenium_runner
   js-routes
-  pry-debugger-jruby
   rails (= 5.2.2.1)
   rails-controller-testing
   representable (= 2.1.7)

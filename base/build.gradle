@@ -17,6 +17,9 @@
 description = 'GoCD Base'
 
 dependencies {
+  compile(group: 'org.apache.ant', name: 'ant', version: project.versions.apacheAnt)  {
+    transitive = false
+  }
   compile group: 'commons-io', name: 'commons-io', version: project.versions.commonsIO
   compile group: 'org.apache.commons', name: 'commons-lang3', version: project.versions.commonsLang3
   compile group: 'commons-codec', name: 'commons-codec', version: project.versions.commonsCodec

@@ -123,6 +123,7 @@ task verifyJar(type: VerifyJarTask) {
     "lib": [
       "agent-${project.version}-classes.jar",
       "agent-common-${project.version}.jar",
+      "ant-${project.versions.apacheAnt}.jar",
       "asm-3.3.1.jar",
       "base-${project.version}.jar",
       "bcpkix-jdk15on-${project.versions.bouncyCastle}.jar",

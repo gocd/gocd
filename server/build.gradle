@@ -842,6 +842,7 @@ task verifyWar(type: VerifyJarTask) {
         "activeio-core-3.1.2.jar",
         "activemq-core-5.5.0.jar",
         "activemq-protobuf-1.1.jar",
+        "ant-${project.versions.apacheAnt}.jar",
         "antlr-2.7.6.jar",
         "aopalliance-1.0.jar",
         "asm-3.3.1.jar",

@@ -16,18 +16,17 @@
 
 import {ApiResult} from "helpers/api_request_builder";
 import {LocationHandler, WindowLocation} from "helpers/location_handler";
+import {SparkRoutes} from "helpers/spark_routes";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {ConfigReposCRUD} from "models/config_repos/config_repos_crud";
 import {ConfigRepo} from "models/config_repos/types";
-import {Material} from "models/materials/types";
 import * as Buttons from "views/components/buttons";
 import css from "./styles.scss";
 
 interface Attrs {
-  material: Stream<Material>;
-  pluginId: Stream<string>;
+  configRepo: Stream<ConfigRepo>;
   loc?: LocationHandler;
 }
 
@@ -49,7 +48,7 @@ export class PacActions extends MithrilViewComponent<Attrs> {
         <div class={css.finishBtnWrapper}>
           <div class={css.errorResponse}>{this.globalError()}</div>
 
-          <Buttons.Primary onclick={this.onSave.bind(this, vnode.attrs.pluginId(), vnode.attrs.material())} small={false}>Finish</Buttons.Primary>
+          <Buttons.Primary css={css} onclick={this.onSave.bind(this, vnode.attrs.configRepo())} small={false}>Finish</Buttons.Primary>
         </div>
       </div>
     );
@@ -60,17 +59,15 @@ export class PacActions extends MithrilViewComponent<Attrs> {
     this.location.go("/go/pipelines");
   }
 
-  onSave(pluginId: string, material: Material, event: Event): void {
+  onSave(configRepo: ConfigRepo, event: Event): void {
     event.stopPropagation();
     event.preventDefault();
     this.clearErrors();
 
-    const configRepo = new ConfigRepo(material.name(), pluginId, material);
-
     if (configRepo.isValid()) {
       ConfigReposCRUD.create(configRepo).then((result: ApiResult<any>) => {
         result.do((s) => {
-          this.location.go("/go/admin/config_repos");
+          this.location.go(SparkRoutes.ConfigRepoViewPath(configRepo.id()));
         }, (err) => {
           this.globalError(JSON.parse(err.body!).message);
         });

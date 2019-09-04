@@ -21,13 +21,15 @@ import m from "mithril";
 import Stream from "mithril/stream";
 
 // models
+import {ConfigRepo} from "models/config_repos/types";
 import {Material, MaterialAttributes} from "models/materials/types";
 import {PipelineConfigVM} from "views/pages/pipelines/pipeline_config_view_model";
 
 // components
-import {PacActions} from "views/pages/pac/actions";
 import {MaterialCheck} from "views/components/config_repos/material_check.tsx";
+import {IdentifierInputField} from "views/components/forms/common_validating_inputs";
 import {CheckboxField} from "views/components/forms/input_fields";
+import {PacActions} from "views/pages/pac/actions";
 import {BuilderForm} from "views/pages/pac/builder_form";
 import {DownloadAction} from "views/pages/pac/download_action";
 import {PreviewPane} from "views/pages/pac/preview_pane";
@@ -48,6 +50,7 @@ export class PipelinesAsCodeCreatePage extends Page {
   private mimeType = Stream("application/x-yaml");
 
   private material = Stream(new Material(this.model.material.type()));
+  private configRepo = Stream(new ConfigRepo(undefined, this.model.pluginId(), this.material()));
   private useSameRepoForPaC = Stream(true); // allow material sync to be toggleable
 
   oninit(vnode: m.Vnode) {
@@ -74,6 +77,7 @@ export class PipelinesAsCodeCreatePage extends Page {
           if (updated) {
             if (this.useSameRepoForPaC() && isSupportedScm) {
               this.material(cloneMaterialForPaC(vm.material));
+              this.configRepo().material(this.material());
             }
 
             vm.preview(vm.pluginId()).then((result) => {
@@ -107,6 +111,7 @@ export class PipelinesAsCodeCreatePage extends Page {
             onchange={() => {
               if (syncConfigRepoWithMaterial()) {
                 this.material(cloneMaterialForPaC(vm.material));
+                this.configRepo().material(this.material());
               }
             }}
           />
@@ -114,6 +119,7 @@ export class PipelinesAsCodeCreatePage extends Page {
           <MaterialEditor material={this.material()} hideTestConnection={syncConfigRepoWithMaterial()} scmOnly={true} showLocalWorkingCopyOptions={false} disabled={syncConfigRepoWithMaterial()}/>
         </UserInputPane>
         <div class={css.verifyDefsInMaterial}>
+          <IdentifierInputField label="Name" property={this.configRepo().id} errorText={this.configRepo().errors().errorsForDisplay("id")} />
           <MaterialCheck material={this.material()} align="right" prerequisite={() => this.material().isValid()} label={
             <p class={css.msg}>Click the button to verify that the configuration file is placed correctly in the repository</p>
           }/>
@@ -121,7 +127,7 @@ export class PipelinesAsCodeCreatePage extends Page {
       </FillableSection>,
 
       <FillableSection>
-        <PacActions material={this.material} pluginId={vm.pluginId} />
+        <PacActions configRepo={this.configRepo} />
       </FillableSection>
     ];
   }

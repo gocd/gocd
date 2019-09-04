@@ -66,19 +66,18 @@ export class MaterialsWidget extends MithrilViewComponent<Attrs> {
   }
 
   materialsData(vnode: m.Vnode<Attrs>): any {
-    const tbodyContent = Array<any>();
-    vnode.attrs.materials.forEach((material) => {
-      tbodyContent.push(<tr>
+    const tbodyContent = _.map(vnode.attrs.materials, (material: Material) => {
+      return <tr>
         <td>{material.name()}</td>
         <td>{this.getTypeForDisplay(material.type())}</td>
         <td>{material.materialUrl()}</td>
-        <td class={styles.textAlignRight}>
+        <td className={styles.textAlignRight}>
           <IconGroup>
             <Delete onclick={() => vnode.attrs.materialOperations.onDelete(material)} title={"delete-material"}
                     data-test-id={"delete-material-button"}/>
           </IconGroup>
         </td>
-      </tr>);
+      </tr>;
     });
     return <tbody>{tbodyContent}</tbody>;
   }

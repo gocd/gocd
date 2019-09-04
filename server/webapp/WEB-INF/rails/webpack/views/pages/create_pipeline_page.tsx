@@ -48,10 +48,10 @@ export class CreatePipelinePage extends Page<null, State> {
 
     vnode.state.materialOperations = {
       onAdd(material: Material) {
-        vnode.state.pipelineConfig.materials().add(material);
+        vnode.state.pipelineConfig.materials().push(material);
       },
       onDelete(material: Material) {
-        vnode.state.pipelineConfig.materials().delete(material);
+        vnode.state.pipelineConfig.materials().remove(material);
       }
     };
 

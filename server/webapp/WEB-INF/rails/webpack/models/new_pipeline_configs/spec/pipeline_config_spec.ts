@@ -136,7 +136,7 @@ describe("PipelineConfig model", () => {
 
     expect(pip.errors().errorsForDisplay("name")).toBe("Invalid name.");
 
-    const materials = Array.from(pip.materials());
+    const materials = pip.materials();
     expect(materials[0].attributes().errors().hasErrors()).toBe(false);
     expect(materials[1].attributes().errors().errorsForDisplay("url")).toBe("Invalid Url.");
 

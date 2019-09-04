@@ -17,6 +17,8 @@
 import com.thoughtworks.go.build.docker.Distro
 import com.thoughtworks.go.build.docker.DistroVersion
 
+enableFeaturePreview('GROOVY_COMPILATION_AVOIDANCE')
+
 Distro.values().each { Distro distro ->
   distro.supportedVersions.each { DistroVersion version ->
     include ":docker:gocd-agent:${distro.projectName(version)}"

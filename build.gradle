@@ -460,6 +460,7 @@ subprojects {
       toolVersion = '6.17.0'
       ruleSetFiles = files(rootProject.file('buildSrc/pmd.xml'))
       ruleSets = []
+      incrementalAnalysis = true
     }
   }
 
@@ -513,6 +514,10 @@ subprojects {
       standardOutput = new ByteArrayOutputStream()
       errorOutput = new ByteArrayOutputStream()
     }
+  }
+
+  tasks.withType(GroovyCompile).configureEach {
+    options.incremental = true
   }
 
   tasks.withType(JavaCompile) { compileTask ->
@@ -1024,7 +1029,6 @@ task newSPA {
     }
   }
 }
-
 
 task removeApi {
   description = "Helper to create a delete an api module. Pass `-PapiName=roles-config -PapiVersion=v1`"

@@ -44,11 +44,13 @@ public class PermissiveX509TrustManager implements X509TrustManager {
         this.standardTrustManager = (X509TrustManager) trustmanagers[0];
     }
 
-    public void checkClientTrusted( X509Certificate[] certificates, String string) throws CertificateException {
+    @Override
+    public void checkClientTrusted(X509Certificate[] certificates, String string) throws CertificateException {
         this.standardTrustManager.checkClientTrusted(certificates, string);
     }
 
-    public void checkServerTrusted( X509Certificate[] certificates, String string) throws CertificateException {
+    @Override
+    public void checkServerTrusted(X509Certificate[] certificates, String string) throws CertificateException {
         if ((certificates != null) && (certificates.length == 1)) {
             X509Certificate certificate = certificates[0];
 
@@ -62,6 +64,7 @@ public class PermissiveX509TrustManager implements X509TrustManager {
         }
     }
 
+    @Override
     public X509Certificate[] getAcceptedIssuers() {
         return this.standardTrustManager.getAcceptedIssuers();
     }

@@ -44,7 +44,6 @@ public class UpdateConfigRepoCommandTest {
     private String oldConfigRepoId;
     private String newConfigRepoId;
     private HttpLocalizedOperationResult result;
-    private String actionFailed;
     private String md5;
 
     @Mock
@@ -68,7 +67,6 @@ public class UpdateConfigRepoCommandTest {
         result = new HttpLocalizedOperationResult();
         md5 = "md5";
         cruiseConfig.getConfigRepos().add(oldConfigRepo);
-        actionFailed = "Could not update config repo " + oldConfigRepoId;
     }
 
     @Test

@@ -56,6 +56,7 @@ import static org.junit.Assert.assertThat;
         "classpath:testPropertyConfigurer.xml",
         "classpath:WEB-INF/spring-all-servlet.xml",
 })
+@SuppressWarnings({"ALL", "PMD"})
 public class PipelineConfigServicePerformanceTest {
     private static String consoleAppenderForPerformanceTest;
 
@@ -184,6 +185,7 @@ public class PipelineConfigServicePerformanceTest {
         for (Thread t : threads) {
             Thread.sleep(1000 * (new Random().nextInt(3) + 1));
             t.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+                @Override
                 public void uncaughtException(Thread t, Throwable e) {
                     LOGGER.error("Exception " + e + " from thread " + t);
                     results.put(t.getName(), false);
@@ -221,6 +223,7 @@ public class PipelineConfigServicePerformanceTest {
             this.allErrors = allErrors;
         }
 
+        @Override
         public void handle(Validatable validatable, ValidationContext context) {
             handleValidation(validatable, context);
             ConfigErrors configErrors = validatable.errors();

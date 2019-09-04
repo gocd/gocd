@@ -55,10 +55,9 @@ import java.util.*;
 
 import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static com.thoughtworks.go.util.IBatisUtil.arguments;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 
 public class PipelineSqlMapDaoCachingTest {
@@ -85,7 +84,7 @@ public class PipelineSqlMapDaoCachingTest {
         GoConfigDao configFileDao = mock(GoConfigDao.class);
         timeProvider = mock(TimeProvider.class);
         pipelineDao = new PipelineSqlMapDao(null, repository, goCache, environmentVariableDao, transactionTemplate, null,
-                transactionSynchronizationManager, null, configFileDao, mock(Database.class), mockSessionFactory, timeProvider);
+                transactionSynchronizationManager, null, configFileDao, mock(Database.class), timeProvider);
         pipelineDao.setSqlMapClientTemplate(mockTemplate);
         Session session = mock(Session.class);
         when(mockSessionFactory.getCurrentSession()).thenReturn(session);
@@ -201,7 +200,7 @@ public class PipelineSqlMapDaoCachingTest {
 
         //need to mock configfileDao for this test
         pipelineDao = new PipelineSqlMapDao(null, repository, goCache, environmentVariableDao, transactionTemplate, null,
-                transactionSynchronizationManager, null, mockconfigFileDao, null, mock(SessionFactory.class), timeProvider);
+                transactionSynchronizationManager, null, mockconfigFileDao, null, timeProvider);
         pipelineDao.setSqlMapClientTemplate(mockTemplate);
 
         PipelineInstanceModel pipeline = new PipelineInstanceModel(pipelineName, -2, "label", BuildCause.createManualForced(), new StageInstanceModels());
@@ -303,7 +302,7 @@ public class PipelineSqlMapDaoCachingTest {
 
         //need to mock configfileDao for this test
         pipelineDao = new PipelineSqlMapDao(null, repository, goCache, environmentVariableDao, transactionTemplate, null,
-                transactionSynchronizationManager, null, mockconfigFileDao, null, mock(SessionFactory.class), timeProvider);
+                transactionSynchronizationManager, null, mockconfigFileDao, null, timeProvider);
         pipelineDao.setSqlMapClientTemplate(mockTemplate);
 
         PipelineInstanceModel first = model(1, JobState.Building, JobResult.Unknown);
@@ -340,13 +339,13 @@ public class PipelineSqlMapDaoCachingTest {
 
         //need to mock configfileDao for this test
         pipelineDao = new PipelineSqlMapDao(null, repository, goCache, environmentVariableDao, transactionTemplate, null,
-                transactionSynchronizationManager, null, mockconfigFileDao, null, mock(SessionFactory.class), timeProvider);
+                transactionSynchronizationManager, null, mockconfigFileDao, null, timeProvider);
         pipelineDao.setSqlMapClientTemplate(mockTemplate);
 
         PipelineInstanceModel first = model(1, JobState.Completed, JobResult.Passed);
         PipelineInstanceModel second = model(2, JobState.Building, JobResult.Unknown);
         List<PipelineInstanceModel> pims = PipelineInstanceModels.createPipelineInstanceModels(first);
-        when(mockTemplate.queryForList("allActivePipelines")).thenReturn((List) pims);
+        when(mockTemplate.queryForList("allActivePipelines")).thenReturn(pims);
         when(mockTemplate.queryForObject("getPipelineHistoryById", arguments("id", 1L).asMap())).thenReturn(first);
         when(mockTemplate.queryForObject("getPipelineHistoryById", arguments("id", 2L).asMap())).thenReturn(second);
 
@@ -392,7 +391,6 @@ public class PipelineSqlMapDaoCachingTest {
 
     @Test
     public void shouldCacheNullStageIdentifierIfNoneOfTheRunsForStageHasEverPassed() {
-        StageIdentifier identifier = new StageIdentifier();
         long pipelineId = 10;
         String stage = "stage";
         Map<String, Object> args = arguments("id", pipelineId).and("stage", stage).asMap();
@@ -459,7 +457,7 @@ public class PipelineSqlMapDaoCachingTest {
 
         verify(mockTemplate, times(2)).queryForObject("getPipelinePauseState", pipelineName);
         verify(mockTemplate).queryForObject("getPipelinePauseState", pipelineName.toUpperCase());
-        verify(mockTemplate).update(eq("updatePipelinePauseState"), anyObject());
+        verify(mockTemplate).update(eq("updatePipelinePauseState"), any());
     }
 
     @Test
@@ -488,7 +486,6 @@ public class PipelineSqlMapDaoCachingTest {
     @Test
     public void shouldInvalidateCacheOfPipelineInstancesTriggeredWithDependencyMaterial() {
         String cacheKey = pipelineDao.cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial("p1", "p", 1);
-        List<PipelineIdentifier> result = Arrays.asList(new PipelineIdentifier("p1", 1, "1"));
         when(mockTemplate.queryForList(eq("pipelineInstancesTriggeredOutOfDependencyMaterial"), anyString())).thenReturn(new ArrayList());
 
         List<PipelineIdentifier> actual = pipelineDao.getPipelineInstancesTriggeredWithDependencyMaterial("p1", new PipelineIdentifier("p", 1));

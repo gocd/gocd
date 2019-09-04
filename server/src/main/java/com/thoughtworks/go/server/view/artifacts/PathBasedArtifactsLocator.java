@@ -27,6 +27,7 @@ public class PathBasedArtifactsLocator implements ArtifactLocator {
         this.artifactsRoot = artifactsRoot;
     }
 
+    @Override
     public File findArtifact(LocatableEntity identifier, String artifactPath) {
         return new File(jobFolder(identifier), artifactPath);
     }
@@ -40,14 +41,17 @@ public class PathBasedArtifactsLocator implements ArtifactLocator {
         return String.format("pipelines/%s", identifier.entityLocator());
     }
 
+    @Override
     public boolean directoryExists(LocatableEntity locatableEntity) {
         return jobFolder(locatableEntity).exists();
     }
 
+    @Override
     public File directoryFor(LocatableEntity locatableEntity) {
         return jobFolder(locatableEntity);
     }
 
+    @Override
     public File findCachedArtifact(LocatableEntity locatableEntity) {
         return new File(artifactsRoot, ArtifactCache.CACHE_ARTIFACTS_FOLDER + entityPath(locatableEntity));
     }

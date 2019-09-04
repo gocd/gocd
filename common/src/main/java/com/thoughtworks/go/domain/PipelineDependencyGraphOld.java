@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.domain;
 
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;

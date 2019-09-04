@@ -28,7 +28,6 @@ import com.thoughtworks.go.apiv1.admin.pipelinegroups.representers.PipelineGroup
 import com.thoughtworks.go.apiv1.admin.pipelinegroups.representers.PipelineGroupsRepresenter;
 import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.config.exceptions.EntityType;
-import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
@@ -173,8 +172,7 @@ public class PipelineGroupsControllerV1 extends ApiController implements SparkSp
     }
 
     private Optional<PipelineConfigs> findPipelineGroup(String name) {
-        Stream<PipelineConfigs> pipelineGroupStream = streamAllPipelineGroups().filter(p -> p.getGroup().equals(name));
-        return pipelineGroupStream.findFirst();
+        return streamAllPipelineGroups().filter(p -> p.getGroup().equals(name)).findFirst();
     }
 
     @Override

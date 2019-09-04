@@ -63,6 +63,7 @@ public abstract class Builder implements Serializable {
         return cancelBuilder;
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -86,6 +87,7 @@ public abstract class Builder implements Serializable {
         return true;
     }
 
+    @Override
     public int hashCode() {
         int result;
         result = (conditions != null ? conditions.hashCode() : 0);

@@ -43,8 +43,6 @@ import java.util.Collections;
 import static com.thoughtworks.go.config.ConfigReposMaterialParseResultManager.ConfigRepoReparseListener;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 

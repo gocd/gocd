@@ -40,6 +40,7 @@ public abstract class AbstractTask implements Task  {
 
     protected ConfigErrors errors = new ConfigErrors();
 
+    @Override
     public RunIfConfigs getConditions() {
         return runIfConfigs;
     }
@@ -57,6 +58,7 @@ public abstract class AbstractTask implements Task  {
         return StringUtils.join(capitalized, ", ");
     }
 
+    @Override
     public Task cancelTask() {
         return onCancelConfig.getTask();
     }
@@ -69,6 +71,7 @@ public abstract class AbstractTask implements Task  {
         return onCancelConfig;
     }
 
+    @Override
     public boolean hasCancelTask() {
         return onCancelConfig.hasCancelTask();
     }
@@ -145,6 +148,7 @@ public abstract class AbstractTask implements Task  {
         }
     }
 
+    @Override
     public final void setConfigAttributes(Object attributes, TaskFactory taskFactory) {
         Map attributeMap = (Map) attributes;
         if (attributes == null || attributeMap.isEmpty()) {
@@ -186,6 +190,7 @@ public abstract class AbstractTask implements Task  {
 
     protected abstract void setTaskConfigAttributes(Map attributes);
 
+    @Override
     public final void validate(ValidationContext validationContext) {
         validateTask(validationContext);
         validateNestedOnCancelTask();
@@ -199,10 +204,12 @@ public abstract class AbstractTask implements Task  {
 
     protected abstract void validateTask(ValidationContext validationContext);
 
+    @Override
     public final ConfigErrors errors() {
         return errors;
     }
 
+    @Override
     public void addError(String fieldName, String message) {
         errors.add(fieldName, message);
     }

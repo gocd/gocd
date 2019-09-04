@@ -27,6 +27,7 @@ public class TestingEmailSender implements EmailSender {
     public static final String NO_MESSAGE = "No Message Sent";
     private List<SendEmailMessage> messages = new ArrayList<>();
 
+    @Override
     public void sendEmail(SendEmailMessage message) {
         this.messages.add(message);
         this.sentMessage = message.toString();

@@ -349,6 +349,7 @@ public class SCM implements Serializable, Validatable, ConfigOriginTraceable {
         return origin;
     }
 
+    @Override
     public void setOrigins(ConfigOrigin origin) {
         this.origin = origin;
     }

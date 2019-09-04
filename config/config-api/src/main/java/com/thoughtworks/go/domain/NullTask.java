@@ -25,34 +25,42 @@ import com.thoughtworks.go.service.TaskFactory;
 public class NullTask implements Task {
     private final ConfigErrors configErrors = new ConfigErrors();
 
+    @Override
     public RunIfConfigs getConditions() {
         return new RunIfConfigs();
     }
 
+    @Override
     public Task cancelTask() {
         return new NullTask();
     }
 
+    @Override
     public boolean hasCancelTask() {
         return false;
     }
 
+    @Override
     public String getTaskType() {
         return "null";
     }
 
+    @Override
     public String getTypeForDisplay() {
         return "null";
     }
 
+    @Override
     public List<TaskProperty> getPropertiesForDisplay() {
         return new ArrayList<>();
     }
 
+    @Override
     public void setConfigAttributes(Object attributes) {
         throw new UnsupportedOperationException("Not a configurable task");
     }
 
+    @Override
     public void setConfigAttributes(Object attributes, TaskFactory taskFactory) {
         throw new UnsupportedOperationException("Not a configurable task");
     }
@@ -68,13 +76,16 @@ public class NullTask implements Task {
     }
 
 
+    @Override
     public void validate(ValidationContext validationContext) {
     }
 
+    @Override
     public ConfigErrors errors() {
         return configErrors;
     }
 
+    @Override
     public void addError(String fieldName, String message) {
         configErrors.add(fieldName, message);
     }

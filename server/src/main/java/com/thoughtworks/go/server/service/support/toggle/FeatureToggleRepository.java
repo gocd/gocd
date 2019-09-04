@@ -28,10 +28,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.List;
 
 import static com.thoughtworks.go.util.SystemEnvironment.AVAILABLE_FEATURE_TOGGLES_FILE_PATH;
@@ -53,13 +50,16 @@ public class FeatureToggleRepository {
     public FeatureToggles availableToggles() {
         String availableTogglesResourcePath = environment.get(AVAILABLE_FEATURE_TOGGLES_FILE_PATH);
 
-        InputStream streamForAvailableToggles = getClass().getResourceAsStream(availableTogglesResourcePath);
-        if (streamForAvailableToggles == null) {
-            LOGGER.error("Failed to read toggles from {}. Saying there are no toggles.", availableTogglesResourcePath);
-            return new FeatureToggles();
-        }
+        try (InputStream streamForAvailableToggles = getClass().getResourceAsStream(availableTogglesResourcePath)) {
+            if (streamForAvailableToggles == null) {
+                LOGGER.error("Failed to read toggles from {}. Saying there are no toggles.", availableTogglesResourcePath);
+                return new FeatureToggles();
+            }
 
-        return readTogglesFromStream(streamForAvailableToggles, "available");
+            return readTogglesFromStream(streamForAvailableToggles, "available");
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     public FeatureToggles userToggles() {
@@ -70,11 +70,13 @@ public class FeatureToggleRepository {
             return new FeatureToggles();
         }
 
-        try {
-            return readTogglesFromStream(new FileInputStream(userTogglesPath), "user");
+        try (FileInputStream streamForToggles = new FileInputStream(userTogglesPath)) {
+            return readTogglesFromStream(streamForToggles, "user");
         } catch (FileNotFoundException e) {
             LOGGER.warn("Toggles file, {} does not exist. Saying there are no toggles.", userTogglesPath);
             return new FeatureToggles();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -92,8 +94,6 @@ public class FeatureToggleRepository {
         } catch (Exception e) {
             LOGGER.error("Failed to read {} toggles. Saying there are no toggles.", kindOfToggle, e);
             return new FeatureToggles();
-        } finally {
-            IOUtils.closeQuietly(streamForToggles);
         }
     }
 

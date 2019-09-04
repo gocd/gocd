@@ -266,6 +266,7 @@ public class ModificationsMother {
 
     public static List<Modification> multipleModificationList() {
         return multipleModificationList(new RevisionToUse() {
+            @Override
             public String next() {
                 return nextRevision();
             }
@@ -276,6 +277,7 @@ public class ModificationsMother {
         return multipleModificationList(new RevisionToUse() {
             int revision = initialRevision;
 
+            @Override
             public String next() {
                 return String.valueOf(revision++);
             }

@@ -19,6 +19,7 @@ package com.thoughtworks.go.config;
  * @understands de-referencing template body into pipeline
  */
 public class TemplateExpansionPreprocessor implements GoConfigPreprocessor {
+    @Override
     public void process(CruiseConfig cruiseConfig) {
         for (PipelineConfig pipelineConfig : cruiseConfig.getAllPipelineConfigs()) {
             if (pipelineConfig.hasTemplate()) {

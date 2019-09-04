@@ -47,10 +47,12 @@ public class Property implements JsonAware, Serializable {
     }
 
 
+    @Override
     public String toString() {
         return "Name=" + key + " Value=" + value;
     }
 
+    @Override
     public boolean equals(Object that) {
         if (this == that) {
             return true;
@@ -75,6 +77,7 @@ public class Property implements JsonAware, Serializable {
         return true;
     }
 
+    @Override
     public int hashCode() {
         int result;
         result = key.hashCode();
@@ -82,6 +85,7 @@ public class Property implements JsonAware, Serializable {
         return result;
     }
 
+    @Override
     public Map<String, Object> toJson() {
         Map<String, Object> jsonMap = new LinkedHashMap<>();
         jsonMap.put(key, value);

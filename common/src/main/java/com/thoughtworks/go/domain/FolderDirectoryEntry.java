@@ -35,6 +35,7 @@ public class FolderDirectoryEntry extends DirectoryEntry {
         return subDirectory;
     }
 
+    @Override
     protected HtmlRenderable htmlBody() {
         return sequence(
                 HtmlElement.div(cssClass("dir-container")).content(
@@ -48,6 +49,7 @@ public class FolderDirectoryEntry extends DirectoryEntry {
         );
     }
 
+    @Override
     public Map<String, Object> toJson() {
         Map json = super.toJson();
         json.put("files", subDirectory.toJson());

@@ -39,6 +39,7 @@ public class AgentAssignment implements JobStatusListener {
         this.jobInstanceDao = jobInstanceDao;
     }
 
+    @Override
     public void jobStatusChanged(JobInstance job) {
         if (job.getState() == JobState.Rescheduled || job.getState() == JobState.Completed) {
             map.remove(job.getAgentUuid());

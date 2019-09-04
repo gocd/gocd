@@ -18,7 +18,6 @@ package com.thoughtworks.go.config.crud;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.materials.*;
-import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.domain.config.*;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;

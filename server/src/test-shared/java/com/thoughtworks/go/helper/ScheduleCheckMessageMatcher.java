@@ -16,7 +16,6 @@
 package com.thoughtworks.go.helper;
 
 import com.thoughtworks.go.server.scheduling.ScheduleCheckMessage;
-import org.hamcrest.Description;
 import org.mockito.ArgumentMatcher;
 
 import static org.mockito.ArgumentMatchers.argThat;

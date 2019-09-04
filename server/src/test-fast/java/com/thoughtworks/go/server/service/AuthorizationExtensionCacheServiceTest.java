@@ -174,6 +174,7 @@ class AuthorizationExtensionCacheServiceTest {
             nanos.addAndGet(timeUnit.toNanos(time));
         }
 
+        @Override
         public long read() {
             return nanos.getAndAdd(0);
         }

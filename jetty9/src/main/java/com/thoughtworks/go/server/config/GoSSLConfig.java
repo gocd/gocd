@@ -17,8 +17,6 @@ package com.thoughtworks.go.server.config;
 
 import com.thoughtworks.go.util.SystemEnvironment;
 
-import javax.net.ssl.SSLSocketFactory;
-
 public class GoSSLConfig implements SSLConfig {
     private SystemEnvironment systemEnvironment;
 

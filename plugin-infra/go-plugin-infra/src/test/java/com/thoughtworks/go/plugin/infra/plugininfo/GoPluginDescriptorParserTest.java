@@ -21,6 +21,7 @@ import org.xml.sax.SAXException;
 
 import java.io.File;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 import static com.thoughtworks.go.util.TestUtils.contains;
 import static org.hamcrest.Matchers.is;
@@ -30,7 +31,7 @@ import static org.junit.Assert.fail;
 public class GoPluginDescriptorParserTest {
     @Test
     public void shouldPerformPluginXsdValidationAndFailWhenIDIsNotPresent() throws Exception {
-        InputStream pluginXml = IOUtils.toInputStream("<go-plugin version=\"1\"></go-plugin>");
+        InputStream pluginXml = IOUtils.toInputStream("<go-plugin version=\"1\"></go-plugin>", StandardCharsets.UTF_8);
         try {
             GoPluginDescriptorParser.parseXML(pluginXml, "/tmp/", new File("/tmp/"), true);
             fail("xsd validation should have failed");
@@ -41,7 +42,7 @@ public class GoPluginDescriptorParserTest {
 
     @Test
     public void shouldPerformPluginXsdValidationAndFailWhenVersionIsNotPresent() throws Exception {
-        InputStream pluginXml = IOUtils.toInputStream("<go-plugin id=\"some\"></go-plugin>");
+        InputStream pluginXml = IOUtils.toInputStream("<go-plugin id=\"some\"></go-plugin>", StandardCharsets.UTF_8);
         try {
             GoPluginDescriptorParser.parseXML(pluginXml, "/tmp/", new File("/tmp/"), true);
             fail("xsd validation should have failed");
@@ -52,7 +53,7 @@ public class GoPluginDescriptorParserTest {
 
     @Test
     public void shouldValidatePluginVersion() throws Exception {
-        InputStream pluginXml = IOUtils.toInputStream("<go-plugin version=\"10\"></go-plugin>");
+        InputStream pluginXml = IOUtils.toInputStream("<go-plugin version=\"10\"></go-plugin>", StandardCharsets.UTF_8);
         try {
             GoPluginDescriptorParser.parseXML(pluginXml, "/tmp/", new File("/tmp/"), true);
             fail("xsd validation should have failed");

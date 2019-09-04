@@ -22,26 +22,32 @@ import com.thoughtworks.go.util.command.EnvironmentVariableContext;
  * Basic null object.
  */
 public class NoWork implements Work {
+    @Override
     public void doWork(EnvironmentVariableContext environmentVariableContext, AgentWorkContext agentWorkContext) {
         agentWorkContext.getAgentRuntimeInfo().idle();
     }
 
+    @Override
     public String description() {
         return "No builds currently available for this agent...";
     }
 
+    @Override
     public void cancel(EnvironmentVariableContext environmentVariableContext, AgentRuntimeInfo agentruntimeInfo) {
         agentruntimeInfo.idle();
     }
 
+    @Override
     public boolean equals(Object other) {
         return other.getClass().equals(this.getClass());
     }
 
+    @Override
     public int hashCode() {
         return 1;
     }
 
+    @Override
     public String toString() {
         return "[NoWork]";
     }

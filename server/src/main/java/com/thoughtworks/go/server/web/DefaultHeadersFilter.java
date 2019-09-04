@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.web;
 
-import com.google.common.net.HttpHeaders;
 import com.thoughtworks.go.util.SystemEnvironment;
 
 import javax.servlet.*;
@@ -28,13 +27,16 @@ public class DefaultHeadersFilter implements Filter {
 
     private SystemEnvironment systemEnvironment = new SystemEnvironment();
 
+    @Override
     public void destroy() {
     }
 
+    @Override
     public void init(FilterConfig config) {
         // No default config
     }
 
+    @Override
     public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws ServletException, IOException {
         HttpServletResponse response = (HttpServletResponse) resp;
 

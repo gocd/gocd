@@ -20,7 +20,6 @@ import com.thoughtworks.go.server.util.GoPlainSocketConnector;
 import com.thoughtworks.go.server.util.GoSslSocketConnector;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.deploy.App;
 import org.eclipse.jetty.deploy.DeploymentManager;
 import org.eclipse.jetty.deploy.providers.WebAppProvider;
@@ -33,6 +32,7 @@ import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import org.eclipse.jetty.server.session.SessionHandler;
+import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.webapp.JettyWebXmlConfiguration;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.webapp.WebInfConfiguration;
@@ -44,13 +44,11 @@ import org.slf4j.LoggerFactory;
 import javax.management.MBeanServer;
 import javax.servlet.SessionCookieConfig;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.management.ManagementFactory;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.text.MessageFormat.format;
 
 public class Jetty9Server extends AppServer {
     protected static String JETTY_XML_LOCATION_IN_JAR = "/defaultFiles/config";
@@ -208,8 +206,7 @@ public class Jetty9Server extends AppServer {
         if (jettyConfig.exists()) {
             replaceJettyXmlIfItBelongsToADifferentVersion(jettyConfig);
             LOG.info("Configuring Jetty using {}", jettyConfig.getAbsolutePath());
-            FileInputStream serverConfiguration = new FileInputStream(jettyConfig);
-            XmlConfiguration configuration = new XmlConfiguration(serverConfiguration);
+            XmlConfiguration configuration = new XmlConfiguration(Resource.newResource(jettyConfig));
             configuration.configure(server);
         } else {
             String message = String.format(
@@ -225,17 +222,10 @@ public class Jetty9Server extends AppServer {
     }
 
     private void replaceFileWithPackagedOne(File jettyConfig) {
-        InputStream inputStream = null;
-        try {
-            inputStream = getClass().getResourceAsStream(JETTY_XML_LOCATION_IN_JAR + "/" + jettyConfig.getName());
-            if (inputStream == null) {
-                throw new RuntimeException(format("Resource {0}/{1} does not exist in the classpath", JETTY_XML_LOCATION_IN_JAR, jettyConfig.getName()));
-            }
+        try (InputStream inputStream = getClass().getResourceAsStream(JETTY_XML_LOCATION_IN_JAR + "/" + jettyConfig.getName())) {
             FileUtils.copyInputStreamToFile(inputStream, systemEnvironment.getJettyConfigFile());
         } catch (IOException e) {
             throw new RuntimeException(e);
-        } finally {
-            IOUtils.closeQuietly(inputStream);
         }
     }
 

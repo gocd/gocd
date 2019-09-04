@@ -96,6 +96,7 @@ public class MailHost implements Validatable, PasswordEncrypter {
         this(new GoCipher());
     }
 
+    @Override
     public void validate(ValidationContext validationContext) {
         if (isBlank(hostName)) {
             errors().add("hostname", "Hostname must not be blank.");
@@ -118,10 +119,12 @@ public class MailHost implements Validatable, PasswordEncrypter {
         }
     }
 
+    @Override
     public ConfigErrors errors() {
         return configErrors;
     }
 
+    @Override
     public void addError(String fieldName, String message) {
         configErrors.add(fieldName, message);
     }
@@ -142,6 +145,7 @@ public class MailHost implements Validatable, PasswordEncrypter {
         return isTls();
     }
 
+    @Override
     @PostConstruct
     public void ensureEncrypted() {
         this.username = StringUtils.stripToNull(username);

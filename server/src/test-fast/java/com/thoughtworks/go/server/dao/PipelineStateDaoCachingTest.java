@@ -23,7 +23,6 @@ import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.server.cache.GoCache;
-import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.StubGoCache;
 import com.thoughtworks.go.server.transaction.SqlMapClientTemplate;
 import com.thoughtworks.go.server.transaction.TestTransactionSynchronizationManager;
@@ -59,8 +58,6 @@ public class PipelineStateDaoCachingTest {
     private GoConfigDao configFileDao;
     private org.hibernate.SessionFactory mockSessionFactory;
     private SqlMapClientTemplate mockTemplate;
-    private EnvironmentVariableDao environmentVariableDao;
-    private MaterialRepository repository;
     private Session session;
 
     @Before
@@ -69,14 +66,11 @@ public class PipelineStateDaoCachingTest {
         goCache = new StubGoCache(new TestTransactionSynchronizationManager());
         goCache.clear();
         mockTemplate = mock(SqlMapClientTemplate.class);
-        repository = mock(MaterialRepository.class);
-        environmentVariableDao = mock(EnvironmentVariableDao.class);
         mockSessionFactory = mock(SessionFactory.class);
-        repository = mock(MaterialRepository.class);
         transactionTemplate = mock(TransactionTemplate.class);
         configFileDao = mock(GoConfigDao.class);
-        pipelineStateDao = new PipelineStateDao(null, repository, goCache, environmentVariableDao, transactionTemplate, null,
-                transactionSynchronizationManager, null, configFileDao, mock(Database.class), mockSessionFactory);
+        pipelineStateDao = new PipelineStateDao(goCache, transactionTemplate, null,
+                transactionSynchronizationManager, null, mock(Database.class), mockSessionFactory);
         pipelineStateDao.setSqlMapClientTemplate(mockTemplate);
         session = mock(Session.class);
         when(mockSessionFactory.getCurrentSession()).thenReturn(session);

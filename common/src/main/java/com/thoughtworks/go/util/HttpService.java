@@ -19,7 +19,6 @@ import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClient;
 import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClientBuilder;
 import com.thoughtworks.go.config.AgentRegistry;
 import com.thoughtworks.go.domain.FetchHandler;
-import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -37,7 +36,7 @@ import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Properties;
 
 @Component
@@ -95,7 +94,6 @@ public class HttpService {
 
     public int download(String url, FetchHandler handler) throws IOException {
         HttpGet toGet = null;
-        InputStream is = null;
         try {
             toGet = httpClientFactory.createGet(url);
             PerfTimer timer = PerfTimer.start(String.format("Downloading from url [%s]", url));
@@ -105,9 +103,10 @@ public class HttpService {
 
                 if (statusCode == HttpServletResponse.SC_OK) {
                     if (response.getEntity() != null) {
-                        is = response.getEntity().getContent();
+                        try (InputStream is = response.getEntity().getContent()) {
+                            handler.handle(is);
+                        }
                     }
-                    handler.handle(is);
                 }
                 return statusCode;
             }
@@ -115,7 +114,6 @@ public class HttpService {
             LOGGER.error("Error while downloading [{}]", url, e);
             throw e;
         } finally {
-            IOUtils.closeQuietly(is);
             if (toGet != null) {
                 toGet.releaseConnection();
             }
@@ -125,13 +123,10 @@ public class HttpService {
     public void postProperty(String url, String value) throws IOException {
         LOGGER.info("Posting property to the URL {}Property Value ={}", url, value);
         HttpPost post = httpClientFactory.createPost(url);
-        CloseableHttpResponse response = null;
-        try {
-            post.setHeader("Confirm", "true");
-            post.setEntity(new UrlEncodedFormEntity(Arrays.asList(new BasicNameValuePair("value", value))));
-            response = execute(post);
+        post.setHeader("Confirm", "true");
+        post.setEntity(new UrlEncodedFormEntity(Collections.singletonList(new BasicNameValuePair("value", value))));
+        try (CloseableHttpResponse ignoredResponse = execute(post)) {
         } finally {
-            IOUtils.closeQuietly(response);
             post.releaseConnection();
         }
     }

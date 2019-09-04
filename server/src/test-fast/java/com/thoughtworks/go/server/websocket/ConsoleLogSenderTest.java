@@ -47,7 +47,6 @@ public class ConsoleLogSenderTest {
     private ConsoleService consoleService;
     private SocketEndpoint socket;
     private JobIdentifier jobIdentifier;
-    private SocketHealthService socketHealthService;
     private JobInstanceDao jobInstanceDao;
     private SystemEnvironment systemEnvironment;
 
@@ -55,13 +54,12 @@ public class ConsoleLogSenderTest {
     @Before
     public void setUp() throws Exception {
         consoleService = mock(ConsoleService.class);
-        socketHealthService = mock(SocketHealthService.class);
         jobInstanceDao = mock(JobInstanceDao.class);
         socket = mock(SocketEndpoint.class);
         when(socket.isOpen()).thenReturn(true);
         systemEnvironment = mock(SystemEnvironment.class);
         when(systemEnvironment.consoleLogCharsetAsCharset()).thenReturn(UTF_8);
-        consoleLogSender = new ConsoleLogSender(consoleService, jobInstanceDao, socketHealthService, systemEnvironment);
+        consoleLogSender = new ConsoleLogSender(consoleService, jobInstanceDao, systemEnvironment);
         jobIdentifier = mock(JobIdentifier.class);
     }
 

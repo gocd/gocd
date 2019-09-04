@@ -24,14 +24,13 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.MaintenanceModeService;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
-import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -45,8 +44,6 @@ public class CachedGoConfigTest {
     private ServerHealthService serverHealthService;
     @Mock
     private GoConfigMigrator goConfigMigrator;
-    @Mock
-    private SystemEnvironment systemEnvironment;
     @Mock
     private MaintenanceModeService maintenanceModeService;
 

@@ -138,9 +138,9 @@ public class PipelineGroups extends BaseCollection<PipelineConfigs> implements V
         return null;
     }
 
+    @Override
     public void validate(ValidationContext validationContext) {
         Map<String, PipelineConfigs> nameToConfig = new HashMap<>();
-        List<PipelineConfigs> visited = new ArrayList();
         for (PipelineConfigs group : this) {
             group.validateNameUniqueness(nameToConfig);
         }
@@ -170,10 +170,12 @@ public class PipelineGroups extends BaseCollection<PipelineConfigs> implements V
         }
     }
 
+    @Override
     public ConfigErrors errors() {
         return configErrors;
     }
 
+    @Override
     public void addError(String fieldName, String message) {
         configErrors.add(fieldName, message);
     }

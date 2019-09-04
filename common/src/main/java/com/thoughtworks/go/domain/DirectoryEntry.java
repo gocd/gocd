@@ -45,6 +45,7 @@ public abstract class DirectoryEntry implements Htmlable, JsonAware {
         return url;
     }
 
+    @Override
     public HtmlRenderable toHtml() {
         return ul(cssClass("artifacts"))
                 .content(htmlBody());
@@ -52,6 +53,7 @@ public abstract class DirectoryEntry implements Htmlable, JsonAware {
 
     protected abstract HtmlRenderable htmlBody();
 
+    @Override
     public Map<String, Object> toJson() {
         Map<String, Object> fileOrFolder = new LinkedHashMap<>();
         fileOrFolder.put("name", fileName);

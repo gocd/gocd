@@ -34,6 +34,7 @@ public class EnvironmentPipelineMatcher {
         pipelineConfigs = pipelineNames;
     }
 
+    @Override
     public boolean equals(Object that) {
         if (this == that) { return true; }
         if (that == null) { return false; }
@@ -47,6 +48,7 @@ public class EnvironmentPipelineMatcher {
         return true;
     }
 
+    @Override
     public int hashCode() {
         return name.hashCode();
     }

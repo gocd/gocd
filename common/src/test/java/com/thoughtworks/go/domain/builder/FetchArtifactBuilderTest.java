@@ -43,7 +43,6 @@ import static org.mockito.Mockito.*;
 public class FetchArtifactBuilderTest {
     private File zip;
     private List<File> toClean = new ArrayList<>();
-    private static final String URL = "http://10.18.7.51:8153/go/remoting/files/cruise/1.0.2341/dev/1/windows-3/cruise-output/console.log";
 
     private File dest;
     private TestingClock clock;
@@ -225,6 +224,7 @@ public class FetchArtifactBuilderTest {
     }
 
     private class StubFetchZipHttpService extends HttpService {
+        @Override
         public int download(String url, FetchHandler handler) throws IOException {
             handler.handle(new FileInputStream(zip));
             return SC_OK;
@@ -232,6 +232,7 @@ public class FetchArtifactBuilderTest {
     }
 
     private static class StubURLService extends URLService {
+        @Override
         public String baseRemoteURL() {
             return "";
         }

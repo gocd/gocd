@@ -19,7 +19,6 @@ import com.thoughtworks.go.config.EncryptedVariableValueConfig;
 import com.thoughtworks.go.domain.config.EncryptedConfigurationValue;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.util.Assert;
 
 import java.io.Serializable;
 import java.util.Objects;

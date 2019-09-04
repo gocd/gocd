@@ -19,45 +19,27 @@ import com.thoughtworks.go.config.ArtifactStore;
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
-import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
-import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
-import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 
-import java.util.Map;
-
-import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
-import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.assertThat;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class CreateArtifactStoreConfigCommandTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
-    private Username currentUser;
-    @Mock
-    private GoConfigService goConfigService;
     @Mock
     private ArtifactExtension extension;
-    private BasicCruiseConfig cruiseConfig;
 
 
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        currentUser = new Username("bob");
-        cruiseConfig = GoConfigMother.defaultCruiseConfig();
     }
 
     @Test

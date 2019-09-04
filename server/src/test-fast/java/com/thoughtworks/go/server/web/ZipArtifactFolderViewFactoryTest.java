@@ -64,10 +64,12 @@ public class ZipArtifactFolderViewFactoryTest {
 
     private ZipArtifactCache cacheAlreadyCreated() {
         return new ZipArtifactCache(null, null) {
+            @Override
             public boolean cacheCreated(ArtifactFolder artifactFolder) {
                 return true;
             }
 
+            @Override
             public File cachedFile(ArtifactFolder artifactFolder) {
                 return cacheZipFile;
             }
@@ -76,10 +78,12 @@ public class ZipArtifactFolderViewFactoryTest {
 
     private ZipArtifactCache cacheNotCreated() {
         return new ZipArtifactCache(null, null) {
+            @Override
             public boolean cacheCreated(ArtifactFolder artifactFolder) {
                 return false;
             }
 
+            @Override
             public File cachedFile(ArtifactFolder artifactFolder) {
                 throw new RuntimeException("Cache file " + artifactFolder + " not created yet");
             }

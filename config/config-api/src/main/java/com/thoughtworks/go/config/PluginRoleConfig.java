@@ -78,14 +78,17 @@ public class PluginRoleConfig extends Configuration implements Role {
         throw new UnsupportedOperationException("PluginRoleConfig does not support adding users, should be added through PluginRoleService");
     }
 
+    @Override
     public void removeUser(RoleUser roleUser) {
         throw new UnsupportedOperationException("PluginRoleConfig does not support removing users, should be removed through PluginRoleService");
     }
 
+    @Override
     public ConfigErrors errors() {
         return configErrors;
     }
 
+    @Override
     public void addError(String fieldName, String message) {
         configErrors.add(fieldName, message);
     }
@@ -148,6 +151,7 @@ public class PluginRoleConfig extends Configuration implements Role {
                 '}';
     }
 
+    @Override
     public void encryptSecureProperties(CruiseConfig preprocessedConfig) {
         if (authConfigId != null) {
             SecurityAuthConfig authConfig = preprocessedConfig.server().security().securityAuthConfigs().find(this.authConfigId);

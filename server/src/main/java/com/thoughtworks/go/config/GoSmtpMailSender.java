@@ -40,6 +40,7 @@ public class GoSmtpMailSender implements GoMailSender {
         this.mailHost = mailHost;
     }
 
+    @Override
     public ValidationBean send(String subject, String body, String to) {
         Transport transport = null;
         try {
@@ -65,6 +66,7 @@ public class GoSmtpMailSender implements GoMailSender {
         }
     }
 
+    @Override
     public ValidationBean send(SendEmailMessage message) {
         return send(message.getSubject(), message.getBody(), message.getTo());
     }

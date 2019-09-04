@@ -26,18 +26,22 @@ public class BuildIdArtifactLocator implements ArtifactLocator {
         this.artifactsRoot = artifactsRoot;
     }
 
+    @Override
     public File findArtifact(LocatableEntity identifier, String artifactPath) {
         return new File(directoryFor(identifier), artifactPath);
     }
 
+    @Override
     public boolean directoryExists(LocatableEntity locatableEntity) {
         return directoryFor(locatableEntity).exists();
     }
 
+    @Override
     public File directoryFor(LocatableEntity locatableEntity) {
         return new File(artifactsRoot, String.valueOf(locatableEntity.getId()));
     }
 
+    @Override
     public File findCachedArtifact(LocatableEntity locatableEntity) {
         return null;
     }

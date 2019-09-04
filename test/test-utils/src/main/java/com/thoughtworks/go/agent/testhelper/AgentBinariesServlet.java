@@ -37,6 +37,7 @@ public class AgentBinariesServlet extends HttpServlet {
         this.fakeGoServer = fakeGoServer;
     }
 
+    @Override
     protected void doHead(HttpServletRequest request, HttpServletResponse response) {
         try {
             response.setHeader("Content-MD5", resource.getMd5());
@@ -50,6 +51,7 @@ public class AgentBinariesServlet extends HttpServlet {
         }
     }
 
+    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         doHead(request, response);

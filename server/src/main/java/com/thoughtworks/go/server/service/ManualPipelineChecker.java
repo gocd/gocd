@@ -28,6 +28,7 @@ public class ManualPipelineChecker implements SchedulingChecker {
         this.pipelineConfig = pipelineConfig;
     }
 
+    @Override
     public void check(OperationResult result) {
         HealthStateType type = HealthStateType.general(HealthStateScope.forPipeline(CaseInsensitiveString.str(pipelineConfig.name())));
         if (pipelineConfig.isFirstStageManualApproval()) {

@@ -24,7 +24,7 @@ public class GoMessageTopic<T extends GoMessage> implements GoMessageChannel<T> 
 
     public GoMessageTopic(MessagingService messaging, String topic) {
         this.messaging = messaging;
-        this.topic = topic;        
+        this.topic = topic;
     }
 
     protected MessageSender sender() {
@@ -34,6 +34,7 @@ public class GoMessageTopic<T extends GoMessage> implements GoMessageChannel<T> 
         return sender;
     }
 
+    @Override
     public JMSMessageListenerAdapter addListener(GoMessageListener<T> listener) {
         return messaging.addListener(topic, listener);
     }
@@ -42,6 +43,7 @@ public class GoMessageTopic<T extends GoMessage> implements GoMessageChannel<T> 
         sender().sendText(message);
     }
 
+    @Override
     public void post(T message) {
         sender().sendMessage(message);
     }

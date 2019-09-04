@@ -25,15 +25,18 @@ public abstract class CommandArgument implements Serializable {
 
     public abstract String forCommandLine();
 
+    @Override
     public final String toString() {
         return forDisplay();
     }
 
+    @Override
     public int hashCode() {
         String originalArgument = this.originalArgument();
         return originalArgument == null ? 0 : originalArgument.hashCode();
     }
 
+    @Override
     public boolean equals(Object that) {
         if (that == null) return false;
         if (this == that) return true;

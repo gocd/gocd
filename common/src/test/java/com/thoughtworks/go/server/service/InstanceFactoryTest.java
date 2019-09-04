@@ -239,10 +239,12 @@ public class InstanceFactoryTest {
                 return new Date();
             }
 
+            @Override
             public DateTime currentDateTime() {
                 throw new UnsupportedOperationException("Not implemented");
             }
 
+            @Override
             public DateTime timeoutTime(Timeout timeout) {
                 throw new UnsupportedOperationException("Not implemented");
             }

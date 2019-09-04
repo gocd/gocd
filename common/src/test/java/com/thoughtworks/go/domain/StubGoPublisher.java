@@ -39,21 +39,26 @@ public class StubGoPublisher extends DefaultGoPublisher {
         this.shouldFail = shouldFail;
     }
 
+    @Override
     protected void init() {
     }
 
+    @Override
     public void taggedConsumeLineWithPrefix(String tag, String message) {
         this.message += message;
     }
 
+    @Override
     public void taggedConsumeLine(String tag, String message) {
         this.message += message;
     }
 
+    @Override
     public void consumeLineWithPrefix(String message) {
         this.message += message;
     }
 
+    @Override
     public void consumeLine(String message) {
         this.message += message;
     }
@@ -62,6 +67,7 @@ public class StubGoPublisher extends DefaultGoPublisher {
         return message;
     }
 
+    @Override
     public void upload(File fileToUpload, String destPath) {
         if (shouldFail) {
             throw new RuntimeException("failed on purpose");

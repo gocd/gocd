@@ -50,6 +50,7 @@ public class PluggableTaskViewModelFactory implements PluggableViewModelFactory<
         viewTemplates.put("list-entry", "admin/tasks/pluggable_task/_list_entry.html");
     }
 
+    @Override
     public PluggableViewModel<PluggableTask> viewModelFor(final PluggableTask pluggableTask, String actionName) {
         if (PluggableTaskConfigStore.store().hasPreferenceFor(pluggableTask.getPluginConfiguration().getId())) {
             TaskPreference taskPreference = PluggableTaskConfigStore.store().preferenceFor(pluggableTask.getPluginConfiguration().getId());

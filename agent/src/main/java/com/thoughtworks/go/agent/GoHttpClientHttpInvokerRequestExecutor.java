@@ -77,8 +77,9 @@ public class GoHttpClientHttpInvokerRequestExecutor extends AbstractHttpInvokerR
 
         try (CloseableHttpResponse response = goAgentServerHttpClient.execute(postMethod, context)) {
             validateResponse(response);
-            InputStream responseBody = getResponseBody(response);
-            return readRemoteInvocationResult(responseBody, config.getCodebaseUrl());
+            try (InputStream responseBody = getResponseBody(response)) {
+                return readRemoteInvocationResult(responseBody, config.getCodebaseUrl());
+            }
         }
     }
 

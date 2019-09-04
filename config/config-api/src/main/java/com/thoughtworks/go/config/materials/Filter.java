@@ -48,7 +48,7 @@ public class Filter extends LinkedHashSet<IgnoredFiles> implements Validatable {
         for (String file : files) {
             f.add(new IgnoredFiles(file));
         }
-        return f;        
+        return f;
     }
 
     public List<String> ignoredFileNames() {
@@ -79,13 +79,16 @@ public class Filter extends LinkedHashSet<IgnoredFiles> implements Validatable {
         return filter;
     }
 
+    @Override
     public void validate(ValidationContext validationContext) {
     }
 
+    @Override
     public ConfigErrors errors() {
         return configErrors;
     }
 
+    @Override
     public void addError(String fieldName, String message) {
         configErrors.add(fieldName, message);
     }

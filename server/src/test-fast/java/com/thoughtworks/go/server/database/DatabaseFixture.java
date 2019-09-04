@@ -84,10 +84,6 @@ public class DatabaseFixture {
         }
     }
 
-    public File oldDb() {
-        return new File(tmpDb, "hsqldb");
-    }
-
     public File templatesDir() {
         return templatesDir;
     }
@@ -102,10 +98,11 @@ public class DatabaseFixture {
     }
 
     public static void assertColumnType(BasicDataSource dataSource, String tableName, String columnName,
-                                        String expected) throws SQLException {
-        Connection connection = dataSource.getConnection();
-        try {
-            ResultSet set = connection.getMetaData().getColumns(null, null, null, null);
+                                        String expected) {
+        try (
+                Connection connection = dataSource.getConnection();
+                ResultSet set = connection.getMetaData().getColumns(null, null, null, null)
+        ) {
             while (set.next()) {
                 if (set.getString("TABLE_NAME").equalsIgnoreCase(tableName) &&
                         set.getString("COLUMN_NAME").equalsIgnoreCase(columnName)) {
@@ -118,11 +115,8 @@ public class DatabaseFixture {
                 }
             }
             Assert.fail("Column " + columnName + " does not exist");
-        } finally {
-            try {
-                connection.close();
-            } catch (Exception ignored) {
-            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 

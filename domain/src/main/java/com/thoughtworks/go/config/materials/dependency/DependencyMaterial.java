@@ -91,6 +91,7 @@ public class DependencyMaterial extends AbstractMaterial {
 
     //Unused (legacy) methods
 
+    @Override
     public void updateTo(ConsoleOutputStreamConsumer outputStreamConsumer, File baseDir, RevisionContext revisionContext, final SubprocessExecutionContext execCtx) {
 
     }
@@ -108,6 +109,7 @@ public class DependencyMaterial extends AbstractMaterial {
         return null;
     } //NEW
 
+    @Override
     public Revision oldestRevision(Modifications modifications) {
         if (modifications.size() > 1) {
             LOGGER.warn("Dependency material {} has multiple modifications", this.getDisplayName());
@@ -122,6 +124,7 @@ public class DependencyMaterial extends AbstractMaterial {
         return getDescription();
     }
 
+    @Override
     public void toJson(Map json, Revision revision) {
         json.put("folder", getFolder() == null ? "" : getFolder());
         json.put("scmType", "Dependency");
@@ -132,10 +135,12 @@ public class DependencyMaterial extends AbstractMaterial {
         }
     }
 
+    @Override
     public boolean matches(String name, String regex) {
         return false;
     }
 
+    @Override
     public void emailContent(StringBuilder content, Modification modification) {
         content.append("Dependency: " + pipelineName + "/" + stageName).append('\n').append(
                 format("revision: %s, completed on %s", modification.getRevision(),
@@ -146,28 +151,34 @@ public class DependencyMaterial extends AbstractMaterial {
         throw new UnsupportedOperationException("findModificationsSince is not supported on " + this);
     }
 
+    @Override
     public MaterialInstance createMaterialInstance() {
         return new DependencyMaterialInstance(CaseInsensitiveString.str(pipelineName), CaseInsensitiveString.str(stageName), UUID.randomUUID().toString());
     }
 
+    @Override
     public String getDescription() {
         return CaseInsensitiveString.str(pipelineName);
     }
 
+    @Override
     public String getTypeForDisplay() {
         return "Pipeline";
     }
 
+    @Override
     public void populateEnvironmentContext(EnvironmentVariableContext context, MaterialRevision materialRevision, File workingDir) {
         DependencyMaterialRevision revision = (DependencyMaterialRevision) materialRevision.getRevision();
         context.setPropertyWithEscape(format("GO_DEPENDENCY_LABEL_%s", getName()), revision.getPipelineLabel());
         context.setPropertyWithEscape(format("GO_DEPENDENCY_LOCATOR_%s", getName()), revision.getRevision());
     }
 
+    @Override
     public boolean isAutoUpdate() {
         return true;
     }
 
+    @Override
     public final MatchedRevision createMatchedRevision(Modification modification, String searchString) {
         return new MatchedRevision(searchString, modification.getRevision(), modification.getModifiedTime(), modification.getPipelineLabel());
     }
@@ -191,6 +202,7 @@ public class DependencyMaterial extends AbstractMaterial {
         return stageName;
     }
 
+    @Override
     public String getFolder() {
         return null;
     }
@@ -233,10 +245,12 @@ public class DependencyMaterial extends AbstractMaterial {
                 '}';
     }
 
+    @Override
     public String getDisplayName() {
         return CaseInsensitiveString.str(getName());
     }
 
+    @Override
     public String getUriForDisplay() {
         return String.format("%s / %s", pipelineName, stageName);
     }
@@ -252,6 +266,7 @@ public class DependencyMaterial extends AbstractMaterial {
         return materialMap;
     }
 
+    @Override
     public Boolean isUsedInFetchArtifact(PipelineConfig pipelineConfig) {
         List<FetchTask> fetchTasks = pipelineConfig.getFetchTasks();
         for (FetchTask fetchTask : fetchTasks) {
@@ -261,6 +276,7 @@ public class DependencyMaterial extends AbstractMaterial {
         return false;
     }
 
+    @Override
     public Class getInstanceType() {
         return DependencyMaterialInstance.class;
     }

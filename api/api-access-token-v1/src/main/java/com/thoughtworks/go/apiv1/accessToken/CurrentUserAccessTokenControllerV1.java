@@ -21,7 +21,6 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.config.SecurityAuthConfig;
-import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.domain.AccessToken;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;

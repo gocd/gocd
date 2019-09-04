@@ -31,6 +31,7 @@ public class GoConfigFieldTypeConverter extends SimpleTypeConverter {
     }
 
     private static class CustomizedFileEditor extends FileEditor {
+        @Override
         public void setAsText(String text) throws IllegalArgumentException {
             if (StringUtils.isBlank(text)) {
                 return;

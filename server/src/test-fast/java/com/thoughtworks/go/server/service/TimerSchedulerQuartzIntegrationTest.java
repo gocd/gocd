@@ -35,8 +35,6 @@ import java.util.List;
 
 import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfigWithTimer;
 import static java.util.Arrays.asList;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 public class TimerSchedulerQuartzIntegrationTest {

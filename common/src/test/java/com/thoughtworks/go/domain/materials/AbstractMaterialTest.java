@@ -46,22 +46,27 @@ public class AbstractMaterialTest {
             this.displayName = displayName;
         }
 
+        @Override
         protected void appendPipelineUniqueCriteria(Map<String, Object> basicCriteria) {
             basicCriteria.put("pipeline-unique", "unique-" + PIPELINE_UNIQUE_ATTRIBUTE_ADDED++);
         }
 
+        @Override
         protected void appendCriteria(Map<String, Object> parameters) {
             parameters.put("foo", bar);
         }
 
+        @Override
         protected void appendAttributes(Map<String, Object> parameters) {
             parameters.put("baz", quux);
         }
 
+        @Override
         public String getFolder() {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public void updateTo(ConsoleOutputStreamConsumer outputStreamConsumer, File baseDir, RevisionContext revisionContext, final SubprocessExecutionContext execCtx) {
             throw new UnsupportedOperationException();
         }
@@ -74,14 +79,17 @@ public class AbstractMaterialTest {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public void toJson(Map jsonMap, Revision revision) {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public boolean matches(String name, String regex) {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public void emailContent(StringBuilder content, Modification modification) {
             throw new UnsupportedOperationException();
         }
@@ -90,46 +98,57 @@ public class AbstractMaterialTest {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public MaterialInstance createMaterialInstance() {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public String getDescription() {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public String getTypeForDisplay() {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public void populateEnvironmentContext(EnvironmentVariableContext context, MaterialRevision materialRevision, File workingDir) {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public String getDisplayName() {
             return displayName;
         }
 
+        @Override
         public boolean isAutoUpdate() {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public MatchedRevision createMatchedRevision(Modification modifications, String searchString) {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public String getUriForDisplay() {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public Boolean isUsedInFetchArtifact(PipelineConfig pipelineConfig) {
             return false;
         }
 
+        @Override
         public Class getInstanceType() {
             throw new UnsupportedOperationException("instance not available for test material");
         }
 
+        @Override
         public Revision oldestRevision(Modifications modifications) {
             throw new UnsupportedOperationException("Not yet implemented");
         }

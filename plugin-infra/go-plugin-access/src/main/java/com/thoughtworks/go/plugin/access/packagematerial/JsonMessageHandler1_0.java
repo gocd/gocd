@@ -178,10 +178,6 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
         return toPackageRevision(responseBody);
     }
 
-    private List<Map> parseResponseToList(String responseBody) {
-        return (List<Map>) new GsonBuilder().create().fromJson(responseBody, Object.class);
-    }
-
     private Map parseResponseToMap(String responseBody) {
         return (Map) new GsonBuilder().create().fromJson(responseBody, Object.class);
     }

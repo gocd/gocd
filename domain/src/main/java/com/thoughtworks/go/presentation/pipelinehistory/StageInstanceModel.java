@@ -78,6 +78,7 @@ public class StageInstanceModel implements StageConfigurationModel {
     public StageInstanceModel() {
     }
 
+    @Override
     public String getName() {
         return name;
     }
@@ -146,6 +147,7 @@ public class StageInstanceModel implements StageConfigurationModel {
         return approvedBy == null && getState().completed();
     }
 
+    @Override
     public boolean isAutoApproved() {
         return APPROVAL_SUCCESS.equals(approvalType);
     }
@@ -189,6 +191,7 @@ public class StageInstanceModel implements StageConfigurationModel {
         this.scheduled = value;
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -206,6 +209,7 @@ public class StageInstanceModel implements StageConfigurationModel {
         return true;
     }
 
+    @Override
     public int hashCode() {
         return name.hashCode();
     }

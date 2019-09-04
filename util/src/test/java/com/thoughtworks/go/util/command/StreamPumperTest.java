@@ -125,6 +125,7 @@ public class StreamPumperTest {
             return false;
         }
 
+        @Override
         public void consumeLine(String line) {
             lines.add(line);
         }

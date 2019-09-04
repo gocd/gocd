@@ -136,6 +136,7 @@ public class MultipleMaterialsWithFilterTest {
             super(materialRepository, transactionTemplate, temporaryFolder);
         }
 
+        @Override
         public void onSetUp() throws Exception {
             configHelper.initializeConfigFile();
 

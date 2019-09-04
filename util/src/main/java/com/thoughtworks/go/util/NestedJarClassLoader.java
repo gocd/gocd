@@ -74,8 +74,7 @@ public class NestedJarClassLoader extends ClassLoader {
         LOGGER.debug("Enumerating jar: {}", urlOfJar);
         List<URL> urls = new ArrayList<>();
         urls.add(urlOfJar);
-        try {
-            JarInputStream jarStream = new JarInputStream(urlOfJar.openStream());
+        try (JarInputStream jarStream = new JarInputStream(urlOfJar.openStream())) {
             JarEntry entry;
             while ((entry = jarStream.getNextJarEntry()) != null) {
                 if (!entry.isDirectory() && entry.getName().endsWith(".jar")) {

@@ -83,6 +83,7 @@ public class MaterialUpdateListenerTest {
 
     private void setupTransactionTemplateStub() throws Exception {
         when(transactionTemplate.executeWithExceptionHandling(Mockito.any(TransactionCallback.class))).thenAnswer(new Answer<Object>() {
+            @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
                 TransactionCallback callback = (TransactionCallback) invocationOnMock.getArguments()[0];
                 callback.doInTransaction(null);

@@ -21,7 +21,6 @@ import com.thoughtworks.go.server.newsecurity.models.UsernamePassword;
 import com.thoughtworks.go.server.newsecurity.providers.PasswordBasedPluginAuthenticationProvider;
 import com.thoughtworks.go.server.newsecurity.providers.WebBasedPluginAuthenticationProvider;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
-import com.thoughtworks.go.server.service.SecurityAuthConfigService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -51,7 +50,6 @@ public class AuthenticationController {
     private static final RedirectView REDIRECT_TO_LOGIN_PAGE = new RedirectView("/auth/login", true);
     private static final String UNKNOWN_ERROR_WHILE_AUTHENTICATION = "There was an unknown error authenticating you. Please try again after some time, and contact the administrator if the problem persists.";
     private final SecurityService securityService;
-    private final SecurityAuthConfigService securityAuthConfigService;
     private final SystemEnvironment systemEnvironment;
     private final Clock clock;
     private final PasswordBasedPluginAuthenticationProvider passwordBasedPluginAuthenticationProvider;
@@ -59,13 +57,11 @@ public class AuthenticationController {
 
     @Autowired
     public AuthenticationController(SecurityService securityService,
-                                    SecurityAuthConfigService securityAuthConfigService,
                                     SystemEnvironment systemEnvironment,
                                     Clock clock,
                                     PasswordBasedPluginAuthenticationProvider passwordBasedPluginAuthenticationProvider,
                                     WebBasedPluginAuthenticationProvider webBasedPluginAuthenticationProvider) {
         this.securityService = securityService;
-        this.securityAuthConfigService = securityAuthConfigService;
         this.systemEnvironment = systemEnvironment;
         this.clock = clock;
         this.passwordBasedPluginAuthenticationProvider = passwordBasedPluginAuthenticationProvider;

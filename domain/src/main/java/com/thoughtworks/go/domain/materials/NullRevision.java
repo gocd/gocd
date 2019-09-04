@@ -19,14 +19,17 @@ package com.thoughtworks.go.domain.materials;
  * @understands revision for null material
  */
 public class NullRevision implements Revision {
+    @Override
     public String getRevision() {
         return "";
     }
 
+    @Override
     public String getRevisionUrl() {
         return "";
     }
 
+    @Override
     public boolean isRealRevision() {
         return false;
     }

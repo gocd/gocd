@@ -17,6 +17,7 @@ package com.thoughtworks.go.domain.feed;
 
 import org.junit.Test;
 
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.is;
 
@@ -44,6 +45,6 @@ public class AuthorTest {
 
     @Test
     public void shouldNotBeEqualToNull(){
-        assertThat(new Author("name1", "email").equals(null), is(false));
+        assertNotEquals(new Author("name1", "email"), null);
     }
 }

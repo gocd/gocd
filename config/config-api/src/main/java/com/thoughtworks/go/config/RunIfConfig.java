@@ -40,6 +40,7 @@ public class RunIfConfig implements Serializable, Validatable{
         return new RunIfConfig(jobResultString);
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -57,21 +58,26 @@ public class RunIfConfig implements Serializable, Validatable{
         return true;
     }
 
+    @Override
     public int hashCode() {
         return (status != null ? status.hashCode() : 0);
     }
 
+    @Override
     public String toString() {
         return status;
     }
 
+    @Override
     public void validate(ValidationContext validationContext) {
     }
 
+    @Override
     public ConfigErrors errors() {
         return configErrors;
     }
 
+    @Override
     public void addError(String fieldName, String message) {
         configErrors.add(fieldName, message);
     }

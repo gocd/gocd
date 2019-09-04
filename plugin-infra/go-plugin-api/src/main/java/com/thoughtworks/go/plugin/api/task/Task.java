@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.plugin.api.task;
 
-import com.thoughtworks.go.plugin.api.GoPluginApiMarker;
 import com.thoughtworks.go.plugin.api.annotation.UsedOnGoAgent;
 import com.thoughtworks.go.plugin.api.annotation.UsedOnGoServer;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;

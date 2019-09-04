@@ -39,6 +39,7 @@ public class MessageJson {
         return create(message, null);
     }
 
+    @Override
     public String toString() {
         StringWriter buffer = new StringWriter(1024);
         new JsonOutputWriter(buffer, null).forTopLevelObject((OutputWriter writer) -> {

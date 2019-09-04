@@ -50,6 +50,7 @@ public class JobConfigs extends BaseCollection<JobConfig> implements Validatable
         return false;
     }
 
+    @Override
     public boolean add(JobConfig jobConfig) {
         verifyUniqueName(jobConfig);
         return addJob(jobConfig);
@@ -59,11 +60,13 @@ public class JobConfigs extends BaseCollection<JobConfig> implements Validatable
         return super.add(jobConfig);
     }
 
+    @Override
     public JobConfig set(int index, JobConfig jobConfig) {
         verifyUniqueName(jobConfig, index);
         return super.set(index, jobConfig);
     }
 
+    @Override
     public void add(int index, JobConfig jobConfig) {
         verifyUniqueName(jobConfig);
         super.add(index, jobConfig);
@@ -89,18 +92,22 @@ public class JobConfigs extends BaseCollection<JobConfig> implements Validatable
         return isValid;
     }
 
+    @Override
     public void validate(ValidationContext validationContext) {
         validateNameUniqueness();
     }
 
+    @Override
     public ConfigErrors errors() {
         return configErrors;
     }
 
+    @Override
     public void addError(String fieldName, String message) {
         configErrors.add(fieldName, message);
     }
 
+    @Override
     public void setConfigAttributes(Object attributes) {
         setConfigAttributes(attributes, null);
     }

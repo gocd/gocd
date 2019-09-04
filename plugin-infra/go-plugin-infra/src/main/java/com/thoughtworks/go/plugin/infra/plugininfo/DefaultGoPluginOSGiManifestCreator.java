@@ -22,6 +22,7 @@ import java.io.IOException;
 
 @Component
 public class DefaultGoPluginOSGiManifestCreator implements GoPluginOSGiManifestGenerator {
+    @Override
     public void updateManifestOf(GoPluginDescriptor descriptor) {
         GoPluginOSGiManifest manifest = new GoPluginOSGiManifest(descriptor);
         try {

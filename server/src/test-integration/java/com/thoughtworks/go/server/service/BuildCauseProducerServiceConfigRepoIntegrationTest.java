@@ -22,8 +22,6 @@ import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
-import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
-import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.MaterialRevisions;
@@ -106,7 +104,6 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
     @Autowired private MaintenanceModeService maintenanceModeService;
 
     @Autowired private MaterialUpdateCompletedTopic topic;
-    @Autowired private ConfigMaterialUpdateCompletedTopic configTopic;
 
     private GoDiskSpaceMonitor goDiskSpaceMonitor;
 
@@ -119,7 +116,6 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
     private HgTestRepo hgRepo;
     private HgMaterialConfig materialConfig;
     private MDUPerformanceLogger logger;
-    private MaterialUpdateListener worker;
     private HgMaterial material;
     private PipelineConfig pipelineConfig;
     MaterialRevisions firstRevisions;
@@ -149,8 +145,6 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
                 serverHealthService, emailSender, mockDiskSpaceChecker, mock(ArtifactsService.class),
                 stageService, configDbStateRepository);
         goDiskSpaceMonitor.initialize();
-
-        worker = new MaterialUpdateListener(configTopic,materialDatabaseUpdater,logger,goDiskSpaceMonitor, maintenanceModeService);
 
         xmlWriter = new MagicalGoConfigXmlWriter(configCache, ConfigElementImplementationRegistryMother.withNoPlugins());
         configTestRepo = new ConfigTestRepo(hgRepo, xmlWriter);

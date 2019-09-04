@@ -45,10 +45,12 @@ public class StageInstanceModels extends BaseCollection<StageInstanceModel> impl
         return super.add(stageInstanceModel);    //To change body of overridden methods use File | Settings | File Templates.
     }
 
+    @Override
     public boolean hasStage(String stageName) {
         return byName(stageName) != null;
     }
 
+    @Override
     public String nextStageName(String stageName) {
         int index = indexOf(byName(stageName));
         if (index > -1 && index < size() - 1) {

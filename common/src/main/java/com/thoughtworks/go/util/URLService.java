@@ -88,6 +88,7 @@ public class URLService implements ServerUrlGenerator{
                 baseRemotingURL, "remoting", "properties", jobIdentifier.propertyLocator(propertyName));
     }
 
+    @Override
     public String serverUrlFor(String subPath) {
         return format("%s/%s", baseRemotingURL, subPath);
     }

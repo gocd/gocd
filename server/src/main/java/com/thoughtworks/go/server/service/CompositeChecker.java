@@ -25,6 +25,7 @@ public class CompositeChecker implements SchedulingChecker {
         this.checkers = checkers;
     }
 
+    @Override
     public void check(OperationResult result) {
         for (SchedulingChecker checker : checkers) {
             checker.check(result);

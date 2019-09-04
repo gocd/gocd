@@ -21,8 +21,6 @@ import com.thoughtworks.go.domain.JobInstances;
 import com.thoughtworks.go.server.domain.Agent;
 import com.thoughtworks.go.server.domain.JobDurationStrategy;
 import com.thoughtworks.go.server.ui.JobInstanceModel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,7 +32,6 @@ public class JobPresentationService {
 
     private final AgentService agentService;
     private final JobDurationStrategy jobDurationStrategy;
-    private static Logger LOGGER = LoggerFactory.getLogger(JobPresentationService.class);
 
 
     @Autowired

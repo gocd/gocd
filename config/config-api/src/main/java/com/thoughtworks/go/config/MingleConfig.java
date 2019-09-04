@@ -73,6 +73,7 @@ public class MingleConfig implements ParamsAttributeAware, Validatable, CommentR
         return errors().isEmpty();
     }
 
+    @Override
     public void validate(ValidationContext validationContext) {
         if (isDefined() && XmlUtils.doesNotMatchUsingXsdRegex(MINGLE_URL_PATTERN_REGEX, baseUrl)) {
             configErrors.add(BASE_URL, "Should be a URL starting with https://");
@@ -86,10 +87,12 @@ public class MingleConfig implements ParamsAttributeAware, Validatable, CommentR
         return baseUrl != null;
     }
 
+    @Override
     public ConfigErrors errors() {
         return configErrors;
     }
 
+    @Override
     public void addError(String fieldName, String message) {
         configErrors.add(fieldName, message);
     }
@@ -182,6 +185,7 @@ public class MingleConfig implements ParamsAttributeAware, Validatable, CommentR
                 toString();
     }
 
+    @Override
     public void setConfigAttributes(Object attributes) {
         if (attributes == null) {
             return;
@@ -215,6 +219,7 @@ public class MingleConfig implements ParamsAttributeAware, Validatable, CommentR
         return true;
     }
 
+    @Override
     public String render(String text) {
         try {
             String urlPart = urlFor(String.format(MINGLE_CARDS_PATH, projectIdentifier));

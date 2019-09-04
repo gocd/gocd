@@ -15,13 +15,9 @@
  */
 package com.thoughtworks.go.server.presentation.models;
 
-import java.util.Map;
-
-import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.domain.BaseCollection;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.domain.StageIdentifier;
 
 import static com.thoughtworks.go.util.ExceptionUtils.methodNotImplemented;
 
@@ -29,24 +25,18 @@ public class StageConfigurationModels extends BaseCollection<StageConfigurationM
     public StageConfigurationModels() {
     }
 
-    public StageConfigurationModels(PipelineConfig pipelineConfig, Map<String, StageIdentifier> mostRecent) {
+    public StageConfigurationModels(PipelineConfig pipelineConfig) {
         for (StageConfig config : pipelineConfig) {
             StageInfoAdapter adapter = new StageInfoAdapter(config);
-            if (mostRecent != null) {
-                adapter.setMostRecent(mostRecent.get(CaseInsensitiveString.str(config.name())));
-            }
             this.add(adapter);
         }
     }
 
-    public StageConfigurationModels(PipelineConfig pipelineConfig) {
-        this(pipelineConfig, null);
-    }
-
     public boolean match(PipelineConfig pipelineConfig) {
-        return this.equals(new StageConfigurationModels(pipelineConfig, null));
+        return this.equals(new StageConfigurationModels(pipelineConfig));
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -68,6 +58,7 @@ public class StageConfigurationModels extends BaseCollection<StageConfigurationM
     }
 
     // not intend to use this method, but to let checkstyle happy
+    @Override
     public int hashCode() {
         methodNotImplemented();
         return 0;

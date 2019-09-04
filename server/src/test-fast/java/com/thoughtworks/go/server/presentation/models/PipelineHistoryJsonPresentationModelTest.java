@@ -51,7 +51,6 @@ public class PipelineHistoryJsonPresentationModelTest {
     private static final int PER_PAGE = 10;
     private static final boolean CAN_FORCE = false;
     private PipelinePauseInfo pipelinePauseInfo;
-    private static final String APPROVED_BY = PipelineHistoryMother.APPROVED_BY;
     private boolean hasForceBuildCause = false;
     private Date modificationDate = new Date();
     private boolean hasModification = false;

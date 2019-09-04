@@ -16,7 +16,6 @@
 package com.thoughtworks.go.security;
 
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.io.IOUtils;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
 import org.bouncycastle.asn1.x500.style.BCStyle;
@@ -240,9 +239,9 @@ public class X509CertificateGenerator {
     boolean verifySigned(File keystore, Certificate agentCertificate) {
         try {
             KeyStore store = KeyStore.getInstance("JKS");
-            FileInputStream inputStream = new FileInputStream(keystore);
-            store.load(inputStream, PASSWORD_AS_CHAR_ARRAY);
-            IOUtils.closeQuietly(inputStream);
+            try (FileInputStream inputStream = new FileInputStream(keystore)) {
+                store.load(inputStream, PASSWORD_AS_CHAR_ARRAY);
+            }
             KeyStore.PrivateKeyEntry intermediateEntry = (KeyStore.PrivateKeyEntry) store.getEntry("ca-intermediate",
                     new KeyStore.PasswordProtection(PASSWORD_AS_CHAR_ARRAY));
             Certificate intermediateCertificate = intermediateEntry.getCertificate();

@@ -53,6 +53,7 @@ public class ResourceConfig implements Serializable, Comparable<ResourceConfig>,
         this.name = StringUtils.trimToNull(name);
     }
 
+    @Override
     public String toString() {
         return getName();
     }
@@ -72,6 +73,7 @@ public class ResourceConfig implements Serializable, Comparable<ResourceConfig>,
         return getName() != null ? getName().toLowerCase().hashCode() : 0;
     }
 
+    @Override
     public int compareTo(ResourceConfig other) {
         return name.compareTo(other.name);
     }
@@ -81,6 +83,7 @@ public class ResourceConfig implements Serializable, Comparable<ResourceConfig>,
         return errors().isEmpty();
     }
 
+    @Override
     public void validate(ValidationContext validationContext) {
         if (validationContext.isWithinTemplates()) {
             if (!name.matches(VALID_REGEX_WHEN_IN_TEMPLATES)) {
@@ -94,10 +97,12 @@ public class ResourceConfig implements Serializable, Comparable<ResourceConfig>,
         }
     }
 
+    @Override
     public ConfigErrors errors() {
         return configErrors;
     }
 
+    @Override
     public void addError(String fieldName, String message) {
         configErrors.add(fieldName, message);
     }

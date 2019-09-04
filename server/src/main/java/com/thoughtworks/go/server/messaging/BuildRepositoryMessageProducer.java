@@ -42,10 +42,12 @@ public class BuildRepositoryMessageProducer implements BuildRepositoryRemote {
         this.workAssignmentPerformanceLogger = workAssignmentPerformanceLogger;
     }
 
+    @Override
     public AgentInstruction ping(AgentRuntimeInfo info) {
         return buildRepository.ping(info);
     }
 
+    @Override
     public Work getWork(AgentRuntimeInfo runtimeInfo) {
         long startTime = System.currentTimeMillis();
 
@@ -55,28 +57,35 @@ public class BuildRepositoryMessageProducer implements BuildRepositoryRemote {
         return work;
     }
 
+    @Override
     public void reportCurrentStatus(AgentRuntimeInfo agentRuntimeInfo, JobIdentifier jobIdentifier, JobState jobState) {
         buildRepository.reportCurrentStatus(agentRuntimeInfo, jobIdentifier, jobState);
     }
 
+    @Override
     public void reportCompleting(AgentRuntimeInfo agentRuntimeInfo, JobIdentifier jobIdentifier, JobResult result) {
         buildRepository.reportCompleting(agentRuntimeInfo, jobIdentifier, result);
     }
 
+    @Override
     public boolean isIgnored(JobIdentifier jobIdentifier) {
         return buildRepository.isIgnored(jobIdentifier);
     }
 
+    @Override
     public String getCookie(AgentIdentifier identifier, String location) {
         return buildRepository.getCookie(identifier, location);
     }
 
+    @Override
     public void consumeLine(String line, JobIdentifier jobIdentifier) {
     }
 
+    @Override
     public void taggedConsumeLine(String tag, String line, JobIdentifier jobIdentifier) {
     }
 
+    @Override
     public void reportCompleted(AgentRuntimeInfo agentRuntimeInfo, JobIdentifier jobId, JobResult result) {
         long startTime = System.currentTimeMillis();
 

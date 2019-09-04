@@ -118,6 +118,7 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
         return url;
     }
 
+    @Override
     public String getLongDescription() {
         return String.format("URL: %s, Username: %s, Domain: %s, ProjectPath: %s", url.forDisplay(), userName, domain, projectPath);
     }
@@ -140,6 +141,7 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
         appendCriteria(parameters);
     }
 
+    @Override
     public void updateTo(ConsoleOutputStreamConsumer outputStreamConsumer, File baseDir, RevisionContext revisionContext, final SubprocessExecutionContext execCtx) {
         Revision revision = revisionContext.getLatestRevision();
         File workingDir = execCtx.isServer() ? baseDir : workingdir(baseDir);
@@ -172,10 +174,12 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
         return tfs(execCtx).modificationsSince(workDir, revision);
     }
 
+    @Override
     public MaterialInstance createMaterialInstance() {
         return new TfsMaterialInstance(url.originalArgument(), userName, domain, projectPath, UUID.randomUUID().toString());
     }
 
+    @Override
     public String getTypeForDisplay() {
         return "Tfs";
     }
@@ -200,6 +204,7 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
         return materialMap;
     }
 
+    @Override
     public Class getInstanceType() {
         return TfsMaterialInstance.class;
     }

@@ -32,6 +32,7 @@ public class NotificationPluginInfoBuilder implements PluginInfoBuilder<Notifica
         this.extension = extension;
     }
 
+    @Override
     public NotificationPluginInfo pluginInfoFor(GoPluginDescriptor descriptor) {
         PluggableInstanceSettings pluggableInstanceSettings = getPluginSettingsAndView(descriptor, extension);
         return new NotificationPluginInfo(descriptor, pluggableInstanceSettings);

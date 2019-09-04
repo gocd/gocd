@@ -129,6 +129,7 @@ public class HealthStateType implements Comparable<HealthStateType> {
         return scope.isRemovedFromConfig(cruiseConfig);
     }
 
+    @Override
     public int compareTo(HealthStateType o) {
         return scope.compareTo(o.scope);
     }

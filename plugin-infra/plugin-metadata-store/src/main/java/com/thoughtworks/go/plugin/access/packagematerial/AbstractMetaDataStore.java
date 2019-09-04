@@ -44,6 +44,7 @@ public abstract class AbstractMetaDataStore extends  PluginPreferenceStore<Packa
         }
     }
 
+    @Override
     public boolean hasOption(String pluginId, String key, Option<Boolean> option) {
         if (!isEmpty(pluginId) && hasPreferenceFor(pluginId)) {
             PackageConfigurations configurations = preferenceFor(pluginId);

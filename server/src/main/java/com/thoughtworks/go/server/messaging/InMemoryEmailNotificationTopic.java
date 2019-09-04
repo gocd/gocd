@@ -24,6 +24,7 @@ public class InMemoryEmailNotificationTopic extends EmailNotificationTopic {
         super(null);
     }
 
+    @Override
     public void post(SendEmailMessage message) {
         messages.add(message);
     }

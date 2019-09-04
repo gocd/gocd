@@ -41,6 +41,7 @@ public class LocalDependencyMaterialSourceDao implements DependencyMaterialSourc
         this.stageDao = stageDao;
     }
 
+    @Override
     public List<Modification> getPassedStagesByName(DependencyMaterial material, Pagination pagination) {
         Stages stages = stageDao.getPassedStagesByName(CaseInsensitiveString.str(material.getPipelineName()), CaseInsensitiveString.str(material.getStageName()), pagination.getPageSize(), pagination.getOffset());
         List<Modification> mods = new ArrayList<>();
@@ -52,6 +53,7 @@ public class LocalDependencyMaterialSourceDao implements DependencyMaterialSourc
         return mods;
     }
 
+    @Override
     public List<Modification> getPassedStagesAfter(final String lastRevision, DependencyMaterial material, Pagination pagination) {
         StageIdentifier identifier = new StageIdentifier(lastRevision);
         List<StageAsDMR> passedStagesAfter = stageDao.getPassedStagesAfter(identifier, pagination.getPageSize(), pagination.getOffset());

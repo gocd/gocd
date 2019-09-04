@@ -52,6 +52,7 @@ public abstract class SecurityAuthConfigCommand extends PluginProfileCommand<Sec
         return EntityType.SecurityAuthConfig;
     }
 
+    @Override
     protected final boolean isAuthorized() {
         if (goConfigService.isUserAdmin(currentUser)) {
             return true;

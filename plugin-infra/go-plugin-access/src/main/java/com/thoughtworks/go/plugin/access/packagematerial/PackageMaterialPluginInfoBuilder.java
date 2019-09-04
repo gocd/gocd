@@ -44,6 +44,7 @@ public class PackageMaterialPluginInfoBuilder implements PluginInfoBuilder<Packa
         this.extension = extension;
     }
 
+    @Override
     public PackageMaterialPluginInfo pluginInfoFor(GoPluginDescriptor descriptor) {
         RepositoryConfiguration repositoryConfiguration = extension.getRepositoryConfiguration(descriptor.id());
         com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration packageConfiguration = extension.getPackageConfiguration(descriptor.id());

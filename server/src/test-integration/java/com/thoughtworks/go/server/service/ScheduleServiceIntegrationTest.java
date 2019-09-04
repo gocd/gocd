@@ -46,7 +46,6 @@ import com.thoughtworks.go.server.scheduling.ScheduleOptions;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
-import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.TimeProvider;
@@ -131,7 +130,6 @@ public class ScheduleServiceIntegrationTest {
     private GoConfigFileHelper configHelper;
     public Subversion repository;
     public static TestRepo testRepo;
-    private PipelineConfig evolveConfig;
     private PipelineWithTwoStages pipelineFixture;
     public static final String JOB_NAME = "unit";
     @ClassRule
@@ -185,7 +183,7 @@ public class ScheduleServiceIntegrationTest {
 
     @Test
     public void shouldScheduleStageThatWasAddedToConfigFileLater() throws Exception {
-        evolveConfig = configHelper.addPipeline("evolve", STAGE_NAME, repository, JOB_NAME);
+        configHelper.addPipeline("evolve", STAGE_NAME, repository, JOB_NAME);
         autoSchedulePipelines("mingle", "evolve");
         PipelineConfig cruisePlan = configHelper.addPipeline("cruise", "test", repository);
         assertThat(goConfigService.stageConfigNamed("mingle", "dev"), is(notNullValue()));

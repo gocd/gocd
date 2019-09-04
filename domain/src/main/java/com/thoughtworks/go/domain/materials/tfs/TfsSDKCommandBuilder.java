@@ -110,15 +110,16 @@ class TfsSDKCommandBuilder {
     private void explodeNatives() throws IOException {
         URL urlOfJar = getJarURL();
         LOGGER.info("[TFS SDK] Exploding natives from {} to folder {}", urlOfJar.toString(), tempFolder.getAbsolutePath());
-        JarInputStream jarStream = new JarInputStream(urlOfJar.openStream());
-        JarEntry entry;
-        while ((entry = jarStream.getNextJarEntry()) != null) {
-            if (!entry.isDirectory() && entry.getName().startsWith("tfssdk/native/")) {
-                File newFile = new File(tempFolder, entry.getName());
-                newFile.getParentFile().mkdirs();
-                LOGGER.info("[TFS SDK] Extract {} -> {}", entry.getName(), newFile);
-                try (OutputStream fos = new FileOutputStream(newFile)) {
-                    IOUtils.copy(jarStream, fos);
+        try (JarInputStream jarStream = new JarInputStream(urlOfJar.openStream())) {
+            JarEntry entry;
+            while ((entry = jarStream.getNextJarEntry()) != null) {
+                if (!entry.isDirectory() && entry.getName().startsWith("tfssdk/native/")) {
+                    File newFile = new File(tempFolder, entry.getName());
+                    newFile.getParentFile().mkdirs();
+                    LOGGER.info("[TFS SDK] Extract {} -> {}", entry.getName(), newFile);
+                    try (OutputStream fos = new FileOutputStream(newFile)) {
+                        IOUtils.copy(jarStream, fos);
+                    }
                 }
             }
         }

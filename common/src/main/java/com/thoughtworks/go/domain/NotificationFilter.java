@@ -95,6 +95,7 @@ public class NotificationFilter extends PersistentObject {
                 myCheckin ? "Mine" : "All");
     }
 
+    @Override
     public String toString() {
         return "NotificationFilter[" + description() + "]";
     }
@@ -116,6 +117,7 @@ public class NotificationFilter extends PersistentObject {
         return map;
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -142,6 +144,7 @@ public class NotificationFilter extends PersistentObject {
         return true;
     }
 
+    @Override
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + (pipelineName != null ? pipelineName.hashCode() : 0);

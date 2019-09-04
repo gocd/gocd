@@ -35,10 +35,13 @@ public interface EnvironmentConfig extends ParamsAttributeAware, Validatable, En
     static final String AGENTS_FIELD = "agents";
     static final String VARIABLES_FIELD = "variables";
 
+    @Override
     void validate(ValidationContext validationContext);
 
+    @Override
     ConfigErrors errors();
 
+    @Override
     void addError(String fieldName, String message);
 
     EnvironmentPipelineMatcher createMatcher();
@@ -67,6 +70,7 @@ public interface EnvironmentConfig extends ParamsAttributeAware, Validatable, En
 
     boolean hasSamePipelinesAs(EnvironmentConfig other);
 
+    @Override
     CaseInsensitiveString name();
 
     EnvironmentAgentsConfig getAgents();
@@ -85,6 +89,7 @@ public interface EnvironmentConfig extends ParamsAttributeAware, Validatable, En
 
     EnvironmentVariablesConfig getVariables();
 
+    @Override
     void setConfigAttributes(Object attributes);
 
     EnvironmentVariablesConfig getPlainTextVariables();

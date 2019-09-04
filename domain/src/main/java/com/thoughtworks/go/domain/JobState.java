@@ -28,10 +28,12 @@ public enum JobState implements ViewableStatus {
     Paused,
     Waiting;
 
+    @Override
     public String getStatus() {
         return this.toString().toLowerCase();
     }
 
+    @Override
     public String getCruiseStatus() {
         return this.toString();
     }
@@ -59,7 +61,7 @@ public enum JobState implements ViewableStatus {
     public boolean isCompleted() {
         return this == Completed;
     }
-    
+
     public boolean isPreparing() {
         return this == Preparing;
     }

@@ -30,11 +30,6 @@
   </filter>
 
   <filter>
-    <filter-name>Redirect During Backup</filter-name>
-    <filter-class>com.thoughtworks.go.server.web.BackupFilter</filter-class>
-  </filter>
-
-  <filter>
     <filter-name>mainFilterChain</filter-name>
     <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
     <init-param>
@@ -54,11 +49,6 @@
 
   <filter-mapping>
     <filter-name>Default headers filter</filter-name>
-    <url-pattern>/*</url-pattern>
-  </filter-mapping>
-
-  <filter-mapping>
-    <filter-name>Redirect During Backup</filter-name>
     <url-pattern>/*</url-pattern>
   </filter-mapping>
 

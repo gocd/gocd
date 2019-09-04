@@ -25,6 +25,7 @@ public class DelegatingListener implements ServletContextListener {
 
     public static final String DELEGATE_SERVLET = "delegate.servlet.name";
 
+    @Override
     public void contextInitialized(ServletContextEvent evt) {
         ServletContext ctx = evt.getServletContext();
         ctx.setAttribute(DELEGATE_SERVLET, createServlet(ctx.getInitParameter(DELEGATE_SERVLET)));
@@ -42,6 +43,7 @@ public class DelegatingListener implements ServletContextListener {
         return servlet;
     }
 
+    @Override
     public void contextDestroyed(ServletContextEvent servletContextEvent) {
     }
 }

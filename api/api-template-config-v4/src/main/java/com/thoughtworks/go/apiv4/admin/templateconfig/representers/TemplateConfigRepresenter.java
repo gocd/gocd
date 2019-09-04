@@ -33,7 +33,6 @@ public class TemplateConfigRepresenter {
                 .addLink("find", Routes.PipelineTemplateConfig.find()));
         if (!pipelineTemplateConfig.errors().isEmpty()) {
             jsonWriter.addChild("errors", errorWriter -> {
-                HashMap<String, String> errorMapping = new HashMap<>();
                 new ErrorGetter(new HashMap<>()).toJSON(errorWriter, pipelineTemplateConfig);
             });
         }

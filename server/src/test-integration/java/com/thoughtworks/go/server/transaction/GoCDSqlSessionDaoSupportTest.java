@@ -20,10 +20,7 @@ import com.thoughtworks.go.domain.User;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.UserDao;
-import com.thoughtworks.go.server.database.DatabaseStrategy;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.ibatis.session.SqlSessionFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,13 +43,9 @@ public class GoCDSqlSessionDaoSupportTest {
     @Autowired private GoCache goCache;
     @Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private TransactionTemplate transactionTemplate;
-    @Autowired private SqlSessionFactory sqlMapClient;
     @Autowired private UserDao userDao;
-    @Autowired private SystemEnvironment systemEnvironment;
-    @Autowired private DatabaseStrategy databaseStrategy;
 
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
-    private SqlMapClientDaoSupport daoSupport;
     private TransactionCacheAssertionUtil assertionUtil;
 
     @Before
@@ -62,9 +55,6 @@ public class GoCDSqlSessionDaoSupportTest {
         configHelper.onSetUp();
         dbHelper.onSetUp();
         goCache.clear();
-        daoSupport = new SqlMapClientDaoSupport(goCache, sqlMapClient, systemEnvironment, databaseStrategy) {
-
-        };
     }
 
     @After
@@ -76,6 +66,7 @@ public class GoCDSqlSessionDaoSupportTest {
     @Test
     public void shouldOptOutOfCacheServing_forInsert() {
         assertionUtil.assertCacheBehaviourInTxn(new TransactionCacheAssertionUtil.DoInTxn() {
+            @Override
             public void invoke() {
                 userDao.saveOrUpdate(new User("loser", "Massive Loser", "boozer@loser.com"));
             }
@@ -90,6 +81,7 @@ public class GoCDSqlSessionDaoSupportTest {
         final User[] loadedUser = new User[1];
 
         assertThat(assertionUtil.doInTxnWithCachePut(new TransactionCacheAssertionUtil.DoInTxn() {
+            @Override
             public void invoke() {
                 loadedUser[0] = userDao.findUser(loser.getName());
             }
@@ -106,6 +98,7 @@ public class GoCDSqlSessionDaoSupportTest {
         final User[] loadedUser = new User[1];
 
         assertThat(assertionUtil.doInTxnWithCachePut(new TransactionCacheAssertionUtil.DoInTxn() {
+            @Override
             public void invoke() {
                 loadedUser[0] = userDao.allUsers().get(0);
             }

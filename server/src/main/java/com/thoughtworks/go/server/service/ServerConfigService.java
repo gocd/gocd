@@ -136,6 +136,7 @@ public class ServerConfigService implements BaseUrlProvider {
         }
     }
 
+    @Override
     public String siteUrlFor(String url, boolean forceSsl) throws URISyntaxException {
         String scheme = new URI(url).getScheme();
         ServerSiteUrlConfig siteUrl = forceSsl || (scheme != null && scheme.equals("https")) ? getSecureSiteUrl() : serverConfig().getSiteUrl();
@@ -158,6 +159,7 @@ public class ServerConfigService implements BaseUrlProvider {
         return serverConfig().getWebhookSecret();
     }
 
+    @Override
     public boolean hasAnyUrlConfigured() {
         return serverConfig().hasAnyUrlConfigured();
     }

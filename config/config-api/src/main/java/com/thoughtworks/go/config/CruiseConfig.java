@@ -53,12 +53,15 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
 
     void setConfigRepos(ConfigReposConfig repos);
 
+    @Override
     void validate(ValidationContext validationContext);
 
     Hashtable<CaseInsensitiveString, Node> getDependencyTable();
 
+    @Override
     ConfigErrors errors();
 
+    @Override
     void addError(String fieldName, String message);
 
     StageConfig stageConfigByName(CaseInsensitiveString pipelineName, CaseInsensitiveString stageName);

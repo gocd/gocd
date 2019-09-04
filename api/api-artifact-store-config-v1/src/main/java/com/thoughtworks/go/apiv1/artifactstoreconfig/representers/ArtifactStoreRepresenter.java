@@ -20,12 +20,9 @@ import com.thoughtworks.go.api.representers.ConfigurationPropertyRepresenter;
 import com.thoughtworks.go.api.representers.ErrorGetter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.config.ArtifactStore;
-import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.spark.Routes;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 public class ArtifactStoreRepresenter {

@@ -39,10 +39,12 @@ public class AgentBuildingInfo implements Serializable {
         return buildingInfo;
     }
 
+    @Override
     public String toString() {
         return String.format("AgentBuildingInfo[%s, %s]", buildingInfo, buildLocator);
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -63,6 +65,7 @@ public class AgentBuildingInfo implements Serializable {
         return true;
     }
 
+    @Override
     public int hashCode() {
         int result;
         result = (buildingInfo != null ? buildingInfo.hashCode() : 0);

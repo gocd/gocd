@@ -61,6 +61,7 @@ public class StageStatusMessage implements GoMessage {
         return result;
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -87,6 +88,7 @@ public class StageStatusMessage implements GoMessage {
         return true;
     }
 
+    @Override
     public int hashCode() {
         int result1;
         result1 = stageIdentifier.hashCode();

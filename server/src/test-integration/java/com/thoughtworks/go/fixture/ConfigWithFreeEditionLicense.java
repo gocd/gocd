@@ -24,10 +24,12 @@ public class ConfigWithFreeEditionLicense implements PreCondition {
         this.configFileHelper = configFileHelper;
     }
 
+    @Override
     public void onSetUp() throws Exception {
         configFileHelper.usingEmptyConfigFileWithLicenseAllowsTwoAgents();
     }
 
+    @Override
     public void onTearDown() throws Exception {
         configFileHelper.initializeConfigFile();
     }

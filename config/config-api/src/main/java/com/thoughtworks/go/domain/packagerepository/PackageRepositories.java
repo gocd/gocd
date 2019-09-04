@@ -25,7 +25,6 @@ import com.thoughtworks.go.domain.ConfigErrors;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.function.Predicate;
 
 import static java.lang.String.format;
 

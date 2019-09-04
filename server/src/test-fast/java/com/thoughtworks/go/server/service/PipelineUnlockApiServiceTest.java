@@ -66,7 +66,6 @@ public class PipelineUnlockApiServiceTest {
     @Test public void unlockShouldSetResultToNotFoundWhenPipelineDoesNotExist() throws Exception {
         when(securityService.hasOperatePermissionForPipeline(new CaseInsensitiveString("username"), "pipeline-name")).thenReturn(true);
         when(goConfigService.hasPipelineNamed(new CaseInsensitiveString("does-not-exist"))).thenReturn(false);
-        Pipeline pipeline = new Pipeline();
         HttpOperationResult result = new HttpOperationResult();
 
         pipelineUnlockApiService.unlock("does-not-exist", new Username(new CaseInsensitiveString("username")), result);
@@ -102,7 +101,6 @@ public class PipelineUnlockApiServiceTest {
         assertThat(result.httpCode(), is(409));
         assertThat(result.message(), is("Lock exists within the pipeline configuration but no pipeline instance is currently in progress"));
     }
-
 
     @Test public void unlockShouldSetResultToNotAcceptableWhenAPipelineInstanceIsCurrentlyRunning() throws Exception {
         when(securityService.hasOperatePermissionForPipeline(new CaseInsensitiveString("username"), "pipeline-name")).thenReturn(true);

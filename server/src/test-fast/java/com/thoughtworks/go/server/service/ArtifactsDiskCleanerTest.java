@@ -126,6 +126,7 @@ public class ArtifactsDiskCleanerTest {
         when(diskSpaceChecker.getUsableSpace(goConfigService.artifactsDir())).thenReturn(4 * GoConstants.GIGA_BYTE);
 
         doAnswer(new Answer<Object>() {
+            @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 when(diskSpaceChecker.getUsableSpace(goConfigService.artifactsDir())).thenReturn(6 * GoConstants.GIGA_BYTE);
                 return null;
@@ -133,6 +134,7 @@ public class ArtifactsDiskCleanerTest {
         }).when(artifactService).purgeArtifactsForStage(stageOne);
 
         doAnswer(new Answer<Object>() {
+            @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 when(diskSpaceChecker.getUsableSpace(goConfigService.artifactsDir())).thenReturn(10 * GoConstants.GIGA_BYTE);
                 return null;
@@ -160,6 +162,7 @@ public class ArtifactsDiskCleanerTest {
         when(diskSpaceChecker.getUsableSpace(goConfigService.artifactsDir())).thenReturn(4 * GoConstants.GIGA_BYTE);
 
         doAnswer(new Answer<Object>() {
+            @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 when(stageService.oldestStagesWithDeletableArtifacts()).thenReturn(Arrays.asList(stageThree, stageFour));
                 return null;
@@ -167,6 +170,7 @@ public class ArtifactsDiskCleanerTest {
         }).when(artifactService).purgeArtifactsForStage(stageTwo);
 
         doAnswer(new Answer<Object>() {
+            @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 when(stageService.oldestStagesWithDeletableArtifacts()).thenReturn(Arrays.asList(stageFive));
                 return null;
@@ -174,6 +178,7 @@ public class ArtifactsDiskCleanerTest {
         }).when(artifactService).purgeArtifactsForStage(stageFour);
 
         doAnswer(new Answer<Object>() {
+            @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 when(stageService.oldestStagesWithDeletableArtifacts()).thenReturn(new ArrayList<>());
                 return null;

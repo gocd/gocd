@@ -36,10 +36,12 @@ public class Node {
         return dependencies;
     }
 
+    @Override
     public int hashCode() {
         return dependencies.hashCode();
     }
 
+    @Override
     public boolean equals(Object that) {
         if (this == that) {
             return true;
@@ -57,6 +59,7 @@ public class Node {
         return dependencies.equals(that.dependencies);
     }
 
+    @Override
     public String toString() {
         return "<Node: " + dependencies.toString() + ">";
     }

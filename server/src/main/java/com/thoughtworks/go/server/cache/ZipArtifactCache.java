@@ -58,6 +58,7 @@ public class ZipArtifactCache extends ArtifactCache<ArtifactFolder> {
         return new File(parent, cachedZip.getName() + ".tmp");
     }
 
+    @Override
     public File cachedFile(ArtifactFolder artifactFolder) {
         File root = artifactsDirHolder.getArtifactsDir();
         String relativize = FilenameUtils.separatorsToUnix(artifactFolder.getRootFolder().getPath()).replaceFirst(FilenameUtils.separatorsToUnix(root.getPath()), CACHE_ARTIFACTS_FOLDER);

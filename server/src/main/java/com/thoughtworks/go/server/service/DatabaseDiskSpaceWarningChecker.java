@@ -36,16 +36,19 @@ public class DatabaseDiskSpaceWarningChecker extends DiskSpaceChecker {
         this.serverHealthService = serverHealthService;
     }
 
+    @Override
     protected long limitInMb() {
         return systemEnvironment.getDatabaseDiskSpaceWarningLimit();
     }
 
+    @Override
     protected void createFailure(OperationResult result, long size, long availableSpace) {
         String msg = "GoCD has less than " + size + "M of disk space available to it.";
         LOGGER.warn(msg);
         result.warning("GoCD Server's database is running on low disk space", msg, DATABASE_DISK_FULL_ID);
     }
 
+    @Override
     protected SendEmailMessage createEmail() {
         return EmailMessageDrafter.lowDatabaseDiskSpaceMessage(systemEnvironment, getAdminMail(), targetFolderCanonicalPath());
     }

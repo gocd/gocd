@@ -56,6 +56,7 @@ public class BuildTaskTest {
                 return "build";
             }
 
+            @Override
             public String getTypeForDisplay() {
                 return "test-task";
             }
@@ -89,6 +90,7 @@ public class BuildTaskTest {
                 return "build";
             }
 
+            @Override
             public String getTypeForDisplay() {
                 return "test-task";
             }
@@ -118,6 +120,7 @@ public class BuildTaskTest {
                 return "build";
             }
 
+            @Override
             public String getTypeForDisplay() {
                 return "test-task";
             }
@@ -148,6 +151,7 @@ public class BuildTaskTest {
                 return "build";
             }
 
+            @Override
             public String getTypeForDisplay() {
                 return null;
             }
@@ -182,6 +186,7 @@ public class BuildTaskTest {
                 return "build";
             }
 
+            @Override
             public String getTypeForDisplay() {
                 return null;
             }

@@ -373,6 +373,7 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
             return new EnvironmentAgentsConfig();
     }
 
+    @Override
     public boolean isLocal() {
         return this.origin == null || this.origin.isLocal();
     }

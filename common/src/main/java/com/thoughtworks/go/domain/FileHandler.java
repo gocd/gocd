@@ -29,7 +29,6 @@ import java.net.URLEncoder;
 import java.util.Date;
 
 import static com.thoughtworks.go.util.CachedDigestUtils.md5Hex;
-import static com.thoughtworks.go.util.MapBuilder.map;
 import static java.lang.String.format;
 
 public class FileHandler implements FetchHandler {
@@ -46,6 +45,7 @@ public class FileHandler implements FetchHandler {
         checksumValidationPublisher = new ChecksumValidationPublisher();
     }
 
+    @Override
     public String url(String remoteHost, String workingUrl) throws IOException {
         boolean fileExist = artifact.exists();
         LOG.debug("Requesting the file [{}], exist? [{}]", artifact.getAbsolutePath(), fileExist);
@@ -58,6 +58,7 @@ public class FileHandler implements FetchHandler {
         }
     }
 
+    @Override
     public void handle(InputStream stream) throws IOException {
         FileOutputStream fileOutputStream = null;
         try {
@@ -80,12 +81,14 @@ public class FileHandler implements FetchHandler {
         }
     }
 
+    @Override
     public boolean handleResult(int httpCode, GoPublisher goPublisher) {
         checksumValidationPublisher.publish(httpCode, artifact, goPublisher);
 
         return httpCode < HttpServletResponse.SC_BAD_REQUEST;
     }
 
+    @Override
     public void useArtifactMd5Checksums(ArtifactMd5Checksums artifactMd5Checksums) {
         this.artifactMd5Checksums = artifactMd5Checksums;
     }

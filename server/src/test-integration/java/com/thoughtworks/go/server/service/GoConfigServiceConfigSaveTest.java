@@ -84,26 +84,32 @@ public class GoConfigServiceConfigSaveTest {
             this.stageName = stageName;
         }
 
+        @Override
         public void checkPermission(CruiseConfig cruiseConfig, LocalizedOperationResult result) {
         }
 
+        @Override
         public Validatable node(CruiseConfig cruiseConfig) {
             return cruiseConfig.getTemplateByName(new CaseInsensitiveString(templateName));
         }
 
+        @Override
         public Validatable updatedNode(CruiseConfig cruiseConfig) {
             return node(cruiseConfig);
         }
 
+        @Override
         public void update(Validatable node) {
             PipelineTemplateConfig template = (PipelineTemplateConfig) node;
             template.addStageWithoutValidityAssertion(StageConfigMother.manualStage(stageName));
         }
 
+        @Override
         public Validatable subject(Validatable node) {
             return node;
         }
 
+        @Override
         public Validatable updatedSubject(Validatable updatedNode) {
             return subject(updatedNode);
         }

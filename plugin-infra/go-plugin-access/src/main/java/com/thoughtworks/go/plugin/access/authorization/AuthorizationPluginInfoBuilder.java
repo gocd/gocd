@@ -35,6 +35,7 @@ public class AuthorizationPluginInfoBuilder implements PluginInfoBuilder<Authori
         this.extension = extension;
     }
 
+    @Override
     public AuthorizationPluginInfo pluginInfoFor(GoPluginDescriptor descriptor) {
         Capabilities capabilities = capabilities(descriptor.id());
 

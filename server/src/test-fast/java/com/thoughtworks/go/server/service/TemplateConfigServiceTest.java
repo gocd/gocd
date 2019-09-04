@@ -27,7 +27,6 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.tasks.PluggableTaskService;
 import com.thoughtworks.go.server.ui.TemplatesViewModel;
-import com.thoughtworks.go.util.DataStructureUtils;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -35,7 +34,6 @@ import java.util.*;
 
 import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;

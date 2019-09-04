@@ -20,10 +20,7 @@ import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.MagicalGoConfigXmlLoader;
 import com.thoughtworks.go.config.MailHost;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
-import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
-import com.thoughtworks.go.util.FileUtil;
-import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
 import static com.thoughtworks.go.helper.ConfigFileFixture.withServerConfig;

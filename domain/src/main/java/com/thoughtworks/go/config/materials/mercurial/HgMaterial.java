@@ -114,6 +114,7 @@ public class HgMaterial extends ScmMaterial implements PasswordAwareMaterial {
         return getHg(baseDir).modificationsSince(revision);
     }
 
+    @Override
     public MaterialInstance createMaterialInstance() {
         return new HgMaterialInstance(url.originalArgument(), userName, branch, UUID.randomUUID().toString());
     }
@@ -144,6 +145,7 @@ public class HgMaterial extends ScmMaterial implements PasswordAwareMaterial {
         return hgCommand;
     }
 
+    @Override
     public void updateTo(ConsoleOutputStreamConsumer outputStreamConsumer, File baseDir, RevisionContext revisionContext, final SubprocessExecutionContext execCtx) {
         Revision revision = revisionContext.getLatestRevision();
         try {
@@ -245,6 +247,7 @@ public class HgMaterial extends ScmMaterial implements PasswordAwareMaterial {
         return !MaterialUrl.sameUrl(url.defaultRemoteUrl(), new HgUrlArgument(result.outputAsString()).defaultRemoteUrl());
     }
 
+    @Override
     public boolean isCheckExternals() {
         return false;
     }
@@ -274,6 +277,7 @@ public class HgMaterial extends ScmMaterial implements PasswordAwareMaterial {
         return isAllBlank(this.userName, this.getPassword());
     }
 
+    @Override
     public UrlArgument getUrlArgument() {
         return url;
     }
@@ -282,6 +286,7 @@ public class HgMaterial extends ScmMaterial implements PasswordAwareMaterial {
         return url;
     }
 
+    @Override
     public String getLongDescription() {
         return String.format("URL: %s", url.forDisplay());
     }
@@ -319,10 +324,12 @@ public class HgMaterial extends ScmMaterial implements PasswordAwareMaterial {
         return result;
     }
 
+    @Override
     protected String getLocation() {
         return getUrlArgument().forDisplay();
     }
 
+    @Override
     public String getTypeForDisplay() {
         return "Mercurial";
     }
@@ -348,6 +355,7 @@ public class HgMaterial extends ScmMaterial implements PasswordAwareMaterial {
         return materialMap;
     }
 
+    @Override
     public Class getInstanceType() {
         return HgMaterialInstance.class;
     }

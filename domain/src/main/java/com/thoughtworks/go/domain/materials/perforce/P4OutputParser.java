@@ -83,8 +83,7 @@ public class P4OutputParser {
     }
 
     private void parseFileLines(Modification modification, String lines) {
-        BufferedReader reader = new BufferedReader(new StringReader(lines));
-        try {
+        try (BufferedReader reader = new BufferedReader(new StringReader(lines))) {
             for (String line = reader.readLine(); line != null; line = reader.readLine()) {
                 parseFileLine(modification, line);
             }

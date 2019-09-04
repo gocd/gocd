@@ -16,10 +16,8 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
-import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.PipelineHistoryMother;
@@ -103,7 +101,6 @@ public class PipelineHistoryServiceTest {
     @Mock
     public FeatureToggleService featureToggleService;
     private PipelineHistoryService pipelineHistoryService;
-    private static final Username USERNAME = new Username(new CaseInsensitiveString("bar"));
     private PipelineConfig config;
 
     @Before
@@ -781,25 +778,9 @@ public class PipelineHistoryServiceTest {
         verify(pipelineDao, never()).updateComment(pipelineName, 1, "test comment");
     }
 
-    private void stubConfigServiceToReturnMaterialAndPipeline(String downPipelineName, MaterialConfigs downPipelineMaterial, PipelineConfig down1Config) {
-        when(goConfigService.materialConfigsFor(new CaseInsensitiveString(downPipelineName))).thenReturn(downPipelineMaterial);
-        stubConfigServiceToReturnPipeline(downPipelineName, down1Config);
-    }
-
     private void stubConfigServiceToReturnPipeline(String blahPipelineName, PipelineConfig blahPipelineConfig) {
         when(goConfigService.pipelineConfigNamed(new CaseInsensitiveString(blahPipelineName))).thenReturn(blahPipelineConfig);
         when(goConfigService.findFirstStageOfPipeline(new CaseInsensitiveString(blahPipelineName))).thenReturn(blahPipelineConfig.get(0));
-    }
-
-    private void assertHasMaterial(PipelineInstanceModel otherInstance, MaterialConfig materialConfig) {
-        assertThat(otherInstance, is(not(nullValue())));
-        assertThat(otherInstance.getMaterials(), is(not(nullValue())));
-        assertThat(otherInstance.getMaterials().size(), is(1));
-        assertThat(otherInstance.getMaterials(), hasItem(materialConfig));
-    }
-
-    private PipelineInstanceModel pim(String pipelineName) {
-        return PipelineHistoryMother.singlePipeline(pipelineName, new StageInstanceModels());
     }
 
     private void ensureConfigHasPipeline(String pipelineName) {

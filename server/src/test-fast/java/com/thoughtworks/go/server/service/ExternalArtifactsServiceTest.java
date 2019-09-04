@@ -35,7 +35,6 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 
@@ -71,7 +70,6 @@ public class ExternalArtifactsServiceTest {
 
     @Test
     public void shouldValidateExternalArtifactConfig() {
-        PipelineConfigSaveValidationContext validationContext = PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig);
         Configuration configuration = new Configuration(ConfigurationPropertyMother.create("Image", false, "foo"));
         pluggableArtifactConfig.setConfiguration(configuration);
         ArtifactStore artifactStore = mock(ArtifactStore.class);
@@ -85,7 +83,6 @@ public class ExternalArtifactsServiceTest {
 
     @Test
     public void shouldValidateFetchArtifactTaskConfig() {
-        PipelineConfigSaveValidationContext validationContext = PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig);
         Configuration configuration = new Configuration(ConfigurationPropertyMother.create("Dest", false, "foo"));
 
         fetchPluggableArtifactTask.setConfiguration(configuration);

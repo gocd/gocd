@@ -35,6 +35,7 @@ public class SubversionRevision extends StringRevision {
         super(revision.getRevision());
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -47,10 +48,12 @@ public class SubversionRevision extends StringRevision {
         return StringUtils.equalsIgnoreCase(revision, that.revision);
     }
 
+    @Override
     public int hashCode() {
         return revision.hashCode();
     }
 
+    @Override
     public String toString() {
         return "SubversionRevsion[" + revision + "]";
     }

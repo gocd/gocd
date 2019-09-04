@@ -17,31 +17,37 @@ package com.thoughtworks.go.domain;
 
 public enum StageEvent {
     Fails {
+        @Override
         public String describe() {
             return " failed";
         }
     },
     Passes {
+        @Override
         public String describe() {
             return " passed";
         }
     },
     Breaks {
+        @Override
         public String describe() {
             return " is broken";
         }
     },
     Fixed {
+        @Override
         public String describe() {
             return " is fixed";
         }
     },
     Cancelled {
+        @Override
         public String describe() {
             return " is cancelled";
         }
     },
     All {
+        @Override
         public String describe() {
             return " [ALL]";
         }

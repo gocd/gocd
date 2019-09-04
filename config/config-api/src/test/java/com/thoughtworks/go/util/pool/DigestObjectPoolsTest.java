@@ -69,6 +69,7 @@ public class DigestObjectPoolsTest {
     @Test
     public void shouldResetDigestForFutureUsage() {
         DigestObjectPools.DigestOperation operation = new DigestObjectPools.DigestOperation() {
+            @Override
             public String perform(MessageDigest digest) throws IOException {
                 digest.update(org.apache.commons.codec.binary.StringUtils.getBytesUtf8("foo"));
                 return Hex.encodeHexString(digest.digest());
@@ -109,6 +110,7 @@ public class DigestObjectPoolsTest {
             pools.computeDigest(DigestObjectPools.SHA_256, operation);
 
             Thread thread = new Thread(new Runnable() {
+                @Override
                 public void run() {
                     pools.computeDigest(DigestObjectPools.SHA_256, operation);
                     pools.computeDigest(DigestObjectPools.SHA_256, operation);

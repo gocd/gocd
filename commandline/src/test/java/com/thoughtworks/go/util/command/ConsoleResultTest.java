@@ -27,7 +27,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ConsoleResultTest {
 
     @Test
-    @SuppressWarnings({"ThrowableInstanceNeverThrown"})
     void shouldSmudgeExceptionMessagesForNestedExceptions() {
         List<CommandArgument> args = Arrays.asList(new StringArgument("foo"), new PasswordArgument("bar"));
         List<SecretString> secrets = Arrays.asList((SecretString) new PasswordArgument("quux"));

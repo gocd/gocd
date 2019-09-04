@@ -70,10 +70,6 @@ import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 import static com.thoughtworks.go.util.IBatisUtil.arguments;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.*;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -1873,13 +1869,6 @@ public class StageSqlMapDaoIntegrationTest {
         Pipeline running = dbHelper.schedulePipeline(pipelineConfig, new TimeProvider());
         assertThat(dbHelper.updateNaturalOrder(running.getId(), 2.0), is(1));
         scheduleBuildInstances(pipelineAndFirstStageOf(running).stage);
-        return new Pipeline[]{completed, running};
-    }
-
-    private Pipeline[] pipelineWithOneFailedAndOneCurrentlyRunning(PipelineConfig pipeline) throws Exception {
-        Pipeline completed = dbHelper.schedulePipeline(pipeline, new TimeProvider());
-        fail(completed);
-        Pipeline running = pipelineWithFirstStageRunning(pipeline);
         return new Pipeline[]{completed, running};
     }
 

@@ -15,8 +15,6 @@
  */
 package com.thoughtworks.go.server.ui;
 
-import java.util.function.Function;
-
 /**
  * @understands identifying a pipeline uniquely in both config and db
  */

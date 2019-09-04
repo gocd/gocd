@@ -29,6 +29,7 @@ public class DirectoryReader {
     private final JobIdentifier jobIdentifier;
 
     private static final FileFilter VISIBLE_NON_SERIALIZED_FILES = new FileFilter() {
+        @Override
         public boolean accept(File file) {
             return !(file.isHidden() || isSerializedObjectFile(file.getName()));
         }

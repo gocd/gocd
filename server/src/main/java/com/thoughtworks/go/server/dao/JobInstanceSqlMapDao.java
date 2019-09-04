@@ -29,7 +29,6 @@ import com.thoughtworks.go.server.domain.JobStatusListener;
 import com.thoughtworks.go.server.persistence.ArtifactPlanRepository;
 import com.thoughtworks.go.server.persistence.ArtifactPropertiesGeneratorRepository;
 import com.thoughtworks.go.server.persistence.ResourceRepository;
-import com.thoughtworks.go.server.service.ClusterProfilesService;
 import com.thoughtworks.go.server.service.JobInstanceService;
 import com.thoughtworks.go.server.transaction.SqlMapClientDaoSupport;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
@@ -48,7 +47,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
@@ -56,11 +54,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
 
 import static com.thoughtworks.go.util.IBatisUtil.arguments;
 
-@SuppressWarnings("unchecked")
 @Component
 public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobInstanceDao, JobStatusListener {
     private static final Logger LOG = LoggerFactory.getLogger(JobInstanceSqlMapDao.class);
@@ -74,7 +70,6 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
     private Cloner cloner = new Cloner();
     private ResourceRepository resourceRepository;
     private ArtifactPlanRepository artifactPlanRepository;
-    private final ClusterProfilesService clusterProfilesService;
     private ArtifactPropertiesGeneratorRepository artifactPropertiesGeneratorRepository;
 
     @Autowired
@@ -88,7 +83,6 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
                                 Database database,
                                 ResourceRepository resourceRepository,
                                 ArtifactPlanRepository artifactPlanRepository,
-                                ClusterProfilesService clusterProfilesService,
                                 ArtifactPropertiesGeneratorRepository artifactPropertiesGeneratorRepository,
                                 JobAgentMetadataDao jobAgentMetadataDao) {
         super(goCache, sqlSessionFactory, systemEnvironment, database);
@@ -98,7 +92,6 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         this.transactionSynchronizationManager = transactionSynchronizationManager;
         this.resourceRepository = resourceRepository;
         this.artifactPlanRepository = artifactPlanRepository;
-        this.clusterProfilesService = clusterProfilesService;
         this.artifactPropertiesGeneratorRepository = artifactPropertiesGeneratorRepository;
         this.jobAgentMetadataDao = jobAgentMetadataDao;
         this.cacheKeyGenerator = new CacheKeyGenerator(getClass());
@@ -123,6 +116,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
     }
 
 
+    @Override
     public JobInstance buildByIdWithTransitions(long buildInstanceId) {
         String cacheKey = cacheKeyForJobInstanceWithTransitions(buildInstanceId);
         synchronized (cacheKey) {
@@ -139,6 +133,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         return cacheKeyGenerator.generate("jobInstanceWithTransitionIds", jobId);
     }
 
+    @Override
     public JobInstance buildById(long buildId) {
         return job(buildId, "buildById");
     }
@@ -154,6 +149,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         return instance;
     }
 
+    @Override
     public List<ActiveJob> activeJobs() {
         return getActiveJobs(getActiveJobIds());
     }
@@ -207,11 +203,13 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         goCache.put(cacheKeyForActiveJob(activeJob.getId()), cloner.deepClone(activeJob));//TODO: we should clone while serving the object out, and not while adding it to cache
     }
 
+    @Override
     public JobInstance mostRecentJobWithTransitions(JobIdentifier job) {
         Long buildId = findOriginalJobIdentifier(job.getStageIdentifier(), job.getBuildName()).getBuildId();
         return buildByIdWithTransitions(buildId);
     }
 
+    @Override
     public JobInstance save(long stageId, JobInstance jobInstance) {
         jobInstance.setStageId(stageId);
         transactionTemplate.execute((TransactionCallback<JobInstance>) status -> {
@@ -230,6 +228,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
 
     }
 
+    @Override
     public void save(long jobId, JobPlan jobPlan) {
         for (Resource resource : jobPlan.getResources()) {
             resourceRepository.saveCopyOf(jobId, resource);
@@ -250,6 +249,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         }
     }
 
+    @Override
     public JobPlan loadPlan(long jobId) {
         DefaultJobPlan plan = (DefaultJobPlan) getSqlMapClientTemplate().queryForObject("select-job-plan", jobId);
         loadJobPlanAssociatedEntities(plan);
@@ -283,6 +283,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
     }
 
 
+    @Override
     public JobIdentifier findOriginalJobIdentifier(StageIdentifier stageIdentifier, String jobName) {
         String key = cacheKeyForOriginalJobIdentifier(stageIdentifier, jobName);
 
@@ -314,14 +315,17 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
                 stageIdentifier.getStageCounter().toLowerCase(), jobName.toLowerCase());
     }
 
+    @Override
     public List<JobIdentifier> getBuildingJobs() {
         return buildingJobs(getActiveJobIds());
     }
 
+    @Override
     public List<JobInstance> getRunningJobs() {
         return  getSqlMapClientTemplate().queryForList("getRunningJobs");
     }
 
+    @Override
     public List<JobInstance> completedJobsOnAgent(String uuid,
                                                   JobInstanceService.JobHistoryColumns jobHistoryColumns,
                                                   SortOrder order,
@@ -335,6 +339,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         return (List<JobInstance>) getSqlMapClientTemplate().queryForList("completedJobsOnAgent", params);
     }
 
+    @Override
     public int totalCompletedJobsOnAgent(String uuid) {
         return (Integer) getSqlMapClientTemplate().queryForObject("totalCompletedJobsOnAgent", arguments("uuid", uuid).asMap());
     }
@@ -355,6 +360,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         return buildingJobs;
     }
 
+    @Override
     public JobInstance updateAssignedInfo(final JobInstance jobInstance) {
         return (JobInstance) transactionTemplate.execute((TransactionCallback) status -> {
             getSqlMapClientTemplate().update("updateAssignedInfo", jobInstance);
@@ -363,6 +369,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         });
     }
 
+    @Override
     public JobInstance updateStateAndResult(final JobInstance jobInstance) {
         return (JobInstance) transactionTemplate.execute((TransactionCallback) status -> {
             transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
@@ -437,6 +444,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         });
     }
 
+    @Override
     public void ignore(JobInstance job) {
         transactionTemplate.execute((TransactionCallback) status -> {
             latestCompletedCache.flushOnCommit();
@@ -447,6 +455,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
     }
 
 
+    @Override
     public JobInstances latestCompletedJobs(String pipelineName, String stageName, String jobConfigName, int count) {
         String cacheKey = cacheKeyForLatestCompletedJobs(pipelineName, stageName, jobConfigName, count);
         return latestCompletedCache.get(cacheKey, () -> {
@@ -469,6 +478,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         return cacheKeyGenerator.generate("latestCompletedJobs", pipelineName.toLowerCase(), stageName.toLowerCase(), jobConfigName.toLowerCase(), count);
     }
 
+    @Override
     public int getJobHistoryCount(String pipelineName, String stageName, String jobName) {
         String cacheKey = cacheKeyForGetJobHistoryCount(pipelineName, stageName, jobName);
         return latestCompletedCache.get(cacheKey, () -> {
@@ -481,6 +491,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         return cacheKeyGenerator.generate("getJobHistoryCount", pipelineName.toLowerCase(), stageName.toLowerCase(), jobName.toLowerCase());
     }
 
+    @Override
     public JobInstances findJobHistoryPage(String pipelineName,
                                            String stageName,
                                            String jobConfigName,
@@ -509,6 +520,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         return cacheKeyGenerator.generate("findJobHistoryPage", pipelineName.toLowerCase(), stageName.toLowerCase(), jobConfigName.toLowerCase(), count, offset);
     }
 
+    @Override
     public List<JobPlan> orderedScheduledBuilds() {
         List<Long> jobIds = (List<Long>) getSqlMapClientTemplate().queryForList("scheduledPlanIds");
 
@@ -551,11 +563,13 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         return cacheKeyGenerator.generate("activeJobIds");
     }
 
+    @Override
     public JobInstance getLatestInProgressBuildByAgentUuid(String uuid) {
         return (JobInstance) getSqlMapClientTemplate().queryForObject("getLatestInProgressBuildOnAgent",
                 uuid);
     }
 
+    @Override
     public JobInstances findHungJobs(List<String> liveAgentIdList) {
         String sqlValue = SqlUtil.joinWithQuotesForSql(liveAgentIdList.toArray());
         List<JobInstance> list = getSqlMapClientTemplate().queryForList("getHungJobs",

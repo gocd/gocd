@@ -27,7 +27,6 @@ import com.thoughtworks.go.plugin.api.task.*;
 import com.thoughtworks.go.plugin.infra.ActionWithReturn;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.PluginManagerReference;
-import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.command.CruiseControlException;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
@@ -65,8 +64,6 @@ public class PluggableTaskBuilderTest {
     private EnvironmentVariableContext variableContext;
     @Mock
     private DefaultGoPublisher goPublisher;
-    @Mock
-    private GoPluginDescriptor pluginDescriptor;
     private TaskExtension taskExtension;
 
     @Before

@@ -120,6 +120,7 @@ public class ScheduleServiceRescheduleHungJobsIntegrationTest {
         buildAssignmentService.assignWorkToAgent(agent(new AgentConfig(agentId)));
 
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
             public void doInTransactionWithoutResult(TransactionStatus status) {
                 stageService.cancelStage(stageOf(pipeline), null);
             }

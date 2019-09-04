@@ -39,16 +39,20 @@ public class MaterialRevisionsMatchers {
             this.file = file;
         }
 
+        @Override
         public void visit(MaterialRevision materialRevision) {
         }
 
+        @Override
         public void visit(Material material, Revision revision) {
         }
 
+        @Override
         public void visit(Modification modification) {
             this.currentName = modification.getUserName();
         }
 
+        @Override
         public void visit(ModifiedFile file) {
             if (StringUtils.equals(file.getFileName(), this.file) && StringUtils.equals(currentName, this.user)) {
                 contains = true;
@@ -65,15 +69,19 @@ public class MaterialRevisionsMatchers {
             this.file = file;
         }
 
+        @Override
         public void visit(MaterialRevision materialRevision) {
         }
 
+        @Override
         public void visit(Material material, Revision revision) {
         }
 
+        @Override
         public void visit(Modification modification) {
         }
 
+        @Override
         public void visit(ModifiedFile file) {
             if (StringUtils.equals(file.getFileName(), this.file)) {
                 contains = true;
@@ -83,12 +91,14 @@ public class MaterialRevisionsMatchers {
 
     public static Matcher<MaterialRevisions> containsModifiedBy(final String filename, final String user) {
         return new TypeSafeMatcher<MaterialRevisions>() {
+            @Override
             public boolean matchesSafely(MaterialRevisions revisions) {
                 ModifiedBy modifiedBy = new ModifiedBy(user, filename);
                 revisions.accept(modifiedBy);
                 return modifiedBy.contains;
             }
 
+            @Override
             public void describeTo(Description description) {
                 description.appendText("Does not contains file [" + filename + "] modified by user [" + user + "]");
             }
@@ -98,12 +108,14 @@ public class MaterialRevisionsMatchers {
 
     public static Matcher<MaterialRevisions> containsModifiedFile(final String filename) {
         return new TypeSafeMatcher<MaterialRevisions>() {
+            @Override
             public boolean matchesSafely(MaterialRevisions revisions) {
                 ModifiedFileVisitor modifiedBy = new ModifiedFileVisitor(filename);
                 revisions.accept(modifiedBy);
                 return modifiedBy.contains;
             }
 
+            @Override
             public void describeTo(Description description) {
                 description.appendText("Does not contains file [" + filename + "]");
             }

@@ -28,14 +28,17 @@ public class UnregisteredAgentWork implements Work {
         this.message = "Invalid agent: the UUID[" + invalidUuid + "] held by this agent is not registered";
     }
 
+    @Override
     public void doWork(EnvironmentVariableContext environmentVariableContext, AgentWorkContext agentWorkContext) {
         throw new UnregisteredAgentException(message, uuid);
     }
 
+    @Override
     public String description() {
         throw new UnregisteredAgentException(message, uuid);
     }
 
+    @Override
     public void cancel(EnvironmentVariableContext environmentVariableContext, AgentRuntimeInfo agentruntimeInfo) {
         throw new UnregisteredAgentException(message, uuid);
     }

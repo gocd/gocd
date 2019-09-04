@@ -83,6 +83,7 @@ public class DefaultGoPublisher implements GoPublisher {
         taggedConsumeLine(null, line);
     }
 
+    @Override
     public void stop() {
         LOG.info("Stopping Transmission for {}", jobIdentifier.toFullString());
         consoleOutputTransmitter.stop();

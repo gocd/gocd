@@ -18,8 +18,6 @@ package com.thoughtworks.go.config.materials;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
-import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
-import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import org.hamcrest.Matchers;
@@ -156,6 +154,7 @@ public class AbstractMaterialConfigTest {
             this.displayName = displayName;
         }
 
+        @Override
         protected void appendPipelineUniqueCriteria(Map<String, Object> basicCriteria) {
             basicCriteria.put("pipeline-unique", "unique-" + PIPELINE_UNIQUE_ATTRIBUTE_ADDED++);
         }
@@ -164,14 +163,17 @@ public class AbstractMaterialConfigTest {
         protected void validateConcreteMaterial(ValidationContext validationContext) {
         }
 
+        @Override
         protected void appendCriteria(Map<String, Object> parameters) {
             parameters.put("foo", bar);
         }
 
+        @Override
         protected void appendAttributes(Map<String, Object> parameters) {
             parameters.put("baz", quux);
         }
 
+        @Override
         public String getFolder() {
             throw new UnsupportedOperationException();
         }
@@ -198,22 +200,27 @@ public class AbstractMaterialConfigTest {
             }
         }
 
+        @Override
         public boolean matches(String name, String regex) {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public String getDescription() {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public String getTypeForDisplay() {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public String getDisplayName() {
             return displayName;
         }
 
+        @Override
         public boolean isAutoUpdate() {
             throw new UnsupportedOperationException();
         }
@@ -223,10 +230,12 @@ public class AbstractMaterialConfigTest {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public String getUriForDisplay() {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public Boolean isUsedInFetchArtifact(PipelineConfig pipelineConfig) {
             return false;
         }

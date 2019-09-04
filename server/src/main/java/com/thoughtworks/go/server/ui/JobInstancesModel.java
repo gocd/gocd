@@ -34,6 +34,7 @@ public class JobInstancesModel implements Iterable<JobInstance> {
         this.pagination = pagination;
     }
 
+    @Override
     public Iterator<JobInstance> iterator() {
         return jobInstances.iterator();
     }

@@ -67,7 +67,6 @@ import static org.mockito.Mockito.*;
 
 public class StageServiceTest {
 
-    private static final String PIPELINE_NAME = "cruise";
     private static final String STAGE_NAME = "dev";
 
     private StageDao stageDao;
@@ -105,16 +104,6 @@ public class StageServiceTest {
     public void teardown() throws Exception {
         configFileHelper.initializeConfigFile();
         SessionUtils.unsetCurrentUser();
-    }
-
-    private Pipeline pipeline(double naturalOrder) {
-        Pipeline pipeline = PipelineMother.completedFailedStageInstance(PIPELINE_NAME, STAGE_NAME, "foo", new Date());
-        pipeline.setNaturalOrder(naturalOrder);
-        return pipeline;
-    }
-
-    private StageIdentifier identifier(int pipelineCounter, String stageCounter) {
-        return new StageIdentifier(PIPELINE_NAME, pipelineCounter, STAGE_NAME, stageCounter);
     }
 
     @Test
@@ -431,6 +420,7 @@ public class StageServiceTest {
                 mock(GoCache.class));
 
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
             public void doInTransactionWithoutResult(TransactionStatus status) {
                 service.cancelStage(cancelledStage, null);
             }
@@ -452,6 +442,7 @@ public class StageServiceTest {
                 mock(GoCache.class));
 
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
             public void doInTransactionWithoutResult(TransactionStatus status) {
                 service.cancelStage(cancelledStage, null);
             }

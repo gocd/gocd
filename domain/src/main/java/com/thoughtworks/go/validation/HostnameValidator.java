@@ -28,6 +28,7 @@ public class HostnameValidator extends Validator<String> {
         super(HOSTNAME_ERROR_MESSAGE);
     }
 
+    @Override
     public ValidationBean validate(String hostname) {
         if (hostname.matches(HOSTNAME_PATTERN)) {
             return ValidationBean.valid();

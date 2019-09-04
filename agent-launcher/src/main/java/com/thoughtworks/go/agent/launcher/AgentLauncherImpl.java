@@ -63,6 +63,7 @@ public class AgentLauncherImpl implements AgentLauncher {
         this.agentProcessParentRunner = agentProcessParentCreator;
     }
 
+    @Override
     public int launch(AgentLaunchDescriptor descriptor) {
         LogConfigurator logConfigurator = new LogConfigurator("agent-launcher-logback.xml");
         return logConfigurator.runWithLogger(() -> doLaunch(descriptor));
@@ -137,6 +138,7 @@ public class AgentLauncherImpl implements AgentLauncher {
     }
 
     private static class AgentJarBasedAgentParentRunner implements AgentProcessParentRunner {
+        @Override
         public int run(String launcherVersion, String launcherMd5, ServerUrlGenerator urlGenerator, Map<String, String> environmentVariables, Map context) {
             String agentProcessParentClassName = JarUtil.getManifestKey(Downloader.AGENT_BINARY_JAR, GO_AGENT_BOOTSTRAP_CLASS);
             String tempDirSuffix = new BigInteger(64, new SecureRandom()).toString(16) + "-" + Downloader.AGENT_BINARY_JAR;

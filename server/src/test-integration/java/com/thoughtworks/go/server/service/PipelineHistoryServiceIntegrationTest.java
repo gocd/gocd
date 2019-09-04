@@ -50,7 +50,6 @@ import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import com.thoughtworks.go.util.TimeConverter;
 import com.thoughtworks.go.util.TimeProvider;
 import org.junit.After;
 import org.junit.Before;

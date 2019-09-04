@@ -116,16 +116,16 @@ public class AnalyticsPluginAssetsService implements ServletContextAware, Plugin
             byte[] payload = Base64.getDecoder().decode(data.getBytes());
             byte[] pluginEndpointJsContent = IOUtils.toByteArray(getClass().getResourceAsStream("/" + PLUGIN_ENDPOINT_JS));
 
-            ZipInputStream zipInputStream = new ZipInputStream(new ByteArrayInputStream(payload));
+            try (ZipInputStream zipInputStream = new ZipInputStream(new ByteArrayInputStream(payload))) {
+                String assetsHash = calculateHash(payload, pluginEndpointJsContent);
+                String pluginAssetsRoot = currentAssetPath(pluginId, assetsHash);
 
-            String assetsHash = calculateHash(payload, pluginEndpointJsContent);
-            String pluginAssetsRoot = currentAssetPath(pluginId, assetsHash);
+                zipUtil.unzip(zipInputStream, new File(pluginAssetsRoot));
 
-            zipUtil.unzip(zipInputStream, new File(pluginAssetsRoot));
+                Files.write(Paths.get(pluginAssetsRoot, DESTINATION_JS), pluginEndpointJsContent);
 
-            Files.write(Paths.get(pluginAssetsRoot, DESTINATION_JS), pluginEndpointJsContent);
-
-            pluginAssetPaths.put(pluginId, Paths.get(pluginStaticAssetsPathRelativeToRailsPublicFolder(pluginId), assetsHash).toString());
+                pluginAssetPaths.put(pluginId, Paths.get(pluginStaticAssetsPathRelativeToRailsPublicFolder(pluginId), assetsHash).toString());
+            }
         } catch (Exception e) {
             LOGGER.error("Failed to extract static assets from plugin: {}", pluginId, e);
             ExceptionUtils.bomb(e);

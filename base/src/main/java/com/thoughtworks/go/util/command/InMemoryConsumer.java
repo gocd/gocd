@@ -27,6 +27,7 @@ public class InMemoryConsumer implements StreamConsumer {
     private Queue<String> lines = new ConcurrentLinkedQueue<>();
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(InMemoryConsumer.class);
 
+    @Override
     public void consumeLine(String line) {
         try {
             lines.add(line);
@@ -43,6 +44,7 @@ public class InMemoryConsumer implements StreamConsumer {
         return toString().contains(message);
     }
 
+    @Override
     public String toString() {
         return StringUtils.join(asList(), "\n");
     }

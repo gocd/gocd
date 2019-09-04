@@ -22,7 +22,6 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-@SuppressWarnings({"unchecked"})
 @Component
 public class ConfigRepositoryValidatorService implements InitializingBean {
     private static final Logger LOG = LoggerFactory.getLogger(ConfigRepositoryValidatorService.class);
@@ -33,6 +32,7 @@ public class ConfigRepositoryValidatorService implements InitializingBean {
         this.configRepository = configRepository;
     }
 
+    @Override
     public void afterPropertiesSet() {
         if (configRepository.isRepositoryCorrupted()) {
             LOG.error("[FAILURE] Go Server failed to start as its configuration history store is corrupt. Please contact support@thoughtworks.com");

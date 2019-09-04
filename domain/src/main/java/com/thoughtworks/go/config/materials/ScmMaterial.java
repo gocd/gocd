@@ -80,6 +80,7 @@ public abstract class ScmMaterial extends AbstractMaterial implements SecretPara
         return StringUtils.isEmpty(getFolder()) ? "files" : getFolder();
     }
 
+    @Override
     public void toJson(Map json, Revision revision) {
         json.put("folder", getFolder() == null ? "" : getFolder());
         json.put("scmType", getTypeForDisplay());
@@ -93,6 +94,7 @@ public abstract class ScmMaterial extends AbstractMaterial implements SecretPara
     //most of the material such as hg, git, p4 all print the file from the root without '/'
     //but subversion print it with '/', we standarize it here. look at the implementation of subversion as well.
 
+    @Override
     public boolean matches(String name, String regex) {
         if (regex.startsWith("/")) {
             regex = regex.substring(1);
@@ -199,6 +201,7 @@ public abstract class ScmMaterial extends AbstractMaterial implements SecretPara
         this.filter = filter;
     }
 
+    @Override
     public void emailContent(StringBuilder content, Modification modification) {
         content.append(getTypeForDisplay() + ": " + getLocation()).append('\n').append(
                 String.format("revision: %s, modified by %s on %s", modification.getRevision(),
@@ -208,14 +211,17 @@ public abstract class ScmMaterial extends AbstractMaterial implements SecretPara
 
     }
 
+    @Override
     public String getDescription() {
         return getUriForDisplay();
     }
 
+    @Override
     public String getUriForDisplay() {
         return this.getUrlArgument().forDisplay();
     }
 
+    @Override
     public void populateEnvironmentContext(EnvironmentVariableContext environmentVariableContext, MaterialRevision materialRevision, File workingDir) {
         String toRevision = materialRevision.getRevision().getRevision();
         String fromRevision = materialRevision.getOldestRevision().getRevision();
@@ -247,14 +253,17 @@ public abstract class ScmMaterial extends AbstractMaterial implements SecretPara
         return escapeEnvironmentVariable(folder);
     }
 
+    @Override
     public String getFolder() {
         return folder;
     }
 
+    @Override
     public String getDisplayName() {
         return name == null ? getUriForDisplay() : CaseInsensitiveString.str(name);
     }
 
+    @Override
     public boolean isAutoUpdate() {
         return autoUpdate;
     }
@@ -279,6 +288,7 @@ public abstract class ScmMaterial extends AbstractMaterial implements SecretPara
         invertFilter = value;
     }
 
+    @Override
     public final MatchedRevision createMatchedRevision(Modification modification, String searchString) {
         return new MatchedRevision(searchString, getShortRevision(modification.getRevision()), modification.getRevision(), modification.getUserName(), modification.getModifiedTime(), modification.getComment());
     }
@@ -315,6 +325,7 @@ public abstract class ScmMaterial extends AbstractMaterial implements SecretPara
         return baseUrl + "/api/materials/" + id + "/changeset/" + modification.getRevision() + ".xml";
     }
 
+    @Override
     public Boolean isUsedInFetchArtifact(PipelineConfig pipelineConfig) {
         return false;
     }
@@ -324,6 +335,7 @@ public abstract class ScmMaterial extends AbstractMaterial implements SecretPara
         this.folder = folder;
     }
 
+    @Override
     public Revision oldestRevision(Modifications modifications) {
         return Modification.oldestRevision(modifications);
     }

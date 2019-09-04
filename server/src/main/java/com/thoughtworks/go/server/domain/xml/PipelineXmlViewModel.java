@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.domain.xml;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -37,7 +36,6 @@ import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModel;
 import com.thoughtworks.go.util.DateUtils;
 import org.dom4j.Document;
-import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.dom.DOMDocument;
 import org.dom4j.dom.DOMElement;
@@ -52,6 +50,7 @@ public class PipelineXmlViewModel implements XmlRepresentable {
         this.pipeline = pipeline;
     }
 
+    @Override
     public Document toXml(XmlWriterContext writerContext) {
         DOMElement root = new DOMElement("pipeline");
         root.addAttribute("name", pipeline.getName()).addAttribute("counter", String.valueOf(pipeline.getCounter())).addAttribute("label", pipeline.getLabel());
@@ -179,6 +178,7 @@ public class PipelineXmlViewModel implements XmlRepresentable {
         MaterialXmlViewModel.viewModelFor(materialRevision.getMaterial()).populateXml(materials, materialRevision.getModifications(), writerContext);
     }
 
+    @Override
     public String httpUrl(String baseUrl) {
         return httpUrlForPipeline(baseUrl, pipeline.getId(), pipeline.getName());
     }

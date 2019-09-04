@@ -19,7 +19,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
-import java.io.IOException;
 
 public class FilenameUtil {
     public static boolean isNormalizedDirectoryPathInsideNormalizedParentDirectory(String parent, String subdirectory) {

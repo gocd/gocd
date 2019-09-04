@@ -77,6 +77,7 @@ public class UrlArgument extends CommandArgument {
         return new UrlArgument(url);
     }
 
+    @Override
     public String replaceSecretInfo(String line) {
         if (StringUtils.isBlank(line)) {
             return line;

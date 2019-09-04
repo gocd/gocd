@@ -33,6 +33,7 @@ public class PipelineLockChecker implements SchedulingChecker {
         this.pipelineLockService = pipelineLockService;
     }
 
+    @Override
     public void check(OperationResult result) {
         HealthStateType healthStateType = HealthStateType.general(HealthStateScope.forPipeline(pipelineName));
         if (pipelineLockService.isLocked(pipelineName)) {
@@ -41,7 +42,7 @@ public class PipelineLockChecker implements SchedulingChecker {
             result.conflict(message, description, healthStateType);
         }
         else{
-            result.success(healthStateType);            
+            result.success(healthStateType);
         }
 
     }

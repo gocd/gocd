@@ -108,8 +108,7 @@ public class GoConfigFieldWriter {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private Collection parseCollection(Element e, Class<?> collectionType) {
+private Collection parseCollection(Element e, Class<?> collectionType) {
         ConfigCollection collection = collectionType.getAnnotation(ConfigCollection.class);
         Class<?> type = collection.value();
 
@@ -248,6 +247,7 @@ public class GoConfigFieldWriter {
         return o;
     }
 
+    @Override
     public String toString() {
         return "<" + this.getClass().getName() + ": " + this.configField.getName() + ">";
     }
@@ -255,10 +255,6 @@ public class GoConfigFieldWriter {
     public boolean isDefault(GoConfigClassWriter configClass) {
         Object defaultObject = configClass.defaultField(configField);
         return Objects.equals(getValue(), defaultObject);
-    }
-
-    private boolean isConfigInterface() {
-        return ConfigCache.isAnnotationPresent(configField.getType(), ConfigInterface.class);
     }
 
     public Object getValue() {

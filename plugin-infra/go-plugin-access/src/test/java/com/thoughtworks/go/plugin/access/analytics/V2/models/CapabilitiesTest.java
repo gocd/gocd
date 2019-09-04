@@ -17,8 +17,6 @@ package com.thoughtworks.go.plugin.access.analytics.V2.models;
 
 import org.junit.Test;
 
-import java.util.Arrays;
-
 import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;

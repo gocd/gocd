@@ -40,6 +40,7 @@ public class StageXmlViewModel implements XmlRepresentable {
         return baseUrl + "/api/stages/" + id + ".xml";
     }
 
+    @Override
     public Document toXml(XmlWriterContext writerContext) {
         DOMElement root = new DOMElement("stage");
         root.addAttribute("name", stage.getName()).addAttribute("counter", String.valueOf(stage.getCounter()));
@@ -70,6 +71,7 @@ public class StageXmlViewModel implements XmlRepresentable {
         return document;
     }
 
+    @Override
     public String httpUrl(String baseUrl) {
         return httpUrlFor(baseUrl, stage.getId());
     }

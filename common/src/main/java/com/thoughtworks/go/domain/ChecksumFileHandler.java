@@ -37,14 +37,17 @@ public class ChecksumFileHandler implements FetchHandler {
         checksumFile = destination;
     }
 
+    @Override
     public String url(String remoteHost, String workingUrl) {
         return String.format("%s/remoting/files/%s/%s/%s", remoteHost, workingUrl, ArtifactLogUtil.CRUISE_OUTPUT_FOLDER, ArtifactLogUtil.MD5_CHECKSUM_FILENAME);
     }
 
+    @Override
     public void handle(InputStream stream) throws IOException {
         FileUtils.copyInputStreamToFile(stream, checksumFile);
     }
 
+    @Override
     public boolean handleResult(int returncode, GoPublisher goPublisher) {
         if (returncode == HttpServletResponse.SC_NOT_FOUND) {
             deleteQuietly(checksumFile);
@@ -62,6 +65,7 @@ public class ChecksumFileHandler implements FetchHandler {
         return returncode < HttpServletResponse.SC_BAD_REQUEST;
     }
 
+    @Override
     public void useArtifactMd5Checksums(ArtifactMd5Checksums artifactMd5Checksums) {
         throw new UnsupportedOperationException();
     }

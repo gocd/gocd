@@ -45,13 +45,16 @@ public class ArtifactPropertiesConfig extends BaseCollection<ArtifactPropertyCon
         return isValid;
     }
 
+    @Override
     public void validate(ValidationContext validationContext) {
     }
 
+    @Override
     public ConfigErrors errors() {
         return configErrors;
     }
 
+    @Override
     public void addError(String fieldName, String message) {
         configErrors.add(fieldName, message);
     }

@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.messaging;
 
 import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.domain.JobState;
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.server.dao.JobInstanceSqlMapDao;
@@ -57,6 +56,7 @@ public class JobStatusListener implements GoMessageListener<JobStatusMessage> {
         jobStatusTopic.addListener(this);
     }
 
+    @Override
     public void onMessage(final JobStatusMessage message) {
         if (message.getJobState().isCompleted()) {
             JobInstance jobInstance = jobInstanceService.buildByIdWithTransitions(message.getJobIdentifier().getBuildId());

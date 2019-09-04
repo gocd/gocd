@@ -61,6 +61,7 @@ public class Username implements Serializable {
         return !displayName.equals(username.toString());
     }
 
+    @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this);
     }

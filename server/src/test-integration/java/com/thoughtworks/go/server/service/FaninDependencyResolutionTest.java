@@ -37,7 +37,6 @@ import com.thoughtworks.go.server.materials.DependencyMaterialUpdateNotifier;
 import com.thoughtworks.go.server.materials.MaterialChecker;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
-import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.hamcrest.Matchers;
@@ -62,7 +61,6 @@ import static org.junit.Assert.fail;
         "classpath:WEB-INF/spring-all-servlet.xml",
 })
 public class FaninDependencyResolutionTest {
-    public static final String STAGE_NAME = "s";
     @Autowired
     private DatabaseAccessHelper dbHelper;
     @Autowired
@@ -83,8 +81,6 @@ public class FaninDependencyResolutionTest {
     private MaterialChecker materialChecker;
     @Autowired
     private PipelineTimeline pipelineTimeline;
-    @Autowired
-    private ServerHealthService serverHealthService;
     @Autowired
     private DependencyMaterialUpdateNotifier notifier;
 

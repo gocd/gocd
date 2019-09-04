@@ -47,6 +47,7 @@ public class MaterialUpdateListener implements GoMessageListener<MaterialUpdateM
         this.maintenanceModeService = maintenanceModeService;
     }
 
+    @Override
     public void onMessage(MaterialUpdateMessage message) {
         final Material material = message.getMaterial();
 

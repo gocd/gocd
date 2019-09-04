@@ -23,6 +23,7 @@ import com.thoughtworks.go.util.SystemEnvironment;
 
 public class DatabaseValidator extends ZipValidator {
 
+    @Override
     public Validation validate(Validation validation) {
         File destDir = new File(new SystemEnvironment().getPropertyImpl("user.dir"), "db");
         destDir.mkdirs();

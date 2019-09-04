@@ -71,6 +71,7 @@ public class ArtifactPropertiesGenerator extends PersistentObject {
         this.xpath = xpath;
     }
 
+    @Override
     public String toString() {
         return name;
     }

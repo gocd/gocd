@@ -17,7 +17,6 @@ package com.thoughtworks.gocd.onejar;
 
 import com.thoughtworks.gocd.Boot;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;

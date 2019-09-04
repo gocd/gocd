@@ -118,16 +118,6 @@ public class ExportControllerV1 extends ApiController implements SparkSpringCont
         return pipeline;
     }
 
-    private String requiredParam(final Request req, final String name) {
-        String value = req.params(name);
-
-        if (StringUtils.isBlank(value)) {
-            throw HaltApiResponses.haltBecauseRequiredParamMissing(name);
-        }
-
-        return value;
-    }
-
     private String requiredQueryParam(final Request req, final String name) {
         String value = req.queryParams(name);
 

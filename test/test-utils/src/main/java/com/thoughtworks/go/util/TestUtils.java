@@ -38,12 +38,14 @@ public class TestUtils {
             public String actual;
             public String expected;
 
+            @Override
             public boolean matchesSafely(File o) {
                 actual = o.getPath();
                 expected = fileToMatch.getPath();
                 return actual.equals(expected);
             }
 
+            @Override
             public void describeTo(Description description) {
                 description.appendText("The actual path: [" + actual + "] does not match the expected path [" + expected + "]");
             }
@@ -68,10 +70,12 @@ public class TestUtils {
 
     public static TypeSafeMatcher<String> contains(final String toMatch) {
         return new TypeSafeMatcher<String>() {
+            @Override
             public boolean matchesSafely(String underTest) {
                 return underTest.contains(toMatch);
             }
 
+            @Override
             public void describeTo(Description description) {
                 description.appendText("The actual string does not contain the expected string.");
             }

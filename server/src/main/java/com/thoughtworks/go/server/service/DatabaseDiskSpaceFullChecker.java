@@ -33,16 +33,19 @@ public class DatabaseDiskSpaceFullChecker extends DiskSpaceChecker {
         super(sender, systemEnvironment, systemEnvironment.getDbFolder(), goConfigService, DATABASE_DISK_FULL_ID, diskSpaceChecker);
     }
 
+    @Override
     protected long limitInMb() {
         return systemEnvironment.getDatabaseDiskSpaceFullLimit();
     }
 
+    @Override
     protected void createFailure(OperationResult result, long size, long availableSpace) {
         String msg = "GoCD has less than " + size + "Mb of disk space available. Scheduling has stopped, and will resume once more than " + size + "Mb is available.";
         LOGGER.error(msg);
         result.insufficientStorage("GoCD Server has run out of database disk space. Scheduling has been stopped", msg, DATABASE_DISK_FULL_ID);
     }
 
+    @Override
     protected SendEmailMessage createEmail() {
         return EmailMessageDrafter.noDatabaseDiskSpaceMessage(systemEnvironment, getAdminMail(), targetFolderCanonicalPath());
     }

@@ -32,6 +32,7 @@ public class StageLockChecker implements SchedulingChecker {
         lockService = pipelineLockService;
     }
 
+    @Override
     public void check(OperationResult result) {
         if (!lockService.canScheduleStageInPipeline(pipeline)) {
             result.notAcceptable(String.format("Pipeline %s is locked.", pipeline.getName()), HealthStateType.general(HealthStateScope.GLOBAL));

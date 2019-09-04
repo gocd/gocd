@@ -62,22 +62,27 @@ public class StageFeedEntry implements FeedEntry {
         this.cancelledBy = cancelledBy;
     }
 
+    @Override
     public String getResult() {
         return stageResult.name();
     }
 
+    @Override
     public Date getUpdatedDate() {
         return updateDate;
     }
 
+    @Override
     public long getId() {
         return id;
     }
 
+    @Override
     public long getEntryId() {
         return entryId;
     }
 
+    @Override
     public String getTitle() {
         return String.format("%s(%s) stage %s(%s) %s", identifier.getPipelineName(), identifier.getPipelineCounter(), identifier.getStageName(), identifier.getStageCounter(), stageResult);
     }
@@ -86,6 +91,7 @@ public class StageFeedEntry implements FeedEntry {
         return identifier;
     }
 
+    @Override
     public long getPipelineId() {
         return pipelineId;
     }
@@ -145,10 +151,12 @@ public class StageFeedEntry implements FeedEntry {
                 '}';
     }
 
+    @Override
     public List<Author> getAuthors() {
         return authors;
     }
 
+    @Override
     public List<MingleCard> getMingleCards() {
         return mingleCards;
     }

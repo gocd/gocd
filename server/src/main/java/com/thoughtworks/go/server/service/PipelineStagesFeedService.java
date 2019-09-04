@@ -40,6 +40,7 @@ public class PipelineStagesFeedService {
             this.securityService = securityService;
         }
 
+        @Override
         public FeedEntries feed(Username user, LocalizedOperationResult operationResult) {
             if (userDoesNotHaveViewPermission(user, operationResult)) {
                 return null;
@@ -47,6 +48,7 @@ public class PipelineStagesFeedService {
             return stageService.feed(pipelineName, user);
         }
 
+        @Override
         public FeedEntries feedBefore(Username user, long entryId, LocalizedOperationResult operationResult) {
             if (userDoesNotHaveViewPermission(user, operationResult)) {
                 return null;

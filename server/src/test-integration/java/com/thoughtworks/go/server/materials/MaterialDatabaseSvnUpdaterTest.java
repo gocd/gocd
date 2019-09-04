@@ -23,10 +23,12 @@ import com.thoughtworks.go.helper.SvnTestRepo;
 import com.thoughtworks.go.helper.TestRepo;
 
 public class MaterialDatabaseSvnUpdaterTest extends TestBaseForDatabaseUpdater {
+    @Override
     protected Material material() {
         return new SvnMaterial(testRepo.projectRepositoryUrl(), null, null, false);
     }
 
+    @Override
     protected TestRepo repo() throws IOException {
         return new SvnTestRepo(temporaryFolder);
     }

@@ -39,6 +39,7 @@ public class SCMPluginInfoBuilder implements PluginInfoBuilder<SCMPluginInfo> {
         this.extension = extension;
     }
 
+    @Override
     public SCMPluginInfo pluginInfoFor(GoPluginDescriptor descriptor) {
         SCMPropertyConfiguration scmConfiguration = extension.getSCMConfiguration(descriptor.id());
         SCMView scmView = extension.getSCMView(descriptor.id());

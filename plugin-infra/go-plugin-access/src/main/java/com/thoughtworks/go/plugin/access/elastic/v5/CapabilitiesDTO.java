@@ -16,15 +16,12 @@
 
 package com.thoughtworks.go.plugin.access.elastic.v5;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.Objects;
 
 class CapabilitiesDTO {
-    private static final Gson GSON = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
     @Expose
     @SerializedName("supports_plugin_status_report")
     private boolean supportsStatusReport;

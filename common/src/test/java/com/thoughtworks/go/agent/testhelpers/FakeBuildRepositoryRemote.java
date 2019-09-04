@@ -46,11 +46,13 @@ public class FakeBuildRepositoryRemote implements BuildRepositoryRemote {
 
     private static BlockingQueue<Boolean> buildResult = new LinkedBlockingQueue<>();
 
+    @Override
     public AgentInstruction ping(AgentRuntimeInfo info) {
         AGENT_STATUS.add(info.getRuntimeStatus());
         return new AgentInstruction(false);
     }
 
+    @Override
     public Work getWork(AgentRuntimeInfo runtimeInfo) {
         String className = SystemEnvironment.getProperty("WORKCREATOR", DefaultWorkCreator.class.getCanonicalName());
         Class<? extends WorkCreator> aClass = null;
@@ -63,6 +65,7 @@ public class FakeBuildRepositoryRemote implements BuildRepositoryRemote {
         }
     }
 
+    @Override
     public void reportCurrentStatus(AgentRuntimeInfo agentRuntimeInfo, JobIdentifier jobIdentifier, JobState jobState) {
         LOGGER.info("Current status of build instance with id {} is {}", jobIdentifier, jobState);
         if (jobState.isCompleted()) {
@@ -70,6 +73,7 @@ public class FakeBuildRepositoryRemote implements BuildRepositoryRemote {
         }
     }
 
+    @Override
     public void reportCompleting(AgentRuntimeInfo agentRuntimeInfo, JobIdentifier jobIdentifier, JobResult result) {
         LOGGER.info("Build result of project {} is {}", jobIdentifier, result);
     }
@@ -79,10 +83,12 @@ public class FakeBuildRepositoryRemote implements BuildRepositoryRemote {
         LOGGER.info("Completed Build");
     }
 
+    @Override
     public boolean isIgnored(JobIdentifier jobIdentifier) {
         return false;
     }
 
+    @Override
     public String getCookie(AgentIdentifier identifier, String location) {
         throw new UnsupportedOperationException("Not implemented");
     }

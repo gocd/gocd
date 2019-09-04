@@ -17,7 +17,6 @@
 package com.thoughtworks.go.apiv1.accessToken;
 
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
-import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.domain.AccessToken;
 import com.thoughtworks.go.server.service.AccessTokenFilter;
 import com.thoughtworks.go.server.service.AccessTokenService;

@@ -74,6 +74,7 @@ public class Migration_86 implements Trigger {
 
     Map<PMRRecord, Long> map = new HashMap<>();
 
+    @Override
     public void init(Connection connection, String schemaName, String triggerName, String tableName, boolean before, int type) throws SQLException {
         totalCount = executeScalar(connection, "SELECT COUNT(*) FROM pipelineMaterialRevisions");
 
@@ -89,6 +90,7 @@ public class Migration_86 implements Trigger {
                         + " ORDER BY id");
     }
 
+    @Override
     public void fire(Connection connection, Object[] oldRows, Object[] newRows) throws SQLException {
         LOGGER.info("migrating {} rows", totalCount);
 
@@ -182,9 +184,11 @@ public class Migration_86 implements Trigger {
         }
     }
 
+    @Override
     public void close() {
     }
 
+    @Override
     public void remove() {
     }
 }

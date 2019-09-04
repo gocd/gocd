@@ -32,13 +32,11 @@ import static org.mockito.Mockito.when;
 
 public class SystemServiceTest {
     private SystemService systemService;
-    private SystemEnvironment systemEnvironment;
     @Rule
     public final RestoreSystemProperties restoreSystemProperties = new RestoreSystemProperties();
 
     @Before
     public void setUp() {
-        systemEnvironment = mock(SystemEnvironment.class);
         systemService = new SystemService(null);
     }
 

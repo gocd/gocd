@@ -294,6 +294,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         }
     }
 
+    @Override
     public File configDir() {
         if (configDir == null) {
             configDir = new File(getPropertyImpl(CONFIG_FILE_PROPERTY, "config/cruise-config.xml")).getParentFile();
@@ -374,6 +375,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return cruiseSSlPort = Integer.parseInt(getPropertyImpl(CRUISE_SERVER_SSL_PORT, "8154"));
     }
 
+    @Override
     public String getConfigDir() {
         if (cruiseConfigDir != null) {
             return cruiseConfigDir;

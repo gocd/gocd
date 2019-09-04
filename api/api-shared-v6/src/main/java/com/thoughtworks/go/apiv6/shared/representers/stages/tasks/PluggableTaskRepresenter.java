@@ -19,13 +19,8 @@ import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.ConfigurationPropertyRepresenter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.representers.PluginConfigurationRepresenter;
-import com.thoughtworks.go.apiv6.shared.representers.stages.ConfigHelperOptions;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
-import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class PluggableTaskRepresenter {
     public static void toJSON(OutputWriter jsonWriter, PluggableTask pluggableTask) {

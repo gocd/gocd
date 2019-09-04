@@ -50,6 +50,7 @@ public class AutoBuild implements BuildType {
         this.materialChecker = materialChecker;
     }
 
+    @Override
     public BuildCause onModifications(MaterialRevisions originalMaterialRevisions, boolean materialConfigurationChanged, MaterialRevisions previousMaterialRevisions) {
         if (originalMaterialRevisions == null || originalMaterialRevisions.isEmpty()) {
             throw new RuntimeException("Cannot find modifications, please check your SCM setting or environment.");
@@ -73,14 +74,17 @@ public class AutoBuild implements BuildType {
         return null;
     }
 
+    @Override
     public BuildCause onEmptyModifications(PipelineConfig pipelineConfig, MaterialRevisions materialRevisions) {
         return null;
     }
 
+    @Override
     public void canProduce(PipelineConfig pipelineConfig, SchedulingCheckerService schedulingChecker, ServerHealthService serverHealthService, OperationResult operationResult) {
         schedulingChecker.canAutoTriggerProducer(pipelineConfig, operationResult);
     }
 
+    @Override
     public boolean isValidBuildCause(PipelineConfig pipelineConfig, BuildCause buildCause) {
         for (MaterialRevision materialRevision : buildCause.getMaterialRevisions()) {
             if (materialRevision.isChanged()) {

@@ -47,8 +47,7 @@ public class GoConfigClassLoader<T> {
     private ConfigElementImplementationRegistry registry;
     private final ConfigReferenceElements configReferenceElements;
 
-    @SuppressWarnings("unchecked")
-    public static <T> GoConfigClassLoader<T> classParser(Element e, Class<T> aClass, ConfigCache configCache, GoCipher goCipher, final ConfigElementImplementationRegistry registry, ConfigReferenceElements configReferenceElements) {
+public static <T> GoConfigClassLoader<T> classParser(Element e, Class<T> aClass, ConfigCache configCache, GoCipher goCipher, final ConfigElementImplementationRegistry registry, ConfigReferenceElements configReferenceElements) {
         return new GoConfigClassLoader<>(e, aClass, configCache, goCipher, registry, configReferenceElements);
     }
 
@@ -105,8 +104,7 @@ public class GoConfigClassLoader<T> {
         return collection;
     }
 
-    @SuppressWarnings("unchecked")
-    private void parseCollection(Collection collection) {
+private void parseCollection(Collection collection) {
         ConfigCollection collectionAnnotation = annotationFor(aClass, ConfigCollection.class);
         Class<?> elementType = collectionAnnotation.value();
 
@@ -158,8 +156,7 @@ public class GoConfigClassLoader<T> {
         return ConfigElementInstantiator.instantiateConfigElement(this.goCipher, typeToGenerate(e));
     }
 
-    @SuppressWarnings("unchecked")
-    private Class<T> typeToGenerate(Element e) {
+private Class<T> typeToGenerate(Element e) {
         if (isImplicitCollection(aClass, configCache)) {
             return aClass;
         }

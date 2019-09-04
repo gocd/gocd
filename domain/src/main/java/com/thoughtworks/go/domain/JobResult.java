@@ -42,10 +42,12 @@ public enum JobResult implements ViewableStatus {
         return this.equals(Unknown);
     }
 
+    @Override
     public String getStatus() {
         return this.toString();
     }
 
+    @Override
     public String getCruiseStatus() {
         return this.toString();
     }

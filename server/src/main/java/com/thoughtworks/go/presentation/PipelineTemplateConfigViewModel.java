@@ -50,6 +50,7 @@ public class PipelineTemplateConfigViewModel implements ParamsAttributeAware {
         this.selectedPipelineName = selectedPipelineName;
     }
 
+    @Override
     public void setConfigAttributes(Object attributes) {
         Map attributeMap = (Map) attributes;
         pipelineTemplateConfig.setConfigAttributes(attributeMap.get(TEMPLATE));

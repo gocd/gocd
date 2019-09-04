@@ -41,19 +41,18 @@ import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.ReflectionUtil;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.ContextRefreshedEvent;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
+import static org.mockito.MockitoAnnotations.initMocks;
 
-@RunWith(MockitoJUnitRunner.class)
+@SuppressWarnings({"unused", "PMD.UnusedPrivateField"})
 public class ApplicationInitializerTest {
     @Mock
     private CommandRepositoryInitializer commandRepositoryInitializer;
@@ -144,6 +143,7 @@ public class ApplicationInitializerTest {
 
     @Before
     public void setUp() throws Exception {
+        initMocks(this);
         ApplicationContext context = mock(ApplicationContext.class);
         when(contextRefreshedEvent.getApplicationContext()).thenReturn(context);
         when(context.getParent()).thenReturn(null);

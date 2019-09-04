@@ -110,6 +110,7 @@ public class PipelineWithTwoStages implements PreCondition {
         }
     }
 
+    @Override
     public void onSetUp() throws Exception {
         configHelper.initializeConfigFile();
 
@@ -131,6 +132,7 @@ public class PipelineWithTwoStages implements PreCondition {
         dbHelper.onSetUp();
     }
 
+    @Override
     public void onTearDown() throws Exception {
         configHelper.initializeConfigFile();
         dbHelper.onTearDown();
@@ -145,6 +147,7 @@ public class PipelineWithTwoStages implements PreCondition {
 
     public Pipeline schedulePipeline(final BuildCause buildCause) {
         return (Pipeline) transactionTemplate.execute(new TransactionCallback() {
+            @Override
             public Object doInTransaction(TransactionStatus status) {
                 materialRepository.save(buildCause.getMaterialRevisions());
                 return PipelineMother.schedule(pipelineConfig(), buildCause);
@@ -264,9 +267,6 @@ public class PipelineWithTwoStages implements PreCondition {
             workingFolder = temporaryFolder.newFolder();
             svnClient.checkoutTo(inMemoryConsumer(), workingFolder, SubversionRevision.HEAD);
         }
-    }
-
-    public void fistStageCompleted() {
     }
 
     public String pipelineLabel() {

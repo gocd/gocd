@@ -23,10 +23,12 @@ import com.thoughtworks.go.helper.TestRepo;
 import java.io.IOException;
 
 public class MaterialDatabaseP4UpdaterTest extends TestBaseForDatabaseUpdater {
+    @Override
     protected Material material() {
         return new P4Material(testRepo.projectRepositoryUrl(), "//depot/... //something/...");
     }
 
+    @Override
     protected TestRepo repo() throws IOException {
         return P4TestRepo.createP4TestRepo(temporaryFolder, temporaryFolder.newFolder());
     }

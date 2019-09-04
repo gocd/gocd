@@ -32,10 +32,12 @@ import static org.junit.Assert.assertThat;
 public class MaterialDatabaseSvnWithExternalsUpdaterTest extends TestBaseForDatabaseUpdater {
     private SvnTestRepoWithExternal testRepoWithExternal;
 
+    @Override
     protected Material material() {
         return new SvnMaterial(testRepo.projectRepositoryUrl(), null, null, true);
     }
 
+    @Override
     protected TestRepo repo() throws IOException {
         testRepoWithExternal = new SvnTestRepoWithExternal(temporaryFolder);
         return testRepoWithExternal;

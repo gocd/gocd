@@ -38,6 +38,7 @@ public class DynamicReadWriteLockTest {
         readWriteLock.acquireWriteLock("foo");
 
         new Thread(new Runnable() {
+            @Override
             public void run() {
                 readWriteLock.acquireWriteLock("foo");
                 numberOfLocks++;
@@ -53,6 +54,7 @@ public class DynamicReadWriteLockTest {
         readWriteLock.acquireReadLock("foo");
 
         new Thread(new Runnable() {
+            @Override
             public void run() {
                 readWriteLock.acquireReadLock("foo");
                 numberOfLocks++;
@@ -68,6 +70,7 @@ public class DynamicReadWriteLockTest {
         readWriteLock.acquireReadLock("foo");
 
         new Thread(new Runnable() {
+            @Override
             public void run() {
                 readWriteLock.acquireWriteLock("foo");
                 numberOfLocks++;
@@ -83,6 +86,7 @@ public class DynamicReadWriteLockTest {
         readWriteLock.acquireWriteLock("foo");
 
         new Thread(new Runnable() {
+            @Override
             public void run() {
                 readWriteLock.acquireReadLock("foo");
                 numberOfLocks++;
@@ -99,6 +103,7 @@ public class DynamicReadWriteLockTest {
         readWriteLock.acquireWriteLock("foo");
 
         new Thread(new Runnable() {
+            @Override
             public void run() {
                 readWriteLock.acquireWriteLock("bar");
                 numberOfLocks++;

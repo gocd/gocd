@@ -42,6 +42,7 @@ public class PropertySqlMapDao extends SqlMapClientDaoSupport implements Propert
         super(goCache, sqlSessionFactory, systemEnvironment, database);
     }
 
+    @Override
     public boolean save(long instanceId, Property property) {
         ensureExists(instanceId);
         String propertyName = property.getKey();
@@ -65,6 +66,7 @@ public class PropertySqlMapDao extends SqlMapClientDaoSupport implements Propert
         bombUnless(exists, "No instance '" + instanceId + "' found to set property");
     }
 
+    @Override
     public String value(long instanceId, String propertyName) {
         Map<String, Object> toGet = new HashMap<>();
         toGet.put("instanceId", instanceId);
@@ -72,13 +74,14 @@ public class PropertySqlMapDao extends SqlMapClientDaoSupport implements Propert
         return (String) getSqlMapClientTemplate().queryForObject("getProperty", toGet);
     }
 
-    @SuppressWarnings("unchecked")
-    public Properties list(long buildId) {
+    @Override
+public Properties list(long buildId) {
         List<Property> list = getSqlMapClientTemplate()
                 .queryForList("getAllPropertiesByBuildInstanceId", buildId);
         return new Properties(list);
     }
 
+    @Override
     public List<Properties> loadHistory(String pipelineName, String stageName, String jobName, Long maxPipelineId,
                                         Integer limitCount) {
         IBatisUtil.IBatisArgument arguments = arguments("pipeline", pipelineName)
@@ -91,8 +94,7 @@ public class PropertySqlMapDao extends SqlMapClientDaoSupport implements Propert
         return groupByPipelineId(flatHistory(arguments));
     }
 
-    @SuppressWarnings("unchecked")
-    private List<Map<String, Object>> flatHistory(IBatisUtil.IBatisArgument arguments) {
+private List<Map<String, Object>> flatHistory(IBatisUtil.IBatisArgument arguments) {
         List<Long> pipelineIds = getSqlMapClientTemplate().queryForList("limitedPipelineIds", arguments.asMap());
         arguments.and("limitedPipelineIds", pipelineIds);
 

@@ -204,14 +204,6 @@ public class P4MaterialConfig extends ScmMaterialConfig implements ParamsAttribu
         this.view = new P4MaterialViewConfig(viewStr);
     }
 
-    private String p4RepoId() {
-        return hasUser() ? userName + "@" + serverAndPort : serverAndPort;
-    }
-
-    private boolean hasUser() {
-        return userName != null && !userName.trim().isEmpty();
-    }
-
     public boolean getUseTickets() {
         return this.useTickets;
     }

@@ -42,15 +42,15 @@ public class StageIdentity {
         return stageId;
     }
 
-    private void setPipelineName(String pipelineName) {
+    public void setPipelineName(String pipelineName) {
         this.pipelineName = pipelineName;
     }
 
-    private void setStageName(String stageName) {
+    public void setStageName(String stageName) {
         this.stageName = stageName;
     }
 
-    private void setStageId(Long stageId) {
+    public void setStageId(Long stageId) {
         this.stageId = stageId;
     }
 

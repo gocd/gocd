@@ -52,6 +52,7 @@ abstract class ArtifactStoreConfigCommand extends PluginProfileCommand<ArtifactS
         return EntityType.ArtifactStore;
     }
 
+    @Override
     protected final boolean isAuthorized() {
         if (goConfigService.isUserAdmin(currentUser)) {
             return true;

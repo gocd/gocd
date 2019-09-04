@@ -31,12 +31,14 @@ public class DiskSpaceOperationResult implements OperationResult {
         this.serverHealthService = serverHealthService;
     }
 
+    @Override
     public ServerHealthState success(HealthStateType healthStateType) {
         ServerHealthState state = ServerHealthState.success(healthStateType);
         serverHealthService.update(state);
         return state;
     }
 
+    @Override
     public ServerHealthState error(String message, String description, HealthStateType type) {
         ServerHealthState state = ServerHealthState.error(message, description, type);
         serverHealthService.update(state);
@@ -44,6 +46,7 @@ public class DiskSpaceOperationResult implements OperationResult {
         return state;
     }
 
+    @Override
     public ServerHealthState warning(String message, String description, HealthStateType type) {
         ServerHealthState state = ServerHealthState.warning(message, description, type);
         serverHealthService.update(state);
@@ -51,10 +54,12 @@ public class DiskSpaceOperationResult implements OperationResult {
         return state;
     }
 
+    @Override
     public ServerHealthState getServerHealthState() {
         throw new RuntimeException("Not yet implemented");
     }
 
+    @Override
     public boolean canContinue() {
         return canContinue;
     }
@@ -68,22 +73,27 @@ public class DiskSpaceOperationResult implements OperationResult {
         throw new RuntimeException("Not yet implemented");
     }
 
+    @Override
     public void conflict(String message, String description, HealthStateType healthStateType) {
         throw new RuntimeException("Not yet implemented");
     }
 
+    @Override
     public void notFound(String message, String description, HealthStateType healthStateType) {
         throw new RuntimeException("Not yet implemented");
     }
 
+    @Override
     public void accepted(String message, String description, HealthStateType healthStateType) {
         throw new RuntimeException("Not yet implemented");
     }
 
+    @Override
     public void ok(String message) {
         throw new RuntimeException("Not yet implemented");
     }
 
+    @Override
     public void notAcceptable(String message, final HealthStateType type) {
         throw new RuntimeException("Not yet implemented");
     }
@@ -98,6 +108,7 @@ public class DiskSpaceOperationResult implements OperationResult {
         error(message, description, type);
     }
 
+    @Override
     public void notAcceptable(String message, String description, final HealthStateType type) {
         throw new RuntimeException("Not yet implemented");
     }
@@ -107,6 +118,7 @@ public class DiskSpaceOperationResult implements OperationResult {
         throw new RuntimeException("Not yet implemented");
     }
 
+    @Override
     public void badRequest(String message, String description, HealthStateType healthStateType) {
         error(message, description, healthStateType);
     }

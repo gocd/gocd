@@ -135,13 +135,16 @@ public class StageNotificationService {
         }
 
 
+        @Override
         public void visit(MaterialRevision materialRevision) {
         }
 
+        @Override
         public void visit(Material material, Revision revision) {
             this.material = material;
         }
 
+        @Override
         public void visit(Modification modification) {
             sectionSeperator();
             material.emailContent(emailBody, modification);
@@ -151,6 +154,7 @@ public class StageNotificationService {
             emailBody.append(SECTION_SEPERATOR);
         }
 
+        @Override
         public void visit(ModifiedFile file) {
             emailBody.append('\n').append(file.getAction()).append(' ').append(file.getFileName());
         }

@@ -79,6 +79,7 @@ public class ActiveMqMessagingService implements MessagingService {
     }
 
 
+    @Override
     public MessageSender createSender(String topic) {
         try {
             Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -90,6 +91,7 @@ public class ActiveMqMessagingService implements MessagingService {
         }
     }
 
+    @Override
     public JMSMessageListenerAdapter addListener(String topic, final GoMessageListener listener) {
         try {
             Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -101,6 +103,7 @@ public class ActiveMqMessagingService implements MessagingService {
     }
 
 
+    @Override
     public MessageSender createQueueSender(String queueName) {
         try {
             Session session = connection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -112,6 +115,7 @@ public class ActiveMqMessagingService implements MessagingService {
         }
     }
 
+    @Override
     public JMSMessageListenerAdapter addQueueListener(String queueName, final GoMessageListener listener) {
         try {
             Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -122,6 +126,7 @@ public class ActiveMqMessagingService implements MessagingService {
         }
     }
 
+    @Override
     public void removeQueue(String queueName) {
         try {
             ActiveMQQueue destination = new ActiveMQQueue(queueName);
@@ -139,6 +144,7 @@ public class ActiveMqMessagingService implements MessagingService {
         }
     }
 
+    @Override
     public void stop() throws JMSException {
         connection.close();
         try {

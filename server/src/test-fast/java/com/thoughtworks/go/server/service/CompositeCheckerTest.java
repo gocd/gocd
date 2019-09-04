@@ -71,6 +71,7 @@ public class CompositeCheckerTest {
 
        public static SchedulingChecker successful() {
             return new SchedulingChecker() {
+                @Override
                 public void check(OperationResult result) {
                     result.success(HEALTH_STATE_TYPE_IDENTIFIER);
                 }
@@ -79,6 +80,7 @@ public class CompositeCheckerTest {
 
         public static SchedulingChecker warning() {
             return new SchedulingChecker() {
+                @Override
                 public void check(OperationResult result) {
                     result.warning("warning", "warning", HEALTH_STATE_TYPE_IDENTIFIER);
                 }
@@ -87,6 +89,7 @@ public class CompositeCheckerTest {
 
         public static SchedulingChecker error() {
             return new SchedulingChecker() {
+                @Override
                 public void check(OperationResult result) {
                     result.error("error", "royally screwed", HEALTH_STATE_TYPE_IDENTIFIER);
                 }
@@ -95,6 +98,7 @@ public class CompositeCheckerTest {
 
         public static SchedulingChecker anotherError() {
             return new SchedulingChecker() {
+                @Override
                 public void check(OperationResult result) {
                     result.error("Second", "Hi World", HEALTH_STATE_TYPE_IDENTIFIER);
                 }

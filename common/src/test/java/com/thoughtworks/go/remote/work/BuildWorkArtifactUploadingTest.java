@@ -331,6 +331,7 @@ public class BuildWorkArtifactUploadingTest {
     }
 
     private class ZipUtilThatRunsOutOfMemory extends ZipUtil {
+        @Override
         public File zip(File source, File destFile, int level) {
             throw new OutOfMemoryError("#2824");
         }
@@ -362,6 +363,7 @@ public class BuildWorkArtifactUploadingTest {
             this.files = files;
         }
 
+        @Override
         public void build(DefaultGoPublisher publisher,
                           EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension, PluginRequestProcessorRegistry pluginRequestProcessorRegistry, String consoleLogCharset) throws CruiseControlException {
             try {

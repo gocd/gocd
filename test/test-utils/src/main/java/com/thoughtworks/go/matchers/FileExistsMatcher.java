@@ -21,10 +21,12 @@ import org.hamcrest.TypeSafeMatcher;
 import org.hamcrest.Description;
 
 public class FileExistsMatcher extends TypeSafeMatcher<File> {
+    @Override
     public boolean matchesSafely(File file) {
         return file.exists();
     }
 
+    @Override
     public void describeTo(Description description) {
         description.appendText("file exists");
     }

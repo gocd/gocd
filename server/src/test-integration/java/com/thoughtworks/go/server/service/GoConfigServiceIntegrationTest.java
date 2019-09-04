@@ -391,27 +391,33 @@ public class GoConfigServiceIntegrationTest {
         String md5 = goConfigService.getConfigForEditing().getMd5();
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         ConfigUpdateResponse response = goConfigService.updateConfigFromUI(new UpdateConfigFromUI() {
+            @Override
             public void checkPermission(CruiseConfig cruiseConfig, LocalizedOperationResult result) {
 
             }
 
+            @Override
             public Validatable node(CruiseConfig cruiseConfig) {
                 return cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline"));
             }
 
+            @Override
             public Validatable updatedNode(CruiseConfig cruiseConfig) {
                 return node(cruiseConfig);
             }
 
+            @Override
             public void update(Validatable pipeline) {
                 PipelineConfig pipelineConfig = (PipelineConfig) pipeline;
                 pipelineConfig.setMingleConfig(new MingleConfig("#{mingle_url}", "go"));
             }
 
+            @Override
             public Validatable subject(Validatable node) {
                 return node;
             }
 
+            @Override
             public Validatable updatedSubject(Validatable updatedNode) {
                 return subject(updatedNode);
             }
@@ -472,6 +478,7 @@ public class GoConfigServiceIntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         String md5 = goConfigService.getConfigForEditing().getMd5();
         ConfigUpdateResponse response = goConfigService.updateConfigFromUI(new AddStageToPipelineCommand("secondStage") {
+            @Override
             public void update(Validatable node) {
                 super.update(node);
                 throw new RuntimeException("oops, foo bared!");
@@ -495,6 +502,7 @@ public class GoConfigServiceIntegrationTest {
         String md5 = goConfigService.getConfigForEditing().getMd5();
         final CruiseConfig[] configObtainedInCheckPermissions = new CruiseConfig[1];
         ConfigUpdateResponse response = goConfigService.updateConfigFromUI(new AddStageToPipelineCommand("secondStage") {
+            @Override
             public void checkPermission(CruiseConfig cruiseConfig, LocalizedOperationResult result) {
                 result.forbidden(EntityType.PipelineGroup.forbiddenToEdit("groupName", Username.ANONYMOUS.getUsername()), null);
                 configObtainedInCheckPermissions[0] = cruiseConfig;
@@ -520,6 +528,7 @@ public class GoConfigServiceIntegrationTest {
         cachedGoConfig.forceReload();
         Thread.sleep(1000);
         goConfigService.updateConfig(new UpdateConfigCommand() {
+            @Override
             public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
                 cruiseConfig.server().setArtifactsDir("foo");
                 return cruiseConfig;
@@ -721,27 +730,33 @@ public class GoConfigServiceIntegrationTest {
         // User 2 adds another pipeline group, with the same name, through UI, but using the older MD5.
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         ConfigUpdateResponse response = goConfigService.updateConfigFromUI(new UpdateConfigFromUI() {
+            @Override
             public void checkPermission(CruiseConfig cruiseConfig, LocalizedOperationResult result) {
             }
 
+            @Override
             public Validatable node(CruiseConfig cruiseConfig) {
                 return cruiseConfig;
             }
 
+            @Override
             public Validatable updatedNode(CruiseConfig cruiseConfig) {
                 return node(cruiseConfig);
             }
 
+            @Override
             public void update(Validatable config) {
                 CruiseConfig cruiseConfig = (CruiseConfig) config;
                 MaterialConfigs materials = new MaterialConfigs(MaterialConfigsMother.mockMaterialConfigs("file:///tmp/foo"));
                 new GoConfigMother().addPipelineWithGroup(cruiseConfig, "first_group", "up_pipeline", materials, "down_stage", "down_job");
             }
 
+            @Override
             public Validatable subject(Validatable node) {
                 return node;
             }
 
+            @Override
             public Validatable updatedSubject(Validatable updatedNode) {
                 return subject(updatedNode);
             }
@@ -995,26 +1010,32 @@ public class GoConfigServiceIntegrationTest {
             this.stageName = stageName;
         }
 
+        @Override
         public void checkPermission(CruiseConfig cruiseConfig, LocalizedOperationResult result) {
         }
 
+        @Override
         public Validatable node(CruiseConfig cruiseConfig) {
             return cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline"));
         }
 
+        @Override
         public Validatable updatedNode(CruiseConfig cruiseConfig) {
             return node(cruiseConfig);
         }
 
+        @Override
         public void update(Validatable node) {
             PipelineConfig pipeline = (PipelineConfig) node;
             pipeline.addStageWithoutValidityAssertion(StageConfigMother.custom(stageName, "job"));
         }
 
+        @Override
         public Validatable subject(Validatable node) {
             return node;
         }
 
+        @Override
         public Validatable updatedSubject(Validatable updatedNode) {
             return subject(updatedNode);
         }
@@ -1024,18 +1045,22 @@ public class GoConfigServiceIntegrationTest {
 
         protected String newPipelineName = "new-pipeline";
 
+        @Override
         public void checkPermission(CruiseConfig cruiseConfig, LocalizedOperationResult result) {
 
         }
 
+        @Override
         public Validatable node(CruiseConfig cruiseConfig) {
             return cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline"));
         }
 
+        @Override
         public Validatable updatedNode(CruiseConfig cruiseConfig) {
             return cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(newPipelineName));
         }
 
+        @Override
         public void update(Validatable pipelineNode) {
             PipelineConfig pipeline = (PipelineConfig) pipelineNode;
             ReflectionUtil.setField(pipeline, "name", new CaseInsensitiveString(newPipelineName));
@@ -1047,10 +1072,12 @@ public class GoConfigServiceIntegrationTest {
             return pipeline.getStage(new CaseInsensitiveString(stageName));
         }
 
+        @Override
         public Validatable subject(Validatable pipelineNode) {
             return getStage(pipelineNode, "stage");
         }
 
+        @Override
         public Validatable updatedSubject(Validatable pipelineNode) {
             return getStage(pipelineNode, "new-stage");
         }

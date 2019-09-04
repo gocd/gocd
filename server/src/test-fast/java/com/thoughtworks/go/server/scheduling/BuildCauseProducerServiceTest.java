@@ -24,7 +24,7 @@ import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
-import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
+
 import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
@@ -68,7 +68,6 @@ import static com.thoughtworks.go.serverhealth.ServerHealthState.error;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -178,6 +177,7 @@ public class BuildCauseProducerServiceTest {
         final HttpOperationResult result = new HttpOperationResult();
 
         when(mockSchedulingCheckerService.canTriggerManualPipeline(pipelineConfig, CaseInsensitiveString.str(user.getUsername()), operationResult)).thenAnswer(new Answer<Boolean>() {
+            @Override
             public Boolean answer(InvocationOnMock invocationOnMock) throws Throwable {
                 result.accepted("junk", "junk", healthStateType);
                 return true;
@@ -250,6 +250,7 @@ public class BuildCauseProducerServiceTest {
         final MaterialUpdateStatusListener[] listener = new MaterialUpdateStatusListener[1];
         verify(mockMaterialUpdateStatusNotifier).registerListenerFor(any(PipelineConfig.class),
                 argThat(new ArgumentMatcher<MaterialUpdateStatusListener>() {
+                    @Override
                     public boolean matches(MaterialUpdateStatusListener o) {
                         listener[0] = o;
                         return true;
@@ -525,6 +526,7 @@ public class BuildCauseProducerServiceTest {
                 return true;
             }
 
+            @Override
             public String toString() {
                 return "hasErrorHealthState(" + message + ")";
             }

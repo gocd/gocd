@@ -111,10 +111,12 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
         return name;
     }
 
+    @Override
     public JobState getState() {
         return state;
     }
 
+    @Override
     public JobResult getResult() {
         return result;
     }
@@ -182,6 +184,7 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
         completing(result, timeProvider.currentTime());
     }
 
+    @Override
     public int compareTo(Object o) {
         return getStartedDateFor(JobState.Building)
                 .compareTo(((JobInstance) o).getStartedDateFor(JobState.Building));
@@ -317,6 +320,7 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
     }
 
     // End Date / Time Related Methods th
+    @Override
     public JobInstance clone() {
         try {
             return (JobInstance) super.clone();
@@ -378,6 +382,7 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
         return plan;
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -420,6 +425,7 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
         return true;
     }
 
+    @Override
     public int hashCode() {
         int result1;
         result1 = (int) (stageId ^ (stageId >>> 32));

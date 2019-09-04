@@ -18,8 +18,6 @@ package com.thoughtworks.go.security;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.springframework.util.Assert;
 
-import java.io.Serializable;
-
 public class DesToAesMigrator {
     final Encrypter desEncrypter;
 

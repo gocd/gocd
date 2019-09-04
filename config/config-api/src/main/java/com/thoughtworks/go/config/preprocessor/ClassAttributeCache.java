@@ -39,6 +39,7 @@ public abstract class ClassAttributeCache<K, T> {
     abstract T loadValues(K key);
 
     public static class FieldCache extends ClassAttributeCache<Class, List<Field>> {
+        @Override
         List<Field> loadValues(Class klass) {
             List<Field> fields = new ArrayList<>();
             populateValueInto(klass, fields);
@@ -55,6 +56,7 @@ public abstract class ClassAttributeCache<K, T> {
     }
 
     public static class AssignableCache extends ClassAttributeCache<Map.Entry<Class, Class>, Boolean> {
+        @Override
         Boolean loadValues(Map.Entry<Class, Class> entry) {
             return entry.getKey().isAssignableFrom(entry.getValue());
         }

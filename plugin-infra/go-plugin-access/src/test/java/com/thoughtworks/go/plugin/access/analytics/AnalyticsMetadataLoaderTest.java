@@ -16,7 +16,6 @@
 package com.thoughtworks.go.plugin.access.analytics;
 
 import com.thoughtworks.go.plugin.access.common.PluginMetadataChangeListener;
-import com.thoughtworks.go.plugin.api.GoPlugin;
 import com.thoughtworks.go.plugin.domain.analytics.AnalyticsPluginInfo;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
@@ -24,8 +23,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 public class AnalyticsMetadataLoaderTest {

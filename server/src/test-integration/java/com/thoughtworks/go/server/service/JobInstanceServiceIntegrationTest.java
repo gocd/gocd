@@ -59,9 +59,7 @@ import static com.thoughtworks.go.helper.ModificationsMother.modifyOneFile;
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static com.thoughtworks.go.util.DataStructureUtils.listOf;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
-import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.*;
-import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.junit.matchers.JUnitMatchers.hasItem;
@@ -330,6 +328,7 @@ public class JobInstanceServiceIntegrationTest {
         final JobInstance[] changedJobPassed = new JobInstance[1];
 
         jobInstanceService.registerJobStateChangeListener(new JobStatusListener() {
+            @Override
             public void jobStatusChanged(JobInstance job) {
                 changedJobPassed[0] = job;
             }
@@ -466,6 +465,7 @@ public class JobInstanceServiceIntegrationTest {
         instance.changeState(JobState.Building, new Date());
         try {
             transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+                @Override
                 protected void doInTransactionWithoutResult(TransactionStatus status) {
                     jobInstanceService.updateStateAndResult(instance);
                     throw new RuntimeException("to rollback txn");

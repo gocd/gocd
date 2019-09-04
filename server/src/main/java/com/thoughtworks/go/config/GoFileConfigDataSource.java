@@ -25,10 +25,7 @@ import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.update.FullConfigUpdateCommand;
 import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.serverhealth.HealthStateScope;
-import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
-import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.CachedDigestUtils;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -59,7 +56,7 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 public class GoFileConfigDataSource {
     public static final String FILESYSTEM = "Filesystem";
     private static final Logger LOGGER = LoggerFactory.getLogger(GoFileConfigDataSource.class.getName());
-    private final Charset UTF_8 = Charset.forName("UTF-8");
+    private final Charset UTF_8 = StandardCharsets.UTF_8;
     private final CachedGoPartials cachedGoPartials;
     private final MagicalGoConfigXmlWriter magicalGoConfigXmlWriter;
     private final MagicalGoConfigXmlLoader magicalGoConfigXmlLoader;
@@ -71,8 +68,6 @@ public class GoFileConfigDataSource {
     private SystemEnvironment systemEnvironment;
     private GoConfigMigration upgrader;
     private GoConfigCloner cloner = new GoConfigCloner();
-    private ServerHealthService serverHealthService;
-    private ConfigElementImplementationRegistry configElementImplementationRegistry;
     private GoConfigFileReader goConfigFileReader;
     private GoConfigFileWriter goConfigFileWriter;
 
@@ -88,7 +83,6 @@ public class GoFileConfigDataSource {
                 new MagicalGoConfigXmlWriter(configCache, configElementImplementationRegistry), serverHealthService,
                 cachedGoPartials, fullConfigSaveMergeFlow, fullConfigSaveNormalFlow,
                 new GoConfigFileReader(systemEnvironment), new GoConfigFileWriter(systemEnvironment));
-        this.configElementImplementationRegistry = configElementImplementationRegistry;
     }
 
     GoFileConfigDataSource(GoConfigMigration upgrader, ConfigRepository configRepository, SystemEnvironment systemEnvironment,
@@ -103,7 +97,6 @@ public class GoFileConfigDataSource {
         this.timeProvider = timeProvider;
         this.magicalGoConfigXmlLoader = magicalGoConfigXmlLoader;
         this.magicalGoConfigXmlWriter = magicalGoConfigXmlWriter;
-        this.serverHealthService = serverHealthService;
         this.cachedGoPartials = cachedGoPartials;
         this.fullConfigSaveMergeFlow = fullConfigSaveMergeFlow;
         this.fullConfigSaveNormalFlow = fullConfigSaveNormalFlow;
@@ -588,16 +581,20 @@ public class GoFileConfigDataSource {
     }
 
     private static class AlwaysReload implements ReloadStrategy {
+        @Override
         public ReloadTestResult requiresReload(File configFile) {
             return new ReloadTestResult(true, 0, 0);
         }
 
+        @Override
         public void latestState(CruiseConfig config) {
         }
 
+        @Override
         public void hasLatest(ReloadTestResult result) {
         }
 
+        @Override
         public void performingReload(ReloadTestResult result) {
         }
     }
@@ -628,6 +625,7 @@ public class GoFileConfigDataSource {
                     prevSize != currentSize;
         }
 
+        @Override
         public ReloadTestResult requiresReload(File configFile) {
             long lastModified = lastModified(configFile);
             long length = length(configFile);
@@ -645,10 +643,12 @@ public class GoFileConfigDataSource {
             return newMd5;
         }
 
+        @Override
         public void latestState(CruiseConfig config) {
             md5 = config.getMd5();
         }
 
+        @Override
         public void hasLatest(ReloadTestResult result) {
             rememberLatestFileAttributes(result);
         }
@@ -660,6 +660,7 @@ public class GoFileConfigDataSource {
             }
         }
 
+        @Override
         public void performingReload(ReloadTestResult result) {
             rememberLatestFileAttributes(result);
         }

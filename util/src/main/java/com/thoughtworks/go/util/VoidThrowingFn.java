@@ -20,6 +20,7 @@ package com.thoughtworks.go.util;
  */
 public abstract class VoidThrowingFn<E extends Exception> implements ThrowingFn<Object, E> {
 
+    @Override
     public final Object call() throws E {
         run();
         return null;

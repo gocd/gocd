@@ -54,10 +54,12 @@ public class StageTest {
                 return JOB_SCHEDULE_DATE;
             }
 
+            @Override
             public DateTime currentDateTime() {
                 throw new UnsupportedOperationException("Not implemented");
             }
 
+            @Override
             public DateTime timeoutTime(Timeout timeout) {
                 throw new UnsupportedOperationException("Not implemented");
             }
@@ -74,7 +76,7 @@ public class StageTest {
         DateTime fiveMinsForNow = new DateTime().plusMinutes(5);
         complete(firstJob, fiveMinsForNow);
         complete(secondJob, fiveMinsForNow);
-        JobStateTransition lastTransition = secondJob.getTransition(JobState.Completed);
+        secondJob.getTransition(JobState.Completed);
         stage.calculateResult();
         assertThat(stage.getCompletedByTransitionId(), is(nextId));
         assertThat(stage.getState(), is(StageState.Passed));
@@ -206,10 +208,12 @@ public class StageTest {
                 return time0.toDate();
             }
 
+            @Override
             public DateTime currentDateTime() {
                 throw new UnsupportedOperationException("Not implemented");
             }
 
+            @Override
             public DateTime timeoutTime(Timeout timeout) {
                 throw new UnsupportedOperationException("Not implemented");
             }

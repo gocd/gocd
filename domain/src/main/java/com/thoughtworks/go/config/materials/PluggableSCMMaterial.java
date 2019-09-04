@@ -48,6 +48,7 @@ import static org.apache.commons.lang3.StringUtils.upperCase;
 public class PluggableSCMMaterial extends AbstractMaterial {
     public static final String TYPE = "PluggableSCMMaterial";
 
+    @SuppressWarnings("PMD.UnusedPrivateField")
     private String scmId;
 
     @Expose

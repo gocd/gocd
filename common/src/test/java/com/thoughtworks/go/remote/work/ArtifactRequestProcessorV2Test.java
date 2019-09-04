@@ -15,21 +15,6 @@
  */
 package com.thoughtworks.go.remote.work;
 
-import com.thoughtworks.go.plugin.api.request.GoApiRequest;
-import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import com.thoughtworks.go.remote.work.artifact.ArtifactRequestProcessor;
-import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import com.thoughtworks.go.util.command.PasswordArgument;
-import com.thoughtworks.go.work.DefaultGoPublisher;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.util.Collections;
-
-import static com.thoughtworks.go.remote.work.artifact.ArtifactRequestProcessor.Request.CONSOLE_LOG;
-import static com.thoughtworks.go.util.command.TaggedStreamConsumer.*;
-import static org.mockito.Mockito.*;
-
 public class ArtifactRequestProcessorV2Test extends ArtifactRequestProcessorTestBase {
     @Override
     protected String getRequestPluginVersion() {

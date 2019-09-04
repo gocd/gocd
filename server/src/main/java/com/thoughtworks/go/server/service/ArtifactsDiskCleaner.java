@@ -83,16 +83,19 @@ public class ArtifactsDiskCleaner extends DiskSpaceChecker {
         }
     }
 
+    @Override
     protected void createFailure(OperationResult result, long size, long availableSpace) {
         synchronized (triggerCleanup) {
             triggerCleanup.notify();
         }
     }
 
+    @Override
     protected SendEmailMessage createEmail() {
         throw new UnsupportedOperationException("Disk cleaner does not send messages");
     }
 
+    @Override
     protected long limitInMb() {
         ServerConfig serverConfig = goConfigService.serverConfig();
         return serverConfig.isArtifactPurgingAllowed() ? new Double(serverConfig.getPurgeStart() * GoConstants.MEGABYTES_IN_GIGABYTE).longValue() : Integer.MAX_VALUE;

@@ -93,10 +93,12 @@ public class Lockfile implements Runnable {
         }
     }
 
+    @Override
     public String toString() {
         return "<Lockfile: " + lockFile.getAbsolutePath() + ">";
     }
 
+    @Override
     public void run() {
         LOG.info("Using lock file: {}", lockFile.getAbsolutePath());
         do {

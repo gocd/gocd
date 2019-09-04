@@ -29,11 +29,13 @@ public class FlashMessageInterceptor implements HandlerInterceptor {
     public FlashMessageInterceptor() {
     }
 
+    @Override
     public boolean preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
                              Object object) {
         return true;
     }
 
+    @Override
     public void postHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
                            Object object, ModelAndView modelAndView) {
         if (modelAndView == null) { return; }
@@ -43,6 +45,7 @@ public class FlashMessageInterceptor implements HandlerInterceptor {
         }
     }
 
+    @Override
     public void afterCompletion(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
                                 Object object, Exception exception) {
     }

@@ -58,7 +58,7 @@ public class StageMother {
 
     public static Stage stageWithNBuildsHavingEndState(JobState endState, JobResult result, String stageName,
                                                        String... buildNames) {
-        return stageWithNBuildsHavingEndState(endState, result, stageName, Arrays.asList(buildNames));        
+        return stageWithNBuildsHavingEndState(endState, result, stageName, Arrays.asList(buildNames));
     }
 
     public static Stage stageWithNBuildsHavingEndState(JobState endState, JobResult result, String stageName,
@@ -115,10 +115,12 @@ public class StageMother {
                 return scheduleTime.toDate();
             }
 
+            @Override
             public DateTime currentDateTime() {
                 throw new UnsupportedOperationException("Not implemented");
             }
 
+            @Override
             public DateTime timeoutTime(Timeout timeout) {
                 throw new UnsupportedOperationException("Not implemented");
             }

@@ -182,6 +182,7 @@ public class FetchTaskAdapter implements Task {
         oneOf(fetchPluggableArtifactTask::validate, fetchTask::validate, validationContext);
     }
 
+    @Override
     public ConfigErrors errors() {
         return oneOf(fetchPluggableArtifactTask::errors, fetchTask::errors);
     }

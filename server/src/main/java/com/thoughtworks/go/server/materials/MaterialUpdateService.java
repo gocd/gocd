@@ -211,6 +211,7 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
         this.materialSources.add(materialSource);
     }
 
+    @Override
     public void onMessage(MaterialUpdateCompletedMessage message) {
         if (message instanceof MaterialUpdateSkippedMessage) {
             inProgress.remove(message.getMaterial());
@@ -234,6 +235,7 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
         }
     }
 
+    @Override
     public void onConfigChange(CruiseConfig newCruiseConfig) {
         Set<HealthStateScope> materialScopes = toHealthStateScopes(newCruiseConfig.getAllUniqueMaterials());
         for (ServerHealthState state : serverHealthService.logs()) {

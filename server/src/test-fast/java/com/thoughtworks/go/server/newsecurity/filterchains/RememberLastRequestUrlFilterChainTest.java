@@ -40,6 +40,7 @@ class RememberLastRequestUrlFilterChainTest {
     private Filter filter;
     private FilterChain filterChain;
 
+    @SuppressWarnings({"PMD.UnusedPrivateMethod"}) // used via reflection
     private static Stream<String> rememberedUrls() {
         return Stream.of("/", "/home", "/dashboard", "/foobar");
     }

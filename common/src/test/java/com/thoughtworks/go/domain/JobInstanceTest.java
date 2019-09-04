@@ -29,9 +29,6 @@ import java.util.Date;
 
 import static java.text.MessageFormat.format;
 import static org.hamcrest.Matchers.*;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -264,12 +261,14 @@ public class JobInstanceTest {
             this.expectedState = expectedState;
         }
 
+        @Override
         public boolean matches(Object o) {
             JobStateTransition transition = (JobStateTransition) o;
             actualState = transition.getCurrentState();
             return actualState == expectedState;
         }
 
+        @Override
         public void describeTo(Description description) {
             description.appendText(format("Expect to get a state {0} but was {1}", expectedState, actualState));
         }

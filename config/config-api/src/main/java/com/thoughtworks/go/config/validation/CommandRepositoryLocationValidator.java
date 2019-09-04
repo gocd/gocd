@@ -33,6 +33,7 @@ public class CommandRepositoryLocationValidator implements GoConfigValidator {
     }
 
 
+    @Override
     public void validate(CruiseConfig cruiseConfig) throws Exception {
         String taskRepositoryLocation = cruiseConfig.server().getCommandRepositoryLocation();
         if (taskRepositoryLocation == null || isEmpty(taskRepositoryLocation.trim())) {

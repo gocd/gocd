@@ -15,14 +15,10 @@
  */
 package com.thoughtworks.go.server.controller;
 
-import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.helper.StubMultipartHttpServletRequest;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
-import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.AgentRuntimeInfo;
-import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.ArtifactsService;
 import com.thoughtworks.go.server.service.ConsoleService;
 import com.thoughtworks.go.server.web.ResponseCodeView;
@@ -51,7 +47,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.nio.charset.Charset;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -59,18 +54,12 @@ import java.util.zip.Deflater;
 
 import static com.thoughtworks.go.util.GoConstants.RESPONSE_CHARSET;
 import static com.thoughtworks.go.util.GoConstants.RESPONSE_CHARSET_JSON;
-import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static javax.servlet.http.HttpServletResponse.*;
 import static org.apache.commons.io.FileUtils.deleteDirectory;
 import static org.apache.commons.io.FileUtils.readFileToString;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -88,8 +77,6 @@ public class ArtifactsControllerIntegrationTest {
     private ArtifactsService artifactService;
     @Autowired
     private ConsoleService consoleService;
-    @Autowired
-    private AgentService agentService;
     @Autowired
     private ZipUtil zipUtil;
     @Autowired
@@ -227,17 +214,6 @@ public class ArtifactsControllerIntegrationTest {
         ModelAndView mav = artifactsController.putArtifact(pipelineName, "latest", "stage", "1", "build2", null, "/foo.xml", null, request);
         assertValidContentAndStatus(mav, SC_NOT_FOUND, "Job " + pipelineName + "/latest/stage/1/build2 not found.");
     }
-
-    private Date updateHeardTime() throws Exception {
-        agentService.requestRegistration(new Username("bob"), AgentRuntimeInfo.fromServer(new AgentConfig("uuid", "localhost", "127.0.0.1"),
-                false, "/var/lib", 0L, "linux"));
-        agentService.approve("uuid");
-        artifactsController.putArtifact(pipelineName, "latest", "stage", null, "build2", null, "/foo.xml",
-                "uuid", request);
-        Date olderTime = agentService.findAgentAndRefreshStatus("uuid").getLastHeardTime();
-        return olderTime;
-    }
-
 
     @Test
     public void shouldGetArtifactFileRestfully() throws Exception {
@@ -710,10 +686,12 @@ public class ArtifactsControllerIntegrationTest {
 
     private TypeSafeMatcher<File> exists() {
         return new TypeSafeMatcher<File>() {
+            @Override
             public boolean matchesSafely(File file) {
                 return file.exists();
             }
 
+            @Override
             public void describeTo(Description description) {
                 description.appendText("file should exist but does not");
             }
@@ -722,10 +700,12 @@ public class ArtifactsControllerIntegrationTest {
 
     private TypeSafeMatcher<File> directory() {
         return new TypeSafeMatcher<File>() {
+            @Override
             public boolean matchesSafely(File file) {
                 return file.isDirectory();
             }
 
+            @Override
             public void describeTo(Description description) {
                 description.appendText("a directory");
             }

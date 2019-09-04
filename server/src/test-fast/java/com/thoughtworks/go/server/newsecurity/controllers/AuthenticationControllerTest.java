@@ -17,7 +17,6 @@ package com.thoughtworks.go.server.newsecurity.controllers;
 
 import com.thoughtworks.go.http.mocks.HttpRequestBuilder;
 import com.thoughtworks.go.http.mocks.MockHttpServletRequest;
-import com.thoughtworks.go.http.mocks.MockHttpServletResponse;
 import com.thoughtworks.go.server.newsecurity.models.AccessToken;
 import com.thoughtworks.go.server.newsecurity.models.AnonymousCredential;
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
@@ -27,7 +26,6 @@ import com.thoughtworks.go.server.newsecurity.providers.WebBasedPluginAuthentica
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.security.GoAuthority;
 import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
-import com.thoughtworks.go.server.service.SecurityAuthConfigService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TestingClock;
@@ -52,12 +50,10 @@ class AuthenticationControllerTest {
     private final PasswordBasedPluginAuthenticationProvider authenticationProvider = mock(PasswordBasedPluginAuthenticationProvider.class);
     private final SecurityService securityService = mock(SecurityService.class);
     private final WebBasedPluginAuthenticationProvider webBasedPluginAuthenticationProvider = mock(WebBasedPluginAuthenticationProvider.class);
-    private final SecurityAuthConfigService securityAuthConfigService = mock(SecurityAuthConfigService.class);
     private final SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
     private final TestingClock clock = new TestingClock();
-    private final AuthenticationController controller = new AuthenticationController(securityService, securityAuthConfigService, systemEnvironment, clock, authenticationProvider, webBasedPluginAuthenticationProvider);
+    private final AuthenticationController controller = new AuthenticationController(securityService, systemEnvironment, clock, authenticationProvider, webBasedPluginAuthenticationProvider);
     private final MockHttpServletRequest request = HttpRequestBuilder.GET("/").build();
-    private final MockHttpServletResponse response = new MockHttpServletResponse();
     private HttpSession originalSession = request.getSession(true);
 
     private void authenticateAsAnonymous() {

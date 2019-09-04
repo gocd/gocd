@@ -45,6 +45,7 @@ public class MaterialRevisionsJsonBuilder extends ModificationVisitorAdapter {
         this.commentRenderer = commentRenderer;
     }
 
+    @Override
     public void visit(MaterialRevision revision) {
         this.revision = revision;
         modificationsJson = new ArrayList();
@@ -60,10 +61,12 @@ public class MaterialRevisionsJsonBuilder extends ModificationVisitorAdapter {
         materials.add(materialJson);
     }
 
+    @Override
     public void visit(Material material, Revision revision) {
         material.toJson(materialJson, revision);
     }
 
+    @Override
     public void visit(Modification modification) {
         modifiedFilesJson = new ArrayList();
 
@@ -81,6 +84,7 @@ public class MaterialRevisionsJsonBuilder extends ModificationVisitorAdapter {
         modificationsJson.add(jsonMap);
     }
 
+    @Override
     public void visit(ModifiedFile file) {
         if (!includeModifiedFiles) {
             return;

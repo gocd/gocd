@@ -56,6 +56,7 @@ public class StreamPumper implements Runnable {
         }
     }
 
+    @Override
     public void run() {
         try (LineIterator lineIterator = IOUtils.lineIterator(in)) {
             while (lineIterator.hasNext()) {

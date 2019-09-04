@@ -26,6 +26,7 @@ public abstract class ErrorCollectingHandler implements GoConfigGraphWalker.Hand
         this.allErrors = allErrors;
     }
 
+    @Override
     public void handle(Validatable validatable, ValidationContext context) {
         handleValidation(validatable, context);
         ConfigErrors configErrors = validatable.errors();

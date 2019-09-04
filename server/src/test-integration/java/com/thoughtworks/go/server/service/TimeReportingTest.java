@@ -18,8 +18,7 @@ package com.thoughtworks.go.server.service;
 import java.util.Date;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
-import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
+
 import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import com.thoughtworks.go.config.update.ConfigUpdateResponse;
 import com.thoughtworks.go.config.update.UpdateConfigFromUI;
@@ -114,24 +113,30 @@ public class TimeReportingTest {
             this.numberOfNewPipelines = numberOfNewPipelines;
         }
 
+        @Override
         public void checkPermission(CruiseConfig cruiseConfig, LocalizedOperationResult result) {
         }
 
+        @Override
         public Validatable node(CruiseConfig cruiseConfig) {
             return getConfigWith(cruiseConfig);
         }
 
+        @Override
         public Validatable updatedNode(CruiseConfig cruiseConfig) {
             return node(cruiseConfig);
         }
 
+        @Override
         public void update(Validatable node) {
         }
 
+        @Override
         public Validatable subject(Validatable node) {
             return node;
         }
 
+        @Override
         public Validatable updatedSubject(Validatable updatedNode) {
             return subject(updatedNode);
         }
@@ -158,27 +163,4 @@ public class TimeReportingTest {
         }
     }
 
-    private CruiseConfig getConfigWith(CruiseConfig cruiseConfig, int numberOfGroups, int numberOfNewPipelinesInEachGroup) {
-        int numberOfJobs = 10;
-        int numberOfMaterials = 5;
-        int numberOfTasks = 2;
-        for (int z = 0; z < numberOfGroups; z++) {
-            for (int i = 0; i < numberOfNewPipelinesInEachGroup; i++) {
-                PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfigWithStage("pipeline" + i, "stage" + i);
-                for (int j = 0; j < numberOfJobs; j++) {
-                    JobConfig jobConfig = new JobConfig("job" + j);
-                    for (int k = 0; k < numberOfTasks; k++) {
-                        jobConfig.addTask(new ExecTask("command" + k, "args", "workingdir"));
-                    }
-                    pipelineConfig.get(0).getJobs().add(jobConfig);
-                }
-                for (int j = 0; j < numberOfMaterials; j++) {
-                    pipelineConfig.addMaterialConfig(hg("url" + j, "dest" + j));
-                }
-                cruiseConfig.addPipeline("group" + z, pipelineConfig);
-            }
-        }
-
-        return cruiseConfig;
-    }
 }

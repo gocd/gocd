@@ -44,6 +44,7 @@ public abstract class EnvironmentCommand implements EntityConfigUpdateCommand<En
         this.username = username;
     }
 
+    @Override
     public boolean isValid(CruiseConfig preprocessedConfig) {
         EnvironmentConfig config = preprocessedConfig.getEnvironments().find(this.environmentConfig.name());
         boolean isValid = config.validateTree(ConfigSaveValidationContext.forChain(preprocessedConfig), preprocessedConfig);
@@ -70,6 +71,7 @@ public abstract class EnvironmentCommand implements EntityConfigUpdateCommand<En
         return true;
     }
 
+    @Override
     public EnvironmentConfig getPreprocessedEntityConfig() {
         return environmentConfig;
     }

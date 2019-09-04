@@ -77,14 +77,17 @@ public class EnvironmentAgentConfig implements Validatable{
         return uuid != null ? uuid.hashCode() : 0;
     }
 
+    @Override
     public void validate(ValidationContext validationContext) {
 
     }
 
+    @Override
     public ConfigErrors errors() {
         return configErrors;
     }
 
+    @Override
     public void addError(String fieldName, String message) {
         configErrors.add(fieldName, message);
     }

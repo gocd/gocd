@@ -32,6 +32,7 @@ import java.util.List;
 public class CustomSslContextFactory extends SslContextFactory {
     private static final Logger LOGGER = LoggerFactory.getLogger(CustomSslContextFactory.class);
 
+    @Override
     protected TrustManager[] getTrustManagers(KeyStore trustStore, Collection<? extends CRL> crls) throws Exception {
         TrustManager[] trustManagers = super.getTrustManagers(trustStore, crls);
         List<TrustManager> managers = new ArrayList<>();

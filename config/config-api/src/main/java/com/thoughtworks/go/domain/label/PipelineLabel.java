@@ -40,6 +40,7 @@ public class PipelineLabel implements Serializable {
         this.label = label;
     }
 
+    @Override
     public String toString() {
         return label;
     }
@@ -98,6 +99,7 @@ public class PipelineLabel implements Serializable {
         return revision;
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -111,6 +113,7 @@ public class PipelineLabel implements Serializable {
         return label != null ? label.equals(label1.label) : label1.label == null;
     }
 
+    @Override
     public int hashCode() {
         return (label != null ? label.hashCode() : 0);
     }

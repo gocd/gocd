@@ -40,22 +40,27 @@ public class ServerHealthServiceUpdatingOperationResult implements OperationResu
         this.serverHealthService = serverHealthService;
     }
 
+    @Override
     public ServerHealthState error(String message, String description, HealthStateType type) {
         return kickMe(ServerHealthState.error(message, description, type), false);
     }
 
+    @Override
     public ServerHealthState warning(String message, String description, HealthStateType type) {
         return kickMe(ServerHealthState.warning(message, description, type), false);
     }
 
+    @Override
     public ServerHealthState getServerHealthState() {
         return state;
     }
 
+    @Override
     public boolean canContinue() {
         return canContinue;
     }
 
+    @Override
     public ServerHealthState success(HealthStateType healthStateType) {
         return kickMe(ServerHealthState.success(healthStateType), true);
     }
@@ -69,22 +74,27 @@ public class ServerHealthServiceUpdatingOperationResult implements OperationResu
         throw new RuntimeException("Not yet implemented");
     }
 
+    @Override
     public void conflict(String message, String description, HealthStateType healthStateType) {
         throw new RuntimeException("Not yet implemented");
     }
 
+    @Override
     public void notFound(String message, String description, HealthStateType healthStateType) {
         throw new RuntimeException("Not yet implemented");
     }
 
+    @Override
     public void accepted(String message, String description, HealthStateType healthStateType) {
         throw new RuntimeException("Not yet implemented");
     }
 
+    @Override
     public void ok(String message) {
         throw new RuntimeException("Not yet implemented");
     }
 
+    @Override
     public void notAcceptable(String message, final HealthStateType type) {
         throw new RuntimeException("Not yet implemented");
     }
@@ -99,6 +109,7 @@ public class ServerHealthServiceUpdatingOperationResult implements OperationResu
         error(message, description, type);
     }
 
+    @Override
     public void notAcceptable(String message, String description, final HealthStateType type) {
         throw new RuntimeException("Not yet implemented");
     }
@@ -108,6 +119,7 @@ public class ServerHealthServiceUpdatingOperationResult implements OperationResu
         error(message, description, healthStateType);
     }
 
+    @Override
     public void badRequest(String message, String description, HealthStateType healthStateType) {
         error(message, description, healthStateType);
     }

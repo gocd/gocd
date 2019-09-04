@@ -21,7 +21,6 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
 

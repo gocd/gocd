@@ -26,12 +26,14 @@ public class PipelineScheduleQueueMatcher {
             private int actualCount;
             public int expectedCount;
 
+            @Override
             public boolean matchesSafely(Integer expectedCount) {
                 this.expectedCount = expectedCount;
                 this.actualCount = pipelineScheduleQueue.toBeScheduled().size();
                 return actualCount >= expectedCount;
             }
 
+            @Override
             public void describeTo(Description description) {
                 description.appendText(String.format("Expect number of scheduled pipelines to be at least %s", expectedCount));
             }

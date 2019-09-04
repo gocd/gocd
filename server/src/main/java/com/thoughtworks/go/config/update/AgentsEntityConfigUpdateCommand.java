@@ -39,7 +39,6 @@ import java.util.List;
 import java.util.Set;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
-import static com.thoughtworks.go.i18n.LocalizedMessage.resourceNotFound;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 
 public class AgentsEntityConfigUpdateCommand implements EntityConfigUpdateCommand<Agents> {

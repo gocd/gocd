@@ -18,10 +18,10 @@ package com.thoughtworks.go.server;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 public class SparkOrRailsToggle {
 
+    @SuppressWarnings({"PMD.UnusedPrivateMethod", "unused"})
     private void basedOnToggle(String toggle, HttpServletRequest request) {
         if (Toggles.isToggleOn(toggle)) {
             request.setAttribute("sparkOrRails", "rails");

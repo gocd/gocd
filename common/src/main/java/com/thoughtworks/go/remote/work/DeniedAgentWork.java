@@ -25,14 +25,17 @@ public class DeniedAgentWork implements Work {
         this.uuid = uuid;
     }
 
+    @Override
     public void doWork(EnvironmentVariableContext environmentVariableContext, AgentWorkContext agentWorkContext) {
         agentWorkContext.getAgentRuntimeInfo().idle();
     }
 
+    @Override
     public String description() {
         return String.format("No builds for denied agent [%s]", uuid);
     }
 
+    @Override
     public void cancel(EnvironmentVariableContext environmentVariableContext, AgentRuntimeInfo agentruntimeInfo) {
         agentruntimeInfo.idle();
     }

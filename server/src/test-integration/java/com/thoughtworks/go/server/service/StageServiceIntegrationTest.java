@@ -89,7 +89,6 @@ import static com.thoughtworks.go.helper.ModificationsMother.modifyOneFile;
 import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static org.hamcrest.Matchers.*;
-import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -175,6 +174,7 @@ public class StageServiceIntegrationTest {
     @Test
     public void shouldPostAllMessagesAfterTheDatabaseIsUpdatedWhenCancellingAStage() {
         jobResultTopic.addListener(new GoMessageListener<JobResultMessage>() {
+            @Override
             public void onMessage(JobResultMessage message) {
                 JobIdentifier jobIdentifier = message.getJobIdentifier();
                 JobInstance instance = jobInstanceDao.mostRecentJobWithTransitions(jobIdentifier);
@@ -183,18 +183,21 @@ public class StageServiceIntegrationTest {
             }
         });
         stageService.addStageStatusListener(new StageStatusListener() {
+            @Override
             public void stageStatusChanged(Stage stage) {
                 Stage retrievedStage = stageDao.stageById(stage.getId());
                 receivedStageResult = retrievedStage.getResult();
             }
         });
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
             public void doInTransactionWithoutResult(TransactionStatus status) {
                 stageService.cancelStage(stage, null);
             }
         });
 
         Assertions.waitUntil(Timeout.TEN_SECONDS, new BooleanSupplier() {
+            @Override
             public boolean getAsBoolean() {
                 return receivedResult != null && receivedState != null && receivedStageResult!=null;
             }
@@ -379,6 +382,7 @@ public class StageServiceIntegrationTest {
         stageService.addStageStatusListener(listener);
 
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
             public void doInTransactionWithoutResult(TransactionStatus status) {
                 stageService.cancelStage(stage, null);
             }
@@ -391,6 +395,7 @@ public class StageServiceIntegrationTest {
     @Test public void shouldLookupModifiedStageById_afterCancel() {
         Stage stageLoadedBeforeCancellation = stageService.stageById(stage.getId());
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
             public void doInTransactionWithoutResult(TransactionStatus status) {
                 stageService.cancelStage(stage, null);
             }
@@ -402,6 +407,7 @@ public class StageServiceIntegrationTest {
     @Test public void shouldSetCancelledByWhileCancellingAStage() {
         Stage stageLoadedBeforeCancellation = stageService.stageById(stage.getId());
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
             public void doInTransactionWithoutResult(TransactionStatus status) {
                 stageService.cancelStage(stage, "foo");
             }
@@ -423,6 +429,7 @@ public class StageServiceIntegrationTest {
 
     @Test public void shouldNotCancelAlreadyCompletedBuild() {
         jobResultTopic.addListener(new GoMessageListener<JobResultMessage>() {
+            @Override
             public void onMessage(JobResultMessage message) {
                 JobIdentifier jobIdentifier = message.getJobIdentifier();
                 JobInstance instance = jobInstanceDao.mostRecentJobWithTransitions(jobIdentifier);
@@ -433,6 +440,7 @@ public class StageServiceIntegrationTest {
         JobInstanceMother.completed(job, Passed, new Date());
         jobInstanceDao.updateStateAndResult(job);
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
             public void doInTransactionWithoutResult(TransactionStatus status) {
                 stageService.cancelStage(stage, null);
             }

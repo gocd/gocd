@@ -60,6 +60,7 @@ public class SubprocessLogger implements Runnable {
         }
     }
 
+    @Override
     public void run() {
         logSubprocess();
     }

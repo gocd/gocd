@@ -49,6 +49,7 @@ class ScmMaterialUpdater implements MaterialUpdater {
         this.materialService = materialService;
     }
 
+    @Override
     public void insertLatestOrNewModifications(Material material, MaterialInstance materialInstance, File folder, Modifications list) {
         List<Modification> newChanges = list.isEmpty() ?
                 materialChecker.findLatestModification(folder, material, subprocessExecutionContext) :
@@ -62,6 +63,7 @@ class ScmMaterialUpdater implements MaterialUpdater {
         }
     }
 
+    @Override
     public void addNewMaterialWithModifications(Material material, File folder) {
         MaterialRevisions materialRevisions = materialRepository.findLatestModification(material);
         Modifications list = materialRevisions.getModifications(material);

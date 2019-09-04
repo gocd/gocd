@@ -43,10 +43,12 @@ public class BackgroundMailSender implements GoMailSender {
         this.timeout = timeout;
     }
 
+    @Override
     public ValidationBean send(final String subject, final String body, final String to) {
         return execute(() -> validation = mailSender.send(subject, body, to));
     }
 
+    @Override
     public ValidationBean send(SendEmailMessage message) {
         return send(message.getSubject(), message.getBody(), message.getTo());
     }

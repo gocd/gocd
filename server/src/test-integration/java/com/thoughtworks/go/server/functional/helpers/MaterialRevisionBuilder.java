@@ -15,12 +15,6 @@
  */
 package com.thoughtworks.go.server.functional.helpers;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.JobConfigs;
 import com.thoughtworks.go.config.PipelineConfig;
@@ -38,6 +32,8 @@ import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevisio
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
 import com.thoughtworks.go.server.domain.PipelineConfigDependencyGraph;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
+
+import java.util.*;
 
 public class MaterialRevisionBuilder {
 
@@ -163,10 +159,6 @@ public class MaterialRevisionBuilder {
 
     public MaterialRevisionBuilder lookingAtHg(String revision, Date date) {
         return lookingAt(key("hg", revision, date));
-    }
-
-    public MaterialRevisionBuilder lookingAtSvn(String revision, Date date) {
-        return lookingAt(key("svn", revision, date));
     }
 
     public MaterialRevisionBuilder markAsChanged() {

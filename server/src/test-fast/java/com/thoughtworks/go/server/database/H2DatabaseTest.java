@@ -35,7 +35,6 @@ import static com.thoughtworks.go.server.database.DatabaseFixture.assertColumnTy
 import static com.thoughtworks.go.server.database.DatabaseFixture.numericQuery;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @EnableIfH2

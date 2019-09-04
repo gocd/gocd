@@ -30,7 +30,6 @@ import java.time.LocalDate;
 import java.util.Date;
 
 import static com.thoughtworks.go.server.service.datasharing.DataSharingUsageStatisticsReportingService.USAGE_DATA_IGNORE_LAST_UPDATED_AT;
-import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;

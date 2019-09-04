@@ -39,6 +39,7 @@ public interface PipelineConfigs extends Iterable<PipelineConfig>, Cloneable, Va
 
     boolean hasRemoteParts();
 
+    @Override
     ConfigOrigin getOrigin();
 
     PipelineConfig findBy(CaseInsensitiveString pipelineName);
@@ -91,14 +92,17 @@ public interface PipelineConfigs extends Iterable<PipelineConfig>, Cloneable, Va
 
     boolean isUserAnAdmin(CaseInsensitiveString userName, List<Role> memberRoles);
 
+    @Override
     void validate(ValidationContext validationContext);
 
     void validateNameUniqueness(Map<String, PipelineConfigs> groupNameMap);
 
+    @Override
     ConfigErrors errors();
 
     List<PipelineConfig> getPipelines();
 
+    @Override
     void addError(String fieldName, String message);
 
     List<AdminUser> getOperateUsers();
@@ -109,6 +113,7 @@ public interface PipelineConfigs extends Iterable<PipelineConfig>, Cloneable, Va
 
     List<String> getOperateUserNames();
 
+    @Override
     void setConfigAttributes(Object attributes);
 
     void cleanupAllUsagesOfRole(Role roleToDelete);

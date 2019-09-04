@@ -46,6 +46,7 @@ public abstract class BuiltinArtifactConfig implements ArtifactConfig {
         return errors().isEmpty();
     }
 
+    @Override
     public void validate(ValidationContext validationContext) {
         if (!StringUtils.isBlank(destination) && (!(destination.equals(DEFAULT_ROOT.getPath()) || new FilePathTypeValidator().isPathValid(destination)))) {
             addError(DEST, "Invalid destination path. Destination path should match the pattern " + FilePathTypeValidator.PATH_PATTERN);
@@ -70,10 +71,12 @@ public abstract class BuiltinArtifactConfig implements ArtifactConfig {
         existingArtifactConfigList.add(this);
     }
 
+    @Override
     public ConfigErrors errors() {
         return errors;
     }
 
+    @Override
     public void addError(String fieldName, String message) {
         errors.add(fieldName, message);
     }

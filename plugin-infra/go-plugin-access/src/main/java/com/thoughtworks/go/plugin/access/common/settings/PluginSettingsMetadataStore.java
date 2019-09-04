@@ -60,6 +60,7 @@ public final class PluginSettingsMetadataStore extends PluginPreferenceStore<Plu
         }
     }
 
+    @Override
     public boolean hasOption(String pluginId, String key, Option<Boolean> option) {
         PluginSettingsConfiguration configurations = configuration(pluginId);
         if (configurations != null) {

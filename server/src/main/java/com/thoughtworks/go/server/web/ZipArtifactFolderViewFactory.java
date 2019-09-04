@@ -30,6 +30,7 @@ public class ZipArtifactFolderViewFactory implements ArtifactFolderViewFactory {
         this.zipArtifactCache = zipArtifactCache;
     }
 
+    @Override
     public ModelAndView createView(JobIdentifier identifier, ArtifactFolder artifactFolder) throws Exception {
         if (zipArtifactCache.cacheCreated(artifactFolder)) {
             Map<String, Object> data = new HashMap<>();

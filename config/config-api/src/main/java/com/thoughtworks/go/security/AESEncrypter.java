@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.security;
 
+import lombok.Getter;
 import org.springframework.util.Assert;
 
 import javax.crypto.Cipher;
@@ -34,17 +35,11 @@ public class AESEncrypter implements Encrypter, Serializable {
 
     private final AESCipherProvider cipherProvider;
 
-    private static IVProvider ivProvider;
+    @Getter(lazy = true)
+    private static final IVProvider ivProvider = createIVProviderInstance();
 
-    private IVProvider getIvProviderInstance() {
-        if (ivProvider == null) {
-            synchronized (AESEncrypter.class) {
-                if (ivProvider == null) {
-                    ivProvider = ServiceLoader.load(IVProvider.class).iterator().next();
-                }
-            }
-        }
-        return ivProvider;
+    private static IVProvider createIVProviderInstance() {
+        return ServiceLoader.load(IVProvider.class).iterator().next();
     }
 
     public AESEncrypter(AESCipherProvider cipherProvider) {
@@ -63,7 +58,7 @@ public class AESEncrypter implements Encrypter, Serializable {
     @Override
     public String encrypt(String plainText) throws CryptoException {
         try {
-            byte[] initializationVector = getIvProviderInstance().createIV();
+            byte[] initializationVector = getIvProvider().createIV();
             Cipher encryptCipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
             encryptCipher.init(Cipher.ENCRYPT_MODE, createSecretKeySpec(), new IvParameterSpec(initializationVector));
 

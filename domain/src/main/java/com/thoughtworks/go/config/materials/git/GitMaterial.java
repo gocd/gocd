@@ -138,6 +138,7 @@ public class GitMaterial extends ScmMaterial implements PasswordAwareMaterial {
         }
     }
 
+    @Override
     public MaterialInstance createMaterialInstance() {
         return new GitMaterialInstance(url.originalArgument(), userName, branch, submoduleFolder, UUID.randomUUID().toString());
     }
@@ -155,6 +156,7 @@ public class GitMaterial extends ScmMaterial implements PasswordAwareMaterial {
         parameters.put("shallowClone", shallowClone);
     }
 
+    @Override
     public void updateTo(ConsoleOutputStreamConsumer outputStreamConsumer, File baseDir, RevisionContext revisionContext, final SubprocessExecutionContext execCtx) {
         Revision revision = revisionContext.getLatestRevision();
         try {
@@ -319,6 +321,7 @@ public class GitMaterial extends ScmMaterial implements PasswordAwareMaterial {
         return url;
     }
 
+    @Override
     public String getLongDescription() {
         return String.format("URL: %s, Branch: %s", url.forDisplay(), branch);
     }
@@ -359,10 +362,12 @@ public class GitMaterial extends ScmMaterial implements PasswordAwareMaterial {
         return result;
     }
 
+    @Override
     protected String getLocation() {
         return url.forDisplay();
     }
 
+    @Override
     public String getTypeForDisplay() {
         return "Git";
     }
@@ -379,6 +384,7 @@ public class GitMaterial extends ScmMaterial implements PasswordAwareMaterial {
         this.submoduleFolder = submoduleFolder;
     }
 
+    @Override
     public boolean isCheckExternals() {
         return false;
     }
@@ -410,6 +416,7 @@ public class GitMaterial extends ScmMaterial implements PasswordAwareMaterial {
         return materialMap;
     }
 
+    @Override
     public Class getInstanceType() {
         return GitMaterialInstance.class;
     }

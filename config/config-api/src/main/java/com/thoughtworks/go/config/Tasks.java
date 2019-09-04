@@ -46,6 +46,7 @@ public class Tasks extends BaseCollection<Task> implements Validatable {
         super(elements);
     }
 
+    @Override
     public void validate(ValidationContext validationContext) {
     }
 
@@ -57,10 +58,12 @@ public class Tasks extends BaseCollection<Task> implements Validatable {
         return isValid;
     }
 
+    @Override
     public ConfigErrors errors() {
         return configErrors;
     }
 
+    @Override
     public void addError(String fieldName, String message) {
         configErrors.add(fieldName, message);
     }

@@ -124,6 +124,7 @@ public class AgentViewModel implements Comparable<AgentViewModel>{
 
     public static Comparator<AgentViewModel> OS_COMPARATOR= (agentInstance1, agentInstance2) -> new AlphaAsciiComparator().compare(agentInstance1.getOperatingSystem(), agentInstance2.getOperatingSystem());
 
+    @Override
     public int compareTo(AgentViewModel other) {
         return this.agentInstance.compareTo(other.agentInstance);
     }

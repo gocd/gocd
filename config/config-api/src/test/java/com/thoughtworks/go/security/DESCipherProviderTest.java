@@ -21,14 +21,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javax.crypto.spec.DESKeySpec;
-import java.io.File;
 import java.io.IOException;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class DESCipherProviderTest {
-    private File desCipherFile;
 
     @Before
     public void setup() throws IOException {

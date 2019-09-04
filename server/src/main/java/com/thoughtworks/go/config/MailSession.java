@@ -83,6 +83,7 @@ public class MailSession {
             this.password = password;
         }
 
+        @Override
         protected PasswordAuthentication getPasswordAuthentication() {
             return new PasswordAuthentication(username, password);
         }

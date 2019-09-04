@@ -38,6 +38,7 @@ public class Stages extends BaseCollection<Stage> implements StageContainer {
         super(Arrays.asList(stage));
     }
 
+    @Override
     public boolean hasStage(String stageName) {
         for (Stage stage : this) {
             if (stage.getName().equalsIgnoreCase(stageName)) {
@@ -47,6 +48,7 @@ public class Stages extends BaseCollection<Stage> implements StageContainer {
         return false;
     }
 
+    @Override
     public String nextStageName(String stageName) {
         this.sort(STAGE_COMPARATOR);
         int index = indexOf(byName(stageName));

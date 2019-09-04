@@ -32,6 +32,7 @@ public class ServerPingMessage implements PluginAwareMessage {
         this.clusterProfiles = clusterProfiles;
     }
 
+    @Override
     public String pluginId() {
         return pluginId;
     }

@@ -30,6 +30,7 @@ public class StageActiveChecker implements SchedulingChecker {
         this.stageService = stageService;
     }
 
+    @Override
     public void check(OperationResult result) {
         HealthStateType healthStateType = HealthStateType.general(HealthStateScope.forPipeline(pipelineName));
         if (stageService.isStageActive(pipelineName, stageName)) {

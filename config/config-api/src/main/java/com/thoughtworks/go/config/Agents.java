@@ -60,6 +60,7 @@ public class Agents extends ArrayList<AgentConfig> implements Validatable {
         return !getAgentByUuid(uuid).isNull();
     }
 
+    @Override
     public boolean add(AgentConfig newAgentConfig) {
         if (contains(newAgentConfig)) {
             throw new IllegalArgumentException("Agent with same UUID already exists: " + newAgentConfig);
@@ -83,6 +84,7 @@ public class Agents extends ArrayList<AgentConfig> implements Validatable {
         return agents;
     }
 
+    @Override
     public void validate(ValidationContext validationContext) {
         boolean validity = validateDuplicateElasticAgentIds();
         for (AgentConfig agentConfig : this) {
@@ -113,10 +115,12 @@ public class Agents extends ArrayList<AgentConfig> implements Validatable {
         return true;
     }
 
+    @Override
     public ConfigErrors errors() {
         return errors;
     }
 
+    @Override
     public void addError(String fieldName, String message) {
         errors.add(fieldName, message);
     }

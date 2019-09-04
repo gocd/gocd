@@ -51,6 +51,7 @@ public class Resource extends PersistentObject implements Comparable<Resource> {
         this.name = StringUtils.trimToNull(name);
     }
 
+    @Override
     public String toString() {
         return getName();
     }
@@ -59,6 +60,7 @@ public class Resource extends PersistentObject implements Comparable<Resource> {
         this.buildId = id;
     }
 
+    @Override
     public int compareTo(Resource other) {
         return name.compareTo(other.name);
     }

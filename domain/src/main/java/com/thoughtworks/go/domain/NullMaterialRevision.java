@@ -23,11 +23,13 @@ public class NullMaterialRevision extends MaterialRevision {
         super(null, new ArrayList<>());
     }
 
+    @Override
     public String buildCausedBy() {
         return "Unknown";
     }
 
     // we use TimeConverter to do null-safe conversion.  not sure if that is the right way
+    @Override
     public Date getDateOfLatestModification() {
         return null;
     }

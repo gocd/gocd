@@ -23,7 +23,7 @@ public class JobResultMessage implements GoMessage {
     private JobResult result;
     private final String agentUuid;
 
-    public JobResultMessage(JobIdentifier jobIdentifier, JobResult result, String agentUuid) {        
+    public JobResultMessage(JobIdentifier jobIdentifier, JobResult result, String agentUuid) {
         this.jobIdentifier = jobIdentifier;
         this.result = result;
         this.agentUuid = agentUuid;
@@ -33,10 +33,12 @@ public class JobResultMessage implements GoMessage {
         return jobIdentifier;
     }
 
+    @Override
     public String toString() {
         return String.format("[JobResultMessage: %s %s %s]", jobIdentifier, result, agentUuid);
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -60,6 +62,7 @@ public class JobResultMessage implements GoMessage {
         return true;
     }
 
+    @Override
     public int hashCode() {
         int result1;
         result1 = (jobIdentifier != null ? jobIdentifier.hashCode() : 0);

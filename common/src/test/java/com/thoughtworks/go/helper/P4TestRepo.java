@@ -69,6 +69,7 @@ public class P4TestRepo extends TestRepo {
         }
     }
 
+    @Override
     public void onSetup() throws Exception {
         p4dProcess = startP4dInRepo(tempRepo);
         waitForP4dToStartup();
@@ -84,6 +85,7 @@ public class P4TestRepo extends TestRepo {
         command.waitForSuccess(60 * 1000);
     }
 
+    @Override
     public void onTearDown() {
         Process process = (Process) ReflectionUtil.getField(p4dProcess, "process");
         process.destroy();
@@ -91,11 +93,13 @@ public class P4TestRepo extends TestRepo {
         FileUtils.deleteQuietly(clientFolder);
     }
 
+    @Override
     public String projectRepositoryUrl() {
         return serverAndPort();
     }
 
 
+    @Override
     public List<Modification> checkInOneFile(String fileName, String comment) throws Exception {
         return checkInOneFile(createMaterial(), fileName, comment);
     }
@@ -106,6 +110,7 @@ public class P4TestRepo extends TestRepo {
         return p4Material1;
     }
 
+    @Override
     public List<Modification> latestModification() throws IOException {
         File workingDir = temporaryFolder.newFolder();
         return createMaterial().latestModification(workingDir, new TestSubprocessExecutionContext());

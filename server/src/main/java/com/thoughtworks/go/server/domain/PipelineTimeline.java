@@ -25,6 +25,7 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
@@ -35,6 +36,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 /**
  * @understands a sorted collection of PipelineMaterialModification
  */
+@Component
 public class PipelineTimeline {
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelineTimeline.class);
 

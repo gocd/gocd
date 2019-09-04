@@ -150,6 +150,7 @@ public class TimerScheduler implements ConfigChangedListener {
         return map;
     }
 
+    @Override
     public void onConfigChange(CruiseConfig newCruiseConfig) {
         unscheduleAllJobs();
         scheduleAllJobs(newCruiseConfig.getAllPipelineConfigs());
@@ -179,6 +180,7 @@ public class TimerScheduler implements ConfigChangedListener {
     }
 
     public static class SchedulePipelineQuartzJob implements Job {
+        @Override
         public void execute(JobExecutionContext context) {
             JobDataMap jobDataMap = context.getJobDetail().getJobDataMap();
             BuildCauseProducerService buildCauseProducerService = (BuildCauseProducerService) jobDataMap.get(BUILD_CAUSE_PRODUCER_SERVICE);

@@ -31,10 +31,12 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 public class MaterialDatabaseGitUpdaterTest extends TestBaseForDatabaseUpdater {
+    @Override
     protected GitMaterial material() {
         return new GitMaterial(testRepo.projectRepositoryUrl());
     }
 
+    @Override
     protected GitTestRepo repo() throws IOException {
         return new GitTestRepo(temporaryFolder);
     }

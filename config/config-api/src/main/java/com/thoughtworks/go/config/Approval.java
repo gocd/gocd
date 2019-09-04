@@ -93,6 +93,7 @@ public class Approval implements Validatable, ParamsAttributeAware {
         return isValid;
     }
 
+    @Override
     public void validate(ValidationContext validationContext) {
         if (!isValidTypeValue()) {
             errors.add(TYPE, String.format("You have defined approval type as '%s'. Approval can only be of the type '%s' or '%s'.", type, MANUAL, SUCCESS));
@@ -129,6 +130,7 @@ public class Approval implements Validatable, ParamsAttributeAware {
         return type.equals(MANUAL) || type.equals(SUCCESS);
     }
 
+    @Override
     public void setConfigAttributes(Object attributes) {
         Map attributeMap = (Map) attributes;
         if (attributeMap.containsKey(TYPE)) {
@@ -140,6 +142,7 @@ public class Approval implements Validatable, ParamsAttributeAware {
         }
     }
 
+    @Override
     public ConfigErrors errors() {
         return errors;
     }
@@ -148,6 +151,7 @@ public class Approval implements Validatable, ParamsAttributeAware {
         return ErrorCollector.getAllErrors(this);
     }
 
+    @Override
     public void addError(String fieldName, String message) {
         errors.add(fieldName, message);
     }

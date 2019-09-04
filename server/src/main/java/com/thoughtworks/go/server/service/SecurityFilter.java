@@ -32,6 +32,7 @@ public class SecurityFilter implements PipelineGroupVisitor {
         this.userName = userName;
     }
 
+    @Override
     public void visit(PipelineConfigs group) {
         if (hasViewPermission(group.getGroup()) || isUserAGroupAdmin(group)) {
             visitor.visit(group);

@@ -19,7 +19,6 @@ package com.thoughtworks.go.apiv5.plugininfos.representers.extensions;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.apiv5.plugininfos.representers.PluggableInstanceSettingsRepresenter;
 import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo;
-import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
 import com.thoughtworks.go.plugin.domain.common.PluginInfo;
 
 public class ArtifactPluginInfoRepresenter extends ExtensionRepresenter {

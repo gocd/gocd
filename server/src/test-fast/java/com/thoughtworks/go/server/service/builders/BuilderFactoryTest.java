@@ -135,6 +135,7 @@ public class BuilderFactoryTest {
             public void build(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension, PluginRequestProcessorRegistry pluginRequestProcessorRegistry, String consoleLogCharset) throws CruiseControlException {
             }
 
+            @Override
             public String toString() {
                 return "A fake builder " + super.toString();
             }

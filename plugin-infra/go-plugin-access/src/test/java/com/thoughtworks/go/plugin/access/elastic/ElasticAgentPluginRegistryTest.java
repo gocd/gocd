@@ -113,8 +113,6 @@ public class ElasticAgentPluginRegistryTest {
 
     @Test
     public void shouldTalkToExtensionToGetClusterStatusReport() {
-        final JobIdentifier jobIdentifier = new JobIdentifier();
-
         Map<String, String> clusterProfileConfigurations = Collections.emptyMap();
         elasticAgentPluginRegistry.getClusterStatusReport(PLUGIN_ID, clusterProfileConfigurations);
 

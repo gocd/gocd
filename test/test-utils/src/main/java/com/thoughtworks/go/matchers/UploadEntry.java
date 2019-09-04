@@ -26,6 +26,7 @@ public class UploadEntry {
         this.destiname = destiname;
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -46,6 +47,7 @@ public class UploadEntry {
         return true;
     }
 
+    @Override
     public int hashCode() {
         int result;
         result = (file != null ? file.hashCode() : 0);
@@ -53,6 +55,7 @@ public class UploadEntry {
         return result;
     }
 
+    @Override
     public String toString() {
         return file.toString() + " ---> " + destiname;
     }

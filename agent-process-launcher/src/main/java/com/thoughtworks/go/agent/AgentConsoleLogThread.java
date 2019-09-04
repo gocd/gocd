@@ -15,9 +15,7 @@
  */
 package com.thoughtworks.go.agent;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 
 public class AgentConsoleLogThread extends Thread {
     private final InputStream inputStream;
@@ -35,12 +33,16 @@ public class AgentConsoleLogThread extends Thread {
         flushedAfterStop = false;
     }
 
+    @Override
     public void run() {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-        try {
-            pipeLogs(reader);
-        } finally {
-            agentOutputAppender.close();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+            try {
+                pipeLogs(reader);
+            } finally {
+                agentOutputAppender.close();
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 

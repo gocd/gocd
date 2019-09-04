@@ -93,6 +93,7 @@ public class GoPropertiesTestTest {
         Pipeline newPipeline = fixture.createPipelineWithFirstStageAssigned(AGENT_UUID);
         final Stage firstStage = newPipeline.getFirstStage();
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
             public void doInTransactionWithoutResult(TransactionStatus status) {
                 stageService.cancelStage(stageService.stageById(firstStage.getId()), null);
             }
@@ -108,6 +109,7 @@ public class GoPropertiesTestTest {
         Pipeline newPipeline = fixture.createPipelineWithFirstStageScheduled();
         final Stage firstStage = newPipeline.getFirstStage();
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
             public void doInTransactionWithoutResult(TransactionStatus status) {
                 stageService.cancelStage(stageService.stageById(firstStage.getId()), null);
             }

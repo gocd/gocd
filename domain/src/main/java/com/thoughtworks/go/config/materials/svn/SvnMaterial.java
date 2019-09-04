@@ -120,6 +120,7 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
         return svn().modificationsSince(new SubversionRevision(revision.getRevision()));
     }
 
+    @Override
     public MaterialInstance createMaterialInstance() {
         return new SvnMaterialInstance(url.originalArgument(), userName, UUID.randomUUID().toString(), checkExternals);
     }
@@ -138,6 +139,7 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
         parameters.put("checkExternals", checkExternals);
     }
 
+    @Override
     public void updateTo(ConsoleOutputStreamConsumer outputStreamConsumer, File baseDir, RevisionContext revisionContext, final SubprocessExecutionContext execCtx) {
         Revision revision = revisionContext.getLatestRevision();
         File workingDir = execCtx.isServer() ? baseDir : workingdir(baseDir);
@@ -227,10 +229,12 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
         return result;
     }
 
+    @Override
     protected String getLocation() {
         return url == null ? null : url.forDisplay();
     }
 
+    @Override
     public String getTypeForDisplay() {
         return "Subversion";
     }
@@ -252,6 +256,7 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
         return materialMap;
     }
 
+    @Override
     public Class getInstanceType() {
         return SvnMaterialInstance.class;
     }
@@ -275,6 +280,7 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
         return url;
     }
 
+    @Override
     public String getLongDescription() {
         return String.format("URL: %s, Username: %s, CheckExternals: %s", url.forDisplay(), userName, checkExternals);
     }
@@ -283,12 +289,9 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
         this.url = new UrlArgument(url);
     }
 
+    @Override
     public boolean isCheckExternals() {
         return checkExternals;
-    }
-
-    private String folderFor(String folderForExternal) {
-        return getFolder() == null ? folderForExternal : getFolder() + "/" + folderForExternal;
     }
 
     public void add(ConsoleOutputStreamConsumer outputStreamConsumer, File file) {

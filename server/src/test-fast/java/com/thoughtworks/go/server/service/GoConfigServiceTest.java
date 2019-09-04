@@ -23,7 +23,6 @@ import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
-import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.config.rules.Allow;
@@ -43,7 +42,6 @@ import com.thoughtworks.go.listener.BaseUrlChangeListener;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.cache.GoCache;
-import com.thoughtworks.go.server.dao.UserDao;
 import com.thoughtworks.go.server.domain.PipelineConfigDependencyGraph;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.persistence.PipelineRepository;
@@ -63,6 +61,7 @@ import java.util.*;
 
 import static com.thoughtworks.go.helper.ConfigFileFixture.configWith;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import static java.lang.String.format;
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
@@ -102,7 +101,6 @@ public class GoConfigServiceTest {
         this.clock = mock(Clock.class);
         goCache = mock(GoCache.class);
         instanceFactory = mock(InstanceFactory.class);
-        UserDao userDao = mock(UserDao.class);
 
         ConfigElementImplementationRegistry registry = ConfigElementImplementationRegistryMother.withNoPlugins();
         goConfigService = new GoConfigService(goConfigDao, pipelineRepository, this.clock, new GoConfigMigration(new TimeProvider(),
@@ -351,15 +349,6 @@ public class GoConfigServiceTest {
                 new EnvironmentVariableConfig("blah", "pipeline-blahValue")));
     }
 
-    private PipelineConfig pipelineWithTemplate() {
-        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("pipeline");
-        pipeline.clear();
-        pipeline.setTemplateName(new CaseInsensitiveString("foo"));
-        PipelineTemplateConfig template = new PipelineTemplateConfig(new CaseInsensitiveString("foo"), StageConfigMother.custom("stage", "job"));
-        pipeline.usingTemplate(template);
-        return pipeline;
-    }
-
     @Test
     public void shouldNotThrowExceptionWhenUpgradeFailsForConfigFileUpdate() throws Exception {
         expectLoadForEditing(configWith(createPipelineConfig("pipeline", "stage", "build")));
@@ -396,12 +385,6 @@ public class GoConfigServiceTest {
         final ConfigChangedListener listener = mock(ConfigChangedListener.class);
         goConfigService.register(listener);
         verify(goConfigDao).registerListener(listener);
-    }
-
-    private CruiseConfig configWithAgents(AgentConfig... agentConfigs) {
-        CruiseConfig cruiseConfig = unchangedConfig();
-        cruiseConfig.agents().addAll(Arrays.asList(agentConfigs));
-        return cruiseConfig;
     }
 
     @Test
@@ -657,7 +640,8 @@ public class GoConfigServiceTest {
 
     @Test
     public void uiBasedUpdateCommandShouldReturnTheConfigPassedByUpdateOperation() {
-        UiBasedConfigUpdateCommand command = new UiBasedConfigUpdateCommand("md5", null, null, null) {
+        UiBasedConfigUpdateCommand command = new UiBasedConfigUpdateCommand("md5", null, null) {
+            @Override
             public boolean canContinue(CruiseConfig cruiseConfig) {
                 return true;
             }

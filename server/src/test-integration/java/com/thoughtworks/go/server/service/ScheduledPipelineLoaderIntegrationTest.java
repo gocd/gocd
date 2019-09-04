@@ -41,7 +41,6 @@ import com.thoughtworks.go.plugin.access.scm.SCMPropertyConfiguration;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.materials.StaleMaterialsOnBuildCause;
-import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
@@ -60,8 +59,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
 
 import java.io.File;
 import java.io.IOException;
@@ -95,8 +92,6 @@ public class ScheduledPipelineLoaderIntegrationTest {
     private ServerHealthService serverHealthService;
     @Autowired
     private JobInstanceService jobInstanceService;
-    @Autowired
-    private TransactionTemplate transactionTemplate;
     @Autowired
     private MaterialExpansionService materialExpansionService;
     @Autowired

@@ -27,6 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class DenyTest extends AbstractDirectiveTest {
     //runs the test from AbstractDirectiveTest for this Directive
+    @Override
     Directive getDirective(String action, String type, String resource) {
         return new Deny(action, type, resource);
     }

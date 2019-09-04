@@ -44,6 +44,7 @@ public class EnvironmentVariablesConfig extends BaseCollection<EnvironmentVariab
         super(elements);
     }
 
+    @Override
     public void validate(ValidationContext validationContext) {
         Map<String, EnvironmentVariableConfig> map = new HashMap<>();
         for (EnvironmentVariableConfig config : this) {
@@ -60,10 +61,12 @@ public class EnvironmentVariablesConfig extends BaseCollection<EnvironmentVariab
         return isValid;
     }
 
+    @Override
     public ConfigErrors errors() {
         return configErrors;
     }
 
+    @Override
     public void addError(String fieldName, String message) {
         configErrors.add(fieldName, message);
     }
@@ -112,6 +115,7 @@ public class EnvironmentVariablesConfig extends BaseCollection<EnvironmentVariab
         return getVariable(variableName) != null;
     }
 
+    @Override
     public void setConfigAttributes(Object attributes) {
         this.clear();
         if (attributes != null) {

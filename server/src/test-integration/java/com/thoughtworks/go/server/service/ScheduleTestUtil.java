@@ -260,6 +260,7 @@ public class ScheduleTestUtil {
 
     private List<Modification> modForRev(final RevisionsForMaterial revision) {
         return (List<Modification>) materialRepository.getHibernateTemplate().execute(new HibernateCallback() {
+            @Override
             public Object doInHibernate(Session session) throws HibernateException, SQLException {
                 Query q = session.createQuery("from Modification where revision in (:in) order by id desc");
                 q.setParameterList("in", revision.revs);
@@ -286,6 +287,7 @@ public class ScheduleTestUtil {
 
     private Modification modForRev(final String revision) {
         return (Modification) materialRepository.getHibernateTemplate().execute(new HibernateCallback() {
+            @Override
             public Object doInHibernate(Session session) throws HibernateException, SQLException {
                 Query q = session.createQuery("from Modification where revision = ?");
                 q.setParameter(0, revision);
@@ -428,6 +430,7 @@ public class ScheduleTestUtil {
 
     public void checkinInOrder(final Material material, final Date dateOfCheckin, final String... revisions) {
         transactionTemplate.execute(new TransactionCallback() {
+            @Override
             public Object doInTransaction(TransactionStatus status) {
                 for (int i = 0; i < revisions.length; i++) {
                     String revision = revisions[i];
@@ -445,6 +448,7 @@ public class ScheduleTestUtil {
 
     public void checkinFiles(final Material material, final String revision, final List<File> files, final ModifiedAction modifiedAction) {
         transactionTemplate.execute(new TransactionCallback() {
+            @Override
             public Object doInTransaction(TransactionStatus status) {
                 Modification modification = new Modification("user", "comment", "a@b.com", date, revision);
                 for (File file : files) {
@@ -458,6 +462,7 @@ public class ScheduleTestUtil {
 
     public void checkinFiles(final Material material, final String revision, final List<File> files, final ModifiedAction modifiedAction,final Date date) {
         transactionTemplate.execute(new TransactionCallback() {
+            @Override
             public Object doInTransaction(TransactionStatus status) {
                 Modification modification = new Modification("user", "comment", "a@b.com", date, revision);
                 for (File file : files) {

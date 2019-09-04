@@ -34,6 +34,7 @@ public class ScheduleCheckMessage implements GoMessage {
         return trackingId;
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -51,6 +52,7 @@ public class ScheduleCheckMessage implements GoMessage {
         return true;
     }
 
+    @Override
     public int hashCode() {
         return (pipelineName != null ? pipelineName.hashCode() : 0);
     }

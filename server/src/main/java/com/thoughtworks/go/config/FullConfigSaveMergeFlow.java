@@ -53,6 +53,7 @@ public class FullConfigSaveMergeFlow extends FullConfigSaveFlow{
         super(loader, writer, configElementImplementationRegistry, timeProvider, configRepository, cachedGoPartials, fileWriter);
     }
 
+    @Override
     public GoConfigHolder execute(FullConfigUpdateCommand updatingCommand, final List<PartialConfig> partials, String currentUser) throws Exception {
         LOGGER.debug("[Config Save] Starting Config Save using FullConfigSaveMergeFlow");
 

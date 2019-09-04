@@ -210,6 +210,7 @@ public class Stage extends PersistentObject {
         this.orderId = orderId;
     }
 
+    @Override
     public String toString() {
         return "<Stage"
                 + " id='" + id + "'"
@@ -318,32 +319,6 @@ public class Stage extends PersistentObject {
         return new RunDuration.ActualDuration(new Duration(end.getTime() - start.getTime()));
     }
 
-    private Date latest(JobState stage) {
-        Date date = null;
-        for (JobStateTransition transition : jobInstances.stateTransitions()) {
-            if (transition.getCurrentState().equals(stage)) {
-                Date time = transition.getStateChangeTime();
-                if (date == null || time.after(date)) {
-                    date = time;
-                }
-            }
-        }
-        return date;
-    }
-
-    private Date earliest(JobState stage) {
-        Date date = null;
-        for (JobStateTransition transition : jobInstances.stateTransitions()) {
-            if (transition.getCurrentState().equals(stage)) {
-                Date time = transition.getStateChangeTime();
-                if (date == null || time.before(date)) {
-                    date = time;
-                }
-            }
-        }
-        return date;
-    }
-
     public String stageLocator() {
         return identifier.stageLocator();
     }
@@ -352,6 +327,7 @@ public class Stage extends PersistentObject {
         return identifier.stageLocatorForDisplay();
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -405,6 +381,7 @@ public class Stage extends PersistentObject {
         return true;
     }
 
+    @Override
     public int hashCode() {
         int result1 = pipelineId != null ? pipelineId.hashCode() : 0;
         result1 = 31 * result1 + (name != null ? name.hashCode() : 0);

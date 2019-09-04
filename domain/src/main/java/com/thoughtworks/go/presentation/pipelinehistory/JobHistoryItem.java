@@ -55,6 +55,7 @@ public class JobHistoryItem implements BuildStateAware {
         this.name = name;
     }
 
+    @Override
     public JobState getState() {
         return state;
     }
@@ -63,6 +64,7 @@ public class JobHistoryItem implements BuildStateAware {
         this.state = state;
     }
 
+    @Override
     public JobResult getResult() {
         return result;
     }

@@ -17,6 +17,7 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.server.dao.DbMetadataDao;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,14 +47,9 @@ public class SystemService {
     }
 
     public void streamToFile(InputStream stream, File dest) throws IOException {
-        dest.getParentFile().mkdirs();
-        FileOutputStream out = new FileOutputStream(dest, true);
-        try {
+        try (FileOutputStream out = FileUtils.openOutputStream(dest, true)) {
             IOUtils.copyLarge(stream, out);
-        } finally {
-            IOUtils.closeQuietly(out);
         }
-
     }
 
     public String getJvmVersion() {

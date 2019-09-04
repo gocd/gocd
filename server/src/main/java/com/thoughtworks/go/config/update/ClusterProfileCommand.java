@@ -53,6 +53,7 @@ public abstract class ClusterProfileCommand extends PluginProfileCommand<Cluster
         return EntityType.ClusterProfile;
     }
 
+    @Override
     public abstract void update(CruiseConfig preprocessedConfig) throws Exception;
 
     @Override

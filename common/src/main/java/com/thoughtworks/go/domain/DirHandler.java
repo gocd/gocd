@@ -30,7 +30,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import static com.thoughtworks.go.util.CachedDigestUtils.md5Hex;
-import static com.thoughtworks.go.util.MapBuilder.map;
 import static java.lang.String.format;
 
 public class DirHandler implements FetchHandler {
@@ -46,20 +45,23 @@ public class DirHandler implements FetchHandler {
         checksumValidationPublisher = new ChecksumValidationPublisher();
     }
 
+    @Override
     public String url(String remoteHost, String workingUrl) {
         return format("%s/%s/%s/%s.zip", remoteHost, "remoting", "files", workingUrl);
     }
 
+    @Override
     public void handle(InputStream stream) throws IOException {
-        ZipInputStream zipInputStream = new ZipInputStream(stream);
-        LOG.info("[Agent Fetch Artifact] Downloading from '{}' to '{}'. Will read from Socket stream to compute MD5 and write to file", srcFile, destOnAgent.getAbsolutePath());
+        try (ZipInputStream zipInputStream = new ZipInputStream(stream)) {
+            LOG.info("[Agent Fetch Artifact] Downloading from '{}' to '{}'. Will read from Socket stream to compute MD5 and write to file", srcFile, destOnAgent.getAbsolutePath());
 
-        long before = System.currentTimeMillis();
-        new ZipUtil((entry, stream1) -> {
-            LOG.info("[Agent Fetch Artifact] Downloading a directory from '{}' to '{}'. Handling the entry: '{}'", srcFile, destOnAgent.getAbsolutePath(), entry.getName());
-            new ChecksumValidator(artifactMd5Checksums).validate(getSrcFilePath(entry), md5Hex(stream1), checksumValidationPublisher);
-        }).unzip(zipInputStream, destOnAgent);
-        LOG.info("[Agent Fetch Artifact] Downloading a directory from '{}' to '{}'. Took: {}ms", srcFile, destOnAgent.getAbsolutePath(), System.currentTimeMillis() - before);
+            long before = System.currentTimeMillis();
+            new ZipUtil((entry, stream1) -> {
+                LOG.info("[Agent Fetch Artifact] Downloading a directory from '{}' to '{}'. Handling the entry: '{}'", srcFile, destOnAgent.getAbsolutePath(), entry.getName());
+                new ChecksumValidator(artifactMd5Checksums).validate(getSrcFilePath(entry), md5Hex(stream1), checksumValidationPublisher);
+            }).unzip(zipInputStream, destOnAgent);
+            LOG.info("[Agent Fetch Artifact] Downloading a directory from '{}' to '{}'. Took: {}ms", srcFile, destOnAgent.getAbsolutePath(), System.currentTimeMillis() - before);
+        }
     }
 
     private String getSrcFilePath(ZipEntry entry) {
@@ -67,11 +69,13 @@ public class DirHandler implements FetchHandler {
         return FilenameUtils.separatorsToUnix(new File(parent, entry.getName()).getPath());
     }
 
+    @Override
     public boolean handleResult(int httpCode, GoPublisher goPublisher) {
         checksumValidationPublisher.publish(httpCode, destOnAgent, goPublisher);
         return httpCode < HttpServletResponse.SC_BAD_REQUEST;
     }
 
+    @Override
     public void useArtifactMd5Checksums(ArtifactMd5Checksums artifactMd5Checksums) {
         this.artifactMd5Checksums = artifactMd5Checksums;
     }

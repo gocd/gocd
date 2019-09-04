@@ -39,6 +39,7 @@ public interface Role extends Validatable {
         return !hasErrors();
     }
 
+    @Override
     default void validate(ValidationContext validationContext) {
         if (isBlank(getName()) || !new NameTypeValidator().isNameValid(getName())) {
             addError("name", NameTypeValidator.errorMessage("role name", getName()));

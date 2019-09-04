@@ -23,7 +23,6 @@ import com.thoughtworks.go.util.GoConstants;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * @understands the configuration for a stage
@@ -79,6 +78,7 @@ public class StageConfig implements Validatable, ParamsAttributeAware, Environme
         this.artifactCleanupProhibited = artifactCleanupProhibited;
     }
 
+    @Override
     public CaseInsensitiveString name() {
         return name;
     }
@@ -271,6 +271,7 @@ public class StageConfig implements Validatable, ParamsAttributeAware, Environme
         }
     }
 
+    @Override
     public void validate(ValidationContext validationContext) {
         isNameValid();
     }
@@ -296,14 +297,17 @@ public class StageConfig implements Validatable, ParamsAttributeAware, Environme
         }
     }
 
+    @Override
     public ConfigErrors errors() {
         return errors;
     }
 
+    @Override
     public void addError(String fieldName, String message) {
         errors.add(fieldName, message);
     }
 
+    @Override
     public void setConfigAttributes(Object attributes) {
         setConfigAttributes(attributes, null);
     }

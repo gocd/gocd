@@ -32,6 +32,7 @@ public class ConfigRepoPluginInfoBuilder implements PluginInfoBuilder<ConfigRepo
         this.extension = extension;
     }
 
+    @Override
     public ConfigRepoPluginInfo pluginInfoFor(GoPluginDescriptor descriptor) {
         PluggableInstanceSettings pluggableInstanceSettings = getPluginSettingsAndView(descriptor, extension);
 

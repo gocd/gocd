@@ -92,6 +92,7 @@ public class TransactionSynchronizationManagerTest {
         final TransactionSynchronizationManager synchronizationManager = new TransactionSynchronizationManager();
 
         transactionTemplate.execute(new TransactionCallback() {
+            @Override
             public Object doInTransaction(TransactionStatus status) {
                 inBody[0] = synchronizationManager.isTransactionBodyExecuting();
                 return null;

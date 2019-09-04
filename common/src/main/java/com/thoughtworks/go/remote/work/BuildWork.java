@@ -72,6 +72,7 @@ public class BuildWork implements Work {
         this.builders = new Builders(assignment.getBuilders(), goPublisher, agentWorkContext.getTaskExtension(), agentWorkContext.getArtifactExtension(), agentWorkContext.getPluginRequestProcessorRegistry());
     }
 
+    @Override
     public void doWork(EnvironmentVariableContext environmentVariableContext, AgentWorkContext agentWorkContext) {
         initialize(agentWorkContext);
         try {
@@ -222,10 +223,12 @@ public class BuildWork implements Work {
         }
     }
 
+    @Override
     public String description() {
         return "Running build ...";
     }
 
+    @Override
     public void cancel(EnvironmentVariableContext environmentVariableContext, AgentRuntimeInfo agentruntimeInfo) {
         agentruntimeInfo.cancel();
         builders.cancel(environmentVariableContext, consoleLogCharset);
@@ -242,12 +245,14 @@ public class BuildWork implements Work {
         return assignment.getJobIdentifier();
     }
 
+    @Override
     public String toString() {
         return "BuildWork["
                 + assignment.toString()
                 + "]";
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -265,6 +270,7 @@ public class BuildWork implements Work {
         return true;
     }
 
+    @Override
     public int hashCode() {
         int result;
         result = (assignment != null ? assignment.hashCode() : 0);

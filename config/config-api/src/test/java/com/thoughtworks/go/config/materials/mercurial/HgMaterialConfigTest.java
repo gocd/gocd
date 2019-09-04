@@ -17,9 +17,6 @@ package com.thoughtworks.go.config.materials.mercurial;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.*;
-import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
-import com.thoughtworks.go.config.rules.Allow;
-import com.thoughtworks.go.config.rules.Rules;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.ReflectionUtil;
@@ -34,8 +31,6 @@ import java.util.Map;
 import static com.thoughtworks.go.config.materials.AbstractMaterialConfig.MATERIAL_NAME;
 import static com.thoughtworks.go.config.materials.ScmMaterialConfig.FOLDER;
 import static com.thoughtworks.go.config.materials.ScmMaterialConfig.URL;
-import static com.thoughtworks.go.config.rules.SupportedEntity.PIPELINE_GROUP;
-import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;

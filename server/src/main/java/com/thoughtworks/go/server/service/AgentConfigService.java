@@ -156,6 +156,7 @@ public class AgentConfigService {
             this.uuid = uuid;
         }
 
+        @Override
         public CruiseConfig update(CruiseConfig cruiseConfig) {
             AgentConfig agentConfig = cruiseConfig.agents().getAgentByUuid(uuid);
             if (agentConfig.isNull()) {
@@ -212,6 +213,7 @@ public class AgentConfigService {
             this.userName = userName.getUsername().toString();
         }
 
+        @Override
         public CruiseConfig update(CruiseConfig cruiseConfig) {
             AgentConfig agentConfig = cruiseConfig.agents().getAgentByUuid(uuid);
             bombIfNull(agentConfig, "Unable to set agent ipAddress; Agent [" + uuid + "] not found.");
@@ -219,6 +221,7 @@ public class AgentConfigService {
             return cruiseConfig;
         }
 
+        @Override
         public ConfigModifyingUser user() {
             return new ConfigModifyingUser(userName);
         }
@@ -320,6 +323,7 @@ public class AgentConfigService {
             this.agentConfig = agentConfig;
         }
 
+        @Override
         public CruiseConfig update(CruiseConfig cruiseConfig) {
             cruiseConfig.agents().add(agentConfig);
             return cruiseConfig;
@@ -399,6 +403,7 @@ public class AgentConfigService {
             this.denied = denied;
         }
 
+        @Override
         public CruiseConfig update(CruiseConfig cruiseConfig) {
             AgentConfig agentConfig = cruiseConfig.agents().getAgentByUuid(uuid);
             bombIfNull(agentConfig, "Unable to set agent approval status; Agent [" + uuid + "] not found.");
@@ -452,6 +457,7 @@ public class AgentConfigService {
             this.resourceConfigs = resourceConfigs;
         }
 
+        @Override
         public CruiseConfig update(CruiseConfig cruiseConfig) {
             AgentConfig agentConfig = cruiseConfig.agents().getAgentByUuid(uuid);
             bombIfNull(agentConfig, "Unable to set agent resources; Agent [" + uuid + "] not found.");
@@ -471,6 +477,7 @@ public class AgentConfigService {
             this.action = action;
         }
 
+        @Override
         public CruiseConfig update(CruiseConfig cruiseConfig) {
             AgentConfig agentConfig = cruiseConfig.agents().getAgentByUuid(uuid);
             bombIfNull(agentConfig, "Unable to set agent resources; Agent [" + uuid + "] not found.");
@@ -498,6 +505,7 @@ public class AgentConfigService {
             this.userName = userName;
         }
 
+        @Override
         public CruiseConfig update(CruiseConfig cruiseConfig) {
             AgentConfig agentConfig = cruiseConfig.agents().getAgentByUuid(uuid);
             bombIfNull(agentConfig, "Unable to set agent hostname; Agent [" + uuid + "] not found.");
@@ -505,6 +513,7 @@ public class AgentConfigService {
             return cruiseConfig;
         }
 
+        @Override
         public ConfigModifyingUser user() {
             return new ConfigModifyingUser(userName);
         }

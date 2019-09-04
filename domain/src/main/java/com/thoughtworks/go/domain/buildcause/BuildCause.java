@@ -96,6 +96,7 @@ public class BuildCause implements Serializable {
     public Materials materials() {
         final List<Material> materials = new ArrayList<>();
         materialRevisions.accept(new ModificationVisitorAdapter() {
+            @Override
             public void visit(Material material, Revision revision) {
                 materials.add(material);
             }
@@ -104,6 +105,7 @@ public class BuildCause implements Serializable {
 
     }
 
+    @Override
     public String toString() {
         return String.format("[%s: %s]", trigger.getDbName(), getBuildCauseMessage());
     }

@@ -46,10 +46,12 @@ public class FileView implements View, ServletContextAware {
         return this.servletContext;
     }
 
+    @Override
     public void setServletContext(ServletContext servletContext) {
         this.servletContext = servletContext;
     }
 
+    @Override
     public String getContentType() {
         return "application/octet-stream";
     }
@@ -102,6 +104,7 @@ public class FileView implements View, ServletContextAware {
         return mimeType;
     }
 
+    @Override
     public void render(Map map, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws Exception {
         File file = (File) map.get("targetFile");
         boolean needToZip = map.containsKey(NEED_TO_ZIP);

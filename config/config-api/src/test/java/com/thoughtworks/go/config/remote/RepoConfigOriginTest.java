@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.config.remote;
 
-import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import org.junit.Test;
 

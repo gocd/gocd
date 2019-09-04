@@ -94,6 +94,7 @@ public class PackageMaterialUpdateWithNewPackageDefinitionCommandTest extends Pa
         verify(packageDefinitionService, never()).performPluginValidationsFor(editedMaterial.getPackageDefinition());
     }
 
+    @Override
     protected PackageMaterialSaveCommand getCommand(Username username) {
         return new PackageMaterialUpdateWithNewPackageDefinitionCommand(packageDefinitionService, securityService, pipelineName,
                 materialToBeUpdated, username, PackageDefinitionMother.paramsForPackageMaterialCreation("repo1", "repo1-pkg-1"));

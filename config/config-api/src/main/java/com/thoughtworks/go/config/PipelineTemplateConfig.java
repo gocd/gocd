@@ -190,6 +190,7 @@ public class PipelineTemplateConfig extends BaseCollection<StageConfig> implemen
         }
     }
 
+    @Override
     public void validate(ValidationContext validationContext) {
         validateTemplateName();
         validateStageNameUniqueness();
@@ -221,10 +222,12 @@ public class PipelineTemplateConfig extends BaseCollection<StageConfig> implemen
         }
     }
 
+    @Override
     public ConfigErrors errors() {
         return configErrors;
     }
 
+    @Override
     public void addError(String fieldName, String message) {
         configErrors.add(fieldName, message);
     }
@@ -309,6 +312,7 @@ public class PipelineTemplateConfig extends BaseCollection<StageConfig> implemen
     }
 
 
+    @Override
     public void setConfigAttributes(Object attributes) {
         Map attributeMap = (Map) attributes;
         if (attributeMap.containsKey(NAME)) {

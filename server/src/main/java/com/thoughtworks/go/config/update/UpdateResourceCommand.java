@@ -32,6 +32,7 @@ public class UpdateResourceCommand implements UpdateConfigCommand {
         this.resources = resources;
     }
 
+    @Override
     public CruiseConfig update(CruiseConfig cruiseConfig) {
         AgentConfig agentConfig = cruiseConfig.agents().getAgentByUuid(uuid);
         agentConfig.getResourceConfigs().importFromCsv(resources);

@@ -20,11 +20,16 @@
         "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping package="com.thoughtworks.go.domain.materials" default-access="field" default-lazy="false">
-    <class name="com.thoughtworks.go.domain.materials.ModifiedFile" table="modifiedFiles" >
+    <class name="com.thoughtworks.go.domain.materials.ModifiedFile" table="modifiedFiles">
         <id name="id" column="id">
             <generator class="identity"/>
         </id>
-        <property name="hibernateAction" column="action" access="property"/>
+        <property name="action">
+            <type name="org.hibernate.type.EnumType">
+                <param name="enumClass">com.thoughtworks.go.domain.materials.ModifiedAction</param>
+                <param name="type">12</param>
+            </type>
+        </property>
         <property name="fileName"/>
         <property name="folderName"/>
     </class>

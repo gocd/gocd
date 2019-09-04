@@ -26,6 +26,7 @@ public class EmailValidator extends Validator<String> {
         super(EMAIL_ERROR_MESSAGE);
     }
 
+    @Override
     public ValidationBean validate(String address) {
         if(StringUtils.isBlank(address)){
             return ValidationBean.valid();

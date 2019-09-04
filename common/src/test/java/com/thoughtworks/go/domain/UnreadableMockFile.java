@@ -24,11 +24,13 @@ public class UnreadableMockFile extends File {
         super("DOESNTMATTER");
     }
 
+    @Override
     public boolean canRead() {
         canReadWasCalled = true;
         return false;
     }
 
+    @Override
     public boolean exists() {
         return true;
     }

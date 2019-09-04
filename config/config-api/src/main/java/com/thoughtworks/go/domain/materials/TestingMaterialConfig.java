@@ -42,6 +42,7 @@ public class TestingMaterialConfig extends ScmMaterialConfig {
         this.url = url;
     }
 
+    @Override
     public void setUrl(String url) {
         this.url = url;
     }

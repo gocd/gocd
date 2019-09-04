@@ -44,22 +44,27 @@ public final class NullStage extends Stage {
         return "Unknown";
     }
 
+    @Override
     public Stage mostRecent(Stage instance) {
         return instance;
     }
 
+    @Override
     public boolean isActive() {
         return false;
     }
 
+    @Override
     public String stageLocator() {
         return "NULLSTAGE";
     }
 
+    @Override
     public String stageLocatorForDisplay() {
         return stageLocator();
     }
 
+    @Override
     public StageState stageState() {
         return StageState.Unknown;
     }
@@ -69,6 +74,7 @@ public final class NullStage extends Stage {
         return StageState.Unknown;
     }
 
+    @Override
     public boolean equals(Object o) {
         if (getClass() != o.getClass()) {
             return false;
@@ -77,6 +83,7 @@ public final class NullStage extends Stage {
         return getName().equals(that.getName());
     }
 
+    @Override
     public int hashCode() {
         return getName().hashCode();
     }

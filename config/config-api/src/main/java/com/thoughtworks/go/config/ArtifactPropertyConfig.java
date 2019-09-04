@@ -73,6 +73,7 @@ public class ArtifactPropertyConfig implements Serializable, Validatable {
         return xpath;
     }
 
+    @Override
     public String toString() {
         return name;
     }
@@ -82,16 +83,19 @@ public class ArtifactPropertyConfig implements Serializable, Validatable {
         return configErrors.isEmpty();
     }
 
+    @Override
     public void validate(ValidationContext validationContext) {
         if (new NameTypeValidator().isNameInvalid(name)) {
             this.configErrors.add(NAME, NameTypeValidator.errorMessage("property", name));
         }
     }
 
+    @Override
     public ConfigErrors errors() {
         return configErrors;
     }
 
+    @Override
     public void addError(String fieldName, String message) {
         configErrors.add(fieldName, message);
     }

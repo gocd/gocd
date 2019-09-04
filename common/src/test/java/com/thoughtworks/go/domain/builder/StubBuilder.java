@@ -34,6 +34,7 @@ public class StubBuilder extends Builder {
         super(null, null, "");
     }
 
+    @Override
     public void build(DefaultGoPublisher publisher,
                       EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension, PluginRequestProcessorRegistry pluginRequestProcessorRegistry, String consoleLogCharset) throws CruiseControlException {
         wasCalled = true;

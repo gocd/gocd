@@ -53,6 +53,7 @@ public class ResourceConfigs extends BaseCollection<ResourceConfig> implements C
         super(resourceConfigs);
     }
 
+    @Override
     public boolean add(ResourceConfig resourceConfig) {
         if (!this.contains(resourceConfig) && !StringUtils.isBlank(resourceConfig.getName())) {
             super.add(resourceConfig);
@@ -69,10 +70,12 @@ public class ResourceConfigs extends BaseCollection<ResourceConfig> implements C
         return new ArrayList<>(names);
     }
 
+    @Override
     public String toString() {
         return StringUtil.joinForDisplay(resourceNames());
     }
 
+    @Override
     public int compareTo(ResourceConfigs other) {
         return new AlphaAsciiCollectionComparator<ResourceConfig>().compare(this, other);
     }
@@ -85,13 +88,16 @@ public class ResourceConfigs extends BaseCollection<ResourceConfig> implements C
         return isValid;
     }
 
+    @Override
     public void validate(ValidationContext validationContext) {
     }
 
+    @Override
     public ConfigErrors errors() {
         return configErrors;
     }
 
+    @Override
     public void addError(String fieldName, String message) {
         configErrors.add(fieldName, message);
     }

@@ -20,8 +20,6 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 
-import static com.thoughtworks.go.i18n.LocalizedMessage.cannotDeleteResourceBecauseOfDependentPipelines;
-
 public class CreatePipelineConfigsCommand extends PipelineConfigsCommand {
     private final PipelineConfigs pipelineConfigs;
 

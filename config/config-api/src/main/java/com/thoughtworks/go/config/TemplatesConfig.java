@@ -39,6 +39,7 @@ public class TemplatesConfig extends BaseCollection<PipelineTemplateConfig> impl
         Collections.addAll(this, templates);
     }
 
+    @Override
     public void validate(ValidationContext validationContext) {
         validateNameUniqueness();
     }
@@ -50,14 +51,17 @@ public class TemplatesConfig extends BaseCollection<PipelineTemplateConfig> impl
         }
     }
 
+    @Override
     public ConfigErrors errors() {
         return configErrors;
     }
 
+    @Override
     public void addError(String fieldName, String message) {
         configErrors.add(fieldName, message);
     }
 
+    @Override
     public boolean equals(Object that) {
         if (this == that) { return true; }
         if (that == null) { return false; }
@@ -65,6 +69,7 @@ public class TemplatesConfig extends BaseCollection<PipelineTemplateConfig> impl
         return super.equals(that);
     }
 
+    @Override
     public int hashCode() {
         return super.hashCode();
     }

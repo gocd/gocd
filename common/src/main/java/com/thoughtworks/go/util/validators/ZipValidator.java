@@ -51,17 +51,13 @@ public abstract class ZipValidator implements Validator {
             outputFile.mkdirs();
             return;
         }
-        FileOutputStream os = null;
-        try {
-            os = new FileOutputStream(outputFile);
+        try (FileOutputStream os = new FileOutputStream(outputFile)) {
             int bytes;
             while ((bytes = entryInputStream.read(fileBuffer)) > 0) {
                 os.write(fileBuffer, 0, bytes);
             }
         } catch (IOException e) {
             throw e;
-        } finally {
-            IOUtils.closeQuietly(os);
         }
     }
 

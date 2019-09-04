@@ -18,7 +18,6 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.ClearSingleton;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
-import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
@@ -45,7 +44,6 @@ import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -65,8 +63,6 @@ public class GoFileConfigDataSourceTest {
     private FullConfigSaveMergeFlow fullConfigSaveMergeFlow;
     @Mock
     private FullConfigSaveNormalFlow fullConfigSaveNormalFlow;
-    @Mock
-    private ConfigElementImplementationRegistry registry;
     @Mock
     private ServerHealthService serverHealthService;
     @Mock

@@ -311,6 +311,7 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
     private Thread createThread(Runnable runnable, String name) throws InterruptedException {
         Thread thread = new Thread(runnable, name);
         thread.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+            @Override
             public void uncaughtException(Thread t, Throwable e) {
                 e.printStackTrace();
                 throw new RuntimeException(e.getMessage(), e);

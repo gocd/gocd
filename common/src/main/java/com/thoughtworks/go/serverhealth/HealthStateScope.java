@@ -140,10 +140,12 @@ public class HealthStateScope implements Comparable<HealthStateScope> {
         return scope;
     }
 
+    @Override
     public String toString() {
         return String.format("LogScope[%s, scope=%s]", type, scope);
     }
 
+    @Override
     public boolean equals(Object that) {
         if (this == that) { return true; }
         if (that == null) { return false; }
@@ -157,6 +159,7 @@ public class HealthStateScope implements Comparable<HealthStateScope> {
         return true;
     }
 
+    @Override
     public int hashCode() {
         int result = type.hashCode();
         result = 31 * result + (scope != null ? scope.hashCode() : 0);
@@ -167,6 +170,7 @@ public class HealthStateScope implements Comparable<HealthStateScope> {
         return type.isRemovedFromConfig(cruiseConfig, scope);
     }
 
+    @Override
     public int compareTo(HealthStateScope o) {
         int comparison;
         comparison = type.compareTo(o.type);
@@ -225,11 +229,13 @@ public class HealthStateScope implements Comparable<HealthStateScope> {
         GLOBAL,
         CONFIG_REPO,
         GROUP {
+            @Override
             public boolean isRemovedFromConfig(CruiseConfig cruiseConfig, String group) {
                 return !cruiseConfig.hasPipelineGroup(group);
             }
         },
         MATERIAL {
+            @Override
             public boolean isRemovedFromConfig(CruiseConfig cruiseConfig, String materialScope) {
                 for (MaterialConfig materialConfig : cruiseConfig.getAllUniqueMaterialsOfPipelinesAndConfigRepos()) {
                     if (HealthStateScope.forMaterialConfig(materialConfig).getScope().equals(materialScope)) {
@@ -240,6 +246,7 @@ public class HealthStateScope implements Comparable<HealthStateScope> {
             }
         },
         MATERIAL_UPDATE {
+            @Override
             public boolean isRemovedFromConfig(CruiseConfig cruiseConfig, String materialScope) {
                 for (MaterialConfig materialConfig : cruiseConfig.getAllUniqueMaterialsOfPipelinesAndConfigRepos()) {
                     if (HealthStateScope.forMaterialConfigUpdate(materialConfig).getScope().equals(materialScope)) {
@@ -250,6 +257,7 @@ public class HealthStateScope implements Comparable<HealthStateScope> {
             }
         },
         CONFIG_PARTIAL {
+            @Override
             public boolean isRemovedFromConfig(CruiseConfig cruiseConfig, String materialScope) {
                 for (ConfigRepoConfig configRepoConfig : cruiseConfig.getConfigRepos()) {
                     if (HealthStateScope.forPartialConfigRepo(configRepoConfig).getScope().equals(materialScope)) {
@@ -260,22 +268,26 @@ public class HealthStateScope implements Comparable<HealthStateScope> {
             }
         },
         PIPELINE {
+            @Override
             public boolean isRemovedFromConfig(CruiseConfig cruiseConfig, String pipeline) {
                 return !cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipeline));
             }
         },
         FANIN {
+            @Override
             public boolean isRemovedFromConfig(CruiseConfig cruiseConfig, String pipeline) {
                 return !cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipeline));
             }
         },
         STAGE {
+            @Override
             public boolean isRemovedFromConfig(CruiseConfig cruiseConfig, String pipelineStage) {
                 String[] parts = pipelineStage.split("/");
                 return !cruiseConfig.hasStageConfigNamed(new CaseInsensitiveString(parts[0]), new CaseInsensitiveString(parts[1]), true);
             }
         },
         JOB {
+            @Override
             public boolean isRemovedFromConfig(CruiseConfig cruiseConfig, String pipelineStageJob) {
                 String[] parts = pipelineStageJob.split("/");
                 return !cruiseConfig.hasBuildPlan(new CaseInsensitiveString(parts[0]), new CaseInsensitiveString(parts[1]), parts[2], true);

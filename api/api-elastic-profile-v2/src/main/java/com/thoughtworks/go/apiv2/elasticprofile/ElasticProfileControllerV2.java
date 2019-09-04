@@ -47,7 +47,6 @@ import static com.thoughtworks.go.api.util.HaltApiResponses.*;
 import static java.lang.String.format;
 import static spark.Spark.*;
 
-@SuppressWarnings("ALL")
 @Component
 public class ElasticProfileControllerV2 extends ApiController implements SparkSpringController, CrudController<ElasticProfile> {
     private static final String PROFILE_ID_PARAM = "profile_id";

@@ -24,11 +24,13 @@ public class DeleteTemplateCommand implements NoOverwriteUpdateConfigCommand {
         this.md5 = md5;
     }
 
+    @Override
     public CruiseConfig update(CruiseConfig cruiseConfig) {
         cruiseConfig.getTemplates().removeTemplateNamed(new CaseInsensitiveString(templateName));
         return cruiseConfig;
     }
 
+    @Override
     public String unmodifiedMd5() {
         return md5;
     }

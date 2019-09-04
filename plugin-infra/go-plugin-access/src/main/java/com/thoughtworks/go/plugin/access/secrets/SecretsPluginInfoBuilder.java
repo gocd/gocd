@@ -36,6 +36,7 @@ public class SecretsPluginInfoBuilder implements PluginInfoBuilder<SecretsPlugin
         this.extension = extension;
     }
 
+    @Override
     public SecretsPluginInfo pluginInfoFor(GoPluginDescriptor descriptor) {
         String pluginId = descriptor.id();
 

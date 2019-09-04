@@ -27,6 +27,7 @@ public class DefaultAgentRegistry implements AgentRegistry {
         tokenService = new TokenService();
     }
 
+    @Override
     public String uuid() {
         if (!guidService.dataPresent()) {
             guidService.store(UUID.randomUUID().toString());

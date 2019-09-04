@@ -35,6 +35,7 @@ public class TwoPipelineGroups implements PreCondition {
         this.temporaryFolder = temporaryFolder;
     }
 
+    @Override
     public void onSetUp() throws Exception {
         this.isSetup = true;
         configHelper.initializeConfigFile();
@@ -48,6 +49,7 @@ public class TwoPipelineGroups implements PreCondition {
                 "defaultJob");
     }
 
+    @Override
     public void onTearDown() throws Exception {
         if (isSetup) {
             configHelper.initializeConfigFile();

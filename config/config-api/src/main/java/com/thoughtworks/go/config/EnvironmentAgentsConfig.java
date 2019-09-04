@@ -30,13 +30,16 @@ import com.thoughtworks.go.domain.ConfigErrors;
 public class EnvironmentAgentsConfig extends BaseCollection<EnvironmentAgentConfig> implements ParamsAttributeAware, Validatable {
     private final ConfigErrors configErrors = new ConfigErrors();
 
+    @Override
     public void validate(ValidationContext validationContext) {
     }
 
+    @Override
     public ConfigErrors errors() {
         return configErrors;
     }
 
+    @Override
     public void addError(String fieldName, String message) {
         configErrors.add(fieldName, message);
     }
@@ -49,6 +52,7 @@ public class EnvironmentAgentsConfig extends BaseCollection<EnvironmentAgentConf
         return uuids;
     }
 
+    @Override
     public void setConfigAttributes(Object attributes) {
         if (attributes != null) {
             List<Map> agentAttributes = (List) attributes;

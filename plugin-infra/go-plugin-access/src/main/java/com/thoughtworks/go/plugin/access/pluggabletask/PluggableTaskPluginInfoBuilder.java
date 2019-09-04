@@ -37,6 +37,7 @@ public class PluggableTaskPluginInfoBuilder implements PluginInfoBuilder<Pluggab
         this.extension = extension;
     }
 
+    @Override
     public PluggableTaskPluginInfo pluginInfoFor(GoPluginDescriptor descriptor) {
         final TaskPreference[] tp = {null};
         extension.doOnTask(descriptor.id(), (task, pluginDescriptor) -> tp[0] = new TaskPreference(task));

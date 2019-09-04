@@ -23,13 +23,16 @@ import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 public class FakeWork implements Work {
     int callCount;
 
+    @Override
     public void doWork(EnvironmentVariableContext environmentVariableContext, AgentWorkContext agentWorkContext) {
     }
 
+    @Override
     public String description() {
         return null;
     }
 
+    @Override
     public void cancel(EnvironmentVariableContext environmentVariableContext, AgentRuntimeInfo agentruntimeInfo) {
         callCount++;
     }

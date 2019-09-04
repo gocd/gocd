@@ -60,6 +60,7 @@ public class HtmlElement implements HtmlRenderable {
         return this;
     }
 
+    @Override
     public void render(HtmlRenderer renderer) {
         renderer.append("<" + elementName);
 

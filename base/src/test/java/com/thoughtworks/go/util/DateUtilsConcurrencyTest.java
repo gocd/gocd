@@ -28,6 +28,7 @@ public class DateUtilsConcurrencyTest {
     @Test
     public void shouldFormatISO8601() throws Exception {
         runInThreads(new DoAction() {
+            @Override
             public void doAction() throws ParseException {
                 DateUtils.parseISO8601("2009-09-11 11:11:21 +0800");
             }
@@ -37,6 +38,7 @@ public class DateUtilsConcurrencyTest {
     @Test
     public void shouldFormatIntoISO8601String() throws Exception {
         runInThreads(new DoAction() {
+            @Override
             public void doAction() throws ParseException {
                 DateUtils.formatISO8601(new Date());
             }
@@ -46,6 +48,7 @@ public class DateUtilsConcurrencyTest {
     @Test
     public void shouldFormatRFC822() throws Exception {
         runInThreads(new DoAction() {
+            @Override
             public void doAction() throws ParseException {
                 DateUtils.parseRFC822("Wed, 4 Jul 2001 12:08:56 -0700");
             }
@@ -55,6 +58,7 @@ public class DateUtilsConcurrencyTest {
     @Test
     public void shouldParseYYYYMMDD() throws Exception {
         runInThreads(new DoAction() {
+            @Override
             public void doAction() throws ParseException {
                 DateUtils.parseYYYYMMDD("2018-12-31");
             }
@@ -67,6 +71,7 @@ public class DateUtilsConcurrencyTest {
         final List<Throwable> iHateMyLife = new ArrayList<>();
         for (int i = 0; i < threadCount; i++) {
             threads[i] = new Thread(new Runnable() {
+                @Override
                 public void run() {
                     for (int j = 0; j < 1000; j++) {
                         try {

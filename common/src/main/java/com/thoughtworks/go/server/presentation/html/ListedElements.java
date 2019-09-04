@@ -26,6 +26,7 @@ public class ListedElements implements HtmlRenderable {
         this.elements = elements;
     }
 
+    @Override
     public void render(HtmlRenderer renderer) {
         for (HtmlRenderable element : elements) {
             element.render(renderer);

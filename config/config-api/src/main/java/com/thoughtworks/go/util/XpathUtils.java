@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.util;
 
-import org.apache.commons.io.IOUtils;
 import org.xml.sax.InputSource;
 
 import javax.xml.xpath.XPathConstants;

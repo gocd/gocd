@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server.messaging;
 
 import com.thoughtworks.go.domain.AgentInstance;
-import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.SystemUtil;

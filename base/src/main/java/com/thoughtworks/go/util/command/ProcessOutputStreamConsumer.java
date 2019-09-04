@@ -36,18 +36,22 @@ public class ProcessOutputStreamConsumer<T extends StreamConsumer, T2 extends St
         return new InMemoryStreamConsumer();
     }
 
+    @Override
     public void stdOutput(String line) {
         taggedStdOutput(TaggedStreamConsumer.OUT, line);
     }
 
+    @Override
     public void errOutput(String line) {
         taggedErrOutput(TaggedStreamConsumer.ERR, line);
     }
 
+    @Override
     public void taggedStdOutput(String tag, String line) {
         taggedOutput(stdConsumer, tag, line);
     }
 
+    @Override
     public void taggedErrOutput(String tag, String line) {
         taggedOutput(errorConsumer, tag, line);
     }

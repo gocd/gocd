@@ -24,7 +24,6 @@ import com.thoughtworks.go.util.json.JsonHelper;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
-import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -173,6 +172,7 @@ public class Modification extends PersistentObject implements Comparable, Serial
         return Collections.unmodifiableList(new ArrayList<>(files));
     }
 
+    @Override
     public int compareTo(Object o) {
         Modification modification = (Modification) o;
         return modifiedTime.compareTo(modification.modifiedTime);
@@ -203,6 +203,7 @@ public class Modification extends PersistentObject implements Comparable, Serial
         return comment;
     }
 
+    @Override
     public String toString() {
         SimpleDateFormat formatter =
                 new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
@@ -308,6 +309,7 @@ public class Modification extends PersistentObject implements Comparable, Serial
     /**
      * @deprecated Remove this when we do not need to serialize these to the db and agent
      */
+    @SuppressWarnings({"PMD.UnusedPrivateMethod", "unused"})
     private void writeObject(java.io.ObjectOutputStream out) throws IOException {
         out.writeObject(userName);
         out.writeObject(comment);
@@ -318,12 +320,13 @@ public class Modification extends PersistentObject implements Comparable, Serial
         out.writeObject(modifiedTime);
         out.writeObject(pipelineLabel);
         out.writeObject(materialInstance);
-        out.writeObject(new LinkedHashSet(files));
+        out.writeObject(new LinkedHashSet<>(files));
     }
 
     /**
      * @deprecated Remove this when we do not need to serialize these to the db and agent
      */
+    @SuppressWarnings({"PMD.UnusedPrivateMethod", "unused"})
     private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
         userName = (String) in.readObject();
         comment = (String) in.readObject();

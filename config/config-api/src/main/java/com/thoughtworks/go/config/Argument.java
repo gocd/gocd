@@ -30,6 +30,7 @@ public class Argument implements Validatable{
         this.value = value;
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -47,10 +48,12 @@ public class Argument implements Validatable{
         return true;
     }
 
+    @Override
     public int hashCode() {
         return value.hashCode();
     }
 
+    @Override
     public String toString() {
         return "Arg[value=" + value + "]";
     }
@@ -59,13 +62,16 @@ public class Argument implements Validatable{
         return value;
     }
 
+    @Override
     public void validate(ValidationContext validationContext) {
     }
 
+    @Override
     public ConfigErrors errors() {
         return configErrors;
     }
 
+    @Override
     public void addError(String fieldName, String message) {
         configErrors.add(fieldName, message);
     }

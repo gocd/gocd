@@ -71,6 +71,7 @@ public class AgentInstance implements Comparable<AgentInstance> {
         return agentConfig().getUuid();
     }
 
+    @Override
     public int compareTo(AgentInstance other) {
         int comparison = this.getHostname().compareTo(other.getHostname());
         if (comparison == 0) {
@@ -200,6 +201,7 @@ public class AgentInstance implements Comparable<AgentInstance> {
         return (timeProvider.currentTime().getTime() - lastHeardTime.getTime()) / 1000 >= systemEnvironment.getAgentConnectionTimeout();
     }
 
+    @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this);
     }
@@ -377,6 +379,7 @@ public class AgentInstance implements Comparable<AgentInstance> {
         return errors;
     }
 
+    @Override
     public boolean equals(Object that) {
         if (this == that) {
             return true;
@@ -411,6 +414,7 @@ public class AgentInstance implements Comparable<AgentInstance> {
         return true;
     }
 
+    @Override
     public int hashCode() {
         int result;
         result = (agentConfig != null ? agentConfig.hashCode() : 0);

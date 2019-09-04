@@ -156,6 +156,7 @@ public class JobInstanceService implements JobPlanLoader, ConfigChangedListener 
      */
     private void internalUpdateJobStateAndResult(final JobInstance job) {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
                 jobInstanceDao.updateStateAndResult(job);
                 if (job.isCompleted()) {
@@ -165,6 +166,7 @@ public class JobInstanceService implements JobPlanLoader, ConfigChangedListener 
         });
     }
 
+    @Override
     public JobPlan loadOriginalJobPlan(JobIdentifier jobId) {
         JobIdentifier actualId = jobResolverService.actualJobIdentifier(jobId);
         return jobInstanceDao.loadPlan(actualId.getBuildId());

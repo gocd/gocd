@@ -113,6 +113,7 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
         this(new CaseInsensitiveString(planName), new ResourceConfigs(), new ArtifactConfigs());
     }
 
+    @Override
     public CaseInsensitiveString name() {
         return jobName;
     }
@@ -218,7 +219,6 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
         return tasks;
     }
 
-    @SuppressWarnings("unused") //used in rails
     public Tasks getTasksForView() {
         return tasks.stream().map(task -> {
             if (task instanceof FetchTask) {
@@ -371,6 +371,7 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
         });
     }
 
+    @Override
     public void validate(ValidationContext validationContext) {
 
         if (isBlank(CaseInsensitiveString.str(jobName))) {
@@ -436,10 +437,12 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
         }
     }
 
+    @Override
     public ConfigErrors errors() {
         return errors;
     }
 
+    @Override
     public void setConfigAttributes(Object attributes) {
         setConfigAttributes(attributes, null);
     }
@@ -530,6 +533,7 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
         this.addError(NAME, String.format("You have defined multiple jobs called '%s'. Job names are case-insensitive and must be unique.", name()));
     }
 
+    @Override
     public void addError(String key, String message) {
         errors.add(key, message);
     }

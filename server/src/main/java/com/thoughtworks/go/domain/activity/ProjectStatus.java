@@ -63,6 +63,7 @@ public class ProjectStatus {
         this.viewers = NoOne.INSTANCE;
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -98,6 +99,7 @@ public class ProjectStatus {
         return true;
     }
 
+    @Override
     public int hashCode() {
         int result;
         result = (name != null ? name.hashCode() : 0);
@@ -110,6 +112,7 @@ public class ProjectStatus {
         return result;
     }
 
+    @Override
     public String toString() {
         return String.format("ProjectStatus[%s, %s, %s, %s, %s, %s, %s]", name, activity, lastBuildStatus, lastBuildLabel,
                 DateUtils.formatISO8601(lastBuildTime) + "(" + lastBuildTime.getTime() + ")", webUrl, breakers);

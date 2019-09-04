@@ -1041,6 +1041,7 @@ public class BasicCruiseConfig implements CruiseConfig {
         return allPipelineConfigs;
     }
 
+    @Override
     public Map<CaseInsensitiveString, PipelineConfig> pipelineConfigsAsMap() {
         return getAllPipelineConfigs().stream().collect(toMap(PipelineConfig::name, Function.identity()));
     }
@@ -1085,6 +1086,7 @@ public class BasicCruiseConfig implements CruiseConfig {
         return getUniqueMaterials(false, true);
     }
 
+    @Override
     public Set<MaterialConfig> getAllUniqueMaterialsOfPipelinesAndConfigRepos() {
         return getUniqueMaterials(false, false);
     }
@@ -1520,6 +1522,7 @@ public class BasicCruiseConfig implements CruiseConfig {
         return pipelines;
     }
 
+    @Override
     public List<PipelineConfig> getAllLocalPipelineConfigs() {
         return strategy.getAllLocalPipelineConfigs(false);
     }
@@ -1569,6 +1572,7 @@ public class BasicCruiseConfig implements CruiseConfig {
             this.roles = roles;
         }
 
+        @Override
         public void visit(PipelineConfigs pipelineConfigs) {
             if (pipelineConfigs.getAuthorization().isUserAnAdmin(username, roles)) {
                 isGroupAdmin = true;

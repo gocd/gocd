@@ -538,7 +538,6 @@ public class BackupServiceIntegrationTest {
 
         private final List<String> messages;
 
-        private boolean postExecutedScriptExecuted;
         private final Semaphore backupComplete;
         MessageCollectingBackupUpdateListener(Semaphore backupComplete) {
             this.backupComplete = backupComplete;
@@ -556,10 +555,6 @@ public class BackupServiceIntegrationTest {
 
         @Override
         public void error(String message) {
-        }
-
-        public boolean isPostExecutedScriptExecuted() {
-            return postExecutedScriptExecuted;
         }
 
         @Override

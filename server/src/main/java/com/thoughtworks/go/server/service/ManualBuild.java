@@ -38,6 +38,7 @@ public class ManualBuild implements BuildType {
         this.username = username;
     }
 
+    @Override
     public BuildCause onModifications(MaterialRevisions materialRevisions, boolean materialConfigurationChanged, MaterialRevisions previousMaterialRevisions) {
         if (materialRevisions == null || materialRevisions.isEmpty()) {
             throw new RuntimeException("Cannot find modifications, please check your SCM setting or environment.");
@@ -45,10 +46,12 @@ public class ManualBuild implements BuildType {
         return BuildCause.createManualForced(materialRevisions, username);
     }
 
+    @Override
     public BuildCause onEmptyModifications(PipelineConfig pipelineConfig, MaterialRevisions materialRevisions) {
         return onModifications(materialRevisions, false, null);
     }
 
+    @Override
     public void canProduce(PipelineConfig pipelineConfig, SchedulingCheckerService schedulingChecker,
                            ServerHealthService serverHealthService,
                            OperationResult operationResult) {
@@ -60,6 +63,7 @@ public class ManualBuild implements BuildType {
         }
     }
 
+    @Override
     public boolean isValidBuildCause(PipelineConfig pipelineConfig, BuildCause buildCause) {
         return true;
     }

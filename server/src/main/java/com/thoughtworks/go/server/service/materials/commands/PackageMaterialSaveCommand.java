@@ -45,6 +45,7 @@ public abstract class PackageMaterialSaveCommand implements UpdateConfigFromUI {
         this.packageDefinitionCreator = new PackageDefinitionCreator(packageDefinitionService, params);
     }
 
+    @Override
     public void checkPermission(CruiseConfig cruiseConfig, LocalizedOperationResult result) {
         String groupName = cruiseConfig.getGroups().findGroupNameByPipeline(new CaseInsensitiveString(pipeline));
         if (!securityService.isUserAdminOfGroup(username.getUsername(), groupName)) {
@@ -52,10 +53,12 @@ public abstract class PackageMaterialSaveCommand implements UpdateConfigFromUI {
         }
     }
 
+    @Override
     public Validatable node(CruiseConfig cruiseConfig) {
         return cruiseConfig;
     }
 
+    @Override
     public Validatable updatedNode(CruiseConfig cruiseConfig) {
         if (packageMaterialConfig.getPackageDefinition() != null) {
             return cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(pipeline)).materialConfigs().get(packageMaterialConfig);
@@ -65,14 +68,17 @@ public abstract class PackageMaterialSaveCommand implements UpdateConfigFromUI {
 
     protected abstract void updateConfig(CruiseConfig cruiseConfig);
 
+    @Override
     public final void update(Validatable node) {
         updateConfig((CruiseConfig) node);
     }
 
+    @Override
     public Validatable subject(Validatable node) {
         return packageMaterialConfig;
     }
 
+    @Override
     public Validatable updatedSubject(Validatable updatedNode) {
         return updatedNode;
     }

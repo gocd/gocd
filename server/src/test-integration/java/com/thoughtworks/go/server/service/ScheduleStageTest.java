@@ -336,6 +336,7 @@ public class ScheduleStageTest {
 
     private Runnable rerunStage(final List<Exception> exceptions, final String ftStage) {
         return new Runnable() {
+            @Override
             public void run() {
                 try {
                     scheduleService.rerunStage(fixture.pipelineName, fixture.pipelineCounter(), ftStage);

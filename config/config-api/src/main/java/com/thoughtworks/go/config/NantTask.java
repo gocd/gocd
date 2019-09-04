@@ -35,6 +35,7 @@ public class NantTask extends BuildTask {
 
     public NantTask() { }
 
+    @Override
     public String arguments() {
         ArrayList<String> args = new ArrayList<>();
         if (buildFile != null) {
@@ -53,10 +54,12 @@ public class NantTask extends BuildTask {
         return "nant";
     }
 
+    @Override
     public String getTypeForDisplay() {
         return "NAnt";
     }
 
+    @Override
     public String command() {
         String command = NANT_EXECUTABLE;
         if (nantPath != null) {
@@ -73,6 +76,7 @@ public class NantTask extends BuildTask {
         return nantPath;
     }
 
+    @Override
     protected void setBuildTaskConfigAttributes(Map attributeMap) {
         nantPath = inferValueFromMap(attributeMap, NANT_PATH);
     }

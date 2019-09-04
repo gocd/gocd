@@ -17,9 +17,6 @@ package com.thoughtworks.go.server.materials;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
-import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
-import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
-import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
@@ -29,7 +26,6 @@ import com.thoughtworks.go.helper.HgTestRepo;
 import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.server.cronjob.GoDiskSpaceMonitor;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
-import com.thoughtworks.go.server.perf.MDUPerformanceLogger;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
@@ -47,6 +43,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.File;
 
+import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import static junit.framework.Assert.fail;
 import static junit.framework.TestCase.assertNotNull;
 import static org.hamcrest.Matchers.is;
@@ -74,8 +71,6 @@ public class ConfigMaterialUpdateListenerIntegrationTest {
     @Autowired
     private DatabaseAccessHelper dbHelper;
     @Autowired
-    private MaterialDatabaseUpdater materialDatabaseUpdater;
-    @Autowired
     private MaterialRepository materialRepository;
     @Autowired
     private MaterialUpdateService materialUpdateService;
@@ -87,13 +82,6 @@ public class ConfigMaterialUpdateListenerIntegrationTest {
     private ConfigCache configCache;
     @Autowired
     private CachedGoConfig cachedGoConfig;
-    @Autowired
-    private MaintenanceModeService maintenanceModeService;
-
-    @Autowired
-    private ConfigMaterialUpdateCompletedTopic configTopic;
-
-    private MDUPerformanceLogger logger;
 
     private static GoConfigFileHelper configHelper = new GoConfigFileHelper();
 
@@ -101,7 +89,6 @@ public class ConfigMaterialUpdateListenerIntegrationTest {
 
     private MaterialConfig materialConfig;
 
-    private MaterialUpdateListener worker;
     private HgTestRepo hgRepo;
     private HgMaterial material;
     private MagicalGoConfigXmlWriter xmlWriter;
@@ -120,8 +107,6 @@ public class ConfigMaterialUpdateListenerIntegrationTest {
         materialConfig = hg(hgRepo.projectRepositoryUrl(), null);
         configHelper.addConfigRepo(new ConfigRepoConfig(materialConfig, "gocd-xml"));
 
-        logger = mock(MDUPerformanceLogger.class);
-
         TestingEmailSender emailSender = new TestingEmailSender();
         SystemDiskSpaceChecker mockDiskSpaceChecker = Mockito.mock(SystemDiskSpaceChecker.class);
         StageService stageService = mock(StageService.class);
@@ -130,8 +115,6 @@ public class ConfigMaterialUpdateListenerIntegrationTest {
                 serverHealthService, emailSender, mockDiskSpaceChecker, mock(ArtifactsService.class),
                 stageService, configDbStateRepository);
         goDiskSpaceMonitor.initialize();
-
-        worker = new MaterialUpdateListener(configTopic, materialDatabaseUpdater, logger, goDiskSpaceMonitor, maintenanceModeService);
 
         xmlWriter = new MagicalGoConfigXmlWriter(configCache, ConfigElementImplementationRegistryMother.withNoPlugins());
         configTestRepo = new ConfigTestRepo(hgRepo, xmlWriter);

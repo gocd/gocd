@@ -38,6 +38,7 @@ public class CommandBuilder extends BaseCommandBuilder {
         this.args = args;
     }
 
+    @Override
     protected CommandLine buildCommandLine() {
         CommandLine command = null;
         if (SystemUtils.IS_OS_WINDOWS) {
@@ -72,6 +73,7 @@ public class CommandBuilder extends BaseCommandBuilder {
         return command;
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -101,6 +103,7 @@ public class CommandBuilder extends BaseCommandBuilder {
         return true;
     }
 
+    @Override
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + (command != null ? command.hashCode() : 0);

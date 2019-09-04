@@ -26,22 +26,27 @@ public class StringRevision implements Revision, Serializable {
         this.revision = revision;
     }
 
+    @Override
     public String getRevision() {
         return revision;
     }
 
+    @Override
     public String getRevisionUrl() {
         return getRevision();
     }
 
+    @Override
     public boolean isRealRevision() {
         return true;
     }
 
+    @Override
     public int hashCode() {
         return getRevision().hashCode();
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -59,6 +64,7 @@ public class StringRevision implements Revision, Serializable {
         return true;
     }
 
+    @Override
     public String toString() {
         return "StringRevision[" + getRevision() + "]";
     }

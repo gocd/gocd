@@ -35,6 +35,7 @@ public class AboutToBeTriggeredChecker implements SchedulingChecker{
         this.pipelineScheduleQueue = pipelineScheduleQueue;
     }
 
+    @Override
     public void check(OperationResult result) {
         String pipelineNameString = CaseInsensitiveString.str(pipelineName);
         HealthStateType type = HealthStateType.general(HealthStateScope.forPipeline(pipelineNameString));

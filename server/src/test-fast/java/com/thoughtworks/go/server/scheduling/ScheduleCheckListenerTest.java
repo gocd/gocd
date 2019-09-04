@@ -16,8 +16,6 @@
 package com.thoughtworks.go.server.scheduling;
 
 import com.thoughtworks.go.server.perf.SchedulingPerformanceLogger;
-import com.thoughtworks.go.server.service.result.HttpOperationResult;
-import com.thoughtworks.go.server.service.result.OperationResult;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
 import org.junit.Before;
 import org.junit.Test;

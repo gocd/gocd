@@ -19,13 +19,11 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.domain.scm.SCM;
-import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.materials.PluggableScmService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import com.thoughtworks.go.serverhealth.HealthStateType;
 
 public class UpdateSCMConfigCommand extends SCMConfigCommand {
 

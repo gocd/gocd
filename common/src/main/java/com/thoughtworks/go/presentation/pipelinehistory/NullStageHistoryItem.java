@@ -32,22 +32,27 @@ public class NullStageHistoryItem extends StageInstanceModel {
         this.autoApproved = isAutoApproved;
     }
 
+    @Override
     public boolean isScheduled() {
         return false;
     }
 
+    @Override
     public Date getScheduledDate() {
         return new Date(System.currentTimeMillis() + Integer.MAX_VALUE);
     }
 
+    @Override
     public boolean isAutoApproved() {
         return this.autoApproved;
     }
 
+    @Override
     public boolean getCanReRun() {
         return false;
     }
 
+    @Override
     public String getApprovalTypeDescription() {
         if (autoApproved) {
             return "auto";

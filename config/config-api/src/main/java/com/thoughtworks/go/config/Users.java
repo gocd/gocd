@@ -42,13 +42,16 @@ public class Users extends BaseCollection<RoleUser> implements Validatable {
         return usersList;
     }
 
+    @Override
     public void validate(ValidationContext validationContext) {
     }
 
+    @Override
     public ConfigErrors errors() {
         return configErrors;
     }
 
+    @Override
     public void addError(String fieldName, String message) {
         configErrors.add(fieldName, message);
     }

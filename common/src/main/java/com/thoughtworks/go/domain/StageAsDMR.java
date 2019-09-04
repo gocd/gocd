@@ -31,11 +31,11 @@ public class StageAsDMR {
         this.completedDate = completedDate;
     }
 
-    private void setIdentifier(StageIdentifier identifier) {
+    public void setIdentifier(StageIdentifier identifier) {
         this.identifier = identifier;
     }
 
-    private void setCompletedDate(Date completedDate) {
+    public void setCompletedDate(Date completedDate) {
         this.completedDate = completedDate;
     }
 
@@ -78,8 +78,7 @@ public class StageAsDMR {
     public Long getPipelineId() {
         return pipelineId;
     }
-    
-    @Deprecated //used by iBatis
+
     public void setPipelineId(Long piplineId) {
         this.pipelineId = piplineId;
     }

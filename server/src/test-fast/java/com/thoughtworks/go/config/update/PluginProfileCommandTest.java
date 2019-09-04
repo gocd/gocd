@@ -139,6 +139,7 @@ public class PluginProfileCommandTest {
             return EntityType.ElasticProfile;
         }
 
+        @Override
         protected final boolean isAuthorized() {
             if (goConfigService.isUserAdmin(currentUser)) {
                 return true;

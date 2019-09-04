@@ -55,6 +55,7 @@ public class JMSMessageListenerAdapterTest {
         serverHealthService = mock(ServerHealthService.class);
 
         mockListener = new GoMessageListener() {
+            @Override
             public void onMessage(GoMessage message) {
                 throw new UnsupportedOperationException("not implemented yet");
             }

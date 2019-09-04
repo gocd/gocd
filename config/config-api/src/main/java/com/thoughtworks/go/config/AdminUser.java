@@ -40,40 +40,49 @@ public class AdminUser implements Admin {
         this.name = new CaseInsensitiveString(name);
     }
 
+    @Override
     public void validate(ValidationContext validationContext) {
         if (name == null || name.isBlank())
             addError("User cannot be blank.");
     }
 
+    @Override
     public ConfigErrors errors() {
         return configErrors;
     }
 
+    @Override
     public void addError(String fieldName, String message) {
         configErrors.add(fieldName, message);
     }
 
+    @Override
     public CaseInsensitiveString getName() {
         return name;
     }
 
+    @Override
     public String describe() {
         return "User";
     }
 
+    @Override
     public boolean belongsTo(Role role) {
         return role.hasMember(name);
     }
 
+    @Override
     public void addError(String message) {
         errors().add(NAME, message); // Do not remove this - The old view for editing group authorization, template authorization makes use of it.
         errors().add(ADMIN, message);
     }
 
+    @Override
     public boolean isSameAs(Admin admin, List<Role> memberRoles) {
         return admin instanceof AdminUser && name.equals(((AdminUser) admin).name);
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -87,10 +96,12 @@ public class AdminUser implements Admin {
         return name.equals(adminUser.name);
     }
 
+    @Override
     public int hashCode() {
         return 31 * describe().hashCode() + (null != name ? name.hashCode() : 0);
     }
 
+    @Override
     public String toString() {
         return CaseInsensitiveString.str(name);
     }

@@ -31,7 +31,6 @@ import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.server.domain.Username;
 import org.junit.Test;
 import org.mockito.InOrder;
-import org.mockito.ArgumentMatchers;
 
 import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -125,6 +124,7 @@ public class PackageMaterialAddWithNewPackageDefinitionCommandTest extends Packa
         inOrder.verify(config).savePackageDefinition(any(PackageDefinition.class));
     }
 
+    @Override
     protected PackageMaterialSaveCommand getCommand(Username username) {
         return new PackageMaterialAddWithNewPackageDefinitionCommand(packageDefinitionService, securityService, pipelineName,
                 new PackageMaterialConfig(), username, PackageDefinitionMother.paramsForPackageMaterialCreation("repo1", "repo1-pkg-1"));

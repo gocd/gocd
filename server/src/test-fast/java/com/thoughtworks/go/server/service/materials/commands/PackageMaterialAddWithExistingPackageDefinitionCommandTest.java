@@ -98,6 +98,7 @@ public class PackageMaterialAddWithExistingPackageDefinitionCommandTest extends 
         verify(packageDefinitionService, never()).performPluginValidationsFor(any(PackageDefinition.class));
     }
 
+    @Override
     protected PackageMaterialSaveCommand getCommand(Username username) {
         return new PackageMaterialAddWithExistingPackageDefinitionCommand(packageDefinitionService, securityService, pipelineName,
                 new PackageMaterialConfig(), username, PackageDefinitionMother.paramsForPackageMaterialAssociation("repo1", "repo1-pkg-1"));

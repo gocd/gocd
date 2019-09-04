@@ -41,6 +41,7 @@ public class FetchArtifactBuilder extends Builder {
         this.checksumFileHandler = checksumFileHandler;
     }
 
+    @Override
     public void build(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension, PluginRequestProcessorRegistry pluginRequestProcessorRegistry, String consoleLogCharset) {
         publisher.fetch(this);
     }

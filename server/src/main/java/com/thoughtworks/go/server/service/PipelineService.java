@@ -278,6 +278,7 @@ public class PipelineService implements UpstreamPipelineResolver {
     }
 
 
+    @Override
     public BuildCause buildCauseFor(String pipelineName, int pipelineCounter) {
         return pipelineDao.findBuildCauseOfPipelineByNameAndCounter(pipelineName, pipelineCounter);
     }

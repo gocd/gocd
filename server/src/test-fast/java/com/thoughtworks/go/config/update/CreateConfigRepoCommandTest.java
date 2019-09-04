@@ -46,7 +46,6 @@ public class CreateConfigRepoCommandTest {
 
     @Mock
     private SecurityService securityService;
-    private String actionFailed;
     @Mock
     private ConfigRepoExtension configRepoExtension;
 
@@ -58,7 +57,6 @@ public class CreateConfigRepoCommandTest {
 
         cruiseConfig = new GoConfigMother().defaultCruiseConfig();
         configRepo = new ConfigRepoConfig(git("https://foo.git", "master"), "json-plugin", repoId);
-        actionFailed = "Could not add config repo " + configRepo.getId();
     }
 
     @Test

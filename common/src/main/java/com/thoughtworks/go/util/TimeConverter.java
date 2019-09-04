@@ -178,10 +178,12 @@ public class TimeConverter {
             this.message = message;
         }
 
+        @Override
         public String[] getCodes() {
             return new String[]{code};
         }
 
+        @Override
         public Object[] getArguments() {
             return new Long[]{arguments};
         }
@@ -195,14 +197,17 @@ public class TimeConverter {
             return new ConvertedTime(code, time, newMessage);
         }
 
+        @Override
         public String getDefaultMessage() {
             return message;
         }
 
+        @Override
         public int hashCode() {
             return super.hashCode();
         }
 
+        @Override
         public boolean equals(Object obj) {
             if (this == obj) {
                 return true;
@@ -220,6 +225,7 @@ public class TimeConverter {
             return eq;
         }
 
+        @Override
         public String toString() {
             return getDefaultMessage();
         }
@@ -240,18 +246,21 @@ public class TimeConverter {
 
     static class LessThanAMinute implements ConvertableTime {
 
+        @Override
         public ConvertedTime getConvertedTime(long duration) {
             return LESS_THAN_A_MINUTE_AGO;
         }
     }
 
     static class AboutOneMinute implements ConvertableTime {
+        @Override
         public ConvertedTime getConvertedTime(long duration) {
             return ABOUT_1_MINUTE_AGO;
         }
     }
 
     static class From2To44Minutes implements ConvertableTime {
+        @Override
         public ConvertedTime getConvertedTime(long duration) {
             long time = (duration + 30) / 60;
             return ABOUT_X_MINUTES_AGO.argument(time);
@@ -259,12 +268,14 @@ public class TimeConverter {
     }
 
     static class AboutOneHour implements ConvertableTime {
+        @Override
         public ConvertedTime getConvertedTime(long duration) {
             return ABOUT_1_HOUR_AGO;
         }
     }
 
     static class About2To24Hours implements ConvertableTime {
+        @Override
         public ConvertedTime getConvertedTime(long duration) {
             long hours = (duration + 30 * 60 + 30) / TimeConverter.HOUR_IN_SECONDS;
             long time = hours >= 23 ? 23 : hours;
@@ -274,12 +285,14 @@ public class TimeConverter {
     }
 
     static class AboutOneDay implements ConvertableTime {
+        @Override
         public ConvertedTime getConvertedTime(long duration) {
             return ABOUT_1_DAY_AGO;
         }
     }
 
     static class From2To29Days implements ConvertableTime {
+        @Override
         public ConvertedTime getConvertedTime(long duration) {
             long time = (duration + 30) / TimeConverter.DAY_IN_SECONDS;
             return ABOUT_X_DAYS_AGO.argument(time);
@@ -287,12 +300,14 @@ public class TimeConverter {
     }
 
     static class AboutOneMonth implements ConvertableTime {
+        @Override
         public ConvertedTime getConvertedTime(long duration) {
             return ABOUT_1_MONTH_AGO;
         }
     }
 
     static class From2To12Month implements ConvertableTime {
+        @Override
         public ConvertedTime getConvertedTime(long duration) {
             long time = (duration + 30) / TimeConverter.MONTH_IN_SECONDS;
             return ABOUT_X_MONTHS_AGO.argument(time);
@@ -300,6 +315,7 @@ public class TimeConverter {
     }
 
     static class AboutOneYear implements ConvertableTime {
+        @Override
         public ConvertedTime getConvertedTime(long duration) {
             return ABOUT_1_YEAR_AGO;
         }
@@ -307,6 +323,7 @@ public class TimeConverter {
     }
 
     static class OverTwoYears implements ConvertableTime {
+        @Override
         public ConvertedTime getConvertedTime(long duration) {
             long time = (duration + 30)
                     / TimeConverter.YEAR_IN_SECONDS;

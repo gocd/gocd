@@ -20,7 +20,6 @@ import com.thoughtworks.go.plugin.api.task.EnvironmentVariables;
 import com.thoughtworks.go.plugin.api.task.TaskExecutionContext;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.SafeOutputStreamConsumer;
-import com.thoughtworks.go.work.DefaultGoPublisher;
 
 public class PluggableTaskContext implements TaskExecutionContext {
     private final SafeOutputStreamConsumer publisher;

@@ -33,10 +33,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class ReportingDependencyFanInNode extends ReportingFanInNode {
     private static List<Class<? extends MaterialConfig>> DEPENDENCY_NODE_TYPES = new ArrayList<>();
     public Set<ReportingFanInNode> children = new HashSet<>();
-    StageIdentifier currentRevision;
     private int totalInstanceCount = Integer.MAX_VALUE;
-    private int currentCount;
-    private Map<StageIdentifier, Set<ReportingFaninScmMaterial>> stageIdentifierScmMaterial = new LinkedHashMap<>();
 
     ReportingDependencyFanInNode(MaterialConfig material) {
         super(material);
@@ -53,10 +50,6 @@ public class ReportingDependencyFanInNode extends ReportingFanInNode {
         context.out.println("Total Instances: " + totalInstanceCount);
         context.out.println();
         fillNextRevisions(context);
-    }
-
-    private void setCurrentRevision() {
-        currentRevision = stageIdentifierScmMaterial.keySet().toArray(new StageIdentifier[0])[0];
     }
 
     public void initialize(ReportingFanInGraphContext context) {
@@ -209,12 +202,7 @@ public class ReportingDependencyFanInNode extends ReportingFanInNode {
     }
 
     private boolean hasMoreInstances() {
-        return currentCount < totalInstanceCount;
-    }
-
-    enum RevisionAlteration {
-        NOT_APPLICABLE, SAME_AS_CURRENT_REVISION, ALTERED_TO_CORRECT_REVISION, ALL_OPTIONS_EXHAUSTED,
-        NEED_MORE_REVISIONS
+        return 0 < totalInstanceCount;
     }
 
     static {

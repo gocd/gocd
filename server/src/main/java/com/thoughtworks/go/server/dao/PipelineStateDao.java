@@ -15,8 +15,6 @@
  */
 package com.thoughtworks.go.server.dao;
 
-import com.rits.cloning.Cloner;
-import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.database.Database;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.PipelineState;
@@ -25,7 +23,6 @@ import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.server.cache.CacheKeyGenerator;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.StageStatusListener;
-import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.transaction.AfterCompletionCallback;
 import com.thoughtworks.go.server.transaction.SqlMapClientDaoSupport;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
@@ -37,8 +34,6 @@ import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.PropertyProjection;
 import org.hibernate.criterion.Restrictions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionStatus;
@@ -47,53 +42,30 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
 import java.util.List;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-@SuppressWarnings({"ALL"})
 @Component
 public class PipelineStateDao extends SqlMapClientDaoSupport implements StageStatusListener {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PipelineStateDao.class);
-    private StageDao stageDao;
-    private MaterialRepository materialRepository;
-    private EnvironmentVariableDao environmentVariableDao;
     private TransactionTemplate transactionTemplate;
     private TransactionSynchronizationManager transactionSynchronizationManager;
-    private final SystemEnvironment systemEnvironment;
-    private final GoConfigDao configFileDao;
     private SessionFactory sessionFactory;
-    private final Cloner cloner = new Cloner();
-    private final ReadWriteLock activePipelineRWLock = new ReentrantReadWriteLock();
-    private final Lock activePipelineReadLock = activePipelineRWLock.readLock();
-    private final Lock activePipelineWriteLock = activePipelineRWLock.writeLock();
     private CacheKeyGenerator cacheKeyGenerator;
 
-
     @Autowired
-    public PipelineStateDao(StageDao stageDao,
-                            MaterialRepository materialRepository,
-                            GoCache goCache,
-                            EnvironmentVariableDao environmentVariableDao,
+    public PipelineStateDao(GoCache goCache,
                             TransactionTemplate transactionTemplate,
                             SqlSessionFactory sqlSessionFactory,
                             TransactionSynchronizationManager transactionSynchronizationManager,
                             SystemEnvironment systemEnvironment,
-                            GoConfigDao configFileDao,
                             Database database,
                             SessionFactory sessionFactory) {
         super(goCache, sqlSessionFactory, systemEnvironment, database);
-        this.stageDao = stageDao;
-        this.materialRepository = materialRepository;
-        this.environmentVariableDao = environmentVariableDao;
         this.transactionTemplate = transactionTemplate;
         this.transactionSynchronizationManager = transactionSynchronizationManager;
-        this.systemEnvironment = systemEnvironment;
-        this.configFileDao = configFileDao;
         this.sessionFactory = sessionFactory;
         this.cacheKeyGenerator = new CacheKeyGenerator(getClass());
     }
 
+    @Override
     public void stageStatusChanged(Stage stage) {
         clearLockedPipelineStateCache(stage.getIdentifier().getPipelineName());
     }
@@ -122,7 +94,7 @@ public class PipelineStateDao extends SqlMapClientDaoSupport implements StageSta
                     if (fromCache != null && fromCache.isLocked() && !pipeline.getIdentifier().equals(fromCache.getLockedBy().pipelineIdentifier())) {
                         throw new RuntimeException(String.format("Pipeline '%s' is already locked (counter = %s)", pipelineName, fromCache.getLockedBy().getPipelineCounter()));
                     }
-                    PipelineState toBeSaved = null;
+                    PipelineState toBeSaved;
                     if (fromCache == null) {
                         toBeSaved = new PipelineState(pipelineName);
                     } else {
@@ -159,9 +131,8 @@ public class PipelineStateDao extends SqlMapClientDaoSupport implements StageSta
                         }
                     });
 
-                    final String cacheKey = pipelineLockStateCacheKey(pipelineName);
                     PipelineState fromCache = pipelineStateFor(pipelineName);
-                    PipelineState toBeSaved = null;
+                    PipelineState toBeSaved;
                     if (fromCache == null) {
                         toBeSaved = new PipelineState(pipelineName);
                     } else {

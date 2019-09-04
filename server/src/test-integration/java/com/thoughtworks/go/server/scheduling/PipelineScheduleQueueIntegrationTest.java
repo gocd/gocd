@@ -289,10 +289,12 @@ public class PipelineScheduleQueueIntegrationTest {
 
     private TypeSafeMatcher<CaseInsensitiveString> scheduledOn(final PipelineScheduleQueue queue) {
         return new TypeSafeMatcher<CaseInsensitiveString>() {
+            @Override
             public boolean matchesSafely(CaseInsensitiveString item) {
                 return queue.toBeScheduled().containsKey(item);
             }
 
+            @Override
             public void describeTo(Description description) {
                 description.appendText("to be scheduled");
             }

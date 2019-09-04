@@ -51,6 +51,7 @@ public class ModificationSummary {
         return modification.getUserDisplayName();
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -74,6 +75,7 @@ public class ModificationSummary {
         return true;
     }
 
+    @Override
     public int hashCode() {
         int result;
         result = (modification != null ? modification.hashCode() : 0);

@@ -83,10 +83,12 @@ public class AdminsConfig extends BaseCollection<Admin> implements Validatable {
         return;
     }
 
+    @Override
     public ConfigErrors errors() {
         return configErrors;
     }
 
+    @Override
     public void addError(String fieldName, String message) {
         configErrors.add(fieldName, message);
     }

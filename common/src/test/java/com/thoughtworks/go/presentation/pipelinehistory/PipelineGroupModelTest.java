@@ -18,7 +18,6 @@ package com.thoughtworks.go.presentation.pipelinehistory;
 import com.thoughtworks.go.domain.PipelinePauseInfo;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.junit.Test;
 
 import static org.apache.commons.lang3.builder.ToStringBuilder.reflectionToString;

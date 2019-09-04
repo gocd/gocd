@@ -32,6 +32,7 @@ public class MaterialUrl {
         return new MaterialUrl(firstUrl).equals(new MaterialUrl(secondUrl));
     }
 
+    @Override
     public String toString() {
         return url;
     }
@@ -40,6 +41,7 @@ public class MaterialUrl {
         return url;
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -51,6 +53,7 @@ public class MaterialUrl {
         return url.equalsIgnoreCase(svnUrl.url);
     }
 
+    @Override
     public int hashCode() {
         return url.hashCode();
     }

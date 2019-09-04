@@ -50,6 +50,7 @@ public class WorkFinder implements GoMessageListener<IdleAgentMessage> {
         idleAgentTopic.addListener(this);
     }
 
+    @Override
     public void onMessage(IdleAgentMessage idleAgentMessage) {
         AgentIdentifier agent = idleAgentMessage.getAgentIdentifier();
         Work work = null;

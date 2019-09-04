@@ -17,15 +17,12 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
-import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.*;
 import org.apache.commons.io.FileUtils;
 
 import java.io.*;
 
-import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.mockito.Mockito.mock;
 
 public class ConfigMigrator {
     public static GoConfigMigration migrate(final File configFile) {

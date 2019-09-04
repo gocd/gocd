@@ -110,6 +110,7 @@ public class ActiveMqTest implements GoMessageListener {
         assertThat(exceptionListener.receivedMessages.size(), is(5));
     }
 
+    @Override
     public void onMessage(GoMessage message) {
         receivedMessage = message;
     }
@@ -117,6 +118,7 @@ public class ActiveMqTest implements GoMessageListener {
     private class HangingListener implements GoMessageListener<GoTextMessage> {
         private boolean finish;
 
+        @Override
         public void onMessage(GoTextMessage message) {
             while (finish == false) {
                 try {
@@ -135,12 +137,14 @@ public class ActiveMqTest implements GoMessageListener {
     private class FastListener implements GoMessageListener<GoTextMessage> {
         public List<GoTextMessage> receivedMessages = new ArrayList<>();
 
+        @Override
         public void onMessage(GoTextMessage message) {
             receivedMessages.add(message);
         }
     }
 
     private class ExceptionListener extends FastListener {
+        @Override
         public void onMessage(GoTextMessage message) {
             super.onMessage(message);
 

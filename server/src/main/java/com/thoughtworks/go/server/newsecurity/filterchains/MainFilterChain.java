@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.newsecurity.filterchains;
 import com.thoughtworks.go.server.newsecurity.filters.ModeAwareFilter;
 import com.thoughtworks.go.server.newsecurity.filters.ThreadLocalUserFilter;
 import com.thoughtworks.go.server.newsecurity.handlers.RequestRejectedExceptionHandler;
+import com.thoughtworks.go.server.web.BackupFilter;
 import com.thoughtworks.go.server.web.FlashLoadingFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -39,7 +40,8 @@ public class MainFilterChain extends FilterChainProxy {
     private static final RequestRejectedExceptionHandler REQUEST_REJECTED_EXCEPTION_HANDLER = new RequestRejectedExceptionHandler();
 
     @Autowired
-    public MainFilterChain(ModeAwareFilter modeAwareFilter,
+    public MainFilterChain(BackupFilter backupFilter,
+                           ModeAwareFilter modeAwareFilter,
                            CreateSessionFilterChain createSessionFilterChain,
                            RememberLastRequestUrlFilterChain rememberLastRequestUrlFilterChain,
                            AuthenticationFilterChain authenticationFilterChain,
@@ -53,6 +55,7 @@ public class MainFilterChain extends FilterChainProxy {
 
         super(FilterChainBuilder.newInstance()
                 .addFilterChain("/**",
+                        backupFilter,
                         modeAwareFilter,
                         createSessionFilterChain,
                         rememberLastRequestUrlFilterChain,

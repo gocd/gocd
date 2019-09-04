@@ -26,7 +26,6 @@ import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
 import com.thoughtworks.go.server.materials.StaleMaterialsOnBuildCause;
-import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
@@ -48,16 +47,14 @@ public class ScheduledPipelineLoader {
     final private GoConfigService goConfigService;
     final private JobInstanceService jobInstanceService;
     final private ServerHealthService serverHealthService;
-    final private TransactionSynchronizationManager transactionSynchronizationManager;
     private final ScheduleService scheduleService;
     private MaterialExpansionService materialExpansionService;
     private ConsoleService consoleService;
 
     @Autowired
-    public ScheduledPipelineLoader(TransactionSynchronizationManager transactionSynchronizationManager, PipelineSqlMapDao pipelineDao, GoConfigService goConfigService,
+    public ScheduledPipelineLoader(PipelineSqlMapDao pipelineDao, GoConfigService goConfigService,
                                    JobInstanceService jobInstanceService, ServerHealthService serverHealthService, ScheduleService scheduleService,
                                    MaterialExpansionService materialExpansionService, ConsoleService consoleService) {
-        this.transactionSynchronizationManager = transactionSynchronizationManager;
         this.pipelineDao = pipelineDao;
         this.goConfigService = goConfigService;
         this.jobInstanceService = jobInstanceService;

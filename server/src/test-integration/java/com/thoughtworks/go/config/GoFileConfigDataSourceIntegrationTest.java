@@ -587,11 +587,13 @@ public class GoFileConfigDataSourceIntegrationTest {
             this.username = username;
         }
 
+        @Override
         public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
             cruiseConfig.addPipeline("my-grp", PipelineConfigMother.createPipelineConfig(pipelineName, "stage-other", "job-yet-another"));
             return cruiseConfig;
         }
 
+        @Override
         public ConfigModifyingUser user() {
             return new ConfigModifyingUser(username);
         }

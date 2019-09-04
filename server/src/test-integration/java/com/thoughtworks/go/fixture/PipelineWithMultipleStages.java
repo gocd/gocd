@@ -41,6 +41,7 @@ public class PipelineWithMultipleStages extends PipelineWithTwoStages implements
         this.stageNames[1] = ftStage;
     }
 
+    @Override
     public void onSetUp() throws Exception {
         super.onSetUp();
         for (int i = 2; i < stagesSize; i++) {
@@ -59,18 +60,11 @@ public class PipelineWithMultipleStages extends PipelineWithTwoStages implements
         return pipelineConfig().get(index - 1);
     }
 
-    public void configStageAsAutoApproval(String stageName) {
-        setApprovalType(stageName, true);
-    }
-
-    public void configStageAsManualApproval(String stageName) {
-        setApprovalType(stageName, false);
-    }
-
     public void configStageAsManualApprovalWithApprovedUsers(String stageName, String... users) {
         configHelper.addAuthorizedUserForStage(pipelineName, stageName, users);
     }
 
+    @Override
     protected void scheduleAndCompleteFollowingStages(Pipeline pipeline, JobResult result) {
         for (int index = 2; index <= stagesSize; index++) {
             StageConfig stageConfig = stageConfig(index);
@@ -78,19 +72,6 @@ public class PipelineWithMultipleStages extends PipelineWithTwoStages implements
             instance.setOrderId(index);
             dbHelper.getStageDao().saveWithJobs(pipeline, instance);
             dbHelper.completeStage(instance, result);
-        }
-    }
-
-    public void moveStageToEnd(String stageName) {
-        StageConfig config = configHelper.removeStage(pipelineName, stageName);
-        configHelper.addStageToPipeline(pipelineName, config);
-    }
-
-    private void setApprovalType(String stageName, boolean isAutoApproved) {
-        if (isAutoApproved) {
-            configHelper.configureStageAsAutoApproval(pipelineName, stageName);
-        } else {
-            configHelper.configureStageAsManualApproval(pipelineName, stageName);
         }
     }
 

@@ -26,10 +26,12 @@ import org.junit.Test;
 
 public class MaterialDatabaseGitWithSubmodulesUpdaterTest extends TestBaseForDatabaseUpdater {
 
+    @Override
     protected Material material() {
         return new GitMaterial(testRepo.projectRepositoryUrl());
     }
 
+    @Override
     protected TestRepo repo() throws Exception {
         GitRepoContainingSubmodule testRepoWithExternal = new GitRepoContainingSubmodule(temporaryFolder);
         testRepoWithExternal.addSubmodule("submodule-1", "sub1");

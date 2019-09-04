@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.scheduling;
 
-import com.thoughtworks.go.server.service.support.DaemonThreadStatsCollector;
 import com.thoughtworks.go.server.perf.SchedulingPerformanceLogger;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,20 +27,18 @@ public class ScheduleCheckListenerFactory {
     private ScheduleCheckQueue queue;
     private SystemEnvironment systemEnvironment;
     private SchedulingPerformanceLogger schedulingPerformanceLogger;
-    private final DaemonThreadStatsCollector daemonThreadStatsCollector;
 
     @Autowired
     public ScheduleCheckListenerFactory(ScheduleCheckCompletedTopic topic,
                                         BuildCauseProducerService producerService,
                                         ScheduleCheckQueue queue,
                                         SystemEnvironment systemEnvironment,
-                                        SchedulingPerformanceLogger schedulingPerformanceLogger, DaemonThreadStatsCollector daemonThreadStatsCollector) {
+                                        SchedulingPerformanceLogger schedulingPerformanceLogger) {
         this.topic = topic;
         this.producerService = producerService;
         this.queue = queue;
         this.systemEnvironment = systemEnvironment;
         this.schedulingPerformanceLogger = schedulingPerformanceLogger;
-        this.daemonThreadStatsCollector = daemonThreadStatsCollector;
     }
 
     public void init(){

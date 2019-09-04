@@ -45,6 +45,7 @@ public class JobStatusCache implements JobStatusListener {
         this.stageDao = stageDao;
     }
 
+    @Override
     public void jobStatusChanged(JobInstance job) {
         cache(job);
     }

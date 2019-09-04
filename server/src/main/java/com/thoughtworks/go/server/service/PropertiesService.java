@@ -181,6 +181,7 @@ public class PropertiesService implements JobPropertiesReader {
         propertyDao.save(instance.getId(), new Property(CRUISE_AGENT, goConfigService.agentByUuid(instance.getAgentUuid()).getHostname()));
     }
 
+    @Override
     public Properties getPropertiesForJob(long id) {
         return propertyDao.list(id);
     }
@@ -226,10 +227,12 @@ public class PropertiesService implements JobPropertiesReader {
     }
 
     private static class JsonPropertyLister implements PropertyLister {
+        @Override
         public RestfulAction listPropertiesHistory(List<Properties> jobPropertiesHistory) {
             return propHistoryAsJson(jobPropertiesHistory);
         }
 
+        @Override
         public RestfulAction listProperties(Properties properties) {
             return jsonFound(properties);
         }
@@ -252,10 +255,12 @@ public class PropertiesService implements JobPropertiesReader {
             this.jobName = jobName;
         }
 
+        @Override
         public RestfulAction listPropertiesHistory(List<Properties> jobProperties) {
             return csvFound(fromAllPropertiesHistory(jobProperties), jobName);
         }
 
+        @Override
         public RestfulAction listProperties(Properties properties) {
             return csvFound(fromProperties(properties), jobName);
         }

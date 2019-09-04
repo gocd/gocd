@@ -24,6 +24,7 @@ public class AgentInstruction implements Serializable {
         this.shouldCancelJob = shouldCancelJob;
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -41,6 +42,7 @@ public class AgentInstruction implements Serializable {
         return true;
     }
 
+    @Override
     public int hashCode() {
         return (shouldCancelJob ? 1 : 0);
     }

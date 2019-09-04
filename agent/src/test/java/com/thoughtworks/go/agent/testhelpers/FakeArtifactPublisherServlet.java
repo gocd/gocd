@@ -42,6 +42,7 @@ public class FakeArtifactPublisherServlet extends HttpServlet {
         return consoleOutput.toString();
     }
 
+    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver();
@@ -51,6 +52,7 @@ public class FakeArtifactPublisherServlet extends HttpServlet {
         receivedFiles.add(multipartFile.getOriginalFilename());
     }
 
+    @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String str = IOUtils.toString(request.getInputStream());

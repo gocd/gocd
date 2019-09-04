@@ -40,6 +40,7 @@ public class GoAgentServerHttpClientBuilder extends GoAgentServerClientBuilder<C
         super(systemEnvironment);
     }
 
+    @Override
     public CloseableHttpClient build() throws Exception {
         HttpClientBuilder builder = HttpClients.custom();
         builder.useSystemProperties();

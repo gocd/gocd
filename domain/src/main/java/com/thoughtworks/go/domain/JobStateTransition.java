@@ -59,6 +59,7 @@ public class JobStateTransition extends PersistentObject {
         this.jobId = jobId;
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -78,6 +79,7 @@ public class JobStateTransition extends PersistentObject {
         return true;
     }
 
+    @Override
     public int hashCode() {
         int result = Long.valueOf(jobId).hashCode();
         result = 31 * result + (currentState != null ? currentState.hashCode() : 0);
@@ -86,6 +88,7 @@ public class JobStateTransition extends PersistentObject {
         return result;
     }
 
+    @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this);
     }

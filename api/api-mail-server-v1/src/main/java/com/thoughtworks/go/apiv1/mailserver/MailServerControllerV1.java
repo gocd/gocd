@@ -28,7 +28,6 @@ import com.thoughtworks.go.apiv1.mailserver.representers.MailServerRepresenter;
 import com.thoughtworks.go.config.MailHost;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
-import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.config.update.CreateOrUpdateUpdateMailHostCommand;
 import com.thoughtworks.go.config.update.DeleteMailHostCommand;
 import com.thoughtworks.go.server.service.GoConfigService;

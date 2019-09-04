@@ -344,6 +344,7 @@ public class BuildCauseProducerService {
             }
         }
 
+        @Override
         public void onMaterialUpdate(MaterialUpdateCompletedMessage message) {
             Material material = message.getMaterial();
 
@@ -407,6 +408,7 @@ public class BuildCauseProducerService {
             }
         }
 
+        @Override
         public boolean isListeningFor(Material material) {
             return pendingMaterials.containsKey(material.getFingerprint());
         }

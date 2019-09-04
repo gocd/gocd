@@ -15,11 +15,9 @@
  */
 package com.thoughtworks.go.util.validators;
 
-import static java.text.MessageFormat.format;
-
 import com.thoughtworks.go.util.SystemUtil;
-import com.thoughtworks.go.util.validators.Validation;
-import com.thoughtworks.go.util.validators.Validator;
+
+import static java.text.MessageFormat.format;
 
 public class ServerPortValidator implements Validator {
     private final int port;
@@ -28,6 +26,7 @@ public class ServerPortValidator implements Validator {
         this.port = port;
     }
 
+    @Override
     public Validation validate(Validation validation) {
         if (SystemUtil.isLocalhostReachable(port)) {
             String message = format("Port {0} could not be opened. Please Check if it is available",

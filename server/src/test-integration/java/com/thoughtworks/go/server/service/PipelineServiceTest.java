@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.JobConfig;
 import com.thoughtworks.go.config.JobConfigs;
 import com.thoughtworks.go.domain.JobInstance;
@@ -29,14 +28,12 @@ import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.helper.StageMother;
-import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
 import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.domain.JobStatusListener;
-import com.thoughtworks.go.server.domain.PipelineConfigDependencyGraph;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
 import com.thoughtworks.go.server.domain.StageStatusListener;
 import com.thoughtworks.go.server.messaging.JobResultTopic;
@@ -79,7 +76,6 @@ public class PipelineServiceTest {
     @Autowired private GoConfigService goConfigService;
     @Autowired private GoCache goCache;
     @Autowired private SystemEnvironment systemEnvironment;
-    @Autowired private PluginManager pluginManager;
     @Autowired private MaterialConfigConverter materialConfigConverter;
 
     @Before
@@ -196,12 +192,4 @@ public class PipelineServiceTest {
         return pipeline;
     }
 
-    private CruiseConfig createCruiseConfigFromGraph(CruiseConfig cruiseConfig, final PipelineConfigDependencyGraph pdg) {
-        String groupName = "defaultGroup";
-        cruiseConfig.addPipeline(groupName, pdg.getCurrent());
-        for (PipelineConfigDependencyGraph upstreamDependency : pdg.getUpstreamDependencies()) {
-            createCruiseConfigFromGraph(cruiseConfig, upstreamDependency);
-        }
-        return cruiseConfig;
-    }
 }

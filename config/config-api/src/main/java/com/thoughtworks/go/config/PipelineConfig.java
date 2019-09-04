@@ -213,6 +213,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         return fetchExternalArtifactTasks;
     }
 
+    @Override
     public void validate(ValidationContext validationContext) {
         validateLabelTemplate();
         validatePipelineName();
@@ -324,10 +325,12 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         return !isEmpty();
     }
 
+    @Override
     public void addError(String fieldName, String msg) {
         errors.add(fieldName, msg);
     }
 
+    @Override
     public ConfigErrors errors() {
         return errors;
     }
@@ -372,11 +375,13 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         return this.first();
     }
 
+    @Override
     public StageConfig set(int index, StageConfig stageConfig) {
         verifyUniqueName(stageConfig, index);
         return super.set(index, stageConfig);
     }
 
+    @Override
     public boolean add(StageConfig stageConfig) {
         ensureNoTemplateDefined(stageConfig.name());
         verifyUniqueName(stageConfig);
@@ -404,6 +409,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         return findBy(stageConfig.name()) != null;
     }
 
+    @Override
     public CaseInsensitiveString name() {
         return name;
     }
@@ -454,13 +460,6 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
 
         RepoConfigOrigin repoConfigOrigin = (RepoConfigOrigin) this.origin;
         return repoConfigOrigin.isFromRevision(revision);
-    }
-
-    private static <T> T as(Class<T> clazz, Object o) {
-        if (clazz.isInstance(o)) {
-            return clazz.cast(o);
-        }
-        return null;
     }
 
     public MaterialConfigs materialConfigs() {
@@ -776,6 +775,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         setParams(new ParamsConfig(paramsConfig));
     }
 
+    @Override
     public ParamResolver applyOver(ParamResolver enclosingScope) {
         return enclosingScope.override(CLONER.deepClone(params));
     }
@@ -784,6 +784,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         return params;
     }
 
+    @Override
     public void setConfigAttributes(Object attributes) {
         setConfigAttributes(attributes, null);
     }
@@ -1017,6 +1018,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
                 .collect(Collectors.toList());
     }
 
+    @Override
     public ConfigOrigin getOrigin() {
         return origin;
     }

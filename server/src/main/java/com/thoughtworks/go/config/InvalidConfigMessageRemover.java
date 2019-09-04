@@ -38,6 +38,7 @@ public class InvalidConfigMessageRemover implements ConfigChangedListener {
         this.serverHealthService = serverHealthService;
     }
 
+    @Override
     public void onConfigChange(CruiseConfig newCruiseConfig) {
         if (registering) {
             registering = false;

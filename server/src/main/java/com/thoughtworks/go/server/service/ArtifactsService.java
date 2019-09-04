@@ -116,6 +116,7 @@ public class ArtifactsService implements ArtifactUrlReader {
         return chooser.findArtifact(identifier, path);
     }
 
+    @Override
     public String findArtifactRoot(JobIdentifier identifier) throws IllegalArtifactLocationException {
         JobIdentifier id = jobResolverService.actualJobIdentifier(identifier);
         try {
@@ -131,6 +132,7 @@ public class ArtifactsService implements ArtifactUrlReader {
         }
     }
 
+    @Override
     public String findArtifactUrl(JobIdentifier jobIdentifier) {
         JobIdentifier actualId = jobResolverService.actualJobIdentifier(jobIdentifier);
         return format("/files/%s", actualId.buildLocator());

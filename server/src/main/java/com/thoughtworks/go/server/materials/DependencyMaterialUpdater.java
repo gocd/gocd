@@ -41,10 +41,12 @@ public class DependencyMaterialUpdater implements MaterialUpdater {
         this.materialRepository = materialRepository;
     }
 
+    @Override
     public void insertLatestOrNewModifications(Material material, MaterialInstance materialInstance, File folder, Modifications list) {
         insertDependencyMaterialRevisions((DependencyMaterial) material, list);
     }
 
+    @Override
     public void addNewMaterialWithModifications(Material material, File folder) {
         insertRevisionsForAllParentStageInstances((DependencyMaterial) material);
     }

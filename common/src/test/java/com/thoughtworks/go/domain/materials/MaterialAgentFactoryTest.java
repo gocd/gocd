@@ -21,13 +21,11 @@ import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.materials.scm.PluggableSCMMaterialAgent;
-import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.util.CachedDigestUtils;
 import com.thoughtworks.go.util.ReflectionUtil;
-import com.thoughtworks.go.util.command.DevNull;
-import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
+import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -48,8 +46,6 @@ public class MaterialAgentFactoryTest {
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @Mock
-    private PackageRepositoryExtension packageRepositoryExtension;
-    @Mock
     private SCMExtension scmExtension;
 
     @Before
@@ -61,7 +57,7 @@ public class MaterialAgentFactoryTest {
     public void shouldCreateMaterialAgent_withAgentsUuidAsSubprocessExecutionContextNamespace() throws IOException {
         String agentUuid = "uuid-01783738";
         File workingDirectory = temporaryFolder.newFolder();
-        MaterialAgentFactory factory = new MaterialAgentFactory(new ProcessOutputStreamConsumer(new DevNull(), new DevNull()), workingDirectory,
+        MaterialAgentFactory factory = new MaterialAgentFactory(new InMemoryStreamConsumer(), workingDirectory,
                 new AgentIdentifier("host", "1.1.1.1", agentUuid), scmExtension);
         GitMaterial gitMaterial = new GitMaterial("http://foo", "master", "dest_folder");
 

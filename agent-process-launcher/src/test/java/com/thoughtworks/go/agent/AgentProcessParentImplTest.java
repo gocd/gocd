@@ -226,6 +226,7 @@ public class AgentProcessParentImplTest {
         String stdOutMsg = "Mr. Agent writes to stdout!";
         when(subProcess.getInputStream()).thenReturn(new ByteArrayInputStream(stdOutMsg.getBytes()));
         when(subProcess.waitFor()).thenAnswer(new Answer<Object>() {
+            @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 return 42;
             }
@@ -261,6 +262,7 @@ public class AgentProcessParentImplTest {
         final OutputStream stdin = mock(OutputStream.class);
         Process subProcess = mockProcess(new ByteArrayInputStream(new byte[0]), new ByteArrayInputStream(new byte[0]), stdin);
         when(subProcess.waitFor()).thenAnswer(new Answer<Object>() {
+            @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 verify(stdin).close();
                 return 21;

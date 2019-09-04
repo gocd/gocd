@@ -17,8 +17,6 @@ package com.thoughtworks.go.agent.common;
 
 import com.thoughtworks.go.agent.ServerUrlGenerator;
 
-import java.net.MalformedURLException;
-
 public class UrlConstructor implements ServerUrlGenerator {
 
     private final String serverUrl;
@@ -30,6 +28,7 @@ public class UrlConstructor implements ServerUrlGenerator {
         this.serverUrl = serverUrl;
     }
 
+    @Override
     public String serverUrlFor(String subPath) {
         if (subPath == null || subPath.trim().length() == 0) {
             return serverUrl;

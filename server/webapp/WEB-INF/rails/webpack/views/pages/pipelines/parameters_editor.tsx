@@ -49,7 +49,7 @@ export class PipelineParametersEditor extends MithrilViewComponent<Attrs> {
               <Tooltip.Help size={TooltipSize.medium} content={`Parameters help reduce repetition within your configurations and combined with templates allow you to setup complex configurations.`} />
             </label>
             <Buttons.Cancel onclick={this.add.bind(this)} small={true} icon={Buttons.ButtonIcon.ADD} />
-            <Table headers={["name", "optional default value", ""]} data={
+            <Table headers={["name", "value", ""]} data={
               _.map(this.paramList(), (param, i) => {
                 return [
                   <IdentifierInputField dataTestId={`form-field-input-param-name-${i}`} property={param.name} errorText={param.errors().errorsForDisplay("name")} onchange={this.update.bind(this, vnode.attrs.parameters)} />,

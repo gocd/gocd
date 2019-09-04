@@ -1343,7 +1343,7 @@ public class GoConfigMigratorIntegrationTest {
     }
 
     @Test
-    public void shouldMigrateAgentsOutOfXMLAndIntoDB() throws Exception {
+    public void shouldMigrateAgentsOutOfXMLIntoDBAsPartOf127() throws Exception {
         String configContent = "" +
                 "  <environments>\n" +
                 "    <environment name=\"bar\">\n" +
@@ -1363,7 +1363,12 @@ public class GoConfigMigratorIntegrationTest {
                 "    </environment>\n" +
                 "  </environments>" +
                 "  <agents>" +
-                "    <agent uuid='one' hostname='one-host' ipaddress='127.0.0.1'/>" +
+                "    <agent uuid='one' hostname='one-host' ipaddress='127.0.0.1' >" +
+                "        <resources>" +
+                "           <resource>repos</resource>" +
+                "           <resource>db</resource>" +
+                "        </resources>" +
+                "    </agent>" +
                 "    <agent uuid='two' hostname='two-host' ipaddress='127.0.0.2'/>" +
                 "    <agent uuid='elastic-one' hostname='one-elastic-host' ipaddress='172.10.20.30' elasticAgentId='docker.foo1' elasticPluginId='docker'/>" +
                 "    <agent uuid='elastic-two' hostname='two-elastic-host' ipaddress='172.10.20.31' elasticAgentId='docker.foo2' elasticPluginId='docker'/>" +
@@ -1385,6 +1390,87 @@ public class GoConfigMigratorIntegrationTest {
         }
         int newAgentCountInDb = agentDao.getAllAgents().size();
         assertThat(newAgentCountInDb).isEqualTo(initialAgentCountInDb + 4);
+
+        Agent staticAgent = agentDao.fetchAgentFromDBByUUID("one");
+
+        assertThat(staticAgent.getResourcesAsList()).contains("repos", "db");
+        assertThat(staticAgent.getEnvironmentsAsList()).contains("foo");
+        assertThat(staticAgent.getHostname()).isEqualTo("one-host");
+        assertThat(staticAgent.getIpaddress()).isEqualTo("127.0.0.1");
+        assertThat(staticAgent.isDisabled()).isFalse();
+        assertThat(staticAgent.isDeleted()).isFalse();
+
+        Agent staticAgent2 = agentDao.fetchAgentFromDBByUUID("two");
+
+        assertThat(staticAgent2.getResources()).isEmpty();
+        assertThat(staticAgent2.getEnvironments()).isEqualTo("foo");
+        assertThat(staticAgent2.getHostname()).isEqualTo("two-host");
+        assertThat(staticAgent2.getIpaddress()).isEqualTo("127.0.0.2");
+        assertThat(staticAgent2.isDisabled()).isFalse();
+        assertThat(staticAgent2.isDeleted()).isFalse();
+
+        Agent elasticAgent = agentDao.fetchAgentFromDBByUUID("elastic-two");
+
+        assertThat(elasticAgent.getEnvironmentsAsList()).contains("foo", "baz");
+        assertThat(elasticAgent.getHostname()).isEqualTo("two-elastic-host");
+        assertThat(elasticAgent.getIpaddress()).isEqualTo("172.10.20.31");
+        assertThat(elasticAgent.getElasticPluginId()).isEqualTo("docker");
+        assertThat(elasticAgent.getElasticAgentId()).isEqualTo("docker.foo2");
+        assertThat(elasticAgent.isDisabled()).isFalse();
+        assertThat(elasticAgent.isDeleted()).isFalse();
+
+        Agent elasticAgent1 = agentDao.fetchAgentFromDBByUUID("elastic-one");
+
+        assertThat(elasticAgent1.getEnvironments()).isEqualTo("baz");
+        assertThat(elasticAgent1.getHostname()).isEqualTo("one-elastic-host");
+        assertThat(elasticAgent1.getIpaddress()).isEqualTo("172.10.20.30");
+        assertThat(elasticAgent1.getElasticPluginId()).isEqualTo("docker");
+        assertThat(elasticAgent1.getElasticAgentId()).isEqualTo("docker.foo1");
+        assertThat(elasticAgent1.isDisabled()).isFalse();
+        assertThat(elasticAgent1.isDeleted()).isFalse();
+
+        XmlAssert.assertThat(newConfigFile).doesNotHaveXPath("//agents");
+        XmlAssert.assertThat(newConfigFile).doesNotHaveXPath("//environments/environment/agents");
+    }
+
+    @Test
+    public void shouldUpdateAnExistingAgentRecordInDBAsPartOfXMLToDBMigration_127() throws Exception {
+        String configContent = "" +
+                "  <environments>\n" +
+                "    <environment name=\"foo\">\n" +
+                "      <agents>\n" +
+                "        <physical uuid=\"one\" />\n" +
+                "      </agents>\n" +
+                "    </environment>\n" +
+                "  </environments>" +
+                "  <agents>" +
+                "    <agent uuid='one' hostname='one-host' ipaddress='127.0.0.1' >" +
+                "        <resources>" +
+                "           <resource>repos</resource>" +
+                "           <resource>db</resource>" +
+                "        </resources>" +
+                "    </agent>" +
+                "  </agents>";
+
+        String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                + "<cruise schemaVersion=\"126\">\n"
+                + configContent
+                + "</cruise>";
+
+        Agent agent = new Agent("one", "old-host", "old-ip", "cookie");
+        agentDao.saveOrUpdate(agent);
+
+        CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml);
+        String newConfigFile = FileUtils.readFileToString(configFile, UTF_8);
+
+        Agent staticAgent = agentDao.fetchAgentFromDBByUUID("one");
+
+        assertThat(staticAgent.getResourcesAsList()).contains("repos", "db");
+        assertThat(staticAgent.getEnvironments()).isEqualTo("foo");
+        assertThat(staticAgent.getHostname()).isEqualTo("one-host");
+        assertThat(staticAgent.getIpaddress()).isEqualTo("127.0.0.1");
+        assertThat(staticAgent.isDisabled()).isFalse();
+        assertThat(staticAgent.isDeleted()).isFalse();
 
         XmlAssert.assertThat(newConfigFile).doesNotHaveXPath("//agents");
     }

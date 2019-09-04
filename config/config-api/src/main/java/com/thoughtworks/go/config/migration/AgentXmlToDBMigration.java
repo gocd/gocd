@@ -42,8 +42,9 @@ public class AgentXmlToDBMigration {
         String elasticAgentId;
         String elasticPluginId;
         String environments;
+        private final String resources;
 
-        public Agent(String uuid, String hostname, String ipaddress, String isDisabled, String elasticAgentId, String elasticPluginId, String environments) {
+        public Agent(String uuid, String hostname, String ipaddress, String isDisabled, String elasticAgentId, String elasticPluginId, String environments, String resources) {
             this.uuid = uuid;
             this.hostname = hostname;
             this.ipaddress = ipaddress;
@@ -51,6 +52,7 @@ public class AgentXmlToDBMigration {
             this.elasticAgentId = elasticAgentId;
             this.elasticPluginId = elasticPluginId;
             this.environments = environments;
+            this.resources = resources;
         }
 
         @Override
@@ -63,19 +65,20 @@ public class AgentXmlToDBMigration {
                     ", elasticAgentId='" + elasticAgentId + '\'' +
                     ", elasticPluginId='" + elasticPluginId + '\'' +
                     ", environments='" + environments + '\'' +
+                    ", resources='" + resources + '\'' +
                     '}';
         }
     }
 
-    public static void migrateAgent(String uuid, String hostname, String ipaddress, String isDisabled, String elasticAgentId, String elasticPluginId, String environments) {
-        agentList.add(new Agent(uuid, hostname, ipaddress, isDisabled, elasticAgentId, elasticPluginId, environments));
+    public static void migrateAgent(String uuid, String hostname, String ipaddress, String isDisabled, String elasticAgentId, String elasticPluginId, String environments, String resources) {
+        agentList.add(new Agent(uuid, hostname, ipaddress, isDisabled, elasticAgentId, elasticPluginId, environments, resources));
     }
 
     public static void endTransaction() throws Exception {
         if (dataSource == null) {
             return;
         }
-        System.out.println("AgentXmlToDBMigration.endTransaction");
+        logAgentInfo();
         try (Connection connection = dataSource.getConnection()) {
             connection.setAutoCommit(false);
 
@@ -91,31 +94,45 @@ public class AgentXmlToDBMigration {
                         update(agent, connection);
                     }
                 } else {
-                    throw new RuntimeException("No results found in resultset.");
+                    LOGGER.error("No results found in resultset for agent with uuid: {}", agent.uuid);
                 }
             }
             connection.commit();
+            LOGGER.info("Successfully migrated agents from config to DB");
         } catch (Exception e) {
-            LOGGER.error("There was an error updating agents", e);
+            LOGGER.error("There was an error migrating agents from config to DB", e);
             throw e;
         } finally {
             agentList = null;
         }
     }
 
+    private static void logAgentInfo() {
+        LOGGER.info("Migrating {} agents from config to db.", agentList.size());
+        StringBuilder logBuilder = new StringBuilder();
+        agentList.forEach(agent -> {
+            logBuilder
+                    .append(agent.toString())
+                    .append('\n');
+        });
+        LOGGER.info(logBuilder.toString());
+    }
+
     private static void update(Agent agent, Connection connection) throws SQLException {
-        PreparedStatement preparedStatement = connection.prepareStatement("UPDATE agents SET ipaddress=?, hostname=?, disabled=?, elasticAgentId=?, elasticPluginId=? WHERE uuid=?");
+        PreparedStatement preparedStatement = connection.prepareStatement("UPDATE agents SET ipaddress=?, hostname=?, disabled=?, elasticAgentId=?, elasticPluginId=?, environments=?, resources=?, deleted=false WHERE uuid=?");
         preparedStatement.setString(1, agent.ipaddress);
         preparedStatement.setString(2, agent.hostname);
         preparedStatement.setBoolean(3, agent.isDisabled);
         preparedStatement.setString(4, agent.elasticAgentId);
         preparedStatement.setString(5, agent.elasticPluginId);
-        preparedStatement.setString(6, agent.uuid);
+        preparedStatement.setString(6, agent.environments);
+        preparedStatement.setString(7, agent.resources);
+        preparedStatement.setString(8, agent.uuid);
         preparedStatement.execute();
     }
 
     private static void insert(Agent agent, Connection connection) throws SQLException {
-        PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO agents (uuid, ipaddress, hostname, disabled, elasticAgentId, elasticPluginId, cookie) VALUES(?, ?, ?, ?, ?, ?, ?)");
+        PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO agents (uuid, ipaddress, hostname, disabled, elasticAgentId, elasticPluginId, cookie, environments, resources, deleted) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         preparedStatement.setString(1, agent.uuid);
         preparedStatement.setString(2, agent.ipaddress);
         preparedStatement.setString(3, agent.hostname);
@@ -123,11 +140,13 @@ public class AgentXmlToDBMigration {
         preparedStatement.setString(5, agent.elasticAgentId);
         preparedStatement.setString(6, agent.elasticPluginId);
         preparedStatement.setString(7, UUID.randomUUID().toString());
+        preparedStatement.setString(8, agent.environments);
+        preparedStatement.setString(9, agent.resources);
+        preparedStatement.setBoolean(10, false);
         preparedStatement.execute();
     }
 
     public static void beginTransaction() {
         agentList = new ArrayList<>();
-        System.out.println("AgentXmlToDBMigration.beginTransaction");
     }
 }

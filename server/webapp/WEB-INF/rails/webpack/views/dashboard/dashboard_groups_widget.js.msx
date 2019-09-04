@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 import m from "mithril";
+import Stream from "mithril/stream";
 import _ from "lodash";
 import {f} from "helpers/form_helper";
 import {PipelineWidget} from "views/dashboard/pipeline_widget";
@@ -52,27 +53,27 @@ const GroupHeading = {
   }
 };
 
-const Dropdown = {
+class Dropdown {
+  show = Stream(false);
+
   view(vnode) {
     const vm = vnode.attrs.vm;
     const paths = vm.routes();
 
-    return <div class="new-pipeline-selector">
-      <Buttons.Primary
-        icon       = {Buttons.ButtonIcon.ADD}
-        disabled   = {!vm.canAdminister}
-        aria-label = {vm.ariaLabelForNewPipeline()}
-        title      = {vm.titleForNewPipeline()}>
-        New Pipeline
-      </Buttons.Primary>
-
-      <ul class="new-pipeline-items">
-        <li class="new-pipeline-item"><a href={paths.new}>Add manually</a></li>
-        <li class="new-pipeline-item"><a href={paths.asCode}>Add pipeline as code</a></li>
-      </ul>
-    </div>;
+    return <Buttons.SimpleDropdown
+        show={this.show}
+        classes={["new-pipeline-button"]}
+        aria-label={vm.ariaLabelForNewPipeline()}
+        title={vm.titleForNewPipeline()}
+        disabled={!vm.canAdminister}
+        text="New Pipeline">
+        <ul class="new-pipeline-items">
+          <li class="new-pipeline-item"><a href={paths.new}>Pipeline wizard</a></li>
+          <li class="new-pipeline-item"><a href={paths.asCode}>Pipeline as code</a></li>
+        </ul>
+      </Buttons.SimpleDropdown>;
   }
-};
+}
 
 const Group = {
   view(vnode) {

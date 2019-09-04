@@ -1,0 +1,66 @@
+<!--
+  ~ Copyright 2019 ThoughtWorks, Inc.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<ruleset name="Custom Rules"
+         xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 https://pmd.sourceforge.io/ruleset_2_0_0.xsd">
+  <description>
+    Custom PMD rules for GoCD
+  </description>
+
+  <rule ref="category/java/bestpractices.xml/UnusedPrivateField">
+    <description>suppresses unused fields if used by gson/jackson/lombok</description>
+    <properties>
+      <property name="ignoredAnnotations"
+                value="lombok.Setter | lombok.Getter | lombok.Builder | lombok.Data | lombok.RequiredArgsConstructor | lombok.AllArgsConstructor | lombok.Value | lombok.NoArgsConstructor | java.lang.Deprecated | javafx.fxml.FXML | lombok.experimental.Delegate | com.google.gson.annotations.SerializedName | com.google.gson.annotations.Expose"/>
+    </properties>
+  </rule>
+
+<!--  <rule ref="category/java/bestpractices.xml/UnusedLocalVariable"/>-->
+  <rule ref="category/java/bestpractices.xml/UnusedPrivateMethod"/>
+  <rule ref="category/java/bestpractices.xml/UnusedImports"/>
+  <rule ref="category/java/bestpractices.xml/MissingOverride"/>
+  <!--  <rule ref="category/java/bestpractices.xml/PositionLiteralsFirstInCaseInsensitiveComparisons"/>-->
+  <!--  <rule ref="category/java/bestpractices.xml/PositionLiteralsFirstInComparisons"/>-->
+  <!--  <rule ref="category/java/bestpractices.xml/UseCollectionIsEmpty"/>-->
+    <rule ref="category/java/bestpractices.xml/UseTryWithResources"/>
+  <!--  <rule ref="category/java/bestpractices.xml/UseVarargs"/>-->
+
+  <rule ref="category/java/errorprone.xml/CloseResource">
+    <properties>
+      <property name="allowedResourceTypes"
+                value=" java.io.ByteArrayOutputStream|java.io.ByteArrayInputStream|java.io.StringWriter|java.io.CharArrayWriter|java.util.stream.Stream|java.util.Scanner"/>
+    </properties>
+  </rule>
+  <rule ref="category/java/errorprone.xml/DetachedTestCase"/>
+  <rule ref="category/java/errorprone.xml/DontImportSun"/>
+  <rule ref="category/java/errorprone.xml/EqualsNull"/>
+  <rule ref="category/java/errorprone.xml/ImportFromSamePackage"/>
+  <rule ref="category/java/errorprone.xml/InvalidSlf4jMessageFormat"/>
+  <rule ref="category/java/errorprone.xml/MisplacedNullCheck"/>
+  <rule ref="category/java/errorprone.xml/ProperLogger"/>
+  <rule ref="category/java/errorprone.xml/SuspiciousEqualsMethodName"/>
+  <rule ref="category/java/errorprone.xml/SuspiciousHashcodeMethodName"/>
+  <rule ref="category/java/errorprone.xml/UnnecessaryCaseChange"/>
+  <rule ref="category/java/errorprone.xml/UseEqualsToCompareStrings"/>
+
+  <rule ref="category/java/multithreading.xml/DoubleCheckedLocking" />
+  <rule ref="category/java/multithreading.xml/NonThreadSafeSingleton" />
+  <rule ref="category/java/multithreading.xml/UnsynchronizedStaticFormatter" />
+
+  <rule ref="category/java/performance.xml/StringToString" />
+</ruleset>

@@ -388,6 +388,7 @@ subprojects {
 
   if (!project.fileTree("src/main/java").files.isEmpty()) {
     apply plugin: 'java'
+    apply plugin: 'pmd'
     apply plugin: 'com.github.jk1.dependency-license-report'
 
     dependencyUpdates.resolutionStrategy {
@@ -452,6 +453,13 @@ subprojects {
     task testJar(type: Jar, description: "Assembles a jar archive containing the test classes.") {
       archiveClassifier = 'tests'
       from sourceSets.test.output
+    }
+
+    pmd {
+      ignoreFailures = true
+      toolVersion = '6.17.0'
+      ruleSetFiles = files(rootProject.file('buildSrc/pmd.xml'))
+      ruleSets = []
     }
   }
 

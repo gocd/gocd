@@ -55,7 +55,7 @@ describe("ElasticAgentWizard", () => {
   });
 
   it("should display cluster profile properties form", () => {
-    expect(wizard).toContainElementWithDataTestId("form-field-input-id");
+    expect(wizard).toContainElementWithDataTestId("form-field-input-cluster-profile-name");
     expect(wizard).toContainElementWithDataTestId("form-field-input-plugin-id");
     expect(wizard).toContainElementWithDataTestId("properties-form");
     expect(wizard).toContainInBody("elastic agent plugin settings view");
@@ -64,7 +64,7 @@ describe("ElasticAgentWizard", () => {
   it("should display elastic profile properties form", () => {
     wizard.next();
     m.redraw.sync();
-    expect(wizard).toContainElementWithDataTestId("form-field-input-id");
+    expect(wizard).toContainElementWithDataTestId("form-field-input-elastic-profile-name");
     expect(wizard).toContainElementWithDataTestId("properties-form");
     expect(wizard).toContainInBody("some view for plugin");
   });

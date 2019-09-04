@@ -64,7 +64,7 @@ class NewClusterProfileWidget extends MithrilViewComponent<Attrs> {
       <div class={styles.container}>
         <div>
           <div class={styles.profileForm}>
-            <div><TextField label="Id"
+            <div><TextField label="Cluster Profile Name"
                             property={vnode.attrs.clusterProfile().id}
                             errorText={vnode.attrs.clusterProfile().errors().errorsForDisplay("id")}
                             required={true}/></div>
@@ -151,7 +151,7 @@ class NewElasticProfileWidget extends MithrilViewComponent<Attrs> {
       <div class={styles.container}>
         <div>
           <div class={styles.profileForm}>
-              <TextField label="Id"
+              <TextField label="Elastic Profile Name"
                          property={vnode.attrs.elasticProfile().id}
                          errorText={vnode.attrs.elasticProfile().errors().errorsForDisplay("id")}
                          required={true}/>
@@ -282,12 +282,11 @@ class AssociateToJobsStep extends Step {
           <div class={styles.pipelineStructureWrapper}>
             <div class={styles.pipelineStructure}>
               <div class={styles.pipelineStructureHeader}><h3>Pipeline Groups</h3><Refresh/></div>
-              {this.renderPipelineGroups()}
+              <div class={styles.pipelineStructureContent}>{this.renderPipelineGroups()}</div>
             </div>
             <div class={styles.pipelineStructure}>
               <div class={styles.pipelineStructureHeader}><h3>Templates</h3><Refresh/></div>
-
-              {this.renderTemplates()}
+              <div class={styles.pipelineStructureContent}>{this.renderTemplates()}</div>
             </div>
           </div>
         </div>

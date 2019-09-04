@@ -2,6 +2,7 @@
 export const checkbox: string;
 export const container: string;
 export const pipelineStructure: string;
+export const pipelineStructureContent: string;
 export const pipelineStructureHeader: string;
 export const pipelineStructureWrapper: string;
 export const profileForm: string;

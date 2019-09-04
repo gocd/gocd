@@ -37,12 +37,20 @@
 }
 
 .pipeline-structure {
-  margin-top:    15px;
-  padding:       10px 20px 20px 20px;
-  flex:          1;
-  overflow:      auto;
-  border:        1px solid $global-border-color;
-  border-radius: $global-border-radius;
+  margin-top:      15px;
+  display:         flex;
+  flex-direction:  column;
+  justify-content: flex-start;
+  padding:         10px;
+  flex:            1;
+  border:          1px solid $global-border-color;
+  border-radius:   $global-border-radius;
+  height:          100%;
+}
+
+.pipeline-structure-content {
+  overflow: auto;
+  height: 100%;
 }
 
 .pipeline-structure-header {
@@ -81,10 +89,10 @@
 }
 
 .profile-form {
-  display: flex;
-  flex-direction: column;
+  display:         flex;
+  flex-direction:  column;
   justify-content: center;
-  align-items: flex-start;
-  border-bottom: 2px solid $global-border-color ;
-  margin-bottom: 20px;
+  align-items:     flex-start;
+  border-bottom:   2px solid $global-border-color;
+  margin-bottom:   20px;
 }

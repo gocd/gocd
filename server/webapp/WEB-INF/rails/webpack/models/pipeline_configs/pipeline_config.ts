@@ -61,7 +61,7 @@ export class PipelineConfig extends ValidatableMixin {
   create(pause: boolean) {
     return ApiRequestBuilder.POST(SparkRoutes.pipelineConfigCreatePath(), ApiVersion.v8, {
       payload: this.toApiPayload(),
-      headers: {"X-pause-pipeline": pause.toString()}
+      headers: {"X-pause-pipeline": pause.toString(), "X-pause-cause": "Under construction"}
     });
   }
 

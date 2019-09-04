@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.update.AddEnvironmentCommand;
 import com.thoughtworks.go.config.update.DeleteEnvironmentCommand;
 import com.thoughtworks.go.config.update.PatchEnvironmentCommand;
@@ -77,6 +78,15 @@ public class EnvironmentConfigService implements ConfigChangedListener {
             @Override
             public void onEntityConfigChange(EnvironmentConfig entity) {
                 sync(goConfigService.getEnvironments());
+            }
+        });
+
+        goConfigService.register(new EntityConfigChangedListener<ConfigRepoConfig>() {
+            @Override
+            public void onEntityConfigChange(ConfigRepoConfig entity) {
+                if(!goConfigService.getCurrentConfig().getConfigRepos().hasConfigRepo(entity.getId())) {
+                    sync(goConfigService.getEnvironments());
+                }
             }
         });
     }

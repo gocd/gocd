@@ -17,7 +17,11 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.EntityType;
+import com.thoughtworks.go.config.remote.ConfigRepoConfig;
+import com.thoughtworks.go.config.remote.PartialConfig;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.ConfigElementForEdit;
+import com.thoughtworks.go.helper.PartialConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -59,6 +63,8 @@ public class EnvironmentConfigServiceIntegrationTest {
     private AgentConfigService agentConfigService;
     @Autowired
     private EnvironmentConfigService service;
+    @Autowired
+    private ConfigRepoService configRepoService;
 
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
 
@@ -138,7 +144,7 @@ public class EnvironmentConfigServiceIntegrationTest {
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         BasicEnvironmentConfig environmentConfigBeingUpdated = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentBeingUpdated));
-        service.patchEnvironment(environmentConfigBeingUpdated, Arrays.asList(pipelineName),new ArrayList<>(),new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),
+        service.patchEnvironment(environmentConfigBeingUpdated, Arrays.asList(pipelineName), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),
                 user, result);
         assertThat(result.message(), is("Failed to update environment 'environment-2'. Associating pipeline(s) which is already part of environment-1 environment"));
     }
@@ -306,6 +312,45 @@ public class EnvironmentConfigServiceIntegrationTest {
         ConfigElementForEdit<EnvironmentConfig> edit = service.getMergedEnvironmentforDisplay("foo-env", result);
         assertThat(result.message(), is(EntityType.Environment.notFoundMessage("foo-env")));
         assertThat(edit, is(nullValue()));
+    }
+
+    @Test
+    public void shouldSyncEnvironmentsIfAConfigRepoIsRemoved() {
+        String uuid = "uuid-1";
+        String envName = "env";
+        Username user = Username.ANONYMOUS;
+        agentConfigService.addAgent(new AgentConfig(uuid, "host-1", "192.168.1.2"), user);
+        String configRepoId = createMergeEnvironment(envName, uuid);
+
+        EnvironmentConfig envConfig = service.getEnvironmentConfig(envName);
+
+        assertThat(envConfig.getAgents().size(), is(1));
+        assertThat(envConfig.getAgents().getUuids(), contains(uuid));
+
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        configRepoService.deleteConfigRepo(configRepoId, user, result);
+
+        EnvironmentConfig envConfigPostDelete = service.getEnvironmentConfig(envName);
+
+        assertThat(envConfigPostDelete.getAgents().size(), is(0));
+    }
+
+    private String createMergeEnvironment(String envName, String agentUuid) {
+        RepoConfigOrigin repoConfigOrigin = PartialConfigMother.createRepoOrigin();
+        ConfigRepoConfig configRepo = repoConfigOrigin.getConfigRepo();
+        PartialConfig partialConfig = new PartialConfig();
+        BasicEnvironmentConfig envConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(envName));
+        envConfig.addAgent(agentUuid);
+        partialConfig.getEnvironments().add(envConfig);
+        partialConfig.setOrigins(repoConfigOrigin);
+        goConfigService.updateConfig(cruiseConfig -> {
+            cruiseConfig.getConfigRepos().add(configRepo);
+            cruiseConfig.getPartials().add(partialConfig);
+            cruiseConfig.addEnvironment(envName);
+            return cruiseConfig;
+        });
+        goConfigService.forceNotifyListeners();
+        return configRepo.getId();
     }
 
     private BasicEnvironmentConfig environmentConfig(String name) {

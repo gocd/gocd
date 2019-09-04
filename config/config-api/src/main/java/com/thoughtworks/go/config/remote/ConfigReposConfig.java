@@ -141,6 +141,10 @@ public class ConfigReposConfig extends BaseCollection<ConfigRepoConfig> implemen
         return true;
     }
 
+    public boolean hasConfigRepo(String configRepoId) {
+        return this.getConfigRepo(configRepoId) != null;
+    }
+
     private boolean isLocal(ConfigOrigin from) {
         // we assume that configuration is local (from file or from UI) when origin is not specified
         if (from == null) {

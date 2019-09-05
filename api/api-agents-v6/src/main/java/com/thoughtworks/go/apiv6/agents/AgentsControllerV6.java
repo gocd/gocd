@@ -116,6 +116,7 @@ public class AgentsControllerV6 extends ApiController implements SparkSpringCont
     }
 
     public String index(Request request, Response response) throws IOException {
+
         Map<AgentInstance, Collection<EnvironmentConfig>> agentToEnvConfigsMap = new HashMap<>();
 
         agentService.getAgentInstances().forEach(instance -> agentToEnvConfigsMap.put(instance, environmentConfigService.getAgentEnvironments(instance.getUuid())));

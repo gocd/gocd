@@ -22,12 +22,9 @@ import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.Modifications;
 
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
-import static java.util.stream.Collectors.toList;
 
 
 public class SCMDependencyNode extends Node {
@@ -50,8 +47,8 @@ public class SCMDependencyNode extends Node {
     @Override
     public List<Revision> revisions() {
         ArrayList<Revision> revisions = new ArrayList<>(this.revisions);
-        for(MaterialRevision revision : materialRevisions) {
-            for(Modification modification : revision.getModifications()) {
+        for (MaterialRevision revision : materialRevisions) {
+            for (Modification modification : revision.getModifications()) {
                 revisions.add(new SCMRevision(modification));
             }
         }
@@ -105,7 +102,7 @@ public class SCMDependencyNode extends Node {
 
             MaterialRevisionWrapper that = (MaterialRevisionWrapper) o;
 
-            if(this.materialRevision == that.materialRevision) return true;
+            if (this.materialRevision == that.materialRevision) return true;
 
             return sameMaterial(that.materialRevision.getMaterial()) &&
                     sameModifications(that.materialRevision.getModifications());
@@ -122,7 +119,7 @@ public class SCMDependencyNode extends Node {
         private boolean sameMaterial(Material thatMaterial) {
             Material material = this.materialRevision.getMaterial();
 
-            if(material == thatMaterial) return true;
+            if (material == thatMaterial) return true;
             return material != null ? (thatMaterial != null && material.getFingerprint().equals(thatMaterial.getFingerprint())) : thatMaterial == null;
         }
 

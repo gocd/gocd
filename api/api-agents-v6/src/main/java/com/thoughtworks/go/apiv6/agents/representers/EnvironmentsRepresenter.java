@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.apiv6.agents.representers;
 
+import com.google.common.collect.Sets;
 import com.thoughtworks.go.api.base.OutputListWriter;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.config.CaseInsensitiveString;
@@ -26,9 +27,8 @@ import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.spark.Routes;
 
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
@@ -36,11 +36,18 @@ import static java.util.stream.Collectors.toList;
 
 public class EnvironmentsRepresenter {
     public static void toJSON(OutputListWriter writer, Collection<EnvironmentConfig> environments, AgentInstance agentInstance) {
-        List<String> sortedEnvNames = agentInstance.getAgent().getEnvironmentsAsList().stream()
-                .sorted()
-                .collect(toList());
         EnvironmentsConfig envConfigs = new EnvironmentsConfig();
         envConfigs.addAll(environments);
+        Set<String> agentEnvAssociationFromDB = new HashSet<>(agentInstance.getAgent().getEnvironmentsAsList());
+        Set<String> agentEnvAssociationFromConfigRepo = envConfigs.stream()
+                .filter(environmentConfig -> !environmentConfig.isLocal())
+                .map(environmentConfig -> environmentConfig.name().toString())
+                .collect(Collectors.toSet());
+        Set<String> allAgentEnvAssociations = Sets.union(agentEnvAssociationFromDB, agentEnvAssociationFromConfigRepo);
+        List<String> sortedEnvNames = allAgentEnvAssociations.stream()
+                .sorted()
+                .collect(toList());
+
         for (String envName : sortedEnvNames) {
             EnvironmentConfig envConfig = envConfigs.find(new CaseInsensitiveString(envName));
             if (envConfig != null) {

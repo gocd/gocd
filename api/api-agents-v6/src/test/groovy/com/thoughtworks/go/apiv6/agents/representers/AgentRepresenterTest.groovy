@@ -54,7 +54,7 @@ class AgentRepresenterTest {
   @Test
   void 'renders an agent with hal representation'() {
     AgentInstance agentInstance = idleWith("some-uuid", "agent01.example.com", "127.0.0.1", "/var/lib/go-server", 10l, "Linux", Arrays.asList("linux", "firefox"))
-    agentInstance.getAgent().setEnvironments("uat,load_test,dev,non-existent-env")
+    agentInstance.getAgent().setEnvironments("uat,load_test,non-existent-env")
     def envFromConfigRepo = environment("dev")
     envFromConfigRepo.setOrigins(new RepoConfigOrigin(new ConfigRepoConfig(null, "yaml", "foo"), "revision"))
     envFromConfigRepo.addAgent("some-uuid")
@@ -159,6 +159,79 @@ class AgentRepresenterTest {
       .containsEntry("elastic_agent_id", "docker-elastic-agent")
       .containsEntry("elastic_plugin_id", "cd.go.docker")
       .doesNotContainKey("resources")
+  }
+
+  @Test
+  void 'should render environments associated through config-repo'() {
+    AgentInstance agentInstance = idleWith("some-uuid", "agent01.example.com", "127.0.0.1", "/var/lib/go-server", 10l, "Linux", Arrays.asList("linux", "firefox"))
+    agentInstance.getAgent().setEnvironments("uat")
+    def envFromConfigRepo = environment("dev")
+    envFromConfigRepo.setOrigins(new RepoConfigOrigin(new ConfigRepoConfig(null, "yaml", "foo"), "revision"))
+    envFromConfigRepo.addAgent("some-uuid")
+    def json = toObjectString({
+      def environments = Stream.of(environment("uat"), envFromConfigRepo)
+        .collect()
+      AgentRepresenter.toJSON(it, agentInstance, environments, securityService, null)
+    })
+
+    def expectedJSON = [
+      "_links"            : [
+        "self": [
+          "href": "http://test.host/go/api/agents/some-uuid"
+        ],
+        "doc" : [
+          "href": apiDocsUrl("#agents")
+        ],
+        "find": [
+          "href": "http://test.host/go/api/agents/:uuid"
+        ]
+      ],
+      "uuid"              : "some-uuid",
+      "hostname"          : "agent01.example.com",
+      "ip_address"        : "127.0.0.1",
+      "sandbox"           : "/var/lib/go-server",
+      "operating_system"  : "Linux",
+      "free_space"        : 10,
+      "agent_config_state": "Enabled",
+      "agent_state"       : "Idle",
+      "resources"         : ["firefox", "linux"],
+      "environments"      : [
+        [
+          "name"  : "dev",
+          "origin": [
+            "_links": [
+              "doc" : [
+                "href": "https://api.gocd.org/19.8.0/#config-repos"
+              ],
+              "find": [
+                "href": "http://test.host/go/api/admin/config_repos/:id"
+              ],
+              "self": [
+                "href": "http://test.host/go/api/admin/config_repos/foo"
+              ]
+            ],
+            "type"  : "config-repo"
+          ]
+        ],
+        [
+          "name"  : "uat",
+          "origin": [
+            "_links": [
+              "doc" : [
+                "href": "https://api.gocd.org/19.8.0/#get-configuration"
+              ],
+              "self": [
+                "href": "http://test.host/go/admin/config_xml"
+              ]
+            ],
+            "type"  : "gocd"
+          ]
+        ]
+      ],
+      "build_state"       : "Idle"
+    ]
+
+    assertThatJson(json).isEqualTo(expectedJSON)
   }
 
   @Nested

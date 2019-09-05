@@ -31,6 +31,7 @@ export class PipelineSettingsModal extends Modal {
 
   constructor(pipelineConfig: PipelineConfig) {
     super(Size.large);
+    this.fixedHeight = true;
     this.pipelineConfig = pipelineConfig;
   }
 
@@ -128,7 +129,7 @@ export class PipelineSettingsModal extends Modal {
                    helpText="A regular expression to identify card or bug numbers from your checkin comments"
                    label="Pattern"
                    property={this.pipelineConfig.trackingTool.pattern}
-        placeholder="e.g. issue-##(\d+)"/>
+                   placeholder="e.g. issue-##(\d+)"/>
         <TextField required={true}
                    helpText="The URI to your tracking tool. This must contain the string ${ID} which will be replaced with the number identified using the pattern"
                    label="URI"

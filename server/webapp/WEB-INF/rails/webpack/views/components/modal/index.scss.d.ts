@@ -11,6 +11,7 @@ export const overlay: string;
 export const overlayBg: string;
 export const overlayClose: string;
 export const overlayContent: string;
+export const overlayFixedHeight: string;
 export const overlayFooter: string;
 export const overlayHeader: string;
 export const small: string;

@@ -36,6 +36,7 @@ export enum ModalState {
 export abstract class Modal extends MithrilViewComponent<any> {
   protected closeModalOnOverlayClick: boolean = true;
   protected modalState                        = ModalState.OK;
+  protected fixedHeight: boolean              = false;
 
   protected constructor(size = Size.medium) {
     super();
@@ -84,7 +85,9 @@ export abstract class Modal extends MithrilViewComponent<any> {
         </button>
       </header>
       <div
-        class={classnames(styles.overlayContent, {[styles.spinnerWrapper]: this.isLoading()})}
+        class={classnames(styles.overlayContent,
+                          {[styles.spinnerWrapper]: this.isLoading()},
+                          {[styles.overlayFixedHeight]: this.fixedHeight})}
         data-test-id="modal-body">
         {this.spinner()}
         {this.body()}

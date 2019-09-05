@@ -1200,7 +1200,7 @@ task newApi {
                       // to be implemented
                   });
               }
-              
+
               // public String index(Request request, Response response) throws IOException {
               //    ${entityClassName} ${entityVariableName} = fetchEntityFromConfig(request.params(":id"));
               //    return writerForTopLevelObject(request, response, outputWriter -> ${entityClassName}sRepresenter.toJSON(outputWriter, ${entityVariableName}));
@@ -1340,6 +1340,7 @@ task upgradeApi {
 
     String oldControllerClassSuffix = "ControllerV${currentMaxApiVersion}"
     String newControllerClassSuffix = "ControllerV${apiVersion}"
+    String newPackage = newPackagePrefix;
 
     project.delete(moduleDir)
 
@@ -1363,6 +1364,9 @@ task upgradeApi {
           if (eachSegment == "apiv${currentMaxApiVersion}") {
             return "apiv${apiVersion}"
           } else if (eachSegment.contains("${oldControllerClassSuffix}")) {
+            if (fcd.name.endsWith("${oldControllerClassSuffix}.java")) {
+              newPackage = new File(oldProject.projectDir, fcd.path).readLines().find { it.startsWith("package ${oldPackagePrefix}") }.replaceAll(/\.apiv[\d]+\./, ".apiv${apiVersion}.").replaceFirst(/^package ([\w\.\-]+);.*$/, '$1')
+            }
             return eachSegment.replace(oldControllerClassSuffix, newControllerClassSuffix)
           } else {
             return eachSegment
@@ -1373,7 +1377,7 @@ task upgradeApi {
       includeEmptyDirs = false
     }
 
-    addPackageToSpringClasspathScanning("$newPackagePrefix.${apiName.replaceAll(~/[^a-zA-Z]/, '')}")
+    addPackageToSpringClasspathScanning(newPackage)
     addProjectToSettingsGradle(newProjectName, it)
     addProjectToGitIgnore(newProjectName)
   }

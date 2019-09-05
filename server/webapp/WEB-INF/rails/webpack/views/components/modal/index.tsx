@@ -34,8 +34,6 @@ export enum ModalState {
 }
 
 export abstract class Modal extends MithrilViewComponent<any> {
-  public id: string;
-  private readonly size: Size;
   protected closeModalOnOverlayClick: boolean = true;
   protected modalState                        = ModalState.OK;
 
@@ -44,6 +42,9 @@ export abstract class Modal extends MithrilViewComponent<any> {
     this.id   = `modal-${uuid4()}`;
     this.size = size;
   }
+
+  public id: string;
+  private readonly size: Size;
 
   abstract title(): string;
 
@@ -76,7 +77,6 @@ export abstract class Modal extends MithrilViewComponent<any> {
   }
 
   view() {
-    const spinner = this.isLoading() ? (<Spinner/>) : null;
     return <div class={classnames(styles.overlay, Size[this.size])}>
       <header class={styles.overlayHeader}>
         <h3 data-test-id="modal-title">{this.title()}</h3>
@@ -86,18 +86,10 @@ export abstract class Modal extends MithrilViewComponent<any> {
       <div
         class={classnames(styles.overlayContent, {[styles.spinnerWrapper]: this.isLoading()})}
         data-test-id="modal-body">
-        <div class={classnames({[styles.modalBodyOverlay]: this.isLoading()})}>
-          {spinner}
-        </div>
+        {this.spinner()}
         {this.body()}
       </div>
-      <footer class={styles.overlayFooter}>
-        {
-          _.forEach(_.reverse(this.buttons()), (button) => {
-            return button;
-          })
-        }
-      </footer>
+      {this.footer()}
     </div>;
   }
 
@@ -107,5 +99,29 @@ export abstract class Modal extends MithrilViewComponent<any> {
 
   protected isLoading() {
     return this.modalState === ModalState.LOADING;
+  }
+
+  private footer(): m.Children {
+    if (!this.buttons() || this.buttons().length === 0) {
+      return;
+    }
+
+    return <footer class={styles.overlayFooter}>
+      {
+        _.forEach(_.reverse(this.buttons()), (button) => {
+          return button;
+        })
+      }
+    </footer>;
+  }
+
+  private spinner(): m.Children {
+    if (!this.isLoading()) {
+      return;
+    }
+
+    return (<div class={classnames({[styles.modalBodyOverlay]: this.isLoading()})}>
+      <Spinner/>
+    </div>);
   }
 }

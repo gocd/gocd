@@ -37,7 +37,7 @@ export class Frame {
              url: this.url(),
              type: "GET",
              dataType: "json",
-             beforeSend: before
+             beforeSend: () => before && before()
            })
      .done((r) => {
        this.data(r.data);
@@ -45,11 +45,7 @@ export class Frame {
      })
      .fail((xhr) => {
        this.errors(xhr);
-     }).always(() => {
-      if (after) {
-        after();
-      }
-    });
+     }).always(() => after && after());
   }
 
   fetch(url: string, handler: (data: object | null, errors: JQuery.jqXHR | null) => void) {

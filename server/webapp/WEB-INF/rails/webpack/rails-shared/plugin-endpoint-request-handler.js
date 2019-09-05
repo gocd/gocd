@@ -41,7 +41,7 @@
       PluginEndpoint.define({
         "go.cd.analytics.v1.fetch-analytics": function goCdAnalyticsV1FetchAnalytics(message, trans) {
           var meta   = message.head,
-              model  = models[meta.uid],
+              model  = models[meta.uid] || models.get(meta.uid),
               params = message.body,
               type   = params.type,
               metric = params.metric;

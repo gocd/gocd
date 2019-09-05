@@ -26,8 +26,8 @@ interface Attrs {
 }
 
 export class AnalyticsiFrameWidget extends MithrilViewComponent<Attrs> {
-  private currentUrl: string | null       = null;
-  private loadingContent: Stream<boolean> = Stream(false) as Stream<boolean>;
+  private readonly currentUrl: Stream<string> = Stream();
+  private loadingContent: Stream<boolean>     = Stream(false) as Stream<boolean>;
 
   loadFrameContent(vnode: m.VnodeDOM<Attrs>) {
     const iframe = vnode.dom.querySelector("iframe") as HTMLIFrameElement;
@@ -40,34 +40,33 @@ export class AnalyticsiFrameWidget extends MithrilViewComponent<Attrs> {
       });
     };
 
-    this.currentUrl = vnode.attrs.model.url();
+    this.currentUrl(vnode.attrs.model.url());
     vnode.attrs.model.load(this.beforeLoad.bind(this), this.afterLoad.bind(this));
+    m.redraw();
   }
 
   beforeLoad() {
     this.loadingContent(true);
-    m.redraw();
   }
 
   afterLoad() {
     this.loadingContent(false);
-    m.redraw.sync();
+    m.redraw();
   }
 
   oncreate(vnode: m.VnodeDOM<Attrs>) {
-    this.loadFrameContent.apply(this, [vnode]);
+    this.loadFrameContent(vnode);
   }
 
   onupdate(vnode: m.VnodeDOM<Attrs>) {
-    if (vnode.attrs && vnode.attrs.model && this.currentUrl !== vnode.attrs.model.url()) {
-      this.loadFrameContent.apply(this, [vnode]);
+    if (vnode.attrs && vnode.attrs.model && this.currentUrl() !== vnode.attrs.model.url()) {
+      this.loadFrameContent(vnode);
     }
   }
 
   view(vnode: m.Vnode<Attrs>) {
-    const model    = vnode.attrs.model;
-    const attrs    = {src: model.view(), scrolling: "no"};
-    const errorXHR = model.errors();
+    const attrs    = {src: vnode.attrs.model.view(), scrolling: "no"};
+    const errorXHR = vnode.attrs.model.errors();
 
     if (this.hasErrors(errorXHR)) {
       return (<div class={`frame-container ${Styles.frameWrapper}`}>
@@ -75,14 +74,10 @@ export class AnalyticsiFrameWidget extends MithrilViewComponent<Attrs> {
       </div>);
     }
 
-    if (this.loadingContent()) {
-      return <div class={`frame-container ${Styles.frameWrapper}`}>
-        <Spinner/>
-      </div>;
-    }
-
+    const spinner    = this.loadingContent() ? <Spinner/> : null;
     const errorAttrs = errorXHR ? {"data-error-text": errorXHR.responseText} : {};
     return <div class={`frame-container ${Styles.frameWrapper}`} {...errorAttrs}>
+      {spinner}
       <iframe class={Styles.iframe} sandbox="allow-scripts" {...attrs}/>
     </div>;
   }

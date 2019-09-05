@@ -26,6 +26,7 @@ import com.thoughtworks.go.plugin.infra.commons.PluginsZip;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.AgentService;
+import com.thoughtworks.go.server.service.ElasticAgentRuntimeInfo;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -359,6 +360,28 @@ public class AgentRegistrationControllerTest {
 
         verify(serverConfig, times(0)).shouldAutoRegisterAgentWith("someKey");
         verifyZeroInteractions(agentService);
+    }
+
+    @Test
+    public void shouldAutoRegisterElasticAgent() {
+        String uuid = "elastic-uuid";
+        final ServerConfig serverConfig = mockedServerConfig("token-generation-key", "someKey");
+        final String token = token(uuid, serverConfig.getTokenGenerationKey());
+
+        when(agentService.isRegistered(uuid)).thenReturn(false);
+        when(goConfigService.serverConfig()).thenReturn(serverConfig);
+        when(agentService.createAgentUsername(uuid, request.getRemoteAddr(), "host")).thenReturn(new Username("some-agent-login-name"));
+
+        String elasticAgentId = "elastic-agent-id";
+        String elasticPluginId = "elastic-plugin-id";
+        AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromServer(new Agent(uuid, "host", request.getRemoteAddr()), false, "location", 233232L, "osx", false);
+
+        controller.agentRequest("host", uuid, "location", "233232", "osx", "someKey", "", "e1", "", elasticAgentId, elasticPluginId, false, token, request);
+
+        verify(agentService).findElasticAgent(elasticAgentId, elasticPluginId);
+        verify(agentService, times(2)).isRegistered(uuid);
+        verify(agentService).register(any(Agent.class));
+        verify(agentService).requestRegistration(ElasticAgentRuntimeInfo.fromServer(agentRuntimeInfo, elasticAgentId, elasticPluginId));
     }
 
     private String token(String uuid, String tokenGenerationKey) {

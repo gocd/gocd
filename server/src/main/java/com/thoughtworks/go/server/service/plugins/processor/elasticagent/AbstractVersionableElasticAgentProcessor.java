@@ -74,7 +74,7 @@ public abstract class AbstractVersionableElasticAgentProcessor implements Versio
         }
 
         LOGGER.debug("Deleting agents from plugin {} {}", pluginId, agentInstances);
-        agentService.deleteAgents(agentInstances.stream().map(agentInstance -> agentInstance.getUuid()).collect(toList()));
+        agentService.deleteAgentsWithoutValidations(agentInstances.stream().map(agentInstance -> agentInstance.getUuid()).collect(toList()));
         LOGGER.debug("Done deleting agents from plugin {} {}", pluginId, agentInstances);
     }
 

@@ -1351,4 +1351,24 @@ class AgentServiceTest {
         agentService.building(uuid, mockAgentBuildingInfo);
         verify(agentInstances).building(uuid, mockAgentBuildingInfo);
     }
+
+    @Nested
+    class DeleteAgentsWithoutValidations {
+        @Test
+        void shouldDeleteAgentsWithoutAnyValidation() {
+            List<String> uuids = asList("a1", "a2");
+            
+            agentService.deleteAgentsWithoutValidations(uuids);
+
+            verify(agentDao).bulkSoftDelete(uuids);
+        }
+
+        @Test
+        void shouldDoNothingIfEmptyListIsPassed() {
+            agentService.deleteAgentsWithoutValidations(emptyStrList);
+            
+            verifyZeroInteractions(agentDao);
+        }
+
+    }
 }

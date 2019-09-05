@@ -143,7 +143,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         AgentInstance agentInstance = agentInstances.findAgent(uuid);
         validateThatAgentExists(agentInstance);
 
-        Agent agent = getAgentFromDBOrCache(agentInstance);
+        Agent agent = getPendingAgentOrFromDB(agentInstance);
         if (validateAnyOperationPerformedOnAgent(hostname, environments, resources, state)) {
             new AgentUpdateValidator(agentInstance, state).validate();
             setAgentAttributes(hostname, resources, environments, state, agent);
@@ -193,6 +193,12 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
 
     public void deleteAgents(List<String> uuids) {
         if (validateThatAllAgentsExistAndCanBeDeleted(uuids)) {
+            agentDao.bulkSoftDelete(uuids);
+        }
+    }
+
+    public void deleteAgentsWithoutValidations(List<String> uuids) {
+        if (!isEmpty(uuids)) {
             agentDao.bulkSoftDelete(uuids);
         }
     }
@@ -421,7 +427,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         }
     }
 
-    private Agent getAgentFromDBOrCache(AgentInstance agentInstance) {
+    private Agent getPendingAgentOrFromDB(AgentInstance agentInstance) {
         if (agentInstance.isPending()) {
             Agent agent = new Agent(agentInstance.getAgent());
             generateAndAddCookie(agent);

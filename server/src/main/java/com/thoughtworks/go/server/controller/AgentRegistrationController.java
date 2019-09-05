@@ -22,7 +22,10 @@ import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.plugin.infra.commons.PluginsZip;
 import com.thoughtworks.go.security.Registration;
 import com.thoughtworks.go.security.RegistrationJSONizer;
-import com.thoughtworks.go.server.service.*;
+import com.thoughtworks.go.server.service.AgentRuntimeInfo;
+import com.thoughtworks.go.server.service.AgentService;
+import com.thoughtworks.go.server.service.ElasticAgentRuntimeInfo;
+import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
@@ -235,7 +238,7 @@ public class AgentRegistrationController {
                 }
             }
 
-            Agent agent = createAgentFromRequest(uuid, preferredHostname, ipAddress, elasticAgentId, elasticPluginId, agentAutoRegisterEnvs, agentAutoRegisterResources);
+            Agent agent = createAgentFromRequest(uuid, preferredHostname, ipAddress, elasticAgentId, elasticPluginId, agentAutoRegisterResources, agentAutoRegisterEnvs);
             agent.validate();
             if (agent.hasErrors()) {
                 List<ConfigErrors> errors = agent.errorsAsList();

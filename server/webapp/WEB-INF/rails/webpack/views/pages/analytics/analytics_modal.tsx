@@ -61,5 +61,9 @@ export abstract class AnalyticsModal<T extends SupportedAnalyticsTypes> extends 
     return model;
   }
 
+  buttons(): m.ChildArray {
+    return [];
+  }
+
   protected abstract getUrlParams(): { [key: string]: string | number };
 }

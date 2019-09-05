@@ -108,6 +108,15 @@ describe("Modal", () => {
     testModal.close();
   });
 
+  it("should not render the footer in absence of buttons", () => {
+    const testModal = aModalWithoutFooter();
+    testModal.render();
+    m.redraw.sync();
+
+    expect($(`.${styles.overlayFooter}`)).not.toBeInDOM();
+    testModal.close();
+  });
+
   function aModal() {
     return new (class TestModal extends Modal {
       constructor() {
@@ -120,6 +129,26 @@ describe("Modal", () => {
 
       title(): string {
         return "Test Modal";
+      }
+    })();
+  }
+
+  function aModalWithoutFooter() {
+    return new (class TestModal extends Modal {
+      constructor() {
+        super();
+      }
+
+      body(): m.Children {
+        return m("p", {id: "modal-inside"}, "Hello World!");
+      }
+
+      title(): string {
+        return "Test Modal";
+      }
+
+      buttons(): m.ChildArray {
+        return [];
       }
     })();
   }

@@ -15,12 +15,13 @@
  */
 @import "../../global/common";
 
-$build_details_z_index:  2;
-$building_bg_color:      #ffeda0;
-$enable_count_bg_color:  #50e3c2;
-$disable_count_bg_color: #ee6161;
-$disabled-text-color:    #999;
-$icon-hover-color:       #000;
+$build_details_z_index:           2;
+$building_bg_color:               #ffeda0;
+$enable_count_bg_color:           #50e3c2;
+$disable_count_bg_color:          #ee6161;
+$disabled-text-color:             #999;
+$icon-hover-color:                #000;
+$dropdown-button-content-z-index: 5;
 .agent-status {
   @include icon-after($type: $fa-var-caret-down, $color: $icon-color);
   position:        relative;
@@ -151,6 +152,7 @@ $icon-hover-color:       #000;
   display:         flex;
   justify-content: center;
   flex-direction:  column;
+  z-index:         $dropdown-button-content-z-index;
 
   li {
     margin-bottom: 10px;

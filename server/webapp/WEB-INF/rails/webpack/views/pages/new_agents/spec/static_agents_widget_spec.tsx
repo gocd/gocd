@@ -15,18 +15,18 @@
  */
 
 import m from "mithril";
-
 import Stream from "mithril/stream";
 import {Agent, Agents} from "models/new_agent/agents";
+import {StaticAgentsVM} from "models/new_agent/agents_vm";
 import {AgentsTestData} from "models/new_agent/spec/agents_test_data";
 import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {AnalyticsPluginInfo, AuthorizationPluginInfo} from "models/shared/plugin_infos_new/spec/test_data";
 import {FlashMessageModelWithTimeout} from "views/components/flash_message";
-import {AgentsWidget} from "views/pages/new_agents/agents_widget";
+import {StaticAgentsWidget} from "views/pages/new_agents/static_agents_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
 import styles from "../index.scss";
 
-describe("NewAgentsWidget", () => {
+describe("NewStaticAgentsWidget", () => {
   const helper                 = new TestHelper(),
         onEnable: jasmine.Spy  = jasmine.createSpy("onEnable"),
         onDisable: jasmine.Spy = jasmine.createSpy("onDisable"),
@@ -34,19 +34,20 @@ describe("NewAgentsWidget", () => {
         updateEnvironments     = jasmine.createSpy("updateEnvironments"),
         updateResources        = jasmine.createSpy("updateResources");
 
-  let agents: Agents, agentA: Agent, agentB: Agent, agentC: Agent;
+  let staticAgentsVM: StaticAgentsVM, agentA: Agent, agentB: Agent, agentC: Agent, elasticAgent: Agent;
 
   beforeEach(() => {
-    agents = Agents.fromJSON(AgentsTestData.list());
-    agentA = agents.list()[0];
-    agentB = agents.list()[1];
-    agentC = agents.list()[2];
+    agentA         = Agent.fromJSON(AgentsTestData.withOs("Windows"));
+    agentB         = Agent.fromJSON(AgentsTestData.withOs("MacOS"));
+    agentC         = Agent.fromJSON(AgentsTestData.withOs("Linux"));
+    elasticAgent   = Agent.fromJSON(AgentsTestData.elasticAgent());
+    staticAgentsVM = new StaticAgentsVM(new Agents(agentA, agentB, agentC, elasticAgent));
   });
 
   afterEach(helper.unmount.bind(helper));
 
   it("should render table headers", () => {
-    mount(agents);
+    mount(staticAgentsVM);
 
     const headers = helper.byTestId("table-header-row");
 
@@ -63,46 +64,23 @@ describe("NewAgentsWidget", () => {
     expect(headers.children[9]).toContainText("");
   });
 
-  it("should render agents in the table", () => {
-    mount(agents);
+  it("should render only static agents in the table", () => {
+    mount(staticAgentsVM);
 
     const tableBody = helper.byTestId("table-body");
     expect(tableBody.children).toHaveLength(3);
 
-    assertAgentRow(agents.list()[0]);
-    assertAgentRow(agents.list()[1]);
-    assertAgentRow(agents.list()[2]);
-  });
-
-  it("should render a search box", () => {
-    mount(agents);
-
-    const searchBox = helper.byTestId("form-field-input-search-for-agents");
-
-    expect(searchBox).toBeInDOM();
-  });
-
-  it("should filter agents based on the searched value", () => {
-    mount(agents);
-    const searchBox = helper.byTestId("form-field-input-search-for-agents");
-
-    expect(helper.byTestId("table-body").children).toHaveLength(3);
     assertAgentRow(agentA);
     assertAgentRow(agentB);
     assertAgentRow(agentC);
-
-    helper.oninput(searchBox, "wind");
-
-    expect(helper.byTestId("table-body").children).toHaveLength(1);
-    assertAgentRow(agentA);
   });
 
   it("should highlight building agents", () => {
-    const agentA = Agent.fromJSON(AgentsTestData.idleAgent()),
-          agentB = Agent.fromJSON(AgentsTestData.buildingAgent()),
-          agentC = Agent.fromJSON(AgentsTestData.pendingAgent());
-    const agents = new Agents([agentA, agentB, agentC]);
-    mount(agents);
+    const agentA   = Agent.fromJSON(AgentsTestData.idleAgent()),
+          agentB   = Agent.fromJSON(AgentsTestData.buildingAgent()),
+          agentC   = Agent.fromJSON(AgentsTestData.pendingAgent());
+    const agentsVM = new StaticAgentsVM(new Agents(agentA, agentB, agentC));
+    mount(agentsVM);
 
     assertAgentBuilding(agentB);
     assertAgentNotBuilding(agentA);
@@ -110,11 +88,11 @@ describe("NewAgentsWidget", () => {
   });
 
   it("should hide the build details when clicked outside", () => {
-    const agentA = Agent.fromJSON(AgentsTestData.idleAgent()),
-          agentB = Agent.fromJSON(AgentsTestData.buildingAgent()),
-          agentC = Agent.fromJSON(AgentsTestData.pendingAgent());
-    const agents = new Agents([agentA, agentB, agentC]);
-    mount(agents);
+    const agentA   = Agent.fromJSON(AgentsTestData.idleAgent()),
+          agentB   = Agent.fromJSON(AgentsTestData.buildingAgent()),
+          agentC   = Agent.fromJSON(AgentsTestData.pendingAgent());
+    const agentsVM = new StaticAgentsVM(new Agents(agentA, agentB, agentC));
+    mount(agentsVM);
 
     helper.click(helper.byTestId(`agent-status-text-${agentB.uuid}`));
     expect(helper.byTestId(`agent-build-details-of-${agentB.uuid}`)).toBeVisible();
@@ -126,28 +104,19 @@ describe("NewAgentsWidget", () => {
 
   describe("Resources", () => {
     it("should list comma separated resources", () => {
-      const agent  = Agent.fromJSON(AgentsTestData.agentWithResources(["psql", "firefox", "chrome"]));
-      const agents = new Agents([agent]);
+      const agent    = Agent.fromJSON(AgentsTestData.withResources("psql", "firefox", "chrome"));
+      const agentsVM = new StaticAgentsVM(new Agents(agent));
 
-      mount(agents);
+      mount(agentsVM);
 
       expect(helper.byTestId(`agent-resources-of-${agent.uuid}`)).toContainText("psql, firefox, chrome");
     });
 
     it("should show 'none specified' when agent has no resources specified", () => {
-      const agent  = Agent.fromJSON(AgentsTestData.agentWithResources([]));
-      const agents = new Agents([agent]);
+      const agent    = Agent.fromJSON(AgentsTestData.withResources());
+      const agentsVM = new StaticAgentsVM(new Agents(agent));
 
-      mount(agents);
-
-      expect(helper.byTestId(`agent-resources-of-${agent.uuid}`)).toContainText("none specified");
-    });
-
-    it("should show 'none specified' when resources are null", () => {
-      const agent  = Agent.fromJSON(AgentsTestData.elasticAgent("32197397439"));
-      const agents = new Agents([agent]);
-
-      mount(agents);
+      mount(agentsVM);
 
       expect(helper.byTestId(`agent-resources-of-${agent.uuid}`)).toContainText("none specified");
     });
@@ -155,19 +124,19 @@ describe("NewAgentsWidget", () => {
 
   describe("Environments", () => {
     it("should list comma separated environments", () => {
-      const agent  = Agent.fromJSON(AgentsTestData.agentWithEnvironments("prod", "dev", "qa"));
-      const agents = new Agents([agent]);
+      const agent    = Agent.fromJSON(AgentsTestData.withEnvironments("prod", "dev", "qa"));
+      const agentsVM = new StaticAgentsVM(new Agents(agent));
 
-      mount(agents);
+      mount(agentsVM);
 
       expect(helper.byTestId(`agent-environments-of-${agent.uuid}`)).toContainText("prod, dev, qa");
     });
 
     it("should show 'none specified' when agent has no resources specified", () => {
-      const agent  = Agent.fromJSON(AgentsTestData.agentWithEnvironments());
-      const agents = new Agents([agent]);
+      const agent    = Agent.fromJSON(AgentsTestData.withEnvironments());
+      const agentsVM = new StaticAgentsVM(new Agents(agent));
 
-      mount(agents);
+      mount(agentsVM);
 
       expect(helper.byTestId(`agent-environments-of-${agent.uuid}`)).toContainText("none specified");
     });
@@ -175,7 +144,7 @@ describe("NewAgentsWidget", () => {
 
   describe("Hostname", () => {
     it("should render hostname as link when user is an admin", () => {
-      mount(new Agents([agentA]), true);
+      mount(new StaticAgentsVM(new Agents(agentA)), true);
 
       const anchor = helper.q("a", helper.byTestId(`agent-hostname-of-${agentA.uuid}`));
       expect(anchor).toContainText(agentA.hostname);
@@ -183,7 +152,7 @@ describe("NewAgentsWidget", () => {
     });
 
     it("should render hostname as text when user is not an admin", () => {
-      mount(new Agents([agentA]), false);
+      mount(new StaticAgentsVM(new Agents(agentA)), false);
 
       const hostnameCell = helper.byTestId(`agent-hostname-of-${agentA.uuid}`);
       const anchor       = helper.q("a", hostnameCell);
@@ -195,7 +164,7 @@ describe("NewAgentsWidget", () => {
 
   describe("AgentSelection", () => {
     it("should not render checkboxes when user is not an admin", () => {
-      mount(agents, false);
+      mount(staticAgentsVM, false);
 
       expect(helper.byTestId("select-all-agents")).not.toBeInDOM();
       expect(helper.byTestId(`agent-checkbox-of-${agentA.uuid}`)).not.toBeInDOM();
@@ -204,7 +173,7 @@ describe("NewAgentsWidget", () => {
     });
 
     it("should render checkboxes when user is an admin", () => {
-      mount(agents, true);
+      mount(staticAgentsVM, true);
 
       expect(helper.byTestId("select-all-agents")).toBeInDOM();
       expect(helper.byTestId(`agent-checkbox-of-${agentA.uuid}`)).toBeInDOM();
@@ -213,7 +182,7 @@ describe("NewAgentsWidget", () => {
     });
 
     it("should render page with no agent selected", () => {
-      mount(agents);
+      mount(staticAgentsVM);
 
       expect(helper.byTestId("select-all-agents")).not.toBeChecked();
       expect(helper.byTestId(`agent-checkbox-of-${agentA.uuid}`)).not.toBeChecked();
@@ -222,7 +191,7 @@ describe("NewAgentsWidget", () => {
     });
 
     it("should select all on click of global checkbox", () => {
-      mount(agents);
+      mount(staticAgentsVM);
       expect(helper.byTestId(`agent-checkbox-of-${agentA.uuid}`)).not.toBeChecked();
       expect(helper.byTestId(`agent-checkbox-of-${agentB.uuid}`)).not.toBeChecked();
       expect(helper.byTestId(`agent-checkbox-of-${agentC.uuid}`)).not.toBeChecked();
@@ -238,7 +207,7 @@ describe("NewAgentsWidget", () => {
   describe("AnalyticsIcon", () => {
     it("should not render analytics icon when attribute showAnalyticsIcon is set to false", () => {
       const pluginInfos = new PluginInfos(PluginInfo.fromJSON(AnalyticsPluginInfo.analytics()));
-      mount(agents, true, false, Stream(pluginInfos));
+      mount(staticAgentsVM, true, false, Stream(pluginInfos));
 
       expect(helper.byTestId(`analytics-icon-${agentA.uuid}`)).not.toBeInDOM();
       expect(helper.byTestId(`analytics-icon-${agentB.uuid}`)).not.toBeInDOM();
@@ -248,7 +217,7 @@ describe("NewAgentsWidget", () => {
     it("should show analytics icon when attribute showAnalyticsIcon is set to true", () => {
       const pluginInfos = new PluginInfos(PluginInfo.fromJSON(AnalyticsPluginInfo.analytics()));
 
-      mount(agents, true, true, Stream(pluginInfos));
+      mount(staticAgentsVM, true, true, Stream(pluginInfos));
 
       expect(helper.byTestId(`analytics-icon-${agentA.uuid}`)).toBeInDOM();
       expect(helper.byTestId(`analytics-icon-${agentB.uuid}`)).toBeInDOM();
@@ -258,7 +227,7 @@ describe("NewAgentsWidget", () => {
     it("should not render analytics icon when none of the plugin supports", () => {
       const pluginInfos = new PluginInfos(PluginInfo.fromJSON(AuthorizationPluginInfo.github()));
 
-      mount(agents, true, true, Stream(pluginInfos));
+      mount(staticAgentsVM, true, true, Stream(pluginInfos));
 
       expect(helper.byTestId(`analytics-icon-${agentA.uuid}`)).not.toBeInDOM();
       expect(helper.byTestId(`analytics-icon-${agentB.uuid}`)).not.toBeInDOM();
@@ -270,7 +239,7 @@ describe("NewAgentsWidget", () => {
       const pluginInfoJSON              = AnalyticsPluginInfo.withCapabilities(pipelineAnalyticsCapability);
       const pluginInfos                 = new PluginInfos(PluginInfo.fromJSON(pluginInfoJSON));
 
-      mount(agents, true, true, Stream(pluginInfos));
+      mount(staticAgentsVM, true, true, Stream(pluginInfos));
 
       expect(helper.byTestId(`analytics-icon-${agentA.uuid}`)).not.toBeInDOM();
       expect(helper.byTestId(`analytics-icon-${agentB.uuid}`)).not.toBeInDOM();
@@ -282,7 +251,7 @@ describe("NewAgentsWidget", () => {
       const pluginInfoJSON           = AnalyticsPluginInfo.withCapabilities(agentAnalyticsCapability);
       const pluginInfos              = new PluginInfos(PluginInfo.fromJSON(pluginInfoJSON));
 
-      mount(agents, true, true, Stream(pluginInfos));
+      mount(staticAgentsVM, true, true, Stream(pluginInfos));
 
       expect(helper.byTestId(`analytics-icon-${agentA.uuid}`)).toBeInDOM();
       expect(helper.byTestId(`analytics-icon-${agentB.uuid}`)).toBeInDOM();
@@ -290,20 +259,20 @@ describe("NewAgentsWidget", () => {
     });
   });
 
-  function mount(agents: Agents,
+  function mount(staticAgentsVM: StaticAgentsVM,
                  isUserAdmin: boolean             = true,
                  showAnalyticsIcon: boolean       = true,
                  pluginInfos: Stream<PluginInfos> = Stream(new PluginInfos())) {
-    helper.mount(() => <AgentsWidget agents={agents}
-                                     onEnable={onEnable}
-                                     onDisable={onDisable}
-                                     onDelete={onDelete}
-                                     updateEnvironments={updateEnvironments}
-                                     updateResources={updateResources}
-                                     isUserAdmin={isUserAdmin}
-                                     pluginInfos={pluginInfos}
-                                     showAnalyticsIcon={showAnalyticsIcon}
-                                     flashMessage={new FlashMessageModelWithTimeout()}/>);
+    helper.mount(() => <StaticAgentsWidget agentsVM={staticAgentsVM}
+                                           onEnable={onEnable}
+                                           onDisable={onDisable}
+                                           onDelete={onDelete}
+                                           flashMessage={new FlashMessageModelWithTimeout()}
+                                           updateEnvironments={updateEnvironments}
+                                           updateResources={updateResources}
+                                           showAnalyticsIcon={showAnalyticsIcon}
+                                           pluginInfos={pluginInfos}
+                                           isUserAdmin={isUserAdmin}/>);
   }
 
   function assertAgentRow(agent: Agent) {
@@ -313,9 +282,9 @@ describe("NewAgentsWidget", () => {
     expect(helper.byTestId(`agent-ip-address-of-${agent.uuid}`)).toContainText(agent.ipAddress);
     expect(helper.byTestId(`agent-free-space-of-${agent.uuid}`)).toContainText(agent.readableFreeSpace());
     expect(helper.byTestId(`agent-resources-of-${agent.uuid}`))
-      .toContainText(AgentsWidget.joinOrNoneSpecified(agent.resources) as string);
+      .toContainText(StaticAgentsWidget.joinOrNoneSpecified(agent.resources) as string);
     expect(helper.byTestId(`agent-environments-of-${agent.uuid}`))
-      .toContainText(AgentsWidget.joinOrNoneSpecified(agent.environmentNames()) as string);
+      .toContainText(StaticAgentsWidget.joinOrNoneSpecified(agent.environmentNames()) as string);
   }
 
   function assertAgentBuilding(agent: Agent) {

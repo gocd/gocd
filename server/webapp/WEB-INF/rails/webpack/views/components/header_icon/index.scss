@@ -24,11 +24,13 @@ $collapse-icon-size: 25px;
   width:          $collapse-icon-size;
   height:         $collapse-icon-size;
   text-align:     center;
+
   img {
     width:          $collapse-icon-size;
     height:         $collapse-icon-size;
     vertical-align: middle;
   }
+
   @media (min-width: $screen-md) {
     display: inline-block;
   }
@@ -39,4 +41,6 @@ $collapse-icon-size: 25px;
   display: block;
 }
 
-
+.no-margin {
+  margin: 0;
+}

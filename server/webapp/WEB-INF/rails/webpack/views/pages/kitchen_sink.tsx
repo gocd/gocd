@@ -476,15 +476,20 @@ function updateModel(oldIndex: number, newIndex: number) {
   pipelines().splice(newIndex, 0, pipelines().splice(oldIndex, 1)[0]);
 }
 
-class DummyTableSortHandler extends TableSortHandler {
-  private sortOrders = new Map();
+class DummyTableSortHandler implements TableSortHandler {
+  private sortOrders                       = new Map();
+  private currentSortedColumnIndex: number = 0;
 
   constructor() {
-    super();
     this.getSortableColumns().forEach((c) => this.sortOrders.set(c, -1));
   }
 
+  getCurrentSortedColumnIndex(): number {
+    return this.currentSortedColumnIndex;
+  }
+
   onColumnClick(columnIndex: number): void {
+    this.currentSortedColumnIndex = columnIndex;
     this.sortOrders.set(columnIndex, this.sortOrders.get(columnIndex) * -1);
     pipelineData()
       .sort((element1, element2) => DummyTableSortHandler.compare(element1,

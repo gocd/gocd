@@ -16,6 +16,7 @@
 
 import m from "mithril";
 import {Agent, Agents} from "models/new_agent/agents";
+import {StaticAgentsVM} from "models/new_agent/agents_vm";
 import {AgentsTestData} from "models/new_agent/spec/agents_test_data";
 import {FlashMessageModelWithTimeout} from "views/components/flash_message";
 import {AgentHeaderPanel} from "views/pages/new_agents/agent_header_panel";
@@ -34,12 +35,12 @@ describe("AgentHeaderPanel", () => {
   afterEach(helper.unmount.bind(helper));
 
   it("should render agents overview based on agent config state", () => {
-    const agentA = Agent.fromJSON(AgentsTestData.pendingAgent()),
-          agentB = Agent.fromJSON(AgentsTestData.buildingAgent()),
-          agentC = Agent.fromJSON(AgentsTestData.idleAgent()),
-          agentD = Agent.fromJSON(AgentsTestData.disabledAgent());
-    const agents = new Agents([agentA, agentB, agentC, agentD]);
-    mount(agents);
+    const agentA   = Agent.fromJSON(AgentsTestData.pendingAgent()),
+          agentB   = Agent.fromJSON(AgentsTestData.buildingAgent()),
+          agentC   = Agent.fromJSON(AgentsTestData.idleAgent()),
+          agentD   = Agent.fromJSON(AgentsTestData.disabledAgent());
+    const agentsVM = new StaticAgentsVM(new Agents(agentA, agentB, agentC, agentD));
+    mount(agentsVM);
 
     expect(helper.byTestId("key-value-key-total")).toBeInDOM();
     expect(helper.byTestId("key-value-key-pending")).toBeInDOM();
@@ -56,14 +57,14 @@ describe("AgentHeaderPanel", () => {
   });
 
   it("should render agents overview based on agent config state on filtered agents", () => {
-    const agentA = Agent.fromJSON(AgentsTestData.pendingAgent()),
-          agentB = Agent.fromJSON(AgentsTestData.buildingAgent()),
-          agentC = Agent.fromJSON(AgentsTestData.idleAgent()),
-          agentD = Agent.fromJSON(AgentsTestData.disabledAgent());
-    const agents = new Agents([agentA, agentB, agentC, agentD]);
-    mount(agents);
+    const agentA   = Agent.fromJSON(AgentsTestData.pendingAgent()),
+          agentB   = Agent.fromJSON(AgentsTestData.buildingAgent()),
+          agentC   = Agent.fromJSON(AgentsTestData.idleAgent()),
+          agentD   = Agent.fromJSON(AgentsTestData.disabledAgent());
+    const agentsVM = new StaticAgentsVM(new Agents(agentA, agentB, agentC, agentD));
+    mount(agentsVM);
 
-    agents.filterText("building");
+    agentsVM.filterText("building");
     m.redraw.sync();
 
     expect(helper.byTestId("key-value-value-total")).toHaveText("1");
@@ -74,11 +75,11 @@ describe("AgentHeaderPanel", () => {
 
   describe("Actions", () => {
     it("should render disabled action buttons when no agent is selected", () => {
-      const agentA = Agent.fromJSON(AgentsTestData.pendingAgent()),
-            agentB = Agent.fromJSON(AgentsTestData.buildingAgent()),
-            agentC = Agent.fromJSON(AgentsTestData.idleAgent());
-      const agents = new Agents([agentA, agentB, agentC]);
-      mount(agents);
+      const agentA   = Agent.fromJSON(AgentsTestData.pendingAgent()),
+            agentB   = Agent.fromJSON(AgentsTestData.buildingAgent()),
+            agentC   = Agent.fromJSON(AgentsTestData.idleAgent());
+      const agentsVM = new StaticAgentsVM(new Agents(agentA, agentB, agentC));
+      mount(agentsVM);
 
       expect(helper.byTestId("delete-agents")).toBeDisabled();
       expect(helper.byTestId("enable-agents")).toBeDisabled();
@@ -86,17 +87,17 @@ describe("AgentHeaderPanel", () => {
     });
 
     it("should enable the actions when one of the agent is selected", () => {
-      const agentA = Agent.fromJSON(AgentsTestData.pendingAgent()),
-            agentB = Agent.fromJSON(AgentsTestData.buildingAgent()),
-            agentC = Agent.fromJSON(AgentsTestData.idleAgent());
-      const agents = new Agents([agentA, agentB, agentC]);
-      mount(agents);
+      const agentA   = Agent.fromJSON(AgentsTestData.pendingAgent()),
+            agentB   = Agent.fromJSON(AgentsTestData.buildingAgent()),
+            agentC   = Agent.fromJSON(AgentsTestData.idleAgent());
+      const agentsVM = new StaticAgentsVM(new Agents(agentA, agentB, agentC));
+      mount(agentsVM);
 
       expect(helper.byTestId("delete-agents")).toBeDisabled();
       expect(helper.byTestId("enable-agents")).toBeDisabled();
       expect(helper.byTestId("disable-agents")).toBeDisabled();
 
-      agentA.selected(true);
+      agentsVM.selectAgent(agentA.uuid);
       m.redraw.sync();
 
       expect(helper.byTestId("delete-agents")).not.toBeDisabled();
@@ -105,32 +106,32 @@ describe("AgentHeaderPanel", () => {
     });
 
     it("should call onDelete on click of delete button", () => {
-      const agentA = Agent.fromJSON(AgentsTestData.pendingAgent());
-      agentA.selected(true);
-      const agents = new Agents([agentA]);
-      mount(agents);
+      const agentA   = Agent.fromJSON(AgentsTestData.pendingAgent());
+      const agentsVM = new StaticAgentsVM(new Agents(agentA));
+      agentsVM.selectAgent(agentA.uuid);
+      mount(agentsVM);
 
       helper.clickByDataTestId("delete-agents");
 
       expect(onDelete).toHaveBeenCalled();
     });
 
-    it("should call onEnable on click of enable button", () => {
-      const agentA = Agent.fromJSON(AgentsTestData.pendingAgent());
-      agentA.selected(true);
-      const agents = new Agents([agentA]);
-      mount(agents);
+    it("should call onEnable when enable button is clicked", () => {
+      const agentA   = Agent.fromJSON(AgentsTestData.pendingAgent());
+      const agentsVM = new StaticAgentsVM(new Agents(agentA));
+      agentsVM.selectAgent(agentA.uuid);
+      mount(agentsVM);
 
       helper.clickByDataTestId("enable-agents");
 
       expect(onEnable).toHaveBeenCalled();
     });
 
-    it("should call onDisable on click of disable button", () => {
-      const agentA = Agent.fromJSON(AgentsTestData.idleAgent());
-      agentA.selected(true);
-      const agents = new Agents([agentA]);
-      mount(agents);
+    it("should call onDisable when disable button is clicked", () => {
+      const agentA   = Agent.fromJSON(AgentsTestData.idleAgent());
+      const agentsVM = new StaticAgentsVM(new Agents(agentA));
+      agentsVM.selectAgent(agentA.uuid);
+      mount(agentsVM);
 
       helper.clickByDataTestId("disable-agents");
 
@@ -138,8 +139,32 @@ describe("AgentHeaderPanel", () => {
     });
   });
 
-  function mount(agents: Agents) {
-    helper.mount(() => <AgentHeaderPanel agents={agents}
+  it("should render a search box", () => {
+    const agentsVM = new StaticAgentsVM(new Agents());
+    mount(agentsVM);
+
+    const searchBox = helper.byTestId("form-field-input-search-for-agents");
+
+    expect(searchBox).toBeInDOM();
+  });
+
+  it("should filter agents based on the searched value", () => {
+    const agentA   = Agent.fromJSON(AgentsTestData.withOs("Windows")),
+          agentB   = Agent.fromJSON(AgentsTestData.withOs("MacOS")),
+          agentC   = Agent.fromJSON(AgentsTestData.withOs("Linux")),
+          agentsVM = new StaticAgentsVM(new Agents(agentA, agentB, agentC));
+    mount(agentsVM);
+    const searchBox = helper.byTestId("form-field-input-search-for-agents");
+
+    expect(agentsVM.list()).toHaveLength(3);
+
+    helper.oninput(searchBox, "wind");
+
+    expect(agentsVM.list()).toHaveLength(1);
+  });
+
+  function mount(staticAgentsVM: StaticAgentsVM) {
+    helper.mount(() => <AgentHeaderPanel agentsVM={staticAgentsVM}
                                          onDelete={onDelete}
                                          onEnable={onEnable}
                                          onDisable={onDisable}

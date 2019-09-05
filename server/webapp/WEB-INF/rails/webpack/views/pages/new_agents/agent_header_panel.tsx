@@ -18,8 +18,9 @@ import {bind} from "classnames/bind";
 import {ApiResult} from "helpers/api_request_builder";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
-import {AgentConfigState, Agents} from "models/new_agent/agents";
+import {AgentConfigState} from "models/new_agent/agents";
 import {EnvironmentsService, ResourcesService} from "models/new_agent/agents_crud";
+import {StaticAgentsVM} from "models/new_agent/agents_vm";
 import {ButtonGroup} from "views/components/buttons";
 import * as Buttons from "views/components/buttons";
 import {FlashMessageModelWithTimeout} from "views/components/flash_message";
@@ -32,7 +33,7 @@ import style from "./index.scss";
 const classnames = bind(style);
 
 interface AgentHeaderPanelAttrs {
-  agents: Agents;
+  agentsVM: StaticAgentsVM;
   onEnable: (e: MouseEvent) => void;
   onDisable: (e: MouseEvent) => void;
   onDelete: (e: MouseEvent) => void;
@@ -43,26 +44,26 @@ interface AgentHeaderPanelAttrs {
 
 export class AgentHeaderPanel extends MithrilViewComponent<AgentHeaderPanelAttrs> {
   view(vnode: m.Vnode<AgentHeaderPanelAttrs, this>) {
-    const agents = vnode.attrs.agents;
+    const agentsVM = vnode.attrs.agentsVM;
     return (<div class={style.headerPanel}>
       <div class={style.leftContainer}>
         <ButtonGroup>
           <Buttons.Primary data-test-id="delete-agents"
-                           disabled={agents.isNoneSelected()}
+                           disabled={AgentHeaderPanel.isNoneSelected(agentsVM)}
                            onclick={vnode.attrs.onDelete}>DELETE</Buttons.Primary>
           <Buttons.Primary data-test-id="enable-agents"
-                           disabled={agents.isNoneSelected()}
+                           disabled={AgentHeaderPanel.isNoneSelected(agentsVM)}
                            onclick={vnode.attrs.onEnable}>ENABLE</Buttons.Primary>
           <Buttons.Primary data-test-id="disable-agents"
-                           disabled={agents.isNoneSelected()}
+                           disabled={AgentHeaderPanel.isNoneSelected(agentsVM)}
                            onclick={vnode.attrs.onDisable}>DISABLE</Buttons.Primary>
-          <EnvironmentsDropdownButton show={vnode.attrs.agents.showEnvironments}
-                                      agents={agents}
+          <EnvironmentsDropdownButton show={agentsVM.showEnvironments}
+                                      agentsVM={agentsVM}
                                       updateEnvironments={vnode.attrs.updateEnvironments}
                                       flashMessage={vnode.attrs.flashMessage}
                                       service={new EnvironmentsService()}/>
-          <ResourcesDropdownButton show={vnode.attrs.agents.showResources}
-                                   agents={agents}
+          <ResourcesDropdownButton show={agentsVM.showResources}
+                                   agentsVM={agentsVM}
                                    updateResources={vnode.attrs.updateResources}
                                    flashMessage={vnode.attrs.flashMessage}
                                    service={new ResourcesService()}/>
@@ -70,16 +71,20 @@ export class AgentHeaderPanel extends MithrilViewComponent<AgentHeaderPanelAttrs
 
         <KeyValuePair inline={true} data={new Map(
           [
-            ["Total", this.span(agents.count())],
-            ["Pending", this.span(agents.filterBy(AgentConfigState.Pending).length)],
-            ["Enabled", this.span(agents.filterBy(AgentConfigState.Enabled).length, style.enabled)],
-            ["Disabled", this.span(agents.filterBy(AgentConfigState.Disabled).length, style.disabled)]
+            ["Total", this.span(agentsVM.list().length)],
+            ["Pending", this.span(agentsVM.filterBy(AgentConfigState.Pending).length)],
+            ["Enabled", this.span(agentsVM.filterBy(AgentConfigState.Enabled).length, style.enabled)],
+            ["Disabled", this.span(agentsVM.filterBy(AgentConfigState.Disabled).length, style.disabled)]
           ])
         }/>
       </div>
 
-      <SearchField placeholder="Filter Agents" label="Search for agents" property={agents.filterText}/>
+      <SearchField placeholder="Filter Agents" label="Search for agents" property={agentsVM.filterText}/>
     </div>);
+  }
+
+  private static isNoneSelected(agentsVM: StaticAgentsVM) {
+    return agentsVM.selectedAgentsUUID().length === 0;
   }
 
   private span(count: number, className: string = ""): m.Children {

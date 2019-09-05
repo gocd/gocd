@@ -17,27 +17,16 @@ import {bind} from "classnames/bind";
 import {MithrilComponent, MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
+import Stream from "mithril/stream";
 import s from "underscore.string";
 import styles from "./index.scss";
 
 const classnames = bind(styles);
 
-export abstract class TableSortHandler {
-  private __currentSortedColumnIndex: number = -1;
+export interface TableSortHandler {
+  getSortableColumns(): number[];
 
-  readonly onColumnHeaderClick = (ci: number) => {
-    this.__currentSortedColumnIndex = ci;
-    this.onColumnClick(ci);
-    //tslint:disable-next-line
-  };
-
-  abstract getSortableColumns(): number[];
-
-  abstract onColumnClick(columnIndex: number): void;
-
-  currentSortedColumnIndex(): number {
-    return this.__currentSortedColumnIndex;
-  }
+  onColumnClick(columnIndex: number): void;
 }
 
 interface Attrs {
@@ -52,11 +41,13 @@ interface Attrs {
 interface HeaderAttrs {
   name: any;
   columnIndex: number;
+  currentSortedColumnIndex: Stream<number>;
   width?: string;
   sortCallBackHandler?: TableSortHandler;
 }
 
 interface State {
+  currentSortedColumnIndex: Stream<number>;
   dragging: number;
   dragStart: (e: DragEvent) => void;
   dragOver: (e: DragEvent) => void;
@@ -72,10 +63,13 @@ class TableHeader extends MithrilViewComponent<HeaderAttrs> {
   private static sortButton(vnode: m.Vnode<HeaderAttrs>) {
     if (TableHeader.isSortable(vnode)) {
       return <th class={styles.sortableColumn}
-                 onclick={() => vnode.attrs.sortCallBackHandler!.onColumnHeaderClick(vnode.attrs.columnIndex)}>
+                 onclick={() => {
+                   vnode.attrs.currentSortedColumnIndex(vnode.attrs.columnIndex);
+                   vnode.attrs.sortCallBackHandler!.onColumnClick(vnode.attrs.columnIndex);
+                 }}>
         {vnode.attrs.name}
         <span class={classnames(styles.sortButton,
-                                    {[styles.inActive]: !TableHeader.isSortedByCurrentColumn(vnode)})}>
+                                {[styles.inActive]: !TableHeader.isSortedByCurrentColumn(vnode)})}>
           <i class="fas fa-sort"/>
       </span></th>;
     }
@@ -84,24 +78,23 @@ class TableHeader extends MithrilViewComponent<HeaderAttrs> {
   }
 
   private static isSortable(vnode: m.Vnode<HeaderAttrs>) {
-    return vnode.attrs.sortCallBackHandler && vnode.attrs.sortCallBackHandler.getSortableColumns()
-                                                   .indexOf(vnode.attrs.columnIndex) !== -1;
+    return vnode.attrs.sortCallBackHandler &&
+      vnode.attrs.sortCallBackHandler.getSortableColumns().indexOf(vnode.attrs.columnIndex) !== -1;
   }
 
   private static isSortedByCurrentColumn(vnode: m.Vnode<HeaderAttrs>) {
-    if (!vnode.attrs.sortCallBackHandler || vnode.attrs.sortCallBackHandler.currentSortedColumnIndex() === -1) {
+    if (vnode.attrs.currentSortedColumnIndex() === -1) {
       return false;
     }
 
-    return vnode.attrs.sortCallBackHandler.currentSortedColumnIndex() === vnode.attrs.columnIndex;
+    return vnode.attrs.currentSortedColumnIndex() === vnode.attrs.columnIndex;
   }
 }
 
 export class Table extends MithrilComponent<Attrs, State> {
 
   oninit(vnode: m.Vnode<Attrs, State>): any {
-
-    // Return if not draggable
+    vnode.state.currentSortedColumnIndex = Stream(-1);
     if (!vnode.attrs.draggable) {
       return;
     }
@@ -157,6 +150,7 @@ export class Table extends MithrilComponent<Attrs, State> {
               .map((header: any, index: number) => {
                 return <TableHeader name={Table.renderedValue(header)}
                                     columnIndex={index}
+                                    currentSortedColumnIndex={vnode.state.currentSortedColumnIndex}
                                     sortCallBackHandler={vnode.attrs.sortHandler}/>;
               })
         }

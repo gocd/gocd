@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-import Stream from "mithril/stream";
-import {AgentJSON, AgentsJSON} from "models/new_agent/agents";
+import {AgentJSON, AgentsJSON} from "models/new_agent/agents_json";
 import uuid from "uuid/v4";
 
 export class AgentsTestData {
@@ -23,175 +22,278 @@ export class AgentsTestData {
     return {
       _embedded: {
         agents: [
-          this.agent("37af8492-d64d-4a3f-b1f2-4ea37dd0d201",
-                     "Aaaaa",
-                     "Zzzzz",
-                     "Windows 10",
-                     "Building",
-                     undefined,
-                     "10.1.0.5"),
-          this.agent("45583959-97e2-4b8e-8eab-2f98d73f2e23",
-                     "Bbbbb",
-                     "Xxxxx",
-                     "Centos 7",
-                     "LostContact",
-                     2859,
-                     "10.1.0.4"),
-          this.agent("40c2e45a-3d1f-47e5-8a3e-94d2e4ba5266",
-                     "Ccccc",
-                     "Yyyyy",
-                     "Mac",
-                     "Idle",
-                     9854,
-                     "10.1.1.7")
+          new AgentJSONBuilder().withHostname("Hostname-A").build(),
+          new AgentJSONBuilder().withHostname("Hostname-B").build(),
+          new AgentJSONBuilder().withHostname("Hostname-C").build()
         ]
       }
     } as AgentsJSON;
   }
 
-  static agentWithResources(resources: string[]) {
-    return this.agent("37af8492-d64d-4a3f-b1f2-4ea37dd0d201",
-                      "Aaaaa",
-                      "Zzzzz",
-                      "Windows 10",
-                      "Building",
-                      undefined,
-                      "10.1.0.5",
-                      resources);
+  static withHostname(hostname: string) {
+    return new AgentJSONBuilder().withHostname(hostname).build();
   }
 
-  static agentWithEnvironments(...envs: string[]) {
-    const agent        = this.agent("37af8492-d64d-4a3f-b1f2-4ea37dd0d201", "Aaaaa");
-    agent.environments = envs.map((env) => {
+  static withOs(os: string) {
+    return new AgentJSONBuilder().withOs(os).build();
+  }
+
+  static withSandbox(sandbox: string) {
+    return new AgentJSONBuilder().withSandbox(sandbox).build();
+  }
+
+  static withIP(ip: string) {
+    return new AgentJSONBuilder().withIP(ip).build();
+  }
+
+  static withFreespace(freespace: number | string) {
+    return new AgentJSONBuilder().withFreespace(freespace).build();
+  }
+
+  static pendingAgent() {
+    return new AgentJSONBuilder().withConfigState("Pending").withAgentState("Unknown").build();
+  }
+
+  static disabledAgent() {
+    return new AgentJSONBuilder()
+      .withConfigState("Disabled")
+      .withAgentState("Idle")
+      .withBuildState("Idle")
+      .build();
+  }
+
+  static disabledBuildingAgent() {
+    return new AgentJSONBuilder()
+      .withConfigState("Disabled")
+      .withAgentState("Building")
+      .withBuildState("Building")
+      .build();
+  }
+
+  static disabledCancelledAgent() {
+    return new AgentJSONBuilder()
+      .withConfigState("Disabled")
+      .withAgentState("Building")
+      .withBuildState("Cancelled")
+      .build();
+  }
+
+  static buildingElasticAgent() {
+    const agentJSON             = new AgentJSONBuilder()
+      .withConfigState("Enabled")
+      .withAgentState("Building")
+      .withBuildState("Building")
+      .build();
+    agentJSON.elastic_plugin_id = "cd.go.elastic-agent.docker";
+    agentJSON.elastic_agent_id  = `ea-${agentJSON.uuid}`;
+    return agentJSON;
+  }
+
+  static buildingAgent() {
+    return new AgentJSONBuilder()
+      .withConfigState("Enabled")
+      .withAgentState("Building")
+      .withBuildState("Building")
+      .build();
+  }
+
+  static buildingCancelledAgent() {
+    return new AgentJSONBuilder()
+      .withConfigState("Enabled")
+      .withAgentState("Building")
+      .withBuildState("Cancelled")
+      .build();
+  }
+
+  static idleElasticAgent() {
+    const agentJSON             = new AgentJSONBuilder()
+      .withConfigState("Enabled")
+      .withAgentState("Idle")
+      .withBuildState("Idle")
+      .build();
+    agentJSON.elastic_plugin_id = "cd.go.elastic-agent.docker";
+    agentJSON.elastic_agent_id  = `ea-${agentJSON.uuid}`;
+    return agentJSON;
+  }
+
+  static idleAgent() {
+    return new AgentJSONBuilder()
+      .withConfigState("Enabled")
+      .withAgentState("Idle")
+      .withBuildState("Idle")
+      .build();
+  }
+
+  static missingAgent() {
+    return new AgentJSONBuilder()
+      .withConfigState("Enabled")
+      .withAgentState("Missing")
+      .build();
+  }
+
+  static lostContactAgent() {
+    return new AgentJSONBuilder()
+      .withConfigState("Enabled")
+      .withAgentState("LostContact")
+      .build();
+  }
+
+  static elasticAgent() {
+    const agentJSON             = new AgentJSONBuilder().build();
+    agentJSON.elastic_plugin_id = "cd.go.elastic-agent.docker";
+    agentJSON.elastic_agent_id  = `ea-${uuid()}`;
+    return agentJSON;
+  }
+
+  static elasticAgentWithEnvironments(...environments: string[]) {
+    const agentJSON             = new AgentJSONBuilder().withEnvironments(...environments).build();
+    agentJSON.elastic_plugin_id = "cd.go.elastic-agent.docker";
+    agentJSON.elastic_agent_id  = `ea-${agentJSON.uuid}`;
+    return agentJSON;
+  }
+
+  static withResources(...resources: string[]) {
+    return new AgentJSONBuilder().withResources(...resources).build();
+  }
+
+  static withEnvironments(...environments: string[]) {
+    return new AgentJSONBuilder().withEnvironments(...environments).build();
+  }
+}
+
+class AgentJSONBuilder {
+  private agentJson = {
+    uuid: `${uuid()}`,
+    hostname: AgentJSONBuilder.randomHostname(),
+    ip_address: AgentJSONBuilder.randomIP(),
+    sandbox: AgentJSONBuilder.randomSandbox(),
+    operating_system: AgentJSONBuilder.randomOS(),
+    agent_config_state: AgentJSONBuilder.randomAgentConfigState(),
+    agent_state: AgentJSONBuilder.randomAgentState(),
+    environments: [{
+      name: "gocd",
+      origin: {type: "gocd"}
+    }, {
+      name: "internal",
+      origin: {type: "gocd"}
+    }],
+    build_state: AgentJSONBuilder.randomBuildState(),
+    free_space: AgentJSONBuilder.getRandomIntegerInRange(0, Number.MAX_SAFE_INTEGER),
+    resources: AgentJSONBuilder.randomResources()
+  } as AgentJSON;
+
+  build() {
+    return this.agentJson;
+  }
+
+  withHostname(hostname: string) {
+    this.agentJson.hostname = hostname;
+    return this;
+  }
+
+  withOs(os: string) {
+    this.agentJson.operating_system = os;
+    return this;
+  }
+
+  withSandbox(sandbox: string) {
+    this.agentJson.sandbox = sandbox;
+    return this;
+  }
+
+  withIP(ip: string) {
+    this.agentJson.ip_address = ip;
+    return this;
+  }
+
+  withFreespace(freespace: number | string) {
+    this.agentJson.free_space = freespace;
+    return this;
+  }
+
+  withConfigState(agentConfigState: string) {
+    this.agentJson.agent_config_state = agentConfigState;
+    return this;
+  }
+
+  withAgentState(agentState: string) {
+    this.agentJson.agent_state = agentState;
+    return this;
+  }
+
+  withBuildState(buildState: string) {
+    this.agentJson.build_state = buildState;
+    if (buildState.toLowerCase() === "building") {
+      this.addBuildDetails();
+    }
+    return this;
+  }
+
+  withResources(...resources: string[]) {
+    this.agentJson.resources = resources;
+    return this;
+  }
+
+  withEnvironments(...environments: string[]) {
+    this.agentJson.environments = environments.map((env) => {
       return {
         name: env,
         origin: {type: "gocd"}
       };
     });
-    return agent;
+    return this;
   }
 
-  static agentWithFreespace(freespace: number | string) {
-    return this.agent(uuid(),
-                      "Ccccc",
-                      "Yyyyy",
-                      "Mac",
-                      "Idle",
-                      freespace);
+  private static randomOS() {
+    const osList = ["MacOS", "Widows 10", "Windows 7", "RedHat", "CentOS"];
+    return osList[this.getRandomIntegerInRange(0, osList.length - 1)];
   }
 
-  static pendingAgent() {
-    return this.agentWithState("Pending", "Unknown");
+  private static randomHostname() {
+    const list = ["fountain", "franklin", "hollywood", "jefferson", "melrose", "olympic", "pico", "sunset"];
+    return list[this.getRandomIntegerInRange(0, list.length - 1)];
   }
 
-  static disabledAgent() {
-    return this.agentWithState("Disabled", "Idle", "Idle");
-  }
-
-  static disabledBuildingAgent() {
-    return this.agentWithState("Disabled", "Building", "Building");
-  }
-
-  static disabledCancelledAgent() {
-    return this.agentWithState("Disabled", "Building", "Cancelled");
-  }
-
-  static buildingAgent() {
-    return this.agentWithState("Enabled", "Building", "Building");
-  }
-
-  static buildingCancelledAgent() {
-    return this.agentWithState("Enabled", "Building", "Cancelled");
-  }
-
-  static idleAgent() {
-    return this.agentWithState("Enabled", "Idle", "Idle");
-  }
-
-  static missingAgent() {
-    return this.agentWithState("Enabled", "Missing");
-  }
-
-  static lostContactAgent() {
-    return this.agentWithState("Enabled", "LostContact");
-  }
-
-  static agent(uuid: string, hostname: string,
-               sandbox: string            = "go",
-               os: string                 = "windows",
-               agentState: string         = "Idle",
-               freeSpace: number | string = 93259825152,
-               ipAddr: string             = "10.1.0." + AgentsTestData.getRandomIntegerInRange(1, 255),
-               resources                  = ["dev", "fat", "ie9", "firefox"]) {
-    return {
-      selected: Stream(false),
-      uuid,
-      hostname,
-      ip_address: ipAddr,
-      sandbox,
-      operating_system: os,
-      agent_config_state: "Enabled",
-      agent_state: agentState,
-      environments: [{
-        name: "gocd",
-        origin: {type: "gocd"}
-      }, {
-        name: "internal",
-        origin: {type: "gocd"}
-      }],
-      build_state: "Idle",
-      free_space: freeSpace,
-      resources
-    } as AgentJSON;
-
-  }
-
-  static elasticAgent(hostname: string) {
-    return {
-      uuid: uuid(),
-      hostname,
-      ip_address: "10.1.0." + AgentsTestData.getRandomIntegerInRange(1, 255),
-      sandbox: "go",
-      operating_system: "windows",
-      agent_config_state: "Enabled",
-      agent_state: "Idle",
-      environments: [{
-        name: "gocd",
-        origin: {type: "gocd"}
-      }, {
-        name: "internal",
-        origin: {type: "gocd"}
-      }],
-      resources: [],
-      build_state: "Idle",
-      free_space: 93259825152,
-      elastic_plugin_id: "cd.go.elastic-agents.docker",
-      elastic_agent_id: `ea-${uuid()}`
-    } as AgentJSON;
+  private static randomSandbox() {
+    const list = ["/var/lib/agent", "c://go/agent", "/Users/bob/Applications/go/agent"];
+    return list[this.getRandomIntegerInRange(0, list.length - 1)];
   }
 
   private static getRandomIntegerInRange(min: number, max: number) {
     return Math.ceil(Math.random() * (max - min) + min);
   }
 
-  private static agentWithState(configState: string, agentState: string = "", buildState: string = "") {
-    const agent              = this.agent(uuid(), "Aaaaa");
-    agent.agent_config_state = configState;
-    agent.build_state        = buildState;
-    agent.agent_state        = agentState;
+  private static randomIP() {
+    return `10.1.${this.getRandomIntegerInRange(0, 255)}.${this.getRandomIntegerInRange(1, 250)}`;
+  }
 
-    if (agentState === "Building") {
-      agent.build_details = {
-        pipeline_name: "up42",
-        stage_name: "up42_stage",
-        job_name: "up42_job",
-        _links: {
-          job: {href: "job_url"},
-          stage: {href: "stage_url"},
-          pipeline: {href: "pipeline_url"}
-        }
-      };
-    }
-    return agent;
+  private static randomAgentConfigState() {
+    return ["Disabled", "Enabled", "Pending"][this.getRandomIntegerInRange(0, 2)];
+  }
+
+  private static randomAgentState() {
+    return ["Idle", "Building", "LostContact", "Missing", "Cancelled", "Unknown"][this.getRandomIntegerInRange(0, 5)];
+  }
+
+  private static randomBuildState() {
+    return ["Idle", "Building", "Cancelled", "Unknown"][this.getRandomIntegerInRange(0, 3)];
+  }
+
+  private static randomResources() {
+    return ["Chrome", "Firefox", "Safari", "PSQL", "Java", "Node", "Ruby"]
+      .splice(this.getRandomIntegerInRange(0, 6), 3);
+  }
+
+  private addBuildDetails() {
+    this.agentJson.build_details = {
+      pipeline_name: "up42",
+      stage_name: "up42_stage",
+      job_name: "up42_job",
+      _links: {
+        job: {href: "job_url"},
+        stage: {href: "stage_url"},
+        pipeline: {href: "pipeline_url"}
+      }
+    };
   }
 }

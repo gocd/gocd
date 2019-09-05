@@ -182,19 +182,20 @@ const testdata = Stream([
                           ["C", "X", "N"],
                           ["B", "Y", "L"]]);
 
-class TestTableSortHandler extends TableSortHandler {
+class TestTableSortHandler implements TableSortHandler {
   private data: Stream<any[]>;
   private readonly columns: number[];
-  private sortOrders = new Map();
+  private sortOrders                       = new Map();
+  private currentSortedColumnIndex: number = 0;
 
   constructor(data: Stream<any[]>, columns: number[]) {
-    super();
     this.data    = data;
     this.columns = columns;
     columns.forEach((c) => this.sortOrders.set(c, -1));
   }
 
   onColumnClick(columnIndex: number): void {
+    this.currentSortedColumnIndex = columnIndex;
     this.sortOrders.set(columnIndex, this.sortOrders.get(columnIndex) * -1);
     this.data()
         .sort((element1, element2) => TestTableSortHandler.compare(element1,
@@ -205,6 +206,10 @@ class TestTableSortHandler extends TableSortHandler {
 
   getSortableColumns(): number[] {
     return this.columns;
+  }
+
+  getCurrentSortedColumnIndex(): number {
+    return this.currentSortedColumnIndex;
   }
 
   private static compare(element1: any, element2: any, index: number) {

@@ -20,6 +20,7 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {Agents} from "models/new_agent/agents";
 import {AgentsCRUD} from "models/new_agent/agents_crud";
+import {ElasticAgentVM, StaticAgentsVM} from "models/new_agent/agents_vm";
 import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
 import {MessageType} from "views/components/flash_message";
 import {AgentsWidget} from "views/pages/new_agents/agents_widget";
@@ -27,7 +28,8 @@ import {Page, PageState} from "views/pages/page";
 import {RequiresPluginInfos} from "views/pages/page_operations";
 
 interface State extends RequiresPluginInfos {
-  agents: Agents;
+  staticAgentsVM: StaticAgentsVM;
+  elasticAgentsVM: ElasticAgentVM;
   repeater: AjaxPoller<void>;
   onEnable: (e: MouseEvent) => void;
   onDisable: (e: MouseEvent) => void;
@@ -38,44 +40,45 @@ interface State extends RequiresPluginInfos {
 
 export class NewAgentPage extends Page<null, State> {
   oninit(vnode: m.Vnode<null, State>) {
-    const self              = this;
-    vnode.state.agents      = new Agents([]);
-    vnode.state.pluginInfos = Stream();
+    const self                  = this;
+    vnode.state.staticAgentsVM  = new StaticAgentsVM();
+    vnode.state.elasticAgentsVM = new ElasticAgentVM();
+    vnode.state.pluginInfos     = Stream();
 
     vnode.state.onEnable = () => {
-      const uuids = vnode.state.agents.getSelectedAgentsUUID();
+      const uuids = vnode.state.staticAgentsVM.selectedAgentsUUID();
       AgentsCRUD.agentsToEnable(uuids)
                 .then((result) => self.onResult(result, "Enabled", uuids.length))
-                .then(vnode.state.agents.unselectAll.bind(vnode.state.agents))
+                .then(vnode.state.staticAgentsVM.unselectAll.bind(vnode.state.staticAgentsVM))
                 .finally(self.fetchData.bind(self, vnode));
     };
 
     vnode.state.onDisable = () => {
-      const uuids = vnode.state.agents.getSelectedAgentsUUID();
+      const uuids = vnode.state.staticAgentsVM.selectedAgentsUUID();
       AgentsCRUD.agentsToDisable(uuids)
                 .then((result) => self.onResult(result, "Disabled", uuids.length))
-                .then(vnode.state.agents.unselectAll.bind(vnode.state.agents))
+                .then(vnode.state.staticAgentsVM.unselectAll.bind(vnode.state.staticAgentsVM))
                 .finally(self.fetchData.bind(self, vnode));
     };
 
     vnode.state.onDelete = () => {
-      const uuids = vnode.state.agents.getSelectedAgentsUUID();
+      const uuids = vnode.state.staticAgentsVM.selectedAgentsUUID();
       AgentsCRUD.delete(uuids)
                 .then((result) => self.onResult(result, "Deleted", uuids.length))
                 .finally(self.fetchData.bind(self, vnode));
     };
 
     vnode.state.updateEnvironments = (environmentsToAdd: string[], environmentsToRemove: string[]) => {
-      const uuids = vnode.state.agents.getSelectedAgentsUUID();
+      const uuids = vnode.state.staticAgentsVM.selectedAgentsUUID();
       return AgentsCRUD.updateEnvironmentsAssociation(uuids, environmentsToAdd, environmentsToRemove)
-                       .then(vnode.state.agents.unselectAll.bind(vnode.state.agents))
+                       .then(vnode.state.staticAgentsVM.unselectAll.bind(vnode.state.staticAgentsVM))
                        .finally(self.fetchData.bind(self, vnode));
     };
 
     vnode.state.updateResources = (resourcesToAdd: string[], resourcesToRemove: string[]) => {
-      const uuids = vnode.state.agents.getSelectedAgentsUUID();
+      const uuids = vnode.state.staticAgentsVM.selectedAgentsUUID();
       return AgentsCRUD.updateResources(uuids, resourcesToAdd, resourcesToRemove)
-                       .then(vnode.state.agents.unselectAll.bind(vnode.state.agents))
+                       .then(vnode.state.staticAgentsVM.unselectAll.bind(vnode.state.staticAgentsVM))
                        .finally(self.fetchData.bind(self, vnode));
     };
 
@@ -86,7 +89,8 @@ export class NewAgentPage extends Page<null, State> {
   }
 
   componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
-    return <AgentsWidget agents={vnode.state.agents}
+    return <AgentsWidget staticAgentsVM={vnode.state.staticAgentsVM}
+                         elasticAgentsVM={vnode.state.elasticAgentsVM}
                          onEnable={vnode.state.onEnable.bind(vnode.state)}
                          onDisable={vnode.state.onDisable.bind(vnode.state)}
                          onDelete={vnode.state.onDelete.bind(vnode.state)}
@@ -105,13 +109,18 @@ export class NewAgentPage extends Page<null, State> {
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {
     return Promise.all([AgentsCRUD.all(), PluginInfoCRUD.all({})])
                   .then((results) => {
-                    results[0].do((successResponse) => vnode.state.agents.initializeWith(successResponse.body),
+                    results[0].do((successResponse) => NewAgentPage.syncVMState(vnode, successResponse.body),
                                   this.setErrorState);
                     results[1].do((successResponse) => vnode.state.pluginInfos(successResponse.body),
                                   this.setErrorState);
                   }).finally(() => {
         this.pageState = PageState.OK;
       });
+  }
+
+  private static syncVMState(vnode: m.Vnode<null, State>, agents: Agents) {
+    vnode.state.staticAgentsVM.sync(agents);
+    vnode.state.elasticAgentsVM.sync(agents);
   }
 
   private static pluralizeAgent(count: number) {

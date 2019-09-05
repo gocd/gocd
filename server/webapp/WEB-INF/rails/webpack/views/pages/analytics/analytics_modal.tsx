@@ -28,9 +28,9 @@ const PluginEndpoint = require("rails-shared/plugin-endpoint");
 type SupportedAnalyticsTypes = Agent;
 
 export abstract class AnalyticsModal<T extends SupportedAnalyticsTypes> extends Modal {
-  private readonly supportedAnalytics: { [key: string]: AnalyticsCapability[] };
   protected entity: T;
   protected namespace: AnalyticsNamespace;
+  private readonly supportedAnalytics: { [key: string]: AnalyticsCapability[] };
 
   constructor(entity: T,
               supportedAnalytics: { [key: string]: AnalyticsCapability[] },

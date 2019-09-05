@@ -20,10 +20,10 @@ import {AnalyticsNamespace} from "views/pages/analytics/analytics_namespace";
 const PluginEndpointRequestHandler = require("rails-shared/plugin-endpoint-request-handler");
 
 export namespace AnalyticsInteractionManager {
-  const models: { [key: string]: Frame } = {};
+  const models: Map<string, Frame> = new Map<string, Frame>();
 
   export function purge() {
-    Object.keys(models).forEach((name: string) => delete models[name]);
+    models.clear();
   }
 
   export function all() {
@@ -31,10 +31,7 @@ export namespace AnalyticsInteractionManager {
   }
 
   export function ns(name: string): AnalyticsNamespace {
-    const modelsForNamespace: Frame[] = Object.keys(models)
-                                              .filter((key: string) => key === name)
-                                              .map((key: string) => models[key]);
-    return new AnalyticsNamespace(name, modelsForNamespace);
+    return new AnalyticsNamespace(name, models);
   }
 
   export function ensure() {

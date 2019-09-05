@@ -19,13 +19,13 @@ import {Frame} from "models/shared/analytics_frame";
 import {AnalyticsCapability} from "models/shared/plugin_infos_new/analytics_plugin_capabilities";
 
 export class AnalyticsNamespace {
-  uid    = this.encodeUID;
-  unpack = this.decodeUID;
-  private readonly prefix: string;
+  readonly uid    = this.encodeUID;
+  readonly unpack = this.decodeUID;
+  private readonly models: Map<string, Frame>;
   private readonly name: string;
-  private readonly models: Frame[];
+  private readonly prefix: string;
 
-  constructor(name: string, models: Frame[]) {
+  constructor(name: string, models: Map<string, Frame>) {
     this.name   = name;
     this.models = models;
     this.prefix = `${encodeURIComponent(name)}:`;
@@ -52,7 +52,9 @@ export class AnalyticsNamespace {
   }
 
   all() {
-    return this.models;
+    return Object.keys(this.models)
+                 .filter((key: string) => key === this.name)
+                 .map((key: string) => this.models.get(key));
   }
 
   toUrl(uid: string, params: { [key: string]: string | number } = {}) {
@@ -61,12 +63,12 @@ export class AnalyticsNamespace {
   }
 
   modelFor(uid: string, extraParams: { [key: string]: string | number } = {}) {
-    let model = this.models.find((model: Frame) => model.uid === uid);
+    let model = this.models.get(uid);
 
     if (!model) {
       model = new Frame(uid);
       model.url(this.toUrl(uid, extraParams));
-      this.models.push(model);
+      this.models.set(uid, model);
     }
     return model;
   }

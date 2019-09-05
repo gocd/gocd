@@ -16,8 +16,12 @@
 
 type fn = () => void;
 
+export interface Scheduler {
+  schedule(task: fn): void;
+}
+
 /** A simple task scheduler that ensures each task runs after the page `load` event has fired. */
-export class Scheduler {
+export class OnloadScheduler implements Scheduler {
   private queue: fn[] = [];
   private hasLoaded: boolean = false;
 
@@ -42,5 +46,24 @@ export class Scheduler {
     } else {
       this.queue.push(task);
     }
+  }
+}
+
+/** A deduplicating, thrash-preventing (i.e., window.requestAnimationFrame) scheduler */
+export class NonThrashingScheduler implements Scheduler {
+  private queue = new Set<fn>();
+
+  schedule(task: fn) {
+    this.queue.add(task);
+    this.dequeue();
+  }
+
+  private dequeue() {
+    window.requestAnimationFrame(() => {
+      this.queue.forEach((fn) => {
+        fn();
+        this.queue.delete(fn);
+      });
+    });
   }
 }

@@ -108,15 +108,18 @@ describe("AddPipeline: TaskTerminalField", () => {
     );
   });
 
-  it("renders errors set from the model", () => {
+  it("renders errors set from the model", (done) => {
     hitEnter(editText("whoami"));
     expect(helper.q(sel.task).textContent).toBe("whoami");
     expect(helper.q(sel.hasErrors)).toBeFalsy();
 
     const task = tasks()[0];
     task.errors().add("command", "no thanks");
-    expect(helper.q(sel.hasErrors)).toBeInDOM();
-    expect(helper.text(sel.errors)).toBe("no thanks.");
+    window.requestAnimationFrame(() => {
+      expect(helper.q(sel.hasErrors)).toBeInDOM();
+      expect(helper.text(sel.errors)).toBe("no thanks.");
+      done();
+    });
   });
 
   it("doesn't create task for blank string", () => {

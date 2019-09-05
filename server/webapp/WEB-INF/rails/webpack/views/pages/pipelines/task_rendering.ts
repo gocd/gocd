@@ -19,6 +19,7 @@ import classnames from "classnames";
 import {makeEvent} from "helpers/compat";
 import {asSelector} from "helpers/css_proxies";
 import {el, empty, removeEl, replaceWith} from "helpers/dom";
+import {NonThrashingScheduler, Scheduler} from "helpers/scheduler";
 import _ from "lodash";
 
 // models
@@ -34,6 +35,8 @@ const sel = asSelector<typeof css>(css);
 export class TerminalCrud {
   term: HTMLElement;
   model: (tasks?: Task[]) => Task[] | undefined;
+
+  private scheduler: Scheduler = new NonThrashingScheduler(); // prevent premature and duplicative DOM updates; not critical, but good to have
 
   constructor(term: HTMLElement, model: (tasks?: Task[]) => Task[] | undefined) {
     this.term = term;
@@ -73,7 +76,7 @@ export class TerminalCrud {
     const mod = $(`[data-cwd]`, taskLine);
     const workingDirectory = mod ? JSON.parse(mod.getAttribute("data-cwd")!) : void 0;
 
-    return attachErrorAutoUpdates(new ExecTask(cmd, args, { workingDirectory }), taskLine);
+    return attachErrorAutoUpdates(new ExecTask(cmd, args, { workingDirectory }), taskLine, this.scheduler);
   }
 
   /** builds a DOM element representing a saved task entry from a shell-parsed result (i.e., from parsing the editor textContent) */
@@ -111,7 +114,7 @@ function $$(selector: string, context: HTMLElement): NodeListOf<HTMLElement> {
   return context.querySelectorAll<HTMLElement>(selector);
 }
 
-function attachErrorAutoUpdates(model: Task, taskLine: HTMLElement): Task {
+function attachErrorAutoUpdates(model: Task, taskLine: HTMLElement, scheduler: Scheduler): Task {
   function updateErrorsOnElement() {
     if (taskLine.classList.contains(css.task)) {
       clearErrorsFromLine(taskLine);
@@ -126,8 +129,8 @@ function attachErrorAutoUpdates(model: Task, taskLine: HTMLElement): Task {
   }
 
   // auto-update the individual DOM element when altering the Errors object
-  model.errors().on("error:change", updateErrorsOnElement);
-  model.attributes().errors().on("error:change", updateErrorsOnElement);
+  model.errors().on("error:change", () => scheduler.schedule(updateErrorsOnElement));
+  model.attributes().errors().on("error:change", () => scheduler.schedule(updateErrorsOnElement));
   return model;
 }
 

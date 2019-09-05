@@ -74,7 +74,11 @@ describe Api::WebHooks::GitHubController do
                             git@github.com:org/repo
                             git@github.com:org/repo/
                             git@github.com:org/repo.git
-                            git@github.com:org/repo.git/)
+                            git@github.com:org/repo.git/
+                            ssh://git@github.com/org/repo
+                            ssh://git@github.com/org/repo/
+                            ssh://git@github.com/org/repo.git
+                            ssh://git@github.com/org/repo.git/)
 
         expect(@material_update_service)
           .to receive(:updateGitMaterial)
@@ -163,7 +167,11 @@ describe Api::WebHooks::GitHubController do
                             git@github.com:org/repo
                             git@github.com:org/repo/
                             git@github.com:org/repo.git
-                            git@github.com:org/repo.git/)
+                            git@github.com:org/repo.git/
+                            ssh://git@github.com/org/repo
+                            ssh://git@github.com/org/repo/
+                            ssh://git@github.com/org/repo.git
+                            ssh://git@github.com/org/repo.git/)
 
         expect(@material_update_service).to receive(:updateGitMaterial).with('branch', all_matching_repos).and_return(true)
 

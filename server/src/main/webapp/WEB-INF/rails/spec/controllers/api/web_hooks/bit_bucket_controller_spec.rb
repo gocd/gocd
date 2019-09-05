@@ -87,7 +87,11 @@ describe Api::WebHooks::BitBucketController do
                             git@gitlab.example.com:org/repo
                             git@gitlab.example.com:org/repo/
                             git@gitlab.example.com:org/repo.git
-                            git@gitlab.example.com:org/repo.git/)
+                            git@gitlab.example.com:org/repo.git/
+                            ssh://git@gitlab.example.com/org/repo
+                            ssh://git@gitlab.example.com/org/repo/
+                            ssh://git@gitlab.example.com/org/repo.git
+                            ssh://git@gitlab.example.com/org/repo.git/)
 
         expect(@material_update_service)
           .to receive(:updateGitMaterial)

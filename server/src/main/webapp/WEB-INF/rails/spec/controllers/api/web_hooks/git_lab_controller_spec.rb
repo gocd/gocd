@@ -74,6 +74,10 @@ describe Api::WebHooks::GitLabController do
                             git@gitlab.example.com:org/repo/
                             git@gitlab.example.com:org/repo.git
                             git@gitlab.example.com:org/repo.git/
+                            ssh://git@gitlab.example.com/org/repo
+                            ssh://git@gitlab.example.com/org/repo/
+                            ssh://git@gitlab.example.com/org/repo.git
+                            ssh://git@gitlab.example.com/org/repo.git/
                             gitlab@gitlab.example.com:org/repo
                             gitlab@gitlab.example.com:org/repo/
                             gitlab@gitlab.example.com:org/repo.git

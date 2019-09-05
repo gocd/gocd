@@ -102,6 +102,10 @@ $spinner-wrapper-height: 200px;
   @include icon-before($type: $fa-var-close);
 }
 
+.overlay-fixed-height {
+  height: $overlay-height;
+}
+
 .overlay-content {
   background: $white;
   position:   relative;

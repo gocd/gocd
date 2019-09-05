@@ -47,11 +47,39 @@ describe("Modal", () => {
     m.redraw.sync();
     expect($(`.${styles.overlayHeader} h3`)).toContainText("Test Modal");
     expect($(`.${styles.overlayContent} p`)).toContainText("Hello World!");
+    expect($(`.${styles.overlayFixedHeight}`)).not.toBeInDOM();
     const buttonsSelector = `.${styles.overlayFooter} button`;
     expect($(buttonsSelector).length).toBe(2);
     expect($(buttonsSelector).get(0)).toContainText("Cancel");
     expect($(buttonsSelector).get(1)).toContainText("OK");
     expect($("body")).toHaveClass(styles.fixed);
+    testModal.close();
+    expect($("body")).not.toHaveClass(styles.fixed);
+  });
+
+  it("should display a modal with fixed height", () => {
+    const testModal = new (class TestModal extends Modal {
+      constructor() {
+        super();
+        this.fixedHeight = true;
+      }
+
+      body(): m.Children {
+        return m("p", "Hello World!");
+      }
+
+      title(): string {
+        return "Test Modal";
+      }
+
+      buttons(): m.ChildArray {
+        return [];
+      }
+    })();
+
+    testModal.render();
+    m.redraw.sync();
+    expect($(`.${styles.overlayFixedHeight} p`)).toContainText("Hello World!");
     testModal.close();
     expect($("body")).not.toHaveClass(styles.fixed);
   });

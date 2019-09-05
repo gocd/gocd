@@ -193,9 +193,9 @@ public class AgentRegistrationControllerIntegrationTest {
     @Test
     public void shouldNotRegisterAgentWhenValidationFails() {
         MockHttpServletRequest request = new MockHttpServletRequest();
-        int totalAgentsBeforeRegistrationRequest = agentService.findRegisteredAgentsInDB().size();
+        int totalAgentsBeforeRegistrationRequest = agentService.findRegisteredAgents().size();
         final ResponseEntity responseEntity = controller.agentRequest("hostname", "", "sandbox", "100", null, null, null, null, null, null, null, token("", goConfigService.serverConfig().getTokenGenerationKey()), request);
-        int totalAgentsAfterRegistrationRequest = agentService.findRegisteredAgentsInDB().size();
+        int totalAgentsAfterRegistrationRequest = agentService.findRegisteredAgents().size();
         assertThat(totalAgentsBeforeRegistrationRequest, is(totalAgentsAfterRegistrationRequest));
 
         assertThat(responseEntity.getStatusCode(), is(UNPROCESSABLE_ENTITY));

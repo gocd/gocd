@@ -24,22 +24,22 @@ import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.config.update.ConfigUpdateCheckFailedException;
 import com.thoughtworks.go.domain.*;
-import com.thoughtworks.go.helper.EnvironmentConfigMother;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.presentation.environment.EnvironmentPipelineModel;
 import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 import java.util.*;
 
-import static com.thoughtworks.go.helper.EnvironmentConfigMother.*;
+import static com.thoughtworks.go.helper.EnvironmentConfigMother.OMNIPRESENT_AGENT;
+import static com.thoughtworks.go.helper.EnvironmentConfigMother.environments;
 import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -856,14 +856,14 @@ class EnvironmentConfigServiceTest {
         environmentConfigService.syncEnvironments(environments);
 
         assertThat(environmentConfigService.getEnvironments().size(), is(2));
-        assertThat(environmentConfigService.getEnvironmentNames(), containsInAnyOrder("uat", "prod"));
+        assertThat(environmentConfigService.getEnvironmentNames(), Matchers.containsInAnyOrder("uat", "prod"));
 
         environmentConfigService.syncEnvironments(null);
 
         // only 1 time (for the first sync call)
         verify(agentService, times(1)).getAgentInstances();
         assertThat(environmentConfigService.getEnvironments().size(), is(2));
-        assertThat(environmentConfigService.getEnvironmentNames(), containsInAnyOrder("uat", "prod"));
+        assertThat(environmentConfigService.getEnvironmentNames(), Matchers.containsInAnyOrder("uat", "prod"));
     }
 
     private List<JobPlan> jobs(String... envNames) {

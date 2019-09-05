@@ -16,11 +16,6 @@
 
 package com.thoughtworks.go.server.perf.commands;
 
-import lombok.Data;
-import lombok.experimental.Accessors;
-
-@Data
-@Accessors(chain = true)
 public class AgentPerformanceCommandResult {
     private String name;
     private String status;
@@ -28,4 +23,48 @@ public class AgentPerformanceCommandResult {
     private String agentUuids;
     private long timeTakenInMillis;
 
+    public String getName() {
+        return name;
+    }
+
+    public AgentPerformanceCommandResult setName(String name) {
+        this.name = name;
+        return this;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public AgentPerformanceCommandResult setStatus(String status) {
+        this.status = status;
+        return this;
+    }
+
+    public String getFailureMessage() {
+        return failureMessage;
+    }
+
+    public AgentPerformanceCommandResult setFailureMessage(String failureMessage) {
+        this.failureMessage = failureMessage;
+        return this;
+    }
+
+    public String getAgentUuids() {
+        return agentUuids;
+    }
+
+    public AgentPerformanceCommandResult setAgentUuids(String agentUuids) {
+        this.agentUuids = agentUuids;
+        return this;
+    }
+
+    public long getTimeTakenInMillis() {
+        return timeTakenInMillis;
+    }
+
+    public AgentPerformanceCommandResult setTimeTakenInMillis(long timeTakenInMillis) {
+        this.timeTakenInMillis = timeTakenInMillis;
+        return this;
+    }
 }

@@ -341,7 +341,7 @@ public class EnvironmentConfigServiceIntegrationTest {
         String uuid = "uuid-1";
         String envName = "env";
         Username user = Username.ANONYMOUS;
-        agentService.register(new Agent(uuid, "host-1", "192.168.1.2"), "", "");
+        agentService.register(new Agent(uuid, "host-1", "192.168.1.2"));
         String configRepoId = createMergeEnvironment(envName, uuid);
 
         EnvironmentConfig envConfig = environmentConfigService.getEnvironmentConfig(envName);

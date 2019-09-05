@@ -135,4 +135,29 @@ describe("Pipeline Config - Stage Settings Modal - Stage Settings Tab", () => {
     expect((helper.findByDataTestId("form-field-input-clean-working-directory")[0] as HTMLInputElement).checked).toEqual(true);
   });
 
+  it("should render help text for stage name input field", () => {
+    const stageNameHelpText = "No spaces. Only letters, numbers, hyphens, underscores and period. Max 255 chars";
+    expect(helper.findByDataTestId("help-stage-name")).toContainText(stageNameHelpText);
+  });
+
+  it("should render help text for automatic stage run", () => {
+    const stageApprovalHelpText = "If unchecked, this stage will only schedule in response to a Manual/API/Timer trigger.";
+    expect(helper.find("#help-stage-approval")).toContainText(stageApprovalHelpText);
+  });
+
+  it("should render help text for fetch materials", () => {
+    const stageNameHelpText = "Allow the agent to fetch/checkout/clone the material during job run. This option can be turned off in cases where job execution is not dependent on the material at all.";
+    expect(helper.findByDataTestId("help-fetch-materials")).toContainText(stageNameHelpText);
+  });
+
+  it("should render help text for never cleanup artifacts", () => {
+    const stageNameHelpText = "Allow the agent to fetch/checkout/clone the material during job run. This option can be turned off in cases where job execution is not dependent on the material at all.";
+    expect(helper.findByDataTestId("help-fetch-materials")).toContainText(stageNameHelpText);
+  });
+
+  it("should render help text for Clean Working Directory", () => {
+    const stageNameHelpText = "Allow the agent to delete files/directories and reset the file changes under version control which are created during the previous build.";
+    expect(helper.findByDataTestId("help-clean-working-directory")).toContainText(stageNameHelpText);
+  });
+
 });

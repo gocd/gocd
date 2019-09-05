@@ -25,7 +25,11 @@ $current-prompt: #aadadb;
 
 $prompt: #999;
 $cmd-color: #aadbaa;
+$mod-color: #dbdbaa;
+$mod-bg:    rgba(128, 128, 255, 0.4);
+$err-bg:    rgba(255, 128, 128, 0.2);
 $attention: #e6e699;
+$info:      #9999e6;
 
 .exec-editor {
   display: block;
@@ -50,42 +54,63 @@ $attention: #e6e699;
     }
   }
 
-  .caveats {
+  .help-content {
     max-width: 100%;
-    margin-top: -1em;
-    margin-bottom: 1em;
+    margin-top: -0.5em;
+    margin-bottom: 0.5em;
 
-    span {
+    .help-header {
       display: block;
       font-weight: bold;
       cursor: pointer;
-      text-align: right;
-      color: $attention;
+      color: $info;
 
       &:before {
         content: "+ ";
       }
     }
 
-    p {
-      margin: 0;
+    .help-body {
+      margin: 0 0 0 1ex;
       padding: 0;
       display: none;
     }
 
-    &.open {
-      span {
+    p {
+      margin: 0;
+      padding: 0;
+    }
+
+    &.open{
+      .help-header {
         &:before {
           content: "- ";
         }
       }
 
-      p { display: block; }
+      .help-body { display: block; }
+    }
+  }
+
+  .caveats {
+    float: right;
+
+    .help-header {
+      text-align: right;
+      color: $attention;
+    }
+
+    &.open {
+      float: none;
+      clear: both;
     }
   }
 
   .current-editor::before,
-  .cmd::before {
+  .cmd:first-child::before,
+  .mod:first-child::before {
+    @include no-select;
+
     content: "$";
     margin-left: calc(-2ex + 2px);
     margin-right: 4px;
@@ -112,16 +137,28 @@ $attention: #e6e699;
 
   .task {
     cursor: pointer;
-    padding: 2px;
+    padding: 3px 2px;
     padding-left: calc(2ex + 2px);
 
-    margin: 0;
-    margin-bottom: 2px;
+    margin: 0; // don't add ANY margin or else user can click between the gaps and trigger parent handler => bad user experience, feels buggy
 
+    .mod,
     .cmd,
     .args {
       padding: 0;
       margin: 0;
+    }
+
+    .mod {
+      color: $mod-color;
+      box-sizing: border-box;
+      border-radius: 4px;
+      padding: 0 5px;
+      background-color: $mod-bg;
+
+      &:before {
+        float: left;
+      }
     }
 
     .cmd {
@@ -130,6 +167,42 @@ $attention: #e6e699;
 
     .args {
       color: $white;
+    }
+
+    .errors {
+      white-space: normal;
+      padding-top: 3px;
+      color: lighten($go-danger, 20%);
+      font-size: 11px;
+      border-top: 2px dotted $go-danger;
+
+      ul {
+        list-style: none;
+        margin-left: 0;
+        padding-left: 1em;
+        text-indent: -1em;
+
+        li {
+          padding: 0;
+          margin: 0;
+
+          &:before {
+            content: "» ";
+          }
+        }
+      }
+    }
+
+    &.has-errors {
+      background-color: $err-bg;
+
+      .cmd, .args, .mod {
+        color: $white;
+        background-color: transparent;
+        padding: 0;
+
+        &:before { color: $white; }
+      }
     }
   }
 }

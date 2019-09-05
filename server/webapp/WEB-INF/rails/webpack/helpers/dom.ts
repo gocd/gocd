@@ -21,17 +21,19 @@ const EVENT_HANDLER_ATTR = /^on([a-z]+)$/; // may expand this regex if need to a
 export function el(tag: HTMLElement | string, options: any, children: Child | Child[]): HTMLElement {
   const n = isHtmlElement(tag) ? tag : document.createElement(tag);
 
-  for (const key of Object.keys(options)) {
-    const maybeEvent = key.toLowerCase().match(EVENT_HANDLER_ATTR);
-    const value = options[key];
+  if (options) {
+    for (const key of Object.keys(options)) {
+      const maybeEvent = key.toLowerCase().match(EVENT_HANDLER_ATTR);
+      const value = options[key];
 
-    if (maybeEvent && isHandlerAttrValue(value)) {
-      const [, evt] = maybeEvent!;
-      const handler = "string" === typeof value ? new Function("event", value).bind(n) : value;
+      if (maybeEvent && isHandlerAttrValue(value)) {
+        const [, evt] = maybeEvent!;
+        const handler = "string" === typeof value ? new Function("event", value).bind(n) : value;
 
-      n.addEventListener(evt, handler);
-    } else {
-      n.setAttribute(key, value);
+        n.addEventListener(evt, handler);
+      } else {
+        n.setAttribute(key, value);
+      }
     }
   }
 
@@ -62,6 +64,12 @@ export function empty<T extends Node>(el: T): T {
     el.removeChild(el.firstChild);
   }
   return el;
+}
+
+export function removeEl(element: Element) {
+  if (element.parentElement) {
+    element.parentElement.removeChild(element);
+  }
 }
 
 export function isHtmlElement(el: any): el is HTMLElement {

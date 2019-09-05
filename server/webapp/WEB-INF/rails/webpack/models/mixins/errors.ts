@@ -16,14 +16,16 @@
 import _ from "lodash";
 
 import {mixins as s} from "helpers/string-plus";
+import {EventAware} from "models/mixins/event_aware";
 
 export interface ErrorsJSON { [key: string]: string[]; }
 
 export class Errors {
-  private _errors: { [key: string]: string[] };
+  private _errors: ErrorsJSON;
 
-  constructor(errors: { [key: string]: string[] } = {}) {
+  constructor(errors: ErrorsJSON = {}) {
     this._errors = errors;
+    EventAware.call(this);
   }
 
   add(attrName: string, message: string) {
@@ -31,10 +33,12 @@ export class Errors {
       this._errors[attrName] = [];
     }
     this._errors[attrName].push(message);
+    this.notify("error:change");
   }
 
   clear(attrName?: string) {
     "undefined" !== typeof attrName ? delete this._errors[attrName] : this._errors = {};
+    this.notify("error:change");
   }
 
   errors(attrName?: string) {
@@ -49,6 +53,10 @@ export class Errors {
     return _.map(this._errors[attrName] || [], s.terminateWithPeriod).join(" ");
   }
 
+  allErrorsForDisplay(): string[] {
+    return _.map(this.keys(), (key) => this.errorsForDisplay(key));
+  }
+
   count() {
     return _.size(this._errors);
   }
@@ -57,7 +65,14 @@ export class Errors {
     return Object.keys(this._errors);
   }
 
+  toJSON() {
+    return JSON.parse(JSON.stringify(this._errors)); // deep copy of internal state
+  }
+
   private _isEmpty() {
-    return _.isEmpty(this._errors);
+    return _.every(this._errors, (errs, attr) => _.isEmpty(errs));
   }
 }
+
+// tslint:disable-next-line no-empty-interface
+export interface Errors extends EventAware {}

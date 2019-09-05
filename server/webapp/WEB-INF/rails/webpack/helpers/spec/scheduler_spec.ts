@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-import {Scheduler} from "../scheduler";
+import {NonThrashingScheduler, OnloadScheduler} from "../scheduler";
 
 describe("Scheduler", () => {
   // this is really the only thing that can be tested without some awkward hack; testing
   // the exec delay until onload fires would be difficult
-  it("immediately runs a task once the page has loaded", (done) => {
+  it("OnloadScheduler immediately runs a task once the page has loaded", (done) => {
     const a = jasmine.createSpy("first()"),
           b = jasmine.createSpy("second()"),
           c = jasmine.createSpy("third()");
 
-    const scheduler = new Scheduler();
+    const scheduler = new OnloadScheduler();
 
     scheduler.schedule(a);
     scheduler.schedule(b);
@@ -35,6 +35,27 @@ describe("Scheduler", () => {
       expect(b).toHaveBeenCalled();
       expect(c).toHaveBeenCalled();
       done();
+    });
+  });
+
+  // please don't be flaky :)
+  it("NonThrashingScheduler deduplicates schedules between RAFs", (done) => {
+    const a = jasmine.createSpy("first()");
+
+    const scheduler = new NonThrashingScheduler();
+
+    scheduler.schedule(a), scheduler.schedule(a); // ought to be deduplicated when scheduling before the next animation frame
+
+    scheduler.schedule(() => {
+      // `a` should have been dequeued by now
+      expect(a).toHaveBeenCalledTimes(1);
+
+      scheduler.schedule(a); // can run once again after we've dequeued
+      scheduler.schedule(() => {
+        // after dequeuing, `a` should have been run exactly once more
+        expect(a).toHaveBeenCalledTimes(2);
+        done();
+      });
     });
   });
 });

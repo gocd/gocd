@@ -56,11 +56,30 @@ describe("AddPipeline: TaskTerminalField", () => {
     assertModel(new ExecTask("find", [".", "-name", "package.json", "-type", "f"]));
   });
 
-  it("multiline entries ignore trailing backslashes at newlines", () => {
+  it("renders errors when commands cannot be parsed", () => {
+    hitEnter(editText(`echo "hi`));
+    expect(helper.q(sel.hasErrors)).toBeInDOM();
+    expect(helper.text(sel.errors)).toBe("Unmatched quote.");
+  });
+
+  it("renders errors when modifiers fail validation", () => {
+    hitEnter(editText(`CWD:/ ls`));
+    expect(helper.q(sel.hasErrors)).toBeInDOM();
+    expect(helper.text(sel.errors)).toBe("The specified CWD path must be relative, but cannot traverse upward beyond the sandboxed directory.");
+  });
+
+  it("renders error when only modifiers are provided without a command", () => {
+    hitEnter(editText(`CWD:foo`)); // no command, only a modifier
+    expect(helper.q(sel.hasErrors)).toBeInDOM();
+    expect(helper.text(sel.errors)).toBe("Please provide a command to run.");
+  });
+
+  it("sets an error when multiline entries use trailing backslashes between lines ", () => {
     hitEnter(editText(`find . \\
       -name package.json \\
       -type f`));
-    assertModel(new ExecTask("find", [".", "-name", "package.json", "-type", "f"]));
+    expect(helper.q(sel.hasErrors)).toBeInDOM();
+    expect(helper.text(sel.errors)).toBe("Trailing backslashes in multiline commands will likely not work in GoCD tasks.");
   });
 
   it("replaces task on edit", () => {
@@ -78,9 +97,8 @@ describe("AddPipeline: TaskTerminalField", () => {
     );
 
     // replace the middle task via edit
-    events.simulate(getTasks()[1], "click");
+    makeEditable(1);
     hitEnter(editText("ls -la"));
-
     expect(helper.q(sel.currentEditor).textContent).toBe("");
     expect(getTasksText()).toEqual(["find .", "ls -la", "echo hello"]);
     assertModel(
@@ -90,10 +108,28 @@ describe("AddPipeline: TaskTerminalField", () => {
     );
   });
 
+  it("renders errors set from the model", (done) => {
+    hitEnter(editText("whoami"));
+    expect(helper.q(sel.task).textContent).toBe("whoami");
+    expect(helper.q(sel.hasErrors)).toBeFalsy();
+
+    const task = tasks()[0];
+    task.errors().add("command", "no thanks");
+    window.requestAnimationFrame(() => {
+      expect(helper.q(sel.hasErrors)).toBeInDOM();
+      expect(helper.text(sel.errors)).toBe("no thanks.");
+      done();
+    });
+  });
+
   it("doesn't create task for blank string", () => {
     hitEnter(editText(" \t\n\n\n "));
     assertModel();
   });
+
+  function makeEditable(index: number) {
+    events.simulate(getTasks()[index], "click");
+  }
 
   function editText(text: string): Element {
     const el = helper.q(sel.currentEditor);

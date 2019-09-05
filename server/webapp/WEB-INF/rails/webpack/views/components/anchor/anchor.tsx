@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {Scheduler} from "helpers/scheduler";
+import {OnloadScheduler, Scheduler} from "helpers/scheduler";
 import {MithrilComponent} from "jsx/mithril-component";
 import m from "mithril";
 import headerStyles from "views/components/header_panel/index.scss";
@@ -78,7 +78,7 @@ export class Anchor extends MithrilComponent<Attrs, State> {
 export class AnchorVM implements ScrollManager {
   private target: string = "";
   private hasMoved: boolean = false;
-  private readonly scheduler = new Scheduler();
+  private readonly scheduler: Scheduler = new OnloadScheduler();
 
   getTarget() {
     return this.target;

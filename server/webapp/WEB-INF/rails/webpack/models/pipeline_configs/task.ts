@@ -22,9 +22,20 @@ import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 type ValidTypes = "exec" | "fetchArtifact";
 type RunIfCondition = "passed" | "failed" | "any";
 
+interface TaskOpts {
+  runIf: RunIfCondition[];
+}
+
+interface ExecOpts extends TaskOpts {
+  workingDirectory: string;
+}
+
+type Partial<T extends TaskOpts> = { [P in keyof T]?: T[P] };
+
 export interface Task extends ValidatableMixin {
   type: ValidTypes;
   attributes: Stream<TaskAttributes>;
+  hasErrors(): boolean;
 }
 
 export interface TaskAttributes extends ValidatableMixin {
@@ -40,6 +51,10 @@ abstract class AbstractTask extends ValidatableMixin implements Task {
   constructor() {
     super();
     this.validateAssociated("attributes");
+  }
+
+  hasErrors() {
+    return this.errors().hasErrors() || this.attributes().errors().hasErrors();
   }
 
   errorContainerFor(subkey: string): ErrorsConsumer {
@@ -67,11 +82,10 @@ abstract class AbstractTaskAttributes extends ValidatableMixin implements TaskAt
 
 export class ExecTask extends AbstractTask {
   readonly type: ValidTypes = "exec";
-  workingDirectory: Stream<string> = Stream();
 
-  constructor(cmd: string, args: string[]) {
+  constructor(cmd: string, args: string[], opts: Partial<ExecOpts> = {}) {
     super();
-    this.attributes(new ExecTaskAttributes(cmd, args));
+    this.attributes(new ExecTaskAttributes(cmd, args, opts));
   }
 }
 
@@ -79,13 +93,22 @@ export class ExecTaskAttributes extends AbstractTaskAttributes {
   // validators expect streams for attrs
   command: Stream<string>;
   arguments: Stream<string[]>;
+  workingDirectory: Stream<string> = Stream();
 
-  constructor(cmd: string, args: string[]) {
+  constructor(cmd: string, args: string[], opts: Partial<ExecOpts>) {
     super();
     this.command = Stream(cmd);
     this.validatePresenceOf("command");
 
     this.arguments = Stream(args || []);
+
+    if (opts.workingDirectory) {
+      this.workingDirectory(opts.workingDirectory);
+    }
+
+    if (opts.runIf) {
+      this.runIf(opts.runIf);
+    }
   }
 
   toApiPayload(): any {

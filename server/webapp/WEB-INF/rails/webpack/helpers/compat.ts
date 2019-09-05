@@ -61,7 +61,7 @@ export function insertTextFromClipboard(text: string) {
   if (document.queryCommandSupported("insertText")) {
     document.execCommand("insertText", false, text);
   } else {
-    const range = document.getSelection()!.getRangeAt(0);
+    const range = getSelection()!.getRangeAt(0);
     range.deleteContents();
     range.insertNode(document.createTextNode(text));
   }
@@ -76,4 +76,8 @@ export function makeEvent(type: string, bubbles: boolean = true, cancelable: boo
   event.initEvent(type, bubbles, cancelable);
 
   return event;
+}
+
+export function getSelection() {
+  return window.getSelection() || document.getSelection();
 }

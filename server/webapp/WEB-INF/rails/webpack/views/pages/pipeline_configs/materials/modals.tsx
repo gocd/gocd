@@ -51,3 +51,37 @@ export class AddMaterialModal extends Modal {
     }
   }
 }
+
+export class EditMaterialModal extends Modal {
+  private readonly material: Material;
+  private readonly onSuccessfulEdit: (oldMaterial: Material, newMaterial: Material) => void;
+  private readonly _oldMaterial: Material;
+
+  constructor(material: Material, onSuccessfulEdit: (oldMaterial: Material, newMaterial: Material) => void) {
+    super(Size.large);
+    this._oldMaterial     = material;
+    this.material         = material.clone();
+    this.onSuccessfulEdit = onSuccessfulEdit;
+  }
+
+  body(): m.Children {
+    return <MaterialEditor material={this.material}/>;
+  }
+
+  title(): string {
+    return this.material.name() ? this.material.name() : this.material.materialUrl();
+  }
+
+  buttons(): m.ChildArray {
+    return [
+      <Buttons.Primary data-test-id="button-ok" onclick={this.updateMaterial.bind(this)}>Update</Buttons.Primary>
+    ];
+  }
+
+  updateMaterial(): void {
+    if (this.material.isValid()) {
+      this.close();
+      this.onSuccessfulEdit(this._oldMaterial, this.material);
+    }
+  }
+}

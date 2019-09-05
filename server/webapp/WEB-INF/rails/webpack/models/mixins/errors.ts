@@ -18,7 +18,9 @@ import _ from "lodash";
 import {mixins as s} from "helpers/string-plus";
 import {EventAware} from "models/mixins/event_aware";
 
-export interface ErrorsJSON { [key: string]: string[]; }
+export interface ErrorsJSON {
+  [key: string]: string[];
+}
 
 export class Errors {
   private _errors: ErrorsJSON;
@@ -26,6 +28,10 @@ export class Errors {
   constructor(errors: ErrorsJSON = {}) {
     this._errors = errors;
     EventAware.call(this);
+  }
+
+  clone() {
+    return new Errors(_.clone(this._errors));
   }
 
   add(attrName: string, message: string) {

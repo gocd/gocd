@@ -218,4 +218,109 @@ describe("Material Types", () => {
       expect(material.name()).toEqual("");
     });
   });
+
+  describe("CloneMaterialAttributes", () => {
+    it("should should clone Git material attributes", () => {
+      const gitMaterialAttributes = new GitMaterialAttributes("http://foo.git", "git", false, "master", "username", "password", undefined);
+      gitMaterialAttributes.destination("destination");
+
+      const clonedAttributes = gitMaterialAttributes.clone();
+
+      expect(clonedAttributes).not.toBe(gitMaterialAttributes);
+      expect(clonedAttributes.name()).toEqual(gitMaterialAttributes.name());
+      expect(clonedAttributes.url()).toEqual(gitMaterialAttributes.url());
+      expect(clonedAttributes.branch()).toEqual(gitMaterialAttributes.branch());
+      expect(clonedAttributes.autoUpdate()).toEqual(gitMaterialAttributes.autoUpdate());
+      expect(clonedAttributes.username()).toEqual(gitMaterialAttributes.username());
+      expect(clonedAttributes.password().value()).toEqual(gitMaterialAttributes.password().value());
+      expect(clonedAttributes.destination()).toEqual(gitMaterialAttributes.destination());
+    });
+
+    it("should should clone SVN material attributes", () => {
+      const svnMaterialAttributes = new SvnMaterialAttributes("http://foo.svn", "svn", false, true, "username", "password", undefined);
+      svnMaterialAttributes.destination("destination");
+
+      const clonedAttributes = svnMaterialAttributes.clone();
+
+      expect(clonedAttributes).not.toBe(svnMaterialAttributes);
+      expect(clonedAttributes.name()).toEqual(svnMaterialAttributes.name());
+      expect(clonedAttributes.url()).toEqual(svnMaterialAttributes.url());
+      expect(clonedAttributes.checkExternals()).toEqual(svnMaterialAttributes.checkExternals());
+      expect(clonedAttributes.autoUpdate()).toEqual(svnMaterialAttributes.autoUpdate());
+      expect(clonedAttributes.username()).toEqual(svnMaterialAttributes.username());
+      expect(clonedAttributes.password().value()).toEqual(svnMaterialAttributes.password().value());
+      expect(clonedAttributes.destination()).toEqual(svnMaterialAttributes.destination());
+    });
+
+    it("should should clone P4 material attributes", () => {
+      const p4MaterialAttributes = new P4MaterialAttributes("http://foo.p4:3120", "p4 view", "P4", true, false, "username", "password", undefined);
+      p4MaterialAttributes.destination("destination");
+
+      const clonedAttributes = p4MaterialAttributes.clone();
+
+      expect(clonedAttributes).not.toBe(p4MaterialAttributes);
+      expect(clonedAttributes.name()).toEqual(p4MaterialAttributes.name());
+      expect(clonedAttributes.view()).toEqual(p4MaterialAttributes.view());
+      expect(clonedAttributes.useTickets()).toEqual(p4MaterialAttributes.useTickets());
+      expect(clonedAttributes.autoUpdate()).toEqual(p4MaterialAttributes.autoUpdate());
+      expect(clonedAttributes.username()).toEqual(p4MaterialAttributes.username());
+      expect(clonedAttributes.password().value()).toEqual(p4MaterialAttributes.password().value());
+      expect(clonedAttributes.destination()).toEqual(p4MaterialAttributes.destination());
+    });
+
+    it("should should clone Hg material attributes", () => {
+      const hgMaterialAttributes = new HgMaterialAttributes("http://foo.hg", "hg", true, "username", "password", undefined);
+      hgMaterialAttributes.destination("destination");
+
+      const clonedAttributes = hgMaterialAttributes.clone();
+
+      expect(clonedAttributes).not.toBe(hgMaterialAttributes);
+      expect(clonedAttributes.name()).toEqual(hgMaterialAttributes.name());
+      expect(clonedAttributes.url()).toEqual(hgMaterialAttributes.url());
+      expect(clonedAttributes.autoUpdate()).toEqual(hgMaterialAttributes.autoUpdate());
+      expect(clonedAttributes.username()).toEqual(hgMaterialAttributes.username());
+      expect(clonedAttributes.password().value()).toEqual(hgMaterialAttributes.password().value());
+      expect(clonedAttributes.destination()).toEqual(hgMaterialAttributes.destination());
+    });
+
+    it("should should clone TFS material attributes", () => {
+      const tfsMaterialAttributes = new TfsMaterialAttributes("http://foo.tfs", "project/path", "tfs", true, "username", "password", undefined);
+      tfsMaterialAttributes.destination("destination");
+
+      const clonedAttributes = tfsMaterialAttributes.clone();
+
+      expect(clonedAttributes).not.toBe(tfsMaterialAttributes);
+      expect(clonedAttributes.name()).toEqual(tfsMaterialAttributes.name());
+      expect(clonedAttributes.url()).toEqual(tfsMaterialAttributes.url());
+      expect(clonedAttributes.projectPath()).toEqual(tfsMaterialAttributes.projectPath());
+      expect(clonedAttributes.autoUpdate()).toEqual(tfsMaterialAttributes.autoUpdate());
+      expect(clonedAttributes.username()).toEqual(tfsMaterialAttributes.username());
+      expect(clonedAttributes.password().value()).toEqual(tfsMaterialAttributes.password().value());
+      expect(clonedAttributes.destination()).toEqual(tfsMaterialAttributes.destination());
+    });
+
+    it("should should clone Dependency material attributes", () => {
+      const dependencyMaterialAttributes = new DependencyMaterialAttributes("pipeline", "stage", "dependency", true);
+
+      const clonedAttributes = dependencyMaterialAttributes.clone();
+
+      expect(clonedAttributes).not.toBe(dependencyMaterialAttributes);
+      expect(clonedAttributes.name()).toEqual(dependencyMaterialAttributes.name());
+      expect(clonedAttributes.pipeline()).toEqual(dependencyMaterialAttributes.pipeline());
+      expect(clonedAttributes.stage()).toEqual(dependencyMaterialAttributes.stage());
+      expect(clonedAttributes.autoUpdate()).toEqual(dependencyMaterialAttributes.autoUpdate());
+    });
+  });
+
+  it("clone()", () => {
+    const materialAttributes = new GitMaterialAttributes("url");
+    const spyFunction        = spyOn(materialAttributes, "clone");
+    const material           = new Material("git", materialAttributes);
+
+    const clonedMaterial = material.clone();
+
+    expect(clonedMaterial).not.toBe(material);
+    expect(clonedMaterial.type()).toBe(material.type());
+    expect(spyFunction).toHaveBeenCalled();
+  });
 });

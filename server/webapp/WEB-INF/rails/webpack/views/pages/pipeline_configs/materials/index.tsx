@@ -20,12 +20,12 @@ import m from "mithril";
 import {Material, Materials} from "models/new_pipeline_configs/materials";
 import {Secondary} from "views/components/buttons";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
-import {IconGroup} from "views/components/icons";
+import {Edit, IconGroup} from "views/components/icons";
 import {Delete} from "views/components/icons";
 import {MaterialOperations, SUPPORTED_MATERIALS} from "../../create_pipeline_page";
 import styles from "../index.scss";
 import materialStyles from "./index.scss";
-import {AddMaterialModal} from "./modals";
+import {AddMaterialModal, EditMaterialModal} from "./modals";
 
 interface Attrs {
   materials: Materials;
@@ -73,6 +73,8 @@ export class MaterialsWidget extends MithrilViewComponent<Attrs> {
         <td>{material.materialUrl()}</td>
         <td className={styles.textAlignRight}>
           <IconGroup>
+            <Edit onclick={() => this.editMaterialModal(material, vnode)} title={"edit-material"}
+                  data-test-id={"edit-material-button"}/>
             <Delete onclick={() => vnode.attrs.materialOperations.onDelete(material)} title={"delete-material"}
                     data-test-id={"delete-material-button"}/>
           </IconGroup>
@@ -96,5 +98,9 @@ export class MaterialsWidget extends MithrilViewComponent<Attrs> {
   addMaterialModal(e: MouseEvent, vnode: m.Vnode<Attrs>) {
     new AddMaterialModal(new Material("git"), vnode.attrs.materialOperations.onAdd).render();
     e.stopPropagation();
+  }
+
+  editMaterialModal(material: Material, vnode: m.Vnode<Attrs>) {
+    new EditMaterialModal(material, vnode.attrs.materialOperations.onUpdate).render();
   }
 }

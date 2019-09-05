@@ -22,6 +22,7 @@ import Stream from "mithril/stream";
 import {ErrorMessages} from "models/mixins/error_messages";
 import {Errors} from "models/mixins/errors";
 import {ErrorsConsumer} from "models/mixins/errors_consumer";
+import {applyMixins} from "models/mixins/mixins";
 import {ValidatableMixin, Validator} from "models/mixins/new_validatable_mixin";
 import urlParse from "url-parse";
 import {EncryptedValue, plainOrCipherValue} from "views/components/forms/encrypted_value";
@@ -35,25 +36,24 @@ import {
   TfsMaterialAttributesJSON,
 } from "./materials_serialization";
 
-export class Materials extends Array<Material> {
+//tslint:disable-next-line
+export interface Materials extends ValidatableMixin {
+}
+
+export class Materials extends Array<Material> implements ValidatableMixin {
   constructor(...materials: Material[]) {
     super(...materials);
     Object.setPrototypeOf(this, Object.create(Materials.prototype));
+    ValidatableMixin.call(this);
   }
 
   remove(material: Material) {
     const index = this.findIndex((record) => record === material);
     this.splice(index, 1);
   }
-
-  isValid(): boolean {
-    let valid = true;
-    this.forEach((material) => {
-      valid = valid && material.isValid();
-    });
-    return valid;
-  }
 }
+
+applyMixins(Materials, ValidatableMixin);
 
 export class Material extends ValidatableMixin {
   private static API_VERSION_HEADER = ApiVersion.v1;
@@ -144,6 +144,10 @@ export class Material extends ValidatableMixin {
       {payload}
     );
   }
+
+  clone() {
+    return new Material(this.type(), this.attributes().clone());
+  }
 }
 
 export abstract class MaterialAttributes extends ValidatableMixin {
@@ -194,6 +198,8 @@ export abstract class MaterialAttributes extends ValidatableMixin {
 
     return serialized;
   }
+
+  abstract clone(): MaterialAttributes;
 }
 
 export abstract class ScmMaterialAttributes extends MaterialAttributes {
@@ -202,7 +208,7 @@ export abstract class ScmMaterialAttributes extends MaterialAttributes {
   username: Stream<string | undefined>;
   password: Stream<EncryptedValue>;
 
-  constructor(name?: string, autoUpdate?: boolean, username?: string, password?: string, encryptedPassword?: string) {
+  protected constructor(name?: string, autoUpdate?: boolean, username?: string, password?: string, encryptedPassword?: string) {
     super(name, autoUpdate);
     this.validateFormatOf("destination",
                           ScmMaterialAttributes.DESTINATION_REGEX,
@@ -270,6 +276,24 @@ export class GitMaterialAttributes extends ScmMaterialAttributes {
     attrs.errors(new Errors(json.errors));
     return attrs;
   }
+
+  clone() {
+    const attrs = new GitMaterialAttributes(
+      this.url(),
+      this.name(),
+      this.autoUpdate(),
+      this.branch(),
+      this.username(),
+      this.password().isPlain() ? this.password().getOriginal() : "",
+      this.password().isSecure() ? this.password().getOriginal() : "",
+    );
+    if (undefined !== this.destination()) {
+      attrs.destination(this.destination());
+    }
+
+    attrs.errors(this.errors().clone());
+    return attrs;
+  }
 }
 
 export class SvnMaterialAttributes extends ScmMaterialAttributes {
@@ -304,6 +328,23 @@ export class SvnMaterialAttributes extends ScmMaterialAttributes {
       attrs.destination(json.destination);
     }
     attrs.errors(new Errors(json.errors));
+    return attrs;
+  }
+
+  clone(): SvnMaterialAttributes {
+    const attrs = new SvnMaterialAttributes(
+      this.url(),
+      this.name(),
+      this.autoUpdate(),
+      this.checkExternals(),
+      this.username(),
+      this.password().isPlain() ? this.password().getOriginal() : "",
+      this.password().isSecure() ? this.password().getOriginal() : "",
+    );
+    if (undefined !== this.destination()) {
+      attrs.destination(this.destination());
+    }
+    attrs.errors(this.errors().clone());
     return attrs;
   }
 }
@@ -341,6 +382,23 @@ export class HgMaterialAttributes extends ScmMaterialAttributes {
       attrs.destination(json.destination);
     }
     attrs.errors(new Errors(json.errors));
+    return attrs;
+  }
+
+  clone(): HgMaterialAttributes {
+    const attrs = new HgMaterialAttributes(
+      this.url(),
+      this.name(),
+      this.autoUpdate(),
+      this.username(),
+      this.password().isPlain() ? this.password().getOriginal() : "",
+      this.password().isSecure() ? this.password().getOriginal() : "",
+      this.branch()
+    );
+    if (undefined !== this.destination()) {
+      attrs.destination(this.destination());
+    }
+    attrs.errors(this.errors().clone());
     return attrs;
   }
 }
@@ -383,6 +441,24 @@ export class P4MaterialAttributes extends ScmMaterialAttributes {
       attrs.destination(json.destination);
     }
     attrs.errors(new Errors(json.errors));
+    return attrs;
+  }
+
+  clone(): P4MaterialAttributes {
+    const attrs = new P4MaterialAttributes(
+      this.port(),
+      this.view(),
+      this.name(),
+      this.autoUpdate(),
+      this.useTickets(),
+      this.username(),
+      this.password().isPlain() ? this.password().getOriginal() : "",
+      this.password().isSecure() ? this.password().getOriginal() : "",
+    );
+    if (undefined !== this.destination()) {
+      attrs.destination(this.destination());
+    }
+    attrs.errors(this.errors().clone());
     return attrs;
   }
 }
@@ -428,6 +504,24 @@ export class TfsMaterialAttributes extends ScmMaterialAttributes {
     attrs.errors(new Errors(json.errors));
     return attrs;
   }
+
+  clone(): TfsMaterialAttributes {
+    const attrs = new TfsMaterialAttributes(
+      this.url(),
+      this.projectPath(),
+      this.name(),
+      this.autoUpdate(),
+      this.domain(),
+      this.username(),
+      this.password().isPlain() ? this.password().getOriginal() : "",
+      this.password().isSecure() ? this.password().getOriginal() : "",
+    );
+    if (undefined !== this.destination()) {
+      attrs.destination(this.destination());
+    }
+    attrs.errors(this.errors().clone());
+    return attrs;
+  }
 }
 
 export class DependencyMaterialAttributes extends MaterialAttributes {
@@ -451,6 +545,17 @@ export class DependencyMaterialAttributes extends MaterialAttributes {
       json.auto_update
     );
     attrs.errors(new Errors(json.errors));
+    return attrs;
+  }
+
+  clone(): DependencyMaterialAttributes {
+    const attrs = new DependencyMaterialAttributes(
+      this.pipeline(),
+      this.stage(),
+      this.name(),
+      this.autoUpdate(),
+    );
+    attrs.errors(this.errors().clone());
     return attrs;
   }
 

@@ -33,7 +33,8 @@ describe("MaterialsWidgetSpec", () => {
   const noop       = _.noop;
   const operations = {
     onDelete: noop,
-    onAdd: noop
+    onAdd: noop,
+    onUpdate: noop
   };
 
   beforeEach(() => {
@@ -60,8 +61,7 @@ describe("MaterialsWidgetSpec", () => {
   it("material toggle expanded state of materials panel", () => {
     expect(helper.findByDataTestId("pipeline-materials-container")).toHaveClass(collapsiblePanelStyles.expanded);
 
-    const materialsPanelHeader = helper.findIn(helper.findByDataTestId("pipeline-materials-container"),
-                                               "collapse-header")[0];
+    const materialsPanelHeader = helper.findIn(helper.findByDataTestId("pipeline-materials-container"), "collapse-header")[0];
 
     simulateEvent.simulate(materialsPanelHeader, "click");
     m.redraw.sync();
@@ -83,35 +83,65 @@ describe("MaterialsWidgetSpec", () => {
     expect(gitRepo.children[1]).toContainText("Git");
     expect(gitRepo.children[2]).toContainText("http://foo.git");
     expect(helper.findIn(gitRepo, "delete-material-button")).toBeInDOM();
+    expect(helper.findIn(gitRepo, "edit-material-button")).toBeInDOM();
 
     const hgRepo = helper.findByDataTestId("materials-index-table").find("tr")[2];
     expect(hgRepo.children[0]).toContainText("Test mercurial repo");
     expect(hgRepo.children[1]).toContainText("Mercurial");
     expect(hgRepo.children[2]).toHaveText("http://foo.hg");
     expect(helper.findIn(hgRepo, "delete-material-button")).toBeInDOM();
+    expect(helper.findIn(hgRepo, "edit-material-button")).toBeInDOM();
 
     const p4Repo = helper.findByDataTestId("materials-index-table").find("tr")[3];
     expect(p4Repo.children[0]).toContainText("Test p4 repo");
     expect(p4Repo.children[1]).toContainText("Perforce");
     expect(p4Repo.children[2]).toHaveText("127.0.0.1:3000");
     expect(helper.findIn(p4Repo, "delete-material-button")).toBeInDOM();
+    expect(helper.findIn(p4Repo, "edit-material-button")).toBeInDOM();
 
     const tfsRepo = helper.findByDataTestId("materials-index-table").find("tr")[4];
     expect(tfsRepo.children[0]).toContainText("Test tfs repo");
     expect(tfsRepo.children[1]).toContainText("Team Foundation Server");
     expect(tfsRepo.children[2]).toHaveText("http://foo.tfs");
     expect(helper.findIn(tfsRepo, "delete-material-button")).toBeInDOM();
+    expect(helper.findIn(tfsRepo, "edit-material-button")).toBeInDOM();
 
     const svnRepo = helper.findByDataTestId("materials-index-table").find("tr")[5];
     expect(svnRepo.children[0]).toContainText("Test svn repo");
     expect(svnRepo.children[1]).toContainText("Subversion");
     expect(svnRepo.children[2]).toHaveText("http://foo.svn");
     expect(helper.findIn(svnRepo, "delete-material-button")).toBeInDOM();
+    expect(helper.findIn(svnRepo, "edit-material-button")).toBeInDOM();
 
     const dependencyMaterial = helper.findByDataTestId("materials-index-table").find("tr")[6];
     expect(dependencyMaterial.children[0]).toContainText("Dependent pipeline");
     expect(dependencyMaterial.children[1]).toContainText("Another Pipeline");
     expect(dependencyMaterial.children[2]).toHaveText("pipeline / stage");
     expect(helper.findIn(dependencyMaterial, "delete-material-button")).toBeInDOM();
+    expect(helper.findIn(dependencyMaterial, "edit-material-button")).toBeInDOM();
+  });
+
+  it("click on edit material should open a modal", () => {
+    const gitRepo = helper.findByDataTestId("materials-index-table").find("tr")[1];
+
+    expect(document.querySelectorAll("[data-test-id='material-form']").length).toBe(0);
+
+    simulateEvent.simulate(helper.findIn(gitRepo, "edit-material-button")[0], "click");
+    m.redraw.sync();
+
+    expect(document.querySelectorAll("[data-test-id='material-form']").length).toBe(1);
+
+    helper.closeModal();
+  });
+
+  it("click on add material should open a modal", () => {
+    expect(document.querySelectorAll("[data-test-id='material-form']").length).toBe(0);
+
+    simulateEvent.simulate(helper.findByDataTestId("add-material-button")[0], "click");
+    m.redraw.sync();
+
+    expect(document.querySelectorAll("[data-test-id='material-form']").length).toBe(1);
+
+    helper.closeModal();
   });
 });

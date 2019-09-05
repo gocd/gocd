@@ -24,6 +24,7 @@ import {PipelineSettingsModal} from "views/pages/pipeline_configs/settings/pipel
 export interface MaterialOperations {
   onAdd: (material: Material) => void;
   onDelete: (material: Material) => void;
+  onUpdate: (oldMaterial: Material, newMaterial: Material) => void;
 }
 
 interface State {
@@ -52,6 +53,10 @@ export class CreatePipelinePage extends Page<null, State> {
       },
       onDelete(material: Material) {
         vnode.state.pipelineConfig.materials().remove(material);
+      },
+      onUpdate(oldMaterial: Material, newMaterial: Material) {
+        vnode.state.pipelineConfig.materials().remove(oldMaterial);
+        vnode.state.pipelineConfig.materials().push(newMaterial);
       }
     };
 

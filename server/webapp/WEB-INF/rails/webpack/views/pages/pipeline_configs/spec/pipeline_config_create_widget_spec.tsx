@@ -27,7 +27,8 @@ describe("PipelineCreateWidgetSpec", () => {
   const noop           = _.noop;
   const operations     = {
     onDelete: noop,
-    onAdd: noop
+    onAdd: noop,
+    onUpdate: noop
   };
   const pipelineSettingsCallback = jasmine.createSpy();
 

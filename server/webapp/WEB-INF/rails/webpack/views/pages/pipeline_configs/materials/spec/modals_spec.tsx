@@ -16,7 +16,8 @@
 
 import _ from "lodash";
 import {GitMaterialAttributes, Material} from "models/new_pipeline_configs/materials";
-import {AddMaterialModal} from "views/pages/pipeline_configs/materials/modals";
+import * as simulateEvent from "simulate-event";
+import {AddMaterialModal, EditMaterialModal} from "views/pages/pipeline_configs/materials/modals";
 import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("AddMaterialModal", () => {
@@ -60,8 +61,8 @@ describe("AddMaterialModal", () => {
       });
     });
 
-    describe("valid material", () => {
-      it("should add material", () => {
+    describe("invalid material", () => {
+      it("should not add material", () => {
         (material.attributes() as GitMaterialAttributes).url("");
         // As `onSuccessfulAdd` is a private function, `spyOn` needs a type.
         const onSuccessfulAddSpyFunction = spyOn<any>(addMaterialModal, "onSuccessfulAdd");
@@ -71,11 +72,78 @@ describe("AddMaterialModal", () => {
         expect(onSuccessfulAddSpyFunction).not.toHaveBeenCalledWith(material);
       });
 
-      it("should close modal", () => {
+      it("should not close modal", () => {
         (material.attributes() as GitMaterialAttributes).url("");
         const closeSpyFunction = spyOn(addMaterialModal, "close");
 
         addMaterialModal.addMaterial();
+
+        expect(closeSpyFunction).not.toHaveBeenCalled();
+      });
+    });
+  });
+});
+
+describe("EditMaterialModal", () => {
+  const helper = new TestHelper();
+  let material: Material;
+  let editMaterialModal: EditMaterialModal;
+
+  beforeEach(() => {
+    material          = new Material("git", new GitMaterialAttributes("http://foo.bar", "git-material"));
+    editMaterialModal = new EditMaterialModal(material, _.noop);
+    helper.mount(editMaterialModal.body.bind(editMaterialModal));
+  });
+
+  afterEach(helper.unmount.bind(helper));
+
+  it("should have a title", () => {
+    expect(editMaterialModal.title()).toBe("git-material");
+  });
+
+  it("should have a update button", () => {
+    expect(editMaterialModal.buttons().length).toBe(1);
+  });
+
+  describe("updateMaterial()", () => {
+    describe("valid material", () => {
+      it("should update material", () => {
+        // As `onSuccessfulUpdate` is a private function, `spyOn` needs a type.
+        const onSuccessfulUpdateSpyFunction = spyOn<any>(editMaterialModal, "onSuccessfulEdit");
+
+        editMaterialModal.updateMaterial();
+
+        expect(onSuccessfulUpdateSpyFunction).toHaveBeenCalled();
+      });
+
+      it("should close modal", () => {
+        const closeSpyFunction = spyOn(editMaterialModal, "close");
+
+        editMaterialModal.updateMaterial();
+
+        expect(closeSpyFunction).toHaveBeenCalled();
+      });
+    });
+
+    describe("invalid material", () => {
+      it("should not update material", () => {
+        helper.findByDataTestId("form-field-input-repository-url").val("");
+        simulateEvent.simulate(helper.findByDataTestId("form-field-input-repository-url").get(0), "input");
+        // As `onSuccessfulUpdate` is a private function, `spyOn` needs a type.
+        const onSuccessfulEditSpyFunction = spyOn<any>(editMaterialModal, "onSuccessfulEdit");
+
+        editMaterialModal.updateMaterial();
+
+        expect(onSuccessfulEditSpyFunction).not.toHaveBeenCalled();
+      });
+
+      it("should not close modal", () => {
+        helper.findByDataTestId("form-field-input-repository-url").val("");
+        simulateEvent.simulate(helper.findByDataTestId("form-field-input-repository-url").get(0), "input");
+
+        const closeSpyFunction = spyOn(editMaterialModal, "close");
+
+        editMaterialModal.updateMaterial();
 
         expect(closeSpyFunction).not.toHaveBeenCalled();
       });

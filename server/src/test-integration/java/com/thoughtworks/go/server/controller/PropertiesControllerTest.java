@@ -71,6 +71,7 @@ public class PropertiesControllerTest {
         fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, temporaryFolder);
         fixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
         controller = new PropertiesController(propertiesService, restfulService, pipelineService, systemEnvironment);
+        controller.setDisallowPropertiesAccess(false);
         response = new MockHttpServletResponse();
     }
 

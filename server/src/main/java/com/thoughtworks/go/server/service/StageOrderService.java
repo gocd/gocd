@@ -23,7 +23,12 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class StageOrderService {
-    @Autowired private GoConfigService goConfigService;
+    private final GoConfigService goConfigService;
+
+    @Autowired
+    public StageOrderService(GoConfigService goConfigService) {
+        this.goConfigService = goConfigService;
+    }
 
     public StageConfig getNextStage(PipelineInfo pipeline, String stageName) {
         StageConfig nextStageFromHistory = nextStageFromHistory(pipeline, stageName);

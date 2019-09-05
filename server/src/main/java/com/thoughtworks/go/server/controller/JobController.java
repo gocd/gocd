@@ -19,8 +19,8 @@ import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.Tabs;
 import com.thoughtworks.go.config.TrackingTool;
-import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.Properties;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentMetadataStore;
 import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
 import com.thoughtworks.go.server.dao.JobAgentMetadataDao;
@@ -57,36 +57,26 @@ import static com.thoughtworks.go.util.json.JsonHelper.addDeveloperErrorMessage;
 public class JobController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JobController.class);
-    @Autowired
     private JobInstanceService jobInstanceService;
-    @Autowired
     private AgentService agentService;
-    @Autowired
     private JobInstanceDao jobInstanceDao;
-    @Autowired
     private GoConfigService goConfigService;
-    @Autowired
     private PipelineService pipelineService;
-    @Autowired
     private RestfulService restfulService;
-    @Autowired
     private ArtifactsService artifactService;
-    @Autowired
     private PropertiesService propertiesService;
-    @Autowired
     private StageService stageService;
-    @Autowired
     private JobAgentMetadataDao jobAgentMetadataDao;
-    @Autowired
     private SystemEnvironment systemEnvironment;
 
     private ElasticAgentMetadataStore elasticAgentMetadataStore = ElasticAgentMetadataStore.instance();
-
+    private Boolean disallowPropertiesAccess;
 
     public JobController() {
     }
 
-    JobController(
+    @Autowired
+    public JobController(
             JobInstanceService jobInstanceService, AgentService agentService, JobInstanceDao jobInstanceDao,
             GoConfigService goConfigService, PipelineService pipelineService, RestfulService restfulService,
             ArtifactsService artifactService, PropertiesService propertiesService, StageService stageService,
@@ -102,6 +92,7 @@ public class JobController {
         this.stageService = stageService;
         this.jobAgentMetadataDao = jobAgentMetadataDao;
         this.systemEnvironment = systemEnvironment;
+        this.disallowPropertiesAccess = Boolean.valueOf(System.getenv().getOrDefault("GO_DISALLOW_PROPERTIES_ACCESS", "true"));
     }
 
     @RequestMapping(value = "/tab/build/recent", method = RequestMethod.GET)
@@ -192,6 +183,7 @@ public class JobController {
         data.put("useIframeSandbox", systemEnvironment.useIframeSandbox());
         data.put("isEditableViaUI", goConfigService.isPipelineEditable(jobDetail.getPipelineName()));
         data.put("isAgentAlive", goConfigService.hasAgent(jobDetail.getAgentUuid()));
+        data.put("disallowPropertiesAccess", disallowPropertiesAccess);
         addElasticAgentInfo(jobDetail, data);
         return new ModelAndView("build_detail/build_detail_page", data);
     }

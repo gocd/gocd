@@ -37,15 +37,15 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.List;
-
-import static com.thoughtworks.go.server.controller.actions.BasicRestfulAction.notFound;
 
 @Controller
 public class PropertiesController {
     private final PropertiesService propertyService;
     private final RestfulService restfulService;
     private final PipelineService pipelineService;
+    private Boolean disallowPropertiesAccess;
     private HeaderConstraint headerConstraint;
     private static final Logger LOGGER = LoggerFactory.getLogger(PropertiesController.class);
 
@@ -61,6 +61,11 @@ public class PropertiesController {
         this.restfulService = restfulService;
         this.pipelineService = pipelineService;
         this.headerConstraint = new HeaderConstraint(systemEnvironment);
+        this.disallowPropertiesAccess = Boolean.valueOf(System.getenv().getOrDefault("GO_DISALLOW_PROPERTIES_ACCESS", "true"));
+    }
+
+    public void setDisallowPropertiesAccess(Boolean disallowPropertiesAccess) {
+        this.disallowPropertiesAccess = disallowPropertiesAccess;
     }
 
     @RequestMapping(value = "/repository/restful/properties/post", method = RequestMethod.POST)
@@ -98,6 +103,10 @@ public class PropertiesController {
                                    @RequestParam(value = "limitCount", required = false) Integer limitCount,
                                    HttpServletResponse response) throws Exception {
 
+        if (disallowPropertiesAccess) {
+            return notFound(response);
+        }
+
         Long limitPipelineId = null;
         int pipelineCounter = 0;
         if (limitPipeline != null) {
@@ -107,7 +116,7 @@ public class PropertiesController {
             } else if (StringUtils.isNumeric(limitPipeline)) {
                 pipelineCounter = Integer.parseInt(limitPipeline);
             } else {
-                return notFound(String.format(
+                return BasicRestfulAction.notFound(String.format(
                         "Expected a numeric value for query parameter 'limitPipeline', but received [%s]",
                         limitPipeline)).respond(
                         response);
@@ -117,7 +126,7 @@ public class PropertiesController {
             if (pipeline != null) {
                 limitPipelineId = pipeline.getId();
             } else {
-                return notFound(String.format(
+                return BasicRestfulAction.notFound(String.format(
                         "The value [%s] of query parameter 'limitPipeline' is not a valid pipeline counter for pipeline '%s'",
                         limitPipeline, pipelineName)).respond(
                         response);
@@ -136,9 +145,10 @@ public class PropertiesController {
                     pipelineName,
                     stageName, jobName, limitPipeline, limitCount);
             LOGGER.error(message, e);
-            return notFound(message + "\n" + e.getMessage()).respond(response);
+            return BasicRestfulAction.notFound(message + "\n" + e.getMessage()).respond(response);
         }
     }
+
 
     @RequestMapping("/repository/restful/properties/job/search")
     public ModelAndView jobSearch(
@@ -150,6 +160,11 @@ public class PropertiesController {
             @RequestParam(value = "type", required = false) String type,
             @RequestParam(value = "property", required = false) String propertyKey,
             HttpServletResponse response) throws Exception {
+
+        if (disallowPropertiesAccess) {
+            return notFound(response);
+        }
+
         JobIdentifier jobIdentifier;
         try {
             jobIdentifier = restfulService.findJob(pipelineName, pipelineCounter, stageName,
@@ -160,6 +175,12 @@ public class PropertiesController {
                     stageName, stageCounter,
                     buildName)).respond(response);
         }
+    }
+
+    private ModelAndView notFound(HttpServletResponse response) throws IOException {
+        response.setStatus(404);
+        response.getWriter().println("This API has been removed!");
+        return null;
     }
 
 }

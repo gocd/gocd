@@ -86,6 +86,7 @@ public class RestfulPropertiesControllerTest {
 
         configHelper.addPipeline("pipeline", "stage", "build");
         propertiesController = new PropertiesController(propertiesService, restfulService, pipelineService, systemEnvironment);
+        propertiesController.setDisallowPropertiesAccess(false);
         request.addHeader("Confirm", "True");
     }
 

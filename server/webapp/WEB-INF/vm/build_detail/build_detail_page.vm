@@ -84,10 +84,12 @@
                       <a class="tab_button_body_match_text">materials</a>
                       <a>Materials</a>
                     </li>
-                    <li>
-                      <a class="tab_button_body_match_text">properties</a>
-                      <a>Properties</a>
-                    </li>
+                    #if (!$disallowPropertiesAccess)
+                      <li>
+                        <a class="tab_button_body_match_text">properties</a>
+                        <a>Properties</a>
+                      </li>
+                    #end
                       #foreach( $tab in $presenter.customizedTabs )
                         <li>
                           <a class="tab_button_body_match_text">$tab.name.toLowerCase()</a>

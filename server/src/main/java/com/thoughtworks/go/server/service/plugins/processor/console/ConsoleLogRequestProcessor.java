@@ -24,6 +24,7 @@ import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.service.ConsoleService;
 import com.thoughtworks.go.server.service.plugins.processor.console.v1.MessageHandlerForConsoleLogRequestProcessorImpl1_0;
+import com.thoughtworks.go.server.service.plugins.processor.console.v2.MessageHandlerForConsoleLogRequestProcessorImpl2_0;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +35,7 @@ import java.util.List;
 import java.util.Map;
 
 import static java.text.MessageFormat.format;
-import static java.util.Collections.singletonList;
+import static java.util.Arrays.asList;
 
 @Component
 public class ConsoleLogRequestProcessor implements GoPluginApiRequestProcessor {
@@ -43,7 +44,8 @@ public class ConsoleLogRequestProcessor implements GoPluginApiRequestProcessor {
     public static final String APPEND_TO_CONSOLE_LOG = "go.processor.console-log.append";
 
     public static final String VERSION_1 = "1.0";
-    private static final List<String> supportedVersions = singletonList(VERSION_1);
+    public static final String VERSION_2 = "2.0";
+    private static final List<String> supportedVersions = asList(VERSION_1, VERSION_2);
 
     private Map<String, MessageHandlerForConsoleLogRequestProcessor> versionToMessageHandlerMap;
     private ConsoleService consoleService;
@@ -53,6 +55,7 @@ public class ConsoleLogRequestProcessor implements GoPluginApiRequestProcessor {
         this.consoleService = consoleService;
         versionToMessageHandlerMap = new HashMap<>();
         versionToMessageHandlerMap.put(VERSION_1, new MessageHandlerForConsoleLogRequestProcessorImpl1_0());
+        versionToMessageHandlerMap.put(VERSION_2, new MessageHandlerForConsoleLogRequestProcessorImpl2_0());
 
         registry.registerProcessorFor(APPEND_TO_CONSOLE_LOG, this);
     }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.service.plugins.processor.console.v1;
+package com.thoughtworks.go.server.service.plugins.processor.console.v2;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -35,15 +35,14 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.thoughtworks.go.server.service.plugins.processor.console.ConsoleLogRequestProcessor.APPEND_TO_CONSOLE_LOG;
-import static com.thoughtworks.go.server.service.plugins.processor.console.ConsoleLogRequestProcessor.VERSION_1;
+import static com.thoughtworks.go.server.service.plugins.processor.console.ConsoleLogRequestProcessor.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-public class ConsoleLogRequestProcessorTest {
+public class ConsoleLogRequestProcessorV2Test {
     @Mock
     private PluginRequestProcessorRegistry pluginRequestProcessorRegistry;
     @Mock
@@ -59,14 +58,14 @@ public class ConsoleLogRequestProcessorTest {
     @Test
     void shouldRouteMessageToConsoleService() throws IOException, IllegalArtifactLocationException {
         Map<String, String> requestMap = new HashMap<>();
-        requestMap.put("pipelineName", "p1");
-        requestMap.put("pipelineCounter", "1");
-        requestMap.put("stageName", "s1");
-        requestMap.put("stageCounter", "2");
-        requestMap.put("jobName", "j1");
+        requestMap.put("pipeline_name", "p1");
+        requestMap.put("pipeline_counter", "1");
+        requestMap.put("stage_name", "s1");
+        requestMap.put("stage_counter", "2");
+        requestMap.put("job_name", "j1");
         requestMap.put("text", "message1");
 
-        DefaultGoApiRequest goApiRequest = new DefaultGoApiRequest(APPEND_TO_CONSOLE_LOG, VERSION_1, null);
+        DefaultGoApiRequest goApiRequest = new DefaultGoApiRequest(APPEND_TO_CONSOLE_LOG, VERSION_2, null);
         goApiRequest.setRequestBody(new GsonBuilder().create().toJson(requestMap));
 
         final ConsoleLogRequestProcessor processor = new ConsoleLogRequestProcessor(pluginRequestProcessorRegistry, consoleService);
@@ -80,7 +79,7 @@ public class ConsoleLogRequestProcessorTest {
 
     @Test
     void shouldRespondWithAMessageIfSomethingGoesWrong() {
-        DefaultGoApiRequest goApiRequest = new DefaultGoApiRequest(APPEND_TO_CONSOLE_LOG, VERSION_1, null);
+        DefaultGoApiRequest goApiRequest = new DefaultGoApiRequest(APPEND_TO_CONSOLE_LOG, VERSION_2, null);
         goApiRequest.setRequestBody("this_is_invalid_JSON");
 
         final ConsoleLogRequestProcessor processor = new ConsoleLogRequestProcessor(pluginRequestProcessorRegistry, consoleService);

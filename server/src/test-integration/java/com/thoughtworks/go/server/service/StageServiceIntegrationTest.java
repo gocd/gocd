@@ -74,7 +74,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -156,7 +155,7 @@ public class StageServiceIntegrationTest {
         job.setAgentUuid(UUID);
         jobInstanceDao.updateAssignedInfo(job);
         AgentIdentifier agentIdentifier = new AgentIdentifier("localhost", "127.0.0.1", UUID);
-        agentService.updateRuntimeInfo(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false));
+        agentService.updateRuntimeInfo(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie"));
         receivedState = null;
         receivedResult = null;
         receivedStageResult = null;

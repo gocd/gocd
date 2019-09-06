@@ -50,24 +50,21 @@ public class AgentRuntimeInfo implements Serializable {
     private volatile String operatingSystemName;
     @Expose
     private volatile String cookie;
-    @Expose
-    private volatile boolean supportsBuildCommandProtocol;
 
-    public AgentRuntimeInfo(AgentIdentifier identifier, AgentRuntimeStatus runtimeStatus, String location, String cookie, boolean supportsBuildCommandProtocol) {
+    public AgentRuntimeInfo(AgentIdentifier identifier, AgentRuntimeStatus runtimeStatus, String location, String cookie) {
         this.identifier = identifier;
         this.runtimeStatus = runtimeStatus;
-        this.supportsBuildCommandProtocol = supportsBuildCommandProtocol;
         this.buildingInfo = AgentBuildingInfo.NOT_BUILDING;
         this.location = location;
         this.cookie = cookie;
     }
 
-    public static AgentRuntimeInfo fromAgent(AgentIdentifier identifier, AgentRuntimeStatus runtimeStatus, String currentWorkingDirectory, boolean supportsBuildCommandProtocol) {
-        return new AgentRuntimeInfo(identifier, runtimeStatus, currentWorkingDirectory, null, supportsBuildCommandProtocol).refreshOperatingSystem().refreshUsableSpace();
+    public static AgentRuntimeInfo fromAgent(AgentIdentifier identifier, AgentRuntimeStatus runtimeStatus, String currentWorkingDirectory) {
+        return new AgentRuntimeInfo(identifier, runtimeStatus, currentWorkingDirectory, null).refreshOperatingSystem().refreshUsableSpace();
     }
 
     public static AgentRuntimeInfo fromServer(AgentConfig agentConfig, boolean registeredAlready, String location,
-                                              Long usablespace, String operatingSystem, boolean supportsBuildCommandProtocol) {
+                                              Long usablespace, String operatingSystem) {
 
         if (StringUtils.isEmpty(location)) {
             throw new RuntimeException("Agent should not register without installation path.");
@@ -77,14 +74,14 @@ public class AgentRuntimeInfo implements Serializable {
             status = AgentStatus.Idle;
         }
 
-        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), status.getRuntimeStatus(), location, null, supportsBuildCommandProtocol);
+        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), status.getRuntimeStatus(), location, null);
         agentRuntimeInfo.setUsableSpace(usablespace);
         agentRuntimeInfo.operatingSystemName = operatingSystem;
         return agentRuntimeInfo;
     }
 
     public static AgentRuntimeInfo initialState(AgentConfig agentConfig) {
-        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentStatus.fromRuntime(AgentRuntimeStatus.Missing).getRuntimeStatus(), "", null, false);
+        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentStatus.fromRuntime(AgentRuntimeStatus.Missing).getRuntimeStatus(), "", null);
         if (agentConfig.isElastic()) {
             agentRuntimeInfo = ElasticAgentRuntimeInfo.fromServer(agentRuntimeInfo, agentConfig.getElasticAgentId(), agentConfig.getElasticPluginId());
         }
@@ -117,49 +114,32 @@ public class AgentRuntimeInfo implements Serializable {
         return runtimeStatus == AgentRuntimeStatus.Cancelled;
     }
 
+    @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
         AgentRuntimeInfo that = (AgentRuntimeInfo) o;
 
-        if (buildingInfo != null ? !buildingInfo.equals(that.buildingInfo) : that.buildingInfo != null) {
+        if (identifier != null ? !identifier.equals(that.identifier) : that.identifier != null) return false;
+        if (runtimeStatus != that.runtimeStatus) return false;
+        if (buildingInfo != null ? !buildingInfo.equals(that.buildingInfo) : that.buildingInfo != null) return false;
+        if (location != null ? !location.equals(that.location) : that.location != null) return false;
+        if (usableSpace != null ? !usableSpace.equals(that.usableSpace) : that.usableSpace != null) return false;
+        if (operatingSystemName != null ? !operatingSystemName.equals(that.operatingSystemName) : that.operatingSystemName != null)
             return false;
-        }
-        if (identifier != null ? !identifier.equals(that.identifier) : that.identifier != null) {
-            return false;
-        }
-        if (location != null ? !location.equals(that.location) : that.location != null) {
-            return false;
-        }
-        if (operatingSystemName != null ? !operatingSystemName.equals(that.operatingSystemName) : that.operatingSystemName != null) {
-            return false;
-        }
-        if (hasCookie() ? !cookie.equals(that.cookie) : that.hasCookie()) {
-            return false;
-        }
-        if (runtimeStatus != that.runtimeStatus) {
-            return false;
-        }
-        if (supportsBuildCommandProtocol != that.supportsBuildCommandProtocol) {
-            return false;
-        }
-        return true;
+        return cookie != null ? cookie.equals(that.cookie) : that.cookie == null;
     }
 
+    @Override
     public int hashCode() {
-        int result;
-        result = (identifier != null ? identifier.hashCode() : 0);
+        int result = identifier != null ? identifier.hashCode() : 0;
         result = 31 * result + (runtimeStatus != null ? runtimeStatus.hashCode() : 0);
         result = 31 * result + (buildingInfo != null ? buildingInfo.hashCode() : 0);
         result = 31 * result + (location != null ? location.hashCode() : 0);
-        result = 31 * result + (hasCookie() ? cookie.hashCode() : 0);
-        result = 31 * result + (int) (usableSpace != null ? usableSpace ^ (usableSpace >>> 32) : 0);
-        result = 31 * result + (supportsBuildCommandProtocol ? 1 : 0);
+        result = 31 * result + (usableSpace != null ? usableSpace.hashCode() : 0);
+        result = 31 * result + (operatingSystemName != null ? operatingSystemName.hashCode() : 0);
+        result = 31 * result + (cookie != null ? cookie.hashCode() : 0);
         return result;
     }
 
@@ -292,15 +272,6 @@ public class AgentRuntimeInfo implements Serializable {
         this.location = newRuntimeInfo.getLocation();
         this.usableSpace = newRuntimeInfo.getUsableSpace();
         this.operatingSystemName = newRuntimeInfo.getOperatingSystem();
-        this.supportsBuildCommandProtocol = newRuntimeInfo.getSupportsBuildCommandProtocol();
-    }
-
-    public boolean getSupportsBuildCommandProtocol() {
-        return supportsBuildCommandProtocol;
-    }
-
-    public void setSupportsBuildCommandProtocol(boolean b) {
-        this.supportsBuildCommandProtocol = b;
     }
 
     public boolean isElastic() {

@@ -51,13 +51,13 @@ public class AgentRuntimeInfoTest {
 
     @Test(expected = Exception.class)
     public void should() throws Exception {
-        AgentRuntimeInfo.fromServer(new AgentConfig("uuid", "localhost", "127.0.0.1"), false, "", 0L, "linux", false);
+        AgentRuntimeInfo.fromServer(new AgentConfig("uuid", "localhost", "127.0.0.1"), false, "", 0L, "linux");
     }
 
     @Test
     public void shouldUsingIdleWhenRegistrationRequestIsFromLocalAgent() {
         AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromServer(
-                new AgentConfig("uuid", "localhost", "127.0.0.1"), false, "/var/lib", 0L, "linux", false);
+                new AgentConfig("uuid", "localhost", "127.0.0.1"), false, "/var/lib", 0L, "linux");
 
         assertThat(agentRuntimeInfo.getRuntimeStatus(), is(Idle));
     }
@@ -65,7 +65,7 @@ public class AgentRuntimeInfoTest {
     @Test
     public void shouldBeUnknownWhenRegistrationRequestIsFromLocalAgent() {
         AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromServer(
-                new AgentConfig("uuid", "localhost", "176.19.4.1"), false, "/var/lib", 0L, "linux", false);
+                new AgentConfig("uuid", "localhost", "176.19.4.1"), false, "/var/lib", 0L, "linux");
 
         assertThat(agentRuntimeInfo.getRuntimeStatus(), is(AgentRuntimeStatus.Unknown));
     }
@@ -73,22 +73,22 @@ public class AgentRuntimeInfoTest {
     @Test
     public void shouldUsingIdleWhenRegistrationRequestIsFromAlreadyRegisteredAgent() {
         AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromServer(
-                new AgentConfig("uuid", "localhost", "176.19.4.1"), true, "/var/lib", 0L, "linux", false);
+                new AgentConfig("uuid", "localhost", "176.19.4.1"), true, "/var/lib", 0L, "linux");
 
         assertThat(agentRuntimeInfo.getRuntimeStatus(), is(AgentRuntimeStatus.Idle));
     }
 
     @Test
     public void shouldNotMatchRuntimeInfosWithDifferentOperatingSystems() {
-        AgentRuntimeInfo linux = AgentRuntimeInfo.fromServer(new AgentConfig("uuid", "localhost", "176.19.4.1"), true, "/var/lib", 0L, "linux", false);
-        AgentRuntimeInfo osx = AgentRuntimeInfo.fromServer(new AgentConfig("uuid", "localhost", "176.19.4.1"), true, "/var/lib", 0L, "foo bar", false);
+        AgentRuntimeInfo linux = AgentRuntimeInfo.fromServer(new AgentConfig("uuid", "localhost", "176.19.4.1"), true, "/var/lib", 0L, "linux");
+        AgentRuntimeInfo osx = AgentRuntimeInfo.fromServer(new AgentConfig("uuid", "localhost", "176.19.4.1"), true, "/var/lib", 0L, "foo bar");
         assertThat(linux, is(not(osx)));
     }
 
     @Test
     public void shouldInitializeTheFreeSpaceAtAgentSide() {
         AgentIdentifier id = new AgentConfig("uuid", "localhost", "176.19.4.1").getAgentIdentifier();
-        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(id, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false);
+        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(id, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie");
 
         assertThat(agentRuntimeInfo.getUsableSpace(), is(not(0L)));
     }
@@ -107,29 +107,29 @@ public class AgentRuntimeInfoTest {
 
     @Test
     public void shouldHaveRelevantFieldsInDebugString() throws Exception {
-        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false);
+        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie");
         assertThat(agentRuntimeInfo.agentInfoDebugString(), is("Agent [localhost, 127.0.0.1, uuid, cookie]"));
     }
 
     @Test
     public void shouldHaveBeautifulPhigureLikeDisplayString() throws Exception {
-        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false);
+        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie");
         agentRuntimeInfo.setLocation("/nim/appan/mane");
         assertThat(agentRuntimeInfo.agentInfoForDisplay(), is("Agent located at [localhost, 127.0.0.1, /nim/appan/mane]"));
     }
 
     @Test
     public void shouldTellIfHasCookie() throws Exception {
-        assertThat(new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false).hasDuplicateCookie("cookie"), is(false));
-        assertThat(new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false).hasDuplicateCookie("different"), is(true));
-        assertThat(new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), null, false).hasDuplicateCookie("cookie"), is(false));
-        assertThat(new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false).hasDuplicateCookie(null), is(false));
+        assertThat(new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie").hasDuplicateCookie("cookie"), is(false));
+        assertThat(new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie").hasDuplicateCookie("different"), is(true));
+        assertThat(new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), null).hasDuplicateCookie("cookie"), is(false));
+        assertThat(new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie").hasDuplicateCookie(null), is(false));
     }
 
     @Test
     public void shouldUpdateSelfForAnIdleAgent() {
-        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), null, false);
-        AgentRuntimeInfo newRuntimeInfo = new AgentRuntimeInfo(new AgentIdentifier("go02", "10.10.10.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false);
+        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), null);
+        AgentRuntimeInfo newRuntimeInfo = new AgentRuntimeInfo(new AgentIdentifier("go02", "10.10.10.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie");
         newRuntimeInfo.setBuildingInfo(new AgentBuildingInfo("Idle", ""));
         newRuntimeInfo.setLocation("home");
         newRuntimeInfo.setUsableSpace(10L);

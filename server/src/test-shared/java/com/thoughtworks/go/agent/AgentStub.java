@@ -37,7 +37,7 @@ public class AgentStub {
 
     public AgentStub(BuildRepositoryRemote server) {
         LOGGER.info("Agent started.");
-        Work work = server.getWork(new AgentRuntimeInfo(new AgentIdentifier("", "", "1234"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false));
+        Work work = server.getWork(new AgentRuntimeInfo(new AgentIdentifier("", "", "1234"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie"));
         try {
             LOGGER.info(work.description());
         } catch (UnregisteredAgentException e) {

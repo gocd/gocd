@@ -325,10 +325,6 @@ public class AgentInstance implements Comparable<AgentInstance> {
         return agentRuntimeInfo.agentInfoForDisplay();
     }
 
-    public boolean getSupportsBuildCommandProtocol() {
-        return agentRuntimeInfo.getSupportsBuildCommandProtocol();
-    }
-
     public boolean isElastic() {
         return agentRuntimeInfo.isElastic();
     }

@@ -230,7 +230,7 @@ public class ArtifactsControllerIntegrationTest {
 
     private Date updateHeardTime() throws Exception {
         agentService.requestRegistration(new Username("bob"), AgentRuntimeInfo.fromServer(new AgentConfig("uuid", "localhost", "127.0.0.1"),
-                false, "/var/lib", 0L, "linux", false));
+                false, "/var/lib", 0L, "linux"));
         agentService.approve("uuid");
         artifactsController.putArtifact(pipelineName, "latest", "stage", null, "build2", null, "/foo.xml",
                 "uuid", request);

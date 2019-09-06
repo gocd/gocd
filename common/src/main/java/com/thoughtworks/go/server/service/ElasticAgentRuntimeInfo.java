@@ -39,7 +39,7 @@ public class ElasticAgentRuntimeInfo extends AgentRuntimeInfo implements Seriali
     }
 
     public ElasticAgentRuntimeInfo(AgentIdentifier identifier, AgentRuntimeStatus runtimeStatus, String location, String cookie, String elasticAgentId, String elasticPluginId) {
-        super(identifier, runtimeStatus, location, cookie, false);
+        super(identifier, runtimeStatus, location, cookie);
         this.elasticAgentId = elasticAgentId;
         this.elasticPluginId = elasticPluginId;
     }

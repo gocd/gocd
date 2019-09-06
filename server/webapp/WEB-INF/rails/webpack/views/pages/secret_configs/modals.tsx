@@ -118,7 +118,7 @@ export abstract class SecretConfigModal extends EntityModal<SecretConfig> {
           <AngularPluginNew
             pluginInfoSettings={Stream(pluginSettings)}
             configuration={this.entity().properties()}
-            key={this.entity().id()} />
+            key={pluginInfo.id} />
         </div>
       </div>
       <RulesWidget rules={this.entity().rules} resourceAutocompleteHelper={this.resourceAutocompleteHelper} />

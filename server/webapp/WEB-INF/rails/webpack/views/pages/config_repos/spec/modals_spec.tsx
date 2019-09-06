@@ -68,7 +68,7 @@ describe("ConfigRepoModal", () => {
     expect(modal.title()).toEqual("Modal Title for Config Repo");
     expect(helper.findByDataTestId("form-field-label-plugin-id")).toBeInDOM();
     expect(helper.findByDataTestId("form-field-label-material-type")).toBeInDOM();
-    expect(helper.findByDataTestId("form-field-label-config-repository-id")).toBeInDOM();
+    expect(helper.findByDataTestId("form-field-label-config-repository-name")).toBeInDOM();
 
     expect(helper.findByDataTestId("form-field-input-plugin-id")).toBeInDOM();
     expect(helper.findByDataTestId("form-field-input-plugin-id").get(0).children[0])
@@ -92,8 +92,8 @@ describe("ConfigRepoModal", () => {
       const modal = new TestConfigRepoModal(onSuccessfulSave, onError, pluginInfos);
       helper.mount(modal.body.bind(modal));
 
-      expect(helper.findByDataTestId("form-field-input-config-repository-id")).toBeInDOM();
-      expect(helper.findByDataTestId("form-field-input-config-repository-id")).not.toBeDisabled();
+      expect(helper.findByDataTestId("form-field-input-config-repository-name")).toBeInDOM();
+      expect(helper.findByDataTestId("form-field-input-config-repository-name")).not.toBeDisabled();
     });
   });
 
@@ -102,7 +102,7 @@ describe("ConfigRepoModal", () => {
       const modal = new TestConfigRepoModal(onSuccessfulSave, onError, pluginInfos, false);
       helper.mount(modal.body.bind(modal));
 
-      expect(helper.findByDataTestId("form-field-input-config-repository-id")).toBeDisabled();
+      expect(helper.findByDataTestId("form-field-input-config-repository-name")).toBeDisabled();
     });
   });
 

@@ -23,6 +23,7 @@ describe("ConfigRepo attribute util functions", () => {
       autoUpdate: true,
       branch: true,
       checkExternals: true,
+      destination: true,
       domain: true,
       encryptedPassword: true,
       name: true,
@@ -42,21 +43,22 @@ describe("ConfigRepo attribute util functions", () => {
     });
 
     expect(Array.from(map.keys()).sort()).toEqual([
-      "Auto update",
+      "Alternate Checkout Path",
+      "Auto-update",
       "Branch",
       "Check Externals",
       "Comment",
       "Domain",
       "Email",
       "File Pattern",
-      "Host and port",
+      "Host and Port",
       "Material Name",
       "Modified Time",
       "Password",
       "Project Path",
       "Revision",
       "URL",
-      "Use tickets",
+      "Use Tickets",
       "Username",
       "View",
       "this_key_is_not_modified_at_all",
@@ -91,8 +93,6 @@ describe("ConfigRepo attribute util functions", () => {
 
     const expectations: { [key: string]: string } = {
       "Type": "git",
-      "Material Name": "foo",
-      "destination": "",
       "Username": "bob",
       "Password": "**********",
       "URL": "https://example.com/git/my-repo",

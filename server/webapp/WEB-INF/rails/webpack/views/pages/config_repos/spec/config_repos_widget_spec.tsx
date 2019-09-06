@@ -113,7 +113,7 @@ describe("ConfigReposWidget", () => {
       const keyValuePair  = materialPanel.children.item(1)!.children.item(0)!.children;
 
       expect(title).toHaveText("Config Repository Configurations");
-      expect(keyValuePair[0]).toContainText("Id");
+      expect(keyValuePair[0]).toContainText("Name");
       expect(keyValuePair[0]).toContainText("testPlugin");
       expect(keyValuePair[1]).toContainText("Plugin Id");
       expect(keyValuePair[1]).toContainText("json.config.plugin");

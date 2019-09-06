@@ -245,7 +245,7 @@ class ConfigRepoWidget extends MithrilComponent<SingleAttrs> {
     return <div data-test-id="config-repo-plugin-panel">
       <SectionHeader title="Config Repository Configurations"/>
       <div class={styles.configRepoProperties}>
-        <KeyValuePair data={new Map([["Id", id], ["Plugin Id", pluginId]])}/>
+        <KeyValuePair data={new Map([["Name", id], ["Plugin Id", pluginId]])}/>
       </div>
     </div>;
   }

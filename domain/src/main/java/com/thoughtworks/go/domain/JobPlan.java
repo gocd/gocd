@@ -36,8 +36,6 @@ public interface JobPlan extends Serializable {
 
     JobIdentifier getIdentifier();
 
-    List<ArtifactPropertiesGenerator> getPropertyGenerators();
-
     List<ArtifactPlan> getArtifactPlans();
 
     Resources getResources();

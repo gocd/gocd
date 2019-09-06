@@ -1882,7 +1882,7 @@ public class MagicalGoConfigXmlLoaderTest {
             ConfigMigrator.migrate(content, 110, CONFIG_SCHEMA_VERSION);
             fail("XSD should not allow duplicate agent uuid in environment");
         } catch (Exception e) {
-            assertThat(StringUtils.containsAny(e.getCause().getCause().getMessage(),
+            assertThat(StringUtils.containsAny(e.getCause().getMessage(),
                     "Duplicate unique value [1] declared for identity constraint of element \"agents\".",
                     "Duplicate unique value [1] declared for identity constraint \"uniqueEnvironmentAgentsUuid\" of element \"agents\"."
             )).isTrue();

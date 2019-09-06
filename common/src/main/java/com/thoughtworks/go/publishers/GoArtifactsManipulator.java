@@ -17,9 +17,7 @@ package com.thoughtworks.go.publishers;
 
 import com.thoughtworks.go.domain.DownloadAction;
 import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.Property;
 import com.thoughtworks.go.domain.builder.FetchArtifactBuilder;
-import com.thoughtworks.go.domain.exception.ArtifactPublishingException;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.work.ConsoleOutputTransmitter;
 import com.thoughtworks.go.remote.work.RemoteConsoleAppender;
@@ -47,7 +45,6 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.GoConstants.PUBLISH_MAX_RETRIES;
 import static com.thoughtworks.go.util.command.TaggedStreamConsumer.PUBLISH;
 import static com.thoughtworks.go.util.command.TaggedStreamConsumer.PUBLISH_ERR;
-import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.removeStart;
 
 @Component
@@ -185,16 +182,6 @@ public class GoArtifactsManipulator {
             return file;
         }
     }
-
-    public void setProperty(JobIdentifier jobIdentifier, Property property) {
-        try {
-            String propertiesUrl = urlService.getPropertiesUrl(jobIdentifier, property.getKey());
-            httpService.postProperty(propertiesUrl, property.getValue());
-        } catch (Exception e) {
-            throw new ArtifactPublishingException(format("Failed to set property %s with value %s", property.getKey(), property.getValue()), e);
-        }
-    }
-
 
     public ConsoleOutputTransmitter createConsoleOutputTransmitter(JobIdentifier jobIdentifier,
                                                                    AgentIdentifier agentIdentifier, String consoleLogCharset) {

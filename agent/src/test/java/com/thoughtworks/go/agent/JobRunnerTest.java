@@ -16,11 +16,9 @@
 package com.thoughtworks.go.agent;
 
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
-import com.thoughtworks.go.domain.Property;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.AgentInstruction;
 import com.thoughtworks.go.remote.work.BuildWork;
-import com.thoughtworks.go.remote.work.GoArtifactsManipulatorStub;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.UpstreamPipelineResolver;
 import com.thoughtworks.go.util.GoConstants;
@@ -45,7 +43,6 @@ public class JobRunnerTest {
     private FakeWork work;
     private List<String> consoleOut;
     private List<Enum> statesAndResult;
-    private List<Property> properties;
     private BuildWork buildWork;
     private AgentIdentifier agentIdentifier;
     private UpstreamPipelineResolver resolver;
@@ -80,7 +77,6 @@ public class JobRunnerTest {
         work = new FakeWork();
         consoleOut = new ArrayList<>();
         statesAndResult = new ArrayList<>();
-        properties = new ArrayList<>();
         agentIdentifier = new AgentIdentifier("localhost", "127.0.0.1", "uuid");
 
         new SystemEnvironment().setProperty("serviceUrl", SERVER_URL);
@@ -114,11 +110,6 @@ public class JobRunnerTest {
         assertThat(runner.isJobCancelled()).isFalse();
         runner.handleInstruction(new AgentInstruction(true), new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie"));
         assertThat(runner.isJobCancelled()).isTrue();
-    }
-
-    private GoArtifactsManipulatorStub stubPublisher(final List<Property> properties,
-                                                     final List<String> consoleOuts) {
-        return new GoArtifactsManipulatorStub(properties, consoleOuts);
     }
 
 }

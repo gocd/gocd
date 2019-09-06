@@ -43,9 +43,6 @@ public class CRJob extends CRBase {
     @SerializedName("artifacts")
     @Expose
     private Collection<CRArtifact> artifacts = new ArrayList<>();
-    @SerializedName("properties")
-    @Expose
-    private Collection<CRPropertyGenerator> properties = new ArrayList<>();
     @SerializedName("elastic_profile_id")
     @Expose
     private String elasticProfileId;
@@ -74,7 +71,6 @@ public class CRJob extends CRBase {
         validateEnvironmentVariableUniqueness(errors, location);
         validateTabs(errors, location);
         validateArtifacts(errors, location);
-        validateProperties(errors, location);
         validateTasks(errors, location);
         validateElasticProfile(errors, location);
     }
@@ -92,13 +88,6 @@ public class CRJob extends CRBase {
         if (tasks != null)
             for (CRTask task : tasks) {
                 task.getErrors(errors, location);
-            }
-    }
-
-    private void validateProperties(ErrorCollection errors, String location) {
-        if (properties != null)
-            for (CRPropertyGenerator gen : properties) {
-                gen.getErrors(errors, location);
             }
     }
 
@@ -181,10 +170,6 @@ public class CRJob extends CRBase {
 
     public void addTab(CRTab tab) {
         this.tabs.add(tab);
-    }
-
-    public void addProperty(CRPropertyGenerator property) {
-        this.properties.add(property);
     }
 
     public String validateNameUniqueness(HashSet<String> names) {

@@ -19,9 +19,6 @@ require 'rails_helper'
 describe "/api/jobs" do
 
   before :each do
-    @properties = com.thoughtworks.go.domain.Properties.new
-    @properties.add(com.thoughtworks.go.domain.Property.new("foo", "value_of_property_foo"))
-
     @plans = ArrayList.new
     @plans.add(com.thoughtworks.go.domain.ArtifactPlan.new(com.thoughtworks.go.domain.ArtifactPlanType::file, "artifact", "blahartifact/path"))
     @plans.add(com.thoughtworks.go.domain.ArtifactPlan.new(com.thoughtworks.go.domain.ArtifactPlanType::file, "logs/log-artifact", "log-path"))
@@ -36,17 +33,14 @@ describe "/api/jobs" do
     @job.setStageId(666)
     @job.setAgentUuid("UUID")
 
-    @job_properties_reader = double("job_properties_reader")
-    allow(@job_properties_reader).to receive(:getPropertiesForJob).with(1).and_return(@properties)
-
     @artifacts_url_reader = double("artifacts_url_reader")
     allow(@artifacts_url_reader).to receive(:findArtifactRoot).with(@job.getIdentifier()).and_return("/artifacts-path")
     allow(@artifacts_url_reader).to receive(:findArtifactUrl).with(@job.getIdentifier()).and_return("/artifacts-url")
 
     @job_plan_loader = double("job_plan_loader")
-    allow(@job_plan_loader).to receive(:loadOriginalJobPlan).with(@job.getIdentifier()).and_return(DefaultJobPlan.new(@resources, @plans, nil, 1, @job.getIdentifier, 'UUID', @variables, @variables, nil, nil))
+    allow(@job_plan_loader).to receive(:loadOriginalJobPlan).with(@job.getIdentifier()).and_return(DefaultJobPlan.new(@resources, @plans, 1, @job.getIdentifier, 'UUID', @variables, @variables, nil, nil))
 
-    @context = XmlWriterContext.new("http://test.host", @job_properties_reader, @artifacts_url_reader, @job_plan_loader, nil)
+    @context = XmlWriterContext.new("http://test.host", @artifacts_url_reader, @job_plan_loader, nil)
     assign(:doc, JobXmlViewModel.new(@job).toXml(@context))
 
     view.extend Api::FeedsHelper
@@ -77,12 +71,6 @@ describe "/api/jobs" do
       expect(entry.xpath("state").text).to eq("Completed")
       expect(entry.xpath("result").text).to eq("Passed")
 
-      properties = entry.xpath("properties")
-      expect(properties).to_not be_nil_or_empty
-      properties.tap do |node|
-        expect(node.xpath("property[@name='foo']").text).to eq("value_of_property_foo")
-      end
-
       artifacts = entry.xpath("artifacts[@baseUri='http://test.host/artifacts-url'][@pathFromArtifactRoot='/artifacts-path']")
       expect(artifacts).to_not be_nil_or_empty
       artifacts.tap do |node|
@@ -96,17 +84,12 @@ describe "/api/jobs" do
       environment_variables = entry.xpath("environmentvariables")
       expect(environment_variables).to_not be_nil_or_empty
     end
-
-    expect(response.body).to match(/#{cdata_wraped_regexp_for("value_of_property_foo")}/)
   end
 
   describe "xml sensitive characters" do
     include GoUtil
 
     before :each do
-      properties = com.thoughtworks.go.domain.Properties.new
-      properties.add(com.thoughtworks.go.domain.Property.new("prop<er\"ty", "val<ue_of_prop\"erty_foo"))
-
       plans = ArrayList.new
       plans.add(com.thoughtworks.go.domain.ArtifactPlan.new(com.thoughtworks.go.domain.ArtifactPlanType::file, "artifact", "blah<artif\"act/path"))
       plans.add(com.thoughtworks.go.domain.ArtifactPlan.new(com.thoughtworks.go.domain.ArtifactPlanType::file, "logs/log-arti\"fact", "log-path"))
@@ -117,10 +100,9 @@ describe "/api/jobs" do
 
       @job = JobInstanceMother::completed("job<na\"me")
       @job.setStageId(666)
-      allow(@job_properties_reader).to receive(:getPropertiesForJob).with(1).and_return(properties)
       allow(@artifacts_url_reader).to receive(:findArtifactUrl).with(@job.getIdentifier()).and_return("/artifacts-url")
       allow(@artifacts_url_reader).to receive(:findArtifactRoot).with(@job.getIdentifier()).and_return("/artifacts-path")
-      allow(@job_plan_loader).to receive(:loadOriginalJobPlan).with(@job.getIdentifier()).and_return(DefaultJobPlan.new(@resources, plans, nil, 1, @job.getIdentifier, 'UUID', variables, variables, nil, nil))
+      allow(@job_plan_loader).to receive(:loadOriginalJobPlan).with(@job.getIdentifier()).and_return(DefaultJobPlan.new(@resources, plans, 1, @job.getIdentifier, 'UUID', variables, variables, nil, nil))
 
       assign(:doc, JobXmlViewModel.new(@job).toXml(@context))
     end
@@ -131,15 +113,9 @@ describe "/api/jobs" do
       expect(root.valueOf("//job/@name")).to eq("job<na\"me")
       expect(root.valueOf("//stage/@name")).to eq("stage")
       expect(root.valueOf("//pipeline/@name")).to eq("pipeline")
-      expect(root.valueOf("//property/@name")).to eq("prop<er\"ty")
-      expect(root.valueOf("//property/.")).to eq("val<ue_of_prop\"erty_foo")
       expect(root.valueOf("//agent/@uuid")).to eq("1234")
       expect(root.valueOf("//artifacts/@pathFromArtifactRoot")).to eq("/artifacts-path")
-      # expect(root.valueOf("//artifact[1]/@dest")).to eq("blah<artif\"act/path")
-      # expect(root.valueOf("//artifact[2]/@dest")).to eq("log-path")
       expect(root.valueOf("//artifact[1]/@dest")).to eq("")
-      # expect(root.valueOf("//artifact[1]/@src")).to eq("artifact")
-      # expect(root.valueOf("//artifact[2]/@src")).to eq("logs/log-arti\"fact")
       expect(root.valueOf("//artifact[1]/@src")).to eq("te<s\"t.xml")
     end
   end

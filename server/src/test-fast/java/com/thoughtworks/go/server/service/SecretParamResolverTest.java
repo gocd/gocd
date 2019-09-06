@@ -238,7 +238,7 @@ class SecretParamResolverTest {
 
     private JobPlan defaultJobPlan(EnvironmentVariables variables, EnvironmentVariables triggerVariables) {
         JobIdentifier identifier = new JobIdentifier("Up42", 1, "1", "test", "1", "unit_test", 123L);
-        return new DefaultJobPlan(new Resources(), new ArrayList<>(), new ArrayList<>(), -1, identifier, null,
+        return new DefaultJobPlan(new Resources(), new ArrayList<>(), -1, identifier, null,
                 variables, triggerVariables, null, null);
     }
 }

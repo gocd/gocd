@@ -20,7 +20,6 @@ import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,7 +31,6 @@ public class DefaultJobPlan implements JobPlan {
 
     private Resources resources;
     private List<ArtifactPlan> artifactPlans;
-    private List<ArtifactPropertiesGenerator> generators;
     private String agentUuid;
     private EnvironmentVariables variables;
     private EnvironmentVariables triggerVariables;
@@ -46,14 +44,13 @@ public class DefaultJobPlan implements JobPlan {
     protected DefaultJobPlan() {
     }
 
-    public DefaultJobPlan(Resources resources, List<ArtifactPlan> artifactPlans, List<ArtifactPropertiesGenerator> generators, long jobId,
+    public DefaultJobPlan(Resources resources, List<ArtifactPlan> artifactPlans, long jobId,
                           JobIdentifier identifier, String agentUuid, EnvironmentVariables variables,
                           EnvironmentVariables triggerTimeVariables, ElasticProfile elasticProfile, ClusterProfile clusterProfile) {
         this.jobId = jobId;
         this.identifier = identifier;
         this.resources = resources;
         this.artifactPlans = artifactPlans;
-        this.generators = generators;
         this.agentUuid = agentUuid;
         this.variables = variables;
         this.triggerVariables = triggerTimeVariables;
@@ -87,28 +84,13 @@ public class DefaultJobPlan implements JobPlan {
     }
 
     @Override
-    public List<ArtifactPropertiesGenerator> getPropertyGenerators() {
-        return generators;
-    }
-
-    @Override
     public List<ArtifactPlan> getArtifactPlans() {
         return artifactPlans;
-    }
-
-    //USED BY IBatis - do NOT add to the interface
-
-    public List<ArtifactPropertiesGenerator> getGenerators() {
-        return generators;
     }
 
     @Override
     public Resources getResources() {
         return resources;
-    }
-
-    public void setGenerators(List<ArtifactPropertiesGenerator> generators) {
-        this.generators = new ArrayList<>(generators);
     }
 
     public void setJobId(long jobId) {
@@ -129,8 +111,7 @@ public class DefaultJobPlan implements JobPlan {
 
     @Override
     public String toString() {
-        return "[JobPlan " + "identifier=" + identifier + "resources=" + resources + " artifactConfigs=" + artifactPlans +
-                " generators=" + generators + "]";
+        return "[JobPlan " + "identifier=" + identifier + "resources=" + resources + " artifactConfigs=" + artifactPlans + "]";
     }
 
     @Override
@@ -145,9 +126,6 @@ public class DefaultJobPlan implements JobPlan {
         DefaultJobPlan plan = (DefaultJobPlan) o;
 
         if (jobId != plan.jobId) {
-            return false;
-        }
-        if (generators != null ? !generators.equals(plan.generators) : plan.generators != null) {
             return false;
         }
         if (identifier != null ? !identifier.equals(plan.identifier) : plan.identifier != null) {
@@ -168,7 +146,6 @@ public class DefaultJobPlan implements JobPlan {
         int result;
         result = (resources != null ? resources.hashCode() : 0);
         result = 31 * result + (artifactPlans != null ? artifactPlans.hashCode() : 0);
-        result = 31 * result + (generators != null ? generators.hashCode() : 0);
         result = 31 * result + (int) (jobId ^ (jobId >>> 32));
         result = 31 * result + (identifier != null ? identifier.hashCode() : 0);
         return result;

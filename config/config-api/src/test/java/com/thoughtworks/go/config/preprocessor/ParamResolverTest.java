@@ -319,7 +319,6 @@ public class ParamResolverTest {
                 PipelineConfig.class, "templateName",
                 StageConfig.class, "name",
                 AbstractMaterialConfig.class, "name",
-                ArtifactPropertyConfig.class, "name",
                 Approval.class, "type",
                 JobConfig.class, "jobName",
                 RunIfConfig.class, "status",

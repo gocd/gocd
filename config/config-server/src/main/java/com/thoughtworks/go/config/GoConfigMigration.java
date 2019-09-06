@@ -90,7 +90,7 @@ public class GoConfigMigration {
         return upgrade(content, currentVersion, targetVersion);
     }
 
-    private String upgrade(String content, int currentVersion, int targetVersion) {
+    public String upgrade(String content, int currentVersion, int targetVersion) {
         LOG.info("Upgrading config file from version {} to version {}", currentVersion, targetVersion);
         List<URL> upgradeScripts = upgradeScripts(currentVersion, targetVersion);
 

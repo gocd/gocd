@@ -17,12 +17,15 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
-import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
+import com.thoughtworks.go.util.TestFileUtil;
+import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.io.FileUtils;
 
-import java.io.*;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -55,11 +58,9 @@ public class ConfigMigrator {
         return newConfigXml;
     }
 
-    public static String migrate(String content, int fromVersion, int toVersion) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public static String migrate(String content, int fromVersion, int toVersion) {
         GoConfigMigration upgrader = new GoConfigMigration(new TimeProvider(), ConfigElementImplementationRegistryMother.withNoPlugins());
-        Method upgrade = upgrader.getClass().getDeclaredMethod("upgrade", String.class, Integer.TYPE, Integer.TYPE);
-        upgrade.setAccessible(true);
-        return (String) upgrade.invoke(upgrader, content, fromVersion, toVersion);
+        return upgrader.upgrade(content, fromVersion, toVersion);
     }
 
     public static GoConfigHolder loadWithMigration(String xml) {
@@ -86,7 +87,7 @@ public class ConfigMigrator {
             migrate(tempFile);
             return xmlLoader.loadConfigHolder(FileUtils.readFileToString(tempFile, UTF_8));
         } finally {
-          FileUtils.deleteQuietly(tempFile);
+            FileUtils.deleteQuietly(tempFile);
         }
     }
 

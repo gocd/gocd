@@ -20,7 +20,6 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.Tabs;
 import com.thoughtworks.go.config.TrackingTool;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
-import com.thoughtworks.go.domain.Properties;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentMetadataStore;
 import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
@@ -66,7 +65,6 @@ public class JobController {
     private PipelineService pipelineService;
     private RestfulService restfulService;
     private ArtifactsService artifactService;
-    private PropertiesService propertiesService;
     private StageService stageService;
     private JobAgentMetadataDao jobAgentMetadataDao;
     private SystemEnvironment systemEnvironment;
@@ -81,7 +79,7 @@ public class JobController {
     public JobController(
             JobInstanceService jobInstanceService, AgentService agentService, JobInstanceDao jobInstanceDao,
             GoConfigService goConfigService, PipelineService pipelineService, RestfulService restfulService,
-            ArtifactsService artifactService, PropertiesService propertiesService, StageService stageService,
+            ArtifactsService artifactService, StageService stageService,
             JobAgentMetadataDao jobAgentMetadataDao, SystemEnvironment systemEnvironment) {
         this.jobInstanceService = jobInstanceService;
         this.agentService = agentService;
@@ -90,7 +88,6 @@ public class JobController {
         this.pipelineService = pipelineService;
         this.restfulService = restfulService;
         this.artifactService = artifactService;
-        this.propertiesService = propertiesService;
         this.stageService = stageService;
         this.jobAgentMetadataDao = jobAgentMetadataDao;
         this.systemEnvironment = systemEnvironment;
@@ -168,9 +165,8 @@ public class JobController {
                 pipelineWithOneBuild.getFirstStage().getName(), current.getName());
         TrackingTool trackingTool = goConfigService.pipelineConfigNamed(
                 new CaseInsensitiveString(pipelineWithOneBuild.getName())).trackingTool();
-        Properties properties = propertiesService.getPropertiesForJob(current.getId());
         Stage stage = stageService.getStageByBuild(current);
-        return new JobDetailPresentationModel(current, recent25, agent, pipelineWithOneBuild, customizedTabs, trackingTool, artifactService, properties, stage);
+        return new JobDetailPresentationModel(current, recent25, agent, pipelineWithOneBuild, customizedTabs, trackingTool, artifactService, stage);
     }
 
     private boolean isValidCounter(String pipelineCounter) {

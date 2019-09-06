@@ -190,7 +190,6 @@ public class BuildWork implements Work {
         goPublisher.reportCompleting(result, tag);
 
         goPublisher.reportCreatingProperties();
-        harvestProperties(goPublisher);
 
         goPublisher.reportBeginToPublishArtifacts();
 
@@ -209,18 +208,6 @@ public class BuildWork implements Work {
         JobResult result = builders.build(environmentVariableContext, consoleLogCharset);
         goPublisher.reportCompleting(result);
         return result;
-    }
-
-    private List<ArtifactPropertiesGenerator> getArtifactPropertiesGenerators() {
-        return assignment.getPropertyGenerators();
-    }
-
-
-    private void harvestProperties(DefaultGoPublisher publisher) {
-        List<ArtifactPropertiesGenerator> generators = getArtifactPropertiesGenerators();
-        for (ArtifactPropertiesGenerator generator : generators) {
-            generator.generate(publisher, workingDirectory);
-        }
     }
 
     @Override

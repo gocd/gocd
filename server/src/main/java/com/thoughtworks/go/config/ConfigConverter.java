@@ -536,13 +536,6 @@ public class ConfigConverter {
             }
         }
 
-        ArtifactPropertiesConfig artifactPropertiesConfig = jobConfig.getProperties();
-        if (crJob.getProperties() != null)
-            for (CRPropertyGenerator crPropertyGenerator : crJob.getProperties()) {
-                artifactPropertiesConfig.add(new ArtifactPropertyConfig(
-                        crPropertyGenerator.getName(), crPropertyGenerator.getSource(), crPropertyGenerator.getXpath()));
-            }
-
         if (crJob.isRunOnAllAgents())
             jobConfig.setRunOnAllAgents(true);
         else {
@@ -777,10 +770,6 @@ public class ConfigConverter {
 
         for (EnvironmentVariableConfig var : jobConfig.getVariables()) {
             job.addEnvironmentVariable(environmentVariableConfigToCREnvironmentVariable(var));
-        }
-
-        for (ArtifactPropertyConfig prop : jobConfig.getProperties()) {
-            job.addProperty(new CRPropertyGenerator(prop.getName(), prop.getSrc(), prop.getXpath()));
         }
 
         for (Tab tab : jobConfig.getTabs()) {

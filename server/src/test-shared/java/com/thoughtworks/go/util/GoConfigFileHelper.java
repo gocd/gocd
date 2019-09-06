@@ -892,12 +892,11 @@ public class GoConfigFileHelper {
     }
 
     public void addAssociatedEntitiesForAJob(String pipelineName, String stageName, String jobName, ResourceConfigs resourceConfigs,
-                                             ArtifactConfigs artifactConfigs, ArtifactPropertiesConfig artifactPropertiesConfig) {
+                                             ArtifactConfigs artifactConfigs) {
         CruiseConfig config = loadForEdit();
         JobConfig jobConfig = config.pipelineConfigByName(new CaseInsensitiveString(pipelineName)).findBy(new CaseInsensitiveString(stageName)).jobConfigByConfigName(new CaseInsensitiveString(jobName));
         ReflectionUtil.setField(jobConfig, "resourceConfigs", resourceConfigs);
         ReflectionUtil.setField(jobConfig, "artifactConfigs", artifactConfigs);
-        ReflectionUtil.setField(jobConfig, "artifactPropertiesConfig", artifactPropertiesConfig);
         writeConfigFile(config);
     }
 

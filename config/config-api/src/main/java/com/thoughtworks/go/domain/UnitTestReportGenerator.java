@@ -52,7 +52,7 @@ public class UnitTestReportGenerator implements TestReportGenerator {
     }
 
     @Override
-    public Properties generate(File[] allTestFiles, String uploadDestPath) {
+    public void generate(File[] allTestFiles, String uploadDestPath) {
         File mergedResults = new File(folderToUpload.getAbsolutePath() + FileUtil.fileseparator() + TEST_RESULTS_FILE);
         File mergedResource = null;
         try (FileOutputStream transformedHtml = new FileOutputStream(mergedResults)) {
@@ -65,10 +65,8 @@ public class UnitTestReportGenerator implements TestReportGenerator {
                 publisher.reportErrorMessage("Unable to publish test properties. Error was " + e.getMessage(), e);
             }
 
-            extractProperties(mergedResults);
             publisher.upload(mergedResults, uploadDestPath);
 
-            return null;
         } catch (Exception e) {
             publisher.reportErrorMessage("Unable to publish test properties. Error was " + e.getMessage(), e);
         } finally {
@@ -76,16 +74,6 @@ public class UnitTestReportGenerator implements TestReportGenerator {
                 mergedResource.delete();
             }
         }
-        return new Properties();
-    }
-
-    private Properties extractProperties(File fileSendToServer) {
-        final Properties properties = new Properties();
-        addProperty(fileSendToServer, "tests_total_count", TOTAL_TEST_COUNT);
-        addProperty(fileSendToServer, "tests_failed_count", FAILED_TEST_COUNT);
-        addProperty(fileSendToServer, "tests_ignored_count", IGNORED_TEST_COUNT);
-        addProperty(fileSendToServer, "tests_total_duration", TEST_TIME);
-        return properties;
     }
 
     private File mergeAllTestResultToSingleFile(File[] allTestFiles) throws IOException {
@@ -94,18 +82,6 @@ public class UnitTestReportGenerator implements TestReportGenerator {
             merge(allTestFiles, mergedResourcesStream);
         }
         return mergedResource;
-    }
-
-    private void addProperty(File xmlFile, String cssClass, String cruiseProperty) {
-        try {
-            String xpath = "//div/p/span[@class='" + cssClass + "']";
-            String output = XpathUtils.evaluate(xmlFile, xpath);
-            output = output.startsWith(".") ? "0" + output : output;
-            Property property = new Property(cruiseProperty, output);
-            publisher.setProperty(property);
-        } catch (Exception e) {
-            publisher.consumeLine("Could not publish property " + e.getMessage());
-        }
     }
 
     public void merge(File[] testFiles, OutputStream outputStream) throws IOException {

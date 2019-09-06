@@ -18,11 +18,11 @@ package com.thoughtworks.go.domain;
 import java.io.File;
 
 public interface TestReportGenerator {
-    public static final String TEST_RESULTS_FILE = "index.html";
-    public static final String TOTAL_TEST_COUNT = "tests_total_count";
-    public static final String FAILED_TEST_COUNT = "tests_failed_count";
-    public static final String IGNORED_TEST_COUNT = "tests_ignored_count";
-    public static final String TEST_TIME = "tests_total_duration";
+    String TEST_RESULTS_FILE = "index.html";
+    String TOTAL_TEST_COUNT = "tests_total_count";
+    String FAILED_TEST_COUNT = "tests_failed_count";
+    String IGNORED_TEST_COUNT = "tests_ignored_count";
+    String TEST_TIME = "tests_total_duration";
 
-    Properties generate(File[] allTestFiles, String uploadDestPath);
+    void generate(File[] allTestFiles, String uploadDestPath);
 }

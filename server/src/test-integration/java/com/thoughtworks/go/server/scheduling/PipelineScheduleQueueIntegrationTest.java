@@ -309,9 +309,7 @@ public class PipelineScheduleQueueIntegrationTest {
         JobConfigs jobConfigs = new JobConfigs();
         ResourceConfigs resourceConfigs = new ResourceConfigs(new ResourceConfig("resource1"));
         ArtifactConfigs artifactConfigs = new ArtifactConfigs();
-        ArtifactPropertiesConfig generators = new ArtifactPropertiesConfig();
-        generators.add(new ArtifactPropertyConfig("property-name", "artifact-path", "artifact-xpath"));
-        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test-job"), resourceConfigs, artifactConfigs, generators);
+        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test-job"), resourceConfigs, artifactConfigs, null);
         jobConfigs.add(jobConfig);
 
         StageConfig stage = new StageConfig(new CaseInsensitiveString("test-stage"), jobConfigs);
@@ -330,7 +328,6 @@ public class PipelineScheduleQueueIntegrationTest {
         JobPlan plan = plans.get(0);
         assertThat(plan.getName(), is("test-job"));
         assertThat(plan.getArtifactPlans(), is(artifactConfigs));
-        assertThat(plan.getPropertyGenerators(), is(Arrays.asList(new ArtifactPropertiesGenerator("property-name", "artifact-path", "artifact-xpath"))));
         assertThat(plan.getResources().toResourceConfigs(), is(resourceConfigs));
     }
 
@@ -340,9 +337,7 @@ public class PipelineScheduleQueueIntegrationTest {
             JobConfigs jobConfigs = new JobConfigs();
             ResourceConfigs resourceConfigs = new ResourceConfigs(new ResourceConfig("resource1"));
             ArtifactConfigs artifactConfigs = new ArtifactConfigs();
-            ArtifactPropertiesConfig generators = new ArtifactPropertiesConfig();
-            generators.add(new ArtifactPropertyConfig("property-name", "artifact-path", "artifact-xpath"));
-            JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test-job"), resourceConfigs, artifactConfigs, generators);
+            JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test-job"), resourceConfigs, artifactConfigs, null);
             jobConfigs.add(jobConfig);
 
             StageConfig stage = new StageConfig(new CaseInsensitiveString("test-stage"), jobConfigs);
@@ -363,9 +358,7 @@ public class PipelineScheduleQueueIntegrationTest {
 
         JobConfigs jobConfigs = new JobConfigs();
         ArtifactConfigs artifactConfigs = new ArtifactConfigs();
-        ArtifactPropertiesConfig generators = new ArtifactPropertiesConfig();
-        generators.add(new ArtifactPropertyConfig("property-name", "artifact-path", "artifact-xpath"));
-        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test-job"), new ResourceConfigs(), artifactConfigs, generators);
+        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test-job"), new ResourceConfigs(), artifactConfigs, null);
         jobConfig.setRunOnAllAgents(true);
         jobConfigs.add(jobConfig);
 
@@ -397,9 +390,7 @@ public class PipelineScheduleQueueIntegrationTest {
     @Test
     public void shouldCreateMultipleJobsIfRunMultipleInstanceIsSet() throws Exception {
         JobConfigs jobConfigs = new JobConfigs();
-        ArtifactPropertiesConfig generators = new ArtifactPropertiesConfig();
-        generators.add(new ArtifactPropertyConfig("property-name", "artifact-path", "artifact-xpath"));
-        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test-job"), new ResourceConfigs(), new ArtifactConfigs(), generators);
+        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test-job"), new ResourceConfigs(), new ArtifactConfigs(), null);
         jobConfig.setRunInstanceCount(3);
         jobConfigs.add(jobConfig);
 

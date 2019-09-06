@@ -51,11 +51,6 @@ public class JobRepresenter {
         jsonWriter.addChildList("tasks", tasksWriter -> TaskRepresenter.toJSONArray(tasksWriter, jobConfig.getTasks()));
         jsonWriter.addChildList("tabs", tabsWriter -> TabConfigRepresenter.toJSONArray(tabsWriter, jobConfig.getTabs()));
         jsonWriter.addChildList("artifacts", getArtifacts(jobConfig));
-        if (jobConfig.getProperties().isEmpty()) {
-            jsonWriter.renderNull("properties");
-        } else {
-            jsonWriter.addChildList("properties", propertiesWriter -> PropertyConfigRepresenter.toJSONArray(propertiesWriter, jobConfig.getProperties()));
-        }
     }
 
     private static Consumer<OutputListWriter> getArtifacts(JobConfig jobConfig) {
@@ -101,7 +96,6 @@ public class JobRepresenter {
         jobConfig.setVariables(EnvironmentVariableRepresenter.fromJSONArray(jsonReader));
         setResources(jobConfig);
         jobConfig.setTabs(TabConfigRepresenter.fromJSONArray(jsonReader));
-        jobConfig.setProperties(PropertyConfigRepresenter.fromJSONArray(jsonReader));
         jobConfig.setTasks(TaskRepresenter.fromJSONArray(jsonReader));
 
         return jobConfig;

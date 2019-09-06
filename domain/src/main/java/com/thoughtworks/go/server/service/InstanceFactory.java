@@ -132,6 +132,6 @@ public class InstanceFactory {
 
         return new DefaultJobPlan(new Resources(config.resourceConfigs()),
                 ArtifactPlan.toArtifactPlans(config.artifactConfigs()),
-                ArtifactPropertiesGenerator.toArtifactProperties(config.getProperties()), -1, identifier, null, variables, new EnvironmentVariables(), elasticProfile, clusterProfile);
+                -1, identifier, null, variables, new EnvironmentVariables(), elasticProfile, clusterProfile);
     }
 }

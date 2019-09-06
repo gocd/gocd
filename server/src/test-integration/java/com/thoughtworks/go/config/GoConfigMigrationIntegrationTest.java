@@ -167,7 +167,7 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     @Test
-    public void shouldMigrateToRevision58_deleteVMMS() throws Exception {
+    public void shouldMigrateToRevision58_deleteVMMS() {
         String migratedContent = ConfigMigrator.migrate(ConfigFileFixture.WITH_VMMS_CONFIG, 50, 58);
 
         assertThat(migratedContent.contains("vmms")).isFalse();
@@ -180,7 +180,7 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     @Test
-    public void shouldMigrateToRevision23_IsLockedIsFalseByDefault() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+    public void shouldMigrateToRevision23_IsLockedIsFalseByDefault() {
         final String content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
                 + "<cruise schemaVersion=\"22\">\n"
                 + "    <server artifactsdir=\"artifacts\"/>\n"
@@ -514,7 +514,7 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     @Test
-    public void shouldConvertIsLockedAttributeToATristateNamedLockBehavior() throws Exception {
+    public void shouldConvertIsLockedAttributeToATristateNamedLockBehavior() {
         String defaultPipeline = pipelineWithAttributes("name=\"default1\"", 97);
         String lockedPipeline = pipelineWithAttributes("name=\"locked1\" isLocked=\"true\"", 97);
         String unLockedPipeline = pipelineWithAttributes("name=\"unlocked1\" isLocked=\"false\"", 97);
@@ -543,8 +543,8 @@ public class GoConfigMigrationIntegrationTest {
         try {
             migrateXmlString(configXml, 99);
             fail(String.format("Expected a failure. Reason: Cruise config file with version 98 is invalid. Unable to upgrade. Message:%s", message));
-        } catch (InvocationTargetException e) {
-            assertThat(e.getTargetException().getCause().getMessage()).isEqualTo(message);
+        } catch (Exception e) {
+            assertThat(e.getCause().getMessage()).isEqualTo(message);
         }
     }
 
@@ -747,7 +747,7 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     @Test
-    public void shouldRemoveAgentWithDuplicateElasticAgentId_asPartOf102To103Migration() throws Exception {
+    public void shouldRemoveAgentWithDuplicateElasticAgentId_asPartOf102To103Migration() {
         String configXml = "<cruise schemaVersion='102'>" +
                 "<agents>\n" +
                 "    <agent hostname=\"hostname\" ipaddress=\"127.0.0.1\" uuid=\"c46a08a7-921c-4e77-b748-6128975a3e7d\" elasticAgentId=\"16649813-4cb3-4682-8702-8e202824dd73\" elasticPluginId=\"elastic-plugin-id\" />\n" +
@@ -848,7 +848,7 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     @Test
-    public void shouldConvertPluggableArtifactTagToArtifactWithTypeOnPluggableArtifacts_asPartOf106Migration() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public void shouldConvertPluggableArtifactTagToArtifactWithTypeOnPluggableArtifacts_asPartOf106Migration() {
         String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
                 + "<cruise schemaVersion=\"105\">\n"
                 + "    <server artifactsdir=\"artifacts\"/>\n"
@@ -1099,7 +1099,7 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     @Test
-    public void shouldOnlyUpdateSchemaVersionForMigration114() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public void shouldOnlyUpdateSchemaVersionForMigration114() {
         String configContent = "<pipelines>"
                 + "      <pipeline name=\"p1\">"
                 + "         <materials> "
@@ -1236,7 +1236,7 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     @Test
-    public void shouldOnlyUpdateSchemaVersionForMigration116() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public void shouldOnlyUpdateSchemaVersionForMigration116() {
         String configContent = "<pipelines>"
                 + "      <pipeline name=\"p1\">"
                 + "         <materials> "
@@ -1347,7 +1347,7 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     @Test
-    public void shouldMigrateEverythingAsItIs_Migration120To121() throws Exception {
+    public void shouldMigrateEverythingAsItIs_Migration120To121() {
         String originalConfig = "<pipelines group=\"first\">" +
                 "    <pipeline name=\"Test\" template=\"test_template\">" +
                 "      <materials>" +
@@ -1382,7 +1382,7 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     @Test
-    public void shouldMigrateEverythingAsItIs_Migration122To123() throws Exception {
+    public void shouldMigrateEverythingAsItIs_Migration122To123() {
         String originalConfig = "<pipelines group=\"first\">" +
                 "    <pipeline name=\"Test\" template=\"test_template\">" +
                 "      <materials>" +
@@ -1417,7 +1417,7 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     @Test
-    public void shouldMigrateEverythingAsItIs_Migration123To124() throws Exception {
+    public void shouldMigrateEverythingAsItIs_Migration123To124() {
         String originalConfig = "<pipelines group=\"first\">" +
                 "    <pipeline name=\"Test\" template=\"test_template\">" +
                 "      <materials>" +
@@ -1452,7 +1452,7 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     @Test
-    public void migration125_shouldRemoveTlsAttributeFromMailHostWhenItIsSetToFalse() throws Exception {
+    public void migration125_shouldRemoveTlsAttributeFromMailHostWhenItIsSetToFalse() {
         String configXml =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
                         "<cruise schemaVersion=\"124\">" +
@@ -1474,7 +1474,7 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     @Test
-    public void migration125_shouldRetainTlsAttributeFromMailHostWhenItIsSetToTrue() throws Exception {
+    public void migration125_shouldRetainTlsAttributeFromMailHostWhenItIsSetToTrue() {
         String configXml =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
                         "<cruise schemaVersion=\"124\">" +
@@ -1496,7 +1496,7 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     @Test
-    public void shouldMigrateEverythingAsItIs_Migration125To126() throws Exception {
+    public void shouldMigrateEverythingAsItIs_Migration125To126() {
         String originalConfig = "<pipelines group=\"first\">" +
                 "    <pipeline name=\"Test\" template=\"test_template\">" +
                 "      <materials>" +
@@ -1532,7 +1532,7 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     @Test
-    public void shouldRemoveSiteUrlsAsAnAttributesAndAddAsAChildElement_Migration126To127() throws Exception {
+    public void shouldRemoveSiteUrlsAsAnAttributesAndAddAsAChildElement_Migration126To127() {
         String originalConfig = "<server siteUrl=\"http://foo.com\" " +
                 "secureSiteUrl=\"https://bar.com\" " +
                 "artifactsdir=\"artifacts\" " +
@@ -1569,7 +1569,7 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     @Test
-    public void shouldDoNothingWhenSiteUrlAndSecureSiteUrlIsNotSpecified_Migration126To127() throws Exception {
+    public void shouldDoNothingWhenSiteUrlAndSecureSiteUrlIsNotSpecified_Migration126To127() {
         String originalConfig = "<server " +
                 "artifactsdir=\"artifacts\" " +
                 "agentAutoRegisterKey=\"323040d4-f2e4-4b8a-8394-7a2d122054d1\" " +
@@ -1601,7 +1601,7 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     @Test
-    public void shouldAddOnlySiteUrlWhenSecureSiteUrlIsNotSpecified_Migration126To127() throws Exception {
+    public void shouldAddOnlySiteUrlWhenSecureSiteUrlIsNotSpecified_Migration126To127() {
         String originalConfig = "<server siteUrl=\"http://foo.com\" " +
                 "artifactsdir=\"artifacts\" " +
                 "agentAutoRegisterKey=\"323040d4-f2e4-4b8a-8394-7a2d122054d1\" " +
@@ -1637,7 +1637,7 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     @Test
-    public void shouldAddOnlySecureSiteUrlWhenSiteUrlIsNotSpecified_Migration126To127() throws Exception {
+    public void shouldAddOnlySecureSiteUrlWhenSiteUrlIsNotSpecified_Migration126To127() {
         String originalConfig = "<server " +
                 "secureSiteUrl=\"https://bar.com\" " +
                 "artifactsdir=\"artifacts\" " +
@@ -1695,11 +1695,102 @@ public class GoConfigMigrationIntegrationTest {
         assertThat(plan.artifactConfigs().getBuiltInArtifactConfigs().get(0).getSource()).isEqualTo("*");
     }
 
+    @Test
+    public void migration130_shouldRemovePropertiesFromJobsUnderPipelinesAndTemplates() {
+        String configXml =
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                        + "<cruise schemaVersion=\"129\">"
+                        + "    <pipelines>"
+                        + "      <pipeline name=\"in_env\">"
+                        + "         <materials>"
+                        + "           <hg url=\"blah\"/>"
+                        + "         </materials>  "
+                        + "         <stage name=\"some_stage\">"
+                        + "             <jobs>"
+                        + "             <job name=\"some_job\">"
+                        + "                 <tasks>"
+                        + "                     <ant target=\"emma\" />"
+                        + "                 </tasks>"
+                        + "                 <properties>\n"
+                        + "                     <property name=\"coverage.class\" src=\"target/emma/coverage.xml\" xpath=\"substring-before(//report/data/all/coverage[starts-with(@type,'class')]/@value, '%')\" />\n"
+                        + "                 </properties>"
+                        + "             </job>"
+                        + "             </jobs>"
+                        + "         </stage>"
+                        + "      </pipeline>"
+                        + "    </pipelines>"
+                        + "    <templates>\n"
+                        + "        <pipeline name=\"project-template\">\n"
+                        + "            <authorization>\n"
+                        + "                <admins>\n"
+                        + "                    <user>jez</user>\n"
+                        + "                </admins>\n"
+                        + "            </authorization>\n"
+                        + "            <stage name=\"ut\">\n"
+                        + "                <jobs>\n"
+                        + "                <job name=\"linux\">\n"
+                        + "                    <tasks>"
+                        + "                        <ant target=\"emma\" />"
+                        + "                    </tasks>"
+                        + "                    <properties>\n"
+                        + "                        <property name=\"coverage.class\" src=\"target/emma/coverage.xml\" xpath=\"substring-before(//report/data/all/coverage[starts-with(@type,'class')]/@value, '%')\" />\n"
+                        + "                    </properties>"
+                        + "                </job>\n"
+                        + "                </jobs>\n"
+                        + "            </stage>\n"
+                        + "        </pipeline>\n"
+                        + "    </templates>"
+                        + "</cruise>";
+
+        String expectedConfig =
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                        + "<cruise schemaVersion=\"130\">"
+                        + "    <pipelines>"
+                        + "      <pipeline name=\"in_env\">"
+                        + "         <materials>"
+                        + "           <hg url=\"blah\"/>"
+                        + "         </materials>  "
+                        + "         <stage name=\"some_stage\">"
+                        + "             <jobs>"
+                        + "             <job name=\"some_job\">"
+                        + "                 <tasks>"
+                        + "                     <ant target=\"emma\" />"
+                        + "                 </tasks>"
+                        + "                              </job>"
+                        + "             </jobs>"
+                        + "         </stage>"
+                        + "      </pipeline>"
+                        + "    </pipelines>"
+                        + "    <templates>\n"
+                        + "        <pipeline name=\"project-template\">\n"
+                        + "            <authorization>\n"
+                        + "                <admins>\n"
+                        + "                    <user>jez</user>\n"
+                        + "                </admins>\n"
+                        + "            </authorization>\n"
+                        + "            <stage name=\"ut\">\n"
+                        + "                <jobs>\n"
+                        + "                <job name=\"linux\">\n"
+                        + "                    <tasks>"
+                        + "                        <ant target=\"emma\" />"
+                        + "                    </tasks>"
+                        + "                                    </job>\n"
+                        + "                </jobs>\n"
+                        + "            </stage>\n"
+                        + "        </pipeline>\n"
+                        + "    </templates>"
+                        + "</cruise>";
+
+        final String migratedXml = ConfigMigrator.migrate(configXml, 129, 130);
+        XmlAssert.assertThat(migratedXml).and(expectedConfig).areIdentical();
+
+    }
+
     private void assertStringContainsIgnoringCarriageReturn(String actual, String substring) {
         assertThat(actual.replaceAll("\\r", "")).contains(substring.replaceAll("\\r", ""));
     }
 
-    private String migrateXmlString(String content, int fromVersion) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    private String migrateXmlString(String content, int fromVersion) {
         return ConfigMigrator.migrate(content, fromVersion, GoConfigSchema.currentSchemaVersion());
     }
 

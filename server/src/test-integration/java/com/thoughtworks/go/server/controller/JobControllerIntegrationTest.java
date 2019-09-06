@@ -86,8 +86,6 @@ public class JobControllerIntegrationTest {
     @Autowired
     private ArtifactsService artifactService;
     @Autowired
-    private PropertiesService propertiesService;
-    @Autowired
     private DatabaseAccessHelper dbHelper;
     @Autowired
     private GoConfigDao goConfigDao;
@@ -121,7 +119,7 @@ public class JobControllerIntegrationTest {
         fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, temporaryFolder);
         fixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
         controller = new JobController(jobInstanceService, agentService, jobInstanceDao,
-                goConfigService, pipelineService, restfulService, artifactService, propertiesService, stageService, jobAgentMetadataDao, systemEnvironment);
+                goConfigService, pipelineService, restfulService, artifactService, stageService, jobAgentMetadataDao, systemEnvironment);
     }
 
     @After
@@ -165,7 +163,7 @@ public class JobControllerIntegrationTest {
     @Test
     public void shouldCreateJobPresentationModelWithRightStage() throws Exception {
         controller = new JobController(jobInstanceService, agentService, jobInstanceDao,
-                goConfigService, pipelineService, restfulService, artifactService, propertiesService, stageService, jobAgentMetadataDao, systemEnvironment);
+                goConfigService, pipelineService, restfulService, artifactService, stageService, jobAgentMetadataDao, systemEnvironment);
         fixture.configLabelTemplateUsingMaterialRevision();
         Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
         Stage devStage = pipeline.getStages().byName("dev");

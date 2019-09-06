@@ -37,7 +37,6 @@ import java.util.List;
 import static com.thoughtworks.go.config.TestArtifactConfig.TEST_OUTPUT_FOLDER;
 import static com.thoughtworks.go.server.web.JsonRenderer.render;
 import static com.thoughtworks.go.util.ArtifactLogUtil.*;
-import static org.apache.commons.lang3.math.NumberUtils.toInt;
 
 public class JobDetailPresentationModel {
     static final String BASE_FILE_URL = "files/";
@@ -46,7 +45,6 @@ public class JobDetailPresentationModel {
     protected JobInstances recent25;
     private final TrackingTool trackingTool;
     private final ArtifactsService artifactsService;
-    private final Properties properties;
     protected final Agent buildingAgentConfig;
     private JobIdentifier jobIdentifier;
     private Pipeline pipeline;
@@ -57,14 +55,13 @@ public class JobDetailPresentationModel {
     public JobDetailPresentationModel(JobInstance job, JobInstances recent25,
                                       Agent buildingAgentConfig, Pipeline pipeline, Tabs customizedTabs,
                                       TrackingTool trackingTool, ArtifactsService artifactsService,
-                                      Properties properties, Stage stage) {
+                                      Stage stage) {
         this.pipeline = pipeline;
         this.customizedTabs = customizedTabs;
         this.job = job;
         this.recent25 = recent25;
         this.trackingTool = trackingTool;
         this.artifactsService = artifactsService;
-        this.properties = properties;
         this.stage = stage;
         this.converter = new TimeConverter();
         this.buildingAgentConfig = buildingAgentConfig;
@@ -148,10 +145,6 @@ public class JobDetailPresentationModel {
         return converter.nullSafeDate(pipeline.getModifiedDate());
     }
 
-    public Properties getProperties() {
-        return properties;
-    }
-
     public List<JobStatusJsonPresentationModel> getRecent25() {
         List<JobStatusJsonPresentationModel> recent25StatusJson =
                 new ArrayList<>();
@@ -161,8 +154,9 @@ public class JobDetailPresentationModel {
         return recent25StatusJson;
     }
 
+    // TODO: ketanpkr, check this definition
     public boolean hasFailedTests() {
-        return hasTests() && toInt(getProperties().getValue(TestReportGenerator.FAILED_TEST_COUNT)) > 0;
+        return hasTests() && false;
     }
 
     public boolean hasTests() {

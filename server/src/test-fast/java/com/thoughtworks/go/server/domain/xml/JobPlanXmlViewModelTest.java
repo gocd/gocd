@@ -59,7 +59,7 @@ public class JobPlanXmlViewModelTest {
                 + "</job>"
                 + "</scheduledJobs>";
 
-        Document document = jobPlanXmlViewModel.toXml(new XmlWriterContext("http://baseurl/go", null, null, null, null));
+        Document document = jobPlanXmlViewModel.toXml(new XmlWriterContext("http://baseurl/go", null, null, null));
         assertEquals(expectedXml, document.asXML());
     }
 }

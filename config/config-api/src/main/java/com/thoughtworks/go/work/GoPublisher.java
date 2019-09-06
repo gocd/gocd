@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.work;
 
-import com.thoughtworks.go.domain.Property;
 import com.thoughtworks.go.util.command.TaggedStreamConsumer;
 
 import java.io.File;
@@ -26,8 +25,6 @@ public interface GoPublisher extends TaggedStreamConsumer {
     void consumeLineWithPrefix(String message);
 
     void taggedConsumeLineWithPrefix(String tag, String message);
-
-    void setProperty(Property property);
 
     void reportErrorMessage(String message, Exception e);
 }

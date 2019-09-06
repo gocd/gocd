@@ -80,7 +80,7 @@ describe Api::JobsController do
 
     get :scheduled, params:{:format => "xml", :no_layout => true}
 
-    context = XmlWriterContext.new("http://test.host/go", nil, nil, nil, nil)
+    context = XmlWriterContext.new("http://test.host/go", nil, nil, nil)
     expect(assigns[:doc]).to eq(:dom)
   end
 

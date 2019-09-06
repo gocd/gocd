@@ -80,7 +80,6 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
     private StageDao stageDao;
     private PipelineSqlMapDao pipelineDao;
     private JobInstanceDao jobInstanceDao;
-    private PropertyDao propertyDao;
     private AgentDao agentDao;
     private PipelineTimeline pipelineTimeline;
     private TransactionTemplate transactionTemplate;
@@ -107,7 +106,6 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
         ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("classpath*:WEB-INF/applicationContext-dataLocalAccess.xml");
         this.stageDao = (StageSqlMapDao) context.getBean("stageDao");
         this.jobInstanceDao = (JobInstanceDao) context.getBean("buildInstanceDao");
-        this.propertyDao = (PropertyDao) context.getBean("propertyDao");
         this.pipelineDao = (PipelineSqlMapDao) context.getBean("pipelineDao");
         this.agentDao = (AgentDao) context.getBean("agentDao");
         this.materialRepository = (MaterialRepository) context.getBean("materialRepository");
@@ -129,7 +127,6 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
                                 SqlSessionFactory sqlMapClient,
                                 StageDao stageDao,
                                 JobInstanceDao jobInstanceDao,
-                                PropertyDao propertyDao,
                                 PipelineDao pipelineDao,
                                 MaterialRepository materialRepository,
                                 SessionFactory sessionFactory,
@@ -144,7 +141,6 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
         this.sqlMapClient = sqlMapClient;
         this.stageDao = stageDao;
         this.jobInstanceDao = jobInstanceDao;
-        this.propertyDao = propertyDao;
         this.pipelineTimeline = pipelineTimeline;
         this.transactionTemplate = transactionTemplate;
         this.transactionSynchronizationManager = transactionSynchronizationManager;
@@ -175,11 +171,9 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
 
         dataSet.addTable(new DefaultTable("notificationfilters"));
         dataSet.addTable(new DefaultTable("users"));
-        dataSet.addTable(new DefaultTable("artifactPropertiesGenerator"));
         dataSet.addTable(new DefaultTable("stages"));
         dataSet.addTable(new DefaultTable("pipelineLabelCounts"));
         dataSet.addTable(new DefaultTable("environmentVariables"));
-        dataSet.addTable(new DefaultTable("properties"));
         dataSet.addTable(new DefaultTable("artifactPlans"));
         dataSet.addTable(new DefaultTable("buildStateTransitions"));
         dataSet.addTable(new DefaultTable("resources"));
@@ -224,10 +218,6 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
 
     public StageDao getStageDao() {
         return stageDao;
-    }
-
-    public PropertyDao getPropertyDao() {
-        return propertyDao;
     }
 
     public PipelineDao getPipelineDao() {

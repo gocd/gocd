@@ -28,8 +28,7 @@ import org.springframework.core.io.ClassPathResource;
 
 import java.io.*;
 
-import static com.thoughtworks.go.domain.UnitTestReportGenerator.*;
-import static com.thoughtworks.go.util.TestUtils.*;
+import static com.thoughtworks.go.util.TestUtils.copyAndClose;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -60,28 +59,10 @@ public class UnitTestReportGeneratorTest {
 
     @Test
     public void shouldGenerateReportForNUnit() throws IOException, ArtifactPublishingException {
-
-
         copyAndClose(source("TestResult.xml"), target("test-result.xml"));
         generator.generate(testFolder.listFiles(), "testoutput");
         assertThat(testFolder.listFiles().length, is(2));
         verify(publisher).upload(any(File.class), any(String.class));
-        verify(publisher).setProperty(new Property(TOTAL_TEST_COUNT, "206"));
-        verify(publisher).setProperty(new Property(FAILED_TEST_COUNT, "0"));
-        verify(publisher).setProperty(new Property(IGNORED_TEST_COUNT, "0"));
-        verify(publisher).setProperty(new Property(TEST_TIME, "NaN"));
-    }
-
-    @Test
-    public void shouldGenerateReportForNUnitXmlWithByteOrderMark() throws IOException, ArtifactPublishingException {
-        copyAndClose(source("NunitTestResultWithByteOrderMark.xml"), target("test-result.xml"));
-        generator.generate(testFolder.listFiles(), "testoutput");
-        assertThat(testFolder.listFiles().length, is(2));
-        verify(publisher).upload(any(File.class), any(String.class));
-        verify(publisher).setProperty(new Property(TOTAL_TEST_COUNT, "18"));
-        verify(publisher).setProperty(new Property(FAILED_TEST_COUNT, "0"));
-        verify(publisher).setProperty(new Property(IGNORED_TEST_COUNT, "0"));
-        verify(publisher).setProperty(new Property(TEST_TIME, "1.570"));
     }
 
     @Test
@@ -97,19 +78,11 @@ public class UnitTestReportGeneratorTest {
         generator.generate(testFolder.listFiles(), "testoutput");
 
         verify(publisher).consumeLine("Ignoring file empty.xml - it is not a recognised test file.");
-        verify(publisher).setProperty(new Property(TOTAL_TEST_COUNT, "0"));
-        verify(publisher).setProperty(new Property(FAILED_TEST_COUNT, "0"));
-        verify(publisher).setProperty(new Property(IGNORED_TEST_COUNT, "0"));
-        verify(publisher).setProperty(new Property(TEST_TIME, "0.000"));
         verify(publisher).upload(any(File.class), any(String.class));
     }
 
     private void expectZeroedProperties() throws ArtifactPublishingException {
         verify(publisher).upload(any(File.class), any(String.class));
-        verify(publisher).setProperty(new Property(TOTAL_TEST_COUNT, "0"));
-        verify(publisher).setProperty(new Property(FAILED_TEST_COUNT, "0"));
-        verify(publisher).setProperty(new Property(IGNORED_TEST_COUNT, "0"));
-        verify(publisher).setProperty(new Property(TEST_TIME, "0.000"));
     }
 
     @Test
@@ -119,10 +92,6 @@ public class UnitTestReportGeneratorTest {
         generator.generate(testFolder.listFiles(), "testoutput");
 
         verify(publisher).consumeLine("Ignoring file Invalid.xml - it is not a recognised test file.");
-        verify(publisher).setProperty(new Property(TOTAL_TEST_COUNT, "0"));
-        verify(publisher).setProperty(new Property(FAILED_TEST_COUNT, "0"));
-        verify(publisher).setProperty(new Property(IGNORED_TEST_COUNT, "0"));
-        verify(publisher).setProperty(new Property(TEST_TIME, "0.000"));
         verify(publisher).upload(any(File.class), any(String.class));
     }
 
@@ -135,10 +104,6 @@ public class UnitTestReportGeneratorTest {
 
         verify(publisher).consumeLine("Ignoring file Coverage.xml - it is not a recognised test file.");
         verify(publisher).upload(any(File.class), any(String.class));
-        verify(publisher).setProperty(new Property(TOTAL_TEST_COUNT, "0"));
-        verify(publisher).setProperty(new Property(FAILED_TEST_COUNT, "0"));
-        verify(publisher).setProperty(new Property(IGNORED_TEST_COUNT, "0"));
-        verify(publisher).setProperty(new Property(TEST_TIME, "0.000"));
     }
 
     @Test
@@ -148,10 +113,6 @@ public class UnitTestReportGeneratorTest {
         generator.generate(testFolder.listFiles(), "testoutput");
 
         verify(publisher).upload(any(File.class), any(String.class));
-        verify(publisher).setProperty(new Property(TOTAL_TEST_COUNT, "1"));
-        verify(publisher).setProperty(new Property(FAILED_TEST_COUNT, "0"));
-        verify(publisher).setProperty(new Property(IGNORED_TEST_COUNT, "0"));
-        verify(publisher).setProperty(new Property(TEST_TIME, "0.456"));
     }
 
     @Test
@@ -163,10 +124,6 @@ public class UnitTestReportGeneratorTest {
         generator.generate(testFolder.listFiles(), "testoutput");
 
         verify(publisher).upload(any(File.class), any(String.class));
-        verify(publisher).setProperty(new Property(TOTAL_TEST_COUNT, "5"));
-        verify(publisher).setProperty(new Property(FAILED_TEST_COUNT, "3"));
-        verify(publisher).setProperty(new Property(IGNORED_TEST_COUNT, "0"));
-        verify(publisher).setProperty(new Property(TEST_TIME, "1.286"));
     }
 
     @Test
@@ -177,10 +134,6 @@ public class UnitTestReportGeneratorTest {
         generator.generate(testFolder.listFiles(), "testoutput");
 
         verify(publisher).upload(any(File.class), any(String.class));
-        verify(publisher).setProperty(new Property(TOTAL_TEST_COUNT, "2762"));
-        verify(publisher).setProperty(new Property(FAILED_TEST_COUNT, "0"));
-        verify(publisher).setProperty(new Property(IGNORED_TEST_COUNT, "120"));
-        verify(publisher).setProperty(new Property(TEST_TIME, "221.766"));
     }
 
     @Test
@@ -196,10 +149,6 @@ public class UnitTestReportGeneratorTest {
 
         verify(publisher).consumeLine("Ignoring file Coverage.xml - it is not a recognised test file.");
         verify(publisher).upload(any(File.class), any(String.class));
-        verify(publisher).setProperty(new Property(TOTAL_TEST_COUNT, "204"));
-        verify(publisher).setProperty(new Property(FAILED_TEST_COUNT, "0"));
-        verify(publisher).setProperty(new Property(IGNORED_TEST_COUNT, "6"));
-        verify(publisher).setProperty(new Property(TEST_TIME, "80.231"));
     }
 
     private OutputStream target(String targetFile) throws FileNotFoundException {

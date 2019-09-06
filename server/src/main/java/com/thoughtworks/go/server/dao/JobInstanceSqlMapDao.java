@@ -27,8 +27,8 @@ import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.cache.LazyCache;
 import com.thoughtworks.go.server.domain.JobStatusListener;
 import com.thoughtworks.go.server.persistence.ArtifactPlanRepository;
-import com.thoughtworks.go.server.persistence.ArtifactPropertiesGeneratorRepository;
 import com.thoughtworks.go.server.persistence.ResourceRepository;
+import com.thoughtworks.go.server.service.ClusterProfilesService;
 import com.thoughtworks.go.server.service.JobInstanceService;
 import com.thoughtworks.go.server.transaction.SqlMapClientDaoSupport;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
@@ -70,7 +70,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
     private Cloner cloner = new Cloner();
     private ResourceRepository resourceRepository;
     private ArtifactPlanRepository artifactPlanRepository;
-    private ArtifactPropertiesGeneratorRepository artifactPropertiesGeneratorRepository;
+    private final ClusterProfilesService clusterProfilesService;
 
     @Autowired
     public JobInstanceSqlMapDao(EnvironmentVariableDao environmentVariableDao,
@@ -83,7 +83,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
                                 Database database,
                                 ResourceRepository resourceRepository,
                                 ArtifactPlanRepository artifactPlanRepository,
-                                ArtifactPropertiesGeneratorRepository artifactPropertiesGeneratorRepository,
+                                ClusterProfilesService clusterProfilesService,
                                 JobAgentMetadataDao jobAgentMetadataDao) {
         super(goCache, sqlSessionFactory, systemEnvironment, database);
         this.environmentVariableDao = environmentVariableDao;
@@ -92,7 +92,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         this.transactionSynchronizationManager = transactionSynchronizationManager;
         this.resourceRepository = resourceRepository;
         this.artifactPlanRepository = artifactPlanRepository;
-        this.artifactPropertiesGeneratorRepository = artifactPropertiesGeneratorRepository;
+        this.clusterProfilesService = clusterProfilesService;
         this.jobAgentMetadataDao = jobAgentMetadataDao;
         this.cacheKeyGenerator = new CacheKeyGenerator(getClass());
         this.latestCompletedCache = new LazyCache(createCacheIfRequired(getClass().getName()), transactionSynchronizationManager);
@@ -233,9 +233,6 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         for (Resource resource : jobPlan.getResources()) {
             resourceRepository.saveCopyOf(jobId, resource);
         }
-        for (ArtifactPropertiesGenerator generator : jobPlan.getPropertyGenerators()) {
-            artifactPropertiesGeneratorRepository.saveCopyOf(jobId, generator);
-        }
         for (ArtifactPlan artifactPlan : jobPlan.getArtifactPlans()) {
             artifactPlanRepository.saveCopyOf(jobId, artifactPlan);
         }
@@ -258,7 +255,6 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
 
     private void loadJobPlanAssociatedEntities(DefaultJobPlan plan) {
         plan.setArtifactPlans(artifactPlanRepository.findByBuildId(plan.getJobId()));
-        plan.setGenerators(artifactPropertiesGeneratorRepository.findByBuildId(plan.getJobId()));
         plan.setResources(resourceRepository.findByBuildId(plan.getJobId()));
         plan.setVariables(environmentVariableDao.load(plan.getJobId(), EnvironmentVariableType.Job));
         plan.setTriggerVariables(environmentVariableDao.load(plan.getPipelineId(), EnvironmentVariableType.Trigger));
@@ -275,7 +271,6 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         JobPlan jobPlan = loadPlan(job.getId());
         environmentVariableDao.deleteAll(jobPlan.getVariables());
         artifactPlanRepository.deleteAll(jobPlan.getArtifactPlansOfType(ArtifactPlanType.file));
-        artifactPropertiesGeneratorRepository.deleteAll(jobPlan.getPropertyGenerators());
         resourceRepository.deleteAll(jobPlan.getResources());
         if (jobPlan.requiresElasticAgent()) {
             jobAgentMetadataDao.delete(jobAgentMetadataDao.load(jobPlan.getJobId()));

@@ -1,5 +1,5 @@
 {
-  "target_version": "6",
+  "target_version": "7",
   "pipelines": [
     {
       "name": "firstpipe",
@@ -32,13 +32,6 @@
               "tabs": [],
               "resources": [],
               "artifacts": [],
-              "properties": [
-                {
-                  "name": "foo",
-                  "source": "foo.xml",
-                  "xpath": "foo-xpath"
-                }
-              ],
               "run_instance_count": null,
               "timeout": 0,
               "tasks": [
@@ -65,13 +58,6 @@
               "tabs": [],
               "resources": [],
               "artifacts": [],
-              "properties": [
-                {
-                  "name": "bar",
-                  "source": "bar.xml",
-                  "xpath": "bar-xpath"
-                }
-              ],
               "run_instance_count": null,
               "timeout": 0,
               "tasks": [

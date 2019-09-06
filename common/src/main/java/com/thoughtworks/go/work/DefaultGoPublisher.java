@@ -19,7 +19,6 @@ import com.thoughtworks.go.config.RunIfConfig;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.domain.JobState;
-import com.thoughtworks.go.domain.Property;
 import com.thoughtworks.go.domain.builder.FetchArtifactBuilder;
 import com.thoughtworks.go.publishers.GoArtifactsManipulator;
 import com.thoughtworks.go.remote.AgentIdentifier;
@@ -62,11 +61,6 @@ public class DefaultGoPublisher implements GoPublisher {
     //do not put the logic into the constructor it is really hard to stub.
     protected void init() {
         consoleOutputTransmitter = manipulator.createConsoleOutputTransmitter(jobIdentifier, agentIdentifier, consoleLogCharset);
-    }
-
-    @Override
-    public void setProperty(Property property) {
-        manipulator.setProperty(jobIdentifier, property);
     }
 
     @Override

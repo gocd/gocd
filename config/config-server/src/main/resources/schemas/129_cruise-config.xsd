@@ -18,7 +18,7 @@
 <xsd:schema elementFormDefault="qualified" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <xsd:annotation>
     <xsd:documentation xml:lang="en">
-      Configuration schema for GoCD. Copyright (c) 2019 ThoughtWorks, Inc.
+      Configuration schema for Go. Copyright (c) 2019 ThoughtWorks, Inc.
       www.thoughtworks.com. All rights reserved.
     </xsd:documentation>
   </xsd:annotation>
@@ -84,7 +84,7 @@
           </xsd:unique>
         </xsd:element>
       </xsd:sequence>
-      <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="130"/>
+      <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="129"/>
     </xsd:complexType>
     <xsd:unique name="uniquePipelines">
       <xsd:selector xpath="pipelines"/>
@@ -631,6 +631,12 @@
           <xsd:field xpath="@name"/>
         </xsd:unique>
       </xsd:element>
+      <xsd:element minOccurs="0" name="properties" type="propertiesType">
+        <xsd:unique name="uniqueProperty">
+          <xsd:selector xpath="property"/>
+          <xsd:field xpath="@name"/>
+        </xsd:unique>
+      </xsd:element>
     </xsd:all>
     <xsd:attribute name="name" type="jobnameType" use="required"/>
     <xsd:attribute name="runOnAllAgents" type="xsd:boolean" use="optional" default="false"/>
@@ -955,6 +961,16 @@
         <xsd:attribute name="onlyOnChanges" type="xsd:boolean"/>
       </xsd:extension>
     </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="propertiesType">
+    <xsd:sequence>
+      <xsd:element name="property" minOccurs="1" maxOccurs="unbounded" type="propertyType"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="propertyType">
+    <xsd:attribute name="name" type="propertyNameType" use="required"/>
+    <xsd:attribute name="src" type="middleLengthString"/>
+    <xsd:attribute name="xpath" type="middleLengthString"/>
   </xsd:complexType>
   <xsd:complexType name="trackingToolType">
     <xsd:attribute name="link" type="xsd:string" use="required"/>

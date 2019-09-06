@@ -20,7 +20,6 @@ import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClientBuilder;
 import com.thoughtworks.go.config.AgentRegistry;
 import com.thoughtworks.go.domain.FetchHandler;
 import org.apache.http.HttpEntity;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -28,7 +27,6 @@ import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.ByteArrayBody;
 import org.apache.http.entity.mime.content.FileBody;
-import org.apache.http.message.BasicNameValuePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +34,6 @@ import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.util.Collections;
 import java.util.Properties;
 
 @Component
@@ -120,17 +117,6 @@ public class HttpService {
         }
     }
 
-    public void postProperty(String url, String value) throws IOException {
-        LOGGER.info("Posting property to the URL {}Property Value ={}", url, value);
-        HttpPost post = httpClientFactory.createPost(url);
-        post.setHeader("Confirm", "true");
-        post.setEntity(new UrlEncodedFormEntity(Collections.singletonList(new BasicNameValuePair("value", value))));
-        try (CloseableHttpResponse ignoredResponse = execute(post)) {
-        } finally {
-            post.releaseConnection();
-        }
-    }
-
     public CloseableHttpResponse execute(HttpRequestBase httpMethod) throws IOException {
         GoAgentServerHttpClient client = httpClientFactory.httpClient();
 
@@ -143,7 +129,6 @@ public class HttpService {
         LOGGER.info("Got back {} from server", response.getStatusLine().getStatusCode());
         return response;
     }
-
 
     public static void setSizeHeader(HttpRequestBase method, long size) {
         method.setHeader(GO_ARTIFACT_PAYLOAD_SIZE, String.valueOf(size));

@@ -24,14 +24,12 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 */
 public class XmlWriterContext {
     private final String baseUrl;
-    private final JobPropertiesReader jobPropertiesReader;
     private final ArtifactUrlReader artifactUrlReader;
     private final JobPlanLoader jobPlanLoader;
     private final StageFinder stageFinder;
 
-    public XmlWriterContext(String baseUrl, JobPropertiesReader jobPropertiesReader, ArtifactUrlReader artifactUrlReader, JobPlanLoader jobPlanLoader, StageFinder stageFinder) {
+    public XmlWriterContext(String baseUrl, ArtifactUrlReader artifactUrlReader, JobPlanLoader jobPlanLoader, StageFinder stageFinder) {
         this.baseUrl = baseUrl;
-        this.jobPropertiesReader = jobPropertiesReader;
         this.artifactUrlReader = artifactUrlReader;
         this.jobPlanLoader = jobPlanLoader;
         this.stageFinder = stageFinder;
@@ -39,10 +37,6 @@ public class XmlWriterContext {
 
     public String getBaseUrl() {
         return baseUrl;
-    }
-
-    public Properties propertiesForJob(long jobId) {
-        return jobPropertiesReader.getPropertiesForJob(jobId);
     }
 
     public String artifactBaseUrl(JobIdentifier identifier) {

@@ -18,9 +18,7 @@ package com.thoughtworks.go.util;
 import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClient;
 import com.thoughtworks.go.config.AgentRegistry;
 import com.thoughtworks.go.domain.FetchHandler;
-import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpVersion;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -31,7 +29,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.mockito.ArgumentCaptor;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -39,10 +36,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Arrays;
 
 import static com.thoughtworks.go.util.HttpService.GO_ARTIFACT_PAYLOAD_SIZE;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
 
@@ -126,34 +121,6 @@ public class HttpServiceTest {
         } catch (FileNotFoundException e) {
             fail("Nulitpart should be created even in the absence of checksum file");
         }
-    }
-
-    @Test
-    public void shouldSetTheAcceptHeaderWhilePostingProperties() throws Exception {
-        HttpPost post = mock(HttpPost.class);
-        String url = "http://url";
-        when(httpClientFactory.createPost(url)).thenReturn(post);
-        when(post.getURI()).thenReturn(new URI(url));
-        CloseableHttpResponse response = mock(CloseableHttpResponse.class);
-        when(response.getStatusLine()).thenReturn(new BasicStatusLine(HttpVersion.HTTP_1_1, 200, "OK"));
-        when(httpClient.execute(post)).thenReturn(response);
-
-        ArgumentCaptor<UrlEncodedFormEntity> entityCaptor = ArgumentCaptor.forClass(UrlEncodedFormEntity.class);
-
-        service.postProperty(url, "value");
-
-        verify(post).setHeader("Confirm", "true");
-        verify(post).setEntity(entityCaptor.capture());
-
-        UrlEncodedFormEntity expected = new UrlEncodedFormEntity(Arrays.asList(new BasicNameValuePair("value", "value")));
-
-        UrlEncodedFormEntity actual = entityCaptor.getValue();
-
-        assertEquals(IOUtils.toString(expected.getContent()), IOUtils.toString(actual.getContent()));
-        assertEquals(expected.getContentLength(), expected.getContentLength());
-        assertEquals(expected.getContentType(), expected.getContentType());
-        assertEquals(expected.getContentEncoding(), expected.getContentEncoding());
-        assertEquals(expected.isChunked(), expected.isChunked());
     }
 
     @Test

@@ -54,7 +54,7 @@ public class JobDetailPresentationModelJMockTest {
 
         TrackingTool trackingTool = new TrackingTool();
         jobDetailPresenter = new JobDetailPresentationModel(stubJobInstance,
-                null, null, pipeline, new Tabs(), trackingTool, artifactService, new Properties(), null);
+                null, null, pipeline, new Tabs(), trackingTool, artifactService, null);
 
         testFolder = TestFileUtil.createTempFolder("testFiles");
     }

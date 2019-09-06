@@ -465,20 +465,17 @@ public class JobConfigTest {
         ResourceConfigs resourceConfigs = mock(ResourceConfigs.class);
         when(resourceConfigs.iterator()).thenReturn(new ResourceConfigs().iterator());
         ArtifactConfigs artifactConfigs = mock(ArtifactConfigs.class);
-        ArtifactPropertiesConfig properties = mock(ArtifactPropertiesConfig.class);
         Tasks tasks = mock(Tasks.class);
         Tabs tabs = mock(Tabs.class);
         EnvironmentVariablesConfig variables = mock(EnvironmentVariablesConfig.class);
         when(tasks.validateTree(any(PipelineConfigSaveValidationContext.class))).thenReturn(true);
         when(resourceConfigs.validateTree(any(PipelineConfigSaveValidationContext.class))).thenReturn(true);
-        when(properties.validateTree(any(PipelineConfigSaveValidationContext.class))).thenReturn(true);
         when(artifactConfigs.validateTree(any(PipelineConfigSaveValidationContext.class))).thenReturn(true);
         when(tabs.validateTree(any(PipelineConfigSaveValidationContext.class))).thenReturn(true);
         when(variables.validateTree(any(PipelineConfigSaveValidationContext.class))).thenReturn(true);
 
         JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("job"), resourceConfigs, artifactConfigs, tasks);
         jobConfig.setTabs(tabs);
-        jobConfig.setProperties(properties);
         jobConfig.setVariables(variables);
 
         PipelineConfigSaveValidationContext context = PipelineConfigSaveValidationContext.forChain(true, "group", new PipelineConfig(), new StageConfig(), jobConfig);
@@ -489,7 +486,6 @@ public class JobConfigTest {
         PipelineConfigSaveValidationContext childContext = captor.getValue();
         assertThat(childContext.getParent(), is(jobConfig));
         verify(resourceConfigs).validateTree(childContext);
-        verify(properties).validateTree(childContext);
         verify(artifactConfigs).validateTree(childContext);
         verify(tabs).validateTree(childContext);
         verify(variables).validateTree(childContext);
@@ -500,20 +496,17 @@ public class JobConfigTest {
         ResourceConfigs resourceConfigs = mock(ResourceConfigs.class);
         when(resourceConfigs.iterator()).thenReturn(new ResourceConfigs().iterator());
         ArtifactConfigs artifactConfigs = mock(ArtifactConfigs.class);
-        ArtifactPropertiesConfig properties = mock(ArtifactPropertiesConfig.class);
         Tasks tasks = mock(Tasks.class);
         Tabs tabs = mock(Tabs.class);
         EnvironmentVariablesConfig variables = mock(EnvironmentVariablesConfig.class);
         when(tasks.validateTree(any(PipelineConfigSaveValidationContext.class))).thenReturn(false);
         when(resourceConfigs.validateTree(any(PipelineConfigSaveValidationContext.class))).thenReturn(false);
-        when(properties.validateTree(any(PipelineConfigSaveValidationContext.class))).thenReturn(false);
         when(artifactConfigs.validateTree(any(PipelineConfigSaveValidationContext.class))).thenReturn(false);
         when(tabs.validateTree(any(PipelineConfigSaveValidationContext.class))).thenReturn(false);
         when(variables.validateTree(any(PipelineConfigSaveValidationContext.class))).thenReturn(false);
 
         JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("job"), resourceConfigs, artifactConfigs, tasks);
         jobConfig.setTabs(tabs);
-        jobConfig.setProperties(properties);
         jobConfig.setVariables(variables);
 
         PipelineConfigSaveValidationContext context = PipelineConfigSaveValidationContext.forChain(true, "group", new PipelineConfig(), new StageConfig(), jobConfig);
@@ -524,7 +517,6 @@ public class JobConfigTest {
         PipelineConfigSaveValidationContext childContext = captor.getValue();
         assertThat(childContext.getParent(), is(jobConfig));
         verify(resourceConfigs).validateTree(childContext);
-        verify(properties).validateTree(childContext);
         verify(artifactConfigs).validateTree(childContext);
         verify(tabs).validateTree(childContext);
         verify(variables).validateTree(childContext);

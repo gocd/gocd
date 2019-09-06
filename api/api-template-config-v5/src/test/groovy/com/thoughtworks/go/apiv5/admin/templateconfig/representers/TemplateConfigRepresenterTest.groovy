@@ -97,7 +97,6 @@ class TemplateConfigRepresenterTest {
             tasks: [],
             tabs: [],
             artifacts: [],
-            properties: null
           ]
         ]
       ]
@@ -154,7 +153,6 @@ def templateHashWithParams =
             tasks: [],
             tabs: [],
             artifacts: [],
-            properties: null
           ]
         ]
       ]

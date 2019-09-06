@@ -61,7 +61,6 @@ public class JobControllerTest {
     private MockHttpServletResponse response;
     private SystemEnvironment systemEnvironment;
     private RestfulService restfulService;
-    private PropertiesService propertiesService;
     private JobAgentMetadataDao jobAgentMetadataDao;
     private ElasticAgentMetadataStore elasticAgentMetadataStore = ElasticAgentMetadataStore.instance();
 
@@ -76,10 +75,10 @@ public class JobControllerTest {
         systemEnvironment = mock(SystemEnvironment.class);
         pipelineService = mock(PipelineService.class);
         restfulService = mock(RestfulService.class);
-        propertiesService = mock(PropertiesService.class);
+        jobController = new JobController(jobInstanceService, agentService, jobInstanceDao, jobConfigService, pipelineService, restfulService, null, stageService, null, systemEnvironment);
         jobAgentMetadataDao = mock(JobAgentMetadataDao.class);
         jobController = new JobController(jobInstanceService, agentService, jobInstanceDao, jobConfigService,
-                pipelineService, restfulService, null, propertiesService, stageService, jobAgentMetadataDao, systemEnvironment);
+                pipelineService, restfulService, null, stageService, jobAgentMetadataDao, systemEnvironment);
     }
 
     @Test
@@ -136,7 +135,6 @@ public class JobControllerTest {
             when(jobInstanceDao.mostRecentJobWithTransitions(jobIdentifier)).thenReturn(jobInstance);
             when(jobInstanceDao.mostRecentJobWithTransitions(any(JobIdentifier.class))).thenReturn(jobInstance);
             when(jobConfigService.pipelineConfigNamed(any(CaseInsensitiveString.class))).thenReturn(PipelineConfigMother.pipelineConfig("p1"));
-            when(propertiesService.getPropertiesForJob(any(Long.class))).thenReturn(new Properties());
             when(stageService.getStageByBuild(jobInstance)).thenReturn(StageMother.passedStageInstance("s1", "plan1", "p1"));
 
             FeatureToggleService featureToggleService = mock(FeatureToggleService.class);

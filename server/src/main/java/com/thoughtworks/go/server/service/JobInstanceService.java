@@ -50,7 +50,6 @@ import java.util.List;
 @Service
 public class JobInstanceService implements JobPlanLoader, ConfigChangedListener {
     private final JobInstanceDao jobInstanceDao;
-    private final PropertiesService buildPropertiesService;
     private final JobResultTopic jobResultTopic;
     private final JobStatusCache jobStatusCache;
     private final TransactionTemplate transactionTemplate;
@@ -67,12 +66,11 @@ public class JobInstanceService implements JobPlanLoader, ConfigChangedListener 
     private static final Object LISTENERS_MODIFICATION_MUTEX = new Object();
 
     @Autowired
-    JobInstanceService(JobInstanceDao jobInstanceDao, PropertiesService buildPropertiesService, JobResultTopic jobResultTopic, JobStatusCache jobStatusCache,
-                       TransactionTemplate transactionTemplate, TransactionSynchronizationManager transactionSynchronizationManager, JobResolverService jobResolverService,
-                       EnvironmentConfigService environmentConfigService, GoConfigService goConfigService,
-                       SecurityService securityService, ServerHealthService serverHealthService, JobStatusListener... listener) {
+    public JobInstanceService(JobInstanceDao jobInstanceDao, JobResultTopic jobResultTopic, JobStatusCache jobStatusCache,
+                              TransactionTemplate transactionTemplate, TransactionSynchronizationManager transactionSynchronizationManager, JobResolverService jobResolverService,
+                              EnvironmentConfigService environmentConfigService, GoConfigService goConfigService,
+                              SecurityService securityService, ServerHealthService serverHealthService, JobStatusListener... listener) {
         this.jobInstanceDao = jobInstanceDao;
-        this.buildPropertiesService = buildPropertiesService;
         this.jobResultTopic = jobResultTopic;
         this.jobStatusCache = jobStatusCache;
         this.transactionTemplate = transactionTemplate;
@@ -159,9 +157,6 @@ public class JobInstanceService implements JobPlanLoader, ConfigChangedListener 
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
                 jobInstanceDao.updateStateAndResult(job);
-                if (job.isCompleted()) {
-                    buildPropertiesService.saveCruiseProperties(job);
-                }
             }
         });
     }

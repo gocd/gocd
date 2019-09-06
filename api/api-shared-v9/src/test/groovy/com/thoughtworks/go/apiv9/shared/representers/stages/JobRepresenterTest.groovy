@@ -129,8 +129,6 @@ class JobRepresenterTest {
         [ source: 'target/dist.jar', destination: 'pkg', type: 'build' ],
         [ source: 'target/reports/**/*Test.xml', destination: 'reports', type: 'test' ]
       ],
-
-      properties:            [[ name: 'coverage.class', source: 'target/emma/coverage.xml', xpath: "substring-before(//report/data/all/coverage[starts-with(@type,'class')]/@value, '%')" ]]
     ]
   }
 
@@ -351,24 +349,6 @@ class JobRepresenterTest {
     }
 
     @Test
-    void 'should convert basic hash with properties to Job'() {
-      def properties = [
-        [
-          name: 'coverage.class',
-          source: 'target/emma/coverage.xml',
-          xpath: "substring-before(//report/data/all/coverage[starts-with(@type,'class')]/@value, '%')"
-        ]
-      ]
-
-      def jsonReader = GsonTransformer.instance.jsonReaderFrom([
-        properties: properties
-      ])
-      def actualJobConfig = JobRepresenter.fromJSON(jsonReader)
-      def listOfPropertyNames = actualJobConfig.getProperties().stream().collect { eachItem -> eachItem.getName() }
-      assertEquals(listOfPropertyNames, ['coverage.class'])
-    }
-
-    @Test
     void 'should convert attribute elastic_profile_id to Job with elastic_profile_id'() {
       def jsonReader = GsonTransformer.instance.jsonReaderFrom([
         elastic_profile_id: 'docker.unit-test'
@@ -469,7 +449,6 @@ class JobRepresenterTest {
           destination: "../foo",
           type: "test"
         ]],
-      properties: null,
       errors:
       [
         run_instance_count: ["'Run Instance Count' cannot be a negative number as it represents number of instances Go needs to spawn during runtime."],

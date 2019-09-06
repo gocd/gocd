@@ -87,7 +87,7 @@ public class ArtifactsPublisherTest {
     @Test
     public void shouldMergeTestReportFilesAndUploadResult() throws Exception {
         List<ArtifactPlan> artifactPlans = new ArrayList<>();
-        new DefaultJobPlan(new Resources(), artifactPlans, new ArrayList<>(), -1, null, null, new EnvironmentVariables(), new EnvironmentVariables(), null, null);
+        new DefaultJobPlan(new Resources(), artifactPlans, -1, null, null, new EnvironmentVariables(), new EnvironmentVariables(), null, null);
         artifactPlans.add(new ArtifactPlan(ArtifactPlanType.unit, "test1", "test"));
         artifactPlans.add(new ArtifactPlan(ArtifactPlanType.unit, "test2", "test"));
 
@@ -105,7 +105,7 @@ public class ArtifactsPublisherTest {
     @Test
     public void shouldReportErrorWithTestArtifactSrcWhenUploadFails() throws Exception {
         List<ArtifactPlan> artifactPlans = new ArrayList<>();
-        new DefaultJobPlan(new Resources(), artifactPlans, new ArrayList<>(), -1, null, null, new EnvironmentVariables(), new EnvironmentVariables(), null, null);
+        new DefaultJobPlan(new Resources(), artifactPlans, -1, null, null, new EnvironmentVariables(), new EnvironmentVariables(), null, null);
         artifactPlans.add(new ArtifactPlan(ArtifactPlanType.unit, "test1", "test"));
         artifactPlans.add(new ArtifactPlan(ArtifactPlanType.unit, "test2", "test"));
 

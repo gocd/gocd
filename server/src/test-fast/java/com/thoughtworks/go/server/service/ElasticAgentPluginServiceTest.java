@@ -470,7 +470,7 @@ class ElasticAgentPluginServiceTest {
 
             JobInstance up42_job = JobInstanceMother.completed("up42_job");
             up42_job.setAgentUuid(agentInstance.getUuid());
-            DefaultJobPlan plan = new DefaultJobPlan(null, new ArrayList<>(), new ArrayList<>(), -1, null, null, null, new EnvironmentVariables(), elasticProfile, clusterProfile);
+            DefaultJobPlan plan = new DefaultJobPlan(null, new ArrayList<>(), -1, null, null, null, new EnvironmentVariables(), elasticProfile, clusterProfile);
             up42_job.setPlan(plan);
 
             when(agentService.findAgent(agentInstance.getUuid())).thenReturn(agentInstance);
@@ -525,12 +525,12 @@ class ElasticAgentPluginServiceTest {
         ClusterProfile clusterProfile = new ClusterProfile("clusterProfileId", pluginId);
         ElasticProfile elasticProfile = new ElasticProfile("id", "clusterProfileId");
         JobIdentifier identifier = new JobIdentifier("pipeline-" + jobId, 1, "1", "stage", "1", "job");
-        return new DefaultJobPlan(null, new ArrayList<>(), null, jobId, identifier, null, new EnvironmentVariables(), new EnvironmentVariables(), elasticProfile, clusterProfile);
+        return new DefaultJobPlan(null, new ArrayList<>(), jobId, identifier, null, new EnvironmentVariables(), new EnvironmentVariables(), elasticProfile, clusterProfile);
     }
 
     private JobPlan planWithoutClusterProfile(int jobId) {
         ElasticProfile elasticProfile = new ElasticProfile("id", "clusterProfileId");
         JobIdentifier identifier = new JobIdentifier("pipeline-" + jobId, 1, "1", "stage", "1", "job");
-        return new DefaultJobPlan(null, new ArrayList<>(), null, jobId, identifier, null, new EnvironmentVariables(), new EnvironmentVariables(), elasticProfile, null);
+        return new DefaultJobPlan(null, new ArrayList<>(), jobId, identifier, null, new EnvironmentVariables(), new EnvironmentVariables(), elasticProfile, null);
     }
 }

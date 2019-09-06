@@ -76,7 +76,6 @@ class ConfigConverterTest {
         crJob.addEnvironmentVariable("key", "value");
         crJob.addTab(new CRTab("tabname", "tabpath"));
         crJob.addArtifact(new CRBuiltInArtifact("src", "dest", CRArtifactType.build));
-        crJob.addProperty(new CRPropertyGenerator("name", "src", "path"));
         crJob.addTask(new CRFetchArtifactTask(CRRunIf.failed, null, "upstream", "stage", "job", "src", "dest", false));
         return crJob;
     }
@@ -1018,7 +1017,6 @@ class ConfigConverterTest {
         assertThat(jobConfig.getTabs().first().getName()).isEqualTo("tabname");
         assertThat(jobConfig.resourceConfigs().get(0)).isEqualTo(new ResourceConfig("resource1"));
         assertThat(jobConfig.artifactConfigs()).contains(new BuildArtifactConfig("src", "dest"));
-        assertThat(jobConfig.getProperties()).contains(new ArtifactPropertyConfig("name", "src", "path"));
         assertThat(jobConfig.isRunOnAllAgents()).isFalse();
         assertThat(jobConfig.getRunInstanceCount()).isEqualTo("5");
         assertThat(jobConfig.getTimeout()).isEqualTo("120");
@@ -1381,7 +1379,6 @@ class ConfigConverterTest {
         jobConfig.addVariable("key", "value");
         jobConfig.setRunInstanceCount("5");
         jobConfig.addTab("tabname", "path");
-        jobConfig.setProperties(new ArtifactPropertiesConfig(new ArtifactPropertyConfig("name", "src", "path")));
 
         CRJob job = configConverter.jobToCRJob(jobConfig);
 
@@ -1390,7 +1387,6 @@ class ConfigConverterTest {
         assertThat(job.getTabs().contains(new CRTab("tabname", "path"))).isTrue();
         assertThat(job.getResources().contains("resource1")).isTrue();
         assertThat(job.getArtifacts().contains(new CRBuiltInArtifact("src", "dest", CRArtifactType.build))).isTrue();
-        assertThat(job.getProperties().contains(new CRPropertyGenerator("name", "src", "path"))).isTrue();
         assertThat(job.isRunOnAllAgents()).isFalse();
         assertThat(job.getRunInstanceCount()).isEqualTo(5);
         assertThat(job.getTimeout()).isEqualTo(120);

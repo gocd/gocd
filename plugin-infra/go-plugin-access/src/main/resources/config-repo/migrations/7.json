@@ -1,0 +1,29 @@
+[
+  {
+    "operation": "shift",
+    "spec": {
+      "target_version": {
+        "#7": "&1" // Set target version to 7.
+      },
+      "*": "&"
+    }
+  },
+  {
+    "operation": "remove",
+    "spec": {
+      "pipelines": {
+        "*": {
+          "stages": {
+            "*": {
+              "jobs": {
+                "*": {
+                  "properties": ""
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+]

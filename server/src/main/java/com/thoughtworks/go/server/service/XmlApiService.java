@@ -15,8 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-import java.io.IOException;
-
 import com.thoughtworks.go.domain.XmlRepresentable;
 import com.thoughtworks.go.domain.XmlWriterContext;
 import org.dom4j.Document;
@@ -24,24 +22,24 @@ import org.dom4j.DocumentException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+
 @Service
 public class XmlApiService {
 
-    private final PropertiesService propertiesService;
     private final ArtifactsService artifactsService;
     private final JobInstanceService jobInstanceService;
     private final StageService stageService;
 
     @Autowired
-    public XmlApiService(PropertiesService propertiesService, ArtifactsService artifactsService, JobInstanceService jobInstanceService, StageService stageService) {
-        this.propertiesService = propertiesService;
+    public XmlApiService(ArtifactsService artifactsService, JobInstanceService jobInstanceService, StageService stageService) {
         this.artifactsService = artifactsService;
         this.jobInstanceService = jobInstanceService;
         this.stageService = stageService;
     }
 
     private XmlWriterContext ctxFor(String baseUrl) {
-        return new XmlWriterContext(baseUrl, propertiesService, artifactsService, jobInstanceService, stageService);
+        return new XmlWriterContext(baseUrl, artifactsService, jobInstanceService, stageService);
     }
 
     public Document write(XmlRepresentable representable, String baseUrl) throws IOException, DocumentException {

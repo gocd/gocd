@@ -175,8 +175,6 @@ module JavaImports
   java_import java.io.ByteArrayOutputStream unless defined? ByteArrayOutputStream
   java_import com.thoughtworks.go.domain.XmlWriterContext unless defined? XmlWriterContext
   java_import com.thoughtworks.go.domain.StageFinder unless defined? StageFinder
-  java_import com.thoughtworks.go.domain.Properties unless defined? Properties
-  java_import com.thoughtworks.go.domain.Property unless defined? Property
   java_import com.thoughtworks.go.domain.DefaultJobPlan unless defined? DefaultJobPlan
   java_import com.thoughtworks.go.server.ui.JobInstancesModel unless defined? JobInstancesModel
   java_import com.thoughtworks.go.config.CaseInsensitiveString unless defined? CaseInsensitiveString

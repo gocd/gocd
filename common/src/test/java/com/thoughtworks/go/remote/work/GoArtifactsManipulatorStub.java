@@ -15,16 +15,9 @@
  */
 package com.thoughtworks.go.remote.work;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.thoughtworks.go.domain.FetchHandler;
 import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.Property;
 import com.thoughtworks.go.domain.builder.FetchArtifactBuilder;
-import com.thoughtworks.go.domain.exception.ArtifactPublishingException;
 import com.thoughtworks.go.matchers.UploadEntry;
 import com.thoughtworks.go.publishers.GoArtifactsManipulator;
 import com.thoughtworks.go.remote.AgentIdentifier;
@@ -33,45 +26,28 @@ import com.thoughtworks.go.util.URLService;
 import com.thoughtworks.go.util.ZipUtil;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 public class GoArtifactsManipulatorStub extends GoArtifactsManipulator {
-    private final List<Property> properties;
     private final List<String> consoleOuts;
     private List<FetchHandler> savedTo = new ArrayList<>();
     private List<UploadEntry> uploads = new ArrayList<>();
 
     public GoArtifactsManipulatorStub() {
         super(new HttpServiceStub(), new URLService(), new ZipUtil());
-        properties = new ArrayList<>();
         consoleOuts = new ArrayList<>();
     }
 
     public GoArtifactsManipulatorStub(HttpService service) {
         super(service, new URLService(), new ZipUtil());
-        properties = new ArrayList<>();
         consoleOuts = new ArrayList<>();
     }
 
-    public GoArtifactsManipulatorStub(List<String> consoleOuts) {
-        super(new HttpServiceStub(), new URLService(), new ZipUtil());
-        this.properties = new ArrayList<>();
-        this.consoleOuts = consoleOuts;
-    }
-
-    public GoArtifactsManipulatorStub(List<Property> properties, List<String> consoleOuts) {
-        super(new HttpServiceStub(), new URLService(), new ZipUtil());
-        this.properties = properties;
-        this.consoleOuts = consoleOuts;
-    }
-
-    public GoArtifactsManipulatorStub(List<Property> properties, List<String> consoleOuts, HttpService service) {
-        super(service, new URLService(), new ZipUtil());
-        this.properties = properties;
-        this.consoleOuts = consoleOuts;
-    }
-
-    public GoArtifactsManipulatorStub(List<Property> properties, List<String> consoleOuts, HttpService service, URLService urlService, ZipUtil zipUtil) {
+    public GoArtifactsManipulatorStub(List<String> consoleOuts, HttpService service, URLService urlService, ZipUtil zipUtil) {
         super(service, urlService, zipUtil);
-        this.properties = properties;
         this.consoleOuts = consoleOuts;
     }
 
@@ -87,12 +63,6 @@ public class GoArtifactsManipulatorStub extends GoArtifactsManipulator {
         savedTo.add(artifact.getHandler());
     }
 
-    @Override
-    public void setProperty(JobIdentifier jobIdentifier, Property property) throws ArtifactPublishingException {
-        properties.add(property);
-    }
-
-    @Override
     public ConsoleOutputTransmitter createConsoleOutputTransmitter(JobIdentifier jobIdentifier,
                                                                    AgentIdentifier agentIdentifier, String consoleLogCharset) {
         return new ConsoleOutputTransmitter(new ConsoleAppender() {

@@ -59,7 +59,6 @@ public class CRJobTest extends AbstractCRTest<CRJob> {
 
         jobWithProp = new CRJob("perfTest");
         jobWithProp.addTask(rakeTask);
-        jobWithProp.addProperty(new CRPropertyGenerator("perf", "test.xml", "substring-before(//report/data/all/coverage[starts-with(@type,'class')]/@value, '%')"));
 
         invalidJobNoName = new CRJob();
 

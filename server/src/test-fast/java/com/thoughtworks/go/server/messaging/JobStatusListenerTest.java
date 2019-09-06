@@ -200,7 +200,7 @@ class JobStatusListenerTest {
         JobStatusMessage jobStatusMessage = new JobStatusMessage(jobIdentifier, JobState.Completed, "agent1");
         when(stageService.findStageWithIdentifier(jobStatusMessage.getStageIdentifier())).thenReturn(stage);
 
-        DefaultJobPlan plan = new DefaultJobPlan(null, new ArrayList<>(), null, 100, jobIdentifier, null, new EnvironmentVariables(), new EnvironmentVariables(), null, null);
+        DefaultJobPlan plan = new DefaultJobPlan(null, new ArrayList<>(), 100, jobIdentifier, null, new EnvironmentVariables(), new EnvironmentVariables(), null, null);
         when(jobInstanceSqlMapDao.loadPlan(jobInstance.getId())).thenReturn(plan);
 
         assertThat(jobInstance.getPlan()).isNull();

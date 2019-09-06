@@ -359,7 +359,7 @@ class RulesServiceTest {
     }
 
     private JobPlan defaultJobPlan(EnvironmentVariables variables, EnvironmentVariables triggerVariables, JobIdentifier jobIdentifier) {
-        return new DefaultJobPlan(new Resources(), new ArrayList<>(), new ArrayList<>(), -1, jobIdentifier, null,
+        return new DefaultJobPlan(new Resources(), new ArrayList<>(), -1, jobIdentifier, null,
                 variables, triggerVariables, null, null);
     }
 }

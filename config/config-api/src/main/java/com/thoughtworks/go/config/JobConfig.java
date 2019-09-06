@@ -51,8 +51,6 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
     private ResourceConfigs resourceConfigs = new ResourceConfigs();
     @ConfigSubtag
     private ArtifactConfigs artifactConfigs = new ArtifactConfigs();
-    @ConfigSubtag
-    private ArtifactPropertiesConfig artifactPropertiesConfig = new ArtifactPropertiesConfig();
 
     @ConfigAttribute(value = "runOnAllAgents", optional = true) private boolean runOnAllAgents = false;
     @ConfigAttribute(value = "runInstanceCount", optional = true, allowNull = true) private String runInstanceCount;
@@ -99,16 +97,6 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
         this.tasks = tasks;
     }
 
-    public JobConfig(final CaseInsensitiveString jobName, ArtifactPropertiesConfig artifactPropertiesConfig) {
-        this(jobName);
-        this.artifactPropertiesConfig = artifactPropertiesConfig;
-    }
-
-    public JobConfig(final CaseInsensitiveString jobName, ResourceConfigs resourceConfigs, ArtifactConfigs artifactConfigs, ArtifactPropertiesConfig generators) {
-        this(jobName, resourceConfigs, artifactConfigs);
-        this.artifactPropertiesConfig = generators;
-    }
-
     public JobConfig(String planName) {
         this(new CaseInsensitiveString(planName), new ResourceConfigs(), new ArtifactConfigs());
     }
@@ -150,8 +138,6 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
         if (resourceConfigs != null ? !resourceConfigs.equals(jobConfig.resourceConfigs) : jobConfig.resourceConfigs != null) return false;
         if (artifactConfigs != null ? !artifactConfigs.equals(jobConfig.artifactConfigs) : jobConfig.artifactConfigs != null)
             return false;
-        if (artifactPropertiesConfig != null ? !artifactPropertiesConfig.equals(jobConfig.artifactPropertiesConfig) : jobConfig.artifactPropertiesConfig != null)
-            return false;
         if (runInstanceCount != null ? !runInstanceCount.equals(jobConfig.runInstanceCount) : jobConfig.runInstanceCount != null)
             return false;
         if (timeout != null ? !timeout.equals(jobConfig.timeout) : jobConfig.timeout != null) return false;
@@ -167,7 +153,6 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
         result = 31 * result + (tabs != null ? tabs.hashCode() : 0);
         result = 31 * result + (resourceConfigs != null ? resourceConfigs.hashCode() : 0);
         result = 31 * result + (artifactConfigs != null ? artifactConfigs.hashCode() : 0);
-        result = 31 * result + (artifactPropertiesConfig != null ? artifactPropertiesConfig.hashCode() : 0);
         result = 31 * result + (runOnAllAgents ? 1 : 0);
         result = 31 * result + (runInstanceCount != null ? runInstanceCount.hashCode() : 0);
         result = 31 * result + (timeout != null ? timeout.hashCode() : 0);
@@ -205,14 +190,6 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
 
     public void addTab(String tab, String path) {
         this.tabs.add(new Tab(tab.trim(), path));
-    }
-
-    public ArtifactPropertiesConfig getProperties() {
-        return artifactPropertiesConfig;
-    }
-
-    public void setProperties(ArtifactPropertiesConfig properties) {
-        artifactPropertiesConfig = properties;
     }
 
     public Tasks getTasks() {
@@ -337,7 +314,6 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
         isValid = tasks.validateTree(contextForChildren) && isValid;
         isValid = variables.validateTree(contextForChildren) && isValid;
         isValid = resourceConfigs.validateTree(contextForChildren) && isValid;
-        isValid = artifactPropertiesConfig.validateTree(contextForChildren) && isValid;
         isValid = tabs.validateTree(contextForChildren) && isValid;
         isValid = artifactConfigs.validateTree(contextForChildren) && isValid;
         return isValid;

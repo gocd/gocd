@@ -92,7 +92,6 @@ class TemplateConfigRepresenterTest {
             tasks: [],
             tabs: [],
             artifacts: [],
-            properties: null
           ]
         ]
       ]

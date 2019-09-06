@@ -93,7 +93,6 @@ public class ScheduleServiceStageTriggerTest {
     @Autowired private TransactionTemplate transactionTemplate;
     @Autowired private StageStatusCache stageStatusCache;
     @Autowired private JobStatusCache jobStatusCache;
-    @Autowired private PropertiesService propertiesService;
     @Autowired private ChangesetService changesetService;
     @Autowired private TransactionSynchronizationManager transactionSynchronizationManager;
     @Autowired private GoCache goCache;
@@ -275,7 +274,7 @@ public class ScheduleServiceStageTriggerTest {
     private JobInstanceService jobInstanceService(JobResultTopic jobResultTopic) {
         ServerHealthService serverHealthService = mock(ServerHealthService.class);
         when(serverHealthService.logs()).thenReturn(new ServerHealthStates());
-        return new JobInstanceService(jobInstanceDao, propertiesService, jobResultTopic, jobStatusCache, transactionTemplate,
+        return new JobInstanceService(jobInstanceDao, jobResultTopic, jobStatusCache, transactionTemplate,
                 transactionSynchronizationManager, null, null, goConfigService, null, serverHealthService);
     }
 

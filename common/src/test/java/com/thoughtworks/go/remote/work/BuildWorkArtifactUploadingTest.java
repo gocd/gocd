@@ -318,7 +318,7 @@ public class BuildWorkArtifactUploadingTest {
                 new String[]{"logs/pic/pass.png", "logs/pic-1/pass.png"});
 
         BuildWork work = new BuildWork(buildAssigment, systemEnvironment.consoleLogCharset());
-        GoArtifactsManipulatorStub manipulator = new GoArtifactsManipulatorStub(new ArrayList<>(),
+        GoArtifactsManipulatorStub manipulator = new GoArtifactsManipulatorStub(
                 new ArrayList<>(), new HttpServiceStub(), new URLService(), new ZipUtilThatRunsOutOfMemory());
 
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
@@ -342,7 +342,7 @@ public class BuildWorkArtifactUploadingTest {
         BuildCause buildCause = BuildCause.createWithModifications(materialRevisions, "");
         List<Builder> builders = new ArrayList<>();
         builders.add(new CreateFileBuilder(fileToCreate));
-        DefaultJobPlan plan = new DefaultJobPlan(new Resources(), artifactPlans, new ArrayList<>(), -1, new JobIdentifier(PIPELINE_NAME, -2, "1", STAGE_NAME, "1", JOB_NAME), null, new EnvironmentVariables(), new EnvironmentVariables(), null, null);
+        DefaultJobPlan plan = new DefaultJobPlan(new Resources(), artifactPlans, -1, new JobIdentifier(PIPELINE_NAME, -2, "1", STAGE_NAME, "1", JOB_NAME), null, new EnvironmentVariables(), new EnvironmentVariables(), null, null);
         return BuildAssignment.create(plan, buildCause, builders, buildWorkingDirectory, new EnvironmentVariableContext(), new ArtifactStores());
     }
 

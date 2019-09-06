@@ -20,8 +20,8 @@ import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.persistence.ArtifactPlanRepository;
-import com.thoughtworks.go.server.persistence.ArtifactPropertiesGeneratorRepository;
 import com.thoughtworks.go.server.persistence.ResourceRepository;
+import com.thoughtworks.go.server.service.ClusterProfilesService;
 import com.thoughtworks.go.server.service.StubGoCache;
 import com.thoughtworks.go.server.transaction.SqlMapClientTemplate;
 import com.thoughtworks.go.server.transaction.TestTransactionSynchronizationManager;
@@ -60,11 +60,11 @@ class JobInstanceSqlMapDaoTest {
     @Mock
     private ArtifactPlanRepository artifactPlanRepository;
     @Mock
-    private ArtifactPropertiesGeneratorRepository artifactPropertiesGeneratorRepository;
-    @Mock
     private SystemEnvironment systemEnvironment;
     @Mock
     private SqlMapClientTemplate template;
+    @Mock
+    private ClusterProfilesService clusterProfileService;
 
     @BeforeEach
     void setUp() {
@@ -72,7 +72,7 @@ class JobInstanceSqlMapDaoTest {
         goCache = new StubGoCache(new TestTransactionSynchronizationManager());
         jobInstanceSqlMapDao = new JobInstanceSqlMapDao(environmentVariableDao, goCache, transactionTemplate, null,
                 cache, transactionSynchronizationManager, systemEnvironment, null, resourceRepository,
-                artifactPlanRepository, artifactPropertiesGeneratorRepository, jobAgentMetadataDao);
+                artifactPlanRepository, clusterProfileService, jobAgentMetadataDao);
         jobInstanceSqlMapDao.setSqlMapClientTemplate(template);
     }
 

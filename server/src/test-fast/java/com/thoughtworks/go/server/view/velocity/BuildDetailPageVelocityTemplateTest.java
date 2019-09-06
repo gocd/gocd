@@ -116,7 +116,7 @@ public class BuildDetailPageVelocityTemplateTest {
         Pipeline pipeline = schedule(pipelineConfig("pipeline", new MaterialConfigs(gitMaterialConfig)), createWithModifications(materialRevisions, ""));
         JobDetailPresentationModel model = new JobDetailPresentationModel(building("job"), new JobInstances(), null,
                 pipeline, null, createTrackingTool(new HashMap()),
-                mock(ArtifactsService.class), null, StageMother.custom("stage"));
+                mock(ArtifactsService.class), StageMother.custom("stage"));
 
         HashMap<String, Object> data = new HashMap<>();
         data.put("presenter", model);

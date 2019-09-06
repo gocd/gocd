@@ -419,22 +419,6 @@ public class PipelineConfigServiceIntegrationTest {
     }
 
     @Test
-    public void shouldShowThePipelineConfigErrorMessageWhenPipelineBeingCreatedHasErrorsOnProperties() throws GitAPIException {
-        PipelineConfig pipeline = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), new DependencyMaterialConfig(pipelineConfig.name(), pipelineConfig.first().name()));
-        JobConfig jobConfig = pipeline.get(0).getJobs().get(0);
-        ArtifactPropertiesConfig properties = new ArtifactPropertiesConfig();
-        ArtifactPropertyConfig artifactPropertiesGenerator = new ArtifactPropertyConfig();
-        properties.add(artifactPropertiesGenerator);
-        jobConfig.setProperties(properties);
-
-        pipelineConfigService.createPipelineConfig(user, pipeline, result, groupName);
-
-        assertThat(result.toString(), result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(422));
-        assertThat(artifactPropertiesGenerator.errors().firstError(), is(String.format("Invalid property name 'null'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.", pipeline.name())));
-    }
-
-    @Test
     public void shouldShowThePipelineConfigErrorMessageWhenPipelineBeingCreatedHasErrorsOnTabs() throws GitAPIException {
         PipelineConfig pipeline = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), new DependencyMaterialConfig(pipelineConfig.name(), pipelineConfig.first().name()));
         JobConfig jobConfig = pipeline.get(0).getJobs().get(0);

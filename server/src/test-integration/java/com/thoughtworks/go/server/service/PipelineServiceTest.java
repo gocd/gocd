@@ -136,7 +136,7 @@ public class PipelineServiceTest {
         StageDao stageDao = mock(StageDao.class);
         ServerHealthService serverHealthService = mock(ServerHealthService.class);
         when(serverHealthService.logs()).thenReturn(new ServerHealthStates());
-        JobInstanceService jobInstanceService = new JobInstanceService(mock(JobInstanceDao.class), mock(PropertiesService.class), mock(JobResultTopic.class), mock(JobStatusCache.class),
+        JobInstanceService jobInstanceService = new JobInstanceService(mock(JobInstanceDao.class), mock(JobResultTopic.class), mock(JobStatusCache.class),
                 actualTransactionTemplate, transactionSynchronizationManager, null, null, goConfigService, null, serverHealthService, jobStatusListener);
 
         StageService stageService = new StageService(stageDao, jobInstanceService, mock(StageStatusTopic.class), mock(StageStatusCache.class), mock(SecurityService.class), mock(PipelineDao.class),

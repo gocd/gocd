@@ -35,7 +35,7 @@ describe "/api/pipelines/pipeline_instance" do
     @dependent_pipeline.setMaterialConfigs(@pipeline2_config.materialConfigs())
 
     @finder = stage_finder
-    @context = XmlWriterContext.new("http://test.host/go", nil, nil, nil, @finder)
+    @context = XmlWriterContext.new("http://test.host/go", nil, nil, @finder)
     assign(:doc, PipelineXmlViewModel.new(@pipeline).toXml(@context))
   end
 

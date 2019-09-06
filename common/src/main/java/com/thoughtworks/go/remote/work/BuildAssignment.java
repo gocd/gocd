@@ -38,7 +38,6 @@ public class BuildAssignment implements Serializable, SecretParamAware {
     private final boolean cleanWorkingDirectory;
     private final List<Builder> builders;
     private final List<ArtifactPlan> artifactPlans;
-    private final List<ArtifactPropertiesGenerator> propertyGenerators;
     private final ArtifactStores artifactStores;
     private final File buildWorkingDirectory;
     private final JobIdentifier jobIdentifier;
@@ -48,14 +47,13 @@ public class BuildAssignment implements Serializable, SecretParamAware {
 
     private BuildAssignment(BuildCause buildCause, File buildWorkingDirectory, List<Builder> builder, JobIdentifier jobIdentifier,
                             boolean fetchMaterials, boolean cleanWorkingDirectory, List<ArtifactPlan> artifactPlans,
-                            List<ArtifactPropertiesGenerator> propertyGenerators, ArtifactStores artifactStores) {
+                            ArtifactStores artifactStores) {
         this.buildWorkingDirectory = buildWorkingDirectory;
         this.builders = builder;
         this.jobIdentifier = jobIdentifier;
         this.fetchMaterials = fetchMaterials;
         this.cleanWorkingDirectory = cleanWorkingDirectory;
         this.artifactPlans = artifactPlans;
-        this.propertyGenerators = propertyGenerators;
         this.artifactStores = artifactStores;
         for (MaterialRevision materialRevision : buildCause.getMaterialRevisions()) {
             ArrayList<Modification> modifications = new ArrayList<>();
@@ -78,7 +76,7 @@ public class BuildAssignment implements Serializable, SecretParamAware {
 
     public static BuildAssignment create(JobPlan plan, BuildCause buildCause, List<Builder> builders, File buildWorkingDirectory, EnvironmentVariableContext contextFromEnvironment, ArtifactStores artifactStores) {
         BuildAssignment buildAssignment = new BuildAssignment(buildCause, buildWorkingDirectory, builders, plan.getIdentifier(), plan.shouldFetchMaterials(),
-                plan.shouldCleanWorkingDir(), plan.getArtifactPlans(), plan.getPropertyGenerators(), artifactStores);
+                plan.shouldCleanWorkingDir(), plan.getArtifactPlans(), artifactStores);
 
         if (contextFromEnvironment != null) {
             buildAssignment.initialEnvironmentVariableContext().addAll(contextFromEnvironment);
@@ -116,10 +114,6 @@ public class BuildAssignment implements Serializable, SecretParamAware {
         return jobIdentifier;
     }
 
-    public List<ArtifactPropertiesGenerator> getPropertyGenerators() {
-        return propertyGenerators;
-    }
-
     public boolean shouldFetchMaterials() {
         return fetchMaterials;
     }
@@ -148,8 +142,6 @@ public class BuildAssignment implements Serializable, SecretParamAware {
         if (builders != null ? !builders.equals(that.builders) : that.builders != null) return false;
         if (artifactPlans != null ? !artifactPlans.equals(that.artifactPlans) : that.artifactPlans != null)
             return false;
-        if (propertyGenerators != null ? !propertyGenerators.equals(that.propertyGenerators) : that.propertyGenerators != null)
-            return false;
         if (artifactStores != null ? !artifactStores.equals(that.artifactStores) : that.artifactStores != null)
             return false;
         if (buildWorkingDirectory != null ? !buildWorkingDirectory.equals(that.buildWorkingDirectory) : that.buildWorkingDirectory != null)
@@ -169,7 +161,6 @@ public class BuildAssignment implements Serializable, SecretParamAware {
         result = 31 * result + (cleanWorkingDirectory ? 1 : 0);
         result = 31 * result + (builders != null ? builders.hashCode() : 0);
         result = 31 * result + (artifactPlans != null ? artifactPlans.hashCode() : 0);
-        result = 31 * result + (propertyGenerators != null ? propertyGenerators.hashCode() : 0);
         result = 31 * result + (artifactStores != null ? artifactStores.hashCode() : 0);
         result = 31 * result + (buildWorkingDirectory != null ? buildWorkingDirectory.hashCode() : 0);
         result = 31 * result + (jobIdentifier != null ? jobIdentifier.hashCode() : 0);

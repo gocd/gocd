@@ -99,4 +99,8 @@ class ConfigRepoDocumentMother {
     String v6Pipeline() {
         return JsonUtils.toJsonString(getJSONFor("/v6_pipeline.json"));
     }
+
+    String v7Pipeline() {
+        return JsonUtils.toJsonString(getJSONFor("/v7_pipeline.json"));
+    }
 }

@@ -154,15 +154,13 @@ public class RescheduleJobTest {
 
         ResourceConfigs resourceConfigs = new ResourceConfigs(new ResourceConfig("r1"), new ResourceConfig("r2"));
         ArtifactConfigs artifactConfigs = new ArtifactConfigs(Arrays.asList(new BuildArtifactConfig("s1", "d1"), new BuildArtifactConfig("s2", "d2")));
-        ArtifactPropertiesConfig artifactPropertiesConfig = new ArtifactPropertiesConfig(new ArtifactPropertyConfig("n1", "s1", "x1"), new ArtifactPropertyConfig("n2", "s2", "x2"));
-        configHelper.addAssociatedEntitiesForAJob(PIPELINE_NAME, STAGE_NAME, JOB_NAME, resourceConfigs, artifactConfigs, artifactPropertiesConfig);
+        configHelper.addAssociatedEntitiesForAJob(PIPELINE_NAME, STAGE_NAME, JOB_NAME, resourceConfigs, artifactConfigs);
 
         dbHelper.schedulePipeline(configHelper.currentConfig().getPipelineConfigByName(new CaseInsensitiveString(PIPELINE_NAME)), new TimeProvider());
 
         JobPlan oldJobPlan = dbHelper.getBuildInstanceDao().orderedScheduledBuilds().get(0);
         assertThat(oldJobPlan.getResources().size(), is(2));
         assertThat(oldJobPlan.getArtifactPlans().size(), is(2));
-        assertThat(oldJobPlan.getPropertyGenerators().size(), is(2));
 
         JobInstance oldJobInstance = dbHelper.getBuildInstanceDao().buildById(oldJobPlan.getJobId());
         scheduleService.rescheduleJob(oldJobInstance);
@@ -195,17 +193,6 @@ public class RescheduleJobTest {
             assertThat(ReflectionUtil.getField(newArtifactPlan, "buildId"), is(newJobPlan.getJobId()));
         }
 
-        assertThat(newJobPlan.getPropertyGenerators().size(), is(2));
-        for (int i = 0; i < newJobPlan.getPropertyGenerators().size(); i++) {
-            ArtifactPropertiesGenerator newArtifactPropertiesGenerator = newJobPlan.getPropertyGenerators().get(i);
-            ArtifactPropertiesGenerator oldArtifactPropertiesGenerator = oldJobPlan.getPropertyGenerators().get(i);
-            assertThat(newArtifactPropertiesGenerator.getId(), is(not(oldArtifactPropertiesGenerator.getId())));
-            assertThat(newArtifactPropertiesGenerator.getName(), is(oldArtifactPropertiesGenerator.getName()));
-            assertThat(newArtifactPropertiesGenerator.getSrc(), is(oldArtifactPropertiesGenerator.getSrc()));
-            assertThat(newArtifactPropertiesGenerator.getXpath(), is(oldArtifactPropertiesGenerator.getXpath()));
-            assertThat(ReflectionUtil.getField(newArtifactPropertiesGenerator, "jobId"), is(newJobPlan.getJobId()));
-        }
-
         JobInstance newJobInstance = dbHelper.getBuildInstanceDao().buildById(newJobPlan.getJobId());
         assertThat(newJobInstance.getState(), is(JobState.Scheduled));
     }
@@ -220,7 +207,6 @@ public class RescheduleJobTest {
 
         JobPlan newPlan = dbHelper.getBuildInstanceDao().orderedScheduledBuilds().get(0);
         assertThat(newPlan.getResources(), is(oldPlan.getResources()));
-        assertThat(newPlan.getPropertyGenerators(), is(oldPlan.getPropertyGenerators()));
         assertThat(newPlan.getArtifactPlans(), is(oldPlan.getArtifactPlans()));
     }
 

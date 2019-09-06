@@ -483,7 +483,6 @@ public class JobInstanceServiceIntegrationTest {
         JobConfig jobConfig = pipelineConfig.getFirstStageConfig().getJobs().get(0);
         jobConfig.setRunInstanceCount(2);
         jobConfig.addResourceConfig("blah");
-        jobConfig.getProperties().add(new ArtifactPropertyConfig("prop1", "props.xml", "//somepath"));
         jobConfig.artifactConfigs().add(new BuildArtifactConfig("src1", "dest1"));
         configHelper.addPipeline("go", "dev");
 
@@ -496,21 +495,16 @@ public class JobInstanceServiceIntegrationTest {
         JobPlan job1 = jobPlans.get(0);
         assertThat(job1.getResources().size(), is(1));
         assertThat(job1.getResources().get(0).getName(), is("blah"));
-        assertThat(job1.getPropertyGenerators().size(), is(1));
-        assertThat(job1.getPropertyGenerators().get(0).getName(), is("prop1"));
         assertThat(job1.getArtifactPlans().size(), is(1));
         assertThat(job1.getArtifactPlans().get(0).getSrc(), is("src1"));
 
         JobPlan job2 = jobPlans.get(1);
         assertThat(job2.getResources().size(), is(1));
         assertThat(job2.getResources().get(0).getName(), is("blah"));
-        assertThat(job2.getPropertyGenerators().size(), is(1));
-        assertThat(job2.getPropertyGenerators().get(0).getName(), is("prop1"));
         assertThat(job2.getArtifactPlans().size(), is(1));
         assertThat(job2.getArtifactPlans().get(0).getSrc(), is("src1"));
 
         assertThat(job1.getResources().get(0).getId(), not(equalTo(job2.getResources().get(0).getId())));
-        assertThat(job1.getPropertyGenerators().get(0).getId(), not(equalTo(job2.getPropertyGenerators().get(0).getId())));
         assertThat(job1.getArtifactPlans().get(0).getId(), not(equalTo(job2.getArtifactPlans().get(0).getId())));
     }
 
@@ -520,7 +514,6 @@ public class JobInstanceServiceIntegrationTest {
         JobConfig jobConfig = pipelineConfig.getFirstStageConfig().getJobs().get(0);
         jobConfig.setRunOnAllAgents(true);
         jobConfig.addResourceConfig("blah");
-        jobConfig.getProperties().add(new ArtifactPropertyConfig("prop1", "props.xml", "//somepath"));
         jobConfig.artifactConfigs().add(new BuildArtifactConfig("src1", "dest1"));
         configHelper.addPipeline("go", "dev");
 
@@ -535,21 +528,16 @@ public class JobInstanceServiceIntegrationTest {
         JobPlan job1 = jobPlans.get(0);
         assertThat(job1.getResources().size(), is(1));
         assertThat(job1.getResources().get(0).getName(), is("blah"));
-        assertThat(job1.getPropertyGenerators().size(), is(1));
-        assertThat(job1.getPropertyGenerators().get(0).getName(), is("prop1"));
         assertThat(job1.getArtifactPlans().size(), is(1));
         assertThat(job1.getArtifactPlans().get(0).getSrc(), is("src1"));
 
         JobPlan job2 = jobPlans.get(1);
         assertThat(job2.getResources().size(), is(1));
         assertThat(job2.getResources().get(0).getName(), is("blah"));
-        assertThat(job2.getPropertyGenerators().size(), is(1));
-        assertThat(job2.getPropertyGenerators().get(0).getName(), is("prop1"));
         assertThat(job2.getArtifactPlans().size(), is(1));
         assertThat(job2.getArtifactPlans().get(0).getSrc(), is("src1"));
 
         assertThat(job1.getResources().get(0).getId(), not(equalTo(job2.getResources().get(0).getId())));
-        assertThat(job1.getPropertyGenerators().get(0).getId(), not(equalTo(job2.getPropertyGenerators().get(0).getId())));
         assertThat(job1.getArtifactPlans().get(0).getId(), not(equalTo(job2.getArtifactPlans().get(0).getId())));
     }
 

@@ -40,7 +40,7 @@ class DefaultJobPlanTest {
     void shouldApplyEnvironmentVariablesWhenRunningTheJob() {
         EnvironmentVariables variables = new EnvironmentVariables();
         variables.add("VARIABLE_NAME", "variable value");
-        DefaultJobPlan plan = new DefaultJobPlan(new Resources(), new ArrayList<>(), new ArrayList<>(), -1, null, null,
+        DefaultJobPlan plan = new DefaultJobPlan(new Resources(), new ArrayList<>(), -1, null, null,
                 variables, new EnvironmentVariables(), null, null);
 
         EnvironmentVariableContext variableContext = new EnvironmentVariableContext();
@@ -56,7 +56,7 @@ class DefaultJobPlanTest {
                 new EnvironmentVariable("blah", "override"), new EnvironmentVariable("another", "anotherValue")));
 
         DefaultJobPlan original = new DefaultJobPlan(new Resources(), new ArrayList<>(),
-                new ArrayList<>(), 0, new JobIdentifier(), "uuid", environmentVariables, triggerEnvironmentVariables, null, null);
+                0, new JobIdentifier(), "uuid", environmentVariables, triggerEnvironmentVariables, null, null);
         EnvironmentVariableContext variableContext = new EnvironmentVariableContext();
         original.applyTo(variableContext);
         assertThat(variableContext.getProperty("blah")).isEqualTo("override");
@@ -68,7 +68,7 @@ class DefaultJobPlanTest {
     @Test
     void shouldBeAbleToSerializeAndDeserialize() throws ClassNotFoundException, IOException {
         DefaultJobPlan original = new DefaultJobPlan(new Resources(), new ArrayList<>(),
-                new ArrayList<>(), 0, new JobIdentifier(), "uuid", new EnvironmentVariables(), new EnvironmentVariables(), null, null);
+                0, new JobIdentifier(), "uuid", new EnvironmentVariables(), new EnvironmentVariables(), null, null);
         DefaultJobPlan clone = (DefaultJobPlan) serializeAndDeserialize(original);
         assertThat(clone).isEqualTo(original);
     }

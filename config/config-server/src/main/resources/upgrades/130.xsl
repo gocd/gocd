@@ -15,19 +15,17 @@
   ~ limitations under the License.
   -->
 
-<!DOCTYPE hibernate-mapping PUBLIC
-        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
-        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
+    <xsl:template match="/cruise/@schemaVersion">
+        <xsl:attribute name="schemaVersion">130</xsl:attribute>
+    </xsl:template>
+    <!-- Copy everything -->
+    <xsl:template match="@*|node()">
+        <xsl:copy>
+            <xsl:apply-templates select="@*|node()"/>
+        </xsl:copy>
+    </xsl:template>
 
-<hibernate-mapping package="com.thoughtworks.go.domain" default-access="field" default-lazy="false">
-    <class name="com.thoughtworks.go.domain.ArtifactPropertiesGenerator" table="artifactPropertiesGenerator" >
-        <id name="id" column="id">
-            <generator class="identity"/>
-        </id>
-
-        <property name="jobId"/>
-        <property name="name"/>
-        <property name="src"/>
-        <property name="xpath"/>
-    </class>
-</hibernate-mapping>
+    <xsl:template match="/cruise/pipelines/pipeline/stage/jobs/job/properties"/>
+    <xsl:template match="/cruise/templates/pipeline/stage/jobs/job/properties"/>
+</xsl:stylesheet>

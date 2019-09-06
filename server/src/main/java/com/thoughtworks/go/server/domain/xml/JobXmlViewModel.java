@@ -57,10 +57,6 @@ public class JobXmlViewModel implements XmlRepresentable {
 
         Element properties = root.addElement("properties");
 
-        for (Property property : writerContext.propertiesForJob(jobInstance.getId())) {
-            properties.addElement("property").addAttribute("name", property.getKey()).addCDATA(property.getValue());
-        }
-
         root.addElement("agent").addAttribute("uuid", jobInstance.getAgentUuid());
 
         root.addComment("artifacts of type `file` will not be shown. See https://github.com/gocd/gocd/pull/2875");

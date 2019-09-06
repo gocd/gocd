@@ -411,14 +411,13 @@ public class JobInstanceSqlMapDaoIntegrationTest {
     public void shouldDeleteJobPlanAssociatedEntities() throws Exception {
         JobInstance jobInstance = JobInstanceMother.building("Baboon");
 
-        JobPlan jobPlan = JobInstanceMother.jobPlanWithAssociatedEntities(jobInstance.getName(), jobInstance.getId(), artifactPlans(), artifactPropertiesGenerators());
+        JobPlan jobPlan = JobInstanceMother.jobPlanWithAssociatedEntities(jobInstance.getName(), jobInstance.getId(), artifactPlans());
         jobInstance.setPlan(jobPlan);
 
         jobInstanceDao.save(stageId, jobInstance);
         JobPlan jobPlanFromDb = jobInstanceDao.loadPlan(jobInstance.getId());
 
         assertThat(jobPlanFromDb.getArtifactPlans(), is(jobPlan.getArtifactPlans()));
-        assertThat(jobPlanFromDb.getPropertyGenerators(), is(jobPlan.getPropertyGenerators()));
         assertThat(jobPlanFromDb.getResources(), is(jobPlan.getResources()));
         assertThat(jobPlanFromDb.getVariables(), is(jobPlan.getVariables()));
         assertThat(jobPlanFromDb.getElasticProfile(), is(jobPlan.getElasticProfile()));
@@ -431,7 +430,6 @@ public class JobInstanceSqlMapDaoIntegrationTest {
                 new ArtifactPlan(ArtifactPlanType.unit, "unit", "unit"),
                 new ArtifactPlan(ArtifactPlanType.unit, "integration", "integration")
         ));
-        assertThat(jobPlanFromDb.getPropertyGenerators().size(), is(0));
         assertThat(jobPlanFromDb.getResources().size(), is(0));
         assertThat(jobPlanFromDb.getVariables().size(), is(0));
         assertThat(jobPlanFromDb.getElasticProfile(), is(nullValue()));
@@ -441,14 +439,13 @@ public class JobInstanceSqlMapDaoIntegrationTest {
     public void shouldDeleteVariablesAttachedToJobAfterTheJobReschedules() throws Exception {
         JobInstance jobInstance = JobInstanceMother.building("Baboon");
 
-        JobPlan jobPlan = JobInstanceMother.jobPlanWithAssociatedEntities(jobInstance.getName(), jobInstance.getId(), artifactPlans(), artifactPropertiesGenerators());
+        JobPlan jobPlan = JobInstanceMother.jobPlanWithAssociatedEntities(jobInstance.getName(), jobInstance.getId(), artifactPlans());
         jobInstance.setPlan(jobPlan);
 
         jobInstanceDao.save(stageId, jobInstance);
         JobPlan jobPlanFromDb = jobInstanceDao.loadPlan(jobInstance.getId());
 
         assertThat(jobPlanFromDb.getArtifactPlans().size(), is(4));
-        assertThat(jobPlanFromDb.getPropertyGenerators(), is(jobPlan.getPropertyGenerators()));
         assertThat(jobPlanFromDb.getResources(), is(jobPlan.getResources()));
         assertThat(jobPlanFromDb.getVariables(), is(jobPlan.getVariables()));
         assertThat(jobPlanFromDb.getElasticProfile(), is(jobPlan.getElasticProfile()));
@@ -462,7 +459,6 @@ public class JobInstanceSqlMapDaoIntegrationTest {
                 new ArtifactPlan(ArtifactPlanType.unit, "unit", "unit"),
                 new ArtifactPlan(ArtifactPlanType.unit, "integration", "integration")
         ));
-        assertThat(jobPlanFromDb.getPropertyGenerators().size(), is(0));
         assertThat(jobPlanFromDb.getResources().size(), is(0));
         assertThat(jobPlanFromDb.getVariables().size(), is(0));
         assertThat(jobPlanFromDb.getElasticProfile(), is(nullValue()));
@@ -669,7 +665,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
         newest.setScheduledDate(date);
         jobInstanceDao.save(stageId, newest);
 
-        jobInstanceDao.save(newest.getId(), new DefaultJobPlan(new Resources(), new ArrayList<>(), new ArrayList<>(), -1, jobIdentifier, null, new EnvironmentVariables(), new EnvironmentVariables(), null, null));
+        jobInstanceDao.save(newest.getId(), new DefaultJobPlan(new Resources(), new ArrayList<>(), -1, jobIdentifier, null, new EnvironmentVariables(), new EnvironmentVariables(), null, null));
 
         return newest.getId();
     }
@@ -751,7 +747,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
         JobInstance instance = jobInstanceDao.save(stageId, new JobInstance(JOB_NAME));
         instance.setIdentifier(new JobIdentifier(savedPipeline, savedStage, instance));
         JobPlan plan = new DefaultJobPlan(new Resources("something"), new ArrayList<>(),
-                new ArrayList<>(), instance.getId(), instance.getIdentifier(), null, new EnvironmentVariables(), new EnvironmentVariables(), null, null);
+                instance.getId(), instance.getIdentifier(), null, new EnvironmentVariables(), new EnvironmentVariables(), null, null);
         jobInstanceDao.save(instance.getId(), plan);
         JobPlan retrieved = jobInstanceDao.loadPlan(plan.getJobId());
         assertThat(retrieved, is(plan));
@@ -766,7 +762,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
         ClusterProfile clusterProfile = new ClusterProfile("clusterId", "cd.go.elastic-agent:docker", Arrays.asList(new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("value"))));
 
         JobPlan plan = new DefaultJobPlan(new Resources("something"), new ArrayList<>(),
-                new ArrayList<>(), instance.getId(), instance.getIdentifier(), null, new EnvironmentVariables(), new EnvironmentVariables(), elasticProfile, clusterProfile);
+                instance.getId(), instance.getIdentifier(), null, new EnvironmentVariables(), new EnvironmentVariables(), elasticProfile, clusterProfile);
         jobInstanceDao.save(instance.getId(), plan);
 
         JobPlan retrieved = jobInstanceDao.loadPlan(plan.getJobId());
@@ -780,7 +776,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
         instance.setIdentifier(new JobIdentifier(savedPipeline, savedStage, instance));
         ElasticProfile elasticProfile = null;
         JobPlan plan = new DefaultJobPlan(new Resources("something"), new ArrayList<>(),
-                new ArrayList<>(), instance.getId(), instance.getIdentifier(), null, new EnvironmentVariables(), new EnvironmentVariables(), elasticProfile, null);
+                instance.getId(), instance.getIdentifier(), null, new EnvironmentVariables(), new EnvironmentVariables(), elasticProfile, null);
         jobInstanceDao.save(instance.getId(), plan);
 
         JobPlan retrieved = jobInstanceDao.loadPlan(plan.getJobId());
@@ -796,7 +792,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
         variables.add("VARIABLE_NAME", "variable value");
         variables.add("TRIGGER_VAR", "junk val");
         JobPlan plan = new DefaultJobPlan(new Resources(), new ArrayList<>(),
-                new ArrayList<>(), instance.getId(),
+                instance.getId(),
                 instance.getIdentifier(), null, variables, new EnvironmentVariables(), null, null);
         jobInstanceDao.save(instance.getId(), plan);
         environmentVariableDao.save(savedPipeline.getId(), EnvironmentVariableType.Trigger, environmentVariables("TRIGGER_VAR", "trigger val"));
@@ -823,7 +819,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
         variables.add("VARIABLE_NAME", "variable value");
         variables.add("TRIGGER_VAR", "junk val");
         JobPlan plan = new DefaultJobPlan(new Resources(), new ArrayList<>(),
-                new ArrayList<>(), instance.getId(),
+                instance.getId(),
                 instance.getIdentifier(), null, variables, new EnvironmentVariables(), null, null);
         jobInstanceDao.save(instance.getId(), plan);
 
@@ -849,35 +845,11 @@ public class JobInstanceSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldLoadArtifactPropertiesGeneratorsInOrderForAssignment() {
-        ArtifactPropertiesGenerator prop1 = new ArtifactPropertiesGenerator("test1", "src", "//xpath");
-        ArtifactPropertiesGenerator prop2 = new ArtifactPropertiesGenerator("test2", "src", "//xpath");
-        ArtifactPropertiesGenerator prop3 = new ArtifactPropertiesGenerator("test3", "src", "//xpath");
-        ArtifactPropertiesGenerator prop4 = new ArtifactPropertiesGenerator("test4", "src", "//xpath");
-        ArtifactPropertiesGenerator prop5 = new ArtifactPropertiesGenerator("test5", "src", "//xpath");
-
-        JobInstance instance = jobInstanceDao.save(stageId, new JobInstance(projectOne));
-        instance.setIdentifier(new JobIdentifier(savedPipeline, savedStage, instance));
-        JobPlan savedPlan = new DefaultJobPlan(new Resources(), artifactPlans(), Arrays.asList(prop1, prop2, prop3, prop4, prop5), instance.getId(), instance.getIdentifier(), null, new EnvironmentVariables(), new EnvironmentVariables(), null, null);
-
-        jobInstanceDao.save(instance.getId(), savedPlan);
-
-        JobPlan plan = findPlan(jobInstanceDao.orderedScheduledBuilds(), projectOne);
-        List<ArtifactPropertiesGenerator> generators = plan.getPropertyGenerators();
-        assertThat(generators.size(), is(5));
-        assertThat(generators.get(0), is(prop1));
-        assertThat(generators.get(1), is(prop2));
-        assertThat(generators.get(2), is(prop3));
-        assertThat(generators.get(3), is(prop4));
-        assertThat(generators.get(4), is(prop5));
-    }
-
-    @Test
     public void shouldLoadArtifactsAndResourcesForAssignment() {
         JobInstance instance = jobInstanceDao.save(stageId, new JobInstance(projectOne));
         instance.setIdentifier(new JobIdentifier(savedPipeline, savedStage, instance));
         Resources resources = new Resources("one, two, three");
-        JobPlan savedPlan = new DefaultJobPlan(resources, artifactPlans(), new ArrayList<>(), instance.getId(), instance.getIdentifier(), null, new EnvironmentVariables(), new EnvironmentVariables(), null, null);
+        JobPlan savedPlan = new DefaultJobPlan(resources, artifactPlans(), instance.getId(), instance.getIdentifier(), null, new EnvironmentVariables(), new EnvironmentVariables(), null, null);
 
         jobInstanceDao.save(instance.getId(), savedPlan);
 
@@ -1074,10 +1046,4 @@ public class JobInstanceSqlMapDaoIntegrationTest {
         return artifactPlans;
     }
 
-    private List<ArtifactPropertiesGenerator> artifactPropertiesGenerators() {
-        List<ArtifactPropertiesGenerator> artifactPropertiesGenerators = new ArrayList<>();
-        artifactPropertiesGenerators.add(new ArtifactPropertiesGenerator("log", "src", "path"));
-        artifactPropertiesGenerators.add(new ArtifactPropertiesGenerator("text", "src", "path"));
-        return artifactPropertiesGenerators;
-    }
 }

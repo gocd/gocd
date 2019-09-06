@@ -22,12 +22,12 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 group :development, :test do
   # we use `jasmine` gem + `selenium-webdriver` for the `jasmine:ci` task
   # this task will run jasmine in a browser, driven by selenium
-  gem 'jasmine'
+  gem 'jasmine', '3.2.0'
   gem 'jasmine-jquery-rails'
   gem 'jasmine_selenium_runner'
 
-  # make sure to `System.setProperty("jruby.runtime.arguments", "--debug")` before opening up pry
-  # gem 'pry-debugger-jruby'
+    # make sure to `System.setProperty("jruby.runtime.arguments", "--debug")` before opening up pry
+    # gem 'pry-debugger-jruby'
 end
 
 group :test do

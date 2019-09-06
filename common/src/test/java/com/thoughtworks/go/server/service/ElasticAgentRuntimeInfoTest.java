@@ -45,7 +45,7 @@ public class ElasticAgentRuntimeInfoTest {
     @Test
     public void shouldRefreshOperatingSystemOfAgent() throws Exception {
         AgentIdentifier identifier = new AgentIdentifier("local.in", "127.0.0.1", "uuid-1");
-        AgentRuntimeInfo runtimeInfo = ElasticAgentRuntimeInfo.fromAgent(identifier, AgentRuntimeStatus.Idle, "/tmp/foo", false);
+        AgentRuntimeInfo runtimeInfo = ElasticAgentRuntimeInfo.fromAgent(identifier, AgentRuntimeStatus.Idle, "/tmp/foo");
         String os = new SystemEnvironment().getOperatingSystemCompleteName();
         assertThat(runtimeInfo.getOperatingSystem(), is(os));
     }
@@ -54,7 +54,7 @@ public class ElasticAgentRuntimeInfoTest {
     public void shouldRefreshUsableSpaceOfAgent() throws Exception {
         AgentIdentifier identifier = new AgentIdentifier("local.in", "127.0.0.1", "uuid-1");
         String workingDirectory = FileUtils.getTempDirectory().getAbsolutePath();
-        AgentRuntimeInfo runtimeInfo = ElasticAgentRuntimeInfo.fromAgent(identifier, AgentRuntimeStatus.Idle, workingDirectory, false);
+        AgentRuntimeInfo runtimeInfo = ElasticAgentRuntimeInfo.fromAgent(identifier, AgentRuntimeStatus.Idle, workingDirectory);
         long space = ElasticAgentRuntimeInfo.usableSpace(workingDirectory);
         assertThat(runtimeInfo.getUsableSpace(), is(space));
     }

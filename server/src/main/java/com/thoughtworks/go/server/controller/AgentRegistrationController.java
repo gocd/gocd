@@ -29,7 +29,6 @@ import com.thoughtworks.go.security.RegistrationJSONizer;
 import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -217,7 +216,6 @@ public class AgentRegistrationController {
                                        @RequestParam("agentAutoRegisterHostname") String agentAutoRegisterHostname,
                                        @RequestParam("elasticAgentId") String elasticAgentId,
                                        @RequestParam("elasticPluginId") String elasticPluginId,
-                                       @RequestParam(value = "supportsBuildCommandProtocol", required = false, defaultValue = "false") boolean supportsBuildCommandProtocol,
                                        @RequestParam("token") String token, HttpServletRequest request) {
         final String ipAddress = request.getRemoteAddr();
         LOG.debug("Processing registration request from agent [{}/{}]", hostname, ipAddress);
@@ -288,7 +286,7 @@ public class AgentRegistrationController {
             boolean registeredAlready = goConfigService.hasAgent(uuid);
             long usableSpace = Long.parseLong(usablespaceAsString);
 
-            AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromServer(agentConfig, registeredAlready, location, usableSpace, operatingSystem, supportsBuildCommandProtocol);
+            AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromServer(agentConfig, registeredAlready, location, usableSpace, operatingSystem);
 
             if (elasticAgentAutoregistrationInfoPresent(elasticAgentId, elasticPluginId)) {
                 agentRuntimeInfo = ElasticAgentRuntimeInfo.fromServer(agentRuntimeInfo, elasticAgentId, elasticPluginId);

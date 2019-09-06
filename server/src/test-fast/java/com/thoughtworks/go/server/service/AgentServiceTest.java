@@ -76,7 +76,7 @@ public class AgentServiceTest {
 
     @Test
     public void shouldUpdateStatus() throws Exception {
-        AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "pavanIsGreat", false);
+        AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "pavanIsGreat");
         when(agentDao.cookieFor(runtimeInfo.getIdentifier())).thenReturn("pavanIsGreat");
         agentService.updateRuntimeInfo(runtimeInfo);
         verify(agentInstances).updateAgentRuntimeInfo(runtimeInfo);
@@ -84,7 +84,7 @@ public class AgentServiceTest {
 
     @Test
     public void shouldThrowExceptionWhenAgentWithNoCookieTriesToUpdateStatus() throws Exception {
-        AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), null, false);
+        AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), null);
 
         try (LogFixture logFixture = logFixtureFor(AgentService.class, Level.DEBUG)) {
             try {
@@ -101,9 +101,9 @@ public class AgentServiceTest {
 
     @Test
     public void shouldThrowExceptionWhenADuplicateAgentTriesToUpdateStatus() throws Exception {
-        AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), null, false);
+        AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), null);
         runtimeInfo.setCookie("invalid_cookie");
-        AgentInstance original = AgentInstance.createFromLiveAgent(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), null, false), new SystemEnvironment(), null);
+        AgentInstance original = AgentInstance.createFromLiveAgent(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), null), new SystemEnvironment(), null);
 
         try (LogFixture logFixture = logFixtureFor(AgentService.class, Level.DEBUG)) {
             try {
@@ -132,8 +132,8 @@ public class AgentServiceTest {
 
     @Test
     public void shouldUnderstandFilteringAgentListBasedOnUuid() {
-        AgentInstance instance1 = AgentInstance.createFromLiveAgent(AgentRuntimeInfo.fromServer(new AgentConfig("uuid-1", "host-1", "192.168.1.2"), true, "/foo/bar", 100l, "linux", false), new SystemEnvironment(), null);
-        AgentInstance instance3 = AgentInstance.createFromLiveAgent(AgentRuntimeInfo.fromServer(new AgentConfig("uuid-3", "host-3", "192.168.1.4"), true, "/baz/quux", 300l, "linux", false), new SystemEnvironment(), null);
+        AgentInstance instance1 = AgentInstance.createFromLiveAgent(AgentRuntimeInfo.fromServer(new AgentConfig("uuid-1", "host-1", "192.168.1.2"), true, "/foo/bar", 100l, "linux"), new SystemEnvironment(), null);
+        AgentInstance instance3 = AgentInstance.createFromLiveAgent(AgentRuntimeInfo.fromServer(new AgentConfig("uuid-3", "host-3", "192.168.1.4"), true, "/baz/quux", 300l, "linux"), new SystemEnvironment(), null);
         when(agentInstances.filter(Arrays.asList("uuid-1", "uuid-3"))).thenReturn(Arrays.asList(instance1, instance3));
         AgentsViewModel agents = agentService.filter(Arrays.asList("uuid-1", "uuid-3"));
         AgentViewModel view1 = new AgentViewModel(instance1);

@@ -60,14 +60,14 @@ public class WorkFinderTest {
     @Test
     public void shouldDoNothingIfNoWorkIsAvailable() {
         when(workAssigner.assignWorkToAgent(AGENT_1)).thenReturn(NO_WORK);
-        finder.onMessage(new IdleAgentMessage(new AgentRuntimeInfo(AGENT_1, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false)));
+        finder.onMessage(new IdleAgentMessage(new AgentRuntimeInfo(AGENT_1, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie")));
         verify(assignedWorkTopic).post(new WorkAssignedMessage(AGENT_1, NO_WORK));
     }
 
     @Test
     public void shouldAssignWorkIfItIsAvailable() {
         when(workAssigner.assignWorkToAgent(AGENT_1)).thenReturn(SOME_WORK);
-        finder.onMessage(new IdleAgentMessage(new AgentRuntimeInfo(AGENT_1, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false)));
+        finder.onMessage(new IdleAgentMessage(new AgentRuntimeInfo(AGENT_1, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie")));
         verify(assignedWorkTopic).post(new WorkAssignedMessage(AGENT_1, SOME_WORK));
     }
 
@@ -77,7 +77,7 @@ public class WorkFinderTest {
         when(workAssigner.assignWorkToAgent(AGENT_1)).thenThrow(exception);
 
         try {
-            finder.onMessage(new IdleAgentMessage(new AgentRuntimeInfo(AGENT_1, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false)));
+            finder.onMessage(new IdleAgentMessage(new AgentRuntimeInfo(AGENT_1, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie")));
         } catch (Exception e) {
             assertSame(exception, e);
         }

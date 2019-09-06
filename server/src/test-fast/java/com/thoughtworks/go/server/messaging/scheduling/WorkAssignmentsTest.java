@@ -49,7 +49,7 @@ public class WorkAssignmentsTest {
         assignedWorkTopic = mock(WorkAssignedTopic.class, "assigned_work_topic");
         assignments = new WorkAssignments(idleAgentsTopic, assignedWorkTopic);
         agentIdentifier = new AgentIdentifier("localhost", "127.0.0.1", "uuid");
-        agent = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false);
+        agent = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie");
     }
 
     @After

@@ -17,7 +17,6 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.update.AgentsEntityConfigUpdateCommand;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
@@ -57,7 +56,7 @@ public class AgentConfigServiceTest {
     public void shouldEnableAgentWhenPending() {
         String agentId = DatabaseAccessHelper.AGENT_UUID;
         AgentConfig agentConfig = new AgentConfig(agentId, "remote-host", "50.40.30.20");
-        AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromAgent(new AgentIdentifier("remote-host", "50.40.30.20", agentId), AgentRuntimeStatus.Unknown, "cookie", false);
+        AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromAgent(new AgentIdentifier("remote-host", "50.40.30.20", agentId), AgentRuntimeStatus.Unknown, "cookie");
         AgentInstance instance = AgentInstance.createFromLiveAgent(agentRuntimeInfo, new SystemEnvironment(), null);
         AgentInstances agentInstances = new AgentInstances(null, null, instance);
         List<String> uuids = Arrays.asList(agentId);
@@ -74,7 +73,7 @@ public class AgentConfigServiceTest {
 
     @Test
     public void shouldEnableMultipleAgents() {
-        AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromAgent(new AgentIdentifier("remote-host", "50.40.30.20", "abc"), AgentRuntimeStatus.Unknown, "cookie", false);
+        AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromAgent(new AgentIdentifier("remote-host", "50.40.30.20", "abc"), AgentRuntimeStatus.Unknown, "cookie");
         AgentInstance pending = AgentInstance.createFromLiveAgent(agentRuntimeInfo, new SystemEnvironment(), null);
 
         AgentConfig agentConfig = new AgentConfig("UUID2", "remote-host", "50.40.30.20");

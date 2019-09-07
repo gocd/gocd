@@ -21,8 +21,12 @@ import Stream from "mithril/stream";
 import {Errors} from "models/mixins/errors";
 import {Primary} from "views/components/buttons";
 import css from "views/pages/pac/styles.scss";
-import {PipelineConfigVMAware as Attrs} from "views/pages/pipelines/pipeline_config_view_model";
+import {PipelineConfigVMAware} from "views/pages/pipelines/pipeline_config_view_model";
 import {ServerErrors} from "views/pages/pipelines/server_errors";
+
+interface Attrs extends PipelineConfigVMAware {
+  pluginId: () => string;
+}
 
 export class DownloadAction extends MithrilComponent<Attrs> {
   private globalError: Stream<string> = Stream();
@@ -45,7 +49,7 @@ export class DownloadAction extends MithrilComponent<Attrs> {
       this.clearErrors();
 
       if (vm.pipeline.isValid()) {
-        vm.preview(vm.pluginId(), true).then((result) => {
+        vm.preview(vnode.attrs.pluginId(), true).then((result) => {
           result.do((res) => {
             const name = result.header("content-disposition")!.replace(/^attachment; filename=/, "").replace(/^(")(.+)(\1)/, "$2");
             const data = new Blob([res.body], { type: result.header("content-type") }); // simpler than setting responseType to `blob` as that has many side effects.

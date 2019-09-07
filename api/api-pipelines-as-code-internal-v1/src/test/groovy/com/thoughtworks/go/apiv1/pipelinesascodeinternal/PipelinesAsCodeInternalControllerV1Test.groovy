@@ -143,14 +143,20 @@ class PipelinesAsCodeInternalControllerV1Test implements SecurityServiceTrait, C
 
       @Test
       void 'should get a list of config files for multiple pac plugins'() {
-        when(configRepoService.hasConfigRepoByFingerprint(any(String))).thenReturn(false)
+        ConfigRepoPlugin plugin2 = mock(ConfigRepoPlugin)
+
         when(pluginService.partialConfigProviderFor(PLUGIN_ID)).thenReturn(configRepoPlugin)
-        when(pluginService.partialConfigProviderFor("plugin2")).thenReturn(configRepoPlugin)
-        when(configRepoPlugin.getConfigFiles(any(File), any(List))).thenReturn(ConfigFileList.from(new ArrayList<String>()))
-        Map<String, String> plugins = new HashMap<>()
-        plugins.put("test", PLUGIN_ID)
-        plugins.put("testing", "plugin2")
-        when(defaultPluginInfoFinder.pluginDisplayNameToPluginId(any(String))).thenReturn(plugins)
+        when(pluginService.partialConfigProviderFor("plugin2")).thenReturn(plugin2)
+
+        when(configRepoPlugin.getConfigFiles(any(File), any(List))).thenReturn(ConfigFileList.from(["file1.yml", "file2.yml"]))
+        when(plugin2.getConfigFiles(any(File), any(List))).thenReturn(ConfigFileList.from([]))
+
+        when(configRepoService.hasConfigRepoByFingerprint(any(String))).thenReturn(false)
+
+        when(defaultPluginInfoFinder.pluginDisplayNameToPluginId(any(String))).thenReturn([
+          test   : PLUGIN_ID,
+          testing: "plugin2"
+        ])
 
         doNothing().when(controller).checkoutFromMaterialConfig(any(MaterialConfig), any(File))
 
@@ -168,7 +174,7 @@ class PipelinesAsCodeInternalControllerV1Test implements SecurityServiceTrait, C
             plugins: [
               [
                 plugin_id: PLUGIN_ID,
-                files    : [],
+                files    : ["file1.yml", "file2.yml"],
                 errors   : ""
               ],
               [
@@ -178,6 +184,54 @@ class PipelinesAsCodeInternalControllerV1Test implements SecurityServiceTrait, C
               ]
             ]
           ])
+      }
+
+      @Test
+      void 'fetches config files only for a given plugin when specified'() {
+        when(configRepoPlugin.id()).thenReturn((PLUGIN_ID))
+        when(pluginService.isConfigRepoPlugin(PLUGIN_ID)).thenReturn(true)
+        when(pluginService.partialConfigProviderFor(PLUGIN_ID)).thenReturn(configRepoPlugin)
+
+        when(configRepoService.hasConfigRepoByFingerprint(any(String))).thenReturn(false)
+        when(configRepoPlugin.getConfigFiles(any(File), any(List))).thenReturn(ConfigFileList.from(["file1.yml", "file2.yml"]))
+
+        doNothing().when(controller).checkoutFromMaterialConfig(any(MaterialConfig), any(File))
+
+        postWithApiHeader(controller.controllerPath([pluginId: PLUGIN_ID], "config_files"), [:], [
+          type      : MATERIAL_TYPE,
+          attributes: [
+            url   : MATERIAL_URL,
+            branch: MATERIAL_BRANCH
+          ]
+        ])
+
+        assertThatResponse()
+          .isOk()
+          .hasJsonBody([
+            plugins: [
+              [
+                plugin_id: PLUGIN_ID,
+                files    : ["file1.yml", "file2.yml"],
+                errors   : ""
+              ]
+            ]
+          ])
+      }
+
+      void 'returns a 422 when specified plugin is not a configrepo plugin'() {
+        when(pluginService.isConfigRepoPlugin(PLUGIN_ID)).thenReturn(false)
+
+        postWithApiHeader(controller.controllerPath([pluginId: PLUGIN_ID], "config_files"), [:], [
+          type      : MATERIAL_TYPE,
+          attributes: [
+            url   : MATERIAL_URL,
+            branch: MATERIAL_BRANCH
+          ]
+        ])
+
+        assertThatResponse()
+          .isUnprocessableEntity()
+          .hasJsonMessage("Plugin `$PLUGIN_ID` is not a Pipelines-as-Code plugin.")
       }
 
       @Test

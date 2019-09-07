@@ -45,12 +45,12 @@ const altFillStyles = override(fillableCss, {
 });
 
 export class PipelinesAsCodeCreatePage extends Page {
+  private pluginId = Stream(ConfigRepo.YAML_PLUGIN_ID);
   private model = new PipelineConfigVM();
   private content = Stream("");
   private mimeType = Stream("application/x-yaml");
 
-  private material = Stream(new Material(this.model.material.type()));
-  private configRepo = Stream(new ConfigRepo(undefined, this.model.pluginId(), this.material()));
+  private configRepo = Stream(new ConfigRepo(undefined, this.pluginId(), new Material(this.model.material.type())));
   private useSameRepoForPaC = Stream(true); // allow material sync to be toggleable
 
   oninit(vnode: m.Vnode) {
@@ -73,14 +73,13 @@ export class PipelinesAsCodeCreatePage extends Page {
 
     return [
       <FillableSection>
-        <BuilderForm vm={vm} onContentChange={(updated) => {
+        <BuilderForm vm={vm} pluginId={this.pluginId} onContentChange={(updated) => {
           if (updated) {
             if (this.useSameRepoForPaC() && isSupportedScm) {
-              this.material(cloneMaterialForPaC(vm.material));
-              this.configRepo().material(this.material());
+              this.configRepo().material(cloneMaterialForPaC(vm.material));
             }
 
-            vm.preview(vm.pluginId()).then((result) => {
+            vm.preview(this.pluginId()).then((result) => {
               if (304 === result.getStatusCode()) {
                 return;
               }
@@ -99,7 +98,7 @@ export class PipelinesAsCodeCreatePage extends Page {
         <h3 class={css.subheading}>Add Your Pipelines as Code Definition to Your SCM Repository</h3>
         <div>Download this as a file and put it in your repo (I need some proper copy here).</div>
 
-        <DownloadAction vm={vm}/>
+        <DownloadAction pluginId={this.pluginId} vm={vm}/>
       </FillableSection>,
 
       <FillableSection>
@@ -110,17 +109,16 @@ export class PipelinesAsCodeCreatePage extends Page {
             readonly={!isSupportedScm}
             onchange={() => {
               if (syncConfigRepoWithMaterial()) {
-                this.material(cloneMaterialForPaC(vm.material));
-                this.configRepo().material(this.material());
+                this.configRepo().material(cloneMaterialForPaC(vm.material));
               }
             }}
           />
 
-          <MaterialEditor material={this.material()} hideTestConnection={syncConfigRepoWithMaterial()} scmOnly={true} showLocalWorkingCopyOptions={false} disabled={syncConfigRepoWithMaterial()}/>
+          <MaterialEditor material={this.configRepo().material()!} hideTestConnection={syncConfigRepoWithMaterial()} scmOnly={true} showLocalWorkingCopyOptions={false} disabled={syncConfigRepoWithMaterial()}/>
         </UserInputPane>
         <div class={css.verifyDefsInMaterial}>
           <IdentifierInputField label="Name" property={this.configRepo().id} errorText={this.configRepo().errors().errorsForDisplay("id")} />
-          <MaterialCheck material={this.material()} align="right" prerequisite={() => this.material().isValid()} label={
+          <MaterialCheck pluginId={this.pluginId()} material={this.configRepo().material()!} align="right" prerequisite={() => this.configRepo().material()!.isValid()} label={
             <p class={css.msg}>Click the button to verify that the configuration file is placed correctly in the repository</p>
           }/>
         </div>

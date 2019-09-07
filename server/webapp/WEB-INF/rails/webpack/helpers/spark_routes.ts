@@ -164,8 +164,8 @@ export class SparkRoutes {
     return `/go/api/internal/config_repos/${id}/trigger_update`;
   }
 
-  static pacListConfigFiles() {
-    return `/go/api/admin/internal/pac/config_files`;
+  static pacListConfigFiles(pluginId?: string) {
+    return pluginId ? `/go/api/admin/internal/pac/config_files?${m.buildQueryString({ pluginId })}` : `/go/api/admin/internal/pac/config_files`;
   }
 
   static pacPreview(pluginId: string, group: string, validate?: boolean): string {

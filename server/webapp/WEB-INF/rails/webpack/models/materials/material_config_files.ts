@@ -16,7 +16,7 @@
 
 import _ from "lodash";
 import Stream from "mithril/stream";
-import {ConfigFileList, ConfigFileListJSON} from "./config_file_list";
+import s from "underscore.string";
 
 export interface MaterialConfigFilesJSON {
   plugins: ConfigFileListJSON[];
@@ -33,7 +33,46 @@ export class MaterialConfigFiles {
     return new MaterialConfigFiles(json.plugins.map((cfgList) => ConfigFileList.fromJSON(cfgList)));
   }
 
-  hasConfigFiles() {
-    return this.pluginConfigFiles().some((cfgList) => !cfgList.isEmpty());
+  for(pluginId: string) {
+    return _.find(this.pluginConfigFiles(), (cfgList) => cfgList.pluginId() === pluginId);
+  }
+
+  hasConfigFiles(pluginId?: string) {
+    if (pluginId) {
+      const list = this.for(pluginId);
+      return !!(list && !list.isEmpty());
+    }
+
+    return _.some(this.pluginConfigFiles(), (cfgList) => !cfgList.isEmpty());
+  }
+}
+
+interface ConfigFileListJSON {
+  plugin_id: string;
+  files: string[];
+  errors: string;
+}
+
+export class ConfigFileList {
+  pluginId: Stream<string>;
+  files: Stream<string[]>;
+  errors: Stream<string>;
+
+  constructor(pluginId: string, files: string[], errors: string) {
+    this.pluginId = Stream(pluginId);
+    this.files = Stream(files);
+    this.errors = Stream(errors);
+  }
+
+  static fromJSON(json: ConfigFileListJSON) {
+    return new ConfigFileList(json.plugin_id, json.files, json.errors);
+  }
+
+  isEmpty() {
+    return 0 === this.files().length;
+  }
+
+  hasErrors() {
+    return !s.isBlank(this.errors());
   }
 }

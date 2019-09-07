@@ -143,7 +143,7 @@ describe("ConfigRepos: MaterialCheck", () => {
           m.redraw.sync();
           expect(helper.byTestId("material-check-button").matches("[disabled]")).toBe(false); // enabled on complete
           expect(helper.byTestId("material-check-icon")).toHaveClass(styles.materialCheckSuccess);
-          expect(helper.byTestId("flash-message-info").querySelector("pre")).toContainText("No config files found");
+          expect(helper.byTestId("flash-message-info")).toContainText("No config files found");
           done();
         }, 0);
       }}/>);
@@ -173,7 +173,7 @@ describe("ConfigRepos: MaterialCheck", () => {
           m.redraw.sync();
           expect(helper.byTestId("material-check-button").matches("[disabled]")).toBe(false); // enabled on complete
           expect(helper.byTestId("material-check-icon")).toHaveClass(styles.materialCheckFailure);
-          expect(helper.byTestId("flash-message-alert").querySelector("pre")).toContainText("eek barba durkle, there was an error");
+          expect(helper.byTestId("flash-message-alert")).toContainText("eek barba durkle, there was an error");
           done();
         }, 0);
       }}/>);

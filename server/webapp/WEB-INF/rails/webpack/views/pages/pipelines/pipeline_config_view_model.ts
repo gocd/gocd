@@ -23,7 +23,6 @@ import {ConfigRepoExtension} from "models/shared/plugin_infos_new/extensions";
 import s from "underscore.string";
 
 // models and such
-import { ConfigRepo } from "models/config_repos/types";
 import { GitMaterialAttributes, Material } from "models/materials/types";
 import { Job } from "models/pipeline_configs/job";
 import { NameableSet } from "models/pipeline_configs/nameable_set";
@@ -35,7 +34,6 @@ import { PluginInfosCache } from "models/shared/plugin_infos_new/plugin_infos_ca
 import { Option } from "views/components/forms/input_fields";
 
 export class PipelineConfigVM {
-  pluginId = Stream(ConfigRepo.YAML_PLUGIN_ID);
   material: Material = new Material("git", new GitMaterialAttributes());
   job: Job = new Job("", [], []);
   stage: Stage = new Stage("", [this.job]);

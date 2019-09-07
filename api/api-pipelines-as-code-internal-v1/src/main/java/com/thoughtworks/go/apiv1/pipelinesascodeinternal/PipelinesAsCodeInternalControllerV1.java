@@ -45,6 +45,8 @@ import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -68,6 +70,7 @@ import static spark.Spark.*;
 
 @Component
 public class PipelinesAsCodeInternalControllerV1 extends ApiController implements SparkSpringController {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PipelinesAsCodeInternalControllerV1.class);
 
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final PasswordDeserializer passwordDeserializer;
@@ -151,17 +154,30 @@ public class PipelinesAsCodeInternalControllerV1 extends ApiController implement
                 return MessageJson.create("Material is already being used as a config repository");
             }
 
+            ConfigRepoPlugin specificPlugin = pluginFromRequest(req);
+
             Map<String, ConfigFileList> pacPluginFiles = new HashMap<>();
             checkoutFromMaterialConfig(materialConfig, folder);
-            defaultPluginInfoFinder.pluginDisplayNameToPluginId(CONFIG_REPO_EXTENSION).forEach((k, pluginId) -> {
-                ConfigRepoPlugin crPlugin = (ConfigRepoPlugin) pluginService.partialConfigProviderFor(pluginId);
-                pacPluginFiles.put(pluginId, crPlugin.getConfigFiles(folder, new ArrayList<>()));
-            });
+
+            if (null != specificPlugin) {
+                pacPluginFiles.put(specificPlugin.id(), specificPlugin.getConfigFiles(folder, new ArrayList<>()));
+            } else {
+                defaultPluginInfoFinder.pluginDisplayNameToPluginId(CONFIG_REPO_EXTENSION).forEach((k, pluginId) -> {
+                    ConfigRepoPlugin crPlugin = plugin(pluginId);
+                    pacPluginFiles.put(pluginId, crPlugin.getConfigFiles(folder, new ArrayList<>()));
+                });
+            }
 
             return jsonizeAsTopLevelObject(req, w -> ConfigFileListsRepresenter.toJSON(w, pacPluginFiles));
-        } catch (Exception ex) {
+        } catch (TimeoutException e) {
+            res.status(HttpStatus.PAYLOAD_TOO_LARGE.value());
+            return MessageJson.create("Aborted check because cloning the SCM repository took too long");
+        } catch (ExecutionException e) {
             res.status(HttpStatus.INTERNAL_SERVER_ERROR.value());
-            return MessageJson.create(ex.getMessage());
+            return MessageJson.create(e.getCause().getMessage()); // unwrap these exceptions thrown by the future
+        } catch (Exception e) {
+            res.status(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            return MessageJson.create(e.getMessage());
         } finally {
             FileUtils.deleteQuietly(folder);
         }
@@ -172,8 +188,10 @@ public class PipelinesAsCodeInternalControllerV1 extends ApiController implement
         ((ScmMaterialConfig) materialConfig).validateConcreteScmMaterial(vctx);
     }
 
-    protected void checkoutFromMaterialConfig(MaterialConfig materialConfig, File folder) throws ExecutionException, InterruptedException {
+    protected void checkoutFromMaterialConfig(MaterialConfig materialConfig, File folder) throws ExecutionException, InterruptedException, TimeoutException {
         Material material = materialConfigConverter.toMaterial(materialConfig);
+        long timeout = systemEnvironment.getPacCloneTimeout();
+
         subprocessExecutionContext.setGitShallowClone(true);
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Future future = executor.submit(() -> {
@@ -181,10 +199,11 @@ public class PipelinesAsCodeInternalControllerV1 extends ApiController implement
             materialService.checkout(material, folder, Modification.latestRevision(modifications), subprocessExecutionContext);
         });
         try {
-            future.get(systemEnvironment.getPacCloneTimeout(), TimeUnit.MILLISECONDS);
+            future.get(timeout, TimeUnit.MILLISECONDS);
         } catch (TimeoutException e) {
+            LOGGER.debug(format("Failed to clone material %s in %d ms", material.getDescription(), timeout), e);
             future.cancel(true);
-            throw new RuntimeException("Request couldn't be completed because we failed to clone the repo within 2 minutes");
+            throw e;
         }
     }
 
@@ -254,6 +273,19 @@ public class PipelinesAsCodeInternalControllerV1 extends ApiController implement
 
     private Consumer<OutputWriter> jsonWriter(PipelineConfig pipelineConfig) {
         return writer -> PipelineConfigRepresenter.toJSON(writer, pipelineConfig);
+    }
+
+    private ConfigRepoPlugin pluginFromRequest(Request req) {
+        String pluginId = req.queryParams("pluginId");
+        if (spark.utils.StringUtils.isBlank(pluginId)) {
+            return null;
+        }
+
+        if (!pluginService.isConfigRepoPlugin(pluginId)) {
+            throw haltBecauseOfReason("Plugin `%s` is not a Pipelines-as-Code plugin.", pluginId);
+        }
+
+        return plugin(pluginId);
     }
 
     private ConfigRepoPlugin plugin(String pluginId) {

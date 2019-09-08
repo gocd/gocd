@@ -21,8 +21,7 @@ import {Agent} from "models/new_agent/agents";
 import {GetAllService} from "models/new_agent/agents_crud";
 import {StaticAgentsVM} from "models/new_agent/agents_vm";
 import {TriStateCheckbox, TristateState} from "models/tri_state_checkbox";
-import {Dropdown, DropdownAttrs, Primary} from "views/components/buttons";
-import * as Buttons from "views/components/buttons";
+import {Cancel, Dropdown, DropdownAttrs, Primary} from "views/components/buttons";
 import {FlashMessageModelWithTimeout} from "views/components/flash_message";
 import {QuickAddField, TriStateCheckboxField} from "views/components/forms/input_fields";
 import {Spinner} from "views/components/spinner";
@@ -135,13 +134,13 @@ export class ResourcesDropdownButton extends AbstractDropdownButton<ResourcesAtt
   }
 
   protected doRenderButton(vnode: m.Vnode<DropdownAttrs & ResourcesAttrs>) {
-    return <Buttons.Primary data-test-id="modify-resources-association"
+    return <Cancel data-test-id="modify-resources-association"
                             dropdown={true}
                             disabled={vnode.attrs.agentsVM.selectedAgentsUUID().length === 0}
                             onclick={(e) => {
                               vnode.attrs.agentsVM.showEnvironments(false);
                               this.toggleDropdown(vnode, e);
-                            }}>RESOURCES</Buttons.Primary>;
+                            }}>RESOURCES</Cancel>;
   }
 
   protected body(vnode: m.Vnode<DropdownAttrs & ResourcesAttrs>) {

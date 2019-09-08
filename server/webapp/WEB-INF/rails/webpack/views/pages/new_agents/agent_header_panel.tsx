@@ -21,8 +21,7 @@ import m from "mithril";
 import {AgentConfigState} from "models/new_agent/agents";
 import {EnvironmentsService, ResourcesService} from "models/new_agent/agents_crud";
 import {StaticAgentsVM} from "models/new_agent/agents_vm";
-import {ButtonGroup} from "views/components/buttons";
-import * as Buttons from "views/components/buttons";
+import {ButtonGroup, Cancel} from "views/components/buttons";
 import {FlashMessageModelWithTimeout} from "views/components/flash_message";
 import {SearchField} from "views/components/forms/input_fields";
 import {KeyValuePair} from "views/components/key_value_pair";
@@ -48,15 +47,15 @@ export class AgentHeaderPanel extends MithrilViewComponent<AgentHeaderPanelAttrs
     return (<div class={style.headerPanel}>
       <div class={style.leftContainer}>
         <ButtonGroup>
-          <Buttons.Primary data-test-id="delete-agents"
+          <Cancel data-test-id="delete-agents"
                            disabled={AgentHeaderPanel.isNoneSelected(agentsVM)}
-                           onclick={vnode.attrs.onDelete}>DELETE</Buttons.Primary>
-          <Buttons.Primary data-test-id="enable-agents"
+                           onclick={vnode.attrs.onDelete}>DELETE</Cancel>
+          <Cancel data-test-id="enable-agents"
                            disabled={AgentHeaderPanel.isNoneSelected(agentsVM)}
-                           onclick={vnode.attrs.onEnable}>ENABLE</Buttons.Primary>
-          <Buttons.Primary data-test-id="disable-agents"
+                           onclick={vnode.attrs.onEnable}>ENABLE</Cancel>
+          <Cancel data-test-id="disable-agents"
                            disabled={AgentHeaderPanel.isNoneSelected(agentsVM)}
-                           onclick={vnode.attrs.onDisable}>DISABLE</Buttons.Primary>
+                           onclick={vnode.attrs.onDisable}>DISABLE</Cancel>
           <EnvironmentsDropdownButton show={agentsVM.showEnvironments}
                                       agentsVM={agentsVM}
                                       updateEnvironments={vnode.attrs.updateEnvironments}

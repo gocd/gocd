@@ -18,7 +18,7 @@ import {ApiResult} from "helpers/api_request_builder";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {Agent} from "models/new_agent/agents";
-import {DropdownAttrs, Primary} from "views/components/buttons";
+import {Cancel, DropdownAttrs, Primary} from "views/components/buttons";
 import {TriStateCheckboxField} from "views/components/forms/input_fields";
 import Style from "views/pages/new_agents/index.scss";
 import {AbstractDropdownButton} from "./resources_dropdown_button";
@@ -33,13 +33,13 @@ export class EnvironmentsDropdownButton extends AbstractDropdownButton<EnvAttrs>
   }
 
   protected doRenderButton(vnode: m.Vnode<DropdownAttrs & EnvAttrs>) {
-    return <Primary data-test-id="modify-environments-association"
+    return <Cancel data-test-id="modify-environments-association"
                     dropdown={true}
                     disabled={vnode.attrs.agentsVM.selectedAgentsUUID().length === 0}
                     onclick={(e) => {
                       vnode.attrs.agentsVM.showResources(false);
                       this.toggleDropdown(vnode, e);
-                    }}>ENVIRONMENTS</Primary>;
+                    }}>ENVIRONMENTS</Cancel>;
   }
 
   protected body(vnode: m.Vnode<DropdownAttrs & EnvAttrs>) {

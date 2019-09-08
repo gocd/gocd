@@ -15,6 +15,9 @@
  */
 @import "../../global/common";
 
+$btn-group-border-radius: $global-border-radius;
+$default-border-color:    #d5d5d5;
+$default-text-color:      #647984;
 
 .disabled {
   cursor:         not-allowed;
@@ -47,7 +50,42 @@
 
 .btn-cancel {
   @include button($background-color: transparent);
-  color: $text-color;
+  color:  $default-text-color;
+  border: 1px solid $default-border-color;
+
+  &:hover {
+    color:      $white;
+    transition: $transition;
+    background: $icon-color;
+  }
+
+  &:focus, &:active {
+    outline: 0;
+  }
+
+  &:disabled:hover {
+    color: $black;
+  }
+}
+
+.btn-dropdown.btn-cancel {
+  @include icon-after($type: $fa-var-angle-down, $color: $default-text-color) {
+    margin-right: -5px;
+  }
+
+  &:hover {
+    @include icon-after($type: $fa-var-angle-down, $color: $white) {
+      margin-right: -5px;
+    }
+    color: $white;
+  }
+
+  &:disabled:hover {
+    @include icon-after($type: $fa-var-angle-down, $color: $black) {
+      margin-right: -5px;
+    }
+    color: $black;
+  }
 }
 
 .btn-link {
@@ -146,13 +184,16 @@
     border-radius: 0;
 
     &:first-child {
-      border-left:   none;
       border-radius: $global-border-radius 0 0 $global-border-radius;
     }
 
     &:last-child {
       border-radius: 0 $global-border-radius $global-border-radius 0;
     }
+  }
+
+  .btn-cancel {
+    border: 1px solid $default-border-color;
   }
 
   > .btn-dropdown-container {

@@ -38,9 +38,10 @@ public class EnvironmentConfigMother {
 
     public static BasicEnvironmentConfig remote(String name) {
         BasicEnvironmentConfig env = environment(name);
-        env.setOrigins(new RepoConfigOrigin());
+        env.setOrigins(new RepoConfigOrigin(new ConfigRepoConfig(MaterialConfigsMother.git("foo.git"), "json-plugon", "repo1"), "revision1"));
         return env;
     }
+
     public static BasicEnvironmentConfig environment(String name) {
         BasicEnvironmentConfig uat = new BasicEnvironmentConfig(new CaseInsensitiveString(name));
         uat.addPipeline(new CaseInsensitiveString(name + "-pipeline"));
@@ -54,6 +55,6 @@ public class EnvironmentConfigMother {
         for (String pipeline : pipelines) {
             config.addPipeline(new CaseInsensitiveString(pipeline));
         }
-        return config; 
+        return config;
     }
 }

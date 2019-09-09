@@ -27,7 +27,8 @@ import com.thoughtworks.go.config.registry.NoPluginsInstalled;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.config.update.FullConfigUpdateCommand;
-import com.thoughtworks.go.domain.ServerSiteUrlConfig;
+import com.thoughtworks.go.domain.SecureSiteUrl;
+import com.thoughtworks.go.domain.SiteUrl;
 import com.thoughtworks.go.domain.config.Admin;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.materials.svn.Subversion;
@@ -1018,7 +1019,7 @@ public class GoConfigFileHelper {
         writeConfigFile(config);
     }
 
-    public void setBaseUrls(ServerSiteUrlConfig siteUrl, ServerSiteUrlConfig secureSiteUrl) {
+    public void setBaseUrls(SiteUrl siteUrl, SecureSiteUrl secureSiteUrl) {
         CruiseConfig config = loadForEdit();
 
         config.setServerConfig(

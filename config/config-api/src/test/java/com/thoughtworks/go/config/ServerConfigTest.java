@@ -15,7 +15,8 @@
  */
 package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.domain.ServerSiteUrlConfig;
+import com.thoughtworks.go.domain.SecureSiteUrl;
+import com.thoughtworks.go.domain.SiteUrl;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
@@ -64,28 +65,28 @@ public class ServerConfigTest {
 
     @Test
     public void shouldReturnAnEmptyForSecureSiteUrlIfOnlySiteUrlIsConfigured() throws Exception {
-        ServerConfig serverConfig = new ServerConfig(null,null, new ServerSiteUrlConfig("http://foo.bar:813"), new ServerSiteUrlConfig());
-        assertThat(serverConfig.getHttpsUrl(), is(new ServerSiteUrlConfig()));
+        ServerConfig serverConfig = new ServerConfig(null, null, new SiteUrl("http://foo.bar:813"), new SecureSiteUrl());
+        assertThat(serverConfig.getHttpsUrl(), is(new SecureSiteUrl()));
     }
 
     @Test
     public void shouldReturnDefaultTaskRepositoryLocation() {
-        ServerConfig serverConfig = new ServerConfig(null,null, new ServerSiteUrlConfig("http://foo.bar:813"), new ServerSiteUrlConfig());
+        ServerConfig serverConfig = new ServerConfig(null, null, new SiteUrl("http://foo.bar:813"), new SecureSiteUrl());
         assertThat(serverConfig.getCommandRepositoryLocation(), is("default"));
     }
 
     @Test
     public void shouldReturnTaskRepositoryLocation() {
-        ServerConfig serverConfig = new ServerConfig(null,null, new ServerSiteUrlConfig("http://foo.bar:813"), new ServerSiteUrlConfig());
+        ServerConfig serverConfig = new ServerConfig(null, null, new SiteUrl("http://foo.bar:813"), new SecureSiteUrl());
         serverConfig.setCommandRepositoryLocation("foo");
         assertThat(serverConfig.getCommandRepositoryLocation(), is("foo"));
     }
 
     @Test
     public void shouldIgnoreErrorsFieldOnEquals() throws Exception {
-        ServerConfig one = new ServerConfig(new SecurityConfig(), new MailHost(new GoCipher()), new ServerSiteUrlConfig("siteURL"), new ServerSiteUrlConfig("secureURL"));
+        ServerConfig one = new ServerConfig(new SecurityConfig(), new MailHost(new GoCipher()), new SiteUrl("siteURL"), new SecureSiteUrl("secureURL"));
         one.addError("siteUrl", "I dont like this url");
-        assertThat(one, is(new ServerConfig(new SecurityConfig(), new MailHost(new GoCipher()), new ServerSiteUrlConfig("siteURL"), new ServerSiteUrlConfig("secureURL"))));
+        assertThat(one, is(new ServerConfig(new SecurityConfig(), new MailHost(new GoCipher()), new SiteUrl("siteURL"), new SecureSiteUrl("secureURL"))));
     }
 
     @Test

@@ -31,7 +31,6 @@
               <xsd:element minOccurs="0" maxOccurs="1" name="security" type="securityType"/>
               <xsd:element minOccurs="0" maxOccurs="1" name="mailhost" type="mailHostType"/>
               <xsd:element minOccurs="0" maxOccurs="1" name="backup" type="backupType"/>
-              <xsd:element minOccurs="0" maxOccurs="1" name="siteUrls" type="siteUrlsType"/>
             </xsd:all>
             <xsd:attributeGroup ref="serverAttributeGroup"/>
           </xsd:complexType>
@@ -90,7 +89,7 @@
           </xsd:unique>
         </xsd:element>
       </xsd:sequence>
-      <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="127"/>
+      <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="126"/>
     </xsd:complexType>
     <xsd:unique name="uniquePipelines">
       <xsd:selector xpath="pipelines"/>
@@ -316,24 +315,6 @@
     <xsd:attribute name="postBackupScript" type="xsd:string"/>
     <xsd:attribute name="emailOnSuccess" type="xsd:boolean"/>
     <xsd:attribute name="emailOnFailure" type="xsd:boolean"/>
-  </xsd:complexType>
-  <xsd:complexType name="siteUrlsType">
-    <xsd:all>
-      <xsd:element name="siteUrl" minOccurs="0" maxOccurs="1">
-        <xsd:simpleType>
-          <xsd:restriction base="xsd:string">
-            <xsd:pattern value="(https?://.+)?"/>
-          </xsd:restriction>
-        </xsd:simpleType>
-      </xsd:element>
-      <xsd:element name="secureSiteUrl" minOccurs="0" maxOccurs="1">
-        <xsd:simpleType>
-          <xsd:restriction base="xsd:string">
-            <xsd:pattern value="(https://.+)?"/>
-          </xsd:restriction>
-        </xsd:simpleType>
-      </xsd:element>
-    </xsd:all>
   </xsd:complexType>
   <xsd:complexType name="elasticConfigType">
     <xsd:all>
@@ -941,6 +922,20 @@
     <xsd:attribute name="serverId" type="xsd:string"/>
     <xsd:attribute name="artifactsdir" type="xsd:string"/>
     <xsd:attribute name="commandRepositoryLocation" type="xsd:string"/>
+    <xsd:attribute name="siteUrl">
+      <xsd:simpleType>
+        <xsd:restriction base="xsd:string">
+          <xsd:pattern value="https?://.+"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+    </xsd:attribute>
+    <xsd:attribute name="secureSiteUrl">
+      <xsd:simpleType>
+        <xsd:restriction base="xsd:string">
+          <xsd:pattern value="https://.+"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+    </xsd:attribute>
     <xsd:attribute name="purgeStart" type="xsd:double"/>
     <xsd:attribute name="purgeUpto" type="xsd:double"/>
     <xsd:attribute name="jobTimeout" type="xsd:double"/>

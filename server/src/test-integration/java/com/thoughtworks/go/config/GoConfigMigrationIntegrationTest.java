@@ -1498,6 +1498,7 @@ public class GoConfigMigrationIntegrationTest {
         XmlAssert.assertThat(migratedXml).and(expectedConfig).areIdentical();
     }
 
+    @Test
     public void shouldMigrateEverythingAsItIs_Migration125To126() throws Exception {
         String originalConfig = "<pipelines group=\"first\">" +
                 "    <pipeline name=\"Test\" template=\"test_template\">" +
@@ -1531,6 +1532,46 @@ public class GoConfigMigrationIntegrationTest {
 
         final String migratedXml = migrateXmlString(configXml, 125, 126);
         XmlAssert.assertThat(migratedXml).and(expectedConfig).areIdentical();
+    }
+
+    @Test
+    public void shouldRemoveSiteUrlsAsAnAttributesAndAddAsAChildElement_Migration126To127() throws Exception {
+        String originalConfig = "<server siteUrl=\"http://foo.com\" " +
+                "secureSiteUrl=\"https://bar.com\" " +
+                "artifactsdir=\"artifacts\" " +
+                "agentAutoRegisterKey=\"323040d4-f2e4-4b8a-8394-7a2d122054d1\" " +
+                "webhookSecret=\"3d5cd2f5-7fe7-43c0-ba34-7e01678ba8b6\" " +
+                "commandRepositoryLocation=\"default\" " +
+                "serverId=\"60f5f682-5248-4ba9-bb35-72c92841bd75\" " +
+                "tokenGenerationKey=\"8c3c8dc9-08bf-4cd7-ac80-cecb3e7ae86c\">" +
+                "</server>";
+
+        String configXml =
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+                        "<cruise schemaVersion=\"126\">" + originalConfig + "</cruise>";
+
+        String expectedConfig = "<server " +
+                "artifactsdir=\"artifacts\" " +
+                "agentAutoRegisterKey=\"323040d4-f2e4-4b8a-8394-7a2d122054d1\" " +
+                "webhookSecret=\"3d5cd2f5-7fe7-43c0-ba34-7e01678ba8b6\" " +
+                "commandRepositoryLocation=\"default\" " +
+                "serverId=\"60f5f682-5248-4ba9-bb35-72c92841bd75\" " +
+                "tokenGenerationKey=\"8c3c8dc9-08bf-4cd7-ac80-cecb3e7ae86c\">" +
+                "<siteUrls>" +
+                "<siteUrl>http://foo.com</siteUrl>" +
+                "<secureSiteUrl>https://bar.com</secureSiteUrl>" +
+                "</siteUrls>" +
+                "</server>";
+
+        String expectedXml =
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+                        "<cruise schemaVersion=\"127\">" + expectedConfig + "</cruise>";
+
+        final String migratedXml = migrateXmlString(configXml, 126, 127);
+        XmlAssert.assertThat(migratedXml).and(expectedXml).areIdentical();
+
+        assertThat(migratedXml).contains("<siteUrl>");
+        assertThat(migratedXml).contains("<secureSiteUrl>");
     }
 
     private void assertStringsIgnoringCarriageReturnAreEqual(String expected, String actual) {

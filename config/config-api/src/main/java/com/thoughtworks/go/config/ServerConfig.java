@@ -17,10 +17,13 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
 import com.thoughtworks.go.domain.ConfigErrors;
+import com.thoughtworks.go.domain.SecureSiteUrl;
 import com.thoughtworks.go.domain.ServerSiteUrlConfig;
+import com.thoughtworks.go.domain.SiteUrl;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.PostConstruct;
+import java.util.Objects;
 import java.util.UUID;
 
 @ConfigTag("server")
@@ -28,10 +31,6 @@ public class ServerConfig implements Validatable {
     public static final String SERVER_BACKUPS = "serverBackups";
     @ConfigAttribute(value = "artifactsdir", alwaysWrite = true)
     private String artifactsDir = "artifacts";
-    @ConfigAttribute(value = "siteUrl", optional = true)
-    private ServerSiteUrlConfig siteUrl = new ServerSiteUrlConfig();
-    @ConfigAttribute(value = "secureSiteUrl", optional = true)
-    private ServerSiteUrlConfig secureSiteUrl = new ServerSiteUrlConfig();
     @ConfigAttribute(value = "purgeStart", optional = true, allowNull = true)
     private Double purgeStart;
     @ConfigAttribute(value = "purgeUpto", optional = true, allowNull = true)
@@ -49,6 +48,8 @@ public class ServerConfig implements Validatable {
     @ConfigAttribute(value = "serverId", optional = true, allowNull = true)
     private String serverId;
 
+    @ConfigSubtag
+    private SiteUrls siteUrls = new SiteUrls();
     @ConfigSubtag
     private SecurityConfig securityConfig = new SecurityConfig();
     @ConfigSubtag
@@ -71,11 +72,11 @@ public class ServerConfig implements Validatable {
     public ServerConfig() {
     }
 
-    public ServerConfig(SecurityConfig securityConfig, MailHost mailHost, ServerSiteUrlConfig serverSiteUrl, ServerSiteUrlConfig secureSiteUrl) {
+    public ServerConfig(SecurityConfig securityConfig, MailHost mailHost, SiteUrl serverSiteUrl, SecureSiteUrl secureSiteUrl) {
         this.securityConfig = securityConfig;
         this.mailHost = mailHost;
-        this.siteUrl = serverSiteUrl;
-        this.secureSiteUrl = secureSiteUrl;
+        this.siteUrls.setSiteUrl(serverSiteUrl);
+        this.siteUrls.setSecureSiteUrl(secureSiteUrl);
     }
 
     @PostConstruct
@@ -107,7 +108,7 @@ public class ServerConfig implements Validatable {
     }
 
     public ServerConfig(SecurityConfig securityConfig, MailHost mailHost) {
-        this(securityConfig, mailHost, new ServerSiteUrlConfig(), new ServerSiteUrlConfig());
+        this(securityConfig, mailHost, new SiteUrl(), new SecureSiteUrl());
     }
 
     public ServerConfig(String artifactsDir, SecurityConfig securityConfig) {
@@ -183,10 +184,10 @@ public class ServerConfig implements Validatable {
         if (artifactsDir != null ? !artifactsDir.equals(that.artifactsDir) : that.artifactsDir != null) {
             return false;
         }
-        if (siteUrl != null ? !siteUrl.equals(that.siteUrl) : that.siteUrl != null) {
+        if (getSiteUrl() != null ? !getSiteUrl().equals(that.getSiteUrl()) : that.getSiteUrl() != null) {
             return false;
         }
-        if (secureSiteUrl != null ? !secureSiteUrl.equals(that.secureSiteUrl) : that.secureSiteUrl != null) {
+        if (getSecureSiteUrl() != null ? !getSecureSiteUrl().equals(that.getSecureSiteUrl()) : that.getSecureSiteUrl() != null) {
             return false;
         }
         if (purgeStart != null ? !purgeStart.equals(that.purgeStart) : that.purgeStart != null) {
@@ -225,20 +226,7 @@ public class ServerConfig implements Validatable {
 
     @Override
     public int hashCode() {
-        int result = artifactsDir != null ? artifactsDir.hashCode() : 0;
-        result = 31 * result + (siteUrl != null ? siteUrl.hashCode() : 0);
-        result = 31 * result + (secureSiteUrl != null ? secureSiteUrl.hashCode() : 0);
-        result = 31 * result + (purgeStart != null ? purgeStart.hashCode() : 0);
-        result = 31 * result + (purgeUpto != null ? purgeUpto.hashCode() : 0);
-        result = 31 * result + (jobTimeout != null ? jobTimeout.hashCode() : 0);
-        result = 31 * result + (agentAutoRegisterKey != null ? agentAutoRegisterKey.hashCode() : 0);
-        result = 31 * result + (webhookSecret != null ? webhookSecret.hashCode() : 0);
-        result = 31 * result + (commandRepositoryLocation != null ? commandRepositoryLocation.hashCode() : 0);
-        result = 31 * result + (serverId != null ? serverId.hashCode() : 0);
-        result = 31 * result + (securityConfig != null ? securityConfig.hashCode() : 0);
-        result = 31 * result + (mailHost != null ? mailHost.hashCode() : 0);
-        result = 31 * result + (tokenGenerationKey != null ? tokenGenerationKey.hashCode() : 0);
-        return result;
+        return Objects.hash(artifactsDir, purgeStart, purgeUpto, jobTimeout, agentAutoRegisterKey, webhookSecret, commandRepositoryLocation, serverId, siteUrls, securityConfig, mailHost, backupConfig, tokenGenerationKey, errors);
     }
 
     /**
@@ -260,7 +248,7 @@ public class ServerConfig implements Validatable {
      * @deprecated
      */
     public void setSiteUrl(String siteUrl) {
-        this.siteUrl = StringUtils.isBlank(siteUrl) ? new ServerSiteUrlConfig() : new ServerSiteUrlConfig(siteUrl);
+        this.siteUrls.setSiteUrl(StringUtils.isBlank(siteUrl) ? new SiteUrl() : new SiteUrl(siteUrl));
     }
 
     /**
@@ -269,7 +257,7 @@ public class ServerConfig implements Validatable {
      * @deprecated
      */
     public void setSecureSiteUrl(String secureSiteUrl) {
-        this.secureSiteUrl = StringUtils.isBlank(secureSiteUrl) ? new ServerSiteUrlConfig() : new ServerSiteUrlConfig(secureSiteUrl);
+        this.siteUrls.setSecureSiteUrl(StringUtils.isBlank(secureSiteUrl) ? new SecureSiteUrl() : new SecureSiteUrl(secureSiteUrl));
     }
 
 
@@ -298,33 +286,33 @@ public class ServerConfig implements Validatable {
         errors.add(fieldName, message);
     }
 
-    public ServerSiteUrlConfig getSecureSiteUrl() {
-        return secureSiteUrl;
+    public SecureSiteUrl getSecureSiteUrl() {
+        return this.siteUrls.getSecureSiteUrl();
     }
 
-    public ServerSiteUrlConfig getSiteUrl() {
-        return siteUrl;
+    public SiteUrl getSiteUrl() {
+        return this.siteUrls.getSiteUrl();
     }
 
     public ServerSiteUrlConfig getSiteUrlPreferablySecured() {
-        ServerSiteUrlConfig siteUrl = getSiteUrl();
-        ServerSiteUrlConfig secureSiteUrlConfig = getSecureSiteUrl();
+        SiteUrl siteUrl = getSiteUrl();
+        SecureSiteUrl secureSiteUrlConfig = getSecureSiteUrl();
         if (secureSiteUrlConfig.hasNonNullUrl()) {
             return secureSiteUrlConfig;
         }
         if (!secureSiteUrlConfig.hasNonNullUrl()) {
             return siteUrl;
         }
-        return new ServerSiteUrlConfig();
+        return new SiteUrl();
     }
 
     public ServerSiteUrlConfig getHttpsUrl() {
         ServerSiteUrlConfig siteUrlPreferSecured = getSiteUrlPreferablySecured();
-        return siteUrlPreferSecured.isAHttpsUrl() ? siteUrlPreferSecured : new ServerSiteUrlConfig();
+        return siteUrlPreferSecured.isAHttpsUrl() ? siteUrlPreferSecured : new SecureSiteUrl();
     }
 
     public boolean hasAnyUrlConfigured() {
-        return siteUrl.hasNonNullUrl() || secureSiteUrl.hasNonNullUrl();
+        return getSiteUrl().hasNonNullUrl() || getSecureSiteUrl().hasNonNullUrl();
     }
 
     public Double getPurgeStart() {

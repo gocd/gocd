@@ -1482,18 +1482,26 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     void shouldAddJobTimeoutAttributeToServerTagAndDefaultItTo60_37xsl() {
-        String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server artifactsdir='artifacts' siteUrl='http://www.someurl.com/go' secureSiteUrl='https://www.someotherurl.com/go' >"
-                + "</server></cruise>";
+        String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n" +
+                "<server artifactsdir='artifacts' >" +
+                "<siteUrls>" +
+                "<siteUrl>http://www.someurl.com/go</siteUrl>" +
+                "<secureSiteUrl>https://www.someotherurl.com/go</secureSiteUrl> " +
+                "</siteUrls>" +
+                "</server></cruise>";
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
         assertThat(cruiseConfig.server().getJobTimeout()).isEqualTo("0");
     }
 
     @Test
     void shouldGetTheJobTimeoutFromServerTag_37xsl() {
-        String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server artifactsdir='artifacts' siteUrl='http://www.someurl.com/go' secureSiteUrl='https://www.someotherurl.com/go' jobTimeout='30' >"
-                + "</server></cruise>";
+        String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n" +
+                "<server artifactsdir='artifacts' jobTimeout='30'>" +
+                "<siteUrls>" +
+                "<siteUrl>http://www.someurl.com/go</siteUrl>" +
+                "<secureSiteUrl>https://www.someotherurl.com/go</secureSiteUrl>" +
+                "</siteUrls>" +
+                "</server></cruise>";
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
         assertThat(cruiseConfig.server().getJobTimeout()).isEqualTo("30");
     }
@@ -1508,12 +1516,16 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     void shouldAllowSiteUrlandSecureSiteUrlAttributes() {
-        String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server artifactsdir='artifacts' siteUrl='http://www.someurl.com/go' secureSiteUrl='https://www.someotherurl.com/go' >"
-                + "</server></cruise>";
+        String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n" +
+                "<server artifactsdir='artifacts'>" +
+                "<siteUrls>" +
+                "<siteUrl>http://www.someurl.com/go</siteUrl>" +
+                "<secureSiteUrl>https://www.someotherurl.com/go</secureSiteUrl>" +
+                "</siteUrls>" +
+                "</server></cruise>";
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
-        assertThat(cruiseConfig.server().getSiteUrl()).isEqualTo(new ServerSiteUrlConfig("http://www.someurl.com/go"));
-        assertThat(cruiseConfig.server().getSecureSiteUrl()).isEqualTo(new ServerSiteUrlConfig("https://www.someotherurl.com/go"));
+        assertThat(cruiseConfig.server().getSiteUrl()).isEqualTo(new SiteUrl("http://www.someurl.com/go"));
+        assertThat(cruiseConfig.server().getSecureSiteUrl()).isEqualTo(new SecureSiteUrl("https://www.someotherurl.com/go"));
     }
 
     @Test

@@ -358,7 +358,6 @@ public class PipelineHistoryService {
             CaseInsensitiveString pipelineName = pipelineConfig.name();
             for (PipelineInstanceModel activePipeline : activePipelines.findAll(CaseInsensitiveString.str(pipelineName))) {
                 activePipeline.setTrackingTool(pipelineConfig.getTrackingTool());
-                activePipeline.setMingleConfig(pipelineConfig.getMingleConfig());
                 populatePlaceHolderStages(activePipeline);
 
                 String groupName = groups.findGroupNameByPipeline(pipelineName);

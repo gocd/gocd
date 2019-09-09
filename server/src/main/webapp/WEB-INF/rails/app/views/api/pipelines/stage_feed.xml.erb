@@ -49,13 +49,6 @@
             <link title="<%=pipeline_detail_name-%>" href="<%= pipeline_details_url(entry.getStageIdentifier().getStageLocator(), entry.getPipelineId()) %>" rel="<%=go_relations_url + "/pipeline" -%>" type="application/vnd.go+xml"/>
             <link title="<%=pipeline_detail_name-%>" href="<%= page_url(entry.getStageIdentifier().getStageLocator(), :action => "pipeline") -%>" rel="<%=go_relations_url + "/pipeline" -%>" type="text/html"/>
 
-
-            <%- entry.getMingleCards().each do |card|
-                mingle_cfg = card.getMingleConfig()-%>
-            <link href="<%= "#{mingle_cfg.getBaseUrl().strip}/api/v2/projects/#{mingle_cfg.getProjectIdentifier()}/cards/#{card.getCardNumber()}.xml" -%>" rel="http://www.thoughtworks-studios.com/ns/go#related" type="application/vnd.mingle+xml" title="#<%= card.getCardNumber() -%>"/>
-            <link href="<%= "#{mingle_cfg.getBaseUrl().strip}/projects/#{mingle_cfg.getProjectIdentifier()}/cards/#{card.getCardNumber()}" -%>" rel="http://www.thoughtworks-studios.com/ns/go#related" type="text/html" title="#<%= card.getCardNumber() -%>"/>
-            <%- end -%>
-
             <category scheme="<%=go_categories_url-%>" term="stage" label="Stage" />
             <category scheme="<%=go_categories_url-%>" term="completed" label="Completed" />
             <category scheme="<%=go_categories_url-%>" term="<%= entry.getResult().downcase -%>" label="<%= entry.getResult() -%>" />

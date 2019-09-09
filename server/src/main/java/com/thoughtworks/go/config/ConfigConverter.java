@@ -639,10 +639,6 @@ public class ConfigConverter {
         if (crTrackingTool != null) {
             pipelineConfig.setTrackingTool(toTrackingTool(crTrackingTool));
         }
-        CRMingle crMingle = crPipeline.getMingle();
-        if (crMingle != null) {
-            pipelineConfig.setMingleConfig(toMingleConfig(crMingle));
-        }
 
         CRTimer crTimer = crPipeline.getTimer();
         if (crTimer != null) {
@@ -676,10 +672,6 @@ public class ConfigConverter {
         return new TimerConfig(spec, crTimer.isOnlyOnChanges());
     }
 
-    private MingleConfig toMingleConfig(CRMingle crMingle) {
-        return new MingleConfig(crMingle.getBaseUrl(), crMingle.getProjectIdentifier(), crMingle.getMqlGroupingConditions());
-    }
-
     private TrackingTool toTrackingTool(CRTrackingTool crTrackingTool) {
         return new TrackingTool(crTrackingTool.getLink(), crTrackingTool.getRegex());
     }
@@ -711,10 +703,6 @@ public class ConfigConverter {
         crPipeline.setTrackingTool(trackingToolToCRTrackingTool(pipelineConfig.getTrackingTool()));
         crPipeline.setTimer(timerConfigToCRTimer(pipelineConfig.getTimer()));
         crPipeline.setLockBehavior(pipelineConfig.getLockBehavior());
-
-        if (pipelineConfig.getMingleConfig().isDefined()) {
-            crPipeline.setMingle(mingleToCRMingle(pipelineConfig.getMingleConfig()));
-        }
 
         crPipeline.setLabelTemplate(pipelineConfig.getLabelTemplate());
         crPipeline.setDisplayOrderWeight(pipelineConfig.getDisplayOrderWeight());
@@ -942,14 +930,6 @@ public class ConfigConverter {
         } else {
             throw new RuntimeException(String.format("Unsupported Artifact Type: %s.", artifactConfig.getArtifactType()));
         }
-    }
-
-    private CRMingle mingleToCRMingle(MingleConfig mingleConfig) {
-        CRMingle crMingle = new CRMingle();
-        crMingle.setBaseUrl(mingleConfig.getBaseUrl());
-        crMingle.setProjectIdentifier(mingleConfig.getProjectIdentifier());
-        crMingle.setMqlGroupingConditions(mingleConfig.getQuotedMql());
-        return crMingle;
     }
 
     private CRTrackingTool trackingToolToCRTrackingTool(TrackingTool trackingTool) {

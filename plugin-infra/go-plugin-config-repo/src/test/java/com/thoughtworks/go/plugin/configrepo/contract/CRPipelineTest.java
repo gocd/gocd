@@ -59,7 +59,6 @@ public class CRPipelineTest extends AbstractCRTest<CRPipeline> {
         customPipeline.addStage(buildStage);
         customPipeline.addMaterial(new CRDependencyMaterial("pipe1", "pipe1", "build"));
         customPipeline.setLabelTemplate("foo-1.0-${COUNT}");
-        customPipeline.setMingle(new CRMingle("http://mingle.example.com", "my_project"));
         customPipeline.setTimer(new CRTimer("0 15 10 * * ? *", false));
 
         invalidNoName = new CRPipeline(null, "group1");

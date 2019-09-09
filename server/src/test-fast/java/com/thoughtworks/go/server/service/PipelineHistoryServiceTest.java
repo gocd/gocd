@@ -152,7 +152,6 @@ public class PipelineHistoryServiceTest {
         pipelineConfig.setTrackingTool(new TrackingTool("http://link", "#"));
 
         pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline2"));
-        pipelineConfig.setMingleConfig(new MingleConfig("baseUrl", "id"));
 
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
         PipelineInstanceModels activePipelineInstances = createPipelineInstanceModels();
@@ -179,7 +178,6 @@ public class PipelineHistoryServiceTest {
         assertPipelineIs(secondPipelineModel, "pipeline2", true, false);
         PipelineInstanceModel secondPim = secondPipelineModel.getLatestPipelineInstance();
         assertThat(secondPim.getTrackingTool(), is(nullValue()));
-        assertThat(secondPim.getMingleConfig(), is(new MingleConfig("baseUrl", "id")));
         assertThat(secondPim.isLockable(), is(false));
 
         PipelineModel firstPipelineModel = groups.get(0).getPipelineModels().get(0);
@@ -187,7 +185,6 @@ public class PipelineHistoryServiceTest {
         PipelineInstanceModel pim = firstPipelineModel.getLatestPipelineInstance();
         assertThat(pim.isLockable(), is(true));
         assertThat(pim.getTrackingTool(), is(new TrackingTool("http://link", "#")));
-        assertThat(pim.getMingleConfig(), is(new MingleConfig()));
 
         PipelineModel nonOperatablePipelineModel = groups.get(1).getPipelineModels().get(0);
         assertPipelineIs(nonOperatablePipelineModel, "non-operatable-pipeline", false, false);

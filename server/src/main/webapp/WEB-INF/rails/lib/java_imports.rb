@@ -80,7 +80,6 @@ module JavaImports
   java_import com.thoughtworks.go.config.materials.git.GitMaterial unless defined? GitMaterial
   java_import com.thoughtworks.go.config.materials.git.GitMaterialConfig unless defined? GitMaterialConfig
   java_import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig unless defined? TfsMaterialConfig
-  java_import com.thoughtworks.go.config.MingleConfig unless defined? MingleConfig
   java_import com.thoughtworks.go.config.ParamConfig unless defined? ParamConfig
   java_import com.thoughtworks.go.config.ParamsConfig unless defined? ParamsConfig
   java_import com.thoughtworks.go.config.PipelineConfigs unless defined? PipelineConfigs

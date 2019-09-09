@@ -794,31 +794,6 @@ public final class ConfigFileFixture {
                 + "</cruise>";
     }
 
-    public static String withMingleConfig(String mingleConfig) {
-        return "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-                + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
-                + " xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + " <server artifactsdir=\"logs\"></server>"
-                + "  <pipelines>\n"
-                + "    <pipeline name=\"pipeline1\">\n"
-                + mingleConfig
-                + "      <materials>\n"
-                + "        <svn url=\"foobar\" checkexternals=\"true\" />\n"
-                + "      </materials>\n"
-                + "      <stage name=\"mingle\">\n"
-                + "       <jobs>\n"
-                + "        <job name=\"functional\">\n"
-                + "         <tasks>\n"
-                + "          <exec command=\"ls\" args=\"-la\" />\n"
-                + "         </tasks>\n"
-                + "        </job>\n"
-                + "       </jobs>\n"
-                + "      </stage>\n"
-                + "    </pipeline>\n"
-                + "  </pipelines>\n"
-                + "</cruise>";
-    }
-
     public static String withServerConfig(String xml) {
         return "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                 + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""

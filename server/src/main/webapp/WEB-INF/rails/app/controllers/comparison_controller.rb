@@ -38,10 +38,16 @@ class ComparisonController < ApplicationController
     @from_pipeline = load_pipeline_instance(@pipeline_name, params[:from_counter].to_i)
     return unless @from_pipeline
 
-    @mingle_config = mingle_config_service.mingleConfigForPipelineNamed(@pipeline_name, current_user, result = HttpLocalizedOperationResult.new)
-    return render_localized_operation_result(result) unless result.isSuccessful()
+    result = HttpLocalizedOperationResult.new
+    if (!security_service.hasViewPermissionForPipeline(current_user, params[:pipeline_name]))
+      result.forbidden(com.thoughtworks.go.config.exceptions.EntityType.Pipeline.forbiddenToView(pipelineName, current_user.getUsername()), HealthStateType.forbiddenForPipeline(pipelineName))
+    end
 
-    revisions = changeset_service.revisionsBetween(@pipeline_name, @from_pipeline.getCounter(), @to_pipeline.getCounter(), current_user, result = HttpLocalizedOperationResult.new, true, show_bisect?) || {}
+    if !result.isSuccessful()
+      return render_localized_operation_result(result)
+    end
+
+    revisions = changeset_service.revisionsBetween(@pipeline_name, @from_pipeline.getCounter(), @to_pipeline.getCounter(), current_user, result = HttpLocalizedOperationResult.new, show_bisect?) || {}
     @material_revisions = revisions.find_all { | material | material.getMaterialType() != "Pipeline" }
     @dependency_material_revisions = revisions.find_all { | material | material.getMaterialType() == "Pipeline" }
 

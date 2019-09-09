@@ -21,7 +21,6 @@ describe ComparisonController do
 
   before :each do
     allow(controller).to receive(:pipeline_history_service).and_return(@phs = double('PipelineHistoryService'))
-    allow(controller).to receive(:mingle_config_service).and_return(@mingle_service = double('MingleConfigService'))
   end
 
   describe "routes" do
@@ -53,7 +52,6 @@ describe ComparisonController do
 
     describe "show" do
       before :each do
-        allow(@mingle_service).to receive(:mingleConfigForPipelineNamed)
         @result = HttpOperationResult.new
         allow(HttpOperationResult).to receive(:new).and_return(@result)
       end

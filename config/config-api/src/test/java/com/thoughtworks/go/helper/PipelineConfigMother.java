@@ -112,20 +112,6 @@ public class PipelineConfigMother {
         return new PipelineConfig(new CaseInsensitiveString(name), PipelineLabel.COUNT_TEMPLATE, timerSpec, timerShouldTriggerOnlyOnMaterialChanges, MaterialConfigsMother.defaultMaterialConfigs(), stages);
     }
 
-    public static PipelineConfig pipelineConfigWithTrackingTool(String name, String trackingToolUrl, String trackingToolRegex) {
-        PipelineConfig pipelineConfig = pipelineConfig(name);
-        TrackingTool trackingTool = new TrackingTool(trackingToolUrl, trackingToolRegex);
-        pipelineConfig.setTrackingTool(trackingTool);
-        return pipelineConfig;
-    }
-
-    public static PipelineConfig pipelineConfigWithMingleConfiguration(String name, String mingleUrl, String mingleProjectId, String mql) {
-        PipelineConfig pipelineConfig = pipelineConfig(name);
-        MingleConfig mingleConfig = new MingleConfig(mingleUrl, mingleProjectId, mql);
-        pipelineConfig.setMingleConfig(mingleConfig);
-        return pipelineConfig;
-    }
-
     public static PipelineConfigs groupWithOperatePermission(PipelineConfig pipelineConfig, String... users) {
         Authorization authorization = new Authorization();
         for (String user : users) {

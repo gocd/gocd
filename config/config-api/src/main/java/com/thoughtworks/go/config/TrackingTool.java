@@ -109,7 +109,11 @@ public class TrackingTool implements ParamsAttributeAware, Validatable, CommentR
     public static TrackingTool createTrackingTool(Map attributes) {
         TrackingTool trackingTool = new TrackingTool();
         trackingTool.setConfigAttributes(attributes);
-        return trackingTool;
+        if (trackingTool.isDefined()) {
+            return trackingTool;
+        } else {
+            return null;
+        }
     }
 
     public boolean isDefined() {

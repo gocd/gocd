@@ -926,22 +926,6 @@ public class MagicalGoConfigXmlLoaderTest {
         assertThat(task).isEqualTo(new ExecTask("c:\\program files\\cmd.exe", "arguments", (String) null));
     }
 
-    @Test
-    void shouldLoadMingleConfigForPipeline() throws Exception {
-        String configWithCommand = withMingleConfig("<mingle baseUrl=\"https://foo.bar/baz\" projectIdentifier=\"cruise-performance\"/>");
-        MingleConfig mingleConfig = xmlLoader.deserializeConfig(configWithCommand).pipelineConfigByName(new CaseInsensitiveString("pipeline1")).getMingleConfig();
-        assertThat(mingleConfig).isEqualTo(new MingleConfig("https://foo.bar/baz", "cruise-performance"));
-
-        configWithCommand = withMingleConfig(
-                "<mingle baseUrl=\"https://foo.bar/baz\" projectIdentifier=\"cruise-performance\"><mqlGroupingConditions>foo = bar!=baz</mqlGroupingConditions></mingle>");
-        mingleConfig = xmlLoader.deserializeConfig(configWithCommand).pipelineConfigByName(new CaseInsensitiveString("pipeline1")).getMingleConfig();
-        assertThat(mingleConfig).isEqualTo(new MingleConfig("https://foo.bar/baz", "cruise-performance", "foo = bar!=baz"));
-
-        configWithCommand = withMingleConfig("<mingle baseUrl=\"https://foo.bar/baz\" projectIdentifier=\"cruise-performance\"><mqlGroupingConditions/></mingle>");
-        mingleConfig = xmlLoader.deserializeConfig(configWithCommand).pipelineConfigByName(new CaseInsensitiveString("pipeline1")).getMingleConfig();
-        assertThat(mingleConfig).isEqualTo(new MingleConfig("https://foo.bar/baz", "cruise-performance", ""));
-    }
-
     private void shouldBeSvnMaterial(MaterialConfig material) {
         assertThat(material).isInstanceOf(SvnMaterialConfig.class);
         SvnMaterialConfig svnMaterial = (SvnMaterialConfig) material;

@@ -19,7 +19,6 @@ package com.thoughtworks.go.apiv7.admin.pipelineconfig.representers.trackingtool
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.ErrorGetter;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.config.MingleConfig;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.TrackingTool;
 import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
@@ -33,17 +32,7 @@ public class TrackingToolRepresenter {
     mapping.put("projectIdentifier", "project_identifier");
     mapping.put("baseUrl", "base_url");
     mapping.put("link", "url_pattern");
-    if (pipelineConfig.getMingleConfig().isDefined()) {
-      MingleConfig mingleConfig = pipelineConfig.getMingleConfig();
-      if (!mingleConfig.errors().isEmpty()) {
-        jsonWriter.addChild("errors", errorWriter -> {
-          new ErrorGetter(mapping).toJSON(errorWriter, mingleConfig);
-        });
-      }
-      jsonWriter.add("type", "mingle");
-      jsonWriter.addChild("attributes", attributeWriter -> MingleTrackingToolRepresenter.toJSON(attributeWriter, mingleConfig));
-
-    } else if (pipelineConfig.getTrackingTool() != null) {
+    if (pipelineConfig.getTrackingTool() != null) {
       TrackingTool trackingTool = pipelineConfig.getTrackingTool();
       if (!trackingTool.errors().isEmpty()) {
         jsonWriter.addChild("errors", errorWriter -> {
@@ -59,13 +48,9 @@ public class TrackingToolRepresenter {
   public static Object fromJSON(JsonReader jsonReader) {
     String type = jsonReader.getString("type");
     JsonReader attributes = jsonReader.readJsonObject("attributes");
-    switch (type) {
-      case "generic":
-        return ExternalTrackingToolRepresenter.fromJSON(attributes);
-      case "mingle":
-        return MingleTrackingToolRepresenter.fromJSON(attributes);
-      default:
-        throw new UnprocessableEntityException(String.format("Invalid Tracking tool type '%s'. It has to be one of '%s'.", type, String.join(", ", "generic", "mingle")));
+    if ("generic".equals(type)) {
+      return ExternalTrackingToolRepresenter.fromJSON(attributes);
     }
+    throw new UnprocessableEntityException(String.format("Invalid Tracking tool type '%s'. It has to be one of '%s'.", type, String.join(", ", "generic")));
   }
 }

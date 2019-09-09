@@ -35,7 +35,6 @@ describe "comparison/show.html.erb" do
     assign(:cruise_config, @cruise_config = mother.cruiseConfigWithTwoPipelineGroups())
     in_params(:from_counter => "10", :to_counter => "20")
     assign(:pipeline_name, "my-shiny-pipeline")
-    assign(:mingle_config, com.thoughtworks.go.config.MingleConfig.new("http://some-tracking-tool", "go", "mql"))
   end
 
   def ensure_show_bisect_message_is_shown parent_id

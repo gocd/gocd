@@ -15,27 +15,18 @@
  */
 package com.thoughtworks.go.server.service;
 
-import java.io.IOException;
-import java.util.*;
-
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
-import com.thoughtworks.go.domain.MaterialInstance;
-import com.thoughtworks.go.domain.MaterialRevision;
-import com.thoughtworks.go.domain.MaterialRevisions;
-import com.thoughtworks.go.domain.PersistentObject;
-import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.PipelineMaterialRevision;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.Modifications;
 import com.thoughtworks.go.domain.materials.svn.SvnMaterialInstance;
 import com.thoughtworks.go.helper.MaterialsMother;
-import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.materials.DependencyMaterialUpdateNotifier;
@@ -54,6 +45,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+
+import java.io.IOException;
+import java.util.*;
 
 import static com.thoughtworks.go.helper.ModificationsMother.checkinWithComment;
 import static org.hamcrest.Matchers.is;
@@ -195,7 +189,7 @@ public class ChangesetServiceIntegrationTest {
                 new MaterialRevision(git, gitCommit3, gitCommit2));
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        List<MaterialRevision> revisions = changesetService.revisionsBetween("foo", pipelineOne.getCounter(), pipelineThree.getCounter(), loser, result, true, false);
+        List<MaterialRevision> revisions = changesetService.revisionsBetween("foo", pipelineOne.getCounter(), pipelineThree.getCounter(), loser, result, false);
         assertMaterialRevisions(expectedRevisions, revisions);
         assertThat(result.isSuccessful(), is(true));
     }
@@ -219,8 +213,7 @@ public class ChangesetServiceIntegrationTest {
         List<MaterialRevision> expectedRevisions = Arrays.asList(new MaterialRevision(hg, hgCommit1));
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        List<MaterialRevision> revisions = changesetService.revisionsBetween(CaseInsensitiveString.str(pipelineConfig.name()), pipelineOne.getCounter(), pipelineFour.getCounter(), loser, result, true,
-                false);
+        List<MaterialRevision> revisions = changesetService.revisionsBetween(CaseInsensitiveString.str(pipelineConfig.name()), pipelineOne.getCounter(), pipelineFour.getCounter(), loser, result, false);
         assertMaterialRevisions(expectedRevisions, revisions);
         assertThat(result.isSuccessful(), is(true));
     }
@@ -239,7 +232,7 @@ public class ChangesetServiceIntegrationTest {
         List<MaterialRevision> expectedRevisions = Arrays.asList(new MaterialRevision(hg, hgCommit1), new MaterialRevision(git, gitCommit1));
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        List<MaterialRevision> revisions = changesetService.revisionsBetween("foo", 0, pipelineOne.getCounter(), loser, result, true, false);
+        List<MaterialRevision> revisions = changesetService.revisionsBetween("foo", 0, pipelineOne.getCounter(), loser, result, false);
         assertMaterialRevisions(expectedRevisions, revisions);
         assertThat(result.isSuccessful(), is(true));
     }
@@ -258,7 +251,7 @@ public class ChangesetServiceIntegrationTest {
         List<MaterialRevision> expectedRevisions = Arrays.asList(new MaterialRevision(hg, hgCommit1), new MaterialRevision(git, gitCommit1));
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        List<MaterialRevision> revisions = changesetService.revisionsBetween("foo", pipelineOne.getCounter(), pipelineOne.getCounter(), loser, result, true, false);
+        List<MaterialRevision> revisions = changesetService.revisionsBetween("foo", pipelineOne.getCounter(), pipelineOne.getCounter(), loser, result, false);
         assertMaterialRevisions(expectedRevisions, revisions);
         assertThat(result.isSuccessful(), is(true));
     }
@@ -271,7 +264,7 @@ public class ChangesetServiceIntegrationTest {
         config.pipelines(BasicPipelineConfigs.DEFAULT_GROUP).setAuthorization(new Authorization(new ViewConfig(new AdminUser(new CaseInsensitiveString("admin")))));
         configHelper.writeConfigFile(config);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        changesetService.revisionsBetween("foo", 1, 3, new Username(new CaseInsensitiveString("some_loser")), result, true, false);
+        changesetService.revisionsBetween("foo", 1, 3, new Username(new CaseInsensitiveString("some_loser")), result, false);
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.message(), is(EntityType.Pipeline.forbiddenToView("foo", "some_loser")));
         assertThat(result.httpCode(), is(403));
@@ -280,7 +273,7 @@ public class ChangesetServiceIntegrationTest {
     @Test
     public void shouldReturn404WhenPipelineIsNotFound() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        changesetService.revisionsBetween("Pipeline_Not_Found", 1, 3, new Username(new CaseInsensitiveString("some_loser")), result, true, false);
+        changesetService.revisionsBetween("Pipeline_Not_Found", 1, 3, new Username(new CaseInsensitiveString("some_loser")), result, false);
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.message(), is(EntityType.Pipeline.notFoundMessage("Pipeline_Not_Found")));
         assertThat(result.httpCode(), is(404));
@@ -316,11 +309,11 @@ public class ChangesetServiceIntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         //when to counter is a bisect
         List<MaterialRevision> revisionList = changesetService.
-                revisionsBetween("foo-bar", firstPipeline.getCounter(), bisectPipeline.getCounter(), new Username(new CaseInsensitiveString("loser")), result, true, true);
+                revisionsBetween("foo-bar", firstPipeline.getCounter(), bisectPipeline.getCounter(), new Username(new CaseInsensitiveString("loser")), result, true);
         assertThat(stringRevisions(revisionList), is(Arrays.asList("5", "2", "3", "4")));
 
         //When from counter is a bisect
-        revisionList = changesetService.revisionsBetween("foo-bar", bisectPipeline.getCounter(), nextPipeline.getCounter(), new Username(new CaseInsensitiveString("loser")), result, true, true);
+        revisionList = changesetService.revisionsBetween("foo-bar", bisectPipeline.getCounter(), nextPipeline.getCounter(), new Username(new CaseInsensitiveString("loser")), result, true);
         assertThat(stringRevisions(revisionList), is(Arrays.asList("6", "5", "2")));
     }
 
@@ -344,12 +337,12 @@ public class ChangesetServiceIntegrationTest {
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         //when to counter is a bisect
-        List<MaterialRevision> revisionList = changesetService.revisionsBetween("foo-bar", firstPipeline.getCounter(), bisectPipeline.getCounter(), new Username(new CaseInsensitiveString("loser")), result, true,
+        List<MaterialRevision> revisionList = changesetService.revisionsBetween("foo-bar", firstPipeline.getCounter(), bisectPipeline.getCounter(), new Username(new CaseInsensitiveString("loser")), result,
                 false);
         assertThat(revisionList.isEmpty(), is(true));
 
         //When from counter is a bisect
-        revisionList = changesetService.revisionsBetween("foo-bar", bisectPipeline.getCounter(), nextPipeline.getCounter(), new Username(new CaseInsensitiveString("loser")), result, true, false);
+        revisionList = changesetService.revisionsBetween("foo-bar", bisectPipeline.getCounter(), nextPipeline.getCounter(), new Username(new CaseInsensitiveString("loser")), result, false);
         assertThat(revisionList.isEmpty(), is(true));
     }
 
@@ -376,7 +369,7 @@ public class ChangesetServiceIntegrationTest {
                 checkinWithComment("6", "#6760 - Rev 6", now.plusDays(6).toDate())));
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        List<MaterialRevision> revisionsBetween = changesetService.revisionsBetween("foo-bar", firstPipeline.getCounter(), lastPipeline.getCounter(), new Username(new CaseInsensitiveString("loser")), result, true,
+        List<MaterialRevision> revisionsBetween = changesetService.revisionsBetween("foo-bar", firstPipeline.getCounter(), lastPipeline.getCounter(), new Username(new CaseInsensitiveString("loser")), result,
                 false);
         assertThat(result.isSuccessful(), is(true));
         assertThat(revisionsBetween.size(), is(1));
@@ -463,7 +456,7 @@ public class ChangesetServiceIntegrationTest {
         Pipeline pipelineOne = dbHelper.checkinRevisionsToBuild(new ManualBuild(username), pipelineConfig, revisions);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        List<MaterialRevision> actual = changesetService.revisionsBetween(CaseInsensitiveString.str(pipelineConfig.name()), pipelineOne.getCounter(), pipelineOne.getCounter(), username, result, true,
+        List<MaterialRevision> actual = changesetService.revisionsBetween(CaseInsensitiveString.str(pipelineConfig.name()), pipelineOne.getCounter(), pipelineOne.getCounter(), username, result,
                 false);
 
         assertMaterialRevisions(revisions, actual);
@@ -480,7 +473,7 @@ public class ChangesetServiceIntegrationTest {
         Pipeline pipelineOne = dbHelper.checkinRevisionsToBuild(new ManualBuild(username), pipelineConfigWithTwoMaterials, revisions);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        List<MaterialRevision> actual = changesetService.revisionsBetween(CaseInsensitiveString.str(pipelineConfigWithTwoMaterials.name()), pipelineOne.getCounter(), pipelineOne.getCounter(), username, result, true,
+        List<MaterialRevision> actual = changesetService.revisionsBetween(CaseInsensitiveString.str(pipelineConfigWithTwoMaterials.name()), pipelineOne.getCounter(), pipelineOne.getCounter(), username, result,
                 false);
 
         assertMaterialRevisions(revisions, actual);
@@ -503,7 +496,7 @@ public class ChangesetServiceIntegrationTest {
         Pipeline pipelineTwo = dbHelper.checkinRevisionsToBuild(new ManualBuild(username), pipelineConfigWithTwoMaterials, revisionsForPipeline2);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        List<MaterialRevision> actual = changesetService.revisionsBetween(CaseInsensitiveString.str(pipelineConfigWithTwoMaterials.name()), pipelineOne.getCounter(), pipelineTwo.getCounter(), username, result, true,
+        List<MaterialRevision> actual = changesetService.revisionsBetween(CaseInsensitiveString.str(pipelineConfigWithTwoMaterials.name()), pipelineOne.getCounter(), pipelineTwo.getCounter(), username, result,
                 false);
 
         List<MaterialRevision> expectedRevisions = groupByMaterial(revisionsForPipeline2);
@@ -533,8 +526,7 @@ public class ChangesetServiceIntegrationTest {
         Pipeline pipelineOne = dbHelper.checkinRevisionsToBuild(new ManualBuild(username), pipelineConfigWithTwoMaterials, revisionsForPipeline1);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        List<MaterialRevision> actual = changesetService.revisionsBetween(CaseInsensitiveString.str(pipelineConfigWithTwoMaterials.name()), pipelineOne.getCounter(), pipelineOne.getCounter(), username, result, true,
-                false);
+        List<MaterialRevision> actual = changesetService.revisionsBetween(CaseInsensitiveString.str(pipelineConfigWithTwoMaterials.name()), pipelineOne.getCounter(), pipelineOne.getCounter(), username, result, false);
 
         List<MaterialRevision> expectedRevisions = groupByMaterial(revisionsForUpstream1, revisionsForPipeline1);
 
@@ -575,8 +567,7 @@ public class ChangesetServiceIntegrationTest {
         Pipeline pipelineOne = dbHelper.checkinRevisionsToBuild(new ManualBuild(username), pipelineConfigWithTwoMaterials, revisionsForPipeline1);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        List<MaterialRevision> actual = changesetService.revisionsBetween(CaseInsensitiveString.str(pipelineConfigWithTwoMaterials.name()), pipelineOne.getCounter(), pipelineOne.getCounter(), username, result, true,
-                false);
+        List<MaterialRevision> actual = changesetService.revisionsBetween(CaseInsensitiveString.str(pipelineConfigWithTwoMaterials.name()), pipelineOne.getCounter(), pipelineOne.getCounter(), username, result, false);
 
         List<MaterialRevision> expectedRevisions = groupByMaterial(revisionsForGrandfather1, revisionsForUpstream1, revisionsForPipeline1);
 
@@ -619,7 +610,7 @@ public class ChangesetServiceIntegrationTest {
         Pipeline pipelineDownstream = dbHelper.checkinRevisionsToBuild(new ManualBuild(user), downstream, revisionsForDownstream);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        List<MaterialRevision> actual = changesetService.revisionsBetween(pipelineDownstream.getName(), pipelineDownstream.getCounter(), pipelineDownstream.getCounter(), user, result, true, false);
+        List<MaterialRevision> actual = changesetService.revisionsBetween(pipelineDownstream.getName(), pipelineDownstream.getCounter(), pipelineDownstream.getCounter(), user, result, false);
 
         List<MaterialRevision> expectedRevisions = groupByMaterial(revisionsForUpstream1, revisionsForDownstream);
         assertMaterialRevisions(expectedRevisions, actual);
@@ -631,14 +622,14 @@ public class ChangesetServiceIntegrationTest {
         Username user = new Username(new CaseInsensitiveString("user"));
 
         SvnMaterial svn = MaterialsMother.svnMaterial("http://svn");
-        PipelineConfig grandFatherPipeline = configHelper.addPipelineWithGroup("unauthorizedGroup", "granpa", new MaterialConfigs(svn.config()), new MingleConfig("https://granpa-mingle", "go"), "stage", "job");
+        PipelineConfig grandFatherPipeline = configHelper.addPipelineWithGroup("unauthorizedGroup", "granpa", new MaterialConfigs(svn.config()), "stage", "job");
         configHelper.setViewPermissionForGroup("unauthorizedGroup", CaseInsensitiveString.str(user.getUsername()));
 
         DependencyMaterial parentDependencyMaterial = MaterialsMother.dependencyMaterial("granpa", "stage");
         PipelineConfig upstreamPipeline = configHelper.addPipeline("upstream", "stage", new MaterialConfigs(git.config(), parentDependencyMaterial.config()), "job");
 
         DependencyMaterial dependencyMaterial = MaterialsMother.dependencyMaterial("upstream", "stage");
-        PipelineConfig downstream = configHelper.addPipeline("downstream", "stage", dependencyMaterial.config(), new MingleConfig("https://downstream-mingle", "go"), "job");
+        PipelineConfig downstream = configHelper.addPipeline("downstream", "stage", dependencyMaterial.config(), "job");
 
         //Schedule grandfather
         List<MaterialRevision> revisionsForGrandfather1 = new ArrayList<>();
@@ -657,7 +648,7 @@ public class ChangesetServiceIntegrationTest {
         Pipeline pipelineDownstream = dbHelper.checkinRevisionsToBuild(new ManualBuild(user), downstream, revisionsForDownstream);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        List<MaterialRevision> actual = changesetService.revisionsBetween(pipelineDownstream.getName(), pipelineDownstream.getCounter(), pipelineDownstream.getCounter(), user, result, true, false);
+        List<MaterialRevision> actual = changesetService.revisionsBetween(pipelineDownstream.getName(), pipelineDownstream.getCounter(), pipelineDownstream.getCounter(), user, result, false);
 
         List<MaterialRevision> expectedRevisions = groupByMaterial(revisionsForGrandfather1, revisionsForUpstream1, revisionsForDownstream);
         assertMaterialRevisions(expectedRevisions, actual);
@@ -695,18 +686,11 @@ public class ChangesetServiceIntegrationTest {
         Pipeline pipelineDownstream = dbHelper.checkinRevisionsToBuild(new ManualBuild(user), downstream, revisionsForDownstream);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        List<MaterialRevision> actual = changesetService.revisionsBetween(pipelineDownstream.getName(), pipelineDownstream.getCounter(), pipelineDownstream.getCounter(), user, result, true, false);
+        List<MaterialRevision> actual = changesetService.revisionsBetween(pipelineDownstream.getName(), pipelineDownstream.getCounter(), pipelineDownstream.getCounter(), user, result, false);
 
         List<MaterialRevision> expectedRevisions = groupByMaterial(revisionsForUpstream1, revisionsForDownstream);
         assertMaterialRevisions(expectedRevisions, actual);
         assertThat(result.isSuccessful(), is(true));
-    }
-
-    @Test
-    public void shouldNotConsider2MingleConfigsAsDifferentIfTheMqlCriteriaAreDifferent() {
-        PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline", "stage", "job");
-        pipelineConfig.setMingleConfig(new MingleConfig("https://foo.com", "go", "status > In Dev"));
-        assertThat(changesetService.mingleConfigMatches(pipelineConfig, new MingleConfig("https://foo.com", "go", "status > Something Else")), is(true));
     }
 
     @Test
@@ -761,8 +745,7 @@ public class ChangesetServiceIntegrationTest {
         Pipeline downstreamThree = dbHelper.checkinRevisionsToBuild(new ManualBuild(username), pipelineConfigWithTwoMaterials, revisionsForDownstream3);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        List<MaterialRevision> actual = changesetService.revisionsBetween(CaseInsensitiveString.str(pipelineConfigWithTwoMaterials.name()), downstreamOne.getCounter(), downstreamThree.getCounter(), username, result, true,
-                false);
+        List<MaterialRevision> actual = changesetService.revisionsBetween(CaseInsensitiveString.str(pipelineConfigWithTwoMaterials.name()), downstreamOne.getCounter(), downstreamThree.getCounter(), username, result, false);
 
         List<MaterialRevision> expectedRevisions = groupByMaterial(revisionsForUpstream2, revisionsForUpstream3, revisionsForUpstream4, revisionsForUpstream5, revisionsForDownstream2, revisionsForDownstream3);
 
@@ -801,8 +784,7 @@ public class ChangesetServiceIntegrationTest {
         Pipeline downstreamTwo = dbHelper.checkinRevisionsToBuild(new ManualBuild(username), pipelineConfigWithTwoMaterials, revisionsForDownstream1);//Using the same hg revision.
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        List<MaterialRevision> actual = changesetService.revisionsBetween(CaseInsensitiveString.str(pipelineConfigWithTwoMaterials.name()), downstreamOne.getCounter(), downstreamTwo.getCounter(), username, result, true,
-                false);
+        List<MaterialRevision> actual = changesetService.revisionsBetween(CaseInsensitiveString.str(pipelineConfigWithTwoMaterials.name()), downstreamOne.getCounter(), downstreamTwo.getCounter(), username, result, false);
 
         List<MaterialRevision> expectedRevisions = groupByMaterial(revisionsForUpstream2, up2Rev);//Should not contain the hg revision that has not changed
 
@@ -851,8 +833,7 @@ public class ChangesetServiceIntegrationTest {
         Pipeline downstreamTwo = dbHelper.checkinRevisionsToBuild(new ManualBuild(username), pipelineConfigWithTwoMaterials, revisionsForDownstream2);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        List<MaterialRevision> actual = changesetService.revisionsBetween(CaseInsensitiveString.str(pipelineConfigWithTwoMaterials.name()), downstreamOne.getCounter(), downstreamTwo.getCounter(), username, result, true,
-                false);
+        List<MaterialRevision> actual = changesetService.revisionsBetween(CaseInsensitiveString.str(pipelineConfigWithTwoMaterials.name()), downstreamOne.getCounter(), downstreamTwo.getCounter(), username, result, false);
 
         List<MaterialRevision> expectedRevisions = groupByMaterial(revisionsForUpstream2, revisionsForUpstream3, revisionsForUpstream4, revisionsForDownstream2);
 
@@ -860,8 +841,7 @@ public class ChangesetServiceIntegrationTest {
 
         assertThat(result.isSuccessful(), is(true));
 
-        actual = changesetService.revisionsBetween(CaseInsensitiveString.str(pipelineConfigWithTwoMaterials.name()), downstreamTwo.getCounter(), downstreamTwo.getCounter(), username, result, true,
-                false);//same to and from
+        actual = changesetService.revisionsBetween(CaseInsensitiveString.str(pipelineConfigWithTwoMaterials.name()), downstreamTwo.getCounter(), downstreamTwo.getCounter(), username, result, false);//same to and from
 
         assertMaterialRevisions(expectedRevisions, actual);
 
@@ -908,8 +888,7 @@ public class ChangesetServiceIntegrationTest {
         Pipeline downstreamTwo = dbHelper.checkinRevisionsToBuild(new ManualBuild(username), pipelineConfigWithTwoMaterials, revisionsForDownstream2);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        List<MaterialRevision> actual = changesetService.revisionsBetween(CaseInsensitiveString.str(pipelineConfigWithTwoMaterials.name()), downstreamTwo.getCounter(), downstreamTwo.getCounter(), username, result, true,
-                false);
+        List<MaterialRevision> actual = changesetService.revisionsBetween(CaseInsensitiveString.str(pipelineConfigWithTwoMaterials.name()), downstreamTwo.getCounter(), downstreamTwo.getCounter(), username, result, false);
 
         List<MaterialRevision> expectedRevisions = groupByMaterial(revisionsForUpstream2, revisionsForUpstream3, revisionsForUpstream4, revisionsForDownstream2);
 
@@ -982,7 +961,7 @@ public class ChangesetServiceIntegrationTest {
     private void validateFailsForNonNaturalCounter(int fromCounter, int toCounter) {
         HttpLocalizedOperationResult result;
         result = new HttpLocalizedOperationResult();
-        changesetService.revisionsBetween("foo", fromCounter, toCounter, new Username(new CaseInsensitiveString("loser")), result, true, false);
+        changesetService.revisionsBetween("foo", fromCounter, toCounter, new Username(new CaseInsensitiveString("loser")), result, false);
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.message(), is("Pipeline counters should be positive."));
         assertThat(result.httpCode(), is(400));

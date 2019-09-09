@@ -383,32 +383,6 @@ public class GoDashboardCurrentStateLoaderTest {
     }
 
     @Test
-    public void shouldAddMingleConfigInfoWhenLoadingAllPipelines() {
-        PipelineConfig p1Config = goConfigMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1", "job1");
-        MingleConfig mingleConfig = new MingleConfig("http://example.com/", "go-project");
-        p1Config.setMingleConfig(mingleConfig);
-        PipelineInstanceModel pimForP1 = pim(p1Config);
-        when(pipelineSqlMapDao.loadHistoryForDashboard(CaseInsensitiveString.toStringList(config.getAllPipelineNames()))).thenReturn(createPipelineInstanceModels(pimForP1));
-
-        List<GoDashboardPipeline> models = loader.allPipelines(config);
-
-        assertThat(models.get(0).getTrackingTool(), is(Optional.of(mingleConfig.asTrackingTool())));
-    }
-
-    @Test
-    public void shouldAddMingleConfigInfoWhenLoadingAPipeline() {
-        PipelineConfig p1Config = goConfigMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1", "job1");
-        MingleConfig mingleConfig = new MingleConfig("http://example.com/", "go-project");
-        p1Config.setMingleConfig(mingleConfig);
-        PipelineInstanceModel pimForP1 = pim(p1Config);
-        when(pipelineSqlMapDao.loadHistoryForDashboard(CaseInsensitiveString.toStringList(p1Config.getName()))).thenReturn(createPipelineInstanceModels(pimForP1));
-
-        GoDashboardPipeline model = loader.pipelineFor(p1Config, config.findGroup("group1"));
-
-        assertThat(model.getTrackingTool(), is(Optional.of(mingleConfig.asTrackingTool())));
-    }
-
-    @Test
     public void shouldNotReloadFromDBIfListOfPipelinesHasNotChanged() {
         PipelineConfig p1Config = goConfigMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1", "job1");
         PipelineInstanceModel pimForP1 = pim(p1Config);

@@ -1,13 +1,8 @@
 {
-  "target_version": "7",
+  "target_version": "8",
   "pipelines": [
     {
       "name": "firstpipe",
-      "mingle": {
-        "base_url": "https://mingle.example.com",
-        "project_identifier": "foobar_widgets",
-        "mql_grouping_conditions": "status > 'In Dev'"
-      },
       "environment_variables": [
         {
           "name": "env1",

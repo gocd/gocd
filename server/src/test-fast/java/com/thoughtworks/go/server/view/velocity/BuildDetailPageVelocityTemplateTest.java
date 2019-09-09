@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.server.view.velocity;
 
+import com.thoughtworks.go.config.TrackingTool;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
@@ -33,7 +34,6 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 
-import static com.thoughtworks.go.config.TrackingTool.createTrackingTool;
 import static com.thoughtworks.go.domain.buildcause.BuildCause.createWithModifications;
 import static com.thoughtworks.go.helper.JobInstanceMother.building;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.gitMaterialConfig;
@@ -115,7 +115,7 @@ public class BuildDetailPageVelocityTemplateTest {
 
         Pipeline pipeline = schedule(pipelineConfig("pipeline", new MaterialConfigs(gitMaterialConfig)), createWithModifications(materialRevisions, ""));
         JobDetailPresentationModel model = new JobDetailPresentationModel(building("job"), new JobInstances(), null,
-                pipeline, null, createTrackingTool(new HashMap()),
+                pipeline, null, new TrackingTool(),
                 mock(ArtifactsService.class), StageMother.custom("stage"));
 
         HashMap<String, Object> data = new HashMap<>();

@@ -18,8 +18,6 @@ package com.thoughtworks.go.domain.feed;
 import java.util.Date;
 import java.util.List;
 
-import com.thoughtworks.go.server.ui.MingleCard;
-
 /**
  * @understands an atom feed entry
  */
@@ -38,6 +36,4 @@ public interface FeedEntry {
     long getPipelineId();
 
     List<Author> getAuthors();
-
-    List<MingleCard> getMingleCards();
 }

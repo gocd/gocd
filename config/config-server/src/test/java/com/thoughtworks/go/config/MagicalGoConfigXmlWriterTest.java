@@ -86,28 +86,6 @@ public class MagicalGoConfigXmlWriterTest {
     }
 
     @Test
-    public void shouldBeAbleToAssociateMingleConfigWithAPipeline() throws Exception {
-        CruiseConfig config = GoConfigMother.configWithPipelines("pipeline1");
-        config.setServerConfig(new ServerConfig("foo", new SecurityConfig()));
-
-        config.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).setMingleConfig(new MingleConfig("https://foo.bar/baz", "go-upstream", "foo = bar"));
-        output = new ByteArrayOutputStream();
-        xmlWriter.write(config, output, false);
-        assertThat(output.toString().replaceAll(">\\s+<", "><"),
-                containsString("<mingle baseUrl=\"https://foo.bar/baz\" projectIdentifier=\"go-upstream\"><mqlGroupingConditions>foo = bar</mqlGroupingConditions></mingle>"));
-
-        config.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).setMingleConfig(new MingleConfig("https://foo.bar/baz", "go-upstream"));
-        output = new ByteArrayOutputStream();
-        xmlWriter.write(config, output, false);
-        assertThat(output.toString().replaceAll(">\\s+<", "><"), containsString("<mingle baseUrl=\"https://foo.bar/baz\" projectIdentifier=\"go-upstream\" />"));
-
-        config.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).setMingleConfig(new MingleConfig("https://foo.bar/baz", "go-upstream", ""));
-        output = new ByteArrayOutputStream();
-        xmlWriter.write(config, output, false);
-        assertThat(output.toString().replaceAll(">\\s+<", "><"), containsString("<mingle baseUrl=\"https://foo.bar/baz\" projectIdentifier=\"go-upstream\"><mqlGroupingConditions /></mingle>"));
-    }
-
-    @Test
     public void shouldBeAbleToExplicitlyLockAPipeline() throws Exception {
         CruiseConfig config = GoConfigMother.configWithPipelines("pipeline1");
         config.setServerConfig(new ServerConfig("foo", new SecurityConfig()));

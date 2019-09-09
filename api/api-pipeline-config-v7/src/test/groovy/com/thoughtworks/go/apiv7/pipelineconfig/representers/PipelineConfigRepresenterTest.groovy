@@ -418,7 +418,7 @@ class PipelineConfigRepresenterTest {
       def exception = assertThrows(UnprocessableEntityException.class, {
         PipelineConfigRepresenter.fromJSON(jsonReader, new ConfigHelperOptions(mock(BasicCruiseConfig.class), passwordDeserializer))
       })
-      assertEquals("Invalid Tracking tool type 'bad-tracking-tool'. It has to be one of 'generic, mingle'.", exception.getMessage())
+      assertEquals("Invalid Tracking tool type 'bad-tracking-tool'. It has to be one of 'generic'.", exception.getMessage())
     }
 
     @Test

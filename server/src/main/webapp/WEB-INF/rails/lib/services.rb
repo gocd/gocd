@@ -67,7 +67,6 @@ module Services
     :material_config_service,
     :material_service,
     :material_update_service,
-    :mingle_config_service,
     :package_definition_service,
     :package_repository_service,
     :password_deserializer,

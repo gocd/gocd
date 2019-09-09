@@ -171,4 +171,18 @@ class ConfigRepoMigratorTest {
 
         }
     }
+
+    @Nested
+    class MigrateV7ToV8 {
+        @Test
+        void shouldRemoveMingleNodeFromProject() {
+            ConfigRepoDocumentMother documentMother = new ConfigRepoDocumentMother();
+
+            String oldJSON = documentMother.v7Pipeline();
+            String newJSON = documentMother.v8Pipeline();
+            String transformedJSON = migrator.migrate(oldJSON, 8);
+
+            assertThatJson(transformedJSON).isEqualTo(newJSON);
+        }
+    }
 }

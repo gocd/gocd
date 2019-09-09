@@ -51,9 +51,6 @@ public class CRPipeline extends CRBase {
     @SerializedName("tracking_tool")
     @Expose
     private CRTrackingTool trackingTool;
-    @SerializedName("mingle")
-    @Expose
-    private CRMingle mingle;
     @SerializedName("timer")
     @Expose
     private CRTimer timer;

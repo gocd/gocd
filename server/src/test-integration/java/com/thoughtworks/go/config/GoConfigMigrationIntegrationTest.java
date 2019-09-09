@@ -1786,6 +1786,59 @@ public class GoConfigMigrationIntegrationTest {
 
     }
 
+    @Test
+    public void migration131_shouldRemoveMingleTagFromPipelineTag() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        String configXml =
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                        + "<cruise schemaVersion=\"130\">"
+                        + "    <pipelines>"
+                        + "      <pipeline name=\"in_env\">"
+                        + "         <mingle"
+                        + "             baseUrl='http://mingle.example.com'"
+                        + "             projectIdentifier='my_project'>"
+                        + "             <mqlGroupingConditions>status > 'In Dev'</mqlGroupingConditions>"
+                        + "         </mingle>"
+                        + "         <materials>"
+                        + "           <hg url=\"blah\"/>"
+                        + "         </materials>"
+                        + "         <stage name=\"some_stage\">"
+                        + "             <jobs>"
+                        + "             <job name=\"some_job\">"
+                        + "                 <tasks>"
+                        + "                    <exec command=\"ls\"/>"
+                        + "                 </tasks>"
+                        + "             </job>"
+                        + "             </jobs>"
+                        + "         </stage>"
+                        + "      </pipeline>"
+                        + "    </pipelines>"
+                        + "</cruise>";
+
+        String expectedConfig =
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                        + "<cruise schemaVersion=\"131\">"
+                        + "    <pipelines>"
+                        + "      <pipeline name=\"in_env\">"
+                        + "                  <materials>"
+                        + "           <hg url=\"blah\"/>"
+                        + "         </materials>"
+                        + "         <stage name=\"some_stage\">"
+                        + "             <jobs>"
+                        + "             <job name=\"some_job\">"
+                        + "                 <tasks>"
+                        + "                    <exec command=\"ls\"/>"
+                        + "                 </tasks>"
+                        + "             </job>"
+                        + "             </jobs>"
+                        + "         </stage>"
+                        + "      </pipeline>"
+                        + "    </pipelines>"
+                        + "</cruise>";
+
+        final String migratedXml = ConfigMigrator.migrate(configXml, 130, 131);
+        XmlAssert.assertThat(migratedXml).and(expectedConfig).areIdentical();
+    }
+
     private void assertStringContainsIgnoringCarriageReturn(String actual, String substring) {
         assertThat(actual.replaceAll("\\r", "")).contains(substring.replaceAll("\\r", ""));
     }

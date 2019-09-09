@@ -15,16 +15,15 @@
  */
 package com.thoughtworks.go.domain.feed.stage;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.domain.StageResult;
 import com.thoughtworks.go.domain.feed.Author;
 import com.thoughtworks.go.domain.feed.FeedEntry;
-import com.thoughtworks.go.server.ui.MingleCard;
 import com.thoughtworks.go.util.GoConstants;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @understands an atom feed entry
@@ -37,7 +36,6 @@ public class StageFeedEntry implements FeedEntry {
     private Date updateDate;
     private StageResult stageResult;
     private List<Author> authors = new ArrayList<>();
-    private List<MingleCard> mingleCards = new ArrayList<>();
     private String approvedBy;
     private String cancelledBy;
     private String approvalType;
@@ -154,17 +152,6 @@ public class StageFeedEntry implements FeedEntry {
     @Override
     public List<Author> getAuthors() {
         return authors;
-    }
-
-    @Override
-    public List<MingleCard> getMingleCards() {
-        return mingleCards;
-    }
-
-    public void addCard(MingleCard mingleCard) {
-        if (!mingleCards.contains(mingleCard)) {
-            mingleCards.add(mingleCard);
-        }
     }
 
     public void addAuthor(Author author) {

@@ -18,8 +18,6 @@ package com.thoughtworks.go.server.service;
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.MingleConfig;
-import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.activity.StageStatusCache;
 import com.thoughtworks.go.domain.feed.Author;
@@ -44,7 +42,6 @@ import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.OperationResult;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
-import com.thoughtworks.go.server.ui.MingleCard;
 import com.thoughtworks.go.server.ui.ModificationForPipeline;
 import com.thoughtworks.go.server.ui.StageSummaryModel;
 import com.thoughtworks.go.server.ui.StageSummaryModels;
@@ -60,7 +57,10 @@ import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class StageService implements StageFinder {
@@ -330,7 +330,7 @@ public class StageService implements StageFinder {
                 feedEntries = (List<StageFeedEntry>) goCache.get(key);//Double check locking is done because the query is expensive (takes about 2 seconds)
                 if (feedEntries == null) {
                     feedEntries = stageDao.findCompletedStagesFor(pipelineName, FeedModifier.Latest, -1, FEED_PAGE_SIZE);
-                    populateAuthorsAndMingleCards(feedEntries, pipelineName, username);
+                    populateAuthors(feedEntries, pipelineName, username);
                     goCache.put(key, feedEntries);
                 }
             }
@@ -351,13 +351,13 @@ public class StageService implements StageFinder {
 
     public FeedEntries feedBefore(long entryId, String pipelineName, Username username) {
         List<StageFeedEntry> stageEntries = stageDao.findCompletedStagesFor(pipelineName, FeedModifier.Before, entryId, FEED_PAGE_SIZE);
-        populateAuthorsAndMingleCards(stageEntries, pipelineName, username);
+        populateAuthors(stageEntries, pipelineName, username);
         return new FeedEntries(new ArrayList<>(stageEntries));
     }
 
-    private void populateAuthorsAndMingleCards(List<StageFeedEntry> stageEntries,
-                                               String pipelineName,
-                                               Username username) {
+    private void populateAuthors(List<StageFeedEntry> stageEntries,
+                                 String pipelineName,
+                                 Username username) {
         List<Long> pipelineIds = new ArrayList<>();
         for (StageFeedEntry stageEntry : stageEntries) {
             pipelineIds.add(stageEntry.getPipelineId());
@@ -373,16 +373,7 @@ public class StageService implements StageFinder {
                 }
 
                 String pipelineForRev = rev.getPipelineId().getPipelineName();
-                if (config.hasPipelineNamed(new CaseInsensitiveString(pipelineForRev))) {
-                    PipelineConfig pipelineConfig = config.pipelineConfigByName(new CaseInsensitiveString(pipelineForRev));
-                    MingleConfig mingleConfig = pipelineConfig.getMingleConfig();
-                    Set<String> cardNos = rev.getCardNumbersFromComments();
-                    if (mingleConfig.isDefined()) {
-                        for (String cardNo : cardNos) {
-                            stageEntry.addCard(new MingleCard(mingleConfig, cardNo));
-                        }
-                    }
-                } else {
+                if (!config.hasPipelineNamed(new CaseInsensitiveString(pipelineForRev))) {
                     LOGGER.debug("pipeline not found: {}", pipelineForRev);
                 }
             }

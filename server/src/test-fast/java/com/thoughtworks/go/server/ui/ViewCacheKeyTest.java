@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.ui;
 
-import com.thoughtworks.go.config.MingleConfig;
 import com.thoughtworks.go.config.TrackingTool;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
@@ -205,12 +204,10 @@ class ViewCacheKeyTest {
 
             final PipelineInstanceModel pipelineInstanceModelTwo = new PipelineInstanceModel("up42", 2, "label-2", BuildCause.createManualForced(), new StageInstanceModels());
             pipelineInstanceModelTwo.setId(14);
-            MingleConfig mingleConfig = new MingleConfig("mingle", "project", "mql");
-            pipelineInstanceModelTwo.setMingleConfig(mingleConfig);
             pipelineModel.addPipelineInstance(pipelineInstanceModelTwo);
 
             assertThat(viewCacheKey.forPipelineModelBuildCauses(pipelineModel))
-                    .isEqualTo(String.format("com.thoughtworks.go.server.ui.ViewCacheKey.$view.$buildCausesForPipelineModel.$up42,.$[12|%s|%s][14|%s|%s]", trackingTool.hashCode(), -1, -1, mingleConfig.hashCode()));
+                    .isEqualTo(String.format("com.thoughtworks.go.server.ui.ViewCacheKey.$view.$buildCausesForPipelineModel.$up42,.$[12|%s][14|%s]", trackingTool.hashCode(), -1));
         }
     }
 

@@ -113,11 +113,6 @@ describe ApplicationController do
       expect(controller.task_view_service).to eq(service)
     end
 
-    it "should load mingle_config_service" do
-      expect(Spring).to receive(:bean).with('mingleConfigService').and_return(service = Object.new)
-      expect(controller.mingle_config_service).to eq(service)
-    end
-
     it "should load version_info_service" do
       expect(Spring).to receive(:bean).with('versionInfoService').and_return(service = Object.new)
       expect(controller.version_info_service).to eq(service)

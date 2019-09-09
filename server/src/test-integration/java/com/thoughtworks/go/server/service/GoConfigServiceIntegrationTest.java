@@ -387,7 +387,7 @@ public class GoConfigServiceIntegrationTest {
     @Test
     public void shouldReturnAllErrorsAppliedOverEditedCopy() {
         configHelper.addPipeline("pipeline", "stage");
-        configHelper.addParamToPipeline("pipeline", "mingle_url", "http://foo.bar");
+        configHelper.addParamToPipeline("pipeline", "link", "ftp://example.com");
         String md5 = goConfigService.getConfigForEditing().getMd5();
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         ConfigUpdateResponse response = goConfigService.updateConfigFromUI(new UpdateConfigFromUI() {
@@ -409,7 +409,7 @@ public class GoConfigServiceIntegrationTest {
             @Override
             public void update(Validatable pipeline) {
                 PipelineConfig pipelineConfig = (PipelineConfig) pipeline;
-                pipelineConfig.setMingleConfig(new MingleConfig("#{mingle_url}", "go"));
+                pipelineConfig.setTrackingTool(new TrackingTool("#{link}", "(evo-\\d+)"));
             }
 
             @Override
@@ -423,9 +423,9 @@ public class GoConfigServiceIntegrationTest {
             }
         }, md5, new Username(new CaseInsensitiveString("admin")), result);
 
-        MingleConfig mingleConfig = ((PipelineConfig) response.getNode()).getMingleConfig();
-        assertThat(mingleConfig.errors().on(MingleConfig.BASE_URL), is("Should be a URL starting with https://"));
-        assertThat(mingleConfig.getBaseUrl(), is("#{mingle_url}"));
+        TrackingTool trackingTool = ((PipelineConfig) response.getNode()).getTrackingTool();
+        assertThat(trackingTool.errors().on(TrackingTool.LINK), is("Link must be a URL containing '${ID}'. Go will replace the string '${ID}' with the first matched group from the regex at run-time."));
+        assertThat(trackingTool.getLink(), is("#{link}"));
     }
 
     @Test

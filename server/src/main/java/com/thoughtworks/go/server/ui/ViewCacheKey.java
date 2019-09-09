@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.ui;
 
-import com.thoughtworks.go.config.MingleConfig;
 import com.thoughtworks.go.config.TrackingTool;
 import com.thoughtworks.go.domain.PipelineIdentifier;
 import com.thoughtworks.go.domain.PipelinePauseInfo;
@@ -96,10 +95,9 @@ public class ViewCacheKey {
     private String appendActivePipelineInstanceModels(PipelineModel model, StringBuilder s) {
         for (PipelineInstanceModel pim : model.getActivePipelineInstances()) {
             TrackingTool trackingTool = pim.getTrackingTool();
-            MingleConfig mingleConfig = pim.getMingleConfig();
             int trackingToolHash = trackingTool == null ? -1 : trackingTool.hashCode();
-            int mingleToolHash = mingleConfig == null ? -1 : mingleConfig.hashCode();
-            s.append("[").append(pim.getId()).append("|").append(trackingToolHash).append("|").append(mingleToolHash).append("]");
+
+            s.append("[").append(pim.getId()).append("|").append(trackingToolHash).append("]");
         }
         return s.toString();
     }

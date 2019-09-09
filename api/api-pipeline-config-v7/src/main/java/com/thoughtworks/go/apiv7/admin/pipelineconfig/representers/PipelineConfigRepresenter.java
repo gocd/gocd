@@ -26,7 +26,6 @@ import com.thoughtworks.go.apiv7.admin.shared.representers.configorigin.ConfigRe
 import com.thoughtworks.go.apiv7.admin.shared.representers.configorigin.ConfigXmlOriginRepresenter;
 import com.thoughtworks.go.apiv7.admin.shared.representers.stages.ConfigHelperOptions;
 import com.thoughtworks.go.apiv7.admin.shared.representers.stages.StageRepresenter;
-import com.thoughtworks.go.config.MingleConfig;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.TimerConfig;
 import com.thoughtworks.go.config.TrackingTool;
@@ -73,7 +72,7 @@ public class PipelineConfigRepresenter {
     }
 
     private static void writeTrackingTool(OutputWriter jsonWriter, PipelineConfig pipelineConfig) {
-        if (pipelineConfig.getTrackingTool() != null || pipelineConfig.getMingleConfig().isDefined()) {
+        if (pipelineConfig.getTrackingTool() != null) {
             jsonWriter.addChild("tracking_tool", trackingToolWriter -> TrackingToolRepresenter.toJSON(trackingToolWriter, pipelineConfig));
         } else {
             jsonWriter.renderNull("tracking_tool");
@@ -125,11 +124,7 @@ public class PipelineConfigRepresenter {
     private static void setTrackingTool(JsonReader jsonReader, PipelineConfig pipelineConfig) {
         if (jsonReader.hasJsonObject("tracking_tool")) {
             Object trackingTool = TrackingToolRepresenter.fromJSON(jsonReader.readJsonObject("tracking_tool"));
-            if (trackingTool instanceof MingleConfig) {
-                pipelineConfig.setMingleConfig((MingleConfig) trackingTool);
-            } else if (trackingTool instanceof TrackingTool) {
-                pipelineConfig.setTrackingTool((TrackingTool) trackingTool);
-            }
+            pipelineConfig.setTrackingTool((TrackingTool) trackingTool);
         }
     }
 

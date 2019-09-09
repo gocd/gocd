@@ -76,12 +76,9 @@ describe ComparisonController do
     end
 
     it "should render error page when user doesn't have view access to pipeline" do
-      expect(controller).to receive(:mingle_config_service).and_return(service = double('MingleConfigService'))
       result = HttpLocalizedOperationResult.new
       allow(HttpLocalizedOperationResult).to receive(:new).and_return(result)
       result.forbidden(com.thoughtworks.go.i18n.LocalizedMessage::forbiddenToViewPipeline("some_pipeline"), HealthStateType.forbiddenForPipeline("some_pipeline"))
-
-      expect(service).to receive(:mingleConfigForPipelineNamed).with('some_pipeline', @loser, result).and_return(nil)
 
       get :show, params:{:pipeline_name => "some_pipeline", :from_counter => "10", :to_counter => 17}
 
@@ -122,15 +119,12 @@ describe ComparisonController do
 
     it "should render Checkins between the given pipeline instances" do
       allow(controller).to receive(:current_user).and_return(loser = Username.new(CaseInsensitiveString.new("loser")))
-      expect(controller).to receive(:mingle_config_service).and_return(service = double('MingleConfigService'))
       result = HttpLocalizedOperationResult.new
 
       allow(HttpLocalizedOperationResult).to receive(:new).and_return(result)
-      mingle_config = MingleConfig.new("https://some_host/path", "foo_bar_project", "mql != not(mql)")
-      expect(service).to receive(:mingleConfigForPipelineNamed).with('some_pipeline', loser, result).and_return(mingle_config)
 
       expect(controller).to receive(:changeset_service).and_return(changeset_service = double('ChangesetService'))
-      expect(changeset_service).to receive(:revisionsBetween).with('some_pipeline', 10, 17, loser, result, true, true).and_return(@revisions.getRevisions())
+      expect(changeset_service).to receive(:revisionsBetween).with('some_pipeline', 10, 17, loser, result, true).and_return(@revisions.getRevisions())
 
       stub_go_config_service
 
@@ -171,15 +165,12 @@ describe ComparisonController do
       config_service = stub_service(:go_config_service)
       expect(config_service).to receive(:getCurrentConfig).and_return(new_config = BasicCruiseConfig.new)
       allow(controller).to receive(:current_user).and_return(loser = Username.new(CaseInsensitiveString.new("loser")))
-      expect(controller).to receive(:mingle_config_service).and_return(service = double('MingleConfigService'))
       expect(controller).to receive(:changeset_service).and_return(changeset_service = double('ChangesetService'))
 
       result = HttpLocalizedOperationResult.new
       allow(HttpLocalizedOperationResult).to receive(:new).and_return(result)
-      mingle_config = MingleConfig.new("https://some_host/path", "foo_bar_project", "mql != not(mql)")
-      expect(service).to receive(:mingleConfigForPipelineNamed).with('some_pipeline', loser, result).and_return(mingle_config)
 
-      expect(changeset_service).to receive(:revisionsBetween).with('some_pipeline', 10, 17, loser, an_instance_of(HttpLocalizedOperationResult), true, false) do |name, from, to, loser, result|
+      expect(changeset_service).to receive(:revisionsBetween).with('some_pipeline', 10, 17, loser, an_instance_of(HttpLocalizedOperationResult), false) do |name, from, to, loser, result|
         result.notFound("pipleine '[\"some_pipeline\"]' not found.", HealthStateType.general(HealthStateScope.forPipeline('foo')))
       end
 

@@ -1329,7 +1329,6 @@ class ConfigConverterTest {
         assertThat(crPipeline.getTimer().getSpec()).isEqualTo("timer");
         assertThat(crPipeline.getStages().get(0).getName()).isEqualTo("build");
         assertThat(crPipeline.getStages().get(0).getJobs().size()).isEqualTo(1);
-        assertThat(crPipeline.getMingle()).isNull();
         assertThat(crPipeline.getDisplayOrderWeight()).isEqualTo(10);
     }
 

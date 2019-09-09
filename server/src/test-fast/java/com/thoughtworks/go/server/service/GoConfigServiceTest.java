@@ -239,13 +239,6 @@ public class GoConfigServiceTest {
         assertEquals(goConfigService.getCommentRendererFor("pipeline"), new TrackingTool("link", "regex"));
 
         pipelineConfig = createPipelineConfig("pipeline", "name", "plan");
-        pipelineConfig.setMingleConfig(new MingleConfig("baseUrl", "projIdentifier", "mql"));
-        newPipeline = new BasicPipelineConfigs();
-        newPipeline.add(pipelineConfig);
-        expectLoad(new BasicCruiseConfig(newPipeline));
-        assertEquals(goConfigService.getCommentRendererFor("pipeline"), new MingleConfig("baseUrl", "projIdentifier", "mql"));
-
-        pipelineConfig = createPipelineConfig("pipeline", "name", "plan");
         newPipeline = new BasicPipelineConfigs();
         newPipeline.add(pipelineConfig);
         expectLoad(new BasicCruiseConfig(newPipeline));

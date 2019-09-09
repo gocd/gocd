@@ -23,7 +23,6 @@ import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
-import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
@@ -38,9 +37,13 @@ import com.thoughtworks.go.util.Node;
 import org.junit.Test;
 import org.mockito.ArgumentMatchers;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static org.hamcrest.Matchers.startsWith;
@@ -322,8 +325,6 @@ public class PipelineConfigTest {
     @Test
     public void shouldSetPipelineConfigFromConfigAttributes() {
         PipelineConfig pipelineConfig = new PipelineConfig();
-        HashMap mingleConfigMap = new HashMap();
-        mingleConfigMap.put("mingleconfig", "mingleconfig");
         HashMap trackingToolMap = new HashMap();
         trackingToolMap.put("trackingtool", "trackingtool");
         HashMap timerConfigMap = new HashMap();
@@ -332,7 +333,6 @@ public class PipelineConfigTest {
 
         Map configMap = new HashMap();
         configMap.put(PipelineConfig.LABEL_TEMPLATE, "LABEL123-${COUNT}");
-        configMap.put(PipelineConfig.MINGLE_CONFIG, mingleConfigMap);
         configMap.put(PipelineConfig.TRACKING_TOOL, trackingToolMap);
         configMap.put(PipelineConfig.TIMER_CONFIG, timerConfigMap);
 
@@ -496,35 +496,8 @@ public class PipelineConfigTest {
     }
 
     @Test
-    public void shouldSetTheCorrectIntegrationType() {
+    public void shouldPopulateTrackingToolWhenTrackingToolAndLinkAndRegexAreDefined() {
         PipelineConfig pipelineConfig = new PipelineConfig();
-        assertThat(pipelineConfig.getIntegrationType(), is(PipelineConfig.INTEGRATION_TYPE_NONE));
-
-        pipelineConfig = new PipelineConfig();
-        pipelineConfig.setTrackingTool(new TrackingTool("link", "regex"));
-        assertThat(pipelineConfig.getIntegrationType(), is(PipelineConfig.INTEGRATION_TYPE_TRACKING_TOOL));
-
-        pipelineConfig = new PipelineConfig();
-        pipelineConfig.setMingleConfig(new MingleConfig("baseUri", "projId"));
-        assertThat(pipelineConfig.getIntegrationType(), is(PipelineConfig.INTEGRATION_TYPE_MINGLE));
-    }
-
-    @Test
-    public void shouldSetIntegrationTypeToMingleInCaseAnEmptyMingleConfigIsSubmitted() {
-        PipelineConfig pipelineConfig = new PipelineConfig();
-        MingleConfig mingleConfig = new MingleConfig();
-        mingleConfig.addError(MingleConfig.BASE_URL, "some error");
-        pipelineConfig.setMingleConfig(mingleConfig);
-
-        String integrationType = pipelineConfig.getIntegrationType();
-
-        assertThat(integrationType, is(PipelineConfig.INTEGRATION_TYPE_MINGLE));
-    }
-
-    @Test
-    public void shouldPopulateTrackingToolWhenIntegrationTypeIsTrackingToolAndLinkAndRegexAreDefined() {
-        PipelineConfig pipelineConfig = new PipelineConfig();
-        pipelineConfig.setMingleConfig(new MingleConfig("baseUri", "go"));
 
         HashMap map = new HashMap();
         HashMap valueHashMap = new HashMap();
@@ -532,88 +505,20 @@ public class PipelineConfigTest {
         valueHashMap.put("regex", "GoleyRegex");
 
         map.put(PipelineConfig.TRACKING_TOOL, valueHashMap);
-        map.put(PipelineConfig.INTEGRATION_TYPE, PipelineConfig.INTEGRATION_TYPE_TRACKING_TOOL);
 
         pipelineConfig.setConfigAttributes(map);
         assertThat(pipelineConfig.getTrackingTool(), is(new TrackingTool("GoleyLink", "GoleyRegex")));
-        assertThat(pipelineConfig.getMingleConfig(), is(new MingleConfig()));
-        assertThat(pipelineConfig.getIntegrationType(), is(PipelineConfig.INTEGRATION_TYPE_TRACKING_TOOL));
     }
 
     @Test
-    public void shouldPopulateMingleConfigWhenIntegrationTypeIsMingle() {
+    public void shouldResetTrackingToolWhenTrackingToolIsNone() {
         PipelineConfig pipelineConfig = new PipelineConfig();
         pipelineConfig.setTrackingTool(new TrackingTool("link", "regex"));
 
         Map map = new HashMap();
-        HashMap valueHashMap = new HashMap();
-        valueHashMap.put(MingleConfig.BASE_URL, "url");
-        valueHashMap.put(MingleConfig.PROJECT_IDENTIFIER, "identifier");
-        valueHashMap.put(MqlCriteria.MQL, "criteria");
-        valueHashMap.put(MingleConfig.MQL_GROUPING_CONDITIONS, valueHashMap);
-
-        map.put(PipelineConfig.MINGLE_CONFIG, valueHashMap);
-        map.put(PipelineConfig.INTEGRATION_TYPE, PipelineConfig.INTEGRATION_TYPE_MINGLE);
-
-        pipelineConfig.setConfigAttributes(map);
-        assertThat(pipelineConfig.getMingleConfig(), is(new MingleConfig("url", "identifier", "criteria")));
-        assertThat(pipelineConfig.getTrackingTool(), is(nullValue()));
-        assertThat(pipelineConfig.getIntegrationType(), is(PipelineConfig.INTEGRATION_TYPE_MINGLE));
-    }
-
-    @Test
-    public void shouldResetMingleConfigWhenIntegrationTypeIsNone() {
-        PipelineConfig pipelineConfig = new PipelineConfig();
-        pipelineConfig.setMingleConfig(new MingleConfig("baseUri", "go"));
-
-        Map map = new HashMap();
-        map.put(PipelineConfig.INTEGRATION_TYPE, PipelineConfig.INTEGRATION_TYPE_NONE);
-
-        pipelineConfig.setConfigAttributes(map);
-        assertThat(pipelineConfig.getMingleConfig(), is(new MingleConfig()));
-        assertThat(pipelineConfig.getIntegrationType(), is(PipelineConfig.INTEGRATION_TYPE_NONE));
-    }
-
-    @Test
-    public void shouldResetTrackingToolWhenIntegrationTypeIsNone() {
-        PipelineConfig pipelineConfig = new PipelineConfig();
-        pipelineConfig.setTrackingTool(new TrackingTool("link", "regex"));
-
-        Map map = new HashMap();
-        map.put(PipelineConfig.INTEGRATION_TYPE, PipelineConfig.INTEGRATION_TYPE_NONE);
 
         pipelineConfig.setConfigAttributes(map);
         assertThat(pipelineConfig.getTrackingTool(), is(nullValue()));
-        assertThat(pipelineConfig.getIntegrationType(), is(PipelineConfig.INTEGRATION_TYPE_NONE));
-    }
-
-    @Test
-    public void shouldGetIntegratedTrackingToolWhenGenericTrackingToolIsDefined() {
-        PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline");
-        TrackingTool trackingTool = new TrackingTool("http://example.com/${ID}", "Foo-(\\d+)");
-        pipelineConfig.setTrackingTool(trackingTool);
-        pipelineConfig.setMingleConfig(new MingleConfig());
-
-        assertThat(pipelineConfig.getIntegratedTrackingTool(), is(Optional.of(trackingTool)));
-    }
-
-    @Test
-    public void shouldGetIntegratedTrackingToolWhenMingleTrackingToolIsDefined() {
-        PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline");
-        MingleConfig mingleConfig = new MingleConfig("http://example.com", "go-project");
-        pipelineConfig.setTrackingTool(null);
-        pipelineConfig.setMingleConfig(mingleConfig);
-
-        assertThat(pipelineConfig.getIntegratedTrackingTool(), is(Optional.of(mingleConfig.asTrackingTool())));
-    }
-
-    @Test
-    public void shouldGetIntegratedTrackingToolWhenNoneIsDefined() {
-        PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline");
-        pipelineConfig.setTrackingTool(null);
-        pipelineConfig.setMingleConfig(new MingleConfig());
-
-        assertThat(pipelineConfig.getIntegratedTrackingTool(), is(Optional.empty()));
     }
 
     @Test

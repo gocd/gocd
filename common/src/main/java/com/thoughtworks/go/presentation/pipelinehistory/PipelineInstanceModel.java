@@ -16,7 +16,6 @@
 package com.thoughtworks.go.presentation.pipelinehistory;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.MingleConfig;
 import com.thoughtworks.go.config.TrackingTool;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
@@ -48,7 +47,6 @@ public class PipelineInstanceModel implements PipelineInfo {
     private String previousPipelineLabel;
     private boolean isCurrentlyLocked;
     private TrackingTool trackingTool;
-    private MingleConfig mingleConfig;
     private String comment;
 
     private PipelineInstanceModel() {
@@ -489,14 +487,6 @@ public class PipelineInstanceModel implements PipelineInfo {
 
     public void setTrackingTool(TrackingTool trackingTool) {
         this.trackingTool = trackingTool;
-    }
-
-    public MingleConfig getMingleConfig() {
-        return mingleConfig;
-    }
-
-    public void setMingleConfig(MingleConfig mingleConfig) {
-        this.mingleConfig = mingleConfig;
     }
 
     public DependencyMaterialConfig findDependencyMaterial(CaseInsensitiveString pipelineName) {

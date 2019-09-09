@@ -33,14 +33,10 @@ describe "/api/feeds/index" do
       @entry1.addAuthor(Author.new("user<loser", "loser@gmail.com"))
       @entry1.addAuthor(Author.new("user>boozer", "boozer@gmail.com"))
 
-      @entry1.addCard(MingleCard.new(MingleConfig.new("https://host", "project-evil"), "007"))
-      @entry1.addCard(MingleCard.new(MingleConfig.new("https://boast", "project-dead"), "666"))
-
       @entry2 = com.thoughtworks.go.domain.feed.stage.StageFeedEntry.new(2, 11,
                 com.thoughtworks.go.domain.StageIdentifier.new("pipeline-name", 2, 'pipeline-label', 'stage-name', 'stage-counter'), 100, @date, StageResult::Cancelled, "success", "random_guy", "terminator")
 
       @entry2.addAuthor(Author.new("user anonymous", nil))
-      @entry2.addCard(MingleCard.new(MingleConfig.new("https://ghost", "project.happy"), "42"))
 
       feed = double(:updated_date => "TIME IN ISO8601", :entries => [@entry2, @entry1], :first => 1, :last => 2)
       assign(:title, "pipeline_name")
@@ -78,31 +74,6 @@ describe "/api/feeds/index" do
       link = atom_xpath(doc, "feed", "entry", "link[@rel='alternate'][@type='text/html'][@href='http://test.host/pipelines/pipeline-name/1/stage-name/1'][@title='stage-name Stage Detail']")
 
       expect(link).to_not be_nil_or_empty
-    end
-
-    it "should list mingle cards with project url" do
-      render :template => '/api/pipelines/stage_feed.xml.erb'
-
-      doc = Nokogiri::XML(response.body)
-      cancelled_entry = atom_xpath(doc, "feed", "entry")[0]
-      passed_entry = atom_xpath(doc, "feed", "entry")[1]
-
-      passed_entry.tap do |entry|
-        expect(atom_xpath(entry, "title").text).to eq("pipeline-name(1) stage stage-name(stage-counter) Passed")
-
-        expect(atom_xpath(entry, "link[@href='https://host/api/v2/projects/project-evil/cards/007.xml'][@rel='http://www.thoughtworks-studios.com/ns/go#related'][@type='application/vnd.mingle+xml'][@title='#007']")).to_not be_nil_or_empty
-        expect(atom_xpath(entry, "link[@href='https://host/projects/project-evil/cards/007'][@rel='http://www.thoughtworks-studios.com/ns/go#related'][@type='text/html'][@title='#007']")).to_not be_nil_or_empty
-
-        expect(atom_xpath(entry, "link[@href='https://boast/api/v2/projects/project-dead/cards/666.xml'][@rel='http://www.thoughtworks-studios.com/ns/go#related'][@type='application/vnd.mingle+xml'][@title='#666']")).to_not be_nil_or_empty
-        expect(atom_xpath(entry, "link[@href='https://boast/projects/project-dead/cards/666'][@rel='http://www.thoughtworks-studios.com/ns/go#related'][@type='text/html'][@title='#666']")).to_not be_nil_or_empty
-      end
-
-      cancelled_entry.tap do |entry|
-        expect(atom_xpath(entry, "title").text).to eq("pipeline-name(2) stage stage-name(stage-counter) Cancelled")
-
-        expect(atom_xpath(entry, "link[@href='https://ghost/api/v2/projects/project.happy/cards/42.xml'][@rel='http://www.thoughtworks-studios.com/ns/go#related'][@type='application/vnd.mingle+xml'][@title='#42']")).to_not be_nil_or_empty
-        expect(atom_xpath(entry, "link[@href='https://ghost/projects/project.happy/cards/42'][@rel='http://www.thoughtworks-studios.com/ns/go#related'][@type='text/html'][@title='#42']")).to_not be_nil_or_empty
-      end
     end
 
     it "should list authors" do

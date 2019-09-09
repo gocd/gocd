@@ -364,17 +364,6 @@ public class GoConfigFileHelper {
         return pipelineConfig;
     }
 
-    public PipelineConfig addPipelineWithGroup(String groupName, String pipelineName, MaterialConfigs materialConfigs, MingleConfig mingleConfig, String stageName, String... buildNames) {
-        CruiseConfig cruiseConfig = loadForEdit();
-        PipelineConfig pipelineConfig = goConfigMother.addPipelineWithGroup(cruiseConfig, groupName, pipelineName,
-                materialConfigs,
-                stageName,
-                buildNames);
-        pipelineConfig.setMingleConfig(mingleConfig);
-        writeConfigFile(cruiseConfig);
-        return pipelineConfig;
-    }
-
     public PipelineConfig addPipelineWithGroup(String groupName, String pipelineName, MaterialConfigs materialConfigs, TrackingTool trackingTool, String stageName, String... jobs) {
         CruiseConfig cruiseConfig = loadForEdit();
         PipelineConfig pipelineConfig = goConfigMother.addPipelineWithGroup(cruiseConfig, groupName, pipelineName,
@@ -409,14 +398,6 @@ public class GoConfigFileHelper {
     public PipelineConfig addPipeline(String pipelineName, String stageName, MaterialConfig materialConfig, String... buildNames) {
         CruiseConfig cruiseConfig = loadForEdit();
         PipelineConfig pipelineConfig = goConfigMother.addPipeline(cruiseConfig, pipelineName, stageName, new MaterialConfigs(materialConfig), buildNames);
-        writeConfigFile(cruiseConfig);
-        return pipelineConfig;
-    }
-
-    public PipelineConfig addPipeline(String pipelineName, String stageName, MaterialConfig materialConfig, MingleConfig mingleConfig, String... jobs) {
-        CruiseConfig cruiseConfig = loadForEdit();
-        PipelineConfig pipelineConfig = goConfigMother.addPipeline(cruiseConfig, pipelineName, stageName, new MaterialConfigs(materialConfig), jobs);
-        pipelineConfig.setMingleConfig(mingleConfig);
         writeConfigFile(cruiseConfig);
         return pipelineConfig;
     }
@@ -994,13 +975,6 @@ public class GoConfigFileHelper {
 
     public static EnvironmentVariablesConfig env(String[] names, String[] values) {
         return EnvironmentVariablesConfigMother.env(names, values);
-    }
-
-    public void addMingleConfigToPipeline(String pipelineName, MingleConfig mingleConfig) {
-        CruiseConfig config = loadForEdit();
-        PipelineConfig pipelineConfig = config.pipelineConfigByName(new CaseInsensitiveString(pipelineName));
-        pipelineConfig.setMingleConfig(mingleConfig);
-        writeConfigFile(config);
     }
 
     public void setBaseUrls(SiteUrl siteUrl, SecureSiteUrl secureSiteUrl) {

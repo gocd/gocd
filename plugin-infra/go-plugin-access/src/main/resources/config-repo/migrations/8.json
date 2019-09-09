@@ -1,0 +1,21 @@
+[
+  {
+    "operation": "shift",
+    "spec": {
+      "target_version": {
+        "#8": "&1" // Set target version to 8.
+      },
+      "*": "&"
+    }
+  },
+  {
+    "operation": "remove",
+    "spec": {
+      "pipelines": {
+        "*": {
+          "mingle": ""
+        }
+      }
+    }
+  }
+]

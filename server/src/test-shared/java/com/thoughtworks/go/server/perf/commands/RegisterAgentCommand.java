@@ -38,7 +38,7 @@ public class RegisterAgentCommand extends AgentPerformanceCommand {
     private Optional<String> registerAgent() {
         InetAddress localHost = getInetAddress();
         Agent agent = new Agent("Perf-Test-Agent-" + UUID.randomUUID(), localHost.getHostName(), localHost.getHostAddress(), UUID.randomUUID().toString());
-        AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromServer(agent, false, "location", 233232L, "osx", false);
+        AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromServer(agent, false, "location", 233232L, "osx");
         agentService.requestRegistration(agentRuntimeInfo);
         return Optional.ofNullable(agent.getUuid());
     }

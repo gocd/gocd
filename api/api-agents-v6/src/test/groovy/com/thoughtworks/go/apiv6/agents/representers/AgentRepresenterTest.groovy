@@ -91,7 +91,7 @@ class AgentRepresenterTest {
           "origin": [
             "_links": [
               "doc" : [
-                "href": "https://api.gocd.org/19.8.0/#config-repos"
+                "href": apiDocsUrl("#config-repos")
               ],
               "find": [
                 "href": "http://test.host/go/api/admin/config_repos/:id"
@@ -108,7 +108,7 @@ class AgentRepresenterTest {
           "origin": [
             "_links": [
               "doc" : [
-                "href": "https://api.gocd.org/19.8.0/#get-configuration"
+                "href": apiDocsUrl("#get-configuration")
               ],
               "self": [
                 "href": "http://test.host/go/admin/config_xml"
@@ -128,7 +128,7 @@ class AgentRepresenterTest {
           "origin": [
             "_links": [
               "doc" : [
-                "href": "https://api.gocd.org/19.8.0/#get-configuration"
+                "href": apiDocsUrl("#get-configuration")
               ],
               "self": [
                 "href": "http://test.host/go/admin/config_xml"
@@ -201,7 +201,7 @@ class AgentRepresenterTest {
           "origin": [
             "_links": [
               "doc" : [
-                "href": "https://api.gocd.org/19.8.0/#config-repos"
+                "href": apiDocsUrl("#config-repos")
               ],
               "find": [
                 "href": "http://test.host/go/api/admin/config_repos/:id"
@@ -218,7 +218,7 @@ class AgentRepresenterTest {
           "origin": [
             "_links": [
               "doc" : [
-                "href": "https://api.gocd.org/19.8.0/#get-configuration"
+                "href": apiDocsUrl("#get-configuration")
               ],
               "self": [
                 "href": "http://test.host/go/admin/config_xml"

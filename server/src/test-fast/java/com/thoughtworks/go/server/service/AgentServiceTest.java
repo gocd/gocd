@@ -234,7 +234,7 @@ class AgentServiceTest {
             @Test
             void shouldBulkEnableAgents() {
                 Username username = new Username(new CaseInsensitiveString("test"));
-                AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromAgent(agentIdentifier, AgentRuntimeStatus.Unknown, "cookie", false);
+                AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromAgent(agentIdentifier, AgentRuntimeStatus.Unknown, "cookie");
                 AgentInstance pending = createFromLiveAgent(agentRuntimeInfo, new SystemEnvironment(), null);
 
                 Agent agent = new Agent("UUID2", "remote-host", "50.40.30.20");
@@ -557,7 +557,7 @@ class AgentServiceTest {
         @Test
         void shouldUpdateRuntimeInfo() {
             String cookie = "cookie";
-            AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(agentIdentifier, Idle, currentWorkingDirectory(), cookie, false);
+            AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(agentIdentifier, Idle, currentWorkingDirectory(), cookie);
             when(agentDao.cookieFor(runtimeInfo.getIdentifier())).thenReturn(cookie);
             agentService.updateRuntimeInfo(runtimeInfo);
             verify(agentInstances).updateAgentRuntimeInfo(runtimeInfo);
@@ -565,7 +565,7 @@ class AgentServiceTest {
 
         @Test
         void shouldThrowExceptionWhenAgentWithNoCookieTriesToUpdateRuntimeInfo() {
-            AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(agentIdentifier, Idle, currentWorkingDirectory(), null, false);
+            AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(agentIdentifier, Idle, currentWorkingDirectory(), null);
 
             try (LogFixture logFixture = logFixtureFor(AgentService.class, Level.DEBUG)) {
                 try {
@@ -582,9 +582,9 @@ class AgentServiceTest {
 
         @Test
         void shouldThrowExceptionWhenADuplicateAgentTriesToUpdateRuntimeInfo() {
-            AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(agentIdentifier, Idle, currentWorkingDirectory(), null, false);
+            AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(agentIdentifier, Idle, currentWorkingDirectory(), null);
             runtimeInfo.setCookie("invalid_cookie");
-            AgentInstance original = createFromLiveAgent(new AgentRuntimeInfo(agentIdentifier, Idle, currentWorkingDirectory(), null, false), new SystemEnvironment(), null);
+            AgentInstance original = createFromLiveAgent(new AgentRuntimeInfo(agentIdentifier, Idle, currentWorkingDirectory(), null), new SystemEnvironment(), null);
 
             try (LogFixture logFixture = logFixtureFor(AgentService.class, Level.DEBUG)) {
                 try {
@@ -869,7 +869,7 @@ class AgentServiceTest {
     class RequestRegistration {
         @Test
         void requestRegistrationShouldReturnNullPrivateKeyRegistrationWhenCalledWithPendingAgent() {
-            AgentRuntimeInfo runtimeInfo = fromServer(pending().getAgent(), false, "sandbox", 0l, "linux", false);
+            AgentRuntimeInfo runtimeInfo = fromServer(pending().getAgent(), false, "sandbox", 0l, "linux");
             AgentInstance agentInstance = mock(AgentInstance.class);
             Agent agent = mock(Agent.class);
 
@@ -889,7 +889,7 @@ class AgentServiceTest {
 
         @Test
         void requestRegistrationShouldReturnValidRegistrationWhenCalledWithRegisteredAgent() {
-            AgentRuntimeInfo runtimeInfo = fromServer(building().getAgent(), false, "sandbox", 0l, "linux", false);
+            AgentRuntimeInfo runtimeInfo = fromServer(building().getAgent(), false, "sandbox", 0l, "linux");
             AgentInstance agentInstance = mock(AgentInstance.class);
             Agent agent = mock(Agent.class);
 
@@ -918,7 +918,7 @@ class AgentServiceTest {
             Agent mockAgent = mock(Agent.class);
             Registration mockRegistration = mock(Registration.class);
 
-            AgentRuntimeInfo runtimeInfo = fromServer(building().getAgent(), false, "sandbox", 0l, "linux", false);
+            AgentRuntimeInfo runtimeInfo = fromServer(building().getAgent(), false, "sandbox", 0l, "linux");
 
             when(agentInstances.register(runtimeInfo)).thenReturn(mockAgentInstance);
             when(mockAgentInstance.assignCertification()).thenReturn(mockRegistration);
@@ -1295,11 +1295,11 @@ class AgentServiceTest {
             SystemEnvironment sysEnv = new SystemEnvironment();
 
             Agent agent1 = new Agent("uuid-1", "host-1", "192.168.1.2");
-            AgentRuntimeInfo runtimeInfo1 = fromServer(agent1, true, "/foo/bar", 100l, "linux", false);
+            AgentRuntimeInfo runtimeInfo1 = fromServer(agent1, true, "/foo/bar", 100l, "linux");
             AgentInstance instance1 = createFromLiveAgent(runtimeInfo1, sysEnv, null);
 
             Agent agent3 = new Agent("uuid-3", "host-3", "192.168.1.4");
-            AgentRuntimeInfo runtimeInfo3 = fromServer(agent3, true, "/baz/quux", 300l, "linux", false);
+            AgentRuntimeInfo runtimeInfo3 = fromServer(agent3, true, "/baz/quux", 300l, "linux");
             AgentInstance instance3 = createFromLiveAgent(runtimeInfo3, sysEnv, null);
 
             List<String> uuids = asList("uuid-1", "uuid-3");

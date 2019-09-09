@@ -833,7 +833,7 @@ class AgentsControllerV6Test implements SecurityServiceTrait, ControllerTrait<Ag
                     "href": "http://test.host/go/api/admin/config_repos/id"
                   ],
                   "doc" : [
-                    "href": "https://api.gocd.org/19.8.0/#config-repos"
+                    "href": apiDocsUrl("#config-repos")
                   ],
                   "find": [
                     "href": "http://test.host/go/api/admin/config_repos/:id"
@@ -849,7 +849,7 @@ class AgentsControllerV6Test implements SecurityServiceTrait, ControllerTrait<Ag
                     "href": "http://test.host/go/admin/config_xml"
                   ],
                   "doc" : [
-                    "href": "https://api.gocd.org/19.8.0/#get-configuration"
+                    "href": apiDocsUrl("#get-configuration")
                   ]
                 ]
               ]
@@ -934,7 +934,7 @@ class AgentsControllerV6Test implements SecurityServiceTrait, ControllerTrait<Ag
                     "href": "http://test.host/go/admin/config_xml"
                   ],
                   "doc" : [
-                    "href": "https://api.gocd.org/19.8.0/#get-configuration"
+                    "href": apiDocsUrl("#get-configuration")
                   ]
                 ]
               ]

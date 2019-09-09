@@ -374,9 +374,9 @@ public class AgentRegistrationControllerTest {
 
         String elasticAgentId = "elastic-agent-id";
         String elasticPluginId = "elastic-plugin-id";
-        AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromServer(new Agent(uuid, "host", request.getRemoteAddr()), false, "location", 233232L, "osx", false);
+        AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromServer(new Agent(uuid, "host", request.getRemoteAddr()), false, "location", 233232L, "osx");
 
-        controller.agentRequest("host", uuid, "location", "233232", "osx", "someKey", "", "e1", "", elasticAgentId, elasticPluginId, false, token, request);
+        controller.agentRequest("host", uuid, "location", "233232", "osx", "someKey", "", "e1", "", elasticAgentId, elasticPluginId, token, request);
 
         verify(agentService).findElasticAgent(elasticAgentId, elasticPluginId);
         verify(agentService, times(2)).isRegistered(uuid);

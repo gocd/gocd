@@ -210,9 +210,9 @@ class AgentInstancesTest {
             Agent agent2 = new Agent("uuid-2", "host-2", "192.168.1.3");
             Agent agent3 = new Agent("uuid-3", "host-3", "192.168.1.4");
 
-            AgentRuntimeInfo runtime1 = fromServer(agent1, true, "/foo/bar", 100L, "linux", false);
-            AgentRuntimeInfo runtime2 = fromServer(agent2, true, "/bar/baz", 200L, "linux", false);
-            AgentRuntimeInfo runtime3 = fromServer(agent3, true, "/baz/quux", 300L, "linux", false);
+            AgentRuntimeInfo runtime1 = fromServer(agent1, true, "/foo/bar", 100L, "linux");
+            AgentRuntimeInfo runtime2 = fromServer(agent2, true, "/bar/baz", 200L, "linux");
+            AgentRuntimeInfo runtime3 = fromServer(agent3, true, "/baz/quux", 300L, "linux");
 
             AgentInstance instance1 = createFromLiveAgent(runtime1, systemEnvironment, mock(AgentStatusChangeListener.class));
             AgentInstance instance2 = createFromLiveAgent(runtime2, systemEnvironment, mock(AgentStatusChangeListener.class));
@@ -238,9 +238,9 @@ class AgentInstancesTest {
             Agent agent2 = new Agent("uuid-2", "host-2", "192.168.1.3");
             Agent agent3 = new Agent("uuid-3", "host-3", "192.168.1.4");
 
-            AgentRuntimeInfo runtime1 = fromServer(agent1, true, "/foo/bar", 100L, "linux", false);
-            AgentRuntimeInfo runtime2 = fromServer(agent2, true, "/bar/baz", 200L, "linux", false);
-            AgentRuntimeInfo runtime3 = fromServer(agent3, true, "/baz/quux", 300L, "linux", false);
+            AgentRuntimeInfo runtime1 = fromServer(agent1, true, "/foo/bar", 100L, "linux");
+            AgentRuntimeInfo runtime2 = fromServer(agent2, true, "/bar/baz", 200L, "linux");
+            AgentRuntimeInfo runtime3 = fromServer(agent3, true, "/baz/quux", 300L, "linux");
 
             AgentInstance instance1 = createFromLiveAgent(runtime1, systemEnvironment, mockListener);
             AgentInstance instance2 = createFromLiveAgent(runtime2, systemEnvironment, mockListener);

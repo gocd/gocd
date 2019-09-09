@@ -271,12 +271,9 @@ public class AgentInstanceTest {
     @Test
     void shouldUpdateSupportBuildCommandProtocolFlag() {
         AgentInstance agentInstance = AgentInstance.createFromAgent(agent, systemEnvironment, mock(AgentStatusChangeListener.class));
-        assertThat(agentInstance.getSupportsBuildCommandProtocol(), is(false));
-        agentInstance.update(new AgentRuntimeInfo(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false));
-        assertThat(agentInstance.getSupportsBuildCommandProtocol(), is(false));
+        agentInstance.update(new AgentRuntimeInfo(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie"));
 
-        agentInstance.update(new AgentRuntimeInfo(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", true));
-        assertThat(agentInstance.getSupportsBuildCommandProtocol(), is(true));
+        agentInstance.update(new AgentRuntimeInfo(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie"));
     }
 
 

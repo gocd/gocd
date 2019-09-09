@@ -20,7 +20,9 @@ import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.base.JsonOutputWriter;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.apiv1.internalenvironments.representers.MergedEnvironmentsRepresenter;
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.EnvironmentConfig;
 import com.thoughtworks.go.server.service.EnvironmentConfigService;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
@@ -60,8 +62,10 @@ public class InternalEnvironmentsControllerV1 extends ApiController implements S
             before("/*", mimeType, this::setContentType);
 
             before("", mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
+            before("/*", mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
 
             get("", mimeType, this::index);
+            get("/merged", mimeType, this::indexMergedEnvironments);
         });
     }
 
@@ -69,5 +73,10 @@ public class InternalEnvironmentsControllerV1 extends ApiController implements S
         List<String> environmentNames = environmentConfigService.environmentNames()
                 .stream().map(CaseInsensitiveString::toString).collect(Collectors.toList());
         return JsonOutputWriter.OBJECT_MAPPER.writeValueAsString(environmentNames);
+    }
+
+    public String indexMergedEnvironments(Request request, Response response) throws IOException {
+        List<EnvironmentConfig> allMergedEnvironments = environmentConfigService.getAllMergedEnvironments();
+        return writerForTopLevelObject(request, response, outputWriter -> MergedEnvironmentsRepresenter.toJSON(outputWriter, allMergedEnvironments));
     }
 }

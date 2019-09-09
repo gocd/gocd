@@ -65,6 +65,12 @@
   </rule>
 
   <rule>
+    <name>Internal Environment Merged API</name>
+    <from>^/api/admin/internal/environments/merged$</from>
+    <to last="true">/spark/api/admin/internal/environments/merged</to>
+  </rule>
+
+  <rule>
     <name>Internal Command Snippets API</name>
     <from>^/api/admin/internal/command_snippets$</from>
     <to last="true">/spark/api/admin/internal/command_snippets</to>

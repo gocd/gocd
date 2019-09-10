@@ -30,9 +30,9 @@ module MiscSpecExtensions
     if (config_service.currentCruiseConfig().server().getSiteUrl().getUrl().nil?)
       config_service.updateConfig(Class.new do
         def update config
-          server = config.server()
-          com.thoughtworks.go.util.ReflectionUtil.setField(server, "siteUrl", com.thoughtworks.go.domain.ServerSiteUrlConfig.new("http://test.host"))
-          com.thoughtworks.go.util.ReflectionUtil.setField(server, "secureSiteUrl", com.thoughtworks.go.domain.ServerSiteUrlConfig.new("https://ssl.host:443"))
+          server = config.server().siteUrls()
+          com.thoughtworks.go.util.ReflectionUtil.setField(server, "siteUrl", com.thoughtworks.go.domain.SiteUrl.new("http://test.host"))
+          com.thoughtworks.go.util.ReflectionUtil.setField(server, "secureSiteUrl", com.thoughtworks.go.domain.SecureSiteUrl.new("https://ssl.host:443"))
           return config
         end
       end.new)

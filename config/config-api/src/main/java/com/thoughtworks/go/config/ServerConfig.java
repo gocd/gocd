@@ -72,10 +72,10 @@ public class ServerConfig implements Validatable {
     public ServerConfig() {
     }
 
-    public ServerConfig(SecurityConfig securityConfig, MailHost mailHost, SiteUrl serverSiteUrl, SecureSiteUrl secureSiteUrl) {
+    public ServerConfig(SecurityConfig securityConfig, MailHost mailHost, SiteUrl siteUrl, SecureSiteUrl secureSiteUrl) {
         this.securityConfig = securityConfig;
         this.mailHost = mailHost;
-        this.siteUrls = new SiteUrls(serverSiteUrl, secureSiteUrl);
+        this.siteUrls = new SiteUrls(siteUrl, secureSiteUrl);
     }
 
     @PostConstruct
@@ -113,7 +113,6 @@ public class ServerConfig implements Validatable {
     public ServerConfig(String artifactsDir, SecurityConfig securityConfig) {
         this.artifactsDir = artifactsDir;
         this.securityConfig = securityConfig;
-        this.siteUrls = new SiteUrls();
     }
 
     public ServerConfig(String artifactsDir, SecurityConfig securityConfig, Double purgeStart, Double purgeUpto) {
@@ -248,7 +247,7 @@ public class ServerConfig implements Validatable {
      * @deprecated
      */
     public void setSiteUrl(String siteUrl) {
-        this.siteUrls.setSiteUrl(StringUtils.isBlank(siteUrl) ? new SiteUrl() : new SiteUrl(siteUrl));
+        getSiteUrls().setSiteUrl(StringUtils.isBlank(siteUrl) ? new SiteUrl() : new SiteUrl(siteUrl));
     }
 
     /**
@@ -257,7 +256,7 @@ public class ServerConfig implements Validatable {
      * @deprecated
      */
     public void setSecureSiteUrl(String secureSiteUrl) {
-        this.siteUrls.setSecureSiteUrl(StringUtils.isBlank(secureSiteUrl) ? new SecureSiteUrl() : new SecureSiteUrl(secureSiteUrl));
+        getSiteUrls().setSecureSiteUrl(StringUtils.isBlank(secureSiteUrl) ? new SecureSiteUrl() : new SecureSiteUrl(secureSiteUrl));
     }
 
 
@@ -286,13 +285,22 @@ public class ServerConfig implements Validatable {
         errors.add(fieldName, message);
     }
 
+    public SiteUrls getSiteUrls() {
+        if (this.siteUrls == null) {
+            this.siteUrls = new SiteUrls();
+        }
+
+        return siteUrls;
+    }
+
     public SecureSiteUrl getSecureSiteUrl() {
-        return this.siteUrls == null ? null : this.siteUrls.getSecureSiteUrl();
+        return getSiteUrls().getSecureSiteUrl();
     }
 
     public SiteUrl getSiteUrl() {
-        return this.siteUrls == null ? null : this.siteUrls.getSiteUrl();
+        return getSiteUrls().getSiteUrl();
     }
+
 
     public ServerSiteUrlConfig getSiteUrlPreferablySecured() {
         SiteUrl siteUrl = getSiteUrl();

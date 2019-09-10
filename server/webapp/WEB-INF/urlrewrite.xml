@@ -24,6 +24,12 @@
 
 <urlrewrite>
   <rule>
+    <name>new-environments UI</name>
+    <from>^/admin/new-environments(/?)$</from>
+    <to last="true">/spark/admin/new-environments</to>
+  </rule>
+
+  <rule>
     <name>Pipeline Structure Internal API</name>
     <from>^/api/internal/pipeline_structure(/?)$</from>
     <to last="true">/spark/api/internal/pipeline_structure</to>

@@ -49,7 +49,7 @@ public class ServerConfig implements Validatable {
     private String serverId;
 
     @ConfigSubtag
-    private SiteUrls siteUrls = new SiteUrls();
+    private SiteUrls siteUrls;
     @ConfigSubtag
     private SecurityConfig securityConfig = new SecurityConfig();
     @ConfigSubtag
@@ -75,8 +75,7 @@ public class ServerConfig implements Validatable {
     public ServerConfig(SecurityConfig securityConfig, MailHost mailHost, SiteUrl serverSiteUrl, SecureSiteUrl secureSiteUrl) {
         this.securityConfig = securityConfig;
         this.mailHost = mailHost;
-        this.siteUrls.setSiteUrl(serverSiteUrl);
-        this.siteUrls.setSecureSiteUrl(secureSiteUrl);
+        this.siteUrls = new SiteUrls(serverSiteUrl, secureSiteUrl);
     }
 
     @PostConstruct
@@ -114,6 +113,7 @@ public class ServerConfig implements Validatable {
     public ServerConfig(String artifactsDir, SecurityConfig securityConfig) {
         this.artifactsDir = artifactsDir;
         this.securityConfig = securityConfig;
+        this.siteUrls = new SiteUrls();
     }
 
     public ServerConfig(String artifactsDir, SecurityConfig securityConfig, Double purgeStart, Double purgeUpto) {
@@ -287,11 +287,11 @@ public class ServerConfig implements Validatable {
     }
 
     public SecureSiteUrl getSecureSiteUrl() {
-        return this.siteUrls.getSecureSiteUrl();
+        return this.siteUrls == null ? null : this.siteUrls.getSecureSiteUrl();
     }
 
     public SiteUrl getSiteUrl() {
-        return this.siteUrls.getSiteUrl();
+        return this.siteUrls == null ? null : this.siteUrls.getSiteUrl();
     }
 
     public ServerSiteUrlConfig getSiteUrlPreferablySecured() {

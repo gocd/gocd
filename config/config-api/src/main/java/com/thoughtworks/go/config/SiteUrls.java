@@ -22,10 +22,20 @@ import com.thoughtworks.go.domain.SiteUrl;
 @ConfigTag("siteUrls")
 public class SiteUrls {
     @ConfigSubtag
-    private SiteUrl siteUrl = new SiteUrl();
+    private SiteUrl siteUrl;
 
     @ConfigSubtag
-    private SecureSiteUrl secureSiteUrl = new SecureSiteUrl();
+    private SecureSiteUrl secureSiteUrl;
+
+    public SiteUrls() {
+        this.siteUrl = new SiteUrl();
+        this.secureSiteUrl = new SecureSiteUrl();
+    }
+
+    public SiteUrls(SiteUrl serverSiteUrl, SecureSiteUrl secureSiteUrl) {
+        this.siteUrl = serverSiteUrl;
+        this.secureSiteUrl = secureSiteUrl;
+    }
 
     public SiteUrl getSiteUrl() {
         return siteUrl;

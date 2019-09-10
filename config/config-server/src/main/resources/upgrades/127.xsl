@@ -27,17 +27,26 @@
   </xsl:template>
 
   <xsl:template match="server">
-    <xsl:copy>
-      <xsl:apply-templates select="@*|node()"/>
-      <siteUrls>
-        <siteUrl>
-          <xsl:value-of select="/cruise/server/@siteUrl"/>
-        </siteUrl>
-        <secureSiteUrl>
-          <xsl:value-of select="/cruise/server/@secureSiteUrl"/>
-        </secureSiteUrl>
-      </siteUrls>
-    </xsl:copy>
+    <xsl:choose>
+      <xsl:when test="/cruise/server/@siteUrl or /cruise/server/@secureSiteUrl">
+        <xsl:copy>
+          <xsl:apply-templates select="@*|node()"/>
+          <siteUrls>
+            <siteUrl>
+              <xsl:value-of select="/cruise/server/@siteUrl"/>
+            </siteUrl>
+            <secureSiteUrl>
+              <xsl:value-of select="/cruise/server/@secureSiteUrl"/>
+            </secureSiteUrl>
+          </siteUrls>
+        </xsl:copy>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:copy>
+          <xsl:apply-templates select="@*|node()"/>
+        </xsl:copy>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
   <xsl:template match="/cruise/server/@siteUrl"/>

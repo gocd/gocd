@@ -67,6 +67,10 @@ describe EnvironmentsController do
       expect(:get => "/admin/environments/new").to route_to({:controller => "environments", :action => 'new', :no_layout => true})
     end
 
+    it "should match /show" do
+      expect(:get => "/admin/environments/env_name/show").to route_to({:controller => "environments", :action => 'show', :no_layout => true, :name => "env_name"})
+    end
+
     it "should match /create" do
       expect(:post => "/admin/environments/create").to route_to({:controller => "environments", :action => 'create', :no_layout => true})
     end
@@ -601,6 +605,31 @@ describe EnvironmentsController do
       expect(assigns[:environment]).to be_nil
 
       expect(response.body).to eq("Environment 'some-non-existent-environment' not found.\n")
+    end
+  end
+
+  describe "show" do
+    before :each do
+      allow(controller).to receive(:current_user).and_return('user_foo')
+      @entity_hashing_service = double("Entity Hashing Service")
+      allow(controller).to receive(:entity_hashing_service).and_return(@entity_hashing_service)
+      allow(controller).to receive(:environment_config_service).and_return(@environment_config_service = double('environment_config_service', :isEnvironmentFeatureEnabled => true))
+      allow(controller).to receive(:security_service).and_return(@security_service = double(SecurityService))
+      allow(controller).to receive(:agent_service).and_return(@agent_service = double(AgentService))
+      allow(@security_service).to receive(:isUserAdmin).and_return(false)
+    end
+
+    it 'should render all the agents' do
+      env_name = "env"
+      @environment = BasicEnvironmentConfig.new(CaseInsensitiveString.new(env_name))
+      expect(@environment_config_service).to receive(:getMergedEnvironmentforDisplay).with(env_name, an_instance_of(HttpLocalizedOperationResult)).and_return(com.thoughtworks.go.domain.ConfigElementForEdit.new(@environment, "md5"))
+      allow(@environment_config_service).to receive(:getEnvironmentForEdit).and_return(@environment)
+      allow(@entity_hashing_service).to receive(:md5ForEntity).and_return('md5')
+      allow(@agent_service).to receive(:filterAgentsViewModel).and_return(AgentsViewModel.new())
+
+      get :show, params: {:name => env_name}
+
+      expect(response.status).to eq(200)
     end
   end
 

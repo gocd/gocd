@@ -16,18 +16,18 @@
 
 import Stream from "mithril/stream";
 
-interface PipelineJSON {
+export interface PipelineJSON {
   name: string;
 }
 
-interface EnvironmentVariableJSON {
+export interface EnvironmentVariableJSON {
   secure: boolean;
   name: string;
-  value: string;
-  encrypted_value: string;
+  value?: string;
+  encrypted_value?: string;
 }
 
-interface AgentJSON {
+export interface AgentJSON {
   uuid: string;
 }
 
@@ -46,7 +46,7 @@ export interface EnvironmentsJSON {
   _embedded: EmbeddedJSON;
 }
 
-class Agent {
+export class Agent {
   uuid: Stream<string>;
 
   constructor(uuid: string) {
@@ -69,7 +69,7 @@ class Agents extends Array<Agent> {
   }
 }
 
-class Pipeline {
+export class Pipeline {
   name: Stream<string>;
 
   constructor(name: string) {
@@ -92,14 +92,14 @@ class Pipelines extends Array<Pipeline> {
   }
 }
 
-class EnvironmentVariable {
+export class EnvironmentVariable {
   secure: Stream<boolean>;
   name: Stream<string>;
-  value: Stream<string>;
-  encryptedValue: Stream<string>;
+  value: Stream<string | undefined>;
+  encryptedValue: Stream<string | undefined>;
 
-  constructor(name: string, value: string, secure: boolean, encryptedValue: string) {
-    this.secure         = Stream(secure);
+  constructor(name: string, value?: string, secure?: boolean, encryptedValue?: string) {
+    this.secure         = Stream(secure || false);
     this.name           = Stream(name);
     this.value          = Stream(value);
     this.encryptedValue = Stream(encryptedValue);

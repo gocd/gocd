@@ -849,10 +849,10 @@ task newSPA {
     file("${mountPoint}/${spaName}.tsx").withWriter { out ->
       def contents =
         """
-          import Page from "helpers/spa_base";
+          import {SinglePageAppBase} from "helpers/spa_base";
           import {${entityName}Page} from "views/pages/${spaName}";
 
-          export class ${entityName}SPA extends Page {
+          export class ${entityName}SPA extends SinglePageAppBase {
             constructor() {
               super(${entityName}Page);
             }

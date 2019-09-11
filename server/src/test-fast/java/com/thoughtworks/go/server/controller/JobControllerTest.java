@@ -17,9 +17,16 @@ package com.thoughtworks.go.server.controller;
 
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.elastic.ClusterProfile;
+import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.dto.DurationBean;
 import com.thoughtworks.go.helper.*;
+import com.thoughtworks.go.plugin.access.elastic.ElasticAgentMetadataStore;
+import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
+import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
+import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
+import com.thoughtworks.go.server.dao.JobAgentMetadataDao;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.domain.Agent;
 import com.thoughtworks.go.server.service.*;
@@ -27,6 +34,7 @@ import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.util.JsonValue;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -38,9 +46,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.thoughtworks.go.util.JsonUtils.from;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Fail.fail;
 import static org.mockito.Mockito.*;
 
 public class JobControllerTest {
@@ -56,6 +63,8 @@ public class JobControllerTest {
     private SystemEnvironment systemEnvironment;
     private RestfulService restfulService;
     private PropertiesService propertiesService;
+    private JobAgentMetadataDao jobAgentMetadataDao;
+    private ElasticAgentMetadataStore elasticAgentMetadataStore = ElasticAgentMetadataStore.instance();
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -69,11 +78,13 @@ public class JobControllerTest {
         pipelineService = mock(PipelineService.class);
         restfulService = mock(RestfulService.class);
         propertiesService = mock(PropertiesService.class);
-        jobController = new JobController(jobInstanceService, agentService, jobInstanceDao, jobConfigService, pipelineService, restfulService, null, propertiesService, stageService, null, systemEnvironment);
+        jobAgentMetadataDao = mock(JobAgentMetadataDao.class);
+        jobController = new JobController(jobInstanceService, agentService, jobInstanceDao, jobConfigService,
+                pipelineService, restfulService, null, propertiesService, stageService, jobAgentMetadataDao, systemEnvironment);
     }
 
     @Test
-    public void shouldFindTheLatestJobWhenJobStatusIsRequested() {
+    void shouldFindTheLatestJobWhenJobStatusIsRequested() {
         JobInstance job = JobInstanceMother.buildEndingWithState(JobState.Rescheduled, JobResult.Unknown, "config");
         job.assign("agent", new Date());
 
@@ -102,58 +113,12 @@ public class JobControllerTest {
 
         JsonValue buildingInfo = json.getObject("building_info");
 
-        assertThat(buildingInfo.getString("id"), is("2"));
-        assertThat(buildingInfo.getString("last_build_duration"), is("5"));
+        assertThat(buildingInfo.getString("id")).isEqualTo("2");
+        assertThat(buildingInfo.getString("last_build_duration")).isEqualTo("5");
     }
 
     @Nested
     class JobDetail {
-
-        @Test
-        public void shouldReturnJobDetail() throws Exception {
-            ModelAndView modelAndView = jobController.jobDetail("p1", "1", "s1", "2",
-                    "job1");
-            assertThat(modelAndView.getModel().isEmpty(), is(false));
-            assertThat(modelAndView.getModel().get("useIframeSandbox"), is(false));
-            assertThat(modelAndView.getModel().get("websocketEnabled"), is(true));
-            assertThat(modelAndView.getModel().get("isEditableViaUI"), is(false));
-            assertThat(modelAndView.getModel().get("isAgentAlive"), is(false));
-        }
-
-        @Test
-        public void shouldThrowErrorIfUserPassesANonNumericValueForPipelineCounter() throws Exception {
-            try {
-                when(pipelineService.resolvePipelineCounter("p1", "some-string")).thenReturn(Optional.empty());
-                jobController.jobDetail("p1", "some-string", "s1", "1", "job");
-                fail("Expected an exception to be thrown");
-            } catch (Exception e) {
-                assertThat(e.getMessage(), is("Expected numeric pipelineCounter or latest keyword, but received 'some-string' for [p1/some-string/s1/1/job]"));
-            }
-        }
-
-        @Test
-        public void shouldThrowErrorIfUserPassesANonNumericValueForStageCounter() throws Exception {
-            try {
-                when(pipelineService.resolvePipelineCounter("p1", "1")).thenReturn(Optional.of(1));
-                jobController.jobDetail("p1", "1", "s1", "some-string", "job");
-                fail("Expected an exception to be thrown");
-            } catch (Exception e) {
-                assertThat(e.getMessage(), is("Expected numeric stageCounter or latest keyword, but received 'some-string' for [p1/1/s1/some-string/job]"));
-            }
-        }
-
-        @Test
-        public void shouldAcceptLatestAsPipelineCounter() throws Exception {
-            ModelAndView modelAndView = jobController.jobDetail("p1", "latest", "s1", "12", "job1");
-            assertThat(modelAndView.getModel().isEmpty(), is(false));
-        }
-
-        @Test
-        public void shouldAcceptLatestAsStageCounter() throws Exception {
-            ModelAndView modelAndView = jobController.jobDetail("p1", "1", "s1", "latest", "job1");
-            assertThat(modelAndView.getModel().isEmpty(), is(false));
-        }
-
         @BeforeEach
         void setupMocksForJobDetail() {
             Pipeline pipeline = PipelineMother.passedPipelineInstance("p1", "s1", "build");
@@ -162,7 +127,7 @@ public class JobControllerTest {
             JobInstance jobInstance = JobInstanceMother.jobInstance("building", "one");
             jobInstance.setIdentifier(jobIdentifier);
             jobInstance.setId(12);
-            jobInstance.setState(JobState.Unknown);
+            jobInstance.setState(JobState.Building);
 
             when(jobInstanceService.latestCompletedJobs("p1", "s1", jobInstance.getName())).thenReturn(new JobInstances());
             when(jobConfigService.agentByUuid(anyString())).thenReturn(new AgentConfig());
@@ -179,6 +144,86 @@ public class JobControllerTest {
             FeatureToggleService featureToggleService = mock(FeatureToggleService.class);
             when(featureToggleService.isToggleOn(anyString())).thenReturn(true);
             Toggles.initializeWith(featureToggleService);
+        }
+
+        @AfterEach
+        void tearDown() {
+            elasticAgentMetadataStore.clear();
+        }
+
+        @Test
+        void shouldReturnJobDetail() throws Exception {
+            ModelAndView modelAndView = jobController.jobDetail("p1", "1", "s1", "2",
+                    "job1");
+            assertThat(modelAndView.getModel().isEmpty()).isFalse();
+            assertThat(modelAndView.getModel().get("useIframeSandbox")).isEqualTo(false);
+            assertThat(modelAndView.getModel().get("websocketEnabled")).isEqualTo(true);
+            assertThat(modelAndView.getModel().get("isEditableViaUI")).isEqualTo(false);
+            assertThat(modelAndView.getModel().get("isAgentAlive")).isEqualTo(false);
+        }
+
+        @Test
+        void shouldThrowErrorIfUserPassesANonNumericValueForPipelineCounter() {
+            try {
+                when(pipelineService.resolvePipelineCounter("p1", "some-string")).thenReturn(Optional.empty());
+                jobController.jobDetail("p1", "some-string", "s1", "1", "job");
+                fail("Expected an exception to be thrown");
+            } catch (Exception e) {
+                assertThat(e.getMessage()).isEqualTo("Expected numeric pipelineCounter or latest keyword, but received 'some-string' for [p1/some-string/s1/1/job]");
+            }
+        }
+
+        @Test
+        void shouldThrowErrorIfUserPassesANonNumericValueForStageCounter() {
+            try {
+                when(pipelineService.resolvePipelineCounter("p1", "1")).thenReturn(Optional.of(1));
+                jobController.jobDetail("p1", "1", "s1", "some-string", "job");
+                fail("Expected an exception to be thrown");
+            } catch (Exception e) {
+                assertThat(e.getMessage()).isEqualTo("Expected numeric stageCounter or latest keyword, but received 'some-string' for [p1/1/s1/some-string/job]");
+            }
+        }
+
+        @Test
+        void shouldAcceptLatestAsPipelineCounter() throws Exception {
+            ModelAndView modelAndView = jobController.jobDetail("p1", "latest", "s1", "12", "job1");
+            assertThat(modelAndView.getModel().isEmpty()).isFalse();
+        }
+
+        @Test
+        void shouldAcceptLatestAsStageCounter() throws Exception {
+            ModelAndView modelAndView = jobController.jobDetail("p1", "1", "s1", "latest", "job1");
+            assertThat(modelAndView.getModel().isEmpty()).isFalse();
+        }
+
+        @Test
+        void shouldConsistElasticAgentInformationForAJobRunningOnAnElasticAgent() throws Exception {
+            final GoPluginDescriptor descriptor = new GoPluginDescriptor("cd.go.example.plugin", null, null, null, null, false);
+            elasticAgentMetadataStore.setPluginInfo(new ElasticAgentPluginInfo(descriptor, null,
+                    null, null, null, new Capabilities(true, true)));
+            ElasticProfile elasticProfile = new ElasticProfile("elastic_id", "cluster_id");
+            ClusterProfile clusterProfile = new ClusterProfile("cluster_id", "cd.go.example.plugin");
+
+            when(jobAgentMetadataDao.load(12L)).thenReturn(new JobAgentMetadata(12L, elasticProfile, clusterProfile));
+
+            ModelAndView modelAndView = jobController.jobDetail("p1", "1", "s1", "2", "job1");
+
+            assertThat(modelAndView.getModel().get("elasticAgentPluginId")).isEqualTo("cd.go.example.plugin");
+        }
+
+        @Test
+        void shouldNotHaveElasticAgentInformationIfJobMetadataDoesNotHaveClusterInformation() throws Exception {
+            JobAgentMetadata jobAgentMetadata = mock(JobAgentMetadata.class);
+            final GoPluginDescriptor descriptor = new GoPluginDescriptor("cd.go.example.plugin", null, null, null, null, false);
+            elasticAgentMetadataStore.setPluginInfo(new ElasticAgentPluginInfo(descriptor, null,
+                    null, null, null, new Capabilities(true, true)));
+
+            when(jobAgentMetadataDao.load(12L)).thenReturn(jobAgentMetadata);
+            when(jobAgentMetadata.clusterProfile()).thenReturn(null);
+
+            ModelAndView modelAndView = jobController.jobDetail("p1", "1", "s1", "2", "job1");
+
+            assertThat(modelAndView.getModel().get("elasticAgentPluginId")).isNull();
         }
     }
 }

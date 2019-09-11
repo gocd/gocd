@@ -19,6 +19,7 @@ import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.Tabs;
 import com.thoughtworks.go.config.TrackingTool;
+import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.domain.Properties;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentMetadataStore;
@@ -198,7 +199,12 @@ public class JobController {
             return;
         }
 
-        final String pluginId = jobAgentMetadata.clusterProfile().getPluginId();
+        ClusterProfile clusterProfile = jobAgentMetadata.clusterProfile();
+        if(clusterProfile == null) {
+            return;
+        }
+
+        final String pluginId = clusterProfile.getPluginId();
         final ElasticAgentPluginInfo pluginInfo = elasticAgentMetadataStore.getPluginInfo(pluginId);
 
         if (pluginInfo != null && pluginInfo.getCapabilities().supportsAgentStatusReport()) {

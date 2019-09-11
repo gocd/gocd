@@ -20,9 +20,12 @@ import java.io.IOException;
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.ServerConfig;
-import com.thoughtworks.go.domain.ServerSiteUrlConfig;
+import com.thoughtworks.go.domain.SecureSiteUrl;
+import com.thoughtworks.go.domain.SiteUrl;
 import com.thoughtworks.go.server.cache.GoCache;
 import org.junit.Test;
+
+import java.io.IOException;
 
 import static org.mockito.Mockito.*;
 
@@ -31,8 +34,8 @@ public class BaseUrlChangeListenerTest {
     @Test
     public void shouldFlushCacheWhenBaseUrlConfigChangesAndUpdateTheSiteURLAndSecureSiteURLToTheNewValues() throws IOException {
         GoCache cache = mock(GoCache.class);
-        BaseUrlChangeListener listener = new BaseUrlChangeListener(new ServerSiteUrlConfig(""),
-                new ServerSiteUrlConfig(""), cache);
+        BaseUrlChangeListener listener = new BaseUrlChangeListener(new SiteUrl(""),
+                new SecureSiteUrl(""), cache);
         CruiseConfig newCruiseConfig = new BasicCruiseConfig();
         newCruiseConfig.setServerConfig(serverConfigWith("http://blah.com", "https://blah.com"));
 
@@ -45,7 +48,7 @@ public class BaseUrlChangeListenerTest {
     @Test
     public void shouldNotFlushCacheWhenBaseUrlConfigIsNotChanged() {
         GoCache cache = mock(GoCache.class);
-        BaseUrlChangeListener listener = new BaseUrlChangeListener(new ServerSiteUrlConfig(""), new ServerSiteUrlConfig(""), cache);
+        BaseUrlChangeListener listener = new BaseUrlChangeListener(new SiteUrl(""), new SecureSiteUrl(""), cache);
         CruiseConfig newCruiseConfig = new BasicCruiseConfig();
         newCruiseConfig.setServerConfig(serverConfigWith("", ""));
 
@@ -54,6 +57,6 @@ public class BaseUrlChangeListenerTest {
     }
 
     private ServerConfig serverConfigWith(String siteUrl, String secureUrl) {
-        return new ServerConfig(null, null, new ServerSiteUrlConfig(siteUrl), new ServerSiteUrlConfig(secureUrl));
+        return new ServerConfig(null, null, new SiteUrl(siteUrl), new SecureSiteUrl(secureUrl));
     }
 }

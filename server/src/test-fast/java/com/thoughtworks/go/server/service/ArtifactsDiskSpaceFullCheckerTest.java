@@ -16,11 +16,11 @@
 package com.thoughtworks.go.server.service;
 
 import java.io.File;
-
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.ServerConfig;
-import com.thoughtworks.go.domain.ServerSiteUrlConfig;
+import com.thoughtworks.go.domain.SecureSiteUrl;
+import com.thoughtworks.go.domain.SiteUrl;
 import com.thoughtworks.go.fixture.ArtifactsDiskIsFull;
 import com.thoughtworks.go.server.messaging.SendEmailMessage;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
@@ -91,7 +91,7 @@ public class ArtifactsDiskSpaceFullCheckerTest {
     }
 
     private static CruiseConfig configWithSiteUrl() {
-        ServerConfig serverConfig = new ServerConfig(null, null, new ServerSiteUrlConfig("http://test.host"), new ServerSiteUrlConfig("https://test.host"));
+        ServerConfig serverConfig = new ServerConfig(null, null, new SiteUrl("http://test.host"), new SecureSiteUrl("https://test.host"));
         CruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.setServerConfig(serverConfig);
         return cruiseConfig;

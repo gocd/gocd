@@ -16,7 +16,8 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.domain.ServerSiteUrlConfig;
+import com.thoughtworks.go.domain.SecureSiteUrl;
+import com.thoughtworks.go.domain.SiteUrl;
 import com.thoughtworks.go.domain.User;
 import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
@@ -125,8 +126,8 @@ public class ServerConfigServiceIntegrationTest {
         MailHost mailHost = new MailHost("boo", 1, "username", "password", new GoCipher().encrypt("password"), true, true, "from@from.com", "admin@admin.com", new GoCipher());
         serverConfigService.updateServerConfig(mailHost, "newArtifactsDir", null, null, "42", true, "", "", "default", result,
                 goConfigDao.md5OfConfigFile());
-        assertThat(goConfigService.serverConfig().getSiteUrl(), is(new ServerSiteUrlConfig()));
-        assertThat(goConfigService.serverConfig().getSecureSiteUrl(), is(new ServerSiteUrlConfig()));
+        assertThat(goConfigService.serverConfig().getSiteUrl(), is(new SiteUrl()));
+        assertThat(goConfigService.serverConfig().getSecureSiteUrl(), is(new SecureSiteUrl()));
     }
 
     @Test
@@ -238,7 +239,7 @@ public class ServerConfigServiceIntegrationTest {
 
     @Test
     public void shouldSiteUrlForGivenUrl() throws URISyntaxException {
-        configHelper.setBaseUrls(new ServerSiteUrlConfig("http://foo.com"), new ServerSiteUrlConfig("https://bar.com"));
+        configHelper.setBaseUrls(new SiteUrl("http://foo.com"), new SecureSiteUrl("https://bar.com"));
         assertThat(serverConfigService.siteUrlFor("http://test.host/foo/bar", true), is("https://bar.com/foo/bar"));
         assertThat(serverConfigService.siteUrlFor("http://test.host/foo/bar", false), is("http://foo.com/foo/bar"));
     }
@@ -251,14 +252,14 @@ public class ServerConfigServiceIntegrationTest {
 
     @Test
     public void shouldUseTheSiteUrlWhenSecureSiteUrlIsNotPresentAndOnlyIfSiteUrlIsHttps() throws URISyntaxException {
-        configHelper.setBaseUrls(new ServerSiteUrlConfig("https://foo.com"), new ServerSiteUrlConfig());
+        configHelper.setBaseUrls(new SiteUrl("https://foo.com"), new SecureSiteUrl());
         assertThat(serverConfigService.siteUrlFor("http://test.host/foo/bar", true), is("https://foo.com/foo/bar"));
         assertThat(serverConfigService.siteUrlFor("http://test.host/foo/bar", false), is("https://foo.com/foo/bar"));
     }
 
     @Test
     public void shouldUseTheSecureSiteUrlInspiteOfCallerNotForcingSsl_whenAlreadyUsingHTTPS() throws URISyntaxException {
-        configHelper.setBaseUrls(new ServerSiteUrlConfig("http://foo.com:80"), new ServerSiteUrlConfig("https://bar.com:443"));
+        configHelper.setBaseUrls(new SiteUrl("http://foo.com:80"), new SecureSiteUrl("https://bar.com:443"));
         assertThat(serverConfigService.siteUrlFor("https://test.host:1000/foo/bar", false), is("https://bar.com:443/foo/bar"));
         assertThat(serverConfigService.siteUrlFor("http://test.host/foo/bar", false), is("http://foo.com:80/foo/bar"));
     }

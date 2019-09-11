@@ -15,14 +15,14 @@
  */
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.config.ConfigAttributeValue;
+import com.thoughtworks.go.config.ConfigValue;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 
-@ConfigAttributeValue(fieldName = "url")
-public class ServerSiteUrlConfig {
+public abstract class ServerSiteUrlConfig {
     private static final String HTTPS_URL_REGEX = "^https://.+";
+    @ConfigValue
     protected String url;
 
     public ServerSiteUrlConfig() {
@@ -88,7 +88,7 @@ public class ServerSiteUrlConfig {
     }
 
     public boolean isAHttpsUrl() {
-        return url != null && url.matches( HTTPS_URL_REGEX);
+        return url != null && url.matches(HTTPS_URL_REGEX);
     }
 
     interface Getter {
@@ -97,6 +97,7 @@ public class ServerSiteUrlConfig {
 
     @Override
     public String toString() {
-        return hasNonNullUrl() ? url: "";
+        return hasNonNullUrl() ? url : "";
     }
 }
+

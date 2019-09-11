@@ -19,7 +19,8 @@ import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.SecurityConfig;
 import com.thoughtworks.go.config.ServerConfig;
-import com.thoughtworks.go.domain.ServerSiteUrlConfig;
+import com.thoughtworks.go.domain.SecureSiteUrl;
+import com.thoughtworks.go.domain.SiteUrl;
 import com.thoughtworks.go.server.messaging.SendEmailMessage;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
@@ -129,7 +130,7 @@ public class DiskSpaceFullCheckerTest {
     @Test
     public void shouldFormatLowDiskSpaceWarningMailWithHelpLinksHttpAndSiteUrl() throws URISyntaxException {
         String expectedHelpUrl = docsUrl("/installation/configuring_server_details.html");
-        ServerConfig serverConfig = new ServerConfig(null, null, new ServerSiteUrlConfig("http://test.host"), new ServerSiteUrlConfig("https://test.host"));
+        ServerConfig serverConfig = new ServerConfig(null, null, new SiteUrl("http://test.host"), new SecureSiteUrl("https://test.host"));
         CruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.setServerConfig(serverConfig);
 

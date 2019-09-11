@@ -19,7 +19,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.domain.ServerSiteUrlConfig;
+import com.thoughtworks.go.domain.SecureSiteUrl;
+import com.thoughtworks.go.domain.SiteUrl;
 import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.Username;
@@ -293,12 +294,12 @@ public class SecurityServiceIntegrationTest {
     }
 
     @Test public void shouldReturnSiteUrlAsCasServiceBaseUrlIfOnlySiteUrlIsDefined() throws Exception {
-        configHelper.setBaseUrls(new ServerSiteUrlConfig("http://example.com"), new ServerSiteUrlConfig());
+        configHelper.setBaseUrls(new SiteUrl("http://example.com"), new SecureSiteUrl());
         assertThat(securityService.casServiceBaseUrl(), is("http://example.com"));
     }
 
     @Test public void shouldReturnSecureSiteUrlAsCasServiceBaseUrlIfBothSiteUrlAndSecureSiteUrlAreDefined() throws Exception {
-        configHelper.setBaseUrls(new ServerSiteUrlConfig("http://example.com"), new ServerSiteUrlConfig("https://example.com"));
+        configHelper.setBaseUrls(new SiteUrl("http://example.com"), new SecureSiteUrl("https://example.com"));
         assertThat(securityService.casServiceBaseUrl(), is("https://example.com"));
     }
 

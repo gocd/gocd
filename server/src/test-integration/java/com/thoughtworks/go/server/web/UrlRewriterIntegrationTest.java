@@ -16,7 +16,9 @@
 package com.thoughtworks.go.server.web;
 
 import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClientBuilder;
+import com.thoughtworks.go.domain.SecureSiteUrl;
 import com.thoughtworks.go.domain.ServerSiteUrlConfig;
+import com.thoughtworks.go.domain.SiteUrl;
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.server.util.HttpTestUtil;
@@ -188,7 +190,7 @@ public class UrlRewriterIntegrationTest {
             }
 
             public String siteUrlFor(String url, boolean forceSsl) throws URISyntaxException {
-                ServerSiteUrlConfig siteUrl = forceSsl ? new ServerSiteUrlConfig(HTTPS_SITE_URL) : new ServerSiteUrlConfig(HTTP_SITE_URL);
+                ServerSiteUrlConfig siteUrl = forceSsl ? new SecureSiteUrl(HTTPS_SITE_URL) : new SiteUrl(HTTP_SITE_URL);
                 return siteUrl.siteUrlFor(url);
             }
         });

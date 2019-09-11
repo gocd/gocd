@@ -16,7 +16,7 @@
 package com.thoughtworks.go.server.newsecurity.providers;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.domain.ServerSiteUrlConfig;
+import com.thoughtworks.go.domain.SecureSiteUrl;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
@@ -318,7 +318,7 @@ class WebBasedPluginAuthenticationProviderTest {
         final ServerConfig serverConfig = mock(ServerConfig.class);
         when(goConfigService.serverConfig()).thenReturn(serverConfig);
         when(serverConfig.hasAnyUrlConfigured()).thenReturn(true);
-        when(serverConfig.getSiteUrlPreferablySecured()).thenReturn(new ServerSiteUrlConfig("https://foo.bar.com"));
+        when(serverConfig.getSiteUrlPreferablySecured()).thenReturn(new SecureSiteUrl("https://foo.bar.com"));
 
         authenticationProvider.getAuthorizationServerUrl(PLUGIN_ID, "https://example.com");
 

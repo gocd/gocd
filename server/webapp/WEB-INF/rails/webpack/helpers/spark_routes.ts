@@ -148,6 +148,14 @@ export class SparkRoutes {
     return `/go/api/admin/config_repos/${id}`;
   }
 
+  static ConfigRepoViewPath(id?: string): string {
+    if (id) {
+      return `/go/admin/config_repos#!/${id}`;
+    } else {
+      return `/go/admin/config_repos`;
+    }
+  }
+
   static apiConfigReposInternalPath(): string {
     return `/go/api/internal/config_repos`;
   }

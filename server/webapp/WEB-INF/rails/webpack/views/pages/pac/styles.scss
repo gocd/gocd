@@ -15,9 +15,11 @@
  */
 
 @import "../../global/common";
+@import "../../components/buttons/index";
 @import "~prismjs/themes/prism"; // don't add the `.css` extension!! See https://github.com/sass/node-sass/issues/2362#issuecomment-388634848
 
 $syntax-bg: #282923;
+$error-container-width: 450px;
 
 .builder-form {
   max-width: 50%;
@@ -65,6 +67,36 @@ $syntax-bg: #282923;
 
 .download-action {
   white-space: nowrap;
+}
+
+.actions {
+  width: 100%;
+
+  .btn-cancel {
+    border: 1px solid $btn-reset;
+    &:hover {
+      background-color: $btn-reset;
+      color: $white;
+    }
+  }
+
+  .finish-btn-wrapper {
+    float: right;
+
+    .error-response {
+      margin-right: 2ex;
+      margin-top: 7px;
+      color: $go-danger;
+      display: inline-block;
+      max-width: $error-container-width;
+      white-space: normal;
+      float: left;
+
+      &:empty {
+        margin-right: 0;
+      }
+    }
+  }
 }
 
 .hint {

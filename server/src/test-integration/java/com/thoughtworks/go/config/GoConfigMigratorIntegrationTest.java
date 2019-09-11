@@ -1343,7 +1343,7 @@ public class GoConfigMigratorIntegrationTest {
     }
 
     @Test
-    public void shouldMigrateAgentsOutOfXMLIntoDBAsPartOf127() throws Exception {
+    public void shouldMigrateAgentsOutOfXMLIntoDBAsPartOf128() throws Exception {
         String configContent = "" +
                 "  <environments>\n" +
                 "    <environment name=\"bar\">\n" +
@@ -1375,7 +1375,7 @@ public class GoConfigMigratorIntegrationTest {
                 "  </agents>";
 
         String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-                + "<cruise schemaVersion=\"126\">\n"
+                + "<cruise schemaVersion=\"127\">\n"
                 + configContent
                 + "</cruise>";
 
@@ -1434,7 +1434,7 @@ public class GoConfigMigratorIntegrationTest {
     }
 
     @Test
-    public void shouldUpdateAnExistingAgentRecordInDBAsPartOfXMLToDBMigration_127() throws Exception {
+    public void shouldUpdateAnExistingAgentRecordInDBAsPartOfXMLToDBMigration_128() throws Exception {
         String configContent = "" +
                 "  <environments>\n" +
                 "    <environment name=\"foo\">\n" +
@@ -1453,7 +1453,7 @@ public class GoConfigMigratorIntegrationTest {
                 "  </agents>";
 
         String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-                + "<cruise schemaVersion=\"126\">\n"
+                + "<cruise schemaVersion=\"127\">\n"
                 + configContent
                 + "</cruise>";
 

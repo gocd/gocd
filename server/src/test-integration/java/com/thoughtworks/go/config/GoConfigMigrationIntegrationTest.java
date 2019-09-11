@@ -765,7 +765,7 @@ public class GoConfigMigrationIntegrationTest {
         assertThat(configXml).contains("c46a08a7-921c-4e77-b748-6128975a3e7f");
         assertThat(configXml).contains("537d36f9-bf4b-48b2-8d09-5d20357d4f17");
 
-        String migratedContent = migrateXmlString(configXml, 102);
+        String migratedContent = ConfigMigrator.migrate(configXml, 102, 103);
 
         //after migration should contain 2 unique elastic agents
         assertThat(configXml).contains("c46a08a7-921c-4e77-b748-6128975a3e7d");
@@ -1564,7 +1564,7 @@ public class GoConfigMigrationIntegrationTest {
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
                         "<cruise schemaVersion=\"127\">" + expectedConfig + "</cruise>";
 
-        final String migratedXml = migrateXmlString(configXml, 126, 127);
+        final String migratedXml = ConfigMigrator.migrate(configXml, 126, 127);
         XmlAssert.assertThat(migratedXml).and(expectedXml).areIdentical();
     }
 
@@ -1596,7 +1596,7 @@ public class GoConfigMigrationIntegrationTest {
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
                         "<cruise schemaVersion=\"127\">" + expectedConfig + "</cruise>";
 
-        final String migratedXml = migrateXmlString(configXml, 126, 127);
+        final String migratedXml = ConfigMigrator.migrate(configXml, 126, 127);
         XmlAssert.assertThat(migratedXml).and(expectedXml).areIdentical();
     }
 
@@ -1632,7 +1632,7 @@ public class GoConfigMigrationIntegrationTest {
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
                         "<cruise schemaVersion=\"127\">" + expectedConfig + "</cruise>";
 
-        final String migratedXml = migrateXmlString(configXml, 126, 127);
+        final String migratedXml = ConfigMigrator.migrate(configXml, 126, 127);
         XmlAssert.assertThat(migratedXml).and(expectedXml).areIdentical();
     }
 
@@ -1669,7 +1669,7 @@ public class GoConfigMigrationIntegrationTest {
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
                         "<cruise schemaVersion=\"127\">" + expectedConfig + "</cruise>";
 
-        final String migratedXml = migrateXmlString(configXml, 126, 127);
+        final String migratedXml = ConfigMigrator.migrate(configXml, 126, 127);
         XmlAssert.assertThat(migratedXml).and(expectedXml).areIdentical();
     }
 

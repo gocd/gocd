@@ -51,8 +51,4 @@ public class WildcardScanner  {
         }
         return allFiles.toArray(new File[]{});
     }
-
-
-
-
 }

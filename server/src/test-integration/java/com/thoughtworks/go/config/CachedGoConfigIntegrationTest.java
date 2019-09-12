@@ -18,7 +18,6 @@ package com.thoughtworks.go.config;
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
-import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.config.parts.XmlPartialConfigProvider;
@@ -727,6 +726,7 @@ public class CachedGoConfigIntegrationTest {
     @Test
     public void shouldLoadConfigForReadAndEditWhenConfigIsUpdatedThoughACommand() throws Exception {
         cachedGoConfig.writeWithLock(new UpdateConfigCommand() {
+            @Override
             public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
                 addPipelineWithParams(cruiseConfig);
                 return cruiseConfig;
@@ -1250,6 +1250,7 @@ public class CachedGoConfigIntegrationTest {
 
     private UpdateConfigCommand updateFirstAgentResources(final String resources) {
         return new UpdateConfigCommand() {
+            @Override
             public CruiseConfig update(CruiseConfig cruiseConfig) {
                 AgentConfig agentConfig = cruiseConfig.agents().get(0);
                 agentConfig.setResourceConfigs(new ResourceConfigs(resources));

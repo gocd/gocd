@@ -15,12 +15,13 @@
  */
 package com.thoughtworks.go.domain.materials;
 
-import java.io.Serializable;
-
 import com.thoughtworks.go.domain.PersistentObject;
+
+import java.io.Serializable;
 
 public class ModifiedFile extends PersistentObject implements Serializable {
 
+    @SuppressWarnings("PMD.UnusedPrivateField") // used by hibernate
     private long modificationId;
 
     private String fileName;
@@ -42,6 +43,7 @@ public class ModifiedFile extends PersistentObject implements Serializable {
         this.modificationId = modificationId;
     }
 
+    @Override
     public boolean equals(Object o) {
         if (!(o instanceof ModifiedFile)) {
             return false;
@@ -58,6 +60,7 @@ public class ModifiedFile extends PersistentObject implements Serializable {
                 && folderNamesAreEqual);
     }
 
+    @Override
     public int hashCode() {
         int code = 1;
         if (fileName != null) {
@@ -80,6 +83,7 @@ public class ModifiedFile extends PersistentObject implements Serializable {
         return action;
     }
 
+    @Override
     public String toString() {
         return this.fileName;
     }
@@ -88,11 +92,4 @@ public class ModifiedFile extends PersistentObject implements Serializable {
         return fileName.length() > MAX_NAME_LENGTH ? fileName.substring(0, MAX_NAME_LENGTH) : fileName;
     }
 
-    private String getHibernateAction() {
-        return action.name();
-    }
-
-    private void setHibernateAction(String action) {
-        this.action = ModifiedAction.valueOf(action) ;
-    }
 }

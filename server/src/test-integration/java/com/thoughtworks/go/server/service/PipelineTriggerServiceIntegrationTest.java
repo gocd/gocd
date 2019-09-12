@@ -40,7 +40,6 @@ import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

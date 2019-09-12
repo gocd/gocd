@@ -33,10 +33,12 @@ public class HttpOperationResult implements OperationResult {
     final private ServerHealthStateOperationResult serverHealthStateOperationResult = new ServerHealthStateOperationResult();
 
 
+    @Override
     public ServerHealthState success(HealthStateType healthStateType) {
         return serverHealthStateOperationResult.success(healthStateType);
     }
 
+    @Override
     public ServerHealthState error(String message, String description, HealthStateType type) {
         httpCode = 400;
         this.message = message;
@@ -50,11 +52,13 @@ public class HttpOperationResult implements OperationResult {
         serverHealthStateOperationResult.error(message, description, type);
     }
 
+    @Override
     public void badRequest(String message, String description, HealthStateType healthStateType) {
         error(message, description, healthStateType);
         httpCode = 400;
     }
 
+    @Override
     public void unprocessibleEntity(String message, String description, HealthStateType healthStateType) {
         error(message, description, healthStateType);
         httpCode = 422;
@@ -64,31 +68,37 @@ public class HttpOperationResult implements OperationResult {
         return httpCode >= 200 && httpCode <= 299;
     }
 
+    @Override
     public ServerHealthState warning(String message, String description, HealthStateType type) {
         this.message = message;
         return serverHealthStateOperationResult.warning(message, description, type);
     }
 
+    @Override
     public ServerHealthState getServerHealthState() {
         return serverHealthStateOperationResult.getServerHealthState();
     }
 
+    @Override
     public boolean canContinue() {
         return serverHealthStateOperationResult.canContinue();
     }
 
+    @Override
     public ServerHealthState forbidden(String message, String description, HealthStateType id) {
         this.message = message;
         httpCode = SC_FORBIDDEN;
         return serverHealthStateOperationResult.forbidden(message, description, id);
     }
 
+    @Override
     public void conflict(String message, String description, HealthStateType healthStateType) {
         serverHealthStateOperationResult.conflict(message, description, healthStateType);
         this.message = message;
         httpCode = 409;
     }
 
+    @Override
     public void notFound(String message, String description, HealthStateType healthStateType) {
         serverHealthStateOperationResult.notFound(message, description, healthStateType);
         httpCode = 404;
@@ -103,16 +113,19 @@ public class HttpOperationResult implements OperationResult {
         return message;
     }
 
+    @Override
     public void accepted(String message, String description, HealthStateType healthStateType) {
         httpCode = 202;
         this.message = message;
     }
 
+    @Override
     public void ok(String message) {
         httpCode = 200;
         this.message = message;
     }
 
+    @Override
     public void notAcceptable(String message, final HealthStateType type) {
         notAcceptable(message, "", type);
     }
@@ -124,6 +137,7 @@ public class HttpOperationResult implements OperationResult {
         this.message = message;
     }
 
+    @Override
     public void notAcceptable(String message, String description, final HealthStateType type) {
         serverHealthStateOperationResult.notAcceptable(message, description, type);
         httpCode = 406;

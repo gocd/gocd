@@ -36,7 +36,6 @@ import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.json.JsonHelper;
-import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 
 import java.io.File;
@@ -87,7 +86,7 @@ public class PluggableSCMMaterialPoller implements MaterialPoller<PluggableSCMMa
     @Override
     public void checkout(PluggableSCMMaterial material, File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
         SCMPropertyConfiguration scmPropertyConfiguration = buildSCMPropertyConfigurations(material.getScmConfig());
-        MaterialInstance materialInstance = materialRepository.findMaterialInstance(material);
+        materialRepository.findMaterialInstance(material);
         PluggableSCMMaterialRevision pluggableSCMMaterialRevision = (PluggableSCMMaterialRevision) revision;
         SCMRevision scmRevision = new SCMRevision(
                 pluggableSCMMaterialRevision.getRevision(),

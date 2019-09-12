@@ -17,7 +17,6 @@ package com.thoughtworks.go.apiv6.shared.representers.stages.tasks;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.apiv6.shared.representers.stages.ConfigHelperOptions;
 import com.thoughtworks.go.config.OnCancelConfig;
 import com.thoughtworks.go.domain.Task;
 

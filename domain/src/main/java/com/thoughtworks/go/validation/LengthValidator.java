@@ -26,6 +26,7 @@ public class LengthValidator extends Validator<String> {
         this.length = length;
     }
 
+    @Override
     public ValidationBean validate(String value) {
         if (StringUtils.isEmpty(value)) {
             return ValidationBean.valid();

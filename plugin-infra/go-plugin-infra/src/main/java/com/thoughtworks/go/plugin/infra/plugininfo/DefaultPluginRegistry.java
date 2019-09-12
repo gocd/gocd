@@ -85,6 +85,7 @@ public class DefaultPluginRegistry implements PluginRegistry {
         return IterableUtils.find(idToDescriptorMap.values(), object -> object.fileName().equals(fileName));
     }
 
+    @Override
     public void markPluginInvalid(String pluginId, List<String> messages) {
         if (pluginId == null || (!containsKey(this.idToDescriptorMap, pluginId))) {
             throw new RuntimeException(String.format("Invalid plugin identifier '%s'", pluginId));

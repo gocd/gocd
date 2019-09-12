@@ -28,6 +28,7 @@ public class SendEmailMessage implements GoMessage {
         this.to = to;
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -51,6 +52,7 @@ public class SendEmailMessage implements GoMessage {
         return true;
     }
 
+    @Override
     public int hashCode() {
         int result;
         result = (subject != null ? subject.hashCode() : 0);
@@ -71,6 +73,7 @@ public class SendEmailMessage implements GoMessage {
         return to;
     }
 
+    @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this);
     }

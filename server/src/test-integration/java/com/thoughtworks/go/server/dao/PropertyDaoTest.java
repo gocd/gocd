@@ -20,9 +20,6 @@ import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.Properties;
 import com.thoughtworks.go.domain.Property;
 import com.thoughtworks.go.helper.PipelineMother;
-import org.apache.commons.lang3.StringUtils;
-import org.hamcrest.Description;
-import org.hamcrest.TypeSafeMatcher;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -177,11 +174,6 @@ public class PropertyDaoTest {
         assertThat(propertiesList.get(1).getValue("cruise_agent"), is("agent2"));
     }
 
-    private JobIdentifier save(JobIdentifier jobIdentifier, Property prop) {
-        propertyDao.save(jobIdentifier.getBuildId(), prop);
-        return jobIdentifier;
-    }
-
     private Property property(String key, String value) {
         return new Property(key, value);
     }
@@ -208,25 +200,6 @@ public class PropertyDaoTest {
         Pipeline pipeline = _createPassedPipeline(pipelineName);
         propertyDao.save(pipeline.getFirstStage().getJobInstances().first().getId(), property);
         return pipeline;
-    }
-
-    private TypeSafeMatcher<Properties> contains(final Property... properties) {
-        return new TypeSafeMatcher<Properties>() {
-            private final List<String> missingProps = new ArrayList<>();
-
-            public boolean matchesSafely(Properties item) {
-                for (Property property : properties) {
-                    if (!item.contains(property)) {
-                        missingProps.add(property.toString());
-                    }
-                }
-                return missingProps.isEmpty();
-            }
-
-            public void describeTo(Description description) {
-                description.appendText("contains [").appendText(StringUtils.join(missingProps, ", ")).appendText("]");
-            }
-        };
     }
 
 }

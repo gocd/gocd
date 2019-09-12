@@ -128,7 +128,8 @@ public class MockHttpServletResponse implements HttpServletResponse {
 		return this.writerAccessAllowed;
 	}
 
-	public void setCharacterEncoding(String characterEncoding) {
+	@Override
+    public void setCharacterEncoding(String characterEncoding) {
 		this.characterEncoding = characterEncoding;
 		this.charset = true;
 		updateContentTypeHeader();
@@ -144,18 +145,21 @@ public class MockHttpServletResponse implements HttpServletResponse {
 		}
 	}
 
-	public String getCharacterEncoding() {
+	@Override
+    public String getCharacterEncoding() {
 		return this.characterEncoding;
 	}
 
-	public ServletOutputStream getOutputStream() {
+	@Override
+    public ServletOutputStream getOutputStream() {
 		if (!this.outputStreamAccessAllowed) {
 			throw new IllegalStateException("OutputStream access not allowed");
 		}
 		return this.outputStream;
 	}
 
-	public PrintWriter getWriter() throws UnsupportedEncodingException {
+	@Override
+    public PrintWriter getWriter() throws UnsupportedEncodingException {
 		if (!this.writerAccessAllowed) {
 			throw new IllegalStateException("Writer access not allowed");
 		}
@@ -178,7 +182,8 @@ public class MockHttpServletResponse implements HttpServletResponse {
 				this.content.toString(this.characterEncoding) : this.content.toString();
 	}
 
-	public void setContentLength(int contentLength) {
+	@Override
+    public void setContentLength(int contentLength) {
 		this.contentLength = contentLength;
 		doAddHeaderValue(CONTENT_LENGTH_HEADER, contentLength, true);
 	}
@@ -192,7 +197,8 @@ public class MockHttpServletResponse implements HttpServletResponse {
 		return this.contentLength;
 	}
 
-	public void setContentType(String contentType) {
+	@Override
+    public void setContentType(String contentType) {
 		this.contentType = contentType;
 		if (contentType != null) {
 			int charsetIndex = contentType.toLowerCase().indexOf(CHARSET_PREFIX);
@@ -205,23 +211,28 @@ public class MockHttpServletResponse implements HttpServletResponse {
 		}
 	}
 
-	public String getContentType() {
+	@Override
+    public String getContentType() {
 		return this.contentType;
 	}
 
-	public void setBufferSize(int bufferSize) {
+	@Override
+    public void setBufferSize(int bufferSize) {
 		this.bufferSize = bufferSize;
 	}
 
-	public int getBufferSize() {
+	@Override
+    public int getBufferSize() {
 		return this.bufferSize;
 	}
 
-	public void flushBuffer() {
+	@Override
+    public void flushBuffer() {
 		setCommitted(true);
 	}
 
-	public void resetBuffer() {
+	@Override
+    public void resetBuffer() {
 		if (isCommitted()) {
 			throw new IllegalStateException("Cannot reset buffer - response is already committed");
 		}
@@ -239,11 +250,13 @@ public class MockHttpServletResponse implements HttpServletResponse {
 		this.committed = committed;
 	}
 
-	public boolean isCommitted() {
+	@Override
+    public boolean isCommitted() {
 		return this.committed;
 	}
 
-	public void reset() {
+	@Override
+    public void reset() {
 		resetBuffer();
 		this.characterEncoding = null;
 		this.contentLength = 0;
@@ -255,11 +268,13 @@ public class MockHttpServletResponse implements HttpServletResponse {
 		this.errorMessage = null;
 	}
 
-	public void setLocale(Locale locale) {
+	@Override
+    public void setLocale(Locale locale) {
 		this.locale = locale;
 	}
 
-	public Locale getLocale() {
+	@Override
+    public Locale getLocale() {
 		return this.locale;
 	}
 
@@ -268,7 +283,8 @@ public class MockHttpServletResponse implements HttpServletResponse {
 	// HttpServletResponse interface
 	//---------------------------------------------------------------------
 
-	public void addCookie(Cookie cookie) {
+	@Override
+    public void addCookie(Cookie cookie) {
 		Assert.notNull(cookie, "Cookie must not be null");
 		this.cookies.add(cookie);
 	}
@@ -287,7 +303,8 @@ public class MockHttpServletResponse implements HttpServletResponse {
 		return null;
 	}
 
-	public boolean containsHeader(String name) {
+	@Override
+    public boolean containsHeader(String name) {
 		return (HeaderValueHolder.getByName(this.headers, name) != null);
 	}
 
@@ -296,7 +313,8 @@ public class MockHttpServletResponse implements HttpServletResponse {
 	 * <p>As of Servlet 3.0, this method is also defined HttpServletResponse.
 	 * @return the <code>Set</code> of header name <code>Strings</code>, or an empty <code>Set</code> if none
 	 */
-	public Set<String> getHeaderNames() {
+	@Override
+    public Set<String> getHeaderNames() {
 		return this.headers.keySet();
 	}
 
@@ -309,7 +327,8 @@ public class MockHttpServletResponse implements HttpServletResponse {
 	 * @param name the name of the header
 	 * @return the associated header value, or <code>null<code> if none
 	 */
-	public String getHeader(String name) {
+	@Override
+    public String getHeader(String name) {
 		HeaderValueHolder header = HeaderValueHolder.getByName(this.headers, name);
 		return (header != null ? header.getStringValue() : null);
 	}
@@ -322,7 +341,8 @@ public class MockHttpServletResponse implements HttpServletResponse {
 	 * @param name the name of the header
 	 * @return the associated header values, or an empty List if none
 	 */
-	public List<String> getHeaders(String name) {
+	@Override
+    public List<String> getHeaders(String name) {
 		HeaderValueHolder header = HeaderValueHolder.getByName(this.headers, name);
 		if (header != null) {
 			return header.getStringValues();
@@ -362,7 +382,8 @@ public class MockHttpServletResponse implements HttpServletResponse {
 	 * The default implementation returns the given URL String as-is.
 	 * <p>Can be overridden in subclasses, appending a session id or the like.
 	 */
-	public String encodeURL(String url) {
+	@Override
+    public String encodeURL(String url) {
 		return url;
 	}
 
@@ -374,19 +395,23 @@ public class MockHttpServletResponse implements HttpServletResponse {
 	 * override the common {@link #encodeURL} method instead, appyling
 	 * to redirect URLs as well as to general URLs.
 	 */
-	public String encodeRedirectURL(String url) {
+	@Override
+    public String encodeRedirectURL(String url) {
 		return encodeURL(url);
 	}
 
-	public String encodeUrl(String url) {
+	@Override
+    public String encodeUrl(String url) {
 		return encodeURL(url);
 	}
 
-	public String encodeRedirectUrl(String url) {
+	@Override
+    public String encodeRedirectUrl(String url) {
 		return encodeRedirectURL(url);
 	}
 
-	public void sendError(int status, String errorMessage) {
+	@Override
+    public void sendError(int status, String errorMessage) {
 		if (isCommitted()) {
 			throw new IllegalStateException("Cannot set error status - response is already committed");
 		}
@@ -395,7 +420,8 @@ public class MockHttpServletResponse implements HttpServletResponse {
 		setCommitted(true);
 	}
 
-	public void sendError(int status) {
+	@Override
+    public void sendError(int status) {
 		if (isCommitted()) {
 			throw new IllegalStateException("Cannot set error status - response is already committed");
 		}
@@ -403,7 +429,8 @@ public class MockHttpServletResponse implements HttpServletResponse {
 		setCommitted(true);
 	}
 
-	public void sendRedirect(String url) {
+	@Override
+    public void sendRedirect(String url) {
 		if (isCommitted()) {
 			throw new IllegalStateException("Cannot send redirect - response is already committed");
 		}
@@ -418,27 +445,33 @@ public class MockHttpServletResponse implements HttpServletResponse {
 		return this.redirectedUrl;
 	}
 
-	public void setDateHeader(String name, long value) {
+	@Override
+    public void setDateHeader(String name, long value) {
 		setHeaderValue(name, value);
 	}
 
-	public void addDateHeader(String name, long value) {
+	@Override
+    public void addDateHeader(String name, long value) {
 		addHeaderValue(name, value);
 	}
 
-	public void setHeader(String name, String value) {
+	@Override
+    public void setHeader(String name, String value) {
 		setHeaderValue(name, value);
 	}
 
-	public void addHeader(String name, String value) {
+	@Override
+    public void addHeader(String name, String value) {
 		addHeaderValue(name, value);
 	}
 
-	public void setIntHeader(String name, int value) {
+	@Override
+    public void setIntHeader(String name, int value) {
 		setHeaderValue(name, value);
 	}
 
-	public void addIntHeader(String name, int value) {
+	@Override
+    public void addIntHeader(String name, int value) {
 		addHeaderValue(name, value);
 	}
 
@@ -485,16 +518,19 @@ public class MockHttpServletResponse implements HttpServletResponse {
 		}
 	}
 
-	public void setStatus(int status) {
+	@Override
+    public void setStatus(int status) {
 		this.status = status;
 	}
 
-	public void setStatus(int status, String errorMessage) {
+	@Override
+    public void setStatus(int status, String errorMessage) {
 		this.status = status;
 		this.errorMessage = errorMessage;
 	}
 
-	public int getStatus() {
+	@Override
+    public int getStatus() {
 		return this.status;
 	}
 
@@ -551,13 +587,15 @@ public class MockHttpServletResponse implements HttpServletResponse {
 			super(out);
 		}
 
-		public void write(int b) throws IOException {
+		@Override
+        public void write(int b) throws IOException {
 			super.write(b);
 			super.flush();
 			setCommittedIfBufferSizeExceeded();
 		}
 
-		public void flush() throws IOException {
+		@Override
+        public void flush() throws IOException {
 			super.flush();
 			setCommitted(true);
 		}
@@ -574,25 +612,29 @@ public class MockHttpServletResponse implements HttpServletResponse {
 			super(out, true);
 		}
 
-		public void write(char buf[], int off, int len) {
+		@Override
+        public void write(char buf[], int off, int len) {
 			super.write(buf, off, len);
 			super.flush();
 			setCommittedIfBufferSizeExceeded();
 		}
 
-		public void write(String s, int off, int len) {
+		@Override
+        public void write(String s, int off, int len) {
 			super.write(s, off, len);
 			super.flush();
 			setCommittedIfBufferSizeExceeded();
 		}
 
-		public void write(int c) {
+		@Override
+        public void write(int c) {
 			super.write(c);
 			super.flush();
 			setCommittedIfBufferSizeExceeded();
 		}
 
-		public void flush() {
+		@Override
+        public void flush() {
 			super.flush();
 			setCommitted(true);
 		}

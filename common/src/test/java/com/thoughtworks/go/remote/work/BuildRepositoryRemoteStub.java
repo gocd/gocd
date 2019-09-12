@@ -42,31 +42,38 @@ public class BuildRepositoryRemoteStub implements BuildRepositoryRemote {
         this.isIgnored = isIgnored;
     }
 
+    @Override
     public AgentInstruction ping(AgentRuntimeInfo info) {
         return new AgentInstruction(false);
     }
 
+    @Override
     public Work getWork(AgentRuntimeInfo runtimeInfo) {
         return getWork(new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie"));
     }
 
+    @Override
     public void reportCurrentStatus(AgentRuntimeInfo agentRuntimeInfo, JobIdentifier jobIdentifier, JobState jobState) {
         states.add(jobState);
     }
 
+    @Override
     public void reportCompleting(AgentRuntimeInfo agentRuntimeInfo, JobIdentifier jobIdentifier, JobResult result) {
         results.add(result);
     }
 
+    @Override
     public void reportCompleted(AgentRuntimeInfo agentRuntimeInfo, JobIdentifier jobId, JobResult result) {
         results.add(result);
         states.add(JobState.Completed);
     }
 
+    @Override
     public boolean isIgnored(JobIdentifier jobIdentifier) {
         return isIgnored;
     }
 
+    @Override
     public String getCookie(AgentIdentifier identifier, String location) {
         throw new RuntimeException("implement me");
     }

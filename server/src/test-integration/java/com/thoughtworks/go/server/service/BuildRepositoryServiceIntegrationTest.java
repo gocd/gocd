@@ -363,6 +363,7 @@ public class BuildRepositoryServiceIntegrationTest {
         schedulePipeline(mingle);
         final Stage stage = stageDao.mostRecentWithBuilds(CaseInsensitiveString.str(mingle.name()), devStage);
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
             public void doInTransactionWithoutResult(TransactionStatus status) {
                 stageService.cancelStage(stage, null);
             }
@@ -416,6 +417,7 @@ public class BuildRepositoryServiceIntegrationTest {
 
     private Pipeline schedulePipeline(final PipelineConfig pipeline) {
         return (Pipeline) transactionTemplate.execute(new TransactionCallback() {
+            @Override
             public Object doInTransaction(TransactionStatus status) {
                 MaterialRevisions materialRevisions = new MaterialRevisions();
                 for (Material material : new MaterialConfigConverter().toMaterials(pipeline.materialConfigs())) {
@@ -432,6 +434,7 @@ public class BuildRepositoryServiceIntegrationTest {
 
     private Stage createNewPipelineWithFirstStageFailed() throws Exception {
         return (Stage) transactionTemplate.execute(new TransactionCallback() {
+            @Override
             public Object doInTransaction(TransactionStatus status) {
                 Pipeline forcedPipeline = instanceFactory.createPipelineInstance(mingle, modifySomeFiles(mingle), new DefaultSchedulingContext(DEFAULT_APPROVED_BY), md5, new TimeProvider());
                 materialRepository.save(forcedPipeline.getBuildCause().getMaterialRevisions());

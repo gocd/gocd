@@ -41,7 +41,6 @@ import com.thoughtworks.go.server.materials.MaterialChecker;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.dd.MaxBackTrackLimitReachedException;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
-import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.After;
@@ -55,9 +54,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.io.File;
 import java.util.List;
 
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
@@ -82,7 +79,6 @@ public class AutoTriggerDependencyResolutionTest {
     @Autowired private SystemEnvironment systemEnvironment;
     @Autowired private MaterialChecker materialChecker;
     @Autowired private PipelineTimeline pipelineTimeline;
-    @Autowired private ServerHealthService serverHealthService;
     @Autowired private DependencyMaterialUpdateNotifier notifier;
 
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();

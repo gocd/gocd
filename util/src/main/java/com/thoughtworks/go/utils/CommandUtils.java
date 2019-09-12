@@ -15,12 +15,15 @@
  */
 package com.thoughtworks.go.utils;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.input.UnixLineEndingInputStream;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -40,38 +43,33 @@ public class CommandUtils {
     public static String exec(File workingDirectory, String... commands) {
         try {
             Process process = Runtime.getRuntime().exec(commands, null, workingDirectory);
-            return captureOutput(process).toString();
+            return captureOutput(process);
         } catch (Exception e) {
             throw bomb(e);
         }
     }
 
-    private static StringBuilder captureOutput(Process process) throws IOException, InterruptedException {
-        BufferedReader output = new BufferedReader(new InputStreamReader(process.getInputStream()));
-        BufferedReader error = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-        StringBuilder result = new StringBuilder();
+    private static String captureOutput(Process process) throws IOException, InterruptedException {
+        StringWriter result = new StringWriter();
         result.append("output:\n");
-        dump(output, result);
+        dump(result, process.getInputStream());
         result.append("error:\n");
-        dump(error, result);
+        dump(result, process.getErrorStream());
         process.waitFor();
-        return result;
+        return result.toString();
     }
 
-    private static StringBuilder dump(BufferedReader reader, StringBuilder builder) throws IOException {
-        String line;
-        while ((line = reader.readLine()) != null) {
-            builder.append(line + "\n");
+    private static void dump(StringWriter result, InputStream inputStream) throws IOException {
+        try (UnixLineEndingInputStream unixLineEndingInputStream = new UnixLineEndingInputStream(inputStream, true)) {
+            IOUtils.copy(unixLineEndingInputStream, result, StandardCharsets.UTF_8);
         }
-        reader.close();
-        return builder;
     }
 
     /**
      * Surrounds a string with double quotes if it is not already surrounded by single or double quotes, or if it contains
      * unescaped spaces, single quotes, or double quotes. When surrounding with double quotes, this method will only escape
      * double quotes in the String.
-     *
+     * <p>
      * This method assumes the argument is well-formed if it was already surrounded by either single or double quotes.
      *
      * @param argument String to quote

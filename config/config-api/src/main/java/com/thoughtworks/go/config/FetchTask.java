@@ -92,10 +92,12 @@ public class FetchTask extends AbstractFetchTask {
         this.srcdir = srcdir;
     }
 
+    @Override
     public String getTypeForDisplay() {
         return FETCH_ARTIFACT;
     }
 
+    @Override
     public List<TaskProperty> getPropertiesForDisplay() {
         List<TaskProperty> taskProperties = super.getPropertiesForDisplay();
         if (!StringUtils.isBlank(srcfile)) {
@@ -115,6 +117,7 @@ public class FetchTask extends AbstractFetchTask {
         return String.format("fetch artifact [%s] => [%s] from [%s/%s/%s]", getSrc(), getDest(), getPipelineName(), getStage(), getJob());
     }
 
+    @Override
     public File destOnAgent(String pipelineName) {
         return new File("pipelines" + '/' + pipelineName + '/' + getDest());
     }

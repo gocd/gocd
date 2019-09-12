@@ -76,6 +76,7 @@ public class TimerConfig implements Validatable {
         return errors().isEmpty();
     }
 
+    @Override
     public void validate(ValidationContext validationContext) {
         if (timerSpec == null) {
             errors.add(TIMER_SPEC, "Timer Spec can not be null.");
@@ -88,10 +89,12 @@ public class TimerConfig implements Validatable {
         }
     }
 
+    @Override
     public ConfigErrors errors() {
         return errors;
     }
 
+    @Override
     public void addError(String fieldName, String message) {
         errors.add(fieldName, message);
     }

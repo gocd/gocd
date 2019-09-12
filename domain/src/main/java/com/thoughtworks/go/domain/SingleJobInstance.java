@@ -34,11 +34,13 @@ public class SingleJobInstance implements JobType {
         return jobTypeConfig.isInstanceOf(jobInstanceName, ignoreCase, jobConfigName);
     }
 
+    @Override
     public void createJobInstances(JobInstances jobs, SchedulingContext context, JobConfig jobConfig, String stageName, final JobNameGenerator nameGenerator, final Clock clock,
                                    InstanceFactory instanceFactory) {
         instanceFactory.reallyCreateJobInstance(jobConfig, jobs, null, CaseInsensitiveString.str(jobConfig.name()), false, false, context, clock);
     }
 
+    @Override
     public void createRerunInstances(JobInstance oldJob, JobInstances jobInstances, SchedulingContext context, StageConfig stageConfig, final Clock clock, InstanceFactory instanceFactory) {
         String jobName = oldJob.getName();
         JobConfig jobConfig = stageConfig.jobConfigByInstanceName(jobName, true);

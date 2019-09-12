@@ -193,8 +193,7 @@ public class SslInfrastructureService {
                     .addParameter("token", agentRegistry.token())
                     .build();
 
-            try {
-                CloseableHttpResponse response = httpClient.execute(postMethod);
+            try (CloseableHttpResponse response = httpClient.execute(postMethod)) {
                 Registration key = Registration.createNullPrivateKeyEntry();
 
                 switch (getStatusCode(response)) {

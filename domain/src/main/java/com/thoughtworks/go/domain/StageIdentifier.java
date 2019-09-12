@@ -16,7 +16,6 @@
 package com.thoughtworks.go.domain;
 
 import java.io.Serializable;
-import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -101,6 +100,7 @@ public class StageIdentifier implements Serializable, LocatableEntity {
         return stageCounter;
     }
 
+    @Override
     public String toString() {
         return String.format("StageIdentifier[%s, %s, %s, %s, %s]", pipelineName, pipelineCounter, pipelineLabel,
                 stageName, stageCounter);
@@ -110,6 +110,7 @@ public class StageIdentifier implements Serializable, LocatableEntity {
         return String.format("%s/%s/%s/%s", getPipelineName(), getPipelineCounter(), getStageName(), getStageCounter());
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -136,6 +137,7 @@ public class StageIdentifier implements Serializable, LocatableEntity {
         return true;
     }
 
+    @Override
     public int hashCode() {
         int result;
         result = (pipelineName != null ? pipelineName.hashCode() : 0);
@@ -211,10 +213,12 @@ public class StageIdentifier implements Serializable, LocatableEntity {
     }
 
 
+    @Override
     public String entityLocator() {
         return getStageLocator();
     }
 
+    @Override
     public Long getId() {
         return id;
     }

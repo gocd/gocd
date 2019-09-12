@@ -32,16 +32,19 @@ public class ArtifactsDiskSpaceFullChecker extends DiskSpaceChecker {
         super(sender, systemEnvironment, goConfigService.artifactsDir(), goConfigService, ARTIFACTS_DISK_FULL_ID, diskSpaceChecker);
     }
 
+    @Override
     protected void createFailure(OperationResult result, long size, long availableSpace) {
         String msg = "GoCD has less than " + size + "Mb of disk space available. Scheduling has stopped, and will resume once more than " + size + "Mb is available.";
         LOGGER.error(msg);
         result.insufficientStorage("GoCD Server has run out of artifacts disk space. Scheduling has been stopped", msg, ARTIFACTS_DISK_FULL_ID);
     }
 
+    @Override
     protected SendEmailMessage createEmail() {
         return EmailMessageDrafter.noArtifactsDiskSpaceMessage(systemEnvironment, getAdminMail(), targetFolderCanonicalPath());
     }
 
+    @Override
     protected long limitInMb() {
         return systemEnvironment.getArtifactReposiotryFullLimit();
     }

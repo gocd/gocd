@@ -104,6 +104,7 @@ public class AgentDaoTest {
         agentDao.associateCookie(agentIdentifier, "cookie");
         assertThat(agentDao.cookieFor(agentIdentifier), is("cookie"));
         hibernateTemplate.execute(new HibernateCallback() {
+            @Override
             public Object doInHibernate(Session session) throws HibernateException, SQLException {
                 Agent agent = (Agent) session.createQuery("from Agent where uuid = 'uuid'").uniqueResult();
                 agent.update("updated_cookie", agentIdentifier.getHostName(), agentIdentifier.getIpAddress());
@@ -125,6 +126,7 @@ public class AgentDaoTest {
         agentDao.associateCookie(agentIdentifier, "cookie");
         assertThat(agentDao.cookieFor(agentIdentifier), is("cookie"));
         hibernateTemplate.execute(new HibernateCallback() {
+            @Override
             public Object doInHibernate(Session session) throws HibernateException, SQLException {
                 Agent agent = (Agent) session.createQuery("from Agent where uuid = 'uuid'").uniqueResult();
                 agent.update("updated_cookie", agentIdentifier.getHostName(), agentIdentifier.getIpAddress());
@@ -149,6 +151,7 @@ public class AgentDaoTest {
 
     private Agent getAgentByUuid(AgentIdentifier agentIdentifier) {
         return (Agent) hibernateTemplate.execute(new HibernateCallback() {
+            @Override
             public Object doInHibernate(Session session) throws HibernateException, SQLException {
                 return session.createSQLQuery("SELECT * from agents where uuid = '" + agentIdentifier.getUuid() + "'").addEntity(Agent.class).uniqueResult();
             }

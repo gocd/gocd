@@ -53,6 +53,7 @@ public class PackageDefinitionTest extends PackageMaterialTestBase {
         RepositoryMetadataStoreHelper.clear();
     }
 
+    @Override
     @After
     public void teardown() {
         RepositoryMetadataStoreHelper.clear();

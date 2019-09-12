@@ -20,6 +20,7 @@ package com.thoughtworks.go.presentation;
  */
 public enum UserSourceType {
     PLUGIN {
+        @Override
         public String displayString() {
             return "Plugin";
         }

@@ -170,8 +170,7 @@ public class CachedGoConfig {
             if (listener instanceof EntityConfigChangedListener<?> && ((EntityConfigChangedListener) listener).shouldCareAbout(saveResult.getEntityConfig())) {
                 try {
                     long startTime = System.currentTimeMillis();
-                    @SuppressWarnings("unchecked")
-                    EntityConfigChangedListener<T> entityConfigChangedListener = (EntityConfigChangedListener<T>) listener;
+                EntityConfigChangedListener<T> entityConfigChangedListener = (EntityConfigChangedListener<T>) listener;
                     entityConfigChangedListener.onEntityConfigChange(saveResult.getEntityConfig());
                     LOGGER.debug("Notifying {} took (in ms): {}", listener.getClass(), (System.currentTimeMillis() - startTime));
                 } catch (Exception e) {

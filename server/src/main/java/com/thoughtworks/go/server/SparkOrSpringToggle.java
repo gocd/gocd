@@ -19,10 +19,12 @@ package com.thoughtworks.go.server;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 
 public class SparkOrSpringToggle {
 
-    private void basedOnToggle(String toggle, HttpServletRequest request) {
+    @SuppressWarnings({"PMD.UnusedPrivateMethod", "unused"})
+    private void basedOnToggle(String toggle, HttpServletRequest request) throws IOException {
         if (Toggles.isToggleOn(toggle)) {
             request.setAttribute("sparkOrSpring", "spring");
         } else {

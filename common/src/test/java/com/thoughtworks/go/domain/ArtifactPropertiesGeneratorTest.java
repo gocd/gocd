@@ -137,10 +137,12 @@ public class ArtifactPropertiesGeneratorTest {
                                     JobIdentifier jobIdentifier) {
                 }
 
+                @Override
                 public void setProperty(JobIdentifier jobIdentifier, Property property) throws
                         ArtifactPublishingException {
                 }
 
+                @Override
                 public ConsoleOutputTransmitter createConsoleOutputTransmitter(JobIdentifier jobIdentifier,
                                                                                AgentIdentifier agentIdentifier, String consoleLogCharset) {
                     return null;
@@ -150,6 +152,7 @@ public class ArtifactPropertiesGeneratorTest {
             this.sentErrors = sentErrors;
         }
 
+        @Override
         public void consumeLine(String line) {
             sentContents.add(line);
         }

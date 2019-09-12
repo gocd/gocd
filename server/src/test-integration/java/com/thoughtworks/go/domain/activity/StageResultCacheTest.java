@@ -131,6 +131,7 @@ public class StageResultCacheTest {
             super(messaging);
         }
 
+        @Override
         public void post(StageResultMessage message) {
             this.message = message;
         }

@@ -180,11 +180,6 @@ public class HgCommandTest {
         assertThat(branchNames.contains("default"), is(true));
     }
 
-    private void addLockTo(File hgRepoRootDir) throws IOException {
-        File lock = new File(hgRepoRootDir, ".hg/store/lock");
-        FileUtils.touch(lock);
-    }
-
     private CommandLine hg(File workingDir, String... arguments) {
         CommandLine hg = CommandLine.createCommandLine("hg").withArgs(arguments).withEncoding("utf-8");
         hg.setWorkingDir(workingDir);

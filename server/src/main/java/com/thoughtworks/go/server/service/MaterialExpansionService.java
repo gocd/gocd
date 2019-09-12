@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.SecretParams;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;

@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server.web;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
@@ -61,6 +60,7 @@ public class FileModelAndView {
         boolean hasChanged = isFileChanged(file, sha);
         if (!hasChanged) {
             return new ModelAndView(new AbstractView() {
+                @Override
                 protected void renderMergedOutputModel(Map model, HttpServletRequest request,
                                                        HttpServletResponse response) throws Exception {
                     response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
@@ -123,6 +123,7 @@ public class FileModelAndView {
     }
 
     private static class HtmlArtifactFolderViewFactory implements ArtifactFolderViewFactory {
+        @Override
         public ModelAndView createView(JobIdentifier identifier, ArtifactFolder artifactFolder) {
             Map mav = new HashMap();
             mav.put("jobIdentifier", identifier);

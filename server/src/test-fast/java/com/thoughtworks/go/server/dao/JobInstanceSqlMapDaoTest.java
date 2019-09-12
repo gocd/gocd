@@ -22,7 +22,6 @@ import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.persistence.ArtifactPlanRepository;
 import com.thoughtworks.go.server.persistence.ArtifactPropertiesGeneratorRepository;
 import com.thoughtworks.go.server.persistence.ResourceRepository;
-import com.thoughtworks.go.server.service.ClusterProfilesService;
 import com.thoughtworks.go.server.service.StubGoCache;
 import com.thoughtworks.go.server.transaction.SqlMapClientTemplate;
 import com.thoughtworks.go.server.transaction.TestTransactionSynchronizationManager;
@@ -39,9 +38,7 @@ import java.util.Map;
 
 import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.sameInstance;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -68,8 +65,6 @@ class JobInstanceSqlMapDaoTest {
     private SystemEnvironment systemEnvironment;
     @Mock
     private SqlMapClientTemplate template;
-    @Mock
-    private ClusterProfilesService clusterProfileService;
 
     @BeforeEach
     void setUp() {
@@ -77,7 +72,7 @@ class JobInstanceSqlMapDaoTest {
         goCache = new StubGoCache(new TestTransactionSynchronizationManager());
         jobInstanceSqlMapDao = new JobInstanceSqlMapDao(environmentVariableDao, goCache, transactionTemplate, null,
                 cache, transactionSynchronizationManager, systemEnvironment, null, resourceRepository,
-                artifactPlanRepository, clusterProfileService, artifactPropertiesGeneratorRepository, jobAgentMetadataDao);
+                artifactPlanRepository, artifactPropertiesGeneratorRepository, jobAgentMetadataDao);
         jobInstanceSqlMapDao.setSqlMapClientTemplate(template);
     }
 

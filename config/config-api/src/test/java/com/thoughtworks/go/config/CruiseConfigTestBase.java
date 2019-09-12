@@ -247,6 +247,7 @@ public abstract class CruiseConfigTestBase {
         final List<Task> tasksVisited = new ArrayList<>();
         config.accept(new TaskConfigVisitor() {
 
+            @Override
             public void visit(PipelineConfig pipelineConfig, StageConfig stageConfig, JobConfig jobConfig, Task task) {
                 tasksVisited.add(task);
             }
@@ -265,6 +266,7 @@ public abstract class CruiseConfigTestBase {
         final List<Task> tasksVisited = new ArrayList<>();
         config.accept(new TaskConfigVisitor() {
 
+            @Override
             public void visit(PipelineConfig pipelineConfig, StageConfig stageConfig, JobConfig jobConfig, Task task) {
                 tasksVisited.add(task);
             }
@@ -847,7 +849,6 @@ public abstract class CruiseConfigTestBase {
         cruiseConfig.setConfigRepos(reposConfig);
 
 
-        PipelineGroups pipelineGroups = new PipelineGroups(defaultGroup);
         Set<MaterialConfig> materials = cruiseConfig.getAllUniquePostCommitSchedulableMaterials();
         assertThat(materials.size(), is(2));
         assertThat(materials, hasItem(gitNonAutoMaterial));
@@ -1021,13 +1022,16 @@ public abstract class CruiseConfigTestBase {
     private static class MyValidatable implements Validatable {
         public Validatable innerValidatable;
 
+        @Override
         public void validate(ValidationContext validationContext) {
         }
 
+        @Override
         public ConfigErrors errors() {
             return new ConfigErrors();
         }
 
+        @Override
         public void addError(String fieldName, String message) {
         }
 

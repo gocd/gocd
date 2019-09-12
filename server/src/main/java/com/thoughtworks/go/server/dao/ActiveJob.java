@@ -74,6 +74,7 @@ public class ActiveJob {
         this.pipelineLabel = pipelineLabel;
     }
 
+    @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this);
     }

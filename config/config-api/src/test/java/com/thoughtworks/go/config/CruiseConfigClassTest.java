@@ -39,11 +39,11 @@ public class CruiseConfigClassTest {
 }
 
 class FooBar {
-    private String value;
-    private String data;
-    protected String moreData;
+    @SuppressWarnings({"PMD.UnusedPrivateField", "unused"}) private String value;
+    @SuppressWarnings({"PMD.UnusedPrivateField", "unused"}) private String data;
+    @SuppressWarnings({"PMD.UnusedPrivateField", "unused"}) protected String moreData;
 }
 
 class DerivedFooBar extends FooBar {
-    protected String derivedClassData;
+    @SuppressWarnings({"PMD.UnusedPrivateField", "unused"}) protected String derivedClassData;
 }

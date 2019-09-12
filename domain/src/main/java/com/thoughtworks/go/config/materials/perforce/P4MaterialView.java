@@ -45,6 +45,7 @@ public class P4MaterialView implements Serializable, Validatable {
         return value;
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -62,17 +63,21 @@ public class P4MaterialView implements Serializable, Validatable {
         return true;
     }
 
+    @Override
     public int hashCode() {
         return (value != null ? value.hashCode() : 0);
     }
 
+    @Override
     public void validate(ValidationContext validationContext) {
     }
 
+    @Override
     public ConfigErrors errors() {
         return configErrors;
     }
 
+    @Override
     public void addError(String fieldName, String message) {
         configErrors.add(fieldName, message);
     }

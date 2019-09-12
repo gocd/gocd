@@ -40,13 +40,16 @@ public class EnvironmentPipelinesConfig extends BaseCollection<EnvironmentPipeli
         }
     }
 
+    @Override
     public void validate(ValidationContext validationContext) {
     }
 
+    @Override
     public ConfigErrors errors() {
         return configErrors;
     }
 
+    @Override
     public void addError(String fieldName, String message) {
         configErrors.add(fieldName, message);
     }
@@ -71,6 +74,7 @@ public class EnvironmentPipelinesConfig extends BaseCollection<EnvironmentPipeli
         }
     }
 
+    @Override
     public boolean add(EnvironmentPipelineConfig environmentPipelineConfig) {
         validateNotDuplicate(environmentPipelineConfig);
         return super.add(environmentPipelineConfig);
@@ -82,6 +86,7 @@ public class EnvironmentPipelinesConfig extends BaseCollection<EnvironmentPipeli
         }
     }
 
+    @Override
     public void setConfigAttributes(Object attributes) {
         if (attributes != null) {
             List<Map> pipelineAttributes = (List) attributes;

@@ -151,13 +151,16 @@ public class SecurityConfig implements Validatable {
         return String.format("SecurityConfig{securityAuthConfigs=%s, rolesConfig=%s, adminsConfig=%s, allowOnlyKnownUsersToLogin=%s}", securityAuthConfigs, rolesConfig, adminsConfig, allowOnlyKnownUsersToLogin);
     }
 
+    @Override
     public void validate(ValidationContext validationContext) {
     }
 
+    @Override
     public ConfigErrors errors() {
         return errors;
     }
 
+    @Override
     public void addError(String fieldName, String message) {
         errors.add(fieldName, message);
     }

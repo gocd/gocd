@@ -18,7 +18,6 @@ package com.thoughtworks.go.config.update;
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.remote.PartialConfig;
-import com.thoughtworks.go.domain.scm.SCM;
 
 public class PartialConfigUpdateCommand implements UpdateConfigCommand {
     private static final Cloner CLONER = new Cloner();

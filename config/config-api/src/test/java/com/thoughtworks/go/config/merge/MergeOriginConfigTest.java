@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.config.merge;
 
-import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;

@@ -271,12 +271,14 @@ public class GoCache {
     }
 
     private class TransactionActivityPredicate implements Predicate {
+        @Override
         public boolean isTrue() {
             return transactionSynchronizationManager.isActualTransactionActive();
         }
     }
 
     private class InTransactionBodyPredicate implements Predicate {
+        @Override
         public boolean isTrue() {
             return transactionSynchronizationManager.isTransactionBodyExecuting();
         }

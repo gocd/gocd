@@ -33,7 +33,6 @@ import com.thoughtworks.go.server.dao.PipelineStateDao;
 import com.thoughtworks.go.server.domain.PipelineLockStatusChangeListener;
 import com.thoughtworks.go.server.domain.PipelineLockStatusChangeListener.Event;
 import com.thoughtworks.go.server.transaction.AfterCompletionCallback;
-import com.thoughtworks.go.server.transaction.TestTransactionSynchronizationManager;
 import com.thoughtworks.go.util.LogFixture;
 import org.junit.Before;
 import org.junit.Test;
@@ -55,13 +54,11 @@ public class PipelineLockServiceTest {
     private PipelineLockService pipelineLockService;
     private PipelineStateDao pipelineStateDao;
     private GoConfigService goConfigService;
-    private TestTransactionSynchronizationManager transactionSynchronizationManager;
 
     @Before
     public void setup() throws Exception {
         pipelineStateDao = mock(PipelineStateDao.class);
         goConfigService = mock(GoConfigService.class);
-        transactionSynchronizationManager = new TestTransactionSynchronizationManager();
         pipelineLockService = new PipelineLockService(goConfigService, pipelineStateDao);
         pipelineLockService.initialize();
     }

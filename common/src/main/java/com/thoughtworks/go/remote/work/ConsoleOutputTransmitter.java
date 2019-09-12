@@ -51,6 +51,7 @@ public final class ConsoleOutputTransmitter implements TaggedStreamConsumer, Run
 
     }
 
+    @Override
     public void consumeLine(String line) {
         taggedConsumeLine(null, line);
     }
@@ -66,6 +67,7 @@ public final class ConsoleOutputTransmitter implements TaggedStreamConsumer, Run
         }
     }
 
+    @Override
     public void run() {
         try {
             flushToServer();
@@ -102,6 +104,7 @@ public final class ConsoleOutputTransmitter implements TaggedStreamConsumer, Run
         }
     }
 
+    @Override
     public void stop() {
         flushToServer();
         executor.shutdown();

@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.transaction;
 import org.springframework.transaction.TransactionStatus;
 
 public abstract class TransactionCallbackWithoutResult extends TransactionCallback {
+    @Override
     public Object doInTransaction(TransactionStatus status) throws Exception {
         doInTransactionWithoutResult(status);
         return null;

@@ -28,6 +28,7 @@ import java.util.function.BooleanSupplier;
 public class TestStreamConsumer implements TaggedStreamConsumer {
     private ConcurrentLinkedDeque<String> lines = new ConcurrentLinkedDeque<>();
 
+    @Override
     public void consumeLine(String line) {
         taggedConsumeLine(null, line);
     }

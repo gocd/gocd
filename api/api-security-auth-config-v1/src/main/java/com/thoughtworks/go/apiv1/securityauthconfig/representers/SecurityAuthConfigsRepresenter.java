@@ -17,16 +17,9 @@
 package com.thoughtworks.go.apiv1.securityauthconfig.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
-import com.thoughtworks.go.api.representers.ConfigurationPropertyRepresenter;
-import com.thoughtworks.go.api.representers.ErrorGetter;
-import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.config.PluginProfiles;
 import com.thoughtworks.go.config.SecurityAuthConfig;
-import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.spark.Routes;
-
-import java.util.Collections;
-import java.util.Map;
 
 public class SecurityAuthConfigsRepresenter {
 

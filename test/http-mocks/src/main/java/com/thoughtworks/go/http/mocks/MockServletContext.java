@@ -19,8 +19,8 @@
 
 package com.thoughtworks.go.http.mocks;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
@@ -86,7 +86,7 @@ public class MockServletContext implements ServletContext {
 	}
 
 
-	private final Log logger = LogFactory.getLog(getClass());
+	private static final Logger logger = LoggerFactory.getLogger(MockServletContext.class);
 
 	private final ResourceLoader resourceLoader;
 

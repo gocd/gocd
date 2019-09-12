@@ -35,8 +35,6 @@ import static org.mockito.Mockito.*;
 
 public class StageConfigTest {
 
-    private String md5 = "md5-test";
-
     @Test
     public void shouldSetPrimitiveAttributes() throws Exception{
         StageConfig config = new StageConfig();

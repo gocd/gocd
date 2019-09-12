@@ -62,6 +62,7 @@ public class OnCancelConfig implements Validatable {
         return task == null ? new NullTask() : task;
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -155,13 +156,16 @@ public class OnCancelConfig implements Validatable {
         return new NantTask();
     }
 
+    @Override
     public void validate(ValidationContext validationContext) {
     }
 
+    @Override
     public ConfigErrors errors() {
         return configErrors;
     }
 
+    @Override
     public void addError(String fieldName, String message) {
         configErrors.add(fieldName, message);
     }

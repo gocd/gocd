@@ -64,10 +64,12 @@ public class ArtifactFolder implements JsonAware, Comparable {
         return renderer.asString();
     }
 
+    @Override
     public List<Map<String, Object>> toJson() {
         return allEntries().toJson();
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -91,6 +93,7 @@ public class ArtifactFolder implements JsonAware, Comparable {
         return true;
     }
 
+    @Override
     public int hashCode() {
         int result;
         result = (jobIdentifier != null ? jobIdentifier.hashCode() : 0);
@@ -99,6 +102,7 @@ public class ArtifactFolder implements JsonAware, Comparable {
         return result;
     }
 
+    @Override
     public String toString() {
         return "[ArtifactFolder"
                 + " job=" + jobIdentifier
@@ -107,6 +111,7 @@ public class ArtifactFolder implements JsonAware, Comparable {
                 + "]";
     }
 
+    @Override
     public int compareTo(Object o) {
         return ((Integer) hashCode()).compareTo(o.hashCode());
     }

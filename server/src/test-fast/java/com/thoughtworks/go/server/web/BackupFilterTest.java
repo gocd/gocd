@@ -30,7 +30,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -48,7 +47,6 @@ public class BackupFilterTest {
     private static final Optional<String> BACKUP_STARTED_AT = Optional.of("Some old date");
     private static final Optional<String> BACKUP_STARTED_BY = Optional.of("admin");
     private FilterChain chain;
-    private FilterConfig filterConfig;
     private BackupService backupService;
     private PrintWriter writer;
     private InputStream inputStream;
@@ -60,12 +58,10 @@ public class BackupFilterTest {
         res = mock(HttpServletResponse.class);
         backupService = mock(BackupService.class);
         chain = mock(FilterChain.class);
-        filterConfig = mock(FilterConfig.class);
         inputStream = BackupFilter.class.getClassLoader().getResourceAsStream("backup_in_progress.html");
         writer = mock(PrintWriter.class);
         when(res.getWriter()).thenReturn(writer);
         this.backupFilter = new BackupFilter(backupService);
-        backupFilter.init(filterConfig);
     }
 
     @Test

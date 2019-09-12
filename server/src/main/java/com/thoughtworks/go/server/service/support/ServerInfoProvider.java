@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.server.service.support;
 
+import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -23,7 +24,7 @@ import java.util.Map;
 public interface ServerInfoProvider {
     double priority();
 
-    Map<String, Object> asJson();
+    Map<String, Object> asJson() throws IOException, Exception;
 
     String name();
 }

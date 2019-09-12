@@ -91,11 +91,6 @@ public class GitCommand extends SCMCommand {
                 .withArg(String.format("--branch=%s", branch));
     }
 
-    // http://www.kernel.org/pub/software/scm/git/docs/git-log.html
-    private String modificationTemplate(String separator) {
-        return "%cn <%ce>%n%H%n%ai%n%n%s%n%b%n" + separator;
-    }
-
     public List<Modification> latestModification() {
         return gitLog("-1", "--date=iso", "--no-decorate", "--pretty=medium", "--no-color", remoteBranch());
 

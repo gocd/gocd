@@ -79,6 +79,7 @@ public class AgentConfig implements Validatable {
         isValid = resourceConfigs.validateTree(validationContext) && isValid;
         return isValid;
     }
+    @Override
     public void validate(ValidationContext validationContext) {
         validateIpAddress();
         if(StringUtils.isBlank(uuid)) {
@@ -109,10 +110,12 @@ public class AgentConfig implements Validatable {
         }
     }
 
+    @Override
     public void addError(String fieldName, String msg) {
         errors.add(fieldName, msg);
     }
 
+    @Override
     public ConfigErrors errors() {
         return errors;
     }
@@ -225,6 +228,7 @@ public class AgentConfig implements Validatable {
         this.uuid = uuid;
     }
 
+    @Override
     public String toString() {
         if (isElastic()) {
             return format("ElasticAgent [%s, %s, %s, %s, %s]", hostName, ipAddress, uuid, elasticAgentId, elasticPluginId);

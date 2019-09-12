@@ -31,6 +31,7 @@ public class ConfigParamPreprocessor implements GoConfigPreprocessor {
         this.resolver = new ParamResolver(new ParamSubstitutionHandlerFactory(new ParamsConfig()), new ClassAttributeCache.FieldCache());
     }
 
+    @Override
     public void process(CruiseConfig cruiseConfig) {
         resolver.resolve(cruiseConfig);
     }

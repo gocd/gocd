@@ -16,15 +16,12 @@
 package com.thoughtworks.go.server.service.materials;
 
 import com.thoughtworks.go.config.ConfigTag;
-import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.update.CreatePackageConfigCommand;
 import com.thoughtworks.go.config.update.DeletePackageConfigCommand;
-import com.thoughtworks.go.config.update.ErrorCollector;
 import com.thoughtworks.go.config.update.UpdatePackageConfigCommand;
-import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
@@ -48,8 +45,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.entityConfigValidationFailed;
@@ -111,18 +106,6 @@ public class PackageDefinitionService {
                 packageDefinition.addError(validationErrorKey, validationError.getMessage());
             }
         }
-    }
-
-    private HashMap<String, List<String>> fieldErrors(Validatable subject, String filedErrorPrefix) {
-        HashMap<String, List<String>> filedErrors = new HashMap<>();
-        ErrorCollector.collectFieldErrors(filedErrors, filedErrorPrefix, subject);
-        return filedErrors;
-    }
-
-    private List<String> globalErrors(List<ConfigErrors> allErrorsExceptSubject) {
-        ArrayList<String> globalErrors = new ArrayList<>();
-        ErrorCollector.collectGlobalErrors(globalErrors, allErrorsExceptSubject);
-        return globalErrors;
     }
 
     public void checkConnection(final PackageDefinition packageDefinition, final LocalizedOperationResult result) {

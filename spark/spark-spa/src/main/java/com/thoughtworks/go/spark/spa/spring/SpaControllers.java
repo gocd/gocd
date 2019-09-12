@@ -20,7 +20,6 @@ import com.thoughtworks.go.plugin.access.analytics.AnalyticsExtension;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.service.*;
-import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.spark.spa.*;
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
@@ -47,7 +46,7 @@ public class SpaControllers implements SparkSpringController {
                           GoConfigService goConfigService,
                           AuthorizationExtensionCacheService authorizationExtensionCacheService,
                           SecurityAuthConfigService securityAuthConfigService,
-                          BackupService backupService, FeatureToggleService featureToggleService,
+                          BackupService backupService,
                           Clock clock, ArtifactsDirHolder artifactsDirHolder, SystemService systemService,
                           GoCache goCache) {
 
@@ -79,7 +78,7 @@ public class SpaControllers implements SparkSpringController {
         sparkControllers.add(new BackupsController(authenticationHelper, templateEngineFactory.create(BackupsController.class, componentTemplate), backupService));
         sparkControllers.add(new PipelinesController(authenticationHelper, templateEngineFactory.create(PipelinesController.class, componentTemplate), goCache));
         sparkControllers.add(new PipelinesAsCodeController(authenticationHelper, templateEngineFactory.create(PipelinesAsCodeController.class, componentTemplate)));
-        sparkControllers.add(new SecretConfigsController(authenticationHelper, featureToggleService, templateEngineFactory.create(SecretConfigsController.class, componentTemplate)));
+        sparkControllers.add(new SecretConfigsController(authenticationHelper, templateEngineFactory.create(SecretConfigsController.class, componentTemplate)));
     }
 
     @Override

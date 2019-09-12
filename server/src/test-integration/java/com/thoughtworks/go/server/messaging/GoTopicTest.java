@@ -73,6 +73,7 @@ public class GoTopicTest {
     class StubGoMessageListener implements GoMessageListener<GoMessage> {
         Set<String> receivedMessage = new HashSet<>();
 
+        @Override
         public void onMessage(GoMessage message) {
             receivedMessage.add(((GoTextMessage) message).getText());
         }

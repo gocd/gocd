@@ -35,6 +35,7 @@ public class HgUrlArgument extends UrlArgument {
         return super.forDisplay().replace(SINGLE_HASH, DOUBLE_HASH);
     }
 
+    @Override
     protected String sanitizeUrl() {
         return super.sanitizeUrl().replace(DOUBLE_HASH, SINGLE_HASH);
     }

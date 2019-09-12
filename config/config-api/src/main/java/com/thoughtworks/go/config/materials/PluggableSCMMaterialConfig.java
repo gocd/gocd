@@ -174,6 +174,7 @@ public class PluggableSCMMaterialConfig extends AbstractMaterialConfig {
         return Boolean.FALSE;
     }
 
+    @Override
     public void setConfigAttributes(Object attributes) {
         if (attributes == null) {
             return;

@@ -39,6 +39,7 @@ public class RepoConfigOrigin implements ConfigOrigin {
         return displayName();
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -59,6 +60,7 @@ public class RepoConfigOrigin implements ConfigOrigin {
         return true;
     }
 
+    @Override
     public int hashCode() {
         return revision != null ? revision.hashCode() : 0;
     }

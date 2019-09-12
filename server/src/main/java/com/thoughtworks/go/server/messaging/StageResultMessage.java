@@ -42,6 +42,7 @@ public class StageResultMessage implements GoMessage {
         return cancelledBy;
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -65,6 +66,7 @@ public class StageResultMessage implements GoMessage {
         return true;
     }
 
+    @Override
     public int hashCode() {
         int result;
         result = (stageIdentifier != null ? stageIdentifier.hashCode() : 0);

@@ -71,6 +71,7 @@ public class CaseInsensitiveString implements Comparable<CaseInsensitiveString>,
         return new CaseInsensitiveString(name);
     }
 
+    @Override
     public int compareTo(CaseInsensitiveString other) {
         return toLower().compareTo(other.toLower());
     }

@@ -38,6 +38,7 @@ public class RemoteConsoleAppender implements ConsoleAppender {
         this.charset = charset;
     }
 
+    @Override
     public void append(String content) throws IOException {
         HttpPut putMethod = new HttpPut(consoleUri);
         try {
@@ -45,8 +46,9 @@ public class RemoteConsoleAppender implements ConsoleAppender {
             StringEntity entity = new StringEntity(content, charset);
             putMethod.setEntity(entity);
             HttpService.setSizeHeader(putMethod, entity.getContentLength());
-            CloseableHttpResponse response = httpService.execute(putMethod);
-            LOGGER.debug("Got {}", response.getStatusLine().getStatusCode());
+            try (CloseableHttpResponse response = httpService.execute(putMethod)) {
+                LOGGER.debug("Got {}", response.getStatusLine().getStatusCode());
+            }
         } finally {
             putMethod.releaseConnection();
         }

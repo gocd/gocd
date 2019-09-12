@@ -34,6 +34,7 @@ public class SvnExternal {
         return folder;
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -54,6 +55,7 @@ public class SvnExternal {
         return true;
     }
 
+    @Override
     public int hashCode() {
         int result;
         result = (folder != null ? folder.hashCode() : 0);
@@ -61,6 +63,7 @@ public class SvnExternal {
         return result;
     }
 
+    @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this);
     }

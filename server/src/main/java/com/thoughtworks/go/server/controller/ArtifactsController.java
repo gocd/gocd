@@ -33,7 +33,6 @@ import com.thoughtworks.go.server.web.FileModelAndView;
 import com.thoughtworks.go.server.web.ResponseCodeView;
 import com.thoughtworks.go.util.ArtifactLogUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -205,15 +204,9 @@ public class ArtifactsController {
     }
 
     private boolean saveFile(int convertedAttempt, File artifact, MultipartFile multipartFile, boolean shouldUnzip) throws IOException {
-        InputStream inputStream = null;
-        boolean success;
-        try {
-            inputStream = multipartFile.getInputStream();
-            success = artifactsService.saveFile(artifact, inputStream, shouldUnzip, convertedAttempt);
-        } finally {
-            IOUtils.closeQuietly(inputStream);
+        try (InputStream inputStream = multipartFile.getInputStream()) {
+            return artifactsService.saveFile(artifact, inputStream, shouldUnzip, convertedAttempt);
         }
-        return success;
     }
 
     @RequestMapping(value = "/repository/restful/artifact/PUT/*", method = RequestMethod.PUT)

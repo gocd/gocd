@@ -197,6 +197,7 @@ public class User extends PersistentObject {
         return result;
     }
 
+    @Override
     public String toString() {
         return String.format("User[name=%s, displayName= %s, matcher=%s, email=%s, emailMe=%s]", name, displayName, matcher, email, emailMe);
     }

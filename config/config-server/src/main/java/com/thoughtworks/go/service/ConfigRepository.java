@@ -48,6 +48,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
+import java.util.stream.StreamSupport;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -117,6 +118,7 @@ public class ConfigRepository {
             FileUtils.writeStringToFile(file, rev.getContent(), UTF_8);
             final AddCommand addCommand = git.add();
             doLocked(new VoidThrowingFn<Exception>() {
+                @Override
                 public void run() throws Exception {
                     addCommand.addFilepattern(CRUISE_CONFIG_XML).call();
                     git.commit().setAuthor(rev.getUsername(), STUDIOS_PRODUCT).setMessage(rev.getComment()).call();
@@ -221,8 +223,7 @@ public class ConfigRepository {
     }
 
     private byte[] contentFromTree(RevTree tree) {
-        try {
-            final ObjectReader reader = gitRepo.newObjectReader();
+        try (final ObjectReader reader = gitRepo.newObjectReader()) {
             CanonicalTreeParser parser = new CanonicalTreeParser();
             parser.reset(reader, tree);
 
@@ -281,8 +282,7 @@ public class ConfigRepository {
             return null;
         }
         String output = null;
-        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-            DiffFormatter diffFormatter = new DiffFormatter(out);
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream(); DiffFormatter diffFormatter = new DiffFormatter(out)) {
             diffFormatter.setRepository(gitRepo);
             diffFormatter.format(earlierCommit.getId(), laterCommit.getId());
             output = out.toString();
@@ -383,6 +383,7 @@ public class ConfigRepository {
             return;
         }
         doLocked(new VoidThrowingFn<Exception>() {
+            @Override
             public void run() throws Exception {
                 try {
                     LOGGER.info("Before GC: {}", git.gc().getStatistics());
@@ -422,13 +423,9 @@ public class ConfigRepository {
         for (Ref branch : branches) {
             if (branch.getName().equals("refs/heads/master")) {
                 Iterable<RevCommit> commits = git.log().add(branch.getObjectId()).call();
-                long count = 0;
-                for (RevCommit commit : commits) {
-                    count++;
-                }
-                return count;
+                return StreamSupport.stream(commits.spliterator(), false).count();
             }
         }
-        return Long.valueOf(-1);
+        return (long) -1;
     }
 }

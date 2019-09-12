@@ -31,6 +31,7 @@ public class DbMetadataSqlMapDao extends HibernateDaoSupport implements DbMetada
         setSessionFactory(sessionFactory);
     }
 
+    @Override
     public int getSchemaVersion() throws DataAccessException {
 
         return (Integer) getHibernateTemplate().execute((HibernateCallback) session -> session.createSQLQuery("select max(change_number) from changelog").uniqueResult());

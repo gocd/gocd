@@ -124,6 +124,7 @@ public class DownloadActionTest {
             this.count = count;
         }
 
+        @Override
         public int download(String url, FetchHandler handler) throws IOException {
             timesCalled += 1;
             if (timesCalled < count) {
@@ -157,6 +158,7 @@ public class DownloadActionTest {
             this.count = count;
         }
 
+        @Override
         public int download(String url, FetchHandler handler) throws IOException {
             timesCalled += 1;
             if (timesCalled <= count) {

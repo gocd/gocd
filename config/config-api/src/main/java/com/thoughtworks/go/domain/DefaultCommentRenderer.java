@@ -34,6 +34,7 @@ public class DefaultCommentRenderer implements CommentRenderer {
         this.regex = regex;
     }
 
+    @Override
     public String render(String text) {
         if (StringUtils.isBlank(text)) {
             return "";

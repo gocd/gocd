@@ -73,6 +73,7 @@ public class AgentLauncherImplTest {
     public void shouldPassLauncherVersionToAgent() throws InterruptedException, IOException {
         final List<String> actualVersion = new ArrayList<>();
         final AgentLauncher launcher = new AgentLauncherImpl(new AgentLauncherImpl.AgentProcessParentRunner() {
+            @Override
             public int run(String launcherVersion, String launcherMd5, ServerUrlGenerator urlConstructor, Map<String, String> environmentVariables, Map context) {
                 actualVersion.add(launcherVersion);
                 return 0;

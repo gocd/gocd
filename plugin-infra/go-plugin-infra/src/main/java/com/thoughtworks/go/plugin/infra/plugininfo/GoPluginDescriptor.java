@@ -71,6 +71,7 @@ public class GoPluginDescriptor implements PluginDescriptor {
         return version;
     }
 
+    @Override
     public About about() {
         return about;
     }

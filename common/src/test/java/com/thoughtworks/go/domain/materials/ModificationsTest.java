@@ -23,8 +23,6 @@ import java.util.List;
 
 import com.thoughtworks.go.config.materials.*;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
-import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
-import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.domain.materials.packagematerial.PackageMaterialRevision;

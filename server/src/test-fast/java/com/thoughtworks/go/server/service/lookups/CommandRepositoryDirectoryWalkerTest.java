@@ -38,7 +38,6 @@ import java.util.Arrays;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
 
 @EnableRuleMigrationSupport
@@ -231,6 +230,7 @@ public class CommandRepositoryDirectoryWalkerTest {
                 return isTheMessageWeHaveBeenWaitingFor;
             }
 
+            @Override
             public String toString() {
                 return "Expected message to contain: " + expectedPartOfMessage;
             }

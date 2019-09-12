@@ -54,8 +54,6 @@ import java.util.*;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static java.lang.String.format;
 import static org.hamcrest.Matchers.*;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -221,6 +219,7 @@ public class AgentServiceIntegrationTest {
                 return item.containsAll(Arrays.asList(items));
             }
 
+            @Override
             public void describeTo(Description description) {
                 description.appendText("to contain ").appendValue(items);
             }

@@ -30,7 +30,6 @@ import com.thoughtworks.go.remote.work.artifact.ArtifactRequestProcessor;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.apache.commons.io.FileUtils;
-import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -40,7 +39,6 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.InOrder;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -54,6 +52,7 @@ import static java.lang.String.format;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 
 public class FetchPluggableArtifactBuilderTest {
@@ -124,9 +123,7 @@ public class FetchPluggableArtifactBuilderTest {
         final FetchPluggableArtifactBuilder builder = new FetchPluggableArtifactBuilder(new RunIfConfigs(), new NullBuilder(), "", jobIdentifier, artifactStore, fetchPluggableArtifactTask.getConfiguration(), fetchPluggableArtifactTask.getArtifactId(), sourceOnServer, metadataDest, checksumFileHandler);
         final Map<String, Object> metadata = Collections.singletonMap("Version", "10.12.0");
 
-        final FileWriter fileWriter = new FileWriter(metadataDest);
-        fileWriter.write(new Gson().toJson(metadata));
-        fileWriter.close();
+        FileUtils.writeStringToFile(metadataDest, new Gson().toJson(metadata), StandardCharsets.UTF_8);
 
         builder.build(publisher, new EnvironmentVariableContext(), null, artifactExtension, registry, "utf-8");
 
@@ -138,12 +135,9 @@ public class FetchPluggableArtifactBuilderTest {
         final FetchPluggableArtifactBuilder builder = new FetchPluggableArtifactBuilder(new RunIfConfigs(), new NullBuilder(), "", jobIdentifier, artifactStore, fetchPluggableArtifactTask.getConfiguration(), fetchPluggableArtifactTask.getArtifactId(), sourceOnServer, metadataDest, checksumFileHandler);
         final Map<String, Object> metadata = Collections.singletonMap("Version", "10.12.0");
 
-        final FileWriter fileWriter = new FileWriter(metadataDest);
-        fileWriter.write(new Gson().toJson(metadata));
-        fileWriter.close();
+        FileUtils.writeStringToFile(metadataDest, new Gson().toJson(metadata), StandardCharsets.UTF_8);
 
         builder.build(publisher, new EnvironmentVariableContext(), null, artifactExtension, registry, "utf-8");
-
 
         InOrder inOrder = inOrder(registry, artifactExtension);
         inOrder.verify(registry, times(1)).registerProcessorFor(eq(CONSOLE_LOG.requestName()), ArgumentMatchers.any(ArtifactRequestProcessor.class));

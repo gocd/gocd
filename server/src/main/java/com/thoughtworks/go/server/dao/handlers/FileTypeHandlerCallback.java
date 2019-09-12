@@ -28,6 +28,7 @@ public class FileTypeHandlerCallback extends StringColumnBasedTypeHandler<File> 
         ps.setString(i, FilenameUtils.separatorsToUnix(parameter.getPath()));
     }
 
+    @Override
     protected File valueOf(String text) {
         if (text == null) {
             return null;

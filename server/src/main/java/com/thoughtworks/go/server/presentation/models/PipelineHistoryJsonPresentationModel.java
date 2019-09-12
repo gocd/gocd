@@ -73,18 +73,18 @@ public class PipelineHistoryJsonPresentationModel implements JsonAware {
         this.hasForceBuildCause = hasForceBuildCause;
         this.hasBuildCauseInBuffer = hasBuildCauseInBuffer;
         this.canPause = canPause;
-        createGroupForCurrentConfigIfItHasChanged(new HashMap<>());
+        createGroupForCurrentConfigIfItHasChanged(null);
     }
 
     private void createGroupForCurrentConfigIfItHasChanged(Map<String, StageIdentifier> latest) {
         if (pipelineHistoryGroups.isEmpty()) {
             if (hasBuildCauseInBuffer || pipelineConfig.isFirstStageManualApproval()) {
-                createGroupForCurrentConfig(latest);
+                createGroupForCurrentConfig();
             }
             return;
         }
         if (hasPipelineConfigChanged()) {
-            createGroupForCurrentConfig(latest);
+            createGroupForCurrentConfig();
         }
     }
 
@@ -92,12 +92,13 @@ public class PipelineHistoryJsonPresentationModel implements JsonAware {
         return !pipelineHistoryGroups.first().match(pipelineConfig);
     }
 
-    private void createGroupForCurrentConfig(Map<String, StageIdentifier> latest) {
+    private void createGroupForCurrentConfig() {
         PipelineInstanceGroupModel group = new PipelineInstanceGroupModel(
-                new StageConfigurationModels(pipelineConfig, latest));
+                new StageConfigurationModels(pipelineConfig));
         pipelineHistoryGroups.add(0, group);
     }
 
+    @Override
     public Map toJson() {
         Map<String, Object> json = new LinkedHashMap<>();
         String pipelineName = str(pipelineConfig.name());

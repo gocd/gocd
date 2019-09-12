@@ -17,7 +17,6 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.EntityType;
-import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
@@ -34,8 +33,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 

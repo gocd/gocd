@@ -186,6 +186,7 @@ public class PipelineStateDaoIntegrationTest {
             final Pipeline pipeline = PipelineMother.pipeline("mingle", stage);
             pipeline.setCounter(i + 1);
             Thread thread = new Thread(new Runnable() {
+                @Override
                 public void run() {
                     try {
                         pipelineStateDao.lockPipeline(pipeline);

@@ -33,10 +33,12 @@ public class DiskSpace implements Comparable<DiskSpace> {
         return new NullDiskSpace();
     }
 
+    @Override
     public int compareTo(DiskSpace that) {
         return this.space.compareTo(that.space);
     }
 
+    @Override
     public String toString() {
         return FileSizeUtils.byteCountToDisplaySize(space);
     }
@@ -69,10 +71,12 @@ public class DiskSpace implements Comparable<DiskSpace> {
             super(-99999);
         }
 
+        @Override
         public String toString() {
             return UNKNOWN_DISK_SPACE;
         }
 
+        @Override
         public boolean isNullDiskspace() {
             return true;
         }

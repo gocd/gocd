@@ -164,22 +164,22 @@ public class GoServerTest {
         SSLSocketFactory sslSocketFactory = mock(SSLSocketFactory.class);
         when(sslSocketFactory.getSupportedCipherSuites()).thenReturn(new String[0]);
 
-        GoServer goServerWithMultipleAddons = new GoServer(setAddonsPathTo(addonsDirectory), sslSocketFactory);
+        GoServer goServerWithMultipleAddons = new GoServer(setAddonsPathTo(addonsDirectory));
         goServerWithMultipleAddons.startServer();
         AppServerStub appServer = (AppServerStub) com.thoughtworks.go.util.ReflectionUtil.getField(goServerWithMultipleAddons, "server");
         assertExtraClasspath(appServer, addonsDir + "/some-addon-dir/addon-1.JAR", addonsDir + "/some-addon-dir/addon-2.jar", addonsDir + "/some-addon-dir/addon-3.jAR");
 
-        GoServer goServerWithOneAddon = new GoServer(setAddonsPathTo(oneAddonDirectory), sslSocketFactory);
+        GoServer goServerWithOneAddon = new GoServer(setAddonsPathTo(oneAddonDirectory));
         goServerWithOneAddon.startServer();
         appServer = (AppServerStub) com.thoughtworks.go.util.ReflectionUtil.getField(goServerWithOneAddon, "server");
         assertExtraClasspath(appServer, addonsDir + "/one-addon-dir/addon-1.jar");
 
-        GoServer goServerWithNoAddon = new GoServer(setAddonsPathTo(noAddonDirectory), sslSocketFactory);
+        GoServer goServerWithNoAddon = new GoServer(setAddonsPathTo(noAddonDirectory));
         goServerWithNoAddon.startServer();
         appServer = (AppServerStub) com.thoughtworks.go.util.ReflectionUtil.getField(goServerWithNoAddon, "server");
         assertExtraClasspath(appServer, "");
 
-        GoServer goServerWithInaccessibleAddonDir = new GoServer(setAddonsPathTo(new File("non-existent-directory")), sslSocketFactory);
+        GoServer goServerWithInaccessibleAddonDir = new GoServer(setAddonsPathTo(new File("non-existent-directory")));
         goServerWithInaccessibleAddonDir.startServer();
         appServer = (AppServerStub) com.thoughtworks.go.util.ReflectionUtil.getField(goServerWithNoAddon, "server");
         assertExtraClasspath(appServer, "");
@@ -221,7 +221,7 @@ public class GoServerTest {
         private Validation validation;
 
         public StubGoServer(SystemEnvironment systemEnvironment, Validation validation) {
-            super(systemEnvironment,null);
+            super(systemEnvironment);
             this.validation = validation;
         }
 

@@ -80,10 +80,12 @@ public class MaterialUpdateStatusNotifierTest {
         Material material = new HgMaterial("url", null);
         pipelineConfig.addMaterialConfig(material.config());
         MaterialUpdateStatusListener statusListener = new MaterialUpdateStatusListener() {
+            @Override
             public void onMaterialUpdate(MaterialUpdateCompletedMessage message) {
                 materialUpdateStatusNotifier.removeListenerFor(pipelineConfig);
             }
 
+            @Override
             public boolean isListeningFor(Material material) {
                 return true;
             }

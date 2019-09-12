@@ -36,6 +36,7 @@ public class JettyWorkDirValidator implements Validator {
         this.systemEnvironment = systemEnvironment;
     }
 
+    @Override
     public Validation validate(Validation val) {
         if (StringUtils.isBlank(systemEnvironment.getPropertyImpl("jetty.home"))) {
             systemEnvironment.setProperty("jetty.home", systemEnvironment.getPropertyImpl("user.dir"));

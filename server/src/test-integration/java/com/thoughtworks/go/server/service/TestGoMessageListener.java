@@ -30,6 +30,7 @@ public class TestGoMessageListener implements GoMessageListener {
 
     public List<GoMessage> received = new ArrayList<>();
 
+    @Override
     public void onMessage(GoMessage message) {
         received.add(message);
     }

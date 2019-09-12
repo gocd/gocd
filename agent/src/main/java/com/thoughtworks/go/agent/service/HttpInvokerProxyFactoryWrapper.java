@@ -18,7 +18,9 @@ package com.thoughtworks.go.agent.service;
 import com.thoughtworks.go.util.URLService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean;
+import org.springframework.stereotype.Component;
 
+@Component
 public class HttpInvokerProxyFactoryWrapper extends HttpInvokerProxyFactoryBean {
 
     @Autowired

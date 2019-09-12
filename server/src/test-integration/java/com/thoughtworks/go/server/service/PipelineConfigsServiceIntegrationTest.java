@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactMetadataStore;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
@@ -60,14 +59,9 @@ public class PipelineConfigsServiceIntegrationTest {
     @Autowired
     private GoConfigMigration goConfigMigration;
     @Autowired
-    private ConfigElementImplementationRegistry registry;
-    @Autowired
     private GoConfigService goConfigService;
     @Autowired
     private GoConfigDao goConfigDao;
-    @Autowired
-    private ConfigCache configCache;
-    private MagicalGoConfigXmlLoader loader;
     private String xml;
     private GoConfigFileHelper configHelper;
 
@@ -75,7 +69,6 @@ public class PipelineConfigsServiceIntegrationTest {
     public void setUp() throws Exception {
         configHelper = new GoConfigFileHelper();
         xml = goConfigMigration.upgradeIfNecessary(IOUtils.toString(getClass().getResourceAsStream("/data/config_with_pluggable_artifacts_store.xml"), UTF_8));
-        loader = new MagicalGoConfigXmlLoader(configCache, registry);
         setupMetadataForPlugin();
 
         configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();

@@ -16,7 +16,6 @@
 package com.thoughtworks.go.publishers;
 
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
-import com.thoughtworks.go.domain.ArtifactMd5Checksums;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.work.BuildRepositoryRemoteStub;
@@ -28,8 +27,6 @@ import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.apache.commons.collections4.queue.CircularFifoQueue;
 import org.apache.commons.io.FileUtils;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -146,19 +143,6 @@ public class GoArtifactsManipulatorTest {
         properties.setProperty("dest/artifact_folder/file.txt", CachedDigestUtils.md5Hex(data));
         properties.setProperty("dest/artifact_folder/bond/james_bond/another_file", CachedDigestUtils.md5Hex(secondData));
         return properties;
-    }
-
-    private BaseMatcher<File> matchesContent(final Properties expectedProperties) {
-        return new BaseMatcher<File>() {
-            public boolean matches(Object item) {
-                File checksumFile = (File) item;
-                return new ArtifactMd5Checksums(checksumFile).equals(new ArtifactMd5Checksums(expectedProperties));
-            }
-
-            public void describeTo(Description description) {
-                description.appendText("Checksum file should also be uploaded along with the artifact");
-            }
-        };
     }
 
 

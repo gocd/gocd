@@ -26,8 +26,6 @@ import com.thoughtworks.go.plugin.access.elastic.models.ElasticAgentInformation;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -35,7 +33,6 @@ import java.util.Map;
 import static com.thoughtworks.go.plugin.access.elastic.v4.ElasticAgentPluginConstantsV4.*;
 
 public class ElasticAgentExtensionV4 implements VersionedElasticAgentExtension {
-    private static final Logger LOG = LoggerFactory.getLogger(ElasticAgentExtensionV4.class);
     public static final String VERSION = "4.0";
     private final PluginRequestHelper pluginRequestHelper;
     private final ElasticAgentExtensionConverterV4 elasticAgentExtensionConverterV4;

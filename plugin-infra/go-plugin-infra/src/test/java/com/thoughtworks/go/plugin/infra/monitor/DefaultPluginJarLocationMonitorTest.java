@@ -46,6 +46,7 @@ public class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJa
     @Mock
     private PluginJarChangeListener changeListener;
 
+    @Override
     @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
@@ -64,6 +65,7 @@ public class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJa
         monitor.initialize();
     }
 
+    @Override
     @AfterEach
     public void tearDown() throws Exception
     {

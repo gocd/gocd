@@ -149,6 +149,7 @@ public class JobIdentifier implements Serializable, LocatableEntity {
         this.buildId = buildId;
     }
 
+    @Override
     public String toString() {
         return String.format("JobIdentifier[%s, %s, %s, %s, %s, %s, %s]", pipelineName, pipelineCounter, pipelineLabel,
                 stageName, stageCounter, buildName, buildId);
@@ -158,6 +159,7 @@ public class JobIdentifier implements Serializable, LocatableEntity {
         return "Build [" + buildLocator() + "/" + getBuildId() + "]";
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -193,6 +195,7 @@ public class JobIdentifier implements Serializable, LocatableEntity {
         return true;
     }
 
+    @Override
     public int hashCode() {
         int result;
         result = (pipelineName != null ? pipelineName.hashCode() : 0);
@@ -260,7 +263,7 @@ public class JobIdentifier implements Serializable, LocatableEntity {
     }
 
     public boolean isSameStageConfig(JobIdentifier other) {
-        return getPipelineName().equalsIgnoreCase(other.getPipelineName()) 
+        return getPipelineName().equalsIgnoreCase(other.getPipelineName())
                 && getStageName().equalsIgnoreCase(other.getStageName());
 
     }
@@ -289,10 +292,12 @@ public class JobIdentifier implements Serializable, LocatableEntity {
         this.rerunOfCounter = rerunOfCounter;
     }
 
+    @Override
     public String entityLocator() {
         return buildLocator();
     }
 
+    @Override
     public Long getId() {
         return getBuildId();
     }

@@ -13,15 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.util.command;
 
-import com.thoughtworks.go.util.command.StreamConsumer;
+package com.thoughtworks.go.plugin.infra.plugininfo;
 
-/**
- * @understands discarding stream output
- */
-public class DevNull implements StreamConsumer {
-    public void consumeLine(String line) {
+import org.springframework.stereotype.Component;
 
+import java.io.IOException;
+
+@Component
+public class DefaultGoPluginOSGiManifestCreator implements GoPluginOSGiManifestGenerator {
+    @Override
+    public void updateManifestOf(GoPluginDescriptor descriptor) {
+        GoPluginOSGiManifest manifest = new GoPluginOSGiManifest(descriptor);
+        try {
+            manifest.update();
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to update MANIFEST.MF", e);
+        }
     }
 }

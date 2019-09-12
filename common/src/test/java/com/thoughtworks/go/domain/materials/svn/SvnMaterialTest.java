@@ -20,7 +20,6 @@ import com.thoughtworks.go.config.SecretParam;
 import com.thoughtworks.go.config.exceptions.UnresolvedSecretParamException;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
-import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.RevisionContext;
 import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;

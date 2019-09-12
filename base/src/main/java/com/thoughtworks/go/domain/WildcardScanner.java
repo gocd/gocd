@@ -15,12 +15,12 @@
  */
 package com.thoughtworks.go.domain;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.tools.ant.DirectoryScanner;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.thoughtworks.go.util.DirectoryScanner;
-import org.apache.commons.io.FilenameUtils;
 
 public class WildcardScanner  {
     private final File rootPath;
@@ -33,7 +33,9 @@ public class WildcardScanner  {
 
     public File[] getFiles() {
         DirectoryScanner scanner = new DirectoryScanner();
-        scanner.setBasedir(rootPath).setIncludes(new String[]{pattern}).scan();
+        scanner.setBasedir(rootPath);
+        scanner.setIncludes(new String[]{pattern});
+        scanner.scan();
         String[] allPaths = scanner.getIncludedFiles();
         List<File> allFiles = new ArrayList<>();
         String[] directories = scanner.getIncludedDirectories();

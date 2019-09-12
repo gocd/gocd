@@ -26,9 +26,6 @@ import org.mockito.MockitoAnnotations;
 
 import java.lang.reflect.Type;
 
-import static org.mockito.Mockito.verify;
-import static org.mockito.MockitoAnnotations.initMocks;
-
 public class MaterialTypeAdapterTest {
 
     private MaterialTypeAdapter materialTypeAdapter;

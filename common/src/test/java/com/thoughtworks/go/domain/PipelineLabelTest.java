@@ -333,12 +333,6 @@ public class PipelineLabelTest {
         assertThat(label.toString(), is("release-" + ModificationsMother.currentRevision()));
     }
 
-    private void ensureLabelIsNOTReplaced(String name) {
-        String labelFormat = String.format("release-${%s}", name);
-        PipelineLabel label = getReplacedLabelFor(name, labelFormat);
-        assertThat(label.toString(), is(labelFormat));
-    }
-
     private PipelineLabel getReplacedLabelFor(String name, String labelFormat) {
         MaterialRevisions materialRevisions = ModificationsMother.oneUserOneFile();
         PipelineLabel label = PipelineLabel.create(labelFormat, InsecureEnvironmentVariables.EMPTY_ENV_VARS);

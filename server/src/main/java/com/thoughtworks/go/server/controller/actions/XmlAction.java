@@ -53,6 +53,7 @@ public class XmlAction extends BasicRestfulAction {
         this.md5 = md5;
     }
 
+    @Override
     public ModelAndView respond(HttpServletResponse response) throws Exception {
         if (md5 != null) {
             response.setHeader(X_CRUISE_CONFIG_MD5, md5);

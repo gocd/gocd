@@ -226,6 +226,7 @@ public class MergePipelineConfigs implements PipelineConfigs {
         this.parts.get(0).validateGroupNameAndAddErrorsTo(errors);
     }
 
+    @Override
     public PipelineConfigs getLocal() {
         for (PipelineConfigs part : this.parts) {
             if (part.isLocal())
@@ -435,6 +436,7 @@ public class MergePipelineConfigs implements PipelineConfigs {
         return this.isSameGroup(groupName);
     }
 
+    @Override
     public void update(String groupName, PipelineConfig pipeline, String pipelineName) {
         if (!isSameGroup(groupName)) {
             return;

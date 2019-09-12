@@ -45,6 +45,7 @@ public class JobStateTransitions extends BaseLinkedSet<JobStateTransition> {
         return null;
     }
 
+    @Override
     public boolean equals(Object o) {
         if (o == null) return false;
         if (o.getClass()!=this.getClass()) return false;

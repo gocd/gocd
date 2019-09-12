@@ -152,6 +152,7 @@ public class HttpTestUtil {
             throw new IllegalStateException("Aborting server start, it seems server is already running.");
 
         blocker = new Thread(new Runnable() {
+            @Override
             public void run() {
                 try {
                     server.start();

@@ -38,6 +38,7 @@ public class StageStatusCache implements StageStatusListener {
         this.stageDao = stageDao;
     }
 
+    @Override
     public void stageStatusChanged(Stage stage) {
         StageConfigIdentifier configIdentifier = stage.getIdentifier().stageConfigIdentifier();
         stages.put(configIdentifier, stage);

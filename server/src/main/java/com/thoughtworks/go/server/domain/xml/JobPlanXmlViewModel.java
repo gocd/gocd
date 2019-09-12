@@ -18,11 +18,9 @@ package com.thoughtworks.go.server.domain.xml;
 import com.thoughtworks.go.domain.*;
 import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Document;
-import org.dom4j.DocumentException;
 import org.dom4j.dom.DOMDocument;
 import org.dom4j.dom.DOMElement;
 
-import java.io.IOException;
 import java.util.List;
 
 public class JobPlanXmlViewModel implements XmlRepresentable {
@@ -32,6 +30,7 @@ public class JobPlanXmlViewModel implements XmlRepresentable {
         this.jobPlans = jobPlans;
     }
 
+    @Override
     public Document toXml(XmlWriterContext writerContext) {
         DOMElement root = new DOMElement("scheduledJobs");
         for (WaitingJobPlan jobPlan : jobPlans) {
@@ -72,6 +71,7 @@ public class JobPlanXmlViewModel implements XmlRepresentable {
         return root;
     }
 
+    @Override
     public String httpUrl(String baseUrl) {
         throw new RuntimeException("Unimplemented");
     }

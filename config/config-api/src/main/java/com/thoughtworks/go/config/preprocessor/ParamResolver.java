@@ -172,6 +172,7 @@ public class ParamResolver {
     }
 
     private class LeafStringSelectorPredicate implements NodeSelectorPredicate {
+        @Override
         public boolean shouldSelect(Field declaredField) {
             return (isConfigAttribute(declaredField) || isConfigValue(declaredField)) && isString(declaredField) && notSkippable(declaredField);
         }
@@ -182,6 +183,7 @@ public class ParamResolver {
     }
 
     private class LeafAttributeSelectorPredicate implements NodeSelectorPredicate {
+        @Override
         public boolean shouldSelect(Field declaredField) {
             return (isConfigAttribute(declaredField) || isConfigValue(declaredField)) && notSkippable(declaredField) && isConfigAttributeValue(declaredField);
         }

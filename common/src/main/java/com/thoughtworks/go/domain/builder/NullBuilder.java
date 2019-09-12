@@ -28,9 +28,11 @@ public class NullBuilder extends Builder {
         super(new RunIfConfigs(), null, "NULL");
     }
 
+    @Override
     public void cancel(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension, String consoleLogCharset) {
     }
 
+    @Override
     public void build(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension, PluginRequestProcessorRegistry pluginRequestProcessorRegistry, String consoleLogCharset) {
     }
 

@@ -101,14 +101,17 @@ public class TriStateSelectionTest {
         final boolean[] associate = new boolean[1];
 
         final TriStateSelection.Assigner<String, String> disableWhenEql = new TriStateSelection.Assigner<String, String>() {
+            @Override
             public boolean shouldAssociate(String a, String b) {
                 return associate[0];
             }
 
+            @Override
             public String identifier(String s) {
                 return s;
             }
 
+            @Override
             public boolean shouldEnable(String a, String b) {
                 return !a.equals(b);
             }

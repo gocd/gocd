@@ -20,7 +20,6 @@ import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.XpathUtils;
 import com.thoughtworks.go.work.GoPublisher;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +28,6 @@ import javax.xml.transform.Templates;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
-import javax.xml.xpath.XPathExpressionException;
 import java.io.*;
 import java.text.MessageFormat;
 
@@ -53,17 +51,13 @@ public class UnitTestReportGenerator implements TestReportGenerator {
         this.folderToUpload = folderToUpload;
     }
 
+    @Override
     public Properties generate(File[] allTestFiles, String uploadDestPath) {
-        FileOutputStream transformedHtml = null;
         File mergedResults = new File(folderToUpload.getAbsolutePath() + FileUtil.fileseparator() + TEST_RESULTS_FILE);
         File mergedResource = null;
-        FileInputStream mergedFileStream = null;
-        try {
+        try (FileOutputStream transformedHtml = new FileOutputStream(mergedResults)) {
             mergedResource = mergeAllTestResultToSingleFile(allTestFiles);
-            transformedHtml = new FileOutputStream(mergedResults);
-
-            try {
-                mergedFileStream = new FileInputStream(mergedResource);
+            try (FileInputStream mergedFileStream = new FileInputStream(mergedResource)) {
                 Source xmlSource = new StreamSource(mergedFileStream);
                 StreamResult result = new StreamResult(transformedHtml);
                 templates.newTransformer().transform(xmlSource, result);
@@ -78,8 +72,6 @@ public class UnitTestReportGenerator implements TestReportGenerator {
         } catch (Exception e) {
             publisher.reportErrorMessage("Unable to publish test properties. Error was " + e.getMessage(), e);
         } finally {
-            IOUtils.closeQuietly(mergedFileStream);
-            IOUtils.closeQuietly(transformedHtml);
             if (mergedResource != null) {
                 mergedResource.delete();
             }
@@ -97,15 +89,11 @@ public class UnitTestReportGenerator implements TestReportGenerator {
     }
 
     private File mergeAllTestResultToSingleFile(File[] allTestFiles) throws IOException {
-        FileOutputStream mergedResourcesStream = null;
-        try {
-            File mergedResource = TestFileUtil.createUniqueTempFile("mergedFile.xml");
-            mergedResourcesStream = new FileOutputStream(mergedResource);
+        File mergedResource = TestFileUtil.createUniqueTempFile("mergedFile.xml");
+        try (FileOutputStream mergedResourcesStream = new FileOutputStream(mergedResource)) {
             merge(allTestFiles, mergedResourcesStream);
-            return mergedResource;
-        } finally {
-            IOUtils.closeQuietly(mergedResourcesStream);
         }
+        return mergedResource;
     }
 
     private void addProperty(File xmlFile, String cssClass, String cruiseProperty) {
@@ -121,20 +109,21 @@ public class UnitTestReportGenerator implements TestReportGenerator {
     }
 
     public void merge(File[] testFiles, OutputStream outputStream) throws IOException {
-        PrintStream out = new PrintStream(outputStream, true, "UTF-8");
-        out.println("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
-        out.println("<all-results>");
+        try (PrintStream out = new PrintStream(outputStream, true, "UTF-8")) {
+            out.println("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
+            out.println("<all-results>");
 
-        for (File testFile : testFiles) {
-            if (testFile.isDirectory()) {
-                for (Object file : FileUtils.listFiles(testFile, new String[]{"xml"}, true)) {
-                    pumpFileContentIfValid(out, (File) file);
+            for (File testFile : testFiles) {
+                if (testFile.isDirectory()) {
+                    for (Object file : FileUtils.listFiles(testFile, new String[]{"xml"}, true)) {
+                        pumpFileContentIfValid(out, (File) file);
+                    }
+                } else {
+                    pumpFileContentIfValid(out, testFile);
                 }
-            } else {
-                pumpFileContentIfValid(out, testFile);
             }
+            out.println("</all-results>");
         }
-        out.println("</all-results>");
     }
 
     private void pumpFileContentIfValid(PrintStream out, File testFile) throws IOException {
@@ -145,9 +134,7 @@ public class UnitTestReportGenerator implements TestReportGenerator {
     }
 
     private void pumpFileContent(File file, PrintStream out) throws IOException {
-        BufferedReader bufferedReader = null;
-        try {
-            bufferedReader = new BufferedReader(new FileReader(file));
+        try (BufferedReader bufferedReader = new BufferedReader(new FileReader(file))) {
             String line = bufferedReader.readLine();
             if (!line.contains("<?xml")) { // skip prolog
                 out.println(line);
@@ -155,8 +142,6 @@ public class UnitTestReportGenerator implements TestReportGenerator {
             while ((line = bufferedReader.readLine()) != null) {
                 out.println(line);
             }
-        } finally {
-            IOUtils.closeQuietly(bufferedReader);
         }
     }
 

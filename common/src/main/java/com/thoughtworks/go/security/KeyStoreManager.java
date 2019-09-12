@@ -15,16 +15,12 @@
  */
 package com.thoughtworks.go.security;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+import java.io.*;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
-import org.apache.commons.io.IOUtils;
 
 public class KeyStoreManager {
     private static final String KEYSTORE_TYPE = "JKS";
@@ -85,22 +81,14 @@ public class KeyStoreManager {
     }
 
     private void writeStore(File storeFile, String password) throws Exception {
-        FileOutputStream fileOutputStream = null;
-        try {
-            fileOutputStream = maybeOutputStream(storeFile);
+        try (FileOutputStream fileOutputStream = outputStreamCreatingParentDirs(storeFile)) {
             lazyLoadedStore.store(fileOutputStream, maybePassword(password));
-        } finally {
-            IOUtils.closeQuietly(fileOutputStream);
         }
     }
 
     private void writeStore(KeyStore store, File storeFile, String password) throws Exception {
-        FileOutputStream fileOutputStream = null;
-        try {
-            fileOutputStream = maybeOutputStream(storeFile);
+        try (FileOutputStream fileOutputStream = outputStreamCreatingParentDirs(storeFile)) {
             store.store(fileOutputStream, maybePassword(password));
-        } finally {
-            IOUtils.closeQuietly(fileOutputStream);
         }
     }
 
@@ -119,14 +107,10 @@ public class KeyStoreManager {
 
     @Deprecated // Need to move the logic into this class so we don't have to touch the KeyStore in our code
     public KeyStore load(File keystoreFile, String password) throws Exception {
-        FileInputStream inputStream = null;
-        try {
-            KeyStore store = KeyStore.getInstance(KEYSTORE_TYPE);
-            inputStream = maybeInputStream(keystoreFile);
+        KeyStore store = KeyStore.getInstance(KEYSTORE_TYPE);
+        try (InputStream inputStream = maybeInputStream(keystoreFile)) {
             store.load(inputStream, maybePassword(password));
             return store;
-        } finally {
-            IOUtils.closeQuietly(inputStream);
         }
     }
 
@@ -143,8 +127,7 @@ public class KeyStoreManager {
         return file == null ? null : new FileInputStream(file);
     }
 
-    private FileOutputStream maybeOutputStream(File file) throws FileNotFoundException {
-        bombIfNull(file, "File cannot be null");
+    private FileOutputStream outputStreamCreatingParentDirs(File file) throws FileNotFoundException {
         File parentFile = file.getParentFile();
         if (!parentFile.exists()) {
             parentFile.mkdirs();

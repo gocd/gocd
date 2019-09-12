@@ -260,6 +260,7 @@ public class ServerConfig implements Validatable {
     }
 
 
+    @Override
     public void validate(ValidationContext validationContext) {
         if (!(purgeStart == null && purgeUpto == null)) {
             if (purgeUpto != null && (purgeStart == null || purgeStart == 0)) {
@@ -277,10 +278,12 @@ public class ServerConfig implements Validatable {
         }
     }
 
+    @Override
     public ConfigErrors errors() {
         return errors;
     }
 
+    @Override
     public void addError(String fieldName, String message) {
         errors.add(fieldName, message);
     }

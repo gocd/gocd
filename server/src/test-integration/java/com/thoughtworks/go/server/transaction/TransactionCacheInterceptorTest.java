@@ -84,6 +84,7 @@ public class TransactionCacheInterceptorTest {
     public void shouldOptOutOfCacheServing_forInsert() {
         final MaterialInstance materialInstance = hgInstance();
         assertionUtil.assertCacheBehaviourInTxn(new TransactionCacheAssertionUtil.DoInTxn() {
+            @Override
             public void invoke() {
                 hibernateDaoSupport.getHibernateTemplate().save(materialInstance);
             }
@@ -97,6 +98,7 @@ public class TransactionCacheInterceptorTest {
 
         ReflectionUtil.setField(materialInstance, "url", "loser-name");
         assertionUtil.assertCacheBehaviourInTxn(new TransactionCacheAssertionUtil.DoInTxn() {
+            @Override
             public void invoke() {
                 hibernateDaoSupport.getHibernateTemplate().update(materialInstance);
                 hibernateDaoSupport.getHibernateTemplate().flush();
@@ -110,6 +112,7 @@ public class TransactionCacheInterceptorTest {
         final MaterialInstance materialInstance = savedHg();
 
         assertionUtil.assertCacheBehaviourInTxn(new TransactionCacheAssertionUtil.DoInTxn() {
+            @Override
             public void invoke() {
                 hibernateDaoSupport.getHibernateTemplate().delete(materialInstance);
             }
@@ -135,6 +138,7 @@ public class TransactionCacheInterceptorTest {
         ModifiedFile baz_c = mod.createModifiedFile("baz.c", "src", ModifiedAction.modified);
 
         assertionUtil.assertCacheBehaviourInTxn(new TransactionCacheAssertionUtil.DoInTxn() {
+            @Override
             public void invoke() {
                 hibernateDaoSupport.getHibernateTemplate().update(mod);
             }
@@ -158,6 +162,7 @@ public class TransactionCacheInterceptorTest {
         ReflectionUtil.setField(foo_c, "fileName", "foo_generated.c");
 
         assertionUtil.assertCacheBehaviourInTxn(new TransactionCacheAssertionUtil.DoInTxn() {
+            @Override
             public void invoke() {
                 hibernateDaoSupport.getHibernateTemplate().update(mod);
                 hibernateDaoSupport.getHibernateTemplate().flush();

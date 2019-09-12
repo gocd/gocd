@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.config;
 
-import org.junit.After;
 import org.junit.Before;
 
 public class GuidServiceTest extends IdFileServiceTestBase {

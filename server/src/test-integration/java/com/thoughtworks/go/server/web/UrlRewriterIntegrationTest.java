@@ -168,6 +168,7 @@ public class UrlRewriterIntegrationTest {
     public static void beforeClass() throws Exception {
         ServletHelper.init();
         httpUtil = new HttpTestUtil(new HttpTestUtil.ContextCustomizer() {
+            @Override
             public void customize(WebAppContext ctx) throws Exception {
                 wac = mock(WebApplicationContext.class);
                 ctx.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, wac);
@@ -185,10 +186,12 @@ public class UrlRewriterIntegrationTest {
         httpUtil.httpConnector(HTTP);
         httpUtil.httpsConnector(HTTPS);
         when(wac.getBean("serverConfigService")).thenReturn(new BaseUrlProvider() {
+            @Override
             public boolean hasAnyUrlConfigured() {
                 return useConfiguredUrls;
             }
 
+            @Override
             public String siteUrlFor(String url, boolean forceSsl) throws URISyntaxException {
                 ServerSiteUrlConfig siteUrl = forceSsl ? new SecureSiteUrl(HTTPS_SITE_URL) : new SiteUrl(HTTP_SITE_URL);
                 return siteUrl.siteUrlFor(url);

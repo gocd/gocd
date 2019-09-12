@@ -15,18 +15,15 @@
  */
 package com.thoughtworks.go.presentation.pipelinehistory;
 
-import static java.lang.String.format;
+import org.hamcrest.Matchers;
+import org.junit.Before;
+import org.junit.Test;
+
 import java.util.Date;
 
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
-import org.hamcrest.Matchers;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
-import org.junit.Before;
-import org.junit.Test;
 
 public class StageHistoryTest {
     private StageInstanceModels stageHistory;
@@ -83,24 +80,6 @@ public class StageHistoryTest {
         assertThat(history.getScheduledDate(), Matchers.is(DATE));
     }
 
-    private Matcher<Date> shouldBe(final Date futureDate) {
-        return new BaseMatcher<Date>() {
-            public Date toMatch;
-
-            public boolean matches(Object o) {
-                this.toMatch = (Date) o;
-                long diff = Math.abs(toMatch.getTime() - futureDate.getTime());
-                return diff < 60 * 1000; //60 seconds
-            }
-
-            public void describeTo(Description description) {
-                description.appendValue(futureDate);
-                description.appendText(
-                        format("[expected: Date(%s), got: Date(%s)]", futureDate.getTime(), toMatch.getTime()));
-            }
-        };
-    }
-
     private class StageHistoryItemStub extends StageInstanceModel {
         private final Date date;
 
@@ -108,6 +87,7 @@ public class StageHistoryTest {
             this.date = date;
         }
 
+        @Override
         public Date getScheduledDate() {
             return date;
         }
@@ -121,6 +101,7 @@ public class StageHistoryTest {
             this.date = date;
         }
 
+        @Override
         public Date getScheduledDate() {
             return date;
         }

@@ -15,12 +15,12 @@
  */
 package com.thoughtworks.go.util.validators;
 
+import com.thoughtworks.go.util.ConfigDirProvider;
+import org.apache.commons.io.IOUtils;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
-
-import com.thoughtworks.go.util.ConfigDirProvider;
-import org.apache.commons.io.IOUtils;
 
 import static java.text.MessageFormat.format;
 
@@ -58,6 +58,7 @@ public class FileValidator implements Validator {
         this.shouldReplace = shouldReplace;
     }
 
+    @Override
     public Validation validate(Validation validation) {
         File file = new File(destDir, fileName);
         if (!shouldReplace && file.exists()) {
@@ -103,28 +104,24 @@ public class FileValidator implements Validator {
         return validation.addError(new RuntimeException(message));
     }
 
-    public boolean equals(Object that) {
-        if (this == that) { return true; }
-        if (that == null) { return false; }
-        if (getClass() != that.getClass()) { return false; }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-        return equals((FileValidator) that);
+        FileValidator that = (FileValidator) o;
+
+        if (shouldReplace != that.shouldReplace) return false;
+        if (fileName != null ? !fileName.equals(that.fileName) : that.fileName != null) return false;
+        if (srcDir != null ? !srcDir.equals(that.srcDir) : that.srcDir != null) return false;
+        return destDir != null ? destDir.equals(that.destDir) : that.destDir == null;
     }
 
-    private boolean equals(FileValidator that) {
-        if (this.shouldReplace != that.shouldReplace) { return false; }
-        if (!this.destDir.equals(that.destDir)) { return false; }
-        if (!this.fileName.equals(that.fileName)) { return false; }
-        if (!this.srcDir.equals(that.srcDir)) { return false; }
-
-        return true;
-    }
-
+    @Override
     public int hashCode() {
-        int result;
-        result = fileName.hashCode();
-        result = 31 * result + srcDir.hashCode();
-        result = 31 * result + destDir.hashCode();
+        int result = fileName != null ? fileName.hashCode() : 0;
+        result = 31 * result + (srcDir != null ? srcDir.hashCode() : 0);
+        result = 31 * result + (destDir != null ? destDir.hashCode() : 0);
         result = 31 * result + (shouldReplace ? 1 : 0);
         return result;
     }

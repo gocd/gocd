@@ -30,7 +30,6 @@ import static com.thoughtworks.go.helper.AgentInstanceMother.building;
 import static com.thoughtworks.go.helper.JobInstanceMother.*;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 

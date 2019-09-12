@@ -92,6 +92,7 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
 
     //most of the material such as hg, git, p4 all print the file from the root without '/'
     //but subverion print it with '/', we standarize it here. look at the implementation of subversion as well.
+    @Override
     public boolean matches(String name, String regex) {
         if (regex.startsWith("/")) {
             regex = regex.substring(1);
@@ -182,6 +183,7 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
 
     protected abstract String getLocation();
 
+    @Override
     public Filter filter() {
         if (filter == null) {
             return new Filter();
@@ -201,6 +203,7 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
         this.filter = filter;
     }
 
+    @Override
     public boolean isInvertFilter() {
         return invertFilter;
     }
@@ -213,20 +216,25 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
         invertFilter = value;
     }
 
+    @Override
     public String getDescription() {
         return getUriForDisplay();
     }
 
+    @Override
     public abstract String getUriForDisplay();
 
+    @Override
     public String getFolder() {
         return folder;
     }
 
+    @Override
     public String getDisplayName() {
         return name == null ? getUriForDisplay() : CaseInsensitiveString.str(name);
     }
 
+    @Override
     public boolean isAutoUpdate() {
         return autoUpdate;
     }
@@ -235,6 +243,7 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
         return autoUpdate;
     }
 
+    @Override
     public void setAutoUpdate(boolean value) {
         autoUpdate = value;
     }
@@ -284,6 +293,7 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
         }
     }
 
+    @Override
     public void setConfigAttributes(Object attributes) {
         super.setConfigAttributes(attributes);
         Map map = (Map) attributes;
@@ -357,6 +367,7 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
         }
     }
 
+    @Override
     public Boolean isUsedInFetchArtifact(PipelineConfig pipelineConfig) {
         return false;
     }

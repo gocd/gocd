@@ -37,6 +37,7 @@ public class TimedBuild implements BuildType {
         this.username = Username.CRUISE_TIMER;
     }
 
+    @Override
     public BuildCause onModifications(MaterialRevisions materialRevisions, boolean materialConfigurationChanged, MaterialRevisions previousMaterialRevisions) {
         if (materialRevisions == null || materialRevisions.isEmpty()) {
             throw new RuntimeException("Cannot find modifications, please check your SCM setting or environment.");
@@ -44,6 +45,7 @@ public class TimedBuild implements BuildType {
         return BuildCause.createManualForced(materialRevisions, username);
     }
 
+    @Override
     public BuildCause onEmptyModifications(PipelineConfig pipelineConfig, MaterialRevisions materialRevisions) {
         if (pipelineConfig.getTimer() != null && pipelineConfig.getTimer().shouldTriggerOnlyOnChanges()) {
             return null;
@@ -51,6 +53,7 @@ public class TimedBuild implements BuildType {
         return onModifications(materialRevisions, false, null);
     }
 
+    @Override
     public void canProduce(PipelineConfig pipelineConfig, SchedulingCheckerService schedulingChecker,
                            ServerHealthService serverHealthService,
                            OperationResult operationResult) {
@@ -65,6 +68,7 @@ public class TimedBuild implements BuildType {
         }
     }
 
+    @Override
     public boolean isValidBuildCause(PipelineConfig pipelineConfig, BuildCause buildCause) {
         return true;
     }

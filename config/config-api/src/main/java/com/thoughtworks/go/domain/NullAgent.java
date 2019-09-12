@@ -26,6 +26,7 @@ public final class NullAgent extends AgentConfig {
         super(uuid, "", "Unknown");
     }
 
+    @Override
     public ConfigErrors errors() {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
@@ -38,10 +39,12 @@ public final class NullAgent extends AgentConfig {
         return new NullAgent(uuid);
     }
 
+    @Override
     public boolean isNull() {
         return true;
     }
 
+    @Override
     public String getHostNameForDisplay() {
         return "Not yet assigned";
     }

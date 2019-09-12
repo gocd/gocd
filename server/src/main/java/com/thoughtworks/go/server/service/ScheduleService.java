@@ -16,7 +16,10 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.Agents;
+import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.config.exceptions.NotAuthorizedException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.exceptions.StageNotFoundException;
@@ -56,7 +59,6 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
-import static com.thoughtworks.go.domain.StageState.Unknown;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 
 @Service
@@ -555,6 +557,7 @@ public class ScheduleService {
                 final JobInstance job = jobInstanceService.buildByIdWithTransitions(jobIdentifier.getBuildId());
 
                 transactionTemplate.executeWithExceptionHandling(new com.thoughtworks.go.server.transaction.TransactionCallbackWithoutResult() {
+                    @Override
                     public void doInTransactionWithoutResult(TransactionStatus status) {
                         if (job.isNull() || job.getState() == JobState.Rescheduled || job.getResult() == JobResult.Cancelled) {
                             return;
@@ -759,6 +762,7 @@ public class ScheduleService {
             this.goConfigService = goConfigService;
         }
 
+        @Override
         public Stage create(final String pipelineName, final String stageName, final SchedulingContext context) {
             return goConfigService.scheduleStage(pipelineName, stageName, context);
         }
@@ -779,22 +783,27 @@ public class ScheduleService {
     }
 
     public static class ExceptioningErrorHandler implements ErrorConditionHandler {
+        @Override
         public void nullStage(String stageName) {
             throw new RuntimeException(String.format("Stage [%s] not found", stageName));
         }
 
+        @Override
         public void cantSchedule(String description, String pipelineName, String stageName) {
             throw new RuntimeException(description);
         }
 
+        @Override
         public void noOperatePermission(String pipelineName, String stageName) {
             throw new NotAuthorizedException(noOperatePermissionMessage(pipelineName, stageName));
         }
 
+        @Override
         public void nullPipeline(String pipelineName, Integer pipelineCounter, String stageName) {
             throw new RecordNotFoundException(String.format("Pipeline instance [%s/%s] not found", pipelineName, pipelineCounter));
         }
 
+        @Override
         public void previousStageNotRun(String pipelineName, String stageName) {
             throw new RuntimeException(previousStageNotRunMessage(pipelineName, stageName));
         }
@@ -803,6 +812,7 @@ public class ScheduleService {
             return String.format("Can not run stage [%s] in pipeline [%s] because its previous stage has not been run.", stageName, pipelineName);
         }
 
+        @Override
         public void cantSchedule(CannotScheduleException e, String pipelineName) {
             throw e;
         }
@@ -851,23 +861,4 @@ public class ScheduleService {
         }
     }
 
-    private boolean stageDoesNotExist(String pipelineName, String counterOrLabel, String stageName, HttpOperationResult result, Stage stage) {
-        if (stage.getState() == Unknown) {
-            String msg = String.format("Stage '%s/%s/%s' not found.", pipelineName, counterOrLabel, stageName);
-            LOGGER.error(msg);
-            result.notFound(msg, "", HealthStateType.general(HealthStateScope.forStage(pipelineName, stageName)));
-            return true;
-        }
-        return false;
-    }
-
-    private boolean pipelineDoesNotExist(String pipelineName, String counterOrLabel, HttpOperationResult result, Pipeline pipeline) {
-        if (pipeline == null) {
-            String msg = String.format("Pipeline '%s/%s' not found", pipelineName, counterOrLabel);
-            LOGGER.error(msg);
-            result.notFound(msg, "", HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
-            return true;
-        }
-        return false;
-    }
 }

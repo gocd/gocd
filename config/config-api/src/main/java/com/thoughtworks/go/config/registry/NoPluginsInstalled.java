@@ -23,6 +23,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class NoPluginsInstalled implements PluginExtensions {
+    @Override
     public List<ConfigurationExtension> configTagImplementations() {
         return new ArrayList<>();
     }

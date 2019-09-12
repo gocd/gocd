@@ -26,7 +26,6 @@ import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv2.configrepos.representers.ConfigRepoConfigRepresenterV2;
 import com.thoughtworks.go.apiv2.configrepos.representers.ConfigReposConfigRepresenterV2;
 import com.thoughtworks.go.config.exceptions.EntityType;
-import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.server.service.ConfigRepoService;

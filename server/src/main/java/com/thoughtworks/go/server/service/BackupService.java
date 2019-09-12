@@ -333,10 +333,12 @@ public class BackupService implements BackupStatusProvider {
         serverBackupRepository.deleteAll();
     }
 
+    @Override
     public boolean isBackingUp() {
         return runningBackup != null;
     }
 
+    @Override
     public Optional<String> backupRunningSinceISO8601() {
         if (runningBackup != null) {
             return Optional.of(new DateTime(runningBackup.getTime()).toString());
@@ -344,6 +346,7 @@ public class BackupService implements BackupStatusProvider {
         return Optional.empty();
     }
 
+    @Override
     public Optional<String> backupStartedBy() {
         if (runningBackup != null) {
             return Optional.of(runningBackup.getUsername());

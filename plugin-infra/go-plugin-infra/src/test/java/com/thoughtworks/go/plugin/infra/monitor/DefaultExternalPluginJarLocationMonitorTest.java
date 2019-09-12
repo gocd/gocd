@@ -43,6 +43,7 @@ public class DefaultExternalPluginJarLocationMonitorTest extends AbstractDefault
     private PluginJarChangeListener changeListener;
     private SystemEnvironment systemEnvironment;
 
+    @Override
     @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
@@ -60,6 +61,7 @@ public class DefaultExternalPluginJarLocationMonitorTest extends AbstractDefault
         monitor.initialize();
     }
 
+    @Override
     @AfterEach
     public void tearDown() throws Exception {
         monitor.stop();

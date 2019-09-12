@@ -61,6 +61,7 @@ public abstract class TestRepoFixture implements DisposableBean{
         return testRepo;
     }
 
+    @Override
     public void destroy() {
         FileUtils.deleteQuietly(testRepo);
     }

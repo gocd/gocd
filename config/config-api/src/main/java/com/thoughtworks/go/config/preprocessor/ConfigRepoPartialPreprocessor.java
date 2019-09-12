@@ -19,6 +19,7 @@ import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.GoConfigPreprocessor;
 
 public class ConfigRepoPartialPreprocessor implements GoConfigPreprocessor {
+    @Override
     public void process(CruiseConfig cruiseConfig) {
         if (!cruiseConfig.getPartials().isEmpty()) {
             cruiseConfig.merge(cruiseConfig.getPartials(), false);

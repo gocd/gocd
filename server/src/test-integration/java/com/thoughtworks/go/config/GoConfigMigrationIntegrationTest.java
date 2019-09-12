@@ -76,8 +76,6 @@ public class GoConfigMigrationIntegrationTest {
     @Autowired
     private SystemEnvironment systemEnvironment;
     @Autowired
-    private ConfigCache configCache;
-    @Autowired
     private GoConfigService goConfigService;
     @Autowired
     private ServerHealthService serverHealthService;

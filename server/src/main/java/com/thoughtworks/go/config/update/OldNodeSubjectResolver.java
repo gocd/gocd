@@ -19,10 +19,12 @@ import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.Validatable;
 
 public class OldNodeSubjectResolver implements NodeSubjectResolver {
+    @Override
     public Validatable getNode(final UpdateConfigFromUI command, final CruiseConfig config) {
         return command.node(config);
     }
 
+    @Override
     public Validatable getSubject(UpdateConfigFromUI command, Validatable node) {
         return command.subject(node);
     }

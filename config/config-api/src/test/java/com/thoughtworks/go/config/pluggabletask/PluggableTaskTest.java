@@ -321,7 +321,7 @@ public class PluggableTaskTest {
         property.with(Property.SECURE, false);
 
         PluggableTaskConfigStore.store().setPreferenceFor(pluginConfiguration.getId(), taskPreference);
-        TaskConfigProperty taskConfigProperty = taskConfig.addProperty("key");
+        taskConfig.addProperty("key");
 
         when(taskPreference.getConfig()).thenReturn(taskConfig);
 

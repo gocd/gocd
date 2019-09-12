@@ -21,7 +21,6 @@ import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
-import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.server.materials.MaterialUpdateService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.spark.Routes;

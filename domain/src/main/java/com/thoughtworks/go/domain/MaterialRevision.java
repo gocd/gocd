@@ -130,6 +130,7 @@ public class MaterialRevision implements Serializable {
         return true;
     }
 
+    @Override
     public int hashCode() {
         int result;
         result = (material != null ? material.hashCode() : 0);
@@ -137,6 +138,7 @@ public class MaterialRevision implements Serializable {
         return result;
     }
 
+    @Override
     public String toString() {
         return "[" + material + ", " + getRevision() + ";" + modifications.toString() + "]";
     }

@@ -99,6 +99,7 @@ public class DefaultWorkCreator implements WorkCreator {
         }
     }
 
+    @Override
     public Work work(AgentIdentifier agentIdentifier) {
         return getWork(agentIdentifier);
     }

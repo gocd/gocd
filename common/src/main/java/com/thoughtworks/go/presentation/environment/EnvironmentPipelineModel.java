@@ -70,6 +70,7 @@ public class EnvironmentPipelineModel implements Comparable<EnvironmentPipelineM
         return false;
     }
 
+    @Override
     public int compareTo(EnvironmentPipelineModel other) {
         return this.pipelineName.toLowerCase().compareTo(other.pipelineName.toLowerCase());
     }

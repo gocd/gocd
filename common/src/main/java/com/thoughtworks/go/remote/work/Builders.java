@@ -133,6 +133,7 @@ public class Builders {
         this.cancelStarted = isCancelled;
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -159,6 +160,7 @@ public class Builders {
         return true;
     }
 
+    @Override
     public int hashCode() {
         int result;
         result = (builders != null ? builders.hashCode() : 0);

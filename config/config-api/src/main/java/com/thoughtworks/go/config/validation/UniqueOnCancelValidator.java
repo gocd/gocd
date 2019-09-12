@@ -24,6 +24,7 @@ import org.jdom2.xpath.XPathFactory;
 import java.util.List;
 
 public class UniqueOnCancelValidator implements GoConfigXMLValidator {
+    @Override
     public void validate(Element element, ConfigElementImplementationRegistry registry) throws Exception {
         XPathFactory xPathFactory = XPathFactory.instance();
         List<String> tasks = ConfigUtil.allTasks(registry);

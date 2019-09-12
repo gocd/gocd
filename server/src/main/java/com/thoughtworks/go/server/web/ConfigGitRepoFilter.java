@@ -25,13 +25,16 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 public class ConfigGitRepoFilter extends GitFilter {
+    @Override
     public void destroy() {
     }
 
+    @Override
     public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws ServletException, IOException {
         super.doFilter(req, resp, chain);
     }
 
+    @Override
     public void init(FilterConfig config) throws ServletException {
         ConfigRepository configRepository = ContextLoader.getCurrentWebApplicationContext().getBean(ConfigRepository.class);
         FileResolver<HttpServletRequest> resolver = new FileResolver<>();

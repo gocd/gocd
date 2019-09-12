@@ -55,10 +55,10 @@ class M001 {
 
     static boolean required(Connection cxn) throws SQLException {
         try (Statement s = cxn.createStatement()) {
-            final ResultSet rs = s.executeQuery("SELECT COUNT(*) as remaining FROM pipelineselections WHERE version = 0");
-            rs.next();
-
-            return rs.getInt("remaining") > 0;
+            try (ResultSet rs = s.executeQuery("SELECT COUNT(*) as remaining FROM pipelineselections WHERE version = 0")) {
+                rs.next();
+                return rs.getInt("remaining") > 0;
+            }
         }
     }
 

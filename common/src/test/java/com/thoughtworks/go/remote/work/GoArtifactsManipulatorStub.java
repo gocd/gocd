@@ -92,9 +92,11 @@ public class GoArtifactsManipulatorStub extends GoArtifactsManipulator {
         properties.add(property);
     }
 
+    @Override
     public ConsoleOutputTransmitter createConsoleOutputTransmitter(JobIdentifier jobIdentifier,
                                                                    AgentIdentifier agentIdentifier, String consoleLogCharset) {
         return new ConsoleOutputTransmitter(new ConsoleAppender() {
+            @Override
             public void append(String content) throws IOException {
                     consoleOuts.add(content);
             }

@@ -29,6 +29,7 @@ public class AsynchronousEmailSender implements EmailSender {
         this.topic = topic;
     }
 
+    @Override
     public void sendEmail(SendEmailMessage message) {
         topic.post(message);
     }

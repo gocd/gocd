@@ -35,26 +35,32 @@ public class StubMultipartHttpServletRequest extends DefaultMultipartHttpServlet
         this.mockHttpReq = mockHttpReq;
     }
 
+    @Override
     public Map getFileMap() {
         return map;
     }
 
+    @Override
     public String getRequestURI() {
         return mockHttpReq.getRequestURI();
     }
 
+    @Override
     public String[] getParameterValues(String s) {
         return mockHttpReq.getParameterValues(s);
     }
 
+    @Override
     public String getParameter(String name) {
         return mockHttpReq.getParameter(name);
     }
 
+    @Override
     public MultipartFile getFile(String name) {
         return map.get(name);
     }
 
+    @Override
     protected void initializeMultipart() {
     }
 }

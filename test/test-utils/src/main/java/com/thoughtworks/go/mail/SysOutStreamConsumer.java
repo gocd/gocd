@@ -25,6 +25,7 @@ public class SysOutStreamConsumer extends ProcessOutputStreamConsumer {
     }
 
     private static class SysOut implements StreamConsumer {
+        @Override
         public void consumeLine(String line) {
             System.out.println(line);
         }

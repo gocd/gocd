@@ -52,7 +52,6 @@ public class JobAgentMetadata extends PersistentObject {
 
     public ElasticProfile elasticProfile() {
         Map map = GSON.fromJson(elasticAgentProfileMetadata, LinkedHashMap.class);
-        String pluginId = (String) map.get("pluginId");
         String clusterProfileId = (String) map.get("clusterProfileId");
         String id = (String) map.get("id");
         Map<String, String> properties = (Map<String, String>) map.get("properties");

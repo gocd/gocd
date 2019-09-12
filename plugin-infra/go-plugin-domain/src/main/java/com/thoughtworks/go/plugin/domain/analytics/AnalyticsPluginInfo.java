@@ -16,7 +16,6 @@
 package com.thoughtworks.go.plugin.domain.analytics;
 
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
-import com.thoughtworks.go.plugin.domain.analytics.Capabilities;
 import com.thoughtworks.go.plugin.domain.common.Image;
 import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
 import com.thoughtworks.go.plugin.domain.common.PluginConstants;

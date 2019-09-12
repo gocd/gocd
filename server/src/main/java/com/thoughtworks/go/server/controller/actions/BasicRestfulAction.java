@@ -45,6 +45,7 @@ public class BasicRestfulAction implements RestfulAction {
         return new BasicRestfulAction(SC_NOT_FOUND, errorMessage);
     }
 
+    @Override
     public ModelAndView respond(HttpServletResponse response) throws Exception {
         response.setStatus(status);
         response.setContentType(contentType);

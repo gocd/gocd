@@ -34,6 +34,7 @@ public class UpdateEnvironmentsCommand implements UpdateConfigCommand {
         this.environments = environments;
     }
 
+    @Override
     public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
         EnvironmentsConfig allEnvironments = cruiseConfig.getEnvironments();
         for (String environment : environments.split(",")) {

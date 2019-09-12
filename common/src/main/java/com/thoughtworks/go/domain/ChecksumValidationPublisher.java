@@ -28,17 +28,21 @@ public class ChecksumValidationPublisher implements com.thoughtworks.go.agent.Ch
     private Set<String> md5MismatchPaths = new HashSet<>();
     private boolean md5ChecksumFileWasNotFound;
 
+    @Override
     public void md5Match(String filePath) {
     }
 
+    @Override
     public void md5Mismatch(String filePath) {
         md5MismatchPaths.add(filePath);
     }
 
+    @Override
     public void md5NotFoundFor(String filePath) {
         md5NotFoundPaths.add(filePath);
     }
 
+    @Override
     public void md5ChecksumFileNotFound() {
         md5ChecksumFileWasNotFound = true;
     }

@@ -67,6 +67,7 @@ public class AgentBootstrapperTest {
             @Override
             AgentLauncherCreator getLauncherCreator() {
                 return new AgentLauncherCreator() {
+                    @Override
                     public AgentLauncher createLauncher() {
                         try {
                             throw new RuntimeException("i bombed");
@@ -87,6 +88,7 @@ public class AgentBootstrapperTest {
         final AgentBootstrapper spyBootstrapper = stubJVMExit(bootstrapper);
 
         Thread stopLoopThd = new Thread(new Runnable() {
+            @Override
             public void run() {
                 try {
                     waitForLauncherCreation.acquire();
@@ -115,8 +117,10 @@ public class AgentBootstrapperTest {
             @Override
             AgentLauncherCreator getLauncherCreator() {
                 return new AgentLauncherCreator() {
+                    @Override
                     public AgentLauncher createLauncher() {
                         return new AgentLauncher() {
+                            @Override
                             public int launch(AgentLaunchDescriptor descriptor) {
                                 return AgentLauncher.IRRECOVERABLE_ERROR;
                             }
@@ -150,8 +154,10 @@ public class AgentBootstrapperTest {
             @Override
             AgentLauncherCreator getLauncherCreator() {
                 return new AgentLauncherCreator() {
+                    @Override
                     public AgentLauncher createLauncher() {
                         return new AgentLauncher() {
+                            @Override
                             public int launch(AgentLaunchDescriptor descriptor) {
                                 try {
                                     throw new RuntimeException("fail!!! i say.");
@@ -175,6 +181,7 @@ public class AgentBootstrapperTest {
         final AgentBootstrapper spyBootstrapper = stubJVMExit(bootstrapper);
 
         Thread stopLoopThd = new Thread(new Runnable() {
+            @Override
             public void run() {
                 try {
                     waitForLauncherInvocation.acquire();
@@ -201,10 +208,12 @@ public class AgentBootstrapperTest {
             @Override
             AgentLauncherCreator getLauncherCreator() {
                 return new AgentLauncherCreator() {
+                    @Override
                     public AgentLauncher createLauncher() {
                         return new AgentLauncher() {
                             public static final String COUNT = "count";
 
+                            @Override
                             public int launch(AgentLaunchDescriptor descriptor) {
 
                                 Map descriptorContext = descriptor.context();

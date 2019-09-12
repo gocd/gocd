@@ -42,7 +42,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.containsString;

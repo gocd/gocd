@@ -50,6 +50,7 @@ public class NullAgentInstance extends AgentInstance {
     public void building(AgentBuildingInfo agentBuildingInfo) {
     }
 
+    @Override
     public boolean isNullAgent() {
         return true;
     }

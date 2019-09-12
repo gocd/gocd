@@ -96,6 +96,7 @@ public class JsonAction implements RestfulAction {
     /**
      * @deprecated replace with createView
      */
+    @Override
     public ModelAndView respond(HttpServletResponse response) {
         return new JsonModelAndView(response, json, status);
     }
@@ -116,6 +117,7 @@ public class JsonAction implements RestfulAction {
 
     private class JsonModelAndView extends ModelAndView {
 
+        @Override
         public String getViewName() {
             return "jsonView";
         }

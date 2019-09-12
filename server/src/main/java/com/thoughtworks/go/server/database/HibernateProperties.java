@@ -19,9 +19,11 @@ import com.thoughtworks.go.database.Database;
 import org.hibernate.cache.EhCacheProvider;
 import org.hibernate.cfg.Environment;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.Properties;
 
+@Component
 public class HibernateProperties extends Properties {
     @Autowired
     public HibernateProperties(Database database) {

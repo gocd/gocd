@@ -29,6 +29,7 @@ public class AlphaAsciiCollectionComparator<T> implements Comparator<Collection<
         comparator = new AlphaAsciiComparator();
     }
 
+    @Override
     public int compare(Collection<? extends Comparable<T>> one, Collection<? extends Comparable<T>> other) {
         return comparator.compare(string(one), string(other));
     }

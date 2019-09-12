@@ -17,12 +17,9 @@ package com.thoughtworks.go.server.domain.xml;
 
 import com.thoughtworks.go.domain.*;
 import org.dom4j.Document;
-import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.dom.DOMDocument;
 import org.dom4j.dom.DOMElement;
-
-import java.io.IOException;
 
 /**
  * @understands rendering xml representation of Job
@@ -34,6 +31,7 @@ public class JobXmlViewModel implements XmlRepresentable {
         this.jobInstance = jobInstance;
     }
 
+    @Override
     public Document toXml(XmlWriterContext writerContext) {
         DOMElement root = new DOMElement("job");
         root.addAttribute("name", jobInstance.getName());
@@ -83,6 +81,7 @@ public class JobXmlViewModel implements XmlRepresentable {
         return document;
     }
 
+    @Override
     public String httpUrl(String baseUrl) {
         return baseUrl + "/api/jobs/" + jobInstance.getId() + ".xml";
     }

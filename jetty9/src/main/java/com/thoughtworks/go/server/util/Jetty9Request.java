@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.util;
 
-import org.eclipse.jetty.http.HttpURI;
 import org.eclipse.jetty.server.Request;
 
 import javax.servlet.ServletRequestWrapper;

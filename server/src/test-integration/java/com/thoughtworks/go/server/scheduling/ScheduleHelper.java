@@ -85,6 +85,7 @@ public class ScheduleHelper {
 
     public Pipeline schedule(final PipelineConfig pipelineConfig, final BuildCause buildCause, final String approvedBy, final SchedulingContext schedulingContext) {
         return (Pipeline) transactionTemplate.execute(new TransactionCallback() {
+            @Override
             public Object doInTransaction(TransactionStatus status) {
                 materialRepository.save(buildCause.getMaterialRevisions());
                 Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig, buildCause, schedulingContext, "md5-test", new TimeProvider());

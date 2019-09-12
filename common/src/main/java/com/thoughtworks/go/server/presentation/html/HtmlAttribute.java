@@ -38,6 +38,7 @@ public class HtmlAttribute {
     private static class HrefHtmlAttribute extends HtmlAttribute {
         public HrefHtmlAttribute(String href) { super("href", href); }
 
+        @Override
         public void render(HtmlRenderer renderer) {
             renderer.append(" " + key + "=\"")
                     .appendContextRootedUrl(value)

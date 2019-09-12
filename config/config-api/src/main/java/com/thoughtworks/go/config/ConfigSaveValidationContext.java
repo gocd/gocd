@@ -96,6 +96,7 @@ public class ConfigSaveValidationContext implements ValidationContext {
         return getCruiseConfig().getConfigRepos();
     }
 
+    @Override
     public JobConfig getJob() {
         return loadFirstOfType(JobConfig.class);
     }
@@ -141,14 +142,17 @@ public class ConfigSaveValidationContext implements ValidationContext {
         return null;
     }
 
+    @Override
     public StageConfig getStage() {
         return loadFirstOfType(StageConfig.class);
     }
 
+    @Override
     public PipelineConfig getPipeline() {
         return loadFirstOfType(PipelineConfig.class);
     }
 
+    @Override
     public PipelineTemplateConfig getTemplate() {
         return loadFirstOfType(PipelineTemplateConfig.class);
     }
@@ -183,6 +187,7 @@ public class ConfigSaveValidationContext implements ValidationContext {
         return getCruiseConfig().getPackageRepositories().findPackageRepositoryHaving(packageId);
     }
 
+    @Override
     public String getParentDisplayName() {
         return getParentType().getAnnotation(ConfigTag.class).value();
     }
@@ -191,14 +196,17 @@ public class ConfigSaveValidationContext implements ValidationContext {
         return getParent().getClass();
     }
 
+    @Override
     public Validatable getParent() {
         return immediateParent;
     }
 
+    @Override
     public boolean isWithinTemplates() {
         return hasParentOfType(TemplatesConfig.class);
     }
 
+    @Override
     public boolean isWithinPipelines() {
         return hasParentOfType(PipelineConfigs.class);
     }
@@ -212,6 +220,7 @@ public class ConfigSaveValidationContext implements ValidationContext {
         return getFirstOfType(validatable) != null;
     }
 
+    @Override
     public PipelineConfigs getPipelineGroup() {
         return loadFirstOfType(PipelineConfigs.class);
     }
@@ -257,6 +266,7 @@ public class ConfigSaveValidationContext implements ValidationContext {
         return tail;
     }
 
+    @Override
     public MaterialConfigs getAllMaterialsByFingerPrint(String fingerprint) {
         if (fingerprintToMaterials == null || fingerprintToMaterials.isEmpty()) {
             primeForMaterialValidations();

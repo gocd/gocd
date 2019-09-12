@@ -34,6 +34,7 @@ public class AnalyticsPluginInfoBuilder implements PluginInfoBuilder<AnalyticsPl
         this.extension = extension;
     }
 
+    @Override
     public AnalyticsPluginInfo pluginInfoFor(GoPluginDescriptor descriptor) {
         Capabilities capabilities = capabilities(descriptor.id());
 

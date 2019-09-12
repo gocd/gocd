@@ -34,6 +34,7 @@ public class BuiltinTaskViewModelFactory implements PluggableViewModelFactory {
         viewTemplates.put("list-entry", "admin/tasks/plugin/_task_entry_value_fields.html");
     }
 
+    @Override
     public PluggableViewModel viewModelFor(Object renderable, String actionName) {
         return new TaskViewModel((Task) renderable, viewTemplates.get(actionName));
     }

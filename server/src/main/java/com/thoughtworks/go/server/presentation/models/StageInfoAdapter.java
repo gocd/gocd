@@ -17,39 +17,35 @@ package com.thoughtworks.go.server.presentation.models;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.StageConfig;
-import com.thoughtworks.go.domain.StageIdentifier;
-import com.thoughtworks.go.server.presentation.models.StageConfigurationModel;
 
 public class StageInfoAdapter implements StageConfigurationModel {
     private final StageConfig config;
-    //TODO: remove it
-    private StageIdentifier mostRecentStage;
 
     public StageInfoAdapter(StageConfig stageConfig) {
         this.config = stageConfig;
     }
 
+    @Override
     public String getName() {
         return CaseInsensitiveString.str(config.name());
     }
 
+    @Override
     public boolean isAutoApproved() {
         return !config.requiresApproval();
     }
 
+    @Override
     public boolean equals(Object o) {
         return equals(this, (StageConfigurationModel) o);
     }
 
+    @Override
     public int hashCode() {
         return (getName() + isAutoApproved()).hashCode();
     }
 
     public static boolean equals(StageConfigurationModel obj1, StageConfigurationModel obj2) {
         return obj1.getName().equals(obj2.getName()) && obj1.isAutoApproved() == obj2.isAutoApproved();
-    }
-
-    public void setMostRecent(StageIdentifier mostRecentStage) {
-        this.mostRecentStage = mostRecentStage;
     }
 }

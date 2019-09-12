@@ -41,6 +41,7 @@ public class LocalArtifactsView implements ArtifactsView {
         this.consoleService = consoleService;
     }
 
+    @Override
     public final ModelAndView createView(String filePath, String sha) throws Exception {
         //return the artifact itself if this is a single file
         File file = isConsoleOutput(filePath) ? consoleService.consoleLogFile(translatedId)

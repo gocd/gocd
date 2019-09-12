@@ -41,10 +41,12 @@ public class IpAddress implements Comparable<IpAddress> {
         }
     }
 
+    @Override
     public String toString() {
         return address.getHostAddress();
     }
 
+    @Override
     public int compareTo(IpAddress other) {
         byte[] myAddressInBytes = address.getAddress();
         byte[] otherAddresInBytes = other.address.getAddress();
@@ -77,10 +79,12 @@ public class IpAddress implements Comparable<IpAddress> {
             super(InetAddress.getByName("0.0.0.0"));
         }
 
+        @Override
         public String toString() {
             return "";
         }
 
+        @Override
         public int compareTo(IpAddress other) {
             return -1;
         }

@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.messaging.activemq;
 
-import javax.jms.DeliveryMode;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.JMSException;
@@ -34,6 +33,7 @@ public class ActiveMqMessageSender implements MessageSender {
         this.producer = producer;
     }
 
+    @Override
     public void sendMessage(GoMessage message) {
         try {
             producer.send(session.createObjectMessage(message));
@@ -51,6 +51,7 @@ public class ActiveMqMessageSender implements MessageSender {
         }
     }
 
+    @Override
     public void sendText(String message) {
         try {
             producer.send(session.createTextMessage(message));

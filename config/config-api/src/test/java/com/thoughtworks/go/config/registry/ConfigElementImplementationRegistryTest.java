@@ -89,14 +89,17 @@ public class ConfigElementImplementationRegistryTest {
             this.factory = factory;
         }
 
+        @Override
         public Class<Task> getType() {
             return Task.class;
         }
 
+        @Override
         public Class<? extends Task> getImplementation() {
             return implType;
         }
 
+        @Override
         public PluggableViewModelFactory<? extends Task> getFactory() {
             return factory;
         }
@@ -181,6 +184,7 @@ public class ConfigElementImplementationRegistryTest {
             return "build";
         }
 
+        @Override
         public String getTypeForDisplay() {
             return null;
         }
@@ -203,6 +207,7 @@ public class ConfigElementImplementationRegistryTest {
             return "build";
         }
 
+        @Override
         public String getTypeForDisplay() {
             return null;
         }

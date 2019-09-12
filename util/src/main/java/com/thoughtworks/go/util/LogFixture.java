@@ -59,6 +59,7 @@ public class LogFixture implements Closeable {
         return new LogFixture((Logger) LoggerFactory.getLogger(name), Level.ALL);
     }
 
+    @Override
     public void close() {
         logger.detachAppender(appender);
         appender.stop();
@@ -99,6 +100,7 @@ public class LogFixture implements Closeable {
             this.encoder = encoder;
         }
 
+        @Override
         protected void append(ILoggingEvent e) {
             events.add(e);
         }

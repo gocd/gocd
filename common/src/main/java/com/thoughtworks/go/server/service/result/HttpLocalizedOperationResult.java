@@ -95,11 +95,13 @@ public class HttpLocalizedOperationResult implements LocalizedOperationResult {
         httpCode = HttpStatus.SC_ACCEPTED;
     }
 
+    @Override
     public void notAcceptable(String message) {
         this.message = message;
         httpCode = HttpStatus.SC_NOT_ACCEPTABLE;
     }
 
+    @Override
     public boolean isSuccessful() {
         return 200 <= httpCode && httpCode < 300; // I hate java
     }

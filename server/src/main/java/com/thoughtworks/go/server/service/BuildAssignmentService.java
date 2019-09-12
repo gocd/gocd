@@ -232,6 +232,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
         }
     }
 
+    @Override
     public void onConfigChange(CruiseConfig newCruiseConfig) {
         LOGGER.info("[Configuration Changed] Removing jobs for pipelines that no longer exist in configuration.");
         synchronized (this) {

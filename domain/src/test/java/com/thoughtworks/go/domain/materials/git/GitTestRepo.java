@@ -79,6 +79,7 @@ public class GitTestRepo extends TestRepo {
         tmpFolders.add(gitRepo);
     }
 
+    @Override
     public String projectRepositoryUrl() {
         return FileUtil.toFileURI(gitRepo);
     }

@@ -154,6 +154,7 @@ public class StageService implements StageFinder {
         return findStageWithIdentifier(new StageIdentifier(pipelineName, pipelineCounter, stageName, stageCounter));
     }
 
+    @Override
     public Stage findStageWithIdentifier(StageIdentifier identifier) {
         return stageDao.findStageWithIdentifier(identifier);
     }
@@ -293,6 +294,7 @@ public class StageService implements StageFinder {
 
     public void updateResult(final Stage stage) {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
                 updateStageWithoutNotifications(stage, null);
                 notifyStageStatusChangeListeners(stage);

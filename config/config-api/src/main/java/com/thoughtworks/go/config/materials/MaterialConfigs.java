@@ -26,7 +26,6 @@ import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
-import com.thoughtworks.go.util.ArtifactLogUtil;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
@@ -57,26 +56,6 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
 
     public int interval() {
         return intervalInSeconds;
-    }
-
-    private List<String> allowedFolders() {
-        ArrayList<String> allowed = new ArrayList<>();
-        for (MaterialConfig material : this) {
-            if (!StringUtils.isBlank(material.getFolder())) {
-                allowed.add(material.getFolder());
-            }
-        }
-        allowed.add(ArtifactLogUtil.CRUISE_OUTPUT_FOLDER);
-        return allowed;
-    }
-
-    boolean hasOneMaterialUseBaseFolder() {
-        for (MaterialConfig material : this) {
-            if (material.getFolder() == null) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public DependencyMaterialConfig findDependencyMaterial(final CaseInsensitiveString upstreamPipeline) {
@@ -142,6 +121,7 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
         return isValid;
     }
 
+    @Override
     public void validate(ValidationContext validationContext) {
         validateNameUniqueness();
         validateAutoUpdateState(validationContext);
@@ -275,11 +255,13 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
         }
     }
 
+    @Override
     public ConfigErrors errors() {
         initErrors();
         return configErrors;
     }
 
+    @Override
     public void addError(String fieldName, String message) {
         initErrors();
         configErrors.add(fieldName, message);
@@ -353,6 +335,7 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
         return first() == null ? "" : first().getType();
     }
 
+    @Override
     public void setConfigAttributes(Object attributes) {
         clear();
         if (attributes == null) {

@@ -23,6 +23,7 @@ public class HostNameValidator implements Validator<String> {
     static final String HOSTNAME_PATTERN = "([-_0-9\\w]*\\.)*[-_0-9\\w]+";
     static final String INVALID_HOSTNAME_KEY = "INVALID_HOSTNAME";
 
+    @Override
     public void validate(String hostname, LocalizedOperationResult result) {
         if (hostname == null || (!hostname.matches(HOSTNAME_PATTERN) && !hostname.matches(IPV6_ADDRESS_PATTERN))) {
             result.notAcceptable("Invalid hostname. A valid hostname can only contain letters (A-z) digits (0-9) hyphens (-) dots (.) and underscores (_).");

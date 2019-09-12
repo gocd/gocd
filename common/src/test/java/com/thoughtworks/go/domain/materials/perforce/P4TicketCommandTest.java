@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 
 public class P4TicketCommandTest extends P4CommandTestBase {
 
+    @Override
     protected P4TestRepo createTestRepo() throws Exception {
         P4TestRepo repo = P4TestRepo.createP4TestRepoWithTickets(temporaryFolder, clientFolder);
         repo.onSetup();

@@ -29,10 +29,12 @@ public class AntTask extends BuildTask {
         return TYPE;
     }
 
+    @Override
     public String getTypeForDisplay() {
         return "Ant";
     }
 
+    @Override
     public String arguments() {
         ArrayList<String> args = new ArrayList<>();
         if (buildFile != null) {

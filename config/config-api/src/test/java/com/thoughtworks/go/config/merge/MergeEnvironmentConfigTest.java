@@ -32,9 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
 class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
-    private MergeEnvironmentConfig singleEnvironmentConfig;
     private MergeEnvironmentConfig pairEnvironmentConfig;
-    private static final String AGENT_UUID = "uuid";
     private EnvironmentConfig localUatEnv1;
     private EnvironmentConfig uatLocalPart2;
     private BasicEnvironmentConfig uatRemotePart;
@@ -44,7 +42,6 @@ class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
         localUatEnv1 = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
         localUatEnv1.setOrigins(new FileConfigOrigin());
 
-        singleEnvironmentConfig = new MergeEnvironmentConfig(localUatEnv1);
         uatLocalPart2 = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
         uatLocalPart2.setOrigins(new FileConfigOrigin());
         uatRemotePart = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));

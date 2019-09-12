@@ -33,6 +33,7 @@ public class StageNotificationListener implements GoMessageListener<StageResultM
         stageResultTopic.addListener(this);
     }
 
+    @Override
     public void onMessage(StageResultMessage message) {
         if (goConfigService.isSecurityEnabled()) {
             stageNotificationService.sendNotifications(message.getStageIdentifier(), message.getEvent(), message.getCancelledBy());

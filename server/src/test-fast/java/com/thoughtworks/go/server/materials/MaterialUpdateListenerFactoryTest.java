@@ -44,7 +44,6 @@ public class MaterialUpdateListenerFactoryTest {
     @Mock private GoDiskSpaceMonitor diskSpaceMonitor;
     @Mock private ServerHealthService healthService;
     @Mock private MaterialUpdateCompletedTopic topic;
-    @Mock private ConfigMaterialUpdateCompletedTopic configTopic;
     @Mock private MaterialUpdateQueue queue;
     @Mock private ConfigMaterialUpdateQueue configQueue;
     @Mock private DependencyMaterialUpdater dependencyMaterialUpdater;

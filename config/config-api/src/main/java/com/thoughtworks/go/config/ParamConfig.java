@@ -60,6 +60,7 @@ public class ParamConfig implements Validatable {
         return errors().isEmpty();
     }
 
+    @Override
     public void validate(ValidationContext validationContext) {
         if (new NameTypeValidator().isNameInvalid(name)) {
             errors().add(NAME, NameTypeValidator.errorMessage("parameter", name));
@@ -89,10 +90,12 @@ public class ParamConfig implements Validatable {
         configErrors.add("name", String.format("Param name '%s' is not unique for pipeline '%s'.", paramName, parentName));
     }
 
+    @Override
     public ConfigErrors errors() {
         return configErrors;
     }
 
+    @Override
     public void addError(String fieldName, String message) {
         configErrors.add(fieldName, message);
     }

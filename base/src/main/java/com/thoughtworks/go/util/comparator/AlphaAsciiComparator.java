@@ -18,6 +18,7 @@ package com.thoughtworks.go.util.comparator;
 import java.util.Comparator;
 
 public class AlphaAsciiComparator implements Comparator<String> {
+    @Override
     public int compare(String one, String other) {
         int alphaComparison = one.toLowerCase().compareTo(other.toLowerCase());
         return alphaComparison == 0 ? one.compareTo(other) : alphaComparison;

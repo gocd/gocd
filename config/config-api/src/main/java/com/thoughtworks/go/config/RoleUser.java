@@ -38,13 +38,16 @@ public class RoleUser implements Validatable {
         this.name = new CaseInsensitiveString(name);
     }
 
+    @Override
     public void validate(ValidationContext validationContext) {
     }
 
+    @Override
     public ConfigErrors errors() {
         return configErrors;
     }
 
+    @Override
     public void addError(String fieldName, String message) {
         configErrors.add(fieldName, message);
     }
@@ -53,6 +56,7 @@ public class RoleUser implements Validatable {
         return name;
     }
 
+    @Override
     public boolean equals(Object that) {
         if (this == that) {
             return true;
@@ -71,6 +75,7 @@ public class RoleUser implements Validatable {
         return Objects.equals(this.name, that.name);
     }
 
+    @Override
     public int hashCode() {
         return name != null ? name.hashCode() : 0;
     }

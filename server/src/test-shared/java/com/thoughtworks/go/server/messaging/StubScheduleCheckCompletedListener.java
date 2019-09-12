@@ -23,6 +23,7 @@ import com.thoughtworks.go.server.scheduling.ScheduleCheckCompletedMessage;
 public class StubScheduleCheckCompletedListener implements GoMessageListener<ScheduleCheckCompletedMessage> {
     public List<String> pipelines = new ArrayList<>();
 
+    @Override
     public void onMessage(ScheduleCheckCompletedMessage message) {
         pipelines.add(message.getPipelineName());
     }

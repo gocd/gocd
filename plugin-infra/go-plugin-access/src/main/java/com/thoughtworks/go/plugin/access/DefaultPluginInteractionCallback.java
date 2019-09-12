@@ -17,8 +17,6 @@ package com.thoughtworks.go.plugin.access;
 
 import java.util.Map;
 
-import static java.lang.String.format;
-
 public class DefaultPluginInteractionCallback<T> implements PluginInteractionCallback<T> {
     @Override
     public String requestBody(String resolvedExtensionVersion) {

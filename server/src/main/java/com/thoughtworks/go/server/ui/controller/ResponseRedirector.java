@@ -29,10 +29,12 @@ public class ResponseRedirector implements View {
         this.target = target;
     }
 
+    @Override
     public String getContentType() {
         return "text/html";
     }
 
+    @Override
     public void render(Map model, HttpServletRequest request, HttpServletResponse response) throws Exception {
         String contextpath = request.getContextPath();
         String params = "";
@@ -56,11 +58,13 @@ public class ResponseRedirector implements View {
         return target;
     }
 
+    @Override
     public String toString() {
         return "ResponseRedirector["
                 + target + "]";
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -78,6 +82,7 @@ public class ResponseRedirector implements View {
         return true;
     }
 
+    @Override
     public int hashCode() {
         return (target != null ? target.hashCode() : 0);
     }

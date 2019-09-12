@@ -46,6 +46,7 @@ public class Matcher {
         this(StringUtils.join(array, SEPARATOR));
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -58,10 +59,12 @@ public class Matcher {
         return matchers.equals(matcher.matchers);
     }
 
+    @Override
     public int hashCode() {
         return (matchers != null ? matchers.hashCode() : 0);
     }
 
+    @Override
     public String toString() {
         return StringUtils.join(matchers, ',');
     }

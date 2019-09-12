@@ -112,7 +112,6 @@ public class SecurityService {
 
         //TODO - #2517 - stage not exist
         if (stage.hasOperatePermissionDefined()) {
-            CruiseConfig cruiseConfig = goConfigService.getCurrentConfig();
             String groupName = goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(pipelineName));
             PipelineConfigs group = goConfigService.getCurrentConfig().findGroup(groupName);
             if (isUserAdmin(new Username(userName)) || isUserAdminOfGroup(userName, group)) {
@@ -219,6 +218,7 @@ public class SecurityService {
             this.securityConfig = securityConfig;
         }
 
+        @Override
         public boolean match(CaseInsensitiveString user, CaseInsensitiveString role) {
             return securityConfig.isUserMemberOfRole(user, role);
         }

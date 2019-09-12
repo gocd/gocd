@@ -23,7 +23,6 @@ import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.activity.JobStatusCache;
 import com.thoughtworks.go.helper.JobInstanceMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
-import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.domain.JobStatusListener;
@@ -77,8 +76,6 @@ public class JobInstanceServiceTest {
     private CruiseConfig cruiseConfig;
     @Mock
     private SecurityService securityService;
-    @Mock
-    private PluginManager pluginManager;
     @Mock
     private ServerHealthService serverHealthService;
 
@@ -157,6 +154,7 @@ public class JobInstanceServiceTest {
         final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager,
                 null, null, goConfigService, null, serverHealthService, listener1, listener2);
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
             public void doInTransactionWithoutResult(TransactionStatus status) {
                 jobService.save(new StageIdentifier(pipeline.getName(), null, pipeline.getLabel(), stage.getName(), String.valueOf(stage.getCounter())), stage.getId(), job);
             }
@@ -180,6 +178,7 @@ public class JobInstanceServiceTest {
                 null, null, goConfigService, null, serverHealthService, failingListener, passingListener);
 
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
             public void doInTransactionWithoutResult(TransactionStatus status) {
                 jobService.save(new StageIdentifier(pipeline.getName(), null, pipeline.getLabel(), stage.getName(), String.valueOf(stage.getCounter())), stage.getId(), job);
             }
@@ -255,6 +254,7 @@ public class JobInstanceServiceTest {
 
         try {
             transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+                @Override
                 protected void doInTransactionWithoutResult(TransactionStatus status) {
                     jobService.cancelJob(job);
                     throw new RuntimeException("to rollback txn");

@@ -20,11 +20,13 @@ import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.XmlUtils;
+import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.jdom2.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -92,16 +94,17 @@ public class MagicalGoConfigXmlWriter {
     }
 
     public String toString(Document document) throws IOException {
-        org.apache.commons.io.output.ByteArrayOutputStream outputStream = new org.apache.commons.io.output.ByteArrayOutputStream();
-        XmlUtils.writeXml(document, outputStream);
-        return outputStream.toString(StandardCharsets.UTF_8);
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream(32 * 1024)) {
+            XmlUtils.writeXml(document, outputStream);
+            return outputStream.toString(StandardCharsets.UTF_8);
+        }
     }
 
     public void verifyXsdValid(Document document) throws Exception {
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        XmlUtils.writeXml(document, buffer);
-        InputStream content = new ByteArrayInputStream(buffer.toByteArray());
-        buildXmlDocument(content, GoConfigSchema.getCurrentSchema(), registry.xsds());
+        try (ByteArrayOutputStream buffer = new ByteArrayOutputStream(32*1024)) {
+            XmlUtils.writeXml(document, buffer);
+            buildXmlDocument(buffer.toInputStream(), GoConfigSchema.getCurrentSchema(), registry.xsds());
+        }
     }
 
     public String toXmlPartial(Object domainObject) {
@@ -120,8 +123,7 @@ public class MagicalGoConfigXmlWriter {
             }
         }
 
-        try {
-            ByteArrayOutputStream output = new ByteArrayOutputStream();
+        try (ByteArrayOutputStream output = new ByteArrayOutputStream(32*1024)) {
             XmlUtils.writeXml(element, output);
             return output.toString();
         } catch (IOException e) {
@@ -254,12 +256,14 @@ public class MagicalGoConfigXmlWriter {
             super(oringinalClass, field, value, configCache, registry);
         }
 
+        @Override
         public void populate(Element parent) {
             Element child = elementFor(value.getClass(), configCache);
             parent.addContent(child);
             write(value, child, configCache, registry);
         }
 
+        @Override
         public boolean alwaysWrite() {
             return false;
         }
@@ -271,6 +275,7 @@ public class MagicalGoConfigXmlWriter {
             super(oringinalClass, field, current, configCache, registry);
         }
 
+        @Override
         public void populate(Element parent) {
             if (value == null && !isDefault()) {
                 if (!isDefault()) {
@@ -285,6 +290,7 @@ public class MagicalGoConfigXmlWriter {
             parent.setAttribute(new Attribute(attributeName, valueString()));
         }
 
+        @Override
         public boolean alwaysWrite() {
             return field.getAnnotation(ConfigAttribute.class).alwaysWrite();
         }
@@ -296,10 +302,12 @@ public class MagicalGoConfigXmlWriter {
             super(oringinalClass, field, value, configCache, registry);
         }
 
+        @Override
         public void populate(Element parent) {
             new CollectionXmlFieldWithValue(value, parent, originalClass, configCache, registry).populate();
         }
 
+        @Override
         public boolean alwaysWrite() {
             return false;
         }
@@ -357,12 +365,14 @@ public class MagicalGoConfigXmlWriter {
             super(oringinalClass, field, value, configCache, registry);
         }
 
+        @Override
         public void populate(Element parent) {
             Element containerElement = elementFor(value.getClass(), configCache);
             new CollectionXmlFieldWithValue(value, containerElement, originalClass, configCache, registry).populate();
             parent.addContent(containerElement);
         }
 
+        @Override
         public boolean alwaysWrite() {
             return false;
         }
@@ -377,6 +387,7 @@ public class MagicalGoConfigXmlWriter {
             requireCdata = configValue.requireCdata();
         }
 
+        @Override
         public void populate(Element parent) {
             if (requireCdata) {
                 parent.addContent(new CDATA(valueString()));
@@ -385,6 +396,7 @@ public class MagicalGoConfigXmlWriter {
             }
         }
 
+        @Override
         public boolean alwaysWrite() {
             return false;
         }

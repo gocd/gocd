@@ -56,6 +56,7 @@ public class ModificationSummaries extends ModificationVisitorAdapter {
         return mods.get(index);
     }
 
+    @Override
     public void visit(Modification modification) {
         if (!containsRevision(modification.getRevision())) {
             mods.add(new ModificationSummary(modification));

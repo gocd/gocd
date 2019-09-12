@@ -30,6 +30,7 @@ import static com.thoughtworks.go.server.presentation.html.HtmlElement.p;
 public class DirectoryEntries extends ArrayList<DirectoryEntry> implements HtmlRenderable, JsonAware {
     private boolean isArtifactsDeleted;
 
+    @Override
     public void render(HtmlRenderer renderer) {
         if (isArtifactsDeleted || isEmpty()) {
             HtmlElement element = p().content("Artifacts for this job instance are unavailable as they may have been <a href='" +
@@ -43,6 +44,7 @@ public class DirectoryEntries extends ArrayList<DirectoryEntry> implements HtmlR
         }
     }
 
+    @Override
     public List<Map<String, Object>> toJson() {
         List<Map<String, Object>> jsonList = new ArrayList();
         for (DirectoryEntry entry : this) {

@@ -18,7 +18,6 @@ package com.thoughtworks.go.server.service;
 import com.googlecode.junit.ext.RunIf;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
-import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import com.thoughtworks.go.database.Database;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
@@ -154,14 +153,16 @@ public class BackupServiceH2IntegrationTest {
 
         Restore.execute(dbZip(), location, "cruise", false);
 
-        BasicDataSource source = constructTestDataSource(new File(location));
-        ResultSet resultSet = source.getConnection().prepareStatement("select * from pipelines where id = " + expectedPipeline.getId()).executeQuery();
-        int size = 0;
-        while (resultSet.next()) {
-            assertThat(resultSet.getString("name"), is(expectedPipeline.getName()));
-            size++;
+        try (BasicDataSource source = constructTestDataSource(new File(location))) {
+            try (ResultSet resultSet = source.getConnection().prepareStatement("select * from pipelines where id = " + expectedPipeline.getId()).executeQuery()) {
+                int size = 0;
+                while (resultSet.next()) {
+                    assertThat(resultSet.getString("name"), is(expectedPipeline.getName()));
+                    size++;
+                }
+                assertThat(size, is(1));
+            }
         }
-        assertThat(size, is(1));
     }
 
     private Pipeline saveAPipeline() {

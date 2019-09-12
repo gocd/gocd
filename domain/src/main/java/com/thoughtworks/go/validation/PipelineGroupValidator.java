@@ -27,6 +27,7 @@ public class PipelineGroupValidator extends Validator<String> {
         super(ERRORR_MESSAGE);
     }
 
+    @Override
     public ValidationBean validate(String pipelineGroupName) {
         if (StringUtils.isEmpty(pipelineGroupName)) {
             return ValidationBean.valid();

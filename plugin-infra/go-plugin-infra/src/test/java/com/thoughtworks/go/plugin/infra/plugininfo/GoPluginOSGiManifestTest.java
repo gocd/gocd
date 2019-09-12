@@ -64,7 +64,7 @@ public class GoPluginOSGiManifestTest {
         manifestFile = new File(bundleLocation, "META-INF/MANIFEST.MF");
 
         bundleDependencyDir = new File(bundleLocation, "lib");
-        goPluginOSGiManifestGenerator = new GoPluginOSGiManifest.DefaultGoPluginOSGiManifestCreator();
+        goPluginOSGiManifestGenerator = new DefaultGoPluginOSGiManifestCreator();
     }
 
     @Test
@@ -227,23 +227,24 @@ public class GoPluginOSGiManifestTest {
             return null;
         }
 
-        FileInputStream manifestInputStream = new FileInputStream(manifestFile);
-        Manifest manifest = new Manifest(manifestInputStream);
-        Attributes entries = manifest.getMainAttributes();
+        try (FileInputStream manifestInputStream = new FileInputStream(manifestFile)) {
+            Manifest manifest = new Manifest(manifestInputStream);
+            Attributes entries = manifest.getMainAttributes();
 
-        return entries.getValue(prefix);
+            return entries.getValue(prefix);
+        }
     }
 
     private void addHeaderToManifest(String header, String value) throws IOException {
-        FileInputStream manifestInputStream = new FileInputStream(manifestFile);
-        Manifest manifest = new Manifest(manifestInputStream);
-        Attributes entries = manifest.getMainAttributes();
-        entries.put(new Attributes.Name(header), value);
+        try (FileInputStream manifestInputStream = new FileInputStream(manifestFile)) {
+            Manifest manifest = new Manifest(manifestInputStream);
+            Attributes entries = manifest.getMainAttributes();
+            entries.put(new Attributes.Name(header), value);
 
-        FileOutputStream manifestOutputStream = new FileOutputStream(manifestFile, false);
-        manifest.write(manifestOutputStream);
-        manifestOutputStream.close();
-        manifestInputStream.close();
+            try (FileOutputStream manifestOutputStream = new FileOutputStream(manifestFile, false)) {
+                manifest.write(manifestOutputStream);
+            }
+        }
     }
 
     private File createPluginBundle(String bundleName) throws IOException, URISyntaxException {

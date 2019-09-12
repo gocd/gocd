@@ -27,7 +27,6 @@ import com.thoughtworks.go.server.materials.DependencyMaterialUpdateNotifier;
 import com.thoughtworks.go.server.materials.MaterialChecker;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
-import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.After;
@@ -59,7 +58,6 @@ public class AutoBuildIntegrationTest {
     @Autowired private SystemEnvironment systemEnvironment;
     @Autowired private MaterialChecker materialChecker;
     @Autowired private PipelineTimeline pipelineTimeline;
-    @Autowired private ServerHealthService serverHealthService;
     @Autowired private DependencyMaterialUpdateNotifier notifier;
 
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();

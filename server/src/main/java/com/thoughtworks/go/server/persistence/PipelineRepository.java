@@ -18,10 +18,7 @@ package com.thoughtworks.go.server.persistence;
 import com.thoughtworks.go.database.Database;
 import com.thoughtworks.go.database.QueryExtensions;
 import java.math.BigInteger;
-import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -67,8 +64,7 @@ public class PipelineRepository extends HibernateDaoSupport {
         return query.executeUpdate();
     }
 
-    @SuppressWarnings({"unchecked"})
-    public void updatePipelineTimeline(final PipelineTimeline pipelineTimeline, final List<PipelineTimelineEntry> tempEntriesForRollback) {
+public void updatePipelineTimeline(final PipelineTimeline pipelineTimeline, final List<PipelineTimelineEntry> tempEntriesForRollback) {
         getHibernateTemplate().execute(new HibernateCallback() {
             private static final int PIPELINE_NAME = 0;
             private static final int ID = 1;
@@ -81,6 +77,7 @@ public class PipelineRepository extends HibernateDaoSupport {
             private static final int MOD_ID = 8;
             private static final int PMR_ID = 9;
 
+            @Override
             public Object doInHibernate(Session session) throws HibernateException {
                 LOGGER.info("Start updating pipeline timeline");
                 List<Object[]> matches = retrieveTimeline(session, pipelineTimeline);

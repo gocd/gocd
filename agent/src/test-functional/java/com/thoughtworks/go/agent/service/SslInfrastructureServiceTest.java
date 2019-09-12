@@ -52,7 +52,6 @@ import java.util.function.Predicate;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -66,8 +65,6 @@ public class SslInfrastructureServiceTest {
 
     @Mock
     private AgentRegistry agentRegistry;
-    @Mock
-    private TokenRequester tokenRequester;
     @Mock
     private GoAgentServerHttpClient httpClient;
     @Mock

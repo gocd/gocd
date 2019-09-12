@@ -25,7 +25,6 @@ import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.net.ssl.SSLSocketFactory;
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
@@ -41,17 +40,15 @@ public class GoServer {
     private static final Logger LOG = LoggerFactory.getLogger(GoServer.class);
 
     private SystemEnvironment systemEnvironment;
-    private SSLSocketFactory sslSocketFactory;
     private AppServer server;
     protected SubprocessLogger subprocessLogger;
 
     public GoServer() {
-        this(new SystemEnvironment(), (SSLSocketFactory) SSLSocketFactory.getDefault());
+        this(new SystemEnvironment());
     }
 
-    protected GoServer(SystemEnvironment systemEnvironment, SSLSocketFactory sslSocketFactory) {
+    protected GoServer(SystemEnvironment systemEnvironment) {
         this.systemEnvironment = systemEnvironment;
-        this.sslSocketFactory = sslSocketFactory;
         subprocessLogger = new SubprocessLogger();
     }
 

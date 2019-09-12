@@ -69,6 +69,7 @@ public abstract class ArtifactCache<T> {
         boolean inserted = pendingCacheFiles.add(artifactLocation);
         if (inserted) {
             Thread cacheCreatorThread = new Thread("cache-creator-thread-" + UUID.randomUUID().toString()) {
+                @Override
                 public void run() {
                     try {
                         createCachedFile(artifactLocation);

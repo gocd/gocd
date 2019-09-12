@@ -43,7 +43,6 @@ public class PipelineConfigSaveValidationContext implements ValidationContext {
     private StageConfig stage;
     private JobConfig job;
     private MaterialConfigFingerprintMap materialConfigsFingerprintMap;
-    private ArtifactStores artifactStores;
 
     private PipelineConfigSaveValidationContext(Boolean isPipelineBeingCreated, String groupName, Validatable immediateParent) {
         this.isPipelineBeingCreated = isPipelineBeingCreated;
@@ -106,6 +105,7 @@ public class PipelineConfigSaveValidationContext implements ValidationContext {
         throw new NotImplementedException("Operation not supported");
     }
 
+    @Override
     public JobConfig getJob() {
         return this.job;
     }
@@ -115,34 +115,42 @@ public class PipelineConfigSaveValidationContext implements ValidationContext {
         return false;
     }
 
+    @Override
     public StageConfig getStage() {
         return this.stage;
     }
 
+    @Override
     public PipelineConfig getPipeline() {
         return this.pipeline;
     }
 
+    @Override
     public PipelineTemplateConfig getTemplate() {
         throw new NotImplementedException("Operation not supported");
     }
 
+    @Override
     public String getParentDisplayName() {
         return getParent().getClass().getAnnotation(ConfigTag.class).value();
     }
 
+    @Override
     public Validatable getParent() {
         return immediateParent;
     }
 
+    @Override
     public boolean isWithinTemplates() {
         return !isPipeline;
     }
 
+    @Override
     public boolean isWithinPipelines() {
         return isPipeline;
     }
 
+    @Override
     public PipelineConfigs getPipelineGroup() {
         if (cruiseConfig.hasPipelineGroup(groupName))
             return cruiseConfig.findGroup(groupName);
@@ -165,11 +173,13 @@ public class PipelineConfigSaveValidationContext implements ValidationContext {
                 '}';
     }
 
+    @Override
     public MaterialConfigs getAllMaterialsByFingerPrint(String fingerprint) {
         initMaterialConfigMap();
         return materialConfigsFingerprintMap.get(fingerprint);
     }
 
+    @Override
     public PipelineConfig getPipelineConfigByName(CaseInsensitiveString pipelineName) {
         try {
             return cruiseConfig.pipelineConfigByName(pipelineName);
@@ -188,6 +198,7 @@ public class PipelineConfigSaveValidationContext implements ValidationContext {
         return cruiseConfig.server().security();
     }
 
+    @Override
     public boolean doesTemplateExist(CaseInsensitiveString template) {
         return cruiseConfig.getTemplates().hasTemplateNamed(template);
     }

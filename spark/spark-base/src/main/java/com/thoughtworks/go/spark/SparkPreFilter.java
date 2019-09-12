@@ -35,6 +35,7 @@ public class SparkPreFilter extends SparkFilter {
     private ServletHelper servletHelper;
     private WebApplicationContext wac;
 
+    @Override
     public void destroy() {
     }
 

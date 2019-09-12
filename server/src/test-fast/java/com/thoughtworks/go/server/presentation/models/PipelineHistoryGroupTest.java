@@ -81,10 +81,12 @@ public class PipelineHistoryGroupTest {
             this.name = name;
         }
 
+        @Override
         public String getName() {
             return name;
         }
 
+        @Override
         public boolean isAutoApproved() {
             return isAutoApproved;
         }

@@ -35,10 +35,12 @@ public class Tabs extends BaseCollection<Tab> implements Validatable, ParamsAttr
         super(items);
     }
 
+    @Override
     public ConfigErrors errors() {
         return configErrors;
     }
 
+    @Override
     public void addError(String fieldName, String message) {
         configErrors.add(fieldName, message);
     }
@@ -52,6 +54,7 @@ public class Tabs extends BaseCollection<Tab> implements Validatable, ParamsAttr
         }
         return isValid;
     }
+    @Override
     public void validate(ValidationContext validationContext) {
         ArrayList<Tab> visitedTabs = new ArrayList<>();
         for (Tab tab : this) {
@@ -59,6 +62,7 @@ public class Tabs extends BaseCollection<Tab> implements Validatable, ParamsAttr
         }
     }
 
+    @Override
     public void setConfigAttributes(Object attributes) {
         this.clear();
         if (attributes != null) {

@@ -244,6 +244,7 @@ public class MaterialRepositoryIntegrationTest {
         }, 200, transactionSynchronizationManager, materialConfigConverter, materialExpansionService, databaseStrategy);
 
         Thread thread1 = new Thread(new Runnable() {
+            @Override
             public void run() {
                 repo.findModificationsSince(svn, first);
             }
@@ -252,6 +253,7 @@ public class MaterialRepositoryIntegrationTest {
         TestUtils.sleepQuietly(50);
 
         Thread thread2 = new Thread(new Runnable() {
+            @Override
             public void run() {
                 repo.findModificationsSince(svn, second);
             }
@@ -372,6 +374,7 @@ public class MaterialRepositoryIntegrationTest {
         List<Thread> threads = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             Thread thread = new Thread(new Runnable() {
+                @Override
                 public void run() {
                     repo.findOrCreateFrom(svn);
                 }
@@ -490,6 +493,7 @@ public class MaterialRepositoryIntegrationTest {
 
         final MaterialRevision materialRevision = new MaterialRevision(svnMaterial, modification);
         MaterialInstance materialInstance = (MaterialInstance) transactionTemplate.execute(new TransactionCallback() {
+            @Override
             public Object doInTransaction(TransactionStatus status) {
                 return repo.saveMaterialRevision(materialRevision);
             }
@@ -1172,6 +1176,7 @@ public class MaterialRepositoryIntegrationTest {
         final MaterialInstance materialInstance = repo.findOrCreateFrom(new GitMaterial(UUID.randomUUID().toString(), "branch"));
         final ArrayList<Modification> firstSetOfModifications = getModifications(3);
         transactionTemplate.execute(new TransactionCallback() {
+            @Override
             public Object doInTransaction(TransactionStatus status) {
                 repo.saveModifications(materialInstance, firstSetOfModifications);
                 return null;
@@ -1187,6 +1192,7 @@ public class MaterialRepositoryIntegrationTest {
         final ArrayList<Modification> secondSetOfModificationsContainingDuplicateRevisions = getModifications(4);
 
         transactionTemplate.execute(new TransactionCallback() {
+            @Override
             public Object doInTransaction(TransactionStatus status) {
                 repo.saveModifications(materialInstance, secondSetOfModificationsContainingDuplicateRevisions);
                 return null;
@@ -1213,6 +1219,7 @@ public class MaterialRepositoryIntegrationTest {
         final MaterialInstance materialInstance = repo.findOrCreateFrom(new GitMaterial(UUID.randomUUID().toString(), "branch"));
         final ArrayList<Modification> firstSetOfModifications = getModifications(3);
         transactionTemplate.execute(new TransactionCallback() {
+            @Override
             public Object doInTransaction(TransactionStatus status) {
                 repo.saveModifications(materialInstance, firstSetOfModifications);
                 return null;
@@ -1226,6 +1233,7 @@ public class MaterialRepositoryIntegrationTest {
 
         final ArrayList<Modification> secondSetOfModificationsContainingAllDuplicateRevisions = getModifications(3);
         transactionTemplate.execute(new TransactionCallback() {
+            @Override
             public Object doInTransaction(TransactionStatus status) {
                 repo.saveModifications(materialInstance, secondSetOfModificationsContainingAllDuplicateRevisions);
                 return null;
@@ -1239,6 +1247,7 @@ public class MaterialRepositoryIntegrationTest {
         final MaterialInstance materialInstance2 = repo.findOrCreateFrom(new GitMaterial(UUID.randomUUID().toString(), "branch"));
         final ArrayList<Modification> modificationsForFirstMaterial = getModifications(3);
         transactionTemplate.execute(new TransactionCallback() {
+            @Override
             public Object doInTransaction(TransactionStatus status) {
                 repo.saveModifications(materialInstance1, modificationsForFirstMaterial);
                 return null;
@@ -1250,6 +1259,7 @@ public class MaterialRepositoryIntegrationTest {
         final ArrayList<Modification> modificationsForSecondMaterial = getModifications(3);
 
         transactionTemplate.execute(new TransactionCallback() {
+            @Override
             public Object doInTransaction(TransactionStatus status) {
                 repo.saveModifications(materialInstance2, modificationsForSecondMaterial);
                 return null;
@@ -1269,6 +1279,7 @@ public class MaterialRepositoryIntegrationTest {
         String subKey = repo.materialModificationsWithPaginationSubKey(Pagination.ONE_ITEM);
         goCache.put(key, subKey, new Modifications(new Modification()));
         transactionTemplate.execute(new TransactionCallback() {
+            @Override
             public Object doInTransaction(TransactionStatus status) {
                 repo.saveModifications(materialInstance, new ArrayList<>());
                 return null;
@@ -1284,6 +1295,7 @@ public class MaterialRepositoryIntegrationTest {
         int count = 10000;
         final ArrayList<Modification> firstSetOfModifications = getModifications(count);
         transactionTemplate.execute(new TransactionCallback() {
+            @Override
             public Object doInTransaction(TransactionStatus status) {
                 repo.saveModifications(materialInstance, firstSetOfModifications);
                 return null;
@@ -1294,6 +1306,7 @@ public class MaterialRepositoryIntegrationTest {
 
         final ArrayList<Modification> secondSetOfModifications = getModifications(count + 1);
         transactionTemplate.execute(new TransactionCallback() {
+            @Override
             public Object doInTransaction(TransactionStatus status) {
                 repo.saveModifications(materialInstance, secondSetOfModifications);
                 return null;
@@ -1317,6 +1330,7 @@ public class MaterialRepositoryIntegrationTest {
 
     private MaterialRevision saveOneDependencyModification(final DependencyMaterial dependencyMaterial, final String revision, final String label) {
         return (MaterialRevision) transactionTemplate.execute(new TransactionCallback() {
+            @Override
             public Object doInTransaction(TransactionStatus status) {
                 Modification modification = new Modification(new Date(), revision, label, null);
                 MaterialRevision originalRevision = new MaterialRevision(dependencyMaterial, modification);
@@ -1328,6 +1342,7 @@ public class MaterialRepositoryIntegrationTest {
 
     private MaterialInstance saveMaterialRev(final MaterialRevision rev) {
         return (MaterialInstance) transactionTemplate.execute(new TransactionCallback() {
+            @Override
             public Object doInTransaction(TransactionStatus status) {
                 return repo.saveMaterialRevision(rev);
             }
@@ -1359,48 +1374,6 @@ public class MaterialRepositoryIntegrationTest {
 
     private Modification modification(String revision) {
         return new Modification("user1", "comment", "foo@bar", new Date(), revision);
-    }
-
-    private Material saveMaterialRevisions(final MaterialRevisions revs) {
-        Material hg = revs.getMaterialRevision(0).getMaterial();
-
-        transactionTemplate.execute(new TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                for (MaterialRevision revision : revs) {
-                    repo.saveMaterialRevision(revision);
-                }
-                return null;
-            }
-        });
-        return hg;
-    }
-
-    private DependencyMaterial savePipelineAndCreate_DMRs(Date d, MaterialRevisions hgMaterialRevisions, PipelineConfig config, int... dmrStageCounters) {
-        Pipeline pipeline = savePipeline(
-                instanceFactory.createPipelineInstance(config,
-                        BuildCause.createWithModifications(hgMaterialRevisions, "Loser"),
-                        new DefaultSchedulingContext(DEFAULT_APPROVED_BY), md5, new TimeProvider()));
-
-        CaseInsensitiveString stageName = config.get(0).name();
-        DependencyMaterial material = new DependencyMaterial(config.name(), stageName);
-
-        String label = pipeline.getLabel();
-
-        ArrayList<Modification> mods = new ArrayList<>();
-        for (int i = 0; i < dmrStageCounters.length; i++) {
-            int dmrStageCounter = dmrStageCounters[i];
-            StageIdentifier stageIdentifier = new StageIdentifier(pipeline.getIdentifier(), CaseInsensitiveString.str(stageName), String.valueOf(dmrStageCounter));
-            mods.add(new Modification(d, stageIdentifier.getStageLocator(), label, pipeline.getId()));
-        }
-        final MaterialRevision materialRevision = new MaterialRevision(material, mods);
-
-        transactionTemplate.execute(new TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                repo.saveMaterialRevision(materialRevision);
-                return null;
-            }
-        });
-        return material;
     }
 
     private void assertCanLoadAndSaveMaterialRevisionsFor(MaterialConfig materialConfig) {
@@ -1445,6 +1418,7 @@ public class MaterialRepositoryIntegrationTest {
 
     private MaterialRevision saveOneScmModification(final String revision, final Material original, final String user, final String filename, final String comment) {
         return (MaterialRevision) transactionTemplate.execute(new TransactionCallback() {
+            @Override
             public Object doInTransaction(TransactionStatus status) {
                 Modification modification = new Modification(user, comment, "email", new Date(), revision);
                 modification.createModifiedFile(filename, "folder1", ModifiedAction.added);

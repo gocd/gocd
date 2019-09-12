@@ -29,6 +29,7 @@ public class PipelineActiveChecker implements SchedulingChecker {
         this.pipelineIdentifier = pipelineIdentifier;
     }
 
+    @Override
     public void check(OperationResult result) {
         HealthStateType id = HealthStateType.general(HealthStateScope.forPipeline(pipelineIdentifier.getName()));
         if (stageService.isAnyStageActiveForPipeline(pipelineIdentifier)) {

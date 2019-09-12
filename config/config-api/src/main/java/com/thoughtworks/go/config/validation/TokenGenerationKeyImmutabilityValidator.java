@@ -30,6 +30,7 @@ public class TokenGenerationKeyImmutabilityValidator implements GoConfigValidato
         this.systemEnvironment = systemEnvironment;
     }
 
+    @Override
     public void validate(CruiseConfig cruiseConfig) {
         ServerConfig server = cruiseConfig.server();
         String newTokenGenerationKey = server.getTokenGenerationKey();

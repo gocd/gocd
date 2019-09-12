@@ -187,6 +187,7 @@ public class GoConfigDao {
             return commands;
         }
 
+        @Override
         public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
             for (UpdateConfigCommand command : commands) {
                 cruiseConfig = command.update(cruiseConfig);
@@ -233,6 +234,7 @@ public class GoConfigDao {
             this.md5 = md5;
         }
 
+        @Override
         public String unmodifiedMd5() {
             return md5;
         }
@@ -262,6 +264,7 @@ public class GoConfigDao {
             this.roleSelection = roleSelection;
         }
 
+        @Override
         public CruiseConfig update(CruiseConfig cruiseConfig) {
             RolesConfig rolesConfig = cruiseConfig.server().security().getRoles();
             String roleName = roleSelection.getValue();
@@ -301,6 +304,7 @@ public class GoConfigDao {
             this.adminPrivilegeSelection = adminPrivilege;
         }
 
+        @Override
         public CruiseConfig update(CruiseConfig cruiseConfig) {
             final AdminsConfig adminsConfig = cruiseConfig.server().security().adminsConfig();
             switch (adminPrivilegeSelection.getAction()) {

@@ -23,10 +23,12 @@ import com.thoughtworks.go.helper.TestRepo;
 import java.io.IOException;
 
 public class MaterialDatabaseHgUpdaterTest extends TestBaseForDatabaseUpdater {
+    @Override
     protected Material material() {
         return new HgMaterial(testRepo.projectRepositoryUrl(), null);
     }
 
+    @Override
     protected TestRepo repo() throws IOException {
         return new HgTestRepo(temporaryFolder);
     }

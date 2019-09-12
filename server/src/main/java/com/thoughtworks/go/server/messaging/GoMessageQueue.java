@@ -34,10 +34,12 @@ public class GoMessageQueue<T extends GoMessage> implements GoMessageChannel<T> 
         return queueSender;
     }
 
+    @Override
     public JMSMessageListenerAdapter addListener(GoMessageListener<T> listener) {
         return messaging.addQueueListener(queueName, listener);
     }
 
+    @Override
     public void post(T message) {
         sender().sendMessage(message);
     }

@@ -15,11 +15,11 @@
  */
 package com.thoughtworks.go.server.service.dd.reporting;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public abstract class ReportingFanInNode {
     MaterialConfig materialConfig;
@@ -51,16 +51,6 @@ public abstract class ReportingFanInNode {
 
     public boolean isScmMaterial() {
         return materialConfig instanceof ScmMaterialConfig;
-    }
-
-
-
-    private boolean isDependencyMaterial(String fingerprint, ReportingFanInGraphContext context) {
-        return context.fingerprintDepMaterialMap.containsKey(fingerprint);
-    }
-
-    private boolean isScmMaterial(String fingerprint, ReportingFanInGraphContext context) {
-        return context.fingerprintScmMaterialMap.containsKey(fingerprint);
     }
 
 }

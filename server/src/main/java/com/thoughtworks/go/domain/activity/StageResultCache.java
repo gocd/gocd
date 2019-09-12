@@ -42,6 +42,7 @@ public class StageResultCache implements GoMessageListener<StageStatusMessage> {
         stageStatusTopic.addListener(this);
     }
 
+    @Override
     public void onMessage(StageStatusMessage message) {
         StageConfigIdentifier identifier = message.getStageIdentifier().stageConfigIdentifier();
         updateCache(identifier, message.getStageResult());

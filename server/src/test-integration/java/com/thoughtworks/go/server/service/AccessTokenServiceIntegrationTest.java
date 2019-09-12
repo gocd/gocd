@@ -22,11 +22,10 @@ import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.AccessToken;
 import com.thoughtworks.go.helper.ConfigFileFixture;
-import com.thoughtworks.go.server.dao.AccessTokenSqlMapDao;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
-import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.server.exceptions.InvalidAccessTokenException;
 import com.thoughtworks.go.server.exceptions.RevokedAccessTokenException;
+import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.After;
@@ -60,8 +59,6 @@ public class AccessTokenServiceIntegrationTest {
     @Autowired
     private AccessTokenService accessTokenService;
 
-    @Autowired
-    private AccessTokenSqlMapDao accessTokenSqlMapDao;
     private String authConfigId;
     private GoConfigFileHelper configHelper;
 

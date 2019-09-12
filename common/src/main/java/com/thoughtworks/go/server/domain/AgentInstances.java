@@ -127,6 +127,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
         return agentInstances;
     }
 
+    @Override
     public Iterator<AgentInstance> iterator() {
         return currentInstances().iterator();
     }

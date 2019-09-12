@@ -80,22 +80,27 @@ public class SvnExternalParser {
     private class Svn14WithRootMatcher extends BaseSvnExternalMatcher {
         private Pattern SVN_14_ROOT_PATTERN = Pattern.compile("(\\S+) - (\\S+)\\s+(-r\\s*\\d)?\\s*(\\S+:((//)|(\\\\))+\\S+)\\s*");
 
+        @Override
         protected Pattern pattern() {
             return SVN_14_ROOT_PATTERN;
         }
 
+        @Override
         protected String root(Matcher matcher, SvnExternalParser.SvnExternalRoot svnExternalRoot) {
             return matcher.group(1);
         }
 
+        @Override
         protected String externalDir(Matcher matcher) {
             return matcher.group(2);
         }
 
+        @Override
         protected String url(Matcher matcher) {
             return matcher.group(4);
         }
 
+        @Override
         protected void updateRoot(String root, SvnExternalRoot svnExternalRoot) {
             svnExternalRoot.setRoot(root);
         }
@@ -104,22 +109,27 @@ public class SvnExternalParser {
     private class Svn14NoRootMatcher extends BaseSvnExternalMatcher {
         private Pattern SVN_14_SAMEFOLER_PATTERN = Pattern.compile("\\s*(\\S+)\\s+(-r\\s*\\d)?\\s*(\\S+:((//)|(\\\\))+\\S+)\\s*");
 
+        @Override
         protected Pattern pattern() {
             return SVN_14_SAMEFOLER_PATTERN;
         }
 
+        @Override
         protected String root(Matcher matcher, SvnExternalParser.SvnExternalRoot svnExternalRoot) {
             return svnExternalRoot.getRoot();
         }
 
+        @Override
         protected String externalDir(Matcher matcher) {
             return matcher.group(1);
         }
 
+        @Override
         protected String url(Matcher matcher) {
             return matcher.group(3);
         }
 
+        @Override
         protected void updateRoot(String root, SvnExternalRoot svnExternalRoot) {
             // No i am fine
         }
@@ -128,6 +138,7 @@ public class SvnExternalParser {
     private abstract class BaseSvnExternalMatcher implements SvnExternalMatcher {
         final Pattern CARET_AT_START_OF_BOUNDARY = Pattern.compile("(?<![/\\w])\\^/");
 
+        @Override
         public boolean match(String external, String repoUrl, String repoRoot, List<SvnExternal> results, SvnExternalRoot svnExternalRoot) {
             Matcher matcher = pattern().matcher(external);
             try {
@@ -168,10 +179,12 @@ public class SvnExternalParser {
     private class Svn15AndAboveWithRootMatcher extends BaseSvnExternalMatcher {
         private Pattern SVN_15_ROOT_PATTERN = Pattern.compile("(\\S+) - (-r\\s*\\d)?\\s*(\\S+:(//|\\\\)+.*)\\s+(\\S+)\\s*");
 
+        @Override
         protected Pattern pattern() {
             return SVN_15_ROOT_PATTERN;
         }
 
+        @Override
         protected String root(Matcher matcher, SvnExternalRoot svnExternalRoot) {
             return matcher.group(1);
         }
@@ -183,14 +196,17 @@ public class SvnExternalParser {
             return super.match(external, repoUrl, repoRoot, results, svnExternalRoot);
         }
 
+        @Override
         protected String externalDir(Matcher matcher) {
             return matcher.group(5);
         }
 
+        @Override
         protected String url(Matcher matcher) {
             return matcher.group(3);
         }
 
+        @Override
         protected void updateRoot(String root, SvnExternalRoot svnExternalRoot) {
             svnExternalRoot.setRoot(root);
         }
@@ -198,10 +214,12 @@ public class SvnExternalParser {
 
     private class Svn15AndAboveNoRootMatcher extends BaseSvnExternalMatcher {
         private Pattern SVN_15_SAMEFOLER_PATTERN = Pattern.compile("\\s*(-r\\s*\\d)?\\s*(\\S+:(//|\\\\)+\\S+)\\s+(\\S+)\\s*");
+        @Override
         protected Pattern pattern() {
             return SVN_15_SAMEFOLER_PATTERN;
         }
 
+        @Override
         protected String root(Matcher matcher, SvnExternalRoot svnExternalRoot) {
             return svnExternalRoot.getRoot();
         }
@@ -213,14 +231,17 @@ public class SvnExternalParser {
             return super.match(external, repoUrl, repoRoot, results, svnExternalRoot);
         }
 
+        @Override
         protected String externalDir(Matcher matcher) {
             return matcher.group(4);
         }
 
+        @Override
         protected String url(Matcher matcher) {
             return matcher.group(2);
         }
 
+        @Override
         protected void updateRoot(String root, SvnExternalRoot svnExternalRoot) {
             // No i am fine
         }

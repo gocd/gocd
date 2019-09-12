@@ -18,9 +18,10 @@ package com.thoughtworks.go.util;
 import java.io.File;
 import java.util.Comparator;
 
-//TODO: ChrisS : Make static and rename to FILENAME_ORDER 
+//TODO: ChrisS : Make static and rename to FILENAME_ORDER
 public class FileComparator implements Comparator<File> {
 
+    @Override
     public int compare(File file1, File file2) {
         if (file1.isDirectory() && file2.isDirectory() || file1.isFile() && file2.isFile()) {
             return file1.getName().compareTo(file2.getName());

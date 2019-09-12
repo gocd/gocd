@@ -26,18 +26,22 @@ public class H2EventListener implements DatabaseEventListener {
     private int listenerLastState;
     private long startTime;
 
+    @Override
     public void init(String url) {
         LOGGER.info("Initializing database: {}", url);
     }
 
+    @Override
     public void opened() {
         LOGGER.info("Database is opened");
     }
 
+    @Override
     public void exceptionThrown(SQLException e, String sql) {
         LOGGER.error("Exception thrown from database on sql statement: {}", sql, e);
     }
 
+    @Override
     public void setProgress(int state, String name, int progress, int max) {
         if (state == listenerLastState) {
             if (System.currentTimeMillis() - startTime > 10000) {
@@ -73,6 +77,7 @@ public class H2EventListener implements DatabaseEventListener {
         }
     }
 
+    @Override
     public void closingDatabase() {
         LOGGER.info("Closing database");
     }

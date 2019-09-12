@@ -24,6 +24,7 @@ class TextElement implements HtmlRenderable {
         this.body = body;
     }
 
+    @Override
     public void render(HtmlRenderer renderer) {
         renderer.append(body + "\n");
     }

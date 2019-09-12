@@ -343,12 +343,14 @@ public class UserService {
 
     public enum SortableColumn {
         EMAIL {
+            @Override
             protected String get(UserModel model) {
                 return model.getUser().getEmail();
             }
 
         },
         USERNAME {
+            @Override
             protected String get(UserModel model) {
                 return model.getUser().getName();
             }

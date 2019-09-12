@@ -315,7 +315,6 @@ class EnvironmentConfigServiceTest {
 
     @Test
     void getAllLocalPipelinesForUser_shouldReturnAllPipelinesToWhichAlongWithTheEnvironmentsToWhichTheyBelong() {
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         Username user = new Username(new CaseInsensitiveString("user"));
 
         when(mockGoConfigService.getAllLocalPipelineConfigs()).thenReturn(asList(pipelineConfig("foo"), pipelineConfig("bar"), pipelineConfig("baz")));
@@ -334,7 +333,6 @@ class EnvironmentConfigServiceTest {
 
     @Test
     void getAllLocalPipelinesForUser_shouldReturnOnlyLocalPipelines() {
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         Username user = new Username(new CaseInsensitiveString("user"));
 
         when(mockGoConfigService.getAllLocalPipelineConfigs()).thenReturn(asList(pipelineConfig("foo"), pipelineConfig("bar"), pipelineConfig("baz")));
@@ -353,7 +351,6 @@ class EnvironmentConfigServiceTest {
 
     @Test
     void getAllRemotePipelinesForUserInEnvironment_shouldReturnOnlyRemotelyAssignedPipelinesWhichUserHasPermsToView() {
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         Username user = new Username(new CaseInsensitiveString("user"));
 
         when(mockGoConfigService.getAllPipelineConfigs()).thenReturn(asList(pipelineConfig("foo"), pipelineConfig("bar"), pipelineConfig("baz")));

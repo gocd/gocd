@@ -46,6 +46,7 @@ public class AgentProcessParentImpl implements AgentProcessParent {
     static final String GO_AGENT_STDERR_LOG = "go-agent-stderr.log";
     static final String GO_AGENT_STDOUT_LOG = "go-agent-stdout.log";
 
+    @Override
     public int run(String launcherVersion, String launcherMd5, ServerUrlGenerator urlGenerator, Map<String, String> env, Map context) {
         int exitValue = 0;
         LOG.info("Agent is version: {}", CurrentGoCDVersion.getInstance().fullVersion());
@@ -181,6 +182,7 @@ public class AgentProcessParentImpl implements AgentProcessParent {
             this.agent = agent;
         }
 
+        @Override
         public void run() {
             LOG.info("Shutdown hook invoked. Shutting down {}", agent);
             agent.destroy();

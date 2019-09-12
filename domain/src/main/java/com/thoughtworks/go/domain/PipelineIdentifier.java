@@ -71,10 +71,12 @@ public class PipelineIdentifier implements Serializable {
         return String.format("%s/%s", name, label);
     }
 
+    @Override
     public String toString() {
         return String.format("Pipeline[name=%s, counter=%s, label=%s]", name, counter, label);
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -98,6 +100,7 @@ public class PipelineIdentifier implements Serializable {
         return true;
     }
 
+    @Override
     public int hashCode() {
         int result;
         result = (name != null ? name.hashCode() : 0);

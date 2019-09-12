@@ -31,6 +31,7 @@ public class CommandBuilderWithArgList extends BaseCommandBuilder {
         this.args = args;
     }
 
+    @Override
     protected CommandLine buildCommandLine() {
         CommandLine command = null;
         if (SystemUtils.IS_OS_WINDOWS) {

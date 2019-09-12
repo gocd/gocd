@@ -268,6 +268,7 @@ public class PackageDefinition implements Serializable, Validatable, ParamsAttri
         }
     }
 
+    @Override
     public void setConfigAttributes(Object attributes) {
         if (attributes == null) {
             return;

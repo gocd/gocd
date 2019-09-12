@@ -28,7 +28,6 @@ import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.domain.StageResult;
 import com.thoughtworks.go.domain.Stages;
-import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
@@ -79,7 +78,6 @@ public class MaterialDatabaseDependencyUpdaterTest {
     @Autowired private GoConfigService goConfigService;
 
     protected MaterialDatabaseUpdater updater;
-    protected Material material;
     private DependencyMaterialSourceDao dependencyMaterialSourceDao;
     private ServerHealthService healthService;
     private DependencyMaterialUpdater dependencyMaterialUpdater;
@@ -105,7 +103,7 @@ public class MaterialDatabaseDependencyUpdaterTest {
     public void shouldCreateEntriesForCompletedPipelines() throws Exception {
         DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
 
-        stubStageServiceGetHistory(null, stages(9));
+        stubStageServiceGetHistory(stages(9));
 
         updater.updateMaterial(dependencyMaterial);
 
@@ -154,7 +152,7 @@ public class MaterialDatabaseDependencyUpdaterTest {
     public void shouldReturnNoNewModificationsIfNoNewPipelineHasBennCompleted() throws Exception {
         DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
 
-        stubStageServiceGetHistory(null, stages(9));
+        stubStageServiceGetHistory(stages(9));
         updater.updateMaterial(dependencyMaterial);
 
         List<Modification> modification = materialRepository.findLatestModification(dependencyMaterial).getMaterialRevision(0).getModifications();
@@ -195,7 +193,7 @@ public class MaterialDatabaseDependencyUpdaterTest {
     public void shouldReturnNoNewModificationsIfPipelineHasNeverBeenScheduled() throws Exception {
         DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
 
-        stubStageServiceGetHistory(null);
+        stubStageServiceGetHistory();
         updater.updateMaterial(dependencyMaterial);
 
         MaterialRevisions materialRevisions = materialRepository.findLatestModification(dependencyMaterial);
@@ -207,7 +205,7 @@ public class MaterialDatabaseDependencyUpdaterTest {
     public void shouldReturnLatestPipelineIfThereHasBeenANewOne() throws Exception {
         DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
 
-        stubStageServiceGetHistory(null, stages(9));
+        stubStageServiceGetHistory(stages(9));
         updater.updateMaterial(dependencyMaterial);
 
         List<Modification> modification = materialRepository.findLatestModification(dependencyMaterial).getMaterialRevision(0).getModifications();
@@ -226,7 +224,7 @@ public class MaterialDatabaseDependencyUpdaterTest {
     public void shouldInsertAllHistoricRunsOfUpstreamStageTheFirstTime() throws Exception {
         DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
 
-        stubStageServiceGetHistory(null, stages(9, 10, 11), stages(12, 13));
+        stubStageServiceGetHistory(stages(9, 10, 11), stages(12, 13));
 
         updater.updateMaterial(dependencyMaterial);
 
@@ -242,7 +240,7 @@ public class MaterialDatabaseDependencyUpdaterTest {
     public void shouldUpdateMaterialCorrectlyIfCaseOfPipelineNameIsDifferentInConfigurationOfDependencyMaterial() throws Exception {
 
         DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("PIPEline-name"), new CaseInsensitiveString("STAge-name"));
-        stubStageServiceGetHistory(dependencyMaterial, stages(1));
+        stubStageServiceGetHistory(stages(1));
 
         // create the material instance
         updater.updateMaterial(dependencyMaterial);
@@ -276,10 +274,8 @@ public class MaterialDatabaseDependencyUpdaterTest {
         return stage;
     }
 
-    private void stubStageServiceGetHistory(DependencyMaterial dependencyMaterial, Stages... stageses) {
-        if(material == null) {
-            dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
-        }
+    private void stubStageServiceGetHistory(Stages... stageses) {
+        DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
         for (int i = 0; i < stageses.length; i++) {
             ArrayList<Modification> mods = new ArrayList<>();
             for (Stage stage : stageses[i]) {

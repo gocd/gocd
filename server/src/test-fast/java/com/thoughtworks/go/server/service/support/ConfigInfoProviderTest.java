@@ -23,7 +23,6 @@ import com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo;
 import com.thoughtworks.go.plugin.domain.authorization.Capabilities;
 import com.thoughtworks.go.plugin.domain.authorization.SupportedAuthType;
 import com.thoughtworks.go.server.service.GoConfigService;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

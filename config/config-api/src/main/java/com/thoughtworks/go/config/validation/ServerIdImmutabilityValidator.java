@@ -30,6 +30,7 @@ public class ServerIdImmutabilityValidator implements GoConfigValidator {
         env = new SystemEnvironment();
     }
 
+    @Override
     public void validate(CruiseConfig cruiseConfig) {
         ServerConfig server = cruiseConfig.server();
         String newServerId = server.getServerId();

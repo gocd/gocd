@@ -24,7 +24,6 @@ import com.thoughtworks.go.domain.activity.JobStatusCache;
 import com.thoughtworks.go.domain.activity.StageStatusCache;
 import com.thoughtworks.go.fixture.PipelineWithTwoStages;
 import com.thoughtworks.go.fixture.SchedulerFixture;
-import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
@@ -62,7 +61,6 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -99,7 +97,6 @@ public class ScheduleServiceStageTriggerTest {
     @Autowired private ChangesetService changesetService;
     @Autowired private TransactionSynchronizationManager transactionSynchronizationManager;
     @Autowired private GoCache goCache;
-    @Autowired private PluginManager pluginManager;
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
@@ -252,6 +249,7 @@ public class ScheduleServiceStageTriggerTest {
         when(stageService.stageById(stage.getId())).thenReturn(stage);
 
         Mockito.doAnswer(new Answer() {
+            @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
                 throw new RuntimeException();
             }

@@ -137,6 +137,7 @@ public class PipelineSchedulerIntegrationTest {
         pipelineScheduler.manualProduceBuildCauseAndSave(PIPELINE_MINGLE, Username.ANONYMOUS, scheduleOptions, operationResult);
         assertThat(operationResult.message(), operationResult.canContinue(),is(true));
         Assertions.waitUntil(Timeout.ONE_MINUTE, new BooleanSupplier() {
+            @Override
             public boolean getAsBoolean() {
                 return serverHealthService.filterByScope(HealthStateScope.forPipeline(PIPELINE_MINGLE)).size() == 0;
             }

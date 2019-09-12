@@ -15,10 +15,7 @@
  */
 package com.thoughtworks.go.server;
 
-import org.xml.sax.SAXException;
-
 import java.io.File;
-import java.io.IOException;
 
 public class GoWebXmlConfiguration {
 

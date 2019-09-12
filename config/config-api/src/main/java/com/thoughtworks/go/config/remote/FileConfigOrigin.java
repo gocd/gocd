@@ -35,6 +35,7 @@ public class FileConfigOrigin implements ConfigOrigin {
         return "cruise-config.xml";
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -46,6 +47,7 @@ public class FileConfigOrigin implements ConfigOrigin {
         return true;
     }
 
+    @Override
     public int hashCode() {
         return 23451;
     }

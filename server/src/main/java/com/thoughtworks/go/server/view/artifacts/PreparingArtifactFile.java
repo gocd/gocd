@@ -25,6 +25,7 @@ import org.springframework.web.servlet.view.AbstractView;
 * @understands
 */
 public class PreparingArtifactFile extends AbstractView {
+    @Override
     protected void renderMergedOutputModel(Map model, HttpServletRequest request, HttpServletResponse response) throws Exception {
         response.setStatus(HttpServletResponse.SC_ACCEPTED);
         response.getWriter().close();

@@ -37,7 +37,6 @@ import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 public class PipelineTimelineTest {
@@ -160,6 +159,7 @@ public class PipelineTimelineTest {
         final List<PipelineTimelineEntry>[] entries = new List[1];
         entries[0] = new ArrayList<>();
         final PipelineTimeline timeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager, new TimelineUpdateListener() {
+            @Override
             public void added(PipelineTimelineEntry newlyAddedEntry, TreeSet<PipelineTimelineEntry> timeline) {
                 assertThat(timeline.contains(newlyAddedEntry), is(true));
                 assertThat(timeline.containsAll(entries[0]), is(true));
@@ -179,6 +179,7 @@ public class PipelineTimelineTest {
         setupTransactionTemplateStub(TransactionSynchronization.STATUS_COMMITTED, true);
         TimelineUpdateListener anotherListener = mock(TimelineUpdateListener.class);
         final PipelineTimeline timeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager, new TimelineUpdateListener() {
+            @Override
             public void added(PipelineTimelineEntry newlyAddedEntry, TreeSet<PipelineTimelineEntry> timeline) {
                 throw new RuntimeException();
             }
@@ -262,6 +263,7 @@ public class PipelineTimelineTest {
         repositoryEntries = entries;
         if (restub) {
             doAnswer(new Answer<Object>() {
+                @Override
                 public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
                     for (PipelineTimelineEntry entry : repositoryEntries) {
                         timeline.add(entry);
@@ -275,6 +277,7 @@ public class PipelineTimelineTest {
 
     private void stubTransactionSynchronization() {
         doAnswer(new Answer() {
+            @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
                 transactionSynchronization = (TransactionSynchronization) invocationOnMock.getArguments()[0];
                 return null;
@@ -286,6 +289,7 @@ public class PipelineTimelineTest {
         this.txnStatus = status;
         if (restub) {
             when(transactionTemplate.execute(Mockito.any(TransactionCallback.class))).thenAnswer(new Answer<Object>() {
+                @Override
                 public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
                     TransactionCallback callback = (TransactionCallback) invocationOnMock.getArguments()[0];
                     callback.doInTransaction(null);

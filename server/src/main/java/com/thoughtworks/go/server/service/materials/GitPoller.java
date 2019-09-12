@@ -19,7 +19,6 @@ import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.Revision;
-import com.thoughtworks.go.util.SystemEnvironment;
 
 import java.io.File;
 import java.util.List;

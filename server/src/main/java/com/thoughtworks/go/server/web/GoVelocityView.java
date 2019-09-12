@@ -87,6 +87,7 @@ public class GoVelocityView extends VelocityToolboxView {
         return this.getApplicationContext().getAutowireCapableBeanFactory().getBean(DefaultPluginInfoFinder.class);
     }
 
+    @Override
     protected void exposeHelpers(Context velocityContext, HttpServletRequest request) throws Exception {
         RailsAssetsService railsAssetsService = getRailsAssetsService();
         VersionInfoService versionInfoService = getVersionInfoService();

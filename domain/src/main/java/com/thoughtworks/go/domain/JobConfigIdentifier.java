@@ -32,6 +32,7 @@ public class JobConfigIdentifier {
         this(pipelineName.toString(), stageName.toString(), jobName.toString());
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -55,6 +56,7 @@ public class JobConfigIdentifier {
         return true;
     }
 
+    @Override
     public int hashCode() {
         int result;
         result = (pipelineName != null ? pipelineName.hashCode() : 0);

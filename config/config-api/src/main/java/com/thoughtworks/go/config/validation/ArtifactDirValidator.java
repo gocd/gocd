@@ -23,6 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public class ArtifactDirValidator implements GoConfigValidator {
+    @Override
     public void validate(CruiseConfig cruiseConfig) throws Exception {
         ServerConfig serverConfig = cruiseConfig.server();
         String artifactDir = serverConfig.artifactsDir();

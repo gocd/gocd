@@ -23,21 +23,21 @@ public class UiBasedConfigUpdateCommand implements NoOverwriteUpdateConfigComman
     private final String md5;
     private final UpdateConfigFromUI command;
     private final LocalizedOperationResult result;
-    private final CachedGoPartials cachedGoPartials;
     private CruiseConfig configAfter;
     private CruiseConfig cruiseConfig;
 
-    public UiBasedConfigUpdateCommand(String md5, UpdateConfigFromUI command, LocalizedOperationResult result, CachedGoPartials cachedGoPartials) {
+    public UiBasedConfigUpdateCommand(String md5, UpdateConfigFromUI command, LocalizedOperationResult result) {
         this.md5 = md5;
         this.command = command;
         this.result = result;
-        this.cachedGoPartials = cachedGoPartials;
     }
 
+    @Override
     public String unmodifiedMd5() {
         return md5;
     }
 
+    @Override
     public CruiseConfig update(CruiseConfig cruiseConfig) {
         this.cruiseConfig = cruiseConfig;
         Validatable node = command.node(this.cruiseConfig);
@@ -45,10 +45,12 @@ public class UiBasedConfigUpdateCommand implements NoOverwriteUpdateConfigComman
         return this.cruiseConfig;
     }
 
+    @Override
     public void afterUpdate(CruiseConfig cruiseConfig) {
         configAfter = cruiseConfig;
     }
 
+    @Override
     public CruiseConfig configAfter() {
         return configAfter;
     }
@@ -57,6 +59,7 @@ public class UiBasedConfigUpdateCommand implements NoOverwriteUpdateConfigComman
         return cruiseConfig;
     }
 
+    @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
         command.checkPermission(cruiseConfig, result);
         return result.isSuccessful();

@@ -371,6 +371,7 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
         assertNotSame(mainCruiseConfig.getGroups(), cruiseConfig.getGroups());
     }
 
+    @Override
     @Test
     public void shouldReturnTrueHasPipelinesFrom2Parts() {
         pipelines = new BasicPipelineConfigs("group_main", new Authorization(), PipelineConfigMother.pipelineConfig("pipe1"));
@@ -382,6 +383,7 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
         assertThat(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipe2")), is(true));
     }
 
+    @Override
     @Test
     public void shouldReturnFalseWhenHasNotPipelinesFrom2Parts() {
         pipelines = new BasicPipelineConfigs("group_main", new Authorization(), PipelineConfigMother.pipelineConfig("pipe1"));
@@ -392,6 +394,7 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
         assertThat(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipe3")), is(false));
     }
 
+    @Override
     @Test
     public void shouldReturnGroupsFrom2Parts() {
         pipelines = new BasicPipelineConfigs("group_main", new Authorization(), PipelineConfigMother.pipelineConfig("pipe1"));

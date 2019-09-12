@@ -16,7 +16,6 @@
 package com.thoughtworks.go.apiv1.usersearch.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
-import com.thoughtworks.go.domain.User;
 import com.thoughtworks.go.presentation.UserSearchModel;
 import com.thoughtworks.go.spark.Routes;
 

@@ -60,10 +60,12 @@ public class Tab implements Validatable {
         this.path = path;
     }
 
+    @Override
     public String toString() {
         return "Tab[" + name + ", " + path + "]";
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -84,6 +86,7 @@ public class Tab implements Validatable {
         return true;
     }
 
+    @Override
     public int hashCode() {
         int result;
         result = (name != null ? name.hashCode() : 0);
@@ -96,15 +99,18 @@ public class Tab implements Validatable {
         return errors().isEmpty();
     }
 
+    @Override
     public void validate(ValidationContext validationContext) {
         validateTabNamePathCorrectness();
         validateTabNameSize();
     }
 
+    @Override
     public ConfigErrors errors() {
         return configErrors;
     }
 
+    @Override
     public void addError(String fieldName, String message) {
         configErrors.add(fieldName, message);
     }

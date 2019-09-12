@@ -29,78 +29,97 @@ public abstract class DelegatingValidationContext implements ValidationContext {
         this.validationContext = validationContext;
     }
 
+    @Override
     public ConfigReposConfig getConfigRepos() {
         return validationContext.getConfigRepos();
     }
 
+    @Override
     public boolean isWithinPipelines() {
         return validationContext.isWithinPipelines();
     }
 
+    @Override
     public PipelineConfig getPipeline() {
         return validationContext.getPipeline();
     }
 
+    @Override
     public MaterialConfigs getAllMaterialsByFingerPrint(String fingerprint) {
         return validationContext.getAllMaterialsByFingerPrint(fingerprint);
     }
 
+    @Override
     public StageConfig getStage() {
         return validationContext.getStage();
     }
 
+    @Override
     public boolean isWithinTemplates() {
         return validationContext.isWithinTemplates();
     }
 
+    @Override
     public String getParentDisplayName() {
         return validationContext.getParentDisplayName();
     }
 
+    @Override
     public Validatable getParent() {
         return validationContext.getParent();
     }
 
+    @Override
     public JobConfig getJob() {
         return validationContext.getJob();
     }
 
+    @Override
     public PipelineConfigs getPipelineGroup() {
         return validationContext.getPipelineGroup();
     }
 
+    @Override
     public PipelineTemplateConfig getTemplate() {
         return validationContext.getTemplate();
     }
 
+    @Override
     public PipelineConfig getPipelineConfigByName(CaseInsensitiveString pipelineName) {
         return validationContext.getPipelineConfigByName(pipelineName);
     }
 
+    @Override
     public boolean shouldCheckConfigRepo() {
         return validationContext.shouldCheckConfigRepo();
     }
 
+    @Override
     public SecurityConfig getServerSecurityConfig() {
         return validationContext.getServerSecurityConfig();
     }
 
+    @Override
     public boolean doesTemplateExist(CaseInsensitiveString template) {
         return validationContext.doesTemplateExist(template);
     }
 
+    @Override
     public SCM findScmById(String scmID) {
         return validationContext.findScmById(scmID);
     }
 
+    @Override
     public PackageRepository findPackageById(String packageId) {
         return validationContext.findPackageById(packageId);
     }
 
+    @Override
     public ValidationContext withParent(Validatable validatable) {
         return validationContext.withParent(validatable);
     }
 
+    @Override
     public boolean isValidProfileId(String profileId) {
         return validationContext.isValidProfileId(profileId);
     }

@@ -20,9 +20,9 @@ import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.SystemTimeClock;
 import com.thoughtworks.go.utils.Timeout;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.time.FastDateFormat;
 import org.joda.time.DateTime;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -38,7 +38,7 @@ public class ServerHealthState {
     private final String description;
     static Clock clock = new SystemTimeClock();
     private DateTime expiryTime;
-    public static final SimpleDateFormat TIMESTAMP_FORMAT = new SimpleDateFormat("MMM-dd HH:mm:ss");
+    public static final FastDateFormat TIMESTAMP_FORMAT = FastDateFormat.getInstance("MMM-dd HH:mm:ss");
     private Date timestamp;
 
     private ServerHealthState(HealthStateLevel healthStateLevel, HealthStateType type) {
@@ -143,6 +143,7 @@ public class ServerHealthState {
         return result > 0 ? this : otherServerHealthState;
     }
 
+    @Override
     public boolean equals(Object that) {
         if (this == that) {
             return true;
@@ -172,6 +173,7 @@ public class ServerHealthState {
         return true;
     }
 
+    @Override
     public int hashCode() {
         int result = healthStateLevel.hashCode();
         result = 31 * result + type.hashCode();

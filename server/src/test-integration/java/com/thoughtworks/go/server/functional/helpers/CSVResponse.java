@@ -15,13 +15,13 @@
  */
 package com.thoughtworks.go.server.functional.helpers;
 
-import java.util.List;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.mock.web.MockHttpServletResponse;
+
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.io.UnsupportedEncodingException;
-
-import org.springframework.mock.web.MockHttpServletResponse;
-import org.apache.commons.lang3.StringUtils;
+import java.util.List;
 
 public class CSVResponse {
     private String tableContent;
@@ -92,7 +92,4 @@ public class CSVResponse {
 
     }
 
-    public boolean rowCout(int count) {
-        return this.allRows.size() == count;
-    }
 }

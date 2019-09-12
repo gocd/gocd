@@ -15,8 +15,6 @@
  */
 package com.thoughtworks.go.validation;
 
-import java.io.IOException;
-
 import com.thoughtworks.go.agent.ChecksumValidationPublisher;
 import com.thoughtworks.go.domain.ArtifactMd5Checksums;
 import org.apache.commons.lang3.StringUtils;

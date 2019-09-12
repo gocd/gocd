@@ -63,6 +63,7 @@ public class ParamsConfig extends BaseCollection<ParamConfig> implements Validat
         }
         return isValid;
     }
+    @Override
     public void validate(ValidationContext validationContext) {
         HashMap<String, ParamConfig> paramConfigMap = new HashMap<>();
         for (ParamConfig paramConfig : this) {
@@ -70,6 +71,7 @@ public class ParamsConfig extends BaseCollection<ParamConfig> implements Validat
         }
     }
 
+    @Override
     public ConfigErrors errors() {
         return configErrors;
     }
@@ -83,6 +85,7 @@ public class ParamsConfig extends BaseCollection<ParamConfig> implements Validat
         throw new IllegalArgumentException("param '" + name + "' not found");
     }
 
+    @Override
     public void addError(String fieldName, String message) {
         configErrors.add(fieldName, message);
     }

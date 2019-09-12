@@ -16,7 +16,6 @@
 package com.thoughtworks.go.util;
 
 import org.apache.commons.lang3.StringUtils;
-import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
 
@@ -139,6 +138,7 @@ public class XsdErrorTranslator extends DefaultHandler {
         }
     }
 
+    @Override
     public void error(SAXParseException exception) {
         if (!validationError) {
             validationError = true;
@@ -146,6 +146,7 @@ public class XsdErrorTranslator extends DefaultHandler {
         }
     }
 
+    @Override
     public void fatalError(SAXParseException exception) {
         if (!validationError) {
             validationError = true;
@@ -153,6 +154,7 @@ public class XsdErrorTranslator extends DefaultHandler {
         }
     }
 
+    @Override
     public void warning(SAXParseException exception) {
 
     }

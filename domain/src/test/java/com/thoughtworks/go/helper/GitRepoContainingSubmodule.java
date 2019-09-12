@@ -113,10 +113,12 @@ public class GitRepoContainingSubmodule extends TestRepo {
         return material();
     }
 
+    @Override
     public String projectRepositoryUrl() {
         return FileUtil.toFileURI(remoteRepoDir.getAbsoluteFile());
     }
 
+    @Override
     public List<Modification> checkInOneFile(String fileName, String comment) throws Exception {
         addAndCommitNewFile(remoteRepoDir, fileName, comment);
         return latestModification();
@@ -148,6 +150,7 @@ public class GitRepoContainingSubmodule extends TestRepo {
         FileUtils.writeStringToFile(fileToChange, newFileContent, UTF_8);
     }
 
+    @Override
     public List<Modification> latestModification() {
         File dir = workingCopy("local-working-copy");
         return mainRepo().latestModification(dir, new TestSubprocessExecutionContext());

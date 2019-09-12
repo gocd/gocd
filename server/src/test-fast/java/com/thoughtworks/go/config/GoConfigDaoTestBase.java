@@ -20,8 +20,7 @@ import com.thoughtworks.go.config.commands.CheckedUpdateCommand;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.ConfigFileHasChangedException;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
-import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
-import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
+
 import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import com.thoughtworks.go.config.update.ConfigUpdateCheckFailedException;
 import com.thoughtworks.go.domain.NullTask;
@@ -150,10 +149,12 @@ public abstract class GoConfigDaoTestBase {
 
         try {
             goConfigDao.updateConfig(new NoOverwriteUpdateConfigCommand() {
+                @Override
                 public String unmodifiedMd5() {
                     return md5WhenPipelineIsAdded;
                 }
 
+                @Override
                 public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
                     deletePipeline(cruiseConfig);
                     return cruiseConfig;
@@ -175,10 +176,12 @@ public abstract class GoConfigDaoTestBase {
         final String md5 = goConfigDao.md5OfConfigFile();
         try {
             ConfigSaveState configSaveState = goConfigDao.updateConfig(new NoOverwriteUpdateConfigCommand() {
+                @Override
                 public String unmodifiedMd5() {
                     return md5;
                 }
 
+                @Override
                 public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
                     cruiseConfig.getEnvironments().add(new BasicEnvironmentConfig(new CaseInsensitiveString("foo")));
                     return cruiseConfig;
@@ -194,6 +197,7 @@ public abstract class GoConfigDaoTestBase {
     public void shouldNotFailUpdateWithOverwritePermittedWhenEditingStaleCopy() throws Exception {
         try {
             goConfigDao.updateConfig(new UpdateConfigCommand() {
+                @Override
                 public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
                     cruiseConfig.getEnvironments().add(new BasicEnvironmentConfig(new CaseInsensitiveString("foo")));
                     return cruiseConfig;
@@ -348,8 +352,10 @@ public abstract class GoConfigDaoTestBase {
         Exception ex = null;
         try {
             GoConfigFileHelper.withServerIdImmutability(new Runnable() {
+                @Override
                 public void run() {
                     goConfigDao.updateConfig(new UpdateConfigCommand() {
+                        @Override
                         public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
                             ReflectionUtil.setField(cruiseConfig.server(), "serverId", "new-value");
                             return cruiseConfig;
@@ -440,23 +446,28 @@ public abstract class GoConfigDaoTestBase {
             this.canContinue = canContinue;
         }
 
+        @Override
         public boolean canContinue(CruiseConfig cruiseConfig) {
             return canContinue;
         }
 
+        @Override
         public String unmodifiedMd5() {
             return md5;
         }
 
+        @Override
         public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
             wasUpdated = true;
             return cruiseConfig;
         }
 
+        @Override
         public void afterUpdate(CruiseConfig cruiseConfig) {
             after = cruiseConfig;
         }
 
+        @Override
         public CruiseConfig configAfter() {
             return after;
         }

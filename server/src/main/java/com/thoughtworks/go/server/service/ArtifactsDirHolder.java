@@ -51,6 +51,7 @@ public class ArtifactsDirHolder implements ConfigChangedListener {
         goConfigService.register(this);
     }
 
+    @Override
     public void onConfigChange(CruiseConfig newCruiseConfig) {
         ServerHealthState serverHealthState;
         if (isArtifactsDirChanged(newCruiseConfig)) {

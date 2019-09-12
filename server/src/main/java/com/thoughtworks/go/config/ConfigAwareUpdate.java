@@ -15,8 +15,6 @@
  */
 package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.config.CruiseConfig;
-
 public interface ConfigAwareUpdate {
     void afterUpdate(CruiseConfig cruiseConfig);
     CruiseConfig configAfter();

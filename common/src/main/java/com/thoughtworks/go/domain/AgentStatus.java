@@ -66,6 +66,7 @@ public enum AgentStatus implements Comparable<AgentStatus>, Serializable {
         return this.runtimeStatus == AgentRuntimeStatus.Idle;
     }
 
+    @Override
     public String toString() {
         return name;
     }

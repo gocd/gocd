@@ -52,13 +52,16 @@ public class RunIfConfigs extends BaseCollection<RunIfConfig> implements Validat
         return this.contains(currentStatus);
     }
 
+    @Override
     public void validate(ValidationContext validationContext) {
     }
 
+    @Override
     public ConfigErrors errors() {
         return configErrors;
     }
 
+    @Override
     public void addError(String fieldName, String message) {
         configErrors.add(fieldName, message);
     }

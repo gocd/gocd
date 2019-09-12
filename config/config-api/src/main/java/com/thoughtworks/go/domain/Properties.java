@@ -42,6 +42,7 @@ public class Properties extends BaseCollection<Property> implements JsonAware {
         return null;
     }
 
+    @Override
     public Map<String, Object> toJson() {
         Map<String, Object> jsonMap = new LinkedHashMap<>();
         for (Property property : this) {

@@ -19,11 +19,8 @@ import com.thoughtworks.go.config.security.users.AllowedUsers;
 import com.thoughtworks.go.config.security.users.Users;
 import com.thoughtworks.go.util.DateUtils;
 import org.jdom2.Element;
-import org.joda.time.format.ISODateTimeFormat;
 import org.junit.Test;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 

@@ -95,6 +95,7 @@ public class ExecTask extends AbstractTask implements CommandTask {
         this.workingDirectory = workingDir;
     }
 
+    @Override
     protected void setTaskConfigAttributes(Map attributeMap) {
         if (attributeMap.containsKey(COMMAND)) {
             command = (String) attributeMap.get(COMMAND);
@@ -142,6 +143,7 @@ public class ExecTask extends AbstractTask implements CommandTask {
         argList.clear();
     }
 
+    @Override
     public void validateTask(ValidationContext ctx) {
         validateCommand();
         if (!usingBothArgsAndArgList()) {
@@ -178,10 +180,12 @@ public class ExecTask extends AbstractTask implements CommandTask {
         return TYPE;
     }
 
+    @Override
     public String getTypeForDisplay() {
         return CUSTOM_COMMAND;
     }
 
+    @Override
     public List<TaskProperty> getPropertiesForDisplay() {
         ArrayList<TaskProperty> taskProperties = new ArrayList<>();
         taskProperties.add(new TaskProperty("Command", command));
@@ -209,6 +213,7 @@ public class ExecTask extends AbstractTask implements CommandTask {
         return args.toString();
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -237,6 +242,7 @@ public class ExecTask extends AbstractTask implements CommandTask {
         return super.equals(execTask);
     }
 
+    @Override
     public int hashCode() {
         int result;
         result = command.hashCode();
@@ -266,6 +272,7 @@ public class ExecTask extends AbstractTask implements CommandTask {
         return args.isEmpty() || argList.isEmpty();
     }
 
+    @Override
     public String command() {
         return command;
     }
@@ -282,6 +289,7 @@ public class ExecTask extends AbstractTask implements CommandTask {
         return args;
     }
 
+    @Override
     public String workingDirectory() {
         return workingDirectory;
     }

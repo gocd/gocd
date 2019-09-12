@@ -41,6 +41,7 @@ public class GoPlainSocketConnector implements GoSocketConnector {
         return httpConnector;
     }
 
+    @Override
     public Connector getConnector() {
         return httpConnector;
     }

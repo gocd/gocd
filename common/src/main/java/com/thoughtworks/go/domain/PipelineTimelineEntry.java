@@ -48,6 +48,7 @@ public class PipelineTimelineEntry implements Comparable {
         this.naturalOrder = naturalOrder;
     }
 
+    @Override
     public int compareTo(Object o) {
         if (o == null) {
             throw new NullPointerException("Cannot compare this object with null");

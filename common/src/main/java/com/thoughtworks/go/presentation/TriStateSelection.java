@@ -59,14 +59,17 @@ public class TriStateSelection implements Comparable<TriStateSelection> {
 
     public static List<TriStateSelection> forAgentsResources(Set<ResourceConfig> resourceConfigs, Agents agents) {
         return convert(resourceConfigs, agents, new Assigner<ResourceConfig, AgentConfig>() {
+            @Override
             public boolean shouldAssociate(AgentConfig agent, ResourceConfig resourceConfig) {
                 return agent.getResourceConfigs().contains(resourceConfig);
             }
 
+            @Override
             public String identifier(ResourceConfig resourceConfig) {
                 return resourceConfig.getName();
             }
 
+            @Override
             public boolean shouldEnable(AgentConfig agent, ResourceConfig resourceConfig) {
                 return true;
             }
@@ -75,14 +78,17 @@ public class TriStateSelection implements Comparable<TriStateSelection> {
 
     public static List<TriStateSelection> forRoles(Set<Role> allRoles, List<String> users) {
         return convert(allRoles, users, new Assigner<Role, String>() {
+            @Override
             public boolean shouldAssociate(String user, Role role) {
                 return role.hasMember(new CaseInsensitiveString(user));
             }
 
+            @Override
             public String identifier(Role role) {
                 return CaseInsensitiveString.str(role.getName());
             }
 
+            @Override
             public boolean shouldEnable(String user, Role role) {
                 return true;
             }
@@ -91,14 +97,17 @@ public class TriStateSelection implements Comparable<TriStateSelection> {
 
     public static TriStateSelection forSystemAdmin(final AdminsConfig adminsConfig, final Set<Role> allRoles, final UserRoleMatcher userRoleMatcher, List<String> users) {
         return convert(new HashSet<>(Arrays.asList(Admin.GO_SYSTEM_ADMIN)), users, new Assigner<String, String>() {
+            @Override
             public boolean shouldAssociate(String userName, String ignore) {
                 return adminsConfig.hasUser(new CaseInsensitiveString(userName), userRoleMatcher);
             }
 
+            @Override
             public String identifier(String ignore) {
                 return Admin.GO_SYSTEM_ADMIN;
             }
 
+            @Override
             public boolean shouldEnable(String userName, String ignore) {
                 List<Role> roles = new ArrayList<>();
                 for (Role role : allRoles) {
@@ -172,6 +181,7 @@ public class TriStateSelection implements Comparable<TriStateSelection> {
                 '}';
     }
 
+    @Override
     public int compareTo(TriStateSelection other) {
         return comparator.compare(this.value,other.value);
     }

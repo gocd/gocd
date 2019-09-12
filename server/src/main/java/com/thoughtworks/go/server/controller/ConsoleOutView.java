@@ -21,7 +21,6 @@ import org.springframework.web.servlet.View;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.nio.file.NoSuchFileException;
@@ -36,10 +35,12 @@ public class ConsoleOutView implements View {
         this.charset = charset;
     }
 
+    @Override
     public String getContentType() {
         return "text/plain; charset=" + charset;
     }
 
+    @Override
     public void render(Map model, HttpServletRequest request, HttpServletResponse response) throws Exception {
         response.setContentType(getContentType());
         response.setCharacterEncoding(charset.name());

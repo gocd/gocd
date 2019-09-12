@@ -36,7 +36,6 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import org.apache.commons.io.FileUtils;
 import org.junit.*;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
@@ -44,7 +43,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.io.File;
 import java.io.IOException;
 
 import static org.hamcrest.Matchers.containsString;
@@ -92,7 +90,6 @@ public class SchedulingCheckerServiceIntegrationTest {
     private static final String APPROVED_USER = "jez";
     private static GoConfigFileHelper configFileHelper = new GoConfigFileHelper(ConfigFileFixture.XML_WITH_ENTERPRISE_LICENSE_FOR_TWO_USERS);
     public DiskSpaceSimulator diskSpaceSimulator;
-    public File artifactsDir;
 
     @AfterClass
     public static void tearDownConfigFileLocation() throws IOException {
@@ -126,9 +123,6 @@ public class SchedulingCheckerServiceIntegrationTest {
         diskSpaceSimulator.onTearDown();
         pipelineScheduleQueue.clear();
         triggerMonitor.clear_for_test();
-        if (artifactsDir != null) {
-            FileUtils.deleteQuietly(artifactsDir);
-        }
     }
 
     @Test

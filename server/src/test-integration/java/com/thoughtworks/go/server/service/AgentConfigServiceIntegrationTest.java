@@ -20,7 +20,6 @@ import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.helper.AgentMother;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.listener.AgentStatusChangeListener;
 import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.Username;
@@ -42,7 +41,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.util.*;
 
 import static org.hamcrest.Matchers.*;
-import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)

@@ -18,8 +18,6 @@ package com.thoughtworks.go.apiv6.shared.representers.stages.artifacts;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.ConfigurationPropertyRepresenter;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.apiv6.shared.representers.stages.ConfigHelperOptions;
-import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PluggableArtifactConfig;
 
 public class ExternalArtifactConfigRepresenter {

@@ -205,9 +205,4 @@ public class RestfulServiceTest {
         assertThat(stageIdentifier, is(new StageIdentifier(pipeline, pipeline.getStages().byName(fixture.devStage))));
     }
 
-    private Pipeline createPipelineWithSameLabelButNoCounter(Pipeline pipeline) {
-        pipeline.setCounter(null);
-        return dbHelper.save(pipeline);
-    }
-
 }

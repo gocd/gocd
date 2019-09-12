@@ -36,6 +36,7 @@ public class AlphaAsciiCollectionComparatorTest {
             return value;
         }
 
+        @Override
         public int compareTo(Foo other) {
             return value.compareTo(other.value);
         }

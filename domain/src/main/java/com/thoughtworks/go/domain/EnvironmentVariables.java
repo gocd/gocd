@@ -23,8 +23,6 @@ import java.util.List;
 
 public class EnvironmentVariables extends BaseCollection<EnvironmentVariable> implements InsecureEnvironmentVariables {
 
-    private static final String JOB = EnvironmentVariableType.Job.toString();
-
     public EnvironmentVariables() {
     }
 

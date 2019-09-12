@@ -17,12 +17,16 @@ package com.thoughtworks.go.domain;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.ArtifactConfig;
+import com.thoughtworks.go.config.ArtifactConfigs;
+import com.thoughtworks.go.config.BuiltinArtifactConfig;
+import com.thoughtworks.go.config.PluggableArtifactConfig;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.work.GoPublisher;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.tools.ant.types.selectors.SelectorUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +39,6 @@ import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.util.FileUtil.subtractPath;
-import static com.thoughtworks.go.util.SelectorUtils.rtrimStandardrizedWildcardTokens;
 import static org.apache.commons.lang3.StringUtils.removeStart;
 
 public class ArtifactPlan extends PersistentObject {
@@ -205,7 +208,7 @@ public class ArtifactPlan extends PersistentObject {
     }
 
     protected String destinationURL(File rootPath, File file, String src, String dest) {
-        String trimmedPattern = rtrimStandardrizedWildcardTokens(src);
+        String trimmedPattern = SelectorUtils.rtrimWildcardTokens(FilenameUtils.separatorsToUnix(src).replace('/', File.separatorChar));
         if (StringUtils.equals(FilenameUtils.separatorsToUnix(trimmedPattern), FilenameUtils.separatorsToUnix(src))) {
             return dest;
         }

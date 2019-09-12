@@ -82,6 +82,7 @@ public class SCMMetadataStore extends PluginPreferenceStore<SCMPreference> {
         }
     }
 
+    @Override
     public boolean hasOption(String pluginId, String key, Option<Boolean> option) {
         SCMConfigurations configurations = getConfigurationMetadata(pluginId);
         if (configurations != null) {

@@ -33,6 +33,7 @@ public class ConsoleOutMatcher {
             public String set;
             public String override;
 
+            @Override
             public boolean matchesSafely(String consoleOut) {
                 this.consoleOut = consoleOut;
                 set = format("environment variable '%s' to value '%s'", key, value);
@@ -40,6 +41,7 @@ public class ConsoleOutMatcher {
                 return StringUtils.contains(consoleOut, set) || StringUtils.contains(consoleOut, override);
             }
 
+            @Override
             public void describeTo(Description description) {
                 description.appendText("expected console to contain [" + set + "] or [" + override + "]" + " but was " + consoleOut);
             }
@@ -51,12 +53,14 @@ public class ConsoleOutMatcher {
             private String consoleOut;
             public String stdout;
 
+            @Override
             public boolean matchesSafely(String consoleOut) {
                 this.consoleOut = consoleOut;
                 stdout = format("Start to prepare %s", jobIdentifer.toString());
                 return StringUtils.contains(consoleOut, stdout);
             }
 
+            @Override
             public void describeTo(Description description) {
                 description.appendText("expected console to contain [" + stdout + "]" + " but was " + consoleOut);
             }
@@ -68,12 +72,14 @@ public class ConsoleOutMatcher {
             private String consoleOut;
             public String stdout;
 
+            @Override
             public boolean matchesSafely(String consoleOut) {
                 this.consoleOut = consoleOut;
                 stdout = format("Start to build %s", jobIdentifer.toString());
                 return StringUtils.contains(consoleOut, stdout);
             }
 
+            @Override
             public void describeTo(Description description) {
                 description.appendText("expected console to contain [" + stdout + "]" + " but was " + consoleOut);
             }
@@ -85,12 +91,14 @@ public class ConsoleOutMatcher {
             private String consoleOut;
             public String stdout;
 
+            @Override
             public boolean matchesSafely(String consoleOut) {
                 this.consoleOut = consoleOut;
                 stdout = format("Start to upload %s", jobIdentifer.toString());
                 return StringUtils.contains(consoleOut, stdout);
             }
 
+            @Override
             public void describeTo(Description description) {
                 description.appendText("expected console to contain [" + stdout + "]" + " but was " + consoleOut);
             }
@@ -102,12 +110,14 @@ public class ConsoleOutMatcher {
             private String consoleOut;
             public String stdout;
 
+            @Override
             public boolean matchesSafely(String consoleOut) {
                 this.consoleOut = consoleOut;
                 stdout = format("Job completed %s", jobIdentifer.toString());
                 return StringUtils.contains(consoleOut, stdout);
             }
 
+            @Override
             public void describeTo(Description description) {
                 description.appendText("expected console to contain [" + stdout + "]"
                         + " but was " + consoleOut);
@@ -120,12 +130,14 @@ public class ConsoleOutMatcher {
             private String consoleOut;
             public String stdout;
 
+            @Override
             public boolean matchesSafely(String consoleOut) {
                 this.consoleOut = consoleOut;
                 stdout = format("Job is canceled %s", jobIdentifer.toString());
                 return StringUtils.contains(consoleOut, stdout);
             }
 
+            @Override
             public void describeTo(Description description) {
                 description.appendText("expected console to contain [" + stdout + "]"
                         + " but was " + consoleOut);
@@ -137,11 +149,13 @@ public class ConsoleOutMatcher {
         return new TypeSafeMatcher<String>() {
             private String consoleOut;
 
+            @Override
             public boolean matchesSafely(String consoleOut) {
                 this.consoleOut = consoleOut;
                 return StringUtils.contains(consoleOut.toLowerCase(), "build failed");
             }
 
+            @Override
             public void describeTo(Description description) {
                 description.appendText("expected console to contain [build failed] but was " + consoleOut);
             }
@@ -152,11 +166,13 @@ public class ConsoleOutMatcher {
         return new TypeSafeMatcher<List>() {
             private List states;
 
+            @Override
             public boolean matchesSafely(List states) {
                 this.states = states;
                 return states.contains(jobState);
             }
 
+            @Override
             public void describeTo(Description description) {
                 description.appendText("Expected console to contain [" + jobState + "] but was " + states);
             }
@@ -167,11 +183,13 @@ public class ConsoleOutMatcher {
         return new TypeSafeMatcher<List>() {
             private List results;
 
+            @Override
             public boolean matchesSafely(List states) {
                 this.results = states;
                 return states.contains(jobResult);
             }
 
+            @Override
             public void describeTo(Description description) {
                 description.appendText("Expected console to contain [" + jobResult + "] but was " + results);
             }
@@ -183,12 +201,14 @@ public class ConsoleOutMatcher {
             public String consoleOut;
             public String message;
 
+            @Override
             public boolean matchesSafely(String consoleOut) {
                 this.consoleOut = consoleOut;
                 this.message = "Failed to upload " + file.getAbsolutePath();
                 return StringUtils.contains(consoleOut.toLowerCase(), message.toLowerCase());
             }
 
+            @Override
             public void describeTo(Description description) {
                 description.appendText("Expected console to contain [" + message + "] but was " + consoleOut);
             }
@@ -200,6 +220,7 @@ public class ConsoleOutMatcher {
             public String consoleOut;
             public String message;
 
+            @Override
             public boolean matchesSafely(String consoleOut) {
                 this.consoleOut = consoleOut;
                 this.message = "The rule [" + rule + "] cannot match any resource under [" + root + "]";
@@ -207,6 +228,7 @@ public class ConsoleOutMatcher {
                 return StringUtils.contains(consoleOut, message);
             }
 
+            @Override
             public void describeTo(Description description) {
                 description.appendText("Expected console to contain [" + message + "] but was " + consoleOut);
             }
@@ -224,6 +246,7 @@ public class ConsoleOutMatcher {
             public String consoleOut;
             public String message;
 
+            @Override
             public boolean matchesSafely(String consoleOut) {
                 this.consoleOut = consoleOut;
                 if (StringUtils.isEmpty(args)) {
@@ -236,6 +259,7 @@ public class ConsoleOutMatcher {
                 return StringUtils.contains(consoleOut, message);
             }
 
+            @Override
             public void describeTo(Description description) {
                 description.appendText("Expected console to contain [" + message + "] but was " + consoleOut);
             }
@@ -247,12 +271,14 @@ public class ConsoleOutMatcher {
             public String consoleOut;
             public String message;
 
+            @Override
             public boolean matchesSafely(String consoleOut) {
                 this.consoleOut = consoleOut;
                 message = format("Please make sure [%s] can be executed on this agent", app);
                 return StringUtils.contains(consoleOut, message);
             }
 
+            @Override
             public void describeTo(Description description) {
                 description.appendText("Expected console to contain [" + message + "] but was " + consoleOut);
             }
@@ -264,12 +290,14 @@ public class ConsoleOutMatcher {
             public String consoleOut;
             public String message;
 
+            @Override
             public boolean matchesSafely(String consoleOut) {
                 this.consoleOut = consoleOut;
                 message = format("'%s' is not recognized as an internal or external command", app);
                 return StringUtils.contains(consoleOut, message);
             }
 
+            @Override
             public void describeTo(Description description) {
                 description.appendText("Expected console to contain [" + message + "] but was " + consoleOut);
             }
@@ -281,6 +309,7 @@ public class ConsoleOutMatcher {
             private List<UploadEntry> entries;
             private UploadEntry uploadEntry;
 
+            @Override
             public boolean matchesSafely(List<UploadEntry> entries) {
                 this.entries = entries;
 
@@ -288,6 +317,7 @@ public class ConsoleOutMatcher {
                 return entries.contains(uploadEntry);
             }
 
+            @Override
             public void describeTo(Description description) {
                 description.appendText("Expected console to contain [" + uploadEntry + "] but was " + entries);
             }

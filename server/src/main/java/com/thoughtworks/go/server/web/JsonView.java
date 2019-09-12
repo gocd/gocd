@@ -41,6 +41,7 @@ public class JsonView extends AbstractView {
         return new JsonFakeMap(json);
     }
 
+    @Override
     protected void renderMergedOutputModel(Map map, HttpServletRequest httpServletRequest,
                                            HttpServletResponse httpServletResponse) throws Exception {
         if (requestContext == null) {

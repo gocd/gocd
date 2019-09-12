@@ -164,6 +164,7 @@ project.ext.compilerOptions = [
 
 rootProject.ext.versions = [
   tanuki              : '3.5.37',
+  apacheAnt           : '1.10.6',
   apacheHttpComponents: '4.5.6',
   assertJ             : '3.12.2',
   bouncyCastle        : '1.59', // bouncycastle version has to be compatible with the jruby version
@@ -387,6 +388,7 @@ subprojects {
 
   if (!project.fileTree("src/main/java").files.isEmpty()) {
     apply plugin: 'java'
+    apply plugin: 'pmd'
     apply plugin: 'com.github.jk1.dependency-license-report'
 
     dependencyUpdates.resolutionStrategy {
@@ -452,6 +454,14 @@ subprojects {
       archiveClassifier = 'tests'
       from sourceSets.test.output
     }
+
+    pmd {
+      ignoreFailures = true
+      toolVersion = '6.17.0'
+      ruleSetFiles = files(rootProject.file('buildSrc/pmd.xml'))
+      ruleSets = []
+      incrementalAnalysis = true
+    }
   }
 
   task cleanLogs(type: Delete) {
@@ -504,6 +514,10 @@ subprojects {
       standardOutput = new ByteArrayOutputStream()
       errorOutput = new ByteArrayOutputStream()
     }
+  }
+
+  tasks.withType(GroovyCompile).configureEach {
+    options.incremental = true
   }
 
   tasks.withType(JavaCompile) { compileTask ->
@@ -1015,7 +1029,6 @@ task newSPA {
     }
   }
 }
-
 
 task removeApi {
   description = "Helper to create a delete an api module. Pass `-PapiName=roles-config -PapiVersion=v1`"

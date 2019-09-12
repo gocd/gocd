@@ -111,6 +111,7 @@ public class PipelineLockService implements ConfigChangedListener {
         return locked == null || locked.pipelineIdentifier().equals(pipeline);
     }
 
+    @Override
     public void onConfigChange(CruiseConfig newCruiseConfig) {
         for (String lockedPipeline : pipelineStateDao.lockedPipelines()) {
             if (!newCruiseConfig.hasPipelineNamed(new CaseInsensitiveString(lockedPipeline)) || !newCruiseConfig.isPipelineLockable(lockedPipeline)) {

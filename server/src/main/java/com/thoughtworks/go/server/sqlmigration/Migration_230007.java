@@ -15,31 +15,30 @@
  */
 package com.thoughtworks.go.server.sqlmigration;
 
+import org.h2.api.Trigger;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-
-import org.slf4j.Logger;
-import org.h2.api.Trigger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @understands
  */
 public class Migration_230007 implements Trigger {
 
-    private static final Logger LOG = LoggerFactory.getLogger(Migration_230007.class);
     private static final int STATE_TRANSITION_TIMESTAMP = 2;
     private static final int STAGE_ID = 4;
     private PreparedStatement statement;
 
+    @Override
     public void init(Connection connection, String schemaName, String triggerName, String tableName, boolean before, int type) throws SQLException {
         statement = connection.prepareStatement("UPDATE stages "
                 + "SET lastTransitionedTime = ? "
                 + "WHERE stages.id = ?");
     }
 
+    @Override
     public void fire(Connection connection, Object[] oldRows, Object[] newRows) throws SQLException {
         statement.setTimestamp(1, (Timestamp) newRows[STATE_TRANSITION_TIMESTAMP]);
         statement.setLong(2, (Long) newRows[STAGE_ID]);
@@ -47,9 +46,11 @@ public class Migration_230007 implements Trigger {
         statement.execute();
     }
 
+    @Override
     public void close() {
     }
 
+    @Override
     public void remove() {
     }
 }

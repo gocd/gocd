@@ -40,10 +40,12 @@ public class LegacyMaterialChecker implements ModificationSource {
         this.execCtx = execCtx;
     }
 
+    @Override
     public List<Modification> findModificationsSince(File workingFolder, Material material, MaterialRevision revision) {
         return materialService.modificationsSince(material, workingFolder, revision.getRevision(), execCtx);
     }
 
+    @Override
     public List<Modification> findLatestModification(File workingFolder, Material material, final SubprocessExecutionContext execCtx) {
         List<Modification> modifications = materialService.latestModification(material, workingFolder, execCtx);
         if (modifications.isEmpty()) {

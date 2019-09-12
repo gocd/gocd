@@ -74,6 +74,7 @@ public class TaskViewService implements TaskFactory {
         return registry.getViewModelFor(task, actionName);
     }
 
+    @Override
     public Task taskInstanceFor(String type) {
         if("fetch".equals(type)) {
             return new FetchTaskAdapter();

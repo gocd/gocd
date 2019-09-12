@@ -75,6 +75,7 @@ public class ConsoleActivityMonitorTest {
         when(goConfigService.canCancelJobIfHung(any(JobIdentifier.class))).thenReturn(true);
 
         doAnswer(new Answer<Object>() {
+            @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 listener = (ConsoleActivityMonitor.ActiveJobListener) invocation.getArguments()[0];
                 return null;

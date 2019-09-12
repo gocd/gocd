@@ -59,10 +59,13 @@ public abstract class AbstractDashboardGroup implements DashboardGroup {
                 .collect(toList());
     }
 
+    @Override
     public abstract boolean canAdminister(Username username);
 
+    @Override
     public abstract String etag();
 
+    @Override
     public boolean hasDefinedPipelines() {
         return hasDefinedPipelines;
     }

@@ -23,10 +23,12 @@ import java.sql.Timestamp;
 import java.util.Date;
 
 public class SystemTimeClock implements Clock, Serializable {
+    @Override
     public Date currentTime() {
         return new Date();
     }
 
+    @Override
     public DateTime currentDateTime() {
         return new DateTime(currentTime());
     }
@@ -36,22 +38,27 @@ public class SystemTimeClock implements Clock, Serializable {
         return new Timestamp(currentTimeMillis());
     }
 
+    @Override
     public long currentTimeMillis() {
         return System.currentTimeMillis();
     }
 
+    @Override
     public void sleepForSeconds(long seconds) throws InterruptedException {
         sleepForMillis(seconds * 1000);
     }
 
+    @Override
     public void sleepForMillis(long millis) throws InterruptedException {
         Thread.sleep(millis);
     }
 
+    @Override
     public DateTime timeoutTime(Timeout timeout) {
         return timeoutTime(timeout.inMillis());
     }
 
+    @Override
     public DateTime timeoutTime(long timeoutInMillis) {
         return new DateTime().plusMillis((int) timeoutInMillis);
     }

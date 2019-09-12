@@ -38,6 +38,7 @@ public final class StreamLogger implements StreamConsumer {
         return new StreamLogger(log, Level.WARN);
     }
 
+    @Override
     public void consumeLine(String line) {
         switch(level){
             case ERROR:

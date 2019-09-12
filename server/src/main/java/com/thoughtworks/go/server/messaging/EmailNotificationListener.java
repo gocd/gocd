@@ -49,6 +49,7 @@ public class EmailNotificationListener implements GoMessageListener<SendEmailMes
         this.factory = factory;
     }
 
+    @Override
     public void onMessage(SendEmailMessage message) {
         CruiseConfig cruiseConfig = goConfigService.currentCruiseConfig();
         if (!cruiseConfig.isMailHostConfigured()) {

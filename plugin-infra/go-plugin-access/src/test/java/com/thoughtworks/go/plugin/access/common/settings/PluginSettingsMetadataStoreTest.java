@@ -16,7 +16,6 @@
 package com.thoughtworks.go.plugin.access.common.settings;
 
 import com.thoughtworks.go.plugin.api.config.Property;
-import com.thoughtworks.go.plugin.domain.common.PluginConstants;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

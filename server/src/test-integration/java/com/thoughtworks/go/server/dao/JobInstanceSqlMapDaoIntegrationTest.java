@@ -30,7 +30,6 @@ import com.thoughtworks.go.helper.BuildPlanMother;
 import com.thoughtworks.go.helper.JobInstanceMother;
 import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.server.cache.GoCache;
-import com.thoughtworks.go.server.messaging.JobStatusListener;
 import com.thoughtworks.go.server.service.InstanceFactory;
 import com.thoughtworks.go.server.service.JobInstanceService;
 import com.thoughtworks.go.server.service.ScheduleService;
@@ -64,7 +63,6 @@ import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -97,8 +95,6 @@ public class JobInstanceSqlMapDaoIntegrationTest {
     private GoConfigDao goConfigDao;
     @Autowired
     private InstanceFactory instanceFactory;
-    @Autowired
-    private JobStatusListener jobStatusListener;
 
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
 
@@ -337,6 +333,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
 
     private JobInstance savedJobForAgent(final String jobName, final String uuid, final boolean runOnAllAgents, final boolean runMultipleInstance) {
         return (JobInstance) transactionTemplate.execute(new TransactionCallback() {
+            @Override
             public Object doInTransaction(TransactionStatus status) {
                 JobInstance jobInstance = scheduled(jobName, new DateTime().plusMinutes(1).toDate());
                 jobInstance.setRunOnAllAgents(runOnAllAgents);
@@ -364,14 +361,6 @@ public class JobInstanceSqlMapDaoIntegrationTest {
         assertThat(actual.isNull(), is(false));
     }
 
-    private JobInstance[] createJobs(final String name, int count) {
-        JobInstance[] before = new JobInstance[count];
-        for (int i = 0; i < count; i++) {
-            before[i] = saveJob(name + "-" + i);
-        }
-        return before;
-    }
-
     @Test
     public void shouldLogStatusUpdatesOfCompletedJobs() throws Exception {
         try (LogFixture logFixture = logFixtureFor(JobInstanceSqlMapDao.class, Level.DEBUG)) {
@@ -388,12 +377,6 @@ public class JobInstanceSqlMapDaoIntegrationTest {
             complete(instance);
         }
         return instances;
-    }
-
-    private JobInstance saveJob(String jobName) {
-        JobInstance jobInstance = JobInstanceMother.completed(jobName, JobResult.Passed);
-        jobInstanceDao.save(stageId, jobInstance);
-        return jobInstance;
     }
 
     private JobInstance runningJob(final String name) {

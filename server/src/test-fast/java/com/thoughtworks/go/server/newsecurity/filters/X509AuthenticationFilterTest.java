@@ -23,7 +23,6 @@ import com.thoughtworks.go.http.mocks.MockHttpServletResponse;
 import com.thoughtworks.go.http.mocks.MockHttpSession;
 import com.thoughtworks.go.security.Registration;
 import com.thoughtworks.go.security.X509CertificateGenerator;
-import com.thoughtworks.go.server.newsecurity.models.AccessToken;
 import com.thoughtworks.go.server.newsecurity.models.AgentToken;
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
 import com.thoughtworks.go.server.newsecurity.models.X509Credential;

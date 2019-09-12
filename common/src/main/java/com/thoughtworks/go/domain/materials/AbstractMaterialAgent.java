@@ -38,6 +38,7 @@ public class AbstractMaterialAgent implements MaterialAgent {
         this.execCtx = execCtx;
     }
 
+    @Override
     public void prepare() {
         revision.updateTo(workingDirectory, consumer, this.execCtx);
     }

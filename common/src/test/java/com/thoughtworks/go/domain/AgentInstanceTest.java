@@ -142,6 +142,7 @@ public class AgentInstanceTest {
     @Test
     public void shouldNotifyAgentChangeListenerOnRefreshAndMarkedLostContact() throws Exception {
         AgentInstance instance = AgentInstance.createFromConfig(agentConfig, new SystemEnvironment() {
+            @Override
             public int getAgentConnectionTimeout() {
                 return -1;
             }
@@ -384,6 +385,7 @@ public class AgentInstanceTest {
     @Test
     public void shouldBeLostContactWhenLastHeardTimeExeedTimeOut() {
         AgentInstance instance = AgentInstance.createFromConfig(agentConfig, new SystemEnvironment() {
+            @Override
             public int getAgentConnectionTimeout() {
                 return -1;
             }
@@ -399,6 +401,7 @@ public class AgentInstanceTest {
     public void shouldRefreshDisabledAgent() throws Exception {
         agentConfig.disable();
         AgentInstance instance = AgentInstance.createFromConfig(agentConfig, new SystemEnvironment() {
+            @Override
             public int getAgentConnectionTimeout() {
                 return -1;
             }

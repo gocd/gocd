@@ -45,16 +45,19 @@ public class RolesConfig extends BaseCollection<Role> implements Validatable {
         super(roles);
     }
 
+    @Override
     public void validate(ValidationContext validationContext) {
         if (new HashSet<>(roleNames()).size() != roleNames().size()) {
             this.configErrors.add("name", "Role names should be unique. Duplicate names found.");
         }
     }
 
+    @Override
     public ConfigErrors errors() {
         return configErrors;
     }
 
+    @Override
     public void addError(String fieldName, String message) {
         configErrors.add(fieldName, message);
     }

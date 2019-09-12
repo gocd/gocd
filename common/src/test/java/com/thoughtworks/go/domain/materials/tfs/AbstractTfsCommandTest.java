@@ -72,7 +72,7 @@ public class AbstractTfsCommandTest {
         });
     }
 
-    public void verifyMocks() throws IOException {
+    private void verifyMocks() throws IOException {
         verify(tfsCommand, times(1)).initializeWorkspace(workDir);
         verify(tfsCommand, times(1)).unMap(workDir);
     }

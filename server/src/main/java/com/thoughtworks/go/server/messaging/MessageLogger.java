@@ -30,6 +30,7 @@ public class MessageLogger implements GoMessageListener {
         jobStatusTopic.addListener(this);
     }
 
+    @Override
     public void onMessage(GoMessage message) {
         LOG.debug("{}", message);
     }

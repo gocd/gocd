@@ -20,21 +20,9 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd">
 
-    <context:annotation-config/>
+  <context:annotation-config/>
+  <context:component-scan base-package="com.thoughtworks.go.plugin.infra"/>
 
-    <bean id="defaultPluginJarChangeListener" class="com.thoughtworks.go.plugin.infra.listeners.DefaultPluginJarChangeListener" />
-    <bean id="defaultPluginJarLocationMonitor" class="com.thoughtworks.go.plugin.infra.monitor.DefaultPluginJarLocationMonitor" />
-    <bean id="defaultPluginRegistry" class="com.thoughtworks.go.plugin.infra.plugininfo.DefaultPluginRegistry" />
-    <bean id="goPluginDescriptorBuilder" class="com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptorBuilder" />
-    <bean id="pluginWriter" class="com.thoughtworks.go.plugin.infra.PluginWriter" />
-    <bean id="pluginValidator" class="com.thoughtworks.go.plugin.infra.PluginValidator" />
-    <bean id="goFileSystem" class="com.thoughtworks.go.plugin.infra.commons.GoFileSystem" />
-    <bean id="defaultPluginManager" class="com.thoughtworks.go.plugin.infra.DefaultPluginManager"  />
-    <bean id="felixGoPluginOSGiFramework" class="com.thoughtworks.go.plugin.infra.FelixGoPluginOSGiFramework" />
-    <bean id="defaultGoPluginOSGiManifestCreator" class="com.thoughtworks.go.plugin.infra.plugininfo.GoPluginOSGiManifest$DefaultGoPluginOSGiManifestCreator" />
-    <bean id="pluginRequestProcessorRegistry" class="com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry" />
-
-    <bean id="pluginsZip"  class="com.thoughtworks.go.plugin.infra.commons.PluginsZip"/>
-    <bean id="zipUtil" class="com.thoughtworks.go.util.ZipUtil"/>
-    <bean id="systemEnvironment" class="com.thoughtworks.go.util.SystemEnvironment"/>
+  <bean id="zipUtil" class="com.thoughtworks.go.util.ZipUtil"/>
+  <bean id="systemEnvironment" class="com.thoughtworks.go.util.SystemEnvironment"/>
 </beans>

@@ -22,7 +22,6 @@ import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.domain.builder.pluggableTask.PluggableTaskBuilder;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
-import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.server.service.UpstreamPipelineResolver;
 import org.junit.After;
 import org.junit.Before;

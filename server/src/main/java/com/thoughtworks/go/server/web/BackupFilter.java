@@ -24,10 +24,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
-import org.springframework.web.context.support.SpringBeanAutowiringSupport;
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.HtmlUtils;
 
-import javax.servlet.*;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -38,16 +41,19 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 /**
  * @understands redirecting all requests to a service unavailable page when the server is being backed up.
  */
-public class BackupFilter implements Filter {
+@Component
+public class BackupFilter extends OncePerRequestFilter {
+    private final static Logger LOGGER = LoggerFactory.getLogger(BackupFilter.class);
 
     public static final String JSON = "json";
     public static final String XML = "xml";
 
-    @Autowired
-    private BackupService backupService;
+    private final BackupService backupService;
 
-    // For the Test
-    private final static Logger LOGGER = LoggerFactory.getLogger(BackupFilter.class);
+    @Autowired
+    public BackupFilter(BackupService backupService) {
+        this.backupService = backupService;
+    }
 
     private static final OrRequestMatcher REQUESTS_ALLOWED_WHILE_BACKUP_RUNNING_MATCHER = new OrRequestMatcher(
             new RegexRequestMatcher("/api/backups/(\\d+|running)", "GET", true),
@@ -56,35 +62,19 @@ public class BackupFilter implements Filter {
             new RegexRequestMatcher("/assets/.*", "GET", true)
     );
 
-    // For the Test
-    protected BackupFilter(BackupService backupService) {
-        this.backupService = backupService;
-    }
-
-    public BackupFilter() {
-    }
-
     @Override
-    public void init(FilterConfig filterConfig) {
-    }
-
-    @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        if (backupService == null) {
-            SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
-        }
-
-        String url = ((HttpServletRequest) request).getRequestURI();
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
+        String url = request.getRequestURI();
         if (isBackupFinishJsonUrl(url)) {
-            ((HttpServletResponse) response).setHeader("Cache-Control", "private, max-age=0, no-cache");
-            ((HttpServletResponse) response).setDateHeader("Expires", 0);
+            response.setHeader("Cache-Control", "private, max-age=0, no-cache");
+            response.setDateHeader("Expires", 0);
             generateResponseForIsBackupFinishedAPI(response);
             return;
         }
-        if (backupService.isBackingUp() && !isWhitelisted((HttpServletRequest) request)) {
+        if (backupService.isBackingUp() && !isWhitelisted(request)) {
             String json = "Server is under maintenance mode, please try later.";
             String htmlResponse = generateHTMLResponse();
-            new ServerUnavailabilityResponse((HttpServletRequest) request, (HttpServletResponse) response, json, htmlResponse).render();
+            new ServerUnavailabilityResponse(request, response, json, htmlResponse).render();
         } else {
             chain.doFilter(request, response);
         }
@@ -96,9 +86,10 @@ public class BackupFilter implements Filter {
 
     private String generateHTMLResponse() throws IOException {
         String path = "backup_in_progress.html";
-        InputStream resourceAsStream = getClass().getClassLoader().getResourceAsStream(path);
-        String content = IOUtils.toString(resourceAsStream, UTF_8);
-        return replaceStringLiterals(content);
+        try (InputStream resourceAsStream = getClass().getClassLoader().getResourceAsStream(path)) {
+            String content = IOUtils.toString(resourceAsStream, UTF_8);
+            return replaceStringLiterals(content);
+        }
     }
 
     String replaceStringLiterals(String content) {

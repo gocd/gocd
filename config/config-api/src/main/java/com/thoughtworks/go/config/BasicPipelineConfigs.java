@@ -255,6 +255,7 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
         return !authorization.equals(new Authorization());
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -278,6 +279,7 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
         return true;
     }
 
+    @Override
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + (group != null ? group.hashCode() : 0);
@@ -442,6 +444,7 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
         }
     }
 
+    @Override
     public PipelineConfigs getLocal() {
         if (this.isLocal())
             return this;

@@ -36,10 +36,12 @@ public class BuildArtifactConfig extends BuiltinArtifactConfig {
         return StringUtils.isBlank(destination) ? DEFAULT_ROOT.getPath() : FilenameUtils.separatorsToUnix(destination);
     }
 
+    @Override
     public ArtifactType getArtifactType() {
         return ArtifactType.build;
     }
 
+    @Override
     public String getArtifactTypeValue() {
         return ARTIFACT_PLAN_DISPLAY_NAME;
     }

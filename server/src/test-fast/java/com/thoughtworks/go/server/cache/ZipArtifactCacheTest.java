@@ -121,6 +121,7 @@ public class ZipArtifactCacheTest {
             return artifact != null;
         }
 
+        @Override
         public void run() {
             try {
                 while (!zipArtifactCache.cacheCreated(artifactFolder)) {
@@ -136,6 +137,7 @@ public class ZipArtifactCacheTest {
 
     private TypeSafeMatcher<ZipArtifactCache> cacheCreated(final ArtifactFolder artifactFolder) {
         return new TypeSafeMatcher<ZipArtifactCache>() {
+            @Override
             public boolean matchesSafely(ZipArtifactCache item) {
                 try {
                     return item.cacheCreated(artifactFolder);
@@ -144,6 +146,7 @@ public class ZipArtifactCacheTest {
                 }
             }
 
+            @Override
             public void describeTo(Description description) {
                 description.appendText("cacheCreated from " + artifactFolder);
             }

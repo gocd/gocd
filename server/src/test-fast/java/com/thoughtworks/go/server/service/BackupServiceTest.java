@@ -44,9 +44,7 @@ import java.util.Optional;
 
 import static com.thoughtworks.go.server.service.BackupService.ABORTED_BACKUPS_MESSAGE;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 public class BackupServiceTest {

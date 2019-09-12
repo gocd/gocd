@@ -35,6 +35,7 @@ public class ScheduleCheckListener implements GoMessageListener<ScheduleCheckMes
         this.schedulingPerformanceLogger = schedulingPerformanceLogger;
     }
 
+    @Override
     public void onMessage(ScheduleCheckMessage message) {
         LOGGER.debug("ScheduleCheckMessage for {} is received", message.getPipelineName());
         try {

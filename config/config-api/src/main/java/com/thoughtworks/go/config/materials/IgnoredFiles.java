@@ -43,6 +43,7 @@ public class IgnoredFiles implements Serializable, Validatable {
         this.pattern = pattern;
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -54,6 +55,7 @@ public class IgnoredFiles implements Serializable, Validatable {
         return !(pattern != null ? !pattern.equals(ignore.pattern) : ignore.pattern != null);
     }
 
+    @Override
     public int hashCode() {
         return (pattern != null ? pattern.hashCode() : 1);
     }
@@ -96,6 +98,7 @@ public class IgnoredFiles implements Serializable, Validatable {
         return result.toString();
     }
 
+    @Override
     public String toString() {
         return "The ignore pattern is [" + pattern + "]";
     }
@@ -104,13 +107,16 @@ public class IgnoredFiles implements Serializable, Validatable {
         return pattern;
     }
 
+    @Override
     public void validate(ValidationContext validationContext) {
     }
 
+    @Override
     public ConfigErrors errors() {
         return configErrors;
     }
 
+    @Override
     public void addError(String fieldName, String message) {
         configErrors.add(fieldName, message);
     }

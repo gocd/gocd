@@ -63,6 +63,7 @@ public class H2Database implements Database {
         return "h2";
     }
 
+    @Override
     public void startDatabase() {
         if (systemEnvironment.inDbDebugMode()) {
             if (tcpServer != null) {
@@ -129,6 +130,7 @@ public class H2Database implements Database {
         source.setMaxIdle(configuration.getMaxIdle());
     }
 
+    @Override
     public BasicDataSource createDataSource() {
         return createDataSource(Boolean.TRUE);
     }
@@ -146,6 +148,7 @@ public class H2Database implements Database {
                 + ";DATABASE_EVENT_LISTENER='" + H2EventListener.class.getName() + "'";
     }
 
+    @Override
     public void upgrade() throws SQLException {
         BasicDataSource source = createDataSource(Boolean.FALSE);
         if (systemEnvironment.inDbDebugMode()) {
@@ -158,6 +161,7 @@ public class H2Database implements Database {
         shutdown();
     }
 
+    @Override
     public void shutdown() throws SQLException {
         if (systemEnvironment.inDbDebugMode()) {
             LOG.info("Shutting down database server.");
@@ -180,6 +184,7 @@ public class H2Database implements Database {
         }
     }
 
+    @Override
     public void backup(File file) {
         try (Connection connection = createDataSource().getConnection()) {
             Statement statement = connection.createStatement();

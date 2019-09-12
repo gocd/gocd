@@ -31,14 +31,17 @@ public class JsonFakeMap extends LinkedHashMap<String, Object> {
         super.put("json", json);
     }
 
+    @Override
     public Object put(String s, Object json) {
         throw bomb("This is a fake map with a single list element");
     }
 
+    @Override
     public void putAll(Map map) {
         throw bomb("This is a fake map with a single list element");
     }
 
+    @Override
     public Object get(Object o) {
         if (json instanceof JsonAware){
             return ((JsonAware) json).toJson();

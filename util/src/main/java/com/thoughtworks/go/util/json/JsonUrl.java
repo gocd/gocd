@@ -22,10 +22,12 @@ public class JsonUrl implements JsonAware {
         this.url = url;
     }
 
+    @Override
     public Object toJson() {
         return this;
     }
 
+    @Override
     public String toString() {
         return "[JsonUrl:" + url + "]";
     }

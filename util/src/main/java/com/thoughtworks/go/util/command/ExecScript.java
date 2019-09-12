@@ -31,6 +31,7 @@ public class ExecScript implements Script, StreamConsumer {
      *
      * @param line the line of output to parse
      */
+    @Override
     public synchronized void consumeLine(final String line) {
 
         // check if the output contains the error string
@@ -45,6 +46,7 @@ public class ExecScript implements Script, StreamConsumer {
     /**
      * @return returns the exitcode of the command
      */
+    @Override
     public int getExitCode() {
         return exitCode;
     } // getExitCode
@@ -52,6 +54,7 @@ public class ExecScript implements Script, StreamConsumer {
     /**
      * @param exitCode the exit code value to set.
      */
+    @Override
     public void setExitCode(int exitCode) {
         this.exitCode = exitCode;
     } // setExitCode

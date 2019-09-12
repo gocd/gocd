@@ -37,6 +37,7 @@ public class BaseUrlChangeListener implements ConfigChangedListener {
         this.goCache = goCache;
     }
 
+    @Override
     public void onConfigChange(CruiseConfig newCruiseConfig) {
         ServerConfig newServerConfig = newCruiseConfig.server();
         ServerSiteUrlConfig newSecureSiteUrl = newServerConfig.getSecureSiteUrl();

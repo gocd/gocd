@@ -59,10 +59,12 @@ public class DefaultSchedulingContext implements SchedulingContext {
         this.clusterProfiles = clusterProfiles;
     }
 
+    @Override
     public String getApprovedBy() {
         return approvedBy;
     }
 
+    @Override
     public Agents findAgentsMatching(ResourceConfigs resourceConfigs) {
         Agents found = new Agents();
         for (AgentConfig agent : agents) {
@@ -73,10 +75,12 @@ public class DefaultSchedulingContext implements SchedulingContext {
         return found;
     }
 
+    @Override
     public EnvironmentVariablesConfig getEnvironmentVariablesConfig() {
         return variables;
     }
 
+    @Override
     public SchedulingContext overrideEnvironmentVariables(EnvironmentVariablesConfig environmentVariablesConfig) {
         DefaultSchedulingContext context = new DefaultSchedulingContext(approvedBy, new Agents(agents), profiles, clusterProfiles);
         context.variables = variables.overrideWith(environmentVariablesConfig);
@@ -84,6 +88,7 @@ public class DefaultSchedulingContext implements SchedulingContext {
         return context;
     }
 
+    @Override
     public SchedulingContext permittedAgent(String permittedAgentUuid) {
         Agents permitted = new Agents();
         for (AgentConfig agent : agents) {
@@ -97,10 +102,12 @@ public class DefaultSchedulingContext implements SchedulingContext {
         return context;
     }
 
+    @Override
     public boolean isRerun() {
         return rerun;
     }
 
+    @Override
     public SchedulingContext rerunContext() {
         DefaultSchedulingContext context = new DefaultSchedulingContext(approvedBy, agents, profiles, clusterProfiles);
         context.variables = variables.overrideWith(new EnvironmentVariablesConfig());

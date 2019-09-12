@@ -19,10 +19,6 @@ import com.google.gson.JsonObject;
 import com.thoughtworks.go.http.mocks.HttpRequestBuilder;
 import com.thoughtworks.go.server.service.MaintenanceModeService;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.eclipse.jetty.http.*;
-import org.eclipse.jetty.server.HttpChannel;
-import org.eclipse.jetty.server.HttpInput;
-import org.eclipse.jetty.server.Request;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -31,7 +27,6 @@ import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
-import java.util.Date;
 
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -210,7 +205,7 @@ class ModeAwareFilterTest {
     }
 
     @Test
-    public void shouldReturn503WhenPOSTCallIsMadeWhileServerIsInMaintenanceMode() throws Exception {
+    void shouldReturn503WhenPOSTCallIsMadeWhileServerIsInMaintenanceMode() throws Exception {
         when(systemEnvironment.isServerActive()).thenReturn(true);
         when(maintenanceModeService.updatedBy()).thenReturn("Bob");
         when(maintenanceModeService.updatedOn()).thenReturn("date");
@@ -228,7 +223,7 @@ class ModeAwareFilterTest {
     }
 
     @Test
-    public void shouldAllowStageCancelPOSTCallWhileServerIsInMaintenanceMode() throws Exception {
+    void shouldAllowStageCancelPOSTCallWhileServerIsInMaintenanceMode() throws Exception {
         when(systemEnvironment.isServerActive()).thenReturn(true);
         when(maintenanceModeService.isMaintenanceMode()).thenReturn(true);
 
@@ -240,7 +235,7 @@ class ModeAwareFilterTest {
     }
 
     @Test
-    public void shouldAllowStageCancelPOSTNewAPICallWhileServerIsInMaintenanceMode() throws Exception {
+    void shouldAllowStageCancelPOSTNewAPICallWhileServerIsInMaintenanceMode() throws Exception {
         when(systemEnvironment.isServerActive()).thenReturn(true);
         when(maintenanceModeService.isMaintenanceMode()).thenReturn(true);
 
@@ -252,7 +247,7 @@ class ModeAwareFilterTest {
     }
 
     @Test
-    public void shouldAllowMaintenanceModeTogglePOSTCallWhileServerIsInMaintenanceMode() throws Exception {
+    void shouldAllowMaintenanceModeTogglePOSTCallWhileServerIsInMaintenanceMode() throws Exception {
         when(systemEnvironment.isServerActive()).thenReturn(true);
         when(maintenanceModeService.isMaintenanceMode()).thenReturn(true);
 
@@ -264,7 +259,7 @@ class ModeAwareFilterTest {
     }
 
     @Test
-    public void shouldAllowBackupsPOSTApiCallWhileServerIsInMaintenanceMode() throws Exception {
+    void shouldAllowBackupsPOSTApiCallWhileServerIsInMaintenanceMode() throws Exception {
         when(systemEnvironment.isServerActive()).thenReturn(true);
         when(maintenanceModeService.isMaintenanceMode()).thenReturn(true);
 
@@ -276,7 +271,7 @@ class ModeAwareFilterTest {
     }
 
     @Test
-    public void shouldAllowBackupsPOSTCallInvokedViaUIWhileServerIsInMaintenanceMode() throws Exception {
+    void shouldAllowBackupsPOSTCallInvokedViaUIWhileServerIsInMaintenanceMode() throws Exception {
         when(systemEnvironment.isServerActive()).thenReturn(true);
         when(maintenanceModeService.isMaintenanceMode()).thenReturn(true);
 
@@ -288,7 +283,7 @@ class ModeAwareFilterTest {
     }
 
     @Test
-    public void shouldAllowAgentRemotingPOSTCallInvokedViaAgentWhileServerIsInMaintenanceMode() throws Exception {
+    void shouldAllowAgentRemotingPOSTCallInvokedViaAgentWhileServerIsInMaintenanceMode() throws Exception {
         when(systemEnvironment.isServerActive()).thenReturn(true);
         when(maintenanceModeService.isMaintenanceMode()).thenReturn(true);
 
@@ -300,7 +295,7 @@ class ModeAwareFilterTest {
     }
 
     @Test
-    public void shouldAllowAgentRemotingPUTCallInvokedViaAgentWhileServerIsInMaintenanceMode() throws Exception {
+    void shouldAllowAgentRemotingPUTCallInvokedViaAgentWhileServerIsInMaintenanceMode() throws Exception {
         when(systemEnvironment.isServerActive()).thenReturn(true);
         when(maintenanceModeService.isMaintenanceMode()).thenReturn(true);
 
@@ -312,7 +307,7 @@ class ModeAwareFilterTest {
     }
 
     @Test
-    public void shouldReturn503WhenPOSTAPICallIsMadeWhileServerIsInMaintenanceMode() throws Exception {
+    void shouldReturn503WhenPOSTAPICallIsMadeWhileServerIsInMaintenanceMode() throws Exception {
         when(systemEnvironment.isServerActive()).thenReturn(true);
         when(maintenanceModeService.updatedBy()).thenReturn("Bob");
         when(maintenanceModeService.updatedOn()).thenReturn("date");
@@ -332,13 +327,4 @@ class ModeAwareFilterTest {
         verify(response).setStatus(503);
     }
 
-    private Request request(HttpMethod method, String contentType, String uri) {
-        Request request = new Request(mock(HttpChannel.class), mock(HttpInput.class));
-        HttpURI httpURI = new HttpURI("https", "url", 8153, uri);
-        MetaData.Request metadata = new MetaData.Request(method.asString(), httpURI, HttpVersion.HTTP_2, new HttpFields());
-        request.setMetaData(metadata);
-        request.setContentType(contentType);
-        request.setHttpURI(httpURI);
-        return request;
-    }
 }

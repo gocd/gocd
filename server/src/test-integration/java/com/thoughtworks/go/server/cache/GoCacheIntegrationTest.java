@@ -15,22 +15,13 @@
  */
 package com.thoughtworks.go.server.cache;
 
-import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.config.GoConfigDao;
-import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
-import com.thoughtworks.go.domain.MaterialInstance;
-import com.thoughtworks.go.domain.NullUser;
 import com.thoughtworks.go.domain.User;
-import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.UserSqlMapDao;
-import com.thoughtworks.go.server.database.DatabaseStrategy;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import com.thoughtworks.go.util.LogFixture;
-import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.junit.After;
 import org.junit.Before;
@@ -44,13 +35,7 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
-import java.io.IOException;
-import java.util.Arrays;
-
-import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.*;
 

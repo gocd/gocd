@@ -67,7 +67,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
-import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -82,12 +81,7 @@ import static com.thoughtworks.go.helper.ModificationsMother.*;
 import static com.thoughtworks.go.server.dao.PersistentObjectMatchers.hasSameId;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 import static com.thoughtworks.go.util.IBatisUtil.arguments;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.*;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.*;
 
 
@@ -106,8 +100,6 @@ public class PipelineSqlMapDaoIntegrationTest {
     @Autowired
     private JobInstanceDao jobInstanceDao;
     @Autowired
-    private DataSource dataSource;
-    @Autowired
     private DatabaseAccessHelper dbHelper;
     @Autowired
     private MaterialRepository materialRepository;
@@ -125,8 +117,6 @@ public class PipelineSqlMapDaoIntegrationTest {
     private InstanceFactory instanceFactory;
     @Autowired
     private DependencyMaterialUpdateNotifier notifier;
-    @Autowired
-    private TimeProvider timeProvider;
 
     private String md5 = "md5-test";
     private ScheduleTestUtil u;
@@ -396,6 +386,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     private Matcher<PipelineInstanceModels> hasPipeline(final Pipeline pipeline) {
         return new BaseMatcher<PipelineInstanceModels>() {
 
+            @Override
             public boolean matches(Object o) {
                 if (o instanceof PipelineInstanceModels) {
                     PipelineInstanceModels pipelineInstanceModels = (PipelineInstanceModels) o;
@@ -408,6 +399,7 @@ public class PipelineSqlMapDaoIntegrationTest {
                 return false;
             }
 
+            @Override
             public void describeTo(Description description) {
                 description.appendText("expected pipline " + pipeline.getName() + " with counter " + pipeline.getCounter());
             }
@@ -770,23 +762,6 @@ public class PipelineSqlMapDaoIntegrationTest {
         assertThat(history.getName(), is(stageName));
         assertThat(history.getId(), is(newInstance.getId()));
         assertThat(history.getBuildHistory().size(), is(2));
-    }
-
-    private Stage stageOf(Pipeline mingle) {
-        Stages stages = mingle.getStages();
-        assertThat(stages.size(), is(1));
-        return stages.get(0);
-    }
-
-    private void scheduleBuildInstances(Stage scheduledInstance) {
-        JobInstances scheduledBuilds = scheduledInstance.getJobInstances();
-        JobInstance bi = scheduledBuilds.get(0);
-        bi.schedule();
-        jobInstanceDao.updateStateAndResult(bi);
-        bi = scheduledBuilds.get(1);
-        bi.completing(JobResult.Passed);
-        bi.completed(new Date());
-        jobInstanceDao.updateStateAndResult(bi);
     }
 
     @Test
@@ -1800,6 +1775,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     private class ModificationsCollector extends ModificationVisitorAdapter {
         private List<Modification> mods = new ArrayList<>();
 
+        @Override
         public void visit(Modification modification) {
             mods.add(modification);
         }

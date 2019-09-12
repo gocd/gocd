@@ -37,6 +37,7 @@ public class FailedBuildHistoryCacheSweeper implements TimelineUpdateListener {
         this.goCache = goCache;
     }
 
+    @Override
     public void added(PipelineTimelineEntry newlyAddedEntry, TreeSet<PipelineTimelineEntry> timeline) {
         for (PipelineTimelineEntry pipelineTimelineEntry : timeline.tailSet(newlyAddedEntry)) {
             goCache.remove(key.forFbhOfStagesUnderPipeline(pipelineTimelineEntry.getPipelineLocator()));

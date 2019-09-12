@@ -30,6 +30,7 @@ import static org.mockito.Mockito.when;
 public class BackgroundEmailSenderTest {
 
     GoMailSender neverReturns = new GoMailSender() {
+        @Override
         public ValidationBean send(String subject, String body, String to) {
             try {
                 Thread.sleep(10000000);
@@ -38,6 +39,7 @@ public class BackgroundEmailSenderTest {
             return null;
         }
 
+        @Override
         public ValidationBean send(SendEmailMessage message) {
             return send(message.getSubject(), message.getBody(), message.getTo());
         }

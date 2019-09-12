@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.domain.materials;
 
-import com.thoughtworks.go.config.SecretParams;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.domain.MaterialInstance;
@@ -40,6 +39,7 @@ public final class DummyMaterial extends ScmMaterial {
         super("DummyMaterial", new GoCipher());
     }
 
+    @Override
     public String getUrl() {
         return url;
     }
@@ -54,6 +54,7 @@ public final class DummyMaterial extends ScmMaterial {
         return new UrlArgument(url);
     }
 
+    @Override
     public String getLongDescription() {
         return "Dummy";
     }
@@ -62,14 +63,17 @@ public final class DummyMaterial extends ScmMaterial {
         this.url = url;
     }
 
+    @Override
     protected String getLocation() {
         return getUrl();
     }
 
+    @Override
     public String getTypeForDisplay() {
         return "Dummy";
     }
 
+    @Override
     public Class getInstanceType() {
         throw new UnsupportedOperationException("dummy material doens't have a type");
     }
@@ -82,10 +86,12 @@ public final class DummyMaterial extends ScmMaterial {
         throw unsupported();
     }
 
+    @Override
     public MaterialInstance createMaterialInstance() {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void updateTo(ConsoleOutputStreamConsumer outputStreamConsumer, File baseDir, RevisionContext revisionContext, final SubprocessExecutionContext execCtx) {
         throw unsupported();
     }
@@ -99,6 +105,7 @@ public final class DummyMaterial extends ScmMaterial {
         throw unsupported();
     }
 
+    @Override
     public boolean isCheckExternals() {
         throw unsupported();
     }
@@ -107,10 +114,12 @@ public final class DummyMaterial extends ScmMaterial {
         return new UnsupportedOperationException("This class is only for iBatis and should not be used.");
     }
 
+    @Override
     protected void appendCriteria(Map<String, Object> parameters) {
         throw unsupported();
     }
 
+    @Override
     protected void appendAttributes(Map<String, Object> parameters) {
         throw unsupported();
     }

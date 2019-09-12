@@ -26,7 +26,6 @@ import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.server.messaging.GoMessageListener;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.MaterialService;
-import com.thoughtworks.go.server.service.materials.MaterialPoller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

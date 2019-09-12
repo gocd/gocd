@@ -50,6 +50,7 @@ public class FullConfigSaveNormalFlow extends FullConfigSaveFlow {
         super(loader, writer, configElementImplementationRegistry, timeProvider, configRepository, cachedGoPartials, fileWriter);
     }
 
+    @Override
     public GoConfigHolder execute(FullConfigUpdateCommand updatingCommand, List<PartialConfig> partials, String currentUser) throws Exception {
         LOGGER.debug("[Config Save] Starting Config Save using FullConfigSaveNormalFlow");
 

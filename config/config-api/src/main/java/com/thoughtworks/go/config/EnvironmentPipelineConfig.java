@@ -65,6 +65,7 @@ public class EnvironmentPipelineConfig implements Validatable {
         return this.name.equals(pipelineName);
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -81,13 +82,16 @@ public class EnvironmentPipelineConfig implements Validatable {
         return name != null ? name.hashCode() : 0;
     }
 
+    @Override
     public void validate(ValidationContext validationContext) {
     }
 
+    @Override
     public ConfigErrors errors() {
         return configErrors;
     }
 
+    @Override
     public void addError(String fieldName, String message) {
         configErrors.add(fieldName, message);
     }

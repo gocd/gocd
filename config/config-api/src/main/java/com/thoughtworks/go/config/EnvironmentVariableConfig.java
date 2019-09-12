@@ -192,6 +192,7 @@ public class EnvironmentVariableConfig implements Serializable, Validatable, Par
         return errors().isEmpty();
     }
 
+    @Override
     public void validate(ValidationContext validationContext) {
         try {
             getValue();
@@ -200,10 +201,12 @@ public class EnvironmentVariableConfig implements Serializable, Validatable, Par
         }
     }
 
+    @Override
     public ConfigErrors errors() {
         return configErrors;
     }
 
+    @Override
     public void addError(String fieldName, String message) {
         configErrors.add(fieldName, message);
     }
@@ -277,6 +280,7 @@ public class EnvironmentVariableConfig implements Serializable, Validatable, Par
         return encryptedValue.getValue();
     }
 
+    @Override
     public void setConfigAttributes(Object attributes) {
         Map attributeMap = (Map) attributes;
         this.name = (String) attributeMap.get(EnvironmentVariableConfig.NAME);
@@ -294,6 +298,7 @@ public class EnvironmentVariableConfig implements Serializable, Validatable, Par
         this.secretParamsForValue = parseSecretParams();
     }
 
+    @Override
     @PostConstruct
     public void ensureEncrypted() {
         if (isSecure && value != null) {
@@ -346,6 +351,7 @@ public class EnvironmentVariableConfig implements Serializable, Validatable, Par
         return origin != null && !origin.isLocal();
     }
 
+    @Override
     public void setOrigins(ConfigOrigin origins) {
         this.origin = origins;
     }

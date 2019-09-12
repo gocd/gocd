@@ -23,12 +23,9 @@ import com.thoughtworks.go.helper.PipelineConfigMother;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
@@ -112,6 +109,7 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
         assertThat(group.hasPipeline(new CaseInsensitiveString("pipeline3")),is(true));
     }
 
+    @Override
     @Test
     public void shouldReturnIndexOfPipeline() {
         PipelineConfigs group = new MergePipelineConfigs(new BasicPipelineConfigs(
@@ -139,6 +137,7 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
         assertThat(group.getGroup(), is("my-new-group"));
     }
 
+    @Override
     @Test(expected = RuntimeException.class)
     public void shouldSetToDefaultGroupWithGroupNameIsEmptyString() {
         PipelineConfigs pipelineConfigs = new MergePipelineConfigs(new BasicPipelineConfigs());
@@ -146,14 +145,6 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
 
         assertThat(pipelineConfigs.getGroup(), is(BasicPipelineConfigs.DEFAULT_GROUP));
     }
-
-    private List privileges(final Authorization.PrivilegeState admin, final Authorization.PrivilegeState operate, final Authorization.PrivilegeState view) {
-        return a(m(Authorization.PrivilegeType.ADMIN.toString(), admin.toString(),
-                Authorization.PrivilegeType.OPERATE.toString(), operate.toString(),
-                Authorization.PrivilegeType.VIEW.toString(), view.toString()));
-    }
-
-    // 2 parts and more cases
 
     @Test
     public void shouldReturnTrueIfPipelineExist_When2ConfigParts() {
@@ -226,7 +217,7 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldThrowOnPartsWithDifferentGroupNames(){
-        PipelineConfigs group = new MergePipelineConfigs(new BasicPipelineConfigs("one",null),new BasicPipelineConfigs("two",null));
+        new MergePipelineConfigs(new BasicPipelineConfigs("one",null),new BasicPipelineConfigs("two",null));
     }
 
     @Test
@@ -253,8 +244,6 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
                 new BasicPipelineConfigs(duplicate, PipelineConfigMother.pipelineConfig("third")));
 
         Map<String, PipelineConfigs> nameToConfig = new HashMap<>();
-        List<PipelineConfigs> visited = new ArrayList();
-
         group.validateNameUniqueness(nameToConfig);
 
     }

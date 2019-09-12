@@ -18,7 +18,6 @@ package com.thoughtworks.go.util;
 import com.thoughtworks.go.util.pool.DigestObjectPools;
 import org.apache.commons.codec.binary.Hex;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;

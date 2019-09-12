@@ -58,10 +58,12 @@ public class TrackingTool implements ParamsAttributeAware, Validatable, CommentR
         this.regex = regex;
     }
 
+    @Override
     public String render(String text) {
         return new DefaultCommentRenderer(link, regex).render(text);
     }
 
+    @Override
     public void setConfigAttributes(Object attributes) {
         if (attributes == null) return;
         Map attributeMap = (Map) attributes;
@@ -78,6 +80,7 @@ public class TrackingTool implements ParamsAttributeAware, Validatable, CommentR
         return errors().isEmpty();
     }
 
+    @Override
     public void validate(ValidationContext validationContext) {
         if (StringUtils.isEmpty(link)) {
             configErrors.add(LINK, "Link should be populated");
@@ -93,10 +96,12 @@ public class TrackingTool implements ParamsAttributeAware, Validatable, CommentR
         }
     }
 
+    @Override
     public ConfigErrors errors() {
         return configErrors;
     }
 
+    @Override
     public void addError(String fieldName, String message) {
         configErrors.add(fieldName, message);
     }

@@ -51,6 +51,7 @@ public class ValidationBean implements JsonAware {
     /**
      * @deprecated This method is obsolete
      */
+    @Override
     public Map<String, Object> toJson() {
         Map<String, Object> jsonMap = new LinkedHashMap<>();
         jsonMap.put("isValid", valueOf(isValid));
@@ -71,6 +72,7 @@ public class ValidationBean implements JsonAware {
     }
 
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -88,6 +90,7 @@ public class ValidationBean implements JsonAware {
         return true;
     }
 
+    @Override
     public int hashCode() {
         int result;
         result = (isValid ? 1 : 0);

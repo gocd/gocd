@@ -48,6 +48,7 @@ public class MaterialUpdateStatusNotifier implements GoMessageListener<MaterialU
         pending.remove(CaseInsensitiveString.str(pipelineConfig.name()));
     }
 
+    @Override
     public void onMessage(MaterialUpdateCompletedMessage message) {
         for (MaterialUpdateStatusListener listener : pending.values()) {
             if (listener.isListeningFor(message.getMaterial())) {

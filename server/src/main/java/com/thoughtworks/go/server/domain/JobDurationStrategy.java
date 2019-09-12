@@ -31,6 +31,7 @@ public interface JobDurationStrategy {
             this.durationInMillis = durationInMillis;
         }
 
+        @Override
         public long getExpectedDurationMillis(String pipelineName, String stageName, JobInstance job) {
             return durationInMillis;
         }

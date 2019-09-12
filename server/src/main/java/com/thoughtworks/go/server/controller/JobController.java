@@ -43,6 +43,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.*;
 
 import static com.thoughtworks.go.server.controller.actions.JsonAction.jsonFound;
@@ -175,7 +176,7 @@ public class JobController {
         return StringUtils.isNumeric(pipelineCounter) || JobIdentifier.LATEST.equalsIgnoreCase(pipelineCounter);
     }
 
-    private ModelAndView getModelAndView(JobInstance jobDetail) {
+    private ModelAndView getModelAndView(JobInstance jobDetail) throws IOException {
         final JobDetailPresentationModel presenter = presenter(jobDetail);
         Map data = new HashMap();
         data.put("presenter", presenter);

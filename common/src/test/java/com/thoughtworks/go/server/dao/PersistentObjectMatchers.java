@@ -25,11 +25,13 @@ public class PersistentObjectMatchers {
         return new TypeSafeMatcher<PersistentObject>() {
             public String message;
 
+            @Override
             public boolean matchesSafely(PersistentObject item) {
                 message = "should have same database id. Expected " + expected.getId() + " but was " + item.getId();
                 return expected.getId() == item.getId();
             }
 
+            @Override
             public void describeTo(Description description) {
                 description.appendText(message);
             }

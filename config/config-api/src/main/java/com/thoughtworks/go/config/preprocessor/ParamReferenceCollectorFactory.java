@@ -27,10 +27,12 @@ public class ParamReferenceCollectorFactory implements ParamHandlerFactory {
 
     private HashSet<String> params = new HashSet<>();
 
+    @Override
     public ParamHandler createHandler(Object resolvable, String fieldName, String stringToResolve) {
         return new ParamReferenceCollectorHandler(params);
     }
 
+    @Override
     public ParamHandlerFactory override(ParamsConfig paramsConfig) {
         return null;
     }
@@ -47,20 +49,25 @@ public class ParamReferenceCollectorFactory implements ParamHandlerFactory {
             this.params = params;
         }
 
+        @Override
         public String getResult() {
             return null;
         }
 
+        @Override
         public void handlePatternFound(StringBuilder pattern) {
             params.add(pattern.toString());
         }
 
+        @Override
         public void handleNotInPattern(char ch) {
         }
 
+        @Override
         public void handlePatternStarted(char ch) {
         }
 
+        @Override
         public void handleAfterResolution(ParamStateMachine.ReaderState state) throws IllegalStateException {
         }
     }

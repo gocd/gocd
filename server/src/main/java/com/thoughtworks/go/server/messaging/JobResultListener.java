@@ -34,6 +34,7 @@ public class JobResultListener implements GoMessageListener<JobResultMessage> {
         jobResultTopic.addListener(this);
     }
 
+    @Override
     public void onMessage(JobResultMessage message) {
         // TODO - #2511 - this only works for cancelling a job.
         agentService.notifyJobCancelledEvent(message.getAgentUuid());

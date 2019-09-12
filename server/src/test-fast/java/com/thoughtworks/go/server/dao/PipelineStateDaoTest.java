@@ -56,8 +56,8 @@ class PipelineStateDaoTest {
         goCache.clear();
         mockSessionFactory = mock(SessionFactory.class);
         transactionTemplate = mock(TransactionTemplate.class);
-        pipelineStateDao = new PipelineStateDao(null, null, goCache, null, transactionTemplate, null,
-                null, null, null, mock(Database.class), mockSessionFactory);
+        pipelineStateDao = new PipelineStateDao(goCache, transactionTemplate, null,
+                null, null, mock(Database.class), mockSessionFactory);
         session = mock(Session.class);
         when(mockSessionFactory.getCurrentSession()).thenReturn(session);
     }

@@ -17,18 +17,17 @@ package com.thoughtworks.go.domain.builder.pluggableTask;
 
 import com.thoughtworks.go.plugin.api.task.Console;
 import com.thoughtworks.go.util.command.SafeOutputStreamConsumer;
-import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import java.io.StringBufferInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -80,13 +79,13 @@ public class PluggableTaskConsoleTest {
 
     @Test
     public void shouldReadOutputOfAGiveStream() throws Exception {
-        StringBufferInputStream in = new StringBufferInputStream("Lorem ipsum dolor sit amet, consectetur adipisicing elit, \n"
+        InputStream in = new ByteArrayInputStream(("Lorem ipsum dolor sit amet, consectetur adipisicing elit, \n"
                 + "used do eiusmod tempor incididunt ut labore et dolore magna aliqua.\n "
                 + "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi \n"
                 + "ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit \n"
                 + "in voluptate velit esse cillum dolore eu fugiat nulla pariatur. \n "
                 + "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui \n"
-                + "officia deserunt mollit anim id est laborum.");
+                + "officia deserunt mollit anim id est laborum.").getBytes());
 
         doNothing().when(safeOutputStreamConsumer).stdOutput(anyString());
         console.readOutputOf(in);
@@ -95,13 +94,13 @@ public class PluggableTaskConsoleTest {
 
     @Test
     public void shouldReadErrorOfAGiveStream() throws Exception {
-        StringBufferInputStream in = new StringBufferInputStream("Lorem ipsum dolor sit amet, consectetur adipisicing elit, \n"
+        InputStream in = new ByteArrayInputStream(("Lorem ipsum dolor sit amet, consectetur adipisicing elit, \n"
                 + "used do eiusmod tempor incididunt ut labore et dolore magna aliqua.\n "
                 + "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi \n"
                 + "ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit \n"
                 + "in voluptate velit esse cillum dolore eu fugiat nulla pariatur. \n "
                 + "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui \n"
-                + "officia deserunt mollit anim id est laborum.");
+                + "officia deserunt mollit anim id est laborum.").getBytes());
 
         doNothing().when(safeOutputStreamConsumer).errOutput(anyString());
         console.readErrorOf(in);

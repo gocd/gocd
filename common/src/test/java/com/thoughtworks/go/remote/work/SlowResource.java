@@ -20,6 +20,7 @@ import java.io.IOException;
 public class SlowResource implements ConsoleAppender {
     public int invokedCount = 0;
 
+    @Override
     public void append(String content) throws IOException {
         try {
             Thread.sleep(1000);

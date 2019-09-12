@@ -52,6 +52,7 @@ public class AccessTokenSqlMapDao extends HibernateDaoSupport implements AccessT
         setSessionFactory(sessionFactory);
     }
 
+    @Override
     public void saveOrUpdate(final AccessToken accessToken) {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
@@ -118,6 +119,7 @@ public class AccessTokenSqlMapDao extends HibernateDaoSupport implements AccessT
         });
     }
 
+    @Override
     public AccessToken loadForAdminUser(final long id) {
         return (AccessToken) transactionTemplate.execute((TransactionCallback) transactionStatus -> sessionFactory.getCurrentSession().get(AccessToken.class, id));
     }
@@ -136,6 +138,7 @@ public class AccessTokenSqlMapDao extends HibernateDaoSupport implements AccessT
 
     }
 
+    @Override
     public void updateLastUsedTime(Map<Long, Timestamp> accessTokenIdToLastUsedTimestamp) {
         transactionTemplate.execute(transactionCallback -> {
             final Session currentSession = sessionFactory.getCurrentSession();

@@ -71,6 +71,7 @@ public class SvnCommand extends SCMCommand implements Subversion {
         this.svnLogXmlParser = new SvnLogXmlParser();
     }
 
+    @Override
     public ValidationBean checkConnection() {
         CommandLine command = buildSvnLogCommandForLatestOne();
         try {
@@ -87,6 +88,7 @@ public class SvnCommand extends SCMCommand implements Subversion {
         }
     }
 
+    @Override
     public List<SvnExternal> getAllExternalURLs() {
         CommandLine svnExternalCommand = svn(true)
                 .withArgs("propget", "--non-interactive", "svn:externals", "-R")
@@ -105,6 +107,7 @@ public class SvnCommand extends SCMCommand implements Subversion {
         return svnExternalList;
     }
 
+    @Override
     public UrlArgument getUrl() {
         return repositoryUrl;
     }
@@ -115,6 +118,7 @@ public class SvnCommand extends SCMCommand implements Subversion {
                 .withArg(repositoryUrl);
     }
 
+    @Override
     public List<Modification> latestModification() {
         CommandLine command = buildSvnLogCommandForLatestOne();
         ConsoleResult result = executeCommand(command);
@@ -126,6 +130,7 @@ public class SvnCommand extends SCMCommand implements Subversion {
         }
     }
 
+    @Override
     public List<Modification> modificationsSince(SubversionRevision subversionRevision) {
         CommandLine command = svn(true)
                 .withArgs("log", "--non-interactive", "--xml", "-v", "-r", "HEAD:" + subversionRevision.getRevision())
@@ -171,6 +176,7 @@ public class SvnCommand extends SCMCommand implements Subversion {
         return svnInfo;
     }
 
+    @Override
     public SubversionRevision checkoutTo(ConsoleOutputStreamConsumer outputStreamConsumer, File targetFolder,
                                          SubversionRevision revision) {
         CommandLine command = svn(true)
@@ -182,6 +188,7 @@ public class SvnCommand extends SCMCommand implements Subversion {
         return null;
     }
 
+    @Override
     public void updateTo(ConsoleOutputStreamConsumer outputStreamConsumer, File workingFolder,
                          SubversionRevision targetRevision) {
         CommandLine command = svn(true).withArgs("update", "--non-interactive", "-r", targetRevision.getRevision(),
@@ -189,6 +196,7 @@ public class SvnCommand extends SCMCommand implements Subversion {
         executeCommand(command, outputStreamConsumer);
     }
 
+    @Override
     public void cleanupAndRevert(ConsoleOutputStreamConsumer outputStreamConsumer, File workingFolder) {
         CommandLine command = svn(false).withArgs("cleanup", workingFolder.getAbsolutePath());
         executeCommand(command, outputStreamConsumer);
@@ -197,22 +205,27 @@ public class SvnCommand extends SCMCommand implements Subversion {
     }
 
 
+    @Override
     public String workingRepositoryUrl(File workingFolder) throws IOException {
         return workingDirInfo(workingFolder).getUrl();
     }
 
+    @Override
     public String getUrlForDisplay() {
         return repositoryUrl.forDisplay();
     }
 
+    @Override
     public String getUserName() {
         return userName.originalArgument();
     }
 
+    @Override
     public String getPassword() {
         return password == null ? null : password.forDisplay();
     }
 
+    @Override
     public boolean isCheckExternals() {
         return checkExternals;
     }
@@ -257,11 +270,13 @@ public class SvnCommand extends SCMCommand implements Subversion {
         }
     }
 
+    @Override
     public void add(ConsoleOutputStreamConsumer output, File file) {
         CommandLine line = svn(false).withArgs("add", file.getAbsolutePath());
         executeCommand(line, output);
     }
 
+    @Override
     public void commit(ConsoleOutputStreamConsumer output, File workingDir, String message) {
         CommandLine line = svn(true).withArgs("commit", "--non-interactive", "-m", message,
                 workingDir.getAbsolutePath());

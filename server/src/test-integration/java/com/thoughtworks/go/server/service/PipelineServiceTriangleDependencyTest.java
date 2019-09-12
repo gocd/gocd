@@ -22,8 +22,6 @@ import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
-import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
-import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.activity.JobStatusCache;
 import com.thoughtworks.go.domain.activity.StageStatusCache;
@@ -31,7 +29,6 @@ import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.helper.*;
-import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.dao.PipelineDao;
@@ -50,6 +47,7 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthStates;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -67,7 +65,6 @@ import static com.thoughtworks.go.helper.ModificationsMother.*;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
@@ -89,7 +86,6 @@ public class PipelineServiceTriangleDependencyTest {
     @Autowired private GoConfigService goConfigService;
     @Autowired private GoCache goCache;
     @Autowired private SystemEnvironment systemEnvironment;
-    @Autowired private PluginManager pluginManager;
     @Autowired private MaterialConfigConverter materialConfigConverter;
     @Autowired private DependencyMaterialUpdateNotifier notifier;
 
@@ -110,6 +106,7 @@ public class PipelineServiceTriangleDependencyTest {
         notifier.disableUpdates();
     }
 
+    @After
     public void teardown() {
         notifier.enableUpdates();
     }

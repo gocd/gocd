@@ -64,14 +64,17 @@ public class PreparingToScheduleInstance extends PipelineInstanceModel {
     private class PreparingToScheduleRevision implements Revision {
         public static final String PREPARING = "Preparing to schedule...";
 
+        @Override
         public String getRevision() {
             return PREPARING;
         }
 
+        @Override
         public String getRevisionUrl() {
             return PREPARING;
         }
 
+        @Override
         public boolean isRealRevision() {
             return false;
         }

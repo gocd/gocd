@@ -68,6 +68,7 @@ public class DependencyMaterialUpdateNotifier implements StageStatusListener, Co
         this.serverHealthService = serverHealthService;
     }
 
+    @Override
     public void initialize() {
         this.dependencyMaterials = dependencyMaterials();
 
@@ -93,6 +94,7 @@ public class DependencyMaterialUpdateNotifier implements StageStatusListener, Co
         }
     }
 
+    @Override
     public void stageStatusChanged(Stage stage) {
         if (StageResult.Passed == stage.getResult()) {
             Material material = dependencyMaterials.get(stageIdentifier(stage.getIdentifier().getPipelineName(), stage.getName()));

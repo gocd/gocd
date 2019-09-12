@@ -19,11 +19,13 @@ import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
 
 public class DatabaseDiskIsLow implements PreCondition {
+    @Override
     public void onSetUp() throws Exception {
         new SystemEnvironment().setProperty(SystemEnvironment.DATABASE_FULL_SIZE_LIMIT, "1m");
         new SystemEnvironment().setProperty(SystemEnvironment.DATABASE_WARNING_SIZE_LIMIT, "11222334m");
     }
 
+    @Override
     public void onTearDown() throws Exception {
         new SystemEnvironment().clearProperty(SystemEnvironment.DATABASE_FULL_SIZE_LIMIT);
         new SystemEnvironment().clearProperty(SystemEnvironment.DATABASE_WARNING_SIZE_LIMIT);
@@ -32,5 +34,5 @@ public class DatabaseDiskIsLow implements PreCondition {
     public long getLowLimit() {
         return 1 * GoConstants.MEGA_BYTE;
     }
-    
+
 }

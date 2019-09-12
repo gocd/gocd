@@ -29,6 +29,7 @@ import org.apache.commons.lang3.StringUtils;
  * @understands ensuring environment-agents refer to existing, enabled agents
  */
 public class EnvironmentAgentValidator implements GoConfigValidator {
+    @Override
     public void validate(CruiseConfig cruiseConfig) {
         List<ConfigErrors> errors = validateConfig(cruiseConfig);
         List<String> errorMessages = new ArrayList<>();

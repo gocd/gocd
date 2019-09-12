@@ -36,10 +36,12 @@ public class TestingClock implements Clock {
         this.currentTime = date;
     }
 
+    @Override
     public Date currentTime() {
         return currentTime;
     }
 
+    @Override
     public DateTime currentDateTime() {
         return new DateTime(currentTime);
     }
@@ -49,22 +51,27 @@ public class TestingClock implements Clock {
         return new Timestamp(currentTimeMillis());
     }
 
+    @Override
     public long currentTimeMillis() {
         return currentTime.getTime();
     }
 
+    @Override
     public void sleepForSeconds(long seconds) throws InterruptedException {
         sleepForMillis(seconds * 1000);
     }
 
+    @Override
     public void sleepForMillis(long millis) {
         sleeps.add(millis);
     }
 
+    @Override
     public DateTime timeoutTime(Timeout timeout) {
         return timeoutTime(timeout.inMillis());
     }
 
+    @Override
     public DateTime timeoutTime(long milliSeconds) {
         return new DateTime(addDuration(Calendar.MILLISECOND, (int) milliSeconds));
     }

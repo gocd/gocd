@@ -71,6 +71,7 @@ public class ArtifactConfigs extends BaseCollection<ArtifactConfig> implements V
         return pluggableArtifactConfigs;
     }
 
+    @Override
     public void validate(ValidationContext validationContext) {
         List<ArtifactConfig> plans = new ArrayList<>();
         for (ArtifactConfig artifactConfig : this) {
@@ -78,14 +79,17 @@ public class ArtifactConfigs extends BaseCollection<ArtifactConfig> implements V
         }
     }
 
+    @Override
     public ConfigErrors errors() {
         return configErrors;
     }
 
+    @Override
     public void addError(String fieldName, String message) {
         configErrors.add(fieldName, message);
     }
 
+    @Override
     public void setConfigAttributes(Object attributes) {
         clear();
         if (attributes == null) {

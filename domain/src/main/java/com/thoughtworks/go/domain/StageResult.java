@@ -18,6 +18,7 @@ package com.thoughtworks.go.domain;
 public enum StageResult {
 
     Passed {
+        @Override
         public StageEvent describeChangeEvent(StageResult previousResult) {
             if (previousResult == StageResult.Failed) {
                 return StageEvent.Fixed;
@@ -27,6 +28,7 @@ public enum StageResult {
     },
 
     Failed {
+        @Override
         public StageEvent describeChangeEvent(StageResult previousResult) {
             if (previousResult == StageResult.Passed) {
                 return StageEvent.Breaks;
@@ -36,12 +38,14 @@ public enum StageResult {
     },
 
     Cancelled {
+        @Override
         public StageEvent describeChangeEvent(StageResult previousResult) {
             return StageEvent.Cancelled;
         }
     },
 
     Unknown {
+        @Override
         public StageEvent describeChangeEvent(StageResult previousResult) {
             throw new IllegalStateException("Current result can not be Unknown");
         }

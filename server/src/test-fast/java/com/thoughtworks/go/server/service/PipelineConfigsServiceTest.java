@@ -457,23 +457,4 @@ public class PipelineConfigsServiceTest {
                 + "</pipelines>";
     }
 
-    private String parameterizedGroupXml() {
-        return "<pipelines group=\"group_name\">\n"
-                + "  <pipeline name=\"new_name\" labeltemplate=\"${COUNT}-#{foo}\">\n"
-                + "    <materials>\n"
-                + "      <svn url=\"file:///tmp/foo\" />\n"
-                + "    </materials>\n"
-                + "     <params>\n"
-                + "      <param name=\"foo\">test</param>\n"
-                + "    </params>"
-                + "    <stage name=\"stage_name\">\n"
-                + "      <jobs>\n"
-                + "        <job name=\"job_name\" />\n"
-                + "      </jobs>\n"
-                + "    </stage>\n"
-                + "  </pipeline>\n"
-                + "</pipelines>";
-
-    }
-
 }

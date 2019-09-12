@@ -21,7 +21,6 @@ import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.server.messaging.PluginAwareMessage;
 
-import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 
@@ -62,6 +61,7 @@ public class CreateAgentMessage implements PluginAwareMessage {
                 '}';
     }
 
+    @Override
     public String pluginId() {
         return pluginId;
     }

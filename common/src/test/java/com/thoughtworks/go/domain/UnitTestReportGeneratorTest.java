@@ -63,7 +63,7 @@ public class UnitTestReportGeneratorTest {
 
 
         copyAndClose(source("TestResult.xml"), target("test-result.xml"));
-        final Properties properties = generator.generate(testFolder.listFiles(), "testoutput");
+        generator.generate(testFolder.listFiles(), "testoutput");
         assertThat(testFolder.listFiles().length, is(2));
         verify(publisher).upload(any(File.class), any(String.class));
         verify(publisher).setProperty(new Property(TOTAL_TEST_COUNT, "206"));

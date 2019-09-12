@@ -35,9 +35,10 @@ public class M002 {
             if (!required(cxn)) return;
 
             try (Statement s = cxn.createStatement()) {
-                final ResultSet rs = s.executeQuery("SELECT id, filters FROM pipelineselections WHERE version = 1");
-                while (rs.next()) {
-                    perform(cxn, rs.getLong(ID), rs.getString(FILTERS));
+                try (ResultSet rs = s.executeQuery("SELECT id, filters FROM pipelineselections WHERE version = 1")) {
+                    while (rs.next()) {
+                        perform(cxn, rs.getLong(ID), rs.getString(FILTERS));
+                    }
                 }
             }
         };

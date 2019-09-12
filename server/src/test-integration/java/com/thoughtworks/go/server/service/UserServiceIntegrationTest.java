@@ -40,7 +40,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -72,8 +71,6 @@ public class UserServiceIntegrationTest {
     @Autowired
     private GoCache goCache;
 
-    private HibernateTemplate template;
-
     private static GoConfigFileHelper configFileHelper = new GoConfigFileHelper(ConfigFileFixture.XML_WITH_ENTERPRISE_LICENSE_FOR_TWO_USERS);
 
     @Before
@@ -81,7 +78,6 @@ public class UserServiceIntegrationTest {
         dbHelper.onSetUp();
         configFileHelper.onSetUp();
         configFileHelper.usingCruiseConfigDao(goConfigDao);
-        template = userDao.getHibernateTemplate();
         goCache.clear();
     }
 

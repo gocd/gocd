@@ -31,6 +31,7 @@ public class ParamStateMachine {
 
     public enum ReaderState {
         IN_PATTERN {
+            @Override
             ReaderState interpret(char ch, ParamHandler paramsHandler) {
                 if (ch == CHAR_CURL_CLOSE) {
                     try {
@@ -47,6 +48,7 @@ public class ParamStateMachine {
         },
 
         NOT_IN_PATTERN {
+            @Override
             ReaderState interpret(char ch, ParamHandler paramsHandler) {
                 if (ch == CHAR_HASH) {
                     return HASH_SEEN;
@@ -57,6 +59,7 @@ public class ParamStateMachine {
         },
 
         HASH_SEEN {
+            @Override
             ReaderState interpret(char ch, ParamHandler paramsHandler) {
                 if (ch == CHAR_HASH) {
                     paramsHandler.handlePatternStarted(ch);
@@ -68,6 +71,7 @@ public class ParamStateMachine {
             }
         },
         INVALID_PATTERN {
+            @Override
             ReaderState interpret(char ch, ParamHandler paramsHandler) {
                 return INVALID_PATTERN;
             }

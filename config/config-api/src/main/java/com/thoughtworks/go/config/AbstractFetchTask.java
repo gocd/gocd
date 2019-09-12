@@ -97,6 +97,7 @@ public abstract class AbstractFetchTask extends AbstractTask implements FetchArt
         return new File(destOnAgent(pipelineName), fileName);
     }
 
+    @Override
     public List<TaskProperty> getPropertiesForDisplay() {
         List<TaskProperty> taskProperties = new ArrayList<>();
         if (pipelineName != null && !CaseInsensitiveString.isBlank(pipelineName.getPath())) {
@@ -117,6 +118,7 @@ public abstract class AbstractFetchTask extends AbstractTask implements FetchArt
 
     public abstract String getArtifactOrigin();
 
+    @Override
     protected void validateTask(ValidationContext validationContext) {
         if (stageAndOrJobIsBlank()) {
             return;

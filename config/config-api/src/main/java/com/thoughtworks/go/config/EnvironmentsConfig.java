@@ -37,6 +37,7 @@ public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implem
     public EnvironmentsConfig() {
     }
 
+    @Override
     public void validate(ValidationContext validationContext) {
         List<CaseInsensitiveString> allPipelineNames = validationContext.getCruiseConfig().getAllPipelineNames();
         List<CaseInsensitiveString> allEnvironmentNames = new ArrayList<>();
@@ -61,10 +62,12 @@ public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implem
         }
     }
 
+    @Override
     public ConfigErrors errors() {
         return configErrors;
     }
 
+    @Override
     public void addError(String fieldName, String message) {
         configErrors.add(fieldName, message);
     }

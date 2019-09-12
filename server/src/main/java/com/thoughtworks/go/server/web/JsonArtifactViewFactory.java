@@ -20,6 +20,7 @@ import com.thoughtworks.go.domain.JobIdentifier;
 import org.springframework.web.servlet.ModelAndView;
 
 class JsonArtifactViewFactory implements ArtifactFolderViewFactory {
+    @Override
     public ModelAndView createView(JobIdentifier identifier, ArtifactFolder artifactFolder) {
         return jsonFound(artifactFolder).createView();
     }

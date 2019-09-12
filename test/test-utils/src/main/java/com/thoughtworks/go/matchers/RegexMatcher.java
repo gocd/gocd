@@ -27,10 +27,12 @@ public class RegexMatcher extends TypeSafeMatcher<String> {
         this.regex = regex;
     }
 
+    @Override
     public boolean matchesSafely(String item) {
         return Pattern.compile(regex, Pattern.DOTALL).matcher(item).find();
     }
 
+    @Override
     public void describeTo(Description description) {
         description.appendText("matches regex=" + regex);
     }

@@ -19,7 +19,6 @@ package com.thoughtworks.go.server.messaging.activemq;
 import com.thoughtworks.go.server.messaging.GoMessage;
 import com.thoughtworks.go.server.messaging.GoMessageListener;
 import com.thoughtworks.go.server.service.support.DaemonThreadStatsCollector;
-import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
@@ -31,8 +30,6 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.ObjectMessage;
-
-import java.io.File;
 
 import static com.thoughtworks.go.serverhealth.HealthStateScope.GLOBAL;
 
@@ -61,6 +58,7 @@ public class JMSMessageListenerAdapter implements Runnable {
         thread.start();
     }
 
+    @Override
     public void run() {
         while (true) {
             if (runImpl()) {

@@ -29,11 +29,9 @@ import com.thoughtworks.go.plugin.domain.notification.NotificationPluginInfo;
 import com.thoughtworks.go.plugin.domain.packagematerial.PackageMaterialPluginInfo;
 import com.thoughtworks.go.plugin.domain.pluggabletask.PluggableTaskPluginInfo;
 import com.thoughtworks.go.plugin.domain.scm.SCMPluginInfo;
-import com.thoughtworks.go.plugin.domain.secrets.SecretsPluginInfo;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class PluginInfoMother {

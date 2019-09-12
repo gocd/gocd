@@ -16,12 +16,8 @@
 package com.thoughtworks.go.apiv6.shared.representers.stages.tasks;
 
 import com.thoughtworks.go.api.base.OutputWriter;
-import com.thoughtworks.go.api.representers.ErrorGetter;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.apiv6.shared.representers.stages.ConfigHelperOptions;
 import com.thoughtworks.go.config.NantTask;
-
-import java.util.HashMap;
 
 public class NantTaskRepresenter extends BaseTaskRepresenter {
     public static void toJSON(OutputWriter jsonWriter, NantTask nantTask) {

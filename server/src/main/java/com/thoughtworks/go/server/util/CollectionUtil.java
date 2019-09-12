@@ -61,12 +61,14 @@ public class CollectionUtil {
     }
 
     public static class HashSet<T> implements CollectionCreator<T> {
+        @Override
         public Collection<T> create() {
             return new java.util.HashSet<>();
         }
     }
 
     public static class ArrayList<T> implements CollectionCreator<T> {
+        @Override
         public Collection<T> create() {
             return new java.util.ArrayList<>();
         }

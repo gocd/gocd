@@ -128,6 +128,7 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
         return p4.changesSince(revision);
     }
 
+    @Override
     public MaterialInstance createMaterialInstance() {
         return new P4MaterialInstance(serverAndPort, userName, view.getValue(), useTickets, UUID.randomUUID().toString());
     }
@@ -155,6 +156,7 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
         return p4;
     }
 
+    @Override
     public void updateTo(ConsoleOutputStreamConsumer outputConsumer, File baseDir, RevisionContext revisionContext, final SubprocessExecutionContext execCtx) {
         File workingDir = execCtx.isServer() ? baseDir : workingdir(baseDir);
         boolean cleaned = cleanDirectoryIfRepoChanged(workingDir, outputConsumer);
@@ -188,6 +190,7 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
         return view == null ? null : view.getValue();
     }
 
+    @Override
     public boolean isCheckExternals() {
         return false;
     }
@@ -207,6 +210,7 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
         return new UrlArgument(serverAndPort);
     }
 
+    @Override
     public String getLongDescription() {
         return format("URL: %s, View: %s, Username: %s", serverAndPort, view.getValue(), userName);
     }
@@ -223,6 +227,7 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
         return P4Client.fromServerAndPort(getFingerprint(), serverAndPort, userName, passwordForCommandLine(), clientName, this.useTickets, workDir, p4view(clientName), consumer, failOnError);
     }
 
+    @Override
     public void populateAgentSideEnvironmentContext(EnvironmentVariableContext environmentVariableContext, File baseDir) {
         super.populateAgentSideEnvironmentContext(environmentVariableContext, baseDir);
         setVariableWithName(environmentVariableContext, clientName(workingdir(baseDir)), "GO_P4_CLIENT");
@@ -244,6 +249,7 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
         return materialMap;
     }
 
+    @Override
     public Class getInstanceType() {
         return P4MaterialInstance.class;
     }
@@ -289,10 +295,12 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
         return result;
     }
 
+    @Override
     protected String getLocation() {
         return getServerAndPort();
     }
 
+    @Override
     public String getTypeForDisplay() {
         return "Perforce";
     }

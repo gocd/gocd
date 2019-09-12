@@ -15,14 +15,6 @@
  */
 package com.thoughtworks.go.config.registry;
 
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
 import com.thoughtworks.go.plugins.PluginExtensions;
 import com.thoughtworks.go.plugins.presentation.PluggableViewModel;
 import com.thoughtworks.go.plugins.presentation.PluggableViewModelFactory;
@@ -31,6 +23,14 @@ import org.jdom2.Namespace;
 import org.osgi.framework.BundleContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * @understands mapping the implementers of a given Config interface.
@@ -51,6 +51,7 @@ public class ConfigElementImplementationRegistry implements ConfigElementRegistr
         registerPluginExtensions(pluginExtns);
     }
 
+    @Override
     public <T> List<Class<? extends T>> implementersOf(Class<T> type) {
         List<Class<? extends T>> toReturn = new ArrayList<>();
         //noinspection unchecked
@@ -78,8 +79,7 @@ public class ConfigElementImplementationRegistry implements ConfigElementRegistr
         }
     }
 
-    @SuppressWarnings({"unchecked"})
-    public <T> PluggableViewModel getViewModelFor(T model, String actionName) {
+public <T> PluggableViewModel getViewModelFor(T model, String actionName) {
         return viewRegistry.get(model.getClass()).viewModelFor(model, actionName);
     }
 

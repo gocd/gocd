@@ -61,30 +61,37 @@ public class DefaultJobPlan implements JobPlan {
         this.clusterProfile = clusterProfile;
     }
 
+    @Override
     public String getPipelineName() {
         return identifier.getPipelineName();
     }
 
+    @Override
     public String getStageName() {
         return identifier.getStageName();
     }
 
+    @Override
     public String getName() {
         return identifier.getBuildName();
     }
 
+    @Override
     public long getJobId() {
         return jobId;
     }
 
+    @Override
     public JobIdentifier getIdentifier() {
         return identifier;
     }
 
+    @Override
     public List<ArtifactPropertiesGenerator> getPropertyGenerators() {
         return generators;
     }
 
+    @Override
     public List<ArtifactPlan> getArtifactPlans() {
         return artifactPlans;
     }
@@ -95,6 +102,7 @@ public class DefaultJobPlan implements JobPlan {
         return generators;
     }
 
+    @Override
     public Resources getResources() {
         return resources;
     }
@@ -119,6 +127,7 @@ public class DefaultJobPlan implements JobPlan {
         this.resources = new Resources(resources);
     }
 
+    @Override
     public String toString() {
         return "[JobPlan " + "identifier=" + identifier + "resources=" + resources + " artifactConfigs=" + artifactPlans +
                 " generators=" + generators + "]";
@@ -154,6 +163,7 @@ public class DefaultJobPlan implements JobPlan {
         return true;
     }
 
+    @Override
     public int hashCode() {
         int result;
         result = (resources != null ? resources.hashCode() : 0);
@@ -164,18 +174,22 @@ public class DefaultJobPlan implements JobPlan {
         return result;
     }
 
+    @Override
     public String getAgentUuid() {
         return agentUuid;
     }
 
+    @Override
     public EnvironmentVariables getVariables() {
         return variables;
     }
 
+    @Override
     public void setVariables(EnvironmentVariables variables) {
         this.variables = new EnvironmentVariables(variables);
     }
 
+    @Override
     public long getPipelineId() {
         return pipelineId;
     }
@@ -184,10 +198,12 @@ public class DefaultJobPlan implements JobPlan {
         triggerVariables = new EnvironmentVariables(environmentVariables);
     }
 
+    @Override
     public boolean shouldFetchMaterials() {
         return fetchMaterials;
     }
 
+    @Override
     public void applyTo(EnvironmentVariableContext variableContext) {
         variables.addTo(variableContext);
         triggerVariables.addToIfExists(variableContext);
@@ -197,22 +213,27 @@ public class DefaultJobPlan implements JobPlan {
         this.agentUuid = agentUuid;
     }
 
+    @Override
     public void setFetchMaterials(boolean fetchMaterials) {
         this.fetchMaterials = fetchMaterials;
     }
 
+    @Override
     public void setCleanWorkingDir(boolean cleanWorkingDir) {
         this.cleanWorkingDir = cleanWorkingDir;
     }
 
+    @Override
     public boolean shouldCleanWorkingDir() {
         return cleanWorkingDir;
     }
 
+    @Override
     public ElasticProfile getElasticProfile() {
         return elasticProfile;
     }
 
+    @Override
     public ClusterProfile getClusterProfile() {
         return clusterProfile;
     }
@@ -222,6 +243,7 @@ public class DefaultJobPlan implements JobPlan {
         return elasticProfile != null;
     }
 
+    @Override
     public void setElasticProfile(ElasticProfile elasticProfile) {
         this.elasticProfile = new ElasticProfile(elasticProfile.getId(), elasticProfile.getClusterProfileId(), elasticProfile);
     }

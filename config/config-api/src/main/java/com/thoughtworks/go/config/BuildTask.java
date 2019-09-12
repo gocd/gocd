@@ -50,6 +50,7 @@ public abstract class BuildTask extends AbstractTask implements CommandTask {
         return target;
     }
 
+    @Override
     public String workingDirectory() {
         return workingDirectory;
     }
@@ -74,6 +75,7 @@ public abstract class BuildTask extends AbstractTask implements CommandTask {
         return StringUtils.join(description, " ");
     }
 
+    @Override
     protected final void setTaskConfigAttributes(Map attributeMap) {
         buildFile = inferValueFromMap(attributeMap, BUILD_FILE);
         target = inferValueFromMap(attributeMap, TARGET);
@@ -92,6 +94,7 @@ public abstract class BuildTask extends AbstractTask implements CommandTask {
     protected void setBuildTaskConfigAttributes(Map attributeMap) {
     }
 
+    @Override
     public void validateTask(ValidationContext validationContext) {
         if (validationContext.isWithinPipelines()) {
             validateWorkingDirectory(validationContext, "pipeline", validationContext.getPipeline().name());
@@ -143,6 +146,7 @@ public abstract class BuildTask extends AbstractTask implements CommandTask {
         return result;
     }
 
+    @Override
     public List<TaskProperty> getPropertiesForDisplay() {
         ArrayList<TaskProperty> taskProperties = new ArrayList<>();
         if (!StringUtils.isBlank(buildFile)) {

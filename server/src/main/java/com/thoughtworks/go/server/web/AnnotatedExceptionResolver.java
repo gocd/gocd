@@ -32,6 +32,7 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 public class AnnotatedExceptionResolver extends SimpleMappingExceptionResolver {
     private static final Logger LOG = LoggerFactory.getLogger(AnnotatedExceptionResolver.class);
 
+    @Override
     public ModelAndView resolveException(final HttpServletRequest request, final HttpServletResponse response,
                                          final Object controller,
                                          final Exception ex) {
@@ -48,6 +49,7 @@ public class AnnotatedExceptionResolver extends SimpleMappingExceptionResolver {
                 return mov;
             }
 
+            @Override
             public void doWith(Method method) {
                 if (method.getAnnotation(ErrorHandler.class) != null && method.getReturnType()
                         .equals(ModelAndView.class)) {

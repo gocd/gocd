@@ -66,6 +66,7 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         this.registry = registry;
     }
 
+    @Override
     public void initialize() {
         goConfigService.register(this);
         goConfigService.register(new PipelineConfigChangedListener());

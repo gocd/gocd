@@ -23,17 +23,13 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:aop="http://www.springframework.org/schema/aop"
-       xmlns:tx="http://www.springframework.org/schema/tx"
-       xmlns:p="http://www.springframework.org/schema/p"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
-        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
-        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
-        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd">
 
     <context:annotation-config/>
     <context:component-scan base-package="com.thoughtworks.go.util"/>
     <context:component-scan base-package="com.thoughtworks.go.server.dao"/>
+    <context:component-scan base-package="com.thoughtworks.go.server.database"/>
     <context:component-scan base-package="com.thoughtworks.go.server.persistence"/>
     <import resource="propertyConfigurer.xml"/>
     <import resource="classpath*:optional-development-server-configurer.xml" />
@@ -53,22 +49,11 @@
         <!-- capacity -->
     </bean>
 
-    <bean id="dbLauncher" class="com.thoughtworks.go.server.database.DatabaseStrategy"/>
-
     <bean id="databaseUpgraderDataSourceFactory" class="com.thoughtworks.go.server.util.DatabaseUpgraderDataSourceFactory"/>
 
     <bean id="goDataSource" factory-bean="databaseUpgraderDataSourceFactory" factory-method="dataSource" scope="singleton"/>
-    <!--
-        <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-            <property name="driverClassName" value="${jdbc.driverClassName}"/>
-            <property name="url" value="${jdbc.url}"/>
-            <property name="username" value="${jdbc.username}"/>
-            <property name="password" value="${jdbc.password}"/>
-        </bean>
-    -->
 
     <!-- ========================= RESOURCE DEFINITIONS ========================= -->
-
     <!-- Local Apache Commons DBCP DataSource that refers to a combined database -->
     <!-- The placeholders are resolved from jdbc.properties through -->
     <!-- the PropertyPlaceholderConfigurer in applicationContext.xml -->
@@ -89,17 +74,8 @@
     <bean id="transactionSynchronizationManager" class="com.thoughtworks.go.server.transaction.TransactionSynchronizationManager"/>
 
 
-    <!-- SqlMap setup for iBATIS Database Layer -->
-    <bean id="sqlMapClient" class="com.thoughtworks.go.server.database.SqlSessionFactoryBean">
-        <!--<property name="configLocation" value="WEB-INF/sql-map-config.xml"/>-->
-        <!-- WEB-INF/ -->
-        <!--<property name="dataSource" ref="goDataSource"/>-->
-        <!--<property name="useTransactionAwareDataSource" value="true"/>-->
-    </bean>
-
     <!-- ========================= HIBERNATE ========================= -->
 
-    <bean id="hibernateProperties" class="com.thoughtworks.go.server.database.HibernateProperties" />
     <bean id="sessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
         <property name="dataSource" ref="goDataSource"/>
         <property name="useTransactionAwareDataSource" value="true"/>
@@ -120,13 +96,4 @@
         <property name="sessionFactory" ref="sessionFactory"/>
     </bean>
 
-    <!-- ========================= DAO DEFINITIONS ========================= -->
-
-    <bean class="com.thoughtworks.go.server.persistence.MaterialRepository" name="materialRepository" lazy-init="true">
-        <constructor-arg index="0" ref="sessionFactory"/>
-        <constructor-arg index="1" ref="goCache"/>
-        <constructor-arg index="2" value="${cruise.material.modifications.cache.limit}"/>
-        <constructor-arg index="3" ref="transactionSynchronizationManager"/>
-        <constructor-arg index="4" ref="materialConfigConverter"/>
-    </bean>
 </beans>

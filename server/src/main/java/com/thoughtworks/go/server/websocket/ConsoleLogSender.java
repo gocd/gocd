@@ -17,7 +17,6 @@ package com.thoughtworks.go.server.websocket;
 
 import com.thoughtworks.go.domain.ConsoleConsumer;
 import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.service.ConsoleService;
 import com.thoughtworks.go.server.util.Retryable;
@@ -45,20 +44,14 @@ public class ConsoleLogSender {
     private static final int FILL_INTERVAL = 500;
     private final Charset charset;
 
-    @Autowired
     private ConsoleService consoleService;
 
-    @Autowired
     private JobInstanceDao jobInstanceDao;
 
     @Autowired
-    private SocketHealthService socketHealthService;
-
-    @Autowired
-    ConsoleLogSender(ConsoleService consoleService, JobInstanceDao jobInstanceDao, SocketHealthService socketHealthService, SystemEnvironment systemEnvironment) {
+    ConsoleLogSender(ConsoleService consoleService, JobInstanceDao jobInstanceDao, SystemEnvironment systemEnvironment) {
         this.consoleService = consoleService;
         this.jobInstanceDao = jobInstanceDao;
-        this.socketHealthService = socketHealthService;
         this.charset = systemEnvironment.consoleLogCharsetAsCharset();
     }
 
@@ -155,10 +148,8 @@ public class ConsoleLogSender {
         }
         // To avoid having to re-allocate the internal byte array, allocate an initial buffer assuming a safe 10:1 compression ratio
         final ByteArrayOutputStream gzipBytes = new ByteArrayOutputStream(input.length / 10);
-        try {
-            final GZIPOutputStream gzipOutputStream = new GZIPOutputStream(gzipBytes, 1024 * 8);
+        try (GZIPOutputStream gzipOutputStream = new GZIPOutputStream(gzipBytes, 1024 * 8)) {
             gzipOutputStream.write(input);
-            gzipOutputStream.close();
         } catch (IOException e) {
             LOGGER.error("Could not gzip {}", input);
         }

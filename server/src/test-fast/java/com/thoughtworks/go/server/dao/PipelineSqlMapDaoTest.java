@@ -33,7 +33,6 @@ import com.thoughtworks.go.server.transaction.SqlMapClientTemplate;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
 import org.assertj.core.api.Assertions;
-import org.hibernate.SessionFactory;
 import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -48,12 +47,9 @@ import static com.thoughtworks.go.helper.ModificationsMother.*;
 import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static com.thoughtworks.go.util.IBatisUtil.arguments;
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 class PipelineSqlMapDaoTest {
@@ -71,7 +67,7 @@ class PipelineSqlMapDaoTest {
         materialRepository = mock(MaterialRepository.class);
         configFileDao = mock(GoConfigDao.class);
         timeProvider = mock(TimeProvider.class);
-        pipelineSqlMapDao = new PipelineSqlMapDao(null, materialRepository, goCache, null, null, null, null, null, configFileDao, null, null, timeProvider);
+        pipelineSqlMapDao = new PipelineSqlMapDao(null, materialRepository, goCache, null, null, null, null, null, configFileDao, null, timeProvider);
         pipelineSqlMapDao.setSqlMapClientTemplate(sqlMapClientTemplate);
     }
 
@@ -126,7 +122,7 @@ class PipelineSqlMapDaoTest {
 
     @Test
     void shouldGetLatestRevisionFromOrderedLists() {
-        PipelineSqlMapDao pipelineSqlMapDao = new PipelineSqlMapDao(null, null, null, null, null, null, null, new SystemEnvironment(), mock(GoConfigDao.class), mock(Database.class), mock(SessionFactory.class), timeProvider);
+        PipelineSqlMapDao pipelineSqlMapDao = new PipelineSqlMapDao(null, null, null, null, null, null, null, new SystemEnvironment(), mock(GoConfigDao.class), mock(Database.class), timeProvider);
         ArrayList list1 = new ArrayList();
         ArrayList list2 = new ArrayList();
         Assert.assertThat(pipelineSqlMapDao.getLatestRevisionFromOrderedLists(list1, list2), is((String) null));
@@ -145,7 +141,7 @@ class PipelineSqlMapDaoTest {
         SqlMapClientTemplate mockTemplate = mock(SqlMapClientTemplate.class);
         when(mockTemplate.queryForList(eq("getPipelineRange"), any())).thenReturn(Arrays.asList(2L));
         pipelineSqlMapDao.setSqlMapClientTemplate(mockTemplate);
-        PipelineInstanceModels pipelineHistories = pipelineSqlMapDao.loadHistory("pipelineName", 1, 0);
+        pipelineSqlMapDao.loadHistory("pipelineName", 1, 0);
         verify(mockTemplate, never()).queryForList(eq("getPipelineHistoryByName"), any());
         verify(mockTemplate, times(1)).queryForList(eq("getPipelineRange"), any());
     }

@@ -18,18 +18,21 @@ package com.thoughtworks.go.domain;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.validation.ChecksumValidator;
 import com.thoughtworks.go.work.GoPublisher;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URLEncoder;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 
-import static com.thoughtworks.go.util.CachedDigestUtils.md5Hex;
-import static com.thoughtworks.go.util.MapBuilder.map;
 import static java.lang.String.format;
 
 public class FileHandler implements FetchHandler {
@@ -46,6 +49,7 @@ public class FileHandler implements FetchHandler {
         checksumValidationPublisher = new ChecksumValidationPublisher();
     }
 
+    @Override
     public String url(String remoteHost, String workingUrl) throws IOException {
         boolean fileExist = artifact.exists();
         LOG.debug("Requesting the file [{}], exist? [{}]", artifact.getAbsolutePath(), fileExist);
@@ -58,34 +62,35 @@ public class FileHandler implements FetchHandler {
         }
     }
 
+    @Override
     public void handle(InputStream stream) throws IOException {
-        FileOutputStream fileOutputStream = null;
-        try {
-            fileOutputStream = FileUtils.openOutputStream(artifact);
+        MessageDigest digest = getMd5();
+        try (DigestInputStream digestInputStream = new DigestInputStream(stream, digest)) {
             LOG.info("[Artifact File Download] [{}] Download of artifact {} started", new Date(), artifact.getName());
-            IOUtils.copyLarge(stream, fileOutputStream);
+            FileUtils.copyInputStreamToFile(digestInputStream, artifact);
             LOG.info("[Artifact File Download] [{}] Download of artifact {} ended", new Date(), artifact.getName());
-        } finally {
-            IOUtils.closeQuietly(fileOutputStream);
         }
-        FileInputStream inputStream = null;
+
+        String artifactMD5 = Hex.encodeHexString(digest.digest());
+        new ChecksumValidator(artifactMd5Checksums).validate(srcFile, artifactMD5, checksumValidationPublisher);
+    }
+
+    private MessageDigest getMd5() {
         try {
-            inputStream = new FileInputStream(artifact);
-            LOG.info("[Artifact File Download] [{}] Checksum computation of artifact {} started", new Date(), artifact.getName());
-            String artifactMD5 = md5Hex(inputStream);
-            new ChecksumValidator(artifactMd5Checksums).validate(srcFile, artifactMD5, checksumValidationPublisher);
-            LOG.info("[Artifact File Download] [{}] Checksum computation of artifact {} ended", new Date(), artifact.getName());
-        } finally {
-            IOUtils.closeQuietly(inputStream);
+            return MessageDigest.getInstance("MD5");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
         }
     }
 
+    @Override
     public boolean handleResult(int httpCode, GoPublisher goPublisher) {
         checksumValidationPublisher.publish(httpCode, artifact, goPublisher);
 
         return httpCode < HttpServletResponse.SC_BAD_REQUEST;
     }
 
+    @Override
     public void useArtifactMd5Checksums(ArtifactMd5Checksums artifactMd5Checksums) {
         this.artifactMd5Checksums = artifactMd5Checksums;
     }

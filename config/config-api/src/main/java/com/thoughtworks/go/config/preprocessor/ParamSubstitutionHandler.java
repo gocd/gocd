@@ -31,6 +31,7 @@ public class ParamSubstitutionHandler implements ParamHandler {
     private String fieldName;
     private String stringToResolve;
 
+    @Override
     public String getResult() {
         return result.toString();
     }
@@ -42,18 +43,22 @@ public class ParamSubstitutionHandler implements ParamHandler {
         this.stringToResolve = stringToResolve;
     }
 
+    @Override
     public void handlePatternFound(StringBuilder pattern) {
         result.append(substitute(pattern.toString(), paramsConfig));
     }
 
+    @Override
     public void handleNotInPattern(char ch) {
         result.append(ch);
     }
 
+    @Override
     public void handlePatternStarted(char ch) {
         result.append(ch);
     }
 
+    @Override
     public void handleAfterResolution(ParamStateMachine.ReaderState state) throws IllegalStateException {
         try {
             if (state != ParamStateMachine.ReaderState.NOT_IN_PATTERN) {

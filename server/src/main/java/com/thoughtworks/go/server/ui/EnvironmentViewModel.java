@@ -18,8 +18,6 @@ package com.thoughtworks.go.server.ui;
 import com.thoughtworks.go.config.EnvironmentConfig;
 import com.thoughtworks.go.server.service.AgentService;
 
-import java.util.List;
-
 public class EnvironmentViewModel {
 
     private EnvironmentConfig environmentConfig;

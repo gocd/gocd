@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.domain.NullPlugin;
@@ -53,7 +52,6 @@ import org.mockito.Mock;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.AUTHORIZATION_EXTENSION;
@@ -61,7 +59,6 @@ import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ELASTIC_A
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -522,7 +519,4 @@ public class PluginServiceTest {
         return configuration;
     }
 
-    private String toJSON(Map<String, String> configuration) {
-        return new GsonBuilder().serializeNulls().create().toJson(configuration);
-    }
 }

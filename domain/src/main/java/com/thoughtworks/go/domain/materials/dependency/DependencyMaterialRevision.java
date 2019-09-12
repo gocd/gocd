@@ -52,6 +52,7 @@ public class DependencyMaterialRevision implements Revision {
         return new DependencyMaterialRevision(pipelineName, pipelineCounter.toString(), pipelineLabel, stageName, stageCounter);
     }
 
+    @Override
     public String getRevision() {
         return String.format("%s/%s/%s/%s", pipelineName, pipelineCounter, stageName, stageCounter);
     }
@@ -60,6 +61,7 @@ public class DependencyMaterialRevision implements Revision {
         map.put(pipelineName, pipelineLabel);
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -89,6 +91,7 @@ public class DependencyMaterialRevision implements Revision {
         return true;
     }
 
+    @Override
     public int hashCode() {
         int result;
         result = (pipelineName != null ? pipelineName.hashCode() : 0);
@@ -99,14 +102,17 @@ public class DependencyMaterialRevision implements Revision {
         return result;
     }
 
+    @Override
     public String toString() {
         return String.format("DependencyMaterialRevision[%s] [pipelineLabel = %s]", getRevision(), getPipelineLabel());
     }
 
+    @Override
     public String getRevisionUrl() {
         return "pipelines/" + this.getRevision();
     }
 
+    @Override
     public boolean isRealRevision() {
         return true;
     }

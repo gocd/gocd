@@ -34,6 +34,7 @@ public abstract class RunDuration {
 
     public static final RunDuration IN_PROGRESS_DURATION = new RunDuration() {
 
+        @Override
         public String duration(PeriodFormatter formatter) {
             return "In Progress";
         }
@@ -45,6 +46,7 @@ public abstract class RunDuration {
             this.duration = duration;
         }
 
+        @Override
         public String duration(PeriodFormatter formatter) {
             return formatter.print(duration.toPeriod());
         }

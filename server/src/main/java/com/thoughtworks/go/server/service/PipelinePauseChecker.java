@@ -28,6 +28,7 @@ public class PipelinePauseChecker implements SchedulingChecker {
         this.pipelinePauseService = pipelinePauseService;
     }
 
+    @Override
     public void check(OperationResult result) {
         HealthStateType id = HealthStateType.general(HealthStateScope.forPipeline(pipelineName));
         if (pipelinePauseService.isPaused(pipelineName)) {

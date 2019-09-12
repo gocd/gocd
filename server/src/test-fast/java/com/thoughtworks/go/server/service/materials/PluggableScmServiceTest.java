@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server.service.materials;
 
 import com.thoughtworks.go.ClearSingleton;
-import com.thoughtworks.go.config.update.DeleteSCMConfigCommand;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
@@ -38,7 +37,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;

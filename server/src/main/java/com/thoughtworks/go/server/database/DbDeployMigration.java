@@ -42,6 +42,7 @@ public class DbDeployMigration implements Migration {
         this.env = env;
     }
 
+    @Override
     public void migrate() {
         upgradeWithDbDeploy();
     }

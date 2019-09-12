@@ -49,10 +49,12 @@ public class FileComparatorTest {
             directory = isDirectory;
         }
 
+        @Override
         public boolean isDirectory() {
             return directory;
         }
 
+        @Override
         public boolean isFile() {
             return !directory;
         }

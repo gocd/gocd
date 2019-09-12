@@ -63,6 +63,7 @@ public class WorkAssignments implements GoMessageListener<WorkAssignedMessage> {
         return agent.getUuid().intern();
     }
 
+    @Override
     public void onMessage(WorkAssignedMessage message) {
         AgentIdentifier agentIdentifier = message.getAgent();
         Work work = message.getWork();

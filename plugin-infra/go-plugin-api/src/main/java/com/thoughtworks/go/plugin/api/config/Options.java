@@ -18,8 +18,6 @@ package com.thoughtworks.go.plugin.api.config;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.thoughtworks.go.plugin.api.config.Option;
-
 /**
  * Container for {@link com.thoughtworks.go.plugin.api.config.Option}
  */

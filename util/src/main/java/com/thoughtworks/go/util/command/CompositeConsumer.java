@@ -52,6 +52,7 @@ public class CompositeConsumer implements TaggedStreamConsumer {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void consumeLine(String line) {
         taggedConsumeLine(defaultTag, line);
     }

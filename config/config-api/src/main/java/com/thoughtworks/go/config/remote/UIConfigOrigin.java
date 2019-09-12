@@ -32,6 +32,7 @@ public class UIConfigOrigin implements ConfigOrigin {
     }
 
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -43,6 +44,7 @@ public class UIConfigOrigin implements ConfigOrigin {
         return true;
     }
 
+    @Override
     public int hashCode() {
         return 57159;
     }

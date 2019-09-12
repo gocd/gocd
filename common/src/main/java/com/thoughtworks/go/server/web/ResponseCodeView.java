@@ -32,10 +32,12 @@ public class ResponseCodeView implements View {
         this.message = message;
     }
 
+    @Override
     public String getContentType() {
         return RESPONSE_CHARSET;
     }
 
+    @Override
     public void render(Map model, HttpServletRequest request, HttpServletResponse response) throws Exception {
         response.setContentType(getContentType());
         response.setStatus(responseCode);

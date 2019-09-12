@@ -28,10 +28,12 @@ public class ParamSubstitutionHandlerFactory implements ParamHandlerFactory {
         this.paramsConfig = paramsConfig;
     }
 
+    @Override
     public ParamHandler createHandler(Object resolvable, String fieldName, String stringToResolve) {
         return new ParamSubstitutionHandler(paramsConfig,  resolvable,  fieldName, stringToResolve);
     }
 
+    @Override
     public ParamHandlerFactory override(ParamsConfig paramsConfig) {
         return new ParamSubstitutionHandlerFactory(this.paramsConfig.addOrReplace(paramsConfig));
     }

@@ -64,6 +64,7 @@ public class UserSqlMapDao extends HibernateDaoSupport implements UserDao {
         setSessionFactory(sessionFactory);
     }
 
+    @Override
     public void saveOrUpdate(final User user) {
         assertUserNotAnonymous(user);
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
@@ -80,6 +81,7 @@ public class UserSqlMapDao extends HibernateDaoSupport implements UserDao {
         });
     }
 
+    @Override
     public User findUser(final String userName) {
         return (User) transactionTemplate.execute((TransactionCallback) transactionStatus -> {
             User user = (User) sessionFactory.getCurrentSession()
@@ -90,6 +92,7 @@ public class UserSqlMapDao extends HibernateDaoSupport implements UserDao {
         });
     }
 
+    @Override
     public Users findNotificationSubscribingUsers() {
         return (Users) transactionTemplate.execute((TransactionCallback) transactionStatus -> {
             Criteria criteria = sessionFactory.getCurrentSession().createCriteria(User.class);
@@ -100,6 +103,7 @@ public class UserSqlMapDao extends HibernateDaoSupport implements UserDao {
         });
     }
 
+    @Override
     public Users allUsers() {
         return new Users((List<User>) transactionTemplate.execute((TransactionCallback) transactionStatus -> {
             Query query = sessionFactory.getCurrentSession().createQuery("FROM User");
@@ -108,6 +112,7 @@ public class UserSqlMapDao extends HibernateDaoSupport implements UserDao {
         }));
     }
 
+    @Override
     public long enabledUserCount() {
         Long value = (Long) goCache.get(ENABLED_USER_COUNT_CACHE_KEY);
         if (value != null) {
@@ -126,10 +131,12 @@ public class UserSqlMapDao extends HibernateDaoSupport implements UserDao {
         }
     }
 
+    @Override
     public void disableUsers(List<String> usernames) {
         changeEnabledStatus(usernames, false);
     }
 
+    @Override
     public void enableUsers(List<String> usernames) {
         changeEnabledStatus(usernames, true);
     }
@@ -145,6 +152,7 @@ public class UserSqlMapDao extends HibernateDaoSupport implements UserDao {
         return enabledUsers;
     }
 
+    @Override
     public Set<String> findUsernamesForIds(final Set<Long> userIds) {
         List<User> users = allUsers();
         Set<String> userNames = new HashSet<>();
@@ -156,6 +164,7 @@ public class UserSqlMapDao extends HibernateDaoSupport implements UserDao {
         return userNames;
     }
 
+    @Override
     public User load(final long id) {
         return (User) transactionTemplate.execute((TransactionCallback) transactionStatus -> sessionFactory.getCurrentSession().get(User.class, id));
     }

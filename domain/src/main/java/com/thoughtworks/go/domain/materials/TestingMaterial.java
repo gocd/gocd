@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.domain.materials;
 
-import com.thoughtworks.go.config.SecretParams;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.domain.MaterialInstance;
@@ -79,10 +78,12 @@ public class TestingMaterial extends ScmMaterial {
         return modifications;
     }
 
+    @Override
     public MaterialInstance createMaterialInstance() {
         return new TestingMaterialInstance(url, "FLYWEIGHTNAME");
     }
 
+    @Override
     public void updateTo(ConsoleOutputStreamConsumer outputStreamConsumer, File baseDir, RevisionContext revisionContext, final SubprocessExecutionContext execCtx) {
     }
 
@@ -90,10 +91,12 @@ public class TestingMaterial extends ScmMaterial {
         this.url = url;
     }
 
+    @Override
     public boolean isCheckExternals() {
         return false;
     }
 
+    @Override
     public String getUrl() {
         return url;
     }
@@ -108,6 +111,7 @@ public class TestingMaterial extends ScmMaterial {
         return new UrlArgument(url);
     }
 
+    @Override
     public String getLongDescription() {
         return String.format("Url: %s", url);
     }
@@ -116,21 +120,26 @@ public class TestingMaterial extends ScmMaterial {
         return null;
     }
 
+    @Override
     protected String getLocation() {
         return getUrl();
     }
 
+    @Override
     public String getTypeForDisplay() {
         return TYPE;
     }
 
+    @Override
     public Class getInstanceType() {
         return TestingMaterialInstance.class;
     }
 
+    @Override
     protected void appendCriteria(Map<String, Object> parameters) {
     }
 
+    @Override
     protected void appendAttributes(Map<String, Object> parameters) {
     }
 

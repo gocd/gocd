@@ -34,7 +34,8 @@ public class RunMultipleInstance implements JobType {
 		return jobTypeConfig.isInstanceOf(jobInstanceName, ignoreCase, jobConfigName);
 	}
 
-	public void createRerunInstances(JobInstance oldJob, JobInstances jobInstances, SchedulingContext context, StageConfig stageConfig, final Clock clock, InstanceFactory instanceFactory) {
+	@Override
+    public void createRerunInstances(JobInstance oldJob, JobInstances jobInstances, SchedulingContext context, StageConfig stageConfig, final Clock clock, InstanceFactory instanceFactory) {
 		context = context.rerunContext();
 		String configName = translateToConfigName(oldJob.getName());
 		JobConfig jobConfig = stageConfig.jobConfigByConfigName(new CaseInsensitiveString(configName));
@@ -62,7 +63,8 @@ public class RunMultipleInstance implements JobType {
 		}
 	}
 
-	public void createJobInstances(JobInstances jobs, SchedulingContext context, JobConfig config, String stageName, final JobNameGenerator nameGenerator, final Clock clock, InstanceFactory instanceFactory) {
+	@Override
+    public void createJobInstances(JobInstances jobs, SchedulingContext context, JobConfig config, String stageName, final JobNameGenerator nameGenerator, final Clock clock, InstanceFactory instanceFactory) {
 		Integer totalInstances = context.isRerun() ? 1 : config.getRunInstanceCountValue();
 		for (int counter = 1; counter <= totalInstances; counter++) {
 			String jobName = nameGenerator.generateName(counter);
@@ -93,7 +95,8 @@ public class RunMultipleInstance implements JobType {
 			this.name = name;
 		}
 
-		public String generateName(int counter) {
+		@Override
+        public String generateName(int counter) {
 			return name;
 		}
 	}
@@ -105,7 +108,8 @@ public class RunMultipleInstance implements JobType {
 			this.name = name;
 		}
 
-		public String generateName(final int counter) {
+		@Override
+        public String generateName(final int counter) {
 			return appendMarker(name, counter);
 		}
 

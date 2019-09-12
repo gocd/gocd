@@ -40,13 +40,16 @@ public class MqlCriteria implements ParamsAttributeAware, Validatable {
         this.mql = mql;
     }
 
+    @Override
     public void validate(ValidationContext validationContext) {
     }
 
+    @Override
     public ConfigErrors errors() {
         return configErrors;
     }
 
+    @Override
     public void addError(String fieldName, String message) {
         configErrors.add(fieldName, message);
     }
@@ -84,6 +87,7 @@ public class MqlCriteria implements ParamsAttributeAware, Validatable {
         return mql;
     }
 
+    @Override
     public void setConfigAttributes(Object attributes) {
         if (attributes == null) {
             return;

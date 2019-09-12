@@ -33,6 +33,7 @@ public class StageAuthorizationChecker implements SchedulingChecker {
         this.securityService = securityService;
     }
 
+    @Override
     public void check(OperationResult result) {
         HealthStateType id = HealthStateType.general(HealthStateScope.forPipeline(pipelineName));
         if (!securityService.hasOperatePermissionForStage(pipelineName, stageName, username)) {

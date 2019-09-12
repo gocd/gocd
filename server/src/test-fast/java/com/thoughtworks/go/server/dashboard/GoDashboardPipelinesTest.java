@@ -17,7 +17,6 @@ package com.thoughtworks.go.server.dashboard;
 
 import org.junit.Test;
 
-import java.util.Arrays;
 import java.util.HashMap;
 
 import static org.hamcrest.Matchers.is;

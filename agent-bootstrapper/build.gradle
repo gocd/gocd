@@ -65,6 +65,7 @@ task verifyJar(type: VerifyJarTask) {
     'lib'         : [
       "agent-bootstrapper-${project.version}-classes.jar",
       "agent-common-${project.version}.jar",
+      "ant-${project.versions.apacheAnt}.jar",
       "base-${project.version}.jar",
       "commons-codec-${project.versions.commonsCodec}.jar",
       "commons-io-${project.versions.commonsIO}.jar",

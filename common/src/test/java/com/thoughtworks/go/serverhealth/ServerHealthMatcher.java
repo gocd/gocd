@@ -36,6 +36,7 @@ public class ServerHealthMatcher {
             private boolean levelMatches;
             private boolean messageMatches;
 
+            @Override
             public boolean matchesSafely(ServerHealthService item) {
                 allLogs = item.logs();
                 for (ServerHealthState serverHealthState : allLogs) {
@@ -52,6 +53,7 @@ public class ServerHealthMatcher {
                 }
             }
 
+            @Override
             public void describeTo(Description description) {
                 if (entry == null) {
                     description.appendText("Can not find result with " + healthStateType + " in all logs: " + allLogs);
@@ -71,6 +73,7 @@ public class ServerHealthMatcher {
         return new TypeSafeMatcher<ServerHealthService>() {
             private ServerHealthState entry;
 
+            @Override
             public boolean matchesSafely(ServerHealthService item) {
                 for (ServerHealthState serverHealthState : item.logs()) {
                     if (serverHealthState.getType().equals(healthStateType)) {
@@ -81,6 +84,7 @@ public class ServerHealthMatcher {
                 return true;
             }
 
+            @Override
             public void describeTo(Description description) {
                 description.appendText("HealthStateType " + healthStateType + " contains: " + entry + "\n" + "With level: " + entry.getLogLevel());
             }

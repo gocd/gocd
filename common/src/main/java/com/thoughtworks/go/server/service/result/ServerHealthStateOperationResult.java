@@ -25,22 +25,27 @@ import com.thoughtworks.go.serverhealth.ServerHealthState;
 public class ServerHealthStateOperationResult implements OperationResult {
     private ServerHealthState lastHealthState = null;
 
+    @Override
     public ServerHealthState success(HealthStateType healthStateType) {
         return add(ServerHealthState.success(healthStateType));
     }
 
+    @Override
     public ServerHealthState error(String message, String description, HealthStateType type) {
         return add(ServerHealthState.error(message, description, type));
     }
 
+    @Override
     public ServerHealthState warning(String message, String description, HealthStateType type) {
         return add(ServerHealthState.warning(message, description, type));
     }
 
+    @Override
     public ServerHealthState getServerHealthState() {
         return lastHealthState;
     }
 
+    @Override
     public boolean canContinue() {
         return lastHealthState == null ||  lastHealthState.isSuccess();
     }
@@ -50,22 +55,27 @@ public class ServerHealthStateOperationResult implements OperationResult {
         return error(message, description, id);
     }
 
+    @Override
     public void conflict(String message, String description, HealthStateType healthStateType) {
         error(message, description, healthStateType);
     }
 
+    @Override
     public void notFound(String message, String description, HealthStateType healthStateType) {
         error(message, description, healthStateType);
     }
 
+    @Override
     public void accepted(String message, String description, HealthStateType healthStateType) {
         success(healthStateType);
     }
 
+    @Override
     public void ok(String message) {
 
     }
 
+    @Override
     public void notAcceptable(String message, final HealthStateType type) {
         error(message, message, type);
     }
@@ -80,6 +90,7 @@ public class ServerHealthStateOperationResult implements OperationResult {
         error(message, description, type);
     }
 
+    @Override
     public void notAcceptable(String message, String description, final HealthStateType type) {
         error(message, description, type);
     }
@@ -89,6 +100,7 @@ public class ServerHealthStateOperationResult implements OperationResult {
         error(message, description, healthStateType);
     }
 
+    @Override
     public void badRequest(String message, String description, HealthStateType healthStateType) {
         error(message, description, healthStateType);
     }

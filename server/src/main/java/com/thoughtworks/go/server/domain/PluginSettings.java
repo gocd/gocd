@@ -118,6 +118,7 @@ public class PluginSettings implements Validatable {
 
     }
 
+    @Override
     public ConfigErrors errors() {
         return errors;
     }

@@ -19,7 +19,6 @@ import com.thoughtworks.go.api.base.OutputListWriter;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.ErrorGetter;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.apiv6.shared.representers.stages.ConfigHelperOptions;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;

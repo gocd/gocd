@@ -83,6 +83,7 @@ public class EncryptedConfigurationValue implements Serializable, Validatable {
         }
     }
 
+    @Override
     public void validate(ValidationContext validationContext) {
 
     }

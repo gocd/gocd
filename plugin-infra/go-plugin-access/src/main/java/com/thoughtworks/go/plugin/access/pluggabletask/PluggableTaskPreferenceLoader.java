@@ -18,8 +18,6 @@ package com.thoughtworks.go.plugin.access.pluggabletask;
 import com.thoughtworks.go.plugin.infra.PluginChangeListener;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -27,13 +25,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class PluggableTaskPreferenceLoader implements PluginChangeListener {
 
-    private PluginManager pluginManager;
     private TaskExtension taskExtension;
-    private static final Logger LOGGER = LoggerFactory.getLogger(PluggableTaskPreferenceLoader.class);
 
     @Autowired
     public PluggableTaskPreferenceLoader(PluginManager pluginManager, TaskExtension taskExtension) {
-        this.pluginManager = pluginManager;
         this.taskExtension = taskExtension;
         pluginManager.addPluginChangeListener(this);
     }

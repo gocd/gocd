@@ -47,7 +47,6 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
-import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.*;
 
 public class PipelineRepositoryTest {

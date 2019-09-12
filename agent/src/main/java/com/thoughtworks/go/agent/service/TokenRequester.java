@@ -50,8 +50,7 @@ public class TokenRequester {
                 .addParameter("uuid", agentRegistry.uuid())
                 .build();
 
-        try {
-            CloseableHttpResponse response = httpClient.execute(getTokenRequest);
+        try (CloseableHttpResponse response = httpClient.execute(getTokenRequest)) {
             final String responseBody = responseBody(response);
             if (response.getStatusLine().getStatusCode() == SC_OK) {
                 LOGGER.info("The server has generated token for the agent.");

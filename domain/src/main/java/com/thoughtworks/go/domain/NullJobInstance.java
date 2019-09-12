@@ -26,14 +26,17 @@ public class NullJobInstance extends JobInstance {
         super(name, new TimeProvider());
     }
 
+    @Override
     public long getId() {
         return 0;
     }
 
+    @Override
     public JobState getState() {
         return JobState.Unknown;
     }
 
+    @Override
     public JobResult getResult() {
         return JobResult.Unknown;
     }
@@ -48,22 +51,27 @@ public class NullJobInstance extends JobInstance {
         return NEVER;
     }
 
+    @Override
     public JobState currentStatus() {
         return JobState.Waiting;
     }
 
+    @Override
     public String displayStatusWithResult() {
         return getState().toLowerCase();
     }
 
+    @Override
     public JobInstance mostRecentPassed(JobInstance champion) {
         return champion;
     }
 
+    @Override
     public String buildLocator() {
         return "NULLJOB";
     }
 
+    @Override
     public String buildLocatorForDisplay() {
         return buildLocator();
     }

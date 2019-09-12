@@ -55,7 +55,6 @@ public class DefaultPluginJarChangeListenerTest {
     private GoPluginOSGiFramework osgiFramework;
     private SystemEnvironment systemEnvironment;
     private GoPluginDescriptorBuilder goPluginDescriptorBuilder;
-    private PluginExtensionsAndVersionValidator pluginExtensionsAndVersionValidator;
 
     @Before
     public void setUp() throws Exception {
@@ -63,11 +62,10 @@ public class DefaultPluginJarChangeListenerTest {
         pluginDir = temporaryFolder.newFolder("pluginDir");
 
         registry = mock(DefaultPluginRegistry.class);
-        osgiManifestGenerator = mock(GoPluginOSGiManifest.DefaultGoPluginOSGiManifestCreator.class);
+        osgiManifestGenerator = mock(DefaultGoPluginOSGiManifestCreator.class);
         osgiFramework = mock(GoPluginOSGiFramework.class);
         goPluginDescriptorBuilder = mock(GoPluginDescriptorBuilder.class);
         systemEnvironment = mock(SystemEnvironment.class);
-        pluginExtensionsAndVersionValidator = mock(PluginExtensionsAndVersionValidator.class);
         when(systemEnvironment.get(PLUGIN_ACTIVATOR_JAR_PATH)).thenReturn("defaultFiles/go-plugin-activator.jar");
         when(systemEnvironment.get(PLUGIN_BUNDLE_PATH)).thenReturn(bundleDir.getAbsolutePath());
         when(systemEnvironment.getOperatingSystemFamilyName()).thenReturn("Linux");

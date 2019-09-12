@@ -131,6 +131,7 @@ public class ConsoleActivityMonitor {
             this.consoleActivityMonitor = consoleActivityMonitor;
         }
 
+        @Override
         public void jobStatusChanged(JobInstance job) {
             JobIdentifier identifier = job.getIdentifier();
             if (job.getState().isBuilding()) {

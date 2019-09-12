@@ -15,9 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-import java.util.Arrays;
-import java.util.List;
-
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.SecureSiteUrl;
 import com.thoughtworks.go.domain.SiteUrl;
@@ -32,6 +29,9 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.util.Arrays;
+import java.util.List;
 
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
@@ -55,7 +55,6 @@ public class SecurityServiceIntegrationTest {
     private static final String HACKER = "hacker";
 
     @Autowired private GoConfigDao goConfigDao;
-    @Autowired private CachedGoConfig cachedGoConfig;
     @Autowired private SecurityService securityService;
     @Autowired private DatabaseAccessHelper dbHelper;
     private GoConfigFileHelper configHelper;

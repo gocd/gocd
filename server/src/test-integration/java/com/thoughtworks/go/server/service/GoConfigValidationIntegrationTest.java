@@ -116,6 +116,7 @@ public class GoConfigValidationIntegrationTest {
 
     private void addApproverToStage(final String userName) {
         goConfigDao.updateConfig(new UpdateConfigCommand() {
+            @Override
             public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
                 PipelineConfig pConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(PIPELINE_FOO));
                 StageConfig stage = pConfig.getStage(new CaseInsensitiveString(STAGE_BAR));

@@ -31,6 +31,7 @@ public class VariableValueConfigTypeHandlerCallback extends StringColumnBasedTyp
         ps.setString(i, parameter.getValue());
     }
 
+    @Override
     protected VariableValueConfig valueOf(String s) {
         return new VariableValueConfig(s);
     }

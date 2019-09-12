@@ -29,12 +29,14 @@ public class ScheduleCheckMatcher {
             private List<String> expected;
             private List<String> actual;
 
+            @Override
             public boolean matchesSafely(String[] expected) {
                 this.expected = Arrays.asList(expected);
                 this.actual = listener.pipelines;
                 return actual.containsAll(this.expected);
             }
 
+            @Override
             public void describeTo(Description description) {
                 description.appendText(String.format("Expect to complete material checking for %s but got %s", expected, actual));
             }

@@ -38,6 +38,7 @@ public class JobStatusMessage implements GoMessage {
         return state;
     }
 
+    @Override
     public String toString() {
         return String.format("[JobStatusMessage: %s %s %s]", agentUuid, jobIdentifier, state);
     }
@@ -50,6 +51,7 @@ public class JobStatusMessage implements GoMessage {
         return agentUuid;
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -73,6 +75,7 @@ public class JobStatusMessage implements GoMessage {
         return true;
     }
 
+    @Override
     public int hashCode() {
         int result;
         result = (jobIdentifier != null ? jobIdentifier.hashCode() : 0);

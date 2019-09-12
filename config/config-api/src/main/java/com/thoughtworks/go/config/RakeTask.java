@@ -29,10 +29,12 @@ public class RakeTask extends BuildTask {
         return "rake";
     }
 
+    @Override
     public String getTypeForDisplay() {
         return "Rake";
     }
 
+    @Override
     public String arguments() {
         ArrayList<String> args = new ArrayList<>();
         if (buildFile != null) {

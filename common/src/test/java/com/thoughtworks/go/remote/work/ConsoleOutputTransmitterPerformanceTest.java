@@ -52,6 +52,7 @@ public class ConsoleOutputTransmitterPerformanceTest {
             throws InterruptedException {
         final int[] count = {0};
         Thread thread = new Thread(new Runnable() {
+            @Override
             public void run() {
                 long startTime = System.currentTimeMillis();
                 count[0] = 0;

@@ -21,16 +21,20 @@ import com.thoughtworks.go.domain.materials.ModifiedFile;
 import com.thoughtworks.go.domain.materials.Revision;
 
 public class ModificationVisitorAdapter implements ModificationVisitor {
+    @Override
     public void visit(Material material, Revision revision) {
     }
 
+    @Override
     public void visit(Modification modification) {
     }
 
+    @Override
     public void visit(MaterialRevision materialRevision) {
     }
 
+    @Override
     public void visit(ModifiedFile file) {
-        
+
     }
 }

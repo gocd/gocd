@@ -79,6 +79,7 @@ public class DigestObjectPools {
 
     private static class SimpleCreateDigest implements CreateDigest {
 
+        @Override
         public MessageDigest create(String algorithm) throws NoSuchAlgorithmException {
             return MessageDigest.getInstance(algorithm);
         }

@@ -228,6 +228,7 @@ public class PackageMaterialConfig extends AbstractMaterialConfig {
         return result;
     }
 
+    @Override
     public void setConfigAttributes(Object attributes) {
         if (attributes == null) {
             return;

@@ -31,6 +31,7 @@ public class AgentSubprocessExecutionContext implements SubprocessExecutionConte
         this.workingDirectory = workingDirectory;
     }
 
+    @Override
     public String getProcessNamespace(String fingerprint) {
         return CachedDigestUtils.sha256Hex(fingerprint + agentIdentifier.getUuid() + workingDirectory);
     }

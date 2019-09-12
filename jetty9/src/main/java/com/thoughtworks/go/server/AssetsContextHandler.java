@@ -69,6 +69,7 @@ public class AssetsContextHandler extends ContextHandler {
             super.doStart();
         }
 
+        @Override
         public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
             if (shouldNotHandle()) return;
             this.resourceHandler.handle(target, baseRequest, request, response);

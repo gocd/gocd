@@ -30,7 +30,7 @@ public class Pipeline extends PersistentObject implements PipelineInfo {
     private String pipelineName;
     private Integer counter;
     private PipelineLabel pipelineLabel = PipelineLabel.defaultLabel();
-    private Stages stages = new Stages();
+    private Stages stages;
     private BuildCause buildCause;
     private double naturalOrder;
 
@@ -58,6 +58,7 @@ public class Pipeline extends PersistentObject implements PipelineInfo {
         return new File(CruiseConfig.WORKING_BASE_DIR + pipelineName);
     }
 
+    @Override
     public String getName() {
         return pipelineName;
     }
@@ -124,6 +125,7 @@ public class Pipeline extends PersistentObject implements PipelineInfo {
         }
     }
 
+    @Override
     public boolean hasStageBeenRun(String stageName) {
         return stages.hasStage(stageName);
     }
@@ -151,10 +153,12 @@ public class Pipeline extends PersistentObject implements PipelineInfo {
         this.pipelineLabel.updateLabel(namedRevisions, counter);
     }
 
+    @Override
     public boolean isAnyStageActive() {
         return stages.isAnyStageActive();
     }
 
+    @Override
     public String nextStageName(String stageName) {
         return stages.nextStageName(stageName);
     }
@@ -163,11 +167,13 @@ public class Pipeline extends PersistentObject implements PipelineInfo {
         return stages.byName(stageName);
     }
 
-    private void setBuildCauseMessage(String buildCauseMessage) {
+    // used by ibatis
+    public void setBuildCauseMessage(String buildCauseMessage) {
         buildCause.setMessage(buildCauseMessage);
     }
 
-    private void setApprovedBy(String approvedBy) {
+    // used by ibatis
+    public void setApprovedBy(String approvedBy) {
         buildCause.setApprover(approvedBy);
     }
 

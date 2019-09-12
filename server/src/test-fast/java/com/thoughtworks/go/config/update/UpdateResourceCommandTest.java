@@ -18,7 +18,6 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.*;
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 

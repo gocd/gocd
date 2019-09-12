@@ -75,6 +75,7 @@ public class MaterialRepositoryWithH2IntegrationTest {
     public void materialFingerprintShouldUseTheHashAlgoritmInMigration47() throws Exception {
         final HgMaterial material = new HgMaterial("url", null);
         byte[] fingerprint = (byte[]) repo.getHibernateTemplate().execute(new HibernateCallback() {
+            @Override
             public Object doInHibernate(Session session) throws HibernateException, SQLException {
                 String pattern = format("'type=%s%surl=%s'", material.getType(), AbstractMaterial.FINGERPRINT_DELIMITER, material.getUrl());
                 SQLQuery query = session.createSQLQuery(format("CALL HASH('SHA256', STRINGTOUTF8(%s), 1)", pattern));

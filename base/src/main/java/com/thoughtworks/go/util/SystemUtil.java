@@ -133,25 +133,10 @@ public class SystemUtil {
     }
 
     public static boolean reachable(String name, int port) {
-        Socket s = null;
-        try {
-            s = new Socket(InetAddress.getByName(name), port);
+        try(Socket ignored = new Socket(InetAddress.getByName(name), port)) {
             return true;
         } catch (Exception e) {
             return false;
-        } finally {
-            closeQuietly(s);
-        }
-    }
-
-    private static void closeQuietly(Socket s) {
-        if (s == null) {
-            return;
-        }
-        try {
-            s.close();
-        } catch (IOException e) {
-            LOG.info("failed to close socket", e);
         }
     }
 

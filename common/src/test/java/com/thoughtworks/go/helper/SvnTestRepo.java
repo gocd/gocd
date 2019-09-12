@@ -64,6 +64,7 @@ public class SvnTestRepo extends TestRepo {
         return repositoryUrl(project);
     }
 
+    @Override
     public String projectRepositoryUrl() {
         return repositoryUrl("project1/trunk");
     }
@@ -88,6 +89,7 @@ public class SvnTestRepo extends TestRepo {
         return new File(tempRepo, project);
     }
 
+    @Override
     public SvnMaterial material() {
         return new SvnMaterial(projectRepositoryUrl(), null, null, false);
     }
@@ -112,6 +114,7 @@ public class SvnTestRepo extends TestRepo {
         return checkInOneFile(path, "adding file [" + path + "]").get(0);
     }
 
+    @Override
     public List<Modification> checkInOneFile(String filename, String message) throws Exception {
         SvnMaterial svnMaterial = material();
 

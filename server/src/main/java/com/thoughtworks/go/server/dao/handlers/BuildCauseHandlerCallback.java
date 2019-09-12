@@ -27,6 +27,7 @@ public class BuildCauseHandlerCallback extends StringColumnBasedTypeHandler<Buil
         ps.setString(i, parameter.toDbString());
     }
 
+    @Override
     protected BuildCause valueOf(String text) {
         return BuildCause.fromDbString(text);
     }

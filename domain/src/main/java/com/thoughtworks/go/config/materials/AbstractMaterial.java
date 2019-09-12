@@ -50,6 +50,7 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
         type = typeName;
     }
 
+    @Override
     public CaseInsensitiveString getName() {
         return name;
     }
@@ -59,6 +60,7 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
         return escapeEnvironmentVariable(getName().toUpper());
     }
 
+    @Override
     public final Map<String, Object> getSqlCriteria() {
         if (sqlCriteria == null) {
             Map<String, Object> map = new LinkedHashMap<>();
@@ -69,6 +71,7 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
         return sqlCriteria;
     }
 
+    @Override
     public final Map<String, Object> getAttributesForScope() {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("type", type);
@@ -77,6 +80,7 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
         return Collections.unmodifiableMap(map);
     }
 
+    @Override
     public final Map<String, Object> getAttributesForXml() {
         if (attributesForXml == null) {
             Map<String, Object> map = new LinkedHashMap<>();
@@ -87,6 +91,7 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
         return attributesForXml;
     }
 
+    @Override
     public String getFingerprint() {
         if (fingerprint == null) {
             fingerprint = generateFingerprintFromCriteria(getSqlCriteria());
@@ -94,6 +99,7 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
         return fingerprint;
     }
 
+    @Override
     public String getPipelineUniqueFingerprint() {
         if (pipelineUniqueFingerprint == null) {
             Map<String, Object> basicCriteria = new LinkedHashMap<>(getSqlCriteria());
@@ -113,6 +119,7 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
         return CachedDigestUtils.sha256Hex(fingerprint);
     }
 
+    @Override
     public String getTruncatedDisplayName() {
         String displayName = getDisplayName();
         if (displayName.length() > TRUNCATED_NAME_MAX_LENGTH) {
@@ -135,14 +142,17 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
         this.name = name;
     }
 
+    @Override
     public String getType() {
         return type;
     }
 
+    @Override
     public String getShortRevision(String revision) {
         return revision;
     }
 
+    @Override
     public boolean isSameFlyweight(Material other) {
         return getFingerprint().equals(other.getFingerprint());
     }
@@ -216,6 +226,7 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
         }
     }
 
+    @Override
     public void populateAgentSideEnvironmentContext(EnvironmentVariableContext context, File workingDir) {
     }
 }

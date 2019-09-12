@@ -33,14 +33,17 @@ public class TaskViewModel implements PluggableViewModel {
         this.templatePath = viewTemplate;
     }
 
+    @Override
     public String getTemplatePath() {
         return templatePath;
     }
 
+    @Override
     public Map<String, Object> getParameters() {
         return new HashMap<>();
     }
 
+    @Override
     public Object getModel() {
         return task;
     }

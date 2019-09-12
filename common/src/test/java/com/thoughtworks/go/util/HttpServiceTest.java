@@ -24,6 +24,7 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.message.BasicStatusLine;
 import org.junit.Before;
@@ -32,6 +33,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -99,6 +101,10 @@ public class HttpServiceTest {
 
         HttpGet mockGetMethod = mock(HttpGet.class);
         CloseableHttpResponse response = mock(CloseableHttpResponse.class);
+        BasicHttpEntity basicHttpEntity = new BasicHttpEntity();
+        ByteArrayInputStream instream = new ByteArrayInputStream(new byte[]{});
+        basicHttpEntity.setContent(instream);
+        when(response.getEntity()).thenReturn(basicHttpEntity);
         when(response.getStatusLine()).thenReturn(new BasicStatusLine(HttpVersion.HTTP_1_1, 200, "OK"));
         when(httpClient.execute(mockGetMethod)).thenReturn(response);
         when(httpClientFactory.createGet(url)).thenReturn(mockGetMethod);
@@ -107,7 +113,7 @@ public class HttpServiceTest {
 
         service.download(url, fetchHandler);
         verify(httpClient).execute(mockGetMethod);
-        verify(fetchHandler).handle(null);
+        verify(fetchHandler).handle(instream);
     }
 
     @Test

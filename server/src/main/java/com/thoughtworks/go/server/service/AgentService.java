@@ -20,7 +20,6 @@ import com.thoughtworks.go.config.Agents;
 import com.thoughtworks.go.config.EnvironmentConfig;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.listener.AgentChangeListener;
-import com.thoughtworks.go.presentation.TriStateSelection;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.security.Registration;
 import com.thoughtworks.go.server.domain.Agent;

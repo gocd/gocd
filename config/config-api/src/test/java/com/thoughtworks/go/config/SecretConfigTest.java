@@ -218,6 +218,7 @@ public class SecretConfigTest extends AbstractRuleAwarePluginProfileTest {
         return new SecretConfig(id, pluginId, configurationProperties);
     }
 
+    @Override
     protected String getObjectDescription() {
         return "Secret configuration";
     }

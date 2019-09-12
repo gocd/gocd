@@ -83,6 +83,7 @@ public class PipelineInstanceModel implements PipelineInfo {
         this.id = id;
     }
 
+    @Override
     public String getName() {
         return name;
     }
@@ -95,10 +96,12 @@ public class PipelineInstanceModel implements PipelineInfo {
         return buildCause == null ? "Unknown" : buildCause.getBuildCauseMessage();
     }
 
+    @Override
     public boolean hasStageBeenRun(String stageName) {
         return stageHistory.hasStage(stageName);
     }
 
+    @Override
     public String nextStageName(String stageName) {
         return stageHistory.nextStageName(stageName);
     }
@@ -135,6 +138,7 @@ public class PipelineInstanceModel implements PipelineInfo {
         this.label = label;
     }
 
+    @Override
     public boolean isAnyStageActive() {
         for (StageInstanceModel stage : stageHistory) {
             if (stage.getState().isActive()) {
@@ -302,7 +306,7 @@ public class PipelineInstanceModel implements PipelineInfo {
     public int indexOf(StageInstanceModel stageInstanceModel) {
         return stageHistory.indexOf(stageInstanceModel);
     }
-    
+
     public int numberOfStages() {
         return stageHistory.size();
     }
@@ -415,14 +419,17 @@ public class PipelineInstanceModel implements PipelineInfo {
     public static final Revision UNKNOWN_REVISION = new Revision() {
         public static final String NO_HISTORICAL_DATA = "No historical data";
 
+        @Override
         public String getRevision() {
             return NO_HISTORICAL_DATA;
         }
 
+        @Override
         public String getRevisionUrl() {
             return NO_HISTORICAL_DATA;
         }
 
+        @Override
         public boolean isRealRevision() {
             return false;
         }

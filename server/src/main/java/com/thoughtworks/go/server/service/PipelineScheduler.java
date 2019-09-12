@@ -212,6 +212,7 @@ public class PipelineScheduler implements ConfigChangedListener, GoMessageListen
                 HealthStateType.invalidLicense(HealthStateScope.GLOBAL)));
     }
 
+    @Override
     public void onConfigChange(CruiseConfig newCruiseConfig) {
         synchronized (pipelines) {
             newCruiseConfig.accept((PiplineConfigVisitor) pipelineConfig -> addPipelineIfNotPresent(pipelineConfig, pipelines));
@@ -236,6 +237,7 @@ public class PipelineScheduler implements ConfigChangedListener, GoMessageListen
         }
     }
 
+    @Override
     public void onMessage(ScheduleCheckCompletedMessage message) {
         synchronized (pipelines) {
             pipelines.put(message.getPipelineName(), ScheduleCheckState.IDLE);

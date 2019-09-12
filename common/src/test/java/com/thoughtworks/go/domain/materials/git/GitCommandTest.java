@@ -19,7 +19,6 @@ import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.ModifiedAction;
 import com.thoughtworks.go.domain.materials.ModifiedFile;
-import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.helper.GitRepoContainingSubmodule;
 import com.thoughtworks.go.helper.TestRepo;
@@ -38,7 +37,6 @@ import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestRule;
-import org.mockito.Mock;
 
 import java.io.File;
 import java.io.IOException;
@@ -77,9 +75,6 @@ public class GitCommandTest {
 
     @Rule
     public final TestRule restoreSystemProperties = new RestoreSystemProperties();
-
-    @Mock
-    private TestSubprocessExecutionContext testSubprocessExecutionContext;
 
     @Rule
     public final ExpectedException expectedException = ExpectedException.none();
@@ -519,15 +514,12 @@ public class GitCommandTest {
     @Test
     void shouldCheckIfRemoteRepoExists() {
         GitCommand gitCommand = new GitCommand(null, null, null, false, null);
-        final TestSubprocessExecutionContext executionContext = new TestSubprocessExecutionContext();
-
         gitCommand.checkConnection(git.workingRepositoryUrl(), "master");
     }
 
     @Test
     void shouldThrowExceptionWhenRepoNotExist() {
         GitCommand gitCommand = new GitCommand(null, null, null, false, null);
-        final TestSubprocessExecutionContext executionContext = new TestSubprocessExecutionContext();
 
         assertThatCode(() -> gitCommand.checkConnection(new UrlArgument("git://somewhere.is.not.exist"), "master"))
                 .isInstanceOf(Exception.class);
@@ -657,7 +649,7 @@ public class GitCommandTest {
         String submoduleDirectoryName = "local-submodule";
         File cloneDirectory = createTempWorkingDirectory();
 
-        File remoteSubmoduleLocation = submoduleRepos.addSubmodule(SUBMODULE, submoduleDirectoryName);
+        submoduleRepos.addSubmodule(SUBMODULE, submoduleDirectoryName);
 
         GitCommand clonedCopy = new GitCommand(null, cloneDirectory, GitMaterialConfig.DEFAULT_BRANCH, false, null);
         clonedCopy.clone(outputStreamConsumer, submoduleRepos.mainRepo().getUrl());

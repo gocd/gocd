@@ -83,7 +83,6 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     private final ConfigElementImplementationRegistry registry;
     private final CachedGoPartials cachedGoPartials;
     private GoConfigDao goConfigDao;
-    private PipelineRepository pipelineRepository;
     private GoConfigMigration upgrader;
     private GoCache goCache;
     private ConfigRepository configRepository;
@@ -106,7 +105,6 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
                            CachedGoPartials cachedGoPartials,
                            SystemEnvironment systemEnvironment) {
         this.goConfigDao = goConfigDao;
-        this.pipelineRepository = pipelineRepository;
         this.goCache = goCache;
         this.configRepository = configRepository;
         this.configCache = configCache;
@@ -217,6 +215,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return cruiseConfig().getEnvironments();
     }
 
+    @Override
     public CruiseConfig getCurrentConfig() {
         return cruiseConfig();
     }
@@ -333,7 +332,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
                                                    final String md5,
                                                    Username username,
                                                    final LocalizedOperationResult result) {
-        UiBasedConfigUpdateCommand updateCommand = new UiBasedConfigUpdateCommand(md5, command, result, cachedGoPartials);
+        UiBasedConfigUpdateCommand updateCommand = new UiBasedConfigUpdateCommand(md5, command, result);
         UpdatedNodeSubjectResolver updatedConfigResolver = new UpdatedNodeSubjectResolver();
         try {
             ConfigSaveState configSaveState = updateConfig(updateCommand);
@@ -1227,6 +1226,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
             this.shouldUpgrade = shouldUpgrade;
         }
 
+        @Override
         protected ConfigSaveState updatePartial(String xmlFile, final String md5) throws Exception {
             if (shouldUpgrade) {
                 xmlFile = upgrader.upgradeIfNecessary(xmlFile);
@@ -1234,10 +1234,12 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
             return saveConfig(xmlFile, md5);
         }
 
+        @Override
         public String asXml() {
             return configAsXml(valid());
         }
 
+        @Override
         protected CruiseConfig valid() {
             return configForEditing();
         }
@@ -1251,6 +1253,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
             this.groupName = groupName;
         }
 
+        @Override
         protected Object valid() {
             CruiseConfig config = configForEditing();
             PipelineConfigs group = config.findGroup(groupName);

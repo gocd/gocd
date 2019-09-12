@@ -235,10 +235,12 @@ public class Authorization implements Validatable, ParamsAttributeAware, ConfigO
         }
     }
 
+    @Override
     public void validate(ValidationContext validationContext) {
         return;
     }
 
+    @Override
     public ConfigErrors errors() {
         return configErrors;
     }
@@ -247,10 +249,12 @@ public class Authorization implements Validatable, ParamsAttributeAware, ConfigO
         return ErrorCollector.getAllErrors(this);
     }
 
+    @Override
     public void addError(String fieldName, String message) {
         configErrors.add(fieldName, message);
     }
 
+    @Override
     public void setConfigAttributes(Object attributes) {
         List<Map<String, Object>> attributeMap = (List) attributes;
         for (Map<String, Object> userMap : attributeMap) {
@@ -374,17 +378,21 @@ public class Authorization implements Validatable, ParamsAttributeAware, ConfigO
             return type;
         }
 
+        @Override
         public int compareTo(PresentationElement other) {
             return this.name.compareTo(other.name);
         }
 
+        @Override
         public void validate(ValidationContext validationContext) {
         }
 
+        @Override
         public ConfigErrors errors() {
             return configErrors;
         }
 
+        @Override
         public void addError(String fieldName, String message) {
             configErrors.add(fieldName, message);
         }
@@ -410,6 +418,7 @@ public class Authorization implements Validatable, ParamsAttributeAware, ConfigO
         return list;
     }
 
+    @Override
     public String toString() {
         return String.format("Authorization [view: %s] [operate: %s] [admins: %s] [allowGroupAdmins: %s]", viewConfig, operationConfig, adminsConfig, allowGroupAdmins);
     }

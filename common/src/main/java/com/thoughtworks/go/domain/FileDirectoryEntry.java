@@ -25,6 +25,7 @@ public class FileDirectoryEntry extends DirectoryEntry {
         super(fileName, url, "file");
     }
 
+    @Override
     protected HtmlRenderable htmlBody() {
         return HtmlElement.li().content(
             HtmlElement.span(HtmlAttribute.cssClass("artifact")).content(

@@ -23,10 +23,8 @@ import com.thoughtworks.go.security.ResetCipher;
 import org.junit.Rule;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.util.Arrays;
 
-import static org.hamcrest.Matchers.startsWith;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;

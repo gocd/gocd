@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.SecretParams;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.materials.PackageMaterial;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
@@ -302,7 +301,6 @@ public class MaterialServiceTest {
         MaterialService spy = spy(materialService);
         GitPoller gitPoller = mock(GitPoller.class);
         Class<GitMaterial> toBeReturned = GitMaterial.class;
-        SecretParams secretParams = mock(SecretParams.class);
 
         doReturn(toBeReturned).when(spy).getMaterialClass(gitMaterial);
         doReturn(true).when(gitMaterial).hasSecretParams();

@@ -49,6 +49,7 @@ task verifyJar(type: VerifyJarTask) {
       "libs": [
           "agent-common-${project.version}.jar",
           "agent-launcher-${project.version}-classes.jar",
+          "ant-${project.versions.apacheAnt}.jar",
           "base-${project.version}.jar",
           "commons-io-${project.versions.commonsIO}.jar",
           "commons-lang3-${project.versions.commonsLang3}.jar",

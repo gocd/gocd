@@ -33,7 +33,6 @@ import org.mockito.Mock;
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 

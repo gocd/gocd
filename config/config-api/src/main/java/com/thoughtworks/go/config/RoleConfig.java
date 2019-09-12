@@ -50,10 +50,12 @@ public class RoleConfig implements Role {
         }
     }
 
+    @Override
     public ConfigErrors errors() {
         return configErrors;
     }
 
+    @Override
     public void addError(String fieldName, String message) {
         configErrors.add(fieldName, message);
     }
@@ -73,6 +75,7 @@ public class RoleConfig implements Role {
         return new ArrayList<>(users);
     }
 
+    @Override
     public void addUser(RoleUser user) {
         if (!this.users.contains(user)) {
             this.users.add(user);
@@ -86,6 +89,7 @@ public class RoleConfig implements Role {
         }
     }
 
+    @Override
     public void removeUser(RoleUser roleUser) {
         this.users.remove(roleUser);
     }

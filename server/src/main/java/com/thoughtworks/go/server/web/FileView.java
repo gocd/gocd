@@ -20,6 +20,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import org.springframework.web.context.ServletContextAware;
 import org.springframework.web.servlet.View;
 
@@ -33,6 +34,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.zip.Deflater;
 
+@Component
 public class FileView implements View, ServletContextAware {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileView.class);
@@ -44,10 +46,12 @@ public class FileView implements View, ServletContextAware {
         return this.servletContext;
     }
 
+    @Override
     public void setServletContext(ServletContext servletContext) {
         this.servletContext = servletContext;
     }
 
+    @Override
     public String getContentType() {
         return "application/octet-stream";
     }
@@ -100,6 +104,7 @@ public class FileView implements View, ServletContextAware {
         return mimeType;
     }
 
+    @Override
     public void render(Map map, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws Exception {
         File file = (File) map.get("targetFile");
         boolean needToZip = map.containsKey(NEED_TO_ZIP);

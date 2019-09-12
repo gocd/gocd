@@ -50,6 +50,7 @@ public class ConsoleStreamer implements ConsoleConsumer {
      * @return the number of lines streamed by this invocation
      * @throws IOException if the file does not exist or is otherwise not readable
      */
+    @Override
     public long stream(Consumer<String> action) throws IOException {
         long linesStreamed = 0L;
 
@@ -75,6 +76,7 @@ public class ConsoleStreamer implements ConsoleConsumer {
         iterator = null;
     }
 
+    @Override
     public long totalLinesConsumed() {
         return count;
     }

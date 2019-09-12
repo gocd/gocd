@@ -77,6 +77,7 @@ public class GoQueueTest {
             this.id = id;
         }
 
+        @Override
         public void onMessage(GoMessage message) {
             String text = ((GoTextMessage) message).getText();
 //            System.out.println(

@@ -19,6 +19,8 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.domain.SecureSiteUrl;
 import com.thoughtworks.go.domain.SiteUrl;
 
+import java.util.Objects;
+
 @ConfigTag("siteUrls")
 public class SiteUrls {
     @ConfigSubtag
@@ -51,5 +53,19 @@ public class SiteUrls {
 
     public void setSecureSiteUrl(SecureSiteUrl secureSiteUrl) {
         this.secureSiteUrl = secureSiteUrl;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SiteUrls siteUrls = (SiteUrls) o;
+        return Objects.equals(siteUrl, siteUrls.siteUrl) &&
+                Objects.equals(secureSiteUrl, siteUrls.secureSiteUrl);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(siteUrl, secureSiteUrl);
     }
 }

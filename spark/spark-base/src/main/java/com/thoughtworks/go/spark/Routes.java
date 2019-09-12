@@ -717,4 +717,8 @@ public class Routes {
         public static final String FEATURE_TOGGLE_KEY = "/:toggle_key";
         public static final String BASE = "/api/admin/feature_toggles";
     }
+
+    public class ServerSiteUrlsConfig {
+        public static final String BASE = "/api/admin/config/server/site_urls";
+    }
 }

@@ -82,8 +82,8 @@ class ArtifactConfigControllerV1Test implements SecurityServiceTrait, Controller
 
         artifactConfig = new ArtifactConfig()
         def purgeSettings = new PurgeSettings()
-        purgeSettings.setPurgeStart(new PurgeStart(20.0))
-        purgeSettings.setPurgeUpto(new PurgeUpto(50.0))
+        purgeSettings.setPurgeStart(new PurgeStart().setPurgeStartDiskSpace(20.0))
+        purgeSettings.setPurgeUpto(new PurgeUpto().setPurgeUptoDiskSpace(50.0))
         artifactConfig.setArtifactsDir(new ArtifactDirectory("artifacts-dir"))
         artifactConfig.setPurgeSettings(purgeSettings)
       }
@@ -133,8 +133,8 @@ class ArtifactConfigControllerV1Test implements SecurityServiceTrait, Controller
 
         artifactConfig = new ArtifactConfig()
         def purgeSettings = new PurgeSettings()
-        purgeSettings.setPurgeStart(new PurgeStart(20.0))
-        purgeSettings.setPurgeUpto(new PurgeUpto(50.0))
+        purgeSettings.setPurgeStart(new PurgeStart().setPurgeStartDiskSpace(20.0))
+        purgeSettings.setPurgeUpto(new PurgeUpto().setPurgeUptoDiskSpace(50.0))
         artifactConfig.setArtifactsDir(new ArtifactDirectory("artifacts-dir"))
         artifactConfig.setPurgeSettings(purgeSettings)
       }
@@ -144,8 +144,8 @@ class ArtifactConfigControllerV1Test implements SecurityServiceTrait, Controller
         def updatedArtifactConfig = new ArtifactConfig()
         updatedArtifactConfig.setArtifactsDir(new ArtifactDirectory("updated-dir"))
         def purgeSettings = new PurgeSettings()
-        purgeSettings.setPurgeStart(new PurgeStart(10.0))
-        purgeSettings.setPurgeUpto(new PurgeUpto(20.0))
+        purgeSettings.setPurgeStart(new PurgeStart().setPurgeStartDiskSpace(10.0))
+        purgeSettings.setPurgeUpto(new PurgeUpto().setPurgeUptoDiskSpace(20.0))
         updatedArtifactConfig.setPurgeSettings(purgeSettings)
 
         when(serverConfigService.getArtifactsConfig()).thenReturn(artifactConfig, updatedArtifactConfig)

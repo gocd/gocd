@@ -76,6 +76,7 @@ import static org.hamcrest.Matchers.not;
 
 @Component
 public class DatabaseAccessHelper extends HibernateDaoSupport {
+    private SessionFactory sessionFactory;
     private IDatabaseTester databaseTester;
     private StageDao stageDao;
     private PipelineSqlMapDao pipelineDao;
@@ -151,6 +152,7 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
         this.pipelineDao = (PipelineSqlMapDao) pipelineDao;
         this.materialRepository = materialRepository;
         this.agentDao = agentDao;
+        this.sessionFactory = sessionFactory;
         setSessionFactory(sessionFactory);
         initialize(dataSource);
     }
@@ -185,6 +187,7 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
         dataSet.addTable(new DefaultTable("DataSharingSettings"));
         dataSet.addTable(new DefaultTable("UsageDataReporting"));
         dataSet.addTable(new DefaultTable("AccessToken"));
+        dataSet.addTable(new DefaultTable("versioninfos"));
 
         databaseTester.setDataSet(dataSet);
     }
@@ -197,19 +200,37 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
                 cache.clear();
             }
         }
+        clearHibernate();
+    }
+
+    private void clearHibernate() {
+        if (sessionFactory == null) {
+            return;
+        }
+
+        sessionFactory.getCache().evictCollectionRegions();
+        sessionFactory.getCache().evictDefaultQueryRegion();
+        sessionFactory.getCache().evictEntityRegions();
+        sessionFactory.getCache().evictQueryRegions();
+
+        try {
+            org.hibernate.classic.Session currentSession = sessionFactory.getCurrentSession();
+            if (currentSession != null) {
+                currentSession.clear();
+            }
+        } catch (HibernateException ignore) {
+
+        }
     }
 
     public void onTearDown() throws Exception {
         databaseTester.onTearDown();
         goCache.clear();
+        clearHibernate();
     }
 
     public TransactionTemplate txTemplate() {
         return transactionTemplate;
-    }
-
-    public TransactionSynchronizationManager txSynchronizationManager() {
-        return transactionSynchronizationManager;
     }
 
     public JobInstanceDao getBuildInstanceDao() {
@@ -462,17 +483,6 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
         jobInstanceDao.updateAssignedInfo(jobInstance);
     }
 
-    public void onefailAndOnePassedBuildInstances(Stage instance) {
-        final JobInstance first = instance.getJobInstances().get(0);
-        final JobInstance second = instance.getJobInstances().get(1);
-        first.completing(Failed);
-        second.completing(Failed);
-        first.completed(new Date());
-        second.completed(new Date());
-        jobInstanceDao.updateStateAndResult(first);
-        jobInstanceDao.updateStateAndResult(second);
-    }
-
     public void failJob(Stage stage, JobInstance instance) {
         instance.completing(Failed);
         instance.completed(new Date());
@@ -488,18 +498,6 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
         }
         stage.calculateResult();
         updateResultInTransaction(stage, StageResult.Cancelled);
-    }
-
-    public void buildInstanceWithDiscontinuedState(Stage instance) {
-        final JobInstance first = instance.getJobInstances().get(0);
-        final JobInstance second = instance.getJobInstances().get(1);
-        first.completing(JobResult.Passed);
-        second.changeState(JobState.Discontinued);
-        second.setResult(JobResult.Passed);
-        first.completed(new Date());
-        jobInstanceDao.updateStateAndResult(first);
-        jobInstanceDao.updateStateAndResult(second);
-        updateResultInTransaction(instance, StageResult.Passed);
     }
 
     public void saveMaterials(final MaterialRevisions materialRevisions) {
@@ -632,8 +630,8 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
         return revision;
     }
 
-    public void addAgent(Agent agent){
-        if(agent != null){
+    public void addAgent(Agent agent) {
+        if (agent != null) {
             agentDao.saveOrUpdate(agent);
         }
     }

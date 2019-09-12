@@ -23,7 +23,7 @@ import lombok.experimental.Accessors;
 @EqualsAndHashCode
 @Accessors(chain = true)
 @NoArgsConstructor(access = AccessLevel.PUBLIC)
-@AllArgsConstructor(access = AccessLevel.PUBLIC)
+@AllArgsConstructor(access = AccessLevel.NONE)
 @ConfigTag("purgeUptoDiskSpace")
 public class PurgeUpto {
     @ConfigValue

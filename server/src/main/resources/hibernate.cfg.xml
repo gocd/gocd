@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!--
+  ~ Copyright 2020 ThoughtWorks, Inc.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!DOCTYPE hibernate-configuration PUBLIC
+    "-//Hibernate/Hibernate Configuration DTD//EN"
+    "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+  <session-factory>
+    <property name="connection.url"/>
+    <property name="connection.driver_class"/>
+    <mapping class="com.thoughtworks.go.domain.AccessToken"/>
+    <mapping class="com.thoughtworks.go.domain.Plugin"/>
+    <mapping class="com.thoughtworks.go.domain.DataSharingSettings"/>
+    <mapping class="com.thoughtworks.go.domain.User"/>
+    <mapping class="com.thoughtworks.go.domain.NotificationFilter"/>
+    <mapping class="com.thoughtworks.go.domain.VersionInfo"/>
+    <mapping class="com.thoughtworks.go.server.domain.ServerBackup"/>
+    <mapping class="com.thoughtworks.go.domain.UsageStatisticsReporting"/>
+    <mapping class="com.thoughtworks.go.domain.StageArtifactCleanupProhibited"/>
+    <mapping class="com.thoughtworks.go.domain.PipelineState"/>
+    <mapping class="com.thoughtworks.go.domain.DataSharingSettings"/>
+    <mapping class="com.thoughtworks.go.domain.PipelineMaterialRevision"/>
+    <mapping class="com.thoughtworks.go.domain.JobAgentMetadata"/>
+    <mapping class="com.thoughtworks.go.server.domain.user.PipelineSelections"/>
+  </session-factory>
+</hibernate-configuration>

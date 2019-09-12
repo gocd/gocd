@@ -28,6 +28,8 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
 
+import java.sql.Timestamp
+
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.Mockito.*
 import static org.mockito.MockitoAnnotations.initMocks
@@ -72,7 +74,7 @@ class UsageStatisticsReportingControllerV2Test implements SecurityServiceTrait, 
 
             @Test
             void 'get usage statistics reporting'() {
-                def usageStatisticsReporting = new UsageStatisticsReporting("server-id", new Date())
+                def usageStatisticsReporting = new UsageStatisticsReporting().setServerId("server-id").setLastReportedAt(new Timestamp(new Date().getTime()))
 
                 when(service.get()).thenReturn(usageStatisticsReporting)
                 getWithApiHeader(controller.controllerPath('/info'))

@@ -18,11 +18,9 @@ package com.thoughtworks.go.server.dao;
 import com.thoughtworks.go.database.Database;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.PipelineState;
-import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.server.cache.CacheKeyGenerator;
 import com.thoughtworks.go.server.cache.GoCache;
-import com.thoughtworks.go.server.domain.StageStatusListener;
 import com.thoughtworks.go.server.transaction.AfterCompletionCallback;
 import com.thoughtworks.go.server.transaction.SqlMapClientDaoSupport;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
@@ -32,19 +30,17 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.hibernate.Criteria;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.PropertyProjection;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
 import java.util.List;
 
 @Component
-public class PipelineStateDao extends SqlMapClientDaoSupport implements StageStatusListener {
+public class PipelineStateDao extends SqlMapClientDaoSupport {
     private TransactionTemplate transactionTemplate;
     private TransactionSynchronizationManager transactionSynchronizationManager;
     private SessionFactory sessionFactory;
@@ -65,22 +61,11 @@ public class PipelineStateDao extends SqlMapClientDaoSupport implements StageSta
         this.cacheKeyGenerator = new CacheKeyGenerator(getClass());
     }
 
-    @Override
-    public void stageStatusChanged(Stage stage) {
-        clearLockedPipelineStateCache(stage.getIdentifier().getPipelineName());
-    }
-
     public void lockPipeline(final Pipeline pipeline, AfterCompletionCallback... callbacks) {
-        synchronized (pipelineLockStateCacheKey(pipeline.getName())) {
+        synchronized (mutexForLockPipeline(pipeline.getName())) {
             transactionTemplate.execute(new TransactionCallbackWithoutResult() {
                 @Override
                 protected void doInTransactionWithoutResult(TransactionStatus status) {
-                    transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
-                        @Override
-                        public void afterCommit() {
-                            clearLockedPipelineStateCache(pipeline.getName());
-                        }
-                    });
                     transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
                         @Override
                         public void afterCompletion(int status) {
@@ -98,7 +83,7 @@ public class PipelineStateDao extends SqlMapClientDaoSupport implements StageSta
                     if (fromCache == null) {
                         toBeSaved = new PipelineState(pipelineName);
                     } else {
-                        toBeSaved = (PipelineState) sessionFactory.getCurrentSession().load(PipelineState.class, fromCache.getId());
+                        toBeSaved = (PipelineState) sessionFactory.getCurrentSession().get(PipelineState.class, fromCache.getId());
                     }
                     toBeSaved.lock(pipeline.getId());
                     sessionFactory.getCurrentSession().saveOrUpdate(toBeSaved);
@@ -107,21 +92,11 @@ public class PipelineStateDao extends SqlMapClientDaoSupport implements StageSta
         }
     }
 
-    private void clearLockedPipelineStateCache(String pipelineName) {
-        goCache.remove(pipelineLockStateCacheKey(pipelineName));
-    }
-
     public void unlockPipeline(final String pipelineName, AfterCompletionCallback... afterCompletionCallbacks) {
-        synchronized (pipelineLockStateCacheKey(pipelineName)) {
+        synchronized (mutexForLockPipeline(pipelineName)) {
             transactionTemplate.execute(new TransactionCallbackWithoutResult() {
                 @Override
                 protected void doInTransactionWithoutResult(TransactionStatus status) {
-                    transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
-                        @Override
-                        public void afterCommit() {
-                            clearLockedPipelineStateCache(pipelineName);
-                        }
-                    });
                     transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
                         @Override
                         public void afterCompletion(int status) {
@@ -136,7 +111,7 @@ public class PipelineStateDao extends SqlMapClientDaoSupport implements StageSta
                     if (fromCache == null) {
                         toBeSaved = new PipelineState(pipelineName);
                     } else {
-                        toBeSaved = (PipelineState) sessionFactory.getCurrentSession().load(PipelineState.class, fromCache.getId());
+                        toBeSaved = (PipelineState) sessionFactory.getCurrentSession().get(PipelineState.class, fromCache.getId());
                     }
                     toBeSaved.unlock();
                     sessionFactory.getCurrentSession().saveOrUpdate(toBeSaved);
@@ -146,51 +121,36 @@ public class PipelineStateDao extends SqlMapClientDaoSupport implements StageSta
     }
 
     public PipelineState pipelineStateFor(String pipelineName) {
-        String cacheKey = pipelineLockStateCacheKey(pipelineName);
-        PipelineState pipelineState = (PipelineState) goCache.get(cacheKey);
-        if (pipelineState != null) {
-            return pipelineState.equals(PipelineState.NOT_LOCKED) ? null : pipelineState;
-        }
-        synchronized (cacheKey) {
-            pipelineState = (PipelineState) goCache.get(cacheKey);
-            if (pipelineState != null) {
-                return pipelineState.equals(PipelineState.NOT_LOCKED) ? null : pipelineState;
-            }
-
-            pipelineState = (PipelineState) transactionTemplate.execute(new TransactionCallback() {
-                @Override
-                public Object doInTransaction(TransactionStatus transactionStatus) {
-                    return sessionFactory.getCurrentSession()
+        synchronized (mutexForLockPipeline(pipelineName)) {
+            PipelineState pipelineState = transactionTemplate.execute(status ->
+                    (PipelineState) sessionFactory.getCurrentSession()
                             .createCriteria(PipelineState.class)
                             .add(Restrictions.eq("pipelineName", pipelineName))
-                            .setCacheable(false).uniqueResult();
-                }
-            });
+                            .setCacheable(true)
+                            .uniqueResult());
 
             if (pipelineState != null && pipelineState.isLocked()) {
                 StageIdentifier lockedBy = (StageIdentifier) getSqlMapClientTemplate().queryForObject("lockedPipeline", pipelineState.getLockedByPipelineId());
                 pipelineState.setLockedBy(lockedBy);
             }
-            goCache.put(cacheKey, pipelineState == null ? PipelineState.NOT_LOCKED : pipelineState);
             return pipelineState;
         }
     }
 
-    String pipelineLockStateCacheKey(String pipelineName) {
+    String mutexForLockPipeline(String pipelineName) {
         return cacheKeyGenerator.generate("lockedPipeline", pipelineName.toLowerCase());
     }
 
     public List<String> lockedPipelines() {
-        return (List<String>) transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction(TransactionStatus status) {
-                PropertyProjection pipelineName = Projections.property("pipelineName");
-                Criteria criteria = sessionFactory.getCurrentSession().createCriteria(PipelineState.class).setProjection(pipelineName).add(
-                        Restrictions.eq("locked", true));
-                criteria.setCacheable(false);
-                List<String> list = criteria.list();
-                return list;
-            }
+        return transactionTemplate.execute(status -> {
+
+            Criteria criteria = sessionFactory.getCurrentSession()
+                    .createCriteria(PipelineState.class)
+                    .setProjection(Projections.property("pipelineName"))
+                    .add(Restrictions.eq("locked", true))
+                    .setCacheable(true);
+
+            return (List<String>) criteria.list();
         });
     }
 }

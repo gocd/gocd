@@ -338,8 +338,8 @@ public class ServerConfig implements Validatable {
     }
 
     public void setPurgeLimits(Double purgeStart, Double purgeUpto) {
-        this.artifactConfig.getPurgeSettings().setPurgeStart(new PurgeStart(purgeStart));
-        this.artifactConfig.getPurgeSettings().setPurgeUpto(new PurgeUpto(purgeUpto));
+        this.artifactConfig.getPurgeSettings().setPurgeStart(new PurgeStart().setPurgeStartDiskSpace(purgeStart));
+        this.artifactConfig.getPurgeSettings().setPurgeUpto(new PurgeUpto().setPurgeUptoDiskSpace(purgeUpto));
     }
 
     public String getJobTimeout() {

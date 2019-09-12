@@ -47,17 +47,15 @@ public class VersionInfoSqlMapDaoIntegrationTest {
     @Before
     public void setup() throws Exception {
         dbHelper.onSetUp();
-        versionInfoSqlMapDao.deleteAll();
     }
 
     @After
     public void teardown() throws Exception {
         dbHelper.onTearDown();
-        versionInfoSqlMapDao.deleteAll();
     }
 
     @Test
-    public void shouldSaveVersionInfo(){
+    public void shouldSaveVersionInfo() {
         GoVersion installedVersion = new GoVersion("14.1.0-123");
         GoVersion latestVersion = new GoVersion("15.1.0-876");
         Date now = new Date();
@@ -72,7 +70,7 @@ public class VersionInfoSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldUpdateVersionInfo(){
+    public void shouldUpdateVersionInfo() {
         GoVersion installedVersion = new GoVersion("14.1.0-123");
         GoVersion latestVersion = new GoVersion("15.1.0-876");
         Date now = new Date();

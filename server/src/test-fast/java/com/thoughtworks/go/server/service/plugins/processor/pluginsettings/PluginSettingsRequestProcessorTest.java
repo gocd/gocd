@@ -60,7 +60,7 @@ public class PluginSettingsRequestProcessorTest {
         configuration.put("k1", "v1");
         configuration.put("k2", "v2");
 
-        when(pluginSqlMapDao.findPlugin("plugin-id-1")).thenReturn(new Plugin("plugin-id-1", JsonHelper.toJsonString(configuration)));
+        when(pluginSqlMapDao.findPlugin("plugin-id-1")).thenReturn(new Plugin().setPluginId("plugin-id-1").setConfiguration(JsonHelper.toJsonString(configuration)));
         when(pluginSqlMapDao.findPlugin("plugin-id-2")).thenReturn(null);
         when(pluginExtension.extensionName()).thenReturn("extension1");
 
@@ -77,7 +77,7 @@ public class PluginSettingsRequestProcessorTest {
         String PLUGIN_ID = "plugin-foo-id";
 
         when(pluginDescriptor.id()).thenReturn(PLUGIN_ID);
-        when(pluginSqlMapDao.findPlugin(PLUGIN_ID)).thenReturn(new Plugin(PLUGIN_ID, "{\"k1\": \"v1\",\"k2\": \"v2\"}"));
+        when(pluginSqlMapDao.findPlugin(PLUGIN_ID)).thenReturn(new Plugin().setPluginId(PLUGIN_ID).setConfiguration("{\"k1\": \"v1\",\"k2\": \"v2\"}"));
 
         DefaultGoApiRequest apiRequest = new DefaultGoApiRequest(PluginSettingsRequestProcessor.GET_PLUGIN_SETTINGS, "1.0", new GoPluginIdentifier("extension1", Collections.singletonList("1.0")));
         apiRequest.setRequestBody("expected-request");

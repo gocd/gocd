@@ -90,7 +90,7 @@ public class MaterialRepository extends HibernateDaoSupport {
         this.cacheKeyGenerator = new CacheKeyGenerator(getClass());
     }
 
-public List<Modification> getModificationsForPipelineRange(final String pipelineName,
+    public List<Modification> getModificationsForPipelineRange(final String pipelineName,
                                                                final Integer fromCounter,
                                                                final Integer toCounter) {
         return (List<Modification>) getHibernateTemplate().execute((HibernateCallback) session -> {
@@ -162,7 +162,7 @@ public List<Modification> getModificationsForPipelineRange(final String pipeline
                     + "     INNER JOIN materials m ON mods.materialId = m.id"
                     + " WHERE pmr.pipelineId IN (:ids)");
 
-        List<Object[]> allModifications = query.
+            List<Object[]> allModifications = query.
                     addEntity("mods", Modification.class).
                     addScalar("pmrPipelineId", new LongType()).
                     addScalar("pmrPipelineName", new StringType()).
@@ -211,7 +211,7 @@ public List<Modification> getModificationsForPipelineRange(final String pipeline
         return CollectionUtil.reverse(lookedUpToParentMap);
     }
 
-public MaterialRevisions findMaterialRevisionsForPipeline(long pipelineId) {
+    public MaterialRevisions findMaterialRevisionsForPipeline(long pipelineId) {
         List<PipelineMaterialRevision> revisions = findPipelineMaterialRevisions(pipelineId);
         MaterialRevisions materialRevisions = new MaterialRevisions();
         for (PipelineMaterialRevision revision : revisions) {
@@ -268,7 +268,7 @@ public MaterialRevisions findMaterialRevisionsForPipeline(long pipelineId) {
 
     private void loadPMRByPipelineIds(List<Long> pipelineIds) {
         List<PipelineMaterialRevision> pmrs = (List<PipelineMaterialRevision>) getHibernateTemplate().findByCriteria(buildPMRDetachedQuery(pipelineIds));
-        sortPersistentObjectsById(pmrs, true);
+        sortHibernatePersistentObjectsById(pmrs, true);
         final Set<PipelineMaterialRevision> uniquePmrs = new HashSet<>();
         for (PipelineMaterialRevision pmr : pmrs) {
             String cacheKey = pipelinePmrsKey(pmr.getPipelineId());
@@ -284,9 +284,15 @@ public MaterialRevisions findMaterialRevisionsForPipeline(long pipelineId) {
         loadModificationsIntoCache(uniquePmrs);
     }
 
+    private void sortHibernatePersistentObjectsById(List<? extends HibernatePersistedObject> persistentObjects, boolean asc) {
+        Comparator<HibernatePersistedObject> ascendingSort = Comparator.comparingLong(HibernatePersistedObject::getId);
+        Comparator<HibernatePersistedObject> descendingSort = ascendingSort.reversed();
+        persistentObjects.sort(asc ? ascendingSort : descendingSort);
+    }
+
     private void sortPersistentObjectsById(List<? extends PersistentObject> persistentObjects, boolean asc) {
-        Comparator<PersistentObject> ascendingSort = (po1, po2) -> (int) (po1.getId() - po2.getId());
-        Comparator<PersistentObject> descendingSort = (po1, po2) -> (int) (po2.getId() - po1.getId());
+        Comparator<PersistentObject> ascendingSort = Comparator.comparingLong(PersistentObject::getId);
+        Comparator<PersistentObject> descendingSort = ascendingSort.reversed();
         persistentObjects.sort(asc ? ascendingSort : descendingSort);
     }
 
@@ -353,11 +359,11 @@ public MaterialRevisions findMaterialRevisionsForPipeline(long pipelineId) {
         return (MaterialRepository.class.getName() + "_pipelinePMRs_" + pipelineId).intern();
     }
 
-List<Modification> findMaterialRevisionsForMaterial(long id) {
+    List<Modification> findMaterialRevisionsForMaterial(long id) {
         return (List<Modification>) getHibernateTemplate().find("FROM Modification WHERE materialId = ?", new Object[]{id});
     }
 
-List<Modification> findModificationsFor(PipelineMaterialRevision pmr) {
+    List<Modification> findModificationsFor(PipelineMaterialRevision pmr) {
         String cacheKey = pmrModificationsKey(pmr);
         List<Modification> modifications = (List<Modification>) goCache.get(cacheKey);
         if (modifications == null) {

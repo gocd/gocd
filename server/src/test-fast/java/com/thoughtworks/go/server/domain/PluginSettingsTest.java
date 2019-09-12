@@ -167,9 +167,7 @@ public class PluginSettingsTest {
     }
 
     private Plugin getPlugin(String pluginId) {
-        final Plugin plugin = new Plugin(pluginId, getPluginConfigurationJson().toString());
-        plugin.setId(1L);
-        return plugin;
+        return new Plugin().setPluginId(pluginId).setConfiguration(getPluginConfigurationJson().toString());
     }
 
     private JsonObject getPluginConfigurationJson() {

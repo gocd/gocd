@@ -15,13 +15,13 @@
  */
 package com.thoughtworks.go.apiv1.datasharing.settings
 
+import com.google.gson.GsonBuilder
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv1.datasharing.settings.representers.DataSharingSettingsRepresenter
-import com.thoughtworks.go.server.domain.DataSharingSettings
+import com.thoughtworks.go.domain.DataSharingSettings
 import com.thoughtworks.go.server.service.datasharing.DataSharingNotification
 import com.thoughtworks.go.server.service.datasharing.DataSharingSettingsService
-import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
@@ -32,6 +32,8 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentCaptor
 import org.mockito.Mock
+
+import java.sql.Timestamp
 
 import static org.junit.jupiter.api.Assertions.assertEquals
 import static org.mockito.ArgumentMatchers.any
@@ -47,8 +49,6 @@ class DataSharingSettingsControllerV1Test implements SecurityServiceTrait, Contr
     @Mock
     DataSharingSettingsService dataSharingSettingsService
     @Mock
-    EntityHashingService entityHashingService
-    @Mock
     TimeProvider timeProvider
     @Mock
     DataSharingNotification dataSharingNotification
@@ -56,7 +56,7 @@ class DataSharingSettingsControllerV1Test implements SecurityServiceTrait, Contr
     @Override
     DataSharingSettingsControllerV1 createControllerInstance() {
         new DataSharingSettingsControllerV1(new ApiAuthenticationHelper(securityService, goConfigService),
-                dataSharingSettingsService, entityHashingService, timeProvider, dataSharingNotification)
+                dataSharingSettingsService, timeProvider, dataSharingNotification)
     }
 
     @Nested
@@ -85,11 +85,9 @@ class DataSharingSettingsControllerV1Test implements SecurityServiceTrait, Contr
 
             @Test
             void 'get data sharing settings'() {
-                def dataSharingSettings = new DataSharingSettings(false, "Bob", new Date())
-
-                when(dataSharingSettingsService.get()).thenReturn(dataSharingSettings)
-                def etag = "md5"
-                when(entityHashingService.md5ForEntity(any() as DataSharingSettings)).thenReturn(etag)
+                def dataSharingSettings = new DataSharingSettings().setAllowSharing(false).setUpdatedBy("Bob").setUpdatedOn(new Timestamp(new Date().getTime()))
+                when(dataSharingSettingsService.load()).thenReturn(dataSharingSettings)
+                def etag = new GsonBuilder().create().toJson(dataSharingSettings)
 
                 getWithApiHeader(controller.controllerPath())
 
@@ -175,7 +173,7 @@ class DataSharingSettingsControllerV1Test implements SecurityServiceTrait, Contr
                 settings.setUpdatedBy("Default")
                 def captor = ArgumentCaptor.forClass(DataSharingSettings.class)
                 doNothing().when(dataSharingSettingsService).createOrUpdate(any())
-                doReturn(settings).when(dataSharingSettingsService).get()
+                doReturn(settings).when(dataSharingSettingsService).load()
 
                 def headers = [
                   'accept'      : controller.mimeType,
@@ -191,8 +189,8 @@ class DataSharingSettingsControllerV1Test implements SecurityServiceTrait, Contr
 
                 verify(dataSharingSettingsService).createOrUpdate(captor.capture())
                 def settingsBeingSaved = captor.getValue()
-                assertEquals(settingsBeingSaved.allowSharing(), newConsent)
-                assertEquals(settingsBeingSaved.updatedBy(), currentUsernameString())
+                assertEquals(settingsBeingSaved.allowSharing, newConsent)
+                assertEquals(settingsBeingSaved.updatedBy, currentUsernameString())
             }
 
             @Test
@@ -204,7 +202,7 @@ class DataSharingSettingsControllerV1Test implements SecurityServiceTrait, Contr
                 settings.setUpdatedBy("user1")
                 def captor = ArgumentCaptor.forClass(DataSharingSettings.class)
                 doNothing().when(dataSharingSettingsService).createOrUpdate(any())
-                doReturn(settings).when(dataSharingSettingsService).get()
+                doReturn(settings).when(dataSharingSettingsService).load()
 
                 def headers = [
                   'accept'      : controller.mimeType,
@@ -220,8 +218,8 @@ class DataSharingSettingsControllerV1Test implements SecurityServiceTrait, Contr
 
                 verify(dataSharingSettingsService).createOrUpdate(captor.capture())
                 def settingsBeingSaved = captor.getValue()
-                assertEquals(settingsBeingSaved.allowSharing(), settings.allowSharing())
-                assertEquals(settingsBeingSaved.updatedBy(), currentUsernameString())
+                assertEquals(settingsBeingSaved.allowSharing, settings.allowSharing)
+                assertEquals(settingsBeingSaved.updatedBy, currentUsernameString())
             }
         }
     }

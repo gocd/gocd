@@ -38,6 +38,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
@@ -88,7 +89,9 @@ public class DataSharingUsageDataServiceTest {
         when(goConfigService.getElasticConfig()).thenReturn(goConfig.getElasticConfig());
         oldestBuild = new JobStateTransition(JobState.Scheduled, new Date());
         when(jobInstanceSqlMapDao.oldestBuild()).thenReturn(oldestBuild);
-        when(dataSharingUsageStatisticsReportingService.get()).thenReturn(new UsageStatisticsReporting("server-id", new Date()));
+        when(dataSharingUsageStatisticsReportingService.get()).thenReturn(new UsageStatisticsReporting()
+                .setLastReportedAt(new Timestamp(new Date().getTime()))
+                .setServerId("server-id"));
     }
 
     @Test

@@ -18,12 +18,14 @@ package com.thoughtworks.go.server.domain.user;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import lombok.EqualsAndHashCode;
 
 import java.util.*;
 
 import static com.thoughtworks.go.server.domain.user.DashboardFilter.DEFAULT_NAME;
 import static com.thoughtworks.go.server.domain.user.Marshaling.*;
 
+@EqualsAndHashCode
 public class Filters {
     private static final Gson GSON = new GsonBuilder().
             registerTypeAdapter(Filters.class, new FiltersDeserializer()).
@@ -80,18 +82,5 @@ public class Filters {
         });
 
         FilterValidator.validateDefaultIsPresent(filterMap);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Filters that = (Filters) o;
-        return Objects.equals(filters, that.filters);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(filters);
     }
 }

@@ -17,7 +17,7 @@ package com.thoughtworks.go.apiv1.datasharing.settings.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.server.domain.DataSharingSettings;
+import com.thoughtworks.go.domain.DataSharingSettings;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.spark.Routes.DataSharing;
 import com.thoughtworks.go.util.TimeProvider;
@@ -31,15 +31,15 @@ public class DataSharingSettingsRepresenter {
                         .addAbsoluteLink("doc", DataSharing.SETTINGS_DOC))
                 .addChild("_embedded", childWriter -> {
                     childWriter
-                            .add("allow", dataSharingSettings.allowSharing())
-                            .add("updated_by", dataSharingSettings.updatedBy())
-                            .add("updated_on", dataSharingSettings.updatedOn());
+                            .add("allow", dataSharingSettings.isAllowSharing())
+                            .add("updated_by", dataSharingSettings.getUpdatedBy())
+                            .add("updated_on", dataSharingSettings.getUpdatedOn());
                 });
     }
 
     public static DataSharingSettings fromJSON(JsonReader jsonReader, Username username, TimeProvider timeProvider, DataSharingSettings fromServer) {
         DataSharingSettings dataSharingSettings = new DataSharingSettings();
-        Boolean consent = jsonReader.optBoolean("allow").orElse(fromServer.allowSharing());
+        Boolean consent = jsonReader.optBoolean("allow").orElse(fromServer.isAllowSharing());
         dataSharingSettings.setAllowSharing(consent);
         dataSharingSettings.setUpdatedBy(username.getUsername().toString());
         dataSharingSettings.setUpdatedOn(new Timestamp(timeProvider.currentTimeMillis()));

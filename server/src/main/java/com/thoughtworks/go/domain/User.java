@@ -1,0 +1,237 @@
+/*
+ * Copyright 2020 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.thoughtworks.go.domain;
+
+import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.exceptions.EntityType;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+import com.thoughtworks.go.domain.exception.UncheckedValidationException;
+import com.thoughtworks.go.domain.exception.ValidationException;
+import com.thoughtworks.go.domain.materials.ValidationBean;
+import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.validation.Validator;
+import lombok.*;
+import lombok.experimental.Accessors;
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
+import java.util.*;
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static java.lang.String.format;
+
+@EqualsAndHashCode(doNotUseGetters = true, callSuper = true)
+@ToString(callSuper = true)
+@Getter
+@Setter
+@Accessors(chain = true)
+@NoArgsConstructor
+@Entity
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+@Table(name = "users")
+public class User extends HibernatePersistedObject {
+    private String name;
+    private String displayName;
+    private String matcher;
+    private String email;
+    private boolean emailMe;
+    private boolean enabled;
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+    @JoinColumn(name = "userid")
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @Fetch(FetchMode.SELECT)
+    @EqualsAndHashCode.Exclude //See https://hibernate.atlassian.net/browse/hhh-5409
+    private List<NotificationFilter> notificationFilters = new ArrayList<>();
+
+    public User(String name) {
+        this(name, "", "");
+    }
+
+    public User(String name, String displayName, String email) {
+        this(name, displayName, new String[]{""}, email, false);
+    }
+
+    public User(String name, List<String> matcher, String email, boolean emailMe) {
+        this(name, matcher.toArray(new String[0]), email, emailMe);
+    }
+
+    public User(String name, String[] matcher, String email, boolean emailMe) {
+        this(name, "", matcher, email, emailMe);
+    }
+
+    public User(String name, String displayName, String[] matcher, String email, boolean emailMe) {
+        setName(name);
+        setMatcher(new Matcher(matcher).toString());
+        setEmail(email);
+        setDisplayName(displayName);
+        this.enabled = true;
+        this.emailMe = emailMe;
+    }
+
+    public User(User user) {
+        this(user.name, user.displayName, new String[]{user.matcher}, user.email, user.emailMe);
+        this.enabled = user.enabled;
+        this.id = user.id;
+        for (NotificationFilter filter : user.notificationFilters) {
+            this.notificationFilters.add(new NotificationFilter(filter));
+        }
+    }
+
+    public Username getUsername() {
+        return Username.valueOf(name);
+    }
+
+    public List<String> getMatchers() {
+        List<String> matchers = new Matcher(matcher).toCollection();
+        Collections.sort(matchers);
+        return matchers;
+    }
+
+    public void setEmail(String email) {
+        this.email = StringUtils.trim(email);
+    }
+
+    public void setName(String name) {
+        this.name = StringUtils.trim(name);
+    }
+
+    public void setMatcher(String matcher) {
+        this.matcher = new Matcher(matcher).toString();
+    }
+
+    boolean matchModification(MaterialRevisions materialRevisions) {
+        if (StringUtils.isEmpty(this.matcher)) {
+            return false;
+        }
+        return materialRevisions.containsMyCheckin(new Matcher(matcher));
+    }
+
+    public boolean matchNotification(StageConfigIdentifier stageIdentifier, StageEvent event,
+                                     MaterialRevisions materialRevisions) {
+        if (!shouldSendEmailToMe()) {
+            return false;
+        }
+        for (NotificationFilter filter : notificationFilters) {
+            if (filter.matchStage(stageIdentifier, event)) {
+                if (filter.isAppliedOnAllCheckins() || matchModification(materialRevisions)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean shouldSendEmailToMe() {
+        return isEmailMe() && !StringUtils.isEmpty(email);
+    }
+
+    public void populateModel(HashMap<String, Object> model) {
+        model.put("matchers", matcher());
+        model.put("email", email);
+        model.put("emailMe", emailMe);
+        model.put("notificationFilters", notificationFilters);
+    }
+
+    public Matcher matcher() {
+        return new Matcher(matcher);
+    }
+
+    private void validate(Validator<String> validator, String valueToValidate) throws ValidationException {
+        ValidationBean validationBean = validator.validate(valueToValidate);
+        if (!validationBean.isValid()) {
+            throw new ValidationException(validationBean.getError());
+        }
+    }
+
+    public void validateMatcher() throws ValidationException {
+        validate(Validator.lengthValidator(255), getMatcher());
+    }
+
+    public void validateEmail() throws ValidationException {
+        validate(Validator.lengthValidator(255), getEmail());
+        validate(Validator.EMAIL, getEmail());
+    }
+
+    public void validateLoginName() throws ValidationException {
+        validate(Validator.presenceValidator("Login name field must be non-blank."), getName());
+    }
+
+    public void disable() {
+        this.enabled = false;
+    }
+
+    public void enable() {
+        this.enabled = true;
+    }
+
+    public boolean isAnonymous() {
+        return this.name.equals(CaseInsensitiveString.str(Username.ANONYMOUS.getUsername()));
+    }
+
+    public void addNotificationFilter(NotificationFilter another) {
+        checkForDuplicates(another);
+        notificationFilters.add(another);
+    }
+
+    private void checkForDuplicates(NotificationFilter another) {
+        for (NotificationFilter filter : notificationFilters) {
+            if (filter.include(another)) {
+                String message = format("Duplicate notification filter found for: {pipeline: \"%s\", stage: \"%s\", event: \"%s\"}",
+                    filter.getPipelineName(), filter.getStageName(), filter.getEvent());
+                filter.addError("pipelineName", message);
+                another.addError("pipelineName", message);
+                throw new UncheckedValidationException(message);
+            }
+        }
+    }
+
+    public void updateNotificationFilter(NotificationFilter notificationFilter) {
+        Optional<NotificationFilter> optionalFilter = notificationFilters.stream()
+            .filter(filter -> filter.getId() == notificationFilter.getId())
+            .findFirst();
+
+        if (optionalFilter.isEmpty()) {
+            throw new RecordNotFoundException(EntityType.NotificationFilter, notificationFilter.getId());
+        }
+
+        notificationFilters.remove(optionalFilter.get());
+        checkForDuplicates(notificationFilter);
+        notificationFilters.add(notificationFilter);
+    }
+
+    public void removeNotificationFilter(final long filterId) {
+        List<NotificationFilter> toBeDeleted = notificationFilters.stream().filter(filter1 -> filter1.getId() == filterId).collect(Collectors.toList());
+        notificationFilters.removeAll(toBeDeleted);
+    }
+
+    public boolean hasSubscribedFor(String pipelineName, String stageName) {
+        for (NotificationFilter notificationFilter : notificationFilters) {
+            if (notificationFilter.appliesTo(pipelineName, stageName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+}

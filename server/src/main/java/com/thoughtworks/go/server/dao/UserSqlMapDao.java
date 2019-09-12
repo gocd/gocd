@@ -20,24 +20,18 @@ import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.NullUser;
 import com.thoughtworks.go.domain.User;
 import com.thoughtworks.go.domain.Users;
-import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.exceptions.UserEnabledException;
-import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
-import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
-import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
 import java.util.*;
 
@@ -45,21 +39,15 @@ import java.util.*;
 public class UserSqlMapDao extends HibernateDaoSupport implements UserDao {
     private SessionFactory sessionFactory;
     private TransactionTemplate transactionTemplate;
-    private GoCache goCache;
     private final AccessTokenDao accessTokenDao;
-    private final TransactionSynchronizationManager transactionSynchronizationManager;
-    protected static final String ENABLED_USER_COUNT_CACHE_KEY = "ENABLED_USER_COUNT_CACHE_KEY".intern();
 
     @Autowired
     public UserSqlMapDao(SessionFactory sessionFactory,
                          TransactionTemplate transactionTemplate,
-                         GoCache goCache,
-                         AccessTokenDao accessTokenDao, TransactionSynchronizationManager transactionSynchronizationManager) {
+                         AccessTokenDao accessTokenDao) {
         this.sessionFactory = sessionFactory;
         this.transactionTemplate = transactionTemplate;
-        this.goCache = goCache;
         this.accessTokenDao = accessTokenDao;
-        this.transactionSynchronizationManager = transactionSynchronizationManager;
         setSessionFactory(sessionFactory);
     }
 
@@ -69,12 +57,6 @@ public class UserSqlMapDao extends HibernateDaoSupport implements UserDao {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
-                transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
-                    @Override
-                    public void afterCommit() {
-                        clearEnabledUserCountFromCache();
-                    }
-                });
                 sessionFactory.getCurrentSession().saveOrUpdate(copyLoginToDisplayNameIfNotPresent(user));
             }
         });
@@ -82,7 +64,7 @@ public class UserSqlMapDao extends HibernateDaoSupport implements UserDao {
 
     @Override
     public User findUser(final String userName) {
-        return (User) transactionTemplate.execute((TransactionCallback) transactionStatus -> {
+        return transactionTemplate.execute(transactionStatus -> {
             User user = (User) sessionFactory.getCurrentSession()
                     .createCriteria(User.class)
                     .add(Restrictions.eq("name", userName))
@@ -93,41 +75,24 @@ public class UserSqlMapDao extends HibernateDaoSupport implements UserDao {
 
     @Override
     public Users findNotificationSubscribingUsers() {
-        return (Users) transactionTemplate.execute((TransactionCallback) transactionStatus -> {
-            Criteria criteria = sessionFactory.getCurrentSession().createCriteria(User.class);
-            criteria.setCacheable(true);
-            criteria.add(Restrictions.isNotEmpty("notificationFilters"));
-            criteria.add(Restrictions.eq("enabled", true));
+        return transactionTemplate.execute(transactionStatus -> {
+            Criteria criteria = sessionFactory.getCurrentSession().createCriteria(User.class)
+                    .setCacheable(true)
+                    .add(Restrictions.isNotEmpty("notificationFilters"))
+                    .add(Restrictions.eq("enabled", true));
             return new Users(criteria.list());
         });
     }
 
     @Override
     public Users allUsers() {
-        return new Users((List<User>) transactionTemplate.execute((TransactionCallback) transactionStatus -> {
-            Query query = sessionFactory.getCurrentSession().createQuery("FROM User");
-            query.setCacheable(true);
-            return query.list();
-        }));
-    }
-
-    @Override
-    public long enabledUserCount() {
-        Long value = (Long) goCache.get(ENABLED_USER_COUNT_CACHE_KEY);
-        if (value != null) {
-            return value;
-        }
-
-        synchronized (ENABLED_USER_COUNT_CACHE_KEY) {
-            value = (Long) goCache.get(ENABLED_USER_COUNT_CACHE_KEY);
-            if (value == null) {
-                value = hibernateTemplate().execute(session -> (Long) session.createCriteria(User.class).add(Restrictions.eq("enabled", true)).setProjection(Projections.rowCount()).setCacheable(true).uniqueResult());
-
-                goCache.put(ENABLED_USER_COUNT_CACHE_KEY, value);
-            }
-
-            return value;
-        }
+        List users = transactionTemplate.execute(transactionStatus -> {
+            Criteria criteria = sessionFactory.getCurrentSession()
+                    .createCriteria(User.class)
+                    .setCacheable(true);
+            return criteria.list();
+        });
+        return new Users(users);
     }
 
     @Override
@@ -165,12 +130,12 @@ public class UserSqlMapDao extends HibernateDaoSupport implements UserDao {
 
     @Override
     public User load(final long id) {
-        return (User) transactionTemplate.execute((TransactionCallback) transactionStatus -> sessionFactory.getCurrentSession().get(User.class, id));
+        return transactionTemplate.execute(transactionStatus -> (User) sessionFactory.getCurrentSession().get(User.class, id));
     }
 
     @Override
     public boolean deleteUser(final String username, String byWhom) {
-        return (Boolean) transactionTemplate.execute((TransactionCallback) status -> {
+        return transactionTemplate.execute(status -> {
             User user = findUser(username);
             if (user instanceof NullUser) {
                 throw new RecordNotFoundException(EntityType.User, username);
@@ -186,7 +151,7 @@ public class UserSqlMapDao extends HibernateDaoSupport implements UserDao {
 
     @Override
     public boolean deleteUsers(List<String> userNames, String byWhom) {
-        return (Boolean) transactionTemplate.execute((TransactionCallback) status -> {
+        return transactionTemplate.execute(status -> {
             String queryString = "delete from User where name in (:userNames)";
             Query query = sessionFactory.getCurrentSession().createQuery(queryString);
             query.setParameterList("userNames", userNames);
@@ -194,16 +159,6 @@ public class UserSqlMapDao extends HibernateDaoSupport implements UserDao {
             accessTokenDao.revokeTokensBecauseOfUserDelete(userNames, byWhom);
             return Boolean.TRUE;
         });
-    }
-
-    private void clearEnabledUserCountFromCache() {
-        synchronized (ENABLED_USER_COUNT_CACHE_KEY) {
-            goCache.remove(ENABLED_USER_COUNT_CACHE_KEY);
-        }
-    }
-
-    protected HibernateTemplate hibernateTemplate() {
-        return getHibernateTemplate();
     }
 
     private void assertUserNotAnonymous(User user) {
@@ -223,17 +178,11 @@ public class UserSqlMapDao extends HibernateDaoSupport implements UserDao {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
-                transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
-                    @Override
-                    public void afterCommit() {
-                        clearEnabledUserCountFromCache();
-                    }
-                });
-                String queryString = String.format("update %s set enabled = :enabled where name in (:userNames)", User.class.getName());
-                Query query = sessionFactory.getCurrentSession().createQuery(queryString);
-                query.setParameter("enabled", enabled);
-                query.setParameterList("userNames", usernames);
-                query.executeUpdate();
+                sessionFactory.getCurrentSession()
+                        .createQuery("update User u set u.enabled = :enabled where u.name in (:userNames)")
+                        .setParameter("enabled", enabled)
+                        .setParameterList("userNames", usernames)
+                        .executeUpdate();
             }
         });
     }

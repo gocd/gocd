@@ -23,7 +23,6 @@ import com.thoughtworks.go.apiv3.users.representers.UsersRepresenter
 import com.thoughtworks.go.config.RolesConfig
 import com.thoughtworks.go.domain.NullUser
 import com.thoughtworks.go.domain.User
-import com.thoughtworks.go.helper.UsersMother
 import com.thoughtworks.go.i18n.LocalizedMessage
 import com.thoughtworks.go.server.service.RoleConfigService
 import com.thoughtworks.go.server.service.UserService

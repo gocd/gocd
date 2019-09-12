@@ -16,6 +16,9 @@
 package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.domain.exception.VersionFormatException;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -24,21 +27,22 @@ import static java.lang.Integer.compare;
 import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
 
+@EqualsAndHashCode
+@Getter
+@NoArgsConstructor
 public class GoVersion implements Comparable<GoVersion> {
     private int major;
     private int minor;
     private int patches;
     private int modifications;
 
-    public GoVersion() {
-    }
-
     public GoVersion(String version) {
         parse(version);
     }
 
-    public void setVersion(String version) {
+    public GoVersion setVersion(String version) {
         parse(version);
+        return this;
     }
 
     public String getVersion() {
@@ -89,23 +93,7 @@ public class GoVersion implements Comparable<GoVersion> {
     }
 
     public boolean isGreaterThan(GoVersion o) {
-        return compareTo(o) == 1;
-    }
-
-    public int getMajor() {
-        return major;
-    }
-
-    public int getMinor() {
-        return minor;
-    }
-
-    public int getPatches() {
-        return patches;
-    }
-
-    public int getModifications() {
-        return modifications;
+        return compareTo(o) > 0;
     }
 
     @Override
@@ -113,22 +101,4 @@ public class GoVersion implements Comparable<GoVersion> {
         return format("%s.%s.%s-%s", major, minor, patches, modifications);
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        GoVersion that = (GoVersion) o;
-
-        return compareTo(that) == 0;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = major;
-        result = 31 * result + minor;
-        result = 31 * result + patches;
-        result = 31 * result + modifications;
-        return result;
-    }
 }

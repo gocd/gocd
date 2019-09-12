@@ -15,9 +15,9 @@
  */
 package com.thoughtworks.go.server.transaction;
 
+import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.TransactionException;
 
 public class TestTransactionTemplate extends TransactionTemplate {
 
@@ -29,7 +29,8 @@ public class TestTransactionTemplate extends TransactionTemplate {
             this.synchronizationManager = synchronizationManager;
         }
 
-        @Override public Object execute(TransactionCallback action) throws TransactionException {
+        @Override
+        public Object execute(TransactionCallback action) throws TransactionException {
             Object o = null;
             try {
                 o = action.doInTransaction(null);
@@ -50,13 +51,5 @@ public class TestTransactionTemplate extends TransactionTemplate {
 
     public TestTransactionTemplate(TestTransactionSynchronizationManager synchronizationManager) {
         super(new ActualTransactionTemplate(synchronizationManager));
-    }
-
-    @Override public Object execute(TransactionCallback action) {
-        return super.execute(action);
-    }
-
-    @Override public Object executeWithExceptionHandling(com.thoughtworks.go.server.transaction.TransactionCallback action) throws Exception {
-        return super.executeWithExceptionHandling(action);
     }
 }

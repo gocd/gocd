@@ -19,11 +19,6 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.domain.SecureSiteUrl;
 import com.thoughtworks.go.domain.SiteUrl;
-import com.thoughtworks.go.domain.User;
-import com.thoughtworks.go.security.CryptoException;
-import com.thoughtworks.go.security.GoCipher;
-import com.thoughtworks.go.server.service.result.BulkUpdateUsersOperationResult;
-import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.junit.After;
 import org.junit.Before;
@@ -33,11 +28,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.stream.Collectors;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
@@ -137,8 +130,8 @@ public class ServerConfigServiceIntegrationTest {
         ArtifactConfig artifactConfig = new ArtifactConfig();
         artifactConfig.setArtifactsDir(new ArtifactDirectory("test"));
         PurgeSettings purgeSettings = new PurgeSettings();
-        purgeSettings.setPurgeStart(new PurgeStart(10.0));
-        purgeSettings.setPurgeUpto(new PurgeUpto(20.0));
+        purgeSettings.setPurgeStart(new PurgeStart().setPurgeStartDiskSpace(10.0));
+        purgeSettings.setPurgeUpto(new PurgeUpto().setPurgeUptoDiskSpace(20.0));
         artifactConfig.setPurgeSettings(purgeSettings);
 
         assertThat(goConfigService.serverConfig().artifactsDir(), is("artifactsDir"));

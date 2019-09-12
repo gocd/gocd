@@ -16,10 +16,12 @@
 package com.thoughtworks.go.server.domain.user;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import lombok.EqualsAndHashCode;
 
 import java.util.List;
 import java.util.Set;
 
+@EqualsAndHashCode
 abstract class AbstractPipelinesFilter implements DashboardFilter {
     private final String name;
     private final Set<String> state;

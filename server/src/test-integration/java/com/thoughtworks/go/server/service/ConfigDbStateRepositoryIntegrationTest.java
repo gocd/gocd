@@ -15,8 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-import java.util.List;
-
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.StageArtifactCleanupProhibited;
 import com.thoughtworks.go.helper.StageConfigMother;
@@ -31,11 +29,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
@@ -44,9 +41,12 @@ import static org.junit.Assert.assertThat;
         "classpath:/spring-all-servlet.xml",
 })
 public class ConfigDbStateRepositoryIntegrationTest {
-    @Autowired private GoConfigDao goConfigDao;
-    @Autowired ConfigDbStateRepository configDbStateRepository;
-    @Autowired private DatabaseAccessHelper dbHelper;
+    @Autowired
+    private GoConfigDao goConfigDao;
+    @Autowired
+    ConfigDbStateRepository configDbStateRepository;
+    @Autowired
+    private DatabaseAccessHelper dbHelper;
 
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
 
@@ -66,7 +66,7 @@ public class ConfigDbStateRepositoryIntegrationTest {
 
     @Test
     public void shouldPopulateSessionFactory() {
-        assertThat(configDbStateRepository.getHibernateTemplate().getSessionFactory(), is(not(nullValue())));
+        assertThat(configDbStateRepository.getHibernateTemplate().getSessionFactory()).isNotNull();
     }
 
     @Test
@@ -80,14 +80,15 @@ public class ConfigDbStateRepositoryIntegrationTest {
         configDbStateRepository.flushConfigState();
 
         List<StageArtifactCleanupProhibited> list = (List<StageArtifactCleanupProhibited>) configDbStateRepository.getHibernateTemplate().find("from StageArtifactCleanupProhibited");
-        assertThat(list.size(), is(5));
 
-        assertThat(list, hasItem(new StageArtifactCleanupProhibited("pipeline-one", "stage-zero", false)));
-        assertThat(list, hasItem(new StageArtifactCleanupProhibited("pipeline-one", "stage-one", true)));
+        assertThat(list).hasSize(5);
 
-        assertThat(list, hasItem(new StageArtifactCleanupProhibited("pipeline-two", "stage-two-zero", false)));
-        assertThat(list, hasItem(new StageArtifactCleanupProhibited("pipeline-two", "stage-two-one", true)));
-        assertThat(list, hasItem(new StageArtifactCleanupProhibited("pipeline-two", "stage-one", false)));
+        assertThat(list).contains(new StageArtifactCleanupProhibited().setPipelineName("pipeline-one").setStageName("stage-zero").setProhibited(false));
+        assertThat(list).contains(new StageArtifactCleanupProhibited().setPipelineName("pipeline-one").setStageName("stage-one").setProhibited(true));
+
+        assertThat(list).contains(new StageArtifactCleanupProhibited().setPipelineName("pipeline-two").setStageName("stage-two-zero").setProhibited(false));
+        assertThat(list).contains(new StageArtifactCleanupProhibited().setPipelineName("pipeline-two").setStageName("stage-two-one").setProhibited(true));
+        assertThat(list).contains(new StageArtifactCleanupProhibited().setPipelineName("pipeline-two").setStageName("stage-one").setProhibited(false));
     }
 
     @Test
@@ -105,10 +106,10 @@ public class ConfigDbStateRepositoryIntegrationTest {
         configDbStateRepository.flushConfigState();
 
         List<StageArtifactCleanupProhibited> list = (List<StageArtifactCleanupProhibited>) configDbStateRepository.getHibernateTemplate().find("from StageArtifactCleanupProhibited");
-        assertThat(list.size(), is(2));
+        assertThat(list.size()).isEqualTo(2);
 
-        assertThat(list, hasItem(new StageArtifactCleanupProhibited("pipeline-one", "stage-zero", false)));
-        assertThat(list, hasItem(new StageArtifactCleanupProhibited("pipeline-one", "stage-one", true)));
+        assertThat(list).contains(new StageArtifactCleanupProhibited().setPipelineName("pipeline-one").setStageName("stage-zero").setProhibited(false));
+        assertThat(list).contains(new StageArtifactCleanupProhibited().setPipelineName("pipeline-one").setStageName("stage-one").setProhibited(true));
     }
 
     @Test
@@ -127,9 +128,9 @@ public class ConfigDbStateRepositoryIntegrationTest {
         configDbStateRepository.flushConfigState();
 
         List<StageArtifactCleanupProhibited> list = (List<StageArtifactCleanupProhibited>) configDbStateRepository.getHibernateTemplate().find("from StageArtifactCleanupProhibited");
-        assertThat(list.size(), is(2));
+        assertThat(list.size()).isEqualTo(2);
 
-        assertThat(list, hasItem(new StageArtifactCleanupProhibited("pipeline-one", "stage-zero", false)));
-        assertThat(list, hasItem(new StageArtifactCleanupProhibited("pipeline-one", "stage-one", false)));
+        assertThat(list).contains(new StageArtifactCleanupProhibited().setPipelineName("pipeline-one").setStageName("stage-zero").setProhibited(false));
+        assertThat(list).contains(new StageArtifactCleanupProhibited().setPipelineName("pipeline-one").setStageName("stage-one").setProhibited(false));
     }
 }

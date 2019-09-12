@@ -46,7 +46,7 @@ public class BackupStatusUpdaterTest {
 
         backupStatusUpdater.updateStep(BackupProgressStatus.BACKUP_DATABASE);
 
-        verify(serverBackupRepository).update(serverBackup);
+        verify(serverBackupRepository).saveOrUpdate(serverBackup);
         assertThat(serverBackup.getStatus()).isEqualTo(BackupStatus.IN_PROGRESS);
         assertThat(serverBackup.getBackupProgressStatus()).hasValue(BackupProgressStatus.BACKUP_DATABASE);
         assertThat(serverBackup.getMessage()).isEqualTo(BackupProgressStatus.BACKUP_DATABASE.getMessage());
@@ -59,7 +59,7 @@ public class BackupStatusUpdaterTest {
 
         backupStatusUpdater.error("boom");
 
-        verify(serverBackupRepository).update(serverBackup);
+        verify(serverBackupRepository).saveOrUpdate(serverBackup);
         assertThat(serverBackup.getMessage()).isEqualTo("boom");
         assertThat(serverBackup.getStatus()).isEqualTo(BackupStatus.ERROR);
     }
@@ -71,7 +71,7 @@ public class BackupStatusUpdaterTest {
 
         backupStatusUpdater.completed();
 
-        verify(serverBackupRepository).update(serverBackup);
+        verify(serverBackupRepository).saveOrUpdate(serverBackup);
         assertThat(serverBackup.getMessage()).isEqualTo("Backup was generated successfully.");
         assertThat(serverBackup.isSuccessful()).isTrue();
     }

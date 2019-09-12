@@ -18,169 +18,169 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.domain.User;
+import com.thoughtworks.go.server.dao.PipelineSelectionDao;
 import com.thoughtworks.go.server.dao.UserDao;
 import com.thoughtworks.go.server.domain.user.*;
-import com.thoughtworks.go.server.persistence.PipelineRepository;
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.joda.time.DateTime;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
+import java.sql.Timestamp;
 import java.util.Collections;
-import java.util.Date;
 
 import static com.thoughtworks.go.helper.ConfigFileFixture.configWith;
 import static com.thoughtworks.go.server.domain.user.DashboardFilter.DEFAULT_NAME;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-public class PipelineSelectionsServiceTest {
-    private static final Date FIXED_DATE = new DateTime(2000, 1, 1, 1, 1, 1, 1).toDate();
+class PipelineSelectionsServiceTest {
+    private static final Timestamp FIXED_DATE = new Timestamp(new DateTime(2000, 1, 1, 1, 1, 1, 1).toInstant().getMillis());
 
     private PipelineSelectionsService pipelineSelectionsService;
+    @Mock
     private GoConfigDao goConfigDao;
+    @Mock
     private GoConfigService goConfigService;
-    private PipelineRepository pipelineRepository;
+    @Mock
+    private PipelineSelectionDao pipelineSelectionDao;
+    @Mock
+    private UserDao userDao;
     private static final String PIPELINE = "pipeline1";
     private static final String STAGE = "stage1";
     private static final String JOB = "Job1";
-    private UserDao userDao;
 
-    @Before
-    public void setup() throws Exception {
+    @BeforeEach
+    void setup() throws Exception {
+        MockitoAnnotations.initMocks(this);
         new SystemEnvironment().setProperty(SystemEnvironment.ENFORCE_SERVER_IMMUTABILITY, "N");
-
-        goConfigDao = mock(GoConfigDao.class);
-        pipelineRepository = mock(PipelineRepository.class);
 
         CruiseConfig cruiseConfig = unchangedConfig();
         expectLoad(cruiseConfig);
         Clock clock = mock(Clock.class);
-        when(clock.currentTime()).thenReturn(FIXED_DATE);
-        userDao = mock(UserDao.class);
-
-        goConfigService = mock(GoConfigService.class);
-        pipelineSelectionsService = new PipelineSelectionsService(pipelineRepository, goConfigService, clock);
+        when(clock.currentTimestamp()).thenReturn(FIXED_DATE);
+        pipelineSelectionsService = new PipelineSelectionsService(goConfigService, clock, pipelineSelectionDao);
     }
 
     @Test
-    public void shouldPersistPipelineSelections_WhenSecurityIsDisabled() {
+    void shouldPersistPipelineSelections_WhenSecurityIsDisabled() {
         disableSecurity();
         final Filters filters = Filters.single(whitelist("pipeline1"));
-        when(pipelineRepository.saveSelectedPipelines(pipelineSelectionsWithFilters(filters))).thenReturn(2L);
-        assertEquals(2L, pipelineSelectionsService.save(null, null, filters));
-        verify(pipelineRepository).saveSelectedPipelines(pipelineSelectionsWithFilters(filters));
+        when(pipelineSelectionDao.saveOrUpdate(pipelineSelectionsWithFilters(filters))).thenReturn(2L);
+        assertThat(pipelineSelectionsService.save(null, null, filters)).isEqualTo(2L);
+        verify(pipelineSelectionDao).saveOrUpdate(pipelineSelectionsWithFilters(filters));
     }
 
     @Test
-    public void shouldPersistPipelineSelectionsForUser_WhenUserHasNoSelections() {
+    void shouldPersistPipelineSelectionsForUser_WhenUserHasNoSelections() {
         enableSecurity();
 
         User user = getUser("badger");
         final Filters filters = Filters.single(whitelist("pipeline1"));
 
-        when(pipelineRepository.findPipelineSelectionsByUserId(user.getId())).thenReturn(null);
-        when(pipelineRepository.saveSelectedPipelines(pipelineSelectionsWithFilters(filters))).thenReturn(2L);
+        when(pipelineSelectionDao.findPipelineSelectionsByUserId(user.getId())).thenReturn(null);
+        when(pipelineSelectionDao.saveOrUpdate(pipelineSelectionsWithFilters(filters))).thenReturn(2L);
 
         long pipelineSelectionsId = pipelineSelectionsService.save("1", user.getId(), filters);
 
-        assertEquals(2L, pipelineSelectionsId);
-        verify(pipelineRepository).findPipelineSelectionsByUserId(user.getId());
-        verify(pipelineRepository, never()).findPipelineSelectionsById(any());
-        verify(pipelineRepository).saveSelectedPipelines(pipelineSelectionsWithFilters(filters));
+        assertThat(pipelineSelectionsId).isEqualTo(2L);
+        verify(pipelineSelectionDao).findPipelineSelectionsByUserId(user.getId());
+        verify(pipelineSelectionDao, never()).findPipelineSelectionsById(any());
+        verify(pipelineSelectionDao).saveOrUpdate(pipelineSelectionsWithFilters(filters));
     }
 
     @Test
-    public void shouldUpdateExistingPersistedSelection_WhenSecurityIsEnabled() {
+    void shouldUpdateExistingPersistedSelection_WhenSecurityIsEnabled() {
         enableSecurity();
 
         User user = getUser("badger");
         PipelineSelections pipelineSelections = PipelineSelectionsHelper.with(Collections.singletonList("pipeline2"), null, user.getId(), true);
-        when(pipelineRepository.findPipelineSelectionsByUserId(user.getId())).thenReturn(pipelineSelections);
-        when(pipelineRepository.saveSelectedPipelines(pipelineSelections)).thenReturn(2L);
+        when(pipelineSelectionDao.findPipelineSelectionsByUserId(user.getId())).thenReturn(pipelineSelections);
+        when(pipelineSelectionDao.saveOrUpdate(pipelineSelections)).thenReturn(2L);
 
         final Filters newFilters = Filters.single(blacklist("pipelineX", "pipeline3"));
         long pipelineSelectionId = pipelineSelectionsService.save("1", user.getId(), newFilters);
 
-        assertEquals(2L, pipelineSelectionId);
-        assertEquals(newFilters, pipelineSelections.viewFilters());
-        verify(pipelineRepository).saveSelectedPipelines(pipelineSelections);
-        verify(pipelineRepository).findPipelineSelectionsByUserId(user.getId());
-        verify(pipelineRepository, never()).findPipelineSelectionsById(any());
+        assertThat(pipelineSelectionId).isEqualTo(2L);
+        assertThat(pipelineSelections.getViewFilters()).isEqualTo(newFilters);
+        verify(pipelineSelectionDao).saveOrUpdate(pipelineSelections);
+        verify(pipelineSelectionDao).findPipelineSelectionsByUserId(user.getId());
+        verify(pipelineSelectionDao, never()).findPipelineSelectionsById(any());
     }
 
     @Test
-    public void shouldUpdateExistingPersistedSelection_WhenSecurityIsDisabled() {
+    void shouldUpdateExistingPersistedSelection_WhenSecurityIsDisabled() {
         disableSecurity();
 
         PipelineSelections pipelineSelections = PipelineSelectionsHelper.with(Collections.singletonList("pip1"));
-        when(pipelineRepository.findPipelineSelectionsById("123")).thenReturn(pipelineSelections);
+        when(pipelineSelectionDao.findPipelineSelectionsById("123")).thenReturn(pipelineSelections);
 
         final Filters newFilters = Filters.single(blacklist("pipelineX", "pipeline3"));
-        assertNotEquals(newFilters, pipelineSelections.viewFilters()); // sanity check
+        assertThat(pipelineSelections.getViewFilters()).isNotEqualTo(newFilters); // sanity check
 
         pipelineSelectionsService.save("123", null, newFilters);
 
-        assertEquals(FIXED_DATE, pipelineSelections.lastUpdated());
-        verify(pipelineRepository).findPipelineSelectionsById("123");
-        verify(pipelineRepository).saveSelectedPipelines(pipelineSelectionsWithFilters(newFilters));
+        assertThat(pipelineSelections.getLastUpdated()).isEqualTo(FIXED_DATE);
+        verify(pipelineSelectionDao).findPipelineSelectionsById("123");
+        verify(pipelineSelectionDao).saveOrUpdate(pipelineSelectionsWithFilters(newFilters));
     }
 
     @Test
-    public void shouldNotUpdatePipelineSelectionsWhenThereAreNoCustomFilters() {
+    void shouldNotUpdatePipelineSelectionsWhenThereAreNoCustomFilters() {
         enableSecurity();
-        when(pipelineRepository.findPipelineSelectionsByUserId(2L)).thenReturn(PipelineSelections.ALL);
+        when(pipelineSelectionDao.findPipelineSelectionsByUserId(2L)).thenReturn(PipelineSelections.ALL);
 
         pipelineSelectionsService.update(null, 2L, new CaseInsensitiveString("newly-created-pipeline"));
 
-        verify(pipelineRepository, never()).saveSelectedPipelines(any(PipelineSelections.class));
+        verify(pipelineSelectionDao, never()).saveOrUpdate(any(PipelineSelections.class));
     }
 
     @Test
-    public void shouldReturnPersistedPipelineSelectionsUsingCookieId_WhenSecurityisDisabled() {
+    void shouldReturnPersistedPipelineSelectionsUsingCookieId_WhenSecurityisDisabled() {
         disableSecurity();
 
         PipelineSelections pipelineSelections = PipelineSelectionsHelper.with(Collections.singletonList("pip1"));
-        when(pipelineRepository.findPipelineSelectionsById("123")).thenReturn(pipelineSelections);
+        when(pipelineSelectionDao.findPipelineSelectionsById("123")).thenReturn(pipelineSelections);
 
-        assertEquals(pipelineSelections, pipelineSelectionsService.load("123", null));
+        assertThat(pipelineSelectionsService.load("123", null)).isEqualTo(pipelineSelections);
 
         // control case
-        assertEquals(PipelineSelections.ALL, pipelineSelectionsService.load("345", null));
+        assertThat(pipelineSelectionsService.load("345", null)).isEqualTo(PipelineSelections.ALL);
     }
 
     @Test
-    public void shouldReturnPersistedPipelineSelectionsForUser_WhenSecurityIsEnabled() {
+    void shouldReturnPersistedPipelineSelectionsForUser_WhenSecurityIsEnabled() {
         enableSecurity();
 
         User loser = getUser("loser");
         PipelineSelections pipelineSelections = PipelineSelectionsHelper.with(Collections.singletonList("pip1"));
 
-        when(pipelineRepository.findPipelineSelectionsByUserId(loser.getId())).thenReturn(pipelineSelections);
+        when(pipelineSelectionDao.findPipelineSelectionsByUserId(loser.getId())).thenReturn(pipelineSelections);
 
-        assertEquals(pipelineSelections, pipelineSelectionsService.load(null, loser.getId()));
+        assertThat(pipelineSelectionsService.load(null, loser.getId())).isEqualTo(pipelineSelections);
     }
 
     @Test
-    public void shouldReturnAllPipelineSelections_WhenSecurityIsEnabled_AndNoPersistedSelections() {
+    void shouldReturnAllPipelineSelections_WhenSecurityIsEnabled_AndNoPersistedSelections() {
         enableSecurity();
 
         User user = getUser("loser");
-        when(pipelineRepository.findPipelineSelectionsByUserId(user.getId())).thenReturn(null);
+        when(pipelineSelectionDao.findPipelineSelectionsByUserId(user.getId())).thenReturn(null);
 
-        assertEquals(PipelineSelections.ALL, pipelineSelectionsService.load(null, user.getId()));
+        assertThat(pipelineSelectionsService.load(null, user.getId())).isEqualTo(PipelineSelections.ALL);
     }
 
     @Test
-    public void shouldReturnAllPipelineSelections_WhenSecurityIsDisabled_AndNoPersistedSelections() {
+    void shouldReturnAllPipelineSelections_WhenSecurityIsDisabled_AndNoPersistedSelections() {
         disableSecurity();
 
-        when(pipelineRepository.findPipelineSelectionsById("5")).thenReturn(null);
+        when(pipelineSelectionDao.findPipelineSelectionsById("5")).thenReturn(null);
 
         PipelineSelections selectedPipelines = pipelineSelectionsService.load("5", null);
-        assertEquals(PipelineSelections.ALL, selectedPipelines);
+        assertThat(selectedPipelines).isEqualTo(PipelineSelections.ALL);
     }
 
     private PipelineConfig createPipelineConfig(String... buildNames) {
@@ -206,7 +206,7 @@ public class PipelineSelectionsServiceTest {
 
     private PipelineSelections pipelineSelectionsWithFilters(Filters filters) {
         return argThat(ps -> {
-            assertEquals(filters, ps.viewFilters());
+            assertThat(ps.getViewFilters()).isEqualTo(filters);
             return true;
         });
     }

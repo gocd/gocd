@@ -115,13 +115,13 @@ public class PipelineSelectionController extends ApiController implements SparkS
         String fromCookie = request.cookie(COOKIE_NAME);
         PipelineSelections pipelineSelections = pipelineSelectionsService.load(fromCookie, currentUserId(request));
 
-        if (fresh(request, pipelineSelections.etag())) {
+        if (fresh(request, pipelineSelections.getEtag())) {
             return notModified(response);
         }
 
-        setEtagHeader(response, pipelineSelections.etag());
+        setEtagHeader(response, pipelineSelections.getEtag());
 
-        PipelineSelectionResponse pipelineSelectionResponse = new PipelineSelectionResponse(pipelineSelections.viewFilters());
+        PipelineSelectionResponse pipelineSelectionResponse = new PipelineSelectionResponse(pipelineSelections.getViewFilters());
 
         return PipelineSelectionsRepresenter.toJSON(pipelineSelectionResponse);
     }
@@ -130,7 +130,7 @@ public class PipelineSelectionController extends ApiController implements SparkS
         String fromCookie = request.cookie(COOKIE_NAME);
         final Long userId = currentUserId(request);
 
-        if (!Objects.equals(pipelineSelectionsService.load(fromCookie, userId).etag(), getIfMatch(request))) {
+        if (!Objects.equals(pipelineSelectionsService.load(fromCookie, userId).getEtag(), getIfMatch(request))) {
             throw HaltApiResponses.haltBecauseEtagDoesNotMatch(DATA_IS_OUT_OF_DATE);
         }
 
@@ -149,7 +149,7 @@ public class PipelineSelectionController extends ApiController implements SparkS
         }
 
         response.status(OK);
-        return format("{ \"contentHash\": \"%s\" }", pipelineSelectionsService.load(fromCookie, userId).etag());
+        return format("{ \"contentHash\": \"%s\" }", pipelineSelectionsService.load(fromCookie, userId).getEtag());
     }
 
     private String calcPipelinesDataEtag(Username username, List<PipelineConfigs> pipelineConfigs) {

@@ -109,7 +109,7 @@ public class DashboardControllerV3 extends ApiController implements SparkSpringC
         return writerForTopLevelObject(request, response, outputWriter ->
                 DashboardRepresenter.toJSON(
                         outputWriter,
-                        new DashboardFor(pipelineGroups, environments, userName, personalization.etag())
+                        new DashboardFor(pipelineGroups, environments, userName, personalization.getEtag())
                 )
         );
     }

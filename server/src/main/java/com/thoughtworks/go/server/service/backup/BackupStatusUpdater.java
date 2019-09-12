@@ -31,19 +31,19 @@ public class BackupStatusUpdater implements BackupUpdateListener {
     @Override
     public void updateStep(BackupProgressStatus status) {
         serverBackup.setProgressStatus(status);
-        this.serverBackupRepository.update(serverBackup);
+        this.serverBackupRepository.saveOrUpdate(serverBackup);
     }
 
     @Override
     public void error(String message) {
         serverBackup.markError(message);
-        this.serverBackupRepository.update(serverBackup);
+        this.serverBackupRepository.saveOrUpdate(serverBackup);
     }
 
     @Override
     public void completed() {
         serverBackup.markCompleted();
         serverBackup.setMessage("Backup was generated successfully.");
-        this.serverBackupRepository.update(serverBackup);
+        this.serverBackupRepository.saveOrUpdate(serverBackup);
     }
 }

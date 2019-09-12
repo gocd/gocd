@@ -33,8 +33,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-import static com.thoughtworks.go.domain.PersistentObject.NOT_PERSISTED;
-
 public abstract class AbstractUserEnabledCheckFilter extends OncePerRequestFilter {
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
@@ -77,7 +75,7 @@ public abstract class AbstractUserEnabledCheckFilter extends OncePerRequestFilte
     }
 
     private boolean persisted(User user) {
-        return user.getId() != NOT_PERSISTED;
+        return user.persisted();
     }
 
     private User getUser(HttpServletRequest request) {

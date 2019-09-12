@@ -40,13 +40,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 
-import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class PipelineRepositoryTest {
@@ -70,58 +67,15 @@ public class PipelineRepositoryTest {
         goCache = mock(GoCache.class);
         databaseStrategy = mock(DatabaseStrategy.class);
         when(databaseStrategy.getQueryExtensions()).thenReturn(mock(QueryExtensions.class));
-        pipelineRepository = new PipelineRepository(sessionFactory, goCache, databaseStrategy);
+        pipelineRepository = new PipelineRepository(sessionFactory, databaseStrategy);
         pipelineRepository.setHibernateTemplate(hibernateTemplate);
         transactionTemplate = mock(TransactionTemplate.class);
         transactionSynchronizationManager = mock(TransactionSynchronizationManager.class);
     }
 
-    @Test
-    public void shouldCachePipelineSelectionForGivenUserId() throws Exception {
-        String queryString = "FROM PipelineSelections WHERE userId = ?";
-        PipelineSelections pipelineSelections = makePipelineSelections();
-        long userId = 1L;
-
-        when(hibernateTemplate.find(queryString, new Object[]{userId})).thenReturn((List) Arrays.asList(pipelineSelections));
-        //return false for first 2 calls and return true for next call
-        when(goCache.isKeyInCache(pipelineRepository.pipelineSelectionForUserIdKey(userId))).thenReturn(false).thenReturn(false).thenReturn(true);
-
-        pipelineRepository.findPipelineSelectionsByUserId(userId);
-        pipelineRepository.findPipelineSelectionsByUserId(userId);
-
-        verify(hibernateTemplate).find(queryString, new Object[]{userId});
-        verify(goCache).put(pipelineRepository.pipelineSelectionForUserIdKey(userId), pipelineSelections);
-    }
 
     private PipelineSelections makePipelineSelections() {
         return new PipelineSelections(Filters.defaults(), null, null);
-    }
-
-    @Test
-    public void shouldCachePipelineSelectionForGivenId() throws Exception {
-        PipelineSelections pipelineSelections = makePipelineSelections();
-        long id = 1L;
-
-        when(hibernateTemplate.get(PipelineSelections.class, id)).thenReturn(pipelineSelections);
-        //return false for first 2 calls and return true for next call
-        when(goCache.isKeyInCache(pipelineRepository.pipelineSelectionForCookieKey(id))).thenReturn(false).thenReturn(false).thenReturn(true);
-
-        pipelineRepository.findPipelineSelectionsById(id);
-        pipelineRepository.findPipelineSelectionsById(id);
-
-        verify(hibernateTemplate).get(PipelineSelections.class, id);
-        verify(goCache).put(pipelineRepository.pipelineSelectionForCookieKey(id), pipelineSelections);
-    }
-
-    @Test
-    public void shouldInvalidatePipelineSelectionCacheOnSaveOrUpdate() throws Exception {
-        PipelineSelections pipelineSelections = makePipelineSelections();
-        pipelineSelections.setId(1);
-        pipelineSelections.update(Filters.defaults(), new Date(), 2L);
-        pipelineRepository.saveSelectedPipelines(pipelineSelections);
-
-        verify(goCache).remove(pipelineRepository.pipelineSelectionForCookieKey(1L));
-        verify(goCache).remove(pipelineRepository.pipelineSelectionForUserIdKey(2L));
     }
 
     @Test

@@ -23,14 +23,28 @@ import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
+import lombok.*;
+import lombok.experimental.Accessors;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+import javax.persistence.Cacheable;
+import javax.persistence.Entity;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class JobAgentMetadata extends PersistentObject {
+@EqualsAndHashCode(doNotUseGetters = true, callSuper = true)
+@ToString(callSuper = true)
+@Getter
+@Setter
+@Accessors(chain = true)
+@NoArgsConstructor
+@Entity
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+public class JobAgentMetadata extends HibernatePersistedObject {
     private Long jobId;
     private String elasticAgentProfileMetadata;
     private String clusterProfileMetadata;
@@ -38,9 +52,6 @@ public class JobAgentMetadata extends PersistentObject {
     private static final Gson GSON = new GsonBuilder().serializeNulls().
             setFieldNamingStrategy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).
             create();
-
-    private JobAgentMetadata() {
-    }
 
     public JobAgentMetadata(long jobId, ElasticProfile profile, ClusterProfile clusterProfile) {
         this.jobId = jobId;
@@ -97,20 +108,4 @@ public class JobAgentMetadata extends PersistentObject {
         return GSON.toJson(map);
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-        JobAgentMetadata that = (JobAgentMetadata) o;
-        return Objects.equals(jobId, that.jobId) &&
-                Objects.equals(elasticAgentProfileMetadata, that.elasticAgentProfileMetadata) &&
-                Objects.equals(clusterProfileMetadata, that.clusterProfileMetadata) &&
-                Objects.equals(metadataVersion, that.metadataVersion);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), jobId, elasticAgentProfileMetadata, clusterProfileMetadata, metadataVersion);
-    }
 }

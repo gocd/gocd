@@ -34,8 +34,8 @@ class ArtifactConfigRepresenterTest {
     ArtifactConfig artifactConfig = new ArtifactConfig()
     artifactConfig.setArtifactsDir(new ArtifactDirectory("some-directory"))
     PurgeSettings purgeSettings = new PurgeSettings()
-    purgeSettings.setPurgeStart(new PurgeStart(50.9))
-    purgeSettings.setPurgeUpto(new PurgeUpto(101.23))
+    purgeSettings.setPurgeStart(new PurgeStart().setPurgeStartDiskSpace(50.9))
+    purgeSettings.setPurgeUpto(new PurgeUpto().setPurgeUptoDiskSpace(101.23))
     artifactConfig.setPurgeSettings(purgeSettings)
     def json = toObjectString({
       ArtifactConfigRepresenter.toJSON(it, artifactConfig)
@@ -108,8 +108,8 @@ class ArtifactConfigRepresenterTest {
     artifactConfig.setArtifactsDir(artifactDirectory)
 
     PurgeSettings purgeSettings = new PurgeSettings()
-    purgeSettings.setPurgeStart(new PurgeStart(20))
-    purgeSettings.setPurgeUpto(new PurgeUpto(10))
+    purgeSettings.setPurgeStart(new PurgeStart().setPurgeStartDiskSpace(20))
+    purgeSettings.setPurgeUpto(new PurgeUpto().setPurgeUptoDiskSpace(10))
     purgeSettings.addError("purgeStart", "purge-start-error")
     purgeSettings.addError("purgeUpto", "purge-upto-error")
     artifactConfig.setPurgeSettings(purgeSettings)

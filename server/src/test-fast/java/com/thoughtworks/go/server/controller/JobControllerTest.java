@@ -48,10 +48,10 @@ import java.util.Optional;
 
 import static com.thoughtworks.go.util.JsonUtils.from;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Fail.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
-public class JobControllerTest {
+class JobControllerTest {
 
     private JobController jobController;
     private JobInstanceService jobInstanceService;
@@ -68,7 +68,7 @@ public class JobControllerTest {
     private SecurityService securityService;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         jobInstanceService = mock(JobInstanceService.class);
         jobInstanceDao = mock(JobInstanceDao.class);
         jobConfigService = mock(GoConfigService.class);
@@ -81,7 +81,7 @@ public class JobControllerTest {
         jobAgentMetadataDao = mock(JobAgentMetadataDao.class);
         securityService = mock(SecurityService.class);
         jobController = new JobController(jobInstanceService, agentService, jobInstanceDao, jobConfigService,
-                pipelineService, restfulService, null, stageService, jobAgentMetadataDao, systemEnvironment, securityService);
+            pipelineService, restfulService, null, stageService, jobAgentMetadataDao, systemEnvironment, securityService);
     }
 
     @Test
@@ -153,7 +153,7 @@ public class JobControllerTest {
         @Test
         void shouldReturnJobDetail() throws Exception {
             ModelAndView modelAndView = jobController.jobDetail("p1", "1", "s1", "2",
-                    "job1");
+                "job1");
             assertThat(modelAndView.getModel().isEmpty()).isFalse();
             assertThat(modelAndView.getModel().get("useIframeSandbox")).isEqualTo(false);
             assertThat(modelAndView.getModel().get("websocketEnabled")).isEqualTo(true);
@@ -199,7 +199,7 @@ public class JobControllerTest {
         void shouldConsistElasticAgentInformationForAJobRunningOnAnElasticAgent() throws Exception {
             final GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("cd.go.example.plugin").build();
             elasticAgentMetadataStore.setPluginInfo(new ElasticAgentPluginInfo(descriptor, null,
-                    null, null, null, new Capabilities(true, true)));
+                null, null, null, new Capabilities(true, true)));
             ElasticProfile elasticProfile = new ElasticProfile("elastic_id", "cluster_id");
             ClusterProfile clusterProfile = new ClusterProfile("cluster_id", "cd.go.example.plugin");
 
@@ -219,7 +219,7 @@ public class JobControllerTest {
             JobAgentMetadata jobAgentMetadata = mock(JobAgentMetadata.class);
             final GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("cd.go.example.plugin").build();
             elasticAgentMetadataStore.setPluginInfo(new ElasticAgentPluginInfo(descriptor, null,
-                    null, null, null, new Capabilities(true, true)));
+                null, null, null, new Capabilities(true, true)));
 
             when(jobAgentMetadataDao.load(12L)).thenReturn(jobAgentMetadata);
             when(jobAgentMetadata.clusterProfile()).thenReturn(null);

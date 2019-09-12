@@ -15,26 +15,34 @@
  */
 package com.thoughtworks.go.server.domain;
 
-import com.thoughtworks.go.domain.PersistentObject;
-import lombok.EqualsAndHashCode;
+import com.thoughtworks.go.domain.HibernatePersistedObject;
+import lombok.*;
+import lombok.experimental.Accessors;
 
+import javax.persistence.*;
 import java.util.Date;
 import java.util.Optional;
 
-/**
- * @understands A single backup of the server
- */
-@EqualsAndHashCode(callSuper = true)
-public class ServerBackup extends PersistentObject {
+@EqualsAndHashCode(doNotUseGetters = true, callSuper = true)
+@ToString(callSuper = true)
+@Getter
+@Setter
+@Accessors(chain = true)
+@NoArgsConstructor
+@Entity
+@Table(name = "serverBackups")
+@Cacheable
+public class ServerBackup extends HibernatePersistedObject {
     private Date time;
     private String path;
     private String username;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private BackupStatus status;
     private String message;
+    @Column(name = "progressStatus")
+    @Enumerated(EnumType.STRING)
     private BackupProgressStatus backupProgressStatus;
-
-    private ServerBackup() {
-    }
 
     public ServerBackup(String path, Date time, String username, String message) {
         this(path, time, username, message, BackupStatus.IN_PROGRESS);
@@ -58,32 +66,8 @@ public class ServerBackup extends PersistentObject {
         this.id = id;
     }
 
-    public String getPath() {
-        return path;
-    }
-
-    public Date getTime() {
-        return time;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public BackupStatus getStatus() {
-        return status;
-    }
-
     public Optional<BackupProgressStatus> getBackupProgressStatus() {
         return Optional.ofNullable(backupProgressStatus);
-    }
-
-    public String getMessage() {
-        return message;
     }
 
     public boolean isSuccessful() {
@@ -94,9 +78,10 @@ public class ServerBackup extends PersistentObject {
         this.message = message;
     }
 
-    public void setProgressStatus(BackupProgressStatus status) {
+    public ServerBackup setProgressStatus(BackupProgressStatus status) {
         this.backupProgressStatus = status;
         this.message = status.getMessage();
+        return this;
     }
 
     public void markCompleted() {

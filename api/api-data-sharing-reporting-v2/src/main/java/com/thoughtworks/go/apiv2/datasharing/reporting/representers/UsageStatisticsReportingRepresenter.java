@@ -26,10 +26,10 @@ public class UsageStatisticsReportingRepresenter {
                 .addChild("_embedded", childWriter -> {
                     childWriter
                             .add("server_id", usageStatisticsReporting.getServerId())
-                            .add("last_reported_at", usageStatisticsReporting.lastReportedAt().getTime())
+                            .add("last_reported_at", usageStatisticsReporting.getLastReportedAt().getTime())
                             .add("data_sharing_server_url", usageStatisticsReporting.getDataSharingServerUrl())
                             .add("data_sharing_get_encryption_keys_url", usageStatisticsReporting.getDataSharingGetEncryptionKeysUrl())
-                            .add("can_report", usageStatisticsReporting.canReport());
+                            .add("can_report", usageStatisticsReporting.isCanReport());
                 });
     }
 }

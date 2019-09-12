@@ -15,6 +15,10 @@
  */
 package com.thoughtworks.go.server.transaction;
 
+import org.springframework.transaction.TransactionStatus;
+
+import java.util.function.Consumer;
+
 public class TransactionTemplate {
     private org.springframework.transaction.support.TransactionTemplate transactionTemplate;
 
@@ -22,6 +26,18 @@ public class TransactionTemplate {
 
     public TransactionTemplate(org.springframework.transaction.support.TransactionTemplate transactionTemplate) {
         this.transactionTemplate = transactionTemplate;
+    }
+
+    public void execute(final Consumer<TransactionStatus> action) {
+        transactionTemplate.execute(status -> {
+            txnCtx().transactionPushed();
+            try {
+                action.accept(status);
+                return null;
+            } finally {
+                txnCtx().transactionPopped();
+            }
+        });
     }
 
     public <T> T execute(final org.springframework.transaction.support.TransactionCallback<T> action) {

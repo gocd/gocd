@@ -19,6 +19,7 @@ import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv2.backups.representers.BackupRepresenter
 import com.thoughtworks.go.config.exceptions.EntityType
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException
 import com.thoughtworks.go.server.domain.BackupStatus
 import com.thoughtworks.go.server.domain.ServerBackup
 import com.thoughtworks.go.server.service.BackupService
@@ -118,7 +119,7 @@ class BackupsControllerV2Test implements SecurityServiceTrait, ControllerTrait<B
 
       @Test
       void 'should get 404 when id does not exist'() {
-        doReturn(Optional.empty()).when(backupService).getServerBackup(BACKUP_ID)
+        when(backupService.getServerBackup(BACKUP_ID)).thenThrow(new RecordNotFoundException(EntityType.Backup, BACKUP_ID))
 
         getWithApiHeader(controller.controllerPath(BACKUP_ID))
 
@@ -132,7 +133,7 @@ class BackupsControllerV2Test implements SecurityServiceTrait, ControllerTrait<B
       void 'should get serverBackup json'() {
         def backup = new ServerBackup("/foo/bar", new Date(), currentUserLoginName().toString(), BackupStatus.IN_PROGRESS, "", BACKUP_ID)
 
-        doReturn(Optional.of(backup)).when(backupService).getServerBackup(BACKUP_ID)
+        when(backupService.getServerBackup(BACKUP_ID)).thenReturn(backup)
 
         getWithApiHeader(controller.controllerPath(BACKUP_ID))
 
@@ -145,7 +146,7 @@ class BackupsControllerV2Test implements SecurityServiceTrait, ControllerTrait<B
       @Test
       void 'should get running backup'() {
         def backup = new ServerBackup("/foo/bar", new Date(), currentUserLoginName().toString(), BackupStatus.IN_PROGRESS, "", BACKUP_ID)
-        doReturn(Optional.of(backup)).when(backupService).runningBackup()
+        when(backupService.runningBackup()).thenReturn(backup)
 
         getWithApiHeader(controller.controllerPath("running"))
 

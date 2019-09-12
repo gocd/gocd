@@ -15,11 +15,11 @@
  */
 package com.thoughtworks.go.apiv3.users.representers
 
+import com.thoughtworks.go.apiv3.users.UsersMother
 import com.thoughtworks.go.apiv3.users.model.UserToRepresent
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.RoleConfig
 import com.thoughtworks.go.config.RolesConfig
-import com.thoughtworks.go.helper.UsersMother
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl

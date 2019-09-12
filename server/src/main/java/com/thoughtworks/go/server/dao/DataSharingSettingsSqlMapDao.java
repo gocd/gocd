@@ -15,9 +15,7 @@
  */
 package com.thoughtworks.go.server.dao;
 
-import com.thoughtworks.go.server.cache.CacheKeyGenerator;
-import com.thoughtworks.go.server.cache.GoCache;
-import com.thoughtworks.go.server.domain.DataSharingSettings;
+import com.thoughtworks.go.domain.DataSharingSettings;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,62 +24,33 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class DataSharingSettingsSqlMapDao extends HibernateDaoSupport {
-    private final CacheKeyGenerator cacheKeyGenerator;
     private SessionFactory sessionFactory;
     private TransactionTemplate transactionTemplate;
-    private GoCache goCache;
 
     @Autowired
-    public DataSharingSettingsSqlMapDao(SessionFactory sessionFactory, TransactionTemplate transactionTemplate, GoCache goCache) {
+    public DataSharingSettingsSqlMapDao(SessionFactory sessionFactory, TransactionTemplate transactionTemplate) {
         this.sessionFactory = sessionFactory;
         this.transactionTemplate = transactionTemplate;
-        this.goCache = goCache;
-        this.cacheKeyGenerator = new CacheKeyGenerator(getClass());
         setSessionFactory(sessionFactory);
     }
 
-    public void saveOrUpdate(DataSharingSettings dataSharingSettings) throws DuplicateDataSharingSettingsException {
-        DataSharingSettings existing = load();
+    public void saveOrUpdate(DataSharingSettings dataSharingSettings) {
+        transactionTemplate.execute(status -> {
+            DataSharingSettings existing = load();
 
-        if (dataSharingSettings.hasId() && dataSharingSettings.getId() != existing.getId()) {
-            throw new DuplicateDataSharingSettingsException();
-        }
+            if (existing != null) {
+                sessionFactory.getCurrentSession().delete(existing);
+            }
 
-        if (existing != null) {
-            existing.copyFrom(dataSharingSettings);
-        } else {
-            existing = dataSharingSettings;
-        }
-
-        sessionFactory.getCurrentSession().saveOrUpdate(existing);
+            sessionFactory.getCurrentSession().saveOrUpdate(dataSharingSettings);
+        });
     }
 
     public DataSharingSettings load() {
-        String cacheKey = cacheKeyForDataSharingSettings();
-        DataSharingSettings settings = (DataSharingSettings) goCache.get(cacheKey);
-        if (settings == null) {
-            synchronized (cacheKey) {
-                if (settings == null) {
-                    settings = transactionTemplate.execute(status -> (DataSharingSettings) sessionFactory.getCurrentSession().getNamedQuery("load.datasharing.settings").uniqueResult());
-                    goCache.put(cacheKey, settings);
-                }
-            }
-        }
-
-        return settings;
-    }
-
-    public void invalidateCache() {
-        String key = cacheKeyForDataSharingSettings();
-        synchronized (key) {
-            goCache.remove(key);
-        }
-    }
-
-    private String cacheKeyForDataSharingSettings() {
-        return cacheKeyGenerator.generate("dataSharing_settings");
-    }
-
-    public class DuplicateDataSharingSettingsException extends Exception {
+        return transactionTemplate.execute(status ->
+                (DataSharingSettings) sessionFactory.getCurrentSession()
+                        .createCriteria(DataSharingSettings.class)
+                        .setCacheable(true)
+                        .uniqueResult());
     }
 }

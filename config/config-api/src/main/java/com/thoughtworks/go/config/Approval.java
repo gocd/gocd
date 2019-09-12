@@ -30,7 +30,7 @@ import java.util.Map;
 @Setter
 @EqualsAndHashCode
 @Accessors(chain = true)
-@NoArgsConstructor(access = AccessLevel.PUBLIC)
+@NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.NONE)
 @ConfigTag(value = "approval")
 //TODO: ChrisS: Make this a proper enumeration

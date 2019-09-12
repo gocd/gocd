@@ -16,9 +16,9 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.server.dao.PipelineSelectionDao;
 import com.thoughtworks.go.server.domain.user.Filters;
 import com.thoughtworks.go.server.domain.user.PipelineSelections;
-import com.thoughtworks.go.server.persistence.PipelineRepository;
 import com.thoughtworks.go.util.Clock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,14 +26,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class PipelineSelectionsService {
     private final Clock clock;
-    private final PipelineRepository pipelineRepository;
     private final GoConfigService goConfigService;
+    private final PipelineSelectionDao pipelineSelectionDao;
 
     @Autowired
-    public PipelineSelectionsService(PipelineRepository pipelineRepository, GoConfigService goConfigService, Clock clock) {
-        this.pipelineRepository = pipelineRepository;
+    public PipelineSelectionsService(GoConfigService goConfigService, Clock clock, PipelineSelectionDao pipelineSelectionDao) {
         this.goConfigService = goConfigService;
         this.clock = clock;
+        this.pipelineSelectionDao = pipelineSelectionDao;
     }
 
     public PipelineSelections load(String id, Long userId) {
@@ -47,18 +47,17 @@ public class PipelineSelectionsService {
     }
 
     public long save(String id, Long userId, Filters filters) {
-
         PipelineSelections pipelineSelections = findOrCreateCurrentPipelineSelectionsFor(id, userId);
-        pipelineSelections.update(filters, clock.currentTime(), userId);
+        pipelineSelections.update(filters, clock.currentTimestamp(), userId);
 
-        return pipelineRepository.saveSelectedPipelines(pipelineSelections);
+        return pipelineSelectionDao.saveOrUpdate(pipelineSelections);
     }
 
     public void update(String id, Long userId, CaseInsensitiveString pipelineToAdd) {
         PipelineSelections currentSelections = findOrCreateCurrentPipelineSelectionsFor(id, userId);
 
         if (currentSelections.ensurePipelineVisible(pipelineToAdd)) {
-            pipelineRepository.saveSelectedPipelines(currentSelections);
+            pipelineSelectionDao.saveOrUpdate(currentSelections);
         }
     }
 
@@ -66,13 +65,13 @@ public class PipelineSelectionsService {
         PipelineSelections pipelineSelections = loadByIdOrUserId(id, userId);
 
         if (pipelineSelections == null) {
-            return new PipelineSelections(Filters.defaults(), clock.currentTime(), userId);
+            return new PipelineSelections(Filters.defaults(), clock.currentTimestamp(), userId);
         }
 
         return pipelineSelections;
     }
 
     private PipelineSelections loadByIdOrUserId(String id, Long userId) {
-        return goConfigService.isSecurityEnabled() ? pipelineRepository.findPipelineSelectionsByUserId(userId) : pipelineRepository.findPipelineSelectionsById(id);
+        return goConfigService.isSecurityEnabled() ? pipelineSelectionDao.findPipelineSelectionsByUserId(userId) : pipelineSelectionDao.findPipelineSelectionsById(id);
     }
 }

@@ -15,19 +15,38 @@
  */
 package com.thoughtworks.go.domain;
 
+import lombok.*;
+import lombok.experimental.Accessors;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Type;
+
+import javax.persistence.Cacheable;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import java.util.Date;
 
-public class VersionInfo extends PersistentObject{
+@EqualsAndHashCode(doNotUseGetters = true, callSuper = true)
+@ToString(callSuper = true)
+@Getter
+@Setter
+@Accessors(chain = true)
+@NoArgsConstructor
+@Entity
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+@Table(name = "versioninfos")
+public class VersionInfo extends HibernatePersistedObject {
     private String componentName;
+    @Type(type = "com.thoughtworks.go.domain.GoVersionConverter")
     private GoVersion installedVersion;
+    @Type(type = "com.thoughtworks.go.domain.GoVersionConverter")
     private GoVersion latestVersion;
     private Date latestVersionUpdatedAt;
 
-    public VersionInfo() {
-
-    }
-
-    public VersionInfo(String componentName, GoVersion currentVersion, GoVersion latestVersion,
+    public VersionInfo(String componentName,
+                       GoVersion currentVersion,
+                       GoVersion latestVersion,
                        Date latestVersionUpdatedAt) {
         this.componentName = componentName;
         this.installedVersion = currentVersion;
@@ -37,37 +56,5 @@ public class VersionInfo extends PersistentObject{
 
     public VersionInfo(String componentName, GoVersion currentVersion) {
         this(componentName, currentVersion, null, null);
-    }
-
-    public String getComponentName() {
-        return componentName;
-    }
-
-    public GoVersion getInstalledVersion() {
-        return installedVersion;
-    }
-
-    public GoVersion getLatestVersion() {
-        return latestVersion;
-    }
-
-    public Date getLatestVersionUpdatedAt() {
-        return latestVersionUpdatedAt;
-    }
-
-    public void setComponentName(String componentName) {
-        this.componentName = componentName;
-    }
-
-    public void setInstalledVersion(GoVersion installedVersion) {
-        this.installedVersion = installedVersion;
-    }
-
-    public void setLatestVersion(GoVersion latestVersion) {
-        this.latestVersion = latestVersion;
-    }
-
-    public void setLatestVersionUpdatedAt(Date latestVersionUpdatedAt) {
-        this.latestVersionUpdatedAt = latestVersionUpdatedAt;
     }
 }

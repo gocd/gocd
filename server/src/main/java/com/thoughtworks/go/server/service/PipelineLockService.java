@@ -26,7 +26,6 @@ import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.server.dao.PipelineStateDao;
 import com.thoughtworks.go.server.domain.PipelineLockStatusChangeListener;
-import com.thoughtworks.go.server.transaction.AfterCompletionCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,7 +72,7 @@ public class PipelineLockService implements ConfigChangedListener {
 
     public void lockIfNeeded(Pipeline pipeline) {
         if (goConfigService.isLockable(pipeline.getName())) {
-            pipelineStateDao.lockPipeline(pipeline, (AfterCompletionCallback) status -> {
+            pipelineStateDao.lockPipeline(pipeline, status -> {
                 if(status == TransactionSynchronization.STATUS_COMMITTED) {
                     notifyListeners(PipelineLockStatusChangeListener.Event.lock(pipeline.getName()));
                 }
@@ -95,7 +94,7 @@ public class PipelineLockService implements ConfigChangedListener {
     }
 
     public void unlock(String pipelineName) {
-        pipelineStateDao.unlockPipeline(pipelineName, (AfterCompletionCallback) status -> {
+        pipelineStateDao.unlockPipeline(pipelineName, status -> {
             if (status != TransactionSynchronization.STATUS_COMMITTED) {
                 return;
             }

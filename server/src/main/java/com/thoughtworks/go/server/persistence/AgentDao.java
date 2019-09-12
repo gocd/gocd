@@ -24,6 +24,7 @@ import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.util.UuidGenerator;
 import lombok.*;
+import lombok.experimental.Accessors;
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -344,7 +345,7 @@ class AgentMutexes {
 
     private AgentMutex createNewMutex(List<String> uuids) {
         String mutexId = "Mutex-" + new UuidGenerator().randomUuid();
-        AgentMutex mutex = new AgentMutex(mutexId, 1);
+        AgentMutex mutex = new AgentMutex().setId(mutexId).setUsedByCount(1);
         uuids.forEach(uuid -> uuidToMutexMap.putIfAbsent(uuid, mutex));
         return mutex;
     }
@@ -358,9 +359,10 @@ class AgentMutexes {
 
 @Getter
 @Setter
+@Accessors(chain = true)
 @EqualsAndHashCode
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.NONE)
 class AgentMutex {
     private String id;
     private long usedByCount;

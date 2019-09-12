@@ -147,7 +147,7 @@ public class PluginService {
     void saveOrUpdatePluginSettingsInDB(PluginSettings pluginSettings) {
         Plugin plugin = pluginDao.findPlugin(pluginSettings.getPluginId());
         if (plugin instanceof NullPlugin) {
-            plugin = new Plugin(pluginSettings.getPluginId(), null);
+            plugin = new Plugin().setPluginId(pluginSettings.getPluginId()).setConfiguration(null);
         }
         Map<String, String> settingsMap = pluginSettings.getSettingsAsKeyValuePair();
         plugin.setConfiguration(toJSON(settingsMap));

@@ -30,8 +30,6 @@ public interface UserDao {
 
     Users allUsers();
 
-    long enabledUserCount();
-
     void disableUsers(List<String> usernames);
 
     void enableUsers(List<String> usernames);

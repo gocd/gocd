@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv1.datasharing.settings.representers
 
 import com.thoughtworks.go.api.util.GsonTransformer
-import com.thoughtworks.go.server.domain.DataSharingSettings
+import com.thoughtworks.go.domain.DataSharingSettings
 import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.util.TimeProvider
 import org.junit.jupiter.api.BeforeEach
@@ -28,7 +28,7 @@ import java.sql.Timestamp
 import static com.thoughtworks.go.api.base.JsonOutputWriter.jsonDate
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
-import static org.junit.jupiter.api.Assertions.assertEquals
+import static org.assertj.core.api.Assertions.assertThat
 import static org.mockito.Mockito.when
 import static org.mockito.MockitoAnnotations.initMocks
 
@@ -44,10 +44,9 @@ class DataSharingSettingsRepresenterTest {
     @Test
     void "should represent data sharing settings"() {
         def sharingSettings = new DataSharingSettings()
-
-        sharingSettings.setAllowSharing(true)
-        sharingSettings.setUpdatedBy("Bob")
-        sharingSettings.setUpdatedOn(new Timestamp(new Date().getTime()))
+                .setAllowSharing(true)
+                .setUpdatedBy("Bob")
+                .setUpdatedOn(new Timestamp(new Date().getTime()))
 
         def actualJson = toObjectString({ DataSharingSettingsRepresenter.toJSON(it, sharingSettings) })
 
@@ -57,9 +56,9 @@ class DataSharingSettingsRepresenterTest {
                         doc : [href: 'https://api.go.cd/current/#data_sharing_settings']
                 ],
                 "_embedded": [
-                        allow     : sharingSettings.allowSharing(),
-                        updated_by : sharingSettings.updatedBy(),
-                        updated_on : jsonDate(sharingSettings.updatedOn())
+                        allow     : sharingSettings.allowSharing,
+                        updated_by: sharingSettings.updatedBy,
+                        updated_on: jsonDate(sharingSettings.updatedOn)
                 ]
         ]
 
@@ -76,11 +75,11 @@ class DataSharingSettingsRepresenterTest {
         def time = 10000000l
         when(timeProvider.currentTimeMillis()).thenReturn(time)
         def deserializedSettings = DataSharingSettingsRepresenter.fromJSON(jsonReader,
-          new Username("user"), timeProvider,
-          new DataSharingSettings(false, "me", new Date()))
-        assertEquals(deserializedSettings.allowSharing(), true)
-        assertEquals(deserializedSettings.updatedBy(), "user")
-        assertEquals(deserializedSettings.updatedOn(), new Timestamp(time))
+                new Username("user"), timeProvider,
+                new DataSharingSettings().setUpdatedBy("me").setUpdatedOn(new Timestamp(new Date().getTime())))
+        assertThat(deserializedSettings.allowSharing).isEqualTo(true)
+        assertThat(deserializedSettings.updatedBy).isEqualTo("user")
+        assertThat(deserializedSettings.updatedOn).isEqualTo(new Timestamp(time))
     }
 
     @Test
@@ -91,10 +90,10 @@ class DataSharingSettingsRepresenterTest {
         def time = 10000000l
         when(timeProvider.currentTimeMillis()).thenReturn(time)
         def deserializedSettings = DataSharingSettingsRepresenter.fromJSON(jsonReader,
-          new Username("user"), timeProvider,
-          new DataSharingSettings(false, "me", new Date()))
-        assertEquals(deserializedSettings.allowSharing(), false)
-        assertEquals(deserializedSettings.updatedBy(), "user")
-        assertEquals(deserializedSettings.updatedOn(), new Timestamp(time))
+                new Username("user"), timeProvider,
+                new DataSharingSettings().setAllowSharing(false).setUpdatedBy("me").setUpdatedOn(new Timestamp(new Date().getTime())))
+        assertThat(deserializedSettings.allowSharing).isEqualTo(false)
+        assertThat(deserializedSettings.updatedBy).isEqualTo("user")
+        assertThat(deserializedSettings.updatedOn).isEqualTo(new Timestamp(time))
     }
 }

@@ -20,8 +20,6 @@ import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.apiv2.backups.representers.BackupRepresenter;
 import com.thoughtworks.go.config.exceptions.BadRequestException;
-import com.thoughtworks.go.config.exceptions.EntityType;
-import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.server.domain.ServerBackup;
 import com.thoughtworks.go.server.service.BackupService;
 import com.thoughtworks.go.spark.RequestContext;
@@ -33,7 +31,6 @@ import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
-import java.util.Optional;
 
 import static com.thoughtworks.go.spark.Routes.Backups.ID_PATH;
 import static spark.Spark.*;
@@ -87,7 +84,7 @@ public class BackupsControllerV2 extends ApiController implements SparkSpringCon
 
     public String show(Request request, Response response) throws IOException {
         String backupId = request.params("id");
-        Optional<ServerBackup> backup;
+        ServerBackup backup;
         if (RUNNING.equals(backupId)) {
             backup = backupService.runningBackup();
         } else {
@@ -98,9 +95,6 @@ public class BackupsControllerV2 extends ApiController implements SparkSpringCon
             }
         }
 
-        if (!backup.isPresent()) {
-            throw new RecordNotFoundException(EntityType.Backup, backupId);
-        }
-        return writerForTopLevelObject(request, response, outputWriter -> BackupRepresenter.toJSON(outputWriter, backup.get()));
+        return writerForTopLevelObject(request, response, outputWriter -> BackupRepresenter.toJSON(outputWriter, backup));
     }
 }

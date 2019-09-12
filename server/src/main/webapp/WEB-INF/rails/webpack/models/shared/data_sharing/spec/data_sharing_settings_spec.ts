@@ -28,30 +28,30 @@ describe("Data Sharing Settings Model", () => {
   };
 
   it("should deserialize data sharing settings from JSON", () => {
-    const settings = DataSharingSettings.fromJSON(dataSharingSettingsJSON, {getResponseHeader: () => "ETag"});
+    const settings = DataSharingSettings.fromJSON(dataSharingSettingsJSON);
 
     expect(settings.allowed()).toBe(dataSharingSettingsJSON._embedded.allow);
     expect(settings.updatedBy()).toBe(dataSharingSettingsJSON._embedded.updated_by);
   });
 
   it("should deserialize updated on time into date format", () => {
-    const settings = DataSharingSettings.fromJSON(dataSharingSettingsJSON, {getResponseHeader: () => "ETag"});
+    const settings = DataSharingSettings.fromJSON(dataSharingSettingsJSON);
 
     expect(settings.updatedOn()).toBe(timeFormatter.formatInDate(dataSharingSettingsJSON._embedded.updated_on));
   });
 
   it("should tell whether data sharing settings has ever been changed by admin", () => {
-    let settings = DataSharingSettings.fromJSON(dataSharingSettingsJSON, {getResponseHeader: () => "ETag"});
+    let settings = DataSharingSettings.fromJSON(dataSharingSettingsJSON);
     expect(settings.hasEverChangedByAdmin()).toBe(true);
 
     dataSharingSettingsJSON._embedded.updated_by = "Default";
 
-    settings = DataSharingSettings.fromJSON(dataSharingSettingsJSON, {getResponseHeader: () => "ETag"});
+    settings = DataSharingSettings.fromJSON(dataSharingSettingsJSON);
     expect(settings.hasEverChangedByAdmin()).toBe(false);
   });
 
   it("should toggle consent value", () => {
-    const settings = DataSharingSettings.fromJSON(dataSharingSettingsJSON, {getResponseHeader: () => "ETag"});
+    const settings = DataSharingSettings.fromJSON(dataSharingSettingsJSON);
 
     expect(settings.allowed()).toBe(true);
     settings.toggleConsent();
@@ -59,7 +59,7 @@ describe("Data Sharing Settings Model", () => {
   });
 
   it("should reset consent value", () => {
-    const settings = DataSharingSettings.fromJSON(dataSharingSettingsJSON, {getResponseHeader: () => "ETag"});
+    const settings = DataSharingSettings.fromJSON(dataSharingSettingsJSON);
 
     expect(settings.allowed()).toBe(true);
     settings.toggleConsent();
@@ -105,11 +105,10 @@ describe("Data Sharing Settings Model", () => {
                                                                                        status: 200,
                                                                                        responseHeaders: {
                                                                                          "Content-Type": "application/vnd.go.cd.v1+json",
-                                                                                         "ETag": "ETag"
                                                                                        }
                                                                                      });
 
-      const metricsSettings = DataSharingSettings.fromJSON(dataSharingSettingsJSON, {getResponseHeader: () => "ETag"});
+      const metricsSettings = DataSharingSettings.fromJSON(dataSharingSettingsJSON);
 
       const successCallback = jasmine.createSpy().and.callFake(() => {
         expect(metricsSettings.allowed()).toBe(updatedMetricsSettings._embedded.allow);

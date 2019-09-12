@@ -35,11 +35,9 @@ export class DataSharingSettings {
   public allowed: Stream<boolean>;
   public updatedBy: Stream<string>;
   public updatedOn: Stream<string>;
-  private etag: string;
   private originallyAllowed: boolean;
 
-  constructor(data: DataSharingJSON, etag: string) {
-    this.etag              = etag;
+  constructor(data: DataSharingJSON) {
     this.originallyAllowed = data._embedded.allow;
 
     this.allowed   = Stream(data._embedded.allow);
@@ -47,8 +45,8 @@ export class DataSharingSettings {
     this.updatedOn = Stream(TimeFormatter.formatInDate(data._embedded.updated_on));
   }
 
-  static fromJSON(json: DataSharingJSON, jqXHR: any) {
-    return new DataSharingSettings(json, jqXHR.getResponseHeader('etag'));
+  static fromJSON(json: DataSharingJSON) {
+    return new DataSharingSettings(json);
   }
 
   static get = () => {
@@ -76,9 +74,7 @@ export class DataSharingSettings {
       url:        SparkRoutes.DataSharingSettingsPath(),
       apiVersion: DataSharingSettings.API_VERSION,
       payload:    {allow: this.allowed()},
-      etag:       this.etag
     }).then((data: DataSharingJSON, textStatus: string, jqXHR: any) => {
-      this.etag              = jqXHR.getResponseHeader('etag');
       this.originallyAllowed = data._embedded.allow;
 
       this.allowed(data._embedded.allow);

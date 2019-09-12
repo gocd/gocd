@@ -18,6 +18,8 @@ package com.thoughtworks.go.apiv2.datasharing.reporting.representers
 import com.thoughtworks.go.domain.UsageStatisticsReporting
 import org.junit.jupiter.api.Test
 
+import java.sql.Timestamp
+
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
@@ -26,11 +28,11 @@ class UsageStatisticsReportingRepresenterTest {
     def dataSharingGetEncryptionKeysUrl = 'https://datasharing.gocd.org/encryption_keys'
     @Test
     void "should represent usage statistics reporting"() {
-        def metricsReporting = new UsageStatisticsReporting("server-id", new Date())
-        def statsSharedAt = new Date()
-        metricsReporting.setLastReportedAt(statsSharedAt)
-        metricsReporting.setDataSharingServerUrl(dataSharingServerUrl)
-        metricsReporting.setDataSharingGetEncryptionKeysUrl(dataSharingGetEncryptionKeysUrl)
+        def metricsReporting = new UsageStatisticsReporting()
+                .setServerId("server-id")
+                .setLastReportedAt(new Timestamp(new Date().getTime()))
+                .setDataSharingServerUrl(dataSharingServerUrl)
+                .setDataSharingGetEncryptionKeysUrl(dataSharingGetEncryptionKeysUrl)
 
         def actualJson = toObjectString({ UsageStatisticsReportingRepresenter.toJSON(it, metricsReporting) })
 
@@ -42,7 +44,7 @@ class UsageStatisticsReportingRepresenterTest {
                   server_id                           : metricsReporting.getServerId(),
                   data_sharing_server_url             : dataSharingServerUrl,
                   data_sharing_get_encryption_keys_url: dataSharingGetEncryptionKeysUrl,
-                  last_reported_at                    : metricsReporting.lastReportedAt().getTime(),
+                  last_reported_at                    : metricsReporting.lastReportedAt.getTime(),
                   can_report                          : true
                 ]
         ]
@@ -52,9 +54,11 @@ class UsageStatisticsReportingRepresenterTest {
 
     @Test
     void "should represent usage statistics reporting when last_reported_at is unset"() {
-        def metricsReporting = new UsageStatisticsReporting("server-id", new Date(0l))
-        metricsReporting.setDataSharingServerUrl(dataSharingServerUrl)
-        metricsReporting.setDataSharingGetEncryptionKeysUrl(dataSharingGetEncryptionKeysUrl)
+        def metricsReporting = new UsageStatisticsReporting()
+                .setServerId("server-id")
+                .setLastReportedAt(new Timestamp(0))
+                .setDataSharingServerUrl(dataSharingServerUrl)
+                .setDataSharingGetEncryptionKeysUrl(dataSharingGetEncryptionKeysUrl)
 
         def actualJson = toObjectString({ UsageStatisticsReportingRepresenter.toJSON(it, metricsReporting) })
 

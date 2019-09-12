@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.server.cache;
 
-import com.thoughtworks.go.domain.NullUser;
+import com.thoughtworks.go.domain.HibernatePersistedObject;
 import com.thoughtworks.go.domain.PersistentObject;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import net.sf.ehcache.Ehcache;
@@ -30,7 +30,6 @@ import org.springframework.transaction.support.TransactionSynchronizationAdapter
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
@@ -47,8 +46,6 @@ public class GoCache {
     private static final Logger LOGGER = LoggerFactory.getLogger(GoCache.class);
     private TransactionSynchronizationManager transactionSynchronizationManager;
 
-    private final Set<Class<? extends PersistentObject>> nullObjectClasses;
-
     static class KeyList extends HashSet<String> {
     }
 
@@ -62,8 +59,6 @@ public class GoCache {
     public GoCache(Ehcache cache, TransactionSynchronizationManager transactionSynchronizationManager) {
         this.ehCache = cache;
         this.transactionSynchronizationManager = transactionSynchronizationManager;
-        this.nullObjectClasses = new HashSet<>();
-        nullObjectClasses.add(NullUser.class);
         registerAsCacheEvictionListener();
     }
 
@@ -122,13 +117,18 @@ public class GoCache {
 
     private void logUnsavedPersistentObjectInteraction(Object value, String message) {
         if (value instanceof PersistentObject) {
-            for (Class<? extends PersistentObject> nullObjectClass : nullObjectClasses) {
-                if (value.getClass().equals(nullObjectClass)) {
-                    return;
-                }
-            }
             PersistentObject persistentObject = (PersistentObject) value;
             if (!persistentObject.hasId()) {
+                String msg = String.format(message, persistentObject);
+                IllegalStateException exception = new IllegalStateException();
+                LOGGER.error(msg, exception);
+                throw bomb(msg, exception);
+            }
+        }
+
+        if (value instanceof HibernatePersistedObject) {
+            HibernatePersistedObject persistentObject = (HibernatePersistedObject) value;
+            if (!persistentObject.persisted()) {
                 String msg = String.format(message, persistentObject);
                 IllegalStateException exception = new IllegalStateException();
                 LOGGER.error(msg, exception);

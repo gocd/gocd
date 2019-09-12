@@ -75,7 +75,7 @@
 
     <!-- ========================= HIBERNATE ========================= -->
 
-    <bean id="sessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+    <bean id="sessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
         <property name="dataSource" ref="goDataSource"/>
         <property name="useTransactionAwareDataSource" value="true"/>
         <property name="mappingLocations">
@@ -83,6 +83,7 @@
                 <value>classpath:/hibernate-mappings/*</value>
             </list>
         </property>
+        <property name="configLocation" value="classpath:hibernate.cfg.xml"/>
         <property name="hibernateProperties" ref="hibernateProperties" />
         <property name="entityInterceptor">
             <bean class="com.thoughtworks.go.server.transaction.TransactionCacheInterceptor" lazy-init="true">

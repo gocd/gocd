@@ -23,11 +23,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 @Component
-public class VersionInfoSqlMapDao extends HibernateDaoSupport implements VersionInfoDao{
+public class VersionInfoSqlMapDao extends HibernateDaoSupport implements VersionInfoDao {
 
     private final SessionFactory sessionFactory;
     private final TransactionTemplate transactionTemplate;
@@ -51,19 +50,12 @@ public class VersionInfoSqlMapDao extends HibernateDaoSupport implements Version
 
     @Override
     public VersionInfo findByComponentName(final String name) {
-        return (VersionInfo) transactionTemplate.execute((TransactionCallback) transactionStatus -> sessionFactory.getCurrentSession()
-                .createCriteria(VersionInfo.class)
-                .add(Restrictions.eq("componentName", name))
-                .setCacheable(true).uniqueResult());
+        return transactionTemplate.execute(transactionStatus ->
+                (VersionInfo) sessionFactory.getCurrentSession()
+                        .createCriteria(VersionInfo.class)
+                        .add(Restrictions.eq("componentName", name))
+                        .setCacheable(true)
+                        .uniqueResult());
     }
 
-    // used only in tests
-    void deleteAll() {
-        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override
-            protected void doInTransactionWithoutResult(TransactionStatus status) {
-                sessionFactory.getCurrentSession().createQuery("DELETE FROM VersionInfo").executeUpdate();
-            }
-        });
-    }
 }

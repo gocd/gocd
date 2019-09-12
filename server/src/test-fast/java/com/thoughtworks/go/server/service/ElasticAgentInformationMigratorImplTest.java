@@ -79,7 +79,7 @@ class ElasticAgentInformationMigratorImplTest {
         configuration.put("k2", "v2");
 
         when(pluginManager.isPluginOfType(ELASTIC_AGENT_EXTENSION, goPluginDescriptor.id())).thenReturn(true);
-        when(pluginSqlMapDao.findPlugin(PLUGIN_ID)).thenReturn(new Plugin(PLUGIN_ID, JsonHelper.toJsonString(configuration)));
+        when(pluginSqlMapDao.findPlugin(PLUGIN_ID)).thenReturn(new Plugin().setPluginId(PLUGIN_ID).setConfiguration(JsonHelper.toJsonString(configuration)));
 
         PluginPostLoadHook.Result result = elasticAgentInformationMigrator.run(goPluginDescriptor, new HashMap<>());
 
@@ -90,7 +90,7 @@ class ElasticAgentInformationMigratorImplTest {
     @Test
     void shouldPerformReplaceElasticAgentInformationCommandToMigrateElasticAgentInformationWhenNoPluginSettingsAreConfigured() {
         when(pluginManager.isPluginOfType(ELASTIC_AGENT_EXTENSION, goPluginDescriptor.id())).thenReturn(true);
-        when(pluginSqlMapDao.findPlugin(PLUGIN_ID)).thenReturn(new Plugin(PLUGIN_ID, null));
+        when(pluginSqlMapDao.findPlugin(PLUGIN_ID)).thenReturn(new Plugin().setPluginId(PLUGIN_ID).setConfiguration(null));
 
         PluginPostLoadHook.Result result = elasticAgentInformationMigrator.run(goPluginDescriptor, new HashMap<>());
 
@@ -102,7 +102,7 @@ class ElasticAgentInformationMigratorImplTest {
     @Test
     void shouldMarkPluginDescriptorInvalidIncaseOfErrors() {
         when(pluginManager.isPluginOfType(ELASTIC_AGENT_EXTENSION, goPluginDescriptor.id())).thenReturn(true);
-        when(pluginSqlMapDao.findPlugin(PLUGIN_ID)).thenReturn(new Plugin(PLUGIN_ID, null));
+        when(pluginSqlMapDao.findPlugin(PLUGIN_ID)).thenReturn(new Plugin().setPluginId(PLUGIN_ID).setConfiguration(null));
         when(goConfigService.updateConfig(any())).thenThrow(new RuntimeException("Boom!"));
 
         assertThat(goPluginDescriptor.isInvalid()).isFalse();

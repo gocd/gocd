@@ -153,12 +153,12 @@ public class BackupServiceTest {
         when(username.getUsername()).thenReturn(user);
         when(artifactsDirHolder.getBackupsDir().getAbsolutePath()).thenReturn("backup_path");
         when(timeProvider.currentDateTime()).thenReturn(backupTime);
-        when(serverBackupRepository.save(expectedBackup)).thenReturn(backupWithId);
+        when(serverBackupRepository.saveOrUpdate(expectedBackup)).thenReturn(backupWithId);
 
         BackupService backupService = new BackupService(artifactsDirHolder, null, timeProvider, serverBackupRepository, systemEnvironment, null, databaseStrategy, backupQueue);
         backupService.scheduleBackup(username);
 
-        verify(serverBackupRepository).save(expectedBackup);
+        verify(serverBackupRepository).saveOrUpdate(expectedBackup);
         verify(backupQueue).post(captor.capture());
 
         StartServerBackupMessage serverBackupMessage = captor.getValue();

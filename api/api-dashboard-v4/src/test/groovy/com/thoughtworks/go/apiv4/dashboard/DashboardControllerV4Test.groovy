@@ -45,7 +45,7 @@ import static org.mockito.MockitoAnnotations.initMocks
 
 class DashboardControllerV4Test implements SecurityServiceTrait, ControllerTrait<DashboardControllerV4> {
   @Mock
-  private FeatureToggleService featureToggleService;
+  private FeatureToggleService featureToggleService
 
   @Mock
   private GoDashboardService goDashboardService
@@ -56,13 +56,13 @@ class DashboardControllerV4Test implements SecurityServiceTrait, ControllerTrait
   @BeforeEach
   void setup() {
     initMocks(this)
-    Toggles.initializeWith(featureToggleService);
+    Toggles.initializeWith(featureToggleService)
     when(featureToggleService.isToggleOn(Toggles.ALLOW_EMPTY_PIPELINE_GROUPS_DASHBOARD)).thenReturn(false)
   }
 
   @AfterEach
   void teardown() {
-    Toggles.deinitialize();
+    Toggles.deinitialize()
   }
 
   @Override
@@ -105,7 +105,7 @@ class DashboardControllerV4Test implements SecurityServiceTrait, ControllerTrait
 
         assertThatResponse()
           .isOk()
-          .hasBodyWithJsonObject(new DashboardFor([group], [env], currentUsername(), PipelineSelections.ALL.etag()), DashboardRepresenter)
+          .hasBodyWithJsonObject(new DashboardFor([group], [env], currentUsername(), PipelineSelections.ALL.etag), DashboardRepresenter)
       }
 
       @Test
@@ -143,7 +143,7 @@ class DashboardControllerV4Test implements SecurityServiceTrait, ControllerTrait
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(new DashboardFor([], [], currentUsername(), pipelineSelections.etag()), DashboardRepresenter)
+          .hasBodyWithJsonObject(new DashboardFor([], [], currentUsername(), pipelineSelections.etag), DashboardRepresenter)
       }
 
       @Test

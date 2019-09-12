@@ -125,8 +125,8 @@ public class AccessTokenSqlMapDao extends HibernateDaoSupport implements AccessT
 
     @Override
     public AccessToken loadNotDeletedTokenForUser(long id, String username) {
-        return (AccessToken) transactionTemplate.execute(transactionCallback ->
-                sessionFactory
+        return transactionTemplate.execute(transactionCallback ->
+                (AccessToken) sessionFactory
                         .getCurrentSession()
                         .createCriteria(AccessToken.class)
                         .add(Restrictions.eq("username", username))

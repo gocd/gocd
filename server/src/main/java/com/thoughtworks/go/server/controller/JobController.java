@@ -81,10 +81,10 @@ public class JobController {
 
     @Autowired
     public JobController(
-            JobInstanceService jobInstanceService, AgentService agentService, JobInstanceDao jobInstanceDao,
-            GoConfigService goConfigService, PipelineService pipelineService, RestfulService restfulService,
-            ArtifactsService artifactService, StageService stageService,
-            JobAgentMetadataDao jobAgentMetadataDao, SystemEnvironment systemEnvironment, SecurityService securityService) {
+        JobInstanceService jobInstanceService, AgentService agentService, JobInstanceDao jobInstanceDao,
+        GoConfigService goConfigService, PipelineService pipelineService, RestfulService restfulService,
+        ArtifactsService artifactService, StageService stageService,
+        JobAgentMetadataDao jobAgentMetadataDao, SystemEnvironment systemEnvironment, SecurityService securityService) {
         this.jobInstanceService = jobInstanceService;
         this.agentService = agentService;
         this.jobInstanceDao = jobInstanceDao;
@@ -109,12 +109,12 @@ public class JobController {
 
         if (!pipelineCounterValue.isPresent()) {
             throw bomb(String.format("Expected numeric pipelineCounter or latest keyword, but received '%s' for [%s/%s/%s/%s/%s]", pipelineCounter, pipelineName, pipelineCounter, stageName,
-                    stageCounter, jobName));
+                stageCounter, jobName));
         }
 
         if (!isValidCounter(stageCounter)) {
             throw bomb(String.format("Expected numeric stageCounter or latest keyword, but received '%s' for [%s/%s/%s/%s/%s]", stageCounter, pipelineName, pipelineCounter, stageName,
-                    stageCounter, jobName));
+                stageCounter, jobName));
 
         }
 
@@ -122,7 +122,7 @@ public class JobController {
 
         if (pipeline == null) {
             throw bomb(String.format("Job %s/%s/%s/%s/%s not found", pipelineName, pipelineCounter, stageName,
-                    stageCounter, jobName));
+                stageCounter, jobName));
         }
 
         StageIdentifier stageIdentifier = restfulService.translateStageCounter(pipeline.getIdentifier(), stageName, stageCounter);
@@ -150,8 +150,8 @@ public class JobController {
             JobInstance mostRecentJobInstance = jobInstanceDao.mostRecentJobWithTransitions(requestedInstance.getIdentifier());
 
             JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(mostRecentJobInstance,
-                    agentService.findAgentByUUID(mostRecentJobInstance.getAgentUuid()),
-                    stageService.getBuildDuration(pipelineName, stageName, mostRecentJobInstance));
+                agentService.findAgentByUUID(mostRecentJobInstance.getAgentUuid()),
+                stageService.getBuildDuration(pipelineName, stageName, mostRecentJobInstance));
             json = createBuildInfo(presenter);
         } catch (Exception e) {
             LOGGER.warn(null, e);
@@ -167,9 +167,9 @@ public class JobController {
         Agent agent = agentService.getAgentByUUID(current.getAgentUuid());
         Pipeline pipelineWithOneBuild = pipelineService.wrapBuildDetails(current);
         Tabs customizedTabs = goConfigService.getCustomizedTabs(pipelineWithOneBuild.getName(),
-                pipelineWithOneBuild.getFirstStage().getName(), current.getName());
+            pipelineWithOneBuild.getFirstStage().getName(), current.getName());
         TrackingTool trackingTool = goConfigService.pipelineConfigNamed(
-                new CaseInsensitiveString(pipelineWithOneBuild.getName())).trackingTool();
+            new CaseInsensitiveString(pipelineWithOneBuild.getName())).trackingTool();
         Stage stage = stageService.getStageByBuild(current);
         return new JobDetailPresentationModel(current, recent25, agent, pipelineWithOneBuild, customizedTabs, trackingTool, artifactService, stage);
     }

@@ -79,7 +79,7 @@ public class DataSharingUsageStatisticsReportingServiceIntegrationTest {
         UsageStatisticsReporting usageStatisticsReporting = usageStatisticsReportingSqlMapDao.load();
         assertNotNull(usageStatisticsReporting);
         assertNotNull(usageStatisticsReporting.getServerId());
-        assertThat(usageStatisticsReporting.lastReportedAt(), is(new Timestamp(0)));
+        assertThat(usageStatisticsReporting.getLastReportedAt(), is(new Timestamp(0)));
     }
 
     @Test
@@ -100,7 +100,7 @@ public class DataSharingUsageStatisticsReportingServiceIntegrationTest {
     public void shouldUpdateUsageStatisticsReporting() {
         UsageStatisticsReporting existing = dataSharingUsageStatisticsReportingService.get();
         assertNotNull(existing);
-        Timestamp existingReportedTime = existing.lastReportedAt();
+        Timestamp existingReportedTime = existing.getLastReportedAt();
         assertNotNull(existingReportedTime);
         dataSharingUsageStatisticsReportingService.startReporting(new HttpLocalizedOperationResult());
 
@@ -110,7 +110,7 @@ public class DataSharingUsageStatisticsReportingServiceIntegrationTest {
 
         UsageStatisticsReporting loaded = dataSharingUsageStatisticsReportingService.get();
 
-        assertThat(loaded.lastReportedAt().getTime(), greaterThan(existingReportedTime.getTime()));
+        assertThat(loaded.getLastReportedAt().getTime(), greaterThan(existingReportedTime.getTime()));
     }
 
     private String cacheKey() {

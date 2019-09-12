@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.apiv1.datasharing.settings;
 
+import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.CrudController;
@@ -24,8 +25,7 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.datasharing.settings.representers.DataSharingSettingsRepresenter;
 import com.thoughtworks.go.config.exceptions.EntityType;
-import com.thoughtworks.go.server.domain.DataSharingSettings;
-import com.thoughtworks.go.server.service.EntityHashingService;
+import com.thoughtworks.go.domain.DataSharingSettings;
 import com.thoughtworks.go.server.service.datasharing.DataSharingNotification;
 import com.thoughtworks.go.server.service.datasharing.DataSharingSettingsService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -46,19 +46,16 @@ public class DataSharingSettingsControllerV1 extends ApiController implements Sp
 
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final DataSharingSettingsService dataSharingSettingsService;
-    private final EntityHashingService entityHashingService;
     private final TimeProvider timeProvider;
     private final DataSharingNotification dataSharingNotification;
 
     @Autowired
     public DataSharingSettingsControllerV1(ApiAuthenticationHelper apiAuthenticationHelper,
                                            DataSharingSettingsService dataSharingSettingsService,
-                                           EntityHashingService entityHashingService,
                                            TimeProvider timeProvider, DataSharingNotification dataSharingNotification) {
         super(ApiVersion.v1);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
         this.dataSharingSettingsService = dataSharingSettingsService;
-        this.entityHashingService = entityHashingService;
         this.timeProvider = timeProvider;
         this.dataSharingNotification = dataSharingNotification;
     }
@@ -92,7 +89,7 @@ public class DataSharingSettingsControllerV1 extends ApiController implements Sp
     }
 
     public String getDataSharingSettings(Request request, Response response) {
-        DataSharingSettings dataSharingSettings = dataSharingSettingsService.get();
+        DataSharingSettings dataSharingSettings = dataSharingSettingsService.load();
         setEtagHeader(response, etagFor(dataSharingSettings));
         return jsonize(request, dataSharingSettings);
     }
@@ -100,7 +97,7 @@ public class DataSharingSettingsControllerV1 extends ApiController implements Sp
     public String patchDataSharingSettings(Request request, Response response) throws Exception {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         dataSharingSettingsService.createOrUpdate(buildEntityFromRequestBody(request));
-        return handleCreateOrUpdateResponse(request, response, dataSharingSettingsService.get(), result);
+        return handleCreateOrUpdateResponse(request, response, dataSharingSettingsService.load(), result);
     }
 
     public String getDataSharingNotificationForCurrentUser(Request request, Response response) {
@@ -110,7 +107,7 @@ public class DataSharingSettingsControllerV1 extends ApiController implements Sp
 
     @Override
     public String etagFor(DataSharingSettings entityFromServer) {
-        return entityHashingService.md5ForEntity(entityFromServer);
+        return new GsonBuilder().create().toJson(entityFromServer);
     }
 
     @Override
@@ -126,7 +123,7 @@ public class DataSharingSettingsControllerV1 extends ApiController implements Sp
     @Override
     public DataSharingSettings buildEntityFromRequestBody(Request request) {
         JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(request.body());
-        return DataSharingSettingsRepresenter.fromJSON(jsonReader, currentUsername(), timeProvider, dataSharingSettingsService.get());
+        return DataSharingSettingsRepresenter.fromJSON(jsonReader, currentUsername(), timeProvider, dataSharingSettingsService.load());
     }
 
     @Override

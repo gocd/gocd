@@ -25,11 +25,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.UUID;
 
-import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -58,30 +59,32 @@ public class UsageStatisticsReportingSqlMapDaoIntegrationTest {
     @Test
     public void shouldSaveServerInformation() throws Exception {
         String serverId = UUID.randomUUID().toString();
-        UsageStatisticsReporting usageStatisticsReporting = new UsageStatisticsReporting(serverId, new Date());
         Date statsUpdatedAt = new Date();
-        usageStatisticsReporting.setLastReportedAt(statsUpdatedAt);
+        UsageStatisticsReporting usageStatisticsReporting = new UsageStatisticsReporting()
+                .setLastReportedAt(new Timestamp(statsUpdatedAt.getTime()))
+                .setServerId(serverId);
         usageStatisticsReportingSqlMapDao.saveOrUpdate(usageStatisticsReporting);
 
         usageStatisticsReporting = usageStatisticsReportingSqlMapDao.load();
         assertEquals(usageStatisticsReporting.getServerId(), serverId);
-        assertTrue(usageStatisticsReporting.hasId());
-        assertThat(usageStatisticsReporting.lastReportedAt().toInstant(), is(statsUpdatedAt.toInstant()));
+        assertTrue(usageStatisticsReporting.persisted());
+        assertThat(usageStatisticsReporting.getLastReportedAt().toInstant(), is(statsUpdatedAt.toInstant()));
     }
 
     @Test
     public void shouldUpdateServerInformation() throws Exception {
         String serverId = UUID.randomUUID().toString();
-        UsageStatisticsReporting usageStatisticsReporting = new UsageStatisticsReporting(serverId, new Date());
-        usageStatisticsReporting.setLastReportedAt(new Date());
+        UsageStatisticsReporting usageStatisticsReporting = new UsageStatisticsReporting()
+                .setLastReportedAt(new Timestamp(new Date().getTime()))
+                .setServerId(serverId);
         usageStatisticsReportingSqlMapDao.saveOrUpdate(usageStatisticsReporting);
 
         UsageStatisticsReporting toBeUpdated = usageStatisticsReportingSqlMapDao.load();
-        toBeUpdated.setLastReportedAt(new Date(DateTime.now().minusDays(2).getMillis()));
+        toBeUpdated.setLastReportedAt(new Timestamp(new Date(DateTime.now().minusDays(2).getMillis()).getTime()));
         usageStatisticsReportingSqlMapDao.saveOrUpdate(toBeUpdated);
 
         UsageStatisticsReporting loaded = usageStatisticsReportingSqlMapDao.load();
-        assertThat(loaded.lastReportedAt().toInstant(), not(is(usageStatisticsReporting.lastReportedAt().toInstant())));
-        assertThat(loaded.lastReportedAt().toInstant(), is(toBeUpdated.lastReportedAt().toInstant()));
+        assertThat(loaded.getLastReportedAt().toInstant(), not(is(usageStatisticsReporting.getLastReportedAt().toInstant())));
+        assertThat(loaded.getLastReportedAt().toInstant(), is(toBeUpdated.getLastReportedAt().toInstant()));
     }
 }

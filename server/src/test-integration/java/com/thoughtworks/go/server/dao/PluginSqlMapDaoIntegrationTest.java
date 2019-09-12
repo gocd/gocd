@@ -131,7 +131,7 @@ public class PluginSqlMapDaoIntegrationTest {
     }
 
     private Plugin savePlugin(String pluginId) {
-        Plugin plugin = new Plugin(pluginId, getConfigurationJSON("k1", "v1", "k2", "v2"));
+        Plugin plugin = new Plugin().setPluginId(pluginId).setConfiguration(getConfigurationJSON("k1", "v1", "k2", "v2"));
         pluginSqlMapDao.saveOrUpdate(plugin);
         return plugin;
     }

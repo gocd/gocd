@@ -18,6 +18,8 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.config.BackupConfig;
 import com.thoughtworks.go.config.GoMailSender;
+import com.thoughtworks.go.config.exceptions.EntityType;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.database.Database;
 import com.thoughtworks.go.security.AESCipherProvider;
 import com.thoughtworks.go.security.DESCipherProvider;
@@ -124,24 +126,20 @@ public class BackupService implements BackupStatusProvider {
         return serverBackup;
     }
 
-    public Optional<ServerBackup> runningBackup() {
-        return Optional.ofNullable(runningBackup);
+    public ServerBackup runningBackup() {
+        if (runningBackup == null) {
+            throw new RecordNotFoundException(EntityType.Backup);
+        }
+        return runningBackup;
     }
 
-    public Optional<ServerBackup> getServerBackup(long id) {
-        if (runningBackup != null && runningBackup.getId() == id) {
-            return Optional.of(runningBackup);
-        }
+    public ServerBackup getServerBackup(long id) {
         return serverBackupRepository.getBackup(id);
     }
 
     public Optional<ServerBackup> startBackupWithId(long id) {
-        Optional<ServerBackup> backup = serverBackupRepository.getBackup(id);
-        if (!backup.isPresent()) {
-            LOGGER.error("Cannot find backup with id: {}. Skipping backup generation", id);
-            return Optional.empty();
-        }
-        ServerBackup serverBackup = performBackup(backup.get(), singletonList(new BackupStatusUpdater(backup.get(), serverBackupRepository)), BackupInitiator.USER);
+        ServerBackup backup = serverBackupRepository.getBackup(id);
+        ServerBackup serverBackup = performBackup(backup, singletonList(new BackupStatusUpdater(backup, serverBackupRepository)), BackupInitiator.USER);
         return Optional.of(serverBackup);
     }
 
@@ -197,7 +195,7 @@ public class BackupService implements BackupStatusProvider {
     private ServerBackup createServerBackup(Username username) {
         DateTime backupTime = timeProvider.currentDateTime();
         ServerBackup serverBackup = new ServerBackup(getBackupDir(backupTime).getAbsolutePath(), backupTime.toDate(), username.getUsername().toString(), "Backup scheduled");
-        serverBackup = serverBackupRepository.save(serverBackup);
+        serverBackup = serverBackupRepository.saveOrUpdate(serverBackup);
         return serverBackup;
     }
 

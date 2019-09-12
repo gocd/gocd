@@ -15,61 +15,35 @@
  */
 package com.thoughtworks.go.domain;
 
-import java.sql.Timestamp;
-import java.util.Date;
+import lombok.*;
+import lombok.experimental.Accessors;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-public class UsageStatisticsReporting extends PersistentObject {
+import javax.persistence.Cacheable;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+import java.sql.Timestamp;
+
+@EqualsAndHashCode(doNotUseGetters = true, callSuper = true)
+@ToString(callSuper = true)
+@Getter
+@Setter
+@Accessors(chain = true)
+@NoArgsConstructor
+@Entity
+@Table(name = "UsageDataReporting")
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+public class UsageStatisticsReporting extends HibernatePersistedObject {
     private String serverId;
-    private String dataSharingServerUrl = null;
-    private String dataSharingGetEncryptionKeysUrl = null;
     private Timestamp lastReportedAt = new Timestamp(0);
+    @Transient
+    private String dataSharingServerUrl;
+    @Transient
+    private String dataSharingGetEncryptionKeysUrl;
+    @Transient
     private boolean canReport = true;
 
-    public UsageStatisticsReporting() {
-    }
-
-    public UsageStatisticsReporting(String serverId, Date lastReportedAt) {
-        this.serverId = serverId;
-        setLastReportedAt(lastReportedAt);
-    }
-
-    public String getDataSharingServerUrl() {
-        return dataSharingServerUrl;
-    }
-
-    public void setDataSharingServerUrl(String dataSharingServerUrl) {
-        this.dataSharingServerUrl = dataSharingServerUrl;
-    }
-
-    public String getDataSharingGetEncryptionKeysUrl() {
-        return dataSharingGetEncryptionKeysUrl;
-    }
-
-    public void setDataSharingGetEncryptionKeysUrl(String dataSharingGetEncryptionKeysUrl) {
-        this.dataSharingGetEncryptionKeysUrl = dataSharingGetEncryptionKeysUrl;
-    }
-
-    public String getServerId() {
-        return serverId;
-    }
-
-    public void setLastReportedAt(Date lastReportedAt) {
-        this.lastReportedAt = new Timestamp(lastReportedAt.getTime());
-    }
-
-    public Timestamp lastReportedAt() {
-        return lastReportedAt;
-    }
-
-    public void setServerId(String serverId) {
-        this.serverId = serverId;
-    }
-
-    public boolean canReport() {
-        return canReport;
-    }
-
-    public void canReport(boolean canReport) {
-        this.canReport = canReport;
-    }
 }

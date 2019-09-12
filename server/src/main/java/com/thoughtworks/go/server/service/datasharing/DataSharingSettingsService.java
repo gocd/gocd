@@ -15,95 +15,39 @@
  */
 package com.thoughtworks.go.server.service.datasharing;
 
-import com.thoughtworks.go.listener.DataSharingSettingsChangeListener;
+import com.thoughtworks.go.domain.DataSharingSettings;
 import com.thoughtworks.go.server.dao.DataSharingSettingsSqlMapDao;
-import com.thoughtworks.go.server.domain.DataSharingSettings;
-import com.thoughtworks.go.server.service.EntityHashingService;
-import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
-import com.thoughtworks.go.server.transaction.TransactionTemplate;
-import com.thoughtworks.go.util.SystemEnvironment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
-import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
-import java.util.ArrayList;
+import java.sql.Timestamp;
 import java.util.Date;
-import java.util.List;
 
 @Service
-public class DataSharingSettingsService implements DataSharingSettingsChangeListener {
-    private final Object mutexForDataSharingSettings = new Object();
+public class DataSharingSettingsService {
 
     private final DataSharingSettingsSqlMapDao dataSharingSettingsSqlMapDao;
-    private TransactionTemplate transactionTemplate;
-    private TransactionSynchronizationManager transactionSynchronizationManager;
-    private final EntityHashingService entityHashingService;
-    private final List<DataSharingSettingsChangeListener> dataSharingSettingsChangeListeners;
 
     @Autowired
-    public DataSharingSettingsService(DataSharingSettingsSqlMapDao dataSharingSettingsSqlMapDao,
-                                      TransactionTemplate transactionTemplate,
-                                      TransactionSynchronizationManager transactionSynchronizationManager,
-                                      EntityHashingService entityHashingService) {
+    public DataSharingSettingsService(DataSharingSettingsSqlMapDao dataSharingSettingsSqlMapDao) {
         this.dataSharingSettingsSqlMapDao = dataSharingSettingsSqlMapDao;
-        this.transactionTemplate = transactionTemplate;
-        this.transactionSynchronizationManager = transactionSynchronizationManager;
-        this.entityHashingService = entityHashingService;
-        dataSharingSettingsChangeListeners = new ArrayList<>();
     }
 
     public void initialize() {
-        DataSharingSettings existingDataSharingSettings = get();
+        DataSharingSettings existingDataSharingSettings = load();
 
         if (existingDataSharingSettings == null) {
-            createOrUpdate(new DataSharingSettings(true, "Default", new Date()));
+            createOrUpdate(new DataSharingSettings().setAllowSharing(true)
+                    .setUpdatedBy("Default")
+                    .setUpdatedOn(new Timestamp(new Date().getTime())));
         }
-
-        if (new SystemEnvironment().shouldFailStartupOnDataError()) {
-            assert get() != null;
-        }
-
-        register(this);
     }
 
-    public DataSharingSettings get() {
+    public DataSharingSettings load() {
         return dataSharingSettingsSqlMapDao.load();
     }
 
     public void createOrUpdate(DataSharingSettings dataSharingSettings) {
-        synchronized (mutexForDataSharingSettings) {
-            transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-                @Override
-                protected void doInTransactionWithoutResult(TransactionStatus status) {
-                    transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
-                        @Override
-                        public void afterCommit() {
-                            entityHashingService.removeFromCache(dataSharingSettings, Long.toString(dataSharingSettings.getId()));
-                            dataSharingSettingsSqlMapDao.invalidateCache();
-                        }
-                    });
-                    try {
-                        dataSharingSettingsSqlMapDao.saveOrUpdate(dataSharingSettings);
-                    } catch (DataSharingSettingsSqlMapDao.DuplicateDataSharingSettingsException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            });
-
-            dataSharingSettingsChangeListeners
-                    .stream()
-                    .forEach(listener -> listener.onDataSharingSettingsChange(dataSharingSettings));
-        }
-    }
-
-    @Override
-    public void onDataSharingSettingsChange(DataSharingSettings updatedSettings) {
-        entityHashingService.removeFromCache(updatedSettings, "data_sharing_settings");
-    }
-
-    public void register(DataSharingSettingsChangeListener listener) {
-        dataSharingSettingsChangeListeners.add(listener);
+        dataSharingSettingsSqlMapDao.saveOrUpdate(dataSharingSettings);
     }
 }

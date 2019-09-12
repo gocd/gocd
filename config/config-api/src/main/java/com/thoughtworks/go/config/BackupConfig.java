@@ -28,7 +28,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 @Setter
 @EqualsAndHashCode
 @Accessors(chain = true)
-@NoArgsConstructor(access = AccessLevel.PUBLIC)
+@NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.NONE)
 @ConfigTag("backup")
 public class BackupConfig implements Validatable {

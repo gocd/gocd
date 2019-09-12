@@ -34,6 +34,7 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.TriState;
+import org.assertj.core.api.Assertions;
 import org.hamcrest.Matcher;
 import org.junit.After;
 import org.junit.Before;
@@ -117,7 +118,9 @@ public class UserServiceIntegrationTest {
         SecurityAuthConfig authConfig = new SecurityAuthConfig();
         userService.addOrUpdateUser(new User("new_user"), authConfig);
         User loadedUser = userDao.findUser("new_user");
-        assertThat(loadedUser, is(new User("new_user", "new_user", "")));
+        User value = new User("new_user", "new_user", "");
+        Assertions.setAllowComparingPrivateFields(true);
+        Assertions.assertThat(loadedUser).isEqualToIgnoringGivenFields(value, "id", "notificationFilters");
         assertThat(loadedUser, not(isANullUser()));
     }
 
@@ -139,7 +142,8 @@ public class UserServiceIntegrationTest {
         userService.addOrUpdateUser(updatedUser, authConfig);
 
         User loadedUser = userDao.findUser(name);
-        assertThat(loadedUser, is(updatedUser));
+        Assertions.setAllowComparingPrivateFields(true);
+        Assertions.assertThat(loadedUser).isEqualToIgnoringGivenFields(updatedUser, "id", "notificationFilters");
         assertThat(loadedUser, not(isANullUser()));
     }
 
@@ -327,17 +331,6 @@ public class UserServiceIntegrationTest {
         List<UserModel> models = userService.allUsersForDisplay(UserService.SortableColumn.USERNAME, UserService.SortDirection.ASC);
         assertThat("user should be enabled", models.get(0).isEnabled(), is(true));
         assertThat("user should be disabled", models.get(1).isEnabled(), is(false));
-    }
-
-    @Test
-    public void shouldKnowEnabledAndDisbaledUsersCount() {
-        addUser(new User("user_one"));
-        addUser(new User("user_three"));
-
-        createDisabledUser("user_two");
-
-        assertThat(userService.enabledUserCount(), is(2L));
-        assertThat(userService.disabledUserCount(), is(1L));
     }
 
     @Test

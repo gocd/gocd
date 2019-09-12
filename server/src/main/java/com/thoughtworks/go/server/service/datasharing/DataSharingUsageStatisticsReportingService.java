@@ -25,6 +25,7 @@ import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.UUID;
 
@@ -63,14 +64,12 @@ public class DataSharingUsageStatisticsReportingService {
         if (existingUsageStatisticsReporting == null) {
             create();
         }
-
-        if (new SystemEnvironment().shouldFailStartupOnDataError()) {
-            assert get() != null;
-        }
     }
 
     private void create() {
-        UsageStatisticsReporting reporting = new UsageStatisticsReporting(UUID.randomUUID().toString(), new Date(0));
+        UsageStatisticsReporting reporting = new UsageStatisticsReporting()
+                .setLastReportedAt(new Timestamp(new Date(0).getTime()))
+                .setServerId(UUID.randomUUID().toString());
         usageStatisticsReportingSqlMapDao.saveOrUpdate(reporting);
     }
 
@@ -78,13 +77,13 @@ public class DataSharingUsageStatisticsReportingService {
         UsageStatisticsReporting loaded = usageStatisticsReportingSqlMapDao.load();
         loaded.setDataSharingServerUrl(systemEnvironment.getGoDataSharingServerUrl());
         loaded.setDataSharingGetEncryptionKeysUrl(systemEnvironment.getGoDataSharingGetEncryptionKeysUrl());
-        boolean canReport = !isDevelopmentServer() && dataSharingSettingsService.get().allowSharing()
+        boolean canReport = !isDevelopmentServer() && dataSharingSettingsService.load().isAllowSharing()
                 && !isReportingInProgress();
 
         if (goCache.getOrDefault(USAGE_DATA_IGNORE_LAST_UPDATED_AT, false)) {
-            loaded.canReport(canReport);
+            loaded.setCanReport(canReport);
         } else {
-            loaded.canReport(canReport && !isToday(loaded.lastReportedAt()));
+            loaded.setCanReport(canReport && !isToday(loaded.getLastReportedAt()));
         }
 
         return loaded;
@@ -119,7 +118,7 @@ public class DataSharingUsageStatisticsReportingService {
             }
 
             UsageStatisticsReporting reporting = usageStatisticsReportingSqlMapDao.load();
-            reporting.setLastReportedAt(new Date());
+            reporting.setLastReportedAt(new Timestamp(clock.currentTimeMillis()));
             usageStatisticsReportingSqlMapDao.saveOrUpdate(reporting);
             reportingStartedTime = null;
         }

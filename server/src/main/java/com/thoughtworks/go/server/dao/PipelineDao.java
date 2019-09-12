@@ -15,26 +15,18 @@
  */
 package com.thoughtworks.go.server.dao;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
-import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
-import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
 
 import java.util.List;
 
-
-public interface PipelineDao {
+public interface PipelineDao extends PipelineInstanceModelDao {
 
     Pipeline save(Pipeline pipeline);
 
     Pipeline loadPipeline(long pipelineId);
 
     Pipeline mostRecentPipeline(String pipelineName);
-
-    PipelineInstanceModel loadHistory(long id);
-
-    PipelineInstanceModels loadHistory(String pipelineName, int resultsPerPage, int start);
 
     int count(String pipelineName);
 
@@ -61,21 +53,10 @@ public interface PipelineDao {
 
     Pipeline loadAssociations(Pipeline pipeline, String pipelineName);
 
-    PipelineInstanceModels loadHistory(String pipelineName);
-
-    PipelineInstanceModel findPipelineHistoryByNameAndCounter(String pipelineName, int pipelineCounter);
-
-    PipelineInstanceModels loadActivePipelines();
 
     Pipeline findEarlierPipelineThatPassedForStage(String pipelineName, String stageName, double naturalOrder);
 
-    PipelineInstanceModels loadActivePipelineInstancesFor(CaseInsensitiveString pipelineName);
-
-    PipelineInstanceModel loadHistoryByIdWithBuildCause(Long id);
-
     int getPageNumberForCounter(String pipelineName, int pipelineCounter, int limit);
-
-    PipelineInstanceModels findMatchingPipelineInstances(String pipelineName, String pattern, int limit);
 
     BuildCause findBuildCauseOfPipelineByNameAndCounter(String name, int counter);
 
@@ -84,10 +65,6 @@ public interface PipelineDao {
     List<PipelineIdentifier> getPipelineInstancesTriggeredWithDependencyMaterial(String pipelineName, PipelineIdentifier revision);
 
     List<PipelineIdentifier> getPipelineInstancesTriggeredWithDependencyMaterial(String pipelineName, MaterialInstance materialInstance, String revision);
-
-    PipelineInstanceModels loadHistoryForDashboard(List<String> pipelineNames);
-
-    PipelineInstanceModels loadHistory(String pipelineName, FeedModifier modifier, long cursor, Integer pageSize);
 
     PipelineRunIdInfo getOldestAndLatestPipelineId(String pipelineName);
 }

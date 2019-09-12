@@ -106,8 +106,8 @@ public class PurgeSettingsTest {
 
     private PurgeSettings createPurgeSettings(Double purgeStart, Double purgeUpto) {
         PurgeSettings purgeSettings = new PurgeSettings();
-        purgeSettings.setPurgeStart(new PurgeStart(purgeStart));
-        purgeSettings.setPurgeUpto(new PurgeUpto(purgeUpto));
+        purgeSettings.setPurgeStart(new PurgeStart().setPurgeStartDiskSpace(purgeStart));
+        purgeSettings.setPurgeUpto(new PurgeUpto().setPurgeUptoDiskSpace(purgeUpto));
         return purgeSettings;
     }
 }

@@ -18,10 +18,7 @@ package com.thoughtworks.go.server.persistence;
 import com.thoughtworks.go.database.Database;
 import com.thoughtworks.go.database.QueryExtensions;
 import com.thoughtworks.go.domain.PipelineTimelineEntry;
-import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
-import com.thoughtworks.go.server.domain.user.PipelineSelections;
-import org.apache.commons.lang3.StringUtils;
 import org.hibernate.HibernateException;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
@@ -43,11 +40,9 @@ import java.util.*;
 public class PipelineRepository extends HibernateDaoSupport {
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelineRepository.class);
     private final QueryExtensions queryExtensions;
-    private GoCache goCache;
 
     @Autowired
-    public PipelineRepository(SessionFactory sessionFactory, GoCache goCache, Database databaseStrategy) {
-        this.goCache = goCache;
+    public PipelineRepository(SessionFactory sessionFactory, Database databaseStrategy) {
         this.queryExtensions = databaseStrategy.getQueryExtensions();
         setSessionFactory(sessionFactory);
     }
@@ -60,7 +55,7 @@ public class PipelineRepository extends HibernateDaoSupport {
         return query.executeUpdate();
     }
 
-public void updatePipelineTimeline(final PipelineTimeline pipelineTimeline, final List<PipelineTimelineEntry> tempEntriesForRollback) {
+    public void updatePipelineTimeline(final PipelineTimeline pipelineTimeline, final List<PipelineTimelineEntry> tempEntriesForRollback) {
         getHibernateTemplate().execute(new HibernateCallback() {
             private static final int PIPELINE_NAME = 0;
             private static final int ID = 1;
@@ -159,7 +154,7 @@ public void updatePipelineTimeline(final PipelineTimeline pipelineTimeline, fina
 
                     int nextI = i + 1;
                     if (((nextI < matches.size() && id(matches.get(nextI)) != curId) ||//new pipeline instance starts in next record, so capture this one
-                            nextI == matches.size())) {//this is the last record, so capture it
+                        nextI == matches.size())) {//this is the last record, so capture it
                         entry = new PipelineTimelineEntry(name, curId, counter, revisions, naturalOrder);
                         newPipelines.add(entry);
                     }
@@ -220,87 +215,4 @@ public void updatePipelineTimeline(final PipelineTimeline pipelineTimeline, fina
         }
     }
 
-    public long saveSelectedPipelines(PipelineSelections pipelineSelections) {
-        removePipelineSelectionFromCacheForUserId(pipelineSelections);
-        removePipelineSelectionFromCacheForCookie(pipelineSelections);
-        getHibernateTemplate().saveOrUpdate(pipelineSelections);
-        return pipelineSelections.getId();
-    }
-
-    public PipelineSelections findPipelineSelectionsById(long id) {
-        PipelineSelections pipelineSelections;
-        String key = pipelineSelectionForCookieKey(id);
-
-        if (goCache.isKeyInCache(key)) {
-            return (PipelineSelections) goCache.get(key);
-        }
-
-        synchronized (key) {
-            if (goCache.isKeyInCache(key)) {
-                return (PipelineSelections) goCache.get(key);
-            }
-
-            pipelineSelections = getHibernateTemplate().get(PipelineSelections.class, id);
-
-            if (null != pipelineSelections) {
-                goCache.put(key, pipelineSelections);
-            }
-
-            return pipelineSelections;
-        }
-    }
-
-    public PipelineSelections findPipelineSelectionsById(String id) {
-        if (StringUtils.isEmpty(id)) {
-            return null;
-        }
-        return findPipelineSelectionsById(Long.parseLong(id));
-    }
-
-    public PipelineSelections findPipelineSelectionsByUserId(Long userId) {
-        if (userId == null) {
-            return null;
-        }
-        PipelineSelections pipelineSelections;
-        String key = pipelineSelectionForUserIdKey(userId);
-        if (goCache.isKeyInCache(key)) {
-            return (PipelineSelections) goCache.get(key);
-        }
-        synchronized (key) {
-            if (goCache.isKeyInCache(key)) {
-                return (PipelineSelections) goCache.get(key);
-            }
-            List list = getHibernateTemplate().find("FROM PipelineSelections WHERE userId = ?", new Object[]{userId});
-            if (list.isEmpty()) {
-                pipelineSelections = null;
-            } else {
-                pipelineSelections = (PipelineSelections) list.get(0);
-            }
-
-            goCache.put(key, pipelineSelections);
-            return pipelineSelections;
-        }
-    }
-
-    private void removePipelineSelectionFromCacheForCookie(PipelineSelections pipelineSelections) {
-        String pipelineSelectionCookieKey = pipelineSelectionForCookieKey(pipelineSelections.getId());
-        synchronized (pipelineSelectionCookieKey) {
-            goCache.remove(pipelineSelectionCookieKey);
-        }
-    }
-
-    private void removePipelineSelectionFromCacheForUserId(PipelineSelections pipelineSelections) {
-        String pipelineSelectionUserIdKey = pipelineSelectionForUserIdKey(pipelineSelections.userId());
-        synchronized (pipelineSelectionUserIdKey) {
-            goCache.remove(pipelineSelectionUserIdKey);
-        }
-    }
-
-    String pipelineSelectionForUserIdKey(Long userId) {
-        return (PipelineRepository.class.getName() + "_userIdPipelineSelection_" + userId).intern();
-    }
-
-    String pipelineSelectionForCookieKey(long id) {
-        return (PipelineRepository.class.getName() + "_cookiePipelineSelection_" + id).intern();
-    }
 }

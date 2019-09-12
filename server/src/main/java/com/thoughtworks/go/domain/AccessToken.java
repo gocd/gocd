@@ -22,12 +22,16 @@ import lombok.*;
 import lombok.experimental.Accessors;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
+import javax.persistence.Cacheable;
+import javax.persistence.Entity;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -37,14 +41,17 @@ import java.sql.Timestamp;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
-@EqualsAndHashCode(callSuper = true, doNotUseGetters = true)
+@EqualsAndHashCode(doNotUseGetters = true, callSuper = true)
 @ToString(callSuper = true)
 @Getter
 @Setter(AccessLevel.PROTECTED)
 @Accessors(chain = true)
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class AccessToken extends PersistentObject implements Validatable {
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.NONE)
+@Entity
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+public class AccessToken extends HibernatePersistedObject implements Validatable {
 
     private static final int DEFAULT_ITERATIONS = 4096;
     private static final int DESIRED_KEY_LENGTH = 256;
@@ -173,7 +180,7 @@ public class AccessToken extends PersistentObject implements Validatable {
     @Setter(AccessLevel.PROTECTED)
     @Accessors(chain = true)
     @NoArgsConstructor
-    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    @AllArgsConstructor(access = AccessLevel.NONE)
     public static class AccessTokenWithDisplayValue extends AccessToken {
         private String displayValue;
     }

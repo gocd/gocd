@@ -166,14 +166,6 @@ public class UserService {
         }
     }
 
-    public long enabledUserCount() {
-        return userDao.enabledUserCount();
-    }
-
-    public long disabledUserCount() {
-        return allUsersForDisplay().size() - enabledUserCount();
-    }
-
     public void modifyRolesAndUserAdminPrivileges(final List<String> users,
                                                   final TriStateSelection adminPrivilege,
                                                   final List<TriStateSelection> roleSelections,

@@ -16,12 +16,13 @@
 package com.thoughtworks.go.server.domain.user;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import lombok.EqualsAndHashCode;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 
+@EqualsAndHashCode(callSuper = true)
 public class WhitelistFilter extends AbstractPipelinesFilter {
     public WhitelistFilter(String name, List<CaseInsensitiveString> pipelines, Set<String> state) {
         super(name, pipelines, state);
@@ -41,17 +42,4 @@ public class WhitelistFilter extends AbstractPipelinesFilter {
         return !pipelines.contains(pipeline) && pipelines.add(pipeline);
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        WhitelistFilter that = (WhitelistFilter) o;
-        return Objects.equals(name(), that.name()) &&
-                Objects.equals(pipelines, that.pipelines);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(name(), pipelines);
-    }
 }

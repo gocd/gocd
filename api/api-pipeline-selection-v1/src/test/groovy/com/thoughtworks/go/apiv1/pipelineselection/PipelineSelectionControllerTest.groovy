@@ -23,7 +23,6 @@ import com.thoughtworks.go.apiv1.pipelineselection.representers.PipelinesDataRes
 import com.thoughtworks.go.config.BasicPipelineConfigs
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.PipelineConfig
-import com.thoughtworks.go.config.PipelineConfigs
 import com.thoughtworks.go.domain.PipelineGroups
 import com.thoughtworks.go.server.domain.user.PipelineSelections
 import com.thoughtworks.go.server.service.PipelineConfigService
@@ -38,6 +37,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 import javax.servlet.http.Cookie
+import java.sql.Timestamp
 
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
@@ -57,7 +57,7 @@ class PipelineSelectionControllerTest implements SecurityServiceTrait, Controlle
         enableSecurity()
         loginAsUser()
 
-        def selections = new PipelineSelections(FiltersHelper.blacklist(["build-linux", "build-windows"]), new Date(), currentUserLoginId())
+        def selections = new PipelineSelections(FiltersHelper.blacklist(["build-linux", "build-windows"]), new Timestamp(0), currentUserLoginId())
 
         def group1 = new BasicPipelineConfigs(group: "grp1")
         def group2 = new BasicPipelineConfigs(group: "grp2")
@@ -74,7 +74,7 @@ class PipelineSelectionControllerTest implements SecurityServiceTrait, Controlle
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBodyWithJson(PipelineSelectionsRepresenter.toJSON(new PipelineSelectionResponse(selections.viewFilters())))
+          .hasBodyWithJson(PipelineSelectionsRepresenter.toJSON(new PipelineSelectionResponse(selections.viewFilters)))
       }
     }
 
@@ -85,7 +85,7 @@ class PipelineSelectionControllerTest implements SecurityServiceTrait, Controlle
         disableSecurity()
         loginAsAnonymous()
 
-        def selections = new PipelineSelections(FiltersHelper.blacklist(["build-linux", "build-windows"]), new Date(), currentUserLoginId())
+        def selections = new PipelineSelections(FiltersHelper.blacklist(["build-linux", "build-windows"]), new Timestamp(0), currentUserLoginId())
 
         def group1 = new BasicPipelineConfigs(group: "grp1")
         def group2 = new BasicPipelineConfigs(group: "grp2")
@@ -105,7 +105,7 @@ class PipelineSelectionControllerTest implements SecurityServiceTrait, Controlle
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBodyWithJson(PipelineSelectionsRepresenter.toJSON(new PipelineSelectionResponse(selections.viewFilters())))
+          .hasBodyWithJson(PipelineSelectionsRepresenter.toJSON(new PipelineSelectionResponse(selections.viewFilters)))
       }
     }
   }
@@ -145,7 +145,7 @@ class PipelineSelectionControllerTest implements SecurityServiceTrait, Controlle
         disableSecurity()
         loginAsAnonymous()
 
-        def selections = new PipelineSelections(FiltersHelper.blacklist(["build-linux", "build-windows"]), new Date(), currentUserLoginId())
+        def selections = new PipelineSelections(FiltersHelper.blacklist(["build-linux", "build-windows"]), new Timestamp(0), currentUserLoginId())
 
         def group1 = new BasicPipelineConfigs(group: "grp1")
         def group2 = new BasicPipelineConfigs(group: "grp2")
@@ -165,7 +165,7 @@ class PipelineSelectionControllerTest implements SecurityServiceTrait, Controlle
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBodyWithJson(PipelineSelectionsRepresenter.toJSON(new PipelineSelectionResponse(selections.viewFilters())))
+          .hasBodyWithJson(PipelineSelectionsRepresenter.toJSON(new PipelineSelectionResponse(selections.viewFilters)))
       }
     }
   }
@@ -187,19 +187,19 @@ class PipelineSelectionControllerTest implements SecurityServiceTrait, Controlle
           ]
         ]
 
-        def initial = new PipelineSelections(FiltersHelper.blacklist(["foo", "bar"]), new Date(), currentUserLoginId())
+        def initial = new PipelineSelections(FiltersHelper.blacklist(["foo", "bar"]), new Timestamp(0), currentUserLoginId())
         def filters = FiltersHelper.blacklist(payload.filters.get(0).pipelines)
         def updated = new PipelineSelections(filters, null, null)
 
         when(pipelineSelectionsService.load(null, currentUserLoginId())).thenReturn(initial, updated)
         when(pipelineSelectionsService.save(null, currentUserLoginId(), filters)).thenReturn(1l)
 
-        putWithApiHeader(controller.controllerBasePath(), ['If-Match': initial.etag()], payload)
+        putWithApiHeader(controller.controllerBasePath(), ['If-Match': initial.etag], payload)
 
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasJsonBody([contentHash: updated.etag()])
+          .hasJsonBody([contentHash: updated.etag])
       }
     }
 
@@ -219,7 +219,7 @@ class PipelineSelectionControllerTest implements SecurityServiceTrait, Controlle
         long recordId = SecureRandom.longNumber()
         String cookie = String.valueOf(recordId)
 
-        def initial = new PipelineSelections(FiltersHelper.blacklist(["foo", "bar"]), new Date(), currentUserLoginId())
+        def initial = new PipelineSelections(FiltersHelper.blacklist(["foo", "bar"]), new Timestamp(0), currentUserLoginId())
         def filters = FiltersHelper.blacklist(payload.filters.get(0).pipelines)
         def updated = new PipelineSelections(filters, null, null)
 
@@ -228,13 +228,13 @@ class PipelineSelectionControllerTest implements SecurityServiceTrait, Controlle
         when(systemEnvironment.isSessionCookieSecure()).thenReturn(false)
 
         httpRequestBuilder.withCookies(new Cookie("selected_pipelines", cookie))
-        putWithApiHeader(controller.controllerBasePath(), ['If-Match': initial.etag()], payload)
+        putWithApiHeader(controller.controllerBasePath(), ['If-Match': initial.etag], payload)
 
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
           .hasCookie("/go", "selected_pipelines", cookie, 31536000, false, true)
-          .hasJsonBody([contentHash: updated.etag()])
+          .hasJsonBody([contentHash: updated.etag])
       }
 
       @Test
@@ -251,7 +251,7 @@ class PipelineSelectionControllerTest implements SecurityServiceTrait, Controlle
         long recordId = SecureRandom.longNumber()
         String cookie = String.valueOf(recordId)
 
-        def initial = new PipelineSelections(FiltersHelper.blacklist(["foo", "bar"]), new Date(), currentUserLoginId())
+        def initial = new PipelineSelections(FiltersHelper.blacklist(["foo", "bar"]), new Timestamp(0), currentUserLoginId())
         def filters = FiltersHelper.blacklist(payload.filters.get(0).pipelines)
         def updated = new PipelineSelections(filters, null, null)
 
@@ -260,13 +260,13 @@ class PipelineSelectionControllerTest implements SecurityServiceTrait, Controlle
         when(systemEnvironment.isSessionCookieSecure()).thenReturn(true)
 
         httpRequestBuilder.withCookies(new Cookie("selected_pipelines", cookie))
-        putWithApiHeader(controller.controllerBasePath(), ['If-Match': initial.etag()], payload)
+        putWithApiHeader(controller.controllerBasePath(), ['If-Match': initial.etag], payload)
 
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
           .hasCookie("/go", "selected_pipelines", cookie, 31536000, true, true)
-          .hasJsonBody([contentHash: updated.etag()])
+          .hasJsonBody([contentHash: updated.etag])
       }
     }
   }

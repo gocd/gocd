@@ -71,8 +71,8 @@ public class UpdateArtifactConfigCommandTest {
             ArtifactConfig artifactConfig = new ArtifactConfig();
             artifactConfig.setArtifactsDir(new ArtifactDirectory("artifactsDir"));
             PurgeSettings purgeSettings = new PurgeSettings();
-            purgeSettings.setPurgeStart(new PurgeStart(0.0));
-            purgeSettings.setPurgeUpto(new PurgeUpto(20.0));
+            purgeSettings.setPurgeStart(new PurgeStart());
+            purgeSettings.setPurgeUpto(new PurgeUpto().setPurgeUptoDiskSpace(20.0));
             artifactConfig.setPurgeSettings(purgeSettings);
             cruiseConfig.server().setArtifactConfig(artifactConfig);
             UpdateArtifactConfigCommand updateArtifactConfigCommand = new UpdateArtifactConfigCommand(artifactConfig);

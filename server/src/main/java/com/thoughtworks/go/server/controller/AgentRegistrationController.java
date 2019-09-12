@@ -238,7 +238,7 @@ public class AgentRegistrationController {
                 }
             }
 
-            Agent agent = createAgentFromRequest(uuid, preferredHostname, ipAddress, elasticAgentId, elasticPluginId, agentAutoRegisterResources, agentAutoRegisterEnvs);
+            Agent agent = createAgentFromRequest(uuid, preferredHostname, ipAddress, elasticAgentId, elasticPluginId);
             agent.validate();
             if (agent.hasErrors()) {
                 List<ConfigErrors> errors = agent.errorsAsList();
@@ -261,6 +261,8 @@ public class AgentRegistrationController {
 
             if (goConfigService.serverConfig().shouldAutoRegisterAgentWith(agentAutoRegisterKey) && !agentService.isRegistered(uuid)) {
                 LOG.info("[Agent Auto Registration] Auto registering agent with uuid {} ", uuid);
+                agent.setEnvironments(agentAutoRegisterEnvs);
+                agent.setResources(agentAutoRegisterResources);
                 agentService.register(agent);
                 if (agent.hasErrors()) {
                     throw new GoConfigInvalidException(null, new AllConfigErrors(agent.errorsAsList()).asString());
@@ -318,19 +320,13 @@ public class AgentRegistrationController {
         return new ResponseEntity<>(encodeBase64String(hmac().doFinal(uuid.getBytes())), OK);
     }
 
-    private Agent createAgentFromRequest(String uuid, String hostname, String ip,
-                                         String elasticAgentId, String elasticPluginId,
-                                         String resources, String envs) {
+    private Agent createAgentFromRequest(String uuid, String hostname, String ip, String elasticAgentId, String elasticPluginId) {
         Agent agent = new Agent(uuid, hostname, ip);
 
         if (elasticAgentAutoregistrationInfoPresent(elasticAgentId, elasticPluginId)) {
             agent.setElasticAgentId(elasticAgentId);
             agent.setElasticPluginId(elasticPluginId);
         }
-
-        agent.setEnvironments(envs);
-        agent.setResources(resources);
-
         return agent;
     }
 

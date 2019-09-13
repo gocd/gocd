@@ -33,6 +33,7 @@ import {CheckboxField} from "views/components/forms/input_fields";
 import {ShowMore} from "views/components/show_more_doc/more";
 import {PacActions} from "views/pages/pac/actions";
 import {BuilderForm} from "views/pages/pac/builder_form";
+import {CodeScroller} from "views/pages/pac/code_scroller";
 import {DownloadAction} from "views/pages/pac/download_action";
 import {PreviewPane} from "views/pages/pac/preview_pane";
 import css from "views/pages/pac/styles.scss";
@@ -74,27 +75,29 @@ export class PipelinesAsCodeCreatePage extends Page {
     const syncConfigRepoWithMaterial = isSupportedScm ? this.useSameRepoForPaC : (val?: boolean) => false;
 
     return [
-      <FillableSection>
-        <BuilderForm vm={vm} pluginId={this.pluginId} onContentChange={(updated) => {
-          if (updated) {
-            if (this.useSameRepoForPaC() && isSupportedScm) {
-              this.configRepo().material(cloneMaterialForPaC(vm.material));
-            }
-
-            vm.preview(this.pluginId()).then((result) => {
-              if (304 === result.getStatusCode()) {
-                return;
+      <CodeScroller>
+        <FillableSection>
+          <BuilderForm vm={vm} pluginId={this.pluginId} onContentChange={(updated) => {
+            if (updated) {
+              if (this.useSameRepoForPaC() && isSupportedScm) {
+                this.configRepo().material(cloneMaterialForPaC(vm.material));
               }
 
-              result.do((res) => {
-                this.content(res.body);
-              }, (err) => console.error(err)); // tslint:disable-line no-console
-            });
-          }
-        }}/>
+              vm.preview(this.pluginId()).then((result) => {
+                if (304 === result.getStatusCode()) {
+                  return;
+                }
 
-        <PreviewPane content={this.content} mimeType={this.mimeType}/>
-      </FillableSection>,
+                result.do((res) => {
+                  this.content(res.body);
+                }, (err) => console.error(err)); // tslint:disable-line no-console
+              });
+            }
+          }}/>
+
+          <PreviewPane content={this.content} mimeType={this.mimeType}/>
+        </FillableSection>
+      </CodeScroller>,
 
       <FillableSection css={altFillStyles}>
         <h3 class={css.subheading}>Add Your Pipelines as Code Definition to Your SCM Repository</h3>

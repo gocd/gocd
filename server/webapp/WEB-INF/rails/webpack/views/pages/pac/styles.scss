@@ -27,6 +27,11 @@ $error-container-width: 450px;
 
 .preview-pane[class*="language-"] { // scss-lint:disable-line
   width: 50%;
+
+  code {
+    overflow-y: auto;
+    display: block;
+  }
 }
 
 .logical-section {

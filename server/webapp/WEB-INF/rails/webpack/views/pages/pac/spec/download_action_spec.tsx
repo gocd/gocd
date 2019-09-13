@@ -50,7 +50,7 @@ describe("AddPaC: DownloadAction", () => {
 
     helper.mount(() => <DownloadAction pluginId={() => "foo"} vm={vm}/>);
 
-    expect(helper.text(sel.btnPrimary)).toBe("Download");
+    expect(helper.text(sel.btnPrimary)).toBe("Download Config");
 
     helper.click(sel.btnPrimary);
 

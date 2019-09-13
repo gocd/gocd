@@ -30,6 +30,7 @@ import {PipelineConfigVM} from "views/pages/pipelines/pipeline_config_view_model
 import {MaterialCheck} from "views/components/config_repos/material_check.tsx";
 import {IdentifierInputField} from "views/components/forms/common_validating_inputs";
 import {CheckboxField} from "views/components/forms/input_fields";
+import {ShowMore} from "views/components/show_more_doc/more";
 import {PacActions} from "views/pages/pac/actions";
 import {BuilderForm} from "views/pages/pac/builder_form";
 import {DownloadAction} from "views/pages/pac/download_action";
@@ -97,7 +98,11 @@ export class PipelinesAsCodeCreatePage extends Page {
 
       <FillableSection css={altFillStyles}>
         <h3 class={css.subheading}>Add Your Pipelines as Code Definition to Your SCM Repository</h3>
-        <div>Download this as a file and put it in your repo (I need some proper copy here).</div>
+        <section class={css.downloadInstructions}>
+          <p>Download this configuration and add it to your repository.</p>
+
+          {this.furtherDownloadInstructions(isSupportedScm)}
+        </section>
 
         <DownloadAction pluginId={this.pluginId} vm={vm}/>
       </FillableSection>,
@@ -129,6 +134,19 @@ export class PipelinesAsCodeCreatePage extends Page {
         <PacActions configRepo={this.configRepo}/>
       </FillableSection>
     ];
+  }
+
+  furtherDownloadInstructions(isUsingScmMaterial: boolean) {
+    if (isUsingScmMaterial) {
+      return <ShowMore abstract={<span><em>Optionally</em>, GoCD allows you to instead store the configuration in a separate repository from one above if desired.</span>}>
+        <p>When choosing this option:</p>
+
+        <ol>
+          <li>Add the downloaded file to your preferred repository.</li>
+          <li>Uncheck the checkbox in the next section and supply the new repository connection details.</li>
+        </ol>
+      </ShowMore>;
+    }
   }
 
   fetchData() { return new Promise(() => null); }

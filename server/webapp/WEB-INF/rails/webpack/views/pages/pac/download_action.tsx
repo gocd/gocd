@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {el} from "helpers/dom";
+import {downloadAsFile} from "helpers/download_content_as_file";
 import {MithrilComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
@@ -36,7 +36,7 @@ export class DownloadAction extends MithrilComponent<Attrs> {
     return <div class={css.downloadAction}>
       <ServerErrors message={this.globalError} details={this.globalErrorDetail}/>
 
-      <Primary onclick={this.handleDownload(vnode)}>Download</Primary>
+      <Primary onclick={this.handleDownload(vnode)}>Download Config</Primary>
     </div>;
   }
 
@@ -52,13 +52,7 @@ export class DownloadAction extends MithrilComponent<Attrs> {
         vm.preview(vnode.attrs.pluginId(), true).then((result) => {
           result.do((res) => {
             const name = result.header("content-disposition")!.replace(/^attachment; filename=/, "").replace(/^(")(.+)(\1)/, "$2");
-            const data = new Blob([res.body], { type: result.header("content-type") }); // simpler than setting responseType to `blob` as that has many side effects.
-
-            const a = el("a", { href: URL.createObjectURL(data), download: name, style: "display:none" }, []);
-
-            document.body.appendChild(a); // Firefox requires this to be added to the DOM before click()
-            a.click();
-            document.body.removeChild(a);
+            downloadAsFile([res.body], name, result.header("content-type"));
           }, (err) => {
             this.globalError(err.message);
             if (err.body) {

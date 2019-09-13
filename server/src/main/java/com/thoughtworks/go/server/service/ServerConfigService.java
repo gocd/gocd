@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.update.CreateOrUpdateConfigServerSiteUrlsCommand;
 import com.thoughtworks.go.domain.ServerSiteUrlConfig;
 import com.thoughtworks.go.domain.materials.ValidationBean;
 import com.thoughtworks.go.i18n.LocalizedMessage;
@@ -34,7 +33,6 @@ import javax.mail.internet.InternetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import static com.thoughtworks.go.server.newsecurity.utils.SessionUtils.currentUsername;
 import static com.thoughtworks.go.util.GoConstants.TEST_EMAIL_SUBJECT;
 
 @Service
@@ -174,7 +172,11 @@ public class ServerConfigService implements BaseUrlProvider {
         goConfigService.updateConfig(new CreateOrUpdateConfigServerSiteUrlsCommand(siteUrls), currentUsername());
     }
 
-    public String getDefaultJobTimeout(){
+    public String getDefaultJobTimeout() {
         return serverConfig().getJobTimeout();
+    }
+
+    public void createOrUpdateDefaultJobTimeout(String defaultJobTimeout) {
+        goConfigService.updateConfig(new CreateOrUpdateDefaultJobTimeoutCommand(defaultJobTimeout), currentUsername());
     }
 }

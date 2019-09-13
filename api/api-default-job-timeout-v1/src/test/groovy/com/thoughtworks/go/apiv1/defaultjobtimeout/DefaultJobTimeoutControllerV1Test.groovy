@@ -19,6 +19,8 @@ package com.thoughtworks.go.apiv1.defaultjobtimeout
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv1.defaultjobtimeout.representers.DefaultJobTimeOutRepresenter
+import com.thoughtworks.go.config.CruiseConfig
+import com.thoughtworks.go.config.exceptions.GoConfigInvalidException
 import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.server.service.ServerConfigService
 import com.thoughtworks.go.spark.AdminUserSecurity
@@ -28,9 +30,10 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
-import static org.mockito.MockitoAnnotations.initMocks
+
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static org.mockito.Mockito.*
+import static org.mockito.MockitoAnnotations.initMocks
 
 class DefaultJobTimeoutControllerV1Test implements SecurityServiceTrait, ControllerTrait<DefaultJobTimeoutControllerV1> {
 
@@ -85,6 +88,64 @@ class DefaultJobTimeoutControllerV1Test implements SecurityServiceTrait, Control
 
       verify(serverConfigService, times(1)).getDefaultJobTimeout()
       verifyNoMoreInteractions(serverConfigService)
+    }
+  }
+
+  @Nested
+  class Create {
+
+    @Nested
+    class Security implements SecurityTestTrait, AdminUserSecurity {
+
+      @Override
+      String getControllerMethodUnderTest() {
+        return "createOrUpdate"
+      }
+
+      @Override
+      void makeHttpCall() {
+        postWithApiHeader(controller.controllerBasePath(), [])
+      }
+    }
+
+    @BeforeEach
+    void setUp() {
+      enableSecurity()
+      loginAsAdmin()
+    }
+
+    @Test
+    void 'should set default job timeout value'() {
+      def defaultJobTimeout = "10"
+      postWithApiHeader(controller.controllerPath(), ["default_job_timeout": defaultJobTimeout])
+
+      assertThatResponse()
+        .isOk()
+        .hasBodyWithJson(toObjectString({ DefaultJobTimeOutRepresenter.toJSON(it, defaultJobTimeout) }))
+    }
+
+    @Test
+    void 'should not set default job timeout value if it is not valid'() {
+      def defaultJobTimeout = "foo"
+      def cruiseConfig = mock(CruiseConfig.class)
+      when(serverConfigService.createOrUpdateDefaultJobTimeout(defaultJobTimeout)).thenThrow(new GoConfigInvalidException(cruiseConfig, "Timeout should be a valid number as it represents number of minutes"))
+      postWithApiHeader(controller.controllerPath(), ["default_job_timeout": defaultJobTimeout])
+
+      assertThatResponse()
+        .isUnprocessableEntity()
+        .hasJsonMessage("Timeout should be a valid number as it represents number of minutes")
+    }
+
+    @Test
+    void 'should not allow empty string as a default job timeout value'() {
+      def defaultJobTimeout = ""
+      def cruiseConfig = mock(CruiseConfig.class)
+      when(serverConfigService.createOrUpdateDefaultJobTimeout(defaultJobTimeout)).thenThrow(new GoConfigInvalidException(cruiseConfig, "Timeout should be a valid number as it represents number of minutes"))
+      postWithApiHeader(controller.controllerPath(), ["default_job_timeout": defaultJobTimeout])
+
+      assertThatResponse()
+        .isUnprocessableEntity()
+        .hasJsonMessage("Timeout should be a valid number as it represents number of minutes")
     }
   }
 }

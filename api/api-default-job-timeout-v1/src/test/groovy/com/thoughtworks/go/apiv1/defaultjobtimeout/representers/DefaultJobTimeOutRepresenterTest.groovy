@@ -16,10 +16,14 @@
 
 package com.thoughtworks.go.apiv1.defaultjobtimeout.representers
 
+import com.thoughtworks.go.api.representers.JsonReader
+import com.thoughtworks.go.api.util.GsonTransformer
 import org.junit.jupiter.api.Test
+
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
+import static org.assertj.core.api.Assertions.assertThat
 
 class DefaultJobTimeOutRepresenterTest {
 
@@ -32,5 +36,16 @@ class DefaultJobTimeOutRepresenterTest {
                                       ["doc" : ["href": apiDocsUrl("#default-job-timeout")],
                                        "self": ["href": "http://test.host/go/api/admin/config/server/default_job_timeout"]],
                                     "default_job_timeout": "10"])
+  }
+
+  @Test
+  void 'should deserialize default job timeout'() {
+    def json = ["default_job_timeout": "10"]
+    JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(json)
+    def config = DefaultJobTimeOutRepresenter.fromJson(jsonReader)
+
+    def defaultJobTimeout = "10"
+
+    assertThat(config).isEqualTo(defaultJobTimeout)
   }
 }

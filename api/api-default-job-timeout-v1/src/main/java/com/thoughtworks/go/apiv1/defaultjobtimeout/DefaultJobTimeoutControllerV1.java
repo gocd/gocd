@@ -18,13 +18,18 @@ package com.thoughtworks.go.apiv1.defaultjobtimeout;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
+import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.util.GsonTransformer;
+import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.apiv1.defaultjobtimeout.representers.DefaultJobTimeOutRepresenter;
+import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.ServerConfigService;
 import com.thoughtworks.go.spark.Routes.DefaultJobTimeout;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import spark.Request;
 import spark.Response;
@@ -60,13 +65,30 @@ public class DefaultJobTimeoutControllerV1 extends ApiController implements Spar
             before("/*", mimeType, this::setContentType);
 
             get("", mimeType, this::index);
+            post("", mimeType, this::createOrUpdate);
 
             before("", mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
+
+            exception(GoConfigInvalidException.class, (Exception exception, Request request, Response response) -> {
+                response.status(HttpStatus.UNPROCESSABLE_ENTITY.value());
+                response.body(MessageJson.create(exception.getMessage()));
+            });
         });
+    }
+
+    String createOrUpdate(Request request, Response response) throws IOException {
+        String defaultJobTimeout = buildEntityFromRequestBody(request);
+        serverConfigService.createOrUpdateDefaultJobTimeout(defaultJobTimeout);
+        return writerForTopLevelObject(request, response, writer -> DefaultJobTimeOutRepresenter.toJSON(writer, defaultJobTimeout));
     }
 
     String index(Request request, Response response) throws IOException {
         String defaultJobTimeout = serverConfigService.getDefaultJobTimeout();
         return writerForTopLevelObject(request, response, writer -> DefaultJobTimeOutRepresenter.toJSON(writer, defaultJobTimeout));
+    }
+
+    private String buildEntityFromRequestBody(Request request) {
+        JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(request.body());
+        return DefaultJobTimeOutRepresenter.fromJson(jsonReader);
     }
 }

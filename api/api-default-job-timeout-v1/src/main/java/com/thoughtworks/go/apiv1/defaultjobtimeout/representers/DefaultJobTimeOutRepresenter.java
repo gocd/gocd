@@ -17,15 +17,20 @@
 package com.thoughtworks.go.apiv1.defaultjobtimeout.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
+import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.spark.Routes;
 
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl;
 
 public class DefaultJobTimeOutRepresenter {
-    public static void toJSON(OutputWriter outputWriter, String defaultJobTimeout){
+    public static void toJSON(OutputWriter outputWriter, String defaultJobTimeout) {
         outputWriter.addLinks(outputLinkWriter -> outputLinkWriter
                 .addAbsoluteLink("doc", apiDocsUrl("#default-job-timeout"))
                 .addLink("self", Routes.DefaultJobTimeout.BASE))
                 .add("default_job_timeout", defaultJobTimeout);
-}
+    }
+
+    public static String fromJson(JsonReader jsonReader) {
+        return jsonReader.getStringOrDefault("default_job_timeout", null);
+    }
 }

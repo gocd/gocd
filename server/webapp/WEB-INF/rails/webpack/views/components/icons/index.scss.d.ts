@@ -3,6 +3,8 @@ export const analytics: string;
 export const btnIcon: string;
 export const caretDown: string;
 export const check: string;
+export const chevronDown: string;
+export const chevronRight: string;
 export const clone: string;
 export const close: string;
 export const disabled: string;

@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import {Environments} from "models/new-environments/environments";
+import {PipelineWithOrigin} from "models/new-environments/environment_pipelines";
+import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
 import data from "models/new-environments/spec/test_data";
 
 const envJSON          = data.environment_json();
@@ -36,5 +37,72 @@ describe("Environments Model - Environments", () => {
     expect(environments[0].agents().length).toEqual(2);
     expect(environments[0].pipelines().length).toEqual(2);
     expect(environments[0].environmentVariables().length).toEqual(4);
+  });
+
+  it("should tell whether environment contains a pipeline", () => {
+    const environment = EnvironmentWithOrigin.fromJSON(envJSON);
+
+    expect(environment.containsPipeline(envJSON.pipelines[0].name)).toBe(true);
+    expect(environment.containsPipeline(envJSON.pipelines[1].name)).toBe(true);
+
+    expect(environment.containsPipeline("non-existing-pipeline")).toBe(false);
+  });
+
+  it("should add a pipeline to an environment", () => {
+    const environment = EnvironmentWithOrigin.fromJSON(envJSON);
+
+    const pipelineToAdd = data.pipeline_association_in_xml_json();
+
+    expect(environment.containsPipeline(pipelineToAdd.name)).toBe(false);
+    environment.addPipelineIfNotPresent(PipelineWithOrigin.fromJSON(pipelineToAdd));
+    expect(environment.containsPipeline(pipelineToAdd.name)).toBe(true);
+  });
+
+  it("should not add a pipeline to an environment when one already exists", () => {
+    const environment = EnvironmentWithOrigin.fromJSON(envJSON);
+
+    const pipelineToAdd = data.pipeline_association_in_xml_json();
+
+    expect(environment.pipelines().length).toBe(2);
+    expect(environment.containsPipeline(pipelineToAdd.name)).toBe(false);
+
+    environment.addPipelineIfNotPresent(PipelineWithOrigin.fromJSON(pipelineToAdd));
+
+    expect(environment.pipelines().length).toBe(3);
+    expect(environment.containsPipeline(pipelineToAdd.name)).toBe(true);
+
+    environment.addPipelineIfNotPresent(PipelineWithOrigin.fromJSON(pipelineToAdd));
+
+    expect(environment.pipelines().length).toBe(3);
+    expect(environment.containsPipeline(pipelineToAdd.name)).toBe(true);
+  });
+
+  it("should remove a pipeline from an environment", () => {
+    const environment  = EnvironmentWithOrigin.fromJSON(envJSON);
+    const pipelineJson = data.pipeline_association_in_xml_json();
+    const pipeline     = PipelineWithOrigin.fromJSON(pipelineJson);
+    environment.addPipelineIfNotPresent(pipeline);
+
+    expect(environment.pipelines().length).toBe(3);
+    expect(environment.containsPipeline(pipelineJson.name)).toBe(true);
+
+    environment.removePipelineIfPresent(pipeline);
+
+    expect(environment.pipelines().length).toBe(2);
+    expect(environment.containsPipeline(pipelineJson.name)).toBe(false);
+  });
+
+  it("should not fail to remove a non-existent pipeline from an environment", () => {
+    const environment  = EnvironmentWithOrigin.fromJSON(envJSON);
+    const pipelineJson = data.pipeline_association_in_xml_json();
+    const pipeline     = PipelineWithOrigin.fromJSON(pipelineJson);
+
+    expect(environment.pipelines().length).toBe(2);
+    expect(environment.containsPipeline(pipelineJson.name)).toBe(false);
+
+    environment.removePipelineIfPresent(pipeline);
+
+    expect(environment.pipelines().length).toBe(2);
+    expect(environment.containsPipeline(pipelineJson.name)).toBe(false);
   });
 });

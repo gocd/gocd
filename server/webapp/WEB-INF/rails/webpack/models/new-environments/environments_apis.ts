@@ -17,15 +17,25 @@
 import {ApiRequestBuilder, ApiResult, ApiVersion} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
 import {Environments} from "models/new-environments/environments";
+import {PipelineGroups} from "models/new-environments/pipeline_groups";
 
 export class EnvironmentsAPIs {
-  private static INTERNAL_ENVIRONMENTS_API_VERSION_HEADER = ApiVersion.v1;
+  private static INTERNAL_ENVIRONMENTS_API_VERSION_HEADER   = ApiVersion.v1;
+  private static INTERNAL_PIPELINES_LIST_API_VERSION_HEADER = ApiVersion.v1;
 
   static all() {
     return ApiRequestBuilder.GET(SparkRoutes.apiAdminInternalMergedEnvironmentsPath(),
                                  this.INTERNAL_ENVIRONMENTS_API_VERSION_HEADER)
                             .then((result: ApiResult<string>) => {
                               return result.map((body) => Environments.fromJSON(JSON.parse(body)));
+                            });
+  }
+
+  static allPipelines() {
+    return ApiRequestBuilder.GET(SparkRoutes.apiAdminInternalPipelinesListPath(),
+                                 this.INTERNAL_PIPELINES_LIST_API_VERSION_HEADER)
+                            .then((result: ApiResult<string>) => {
+                              return result.map((body) => PipelineGroups.fromJSON(JSON.parse(body)));
                             });
   }
 }

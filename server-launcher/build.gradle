@@ -74,7 +74,6 @@ dependencies {
   packagingInLibDir group: 'commons-io', name: 'commons-io', version: project.versions.commonsIO
   packagingInLibDir group: 'org.apache.commons', name: 'commons-lang3', version: project.versions.commonsLang3
   packagingInLibDir group: 'joda-time', name: 'joda-time', version: project.versions.jodaTime
-  packagingInLibDir project(':javasysmon-wrapper')
 
   // not really compile dependencies, but we want to centralize all logging using logback
   packagingInLibDir(group: 'org.slf4j', name: 'slf4j-api', version: project.versions.slf4j)
@@ -268,8 +267,6 @@ task verifyFatJar(type: VerifyJarTask) {
       "commons-io-${project.versions.commonsIO}.jar",
       "commons-lang3-${project.versions.commonsLang3}.jar",
       "go-plugin-activator.jar",
-      "javasysmon-0.3.6.jar",
-      "javasysmon-wrapper-${project.version}.jar",
       "javax.servlet-api-3.1.0.jar",
       "jcl-over-slf4j-${project.versions.slf4j}.jar",
       "jetty-continuation-${versions.jetty}.jar",

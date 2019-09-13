@@ -906,8 +906,6 @@ task verifyWar(type: VerifyJarTask) {
         "jackson-databind-${project.versions.jackson}.jar",
         "JavaEWAH-1.1.6.jar",
         "javassist-${project.versions.javaAssist}.jar",
-        "javasysmon-0.3.6.jar",
-        "javasysmon-wrapper-${project.version}.jar",
         "javax.annotation-api-${project.versions.javaxAnnotation}.jar",
         "javax.inject-1.jar",
         "javax.servlet-api-3.1.0.jar",
@@ -1043,19 +1041,6 @@ task licenseReportAggregate {
         [
           moduleLicense   : 'dom4j BSD license',
           moduleLicenseUrl: "https://github.com/dom4j/dom4j/blob/dom4j_1_6_1/LICENSE.txt"
-        ]
-      ]
-    ],
-    [
-      moduleName    : 'com.jezhumble:javasysmon',
-      moduleVersion : '0.3.6',
-      moduleUrls    : [
-        "https://github.com/gocd/javasysmon"
-      ],
-      moduleLicenses: [
-        [
-          moduleLicense   : 'BSD-2-Clause-FreeBSD',
-          moduleLicenseUrl: "https://spdx.org/licenses/BSD-2-Clause-FreeBSD.html"
         ]
       ]
     ],

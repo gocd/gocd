@@ -16,18 +16,16 @@
 package com.thoughtworks.go.util;
 
 import ch.qos.logback.classic.Level;
-import com.jezhumble.javasysmon.ProcessInfo;
-import com.thoughtworks.go.javasysmon.wrapper.DefaultCurrentProcess;
+import com.thoughtworks.go.process.CurrentProcess;
 import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Test;
 
-import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -42,7 +40,7 @@ public class SubprocessLoggerTest {
 
     @Test
     public void shouldNotLogAnythingWhenNoChildProcessesFound() {
-        DefaultCurrentProcess currentProcess = mock(DefaultCurrentProcess.class);
+        CurrentProcess currentProcess = mock(CurrentProcess.class);
         logger = new SubprocessLogger(currentProcess);
         try (LogFixture log = logFixtureFor(SubprocessLogger.class, Level.ALL)) {
             logger.run();
@@ -56,7 +54,7 @@ public class SubprocessLoggerTest {
 
     @Test
     public void shouldLogDefaultMessageWhenNoMessageGiven() {
-        logger = new SubprocessLogger(stubSysMon());
+        logger = new SubprocessLogger(stubProcess());
         String allLogs;
         try (LogFixture log = logFixtureFor(SubprocessLogger.class, Level.ALL)) {
             logger.run();
@@ -71,7 +69,7 @@ public class SubprocessLoggerTest {
 
     @Test
     public void shouldLogAllTheRunningChildProcesses() {
-        logger = new SubprocessLogger(stubSysMon());
+        logger = new SubprocessLogger(stubProcess());
         String allLogs;
         try (LogFixture log = logFixtureFor(SubprocessLogger.class, Level.ALL)) {
             logger.registerAsExitHook("foo bar baz");
@@ -83,24 +81,42 @@ public class SubprocessLoggerTest {
             allLogs = result;
         }
         Assertions.assertThat(allLogs).isEqualToNormalizingNewlines("WARN foo bar baz\n" +
-                "  101 name-1       100 owner-1       0Mb    0Mb 00:00:00 command-1              \n" +
-                "  103 name-1a      100 owner-1       0Mb    0Mb 00:00:00 command-1a             \n" +
+                "101\n" +
+                "103\n" +
                 "\n");
         assertThat(allLogs, not(containsString("102")));
     }
 
-    private DefaultCurrentProcess stubSysMon() {
-        DefaultCurrentProcess currentProcess = mock(DefaultCurrentProcess.class);
-        when(currentProcess.immediateChildren()).thenReturn(Arrays.asList(
-                new ProcessInfo(101, 100, "command-1", "name-1", "owner-1", 100, 200, 400, 800),
-                new ProcessInfo(103, 100, "command-1a", "name-1a", "owner-1", 160, 260, 460, 860)
-        ));
+    private CurrentProcess stubProcess() {
+        CurrentProcess currentProcess = mock(CurrentProcess.class);
+        List<ProcessHandle> subProcesses = List.of(
+                stubProcessHandle(101, 100, "command-1", "owner-1"),
+                stubProcessHandle(103, 100, "command-1a", "owner-1")
+        );
+        when(currentProcess.immediateChildren()).thenReturn(subProcesses);
         return currentProcess;
+    }
+
+    private ProcessHandle stubProcessHandle(long pid, long parentPid, String command, String owner) {
+        ProcessHandle parentProcess = mock(ProcessHandle.class);
+        when(parentProcess.pid()).thenReturn(parentPid);
+
+        ProcessHandle.Info info = mock(ProcessHandle.Info.class);
+        when(info.command()).thenReturn(Optional.of(command));
+        when(info.user()).thenReturn(Optional.of(owner));
+
+        ProcessHandle processHandle = mock(ProcessHandle.class);
+        when(processHandle.pid()).thenReturn(pid);
+        when(processHandle.parent()).thenReturn(Optional.of(parentProcess));
+        when(processHandle.info()).thenReturn(info);
+        when(processHandle.toString()).thenReturn(String.format("%d", pid));
+
+        return processHandle;
     }
 
     @Test
     public void shouldRegisterItselfAsExitHook() {
-        logger = new SubprocessLogger(new DefaultCurrentProcess());
+        logger = new SubprocessLogger(new CurrentProcess());
         logger.registerAsExitHook("foo");
         try {
             Runtime.getRuntime().addShutdownHook(logger.exitHook());

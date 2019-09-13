@@ -338,9 +338,6 @@ test/test-utils/target/
 tfs-impl/tfs-impl-14/logs/
 tfs-impl/tfs-impl-14/out/
 tfs-impl/tfs-impl-14/target/
-javasysmon-wrapper/logs/
-javasysmon-wrapper/out/
-javasysmon-wrapper/target/
 tools/jruby/
 tools/target/
 tw-go-plugins/target/

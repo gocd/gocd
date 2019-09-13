@@ -22,11 +22,11 @@ interface IEElement extends HTMLElement {
   msMatchesSelector(sel: string): boolean;
 }
 
-interface IEWindow extends Window {
+type IEWindow = {
   clipboardData: {
     getData: (key: string) => string;
   };
-}
+} & Window & typeof globalThis;
 
 export function matches(el: Element, selector: string): boolean {
   if ("function" === typeof el.matches) {

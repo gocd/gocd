@@ -186,7 +186,7 @@ body {
   position: relative;
 
   > button {
-    padding: 0 30px;
+    padding: 0 35px;
   }
 
   .new-pipeline-items {
@@ -195,7 +195,8 @@ body {
     margin:          0;
     padding:         0;
     list-style-type: none;
-    cursor:          default;
+    text-align:      right;
+    cursor:          pointer;
     background:      #fff;
     border:          1px solid #d6e0e2;
     border-radius:   0 0 3px 3px;

@@ -68,8 +68,8 @@ class Dropdown {
         disabled={!vm.canAdminister}
         text="New Pipeline">
         <ul class="new-pipeline-items">
-          <li class="new-pipeline-item"><a href={paths.new}>Pipeline wizard</a></li>
-          <li class="new-pipeline-item"><a href={paths.asCode}>Pipeline as code</a></li>
+          <li class="new-pipeline-item"><a href={paths.new}>Use Pipeline Wizard</a></li>
+          <li class="new-pipeline-item"><a href={paths.asCode}>Use Pipelines as Code</a></li>
         </ul>
       </Buttons.SimpleDropdown>;
   }

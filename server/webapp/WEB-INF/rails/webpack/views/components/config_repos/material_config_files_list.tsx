@@ -17,51 +17,24 @@
 import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
-import {ConfigFileList, MaterialConfigFiles} from "models/materials/material_config_files";
+import {ConfigFileList} from "models/materials/material_config_files";
 import styles from "./material_check.scss";
 
 interface Attrs {
-  materialConfigFiles: MaterialConfigFiles;
-  pluginId?: string;
+  files: ConfigFileList;
 }
 
 export class MaterialConfigFilesList extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
+    const {files} = vnode.attrs;
+
     return <dl class={styles.materialConfigFiles}>
       <dt class={styles.resultsTitle}>Found the following definition files in this repository:</dt>
-      <dd class={styles.pluginConfigFiles}>{this.files(vnode.attrs)}</dd>
+      <dd class={styles.pluginConfigFiles}>
+        <ul class={styles.fileList}>
+          {_.map(files.files(), (f) => <li class={styles.materialCheckFile} data-test-id="material-check-plugin-file">{f}</li>)}
+        </ul>
+      </dd>
     </dl>;
-  }
-
-  files(attrs: Attrs) {
-    if (attrs.pluginId) {
-      return <FoundFiles files={attrs.materialConfigFiles.for(attrs.pluginId)!} showPlugin={false}/>;
-    }
-    return _.map(attrs.materialConfigFiles.pluginConfigFiles(), (files) => <FoundFiles files={files} showPlugin={true}/>);
-  }
-}
-
-interface ListAttrs {
-  files: ConfigFileList;
-  showPlugin: boolean;
-}
-
-class FoundFiles extends MithrilViewComponent<ListAttrs> {
-  view(vnode: m.Vnode<ListAttrs>) {
-    const {files, showPlugin} = vnode.attrs;
-
-    if (files.hasErrors()) {
-      return <div class={styles.configFilesErrors} data-test-id="material-check-plugin-error">{files.errors()}</div>;
-    }
-
-    if (files.isEmpty()) {
-      return;
-    }
-
-    const filesList = _.map(files.files(), (f) => <li class={styles.materialCheckFile} data-test-id="material-check-plugin-file">{f}</li>);
-
-    return showPlugin ?
-      [<p class={styles.pluginLabel}>{files.pluginId()}</p>, <ul class={styles.fileList}>{filesList}</ul>] :
-      <ul class={styles.fileList}>{filesList}</ul>;
   }
 }

@@ -25,29 +25,36 @@
   }
 
   .material-config-files {
+    background-color: $success;
     font-size: 14px;
+    margin: 0;
+    padding: 15px;
 
     .results-title {
       font-weight: 600;
       margin-bottom: 1em;
     }
 
-    .config-files-errors {
-      color: $go-danger;
-    }
-
     .plugin-config-files {
-      margin-left: 15px;
+      margin: 0;
+      padding: 0;
       font-family: $font-family-monospace;
 
-      .plugin-label, .material-check-file, .file-list {
+      .material-check-file, .file-list {
         margin: 0;
         padding: 0;
       }
 
       .material-check-file {
+        list-style: square;
         list-style-position: inside;
         min-height: 10px;
+        margin-left: 15px;
+        padding: 0 10px;
+
+        &:nth-of-type(2n + 1) {
+          background-color: lighten($success, 5%);
+        }
       }
     }
   }
@@ -55,6 +62,8 @@
 
 .material-check-container {
   width: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 .material-check-control {
@@ -72,6 +81,7 @@
     }
   }
 }
+
 @mixin material-check-button-icon($type, $colors: $icon-light-color, $size: 5px) {
   @include icon-before($type: $type, $color: $colors, $size: 15px, $margin: 0) {
     display:      inline-block;

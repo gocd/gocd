@@ -39,7 +39,7 @@ interface Attrs extends LifecycleHooks {
   material: Material;
   label?: m.Children;
   align?: Alignment;
-  pluginId?: string;
+  pluginId: string;
 }
 
 export class MaterialCheck extends MithrilViewComponent<Attrs> {
@@ -65,7 +65,7 @@ export class MaterialCheck extends MithrilViewComponent<Attrs> {
     </dl>;
   }
 
-  private materialCheck(options: { material: Material, pluginId?: string } & LifecycleHooks) {
+  private materialCheck(options: { material: Material, pluginId: string } & LifecycleHooks) {
     const { material, prerequisite, pluginId } = options;
 
     if (this.busy || ("function" === typeof prerequisite && !prerequisite())) { return; }
@@ -96,11 +96,9 @@ export class MaterialCheck extends MithrilViewComponent<Attrs> {
     if (413 === status) {
       this.materialCheckMessage = <FlashMessage type={MessageType.warning}>
         <code class={styles.materialCheckMessage}>
-          <p>The repository scan timed out. Often, this happens when the repository is large, which prevents
-          quick verification. This limitation only applies to this quick check and should not cause issues when
-          registering a pipelines as code repository.</p>
+          <p>It took too long to find any pipelines-as-code definitions in this repository.</p>
 
-          <p>If you know your pipeline definition file is stored correctly in this repository, continue forward.</p>
+          <p>The check timed out, but if you're sure it is present, you can continue.</p>
         </code>
       </FlashMessage>;
     } else {
@@ -108,15 +106,22 @@ export class MaterialCheck extends MithrilViewComponent<Attrs> {
     }
   }
 
-  private materialCheckSuccessful(json: MaterialConfigFilesJSON, pluginId?: string) {
+  private materialCheckSuccessful(json: MaterialConfigFilesJSON, pluginId: string) {
     this.materialCheckButtonIcon = styles.materialCheckSuccess;
     const configFiles = MaterialConfigFiles.fromJSON(json);
+    const files = configFiles.for(pluginId);
 
-    if (configFiles.hasConfigFiles(pluginId)) {
-      this.materialCheckMessage = <MaterialConfigFilesList materialConfigFiles={configFiles} pluginId={pluginId}/>;
-    } else {
+    if (!files || (!files.hasErrors() && files.isEmpty())) {
       this.materialCheckMessage = <FlashMessage type={MessageType.info} message={<code class={styles.materialCheckMessage}>No config files found</code>}/>;
+      return;
     }
+
+    if (files.hasErrors()) {
+      this.materialCheckMessage = <FlashMessage type={MessageType.alert}><code class={styles.materialCheckMessage}>{files.errors()}</code></FlashMessage>;
+      return;
+    }
+
+    this.materialCheckMessage = <MaterialConfigFilesList files={files}/>;
   }
 
   private materialCheckInProgress() {

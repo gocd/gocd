@@ -39,7 +39,6 @@ import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigFileList;
 import com.thoughtworks.go.plugin.access.configrepo.ExportedConfig;
 import com.thoughtworks.go.server.service.*;
-import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -56,14 +55,13 @@ import spark.Response;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
 import java.util.function.Consumer;
 
 import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseOfReason;
-import static com.thoughtworks.go.plugin.domain.common.PluginConstants.CONFIG_REPO_EXTENSION;
 import static com.thoughtworks.go.spark.Routes.PaC.*;
 import static java.lang.String.format;
 import static spark.Spark.*;
@@ -77,7 +75,6 @@ public class PipelinesAsCodeInternalControllerV1 extends ApiController implement
     private final GoConfigService goConfigService;
     private final GoConfigPluginService pluginService;
     private final PipelineConfigService pipelineService;
-    private DefaultPluginInfoFinder defaultPluginInfoFinder;
     private MaterialService materialService;
     private final MaterialConfigConverter materialConfigConverter;
     private final SubprocessExecutionContext subprocessExecutionContext;
@@ -91,7 +88,6 @@ public class PipelinesAsCodeInternalControllerV1 extends ApiController implement
             GoConfigService goConfigService,
             GoConfigPluginService pluginService,
             PipelineConfigService pipelineService,
-            DefaultPluginInfoFinder defaultPluginInfoFinder,
             MaterialService materialService,
             MaterialConfigConverter materialConfigConverter,
             SubprocessExecutionContext subprocessExecutionContext,
@@ -103,7 +99,6 @@ public class PipelinesAsCodeInternalControllerV1 extends ApiController implement
         this.goConfigService = goConfigService;
         this.pluginService = pluginService;
         this.pipelineService = pipelineService;
-        this.defaultPluginInfoFinder = defaultPluginInfoFinder;
         this.materialService = materialService;
         this.materialConfigConverter = materialConfigConverter;
         this.subprocessExecutionContext = subprocessExecutionContext;
@@ -129,7 +124,9 @@ public class PipelinesAsCodeInternalControllerV1 extends ApiController implement
     }
 
     String configFiles(Request req, Response res) {
-        File folder = FileUtil.createTempFolder();
+        ConfigRepoPlugin repoPlugin = pluginFromRequest(req);
+
+        File folder = null;
 
         try {
             JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(req.body());
@@ -154,20 +151,10 @@ public class PipelinesAsCodeInternalControllerV1 extends ApiController implement
                 return MessageJson.create("Material is already being used as a config repository");
             }
 
-            ConfigRepoPlugin specificPlugin = pluginFromRequest(req);
-
-            Map<String, ConfigFileList> pacPluginFiles = new HashMap<>();
+            folder = FileUtil.createTempFolder();
             checkoutFromMaterialConfig(materialConfig, folder);
 
-            if (null != specificPlugin) {
-                pacPluginFiles.put(specificPlugin.id(), specificPlugin.getConfigFiles(folder, new ArrayList<>()));
-            } else {
-                defaultPluginInfoFinder.pluginDisplayNameToPluginId(CONFIG_REPO_EXTENSION).forEach((k, pluginId) -> {
-                    ConfigRepoPlugin crPlugin = plugin(pluginId);
-                    pacPluginFiles.put(pluginId, crPlugin.getConfigFiles(folder, new ArrayList<>()));
-                });
-            }
-
+            final Map<String, ConfigFileList> pacPluginFiles = Collections.singletonMap(repoPlugin.id(), repoPlugin.getConfigFiles(folder, new ArrayList<>()));
             return jsonizeAsTopLevelObject(req, w -> ConfigFileListsRepresenter.toJSON(w, pacPluginFiles));
         } catch (TimeoutException e) {
             res.status(HttpStatus.PAYLOAD_TOO_LARGE.value());
@@ -179,7 +166,45 @@ public class PipelinesAsCodeInternalControllerV1 extends ApiController implement
             res.status(HttpStatus.INTERNAL_SERVER_ERROR.value());
             return MessageJson.create(e.getMessage());
         } finally {
-            FileUtils.deleteQuietly(folder);
+            if (null != folder) {
+                FileUtils.deleteQuietly(folder);
+            }
+        }
+    }
+
+    String preview(Request req, Response res) {
+        ConfigRepoPlugin repoPlugin = pluginFromRequest(req);
+        String pluginId = repoPlugin.id();
+        String groupName = requiredQueryParam(req, "group");
+
+        if (!pluginService.supportsPipelineExport(pluginId)) {
+            throw haltBecauseOfReason("Plugin `%s` does not support pipeline config export.", pluginId);
+        }
+
+        ConfigHelperOptions options = new ConfigHelperOptions(goConfigService.getCurrentConfig(), passwordDeserializer);
+        JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(req.body());
+
+        validateNamePresent(jsonReader);
+
+        PipelineConfig pipeline = PipelineConfigRepresenter.fromJSON(jsonReader, options);
+
+        if (requiresFullValidation(req) && !isValidPipelineConfig(pipeline, groupName)) {
+            res.status(HttpStatus.UNPROCESSABLE_ENTITY.value());
+            return MessageJson.create(format("Please fix the validation errors for pipeline %s.", pipeline.name()), jsonWriter(pipeline));
+        }
+
+        String etag = repoPlugin.etagForExport(pipeline, groupName);
+
+        if (fresh(req, etag)) {
+            return notModified(res);
+        } else {
+            setEtagHeader(res, etag);
+
+            ExportedConfig export = repoPlugin.pipelineExport(pipeline, groupName);
+
+            res.header("Content-Type", export.getContentType());
+            res.header("Content-Disposition", format("attachment; filename=\"%s\"", export.getFilename()));
+            return export.getContent();
         }
     }
 
@@ -204,46 +229,6 @@ public class PipelinesAsCodeInternalControllerV1 extends ApiController implement
             LOGGER.debug(format("Failed to clone material %s in %d ms", material.getDescription(), timeout), e);
             future.cancel(true);
             throw e;
-        }
-    }
-
-    String preview(Request req, Response res) {
-        String pluginId = requiredParam(req, ":plugin_id");
-        String groupName = requiredQueryParam(req, "group");
-
-        if (!pluginService.isConfigRepoPlugin(pluginId)) {
-            throw haltBecauseOfReason("Plugin `%s` is not a Pipelines-as-Code plugin.", pluginId);
-        }
-
-        if (!pluginService.supportsPipelineExport(pluginId)) {
-            throw haltBecauseOfReason("Plugin `%s` does not support pipeline config export.", pluginId);
-        }
-
-        ConfigHelperOptions options = new ConfigHelperOptions(goConfigService.getCurrentConfig(), passwordDeserializer);
-        JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(req.body());
-
-        validateNamePresent(jsonReader);
-
-        PipelineConfig pipeline = PipelineConfigRepresenter.fromJSON(jsonReader, options);
-
-        if (requiresFullValidation(req) && !isValidPipelineConfig(pipeline, groupName)) {
-            res.status(HttpStatus.UNPROCESSABLE_ENTITY.value());
-            return MessageJson.create(format("Please fix the validation errors for pipeline %s.", pipeline.name()), jsonWriter(pipeline));
-        }
-
-        ConfigRepoPlugin repoPlugin = plugin(pluginId);
-        String etag = repoPlugin.etagForExport(pipeline, groupName);
-
-        if (fresh(req, etag)) {
-            return notModified(res);
-        } else {
-            setEtagHeader(res, etag);
-
-            ExportedConfig export = repoPlugin.pipelineExport(pipeline, groupName);
-
-            res.header("Content-Type", export.getContentType());
-            res.header("Content-Disposition", format("attachment; filename=\"%s\"", export.getFilename()));
-            return export.getContent();
         }
     }
 
@@ -276,19 +261,12 @@ public class PipelinesAsCodeInternalControllerV1 extends ApiController implement
     }
 
     private ConfigRepoPlugin pluginFromRequest(Request req) {
-        String pluginId = req.queryParams("pluginId");
-        if (spark.utils.StringUtils.isBlank(pluginId)) {
-            return null;
-        }
+        String pluginId = requiredParam(req, ":plugin_id");
 
         if (!pluginService.isConfigRepoPlugin(pluginId)) {
             throw haltBecauseOfReason("Plugin `%s` is not a Pipelines-as-Code plugin.", pluginId);
         }
 
-        return plugin(pluginId);
-    }
-
-    private ConfigRepoPlugin plugin(String pluginId) {
         return (ConfigRepoPlugin) pluginService.partialConfigProviderFor(pluginId);
     }
 

@@ -59,9 +59,8 @@ $error-container-width: 450px;
   border-left:  1px solid $line-color;
 
   .msg {
-    float:     left;
-    margin:    0;
-    max-width: 65%;
+    margin:       0;
+    margin-right: 15px;
   }
 }
 

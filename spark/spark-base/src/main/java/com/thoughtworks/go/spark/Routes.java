@@ -394,7 +394,7 @@ public class Routes {
     public static class PaC {
         public static final String BASE_INTERNAL_API = "/api/admin/internal/pac";
         public static final String PREVIEW = "/preview/:plugin_id";
-        public static final String CONFIG_FILES = "/config_files";
+        public static final String CONFIG_FILES = "/config_files/:plugin_id";
     }
 
     public static class PipelineTemplateConfig {

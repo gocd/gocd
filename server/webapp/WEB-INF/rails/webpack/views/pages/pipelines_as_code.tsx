@@ -19,6 +19,7 @@ import {override} from "helpers/css_proxies";
 import {queryParamAsString} from "helpers/url";
 import m from "mithril";
 import Stream from "mithril/stream";
+import {IDENTIFIER_FORMAT_HELP_MESSAGE} from "views/pages/pipelines/messages";
 
 // models
 import {ConfigRepo} from "models/config_repos/types";
@@ -117,15 +118,15 @@ export class PipelinesAsCodeCreatePage extends Page {
           <MaterialEditor material={this.configRepo().material()!} hideTestConnection={syncConfigRepoWithMaterial()} scmOnly={true} showLocalWorkingCopyOptions={false} disabled={syncConfigRepoWithMaterial()}/>
         </UserInputPane>
         <div class={css.verifyDefsInMaterial}>
-          <IdentifierInputField label="Name" property={this.configRepo().id} errorText={this.configRepo().errors().errorsForDisplay("id")} />
-          <MaterialCheck pluginId={this.pluginId()} material={this.configRepo().material()!} align="right" prerequisite={() => this.configRepo().material()!.isValid()} label={
-            <p class={css.msg}>Click the button to verify that the configuration file is placed correctly in the repository</p>
+          <IdentifierInputField label="Name this repository" helpText={IDENTIFIER_FORMAT_HELP_MESSAGE} placeholder="e.g., Pipelines-as-Code-Repository" property={this.configRepo().id} errorText={this.configRepo().errors().errorsForDisplay("id")} required={true}/>
+          <MaterialCheck pluginId={this.pluginId()} material={this.configRepo().material()!} align="right" prerequisite={() => this.configRepo().isValid()} label={
+            <p class={css.msg}>Verify that GoCD can find the configuration file in your repository by clicking the button on the right</p>
           }/>
         </div>
       </FillableSection>,
 
       <FillableSection>
-        <PacActions configRepo={this.configRepo} />
+        <PacActions configRepo={this.configRepo}/>
       </FillableSection>
     ];
   }

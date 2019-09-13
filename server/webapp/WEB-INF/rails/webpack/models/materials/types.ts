@@ -128,7 +128,7 @@ export class Material extends ValidatableMixin {
     return raw;
   }
 
-  pacConfigFiles(pluginId?: string) {
+  pacConfigFiles(pluginId: string) {
     const payload = this.toApiPayload();
     return ApiRequestBuilder.POST(
       SparkRoutes.pacListConfigFiles(pluginId),

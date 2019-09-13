@@ -23,7 +23,8 @@ import styles from "../material_check.scss";
 
 describe("ConfigRepos: MaterialCheck", () => {
   const helper = new TestHelper();
-  const CONFIG_FILES_URL = SparkRoutes.pacListConfigFiles();
+  const PLUGIN_ID = "yaml.config.plugin";
+  const CONFIG_FILES_URL = SparkRoutes.pacListConfigFiles(PLUGIN_ID);
   const invalidMaterial = new Material("git", new GitMaterialAttributes());
   const validMaterial = new Material("git", new GitMaterialAttributes("SomeRepo", false, "https://github.com/gocd/gocd", "master"));
 
@@ -33,14 +34,10 @@ describe("ConfigRepos: MaterialCheck", () => {
     jasmine.Ajax.withMock(() => {
       const response = {
         plugins: [ {
-          plugin_id: "yaml.config.plugin",
+          plugin_id: PLUGIN_ID,
           files: [ "thepipes.gocd.yaml" ],
           errors: ""
-        }, {
-          plugin_id: "json.config.plugin",
-          files: [ "pip.gopipeline.json", "pip2.gopipeline.json", "dev.goenvironment.json" ],
-          errors: ""
-        } ]
+        }]
       };
 
       jasmine.Ajax.stubRequest(CONFIG_FILES_URL, payload(validMaterial), "POST")
@@ -52,14 +49,14 @@ describe("ConfigRepos: MaterialCheck", () => {
           }
         });
 
-      helper.mount(() => <MaterialCheck material={validMaterial} complete={() => {
+      helper.mount(() => <MaterialCheck material={validMaterial} pluginId={PLUGIN_ID} complete={() => {
         expect(helper.byTestId("material-check-button").matches("[disabled]")).toBe(true); // disabled while connection is in progress
 
         setTimeout(() => { // make this async so as to allow mithril to update the dom
           m.redraw.sync();
           expect(helper.byTestId("material-check-button").matches("[disabled]")).toBe(false); // enabled on complete
           expect(helper.byTestId("material-check-icon")).toHaveClass(styles.materialCheckSuccess);
-          expect(helper.allByTestId("material-check-plugin-file").length).toBe(4);
+          expect(helper.allByTestId("material-check-plugin-file").length).toBe(1);
           done();
         }, 0);
       }}/>);
@@ -74,13 +71,9 @@ describe("ConfigRepos: MaterialCheck", () => {
     jasmine.Ajax.withMock(() => {
       const response = {
         plugins: [ {
-          plugin_id: "yaml.config.plugin",
+          plugin_id: PLUGIN_ID,
           files: [],
           errors: "wubba lubba dub dub!!!"
-        }, {
-          plugin_id: "json.config.plugin",
-          files: [ "pip.gopipeline.json", "pip2.gopipeline.json", "dev.goenvironment.json" ],
-          errors: ""
         } ]
       };
 
@@ -93,16 +86,15 @@ describe("ConfigRepos: MaterialCheck", () => {
           }
         });
 
-      helper.mount(() => <MaterialCheck material={validMaterial} complete={() => {
+      helper.mount(() => <MaterialCheck material={validMaterial} pluginId={PLUGIN_ID} complete={() => {
         expect(helper.byTestId("material-check-button").matches("[disabled]")).toBe(true); // disabled while connection is in progress
 
         setTimeout(() => { // make this async so as to allow mithril to update the dom
           m.redraw.sync();
           expect(helper.byTestId("material-check-button").matches("[disabled]")).toBe(false); // enabled on complete
           expect(helper.byTestId("material-check-icon")).toHaveClass(styles.materialCheckSuccess);
-          expect(helper.allByTestId("material-check-plugin-file").length).toBe(3);
-          expect(helper.allByTestId("material-check-plugin-error").length).toBe(1);
-          expect(helper.allByTestId("material-check-plugin-error")).toContainText("wubba lubba dub dub!!!");
+          expect(helper.allByTestId("material-check-plugin-file").length).toBe(0);
+          expect(helper.byTestId("flash-message-alert")).toContainText("wubba lubba dub dub!!!");
           done();
         }, 0);
       }}/>);
@@ -117,11 +109,7 @@ describe("ConfigRepos: MaterialCheck", () => {
     jasmine.Ajax.withMock(() => {
       const response = {
         plugins: [ {
-          plugin_id: "yaml.config.plugin",
-          files: [],
-          errors: ""
-        }, {
-          plugin_id: "json.config.plugin",
+          plugin_id: PLUGIN_ID,
           files: [],
           errors: ""
         } ]
@@ -136,7 +124,7 @@ describe("ConfigRepos: MaterialCheck", () => {
           }
         });
 
-      helper.mount(() => <MaterialCheck material={validMaterial} complete={() => {
+      helper.mount(() => <MaterialCheck material={validMaterial} pluginId={PLUGIN_ID} complete={() => {
         expect(helper.byTestId("material-check-button").matches("[disabled]")).toBe(true); // disabled while connection is in progress
 
         setTimeout(() => { // make this async so as to allow mithril to update the dom
@@ -166,7 +154,7 @@ describe("ConfigRepos: MaterialCheck", () => {
           }
         });
 
-      helper.mount(() => <MaterialCheck material={invalidMaterial} complete={() => {
+      helper.mount(() => <MaterialCheck material={invalidMaterial} pluginId={PLUGIN_ID} complete={() => {
         expect(helper.byTestId("material-check-button").matches("[disabled]")).toBe(true); // disabled while connection is in progress
 
         setTimeout(() => { // make this async so as to allow mithril to update the dom

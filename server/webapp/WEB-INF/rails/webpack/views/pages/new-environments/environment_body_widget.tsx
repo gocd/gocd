@@ -14,27 +14,30 @@
  * limitations under the License.
  */
 
-import {MithrilViewComponent} from "jsx/mithril-component";
+import {MithrilComponent, MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import {EnvironmentVariableWithOrigin} from "models/new-environments/environment_environment_variables";
 import {EnvironmentWithOrigin} from "models/new-environments/environments";
 import s from "underscore.string";
 import {HelpText} from "views/components/forms/input_fields";
 import * as Icons from "views/components/icons/index";
+import {EditPipelinesModal} from "views/pages/new-environments/edit_pipelines_modal";
 import styles from "./index.scss";
 
 export interface ElementListWidgetAttrs {
-  environmentName: string;
+  modalToRender: (env: EnvironmentWithOrigin) => any;
+  environment: EnvironmentWithOrigin;
   name: string;
 }
 
 export class ElementListWidget extends MithrilViewComponent<ElementListWidgetAttrs> {
   view(vnode: m.Vnode<ElementListWidgetAttrs>) {
     return <div class={styles.envBodyElement}
-                data-test-id={`${s.slugify(vnode.attrs.name)}-for-${vnode.attrs.environmentName}`}>
+                data-test-id={`${s.slugify(vnode.attrs.name)}-for-${vnode.attrs.environment.name()}`}>
       <div class={styles.envBodyElementHeader} data-test-id={`${s.slugify(vnode.attrs.name)}-header`}>
         <span>{vnode.attrs.name}</span>
-        <Icons.Edit iconOnly={true} onclick={() => alert("You pressed edit button!")}/>
+        <Icons.Edit iconOnly={true}
+                    onclick={vnode.attrs.modalToRender.bind(vnode.attrs.modalToRender, vnode.attrs.environment)}/>
       </div>
       {vnode.children}
     </div>;
@@ -45,8 +48,28 @@ interface EnvironmentBodyAttrs {
   environment: EnvironmentWithOrigin;
 }
 
-export class EnvironmentBody extends MithrilViewComponent<EnvironmentBodyAttrs> {
-  view(vnode: m.Vnode<EnvironmentBodyAttrs>) {
+interface EnvironmentBodyState {
+  renderPipelinesModal: (env: EnvironmentWithOrigin) => any;
+  renderAgentsModal: (env: EnvironmentWithOrigin) => any;
+  renderEnvironmentsVariablesModal: (env: EnvironmentWithOrigin) => any;
+}
+
+export class EnvironmentBody extends MithrilComponent<EnvironmentBodyAttrs, EnvironmentBodyState> {
+  oninit(vnode: m.Vnode<EnvironmentBodyAttrs, EnvironmentBodyState>) {
+    vnode.state.renderPipelinesModal = (env: EnvironmentWithOrigin) => {
+      new EditPipelinesModal(env).render();
+    };
+
+    vnode.state.renderAgentsModal = (env: EnvironmentWithOrigin) => {
+      new EditPipelinesModal(env).render();
+    };
+
+    vnode.state.renderEnvironmentsVariablesModal = (env: EnvironmentWithOrigin) => {
+      new EditPipelinesModal(env).render();
+    };
+  }
+
+  view(vnode: m.Vnode<EnvironmentBodyAttrs, EnvironmentBodyState>) {
     const environment = vnode.attrs.environment;
 
     const plainTextVariables: m.Child = environment.environmentVariables().plainTextVariables().length === 0
@@ -58,17 +81,23 @@ export class EnvironmentBody extends MithrilViewComponent<EnvironmentBodyAttrs> 
       : <ul>{environment.environmentVariables().secureVariables().map(this.representSecureEnvVar)}</ul>;
 
     return <div class={styles.envBody} data-test-id={`environment-body-for-${environment.name()}`}>
-      <ElementListWidget name={"Pipelines"} environmentName={environment.name()}>
+      <ElementListWidget name={"Pipelines"}
+                         modalToRender={vnode.state.renderPipelinesModal}
+                         environment={environment}>
         <ul data-test-id={`pipelines-content`}>
           {environment.pipelines().map((pipeline) => <li>{pipeline.name()}</li>)}
         </ul>
       </ElementListWidget>
-      <ElementListWidget name={"Agents"} environmentName={environment.name()}>
+      <ElementListWidget name={"Agents"}
+                         modalToRender={vnode.state.renderAgentsModal}
+                         environment={environment}>
         <ul data-test-id={`agents-content`}>
           {environment.agents().map((agent) => <li>{agent.uuid()}</li>)}
         </ul>
       </ElementListWidget>
-      <ElementListWidget name={"Environment Variables"} environmentName={environment.name()}>
+      <ElementListWidget name={"Environment Variables"}
+                         modalToRender={vnode.state.renderEnvironmentsVariablesModal}
+                         environment={environment}>
         <div data-test-id={`environment-variables-content`}>
           <div className={styles.envVarHeading}> Plain Text Environment Variables:</div>
           {plainTextVariables}

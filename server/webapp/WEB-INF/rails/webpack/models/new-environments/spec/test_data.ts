@@ -16,6 +16,7 @@
 
 import {EnvironmentJSON} from "models/new-environments/environments";
 import {OriginJSON, OriginType} from "models/new-environments/origin";
+import {PipelineGroupsJSON} from "models/new-environments/pipeline_groups";
 
 function randomString(): string {
   return Math.random().toString(36).slice(2);
@@ -120,4 +121,23 @@ export default {
       environmentVariableAssociationInConfigRepoJson(true)
     ]
   }),
+  pipeline_groups_json: (): PipelineGroupsJSON => ({
+    groups: [
+      {
+        name: `pipeline-group-${randomString()}`,
+        pipelines: [
+          pipelineAssociationInXmlJson(),
+          pipelineAssociationInConfigRepoJson()
+        ]
+      },
+      {
+        name: `pipeline-group-${randomString()}`,
+        pipelines: [
+          pipelineAssociationInXmlJson(),
+          pipelineAssociationInConfigRepoJson()
+        ]
+      }
+
+    ]
+  })
 };

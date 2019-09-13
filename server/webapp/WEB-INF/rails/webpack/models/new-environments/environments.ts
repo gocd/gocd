@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
+import _ from "lodash";
 import Stream from "mithril/stream";
 import {Agents, EnvironmentAgentJSON} from "models/new-environments/environment_agents";
 import {
   EnvironmentEnvironmentVariableJSON,
   EnvironmentVariables
 } from "models/new-environments/environment_environment_variables";
-import {EnvironmentPipelineJSON, Pipelines} from "models/new-environments/environment_pipelines";
+import {EnvironmentPipelineJSON, Pipelines, PipelineWithOrigin} from "models/new-environments/environment_pipelines";
 import {Origin, OriginJSON} from "models/new-environments/origin";
 
 export interface EnvironmentJSON {
@@ -64,6 +65,20 @@ export class EnvironmentWithOrigin {
                                      Agents.fromJSON(data.agents),
                                      Pipelines.fromJSON(data.pipelines),
                                      EnvironmentVariables.fromJSON(data.environment_variables));
+  }
+
+  containsPipeline(name: string): boolean {
+    return this.pipelines().map((p) => p.name()).indexOf(name) !== -1;
+  }
+
+  addPipelineIfNotPresent(pipeline: PipelineWithOrigin) {
+    if (!this.containsPipeline(pipeline.name())) {
+      this.pipelines().push(pipeline);
+    }
+  }
+
+  removePipelineIfPresent(pipeline: PipelineWithOrigin) {
+    _.remove(this.pipelines(), (p) => p.name() === pipeline.name());
   }
 }
 

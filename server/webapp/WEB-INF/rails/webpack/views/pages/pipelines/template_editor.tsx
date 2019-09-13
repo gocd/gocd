@@ -73,7 +73,7 @@ export class TemplateEditor extends MithrilViewComponent<Attrs> {
         </FlashMessage>;
       } else {
         return <SelectField label="Template" property={config.template} errorText={errors.errorsForDisplay("template")} required={true}>
-          <SelectFieldOptions items={this.templates()}/>
+          <SelectFieldOptions selected={config.template()} items={this.templates()}/>
         </SelectField>;
       }
     }

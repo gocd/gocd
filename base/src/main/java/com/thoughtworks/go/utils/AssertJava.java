@@ -21,8 +21,6 @@ import java.util.TreeSet;
 
 public class AssertJava {
     private static TreeSet<JavaVersion> SUPPORTED_VERSIONS = new TreeSet<>(Arrays.asList(
-            JavaVersion.VERSION_1_9,
-            JavaVersion.VERSION_1_10,
             JavaVersion.VERSION_11,
             JavaVersion.VERSION_12
     ));

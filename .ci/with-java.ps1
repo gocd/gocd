@@ -1,14 +1,12 @@
-$mod=($env:GO_PIPELINE_COUNTER % 3)
+$mod=($env:GO_PIPELINE_COUNTER % 2)
 
 function use_jdk() {
     jabba use "$($args[0])"
 }
 
 if ($mod -eq "0") {
-    Write-Host "Using system JVM"
-} elseif ($mod -eq "1") {
     use_jdk "openjdk@1.11"
-} elseif ($mod -eq "2") {
+} else {
     use_jdk "openjdk@1.12"
 }
 

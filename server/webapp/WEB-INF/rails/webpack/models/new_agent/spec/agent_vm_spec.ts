@@ -46,7 +46,7 @@ describe("AgentVM", () => {
 
       staticAgentsVM.selectAgent(agentOne.uuid);
       staticAgentsVM.selectAgent(agentTwo.uuid);
-      expect(staticAgentsVM.selectedAgentsUUID()).toEqual([agentOne.uuid, agentTwo.uuid]);
+      expect(staticAgentsVM.selectedAgentsUUID()).toEqual(jasmine.arrayContaining([agentOne.uuid, agentTwo.uuid]));
 
       staticAgentsVM.sync(new Agents(agentTwo, agentThree));
 
@@ -61,11 +61,11 @@ describe("AgentVM", () => {
 
       staticAgentsVM.selectAgent(agentOne.uuid);
       staticAgentsVM.selectAgent(agentTwo.uuid);
-      expect(staticAgentsVM.selectedAgentsUUID()).toEqual([agentOne.uuid, agentTwo.uuid]);
+      expect(staticAgentsVM.selectedAgentsUUID()).toEqual(jasmine.arrayContaining([agentOne.uuid, agentTwo.uuid]));
 
       staticAgentsVM.sync(new Agents(agentOne, agentTwo, agentThree));
 
-      expect(staticAgentsVM.selectedAgentsUUID()).toEqual([agentOne.uuid, agentTwo.uuid]);
+      expect(staticAgentsVM.selectedAgentsUUID()).toEqual(jasmine.arrayContaining([agentOne.uuid, agentTwo.uuid]));
     });
   });
 
@@ -219,7 +219,7 @@ describe("AgentVM", () => {
     it("should update column index on click of a column", () => {
       const staticAgentVM = new StaticAgentsVM(new Agents());
 
-      expect(staticAgentVM.agentsSortHandler.currentSortedColumnIndex()).toBe(-1);
+      expect(staticAgentVM.agentsSortHandler.currentSortedColumnIndex()).toBe(4);
       expect(staticAgentVM.agentsSortHandler.currentSortOrder()).toBe(SortOrder.ASC);
 
       staticAgentVM.agentsSortHandler.onColumnClick(3);
@@ -250,7 +250,7 @@ describe("AgentVM", () => {
     it("should update column index on click of the column on elastic agents", () => {
       const elasticAgentVM = new ElasticAgentVM(new Agents());
 
-      expect(elasticAgentVM.agentsSortHandler.currentSortedColumnIndex()).toBe(-1);
+      expect(elasticAgentVM.agentsSortHandler.currentSortedColumnIndex()).toBe(4);
       expect(elasticAgentVM.agentsSortHandler.currentSortOrder()).toBe(SortOrder.ASC);
 
       elasticAgentVM.agentsSortHandler.onColumnClick(3);

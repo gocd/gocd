@@ -185,7 +185,7 @@ export class ElasticAgentVM extends BaseVM {
 export class AgentSortHandler implements TableSortHandler {
   private readonly sortableColumns: Map<number, string>;
   private readonly agentsVM: ElasticAgentVM | StaticAgentsVM;
-  private sortOnColumn: number = -1;
+  private sortOnColumn: number = 4;  // default sorting is on agent status
   private sortOrder: SortOrder = SortOrder.ASC;
 
   constructor(agentsVM: ElasticAgentVM | StaticAgentsVM, sortableColumns: Map<number, string>) {

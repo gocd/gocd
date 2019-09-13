@@ -23,7 +23,7 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 
-import static com.thoughtworks.go.utils.AssertJava8.assertVMVersion;
+import static com.thoughtworks.go.utils.AssertJava.assertVMVersion;
 
 public final class GoLauncher {
 

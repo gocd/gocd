@@ -19,9 +19,8 @@ package com.thoughtworks.go.utils;
 import java.util.Arrays;
 import java.util.TreeSet;
 
-public class AssertJava8 {
+public class AssertJava {
     private static TreeSet<JavaVersion> SUPPORTED_VERSIONS = new TreeSet<>(Arrays.asList(
-            JavaVersion.VERSION_1_8,
             JavaVersion.VERSION_1_9,
             JavaVersion.VERSION_1_10,
             JavaVersion.VERSION_11,

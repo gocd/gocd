@@ -135,6 +135,14 @@ $btn-group-border-radius: $global-border-radius;
   @include icon-before($type: $fa-var-forward);
 }
 
+.chevronRight {
+  @include icon-before($type: $fa-var-chevron-right);
+}
+
+.chevronDown {
+  @include icon-before($type: $fa-var-chevron-down);
+}
+
 .icon-group {
   border:        1px solid $border-color;
   border-radius: $btn-group-border-radius;

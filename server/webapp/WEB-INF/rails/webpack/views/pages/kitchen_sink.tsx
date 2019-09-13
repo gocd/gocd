@@ -156,6 +156,8 @@ export class KitchenSink extends MithrilViewComponent<null> {
             <Icons.QuestionCircle iconOnly={true}/> <br/>
             <Icons.CaretDown iconOnly={true}/> <br/>
             <Icons.Forward iconOnly={true}/> <br/>
+            <Icons.ChevronRight iconOnly={true}/> <br/>
+            <Icons.ChevronDown iconOnly={true}/> <br/>
           </IconGroup>
         </p>
         <p>

@@ -167,6 +167,18 @@ export class Forward extends Icon {
   }
 }
 
+export class ChevronRight extends Icon {
+  constructor() {
+    super(styles.chevronRight, "Chevron Right");
+  }
+}
+
+export class ChevronDown extends Icon {
+  constructor() {
+    super(styles.chevronDown, "Chevron Down");
+  }
+}
+
 export class IconGroup extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     return (

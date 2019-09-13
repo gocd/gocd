@@ -440,3 +440,7 @@ api/api-materials-v2/out/
 api/api-materials-v2/target/
 api/api-materials-v2/logs/
 api/api-materials-v2/config/
+api/api-default-job-timeout-v1/out/
+api/api-default-job-timeout-v1/target/
+api/api-default-job-timeout-v1/logs/
+api/api-default-job-timeout-v1/config/

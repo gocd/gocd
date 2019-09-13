@@ -722,4 +722,8 @@ public class Routes {
     public class ServerSiteUrlsConfig {
         public static final String BASE = "/api/admin/config/server/site_urls";
     }
+
+    public class DefaultJobTimeout {
+        public static final String BASE = "/api/admin/config/server/default_job_timeout";
+    }
 }

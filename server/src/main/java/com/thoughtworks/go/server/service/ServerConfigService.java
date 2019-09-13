@@ -173,4 +173,8 @@ public class ServerConfigService implements BaseUrlProvider {
     public void createOrUpdateServerSiteUrls(SiteUrls siteUrls) {
         goConfigService.updateConfig(new CreateOrUpdateConfigServerSiteUrlsCommand(siteUrls), currentUsername());
     }
+
+    public String getDefaultJobTimeout(){
+        return serverConfig().getJobTimeout();
+    }
 }

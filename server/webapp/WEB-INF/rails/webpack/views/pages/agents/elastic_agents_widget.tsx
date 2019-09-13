@@ -24,7 +24,7 @@ import {SearchField} from "views/components/forms/input_fields";
 import {HeaderIcon} from "views/components/header_icon";
 import {KeyValuePair} from "views/components/key_value_pair";
 import {Table} from "views/components/table";
-import {AgentStatusWidget} from "views/pages/new_agents/agent_status_widget";
+import {AgentStatusWidget} from "views/pages/agents/agent_status_widget";
 import {RequiresPluginInfos} from "views/pages/page_operations";
 import style from "./index.scss";
 

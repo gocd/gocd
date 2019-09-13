@@ -19,7 +19,7 @@ import {GetAllService} from "models/new_agent/agents_crud";
 import {StaticAgentsVM} from "models/new_agent/agents_vm";
 import {AgentsTestData} from "models/new_agent/spec/agents_test_data";
 import {FlashMessageModelWithTimeout} from "views/components/flash_message";
-import {ResourcesDropdownButton} from "views/pages/new_agents/resources_dropdown_button";
+import {ResourcesDropdownButton} from "views/pages/agents/resources_dropdown_button";
 import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("ResourcesDropdownButton", () => {

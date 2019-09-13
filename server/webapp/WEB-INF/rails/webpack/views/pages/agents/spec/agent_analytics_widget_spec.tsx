@@ -18,7 +18,7 @@ import m from "mithril";
 import {Agent} from "models/new_agent/agents";
 import {AgentsTestData} from "models/new_agent/spec/agents_test_data";
 import {AnalyticsCapability} from "models/shared/plugin_infos_new/analytics_plugin_capabilities";
-import {AgentAnalyticsWidget} from "views/pages/new_agents/agent_analytics_widget";
+import {AgentAnalyticsWidget} from "views/pages/agents/agent_analytics_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("AgentAnalyticsWidget", () => {

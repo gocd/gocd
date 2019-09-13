@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.thoughtworks.go.spark.spa;
 
 import com.thoughtworks.go.server.service.SecurityService;
+import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
+import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
@@ -26,28 +27,31 @@ import spark.Request;
 import spark.Response;
 import spark.TemplateEngine;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import static java.util.Collections.singletonMap;
 import static spark.Spark.*;
 
-public class NewAgentController implements SparkController {
-    private final SystemEnvironment systemEnvironment;
-    private final SecurityService securityService;
+public class AgentsController implements SparkController {
+
     private final SPAAuthenticationHelper authenticationHelper;
     private final TemplateEngine engine;
+    private final SecurityService securityService;
+    private SystemEnvironment systemEnvironment;
+    private final FeatureToggleService featureToggleService;
 
-    public NewAgentController(SystemEnvironment systemEnvironment, SecurityService securityService, SPAAuthenticationHelper authenticationHelper, TemplateEngine engine) {
-        this.systemEnvironment = systemEnvironment;
-        this.securityService = securityService;
+    public AgentsController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine, SecurityService securityService, SystemEnvironment systemEnvironment, FeatureToggleService featureToggleService) {
         this.authenticationHelper = authenticationHelper;
         this.engine = engine;
+        this.securityService = securityService;
+        this.systemEnvironment = systemEnvironment;
+        this.featureToggleService = featureToggleService;
     }
 
     @Override
     public String controllerBasePath() {
-        return Routes.NewAgent.SPA_BASE;
+        return Routes.AgentsSPA.BASE;
     }
 
     @Override
@@ -59,12 +63,19 @@ public class NewAgentController implements SparkController {
     }
 
     public ModelAndView index(Request request, Response response) {
-        Map<Object, Object> object = new HashMap<Object, Object>() {{
-            put("viewTitle", "Agents Page");
-            put("meta", Collections.singletonMap("data-should-show-analytics-icon", showAnalyticsIcon()));
+        Map<Object, Object> object = new HashMap<>() {{
+            put("viewTitle", "Agents");
         }};
 
-        return new ModelAndView(object, null);
+        if (featureToggleService.isToggleOn(Toggles.SHOW_NEW_AGENTS_SPA)) {
+            object.put("meta", singletonMap("data-should-show-analytics-icon", showAnalyticsIcon()));
+
+            return new ModelAndView(object, null);
+        }
+        object.put("isUserAnAdmin", securityService.isUserAdmin(currentUsername()));
+        object.put("shouldShowAnalyticsIcon", showAnalyticsIcon());
+
+        return new ModelAndView(object, "agents/index.ftlh");
     }
 
     private boolean showAnalyticsIcon() {

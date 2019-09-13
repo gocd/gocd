@@ -19,7 +19,7 @@ import {MithrilComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {Agent, BuildDetails} from "models/new_agent/agents";
-import style from "views/pages/new_agents/index.scss";
+import style from "views/pages/agents/index.scss";
 
 const classnames = bind(style);
 

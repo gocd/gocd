@@ -22,7 +22,7 @@ import {AgentsTestData} from "models/new_agent/spec/agents_test_data";
 import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {AnalyticsPluginInfo, AuthorizationPluginInfo} from "models/shared/plugin_infos_new/spec/test_data";
 import {FlashMessageModelWithTimeout} from "views/components/flash_message";
-import {StaticAgentsWidget} from "views/pages/new_agents/static_agents_widget";
+import {StaticAgentsWidget} from "views/pages/agents/static_agents_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
 import styles from "../index.scss";
 

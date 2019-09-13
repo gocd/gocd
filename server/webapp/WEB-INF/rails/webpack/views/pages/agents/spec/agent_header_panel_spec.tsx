@@ -19,7 +19,7 @@ import {Agent, Agents} from "models/new_agent/agents";
 import {StaticAgentsVM} from "models/new_agent/agents_vm";
 import {AgentsTestData} from "models/new_agent/spec/agents_test_data";
 import {FlashMessageModelWithTimeout} from "views/components/flash_message";
-import {AgentHeaderPanel} from "views/pages/new_agents/agent_header_panel";
+import {AgentHeaderPanel} from "views/pages/agents/agent_header_panel";
 import {TestHelper} from "views/pages/spec/test_helper";
 import Style from "../index.scss";
 

@@ -26,8 +26,8 @@ import * as Buttons from "views/components/buttons";
 import {FlashMessageModelWithTimeout} from "views/components/flash_message";
 import {SearchField} from "views/components/forms/input_fields";
 import {KeyValuePair} from "views/components/key_value_pair";
-import {EnvironmentsDropdownButton} from "views/pages/new_agents/environment_dropdown_button";
-import {ResourcesDropdownButton} from "views/pages/new_agents/resources_dropdown_button";
+import {EnvironmentsDropdownButton} from "views/pages/agents/environment_dropdown_button";
+import {ResourcesDropdownButton} from "views/pages/agents/resources_dropdown_button";
 import style from "./index.scss";
 
 const classnames = bind(style);

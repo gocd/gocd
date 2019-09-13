@@ -23,7 +23,7 @@ import {AgentsCRUD} from "models/new_agent/agents_crud";
 import {ElasticAgentVM, StaticAgentsVM} from "models/new_agent/agents_vm";
 import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
 import {MessageType} from "views/components/flash_message";
-import {AgentsWidget} from "views/pages/new_agents/agents_widget";
+import {AgentsWidget} from "views/pages/agents/agents_widget";
 import {Page, PageState} from "views/pages/page";
 import {RequiresPluginInfos} from "views/pages/page_operations";
 
@@ -38,7 +38,7 @@ interface State extends RequiresPluginInfos {
   updateResources: (resourcesToAdd: string[], resourcesToRemove: string[]) => Promise<any>;
 }
 
-export class NewAgentPage extends Page<null, State> {
+export class AgentsPage extends Page<null, State> {
   oninit(vnode: m.Vnode<null, State>) {
     const self                  = this;
     vnode.state.staticAgentsVM  = new StaticAgentsVM();
@@ -109,7 +109,7 @@ export class NewAgentPage extends Page<null, State> {
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {
     return Promise.all([AgentsCRUD.all(), PluginInfoCRUD.all({})])
                   .then((results) => {
-                    results[0].do((successResponse) => NewAgentPage.syncVMState(vnode, successResponse.body),
+                    results[0].do((successResponse) => AgentsPage.syncVMState(vnode, successResponse.body),
                                   this.setErrorState);
                     results[1].do((successResponse) => vnode.state.pluginInfos(successResponse.body),
                                   this.setErrorState);
@@ -132,11 +132,11 @@ export class NewAgentPage extends Page<null, State> {
   }
 
   private onSuccess(action: string, count: number) {
-    this.flashMessage.setMessage(MessageType.success, `${action} ${count} ${NewAgentPage.pluralizeAgent(count)}`);
+    this.flashMessage.setMessage(MessageType.success, `${action} ${count} ${AgentsPage.pluralizeAgent(count)}`);
   }
 
   private onFailure(errorResponse: ErrorResponse) {
-    this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
+    this.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);
   }
 
   private showAnalyticsIcon() {

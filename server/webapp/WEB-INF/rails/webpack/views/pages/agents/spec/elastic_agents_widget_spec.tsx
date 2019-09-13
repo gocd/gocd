@@ -20,9 +20,9 @@ import {Agent, Agents} from "models/new_agent/agents";
 import {ElasticAgentVM} from "models/new_agent/agents_vm";
 import {AgentsTestData} from "models/new_agent/spec/agents_test_data";
 import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
-import {ElasticAgentsWidget} from "views/pages/new_agents/elastic_agents_widget";
-import styles from "views/pages/new_agents/index.scss";
-import {StaticAgentsWidget} from "views/pages/new_agents/static_agents_widget";
+import {ElasticAgentsWidget} from "views/pages/agents/elastic_agents_widget";
+import styles from "views/pages/agents/index.scss";
+import {StaticAgentsWidget} from "views/pages/agents/static_agents_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
 import Style from "../index.scss";
 

@@ -18,7 +18,7 @@ import {MithrilComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
 import s from "underscore.string";
-import style from "views/pages/new_agents/index.scss";
+import style from "views/pages/agents/index.scss";
 import styles from "./index.scss";
 
 const classnames = bind(style);

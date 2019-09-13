@@ -18,7 +18,7 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {Agent} from "models/new_agent/agents";
 import {AgentsTestData} from "models/new_agent/spec/agents_test_data";
-import {AgentStatusWidget} from "views/pages/new_agents/agent_status_widget";
+import {AgentStatusWidget} from "views/pages/agents/agent_status_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("AgentStatusWidget", () => {

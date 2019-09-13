@@ -19,7 +19,7 @@ import {GetAllService} from "models/new_agent/agents_crud";
 import {StaticAgentsVM} from "models/new_agent/agents_vm";
 import {AgentsTestData} from "models/new_agent/spec/agents_test_data";
 import {FlashMessageModelWithTimeout} from "views/components/flash_message";
-import {EnvironmentsDropdownButton} from "views/pages/new_agents/environment_dropdown_button";
+import {EnvironmentsDropdownButton} from "views/pages/agents/environment_dropdown_button";
 import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("EnvironmentsDropdownButton", () => {

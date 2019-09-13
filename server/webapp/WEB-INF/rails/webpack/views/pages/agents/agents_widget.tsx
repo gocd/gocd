@@ -20,7 +20,7 @@ import m from "mithril";
 import {ElasticAgentVM, StaticAgentsVM} from "models/new_agent/agents_vm";
 import {FlashMessageModelWithTimeout} from "views/components/flash_message";
 import {Tabs} from "views/components/tab";
-import {ElasticAgentsWidget} from "views/pages/new_agents/elastic_agents_widget";
+import {ElasticAgentsWidget} from "views/pages/agents/elastic_agents_widget";
 import {RequiresPluginInfos} from "views/pages/page_operations";
 import {StaticAgentsWidget} from "./static_agents_widget";
 

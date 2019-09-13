@@ -27,9 +27,9 @@ import {AnalyticsExtension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {FlashMessage, FlashMessageModelWithTimeout} from "views/components/flash_message";
 import {Table} from "views/components/table";
-import {AgentAnalyticsWidget} from "views/pages/new_agents/agent_analytics_widget";
-import {AgentHeaderPanel} from "views/pages/new_agents/agent_header_panel";
-import {AgentStatusWidget} from "views/pages/new_agents/agent_status_widget";
+import {AgentAnalyticsWidget} from "views/pages/agents/agent_analytics_widget";
+import {AgentHeaderPanel} from "views/pages/agents/agent_header_panel";
+import {AgentStatusWidget} from "views/pages/agents/agent_status_widget";
 import {RequiresPluginInfos} from "views/pages/page_operations";
 import style from "./index.scss";
 

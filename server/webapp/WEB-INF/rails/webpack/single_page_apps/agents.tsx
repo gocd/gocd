@@ -17,18 +17,21 @@
 import {SinglePageAppBase} from "helpers/spa_base";
 import {AgentsPage} from "views/pages/agents";
 
-//tslint:ignore
-import m from "mithril";
-import {Agents} from "models/agents/agents";
-import {AgentsWidget} from "views/agents/agents_widget";
-import {PageLoadError} from "views/shared/page_load_error";
-import {VM as AgentsVM} from "views/agents/models/agents_widget_view_model";
-import {SortOrder} from "views/agents/models/route_handler";
-import {PluginInfos} from "models/shared/plugin_infos";
 import {AjaxPoller} from "helpers/ajax_poller";
+import m from "mithril";
 import Stream from "mithril/stream";
-
-//tslint:enable
+// @ts-ignore
+import {Agents} from "models/agents/agents";
+// @ts-ignore
+import {PluginInfos} from "models/shared/plugin_infos";
+// @ts-ignore
+import {AgentsWidget} from "views/agents/agents_widget";
+// @ts-ignore
+import {VM as AgentsVM} from "views/agents/models/agents_widget_view_model";
+// @ts-ignore
+import {SortOrder} from "views/agents/models/route_handler";
+// @ts-ignore
+import {PageLoadError} from "views/shared/page_load_error";
 
 export class AgentsSPA extends SinglePageAppBase {
   constructor() {
@@ -42,7 +45,6 @@ $(() => {
   if (agentsContainer.get().length === 0) {
     return new AgentsSPA();
   }
-
 
   //tslint:disable
   const isUserAdmin             = JSON.parse(agentsContainer.attr("data-is-current-user-an-admin")!);

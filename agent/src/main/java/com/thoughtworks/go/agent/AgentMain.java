@@ -21,7 +21,7 @@ import com.thoughtworks.go.logging.LogConfigurator;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import static com.thoughtworks.go.utils.AssertJava8.assertVMVersion;
+import static com.thoughtworks.go.utils.AssertJava.assertVMVersion;
 
 
 public final class AgentMain {

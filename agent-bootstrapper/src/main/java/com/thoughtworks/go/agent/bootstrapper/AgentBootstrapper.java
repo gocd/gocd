@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
-import static com.thoughtworks.go.utils.AssertJava8.assertVMVersion;
+import static com.thoughtworks.go.utils.AssertJava.assertVMVersion;
 
 public class AgentBootstrapper {
 

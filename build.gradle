@@ -158,8 +158,8 @@ rootProject.ext.commandRepoUrl = System.getenv('COMMAND_REPO_URL') ? System.gete
 project.ext.defaultJvmArgs = []
 
 project.ext.compilerOptions = [
-  sourceCompatibility: 1.8,
-  targetCompatibility: 1.8,
+  sourceCompatibility: 9,
+  targetCompatibility: 9,
 ]
 
 rootProject.ext.versions = [
@@ -279,8 +279,8 @@ allprojects {
 
 idea {
   project {
-    jdkName = '1.8'
-    languageLevel = '1.8'
+    jdkName = '9'
+    languageLevel = '9'
   }
 }
 

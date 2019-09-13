@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.util;
 
-import com.thoughtworks.go.javasysmon.wrapper.DefaultCurrentProcess;
+import com.thoughtworks.go.process.CurrentProcess;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,16 +23,16 @@ import org.slf4j.LoggerFactory;
  * @understands handling subprocesses
  */
 public class SubprocessLogger implements Runnable {
-    private DefaultCurrentProcess currentProcess;
+    private CurrentProcess currentProcess;
     private static final Logger LOGGER = LoggerFactory.getLogger(SubprocessLogger.class);
     private Thread exitHook;
     private String warnMessage = "Logged all subprocesses.";
 
     public SubprocessLogger() {
-        this(new DefaultCurrentProcess());
+        this(new CurrentProcess());
     }
 
-    SubprocessLogger(DefaultCurrentProcess currentProcess) {
+    SubprocessLogger(CurrentProcess currentProcess) {
         this.currentProcess = currentProcess;
     }
 

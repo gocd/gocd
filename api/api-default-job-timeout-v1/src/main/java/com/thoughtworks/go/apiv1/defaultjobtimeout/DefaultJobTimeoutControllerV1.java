@@ -66,6 +66,7 @@ public class DefaultJobTimeoutControllerV1 extends ApiController implements Spar
 
             get("", mimeType, this::index);
             post("", mimeType, this::createOrUpdate);
+            put("", mimeType, this::createOrUpdate);
 
             before("", mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
 

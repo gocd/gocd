@@ -148,4 +148,62 @@ class DefaultJobTimeoutControllerV1Test implements SecurityServiceTrait, Control
         .hasJsonMessage("Timeout should be a valid number as it represents number of minutes")
     }
   }
+
+  @Nested
+  class Update {
+
+    @Nested
+    class Security implements SecurityTestTrait, AdminUserSecurity {
+
+      @Override
+      String getControllerMethodUnderTest() {
+        return "createOrUpdate"
+      }
+
+      @Override
+      void makeHttpCall() {
+        putWithApiHeader(controller.controllerBasePath(), [])
+      }
+    }
+
+    @BeforeEach
+    void setUp() {
+      enableSecurity()
+      loginAsAdmin()
+    }
+
+    @Test
+    void 'should update default job timeout value'() {
+      def defaultJobTimeout = "10"
+      putWithApiHeader(controller.controllerPath(), ["default_job_timeout": defaultJobTimeout])
+
+      assertThatResponse()
+        .isOk()
+        .hasBodyWithJson(toObjectString({ DefaultJobTimeOutRepresenter.toJSON(it, defaultJobTimeout) }))
+    }
+
+    @Test
+    void 'should not update default job timeout value if it is not valid'() {
+      def defaultJobTimeout = "foo"
+      def cruiseConfig = mock(CruiseConfig.class)
+      when(serverConfigService.createOrUpdateDefaultJobTimeout(defaultJobTimeout)).thenThrow(new GoConfigInvalidException(cruiseConfig, "Timeout should be a valid number as it represents number of minutes"))
+      putWithApiHeader(controller.controllerPath(), ["default_job_timeout": defaultJobTimeout])
+
+      assertThatResponse()
+        .isUnprocessableEntity()
+        .hasJsonMessage("Timeout should be a valid number as it represents number of minutes")
+    }
+
+    @Test
+    void 'should not allow to update empty string as a default job timeout value'() {
+      def defaultJobTimeout = ""
+      def cruiseConfig = mock(CruiseConfig.class)
+      when(serverConfigService.createOrUpdateDefaultJobTimeout(defaultJobTimeout)).thenThrow(new GoConfigInvalidException(cruiseConfig, "Timeout should be a valid number as it represents number of minutes"))
+      putWithApiHeader(controller.controllerPath(), ["default_job_timeout": defaultJobTimeout])
+
+      assertThatResponse()
+        .isUnprocessableEntity()
+        .hasJsonMessage("Timeout should be a valid number as it represents number of minutes")
+    }
+  }
 }

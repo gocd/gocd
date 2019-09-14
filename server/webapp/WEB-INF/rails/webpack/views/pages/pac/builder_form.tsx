@@ -43,6 +43,7 @@ const uipCss: typeof uipStyles = override(uipStyles, {
 });
 
 interface Attrs extends PipelineConfigVMAware {
+  pluginId: () => string;
   onContentChange?: (changed: boolean) => void;
 }
 
@@ -52,7 +53,7 @@ export class BuilderForm extends MithrilComponent<Attrs> {
   oncreate(vnode: m.VnodeDOM<Attrs, {}>) {
     vnode.dom.addEventListener("change", (e) => {
       const vm = vnode.attrs.vm;
-      sha256(vm.pluginId() + JSON.stringify(vm.pipeline.toApiPayload())).
+      sha256(vnode.attrs.pluginId() + JSON.stringify(vm.pipeline.toApiPayload())).
         then((hash) => {
           if ("function" === typeof vnode.attrs.onContentChange) {
             vnode.attrs.onContentChange(hash !== this.hash());
@@ -63,13 +64,13 @@ export class BuilderForm extends MithrilComponent<Attrs> {
   }
 
   view(vnode: m.Vnode<Attrs>) {
-    const { pipeline, material, isUsingTemplate, pluginId } = vnode.attrs.vm;
+    const { pipeline, material, isUsingTemplate } = vnode.attrs.vm;
 
     return <div class={defaultStyles.builderForm}>
       <div style="display: none;">
         <UserInputPane css={uipCss} heading="Part 0: Select Config Language">
-          <SelectField property={pluginId} label="Choose a Pipelines as Code plugin">
-            <SelectFieldOptions selected={pluginId()} items={vnode.attrs.vm.exportPlugins()}/>
+          <SelectField property={vnode.attrs.pluginId} label="Choose a Pipelines as Code plugin">
+            <SelectFieldOptions selected={vnode.attrs.pluginId()} items={vnode.attrs.vm.exportPlugins()}/>
           </SelectField>
         </UserInputPane>
       </div>

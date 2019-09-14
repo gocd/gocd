@@ -685,14 +685,8 @@
 
   <rule>
     <name>Internal Pipelines as Code Supporting API</name>
-    <from>^/api/admin/internal/pac/(preview)/([^/]+)(/?)$</from>
+    <from>^/api/admin/internal/pac/(preview|config_files)/([^/]+)(/?)$</from>
     <to last="true">/spark/api/admin/internal/pac/${escape:$1}/${escape:$2}</to>
-  </rule>
-
-  <rule>
-    <name>Internal Pipelines as Code Supporting API</name>
-    <from>^/api/admin/internal/pac/config_files(/?)$</from>
-    <to last="true">/spark/api/admin/internal/pac/config_files</to>
   </rule>
 
   <rule>

@@ -63,6 +63,10 @@ public class ConfigRepoPlugin implements PartialConfigProvider {
         return configConverter.toPartialConfig(crPartialConfig, context);
     }
 
+    public String id() {
+        return this.pluginId;
+    }
+
     @Override
     public String displayName() {
         return "Plugin " + this.pluginId;

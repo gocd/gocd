@@ -71,8 +71,8 @@ export class ConfigRepo implements ValidatableMixin {
                                                                                    ConfigRepo.FILE_PATTERN));
     }
     ValidatableMixin.call(this);
-    this.validatePresenceOf("id");
-    this.validateIdFormat("id");
+    this.validatePresenceOf("id", { message: "Please provide a name for this repository" });
+    this.validateIdFormat("id", { message: "Only letters, numbers, hyphens, underscores, and periods. Must not start with a period. Max 255 chars." });
     this.validatePresenceOf("pluginId");
     this.validateAssociated("material");
   }
@@ -202,18 +202,19 @@ export class ParseInfo {
 }
 
 const HUMAN_NAMES_FOR_MATERIAL_ATTRIBUTES: { [index: string]: string } = {
-  autoUpdate: "Auto update",
+  autoUpdate: "Auto-update",
   branch: "Branch",
   checkExternals: "Check Externals",
   domain: "Domain",
   encryptedPassword: "Password",
   name: "Material Name",
+  destination: "Alternate Checkout Path",
   projectPath: "Project Path",
   url: "URL",
   username: "Username",
   password: "Password",
-  port: "Host and port",
-  useTickets: "Use tickets",
+  port: "Host and Port",
+  useTickets: "Use Tickets",
   view: "View",
   emailAddress: "Email",
   revision: "Revision",

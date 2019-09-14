@@ -17,33 +17,24 @@
 import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
-import {ConfigFileList} from "models/materials/config_file_list";
+import {ConfigFileList} from "models/materials/material_config_files";
 import styles from "./material_check.scss";
 
 interface Attrs {
-  configFileList: ConfigFileList;
+  files: ConfigFileList;
 }
 
-export class ConfigFileListEditor extends MithrilViewComponent<Attrs> {
-  view(vnode: m.Vnode<Attrs>): m.Children | void | null {
-    const list = vnode.attrs.configFileList;
-    let filesList;
-    if (list.hasErrors()) {
-      filesList = (<li data-test-id="material-check-plugin-error">{list.errors()}</li>);
-    } else if (list.isEmpty()) {
-      return;
-    } else {
-      filesList = _.map(list.files(), (file) => {
-        return <li data-test-id="material-check-plugin-file" class={styles.materialCheckFile}>
-          {file}
-          </li>;
-      });
-    }
-    return <div>
-      <span>{list.pluginId()}</span>
-      <ul>
-        {filesList}
-      </ul>
-    </div>;
+export class MaterialConfigFilesList extends MithrilViewComponent<Attrs> {
+  view(vnode: m.Vnode<Attrs>) {
+    const {files} = vnode.attrs;
+
+    return <dl class={styles.materialConfigFiles}>
+      <dt class={styles.resultsTitle}>Found the following definition files in this repository:</dt>
+      <dd class={styles.pluginConfigFiles}>
+        <ul class={styles.fileList}>
+          {_.map(files.files(), (f) => <li class={styles.materialCheckFile} data-test-id="material-check-plugin-file">{f}</li>)}
+        </ul>
+      </dd>
+    </dl>;
   }
 }

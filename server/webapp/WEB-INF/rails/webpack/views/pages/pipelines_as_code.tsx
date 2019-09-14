@@ -19,6 +19,7 @@ import {override} from "helpers/css_proxies";
 import {queryParamAsString} from "helpers/url";
 import m from "mithril";
 import Stream from "mithril/stream";
+import {IDENTIFIER_FORMAT_HELP_MESSAGE} from "views/pages/pipelines/messages";
 
 // models
 import {ConfigRepo} from "models/config_repos/types";
@@ -29,8 +30,10 @@ import {PipelineConfigVM} from "views/pages/pipelines/pipeline_config_view_model
 import {MaterialCheck} from "views/components/config_repos/material_check.tsx";
 import {IdentifierInputField} from "views/components/forms/common_validating_inputs";
 import {CheckboxField} from "views/components/forms/input_fields";
+import {ShowMore} from "views/components/show_more_doc/more";
 import {PacActions} from "views/pages/pac/actions";
 import {BuilderForm} from "views/pages/pac/builder_form";
+import {CodeScroller} from "views/pages/pac/code_scroller";
 import {DownloadAction} from "views/pages/pac/download_action";
 import {PreviewPane} from "views/pages/pac/preview_pane";
 import css from "views/pages/pac/styles.scss";
@@ -45,12 +48,12 @@ const altFillStyles = override(fillableCss, {
 });
 
 export class PipelinesAsCodeCreatePage extends Page {
+  private pluginId = Stream(ConfigRepo.YAML_PLUGIN_ID);
   private model = new PipelineConfigVM();
   private content = Stream("");
   private mimeType = Stream("application/x-yaml");
 
-  private material = Stream(new Material(this.model.material.type()));
-  private configRepo = Stream(new ConfigRepo(undefined, this.model.pluginId(), this.material()));
+  private configRepo = Stream(new ConfigRepo(undefined, this.pluginId(), new Material(this.model.material.type())));
   private useSameRepoForPaC = Stream(true); // allow material sync to be toggleable
 
   oninit(vnode: m.Vnode) {
@@ -72,34 +75,39 @@ export class PipelinesAsCodeCreatePage extends Page {
     const syncConfigRepoWithMaterial = isSupportedScm ? this.useSameRepoForPaC : (val?: boolean) => false;
 
     return [
-      <FillableSection>
-        <BuilderForm vm={vm} onContentChange={(updated) => {
-          if (updated) {
-            if (this.useSameRepoForPaC() && isSupportedScm) {
-              this.material(cloneMaterialForPaC(vm.material));
-              this.configRepo().material(this.material());
-            }
-
-            vm.preview(vm.pluginId()).then((result) => {
-              if (304 === result.getStatusCode()) {
-                return;
+      <CodeScroller>
+        <FillableSection>
+          <BuilderForm vm={vm} pluginId={this.pluginId} onContentChange={(updated) => {
+            if (updated) {
+              if (this.useSameRepoForPaC() && isSupportedScm) {
+                this.configRepo().material(cloneMaterialForPaC(vm.material));
               }
 
-              result.do((res) => {
-                this.content(res.body);
-              }, (err) => console.error(err)); // tslint:disable-line no-console
-            });
-          }
-        }}/>
+              vm.preview(this.pluginId()).then((result) => {
+                if (304 === result.getStatusCode()) {
+                  return;
+                }
 
-        <PreviewPane content={this.content} mimeType={this.mimeType}/>
-      </FillableSection>,
+                result.do((res) => {
+                  this.content(res.body);
+                }, (err) => console.error(err)); // tslint:disable-line no-console
+              });
+            }
+          }}/>
+
+          <PreviewPane content={this.content} mimeType={this.mimeType}/>
+        </FillableSection>
+      </CodeScroller>,
 
       <FillableSection css={altFillStyles}>
         <h3 class={css.subheading}>Add Your Pipelines as Code Definition to Your SCM Repository</h3>
-        <div>Download this as a file and put it in your repo (I need some proper copy here).</div>
+        <section class={css.downloadInstructions}>
+          <p>Download this configuration and add it to your repository.</p>
 
-        <DownloadAction vm={vm}/>
+          {this.furtherDownloadInstructions(isSupportedScm)}
+        </section>
+
+        <DownloadAction pluginId={this.pluginId} vm={vm}/>
       </FillableSection>,
 
       <FillableSection>
@@ -110,26 +118,38 @@ export class PipelinesAsCodeCreatePage extends Page {
             readonly={!isSupportedScm}
             onchange={() => {
               if (syncConfigRepoWithMaterial()) {
-                this.material(cloneMaterialForPaC(vm.material));
-                this.configRepo().material(this.material());
+                this.configRepo().material(cloneMaterialForPaC(vm.material));
               }
             }}
           />
 
-          <MaterialEditor material={this.material()} hideTestConnection={syncConfigRepoWithMaterial()} scmOnly={true} showLocalWorkingCopyOptions={false} disabled={syncConfigRepoWithMaterial()}/>
+          <MaterialEditor material={this.configRepo().material()!} hideTestConnection={syncConfigRepoWithMaterial()} scmOnly={true} showLocalWorkingCopyOptions={false} disabled={syncConfigRepoWithMaterial()}/>
         </UserInputPane>
         <div class={css.verifyDefsInMaterial}>
-          <IdentifierInputField label="Name" property={this.configRepo().id} errorText={this.configRepo().errors().errorsForDisplay("id")} />
-          <MaterialCheck material={this.material()} align="right" prerequisite={() => this.material().isValid()} label={
-            <p class={css.msg}>Click the button to verify that the configuration file is placed correctly in the repository</p>
+          <IdentifierInputField label="Name this repository" helpText={IDENTIFIER_FORMAT_HELP_MESSAGE} placeholder="e.g., Pipelines-as-Code-Repository" property={this.configRepo().id} errorText={this.configRepo().errors().errorsForDisplay("id")} required={true}/>
+          <MaterialCheck pluginId={this.pluginId()} material={this.configRepo().material()!} align="right" prerequisite={() => this.configRepo().isValid()} label={
+            <p class={css.msg}>Verify that GoCD can find the configuration file in your repository by clicking the button on the right</p>
           }/>
         </div>
       </FillableSection>,
 
       <FillableSection>
-        <PacActions configRepo={this.configRepo} />
+        <PacActions configRepo={this.configRepo}/>
       </FillableSection>
     ];
+  }
+
+  furtherDownloadInstructions(isUsingScmMaterial: boolean) {
+    if (isUsingScmMaterial) {
+      return <ShowMore abstract={<span><em>Optionally</em>, GoCD allows you to instead store the configuration in a separate repository from one above if desired.</span>}>
+        <p>When choosing this option:</p>
+
+        <ol>
+          <li>Add the downloaded file to your preferred repository.</li>
+          <li>Uncheck the checkbox in the next section and supply the new repository connection details.</li>
+        </ol>
+      </ShowMore>;
+    }
   }
 
   fetchData() { return new Promise(() => null); }

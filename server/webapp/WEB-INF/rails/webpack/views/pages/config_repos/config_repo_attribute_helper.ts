@@ -38,7 +38,7 @@ export function allAttributes(repo: ConfigRepo): Map<string, string> {
 }
 
 function resolveKeyValueForAttribute(accumulator: Map<string, string>, value: any, key: string) {
-  if (key.startsWith("__") || key === "autoUpdate") {
+  if (key.startsWith("__") || ["autoUpdate", "name", "destination"].includes(key)) {
     return accumulator;
   }
 

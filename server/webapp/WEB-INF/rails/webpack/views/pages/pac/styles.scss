@@ -27,6 +27,11 @@ $error-container-width: 450px;
 
 .preview-pane[class*="language-"] { // scss-lint:disable-line
   width: 50%;
+
+  code {
+    overflow-y: auto;
+    display: block;
+  }
 }
 
 .logical-section {
@@ -42,6 +47,7 @@ $error-container-width: 450px;
 
   .subheading {
     flex: none;
+    width: 100%;
 
     font-size: 24px;
     font-weight: 600;
@@ -59,9 +65,27 @@ $error-container-width: 450px;
   border-left:  1px solid $line-color;
 
   .msg {
-    float:     left;
-    margin:    0;
-    max-width: 75%;
+    margin:       0;
+    margin-right: 15px;
+  }
+}
+
+.download-instructions {
+  p {
+    margin: 0;
+    margin-bottom: 1em;
+  }
+
+  ol {
+    margin: 0;
+    padding: 0;
+
+    li {
+      list-style-position: inside;
+      margin: 0;
+      margin-left: 1em;
+      padding: 0;
+    }
   }
 }
 

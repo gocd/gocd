@@ -28,6 +28,7 @@ export const deleted: string;
 export const disabled: string;
 export const doctype: string;
 export const downloadAction: string;
+export const downloadInstructions: string;
 export const entity: string;
 export const errorResponse: string;
 export const finishBtnWrapper: string;

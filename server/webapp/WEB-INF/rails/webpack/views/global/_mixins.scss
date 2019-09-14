@@ -55,6 +55,7 @@ $spinner-wrapper-height: 175px;
   border:        1px solid $background-color;
   color:         $btn-text-color;
   transition:    $transition;
+  white-space:   nowrap;
 
   &:active, &:focus {
     outline: 0;

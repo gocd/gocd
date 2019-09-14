@@ -17,7 +17,6 @@
 import {ApiResult} from "helpers/api_request_builder";
 import {asSelector} from "helpers/css_proxies";
 import m from "mithril";
-import {ConfigRepo} from "models/config_repos/types";
 import * as buttonStyles from "views/components/buttons/index.scss";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {PipelineConfigVM} from "../../pipelines/pipeline_config_view_model";
@@ -49,13 +48,13 @@ describe("AddPaC: DownloadAction", () => {
 
     spyOn(vm.pipeline, "isValid").and.returnValue(true);
 
-    helper.mount(() => <DownloadAction vm={vm}/>);
+    helper.mount(() => <DownloadAction pluginId={() => "foo"} vm={vm}/>);
 
-    expect(helper.text(sel.btnPrimary)).toBe("Download");
+    expect(helper.text(sel.btnPrimary)).toBe("Download Config");
 
     helper.click(sel.btnPrimary);
 
     expect(vm.pipeline.isValid).toHaveBeenCalled();
-    expect(vm.preview).toHaveBeenCalledWith(ConfigRepo.YAML_PLUGIN_ID, true);
+    expect(vm.preview).toHaveBeenCalledWith("foo", true);
   });
 });

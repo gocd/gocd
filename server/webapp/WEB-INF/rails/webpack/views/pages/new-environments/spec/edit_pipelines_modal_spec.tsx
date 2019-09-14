@@ -163,10 +163,13 @@ describe("Edit Pipelines Modal", () => {
         group1pipeline1Checkbox = helper.findByDataTestId(`form-field-input-${group1.pipelines[0].name}`)[0] as HTMLInputElement;
         group1pipeline2Checkbox = helper.findByDataTestId(`form-field-input-${group1.pipelines[1].name}`)[0] as HTMLInputElement;
 
-        expect(group1pipeline1Checkbox.checked).toEqual(true);
-        expect(group1pipeline2Checkbox.checked).toEqual(true);
+        // Checking an indeterminate checkbox works differently between MS browsers and the rest.
+        // Thus, all we can do is verify that checking the top-level checkbox makes all of the child
+        // checkboxes the same state.
+        const state = group1Checkbox.checked;
+        expect(group1pipeline1Checkbox.checked).toEqual(state);
+        expect(group1pipeline2Checkbox.checked).toEqual(state);
         expect(group1Checkbox.indeterminate).toEqual(false);
-        expect(group1Checkbox.checked).toEqual(true);
       });
 
       it("should uncheck all the pipelines within the group on un-checking the pipeline group checkbox", () => {
@@ -178,8 +181,19 @@ describe("Edit Pipelines Modal", () => {
         expect(group1pipeline2Checkbox.checked).toEqual(false);
         expect(group1Checkbox.indeterminate).toEqual(true);
 
-        //clicking once will check the checkbox, clicking again will uncheck the checkbox
+        // clicking once will check the checkbox, clicking again will uncheck the checkbox
         simulateEvent.simulate(group1Checkbox, "click");
+        m.redraw.sync();
+
+        // Checking an indeterminate checkbox works differently between MS browsers and the rest.
+        // Thus, all we can do is verify that checking the top-level checkbox makes all of the child
+        // checkboxes the same state.
+        const state = group1Checkbox.checked;
+
+        expect(group1pipeline1Checkbox.checked).toEqual(state);
+        expect(group1pipeline2Checkbox.checked).toEqual(state);
+        expect(group1Checkbox.indeterminate).toEqual(false);
+
         simulateEvent.simulate(group1Checkbox, "click");
         m.redraw.sync();
 
@@ -187,10 +201,10 @@ describe("Edit Pipelines Modal", () => {
         group1pipeline1Checkbox = helper.findByDataTestId(`form-field-input-${group1.pipelines[0].name}`)[0] as HTMLInputElement;
         group1pipeline2Checkbox = helper.findByDataTestId(`form-field-input-${group1.pipelines[1].name}`)[0] as HTMLInputElement;
 
-        expect(group1pipeline1Checkbox.checked).toEqual(false);
-        expect(group1pipeline2Checkbox.checked).toEqual(false);
+        expect(group1pipeline1Checkbox.checked).toEqual(!state);
+        expect(group1pipeline2Checkbox.checked).toEqual(!state);
         expect(group1Checkbox.indeterminate).toEqual(false);
-        expect(group1Checkbox.checked).toEqual(false);
+        expect(group1Checkbox.checked).toEqual(!state);
       });
     });
 

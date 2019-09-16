@@ -24,7 +24,7 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 
-public class AddEnvironmentCommand extends EnvironmentCommand  {
+public class AddEnvironmentCommand extends EnvironmentCommand {
 
     private final LocalizedOperationResult result;
 

@@ -19,6 +19,7 @@ import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
+import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
 import com.thoughtworks.go.config.merge.MergePipelineConfigs;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
@@ -49,9 +50,15 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
+
+import static java.lang.String.valueOf;
+import static java.util.Objects.hash;
+import static org.apache.commons.codec.digest.DigestUtils.md5Hex;
 
 @Component
 public class EntityHashingService implements ConfigChangedListener, Initializer {
+    private static final String SEP_CHAR = "/";
     private GoConfigService goConfigService;
     private GoCache goCache;
     private static final String ETAG_CACHE_KEY = "GO_ETAG_CACHE".intern();
@@ -103,8 +110,21 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
     }
 
     public String md5ForEntity(EnvironmentConfig config) {
+        if (config instanceof MergeEnvironmentConfig) {
+            return md5Hex(valueOf(hash(config)));
+        }
+
         String cacheKey = cacheKey(config, config.name());
         return getDomainEntityMd5FromCache(config, cacheKey);
+    }
+
+    public String md5ForEntity(EnvironmentsConfig envConfigs) {
+        final String environmentConfigSegment = envConfigs
+                .stream()
+                .map(this::md5ForEntity)
+                .collect(Collectors.joining(SEP_CHAR));
+
+        return CachedDigestUtils.sha256Hex(environmentConfigSegment);
     }
 
     public String md5ForEntity(PackageRepository config) {
@@ -117,7 +137,7 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         for (PackageRepository packageRepository : packageRepositories) {
             md5s.add(md5ForEntity(packageRepository));
         }
-        return CachedDigestUtils.md5Hex(StringUtils.join(md5s, "/"));
+        return CachedDigestUtils.md5Hex(StringUtils.join(md5s, SEP_CHAR));
     }
 
     public String md5ForEntity(SCM config) {
@@ -161,7 +181,7 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
             md5s.add(md5ForEntity(commandSnippet));
         }
 
-        return CachedDigestUtils.md5Hex(StringUtils.join(md5s, "/"));
+        return CachedDigestUtils.md5Hex(StringUtils.join(md5s, SEP_CHAR));
     }
 
     public String md5ForEntity(SecurityAuthConfig config) {
@@ -174,7 +194,7 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         for (SecurityAuthConfig authConfig : authConfigs) {
             md5s.add(md5ForEntity(authConfig));
         }
-        return CachedDigestUtils.md5Hex(StringUtils.join(md5s, "/"));
+        return CachedDigestUtils.md5Hex(StringUtils.join(md5s, SEP_CHAR));
     }
 
     public String md5ForEntity(Role config) {
@@ -197,7 +217,7 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         for (PackageDefinition packageDefinition : config) {
             md5s.add(md5ForEntity(packageDefinition));
         }
-        return CachedDigestUtils.md5Hex(StringUtils.join(md5s, "/"));
+        return CachedDigestUtils.md5Hex(StringUtils.join(md5s, SEP_CHAR));
     }
 
     public String md5ForEntity(PluginSettings pluginSettings) {
@@ -263,7 +283,7 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         for (Role role : roles) {
             md5s.add(md5ForEntity(role));
         }
-        return CachedDigestUtils.md5Hex(StringUtils.join(md5s, "/"));
+        return CachedDigestUtils.md5Hex(StringUtils.join(md5s, SEP_CHAR));
     }
 
     public String md5ForEntity(UsageStatisticsReporting usageStatisticsReporting) {
@@ -281,7 +301,7 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         for (PipelineConfigs pipelineConfigs : pipelineGroups) {
             md5s.add(md5ForEntity(pipelineConfigs));
         }
-        return CachedDigestUtils.md5Hex(StringUtils.join(md5s, "/"));
+        return CachedDigestUtils.md5Hex(StringUtils.join(md5s, SEP_CHAR));
     }
 
     public String md5ForEntity(PipelineConfigs pipelineConfigs) {
@@ -296,26 +316,26 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
 
     public String md5ForEntity(Collection<CombinedPluginInfo> pluginInfos) {
         List<String> md5s = new ArrayList<>();
-        for(CombinedPluginInfo pluginInfo: pluginInfos) {
+        for (CombinedPluginInfo pluginInfo : pluginInfos) {
             md5s.add(md5ForEntity(pluginInfo));
         }
-        return CachedDigestUtils.md5Hex(StringUtils.join(md5s, "/"));
+        return CachedDigestUtils.md5Hex(StringUtils.join(md5s, SEP_CHAR));
     }
 
     public String md5ForEntity(SecretConfigs secretConfigs) {
         List<String> md5s = new ArrayList<>();
-        for(SecretConfig secretConfig: secretConfigs) {
+        for (SecretConfig secretConfig : secretConfigs) {
             md5s.add(md5ForEntity(secretConfig));
         }
-        return CachedDigestUtils.md5Hex(StringUtils.join(md5s, "/"));
+        return CachedDigestUtils.md5Hex(StringUtils.join(md5s, SEP_CHAR));
     }
 
     public String md5ForEntity(SCMs scms) {
         List<String> md5s = new ArrayList<>();
-        for(SCM scm : scms) {
+        for (SCM scm : scms) {
             md5s.add(md5ForEntity(scm));
         }
-        return CachedDigestUtils.md5Hex(StringUtils.join(md5s, "/"));
+        return CachedDigestUtils.md5Hex(StringUtils.join(md5s, SEP_CHAR));
     }
 
     class PipelineConfigChangedListener extends EntityConfigChangedListener<PipelineConfig> {

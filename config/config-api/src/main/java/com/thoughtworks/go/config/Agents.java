@@ -15,118 +15,49 @@
  */
 package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.NullAgent;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import static java.util.Arrays.asList;
 
-@ConfigTag("agents")
-@ConfigCollection(AgentConfig.class)
-public class Agents extends ArrayList<AgentConfig> implements Validatable {
-    private ConfigErrors errors = new ConfigErrors();
-    private String elasticAgentId = "elasticAgentId";
-
+public class Agents extends ArrayList<Agent> {
     public Agents() {
         super();
     }
 
-    public Agents(List<AgentConfig> agentConfigs) {
-        if (agentConfigs != null) {
-            this.addAll(agentConfigs);
+    public Agents(List<Agent> agents) {
+        if (agents != null) {
+            this.addAll(agents);
         }
     }
 
-    public Agents(AgentConfig... agentConfigs) {
-        this.addAll(asList(agentConfigs));
+    public Agents(Agent... agents) {
+        this.addAll(asList(agents));
     }
 
-    public Agents(Collection<AgentConfig> agentConfigs) {
-        this.addAll(agentConfigs);
-    }
-
-    public AgentConfig getAgentByUuid(String uuid) {
-        for (AgentConfig agentConfig : this) {
-            if (StringUtils.equals(agentConfig.getUuid(), uuid)) {
-                return agentConfig;
+    public Agent getAgentByUUID(String uuid) {
+        for (Agent agent : this) {
+            if (StringUtils.equals(agent.getUuid(), uuid)) {
+                return agent;
             }
         }
         return NullAgent.createNullAgent(uuid);
     }
 
     public boolean hasAgent(String uuid) {
-        return !getAgentByUuid(uuid).isNull();
+        return !getAgentByUUID(uuid).isNull();
     }
 
-    @Override
-    public boolean add(AgentConfig newAgentConfig) {
-        if (contains(newAgentConfig)) {
-            throw new IllegalArgumentException("Agent with same UUID already exists: " + newAgentConfig);
-        }
-        return super.add(newAgentConfig);
-    }
-
-    public Set<String> acceptedUuids() {
-        HashSet<String> uuids = new HashSet<>();
-        for (AgentConfig agentConfig : this) {
-            uuids.add(agentConfig.getUuid());
-        }
-        return uuids;
-    }
-
-    public Agents filter(List<String> uuids) {
-        Agents agents = new Agents();
-        for (String uuid : uuids) {
-            agents.add(getAgentByUuid(uuid));
-        }
-        return agents;
-    }
-
-    @Override
-    public void validate(ValidationContext validationContext) {
-        boolean validity = validateDuplicateElasticAgentIds();
-        for (AgentConfig agentConfig : this) {
-            agentConfig.validate(validationContext);
-            validity = agentConfig.errors().isEmpty() && validity;
-        }
-    }
-
-    private boolean validateDuplicateElasticAgentIds() {
-        HashMap<String, String> elasticAgentIdToUUIDMap = new HashMap<>();
-        for (AgentConfig agentConfig : this) {
-
-            if (!agentConfig.isElastic()) {
-                continue;
+    public boolean add(Agent agent) {
+        if(agent != null) {
+            if (contains(agent)) {
+                throw new IllegalArgumentException("Agent with same UUID already exists: " + agent);
             }
-
-            if (elasticAgentIdToUUIDMap.containsKey(agentConfig.getElasticAgentId())) {
-                AgentConfig duplicatedAgentConfig = this.getAgentByUuid(elasticAgentIdToUUIDMap.get(agentConfig.getElasticAgentId()));
-                String error = String.format("Duplicate ElasticAgentId found for agents [%s, %s]", duplicatedAgentConfig.getUuid(), agentConfig.getUuid());
-                agentConfig.addError(elasticAgentId, error);
-                duplicatedAgentConfig.addError("elasticAgentId", error);
-                return false;
-            }
-
-            elasticAgentIdToUUIDMap.put(agentConfig.getElasticAgentId(), agentConfig.getUuid());
+            return super.add(agent);
         }
-
-        return true;
+        return false;
     }
-
-    @Override
-    public ConfigErrors errors() {
-        return errors;
-    }
-
-    @Override
-    public void addError(String fieldName, String message) {
-        errors.add(fieldName, message);
-    }
-
-    public List<ConfigErrors> getAllErrors() {
-        return ErrorCollector.getAllErrors(this);
-    }
-
 }

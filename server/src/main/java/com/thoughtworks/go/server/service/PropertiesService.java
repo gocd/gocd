@@ -61,12 +61,12 @@ public class PropertiesService implements JobPropertiesReader {
     private PropertyDao propertyDao;
     private TransactionTemplate transactionTemplate;
     private final JobResolverService jobResolverService;
-    private GoConfigService goConfigService;
+    private AgentService agentService;
 
     @Autowired
-    public PropertiesService(PropertyDao propertyDao, GoConfigService goConfigService, TransactionTemplate transactionTemplate, JobResolverService jobResolverService) {
+    public PropertiesService(PropertyDao propertyDao, AgentService agentService, TransactionTemplate transactionTemplate, JobResolverService jobResolverService) {
         this.propertyDao = propertyDao;
-        this.goConfigService = goConfigService;
+        this.agentService = agentService;
         this.transactionTemplate = transactionTemplate;
         this.jobResolverService = jobResolverService;
     }
@@ -178,7 +178,7 @@ public class PropertiesService implements JobPropertiesReader {
     }
 
     private void saveBuildAgent(JobInstance instance) {
-        propertyDao.save(instance.getId(), new Property(CRUISE_AGENT, goConfigService.agentByUuid(instance.getAgentUuid()).getHostname()));
+        propertyDao.save(instance.getId(), new Property(CRUISE_AGENT, agentService.getAgentByUUID(instance.getAgentUuid()).getHostname()));
     }
 
     @Override

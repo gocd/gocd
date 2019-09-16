@@ -203,9 +203,6 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return true;
     }
 
-    public Agents agents() {
-        return getCurrentConfig().agents();
-    }
 
     public CruiseConfig currentCruiseConfig() {
         return getCurrentConfig();
@@ -230,10 +227,6 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
 
     CruiseConfig cruiseConfig() {
         return goConfigDao.load();
-    }
-
-    public AgentConfig agentByUuid(String uuid) {
-        return agents().getAgentByUuid(uuid);
     }
 
     public StageConfig stageConfigNamed(String pipelineName, String stageName) {
@@ -550,10 +543,6 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return serverConfig().mailHost();
     }
 
-    public boolean hasAgent(String uuid) {
-        return agents().hasAgent(uuid);
-    }
-
     public JobConfigIdentifier translateToActualCase(JobConfigIdentifier identifier) {
         PipelineConfig pipelineConfig = getCurrentConfig().pipelineConfigByName(new CaseInsensitiveString(identifier.getPipelineName()));
         String translatedPipelineName = CaseInsensitiveString.str(pipelineConfig.name());
@@ -731,19 +720,6 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return command;
     }
 
-
-    public void modifyEnvironments(List<AgentInstance> agents, List<TriStateSelection> selections) {
-        GoConfigDao.CompositeConfigCommand command = new GoConfigDao.CompositeConfigCommand();
-        for (AgentInstance agentInstance : agents) {
-            String uuid = agentInstance.getUuid();
-            if (hasAgent(uuid)) {
-                for (TriStateSelection selection : selections) {
-                    command.addCommand(new ModifyEnvironmentCommand(uuid, selection.getValue(), selection.getAction()));
-                }
-            }
-        }
-        updateConfig(command);
-    }
 
     public Set<ResourceConfig> getAllResources() {
         return getCurrentConfig().getAllResources();

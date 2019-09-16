@@ -19,25 +19,22 @@ import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
 import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.AgentConfigService;
 import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.ElasticAgentPluginService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static java.lang.String.format;
+import static java.util.stream.Collectors.toList;
 
 public abstract class AbstractVersionableElasticAgentProcessor implements VersionableElasticAgentProcessor {
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
     protected final AgentService agentService;
-    protected final AgentConfigService agentConfigService;
 
-    public AbstractVersionableElasticAgentProcessor(AgentService agentService, AgentConfigService agentConfigService) {
+    public AbstractVersionableElasticAgentProcessor(AgentService agentService) {
         this.agentService = agentService;
-        this.agentConfigService = agentConfigService;
     }
 
     protected Collection<AgentMetadata> getAgentMetadataForPlugin(String pluginId) {
@@ -48,7 +45,7 @@ public abstract class AbstractVersionableElasticAgentProcessor implements Versio
         if (elasticAgents == null) {
             metadata = new ArrayList<>();
         } else {
-            metadata = elasticAgents.stream().map(ElasticAgentPluginService::toAgentMetadata).collect(Collectors.toList());
+            metadata = elasticAgents.stream().map(ElasticAgentPluginService::toAgentMetadata).collect(toList());
         }
         return metadata;
     }
@@ -65,7 +62,7 @@ public abstract class AbstractVersionableElasticAgentProcessor implements Versio
         return agentMetadataListFromRequest.stream()
                 .map(input -> agentService.findElasticAgent(input.elasticAgentId(), pluginId))
                 .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
     protected void deleteAgents(String pluginId, Collection<AgentMetadata> agentsToDelete) {
@@ -77,7 +74,7 @@ public abstract class AbstractVersionableElasticAgentProcessor implements Versio
         }
 
         LOGGER.debug("Deleting agents from plugin {} {}", pluginId, agentInstances);
-        agentConfigService.deleteAgents(usernameFor(pluginId), agentInstances.toArray(new AgentInstance[agentInstances.size()]));
+        agentService.deleteAgentsWithoutValidations(agentInstances.stream().map(agentInstance -> agentInstance.getUuid()).collect(toList()));
         LOGGER.debug("Done deleting agents from plugin {} {}", pluginId, agentInstances);
     }
 
@@ -90,7 +87,7 @@ public abstract class AbstractVersionableElasticAgentProcessor implements Versio
         }
 
         LOGGER.debug("Disabling agents from plugin {} {}", pluginId, agentInstances);
-        agentConfigService.disableAgents(usernameFor(pluginId), agentInstances.toArray(new AgentInstance[agentInstances.size()]));
+        agentService.disableAgents(agentInstances.stream().map(AgentInstance::getUuid).collect(toList()));
         LOGGER.debug("Done disabling agents from plugin {} {}", pluginId, agentInstances);
     }
 }

@@ -15,224 +15,527 @@
  */
 package com.thoughtworks.go.server.domain;
 
-import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.config.Agents;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentStatus;
 import com.thoughtworks.go.domain.NullAgentInstance;
 import com.thoughtworks.go.domain.exception.MaxPendingAgentsLimitReachedException;
 import com.thoughtworks.go.helper.AgentInstanceMother;
+import com.thoughtworks.go.helper.AgentMother;
 import com.thoughtworks.go.listener.AgentStatusChangeListener;
+import com.thoughtworks.go.remote.AgentIdentifier;
+import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
+import com.thoughtworks.go.server.service.ElasticAgentRuntimeInfo;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.springframework.util.LinkedMultiValueMap;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.junit.Assert.assertThat;
-import static org.junit.matchers.JUnitMatchers.hasItems;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static com.thoughtworks.go.domain.AgentInstance.FilterBy.*;
+import static com.thoughtworks.go.domain.AgentInstance.createFromAgent;
+import static com.thoughtworks.go.domain.AgentInstance.createFromLiveAgent;
+import static com.thoughtworks.go.domain.AgentRuntimeStatus.*;
+import static com.thoughtworks.go.helper.AgentInstanceMother.*;
+import static com.thoughtworks.go.server.service.AgentRuntimeInfo.fromServer;
+import static com.thoughtworks.go.util.SystemEnvironment.MAX_PENDING_AGENTS_ALLOWED;
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-public class AgentInstancesTest {
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
+class AgentInstancesTest {
     private AgentInstance idle;
     private AgentInstance building;
     private AgentInstance pending;
     private AgentInstance disabled;
+    private AgentInstance nullInstance;
+    private AgentInstance elastic;
+
     @Mock
     private SystemEnvironment systemEnvironment;
-    private AgentStatusChangeListener agentStatusChangeListener;
 
-    @Before
-    public void setUp() throws Exception {
+    private AgentStatusChangeListener listener;
+
+    @BeforeEach
+    void setUp() {
         initMocks(this);
-        idle = AgentInstanceMother.idle(new Date(), "CCeDev01", systemEnvironment);
+        idle = idle(new Date(), "CCeDev01", systemEnvironment);
+
         AgentInstanceMother.updateOS(idle, "linux");
-        building = AgentInstanceMother.building("buildLocator", systemEnvironment);
+        building = building("buildLocator", systemEnvironment);
+
         AgentInstanceMother.updateOS(building, "macOS");
-        pending = AgentInstanceMother.pending(systemEnvironment);
+        pending = pending(systemEnvironment);
+
         AgentInstanceMother.updateOS(pending, "windows");
-        disabled = AgentInstanceMother.disabled("10.18.5.4", systemEnvironment);
-        agentStatusChangeListener = mock(AgentStatusChangeListener.class);
+        disabled = disabled("10.18.5.4", systemEnvironment);
+
+        nullInstance = AgentInstanceMother.nullInstance();
+
+        elastic = createFromAgent(AgentMother.elasticAgent(), new SystemEnvironment(), null);
+
+        listener = mock(AgentStatusChangeListener.class);
     }
 
-    @Test
-    public void shouldUnderstandFilteringAgentListBasedOnUuid() {
-        AgentInstances instances = new AgentInstances(mock(AgentStatusChangeListener.class));
-
-        AgentRuntimeInfo agent1 = AgentRuntimeInfo.fromServer(new AgentConfig("uuid-1", "host-1", "192.168.1.2"), true, "/foo/bar", 100l, "linux");
-        AgentRuntimeInfo agent2 = AgentRuntimeInfo.fromServer(new AgentConfig("uuid-2", "host-2", "192.168.1.3"), true, "/bar/baz", 200l, "linux");
-        AgentRuntimeInfo agent3 = AgentRuntimeInfo.fromServer(new AgentConfig("uuid-3", "host-3", "192.168.1.4"), true, "/baz/quux", 300l, "linux");
-
-        AgentInstance instance1 = AgentInstance.createFromLiveAgent(agent1, systemEnvironment, mock(AgentStatusChangeListener.class));
-        instances.add(instance1);
-        instances.add(AgentInstance.createFromLiveAgent(agent2, systemEnvironment, mock(AgentStatusChangeListener.class)));
-        AgentInstance instance3 = AgentInstance.createFromLiveAgent(agent3, systemEnvironment, mock(AgentStatusChangeListener.class));
-        instances.add(instance3);
-
-        List<AgentInstance> agents = instances.filter(Arrays.asList("uuid-1", "uuid-3"));
-
-        assertThat(agents, hasItems(instance1, instance3));
-        assertThat(agents.size(), is(2));
-    }
-
-    @Test
-    public void shouldFindEnabledAgents() {
-        AgentInstances agentInstances = sample();
-
-        AgentInstances enabledAgents = agentInstances.findEnabledAgents();
-        assertThat(enabledAgents.size(), is(2));
-        assertThat(enabledAgents.findAgentAndRefreshStatus("uuid2"), is(idle));
-        assertThat(enabledAgents.findAgentAndRefreshStatus("uuid3"), is(building));
-    }
-
-    @Test
-    public void shouldFindRegisteredAgents() {
-        AgentInstances agentInstances = sample();
-
-        AgentInstances agents = agentInstances.findRegisteredAgents();
-        assertThat(agents.size(), is(3));
-        assertThat(agents.findAgentAndRefreshStatus("uuid2"), is(idle));
-        assertThat(agents.findAgentAndRefreshStatus("uuid3"), is(building));
-        assertThat(agents.findAgentAndRefreshStatus("uuid5"), is(disabled));
-    }
-
-    @Test
-    public void shouldFindAgentsByItHostName() throws Exception {
-        AgentInstance idle = AgentInstanceMother.idle(new Date(), "ghost-name");
-        AgentInstances agentInstances = new AgentInstances(systemEnvironment, agentStatusChangeListener, idle, AgentInstanceMother.building());
-
-        AgentInstance byHostname = agentInstances.findFirstByHostname("ghost-name");
-        assertThat(byHostname, is(idle));
-    }
-
-    @Test
-    public void shouldReturnNullAgentsWhenHostNameIsNotFound() throws Exception {
-        AgentInstances agentInstances = new AgentInstances(systemEnvironment, agentStatusChangeListener, AgentInstanceMother.building());
-        agentInstances.add(idle);
-        agentInstances.add(building);
-
-        AgentInstance byHostname = agentInstances.findFirstByHostname("not-exist");
-        assertThat(byHostname, is(instanceOf(NullAgentInstance.class)));
-    }
-
-    @Test
-    public void shouldReturnFirstMatchedAgentsWhenHostNameHasMoreThanOneMatch() throws Exception {
-        AgentInstance agent = AgentInstance.createFromConfig(new AgentConfig("uuid20", "CCeDev01", "10.18.5.20"), systemEnvironment, null);
-        AgentInstance duplicatedAgent = AgentInstance.createFromConfig(new AgentConfig("uuid21", "CCeDev01", "10.18.5.20"), systemEnvironment, null);
-        AgentInstances agentInstances = new AgentInstances(systemEnvironment, agentStatusChangeListener, agent, duplicatedAgent);
-
-        AgentInstance byHostname = agentInstances.findFirstByHostname("CCeDev01");
-        assertThat(byHostname, is(agent));
-    }
-
-    @Test
-    public void shouldAddAgentIntoMemoryAfterAgentIsManuallyAddedInConfigFile() throws Exception {
-        AgentInstances agentInstances = new AgentInstances(mock(AgentStatusChangeListener.class));
-        AgentConfig agentConfig = new AgentConfig("uuid20", "CCeDev01", "10.18.5.20");
-        agentInstances.sync(new Agents(agentConfig));
-
-        assertThat(agentInstances.size(), is(1));
-        assertThat(agentInstances.findAgentAndRefreshStatus("uuid20").agentConfig(), is(agentConfig));
-    }
-
-    @Test
-    public void shouldRemoveAgentWhenAgentIsRemovedFromConfigFile() throws Exception {
-        AgentInstances agentInstances = new AgentInstances(systemEnvironment, agentStatusChangeListener, idle, building);
-
-        Agents oneAgentIsRemoved = new Agents(new AgentConfig("uuid2", "CCeDev01", "10.18.5.1"));
-
-        agentInstances.sync(oneAgentIsRemoved);
-        assertThat(agentInstances.size(), is(1));
-        assertThat(agentInstances.findAgentAndRefreshStatus("uuid2"), is(idle));
-        assertThat(agentInstances.findAgentAndRefreshStatus("uuid1"), is(new NullAgentInstance("uuid1")));
-    }
-
-    @Test
-    public void shouldSyncAgent() throws Exception {
-        AgentInstances agentInstances = new AgentInstances(systemEnvironment, agentStatusChangeListener, AgentInstanceMother.building(), idle);
-
-        AgentConfig agentConfig = new AgentConfig("uuid2", "CCeDev01", "10.18.5.1");
-        agentConfig.setDisabled(true);
-        Agents oneAgentIsRemoved = new Agents(agentConfig);
-
-        agentInstances.sync(oneAgentIsRemoved);
-
-        assertThat(agentInstances.findAgentAndRefreshStatus("uuid2").getStatus(), is(AgentStatus.Disabled));
-    }
-
-    @Test
-    public void shouldNotRemovePendingAgentDuringSync() throws Exception {
-        AgentInstances agentInstances = new AgentInstances(systemEnvironment, agentStatusChangeListener, AgentInstanceMother.building());
-        agentInstances.add(pending);
-        Agents agents = new Agents();
-
-        agentInstances.sync(agents);
-
-        assertThat(agentInstances.size(), is(1));
-        assertThat(agentInstances.findAgentAndRefreshStatus("uuid4").getStatus(), is(AgentStatus.Pending));
-    }
-
-    @Test
-    public void agentHostnameShouldBeUnique() {
-        AgentConfig agentConfig = new AgentConfig("uuid2", "CCeDev01", "10.18.5.1");
-        AgentInstances agentInstances = new AgentInstances(mock(AgentStatusChangeListener.class));
-        agentInstances.register(AgentRuntimeInfo.fromServer(agentConfig, false, "/var/lib", 0L, "linux"));
-        agentInstances.register(AgentRuntimeInfo.fromServer(agentConfig, false, "/var/lib", 0L, "linux"));
-    }
-
-    @Test(expected = MaxPendingAgentsLimitReachedException.class)
-    public void registerShouldErrorOutIfMaxPendingAgentsLimitIsReached() {
-        AgentConfig agentConfig = new AgentConfig("uuid2", "CCeDev01", "10.18.5.1");
-        AgentInstances agentInstances = new AgentInstances(systemEnvironment, agentStatusChangeListener, AgentInstanceMother.pending());
-        when(systemEnvironment.get(SystemEnvironment.MAX_PENDING_AGENTS_ALLOWED)).thenReturn(1);
-
-        agentInstances.register(AgentRuntimeInfo.fromServer(agentConfig, false, "/var/lib", 0L, "linux"));
-    }
-
-    @Test
-    public void shouldRemovePendingAgentThatIsTimedOut() {
-        when(systemEnvironment.getAgentConnectionTimeout()).thenReturn(-1);
-        AgentInstances agentInstances = new AgentInstances(systemEnvironment, agentStatusChangeListener, pending, building, disabled);
-        agentInstances.refresh();
-        assertThat(agentInstances.findAgentAndRefreshStatus("uuid4"), is(instanceOf(NullAgentInstance.class)));
-    }
-
-    @Test
-    public void shouldSupportConcurrentOperations() throws Exception {
-        final AgentInstances agentInstances = new AgentInstances(mock(AgentStatusChangeListener.class));
-
-        // register 100 agents
-        for (int i = 0; i < 100; i++) {
-            AgentConfig agentConfig = new AgentConfig("uuid" + i, "CCeDev_" + i, "10.18.5." + i);
-            agentInstances.register(AgentRuntimeInfo.fromServer(agentConfig, false, "/var/lib", Long.MAX_VALUE, "linux"));
+    @Nested
+    class Find {
+        @Test
+        void shouldFindAgentByUUID() {
+            AgentInstances agentInstances = createAgentInstancesWithAgentInstanceInVariousState();
+            AgentInstance idleInstance = agentInstances.findAgent(idle.getUuid());
+            assertThat(idleInstance, is(idle));
         }
 
-        thrown.expect(MaxPendingAgentsLimitReachedException.class);
-        thrown.expectMessage("Max pending agents allowed 100, limit reached");
-        AgentConfig agentConfig = new AgentConfig("uuid" + 200, "CCeDev_" + 200, "10.18.5." + 200);
-        agentInstances.register(AgentRuntimeInfo.fromServer(agentConfig, false, "/var/lib", Long.MAX_VALUE, "linux"));
+        @Test
+        void findAgentAndRefreshStatusShouldNotRefreshStatusForPendingAgent() {
+            AgentInstances agentInstances = createAgentInstancesWithAgentInstanceInVariousState();
+            assertThat(pending.getRuntimeStatus(), is(Unknown));
+
+            AgentInstance pendingInstance = agentInstances.findAgentAndRefreshStatus(pending.getUuid());
+            assertThat(pendingInstance.getRuntimeStatus(), is(Unknown));
+        }
+
+        @Test
+        void findAgentAndRefreshStatusShouldRefreshStatusForAnyAgentOtherThanPending() {
+            AgentInstance instance = createFromAgent(building.getAgent(), systemEnvironment, mock(AgentStatusChangeListener.class));
+            AgentInstances instances = new AgentInstances(systemEnvironment, mock(AgentStatusChangeListener.class), instance);
+            assertThat(instance.getRuntimeStatus(), is(Missing));
+
+            AgentInstance refreshedInstance = instances.findAgentAndRefreshStatus(instance.getUuid());
+            assertThat(refreshedInstance.getRuntimeStatus(), is(LostContact));
+        }
+
+        @Test
+        void shouldFindPendingAgents() {
+            AgentInstances agentInstances = createAgentInstancesWithAgentInstanceInVariousState();
+
+            List<Agent> pendingAgents = agentInstances.filterPendingAgents(asList(idle.getUuid(),
+                    pending.getUuid(),
+                    building.getUuid(),
+                    disabled.getUuid()));
+            assertThat(pendingAgents.size(), is(1));
+            assertThat(pendingAgents.get(0).getUuid(), is(pending.getUuid()));
+        }
+
+        @Test
+        void shouldReturnEmptyListWhenNullOrEmptyListOfUUIDsAreSpecifiedInFilterPendingAgents() {
+            AgentInstances agentInstances = createAgentInstancesWithAgentInstanceInVariousState();
+            List<Agent> pendingAgents = agentInstances.filterPendingAgents(emptyList());
+            assertThat(pendingAgents.size(), is(0));
+
+            pendingAgents = agentInstances.filterPendingAgents(null);
+            assertThat(pendingAgents.size(), is(0));
+        }
+
+        @Test
+        void shouldReturnEmptyListWhenNullOrEmptyUUIDsAreSpecifiedAsElementsInTheListOfUUIDsInFilterPendingAgents() {
+            AgentInstances agentInstances = createAgentInstancesWithAgentInstanceInVariousState();
+            List<Agent> pendingAgents = agentInstances.filterPendingAgents(asList(null, null, "  "));
+            assertThat(pendingAgents.size(), is(0));
+        }
+
+        @Test
+        void shouldFindPendingAgentUUIDs() {
+            AgentInstances agentInstances = createAgentInstancesWithAgentInstanceInVariousState();
+
+            List<String> pendingAgentUUIDs = agentInstances.filterBy(asList(idle.getUuid(), pending.getUuid(), building.getUuid(), disabled.getUuid()), Pending);
+            assertThat(pendingAgentUUIDs.size(), is(1));
+            assertThat(pendingAgentUUIDs.get(0), is(pending.getUuid()));
+        }
+
+        @Test
+        void shouldFindNullAgentUUIDs() {
+            AgentInstances agentInstances = createAgentInstancesWithAgentInstanceInVariousState();
+            agentInstances.add(nullInstance);
+
+            List<String> nullAgentUUIDs = agentInstances.filterBy(asList(idle.getUuid(), pending.getUuid(), nullInstance.getUuid()), Null);
+            assertThat(nullAgentUUIDs.size(), is(1));
+            assertThat(nullAgentUUIDs.get(0), is(nullInstance.getUuid()));
+        }
+
+        @Test
+        void shouldFindEmptyListOfPendingUUIDsWhenInputListOfUUIDsAreSpecifiedAsNullOrEmpty() {
+            AgentInstances agentInstances = createAgentInstancesWithAgentInstanceInVariousState();
+
+            List<String> pendingAgentUUIDs = agentInstances.filterBy(emptyList(), Pending);
+            assertThat(pendingAgentUUIDs.size(), is(0));
+
+            pendingAgentUUIDs = agentInstances.filterBy(null, Pending);
+            assertThat(pendingAgentUUIDs.size(), is(0));
+        }
+
+        @Test
+        void shouldFindRegisteredAgents() {
+            AgentInstances agentInstances = createAgentInstancesWithAgentInstanceInVariousState();
+
+            AgentInstances agents = agentInstances.findRegisteredAgents();
+            assertThat(agents.size(), is(4));
+            assertThat(agents.findAgentAndRefreshStatus("uuid2"), is(idle));
+            assertThat(agents.findAgentAndRefreshStatus("uuid3"), is(building));
+            assertThat(agents.findAgentAndRefreshStatus("uuid5"), is(disabled));
+            assertThat(agents.findAgentAndRefreshStatus(elastic.getUuid()), is(elastic));
+        }
+
+        @Test
+        void shouldReturnEmptyAgentInstancesWhenThereAreNoRegisteredAgents() {
+            AgentInstances agentInstances = new AgentInstances(mock(AgentStatusChangeListener.class));
+
+            AgentInstances registeredAgentInstances = agentInstances.findRegisteredAgents();
+            assertThat(registeredAgentInstances.size(), is(0));
+        }
     }
 
-    private AgentInstances sample() {
+    @Nested
+    class Filter {
+        @Test
+        void shouldFilterAgentInstancesBasedOnListOfUUIDs() {
+            AgentInstances instances = new AgentInstances(mock(AgentStatusChangeListener.class));
+
+            Agent agent1 = new Agent("uuid-1", "host-1", "192.168.1.2");
+            Agent agent2 = new Agent("uuid-2", "host-2", "192.168.1.3");
+            Agent agent3 = new Agent("uuid-3", "host-3", "192.168.1.4");
+
+            AgentRuntimeInfo runtime1 = fromServer(agent1, true, "/foo/bar", 100L, "linux");
+            AgentRuntimeInfo runtime2 = fromServer(agent2, true, "/bar/baz", 200L, "linux");
+            AgentRuntimeInfo runtime3 = fromServer(agent3, true, "/baz/quux", 300L, "linux");
+
+            AgentInstance instance1 = createFromLiveAgent(runtime1, systemEnvironment, mock(AgentStatusChangeListener.class));
+            AgentInstance instance2 = createFromLiveAgent(runtime2, systemEnvironment, mock(AgentStatusChangeListener.class));
+            AgentInstance instance3 = createFromLiveAgent(runtime3, systemEnvironment, mock(AgentStatusChangeListener.class));
+
+            instances.add(instance1);
+            instances.add(instance2);
+            instances.add(instance3);
+
+            List<String> uuids = asList("uuid-1", "uuid-3");
+            List<AgentInstance> filteredInstances = instances.filter(uuids);
+
+            assertThat(filteredInstances, hasItems(instance1, instance3));
+            assertThat(filteredInstances.size(), is(2));
+        }
+
+        @Test
+        void shouldFilterAgentInstancesBasedOnNullOrEmptyListOfUUIDs() {
+            AgentStatusChangeListener mockListener = mock(AgentStatusChangeListener.class);
+            AgentInstances instances = new AgentInstances(mockListener);
+
+            Agent agent1 = new Agent("uuid-1", "host-1", "192.168.1.2");
+            Agent agent2 = new Agent("uuid-2", "host-2", "192.168.1.3");
+            Agent agent3 = new Agent("uuid-3", "host-3", "192.168.1.4");
+
+            AgentRuntimeInfo runtime1 = fromServer(agent1, true, "/foo/bar", 100L, "linux");
+            AgentRuntimeInfo runtime2 = fromServer(agent2, true, "/bar/baz", 200L, "linux");
+            AgentRuntimeInfo runtime3 = fromServer(agent3, true, "/baz/quux", 300L, "linux");
+
+            AgentInstance instance1 = createFromLiveAgent(runtime1, systemEnvironment, mockListener);
+            AgentInstance instance2 = createFromLiveAgent(runtime2, systemEnvironment, mockListener);
+            AgentInstance instance3 = createFromLiveAgent(runtime3, systemEnvironment, mockListener);
+
+            instances.add(instance1);
+            instances.add(instance2);
+            instances.add(instance3);
+
+            List<AgentInstance> filteredInstances = instances.filter(emptyList());
+            assertThat(filteredInstances.size(), is(0));
+
+            filteredInstances = instances.filter(null);
+            assertThat(filteredInstances.size(), is(0));
+        }
+    }
+
+    @Nested
+    class Sync{
+        @Test
+        void shouldSyncAgentInstancesFromAgentsInDB() {
+            AgentStatusChangeListener mockListener = mock(AgentStatusChangeListener.class);
+            AgentInstances agentInstances = new AgentInstances(mockListener);
+
+            String uuid = "uuid1";
+            Agent agentInMemory = new Agent(uuid, "originalHostname", "10.18.5.20");
+            agentInstances.add(createFromAgent(agentInMemory, systemEnvironment, mockListener));
+
+            Agent agentFromDB = new Agent(uuid, "updatedHostname", "10.10.5.20");
+            agentInstances.syncAgentInstancesFrom(new Agents(agentFromDB));
+
+            assertThat(agentInstances.size(), is(1));
+            assertThat(agentInstances.findAgentAndRefreshStatus(uuid).getAgent(), is(agentFromDB));
+        }
+
+        @Test
+        void shouldSyncAgentInstancesFromAgentsInDBWhenAgentIsRemovedFromDB() {
+            AgentInstances agentInstancesWithIdleAndBuildingAgents = new AgentInstances(systemEnvironment, listener, idle, building);
+            assertThat(agentInstancesWithIdleAndBuildingAgents.size(), is(2));
+
+            Agents agentListFromDBWithIdleAgentRemoved = new Agents(building.getAgent());
+            agentInstancesWithIdleAndBuildingAgents.syncAgentInstancesFrom(agentListFromDBWithIdleAgentRemoved);
+
+            assertThat(agentInstancesWithIdleAndBuildingAgents.size(), is(1));
+            assertThat(agentInstancesWithIdleAndBuildingAgents.findAgentAndRefreshStatus(building.getUuid()), is(building));
+            assertThat(agentInstancesWithIdleAndBuildingAgents.findAgentAndRefreshStatus(idle.getUuid()), is(new NullAgentInstance(idle.getUuid())));
+        }
+
+        @Test
+        void shouldSyncAgentInstancesFromAgentsInDBWhenNewAgentIsCreatedInDB() {
+            AgentInstances agentInstances = new AgentInstances(systemEnvironment, listener, idle, building);
+            assertThat(agentInstances.size(), is(2));
+
+            String newUUID = "new-newAgentInDB-id";
+            Agent newAgentInDB = new Agent(newUUID, "CCeDev01", "10.18.5.1");
+            newAgentInDB.setDisabled(true);
+            Agents agentsFromDBWithNewAgent = new Agents(idle.getAgent(), building.getAgent(), newAgentInDB);
+
+            agentInstances.syncAgentInstancesFrom(agentsFromDBWithNewAgent);
+            assertThat(agentInstances.size(), is(3));
+            assertThat(agentInstances.findAgentAndRefreshStatus(newUUID).getStatus(), is(AgentStatus.Disabled));
+        }
+
+        @Test
+        void shouldNotRemovePendingAgentDuringSync() {
+            AgentInstances agentInstances = new AgentInstances(systemEnvironment, listener, building());
+            agentInstances.add(pending);
+
+            Agents emptyAgentListFromDB = new Agents();
+
+            agentInstances.syncAgentInstancesFrom(emptyAgentListFromDB);
+
+            assertThat(agentInstances.size(), is(1));
+            assertThat(agentInstances.findAgentAndRefreshStatus(pending.getUuid()).getStatus(), is(AgentStatus.Pending));
+        }
+    }
+
+    @Nested
+    class CancelBuild{
+        @Test
+        void updateAgentAboutCancelledBuildShouldSetTheRuntimeStatusToCancelled() {
+            AgentStatusChangeListener mockListener = mock(AgentStatusChangeListener.class);
+            AgentInstance instance = createFromAgent(building.getAgent(), systemEnvironment, mockListener);
+
+            AgentInstances agentInstances = new AgentInstances(systemEnvironment, mockListener, instance);
+            assertThat(instance.getRuntimeStatus(), is(Missing));
+
+            agentInstances.updateAgentAboutCancelledBuild(instance.getUuid(), true);
+            assertThat(instance.getRuntimeStatus(), is(Cancelled));
+
+            assertThat(agentInstances.findAgent(instance.getUuid()).getRuntimeStatus(), is(Cancelled));
+        }
+
+        @Test
+        void updateAgentAboutCancelledBuildShouldDoNothingWhenUnknownUUIDIsSpecified() {
+            AgentStatusChangeListener mockListener = mock(AgentStatusChangeListener.class);
+            AgentInstance instance = createFromAgent(building.getAgent(), systemEnvironment, mockListener);
+            AgentInstances agentInstances = new AgentInstances(systemEnvironment, mockListener, instance);
+            assertThat(instance.getRuntimeStatus(), is(Missing));
+
+            agentInstances.updateAgentAboutCancelledBuild("this-is-unknown-agent-uuid", true);
+            assertThat(instance.getRuntimeStatus(), is(Missing));
+
+            AgentInstance agentInstance = agentInstances.findAgent(instance.getUuid());
+            assertThat(agentInstance.getRuntimeStatus(), is(Missing));
+        }
+    }
+
+    @Nested
+    class ElasticAgent{
+        @Test
+        void shouldFindElasticAgentUUIDs() {
+            AgentInstances agentInstances = createAgentInstancesWithAgentInstanceInVariousState();
+
+            List<String> nullAgentUUIDs = agentInstances.filterBy(asList(idle.getUuid(), pending.getUuid(), elastic.getUuid()), Elastic);
+            assertThat(nullAgentUUIDs.size(), is(1));
+            assertThat(nullAgentUUIDs.get(0), is(elastic.getUuid()));
+        }
+
+        @Test
+        void shouldFindElasticAgentByElasticAgentIdAndElasticPluginId(){
+            AgentInstances agentInstances = createAgentInstancesWithElasticAgents();
+
+            String elasticAgentId = "elastic-agent-id-1";
+            String elasticPluginId = "go.cd.elastic-agent-plugin.docker";
+            AgentInstance elasticAgentInstance = agentInstances.findElasticAgent(elasticAgentId, elasticPluginId);
+
+            assertThat(elasticAgentInstance, is(not(nullValue())));
+            assertThat(elasticAgentInstance.getAgent().getElasticAgentId(), is(elasticAgentId));
+            assertThat(elasticAgentInstance.getAgent().getElasticPluginId(), is(elasticPluginId));
+        }
+
+        @Test
+        void shouldReturnNullAsElasticAgentWhenThereIsNoElasticAgentWithSpecifiedElasticAgentIdAndElasticPluginId(){
+            AgentInstances agentInstances = createAgentInstancesWithElasticAgents();
+
+            String elasticAgentId = "blabla";
+            String elasticPluginId = "go.cd.elastic-agent-plugin.docker";
+            AgentInstance elasticAgentInstance = agentInstances.findElasticAgent(elasticAgentId, elasticPluginId);
+
+            assertThat(elasticAgentInstance, is(nullValue()));
+        }
+
+        @Test
+        void shouldThrowExceptionWhenMoreThanOneElasticAgentWithSameElasticAgentIdAndElasticPluginId(){
+            AgentInstances agentInstances = createAgentInstancesWithElasticAgents();
+            agentInstances.add(createElasticAgentInstance(1, "go.cd.elastic-agent-plugin.docker"));
+
+            String elasticAgentId = "elastic-agent-id-1";
+            String elasticPluginId = "go.cd.elastic-agent-plugin.docker";
+
+            IllegalStateException e = assertThrows(IllegalStateException.class, () -> agentInstances.findElasticAgent(elasticAgentId, elasticPluginId));
+            assertTrue(e.getMessage().contains("Found multiple agents with the same elastic agent id"));
+        }
+
+        @Test
+        void shouldReturnMapContainingAllElasticAgentsGroupedByElasticPluginIdKey(){
+            AgentInstances agentInstances = createAgentInstancesWithElasticAgents();
+            LinkedMultiValueMap<String, ElasticAgentMetadata> map = agentInstances.getAllElasticAgentsGroupedByPluginId();
+
+            assertThat(map, is(not(nullValue())));
+            assertThat(map.size(), is(2));
+
+            String pluginId1 = "go.cd.elastic-agent-plugin.docker";
+            String pluginId2 = "cd.go.contrib.elasticagent.kubernetes";
+
+            assertTrue(map.containsKey(pluginId1));
+            assertTrue(map.containsKey(pluginId2));
+
+            assertThat(map.get(pluginId1).size(), is(3));
+            assertThat(map.get(pluginId2).size(), is(2));
+        }
+
+        @Test
+        void shouldReturnEmptyMapOfElasticAgentsGroupedByElasticPluginIdKeyWhenThereAreNoElasticAgents(){
+            AgentInstances agentInstances = new AgentInstances(mock(AgentStatusChangeListener.class));
+            LinkedMultiValueMap<String, ElasticAgentMetadata> map = agentInstances.getAllElasticAgentsGroupedByPluginId();
+            assertThat(map, is(not(nullValue())));
+            assertThat(map.size(), is(0));
+        }
+    }
+
+    @Test
+    void getAllAgentsShouldReturnAllAgentInstancesInMemoryCache() {
+        AgentInstances agentInstances = createAgentInstancesWithAgentInstanceInVariousState();
+
+        AgentInstances allAgents = agentInstances.getAllAgents();
+        assertThat(allAgents.size(), is(5));
+
+        agentInstances.add(createElasticAgentInstance(999, "go.cd.elastic-agent-plugin.docker"));
+
+        allAgents = agentInstances.getAllAgents();
+        assertThat(allAgents.size(), is(6));
+    }
+
+    @Test
+    void shouldBeAbleToCreateAgentInstancesWithNullArrayOfAgentInstance() {
+        AgentInstances agentInstances = new AgentInstances(systemEnvironment, mock(AgentStatusChangeListener.class), null);
+
+        assertThat(agentInstances, is(not(nullValue())));
+        assertThat(agentInstances.size(), is(0));
+    }
+
+    @Test
+    void registerShouldThrowExceptionWhenMaxPendingAgentsLimitIsReached() {
+        Agent agent = new Agent("uuid2", "CCeDev01", "10.18.5.1");
+        AgentInstances agentInstances = new AgentInstances(systemEnvironment, listener, pending());
+        when(systemEnvironment.get(MAX_PENDING_AGENTS_ALLOWED)).thenReturn(1);
+
+        MaxPendingAgentsLimitReachedException e = assertThrows(MaxPendingAgentsLimitReachedException.class,
+                () -> agentInstances.register(fromServer(agent, false, "/var/lib", 0L, "linux")));
+        assertThat(e.getMessage(), is("Max pending agents allowed 1, limit reached"));
+    }
+
+    @Test
+    void shouldRemoveTimedOutPendingAgentsOnRefresh() {
+        when(systemEnvironment.getAgentConnectionTimeout()).thenReturn(-1);
+        AgentInstances agentInstances = new AgentInstances(systemEnvironment, listener, pending, building, disabled);
+        assertThat(agentInstances.getAllAgents().size(), is(3));
+        agentInstances.refresh();
+        assertThat(agentInstances.getAllAgents().size(), is(2));
+        assertThat(agentInstances.findAgentAndRefreshStatus(pending.getUuid()), is(instanceOf(NullAgentInstance.class)));
+    }
+
+    @Test
+    void buildingShouldRefreshAgentInstanceAndDelegateToBuildingMethodOfAgentInstance() {
+        String uuid = "uuid";
+
+        AgentInstances agentInstances = createAgentInstancesWithAgentInstanceInVariousState();
+        AgentInstances agentInstancesSpy = Mockito.spy(agentInstances);
+        AgentInstance mockAgentInstance = mock(AgentInstance.class);
+        when(agentInstancesSpy.findAgentAndRefreshStatus(uuid)).thenReturn(mockAgentInstance);
+
+        AgentBuildingInfo mockAgentBuildingInfo = mock(AgentBuildingInfo.class);
+        doNothing().when(mockAgentInstance).building(mockAgentBuildingInfo);
+
+        agentInstancesSpy.building(uuid, mockAgentBuildingInfo);
+        verify(mockAgentInstance).building(mockAgentBuildingInfo);
+    }
+
+    private AgentInstances createAgentInstancesWithAgentInstanceInVariousState() {
         AgentInstances agentInstances = new AgentInstances(null);
+
         agentInstances.add(idle);
         agentInstances.add(building);
         agentInstances.add(pending);
         agentInstances.add(disabled);
+        agentInstances.add(elastic);
+
         return agentInstances;
+    }
+
+    private AgentInstances createAgentInstancesWithElasticAgents() {
+        AgentInstances agentInstances = new AgentInstances(null);
+        String pluginId1 = "go.cd.elastic-agent-plugin.docker";
+        String pluginId2 = "cd.go.contrib.elasticagent.kubernetes";
+
+        AgentInstance elasticInstance1 = createElasticAgentInstance(1, pluginId1);
+        AgentInstance elasticInstance2 = createElasticAgentInstance(2, pluginId1);
+        AgentInstance elasticInstance3 = createElasticAgentInstance(3, pluginId1);
+
+        AgentInstance elasticInstance4 = createElasticAgentInstance(4, pluginId2);
+        AgentInstance elasticInstance5 = createElasticAgentInstance(5, pluginId2);
+
+        agentInstances.add(elasticInstance1);
+        agentInstances.add(elasticInstance2);
+        agentInstances.add(elasticInstance3);
+        agentInstances.add(elasticInstance4);
+        agentInstances.add(elasticInstance5);
+
+        return agentInstances;
+    }
+
+    private AgentInstance createElasticAgentInstance(int counter, String elasticPluginId){
+        String uuid = UUID.randomUUID().toString();
+        String ip = "127.0.0.1";
+        String host = "localhost";
+        String elasticAgentId = "elastic-agent-id-" + counter;
+
+        AgentIdentifier id = new AgentIdentifier(host, ip, uuid);
+        ElasticAgentRuntimeInfo elasticRuntime = new ElasticAgentRuntimeInfo(id, Idle, "/foo/one", null, elasticAgentId, elasticPluginId);
+
+        Agent elasticAgent = createElasticAgent(uuid, ip, elasticAgentId, elasticPluginId);
+        AgentInstance elasticAgentInstance = createFromAgent(elasticAgent, new SystemEnvironment(), mock(AgentStatusChangeListener.class));
+
+        elasticAgentInstance.update(elasticRuntime);
+        return elasticAgentInstance;
+    }
+
+    private Agent createElasticAgent(String uuid, String ip, String elasticAgentId, String elasticPluginId){
+        Agent elasticAgent = new Agent(uuid);
+        elasticAgent.setElasticAgentId(elasticAgentId);
+        elasticAgent.setElasticPluginId(elasticPluginId);
+        elasticAgent.setIpaddress(ip);
+        return elasticAgent;
     }
 
 }

@@ -102,7 +102,7 @@ public class AuthenticationFilterChainTest {
         @ValueSource(strings = {"/remoting/blah"})
         void shouldAuthenticateAgentUsingX509Certificate(String url) throws IOException, ServletException {
             final Registration registration = createRegistration("blah");
-            final X509AuthenticationFilter x509AuthenticationFilter = new X509AuthenticationFilter(null, clock);
+            final X509AuthenticationFilter x509AuthenticationFilter = new X509AuthenticationFilter(null, clock, null);
             final AuthenticationFilterChain authenticationFilterChain = new AuthenticationFilterChain(x509AuthenticationFilter, null, null, null, null, null, null, null);
 
             request = HttpRequestBuilder.GET(url)
@@ -123,7 +123,7 @@ public class AuthenticationFilterChainTest {
             request = HttpRequestBuilder.GET(url)
                     .build();
 
-            final X509AuthenticationFilter x509AuthenticationFilter = new X509AuthenticationFilter(null, clock);
+            final X509AuthenticationFilter x509AuthenticationFilter = new X509AuthenticationFilter(null, clock, null);
             final AuthenticationFilterChain authenticationFilterChain = new AuthenticationFilterChain(x509AuthenticationFilter, null, null, null, null, null, null, null);
 
             authenticationFilterChain.doFilter(request, response, filterChain);

@@ -17,7 +17,7 @@
 package com.thoughtworks.go.server.controller;
 
 import com.thoughtworks.go.ClearSingleton;
-import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
@@ -34,6 +34,7 @@ import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.presentation.models.JobDetailPresentationModel;
 import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
+import com.thoughtworks.go.server.util.UuidGenerator;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -100,6 +101,8 @@ public class JobControllerIntegrationTest {
     private JobAgentMetadataDao jobAgentMetadataDao;
     @Autowired
     private SystemEnvironment systemEnvironment;
+    @Autowired
+    private UuidGenerator uuidGenerator;
 
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -151,7 +154,6 @@ public class JobControllerIntegrationTest {
     public void shouldFindJobByPipelineCounterEvenMultiplePipelinesHaveSameLabel() throws Exception {
         fixture.configLabelTemplateUsingMaterialRevision();
         Pipeline oldPipeline = fixture.createdPipelineWithAllStagesPassed();
-        Pipeline newPipeline = fixture.createdPipelineWithAllStagesPassed();
         Stage stage = oldPipeline.getFirstStage();
         JobInstance job = stage.getFirstJob();
         ModelAndView modelAndView = controller.jobDetail(oldPipeline.getName(),
@@ -210,10 +212,10 @@ public class JobControllerIntegrationTest {
 
         fixture.addJobAgentMetadata(new JobAgentMetadata(job.getId(), profile, clusterProfile));
 
-        final AgentConfig agentConfig = new AgentConfig(job.getAgentUuid());
-        agentConfig.setElasticAgentId("elastic_agent_id");
-        agentConfig.setElasticPluginId("plugin_id");
-        goConfigService.agents().add(agentConfig);
+        final Agent agent = new Agent(job.getAgentUuid(), "localhost", "127.0.0.1", uuidGenerator.randomUuid());
+        agent.setElasticAgentId("elastic_agent_id");
+        agent.setElasticPluginId("plugin_id");
+        agentService.saveOrUpdate(agent);
 
         ModelAndView modelAndView = controller.jobDetail(pipeline.getName(), String.valueOf(pipeline.getCounter()),
                 stage.getName(), String.valueOf(stage.getCounter()), job.getName());
@@ -228,8 +230,8 @@ public class JobControllerIntegrationTest {
         Stage stage = pipeline.getFirstStage();
         JobInstance job = stage.getFirstJob();
 
-        final AgentConfig agentConfig = new AgentConfig(job.getAgentUuid());
-        goConfigService.agents().add(agentConfig);
+        final Agent agent = new Agent(job.getAgentUuid(),"localhost", "127.0.0.1", uuidGenerator.randomUuid());
+        agentService.saveOrUpdate(agent);
 
         ModelAndView modelAndView = controller.jobDetail(pipeline.getName(), String.valueOf(pipeline.getCounter()),
                 stage.getName(), String.valueOf(stage.getCounter()), job.getName());
@@ -244,10 +246,10 @@ public class JobControllerIntegrationTest {
         Stage stage = pipeline.getFirstStage();
         JobInstance job = stage.getFirstJob();
 
-        final AgentConfig agentConfig = new AgentConfig(job.getAgentUuid());
-        agentConfig.setElasticAgentId("elastic_agent_id");
-        agentConfig.setElasticPluginId("plugin_id");
-        goConfigService.agents().add(agentConfig);
+        final Agent agent = new Agent(job.getAgentUuid(),"localhost", "127.0.0.1", uuidGenerator.randomUuid());
+        agent.setElasticAgentId("elastic_agent_id");
+        agent.setElasticPluginId("plugin_id");
+        agentService.saveOrUpdate(agent);
 
         ModelAndView modelAndView = controller.jobDetail(pipeline.getName(), String.valueOf(pipeline.getCounter()),
                 stage.getName(), String.valueOf(stage.getCounter()), job.getName());

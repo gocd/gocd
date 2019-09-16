@@ -13,35 +13,59 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.thoughtworks.go.config;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
+import java.util.Set;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static com.thoughtworks.go.config.EnvironmentAgentConfig.UUID;
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptySet;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class EnvironmentAgentConfigTest {
+class EnvironmentAgentConfigTest {
     @Test
-    public void shouldFailValidationIfUUIDDoesNotMapToAnAgent() {
-        EnvironmentAgentConfig config = new EnvironmentAgentConfig("uuid1");
-        HashSet<String> uuids = new HashSet<>();
-        uuids.add("uuid2");
-        uuids.add("uuid3");
-        boolean isValid = config.validateUuidPresent(new CaseInsensitiveString("foo"), uuids);
-        assertThat(isValid, is(false));
-        assertThat(config.errors().on(EnvironmentAgentConfig.UUID), is("Environment 'foo' has an invalid agent uuid 'uuid1'"));
+    void shouldValidateToTrueIfTheUUIDAssociatedWithEnvironmentIsPresentInTheSystem() {
+        String uuidThatWillBeValidated = "uuid2";
+        EnvironmentAgentConfig envAgentConf = new EnvironmentAgentConfig(uuidThatWillBeValidated);
+
+        Set<String> setOfUUIDs = new HashSet<>(asList("uuid1", uuidThatWillBeValidated, "uuid3"));
+        boolean isPresent = envAgentConf.validateUuidPresent(new CaseInsensitiveString("env1"), setOfUUIDs);
+
+        assertTrue(isPresent);
     }
 
     @Test
-    public void shouldPassValidationIfUUIDMapsToAnAgent() {
-        EnvironmentAgentConfig config = new EnvironmentAgentConfig("uuid1");
-        HashSet<String> uuids = new HashSet<>();
-        uuids.add("uuid1");
-        uuids.add("uuid2");
-        boolean isValid = config.validateUuidPresent(new CaseInsensitiveString("foo"), uuids);
-        assertThat(isValid, is(true));
-        assertThat(config.errors().isEmpty(), is(true));
+    void shouldValidateToFalseIfTheUUIDAssociatedWithEnvironmentIsNull() {
+        String uuidThatWillBeValidated = null;
+        EnvironmentAgentConfig envAgentConf = new EnvironmentAgentConfig(uuidThatWillBeValidated);
+
+        Set<String> setOfUUIDs = new HashSet<>(asList("uuid1", "uuid2", "uuid3"));
+        boolean isPresent = envAgentConf.validateUuidPresent(new CaseInsensitiveString("env1"), setOfUUIDs);
+        assertFalse(isPresent);
+        assertEquals("Environment 'env1' has an invalid agent uuid 'null'", envAgentConf.errors().on(UUID));
+    }
+
+    @Test
+    void shouldValidateToFalseIfTheSetOfUUIDsSpecifiedIsNull() {
+        String uuidThatWillBeValidated = "uuid";
+        EnvironmentAgentConfig envAgentConf = new EnvironmentAgentConfig(uuidThatWillBeValidated);
+
+        boolean isPresent = envAgentConf.validateUuidPresent(new CaseInsensitiveString("env1"), null);
+        assertFalse(isPresent);
+        assertEquals("Environment 'env1' has an invalid agent uuid 'uuid'", envAgentConf.errors().on(UUID));
+    }
+
+    @Test
+    void shouldValidateToFalseIfTheSetOfUUIDsSpecifiedIsEmpty() {
+        String uuidThatWillBeValidated = "uuid";
+        EnvironmentAgentConfig envAgentConf = new EnvironmentAgentConfig(uuidThatWillBeValidated);
+
+        boolean isPresent = envAgentConf.validateUuidPresent(new CaseInsensitiveString("env1"), emptySet());
+        assertFalse(isPresent);
+        assertEquals("Environment 'env1' has an invalid agent uuid 'uuid'", envAgentConf.errors().on(UUID));
     }
 }

@@ -15,21 +15,23 @@
  */
 package com.thoughtworks.go.config;
 
-import static java.lang.String.format;
+import com.thoughtworks.go.domain.ConfigErrors;
+
 import java.util.Set;
 
-import com.thoughtworks.go.domain.ConfigErrors;
+import static java.lang.String.format;
+import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 
 /**
  * @understands a reference to an existing agent that is associated to an Environment
  */
-@ConfigTag("physical")
-public class EnvironmentAgentConfig implements Validatable{
-    @ConfigAttribute(value = "uuid", optional = false) private String uuid;
+public class EnvironmentAgentConfig implements Validatable {
+    private String uuid;
     private ConfigErrors configErrors = new ConfigErrors();
     public static final String UUID = "uuid";
 
-    public EnvironmentAgentConfig() { }
+    public EnvironmentAgentConfig() {
+    }
 
     public EnvironmentAgentConfig(String uuid) {
         this.uuid = uuid;
@@ -40,7 +42,7 @@ public class EnvironmentAgentConfig implements Validatable{
     }
 
     public boolean validateUuidPresent(CaseInsensitiveString name, Set<String> uuids) {
-        if (!uuids.contains(uuid)) {
+        if (isEmpty(uuids) || !uuids.contains(uuid)) {
             this.addError(UUID, format("Environment '%s' has an invalid agent uuid '%s'", name, uuid));
         }
         return errors().isEmpty();

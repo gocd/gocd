@@ -29,6 +29,7 @@ import com.thoughtworks.go.helper.ModificationsMother;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
+import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.JobInstanceService;
 import com.thoughtworks.go.server.service.PipelineScheduleQueue;
@@ -89,6 +90,8 @@ public class PipelineScheduleQueueIntegrationTest {
     private MaterialRepository materialRepository;
     @Autowired
     private TransactionTemplate transactionTemplate;
+    @Autowired
+    private AgentService agentService;
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
@@ -372,13 +375,17 @@ public class PipelineScheduleQueueIntegrationTest {
         BuildCause cause = modifySomeFiles(pipelineConfig, ModificationsMother.nextRevision());
         saveRev(cause);
 
-        configFileEditor.addAgent("localhost", "uuid1");
-        configFileEditor.addAgent("localhost", "uuid2");
-        configFileEditor.addAgent("localhost", "uuid3");
-        configFileEditor.addAgentToEnvironment("env", "uuid1");
+        Agent agentConfigWithUuid1 = new Agent("uuid1", "localhost", "127.0.0.1", "cookie1");
+        configFileEditor.addEnvironments(Arrays.asList("env"));
+        agentConfigWithUuid1.setEnvironments("env");
+        agentService.saveOrUpdate(agentConfigWithUuid1);
+        Agent agentConfigWithUuid2 = new Agent("uuid2", "localhost", "127.0.0.1", "cookie2");
+        agentService.saveOrUpdate(agentConfigWithUuid2);
+        Agent agentConfigWithUuid3 = new Agent("uuid3", "localhost", "127.0.0.1", "cookie3");
+        agentService.saveOrUpdate(agentConfigWithUuid3);
         configFileEditor.addPipeline(CaseInsensitiveString.str(pipelineConfig.name()), CaseInsensitiveString.str(stage.name()));
 
-        queue.createPipeline(cause, pipelineConfig, new DefaultSchedulingContext(cause.getApprover(), configFileEditor.currentConfig().agents()), "md5-test", new TimeProvider());
+        queue.createPipeline(cause, pipelineConfig, new DefaultSchedulingContext(cause.getApprover(), new Agents(agentConfigWithUuid1, agentConfigWithUuid2, agentConfigWithUuid3)), "md5-test", new TimeProvider());
 
         List<JobPlan> plans = jobService.orderedScheduledBuilds();
         assertThat(plans.toArray(), hasItemInArray(hasProperty("name", is(RunOnAllAgents.CounterBasedJobNameGenerator.appendMarker("test-job", 1)))));
@@ -404,7 +411,7 @@ public class PipelineScheduleQueueIntegrationTest {
 
         configFileEditor.addPipeline(CaseInsensitiveString.str(pipelineConfig.name()), CaseInsensitiveString.str(stage.name()));
 
-        queue.createPipeline(cause, pipelineConfig, new DefaultSchedulingContext(cause.getApprover(), configFileEditor.currentConfig().agents()), "md5-test", new TimeProvider());
+        queue.createPipeline(cause, pipelineConfig, new DefaultSchedulingContext(cause.getApprover(), agentService.agents()), "md5-test", new TimeProvider());
 
         List<JobPlan> plans = jobService.orderedScheduledBuilds();
         assertThat(plans.size(), is(3));

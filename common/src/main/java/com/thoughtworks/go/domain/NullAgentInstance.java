@@ -18,10 +18,12 @@ package com.thoughtworks.go.domain;
 import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.util.SystemEnvironment;
 
-public class NullAgentInstance extends AgentInstance {
-    public NullAgentInstance(String agentUuid) {
+import static com.thoughtworks.go.domain.AgentInstance.AgentType.REMOTE;
+import static com.thoughtworks.go.domain.NullAgent.createNullAgent;
 
-        super(NullAgent.createNullAgent(agentUuid), AgentType.REMOTE, new SystemEnvironment(), null);
+public class NullAgentInstance extends AgentInstance {
+    public NullAgentInstance(String uuid) {
+        super(createNullAgent(uuid), REMOTE, new SystemEnvironment(), null);
     }
 
     @Override

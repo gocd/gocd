@@ -56,7 +56,7 @@ public class DeleteEnvironmentCommandTest {
     }
 
     @Test
-    public void shouldDeleteTheSpecifiedEnvironment() throws Exception {
+    public void shouldDeleteTheSpecifiedEnvironment() {
         DeleteEnvironmentCommand command = new DeleteEnvironmentCommand(goConfigService, environmentConfig, currentUser, actionFailed, result);
         assertTrue(cruiseConfig.getEnvironments().hasEnvironmentNamed(environmentName));
         command.update(cruiseConfig);
@@ -64,12 +64,23 @@ public class DeleteEnvironmentCommandTest {
     }
 
     @Test
-    public void shouldNotContinueIfTheUserDoesNotHavePermissionsToOperateOnEnvironments() throws Exception {
+    public void shouldNotContinueIfTheUserDoesNotHavePermissionsToOperateOnEnvironments() {
         DeleteEnvironmentCommand command = new DeleteEnvironmentCommand(goConfigService, environmentConfig, currentUser, actionFailed, result);
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertFalse(result.isSuccessful());
         assertThat(result.httpCode(), is(403));
         assertThat(result.message(), is(EntityType.Environment.forbiddenToEdit(environmentConfig.name(), currentUser.getUsername())));
+    }
+
+    @Test
+    public void shouldBeAbleToDeleteEvenIfTheSpecifiedEnvContainsAgents() {
+        BasicEnvironmentConfig environmentConfig = new BasicEnvironmentConfig(environmentName);
+        environmentConfig.addAgent("uuid");
+        DeleteEnvironmentCommand command = new DeleteEnvironmentCommand(goConfigService, environmentConfig, currentUser, actionFailed, result);
+        assertTrue(cruiseConfig.getEnvironments().hasEnvironmentNamed(environmentName));
+        command.update(cruiseConfig);
+        assertFalse(cruiseConfig.getEnvironments().hasEnvironmentNamed(environmentName));
+
     }
 }

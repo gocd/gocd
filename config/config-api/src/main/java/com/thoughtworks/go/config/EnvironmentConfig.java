@@ -48,7 +48,7 @@ public interface EnvironmentConfig extends ParamsAttributeAware, Validatable, En
 
     boolean hasAgent(String uuid);
 
-    boolean validateContainsOnlyUuids(Set<String> uuids);
+    boolean validateContainsAgentUUIDsFrom(Set<String> uuids);
 
     boolean containsPipeline(CaseInsensitiveString pipelineName);
 
@@ -67,8 +67,6 @@ public interface EnvironmentConfig extends ParamsAttributeAware, Validatable, En
     boolean contains(String pipelineName);
 
     void validateContainsOnlyPipelines(List<CaseInsensitiveString> pipelineNames);
-
-    boolean hasSamePipelinesAs(EnvironmentConfig other);
 
     @Override
     CaseInsensitiveString name();

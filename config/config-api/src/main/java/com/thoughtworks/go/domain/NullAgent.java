@@ -15,9 +15,9 @@
  */
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.Agent;
 
-public final class NullAgent extends AgentConfig {
+public final class NullAgent extends Agent {
     private NullAgent() {
         this("Unknown-uuid");
     }
@@ -44,8 +44,7 @@ public final class NullAgent extends AgentConfig {
         return true;
     }
 
-    @Override
-    public String getHostNameForDisplay() {
+    public String getHostnameForDisplay() {
         return "Not yet assigned";
     }
 }

@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import org.apache.commons.io.FileUtils;
@@ -51,13 +51,13 @@ public class AgentRuntimeInfoTest {
 
     @Test(expected = Exception.class)
     public void should() throws Exception {
-        AgentRuntimeInfo.fromServer(new AgentConfig("uuid", "localhost", "127.0.0.1"), false, "", 0L, "linux");
+        AgentRuntimeInfo.fromServer(new Agent("uuid", "localhost", "127.0.0.1"), false, "", 0L, "linux");
     }
 
     @Test
     public void shouldUsingIdleWhenRegistrationRequestIsFromLocalAgent() {
         AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromServer(
-                new AgentConfig("uuid", "localhost", "127.0.0.1"), false, "/var/lib", 0L, "linux");
+                new Agent("uuid", "localhost", "127.0.0.1"), false, "/var/lib", 0L, "linux");
 
         assertThat(agentRuntimeInfo.getRuntimeStatus(), is(Idle));
     }
@@ -65,7 +65,7 @@ public class AgentRuntimeInfoTest {
     @Test
     public void shouldBeUnknownWhenRegistrationRequestIsFromLocalAgent() {
         AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromServer(
-                new AgentConfig("uuid", "localhost", "176.19.4.1"), false, "/var/lib", 0L, "linux");
+                new Agent("uuid", "localhost", "176.19.4.1"), false, "/var/lib", 0L, "linux");
 
         assertThat(agentRuntimeInfo.getRuntimeStatus(), is(AgentRuntimeStatus.Unknown));
     }
@@ -73,21 +73,21 @@ public class AgentRuntimeInfoTest {
     @Test
     public void shouldUsingIdleWhenRegistrationRequestIsFromAlreadyRegisteredAgent() {
         AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromServer(
-                new AgentConfig("uuid", "localhost", "176.19.4.1"), true, "/var/lib", 0L, "linux");
+                new Agent("uuid", "localhost", "176.19.4.1"), true, "/var/lib", 0L, "linux");
 
         assertThat(agentRuntimeInfo.getRuntimeStatus(), is(AgentRuntimeStatus.Idle));
     }
 
     @Test
     public void shouldNotMatchRuntimeInfosWithDifferentOperatingSystems() {
-        AgentRuntimeInfo linux = AgentRuntimeInfo.fromServer(new AgentConfig("uuid", "localhost", "176.19.4.1"), true, "/var/lib", 0L, "linux");
-        AgentRuntimeInfo osx = AgentRuntimeInfo.fromServer(new AgentConfig("uuid", "localhost", "176.19.4.1"), true, "/var/lib", 0L, "foo bar");
+        AgentRuntimeInfo linux = AgentRuntimeInfo.fromServer(new Agent("uuid", "localhost", "176.19.4.1"), true, "/var/lib", 0L, "linux");
+        AgentRuntimeInfo osx = AgentRuntimeInfo.fromServer(new Agent("uuid", "localhost", "176.19.4.1"), true, "/var/lib", 0L, "foo bar");
         assertThat(linux, is(not(osx)));
     }
 
     @Test
     public void shouldInitializeTheFreeSpaceAtAgentSide() {
-        AgentIdentifier id = new AgentConfig("uuid", "localhost", "176.19.4.1").getAgentIdentifier();
+        AgentIdentifier id = new Agent("uuid", "localhost", "176.19.4.1").getAgentIdentifier();
         AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(id, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie");
 
         assertThat(agentRuntimeInfo.getUsableSpace(), is(not(0L)));
@@ -95,12 +95,12 @@ public class AgentRuntimeInfoTest {
 
     @Test
     public void shouldNotBeLowDiskSpaceForMissingAgent() {
-        assertThat(AgentRuntimeInfo.initialState(new AgentConfig("uuid")).isLowDiskSpace(10L), is(false));
+        assertThat(AgentRuntimeInfo.initialState(new Agent("uuid")).isLowDiskSpace(10L), is(false));
     }
 
     @Test
     public void shouldReturnTrueIfUsableSpaceLessThanLimit() {
-        AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.initialState(new AgentConfig("uuid"));
+        AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.initialState(new Agent("uuid"));
         agentRuntimeInfo.setUsableSpace(10L);
         assertThat(agentRuntimeInfo.isLowDiskSpace(20L), is(true));
     }

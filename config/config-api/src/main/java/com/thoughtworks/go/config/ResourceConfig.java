@@ -45,6 +45,10 @@ public class ResourceConfig implements Serializable, Comparable<ResourceConfig>,
         this.configErrors = resourceConfig.configErrors;
     }
 
+    public boolean hasErrors(){
+        return !this.errors().isEmpty();
+    }
+
     public String getName() {
         return StringUtils.trimToNull(name);
     }
@@ -85,7 +89,7 @@ public class ResourceConfig implements Serializable, Comparable<ResourceConfig>,
 
     @Override
     public void validate(ValidationContext validationContext) {
-        if (validationContext.isWithinTemplates()) {
+        if (validationContext != null && validationContext.isWithinTemplates()) {
             if (!name.matches(VALID_REGEX_WHEN_IN_TEMPLATES)) {
                 configErrors.add(JobConfig.RESOURCES,
                         String.format("Resource name '%s' is not valid. Valid names can contain valid parameter syntax or valid alphanumeric with hyphens,dots or pipes", getName()));
@@ -106,5 +110,4 @@ public class ResourceConfig implements Serializable, Comparable<ResourceConfig>,
     public void addError(String fieldName, String message) {
         configErrors.add(fieldName, message);
     }
-
 }

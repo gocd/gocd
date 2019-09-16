@@ -19,7 +19,7 @@
         "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
         "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 <hibernate-mapping default-access="field" default-lazy="false">
-    <class name="com.thoughtworks.go.server.domain.Agent" table="agents" >
+    <class name="com.thoughtworks.go.config.Agent" table="agents" >
         <id name="id" column="id">
             <generator class="identity"/>
         </id>
@@ -27,5 +27,11 @@
         <property name="cookie"/>
         <property name="hostname"/>
         <property name="ipaddress"/>
+        <property name="disabled"/>
+        <property name="elasticAgentId"/>
+        <property name="elasticPluginId"/>
+        <property name="environments"/>
+        <property name="resources"/>
+        <property name="deleted"/>
     </class>
 </hibernate-mapping>

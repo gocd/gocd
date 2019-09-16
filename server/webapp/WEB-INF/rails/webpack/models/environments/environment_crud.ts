@@ -19,7 +19,7 @@ import {SparkRoutes} from "helpers/spark_routes";
 import {Environments} from "models/environments/types";
 
 export class EnvironmentCRUD {
-  private static API_VERSION_HEADER = ApiVersion.v2;
+  private static API_VERSION_HEADER = ApiVersion.v3;
 
   static all() {
     return ApiRequestBuilder.GET(SparkRoutes.apiEnvironmentPath(), this.API_VERSION_HEADER)

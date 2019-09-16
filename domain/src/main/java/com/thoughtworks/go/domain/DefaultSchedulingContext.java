@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.config.Agents;
 import com.thoughtworks.go.config.EnvironmentVariablesConfig;
 import com.thoughtworks.go.config.ResourceConfigs;
@@ -67,8 +67,8 @@ public class DefaultSchedulingContext implements SchedulingContext {
     @Override
     public Agents findAgentsMatching(ResourceConfigs resourceConfigs) {
         Agents found = new Agents();
-        for (AgentConfig agent : agents) {
-            if (agent.hasAllResources(resourceConfigs) && !agent.isDisabled()) {
+        for (Agent agent : agents) {
+            if (agent.hasAllResources(resourceConfigs.resourceNames()) && !agent.isDisabled()) {
                 found.add(agent);
             }
         }
@@ -91,7 +91,7 @@ public class DefaultSchedulingContext implements SchedulingContext {
     @Override
     public SchedulingContext permittedAgent(String permittedAgentUuid) {
         Agents permitted = new Agents();
-        for (AgentConfig agent : agents) {
+        for (Agent agent : agents) {
             if (agent.getUuid().equals(permittedAgentUuid)) {
                 permitted.add(agent);
             }

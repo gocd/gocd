@@ -494,14 +494,14 @@ public class ScheduleServiceIntegrationTest {
         goConfigDao.loadForEditing().getElasticConfig().getProfiles().add(elasticAgentProfile);
 
         //create 2 elastic agents for ecs plugin
-        AgentConfig agentConfig = AgentMother.elasticAgent();
-        agentConfig.setElasticAgentId("elastic-agent-id-1");
-        agentConfig.setElasticPluginId(pluginId);
-        AgentConfig agentConfig2 = AgentMother.elasticAgent();
+        Agent agent = AgentMother.elasticAgent();
+        agent.setElasticAgentId("elastic-agent-id-1");
+        agent.setElasticPluginId(pluginId);
+        Agent agentConfig2 = AgentMother.elasticAgent();
         agentConfig2.setElasticAgentId("elastic-agent-id-2");
         agentConfig2.setElasticPluginId(pluginId);
-        configHelper.addAgent(agentConfig);
-        configHelper.addAgent(agentConfig2);
+        dbHelper.addAgent(agent);
+        dbHelper.addAgent(agentConfig2);
 
         //define a job in the config requiring elastic agent
         PipelineConfig pipelineToBeAdded = PipelineConfigMother.createPipelineConfigWithStages(UUID.randomUUID().toString(), "s1");
@@ -514,13 +514,13 @@ public class ScheduleServiceIntegrationTest {
         buildAssignmentService.onTimer();
 
         //verify no agents are building
-        AgentInstance agent1 = agentService.findAgent(agentConfig.getUuid());
+        AgentInstance agent1 = agentService.findAgent(agent.getUuid());
         assertFalse(agent1.isBuilding());
         AgentInstance agent2 = agentService.findAgent(agentConfig2.getUuid());
         assertFalse(agent2.isBuilding());
 
         //assign the current job to elastic agent 1
-        Work work = buildAssignmentService.assignWorkToAgent(agent(agentConfig));
+        Work work = buildAssignmentService.assignWorkToAgent(agent(agent));
         assertThat(work, instanceOf(BuildWork.class));
         assertTrue(agent1.isBuilding());
 
@@ -581,10 +581,10 @@ public class ScheduleServiceIntegrationTest {
         assertThat(serverHealthState.getMessage(), is("Cannot schedule ft as the previous stage dev has Failed!"));
     }
 
-    private AgentIdentifier agent(AgentConfig agentConfig) {
-        agentService.sync(new Agents(agentConfig));
-        agentService.approve(agentConfig.getUuid());
-        return agentService.findAgent(agentConfig.getUuid()).getAgentIdentifier();
+    private AgentIdentifier agent(Agent agent) {
+        agentService.initialize();
+        agentService.approve(agent.getUuid());
+        return agentService.findAgent(agent.getUuid()).getAgentIdentifier();
     }
 
     private Pipeline runAndPass(PipelineConfig pipelineConfig, int counter) {

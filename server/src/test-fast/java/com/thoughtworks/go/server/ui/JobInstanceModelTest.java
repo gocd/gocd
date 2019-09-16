@@ -15,10 +15,10 @@
  */
 package com.thoughtworks.go.server.ui;
 
+import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.helper.JobInstanceMother;
-import com.thoughtworks.go.server.domain.Agent;
 import com.thoughtworks.go.server.domain.JobDurationStrategy;
 import com.thoughtworks.go.util.TestingClock;
 import org.joda.time.Duration;
@@ -105,20 +105,20 @@ public class JobInstanceModelTest {
     }
 
     @Test
-    public void shouldHaveLiveAgent() throws Exception {
+    public void shouldHaveLiveAgent() {
         JobInstanceModel instance = new JobInstanceModel(JobInstanceMother.building("cruise"), JobDurationStrategy.ALWAYS_ZERO, AgentInstanceMother.building());
         assertThat(instance.hasLiveAgent(), is(true));
     }
 
     @Test
-    public void shouldReturnFalseForLiveAgentIfAgentInfoIsNotProvided() throws Exception {
+    public void shouldReturnFalseForLiveAgentIfAgentInfoIsNotProvided() {
         JobInstanceModel instance = new JobInstanceModel(JobInstanceMother.building("cruise"), JobDurationStrategy.ALWAYS_ZERO);
         assertThat(instance.hasLiveAgent(), is(false));
     }
 
     @Test
-    public void shouldReturnFalseForLiveAgentIfAgentInfoIsConstructedFromDb() throws Exception {
-        JobInstanceModel instance = new JobInstanceModel(JobInstanceMother.building("cruise"), JobDurationStrategy.ALWAYS_ZERO, new Agent("uuid", "cookie", "hostname", "ip"));
+    public void shouldReturnFalseForLiveAgentIfAgentInfoIsConstructedFromDb() {
+        JobInstanceModel instance = new JobInstanceModel(JobInstanceMother.building("cruise"), JobDurationStrategy.ALWAYS_ZERO, new Agent("uuid", "hostname", "ip", "cookie"));
         assertThat(instance.hasLiveAgent(), is(false));
     }
 }

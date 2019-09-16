@@ -642,7 +642,7 @@ public class ScheduleService {
         List<String> agents = new ArrayList<>();
         for (AgentInstance agent : knownAgents) {
             if (agent.getStatus() != AgentStatus.LostContact) {
-                agents.add(agent.agentConfig().getUuid());
+                agents.add(agent.getAgent().getUuid());
             }
         }
         return agents;

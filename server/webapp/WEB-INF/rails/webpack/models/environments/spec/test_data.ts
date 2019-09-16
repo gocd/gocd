@@ -36,16 +36,12 @@ export class TestData {
     } as EnvironmentsJSON;
   }
 
-  static newEnvironment(name: string = "env", agents: string[] = [], pipelines: string[] = []) {
-    const agentsJSON   = agents.map((a) => {
-      return {uuid: a};
-    });
+  static newEnvironment(name: string = "env", pipelines: string[] = []) {
     const pipelineJSON = pipelines.map((p) => {
       return {name: p};
     });
     return {
       name,
-      agents: agentsJSON,
       pipelines: pipelineJSON,
       environment_variables: []
     };

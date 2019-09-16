@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoMetadataStore;
 import com.thoughtworks.go.security.GoCipher;
+import com.thoughtworks.go.server.service.AgentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -37,11 +38,11 @@ public class GoConfigPluginService {
     @Autowired
     public GoConfigPluginService(ConfigRepoExtension configRepoExtension, ConfigCache configCache,
                                  ConfigElementImplementationRegistry configElementImplementationRegistry,
-                                 CachedGoConfig cachedGoConfig) {
+                                 CachedGoConfig cachedGoConfig, AgentService agentService) {
         this.crExtension = configRepoExtension;
         MagicalGoConfigXmlLoader loader = new MagicalGoConfigXmlLoader(configCache, configElementImplementationRegistry);
         embeddedXmlPlugin = new XmlPartialConfigProvider(loader);
-        configConverter = new ConfigConverter(new GoCipher(), cachedGoConfig);
+        configConverter = new ConfigConverter(new GoCipher(), cachedGoConfig, agentService);
     }
 
     public PartialConfigProvider partialConfigProviderFor(ConfigRepoConfig repoConfig) {

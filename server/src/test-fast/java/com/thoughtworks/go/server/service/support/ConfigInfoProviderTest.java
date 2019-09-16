@@ -16,12 +16,17 @@
 package com.thoughtworks.go.server.service.support;
 
 import com.thoughtworks.go.ClearSingleton;
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.EnvironmentsConfig;
+import com.thoughtworks.go.config.SecurityAuthConfig;
+import com.thoughtworks.go.config.SecurityConfig;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo;
 import com.thoughtworks.go.plugin.domain.authorization.Capabilities;
 import com.thoughtworks.go.plugin.domain.authorization.SupportedAuthType;
+import com.thoughtworks.go.server.domain.AgentInstances;
+import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import org.junit.Before;
 import org.junit.Rule;
@@ -58,7 +63,7 @@ public class ConfigInfoProviderTest {
         authorizationMetadataStore.setPluginInfo(passwordFile);
         authorizationMetadataStore.setPluginInfo(ldap);
 
-        final Map<String, Object> map = new ConfigInfoProvider(goConfigService, authorizationMetadataStore).asJson();
+        final Map<String, Object> map = new ConfigInfoProvider(goConfigService, authorizationMetadataStore, agentService()).asJson();
 
         final Map<String, Object> security = (Map<String, Object>) map.get("Security");
         assertNotNull(security);
@@ -76,7 +81,7 @@ public class ConfigInfoProviderTest {
         authorizationMetadataStore.setPluginInfo(ldap);
         goConfigService.security().securityAuthConfigs().add(new SecurityAuthConfig("file", "cd.go.authentication.passwordfile"));
 
-        final Map<String, Object> map = new ConfigInfoProvider(goConfigService, authorizationMetadataStore).asJson();
+        final Map<String, Object> map = new ConfigInfoProvider(goConfigService, authorizationMetadataStore, agentService()).asJson();
 
         final Map<String, Object> security = (Map<String, Object>) map.get("Security");
         assertNotNull(security);
@@ -110,11 +115,18 @@ public class ConfigInfoProviderTest {
 
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
         when(goConfigService.getAllPipelineConfigs()).thenReturn(emptyList());
-        when(goConfigService.agents()).thenReturn(new Agents());
         when(cruiseConfig.getEnvironments()).thenReturn(new EnvironmentsConfig());
         when(cruiseConfig.getAllUniqueMaterials()).thenReturn(emptySet());
         when(goConfigService.getSchedulableMaterials()).thenReturn(emptySet());
         when(goConfigService.security()).thenReturn(new SecurityConfig());
         return goConfigService;
+    }
+
+    private AgentService agentService() {
+        AgentService agentService = mock(AgentService.class);
+        AgentInstances agentInstances = mock(AgentInstances.class);
+        when(agentService.getAgentInstances()).thenReturn(agentInstances);
+        when(agentInstances.size()).thenReturn(0);
+        return agentService;
     }
 }

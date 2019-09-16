@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.server.messaging.notifications;
 
-import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.domain.AgentInstance;
@@ -107,11 +107,13 @@ public class PluginNotificationServiceTest {
         when(notificationPluginRegistry.getPluginsInterestedIn(NotificationExtension.AGENT_STATUS_CHANGE_NOTIFICATION)).thenReturn(new LinkedHashSet<>(asList(PLUGIN_ID_1)));
         when(systemEnvironment.get(NOTIFICATION_PLUGIN_MESSAGES_TTL)).thenReturn(1000L);
         ElasticAgentRuntimeInfo agentRuntimeInfo = new ElasticAgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, "/foo/one", null, "42", "go.cd.elastic-agent-plugin.docker");
-        AgentConfig agentConfig = new AgentConfig();
-        agentConfig.setElasticAgentId("42");
-        agentConfig.setElasticPluginId("go.cd.elastic-agent-plugin.docker");
-        agentConfig.setIpAddress("127.0.0.1");
-        AgentInstance agentInstance = AgentInstance.createFromConfig(agentConfig, new SystemEnvironment(), mock(AgentStatusChangeListener.class));
+
+        Agent agent = new Agent("some-uuid");
+        agent.setElasticAgentId("42");
+        agent.setElasticPluginId("go.cd.elastic-agent-plugin.docker");
+        agent.setIpaddress("127.0.0.1");
+
+        AgentInstance agentInstance = AgentInstance.createFromAgent(agent, new SystemEnvironment(), mock(AgentStatusChangeListener.class));
         agentInstance.update(agentRuntimeInfo);
 
         pluginNotificationService.notifyAgentStatus(agentInstance);

@@ -15,10 +15,10 @@
  */
 package com.thoughtworks.go.server.service;
 
+import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobInstances;
-import com.thoughtworks.go.server.domain.Agent;
 import com.thoughtworks.go.server.domain.JobDurationStrategy;
 import com.thoughtworks.go.server.ui.JobInstanceModel;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +48,7 @@ public class JobPresentationService {
             if (null != agentInstance && !agentInstance.isNullAgent()) {
                 model = new JobInstanceModel(jobInstance, jobDurationStrategy, agentInstance);
             } else if (jobInstance.getAgentUuid() != null) {
-                Agent agent = agentService.findAgentObjectByUuid(jobInstance.getAgentUuid());
+                Agent agent = agentService.findRegisteredAgentByUUID(jobInstance.getAgentUuid());
                 model = new JobInstanceModel(jobInstance, jobDurationStrategy, agent);
             } else {
                 model = new JobInstanceModel(jobInstance, jobDurationStrategy);

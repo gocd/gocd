@@ -20,6 +20,7 @@ import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.base.JsonOutputWriter;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
@@ -31,18 +32,21 @@ import spark.Response;
 import java.io.IOException;
 import java.util.List;
 
+import static java.util.stream.Collectors.toList;
 import static spark.Spark.*;
 
 @Component
 public class InternalResourcesControllerV1 extends ApiController implements SparkSpringController {
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private GoConfigService goConfigService;
+    private final AgentService agentService;
 
     @Autowired
-    public InternalResourcesControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, GoConfigService goConfigService) {
+    public InternalResourcesControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, GoConfigService goConfigService, AgentService agentService) {
         super(ApiVersion.v1);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
         this.goConfigService = goConfigService;
+        this.agentService = agentService;
     }
 
     @Override
@@ -63,7 +67,10 @@ public class InternalResourcesControllerV1 extends ApiController implements Spar
     }
 
     public String index(Request request, Response response) throws IOException {
-        List<String> resourceList = goConfigService.getResourceList();
-        return JsonOutputWriter.OBJECT_MAPPER.writeValueAsString(resourceList);
+        List<String> resourceListFromGoConfig = goConfigService.getResourceList();
+        List<String> resourceListFromAgentDB = agentService.getListOfResourcesAcrossAgents();
+        resourceListFromGoConfig.addAll(resourceListFromAgentDB);
+        List<String> finalResourceList = resourceListFromGoConfig.stream().distinct().collect(toList());
+        return JsonOutputWriter.OBJECT_MAPPER.writeValueAsString(finalResourceList);
     }
 }

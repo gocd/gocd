@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.server.controller;
 
-import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
@@ -28,7 +28,6 @@ import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.dao.JobAgentMetadataDao;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
-import com.thoughtworks.go.server.domain.Agent;
 import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
@@ -99,13 +98,13 @@ public class JobControllerTest {
 
         when(jobInstanceService.buildByIdWithTransitions(job.getId())).thenReturn(job);
         when(jobInstanceDao.mostRecentJobWithTransitions(job.getIdentifier())).thenReturn(newJob);
-        when(agentService.findAgentObjectByUuid(newJob.getAgentUuid())).thenReturn(Agent.blankAgent(newJob.getAgentUuid()));
+        when(agentService.findRegisteredAgentByUUID(newJob.getAgentUuid())).thenReturn(Agent.blankAgent(newJob.getAgentUuid()));
         when(stageService.getBuildDuration(pipelineName, stageName, newJob)).thenReturn(new DurationBean(newJob.getId(), 5l));
 
         ModelAndView modelAndView = jobController.handleRequest(pipelineName, stageName, job.getId(), response);
 
         verify(jobInstanceService).buildByIdWithTransitions(job.getId());
-        verify(agentService).findAgentObjectByUuid(newJob.getAgentUuid());
+        verify(agentService).findRegisteredAgentByUUID(newJob.getAgentUuid());
         verify(jobInstanceDao).mostRecentJobWithTransitions(job.getIdentifier());
         verify(stageService).getBuildDuration(pipelineName, stageName, newJob);
 
@@ -130,7 +129,6 @@ public class JobControllerTest {
             jobInstance.setState(JobState.Building);
 
             when(jobInstanceService.latestCompletedJobs("p1", "s1", jobInstance.getName())).thenReturn(new JobInstances());
-            when(jobConfigService.agentByUuid(anyString())).thenReturn(new AgentConfig());
             when(pipelineService.wrapBuildDetails(jobInstance)).thenReturn(pipeline);
             when(pipelineService.resolvePipelineCounter(eq("p1"), anyString())).thenReturn(Optional.of(1));
             when(restfulService.translateStageCounter(any(PipelineIdentifier.class), eq("s1"), anyString())).thenReturn(stageIdentifier);

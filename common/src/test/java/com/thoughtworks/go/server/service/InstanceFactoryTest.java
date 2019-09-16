@@ -31,13 +31,10 @@ import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.utils.Timeout;
 import org.joda.time.DateTime;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.UUID;
+import java.util.*;
 
 import static com.thoughtworks.go.domain.JobResult.Passed;
 import static com.thoughtworks.go.domain.JobResult.Unknown;
@@ -45,24 +42,28 @@ import static com.thoughtworks.go.domain.JobState.Completed;
 import static com.thoughtworks.go.domain.JobState.Scheduled;
 import static com.thoughtworks.go.helper.ModificationsMother.modifyOneFile;
 import static com.thoughtworks.go.util.DataStructureUtils.a;
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class InstanceFactoryTest {
+class InstanceFactoryTest {
     private InstanceFactory instanceFactory;
     private Clock clock;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() throws Exception {
         instanceFactory = new InstanceFactory();
         this.clock = mock(Clock.class);
     }
 
     @Test
-    public void shouldSetTheConfigVersionOnSchedulingAStage() throws Exception {
+    void shouldSetTheConfigVersionOnSchedulingAStage() {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("foo-pipeline", "foo-stage", "foo-job");
         DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser");
         String md5 = "foo-md5";
@@ -73,7 +74,7 @@ public class InstanceFactoryTest {
     }
 
     @Test
-    public void shouldThrowStageNotFoundExceptionWhenStageDoesNotExist() {
+    void shouldThrowStageNotFoundExceptionWhenStageDoesNotExist() {
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("cruise"), new MaterialConfigs(), new StageConfig(new CaseInsensitiveString("first"), new JobConfigs()));
         try {
             instanceFactory.createStageInstance(pipelineConfig, new CaseInsensitiveString("doesNotExist"), new DefaultSchedulingContext(), "md5", clock);
@@ -84,7 +85,7 @@ public class InstanceFactoryTest {
     }
 
     @Test
-    public void shouldCreateAStageInstanceThroughInstanceFactory() {
+    void shouldCreateAStageInstanceThroughInstanceFactory() {
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("cruise"), new MaterialConfigs(),
                 new StageConfig(new CaseInsensitiveString("first"), new JobConfigs(new JobConfig("job1"), new JobConfig("job2"))));
 
@@ -99,7 +100,7 @@ public class InstanceFactoryTest {
     }
 
     @Test
-    public void shouldCreatePipelineInstanceWithEnvironmentVariablesOverriddenAccordingToScope() {
+    void shouldCreatePipelineInstanceWithEnvironmentVariablesOverriddenAccordingToScope() {
         StageConfig stageConfig = StageConfigMother.custom("stage", "foo", "bar");
         JobConfig fooConfig = stageConfig.jobConfigByConfigName(new CaseInsensitiveString("foo"));
         fooConfig.addVariable("foo", "foo");
@@ -111,12 +112,12 @@ public class InstanceFactoryTest {
 
         Pipeline instance = instanceFactory.createPipelineInstance(pipelineConfig, ModificationsMother.forceBuild(pipelineConfig), context, "some-md5", new TimeProvider());
 
-        assertThat(instance.findStage("stage").findJob("foo").getPlan().getVariables(), is(new EnvironmentVariables(Arrays.asList(new EnvironmentVariable("foo", "foo")))));
-        assertThat(instance.findStage("stage").findJob("bar").getPlan().getVariables(), is(new EnvironmentVariables(Arrays.asList(new EnvironmentVariable("foo", "bar")))));
+        assertThat(instance.findStage("stage").findJob("foo").getPlan().getVariables(), is(new EnvironmentVariables(asList(new EnvironmentVariable("foo", "foo")))));
+        assertThat(instance.findStage("stage").findJob("bar").getPlan().getVariables(), is(new EnvironmentVariables(asList(new EnvironmentVariable("foo", "bar")))));
     }
 
     @Test
-    public void shouldOverridePipelineEnvironmentVariablesFromBuildCauseForLabel() {
+    void shouldOverridePipelineEnvironmentVariablesFromBuildCauseForLabel() {
         StageConfig stageConfig = StageConfigMother.custom("stage", "foo", "bar");
         MaterialConfigs materialConfigs = MaterialConfigsMother.defaultMaterialConfigs();
         DefaultSchedulingContext context = new DefaultSchedulingContext("anonymous");
@@ -136,7 +137,7 @@ public class InstanceFactoryTest {
     }
 
     @Test
-    public void shouldSchedulePipelineWithFirstStage() {
+    void shouldSchedulePipelineWithFirstStage() {
         StageConfig stageOneConfig = StageConfigMother.stageConfig("dev", BuildPlanMother.withBuildPlans("functional", "unit"));
         StageConfig stageTwoConfig = StageConfigMother.stageConfig("qa", BuildPlanMother.withBuildPlans("suiteOne", "suiteTwo"));
 
@@ -153,21 +154,21 @@ public class InstanceFactoryTest {
     }
 
     @Test
-    public void shouldSetAutoApprovalOnStageInstance() {
+    void shouldSetAutoApprovalOnStageInstance() {
         StageConfig stageConfig = StageConfigMother.custom("test", Approval.automaticApproval());
         Stage instance = instanceFactory.createStageInstance(stageConfig, new DefaultSchedulingContext("anyone"), "md5", new TimeProvider());
         assertThat(instance.getApprovalType(), is(GoConstants.APPROVAL_SUCCESS));
     }
 
     @Test
-    public void shouldSetManualApprovalOnStageInstance() {
+    void shouldSetManualApprovalOnStageInstance() {
         StageConfig stageConfig = StageConfigMother.custom("test", Approval.manualApproval());
         Stage instance = instanceFactory.createStageInstance(stageConfig, new DefaultSchedulingContext("anyone"), "md5", new TimeProvider());
         assertThat(instance.getApprovalType(), is(GoConstants.APPROVAL_MANUAL));
     }
 
     @Test
-    public void shouldSetFetchMaterialsFlagOnStageInstance() throws Exception {
+    void shouldSetFetchMaterialsFlagOnStageInstance() {
         StageConfig stageConfig = StageConfigMother.custom("test", Approval.automaticApproval());
         stageConfig.setFetchMaterials(false);
         Stage instance = instanceFactory.createStageInstance(stageConfig, new DefaultSchedulingContext("anyone"), "md5", new TimeProvider());
@@ -175,7 +176,7 @@ public class InstanceFactoryTest {
     }
 
     @Test
-    public void shouldClear_DatabaseIds_State_and_Result_ForJobObjectHierarchy() {
+    void shouldClear_DatabaseIds_State_and_Result_ForJobObjectHierarchy() {
         Date old = new DateTime().minusDays(2).toDate();
         JobInstance rails = jobInstance(old, "rails", 7, 10);
         JobInstance java = jobInstance(old, "java", 12, 22);
@@ -198,7 +199,7 @@ public class InstanceFactoryTest {
     }
 
     @Test
-    public void should_MaintainRerunOfReferences_InCaseOfMultipleCopyForRerunOperations() {
+    void should_MaintainRerunOfReferences_InCaseOfMultipleCopyForRerunOperations() {
         Date old = new DateTime().minusDays(2).toDate();
         JobInstance rails = jobInstance(old, "rails", 7, 10);
         JobInstance java = jobInstance(old, "java", 12, 22);
@@ -232,7 +233,7 @@ public class InstanceFactoryTest {
     }
 
     @Test
-    public void shouldCloneStageForGivenJobsWithLatestMd5() {
+    void shouldCloneStageForGivenJobsWithLatestMd5() {
         TimeProvider timeProvider = new TimeProvider() {
             @Override
             public Date currentTime() {
@@ -253,7 +254,7 @@ public class InstanceFactoryTest {
         JobInstance secondJob = new JobInstance("second-job", timeProvider);
         JobInstances jobInstances = new JobInstances(firstJob, secondJob);
         Stage stage = StageMother.custom("test", jobInstances);
-        Stage clonedStage = instanceFactory.createStageForRerunOfJobs(stage, Arrays.asList("first-job"), new DefaultSchedulingContext("loser", new Agents()),
+        Stage clonedStage = instanceFactory.createStageForRerunOfJobs(stage, asList("first-job"), new DefaultSchedulingContext("loser", new Agents()),
                 StageConfigMother.custom("test", "first-job", "second-job"),
                 new TimeProvider(),
                 "latest");
@@ -261,7 +262,7 @@ public class InstanceFactoryTest {
     }
 
     @Test
-    public void shouldAddEnvironmentVariablesPresentInTheScheduleContextToJobPlan() {
+    void shouldAddEnvironmentVariablesPresentInTheScheduleContextToJobPlan() {
         JobConfig jobConfig = new JobConfig("foo");
 
         EnvironmentVariablesConfig variablesConfig = new EnvironmentVariablesConfig();
@@ -273,7 +274,7 @@ public class InstanceFactoryTest {
     }
 
     @Test
-    public void shouldOverrideEnvironmentVariablesPresentInTheScheduleContextToJobPlan() {
+    void shouldOverrideEnvironmentVariablesPresentInTheScheduleContextToJobPlan() {
         EnvironmentVariablesConfig variablesConfig = new EnvironmentVariablesConfig();
         variablesConfig.add("blahVar", "blahVal");
         variablesConfig.add("differentVar", "differentVal");
@@ -297,7 +298,7 @@ public class InstanceFactoryTest {
     }
 
     @Test
-    public void shouldAddEnvironmentVariablesToJobPlan() {
+    void shouldAddEnvironmentVariablesToJobPlan() {
         EnvironmentVariablesConfig variablesConfig = new EnvironmentVariablesConfig();
         variablesConfig.add("blahVar", "blahVal");
 
@@ -312,7 +313,7 @@ public class InstanceFactoryTest {
     }
 
     @Test
-    public void shouldCreateJobPlan() {
+    void shouldCreateJobPlan() {
         ResourceConfigs resourceConfigs = new ResourceConfigs();
         ArtifactConfigs artifactConfigs = new ArtifactConfigs();
         JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test"), resourceConfigs, artifactConfigs);
@@ -321,7 +322,7 @@ public class InstanceFactoryTest {
     }
 
     @Test
-    public void shouldAddElasticProfileOnJobPlan() {
+    void shouldAddElasticProfileOnJobPlan() {
         ElasticProfile elasticProfile = new ElasticProfile("id", "prod-cluster");
         DefaultSchedulingContext context = new DefaultSchedulingContext("foo", new Agents(), ImmutableMap.of("id", elasticProfile));
 
@@ -335,7 +336,7 @@ public class InstanceFactoryTest {
     }
 
     @Test
-    public void shouldAddElasticProfileAndClusterProfileOnJobPlan() {
+    void shouldAddElasticProfileAndClusterProfileOnJobPlan() {
         ElasticProfile elasticProfile = new ElasticProfile("id", "clusterId");
         ClusterProfile clusterProfile = new ClusterProfile("clusterId", "pluginId");
         DefaultSchedulingContext context = new DefaultSchedulingContext("foo", new Agents(), ImmutableMap.of("id", elasticProfile), ImmutableMap.of("clusterId", clusterProfile));
@@ -350,7 +351,7 @@ public class InstanceFactoryTest {
     }
 
     @Test
-    public void shouldReturnBuildInstance() {
+    void shouldReturnBuildInstance() {
         ArtifactConfigs artifactConfigs = new ArtifactConfigs();
         JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test"), null, artifactConfigs);
 
@@ -364,7 +365,7 @@ public class InstanceFactoryTest {
     }
 
     @Test
-    public void shouldUseRightNameGenerator() {
+    void shouldUseRightNameGenerator() {
         StageConfig stageConfig = StageConfigMother.custom("dev", "rails", "java", "html");
 
         JobConfig railsConfig = stageConfig.getJobs().getJob(new CaseInsensitiveString("rails"));
@@ -374,9 +375,9 @@ public class InstanceFactoryTest {
         JobConfig javaConfig = stageConfig.getJobs().getJob(new CaseInsensitiveString("java"));
         javaConfig.setRunInstanceCount(2);
 
-        AgentConfig agent1 = new AgentConfig("abcd1234", "host", "127.0.0.2", new ResourceConfigs(new ResourceConfig("foobar")));
-        AgentConfig agent2 = new AgentConfig("1234abcd", "ghost", "192.168.1.2", new ResourceConfigs(new ResourceConfig("baz"), new ResourceConfig("foobar")));
-        AgentConfig agent3 = new AgentConfig("7890abdc", "lost", "10.4.3.55", new ResourceConfigs(new ResourceConfig("crapyagent")));
+        Agent agent1 = new Agent("abcd1234", "host", "127.0.0.2", singletonList("foobar"));
+        Agent agent2 = new Agent("1234abcd", "ghost", "192.168.1.2", asList("baz", "foobar"));
+        Agent agent3 = new Agent("7890abdc", "lost", "10.4.3.55", singletonList("crapyagent"));
         DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents(agent1, agent2, agent3));
 
         Stage stageInstance = instanceFactory.createStageInstance(stageConfig, schedulingContext, "md5", clock);
@@ -395,7 +396,7 @@ public class InstanceFactoryTest {
 	 */
 
     @Test
-    public void shouldCreateASingleJobIfRunOnAllAgentsIsFalse() throws Exception {
+    void shouldCreateASingleJobIfRunOnAllAgentsIsFalse() {
         JobConfig jobConfig = new JobConfig("foo");
 
         SchedulingContext context = mock(SchedulingContext.class);
@@ -412,7 +413,7 @@ public class InstanceFactoryTest {
     }
 
     @Test
-    public void shouldNotRerun_WhenJobConfigDoesNotExistAnymore_ForSingleInstanceJob() {
+    void shouldNotRerun_WhenJobConfigDoesNotExistAnymore_ForSingleInstanceJob() {
         Date old = new DateTime().minusDays(2).toDate();
         JobInstance rails = jobInstance(old, "rails", 7, 10);
         JobInstance java = jobInstance(old, "java", 12, 22);
@@ -432,7 +433,7 @@ public class InstanceFactoryTest {
     }
 
     @Test
-    public void shouldClearAgentAssignment_ForSingleInstanceJobType() {
+    void shouldClearAgentAssignment_ForSingleInstanceJobType() {
         Date old = new DateTime().minusDays(2).toDate();
         JobInstance rails = jobInstance(old, "rails", 7, 10);
         JobInstance java = jobInstance(old, "java", 12, 22);
@@ -444,7 +445,7 @@ public class InstanceFactoryTest {
     }
 
     @Test
-    public void shouldNotRerun_WhenJobConfigIsChangedToRunMultipleInstance_ForSingleJobInstance() {
+    void shouldNotRerun_WhenJobConfigIsChangedToRunMultipleInstance_ForSingleJobInstance() {
         Date old = new DateTime().minusDays(2).toDate();
         StageConfig stageConfig = StageConfigMother.custom("dev", "rails", "java");
 
@@ -476,10 +477,10 @@ public class InstanceFactoryTest {
 	*/
 
     @Test
-    public void shouldCreateAJobForEachAgentIfRunOnAllAgentsIsTrue() throws Exception {
+    void shouldCreateAJobForEachAgentIfRunOnAllAgentsIsTrue() {
         Agents agents = new Agents();
-        agents.add(new AgentConfig("uuid1"));
-        agents.add(new AgentConfig("uuid2"));
+        agents.add(new Agent("uuid1"));
+        agents.add(new Agent("uuid2"));
 
         JobConfig jobConfig = new JobConfig("foo");
         jobConfig.setRunOnAllAgents(true);
@@ -505,7 +506,7 @@ public class InstanceFactoryTest {
     }
 
     @Test
-    public void shouldFailWhenDoesNotFindAnyMatchingAgents() throws Exception {
+    void shouldFailWhenDoesNotFindAnyMatchingAgents() {
         JobConfig jobConfig = new JobConfig("foo");
         jobConfig.setRunOnAllAgents(true);
 
@@ -526,7 +527,7 @@ public class InstanceFactoryTest {
     }
 
     @Test
-    public void shouldFailWhenNoAgentsmatchAJob() throws Exception {
+    void shouldFailWhenNoAgentsmatchAJob() {
         DefaultSchedulingContext context = new DefaultSchedulingContext("raghu/vinay", new Agents());
         JobConfig fooJob = new JobConfig(new CaseInsensitiveString("foo"), new ResourceConfigs(), new ArtifactConfigs());
         fooJob.setRunOnAllAgents(true);
@@ -545,7 +546,7 @@ public class InstanceFactoryTest {
     }
 
     @Test
-    public void shouldBomb_ForRerun_OfASingleInstanceJobType_WhichWasEarlierRunOnAll_WithTwoRunOnAllInstancesSelectedForRerun() {
+    void shouldBomb_ForRerun_OfASingleInstanceJobType_WhichWasEarlierRunOnAll_WithTwoRunOnAllInstancesSelectedForRerun() {
         Date old = new DateTime().minusDays(2).toDate();
         StageConfig stageConfig = StageConfigMother.custom("dev", "rails", "java");
 
@@ -553,10 +554,10 @@ public class InstanceFactoryTest {
         railsConfig.setRunOnAllAgents(true);
         railsConfig.addResourceConfig("foobar");
 
-        DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents(
-                new AgentConfig("abcd1234", "host", "127.0.0.2", new ResourceConfigs(new ResourceConfig("foobar"))),
-                new AgentConfig("1234abcd", "ghost", "192.168.1.2", new ResourceConfigs(new ResourceConfig("baz"), new ResourceConfig("foobar"))),
-                new AgentConfig("7890abdc", "lost", "10.4.3.55", new ResourceConfigs(new ResourceConfig("crapyagent")))));
+        Agent agent1 = new Agent("abcd1234", "host", "127.0.0.2", singletonList("foobar"));
+        Agent agent2 = new Agent("1234abcd", "ghost", "192.168.1.2", asList("baz", "foobar"));
+        Agent agent3 = new Agent("7890abdc", "lost", "10.4.3.55", singletonList("crapyagent"));
+        DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents(agent1, agent2, agent3));
 
         RunOnAllAgents.CounterBasedJobNameGenerator jobNameGenerator = new RunOnAllAgents.CounterBasedJobNameGenerator(CaseInsensitiveString.str(railsConfig.name()));
         JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("dev"), railsConfig, schedulingContext, new TimeProvider(), jobNameGenerator);
@@ -574,7 +575,7 @@ public class InstanceFactoryTest {
     }
 
     @Test
-    public void should_NOT_ClearAgentAssignment_ForRerun_OfASingleInstanceJobType_WhichWasEarlierRunOnAll() {
+    void should_NOT_ClearAgentAssignment_ForRerun_OfASingleInstanceJobType_WhichWasEarlierRunOnAll() {
         Date old = new DateTime().minusDays(2).toDate();
         StageConfig stageConfig = StageConfigMother.custom("dev", "rails", "java");
 
@@ -582,10 +583,10 @@ public class InstanceFactoryTest {
         railsConfig.setRunOnAllAgents(true);
         railsConfig.addResourceConfig("foobar");
 
-        DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents(
-                new AgentConfig("abcd1234", "host", "127.0.0.2", new ResourceConfigs(new ResourceConfig("foobar"))),
-                new AgentConfig("1234abcd", "ghost", "192.168.1.2", new ResourceConfigs(new ResourceConfig("baz"), new ResourceConfig("foobar"))),
-                new AgentConfig("7890abdc", "lost", "10.4.3.55", new ResourceConfigs(new ResourceConfig("crapyagent")))));
+        Agent agent1 = new Agent("abcd1234", "host", "127.0.0.2", singletonList("foobar"));
+        Agent agent2 = new Agent("1234abcd", "ghost", "192.168.1.2", asList("baz", "foobar"));
+        Agent agent3 = new Agent("7890abdc", "lost", "10.4.3.55", singletonList("crapyagent"));
+        DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents(agent1, agent2, agent3));
 
         RunOnAllAgents.CounterBasedJobNameGenerator jobNameGenerator = new RunOnAllAgents.CounterBasedJobNameGenerator(CaseInsensitiveString.str(railsConfig.name()));
         JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("dev"), railsConfig, schedulingContext, new TimeProvider(), jobNameGenerator);
@@ -611,7 +612,7 @@ public class InstanceFactoryTest {
     }
 
     @Test
-    public void shouldClearAgentAssignment_ForRunOnAllAgentsJobType() {
+    void shouldClearAgentAssignment_ForRunOnAllAgentsJobType() {
         Date old = new DateTime().minusDays(2).toDate();
         JobInstance rails = jobInstance(old, "rails", 7, 10);
         JobInstance java = jobInstance(old, "java", 12, 22);
@@ -620,10 +621,12 @@ public class InstanceFactoryTest {
         JobConfig railsConfig = stageConfig.getJobs().getJob(new CaseInsensitiveString("rails"));
         railsConfig.setRunOnAllAgents(true);
         railsConfig.addResourceConfig("foobar");
-        Stage newStage = instanceFactory.createStageForRerunOfJobs(stage, a("rails"), new DefaultSchedulingContext("loser", new Agents(
-                new AgentConfig("abcd1234", "host", "127.0.0.2", new ResourceConfigs(new ResourceConfig("foobar"))),
-                new AgentConfig("1234abcd", "ghost", "192.168.1.2", new ResourceConfigs(new ResourceConfig("baz"), new ResourceConfig("foobar"))),
-                new AgentConfig("7890abdc", "lost", "10.4.3.55", new ResourceConfigs(new ResourceConfig("crapyagent"))))), stageConfig, new TimeProvider(), "md5");
+
+        Agent agent1 = new Agent("abcd1234", "host", "127.0.0.2", singletonList("foobar"));
+        Agent agent2 = new Agent("1234abcd", "ghost", "192.168.1.2", asList("baz", "foobar"));
+        Agent agent3 = new Agent("7890abdc", "lost", "10.4.3.55", singletonList("crapyagent"));
+        DefaultSchedulingContext context = new DefaultSchedulingContext("loser", new Agents(agent1, agent2, agent3));
+        Stage newStage = instanceFactory.createStageForRerunOfJobs(stage, a("rails"), context, stageConfig, new TimeProvider(), "md5");
 
         assertThat(newStage.getJobInstances().size(), is(3));
 
@@ -641,7 +644,7 @@ public class InstanceFactoryTest {
     }
 
     @Test
-    public void shouldNotRerun_WhenJobConfigDoesNotExistAnymore_ForRunOnAllAgentsJobInstance() {
+    void shouldNotRerun_WhenJobConfigDoesNotExistAnymore_ForRunOnAllAgentsJobInstance() {
         Date old = new DateTime().minusDays(2).toDate();
         StageConfig stageConfig = StageConfigMother.custom("dev", "rails", "java");
 
@@ -649,10 +652,10 @@ public class InstanceFactoryTest {
         railsConfig.setRunOnAllAgents(true);
         railsConfig.addResourceConfig("foobar");
 
-        DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents(
-                new AgentConfig("abcd1234", "host", "127.0.0.2", new ResourceConfigs(new ResourceConfig("foobar"))),
-                new AgentConfig("1234abcd", "ghost", "192.168.1.2", new ResourceConfigs(new ResourceConfig("baz"), new ResourceConfig("foobar"))),
-                new AgentConfig("7890abdc", "lost", "10.4.3.55", new ResourceConfigs(new ResourceConfig("crapyagent")))));
+        Agent agent1 = new Agent("abcd1234", "host", "127.0.0.2", singletonList("foobar"));
+        Agent agent2 = new Agent("1234abcd", "ghost", "192.168.1.2", asList("baz", "foobar"));
+        Agent agent3 = new Agent("7890abdc", "lost", "10.4.3.55", singletonList("crapyagent"));
+        DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents(agent1, agent2, agent3));
 
         RunOnAllAgents.CounterBasedJobNameGenerator jobNameGenerator = new RunOnAllAgents.CounterBasedJobNameGenerator(CaseInsensitiveString.str(railsConfig.name()));
         JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("dev"), railsConfig, schedulingContext, new TimeProvider(), jobNameGenerator);
@@ -673,7 +676,7 @@ public class InstanceFactoryTest {
     }
 
     @Test
-    public void shouldNotRerun_WhenJobConfigIsChangedToRunMultipleInstance_ForRunOnAllAgentsJobInstance() {
+    void shouldNotRerun_WhenJobConfigIsChangedToRunMultipleInstance_ForRunOnAllAgentsJobInstance() {
         Date old = new DateTime().minusDays(2).toDate();
         StageConfig stageConfig = StageConfigMother.custom("dev", "rails", "java");
 
@@ -681,9 +684,9 @@ public class InstanceFactoryTest {
         railsConfig.setRunOnAllAgents(true);
         railsConfig.addResourceConfig("foobar");
 
-        AgentConfig agent1 = new AgentConfig("abcd1234", "host", "127.0.0.2", new ResourceConfigs(new ResourceConfig("foobar")));
-        AgentConfig agent2 = new AgentConfig("1234abcd", "ghost", "192.168.1.2", new ResourceConfigs(new ResourceConfig("baz"), new ResourceConfig("foobar")));
-        AgentConfig agent3 = new AgentConfig("7890abdc", "lost", "10.4.3.55", new ResourceConfigs(new ResourceConfig("crapyagent")));
+        Agent agent1 = new Agent("abcd1234", "host", "127.0.0.2", singletonList("foobar"));
+        Agent agent2 = new Agent("1234abcd", "ghost", "192.168.1.2", asList("baz", "foobar"));
+        Agent agent3 = new Agent("7890abdc", "lost", "10.4.3.55", singletonList("crapyagent"));
         DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents(agent1, agent2, agent3));
 
         RunOnAllAgents.CounterBasedJobNameGenerator jobNameGenerator = new RunOnAllAgents.CounterBasedJobNameGenerator(CaseInsensitiveString.str(railsConfig.name()));
@@ -712,7 +715,7 @@ public class InstanceFactoryTest {
 	 */
 
     @Test
-    public void shouldCreateJobInstancesCorrectly_RunMultipleInstance() {
+    void shouldCreateJobInstancesCorrectly_RunMultipleInstance() {
         Date old = new DateTime().minusDays(2).toDate();
         StageConfig stageConfig = StageConfigMother.custom("dev", "rails", "java");
 
@@ -745,7 +748,7 @@ public class InstanceFactoryTest {
     }
 
     @Test
-    public void shouldCreateJobInstancesCorrectly_RunMultipleInstance_Rerun() {
+    void shouldCreateJobInstancesCorrectly_RunMultipleInstance_Rerun() {
         Date old = new DateTime().minusDays(2).toDate();
         StageConfig stageConfig = StageConfigMother.custom("dev", "rails", "java");
 
@@ -790,7 +793,7 @@ public class InstanceFactoryTest {
     }
 
     @Test
-    public void shouldNotRerun_WhenJobConfigDoesNotExistAnymore_ForRunMultipleInstance() {
+    void shouldNotRerun_WhenJobConfigDoesNotExistAnymore_ForRunMultipleInstance() {
         Date old = new DateTime().minusDays(2).toDate();
         StageConfig stageConfig = StageConfigMother.custom("dev", "rails", "java");
 
@@ -819,7 +822,7 @@ public class InstanceFactoryTest {
     }
 
     @Test
-    public void shouldNotRerun_WhenJobRunConfigIsChanged_ForRunMultipleInstance() {
+    void shouldNotRerun_WhenJobRunConfigIsChanged_ForRunMultipleInstance() {
         Date old = new DateTime().minusDays(2).toDate();
         StageConfig stageConfig = StageConfigMother.custom("dev", "rails", "java");
 

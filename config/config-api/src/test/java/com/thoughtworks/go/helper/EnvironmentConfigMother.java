@@ -45,8 +45,6 @@ public class EnvironmentConfigMother {
     public static BasicEnvironmentConfig environment(String name) {
         BasicEnvironmentConfig uat = new BasicEnvironmentConfig(new CaseInsensitiveString(name));
         uat.addPipeline(new CaseInsensitiveString(name + "-pipeline"));
-        uat.addAgent(name + "-agent");
-        uat.addAgent(OMNIPRESENT_AGENT);
         return uat;
     }
 

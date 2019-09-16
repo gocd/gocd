@@ -90,9 +90,6 @@ public class BasicCruiseConfig implements CruiseConfig {
     @ConfigSubtag
     @SkipParameterResolution
     private EnvironmentsConfig environments = new EnvironmentsConfig();
-    @ConfigSubtag
-    @SkipParameterResolution
-    private Agents agents = new Agents();
 
     @IgnoreTraversal
     private CruiseStrategy strategy;
@@ -171,7 +168,6 @@ public class BasicCruiseConfig implements CruiseConfig {
         this.packageRepositories = main.packageRepositories;
         this.scms = main.scms;
         this.templatesConfig = main.templatesConfig;
-        this.agents = main.agents;
         this.configRepos = main.configRepos;
         this.groups = main.groups;
         this.environments = main.environments;
@@ -714,11 +710,6 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     @Override
-    public Agents agents() {
-        return agents;
-    }
-
-    @Override
     public ServerConfig server() {
         return serverConfig;
     }
@@ -1184,9 +1175,6 @@ public class BasicCruiseConfig implements CruiseConfig {
     public Set<ResourceConfig> getAllResources() {
         final HashSet<ResourceConfig> resourceConfigs = new HashSet<>();
         accept((pipelineConfig, stageConfig, jobConfig) -> resourceConfigs.addAll(jobConfig.resourceConfigs()));
-        for (AgentConfig agent : agents) {
-            resourceConfigs.addAll(agent.getResourceConfigs());
-        }
         return resourceConfigs;
     }
 
@@ -1624,8 +1612,7 @@ public class BasicCruiseConfig implements CruiseConfig {
         if (groups != null ? !groups.equals(that.groups) : that.groups != null) return false;
         if (templatesConfig != null ? !templatesConfig.equals(that.templatesConfig) : that.templatesConfig != null)
             return false;
-        if (environments != null ? !environments.equals(that.environments) : that.environments != null) return false;
-        return agents != null ? agents.equals(that.agents) : that.agents == null;
+        return environments != null ? environments.equals(that.environments) : that.environments == null;
     }
 
     @Override
@@ -1636,7 +1623,6 @@ public class BasicCruiseConfig implements CruiseConfig {
         result = 31 * result + (groups != null ? groups.hashCode() : 0);
         result = 31 * result + (templatesConfig != null ? templatesConfig.hashCode() : 0);
         result = 31 * result + (environments != null ? environments.hashCode() : 0);
-        result = 31 * result + (agents != null ? agents.hashCode() : 0);
         return result;
     }
 

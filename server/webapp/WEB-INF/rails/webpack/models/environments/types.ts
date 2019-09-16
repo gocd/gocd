@@ -27,10 +27,6 @@ export interface EnvironmentVariableJSON {
   encrypted_value?: string;
 }
 
-export interface AgentJSON {
-  uuid: string;
-}
-
 export interface EnvironmentJSON {
   name: string;
   agents: AgentJSON[];
@@ -44,29 +40,6 @@ interface EmbeddedJSON {
 
 export interface EnvironmentsJSON {
   _embedded: EmbeddedJSON;
-}
-
-export class Agent {
-  uuid: Stream<string>;
-
-  constructor(uuid: string) {
-    this.uuid = Stream(uuid);
-  }
-
-  static fromJSON(data: AgentJSON) {
-    return new Agent(data.uuid);
-  }
-}
-
-class Agents extends Array<Agent> {
-  constructor(...agents: Agent[]) {
-    super(...agents);
-    Object.setPrototypeOf(this, Object.create(Agents.prototype));
-  }
-
-  static fromJSON(agents: AgentJSON[]) {
-    return new Agents(...agents.map(Agent.fromJSON));
-  }
 }
 
 export class Pipeline {
@@ -123,23 +96,19 @@ class EnvironmentVariables extends Array<EnvironmentVariable> {
 
 class Environment {
   name: Stream<string>;
-  agents: Stream<Agents>;
   pipelines: Stream<Pipelines>;
   environmentVariables: Stream<EnvironmentVariables>;
 
   constructor(name: string,
-              agents: Agents,
               pipelines: Pipelines,
               environmentVariables: EnvironmentVariables) {
     this.name                 = Stream(name);
-    this.agents               = Stream(agents);
     this.pipelines            = Stream(pipelines);
     this.environmentVariables = Stream(environmentVariables);
   }
 
   static fromJSON(data: EnvironmentJSON) {
     return new Environment(data.name,
-                           Agents.fromJSON(data.agents),
                            Pipelines.fromJSON(data.pipelines),
                            EnvironmentVariables.fromJSON(data.environment_variables));
   }
@@ -153,5 +122,32 @@ export class Environments extends Array<Environment> {
 
   static fromJSON(data: EnvironmentsJSON) {
     return new Environments(...data._embedded.environments.map(Environment.fromJSON));
+  }
+}
+
+export interface AgentJSON {
+  uuid: string;
+}
+
+export class Agent {
+  uuid: Stream<string>;
+
+  constructor(uuid: string) {
+    this.uuid = Stream(uuid);
+  }
+
+  static fromJSON(data: AgentJSON) {
+    return new Agent(data.uuid);
+  }
+}
+
+export class Agents extends Array<Agent> {
+  constructor(...agents: Agent[]) {
+    super(...agents);
+    Object.setPrototypeOf(this, Object.create(Agents.prototype));
+  }
+
+  static fromJSON(agents: AgentJSON[]) {
+    return new Agents(...agents.map(Agent.fromJSON));
   }
 }

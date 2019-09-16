@@ -129,7 +129,7 @@ public class GoConfigMother {
     /*
         Used in rspecs
      */
-    public CruiseConfig cruiseConfigWithPipelineUsingTwoMaterials() throws Exception {
+    public CruiseConfig cruiseConfigWithPipelineUsingTwoMaterials() {
         final CruiseConfig config = defaultCruiseConfig();
         addPipelineWithGroup(config, "group1", "pipeline1", MaterialConfigsMother.multipleMaterialConfigs(), "stage", "job");
         return config;
@@ -190,13 +190,13 @@ public class GoConfigMother {
         config.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString(dependsOnPipeline), new CaseInsensitiveString(dependsOnStage)));
     }
 
-    public BasicCruiseConfig cruiseConfigWithTwoPipelineGroups() throws Exception {
+    public BasicCruiseConfig cruiseConfigWithTwoPipelineGroups() {
         final BasicCruiseConfig config = cruiseConfigWithOnePipelineGroup();
         addPipelineWithGroup(config, "group2", "pipeline2", "stage", "job");
         return config;
     }
 
-    public BasicCruiseConfig cruiseConfigWithOnePipelineGroup() throws Exception {
+    public BasicCruiseConfig cruiseConfigWithOnePipelineGroup() {
         final BasicCruiseConfig config = defaultCruiseConfig();
         addPipelineWithGroup(config, "group1", "pipeline1", "stage", "job");
         return config;

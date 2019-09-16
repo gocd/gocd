@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.initializers;
 import com.thoughtworks.go.config.CachedGoConfig;
 import com.thoughtworks.go.config.ConfigCipherUpdater;
 import com.thoughtworks.go.config.InvalidConfigMessageRemover;
+import com.thoughtworks.go.config.migration.AgentXmlToDBMigration;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistrar;
 import com.thoughtworks.go.domain.cctray.CcTrayActivityListener;
 import com.thoughtworks.go.plugin.infra.commons.PluginsZip;
@@ -44,6 +45,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
+
+import javax.sql.DataSource;
 
 @Component
 public class ApplicationInitializer implements ApplicationListener<ContextRefreshedEvent> {
@@ -86,6 +89,8 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
     @Autowired private DataSharingSettingsService dataSharingSettingsService;
     @Autowired private DataSharingUsageStatisticsReportingService dataSharingUsageStatisticsReportingService;
     @Autowired private BackupService backupService;
+    @Autowired private DataSource dataSource;
+
     @Value("${cruise.daemons.enabled}")
     private boolean daemonsEnabled;
 
@@ -105,6 +110,9 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
             configCipherUpdater.migrate(); // Should be done before configs get loaded
             configElementImplementationRegistrar.initialize();
             configRepository.initialize();
+
+            AgentXmlToDBMigration.dataSource = dataSource;
+
             cachedGoConfig.upgradeConfig();
             cachedGoConfig.loadConfigIfNull();
             goConfigService.initialize();

@@ -22,48 +22,37 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.EnvironmentPipelineMatcher;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
+import static java.lang.String.format;
+import static java.util.Arrays.asList;
 
 /**
  * Composite of many EnvironmentConfig instances. Hides elementary environment configurations.
  */
 public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig> implements EnvironmentConfig {
-
+    public static final String CONSISTENT_KV = "ConsistentEnvVariables";
     private final ConfigErrors configErrors = new ConfigErrors();
 
-    public static final String CONSISTENT_KV = "ConsistentEnvVariables";
-
     public MergeEnvironmentConfig(EnvironmentConfig... configs) {
-        CaseInsensitiveString name = configs[0].name();
-        for (EnvironmentConfig part : configs) {
-            if (!part.name().equals(name))
-                throw new IllegalArgumentException(
-                        "partial environment configs must all have the same name");
-            this.add(part);
-        }
+        this(asList(configs));
     }
 
     public MergeEnvironmentConfig(List<EnvironmentConfig> configs) {
-        CaseInsensitiveString name = configs.get(0).name();
-        for (EnvironmentConfig part : configs) {
-            if (!part.name().equals(name))
-                throw new IllegalArgumentException(
-                        "partial environment configs must all have the same name");
-            this.add(part);
+        boolean allPartsDoesNotHaveSameName = configs.stream()
+                .peek(this::add)
+                .map(EnvironmentConfig::name)
+                .distinct()
+                .count() > 1;
+
+        if(allPartsDoesNotHaveSameName) {
+            throw new IllegalArgumentException("partial environment configs must all have the same name");
         }
     }
 
     public EnvironmentConfig getFirstEditablePartOrNull() {
-        for (EnvironmentConfig part : this) {
-            if (isEditable(part))
-                return part;
-        }
-        return null;
+        return this.stream().filter(this::isEditable).findFirst().orElse(null);
     }
 
     private boolean isEditable(EnvironmentConfig part) {
@@ -78,59 +67,37 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig> im
         return found;
     }
 
-
     @Override
     public void validate(ValidationContext validationContext) {
-        validateDuplicateEnvironmentVariables(validationContext);
-        validateDuplicatePipelines(validationContext);
-        validateDuplicateAgents(validationContext);
+        validateDuplicateEnvironmentVariables();
+        validateDuplicatePipelines();
+        validateDuplicateAgents();
     }
 
-    private void validateDuplicateAgents(ValidationContext validationContext) {
-        ArrayList<String> allAgents = new ArrayList<>();
-
-        for (EnvironmentConfig part : this) {
-            for (EnvironmentAgentConfig agent : part.getAgents()) {
-                if (allAgents.contains(agent.getUuid())) {
-                    String message = String.format("Environment agent '%s' is defined more than once.", agent.getUuid());
-                    configErrors.add("agent", message);
-                } else {
-                    allAgents.add(agent.getUuid());
-                }
-            }
-        }
+    private void validateDuplicateAgents() {
+        Set<String> uuids = new HashSet<>();
+        this.stream().flatMap(part -> part.getAgents().stream())
+                .map(EnvironmentAgentConfig::getUuid)
+                .filter(uuid -> !uuids.add(uuid))
+                .findFirst()
+                .ifPresent(uuid -> configErrors.add("agent", format("Environment agent '%s' is defined more than once.", uuid)));
     }
 
-    private void validateDuplicateEnvironmentVariables(ValidationContext validationContext) {
-        EnvironmentVariablesConfig allVariables = new EnvironmentVariablesConfig();
-        for (EnvironmentConfig part : this) {
-            for (EnvironmentVariableConfig partVariable : part.getVariables()) {
-                if (!allVariables.hasVariable(partVariable.getName())) {
-                    allVariables.add(partVariable);
-                } else {
-                    //then it must be equal
-                    if (!allVariables.contains(partVariable))
-                        configErrors.add(CONSISTENT_KV, String.format(
-                                "Environment variable '%s' is defined more than once with different values",
-                                partVariable.getName()));
-                }
-            }
-        }
+    private void validateDuplicateEnvironmentVariables() {
+        Set<String> envVariables = new HashSet<>();
+        this.stream().flatMap(part -> part.getVariables().stream())
+                .map(EnvironmentVariableConfig::getName)
+                .filter(varName -> !envVariables.add(varName))
+                .findFirst()
+                .ifPresent(varName -> configErrors.add(CONSISTENT_KV, format("Environment variable '%s' is defined more than once with different values", varName)));
     }
 
-    private void validateDuplicatePipelines(ValidationContext validationContext) {
-        ArrayList<CaseInsensitiveString> allPipelines = new ArrayList<>();
-
-        for (EnvironmentConfig part : this) {
-            for (CaseInsensitiveString pipelineName : part.getPipelineNames()) {
-                if (allPipelines.contains(pipelineName)) {
-                    String message = String.format("Environment pipeline '%s' is defined more than once.", pipelineName);
-                    configErrors.add("pipeline", message);
-                } else {
-                    allPipelines.add(pipelineName);
-                }
-            }
-        }
+    private void validateDuplicatePipelines() {
+        Set<CaseInsensitiveString> pipelines = new HashSet<>();
+        this.stream().flatMap(part -> part.getPipelineNames().stream())
+                .filter(pipeline -> !pipelines.add(pipeline))
+                .findFirst()
+                .ifPresent(pipelineName -> configErrors.add(CONSISTENT_KV, format("Environment pipeline '%s' is defined more than once.", pipelineName)));
     }
 
     @Override
@@ -150,20 +117,12 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig> im
 
     @Override
     public boolean hasAgent(String uuid) {
-        for (EnvironmentConfig part : this) {
-            if (part.hasAgent(uuid))
-                return true;
-        }
-        return false;
+        return this.stream().anyMatch(part -> part.hasAgent(uuid));
     }
 
     @Override
-    public boolean validateContainsOnlyUuids(Set<String> uuids) {
-        boolean isValid = true;
-        for (EnvironmentAgentConfig agent : this.getAgents()) {
-            isValid = agent.validateUuidPresent(this.name(), uuids) && isValid;
-        }
-        return isValid;
+    public boolean validateContainsAgentUUIDsFrom(Set<String> uuids) {
+        return this.getAgents().stream().allMatch(envAgentConfig -> envAgentConfig.validateUuidPresent(this.name(), uuids));
     }
 
     @Override
@@ -173,11 +132,7 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig> im
 
     @Override
     public boolean containsPipeline(CaseInsensitiveString pipelineName) {
-        for (EnvironmentConfig part : this) {
-            if (part.containsPipeline(pipelineName))
-                return true;
-        }
-        return false;
+        return this.stream().anyMatch(part -> part.containsPipeline(pipelineName));
     }
 
     @Override
@@ -200,17 +155,18 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig> im
 
     @Override
     public void addAgent(String uuid) {
-        this.getFirstEditablePart().addAgent(uuid);
+        EnvironmentConfig editablePart = this.getFirstEditablePartOrNull();
+        if (editablePart != null) {
+            editablePart.addAgent(uuid);
+        }
     }
 
     @Override
     public void addAgentIfNew(String uuid) {
-        for (EnvironmentConfig part : this) {
-            if (part.hasAgent(uuid)) {
-                return;
-            }
+        boolean uuidExists = this.stream().anyMatch(part -> part.hasAgent(uuid));
+        if(!uuidExists){
+            this.stream().filter(this::isEditable).findFirst().ifPresent(envConfig -> envConfig.addAgentIfNew(uuid));
         }
-        this.getFirstEditablePart().addAgentIfNew(uuid);
     }
 
     @Override
@@ -246,17 +202,6 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig> im
         for (EnvironmentConfig part : this) {
             if (part.hasVariable(variableName))
                 return true;
-        }
-        return false;
-    }
-
-    @Override
-    public boolean hasSamePipelinesAs(EnvironmentConfig other) {
-        for (CaseInsensitiveString pipeline : getPipelineNames()) {
-            for (CaseInsensitiveString name : other.getPipelineNames()) {
-                if (name.equals(pipeline))
-                    return true;
-            }
         }
         return false;
     }

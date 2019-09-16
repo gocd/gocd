@@ -218,16 +218,6 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldTellIfAnAgentExists() throws Exception {
-        CruiseConfig config = new BasicCruiseConfig();
-        config.agents().add(new AgentConfig("uuid"));
-        expectLoad(config);
-
-        assertThat(goConfigService.hasAgent("uuid"), is(true));
-        assertThat(goConfigService.hasAgent("doesnt-exist"), is(false));
-    }
-
-    @Test
     public void shouldReturnTrueIfStageHasTestsAndFalseIfItDoesnt() throws Exception {
         PipelineConfigs newPipelines = new BasicPipelineConfigs();
         PipelineConfig pipelineConfig = createPipelineConfig("pipeline", "name", "plan");
@@ -381,7 +371,7 @@ public class GoConfigServiceTest {
 
 
     @Test
-    public void shouldRegisterListenerWithTheConfigDAO() throws Exception {
+    public void shouldRegisterListenerWithTheConfigDAO() {
         final ConfigChangedListener listener = mock(ConfigChangedListener.class);
         goConfigService.register(listener);
         verify(goConfigDao).registerListener(listener);

@@ -181,12 +181,11 @@ public class BuildAssignmentService implements ConfigChangedListener {
                 AgentBuildingInfo buildingInfo = new AgentBuildingInfo(job.getIdentifier().buildLocatorForDisplay(),
                         job.getIdentifier().buildLocator());
                 agentService.building(agent.getUuid(), buildingInfo);
-                LOGGER.info("[Agent Assignment] Assigned job [{}] to agent [{}]", job.getIdentifier(), agent.agentConfig().getAgentIdentifier());
+                LOGGER.info("[Agent Assignment] Assigned job [{}] to agent [{}]", job.getIdentifier(), agent.getAgent().getAgentIdentifier());
 
                 return buildWork;
             }
         }
-
         return NO_WORK;
     }
 

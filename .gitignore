@@ -140,10 +140,10 @@ api/api-data-sharing-settings-v1/target/
 api/api-data-sharing-usage-data-v3/logs/
 api/api-data-sharing-usage-data-v3/out/
 api/api-data-sharing-usage-data-v3/target/
-api/api-environments-v2/config/
-api/api-environments-v2/logs/
-api/api-environments-v2/out/
-api/api-environments-v2/target/
+api/api-environments-v3/config/
+api/api-environments-v3/logs/
+api/api-environments-v3/out/
+api/api-environments-v3/target/
 api/api-export-v1/config/
 api/api-export-v1/out/
 api/api-server-maintenance-mode-v1/logs/
@@ -211,13 +211,6 @@ api/api-user-representers-v1/target/
 api/api-users-v3/logs/
 api/api-users-v3/out/
 api/api-users-v3/target/
-api/api-agents-v4/out/
-api/api-agents-v4/target/
-api/api-agents-v4/config/
-api/api-agents-v5/out/
-api/api-agents-v5/target/
-api/api-agents-v5/logs/
-api/api-agents-v5/config/
 api/api-user-search-v1/logs/
 api/api-user-search-v1/out/
 api/api-user-search-v1/target/
@@ -443,3 +436,7 @@ api/api-scms-v2/out/
 api/api-scms-v2/target/
 api/api-scms-v2/logs/
 api/api-scms-v2/config/
+api/api-agents-v6/out/
+api/api-agents-v6/target/
+api/api-agents-v6/logs/
+api/api-agents-v6/config/

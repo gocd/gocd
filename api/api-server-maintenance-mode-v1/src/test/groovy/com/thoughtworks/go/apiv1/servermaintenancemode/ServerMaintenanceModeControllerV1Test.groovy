@@ -243,7 +243,7 @@ class ServerMaintenanceModeControllerV1Test implements SecurityServiceTrait, Con
         when(maintenanceModeService.get()).thenReturn(new ServerMaintenanceMode(true, currentUsernameString(), testingClock.currentTime()))
         when(maintenanceModeService.getRunningMDUs()).thenReturn(runningMDUs)
         when(goDashboardCache.allEntries()).thenReturn(new GoDashboardPipelines(new HashMap<>(), new TimeStampBasedCounter(testingClock)))
-        when(agentService.agents()).thenReturn(new AgentInstances(null))
+        when(agentService.getAgentInstances()).thenReturn(new AgentInstances(null))
 
         getWithApiHeader(controller.controllerPath('/info'))
 
@@ -263,7 +263,7 @@ class ServerMaintenanceModeControllerV1Test implements SecurityServiceTrait, Con
 
         def buildingAgent1 = AgentInstanceMother.building(job1Identifier.buildLocator())
         def buildingAgent2 = AgentInstanceMother.building(job3Identifier.buildLocator())
-        buildingAgent2.agentConfig().setUuid("agent-2")
+        buildingAgent2.getAgent().setUuid("agent-2")
 
         def dashboardPipelinesMap = new HashMap<>()
         dashboardPipelinesMap.put("up42", getRunningPipeline("up42"))
@@ -298,7 +298,7 @@ class ServerMaintenanceModeControllerV1Test implements SecurityServiceTrait, Con
         when(maintenanceModeService.get()).thenReturn(new ServerMaintenanceMode(true, currentUsernameString(), testingClock.currentTime()))
         when(maintenanceModeService.getRunningMDUs()).thenReturn(runningMDUs)
         when(goDashboardCache.allEntries()).thenReturn(dashboardPipelines)
-        when(agentService.agents()).thenReturn(agentInstances)
+        when(agentService.getAgentInstances()).thenReturn(agentInstances)
 
         getWithApiHeader(controller.controllerPath('/info'))
 

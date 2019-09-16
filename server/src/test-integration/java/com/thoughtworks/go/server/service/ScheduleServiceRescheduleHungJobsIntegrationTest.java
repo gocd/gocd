@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.domain.*;
@@ -117,7 +117,7 @@ public class ScheduleServiceRescheduleHungJobsIntegrationTest {
         final Pipeline pipeline = instanceFactory.createPipelineInstance(evolveConfig, modifySomeFiles(evolveConfig), new DefaultSchedulingContext(
                 DEFAULT_APPROVED_BY), "md5-test", new TimeProvider());
         dbHelper.savePipelineWithStagesAndMaterials(pipeline);
-        buildAssignmentService.assignWorkToAgent(agent(new AgentConfig(agentId)));
+        buildAssignmentService.assignWorkToAgent(agent(new Agent(agentId)));
 
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
@@ -135,8 +135,8 @@ public class ScheduleServiceRescheduleHungJobsIntegrationTest {
 
     @Test
     public void shouldRescheduleHungBuildWhenAgentTryToGetWorkWithSameUuid() throws Exception {
-        AgentConfig agentConfig = AgentMother.localAgent();
-        AgentInstance instance = agent(agentConfig);
+        Agent agent = AgentMother.localAgent();
+        AgentInstance instance = agent(agent);
         BuildCause buildCause = modifySomeFiles(evolveConfig);
         dbHelper.saveMaterials(buildCause.getMaterialRevisions());
         Pipeline pipeline = instanceFactory.createPipelineInstance(evolveConfig, buildCause, new DefaultSchedulingContext(DEFAULT_APPROVED_BY), "md5-test", new TimeProvider());
@@ -144,7 +144,7 @@ public class ScheduleServiceRescheduleHungJobsIntegrationTest {
 
         Stage stage = pipeline.getFirstStage();
         JobInstance jobInstance = stage.getJobInstances().get(0);
-        jobInstance.setAgentUuid(agentConfig.getUuid());
+        jobInstance.setAgentUuid(agent.getUuid());
         jobInstance.changeState(JobState.Building);
         pipelineDao.saveWithStages(pipeline);
 
@@ -171,8 +171,8 @@ public class ScheduleServiceRescheduleHungJobsIntegrationTest {
         return stage;
     }
 
-    private AgentInstance agent(AgentConfig agentConfig) {
-        return AgentInstance.createFromConfig(agentConfig, new SystemEnvironment(), new AgentStatusChangeListener() {
+    private AgentInstance agent(Agent agent) {
+        return AgentInstance.createFromAgent(agent, new SystemEnvironment(), new AgentStatusChangeListener() {
             @Override
             public void onAgentStatusChange(AgentInstance agentInstance) {
             }

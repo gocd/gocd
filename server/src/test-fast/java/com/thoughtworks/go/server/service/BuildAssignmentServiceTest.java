@@ -90,7 +90,7 @@ class BuildAssignmentServiceTest {
     private TransactionTemplate transactionTemplate;
     private SchedulingContext schedulingContext;
     private ArrayList<JobPlan> jobPlans;
-    private AgentConfig elasticAgent;
+    private Agent elasticAgent;
     private AgentInstance elasticAgentInstance;
     private ElasticProfile elasticProfile1;
     private ElasticProfile elasticProfile2;
@@ -109,8 +109,8 @@ class BuildAssignmentServiceTest {
         elasticProfileId1 = "elastic.profile.id.1";
         elasticProfileId2 = "elastic.profile.id.2";
         elasticAgent = AgentMother.elasticAgent();
-        elasticAgentInstance = AgentInstance.createFromConfig(elasticAgent, new SystemEnvironment(), null);
-        regularAgentInstance = AgentInstance.createFromConfig(AgentMother.approvedAgent(), new SystemEnvironment(), null);
+        elasticAgentInstance = AgentInstance.createFromAgent(elasticAgent, new SystemEnvironment(), null);
+        regularAgentInstance = AgentInstance.createFromAgent(AgentMother.approvedAgent(), new SystemEnvironment(), null);
         elasticProfile1 = new ElasticProfile(elasticProfileId1, "prod-cluster");
         elasticProfile2 = new ElasticProfile(elasticProfileId2, "prod-cluster");
         jobPlans = new ArrayList<>();
@@ -282,7 +282,7 @@ class BuildAssignmentServiceTest {
             final JobPlan jobPlan1 = getJobPlan(pipelineConfig.getName(), pipelineConfig.get(0).name(), pipelineConfig.get(0).getJobs().last());
 
             when(agentInstance.isRegistered()).thenReturn(true);
-            when(agentInstance.agentConfig()).thenReturn(mock(AgentConfig.class));
+            when(agentInstance.getAgent()).thenReturn(mock(Agent.class));
             when(agentInstance.firstMatching(anyList())).thenReturn(jobPlan1);
             when(pipeline.getBuildCause()).thenReturn(BuildCause.createNeverRun());
             when(environmentConfigService.filterJobsByAgent(any(), any())).thenReturn(singletonList(jobPlan1));
@@ -318,7 +318,7 @@ class BuildAssignmentServiceTest {
             final JobPlan jobPlan1 = getJobPlan(pipelineConfig.getName(), pipelineConfig.get(0).name(), pipelineConfig.get(0).getJobs().last());
 
             when(agentInstance.isRegistered()).thenReturn(true);
-            when(agentInstance.agentConfig()).thenReturn(mock(AgentConfig.class));
+            when(agentInstance.getAgent()).thenReturn(mock(Agent.class));
             when(agentInstance.firstMatching(anyList())).thenReturn(jobPlan1);
             when(pipeline.getBuildCause()).thenReturn(BuildCause.createWithModifications(materialRevisions, "bob"));
             when(environmentConfigService.filterJobsByAgent(any(), any())).thenReturn(singletonList(jobPlan1));
@@ -383,7 +383,7 @@ class BuildAssignmentServiceTest {
             when(jobInstance.getState()).thenReturn(JobState.Completed);
             when(agentInstance.isRegistered()).thenReturn(true);
             when(agentInstance.getUuid()).thenReturn("agent_uuid");
-            when(agentInstance.agentConfig()).thenReturn(mock(AgentConfig.class));
+            when(agentInstance.getAgent()).thenReturn(mock(Agent.class));
             when(agentInstance.firstMatching(anyList())).thenReturn(jobPlan1);
             when(pipeline.getBuildCause()).thenReturn(BuildCause.createNeverRun());
             when(environmentConfigService.filterJobsByAgent(any(), any())).thenReturn(singletonList(jobPlan1));

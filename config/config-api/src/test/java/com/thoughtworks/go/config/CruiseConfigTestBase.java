@@ -117,13 +117,6 @@ public abstract class CruiseConfigTestBase {
     }
 
     @Test
-    public void shouldFindAllAgentResources() {
-        cruiseConfig.agents().add(new AgentConfig("uuid", "host1", "127.0.0.1", new ResourceConfigs("from-agent")));
-        assertThat(cruiseConfig.getAllResources(), hasItem(new ResourceConfig("from-agent")));
-    }
-
-
-    @Test
     public void shouldFindBuildPlanWithStages() throws Exception {
         try {
             cruiseConfig.jobConfigByName("cetaceans", "whales", "right whale", true);

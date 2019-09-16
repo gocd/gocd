@@ -136,7 +136,7 @@ public class H2Database implements Database {
     }
 
     private String dburl(Boolean mvccEnabled) {
-        return "jdbc:h2:" + systemEnvironment.getDbPath() + "/" + configuration.getName()
+        return "jdbc:h2:" + systemEnvironment.getDbPath().getAbsolutePath() + "/" + configuration.getName()
                 + ";DB_CLOSE_DELAY=-1"
                 + ";DB_CLOSE_ON_EXIT=FALSE"
                 + ";MVCC=" + mvccEnabled.toString().toUpperCase()

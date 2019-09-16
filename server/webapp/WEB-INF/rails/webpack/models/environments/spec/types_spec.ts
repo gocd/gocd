@@ -20,8 +20,8 @@ import {Environments} from "models/environments/types";
 describe("EnvironmentModel", () => {
 
   it("should deserialize json to Environments", () => {
-    const env1             = TestData.newEnvironment("env1", [], ["pipeline1"]);
-    const env2             = TestData.newEnvironment("env2", ["agent1uuid"]);
+    const env1             = TestData.newEnvironment("env1", ["pipeline1"]);
+    const env2             = TestData.newEnvironment("env2");
     const environmentsJSON = TestData.environmentList(env1, env2);
     const environments     = Environments.fromJSON(environmentsJSON);
 
@@ -30,7 +30,6 @@ describe("EnvironmentModel", () => {
     const environment1 = environments[0];
 
     expect(environment1.name()).toBe(env1.name);
-    expect(environment1.agents().length).toBe(0);
     expect(environment1.pipelines().length).toBe(1);
     expect(environment1.pipelines()[0].name()).toBe("pipeline1");
     expect(environment1.environmentVariables().length).toBe(0);
@@ -38,8 +37,6 @@ describe("EnvironmentModel", () => {
     const environment2 = environments[1];
 
     expect(environment2.name()).toBe(env2.name);
-    expect(environment2.agents().length).toBe(1);
-    expect(environment2.agents()[0].uuid()).toBe("agent1uuid");
     expect(environment2.pipelines().length).toBe(0);
     expect(environment2.environmentVariables().length).toBe(0);
 

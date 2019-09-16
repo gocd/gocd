@@ -30,17 +30,13 @@ import java.util.List;
 public class PatchEnvironmentCommand extends EnvironmentCommand {
     private final List<String> pipelinesToAdd;
     private final List<String> pipelinesToRemove;
-    private final List<String> agentsToAdd;
-    private final List<String> agentsToRemove;
     private final List<EnvironmentVariableConfig> envVarsToAdd;
     private final List<String> envVarsToRemove;
 
-    public PatchEnvironmentCommand(GoConfigService goConfigService, EnvironmentConfig environmentConfig, List<String> pipelinesToAdd, List<String> pipelinesToRemove, List<String> agentsToAdd, List<String> agentsToRemove, List<EnvironmentVariableConfig> envVarsToAdd, List<String> envVarsToRemove, Username username, String actionFailed, HttpLocalizedOperationResult result) {
+    public PatchEnvironmentCommand(GoConfigService goConfigService, EnvironmentConfig environmentConfig, List<String> pipelinesToAdd, List<String> pipelinesToRemove, List<EnvironmentVariableConfig> envVarsToAdd, List<String> envVarsToRemove, Username username, String actionFailed, HttpLocalizedOperationResult result) {
         super(actionFailed, environmentConfig, result, goConfigService, username);
         this.pipelinesToAdd = pipelinesToAdd;
         this.pipelinesToRemove = pipelinesToRemove;
-        this.agentsToAdd = agentsToAdd;
-        this.agentsToRemove = agentsToRemove;
         this.envVarsToAdd = envVarsToAdd;
         this.envVarsToRemove = envVarsToRemove;
     }
@@ -48,14 +44,6 @@ public class PatchEnvironmentCommand extends EnvironmentCommand {
     @Override
     public void update(CruiseConfig configForEdit) throws Exception {
         EnvironmentConfig environmentConfig = configForEdit.getEnvironments().named(this.environmentConfig.name());
-
-        for (String uuid : agentsToAdd) {
-            environmentConfig.addAgent(uuid);
-        }
-
-        for (String uuid : agentsToRemove) {
-            environmentConfig.removeAgent(uuid);
-        }
 
         for (String pipelineName : pipelinesToAdd) {
             environmentConfig.addPipeline(new CaseInsensitiveString(pipelineName));
@@ -100,20 +88,6 @@ public class PatchEnvironmentCommand extends EnvironmentCommand {
         return true;
     }
 
-    private boolean validateRemovalOfRemoteAgents(EnvironmentConfig preprocessedEnvironmentConfig) {
-        for (String agentToRemove : agentsToRemove) {
-            if (preprocessedEnvironmentConfig.containsAgentRemotely(agentToRemove)) {
-                String origin = ((MergeEnvironmentConfig) preprocessedEnvironmentConfig).getOriginForAgent(agentToRemove).displayName();
-                String message = String.format("Agent with uuid '%s' cannot be removed from environment '%s' as the association has been defined remotely in [%s]",
-                        agentToRemove, environmentConfig.name(), origin);
-                result.unprocessableEntity(LocalizedMessage.composite(actionFailed, message));
-                return false;
-            }
-        }
-
-        return true;
-    }
-
     private boolean validateRemovalOfEnvironmentVariables(EnvironmentConfig preprocessedEnvironmentConfig) {
         for (String variableName : envVarsToRemove) {
             if (preprocessedEnvironmentConfig.containsEnvironmentVariableRemotely(variableName)) {
@@ -130,22 +104,8 @@ public class PatchEnvironmentCommand extends EnvironmentCommand {
 
     private boolean validateRemovalOfRemoteEntities(EnvironmentConfig preprocessedEnvironmentConfig) {
         boolean isValid = validateRemovalOfRemotePipelines(preprocessedEnvironmentConfig);
-        isValid = isValid && validateRemovalOfRemoteAgents(preprocessedEnvironmentConfig);
         isValid = isValid && validateRemovalOfEnvironmentVariables(preprocessedEnvironmentConfig);
         return isValid;
-    }
-
-    private boolean validateRemovalOfInvalidAgents() {
-        EnvironmentConfig environmentConfig = this.environmentConfig;
-        for (String agentToRemove : agentsToRemove) {
-            if (!environmentConfig.hasAgent(agentToRemove)) {
-                String message = String.format("Agent with uuid '%s' does not exist in environment '%s'", agentToRemove, environmentConfig.name());
-                result.unprocessableEntity(LocalizedMessage.composite(actionFailed, message));
-                return false;
-            }
-        }
-
-        return true;
     }
 
     private boolean validateRemovalOfInvalidPipelines() {
@@ -175,7 +135,6 @@ public class PatchEnvironmentCommand extends EnvironmentCommand {
 
     private boolean validateRemovalOfInvalidEntities() {
         boolean isValid = validateRemovalOfInvalidPipelines();
-        isValid = isValid && validateRemovalOfInvalidAgents();
         isValid = isValid && validateRemovalOfInvalidEnvironmentVariable();
         return isValid;
     }

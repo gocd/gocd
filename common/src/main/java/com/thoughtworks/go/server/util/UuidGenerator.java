@@ -24,7 +24,6 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class UuidGenerator {
-
     public String randomUuid() {
         return UUID.randomUUID().toString();
     }

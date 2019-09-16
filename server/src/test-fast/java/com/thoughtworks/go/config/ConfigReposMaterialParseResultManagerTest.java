@@ -265,7 +265,7 @@ class ConfigReposMaterialParseResultManagerTest {
         }
 
         @ParameterizedTest
-        @ValueSource(classes = {Role.class, SecurityAuthConfig.class, AgentConfig.class})
+        @ValueSource(classes = {Role.class, SecurityAuthConfig.class, Agent.class})
         void shouldNotCareAboutOtherConfigEntities(Class<? extends Validatable> configClassToCareAbout) {
             final ConfigReposMaterialParseResultManager manager = mock(ConfigReposMaterialParseResultManager.class);
             final ConfigRepoReparseListener configRepoReparseListener = new ConfigRepoReparseListener(manager);

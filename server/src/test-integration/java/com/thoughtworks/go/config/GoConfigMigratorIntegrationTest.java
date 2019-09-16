@@ -22,6 +22,7 @@ import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfiles;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
+import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
@@ -33,6 +34,7 @@ import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.security.ResetCipher;
+import com.thoughtworks.go.server.persistence.AgentDao;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.serverhealth.*;
 import com.thoughtworks.go.service.ConfigRepository;
@@ -42,6 +44,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.api.Assertions;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.hibernate.Cache;
+import org.hibernate.SessionFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -62,10 +66,13 @@ import java.util.List;
 
 import static com.thoughtworks.go.domain.config.CaseInsensitiveStringMother.str;
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
+import static com.thoughtworks.go.util.GoConstants.CONFIG_SCHEMA_VERSION;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
+import static java.util.UUID.randomUUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+
 import com.thoughtworks.go.util.GoConfigFileHelper;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -77,6 +84,8 @@ import com.thoughtworks.go.util.GoConfigFileHelper;
 public class GoConfigMigratorIntegrationTest {
     private File configFile;
     ConfigRepository configRepository;
+    @Autowired
+    private AgentDao agentDao;
     @Autowired
     private SystemEnvironment systemEnvironment;
     @Autowired
@@ -94,6 +103,10 @@ public class GoConfigMigratorIntegrationTest {
     private ConfigElementImplementationRegistry registry;
     @Autowired
     private GoFileConfigDataSource goFileConfigDataSource;
+    @Autowired
+    private SessionFactory sessionFactory;
+    @Autowired
+    private DatabaseAccessHelper dbHelper;
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
     @Rule
@@ -104,6 +117,7 @@ public class GoConfigMigratorIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
+        dbHelper.onSetUp();
         File file = temporaryFolder.newFolder();
         configFile = new File(file, "cruise-config.xml");
         new SystemEnvironment().setProperty(SystemEnvironment.CONFIG_FILE_PROPERTY, configFile.getAbsolutePath());
@@ -121,11 +135,11 @@ public class GoConfigMigratorIntegrationTest {
                 exceptions.add(e);
             }
         });
-
     }
 
     @After
     public void tearDown() throws Exception {
+        dbHelper.onTearDown();
         GoConfigFileHelper.clearConfigVersions();
         configFile.delete();
         serverHealthService.removeAllLogs();
@@ -153,7 +167,7 @@ public class GoConfigMigratorIntegrationTest {
                 + " <pipeline name='does_not_exist'/>"
                 + "</pipelines>"
                 + "</environment>"
-                + "</environments>");
+                + "</environments>", CONFIG_SCHEMA_VERSION);
         try {
             loadConfigFileWithContent(configString);
             fail("Should not upgrade invalid config file");
@@ -251,13 +265,6 @@ public class GoConfigMigratorIntegrationTest {
         assertThat(hgConfig.filter()).isNotNull();
     }
 
-    @Test
-    public void shouldMigrateToRevision17() throws Exception {
-        CruiseConfig cruiseConfig = loadConfigFileWithContent(ConfigFileFixture.WITH_3_AGENT_CONFIG);
-        assertThat(cruiseConfig.agents().size()).isEqualTo(3);
-        assertThat(cruiseConfig.agents().getAgentByUuid("2").isDisabled()).isTrue();
-        assertThat(cruiseConfig.agents().getAgentByUuid("1").isDisabled()).isFalse();
-    }
 
     @Test
     public void shouldMigrateDependsOnTagToBeADependencyMaterial() throws Exception {
@@ -1333,6 +1340,139 @@ public class GoConfigMigratorIntegrationTest {
         assertThat(migratedElasticAgentProfiles.find("profile3")).isEqualTo(profile3);
         assertThat(migratedElasticAgentProfiles.find("profile4")).isEqualTo(profile4);
         assertThat(migratedElasticAgentProfiles.find("profile5")).isEqualTo(profile5);
+    }
+
+    @Test
+    public void shouldMigrateAgentsOutOfXMLIntoDBAsPartOf128() throws Exception {
+        String configContent = "" +
+                "  <environments>\n" +
+                "    <environment name=\"bar\">\n" +
+                "    </environment>\n" +
+                "    <environment name=\"baz\">\n" +
+                "      <agents>\n" +
+                "        <physical uuid=\"elastic-one\" />\n" +
+                "        <physical uuid=\"elastic-two\" />\n" +
+                "      </agents>\n" +
+                "    </environment>\n" +
+                "    <environment name=\"foo\">\n" +
+                "      <agents>\n" +
+                "        <physical uuid=\"one\" />\n" +
+                "        <physical uuid=\"two\" />\n" +
+                "        <physical uuid=\"elastic-two\" />\n" +
+                "      </agents>\n" +
+                "    </environment>\n" +
+                "  </environments>" +
+                "  <agents>" +
+                "    <agent uuid='one' hostname='one-host' ipaddress='127.0.0.1' >" +
+                "        <resources>" +
+                "           <resource>repos</resource>" +
+                "           <resource>db</resource>" +
+                "        </resources>" +
+                "    </agent>" +
+                "    <agent uuid='two' hostname='two-host' ipaddress='127.0.0.2'/>" +
+                "    <agent uuid='elastic-one' hostname='one-elastic-host' ipaddress='172.10.20.30' elasticAgentId='docker.foo1' elasticPluginId='docker'/>" +
+                "    <agent uuid='elastic-two' hostname='two-elastic-host' ipaddress='172.10.20.31' elasticAgentId='docker.foo2' elasticPluginId='docker'/>" +
+                "  </agents>";
+
+        String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                + "<cruise schemaVersion=\"127\">\n"
+                + configContent
+                + "</cruise>";
+
+        int initialAgentCountInDb = agentDao.getAllAgents().size();
+        CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml);
+        String newConfigFile = FileUtils.readFileToString(configFile, UTF_8);
+
+        // clearing out the hibernate cache so that the service fetches from the DB
+        Cache cache = sessionFactory.getCache();
+        if (cache != null) {
+            cache.evictDefaultQueryRegion();
+        }
+        int newAgentCountInDb = agentDao.getAllAgents().size();
+        assertThat(newAgentCountInDb).isEqualTo(initialAgentCountInDb + 4);
+
+        Agent staticAgent = agentDao.fetchAgentFromDBByUUID("one");
+
+        assertThat(staticAgent.getResourcesAsList()).contains("repos", "db");
+        assertThat(staticAgent.getEnvironmentsAsList()).contains("foo");
+        assertThat(staticAgent.getHostname()).isEqualTo("one-host");
+        assertThat(staticAgent.getIpaddress()).isEqualTo("127.0.0.1");
+        assertThat(staticAgent.isDisabled()).isFalse();
+        assertThat(staticAgent.isDeleted()).isFalse();
+
+        Agent staticAgent2 = agentDao.fetchAgentFromDBByUUID("two");
+
+        assertThat(staticAgent2.getResources()).isEmpty();
+        assertThat(staticAgent2.getEnvironments()).isEqualTo("foo");
+        assertThat(staticAgent2.getHostname()).isEqualTo("two-host");
+        assertThat(staticAgent2.getIpaddress()).isEqualTo("127.0.0.2");
+        assertThat(staticAgent2.isDisabled()).isFalse();
+        assertThat(staticAgent2.isDeleted()).isFalse();
+
+        Agent elasticAgent = agentDao.fetchAgentFromDBByUUID("elastic-two");
+
+        assertThat(elasticAgent.getEnvironmentsAsList()).contains("foo", "baz");
+        assertThat(elasticAgent.getHostname()).isEqualTo("two-elastic-host");
+        assertThat(elasticAgent.getIpaddress()).isEqualTo("172.10.20.31");
+        assertThat(elasticAgent.getElasticPluginId()).isEqualTo("docker");
+        assertThat(elasticAgent.getElasticAgentId()).isEqualTo("docker.foo2");
+        assertThat(elasticAgent.isDisabled()).isFalse();
+        assertThat(elasticAgent.isDeleted()).isFalse();
+
+        Agent elasticAgent1 = agentDao.fetchAgentFromDBByUUID("elastic-one");
+
+        assertThat(elasticAgent1.getEnvironments()).isEqualTo("baz");
+        assertThat(elasticAgent1.getHostname()).isEqualTo("one-elastic-host");
+        assertThat(elasticAgent1.getIpaddress()).isEqualTo("172.10.20.30");
+        assertThat(elasticAgent1.getElasticPluginId()).isEqualTo("docker");
+        assertThat(elasticAgent1.getElasticAgentId()).isEqualTo("docker.foo1");
+        assertThat(elasticAgent1.isDisabled()).isFalse();
+        assertThat(elasticAgent1.isDeleted()).isFalse();
+
+        XmlAssert.assertThat(newConfigFile).doesNotHaveXPath("//agents");
+        XmlAssert.assertThat(newConfigFile).doesNotHaveXPath("//environments/environment/agents");
+    }
+
+    @Test
+    public void shouldUpdateAnExistingAgentRecordInDBAsPartOfXMLToDBMigration_128() throws Exception {
+        String configContent = "" +
+                "  <environments>\n" +
+                "    <environment name=\"foo\">\n" +
+                "      <agents>\n" +
+                "        <physical uuid=\"one\" />\n" +
+                "      </agents>\n" +
+                "    </environment>\n" +
+                "  </environments>" +
+                "  <agents>" +
+                "    <agent uuid='one' hostname='one-host' ipaddress='127.0.0.1' >" +
+                "        <resources>" +
+                "           <resource>repos</resource>" +
+                "           <resource>db</resource>" +
+                "        </resources>" +
+                "    </agent>" +
+                "  </agents>";
+
+        String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                + "<cruise schemaVersion=\"127\">\n"
+                + configContent
+                + "</cruise>";
+
+        Agent agent = new Agent("one", "old-host", "old-ip", "cookie");
+        agentDao.saveOrUpdate(agent);
+
+        CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml);
+        String newConfigFile = FileUtils.readFileToString(configFile, UTF_8);
+
+        Agent staticAgent = agentDao.fetchAgentFromDBByUUID("one");
+
+        assertThat(staticAgent.getResourcesAsList()).contains("repos", "db");
+        assertThat(staticAgent.getEnvironments()).isEqualTo("foo");
+        assertThat(staticAgent.getHostname()).isEqualTo("one-host");
+        assertThat(staticAgent.getIpaddress()).isEqualTo("127.0.0.1");
+        assertThat(staticAgent.isDisabled()).isFalse();
+        assertThat(staticAgent.isDeleted()).isFalse();
+
+        XmlAssert.assertThat(newConfigFile).doesNotHaveXPath("//agents");
     }
 
     private TimerConfig createTimerConfigWithAttribute(String valueForOnChangesInTimer) throws Exception {

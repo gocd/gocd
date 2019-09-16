@@ -25,7 +25,7 @@ module JavaImports
   java_import com.thoughtworks.go.config.TimerConfig unless defined? TimerConfig
   java_import com.thoughtworks.go.config.MagicalGoConfigXmlLoader unless defined? MagicalGoConfigXmlLoader
   java_import com.thoughtworks.go.config.MailHost unless defined? MailHost
-  java_import com.thoughtworks.go.config.AgentConfig unless defined? AgentConfig
+  java_import com.thoughtworks.go.config.Agent unless defined? Agent
   java_import com.thoughtworks.go.config.Approval unless defined? Approval
   java_import com.thoughtworks.go.config.ArtifactConfigs unless defined? ArtifactConfigs
   java_import com.thoughtworks.go.config.BuildArtifactConfig unless defined? BuildArtifactConfig
@@ -242,6 +242,9 @@ module JavaImports
   java_import com.thoughtworks.go.server.service.plugins.InvalidPluginTypeException unless defined? InvalidPluginTypeException
   java_import com.thoughtworks.go.server.service.EntityHashingService unless defined? EntityHashingService
   java_import com.thoughtworks.go.config.EnvironmentAgentConfig unless defined? EnvironmentAgentConfig
+  java_import com.thoughtworks.go.config.EnvironmentConfig unless defined? EnvironmentConfig
+  java_import com.thoughtworks.go.config.EnvironmentsConfig unless defined? EnvironmentsConfig
+  java_import com.thoughtworks.go.server.service.AgentService unless defined? AgentService
   java_import com.thoughtworks.go.config.EnvironmentVariablesConfig unless defined? EnvironmentVariablesConfig
   java_import com.thoughtworks.go.config.EnvironmentVariableConfig unless defined? EnvironmentVariableConfig
   java_import com.thoughtworks.go.config.elastic.ElasticProfile unless defined? ElasticProfile

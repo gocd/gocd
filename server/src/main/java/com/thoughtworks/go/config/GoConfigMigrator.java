@@ -55,19 +55,18 @@ public class GoConfigMigrator {
                             ConfigRepository configRepository, ServerHealthService serverHealthService) {
 
         this(goConfigMigration, systemEnvironment, fullConfigSaveNormalFlow,
-                new MagicalGoConfigXmlLoader(configCache, registry), new GoConfigFileReader(systemEnvironment), configRepository, serverHealthService, new UpgradeFailedHandler() {
-                    @Override
-                    public void handle(Exception e) {
-                        e.printStackTrace();
-                        System.err.println(
-                                "There are errors in the Cruise config file.  Please read the error message and correct the errors.\n"
-                                        + "Once fixed, please restart GoCD.\nError: " + e.getMessage());
-                        LOGGER.error(MarkerFactory.getMarker("FATAL"),
-                                "There are errors in the Cruise config file.  Please read the error message and correct the errors.\n"
-                                        + "Once fixed, please restart GoCD.\nError: " + e.getMessage());
-                        // Send exit signal in a separate thread otherwise it will deadlock jetty
-                        new Thread(() -> System.exit(1)).start();
-                    }
+                new MagicalGoConfigXmlLoader(configCache, registry),
+                new GoConfigFileReader(systemEnvironment), configRepository, serverHealthService,
+                e -> {
+                    e.printStackTrace();
+                    System.err.println(
+                            "There are errors in the Cruise config file.  Please read the error message and correct the errors.\n"
+                                    + "Once fixed, please restart GoCD.\nError: " + e.getMessage());
+                    LOGGER.error(MarkerFactory.getMarker("FATAL"),
+                            "There are errors in the Cruise config file.  Please read the error message and correct the errors.\n"
+                                    + "Once fixed, please restart GoCD.\nError: " + e.getMessage());
+                    // Send exit signal in a separate thread otherwise it will deadlock jetty
+                    new Thread(() -> System.exit(1)).start();
                 });
     }
 
@@ -114,7 +113,7 @@ public class GoConfigMigrator {
 
     private GoConfigHolder upgradeVersionedConfigFile(Exception originalException) throws Exception {
         GoConfigRevision currentConfigRevision = configRepository.getCurrentRevision();
-        if(currentConfigRevision == null) {
+        if (currentConfigRevision == null) {
             LOGGER.warn("There is no versioned configuration to fallback for migration.");
             throw originalException;
         }

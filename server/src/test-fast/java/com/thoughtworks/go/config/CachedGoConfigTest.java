@@ -122,9 +122,9 @@ public class CachedGoConfigTest {
                 pipelineConfigChangeListenerCalled[0] = true;
             }
         };
-        EntityConfigChangedListener<AgentConfig> agentConfigChangeListener = new EntityConfigChangedListener<AgentConfig>() {
+        EntityConfigChangedListener<Agent> agentConfigChangeListener = new EntityConfigChangedListener<Agent>() {
             @Override
-            public void onEntityConfigChange(AgentConfig entity) {
+            public void onEntityConfigChange(Agent entity) {
                 agentConfigChangeListenerCalled[0] = true;
             }
         };

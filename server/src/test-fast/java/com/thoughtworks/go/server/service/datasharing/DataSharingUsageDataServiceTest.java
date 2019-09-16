@@ -16,10 +16,7 @@
 package com.thoughtworks.go.server.service.datasharing;
 
 import com.thoughtworks.go.CurrentGoCDVersion;
-import com.thoughtworks.go.config.AgentConfig;
-import com.thoughtworks.go.config.BasicCruiseConfig;
-import com.thoughtworks.go.config.JobConfig;
-import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
@@ -33,6 +30,7 @@ import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.JobInstanceSqlMapDao;
 import com.thoughtworks.go.server.domain.UsageStatistics;
+import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
@@ -52,6 +50,10 @@ public class DataSharingUsageDataServiceTest {
     private DataSharingUsageDataService service;
     @Mock
     private GoConfigService goConfigService;
+
+    @Mock
+    private AgentService agentService;
+
     @Mock
     private JobInstanceSqlMapDao jobInstanceSqlMapDao;
 
@@ -69,7 +71,7 @@ public class DataSharingUsageDataServiceTest {
         initMocks(this);
         Toggles.initializeWith(featureToggleService);
         when(featureToggleService.isToggleOn(Toggles.TEST_DRIVE)).thenReturn(false);
-        service = new DataSharingUsageDataService(goConfigService, jobInstanceSqlMapDao, dataSharingUsageStatisticsReportingService, goCache);
+        service = new DataSharingUsageDataService(goConfigService, jobInstanceSqlMapDao, dataSharingUsageStatisticsReportingService, goCache,agentService);
         goConfig = GoConfigMother.configWithPipelines("p1", "p2");
         goConfig.getElasticConfig().getProfiles().add(new ElasticProfile("docker-profile", "prod-cluster-2"));
         goConfig.getElasticConfig().getProfiles().add(new ElasticProfile("ecs-profile", "prod-cluster-1"));
@@ -82,7 +84,6 @@ public class DataSharingUsageDataServiceTest {
         configRepoPipeline.getFirstStageConfig().getJobs().addAll(Arrays.asList(elasticJob1, elasticJob2));
         configRepoPipeline.setOrigin(new RepoConfigOrigin());
         goConfig.addPipeline("first", configRepoPipeline);
-        goConfig.agents().add(new AgentConfig("agent1"));
         when(goConfigService.getCurrentConfig()).thenReturn(goConfig);
         when(goConfigService.getElasticConfig()).thenReturn(goConfig.getElasticConfig());
         oldestBuild = new JobStateTransition(JobState.Scheduled, new Date());
@@ -92,6 +93,7 @@ public class DataSharingUsageDataServiceTest {
 
     @Test
     public void shouldGetUsageStatistics() {
+        when(agentService.agents()).thenReturn(new Agents(AgentMother.localAgent(), AgentMother.elasticAgent()));
         UsageStatistics usageStatistics = service.get();
         assertThat(usageStatistics.pipelineCount()).isEqualTo(3L);
         assertThat(usageStatistics.configRepoPipelineCount()).isEqualTo(1L);
@@ -109,6 +111,7 @@ public class DataSharingUsageDataServiceTest {
     @Test
     public void shouldReturnOldestPipelineExecutionTimeAsZeroIfNoneOfThePipelinesHaveEverRun() {
         when(jobInstanceSqlMapDao.oldestBuild()).thenReturn(null);
+        when(agentService.agents()).thenReturn(new Agents(AgentMother.localAgent(), AgentMother.elasticAgent()));
         UsageStatistics usageStatistics = service.get();
         assertThat(usageStatistics.pipelineCount()).isEqualTo(3L);
         assertThat(usageStatistics.agentCount()).isEqualTo(1L);
@@ -117,7 +120,7 @@ public class DataSharingUsageDataServiceTest {
 
     @Test
     public void shouldNotIncludeElasticAgentsInTheCount() {
-        goConfig.agents().add(AgentMother.elasticAgent());
+        when(agentService.agents()).thenReturn(new Agents(AgentMother.localAgent(), AgentMother.elasticAgent()));
         UsageStatistics usageStatistics = service.get();
         assertThat(usageStatistics.agentCount()).isEqualTo(1L);
     }

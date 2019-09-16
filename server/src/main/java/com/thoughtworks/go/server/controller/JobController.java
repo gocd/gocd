@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.server.controller;
 
-import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.Tabs;
 import com.thoughtworks.go.config.TrackingTool;
@@ -148,7 +148,7 @@ public class JobController {
             JobInstance mostRecentJobInstance = jobInstanceDao.mostRecentJobWithTransitions(requestedInstance.getIdentifier());
 
             JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(mostRecentJobInstance,
-                    agentService.findAgentObjectByUuid(mostRecentJobInstance.getAgentUuid()),
+                    agentService.findRegisteredAgentByUUID(mostRecentJobInstance.getAgentUuid()),
                     stageService.getBuildDuration(pipelineName, stageName, mostRecentJobInstance));
             json = createBuildInfo(presenter);
         } catch (Exception e) {
@@ -162,7 +162,7 @@ public class JobController {
         String pipelineName = current.getIdentifier().getPipelineName();
         String stageName = current.getIdentifier().getStageName();
         JobInstances recent25 = jobInstanceService.latestCompletedJobs(pipelineName, stageName, current.getName());
-        AgentConfig agentConfig = goConfigService.agentByUuid(current.getAgentUuid());
+        Agent agent = agentService.getAgentByUUID(current.getAgentUuid());
         Pipeline pipelineWithOneBuild = pipelineService.wrapBuildDetails(current);
         Tabs customizedTabs = goConfigService.getCustomizedTabs(pipelineWithOneBuild.getName(),
                 pipelineWithOneBuild.getFirstStage().getName(), current.getName());
@@ -170,7 +170,7 @@ public class JobController {
                 new CaseInsensitiveString(pipelineWithOneBuild.getName())).trackingTool();
         Properties properties = propertiesService.getPropertiesForJob(current.getId());
         Stage stage = stageService.getStageByBuild(current);
-        return new JobDetailPresentationModel(current, recent25, agentConfig, pipelineWithOneBuild, customizedTabs, trackingTool, artifactService, properties, stage);
+        return new JobDetailPresentationModel(current, recent25, agent, pipelineWithOneBuild, customizedTabs, trackingTool, artifactService, properties, stage);
     }
 
     private boolean isValidCounter(String pipelineCounter) {
@@ -184,7 +184,7 @@ public class JobController {
         data.put("websocketEnabled", Toggles.isToggleOn(Toggles.BROWSER_CONSOLE_LOG_WS));
         data.put("useIframeSandbox", systemEnvironment.useIframeSandbox());
         data.put("isEditableViaUI", goConfigService.isPipelineEditable(jobDetail.getPipelineName()));
-        data.put("isAgentAlive", goConfigService.hasAgent(jobDetail.getAgentUuid()));
+        data.put("isAgentAlive", agentService.isRegistered(jobDetail.getAgentUuid()));
         data.put("disallowPropertiesAccess", disallowPropertiesAccess);
         addElasticAgentInfo(jobDetail, data);
         return new ModelAndView("build_detail/build_detail_page", data);
@@ -209,11 +209,11 @@ public class JobController {
         final ElasticAgentPluginInfo pluginInfo = elasticAgentMetadataStore.getPluginInfo(pluginId);
 
         if (pluginInfo != null && pluginInfo.getCapabilities().supportsAgentStatusReport()) {
-            final AgentConfig agentConfig = goConfigService.agentByUuid(jobInstance.getAgentUuid());
+            final Agent agent = agentService.getAgentByUUID(jobInstance.getAgentUuid());
 
-            if (agentConfig != null && agentConfig.isElastic()) {
-                data.put("elasticAgentPluginId", agentConfig.getElasticPluginId());
-                data.put("elasticAgentId", agentConfig.getElasticAgentId());
+            if (agent != null && agent.isElastic()) {
+                data.put("elasticAgentPluginId", agent.getElasticPluginId());
+                data.put("elasticAgentId", agent.getElasticAgentId());
                 return;
             }
 

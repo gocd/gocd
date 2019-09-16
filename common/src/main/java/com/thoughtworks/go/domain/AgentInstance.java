@@ -15,8 +15,7 @@
  */
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.config.AgentConfig;
-import com.thoughtworks.go.config.ResourceConfig;
+import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.config.ResourceConfigs;
 import com.thoughtworks.go.listener.AgentStatusChangeListener;
 import com.thoughtworks.go.remote.AgentIdentifier;
@@ -34,6 +33,13 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import java.util.Date;
 import java.util.List;
 
+import static com.thoughtworks.go.domain.AgentConfigStatus.Disabled;
+import static com.thoughtworks.go.domain.AgentConfigStatus.Enabled;
+import static com.thoughtworks.go.domain.AgentConfigStatus.Pending;
+import static com.thoughtworks.go.domain.AgentRuntimeStatus.*;
+import static com.thoughtworks.go.domain.AgentStatus.fromConfig;
+import static com.thoughtworks.go.domain.AgentStatus.fromRuntime;
+
 //TODO put the logic back to the AgentRuntimeInfo for all the sync method
 
 /**
@@ -41,7 +47,7 @@ import java.util.List;
  */
 public class AgentInstance implements Comparable<AgentInstance> {
     private AgentType agentType;
-    protected AgentConfig agentConfig;
+    protected Agent agent;
     private AgentRuntimeInfo agentRuntimeInfo;
     private AgentStatusChangeListener agentStatusChangeListener;
 
@@ -52,23 +58,29 @@ public class AgentInstance implements Comparable<AgentInstance> {
     private SystemEnvironment systemEnvironment;
     private ConfigErrors errors = new ConfigErrors();
 
-    protected AgentInstance(AgentConfig agentConfig, AgentType agentType, SystemEnvironment systemEnvironment,
+    protected AgentInstance(Agent agent, AgentType agentType, SystemEnvironment systemEnvironment,
                             AgentStatusChangeListener agentStatusChangeListener) {
         this.systemEnvironment = systemEnvironment;
-        this.agentRuntimeInfo = AgentRuntimeInfo.initialState(agentConfig);
+        this.agentRuntimeInfo = AgentRuntimeInfo.initialState(agent);
         this.agentStatusChangeListener = agentStatusChangeListener;
-        this.agentConfigStatus = AgentConfigStatus.Pending;
-        this.agentConfig = agentConfig;
+        this.agentConfigStatus = Pending;
+        this.agent = agent;
         this.agentType = agentType;
         this.timeProvider = new TimeProvider();
     }
 
+    protected AgentInstance(Agent agent, AgentType agentType, SystemEnvironment systemEnvironment,
+                            AgentStatusChangeListener agentStatusChangeListener, AgentRuntimeInfo agentRuntimeInfo) {
+        this(agent, agentType, systemEnvironment, agentStatusChangeListener);
+        this.agentRuntimeInfo = agentRuntimeInfo;
+    }
+
     public String getHostname() {
-        return agentConfig().getHostname();
+        return getAgent().getHostname();
     }
 
     public String getUuid() {
-        return agentConfig().getUuid();
+        return getAgent().getUuid();
     }
 
     @Override
@@ -83,23 +95,23 @@ public class AgentInstance implements Comparable<AgentInstance> {
         return comparison;
     }
 
-    public void syncConfig(AgentConfig agentConfig) {
-        this.agentConfig = agentConfig;
+    public void syncAgentFrom(Agent agent) {
+        this.agent = agent;
 
-        if (agentConfig.isElastic()) {
-            agentRuntimeInfo = ElasticAgentRuntimeInfo.fromServer(agentRuntimeInfo, agentConfig.getElasticAgentId(), agentConfig.getElasticPluginId());
+        if (agent.isElastic()) {
+            agentRuntimeInfo = ElasticAgentRuntimeInfo.fromServer(agentRuntimeInfo, agent.getElasticAgentId(), agent.getElasticPluginId());
         }
 
         if (agentRuntimeInfo.getRuntimeStatus() == AgentRuntimeStatus.Unknown) {
             agentRuntimeInfo.idle();
         }
 
-        updateConfigStatus(agentConfig.isDisabled() ? AgentConfigStatus.Disabled : AgentConfigStatus.Enabled);
+        updateConfigStatus(agent.isDisabled() ? Disabled : Enabled);
     }
 
-    private void syncStatus(AgentRuntimeStatus runtimeStatus) {
-        if (runtimeStatus == AgentRuntimeStatus.Idle) {
-            updateRuntimeStatus(AgentRuntimeStatus.Idle);
+    private void syncRuntimeStatus(AgentRuntimeStatus runtimeStatus) {
+        if (runtimeStatus == Idle) {
+            updateRuntimeStatus(Idle);
             agentRuntimeInfo.clearBuildingInfo();
         } else if (!(agentRuntimeInfo.isCancelled())) {
             updateRuntimeStatus(runtimeStatus);
@@ -107,24 +119,24 @@ public class AgentInstance implements Comparable<AgentInstance> {
     }
 
     public void building(AgentBuildingInfo agentBuildingInfo) {
-        syncStatus(AgentRuntimeStatus.Building);
+        syncRuntimeStatus(Building);
         agentRuntimeInfo.busy(agentBuildingInfo);
     }
 
     //  Used only in tests
     public void idle() {
-        agentConfigStatus = AgentConfigStatus.Enabled;
-        syncStatus(AgentRuntimeStatus.Idle);
+        agentConfigStatus = Enabled;
+        syncRuntimeStatus(Idle);
         agentRuntimeInfo.clearBuildingInfo();
     }
 
     public void pending() {
-        agentConfigStatus = AgentConfigStatus.Pending;
+        agentConfigStatus = Pending;
         agentRuntimeInfo.clearBuildingInfo();
     }
 
     public void enable() {
-        updateConfigStatus(AgentConfigStatus.Enabled);
+        updateConfigStatus(Enabled);
         agentRuntimeInfo.clearBuildingInfo();
     }
 
@@ -136,14 +148,14 @@ public class AgentInstance implements Comparable<AgentInstance> {
         if (!canDisable()) {
             throw new RuntimeException("Should not deny agent when is building.");
         }
-        agentConfig().disable();
-        updateConfigStatus(AgentConfigStatus.Disabled);
+        getAgent().disable();
+        updateConfigStatus(Disabled);
     }
 
     public AgentStatus getStatus() {
-        return agentConfigStatus == AgentConfigStatus.Enabled
-                ? AgentStatus.fromRuntime(agentRuntimeInfo.getRuntimeStatus())
-                : AgentStatus.fromConfig(agentConfigStatus);
+        return agentConfigStatus == Enabled
+                ? fromRuntime(agentRuntimeInfo.getRuntimeStatus())
+                : fromConfig(agentConfigStatus);
     }
 
     public AgentConfigStatus getAgentConfigStatus() {
@@ -154,8 +166,8 @@ public class AgentInstance implements Comparable<AgentInstance> {
         return agentRuntimeInfo.getBuildingInfo();
     }
 
-    public AgentConfig agentConfig() {
-        return agentConfig;
+    public Agent getAgent() {
+        return agent;
     }
 
     public Date getLastHeardTime() {
@@ -163,7 +175,7 @@ public class AgentInstance implements Comparable<AgentInstance> {
     }
 
     public boolean canDisable() {
-        return agentConfigStatus != AgentConfigStatus.Disabled;
+        return agentConfigStatus != Disabled;
     }
 
     /**
@@ -172,29 +184,29 @@ public class AgentInstance implements Comparable<AgentInstance> {
      * @deprecated
      */
     public boolean canApprove() {
-        return agentConfigStatus != AgentConfigStatus.Enabled && !agentConfig.isDisabled();
+        return agentConfigStatus != Enabled && !agent.isDisabled();
     }
 
     public void refresh() {
-        if (agentConfigStatus == AgentConfigStatus.Pending) {
+        if (agentConfigStatus == Pending) {
             return;
         }
 
         if (lastHeardTime == null) {
-            updateRuntimeStatus(AgentRuntimeStatus.Missing);
+            updateRuntimeStatus(Missing);
             lastHeardTime = new Date();
         }
 
         if (isTimeout(lastHeardTime)) {
-            updateRuntimeStatus(AgentRuntimeStatus.LostContact);
+            updateRuntimeStatus(LostContact);
         }
     }
 
     public void lostContact() {
-        if (agentConfigStatus == AgentConfigStatus.Pending || agentConfigStatus == AgentConfigStatus.Disabled) {
+        if (agentConfigStatus == Pending || agentConfigStatus == Disabled) {
             return;
         }
-        updateRuntimeStatus(AgentRuntimeStatus.LostContact);
+        updateRuntimeStatus(LostContact);
     }
 
     boolean isTimeout(Date lastHeardTime) {
@@ -207,11 +219,11 @@ public class AgentInstance implements Comparable<AgentInstance> {
     }
 
     public Registration assignCertification() {
-        if (AgentConfigStatus.Pending.equals(agentConfigStatus)) {
+        if (Pending.equals(agentConfigStatus)) {
             return Registration.createNullPrivateKeyEntry();
         }
         X509CertificateGenerator certificateGenerator = new X509CertificateGenerator();
-        Registration entry = certificateGenerator.createAgentCertificate(new SystemEnvironment().agentkeystore(), agentConfig.getHostname());
+        Registration entry = certificateGenerator.createAgentCertificate(new SystemEnvironment().agentkeystore(), agent.getHostname());
         return new Registration(entry.getPrivateKey(), entry.getChain());
     }
 
@@ -220,19 +232,19 @@ public class AgentInstance implements Comparable<AgentInstance> {
     }
 
     public void update(AgentRuntimeInfo newRuntimeInfo) {
-        syncStatus(newRuntimeInfo.getRuntimeStatus());
+        syncRuntimeStatus(newRuntimeInfo.getRuntimeStatus());
         syncIp(newRuntimeInfo);
         this.lastHeardTime = new Date();
         this.agentRuntimeInfo.updateSelf(newRuntimeInfo);
     }
 
     private void syncIp(AgentRuntimeInfo info) {
-        String ipAddress = (agentType == AgentType.LOCAL || agentType == AgentType.REMOTE) ? info.getIpAdress() : agentConfig.getIpAddress();
-        this.agentConfig.setIpAddress(ipAddress);
+        String ipAddress = (agentType == AgentType.LOCAL || agentType == AgentType.REMOTE) ? info.getIpAdress() : agent.getIpaddress();
+        this.agent.setIpaddress(ipAddress);
     }
 
     public boolean isIpChangeRequired(String newIpAdress) {
-        return !StringUtils.equals(this.agentConfig.getIpAddress(), newIpAdress) && this.isRegistered();
+        return !StringUtils.equals(this.agent.getIpaddress(), newIpAdress) && this.isRegistered();
     }
 
     public String getLocation() {
@@ -252,19 +264,19 @@ public class AgentInstance implements Comparable<AgentInstance> {
     }
 
     public boolean isPending() {
-        return agentConfigStatus == AgentConfigStatus.Pending;
+        return agentConfigStatus == Pending;
     }
 
     public boolean isDisabled() {
-        return agentConfig().isDisabled();
+        return getAgent().isDisabled();
     }
 
     public boolean isIdle() {
-        return agentRuntimeInfo.getRuntimeStatus() == AgentRuntimeStatus.Idle;
+        return agentRuntimeInfo.getRuntimeStatus() == Idle;
     }
 
     public boolean isBuilding() {
-        return agentRuntimeInfo.getRuntimeStatus() == AgentRuntimeStatus.Building;
+        return agentRuntimeInfo.getRuntimeStatus() == Building;
     }
 
     public boolean isCancelled() {
@@ -272,19 +284,19 @@ public class AgentInstance implements Comparable<AgentInstance> {
     }
 
     public boolean isMissing() {
-        return agentRuntimeInfo.getRuntimeStatus() == AgentRuntimeStatus.Missing;
+        return agentRuntimeInfo.getRuntimeStatus() == Missing;
     }
 
     public AgentIdentifier getAgentIdentifier() {
-        return agentConfig().getAgentIdentifier();
+        return getAgent().getAgentIdentifier();
     }
 
     public ResourceConfigs getResourceConfigs() {
-        return agentConfig().getResourceConfigs();
+        return new ResourceConfigs(getAgent().getResources());
     }
 
     public String getIpAddress() {
-        return agentConfig.getIpAddress();
+        return agent.getIpaddress();
     }
 
     public JobPlan firstMatching(List<JobPlan> jobPlans) {
@@ -295,7 +307,7 @@ public class AgentInstance implements Comparable<AgentInstance> {
             if (jobPlan.assignedToAgent() && isNotElasticAndResourcesMatchForNonElasticAgents(jobPlan)) {
                 return jobPlan;
             } else {
-                if (agentConfig.getUuid().equals(jobPlan.getAgentUuid())) {
+                if (agent.getUuid().equals(jobPlan.getAgentUuid())) {
                     return jobPlan;
                 }
             }
@@ -304,7 +316,7 @@ public class AgentInstance implements Comparable<AgentInstance> {
     }
 
     private boolean isNotElasticAndResourcesMatchForNonElasticAgents(JobPlan jobPlan) {
-        return !jobPlan.requiresElasticAgent() && !isElastic() && agentConfig.hasAllResources(jobPlan.getResources().toResourceConfigs());
+        return !jobPlan.requiresElasticAgent() && !isElastic() && agent.hasAllResources(jobPlan.getResources().toResourceConfigs().resourceNames());
     }
 
     public String getBuildLocator() {
@@ -312,7 +324,7 @@ public class AgentInstance implements Comparable<AgentInstance> {
     }
 
     public boolean canEnable() {
-        return agentConfigStatus != AgentConfigStatus.Enabled;
+        return agentConfigStatus != Enabled;
     }
 
     public DiskSpace freeDiskSpace() {
@@ -340,36 +352,46 @@ public class AgentInstance implements Comparable<AgentInstance> {
         return isDisabled() && !(isBuilding() || isCancelled());
     }
 
+    public boolean matches(FilterBy filter) {
+        switch (filter) {
+            case Pending:
+                return isPending();
+            case Elastic:
+                return isElastic();
+            case Null:
+                return isNullAgent();
+            default:
+                return false;
+        }
+    }
+
     enum AgentType {
         LOCAL, REMOTE
     }
 
-    public static AgentInstance createFromConfig(AgentConfig agentInConfig, SystemEnvironment systemEnvironment,
-                                                 AgentStatusChangeListener agentStatusChangeListener) {
-        AgentType type = agentInConfig.isFromLocalHost() ? AgentType.LOCAL : AgentType.REMOTE;
-        AgentInstance result = new AgentInstance(agentInConfig, type, systemEnvironment, agentStatusChangeListener);
-        result.agentConfigStatus = agentInConfig.isDisabled() ? AgentConfigStatus.Disabled : AgentConfigStatus.Enabled;
+    public static AgentInstance createFromAgent(Agent agent, SystemEnvironment systemEnvironment,
+                                                AgentStatusChangeListener agentStatusChangeListener) {
+        AgentType type = agent.isFromLocalHost() ? AgentType.LOCAL : AgentType.REMOTE;
+        AgentInstance agentInstance = new AgentInstance(agent, type, systemEnvironment, agentStatusChangeListener);
+        agentInstance.agentConfigStatus = agent.isDisabled() ? Disabled : Enabled;
+        agentInstance.errors.addAll(agent.errors());
 
-        result.errors.addAll(agentInConfig.errors());
-        for (ResourceConfig resourceConfig : agentInConfig.getResourceConfigs()) {
-            result.errors.addAll(resourceConfig.errors());
-        }
-        return result;
+        return agentInstance;
     }
 
-    public static AgentInstance createFromLiveAgent(AgentRuntimeInfo agentRuntimeInfo, SystemEnvironment systemEnvironment,
+    public static AgentInstance createFromLiveAgent(AgentRuntimeInfo agentRuntimeInfo, SystemEnvironment sysEnv,
                                                     AgentStatusChangeListener agentStatusChangeListener) {
-        AgentConfig config = agentRuntimeInfo.agent();
-        AgentType type = config.isFromLocalHost() ? AgentType.LOCAL : AgentType.REMOTE;
+        Agent agent = agentRuntimeInfo.agent();
+        AgentType type = agent.isFromLocalHost() ? AgentType.LOCAL : AgentType.REMOTE;
         AgentInstance instance;
-        if (systemEnvironment.isAutoRegisterLocalAgentEnabled() && config.isFromLocalHost()) {
-            instance = new AgentInstance(config, type, systemEnvironment, agentStatusChangeListener);
-            instance.agentConfigStatus = AgentConfigStatus.Enabled;
+        if (sysEnv.isAutoRegisterLocalAgentEnabled() && agent.isFromLocalHost()) {
+            instance = new AgentInstance(agent, type, sysEnv, agentStatusChangeListener, agentRuntimeInfo);
+            instance.agentConfigStatus = Enabled;
             instance.agentRuntimeInfo.idle();
             instance.update(agentRuntimeInfo);
             return instance;
         } else {
-            instance = new AgentInstance(config, type, systemEnvironment, agentStatusChangeListener);
+            instance = new AgentInstance(agent, type, sysEnv, agentStatusChangeListener);
             instance.update(agentRuntimeInfo);
         }
         return instance;
@@ -395,7 +417,7 @@ public class AgentInstance implements Comparable<AgentInstance> {
     }
 
     private boolean equals(AgentInstance that) {
-        if (this.agentConfig == null ? that.agentConfig != null : !this.agentConfig.equals(that.agentConfig)) {
+        if (this.agent == null ? that.agent != null : !this.agent.equals(that.agent)) {
             return false;
         }
         if (this.agentRuntimeInfo == null ? that.agentRuntimeInfo != null : !this.agentRuntimeInfo.equals(that.agentRuntimeInfo)) {
@@ -417,7 +439,7 @@ public class AgentInstance implements Comparable<AgentInstance> {
     @Override
     public int hashCode() {
         int result;
-        result = (agentConfig != null ? agentConfig.hashCode() : 0);
+        result = (agent != null ? agent.hashCode() : 0);
         result = 31 * result + (agentType != null ? agentType.hashCode() : 0);
         result = 31 * result + (agentRuntimeInfo != null ? agentRuntimeInfo.hashCode() : 0);
         result = 31 * result + (lastHeardTime != null ? lastHeardTime.hashCode() : 0);
@@ -426,10 +448,11 @@ public class AgentInstance implements Comparable<AgentInstance> {
         return result;
     }
 
-    public void checkForRemoval(List<AgentInstance> agentsToRemove) {
-        if (agentConfigStatus == AgentConfigStatus.Pending && isTimeout(lastHeardTime)) {
-            agentsToRemove.add(this);
+    public boolean canRemove() {
+        if (agentConfigStatus == Pending && isTimeout(lastHeardTime)) {
+            return true;
         }
+        return false;
     }
 
     public String getOperatingSystem() {
@@ -464,5 +487,11 @@ public class AgentInstance implements Comparable<AgentInstance> {
         if (this.isRegistered()) {
             this.agentStatusChangeListener.onAgentStatusChange(this);
         }
+    }
+
+    public enum FilterBy {
+        Pending,
+        Elastic,
+        Null
     }
 }

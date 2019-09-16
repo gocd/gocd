@@ -15,12 +15,12 @@
  */
 package com.thoughtworks.go.server.presentation.models;
 
+import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.domain.JobState;
 import com.thoughtworks.go.domain.NullAgent;
 import com.thoughtworks.go.dto.DurationBean;
-import com.thoughtworks.go.server.domain.Agent;
 import com.thoughtworks.go.server.web.JsonView;
 import com.thoughtworks.go.util.TimeConverter;
 import org.joda.time.DateTime;
@@ -42,7 +42,7 @@ public class JobStatusJsonPresentationModel {
         this.instance = instance;
 
         if (null == instance.getAgentUuid()) {
-            agent = Agent.fromConfig(NullAgent.createNullAgent());
+            agent = NullAgent.createNullAgent();
         }
 
         if (null == agent) {
@@ -59,7 +59,7 @@ public class JobStatusJsonPresentationModel {
 
     public Map toJsonHash() {
         Map<String, Object> jsonParams = new LinkedHashMap<>();
-        jsonParams.put("agent", agent.getHostname());
+        jsonParams.put("agent", agent.getHostnameForDisplay());
         jsonParams.put("agent_ip", agent.getIpaddress());
         jsonParams.put("agent_uuid", agent.getUuid());
         jsonParams.put("build_scheduled_date", getScheduledTime());

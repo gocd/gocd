@@ -15,10 +15,7 @@
  */
 package com.thoughtworks.go.server.dao;
 
-import com.thoughtworks.go.config.Agents;
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.StageConfig;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
@@ -32,6 +29,7 @@ import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.persistence.AgentDao;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.persistence.PipelineRepository;
 import com.thoughtworks.go.server.service.InstanceFactory;
@@ -83,6 +81,7 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
     private PipelineSqlMapDao pipelineDao;
     private JobInstanceDao jobInstanceDao;
     private PropertyDao propertyDao;
+    private AgentDao agentDao;
     private PipelineTimeline pipelineTimeline;
     private TransactionTemplate transactionTemplate;
     private TransactionSynchronizationManager transactionSynchronizationManager;
@@ -110,6 +109,7 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
         this.jobInstanceDao = (JobInstanceDao) context.getBean("buildInstanceDao");
         this.propertyDao = (PropertyDao) context.getBean("propertyDao");
         this.pipelineDao = (PipelineSqlMapDao) context.getBean("pipelineDao");
+        this.agentDao = (AgentDao) context.getBean("agentDao");
         this.materialRepository = (MaterialRepository) context.getBean("materialRepository");
         this.goCache = (GoCache) context.getBean("goCache");
         this.instanceFactory = (InstanceFactory) context.getBean("instanceFactory");
@@ -138,7 +138,8 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
                                 TransactionSynchronizationManager transactionSynchronizationManager,
                                 GoCache goCache,
                                 PipelineService pipelineService, InstanceFactory instanceFactory,
-                                JobAgentMetadataDao jobAgentMetadataDao) throws AmbiguousTableNameException {
+                                JobAgentMetadataDao jobAgentMetadataDao,
+                                AgentDao agentDao) throws AmbiguousTableNameException {
         this.dataSource = dataSource;
         this.sqlMapClient = sqlMapClient;
         this.stageDao = stageDao;
@@ -153,6 +154,7 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
         this.jobAgentMetadataDao = jobAgentMetadataDao;
         this.pipelineDao = (PipelineSqlMapDao) pipelineDao;
         this.materialRepository = materialRepository;
+        this.agentDao = agentDao;
         setSessionFactory(sessionFactory);
         initialize(dataSource);
     }
@@ -638,6 +640,12 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
             }
         });
         return revision;
+    }
+
+    public void addAgent(Agent agent){
+        if(agent != null){
+            agentDao.saveOrUpdate(agent);
+        }
     }
 
     public Pipeline checkinRevisionsToBuild(ManualBuild build, PipelineConfig pipelineConfig, MaterialRevision... materialRevisions) {

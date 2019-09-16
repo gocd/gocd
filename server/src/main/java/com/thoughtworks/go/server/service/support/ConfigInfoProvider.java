@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.service.support;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
 import com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo;
+import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -30,17 +31,19 @@ import static java.util.Collections.singletonMap;
 
 @Component
 public class ConfigInfoProvider implements ServerInfoProvider {
+    private final AgentService agentService;
     private GoConfigService goConfigService;
     private final AuthorizationMetadataStore authorizationMetadataStore;
 
     @Autowired
-    public ConfigInfoProvider(GoConfigService goConfigService) {
-        this(goConfigService, AuthorizationMetadataStore.instance());
+    public ConfigInfoProvider(GoConfigService goConfigService, AgentService agentService) {
+        this(goConfigService, AuthorizationMetadataStore.instance(), agentService);
     }
 
-    ConfigInfoProvider(GoConfigService goConfigService, AuthorizationMetadataStore authorizationMetadataStore) {
+    ConfigInfoProvider(GoConfigService goConfigService, AuthorizationMetadataStore authorizationMetadataStore, AgentService agentService) {
         this.goConfigService = goConfigService;
         this.authorizationMetadataStore = authorizationMetadataStore;
+        this.agentService = agentService;
     }
 
     @Override
@@ -55,8 +58,8 @@ public class ConfigInfoProvider implements ServerInfoProvider {
 
         LinkedHashMap<String, Object> validConfig = new LinkedHashMap<>();
         validConfig.put("Number of pipelines", goConfigService.getAllPipelineConfigs().size());
-        validConfig.put("Number of agents", goConfigService.agents().size());
         validConfig.put("Number of environments", currentConfig.getEnvironments().size());
+        validConfig.put("Number of agents", agentService.getAgentInstances().size());
         validConfig.put("Number of unique materials", currentConfig.getAllUniqueMaterials().size());
         validConfig.put("Number of schedulable materials", goConfigService.getSchedulableMaterials().size());
 

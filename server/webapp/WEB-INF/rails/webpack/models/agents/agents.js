@@ -213,7 +213,7 @@ export const Agents = function (data) {
 
 };
 
-Agents.API_VERSION = 'v5';
+Agents.API_VERSION = 'v6';
 
 CrudMixins.Index({
   type:     Agents,
@@ -336,6 +336,10 @@ Agents.Agent.Environment = function (data) {
 
   this.associatedFromConfigRepo = () => {
     return this.originType() === "config-repo";
+  };
+
+  this.isUnknown = () => {
+    return this.originType() === "unknown";
   };
 };
 

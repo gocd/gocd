@@ -17,14 +17,16 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
-import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.comparator.AlphaAsciiCollectionComparator;
-import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.stream.Collectors;
+
+import static com.thoughtworks.go.util.CommaSeparatedString.append;
+import static com.thoughtworks.go.util.StringUtil.joinForDisplay;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 @ConfigTag("resources")
 @ConfigCollection(ResourceConfig.class)
@@ -38,15 +40,22 @@ public class ResourceConfigs extends BaseCollection<ResourceConfig> implements C
         super(resourceConfigs);
     }
 
-    public ResourceConfigs(String resources) {
-        String[] resourceArray = resources.split(",");
-        for (String resource : resourceArray) {
-            try {
-                add(new ResourceConfig(resource));
-            } catch (Exception e) {
-                continue;
-            }
+    public ResourceConfigs(String commaSeparatedResources) {
+        if (isNotEmpty(commaSeparatedResources)) {
+            String[] resourceArr = commaSeparatedResources.split(",");
+            Arrays.stream(resourceArr)
+                    .map(String::trim)
+                    .map(ResourceConfig::new)
+                    .forEach(this::add);
         }
+    }
+
+    public boolean hasErrors() {
+        return !this.errors().isEmpty();
+    }
+
+    public String getCommaSeparatedResourceNames() {
+        return append("", resourceNames());
     }
 
     public ResourceConfigs(List<ResourceConfig> resourceConfigs) {
@@ -55,24 +64,24 @@ public class ResourceConfigs extends BaseCollection<ResourceConfig> implements C
 
     @Override
     public boolean add(ResourceConfig resourceConfig) {
-        if (!this.contains(resourceConfig) && !StringUtils.isBlank(resourceConfig.getName())) {
-            super.add(resourceConfig);
-            return true;
+        if (this.contains(resourceConfig) || isBlank(resourceConfig.getName())) {
+            return false;
         }
-        return false;
+
+        super.add(resourceConfig);
+        return true;
     }
 
     public List<String> resourceNames() {
-        Set<String> names = new TreeSet<>();
-        for (ResourceConfig resourceConfig : this) {
-            names.add(resourceConfig.getName());
-        }
-        return new ArrayList<>(names);
+        return this.stream().map(ResourceConfig::getName)
+                .distinct()
+                .sorted()
+                .collect(Collectors.toList());
     }
 
     @Override
     public String toString() {
-        return StringUtil.joinForDisplay(resourceNames());
+        return joinForDisplay(resourceNames());
     }
 
     @Override
@@ -90,10 +99,17 @@ public class ResourceConfigs extends BaseCollection<ResourceConfig> implements C
 
     @Override
     public void validate(ValidationContext validationContext) {
+        for (ResourceConfig resourceConfig : this) {
+            resourceConfig.validate(validationContext);
+        }
     }
 
     @Override
     public ConfigErrors errors() {
+        this.stream().filter(ResourceConfig::hasErrors)
+                .map(ResourceConfig::errors)
+                .forEach(configErrors::addAll);
+
         return configErrors;
     }
 
@@ -118,8 +134,8 @@ public class ResourceConfigs extends BaseCollection<ResourceConfig> implements C
     public void importFromCsv(String csv) {
         clear();
         String[] resourceNames = csv.split(",");
-        for (String resourceName : resourceNames) {
-            add(new ResourceConfig(resourceName.trim()));
-        }
+        Arrays.stream(resourceNames).map(String::trim)
+                .map(ResourceConfig::new)
+                .forEach(this::add);
     }
 }

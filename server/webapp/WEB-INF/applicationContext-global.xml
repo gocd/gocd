@@ -31,6 +31,7 @@
   <context:component-scan base-package="com.thoughtworks.go.apiv1.mailserver"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv1.internalresources"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv1.internalcommandsnippets"/>
+  <context:component-scan base-package="com.thoughtworks.go.apiv6.agents"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv1.backupconfig"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv1.pipelinesascodeinternal"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv1.pluginsettings"/>
@@ -49,10 +50,9 @@
   <context:component-scan base-package="com.thoughtworks.go.apiv1.secretconfigs"/>
   <context:component-scan base-package="com.thoughtworks.go.api.cctray"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv2.backups"/>
-  <context:component-scan base-package="com.thoughtworks.go.apiv5.agents"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv1.clusterprofiles"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv1.accessToken"/>
-  <context:component-scan base-package="com.thoughtworks.go.apiv2.environments"/>
+  <context:component-scan base-package="com.thoughtworks.go.apiv3.environments"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv2.adminsconfig"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv2.rolesconfig"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv3.users"/>
@@ -61,7 +61,6 @@
   <context:component-scan base-package="com.thoughtworks.go.apiv1.elasticprofileoperation"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv1.usersearch"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv1.servermaintenancemode"/>
-  <context:component-scan base-package="com.thoughtworks.go.apiv4.agents"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv1.version"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv1.configrepooperations"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv2.elasticprofile"/>

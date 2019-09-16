@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.fixture.PipelineWithTwoStages;
@@ -51,12 +51,14 @@ import static org.junit.Assert.assertThat;
         "classpath:testPropertyConfigurer.xml",
         "classpath:WEB-INF/spring-all-servlet.xml",
 })
+
 public class JobAssignmentIntegrationTest {
     @Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private GoConfigDao cruiseConfigDao;
     @Autowired private BuildAssignmentService assignmentService;
     @Autowired private MaterialRepository materialRepository;
     @Autowired private TransactionTemplate transactionTemplate;
+    @Autowired private AgentService agentService;
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
@@ -123,17 +125,17 @@ public class JobAssignmentIntegrationTest {
     }
 
     private AgentInstance setupRemoteAgent() {
-        AgentConfig agentConfig = AgentMother.remoteAgent();
-        configHelper.addAgent(agentConfig);
-        AgentInstance instance = AgentInstance.createFromConfig(agentConfig, systemEnvironment, agentStatusChangeListener());
+        Agent agent = AgentMother.remoteAgent();
+        agentService.saveOrUpdate(agent);
+        AgentInstance instance = AgentInstance.createFromAgent(agent, systemEnvironment, agentStatusChangeListener());
         instance.enable();
         return instance;
     }
 
     private AgentInstance setupLocalAgent() throws UnknownHostException {
-        AgentConfig agentConfig = AgentMother.localAgent();
-        configHelper.addAgent(agentConfig);
-        return AgentInstance.createFromConfig(agentConfig, systemEnvironment, agentStatusChangeListener());
+        Agent agent = AgentMother.localAgent();
+        agentService.saveOrUpdate(agent);
+        return AgentInstance.createFromAgent(agent, systemEnvironment, agentStatusChangeListener());
     }
 
     private AgentStatusChangeListener agentStatusChangeListener() {

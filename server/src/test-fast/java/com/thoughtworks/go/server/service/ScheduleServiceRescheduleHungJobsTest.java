@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobInstances;
@@ -87,8 +87,8 @@ public class ScheduleServiceRescheduleHungJobsTest {
         AgentStatusChangeListener agentStatusChangeListener = mock(AgentStatusChangeListener.class);
         final AgentInstances activities = new AgentInstances(agentStatusChangeListener);
         SystemEnvironment systemEnvironment = new SystemEnvironment();
-        activities.add(AgentInstance.createFromConfig(new AgentConfig("uuid1"), systemEnvironment, agentStatusChangeListener));
-        activities.add(AgentInstance.createFromConfig(new AgentConfig("uuid2"), systemEnvironment, agentStatusChangeListener));
+        activities.add(AgentInstance.createFromAgent(new Agent("uuid1"), systemEnvironment, agentStatusChangeListener));
+        activities.add(AgentInstance.createFromAgent(new Agent("uuid2"), systemEnvironment, agentStatusChangeListener));
         return activities;
     }
 

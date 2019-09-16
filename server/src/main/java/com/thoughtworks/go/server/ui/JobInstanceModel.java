@@ -15,8 +15,8 @@
  */
 package com.thoughtworks.go.server.ui;
 
+import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.domain.*;
-import com.thoughtworks.go.server.domain.Agent;
 import com.thoughtworks.go.server.domain.JobDurationStrategy;
 import org.joda.time.Duration;
 

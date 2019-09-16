@@ -22,6 +22,7 @@ import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.newsecurity.x509.CachingSubjectDnX509PrincipalExtractor;
 import com.thoughtworks.go.server.security.GoAuthority;
 import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
+import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.util.Clock;
 import org.slf4j.Logger;
@@ -51,14 +52,16 @@ public class X509AuthenticationFilter extends OncePerRequestFilter {
     private static final String X509_HEADER_KEY = "javax.servlet.request.X509Certificate";
     private final CachingSubjectDnX509PrincipalExtractor subjectDnX509PrincipalExtractor;
     private final GoConfigService goConfigService;
+    private final AgentService agentService;
     private final Clock clock;
     private Mac mac;
 
     @Autowired
-    public X509AuthenticationFilter(GoConfigService goConfigService, Clock clock) {
+    public X509AuthenticationFilter(GoConfigService goConfigService, Clock clock, AgentService agentService) {
         this.goConfigService = goConfigService;
         this.clock = clock;
         this.subjectDnX509PrincipalExtractor = new CachingSubjectDnX509PrincipalExtractor();
+        this.agentService = agentService;
     }
 
     @Override
@@ -98,7 +101,7 @@ public class X509AuthenticationFilter extends OncePerRequestFilter {
         String uuid = request.getHeader("X-Agent-GUID");
         String token = request.getHeader("Authorization");
 
-        if (!goConfigService.hasAgent(uuid)) {
+        if (!agentService.isRegistered(uuid)) {
             LOGGER.debug("Denying access, agent with uuid '{}' is not registered.", uuid);
             response.setStatus(403);
             return;

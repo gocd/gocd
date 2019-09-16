@@ -24,8 +24,9 @@ import static com.thoughtworks.go.util.GoConstants.CONFIG_SCHEMA_VERSION;
 
 public final class ConfigFileFixture {
 
-    public static final String WITH_3_AGENT_CONFIG =
-            "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
+    public static final String BASIC_CONFIG =
+            "<cruise schemaVersion=\""
+                    + CONFIG_SCHEMA_VERSION + "\">\n"
                     + "<server artifactsdir='artifactsDir' />"
                     + "<pipelines>\n"
                     + "<pipeline name='pipeline1'>\n"
@@ -44,28 +45,26 @@ public final class ConfigFileFixture {
                     + "  </stage>\n"
                     + "</pipeline>\n"
                     + "</pipelines>\n"
-                    + "    <agents>\n"
-                    + "        <agent uuid='1' hostname='test1.com' ipaddress='192.168.0.1' />\n"
-                    + "        <agent uuid='2' hostname='test2.com' ipaddress='192.168.0.2' isDisabled='true' />\n"
-                    + "        <agent uuid='3' hostname='test3.com' ipaddress='192.168.0.3' >\n"
-                    + "            <resources>\n"
-                    + "                <resource>jdk1.4</resource>\n"
-                    + "            </resources>\n"
-                    + "        </agent>\n"
-                    + "    </agents>\n"
                     + "</cruise>";
 
-    public static String configWithEnvironments(String environmentsBlock) {
-        return configWithEnvironmentsAndAgents(environmentsBlock,
-                "<agents>"
-                        + "  <agent uuid='1' hostname='test1.com' ipaddress='192.168.0.1' />"
-                        + "  <agent uuid='2' hostname='test2.com' ipaddress='192.168.0.2'/>"
-                        + "  <agent uuid='3' hostname='test3.com' ipaddress='192.168.0.3' >"
-                        + "    <resources>"
-                        + "      <resource>jdk1.4</resource>"
-                        + "    </resources>"
-                        + "  </agent>"
-                        + "</agents>");
+    public static String configWithEnvironments(String environmentsBlock, int configSchemaVersion) {
+        return "<cruise schemaVersion=\"" + configSchemaVersion + "\">\n"
+                + "<server artifactsdir='artifactsDir' >"
+                + "</server>"
+                + "<pipelines group='group1'>\n"
+                + "<pipeline name='pipeline1'>\n"
+                + "    <materials>\n"
+                + "      <svn url =\"svnurl\"/>"
+                + "    </materials>\n"
+                + "  <stage name='mingle'>\n"
+                + "    <jobs>\n"
+                + "      <job name='cardlist' />\n"
+                + "    </jobs>\n"
+                + "  </stage>\n"
+                + "</pipeline>\n"
+                + "</pipelines>\n"
+                + environmentsBlock
+                + "</cruise>";
     }
 
 
@@ -86,27 +85,6 @@ public final class ConfigFileFixture {
                 + "</pipeline>\n"
                 + "</pipelines>\n"
                 + template
-                + "</cruise>";
-    }
-
-    public static String configWithEnvironmentsAndAgents(String environmentsBlock, String agentsBlock) {
-        return "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server artifactsdir='artifactsDir' >"
-                + "</server>"
-                + "<pipelines>\n"
-                + "<pipeline name='pipeline1'>\n"
-                + "    <materials>\n"
-                + "      <svn url =\"svnurl\"/>"
-                + "    </materials>\n"
-                + "  <stage name='mingle'>\n"
-                + "    <jobs>\n"
-                + "      <job name='cardlist' />\n"
-                + "    </jobs>\n"
-                + "  </stage>\n"
-                + "</pipeline>\n"
-                + "</pipelines>\n"
-                + environmentsBlock
-                + agentsBlock
                 + "</cruise>";
     }
 
@@ -172,33 +150,7 @@ public final class ConfigFileFixture {
                 + "</cruise>";
     }
 
-    public static final String WITH_MULTIPLE_LOCAL_AGENT_CONFIG =
-            "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                    + "<server artifactsdir='artifactsDir' />"
-                    + "<pipelines>\n"
-                    + "<pipeline name='pipeline1'>\n"
-                    + "    <materials>\n"
-                    + "      <svn url =\"svnurl\"/>"
-                    + "    </materials>\n"
-                    + "  <stage name='mingle'>\n"
-                    + "    <jobs>\n"
-                    + "      <job name='cardlist' />\n"
-                    + "      <job name='bluemonkeybutt'>\n"
-                    + "        <artifacts>\n"
-                    + "          <artifact src='from' dest='to' type=\"test\"/>\n"
-                    + "        </artifacts>\n"
-                    + "      </job>\n"
-                    + "    </jobs>\n"
-                    + "  </stage>\n"
-                    + "</pipeline>\n"
-                    + "</pipelines>\n"
-                    + "    <agents>\n"
-                    + "        <agent uuid='1' hostname='test1.com' ipaddress='192.168.0.1' />\n"
-                    + "        <agent uuid='2' hostname='test1.com' ipaddress='192.168.0.1' />\n"
-                    + "    </agents>\n"
-                    + "</cruise>";
-
-    public static final String CONFIG_WITH_ANT_BUILDER =
+   public static final String CONFIG_WITH_ANT_BUILDER =
             "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
                     + "<server artifactsdir='artifactsDir' />"
                     + "<pipelines>\n"
@@ -220,15 +172,6 @@ public final class ConfigFileFixture {
                     + "  </stage>\n"
                     + "</pipeline>\n"
                     + "</pipelines>\n"
-                    + "    <agents>\n"
-                    + "        <agent uuid='1' hostname='test1.com' ipaddress='192.168.0.1' />\n"
-                    + "        <agent uuid='2' hostname='test2.com' ipaddress='192.168.0.2' />\n"
-                    + "        <agent uuid='3' hostname='test3.com' ipaddress='192.168.0.3' >\n"
-                    + "            <resources>\n"
-                    + "                <resource>jdk1.4</resource>\n"
-                    + "            </resources>\n"
-                    + "        </agent>\n"
-                    + "    </agents>\n"
                     + "</cruise>";
 
     public static final String CONFIG_WITH_NANT_AND_EXEC_BUILDER =
@@ -273,15 +216,6 @@ public final class ConfigFileFixture {
                     + "  </stage>\n"
                     + "</pipeline>\n"
                     + "</pipelines>\n"
-                    + "    <agents>\n"
-                    + "        <agent uuid='1' hostname='test1.com' ipaddress='192.168.0.1' />\n"
-                    + "        <agent uuid='2' hostname='test2.com' ipaddress='192.168.0.2' />\n"
-                    + "        <agent uuid='3' hostname='test3.com' ipaddress='192.168.0.3' >\n"
-                    + "            <resources>\n"
-                    + "                <resource>jdk1.4</resource>\n"
-                    + "            </resources>\n"
-                    + "        </agent>\n"
-                    + "    </agents>\n"
                     + "</cruise>";
 
     public static final String WITH_DUPLICATE_ENVIRONMENTS =
@@ -857,9 +791,6 @@ public final class ConfigFileFixture {
                 + "      </stage>\n"
                 + "    </pipeline>\n"
                 + "  </pipelines>\n"
-                + "  <agents>\n"
-                + "    <agent hostname=\"agent1\" ipaddress=\"1.2.3.4\" uuid=\"ywZRuHFIKvw93TssFeWl8g==\" />\n"
-                + "  </agents>"
                 + "</cruise>";
     }
 
@@ -914,9 +845,6 @@ public final class ConfigFileFixture {
                 + "      </stage>\n"
                 + "    </pipeline>\n"
                 + "  </pipelines>\n"
-                + "  <agents>\n"
-                + "    <agent hostname=\"agent1\" ipaddress=\"1.2.3.4\" uuid=\"ywZRuHFIKvw93TssFeWl8g==\" />\n"
-                + "  </agents>"
                 + "</cruise>";
     }
 
@@ -1038,14 +966,6 @@ public final class ConfigFileFixture {
                     + "        </stage>"
                     + "      </pipeline>"
                     + "    </pipelines>"
-                    + "  <agents>"
-                    + "    <agent hostname=\"dev\" ipaddress=\"107.0.0.1\" uuid=\"123\">"
-                    + "      <resources>"
-                    + "        <resource>tiger</resource>"
-                    + "        <resource>lion</resource>"
-                    + "      </resources>"
-                    + "    </agent>"
-                    + "  </agents>"
                     + "</cruise>";
 
     public static final String ONE_CONFIG_REPO = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
@@ -1348,6 +1268,17 @@ public final class ConfigFileFixture {
                     + "</pipelines>\n"
                     + "</cruise>";
 
+    public static final String VERSION_16 =
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+                    + "<cruise schemaVersion=\"16\">\n"
+                    + "    <server artifactsdir='artifactsDir' />"
+                    + "    <agents>\n"
+                    + "        <agent uuid='1' hostname='test1.com' ipaddress='192.168.0.1' />\n"
+                    + "        <agent uuid='2' hostname='test2.com' ipaddress='192.168.0.2' isDenied='true' />\n"
+                    + "        <agent uuid='3' hostname='test3.com' ipaddress='192.168.0.3' />\n"
+                    + "    </agents>\n"
+                    + "</cruise>";
+
     public static final String JOBS_WITH_DIFFERNT_CASE =
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                     + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
@@ -1486,9 +1417,6 @@ public final class ConfigFileFixture {
                 + "      </stage>\n"
                 + "    </pipeline>\n"
                 + "  </pipelines>\n"
-                + "  <agents>\n"
-                + "    <agent hostname=\"agent1\" ipaddress=\"1.2.3.4\" uuid=\"ywZRuHFIKvw93TssFeWl8g==\" />\n"
-                + "  </agents>"
                 + "</cruise>";
     }
 
@@ -1527,16 +1455,14 @@ public final class ConfigFileFixture {
                 + "      </stage>\n"
                 + "    </pipeline>\n"
                 + "  </pipelines>\n"
-                + "  <agents>\n"
-                + "    <agent hostname=\"agent1\" ipaddress=\"1.2.3.4\" uuid=\"ywZRuHFIKvw93TssFeWl8g==\" />\n"
-                + "  </agents>"
                 + "</cruise>";
     }
 
     public static final String PIPELINE_GROUPS =
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                     + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
-                    + "     xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
+                    + "     xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\""
+                    + CONFIG_SCHEMA_VERSION + "\">\n"
                     + "<server artifactsdir='artifactsDir'>"
                     + "</server>"
                     + "<pipelines group=\"studios\">\n"
@@ -1581,14 +1507,6 @@ public final class ConfigFileFixture {
                     + "  </stage>\n"
                     + "</pipeline>\n"
                     + "</pipelines>\n"
-                    + " <agents>\n"
-                    + "    <agent hostname=\"lqiao\" ipaddress=\"10.18.3.238\" uuid=\""
-                    + "babb0c14-4477-42fb-81e8-2bdabdb7af03\">\n"
-                    + "      <resources>\n"
-                    + "        <resource>ql</resource>\n"
-                    + "      </resources>\n"
-                    + "    </agent>\n"
-                    + "  </agents>"
                     + "</cruise>";
 
     public static final String STAGE_AUTH_WITH_ADMIN_AND_AUTH =
@@ -1681,10 +1599,6 @@ public final class ConfigFileFixture {
                     + "  </stage>\n"
                     + "</pipeline>\n"
                     + "</pipelines>\n"
-                    + "    <agents>\n"
-                    + "        <agent uuid='1' hostname='test1.com' ipaddress='192.168.0.1' />\n"
-                    + "        <agent uuid='2' hostname='test1.com' ipaddress='192.168.0.1' />\n"
-                    + "    </agents>\n"
                     + "<vmms>\n"
                     + "<ec2 accessKey='test' secretAccessKey='test'>\n"
                     + "<ami imageId='test' />\n"
@@ -1715,10 +1629,6 @@ public final class ConfigFileFixture {
                     + "  </stage>\n"
                     + "</pipeline>\n"
                     + "</pipelines>\n"
-                    + "    <agents>\n"
-                    + "        <agent uuid='1' hostname='test1.com' ipaddress='192.168.0.1' />\n"
-                    + "        <agent uuid='2' hostname='test1.com' ipaddress='192.168.0.1' />\n"
-                    + "    </agents>\n"
                     + "</cruise>";
 
     public static CruiseConfig configWith(PipelineConfigs... pipelineConfigses) {

@@ -261,7 +261,6 @@ task verifyFatJar(type: VerifyJarTask) {
       "defaultCommandSnippets.zip"
     ],
     "lib"         : [
-      "base-${project.version}.jar",
       "bcpkix-jdk15on-${project.versions.bouncyCastle}.jar",
       "bcprov-jdk15on-${project.versions.bouncyCastle}.jar",
       "commons-io-${project.versions.commonsIO}.jar",

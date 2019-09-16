@@ -74,7 +74,6 @@ dependencies {
   packagingInLibDir group: 'commons-io', name: 'commons-io', version: project.versions.commonsIO
   packagingInLibDir group: 'org.apache.commons', name: 'commons-lang3', version: project.versions.commonsLang3
   packagingInLibDir group: 'joda-time', name: 'joda-time', version: project.versions.jodaTime
-  packagingInLibDir project(':common')
 
   // not really compile dependencies, but we want to centralize all logging using logback
   packagingInLibDir(group: 'org.slf4j', name: 'slf4j-api', version: project.versions.slf4j)

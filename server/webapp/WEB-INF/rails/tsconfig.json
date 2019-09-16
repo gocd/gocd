@@ -34,14 +34,5 @@
   ],
   "exclude": [
     "node_modules"
-  ],
-  "awesomeTypescriptLoaderOptions": {
-    "useBabel": false,
-    "useCache": true,
-    "errorsAsWarnings": false,
-    "reportFiles": [
-      "**/*.{ts,tsx}"
-    ],
-    "cacheDirectory": "tmp/awesome-ts-cache"
-  }
+  ]
 }

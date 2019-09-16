@@ -63,19 +63,26 @@ public class AgentsController implements SparkController {
     }
 
     public ModelAndView index(Request request, Response response) {
+        return featureToggleService.isToggleOn(Toggles.SHOW_NEW_AGENTS_SPA) ? renderNewAgentSPA() : renderOldAgentSPA();
+    }
+
+    private ModelAndView renderOldAgentSPA() {
         Map<Object, Object> object = new HashMap<>() {{
             put("viewTitle", "Agents");
+            put("isUserAnAdmin", securityService.isUserAdmin(currentUsername()));
+            put("shouldShowAnalyticsIcon", showAnalyticsIcon());
         }};
 
-        if (featureToggleService.isToggleOn(Toggles.SHOW_NEW_AGENTS_SPA)) {
-            object.put("meta", singletonMap("data-should-show-analytics-icon", showAnalyticsIcon()));
-
-            return new ModelAndView(object, null);
-        }
-        object.put("isUserAnAdmin", securityService.isUserAdmin(currentUsername()));
-        object.put("shouldShowAnalyticsIcon", showAnalyticsIcon());
-
         return new ModelAndView(object, "agents/index.ftlh");
+    }
+
+    private ModelAndView renderNewAgentSPA() {
+        Map<Object, Object> object = new HashMap<>() {{
+            put("viewTitle", "Agents");
+            put("meta", singletonMap("data-should-show-analytics-icon", showAnalyticsIcon()));
+        }};
+
+        return new ModelAndView(object, null);
     }
 
     private boolean showAnalyticsIcon() {

@@ -31,7 +31,6 @@ import java.util.Set;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-
 public class WebappSessionConfigIntegrationTest {
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -43,7 +42,7 @@ public class WebappSessionConfigIntegrationTest {
         File webInf = new File(webapp, "WEB-INF");
         webInf.mkdirs();
         File webXmlForTest = new File(webInf, "web.xml");
-        File srcWebXMlFile = new File(WebappSessionConfigIntegrationTest.class.getResource("/WEB-INF/web.xml").getFile());
+        File srcWebXMlFile = new File("src/main/webapp/WEB-INF/web.xml");
         FileUtils.copyFile(srcWebXMlFile, webXmlForTest);
     }
 

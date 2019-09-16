@@ -69,7 +69,7 @@ module.exports = function (config) {
     ],
     reporters:      ['progress', 'junit', 'kjhtml', 'html', 'jasmine-seed'],
     htmlReporter:   {
-      outputDir:               path.join(__dirname, '..', '..', '..', 'target', 'karma_reports'),
+      outputDir:               path.join(__dirname, '..', '..', '..', '..', '..', 'target', 'karma_reports'),
       templatePath:            null,
       focusOnFailures:         true,
       namedFiles:              false,
@@ -79,7 +79,7 @@ module.exports = function (config) {
       foldAll:                 false,
     },
     junitReporter:  {
-      outputDir:          path.join(__dirname, '..', '..', '..', 'target', 'karma_reports'),
+      outputDir:          path.join(__dirname, '..', '..', '..', '..', '..', 'target', 'karma_reports'),
       outputFile:         undefined,
       suite:              '',
       useBrowserName:     true,

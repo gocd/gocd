@@ -533,7 +533,7 @@ subprojects {
       def mappedSourceSet = sourceSets.find { sourceSet -> sourceSet.name.toLowerCase().equals(sourceSetName.toLowerCase()) }
 
       if (project.path == ':server' && sourceSetName.toLowerCase() == 'test') {
-        thisTask.source += project.file("webapp/WEB-INF/rails/")
+        thisTask.source += project.file("rails/")
         return
       }
 
@@ -830,11 +830,11 @@ task newSPA {
   doFirst {
     String spaName = project.spaName
     String entityName = toCamelCase(spaName)
-    String modelsBase = "server/webapp/WEB-INF/rails/webpack/models/${spaName}"
-    String pagesBase = "server/webapp/WEB-INF/rails/webpack/views/pages"
+    String modelsBase = "${project(':server').webAppDir}/WEB-INF/rails/webpack/models/${spaName}"
+    String pagesBase = "${project(':server').webAppDir}/WEB-INF/rails/webpack/views/pages"
     String widgetBase = "${pagesBase}/${spaName}"
     String vmBase = "spark/spark-spa/src/main/resources/velocity/${spaName}"
-    String mountPoint = "server/webapp/WEB-INF/rails/webpack/single_page_apps"
+    String mountPoint = "${project(':server').webAppDir}/WEB-INF/rails/webpack/single_page_apps"
 
     project.delete(modelsBase, widgetBase, vmBase)
     project.mkdir(modelsBase)
@@ -1006,11 +1006,11 @@ task newSPA {
         </rule>
       """
 
-    List<String> lines = file('server/webapp/WEB-INF/urlrewrite.xml').readLines()
+    List<String> lines = file("${project(':server').webAppDir}/WEB-INF/urlrewrite.xml").readLines()
     int insertionIdx = lines.findIndexOf { l -> (l =~ /^\s*<urlrewrite/).find() }
     lines.add(insertionIdx + 1, rule.stripIndent().trim())
 
-    file('server/webapp/WEB-INF/urlrewrite.xml').withWriter { out ->
+    file("${project(':server').webAppDir}/WEB-INF/urlrewrite.xml").withWriter { out ->
       out.println(lines.join("\n").trim())
     }
 
@@ -1042,8 +1042,8 @@ task removeApi {
 
     project.delete(moduleDir)
 
-    List<String> springConfigContents = file('server/webapp/WEB-INF/applicationContext-global.xml').readLines("utf-8")
-    file('server/webapp/WEB-INF/applicationContext-global.xml').withWriter { out ->
+    List<String> springConfigContents = file("server/src/main/resources/applicationContext-global.xml").readLines("utf-8")
+    file("server/src/main/resources/applicationContext-global.xml").withWriter { out ->
       def newContents = springConfigContents
         .stream()
         .filter({ eachLine -> !eachLine.contains("base-package=\"${packageName}\"") })
@@ -1400,11 +1400,11 @@ task upgradeApi {
 }
 
 private void addPackageToSpringClasspathScanning(String packageName) {
-  List<String> lines = file('server/webapp/WEB-INF/applicationContext-global.xml').readLines()
+  List<String> lines = file("server/src/main/resources/applicationContext-global.xml").readLines()
   int insertionIdx = lines.findIndexOf { l -> (l =~ /^\s*<context:component-scan /).find() }
   lines.add(insertionIdx, "  <context:component-scan base-package=\"${packageName}\"/>")
 
-  file('server/webapp/WEB-INF/applicationContext-global.xml').withWriter { out ->
+  file("server/src/main/resources/applicationContext-global.xml").withWriter { out ->
     out.println(lines.join("\n").trim())
   }
 }

@@ -25,6 +25,8 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.servlet.view.velocity.VelocityView;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,7 +35,7 @@ import java.util.Map;
 
 import static org.mockito.Mockito.*;
 
-public class TestVelocityView extends VelocityView {
+class TestVelocityView extends VelocityView {
     private final String templatePath;
     private final Map<String, Object> modelData;
 
@@ -41,7 +43,7 @@ public class TestVelocityView extends VelocityView {
     private ResourceLoader loader;
     private RuntimeInstance runtimeServices;
 
-    public TestVelocityView(String templatePath, Map<String, Object> modelData) {
+    TestVelocityView(String templatePath, Map<String, Object> modelData) {
         this.templatePath = templatePath;
         this.modelData = modelData;
 
@@ -52,15 +54,15 @@ public class TestVelocityView extends VelocityView {
         setupToolAttributes();
     }
 
-    public void setupAdditionalRealTemplate(String templateName) {
+    public void setupAdditionalRealTemplate(String templateName) throws IOException {
         setupAdditionalRealTemplate(templateName, "/WEB-INF/vm/" + templateName);
     }
 
-    public void setupAdditionalRealTemplate(String templateName, String realPathToTemplate) {
-        additionalTemplates.add(setupTemplate(loader, runtimeServices, templateName, getClass().getResourceAsStream(realPathToTemplate)));
+    public void setupAdditionalRealTemplate(String templateName, String realPathToTemplate) throws IOException {
+        additionalTemplates.add(setupTemplate(loader, runtimeServices, templateName, new File("src/main/webapp/" + realPathToTemplate).toURL().openStream()));
     }
 
-    public void setupAdditionalFakeTemplate(String templateName, String fakeContent) {
+    public void setupAdditionalFakeTemplate(String templateName, String fakeContent) throws IOException {
         setupContentResource(loader, runtimeServices, templateName, fakeContent);
         additionalTemplates.add(setupTemplate(loader, runtimeServices, templateName, IOUtils.toInputStream(fakeContent)));
     }
@@ -80,7 +82,7 @@ public class TestVelocityView extends VelocityView {
 
     @Override
     protected Template getTemplate() throws Exception {
-        Template realTemplateForTest = setupTemplate(loader, runtimeServices, "template1", getClass().getResourceAsStream(templatePath));
+        Template realTemplateForTest = setupTemplate(loader, runtimeServices, "template1", new File("src/main/webapp/" + templatePath).toURL().openStream());
 
         List<Template> templates = new ArrayList<>();
         templates.add(realTemplateForTest);
@@ -93,24 +95,20 @@ public class TestVelocityView extends VelocityView {
         return templates.get(0);
     }
 
-    private Template setupTemplate(ResourceLoader loader, RuntimeInstance runtimeServices, String templateName, InputStream templateContents) {
-        try {
-            Template template = new Template();
-            template.setRuntimeServices(runtimeServices);
-            template.setResourceLoader(loader);
-            template.setName(templateName);
+    private Template setupTemplate(ResourceLoader loader, RuntimeInstance runtimeServices, String templateName, InputStream templateContents) throws IOException {
+        Template template = new Template();
+        template.setRuntimeServices(runtimeServices);
+        template.setResourceLoader(loader);
+        template.setName(templateName);
 
-            byte[] bytes = IOUtils.toByteArray(templateContents);
-            templateContents.close();
+        byte[] bytes = IOUtils.toByteArray(templateContents);
+        templateContents.close();
 
-            when(loader.getResourceStream(templateName)).thenReturn(new ByteArrayInputStream(bytes));
-            doReturn(template).when(runtimeServices).getTemplate(templateName);
-            doReturn(template).when(runtimeServices).getTemplate(eq(templateName), any(String.class));
+        when(loader.getResourceStream(templateName)).thenReturn(new ByteArrayInputStream(bytes));
+        doReturn(template).when(runtimeServices).getTemplate(templateName);
+        doReturn(template).when(runtimeServices).getTemplate(eq(templateName), any(String.class));
 
-            return template;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        return template;
     }
 
     private void setupContentResource(ResourceLoader loader, RuntimeInstance runtimeServices, String templateName, String fakeContent) {

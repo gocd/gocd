@@ -64,10 +64,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 @RunWith(GoJUnitExtSpringRunner.class)
 @ContextConfiguration(locations = {
-        "classpath:WEB-INF/applicationContext-global.xml",
-        "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
-        "classpath:testPropertyConfigurer.xml",
-        "classpath:WEB-INF/spring-all-servlet.xml",
+        "classpath:/applicationContext-global.xml",
+        "classpath:/applicationContext-dataLocalAccess.xml",
+        "classpath:/testPropertyConfigurer.xml",
+        "classpath:/spring-all-servlet.xml",
 })
 public class BackupServiceH2IntegrationTest {
 

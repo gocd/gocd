@@ -23,7 +23,7 @@
             http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd"
        default-init-method="init">
 
-  <import resource="classpath:applicationContext-plugin-infra.xml"/>
+  <import resource="classpath:/applicationContext-plugin-infra.xml"/>
   <context:annotation-config/>
   <context:component-scan base-package="com.thoughtworks.go.agent.statusapi"/>
 

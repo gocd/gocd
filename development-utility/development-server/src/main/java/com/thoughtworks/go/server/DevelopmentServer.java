@@ -41,7 +41,7 @@ public class DevelopmentServer {
         logConfigurator.initialize();
         copyDbFiles();
         copyPluginAssets();
-        File webApp = new File("webapp");
+        File webApp = new File("src/main/webapp");
         if (!webApp.exists()) {
             throw new RuntimeException("No webapp found in " + webApp.getAbsolutePath());
         }
@@ -102,7 +102,7 @@ public class DevelopmentServer {
 
     private static void copyPluginAssets() throws IOException {
         File classPathRoot = new File(DevelopmentServer.class.getProtectionDomain().getCodeSource().getLocation().getPath());
-        FileUtils.copyFile(new File("webapp/WEB-INF/rails/webpack/rails-shared/plugin-endpoint.js"), new File(classPathRoot, "plugin-endpoint.js"));
+        FileUtils.copyFile(new File("src/main/webapp/WEB-INF/rails/webpack/rails-shared/plugin-endpoint.js"), new File(classPathRoot, "plugin-endpoint.js"));
     }
 
     private static void assertActivationJarPresent() {

@@ -77,9 +77,9 @@ import com.thoughtworks.go.util.GoConfigFileHelper;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
-        "classpath:WEB-INF/applicationContext-global.xml",
-        "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
-        "classpath:testPropertyConfigurer.xml"
+        "classpath:/applicationContext-global.xml",
+        "classpath:/applicationContext-dataLocalAccess.xml",
+        "classpath:/testPropertyConfigurer.xml"
 })
 public class GoConfigMigratorIntegrationTest {
     private File configFile;

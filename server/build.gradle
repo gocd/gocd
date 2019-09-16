@@ -47,13 +47,6 @@ repositories {
 }
 
 sourceSets {
-  test {
-    resources {
-      srcDirs += ['properties/test', 'webapp', 'test/data']
-      exclude "WEB-INF/rails/"
-    }
-  }
-
   sharedTest {
     java {
       srcDirs = [project.file('src/test-shared/java')]
@@ -95,8 +88,13 @@ configurations {
   jrubyGems
 
   sharedTestCompile.extendsFrom testCompile
+  sharedTestRuntime.extendsFrom testRuntime
+
   fastUnitTestCompile.extendsFrom sharedTestCompile
+  fastUnitTestRuntime.extendsFrom sharedTestRuntime
+
   integrationTestCompile.extendsFrom sharedTestCompile
+  integrationTestRuntime.extendsFrom sharedTestRuntime
 
   warConfig
   jarConfig
@@ -126,7 +124,8 @@ configurations {
   spark.exclude(group: 'ch.qos.logback', module: 'logback-classic')
 }
 
-project.ext.railsRoot = file("${project.projectDir}/webapp/WEB-INF/rails")
+project.ext.webAppDir = file("src/main/webapp")
+project.ext.railsRoot = file("${project.webAppDir}/WEB-INF/rails")
 project.ext.bundledGemDir = file("${project.railsRoot}/gems/jruby/${RUBY_VERSION}")
 
 project.ext.railsClasspath = project.sourceSets.test.runtimeClasspath +
@@ -352,8 +351,6 @@ dependencies {
 
 jar {
   archiveClassifier = 'classes'
-  exclude '**/*/logback.xml'
-  exclude 'logback.xml'
 }
 
 idea {
@@ -720,44 +717,10 @@ clean {
   delete 'config/truststore'
 }
 
-task inlinePartials {
-  if (!project.hasProperty('fastBuild')) {
-    dependsOn ':server:initializeRailsGems'
-  }
-
-  def inlinedPartialsDir = file("${project.buildDir}/inline-partials")
-  def viewsDir = file("${project.railsRoot}/app/views")
-
-  outputs.dir(inlinedPartialsDir)
-  inputs.dir(viewsDir)
-  outputs.cacheIf { true }
-
-  doFirst {
-    delete inlinedPartialsDir
-    inlinedPartialsDir.mkdirs()
-
-    copy {
-      from "${project.railsRoot}/app/views"
-      into inlinedPartialsDir
-    }
-
-    if (!project.hasProperty('fastBuild')) {
-      project.jrubyexec {
-
-        environment += [
-          'INPUT_DIR': inlinedPartialsDir
-        ]
-
-        args = ['-S', 'rake', '--trace', '--rakefile', 'inline-partials.rake']
-      }
-    }
-  }
-}
-
 task configureWar {
   dependsOn findGemsToNotPack
   doFirst {
-    war.from('webapp') { theSpec ->
+    war.from(project.webAppDir) { theSpec ->
       into '/'
       exclude('WEB-INF/web.xml')
       exclude("**/rails/*.log")
@@ -767,9 +730,8 @@ task configureWar {
       exclude("**/rails/tmp/")
       exclude("**/rails/**/jruby/*/cache/*.gem")
       exclude("**/rails/app/assets/")
-      exclude("**/rails/app/views/**/*.*")
       exclude("**/rails/webpack/")
-      new JsonSlurper().parse(findGemsToNotPack.outputFile).each { gem ->
+    new JsonSlurper().parse(findGemsToNotPack.outputFile).each { gem ->
         theSpec.exclude("**/rails/gems/jruby/${RUBY_VERSION}/gems/${gem}")
         theSpec.exclude("**/rails/gems/jruby/${RUBY_VERSION}/specifications/${gem}.gemspec")
         theSpec.exclude("**/rails/gems/jruby/${RUBY_VERSION}/build_info/${gem}.info")
@@ -781,7 +743,7 @@ task configureWar {
 task war(type: Jar) {
   dependsOn rootProject.generateLicenseReport
   dependsOn configureWar
-  dependsOn ':server:jar', ':server:compileAssets', ':server:inlinePartials'
+  dependsOn ':server:jar', ':server:compileAssets'
   dependsOn project.configurations.compile
   dependsOn project.configurations.api
   dependsOn project.configurations.spark
@@ -789,12 +751,7 @@ task war(type: Jar) {
   archiveBaseName = 'cruise'
   extension 'war'
 
-  // do this lazily because finding gems is expensive during the configure cycle causing gradle to boot really slow
-  exclude '**/*/logback.xml'
-  exclude 'logback.xml'
-
   // exclude app-server because it causes class cast exceptions (loaded by different classloaders)
-
   def classpath = (project.configurations.api + project.configurations.spark + project.configurations.compile)
     .minus(project(':app-server').jar.archivePath)
     .minus(jar.archivePath)
@@ -807,7 +764,7 @@ task war(type: Jar) {
     into('WEB-INF/classes')
   }
 
-  from("${project(':server').projectDir}/webapp/WEB-INF/rails/webpack/rails-shared/plugin-endpoint.js") {
+  from("${project.webAppDir}/WEB-INF/rails/webpack/rails-shared/plugin-endpoint.js") {
     into('WEB-INF/classes')
   }
 
@@ -822,17 +779,13 @@ task war(type: Jar) {
 
   from({ compileAssets }) { into '/WEB-INF/rails/public/assets' }
 
-  from("webapp/WEB-INF/web.xml") {
+  from("${project.webAppDir}/WEB-INF/web.xml") {
     filter {
       it.replaceAll('<param-value>development</param-value>', '<param-value>production</param-value>')
     }
     into "/WEB-INF"
   }
 
-
-  from(inlinePartials) {
-    into '/WEB-INF/rails/app/views'
-  }
 }
 
 task verifyWar(type: VerifyJarTask) {

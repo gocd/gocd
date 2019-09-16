@@ -42,7 +42,6 @@ import org.tuckey.web.filters.urlrewrite.UrlRewriteFilter;
 import javax.servlet.DispatcherType;
 import java.io.File;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.EnumSet;
 
@@ -173,12 +172,7 @@ public class UrlRewriterIntegrationTest {
                 wac = mock(WebApplicationContext.class);
                 ctx.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, wac);
 
-                URL resource = getClass().getClassLoader().getResource("WEB-INF/urlrewrite.xml");
-                if (resource == null) {
-                    throw new RuntimeException("Cannot load WEB-INF/urlrewrite.xml");
-                }
-
-                ctx.setBaseResource(Resource.newResource(new File(resource.getFile()).getParent()));
+                ctx.setBaseResource(Resource.newResource(new File("src/main/webapp/WEB-INF/urlrewrite.xml").getParentFile()));
                 ctx.addFilter(UrlRewriteFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST)).setInitParameter("confPath", "/urlrewrite.xml");
                 ctx.addServlet(HttpTestUtil.EchoServlet.class, "/*");
             }

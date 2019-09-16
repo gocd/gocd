@@ -79,9 +79,9 @@
     <bean id="sessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
         <property name="dataSource" ref="goDataSource"/>
         <property name="useTransactionAwareDataSource" value="true"/>
-        <property name="mappingDirectoryLocations">
+        <property name="mappingLocations">
             <list>
-                <value>classpath:/hibernate-mappings</value>
+                <value>classpath:/hibernate-mappings/*</value>
             </list>
         </property>
         <property name="hibernateProperties" ref="hibernateProperties" />

@@ -21,7 +21,7 @@
 
   <context-param>
     <param-name>contextConfigLocation</param-name>
-    <param-value>/WEB-INF/applicationContext-*.xml</param-value>
+    <param-value>classpath:/applicationContext-global.xml,classpath:/applicationContext-dataLocalAccess.xml</param-value>
   </context-param>
 
   <filter>
@@ -145,6 +145,10 @@
   <servlet>
     <servlet-name>spring-cruise-remoting</servlet-name>
     <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+    <init-param>
+      <param-name>contextConfigLocation</param-name>
+      <param-value>classpath:/spring-cruise-remoting-servlet.xml</param-value>
+    </init-param>
     <load-on-startup>1</load-on-startup>
   </servlet>
 
@@ -158,6 +162,10 @@
   <servlet>
     <servlet-name>spring-all</servlet-name>
     <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+    <init-param>
+      <param-name>contextConfigLocation</param-name>
+      <param-value>classpath:/spring-all-servlet.xml</param-value>
+    </init-param>
     <load-on-startup>1</load-on-startup>
   </servlet>
 

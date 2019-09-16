@@ -51,10 +51,10 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
-        "classpath:WEB-INF/applicationContext-global.xml",
-        "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
-        "classpath:testPropertyConfigurer.xml",
-        "classpath:WEB-INF/spring-all-servlet.xml",
+        "classpath:/applicationContext-global.xml",
+        "classpath:/applicationContext-dataLocalAccess.xml",
+        "classpath:/testPropertyConfigurer.xml",
+        "classpath:/spring-all-servlet.xml",
 })
 public class AgentDaoTest {
     @Autowired
@@ -81,10 +81,10 @@ public class AgentDaoTest {
 
     @Nested
     @ContextConfiguration(locations = {
-            "classpath:WEB-INF/applicationContext-global.xml",
-            "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
-            "classpath:testPropertyConfigurer.xml",
-            "classpath:WEB-INF/spring-all-servlet.xml",
+            "classpath:/applicationContext-global.xml",
+            "classpath:/applicationContext-dataLocalAccess.xml",
+            "classpath:/testPropertyConfigurer.xml",
+            "classpath:/spring-all-servlet.xml",
     })
     class GetAgents {
         @Test
@@ -190,10 +190,10 @@ public class AgentDaoTest {
 
     @Nested
     @ContextConfiguration(locations = {
-            "classpath:WEB-INF/applicationContext-global.xml",
-            "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
-            "classpath:testPropertyConfigurer.xml",
-            "classpath:WEB-INF/spring-all-servlet.xml",
+            "classpath:/applicationContext-global.xml",
+            "classpath:/applicationContext-dataLocalAccess.xml",
+            "classpath:/testPropertyConfigurer.xml",
+            "classpath:/spring-all-servlet.xml",
     })
     class Cookie {
         @Test
@@ -308,10 +308,10 @@ public class AgentDaoTest {
 
     @Nested
     @ContextConfiguration(locations = {
-            "classpath:WEB-INF/applicationContext-global.xml",
-            "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
-            "classpath:testPropertyConfigurer.xml",
-            "classpath:WEB-INF/spring-all-servlet.xml",
+            "classpath:/applicationContext-global.xml",
+            "classpath:/applicationContext-dataLocalAccess.xml",
+            "classpath:/testPropertyConfigurer.xml",
+            "classpath:/spring-all-servlet.xml",
     })
     class Bulk {
         @Test

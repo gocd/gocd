@@ -85,12 +85,11 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
-        "classpath:WEB-INF/applicationContext-global.xml",
-        "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
-        "classpath:testPropertyConfigurer.xml",
-        "classpath:WEB-INF/spring-all-servlet.xml"
+        "classpath:/applicationContext-global.xml",
+        "classpath:/applicationContext-dataLocalAccess.xml",
+        "classpath:/testPropertyConfigurer.xml",
+        "classpath:/spring-all-servlet.xml",
 })
-
 public class AgentServiceIntegrationTest {
     @Autowired
     private GoConfigDao goConfigDao;
@@ -150,8 +149,8 @@ public class AgentServiceIntegrationTest {
     }
 
     @Nested
-    @ContextConfiguration(locations = {"classpath:WEB-INF/applicationContext-global.xml", "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
-            "classpath:testPropertyConfigurer.xml", "classpath:WEB-INF/spring-all-servlet.xml"})
+    @ContextConfiguration(locations = {"classpath:/applicationContext-global.xml", "classpath:/applicationContext-dataLocalAccess.xml",
+            "classpath:/testPropertyConfigurer.xml", "classpath:/spring-all-servlet.xml"})
     class DeleteAgents {
         @Test
         void onlyDisabledAgentsShouldBeAllowedToBeDeleted() {
@@ -266,8 +265,11 @@ public class AgentServiceIntegrationTest {
     }
 
     @Nested
-    @ContextConfiguration(locations = {"classpath:WEB-INF/applicationContext-global.xml", "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
-            "classpath:testPropertyConfigurer.xml", "classpath:WEB-INF/spring-all-servlet.xml"})
+    @ContextConfiguration(locations = {
+            "classpath:/applicationContext-global.xml",
+            "classpath:/applicationContext-dataLocalAccess.xml",
+            "classpath:/testPropertyConfigurer.xml",
+            "classpath:/spring-all-servlet.xml"})
     class PendingAgents {
         @Test
         void shouldBeAbleToDisableAPendingAgent() {
@@ -334,8 +336,8 @@ public class AgentServiceIntegrationTest {
     }
 
     @Nested
-    @ContextConfiguration(locations = {"classpath:WEB-INF/applicationContext-global.xml", "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
-            "classpath:testPropertyConfigurer.xml", "classpath:WEB-INF/spring-all-servlet.xml"})
+    @ContextConfiguration(locations = {"classpath:/applicationContext-global.xml", "classpath:/applicationContext-dataLocalAccess.xml",
+            "classpath:/testPropertyConfigurer.xml", "classpath:/spring-all-servlet.xml"})
     class EnableDisableAgents {
         @Test
         void shouldBeAbleToDisableAgentUsingUpdateAgentAttributesCall() {
@@ -504,8 +506,8 @@ public class AgentServiceIntegrationTest {
     }
 
     @Nested
-    @ContextConfiguration(locations = {"classpath:WEB-INF/applicationContext-global.xml", "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
-            "classpath:testPropertyConfigurer.xml", "classpath:WEB-INF/spring-all-servlet.xml"})
+    @ContextConfiguration(locations = {"classpath:/applicationContext-global.xml", "classpath:/applicationContext-dataLocalAccess.xml",
+            "classpath:/testPropertyConfigurer.xml", "classpath:/spring-all-servlet.xml"})
     class ErrorConditions {
         @Test
         void shouldReturn400WhenUpdatingAnUnknownAgent() {
@@ -568,8 +570,8 @@ public class AgentServiceIntegrationTest {
     }
 
     @Nested
-    @ContextConfiguration(locations = {"classpath:WEB-INF/applicationContext-global.xml", "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
-            "classpath:testPropertyConfigurer.xml", "classpath:WEB-INF/spring-all-servlet.xml"})
+    @ContextConfiguration(locations = {"classpath:/applicationContext-global.xml", "classpath:/applicationContext-dataLocalAccess.xml",
+            "classpath:/testPropertyConfigurer.xml", "classpath:/spring-all-servlet.xml"})
     class Update {
         @Test
         void shouldBeAbleToUpdateAgentsHostName() {
@@ -691,8 +693,8 @@ public class AgentServiceIntegrationTest {
     }
 
     @Nested
-    @ContextConfiguration(locations = {"classpath:WEB-INF/applicationContext-global.xml", "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
-            "classpath:testPropertyConfigurer.xml", "classpath:WEB-INF/spring-all-servlet.xml"})
+    @ContextConfiguration(locations = {"classpath:/applicationContext-global.xml", "classpath:/applicationContext-dataLocalAccess.xml",
+            "classpath:/testPropertyConfigurer.xml", "classpath:/spring-all-servlet.xml"})
     class LostContact {
         @Test
         void shouldMarkAgentAsLostContactWhenAgentDoesNotPingWithinTimeoutPeriod() {
@@ -749,8 +751,8 @@ public class AgentServiceIntegrationTest {
     }
 
     @Nested
-    @ContextConfiguration(locations = {"classpath:WEB-INF/applicationContext-global.xml", "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
-            "classpath:testPropertyConfigurer.xml", "classpath:WEB-INF/spring-all-servlet.xml"})
+    @ContextConfiguration(locations = {"classpath:/applicationContext-global.xml", "classpath:/applicationContext-dataLocalAccess.xml",
+            "classpath:/testPropertyConfigurer.xml", "classpath:/spring-all-servlet.xml"})
     class Resources {
         @Test
         void shouldAddResourcesToDisabledAgent() {
@@ -864,8 +866,8 @@ public class AgentServiceIntegrationTest {
     }
 
     @Nested
-    @ContextConfiguration(locations = {"classpath:WEB-INF/applicationContext-global.xml", "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
-            "classpath:testPropertyConfigurer.xml", "classpath:WEB-INF/spring-all-servlet.xml"})
+    @ContextConfiguration(locations = {"classpath:/applicationContext-global.xml", "classpath:/applicationContext-dataLocalAccess.xml",
+            "classpath:/testPropertyConfigurer.xml", "classpath:/spring-all-servlet.xml"})
     class RegistrationAndApproval {
         @Test
         void shouldRegisterLocalAgentWithNonLoopbackIpAddress() throws Exception {
@@ -917,8 +919,8 @@ public class AgentServiceIntegrationTest {
     }
 
     @Nested
-    @ContextConfiguration(locations = {"classpath:WEB-INF/applicationContext-global.xml", "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
-            "classpath:testPropertyConfigurer.xml", "classpath:WEB-INF/spring-all-servlet.xml"})
+    @ContextConfiguration(locations = {"classpath:/applicationContext-global.xml", "classpath:/applicationContext-dataLocalAccess.xml",
+            "classpath:/testPropertyConfigurer.xml", "classpath:/spring-all-servlet.xml"})
     class LoadingAgents {
         @Test
         void shouldLoadAllAgents() {
@@ -941,8 +943,8 @@ public class AgentServiceIntegrationTest {
     }
 
     @Nested
-    @ContextConfiguration(locations = {"classpath:WEB-INF/applicationContext-global.xml", "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
-            "classpath:testPropertyConfigurer.xml", "classpath:WEB-INF/spring-all-servlet.xml"})
+    @ContextConfiguration(locations = {"classpath:/applicationContext-global.xml", "classpath:/applicationContext-dataLocalAccess.xml",
+            "classpath:/testPropertyConfigurer.xml", "classpath:/spring-all-servlet.xml"})
     class Environments {
         @Test
         void shouldDoNothingWhenEnvironmentsToAddOrRemoveIsNullOrEmpty() {

@@ -59,7 +59,7 @@ class StagesController < ApplicationController
     render_stage
   end
 
-  def stage_config #_need_to_rename #/Users/jyoti/projects/mygocd/server/webapp/WEB-INF/rails/gems/jruby/1.9/gems/actionpack-4.0.4/lib/action_controller/test_case.rb line 656
+  def stage_config #_need_to_rename #/Users/jyoti/projects/mygocd/server/rails/gems/jruby/1.9/gems/actionpack-4.0.4/lib/action_controller/test_case.rb line 656
     @ran_with_config_revision = go_config_service.getConfigAtVersion(@stage.getStage().getConfigVersion())
     render_stage
   end

@@ -37,7 +37,7 @@ Rails.application.configure do
   config.assets.digest = false
 
   # Show full error reports and disable caching.
-  config.consider_all_requests_local       = true
+  config.consider_all_requests_local = true
   config.action_controller.perform_caching = false
   # Raise exceptions instead of rendering exception templates.
   config.action_dispatch.show_exceptions = false
@@ -58,6 +58,6 @@ end
 import org.springframework.context.support.ClassPathXmlApplicationContext
 
 def Spring.load_context
-  ctx_files = Dir[File.expand_path(File.join(Rails.root, "..", "applicationContext*.xml"))].map { |path| "WEB-INF/#{File.basename(path)}"}
+  ctx_files = Dir[File.expand_path(File.join(Rails.root, "..", '..', '..', 'resources', "applicationContext*.xml"))].map { |path| "/#{File.basename(path)}" }
   ClassPathXmlApplicationContext.new(ctx_files.to_java(:string))
 end

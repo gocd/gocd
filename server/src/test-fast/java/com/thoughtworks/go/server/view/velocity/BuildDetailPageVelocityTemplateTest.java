@@ -29,6 +29,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -58,7 +59,7 @@ public class BuildDetailPageVelocityTemplateTest {
     }
 
     @Test
-    public void shouldRenderIframeSandboxByDefaultForTestsTab() {
+    public void shouldRenderIframeSandboxByDefaultForTestsTab() throws IOException {
         HashMap<String, Object> data = new HashMap<>();
         JobDetailPresentationModel jobDetailPresentationModel = mock(JobDetailPresentationModel.class);
         data.put("presenter", jobDetailPresentationModel);
@@ -70,7 +71,7 @@ public class BuildDetailPageVelocityTemplateTest {
     }
 
     @Test
-    public void shouldRenderANormalIframeForTestsTabIfUserHasDisabledSandbox() {
+    public void shouldRenderANormalIframeForTestsTabIfUserHasDisabledSandbox() throws IOException {
         HashMap<String, Object> data = new HashMap<>();
         JobDetailPresentationModel jobDetailPresentationModel = mock(JobDetailPresentationModel.class);
         data.put("presenter", jobDetailPresentationModel);
@@ -82,7 +83,7 @@ public class BuildDetailPageVelocityTemplateTest {
     }
 
     @Test
-    public void shouldRenderIframeSandboxByDefaultForFailuresTab() {
+    public void shouldRenderIframeSandboxByDefaultForFailuresTab() throws IOException {
         HashMap<String, Object> data = new HashMap<>();
         JobDetailPresentationModel jobDetailPresentationModel = mock(JobDetailPresentationModel.class);
         data.put("presenter", jobDetailPresentationModel);
@@ -94,7 +95,7 @@ public class BuildDetailPageVelocityTemplateTest {
     }
 
     @Test
-    public void shouldRenderANormalIframeForFailuresTabIfUserHasDisabledSandbox() {
+    public void shouldRenderANormalIframeForFailuresTabIfUserHasDisabledSandbox() throws IOException {
         HashMap<String, Object> data = new HashMap<>();
         JobDetailPresentationModel jobDetailPresentationModel = mock(JobDetailPresentationModel.class);
         data.put("presenter", jobDetailPresentationModel);
@@ -122,7 +123,7 @@ public class BuildDetailPageVelocityTemplateTest {
         return data;
     }
 
-    private TestVelocityView getBuildDetailVelocityView(HashMap<String, Object> data) {
+    private TestVelocityView getBuildDetailVelocityView(HashMap<String, Object> data) throws IOException {
         TestVelocityView view = new TestVelocityView("/WEB-INF/vm/build_detail/build_detail_page.vm", data);
         view.setupAdditionalRealTemplate("shared/_header.vm");
         view.setupAdditionalRealTemplate("shared/_footer.vm");

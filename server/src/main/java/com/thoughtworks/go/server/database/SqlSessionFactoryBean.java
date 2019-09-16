@@ -45,7 +45,7 @@ public class SqlSessionFactoryBean implements FactoryBean<SqlSessionFactory>, In
     private SqlSessionFactory sqlSessionFactory;
 
     @Autowired
-    public SqlSessionFactoryBean(DatabaseStrategy databaseStrategy, DataSource dataSource, @Value("WEB-INF/sql-map-config.xml") Resource configLocation) {
+    public SqlSessionFactoryBean(DatabaseStrategy databaseStrategy, DataSource dataSource, @Value("classpath:/sql-map-config.xml") Resource configLocation) {
         this.databaseStrategy = databaseStrategy;
         this.dataSource = dataSource instanceof TransactionAwareDataSourceProxy ? dataSource : new TransactionAwareDataSourceProxy(dataSource);
         this.configLocation = configLocation;

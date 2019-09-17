@@ -158,13 +158,13 @@ export class Table extends MithrilComponent<Attrs, State> {
       </thead>
       <tbody data-test-id="table-body">
       {
-        _.map(vnode.attrs.data, ((rows, index) => {
+        _.map(vnode.attrs.data, ((row, index) => {
           if (!vnode.attrs.draggable) {
             return (
               <tr key={index.toString()}
                   data-id={index}
                   data-test-id="table-row">
-                {_.map(rows, (row) => <td>{Table.renderedValue(row)}</td>)}
+                {_.map(row, (cell) => <td>{Table.renderedValue(cell)}</td>)}
               </tr>
             );
           }
@@ -183,12 +183,12 @@ export class Table extends MithrilComponent<Attrs, State> {
                 onmouseover={Table.disableEvent.bind(this)}>
                 <i class={styles.dragIcon}></i>
               </td>
-              {_.map(rows,
-                     ((row) => <td draggable={false}
-                                   ondragstart={Table.disableEvent.bind(this)}
-                                   ondragend={Table.disableEvent.bind(this)}
-                                   ondragover={Table.disableEvent.bind(this)}>
-                       {Table.renderedValue(row)}</td>))}
+              {_.map(row,
+                     ((cell) => <td draggable={false}
+                                    ondragstart={Table.disableEvent.bind(this)}
+                                    ondragend={Table.disableEvent.bind(this)}
+                                    ondragover={Table.disableEvent.bind(this)}>
+                       {Table.renderedValue(cell)}</td>))}
             </tr>
           );
         }))

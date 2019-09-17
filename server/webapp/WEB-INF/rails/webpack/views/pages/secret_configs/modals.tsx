@@ -34,8 +34,8 @@ import {
   TextAreaField,
   TextField
 } from "views/components/forms/input_fields";
-import { Size } from "views/components/modal";
-import { EntityModal } from "views/components/modal/entity_modal";
+import {ModalState, Size} from "views/components/modal";
+import {EntityModal} from "views/components/modal/entity_modal";
 import styles from "views/pages/secret_configs/index.scss";
 import { RulesWidget } from "views/pages/secret_configs/rules_widget";
 
@@ -77,6 +77,9 @@ export abstract class SecretConfigModal extends EntityModal<SecretConfig> {
   }
 
   protected modalBody(): m.Children {
+    if (this.isLoading()) {
+       return;
+    }
     const pluginList = _.map(this.pluginInfos, (pluginInfo: PluginInfo) => {
       return { id: pluginInfo.id, text: pluginInfo.about.name };
     });

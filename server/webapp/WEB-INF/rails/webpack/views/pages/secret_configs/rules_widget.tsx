@@ -105,9 +105,10 @@ export class RulesWidget extends MithrilViewComponent<AutoCompleteAttrs> {
     </div>;
   }
 
-  private reArrange(rule: Stream<Rules>, oldIndex: number, newIndex: number) {
-    const splicedRule = rule().splice(oldIndex, 1);
-    rule().splice(newIndex, 0, splicedRule[0]);
+  private reArrange(rules: Stream<Rules>, oldIndex: number, newIndex: number) {
+    const originalRules = rules();
+    originalRules.splice(newIndex, 0, originalRules.splice(oldIndex, 1)[0]);
+    rules(originalRules);
     m.redraw();
   }
 }

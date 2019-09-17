@@ -21,17 +21,15 @@ import {AjaxPoller} from "helpers/ajax_poller";
 import m from "mithril";
 import Stream from "mithril/stream";
 // @ts-ignore
-import {Agents} from "models/agents/agents";
-// @ts-ignore
 import {PluginInfos} from "models/shared/plugin_infos";
 // @ts-ignore
 import {AgentsWidget} from "views/agents/agents_widget";
 // @ts-ignore
-import {VM as AgentsVM} from "views/agents/models/agents_widget_view_model";
-// @ts-ignore
-import {SortOrder} from "views/agents/models/route_handler";
-// @ts-ignore
 import {PageLoadError} from "views/shared/page_load_error";
+
+const AgentsVM  = require("views/agents/models/agents_widget_view_model").VM;
+const Agents    = require("models/agents/agents").Agents;
+const SortOrder = require("views/agents/models/route_handler").SortOrder;
 
 export class AgentsSPA extends SinglePageAppBase {
   constructor() {
@@ -46,7 +44,6 @@ $(() => {
     return new AgentsSPA();
   }
 
-  //tslint:disable
   const isUserAdmin             = JSON.parse(agentsContainer.attr("data-is-current-user-an-admin")!);
   const shouldShowAnalyticsIcon = JSON.parse(agentsContainer.attr("data-should-show-analytics-icon")!);
 
@@ -58,7 +55,7 @@ $(() => {
                                              agentsViewModel.initializeWith(agentsData);
                                              permanentMessage({});
                                            })
-                                           .fail((errMsg: String) => {
+                                           .fail((errMsg: string) => {
                                              permanentMessage({type: "alert", message: errMsg});
                                            })
                                            .always(() => {
@@ -83,21 +80,19 @@ $(() => {
 
     const component = {
       view() {
-        return m(AgentsWidget, {
-          vm: agentsViewModel,
-          allAgents: agents,
-          isUserAdmin,
-          permanentMessage,
-          showSpinner,
-          sortOrder,
-          shouldShowAnalyticsIcon,
-          pluginInfos: typeof pluginInfos === "string" ? Stream() : Stream(allPluginInfos),
-          doCancelPolling: () => currentRepeater().stop(),
-          doRefreshImmediately: () => {
-            currentRepeater().stop();
-            currentRepeater().start();
-          }
-        });
+        return <AgentsWidget vm={agentsViewModel} allAgents={agents}
+                             isUserAdmin={isUserAdmin}
+                             permanentMessage={permanentMessage}
+                             showSpinner={showSpinner}
+                             sortOrder={sortOrder}
+                             shouldShowAnalyticsIcon={shouldShowAnalyticsIcon}
+                             pluginInfos={typeof pluginInfos === "string" ? Stream() : Stream(allPluginInfos)}
+                             doCancelPolling={() => currentRepeater().stop()}
+                             doRefreshImmediately={() => {
+                               currentRepeater().stop();
+                               currentRepeater().start();
+                             }}
+        />;
       }
     };
 
@@ -113,7 +108,7 @@ $(() => {
     sortOrder().initialize();
   };
 
-  const onPluginInfoApiFailure = (response: String) => {
+  const onPluginInfoApiFailure = (response: string) => {
     m.mount(agentsContainer.get(0), {
       view() {
         return (<PageLoadError message={response}/>);
@@ -123,5 +118,3 @@ $(() => {
 
   PluginInfos.all().then(onPluginsInfoApiSuccess, onPluginInfoApiFailure);
 });
-
-//tslint:enable

@@ -102,8 +102,8 @@ task mainJar(type: Jar) {
   }
 
   from(project.configurations.packagingInMainJarCommonJar.collect { it.isDirectory() ? it : zipTree(it) }) {
-    include "**/CurrentProcess.class"
     include "**/SubprocessLogger*.class"
+    include "**/CurrentProcess*.class"
     include "**/validators/*.class"
     include "**/Environment*.class"
     include "**/X509CertificateGenerator*.class"

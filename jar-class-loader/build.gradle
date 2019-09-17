@@ -13,3 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8

@@ -41,6 +41,7 @@ public class Boot {
     }
 
     public static void main(String... args) {
+        AssertJava.assertVMVersion();
         log("Starting process: ");
         log("  Working directory    : " + System.getProperty("user.dir"));
         log("  Application arguments: " + Arrays.asList(args));

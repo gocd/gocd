@@ -23,7 +23,6 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 
-import static com.thoughtworks.go.utils.AssertJava.assertVMVersion;
 
 public final class GoLauncher {
 
@@ -33,7 +32,6 @@ public final class GoLauncher {
     }
 
     public static void main(String[] args) {
-        assertVMVersion();
         SystemEnvironment systemEnvironment = new SystemEnvironment();
         systemEnvironment.setProperty(GoConstants.USE_COMPRESSED_JAVASCRIPT, Boolean.toString(true));
         LogConfigurator logConfigurator = new LogConfigurator(DEFAULT_LOGBACK_CONFIGURATION_FILE);

@@ -18,9 +18,6 @@ import com.thoughtworks.go.build.VerifyJarTask
 
 description = 'GoCD Agent Bootstrapper'
 
-sourceCompatibility = 8
-targetCompatibility = 11
-
 dependencies {
   compile project(':agent-common')
   compile group: 'commons-codec', name: 'commons-codec', version: project.versions.commonsCodec

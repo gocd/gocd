@@ -34,7 +34,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
-import static com.thoughtworks.go.utils.AssertJava.assertVMVersion;
 
 public class AgentBootstrapper {
 
@@ -54,7 +53,6 @@ public class AgentBootstrapper {
     }
 
     public static void main(String[] argv) {
-        assertVMVersion();
         AgentBootstrapperArgs args = new AgentCLI().parse(argv);
         new LogConfigurator(DEFAULT_LOGBACK_CONFIGURATION_FILE).runWithLogger(() -> new AgentBootstrapper().go(true, args));
     }

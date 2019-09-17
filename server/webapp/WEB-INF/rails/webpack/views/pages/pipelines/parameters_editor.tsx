@@ -30,13 +30,12 @@ import css from "./environment_variables_editor.scss";
 
 interface Attrs {
   parameters: Stream<PipelineParameter[]>;
+  paramList: Stream<PipelineParameter[]>;
 }
 
 export class PipelineParametersEditor extends MithrilViewComponent<Attrs> {
-  paramList = Stream([] as PipelineParameter[]);
-
   oninit(vnode: m.Vnode<Attrs>) {
-    this.paramList(vnode.attrs.parameters().filter((p) => !p.isEmpty()).concat(new PipelineParameter("", "")));
+    vnode.attrs.paramList(vnode.attrs.parameters().filter((p) => !p.isEmpty()).concat(new PipelineParameter("", "")));
   }
 
   view(vnode: m.Vnode<Attrs>) {
@@ -48,13 +47,13 @@ export class PipelineParametersEditor extends MithrilViewComponent<Attrs> {
               Parameters
               <Tooltip.Help size={TooltipSize.medium} content={`Parameters help reduce repetition within your configurations and combined with templates allow you to setup complex configurations.`} />
             </label>
-            <Buttons.Cancel onclick={this.add.bind(this)} small={true} icon={Buttons.ButtonIcon.ADD} />
+            <Buttons.Cancel onclick={this.add.bind(this, vnode.attrs.paramList)} small={true} icon={Buttons.ButtonIcon.ADD} />
             <Table headers={["name", "value", ""]} data={
-              _.map(this.paramList(), (param, i) => {
+              _.map(vnode.attrs.paramList(), (param, i) => {
                 return [
-                  <IdentifierInputField dataTestId={`form-field-input-param-name-${i}`} property={param.name} errorText={param.errors().errorsForDisplay("name")} onchange={this.update.bind(this, vnode.attrs.parameters)} />,
-                  <TextField dataTestId={`form-field-input-param-value-${i}`} property={param.value} onchange={this.update.bind(this, vnode.attrs.parameters)} />,
-                  <Buttons.Cancel onclick={this.remove.bind(this, vnode.attrs.parameters, param)} small={true} icon={Buttons.ButtonIcon.REMOVE} />
+                  <IdentifierInputField dataTestId={`form-field-input-param-name-${i}`} property={param.name} errorText={param.errors().errorsForDisplay("name")} onchange={this.update.bind(this, vnode.attrs.parameters, vnode.attrs.paramList)} />,
+                  <TextField dataTestId={`form-field-input-param-value-${i}`} property={param.value} onchange={this.update.bind(this, vnode.attrs.parameters, vnode.attrs.paramList)} />,
+                  <Buttons.Cancel onclick={this.remove.bind(this, vnode.attrs.parameters, vnode.attrs.paramList, param)} small={true} icon={Buttons.ButtonIcon.REMOVE} />
                 ];
               })
             } />
@@ -64,25 +63,25 @@ export class PipelineParametersEditor extends MithrilViewComponent<Attrs> {
     );
   }
 
-  update(params: Stream<PipelineParameter[]>, event?: Event) {
+  update(params: Stream<PipelineParameter[]>, paramsList: Stream<PipelineParameter[]>, event?: Event) {
     if (event) {event.stopPropagation(); }
-    params(this.paramList().filter((p) => !p.isEmpty()));
+    params(paramsList().filter((p) => !p.isEmpty()));
   }
 
-  add(event: Event) {
+  add(paramsList: Stream<PipelineParameter[]>, event: Event) {
     event.stopPropagation();
-    this.paramList().push(new PipelineParameter("", ""));
+    paramsList().push(new PipelineParameter("", ""));
   }
 
-  remove(params: Stream<PipelineParameter[]>, paramToDelete: PipelineParameter, event?: Event) {
+  remove(params: Stream<PipelineParameter[]>, paramsList: Stream<PipelineParameter[]>, paramToDelete: PipelineParameter, event?: Event) {
     if (event) {event.stopPropagation(); }
 
-    this.paramList(this.paramList().filter((p) => p !== paramToDelete));
+    paramsList(paramsList().filter((p) => p !== paramToDelete));
 
-    if (!this.paramList().length) {
-      this.paramList([new PipelineParameter("", "")]);
+    if (!paramsList().length) {
+      paramsList([new PipelineParameter("", "")]);
     }
 
-    this.update(params);
+    this.update(params, paramsList);
   }
 }

@@ -15,6 +15,7 @@
  */
 
 import m from "mithril";
+import Stream from "mithril/stream";
 import {PipelineParameter} from "models/pipeline_configs/parameter";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {TestHelper} from "views/pages/spec/test_helper";
@@ -23,15 +24,17 @@ import {PipelineParametersEditor} from "../parameters_editor";
 describe("ParametersEditor", () => {
   const helper = new TestHelper();
   let config: PipelineConfig;
+  const paramList = Stream([] as PipelineParameter[]);
 
   beforeEach(() => {
     config = new PipelineConfig("", [], []);
+    paramList([]);
   });
 
   afterEach(helper.unmount.bind(helper));
 
   it("should update the model when a parameter is updated", () => {
-    helper.mount(() => <PipelineParametersEditor parameters={config.parameters} />);
+    helper.mount(() => <PipelineParametersEditor parameters={config.parameters} paramList={paramList} />);
     expect(config.parameters()).toEqual([]);
 
     helper.oninput(helper.byTestId("form-field-input-param-name-0"), "my-param");
@@ -48,7 +51,7 @@ describe("ParametersEditor", () => {
     ]);
 
     const [param1, , param3] = config.parameters();
-    helper.mount(() => <PipelineParametersEditor parameters={config.parameters} />);
+    helper.mount(() => <PipelineParametersEditor parameters={config.parameters} paramList={paramList}/>);
 
     helper.click(helper.qa("table button").item(1));
 
@@ -57,7 +60,7 @@ describe("ParametersEditor", () => {
 
   it("should at least have an empty param", () => {
     //empty inputs on load
-    helper.mount(() => <PipelineParametersEditor parameters={config.parameters} />);
+    helper.mount(() => <PipelineParametersEditor parameters={config.parameters} paramList={paramList} />);
     expect(helper.qa("table input[type=\"text\"]").length).toBe(2);
     expect((helper.byTestId("form-field-input-param-name-0") as HTMLInputElement).value).toBe("");
     expect((helper.byTestId("form-field-input-param-value-0") as HTMLInputElement).value).toBe("");

@@ -17,6 +17,7 @@
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
+import {PipelineParameter} from "models/pipeline_configs/parameter";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {DefaultCache, PipelineGroupCache} from "models/pipeline_configs/pipeline_groups_cache";
 import {TemplateCache} from "models/pipeline_configs/templates_cache";
@@ -38,6 +39,7 @@ interface Attrs {
 export class PipelineInfoEditor extends MithrilViewComponent<Attrs> {
   private pipelineGroups: Stream<Option[]> = Stream();
   private cache: PipelineGroupCache<Option> = new DefaultCache();
+  private paramList = Stream([] as PipelineParameter[]);
 
   oninit(vnode: m.Vnode<Attrs, {}>) {
     if (vnode.attrs.cache) {
@@ -61,8 +63,9 @@ export class PipelineInfoEditor extends MithrilViewComponent<Attrs> {
           pipelineConfig={vnode.attrs.pipelineConfig}
           cache={vnode.attrs.templatesCache}
           isUsingTemplate={vnode.attrs.isUsingTemplate}
+          paramList={this.paramList}
         />
-        <PipelineParametersEditor parameters={vnode.attrs.pipelineConfig.parameters} />
+        <PipelineParametersEditor parameters={vnode.attrs.pipelineConfig.parameters} paramList={this.paramList}/>
       </AdvancedSettings>
       </Form>
     </FormBody>;

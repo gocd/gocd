@@ -16,9 +16,12 @@
 
 import classnames from "classnames";
 import {MithrilViewComponent} from "jsx/mithril-component";
+import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
+import {PipelineParameter} from "models/pipeline_configs/parameter";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
+import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {DefaultTemplatesCache, TemplateCache} from "models/pipeline_configs/templates_cache";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Option, SelectField, SelectFieldOptions} from "views/components/forms/input_fields";
@@ -29,9 +32,11 @@ interface Attrs {
   pipelineConfig: PipelineConfig;
   cache?: TemplateCache<Option>;
   isUsingTemplate: Stream<boolean>;
+  paramList: Stream<PipelineParameter[]>;
 }
 
 export class TemplateEditor extends MithrilViewComponent<Attrs> {
+  selectedTemplate: Stream<TemplateConfig> = Stream();
   private cache: TemplateCache<Option> = new DefaultTemplatesCache();
   private templates: Stream<Option[]> = Stream();
 
@@ -53,10 +58,20 @@ export class TemplateEditor extends MithrilViewComponent<Attrs> {
       <SwitchBtn small={true}
         label="Use Template:"
         field={vnode.attrs.isUsingTemplate}
-        onclick={this.toggleTemplate.bind(this, vnode.attrs.pipelineConfig)}
+        onclick={this.toggleTemplate.bind(this, vnode.attrs.pipelineConfig, vnode.attrs.paramList)}
       />
       {this.templateOptions(vnode.attrs)}
     </div>;
+  }
+
+  setTemplateParams(templateId: string, paramList: Stream<PipelineParameter[]>, config: PipelineConfig): void {
+    TemplateConfig.getTemplate(templateId, (result: TemplateConfig) => {
+      const params = result.parameters();
+      if (params.length !== 0) {
+        paramList(params);
+        config.parameters(params);
+      }
+    });
   }
 
   templateOptions(attrs: Attrs): m.Children {
@@ -72,19 +87,21 @@ export class TemplateEditor extends MithrilViewComponent<Attrs> {
           </code>
         </FlashMessage>;
       } else {
-        return <SelectField label="Template" property={config.template} errorText={errors.errorsForDisplay("template")} required={true}>
-          <SelectFieldOptions selected={config.template()} items={this.templates()}/>
+        return <SelectField label="Template" property={config.template} errorText={errors.errorsForDisplay("template")} required={true} onchange={(e) => this.setTemplateParams(e.target.value, attrs.paramList, config)}>
+            <SelectFieldOptions selected={config.template()} items={this.templates()}/>
         </SelectField>;
       }
     }
   }
 
-  toggleTemplate(pipelineConfig: PipelineConfig, event: MouseEvent): void {
+  toggleTemplate(pipelineConfig: PipelineConfig, paramList: Stream<PipelineParameter[]>, event: MouseEvent): void {
     const target = event.target as HTMLInputElement;
     if (target.checked) {
       pipelineConfig.stages().clear();
       if (this.templates() && this.templates().length !== 0) {
-        pipelineConfig.template(this.templates()[0].id);
+        const templateId = this.templates()[0].id;
+        this.setTemplateParams(templateId, paramList, pipelineConfig);
+        pipelineConfig.template(templateId);
       }
     } else {
       pipelineConfig.template = Stream();

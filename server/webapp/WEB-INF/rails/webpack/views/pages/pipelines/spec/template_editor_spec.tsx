@@ -16,7 +16,9 @@
 
 import m from "mithril";
 import Stream from "mithril/stream";
+import {PipelineParameter} from "models/pipeline_configs/parameter";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
+import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {TemplateCache} from "models/pipeline_configs/templates_cache";
 import {Option} from "views/components/forms/input_fields";
 import {TestHelper} from "views/pages/spec/test_helper";
@@ -24,16 +26,20 @@ import {TemplateEditor} from "../template_editor";
 
 describe("AddPipeline: TemplateEditor", () => {
   const helper = new TestHelper();
-  const isUsingTemplate: Stream<boolean> = Stream();
+  let isUsingTemplate: Stream<boolean>;
   let config: PipelineConfig;
+  let paramList: Stream<PipelineParameter[]>;
 
   beforeEach(() => {
     config = new PipelineConfig("", [], []).withGroup("foo");
-    helper.mount(() => <TemplateEditor pipelineConfig={config} isUsingTemplate={isUsingTemplate} cache={new EmptyTestCache()}/>);
+    isUsingTemplate = Stream();
+    paramList = Stream();
+    helper.mount(() => <TemplateEditor pipelineConfig={config} isUsingTemplate={isUsingTemplate} cache={new EmptyTestCache()} paramList={paramList}/>);
   });
 
   afterEach(() => {
     isUsingTemplate(false);
+    paramList([]);
     helper.unmount();
   });
 
@@ -46,23 +52,33 @@ describe("AddPipeline: TemplateEditor", () => {
   });
 
   it("should show dropdown of templates when defined", () => {
-    helper.unmount();
-    helper.mount(() => <TemplateEditor pipelineConfig={config} isUsingTemplate={isUsingTemplate} cache={new TestCache()}/>);
-    helper.clickByDataTestId("switch-paddle");
-    expect(isUsingTemplate()).toBeTruthy();
-    expect(config.template()).toBe("one");
-    const dropdown = helper.byTestId("form-field-input-template");
-    expect(dropdown).toBeInDOM();
-    expect(helper.qa("option", dropdown).length).toBe(2);
+    jasmine.Ajax.withMock(() => {
+      jasmine.Ajax.stubRequest('/go/api/admin/templates/one').andReturn({
+        responseText: JSON.stringify({}),
+        status: 200,
+        responseHeaders: {
+          'Content-Type': 'application/vnd.go.cd.v5+json'
+        }
+      });
 
-    helper.clickByDataTestId("switch-paddle");
-    expect(isUsingTemplate()).toBe(false);
-    expect(config.template()).toBeUndefined();
+      helper.unmount();
+      helper.mount(() => <TemplateEditor pipelineConfig={config} isUsingTemplate={isUsingTemplate} cache={new TestCache()} paramList={paramList}/>);
+      helper.clickByDataTestId("switch-paddle");
+      expect(isUsingTemplate()).toBeTruthy();
+      expect(config.template()).toBe("one");
+      const dropdown = helper.byTestId("form-field-input-template");
+      expect(dropdown).toBeInDOM();
+      expect(helper.qa("option", dropdown).length).toBe(2);
+
+      helper.clickByDataTestId("switch-paddle");
+      expect(isUsingTemplate()).toBe(false);
+      expect(config.template()).toBeUndefined();
+    });
   });
 
   it("should not display dropdown and should display flash when cache fails to populate", () => {
     helper.unmount();
-    helper.mount(() => <TemplateEditor pipelineConfig={config} isUsingTemplate={isUsingTemplate} cache={new FailedTestCache()}/>);
+    helper.mount(() => <TemplateEditor pipelineConfig={config} isUsingTemplate={isUsingTemplate} cache={new FailedTestCache()} paramList={paramList}/>);
     helper.clickByDataTestId("switch-paddle");
     expect(isUsingTemplate()).toBeTruthy();
 
@@ -72,6 +88,18 @@ describe("AddPipeline: TemplateEditor", () => {
 
     const dropdown = helper.byTestId("form-field-input-template");
     expect(dropdown).not.toExist();
+  });
+
+  it("should populate parameters when present", () => {
+    spyOn(TemplateConfig, "getTemplate").and.callFake((name, onSuccess) => {
+      onSuccess(new TemplateConfig(name, [new PipelineParameter("paramName", "")]));
+      expect(paramList().length).toBe(1);
+      expect(paramList()[0].name).toEqual("paramName");
+      expect(paramList()[0].value).toEqual("");
+    });
+
+    helper.clickByDataTestId("switch-paddle");
+    expect(isUsingTemplate()).toBeTruthy();
   });
 });
 

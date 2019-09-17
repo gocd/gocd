@@ -112,8 +112,12 @@ export class SparkRoutes {
       "/go/api/dashboard";
   }
 
-  static templatesPath(): string {
-    return "/go/api/admin/templates";
+  static templatesPath(id?: string): string {
+    if (id) {
+      return `/go/api/admin/templates/${id}`;
+    } else {
+      return "/go/api/admin/templates";
+    }
   }
 
   static DataSharingSettingsPath(): string {

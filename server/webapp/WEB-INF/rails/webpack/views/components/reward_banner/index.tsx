@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import {removeEl} from "helpers/dom";
 import {mixins as s} from "helpers/string-plus";
 import {MithrilComponent} from "jsx/mithril-component";
 import m from "mithril";
@@ -54,7 +56,7 @@ export class RewardBanner extends MithrilComponent<Attrs> {
     function keyListener(e: KeyboardEvent) {
       // 27 is the code for the ESC key
       if (27 === e.which) {
-        vnode.dom.remove();
+        removeEl(vnode.dom);
       }
       document.body.removeEventListener("keydown", keyListener);
     }
@@ -66,6 +68,6 @@ export class RewardBanner extends MithrilComponent<Attrs> {
 
   onClick(event: MouseEvent): void {
     event.stopPropagation();
-    event.toElement.remove();
+    removeEl(event.currentTarget as Element);
   }
 }

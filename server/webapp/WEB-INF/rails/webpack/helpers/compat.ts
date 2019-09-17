@@ -22,11 +22,11 @@ interface IEElement extends HTMLElement {
   msMatchesSelector(sel: string): boolean;
 }
 
-type IEWindow = {
+interface IEWindow extends Window {
   clipboardData: {
     getData: (key: string) => string;
   };
-} & Window & typeof globalThis;
+}
 
 export function matches(el: Element, selector: string): boolean {
   if ("function" === typeof el.matches) {
@@ -54,7 +54,7 @@ export function getClipboardAsPlaintext(e: ClipboardEvent): string {
   if (e.clipboardData) {
     return e.clipboardData.getData("text/plain");
   }
-  return (window as IEWindow).clipboardData.getData("Text");
+  return ((window as unknown) as IEWindow).clipboardData.getData("Text");
 }
 
 export function insertTextFromClipboard(text: string) {

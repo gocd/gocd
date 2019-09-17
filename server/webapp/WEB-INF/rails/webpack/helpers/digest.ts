@@ -27,7 +27,7 @@ import "mithril"; // ensure that Promise has been polyfilled
  * @returns a Promise<string> which resolves to the hex digest of the given message
  */
 export function digest(algo: string, message: string): Promise<string> {
-  const crypto = window.crypto || (window as IEWindow).msCrypto;
+  const crypto = window.crypto || ((window as unknown) as IEWindow).msCrypto;
   const subtle = crypto.subtle || (crypto as WebkitCrypto).webkitSubtle;
 
   const maybePromise = subtle.digest(algo, byteArray(message));

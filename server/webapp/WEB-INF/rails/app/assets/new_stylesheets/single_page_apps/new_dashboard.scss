@@ -184,6 +184,7 @@ body {
 .new-pipeline-button {
   float:    right;
   position: relative;
+  z-index:  1;
 
   > button {
     padding: 0 35px;

@@ -34,7 +34,7 @@ import {
   TextAreaField,
   TextField
 } from "views/components/forms/input_fields";
-import {ModalState, Size} from "views/components/modal";
+import {Size} from "views/components/modal";
 import {EntityModal} from "views/components/modal/entity_modal";
 import styles from "views/pages/secret_configs/index.scss";
 import { RulesWidget } from "views/pages/secret_configs/rules_widget";

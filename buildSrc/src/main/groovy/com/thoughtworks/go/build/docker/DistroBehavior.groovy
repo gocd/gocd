@@ -37,7 +37,7 @@ trait DistroBehavior {
     ]
   }
 
-  List<String> getInstallPrerequisitesCommands(DistroVersion distroVersion) {
+  List<String> getInstallPrerequisitesCommands(String version) {
     throw new RuntimeException("Subclasses must implement!")
   }
 
@@ -57,7 +57,7 @@ trait DistroBehavior {
     ]
   }
 
-  Map<String, String> getEnvironmentVariables(DistroVersion distroVersion) {
+  Map<String, String> getEnvironmentVariables(String version) {
     return [GO_JAVA_HOME: '/gocd-jre']
   }
 

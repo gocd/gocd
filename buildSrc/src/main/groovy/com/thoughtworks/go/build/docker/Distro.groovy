@@ -42,7 +42,7 @@ enum Distro implements DistroBehavior {
     }
 
     @Override
-    List<String> getInstallPrerequisitesCommands(DistroVersion distroVersion) {
+    List<String> getInstallPrerequisitesCommands(String version) {
       return [
         'apk --no-cache upgrade',
         // procps is needed for tanuki wrapper shell script
@@ -94,8 +94,8 @@ enum Distro implements DistroBehavior {
 
   centos{
     @Override
-    List<String> getInstallPrerequisitesCommands(DistroVersion distroVersion) {
-      String git = "6" == distroVersion.version ? 'rh-git29' : 'rh-git218'
+    List<String> getInstallPrerequisitesCommands(String version) {
+      String git = "6" == version ? 'rh-git29' : 'rh-git218'
 
       return [
         'yum update -y',
@@ -107,12 +107,12 @@ enum Distro implements DistroBehavior {
     }
 
     @Override
-    Map<String, String> getEnvironmentVariables(DistroVersion distroVersion) {
-      String git = "6" == distroVersion.version ? 'rh-git29' : 'rh-git218'
-      return super.getEnvironmentVariables(distroVersion) + [
+    Map<String, String> getEnvironmentVariables(String version) {
+      String git = "6" == version ? 'rh-git29' : 'rh-git218'
+      return super.getEnvironmentVariables(version) + [
         BASH_ENV: "/opt/rh/${git}/enable",
         ENV     : "/opt/rh/${git}/enable"
-      ]
+      ] as Map<String, String>
     }
 
     @Override
@@ -126,7 +126,7 @@ enum Distro implements DistroBehavior {
 
   fedora{
     @Override
-    List<String> getInstallPrerequisitesCommands(DistroVersion distroVersion) {
+    List<String> getInstallPrerequisitesCommands(String version) {
       return [
         'yum update -y',
         'yum install -y git mercurial subversion openssh-clients bash unzip curl procps-ng coreutils',
@@ -147,7 +147,7 @@ enum Distro implements DistroBehavior {
 
   debian{
     @Override
-    List<String> getInstallPrerequisitesCommands(DistroVersion distroVersion) {
+    List<String> getInstallPrerequisitesCommands(String version) {
       return [
         'apt-get update',
         'apt-get install -y git subversion mercurial openssh-client bash unzip curl locales procps sysvinit-utils coreutils',
@@ -169,8 +169,8 @@ enum Distro implements DistroBehavior {
 
   ubuntu{
     @Override
-    List<String> getInstallPrerequisitesCommands(DistroVersion distroVersion) {
-      return debian.getInstallPrerequisitesCommands(distroVersion)
+    List<String> getInstallPrerequisitesCommands(String version) {
+      return debian.getInstallPrerequisitesCommands(version)
     }
 
     @Override
@@ -201,8 +201,8 @@ enum Distro implements DistroBehavior {
     }
 
     @Override
-    List<String> getInstallPrerequisitesCommands(DistroVersion distroVersion) {
-      return alpine.getInstallPrerequisitesCommands(distroVersion)
+    List<String> getInstallPrerequisitesCommands(String version) {
+      return alpine.getInstallPrerequisitesCommands(version)
     }
 
 
@@ -212,8 +212,8 @@ enum Distro implements DistroBehavior {
     }
 
     @Override
-    Map<String, String> getEnvironmentVariables(DistroVersion distroVersion) {
-      return alpine.getEnvironmentVariables(distroVersion)
+    Map<String, String> getEnvironmentVariables(String version) {
+      return alpine.getEnvironmentVariables(version)
     }
   }
 

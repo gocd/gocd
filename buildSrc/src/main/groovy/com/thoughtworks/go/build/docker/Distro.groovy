@@ -98,8 +98,8 @@ enum Distro implements DistroBehavior {
       return [
         'yum update -y',
         "yum install --assumeyes centos-release-scl",
-        'yum install --assumeyes rh-git29 mercurial subversion openssh-clients bash unzip curl procps sysvinit-tools coreutils',
-        "cp /opt/rh/rh-git29/enable /etc/profile.d/rh-git29.sh",
+        'yum install --assumeyes rh-git218 mercurial subversion openssh-clients bash unzip curl procps sysvinit-tools coreutils',
+        "cp /opt/rh/rh-git218/enable /etc/profile.d/rh-git218.sh",
         "yum clean all"
       ]
     }
@@ -107,8 +107,8 @@ enum Distro implements DistroBehavior {
     @Override
     Map<String, String> getEnvironmentVariables() {
       return super.getEnvironmentVariables() + [
-        BASH_ENV: '/opt/rh/rh-git29/enable',
-        ENV     : '/opt/rh/rh-git29/enable'
+        BASH_ENV: '/opt/rh/rh-git218/enable',
+        ENV     : '/opt/rh/rh-git218/enable'
       ]
     }
 

@@ -61,6 +61,7 @@ class PluginExtensionsAndVersionValidatorImplTest {
         final PluginPostLoadHook.Result validationResult = pluginExtensionsAndVersionValidator.run(descriptor, Collections.singletonMap(ELASTIC_AGENT_EXTENSION, singletonList("2.0")));
 
         assertThat(validationResult.isAFailure()).isFalse();
+        assertThat(validationResult.getMessage()).isNull();
     }
 
     @Test

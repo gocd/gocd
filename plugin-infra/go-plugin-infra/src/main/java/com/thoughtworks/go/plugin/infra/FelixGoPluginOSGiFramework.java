@@ -20,8 +20,8 @@ import com.thoughtworks.go.plugin.api.GoPluginApiMarker;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginBundleDescriptor;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.plugin.infra.plugininfo.PluginRegistry;
-import com.thoughtworks.go.plugin.infra.service.DefaultPluginRegistryService;
 import com.thoughtworks.go.plugin.infra.service.DefaultPluginLoggingService;
+import com.thoughtworks.go.plugin.infra.service.DefaultPluginRegistryService;
 import com.thoughtworks.go.plugin.internal.api.LoggingService;
 import com.thoughtworks.go.plugin.internal.api.PluginRegistryService;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -156,7 +156,9 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
         }
 
         BundleContext bundleContext = framework.getBundleContext();
-        Collection<ServiceReference<T>> matchingServiceReferences = findServiceReferenceWithPluginIdAndExtensionType(serviceReferenceClass, pluginId, extensionType, bundleContext);
+        ServiceQuery serviceQuery = ServiceQuery.newQuery(pluginId).withExtension(extensionType);
+
+        Collection<ServiceReference<T>> matchingServiceReferences = listServices(bundleContext, serviceReferenceClass, serviceQuery);
         ServiceReference<T> serviceReference = validateAndGetTheOnlyReferenceWithGivenSymbolicName(matchingServiceReferences, serviceReferenceClass, pluginId);
         T service = bundleContext.getService(serviceReference);
         return executeActionOnTheService(action, service, registry.getPlugin(pluginId));
@@ -170,7 +172,8 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
         }
 
         BundleContext bundleContext = framework.getBundleContext();
-        Collection<ServiceReference<T>> matchingServiceReferences = findServiceReferenceWithPluginIdAndExtensionType(serviceReferenceClass, pluginId, extensionType, bundleContext);
+        ServiceQuery serviceQuery = ServiceQuery.newQuery(pluginId).withExtension(extensionType);
+        Collection<ServiceReference<T>> matchingServiceReferences = listServices(bundleContext, serviceReferenceClass, serviceQuery);
         return !matchingServiceReferences.isEmpty();
     }
 
@@ -182,7 +185,8 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
         }
 
         final BundleContext bundleContext = framework.getBundleContext();
-        final Collection<ServiceReference<GoPlugin>> serviceReferences = new HashSet<>(findServiceReferenceByPluginId(GoPlugin.class, pluginId, bundleContext));
+        final ServiceQuery serviceQuery = ServiceQuery.newQuery(pluginId);
+        final Collection<ServiceReference<GoPlugin>> serviceReferences = new HashSet<>(listServices(bundleContext, GoPlugin.class, serviceQuery));
 
         ActionWithReturn<GoPlugin, DefaultKeyValue<String, List<String>>> action = (goPlugin, descriptor) -> new DefaultKeyValue<>(goPlugin.pluginIdentifier().getExtension(), goPlugin.pluginIdentifier().getSupportedExtensionVersions());
 
@@ -211,25 +215,13 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
         }
     }
 
-    private <T> Collection<ServiceReference<T>> findServiceReferenceWithPluginIdAndExtensionType(Class<T> serviceReferenceClass, String pluginId, String extensionType, BundleContext bundleContext) {
-        String filter = format("(&(%s=%s)(%s=%s))", "PLUGIN_ID", pluginId, Constants.BUNDLE_CATEGORY, extensionType);
-        return getServiceReferences(serviceReferenceClass, bundleContext, filter);
-    }
-
-    private <T> Collection<ServiceReference<T>> findServiceReferenceByPluginId(Class<T> serviceReferenceClass, String pluginId, BundleContext bundleContext) {
-        String filter = format("(&(%s=%s))", "PLUGIN_ID", pluginId);
-        return getServiceReferences(serviceReferenceClass, bundleContext, filter);
-    }
-
-    private <T> Collection<ServiceReference<T>> getServiceReferences(Class<T> serviceReferenceClass, BundleContext bundleContext, String filter) {
-        Collection<ServiceReference<T>> matchingServiceReferences;
+    private <T> Collection<ServiceReference<T>> listServices(BundleContext bundleContext, Class<T> serviceReferenceClass, ServiceQuery serviceQuery) {
         try {
-            matchingServiceReferences = bundleContext.getServiceReferences(serviceReferenceClass, filter);
+            return bundleContext.getServiceReferences(serviceReferenceClass, serviceQuery.build());
         } catch (InvalidSyntaxException e) {
-            String message = format("Failed to find reference for Service Reference %s and Filter %s", serviceReferenceClass, filter);
+            String message = format("Failed to find reference for Service Reference %s and Filter %s", serviceReferenceClass, serviceQuery.build());
             throw new GoPluginFrameworkException(message, e);
         }
-        return matchingServiceReferences;
     }
 
     private <T> ServiceReference<T> validateAndGetTheOnlyReferenceWithGivenSymbolicName(Collection<ServiceReference<T>> matchingServiceReferences,

@@ -18,7 +18,6 @@ package com.thoughtworks.go.plugin.access;
 
 import com.thoughtworks.go.plugin.infra.PluginExtensionsAndVersionValidator;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import com.thoughtworks.go.plugin.infra.plugininfo.PluginRegistry;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.collections4.SetUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -113,7 +112,7 @@ public class PluginExtensionsAndVersionValidatorImpl implements PluginExtensions
         }
 
         String toErrorMessage() {
-            return format("Extension incompatibility detected between plugin(%s) and GoCD:\n  %s", pluginId, String.join("\n  ", errors));
+            return hasError() ? format("Extension incompatibility detected between plugin(%s) and GoCD:\n  %s", pluginId, String.join("\n  ", errors)) : null;
         }
 
         boolean hasError() {

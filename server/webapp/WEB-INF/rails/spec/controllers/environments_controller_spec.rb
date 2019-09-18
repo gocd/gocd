@@ -159,7 +159,7 @@ describe EnvironmentsController do
     render_views
 
     before :each do
-      user = com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new('user_foo'))
+      @user = com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new('user_foo'))
       @entity_hashing_service = double("Entity Hashing Service")
       allow(controller).to receive(:entity_hashing_service).and_return(@entity_hashing_service)
       allow(controller).to receive(:environment_config_service).and_return(@environment_config_service = double('environment_config_service', :isEnvironmentFeatureEnabled => true))
@@ -167,12 +167,12 @@ describe EnvironmentsController do
       @config_helper = com.thoughtworks.go.util.GoConfigFileHelper.new
       @config_helper.onSetUp()
       @config_helper.using_cruise_config_dao(Spring.bean("goConfigDao"))
-      allow(controller).to receive(:current_user).and_return(com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new('user_foo')))
-      allow(@security_service).to receive(:canViewAdminPage).with(user).and_return(true)
-      allow(@security_service).to receive(:isUserAdmin).with(user).and_return(true)
+      allow(controller).to receive(:current_user).and_return(@user)
+      allow(@security_service).to receive(:canViewAdminPage).with(@user).and_return(true)
+      allow(@security_service).to receive(:isUserAdmin).with(@user).and_return(true)
       setup_base_urls
       pipelines = [EnvironmentPipelineModel.new("first", nil)]
-      allow(@environment_config_service).to receive(:getAllLocalPipelinesForUser).with(current_user).and_return(pipelines)
+      allow(@environment_config_service).to receive(:getAllLocalPipelinesForUser).with(@user).and_return(pipelines)
       allow(@environment_config_service).to receive(:getAllLocalPipelinesForUser).with(@user).and_return([])
       allow(@environment_config_service).to receive(:getAllRemotePipelinesForUserInEnvironment).with(anything, anything).and_return([])
       allow(@environment_config_service).to receive(:isEnvironmentFeatureEnabled).and_return(true)
@@ -205,10 +205,7 @@ describe EnvironmentsController do
     end
 
     it "should retain pipeline selection on error" do
-      current_user = com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new('user_foo'))
-      allow(controller).to receive(:current_user).and_return(current_user)
-      expect(@environment_config_service).to receive(:getAllLocalPipelinesForUser).with(current_user).and_return([EnvironmentPipelineModel.new("first", nil)])
-
+      expect(@environment_config_service).to receive(:getAllLocalPipelinesForUser).with(@user).and_return([EnvironmentPipelineModel.new("first", nil)])
 
       post :create, params: {:no_layout => true, :environment => {'pipelines' => [{'name' => "first"}]}}
 
@@ -218,9 +215,7 @@ describe EnvironmentsController do
 
     it "should retain agent selection on error" do
       allow(controller).to receive(:agent_service).and_return(@agent_service = double(AgentService))
-      current_user = com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new('user_foo'))
-      allow(controller).to receive(:current_user).and_return(current_user)
-      expect(@environment_config_service).to receive(:getAllLocalPipelinesForUser).with(current_user).and_return([])
+      expect(@environment_config_service).to receive(:getAllLocalPipelinesForUser).with(@user).and_return([])
 
       agent1 = idle_agent()
 

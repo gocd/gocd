@@ -35,11 +35,7 @@ import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.startsWith;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.osgi.framework.Constants.*;
 
@@ -64,7 +60,7 @@ public class GoPluginOSGiManifestTest {
         manifestFile = new File(bundleLocation, "META-INF/MANIFEST.MF");
 
         bundleDependencyDir = new File(bundleLocation, "lib");
-        goPluginOSGiManifestGenerator = new DefaultGoPluginOSGiManifestCreator();
+        goPluginOSGiManifestGenerator = new GoPluginOSGiManifest.DefaultGoPluginOSGiManifestCreator();
     }
 
     @Test

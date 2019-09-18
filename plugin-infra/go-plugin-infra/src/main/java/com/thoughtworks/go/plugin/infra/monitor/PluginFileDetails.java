@@ -18,16 +18,14 @@ package com.thoughtworks.go.plugin.infra.monitor;
 import java.io.File;
 
 public class PluginFileDetails {
-    private String pluginFileName;
-    private File pluginFile;
-    private boolean bundledPlugin;
-    private long lastModified;
+    private final File pluginFile;
+    private final boolean bundledPlugin;
+    private final long lastModified;
 
-    public PluginFileDetails(File plugin, boolean bundledPlugin) {
-        this.pluginFile = plugin;
+    public PluginFileDetails(File pluginFile, boolean bundledPlugin) {
+        this.pluginFile = pluginFile;
         this.bundledPlugin = bundledPlugin;
-        pluginFileName = plugin.getName();
-        lastModified = plugin.lastModified();
+        this.lastModified = pluginFile.lastModified();
     }
 
     public File file() {
@@ -45,7 +43,7 @@ public class PluginFileDetails {
 
         PluginFileDetails that = (PluginFileDetails) o;
 
-        if (!pluginFileName.equals(that.pluginFileName)) {
+        if (!pluginFile.getName().equals(that.pluginFile.getName())) {
             return false;
         }
 
@@ -54,7 +52,7 @@ public class PluginFileDetails {
 
     @Override
     public int hashCode() {
-        return pluginFileName.hashCode();
+        return pluginFile.getName().hashCode();
     }
 
     public boolean doesTimeStampDiffer(PluginFileDetails other) {

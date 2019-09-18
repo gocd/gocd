@@ -15,16 +15,10 @@
  */
 
 import Stream from "mithril/stream";
+import {EnvironmentVariableJSON, EnvironmentVariables} from "models/environment_variables/types";
 
 export interface PipelineJSON {
   name: string;
-}
-
-export interface EnvironmentVariableJSON {
-  secure: boolean;
-  name: string;
-  value?: string;
-  encrypted_value?: string;
 }
 
 export interface EnvironmentJSON {
@@ -62,35 +56,6 @@ class Pipelines extends Array<Pipeline> {
 
   static fromJSON(pipelines: PipelineJSON[]) {
     return new Pipelines(...pipelines.map(Pipeline.fromJSON));
-  }
-}
-
-export class EnvironmentVariable {
-  secure: Stream<boolean>;
-  name: Stream<string>;
-  value: Stream<string | undefined>;
-  encryptedValue: Stream<string | undefined>;
-
-  constructor(name: string, value?: string, secure?: boolean, encryptedValue?: string) {
-    this.secure         = Stream(secure || false);
-    this.name           = Stream(name);
-    this.value          = Stream(value);
-    this.encryptedValue = Stream(encryptedValue);
-  }
-
-  static fromJSON(data: EnvironmentVariableJSON) {
-    return new EnvironmentVariable(data.name, data.value, data.secure, data.encrypted_value);
-  }
-}
-
-class EnvironmentVariables extends Array<EnvironmentVariable> {
-  constructor(...environmentVariables: EnvironmentVariable[]) {
-    super(...environmentVariables);
-    Object.setPrototypeOf(this, Object.create(EnvironmentVariables.prototype));
-  }
-
-  static fromJSON(environmentVariables: EnvironmentVariableJSON[]) {
-    return new EnvironmentVariables(...environmentVariables.map(EnvironmentVariable.fromJSON));
   }
 }
 

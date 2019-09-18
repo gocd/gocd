@@ -34,7 +34,6 @@ describe("AddPipeline: TemplateEditor", () => {
     config = new PipelineConfig("", [], []).withGroup("foo");
     isUsingTemplate = Stream();
     paramList = Stream();
-    helper.mount(() => <TemplateEditor pipelineConfig={config} isUsingTemplate={isUsingTemplate} cache={new EmptyTestCache()} paramList={paramList}/>);
   });
 
   afterEach(() => {
@@ -44,6 +43,8 @@ describe("AddPipeline: TemplateEditor", () => {
   });
 
   it("should display flash when no templates are defined", () => {
+    helper.mount(() => <TemplateEditor pipelineConfig={config} isUsingTemplate={isUsingTemplate} cache={new EmptyTestCache()} paramList={paramList}/>);
+
     helper.clickByDataTestId("switch-paddle");
     expect(isUsingTemplate()).toBeTruthy();
     const flash = helper.byTestId("flash-message-warning");
@@ -52,33 +53,27 @@ describe("AddPipeline: TemplateEditor", () => {
   });
 
   it("should show dropdown of templates when defined", () => {
-    jasmine.Ajax.withMock(() => {
-      jasmine.Ajax.stubRequest('/go/api/admin/templates/one').andReturn({
-        responseText: JSON.stringify({}),
-        status: 200,
-        responseHeaders: {
-          'Content-Type': 'application/vnd.go.cd.v5+json'
-        }
-      });
+    stubGetTemplateWith(new TemplateConfig("one", []));
+    helper.mount(() => <TemplateEditor pipelineConfig={config} isUsingTemplate={isUsingTemplate} cache={new TestCache()} paramList={paramList}/>);
 
-      helper.unmount();
-      helper.mount(() => <TemplateEditor pipelineConfig={config} isUsingTemplate={isUsingTemplate} cache={new TestCache()} paramList={paramList}/>);
-      helper.clickByDataTestId("switch-paddle");
-      expect(isUsingTemplate()).toBeTruthy();
-      expect(config.template()).toBe("one");
-      const dropdown = helper.byTestId("form-field-input-template");
-      expect(dropdown).toBeInDOM();
-      expect(helper.qa("option", dropdown).length).toBe(2);
+    helper.clickByDataTestId("switch-paddle");
+    expect(isUsingTemplate()).toBeTruthy();
+    expect(config.template()).toBe("one");
+    expect(TemplateConfig.getTemplate).toHaveBeenCalledTimes(1);
 
-      helper.clickByDataTestId("switch-paddle");
-      expect(isUsingTemplate()).toBe(false);
-      expect(config.template()).toBeUndefined();
-    });
+    const dropdown = helper.byTestId("form-field-input-template");
+    expect(dropdown).toBeInDOM();
+    expect(helper.qa("option", dropdown).length).toBe(2);
+
+    helper.clickByDataTestId("switch-paddle");
+    expect(isUsingTemplate()).toBe(false);
+    expect(config.template()).toBeUndefined();
+    expect(TemplateConfig.getTemplate).toHaveBeenCalledTimes(1);
   });
 
   it("should not display dropdown and should display flash when cache fails to populate", () => {
-    helper.unmount();
     helper.mount(() => <TemplateEditor pipelineConfig={config} isUsingTemplate={isUsingTemplate} cache={new FailedTestCache()} paramList={paramList}/>);
+
     helper.clickByDataTestId("switch-paddle");
     expect(isUsingTemplate()).toBeTruthy();
 
@@ -90,18 +85,32 @@ describe("AddPipeline: TemplateEditor", () => {
     expect(dropdown).not.toExist();
   });
 
-  it("should populate parameters when present", () => {
-    spyOn(TemplateConfig, "getTemplate").and.callFake((name, onSuccess) => {
-      onSuccess(new TemplateConfig(name, [new PipelineParameter("paramName", "")]));
+  it("should populate parameters when present", (done) => {
+    stubGetTemplateWith(new TemplateConfig("one", [new PipelineParameter("paramName", "")]), () => {
       expect(paramList().length).toBe(1);
-      expect(paramList()[0].name).toEqual("paramName");
-      expect(paramList()[0].value).toEqual("");
+      expect(paramList()[0].toApiPayload()).toEqual({ name: "paramName", value: "" });
+      done();
     });
+
+    helper.mount(() => <TemplateEditor pipelineConfig={config} isUsingTemplate={isUsingTemplate} cache={new TestCache()} paramList={paramList}/>);
 
     helper.clickByDataTestId("switch-paddle");
     expect(isUsingTemplate()).toBeTruthy();
+    expect(TemplateConfig.getTemplate).toHaveBeenCalled();
   });
 });
+
+function stubGetTemplateWith(templateConfig: TemplateConfig, expectations?: () => void) {
+  spyOn(TemplateConfig, "getTemplate").and.callFake((name, onSuccess) => {
+    onSuccess(templateConfig);
+
+    expect(name).toBe(templateConfig.name());
+
+    if ("function" === typeof expectations) {
+      expectations();
+    }
+  });
+}
 
 class TestCache implements TemplateCache<Option> {
   ready() { return true; }

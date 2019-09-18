@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static java.lang.String.format;
-import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 
 /**
@@ -72,7 +71,7 @@ public class PluginLoader {
             doPostBundleInstallActivities(descriptor);
         } catch (Exception e) {
             File bundleLocation = descriptor.bundleLocation();
-            descriptor.markAsInvalid(asList(e.getMessage()), e);
+            descriptor.markAsInvalid(List.of(e.getMessage()), e);
             LOGGER.error("Failed to load plugin: {}", bundleLocation, e);
             handlePluginInvalidation(descriptor, bundleLocation);
             throw new RuntimeException("Failed to load plugin: " + bundleLocation, e);

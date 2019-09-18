@@ -51,7 +51,7 @@ ADD ${fileDescriptor.url} ${filePath}
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
-<#list distro.environmentVariables(distroVersion) as key, value>
+<#list distro.getEnvironmentVariables(distroVersion) as key, value>
 ENV ${key}="${value}"
 </#list>
 
@@ -75,7 +75,7 @@ RUN \
 <#list distroVersion.installPrerequisitesCommands as command>
     ${command} && \
 </#list>
-<#list distro.installPrerequisitesCommands(distroVersion) as command>
+<#list distro.getInstallPrerequisitesCommands(distroVersion) as command>
   ${command} && \
 </#list>
 <#list distro.getInstallJavaCommands(project) as command>

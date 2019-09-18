@@ -37,7 +37,7 @@ export class TemplatesCache<G> extends AbstractObjCache<Template[]> {
   }
 
   doFetch(resolve: (data: Template[]) => void, reject: (reason: string) => void) {
-    ApiRequestBuilder.GET(SparkRoutes.templatesPath(), ApiVersion.v4).then((res) => {
+    ApiRequestBuilder.GET(SparkRoutes.templatesPath(), ApiVersion.v5).then((res) => {
       res.do((s) => {
         resolve(JSON.parse(s.body)._embedded.templates);
       }, (e) => {

@@ -40,6 +40,7 @@ dependencies {
   runtimeOnly group: 'org.junit.vintage', name: 'junit-vintage-engine', version: project.versions.junit5
   implementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
   runtimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
+  compile group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: project.versions.junit5
 
   compile group: 'com.googlecode', name: 'junit-ext', version: '1.0'
   compile group: 'org.hamcrest', name: 'hamcrest-core', version: project.versions.hamcrest

@@ -21,12 +21,14 @@ import com.googlecode.junit.ext.checkers.OSChecker;
 import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.mockito.Mockito;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
@@ -34,19 +36,18 @@ import java.util.Map;
 import java.util.Random;
 
 import static com.thoughtworks.go.util.LogFixture.logFixtureForRootLogger;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
-public class DefaultPluginLoggingServiceIntegrationTest {
+class DefaultPluginLoggingServiceIntegrationTest {
     private static OSChecker WINDOWS = new OSChecker(OSChecker.WINDOWS);
     private DefaultPluginLoggingService pluginLoggingService;
     private Map<Integer, String> plugins;
     private SystemEnvironment systemEnvironment;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() {
         this.plugins = new HashMap<>();
 
         systemEnvironment = mock(SystemEnvironment.class);
@@ -55,26 +56,26 @@ public class DefaultPluginLoggingServiceIntegrationTest {
         pluginLoggingService = new DefaultPluginLoggingService(systemEnvironment);
     }
 
-    @After
-    public void tearDown() throws Exception {
+    @AfterEach
+    void tearDown() {
         for (Integer pluginIndex : plugins.keySet()) {
             FileUtils.deleteQuietly(pluginLog(pluginIndex));
         }
     }
 
     @Test
-    public void shouldNotLogPluginMessagesToRootLogger() throws Exception {
+    void shouldNotLogPluginMessagesToRootLogger() {
         try (LogFixture fixture = logFixtureForRootLogger(Level.INFO)) {
             DefaultPluginLoggingService service = new DefaultPluginLoggingService(systemEnvironment);
             service.info(pluginID(1), "LoggingClass", "this-message-should-not-go-to-root-logger");
 
             String failureMessage = "Expected no messages to be logged to root logger. Found: " + fixture.getFormattedMessages();
-            assertThat(failureMessage, fixture.getFormattedMessages().size(), is(0));
+            assertThat(fixture.getFormattedMessages().size()).as(failureMessage).isEqualTo(0);
         }
     }
 
     @Test
-    public void shouldGetLogLocationFromRootLoggerFileAppender() throws Exception {
+    void shouldGetLogLocationFromRootLoggerFileAppender() {
         DefaultPluginLoggingService service = new DefaultPluginLoggingService(systemEnvironment);
         DefaultPluginLoggingService spy = Mockito.spy(service);
 
@@ -84,7 +85,7 @@ public class DefaultPluginLoggingServiceIntegrationTest {
     }
 
     @Test
-    public void shouldGetCurrentLogDirectoryByLookingAtFileAppenderOfRootLogger() throws Exception {
+    void shouldGetCurrentLogDirectoryByLookingAtFileAppenderOfRootLogger() {
         if (WINDOWS.satisfy()) {
             return;
         }
@@ -96,18 +97,18 @@ public class DefaultPluginLoggingServiceIntegrationTest {
 
         String currentLogDirectory = service.getCurrentLogDirectory();
 
-        assertThat(currentLogDirectory, is("/var/log/go-server"));
+        assertThat(currentLogDirectory).isEqualTo("/var/log/go-server");
     }
 
     @Test
-    public void shouldNotLogDebugMessagesByDefaultSinceTheDefaultLoggingLevelIsInfo() throws Exception {
+    void shouldNotLogDebugMessagesByDefaultSinceTheDefaultLoggingLevelIsInfo() throws IOException {
         pluginLoggingService.debug(pluginID(1), "LoggingClass", "message");
 
-        assertThat(FileUtils.readFileToString(pluginLog(1), Charset.defaultCharset()), is(""));
+        assertThat(FileUtils.readFileToString(pluginLog(1), Charset.defaultCharset())).isEqualTo("");
     }
 
     @Test
-    public void shouldLogNonDebugMessagesByDefaultSinceTheDefaultLoggingLevelIsInfo() throws Exception {
+    void shouldLogNonDebugMessagesByDefaultSinceTheDefaultLoggingLevelIsInfo() throws IOException {
         pluginLoggingService.info(pluginID(1), "LoggingClass", "info");
         pluginLoggingService.warn(pluginID(1), "LoggingClass", "warn");
         pluginLoggingService.error(pluginID(1), "LoggingClass", "error");
@@ -119,7 +120,7 @@ public class DefaultPluginLoggingServiceIntegrationTest {
     }
 
     @Test
-    public void shouldLogThrowableDetailsAlongwithMessage() throws Exception {
+    void shouldLogThrowableDetailsAlongwithMessage() throws IOException {
         Throwable throwable = new RuntimeException("oops");
         throwable.setStackTrace(new StackTraceElement[]{new StackTraceElement("class", "method", "field", 20)});
 
@@ -129,7 +130,7 @@ public class DefaultPluginLoggingServiceIntegrationTest {
     }
 
     @Test
-    public void shouldUsePluginLogFileForAllLogMessagesOfASinglePlugin() throws Exception {
+    void shouldUsePluginLogFileForAllLogMessagesOfASinglePlugin() throws IOException {
         pluginLoggingService.info(pluginID(1), "LoggingClass", "info1");
         pluginLoggingService.warn(pluginID(1), "SomeOtherClass", "info2");
 
@@ -139,7 +140,7 @@ public class DefaultPluginLoggingServiceIntegrationTest {
     }
 
     @Test
-    public void shouldLogMessagesOfDifferentPluginsToTheirOwnLogFiles() throws Exception {
+    void shouldLogMessagesOfDifferentPluginsToTheirOwnLogFiles() throws IOException {
         pluginLoggingService.info(pluginID(1), "LoggingClass", "info1");
         pluginLoggingService.info(pluginID(2), "SomeOtherClass", "info2");
 
@@ -150,8 +151,9 @@ public class DefaultPluginLoggingServiceIntegrationTest {
         assertMessageInLog(pluginLog(2), "INFO", "SomeOtherClass", "info2");
     }
 
-    @Test(timeout = 10 * 1000)
-    public void shouldAllowLoggingAcrossMultipleThreadsAndPlugins() throws Exception {
+    @Test
+    @Timeout(value = 10)
+    void shouldAllowLoggingAcrossMultipleThreadsAndPlugins() throws IOException, InterruptedException {
         Thread thread1 = createThreadFor(pluginID(1), "1");
         Thread thread2 = createThreadFor(pluginID(2), "2");
         Thread thread3 = createThreadFor(pluginID(1), "3");
@@ -172,7 +174,7 @@ public class DefaultPluginLoggingServiceIntegrationTest {
     }
 
     @Test
-    public void shouldAllowSettingLoggingLevelPerPlugin() throws Exception {
+    void shouldAllowSettingLoggingLevelPerPlugin() throws IOException {
         when(systemEnvironment.pluginLoggingLevel(pluginID(1))).thenReturn(Level.WARN);
 
         pluginLoggingService.debug(pluginID(1), "LoggingClass", "debug");
@@ -202,7 +204,7 @@ public class DefaultPluginLoggingServiceIntegrationTest {
         };
     }
 
-    private void assertMessageInLog(File pluginLogFile, String expectedLoggingLevel, String loggerName, String expectedLogMessage) throws Exception {
+    private void assertMessageInLog(File pluginLogFile, String expectedLoggingLevel, String loggerName, String expectedLogMessage) throws IOException {
         List linesInLog = FileUtils.readLines(pluginLogFile, Charset.defaultCharset());
         for (Object line : linesInLog) {
             if (((String) line).matches(String.format("^.*%s\\s+\\[%s\\] %s:.* - %s$", expectedLoggingLevel, Thread.currentThread().getName(), loggerName, expectedLogMessage))) {
@@ -212,7 +214,7 @@ public class DefaultPluginLoggingServiceIntegrationTest {
         fail(String.format("None of the lines matched level:%s message:'%s'. Lines were: %s", expectedLoggingLevel, expectedLogMessage, linesInLog));
     }
 
-    private void assertMessageInLog(File pluginLogFile, String loggingLevel, String loggerName, String message, String stackTracePattern) throws Exception {
+    private void assertMessageInLog(File pluginLogFile, String loggingLevel, String loggerName, String message, String stackTracePattern) throws IOException {
         String fileContent = FileUtils.readFileToString(pluginLogFile, Charset.defaultCharset());
         if (fileContent.matches(String.format("^.*%s\\s\\[%s\\]\\s%s:.*\\s-\\s%s[\\s\\S]*%s", loggingLevel, Thread.currentThread().getName(), loggerName, message, stackTracePattern))) {
             return;
@@ -221,8 +223,8 @@ public class DefaultPluginLoggingServiceIntegrationTest {
 
     }
 
-    private void assertNumberOfMessagesInLog(File pluginLogFile, int size) throws Exception {
-        assertThat(FileUtils.readLines(pluginLogFile, Charset.defaultCharset()).size(), is(size));
+    private void assertNumberOfMessagesInLog(File pluginLogFile, int size) throws IOException {
+        assertThat(FileUtils.readLines(pluginLogFile, Charset.defaultCharset()).size()).isEqualTo(size);
     }
 
     private String pluginID(int pluginIndex) {

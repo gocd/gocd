@@ -15,11 +15,10 @@
  */
 package com.thoughtworks.go.plugin.infra;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 
 public class PluginManagerReferenceTest {
@@ -33,6 +32,6 @@ public class PluginManagerReferenceTest {
         }
         PluginManager mockManager = mock(PluginManager.class);
         reference.setPluginManager(mockManager);
-        assertThat(reference.getPluginManager(), is(mockManager));
+        assertThat(reference.getPluginManager()).isEqualTo(mockManager);
     }
 }

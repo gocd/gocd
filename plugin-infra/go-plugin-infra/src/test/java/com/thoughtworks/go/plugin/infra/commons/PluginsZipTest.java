@@ -15,41 +15,33 @@
  */
 package com.thoughtworks.go.plugin.infra.commons;
 
+import com.thoughtworks.go.plugin.FileHelper;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginBundleDescriptor;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.collections4.EnumerationUtils;
-import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.UUID;
 import java.util.zip.ZipFile;
 
 import static com.thoughtworks.go.util.SystemEnvironment.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.*;
 
 public class PluginsZipTest {
     private SystemEnvironment systemEnvironment;
     private PluginsZip pluginsZip;
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
     private String expectedZipPath;
     private File externalPluginsDir;
     private PluginManager pluginManager;
@@ -62,11 +54,13 @@ public class PluginsZipTest {
     private GoPluginBundleDescriptor bundledPackageMaterialPlugin;
     private GoPluginBundleDescriptor externalPackageMaterialPlugin;
     private File bundledPluginsDir;
+    private FileHelper temporaryFolder;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp(@TempDir File rootDir) throws Exception {
+        temporaryFolder = new FileHelper(rootDir);
         pluginManager = mock(PluginManager.class);
-        temporaryFolder.create();
+        temporaryFolder.newFolder();
         systemEnvironment = mock(SystemEnvironment.class);
         bundledPluginsDir = temporaryFolder.newFolder("plugins-bundled");
         expectedZipPath = temporaryFolder.newFile("go-plugins-all.zip").getAbsolutePath();
@@ -119,44 +113,44 @@ public class PluginsZipTest {
     }
 
     @After
-    public void tearDown()  {
+    void tearDown() {
         temporaryFolder.delete();
     }
 
     @Test
-    public void shouldZipTaskPluginsIntoOneZipEveryTime() throws Exception {
+    void shouldZipTaskPluginsIntoOneZipEveryTime() throws Exception {
         pluginsZip.create();
 
-        assertThat(expectedZipPath + " should exist", new File(expectedZipPath).exists(), is(true));
-        assertThat(new ZipFile(expectedZipPath).getEntry("bundled/bundled-task-1.jar"), is(notNullValue()));
-        assertThat(new ZipFile(expectedZipPath).getEntry("bundled/bundled-scm-3.jar"), is(notNullValue()));
-        assertThat(new ZipFile(expectedZipPath).getEntry("bundled/bundled-package-material-4.jar"), is(notNullValue()));
-        assertThat(new ZipFile(expectedZipPath).getEntry("external/external-task-1.jar"), is(notNullValue()));
-        assertThat(new ZipFile(expectedZipPath).getEntry("external/external-scm-3.jar"), is(notNullValue()));
-        assertThat(new ZipFile(expectedZipPath).getEntry("external/external-package-material-4.jar"), is(notNullValue()));
+        assertThat(new File(expectedZipPath).exists()).as(expectedZipPath + " should exist").isTrue();
+        assertThat(new ZipFile(expectedZipPath).getEntry("bundled/bundled-task-1.jar")).isNotNull();
+        assertThat(new ZipFile(expectedZipPath).getEntry("bundled/bundled-scm-3.jar")).isNotNull();
+        assertThat(new ZipFile(expectedZipPath).getEntry("bundled/bundled-package-material-4.jar")).isNotNull();
+        assertThat(new ZipFile(expectedZipPath).getEntry("external/external-task-1.jar")).isNotNull();
+        assertThat(new ZipFile(expectedZipPath).getEntry("external/external-scm-3.jar")).isNotNull();
+        assertThat(new ZipFile(expectedZipPath).getEntry("external/external-package-material-4.jar")).isNotNull();
 
-        assertThat(new ZipFile(expectedZipPath).getEntry("bundled/bundled-auth-2.jar"), is(nullValue()));
-        assertThat(new ZipFile(expectedZipPath).getEntry("external/external-elastic-agent-2.jar"), is(nullValue()));
+        assertThat(new ZipFile(expectedZipPath).getEntry("bundled/bundled-auth-2.jar")).isNull();
+        assertThat(new ZipFile(expectedZipPath).getEntry("external/external-elastic-agent-2.jar")).isNull();
     }
 
     @Test
-    public void shouldGetChecksumIfFileWasCreated() {
+    void shouldGetChecksumIfFileWasCreated() {
         pluginsZip.create();
         String md5 = pluginsZip.md5();
-        assertThat(md5, is(notNullValue()));
+        assertThat(md5).isNotNull();
     }
 
     @Test
-    public void shouldUpdateChecksumIfFileIsReCreated() throws Exception {
+    void shouldUpdateChecksumIfFileIsReCreated() throws Exception {
         pluginsZip.create();
         String oldMd5 = pluginsZip.md5();
         FileUtils.writeStringToFile(new File(externalPluginsDir, "external-task-1.jar"), UUID.randomUUID().toString(), UTF_8);
         pluginsZip.create();
-        assertThat(pluginsZip.md5(), is(not(oldMd5)));
+        assertThat(pluginsZip.md5()).isNotEqualTo(oldMd5);
     }
 
-    @Test(expected = FileAccessRightsCheckException.class)
-    public void shouldFailGracefullyWhenExternalFileCannotBeRead() throws Exception {
+    @Test
+    void shouldFailGracefullyWhenExternalFileCannotBeRead() throws Exception {
         File bundledPluginsDir = temporaryFolder.newFolder("plugins-bundled-ext");
         SystemEnvironment systemEnvironmentFail = mock(SystemEnvironment.class);
         when(systemEnvironmentFail.get(PLUGIN_GO_PROVIDED_PATH)).thenReturn(bundledPluginsDir.getAbsolutePath());
@@ -165,11 +159,12 @@ public class PluginsZipTest {
         FileUtils.writeStringToFile(new File(bundledPluginsDir, "bundled-task-1.jar"), "Bundled1", UTF_8);
 
         PluginsZip pluginsZipFail = new PluginsZip(systemEnvironmentFail, pluginManager);
-        pluginsZipFail.create();
+        assertThatCode(pluginsZipFail::create)
+                .isInstanceOf(FileAccessRightsCheckException.class);
     }
 
-    @Test(expected = FileAccessRightsCheckException.class)
-    public void shouldFailGracefullyWhenBundledFileCannotBeRead() throws Exception {
+    @Test
+    void shouldFailGracefullyWhenBundledFileCannotBeRead() throws Exception {
         SystemEnvironment systemEnvironmentFail = mock(SystemEnvironment.class);
         when(systemEnvironmentFail.get(PLUGIN_GO_PROVIDED_PATH)).thenReturn("");
         when(systemEnvironmentFail.get(PLUGIN_EXTERNAL_PROVIDED_PATH)).thenReturn(externalPluginsDir.getAbsolutePath());
@@ -177,26 +172,27 @@ public class PluginsZipTest {
         FileUtils.writeStringToFile(new File(externalPluginsDir, "external-task-1.jar"), "External1", UTF_8);
 
         PluginsZip pluginsZipFail = new PluginsZip(systemEnvironmentFail, pluginManager);
-        pluginsZipFail.create();
+        assertThatCode(pluginsZipFail::create)
+                .isInstanceOf(FileAccessRightsCheckException.class);
     }
 
     @Test
-    public void fileAccessErrorShouldContainPathToTheFolderInWhichTheErrorOccurred() throws Exception {
+    void fileAccessErrorShouldContainPathToTheFolderInWhichTheErrorOccurred() throws Exception {
         SystemEnvironment systemEnvironmentFail = mock(SystemEnvironment.class);
         when(systemEnvironmentFail.get(PLUGIN_GO_PROVIDED_PATH)).thenReturn("/dummy");
         when(systemEnvironmentFail.get(PLUGIN_EXTERNAL_PROVIDED_PATH)).thenReturn(externalPluginsDir.getAbsolutePath());
         when(systemEnvironmentFail.get(ALL_PLUGINS_ZIP_PATH)).thenReturn("");
         FileUtils.writeStringToFile(new File(externalPluginsDir, "external-task-1.jar"), "External1", UTF_8);
-        expectedException.expect(FileAccessRightsCheckException.class);
-        expectedException.expectMessage("dummy");
 
         PluginsZip pluginsZipFail = new PluginsZip(systemEnvironmentFail, pluginManager);
-        pluginsZipFail.create();
+        assertThatCode(pluginsZipFail::create)
+                .isInstanceOf(FileAccessRightsCheckException.class)
+                .hasMessageContaining("dummy");
     }
 
 
     @Test
-    public void shouldCreatePluginsWhenTaskPluginsAreAdded()  {
+    void shouldCreatePluginsWhenTaskPluginsAreAdded() {
         GoPluginDescriptor plugin = new GoPluginDescriptor("curl-task-plugin", null, null, null, null, false);
         when(pluginManager.isPluginOfType("task", plugin.id())).thenReturn(true);
         pluginsZip.pluginLoaded(plugin);
@@ -204,25 +200,25 @@ public class PluginsZipTest {
     }
 
     @Test
-    public void shouldCreatePluginsWhenTaskPluginsAreRemoved()  {
+    void shouldCreatePluginsWhenTaskPluginsAreRemoved() {
         pluginsZip.pluginUnLoaded(externalTaskPlugin.descriptors().get(0));
         verify(pluginsZip, times(1)).create();
     }
 
     @Test
-    public void shouldDoNothingWhenAPluginThatIsNotATaskOrScmOrPackageMaterialPluginPluginIsAdded()  {
+    void shouldDoNothingWhenAPluginThatIsNotATaskOrScmOrPackageMaterialPluginPluginIsAdded() {
         pluginsZip.pluginLoaded(externalElasticAgentPlugin.descriptors().get(0));
         verify(pluginsZip, never()).create();
     }
 
     @Test
-    public void shouldDoNothingWhenAPluginThatIsNotATaskOrScmOrPackageMaterialPluginPluginIsRemoved()  {
+    void shouldDoNothingWhenAPluginThatIsNotATaskOrScmOrPackageMaterialPluginPluginIsRemoved() {
         pluginsZip.pluginUnLoaded(externalElasticAgentPlugin.descriptors().get(0));
         verify(pluginsZip, never()).create();
     }
 
     @Test
-    public void shouldCreateAZipWithOneCopyOfEachJar_ForAPluginBundleWithMultiplePluginsInIt() throws IOException {
+    void shouldCreateAZipWithOneCopyOfEachJar_ForAPluginBundleWithMultiplePluginsInIt() throws IOException {
         File bundled_plugin = createPluginFile(bundledPluginsDir, "bundled-multi-plugin-1.jar", "Bundled1");
         File external_plugin = createPluginFile(externalPluginsDir, "external-multi-plugin-1.jar", "External1");
 
@@ -254,10 +250,10 @@ public class PluginsZipTest {
         pluginsZip.create();
 
 
-        assertThat(expectedZipPath + " should exist", new File(expectedZipPath).exists(), is(true));
-        assertThat(EnumerationUtils.toList(new ZipFile(expectedZipPath).entries()).size(), is(2));
-        assertThat(new ZipFile(expectedZipPath).getEntry("bundled/bundled-multi-plugin-1.jar"), is(notNullValue()));
-        assertThat(new ZipFile(expectedZipPath).getEntry("external/external-multi-plugin-1.jar"), is(notNullValue()));
+        assertThat(new File(expectedZipPath).exists()).as(expectedZipPath + " should exist").isTrue();
+        assertThat(EnumerationUtils.toList(new ZipFile(expectedZipPath).entries()).size()).isEqualTo(2);
+        assertThat(new ZipFile(expectedZipPath).getEntry("bundled/bundled-multi-plugin-1.jar")).isNotNull();
+        assertThat(new ZipFile(expectedZipPath).getEntry("external/external-multi-plugin-1.jar")).isNotNull();
     }
 
     private File createPluginFile(File pluginsDir, String pluginJarFileName, String contents) throws IOException {

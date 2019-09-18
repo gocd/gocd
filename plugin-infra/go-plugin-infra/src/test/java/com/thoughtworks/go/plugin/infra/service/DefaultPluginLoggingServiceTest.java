@@ -19,7 +19,7 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.FileAppender;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
@@ -27,13 +27,12 @@ import java.util.ArrayList;
 import java.util.function.Consumer;
 
 import static org.apache.commons.lang3.StringUtils.repeat;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-public class DefaultPluginLoggingServiceTest {
+class DefaultPluginLoggingServiceTest {
     @Test
-    public void shouldTrimDownLogFileNameToAReasonableSizeIfThePluginIdIsTooBig() throws Exception {
+    void shouldTrimDownLogFileNameToAReasonableSizeIfThePluginIdIsTooBig() throws Exception {
         assertPluginLogFile("abcd", "plugin-abcd.log");
 
         String pluginIdWithLengthOf189 = repeat("a", 189);
@@ -62,7 +61,7 @@ public class DefaultPluginLoggingServiceTest {
         });
 
         String loggingDirectory = loggingService.getCurrentLogDirectory();
-        assertThat(appenders.size(), is(1));
-        assertThat(new File(((FileAppender) appenders.get(0)).rawFileProperty()), is(new File(loggingDirectory, expectedPluginLogFileName)));
+        assertThat(appenders.size()).isEqualTo(1);
+        assertThat(new File(((FileAppender) appenders.get(0)).rawFileProperty())).isEqualTo(new File(loggingDirectory, expectedPluginLogFileName));
     }
 }

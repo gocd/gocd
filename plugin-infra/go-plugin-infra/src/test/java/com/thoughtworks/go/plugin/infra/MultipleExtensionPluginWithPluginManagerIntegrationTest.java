@@ -15,42 +15,33 @@
  */
 package com.thoughtworks.go.plugin.infra;
 
+import com.thoughtworks.go.plugin.FileHelper;
 import com.thoughtworks.go.plugin.api.request.DefaultGoPluginApiRequest;
 import com.thoughtworks.go.plugin.infra.listeners.DefaultPluginJarChangeListener;
 import com.thoughtworks.go.plugin.infra.monitor.PluginFileDetails;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
-import org.junit.*;
-import org.junit.contrib.java.lang.system.RestoreSystemProperties;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 
 import static com.thoughtworks.go.util.SystemEnvironment.*;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {"classpath:/applicationContext-plugin-infra.xml"})
 @DirtiesContext
-public class MultipleExtensionPluginWithPluginManagerIntegrationTest {
-    @ClassRule
-    public static final RestoreSystemProperties restoreSystemProperties = new RestoreSystemProperties();
-    @ClassRule
-    public static final TemporaryFolder temporaryFolder = new TemporaryFolder();
-
+class MultipleExtensionPluginWithPluginManagerIntegrationTest {
     private static final String EXTENSION_1_PROPERTY_PREFIX = "valid-plugin-with-multiple-extensions.task_extension.";
     private static final String EXTENSION_2_PROPERTY_PREFIX = "valid-plugin-with-multiple-extensions.analytics_extension.";
-
     private static final String PLUGIN_ID = "valid-plugin-with-multiple-extensions";
 
     @Autowired
@@ -61,9 +52,11 @@ public class MultipleExtensionPluginWithPluginManagerIntegrationTest {
     SystemEnvironment systemEnvironment;
     private static File bundleDir;
     private static File pluginDir;
+    private static FileHelper temporaryFolder;
 
-    @BeforeClass
-    public static void overrideProperties() throws IOException {
+    @BeforeAll
+    static void overrideProperties(@TempDir File rootDir) {
+        temporaryFolder = new FileHelper(rootDir);
         bundleDir = temporaryFolder.newFolder("bundleDir");
         pluginDir = temporaryFolder.newFolder("pluginDir");
 
@@ -73,78 +66,85 @@ public class MultipleExtensionPluginWithPluginManagerIntegrationTest {
         System.setProperty(PLUGIN_EXTERNAL_PROVIDED_PATH.propertyName(), pluginDir.getAbsolutePath());
     }
 
-    @Before
-    public void setUpPluginInfrastructure() {
+    @BeforeEach
+    void setUpPluginInfrastructure() {
         pluginManager.startInfrastructure(false);
 
         URL multiExtensionJar = MultipleExtensionPluginWithPluginManagerIntegrationTest.class.getClassLoader().getResource("defaultFiles/valid-plugin-with-multiple-extensions.jar");
         jarChangeListener.pluginJarAdded(new PluginFileDetails(new File(multiExtensionJar.getFile()), false));
     }
 
-    @Test
-    public void shouldInitializeAccessorForEveryExtensionJustBeforeSendingTheFirstEverRequest() {
-        GoPluginDescriptor plugin = pluginManager.getPluginDescriptorFor(PLUGIN_ID);
-        assertThat(plugin.id(), is(PLUGIN_ID));
+    @AfterEach
+    void tearDown() {
+        pluginManager.stopInfrastructure();
+        FileUtils.deleteQuietly(new File("felix-cache"));
+    }
 
-        assertThat(plugin.bundleDescriptor().bundleSymbolicName(), is(PLUGIN_ID));
-        assertThat(plugin.isInvalid(), is(false));
+    @AfterAll
+    static void clearSystemProperties() {
+        System.clearProperty(PLUGIN_ACTIVATOR_JAR_PATH.propertyName());
+        System.clearProperty(PLUGIN_BUNDLE_PATH.propertyName());
+        System.clearProperty(PLUGIN_GO_PROVIDED_PATH.propertyName());
+        System.clearProperty(PLUGIN_EXTERNAL_PROVIDED_PATH.propertyName());
+    }
+
+    @Test
+    void shouldInitializeAccessorForEveryExtensionJustBeforeSendingTheFirstEverRequest() {
+        GoPluginDescriptor plugin = pluginManager.getPluginDescriptorFor(PLUGIN_ID);
+        assertThat(plugin.id()).isEqualTo(PLUGIN_ID);
+
+        assertThat(plugin.bundleDescriptor().bundleSymbolicName()).isEqualTo(PLUGIN_ID);
+        assertThat(plugin.isInvalid()).isFalse();
 
         DefaultGoPluginApiRequest request = new DefaultGoPluginApiRequest("task", "1.0", "request1");
         request.setRequestBody("{ \"abc\": 1 }");
 
         pluginManager.submitTo(PLUGIN_ID, "task", request);
 
-        assertThat(System.getProperty(EXTENSION_1_PROPERTY_PREFIX + "initialize_accessor.count"), is("1"));
-        assertThat(System.getProperty(EXTENSION_2_PROPERTY_PREFIX + "initialize_accessor.count"), is(nullValue()));
+        assertThat(System.getProperty(EXTENSION_1_PROPERTY_PREFIX + "initialize_accessor.count")).isEqualTo("1");
+        assertThat(System.getProperty(EXTENSION_2_PROPERTY_PREFIX + "initialize_accessor.count")).isNull();
 
         request = new DefaultGoPluginApiRequest("analytics", "1.0", "request1");
         request.setRequestBody("{ \"abc\": 2 }");
 
         pluginManager.submitTo(PLUGIN_ID, "analytics", request);
 
-        assertThat(System.getProperty(EXTENSION_1_PROPERTY_PREFIX + "initialize_accessor.count"), is("1"));
-        assertThat(System.getProperty(EXTENSION_2_PROPERTY_PREFIX + "initialize_accessor.count"), is("1"));
+        assertThat(System.getProperty(EXTENSION_1_PROPERTY_PREFIX + "initialize_accessor.count")).isEqualTo("1");
+        assertThat(System.getProperty(EXTENSION_2_PROPERTY_PREFIX + "initialize_accessor.count")).isEqualTo("1");
     }
 
     @Test
-    public void shouldNotReinitializeWithAccessorIfAlreadyInitialized() {
+    void shouldNotReinitializeWithAccessorIfAlreadyInitialized() {
         DefaultGoPluginApiRequest request = new DefaultGoPluginApiRequest("task", "1.0", "request1");
         request.setRequestBody("{ \"abc\": 1 }");
 
         pluginManager.submitTo(PLUGIN_ID, "task", request);
 
-        assertThat(System.getProperty(EXTENSION_1_PROPERTY_PREFIX + "initialize_accessor.count"), is("1"));
+        assertThat(System.getProperty(EXTENSION_1_PROPERTY_PREFIX + "initialize_accessor.count")).isEqualTo("1");
 
         pluginManager.submitTo(PLUGIN_ID, "task", request);
 
-        assertThat(System.getProperty(EXTENSION_1_PROPERTY_PREFIX + "initialize_accessor.count"), is("1"));
+        assertThat(System.getProperty(EXTENSION_1_PROPERTY_PREFIX + "initialize_accessor.count")).isEqualTo("1");
     }
 
     @Test
-    public void shouldSubmitRequestToTheRightExtension() {
+    void shouldSubmitRequestToTheRightExtension() {
         DefaultGoPluginApiRequest request = new DefaultGoPluginApiRequest("task", "1.0", "request1");
         request.setRequestBody("{ \"abc\": 1 }");
         pluginManager.submitTo(PLUGIN_ID, "task", request);
 
-        assertThat(System.getProperty(EXTENSION_1_PROPERTY_PREFIX + "request.count"), is("1"));
-        assertThat(System.getProperty(EXTENSION_1_PROPERTY_PREFIX + "request.name"), is("request1"));
-        assertThat(System.getProperty(EXTENSION_1_PROPERTY_PREFIX + "request.body"), is("{ \"abc\": 1 }"));
-        assertThat(System.getProperty(EXTENSION_2_PROPERTY_PREFIX + "request.count"), is(nullValue()));
+        assertThat(System.getProperty(EXTENSION_1_PROPERTY_PREFIX + "request.count")).isEqualTo("1");
+        assertThat(System.getProperty(EXTENSION_1_PROPERTY_PREFIX + "request.name")).isEqualTo("request1");
+        assertThat(System.getProperty(EXTENSION_1_PROPERTY_PREFIX + "request.body")).isEqualTo("{ \"abc\": 1 }");
+        assertThat(System.getProperty(EXTENSION_2_PROPERTY_PREFIX + "request.count")).isNull();
 
         request = new DefaultGoPluginApiRequest("task", "1.0", "request2");
         request.setRequestBody("{ \"abc\": 2 }");
         pluginManager.submitTo(PLUGIN_ID, "task", request);
 
-        assertThat(System.getProperty(EXTENSION_1_PROPERTY_PREFIX + "request.count"), is("2"));
-        assertThat(System.getProperty(EXTENSION_1_PROPERTY_PREFIX + "request.name"), is("request2"));
-        assertThat(System.getProperty(EXTENSION_1_PROPERTY_PREFIX + "request.body"), is("{ \"abc\": 2 }"));
-        assertThat(System.getProperty(EXTENSION_2_PROPERTY_PREFIX + "request.count"), is(nullValue()));
-    }
-
-    @After
-    public void tearDown() {
-        pluginManager.stopInfrastructure();
-
-        FileUtils.deleteQuietly(new File("felix-cache"));
+        assertThat(System.getProperty(EXTENSION_1_PROPERTY_PREFIX + "request.count")).isEqualTo("2");
+        assertThat(System.getProperty(EXTENSION_1_PROPERTY_PREFIX + "request.name")).isEqualTo("request2");
+        assertThat(System.getProperty(EXTENSION_1_PROPERTY_PREFIX + "request.body")).isEqualTo("{ \"abc\": 2 }");
+        assertThat(System.getProperty(EXTENSION_2_PROPERTY_PREFIX + "request.count")).isNull();
     }
 }

@@ -120,7 +120,7 @@ public class DefaultPluginJarChangeListener implements PluginJarChangeListener {
 
     private void validateIfSamePluginUpdated(GoPluginBundleDescriptor newBundleDescriptor) {
         for (GoPluginDescriptor pluginDescriptor : newBundleDescriptor.descriptors()) {
-            final GoPluginDescriptor existingDescriptor = registry.getPluginByIdOrFileName(pluginDescriptor.id(), pluginDescriptor.fileName());
+            final GoPluginDescriptor existingDescriptor = registry.getPluginByIdOrFileName(pluginDescriptor.id(), newBundleDescriptor.fileName());
             if (existingDescriptor != null && !existingDescriptor.fileName().equals(pluginDescriptor.fileName())) {
                 throw new RuntimeException("Found another plugin with ID: " + existingDescriptor.id());
             }

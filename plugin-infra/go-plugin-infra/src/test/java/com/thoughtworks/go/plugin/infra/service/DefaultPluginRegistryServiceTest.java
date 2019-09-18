@@ -15,57 +15,52 @@
  */
 package com.thoughtworks.go.plugin.infra.service;
 
-import java.util.Arrays;
-import java.util.List;
-
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginBundleDescriptor;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.plugin.infra.plugininfo.PluginRegistry;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static java.util.Arrays.asList;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.*;
 
-public class DefaultPluginRegistryServiceTest {
+class DefaultPluginRegistryServiceTest {
 
     private DefaultPluginRegistryService serviceDefault;
     private PluginRegistry pluginRegistry;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         pluginRegistry = mock(PluginRegistry.class);
         serviceDefault = new DefaultPluginRegistryService(pluginRegistry);
     }
 
     @Test
-    public void shouldMarkPluginAsInvalidWhenServiceReportsAnError() {
+    void shouldMarkPluginAsInvalidWhenServiceReportsAnError() {
         String bundleSymbolicName = "plugin-id";
         String message = "plugin is broken beyond repair";
-        List<String> reasons = asList(message);
+        List<String> reasons = List.of(message);
         doNothing().when(pluginRegistry).markPluginInvalid(bundleSymbolicName, reasons);
         serviceDefault.reportErrorAndInvalidate(bundleSymbolicName, reasons);
         verify(pluginRegistry).markPluginInvalid(bundleSymbolicName, reasons);
     }
 
     @Test
-    public void shouldNotThrowExceptionWhenPluginIsNotFound() {
+    void shouldNotThrowExceptionWhenPluginIsNotFound() {
         String bundleSymbolicName = "invalid-plugin";
         String message = "some msg";
-        List<String> reasons = asList(message);
+        List<String> reasons = List.of(message);
         doThrow(new RuntimeException()).when(pluginRegistry).markPluginInvalid(bundleSymbolicName, reasons);
-        try {
-            serviceDefault.reportErrorAndInvalidate(bundleSymbolicName, reasons);
-        } catch(Exception e) {
-            fail("Should not have thrown exception");
-        }
+
+        assertThatCode(() -> serviceDefault.reportErrorAndInvalidate(bundleSymbolicName, reasons))
+                .doesNotThrowAnyException();
     }
 
     @Test
-    public void shouldGetIDOfFirstPluginInBundle() {
+    void shouldGetIDOfFirstPluginInBundle() {
         final GoPluginDescriptor pluginDescriptor1 = GoPluginDescriptor.usingId("plugin.1", null, null, false);
         final GoPluginDescriptor pluginDescriptor2 = GoPluginDescriptor.usingId("plugin.2", null, null, false);
         final GoPluginBundleDescriptor bundleDescriptor = new GoPluginBundleDescriptor(pluginDescriptor1, pluginDescriptor2);
@@ -74,13 +69,13 @@ public class DefaultPluginRegistryServiceTest {
 
         final String pluginIDOfFirstPluginInBundle = serviceDefault.getPluginIDOfFirstPluginInBundle(bundleDescriptor.bundleSymbolicName());
 
-        assertThat(pluginIDOfFirstPluginInBundle, is("plugin.1"));
+        assertThat(pluginIDOfFirstPluginInBundle).isEqualTo("plugin.1");
     }
 
     @Test
-    public void shouldGetPluginIDForAGivenBundleAndExtensionClass() {
+    void shouldGetPluginIDForAGivenBundleAndExtensionClass() {
         when(pluginRegistry.pluginIDFor("SYM_1", "com.path.to.MyClass")).thenReturn("plugin_1");
 
-        assertThat(serviceDefault.pluginIDFor("SYM_1", "com.path.to.MyClass"), is("plugin_1"));
+        assertThat(serviceDefault.pluginIDFor("SYM_1", "com.path.to.MyClass")).isEqualTo("plugin_1");
     }
 }

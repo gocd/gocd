@@ -54,7 +54,7 @@ public class GoPluginBundleDescriptor {
     }
 
     public String fileName() {
-        return pluginDescriptors.get(0).fileName();
+        return new File(pluginDescriptors.get(0).pluginFileLocation()).getName();
     }
 
     public String bundleJARFileLocation() {

@@ -15,39 +15,36 @@
  */
 package com.thoughtworks.go.plugin.infra.plugininfo;
 
+import com.thoughtworks.go.plugin.FileHelper;
 import org.apache.commons.io.FileUtils;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 
-public class GoPluginBundleDescriptorBuilderTest {
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+class GoPluginBundleDescriptorBuilderTest {
     private static final String TESTPLUGIN_ID = "testplugin.descriptorValidator";
     private GoPluginBundleDescriptorBuilder goPluginBundleDescriptorBuilder;
     private File pluginDirectory;
     private File bundleDirectory;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp(@TempDir File rootDir) {
+        final FileHelper temporaryFolder = new FileHelper(rootDir);
         pluginDirectory = temporaryFolder.newFolder("pluginDir");
-
         bundleDirectory = temporaryFolder.newFolder("bundleDir");
 
         goPluginBundleDescriptorBuilder = spy(new GoPluginBundleDescriptorBuilder());
@@ -56,7 +53,7 @@ public class GoPluginBundleDescriptorBuilderTest {
     }
 
     @Test
-    public void shouldCreateThePluginDescriptorFromGivenPluginJarWithPluginXML() throws Exception {
+    void shouldCreateThePluginDescriptorFromGivenPluginJarWithPluginXML() throws Exception {
         String pluginJarName = "descriptor-aware-test-plugin.jar";
         copyPluginToThePluginDirectory(pluginDirectory, pluginJarName);
         File pluginJarFile = new File(pluginDirectory, pluginJarName);
@@ -66,14 +63,14 @@ public class GoPluginBundleDescriptorBuilderTest {
 
         GoPluginDescriptor expectedDescriptor = buildExpectedDescriptor(pluginJarName, pluginJarFile.getAbsolutePath());
 
-        assertThat(descriptors.size(), is(1));
-        assertThat(descriptors.get(0), is(expectedDescriptor));
-        assertThat(descriptors.get(0).isInvalid(), is(false));
-        assertThat(descriptors.get(0).isBundledPlugin(), is(true));
+        assertThat(descriptors.size()).isEqualTo(1);
+        assertThat(descriptors.get(0)).isEqualTo(expectedDescriptor);
+        assertThat(descriptors.get(0).isInvalid()).isFalse();
+        assertThat(descriptors.get(0).isBundledPlugin()).isTrue();
     }
 
     @Test
-    public void shouldCreateInvalidPluginDescriptorBecausePluginXMLDoesNotConformToXSD() throws Exception {
+    void shouldCreateInvalidPluginDescriptorBecausePluginXMLDoesNotConformToXSD() throws Exception {
         String pluginJarName = "invalid-descriptor-plugin.jar";
         copyPluginToThePluginDirectory(pluginDirectory, pluginJarName);
         File pluginJarFile = new File(pluginDirectory, pluginJarName);
@@ -82,15 +79,15 @@ public class GoPluginBundleDescriptorBuilderTest {
         List<GoPluginDescriptor> descriptors = bundleDescriptor.descriptors();
 
         GoPluginDescriptor expectedDescriptor = buildXMLSchemaErrorDescriptor(pluginJarName);
-        assertThat(descriptors.size(), is(1));
-        assertThat(descriptors.get(0), is(expectedDescriptor));
-        assertThat(descriptors.get(0).isInvalid(), is(true));
-        assertThat(descriptors.get(0).isBundledPlugin(), is(true));
-        assertThat(descriptors.get(0).getStatus().getMessages(), is(expectedDescriptor.getStatus().getMessages()));
+        assertThat(descriptors.size()).isEqualTo(1);
+        assertThat(descriptors.get(0)).isEqualTo(expectedDescriptor);
+        assertThat(descriptors.get(0).isInvalid()).isTrue();
+        assertThat(descriptors.get(0).isBundledPlugin()).isTrue();
+        assertThat(descriptors.get(0).getStatus().getMessages()).isEqualTo(expectedDescriptor.getStatus().getMessages());
     }
 
     @Test
-    public void shouldCreatePluginDescriptorEvenIfPluginXMLIsNotFound() throws Exception {
+    void shouldCreatePluginDescriptorEvenIfPluginXMLIsNotFound() throws Exception {
         String pluginJarName = "descriptor-aware-test-plugin-with-no-plugin-xml.jar";
         copyPluginToThePluginDirectory(pluginDirectory, pluginJarName);
         File pluginJarFile = new File(pluginDirectory, pluginJarName);
@@ -98,13 +95,13 @@ public class GoPluginBundleDescriptorBuilderTest {
         final GoPluginBundleDescriptor bundleDescriptor = goPluginBundleDescriptorBuilder.build(pluginJarFile, false);
 
         final List<GoPluginDescriptor> descriptors = bundleDescriptor.descriptors();
-        assertThat(descriptors.size(), is(1));
-        assertThat(descriptors.get(0).isInvalid(), is(false));
-        assertThat(descriptors.get(0).id(), is(pluginJarName));
+        assertThat(descriptors.size()).isEqualTo(1);
+        assertThat(descriptors.get(0).isInvalid()).isFalse();
+        assertThat(descriptors.get(0).id()).isEqualTo(pluginJarName);
     }
 
     @Test
-    public void shouldCheckForBundleXMLFirst() throws Exception {
+    void shouldCheckForBundleXMLFirst() throws Exception {
         String pluginJarName = "test-plugin-with-both-bundle-and-plugin-xmls.jar";
         copyPluginToThePluginDirectory(pluginDirectory, pluginJarName);
         File pluginJarFile = new File(pluginDirectory, pluginJarName);
@@ -112,14 +109,15 @@ public class GoPluginBundleDescriptorBuilderTest {
         final GoPluginBundleDescriptor bundleDescriptor = goPluginBundleDescriptorBuilder.build(pluginJarFile, true);
 
         GoPluginBundleDescriptor expectedDescriptor = buildExpectedMultiPluginBundleDescriptor(pluginJarName, pluginJarFile.getAbsolutePath());
-        assertThat(bundleDescriptor, is(expectedDescriptor));
-        assertThat(bundleDescriptor.isInvalid(), is(false));
-        assertThat(bundleDescriptor.isBundledPlugin(), is(true));
+        assertThat(bundleDescriptor).isEqualTo(expectedDescriptor);
+        assertThat(bundleDescriptor.isInvalid()).isFalse();
+        assertThat(bundleDescriptor.isBundledPlugin()).isTrue();
     }
 
-    @Test(expected = RuntimeException.class)
-    public void shouldThrowExceptionForInvalidPluginIfThePluginJarDoesNotExist() throws Exception {
-        goPluginBundleDescriptorBuilder.build(new File(pluginDirectory, "invalid"), true);
+    @Test
+    void shouldThrowExceptionForInvalidPluginIfThePluginJarDoesNotExist() {
+        assertThatCode(() -> goPluginBundleDescriptorBuilder.build(new File(pluginDirectory, "invalid"), true))
+                .isInstanceOf(RuntimeException.class);
     }
 
     private void copyPluginToThePluginDirectory(File pluginDir, String destinationFilenameOfPlugin) throws IOException, URISyntaxException {

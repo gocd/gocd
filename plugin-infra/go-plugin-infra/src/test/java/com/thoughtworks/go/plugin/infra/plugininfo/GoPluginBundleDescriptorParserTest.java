@@ -16,13 +16,9 @@
 
 package com.thoughtworks.go.plugin.infra.plugininfo;
 
-import org.junit.Test;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
+import org.junit.jupiter.api.Test;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,17 +26,16 @@ import java.util.List;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
-public class GoPluginBundleDescriptorParserTest {
+class GoPluginBundleDescriptorParserTest {
     @Test
-    public void shouldParseValidVersionOfPluginBundleXML() throws IOException, SAXException {
+    void shouldParseValidVersionOfPluginBundleXML() throws IOException, SAXException {
         InputStream pluginXml = getClass().getClassLoader().getResourceAsStream("defaultFiles/valid-gocd-bundle.xml");
         final GoPluginBundleDescriptor bundleDescriptor = GoPluginBundleDescriptorParser.parseXML(pluginXml, "/tmp/a.jar", new File("/tmp/"), true);
 
-        assertThat(bundleDescriptor.descriptors().size(), is(2));
+        assertThat(bundleDescriptor.descriptors().size()).isEqualTo(2);
 
 
         final GoPluginDescriptor pluginDescriptor1 = bundleDescriptor.descriptors().get(0);
@@ -58,31 +53,31 @@ public class GoPluginBundleDescriptorParserTest {
     }
 
     @Test
-    public void shouldNotAllowPluginWithEmptyListOfExtensionsInABundle() throws IOException {
+    void shouldNotAllowPluginWithEmptyListOfExtensionsInABundle() throws IOException {
         InputStream pluginXml = getClass().getClassLoader().getResourceAsStream("defaultFiles/gocd-bundle-with-no-extension-classes.xml");
 
         try {
             GoPluginBundleDescriptorParser.parseXML(pluginXml, "/tmp/a.jar", new File("/tmp/"), true);
             fail("Expected this to throw an exception");
         } catch (SAXException e) {
-            assertThat(e.getCause().getMessage(), is("cvc-complex-type.2.4.b: The content of element 'extensions' is not complete. One of '{extension}' is expected."));
+            assertThat(e.getCause().getMessage()).isEqualTo("cvc-complex-type.2.4.b: The content of element 'extensions' is not complete. One of '{extension}' is expected.");
         }
     }
 
     private void assertPluginDescriptor(GoPluginDescriptor pluginDescriptor, String pluginID, String pluginName,
                                         String pluginVersion, String targetGoVersion, String description, String vendorName,
                                         String vendorURL, List<String> targetOSes, List<String> extensionClasses) {
-        assertThat(pluginDescriptor.id(), is(pluginID));
-        assertThat(pluginDescriptor.pluginFileLocation(), is("/tmp/a.jar"));
-        assertThat(pluginDescriptor.fileName(), is("tmp"));
-        assertThat(pluginDescriptor.about().name(), is(pluginName));
-        assertThat(pluginDescriptor.about().version(), is(pluginVersion));
-        assertThat(pluginDescriptor.about().targetGoVersion(), is(targetGoVersion));
-        assertThat(pluginDescriptor.about().description(), is(description));
-        assertThat(pluginDescriptor.about().vendor().name(), is(vendorName));
-        assertThat(pluginDescriptor.about().vendor().url(), is(vendorURL));
-        assertThat(pluginDescriptor.about().targetOperatingSystems(), is(targetOSes));
-        assertThat(pluginDescriptor.extensionClasses(), is(extensionClasses));
+        assertThat(pluginDescriptor.id()).isEqualTo(pluginID);
+        assertThat(pluginDescriptor.pluginFileLocation()).isEqualTo("/tmp/a.jar");
+        assertThat(pluginDescriptor.fileName()).isEqualTo("tmp");
+        assertThat(pluginDescriptor.about().name()).isEqualTo(pluginName);
+        assertThat(pluginDescriptor.about().version()).isEqualTo(pluginVersion);
+        assertThat(pluginDescriptor.about().targetGoVersion()).isEqualTo(targetGoVersion);
+        assertThat(pluginDescriptor.about().description()).isEqualTo(description);
+        assertThat(pluginDescriptor.about().vendor().name()).isEqualTo(vendorName);
+        assertThat(pluginDescriptor.about().vendor().url()).isEqualTo(vendorURL);
+        assertThat(pluginDescriptor.about().targetOperatingSystems()).isEqualTo(targetOSes);
+        assertThat(pluginDescriptor.extensionClasses()).isEqualTo(extensionClasses);
     }
 
 }

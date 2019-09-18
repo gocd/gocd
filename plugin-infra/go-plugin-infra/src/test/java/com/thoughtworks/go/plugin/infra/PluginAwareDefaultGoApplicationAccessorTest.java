@@ -17,10 +17,9 @@ package com.thoughtworks.go.plugin.infra;
 
 import com.thoughtworks.go.plugin.api.request.GoApiRequest;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -42,8 +41,8 @@ public class PluginAwareDefaultGoApplicationAccessorTest {
         try {
             accessor.submit(goApiRequest);
         } catch (Exception e) {
-            assertThat(e.getMessage(), is(String.format("Error while processing request api %s", api)));
-            assertThat(e.getCause(), is(cause));
+            assertThat(e.getMessage()).isEqualTo(String.format("Error while processing request api %s", api));
+            assertThat(e.getCause()).isEqualTo(cause);
         }
     }
 }

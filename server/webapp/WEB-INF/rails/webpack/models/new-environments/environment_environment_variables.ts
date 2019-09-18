@@ -16,7 +16,7 @@
 
 import _ from "lodash";
 import Stream from "mithril/stream";
-import {EnvironmentVariable, EnvironmentVariableJSON} from "models/environments/types";
+import {EnvironmentVariable, EnvironmentVariableJSON} from "models/environment_variables/types";
 import {Origin, OriginJSON} from "models/new-environments/origin";
 
 export interface EnvironmentEnvironmentVariableJSON extends EnvironmentVariableJSON {

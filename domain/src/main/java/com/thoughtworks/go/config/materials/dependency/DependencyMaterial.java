@@ -45,6 +45,7 @@ public class DependencyMaterial extends AbstractMaterial {
 
     private CaseInsensitiveString pipelineName = new CaseInsensitiveString("Unknown");
     private CaseInsensitiveString stageName = new CaseInsensitiveString("Unknown");
+    private boolean skipSchedulingOnChange = false;
 
     public DependencyMaterial() {
         super("DependencyMaterial");
@@ -67,17 +68,22 @@ public class DependencyMaterial extends AbstractMaterial {
         this.name = name;
     }
 
+    public DependencyMaterial(final CaseInsensitiveString name, final CaseInsensitiveString pipelineName, final CaseInsensitiveString stageName, boolean skipSchedulingOnChange) {
+        this(name, pipelineName, stageName);
+        this.skipSchedulingOnChange = skipSchedulingOnChange;
+    }
+
     public DependencyMaterial(final CaseInsensitiveString name, final CaseInsensitiveString pipelineName, final CaseInsensitiveString stageName, String serverAlias) {
         this(name, pipelineName, stageName);
     }
 
     public DependencyMaterial(DependencyMaterialConfig config) {
-        this(config.getName(), config.getPipelineName(), config.getStageName());
+        this(config.getName(), config.getPipelineName(), config.getStageName(), config.skipSchedulingOnChange());
     }
 
     @Override
     public MaterialConfig config() {
-        return new DependencyMaterialConfig(name, pipelineName, stageName);
+        return new DependencyMaterialConfig(name, pipelineName, stageName, skipSchedulingOnChange);
     }
 
     @Override
@@ -205,6 +211,10 @@ public class DependencyMaterial extends AbstractMaterial {
     @Override
     public String getFolder() {
         return null;
+    }
+
+    public boolean skipSchedulingOnChange() {
+        return skipSchedulingOnChange;
     }
 
     @Override

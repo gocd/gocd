@@ -84,7 +84,7 @@
           </xsd:unique>
         </xsd:element>
       </xsd:sequence>
-      <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="129"/>
+      <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="128"/>
     </xsd:complexType>
     <xsd:unique name="uniquePipelines">
       <xsd:selector xpath="pipelines"/>
@@ -528,7 +528,6 @@
     <xsd:attribute name="pipelineName" type="xsd:string" use="required"/>
     <xsd:attribute name="stageName" type="xsd:string" use="required"/>
     <xsd:attribute name="materialName" type="nameType" use="optional"/>
-    <xsd:attribute type="xsd:boolean" name="skipScheduling"/>
   </xsd:complexType>
   <xsd:complexType name="svnType">
     <xsd:sequence>

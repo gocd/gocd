@@ -44,6 +44,9 @@ public class DependencyMaterialConfig extends AbstractMaterialConfig implements 
     @ConfigAttribute(value = "stageName")
     private CaseInsensitiveString stageName = new CaseInsensitiveString("Unknown");
 
+    @ConfigAttribute(value = "skipScheduling")
+    private boolean skipSchedulingOnChange = false;
+
     private String pipelineStageName;
 
 
@@ -52,19 +55,28 @@ public class DependencyMaterialConfig extends AbstractMaterialConfig implements 
     }
 
     public DependencyMaterialConfig(final CaseInsensitiveString pipelineName, final CaseInsensitiveString stageName) {
-        this(null, pipelineName, stageName);
+        this(null, pipelineName, stageName, false);
+    }
+
+    public DependencyMaterialConfig(final CaseInsensitiveString pipelineName, final CaseInsensitiveString stageName, boolean skipSchedulingOnChange) {
+        this(null, pipelineName, stageName, skipSchedulingOnChange);
     }
 
     public DependencyMaterialConfig(final CaseInsensitiveString pipelineName, final CaseInsensitiveString stageName, final String serverAlias) {
-        this(null, pipelineName, stageName);
+        this(null, pipelineName, stageName, false);
     }
 
     public DependencyMaterialConfig(final CaseInsensitiveString name, final CaseInsensitiveString pipelineName, final CaseInsensitiveString stageName) {
+        this(name, pipelineName, stageName, false);
+    }
+
+    public DependencyMaterialConfig(final CaseInsensitiveString name, final CaseInsensitiveString pipelineName, final CaseInsensitiveString stageName, final boolean skipSchedulingOnChange) {
         super(TYPE, name, new ConfigErrors());
         bombIfNull(pipelineName, "null pipelineName");
         bombIfNull(stageName, "null stageName");
         this.pipelineName = pipelineName;
         this.stageName = stageName;
+        this.skipSchedulingOnChange = skipSchedulingOnChange;
     }
 
     @Override
@@ -140,6 +152,14 @@ public class DependencyMaterialConfig extends AbstractMaterialConfig implements 
 
     public void setStageName(CaseInsensitiveString stageName) {
         this.stageName = stageName;
+    }
+
+    public boolean skipSchedulingOnChange() {
+        return skipSchedulingOnChange;
+    }
+
+    public void skipSchedulingOnChange(boolean skipSchedulingOnChange) {
+        this.skipSchedulingOnChange = skipSchedulingOnChange;
     }
 
     @Override

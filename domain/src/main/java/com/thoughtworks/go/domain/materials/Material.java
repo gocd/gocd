@@ -111,4 +111,6 @@ public interface Material extends Serializable {
     // Material implementations can safely assume correct MaterialConfig subtype is passed in. E.g For a SVNMaterial
     // materialConfig will be SVNMaterialConfig
     void updateFromConfig(MaterialConfig materialConfig);
+
+    boolean skipSchedulingOnChange();
 }

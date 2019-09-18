@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
@@ -87,7 +88,7 @@ public class AutoBuild implements BuildType {
     @Override
     public boolean isValidBuildCause(PipelineConfig pipelineConfig, BuildCause buildCause) {
         for (MaterialRevision materialRevision : buildCause.getMaterialRevisions()) {
-            if (materialRevision.isChanged()) {
+            if (materialRevision.isChanged() && !materialRevision.isSetToSkipScheduling()) {
                 return true;
             }
         }

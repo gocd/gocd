@@ -361,12 +361,6 @@ public class MaterialRevisions implements Serializable, Iterable<MaterialRevisio
 
     }
 
-    public void updateRevisionChangedStatus(MaterialRevisions original) {
-        for (MaterialRevision materialRevision : this) {
-            materialRevision.updateRevisionChangedStatus(original.findRevisionFor(materialRevision.getMaterial()));
-        }
-    }
-
     public boolean hasDependencyMaterials() {
         for (MaterialRevision materialRevision : this) {
             if (materialRevision.getMaterial() instanceof DependencyMaterial) {

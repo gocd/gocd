@@ -229,4 +229,9 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
     @Override
     public void populateAgentSideEnvironmentContext(EnvironmentVariableContext context, File workingDir) {
     }
+
+    @Override
+    public boolean skipSchedulingOnChange() {
+        return false;
+    }
 }

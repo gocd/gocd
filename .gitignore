@@ -254,6 +254,7 @@ plugin-infra/go-plugin-api/target/
 plugin-infra/go-plugin-domain/out/
 plugin-infra/go-plugin-domain/target/
 plugin-infra/go-plugin-infra/descriptor-aware-test-plugin.jar/
+plugin-infra/go-plugin-infra/plugins_work/valid-plugin-with-multiple-extensions.jar
 plugin-infra/go-plugin-infra/logs/
 plugin-infra/go-plugin-infra/out/
 plugin-infra/go-plugin-infra/target/

@@ -16,14 +16,14 @@
 package com.thoughtworks.go.plugin.infra.plugininfo;
 
 import com.googlecode.junit.ext.checkers.OSChecker;
+import com.thoughtworks.go.plugin.FileHelper;
 import com.thoughtworks.go.plugin.activation.DefaultGoPluginActivator;
 import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -35,14 +35,10 @@ import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.osgi.framework.Constants.*;
 
-public class GoPluginOSGiManifestTest {
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
-
+class GoPluginOSGiManifestTest {
     private static OSChecker WINDOWS = new OSChecker(OSChecker.WINDOWS);
     private File tmpDir;
     private File manifestFile;
@@ -50,8 +46,9 @@ public class GoPluginOSGiManifestTest {
     private File bundleDependencyDir;
     private GoPluginOSGiManifestGenerator goPluginOSGiManifestGenerator;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp(@TempDir File rootDir) throws Exception {
+        final FileHelper temporaryFolder = new FileHelper(rootDir);
         if (WINDOWS.satisfy()) {
             return;
         }
@@ -64,26 +61,26 @@ public class GoPluginOSGiManifestTest {
     }
 
     @Test
-    public void shouldCreateABundleManifestFromTheGivenPluginDescriptor() throws Exception {
+    void shouldCreateABundleManifestFromTheGivenPluginDescriptor() throws Exception {
         if (WINDOWS.satisfy()) {
             return;
         }
-        assertThat(valueFor(BUNDLE_SYMBOLICNAME), is(nullValue()));
-        assertThat(valueFor(BUNDLE_CLASSPATH), is(nullValue()));
+        assertThat(valueFor(BUNDLE_SYMBOLICNAME)).isNull();
+        assertThat(valueFor(BUNDLE_CLASSPATH)).isNull();
 
         GoPluginBundleDescriptor descriptor = new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("pluginId", "some-plugin.jar", bundleLocation, true));
         GoPluginOSGiManifest manifest = new GoPluginOSGiManifest(descriptor);
         manifest.update();
 
-        assertThat(valueFor(BUNDLE_SYMBOLICNAME), is("pluginId"));
-        assertThat(valueFor(BUNDLE_ACTIVATOR), is(DefaultGoPluginActivator.class.getCanonicalName()));
-        assertThat(valueFor(BUNDLE_CLASSPATH), is("lib/go-plugin-activator.jar,.,lib/dependency.jar"));
+        assertThat(valueFor(BUNDLE_SYMBOLICNAME)).isEqualTo("pluginId");
+        assertThat(valueFor(BUNDLE_ACTIVATOR)).isEqualTo(DefaultGoPluginActivator.class.getCanonicalName());
+        assertThat(valueFor(BUNDLE_CLASSPATH)).isEqualTo("lib/go-plugin-activator.jar,.,lib/dependency.jar");
 
-        assertThat(descriptor.bundleSymbolicName(), is("pluginId"));
+        assertThat(descriptor.bundleSymbolicName()).isEqualTo("pluginId");
     }
 
     @Test
-    public void shouldAddGoPluginActivatorJarToDependenciesOnlyOnceAtTheBeginning() throws Exception {
+    void shouldAddGoPluginActivatorJarToDependenciesOnlyOnceAtTheBeginning() throws Exception {
         if (WINDOWS.satisfy()) {
             return;
         }
@@ -93,11 +90,11 @@ public class GoPluginOSGiManifestTest {
         goPluginOSGiManifestGenerator.updateManifestOf(descriptor);
 
         String classpathEntry = valueFor(BUNDLE_CLASSPATH);
-        assertThat(classpathEntry, is("lib/go-plugin-activator.jar,.,lib/dependency.jar"));
+        assertThat(classpathEntry).isEqualTo("lib/go-plugin-activator.jar,.,lib/dependency.jar");
     }
 
     @Test
-    public void shouldCreateManifestWithProperClassPathForAllDependencyJarsInPluginDependenciesDirectory() throws Exception {
+    void shouldCreateManifestWithProperClassPathForAllDependencyJarsInPluginDependenciesDirectory() throws Exception {
         if (WINDOWS.satisfy()) {
             return;
         }
@@ -108,18 +105,18 @@ public class GoPluginOSGiManifestTest {
         GoPluginBundleDescriptor descriptor = new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("pluginId", "some-plugin.jar", bundleLocation, true));
         goPluginOSGiManifestGenerator.updateManifestOf(descriptor);
 
-        assertThat(valueFor(BUNDLE_SYMBOLICNAME), is("pluginId"));
+        assertThat(valueFor(BUNDLE_SYMBOLICNAME)).isEqualTo("pluginId");
 
         String classpathEntry = valueFor(BUNDLE_CLASSPATH);
-        assertThat(classpathEntry, startsWith("lib/go-plugin-activator.jar,.,"));
-        assertThat(classpathEntry, containsString(",lib/dependency.jar"));
-        assertThat(classpathEntry, containsString(",lib/dependency-1.jar"));
-        assertThat(classpathEntry, containsString(",lib/dependency-2.jar"));
-        assertThat(classpathEntry, containsString(",lib/dependency-3.jar"));
+        assertThat(classpathEntry).startsWith("lib/go-plugin-activator.jar,.,");
+        assertThat(classpathEntry).contains(",lib/dependency.jar");
+        assertThat(classpathEntry).contains(",lib/dependency-1.jar");
+        assertThat(classpathEntry).contains(",lib/dependency-2.jar");
+        assertThat(classpathEntry).contains(",lib/dependency-3.jar");
     }
 
     @Test
-    public void shouldCreateManifestWithProperClassPathWhenDependencyDirDoesNotExist() throws Exception {
+    void shouldCreateManifestWithProperClassPathWhenDependencyDirDoesNotExist() throws Exception {
         if (WINDOWS.satisfy()) {
             return;
         }
@@ -128,89 +125,89 @@ public class GoPluginOSGiManifestTest {
         GoPluginBundleDescriptor descriptor = new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("pluginId", "some-plugin.jar", bundleLocation, true));
         goPluginOSGiManifestGenerator.updateManifestOf(descriptor);
 
-        assertThat(valueFor(BUNDLE_CLASSPATH), is("lib/go-plugin-activator.jar,."));
+        assertThat(valueFor(BUNDLE_CLASSPATH)).isEqualTo("lib/go-plugin-activator.jar,.");
     }
 
     @Test
-    public void shouldMarkThePluginInvalidIfItsManifestAlreadyContainsSymbolicName() throws Exception {
+    void shouldMarkThePluginInvalidIfItsManifestAlreadyContainsSymbolicName() throws Exception {
         if (WINDOWS.satisfy()) {
             return;
         }
         addHeaderToManifest(BUNDLE_SYMBOLICNAME, "Dummy Value");
 
-        assertThat(valueFor(BUNDLE_SYMBOLICNAME), is(not(nullValue())));
-        assertThat(valueFor(BUNDLE_CLASSPATH), is(nullValue()));
+        assertThat(valueFor(BUNDLE_SYMBOLICNAME)).isNotNull();
+        assertThat(valueFor(BUNDLE_CLASSPATH)).isNull();
 
         GoPluginBundleDescriptor descriptor = new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("pluginId", "some-plugin.jar", bundleLocation, true));
         goPluginOSGiManifestGenerator.updateManifestOf(descriptor);
 
-        assertThat(valueFor(BUNDLE_SYMBOLICNAME), is("Dummy Value"));
-        assertThat(descriptor.isInvalid(), is(true));
+        assertThat(valueFor(BUNDLE_SYMBOLICNAME)).isEqualTo("Dummy Value");
+        assertThat(descriptor.isInvalid()).isTrue();
     }
 
     @Test
-    public void shouldOverrideTheBundleClassPathInTheManifestIfItAlreadyHasIt() throws Exception {
+    void shouldOverrideTheBundleClassPathInTheManifestIfItAlreadyHasIt() throws Exception {
         if (WINDOWS.satisfy()) {
             return;
         }
         addHeaderToManifest(BUNDLE_CLASSPATH, "Dummy Value");
 
-        assertThat(valueFor(BUNDLE_SYMBOLICNAME), is(nullValue()));
-        assertThat(valueFor(BUNDLE_CLASSPATH), is(not(nullValue())));
+        assertThat(valueFor(BUNDLE_SYMBOLICNAME)).isNull();
+        assertThat(valueFor(BUNDLE_CLASSPATH)).isNotNull();
 
         GoPluginBundleDescriptor descriptor = new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("pluginId", "some-plugin.jar", bundleLocation, true));
         goPluginOSGiManifestGenerator.updateManifestOf(descriptor);
 
-        assertThat(valueFor(BUNDLE_CLASSPATH), is("lib/go-plugin-activator.jar,.,lib/dependency.jar"));
-        assertThat(descriptor.isInvalid(), is(false));
+        assertThat(valueFor(BUNDLE_CLASSPATH)).isEqualTo("lib/go-plugin-activator.jar,.,lib/dependency.jar");
+        assertThat(descriptor.isInvalid()).isFalse();
     }
 
     @Test
-    public void shouldOverrideTheBundleActivatorInTheManifestIfItAlreadyHasIt() throws Exception {
+    void shouldOverrideTheBundleActivatorInTheManifestIfItAlreadyHasIt() throws Exception {
         if (WINDOWS.satisfy()) {
             return;
         }
         addHeaderToManifest(BUNDLE_ACTIVATOR, "Dummy Value");
-        assertThat(valueFor(BUNDLE_ACTIVATOR), is(not(nullValue())));
+        assertThat(valueFor(BUNDLE_ACTIVATOR)).isNotNull();
 
         GoPluginBundleDescriptor descriptor = new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("pluginId", "some-plugin.jar", bundleLocation, true));
         goPluginOSGiManifestGenerator.updateManifestOf(descriptor);
 
-        assertThat(valueFor(BUNDLE_ACTIVATOR), is(DefaultGoPluginActivator.class.getCanonicalName()));
-        assertThat(descriptor.isInvalid(), is(false));
+        assertThat(valueFor(BUNDLE_ACTIVATOR)).isEqualTo(DefaultGoPluginActivator.class.getCanonicalName());
+        assertThat(descriptor.isInvalid()).isFalse();
     }
 
     @Test
-    public void shouldCreateManifestWithProperClassPathWhenDependencyDirIsEmpty() throws Exception {
+    void shouldCreateManifestWithProperClassPathWhenDependencyDirIsEmpty() throws Exception {
         if (WINDOWS.satisfy()) {
             return;
         }
         FileUtils.deleteQuietly(new File(bundleLocation, "lib/dependency.jar"));
-        assertThat(bundleDependencyDir.listFiles().length, is(0));
+        assertThat(bundleDependencyDir.listFiles().length).isEqualTo(0);
 
         GoPluginBundleDescriptor descriptor = new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("pluginId", "some-plugin.jar", bundleLocation, true));
         goPluginOSGiManifestGenerator.updateManifestOf(descriptor);
 
-        assertThat(valueFor(BUNDLE_CLASSPATH), is("lib/go-plugin-activator.jar,."));
+        assertThat(valueFor(BUNDLE_CLASSPATH)).isEqualTo("lib/go-plugin-activator.jar,.");
     }
 
     @Test
-    public void manifestCreatorShouldUpdateTheGoPluginManifest() throws Exception {
+    void manifestCreatorShouldUpdateTheGoPluginManifest() throws Exception {
         if (WINDOWS.satisfy()) {
             return;
         }
-        assertThat(valueFor(BUNDLE_SYMBOLICNAME), is(nullValue()));
-        assertThat(valueFor(BUNDLE_CLASSPATH), is(nullValue()));
+        assertThat(valueFor(BUNDLE_SYMBOLICNAME)).isNull();
+        assertThat(valueFor(BUNDLE_CLASSPATH)).isNull();
 
         GoPluginBundleDescriptor descriptor = new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("pluginId", "some-plugin.jar", bundleLocation, true));
         goPluginOSGiManifestGenerator.updateManifestOf(descriptor);
 
-        assertThat(valueFor(BUNDLE_SYMBOLICNAME), is("pluginId"));
-        assertThat(valueFor(BUNDLE_CLASSPATH), is("lib/go-plugin-activator.jar,.,lib/dependency.jar"));
+        assertThat(valueFor(BUNDLE_SYMBOLICNAME)).isEqualTo("pluginId");
+        assertThat(valueFor(BUNDLE_CLASSPATH)).isEqualTo("lib/go-plugin-activator.jar,.,lib/dependency.jar");
     }
 
     @After
-    public void tearDown() {
+    void tearDown() {
         if (WINDOWS.satisfy()) {
             return;
         }

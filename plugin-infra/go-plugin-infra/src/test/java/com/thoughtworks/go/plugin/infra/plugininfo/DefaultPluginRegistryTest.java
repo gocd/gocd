@@ -15,34 +15,29 @@
  */
 package com.thoughtworks.go.plugin.infra.plugininfo;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.Collections;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import org.junit.Before;
-import org.junit.Test;
+import java.io.File;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
-public class DefaultPluginRegistryTest {
-
+class DefaultPluginRegistryTest {
     private DefaultPluginRegistry registry;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         registry = new DefaultPluginRegistry();
     }
 
     @Test
-    public void shouldMarkAllPluginsInBundleAsInvalidWithMessage() {
+    void shouldMarkAllPluginsInBundleAsInvalidWithMessage() {
         File pluginFile = mock(File.class);
         String message = "random failure";
 
@@ -54,89 +49,80 @@ public class DefaultPluginRegistryTest {
         registry.markPluginInvalid(descriptor.bundleSymbolicName(), singletonList(message));
 
         GoPluginDescriptor loadedDescriptor1 = registry.plugins().get(0);
-        assertThat(loadedDescriptor1.isInvalid(), is(true));
-        assertThat(loadedDescriptor1.getStatus().getMessages(), hasItem(message));
+        assertThat(loadedDescriptor1.isInvalid()).isTrue();
+        assertThat(loadedDescriptor1.getStatus().getMessages()).contains(message);
 
         GoPluginDescriptor loadedDescriptor2 = registry.plugins().get(1);
-        assertThat(loadedDescriptor2.isInvalid(), is(true));
-        assertThat(loadedDescriptor2.getStatus().getMessages(), hasItem(message));
+        assertThat(loadedDescriptor2.isInvalid()).isTrue();
+        assertThat(loadedDescriptor2.getStatus().getMessages()).contains(message);
     }
 
     @Test
-    public void testThrowExceptionWhenBundleSymbolicNameNotFound() {
-        try {
-            registry.markPluginInvalid("invalid-bundle-symbolic-name", singletonList("some message"));
-            fail("should have thrown exception for plugin not found ");
-        } catch (Exception e) {
-            assertThat(e instanceof RuntimeException, is(true));
-            assertThat(e.getMessage(), is("Invalid bundle symbolic name 'invalid-bundle-symbolic-name'"));
-        }
+    void testThrowExceptionWhenBundleSymbolicNameNotFound() {
+        assertThatCode(() -> registry.markPluginInvalid("invalid-bundle-symbolic-name", singletonList("some message")))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("Invalid bundle symbolic name 'invalid-bundle-symbolic-name'");
     }
 
     @Test
-    public void shouldThrowExceptionWhenBundleSymbolicNameIsNull() {
-        try {
-            registry.markPluginInvalid(null, singletonList("some message"));
-            fail("should have thrown exception for plugin not found ");
-        } catch (Exception e) {
-            assertThat(e instanceof RuntimeException, is(true));
-            assertThat(e.getMessage(), is("Invalid bundle symbolic name 'null'"));
-        }
-
+    void shouldThrowExceptionWhenBundleSymbolicNameIsNull() {
+        assertThatCode(() -> registry.markPluginInvalid(null, singletonList("some message")))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("Invalid bundle symbolic name 'null'");
     }
 
     @Test
-    public void shouldListAllLoadedPlugins() {
+    void shouldListAllLoadedPlugins() {
         final GoPluginDescriptor pluginDescriptor1 = GoPluginDescriptor.usingId("id1", null, null, true);
         registry.loadPlugin(new GoPluginBundleDescriptor(pluginDescriptor1));
 
         final GoPluginDescriptor pluginDescriptor2 = GoPluginDescriptor.usingId("id2", null, null, true);
         registry.loadPlugin(new GoPluginBundleDescriptor(pluginDescriptor2));
 
-        assertThat(registry.plugins().size(), is(2));
-        assertThat(registry.plugins(), hasItems(pluginDescriptor1, pluginDescriptor2));
+        assertThat(registry.plugins().size()).isEqualTo(2);
+        assertThat(registry.plugins()).contains(pluginDescriptor1, pluginDescriptor2);
     }
 
     @Test
-    public void shouldRegisterAllPluginsInABundle() {
+    void shouldRegisterAllPluginsInABundle() {
         GoPluginDescriptor pluginDescriptor1 = GoPluginDescriptor.usingId("id1", null, null, true);
         GoPluginDescriptor pluginDescriptor2 = GoPluginDescriptor.usingId("id2", null, null, true);
 
         registry.loadPlugin(new GoPluginBundleDescriptor(pluginDescriptor1, pluginDescriptor2));
 
-        assertThat(registry.plugins().size(), is(2));
-        assertThat(registry.plugins(), hasItems(pluginDescriptor1, pluginDescriptor2));
+        assertThat(registry.plugins().size()).isEqualTo(2);
+        assertThat(registry.plugins()).contains(pluginDescriptor1, pluginDescriptor2);
     }
 
     @Test
-    public void shouldReturnThePluginWithGivenId() {
+    void shouldReturnThePluginWithGivenId() {
         final GoPluginDescriptor pluginDescriptor = GoPluginDescriptor.usingId("id", null, null, true);
         registry.loadPlugin(new GoPluginBundleDescriptor(pluginDescriptor));
 
-        assertThat(registry.getPlugin("id"), is(pluginDescriptor));
-        assertThat(registry.getPlugin("ID"), is(pluginDescriptor));
-        assertThat(registry.getPlugin("Id"), is(pluginDescriptor));
+        assertThat(registry.getPlugin("id")).isEqualTo(pluginDescriptor);
+        assertThat(registry.getPlugin("ID")).isEqualTo(pluginDescriptor);
+        assertThat(registry.getPlugin("Id")).isEqualTo(pluginDescriptor);
     }
 
     @Test
-    public void shouldUnloadPluginFromRegistry() {
+    void shouldUnloadPluginFromRegistry() {
         final GoPluginDescriptor pluginDescriptor1 = GoPluginDescriptor.usingId("id1", "location-one.jar", new File("location-one"), true);
         registry.loadPlugin(new GoPluginBundleDescriptor(pluginDescriptor1));
 
         final GoPluginDescriptor pluginDescriptor2 = GoPluginDescriptor.usingId("id2", "location-two.jar", new File("location-two"), true);
         registry.loadPlugin(new GoPluginBundleDescriptor(pluginDescriptor2));
 
-        assertThat(registry.plugins().size(), is(2));
-        assertThat(registry.plugins(), hasItems(pluginDescriptor1, pluginDescriptor2));
+        assertThat(registry.plugins().size()).isEqualTo(2);
+        assertThat(registry.plugins()).contains(pluginDescriptor1, pluginDescriptor2);
 
         registry.unloadPlugin(new GoPluginBundleDescriptor(pluginDescriptor2));
 
-        assertThat(registry.plugins().size(), is(1));
-        assertThat(registry.plugins(), hasItems(pluginDescriptor1));
+        assertThat(registry.plugins().size()).isEqualTo(1);
+        assertThat(registry.plugins()).contains(pluginDescriptor1);
     }
 
     @Test
-    public void shouldUnloadAllPluginsInABundleFromRegistry() {
+    void shouldUnloadAllPluginsInABundleFromRegistry() {
         final GoPluginDescriptor pluginDescriptor1 = GoPluginDescriptor.usingId("id1", "location-one.jar", new File("location-one"), true);
         final GoPluginDescriptor pluginDescriptor2 = GoPluginDescriptor.usingId("id2", "location-two.jar", new File("location-two"), true);
         final GoPluginDescriptor pluginDescriptor3 = GoPluginDescriptor.usingId("id3", "location-two.jar", new File("location-two"), true);
@@ -147,17 +133,17 @@ public class DefaultPluginRegistryTest {
         registry.loadPlugin(bundle1);
         registry.loadPlugin(bundle2);
 
-        assertThat(registry.plugins().size(), is(3));
-        assertThat(registry.plugins(), hasItems(pluginDescriptor1, pluginDescriptor2, pluginDescriptor3));
+        assertThat(registry.plugins().size()).isEqualTo(3);
+        assertThat(registry.plugins()).contains(pluginDescriptor1, pluginDescriptor2, pluginDescriptor3);
 
         registry.unloadPlugin(bundle2);
 
-        assertThat(registry.plugins().size(), is(1));
-        assertThat(registry.plugins(), hasItems(pluginDescriptor1));
+        assertThat(registry.plugins().size()).isEqualTo(1);
+        assertThat(registry.plugins()).contains(pluginDescriptor1);
     }
 
     @Test
-    public void shouldBeAbleToUnloadThePluginBasedOnFileNameEvenIfTheIDHasBeenChanged() {
+    void shouldBeAbleToUnloadThePluginBasedOnFileNameEvenIfTheIDHasBeenChanged() {
         File bundleLocation = mock(File.class);
         when(bundleLocation.getName()).thenReturn("plugin-id");
         GoPluginBundleDescriptor oldBundleDescriptor = new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("old-plugin-id", "some-plugin.jar", bundleLocation, true));
@@ -167,17 +153,18 @@ public class DefaultPluginRegistryTest {
         GoPluginBundleDescriptor descriptorOfPluginToBeUnloaded = new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("new-plugin-id", "some-plugin.jar", bundleLocation, true));
         GoPluginBundleDescriptor descriptorOfUnloadedPlugin = registry.unloadPlugin(descriptorOfPluginToBeUnloaded);
 
-        assertThat(descriptorOfUnloadedPlugin, is(oldBundleDescriptor));
-        assertThat(registry.plugins().size(), is(0));
-    }
-
-    @Test(expected = RuntimeException.class)
-    public void shouldNotUnloadAPluginIfItWasNotLoadedBefore() {
-        registry.unloadPlugin(new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("id1", null, null, true)));
+        assertThat(descriptorOfUnloadedPlugin).isEqualTo(oldBundleDescriptor);
+        assertThat(registry.plugins().size()).isEqualTo(0);
     }
 
     @Test
-    public void shouldNotLoadAnyPluginsInBundleIfThereIsOneMorePluginWithTheSameIDAlreadyInTheRegistry() {
+    void shouldNotUnloadAPluginIfItWasNotLoadedBefore() {
+        assertThatCode(() -> registry.unloadPlugin(new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("id1", null, null, true))))
+                .isInstanceOf(RuntimeException.class);
+    }
+
+    @Test
+    void shouldNotLoadAnyPluginsInBundleIfThereIsOneMorePluginWithTheSameIDAlreadyInTheRegistry() {
         final GoPluginDescriptor pluginDescriptor = new GoPluginDescriptor("id_Z", "1", new GoPluginDescriptor.About("name1", "1.0", "19.5", null, null, null), "/tmp/path/1", null, true);
         GoPluginBundleDescriptor bundleDescriptor = new GoPluginBundleDescriptor(pluginDescriptor);
         registry.loadPlugin(bundleDescriptor);
@@ -189,22 +176,24 @@ public class DefaultPluginRegistryTest {
         try {
             registry.loadPlugin(newPluginBundle);
         } catch (RuntimeException e) {
-            assertThat(registry.plugins().size(), is(1));
-            assertThat(registry.plugins().get(0), is(pluginDescriptor));
+            assertThat(registry.plugins().size()).isEqualTo(1);
+            assertThat(registry.plugins().get(0)).isEqualTo(pluginDescriptor);
         }
     }
 
-    @Test(expected = RuntimeException.class)
-    public void shouldNotLoadPluginIfThereIsOneMorePluginWithTheSameIDAndDifferentCase() {
+    @Test
+    void shouldNotLoadPluginIfThereIsOneMorePluginWithTheSameIDAndDifferentCase() {
         GoPluginBundleDescriptor descriptor = new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("id1", null, null, true));
         registry.loadPlugin(descriptor);
 
         GoPluginBundleDescriptor secondPluginBundleDescriptor = new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("iD1", null, null, true));
-        registry.loadPlugin(secondPluginBundleDescriptor);
+
+        assertThatCode(() -> registry.loadPlugin(secondPluginBundleDescriptor))
+                .isInstanceOf(RuntimeException.class);
     }
 
     @Test
-    public void shouldFindABundleBySymbolicName() {
+    void shouldFindABundleBySymbolicName() {
         final GoPluginDescriptor pluginDescriptor1 = GoPluginDescriptor.usingId("plugin.1", null, null, false);
         final GoPluginDescriptor pluginDescriptor2 = GoPluginDescriptor.usingId("plugin.2", null, null, false);
         final GoPluginBundleDescriptor bundleDescriptor1 = new GoPluginBundleDescriptor(pluginDescriptor1, pluginDescriptor2);
@@ -216,13 +205,13 @@ public class DefaultPluginRegistryTest {
         registry.loadPlugin(bundleDescriptor1);
         registry.loadPlugin(bundleDescriptor2);
 
-        assertThat(registry.getBundleDescriptor(bundleDescriptor1.bundleSymbolicName()), is(bundleDescriptor1));
-        assertThat(registry.getBundleDescriptor(bundleDescriptor2.bundleSymbolicName()), is(bundleDescriptor2));
-        assertThat(registry.getBundleDescriptor("NON_EXISTENT"), is(nullValue()));
+        assertThat(registry.getBundleDescriptor(bundleDescriptor1.bundleSymbolicName())).isEqualTo(bundleDescriptor1);
+        assertThat(registry.getBundleDescriptor(bundleDescriptor2.bundleSymbolicName())).isEqualTo(bundleDescriptor2);
+        assertThat(registry.getBundleDescriptor("NON_EXISTENT")).isNull();
     }
 
     @Test
-    public void shouldGetPluginIDForAGivenBundleExtensionClass() {
+    void shouldGetPluginIDForAGivenBundleExtensionClass() {
         final GoPluginDescriptor pluginDescriptor1 = GoPluginDescriptor.usingId("plugin.1", null, null, false);
         pluginDescriptor1.addExtensionClasses(asList("com.path.to.ExtensionClass1", "com.path.to.ExtensionClass2"));
 
@@ -233,25 +222,25 @@ public class DefaultPluginRegistryTest {
 
         registry.loadPlugin(bundleDescriptor);
 
-        assertThat(registry.pluginIDFor(bundleDescriptor.bundleSymbolicName(), "com.path.to.ExtensionClass1"), is("plugin.1"));
-        assertThat(registry.pluginIDFor(bundleDescriptor.bundleSymbolicName(), "com.path.to.ExtensionClass2"), is("plugin.1"));
-        assertThat(registry.pluginIDFor(bundleDescriptor.bundleSymbolicName(), "com.path.to.ExtensionClass3"), is("plugin.2"));
-        assertThat(registry.pluginIDFor(bundleDescriptor.bundleSymbolicName(), "com.path.to.DOES_NOT_EXIST"), is(nullValue()));
+        assertThat(registry.pluginIDFor(bundleDescriptor.bundleSymbolicName(), "com.path.to.ExtensionClass1")).isEqualTo("plugin.1");
+        assertThat(registry.pluginIDFor(bundleDescriptor.bundleSymbolicName(), "com.path.to.ExtensionClass2")).isEqualTo("plugin.1");
+        assertThat(registry.pluginIDFor(bundleDescriptor.bundleSymbolicName(), "com.path.to.ExtensionClass3")).isEqualTo("plugin.2");
+        assertThat(registry.pluginIDFor(bundleDescriptor.bundleSymbolicName(), "com.path.to.DOES_NOT_EXIST")).isNull();
     }
 
     @Test
-    public void shouldHandleLegacyPluginWhichHasNoDefinedExtensions_WhenAskedForPluginID() {
+    void shouldHandleLegacyPluginWhichHasNoDefinedExtensions_WhenAskedForPluginID() {
         final GoPluginDescriptor pluginDescriptor = GoPluginDescriptor.usingId("plugin.1", null, null, false);
         final GoPluginBundleDescriptor bundleDescriptor = new GoPluginBundleDescriptor(pluginDescriptor);
 
         registry.loadPlugin(bundleDescriptor);
 
-        assertThat(registry.pluginIDFor(bundleDescriptor.bundleSymbolicName(), "com.path.to.ExtensionClass1"), is("plugin.1"));
-        assertThat(registry.pluginIDFor(bundleDescriptor.bundleSymbolicName(), "com.path.to.DOES_NOT_EXIST"), is("plugin.1"));
+        assertThat(registry.pluginIDFor(bundleDescriptor.bundleSymbolicName(), "com.path.to.ExtensionClass1")).isEqualTo("plugin.1");
+        assertThat(registry.pluginIDFor(bundleDescriptor.bundleSymbolicName(), "com.path.to.DOES_NOT_EXIST")).isEqualTo("plugin.1");
     }
 
     @Test
-    public void shouldProvideAllRegisteredExtensionsAcrossPluginsInABundle() {
+    void shouldProvideAllRegisteredExtensionsAcrossPluginsInABundle() {
         final GoPluginDescriptor pluginDescriptor1 = GoPluginDescriptor.usingId("plugin.1", null, null, false);
         pluginDescriptor1.addExtensionClasses(asList("com.path.to.ExtensionClass1", "com.path.to.ExtensionClass2"));
 
@@ -262,14 +251,14 @@ public class DefaultPluginRegistryTest {
 
         registry.loadPlugin(bundleDescriptor);
 
-        assertThat(registry.extensionClassesIn(bundleDescriptor.bundleSymbolicName()), is(asList("com.path.to.ExtensionClass1", "com.path.to.ExtensionClass2", "com.path.to.ExtensionClass3")));
+        assertThat(registry.extensionClassesIn(bundleDescriptor.bundleSymbolicName())).isEqualTo(asList("com.path.to.ExtensionClass1", "com.path.to.ExtensionClass2", "com.path.to.ExtensionClass3"));
     }
 
     @Test
-    public void shouldSayThatALegacyPluginHasNoExtensionClassesInTheWholeBundle() {
+    void shouldSayThatALegacyPluginHasNoExtensionClassesInTheWholeBundle() {
         GoPluginBundleDescriptor bundleDescriptor = new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("iD1", null, null, true));
         registry.loadPlugin(bundleDescriptor);
 
-        assertThat(registry.extensionClassesIn(bundleDescriptor.bundleSymbolicName()), is(emptyList()));
+        assertThat(registry.extensionClassesIn(bundleDescriptor.bundleSymbolicName())).isEqualTo(emptyList());
     }
 }

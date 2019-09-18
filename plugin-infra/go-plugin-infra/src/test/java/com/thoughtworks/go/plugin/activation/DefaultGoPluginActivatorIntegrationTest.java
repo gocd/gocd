@@ -35,10 +35,9 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.felix.framework.util.FelixConstants;
 import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.ops4j.pax.tinybundles.core.InnerClassStrategy;
 import org.ops4j.pax.tinybundles.core.TinyBundle;
 import org.ops4j.pax.tinybundles.core.TinyBundles;
@@ -52,14 +51,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.zip.ZipInputStream;
 
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class DefaultGoPluginActivatorIntegrationTest {
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
-
+class DefaultGoPluginActivatorIntegrationTest {
     private File tmpDir;
     private static final String BUNDLE_DIR_WHICH_HAS_PROPER_ACTIVATOR = "DefaultGoPluginActivatorIntegrationTest.bundleDirWhichHasProperActivator";
     private static final String NO_EXT_ERR_MSG = "No extensions found in this plugin.Please check for @Extension annotations";
@@ -68,9 +62,9 @@ public class DefaultGoPluginActivatorIntegrationTest {
     private FelixGoPluginOSGiFramework framework;
     private StubOfDefaultPluginRegistry registry;
 
-    @Before
-    public void setUp() throws IOException {
-        tmpDir = temporaryFolder.newFolder();
+    @BeforeEach
+    void setUp(@TempDir File rootDir) {
+        tmpDir = rootDir;
         registry = new StubOfDefaultPluginRegistry();
         framework = new FelixGoPluginOSGiFramework(registry, new SystemEnvironment()) {
             @Override
@@ -84,41 +78,41 @@ public class DefaultGoPluginActivatorIntegrationTest {
     }
 
     @Test
-    public void shouldRegisterAClassImplementingGoPluginAsAnOSGiService() throws Exception {
+    void shouldRegisterAClassImplementingGoPluginAsAnOSGiService() throws Exception {
         assertThatPluginWithThisExtensionClassLoadsSuccessfully(DummyTestPlugin.class);
     }
 
     @Test
-    public void shouldNotRegisterAsAnOSGiServiceAClassImplementingGoPluginWithoutAPublicConstructor() throws Exception {
+    void shouldNotRegisterAsAnOSGiServiceAClassImplementingGoPluginWithoutAPublicConstructor() throws Exception {
         installBundleWithClasses(DummyTestPluginWithNonPublicDefaultConstructor.class);
 
         GoPluginDescriptor descriptor = registry.getPlugin(GO_TEST_DUMMY_SYMBOLIC_NAME);
-        assertThat(descriptor.isInvalid(), is(true));
-        assertThat(descriptor.getStatus().getMessages(), contains("Class [DummyTestPluginWithNonPublicDefaultConstructor] is annotated with @Extension but cannot be constructed. Make sure it and all of its parent classes have a default constructor."));
+        assertThat(descriptor.isInvalid()).isTrue();
+        assertThat(descriptor.getStatus().getMessages()).containsExactly("Class [DummyTestPluginWithNonPublicDefaultConstructor] is annotated with @Extension but cannot be constructed. Make sure it and all of its parent classes have a default constructor.");
     }
 
     @Test
-    public void shouldNotRegisterAsAnOSGiServiceAClassImplementingGoPluginWithOnlyAOneArgConstructor() throws Exception {
+    void shouldNotRegisterAsAnOSGiServiceAClassImplementingGoPluginWithOnlyAOneArgConstructor() throws Exception {
         installBundleWithClasses(DummyGoPluginWithOneArgConstructorOnly.class);
 
         GoPluginDescriptor descriptor = registry.getPlugin(GO_TEST_DUMMY_SYMBOLIC_NAME);
-        assertThat(descriptor.isInvalid(), is(true));
+        assertThat(descriptor.isInvalid()).isTrue();
         String error = descriptor.getStatus().getMessages().get(0);
-        assertThat(error.contains("DummyGoPluginWithOneArgConstructorOnly"), is(true));
-        assertThat(error.contains("Make sure it and all of its parent classes have a default constructor."), is(true));
+        assertThat(error.contains("DummyGoPluginWithOneArgConstructorOnly")).isTrue();
+        assertThat(error.contains("Make sure it and all of its parent classes have a default constructor.")).isTrue();
     }
 
     @Test
-    public void shouldNotRegisterAsAnOSGiServiceAnExtensionClassWhichDoesNotImplementAGoExtensionPoint() throws Exception {
+    void shouldNotRegisterAsAnOSGiServiceAnExtensionClassWhichDoesNotImplementAGoExtensionPoint() throws Exception {
         installBundleWithClasses(NotAGoExtensionPoint.class, NotAGoExtensionAsItDoesNotImplementAnyExtensionPoints.class);
 
         GoPluginDescriptor descriptor = registry.getPlugin(GO_TEST_DUMMY_SYMBOLIC_NAME);
-        assertThat(descriptor.isInvalid(), is(true));
-        assertThat(descriptor.getStatus().getMessages(), contains(NO_EXT_ERR_MSG));
+        assertThat(descriptor.isInvalid()).isTrue();
+        assertThat(descriptor.getStatus().getMessages()).containsExactly(NO_EXT_ERR_MSG);
     }
 
     @Test
-    public void shouldNotLoadClassesFoundInMETA_INFEvenIfTheyAreProperGoExtensionPoints() throws Exception {
+    void shouldNotLoadClassesFoundInMETA_INFEvenIfTheyAreProperGoExtensionPoints() throws Exception {
         File bundleWithActivator = createBundleWithActivator(BUNDLE_DIR_WHICH_HAS_PROPER_ACTIVATOR, DummyTestPlugin.class);
         File sourceClassFile = new File(bundleWithActivator, "com/thoughtworks/go/plugin/activation/test/DummyTestPlugin.class");
         File destinationFile = new File(bundleWithActivator, "META-INF/com/thoughtworks/go/plugin/activation/test/");
@@ -127,12 +121,12 @@ public class DefaultGoPluginActivatorIntegrationTest {
         installBundleFoundInDirectory(bundleWithActivator);
 
         GoPluginDescriptor descriptor = registry.getPlugin(GO_TEST_DUMMY_SYMBOLIC_NAME);
-        assertThat(descriptor.isInvalid(), is(true));
-        assertThat(descriptor.getStatus().getMessages(), contains(NO_EXT_ERR_MSG));
+        assertThat(descriptor.isInvalid()).isTrue();
+        assertThat(descriptor.getStatus().getMessages()).containsExactly(NO_EXT_ERR_MSG);
     }
 
     @Test
-    public void shouldNotFailToRegisterOtherClassesIfAClassCannotBeLoadedBecauseOfWrongPath() throws Exception {
+    void shouldNotFailToRegisterOtherClassesIfAClassCannotBeLoadedBecauseOfWrongPath() throws Exception {
         File bundleWithActivator = createBundleWithActivator(BUNDLE_DIR_WHICH_HAS_PROPER_ACTIVATOR, DummyTestPlugin.class);
         File sourceClassFile = new File(bundleWithActivator, "com/thoughtworks/go/plugin/activation/test/DummyTestPlugin.class");
         File destinationFile = new File(bundleWithActivator, "ABC-DEF/com/thoughtworks/go/plugin/activation/test/");
@@ -140,60 +134,60 @@ public class DefaultGoPluginActivatorIntegrationTest {
 
         Bundle bundle = installBundleFoundInDirectory(bundleWithActivator);
         GoPluginDescriptor descriptor = registry.getPlugin(GO_TEST_DUMMY_SYMBOLIC_NAME);
-        assertThat(descriptor.isInvalid(), is(true));
+        assertThat(descriptor.isInvalid()).isTrue();
     }
 
     @Test
-    public void shouldNotLoadAClassFoundInLibDirectoryEvenIfItIsAProperGoExtensionPoints() throws Exception {
+    void shouldNotLoadAClassFoundInLibDirectoryEvenIfItIsAProperGoExtensionPoints() throws Exception {
         installBundleWithClasses(DummyTestPluginInLibDirectory.class);
 
         GoPluginDescriptor descriptor = registry.getPlugin(GO_TEST_DUMMY_SYMBOLIC_NAME);
-        assertThat(descriptor.isInvalid(), is(true));
-        assertThat(descriptor.getStatus().getMessages(), contains(NO_EXT_ERR_MSG));
+        assertThat(descriptor.isInvalid()).isTrue();
+        assertThat(descriptor.getStatus().getMessages()).containsExactly(NO_EXT_ERR_MSG);
     }
 
     @Test
-    public void shouldNotRegisterAsAnOSGiServiceAClassWhichIsAbstract() throws Exception {
+    void shouldNotRegisterAsAnOSGiServiceAClassWhichIsAbstract() throws Exception {
         installBundleWithClasses(AbstractTestPlugin.class);
 
         GoPluginDescriptor descriptor = registry.getPlugin(GO_TEST_DUMMY_SYMBOLIC_NAME);
-        assertThat(descriptor.isInvalid(), is(true));
-        assertThat(descriptor.getStatus().getMessages(), contains("Class [AbstractTestPlugin] is annotated with @Extension but is abstract."));
+        assertThat(descriptor.isInvalid()).isTrue();
+        assertThat(descriptor.getStatus().getMessages()).containsExactly("Class [AbstractTestPlugin] is annotated with @Extension but is abstract.");
     }
 
     @Test
-    public void shouldNotRegisterAsAnOSGiServiceAClassWhichIsNotPublic() throws Exception {
+    void shouldNotRegisterAsAnOSGiServiceAClassWhichIsNotPublic() throws Exception {
         installBundleWithClasses(DummyTestPluginWhichIsNotPublic.class);
 
         GoPluginDescriptor descriptor = registry.getPlugin(GO_TEST_DUMMY_SYMBOLIC_NAME);
-        assertThat(descriptor.isInvalid(), is(true));
-        assertThat(descriptor.getStatus().getMessages(), contains("Class [DummyTestPluginWhichIsNotPublic] is annotated with @Extension but is not public."));
+        assertThat(descriptor.isInvalid()).isTrue();
+        assertThat(descriptor.getStatus().getMessages()).containsExactly("Class [DummyTestPluginWhichIsNotPublic] is annotated with @Extension but is not public.");
 
     }
 
     @Test
-    public void shouldNotRegisterAsAnOSGiServiceAnInterfaceEvenIfItImplementsAGoExtensionPointInterface() throws Exception {
+    void shouldNotRegisterAsAnOSGiServiceAnInterfaceEvenIfItImplementsAGoExtensionPointInterface() throws Exception {
         installBundleWithClasses(TestGoPluginExtensionInterface.class);
 
         GoPluginDescriptor descriptor = registry.getPlugin(GO_TEST_DUMMY_SYMBOLIC_NAME);
-        assertThat(descriptor.isInvalid(), is(true));
-        assertThat(descriptor.getStatus().getMessages(), contains("Class [TestGoPluginExtensionInterface] is annotated with @Extension but is abstract."));
+        assertThat(descriptor.isInvalid()).isTrue();
+        assertThat(descriptor.getStatus().getMessages()).containsExactly("Class [TestGoPluginExtensionInterface] is annotated with @Extension but is abstract.");
 
     }
 
     @Test
-    public void shouldNotRegisterAsAnOSGiServiceAClassWhichThrowsExceptionDuringInstantiation() throws Exception {
+    void shouldNotRegisterAsAnOSGiServiceAClassWhichThrowsExceptionDuringInstantiation() throws Exception {
         installBundleWithClasses(DummyTestPlugin.class, DummyGoPluginWhichThrowsAnExceptionDuringConstruction.class);
 
         GoPluginDescriptor descriptor = registry.getPlugin(GO_TEST_DUMMY_SYMBOLIC_NAME);
-        assertThat(descriptor.isInvalid(), is(true));
+        assertThat(descriptor.isInvalid()).isTrue();
         String error = descriptor.getStatus().getMessages().get(0);
-        assertThat(error.contains("DummyGoPluginWhichThrowsAnExceptionDuringConstruction"), is(true));
-        assertThat(error.contains("java.lang.RuntimeException: Ouch! I failed!"), is(true));
+        assertThat(error.contains("DummyGoPluginWhichThrowsAnExceptionDuringConstruction")).isTrue();
+        assertThat(error.contains("java.lang.RuntimeException: Ouch! I failed!")).isTrue();
     }
 
     @Test
-    public void shouldRegisterANestedClassImplementingGoPluginAsAnOSGiService() throws Exception {
+    void shouldRegisterANestedClassImplementingGoPluginAsAnOSGiService() throws Exception {
         if (new OSChecker(OSChecker.WINDOWS).satisfy()) {
             return; // The class files in this test become too big for a Windows filesystem to handle.
         }
@@ -209,117 +203,117 @@ public class DefaultGoPluginActivatorIntegrationTest {
         ServiceReference<?>[] references = installedBundledContext.getServiceReferences(GoPlugin.class.getName(), null);
         String[] services = toSortedServiceClassNames(installedBundledContext, references);
 
-        assertEquals(Arrays.toString(services), 4, services.length);
-        assertEquals(TestPluginOuterClass.class.getName(), services[0]);
-        assertEquals(TestPluginOuterClass.InnerClass.class.getName(), services[1]);
-        assertEquals(TestPluginOuterClass.InnerClass.SecondLevelInnerClass.TestPluginThirdLevelInnerClass.class.getName(), services[2]);
-        assertEquals(TestPluginOuterClass.NestedClass.class.getName(), services[3]);
+        assertThat(services.length).as(Arrays.toString(services)).isEqualTo(4);
+        assertThat(services[0]).isEqualTo(TestPluginOuterClass.class.getName());
+        assertThat(services[1]).isEqualTo(TestPluginOuterClass.InnerClass.class.getName());
+        assertThat(services[2]).isEqualTo(TestPluginOuterClass.InnerClass.SecondLevelInnerClass.TestPluginThirdLevelInnerClass.class.getName());
+        assertThat(services[3]).isEqualTo(TestPluginOuterClass.NestedClass.class.getName());
     }
 
     @Test
-    public void shouldRegisterAsAnOSGiServiceADerivedClassWhoseAncestorImplementsAnExtensionPoint() throws Exception {
+    void shouldRegisterAsAnOSGiServiceADerivedClassWhoseAncestorImplementsAnExtensionPoint() throws Exception {
         BundleContext installedBundledContext = bundleContext(installBundleWithClasses(TestPluginThatIsADerivedClass.class,
                 DummyTestPlugin.class, TestPluginThatIsADerivedClass.class.getSuperclass()));
         ServiceReference<?>[] references = installedBundledContext.getServiceReferences(GoPlugin.class.getName(), null);
         String[] services = toSortedServiceClassNames(installedBundledContext, references);
 
-        assertEquals(Arrays.toString(services), 2, services.length);
-        assertEquals(DummyTestPlugin.class.getName(), services[0]);
-        assertEquals(TestPluginThatIsADerivedClass.class.getName(), services[1]);
+        assertThat(services.length).as(Arrays.toString(services)).isEqualTo(2);
+        assertThat(services[0]).isEqualTo(DummyTestPlugin.class.getName());
+        assertThat(services[1]).isEqualTo(TestPluginThatIsADerivedClass.class.getName());
     }
 
     @Test
-    public void shouldRegisterOneInstanceForEachExtensionPointAnExtensionImplements() throws Exception {
+    void shouldRegisterOneInstanceForEachExtensionPointAnExtensionImplements() throws Exception {
         BundleContext installedBundledContext = bundleContext(installBundleWithClasses(TestGoPluginExtensionThatImplementsTwoExtensionPoints.class, DummyTestPlugin.class));
 
         ServiceReference<?>[] references = installedBundledContext.getServiceReferences(GoPlugin.class.getName(), null);
         String[] services = toSortedServiceClassNames(installedBundledContext, references);
 
-        assertEquals(Arrays.toString(services), 2, services.length);
-        assertEquals(DummyTestPlugin.class.getName(), services[0]);
-        assertEquals(TestGoPluginExtensionThatImplementsTwoExtensionPoints.class.getName(), services[1]);
+        assertThat(services.length).as(Arrays.toString(services)).isEqualTo(2);
+        assertThat(services[0]).isEqualTo(DummyTestPlugin.class.getName());
+        assertThat(services[1]).isEqualTo(TestGoPluginExtensionThatImplementsTwoExtensionPoints.class.getName());
 
         references = installedBundledContext.getServiceReferences(TestGoPluginExtensionPoint.class.getName(), null);
-        assertEquals(1, references.length);
-        assertEquals(TestGoPluginExtensionThatImplementsTwoExtensionPoints.class.getName(), installedBundledContext.getService(references[0]).getClass().getName());
+        assertThat(references.length).isEqualTo(1);
+        assertThat(installedBundledContext.getService(references[0]).getClass().getName()).isEqualTo(TestGoPluginExtensionThatImplementsTwoExtensionPoints.class.getName());
         Object testExtensionImplementation = getImplementationOfType(installedBundledContext, references, TestGoPluginExtensionThatImplementsTwoExtensionPoints.class);
 
         references = installedBundledContext.getServiceReferences(GoPlugin.class.getName(), null);
-        assertEquals(2, references.length);
+        assertThat(references.length).isEqualTo(2);
         Object testPluginImplementation = getImplementationOfType(installedBundledContext, references, TestGoPluginExtensionThatImplementsTwoExtensionPoints.class);
 
-        assertSame(testExtensionImplementation, testPluginImplementation);
+        assertThat(testPluginImplementation).isSameAs(testExtensionImplementation);
     }
 
     @Test
-    public void shouldRegisterOneInstanceForEachExtensionPointWhereThePluginClassExtendsABaseClassWhichIsAnExtensionAndImplementsAGoExtensionPoint() throws Exception {
+    void shouldRegisterOneInstanceForEachExtensionPointWhereThePluginClassExtendsABaseClassWhichIsAnExtensionAndImplementsAGoExtensionPoint() throws Exception {
         BundleContext installedBundledContext = bundleContext(installBundleWithClasses(ClassThatExtendsTestExtensionPoint.class,
                 ClassThatExtendsTestExtensionPoint.ClassThatExtendsTwoGoExtensionPoint.class, TestGoPluginExtensionPoint.class));
 
         ServiceReference<?>[] references = installedBundledContext.getServiceReferences(TestGoPluginExtensionPoint.class.getName(), null);
-        assertEquals(1, references.length);
+        assertThat(references.length).isEqualTo(1);
         Object testExtensionImplementation = getImplementationOfType(installedBundledContext, references, ClassThatExtendsTestExtensionPoint.ClassThatExtendsTwoGoExtensionPoint.class);
 
         references = installedBundledContext.getServiceReferences(GoPlugin.class.getName(), null);
-        assertEquals(1, references.length);
+        assertThat(references.length).isEqualTo(1);
         Object testPluginImplementation = getImplementationOfType(installedBundledContext, references, ClassThatExtendsTestExtensionPoint.ClassThatExtendsTwoGoExtensionPoint.class);
 
-        assertSame(testExtensionImplementation, testPluginImplementation);
+        assertThat(testPluginImplementation).isSameAs(testExtensionImplementation);
     }
 
     @Test
-    public void shouldNotRegisterAnAnonymousClassThatImplementsAnExtensionPoint() throws IOException {
+    void shouldNotRegisterAnAnonymousClassThatImplementsAnExtensionPoint() throws IOException {
         installBundleWithClasses(DummyClassProvidingAnonymousClass.getAnonymousClass().getClass());
 
         GoPluginDescriptor descriptor = registry.getPlugin(GO_TEST_DUMMY_SYMBOLIC_NAME);
-        assertThat(descriptor.isInvalid(), is(true));
-        assertThat(descriptor.getStatus().getMessages().contains(NO_EXT_ERR_MSG), is(true));
+        assertThat(descriptor.isInvalid()).isTrue();
+        assertThat(descriptor.getStatus().getMessages().contains(NO_EXT_ERR_MSG)).isTrue();
     }
 
     @Test
-    public void shouldNotRegisterAnAnonymousClassDefinedWithinAnInnerClassThatImplementsAnExtensionPoint() throws IOException {
+    void shouldNotRegisterAnAnonymousClassDefinedWithinAnInnerClassThatImplementsAnExtensionPoint() throws IOException {
         installBundleWithClasses(DummyClassProvidingAnonymousClass.DummyInnerClassProvidingAnonymousClass.getAnonymousClass().getClass());
 
         GoPluginDescriptor descriptor = registry.getPlugin(GO_TEST_DUMMY_SYMBOLIC_NAME);
-        assertThat(descriptor.isInvalid(), is(true));
-        assertThat(descriptor.getStatus().getMessages().contains(NO_EXT_ERR_MSG), is(true));
+        assertThat(descriptor.isInvalid()).isTrue();
+        assertThat(descriptor.getStatus().getMessages().contains(NO_EXT_ERR_MSG)).isTrue();
     }
 
     @Test
-    public void shouldNotRegisterLocalInnerClassesThatImplementAnExtensionPoint() throws IOException {
+    void shouldNotRegisterLocalInnerClassesThatImplementAnExtensionPoint() throws IOException {
         installBundleWithClasses(DummyClassWithLocalInnerClass.class);
 
         GoPluginDescriptor descriptor = registry.getPlugin(GO_TEST_DUMMY_SYMBOLIC_NAME);
-        assertThat(descriptor.isInvalid(), is(true));
-        assertThat(descriptor.getStatus().getMessages().contains(NO_EXT_ERR_MSG), is(true));
+        assertThat(descriptor.isInvalid()).isTrue();
+        assertThat(descriptor.getStatus().getMessages().contains(NO_EXT_ERR_MSG)).isTrue();
     }
 
     @Test
-    public void shouldNotRegisterPublicInnerClassesThatImplementAnExtensionPointInsidePackageLevelClass() throws IOException {
+    void shouldNotRegisterPublicInnerClassesThatImplementAnExtensionPointInsidePackageLevelClass() throws IOException {
         installBundleWithClasses(PackageLevelClassWithPublicInnerClass.class, PackageLevelClassWithPublicInnerClass.DummyInnerClassWithExtension.class);
 
         GoPluginDescriptor descriptor = registry.getPlugin(GO_TEST_DUMMY_SYMBOLIC_NAME);
-        assertThat(descriptor.isInvalid(), is(true));
-        assertThat(descriptor.getStatus().getMessages(), contains("Class [DummyInnerClassWithExtension] is annotated with @Extension but cannot be constructed. Make sure it and all of its parent classes have a default constructor."));
+        assertThat(descriptor.isInvalid()).isTrue();
+        assertThat(descriptor.getStatus().getMessages()).containsExactly("Class [DummyInnerClassWithExtension] is annotated with @Extension but cannot be constructed. Make sure it and all of its parent classes have a default constructor.");
     }
 
     @Test
-    public void shouldBeAbleToUsePackagesFromJavaxWithinThePluginSinceItHasBeenExportedUsingBootDelegationInTheOSGIFramework() throws Exception {
+    void shouldBeAbleToUsePackagesFromJavaxWithinThePluginSinceItHasBeenExportedUsingBootDelegationInTheOSGIFramework() throws Exception {
         assertThatPluginWithThisExtensionClassLoadsSuccessfully(ClassWhichUsesSomeClassInJavaxPackage.class);
     }
 
     @Test
-    public void shouldBeAbleToUsePackagesFromOrgXmlSaxPackageWithinThePluginSinceItHasBeenExportedUsingBootDelegationInTheOSGIFramework() throws Exception {
+    void shouldBeAbleToUsePackagesFromOrgXmlSaxPackageWithinThePluginSinceItHasBeenExportedUsingBootDelegationInTheOSGIFramework() throws Exception {
         assertThatPluginWithThisExtensionClassLoadsSuccessfully(ClassWhichUsesSomeClassesInOrgXMLSaxPackage.class);
     }
 
     @Test
-    public void shouldBeAbleToUsePackagesFromOrgW3cDomPackageWithinThePluginSinceItHasBeenExportedUsingBootDelegationInTheOSGIFramework() throws Exception {
+    void shouldBeAbleToUsePackagesFromOrgW3cDomPackageWithinThePluginSinceItHasBeenExportedUsingBootDelegationInTheOSGIFramework() throws Exception {
         assertThatPluginWithThisExtensionClassLoadsSuccessfully(ClassWhichUsesSomeClassesInOrgW3CDomPackage.class);
     }
 
     @After
-    public void tearDown() {
+    void tearDown() {
         framework.stop();
     }
 
@@ -327,10 +321,10 @@ public class DefaultGoPluginActivatorIntegrationTest {
         BundleContext installedBundleContext = bundleContext(installBundleWithClasses(extensionClass));
 
         ServiceReference<?>[] references = installedBundleContext.getServiceReferences(GoPlugin.class.getName(), null);
-        assertEquals("No service registered for GoPlugin class", 1, references.length);
-        assertEquals("Symbolic Name property should be present", GO_TEST_DUMMY_SYMBOLIC_NAME, references[0].getProperty(Constants.BUNDLE_SYMBOLICNAME));
-        assertEquals("Plugin ID property should be present", GO_TEST_DUMMY_SYMBOLIC_NAME, references[0].getProperty("PLUGIN_ID"));
-        assertEquals(extensionClass.getName(), installedBundleContext.getService(references[0]).getClass().getName());
+        assertThat(references.length).as("No service registered for GoPlugin class").isEqualTo(1);
+        assertThat(references[0].getProperty(Constants.BUNDLE_SYMBOLICNAME)).as("Symbolic Name property should be present").isEqualTo(GO_TEST_DUMMY_SYMBOLIC_NAME);
+        assertThat(references[0].getProperty("PLUGIN_ID")).as("Plugin ID property should be present").isEqualTo(GO_TEST_DUMMY_SYMBOLIC_NAME);
+        assertThat(installedBundleContext.getService(references[0]).getClass().getName()).isEqualTo(extensionClass.getName());
     }
 
     private String[] toSortedServiceClassNames(BundleContext installedBundledContext, ServiceReference<?>[] references) {

@@ -15,37 +15,35 @@
  */
 package com.thoughtworks.go.plugin.infra.plugininfo;
 
-import java.util.Arrays;
-import java.util.Collections;
+import org.junit.jupiter.api.Test;
 
-import org.junit.Test;
+import java.util.Arrays;
 
 import static java.util.Collections.singletonList;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class GoPluginDescriptorTest {
+class GoPluginDescriptorTest {
     @Test
-    public void shouldMatchValidOSesAgainstCurrentOS() throws Exception {
-        assertThat(descriptorWithTargetOSes().isCurrentOSValidForThisPlugin("Linux"), is(true));
-        assertThat(descriptorWithTargetOSes().isCurrentOSValidForThisPlugin("Windows"), is(true));
+    void shouldMatchValidOSesAgainstCurrentOS() throws Exception {
+        assertThat(descriptorWithTargetOSes().isCurrentOSValidForThisPlugin("Linux")).isTrue();
+        assertThat(descriptorWithTargetOSes().isCurrentOSValidForThisPlugin("Windows")).isTrue();
 
-        assertThat(descriptorWithTargetOSes("Linux").isCurrentOSValidForThisPlugin("Linux"), is(true));
-        assertThat(descriptorWithTargetOSes("Windows").isCurrentOSValidForThisPlugin("Linux"), is(false));
+        assertThat(descriptorWithTargetOSes("Linux").isCurrentOSValidForThisPlugin("Linux")).isTrue();
+        assertThat(descriptorWithTargetOSes("Windows").isCurrentOSValidForThisPlugin("Linux")).isFalse();
 
-        assertThat(descriptorWithTargetOSes("Windows", "Linux").isCurrentOSValidForThisPlugin("Linux"), is(true));
-        assertThat(descriptorWithTargetOSes("Windows", "SunOS", "Mac OS X").isCurrentOSValidForThisPlugin("Linux"), is(false));
+        assertThat(descriptorWithTargetOSes("Windows", "Linux").isCurrentOSValidForThisPlugin("Linux")).isTrue();
+        assertThat(descriptorWithTargetOSes("Windows", "SunOS", "Mac OS X").isCurrentOSValidForThisPlugin("Linux")).isFalse();
     }
 
     @Test
-    public void shouldDoACaseInsensitiveMatchForValidOSesAgainstCurrentOS() throws Exception {
-        assertThat(descriptorWithTargetOSes("linux").isCurrentOSValidForThisPlugin("Linux"), is(true));
-        assertThat(descriptorWithTargetOSes("LiNuX").isCurrentOSValidForThisPlugin("Linux"), is(true));
-        assertThat(descriptorWithTargetOSes("windows").isCurrentOSValidForThisPlugin("Linux"), is(false));
-        assertThat(descriptorWithTargetOSes("windOWS").isCurrentOSValidForThisPlugin("Linux"), is(false));
+    void shouldDoACaseInsensitiveMatchForValidOSesAgainstCurrentOS() throws Exception {
+        assertThat(descriptorWithTargetOSes("linux").isCurrentOSValidForThisPlugin("Linux")).isTrue();
+        assertThat(descriptorWithTargetOSes("LiNuX").isCurrentOSValidForThisPlugin("Linux")).isTrue();
+        assertThat(descriptorWithTargetOSes("windows").isCurrentOSValidForThisPlugin("Linux")).isFalse();
+        assertThat(descriptorWithTargetOSes("windOWS").isCurrentOSValidForThisPlugin("Linux")).isFalse();
 
-        assertThat(descriptorWithTargetOSes("WinDOWs", "LINUx").isCurrentOSValidForThisPlugin("Linux"), is(true));
-        assertThat(descriptorWithTargetOSes("WINDows", "Sunos", "Mac os x").isCurrentOSValidForThisPlugin("Linux"), is(false));
+        assertThat(descriptorWithTargetOSes("WinDOWs", "LINUx").isCurrentOSValidForThisPlugin("Linux")).isTrue();
+        assertThat(descriptorWithTargetOSes("WINDows", "Sunos", "Mac os x").isCurrentOSValidForThisPlugin("Linux")).isFalse();
     }
 
     private GoPluginDescriptor descriptorWithTargetOSes(String... oses) {
@@ -53,7 +51,7 @@ public class GoPluginDescriptorTest {
     }
 
     @Test
-    public void shouldMarkAllPluginsInBundleAsInvalidIfAPluginIsMarkedInvalid() {
+    void shouldMarkAllPluginsInBundleAsInvalidIfAPluginIsMarkedInvalid() {
         final GoPluginDescriptor pluginDescriptor1 = GoPluginDescriptor.usingId("plugin.1", null, null, false);
         final GoPluginDescriptor pluginDescriptor2 = GoPluginDescriptor.usingId("plugin.2", null, null, false);
 
@@ -61,11 +59,11 @@ public class GoPluginDescriptorTest {
 
         pluginDescriptor1.markAsInvalid(singletonList("Ouch!"), new RuntimeException("Failure ..."));
 
-        assertThat(bundleDescriptor.isInvalid(), is(true));
-        assertThat(pluginDescriptor1.isInvalid(), is(true));
-        assertThat(pluginDescriptor2.isInvalid(), is(true));
+        assertThat(bundleDescriptor.isInvalid()).isTrue();
+        assertThat(pluginDescriptor1.isInvalid()).isTrue();
+        assertThat(pluginDescriptor2.isInvalid()).isTrue();
 
-        assertThat(pluginDescriptor1.getStatus().getMessages(), is(singletonList("Ouch!")));
-        assertThat(pluginDescriptor2.getStatus().getMessages(), is(singletonList("Ouch!")));
+        assertThat(pluginDescriptor1.getStatus().getMessages()).isEqualTo(singletonList("Ouch!"));
+        assertThat(pluginDescriptor2.getStatus().getMessages()).isEqualTo(singletonList("Ouch!"));
     }
 }

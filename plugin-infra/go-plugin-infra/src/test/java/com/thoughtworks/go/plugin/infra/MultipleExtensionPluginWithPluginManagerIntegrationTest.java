@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.plugin.infra;
 
-import com.thoughtworks.go.plugin.activation.DefaultGoPluginActivator;
 import com.thoughtworks.go.plugin.api.request.DefaultGoPluginApiRequest;
 import com.thoughtworks.go.plugin.infra.listeners.DefaultPluginJarChangeListener;
 import com.thoughtworks.go.plugin.infra.monitor.PluginFileDetails;

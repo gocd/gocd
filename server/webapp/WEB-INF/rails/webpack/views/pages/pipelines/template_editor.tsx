@@ -15,7 +15,8 @@
  */
 
 import classnames from "classnames";
-import {MithrilViewComponent} from "jsx/mithril-component";
+import {makeEvent} from "helpers/compat";
+import {MithrilComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
@@ -35,12 +36,20 @@ interface Attrs {
   paramList: Stream<PipelineParameter[]>;
 }
 
-export class TemplateEditor extends MithrilViewComponent<Attrs> {
+interface State {
+  notifyChange(): void;
+}
+
+export class TemplateEditor extends MithrilComponent<Attrs, State> {
   selectedTemplate: Stream<TemplateConfig> = Stream();
   private cache: TemplateCache<Option> = new DefaultTemplatesCache();
   private templates: Stream<Option[]> = Stream();
 
-  oninit(vnode: m.Vnode<Attrs, {}>) {
+  oncreate(vnode: m.VnodeDOM<Attrs, State>) {
+    vnode.state.notifyChange = () => vnode.dom.dispatchEvent(makeEvent("change"));
+  }
+
+  oninit(vnode: m.Vnode<Attrs, State>) {
     if (vnode.attrs.cache) {
       this.cache = vnode.attrs.cache;
     }
@@ -52,29 +61,33 @@ export class TemplateEditor extends MithrilViewComponent<Attrs> {
     });
   }
 
-  view(vnode: m.Vnode<Attrs>) {
+  view(vnode: m.Vnode<Attrs, State>) {
     const errors = vnode.attrs.pipelineConfig.errors();
+    const {pipelineConfig, paramList, isUsingTemplate} = vnode.attrs;
+
     return <div class={classnames({[css.errorText]: errors.hasErrors("template")})}>
       <SwitchBtn small={true}
         label="Use Template:"
-        field={vnode.attrs.isUsingTemplate}
-        onclick={this.toggleTemplate.bind(this, vnode.attrs.pipelineConfig, vnode.attrs.paramList)}
+        field={isUsingTemplate}
+        onclick={this.toggleTemplate.bind(this, pipelineConfig, paramList, vnode.state)}
       />
-      {this.templateOptions(vnode.attrs)}
+      {this.templateOptions(vnode)}
     </div>;
   }
 
-  setTemplateParams(templateId: string, paramList: Stream<PipelineParameter[]>, config: PipelineConfig): void {
+  setTemplateParams(templateId: string, paramList: Stream<PipelineParameter[]>, config: PipelineConfig, onSetParams: () => void): void {
     TemplateConfig.getTemplate(templateId, (result: TemplateConfig) => {
       const params = result.parameters();
-      if (params.length !== 0) {
+
+      if (params.length > 0) {
         paramList(params);
         config.parameters(params);
+        onSetParams();
       }
     });
   }
 
-  templateOptions(attrs: Attrs): m.Children {
+  templateOptions({attrs, state}: {attrs: Attrs, state: State}) {
     const config = attrs.pipelineConfig;
     const errors = config.errors();
 
@@ -87,20 +100,22 @@ export class TemplateEditor extends MithrilViewComponent<Attrs> {
           </code>
         </FlashMessage>;
       } else {
-        return <SelectField label="Template" property={config.template} errorText={errors.errorsForDisplay("template")} required={true} onchange={(e) => this.setTemplateParams(e.target.value, attrs.paramList, config)}>
+        return <SelectField label="Template" property={config.template} errorText={errors.errorsForDisplay("template")} required={true} onchange={(e) => this.setTemplateParams(e.target.value, attrs.paramList, config, state.notifyChange)}>
             <SelectFieldOptions selected={config.template()} items={this.templates()}/>
         </SelectField>;
       }
     }
   }
 
-  toggleTemplate(pipelineConfig: PipelineConfig, paramList: Stream<PipelineParameter[]>, event: MouseEvent): void {
-    const target = event.target as HTMLInputElement;
-    if (target.checked) {
+  toggleTemplate(pipelineConfig: PipelineConfig, paramList: Stream<PipelineParameter[]>, state: State, event: MouseEvent) {
+    const checkbox = event.currentTarget as HTMLInputElement;
+
+    if (checkbox.checked) {
       pipelineConfig.stages().clear();
-      if (this.templates() && this.templates().length !== 0) {
+
+      if (this.templates() && this.templates().length > 0) {
         const templateId = this.templates()[0].id;
-        this.setTemplateParams(templateId, paramList, pipelineConfig);
+        this.setTemplateParams(templateId, paramList, pipelineConfig, state.notifyChange);
         pipelineConfig.template(templateId);
       }
     } else {

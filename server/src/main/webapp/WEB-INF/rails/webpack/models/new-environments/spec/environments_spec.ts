@@ -202,3 +202,15 @@ describe("Environments Model - Environments", () => {
     expect(environments.isPipelineDefinedInAnotherEnvironmentApartFrom(env2Name, pipelineName)).toEqual(true);
   });
 });
+
+describe("Environment Model - Environment", () => {
+  it("toJSON()", () => {
+    const env          = EnvironmentWithOrigin.fromJSON(envJSON);
+    const expectedJSON = {
+      name: env.name(),
+      environment_variables: env.environmentVariables().toJSON()
+    };
+
+    expect(env.toJSON()).toEqual(expectedJSON);
+  });
+});

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {EnvironmentJSON, Environments} from "models/new-environments/environments";
@@ -34,7 +35,8 @@ describe("Environments Widget", () => {
 
     environments = Environments.fromJSON({_embedded: {environments: [xmlEnv, configRepoEnv, env]}});
     helper.mount(() => <EnvironmentsWidget environments={Stream(environments)}
-                                           deleteEnvironment={jasmine.createSpy()}/>);
+                                           deleteEnvironment={jasmine.createSpy()}
+                                           onSuccessfulSave={_.noop}/>);
   });
 
   afterEach(helper.unmount.bind(helper));

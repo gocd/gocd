@@ -1,0 +1,72 @@
+/*
+ * Copyright 2019 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import _ from "lodash";
+import {EnvironmentWithOrigin} from "models/new-environments/environments";
+import data from "models/new-environments/spec/test_data";
+import {EditEnvironmentVariablesModal} from "views/pages/new-environments/edit_environment_variables_modal";
+import {TestHelper} from "views/pages/spec/test_helper";
+
+describe("Edit environment variables modal", () => {
+  const helper = new TestHelper();
+  let modal: EditEnvironmentVariablesModal;
+  let environment: EnvironmentWithOrigin;
+
+  beforeEach(() => {
+    environment = EnvironmentWithOrigin.fromJSON(data.xml_environment_json());
+    modal       = new EditEnvironmentVariablesModal(environment, _.noop);
+    helper.mount(() => modal.body());
+  });
+
+  afterEach(helper.unmount.bind(helper));
+
+  it("should have a title", () => {
+    expect(modal.title()).toBe("Environment Variables");
+  });
+
+  it("environmentVariablesToAdd()", () => {
+    expect(modal.environmentVariablesToAdd().length).toBe(0);
+
+    helper.clickByTestId("add-plain-text-variables-btn");
+    const newVarName = helper.allByTestId("env-var-name")[1] as HTMLInputElement;
+    helper.oninput(newVarName, "new-var");
+    const newVarValue = helper.allByTestId("env-var-value")[1] as HTMLInputElement;
+    helper.oninput(newVarValue, "new-value");
+
+    const existingVarName = helper.allByTestId("env-var-name")[0] as HTMLInputElement;
+    helper.oninput(existingVarName, "new-name-for-existing");
+
+    const variablesToAdd = modal.environmentVariablesToAdd();
+    expect(variablesToAdd.length).toBe(2);
+    expect(variablesToAdd[0].name()).toBe("new-name-for-existing");
+    expect(variablesToAdd[1].name()).toBe("new-var");
+  });
+
+  it("environmentVariablesToRemove()", () => {
+    const oldNameForEnvVar1 = environment.environmentVariables()[0].name();
+    const oldNameForEnvVar2 = environment.environmentVariables()[1].name();
+    expect(modal.environmentVariablesToRemove().length).toBe(0);
+
+    helper.click(helper.allByTestId("remove-env-var-btn")[1]);
+    const existingVarName = helper.allByTestId("env-var-name")[0] as HTMLInputElement;
+    helper.oninput(existingVarName, "new-name-for-existing");
+
+    const variablesToRemove = modal.environmentVariablesToRemove();
+    expect(variablesToRemove.length).toBe(2);
+    expect(variablesToRemove[0].name()).toBe(oldNameForEnvVar1);
+    expect(variablesToRemove[1].name()).toBe(oldNameForEnvVar2);
+  });
+});

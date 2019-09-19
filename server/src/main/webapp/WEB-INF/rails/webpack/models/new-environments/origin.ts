@@ -42,4 +42,8 @@ export class Origin {
   isDefinedInConfigRepo(): boolean {
     return this.type() === OriginType.ConfigRepo;
   }
+
+  clone() {
+    return new Origin(this.type(), this.id());
+  }
 }

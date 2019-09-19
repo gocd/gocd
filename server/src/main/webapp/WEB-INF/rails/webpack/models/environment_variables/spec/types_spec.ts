@@ -109,4 +109,50 @@ describe("Environment Variable Model", () => {
       expect(envVar.errors().errors("value")).toContain(errMsg);
     });
   });
+
+  it("toJSON()", () => {
+    const envVar = EnvironmentVariable.fromJSON(plainTextEnvVar1);
+
+    const actualJSON = envVar.toJSON();
+
+    const expectedJSON = {
+      name: envVar.name(),
+      value: envVar.value(),
+      encrypted_value: undefined,
+      secure: false
+    };
+
+    expect(actualJSON).toEqual(expectedJSON);
+  });
+
+  describe("equals()", () => {
+    it("should return true for environment variables with same values", () => {
+      const envVar  = EnvironmentVariable.fromJSON(plainTextEnvVar1);
+      const envVar2 = new EnvironmentVariable(envVar.name(), envVar.value(), envVar.secure(), envVar.encryptedValue());
+      expect(envVar.equals(envVar2)).toBe(true);
+    });
+
+    describe("should return false for environment variables", () => {
+      it("different value", () => {
+        const envVar  = EnvironmentVariable.fromJSON(plainTextEnvVar1);
+        const envVar2 = new EnvironmentVariable(envVar.name(), "test", envVar.secure(), envVar.encryptedValue());
+        expect(envVar.equals(envVar2)).toBe(false);
+      });
+
+      it("different name", () => {
+        const envVar  = EnvironmentVariable.fromJSON(plainTextEnvVar1);
+        const envVar2 = new EnvironmentVariable("some-random-name",
+                                                envVar.value(),
+                                                envVar.secure(),
+                                                envVar.encryptedValue());
+        expect(envVar.equals(envVar2)).toBe(false);
+      });
+
+      it("different encrypted value", () => {
+        const envVar  = EnvironmentVariable.fromJSON(plainTextEnvVar1);
+        const envVar2 = new EnvironmentVariable(envVar.name(), envVar.value(), envVar.secure(), "encrypted-value");
+        expect(envVar.equals(envVar2)).toBe(false);
+      });
+    });
+  });
 });

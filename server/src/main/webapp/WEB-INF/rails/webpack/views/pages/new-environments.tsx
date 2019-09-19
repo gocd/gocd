@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {ApiResult, ErrorResponse} from "helpers/api_request_builder";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
@@ -22,17 +23,30 @@ import {FlashMessage, MessageType} from "views/components/flash_message";
 import {EnvironmentsWidget} from "views/pages/new-environments/environments_widget";
 import {Page, PageState} from "views/pages/page";
 
-export class NewEnvironmentsPage extends Page<null, {}> {
-  private readonly message: Stream<string | undefined>          = Stream();
-  private readonly messageType: Stream<MessageType | undefined> = Stream();
-  private readonly environments: Stream<Environments>           = Stream(new Environments());
+interface State {
+  onSuccessfulSave: (msg: m.Children) => void;
+}
 
-  componentToDisplay(vnode: m.Vnode<null, {}>): m.Children {
-    return <div>
-      <FlashMessage type={this.messageType()!} message={this.message()}/>
-      <EnvironmentsWidget environments={this.environments}
+export class NewEnvironmentsPage extends Page<null, State> {
+  private readonly environments: Stream<Environments> = Stream(new Environments());
+
+  oninit(vnode: m.Vnode<null, State>) {
+    super.oninit(vnode);
+    vnode.state.onSuccessfulSave = (msg: m.Children) => {
+      this.flashMessage.setMessage(MessageType.success, msg);
+      this.fetchData(vnode);
+    };
+  }
+
+  componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
+    const flashMessage = this.flashMessage.hasMessage() ?
+      <FlashMessage type={this.flashMessage.type} message={this.flashMessage.message}/>
+      : null;
+    return [
+      flashMessage,
+      <EnvironmentsWidget environments={this.environments} onSuccessfulSave={vnode.state.onSuccessfulSave}
                           deleteEnvironment={this.deleteEnvironment.bind(this)}/>
-    </div>;
+    ];
   }
 
   pageName(): string {
@@ -41,21 +55,20 @@ export class NewEnvironmentsPage extends Page<null, {}> {
 
   deleteEnvironment(env: EnvironmentWithOrigin) {
     const self = this;
-    return env.delete().then((result) => {
+    return env.delete().then((result: ApiResult<any>) => {
       result.do(
         () => {
-          self.message(`The environment '${env.name()}' was deleted successfully!`);
-          self.messageType(MessageType.success);
-        }, (errorResponse) => {
-          self.message(JSON.parse(errorResponse.body!).message);
-          self.messageType(MessageType.alert);
+          self.flashMessage.setMessage(MessageType.success,
+                                       `The environment '${env.name()}' was deleted successfully!`);
+        }, (errorResponse: ErrorResponse) => {
+          self.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);
         }
       );
       //@ts-ignore
     }).then(self.fetchData.bind(self));
   }
 
-  fetchData(vnode: m.Vnode<null, {}>): Promise<any> {
+  fetchData(vnode: m.Vnode<null, State>): Promise<any> {
     return EnvironmentsAPIs.all().then((result) =>
                                          result.do((successResponse) => {
                                            this.pageState = PageState.OK;

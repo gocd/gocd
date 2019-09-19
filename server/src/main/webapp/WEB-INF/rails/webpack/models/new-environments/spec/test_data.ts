@@ -78,7 +78,7 @@ function environmentVariableAssociationInConfigRepoJson(secure: boolean = false)
     name: `env-var-name-${randomString()}`,
     value: secure ? undefined : `env-var-value-${randomString()}`,
     encrypted_value: secure ? `env-var-secure-value-${randomString()}` : undefined,
-    origin: fileOriginJson(),
+    origin: configRepoOrigin(),
     secure
   };
 }

@@ -33,6 +33,10 @@ export class PipelineWithOrigin extends Pipeline {
   static fromJSON(data: EnvironmentPipelineJSON) {
     return new PipelineWithOrigin(data.name, Origin.fromJSON(data.origin));
   }
+
+  clone() {
+    return new PipelineWithOrigin(this.name(), this.origin().clone());
+  }
 }
 
 export class Pipelines extends Array<PipelineWithOrigin> {
@@ -47,5 +51,9 @@ export class Pipelines extends Array<PipelineWithOrigin> {
 
   containsPipeline(name: string): boolean {
     return this.map((p) => p.name()).indexOf(name) !== -1;
+  }
+
+  clone() {
+    return new Pipelines(...this.map((p) => p.clone()));
   }
 }

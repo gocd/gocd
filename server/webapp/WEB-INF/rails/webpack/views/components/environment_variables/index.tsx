@@ -18,60 +18,55 @@ import m from "mithril";
 import {EnvironmentVariable, EnvironmentVariables} from "models/environment_variables/types";
 import s from "underscore.string";
 import {ButtonIcon, Secondary} from "views/components/buttons";
-import {EnvironmentVariableWidget} from "views/components/environment_variables/environment_variable_widget";
+import {EnvironmentVariableWidget} from "./environment_variable_widget";
 
-export enum EnvironmentVariableType {
-  Secure    = "Secure",
-  PlainText = "Plain Text"
-}
-
-interface Callbacks {
-  onAdd: (environmentVariable: EnvironmentVariable) => void;
+interface GroupedEnvironmentVariablesAttrs {
+  title: string;
+  environmentVariables: EnvironmentVariables;
+  onAdd: () => void;
   onRemove: (environmentVariable: EnvironmentVariable) => void;
 }
 
-interface Attrs extends Callbacks {
-  type: EnvironmentVariableType;
-  environmentVariables: EnvironmentVariables;
-}
-
-class EnvironmentVariablesGroupedByType extends MithrilComponent<Attrs> {
-  view(vnode: m.Vnode<Attrs>): m.Children {
-    const typeTestId = s.slugify(vnode.attrs.type);
+class GroupedEnvironmentVariables extends MithrilComponent<GroupedEnvironmentVariablesAttrs> {
+  view(vnode: m.Vnode<GroupedEnvironmentVariablesAttrs>): m.Children {
     return <div>
-      <h4 data-test-id={`${typeTestId}-env-var-title`}>{vnode.attrs.type} Variables</h4>
+      <h4 data-test-id={`${s.slugify(vnode.attrs.title)}-title`}>{vnode.attrs.title}</h4>
       {
         vnode.attrs.environmentVariables.map((envVar) => {
-          return <EnvironmentVariableWidget environmentVariable={envVar} onRemove={vnode.attrs.onRemove}
-                                            type={vnode.attrs.type}/>;
+          return <EnvironmentVariableWidget environmentVariable={envVar} onRemove={vnode.attrs.onRemove}/>;
         })
       }
-      <Secondary small={true} icon={ButtonIcon.ADD} data-test-id={`add-${typeTestId}-env-var-btn`}
-                 onclick={() => {
-                   const secure              = vnode.attrs.type === EnvironmentVariableType.Secure;
-                   const environmentVariable = new EnvironmentVariable("", "", secure);
-
-                   vnode.attrs.onAdd(environmentVariable);
-                 }}>
+      <Secondary small={true} icon={ButtonIcon.ADD} data-test-id={`add-${s.slugify(vnode.attrs.title)}-btn`}
+                 onclick={vnode.attrs.onAdd.bind(this)}>
         Add
       </Secondary>
     </div>;
   }
 }
 
-interface EnvironmentVariablesWidgetAttrs extends Callbacks {
+interface EnvironmentVariablesWidgetAttrs {
   environmentVariables: EnvironmentVariables;
 }
 
 export class EnvironmentVariablesWidget extends MithrilComponent<EnvironmentVariablesWidgetAttrs, {}> {
+
+  static onAdd(isSecure: boolean, vnode: m.Vnode<EnvironmentVariablesWidgetAttrs, {}>) {
+    vnode.attrs.environmentVariables.push(new EnvironmentVariable("", "", isSecure));
+  }
+
+  static onRemove(envVar: EnvironmentVariable, vnode: m.Vnode<EnvironmentVariablesWidgetAttrs, {}>) {
+    vnode.attrs.environmentVariables.remove(envVar);
+  }
   view(vnode: m.Vnode<EnvironmentVariablesWidgetAttrs, {}>): m.Children {
     return <div>
-      <EnvironmentVariablesGroupedByType environmentVariables={vnode.attrs.environmentVariables.plainTextVariables()}
-                                         type={EnvironmentVariableType.PlainText} onRemove={vnode.attrs.onRemove}
-                                         onAdd={vnode.attrs.onAdd}/>
-      <EnvironmentVariablesGroupedByType environmentVariables={vnode.attrs.environmentVariables.secureVariables()}
-                                         type={EnvironmentVariableType.Secure} onRemove={vnode.attrs.onRemove}
-                                         onAdd={vnode.attrs.onAdd}/>
+      <GroupedEnvironmentVariables environmentVariables={vnode.attrs.environmentVariables.plainTextVariables()}
+                                   title="Plain Text Variables"
+                                   onAdd={EnvironmentVariablesWidget.onAdd.bind(this, false, vnode)}
+                                   onRemove={(envVar: EnvironmentVariable) => EnvironmentVariablesWidget.onRemove(envVar, vnode)}/>
+      <GroupedEnvironmentVariables environmentVariables={vnode.attrs.environmentVariables.secureVariables()}
+                                   title="Secure Variables"
+                                   onAdd={EnvironmentVariablesWidget.onAdd.bind(this, true, vnode)}
+                                   onRemove={(envVar: EnvironmentVariable) => EnvironmentVariablesWidget.onRemove(envVar, vnode)}/>
     </div>;
   }
 }

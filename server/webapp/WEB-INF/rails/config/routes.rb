@@ -250,7 +250,6 @@ Rails.application.routes.draw do
       get 'pipelines/:pipeline_name/history/(:offset)' => 'pipelines#history', constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, defaults: {:offset => '0'}, as: :pipeline_history
       get 'jobs/:pipeline_name/:stage_name/:job_name/history/(:offset)' => 'jobs#history', constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_name: STAGE_NAME_FORMAT, job_name: JOB_NAME_FORMAT}, defaults: {:offset => '0'}, as: :job_history_api
       get "agents/:uuid/job_run_history/(:offset)" => 'agents#job_run_history', defaults: {:offset => '0'}, as: :agent_job_run_history_api, constraints: {uuid: ALLOW_DOTS}
-      get "materials/:fingerprint/modifications/(:offset)" => 'materials#modifications', defaults: {:offset => '0'}, as: :material_modifications_api
 
       # instance
       get 'pipelines/:pipeline_name/instance/:pipeline_counter' => 'pipelines#instance_by_counter', constraints: {pipeline_name: PIPELINE_NAME_FORMAT, pipeline_counter: PIPELINE_COUNTER_FORMAT}, as: :pipeline_instance_by_counter_api
@@ -260,7 +259,6 @@ Rails.application.routes.draw do
 
       # config
       get 'config/pipeline_groups' => 'pipeline_groups#list_configs', as: :pipeline_group_config_list_api
-      get 'config/materials' => 'materials#list_configs', as: :material_config_list_api
       get 'config/revisions/(:offset)' => 'configuration#config_revisions', defaults: {:offset => '0'}, as: :config_revisions_list_api
       get 'config/diff/:from_revision/:to_revision' => 'configuration#config_diff', as: :config_diff_api
 
@@ -268,8 +266,6 @@ Rails.application.routes.draw do
       constraints pipeline_name: PIPELINE_NAME_FORMAT, stage_name: STAGE_NAME_FORMAT do
         post 'stages/:pipeline_name/:stage_name/cancel' => 'stages#cancel_stage_using_pipeline_stage_name', constraints: HeaderConstraint.new, as: :cancel_stage_using_pipeline_stage_name
       end
-
-      post 'material/notify/:post_commit_hook_material_type' => 'materials#notify', as: :material_notify, constraints: HeaderConstraint.new
 
       post 'admin/command-repo-cache/reload' => 'commands#reload_cache', as: :admin_command_cache_reload, constraints: HeaderConstraint.new
 

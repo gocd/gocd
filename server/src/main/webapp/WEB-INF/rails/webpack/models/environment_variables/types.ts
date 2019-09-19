@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import _ from "lodash";
 import Stream from "mithril/stream";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 
@@ -53,8 +52,8 @@ export class EnvironmentVariable extends ValidatableMixin {
   }
 }
 
-export class EnvironmentVariables extends Array<EnvironmentVariable> {
-  constructor(...environmentVariables: EnvironmentVariable[]) {
+export class EnvironmentVariables<T extends EnvironmentVariable = EnvironmentVariable> extends Array<T> {
+  constructor(...environmentVariables: T[]) {
     super(...environmentVariables);
     Object.setPrototypeOf(this, Object.create(EnvironmentVariables.prototype));
   }
@@ -63,15 +62,21 @@ export class EnvironmentVariables extends Array<EnvironmentVariable> {
     return new EnvironmentVariables(...environmentVariables.map(EnvironmentVariable.fromJSON));
   }
 
-  secureVariables(): EnvironmentVariables {
-    return new EnvironmentVariables(...this.filter((envVar) => envVar.secure()));
+  secureVariables(): EnvironmentVariables<T> {
+    return new EnvironmentVariables<T>(...this.filter((envVar) => envVar.secure()));
   }
 
-  plainTextVariables(): EnvironmentVariables {
-    return new EnvironmentVariables(...this.filter((envVar) => !envVar.secure()));
+  plainTextVariables(): EnvironmentVariables<T> {
+    return new EnvironmentVariables<T>(...this.filter((envVar) => !envVar.secure()));
   }
 
-  remove(envVar: EnvironmentVariable) {
-    _.remove(this, envVar);
+  remove(envVar: T) {
+    this.splice(this.indexOf(envVar), 1);
+  }
+
+  isValid() {
+    let valid = true;
+    this.forEach((environment) => valid = valid && environment.isValid());
+    return valid;
   }
 }

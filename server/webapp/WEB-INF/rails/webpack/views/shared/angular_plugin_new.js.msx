@@ -88,7 +88,7 @@ function onCreate(scope, args) {
 
         const supportedConfigKeys = pluginInfoSettings.configurations.map((configuration) => configuration.key);
 
-        _.remove(configurations, (configuration) => {
+        _.remove(configurations.configurations, (configuration) => {
           return !_.includes(supportedConfigKeys, configuration.key);
         });
       };
@@ -101,7 +101,7 @@ function onCreate(scope, args) {
 }
 
 function onUpdate(scope, args) {
-  return function (_vnode) {
+  return function () {
     scope().initialize(args.pluginInfoSettings(), args.configuration);
     scope().$apply();
   };

@@ -30,6 +30,34 @@ export function pluginImageLink() {
   } as LinksJSON;
 }
 
+class BasePluginInfo {
+  protected static withExtension(extension: AnalyticsExtensionJSON | AuthorizationExtensionJSON,
+                                 pluginId: string = "gocd.analytics.plugin",
+                                 name: string     = "Analytics plugin") {
+    return {
+      _links: pluginImageLink(),
+      id: pluginId,
+      status: {
+        state: "active"
+      },
+      plugin_file_location: "/foo/bar.jar",
+      bundled_plugin: false,
+      about: {
+        name,
+        version: "0.0.1",
+        target_go_version: "19.10.0",
+        description: "Some description about the plugin",
+        target_operating_systems: [],
+        vendor: {
+          name: "GoCD Contributors",
+          url: "https://foo/bar"
+        }
+      },
+      extensions: [extension],
+    } as PluginInfoJSON;
+  }
+}
+
 export class ArtifactPluginInfo {
   static docker() {
     return {
@@ -122,7 +150,43 @@ export class ArtifactPluginInfo {
   }
 }
 
-export class AuthorizationPluginInfo {
+export class AuthorizationPluginInfo extends BasePluginInfo {
+  static file() {
+    const extension = {
+      type: "authorization",
+      auth_config_settings: {
+        configurations: [
+          {
+            key: "PasswordFilePath",
+            metadata: {
+              secure: true,
+              required: true
+            }
+          },
+          {
+            key: "AnotherProperty",
+            metadata: {
+              secure: true,
+              required: true
+            }
+          }
+        ],
+        view: {
+          template: "<div class=\"form_item_block\">This is ldap auth config view.</div>"
+        }
+      },
+      capabilities: {
+        can_authorize: false,
+        can_search: false,
+        supported_auth_type: "Password"
+      }
+    } as AuthorizationExtensionJSON;
+
+    return this.withExtension(extension,
+                              "cd.go.authorization.file",
+                              "File based authorization plugin");
+  }
+
   static ldap() {
     return {
       _links: pluginImageLink(),
@@ -353,7 +417,7 @@ export class SecretPluginInfo {
   }
 }
 
-export class AnalyticsPluginInfo {
+export class AnalyticsPluginInfo extends BasePluginInfo {
   static with(pluginId: string, name: string) {
     return this.withExtension(this.analyticsExtension(), pluginId, name);
   }
@@ -393,31 +457,5 @@ export class AnalyticsPluginInfo {
         ]
       }
     } as AnalyticsExtensionJSON;
-  }
-
-  private static withExtension(extension: AnalyticsExtensionJSON,
-                               pluginId: string = "gocd.analytics.plugin",
-                               name: string     = "Analytics plugin") {
-    return {
-      _links: pluginImageLink(),
-      id: pluginId,
-      status: {
-        state: "active"
-      },
-      plugin_file_location: "/foo/bar.jar",
-      bundled_plugin: false,
-      about: {
-        name,
-        version: "0.0.1",
-        target_go_version: "19.10.0",
-        description: "Some description about the plugin",
-        target_operating_systems: [],
-        vendor: {
-          name: "GoCD Contributors",
-          url: "https://foo/bar"
-        }
-      },
-      extensions: [extension],
-    } as PluginInfoJSON;
   }
 }

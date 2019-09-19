@@ -24,19 +24,15 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
-import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_BUNDLE_PATH;
+import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_WORK_DIR;
 import static java.util.Collections.singletonList;
 
 @Component
 public class GoPluginBundleDescriptorBuilder {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(GoPluginBundleDescriptorBuilder.class);
-
     private static final String PLUGIN_XML = "plugin.xml";
     private static final String BUNDLE_XML = "gocd-bundle.xml";
 
@@ -88,7 +84,7 @@ public class GoPluginBundleDescriptorBuilder {
     }
 
     File bundlePath() {
-        File bundleDir = new File(systemEnvironment.get(PLUGIN_BUNDLE_PATH));
+        File bundleDir = new File(systemEnvironment.get(PLUGIN_WORK_DIR));
         FileUtil.validateAndCreateDirectory(bundleDir);
         return bundleDir;
     }

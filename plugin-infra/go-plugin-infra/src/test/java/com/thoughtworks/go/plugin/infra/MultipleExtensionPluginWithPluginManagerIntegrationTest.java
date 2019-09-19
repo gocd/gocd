@@ -61,7 +61,7 @@ class MultipleExtensionPluginWithPluginManagerIntegrationTest {
         pluginDir = temporaryFolder.newFolder("pluginDir");
 
         System.setProperty(PLUGIN_ACTIVATOR_JAR_PATH.propertyName(), "defaultFiles/go-plugin-activator.jar");
-        System.setProperty(PLUGIN_BUNDLE_PATH.propertyName(), bundleDir.getAbsolutePath());
+        System.setProperty(PLUGIN_WORK_DIR.propertyName(), bundleDir.getAbsolutePath());
         System.setProperty(PLUGIN_GO_PROVIDED_PATH.propertyName(), pluginDir.getAbsolutePath());
         System.setProperty(PLUGIN_EXTERNAL_PROVIDED_PATH.propertyName(), pluginDir.getAbsolutePath());
     }
@@ -83,7 +83,7 @@ class MultipleExtensionPluginWithPluginManagerIntegrationTest {
     @AfterAll
     static void clearSystemProperties() {
         System.clearProperty(PLUGIN_ACTIVATOR_JAR_PATH.propertyName());
-        System.clearProperty(PLUGIN_BUNDLE_PATH.propertyName());
+        System.clearProperty(PLUGIN_WORK_DIR.propertyName());
         System.clearProperty(PLUGIN_GO_PROVIDED_PATH.propertyName());
         System.clearProperty(PLUGIN_EXTERNAL_PROVIDED_PATH.propertyName());
     }

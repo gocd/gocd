@@ -24,7 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class GoPluginDescriptorTest {
     @Test
-    void shouldMatchValidOSesAgainstCurrentOS() throws Exception {
+    void shouldMatchValidOSesAgainstCurrentOS() {
         assertThat(descriptorWithTargetOSes().isCurrentOSValidForThisPlugin("Linux")).isTrue();
         assertThat(descriptorWithTargetOSes().isCurrentOSValidForThisPlugin("Windows")).isTrue();
 
@@ -36,7 +36,7 @@ class GoPluginDescriptorTest {
     }
 
     @Test
-    void shouldDoACaseInsensitiveMatchForValidOSesAgainstCurrentOS() throws Exception {
+    void shouldDoACaseInsensitiveMatchForValidOSesAgainstCurrentOS() {
         assertThat(descriptorWithTargetOSes("linux").isCurrentOSValidForThisPlugin("Linux")).isTrue();
         assertThat(descriptorWithTargetOSes("LiNuX").isCurrentOSValidForThisPlugin("Linux")).isTrue();
         assertThat(descriptorWithTargetOSes("windows").isCurrentOSValidForThisPlugin("Linux")).isFalse();

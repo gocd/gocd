@@ -37,7 +37,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.io.File;
 
 import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_ACTIVATOR_JAR_PATH;
-import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_BUNDLE_PATH;
+import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_WORK_DIR;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
@@ -62,7 +62,7 @@ class DefaultPluginManagerIntegrationTest {
 
         System.clearProperty("gocd.plugins.classloader.old");
         System.setProperty(PLUGIN_ACTIVATOR_JAR_PATH.propertyName(), "defaultFiles/go-plugin-activator.jar");
-        System.setProperty(PLUGIN_BUNDLE_PATH.propertyName(), bundleDir.getAbsolutePath());
+        System.setProperty(PLUGIN_WORK_DIR.propertyName(), bundleDir.getAbsolutePath());
     }
 
     @BeforeEach
@@ -80,7 +80,7 @@ class DefaultPluginManagerIntegrationTest {
     void tearDown() {
         System.clearProperty("gocd.plugins.classloader.old");
         System.clearProperty(PLUGIN_ACTIVATOR_JAR_PATH.propertyName());
-        System.clearProperty(PLUGIN_BUNDLE_PATH.propertyName());
+        System.clearProperty(PLUGIN_WORK_DIR.propertyName());
         pluginManager.stopInfrastructure();
     }
 

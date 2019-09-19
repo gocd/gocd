@@ -36,7 +36,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_BUNDLE_PATH;
+import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_WORK_DIR;
 import static java.lang.Double.parseDouble;
 
 @Service
@@ -193,7 +193,7 @@ public class DefaultPluginManager implements PluginManager {
     }
 
     private File bundlePath() {
-        File bundleDir = new File(systemEnvironment.get(PLUGIN_BUNDLE_PATH));
+        File bundleDir = new File(systemEnvironment.get(PLUGIN_WORK_DIR));
         FileUtil.validateAndCreateDirectory(bundleDir);
         return bundleDir;
     }

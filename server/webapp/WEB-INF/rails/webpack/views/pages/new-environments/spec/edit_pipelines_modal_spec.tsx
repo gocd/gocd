@@ -17,30 +17,40 @@
 import m from "mithril";
 import {EnvironmentVariables} from "models/new-environments/environment_environment_variables";
 import {Pipelines, PipelineWithOrigin} from "models/new-environments/environment_pipelines";
-import {EnvironmentWithOrigin} from "models/new-environments/environments";
-import {PipelineGroups} from "models/new-environments/pipeline_groups";
+import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
+import {PipelineGroups, PipelineGroupsJSON} from "models/new-environments/pipeline_groups";
 import data from "models/new-environments/spec/test_data";
-import * as simulateEvent from "simulate-event";
 import {EditPipelinesModal} from "views/pages/new-environments/edit_pipelines_modal";
 import {TestHelper} from "views/pages/spec/test_helper";
-
-const pipelineGroupsJSON = data.pipeline_groups_json();
 
 describe("Edit Pipelines Modal", () => {
   const helper = new TestHelper();
 
   let modal: EditPipelinesModal;
+  let pipelineGroupsJSON: PipelineGroupsJSON;
+
   beforeEach(() => {
     jasmine.Ajax.install();
+
+    pipelineGroupsJSON = data.pipeline_groups_json();
+
+    const pipelineJSON       = data.pipeline_association_in_xml_json();
+    const pipelineWithOrigin = PipelineWithOrigin.fromJSON(pipelineJSON);
+    pipelineGroupsJSON.groups[0].pipelines.push(pipelineJSON);
+
+    const anotherEnvPipelines = new Pipelines(pipelineWithOrigin);
+
+    const anotherEnv = new EnvironmentWithOrigin("another", [], [], anotherEnvPipelines, new EnvironmentVariables());
+
     const pipelines = new Pipelines(
       PipelineWithOrigin.fromJSON(pipelineGroupsJSON.groups[0].pipelines[0]),
       PipelineWithOrigin.fromJSON(pipelineGroupsJSON.groups[1].pipelines[1])
     );
-    modal           = new EditPipelinesModal(new EnvironmentWithOrigin("up42",
-                                                                       [],
-                                                                       [],
-                                                                       pipelines,
-                                                                       new EnvironmentVariables()));
+
+    const environment  = new EnvironmentWithOrigin("UAT", [], [], pipelines, new EnvironmentVariables());
+    const environments = new Environments(environment, anotherEnv);
+
+    modal = new EditPipelinesModal(environment, environments);
     modal.pipelinesVM.pipelineGroups(PipelineGroups.fromJSON(pipelineGroupsJSON));
     helper.mount(() => modal.body());
   });
@@ -50,271 +60,160 @@ describe("Edit Pipelines Modal", () => {
     jasmine.Ajax.uninstall();
   });
 
-  describe("Edit Pipelines View", () => {
-    it("should render all the available pipeline groups", () => {
-      expect(helper.findByDataTestId(`form-field-label-${pipelineGroupsJSON.groups[0].name}`)).toBeInDOM();
-      expect(helper.findByDataTestId(`form-field-label-${pipelineGroupsJSON.groups[1].name}`)).toBeInDOM();
-    });
+  it("should render available pipelines", () => {
+    const availablePipelinesSection = helper.findByDataTestId(`available-pipelines`);
+    const pipeline1Selector         = `pipeline-checkbox-for-${pipelineGroupsJSON.groups[0].pipelines[0].name}`;
+    const pipeline2Selector         = `pipeline-checkbox-for-${pipelineGroupsJSON.groups[1].pipelines[0].name}`;
 
-    it("should render all the available pipeline groups in collapsed form", () => {
-      const pipelineGroupCheckboxes = helper.findByDataTestId(`pipeline-group-checkbox`);
-      expect(pipelineGroupCheckboxes[0].getAttribute("data-test-expanded-state")).toEqual("off");
-      expect(pipelineGroupCheckboxes[1].getAttribute("data-test-expanded-state")).toEqual("off");
-    });
+    expect(availablePipelinesSection).toBeInDOM();
+    expect(availablePipelinesSection).toContainText("Available Pipelines");
+    expect(helper.findIn(availablePipelinesSection, pipeline1Selector)).toBeInDOM();
+    expect(helper.findIn(availablePipelinesSection, pipeline2Selector)).toBeInDOM();
+  });
 
-    it("should render checkboxes for all the available pipelines", () => {
-      const group1 = pipelineGroupsJSON.groups[0];
-      const group2 = pipelineGroupsJSON.groups[1];
+  it("should render pipelines associated with current environment in config repository", () => {
+    const configRepoAssociated = helper.findByDataTestId(`pipelines-associated-with-this-environment-in-configuration-repository`);
+    const expectedMsg          = "Pipelines associated with this environment in configuration repository:";
+    const pipeline1Selector    = `pipeline-checkbox-for-${pipelineGroupsJSON.groups[1].pipelines[1].name}`;
 
-      expect(helper.findByDataTestId(`pipeline-checkbox-for-${group1.pipelines[0].name}`)).toBeInDOM();
-      expect(helper.findByDataTestId(`pipeline-checkbox-for-${group1.pipelines[1].name}`)).toBeInDOM();
-      expect(helper.findByDataTestId(`pipeline-checkbox-for-${group2.pipelines[0].name}`)).toBeInDOM();
-      expect(helper.findByDataTestId(`pipeline-checkbox-for-${group2.pipelines[1].name}`)).toBeInDOM();
-    });
+    expect(configRepoAssociated).toBeInDOM();
+    expect(configRepoAssociated).toContainText(expectedMsg);
+    expect(helper.findIn(configRepoAssociated, pipeline1Selector)).toBeInDOM();
+  });
 
-    describe("Pipeline Checkbox States", () => {
-      const group1 = pipelineGroupsJSON.groups[0];
-      const group2 = pipelineGroupsJSON.groups[1];
+  it("should not render config repo pipelines section when no config repo associated pipelines are available", () => {
+    modal.pipelinesVM.environment.pipelines().pop();
+    m.redraw.sync();
 
-      beforeEach(() => {
-        const expandCollapsibleToggleIcons = helper.findByDataTestId(`Chevron Right-icon`);
-        simulateEvent.simulate(expandCollapsibleToggleIcons[0], "click");
-        simulateEvent.simulate(expandCollapsibleToggleIcons[1], "click");
-        m.redraw.sync();
-      });
+    const configRepoAssociated = helper.findByDataTestId(`pipelines-associated-with-this-environment-in-configuration-repository`);
+    expect(configRepoAssociated).not.toBeInDOM();
+  });
 
-      it("should show indeterminate state for group checkbox when some of the pipelines are selected", () => {
-        const group1Checkbox = helper.findByDataTestId(`form-field-input-${group1.name}`)[0] as HTMLInputElement;
-        const group2Checkbox = helper.findByDataTestId(`form-field-input-${group2.name}`)[0] as HTMLInputElement;
+  it("should render unavailable pipelines which are associated in another environment", () => {
+    const otherEnvAssociated = helper.findByDataTestId(`unavailable-pipelines-already-associated-with-environments`);
+    const expectedMsg        = "Unavailable pipelines (Already associated with environments):";
+    const pipelines          = pipelineGroupsJSON.groups[0].pipelines;
+    const pipelineSelector   = `pipeline-list-item-for-${pipelines[2].name}`;
 
-        const group1pipeline1Checkbox = helper.findByDataTestId(`form-field-input-${group1.pipelines[0].name}`)[0] as HTMLInputElement;
-        const group1pipeline2Checkbox = helper.findByDataTestId(`form-field-input-${group1.pipelines[1].name}`)[0] as HTMLInputElement;
+    expect(otherEnvAssociated).toBeInDOM();
+    expect(otherEnvAssociated).toContainText(expectedMsg);
+    expect(helper.findIn(otherEnvAssociated, pipelineSelector)).toBeInDOM();
+  });
 
-        const group2pipeline1Checkbox = helper.findByDataTestId(`form-field-input-${group2.pipelines[0].name}`)[0] as HTMLInputElement;
-        const group2pipeline2Checkbox = helper.findByDataTestId(`form-field-input-${group2.pipelines[1].name}`)[0] as HTMLInputElement;
+  it("should not render unavailable pipelines which are associated in other environment when none present", () => {
+    modal.pipelinesVM.pipelineGroups()![0].pipelines().pop();
+    m.redraw.sync();
 
-        //assert some pipelines from each group are selected
-        expect(group1pipeline1Checkbox.checked).toEqual(true);
-        expect(group1pipeline2Checkbox.checked).toEqual(false);
-        expect(group2pipeline1Checkbox.checked).toEqual(false);
-        expect(group2pipeline2Checkbox.checked).toEqual(true);
+    const otherEnvAssociated = helper.findByDataTestId(`unavailable-pipelines-already-associated-with-environments`);
+    expect(otherEnvAssociated).not.toBeInDOM();
+  });
 
-        expect(group1Checkbox.indeterminate).toEqual(true);
-        expect(group2Checkbox.indeterminate).toEqual(true);
-      });
+  it("should render unavailable pipelines which are defined in config repository", () => {
+    const definedInConfigRepo = helper.findByDataTestId(`unavailable-pipelines-defined-in-config-repository`);
+    const expectedMsg         = "Unavailable pipelines (Defined in config repository):";
+    const pipelineSelector    = `pipeline-list-item-for-${pipelineGroupsJSON.groups[0].pipelines[1].name}`;
 
-      it("should show checked state for pipeline group once all pipelines within the group are selected", () => {
-        let group1Checkbox          = helper.findByDataTestId(`form-field-input-${group1.name}`)[0] as HTMLInputElement;
-        let group1pipeline1Checkbox = helper.findByDataTestId(`form-field-input-${group1.pipelines[0].name}`)[0] as HTMLInputElement;
-        let group1pipeline2Checkbox = helper.findByDataTestId(`form-field-input-${group1.pipelines[1].name}`)[0] as HTMLInputElement;
+    expect(definedInConfigRepo).toBeInDOM();
+    expect(definedInConfigRepo).toContainText(expectedMsg);
+    expect(helper.findIn(definedInConfigRepo, pipelineSelector)).toBeInDOM();
+  });
 
-        expect(group1pipeline1Checkbox.checked).toEqual(true);
-        expect(group1pipeline2Checkbox.checked).toEqual(false);
-        expect(group1Checkbox.indeterminate).toEqual(true);
+  it("should not render unavailable pipelines which are defined in config repository when none present", () => {
+    //pop twice to remove the second last item.
+    modal.pipelinesVM.pipelineGroups()![0].pipelines().pop();
+    modal.pipelinesVM.pipelineGroups()![0].pipelines().pop();
+    m.redraw.sync();
 
-        simulateEvent.simulate(group1pipeline2Checkbox, "click");
-        m.redraw.sync();
+    const definedInConfigRepo = helper.findByDataTestId(`unavailable-pipelines-defined-in-config-repository`);
+    expect(definedInConfigRepo).not.toBeInDOM();
+  });
 
-        group1Checkbox          = helper.findByDataTestId(`form-field-input-${group1.name}`)[0] as HTMLInputElement;
-        group1pipeline1Checkbox = helper.findByDataTestId(`form-field-input-${group1.pipelines[0].name}`)[0] as HTMLInputElement;
-        group1pipeline2Checkbox = helper.findByDataTestId(`form-field-input-${group1.pipelines[1].name}`)[0] as HTMLInputElement;
+  it("should render pipeline search box", () => {
+    const searchInput = helper.findByDataTestId("form-field-input-pipeline-search")[0] as HTMLInputElement;
+    expect(searchInput).toBeInDOM();
+    expect(searchInput.getAttribute("placeholder")).toEqual("pipeline name");
+  });
 
-        expect(group1pipeline1Checkbox.checked).toEqual(true);
-        expect(group1pipeline2Checkbox.checked).toEqual(true);
-        expect(group1Checkbox.indeterminate).toEqual(false);
-        expect(group1Checkbox.checked).toEqual(true);
-      });
+  it("should bind search text with pipelines vm", () => {
+    const searchText = "search-text";
+    modal.pipelinesVM.searchText(searchText);
+    m.redraw.sync();
+    const searchInput = helper.findByDataTestId("form-field-input-pipeline-search")[0] as HTMLInputElement;
+    expect(searchInput).toHaveValue(searchText);
+  });
 
-      it("should show unchecked state for pipeline group once none pipelines within the group are selected", () => {
-        let group1Checkbox          = helper.findByDataTestId(`form-field-input-${group1.name}`)[0] as HTMLInputElement;
-        let group1pipeline1Checkbox = helper.findByDataTestId(`form-field-input-${group1.pipelines[0].name}`)[0] as HTMLInputElement;
-        let group1pipeline2Checkbox = helper.findByDataTestId(`form-field-input-${group1.pipelines[1].name}`)[0] as HTMLInputElement;
+  it("should search for a particular pipeline", () => {
+    const selectorForPipeline1 = `pipeline-checkbox-for-${pipelineGroupsJSON.groups[0].pipelines[0].name}`;
+    const selectorForPipeline2 = `pipeline-list-item-for-${pipelineGroupsJSON.groups[0].pipelines[1].name}`;
+    const selectorForPipeline3 = `pipeline-list-item-for-${pipelineGroupsJSON.groups[0].pipelines[2].name}`;
+    const selectorForPipeline4 = `pipeline-checkbox-for-${pipelineGroupsJSON.groups[1].pipelines[0].name}`;
+    const selectorForPipeline5 = `pipeline-checkbox-for-${pipelineGroupsJSON.groups[1].pipelines[1].name}`;
 
-        expect(group1pipeline1Checkbox.checked).toEqual(true);
-        expect(group1pipeline2Checkbox.checked).toEqual(false);
-        expect(group1Checkbox.indeterminate).toEqual(true);
+    expect(helper.findByDataTestId(selectorForPipeline1)).toBeInDOM();
+    expect(helper.findByDataTestId(selectorForPipeline2)).toBeInDOM();
+    expect(helper.findByDataTestId(selectorForPipeline3)).toBeInDOM();
+    expect(helper.findByDataTestId(selectorForPipeline4)).toBeInDOM();
+    expect(helper.findByDataTestId(selectorForPipeline5)).toBeInDOM();
 
-        simulateEvent.simulate(group1pipeline1Checkbox, "click");
-        m.redraw.sync();
+    const searchText = pipelineGroupsJSON.groups[0].pipelines[0].name;
+    modal.pipelinesVM.searchText(searchText);
+    m.redraw.sync();
 
-        group1Checkbox          = helper.findByDataTestId(`form-field-input-${group1.name}`)[0] as HTMLInputElement;
-        group1pipeline1Checkbox = helper.findByDataTestId(`form-field-input-${group1.pipelines[0].name}`)[0] as HTMLInputElement;
-        group1pipeline2Checkbox = helper.findByDataTestId(`form-field-input-${group1.pipelines[1].name}`)[0] as HTMLInputElement;
+    expect(helper.findByDataTestId(selectorForPipeline1)).toBeInDOM();
+    expect(helper.findByDataTestId(selectorForPipeline2)).not.toBeInDOM();
+    expect(helper.findByDataTestId(selectorForPipeline3)).not.toBeInDOM();
+    expect(helper.findByDataTestId(selectorForPipeline4)).not.toBeInDOM();
+    expect(helper.findByDataTestId(selectorForPipeline5)).not.toBeInDOM();
+  });
 
-        expect(group1pipeline1Checkbox.checked).toEqual(false);
-        expect(group1pipeline2Checkbox.checked).toEqual(false);
-        expect(group1Checkbox.indeterminate).toEqual(false);
-        expect(group1Checkbox.checked).toEqual(false);
-      });
+  it("should search for a partial pipeline name match", () => {
+    const selectorForPipeline1 = `pipeline-checkbox-for-${pipelineGroupsJSON.groups[0].pipelines[0].name}`;
+    const selectorForPipeline2 = `pipeline-list-item-for-${pipelineGroupsJSON.groups[0].pipelines[1].name}`;
+    const selectorForPipeline3 = `pipeline-list-item-for-${pipelineGroupsJSON.groups[0].pipelines[2].name}`;
+    const selectorForPipeline4 = `pipeline-checkbox-for-${pipelineGroupsJSON.groups[1].pipelines[0].name}`;
+    const selectorForPipeline5 = `pipeline-checkbox-for-${pipelineGroupsJSON.groups[1].pipelines[1].name}`;
 
-      it("should check all the pipelines within the group on checking the pipeline group checkbox", () => {
-        let group1Checkbox          = helper.findByDataTestId(`form-field-input-${group1.name}`)[0] as HTMLInputElement;
-        let group1pipeline1Checkbox = helper.findByDataTestId(`form-field-input-${group1.pipelines[0].name}`)[0] as HTMLInputElement;
-        let group1pipeline2Checkbox = helper.findByDataTestId(`form-field-input-${group1.pipelines[1].name}`)[0] as HTMLInputElement;
+    expect(helper.findByDataTestId(selectorForPipeline1)).toBeInDOM();
+    expect(helper.findByDataTestId(selectorForPipeline2)).toBeInDOM();
+    expect(helper.findByDataTestId(selectorForPipeline3)).toBeInDOM();
+    expect(helper.findByDataTestId(selectorForPipeline4)).toBeInDOM();
+    expect(helper.findByDataTestId(selectorForPipeline5)).toBeInDOM();
 
-        expect(group1pipeline1Checkbox.checked).toEqual(true);
-        expect(group1pipeline2Checkbox.checked).toEqual(false);
-        expect(group1Checkbox.indeterminate).toEqual(true);
+    const searchText = "pipeline-";
+    modal.pipelinesVM.searchText(searchText);
+    m.redraw.sync();
 
-        simulateEvent.simulate(group1Checkbox, "click");
-        m.redraw.sync();
+    expect(helper.findByDataTestId(selectorForPipeline1)).toBeInDOM();
+    expect(helper.findByDataTestId(selectorForPipeline2)).toBeInDOM();
+    expect(helper.findByDataTestId(selectorForPipeline3)).toBeInDOM();
+    expect(helper.findByDataTestId(selectorForPipeline4)).toBeInDOM();
+    expect(helper.findByDataTestId(selectorForPipeline5)).toBeInDOM();
+  });
 
-        group1Checkbox          = helper.findByDataTestId(`form-field-input-${group1.name}`)[0] as HTMLInputElement;
-        group1pipeline1Checkbox = helper.findByDataTestId(`form-field-input-${group1.pipelines[0].name}`)[0] as HTMLInputElement;
-        group1pipeline2Checkbox = helper.findByDataTestId(`form-field-input-${group1.pipelines[1].name}`)[0] as HTMLInputElement;
+  it("should show no pipelines matching search text message when no pipelines matched the search text", () => {
+    const selectorForPipeline1 = `pipeline-checkbox-for-${pipelineGroupsJSON.groups[0].pipelines[0].name}`;
+    const selectorForPipeline2 = `pipeline-list-item-for-${pipelineGroupsJSON.groups[0].pipelines[1].name}`;
+    const selectorForPipeline3 = `pipeline-list-item-for-${pipelineGroupsJSON.groups[0].pipelines[2].name}`;
+    const selectorForPipeline4 = `pipeline-checkbox-for-${pipelineGroupsJSON.groups[1].pipelines[0].name}`;
+    const selectorForPipeline5 = `pipeline-checkbox-for-${pipelineGroupsJSON.groups[1].pipelines[1].name}`;
 
-        // Checking an indeterminate checkbox works differently between MS browsers and the rest.
-        // Thus, all we can do is verify that checking the top-level checkbox makes all of the child
-        // checkboxes the same state.
-        const state = group1Checkbox.checked;
-        expect(group1pipeline1Checkbox.checked).toEqual(state);
-        expect(group1pipeline2Checkbox.checked).toEqual(state);
-        expect(group1Checkbox.indeterminate).toEqual(false);
-      });
+    expect(helper.findByDataTestId(selectorForPipeline1)).toBeInDOM();
+    expect(helper.findByDataTestId(selectorForPipeline2)).toBeInDOM();
+    expect(helper.findByDataTestId(selectorForPipeline3)).toBeInDOM();
+    expect(helper.findByDataTestId(selectorForPipeline4)).toBeInDOM();
+    expect(helper.findByDataTestId(selectorForPipeline5)).toBeInDOM();
 
-      it("should uncheck all the pipelines within the group on un-checking the pipeline group checkbox", () => {
-        let group1Checkbox          = helper.findByDataTestId(`form-field-input-${group1.name}`)[0] as HTMLInputElement;
-        let group1pipeline1Checkbox = helper.findByDataTestId(`form-field-input-${group1.pipelines[0].name}`)[0] as HTMLInputElement;
-        let group1pipeline2Checkbox = helper.findByDataTestId(`form-field-input-${group1.pipelines[1].name}`)[0] as HTMLInputElement;
+    const searchText = "blah-is-my-pipeline-name";
+    modal.pipelinesVM.searchText(searchText);
+    m.redraw.sync();
 
-        expect(group1pipeline1Checkbox.checked).toEqual(true);
-        expect(group1pipeline2Checkbox.checked).toEqual(false);
-        expect(group1Checkbox.indeterminate).toEqual(true);
+    expect(helper.findByDataTestId(selectorForPipeline1)).not.toBeInDOM();
+    expect(helper.findByDataTestId(selectorForPipeline2)).not.toBeInDOM();
+    expect(helper.findByDataTestId(selectorForPipeline3)).not.toBeInDOM();
+    expect(helper.findByDataTestId(selectorForPipeline4)).not.toBeInDOM();
+    expect(helper.findByDataTestId(selectorForPipeline5)).not.toBeInDOM();
 
-        // clicking once will check the checkbox, clicking again will uncheck the checkbox
-        simulateEvent.simulate(group1Checkbox, "click");
-        m.redraw.sync();
-
-        // Checking an indeterminate checkbox works differently between MS browsers and the rest.
-        // Thus, all we can do is verify that checking the top-level checkbox makes all of the child
-        // checkboxes the same state.
-        const state = group1Checkbox.checked;
-
-        expect(group1pipeline1Checkbox.checked).toEqual(state);
-        expect(group1pipeline2Checkbox.checked).toEqual(state);
-        expect(group1Checkbox.indeterminate).toEqual(false);
-
-        simulateEvent.simulate(group1Checkbox, "click");
-        m.redraw.sync();
-
-        group1Checkbox          = helper.findByDataTestId(`form-field-input-${group1.name}`)[0] as HTMLInputElement;
-        group1pipeline1Checkbox = helper.findByDataTestId(`form-field-input-${group1.pipelines[0].name}`)[0] as HTMLInputElement;
-        group1pipeline2Checkbox = helper.findByDataTestId(`form-field-input-${group1.pipelines[1].name}`)[0] as HTMLInputElement;
-
-        expect(group1pipeline1Checkbox.checked).toEqual(!state);
-        expect(group1pipeline2Checkbox.checked).toEqual(!state);
-        expect(group1Checkbox.indeterminate).toEqual(false);
-        expect(group1Checkbox.checked).toEqual(!state);
-      });
-    });
-
-    describe("search", () => {
-      const group1 = pipelineGroupsJSON.groups[0];
-      const group2 = pipelineGroupsJSON.groups[1];
-
-      it("should render pipeline search box", () => {
-        const searchInput = helper.findByDataTestId("form-field-input-pipeline-search")[0] as HTMLInputElement;
-        expect(searchInput).toBeInDOM();
-        expect(searchInput.getAttribute("placeholder")).toEqual("Search for a pipeline");
-      });
-
-      it("should bind search text with pipelines vm", () => {
-        const searchText = "search-text";
-        modal.pipelinesVM.searchText(searchText);
-        m.redraw.sync();
-        const searchInput = helper.findByDataTestId("form-field-input-pipeline-search")[0] as HTMLInputElement;
-        expect(searchInput).toHaveValue(searchText);
-      });
-
-      it("should filter pipelines based on the search text", () => {
-        expect(helper.findByDataTestId(`pipeline-checkbox-for-${group1.pipelines[0].name}`)).toBeInDOM();
-        expect(helper.findByDataTestId(`pipeline-checkbox-for-${group1.pipelines[1].name}`)).toBeInDOM();
-        expect(helper.findByDataTestId(`pipeline-checkbox-for-${group2.pipelines[0].name}`)).toBeInDOM();
-        expect(helper.findByDataTestId(`pipeline-checkbox-for-${group2.pipelines[1].name}`)).toBeInDOM();
-
-        const searchText = group1.pipelines[0].name;
-        modal.pipelinesVM.searchText(searchText);
-        m.redraw.sync();
-
-        expect(helper.findByDataTestId(`pipeline-checkbox-for-${group1.pipelines[0].name}`)).toBeInDOM();
-        expect(helper.findByDataTestId(`pipeline-checkbox-for-${group1.pipelines[1].name}`)).not.toBeInDOM();
-        expect(helper.findByDataTestId(`pipeline-checkbox-for-${group2.pipelines[0].name}`)).not.toBeInDOM();
-        expect(helper.findByDataTestId(`pipeline-checkbox-for-${group2.pipelines[1].name}`)).not.toBeInDOM();
-      });
-
-      it("should show no pipelines when none of the pipelines match search text", () => {
-        expect(helper.findByDataTestId(`pipeline-checkbox-for-${group1.pipelines[0].name}`)).toBeInDOM();
-        expect(helper.findByDataTestId(`pipeline-checkbox-for-${group1.pipelines[1].name}`)).toBeInDOM();
-        expect(helper.findByDataTestId(`pipeline-checkbox-for-${group2.pipelines[0].name}`)).toBeInDOM();
-        expect(helper.findByDataTestId(`pipeline-checkbox-for-${group2.pipelines[1].name}`)).toBeInDOM();
-
-        const searchText = "my-fancy-pipeline-which-does-not-exist";
-        modal.pipelinesVM.searchText(searchText);
-        m.redraw.sync();
-
-        expect(helper.findByDataTestId(`pipeline-checkbox-for-${group1.pipelines[0].name}`)).not.toBeInDOM();
-        expect(helper.findByDataTestId(`pipeline-checkbox-for-${group1.pipelines[1].name}`)).not.toBeInDOM();
-        expect(helper.findByDataTestId(`pipeline-checkbox-for-${group2.pipelines[0].name}`)).not.toBeInDOM();
-        expect(helper.findByDataTestId(`pipeline-checkbox-for-${group2.pipelines[1].name}`)).not.toBeInDOM();
-      });
-
-      it("should perform partial text matching for the provided search value", () => {
-        expect(helper.findByDataTestId(`pipeline-checkbox-for-${group1.pipelines[0].name}`)).toBeInDOM();
-        expect(helper.findByDataTestId(`pipeline-checkbox-for-${group1.pipelines[1].name}`)).toBeInDOM();
-        expect(helper.findByDataTestId(`pipeline-checkbox-for-${group2.pipelines[0].name}`)).toBeInDOM();
-        expect(helper.findByDataTestId(`pipeline-checkbox-for-${group2.pipelines[1].name}`)).toBeInDOM();
-
-        const searchText = "pipeline-";
-        modal.pipelinesVM.searchText(searchText);
-        m.redraw.sync();
-
-        expect(helper.findByDataTestId(`pipeline-checkbox-for-${group1.pipelines[0].name}`)).toBeInDOM();
-        expect(helper.findByDataTestId(`pipeline-checkbox-for-${group1.pipelines[1].name}`)).toBeInDOM();
-        expect(helper.findByDataTestId(`pipeline-checkbox-for-${group2.pipelines[0].name}`)).toBeInDOM();
-        expect(helper.findByDataTestId(`pipeline-checkbox-for-${group2.pipelines[1].name}`)).toBeInDOM();
-      });
-    });
-
-    describe("Expand Collapsible", () => {
-      it("should render all pipeline groups in collapsed state by default", () => {
-        const expandedAttr = "data-test-expanded-state";
-
-        expect(helper.findByDataTestId(`pipeline-group-checkbox`)[0].getAttribute(expandedAttr)).toEqual("off");
-        expect(helper.findByDataTestId(`pipeline-group-checkbox`)[1].getAttribute(expandedAttr)).toEqual("off");
-      });
-
-      it("should allow toggling the expanded state of a pipeline group", () => {
-        const expandedAttr                 = "data-test-expanded-state";
-        const expandCollapsibleToggleIcons = helper.findByDataTestId(`Chevron Right-icon`);
-
-        expect(helper.findByDataTestId(`pipeline-group-checkbox`)[0].getAttribute(expandedAttr)).toEqual("off");
-        expect(helper.findByDataTestId(`pipeline-group-checkbox`)[1].getAttribute(expandedAttr)).toEqual("off");
-
-        simulateEvent.simulate(expandCollapsibleToggleIcons[0], "click");
-        m.redraw.sync();
-
-        expect(helper.findByDataTestId(`pipeline-group-checkbox`)[0].getAttribute(expandedAttr)).toEqual("on");
-        expect(helper.findByDataTestId(`pipeline-group-checkbox`)[1].getAttribute(expandedAttr)).toEqual("off");
-
-        simulateEvent.simulate(expandCollapsibleToggleIcons[1], "click");
-        m.redraw.sync();
-
-        expect(helper.findByDataTestId(`pipeline-group-checkbox`)[0].getAttribute(expandedAttr)).toEqual("on");
-        expect(helper.findByDataTestId(`pipeline-group-checkbox`)[1].getAttribute(expandedAttr)).toEqual("on");
-      });
-
-      it("should expand all the pipeline groups when search text is provided", () => {
-        const expandedAttr = "data-test-expanded-state";
-        expect(helper.findByDataTestId(`pipeline-group-checkbox`)[0].getAttribute(expandedAttr)).toEqual("off");
-        expect(helper.findByDataTestId(`pipeline-group-checkbox`)[1].getAttribute(expandedAttr)).toEqual("off");
-
-        const searchText = "pipeline-";
-        modal.pipelinesVM.searchText(searchText);
-        m.redraw.sync();
-
-        expect(helper.findByDataTestId(`pipeline-group-checkbox`)[0].getAttribute(expandedAttr)).toEqual("on");
-        expect(helper.findByDataTestId(`pipeline-group-checkbox`)[1].getAttribute(expandedAttr)).toEqual("on");
-      });
-    });
+    const expectedMessage = "No pipelines matching search text 'blah-is-my-pipeline-name' found!";
+    expect(helper.findByDataTestId("flash-message-info")).toContainText(expectedMessage);
   });
 });

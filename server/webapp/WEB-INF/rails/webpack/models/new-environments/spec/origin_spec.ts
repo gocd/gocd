@@ -29,4 +29,12 @@ describe("Environments Model - Origin", () => {
     expect(configRepoOrigin.type()).toEqual(configRepoOriginJSON.type);
     expect(configRepoOrigin.id()).toEqual(configRepoOriginJSON.id);
   });
+
+  it("should answer whether a the origin is defined in config repository", () => {
+    const xmlOrigin        = Origin.fromJSON(xmlOriginJSON);
+    const configRepoOrigin = Origin.fromJSON(configRepoOriginJSON);
+
+    expect(xmlOrigin.isDefinedInConfigRepo()).toEqual(false);
+    expect(configRepoOrigin.isDefinedInConfigRepo()).toEqual(true);
+  });
 });

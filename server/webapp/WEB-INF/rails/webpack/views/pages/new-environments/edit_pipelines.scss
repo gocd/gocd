@@ -16,60 +16,59 @@
 @import "../../global/common";
 
 $border-color: #ccc;
-$chevron-color: $footer-fg;
 
-.pipeline-groups-wrapper {
-  border:  1px solid $border-color;
-  padding: 10px 20px 10px 20px;
+.pipeline-checkbox {
+  height:       35px;
+  padding-left: 35px;
+}
 
-  .pipeline-group-wrapper:nth-child(n) {
-    margin-bottom: 10px;
-    border-bottom: 1px dashed $border-color;
+.all-pipelines-wrapper {
+  display:    block;
+  margin-top: 15px;
+  border:     1px solid $border-color;
+  padding:    3px 15px;
+
+  .pipelines-container:nth-child(n) {
+    border-bottom: 1px dotted $border-color;
   }
 
-  .pipeline-group-wrapper:last-child {
-    margin-bottom: 0;
+  .pipelines-container:last-child {
     border-bottom: none;
   }
 }
 
-.pipeline-group-wrapper {
-  display: block;
-  padding: 5px;
-}
-
-.group-checkbox {
-  display:     flex;
-  height:      35px;
-  font-weight: 600;
-}
-
-.pipeline-checkbox {
-  height:       35px;
-  padding-left: 60px;
-}
-
-.pipelines-wrapper {
-  display: none;
-}
-
-.pipelines-wrapper.expanded {
-  display: block;
-}
-
-.expanded-icon-wrapper {
-  margin-right: 5px;
-  width:        25px;
-  color:        $chevron-color;
+.pipelines-container {
+  padding: 15px;
 }
 
 .pipeline-filter-wrapper {
-  button:last-child {
-    margin-right: 15px;
-  }
+  height:      35px;
+  line-height: 35px;
+  width:       100%;
 
   span {
-    margin-right: 5px;
-    font-style:   italic;
+    font-weight:  600;
+    font-size:    15px;
+    padding-left: 3px;
+  }
+
+  .search-field-wrapper {
+    float: right;
+  }
+}
+
+.header {
+  font-style:    italic;
+  margin-bottom: 8px;
+  font-size:     15px;
+}
+
+
+.link {
+  margin-left: 5px;
+
+  a {
+    color:       inherit;
+    margin-left: 3px;
   }
 }

@@ -30,10 +30,8 @@ export class EnvironmentsWidget extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     return vnode.attrs.environments().map((environment: EnvironmentWithOrigin) => {
       return <CollapsiblePanel header={<EnvironmentHeader environment={environment}/>}
-                               //todo: Add environment delete button
-                               // actions={<button>foo</button>}
                                dataTestId={`collapsible-panel-for-env-${environment.name()}`}>
-        <EnvironmentBody environment={environment}/>
+        <EnvironmentBody environment={environment} environments={vnode.attrs.environments()}/>
       </CollapsiblePanel>;
     });
   }

@@ -18,7 +18,7 @@ import Stream from "mithril/stream";
 
 export enum OriginType {
   GoCD       = "gocd",
-  ConfigRepo = "config-repo"
+  ConfigRepo = "config_repo"
 }
 
 export interface OriginJSON {
@@ -37,5 +37,9 @@ export class Origin {
 
   static fromJSON(data: OriginJSON) {
     return new Origin(data.type, data.id);
+  }
+
+  isDefinedInConfigRepo(): boolean {
+    return this.type() === OriginType.ConfigRepo;
   }
 }

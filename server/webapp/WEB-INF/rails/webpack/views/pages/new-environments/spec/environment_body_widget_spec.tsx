@@ -15,7 +15,7 @@
  */
 
 import m from "mithril";
-import {EnvironmentWithOrigin} from "models/new-environments/environments";
+import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
 import data from "models/new-environments/spec/test_data";
 import {EnvironmentBody} from "views/pages/new-environments/environment_body_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
@@ -24,11 +24,14 @@ describe("Environments Body Widget", () => {
   const helper = new TestHelper();
 
   let environment: EnvironmentWithOrigin;
+  let environments: Environments;
 
   beforeEach(() => {
-    environment = EnvironmentWithOrigin.fromJSON(data.environment_json());
+    environments = new Environments();
+    environment  = EnvironmentWithOrigin.fromJSON(data.environment_json());
+    environments.push(environment);
 
-    helper.mount(() => <EnvironmentBody environment={environment}/>);
+    helper.mount(() => <EnvironmentBody environment={environment} environments={environments}/>);
   });
 
   afterEach(helper.unmount.bind(helper));

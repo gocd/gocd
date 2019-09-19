@@ -17,7 +17,7 @@
 import {MithrilComponent, MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import {EnvironmentVariableWithOrigin} from "models/new-environments/environment_environment_variables";
-import {EnvironmentWithOrigin} from "models/new-environments/environments";
+import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
 import s from "underscore.string";
 import {HelpText} from "views/components/forms/input_fields";
 import * as Icons from "views/components/icons/index";
@@ -46,6 +46,7 @@ export class ElementListWidget extends MithrilViewComponent<ElementListWidgetAtt
 
 interface EnvironmentBodyAttrs {
   environment: EnvironmentWithOrigin;
+  environments: Environments;
 }
 
 interface EnvironmentBodyState {
@@ -57,15 +58,15 @@ interface EnvironmentBodyState {
 export class EnvironmentBody extends MithrilComponent<EnvironmentBodyAttrs, EnvironmentBodyState> {
   oninit(vnode: m.Vnode<EnvironmentBodyAttrs, EnvironmentBodyState>) {
     vnode.state.renderPipelinesModal = (env: EnvironmentWithOrigin) => {
-      new EditPipelinesModal(env).render();
+      new EditPipelinesModal(env, vnode.attrs.environments).render();
     };
 
     vnode.state.renderAgentsModal = (env: EnvironmentWithOrigin) => {
-      new EditPipelinesModal(env).render();
+      new EditPipelinesModal(env, vnode.attrs.environments).render();
     };
 
     vnode.state.renderEnvironmentsVariablesModal = (env: EnvironmentWithOrigin) => {
-      new EditPipelinesModal(env).render();
+      new EditPipelinesModal(env, vnode.attrs.environments).render();
     };
   }
 

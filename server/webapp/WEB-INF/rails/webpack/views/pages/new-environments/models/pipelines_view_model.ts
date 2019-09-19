@@ -17,91 +17,74 @@
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {PipelineWithOrigin} from "models/new-environments/environment_pipelines";
-import {EnvironmentWithOrigin} from "models/new-environments/environments";
+import {Pipelines, PipelineWithOrigin} from "models/new-environments/environment_pipelines";
+import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
 import {EnvironmentsAPIs} from "models/new-environments/environments_apis";
-import {PipelineGroup, PipelineGroups} from "models/new-environments/pipeline_groups";
-import {TriStateCheckbox, TristateState} from "models/tri_state_checkbox";
+import {PipelineGroups} from "models/new-environments/pipeline_groups";
 
 export class PipelinesViewModel {
   readonly searchText: Stream<string | undefined>;
   readonly errorMessage: Stream<string | undefined>;
   readonly pipelineGroups: Stream<PipelineGroups | undefined>;
-  private readonly environment: EnvironmentWithOrigin;
-  private readonly pipelineGroupCollapsedState: Map<string, boolean>;
+  readonly environment: EnvironmentWithOrigin;
+  readonly environments: Environments;
 
-  constructor(environment: EnvironmentWithOrigin) {
-    this.environment                 = environment;
-    this.searchText                  = Stream();
-    this.errorMessage                = Stream();
-    this.pipelineGroups              = Stream();
-    this.pipelineGroupCollapsedState = new Map();
+  constructor(environment: EnvironmentWithOrigin, environments: Environments) {
+    this.environment    = environment;
+    this.environments   = environments;
+    this.searchText     = Stream();
+    this.errorMessage   = Stream();
+    this.pipelineGroups = Stream();
   }
 
-  updatePipelineGroups(pipelineGroups: PipelineGroups) {
-    this.pipelineGroups(pipelineGroups);
-    this.pipelineGroups()!.forEach((group) => {
-      this.pipelineGroupCollapsedState.set(group.name(), false);
-    });
-  }
-
-  togglePipelineGroupState(name: string): void {
-    this.pipelineGroupCollapsedState.set(name, !this.isPipelineGroupExpanded(name));
-  }
-
-  isPipelineGroupExpanded(name: string): boolean {
-    return !!this.pipelineGroupCollapsedState.get(name);
-  }
-
-  filteredPipelineGroups(): PipelineGroups | undefined {
-    if (!this.pipelineGroups()) {
-      return;
+  filteredPipelines(): Pipelines {
+    const groups = this.pipelineGroups();
+    if (!groups) {
+      return new Pipelines();
     }
 
-    const self                 = this;
-    const searchString         = self.searchText() ? self.searchText()! : "";
-    const filterPipelineGroups = new PipelineGroups();
-
-    self.pipelineGroups()!.forEach((pipelineGroup) => {
-      const pipelines = pipelineGroup.pipelines().filter((p) => (p.name().indexOf(searchString) >= 0));
-      if (pipelines.length > 0) {
-        filterPipelineGroups.push(new PipelineGroup(pipelineGroup.name(), pipelines));
-      }
-    });
-
-    return filterPipelineGroups;
+    const pipelines = _.flatten(groups.map((group) => group.pipelines())).filter(this.matchesSearchText.bind(this));
+    return new Pipelines(...pipelines);
   }
 
-  groupSelectedFn(group: PipelineGroup): any {
-    const self = this;
-    return () => {
-      const areAllPipelinesSelected = _.every(group.pipelines(), (pipeline) => {
-        return self.environment.containsPipeline(pipeline.name());
-      });
+  availablePipelines(): Pipelines {
+    const repoAssociatedPipelines = this.configRepoEnvironmentPipelines();
+    const repoDefinedPipelines    = this.unassociatedPipelinesDefinedInConfigRepository();
+    const otherEnvPipelines       = this.pipelinesDefinedInOtherEnvironment();
 
-      const areSomePipelinesSelected = _.some(group.pipelines(), (pipeline) => {
-        return self.environment.containsPipeline(pipeline.name());
-      });
-
-      if (areAllPipelinesSelected) {
-        return new TriStateCheckbox(TristateState.on);
-      } else if (areSomePipelinesSelected) {
-        return new TriStateCheckbox(TristateState.indeterminate);
-      } else {
-        return new TriStateCheckbox(TristateState.off);
-      }
-    };
+    return new Pipelines(...this.filteredPipelines().filter((p) => {
+      const name = p.name();
+      return !repoAssociatedPipelines.containsPipeline(name)
+        && !repoDefinedPipelines.containsPipeline(name)
+        && !otherEnvPipelines.containsPipeline(name);
+    }));
   }
 
-  toggleGroupSelectionFn(group: PipelineGroup): any {
+  configRepoEnvironmentPipelines(): Pipelines {
     const self = this;
-    return (value: MouseEvent): any => {
-      if ((value.target! as HTMLInputElement).checked) {
-        group.pipelines().forEach(self.environment.addPipelineIfNotPresent.bind(self.environment));
-      } else {
-        group.pipelines().forEach(self.environment.removePipelineIfPresent.bind(self.environment));
-      }
-    };
+    return new Pipelines(...this.environment.pipelines().filter((p) => {
+      return p.origin().isDefinedInConfigRepo() && self.matchesSearchText(p);
+    }));
+  }
+
+  pipelinesDefinedInOtherEnvironment(): Pipelines {
+    const self      = this;
+    const pipelines = this.filteredPipelines();
+    return new Pipelines(...pipelines.filter((p) => {
+      return self.environments.isPipelineDefinedInAnotherEnvironmentApartFrom(self.environment.name(), p.name());
+    }));
+  }
+
+  unassociatedPipelinesDefinedInConfigRepository(): Pipelines {
+    const self      = this;
+    const pipelines = this.filteredPipelines();
+
+    return new Pipelines(...pipelines.filter((p) => {
+      const isDefinedInAnotherEnv = self.environments.isPipelineDefinedInAnotherEnvironmentApartFrom(self.environment.name(),
+                                                                                                     p.name());
+      const isDefinedInCurrentEnv = self.environment.containsPipeline(p.name());
+      return !isDefinedInAnotherEnv && !isDefinedInCurrentEnv && p.origin().isDefinedInConfigRepo();
+    }));
   }
 
   pipelineSelectedFn(pipeline: PipelineWithOrigin): (value?: any) => any {
@@ -119,10 +102,14 @@ export class PipelinesViewModel {
     EnvironmentsAPIs.allPipelines()
                     .then((result) =>
                             result.do((successResponse) => {
-                              this.updatePipelineGroups(successResponse.body);
+                              this.pipelineGroups(successResponse.body);
                               callback();
                             }, (errorResponse) => {
                               this.errorMessage(JSON.parse(errorResponse.body!).message);
                             })).finally(m.redraw);
+  }
+
+  private matchesSearchText(p: PipelineWithOrigin) {
+    return p.name().indexOf(this.searchText() ? this.searchText()! : "") >= 0;
   }
 }

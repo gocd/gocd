@@ -31,4 +31,13 @@ describe("Environments Model - Pipelines", () => {
     expect(pipelines[1].name()).toEqual(configRepoPipeline.name);
     expect(pipelines[1].origin().type()).toEqual(configRepoPipeline.origin.type);
   });
+
+  it("should answer whether the collection contains a pipeline", () => {
+    const pipelines = Pipelines.fromJSON([xmlPipeline, configRepoPipeline]);
+
+    expect(pipelines.containsPipeline(xmlPipeline.name)).toBe(true);
+    expect(pipelines.containsPipeline(configRepoPipeline.name)).toBe(true);
+
+    expect(pipelines.containsPipeline("my-fancy-pipeline")).toBe(false);
+  });
 });

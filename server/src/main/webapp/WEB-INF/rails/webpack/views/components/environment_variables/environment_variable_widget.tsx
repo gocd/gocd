@@ -32,7 +32,8 @@ export class EnvironmentVariableWidget extends MithrilViewComponent<EnvironmentV
       <div class={styles.name}>
         <TextField property={vnode.attrs.environmentVariable.name}
                    readonly={!vnode.attrs.environmentVariable.editable()}
-                   dataTestId="env-var-name"/>
+                   dataTestId="env-var-name"
+                   errorText={vnode.attrs.environmentVariable.errors().errorsForDisplay("name")}/>
       </div>
       {this.getValueField(vnode)}
       <div class={styles.actions}>
@@ -44,13 +45,16 @@ export class EnvironmentVariableWidget extends MithrilViewComponent<EnvironmentV
   }
 
   getValueField(vnode: m.Vnode<EnvironmentVariableWidgetAttrs>) {
-    if (vnode.attrs.environmentVariable.secure()) {
-      return <SimplePasswordField property={vnode.attrs.environmentVariable.encryptedValue}
-                                  readonly={!vnode.attrs.environmentVariable.editable()}
-                                  dataTestId={"env-var-value"}/>;
+    const environmentVariable = vnode.attrs.environmentVariable;
+    if (environmentVariable.secure()) {
+      return <SimplePasswordField property={environmentVariable.encryptedValue}
+                                  readonly={!environmentVariable.editable()}
+                                  dataTestId={"env-var-value"}
+                                  errorText={environmentVariable.errors().errorsForDisplay("value")}/>;
     }
-    return <TextField property={vnode.attrs.environmentVariable.value}
-                      readonly={!vnode.attrs.environmentVariable.editable()}
-                      dataTestId={"env-var-value"}/>;
+    return <TextField property={environmentVariable.value}
+                      readonly={!environmentVariable.editable()}
+                      dataTestId={"env-var-value"}
+                      errorText={environmentVariable.errors().errorsForDisplay("value")}/>;
   }
 }

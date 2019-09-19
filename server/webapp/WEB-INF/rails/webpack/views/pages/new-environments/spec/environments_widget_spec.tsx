@@ -33,7 +33,8 @@ describe("Environments Widget", () => {
     env           = data.environment_json();
 
     environments = Environments.fromJSON({_embedded: {environments: [xmlEnv, configRepoEnv, env]}});
-    helper.mount(() => <EnvironmentsWidget environments={Stream(environments)}/>);
+    helper.mount(() => <EnvironmentsWidget environments={Stream(environments)}
+                                           deleteEnvironment={jasmine.createSpy()}/>);
   });
 
   afterEach(helper.unmount.bind(helper));

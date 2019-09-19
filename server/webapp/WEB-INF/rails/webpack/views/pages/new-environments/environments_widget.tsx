@@ -19,17 +19,26 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
+import * as Icons from "views/components/icons/index";
 import {EnvironmentBody} from "views/pages/new-environments/environment_body_widget";
 import {EnvironmentHeader} from "views/pages/new-environments/environment_header_widget";
 
 interface Attrs {
   environments: Stream<Environments>;
+  deleteEnvironment: (env: EnvironmentWithOrigin) => Promise<any>;
 }
 
 export class EnvironmentsWidget extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     return vnode.attrs.environments().map((environment: EnvironmentWithOrigin) => {
       return <CollapsiblePanel header={<EnvironmentHeader environment={environment}/>}
+                               actions={[
+                                 <Icons.Delete iconOnly={true}
+                                               onclick={(e: MouseEvent) => {
+                                                 e.stopPropagation();
+                                                 return vnode.attrs.deleteEnvironment(environment);
+                                               }}/>
+                               ]}
                                dataTestId={`collapsible-panel-for-env-${environment.name()}`}>
         <EnvironmentBody environment={environment} environments={vnode.attrs.environments()}/>
       </CollapsiblePanel>;

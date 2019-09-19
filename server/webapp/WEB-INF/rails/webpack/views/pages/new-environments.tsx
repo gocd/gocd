@@ -16,20 +16,43 @@
 
 import m from "mithril";
 import Stream from "mithril/stream";
-import {Environments} from "models/new-environments/environments";
+import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
 import {EnvironmentsAPIs} from "models/new-environments/environments_apis";
+import {FlashMessage, MessageType} from "views/components/flash_message";
 import {EnvironmentsWidget} from "views/pages/new-environments/environments_widget";
 import {Page, PageState} from "views/pages/page";
 
 export class NewEnvironmentsPage extends Page<null, {}> {
-  private readonly environments: Stream<Environments> = Stream(new Environments());
+  private readonly message: Stream<string | undefined>          = Stream();
+  private readonly messageType: Stream<MessageType | undefined> = Stream();
+  private readonly environments: Stream<Environments>           = Stream(new Environments());
 
   componentToDisplay(vnode: m.Vnode<null, {}>): m.Children {
-    return <EnvironmentsWidget environments={this.environments}/>;
+    return <div>
+      <FlashMessage type={this.messageType()!} message={this.message()}/>
+      <EnvironmentsWidget environments={this.environments}
+                          deleteEnvironment={this.deleteEnvironment.bind(this)}/>
+    </div>;
   }
 
   pageName(): string {
     return "Environments";
+  }
+
+  deleteEnvironment(env: EnvironmentWithOrigin) {
+    const self = this;
+    return env.delete().then((result) => {
+      result.do(
+        () => {
+          self.message(`The environment '${env.name()}' was deleted successfully!`);
+          self.messageType(MessageType.success);
+        }, (errorResponse) => {
+          self.message(JSON.parse(errorResponse.body!).message);
+          self.messageType(MessageType.alert);
+        }
+      );
+      //@ts-ignore
+    }).then(self.fetchData.bind(self));
   }
 
   fetchData(vnode: m.Vnode<null, {}>): Promise<any> {

@@ -363,6 +363,14 @@ export class SparkRoutes {
     return "/go/api/admin/internal/environments";
   }
 
+  static apiAdminEnvironmentsPath(name?: string) {
+    if (name) {
+      return `/go/api/admin/environments/${name}`;
+    }
+
+    return "/go/api/admin/environments";
+  }
+
   static apiAdminInternalMergedEnvironmentsPath() {
     return "/go/api/admin/internal/environments/merged";
   }

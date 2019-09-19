@@ -24,9 +24,10 @@
 
 <urlrewrite>
   <rule>
-    <name>new-environments UI</name>
-    <from>^/admin/new-environments(/?)$</from>
-    <to last="true">/spark/admin/new-environments</to>
+    <name>environments UI</name>
+    <from>^/admin/environments(/?)$</from>
+    <run class="com.thoughtworks.go.server.SparkOrRailsEnvironmentsPageToggle" method="environmentsPage"/>
+    <to last="true">%{attribute:url}</to>
   </rule>
 
   <rule>

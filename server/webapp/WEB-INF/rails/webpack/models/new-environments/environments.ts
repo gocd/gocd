@@ -22,6 +22,7 @@ import {
   EnvironmentVariables
 } from "models/new-environments/environment_environment_variables";
 import {EnvironmentPipelineJSON, Pipelines, PipelineWithOrigin} from "models/new-environments/environment_pipelines";
+import {EnvironmentsAPIs} from "models/new-environments/environments_apis";
 import {Origin, OriginJSON} from "models/new-environments/origin";
 
 export interface EnvironmentJSON {
@@ -75,6 +76,10 @@ export class EnvironmentWithOrigin {
     if (!this.containsPipeline(pipeline.name())) {
       this.pipelines().push(pipeline);
     }
+  }
+
+  delete() {
+    return EnvironmentsAPIs.delete(this.name());
   }
 
   removePipelineIfPresent(pipeline: PipelineWithOrigin) {

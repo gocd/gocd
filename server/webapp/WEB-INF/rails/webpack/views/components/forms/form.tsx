@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 import classnames from "classnames";
-import {MithrilViewComponent} from "jsx/mithril-component";
+import {RestyleAttrs, RestyleViewComponent} from "jsx/mithril-component";
 import m from "mithril";
-import styles from "./forms.scss";
+import defaultStyles from "./forms.scss";
 
-interface Attrs {
+type Styles = typeof defaultStyles;
+
+interface Attrs extends RestyleAttrs<Styles> {
   dataTestId?: string;
   compactForm?: boolean;
   last?: boolean;
@@ -34,23 +36,29 @@ function dataTestIdAttrs(attrs: Attrs) {
   }
 }
 
-export class Form extends MithrilViewComponent<Attrs> {
+export class Form extends RestyleViewComponent<Styles, Attrs> {
+  css = defaultStyles;
+
   view(vnode: m.Vnode<Attrs>) {
-    return <div class={classnames(styles.form, (vnode.attrs.compactForm ? styles.formCompact : styles.formResponsive), {[styles.last]: vnode.attrs.last})} {...dataTestIdAttrs(vnode.attrs)}>
+    return <div class={classnames(this.css.form, (vnode.attrs.compactForm ? this.css.formCompact : this.css.formResponsive), {[this.css.last]: vnode.attrs.last})} {...dataTestIdAttrs(vnode.attrs)}>
       {vnode.children}
     </div>;
   }
 }
 
-export class FormHeader extends MithrilViewComponent<Attrs> {
+export class FormHeader extends RestyleViewComponent<Styles, Attrs> {
+  css = defaultStyles;
+
   view(vnode: m.Vnode<Attrs>) {
-    return <div class={styles.formHeader} {...dataTestIdAttrs(vnode.attrs)}>
+    return <div class={this.css.formHeader} {...dataTestIdAttrs(vnode.attrs)}>
       {vnode.children}
     </div>;
   }
 }
 
-export class FormBody extends MithrilViewComponent<Attrs> {
+export class FormBody extends RestyleViewComponent<Styles, Attrs> {
+  css = defaultStyles;
+
   view(vnode: m.Vnode<Attrs>) {
     return <div {...dataTestIdAttrs(vnode.attrs)}>
       {vnode.children}

@@ -19,9 +19,11 @@ import {RestyleAttrs, RestyleViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
 import {TextField, TextFieldAttrs} from "views/components/forms/input_fields";
-import * as defaultStyles from "./autocomplete.scss";
+import defaultStyles from "./autocomplete.scss";
+import fieldStyles from "./forms.scss";
 
 type Styles = typeof defaultStyles;
+type FieldStyles = typeof fieldStyles;
 
 type SuggestionWriter = (data: Awesomplete.Suggestion[]) => void;
 
@@ -30,6 +32,7 @@ const AWESOMPLETE_KEYS = ["list", "minChars", "maxItems", "autoFirst", "data", "
 interface Attrs extends RestyleAttrs<Styles> {
   provider: SuggestionProvider;
   autoEvaluate?: boolean;
+  fieldCss?: FieldStyles;
 }
 
 interface State {
@@ -127,6 +130,11 @@ export class AutocompleteField extends RestyleViewComponent<Styles, AutoCompAttr
 
   view(vnode: m.Vnode<AutoCompAttrs, {}>): m.Children | void | null {
     const attrs = onlyTextFieldAttrs(vnode.attrs);
+
+    if (vnode.attrs.fieldCss) {
+      attrs.css = vnode.attrs.fieldCss;
+    }
+
     return <TextField {...attrs} />;
   }
 }

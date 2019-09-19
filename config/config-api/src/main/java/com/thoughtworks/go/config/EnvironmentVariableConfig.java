@@ -313,16 +313,16 @@ public class EnvironmentVariableConfig implements Serializable, Validatable, Par
         setName(name);
         setIsSecure(isSecure);
 
-        if (!isSecure && encryptedValue != null) {
+        if (!isSecure && StringUtils.isNotBlank(encryptedValue)) {
             errors().add(ENCRYPTEDVALUE, "You may specify encrypted value only when option 'secure' is true.");
         }
 
-        if (value != null && encryptedValue != null) {
+        if (StringUtils.isNotBlank(value) && StringUtils.isNotBlank(encryptedValue)) {
             addError("value", "You may only specify `value` or `encrypted_value`, not both!");
             addError(ENCRYPTEDVALUE, "You may only specify `value` or `encrypted_value`, not both!");
         }
 
-        if (encryptedValue != null) {
+        if (StringUtils.isNotBlank(encryptedValue)) {
             setEncryptedValue(encryptedValue);
         }
 

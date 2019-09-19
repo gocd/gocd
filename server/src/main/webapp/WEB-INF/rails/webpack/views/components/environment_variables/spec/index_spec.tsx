@@ -57,6 +57,15 @@ describe("Environment Variables Widget", () => {
       expect(helper.byTestId("env-var-name")).toHaveAttr("readonly");
       expect(helper.byTestId("env-var-value")).toHaveAttr("readonly");
     });
+    it("should display error if any", () => {
+      plainTextEnvVar.errors().add("name", "some error");
+      plainTextEnvVar.errors().add("value", "some error in value");
+
+      m.redraw.sync();
+
+      expect(helper.byTestId("env-var-name").parentElement).toHaveText("some error.");
+      expect(helper.byTestId("env-var-value").parentElement).toHaveText("some error in value.");
+    });
   });
 
   describe("Secure Variables", () => {

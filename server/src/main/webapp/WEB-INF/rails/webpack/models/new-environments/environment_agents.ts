@@ -33,6 +33,10 @@ export class AgentWithOrigin extends Agent {
   static fromJSON(data: EnvironmentAgentJSON) {
     return new AgentWithOrigin(data.uuid, Origin.fromJSON(data.origin));
   }
+
+  clone() {
+    return new AgentWithOrigin(this.uuid(), this.origin().clone());
+  }
 }
 
 export class Agents extends Array<AgentWithOrigin> {

@@ -16,6 +16,7 @@
 
 import {ApiRequestBuilder, ApiResult, ApiVersion} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
+import {EnvironmentVariableJSON} from "models/environment_variables/types";
 import {Environments} from "models/new-environments/environments";
 import {PipelineGroups} from "models/new-environments/pipeline_groups";
 
@@ -40,4 +41,15 @@ export class EnvironmentsAPIs {
     return ApiRequestBuilder.DELETE(SparkRoutes.apiAdminEnvironmentsPath(name), this.LATEST_API_VERSION_HEADER)
                             .then((result: ApiResult<string>) => result.map((body) => JSON.parse(body)));
   }
+
+  static patch(name: string, payload: EnvironmentPatchJson) {
+    return ApiRequestBuilder.PATCH(SparkRoutes.apiAdminEnvironmentsPath(name), this.LATEST_API_VERSION_HEADER, {payload});
+  }
+}
+
+export interface EnvironmentPatchJson {
+  environment_variables?: {
+    add: EnvironmentVariableJSON[],
+    remove: string[]
+  };
 }

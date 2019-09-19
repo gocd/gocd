@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-import {EnvironmentVariables} from "models/new-environments/environment_environment_variables";
-
+import {
+  EnvironmentEnvironmentVariableJSON,
+  EnvironmentVariablesWithOrigin, EnvironmentVariableWithOrigin
+} from "models/new-environments/environment_environment_variables";
 import data from "./test_data";
 
 const xmlEnvVar              = data.environment_variable_association_in_xml_json();
@@ -23,9 +25,9 @@ const configRepoEnvVar       = data.environment_variable_association_in_config_r
 const secureXmlEnvVar        = data.environment_variable_association_in_xml_json(true);
 const secureConfigRepoEnvVar = data.environment_variable_association_in_config_repo_json(true);
 
-describe("Environments Model - EnvironmentVariables", () => {
+describe("Environments Model - EnvironmentVariablesWithOrigin", () => {
   it("should deserialize from json", () => {
-    const environmentVariables = EnvironmentVariables.fromJSON([xmlEnvVar, configRepoEnvVar]);
+    const environmentVariables = EnvironmentVariablesWithOrigin.fromJSON([xmlEnvVar as EnvironmentEnvironmentVariableJSON, configRepoEnvVar]);
 
     expect(environmentVariables.length).toEqual(2);
     expect(environmentVariables[0].name()).toEqual(xmlEnvVar.name);
@@ -40,7 +42,7 @@ describe("Environments Model - EnvironmentVariables", () => {
   });
 
   it("should filter plain text variables", () => {
-    const environmentVariables = EnvironmentVariables.fromJSON([xmlEnvVar, configRepoEnvVar, secureXmlEnvVar, secureConfigRepoEnvVar]);
+    const environmentVariables = EnvironmentVariablesWithOrigin.fromJSON([xmlEnvVar, configRepoEnvVar, secureXmlEnvVar, secureConfigRepoEnvVar]);
     const plainTextVariables   = environmentVariables.plainTextVariables();
 
     expect(plainTextVariables.length).toBe(2);
@@ -49,7 +51,7 @@ describe("Environments Model - EnvironmentVariables", () => {
   });
 
   it("should filter secure variables", () => {
-    const environmentVariables = EnvironmentVariables.fromJSON([xmlEnvVar, configRepoEnvVar, secureXmlEnvVar, secureConfigRepoEnvVar]);
+    const environmentVariables = EnvironmentVariablesWithOrigin.fromJSON([xmlEnvVar, configRepoEnvVar, secureXmlEnvVar, secureConfigRepoEnvVar]);
     const secureVariables      = environmentVariables.secureVariables();
 
     expect(secureVariables.length).toBe(2);
@@ -58,7 +60,7 @@ describe("Environments Model - EnvironmentVariables", () => {
   });
 
   it("should remove environment variable", () => {
-    const environmentVariables = EnvironmentVariables.fromJSON([xmlEnvVar, secureXmlEnvVar]);
+    const environmentVariables = EnvironmentVariablesWithOrigin.fromJSON([xmlEnvVar, secureXmlEnvVar]);
 
     expect(environmentVariables.length).toBe(2);
     expect(environmentVariables[0].name()).toBe(xmlEnvVar.name);
@@ -72,5 +74,18 @@ describe("Environments Model - EnvironmentVariables", () => {
     environmentVariables.remove(environmentVariables[0]);
 
     expect(environmentVariables.length).toBe(0);
+  });
+});
+
+describe("Environment Model - EnvironmentVariableWithOrigin", () => {
+  describe("editable()", () => {
+    it("should be editable if origin is gocd", () => {
+      const envVar = EnvironmentVariableWithOrigin.fromJSON(xmlEnvVar as EnvironmentEnvironmentVariableJSON);
+      expect(envVar.editable()).toBe(true);
+    });
+    it("should not be editable if origin is config repo", () => {
+      const envVar = EnvironmentVariableWithOrigin.fromJSON(configRepoEnvVar as EnvironmentEnvironmentVariableJSON);
+      expect(envVar.editable()).toBe(false);
+    });
   });
 });

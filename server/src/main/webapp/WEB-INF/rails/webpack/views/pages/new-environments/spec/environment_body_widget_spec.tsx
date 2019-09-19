@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import _ from "lodash";
 import m from "mithril";
 import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
 import data from "models/new-environments/spec/test_data";
@@ -31,7 +32,8 @@ describe("Environments Body Widget", () => {
     environment  = EnvironmentWithOrigin.fromJSON(data.environment_json());
     environments.push(environment);
 
-    helper.mount(() => <EnvironmentBody environment={environment} environments={environments}/>);
+    helper.mount(() => <EnvironmentBody environment={environment} environments={environments}
+                                        onSuccessfulSave={_.noop}/>);
   });
 
   afterEach(() => helper.unmount());

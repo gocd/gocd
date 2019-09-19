@@ -26,6 +26,7 @@ import {EnvironmentHeader} from "views/pages/new-environments/environment_header
 interface Attrs {
   environments: Stream<Environments>;
   deleteEnvironment: (env: EnvironmentWithOrigin) => Promise<any>;
+  onSuccessfulSave: (msg: m.Children) => void;
 }
 
 export class EnvironmentsWidget extends MithrilViewComponent<Attrs> {
@@ -40,7 +41,8 @@ export class EnvironmentsWidget extends MithrilViewComponent<Attrs> {
                                                }}/>
                                ]}
                                dataTestId={`collapsible-panel-for-env-${environment.name()}`}>
-        <EnvironmentBody environment={environment} environments={vnode.attrs.environments()}/>
+        <EnvironmentBody environment={environment} environments={vnode.attrs.environments()}
+                         onSuccessfulSave={vnode.attrs.onSuccessfulSave}/>
       </CollapsiblePanel>;
     });
   }

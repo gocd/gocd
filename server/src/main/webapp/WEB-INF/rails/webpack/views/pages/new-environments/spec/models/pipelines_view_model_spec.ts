@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {EnvironmentVariables} from "models/new-environments/environment_environment_variables";
+import {EnvironmentVariables} from "models/environment_variables/types";
 import {Pipelines} from "models/new-environments/environment_pipelines";
 import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
 import {PipelineGroups, PipelineGroupsJSON} from "models/new-environments/pipeline_groups";

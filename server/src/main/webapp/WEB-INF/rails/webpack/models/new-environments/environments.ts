@@ -16,10 +16,11 @@
 
 import _ from "lodash";
 import Stream from "mithril/stream";
+import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {Agents, AgentWithOrigin, EnvironmentAgentJSON} from "models/new-environments/environment_agents";
 import {
   EnvironmentEnvironmentVariableJSON,
-  EnvironmentVariables
+  EnvironmentVariablesWithOrigin
 } from "models/new-environments/environment_environment_variables";
 import {EnvironmentPipelineJSON, Pipelines, PipelineWithOrigin} from "models/new-environments/environment_pipelines";
 import {EnvironmentsAPIs} from "models/new-environments/environments_apis";
@@ -41,23 +42,28 @@ export interface EnvironmentsJSON {
   _embedded: EmbeddedJSON;
 }
 
-export class EnvironmentWithOrigin {
+export class EnvironmentWithOrigin extends ValidatableMixin {
   readonly name: Stream<string>;
   readonly origins: Stream<Origin[]>;
   readonly agents: Stream<Agents>;
   readonly pipelines: Stream<Pipelines>;
-  readonly environmentVariables: Stream<EnvironmentVariables>;
+  readonly environmentVariables: Stream<EnvironmentVariablesWithOrigin>;
 
   constructor(name: string,
               origins: Origin[],
               agents: Agents,
               pipelines: Pipelines,
-              environmentVariables: EnvironmentVariables) {
+              environmentVariables: EnvironmentVariablesWithOrigin) {
+    super();
+    ValidatableMixin.call(this);
     this.name                 = Stream(name);
     this.origins              = Stream(origins);
     this.agents               = Stream(agents);
     this.pipelines            = Stream(pipelines);
     this.environmentVariables = Stream(environmentVariables);
+    this.validatePresenceOf("name");
+    this.validateAssociated("environmentVariables");
+    this.validateChildAttrIsUnique("environmentVariables", "name");
   }
 
   static fromJSON(data: EnvironmentJSON) {
@@ -65,7 +71,7 @@ export class EnvironmentWithOrigin {
                                      data.origins.map((o) => Origin.fromJSON(o)),
                                      Agents.fromJSON(data.agents),
                                      Pipelines.fromJSON(data.pipelines),
-                                     EnvironmentVariables.fromJSON(data.environment_variables));
+                                     EnvironmentVariablesWithOrigin.fromJSON(data.environment_variables));
   }
 
   containsPipeline(name: string): boolean {
@@ -98,6 +104,23 @@ export class EnvironmentWithOrigin {
 
   removeAgentIfPresent(agent: AgentWithOrigin) {
     _.remove(this.agents(), (p) => p.uuid() === agent.uuid());
+  }
+
+  toJSON(): object {
+    return {
+      name: this.name(),
+      environment_variables: this.environmentVariables().toJSON()
+    };
+  }
+
+  clone(): EnvironmentWithOrigin {
+    return new EnvironmentWithOrigin(this.name(),
+                                     this.origins().map((origin) => origin.clone()),
+                                     this.agents().map((agent) => agent.clone()),
+                                     this.pipelines().clone(),
+                                     new EnvironmentVariablesWithOrigin(
+                                       ...this.environmentVariables().map((p) => p.clone())
+                                     ));
   }
 }
 

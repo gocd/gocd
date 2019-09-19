@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-import _ from "lodash";
 import Stream from "mithril/stream";
-import {EnvironmentVariable, EnvironmentVariableJSON} from "models/environment_variables/types";
-import {Origin, OriginJSON} from "models/new-environments/origin";
+import {EnvironmentVariable, EnvironmentVariableJSON, EnvironmentVariables} from "models/environment_variables/types";
+import {Origin, OriginJSON, OriginType} from "models/new-environments/origin";
 
 export interface EnvironmentEnvironmentVariableJSON extends EnvironmentVariableJSON {
   origin: OriginJSON;
@@ -38,27 +37,23 @@ export class EnvironmentVariableWithOrigin extends EnvironmentVariable {
                                              data.secure,
                                              data.encrypted_value);
   }
+
+  editable() {
+    const origin = this.origin();
+    return origin === undefined || (origin.type() !== undefined && origin.type() === OriginType.GoCD);
+  }
+
+  clone() {
+    return new EnvironmentVariableWithOrigin(this.name(),
+                                             this.origin().clone(),
+                                             this.value(),
+                                             this.secure(),
+                                             this.encryptedValue());
+  }
 }
 
-export class EnvironmentVariables extends Array<EnvironmentVariableWithOrigin> {
-  constructor(...environmentVariables: EnvironmentVariableWithOrigin[]) {
-    super(...environmentVariables);
-    Object.setPrototypeOf(this, Object.create(EnvironmentVariables.prototype));
-  }
-
+export class EnvironmentVariablesWithOrigin extends EnvironmentVariables<EnvironmentVariableWithOrigin> {
   static fromJSON(environmentVariables: EnvironmentEnvironmentVariableJSON[]) {
-    return new EnvironmentVariables(...environmentVariables.map(EnvironmentVariableWithOrigin.fromJSON));
-  }
-
-  secureVariables(): EnvironmentVariables {
-    return new EnvironmentVariables(...this.filter((envVar) => envVar.secure()));
-  }
-
-  plainTextVariables(): EnvironmentVariables {
-    return new EnvironmentVariables(...this.filter((envVar) => !envVar.secure()));
-  }
-
-  remove(envVar: EnvironmentVariableWithOrigin) {
-    _.remove(this, envVar);
+    return new EnvironmentVariablesWithOrigin(...environmentVariables.map(EnvironmentVariableWithOrigin.fromJSON));
   }
 }

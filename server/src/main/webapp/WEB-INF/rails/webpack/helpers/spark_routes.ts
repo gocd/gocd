@@ -331,7 +331,10 @@ export class SparkRoutes {
     return `/go/api/admin/secret_configs`;
   }
 
-  static apiEnvironmentPath() {
+  static apiEnvironmentPath(name?: string) {
+    if (name) {
+      return `/go/api/admin/environments/${name}`;
+    }
     return "/go/api/admin/environments";
   }
 

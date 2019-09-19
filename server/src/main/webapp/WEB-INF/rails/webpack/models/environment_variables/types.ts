@@ -15,6 +15,7 @@
  */
 
 import Stream from "mithril/stream";
+import {applyMixins} from "models/mixins/mixins";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 
 export interface EnvironmentVariableJSON {
@@ -50,12 +51,32 @@ export class EnvironmentVariable extends ValidatableMixin {
   editable() {
     return true;
   }
+
+  toJSON() {
+    return {
+      name: this.name(),
+      value: this.value(),
+      encrypted_value: this.encryptedValue(),
+      secure: this.secure()
+    };
+  }
+
+  equals(environmentVariable: EnvironmentVariable): boolean {
+    return this.name() === environmentVariable.name()
+      && this.value() === environmentVariable.value()
+      && this.encryptedValue() === environmentVariable.encryptedValue();
+  }
 }
 
-export class EnvironmentVariables<T extends EnvironmentVariable = EnvironmentVariable> extends Array<T> {
+//tslint:disable-next-line
+export interface EnvironmentVariables extends ValidatableMixin {
+}
+
+export class EnvironmentVariables<T extends EnvironmentVariable = EnvironmentVariable> extends Array<T> implements ValidatableMixin {
   constructor(...environmentVariables: T[]) {
     super(...environmentVariables);
     Object.setPrototypeOf(this, Object.create(EnvironmentVariables.prototype));
+    ValidatableMixin.call(this);
   }
 
   static fromJSON(environmentVariables: EnvironmentVariableJSON[]) {
@@ -79,4 +100,10 @@ export class EnvironmentVariables<T extends EnvironmentVariable = EnvironmentVar
     this.forEach((environment) => valid = valid && environment.isValid());
     return valid;
   }
+
+  toJSON() {
+    return this.map((envVar) => envVar.toJSON());
+  }
 }
+
+applyMixins(EnvironmentVariables, ValidatableMixin);

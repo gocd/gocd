@@ -22,6 +22,7 @@ import s from "underscore.string";
 import {HelpText} from "views/components/forms/input_fields";
 import * as Icons from "views/components/icons/index";
 import {EditAgentsModal} from "views/pages/new-environments/edit_agents_modal";
+import {EditEnvironmentVariablesModal} from "views/pages/new-environments/edit_environment_variables_modal";
 import {EditPipelinesModal} from "views/pages/new-environments/edit_pipelines_modal";
 import styles from "./index.scss";
 
@@ -48,6 +49,7 @@ export class ElementListWidget extends MithrilViewComponent<ElementListWidgetAtt
 interface EnvironmentBodyAttrs {
   environment: EnvironmentWithOrigin;
   environments: Environments;
+  onSuccessfulSave: (msg: m.Children) => void;
 }
 
 interface EnvironmentBodyState {
@@ -67,7 +69,7 @@ export class EnvironmentBody extends MithrilComponent<EnvironmentBodyAttrs, Envi
     };
 
     vnode.state.renderEnvironmentsVariablesModal = (env: EnvironmentWithOrigin) => {
-      new EditPipelinesModal(env, vnode.attrs.environments).render();
+      new EditEnvironmentVariablesModal(env, vnode.attrs.onSuccessfulSave).render();
     };
   }
 

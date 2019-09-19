@@ -112,7 +112,7 @@ describe("AddPipeline: SCM Material Fields", () => {
 
     for (const id of keys) {
       expect(helper.byTestId(`form-field-label-${id}`)).toBeTruthy();
-      expect(helper.findByDataTestId(`form-field-label-${id}`).text().startsWith(idsToLabels[id])).toBe(true);
+      expect(helper.textByTestId(`form-field-label-${id}`).startsWith(idsToLabels[id])).toBe(true);
       expect(helper.byTestId(`form-field-input-${id}`)).toBeTruthy();
     }
   }

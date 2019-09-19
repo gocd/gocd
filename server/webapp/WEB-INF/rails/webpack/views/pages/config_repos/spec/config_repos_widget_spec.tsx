@@ -309,7 +309,7 @@ describe("ConfigReposWidget", () => {
     models([vm(repo)]);
     helper.redraw();
 
-    helper.clickByDataTestId("config-repo-delete");
+    helper.clickByTestId("config-repo-delete");
 
     expect(showDeleteModal).toHaveBeenCalledWith(jasmine.any(MouseEvent));
   });
@@ -319,7 +319,7 @@ describe("ConfigReposWidget", () => {
     models([vm(repo)]);
     helper.redraw();
 
-    helper.clickByDataTestId("config-repo-edit");
+    helper.clickByTestId("config-repo-edit");
 
     expect(showEditModal).toHaveBeenCalledWith(jasmine.any(MouseEvent));
   });
@@ -329,7 +329,7 @@ describe("ConfigReposWidget", () => {
     models([vm(repo)]);
     helper.redraw();
 
-    helper.clickByDataTestId("config-repo-refresh");
+    helper.clickByTestId("config-repo-refresh");
 
     expect(reparseRepo).toHaveBeenCalledWith(jasmine.any(MouseEvent));
   });

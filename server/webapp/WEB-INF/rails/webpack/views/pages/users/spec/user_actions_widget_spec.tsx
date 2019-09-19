@@ -96,9 +96,9 @@ describe("User Actions Widget", () => {
     users(new Users(bob(), alice(), john()));
     m.redraw.sync();
 
-    expect(helper.findByDataTestId("users-total")).toHaveText("3");
-    expect(helper.findByDataTestId("users-enabled")).toHaveText("1");
-    expect(helper.findByDataTestId("users-disabled")).toHaveText("2");
+    expect(helper.textByTestId("users-total")).toBe("3");
+    expect(helper.textByTestId("users-enabled")).toBe("1");
+    expect(helper.textByTestId("users-disabled")).toBe("2");
   });
 
 });

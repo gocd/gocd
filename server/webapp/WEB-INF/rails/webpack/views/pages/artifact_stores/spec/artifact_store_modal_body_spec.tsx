@@ -33,13 +33,13 @@ describe("ArtifactModalBodyWidget", () => {
     const artifactStore = new ArtifactStore("", "cd.go.artifact.docker.registry", new Configurations([]));
     mount(artifactStore);
 
-    expect(helper.findByDataTestId("form-field-label-id")).toContainText("Id");
-    expect(helper.findByDataTestId("form-field-input-id")).toBeInDOM();
-    expect(helper.findByDataTestId("form-field-input-id").val()).toEqual("");
+    expect(helper.byTestId("form-field-label-id")).toContainText("Id");
+    expect(helper.byTestId("form-field-input-id")).toBeInDOM();
+    expect((helper.byTestId("form-field-input-id") as HTMLInputElement).value).toBe("");
 
-    expect(helper.findByDataTestId("form-field-label-plugin-id")).toContainText("Plugin Id");
+    expect(helper.byTestId("form-field-label-plugin-id")).toContainText("Plugin Id");
 
-    expect(helper.find(".plugin-view")).toContainText("This is store config view.");
+    expect(helper.q(".plugin-view")).toContainText("This is store config view.");
   });
 
   function mount(artifactStore: ArtifactStore, disableId = false) {

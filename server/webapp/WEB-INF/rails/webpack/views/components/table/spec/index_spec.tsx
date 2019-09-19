@@ -15,7 +15,6 @@
  */
 import m from "mithril";
 import Stream from "mithril/stream";
-import * as simulateEvent from "simulate-event";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {Table, TableSortHandler} from "../index";
 import styles from "../index.scss";
@@ -29,84 +28,79 @@ describe("TableComponent", () => {
 
   it("should render table component", () => {
     mount(headers, data);
-    expect(helper.find(`[data-test-id='${"table"}']`)).toBeVisible();
-    expect(helper.find(`[data-test-id='${"table-header-row"}']`).length).toEqual(1);
-    expect(helper.find(`[data-test-id='${"table-row"}']`).length).toEqual(2);
+    expect(helper.byTestId("table")).toBeVisible();
+    expect(helper.allByTestId("table-header-row").length).toBe(1);
+    expect(helper.allByTestId("table-row").length).toBe(2);
   });
 
   it("should render headers and data", () => {
     mount(headers, data);
-    expect(helper.find(`[data-test-id='${"table-header-row"}']`)).toContainText("Col1");
-    expect(helper.find(`[data-test-id='${"table-header-row"}']`)).toContainText("Col2");
-    expect(helper.find(`[data-test-id='${"table-header-row"}']`)).toContainText("Col3");
+    expect(helper.byTestId("table-header-row")).toContainText("Col1");
+    expect(helper.byTestId("table-header-row")).toContainText("Col2");
+    expect(helper.byTestId("table-header-row")).toContainText("Col3");
 
-    expect(helper.find(`[data-test-id='${"table-row"}']`).get(0)).toContainText("1");
-    expect(helper.find(`[data-test-id='${"table-row"}']`).get(0)).toContainText("2");
-    expect(helper.find(`[data-test-id='${"table-row"}']`).get(0)).toContainText("");
+    expect(helper.allByTestId("table-row").item(0)).toContainText("1");
+    expect(helper.allByTestId("table-row").item(0)).toContainText("2");
+    expect(helper.allByTestId("table-row").item(0)).toContainText("");
 
-    expect(helper.find(`[data-test-id='${"table-row"}']`).get(1)).toContainText("true");
-    expect(helper.find(`[data-test-id='${"table-row"}']`).get(1)).toContainText("two");
-    expect(helper.find(`[data-test-id='${"table-row"}']`).get(1)).toContainText("");
+    expect(helper.allByTestId("table-row").item(1)).toContainText("true");
+    expect(helper.allByTestId("table-row").item(1)).toContainText("two");
+    expect(helper.allByTestId("table-row").item(1)).toContainText("");
   });
 
   describe("Sort", () => {
-    const initialOrderOfData = "AZMCXNBYL";
-    const ascendingOrder     = "AZMBYLCXN";
-    const descendingOrder    = "CXNBYLAZM";
+    const initialOrderOfData = ["AZM", "CXN", "BYL"];
+    const ascendingOrder     = ["AZM", "BYL", "CXN"];
+    const descendingOrder    = ["CXN", "BYL", "AZM"];
 
     it("should have sort button for first column", () => {
       const testData = getTestData();
       mount(["Col-1", "Col-2", "Col-3"], testData(), new TestTableSortHandler(testData, [0]));
 
-      expect(helper.find(`.${styles.sortButton}`)).toHaveLength(1);
-      expect(helper.find(`.${styles.sortButton}`).parent()).toHaveText("Col-1");
+      expect(helper.qa(`.${styles.sortButton}`)).toHaveLength(1);
+      expect(helper.q(`.${styles.sortButton}`).parentElement).toHaveText("Col-1");
     });
 
     it("should call handler to sort data", () => {
       const testData = getTestData();
       mount(["Col-1", "Col-2", "Col-3"], testData(), new TestTableSortHandler(testData, [0]));
 
-      expect(helper.find(`[data-test-id='${"table-row"}']`)).toHaveText(initialOrderOfData);
+      expect(helper.textAllByTestId("table-row")).toEqual(initialOrderOfData);
 
-      simulateEvent.simulate(helper.find(`.${styles.sortableColumn}`).get(0), "click");
-      m.redraw.sync();
+      helper.click(`.${styles.sortableColumn}`);
 
-      expect(helper.find(`[data-test-id='${"table-row"}']`)).toHaveText(ascendingOrder);
+      expect(helper.textAllByTestId("table-row")).toEqual(ascendingOrder);
     });
 
     it("should reverse the sorted data if user click's twice on the sort button", () => {
       const testData = getTestData();
       mount(["Col-1", "Col-2", "Col-3"], testData(), new TestTableSortHandler(testData, [0]));
 
-      expect(helper.find(`[data-test-id='${"table-row"}']`)).toHaveText(initialOrderOfData);
+      expect(helper.textAllByTestId("table-row")).toEqual(initialOrderOfData);
 
-      simulateEvent.simulate(helper.find(`.${styles.sortableColumn}`).get(0), "click");
-      m.redraw.sync();
+      helper.click(`.${styles.sortableColumn}`);
 
-      expect(helper.find(`[data-test-id='${"table-row"}']`)).toHaveText(ascendingOrder);
+      expect(helper.textAllByTestId("table-row")).toEqual(ascendingOrder);
 
-      simulateEvent.simulate(helper.find(`.${styles.sortableColumn}`).get(0), "click");
-      m.redraw.sync();
+      helper.click(`.${styles.sortableColumn}`);
 
-      expect(helper.find(`[data-test-id='${"table-row"}']`)).toHaveText(descendingOrder);
+      expect(helper.textAllByTestId("table-row")).toEqual(descendingOrder);
     });
 
     it("should highlight current sorted column", () => {
       const testData = getTestData();
       mount(["Col-1", "Col-2", "Col-3"], testData(), new TestTableSortHandler(testData, [0, 1]));
-      expect(helper.find(`.${styles.sortButton}`)).toHaveClass(styles.inActive);
+      expect(helper.q(`.${styles.sortButton}`)).toHaveClass(styles.inActive);
 
-      simulateEvent.simulate(helper.find(`.${styles.sortableColumn}`).get(0), "click");
-      m.redraw.sync();
+      helper.click(`.${styles.sortableColumn}`);
 
-      expect(helper.find(`.${styles.sortButton}`).eq(0)).not.toHaveClass(styles.inActive);
-      expect(helper.find(`.${styles.sortButton}`).eq(1)).toHaveClass(styles.inActive);
+      expect(helper.qa(`.${styles.sortButton}`).item(0)).not.toHaveClass(styles.inActive);
+      expect(helper.qa(`.${styles.sortButton}`).item(1)).toHaveClass(styles.inActive);
 
-      simulateEvent.simulate(helper.find(`.${styles.sortableColumn}`).get(1), "click");
-      m.redraw.sync();
+      helper.click(helper.qa(`.${styles.sortableColumn}`).item(1));
 
-      expect(helper.find(`.${styles.sortButton}`).eq(0)).toHaveClass(styles.inActive);
-      expect(helper.find(`.${styles.sortButton}`).eq(1)).not.toHaveClass(styles.inActive);
+      expect(helper.qa(`.${styles.sortButton}`).item(0)).toHaveClass(styles.inActive);
+      expect(helper.qa(`.${styles.sortButton}`).item(1)).not.toHaveClass(styles.inActive);
     });
   });
 
@@ -114,17 +108,17 @@ describe("TableComponent", () => {
     it("should have a drag icon for each row if draggable to set to true", () => {
       mount(headers, getTestData()(), undefined, true);
 
-      expect(helper.find(`.${styles.draggable}`)).toBeInDOM();
+      expect(helper.q(`.${styles.draggable}`)).toBeInDOM();
 
-      expect(helper.find(`.${styles.dragIcon}`)).toBeInDOM();
-      expect(helper.find(`.${styles.dragIcon}`).length).toBe(3);
+      expect(helper.q(`.${styles.dragIcon}`)).toBeInDOM();
+      expect(helper.qa(`.${styles.dragIcon}`).length).toBe(3);
     });
 
     it("should not have a drag icon for each row if draggable is set to false", () => {
       mount(headers, getTestData()(), undefined, false);
 
-      expect(helper.find(`.${styles.draggable}`)).not.toBeInDOM();
-      expect(helper.find(`.${styles.dragIcon}`)).not.toBeInDOM();
+      expect(helper.q(`.${styles.draggable}`)).toBeFalsy();
+      expect(helper.q(`.${styles.dragIcon}`)).toBeFalsy();
     });
 
     it("should give a callback on dragover", () => {
@@ -135,8 +129,8 @@ describe("TableComponent", () => {
         return;
       }
 
-      const rowFirst  = helper.find("tr[data-id=\"0\"]").get(0);
-      const rowSecond = helper.find("tr[data-id=\"1\"]").get(0);
+      const rowFirst  = helper.q("tr[data-id=\"0\"]");
+      const rowSecond = helper.q("tr[data-id=\"1\"]");
 
       expect(rowFirst.textContent).toBe("AZM");
       expect(rowSecond.textContent).toBe("CXN");
@@ -152,7 +146,7 @@ describe("TableComponent", () => {
 
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).toHaveBeenCalledWith(0, 1);
-      expect(helper.find(`.${styles.draggableOver}`)).toBeInDOM();
+      expect(helper.q(`.${styles.draggableOver}`)).toBeInDOM();
 
       rowFirst.dispatchEvent(new DragEvent("dragend"));
       m.redraw.sync();

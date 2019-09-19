@@ -16,7 +16,6 @@
 
 import m from "mithril";
 import {GoCDRole, Role} from "models/roles/roles";
-import * as simulateEvent from "simulate-event";
 import {GoCDRoleModalBodyWidget} from "views/pages/roles/role_modal_body_widget";
 import {RolesTestData} from "views/pages/roles/spec/test_data";
 import {TestHelper} from "views/pages/spec/test_helper";
@@ -34,41 +33,39 @@ describe("GoCDRoleModalBodyWidget", () => {
   it("should render view", () => {
     helper.mount(() => <GoCDRoleModalBodyWidget role={gocdRole} isNameDisabled={false}/>);
 
-    expect(helper.findByDataTestId("form-field-input-role-name")).toBeInDOM();
-    expect(helper.findByDataTestId("form-field-input-role-name")).not.toBeDisabled();
-    expect(helper.findByDataTestId("form-field-input-role-name").prop("readonly")).toBeFalsy();
+    expect(helper.byTestId("form-field-input-role-name")).toBeInDOM();
+    expect(helper.byTestId("form-field-input-role-name")).not.toBeDisabled();
+    expect(helper.byTestId("form-field-input-role-name").hasAttribute("readonly")).toBe(false);
 
-    expect(helper.findByDataTestId("form-field-input-role-users")).toBeInDOM();
-    expect(helper.findByDataTestId("form-field-input-role-users")).not.toBeDisabled();
+    expect(helper.byTestId("form-field-input-role-users")).toBeInDOM();
+    expect(helper.byTestId("form-field-input-role-users")).not.toBeDisabled();
 
-    expect(helper.findByDataTestId("role-add-user-button")).toBeInDOM();
-    expect(helper.findByDataTestId("role-add-user-button")).not.toBeDisabled();
+    expect(helper.byTestId("role-add-user-button")).toBeInDOM();
+    expect(helper.byTestId("role-add-user-button")).not.toBeDisabled();
   });
 
   it("should disable role name when isNameDisabled is set to true", () => {
     helper.mount(() => <GoCDRoleModalBodyWidget role={gocdRole} isNameDisabled={true}/>);
 
-    expect(helper.findByDataTestId("form-field-input-role-name")).toBeInDOM();
-    expect(helper.findByDataTestId("form-field-input-role-name").prop("readonly")).toBeTruthy();
+    expect(helper.byTestId("form-field-input-role-name")).toBeInDOM();
+    expect(helper.byTestId("form-field-input-role-name").hasAttribute("readonly")).toBe(true);
 
-    expect(helper.findByDataTestId("form-field-input-role-users")).toBeInDOM();
-    expect(helper.findByDataTestId("form-field-input-role-users")).not.toBeDisabled();
+    expect(helper.byTestId("form-field-input-role-users")).toBeInDOM();
+    expect(helper.byTestId("form-field-input-role-users")).not.toBeDisabled();
 
-    expect(helper.findByDataTestId("role-add-user-button")).toBeInDOM();
-    expect(helper.findByDataTestId("role-add-user-button")).not.toBeDisabled();
+    expect(helper.byTestId("role-add-user-button")).toBeInDOM();
+    expect(helper.byTestId("role-add-user-button")).not.toBeDisabled();
   });
 
   it("should add user when add user button is clicked", () => {
     helper.mount(() => <GoCDRoleModalBodyWidget role={gocdRole} isNameDisabled={false}/>);
 
-    expect(gocdRole.attributes().hasUser("John")).toBeFalsy();
+    expect(gocdRole.attributes().hasUser("John")).toBe(false);
 
-    helper.findByDataTestId("form-field-input-role-users").val("John");
-    simulateEvent.simulate(helper.findByDataTestId("form-field-input-role-users").get(0), "input");
-    helper.findByDataTestId("role-add-user-button").click();
-    m.redraw.sync();
+    helper.oninput(helper.byTestId("form-field-input-role-users"), "John");
+    helper.clickByTestId("role-add-user-button");
 
-    expect(gocdRole.attributes().hasUser("John")).toBeTruthy();
+    expect(gocdRole.attributes().hasUser("John")).toBe(true);
   });
 
   it("should delete user when delete icon on user's tag is clicked", () => {
@@ -76,8 +73,7 @@ describe("GoCDRoleModalBodyWidget", () => {
 
     expect(gocdRole.attributes().users.length).toEqual(3);
 
-    simulateEvent.simulate(helper.find(`.${styles.roleUserDeleteIcon}`).get(0), "click");
-    m.redraw.sync();
+    helper.click(`.${styles.roleUserDeleteIcon}`);
 
     expect(gocdRole.attributes().users.length).toEqual(2);
   });

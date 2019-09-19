@@ -55,13 +55,13 @@ describe("ParametersEditor", () => {
   });
 
   function addVariable(name: string, value: string): Element {
-    const context = helper.find(sel.envVars).get(0);
+    const context = helper.q(sel.envVars);
     helper.click("button", context);
-    const variable = helper.findIn(context, "table-row").last();
-    const fields = variable.find("input");
-    helper.oninput(fields.get(0), name);
-    helper.oninput(fields.get(1), value);
-    return variable.get(0);
+    const variable = Array.from(helper.allByTestId("table-row", context)).pop()!;
+    const fields = helper.qa("input", variable);
+    helper.oninput(fields.item(0), name);
+    helper.oninput(fields.item(1), value);
+    return variable;
   }
 
   function removeVariable(variable: Element) {

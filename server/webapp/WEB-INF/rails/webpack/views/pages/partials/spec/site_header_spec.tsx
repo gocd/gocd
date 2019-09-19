@@ -49,7 +49,7 @@ describe("Site Header", () => {
             canViewAdminPage: false,
             showAnalyticsDashboard: false
           });
-    expect(helper.find(`.${styles.userLink}`)).toHaveText("Jon Doe");
+    expect(helper.text(`.${styles.userLink}`)).toBe("Jon Doe");
     expect(findMenuItem("/go/preferences/notifications")).toHaveText("Preferences");
     expect(findMenuItem("/go/access_tokens")).toHaveText("Personal Access Tokens");
     expect(findMenuItem("/go/auth/logout")).toHaveText("Sign out");
@@ -66,10 +66,10 @@ describe("Site Header", () => {
             canViewAdminPage: false,
             showAnalyticsDashboard: false
           });
-    expect(helper.find(`.${styles.userLink}`)).not.toBeInDOM();
-    expect(findMenuItem("/go/preferences/notifications")).not.toBeInDOM();
-    expect(findMenuItem("/go/access_tokens")).not.toBeInDOM();
-    expect(findMenuItem("/go/auth/logout")).not.toBeInDOM();
+    expect(helper.q(`.${styles.userLink}`)).toBeFalsy();
+    expect(findMenuItem("/go/preferences/notifications")).toBeFalsy();
+    expect(findMenuItem("/go/access_tokens")).toBeFalsy();
+    expect(findMenuItem("/go/auth/logout")).toBeFalsy();
     expect(findMenuItem("https://gocd.org/help")).toHaveText("Need Help?");
   });
 
@@ -83,6 +83,6 @@ describe("Site Header", () => {
   }
 
   function findMenuItem(href: string) {
-    return helper.find(`a[href='${href}']`);
+    return helper.q(`a[href='${href}']`);
   }
 });

@@ -33,7 +33,7 @@ describe("New Elastic Agent Profile Widget", () => {
   it("should render elastic agent profile id", () => {
     mount(pluginInfo, elasticProfile);
 
-    expect(helper.findByDataTestId("elastic-profile-id").get(0)).toContainText(TestData.dockerElasticProfile().id);
+    expect(helper.textByTestId("elastic-profile-id")).toContain(TestData.dockerElasticProfile().id);
 
     helper.unmount();
   });
@@ -51,7 +51,7 @@ describe("New Elastic Agent Profile Widget", () => {
   it("should render properties of elastic agent profile", () => {
     mount(pluginInfo, elasticProfile);
 
-    const profileHeader = helper.find(`.${keyValuePairStyles.keyValuePair}`).get(0);
+    const profileHeader = helper.q(`.${keyValuePairStyles.keyValuePair}`);
 
     expect(profileHeader).toContainText("Image");
     expect(profileHeader).toContainText("docker-image122345");
@@ -70,7 +70,7 @@ describe("New Elastic Agent Profile Widget", () => {
 
   it("should toggle between expanded and collapsed state on click of header", () => {
     mount(pluginInfo, elasticProfile);
-    const elasticProfileHeader = find("collapse-header").get(0);
+    const elasticProfileHeader = find("collapse-header");
 
     expect(elasticProfileHeader).not.toHaveClass(collapsiblePanelStyles.expanded);
 
@@ -92,9 +92,9 @@ describe("New Elastic Agent Profile Widget", () => {
   it("should disable action buttons if no elastic agent plugin installed", () => {
     mount(undefined, ElasticAgentProfile.fromJSON(TestData.dockerElasticProfile()));
 
-    expect(helper.findIn(helper.findByDataTestId("elastic-profile-header")[0], "edit-elastic-profile")).toBeDisabled();
-    expect(helper.findIn(helper.findByDataTestId("elastic-profile-header")[0], "clone-elastic-profile")).toBeDisabled();
-    expect(helper.findIn(helper.findByDataTestId("elastic-profile-header")[0], "delete-elastic-profile")).not.toBeDisabled();
+    expect(helper.byTestId("edit-elastic-profile", helper.byTestId("elastic-profile-header"))).toBeDisabled();
+    expect(helper.byTestId("clone-elastic-profile", helper.byTestId("elastic-profile-header"))).toBeDisabled();
+    expect(helper.byTestId("delete-elastic-profile", helper.byTestId("elastic-profile-header"))).not.toBeDisabled();
 
     helper.unmount();
   });
@@ -110,6 +110,6 @@ describe("New Elastic Agent Profile Widget", () => {
   }
 
   function find(id: string) {
-    return helper.findByDataTestId(id);
+    return helper.byTestId(id);
   }
 });

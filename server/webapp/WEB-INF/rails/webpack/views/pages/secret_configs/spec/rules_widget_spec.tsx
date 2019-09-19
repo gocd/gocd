@@ -18,7 +18,6 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {Rule, Rules} from "models/secret_configs/rules";
 import {rulesTestData, ruleTestData} from "models/secret_configs/spec/test_data";
-import * as simulateEvent from "simulate-event";
 import {RulesWidget} from "views/pages/secret_configs/rules_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
 
@@ -29,9 +28,9 @@ describe("RulesWidget", () => {
   it("should show info for rules", () => {
     const rules = new Rules();
     mount(rules);
-    expect(helper.findByDataTestId("flash-message-info")).toBeInDOM();
+    expect(helper.byTestId("flash-message-info")).toBeInDOM();
     const infoAboutRules = "The default rule is to deny access to this secret configuration for all GoCD entities. Configure rules below to override that behavior.";
-    expect(helper.findByDataTestId("flash-message-info")).toContainText(infoAboutRules);
+    expect(helper.textByTestId("flash-message-info")).toContain(infoAboutRules);
   });
 
   it("should show rule if it is present", () => {
@@ -40,24 +39,24 @@ describe("RulesWidget", () => {
 
     mount(rules);
 
-    const tableBody   = helper.findByDataTestId("table-body");
-    const tableRow    = tableBody.find("tr");
-    const tableHeader = helper.findByDataTestId("table-header");
+    const tableBody   = helper.byTestId("table-body");
+    const tableRow    = helper.q("tr", tableBody);
+    const tableHeader = helper.byTestId("table-header");
 
-    expect(helper.findByDataTestId("rules-table")).toBeInDOM();
+    expect(helper.byTestId("rules-table")).toBeInDOM();
     expect(tableHeader).toBeInDOM();
-    expect(tableHeader.find("th").length).toBe(5);
-    expect(tableHeader.eq(0)).toContainText("Directive");
-    expect(tableHeader.eq(0)).toContainText("Type");
-    expect(tableHeader.eq(0)).toContainText("Resources");
+    expect(helper.qa("th", tableHeader).length).toBe(5);
+    expect(tableHeader).toContainText("Directive");
+    expect(tableHeader).toContainText("Type");
+    expect(tableHeader).toContainText("Resources");
 
     expect(tableBody).toBeInDOM();
 
-    expect(tableRow.find("td").length).toBe(5);
-    expect(helper.findByDataTestId("rule-directive").get(0)).toHaveValue("allow");
-    expect(helper.findByDataTestId("rule-directive").get(0)).toContainText("DenyAllow");
-    expect(helper.findByDataTestId("rule-type").get(0)).toHaveValue("pipeline_group");
-    expect(helper.findByDataTestId("rule-resource").get(0)).toHaveValue("DeployPipelines");
+    expect(helper.qa("td", tableRow).length).toBe(5);
+    expect(helper.byTestId("rule-directive")).toHaveValue("allow");
+    expect(helper.textByTestId("rule-directive")).toContain("DenyAllow");
+    expect(helper.byTestId("rule-type")).toHaveValue("pipeline_group");
+    expect(helper.byTestId("rule-resource")).toHaveValue("DeployPipelines");
 
   });
 
@@ -65,7 +64,7 @@ describe("RulesWidget", () => {
     const rulesJSON = rulesTestData();
     const rules     = Rules.fromJSON(rulesJSON);
     mount(rules);
-    expect(helper.findByDataTestId("table-body").find("tr").length).toBe(2);
+    expect(helper.qa("tr", helper.byTestId("table-body")).length).toBe(2);
   });
 
   it("should callback the remove function and remove rule when cancel button is clicked", () => {
@@ -75,9 +74,7 @@ describe("RulesWidget", () => {
 
     expect(rules.length).toBe(2);
 
-    const tableBody        = helper.findByDataTestId("table-body");
-    const deleteRuleButton = helper.findIn(tableBody, "rule-delete")[0];
-    simulateEvent.simulate(deleteRuleButton, "click");
+    helper.clickByTestId("rule-delete", helper.byTestId("table-body"));
     expect(rules.length).toBe(1);
   });
 

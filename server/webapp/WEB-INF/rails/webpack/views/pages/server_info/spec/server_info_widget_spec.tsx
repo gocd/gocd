@@ -35,23 +35,23 @@ describe("Server Info Widget", () => {
   it("should show Sever Information", () => {
     mount();
 
-    expect(helper.findByDataTestId("about-page")).toContainText("Go Server Version:");
-    expect(helper.findByDataTestId("about-page")).toContainText(metaInfo.go_server_version);
+    expect(helper.textByTestId("about-page")).toContain("Go Server Version:");
+    expect(helper.textByTestId("about-page")).toContain(metaInfo.go_server_version);
 
-    expect(helper.findByDataTestId("about-page")).toContainText("JVM version:");
-    expect(helper.findByDataTestId("about-page")).toContainText(metaInfo.jvm_version);
+    expect(helper.textByTestId("about-page")).toContain("JVM version:");
+    expect(helper.textByTestId("about-page")).toContain(metaInfo.jvm_version);
 
-    expect(helper.findByDataTestId("about-page")).toContainText("OS Information:");
-    expect(helper.findByDataTestId("about-page")).toContainText(metaInfo.os_information);
+    expect(helper.textByTestId("about-page")).toContain("OS Information:");
+    expect(helper.textByTestId("about-page")).toContain(metaInfo.os_information);
 
-    expect(helper.findByDataTestId("about-page")).toContainText("Usable space in artifacts repository:");
-    expect(helper.findByDataTestId("about-page")).toContainText(filesize(metaInfo.usable_space_in_artifacts_repository));
+    expect(helper.textByTestId("about-page")).toContain("Usable space in artifacts repository:");
+    expect(helper.textByTestId("about-page")).toContain(filesize(metaInfo.usable_space_in_artifacts_repository));
 
-    expect(helper.findByDataTestId("about-page")).toContainText("Database schema version:");
-    expect(helper.findByDataTestId("about-page")).toContainText(metaInfo.database_schema_version);
+    expect(helper.textByTestId("about-page")).toContain("Database schema version:");
+    expect(helper.textByTestId("about-page")).toContain(metaInfo.database_schema_version);
 
-    expect(helper.findByDataTestId("about-page")).toContainText("Pipelines Count:");
-    expect(helper.findByDataTestId("about-page")).toContainText(`${metaInfo.pipeline_count}`);
+    expect(helper.textByTestId("about-page")).toContain("Pipelines Count:");
+    expect(helper.textByTestId("about-page")).toContain(`${metaInfo.pipeline_count}`);
   });
 
   function mount() {

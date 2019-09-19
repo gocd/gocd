@@ -21,7 +21,6 @@ import {TestData} from "models/auth_configs/spec/test_data";
 import {Role, RoleType} from "models/roles/roles";
 import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {AuthorizationPluginInfo} from "models/shared/plugin_infos_new/spec/test_data";
-import * as simulateEvent from "simulate-event";
 import {Action, RoleModalBody} from "views/pages/roles/role_modal_body";
 import {RolesTestData} from "views/pages/roles/spec/test_data";
 import {TestHelper} from "views/pages/spec/test_helper";
@@ -43,7 +42,7 @@ describe("RoleModalBody", () => {
                                         authConfigs={authConfigs}
                                         action={Action.NEW}
                                         changeRoleType={changeRoleType}/>);
-      expect(helper.findByDataTestId("flash-message-alert").text()).toEqual("Something went wrong contact your admin!!!");
+      expect(helper.textByTestId("flash-message-alert")).toBe("Something went wrong contact your admin!!!");
     });
 
     it("should not show error message when one is not present", () => {
@@ -53,7 +52,7 @@ describe("RoleModalBody", () => {
                                         action={Action.NEW}
                                         changeRoleType={changeRoleType}/>);
 
-      expect(helper.findByDataTestId("flash-message-alert").get(0)).not.toBeInDOM();
+      expect(helper.byTestId("flash-message-alert")).toBeFalsy();
     });
   });
 
@@ -65,7 +64,7 @@ describe("RoleModalBody", () => {
                                         authConfigs={authConfigs}
                                         changeRoleType={changeRoleType}/>);
 
-      expect(helper.findByDataTestId("role-type-selector").get(0)).toBeInDOM();
+      expect(helper.byTestId("role-type-selector")).toBeInDOM();
     });
 
     it("should not show role type selector for clone action", () => {
@@ -75,7 +74,7 @@ describe("RoleModalBody", () => {
                                         action={Action.CLONE}
                                         changeRoleType={changeRoleType}/>);
 
-      expect(helper.findByDataTestId("role-type-selector").get(0)).not.toBeInDOM();
+      expect(helper.byTestId("role-type-selector")).toBeFalsy();
     });
 
     it("should not show role type selector for edit action", () => {
@@ -85,7 +84,7 @@ describe("RoleModalBody", () => {
                                         action={Action.EDIT}
                                         changeRoleType={changeRoleType}/>);
 
-      expect(helper.findByDataTestId("role-type-selector").get(0)).not.toBeInDOM();
+      expect(helper.byTestId("role-type-selector")).toBeFalsy();
     });
 
   });
@@ -97,8 +96,8 @@ describe("RoleModalBody", () => {
                                         pluginInfos={pluginInfos}
                                         authConfigs={new AuthConfigs()}
                                         changeRoleType={changeRoleType}/>);
-      expect(helper.find("#plugin-role").get(0)).toBeInDOM();
-      expect(helper.find("#plugin-role").get(0)).toBeDisabled();
+      expect(helper.q("#plugin-role")).toBeInDOM();
+      expect(helper.q("#plugin-role")).toBeDisabled();
     });
 
     it("should enable when auth configs are defined", () => {
@@ -107,8 +106,8 @@ describe("RoleModalBody", () => {
                                         pluginInfos={pluginInfos}
                                         authConfigs={authConfigs}
                                         changeRoleType={changeRoleType}/>);
-      expect(helper.find("#plugin-role").get(0)).toBeInDOM();
-      expect(helper.find("#plugin-role").get(0)).not.toBeDisabled();
+      expect(helper.q("#plugin-role")).toBeInDOM();
+      expect(helper.q("#plugin-role")).not.toBeDisabled();
     });
 
   });
@@ -121,13 +120,13 @@ describe("RoleModalBody", () => {
                                         authConfigs={authConfigs}
                                         changeRoleType={changeRoleType}/>);
 
-      expect(helper.find("#plugin-role").get(0)).toBeInDOM();
-      expect(helper.find("#plugin-role").get(0)).not.toBeDisabled();
+      expect(helper.q("#plugin-role")).toBeInDOM();
+      expect(helper.q("#plugin-role")).not.toBeDisabled();
 
-      simulateEvent.simulate(helper.find("#plugin-role").get(0), "click");
+      helper.click("#plugin-role");
       expect(changeRoleType).toHaveBeenCalledWith(RoleType.plugin, jasmine.any(Event));
 
-      simulateEvent.simulate(helper.find("#core-role").get(0), "click");
+      helper.click("#core-role");
       expect(changeRoleType).toHaveBeenCalledWith(RoleType.gocd, jasmine.any(Event));
     });
   });

@@ -33,17 +33,17 @@ describe("Environments Header Widget", () => {
   afterEach(helper.unmount.bind(helper));
 
   it("should render name of environment", () => {
-    expect(helper.findByDataTestId("environment-header-for-" + environment.name())).toBeInDOM();
-    expect(helper.findByDataTestId("env-name")).toHaveText(environment.name());
+    expect(helper.byTestId("environment-header-for-" + environment.name())).toBeInDOM();
+    expect(helper.textByTestId("env-name")).toBe(environment.name());
   });
 
   it("should render pipeline count", () => {
-    expect(helper.findByDataTestId("key-value-key-pipeline-count")).toHaveText("Pipeline Count");
-    expect(helper.findByDataTestId("key-value-value-pipeline-count")).toHaveText("2");
+    expect(helper.textByTestId("key-value-key-pipeline-count")).toBe("Pipeline Count");
+    expect(helper.textByTestId("key-value-value-pipeline-count")).toBe("2");
   });
 
   it("should render agent count", () => {
-    expect(helper.findByDataTestId("key-value-key-agent-count")).toHaveText("Agent Count");
-    expect(helper.findByDataTestId("key-value-value-agent-count")).toHaveText("2");
+    expect(helper.textByTestId("key-value-key-agent-count")).toBe("Agent Count");
+    expect(helper.textByTestId("key-value-value-agent-count")).toBe("2");
   });
 });

@@ -61,61 +61,61 @@ describe("Edit Pipelines Modal", () => {
   });
 
   it("should render available pipelines", () => {
-    const availablePipelinesSection = helper.findByDataTestId(`available-pipelines`);
+    const availablePipelinesSection = helper.byTestId(`available-pipelines`);
     const pipeline1Selector         = `pipeline-checkbox-for-${pipelineGroupsJSON.groups[0].pipelines[0].name}`;
     const pipeline2Selector         = `pipeline-checkbox-for-${pipelineGroupsJSON.groups[1].pipelines[0].name}`;
 
     expect(availablePipelinesSection).toBeInDOM();
     expect(availablePipelinesSection).toContainText("Available Pipelines");
-    expect(helper.findIn(availablePipelinesSection, pipeline1Selector)).toBeInDOM();
-    expect(helper.findIn(availablePipelinesSection, pipeline2Selector)).toBeInDOM();
+    expect(helper.byTestId(pipeline1Selector, availablePipelinesSection)).toBeInDOM();
+    expect(helper.byTestId(pipeline2Selector, availablePipelinesSection)).toBeInDOM();
   });
 
   it("should render pipelines associated with current environment in config repository", () => {
-    const configRepoAssociated = helper.findByDataTestId(`pipelines-associated-with-this-environment-in-configuration-repository`);
+    const configRepoAssociated = helper.byTestId(`pipelines-associated-with-this-environment-in-configuration-repository`);
     const expectedMsg          = "Pipelines associated with this environment in configuration repository:";
     const pipeline1Selector    = `pipeline-checkbox-for-${pipelineGroupsJSON.groups[1].pipelines[1].name}`;
 
     expect(configRepoAssociated).toBeInDOM();
     expect(configRepoAssociated).toContainText(expectedMsg);
-    expect(helper.findIn(configRepoAssociated, pipeline1Selector)).toBeInDOM();
+    expect(helper.byTestId(pipeline1Selector, configRepoAssociated)).toBeInDOM();
   });
 
   it("should not render config repo pipelines section when no config repo associated pipelines are available", () => {
     modal.pipelinesVM.environment.pipelines().pop();
     m.redraw.sync();
 
-    const configRepoAssociated = helper.findByDataTestId(`pipelines-associated-with-this-environment-in-configuration-repository`);
-    expect(configRepoAssociated).not.toBeInDOM();
+    const configRepoAssociated = helper.byTestId(`pipelines-associated-with-this-environment-in-configuration-repository`);
+    expect(configRepoAssociated).toBeFalsy();
   });
 
   it("should render unavailable pipelines which are associated in another environment", () => {
-    const otherEnvAssociated = helper.findByDataTestId(`unavailable-pipelines-already-associated-with-environments`);
+    const otherEnvAssociated = helper.byTestId(`unavailable-pipelines-already-associated-with-environments`);
     const expectedMsg        = "Unavailable pipelines (Already associated with environments):";
     const pipelines          = pipelineGroupsJSON.groups[0].pipelines;
     const pipelineSelector   = `pipeline-list-item-for-${pipelines[2].name}`;
 
     expect(otherEnvAssociated).toBeInDOM();
     expect(otherEnvAssociated).toContainText(expectedMsg);
-    expect(helper.findIn(otherEnvAssociated, pipelineSelector)).toBeInDOM();
+    expect(helper.byTestId(pipelineSelector, otherEnvAssociated)).toBeInDOM();
   });
 
   it("should not render unavailable pipelines which are associated in other environment when none present", () => {
     modal.pipelinesVM.pipelineGroups()![0].pipelines().pop();
     m.redraw.sync();
 
-    const otherEnvAssociated = helper.findByDataTestId(`unavailable-pipelines-already-associated-with-environments`);
-    expect(otherEnvAssociated).not.toBeInDOM();
+    const otherEnvAssociated = helper.byTestId(`unavailable-pipelines-already-associated-with-environments`);
+    expect(otherEnvAssociated).toBeFalsy();
   });
 
   it("should render unavailable pipelines which are defined in config repository", () => {
-    const definedInConfigRepo = helper.findByDataTestId(`unavailable-pipelines-defined-in-config-repository`);
+    const definedInConfigRepo = helper.byTestId(`unavailable-pipelines-defined-in-config-repository`);
     const expectedMsg         = "Unavailable pipelines (Defined in config repository):";
     const pipelineSelector    = `pipeline-list-item-for-${pipelineGroupsJSON.groups[0].pipelines[1].name}`;
 
     expect(definedInConfigRepo).toBeInDOM();
     expect(definedInConfigRepo).toContainText(expectedMsg);
-    expect(helper.findIn(definedInConfigRepo, pipelineSelector)).toBeInDOM();
+    expect(helper.byTestId(pipelineSelector, definedInConfigRepo)).toBeInDOM();
   });
 
   it("should not render unavailable pipelines which are defined in config repository when none present", () => {
@@ -124,21 +124,21 @@ describe("Edit Pipelines Modal", () => {
     modal.pipelinesVM.pipelineGroups()![0].pipelines().pop();
     m.redraw.sync();
 
-    const definedInConfigRepo = helper.findByDataTestId(`unavailable-pipelines-defined-in-config-repository`);
-    expect(definedInConfigRepo).not.toBeInDOM();
+    const definedInConfigRepo = helper.byTestId(`unavailable-pipelines-defined-in-config-repository`);
+    expect(definedInConfigRepo).toBeFalsy();
   });
 
   it("should render pipeline search box", () => {
-    const searchInput = helper.findByDataTestId("form-field-input-pipeline-search")[0] as HTMLInputElement;
+    const searchInput = helper.byTestId("form-field-input-pipeline-search");
     expect(searchInput).toBeInDOM();
-    expect(searchInput.getAttribute("placeholder")).toEqual("pipeline name");
+    expect(searchInput.getAttribute("placeholder")).toBe("pipeline name");
   });
 
   it("should bind search text with pipelines vm", () => {
     const searchText = "search-text";
     modal.pipelinesVM.searchText(searchText);
     m.redraw.sync();
-    const searchInput = helper.findByDataTestId("form-field-input-pipeline-search")[0] as HTMLInputElement;
+    const searchInput = helper.byTestId("form-field-input-pipeline-search");
     expect(searchInput).toHaveValue(searchText);
   });
 
@@ -149,21 +149,21 @@ describe("Edit Pipelines Modal", () => {
     const selectorForPipeline4 = `pipeline-checkbox-for-${pipelineGroupsJSON.groups[1].pipelines[0].name}`;
     const selectorForPipeline5 = `pipeline-checkbox-for-${pipelineGroupsJSON.groups[1].pipelines[1].name}`;
 
-    expect(helper.findByDataTestId(selectorForPipeline1)).toBeInDOM();
-    expect(helper.findByDataTestId(selectorForPipeline2)).toBeInDOM();
-    expect(helper.findByDataTestId(selectorForPipeline3)).toBeInDOM();
-    expect(helper.findByDataTestId(selectorForPipeline4)).toBeInDOM();
-    expect(helper.findByDataTestId(selectorForPipeline5)).toBeInDOM();
+    expect(helper.byTestId(selectorForPipeline1)).toBeInDOM();
+    expect(helper.byTestId(selectorForPipeline2)).toBeInDOM();
+    expect(helper.byTestId(selectorForPipeline3)).toBeInDOM();
+    expect(helper.byTestId(selectorForPipeline4)).toBeInDOM();
+    expect(helper.byTestId(selectorForPipeline5)).toBeInDOM();
 
     const searchText = pipelineGroupsJSON.groups[0].pipelines[0].name;
     modal.pipelinesVM.searchText(searchText);
     m.redraw.sync();
 
-    expect(helper.findByDataTestId(selectorForPipeline1)).toBeInDOM();
-    expect(helper.findByDataTestId(selectorForPipeline2)).not.toBeInDOM();
-    expect(helper.findByDataTestId(selectorForPipeline3)).not.toBeInDOM();
-    expect(helper.findByDataTestId(selectorForPipeline4)).not.toBeInDOM();
-    expect(helper.findByDataTestId(selectorForPipeline5)).not.toBeInDOM();
+    expect(helper.byTestId(selectorForPipeline1)).toBeInDOM();
+    expect(helper.byTestId(selectorForPipeline2)).toBeFalsy();
+    expect(helper.byTestId(selectorForPipeline3)).toBeFalsy();
+    expect(helper.byTestId(selectorForPipeline4)).toBeFalsy();
+    expect(helper.byTestId(selectorForPipeline5)).toBeFalsy();
   });
 
   it("should search for a partial pipeline name match", () => {
@@ -173,21 +173,21 @@ describe("Edit Pipelines Modal", () => {
     const selectorForPipeline4 = `pipeline-checkbox-for-${pipelineGroupsJSON.groups[1].pipelines[0].name}`;
     const selectorForPipeline5 = `pipeline-checkbox-for-${pipelineGroupsJSON.groups[1].pipelines[1].name}`;
 
-    expect(helper.findByDataTestId(selectorForPipeline1)).toBeInDOM();
-    expect(helper.findByDataTestId(selectorForPipeline2)).toBeInDOM();
-    expect(helper.findByDataTestId(selectorForPipeline3)).toBeInDOM();
-    expect(helper.findByDataTestId(selectorForPipeline4)).toBeInDOM();
-    expect(helper.findByDataTestId(selectorForPipeline5)).toBeInDOM();
+    expect(helper.byTestId(selectorForPipeline1)).toBeInDOM();
+    expect(helper.byTestId(selectorForPipeline2)).toBeInDOM();
+    expect(helper.byTestId(selectorForPipeline3)).toBeInDOM();
+    expect(helper.byTestId(selectorForPipeline4)).toBeInDOM();
+    expect(helper.byTestId(selectorForPipeline5)).toBeInDOM();
 
     const searchText = "pipeline-";
     modal.pipelinesVM.searchText(searchText);
     m.redraw.sync();
 
-    expect(helper.findByDataTestId(selectorForPipeline1)).toBeInDOM();
-    expect(helper.findByDataTestId(selectorForPipeline2)).toBeInDOM();
-    expect(helper.findByDataTestId(selectorForPipeline3)).toBeInDOM();
-    expect(helper.findByDataTestId(selectorForPipeline4)).toBeInDOM();
-    expect(helper.findByDataTestId(selectorForPipeline5)).toBeInDOM();
+    expect(helper.byTestId(selectorForPipeline1)).toBeInDOM();
+    expect(helper.byTestId(selectorForPipeline2)).toBeInDOM();
+    expect(helper.byTestId(selectorForPipeline3)).toBeInDOM();
+    expect(helper.byTestId(selectorForPipeline4)).toBeInDOM();
+    expect(helper.byTestId(selectorForPipeline5)).toBeInDOM();
   });
 
   it("should show no pipelines matching search text message when no pipelines matched the search text", () => {
@@ -197,23 +197,23 @@ describe("Edit Pipelines Modal", () => {
     const selectorForPipeline4 = `pipeline-checkbox-for-${pipelineGroupsJSON.groups[1].pipelines[0].name}`;
     const selectorForPipeline5 = `pipeline-checkbox-for-${pipelineGroupsJSON.groups[1].pipelines[1].name}`;
 
-    expect(helper.findByDataTestId(selectorForPipeline1)).toBeInDOM();
-    expect(helper.findByDataTestId(selectorForPipeline2)).toBeInDOM();
-    expect(helper.findByDataTestId(selectorForPipeline3)).toBeInDOM();
-    expect(helper.findByDataTestId(selectorForPipeline4)).toBeInDOM();
-    expect(helper.findByDataTestId(selectorForPipeline5)).toBeInDOM();
+    expect(helper.byTestId(selectorForPipeline1)).toBeInDOM();
+    expect(helper.byTestId(selectorForPipeline2)).toBeInDOM();
+    expect(helper.byTestId(selectorForPipeline3)).toBeInDOM();
+    expect(helper.byTestId(selectorForPipeline4)).toBeInDOM();
+    expect(helper.byTestId(selectorForPipeline5)).toBeInDOM();
 
     const searchText = "blah-is-my-pipeline-name";
     modal.pipelinesVM.searchText(searchText);
     m.redraw.sync();
 
-    expect(helper.findByDataTestId(selectorForPipeline1)).not.toBeInDOM();
-    expect(helper.findByDataTestId(selectorForPipeline2)).not.toBeInDOM();
-    expect(helper.findByDataTestId(selectorForPipeline3)).not.toBeInDOM();
-    expect(helper.findByDataTestId(selectorForPipeline4)).not.toBeInDOM();
-    expect(helper.findByDataTestId(selectorForPipeline5)).not.toBeInDOM();
+    expect(helper.byTestId(selectorForPipeline1)).toBeFalsy();
+    expect(helper.byTestId(selectorForPipeline2)).toBeFalsy();
+    expect(helper.byTestId(selectorForPipeline3)).toBeFalsy();
+    expect(helper.byTestId(selectorForPipeline4)).toBeFalsy();
+    expect(helper.byTestId(selectorForPipeline5)).toBeFalsy();
 
     const expectedMessage = "No pipelines matching search text 'blah-is-my-pipeline-name' found!";
-    expect(helper.findByDataTestId("flash-message-info")).toContainText(expectedMessage);
+    expect(helper.textByTestId("flash-message-info")).toContain(expectedMessage);
   });
 });

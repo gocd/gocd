@@ -18,7 +18,6 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {ExecTask, Task} from "models/new_pipeline_configs/task";
 import {Tasks} from "models/new_pipeline_configs/tasks";
-import simulateEvent from "simulate-event";
 import {TasksTab} from "views/pages/pipeline_configs/stages/on_create/tasks_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
 
@@ -39,33 +38,31 @@ describe("Pipeline Config - Job Settings Modal - Tasks Widget", () => {
   });
 
   it("should render the tasks tab", () => {
-    expect(helper.findByDataTestId("tasks-tab")).toBeInDOM();
+    expect(helper.byTestId("tasks-tab")).toBeInDOM();
   });
 
   it("should render first task by default", () => {
-    expect(helper.findByDataTestId("selected-task")).toHaveText(lsTask.represent());
-    expect(helper.find("pre")).toHaveText(lsTask.represent());
+    expect(helper.textByTestId("selected-task")).toBe(lsTask.represent());
+    expect(helper.text("pre")).toBe(lsTask.represent());
   });
 
   it("should display appropriate task in task editor on click of task from tasks list", () => {
-    expect(helper.findByDataTestId("selected-task")).toHaveText(lsTask.represent());
-    expect(helper.find("pre")).toHaveText(lsTask.represent());
+    expect(helper.textByTestId("selected-task")).toBe(lsTask.represent());
+    expect(helper.text("pre")).toBe(lsTask.represent());
 
-    simulateEvent.simulate(helper.findByDataTestId("task-representation")[1], "click");
-    m.redraw.sync();
+    helper.click(helper.allByTestId("task-representation")[1]);
 
-    expect(helper.findByDataTestId("selected-task")).toHaveText(sleepTask.represent());
-    expect(helper.find("pre")).toHaveText(sleepTask.represent());
+    expect(helper.textByTestId("selected-task")).toBe(sleepTask.represent());
+    expect(helper.text("pre")).toBe(sleepTask.represent());
   });
 
   it("should select and render the next task when the currently selected task is deleted", () => {
-    expect(helper.findByDataTestId("selected-task")).toHaveText(lsTask.represent());
-    expect(helper.find("pre")).toHaveText(lsTask.represent());
+    expect(helper.textByTestId("selected-task")).toBe(lsTask.represent());
+    expect(helper.text("pre")).toBe(lsTask.represent());
 
-    simulateEvent.simulate(helper.findByDataTestId("Delete-icon").get(0), "click");
-    m.redraw.sync();
+    helper.clickByTestId("Delete-icon");
 
-    expect(helper.findByDataTestId("selected-task")).toHaveText(sleepTask.represent());
-    expect(helper.find("pre")).toHaveText(sleepTask.represent());
+    expect(helper.textByTestId("selected-task")).toBe(sleepTask.represent());
+    expect(helper.text("pre")).toBe(sleepTask.represent());
   });
 });

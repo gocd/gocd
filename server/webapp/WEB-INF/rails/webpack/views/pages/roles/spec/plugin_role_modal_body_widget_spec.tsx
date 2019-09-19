@@ -20,7 +20,6 @@ import {TestData} from "models/auth_configs/spec/test_data";
 import {Role} from "models/roles/roles";
 import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {AuthorizationPluginInfo} from "models/shared/plugin_infos_new/spec/test_data";
-import * as simulateEvent from "simulate-event";
 import {PluginRoleModalBodyWidget} from "views/pages/roles/role_modal_body_widget";
 import {RolesTestData} from "views/pages/roles/spec/test_data";
 import {TestHelper} from "views/pages/spec/test_helper";
@@ -41,33 +40,29 @@ describe("PluginRoleModalBodyWidget", () => {
   it("should render plugin role view", () => {
     mount();
 
-    expect(helper.findByDataTestId("form-field-input-role-name")).toBeInDOM();
-    expect(helper.findByDataTestId("form-field-input-role-name").prop("readonly")).toBeFalsy();
+    expect(helper.byTestId("form-field-input-role-name")).toBeInDOM();
+    expect(helper.byTestId("form-field-input-role-name").hasAttribute("readonly")).toBe(false);
 
-    expect(helper.findByDataTestId("form-field-input-auth-config-id")).toBeInDOM();
-    expect(helper.find(".plugin-view")).toBeInDOM();
-    expect(helper.find(".plugin-view")).toContainText("This is ldap role config view.");
+    expect(helper.byTestId("form-field-input-auth-config-id")).toBeInDOM();
+    expect(helper.q(".plugin-view")).toBeInDOM();
+    expect(helper.text(".plugin-view")).toContain("This is ldap role config view.");
   });
 
   it("should disable role name when isNameDisabled is set to true", () => {
     mount(true);
 
-    expect(helper.findByDataTestId("form-field-input-role-name")).toBeInDOM();
-    expect(helper.findByDataTestId("form-field-input-role-name").prop("readonly")).toBeTruthy();
+    expect(helper.byTestId("form-field-input-role-name")).toBeInDOM();
+    expect(helper.byTestId("form-field-input-role-name").hasAttribute("readonly")).toBe(true);
   });
 
   it("should change role view on change of auth config id", () => {
     mount();
 
-    expect(helper.find(".plugin-view")).toContainText("This is ldap role config view.");
+    expect(helper.text(".plugin-view")).toContain("This is ldap role config view.");
 
-    const authConfigDropDown = helper.findByDataTestId("form-field-input-auth-config-id");
-    authConfigDropDown.val("github");
-    simulateEvent.simulate(authConfigDropDown.get(0), "change");
-    //Had to do this as m.redraw.sync() was't working :(
-    m.redraw.sync();
+    helper.onchange(helper.byTestId("form-field-input-auth-config-id"), "github");
 
-    expect(helper.find(".plugin-view")).toContainText("This is github role config view.");
+    expect(helper.text(".plugin-view")).toContain("This is github role config view.");
   });
 
   function mount(isNameDisabled = false) {

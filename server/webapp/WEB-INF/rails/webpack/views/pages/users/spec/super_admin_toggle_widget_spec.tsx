@@ -41,41 +41,39 @@ describe("Super Admin Toggle", () => {
   afterEach(helper.unmount.bind(helper));
 
   it("should render YES when the user is an admin", () => {
-    expect(helper.findByDataTestId("is-admin-text")).toContainText("YES");
+    expect(helper.textByTestId("is-admin-text")).toContain("YES");
   });
 
   it("should render NO when the user is not an admin", () => {
     user.isAdmin(false);
     helper.redraw();
 
-    expect(helper.findByDataTestId("is-admin-text")).toContainText("NO");
+    expect(helper.textByTestId("is-admin-text")).toContain("NO");
   });
 
   it("should render Not Specified when system administrators are not configured", () => {
     userViewHelper().systemAdmins().users([]);
     helper.redraw();
 
-    expect(helper.findByDataTestId("is-admin-text")).toContainText("Not Specified");
+    expect(helper.textByTestId("is-admin-text")).toContain("Not Specified");
   });
 
   it("should render enabled toggle button when the user is an admin", () => {
-    // @ts-ignore
-    expect(helper.findByDataTestId("switch-checkbox").get(0).checked).toBe(true);
+    expect(helper.byTestId("switch-checkbox")).toBeChecked();
   });
 
   it("should render disabled toggle button when the user is NOT an admin", () => {
     user.isAdmin(false);
     helper.redraw();
 
-    // @ts-ignore
-    expect(helper.findByDataTestId("switch-checkbox").get(0).checked).toBe(false);
+    expect(helper.byTestId("switch-checkbox")).not.toBeChecked();
   });
 
   it("should render disabled toggle system administrators are not configured", () => {
     userViewHelper().systemAdmins().users([]);
     helper.redraw();
 
-    expect(helper.findByDataTestId("switch-checkbox")).not.toBeChecked();
+    expect(helper.byTestId("switch-checkbox")).not.toBeChecked();
   });
 
   it("should render make current user admin tooltip when system administrators are not configured", () => {
@@ -84,12 +82,12 @@ describe("Super Admin Toggle", () => {
 
     const expectedTooltipContent = "Explicitly making 'bob' user a system administrator will result into other users not having system administrator privileges.";
 
-    expect(helper.findByDataTestId("tooltip-wrapper")).toBeInDOM();
-    expect(helper.findByDataTestId("tooltip-content")).toContainText(expectedTooltipContent);
+    expect(helper.byTestId("tooltip-wrapper")).toBeInDOM();
+    expect(helper.textByTestId("tooltip-content")).toContain(expectedTooltipContent);
   });
 
   it("should NOT render make current user admin tooltip when system administrators are configured", () => {
-    expect(helper.findByDataTestId("tooltip-wrapper")).not.toBeInDOM();
+    expect(helper.byTestId("tooltip-wrapper")).toBeFalsy();
   });
 
   it("should make a request to make admin on toggling non admin user privilege", () => {
@@ -97,7 +95,7 @@ describe("Super Admin Toggle", () => {
     helper.redraw();
 
     expect(onToggleAdmin).not.toHaveBeenCalled();
-    helper.clickByDataTestId('switch-paddle');
+    helper.clickByTestId('switch-paddle');
     expect(onToggleAdmin).toHaveBeenCalled();
   });
 
@@ -109,8 +107,8 @@ describe("Super Admin Toggle", () => {
 
     const expectedTooltipContent = "'bob' user has the system administrator privileges because the user is assigned the group administrative role. To remove this user from system administrators, assigned role needs to be removed.";
 
-    expect(helper.findByDataTestId("tooltip-wrapper")).toBeInDOM();
-    expect(helper.findByDataTestId("tooltip-content")).toContainText(expectedTooltipContent);
+    expect(helper.byTestId("tooltip-wrapper")).toBeInDOM();
+    expect(helper.textByTestId("tooltip-content")).toContain(expectedTooltipContent);
   });
 
   it("should disable switch if user is admin because of the role", () => {
@@ -120,7 +118,7 @@ describe("Super Admin Toggle", () => {
 
     helper.redraw();
 
-    expect(helper.findByDataTestId("switch-checkbox").prop("disabled")).toBe(true);
+    expect(helper.byTestId("switch-checkbox").hasAttribute("disabled")).toBe(true);
   });
 
   function mount() {

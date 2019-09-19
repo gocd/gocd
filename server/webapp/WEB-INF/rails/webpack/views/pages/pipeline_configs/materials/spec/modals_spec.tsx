@@ -16,7 +16,6 @@
 
 import _ from "lodash";
 import {GitMaterialAttributes, Material} from "models/new_pipeline_configs/materials";
-import * as simulateEvent from "simulate-event";
 import {AddMaterialModal, EditMaterialModal} from "views/pages/pipeline_configs/materials/modals";
 import {TestHelper} from "views/pages/spec/test_helper";
 
@@ -127,8 +126,7 @@ describe("EditMaterialModal", () => {
 
     describe("invalid material", () => {
       it("should not update material", () => {
-        helper.findByDataTestId("form-field-input-repository-url").val("");
-        simulateEvent.simulate(helper.findByDataTestId("form-field-input-repository-url").get(0), "input");
+        helper.oninput(helper.byTestId("form-field-input-repository-url"), "");
         // As `onSuccessfulUpdate` is a private function, `spyOn` needs a type.
         const onSuccessfulEditSpyFunction = spyOn<any>(editMaterialModal, "onSuccessfulEdit");
 
@@ -138,8 +136,7 @@ describe("EditMaterialModal", () => {
       });
 
       it("should not close modal", () => {
-        helper.findByDataTestId("form-field-input-repository-url").val("");
-        simulateEvent.simulate(helper.findByDataTestId("form-field-input-repository-url").get(0), "input");
+        helper.oninput(helper.byTestId("form-field-input-repository-url"), "");
 
         const closeSpyFunction = spyOn(editMaterialModal, "close");
 

@@ -42,11 +42,11 @@ describe("Elastic Agent Profiles Widget", () => {
     afterEach(helper.unmount.bind(helper));
 
     it("should render all elastic agent profile info panels", () => {
-      expect(helper.findByDataTestId("elastic-profile-list").get(0).children).toHaveLength(3);
+      expect(helper.byTestId("elastic-profile-list").children).toHaveLength(3);
     });
 
     it("should toggle between expanded and collapsed state on click of header", () => {
-      const elasticProfileListHeader = helper.findByDataTestId("collapse-header").get(1);
+      const elasticProfileListHeader = helper.allByTestId("collapse-header").item(1);
 
       expect(elasticProfileListHeader).not.toHaveClass(collapsiblePanelStyles.expanded);
 
@@ -67,7 +67,7 @@ describe("Elastic Agent Profiles Widget", () => {
   it("should display message to add new elastic agent profiles if no elastic agent profiles defined", () => {
     mount(pluginInfo, new ElasticAgentProfiles([]));
 
-    expect(helper.findByDataTestId("flash-message-info")).toHaveText("Click on 'Add' button to create new elastic agent profile.");
+    expect(helper.textByTestId("flash-message-info")).toBe("Click on 'Add' button to create new elastic agent profile.");
 
     helper.unmount();
   });
@@ -75,7 +75,7 @@ describe("Elastic Agent Profiles Widget", () => {
   it("should not display message to add new elastic agent profiles if no elastic agent profiles defined", () => {
     mount(undefined, new ElasticAgentProfiles([]));
 
-    expect(helper.findByDataTestId("flash-message-info")).not.toBeInDOM();
+    expect(helper.byTestId("flash-message-info")).toBeFalsy();
 
     helper.unmount();
   });
@@ -83,12 +83,12 @@ describe("Elastic Agent Profiles Widget", () => {
   it("should disable action buttons if no elastic agent plugin installed", () => {
     mount(undefined, elasticProfiles, true);
 
-    const elasticAgentProfilePanel = helper.findByDataTestId("elastic-profile-header")[0];
+    const elasticAgentProfilePanel = helper.byTestId("elastic-profile-header");
 
-    expect(helper.findIn(elasticAgentProfilePanel, "edit-elastic-profile")).toBeDisabled();
-    expect(helper.findIn(elasticAgentProfilePanel, "clone-elastic-profile")).toBeDisabled();
-    expect(helper.findIn(elasticAgentProfilePanel, "delete-elastic-profile")).not.toBeDisabled();
-    expect(helper.findIn(elasticAgentProfilePanel, "show-usage-elastic-profile")).not.toBeDisabled();
+    expect(helper.byTestId("edit-elastic-profile", elasticAgentProfilePanel)).toBeDisabled();
+    expect(helper.byTestId("clone-elastic-profile", elasticAgentProfilePanel)).toBeDisabled();
+    expect(helper.byTestId("delete-elastic-profile", elasticAgentProfilePanel)).not.toBeDisabled();
+    expect(helper.byTestId("show-usage-elastic-profile", elasticAgentProfilePanel)).not.toBeDisabled();
 
     helper.unmount();
   });
@@ -96,12 +96,12 @@ describe("Elastic Agent Profiles Widget", () => {
   it("should not disable action buttons if elastic agent plugin installed", () => {
     mount(pluginInfo, elasticProfiles, true);
 
-    const elasticAgentProfilePanel = helper.findByDataTestId("elastic-profile")[0];
+    const elasticAgentProfilePanel = helper.byTestId("elastic-profile");
 
-    expect(helper.findIn(elasticAgentProfilePanel, "edit-elastic-profile")).not.toBeDisabled();
-    expect(helper.findIn(elasticAgentProfilePanel, "clone-elastic-profile")).not.toBeDisabled();
-    expect(helper.findIn(elasticAgentProfilePanel, "delete-elastic-profile")).not.toBeDisabled();
-    expect(helper.findIn(elasticAgentProfilePanel, "show-usage-elastic-profile")).not.toBeDisabled();
+    expect(helper.byTestId("edit-elastic-profile", elasticAgentProfilePanel)).not.toBeDisabled();
+    expect(helper.byTestId("clone-elastic-profile", elasticAgentProfilePanel)).not.toBeDisabled();
+    expect(helper.byTestId("delete-elastic-profile", elasticAgentProfilePanel)).not.toBeDisabled();
+    expect(helper.byTestId("show-usage-elastic-profile", elasticAgentProfilePanel)).not.toBeDisabled();
 
     helper.unmount();
   });

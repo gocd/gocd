@@ -83,24 +83,24 @@ describe("UsersWidget", () => {
   }
 
   it("should render a list of user attributes", () => {
-    expect(helper.findByDataTestId("users-table")).toBeInDOM();
-    expect(helper.findByDataTestId("users-header")[0].children[1]).toContainText("Username");
-    expect(helper.findByDataTestId("users-header")[0].children[2]).toContainText("Display name");
-    expect(helper.findByDataTestId("users-header")[0].children[4]).toContainText("System Admin");
-    expect(helper.findByDataTestId("users-header")[0].children[5]).toContainText("Email");
-    expect(helper.findByDataTestId("users-header")[0].children[6]).toContainText("Enabled");
+    expect(helper.byTestId("users-table")).toBeInDOM();
+    expect(helper.byTestId("users-header").children[1]).toContainText("Username");
+    expect(helper.byTestId("users-header").children[2]).toContainText("Display name");
+    expect(helper.byTestId("users-header").children[4]).toContainText("System Admin");
+    expect(helper.byTestId("users-header").children[5]).toContainText("Email");
+    expect(helper.byTestId("users-header").children[6]).toContainText("Enabled");
 
-    expect(helper.findByDataTestId("user-row")).toHaveLength(2);
+    expect(helper.allByTestId("user-row")).toHaveLength(2);
 
-    expect(helper.findByDataTestId("user-username")[0]).toContainText("bob");
-    expect(helper.findByDataTestId("user-display-name")[0]).toContainText("Bob");
-    expect(helper.findByDataTestId("user-email")[0]).toContainText("bob@example.com");
-    expect(helper.findByDataTestId("user-enabled")[0]).toContainText("Yes");
+    expect(helper.textByTestId("user-username")).toContain("bob");
+    expect(helper.textByTestId("user-display-name")).toContain("Bob");
+    expect(helper.textByTestId("user-email")).toContain("bob@example.com");
+    expect(helper.textByTestId("user-enabled")).toContain("Yes");
 
-    expect(helper.findByDataTestId("user-username")[1]).toContainText("alice");
-    expect(helper.findByDataTestId("user-display-name")[1]).toContainText("Alice");
-    expect(helper.findByDataTestId("user-email")[1]).toContainText("alice@example.com");
-    expect(helper.findByDataTestId("user-enabled")[1]).toContainText("No");
+    expect(helper.allByTestId("user-username")[1].textContent).toContain("alice");
+    expect(helper.allByTestId("user-display-name")[1].textContent).toContain("Alice");
+    expect(helper.allByTestId("user-email")[1].textContent).toContain("alice@example.com");
+    expect(helper.allByTestId("user-enabled")[1].textContent).toContain("No");
   });
 
   it("should render in progress icon if update operation is in progress", () => {
@@ -109,7 +109,7 @@ describe("UsersWidget", () => {
 
     m.redraw.sync();
 
-    expect(helper.findIn(helper.findByDataTestId("user-super-admin-switch")[0], "Spinner-icon")).toBeInDOM();
+    expect(helper.byTestId("Spinner-icon", helper.byTestId("user-super-admin-switch"))).toBeInDOM();
   });
 
   it("should render success icon is update operation is successful", () => {
@@ -118,8 +118,7 @@ describe("UsersWidget", () => {
 
     m.redraw.sync();
 
-    expect(helper.findByDataTestId("user-super-admin-switch"));
-    expect(helper.findIn(helper.findByDataTestId("user-super-admin-switch")[0], "update-successful")).toBeInDOM();
+    expect(helper.byTestId("update-successful", helper.byTestId("user-super-admin-switch"))).toBeInDOM();
   });
 
   it("should render error icon with message if update operation is unsuccessful", () => {
@@ -128,8 +127,7 @@ describe("UsersWidget", () => {
 
     m.redraw.sync();
 
-    expect(helper.findIn(helper.findByDataTestId("user-super-admin-switch")[0], "update-unsuccessful")).toBeInDOM();
-    expect(helper.findByDataTestId("user-update-error-message")).toContainText("boom!");
-
+    expect(helper.byTestId("update-unsuccessful", helper.byTestId("user-super-admin-switch"))).toBeInDOM();
+    expect(helper.textByTestId("user-update-error-message")).toContain("boom!");
   });
 });

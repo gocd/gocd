@@ -155,13 +155,13 @@ describe("Maintenance Mode Disabled subsystem Widget", () => {
       const stopConfigChanges   = "Prevent users from modifying configurations.";
       const stopDBChanges       = "Prevent users from performing operations that modifies state in the database or filesystem.";
 
-      expect(find("stop-material").get(0)).toContainText(stopMaterials);
-      expect(find("stop-config-repo").get(0)).toContainText(stopConfigRepos);
-      expect(find("stop-pipeline-scheduling").get(0)).toContainText(stopPipelineTrigger);
-      expect(find("stop-work-assignment").get(0)).toContainText(stopAgentAssignment);
-      expect(find("stop-manual-trigger").get(0)).toContainText(stopManualTrigger);
-      expect(find("stop-config-changes").get(0)).toContainText(stopConfigChanges);
-      expect(find("stop-db-changes").get(0)).toContainText(stopDBChanges);
+      expect(find("stop-material")).toContainText(stopMaterials);
+      expect(find("stop-config-repo")).toContainText(stopConfigRepos);
+      expect(find("stop-pipeline-scheduling")).toContainText(stopPipelineTrigger);
+      expect(find("stop-work-assignment")).toContainText(stopAgentAssignment);
+      expect(find("stop-manual-trigger")).toContainText(stopManualTrigger);
+      expect(find("stop-config-changes")).toContainText(stopConfigChanges);
+      expect(find("stop-db-changes")).toContainText(stopDBChanges);
     });
   });
 
@@ -170,7 +170,7 @@ describe("Maintenance Mode Disabled subsystem Widget", () => {
   }
 
   function find(id: string) {
-    return helper.findByDataTestId(id);
+    return helper.byTestId(id);
   }
 
   function checkIcon() {

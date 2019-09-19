@@ -91,4 +91,22 @@ export class Environments extends Array<EnvironmentWithOrigin> {
   static fromJSON(data: EnvironmentsJSON) {
     return new Environments(...data._embedded.environments.map(EnvironmentWithOrigin.fromJSON));
   }
+
+  findEnvironmentForPipeline(pipelineName: string): EnvironmentWithOrigin | undefined {
+    for (const env of this) {
+      if (env.containsPipeline(pipelineName)) {
+        return env;
+      }
+    }
+  }
+
+  isPipelineDefinedInAnotherEnvironmentApartFrom(envName: string, pipelineName: string): boolean {
+    return this.some((env) => {
+      if (env.name() === envName) {
+        return false;
+      }
+
+      return env.containsPipeline(pipelineName);
+    });
+  }
 }

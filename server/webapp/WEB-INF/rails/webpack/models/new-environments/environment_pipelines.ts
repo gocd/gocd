@@ -44,4 +44,8 @@ export class Pipelines extends Array<PipelineWithOrigin> {
   static fromJSON(pipelines: EnvironmentPipelineJSON[]) {
     return new Pipelines(...pipelines.map(PipelineWithOrigin.fromJSON));
   }
+
+  containsPipeline(name: string): boolean {
+    return this.map((p) => p.name()).indexOf(name) !== -1;
+  }
 }

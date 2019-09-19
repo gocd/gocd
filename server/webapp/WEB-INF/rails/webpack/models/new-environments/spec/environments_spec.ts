@@ -105,4 +105,30 @@ describe("Environments Model - Environments", () => {
     expect(environment.pipelines().length).toBe(2);
     expect(environment.containsPipeline(pipelineJson.name)).toBe(false);
   });
+
+  it("should answer the environment to which the specified pipeline is associated", () => {
+    const environments         = Environments.fromJSON(environmentsJSON);
+    const existingPipelineName = environments[0].pipelines()[0].name();
+
+    expect(environments.findEnvironmentForPipeline(existingPipelineName)!.name()).toEqual(environments[0].name());
+    expect(environments.findEnvironmentForPipeline("my-fancy-pipeline")).toEqual(undefined);
+  });
+
+  it("should answer whether the pipeline is defined in another environment apart from specified environment", () => {
+    const env2JSON     = data.environment_json();
+    const multiEnvJSON = {
+      _embedded: {
+        environments: [envJSON, env2JSON]
+      }
+    };
+
+    const environments = Environments.fromJSON(multiEnvJSON);
+
+    const env1Name     = environments[0].name();
+    const env2Name     = environments[1].name();
+    const pipelineName = environments[0].pipelines()[0].name();
+
+    expect(environments.isPipelineDefinedInAnotherEnvironmentApartFrom(env1Name, pipelineName)).toEqual(false);
+    expect(environments.isPipelineDefinedInAnotherEnvironmentApartFrom(env2Name, pipelineName)).toEqual(true);
+  });
 });

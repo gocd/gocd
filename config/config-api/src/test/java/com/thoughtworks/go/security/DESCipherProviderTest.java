@@ -16,33 +16,33 @@
 package com.thoughtworks.go.security;
 
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.junit.Rule;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
-import static org.apache.commons.codec.binary.Hex.decodeHex;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import javax.crypto.spec.DESKeySpec;
+import java.io.IOException;
 
-@EnableRuleMigrationSupport
-class DESCipherProviderTest {
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
-    @Rule
-    public final ResetCipher resetCipher = new ResetCipher();
+public class DESCipherProviderTest {
+
+    @Before
+    public void setup() throws IOException {
+        new DESCipherProvider(new SystemEnvironment()).resetCipher();
+    }
+
+    @After
+    public void tearDown() {
+        new DESCipherProvider(new SystemEnvironment()).resetCipher();
+    }
 
     @Test
-    void shouldLoadCipherIfPresent() throws Exception {
-        resetCipher.setupDESCipherFile();
+    public void shouldGenerateAValidAndSafeDESKey() throws Exception {
         DESCipherProvider desCipherProvider = new DESCipherProvider(new SystemEnvironment());
         byte[] key = desCipherProvider.getKey();
-        assertThat(key).containsExactly(decodeHex("269298bc31c44620"));
+        assertThat(DESKeySpec.isWeak(key, 0), is(false));
     }
 
-    @Test
-    void shouldBailIfCipherNotPresent() {
-        DESCipherProvider desCipherProvider = new DESCipherProvider(new SystemEnvironment());
-        assertThatCode(() -> {
-            desCipherProvider.getKey();
-        }).isInstanceOf(IllegalStateException.class).hasMessage("You seem to be loading a cipher from a file that does not exist.");
-    }
 }

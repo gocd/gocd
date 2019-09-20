@@ -25,11 +25,11 @@ export class CaseInsensitiveMap<V> implements Map<string, V> {
   private readonly delegate: Map<string, V>;
 
   constructor(entries?: ReadonlyArray<readonly [string, V]> | null) {
-    if (entries && entries.length) {
-      entries = entries.map((entry) => [entry[0].toLowerCase(), entry[1]]);
-    }
+    const m = this.delegate = new Map<string, V>();
 
-    this.delegate = new Map(entries);
+    if (entries && entries.length) {
+      entries.forEach((entry) => m.set(entry[0].toLowerCase(), entry[1]));
+    }
   }
 
   set(key: string, val: V) {

@@ -17,7 +17,6 @@
 // utils
 import {ApiRequestBuilder, ApiVersion} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
-import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
 import s from "underscore.string";
@@ -63,10 +62,7 @@ export class PipelineConfigVM {
 
   exportPlugins() {
     this.pluginCache.prime(m.redraw);
-    return _.map(this.pluginCache.contents(), (option) => VANITY_PLUGIN_NAMES[option.id] ?
-      { id: option.id, text: VANITY_PLUGIN_NAMES[option.id] } :
-      option
-    );
+    return this.pluginCache.contents();
   }
 
   preview(pluginId: string, validate?: boolean) {
@@ -101,7 +97,7 @@ export interface PipelineConfigVMAware {
 }
 
 function toOption(plugin: PluginInfo): Option {
-  return { id: plugin.id, text: plugin.about.name };
+  return { id: plugin.id, text: VANITY_PLUGIN_NAMES[plugin.id] || plugin.about.name };
 }
 
 function onlyExportPlugins(plugin: PluginInfo): boolean {

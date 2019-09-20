@@ -96,6 +96,7 @@ export class PipelinesAsCodeCreatePage extends Page {
         }
 
         result.do((res) => {
+          this.mimeType(result.header("content-type")!.split(";").shift()!);
           this.content(res.body);
         }, (err) => console.error(err)); // tslint:disable-line no-console
       });

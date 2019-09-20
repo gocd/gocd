@@ -17,20 +17,15 @@ package com.thoughtworks.go.security;
 
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
-import org.bouncycastle.crypto.KeyGenerationParameters;
-import org.bouncycastle.crypto.generators.DESKeyGenerator;
-import org.bouncycastle.crypto.params.DESParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.Serializable;
-import java.security.SecureRandom;
-import java.util.UUID;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.codec.binary.Hex.decodeHex;
-import static org.apache.commons.codec.binary.Hex.encodeHexString;
+import static org.apache.commons.lang3.ArrayUtils.isEmpty;
 
 @Deprecated
 public class DESCipherProvider implements Serializable {
@@ -48,6 +43,9 @@ public class DESCipherProvider implements Serializable {
     }
 
     public byte[] getKey() {
+        if (isEmpty(key)) {
+            throw new IllegalStateException("You seem to be loading a cipher from a file that does not exist.");
+        }
         return key;
     }
 
@@ -55,30 +53,19 @@ public class DESCipherProvider implements Serializable {
         if (cachedKey == null) {
             synchronized (cipherFile.getAbsolutePath().intern()) {
                 if (cachedKey == null) {
+                    if (!cipherFile.exists()) {
+                        return;
+                    }
                     try {
                         if (cipherFile.exists()) {
                             cachedKey = decodeHex(FileUtils.readFileToString(cipherFile, UTF_8).trim());
-                            return;
                         }
-                        byte[] newKey = generateKey();
-                        FileUtils.writeStringToFile(cipherFile, encodeHexString(newKey), UTF_8);
-                        LOGGER.info("DES cipher not found. Creating a new cipher file");
-                        cachedKey = newKey;
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
                 }
             }
         }
-    }
-
-    private byte[] generateKey() {
-        SecureRandom random = new SecureRandom();
-        random.setSeed(UUID.randomUUID().toString().getBytes());
-        KeyGenerationParameters generationParameters = new KeyGenerationParameters(random, DESParameters.DES_KEY_LENGTH * 8);
-        DESKeyGenerator generator = new DESKeyGenerator();
-        generator.init(generationParameters);
-        return generator.generateKey();
     }
 
     public void resetCipher() {

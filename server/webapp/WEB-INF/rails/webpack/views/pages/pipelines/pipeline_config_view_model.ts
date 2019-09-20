@@ -15,23 +15,31 @@
  */
 
 // utils
-import { ApiRequestBuilder, ApiVersion } from "helpers/api_request_builder";
-import { SparkRoutes } from "helpers/spark_routes";
+import {ApiRequestBuilder, ApiVersion} from "helpers/api_request_builder";
+import {SparkRoutes} from "helpers/spark_routes";
+import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {ConfigRepoExtension} from "models/shared/plugin_infos_new/extensions";
 import s from "underscore.string";
 
 // models and such
-import { GitMaterialAttributes, Material } from "models/materials/types";
-import { Job } from "models/pipeline_configs/job";
-import { NameableSet } from "models/pipeline_configs/nameable_set";
-import { PipelineConfig } from "models/pipeline_configs/pipeline_config";
-import { Stage } from "models/pipeline_configs/stage";
+import {ConfigRepo} from "models/config_repos/types";
+import {GitMaterialAttributes, Material} from "models/materials/types";
+import {Job} from "models/pipeline_configs/job";
+import {NameableSet} from "models/pipeline_configs/nameable_set";
+import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
+import {Stage} from "models/pipeline_configs/stage";
 import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
-import { PluginInfo } from "models/shared/plugin_infos_new/plugin_info";
-import { PluginInfosCache } from "models/shared/plugin_infos_new/plugin_infos_cache";
-import { Option } from "views/components/forms/input_fields";
+import {ConfigRepoExtension} from "models/shared/plugin_infos_new/extensions";
+import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import {PluginInfosCache} from "models/shared/plugin_infos_new/plugin_infos_cache";
+import {Option} from "views/components/forms/input_fields";
+
+const VANITY_PLUGIN_NAMES: {[key: string]: string} = {
+  [ConfigRepo.YAML_PLUGIN_ID]: "YAML",
+  [ConfigRepo.JSON_PLUGIN_ID]: "JSON",
+  [ConfigRepo.GROOVY_PLUGIN_ID]: "Groovy",
+};
 
 export class PipelineConfigVM {
   material: Material = new Material("git", new GitMaterialAttributes());
@@ -55,7 +63,10 @@ export class PipelineConfigVM {
 
   exportPlugins() {
     this.pluginCache.prime(m.redraw);
-    return this.pluginCache.contents();
+    return _.map(this.pluginCache.contents(), (option) => VANITY_PLUGIN_NAMES[option.id] ?
+      { id: option.id, text: VANITY_PLUGIN_NAMES[option.id] } :
+      option
+    );
   }
 
   preview(pluginId: string, validate?: boolean) {

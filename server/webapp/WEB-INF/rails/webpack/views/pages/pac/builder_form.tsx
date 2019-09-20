@@ -23,7 +23,6 @@ import Stream from "mithril/stream";
 
 // components
 import {MithrilComponent} from "jsx/mithril-component";
-import {SelectField, SelectFieldOptions} from "views/components/forms/input_fields";
 import {AdvancedSettings} from "views/pages/pipelines/advanced_settings";
 import {EnvironmentVariablesEditor} from "views/pages/pipelines/environment_variables_editor";
 import {JobEditor} from "views/pages/pipelines/job_editor";
@@ -43,7 +42,6 @@ const uipCss: typeof uipStyles = override(uipStyles, {
 });
 
 interface Attrs extends PipelineConfigVMAware {
-  pluginId: () => string;
   onContentChange?: (changed: boolean) => void;
 }
 
@@ -53,7 +51,7 @@ export class BuilderForm extends MithrilComponent<Attrs> {
   oncreate(vnode: m.VnodeDOM<Attrs, {}>) {
     vnode.dom.addEventListener("change", (e) => {
       const vm = vnode.attrs.vm;
-      sha256(vnode.attrs.pluginId() + JSON.stringify(vm.pipeline.toApiPayload())).
+      sha256(JSON.stringify(vm.pipeline.toApiPayload())).
         then((hash) => {
           if ("function" === typeof vnode.attrs.onContentChange) {
             vnode.attrs.onContentChange(hash !== this.hash());
@@ -67,14 +65,6 @@ export class BuilderForm extends MithrilComponent<Attrs> {
     const { pipeline, material, isUsingTemplate } = vnode.attrs.vm;
 
     return <div class={defaultStyles.builderForm}>
-      <div style="display: none;">
-        <UserInputPane css={uipCss} heading="Part 0: Select Config Language">
-          <SelectField property={vnode.attrs.pluginId} label="Choose a Pipelines as Code plugin">
-            <SelectFieldOptions selected={vnode.attrs.pluginId()} items={vnode.attrs.vm.exportPlugins()}/>
-          </SelectField>
-        </UserInputPane>
-      </div>
-
       <UserInputPane css={uipCss} heading="Part 1: Material">
         <MaterialEditor material={material}/>
       </UserInputPane>

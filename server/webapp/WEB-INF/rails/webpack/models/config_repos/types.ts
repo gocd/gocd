@@ -40,6 +40,7 @@ export class ConfigRepo implements ValidatableMixin {
   static readonly FILE_PATTERN                                 = "file_pattern";
   static readonly JSON_PLUGIN_ID                               = "json.config.plugin";
   static readonly YAML_PLUGIN_ID                               = "yaml.config.plugin";
+  static readonly GROOVY_PLUGIN_ID                             = "cd.go.contrib.plugins.configrepo.groovy";
                   id: Stream<string | undefined>;
                   pluginId: Stream<string | undefined>;
                   material: Stream<Material | undefined>;

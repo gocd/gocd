@@ -61,6 +61,7 @@ Each agent needs to be configured to run in its own separate directory so that e
               -e "s@/var/log/go-agent@/var/log/${AGENT_ID}@g" \
               -e "s@../wrapper-config/wrapper-properties.conf@/usr/share/${AGENT_ID}/wrapper-config/wrapper-properties.conf@g" \
                 /usr/share/${AGENT_ID}/wrapper-config/wrapper.conf
+        sed -i -e "s@/var/lib/go-agent@/var/lib/${AGENT_ID}@g" /usr/share/${AGENT_ID}/wrapper-config/wrapper-properties.conf
 
         if [ "${RUN_AS_SERVICE}" == "true" ]; then
           if [ "${START_SERVICE_NOW}" == "true" ]; then

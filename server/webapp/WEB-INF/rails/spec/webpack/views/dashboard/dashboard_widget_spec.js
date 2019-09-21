@@ -23,7 +23,6 @@ import {Modal} from "views/shared/new_modal";
 import {DashboardViewModel as DashboardVM} from "views/dashboard/models/dashboard_view_model";
 import {Dashboard} from "models/dashboard/dashboard";
 import {DashboardWidget} from "views/dashboard/dashboard_widget";
-import simulateEvent from "simulate-event";
 import _ from "lodash";
 import $ from "jquery";
 import Stream from "mithril/stream";
@@ -32,6 +31,7 @@ import m from "mithril";
 describe("Dashboard Widget", () => {
 
   const sel = asSelector(css);
+  const body = document.body;
 
   let dashboard, dashboardJson, buildCauseJson, doCancelPolling, doRefreshImmediately, vm;
   const originalDebounce = _.debounce;
@@ -62,116 +62,95 @@ describe("Dashboard Widget", () => {
   afterEach(unmount);
 
   it("should render dashboard pipeline search field", () => {
-    expect(helper.findByDataTestId('search-box')).toBeInDOM();
+    expect(helper.byTestId('search-box')).toBeInDOM();
   });
 
   it("should show spinner before dashboard is loaded", () => {
     unmount();
     const pageSpinner = Stream(true);
     mount(true, pageSpinner);
-    expect(helper.find(".page-spinner")).toBeInDOM();
+    expect(helper.q(".page-spinner")).toBeInDOM();
 
     pageSpinner(false);
     unmount();
     mount(true, pageSpinner);
-    expect(helper.find(".page-spinner")).not.toBeInDOM();
+    expect(helper.q(".page-spinner")).toBeFalsy();
   });
 
   it('should render an info message', () => {
-    expect(helper.find('.dashboard-message')).not.toBeInDOM();
+    expect(helper.q('.dashboard-message')).toBeFalsy();
     dashboard.message({content: 'some message', type: 'info'});
-    m.redraw.sync();
-    expect(helper.find('.callout.info .dashboard-message')).toContainText('some message');
+    helper.redraw();
+
+    expect(helper.text('.callout.info .dashboard-message')).toContain('some message');
   });
 
   it('should render an alert message', () => {
-    expect(helper.find('.dashboard-message')).not.toBeInDOM();
+    expect(helper.q('.dashboard-message')).toBeFalsy();
     dashboard.message({content: 'some error message', type: 'alert'});
-    m.redraw.sync();
-    expect(helper.find('.callout.alert .dashboard-message')).toContainText('some error message');
+    helper.redraw();
+
+    expect(helper.text('.callout.alert .dashboard-message')).toContain('some error message');
   });
 
   it("should search for a pipeline", () => {
-    const searchField        = helper.findByDataTestId('search-box').get(0);
-    let pipelinesCountOnPage = helper.find('.pipeline');
+    const searchField        = helper.byTestId('search-box');
+    let pipelinesCountOnPage = helper.qa('.pipeline');
     expect(pipelinesCountOnPage).toHaveLength(2);
 
-    $(searchField).val('foo');
-    simulateEvent.simulate(searchField, 'input');
+    helper.oninput(searchField, "foo");
 
-    m.redraw.sync();
-
-    pipelinesCountOnPage = helper.find('.pipeline');
+    pipelinesCountOnPage = helper.qa('.pipeline');
     expect(pipelinesCountOnPage).toHaveLength(0);
 
-    $(searchField).val('up42');
-    simulateEvent.simulate(searchField, 'input');
+    helper.oninput(searchField, "up42");
 
-    m.redraw.sync();
-
-    pipelinesCountOnPage = helper.find('.pipeline');
+    pipelinesCountOnPage = helper.qa('.pipeline');
     expect(pipelinesCountOnPage).toHaveLength(1);
 
-    $(searchField).val('up43');
-    simulateEvent.simulate(searchField, 'input');
+    helper.oninput(searchField, "up43");
 
-    m.redraw.sync();
-
-    pipelinesCountOnPage = helper.find('.pipeline');
+    pipelinesCountOnPage = helper.qa('.pipeline');
     expect(pipelinesCountOnPage).toHaveLength(1);
 
-    $(searchField).val('UP43');
-    simulateEvent.simulate(searchField, 'input');
+    helper.oninput(searchField, "UP43");
 
-    m.redraw.sync();
-
-    pipelinesCountOnPage = helper.find('.pipeline');
+    pipelinesCountOnPage = helper.qa('.pipeline');
     expect(pipelinesCountOnPage).toHaveLength(1);
 
-    $(searchField).val('up');
-    simulateEvent.simulate(searchField, 'input');
+    helper.oninput(searchField, "up");
 
-    m.redraw.sync();
-
-    pipelinesCountOnPage = helper.find('.pipeline');
+    pipelinesCountOnPage = helper.qa('.pipeline');
     expect(pipelinesCountOnPage).toHaveLength(2);
 
-    $(searchField).val('');
-    simulateEvent.simulate(searchField, 'input');
+    helper.oninput(searchField, "");
 
-    m.redraw.sync();
-
-    pipelinesCountOnPage = helper.find('.pipeline');
+    pipelinesCountOnPage = helper.qa('.pipeline');
     expect(pipelinesCountOnPage).toHaveLength(2);
   });
 
   it("should show appropriate modal for pausing a searched pipeline", () => {
-    const searchField = helper.findByDataTestId('search-box').get(0);
-    expect(helper.find('.pipeline')).toHaveLength(2);
+    const searchField = helper.byTestId('search-box');
+    expect(helper.qa('.pipeline')).toHaveLength(2);
 
-    $(searchField).val('up42');
-    simulateEvent.simulate(searchField, 'input');
-    m.redraw.sync();
+    helper.oninput(searchField, "up42");
 
-    expect(helper.find('.pipeline')).toHaveLength(1);
+    expect(helper.qa('.pipeline')).toHaveLength(1);
 
-    simulateEvent.simulate(helper.find('.pause').get(0), 'click');
-    m.redraw.sync();
-    expect($('.modal-body').text()).toEqual('Specify a reason for pausing schedule on pipeline up42');
+    helper.click('.pause');
+
+    expect(helper.text('.modal-body', body)).toBe('Specify a reason for pausing schedule on pipeline up42');
 
     //close specify pause cause popup for up42 pipeline
     Modal.destroyAll();
 
-    $(searchField).val('up43');
-    simulateEvent.simulate(searchField, 'input');
-    m.redraw.sync();
+    helper.oninput(searchField, "up43");
     m.redraw.sync();
 
-    expect(helper.find('.pipeline')).toHaveLength(1);
+    expect(helper.qa('.pipeline')).toHaveLength(1);
 
-    simulateEvent.simulate(helper.find('.pause').get(0), 'click');
-    m.redraw.sync();
-    expect($('.modal-body').text()).toEqual('Specify a reason for pausing schedule on pipeline up43');
+    helper.click('.pause');
+    expect(helper.text('.modal-body', body)).toBe('Specify a reason for pausing schedule on pipeline up43');
 
     //close specify pause cause popup for up43 pipeline
     Modal.destroyAll();
@@ -190,21 +169,18 @@ describe("Dashboard Widget", () => {
         status:          200
       });
 
-      simulateEvent.simulate(helper.find('.pause').get(0), 'click');
-      m.redraw.sync();
-      expect($('.modal-body').text()).toEqual('Specify a reason for pausing schedule on pipeline up42');
-      $('.reveal input').val(pauseCause);
-      expect($('.reveal input')).toHaveValue(pauseCause);
+      helper.click('.pause');
 
-      simulateEvent.simulate($('.reveal .primary').get(0), 'click');
-      m.redraw.sync();
+      expect(helper.text('.modal-body', body)).toBe('Specify a reason for pausing schedule on pipeline up42');
+      helper.q('.reveal input', body).value = pauseCause;
+      helper.click('.reveal .primary', body);
 
-      expect(helper.find('.pipeline_message')).toContainText(responseMessage);
-      expect(helper.find('.pipeline_message')).toHaveClass("success");
+      expect(helper.text('.pipeline_message')).toContain(responseMessage);
+      expect(helper.q('.pipeline_message')).toHaveClass("success");
 
-      simulateEvent.simulate(helper.find('.pause').get(0), 'click');
-      m.redraw.sync();
-      expect($('.reveal input')).toHaveValue('');
+      helper.click('.pause');
+
+      expect(helper.q('.reveal input', body)).toHaveValue('');
 
       Modal.destroyAll();
     });
@@ -213,15 +189,13 @@ describe("Dashboard Widget", () => {
   it("should show changes popup for a searched pipeline", () => {
     stubBuildCauseAjaxCall();
 
-    const searchField = helper.findByDataTestId('search-box').get(0);
-    expect(helper.find('.pipeline')).toHaveLength(2);
+    const searchField = helper.byTestId('search-box');
+    expect(helper.qa('.pipeline')).toHaveLength(2);
 
-    $(searchField).val('up42');
-    simulateEvent.simulate(searchField, 'input');
-    m.redraw.sync();
+    helper.oninput(searchField, "up42");
 
-    expect(helper.find('.pipeline')).toHaveLength(1);
-    expect(helper.find('.material_changes')).not.toBeInDOM();
+    expect(helper.qa('.pipeline')).toHaveLength(1);
+    expect(helper.q('.material_changes')).toBeFalsy();
 
     jasmine.Ajax.withMock(() => {
       jasmine.Ajax.stubRequest(SparkRoutes.buildCausePath('up42', '1'), undefined, 'GET').andReturn({
@@ -230,18 +204,15 @@ describe("Dashboard Widget", () => {
         status:          200
       });
 
-      simulateEvent.simulate(helper.find('.info a').get(1), 'click');
-      m.redraw.sync();
+      helper.click(helper.qa('.info a').item(1));
     });
 
-    expect(helper.find('.material_changes')).toBeInDOM();
+    expect(helper.q('.material_changes')).toBeInDOM();
 
-    $(searchField).val('up43');
-    simulateEvent.simulate(searchField, 'input');
-    m.redraw.sync();
+    helper.oninput(searchField, "up43");
 
-    expect(helper.find('.pipeline')).toHaveLength(1);
-    expect(helper.find('.material_changes')).not.toBeInDOM();
+    expect(helper.qa('.pipeline')).toHaveLength(1);
+    expect(helper.q('.material_changes')).toBeFalsy();
 
     jasmine.Ajax.withMock(() => {
       jasmine.Ajax.stubRequest(SparkRoutes.buildCausePath('up42', '1'), undefined, 'GET').andReturn({
@@ -250,11 +221,10 @@ describe("Dashboard Widget", () => {
         status:          200
       });
 
-      simulateEvent.simulate(helper.find('.info a').get(1), 'click');
-      m.redraw.sync();
+      helper.click(helper.qa('.info a').item(1));
     });
 
-    expect(helper.find('.material_changes')).toBeInDOM();
+    expect(helper.q('.material_changes')).toBeInDOM();
   });
 
   it("should unlock a searched pipeline", () => {
@@ -268,52 +238,49 @@ describe("Dashboard Widget", () => {
         status:          200
       });
 
-      const searchField = helper.findByDataTestId('search-box').get(0);
-      expect(helper.find('.pipeline')).toHaveLength(2);
+      const searchField = helper.byTestId('search-box');
+      expect(helper.qa('.pipeline')).toHaveLength(2);
 
-      $(searchField).val('up43');
-      simulateEvent.simulate(searchField, 'input');
-      m.redraw.sync();
+      helper.oninput(searchField, "up43");
 
-      expect(helper.find('.pipeline')).toHaveLength(1);
+      expect(helper.qa('.pipeline')).toHaveLength(1);
 
       expect(doCancelPolling).not.toHaveBeenCalled();
       expect(doRefreshImmediately).not.toHaveBeenCalled();
 
-      simulateEvent.simulate(helper.find('.pipeline_locked').get(0), 'click');
-      m.redraw.sync();
+      helper.click('.pipeline_locked');
 
       expect(doCancelPolling).toHaveBeenCalled();
       expect(doRefreshImmediately).toHaveBeenCalled();
 
-      expect(helper.find('.pipeline_message')).toContainText(responseMessage);
-      expect(helper.find('.pipeline_message')).toHaveClass("success");
+      expect(helper.text('.pipeline_message')).toContain(responseMessage);
+      expect(helper.q('.pipeline_message')).toHaveClass("success");
     });
   });
 
   it("should render pipeline groups", () => {
     const pipelineGroupsCount = dashboardJson._embedded.pipeline_groups.length;
-    const pipelineGroups      = helper.find('.dashboard-group');
+    const pipelineGroups      = helper.qa('.dashboard-group');
 
-    expect(pipelineGroups.size()).toEqual(pipelineGroupsCount);
-    expect(pipelineGroups.get(0)).toContainText(dashboardJson._embedded.pipeline_groups[0].name);
+    expect(pipelineGroups).toHaveLength(pipelineGroupsCount);
+    expect(pipelineGroups.item(0)).toContainText(dashboardJson._embedded.pipeline_groups[0].name);
   });
 
   it("should render pipeline group title", () => {
-    expect(helper.find('.dashboard-group_title a').get(0)).toContainText(dashboardJson._embedded.pipeline_groups[0].name);
+    expect(helper.text('.dashboard-group_title a')).toContain(dashboardJson._embedded.pipeline_groups[0].name);
   });
 
   it("should show pipeline group name which links to pipeline group index page for admin users", () => {
     const pipelineGroupJSON = dashboardJson._embedded.pipeline_groups[0];
 
-    const title = helper.find('.dashboard-group_title>a').get(0);
+    const title = helper.q('.dashboard-group_title>a');
     expect(title.href.indexOf(`/go/admin/pipelines#group-${pipelineGroupJSON.name}`)).not.toEqual(-1);
   });
 
   it("should show pipeline group icon which links to pipeline group settings page for admin users", () => {
     const pipelineGroupJSON = dashboardJson._embedded.pipeline_groups[0];
 
-    const title = helper.find('.dashboard-group_title>a').get(1);
+    const title = helper.qa('.dashboard-group_title>a').item(1);
     expect(title.href.indexOf(`/go/admin/pipeline_group/${pipelineGroupJSON.name}/edit`)).not.toEqual(-1);
   });
 
@@ -324,14 +291,14 @@ describe("Dashboard Widget", () => {
   it("should not show pipeline add icon when grouped by environments for admin users", () => {
     vm.groupByEnvironment(true);
     m.redraw.sync();
-    expect(helper.q(sel.btnPrimary, helper.q(".dashboard-group_title"))).not.toBeInDOM();
+    expect(helper.q(sel.btnPrimary, helper.q(".dashboard-group_title"))).toBeFalsy();
   });
 
   it("should show disabled pipeline group settings icon showing tooltip for non admin users", () => {
     unmount();
     mount(false);
-    expect(helper.find('.dashboard-group_title .edit_config')).toHaveClass('disabled');
-    expect(helper.find('.dashboard-group_title .edit_config')).toHaveAttr('data-tooltip-id');
+    expect(helper.q('.dashboard-group_title .edit_config')).toHaveClass('disabled');
+    expect(helper.q('.dashboard-group_title .edit_config')).toHaveAttr('data-tooltip-id');
   });
 
   it("should show pipeline group name as a disabled link for non admin users", () => {
@@ -339,7 +306,7 @@ describe("Dashboard Widget", () => {
     mount(false);
     const pipelineGroupJSON = dashboardJson._embedded.pipeline_groups[0];
 
-    const title = helper.find('.dashboard-group_title>a').get(0);
+    const title = helper.q('.dashboard-group_title>a');
     expect(title).toContainText(pipelineGroupJSON.name);
     expect(title).toHaveClass('disabled');
   });
@@ -348,10 +315,10 @@ describe("Dashboard Widget", () => {
   it("should render pipelines within each pipeline group", () => {
     const pipelineName                      = dashboardJson._embedded.pipeline_groups[0].pipelines[0];
     const pipelinesWithinPipelineGroupCount = dashboardJson._embedded.pipeline_groups[0].pipelines.length;
-    const pipelinesWithinPipelineGroup      = helper.find('.dashboard-group .pipeline');
+    const pipelinesWithinPipelineGroup      = helper.qa('.dashboard-group .pipeline');
 
-    expect(pipelinesWithinPipelineGroup.size()).toEqual(pipelinesWithinPipelineGroupCount);
-    expect(pipelinesWithinPipelineGroup).toContainText(pipelineName);
+    expect(pipelinesWithinPipelineGroup).toHaveLength(pipelinesWithinPipelineGroupCount);
+    expect(helper.textAll(pipelinesWithinPipelineGroup).join(" ")).toContain(pipelineName);
   });
 
   function mount(canAdminister = true, showSpinner = Stream(false)) {
@@ -550,7 +517,7 @@ describe("Dashboard Widget", () => {
   }
 
   function unmount() {
-    $("body").off();
+    $(body).off();
     helper.unmount();
   }
 

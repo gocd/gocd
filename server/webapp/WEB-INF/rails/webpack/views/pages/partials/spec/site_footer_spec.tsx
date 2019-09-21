@@ -40,7 +40,7 @@ describe("SiteFooter", () => {
     expect(helper.root).toContainElement(`a[href="/go/assets/dependency-license-report-${GoCDVersion.fullVersion}"]`);
     expect(helper.root).toContainText(`GoCD Version: ${GoCDVersion.formattedVersion}`);
     expect(helper.root).not.toContainText("maintenance");
-    expect(helper.findByDataTestId("maintenance-mode-banner")).not.toBeInDOM();
+    expect(helper.byTestId("maintenance-mode-banner")).toBeFalsy();
     expect(helper.root).not.toContainText("unsupported browser");
   });
 
@@ -57,9 +57,9 @@ describe("SiteFooter", () => {
     };
     mount(attrs);
 
-    expect(helper.findByDataTestId("maintenance-mode-banner")).toBeInDOM();
-    expect(helper.findByDataTestId("maintenance-mode-banner"))
-      .toContainText(`bob turned on maintenance mode at ${timeFormatter.format(attrs.maintenanceModeUpdatedOn)}`);
+    expect(helper.byTestId("maintenance-mode-banner")).toBeInDOM();
+    expect(helper.textByTestId("maintenance-mode-banner"))
+      .toContain(`bob turned on maintenance mode at ${timeFormatter.format(attrs.maintenanceModeUpdatedOn)}`);
     expect(helper.root).toContainText("maintenance");
     expect(helper.root).not.toContainText("unsupported browser");
   });
@@ -77,8 +77,8 @@ describe("SiteFooter", () => {
     };
     mount(attrs);
 
-    expect(helper.findByDataTestId("maintenance-mode-banner")).not.toBeInDOM();
-    expect(helper.findByDataTestId("unsupported-browser-banner")).toBeInDOM();
+    expect(helper.byTestId("maintenance-mode-banner")).toBeFalsy();
+    expect(helper.byTestId("unsupported-browser-banner")).toBeInDOM();
     expect(helper.root).not.toContainText("maintenance");
     expect(helper.root).toContainText("unsupported browser");
   });

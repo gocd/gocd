@@ -56,7 +56,7 @@ describe("EnvironmentsDropdownButton", () => {
     expect(staticAgentsVM.showResources()).toBeTruthy();
     expect(staticAgentsVM.showEnvironments()).toBeFalsy();
 
-    helper.clickByDataTestId("modify-environments-association");
+    helper.clickByTestId("modify-environments-association");
 
     expect(staticAgentsVM.showResources()).toBeFalsy();
     expect(staticAgentsVM.showEnvironments()).toBeTruthy();
@@ -66,7 +66,7 @@ describe("EnvironmentsDropdownButton", () => {
     staticAgentsVM.selectAgent(agent.uuid);
     mount(staticAgentsVM, new DummyService([]));
 
-    helper.clickByDataTestId("modify-environments-association");
+    helper.clickByTestId("modify-environments-association");
     m.redraw.sync();
 
     expect(helper.byTestId("association")).toBeInDOM();
@@ -85,7 +85,7 @@ describe("EnvironmentsDropdownButton", () => {
 
     mount(staticAgentsVM, new MockService());
 
-    helper.clickByDataTestId("modify-environments-association");
+    helper.clickByTestId("modify-environments-association");
     m.redraw.sync();
 
     expect(helper.byTestId("spinner")).not.toBeInDOM();
@@ -95,7 +95,7 @@ describe("EnvironmentsDropdownButton", () => {
     staticAgentsVM.selectAgent(agent.uuid);
     mount(staticAgentsVM, new DummyService([]));
 
-    helper.clickByDataTestId("modify-environments-association");
+    helper.clickByTestId("modify-environments-association");
     m.redraw.sync();
 
     expect(helper.byTestId("association")).toContainText("No environments are defined.");
@@ -106,7 +106,7 @@ describe("EnvironmentsDropdownButton", () => {
     staticAgentsVM.selectAgent(agent.uuid);
     mount(staticAgentsVM, new DummyService(["prod", "test"]));
 
-    helper.clickByDataTestId("modify-environments-association");
+    helper.clickByTestId("modify-environments-association");
     m.redraw.sync();
 
     expect(helper.byTestId("association")).toContainText("prod");
@@ -119,7 +119,7 @@ describe("EnvironmentsDropdownButton", () => {
       staticAgentsVM.selectAgent(agent.uuid);
       mount(staticAgentsVM, new DummyService(["prod", "test"]));
 
-      helper.clickByDataTestId("modify-environments-association");
+      helper.clickByTestId("modify-environments-association");
       m.redraw.sync();
 
       expect(helper.byTestId("form-field-input-prod")).not.toBeChecked();
@@ -131,7 +131,7 @@ describe("EnvironmentsDropdownButton", () => {
       agent.environments.push(new AgentsEnvironment("prod", "gocd"));
       mount(staticAgentsVM, new DummyService(["prod", "test"]));
 
-      helper.clickByDataTestId("modify-environments-association");
+      helper.clickByTestId("modify-environments-association");
       m.redraw.sync();
 
       expect(helper.byTestId("form-field-input-prod")).toBeChecked();
@@ -146,7 +146,7 @@ describe("EnvironmentsDropdownButton", () => {
       agent.environments.push(new AgentsEnvironment("prod", "gocd"));
       mount(staticAgentsVM, new DummyService(["prod", "test"]));
 
-      helper.clickByDataTestId("modify-environments-association");
+      helper.clickByTestId("modify-environments-association");
       m.redraw.sync();
 
       expect(helper.byTestId("form-field-input-prod")).toHaveProp("indeterminate", true);

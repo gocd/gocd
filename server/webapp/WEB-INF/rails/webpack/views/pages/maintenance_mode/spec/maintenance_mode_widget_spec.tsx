@@ -35,21 +35,20 @@ describe("Maintenance Mode Widget", () => {
 
   it("should provide the description of the maintenance mode feature", () => {
     const expectedDescription = "When put into maintenance mode, it is safe to restart or upgrade the GoCD server without having any running jobs reschedule when the server is back up.";
-    expect(helper.findByDataTestId("maintenance-mode-description")).toContainText(expectedDescription);
+    expect(helper.textByTestId("maintenance-mode-description")).toContain(expectedDescription);
   });
 
   it("should add a link to the maintenance mode documentation", () => {
     const expectedLink = docsUrl("/advanced_usage/maintenance_mode.html");
     const expectedText = "Learn more..";
 
-    // @ts-ignore
-    expect(helper.find("a")[0].href).toBe(expectedLink);
-    expect(helper.find("a")[0].innerText).toBe(expectedText);
+    expect((helper.q("a") as HTMLAnchorElement).href).toBe(expectedLink);
+    expect(helper.q("a").innerText).toBe(expectedText);
   });
 
   it("should provide the maintenance mode updated information", () => {
     const updatedOn             = timeFormatter.format(TestData.UPDATED_ON);
     const expectedUpdatedByInfo = `${TestData.info().metdata.updatedBy} changed the maintenance mode state on ${updatedOn}.`;
-    expect(helper.findByDataTestId("maintenance-mode-updated-by-info")).toContainText(expectedUpdatedByInfo);
+    expect(helper.textByTestId("maintenance-mode-updated-by-info")).toContain(expectedUpdatedByInfo);
   });
 });

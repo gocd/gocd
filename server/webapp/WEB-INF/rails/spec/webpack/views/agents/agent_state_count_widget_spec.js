@@ -33,28 +33,28 @@ describe("Agent State Count Widget", () => {
   afterEach(helper.unmount.bind(helper));
 
   it('should contain the agents state count information', () => {
-    const children = helper.find('.search-summary').children();
-    expect(children).toHaveLength(4);
-    expect(children[0]).toContainText('Total');
-    expect(children[0]).toContainText('1');
+    const childText = helper.textAll('.search-summary > *');
+    expect(childText).toHaveLength(4);
+    expect(childText[0]).toContain('Total');
+    expect(childText[0]).toContain('1');
   });
 
   it('should contain the agents Pending count information', () => {
-    const children = helper.find('.search-summary').children();
-    expect(children[1]).toContainText('Pending');
-    expect(children[1]).toContainText('0');
+    const childText = helper.textAll('.search-summary > *');
+    expect(childText[1]).toContain('Pending');
+    expect(childText[1]).toContain('0');
   });
 
   it('should contain the agents Enabled count information', () => {
-    const children = helper.find('.search-summary').children();
-    expect(children[2]).toContainText('Enabled');
-    expect(children[2]).toContainText('1');
+    const childText = helper.textAll('.search-summary > *');
+    expect(childText[2]).toContain('Enabled');
+    expect(childText[2]).toContain('1');
   });
 
   it('should contain the agents Disabled count information', () => {
-    const children = helper.find('.search-summary').children();
-    expect(children[3]).toContainText('Disabled');
-    expect(children[3]).toContainText('0');
+    const childText = helper.textAll('.search-summary > *');
+    expect(childText[3]).toContain('Disabled');
+    expect(childText[3]).toContain('0');
   });
 
   const mount = (agents) => {

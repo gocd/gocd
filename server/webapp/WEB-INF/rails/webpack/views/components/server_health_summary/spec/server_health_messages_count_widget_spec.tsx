@@ -15,7 +15,6 @@
  */
 
 import {timeFormatter} from "helpers/time_formatter";
-import $ from "jquery";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {ServerHealthMessages} from "models/shared/server_health_messages/server_health_messages";
@@ -52,20 +51,20 @@ describe("ServerHealthMessagesCountWidget", () => {
   it("should render the count of errors and warnings", () => {
     helper.mount(() => <ServerHealthMessagesCountWidget serverHealthMessages={Stream(serverHealthMessages)}/>);
 
-    expect(helper.find("a")).toContainText("1 error and 1 warning");
+    expect(helper.byTestId("server-health-messages-count")).toContainText("1 error and 1 warning");
   });
 
   it("should render the list of messages in modal on click", () => {
     helper.mount(() => <ServerHealthMessagesCountWidget serverHealthMessages={Stream(serverHealthMessages)}/>);
 
-    helper.click('a');
+    helper.clickByTestId("server-health-messages-count");
 
-    expect($(`.component-modal-container [data-test-id='server-health-message-for-${s.slugify(jsonData[0].message)}'] [data-test-class='server-health-message_message']:first`))
-      .toContainText(jsonData[0].message);
-    expect($(`.component-modal-container [data-test-id='server-health-message-for-${s.slugify(jsonData[0].message)}'] [data-test-class='server-health-message_detail']:first`))
-      .toContainText(jsonData[0].detail);
-    expect($(`.component-modal-container [data-test-id='server-health-message-for-${s.slugify(jsonData[0].message)}'] [data-test-class='server-health-message_timestamp']:first`))
-      .toContainText(timeFormatter.format(jsonData[0].time));
+    const container = document.querySelector(".component-modal-container")!;
+    const msgEl = helper.byTestId(`server-health-message-for-${s.slugify(jsonData[0].message)}`, container);
+
+    expect(helper.q("[data-test-class='server-health-message_message']", msgEl)).toContainText(jsonData[0].message);
+    expect(helper.q("[data-test-class='server-health-message_detail']", msgEl)).toContainText(jsonData[0].detail);
+    expect(helper.q("[data-test-class='server-health-message_timestamp']", msgEl)).toContainText(timeFormatter.format(jsonData[0].time));
   });
 
   it("should trust html messages in modal", () => {
@@ -77,14 +76,14 @@ describe("ServerHealthMessagesCountWidget", () => {
     }]))}
     />);
 
-    helper.click('a');
+    helper.clickByTestId("server-health-messages-count");
 
-    expect($(".component-modal-container [data-test-id='server-health-message-for-test-message'] [data-test-class='server-health-message_message']"))
-      .toContainText("Test Message");
-    expect($(".component-modal-container [data-test-id='server-health-message-for-test-message'] [data-test-class='server-health-message_detail']"))
-      .toContainHtml(`This is a <a href="http://example.com">link</a>`);
-    expect($($(".component-modal-container [data-test-id='server-health-message-for-test-message'] [data-test-class='server-health-message_timestamp']")))
-      .toContainText(timeFormatter.format("2018-01-30T07:34:43Z"));
+    const container = document.querySelector(".component-modal-container")!;
+    const msgEl = helper.byTestId("server-health-message-for-test-message", container);
+
+    expect(helper.q("[data-test-class='server-health-message_message']", msgEl)).toContainText("Test Message");
+    expect(helper.q("[data-test-class='server-health-message_detail']", msgEl)).toContainHtml(`This is a <a href="http://example.com">link</a>`);
+    expect(helper.q("[data-test-class='server-health-message_timestamp']", msgEl)).toContainText(timeFormatter.format("2018-01-30T07:34:43Z"));
   });
 
 });

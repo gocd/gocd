@@ -36,14 +36,14 @@ describe("LoginPageWidget", () => {
             }]
           });
 
-    expect(helper.findByDataTestId("form-field-input-username")).toBeInDOM();
-    expect(helper.findByDataTestId("form-field-input-password")).toBeInDOM();
+    expect(helper.byTestId("form-field-input-username")).toBeInDOM();
+    expect(helper.byTestId("form-field-input-password")).toBeInDOM();
 
-    expect($(helper.root!)).toContainText("Or login using:");
-    expect(helper.findByDataTestId("link-to-login-using-my-plugin")).toBeInDOM();
-    expect(helper.findByDataTestId("link-to-login-using-my-plugin")).toHaveAttr("href", "/some-redirect-url");
-    expect(helper.findByDataTestId("image-for-my-plugin")).toBeInDOM();
-    expect(helper.findByDataTestId("image-for-my-plugin")).toHaveAttr("src", "https://example.com/image");
+    expect(helper.root!.textContent).toContain("Or login using:");
+    expect(helper.byTestId("link-to-login-using-my-plugin")).toBeInDOM();
+    expect(helper.byTestId("link-to-login-using-my-plugin")).toHaveAttr("href", "/some-redirect-url");
+    expect(helper.byTestId("image-for-my-plugin")).toBeInDOM();
+    expect(helper.byTestId("image-for-my-plugin")).toHaveAttr("src", "https://example.com/image");
   });
 
   it("should show login form only when no web based plugins are installed", () => {
@@ -53,13 +53,13 @@ describe("LoginPageWidget", () => {
             webBasedPlugins: []
           });
 
-    expect(helper.findByDataTestId("form-field-input-username")).toBeInDOM();
-    expect(helper.findByDataTestId("form-field-input-password")).toBeInDOM();
+    expect(helper.byTestId("form-field-input-username")).toBeInDOM();
+    expect(helper.byTestId("form-field-input-password")).toBeInDOM();
 
-    expect($(helper.root!)).not.toContainText("redirect");
+    expect(helper.root!.textContent).not.toContain("redirect");
 
-    expect(helper.find("a")).not.toBeInDOM();
-    expect(helper.find(`.${styles.loginOptions} img`)).not.toBeInDOM();
+    expect(helper.q("a")).toBeFalsy();
+    expect(helper.q(`.${styles.loginOptions} img`)).toBeFalsy();
   });
 
   it("should show web login buttons and no login form when only web based plugins are installed", () => {
@@ -77,12 +77,12 @@ describe("LoginPageWidget", () => {
             }]
           });
 
-    expect(helper.find("input")).not.toBeInDOM();
+    expect(helper.q("input")).toBeFalsy();
 
-    expect($(helper.root!)).not.toContainText("redirect");
+    expect(helper.root!.textContent).not.toContain("redirect");
 
-    expect(helper.find("a")).toBeInDOM();
-    expect(helper.find(`.${styles.loginOptions} img`)).toBeInDOM();
+    expect(helper.q("a")).toBeInDOM();
+    expect(helper.q(`.${styles.loginOptions} img`)).toBeInDOM();
   });
 
   it("should show redirect message if only 1 web based plugin is installed and no password plugins", () => {
@@ -97,12 +97,12 @@ describe("LoginPageWidget", () => {
             }]
           });
 
-    expect(helper.find("input")).not.toBeInDOM();
+    expect(helper.q("input")).toBeFalsy();
 
-    expect($(helper.root!)).toContainText("redirect");
+    expect(helper.root!.textContent).toContain("redirect");
 
-    expect(helper.find("a")).toBeInDOM();
-    expect(helper.find(`.${styles.redirect} img`)).toBeInDOM();
+    expect(helper.q("a")).toBeInDOM();
+    expect(helper.q(`.${styles.redirect} img`)).toBeInDOM();
   });
 
   it("should show login error", () => {
@@ -118,7 +118,7 @@ describe("LoginPageWidget", () => {
             }]
           });
 
-    expect(helper.findByDataTestId("flash-message-alert")).toContainText("Login error: wrong username or password.");
+    expect(helper.textByTestId("flash-message-alert")).toContain("Login error: wrong username or password.");
 
   });
 

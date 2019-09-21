@@ -16,7 +16,6 @@
 
 import m from "mithril";
 import {ExecTask} from "models/new_pipeline_configs/task";
-import * as simulateEvent from "simulate-event";
 import {TaskDescriptionWidget} from "views/pages/pipeline_configs/stages/on_create/task_description_widget";
 import task_terminal_styles from "views/pages/pipeline_configs/stages/on_create/task_terminal.scss";
 import {TestHelper} from "views/pages/spec/test_helper";
@@ -37,50 +36,49 @@ describe("Pipeline Config - Job Settings Modal - Tasks Widget - Task Description
     });
 
     it("should render the task description", () => {
-      expect(helper.findByDataTestId("exec-task-description")).toBeInDOM();
+      expect(helper.byTestId("exec-task-description")).toBeInDOM();
     });
 
     describe("Task Editor", () => {
       it("should render the task editor", () => {
-        expect(helper.find("code")).toBeInDOM();
+        expect(helper.q("code")).toBeInDOM();
       });
 
       it("should represent the task in the task editor window", () => {
-        expect(helper.find("pre")).toHaveText(task.represent()!);
+        expect(helper.text("pre")).toBe(task.represent()!);
       });
 
       it("should render the caveats in the task editor", () => {
-        expect(helper.findByDataTestId("caveats-container")).toBeInDOM();
-        expect(helper.findByDataTestId("caveats-container")).toContainText("Caveats");
+        expect(helper.byTestId("caveats-container")).toBeInDOM();
+        expect(helper.textByTestId("caveats-container")).toContain("Caveats");
       });
 
       it("should display caveats description on click of expand icon", () => {
         const caveatsDesc = "This is not a real shell:";
 
-        expect(helper.findByDataTestId("caveats-container")).not.toHaveClass(task_terminal_styles.open);
+        expect(helper.byTestId("caveats-container")).not.toHaveClass(task_terminal_styles.open);
 
-        simulateEvent.simulate(helper.findByDataTestId("caveats-toggle-btn").get(0), "click");
-        m.redraw.sync();
+        helper.clickByTestId("caveats-toggle-btn");
 
-        expect(helper.findByDataTestId("caveats-container")).toHaveClass(task_terminal_styles.open);
-        expect(helper.findByDataTestId("caveats-container")).toContainText(caveatsDesc);
+        expect(helper.byTestId("caveats-container")).toHaveClass(task_terminal_styles.open);
+        expect(helper.textByTestId("caveats-container")).toContain(caveatsDesc);
       });
 
       it("should display editor instructions", () => {
         const caveatsInstructions = "# Press <enter> to save, <shift-enter> for newline";
 
-        expect(helper.findByDataTestId("caveats-instructions")).toBeInDOM();
-        expect(helper.findByDataTestId("caveats-instructions")).toContainText(caveatsInstructions);
+        expect(helper.byTestId("caveats-instructions")).toBeInDOM();
+        expect(helper.textByTestId("caveats-instructions")).toContain(caveatsInstructions);
       });
     });
 
     describe("run if conditions", () => {
       it("should render the run if conditions", () => {
-        expect(helper.findByDataTestId("run-if-conditions-container")).toBeInDOM();
+        expect(helper.byTestId("run-if-conditions-container")).toBeInDOM();
       });
 
       it("should render all run if condition options", () => {
-        const runIfConditionsContainer = helper.findByDataTestId("run-if-conditions-container");
+        const runIfConditionsContainer = helper.byTestId("run-if-conditions-container");
 
         expect(runIfConditionsContainer).toContainText("Run If Conditions");
         expect(runIfConditionsContainer).toContainText("Passed");
@@ -90,36 +88,41 @@ describe("Pipeline Config - Job Settings Modal - Tasks Widget - Task Description
 
       it("should select passed by default", () => {
         expect(task.runIfCondition()).toBe("Passed");
-        const passedRadioField = helper.findByDataTestId("input-field-for-Passed");
-        expect(helper.findSelectorIn(passedRadioField, "label")).toContainText(task.runIfCondition());
-        expect(helper.findSelectorIn(passedRadioField, "input")).toBeChecked();
+
+        const passedRadioField = helper.byTestId("input-field-for-Passed");
+
+        expect(helper.text("label", passedRadioField)).toContain(task.runIfCondition());
+        expect(helper.q("input", passedRadioField)).toBeChecked();
       });
 
       it("should select another run if condition on click", () => {
         expect(task.runIfCondition()).toBe("Passed");
-        const passedRadioField = helper.findByDataTestId("input-field-for-Passed");
-        expect(helper.findSelectorIn(passedRadioField, "label")).toContainText(task.runIfCondition());
-        expect(helper.findSelectorIn(passedRadioField, "input")).toBeChecked();
 
-        let failedRadioField = helper.findByDataTestId("input-field-for-Failed");
-        simulateEvent.simulate(helper.findSelectorIn(failedRadioField, "input")[0], "click");
-        m.redraw.sync();
+        const passedRadioField = helper.byTestId("input-field-for-Passed");
 
-        failedRadioField = helper.findByDataTestId("input-field-for-Failed");
+        expect(helper.text("label", passedRadioField)).toContain(task.runIfCondition());
+        expect(helper.q("input", passedRadioField)).toBeChecked();
+
+        click(helper.q("input", helper.byTestId("input-field-for-Failed")));
+
+        const failedRadioField = helper.byTestId("input-field-for-Failed");
         expect(task.runIfCondition()).toBe("Failed");
-        expect(helper.findSelectorIn(failedRadioField, "label")).toContainText(task.runIfCondition());
-        expect(helper.findSelectorIn(failedRadioField, "input")).toBeChecked();
+        expect(helper.text("label", failedRadioField)).toContain(task.runIfCondition());
+        expect(helper.q("input", failedRadioField)).toBeChecked();
 
-        let anyRadioField = helper.findByDataTestId("input-field-for-Any");
-        simulateEvent.simulate(helper.findSelectorIn(anyRadioField, "input")[0], "click");
-        m.redraw.sync();
+        click(helper.q("input", helper.byTestId("input-field-for-Any")));
 
-        anyRadioField = helper.findByDataTestId("input-field-for-Any");
+        const anyRadioField = helper.byTestId("input-field-for-Any");
         expect(task.runIfCondition()).toBe("Any");
-        expect(helper.findSelectorIn(anyRadioField, "label")).toContainText(task.runIfCondition());
-        expect(helper.findSelectorIn(anyRadioField, "input")).toBeChecked();
+        expect(helper.text("label", anyRadioField)).toContain(task.runIfCondition());
+        expect(helper.q("input", anyRadioField)).toBeChecked();
       });
     });
+
+    function click(el: Element) {
+      (el as HTMLElement).click();
+      helper.redraw();
+    }
   });
 
 });

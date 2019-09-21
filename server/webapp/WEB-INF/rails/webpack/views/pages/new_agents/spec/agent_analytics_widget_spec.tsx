@@ -37,7 +37,7 @@ describe("AgentAnalyticsWidget", () => {
     const agent = Agent.fromJSON(AgentsTestData.idleAgent());
     mount(agent, {} as { [key: string]: AnalyticsCapability[] });
 
-    helper.clickByDataTestId(`analytics-icon-${agent.uuid}`);
+    helper.clickByTestId(`analytics-icon-${agent.uuid}`);
     m.redraw.sync();
 
     expect(helper.fromModalByTestId("modal-title")).toBeInDOM();

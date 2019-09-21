@@ -22,7 +22,6 @@ import {
   Material, Materials,
   P4MaterialAttributes, TfsMaterialAttributes
 } from "models/new_pipeline_configs/materials";
-import simulateEvent from "simulate-event";
 import * as collapsiblePanelStyles from "views/components/collapsible_panel/index.scss";
 import {MaterialsWidget} from "views/pages/pipeline_configs/materials/index";
 import {TestHelper} from "views/pages/spec/test_helper";
@@ -54,93 +53,89 @@ describe("MaterialsWidgetSpec", () => {
   });
 
   it("should render materials collapsible panel", () => {
-    expect(helper.findByDataTestId("pipeline-materials-container")).toBeInDOM();
-    expect(helper.findByDataTestId("pipeline-materials-container")).toHaveClass(collapsiblePanelStyles.expanded);
+    expect(helper.byTestId("pipeline-materials-container")).toBeInDOM();
+    expect(helper.byTestId("pipeline-materials-container")).toHaveClass(collapsiblePanelStyles.expanded);
   });
 
   it("material toggle expanded state of materials panel", () => {
-    expect(helper.findByDataTestId("pipeline-materials-container")).toHaveClass(collapsiblePanelStyles.expanded);
+    expect(helper.byTestId("pipeline-materials-container")).toHaveClass(collapsiblePanelStyles.expanded);
 
-    const materialsPanelHeader = helper.findIn(helper.findByDataTestId("pipeline-materials-container"), "collapse-header")[0];
+    helper.clickByTestId("collapse-header", helper.byTestId("pipeline-materials-container"));
 
-    simulateEvent.simulate(materialsPanelHeader, "click");
-    m.redraw.sync();
-
-    expect(helper.findByDataTestId("pipeline-materials-container")).not.toHaveClass(collapsiblePanelStyles.expanded);
+    expect(helper.byTestId("pipeline-materials-container")).not.toHaveClass(collapsiblePanelStyles.expanded);
   });
 
   it("should render 'Add Material' button", () => {
-    expect(helper.findByDataTestId("add-material-button")).toBeInDOM();
-    expect(helper.findByDataTestId("add-material-button")).toContainText("Add Material");
+    expect(helper.byTestId("add-material-button")).toBeInDOM();
+    expect(helper.textByTestId("add-material-button")).toContain("Add Material");
   });
 
   it("should render materials table", () => {
-    expect(helper.findByDataTestId("materials-index-table")).toBeInDOM();
-    expect(helper.findByDataTestId("materials-index-table")).toContainHeaderCells(["Material Name", "Type", "Url", ""]);
+    expect(helper.byTestId("materials-index-table")).toBeInDOM();
+    expect(helper.byTestId("materials-index-table")).toContainHeaderCells(["Material Name", "Type", "Url", ""]);
 
-    const gitRepo = helper.findByDataTestId("materials-index-table").find("tr")[1];
+    const gitRepo = helper.qa("tr", helper.byTestId("materials-index-table"))[1];
     expect(gitRepo.children[0]).toContainText("Test git repo");
     expect(gitRepo.children[1]).toContainText("Git");
     expect(gitRepo.children[2]).toContainText("http://foo.git");
-    expect(helper.findIn(gitRepo, "delete-material-button")).toBeInDOM();
-    expect(helper.findIn(gitRepo, "edit-material-button")).toBeInDOM();
+    expect(helper.byTestId("delete-material-button", gitRepo)).toBeInDOM();
+    expect(helper.byTestId("edit-material-button", gitRepo)).toBeInDOM();
 
-    const hgRepo = helper.findByDataTestId("materials-index-table").find("tr")[2];
+    const hgRepo = helper.qa("tr", helper.byTestId("materials-index-table"))[2];
     expect(hgRepo.children[0]).toContainText("Test mercurial repo");
     expect(hgRepo.children[1]).toContainText("Mercurial");
     expect(hgRepo.children[2]).toHaveText("http://foo.hg");
-    expect(helper.findIn(hgRepo, "delete-material-button")).toBeInDOM();
-    expect(helper.findIn(hgRepo, "edit-material-button")).toBeInDOM();
+    expect(helper.byTestId("delete-material-button", hgRepo)).toBeInDOM();
+    expect(helper.byTestId("edit-material-button", hgRepo)).toBeInDOM();
 
-    const p4Repo = helper.findByDataTestId("materials-index-table").find("tr")[3];
+    const p4Repo = helper.qa("tr", helper.byTestId("materials-index-table"))[3];
     expect(p4Repo.children[0]).toContainText("Test p4 repo");
     expect(p4Repo.children[1]).toContainText("Perforce");
     expect(p4Repo.children[2]).toHaveText("127.0.0.1:3000");
-    expect(helper.findIn(p4Repo, "delete-material-button")).toBeInDOM();
-    expect(helper.findIn(p4Repo, "edit-material-button")).toBeInDOM();
+    expect(helper.byTestId("delete-material-button", p4Repo)).toBeInDOM();
+    expect(helper.byTestId("edit-material-button", p4Repo)).toBeInDOM();
 
-    const tfsRepo = helper.findByDataTestId("materials-index-table").find("tr")[4];
+    const tfsRepo = helper.qa("tr", helper.byTestId("materials-index-table"))[4];
     expect(tfsRepo.children[0]).toContainText("Test tfs repo");
     expect(tfsRepo.children[1]).toContainText("Team Foundation Server");
     expect(tfsRepo.children[2]).toHaveText("http://foo.tfs");
-    expect(helper.findIn(tfsRepo, "delete-material-button")).toBeInDOM();
-    expect(helper.findIn(tfsRepo, "edit-material-button")).toBeInDOM();
+    expect(helper.byTestId("delete-material-button", tfsRepo)).toBeInDOM();
+    expect(helper.byTestId("edit-material-button", tfsRepo)).toBeInDOM();
 
-    const svnRepo = helper.findByDataTestId("materials-index-table").find("tr")[5];
+    const svnRepo = helper.qa("tr", helper.byTestId("materials-index-table"))[5];
+
     expect(svnRepo.children[0]).toContainText("Test svn repo");
     expect(svnRepo.children[1]).toContainText("Subversion");
     expect(svnRepo.children[2]).toHaveText("http://foo.svn");
-    expect(helper.findIn(svnRepo, "delete-material-button")).toBeInDOM();
-    expect(helper.findIn(svnRepo, "edit-material-button")).toBeInDOM();
+    expect(helper.byTestId("delete-material-button", svnRepo)).toBeInDOM();
+    expect(helper.byTestId("edit-material-button", svnRepo)).toBeInDOM();
 
-    const dependencyMaterial = helper.findByDataTestId("materials-index-table").find("tr")[6];
+    const dependencyMaterial = helper.qa("tr", helper.byTestId("materials-index-table"))[6];
     expect(dependencyMaterial.children[0]).toContainText("Dependent pipeline");
     expect(dependencyMaterial.children[1]).toContainText("Another Pipeline");
     expect(dependencyMaterial.children[2]).toHaveText("pipeline / stage");
-    expect(helper.findIn(dependencyMaterial, "delete-material-button")).toBeInDOM();
-    expect(helper.findIn(dependencyMaterial, "edit-material-button")).toBeInDOM();
+    expect(helper.byTestId("delete-material-button", dependencyMaterial)).toBeInDOM();
+    expect(helper.byTestId("edit-material-button", dependencyMaterial)).toBeInDOM();
   });
 
   it("click on edit material should open a modal", () => {
-    const gitRepo = helper.findByDataTestId("materials-index-table").find("tr")[1];
+    const gitRepo = helper.qa("tr", helper.byTestId("materials-index-table"))[1];
 
-    expect(document.querySelectorAll("[data-test-id='material-form']").length).toBe(0);
+    expect(helper.byTestId("material-form", document.body)).toBeFalsy();
 
-    simulateEvent.simulate(helper.findIn(gitRepo, "edit-material-button")[0], "click");
-    m.redraw.sync();
+    helper.clickByTestId("edit-material-button", gitRepo);
 
-    expect(document.querySelectorAll("[data-test-id='material-form']").length).toBe(1);
+    expect(helper.allByTestId("material-form", document.body).length).toBe(1);
 
     helper.closeModal();
   });
 
   it("click on add material should open a modal", () => {
-    expect(document.querySelectorAll("[data-test-id='material-form']").length).toBe(0);
+    expect(helper.byTestId("material-form", document.body)).toBeFalsy();
 
-    simulateEvent.simulate(helper.findByDataTestId("add-material-button")[0], "click");
-    m.redraw.sync();
+    helper.clickByTestId("add-material-button");
 
-    expect(document.querySelectorAll("[data-test-id='material-form']").length).toBe(1);
+    expect(helper.allByTestId("material-form", document.body).length).toBe(1);
 
     helper.closeModal();
   });

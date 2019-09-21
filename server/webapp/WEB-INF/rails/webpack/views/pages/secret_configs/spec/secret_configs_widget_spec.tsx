@@ -20,7 +20,6 @@ import {SecretConfigs} from "models/secret_configs/secret_configs";
 import {secretConfigsTestData} from "models/secret_configs/spec/test_data";
 import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {SecretPluginInfo} from "models/shared/plugin_infos_new/spec/test_data";
-import * as simulateEvent from "simulate-event";
 import {SecretConfigsWidget} from "views/pages/secret_configs/secret_configs_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
 
@@ -38,115 +37,112 @@ describe("SecretConfigsWidget", () => {
   it("should show flash message when no secret plugin installed", () => {
     mount([], new PluginInfos());
 
-    expect(helper.findByDataTestId("flash-message-info")).toBeInDOM();
-    expect(helper.findByDataTestId("flash-message-info").text()).toEqual("No secret plugin installed.");
+    expect(helper.byTestId("flash-message-info")).toBeInDOM();
+    expect(helper.textByTestId("flash-message-info")).toBe("No secret plugin installed.");
   });
 
   it("should render action buttons", () => {
     mount(secretConfigs, pluginInfos);
 
-    const groups = helper.findByDataTestId("secret-configs-group");
-    expect(helper.findIn(groups.eq(0), "secret-config-edit")).toBeInDOM();
-    expect(helper.findIn(groups.eq(0), "secret-config-clone")).toBeInDOM();
-    expect(helper.findIn(groups.eq(0), "secret-config-delete")).toBeInDOM();
-    expect(helper.findIn(groups.eq(0), "secret-config-edit")).not.toBeDisabled();
-    expect(helper.findIn(groups.eq(0), "secret-config-clone")).not.toBeDisabled();
-    expect(helper.findIn(groups.eq(0), "secret-config-delete")).not.toBeDisabled();
+    const groups = helper.byTestId("secret-configs-group");
+    expect(helper.byTestId("secret-config-edit", groups)).toBeInDOM();
+    expect(helper.byTestId("secret-config-clone", groups)).toBeInDOM();
+    expect(helper.byTestId("secret-config-delete", groups)).toBeInDOM();
+    expect(helper.byTestId("secret-config-edit", groups)).not.toBeDisabled();
+    expect(helper.byTestId("secret-config-clone", groups)).not.toBeDisabled();
+    expect(helper.byTestId("secret-config-delete", groups)).not.toBeDisabled();
   });
 
   it("should disable edit and clone button when plugin is not installed", () => {
     mount(secretConfigs, new PluginInfos());
-    const groups = helper.findByDataTestId("secret-configs-group");
 
-    expect(helper.findIn(groups.eq(0), "secret-config-edit")).toBeInDOM();
-    expect(helper.findIn(groups.eq(0), "secret-config-clone")).toBeInDOM();
-    expect(helper.findIn(groups.eq(0), "secret-config-delete")).toBeInDOM();
-    expect(helper.findIn(groups.eq(0), "secret-config-edit")).toBeDisabled();
-    expect(helper.findIn(groups.eq(0), "secret-config-clone")).toBeDisabled();
-    expect(helper.findIn(groups.eq(0), "secret-config-delete")).not.toBeDisabled();
+    const groups = helper.byTestId("secret-configs-group");
+    expect(helper.byTestId("secret-config-edit", groups)).toBeInDOM();
+    expect(helper.byTestId("secret-config-clone", groups)).toBeInDOM();
+    expect(helper.byTestId("secret-config-delete", groups)).toBeInDOM();
+    expect(helper.byTestId("secret-config-edit", groups)).toBeDisabled();
+    expect(helper.byTestId("secret-config-clone", groups)).toBeDisabled();
+    expect(helper.byTestId("secret-config-delete", groups)).not.toBeDisabled();
   });
 
   it("should render secret config properties", () => {
     mount(secretConfigs, pluginInfos);
 
-    const groups = helper.findByDataTestId("secret-configs-group");
+    const groups = helper.byTestId("secret-configs-group");
 
-    expect(helper.findIn(groups.eq(0), "key-value-key-secrets-file-path")).toContainText("secrets_file_path");
-    expect(helper.findIn(groups.eq(0), "key-value-value-secrets-file-path")).toContainText("/home/secret/secret.dat");
+    expect(helper.textByTestId("key-value-key-secrets-file-path", groups)).toContain("secrets_file_path");
+    expect(helper.textByTestId("key-value-value-secrets-file-path", groups)).toContain("/home/secret/secret.dat");
 
-    expect(helper.findIn(groups.eq(0), "key-value-key-cipher-file-path")).toContainText("cipher_file_path");
-    expect(helper.findIn(groups.eq(0), "key-value-value-cipher-file-path"))
-      .toContainText("/home/secret/secret-key.aes");
+    expect(helper.textByTestId("key-value-key-cipher-file-path", groups)).toContain("cipher_file_path");
+    expect(helper.textByTestId("key-value-value-cipher-file-path", groups)).toContain("/home/secret/secret-key.aes");
 
-    expect(helper.findIn(groups.eq(0), "key-value-key-secret-password")).toContainText("secret_password");
-    expect(helper.findIn(groups.eq(0), "key-value-value-secret-password")).toContainText("********");
+    expect(helper.textByTestId("key-value-key-secret-password", groups)).toContain("secret_password");
+    expect(helper.textByTestId("key-value-value-secret-password", groups)).toContain("********");
   });
 
   it("should callback the edit function when edit button is clicked", () => {
     mount(secretConfigs, pluginInfos);
-    const groups = helper.findByDataTestId("secret-configs-group");
-    simulateEvent.simulate(helper.findIn(groups.eq(0), "secret-config-edit").get(0), "click");
+    const groups = helper.byTestId("secret-configs-group");
+    helper.clickByTestId("secret-config-edit", groups);
 
     expect(onEdit).toHaveBeenCalledWith(secretConfigs[0](), jasmine.any(Event));
   });
 
   it("should callback the clone function when clone button is clicked", () => {
     mount(secretConfigs, pluginInfos);
-    const groups = helper.findByDataTestId("secret-configs-group");
-    simulateEvent.simulate(helper.findIn(groups.eq(0), "secret-config-clone").get(0), "click");
+    const groups = helper.byTestId("secret-configs-group");
+    helper.clickByTestId("secret-config-clone", groups);
 
     expect(onClone).toHaveBeenCalledWith(secretConfigs[0](), jasmine.any(Event));
   });
 
   it("should callback the delete function when delete button is clicked", () => {
     mount(secretConfigs, pluginInfos);
-    const groups = helper.findByDataTestId("secret-configs-group");
-    simulateEvent.simulate(helper.findIn(groups.eq(0), "secret-config-delete").get(0), "click");
+    const groups = helper.byTestId("secret-configs-group");
+    helper.clickByTestId("secret-config-delete", groups);
 
     expect(onDelete).toHaveBeenCalledWith(secretConfigs[0](), jasmine.any(Event));
   });
 
   it("should list secret configs", () => {
     mount(secretConfigs, pluginInfos);
-    const groups = helper.findByDataTestId("secret-configs-group");
+    const groups = helper.allByTestId("secret-configs-group");
 
-    expect(groups.length).toEqual(2);
-    expect(helper.findByDataTestId("secret-config-description").eq(0).text())
-      .toEqual("This is used to lookup for secrets for the team X.");
-    expect(helper.findIn(groups.eq(0), "key-value-value-plugin-id").text()).toEqual("cd.go.secrets.file");
-    expect(helper.findIn(groups.eq(0), "key-value-value-id").text()).toEqual("file");
-    expect(helper.findIn(groups.eq(1), "key-value-value-plugin-id").text()).toBe("cd.go.secrets.aws");
-    expect(helper.findIn(groups.eq(1), "key-value-value-id").text()).toEqual("aws");
+    expect(groups.length).toBe(2);
+    expect(helper.textByTestId("secret-config-description")).toBe("This is used to lookup for secrets for the team X.");
+    expect(helper.textByTestId("key-value-value-plugin-id", groups.item(0))).toBe("cd.go.secrets.file");
+    expect(helper.textByTestId("key-value-value-id", groups.item(0))).toBe("file");
+    expect(helper.textByTestId("key-value-value-plugin-id", groups.item(1))).toBe("cd.go.secrets.aws");
+    expect(helper.textByTestId("key-value-value-id", groups.item(1))).toBe("aws");
 
   });
 
   it("should list rules information for secrets", () => {
     mount(secretConfigs, pluginInfos);
-    const table = helper.findByDataTestId("rule-table").eq(0);
+    const table = helper.byTestId("rule-table");
 
-    const headerRow = helper.findIn(table, "table-header").find("th");
-    expect(headerRow.length).toEqual(3);
-    expect(headerRow.eq(0)).toContainText("Directive");
-    expect(headerRow.eq(1)).toContainText("Type");
-    expect(headerRow.eq(2)).toContainText("Resource");
+    const headerRow = helper.qa("th", helper.byTestId("table-header", table));
+    expect(headerRow.length).toBe(3);
+    expect(headerRow.item(0)).toContainText("Directive");
+    expect(headerRow.item(1)).toContainText("Type");
+    expect(headerRow.item(2)).toContainText("Resource");
 
-    const ruleBodyRow = helper.findIn(table, "table-body").find("td");
-    expect(ruleBodyRow.eq(0)).toContainText("allow");
-    expect(ruleBodyRow.eq(1)).toContainText("pipeline_group");
-    expect(ruleBodyRow.eq(2)).toContainText("DeployPipelines");
+    const ruleBodyRow = helper.qa("td", helper.byTestId("table-body", table));
+    expect(ruleBodyRow.item(0)).toContainText("allow");
+    expect(ruleBodyRow.item(1)).toContainText("pipeline_group");
+    expect(ruleBodyRow.item(2)).toContainText("DeployPipelines");
 
-    expect(ruleBodyRow.eq(3)).toContainText("deny");
-    expect(ruleBodyRow.eq(4)).toContainText("pipeline_group");
-    expect(ruleBodyRow.eq(5)).toContainText("TestPipelines");
+    expect(ruleBodyRow.item(3)).toContainText("deny");
+    expect(ruleBodyRow.item(4)).toContainText("pipeline_group");
+    expect(ruleBodyRow.item(5)).toContainText("TestPipelines");
   });
 
   it("should display info when no secret configs are present", () => {
     mount([], pluginInfos);
-    const groups = helper.findByDataTestId("secret-configs-group");
 
-    expect(groups).not.toBeInDOM();
-    expect(helper.findByDataTestId("secret-config-info")).toBeInDOM();
-    expect(helper.findByDataTestId("secret-config-info").text())
+    expect(helper.byTestId("secret-configs-group")).toBeFalsy();
+    expect(helper.byTestId("secret-config-info")).toBeInDOM();
+    expect(helper.textByTestId("secret-config-info"))
       .toBe(
         "Click on \"Add\" to add new secret configuration.A secret configuration can be used to access secrets from a secret management store.");
 

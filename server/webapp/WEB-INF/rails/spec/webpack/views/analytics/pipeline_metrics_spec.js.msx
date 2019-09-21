@@ -15,10 +15,8 @@
  */
 import {TestHelper} from "views/pages/spec/test_helper";
 import {PipelineMetrics} from "views/analytics/pipeline_metrics";
-import $ from "jquery";
 import "jasmine-jquery";
 import m from "mithril";
-import * as simulateEvent from "simulate-event";
 
 describe("Pipeline Dashboard Metrics", () => {
 
@@ -41,20 +39,20 @@ describe("Pipeline Dashboard Metrics", () => {
   });
 
   it('should have a dropdown with each pipeline', () => {
-    const list = helper.find("select option");
+    const list = helper.qa("select option");
     expect(list.length).toBe(3);
-    expect($(list[0]).val()).toBe("p1");
-    expect($(list[1]).val()).toBe("p2");
-    expect($(list[2]).val()).toBe("p3");
+    expect(list[0].value).toBe("p1");
+    expect(list[1].value).toBe("p2");
+    expect(list[2].value).toBe("p3");
   });
 
   it('Add a frame for each plugin', () => {
-    expect(helper.find("iframe").length).toBe(2);
+    expect(helper.qa("iframe").length).toBe(2);
   });
 
   it('should change displayed graphs when new pipeline is selected', () => {
-    simulateEvent.simulate(helper.find("select").val("p2")[0], "change");
-    m.redraw.sync();
+    helper.onchange(helper.q("select"), "p2");
+
     const requests = jasmine.Ajax.requests;
     expect(requests.count()).toBe(4);
     expect(requests.at(2).url).toBe('/go/analytics/plugin-id-x/pipeline/metric-1?pipeline_name=p2&context=dashboard');

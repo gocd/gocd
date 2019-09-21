@@ -18,7 +18,6 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {AccessTokenTestData} from "models/access_tokens/spec/access_token_test_data";
 import {AccessToken, AccessTokens} from "models/access_tokens/types";
-import * as simulateEvent from "simulate-event";
 import {
   AccessTokensWidgetForCurrentUser,
   formatTimeInformation,
@@ -36,75 +35,74 @@ describe("AccessTokensWidgetForCurrentUserSpec", () => {
   it("should be able to render info when no access tokens have been created", () => {
     mount(Stream(new AccessTokens()));
 
-    expect(helper.findByDataTestId("access-token-info")).toBeInDOM();
-    expect(helper.findByDataTestId("access-token-info").text())
-      .toContain(
-        "Click on \"Generate Token\" to create new personal access token.A Generated token can be used to access the GoCD API.");
+    expect(helper.byTestId("access-token-info")).toBeInDOM();
+    expect(helper.textByTestId("access-token-info")).
+      toContain("Click on \"Generate Token\" to create new personal access token.A Generated token can be used to access the GoCD API.");
 
-    expect(helper.findByDataTestId("tab-header-0")).not.toBeInDOM();
-    expect(helper.findByDataTestId("tab-header-1")).not.toBeInDOM();
+    expect(helper.byTestId("tab-header-0")).toBeFalsy();
+    expect(helper.byTestId("tab-header-1")).toBeFalsy();
   });
 
   it("should render two tabs", () => {
     mount(Stream(allAccessTokens));
 
-    expect(helper.findByDataTestId("access-token-info")).not.toBeInDOM();
-    expect(helper.findByDataTestId("tab-header-0")).toBeInDOM();
-    expect(helper.findByDataTestId("tab-header-0")).toHaveText("Active Tokens");
-    expect(helper.findByDataTestId("tab-header-1")).toBeInDOM();
-    expect(helper.findByDataTestId("tab-header-1")).toHaveText("Revoked Tokens");
+    expect(helper.byTestId("access-token-info")).toBeFalsy();
+    expect(helper.byTestId("tab-header-0")).toBeInDOM();
+    expect(helper.byTestId("tab-header-0")).toHaveText("Active Tokens");
+    expect(helper.byTestId("tab-header-1")).toBeInDOM();
+    expect(helper.byTestId("tab-header-1")).toHaveText("Revoked Tokens");
   });
 
   it("should list all active tokens under active tokens tab", () => {
     mount(Stream(new AccessTokens(Stream(validToken))));
 
-    const activeTokensTab = helper.findByDataTestId("tab-header-0");
+    const activeTokensTab = helper.byTestId("tab-header-0");
     expect(activeTokensTab).toBeInDOM();
     expect(activeTokensTab).toHaveText("Active Tokens");
-    const activeTokenTableHeaders = helper.findIn(helper.findByDataTestId("tab-content-0"), "table-header-row")
-                                          .find("th");
-    expect(activeTokenTableHeaders.eq(0)).toHaveText("Description");
-    expect(activeTokenTableHeaders.eq(1)).toHaveText("Created At");
-    expect(activeTokenTableHeaders.eq(2)).toHaveText("Last Used");
-    expect(activeTokenTableHeaders.eq(3)).toHaveText("Revoke");
 
-    const activeTokenTableRows = helper.findIn(helper.findByDataTestId("tab-content-0"), "table-row");
-    expect(activeTokenTableRows.length).toEqual(1);
-    assertActiveTokenRow(activeTokenTableRows.eq(0), validToken);
+    const activeTokenTableHeaders = helper.qa("th", helper.byTestId("table-header-row", helper.byTestId("tab-content-0")));
 
-    const revokedTokensTab = helper.findByDataTestId("tab-header-1");
+    expect(activeTokenTableHeaders.item(0)).toHaveText("Description");
+    expect(activeTokenTableHeaders.item(1)).toHaveText("Created At");
+    expect(activeTokenTableHeaders.item(2)).toHaveText("Last Used");
+    expect(activeTokenTableHeaders.item(3)).toHaveText("Revoke");
+
+    const activeTokenTableRows = helper.allByTestId("table-row", helper.byTestId("tab-content-0"));
+    expect(activeTokenTableRows.length).toBe(1);
+    assertActiveTokenRow(activeTokenTableRows.item(0), validToken);
+
+    const revokedTokensTab = helper.byTestId("tab-header-1");
     expect(revokedTokensTab).toHaveText("Revoked Tokens");
-    expect(helper.findIn(helper.findByDataTestId("tab-content-1"), "table-header-row")).not.toBeInDOM();
-    expect(helper.findByDataTestId("tab-content-1")).toHaveText("You don't have any revoked tokens.");
+    expect(helper.byTestId("table-header-row", helper.byTestId("tab-content-1"))).toBeFalsy();
+    expect(helper.byTestId("tab-content-1")).toHaveText("You don't have any revoked tokens.");
   });
 
   it("should list all revoked tokens under revoked tokens tab", () => {
     mount(Stream(new AccessTokens(Stream(revokedToken))));
 
-    const activeTokensTab = helper.findByDataTestId("tab-header-0");
+    const activeTokensTab = helper.byTestId("tab-header-0");
     expect(activeTokensTab).toHaveText("Active Tokens");
-    expect(helper.findIn(helper.findByDataTestId("tab-content-0"), "table-header-row")).not.toBeInDOM();
-    expect(helper.findByDataTestId("tab-content-0"))
+    expect(helper.byTestId("table-header-row", helper.byTestId("tab-content-0"))).toBeFalsy();
+    expect(helper.byTestId("tab-content-0"))
       .toHaveText("You don't have any active tokens. Click on 'Generate Token' button to create a new token.");
 
-    const revokedTokensTab = helper.findByDataTestId("tab-header-1");
-    simulateEvent.simulate(revokedTokensTab.get(0), "click");
-    helper.redraw();
+    const revokedTokensTab = helper.byTestId("tab-header-1");
+    helper.click(revokedTokensTab);
 
     expect(revokedTokensTab).toBeInDOM();
     expect(revokedTokensTab).toHaveText("Revoked Tokens");
-    const revokedTokenTableHeaders = helper.findIn(helper.findByDataTestId("tab-content-1"), "table-header-row")
-                                           .find("th");
-    expect(revokedTokenTableHeaders.eq(0)).toHaveText("Description");
-    expect(revokedTokenTableHeaders.eq(1)).toHaveText("Created At");
-    expect(revokedTokenTableHeaders.eq(2)).toHaveText("Last Used");
-    expect(revokedTokenTableHeaders.eq(3)).toHaveText("Revoked By");
-    expect(revokedTokenTableHeaders.eq(4)).toHaveText("Revoked At");
-    expect(revokedTokenTableHeaders.eq(5)).toHaveText("Revoked Message");
 
-    const revokedTokensTableRows = helper.findIn(helper.findByDataTestId("tab-content-1"), "table-row");
+    const revokedTokenTableHeaders = helper.qa("th", helper.byTestId("table-header-row", helper.byTestId("tab-content-1")));
+    expect(revokedTokenTableHeaders.item(0)).toHaveText("Description");
+    expect(revokedTokenTableHeaders.item(1)).toHaveText("Created At");
+    expect(revokedTokenTableHeaders.item(2)).toHaveText("Last Used");
+    expect(revokedTokenTableHeaders.item(3)).toHaveText("Revoked By");
+    expect(revokedTokenTableHeaders.item(4)).toHaveText("Revoked At");
+    expect(revokedTokenTableHeaders.item(5)).toHaveText("Revoked Message");
+
+    const revokedTokensTableRows = helper.allByTestId("table-row", helper.byTestId("tab-content-1"));
     expect(revokedTokensTableRows.length).toEqual(1);
-    assertRevokedTokenRow(revokedTokensTableRows.eq(0), revokedToken);
+    assertRevokedTokenRow(revokedTokensTableRows.item(0), revokedToken);
   });
 
   function mount(accessTokens: Stream<AccessTokens>) {
@@ -113,20 +111,20 @@ describe("AccessTokensWidgetForCurrentUserSpec", () => {
 
   afterEach(helper.unmount.bind(helper));
 
-  function assertActiveTokenRow(elem: any, accessToken: AccessToken) {
-    const columns = elem.find("td");
-    expect(columns.eq(0)).toContainText(accessToken.description());
-    expect(columns.eq(1)).toContainText(formatTimeInformation(accessToken.createdAt()));
-    expect(columns.eq(2)).toContainText(getLastUsedInformation(accessToken));
+  function assertActiveTokenRow(elem: Element, accessToken: AccessToken) {
+    const columns = helper.qa("td", elem);
+    expect(columns.item(0)).toContainText(accessToken.description());
+    expect(columns.item(1)).toContainText(formatTimeInformation(accessToken.createdAt()));
+    expect(columns.item(2)).toContainText(getLastUsedInformation(accessToken));
   }
 
-  function assertRevokedTokenRow(elem: any, accessToken: AccessToken) {
-    const columns = elem.find("td");
-    expect(columns.eq(0)).toContainText(accessToken.description());
-    expect(columns.eq(1)).toContainText(formatTimeInformation(accessToken.createdAt()));
-    expect(columns.eq(2)).toContainText(getLastUsedInformation(accessToken));
-    expect(columns.eq(3)).toContainText(getRevokedBy(accessToken.revokedBy()));
-    expect(columns.eq(4)).toContainText(formatTimeInformation(accessToken.revokedAt()!));
-    expect(columns.eq(5)).toContainText(accessToken.revokeCause()!);
+  function assertRevokedTokenRow(elem: Element, accessToken: AccessToken) {
+    const columns = helper.qa("td", elem);
+    expect(columns.item(0)).toContainText(accessToken.description());
+    expect(columns.item(1)).toContainText(formatTimeInformation(accessToken.createdAt()));
+    expect(columns.item(2)).toContainText(getLastUsedInformation(accessToken));
+    expect(columns.item(3)).toContainText(getRevokedBy(accessToken.revokedBy()));
+    expect(columns.item(4)).toContainText(formatTimeInformation(accessToken.revokedAt()!));
+    expect(columns.item(5)).toContainText(accessToken.revokeCause()!);
   }
 });

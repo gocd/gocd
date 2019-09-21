@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import $ from "jquery";
+
 import m from "mithril";
 import * as simulateEvent from "simulate-event";
 import {Page} from "views/pages/page";
@@ -76,19 +76,19 @@ export class TestHelper {
   }
 
   // native implementations - prefer these
-  byTestId(id: string, context?: Element): Element {
+  byTestId(id: string, context?: Element) {
     return this.q(dataTestIdSelector(id), context);
   }
 
-  allByTestId(id: string, context?: Element): NodeListOf<Element> {
+  allByTestId(id: string, context?: Element): NodeListOf<HTMLElement> {
     return this.qa(dataTestIdSelector(id), context);
   }
 
-  q(selector: string, context?: Element): Element {
-    return (context || this.root!).querySelector(selector)!;
+  q(selector: string, context?: Element) {
+    return (context || this.root!).querySelector(selector) as HTMLElement;
   }
 
-  qa(selector: string, context?: Element): NodeListOf<Element> {
+  qa(selector: string, context?: Element): NodeListOf<HTMLElement> {
     return (context || this.root!).querySelectorAll(selector);
   }
 
@@ -112,13 +112,21 @@ export class TestHelper {
     return modalContainer;
   }
 
-  text(selector: string, context?: Element): string {
-    return (this.q(selector, context).textContent || "").trim();
+  textByTestId(id: string, context?: Element): string {
+    return this.text(this.byTestId(id, context));
   }
 
-  textAll(selector: string, context?: Element): string[] {
+  textAllByTestId(id: string, context?: Element): string[] {
+    return this.textAll(this.allByTestId(id, context));
+  }
+
+  text(selector: string | Element, context?: Element): string {
+    return (this._el(selector, context).textContent || "").trim();
+  }
+
+  textAll(selector: string | NodeList | Element[], context?: Element): string[] {
     const result: string[] = [];
-    const elements         = Array.from(this.qa(selector, context));
+    const elements         = Array.from("string" === typeof selector ? this.qa(selector, context) : selector);
 
     for (const el of elements) {
       result.push((el.textContent || "").trim());
@@ -168,29 +176,12 @@ export class TestHelper {
     console.log(this.root!.innerHTML);
   }
 
-  clickByDataTestId(id: string) {
-    this.click(dataTestIdSelector(id));
+  clickByTestId(id: string, context?: Element) {
+    this.click(dataTestIdSelector(id), context);
   }
 
   findByClass(className: string) {
     return this.root!.getElementsByClassName(className);
-  }
-
-  // jQuery implementations
-  findByDataTestId(id: string) {
-    return $(this.root!).find(`[data-test-id='${id}']`);
-  }
-
-  find(selector: string) {
-    return $(this.root!).find(selector);
-  }
-
-  findIn(elem: any, id: string) {
-    return $(elem).find(dataTestIdSelector(id));
-  }
-
-  findSelectorIn(elem: any, id: string) {
-    return $(elem).find(id);
   }
 
   private _el(selector: string | Element, context?: Element): Element {

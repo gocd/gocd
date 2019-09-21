@@ -62,7 +62,7 @@ describe("ConfigRepos: MaterialCheck", () => {
       }}/>);
 
       expect(helper.byTestId('material-check-button')).toBeVisible();
-      helper.clickByDataTestId("material-check-button");
+      helper.clickByTestId("material-check-button");
       expect(jasmine.Ajax.requests.count()).toEqual(1);
     });
   });
@@ -100,7 +100,7 @@ describe("ConfigRepos: MaterialCheck", () => {
       }}/>);
 
       expect(helper.byTestId('material-check-button')).toBeVisible();
-      helper.clickByDataTestId("material-check-button");
+      helper.clickByTestId("material-check-button");
       expect(jasmine.Ajax.requests.count()).toEqual(1);
     });
   });
@@ -137,7 +137,7 @@ describe("ConfigRepos: MaterialCheck", () => {
       }}/>);
 
       expect(helper.byTestId('material-check-button')).toBeVisible();
-      helper.clickByDataTestId("material-check-button");
+      helper.clickByTestId("material-check-button");
       expect(jasmine.Ajax.requests.count()).toEqual(1);
     });
   });
@@ -167,7 +167,7 @@ describe("ConfigRepos: MaterialCheck", () => {
       }}/>);
 
       expect(helper.byTestId('material-check-button')).toBeVisible();
-      helper.clickByDataTestId("material-check-button");
+      helper.clickByTestId("material-check-button");
       expect(jasmine.Ajax.requests.count()).toEqual(1);
     });
   });

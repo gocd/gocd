@@ -29,13 +29,13 @@ describe("MailServerWidget", () => {
   it("should show form", () => {
     mount(new MailServer());
 
-    expect(helper.findByDataTestId("form-field-input-smtp-hostname")).toBeInDOM();
-    expect(helper.findByDataTestId("form-field-input-smtp-port")).toBeInDOM();
-    expect(helper.findByDataTestId("form-field-input-use-smtps")).toBeInDOM();
-    expect(helper.findByDataTestId("form-field-input-smtp-username")).toBeInDOM();
-    expect(helper.findByDataTestId("form-field-input-smtp-password")).toBeInDOM();
-    expect(helper.findByDataTestId("form-field-input-send-email-using-address")).toBeInDOM();
-    expect(helper.findByDataTestId("form-field-input-administrator-email")).toBeInDOM();
+    expect(helper.byTestId("form-field-input-smtp-hostname")).toBeInDOM();
+    expect(helper.byTestId("form-field-input-smtp-port")).toBeInDOM();
+    expect(helper.byTestId("form-field-input-use-smtps")).toBeInDOM();
+    expect(helper.byTestId("form-field-input-smtp-username")).toBeInDOM();
+    expect(helper.byTestId("form-field-input-smtp-password")).toBeInDOM();
+    expect(helper.byTestId("form-field-input-send-email-using-address")).toBeInDOM();
+    expect(helper.byTestId("form-field-input-administrator-email")).toBeInDOM();
   });
 
   function mount(mailServer: MailServer) {

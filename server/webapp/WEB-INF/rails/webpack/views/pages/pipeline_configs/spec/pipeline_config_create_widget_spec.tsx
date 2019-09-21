@@ -17,7 +17,6 @@
 import _ from "lodash";
 import m from "mithril";
 import {PipelineConfig} from "models/new_pipeline_configs/pipeline_config";
-import * as simulateEvent from "simulate-event";
 import {PipelineConfigCreateWidget} from "views/pages/pipeline_configs/pipeline_config_create_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
 
@@ -38,25 +37,21 @@ describe("PipelineCreateWidgetSpec", () => {
                                                    onPipelineSettingsEdit={pipelineSettingsCallback}/>);
   });
 
-  afterEach(() => {
-    helper.unmount();
-  });
+  afterEach(() => helper.unmount());
 
   it("should render pipeline name field", () => {
     const pipelineNameHelpText = "No spaces. Only letters, numbers, hyphens, underscores and period. Max 255 chars";
 
-    expect(helper.findByDataTestId("form-field-label-pipeline-name")).toContainText("Pipeline name");
-    expect(helper.findByDataTestId("pipeline-name-input")).toHaveLength(1);
-    expect(helper.findByDataTestId("pipeline-name-input")).toHaveProp("required");
-    expect(helper.findByDataTestId("pipeline-details-container")).toContainText(pipelineNameHelpText);
+    expect(helper.textByTestId("form-field-label-pipeline-name")).toContain("Pipeline name");
+    expect(helper.allByTestId("pipeline-name-input")).toHaveLength(1);
+    expect(helper.byTestId("pipeline-name-input")).toHaveProp("required");
+    expect(helper.textByTestId("pipeline-details-container")).toContain(pipelineNameHelpText);
   });
 
   it("should bind pipeline name field", () => {
     const pipelineName = "Test-pipeline";
 
-    helper.findByDataTestId("pipeline-name-input").val(pipelineName);
-    simulateEvent.simulate(helper.findByDataTestId("pipeline-name-input")[0], "input");
-    m.redraw.sync();
+    helper.oninput(helper.byTestId("pipeline-name-input"), pipelineName);
 
     expect(pipelineConfig.name()).toBe(pipelineName);
 
@@ -64,23 +59,20 @@ describe("PipelineCreateWidgetSpec", () => {
     pipelineConfig.name(updatedPipelineName);
     m.redraw.sync();
 
-    expect(helper.findByDataTestId("pipeline-name-input").val()).toBe(updatedPipelineName);
+    expect(helper.byTestId("pipeline-name-input")).toHaveValue(updatedPipelineName);
   });
 
   it("should display error on name field for invalid input format", () => {
     const pipelineName = "Test pipeline";
     const errorText    = "Only letters, numbers, hyphens, underscores, and periods are allowed.";
 
-    helper.findByDataTestId("pipeline-name-input").val(pipelineName);
-    simulateEvent.simulate(helper.findByDataTestId("pipeline-name-input")[0], "input");
-    m.redraw.sync();
+    helper.oninput(helper.byTestId("pipeline-name-input"), pipelineName);
 
-    expect(helper.findByDataTestId("pipeline-details-container")).toContainText(errorText);
+    expect(helper.textByTestId("pipeline-details-container")).toContain(errorText);
   });
 
   it("should open pipeline settings modal", () => {
-    const element = helper.findByDataTestId("pipeline-settings-button");
-    element.click();
+    helper.clickByTestId("pipeline-settings-button");
     expect(pipelineSettingsCallback).toHaveBeenCalled();
   });
 });

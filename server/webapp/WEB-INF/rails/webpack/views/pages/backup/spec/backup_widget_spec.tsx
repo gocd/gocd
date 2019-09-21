@@ -53,22 +53,22 @@ describe("Backup Widget", () => {
 
   it("should not disable button when backup not in progress", () => {
     mount("2000 GB", BackupStatus.NOT_STARTED, "");
-    expect(helper.findByDataTestId("perform-backup")).not.toBeDisabled();
+    expect(helper.byTestId("perform-backup")).not.toBeDisabled();
   });
 
   it("should disable the button only when backup in progress", () => {
     mount("200 GB", BackupStatus.IN_PROGRESS, "");
-    expect(helper.findByDataTestId("perform-backup")).toBeDisabled();
+    expect(helper.byTestId("perform-backup")).toBeDisabled();
   });
 
   it("should render top level error if backup fails to start", () => {
     mount("200 GB", BackupStatus.ERROR, "Something went wrong");
-    expect(helper.findByDataTestId(`top-level-error`)).toHaveText("Something went wrong");
+    expect(helper.byTestId(`top-level-error`)).toHaveText("Something went wrong");
   });
 
   it("should not render top level error if backup has already started", () => {
     mount("200 GB", BackupStatus.ERROR, "Something went wrong", BackupProgressStatus.BACKUP_VERSION_FILE);
-    expect(helper.findByDataTestId(`top-level-error`)).not.toBeInDOM();
+    expect(helper.byTestId(`top-level-error`)).toBeFalsy();
   });
 
   function mount(availableDiskSpace: string,

@@ -50,7 +50,7 @@ describe("EllipsizeComponent", () => {
 
       expect(helper.findByClass(styles.wrapper)).toBeInDOM();
       expect(helper.findByClass(styles.wrapper)).not.toHaveClass(styles.fixEllipsized);
-      expect(helper.findByDataTestId("ellipsized-content")).toHaveText("This ...");
+      expect(helper.byTestId("ellipsized-content")).toHaveText("This ...");
       expect(helper.findByClass(styles.ellipsisActionButton)).toBeInDOM();
     });
   });
@@ -61,13 +61,13 @@ describe("EllipsizeComponent", () => {
 
       expect(helper.findByClass(styles.wrapper)).toBeInDOM();
       expect(helper.findByClass(styles.wrapper)).not.toHaveClass(styles.fixEllipsized);
-      expect(helper.findByDataTestId("ellipsized-content")).toHaveText("This ...");
+      expect(helper.byTestId("ellipsized-content")).toHaveText("This ...");
       expect(helper.findByClass(styles.ellipsisActionButton)).toHaveText("more");
 
       simulateEvent.simulate(helper.findByClass(styles.ellipsisActionButton)[0], "click");
       m.redraw.sync();
 
-      expect(helper.findByDataTestId("ellipsized-content")).toHaveText("This is small");
+      expect(helper.byTestId("ellipsized-content")).toHaveText("This is small");
       expect(helper.findByClass(styles.ellipsisActionButton)).toBeInDOM();
       expect(helper.findByClass(styles.ellipsisActionButton)).toHaveText("less");
     });
@@ -77,20 +77,20 @@ describe("EllipsizeComponent", () => {
 
       expect(helper.findByClass(styles.wrapper)).toBeInDOM();
       expect(helper.findByClass(styles.wrapper)).not.toHaveClass(styles.fixEllipsized);
-      expect(helper.findByDataTestId("ellipsized-content")).toHaveText("This ...");
+      expect(helper.byTestId("ellipsized-content")).toHaveText("This ...");
       expect(helper.findByClass(styles.ellipsisActionButton)).toHaveText("more");
 
       simulateEvent.simulate(helper.findByClass(styles.ellipsisActionButton)[0], "click");
       m.redraw.sync();
 
-      expect(helper.findByDataTestId("ellipsized-content")).toHaveText("This is small");
+      expect(helper.byTestId("ellipsized-content")).toHaveText("This is small");
       expect(helper.findByClass(styles.ellipsisActionButton)).toBeInDOM();
       expect(helper.findByClass(styles.ellipsisActionButton)).toHaveText("less");
 
       simulateEvent.simulate(helper.findByClass(styles.ellipsisActionButton)[0], "click");
       m.redraw.sync();
 
-      expect(helper.findByDataTestId("ellipsized-content")).toHaveText("This ...");
+      expect(helper.byTestId("ellipsized-content")).toHaveText("This ...");
     });
   });
 

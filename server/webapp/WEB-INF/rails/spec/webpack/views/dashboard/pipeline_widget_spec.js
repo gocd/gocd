@@ -20,14 +20,13 @@ import {Dashboard} from "models/dashboard/dashboard";
 import {Pipelines} from "models/dashboard/pipelines";
 import {PipelineWidget} from "views/dashboard/pipeline_widget";
 import {timeFormatter} from "helpers/time_formatter";
-import $ from "jquery";
 import _ from "lodash";
 import m from "mithril";
 import "jasmine-ajax";
 import * as simulateEvent from "simulate-event";
 
 describe("Dashboard Pipeline Widget", () => {
-
+  const body = document.body;
   const pipelineName   = 'up42';
 
   let dashboardViewModel, dashboard, pipelinesJson, dashboardJSON, pipeline, doCancelPolling,
@@ -83,18 +82,18 @@ describe("Dashboard Pipeline Widget", () => {
     afterEach(helper.unmount.bind(helper));
 
     it("should render pipeline name", () => {
-      expect(helper.find('.pipeline_name')).toContainText('up42');
+      expect(helper.text('.pipeline_name')).toContain('up42');
     });
 
     it("should link history to pipeline history page", () => {
-      expect(helper.find('.pipeline_header>div>a')).toContainText('History');
+      expect(helper.text('.pipeline_header>div>a')).toContain('History');
       const expectedPath = `/go/tab/pipeline/history/${pipelinesJson[0].name}`;
-      expect(helper.find('.pipeline_header .pipeline_history').get(0).href.indexOf(expectedPath)).not.toEqual(-1);
+      expect(helper.q('.pipeline_header .pipeline_history').href.indexOf(expectedPath)).not.toEqual(-1);
     });
 
     it("should link to pipeline settings path", () => {
       const expectedPath = pipeline.settingsPath;
-      expect(helper.find('.edit_config').get(0).href.indexOf(expectedPath)).not.toEqual(-1);
+      expect(helper.q('.edit_config').href.indexOf(expectedPath)).not.toEqual(-1);
     });
 
     it('should disable pipeline settings showing tooltip information for non admin users', () => {
@@ -102,8 +101,8 @@ describe("Dashboard Pipeline Widget", () => {
       mount(false, {}, {}, true, true);
 
       expect(pipeline.canAdminister).toBe(false);
-      expect(helper.find('.edit_config')).toHaveClass('disabled');
-      expect(helper.find('.edit_config')).toHaveAttr('data-tooltip-id');
+      expect(helper.q('.edit_config')).toHaveClass('disabled');
+      expect(helper.q('.edit_config')).toHaveAttr('data-tooltip-id');
     });
 
     it('should disable pipeline settings for config repo pipelines', () => {
@@ -111,7 +110,7 @@ describe("Dashboard Pipeline Widget", () => {
       mount(true, {}, {}, true, true, true);
 
       expect(pipeline.isDefinedInConfigRepo()).toBe(true);
-      expect(helper.find('.edit_config')).toHaveClass('disabled');
+      expect(helper.q('.edit_config')).toHaveClass('disabled');
     });
   });
 
@@ -127,21 +126,20 @@ describe("Dashboard Pipeline Widget", () => {
     });
 
     it("should link to pipeline analytics if there are any", () => {
-      expect(helper.find('.pipeline-analytics')).toBeInDOM();
+      expect(helper.q('.pipeline-analytics')).toBeInDOM();
     });
 
     it("should open up a modal when the analytics icon is clicked", () => {
       helper.click('.pipeline-analytics');
-      expect($('.reveal:visible')).toBeInDOM();
-      expect($(".frame-container")).toBeInDOM();
-      const modalTitle = $('.modal-title:visible');
-      expect(modalTitle).toHaveText("Analytics for pipeline: up42");
+      expect(helper.q(".reveal", body)).toBeInDOM();
+      expect(helper.q(".frame-container", body)).toBeInDOM();
+      expect(helper.text('.modal-title', body)).toBe("Analytics for pipeline: up42");
     });
 
     it("should not display the analytics icon if the user is not an admin", () => {
       helper.unmount();
       mount(false, {}, {}, true, true, false, {"plugin-x": "pipeline_duration"}, false);
-      expect(helper.find('.pipeline-analytics')).not.toBeInDOM();
+      expect(helper.q('.pipeline-analytics')).toBeFalsy();
     });
   });
 
@@ -153,17 +151,17 @@ describe("Dashboard Pipeline Widget", () => {
       });
 
       it("should not disable pipeline settings button for admin users", () => {
-        expect(helper.find('.edit_config')).not.toHaveClass("disabled");
+        expect(helper.q('.edit_config')).not.toHaveClass("disabled");
       });
 
       it("should disable pipeline settings button for non admin users", () => {
         helper.unmount();
         mount(false);
-        expect(helper.find('.edit_config')).toHaveClass("disabled");
+        expect(helper.q('.edit_config')).toHaveClass("disabled");
       });
 
       it("should render pipeline settings icon", () => {
-        expect(helper.find('.edit_config')).toBeInDOM();
+        expect(helper.q('.edit_config')).toBeInDOM();
       });
     });
 
@@ -184,27 +182,27 @@ describe("Dashboard Pipeline Widget", () => {
       });
 
       it("should render unpause pipeline button", () => {
-        const pauseButton = helper.find('.unpause');
+        const pauseButton = helper.q('.unpause');
         expect(pauseButton).toBeInDOM();
-        expect($(pauseButton).attr('title')).toBe("Pipeline Paused");
+        expect(pauseButton.getAttribute('title')).toBe("Pipeline Paused");
       });
 
       it('should disable pause button for non admin users', () => {
         helper.unmount();
         mount(true, pauseInfo, undefined, false);
 
-        expect(helper.find('.unpause')).toHaveClass('disabled');
+        expect(helper.q('.unpause')).toHaveClass('disabled');
       });
 
       it('should not add onclick handler for non admin users', () => {
         helper.unmount();
         mount(true, pauseInfo, undefined, false);
 
-        expect(_.isFunction(helper.find('.unpause').get(0).onclick)).toBe(false);
+        expect(_.isFunction(helper.q('.unpause').onclick)).toBe(false);
       });
 
       it("should render the pipeline pause message", () => {
-        expect(helper.find('.pipeline_pause-message')).toContainText('Paused by admin (under construction)');
+        expect(helper.text('.pipeline_pause-message')).toContain('Paused by admin (under construction)');
       });
 
       it("should not render null in case of no pipeline pause message", () => {
@@ -216,13 +214,13 @@ describe("Dashboard Pipeline Widget", () => {
         };
 
         mount(true, pauseInfo, undefined, false);
-        expect(helper.find('.pipeline_pause-message')).toContainText('Paused by admin ()');
+        expect(helper.text('.pipeline_pause-message')).toContain('Paused by admin ()');
       });
 
       it("should not render the pipeline flash message", () => {
-        expect(helper.find('.pipeline_message')).not.toBeInDOM();
-        expect(helper.find('.pipeline_message .success')).not.toBeInDOM();
-        expect(helper.find('.pipeline_message .error')).not.toBeInDOM();
+        expect(helper.q('.pipeline_message')).toBeFalsy();
+        expect(helper.q('.pipeline_message .success')).toBeFalsy();
+        expect(helper.q('.pipeline_message .error')).toBeFalsy();
       });
 
       it("should unpause a pipeline", () => {
@@ -244,9 +242,9 @@ describe("Dashboard Pipeline Widget", () => {
         expect(doCancelPolling).toHaveBeenCalled();
         expect(doRefreshImmediately).toHaveBeenCalled();
 
-        expect(helper.find('.pipeline_pause-message')).not.toBeInDOM();
-        expect(helper.find('.pipeline_message')).toContainText(responseMessage);
-        expect(helper.find('.pipeline_message')).toHaveClass("success");
+        expect(helper.q('.pipeline_pause-message')).toBeFalsy();
+        expect(helper.text('.pipeline_message')).toContain(responseMessage);
+        expect(helper.q('.pipeline_message')).toHaveClass("success");
       });
 
       it("should show error when unpause a pipeline fails", () => {
@@ -267,8 +265,8 @@ describe("Dashboard Pipeline Widget", () => {
         expect(doCancelPolling).toHaveBeenCalled();
         expect(doRefreshImmediately).toHaveBeenCalled();
 
-        expect(helper.find('.pipeline_message')).toContainText(responseMessage);
-        expect(helper.find('.pipeline_message')).toHaveClass("error");
+        expect(helper.text('.pipeline_message')).toContain(responseMessage);
+        expect(helper.q('.pipeline_message')).toHaveClass("error");
       });
     });
 
@@ -294,14 +292,14 @@ describe("Dashboard Pipeline Widget", () => {
       });
 
       it("should render pause pipeline button", () => {
-        expect(helper.find('.pause')).toBeInDOM();
+        expect(helper.q('.pause')).toBeInDOM();
       });
 
       it('should disable pause button for non admin users', () => {
         helper.unmount();
         mount(true, pauseInfo, dashboard, false);
 
-        expect(helper.find('.pause')).toHaveClass('disabled');
+        expect(helper.q('.pause')).toHaveClass('disabled');
       });
 
 
@@ -309,22 +307,21 @@ describe("Dashboard Pipeline Widget", () => {
         helper.unmount();
         mount(true, pauseInfo, dashboard, false);
 
-        expect(_.isFunction(helper.find('.pause').get(0).onclick)).toBe(false);
+        expect(_.isFunction(helper.q('.pause').onclick)).toBe(false);
       });
 
       it("should show modal to specify pause reason upon pausing a pipeline", () => {
-        expect($('.reveal:visible')).not.toBeInDOM();
+        expect(helper.q(".reveal", body)).toBeFalsy();
 
         helper.click('.pause');
 
-        expect($('.reveal:visible')).toBeInDOM();
+        expect(helper.q(".reveal", body)).toBeInDOM();
       });
 
       it("should show appropriate header for popup modal upon pause button click", () => {
         helper.click('.pause');
 
-        const modalTitle = $('.modal-title:visible');
-        expect(modalTitle).toHaveText(`Pause pipeline ${pipeline.name}`);
+        expect(helper.text('.modal-title', body)).toBe(`Pause pipeline ${pipeline.name}`);
       });
 
       it("should pause a pipeline", () => {
@@ -342,20 +339,19 @@ describe("Dashboard Pipeline Widget", () => {
 
         helper.click('.pause');
 
-        $('.reveal input').val("test");
+        helper.q('.reveal input', body).value = "test";
 
         doRefreshImmediately.and.callFake(() => pipeline.isPaused = true);
-        simulateEvent.simulate($('.reveal .primary').get(0), 'click');
-        m.redraw.sync();
+        helper.click('.reveal .primary', body);
 
         expect(doCancelPolling).toHaveBeenCalled();
         expect(doRefreshImmediately).toHaveBeenCalled();
 
-        expect(helper.find('.pipeline_pause-message')).toBeInDOM();
-        expect(helper.find('.pipeline_pause-message')).toContainText(`on ${timeFormatter.format(pauseInfo.paused_at)}`);
-        expect(helper.find('.pipeline_pause-message div').get(0).title).toEqual(timeFormatter.formatInServerTime(pauseInfo.paused_at));
-        expect(helper.find('.pipeline_message')).toContainText(responseMessage);
-        expect(helper.find('.pipeline_message')).toHaveClass("success");
+        expect(helper.q('.pipeline_pause-message')).toBeInDOM();
+        expect(helper.text('.pipeline_pause-message')).toContain(`on ${timeFormatter.format(pauseInfo.paused_at)}`);
+        expect(helper.q('.pipeline_pause-message div').title).toEqual(timeFormatter.formatInServerTime(pauseInfo.paused_at));
+        expect(helper.text('.pipeline_message')).toContain(responseMessage);
+        expect(helper.q('.pipeline_message')).toHaveClass("success");
       });
 
       it("should not pause a pipeline", () => {
@@ -373,15 +369,14 @@ describe("Dashboard Pipeline Widget", () => {
 
         helper.click('.pause');
 
-        $('.reveal input').val("test");
-        simulateEvent.simulate($('.reveal .primary').get(0), 'click');
-        m.redraw.sync();
+        helper.q('.reveal input', body).value = "test";
+        helper.click('.reveal .primary', body);
 
         expect(doCancelPolling).toHaveBeenCalled();
         expect(doRefreshImmediately).toHaveBeenCalled();
 
-        expect(helper.find('.pipeline_message')).toContainText(responseMessage);
-        expect(helper.find('.pipeline_message')).toHaveClass("error");
+        expect(helper.text('.pipeline_message')).toContain(responseMessage);
+        expect(helper.q('.pipeline_message')).toHaveClass("error");
       });
 
       it("should pause pipeline and close popup when enter is pressed inside the pause popup", () => {
@@ -395,36 +390,38 @@ describe("Dashboard Pipeline Widget", () => {
         });
 
         helper.click('.pause');
-        expect($('.reveal:visible')).toBeInDOM();
-        const pausePopupTextBox = $('.reveal input');
-        pausePopupTextBox.val("test");
+        expect(helper.q(".reveal", body)).toBeInDOM();
+        const pausePopupTextBox = helper.q('.reveal input', body);
+        pausePopupTextBox.value = "test";
 
-        simulateEvent.simulate(pausePopupTextBox.get(0), 'keydown', { key: 'Enter' });
+        simulateEvent.simulate(pausePopupTextBox, 'keydown', { key: 'Enter' });
         m.redraw.sync();
 
-        expect($('.reveal:visible')).not.toBeInDOM();
-        expect(helper.find('.pipeline_message')).toContainText(responseMessage);
-        expect(helper.find('.pipeline_message')).toHaveClass("success");
+        expect(helper.q(".reveal", body)).toBeFalsy();
+        expect(helper.text('.pipeline_message')).toContain(responseMessage);
+        expect(helper.q('.pipeline_message')).toHaveClass("success");
       });
 
       it("should close pause popup when escape is pressed", () => {
         helper.click('.pause');
-        expect($('.reveal:visible')).toBeInDOM();
+        expect(helper.q(".reveal", body)).toBeInDOM();
 
-        simulateEvent.simulate($('body').get(0), 'keydown', { key: 'Escape' });
+        simulateEvent.simulate(body, 'keydown', { key: 'Escape' });
         m.redraw.sync();
 
-        expect($('.reveal:visible')).not.toBeInDOM();
+        expect(helper.q(".reveal", body)).toBeFalsy();
       });
 
       it("should not retain text entered when the pause popup is closed", () => {
         helper.click('.pause');
-        expect($('.reveal:visible')).toBeInDOM();
-        let pausePopupTextBox = $('.reveal input');
-        pausePopupTextBox.val("test");
-        $('.reveal .secondary').trigger('click');
+        expect(helper.q(".reveal", body)).toBeInDOM();
+        let pausePopupTextBox = helper.q('.reveal input', body);
+        pausePopupTextBox.value = "test";
+
+        helper.click('.reveal .secondary', body);
         helper.click('.pause');
-        pausePopupTextBox = $('.reveal input');
+
+        pausePopupTextBox = helper.q('.reveal input', body);
 
         expect(pausePopupTextBox).toHaveValue("");
       });
@@ -432,10 +429,10 @@ describe("Dashboard Pipeline Widget", () => {
       it("should have tooltip for pause button when it is disabled", () => {
         helper.unmount();
         mount(true, pauseInfo, {}, false);
-        const pauseButton = helper.find('.pause');
+        const pauseButton = helper.q('.pause');
         expect(pauseButton).toHaveAttr('data-tooltip-id');
-        const tooltipId = $(pauseButton).attr('data-tooltip-id');
-        expect($(`#${tooltipId}`)).toHaveText("You do not have permission to pause the pipeline.");
+        const tooltipId = pauseButton.getAttribute('data-tooltip-id');
+        expect(helper.text(document.getElementById(tooltipId))).toBe("You do not have permission to pause the pipeline.");
       });
 
       it('should not show the paused time if it is null', () => {
@@ -465,20 +462,19 @@ describe("Dashboard Pipeline Widget", () => {
         expect(doRefreshImmediately).not.toHaveBeenCalled();
 
         helper.click('.pause');
-        $('.reveal input').val("test");
+        helper.q('.reveal input', body).value = "test";
 
         doRefreshImmediately.and.callFake(() => pipeline.isPaused = true);
-        simulateEvent.simulate($('.reveal .primary').get(0), 'click');
-        m.redraw.sync();
+        helper.click('.reveal .primary', body);
 
         expect(doCancelPolling).toHaveBeenCalled();
         expect(doRefreshImmediately).toHaveBeenCalled();
 
-        expect(helper.find('.pipeline_pause-message')).toBeInDOM();
-        expect(helper.find('.pipeline_pause-message').text()).toBe('Paused by admin (under construction)');
-        expect(helper.find('.pipeline_pause-message div')).not.toBeInDOM();
-        expect(helper.find('.pipeline_message')).toContainText(responseMessage);
-        expect(helper.find('.pipeline_message')).toHaveClass("success");
+        expect(helper.q('.pipeline_pause-message')).toBeInDOM();
+        expect(helper.text('.pipeline_pause-message')).toBe('Paused by admin (under construction)');
+        expect(helper.q('.pipeline_pause-message div')).toBeFalsy();
+        expect(helper.text('.pipeline_message')).toContain(responseMessage);
+        expect(helper.q('.pipeline_message')).toHaveClass("success");
       });
     });
 
@@ -496,11 +492,11 @@ describe("Dashboard Pipeline Widget", () => {
       });
 
       it("should render unlock pipeline button", () => {
-        expect(helper.find('.pipeline_locked')).toBeInDOM();
+        expect(helper.q('.pipeline_locked')).toBeInDOM();
       });
 
       it("should enable unlock pipeline button when user can unlock a pipeline", () => {
-        expect(helper.find('.pipeline_locked')).not.toHaveClass('disabled');
+        expect(helper.q('.pipeline_locked')).not.toHaveClass('disabled');
       });
 
       it("should disable unlock pipeline button when user can not unlock a pipeline", () => {
@@ -511,13 +507,13 @@ describe("Dashboard Pipeline Widget", () => {
         };
 
         mount(true, undefined, lockInfo);
-        expect(helper.find('.pipeline_locked')).toHaveClass('disabled');
+        expect(helper.q('.pipeline_locked')).toHaveClass('disabled');
       });
 
       it("should not render the pipeline flash message", () => {
-        expect(helper.find('.pipeline_message')).not.toBeInDOM();
-        expect(helper.find('.pipeline_message .success')).not.toBeInDOM();
-        expect(helper.find('.pipeline_message .error')).not.toBeInDOM();
+        expect(helper.q('.pipeline_message')).toBeFalsy();
+        expect(helper.q('.pipeline_message .success')).toBeFalsy();
+        expect(helper.q('.pipeline_message .error')).toBeFalsy();
       });
 
       it("should unlock a pipeline", () => {
@@ -538,8 +534,8 @@ describe("Dashboard Pipeline Widget", () => {
         expect(doCancelPolling).toHaveBeenCalled();
         expect(doRefreshImmediately).toHaveBeenCalled();
 
-        expect(helper.find('.pipeline_message')).toContainText(responseMessage);
-        expect(helper.find('.pipeline_message')).toHaveClass("success");
+        expect(helper.text('.pipeline_message')).toContain(responseMessage);
+        expect(helper.q('.pipeline_message')).toHaveClass("success");
       });
 
       it("should show error when unlocking a pipeline fails", () => {
@@ -560,8 +556,8 @@ describe("Dashboard Pipeline Widget", () => {
         expect(doCancelPolling).toHaveBeenCalled();
         expect(doRefreshImmediately).toHaveBeenCalled();
 
-        expect(helper.find('.pipeline_message')).toContainText(responseMessage);
-        expect(helper.find('.pipeline_message')).toHaveClass("error");
+        expect(helper.text('.pipeline_message')).toContain(responseMessage);
+        expect(helper.q('.pipeline_message')).toHaveClass("error");
       });
     });
 
@@ -574,14 +570,14 @@ describe("Dashboard Pipeline Widget", () => {
       });
 
       it("should render trigger pipeline button", () => {
-        expect(helper.find('.play')).toBeInDOM();
+        expect(helper.q('.play')).toBeInDOM();
       });
 
       it('should disable trigger button for non admin users', () => {
         helper.unmount();
         mount(true, {}, {}, false, false);
 
-        expect(helper.find('.play')).toHaveClass('disabled');
+        expect(helper.q('.play')).toHaveClass('disabled');
       });
 
       it('should disable trigger button when first stage is in progress', () => {
@@ -589,7 +585,7 @@ describe("Dashboard Pipeline Widget", () => {
         pipelineInstances[0]._embedded.stages[0].status = 'Building';
         mount();
 
-        expect(helper.find('.play')).toHaveClass('disabled');
+        expect(helper.q('.play')).toHaveClass('disabled');
       });
 
       it('should not add onclick handler when first stage is in progess', () => {
@@ -597,14 +593,14 @@ describe("Dashboard Pipeline Widget", () => {
         pipelineInstances[0]._embedded.stages[0].status = 'Building';
         mount();
 
-        expect(_.isFunction(helper.find('.play').get(0).onclick)).toBe(false);
+        expect(_.isFunction(helper.q('.play').onclick)).toBe(false);
       });
 
       it('should disable trigger button when pipeline is locked', () => {
         helper.unmount();
         mount(true, undefined, {"locked": true});
 
-        expect(helper.find('.play')).toHaveClass('disabled');
+        expect(helper.q('.play')).toHaveClass('disabled');
       });
 
       it('should disable trigger button when pipeline is paused', () => {
@@ -615,21 +611,21 @@ describe("Dashboard Pipeline Widget", () => {
           "pause_reason": "under construction"
         });
 
-        expect(helper.find('.play')).toHaveClass('disabled');
+        expect(helper.q('.play')).toHaveClass('disabled');
       });
 
       it('should not add onclick handler pipeline is locked', () => {
         helper.unmount();
         mount(true, undefined, {"locked": true});
 
-        expect(_.isFunction(helper.find('.play').get(0).onclick)).toBe(false);
+        expect(_.isFunction(helper.q('.play').onclick)).toBe(false);
       });
 
       it('should not add onclick handler for non admin users', () => {
         helper.unmount();
         mount(true, {}, {}, false, false);
 
-        expect(_.isFunction(helper.find('.play').get(0).onclick)).toBe(false);
+        expect(_.isFunction(helper.q('.play').onclick)).toBe(false);
       });
 
       it("should trigger a pipeline", () => {
@@ -648,8 +644,8 @@ describe("Dashboard Pipeline Widget", () => {
 
         expect(pipeline.triggerDisabled()).toBe(true);
 
-        expect(helper.find('.pipeline_message')).toContainText(responseMessage);
-        expect(helper.find('.pipeline_message')).toHaveClass("success");
+        expect(helper.text('.pipeline_message')).toContain(responseMessage);
+        expect(helper.q('.pipeline_message')).toHaveClass("success");
       });
 
       it("should show error when triggering a pipeline fails", () => {
@@ -668,17 +664,17 @@ describe("Dashboard Pipeline Widget", () => {
 
         expect(pipeline.triggerDisabled()).toBe(false);
 
-        expect(helper.find('.pipeline_message')).toContainText(responseMessage);
-        expect(helper.find('.pipeline_message')).toHaveClass("error");
+        expect(helper.text('.pipeline_message')).toContain(responseMessage);
+        expect(helper.q('.pipeline_message')).toHaveClass("error");
       });
 
       it("should have tooltips for trigger buttons when it is disabled", () => {
         helper.unmount();
         mount(true, {}, {}, true, false);
-        const playButton = helper.find('.pipeline_operations .play');
+        const playButton = helper.q('.pipeline_operations .play');
         expect(playButton).toHaveAttr('data-tooltip-id');
-        const tooltipId = $(playButton).attr('data-tooltip-id');
-        expect($(`#${tooltipId}`)).toHaveText("You do not have permission to trigger the pipeline");
+        const tooltipId = playButton.getAttribute('data-tooltip-id');
+        expect(helper.text(document.getElementById(tooltipId))).toBe("You do not have permission to trigger the pipeline");
       });
     });
 
@@ -691,14 +687,14 @@ describe("Dashboard Pipeline Widget", () => {
       });
 
       it("should render trigger with options pipeline button", () => {
-        expect(helper.find('.play_with_options')).toBeInDOM();
+        expect(helper.q('.play_with_options')).toBeInDOM();
       });
 
       it('should disable trigger with options button for non admin users', () => {
         helper.unmount();
         mount(true, {}, {}, false, false);
 
-        expect(helper.find('.play_with_options')).toHaveClass('disabled');
+        expect(helper.q('.play_with_options')).toHaveClass('disabled');
       });
 
       it('should disable trigger with options button when first stage is in progress', () => {
@@ -706,7 +702,7 @@ describe("Dashboard Pipeline Widget", () => {
         pipelineInstances[0]._embedded.stages[0].status = 'Building';
         mount();
 
-        expect(helper.find('.play_with_options')).toHaveClass('disabled');
+        expect(helper.q('.play_with_options')).toHaveClass('disabled');
       });
 
       it('should not add onclick handler when first stage is in progess', () => {
@@ -714,13 +710,13 @@ describe("Dashboard Pipeline Widget", () => {
         pipelineInstances[0]._embedded.stages[0].status = 'Building';
         mount();
 
-        expect(_.isFunction(helper.find('.play_with_options').get(0).onclick)).toBe(false);
+        expect(_.isFunction(helper.q('.play_with_options').onclick)).toBe(false);
       });
 
       it('should disable trigger with options button when pipeline is locked', () => {
         helper.unmount();
         mount(true, undefined, {"locked": true});
-        expect(helper.find('.play_with_options')).toHaveClass('disabled');
+        expect(helper.q('.play_with_options')).toHaveClass('disabled');
       });
 
       it('should disable trigger with options button when pipeline is paused', () => {
@@ -730,17 +726,17 @@ describe("Dashboard Pipeline Widget", () => {
           "paused_by":    "admin",
           "pause_reason": "under construction"
         });
-        const triggerWithOptsButton = helper.find('.play_with_options');
+        const triggerWithOptsButton = helper.q('.play_with_options');
         expect(triggerWithOptsButton).toHaveClass('disabled');
         expect(triggerWithOptsButton).toHaveAttr('title');
-        expect($(triggerWithOptsButton).attr('title')).toBe("Trigger with Options Disabled");
+        expect(triggerWithOptsButton.getAttribute('title')).toBe("Trigger with Options Disabled");
       });
 
       it('should not add onclick handler pipeline is locked', () => {
         helper.unmount();
         mount(true, undefined, {"locked": true});
 
-        expect(_.isFunction(helper.find('.play_with_options').get(0).onclick)).toBe(false);
+        expect(_.isFunction(helper.q('.play_with_options').onclick)).toBe(false);
       });
 
 
@@ -748,63 +744,61 @@ describe("Dashboard Pipeline Widget", () => {
         helper.unmount();
         mount(true, {}, {}, false, false);
 
-        expect(_.isFunction(helper.find('.play_with_options').get(0).onclick)).toBe(false);
+        expect(_.isFunction(helper.q('.play_with_options').onclick)).toBe(false);
       });
 
       it("should show modal to specify trigger options for a pipeline", () => {
         stubTriggerOptions(pipelineName);
 
-        expect($('.reveal:visible')).not.toBeInDOM();
+        expect(helper.q(".reveal", body)).toBeFalsy();
 
         helper.click('.play_with_options');
 
-        expect($('.reveal:visible')).toBeInDOM();
+        expect(helper.q(".reveal", body)).toBeInDOM();
       });
 
       it('should render error message in modal when api response parsing fails', () => {
         stubTriggerOptionsWithInvalidData(pipelineName);
 
-        expect($('.reveal:visible')).not.toBeInDOM();
+        expect(helper.q(".reveal", body)).toBeFalsy();
 
         helper.click('.play_with_options');
         m.redraw.sync();
 
-        expect($('.reveal:visible')).toBeInDOM();
-        expect($('.callout.alert')).toBeInDOM();
+        expect(helper.q(".reveal", body)).toBeInDOM();
+        expect(helper.q('.callout.alert', body)).toBeInDOM();
       });
 
       it("should show appropriate header for trigger with options popup modal", () => {
 
         helper.click('.play_with_options');
 
-        const modalTitle = $('.modal-title:visible');
-        expect(modalTitle).toHaveText(`${pipeline.name} - Trigger`);
+        expect(helper.text('.modal-title', body)).toBe(`${pipeline.name} - Trigger`);
       });
 
       it('should show modal appropriately when opened and closed multiple times', () => {
         stubTriggerOptions(pipelineName);
 
         //open trigger with options modal
-        expect($('.reveal:visible')).not.toBeInDOM();
-        expect($('.pipeline_options-heading')).not.toContainText('Materials');
+        expect(helper.q(".reveal", body)).toBeFalsy();
+        expect(helper.q('.pipeline_options-heading', body)).toBeFalsy();
 
         helper.click('.play_with_options');
 
-        expect($('.reveal:visible')).toBeInDOM();
-        expect($('.pipeline_options-heading')).toContainText('Materials');
+        expect(helper.q(".reveal", body)).toBeInDOM();
+        expect(helper.text('.pipeline_options-heading', body)).toContain('Materials');
 
         //close trigger with options modal
-        simulateEvent.simulate($('.modal-buttons .button.save.secondary').get(0), 'click');
-        m.redraw.sync();
+        helper.click('.modal-buttons .button.save.secondary', body);
 
         //open again trigger with options modal
-        expect($('.reveal:visible')).not.toBeInDOM();
-        expect($('.pipeline_options-heading')).not.toContainText('Materials');
+        expect(helper.q(".reveal", body)).toBeFalsy();
+        expect(helper.q('.pipeline_options-heading', body)).toBeFalsy();
 
         helper.click('.play_with_options');
 
-        expect($('.reveal:visible')).toBeInDOM();
-        expect($('.pipeline_options-heading')).toContainText('Materials');
+        expect(helper.q(".reveal", body)).toBeInDOM();
+        expect(helper.text('.pipeline_options-heading', body)).toContain('Materials');
       });
 
       it("should trigger a pipeline", () => {
@@ -822,13 +816,12 @@ describe("Dashboard Pipeline Widget", () => {
 
         helper.click('.play_with_options');
 
-        simulateEvent.simulate($('.modal-buttons .button.save.primary').get(0), 'click');
-        m.redraw.sync();
+        helper.click('.modal-buttons .button.save.primary', body);
 
         expect(pipeline.triggerDisabled()).toBe(true);
 
-        expect(helper.find('.pipeline_message')).toContainText(responseMessage);
-        expect(helper.find('.pipeline_message')).toHaveClass("success");
+        expect(helper.text('.pipeline_message')).toContain(responseMessage);
+        expect(helper.q('.pipeline_message')).toHaveClass("success");
       });
 
       it("should show error when triggering a pipeline fails", () => {
@@ -850,17 +843,17 @@ describe("Dashboard Pipeline Widget", () => {
 
         expect(pipeline.triggerDisabled()).toBe(false);
 
-        expect(helper.find('.pipeline_message')).toContainText(responseMessage);
-        expect(helper.find('.pipeline_message')).toHaveClass("error");
+        expect(helper.text('.pipeline_message')).toContain(responseMessage);
+        expect(helper.q('.pipeline_message')).toHaveClass("error");
       });
 
       it("should have tooltips when it is disabled", () => {
         helper.unmount();
         mount(true, {}, {}, true, false);
-        const playButton = helper.find('.pipeline_operations .play_with_options');
+        const playButton = helper.q('.pipeline_operations .play_with_options');
         expect(playButton).toHaveAttr('data-tooltip-id');
-        const tooltipId = $(playButton).attr('data-tooltip-id');
-        expect($(`#${tooltipId}`)).toHaveText("You do not have permission to trigger the pipeline");
+        const tooltipId = playButton.getAttribute('data-tooltip-id');
+        expect(helper.text(document.getElementById(tooltipId))).toBe("You do not have permission to trigger the pipeline");
       });
     });
   });
@@ -869,8 +862,8 @@ describe("Dashboard Pipeline Widget", () => {
     it("should render pipeline instances", () => {
       mount();
 
-      expect(helper.find('.pipeline_instances')).toBeInDOM();
-      expect(helper.find('.pipeline_instance')).toBeInDOM();
+      expect(helper.q('.pipeline_instances')).toBeInDOM();
+      expect(helper.q('.pipeline_instance')).toBeInDOM();
 
       helper.unmount();
     });
@@ -879,11 +872,11 @@ describe("Dashboard Pipeline Widget", () => {
       pipelineInstances = [];
       mount();
 
-      expect(helper.find('.pipeline_instances')).toBeInDOM();
+      expect(helper.q('.pipeline_instances')).toBeInDOM();
 
-      expect(helper.find('.no_instance')).toBeInDOM();
+      expect(helper.q('.no_instance')).toBeInDOM();
       const pipelineNeverRunMessage = 'You haven\'t run this pipeline yet. Click the play button to run pipeline.';
-      expect(helper.find('.no_instance')).toContainText(pipelineNeverRunMessage);
+      expect(helper.text('.no_instance')).toContain(pipelineNeverRunMessage);
 
       helper.unmount();
     });

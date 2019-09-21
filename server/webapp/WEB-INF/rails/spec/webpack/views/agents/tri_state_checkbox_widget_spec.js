@@ -29,37 +29,37 @@ describe("TriStateCheckboxWidget", () => {
 
   it('should have checkbox with value', () => {
     mount(new TriStateCheckbox('Firefox', resources));
-    const checkbox = helper.find('input')[0];
+    const checkbox = helper.q('input');
     expect(checkbox).toHaveValue('Firefox');
   });
 
   it('should select the box as checked depending upon check field', () => {
     mount(new TriStateCheckbox('Firefox', resources));
-    const checkbox = helper.find('input')[0];
+    const checkbox = helper.q('input');
     expect(checkbox).toBeChecked();
   });
 
   it('should select the box as unchecked depending upon check field', () => {
     mount(new TriStateCheckbox('Linux', resources));
-    const checkbox = helper.find('input')[0];
+    const checkbox = helper.q('input');
     expect(checkbox).not.toBeChecked();
   });
 
   it('should select the box as indeterminate depending upon the isIndeterminate field', () => {
     mount(new TriStateCheckbox('Chrome', resources));
-    const checkbox = helper.find('input')[0];
+    const checkbox = helper.q('input');
     expect(checkbox.indeterminate).toBe(true);
   });
 
   it('should disable the checkbox when disabled flag is set', () => {
     mount(new TriStateCheckbox('Chrome', resources, true));
-    const checkbox = helper.find('input')[0];
+    const checkbox = helper.q('input');
     expect(checkbox).toHaveAttr('disabled');
   });
 
   it('should not disable the checkbox when disabled flag is not set', () => {
     mount(new TriStateCheckbox('Chrome', resources));
-    const checkbox = helper.find('input')[0];
+    const checkbox = helper.q('input');
     expect(checkbox).not.toHaveAttr('disabled');
   });
 

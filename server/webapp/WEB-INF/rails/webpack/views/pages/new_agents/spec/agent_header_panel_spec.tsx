@@ -111,7 +111,7 @@ describe("AgentHeaderPanel", () => {
       agentsVM.selectAgent(agentA.uuid);
       mount(agentsVM);
 
-      helper.clickByDataTestId("delete-agents");
+      helper.clickByTestId("delete-agents");
 
       expect(onDelete).toHaveBeenCalled();
     });
@@ -122,7 +122,7 @@ describe("AgentHeaderPanel", () => {
       agentsVM.selectAgent(agentA.uuid);
       mount(agentsVM);
 
-      helper.clickByDataTestId("enable-agents");
+      helper.clickByTestId("enable-agents");
 
       expect(onEnable).toHaveBeenCalled();
     });
@@ -133,7 +133,7 @@ describe("AgentHeaderPanel", () => {
       agentsVM.selectAgent(agentA.uuid);
       mount(agentsVM);
 
-      helper.clickByDataTestId("disable-agents");
+      helper.clickByTestId("disable-agents");
 
       expect(onDisable).toHaveBeenCalled();
     });

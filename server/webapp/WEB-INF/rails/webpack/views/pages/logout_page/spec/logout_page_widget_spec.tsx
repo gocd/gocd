@@ -37,9 +37,9 @@ describe("LogoutPageWidget", () => {
             }]
           });
 
-    expect($(helper.root!)).toContainText("You have been logged out.");
-    expect($(helper.root!)).toContainText("automatically redirected");
-    expect(helper.find("a")).toHaveAttr("href", "/go/auth/login");
+    expect(helper.root!.textContent).toContain("You have been logged out.");
+    expect(helper.root!.textContent).toContain("automatically redirected");
+    expect(helper.q("a")).toHaveAttr("href", "/go/auth/login");
   });
 
   it("should show logout message with auto redirect message when no web based plugins are installed", () => {
@@ -50,9 +50,9 @@ describe("LogoutPageWidget", () => {
             webBasedPlugins: []
           });
 
-    expect($(helper.root!)).toContainText("You have been logged out.");
-    expect($(helper.root!)).toContainText("automatically redirected");
-    expect(helper.find("a")).toHaveAttr("href", "/go/auth/login");
+    expect(helper.root!.textContent).toContain("You have been logged out.");
+    expect(helper.root!.textContent).toContain("automatically redirected");
+    expect(helper.q("a")).toHaveAttr("href", "/go/auth/login");
   });
 
   it("should show logout message with auto redirect message when when only web based plugins are installed", () => {
@@ -71,9 +71,9 @@ describe("LogoutPageWidget", () => {
             }]
           });
 
-    expect($(helper.root!)).toContainText("You have been logged out.");
-    expect($(helper.root!)).toContainText("automatically redirected");
-    expect(helper.find("a")).toHaveAttr("href", "/go/auth/login");
+    expect(helper.root!.textContent).toContain("You have been logged out.");
+    expect(helper.root!.textContent).toContain("automatically redirected");
+    expect(helper.q("a")).toHaveAttr("href", "/go/auth/login");
   });
 
   it("should not show redirect message if only 1 web based plugin is installed and no password plugins", () => {
@@ -88,10 +88,10 @@ describe("LogoutPageWidget", () => {
             }]
           });
 
-    expect($(helper.root!)).toContainText("You have been logged out.");
-    expect($(helper.root!)).not.toContainText("automatic");
-    expect($(helper.root!)).toContainText("Click here to login again.");
-    expect(helper.find("a")).toHaveAttr("href", "/go/auth/login");
+    expect(helper.root!.textContent).toContain("You have been logged out.");
+    expect(helper.root!.textContent).not.toContain("automatic");
+    expect(helper.root!.textContent).toContain("Click here to login again.");
+    expect(helper.q("a")).toHaveAttr("href", "/go/auth/login");
   });
 
   function mount(authPluginInfo: AuthPluginInfo) {

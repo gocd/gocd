@@ -17,12 +17,12 @@
 import m from "mithril";
 import Stream from "mithril/stream";
 import {StageConfig} from "models/new_pipeline_configs/stage_configuration";
-import * as simulateEvent from "simulate-event";
 import {StageSettingsModal} from "views/pages/pipeline_configs/stages/settings/stage_settings_modal";
 import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("Pipeline Config - Stage Settings Modal", () => {
   const helper = new TestHelper();
+  const body = document.body;
 
   let stage: StageConfig;
   let modal: StageSettingsModal;
@@ -41,52 +41,46 @@ describe("Pipeline Config - Stage Settings Modal", () => {
   it("should render modal title", () => {
     const modalTitle = "Stage Settings";
 
-    expect(modal.title()).toEqual(modalTitle);
-    expect(helper.findIn($("body"), "modal-title")).toContainText(modalTitle);
+    expect(modal.title()).toBe(modalTitle);
+    expect(helper.textByTestId("modal-title", body)).toContain(modalTitle);
   });
 
   it("should render tab headings", () => {
-    const body = $("body");
 
-    expect(helper.findIn(body, "tab-header-0")).toContainText("Stage Settings");
-    expect(helper.findIn(body, "tab-header-1")).toContainText("Environment Variables");
-    expect(helper.findIn(body, "tab-header-2")).toContainText("Permissions");
+    expect(helper.textByTestId("tab-header-0", body)).toContain("Stage Settings");
+    expect(helper.textByTestId("tab-header-1", body)).toContain("Environment Variables");
+    expect(helper.textByTestId("tab-header-2", body)).toContain("Permissions");
   });
 
   it("should render stage settings widget by default", () => {
-    const body = $("body");
+    expect(helper.textByTestId("tab-header-0", body)).toContain("Stage Settings");
+    expect(helper.byTestId("stage-settings-tab", body)).toBeInDOM();
 
-    expect(helper.findIn(body, "tab-header-0")).toContainText("Stage Settings");
-    expect(helper.findIn(body, "stage-settings-tab")).toBeInDOM();
-
-    expect(isHidden("tab-content-0")).toEqual(false);
-    expect(isHidden("tab-content-1")).toEqual(true);
-    expect(isHidden("tab-content-2")).toEqual(true);
+    expect(isHidden("tab-content-0")).toBe(false);
+    expect(isHidden("tab-content-1")).toBe(true);
+    expect(isHidden("tab-content-2")).toBe(true);
   });
 
   it("should render stage settings permission widget on click", () => {
-    const body = $("body");
+    expect(helper.textByTestId("tab-header-0", body)).toContain("Stage Settings");
+    expect(helper.byTestId("stage-settings-tab", body)).toBeInDOM();
 
-    expect(helper.findIn(body, "tab-header-0")).toContainText("Stage Settings");
-    expect(helper.findIn(body, "stage-settings-tab")).toBeInDOM();
+    expect(helper.textByTestId("tab-header-2", body)).toContain("Permissions");
+    expect(helper.byTestId("stage-permissions-tab", body)).toBeInDOM();
 
-    expect(helper.findIn(body, "tab-header-2")).toContainText("Permissions");
-    expect(helper.findIn(body, "stage-permissions-tab")).toBeInDOM();
+    expect(isHidden("tab-content-0")).toBe(false);
+    expect(isHidden("tab-content-1")).toBe(true);
+    expect(isHidden("tab-content-2")).toBe(true);
 
-    expect(isHidden("tab-content-0")).toEqual(false);
-    expect(isHidden("tab-content-1")).toEqual(true);
-    expect(isHidden("tab-content-2")).toEqual(true);
+    helper.clickByTestId("tab-header-2", body);
 
-    simulateEvent.simulate(helper.findIn(body, "tab-header-2")[0], "click");
-    m.redraw.sync();
-
-    expect(isHidden("tab-content-0")).toEqual(true);
-    expect(isHidden("tab-content-1")).toEqual(true);
-    expect(isHidden("tab-content-2")).toEqual(false);
+    expect(isHidden("tab-content-0")).toBe(true);
+    expect(isHidden("tab-content-1")).toBe(true);
+    expect(isHidden("tab-content-2")).toBe(false);
   });
 
   function isHidden(tab: string) {
-    const classList = helper.findIn($("body"), tab)[0].classList;
-    return Array.from(classList).some((c: any) => c.indexOf("hide") >= 0);
+    const classList = helper.byTestId(tab, body).classList;
+    return Array.from(classList).some((c) => c.indexOf("hide") !== -1);
   }
 });

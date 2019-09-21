@@ -36,17 +36,16 @@ describe("SecretConfigPage", () => {
 
   it("should disable add secret config button if secret plugin not found", () => {
     mount([]);
-    expect(helper.findByDataTestId("add-secret-config")).toBeDisabled();
-    expect(helper.findByDataTestId("flash-message-info")).toBeInDOM();
-    expect(helper.findByDataTestId("flash-message-info"))
-      .toHaveText("No secret plugin installed.");
+    expect(helper.byTestId("add-secret-config")).toBeDisabled();
+    expect(helper.byTestId("flash-message-info")).toBeInDOM();
+    expect(helper.textByTestId("flash-message-info")).toBe("No secret plugin installed.");
   });
 
   it("should not disable add secret config button if secret plugin not found", () => {
     mount([PluginInfo.fromJSON(SecretPluginInfo.file())]);
 
-    expect(helper.findByDataTestId("add-secret-config")).not.toBeDisabled();
-    expect(helper.findByDataTestId("flash-message-info")).not.toBeInDOM();
+    expect(helper.byTestId("add-secret-config")).not.toBeDisabled();
+    expect(helper.byTestId("flash-message-info")).toBeFalsy();
   });
 
   function mount(pluginInfos: any[]) {

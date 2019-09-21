@@ -41,10 +41,10 @@ describe("BackupConfigModal", () => {
   afterEach(helper.unmount.bind(helper));
 
   it("should render form", () => {
-    expect(modal.title()).toEqual("Configure backup settings");
-    expect(helper.findByDataTestId("form-field-input-backup-schedule")).toBeInDOM();
-    expect(helper.findByDataTestId("form-field-input-post-backup-script")).toBeInDOM();
-    expect(helper.findByDataTestId("form-field-input-send-email-on-backup-failure")).toBeInDOM();
-    expect(helper.findByDataTestId("form-field-input-send-email-on-backup-success")).toBeInDOM();
+    expect(modal.title()).toBe("Configure backup settings");
+    expect(helper.byTestId("form-field-input-backup-schedule")).toBeInDOM();
+    expect(helper.byTestId("form-field-input-post-backup-script")).toBeInDOM();
+    expect(helper.byTestId("form-field-input-send-email-on-backup-failure")).toBeInDOM();
+    expect(helper.byTestId("form-field-input-send-email-on-backup-success")).toBeInDOM();
   });
 });

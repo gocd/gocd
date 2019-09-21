@@ -18,7 +18,6 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {ExecTask} from "models/new_pipeline_configs/task";
 import {Tasks} from "models/new_pipeline_configs/tasks";
-import * as simulateEvent from "simulate-event";
 import {TasksTab} from "views/pages/pipeline_configs/stages/on_create/tasks_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
 
@@ -39,11 +38,11 @@ describe("Pipeline Config - Job Settings Modal - Tasks Widget - Tasks List", () 
   });
 
   it("should render the tasks list", () => {
-    expect(helper.findByDataTestId("tasks-list")).toBeInDOM();
+    expect(helper.byTestId("tasks-list")).toBeInDOM();
   });
 
   it("should list all tasks", () => {
-    const tasks = helper.findByDataTestId("task-representation");
+    const tasks = helper.allByTestId("task-representation");
 
     expect(tasks).toHaveLength(2);
     expect(tasks[0]).toHaveText("ls foo");
@@ -51,20 +50,19 @@ describe("Pipeline Config - Job Settings Modal - Tasks Widget - Tasks List", () 
   });
 
   it("should render delete icon for all the tasks", () => {
-    const deleteIcons = helper.findByDataTestId("Delete-icon");
+    const deleteIcons = helper.allByTestId("Delete-icon");
 
     expect(deleteIcons).toHaveLength(2);
   });
 
   it("should delete a task", () => {
-    expect(helper.findByDataTestId("task-representation").get(0)).toContainText("ls foo");
+    expect(helper.textByTestId("task-representation")).toContain("ls foo");
 
-    simulateEvent.simulate(helper.findByDataTestId("Delete-icon").get(0), "click");
-    m.redraw.sync();
+    helper.clickByTestId("Delete-icon");
 
-    const firstTask = helper.findByDataTestId("task-representation")[0];
+    const firstTask = helper.byTestId("task-representation");
 
-    expect(firstTask).not.toContainText("ls foo");
-    expect(firstTask).toContainText("sleep 30");
+    expect(firstTask.textContent).not.toContain("ls foo");
+    expect(firstTask.textContent).toContain("sleep 30");
   });
 });

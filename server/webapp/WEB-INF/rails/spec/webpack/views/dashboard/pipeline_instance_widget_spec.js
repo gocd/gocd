@@ -22,7 +22,6 @@ import {PipelineInstanceWidget} from "views/dashboard/pipeline_instance_widget";
 import {timeFormatter} from "helpers/time_formatter";
 import _ from "lodash";
 import m from "mithril";
-import * as simulateEvent from "simulate-event";
 
 describe("Dashboard Pipeline Instance Widget", () => {
 
@@ -108,39 +107,35 @@ describe("Dashboard Pipeline Instance Widget", () => {
   afterEach(helper.unmount.bind(helper));
 
   it("should render instance label", () => {
-    expect(helper.find('.pipeline_instance-label')).toContainText('Instance: 1');
+    expect(helper.text('.pipeline_instance-label')).toContain('Instance: 1');
   });
 
   it("should render triggered by information", () => {
-    expect(helper.find('.pipeline_instance-details div:nth-child(1)').text()).toEqual(`${pipelineInstanceJson.triggered_by}`);
+    expect(helper.text('.pipeline_instance-details div:nth-child(1)')).toBe(`${pipelineInstanceJson.triggered_by}`);
     const expectedTime = `on ${timeFormatter.format(pipelineInstanceJson.scheduled_at)}`;
-    expect(helper.find('.pipeline_instance-details div:nth-child(2)').text()).toEqual(expectedTime);
+    expect(helper.text('.pipeline_instance-details div:nth-child(2)')).toBe(expectedTime);
   });
 
   it("should show server triggered by information on hover", () => {
     const expectedTime = timeFormatter.formatInServerTime(pipelineInstanceJson.scheduled_at);
-    expect(helper.find('.pipeline_instance-details div:nth-child(2)').get(0).title).toEqual(expectedTime);
+    expect(helper.q('.pipeline_instance-details div:nth-child(2)').title).toBe(expectedTime);
   });
 
   it("should render compare link", () => {
-    const links       = helper.find('.info a');
-    const compareLink = links.get(0);
+    const compareLink = helper.q('.info a');
 
     expect(compareLink).toContainText('Compare');
-
-    const hasCompareLink = compareLink.href.indexOf("/go/compare/up42/0/with/1") >= 0;
-    expect(hasCompareLink).toBe(true);
+    expect(compareLink.href).toContain("/go/compare/up42/0/with/1");
   });
 
   it("should render changes link", () => {
-    const links       = helper.find('.info a');
-    const changesLink = links.get(1);
+    const changesLink = helper.qa('.info a')[1];
 
     expect(changesLink).toContainText('Changes');
   });
 
   it("should show changes once changes link is clicked", () => {
-    expect(helper.find('.material_changes')).not.toBeInDOM();
+    expect(helper.q('.material_changes')).not.toExist();
 
     jasmine.Ajax.withMock(() => {
       jasmine.Ajax.stubRequest(SparkRoutes.buildCausePath(pipelineName, instance.counter), undefined, 'GET').andReturn({
@@ -149,27 +144,23 @@ describe("Dashboard Pipeline Instance Widget", () => {
         status:          200
       });
 
-      simulateEvent.simulate(helper.find('.info a').get(1), 'click');
-      m.redraw.sync();
+      helper.click(helper.qa('.info a')[1]);
     });
 
-    expect(helper.find('.material_changes')).toBeInDOM();
-    expect(helper.find('.comment')).toHaveHtml('<p>Initial commit <a target="story_tracker" href="http://example.com/1234">#1234</a></p>');
+    expect(helper.q('.material_changes')).toBeInDOM();
+    expect(helper.q('.comment')).toHaveHtml('<p>Initial commit <a target="story_tracker" href="http://example.com/1234">#1234</a></p>');
   });
 
   it("should render vsm link", () => {
-    const links   = helper.find('.info a');
-    const vsmLink = links.get(2);
+    const vsmLink = helper.qa('.info a')[2];
 
     expect(vsmLink).toContainText('VSM');
-
-    const hasVSMLink = vsmLink.href.indexOf("/go/pipelines/value_stream_map/up42/1") >= 0;
-    expect(hasVSMLink).toBe(true);
+    expect(vsmLink.href).toContain("/go/pipelines/value_stream_map/up42/1");
   });
 
   it("should render stages instance", () => {
-    expect(helper.find('.pipeline_stages')).toBeInDOM();
-    expect(helper.find('.pipeline_stage')).toBeInDOM();
+    expect(helper.q('.pipeline_stages')).toBeInDOM();
+    expect(helper.q('.pipeline_stage')).toBeInDOM();
   });
 
   const dashboardJsonForPipelines = (pipelines) => {

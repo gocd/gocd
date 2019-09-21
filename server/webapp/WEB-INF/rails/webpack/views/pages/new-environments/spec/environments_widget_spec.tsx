@@ -40,20 +40,20 @@ describe("Environments Widget", () => {
   afterEach(helper.unmount.bind(helper));
 
   it("should render collapsible panel for each environment", () => {
-    expect(helper.findByDataTestId("collapsible-panel-for-env-" + xmlEnv.name)).toBeInDOM();
-    expect(helper.findByDataTestId("collapsible-panel-for-env-" + configRepoEnv.name)).toBeInDOM();
-    expect(helper.findByDataTestId("collapsible-panel-for-env-" + env.name)).toBeInDOM();
+    expect(helper.byTestId("collapsible-panel-for-env-" + xmlEnv.name)).toBeInDOM();
+    expect(helper.byTestId("collapsible-panel-for-env-" + configRepoEnv.name)).toBeInDOM();
+    expect(helper.byTestId("collapsible-panel-for-env-" + env.name)).toBeInDOM();
   });
 
   it("should render environment header for all the environments", () => {
-    expect(helper.findByDataTestId("environment-header-for-" + xmlEnv.name)).toBeInDOM();
-    expect(helper.findByDataTestId("environment-header-for-" + configRepoEnv.name)).toBeInDOM();
-    expect(helper.findByDataTestId("environment-header-for-" + env.name)).toBeInDOM();
+    expect(helper.byTestId("environment-header-for-" + xmlEnv.name)).toBeInDOM();
+    expect(helper.byTestId("environment-header-for-" + configRepoEnv.name)).toBeInDOM();
+    expect(helper.byTestId("environment-header-for-" + env.name)).toBeInDOM();
   });
 
   it("should render environment body for all the environments", () => {
-    expect(helper.findByDataTestId("environment-body-for-" + xmlEnv.name)).toBeInDOM();
-    expect(helper.findByDataTestId("environment-body-for-" + configRepoEnv.name)).toBeInDOM();
-    expect(helper.findByDataTestId("environment-body-for-" + env.name)).toBeInDOM();
+    expect(helper.byTestId("environment-body-for-" + xmlEnv.name)).toBeInDOM();
+    expect(helper.byTestId("environment-body-for-" + configRepoEnv.name)).toBeInDOM();
+    expect(helper.byTestId("environment-body-for-" + env.name)).toBeInDOM();
   });
 });

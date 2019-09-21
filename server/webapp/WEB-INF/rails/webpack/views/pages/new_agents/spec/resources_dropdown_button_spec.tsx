@@ -56,7 +56,7 @@ describe("ResourcesDropdownButton", () => {
     expect(agentsVM.showEnvironments()).toBeTruthy();
     expect(agentsVM.showResources()).toBeFalsy();
 
-    helper.clickByDataTestId("modify-resources-association");
+    helper.clickByTestId("modify-resources-association");
 
     expect(agentsVM.showEnvironments()).toBeFalsy();
     expect(agentsVM.showResources()).toBeTruthy();
@@ -66,7 +66,7 @@ describe("ResourcesDropdownButton", () => {
     agentsVM.selectAgent(agent.uuid);
     mount(agentsVM, new DummyService([]));
 
-    helper.clickByDataTestId("modify-resources-association");
+    helper.clickByTestId("modify-resources-association");
     m.redraw.sync();
 
     expect(helper.byTestId("association")).toBeInDOM();
@@ -76,7 +76,7 @@ describe("ResourcesDropdownButton", () => {
     agentsVM.selectAgent(agent.uuid);
     mount(agentsVM, new DummyService(["firefox", "chrome"]));
 
-    helper.clickByDataTestId("modify-resources-association");
+    helper.clickByTestId("modify-resources-association");
     m.redraw.sync();
 
     expect(helper.byTestId("association")).toContainText("firefox");
@@ -90,7 +90,7 @@ describe("ResourcesDropdownButton", () => {
       agentsVM.selectAgent(agent.uuid);
       mount(agentsVM, new DummyService(["chrome", "test"]));
 
-      helper.clickByDataTestId("modify-resources-association");
+      helper.clickByTestId("modify-resources-association");
       m.redraw.sync();
 
       expect(helper.byTestId("form-field-input-chrome")).not.toBeChecked();
@@ -102,7 +102,7 @@ describe("ResourcesDropdownButton", () => {
       agent.resources.push("chrome");
       mount(agentsVM, new DummyService(["chrome", "test"]));
 
-      helper.clickByDataTestId("modify-resources-association");
+      helper.clickByTestId("modify-resources-association");
       m.redraw.sync();
 
       expect(helper.byTestId("form-field-input-chrome")).toBeChecked();
@@ -117,7 +117,7 @@ describe("ResourcesDropdownButton", () => {
       agent.resources.push("chrome");
       mount(agentsVM, new DummyService(["chrome", "test"]));
 
-      helper.clickByDataTestId("modify-resources-association");
+      helper.clickByTestId("modify-resources-association");
       m.redraw.sync();
 
       expect(helper.byTestId("form-field-input-chrome")).toHaveProp("indeterminate", true);
@@ -128,7 +128,7 @@ describe("ResourcesDropdownButton", () => {
       agentsVM.selectAgent(agent.uuid);
       mount(agentsVM, new DummyService(["chrome"]));
 
-      helper.clickByDataTestId("modify-resources-association");
+      helper.clickByTestId("modify-resources-association");
       m.redraw.sync();
       helper.oninput("input", "firefox", helper.byTestId("resource-to-add"));
       m.redraw.sync();

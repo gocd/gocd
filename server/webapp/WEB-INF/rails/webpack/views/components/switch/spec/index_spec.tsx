@@ -33,22 +33,22 @@ describe("SwitchBtn component", () => {
   it("should render switch", () => {
     mount();
 
-    expect(helper.findByDataTestId("switch-wrapper")).toBeInDOM();
-    expect(helper.findByDataTestId("switch-wrapper")).toHaveClass(styles.switchBtn);
+    expect(helper.byTestId("switch-wrapper")).toBeInDOM();
+    expect(helper.byTestId("switch-wrapper")).toHaveClass(styles.switchBtn);
 
-    expect(helper.findByDataTestId("switch-label")).toContainText("This is switch");
-    expect(helper.findByDataTestId("switch-label")).toHaveClass(styles.switchLabel);
+    expect(helper.byTestId("switch-label")).toContainText("This is switch");
+    expect(helper.byTestId("switch-label")).toHaveClass(styles.switchLabel);
 
-    expect(helper.findByDataTestId("switch-checkbox")).toHaveClass(styles.switchInput);
-    expect(helper.findByDataTestId("switch-paddle")).toHaveClass(styles.switchPaddle);
+    expect(helper.byTestId("switch-checkbox")).toHaveClass(styles.switchInput);
+    expect(helper.byTestId("switch-paddle")).toHaveClass(styles.switchPaddle);
   });
 
   it("should render small switch", () => {
     mount(true);
 
-    expect(helper.findByDataTestId("switch-wrapper")).toBeInDOM();
-    expect(helper.findByDataTestId("switch-wrapper")).toHaveClass(styles.switchBtn);
-    expect(helper.findByDataTestId("switch-wrapper")).toHaveClass(styles.switchSmall);
+    expect(helper.byTestId("switch-wrapper")).toBeInDOM();
+    expect(helper.byTestId("switch-wrapper")).toHaveClass(styles.switchBtn);
+    expect(helper.byTestId("switch-wrapper")).toHaveClass(styles.switchSmall);
   });
 
   it("should toggle a state of field", () => {
@@ -56,10 +56,10 @@ describe("SwitchBtn component", () => {
 
     expect(switchStream()).toBe(false);
 
-    helper.clickByDataTestId("switch-paddle");
+    helper.clickByTestId("switch-paddle");
     expect(switchStream()).toBe(true);
 
-    helper.clickByDataTestId("switch-paddle");
+    helper.clickByTestId("switch-paddle");
     expect(switchStream()).toBe(false);
   });
 
@@ -68,10 +68,10 @@ describe("SwitchBtn component", () => {
 
     expect(switchStream()).toBe(false);
 
-    helper.clickByDataTestId("switch-paddle");
+    helper.clickByTestId("switch-paddle");
     expect(switchStream()).toBe(true);
 
-    helper.clickByDataTestId("switch-paddle");
+    helper.clickByTestId("switch-paddle");
     expect(switchStream()).toBe(false);
   });
 

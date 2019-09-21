@@ -17,7 +17,6 @@
 import m from "mithril";
 import Stream from "mithril/stream";
 import {StageConfig} from "models/new_pipeline_configs/stage_configuration";
-import * as simulateEvent from "simulate-event";
 import {StageSettingsTab} from "views/pages/pipeline_configs/stages/settings/tabs/settings";
 import {TestHelper} from "views/pages/spec/test_helper";
 
@@ -38,10 +37,10 @@ describe("Pipeline Config - Stage Settings Modal - Stage Settings Tab", () => {
   });
 
   it("should render stage name input field", () => {
-    expect(helper.findByDataTestId("form-field-label-stage-name")).toContainText("Stage Name");
-    expect(helper.findByDataTestId("form-field-input-stage-name")).toBeInDOM();
+    expect(helper.byTestId("form-field-label-stage-name")).toContainText("Stage Name");
+    expect(helper.byTestId("form-field-input-stage-name")).toBeInDOM();
 
-    expect((helper.findByDataTestId("form-field-input-stage-name")[0] as HTMLInputElement).value)
+    expect((helper.byTestId("form-field-input-stage-name") as HTMLInputElement).value)
       .toEqual(stageConfig.name());
   });
 
@@ -51,88 +50,87 @@ describe("Pipeline Config - Stage Settings Modal - Stage Settings Tab", () => {
     m.redraw.sync();
 
     expect(stageConfig.name()).toEqual(newStageName);
-    expect((helper.findByDataTestId("form-field-input-stage-name")[0] as HTMLInputElement).value).toEqual(newStageName);
+    expect((helper.byTestId("form-field-input-stage-name") as HTMLInputElement).value).toEqual(newStageName);
   });
 
   it("should update stage name model property when stage name input field is updated", () => {
     const newStageName = "another_new_stage_name";
-    helper.findByDataTestId("form-field-input-stage-name").val(newStageName);
-    simulateEvent.simulate(helper.findByDataTestId("form-field-input-stage-name")[0], "input");
-    m.redraw.sync();
+    (helper.byTestId("form-field-input-stage-name") as HTMLInputElement).value = newStageName;
+    helper.oninput(helper.byTestId("form-field-input-stage-name"), newStageName);
 
     expect(stageConfig.name()).toEqual(newStageName);
-    expect((helper.findByDataTestId("form-field-input-stage-name")[0] as HTMLInputElement).value).toEqual(newStageName);
+    expect((helper.byTestId("form-field-input-stage-name") as HTMLInputElement).value).toEqual(newStageName);
   });
 
   it("should render approval type switch", () => {
-    expect(helper.findByDataTestId("switch-wrapper")).toBeInDOM();
-    expect(helper.findByDataTestId("switch-label")).toContainText("Automatically run this stage on upstream changes:");
-    expect((helper.findByDataTestId("switch-checkbox")[0] as HTMLInputElement).checked).toEqual(true);
+    expect(helper.byTestId("switch-wrapper")).toBeInDOM();
+    expect(helper.textByTestId("switch-label")).toContain("Automatically run this stage on upstream changes:");
+    expect(checked("switch-checkbox")).toBe(true);
   });
 
   it("should allow toggling approval switch", () => {
-    expect(helper.findByDataTestId("switch-wrapper")).toBeInDOM();
+    expect(helper.byTestId("switch-wrapper")).toBeInDOM();
 
     expect(stageConfig.approval().state()).toEqual(true);
-    expect((helper.findByDataTestId("switch-checkbox")[0] as HTMLInputElement).checked).toEqual(true);
+    expect(checked("switch-checkbox")).toBe(true);
 
-    helper.findByDataTestId("switch-checkbox").val("off");
-    simulateEvent.simulate(helper.findByDataTestId("switch-checkbox")[0], "click");
-    m.redraw.sync();
+    click("switch-checkbox");
 
-    expect(stageConfig.approval().state()).toEqual(false);
-    expect((helper.findByDataTestId("switch-checkbox")[0] as HTMLInputElement).checked).toEqual(false);
+    expect(stageConfig.approval().state()).toBe(false);
+    expect(checked("switch-checkbox")).toBe(false);
   });
 
   it("should render fetch materials checkbox", () => {
-    expect(helper.findByDataTestId("form-field-input-fetch-materials")).toBeInDOM();
-    expect(helper.findByDataTestId("form-field-label-fetch-materials")).toBeInDOM();
+    expect(helper.byTestId("form-field-input-fetch-materials")).toBeInDOM();
+    expect(helper.byTestId("form-field-label-fetch-materials")).toBeInDOM();
 
-    expect((helper.findByDataTestId("form-field-input-fetch-materials")[0] as HTMLInputElement).checked).toEqual(false);
-    expect(helper.findByDataTestId("form-field-label-fetch-materials")).toContainText("Fetch Materials");
+    expect(checked("form-field-input-fetch-materials")).toBe(false);
+    expect(helper.textByTestId("form-field-label-fetch-materials")).toContain("Fetch Materials");
   });
 
   it("should allow toggling fetch materials checkbox", () => {
-    expect((helper.findByDataTestId("form-field-input-fetch-materials")[0] as HTMLInputElement).checked).toEqual(false);
+    expect(checked("form-field-input-fetch-materials")).toBe(false);
 
-    helper.findByDataTestId("form-field-input-fetch-materials").val("on");
-    simulateEvent.simulate(helper.findByDataTestId("form-field-input-fetch-materials")[0], "click");
-
-    expect((helper.findByDataTestId("form-field-input-fetch-materials")[0] as HTMLInputElement).checked).toEqual(true);
+    click("form-field-input-fetch-materials");
+    expect(checked("form-field-input-fetch-materials")).toBe(true);
   });
 
   it("should render Never Cleanup Artifacts checkbox", () => {
-    expect(helper.findByDataTestId("form-field-input-never-cleanup-artifacts")).toBeInDOM();
-    expect(helper.findByDataTestId("form-field-label-never-cleanup-artifacts")).toBeInDOM();
+    expect(helper.byTestId("form-field-input-never-cleanup-artifacts")).toBeInDOM();
+    expect(helper.byTestId("form-field-label-never-cleanup-artifacts")).toBeInDOM();
 
-    expect((helper.findByDataTestId("form-field-input-never-cleanup-artifacts")[0] as HTMLInputElement).checked).toEqual(false);
-    expect(helper.findByDataTestId("form-field-label-never-cleanup-artifacts")).toContainText("Never Cleanup Artifacts");
+    expect(checked("form-field-input-never-cleanup-artifacts")).toBe(false);
+    expect(helper.textByTestId("form-field-label-never-cleanup-artifacts")).toContain("Never Cleanup Artifacts");
   });
 
   it("should allow toggling Never Cleanup Artifacts checkbox", () => {
-    expect((helper.findByDataTestId("form-field-input-never-cleanup-artifacts")[0] as HTMLInputElement).checked).toEqual(false);
+    expect(checked("form-field-input-never-cleanup-artifacts")).toBe(false);
 
-    helper.findByDataTestId("form-field-input-never-cleanup-artifacts").val("on");
-    simulateEvent.simulate(helper.findByDataTestId("form-field-input-never-cleanup-artifacts")[0], "click");
-
-    expect((helper.findByDataTestId("form-field-input-never-cleanup-artifacts")[0] as HTMLInputElement).checked).toEqual(true);
+    click("form-field-input-never-cleanup-artifacts");
+    expect(checked("form-field-input-never-cleanup-artifacts")).toBe(true);
   });
 
   it("should render Clean Working Directory checkbox", () => {
-    expect(helper.findByDataTestId("form-field-input-clean-working-directory")).toBeInDOM();
-    expect(helper.findByDataTestId("form-field-label-clean-working-directory")).toBeInDOM();
+    expect(helper.byTestId("form-field-input-clean-working-directory")).toBeInDOM();
+    expect(helper.byTestId("form-field-label-clean-working-directory")).toBeInDOM();
 
-    expect((helper.findByDataTestId("form-field-input-clean-working-directory")[0] as HTMLInputElement).checked).toEqual(false);
-    expect(helper.findByDataTestId("form-field-label-clean-working-directory")).toContainText("Clean Working Directory");
+    expect(checked("form-field-input-clean-working-directory")).toBe(false);
+    expect(helper.textByTestId("form-field-label-clean-working-directory")).toContain("Clean Working Directory");
   });
 
   it("should allow toggling Clean Working Directory checkbox", () => {
-    expect((helper.findByDataTestId("form-field-input-clean-working-directory")[0] as HTMLInputElement).checked).toEqual(false);
+    expect(checked("form-field-input-clean-working-directory")).toBe(false);
 
-    helper.findByDataTestId("form-field-input-clean-working-directory").val("on");
-    simulateEvent.simulate(helper.findByDataTestId("form-field-input-clean-working-directory")[0], "click");
-
-    expect((helper.findByDataTestId("form-field-input-clean-working-directory")[0] as HTMLInputElement).checked).toEqual(true);
+    click("form-field-input-clean-working-directory");
+    expect(checked("form-field-input-clean-working-directory")).toBe(true);
   });
 
+  function click(id: string) {
+    (helper.byTestId(id) as HTMLElement).click();
+    m.redraw.sync();
+  }
+
+  function checked(id: string) {
+    return (helper.byTestId(id) as HTMLInputElement).checked;
+  }
 });

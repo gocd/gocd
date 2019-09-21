@@ -21,13 +21,12 @@ import {PluginInfos} from "models/shared/plugin_infos";
 import {Modal} from "views/shared/new_modal";
 import Stream from "mithril/stream";
 import m from "mithril";
-import $ from "jquery";
-import  "jasmine-jquery";
-import * as simulateEvent from "simulate-event";
+import "jasmine-jquery";
 
 describe("Agent Row Widget", () => {
-  const agents          = Stream();
-  const agentsVM        = new AgentsVM();
+  const agents   = Stream();
+  const agentsVM = new AgentsVM();
+  const body     = document.body;
 
   let shouldShowAnalyticsIcon = true;
   let elasticAgentPluginInfo;
@@ -55,19 +54,19 @@ describe("Agent Row Widget", () => {
     const model = Stream(true);
     mount(agents().firstAgent(), model, true);
 
-    const row         = helper.find('tr:first');
-    const checkbox    = $(row).find('input');
-    const information = $(row).find('td');
+    const row         = helper.q('tr');
+    const checkbox    = helper.q("input", row);
+    const information = helper.qa("td", row);
     expect(information[1]).toExist();
-    expect($(information[2]).find('.content')).toHaveText('in-john.local');
-    expect($(information[2]).find('.content')).toContainElement('a');
-    expect($(information[3]).find('.content')).toHaveText('/var/lib/go-agent');
-    expect($(information[4]).find('.content')).toHaveText('Linux');
-    expect($(information[5]).find('.content')).toHaveText('10.12.2.200');
-    expect($(information[6]).find('.content')).toHaveText('Missing');
-    expect($(information[7]).find('.content')).toHaveText('Unknown');
-    expect($(information[8]).find('.content')).toHaveText('firefox');
-    expect($(information[9]).find('.content')).toHaveText('Dev');
+    expect(helper.text('.content', information[2])).toBe('in-john.local');
+    expect(helper.q('.content', information[2])).toContainElement('a');
+    expect(helper.text('.content', information[3])).toBe('/var/lib/go-agent');
+    expect(helper.text('.content', information[4])).toBe('Linux');
+    expect(helper.text('.content', information[5])).toBe('10.12.2.200');
+    expect(helper.text('.content', information[6])).toBe('Missing');
+    expect(helper.text('.content', information[7])).toBe('Unknown');
+    expect(helper.text('.content', information[8])).toBe('firefox');
+    expect(helper.text('.content', information[9])).toBe('Dev');
     expect(checkbox).toBeChecked();
   });
 
@@ -76,10 +75,10 @@ describe("Agent Row Widget", () => {
     const model = Stream(true);
     mount(agents().firstAgent(), model, false);
 
-    const row         = helper.find('tr')[0];
-    const information = $(row).find('td');
-    expect($(information[2]).find('.content')).toHaveText('in-john.local');
-    expect($(information[2]).find('.content')).not.toContainElement('a');
+    const row         = helper.q('tr');
+    const information = helper.qa("td", row);
+    expect(helper.text('.content', information[2])).toBe('in-john.local');
+    expect(helper.q('.content', information[2])).not.toContainElement('a');
   });
 
   it('should contain link to job run history for normal agents', () => {
@@ -87,12 +86,12 @@ describe("Agent Row Widget", () => {
     const model = Stream(true);
     mount(agents().firstAgent(), model, true);
 
-    const row         = helper.find('tr')[0];
-    const information = $(row).find('td');
-    const hostname    = $(information[2]).find('.content');
+    const row         = helper.q('tr');
+    const information = helper.qa("td", row);
+    const hostname    = helper.q(".content", information[2]);
 
     expect(hostname).toHaveText('in-john.local');
-    expect(hostname.find('a')[0].href).toContain(`/go/agents/${allAgents.firstAgent().uuid()}/job_run_history`);
+    expect(hostname.querySelector("a").href).toContain(`/go/agents/${allAgents.firstAgent().uuid()}/job_run_history`);
   });
 
   it('should contain link to job run history page for elastic agents', () => {
@@ -100,12 +99,13 @@ describe("Agent Row Widget", () => {
     const model = Stream(true);
     mount(agents().lastAgent(), model, true, true);
 
-    const row         = helper.find('tr')[0];
-    const information = $(row).find('td');
-    const hostname    = $(information[2]).find('.content');
+    const row         = helper.q('tr');
+    const information = helper.qa("td", row);
+    const hostname    = helper.q(".content", information[2]);
+
 
     expect(hostname).toHaveText('elastic-agent-hostname');
-    expect(hostname.find('a')[0].href).toContain(`/go/agents/${allAgents.lastAgent().uuid()}/job_run_history`);
+    expect(hostname.querySelector("a").href).toContain(`/go/agents/${allAgents.lastAgent().uuid()}/job_run_history`);
   });
 
   it('should contain link to job run history page for elastic agents when elastic agent plugin is missing', () => {
@@ -113,12 +113,12 @@ describe("Agent Row Widget", () => {
     const model = Stream(true);
     mount(agents().lastAgent(), model, true, null);
 
-    const row         = helper.find('tr')[0];
-    const information = $(row).find('td');
-    const hostname    = $(information[2]).find('.content');
+    const row         = helper.q('tr');
+    const information = helper.qa("td", row);
+    const hostname    = helper.q(".content", information[2]);
 
     expect(hostname).toHaveText('elastic-agent-hostname');
-    expect(hostname.find('a')[0].href).toContain(`/go/agents/${allAgents.lastAgent().uuid()}/job_run_history`);
+    expect(hostname.querySelector("a").href).toContain(`/go/agents/${allAgents.lastAgent().uuid()}/job_run_history`);
   });
 
 
@@ -127,12 +127,12 @@ describe("Agent Row Widget", () => {
     const model = Stream(true);
     mount(agents().lastAgent(), model, true);
 
-    const row         = helper.find('tr')[0];
-    const information = $(row).find('td');
-    const hostname    = $(information[2]).find('.content');
+    const row         = helper.q('tr');
+    const information = helper.qa("td", row);
+    const hostname    = helper.q(".content", information[2]);
 
     expect(hostname).toHaveText('elastic-agent-hostname');
-    expect(hostname.find('a')[0].href).toContain(`/go/agents/${allAgents.lastAgent().uuid()}/job_run_history`);
+    expect(hostname.querySelector("a").href).toContain(`/go/agents/${allAgents.lastAgent().uuid()}/job_run_history`);
   });
 
   it('should check the value based on the checkbox model', () => {
@@ -140,36 +140,38 @@ describe("Agent Row Widget", () => {
     const model = Stream(true);
     mount(agents().firstAgent(), model, true);
 
-    const checkbox = helper.find('input')[0];
+    const checkbox = helper.q('input');
     expect(checkbox.checked).toBe(model());
   });
 
   it('should not display checkbox for non-admin user', () => {
     agents(allAgents);
     mount(agents().firstAgent(), model, false);
-    expect('tr input').not.toBeInDOM();
+    expect(helper.q('tr input')).toBeFalsy();
   });
 
   it('should show none specified if agent has no resource', () => {
     agents(allAgents.toJSON()[1]);
     mount(agents(), model, true);
-    const row         = helper.find('tr')[0];
-    const information = $(row).find('td');
-    expect($(information[8]).find('.content')).toHaveText('none specified');
+
+    const row         = helper.q('tr');
+    const information = helper.qa("td", row);
+    expect(helper.text(".content", information[8])).toBe('none specified');
   });
 
   it('should show none specified if agent has no environment', () => {
     agents(allAgents.toJSON()[1]);
     mount(agents(), model, true);
-    const row         = helper.find('tr')[0];
-    const information = $(row).find('td');
-    expect($(information[9]).find('.content')).toHaveText('none specified');
+
+    const row         = helper.q('tr');
+    const information = helper.qa("td", row);
+    expect(helper.text(".content", information[9])).toBe('none specified');
   });
 
   it('should set the class based on the status of the agent', () => {
     agents(allAgents);
     mount(agents().firstAgent(), model, true);
-    const row = helper.find('tr')[0];
+    const row = helper.q('tr');
     expect(row.classList).toContain(agents().firstAgent().status().toLowerCase());
   });
 
@@ -177,18 +179,20 @@ describe("Agent Row Widget", () => {
     agents(allAgents);
     const model = Stream(false);
     mount(agents().firstAgent(), model, true);
-    const row      = helper.find('tr')[0];
-    const checkbox = $(row).find('input');
+    const row      = helper.q('tr');
+    const checkbox = helper.q('input', row);
+
     expect(model()).toBe(false);
-    $(checkbox).click();
-    m.redraw.sync();
+
+    helper.click(checkbox);
+
     expect(model()).toBe(true);
   });
 
   it('should have links to pipeline, stage and job as a part of build details dropdown', () => {
     agents(allAgents.toJSON()[2]);
     mount(agents(), model, true);
-    const buildDetailsLinks = helper.find('.build-details a').map((_i, el) => $(el).attr('href'));
+    const buildDetailsLinks = Array.from(helper.qa('.build-details a')).map((el) => el.href);
     const buildDetails      = agents().buildDetails();
     expect(buildDetailsLinks).toEqual([buildDetails.pipelineUrl(), buildDetails.stageUrl(), buildDetails.jobUrl()]);
   });
@@ -196,14 +200,14 @@ describe("Agent Row Widget", () => {
   it('should not render analytics plugin icon if no analytics plugin supports agent metric', () => {
     agents(allAgents);
     mount(agents().firstAgent(), model, true, false);
-    expect(helper.find('.agent-analytics')).not.toBeInDOM();
+    expect(helper.q(helper.q('.agent-analytics'))).toBeFalsy();
   });
 
   it('should render analytics plugin icon if any analytics plugin supports agent metric', () => {
     agents(allAgents);
     elasticAgentPluginInfo.extensions.push(getAnalyticsExtension());
     mount(agents().firstAgent(), model, true, true);
-    expect(helper.find('.agent-analytics')).toBeInDOM();
+    expect(helper.q('.agent-analytics')).toBeInDOM();
   });
 
   it('should render analytics for given agent on clicking analytics icon', () => {
@@ -212,13 +216,12 @@ describe("Agent Row Widget", () => {
     elasticAgentPluginInfo.extensions.push(getAnalyticsExtension());
 
     mount(agents(), model, true, false);
-    expect(helper.find('.agent-analytics')).toBeInDOM();
+    expect(helper.q('.agent-analytics')).toBeInDOM();
 
-    simulateEvent.simulate($('.agent-analytics').get(0), 'click');
-    m.redraw.sync();
+    helper.click('.agent-analytics', body);
 
-    expect($('.new-modal-container')).toBeInDOM();
-    expect($('.modal-title')).toContainText(`Analytics for agent: host-3`);
+    expect(helper.q('.new-modal-container', body)).toBeInDOM();
+    expect(helper.text('.modal-title', body)).toContain(`Analytics for agent: host-3`);
   });
 
 
@@ -229,7 +232,7 @@ describe("Agent Row Widget", () => {
     shouldShowAnalyticsIcon = false;
 
     mount(agents().firstAgent(), model, true);
-    expect(helper.find('.agent-analytics')).not.toBeInDOM();
+    expect(helper.q('.agent-analytics')).toBeFalsy();
   });
 
   const mount = (agent, model, isUserAdmin, supportsAgentStatusReportPage = false) => {

@@ -20,7 +20,6 @@ import {AuthConfigs} from "models/auth_configs/auth_configs";
 import {TestData} from "models/auth_configs/spec/test_data";
 import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {AuthorizationPluginInfo} from "models/shared/plugin_infos_new/spec/test_data";
-import * as simulateEvent from "simulate-event";
 import {AuthConfigsWidget} from "views/pages/auth_configs/auth_configs_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
 
@@ -37,58 +36,58 @@ describe("AuthorizationConfigurationWidget", () => {
 
   it("should render info message when authorization plugins are not installed on the server", () => {
     mount(new AuthConfigs(), new PluginInfos());
-    expect(helper.findByDataTestId("flash-message-info")).toContainText("No authorization plugin installed.");
+    expect(helper.textByTestId("flash-message-info")).toContain("No authorization plugin installed.");
   });
 
   it("should render id info and action buttons", () => {
     mount(authConfigs, pluginInfos);
-    expect(helper.findByDataTestId("key-value-key-id")).toContainText("Id");
-    expect(helper.findByDataTestId("key-value-value-id")).toContainText("ldap");
-    expect(helper.findByDataTestId("key-value-key-plugin-id")).toContainText("Plugin Id");
-    expect(helper.findByDataTestId("key-value-value-plugin-id")).toContainText("cd.go.authorization.ldap");
-    expect(helper.findByDataTestId("auth-config-edit")).toBeInDOM();
-    expect(helper.findByDataTestId("auth-config-clone")).toBeInDOM();
-    expect(helper.findByDataTestId("auth-config-delete")).toBeInDOM();
+    expect(helper.textByTestId("key-value-key-id")).toContain("Id");
+    expect(helper.textByTestId("key-value-value-id")).toContain("ldap");
+    expect(helper.textByTestId("key-value-key-plugin-id")).toContain("Plugin Id");
+    expect(helper.textByTestId("key-value-value-plugin-id")).toContain("cd.go.authorization.ldap");
+    expect(helper.byTestId("auth-config-edit")).toBeInDOM();
+    expect(helper.byTestId("auth-config-clone")).toBeInDOM();
+    expect(helper.byTestId("auth-config-delete")).toBeInDOM();
 
-    expect(helper.findByDataTestId("auth-config-edit")).not.toBeDisabled();
-    expect(helper.findByDataTestId("auth-config-clone")).not.toBeDisabled();
-    expect(helper.findByDataTestId("auth-config-delete")).not.toBeDisabled();
+    expect(helper.byTestId("auth-config-edit")).not.toBeDisabled();
+    expect(helper.byTestId("auth-config-clone")).not.toBeDisabled();
+    expect(helper.byTestId("auth-config-delete")).not.toBeDisabled();
   });
 
   it("should disable edit & clone button when plugin is not installed", () => {
     mount(authConfigs, new PluginInfos());
-    expect(helper.findByDataTestId("auth-config-edit")).toBeDisabled();
-    expect(helper.findByDataTestId("auth-config-clone")).toBeDisabled();
-    expect(helper.findByDataTestId("auth-config-delete")).not.toBeDisabled();
+    expect(helper.byTestId("auth-config-edit")).toBeDisabled();
+    expect(helper.byTestId("auth-config-clone")).toBeDisabled();
+    expect(helper.byTestId("auth-config-delete")).not.toBeDisabled();
   });
 
   it("should render auth config properties", () => {
     mount(authConfigs, pluginInfos);
-    expect(helper.findByDataTestId("key-value-key-url")).toContainText("Url");
-    expect(helper.findByDataTestId("key-value-key-managerdn")).toContainText("ManagerDN");
-    expect(helper.findByDataTestId("key-value-key-password")).toContainText("Password");
-    expect(helper.findByDataTestId("key-value-value-url")).toContainText("ldap://ldap.server.url");
-    expect(helper.findByDataTestId("key-value-value-managerdn")).toContainText("uid=admin,ou=system");
-    expect(helper.findByDataTestId("key-value-value-password")).toContainText("************");
+    expect(helper.textByTestId("key-value-key-url")).toContain("Url");
+    expect(helper.textByTestId("key-value-key-managerdn")).toContain("ManagerDN");
+    expect(helper.textByTestId("key-value-key-password")).toContain("Password");
+    expect(helper.textByTestId("key-value-value-url")).toContain("ldap://ldap.server.url");
+    expect(helper.textByTestId("key-value-value-managerdn")).toContain("uid=admin,ou=system");
+    expect(helper.textByTestId("key-value-value-password")).toContain("************");
   });
 
   it("should callback the edit function when edit button is clicked", () => {
     mount(authConfigs, pluginInfos);
-    simulateEvent.simulate(helper.findByDataTestId("auth-config-edit").get(0), "click");
+    helper.clickByTestId("auth-config-edit");
 
     expect(onEdit).toHaveBeenCalledWith(authConfigs[0], jasmine.any(Event));
   });
 
   it("should callback the clone function when clone button is clicked", () => {
     mount(authConfigs, pluginInfos);
-    simulateEvent.simulate(helper.findByDataTestId("auth-config-clone").get(0), "click");
+    helper.clickByTestId("auth-config-clone");
 
     expect(onClone).toHaveBeenCalledWith(authConfigs[0], jasmine.any(Event));
   });
 
   it("should callback the delete function when delete button is clicked", () => {
     mount(authConfigs, pluginInfos);
-    simulateEvent.simulate(helper.findByDataTestId("auth-config-delete").get(0), "click");
+    helper.clickByTestId("auth-config-delete");
 
     expect(onDelete).toHaveBeenCalledWith(authConfigs[0], jasmine.any(Event));
   });

@@ -60,7 +60,7 @@ describe("Materials: TestConnection", () => {
       }}/>);
 
       expect(helper.byTestId("test-connection-button")).toBeVisible();
-      helper.clickByDataTestId("test-connection-button");
+      helper.clickByTestId("test-connection-button");
       expect(jasmine.Ajax.requests.count()).toEqual(1);
     });
   });
@@ -93,7 +93,7 @@ describe("Materials: TestConnection", () => {
       }}/>);
 
       expect(helper.byTestId("test-connection-button")).toBeVisible();
-      helper.clickByDataTestId("test-connection-button");
+      helper.clickByTestId("test-connection-button");
       expect(jasmine.Ajax.requests.count()).toEqual(1);
     });
   });

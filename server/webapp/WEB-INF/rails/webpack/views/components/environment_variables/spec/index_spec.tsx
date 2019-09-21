@@ -33,45 +33,45 @@ describe("Environment Variables Widget", () => {
 
   describe("Plain Text Variables", () => {
     it("should have a title", () => {
-      expect(helper.findByDataTestId("plain-text-variables-title")).toBeInDOM();
+      expect(helper.byTestId("plain-text-variables-title")).toBeInDOM();
     });
 
     it("should have an add button", () => {
-      expect(helper.findByDataTestId("add-plain-text-variables-btn")).toBeInDOM();
+      expect(helper.byTestId("add-plain-text-variables-btn")).toBeInDOM();
     });
 
     it("should have plain text environment variable fields", () => {
       const plainTextValue = plainTextEnvVar.value();
-      expect(helper.findByDataTestId("env-var-name")[0]).toHaveValue(plainTextEnvVar.name());
-      expect(helper.findByDataTestId("env-var-value")[0]).toHaveValue(plainTextValue ? plainTextValue : "");
-      expect(helper.findByDataTestId("remove-env-var-btn")[0]).toBeInDOM();
+      expect(helper.byTestId("env-var-name")).toHaveValue(plainTextEnvVar.name());
+      expect(helper.byTestId("env-var-value")).toHaveValue(plainTextValue ? plainTextValue : "");
+      expect(helper.byTestId("remove-env-var-btn")).toBeInDOM();
     });
 
     it("should have readonly fields if environment variable is non-editable", () => {
-      expect(helper.findByDataTestId("env-var-name")[0] as HTMLElement).not.toHaveAttr("readonly");
-      expect(helper.findByDataTestId("env-var-value")[0] as HTMLElement).not.toHaveAttr("readonly");
+      expect(helper.byTestId("env-var-name")).not.toHaveAttr("readonly");
+      expect(helper.byTestId("env-var-value")).not.toHaveAttr("readonly");
 
       plainTextEnvVar.editable = () => false;
       m.redraw.sync();
 
-      expect(helper.findByDataTestId("env-var-name")[0] as HTMLElement).toHaveAttr("readonly");
-      expect(helper.findByDataTestId("env-var-value")[0] as HTMLElement).toHaveAttr("readonly");
+      expect(helper.byTestId("env-var-name")).toHaveAttr("readonly");
+      expect(helper.byTestId("env-var-value")).toHaveAttr("readonly");
     });
   });
 
   describe("Secure Variables", () => {
     it("should have a title", () => {
-      expect(helper.findByDataTestId("plain-text-variables-title")).toBeInDOM();
+      expect(helper.byTestId("plain-text-variables-title")).toBeInDOM();
     });
 
     it("should have an add button", () => {
-      expect(helper.findByDataTestId("add-secure-variables-btn")).toBeInDOM();
+      expect(helper.byTestId("add-secure-variables-btn")).toBeInDOM();
     });
 
     it("should have secure environment variable fields", () => {
-      expect(helper.findByDataTestId("env-var-name")[1]).toHaveValue(secureEnvVar.name());
-      expect(helper.findByDataTestId("env-var-value")[1]).toBeInDOM();
-      expect(helper.findByDataTestId("remove-env-var-btn")[1]).toBeInDOM();
+      expect(helper.allByTestId("env-var-name")[1]).toHaveValue(secureEnvVar.name());
+      expect(helper.allByTestId("env-var-value")[1]).toBeInDOM();
+      expect(helper.allByTestId("remove-env-var-btn")[1]).toBeInDOM();
     });
   });
 });

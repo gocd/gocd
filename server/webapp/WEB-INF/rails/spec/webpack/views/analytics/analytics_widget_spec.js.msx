@@ -33,38 +33,37 @@ describe("Analytics Widget", () => {
   });
 
   it('should render analytics header', () => {
-    expect(helper.find('.header-panel')).toBeInDOM();
-    expect(helper.find('.header-panel')).toContainText("Analytics");
+    expect(helper.q('.header-panel')).toBeInDOM();
+    expect(helper.q('.header-panel')).toContainText("Analytics");
   });
 
   it('should render global tab', () => {
-    expect(helper.find('.dashboard-tabs li').get(0)).toContainText("Global");
+    expect(helper.q('.dashboard-tabs li')).toContainText("Global");
   });
 
   it('should render pipelines tab', () => {
-    expect(helper.find('.dashboard-tabs li').get(1)).toContainText("Pipeline");
+    expect(helper.qa('.dashboard-tabs li').item(1)).toContainText("Pipeline");
   });
 
   it('should render global chart contents when global tab is selected', () => {
-    expect(helper.find('.dashboard-tabs li').get(0)).toContainText("Global");
-    expect(helper.find('.dashboard-tabs li').get(0)).toHaveClass("current");
-    expect(helper.find('.global')).toBeInDOM();
+    expect(helper.q('.dashboard-tabs li')).toContainText("Global");
+    expect(helper.q('.dashboard-tabs li')).toHaveClass("current");
+    expect(helper.q('.global')).toBeInDOM();
   });
 
   it('should render global chart contents when global tab is selected', () => {
-    helper.find('.dashboard-tabs li').get(1).click();
-    m.redraw.sync();
+    helper.click(helper.qa('.dashboard-tabs li')[1]);
 
-    expect(helper.find('.dashboard-tabs li').get(1)).toContainText("Pipeline");
-    expect(helper.find('.dashboard-tabs li').get(1)).toHaveClass("current");
-    expect(helper.find('.pipeline')).toBeInDOM();
+    expect(helper.qa('.dashboard-tabs li')[1]).toContainText("Pipeline");
+    expect(helper.qa('.dashboard-tabs li')[1]).toHaveClass("current");
+    expect(helper.q('.pipeline')).toBeInDOM();
   });
 
   it('should render no analytics plugin installed message when no analytics plugin is installed', () => {
     helper.unmount();
     mount(0);
 
-    expect(helper.find('.info')).toContainText('No analytics plugin installed.');
+    expect(helper.text('.info')).toContain('No analytics plugin installed.');
   });
 
 

@@ -31,10 +31,10 @@ describe("Site Menu", () => {
             canViewAdminPage: true,
             showAnalytics: true
           } as Attrs);
-    const dashboard = helper.find("a").get(0);
-    const agents    = helper.find("a").get(1);
-    const analytics = helper.find("a").get(2);
-    const admin     = helper.find("a").get(3);
+    const dashboard = helper.qa("a").item(0);
+    const agents    = helper.qa("a").item(1);
+    const analytics = helper.qa("a").item(2);
+    const admin     = helper.qa("a").item(3);
     expect(dashboard).toHaveText("Dashboard");
     expect(dashboard).toHaveAttr("href", "/go/pipelines");
     expect(agents).toHaveText("Agents");
@@ -60,8 +60,8 @@ describe("Site Menu", () => {
     expect(findMenuItem("/go/admin/security/auth_configs")).toHaveText("Authorization Configuration");
     expect(findMenuItem("/go/admin/security/roles")).toHaveText("Role configuration");
     expect(findMenuItem("/go/admin/admin_access_tokens")).toHaveText("Access Tokens Management");
-    expect(helper.find(`a.${styles.siteNavLink}`)).toHaveLength(4);
-    expect(helper.find(`a.${styles.siteSubNavLink}`)).toHaveLength(19);
+    expect(helper.qa(`a.${styles.siteNavLink}`)).toHaveLength(4);
+    expect(helper.qa(`a.${styles.siteSubNavLink}`)).toHaveLength(19);
   });
 
   it("should display the menus for users who can view templates", () => {
@@ -72,10 +72,10 @@ describe("Site Menu", () => {
             canViewAdminPage: true,
             showAnalytics: true
           } as Attrs);
-    const dashboard = helper.find("a").get(0);
-    const agents    = helper.find("a").get(1);
-    const analytics = helper.find("a").get(2);
-    const admin     = helper.find("a").get(3);
+    const dashboard = helper.qa("a").item(0);
+    const agents    = helper.qa("a").item(1);
+    const analytics = helper.qa("a").item(2);
+    const admin     = helper.qa("a").item(3);
     expect(dashboard).toHaveText("Dashboard");
     expect(dashboard).toHaveAttr("href", "/go/pipelines");
     expect(agents).toHaveText("Agents");
@@ -83,20 +83,20 @@ describe("Site Menu", () => {
     expect(analytics).toHaveText("Analytics");
     expect(analytics).toHaveAttr("href", "/go/analytics");
     expect(admin).toHaveText("Admin");
-    expect(findMenuItem("/go/admin/pipelines")).not.toBeInDOM();
-    expect(findMenuItem("/go/admin/config_repos")).not.toBeInDOM();
+    expect(findMenuItem("/go/admin/pipelines")).toBeFalsy();
+    expect(findMenuItem("/go/admin/config_repos")).toBeFalsy();
     expect(findMenuItem("/go/admin/templates")).toHaveText("Templates");
-    expect(findMenuItem("/go/admin/elastic_agent_configurations")).not.toBeInDOM();
-    expect(findMenuItem("/go/admin/config_xml")).not.toBeInDOM();
-    expect(findMenuItem("/go/admin/config/server")).not.toBeInDOM();
-    expect(findMenuItem("/go/admin/users")).not.toBeInDOM();
-    expect(findMenuItem("/go/admin/backup")).not.toBeInDOM();
-    expect(findMenuItem("/go/admin/plugins")).not.toBeInDOM();
-    expect(findMenuItem("/go/admin/package_repositories/new")).not.toBeInDOM();
-    expect(findMenuItem("/go/admin/security/auth_configs")).not.toBeInDOM();
-    expect(findMenuItem("/go/admin/security/roles")).not.toBeInDOM();
-    expect(helper.find(`a.${styles.siteNavLink}`)).toHaveLength(4);
-    expect(helper.find(`a.${styles.siteSubNavLink}`)).toHaveLength(1);
+    expect(findMenuItem("/go/admin/elastic_agent_configurations")).toBeFalsy();
+    expect(findMenuItem("/go/admin/config_xml")).toBeFalsy();
+    expect(findMenuItem("/go/admin/config/server")).toBeFalsy();
+    expect(findMenuItem("/go/admin/users")).toBeFalsy();
+    expect(findMenuItem("/go/admin/backup")).toBeFalsy();
+    expect(findMenuItem("/go/admin/plugins")).toBeFalsy();
+    expect(findMenuItem("/go/admin/package_repositories/new")).toBeFalsy();
+    expect(findMenuItem("/go/admin/security/auth_configs")).toBeFalsy();
+    expect(findMenuItem("/go/admin/security/roles")).toBeFalsy();
+    expect(helper.qa(`a.${styles.siteNavLink}`)).toHaveLength(4);
+    expect(helper.qa(`a.${styles.siteSubNavLink}`)).toHaveLength(1);
   });
 
   it("should display the menus for Group Admins", () => {
@@ -107,10 +107,10 @@ describe("Site Menu", () => {
             canViewAdminPage: true,
             showAnalytics: true
           } as Attrs);
-    const dashboard = helper.find("a").get(0);
-    const agents    = helper.find("a").get(1);
-    const analytics = helper.find("a").get(2);
-    const admin     = helper.find("a").get(3);
+    const dashboard = helper.qa("a").item(0);
+    const agents    = helper.qa("a").item(1);
+    const analytics = helper.qa("a").item(2);
+    const admin     = helper.qa("a").item(3);
     expect(dashboard).toHaveText("Dashboard");
     expect(dashboard).toHaveAttr("href", "/go/pipelines");
     expect(agents).toHaveText("Agents");
@@ -119,19 +119,19 @@ describe("Site Menu", () => {
     expect(analytics).toHaveAttr("href", "/go/analytics");
     expect(admin).toHaveText("Admin");
     expect(findMenuItem("/go/admin/pipelines")).toHaveText("Pipelines");
-    expect(findMenuItem("/go/admin/config_repos")).not.toBeInDOM();
+    expect(findMenuItem("/go/admin/config_repos")).toBeFalsy();
     expect(findMenuItem("/go/admin/templates")).toHaveText("Templates");
     expect(findMenuItem("/go/admin/elastic_agent_configurations")).toHaveText("Elastic Agent Configurations");
     expect(findMenuItem("/go/admin/pipelines/snippet")).toHaveText("Config XML");
-    expect(findMenuItem("/go/admin/config/server")).not.toBeInDOM();
-    expect(findMenuItem("/go/admin/users")).not.toBeInDOM();
-    expect(findMenuItem("/go/admin/backup")).not.toBeInDOM();
+    expect(findMenuItem("/go/admin/config/server")).toBeFalsy();
+    expect(findMenuItem("/go/admin/users")).toBeFalsy();
+    expect(findMenuItem("/go/admin/backup")).toBeFalsy();
     expect(findMenuItem("/go/admin/plugins")).toHaveText("Plugins");
     expect(findMenuItem("/go/admin/package_repositories/new")).toHaveText("Package Repositories");
-    expect(findMenuItem("/go/admin/security/auth_configs")).not.toBeInDOM();
-    expect(findMenuItem("/go/admin/security/roles")).not.toBeInDOM();
-    expect(helper.find(`a.${styles.siteNavLink}`)).toHaveLength(4);
-    expect(helper.find(`a.${styles.siteSubNavLink}`)).toHaveLength(6);
+    expect(findMenuItem("/go/admin/security/auth_configs")).toBeFalsy();
+    expect(findMenuItem("/go/admin/security/roles")).toBeFalsy();
+    expect(helper.qa(`a.${styles.siteNavLink}`)).toHaveLength(4);
+    expect(helper.qa(`a.${styles.siteSubNavLink}`)).toHaveLength(6);
   });
 
   it("should not show analytics when the attribute is passed as false", () => {
@@ -142,15 +142,15 @@ describe("Site Menu", () => {
             canViewAdminPage: true,
             showAnalytics: false
           } as Attrs);
-    const dashboard = helper.find("a").get(0);
-    const agents    = helper.find("a").get(1);
-    const admin     = helper.find("a").get(2);
+    const dashboard = helper.qa("a").item(0);
+    const agents    = helper.qa("a").item(1);
+    const admin     = helper.qa("a").item(2);
     expect(dashboard).toHaveText("Dashboard");
     expect(dashboard).toHaveAttr("href", "/go/pipelines");
     expect(agents).toHaveText("Agents");
     expect(agents).toHaveAttr("href", "/go/agents");
     expect(admin).toHaveText("Admin");
-    expect(findMenuItem("/go/analytics")).not.toBeInDOM();
+    expect(findMenuItem("/go/analytics")).toBeFalsy();
   });
 
   it("should not show Admin link for non-admins", () => {
@@ -161,9 +161,9 @@ describe("Site Menu", () => {
             canViewAdminPage: false,
             showAnalytics: false
           } as Attrs);
-    const dashboard = helper.find("a").get(0);
-    const agents    = helper.find("a").get(1);
-    const admin     = helper.find("a").get(2);
+    const dashboard = helper.qa("a").item(0);
+    const agents    = helper.qa("a").item(1);
+    const admin     = helper.qa("a").item(2);
     expect(dashboard).toHaveText("Dashboard");
     expect(dashboard).toHaveAttr("href", "/go/pipelines");
     expect(agents).toHaveText("Agents");
@@ -176,7 +176,7 @@ describe("Site Menu", () => {
   }
 
   function findMenuItem(href: string) {
-    return helper.find(`a[href='${href}']`);
+    return helper.q(`a[href='${href}']`);
   }
 
 });

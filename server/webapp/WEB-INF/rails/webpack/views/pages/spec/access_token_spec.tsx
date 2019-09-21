@@ -35,18 +35,17 @@ describe("AccessTokenPage", () => {
     document.body.setAttribute("data-meta", JSON.stringify({pluginId: "cd.go.ldap", supportsAccessToken: false}));
     mount();
 
-    expect(helper.findByDataTestId("generate-token-button")).toBeDisabled();
-    expect(helper.findByDataTestId("flash-message-info")).toBeInDOM();
-    expect(helper.findByDataTestId("flash-message-info"))
-      .toHaveText("Creation of access token is not supported by the plugin cd.go.ldap.");
+    expect(helper.byTestId("generate-token-button")).toBeDisabled();
+    expect(helper.byTestId("flash-message-info")).toBeInDOM();
+    expect(helper.textByTestId("flash-message-info")).toBe("Creation of access token is not supported by the plugin cd.go.ldap.");
   });
 
   it("should not disable generate token button when in meta supportsAccessToken set to true", () => {
     document.body.setAttribute("data-meta", JSON.stringify({pluginId: "cd.go.ldap", supportsAccessToken: true}));
     mount();
 
-    expect(helper.findByDataTestId("flash-message-info")).not.toBeInDOM();
-    expect(helper.findByDataTestId("generate-token-button")).not.toBeDisabled();
+    expect(helper.byTestId("flash-message-info")).toBeFalsy();
+    expect(helper.byTestId("generate-token-button")).not.toBeDisabled();
   });
 
   function mount() {

@@ -15,7 +15,6 @@
  */
 
 import m from "mithril";
-import * as simulateEvent from "simulate-event";
 import {Tabs} from "views/components/tab/index";
 import {TestHelper} from "views/pages/spec/test_helper";
 import styles from "../index.scss";
@@ -28,36 +27,35 @@ describe("TabComponent", () => {
   it("should render tab with first tab selected", () => {
     mount();
 
-    expect(helper.findByDataTestId("tab-header-0")).toBeInDOM();
-    expect(helper.findByDataTestId("tab-header-0")).toHaveText("One");
-    expect(helper.findByDataTestId("tab-header-0")).toHaveClass(styles.active);
-    expect(helper.findByDataTestId("tab-content-0")).toBeInDOM();
-    expect(helper.findByDataTestId("tab-content-0")).toBeVisible();
-    expect(helper.findByDataTestId("tab-content-0")).toHaveText("Content for one");
+    expect(helper.byTestId("tab-header-0")).toBeInDOM();
+    expect(helper.byTestId("tab-header-0")).toHaveText("One");
+    expect(helper.byTestId("tab-header-0")).toHaveClass(styles.active);
+    expect(helper.byTestId("tab-content-0")).toBeInDOM();
+    expect(helper.byTestId("tab-content-0")).toBeVisible();
+    expect(helper.byTestId("tab-content-0")).toHaveText("Content for one");
 
-    expect(helper.findByDataTestId("tab-header-1")).toBeInDOM();
-    expect(helper.findByDataTestId("tab-header-1")).toHaveText("Two");
-    expect(helper.findByDataTestId("tab-header-1")).not.toHaveClass(styles.active);
-    expect(helper.findByDataTestId("tab-content-1")).toBeInDOM();
-    expect(helper.findByDataTestId("tab-content-1")).toBeHidden();
-    expect(helper.findByDataTestId("tab-content-1")).toHaveText("Content for two");
+    expect(helper.byTestId("tab-header-1")).toBeInDOM();
+    expect(helper.byTestId("tab-header-1")).toHaveText("Two");
+    expect(helper.byTestId("tab-header-1")).not.toHaveClass(styles.active);
+    expect(helper.byTestId("tab-content-1")).toBeInDOM();
+    expect(helper.byTestId("tab-content-1")).toBeHidden();
+    expect(helper.byTestId("tab-content-1")).toHaveText("Content for two");
   });
 
   it("should change tab on click of tab name", () => {
     mount();
 
-    expect(helper.findByDataTestId("tab-header-0")).toHaveClass(styles.active);
-    expect(helper.findByDataTestId("tab-content-0")).toBeVisible();
-    expect(helper.findByDataTestId("tab-header-1")).not.toHaveClass(styles.active);
-    expect(helper.findByDataTestId("tab-content-1")).toBeHidden();
+    expect(helper.byTestId("tab-header-0")).toHaveClass(styles.active);
+    expect(helper.byTestId("tab-content-0")).toBeVisible();
+    expect(helper.byTestId("tab-header-1")).not.toHaveClass(styles.active);
+    expect(helper.byTestId("tab-content-1")).toBeHidden();
 
-    simulateEvent.simulate(helper.findByDataTestId("tab-header-1").get(0), "click");
-    m.redraw.sync();
+    helper.clickByTestId("tab-header-1");
 
-    expect(helper.findByDataTestId("tab-header-0")).not.toHaveClass(styles.active);
-    expect(helper.findByDataTestId("tab-content-0")).toBeHidden();
-    expect(helper.findByDataTestId("tab-header-1")).toHaveClass(styles.active);
-    expect(helper.findByDataTestId("tab-content-1")).toBeVisible();
+    expect(helper.byTestId("tab-header-0")).not.toHaveClass(styles.active);
+    expect(helper.byTestId("tab-content-0")).toBeHidden();
+    expect(helper.byTestId("tab-header-1")).toHaveClass(styles.active);
+    expect(helper.byTestId("tab-content-1")).toBeVisible();
   });
 
   function mount() {

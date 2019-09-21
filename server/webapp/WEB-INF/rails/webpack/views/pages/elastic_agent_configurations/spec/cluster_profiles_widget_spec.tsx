@@ -19,13 +19,11 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {ClusterProfile, ClusterProfiles, ElasticAgentProfile, ElasticAgentProfiles} from "models/elastic_profiles/types";
 import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
-import * as collapsiblePanelStyles from "views/components/collapsible_panel/index.scss";
+import collapsiblePanelStyles from "views/components/collapsible_panel/index.scss";
 import {ClusterProfilesWidget} from "views/pages/elastic_agent_configurations/cluster_profiles_widget";
-import * as elasticProfilePageStyles from "views/pages/elastic_agent_configurations/index.scss";
+import elasticProfilePageStyles from "views/pages/elastic_agent_configurations/index.scss";
 import {TestData} from "views/pages/elastic_agent_configurations/spec/test_data";
 import {TestHelper} from "views/pages/spec/test_helper";
-
-import simulateEvent from "simulate-event";
 
 describe("ClusterProfilesWidget", () => {
   const helper                                                 = new TestHelper();
@@ -42,7 +40,7 @@ describe("ClusterProfilesWidget", () => {
     const clusterProfiles = new ClusterProfiles([ClusterProfile.fromJSON(TestData.dockerClusterProfile()), ClusterProfile.fromJSON(TestData.kubernetesClusterProfile())]);
     mount(pluginInfos, clusterProfiles, new ElasticAgentProfiles([]));
 
-    expect(helper.findByDataTestId("cluster-profile-panel")).toHaveLength(2);
+    expect(helper.allByTestId("cluster-profile-panel")).toHaveLength(2);
 
     helper.unmount();
   });
@@ -50,7 +48,7 @@ describe("ClusterProfilesWidget", () => {
   it("should display the message in absence of elastic plugin", () => {
     mount(new PluginInfos(), new ClusterProfiles([]), new ElasticAgentProfiles([]));
 
-    expect(helper.findByDataTestId("flash-message-info").text()).toEqual("No elastic agent plugin installed.");
+    expect(helper.textByTestId("flash-message-info")).toBe("No elastic agent plugin installed.");
 
     helper.unmount();
   });
@@ -58,7 +56,7 @@ describe("ClusterProfilesWidget", () => {
   it("should display message to add cluster profiles if no cluster profiles defined", () => {
     mount(pluginInfos, new ClusterProfiles([]), new ElasticAgentProfiles([]));
 
-    expect(helper.findByDataTestId("flash-message-info").text()).toEqual("Click on 'Add' button to create new cluster profile.");
+    expect(helper.textByTestId("flash-message-info")).toBe("Click on 'Add' button to create new cluster profile.");
 
     helper.unmount();
   });
@@ -67,8 +65,8 @@ describe("ClusterProfilesWidget", () => {
     const clusterProfiles = new ClusterProfiles([ClusterProfile.fromJSON(TestData.dockerClusterProfile())]);
     mount(pluginInfos, clusterProfiles, new ElasticAgentProfiles([]));
 
-    expect(helper.findByDataTestId("new-elastic-agent-profile-button")).toBeInDOM();
-    expect(helper.findByDataTestId("new-elastic-agent-profile-button")).toHaveText("Elastic Agent Profile");
+    expect(helper.byTestId("new-elastic-agent-profile-button")).toBeInDOM();
+    expect(helper.byTestId("new-elastic-agent-profile-button")).toHaveText("Elastic Agent Profile");
 
     helper.unmount();
   });
@@ -77,8 +75,8 @@ describe("ClusterProfilesWidget", () => {
     const clusterProfiles = new ClusterProfiles([ClusterProfile.fromJSON(TestData.dockerClusterProfile()), ClusterProfile.fromJSON(TestData.kubernetesClusterProfile())]);
     mount(pluginInfos, clusterProfiles, new ElasticAgentProfiles([]));
 
-    expect(helper.findIn(helper.findByDataTestId("cluster-profile-panel")[0], "status-report-link")).toBeInDOM();
-    expect(helper.findIn(helper.findByDataTestId("cluster-profile-panel")[1], "status-report-link")).not.toBeInDOM();
+    expect(helper.byTestId( "status-report-link", helper.allByTestId("cluster-profile-panel").item(0))).toBeInDOM();
+    expect(helper.byTestId( "status-report-link", helper.allByTestId("cluster-profile-panel").item(1))).toBeFalsy();
 
     helper.unmount();
   });
@@ -87,7 +85,7 @@ describe("ClusterProfilesWidget", () => {
     const clusterProfiles = new ClusterProfiles([ClusterProfile.fromJSON(TestData.dockerClusterProfile())]);
     mount(pluginInfos, clusterProfiles, new ElasticAgentProfiles([]));
 
-    expect(helper.findIn(helper.findByDataTestId("collapse-header")[0], "cluster-profile-name")).toHaveText("cluster_3");
+    expect(helper.byTestId("cluster-profile-name", helper.byTestId("collapse-header"))).toHaveText("cluster_3");
 
     helper.unmount();
   });
@@ -96,7 +94,7 @@ describe("ClusterProfilesWidget", () => {
     const clusterProfiles = new ClusterProfiles([ClusterProfile.fromJSON(TestData.dockerClusterProfile())]);
     mount(pluginInfos, clusterProfiles, new ElasticAgentProfiles([]));
 
-    expect(helper.findIn(helper.findByDataTestId("collapse-header")[0], "plugin-icon")).toBeInDOM();
+    expect(helper.byTestId("plugin-icon", helper.byTestId("collapse-header"))).toBeInDOM();
 
     helper.unmount();
   });
@@ -108,7 +106,7 @@ describe("ClusterProfilesWidget", () => {
     const clusterProfiles = new ClusterProfiles([ClusterProfile.fromJSON(TestData.dockerClusterProfile())]);
     mount(pluginInfos, clusterProfiles, new ElasticAgentProfiles([]));
 
-    expect(helper.findIn(helper.findByDataTestId("collapse-header")[0], "plugin-icon")).not.toBeInDOM();
+    expect(helper.byTestId("plugin-icon", helper.byTestId("collapse-header"))).not.toBeInDOM();
 
     helper.unmount();
   });
@@ -117,23 +115,23 @@ describe("ClusterProfilesWidget", () => {
     const clusterProfiles = new ClusterProfiles([ClusterProfile.fromJSON(TestData.dockerClusterProfile())]);
     mount(pluginInfos, clusterProfiles, new ElasticAgentProfiles([]));
 
-    expect(helper.findIn(helper.findByDataTestId("collapse-body")[0], "key-value-key-id")).toHaveText("Id");
-    expect(helper.findIn(helper.findByDataTestId("collapse-body")[0], "key-value-value-id")).toHaveText("cluster_3");
+    expect(helper.byTestId("key-value-key-id", helper.byTestId("collapse-body"))).toHaveText("Id");
+    expect(helper.byTestId("key-value-value-id", helper.byTestId("collapse-body"))).toHaveText("cluster_3");
 
-    expect(helper.findIn(helper.findByDataTestId("collapse-body")[0], "key-value-key-pluginid")).toHaveText("PluginId");
-    expect(helper.findIn(helper.findByDataTestId("collapse-body")[0], "key-value-value-pluginid")).toHaveText("cd.go.contrib.elastic-agent.docker");
+    expect(helper.byTestId("key-value-key-pluginid", helper.byTestId("collapse-body"))).toHaveText("PluginId");
+    expect(helper.byTestId("key-value-value-pluginid", helper.byTestId("collapse-body"))).toHaveText("cd.go.contrib.elastic-agent.docker");
 
-    expect(helper.findIn(helper.findByDataTestId("collapse-body")[0], "key-value-key-go-server-url")).toHaveText("go_server_url");
-    expect(helper.findIn(helper.findByDataTestId("collapse-body")[0], "key-value-value-go-server-url")).toHaveText("https://localhost:8154/go");
+    expect(helper.byTestId("key-value-key-go-server-url", helper.byTestId("collapse-body"))).toHaveText("go_server_url");
+    expect(helper.byTestId("key-value-value-go-server-url", helper.byTestId("collapse-body"))).toHaveText("https://localhost:8154/go");
 
-    expect(helper.findIn(helper.findByDataTestId("collapse-body")[0], "key-value-key-max-docker-containers")).toHaveText("max_docker_containers");
-    expect(helper.findIn(helper.findByDataTestId("collapse-body")[0], "key-value-value-max-docker-containers")).toHaveText("30");
+    expect(helper.byTestId("key-value-key-max-docker-containers", helper.byTestId("collapse-body"))).toHaveText("max_docker_containers");
+    expect(helper.byTestId("key-value-value-max-docker-containers", helper.byTestId("collapse-body"))).toHaveText("30");
 
-    expect(helper.findIn(helper.findByDataTestId("collapse-body")[0], "key-value-key-auto-register-timeout")).toHaveText("auto_register_timeout");
-    expect(helper.findIn(helper.findByDataTestId("collapse-body")[0], "key-value-value-auto-register-timeout")).toHaveText("10");
+    expect(helper.byTestId("key-value-key-auto-register-timeout", helper.byTestId("collapse-body"))).toHaveText("auto_register_timeout");
+    expect(helper.byTestId("key-value-value-auto-register-timeout", helper.byTestId("collapse-body"))).toHaveText("10");
 
-    expect(helper.findIn(helper.findByDataTestId("collapse-body")[0], "key-value-key-docker-uri")).toHaveText("docker_uri");
-    expect(helper.findIn(helper.findByDataTestId("collapse-body")[0], "key-value-value-docker-uri")).toHaveText("unix:///var/docker.sock");
+    expect(helper.byTestId("key-value-key-docker-uri", helper.byTestId("collapse-body"))).toHaveText("docker_uri");
+    expect(helper.byTestId("key-value-value-docker-uri", helper.byTestId("collapse-body"))).toHaveText("unix:///var/docker.sock");
 
     helper.unmount();
   });
@@ -148,23 +146,23 @@ describe("ClusterProfilesWidget", () => {
     const clusterProfiles = new ClusterProfiles([ClusterProfile.fromJSON(TestData.dockerClusterProfile()), ClusterProfile.fromJSON(TestData.kubernetesClusterProfile())]);
     mount(pluginInfos, clusterProfiles, new ElasticAgentProfiles([dockerElasticProfile, kubernetesElasticProfile]));
 
-    const dockerElasticProfilePanel = helper.findByDataTestId("elastic-profile-header")[0];
-    expect(helper.findIn(dockerElasticProfilePanel, "elastic-profile-id")).toHaveText("Profile2");
-    expect(helper.findIn(dockerElasticProfilePanel, "key-value-value-image")).toHaveText("docker-image122345");
-    expect(helper.findIn(dockerElasticProfilePanel, "key-value-value-command")).toHaveText("ls\n-alh");
-    expect(helper.findIn(dockerElasticProfilePanel, "key-value-value-environment")).toHaveText("JAVA_HOME=/bin/java");
-    expect(helper.findIn(dockerElasticProfilePanel, "key-value-value-hosts")).toHaveText("(Not specified)");
+    const dockerElasticProfilePanel = helper.byTestId("elastic-profile-header");
+    expect(helper.byTestId("elastic-profile-id", dockerElasticProfilePanel)).toHaveText("Profile2");
+    expect(helper.byTestId("key-value-value-image", dockerElasticProfilePanel)).toHaveText("docker-image122345");
+    expect(helper.byTestId("key-value-value-command", dockerElasticProfilePanel)).toHaveText("ls\n-alh");
+    expect(helper.byTestId("key-value-value-environment", dockerElasticProfilePanel)).toHaveText("JAVA_HOME=/bin/java");
+    expect(helper.byTestId("key-value-value-hosts", dockerElasticProfilePanel)).toHaveText("(Not specified)");
 
-    const kubernetesElasticProfilePanel = helper.findByDataTestId("elastic-profile-header")[1];
-    expect(helper.findIn(kubernetesElasticProfilePanel, "elastic-profile-id")).toHaveText("Kuber1");
-    expect(helper.findIn(kubernetesElasticProfilePanel, "key-value-value-image")).toHaveText("Image1");
-    expect(helper.findIn(kubernetesElasticProfilePanel, "key-value-value-maxmemory")).toHaveText("(Not specified)");
-    expect(helper.findIn(kubernetesElasticProfilePanel, "key-value-value-maxcpu")).toHaveText("(Not specified)");
-    expect(helper.findIn(kubernetesElasticProfilePanel, "key-value-value-environment")).toHaveText("(Not specified)");
-    expect(helper.findIn(kubernetesElasticProfilePanel, "key-value-value-podconfiguration"))
+    const kubernetesElasticProfilePanel = helper.allByTestId("elastic-profile-header").item(1);
+    expect(helper.byTestId("elastic-profile-id", kubernetesElasticProfilePanel)).toHaveText("Kuber1");
+    expect(helper.byTestId("key-value-value-image", kubernetesElasticProfilePanel)).toHaveText("Image1");
+    expect(helper.byTestId("key-value-value-maxmemory", kubernetesElasticProfilePanel)).toHaveText("(Not specified)");
+    expect(helper.byTestId("key-value-value-maxcpu", kubernetesElasticProfilePanel)).toHaveText("(Not specified)");
+    expect(helper.byTestId("key-value-value-environment", kubernetesElasticProfilePanel)).toHaveText("(Not specified)");
+    expect(helper.byTestId("key-value-value-podconfiguration", kubernetesElasticProfilePanel))
       .toHaveText("apiVersion: v1\nkind: Pod\nmetadata:\n  name: pod-name-prefix-{{ POD_POSTFIX }}\n  labels:\n    app: web\nspec:\n  containers:\n    - name: gocd-agent-container-{{ CONTAINER_POSTFIX }}\n      image: {{ GOCD_AGENT_IMAGE }}:{{ LATEST_VERSION }}\n      securityContext:\n        privileged: true");
-    expect(helper.findIn(kubernetesElasticProfilePanel, "key-value-value-specifiedusingpodconfiguration")).toHaveText("false");
-    expect(helper.findIn(kubernetesElasticProfilePanel, "key-value-value-privileged")).toHaveText("(Not specified)");
+    expect(helper.byTestId("key-value-value-specifiedusingpodconfiguration", kubernetesElasticProfilePanel)).toHaveText("false");
+    expect(helper.byTestId("key-value-value-privileged", kubernetesElasticProfilePanel)).toHaveText("(Not specified)");
 
     helper.unmount();
   });
@@ -173,10 +171,10 @@ describe("ClusterProfilesWidget", () => {
     const clusterProfiles = new ClusterProfiles([ClusterProfile.fromJSON(TestData.dockerClusterProfile())]);
     mount(pluginInfos, clusterProfiles, new ElasticAgentProfiles([]));
 
-    const dockerClusterProfilePanel = helper.findByDataTestId("cluster-profile-panel")[0];
-    expect(helper.findIn(dockerClusterProfilePanel, "edit-cluster-profile")).toBeInDOM();
-    expect(helper.findIn(dockerClusterProfilePanel, "delete-cluster-profile")).toBeInDOM();
-    expect(helper.findIn(dockerClusterProfilePanel, "clone-cluster-profile")).toBeInDOM();
+    const dockerClusterProfilePanel = helper.byTestId("cluster-profile-panel");
+    expect(helper.byTestId("edit-cluster-profile", dockerClusterProfilePanel)).toBeInDOM();
+    expect(helper.byTestId("delete-cluster-profile", dockerClusterProfilePanel)).toBeInDOM();
+    expect(helper.byTestId("clone-cluster-profile", dockerClusterProfilePanel)).toBeInDOM();
 
     helper.unmount();
   });
@@ -185,11 +183,11 @@ describe("ClusterProfilesWidget", () => {
     const clusterProfiles = new ClusterProfiles([ClusterProfile.fromJSON(TestData.dockerClusterProfile())]);
     mount(new PluginInfos(), clusterProfiles, new ElasticAgentProfiles([]));
 
-    const dockerClusterProfilePanel = helper.findByDataTestId("cluster-profile-panel")[0];
-    expect(helper.findIn(dockerClusterProfilePanel, "edit-cluster-profile")).toBeDisabled();
-    expect(helper.findIn(dockerClusterProfilePanel, "clone-cluster-profile")).toBeDisabled();
-    expect(helper.findIn(dockerClusterProfilePanel, "new-elastic-agent-profile-button")).toBeDisabled();
-    expect(helper.findIn(dockerClusterProfilePanel, "delete-cluster-profile")).not.toBeDisabled();
+    const dockerClusterProfilePanel = helper.byTestId("cluster-profile-panel");
+    expect(helper.byTestId("edit-cluster-profile", dockerClusterProfilePanel)).toBeDisabled();
+    expect(helper.byTestId("clone-cluster-profile", dockerClusterProfilePanel)).toBeDisabled();
+    expect(helper.byTestId("new-elastic-agent-profile-button", dockerClusterProfilePanel)).toBeDisabled();
+    expect(helper.byTestId("delete-cluster-profile", dockerClusterProfilePanel)).not.toBeDisabled();
 
     helper.unmount();
   });
@@ -202,7 +200,7 @@ describe("ClusterProfilesWidget", () => {
       const elasticAgentProfile = ElasticAgentProfile.fromJSON(TestData.dockerElasticProfile());
       elasticAgentProfile.clusterProfileId(clusterProfile.id());
       mount(pluginInfos, new ClusterProfiles([clusterProfile]), new ElasticAgentProfiles([elasticAgentProfile]));
-      clusterProfilePanelHeader = helper.findIn(helper.findByDataTestId("cluster-profile-panel"), "collapse-header")[0];
+      clusterProfilePanelHeader = helper.byTestId("collapse-header", helper.byTestId("cluster-profile-panel"));
     });
 
     afterEach(() => {
@@ -212,36 +210,31 @@ describe("ClusterProfilesWidget", () => {
     it("should toggle expanded state of cluster profile on click", () => {
       expect(clusterProfilePanelHeader).not.toHaveClass(collapsiblePanelStyles.expanded);
 
-      simulateEvent.simulate(clusterProfilePanelHeader, "click");
-      m.redraw.sync();
+      helper.click(clusterProfilePanelHeader);
 
       expect(clusterProfilePanelHeader).toHaveClass(collapsiblePanelStyles.expanded);
     });
 
     it("should toggle expanded state of cluster profile show details on click", () => {
-      simulateEvent.simulate(clusterProfilePanelHeader, "click");
-      m.redraw.sync();
+      helper.click(clusterProfilePanelHeader);
 
-      const clusterProfileInfoHeader = helper.findIn(helper.findByDataTestId("cluster-profile-panel"), "cluster-profile-details-header")[0];
+      const clusterProfileInfoHeader = helper.byTestId("cluster-profile-details-header", helper.byTestId("cluster-profile-panel"));
 
       expect(clusterProfileInfoHeader).not.toHaveClass(elasticProfilePageStyles.expanded);
-      expect(helper.findIn(helper.findByDataTestId("cluster-profile-panel"), "cluster-profile-details")[0]).not.toHaveClass(elasticProfilePageStyles.expanded);
+      expect(helper.byTestId("cluster-profile-details", helper.byTestId("cluster-profile-panel"))).not.toHaveClass(elasticProfilePageStyles.expanded);
 
-      simulateEvent.simulate(clusterProfileInfoHeader, "click");
-      m.redraw.sync();
+      helper.click(clusterProfileInfoHeader);
 
       expect(clusterProfileInfoHeader).toHaveClass(elasticProfilePageStyles.expanded);
-      expect(helper.findIn(helper.findByDataTestId("cluster-profile-panel"), "cluster-profile-details")[0]).toHaveClass(elasticProfilePageStyles.expanded);
+      expect(helper.byTestId("cluster-profile-details", helper.byTestId("cluster-profile-panel"))).toHaveClass(elasticProfilePageStyles.expanded);
     });
 
     it("should toggle expanded state of elastic agent profile show details on click", () => {
-      simulateEvent.simulate(clusterProfilePanelHeader, "click");
-      m.redraw.sync();
+      helper.click(clusterProfilePanelHeader);
 
-      const elasticAgentProfileInfoHeader = helper.findIn(helper.findByDataTestId("elastic-profile-header")[0], "collapse-header")[0];
+      const elasticAgentProfileInfoHeader = helper.byTestId("collapse-header", helper.byTestId("elastic-profile-header"));
 
-      simulateEvent.simulate(elasticAgentProfileInfoHeader, "click");
-      m.redraw.sync();
+      helper.click(elasticAgentProfileInfoHeader);
 
       expect(elasticAgentProfileInfoHeader).toHaveClass(collapsiblePanelStyles.expanded);
     });

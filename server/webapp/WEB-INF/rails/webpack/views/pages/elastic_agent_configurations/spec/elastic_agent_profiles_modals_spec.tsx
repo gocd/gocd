@@ -15,14 +15,14 @@
  */
 
 import _ from "lodash";
-import { ClusterProfile, ClusterProfiles, ElasticAgentProfile } from "models/elastic_profiles/types";
-import { Configurations } from "models/shared/configuration";
+import {ClusterProfile, ClusterProfiles, ElasticAgentProfile} from "models/elastic_profiles/types";
+import {Configurations} from "models/shared/configuration";
 import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
-import { ElasticAgentExtension } from "models/shared/plugin_infos_new/extensions";
-import { PluginInfo, PluginInfos } from "models/shared/plugin_infos_new/plugin_info";
-import { NewElasticProfileModal } from "views/pages/elastic_agent_configurations/elastic_agent_profiles_modals";
-import { TestData } from "views/pages/elastic_agent_configurations/spec/test_data";
-import { TestHelper } from "views/pages/spec/test_helper";
+import {ElasticAgentExtension} from "models/shared/plugin_infos_new/extensions";
+import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
+import {NewElasticProfileModal} from "views/pages/elastic_agent_configurations/elastic_agent_profiles_modals";
+import {TestData} from "views/pages/elastic_agent_configurations/spec/test_data";
+import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("New Elastic Agent Profile Modals Spec", () => {
   let pluginInfo: PluginInfo, clusterProfiles: ClusterProfile[] = [], helper: TestHelper;
@@ -81,8 +81,8 @@ describe("New Elastic Agent Profile Modals Spec", () => {
     expect(find("form-field-label-cluster-profile-id")).toBeInDOM();
     expect(find("form-field-input-cluster-profile-id")).toBeInDOM();
 
-    expect(find("form-field-input-cluster-profile-id").get(0).children[0]).toContainText("cluster1");
-    expect(find("form-field-input-cluster-profile-id").get(0).children[1]).toContainText("cluster2");
+    expect(find("form-field-input-cluster-profile-id").children[0]).toContainText("cluster1");
+    expect(find("form-field-input-cluster-profile-id").children[1]).toContainText("cluster2");
 
     helper.unmount();
   });
@@ -103,10 +103,10 @@ describe("New Elastic Agent Profile Modals Spec", () => {
     expect(find("form-field-label-cluster-profile-id")).toBeInDOM();
     expect(find("form-field-input-cluster-profile-id")).toBeInDOM();
 
-    expect(find("form-field-input-cluster-profile-id").get(0).children).toHaveLength(2);
+    expect(find("form-field-input-cluster-profile-id").children).toHaveLength(2);
 
-    expect(find("form-field-input-cluster-profile-id").get(0).children[0]).toContainText("cluster1");
-    expect(find("form-field-input-cluster-profile-id").get(0).children[1]).toContainText("cluster2");
+    expect(find("form-field-input-cluster-profile-id").children[0]).toContainText("cluster1");
+    expect(find("form-field-input-cluster-profile-id").children[1]).toContainText("cluster2");
 
     helper.unmount();
   });
@@ -125,8 +125,8 @@ describe("New Elastic Agent Profile Modals Spec", () => {
 
     helper.mount(modal.body.bind(modal));
 
-    expect(find("form-field-input-cluster-profile-id").get(0)).toHaveValue("cluster2");
-    expect(find("form-field-input-cluster-profile-id").get(0)).toContainText(`cluster2 (${pluginInfos[1].about.name})`);
+    expect(find("form-field-input-cluster-profile-id")).toHaveValue("cluster2");
+    expect(find("form-field-input-cluster-profile-id")).toContainText(`cluster2 (${pluginInfos[1].about.name})`);
 
     helper.unmount();
   });
@@ -145,13 +145,13 @@ describe("New Elastic Agent Profile Modals Spec", () => {
 
     helper.mount(modal.body.bind(modal));
 
-    expect(find("form-field-input-cluster-profile-id").get(0)).toHaveValue("cluster1");
-    expect(find("form-field-input-cluster-profile-id").get(0)).toContainText(`cluster1 (${pluginInfos[0].about.name})`);
+    expect(find("form-field-input-cluster-profile-id")).toHaveValue("cluster1");
+    expect(find("form-field-input-cluster-profile-id")).toContainText(`cluster1 (${pluginInfos[0].about.name})`);
 
     helper.unmount();
   });
 
   function find(id: string) {
-    return helper.findByDataTestId(id);
+    return helper.byTestId(id);
   }
 });

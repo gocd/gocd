@@ -55,20 +55,20 @@ describe("EnvironmentVariablesEditor", () => {
   });
 
   function plainVars(): Element {
-    return helper.find(sel.envVars).get(0);
+    return helper.q(sel.envVars);
   }
 
   function secureVars(): Element {
-    return helper.find(sel.envVars).get(1);
+    return helper.qa(sel.envVars).item(1);
   }
 
   function addVariable(section: Element, name: string, value: string): Element {
     helper.click("button", section);
-    const variable = helper.findIn(section, "table-row").last();
-    const fields = variable.find("input");
-    helper.oninput(fields.get(0), name);
-    helper.oninput(fields.get(1), value);
-    return variable.get(0);
+    const variable = Array.from(helper.allByTestId("table-row", section)).pop()!;
+    const fields = helper.qa("input", variable);
+    helper.oninput(fields.item(0), name);
+    helper.oninput(fields.item(1), value);
+    return variable;
   }
 
   function removeVariable(variable: Element) {

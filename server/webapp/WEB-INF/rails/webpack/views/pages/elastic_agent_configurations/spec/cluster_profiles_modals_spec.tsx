@@ -48,10 +48,9 @@ describe("ClusterProfileModal", () => {
       const clusterProfile = new ClusterProfile("", "cd.go.contrib.elasticagent.kubernetes");
       modal                = new TestClusterProfile(pluginInfos, ModalType.edit, clusterProfile);
       helper.mount(modal.body.bind(modal));
-
-      expect(helper.findIn(find("cluster-profile-form-header"), "flash-message-warning")).toBeInDOM();
-      expect(helper.findIn(find("cluster-profile-form-header"), "flash-message-warning")).toHaveText("Can not edit Cluster profile for 'Kubernetes Elastic Agent Plugin' plugin as it does not support cluster profiles.");
-      expect(helper.findByDataTestId("cluster-profile-properties-form")).toBeEmpty();
+      expect(helper.byTestId("flash-message-warning", find("cluster-profile-form-header"))).toBeInDOM();
+      expect(helper.byTestId("flash-message-warning", find("cluster-profile-form-header"))).toHaveText("Can not edit Cluster profile for 'Kubernetes Elastic Agent Plugin' plugin as it does not support cluster profiles.");
+      expect(helper.byTestId("cluster-profile-properties-form")).toBeEmpty();
 
       helper.unmount();
     });
@@ -74,8 +73,8 @@ describe("ClusterProfileModal", () => {
       modal                = new TestClusterProfile(pluginInfos, ModalType.create, clusterProfile);
       helper.mount(modal.body.bind(modal));
 
-      expect(helper.findIn(find("cluster-profile-form-header"), "flash-message-alert")).not.toBeInDOM();
-      expect(helper.findByDataTestId("cluster-profile-properties-form")).not.toBeEmpty();
+      expect(helper.byTestId("flash-message-alert", find("cluster-profile-form-header"))).toBeFalsy();
+      expect(helper.byTestId("cluster-profile-properties-form")).toBeTruthy();
 
       helper.unmount();
     });
@@ -85,9 +84,9 @@ describe("ClusterProfileModal", () => {
       modal                = new TestClusterProfile(pluginInfos, ModalType.create, clusterProfile);
       helper.mount(modal.body.bind(modal));
 
-      expect(helper.findIn(find("cluster-profile-form-header"), "flash-message-alert")).toBeInDOM();
-      expect(helper.findIn(find("cluster-profile-form-header"), "flash-message-alert")).toHaveText("Can not define Cluster profiles for 'Kubernetes Elastic Agent Plugin' plugin as it does not support cluster profiles.");
-      expect(helper.findByDataTestId("cluster-profile-properties-form")).toBeEmpty();
+      expect(helper.byTestId("flash-message-alert", find("cluster-profile-form-header"))).toBeInDOM();
+      expect(helper.byTestId("flash-message-alert", find("cluster-profile-form-header"))).toHaveText("Can not define Cluster profiles for 'Kubernetes Elastic Agent Plugin' plugin as it does not support cluster profiles.");
+      expect(helper.byTestId("cluster-profile-properties-form")).toBeEmpty();
 
       helper.unmount();
     });
@@ -102,8 +101,8 @@ describe("ClusterProfileModal", () => {
     expect(find("form-field-label-plugin-id")).toBeInDOM();
 
     expect(find("form-field-input-plugin-id")).toBeInDOM();
-    expect(find("form-field-input-plugin-id").get(0).children[0]).toContainText("Docker Elastic Agent Plugin");
-    expect(find("form-field-input-plugin-id").get(0).children[1]).toContainText("Kubernetes Elastic Agent Plugin");
+    expect(find("form-field-input-plugin-id").children[0]).toContainText("Docker Elastic Agent Plugin");
+    expect(find("form-field-input-plugin-id").children[1]).toContainText("Kubernetes Elastic Agent Plugin");
 
     helper.unmount();
   });
@@ -114,7 +113,7 @@ describe("ClusterProfileModal", () => {
     modal = new TestClusterProfile(pluginInfos, ModalType.edit, clusterProfile);
     helper.mount(modal.body.bind(modal));
 
-    expect(find("form-field-input-id").parent()).toContainText("should be unique");
+    expect(find("form-field-input-id").parentElement).toContainText("should be unique");
 
     helper.unmount();
   });
@@ -135,12 +134,12 @@ describe("ClusterProfileModal", () => {
     modal = new TestClusterProfile(pluginInfos, ModalType.edit);
     helper.mount(modal.body.bind(modal));
 
-    expect(find("spinner-wrapper").parent()).toBeInDOM();
+    expect(find("spinner-wrapper").parentElement).toBeInDOM();
 
     helper.unmount();
   });
 
   function find(id: string) {
-    return helper.findByDataTestId(id);
+    return helper.byTestId(id);
   }
 });

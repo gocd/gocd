@@ -18,15 +18,14 @@ import {EnvironmentsListWidget} from "views/agents/environments_list_widget";
 import {TriStateCheckbox} from "models/agents/tri_state_checkbox";
 import Stream from "mithril/stream";
 import m from "mithril";
-import $ from "jquery";
 import _ from "lodash";
 import "jasmine-ajax";
 import "jasmine-jquery";
 import "foundation-sites";
 
 describe("Environments List Widget", () => {
-
   const helper = new TestHelper();
+  const body = document.body;
 
   let  environments;
 
@@ -70,7 +69,7 @@ describe("Environments List Widget", () => {
   });
 
   it('should contain all the environments checkbox', () => {
-    const allEnvironments = $.find('.resources-items :checkbox');
+    const allEnvironments = helper.qa('.resources-items input[type="checkbox"]', body);
     expect(allEnvironments).toHaveLength(4);
     expect(allEnvironments[0]).toHaveValue('Build');
     expect(allEnvironments[1]).toHaveValue('Deploy');
@@ -79,13 +78,13 @@ describe("Environments List Widget", () => {
   });
 
   it('should check environments that are present on all the agents', () => {
-    const allEnvironments = $.find('.resources-items :checkbox');
+    const allEnvironments = helper.qa('.resources-items input[type="checkbox"]', body);
     expect(allEnvironments[3]).toHaveValue('Testing');
     expect(allEnvironments[3]).toBeChecked();
   });
 
   it('should select environments as indeterminate that are present on some of the agents', () => {
-    const allEnvironments = $.find('.resources-items :checkbox');
+    const allEnvironments = helper.qa('.resources-items input[type="checkbox"]', body);
     expect(allEnvironments[2]).toHaveValue('Dev');
     expect(allEnvironments[2].indeterminate).toBe(true);
 
@@ -94,7 +93,7 @@ describe("Environments List Widget", () => {
   });
 
   it('should uncheck environments that are not present on any the agents', () => {
-    const allEnvironments = $.find('.resources-items :checkbox');
+    const allEnvironments = helper.qa('.resources-items input[type="checkbox"]', body);
     expect(allEnvironments[1]).toHaveValue('Deploy');
     expect(allEnvironments[1]).not.toBeChecked();
     expect(allEnvironments[1].indeterminate).toBe(false);
@@ -104,10 +103,10 @@ describe("Environments List Widget", () => {
     it('should show page spinner until environments are fetched', () => {
       helper.unmount();
       mount();
-      expect($('.page-spinner')).toBeInDOM();
+      expect(helper.q('.page-spinner', body)).toBeInDOM();
       helper.unmount();
       mount(environments);
-      expect($('.page-spinner')).not.toBeInDOM();
+      expect(helper.q('.page-spinner', body)).not.toExist();
     });
   });
 
@@ -117,7 +116,7 @@ describe("Environments List Widget", () => {
       const environmentsFetchError = () => err;
       helper.unmount();
       mount(environments, environmentsFetchError);
-      expect($('.alert')).toContainText(err);
+      expect(helper.text('.alert', body)).toContain(err);
     });
   });
 

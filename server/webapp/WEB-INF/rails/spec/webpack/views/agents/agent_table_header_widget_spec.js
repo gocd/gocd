@@ -21,11 +21,11 @@ import {AgentsTableHeader} from "views/agents/agent_table_header";
 import Stream from "mithril/stream";
 import m from "mithril";
 import _ from "lodash";
-import $ from "jquery";
 import "jasmine-jquery";
 
 describe("Agent Table Header Widget", () => {
-  const helper            = new TestHelper();
+  const helper = new TestHelper();
+  const body   = document.body;
 
   let routeHandler;
 
@@ -65,29 +65,31 @@ describe("Agent Table Header Widget", () => {
 
 
   it('should select the checkbox depending upon the "checkboxValue" ', () => {
-    const checkbox = helper.find('thead input')[0];
+    const checkbox = helper.q('thead input');
     expect(checkbox.checked).toBe(checkboxValue());
   });
 
   it('should not display checkbox for non-admin user', () => {
     unmount();
     route(false);
-    expect($('thead input')).not.toBeInDOM();
+    expect(helper.q('thead input', body)).not.toExist();
   });
 
 
   it('should add the ascending css class to table header cell attribute when table is sorted ascending on the corresponding attribute', () => {
     routeHandler().toggleSortingOrder('hostname');
-    m.redraw.sync();
-    const headerAttribute = helper.find("th:contains('Agent Name') .sort");
+    helper.redraw();
+
+    const headerAttribute = helper.q(".sort", withText("th", "Agent Name"));
     expect(headerAttribute).toHaveClass('asc');
   });
 
   it('should add the descending css class to table header cell attribute when table is sorted descending on the corresponding attribute', () => {
     routeHandler().toggleSortingOrder('hostname');
     routeHandler().toggleSortingOrder('hostname');
-    m.redraw.sync();
-    const headerAttribute = helper.find("th:contains('Agent Name') .sort");
+    helper.redraw();
+
+    const headerAttribute = helper.q(".sort", withText("th", "Agent Name"));
     expect(headerAttribute).toHaveClass('desc');
   });
 
@@ -99,4 +101,8 @@ describe("Agent Table Header Widget", () => {
   });
 
   const checkboxValue = () => false;
+
+  function withText(selector, text) {
+    return Array.from(helper.qa(selector)).find((el) => el.textContent === text);
+  }
 });

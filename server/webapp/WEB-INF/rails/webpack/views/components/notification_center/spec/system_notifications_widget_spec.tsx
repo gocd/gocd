@@ -18,7 +18,6 @@ import "jasmine-jquery";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {Notification, SystemNotifications} from "models/notifications/system_notifications";
-import * as simulateEvent from "simulate-event";
 import {SystemNotificationsWidget} from "views/components/notification_center/system_notifications_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
 
@@ -38,7 +37,7 @@ describe("SystemNotificationsWidget", () => {
   it("should not display notification bell when there are no notifications to display", () => {
     systemNotifications(SystemNotifications.fromJSON([]));
     helper.redraw();
-    expect(helper.find(".notifications").get(0)).not.toBeInDOM();
+    expect(helper.q(".notifications")).toBeFalsy();
   });
 
   it("should display notification bell and the notifications", () => {
@@ -63,15 +62,15 @@ describe("SystemNotificationsWidget", () => {
 
     systemNotifications(SystemNotifications.fromJSON(notifications));
     helper.redraw();
-    const allNotifications = helper.findByDataTestId("notification-item");
-    expect(allNotifications.get(0)).toBeInDOM();
+    const allNotifications = helper.allByTestId("notification-item");
+    expect(allNotifications.item(0)).toBeInDOM();
     expect(allNotifications.length).toBe(2);
-    expect(allNotifications.eq(0)).toContainText("message 1. read more");
-    expect(allNotifications.eq(0).find("a")).toContainText("read more");
-    expect(allNotifications.eq(0).find(`[data-test-id='notification-item_close']`)).toContainText("X");
-    expect(allNotifications.eq(1)).toContainText("message 2. read more");
-    expect(allNotifications.eq(1).find("a")).toContainText("read more");
-    expect(allNotifications.eq(1).find(`[data-test-id='notification-item_close']`)).toContainText("X");
+    expect(allNotifications.item(0)).toContainText("message 1. read more");
+    expect(helper.q("a", allNotifications.item(0))).toContainText("read more");
+    expect(helper.byTestId("notification-item_close", allNotifications.item(0))).toContainText("X");
+    expect(allNotifications.item(1)).toContainText("message 2. read more");
+    expect(helper.q("a", allNotifications.item(1))).toContainText("read more");
+    expect(helper.allByTestId("notification-item_close", allNotifications.item(1))).toContainText("X");
   });
 
   it("should mark a notification as read and stop displaying it when user marks a notification as read", () => {
@@ -96,14 +95,14 @@ describe("SystemNotificationsWidget", () => {
 
     systemNotifications(SystemNotifications.fromJSON(notifications));
     helper.redraw();
-    let allNotifications = helper.findByDataTestId("notification-item");
+    let allNotifications = helper.allByTestId("notification-item");
     expect(allNotifications.length).toBe(2);
-    simulateEvent.simulate(allNotifications.eq(0).find(`[data-test-id='notification-item_close']`).get(0), "click");
-    helper.redraw();
 
-    allNotifications = helper.findByDataTestId("notification-item");
+    helper.clickByTestId("notification-item_close", allNotifications.item(0));
+
+    allNotifications = helper.allByTestId("notification-item");
     expect(allNotifications.length).toBe(1);
-    expect(allNotifications.eq(0)).toContainText("message 2. read more");
+    expect(allNotifications.item(0)).toContainText("message 2. read more");
 
     expect(systemNotifications().find((m: Notification) => {
       return m.id === "id1";

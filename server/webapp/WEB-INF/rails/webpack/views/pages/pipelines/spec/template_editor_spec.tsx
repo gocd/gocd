@@ -45,7 +45,7 @@ describe("AddPipeline: TemplateEditor", () => {
   it("should display flash when no templates are defined", () => {
     helper.mount(() => <TemplateEditor pipelineConfig={config} isUsingTemplate={isUsingTemplate} cache={new EmptyTestCache()} paramList={paramList}/>);
 
-    helper.clickByDataTestId("switch-paddle");
+    helper.clickByTestId("switch-paddle");
     expect(isUsingTemplate()).toBeTruthy();
     const flash = helper.byTestId("flash-message-warning");
     expect(flash).toBeInDOM();
@@ -56,7 +56,7 @@ describe("AddPipeline: TemplateEditor", () => {
     stubGetTemplateWith(new TemplateConfig("one", []));
     helper.mount(() => <TemplateEditor pipelineConfig={config} isUsingTemplate={isUsingTemplate} cache={new TestCache()} paramList={paramList}/>);
 
-    helper.clickByDataTestId("switch-paddle");
+    helper.clickByTestId("switch-paddle");
     expect(isUsingTemplate()).toBeTruthy();
     expect(config.template()).toBe("one");
     expect(TemplateConfig.getTemplate).toHaveBeenCalledTimes(1);
@@ -65,7 +65,7 @@ describe("AddPipeline: TemplateEditor", () => {
     expect(dropdown).toBeInDOM();
     expect(helper.qa("option", dropdown).length).toBe(2);
 
-    helper.clickByDataTestId("switch-paddle");
+    helper.clickByTestId("switch-paddle");
     expect(isUsingTemplate()).toBe(false);
     expect(config.template()).toBeUndefined();
     expect(TemplateConfig.getTemplate).toHaveBeenCalledTimes(1);
@@ -74,7 +74,7 @@ describe("AddPipeline: TemplateEditor", () => {
   it("should not display dropdown and should display flash when cache fails to populate", () => {
     helper.mount(() => <TemplateEditor pipelineConfig={config} isUsingTemplate={isUsingTemplate} cache={new FailedTestCache()} paramList={paramList}/>);
 
-    helper.clickByDataTestId("switch-paddle");
+    helper.clickByTestId("switch-paddle");
     expect(isUsingTemplate()).toBeTruthy();
 
     const flash = helper.byTestId("flash-message-warning");
@@ -94,7 +94,7 @@ describe("AddPipeline: TemplateEditor", () => {
 
     helper.mount(() => <TemplateEditor pipelineConfig={config} isUsingTemplate={isUsingTemplate} cache={new TestCache()} paramList={paramList}/>);
 
-    helper.clickByDataTestId("switch-paddle");
+    helper.clickByTestId("switch-paddle");
     expect(isUsingTemplate()).toBeTruthy();
     expect(TemplateConfig.getTemplate).toHaveBeenCalled();
   });

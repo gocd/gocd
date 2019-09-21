@@ -17,7 +17,6 @@
 import m from "mithril";
 import Stream from "mithril/stream";
 import {StageConfig} from "models/new_pipeline_configs/stage_configuration";
-import * as simulateEvent from "simulate-event";
 import {StagePermissionsTab} from "views/pages/pipeline_configs/stages/settings/tabs/permissions";
 import {TestHelper} from "views/pages/spec/test_helper";
 
@@ -34,50 +33,48 @@ describe("Pipeline Config - Stage Settings Modal - Stage Permissions Tab", () =>
   });
 
   it("should render stage permissions tab", () => {
-    const body = $("body");
-    expect(helper.findIn(body, "stage-permissions-tab")).toBeInDOM();
+    expect(helper.byTestId("stage-permissions-tab", document.body)).toBeInDOM();
   });
 
   it("should render the default permission message", () => {
     const msg      = "All System Administrators and Pipeline Group Administrators can operate on this pipeline.";
     const helpText = "(This permission can not be overridden!)";
 
-    expect(helper.findByDataTestId("default-permission-message-body")).toContainText(msg);
-    expect(helper.findByDataTestId("default-permission-help-message")).toContainText(helpText);
+    expect(helper.textByTestId("default-permission-message-body")).toContain(msg);
+    expect(helper.textByTestId("default-permission-help-message")).toContain(helpText);
   });
 
   it("should render Inherit permissions from Pipeline Group checkbox", () => {
-    expect(helper.findByDataTestId("switch-wrapper")).toBeInDOM();
-    expect(helper.findByDataTestId("switch-label")).toContainText("Inherit permissions from Pipeline Group:");
+    expect(helper.byTestId("switch-wrapper")).toBeInDOM();
+    expect(helper.textByTestId("switch-label")).toContain("Inherit permissions from Pipeline Group:");
 
-    expect((helper.findByDataTestId("switch-checkbox")[0] as HTMLInputElement).checked).toEqual(true);
+    expect(checked("switch-checkbox")).toBe(true);
   });
 
   it("should allow toggling Inherit permissions from Pipeline Group checkbox", () => {
-    expect(helper.findByDataTestId("switch-wrapper")).toBeInDOM();
-    expect(helper.findByDataTestId("switch-label")).toContainText("Inherit permissions from Pipeline Group:");
+    expect(helper.byTestId("switch-wrapper")).toBeInDOM();
+    expect(helper.textByTestId("switch-label")).toContain("Inherit permissions from Pipeline Group:");
 
-    expect((helper.findByDataTestId("switch-checkbox")[0] as HTMLInputElement).checked).toEqual(true);
+    expect(checked("switch-checkbox")).toBe(true);
     expect(stageConfig.approval().inheritFromPipelineGroup()).toEqual(true);
 
-    simulateEvent.simulate(helper.findByDataTestId("switch-checkbox")[0], "click");
-    m.redraw.sync();
+    click("switch-checkbox");
 
-    expect((helper.findByDataTestId("switch-checkbox")[0] as HTMLInputElement).checked).toEqual(false);
+    expect(checked("switch-checkbox")).toBe(false);
     expect(stageConfig.approval().inheritFromPipelineGroup()).toEqual(false);
   });
 
   it("should not render Specify Permissions locally when permissions are inherited from pipeline group", () => {
-    expect((helper.findByDataTestId("switch-checkbox")[0] as HTMLInputElement).checked).toEqual(true);
-    expect(helper.findByDataTestId("specify-stage-permissions-locally")).not.toBeInDOM();
+    expect(checked("switch-checkbox")).toBe(true);
+    expect(helper.byTestId("specify-stage-permissions-locally")).toBeFalsy();
   });
 
   it("should render Specify Permissions locally when permissions are not inherited from pipeline group", () => {
     stageConfig.approval().inheritFromPipelineGroup(false);
     m.redraw.sync();
 
-    expect((helper.findByDataTestId("switch-checkbox")[0] as HTMLInputElement).checked).toEqual(false);
-    expect(helper.findByDataTestId("specify-stage-permissions-locally")).toBeInDOM();
+    expect(checked("switch-checkbox")).toBe(false);
+    expect(helper.byTestId("specify-stage-permissions-locally")).toBeInDOM();
   });
 
   describe("Specify Stage Permissions Locally", () => {
@@ -87,15 +84,15 @@ describe("Pipeline Config - Stage Settings Modal - Stage Permissions Tab", () =>
     });
 
     it("should render specify locally message", () => {
-      expect(helper.findByDataTestId("specify-stage-permissions-locally")).toBeInDOM();
-      expect(helper.findByDataTestId("specify-stage-permissions-locally")).toContainText("Specify locally:");
+      expect(helper.byTestId("specify-stage-permissions-locally")).toBeInDOM();
+      expect(helper.textByTestId("specify-stage-permissions-locally")).toContain("Specify locally:");
     });
 
     describe("Users", () => {
       it("should render user input field", () => {
-        expect(helper.findByDataTestId("User-permissions")).toBeInDOM();
-        expect(helper.findByDataTestId("User-permissions")).toContainText("Users");
-        expect(helper.findByDataTestId("User-input")).toBeInDOM();
+        expect(helper.byTestId("User-permissions")).toBeInDOM();
+        expect(helper.textByTestId("User-permissions")).toContain("Users");
+        expect(helper.byTestId("User-input")).toBeInDOM();
       });
 
       it("should show existing users on the UI", () => {
@@ -103,23 +100,16 @@ describe("Pipeline Config - Stage Settings Modal - Stage Permissions Tab", () =>
         stageConfig.approval().authorization()!.users.add("John");
         m.redraw.sync();
 
-        expect(helper.findByDataTestId("show-User-Bob")).toBeInDOM();
-        expect(helper.findByDataTestId("show-User-John")).toBeInDOM();
+        expect(helper.byTestId("show-User-Bob")).toBeInDOM();
+        expect(helper.byTestId("show-User-John")).toBeInDOM();
       });
 
       it("should allow adding users", () => {
         const username = "Bob";
         expect(stageConfig.approval().authorization()!.users.list()).toEqual([]);
 
-        const inputSelector = helper.findByDataTestId("User-input").find("input");
-        inputSelector.val(username);
-
-        simulateEvent.simulate(inputSelector[0], "input");
-        m.redraw.sync();
-
-        const addBtnSelector = helper.findByDataTestId("User-input").find("button");
-        simulateEvent.simulate(addBtnSelector[0], "click");
-        m.redraw.sync();
+        helper.oninput("input", username, helper.byTestId("User-input"));
+        helper.click("button", helper.byTestId("User-input"));
 
         expect(stageConfig.approval().authorization()!.users.list()).toEqual([username]);
       });
@@ -129,22 +119,21 @@ describe("Pipeline Config - Stage Settings Modal - Stage Permissions Tab", () =>
         stageConfig.approval().authorization()!.users.add("John");
         m.redraw.sync();
 
-        expect(helper.findByDataTestId("show-User-Bob")).toBeInDOM();
-        expect(helper.findByDataTestId("show-User-John")).toBeInDOM();
+        expect(helper.byTestId("show-User-Bob")).toBeInDOM();
+        expect(helper.byTestId("show-User-John")).toBeInDOM();
 
-        simulateEvent.simulate(helper.findByDataTestId("Close-icon")[0], "click");
-        m.redraw.sync();
+        helper.clickByTestId("Close-icon");
 
-        expect(helper.findByDataTestId("show-User-Bob")).not.toBeInDOM();
-        expect(helper.findByDataTestId("show-User-John")).toBeInDOM();
+        expect(helper.byTestId("show-User-Bob")).toBeFalsy();
+        expect(helper.byTestId("show-User-John")).toBeInDOM();
       });
     });
 
     describe("Roles", () => {
       it("should render role input field", () => {
-        expect(helper.findByDataTestId("Role-permissions")).toBeInDOM();
-        expect(helper.findByDataTestId("Role-permissions")).toContainText("Roles");
-        expect(helper.findByDataTestId("User-input")).toBeInDOM();
+        expect(helper.byTestId("Role-permissions")).toBeInDOM();
+        expect(helper.textByTestId("Role-permissions")).toContain("Roles");
+        expect(helper.byTestId("User-input")).toBeInDOM();
       });
 
       it("should show existing roles on the UI", () => {
@@ -152,23 +141,16 @@ describe("Pipeline Config - Stage Settings Modal - Stage Permissions Tab", () =>
         stageConfig.approval().authorization()!.roles.add("Dev");
         m.redraw.sync();
 
-        expect(helper.findByDataTestId("show-Role-Admin")).toBeInDOM();
-        expect(helper.findByDataTestId("show-Role-Dev")).toBeInDOM();
+        expect(helper.byTestId("show-Role-Admin")).toBeInDOM();
+        expect(helper.byTestId("show-Role-Dev")).toBeInDOM();
       });
 
       it("should allow removing roles", () => {
         const role = "Admin";
         expect(stageConfig.approval().authorization()!.roles.list()).toEqual([]);
 
-        const inputSelector = helper.findByDataTestId("Role-input").find("input");
-        inputSelector.val(role);
-
-        simulateEvent.simulate(inputSelector[0], "input");
-        m.redraw.sync();
-
-        const addBtnSelector = helper.findByDataTestId("Role-input").find("button");
-        simulateEvent.simulate(addBtnSelector[0], "click");
-        m.redraw.sync();
+        helper.oninput("input", role, helper.byTestId("Role-input"));
+        helper.click("button", helper.byTestId("Role-input"));
 
         expect(stageConfig.approval().authorization()!.roles.list()).toEqual([role]);
       });
@@ -178,14 +160,13 @@ describe("Pipeline Config - Stage Settings Modal - Stage Permissions Tab", () =>
         stageConfig.approval().authorization()!.roles.add("Dev");
         m.redraw.sync();
 
-        expect(helper.findByDataTestId("show-Role-Admin")).toBeInDOM();
-        expect(helper.findByDataTestId("show-Role-Dev")).toBeInDOM();
+        expect(helper.byTestId("show-Role-Admin")).toBeInDOM();
+        expect(helper.byTestId("show-Role-Dev")).toBeInDOM();
 
-        simulateEvent.simulate(helper.findByDataTestId("Close-icon")[0], "click");
-        m.redraw.sync();
+        helper.clickByTestId("Close-icon");
 
-        expect(helper.findByDataTestId("show-Role-Admin")).not.toBeInDOM();
-        expect(helper.findByDataTestId("show-Role-Dev")).toBeInDOM();
+        expect(helper.byTestId("show-Role-Admin")).toBeFalsy();
+        expect(helper.byTestId("show-Role-Dev")).toBeInDOM();
       });
     });
   });
@@ -193,4 +174,13 @@ describe("Pipeline Config - Stage Settings Modal - Stage Permissions Tab", () =>
   afterEach(() => {
     helper.unmount();
   });
+
+  function click(id: string) {
+    (helper.byTestId(id) as HTMLElement).click();
+    m.redraw.sync();
+  }
+
+  function checked(id: string) {
+    return (helper.byTestId(id) as HTMLInputElement).checked;
+  }
 });

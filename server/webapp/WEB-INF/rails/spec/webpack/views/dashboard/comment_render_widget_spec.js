@@ -36,7 +36,7 @@ describe("Comment Render Widget", () => {
       const trackingTool = {"link": "http://example.com/${ID}", "regex": "#(\\d+)"};
       const text         = "Fix issues #8076 and #8077";
       mountView(text, trackingTool);
-      const commentRenderWidget = helper.find('.comment');
+      const commentRenderWidget = helper.q('.comment');
 
       expect(commentRenderWidget).toHaveHtml("<p>Fix issues <a target='story_tracker' href='http://example.com/8076'>#8076</a> and <a target='story_tracker' href='http://example.com/8077'>#8077</a></p>");
     });
@@ -45,7 +45,7 @@ describe("Comment Render Widget", () => {
       const trackingTool = {"link": "http://example.com/${ID}", "regex": "(\\d+)"};
       const text         = "Fix issues 8076";
       mountView(text, trackingTool);
-      const commentRenderWidget = helper.find('.comment');
+      const commentRenderWidget = helper.q('.comment');
 
       expect(commentRenderWidget).toHaveHtml("<p>Fix issues <a target='story_tracker' href='http://example.com/8076'>8076</a></p>");
     });
@@ -54,7 +54,7 @@ describe("Comment Render Widget", () => {
       const trackingTool = {"link": "http://example.com/${ID}", "regex": "(\\d+)"};
       const text         = "";
       mountView(text, trackingTool);
-      const commentRenderWidget = helper.find('.comment');
+      const commentRenderWidget = helper.q('.comment');
 
       expect(commentRenderWidget).toHaveHtml("<p/>");
     });
@@ -66,7 +66,7 @@ describe("Comment Render Widget", () => {
       };
       const text         = "evo-abc: checkin message";
       mountView(text, trackingTool);
-      const commentRenderWidget = helper.find('.comment');
+      const commentRenderWidget = helper.q('.comment');
 
       expect(commentRenderWidget).toHaveHtml("<p>evo-abc: checkin message</p>");
     });
@@ -78,7 +78,7 @@ describe("Comment Render Widget", () => {
       };
       const text         = "evo-abc: checkin message";
       mountView(text, trackingTool);
-      const commentRenderWidget = helper.find('.comment');
+      const commentRenderWidget = helper.q('.comment');
       expect(commentRenderWidget).toHaveHtml("<p><a target='story_tracker' href='http://mingle05/projects/cce/cards/ab'>evo-ab</a>c: checkin message</p>");
     });
 
@@ -89,7 +89,7 @@ describe("Comment Render Widget", () => {
       };
       const text         = "evo-111: checkin message";
       mountView(text, trackingTool);
-      const commentRenderWidget = helper.find('.comment');
+      const commentRenderWidget = helper.q('.comment');
       expect(commentRenderWidget).toHaveHtml("<p><a target='story_tracker' href='http://mingle05/projects/cce/cards/111'>evo-111</a>: checkin message</p>");
     });
 
@@ -100,7 +100,7 @@ describe("Comment Render Widget", () => {
       };
       const text         = "evo-1020: checkin message";
       mountView(text, trackingTool);
-      const commentRenderWidget = helper.find('.comment');
+      const commentRenderWidget = helper.q('.comment');
       expect(commentRenderWidget).toHaveHtml("<p>evo-<a target='story_tracker' href='http://mingle05/projects/cce/cards/1020'>1020</a>: checkin message</p>");
     });
 
@@ -111,7 +111,7 @@ describe("Comment Render Widget", () => {
       };
       const text         = "1020-evo1: checkin message";
       mountView(text, trackingTool);
-      const commentRenderWidget = helper.find('.comment');
+      const commentRenderWidget = helper.q('.comment');
       expect(commentRenderWidget).toHaveHtml("<p><a target='story_tracker' href='http://mingle05/projects/cce/cards/1020'>1020-evo1</a>: checkin message</p>");
     });
 
@@ -122,7 +122,7 @@ describe("Comment Render Widget", () => {
       };
       const text         = "evo-abc: checkin message";
       mountView(text, trackingTool);
-      const commentRenderWidget = helper.find('.comment');
+      const commentRenderWidget = helper.q('.comment');
       expect(commentRenderWidget).toHaveHtml("<p>evo-abc: checkin message</p>");
     });
 
@@ -133,7 +133,7 @@ describe("Comment Render Widget", () => {
       };
       const text         = "evo-abc: checkin message";
       mountView(text, trackingTool);
-      const commentRenderWidget = helper.find('.comment');
+      const commentRenderWidget = helper.q('.comment');
       expect(commentRenderWidget).toHaveHtml("<p>evo-abc: checkin message</p>");
     });
 
@@ -144,7 +144,7 @@ describe("Comment Render Widget", () => {
       };
       const text         = "evo-111: checkin message";
       mountView(text, trackingTool);
-      const commentRenderWidget = helper.find('.comment');
+      const commentRenderWidget = helper.q('.comment');
       expect(commentRenderWidget).toHaveHtml("<p><a target='story_tracker' href='http://mingle05/projects/cce/cards/wall-E'>evo-111</a>: checkin message</p>");
     });
 
@@ -155,7 +155,7 @@ describe("Comment Render Widget", () => {
       };
       const text         = "111: checkin message";
       mountView(text, trackingTool);
-      const commentRenderWidget = helper.find('.comment');
+      const commentRenderWidget = helper.q('.comment');
       expect(commentRenderWidget).toHaveHtml("<p><a target='story_tracker' href='aaa111'>111</a>: checkin message</p>");
     });
 
@@ -166,7 +166,7 @@ describe("Comment Render Widget", () => {
       };
       const text         = "Replace evo-1994.  Don't replace 1994";
       mountView(text, trackingTool);
-      const commentRenderWidget = helper.find('.comment');
+      const commentRenderWidget = helper.q('.comment');
       expect(commentRenderWidget).toHaveHtml("<p>Replace <a target='story_tracker' href='http://mingle05/projects/cce/cards/1994'>evo-1994</a>.  Don't replace 1994</p>");
     });
 
@@ -177,7 +177,7 @@ describe("Comment Render Widget", () => {
       };
       const text         = "The story #111 is fixed by 德里克. #122 is also related to this";
       mountView(text, trackingTool);
-      const commentRenderWidget = helper.find('.comment');
+      const commentRenderWidget = helper.q('.comment');
       expect(commentRenderWidget).toHaveHtml("<p>The story <a target='story_tracker' href='http://mingle05/projects/cce/cards/111'>#111</a> is fixed by 德里克. <a target='story_tracker' href='http://mingle05/projects/cce/cards/122'>#122</a> is also related to this");
     });
 
@@ -188,7 +188,7 @@ describe("Comment Render Widget", () => {
       };
       const text         = "some <string>";
       mountView(text, trackingTool);
-      const commentRenderWidget = helper.find('.comment');
+      const commentRenderWidget = helper.q('.comment');
       expect(commentRenderWidget).toHaveHtml("<p>some &lt;string&gt;</p>");
     });
 
@@ -199,7 +199,7 @@ describe("Comment Render Widget", () => {
       };
       const text         = "ABC-\"><svg/onload=\"alert(1)";
       mountView(text, trackingTool);
-      const commentRenderWidget = helper.find('.comment');
+      const commentRenderWidget = helper.q('.comment');
       expect(commentRenderWidget).toHaveHtml("<p><a target='story_tracker' href='http://jira.example.com/ABC-&quot;&gt;&lt;svg/onload=&quot;alert(1)'>ABC-&quot;&gt;&lt;svg/onload=&quot;alert(1)</a></p>");
     });
 
@@ -210,7 +210,7 @@ describe("Comment Render Widget", () => {
       };
       const text         = "Don't render the apostrophe as a link";
       mountView(text, trackingTool);
-      const commentRenderWidget = helper.find('.comment');
+      const commentRenderWidget = helper.q('.comment');
       expect(commentRenderWidget).toHaveHtml("<p>Don't render the apostrophe as a link</p>");
     });
 
@@ -221,7 +221,7 @@ describe("Comment Render Widget", () => {
       };
       const text         = "<b>This should not be bold</b>";
       mountView(text, trackingTool);
-      const commentRenderWidget = helper.find('.comment');
+      const commentRenderWidget = helper.q('.comment');
       expect(commentRenderWidget).toHaveHtml("<p>&lt;b&gt;This should not be bold&lt;/b&gt;</p>");
     });
 
@@ -237,21 +237,21 @@ describe("Comment Render Widget", () => {
       it('should render comment with task', () => {
         const text = "Task 111: checkin message";
         mountView(text, trackingTool);
-        const commentRenderWidget = helper.find('.comment');
+        const commentRenderWidget = helper.q('.comment');
         expect(commentRenderWidget).toHaveHtml("<p><a target='story_tracker' href='http://mingle05/projects/cce/cards/111'>Task 111</a>: checkin message</p>");
       });
 
       it('should render comment with bug', () => { //no pun intended
         const text = "Bug 111: checkin message";
         mountView(text, trackingTool);
-        const commentRenderWidget = helper.find('.comment');
+        const commentRenderWidget = helper.q('.comment');
         expect(commentRenderWidget).toHaveHtml("<p><a target='story_tracker' href='http://mingle05/projects/cce/cards/111'>Bug 111</a>: checkin message</p>");
       });
 
       it('should render comment with #', () => {
         const text = "#111: checkin message";
         mountView(text, trackingTool);
-        const commentRenderWidget = helper.find('.comment');
+        const commentRenderWidget = helper.q('.comment');
         expect(commentRenderWidget).toHaveHtml("<p><a target='story_tracker' href='http://mingle05/projects/cce/cards/111'>#111</a>: checkin message</p>");
       });
     });

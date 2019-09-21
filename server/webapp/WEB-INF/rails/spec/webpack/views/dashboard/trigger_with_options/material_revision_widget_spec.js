@@ -53,24 +53,23 @@ describe("Dashboard Material Revision Widget", () => {
     afterEach(helper.unmount.bind(helper));
 
     it('should render material type and material name', () => {
-      const widgetHeader = helper.find('.rev-head');
+      const widgetHeader = helper.q('.rev-head');
       expect(widgetHeader).toContainText(gitRevisionJson.material_type);
       expect(widgetHeader).toContainText(gitRevisionJson.material_name);
     });
 
     it('should render changes information related to the git material', () => {
-      const modificationWidget = helper.find('.modifications');
+      const modificationWidgetTxt = helper.text('.modifications');
       const modification       = gitRevisionJson.modifications[0];
-      expect(modificationWidget).toContainText(modification.user_name);
-      expect(modificationWidget).toContainText(modification.revision);
-      expect(modificationWidget).toContainText(timeFormatter.format(modification.modified_time));
-      expect(modificationWidget).toContainText(modification.comment);
-      expect(modificationWidget).toContainText("VSM");
+      expect(modificationWidgetTxt).toContain(modification.user_name);
+      expect(modificationWidgetTxt).toContain(modification.revision);
+      expect(modificationWidgetTxt).toContain(timeFormatter.format(modification.modified_time));
+      expect(modificationWidgetTxt).toContain(modification.comment);
+      expect(modificationWidgetTxt).toContain("VSM");
 
-      const vsmLink = helper.find('a');
+      const vsmLink = helper.q('a');
       expect(vsmLink).toHaveAttr("href", modification._links.vsm.href);
     });
-
   });
 
   describe("Pipeline Material Revision View", () => {
@@ -103,13 +102,13 @@ describe("Dashboard Material Revision Widget", () => {
     afterEach(helper.unmount.bind(helper));
 
     it('should render material type and pipeline material name', () => {
-      const widgetHeader = helper.find('.rev-head');
+      const widgetHeader = helper.q('.rev-head');
       expect(widgetHeader).toContainText(pipelineRevisionJson.material_type);
       expect(widgetHeader).toContainText(pipelineRevisionJson.material_name);
     });
 
     it('should render changes information related to the pipeline material', () => {
-      const modificationWidget = helper.find('.modifications');
+      const modificationWidget = helper.q('.modifications');
       const modification       = pipelineRevisionJson.modifications[0];
 
       expect(modificationWidget).toContainText(modification.revision);
@@ -118,12 +117,12 @@ describe("Dashboard Material Revision Widget", () => {
     });
 
     it('should contain a link to overview of stage details page of the stage that triggered the pipeline', () => {
-      const pipelineDependencyLink = helper.find('.modified_by a').get(0);
-      expect(pipelineDependencyLink.href).toEqual(pipelineRevisionJson.modifications[0]._links.stage_details_url.href);
+      const pipelineDependencyLink = helper.q('.modified_by a');
+      expect(pipelineDependencyLink.href).toBe(pipelineRevisionJson.modifications[0]._links.stage_details_url.href);
     });
 
     it('should contain a link to stage details page showing pipeline dependencies of the run of the upstream pipeline run', () => {
-      const pipelineDependencyLink = helper.find('.comment a').get(0);
+      const pipelineDependencyLink = helper.q('.comment a');
       expect(pipelineDependencyLink.href.indexOf(`/go/pipelines/value_stream_map/up42/2`)).not.toBe(-1);
     });
 
@@ -160,13 +159,13 @@ describe("Dashboard Material Revision Widget", () => {
 
 
     it("should render material type as Package and the correct package name", () => {
-      const widgetHeader = helper.find('.rev-head');
+      const widgetHeader = helper.q('.rev-head');
       expect(widgetHeader).toContainText(packageRevisionJson.material_type);
       expect(widgetHeader).toContainText(packageRevisionJson.material_name);
     });
 
     it("should render changes information related to the package material", () => {
-      const modificationWidget = helper.find('.modifications');
+      const modificationWidget = helper.q('.modifications');
       const modification       = packageRevisionJson.modifications[0];
 
       expect(modificationWidget).toContainText(modification.user_name);
@@ -177,10 +176,10 @@ describe("Dashboard Material Revision Widget", () => {
     });
 
     it("should contain link to vsm of the package material", () => {
-      const modificationWidget = helper.find('.modifications');
+      const modificationWidget = helper.q('.modifications');
       const modification       = packageRevisionJson.modifications[0];
 
-      const vsmLink = modificationWidget.find('a');
+      const vsmLink = modificationWidget.querySelector('a');
       expect(vsmLink).toHaveAttr("href", modification._links.vsm.href);
     });
   });
@@ -215,7 +214,7 @@ describe("Dashboard Material Revision Widget", () => {
     afterEach(helper.unmount.bind(helper));
 
     it("should highlight the revision that triggered the pipeline with yellow color", () => {
-      const revisionWidget = helper.find('.changed');
+      const revisionWidget = helper.q('.changed');
 
       expect(revisionWidget).toExist();
     });
@@ -252,7 +251,7 @@ describe("Dashboard Material Revision Widget", () => {
     afterEach(helper.unmount.bind(helper));
 
     it("should not highlight revisions which aren't modified", () => {
-      const revision = helper.find('.changed');
+      const revision = helper.q('.changed');
 
       expect(revision).not.toExist();
     });

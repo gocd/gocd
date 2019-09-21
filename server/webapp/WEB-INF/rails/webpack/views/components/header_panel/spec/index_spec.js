@@ -26,7 +26,7 @@ describe("Header Panel Component", () => {
   it("should render header panel component", () => {
     const pageTitle = "Test Header";
     mount(pageTitle, []);
-    expect(helper.findByDataTestId('title')).toContainText(pageTitle);
+    expect(helper.textByTestId('title')).toContain(pageTitle);
   });
 
   it("should render header panel along with buttons", () => {
@@ -34,21 +34,21 @@ describe("Header Panel Component", () => {
     const buttons   = [m("button", "Do something"), m("button", "Do something more")];
     mount(pageTitle, buttons);
 
-    expect(helper.findByDataTestId('title')).toContainText(pageTitle);
+    expect(helper.textByTestId('title')).toContain(pageTitle);
 
-    const pageActionButtons = helper.findByDataTestId('pageActions').children();
+    const pageActionButtons = helper.byTestId('pageActions').children;
 
     expect(pageActionButtons).toHaveLength(buttons.length);
-    expect(pageActionButtons.get(0)).toContainText("Do something");
-    expect(pageActionButtons.get(1)).toContainText("Do something more");
+    expect(pageActionButtons.item(0)).toContainText("Do something");
+    expect(pageActionButtons.item(1)).toContainText("Do something more");
   });
 
   it("should not render buttons when no buttons are provided for header panel", () => {
     const pageTitle = "Test Header";
     mount(pageTitle);
 
-    expect(helper.findByDataTestId('title')).toContainText(pageTitle);
-    expect(helper.findByDataTestId('pageActions')).not.toBeInDOM();
+    expect(helper.textByTestId('title')).toContain(pageTitle);
+    expect(helper.byTestId('pageActions')).toBeFalsy();
   });
 
   function mount(pageTitle, buttons) {

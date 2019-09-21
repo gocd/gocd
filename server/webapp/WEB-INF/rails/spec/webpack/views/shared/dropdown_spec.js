@@ -56,22 +56,22 @@ describe('Dropdown widget', () => {
   });
 
   it('should open dropdown on click', () => {
-    expect(helper.find('.c-dropdown')).not.toHaveClass('open');
+    expect(helper.q('.c-dropdown')).not.toHaveClass('open');
     helper.click('.c-dropdown_head');
-    expect(helper.find('.c-dropdown')).toHaveClass('open');
+    expect(helper.q('.c-dropdown')).toHaveClass('open');
   });
 
   it('should close dropdown when an item is selected', () => {
     helper.click('.c-dropdown_head');
-    expect(helper.find('.c-dropdown')).toHaveClass('open');
+    expect(helper.q('.c-dropdown')).toHaveClass('open');
     helper.click('.c-dropdown_item');
-    expect(helper.find('.c-dropdown')).not.toHaveClass('open');
+    expect(helper.q('.c-dropdown')).not.toHaveClass('open');
   });
 
   it('should open drowndown when down-arrow is clicked', () => {
-    expect(helper.find('.c-dropdown')).not.toHaveClass('open');
+    expect(helper.q('.c-dropdown')).not.toHaveClass('open');
     helper.click('.c-down-arrow');
-    expect(helper.find('.c-dropdown')).toHaveClass('open');
+    expect(helper.q('.c-dropdown')).toHaveClass('open');
   });
 
 });

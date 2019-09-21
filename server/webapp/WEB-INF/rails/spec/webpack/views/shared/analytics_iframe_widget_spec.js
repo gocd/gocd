@@ -54,10 +54,10 @@ describe("Analytics iFrame Widget", () => {
 
   it('should load view path from model and create an iframe with sandbox', () => {
     mount(newModel({a: 1}, "/some/path"), noop);
-    const iframe = helper.find('iframe');
+    const iframe = helper.q('iframe');
 
-    expect(iframe.attr('sandbox')).toEqual('allow-scripts');
-    expect(iframe.attr('src')).toEqual('/some/path');
+    expect(iframe.getAttribute('sandbox')).toBe('allow-scripts');
+    expect(iframe.getAttribute('src')).toBe('/some/path');
   });
 
   it('should show errors if any', () => {
@@ -67,7 +67,7 @@ describe("Analytics iFrame Widget", () => {
       responseText:      "here is an error"
     });
     mount(model, noop);
-    expect(helper.find(".frame-container")[0].getAttribute("data-error-text")).toBe("here is an error");
+    expect(helper.q(".frame-container").getAttribute("data-error-text")).toBe("here is an error");
   });
 
   it('should render html error if any', () => {
@@ -78,7 +78,7 @@ describe("Analytics iFrame Widget", () => {
       responseText:      htmlErrorString
     });
     mount(model, noop);
-    expect(helper.find("iframe")[0].getAttribute("src")).toBe(`data:text/html;charset=utf-8,${htmlErrorString}`);
+    expect(helper.q("iframe").getAttribute("src")).toBe(`data:text/html;charset=utf-8,${htmlErrorString}`);
   });
 
   it('should initialize iframe oncreate', () => {
@@ -88,7 +88,7 @@ describe("Analytics iFrame Widget", () => {
       actualMessage = JSON.stringify(data);
     });
 
-    const iframe = helper.find('iframe')[0];
+    const iframe = helper.q('iframe');
     iframe.onload();
 
     const expectedMessage = JSON.stringify({

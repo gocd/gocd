@@ -17,7 +17,6 @@ import {TestHelper} from "views/pages/spec/test_helper";
 import {f} from "helpers/form_helper";
 import Stream from "mithril/stream";
 import m from "mithril";
-import $ from "jquery";
 import * as simulateEvent from "simulate-event";
 
 describe("Form Helper", () => {
@@ -37,19 +36,24 @@ describe("Form Helper", () => {
         'tooltipText': "show me on hover",
       }, "Fancy button with tooltip")
     );
-    const buttonWithTooltip = helper.find('button');
+    const buttonWithTooltip = helper.q('button');
     expect(buttonWithTooltip).toExist();
-    const tooltipId = $(buttonWithTooltip).attr("data-tooltip-id");
-    const tooltip   = helper.find(`#${tooltipId}`);
+
+    const tooltipId = buttonWithTooltip.getAttribute("data-tooltip-id");
+    const tooltip   = document.getElementById(tooltipId);
+
     expect(tooltip).toExist();
     expect(tooltip).toHaveText("show me on hover");
     expect(tooltip).not.toBeVisible();
-    simulateEvent.simulate(buttonWithTooltip[0], 'mouseover');
-    m.redraw.sync();
+
+    simulateEvent.simulate(buttonWithTooltip, 'mouseover');
+    helper.redraw();
+
     expect(tooltip).toBeVisible();
 
-    simulateEvent.simulate(buttonWithTooltip[0], 'mouseout');
-    m.redraw.sync();
+    simulateEvent.simulate(buttonWithTooltip, 'mouseout');
+    helper.redraw();
+
     expect(tooltip).not.toBeVisible();
   });
 
@@ -59,18 +63,25 @@ describe("Form Helper", () => {
       model,
       'tooltipText': "show me on hover",
     }, "Fancy link with tooltip"));
-    const linkWithTooltip = helper.find('a');
+
+    const linkWithTooltip = helper.q('a');
     expect(linkWithTooltip).toExist();
-    const tooltipId = $(linkWithTooltip).attr("data-tooltip-id");
-    const tooltip   = helper.find(`#${tooltipId}`);
+
+    const tooltipId = linkWithTooltip.getAttribute("data-tooltip-id");
+    const tooltip   = document.getElementById(tooltipId);
+
     expect(tooltip).toExist();
     expect(tooltip).toHaveText("show me on hover");
     expect(tooltip).not.toBeVisible();
-    simulateEvent.simulate(linkWithTooltip[0], 'mouseover');
-    m.redraw.sync();
+
+    simulateEvent.simulate(linkWithTooltip, 'mouseover');
+    helper.redraw();
+
     expect(tooltip).toBeVisible();
-    simulateEvent.simulate(linkWithTooltip[0], 'mouseout');
-    m.redraw.sync();
+
+    simulateEvent.simulate(linkWithTooltip, 'mouseout');
+    helper.redraw();
+
     expect(tooltip).not.toBeVisible();
   });
 });

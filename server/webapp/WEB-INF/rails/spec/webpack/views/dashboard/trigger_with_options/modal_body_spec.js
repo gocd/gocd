@@ -22,7 +22,6 @@ import {ModalBody} from "views/dashboard/trigger_with_options/modal_body";
 import {Modal} from "views/shared/new_modal";
 import Stream from "mithril/stream";
 import m from "mithril";
-import * as simulateEvent from "simulate-event";
 
 describe("Dashboard Pipeline Trigger With Options Modal Body", () => {
 
@@ -74,36 +73,36 @@ describe("Dashboard Pipeline Trigger With Options Modal Body", () => {
   });
 
   it("should render pipeline trigger with options information", () => {
-    expect(helper.find('.pipeline-trigger-with-options')).toBeInDOM();
+    expect(helper.q('.pipeline-trigger-with-options')).toBeInDOM();
   });
 
   it("shoould render tab headings", () => {
-    const headings = helper.find('.pipeline_options-heading li');
+    const headings = helper.qa('.pipeline_options-heading li');
 
     expect(headings.length).toBe(3);
-    expect(headings.get(0)).toContainText('Materials');
-    expect(headings.get(1)).toContainText('Environment variables');
-    expect(headings.get(2)).toContainText('Secure Environment variables');
+    expect(headings[0]).toContainText('Materials');
+    expect(headings[1]).toContainText('Environment variables');
+    expect(headings[2]).toContainText('Secure Environment variables');
   });
 
   it("should render materials section", () => {
-    expect(helper.find('.material-for-trigger')).toBeInDOM();
+    expect(helper.q('.material-for-trigger')).toBeInDOM();
   });
 
   it("should render environment variables section", () => {
-    expect(helper.find('.environment-variables.plain')).toBeInDOM();
+    expect(helper.q('.environment-variables.plain')).toBeInDOM();
   });
 
   it("should render secure environment variables section", () => {
-    expect(helper.find('.environment-variables.secure')).toBeInDOM();
+    expect(helper.q('.environment-variables.secure')).toBeInDOM();
   });
 
   it("should show select materials tab by default", () => {
-    expect(helper.find('.pipeline_options-heading li').get(0)).toHaveClass('active');
+    expect(helper.q('.pipeline_options-heading li')).toHaveClass('active');
 
-    const materialsContent = helper.find('.pipeline_options-body .h-tab_content:first');
-    const envContent       = helper.find('.pipeline_options-body .h-tab_content:nth-child(2)');
-    const secureEnvContent = helper.find('.pipeline_options-body .h-tab_content:nth-child(3)');
+    const materialsContent = helper.q('.pipeline_options-body .h-tab_content');
+    const envContent       = helper.q('.pipeline_options-body .h-tab_content:nth-child(2)');
+    const secureEnvContent = helper.q('.pipeline_options-body .h-tab_content:nth-child(3)');
 
     expect(materialsContent).not.toHaveClass('hidden');
     expect(envContent).toHaveClass('hidden');
@@ -111,20 +110,19 @@ describe("Dashboard Pipeline Trigger With Options Modal Body", () => {
   });
 
   it("should show appropriate content based on tab selected", () => {
-    const materialsContent = helper.find('.pipeline_options-body .h-tab_content:first');
-    const envContent       = helper.find('.pipeline_options-body .h-tab_content:nth-child(2)');
-    const secureEnvContent = helper.find('.pipeline_options-body .h-tab_content:nth-child(3)');
+    const materialsContent = helper.q('.pipeline_options-body .h-tab_content');
+    const envContent       = helper.q('.pipeline_options-body .h-tab_content:nth-child(2)');
+    const secureEnvContent = helper.q('.pipeline_options-body .h-tab_content:nth-child(3)');
 
-    expect(helper.find('.pipeline_options-heading li').get(0)).toHaveClass('active');
+    expect(helper.q('.pipeline_options-heading li')).toHaveClass('active');
 
     expect(materialsContent).not.toHaveClass('hidden');
     expect(envContent).toHaveClass('hidden');
     expect(secureEnvContent).toHaveClass('hidden');
 
-    simulateEvent.simulate(helper.find('.pipeline_options-heading li').get(1), 'click');
-    m.redraw.sync();
+    helper.click(helper.qa('.pipeline_options-heading li').item(1));
 
-    expect(helper.find('.pipeline_options-heading li').get(1)).toHaveClass('active');
+    expect(helper.qa('.pipeline_options-heading li').item(1)).toHaveClass('active');
 
     expect(materialsContent).toHaveClass('hidden');
     expect(envContent).not.toHaveClass('hidden');
@@ -135,17 +133,17 @@ describe("Dashboard Pipeline Trigger With Options Modal Body", () => {
     triggerWithOptionsInfo(TriggerWithOptionsInfo.fromJSON({variables: [], materials: json.materials}));
     vm.initialize(triggerWithOptionsInfo());
     m.redraw.sync();
-    const headings = helper.find('.pipeline_options-heading li');
+    const headings = helper.qa('.pipeline_options-heading li');
 
     expect(headings.length).toBe(1);
-    expect(headings.get(0)).toContainText('Materials');
+    expect(headings.item(0)).toContainText('Materials');
   });
 
   it("should show error if API call failed", () => {
     const errorMessage = Stream("Error occurred while parsing the data.");
     unmount();
     mount(Stream(), new TriggerWithOptionsVM(), errorMessage);
-    expect(helper.find('.callout.alert')).toBeInDOM();
+    expect(helper.q('.callout.alert')).toBeInDOM();
   });
 
   function mount(triggerWithOptionsInfo, vm, errorMessage) {

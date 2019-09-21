@@ -36,25 +36,25 @@ describe("Dashboard Material Search Results Widget", () => {
     material.searchResults(json);
     helper.redraw();
     const expectedMessage = 'Last 4 commits listed in chronological order';
-    expect(helper.find('.commits .helper')).toContainText(expectedMessage);
+    expect(helper.text('.commits .helper')).toContain(expectedMessage);
   });
 
   it("should render all matched material search revisions and no message", () => {
     material.searchText('some search text');
     material.searchResults(json);
     helper.redraw();
-    expect(helper.find('.commit_info li')).toHaveLength(4);
-    expect(helper.find('.commits .helper')).toContainText('');
+    expect(helper.qa('.commit_info li')).toHaveLength(4);
+    expect(helper.q('.commits .helper')).toBeFalsy();
   });
 
   it("should render commit information", () => {
     material.searchResults(json);
     helper.redraw();
 
-    expect(helper.find('.commit_info .rev').get(0)).toContainText(json[0].revision);
-    expect(helper.find('.commit_info .committer').get(0)).toContainText(json[0].user);
-    expect(helper.find('.commit_info .time').get(0)).toContainText(timeFormatter.format(json[0].date));
-    expect(helper.find('.commit_info .commit_message').get(0)).toContainText(json[0].comment);
+    expect(helper.text('.commit_info .rev')).toContain(json[0].revision);
+    expect(helper.text('.commit_info .committer')).toContain(json[0].user);
+    expect(helper.text('.commit_info .time')).toContain(timeFormatter.format(json[0].date));
+    expect(helper.text('.commit_info .commit_message')).toContain(json[0].comment);
   });
 
   it("should render no revisions found message", () => {
@@ -62,13 +62,13 @@ describe("Dashboard Material Search Results Widget", () => {
     material.searchResults([]);
     helper.redraw();
     const expectedMessage = `No revisions found matching 'foo'`;
-    expect(helper.find('.commits .helper')).toContainText(expectedMessage);
+    expect(helper.text('.commits .helper')).toContain(expectedMessage);
   });
 
   it("should not render view when search is in progress", () => {
     material.searchInProgress(true);
     helper.redraw();
-    expect(helper.find('.commits')).not.toBeInDOM();
+    expect(helper.q('.commits')).toBeFalsy();
   });
 
   it("should select searched revision onclick", (done) => {
@@ -79,8 +79,8 @@ describe("Dashboard Material Search Results Widget", () => {
 
     helper.click('.commit_info li:nth-child(2)');
 
-    expect(material.selection()).toEqual(json[1].revision);
-    expect(material.searchText()).toEqual(json[1].revision);
+    expect(material.selection()).toBe(json[1].revision);
+    expect(material.searchText()).toBe(json[1].revision);
 
     //timeout is required to wait for the debounced search
     setTimeout(done, 250);

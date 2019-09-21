@@ -41,7 +41,7 @@ describe("Global Dashboard Metrics", () => {
     jasmine.Ajax.stubRequest("/analytics/plugin-id-y/z/three", undefined, 'GET').andReturn({status: 200});
 
     helper.mount(() => <GlobalMetrics metrics={supportedMetrics}/>);
-    expect(helper.find("iframe").length).toBe(3);
+    expect(helper.qa("iframe").length).toBe(3);
   });
 
 });

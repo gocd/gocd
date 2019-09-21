@@ -16,8 +16,6 @@
 import {TestHelper} from "views/pages/spec/test_helper";
 import {EnvironmentVariables} from "models/dashboard/environment_variables";
 import * as EnvironmentVariablesWidget from "views/dashboard/trigger_with_options/environment_variables_widget";
-import simulateEvent from "simulate-event";
-import $ from "jquery";
 import m from "mithril";
 
 describe("Dashboard Environment Variables Trigger Widget", () => {
@@ -51,30 +49,28 @@ describe("Dashboard Environment Variables Trigger Widget", () => {
     afterEach(helper.unmount.bind(helper));
 
     it("should render plain text variables", () => {
-      expect(helper.find('.environment-variables .name')).toHaveLength(2);
-      expect(helper.find('.environment-variables input')).toHaveLength(2);
+      expect(helper.qa('.environment-variables .name')).toHaveLength(2);
+      expect(helper.qa('.environment-variables input')).toHaveLength(2);
 
-      expect(helper.find('.environment-variables .name').get(0)).toContainText(json[0].name);
-      expect(helper.find('.environment-variables .name').get(1)).toContainText(json[1].name);
+      expect(helper.qa('.environment-variables .name')[0]).toContainText(json[0].name);
+      expect(helper.qa('.environment-variables .name')[1]).toContainText(json[1].name);
 
-      expect(helper.find('.environment-variables input').get(0)).toHaveValue(json[0].value);
-      expect(helper.find('.environment-variables input').get(1)).toHaveValue(json[1].value);
+      expect(helper.qa('.environment-variables input')[0]).toHaveValue(json[0].value);
+      expect(helper.qa('.environment-variables input')[1]).toHaveValue(json[1].value);
     });
 
     it("it should display variable overriden message", () => {
-      const valueInputField = helper.find('.environment-variables input').get(0);
+      const valueInputField = helper.q('.environment-variables input');
 
       expect(valueInputField).toHaveValue(json[0].value);
-      expect(helper.find('.overridden-message')).not.toBeInDOM();
+      expect(helper.q('.overridden-message')).not.toExist();
 
       const newValue = "ldap";
-      $(valueInputField).val(newValue);
-      simulateEvent.simulate(valueInputField, 'input');
-      m.redraw.sync();
+      helper.oninput(valueInputField, newValue);
 
       expect(variables[0].value()).toBe(newValue);
       expect(valueInputField).toHaveValue(newValue);
-      expect(helper.find('.overridden-message')).toContainText(`The value is overridden. Default value :${json[0].value}`);
+      expect(helper.text('.overridden-message')).toContain(`The value is overridden. Default value :${json[0].value}`);
     });
   });
 
@@ -101,40 +97,38 @@ describe("Dashboard Environment Variables Trigger Widget", () => {
     afterEach(helper.unmount.bind(helper));
 
     it("should render Secure text variables", () => {
-      expect(helper.find('.environment-variables .name')).toHaveLength(2);
-      expect(helper.find('.environment-variables input')).toHaveLength(2);
+      expect(helper.qa('.environment-variables .name')).toHaveLength(2);
+      expect(helper.qa('.environment-variables input')).toHaveLength(2);
 
-      expect(helper.find('.environment-variables .name').get(0)).toContainText(json[0].name);
-      expect(helper.find('.environment-variables .name').get(1)).toContainText(json[1].name);
+      expect(helper.qa('.environment-variables .name')[0]).toContainText(json[0].name);
+      expect(helper.qa('.environment-variables .name')[1]).toContainText(json[1].name);
 
-      expect(helper.find('.environment-variables input').get(0)).toHaveValue('*****');
-      expect(helper.find('.environment-variables input').get(1)).toHaveValue('*****');
+      expect(helper.qa('.environment-variables input')[0]).toHaveValue('*****');
+      expect(helper.qa('.environment-variables input')[1]).toHaveValue('*****');
     });
 
     it("it should display variable overriden message", () => {
-      const valueInputField = helper.find('.environment-variables input').get(0);
+      const valueInputField = helper.q('.environment-variables input');
       expect(valueInputField).toBeDisabled();
 
       expect(valueInputField).toHaveValue('*****');
-      expect(helper.find('.reset')).not.toBeInDOM();
+      expect(helper.q('.reset')).not.toExist();
 
-      simulateEvent.simulate(helper.find('.override').get(0), 'click');
-      m.redraw.sync();
+      helper.click('.override');
+
       expect(valueInputField).not.toBeDisabled();
-      expect(helper.find('.reset')).toBeInDOM();
+      expect(helper.q('.reset')).toBeInDOM();
 
       const newValue = "ldap";
-      $(valueInputField).val(newValue);
-      simulateEvent.simulate(valueInputField, 'input');
-      m.redraw.sync();
+      helper.oninput(valueInputField, newValue);
 
       expect(variables[0].value()).toBe(newValue);
       expect(valueInputField).toHaveValue(newValue);
 
-      simulateEvent.simulate(helper.find('.reset').get(0), 'click');
-      m.redraw.sync();
+      helper.click('.reset');
+
       expect(valueInputField).toBeDisabled();
-      expect(helper.find('.reset')).not.toBeInDOM();
+      expect(helper.q('.reset')).not.toExist();
     });
   });
 });

@@ -98,21 +98,19 @@ describe("Dashboard Stages Instance Widget", () => {
   });
 
   it("should render each stage instance", () => {
-    const stagesInstance = helper.find('.pipeline_stage');
+    const stagesInstance = helper.qa('.pipeline_stage');
 
-    expect(stagesInstance.get(0)).toHaveClass('failed');
-    expect(stagesInstance.get(1)).toHaveClass('unknown');
+    expect(stagesInstance[0]).toHaveClass('failed');
+    expect(stagesInstance[1]).toHaveClass('unknown');
   });
 
   it("should link to stage details page", () => {
-    const stagesInstance = helper.find('.pipeline_stage');
-
-    expect(stagesInstance.get(0).href.indexOf(`/go/pipelines/up42/1/up42_stage/1`)).not.toEqual(-1);
+    expect(helper.q('.pipeline_stage').href).toContain("/go/pipelines/up42/1/up42_stage/1");
   });
 
   it("should not link to stage details page for stages with no run", () => {
-    expect(helper.find('span.pipeline_stage')).toBeInDOM();
-    expect(helper.find('span.pipeline_stage')).toHaveClass('unknown');
+    expect(helper.q('span.pipeline_stage')).toBeInDOM();
+    expect(helper.q('span.pipeline_stage')).toHaveClass('unknown');
   });
 
   it("should show stage status on hover", () => {
@@ -121,8 +119,8 @@ describe("Dashboard Stages Instance Widget", () => {
     const stage2Status = `${stages[1].name} (${stages[1].status})`;
     const stage3Status = `${stages[2].name} (cancelled by: ${stages[2].cancelled_by})`;
 
-    expect(helper.find('.pipeline_stage').get(0).title).toEqual(stage1Status);
-    expect(helper.find('.pipeline_stage').get(1).title).toEqual(stage2Status);
-    expect(helper.find('.pipeline_stage').get(2).title).toEqual(stage3Status);
+    expect(helper.qa('.pipeline_stage')[0].title).toEqual(stage1Status);
+    expect(helper.qa('.pipeline_stage')[1].title).toEqual(stage2Status);
+    expect(helper.qa('.pipeline_stage')[2].title).toEqual(stage3Status);
   });
 });

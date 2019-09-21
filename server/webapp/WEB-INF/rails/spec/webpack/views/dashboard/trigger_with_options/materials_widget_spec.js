@@ -20,7 +20,6 @@ import {TriggerWithOptionsVM} from "views/dashboard/models/trigger_with_options_
 import Stream from "mithril/stream";
 import m from "mithril";
 import _ from "lodash";
-import * as simulateEvent from "simulate-event";
 
 describe("Dashboard Trigger With Options Material Widget", () => {
 
@@ -49,45 +48,44 @@ describe("Dashboard Trigger With Options Material Widget", () => {
   });
 
   it("should show latest if material revision is not present", () => {
-    const headings = helper.find('.v-tab_tab-head li');
+    const headings = helper.qa('.v-tab_tab-head li')[1];
 
-    expect(headings.get(1)).toContainText("latest");
+    expect(headings).toContainText("latest");
   });
 
   it("it should render material select tabs", () => {
-    const headings = helper.find('.v-tab_tab-head li');
+    const headings = helper.textAll('.v-tab_tab-head li');
 
     expect(headings).toHaveLength(json.materials.length);
 
-    expect(headings.get(0)).toContainText(json.materials[0].revision.last_run_revision);
-    expect(headings.get(0)).toContainText(json.materials[0].name);
+    expect(headings[0]).toContain(json.materials[0].revision.last_run_revision);
+    expect(headings[0]).toContain(json.materials[0].name);
 
-    expect(headings.get(1)).toContainText("latest");
-    expect(headings.get(1)).toContainText(json.materials[1].name);
+    expect(headings[1]).toContain("latest");
+    expect(headings[1]).toContain(json.materials[1].name);
   });
 
   it("it should render the first material info content", () => {
-    const contents = helper.find('.v-tab_container .v-tab_content');
+    const contents = helper.qa('.v-tab_container .v-tab_content');
 
     expect(contents).toHaveLength(1);
 
-    expect(contents.get(0)).toContainText(json.materials[0].name);
+    expect(contents[0]).toContainText(json.materials[0].name);
   });
 
   it("should show first material by default", () => {
-    expect(helper.find('.v-tab_tab-head li').get(0)).toHaveClass('active');
-    expect(helper.find('#material1').get(0)).not.toHaveClass('hidden');
+    expect(helper.q('.v-tab_tab-head li')).toHaveClass('active');
+    expect(helper.q('#material1')).not.toHaveClass('hidden');
   });
 
   it("should show appropriate material content material heading selection", () => {
-    expect(helper.find('.v-tab_tab-head li').get(0)).toHaveClass('active');
-    expect(helper.find('#material1').get(0)).not.toHaveClass('hidden');
+    expect(helper.q('.v-tab_tab-head li')).toHaveClass('active');
+    expect(helper.q('#material1')).not.toHaveClass('hidden');
 
-    simulateEvent.simulate(helper.find('.v-tab_tab-head li').get(1), "click");
-    helper.redraw();
+    helper.click(helper.qa('.v-tab_tab-head li')[1]);
 
-    expect(helper.find('.v-tab_tab-head li').get(1)).toHaveClass('active');
-    expect(helper.find('#material1').get(1)).not.toHaveClass('hidden');
+    expect(helper.qa('.v-tab_tab-head li').item(1)).toHaveClass('active');
+    expect(helper.qa('#material1').item(1)).not.toHaveClass('hidden');
   });
 
   const json = {

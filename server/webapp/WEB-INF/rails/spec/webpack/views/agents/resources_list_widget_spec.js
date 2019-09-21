@@ -17,14 +17,12 @@ import {TestHelper} from "views/pages/spec/test_helper";
 import {TriStateCheckbox} from "models/agents/tri_state_checkbox";
 import Stream from "mithril/stream";
 import m from "mithril";
-import simulateEvent from "simulate-event";
-import $ from "jquery";
 import "foundation-sites";
 import {ResourcesListWidget} from "views/agents/resources_list_widget";
 
 describe("ResourcesListWidget", () => {
-
-  const helper              = new TestHelper();
+  const helper = new TestHelper();
+  const body = document.body;
 
   let resources;
 
@@ -65,7 +63,7 @@ describe("ResourcesListWidget", () => {
   });
 
   it('should contain all the resources checkbox', () => {
-    const allResources = $.find('.resources-items :checkbox');
+    const allResources = helper.qa('.resources-items input[type="checkbox"]', body);
     expect(allResources).toHaveLength(4);
     expect(allResources[0]).toHaveValue('Gauge');
     expect(allResources[1]).toHaveValue('Java');
@@ -74,13 +72,13 @@ describe("ResourcesListWidget", () => {
   });
 
   it('should check resources that are present on all the agents', () => {
-    const allResources = $.find('.resources-items :checkbox');
+    const allResources = helper.qa('.resources-items input[type="checkbox"]', body);
     expect(allResources[1]).toHaveValue('Java');
     expect(allResources[1]).toBeChecked();
   });
 
   it('should select resources as indeterminate that are present on some of the agents', () => {
-    const allResources = $.find('.resources-items :checkbox');
+    const allResources = helper.qa('.resources-items input[type="checkbox"]', body);
     expect(allResources[2]).toHaveValue('Linux');
     expect(allResources[2].indeterminate).toBe(true);
 
@@ -89,66 +87,51 @@ describe("ResourcesListWidget", () => {
   });
 
   it('should uncheck resources that are not present on any the agents', () => {
-    const allResources = $.find('.resources-items :checkbox');
+    const allResources = helper.qa('.resources-items input[type="checkbox"]', body);
     expect(allResources[3]).toHaveValue('Windows');
     expect(allResources[3]).not.toBeChecked();
     expect(allResources[3].indeterminate).toBe(false);
   });
 
   it('should have button to add resources', () => {
-    const addButton = helper.find('.add-resource :button')[0];
-    expect(addButton).toHaveText("Add");
+    expect(helper.text('.add-resource button')).toBe("Add");
   });
 
   it('should have button to apply resources', () => {
-    const applyButton = helper.find('.add-resource :button')[1];
+    const applyButton = helper.qa('.add-resource button')[1];
     expect(applyButton).toHaveText("Apply");
   });
 
   it('should add resource after invoking add button', () => {
-    let allResources = helper.find('.resources-items :checkbox');
+    let allResources = helper.qa('.resources-items input[type="checkbox"]');
     expect(allResources).toHaveLength(4);
 
-    const inputBox = helper.find('.add-resource-input').get(0);
-    $(inputBox).val('Chrome');
-    simulateEvent.simulate(inputBox, 'input');
+    helper.oninput('.add-resource-input', 'Chrome');
+    helper.click('.add-resource .add-resource-btn');
 
-    expect(inputBox).toHaveValue('Chrome');
-    const addButton = helper.find('.add-resource .add-resource-btn')[0];
-    simulateEvent.simulate(addButton, 'click');
-    m.redraw.sync();
-
-    allResources = helper.find('.resources-items :checkbox');
+    allResources = helper.qa('.resources-items input[type="checkbox"]');
     expect(allResources).toHaveLength(5);
   });
 
 
   it('should clear input-text box after adding resource', () => {
-    let inputBox = helper.find('.add-resource input');
-    $(inputBox).val('Chrome').trigger('change');
+    const inputBox = helper.q('.add-resource input');
+    helper.onchange(inputBox, "Chrome");
+    helper.click('.add-resource button');
 
-    expect(inputBox).toHaveValue('Chrome');
-    const addButton = helper.find('.add-resource button')[0];
-    addButton.click();
-    m.redraw.sync();
-
-    inputBox = helper.find('.add-resource input');
     expect(inputBox).toHaveValue('');
   });
 
   it('should not add duplicate resources', () => {
-    let allResources = helper.find('.resources-items input[type="Checkbox"]');
+    let allResources = helper.qa('.resources-items input[type="checkbox"]');
     expect(allResources).toHaveLength(4);
     expect(allResources[2]).toHaveValue('Linux');
 
-    const inputBox = helper.find('.add-resource :input')[0];
-    $(inputBox).val('Linux').trigger('change');
+    helper.onchange('.add-resource input', "Linux");
 
-    const addButton = helper.find('.add-resource :button')[1];
-    addButton.click();
-    m.redraw.sync();
+    helper.click(helper.qa('.add-resource button')[1]);
 
-    allResources = helper.find('.resources-items input[type="Checkbox"]');
+    allResources = helper.qa('.resources-items input[type="checkbox"]');
     expect(allResources).toHaveLength(4);
   });
 
@@ -156,10 +139,10 @@ describe("ResourcesListWidget", () => {
     it('should show page spinner until resources are fetched', () => {
       helper.unmount();
       mount(undefined);
-      expect($('.page-spinner')).toBeInDOM();
+      expect(helper.q('.page-spinner', body)).toBeInDOM();
       helper.unmount();
       mount(resources);
-      expect($('.page-spinner')).not.toBeInDOM();
+      expect(helper.q('.page-spinner', body)).not.toExist();
     });
   });
 
@@ -168,7 +151,7 @@ describe("ResourcesListWidget", () => {
       const err = 'BOOM!';
       helper.unmount();
       mount(resources, () => err);
-      expect($('.alert')).toContainText(err);
+      expect(helper.text('.alert', body)).toContain(err);
     });
   });
 

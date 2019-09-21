@@ -57,24 +57,24 @@ describe("Button Row Widget", () => {
 
   describe('Heading Row', () => {
     it('should contain the agents page heading text', () => {
-      const headingText = helper.find('.page-header h1');
-      expect(headingText).toHaveText('Agents');
+      const headingText = helper.text('.page-header h1');
+      expect(headingText).toBe('Agents');
     });
   });
 
   describe('Button Group', () => {
     it('should contain the row elements', () => {
-      const rowElementButtons = helper.find('.header-panel-button-group button');
-      expect(rowElementButtons).toHaveLength(5);
-      expect(rowElementButtons[0]).toHaveText("Delete");
-      expect(rowElementButtons[1]).toHaveText("Disable");
-      expect(rowElementButtons[2]).toHaveText("Enable");
-      expect(rowElementButtons[3]).toHaveText("Resources");
-      expect(rowElementButtons[4]).toHaveText("Environments");
+      const rowButtonText = helper.textAll('.header-panel-button-group button');
+      expect(rowButtonText).toHaveLength(5);
+      expect(rowButtonText[0]).toBe("Delete");
+      expect(rowButtonText[1]).toBe("Disable");
+      expect(rowButtonText[2]).toBe("Enable");
+      expect(rowButtonText[3]).toBe("Resources");
+      expect(rowButtonText[4]).toBe("Environments");
     });
 
     it('should disable the buttons if agents are not selected', () => {
-      const rowElements = helper.find('.header-panel-button-group button');
+      const rowElements = helper.qa('.header-panel-button-group button');
       expect(rowElements[0]).toBeDisabled();
       expect(rowElements[1]).toBeDisabled();
       expect(rowElements[2]).toBeDisabled();
@@ -86,7 +86,7 @@ describe("Button Row Widget", () => {
       const areOperationsAllowed = Stream(true);
       helper.unmount();
       mount(areOperationsAllowed);
-      const rowElements = helper.find('.header-panel-button-group button');
+      const rowElements = helper.qa('.header-panel-button-group button');
 
       expect(rowElements[0]).not.toBeDisabled();
       expect(rowElements[1]).not.toBeDisabled();

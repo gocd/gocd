@@ -18,18 +18,32 @@ import {RestyleAttrs, RestyleComponent} from "jsx/mithril-component";
 import m from "mithril";
 import css from "./user_input_pane.scss";
 
-interface Attrs extends RestyleAttrs<typeof css> {
-  heading: m.Children;
+type Styles = typeof css;
+
+interface Attrs extends RestyleAttrs<Styles> {
+  heading?: m.Children;
 }
 
-export class UserInputPane extends RestyleComponent<typeof css, Attrs> {
-  css: typeof css = css;
+export class UserInputPane extends RestyleComponent<Styles, Attrs> {
+  css: Styles = css;
 
   view(vnode: m.Vnode<Attrs>) {
+    const {heading} = vnode.attrs;
+
     return <section class={this.css.userInput}>
-      <h3 class={this.css.sectionHeading}>{vnode.attrs.heading}</h3>
-      <p class={this.css.sectionNote}><span class={this.css.attention}>*</span> denotes a required field</p>
+      {heading ? <SectionHeading css={this.css}>{heading}</SectionHeading> : void 0}
       {vnode.children}
     </section>;
+  }
+}
+
+export class SectionHeading extends RestyleComponent<Styles> {
+  css: Styles = css;
+
+  view(vnode: m.Vnode<RestyleAttrs<Styles>>) {
+    return [
+      <h3 class={this.css.sectionHeading}>{vnode.children}</h3>,
+      <p class={this.css.sectionNote}><span class={this.css.attention}>*</span> denotes a required field</p>
+    ];
   }
 }

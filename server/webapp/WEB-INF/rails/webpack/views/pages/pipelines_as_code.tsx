@@ -40,7 +40,7 @@ import {PreviewPane} from "views/pages/pac/preview_pane";
 import {Page, PageState} from "views/pages/page";
 import {FillableSection} from "views/pages/pipelines/fillable_section";
 import {MaterialEditor} from "views/pages/pipelines/material_editor";
-import {UserInputPane} from "views/pages/pipelines/user_input_pane";
+import {SectionHeading, UserInputPane} from "views/pages/pipelines/user_input_pane";
 
 // CSS
 import formCss from "views/components/forms/forms.scss";
@@ -125,7 +125,7 @@ export class PipelinesAsCodeCreatePage extends Page {
       </CodeScroller>,
 
       <FillableSection css={spanningFillableCss}>
-        <h3 class={css.subheading}>Add Your Pipelines as Code Definition to Your SCM Repository</h3>
+        <div class={css.subheading}><h3>Add Your Pipelines as Code Definition to Your SCM Repository</h3></div>
         <section class={css.downloadInstructions}>
           <p>Download this configuration and add it to your repository.</p>
 
@@ -135,8 +135,10 @@ export class PipelinesAsCodeCreatePage extends Page {
         <DownloadAction pluginId={this.pluginId} vm={vm}/>
       </FillableSection>,
 
-      <FillableSection>
-        <UserInputPane heading="Register Your Pipelines as Code Repo with GoCD">
+      <FillableSection css={spanningFillableCss}>
+        <div class={css.subheading}><SectionHeading>Register Your Pipelines as Code Repo with GoCD</SectionHeading></div>
+
+        <UserInputPane>
           <CheckboxField
             property={syncConfigRepoWithMaterial}
             label={<span>Use the same SCM repository from the form above to store my <strong>Pipelines as Code</strong> definitions <em class={css.hint}>(suitable for most setups)</em></span>}
@@ -150,8 +152,12 @@ export class PipelinesAsCodeCreatePage extends Page {
 
           <MaterialEditor material={this.configRepo().material()!} hideTestConnection={syncConfigRepoWithMaterial()} scmOnly={true} showLocalWorkingCopyOptions={false} disabled={syncConfigRepoWithMaterial()}/>
         </UserInputPane>
-        <div class={css.verifyDefsInMaterial}>
+
+        <div class={css.subsection}>
           <IdentifierInputField label="Name this repository" helpText={IDENTIFIER_FORMAT_HELP_MESSAGE} placeholder="e.g., Pipelines-as-Code-Repository" property={this.configRepo().id} errorText={this.configRepo().errors().errorsForDisplay("id")} required={true}/>
+        </div>
+
+        <div class={classnames(css.verifyDefsInMaterial, css.subsection)}>
           <MaterialCheck pluginId={this.pluginId()} material={this.configRepo().material()!} align="right" prerequisite={() => this.configRepo().isValid()} label={
             <p class={css.msg}>Verify that GoCD can find the configuration file in your repository by clicking the button on the right</p>
           }/>

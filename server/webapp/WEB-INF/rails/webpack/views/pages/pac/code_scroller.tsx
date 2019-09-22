@@ -40,7 +40,7 @@ export class CodeScroller extends MithrilComponent<{}, State> {
     // find dependent elements
     const form = container.querySelector(builderForm) as HTMLElement;
     const pane = container.querySelector(previewPane) as HTMLElement;
-    const innerCodePane = pane.firstElementChild as HTMLElement;
+    const innerCodePane = pane.querySelector("code") as HTMLElement;
 
     // measure static distances
     const {paddingTop, paddingBottom} = verticalPadding(pane);

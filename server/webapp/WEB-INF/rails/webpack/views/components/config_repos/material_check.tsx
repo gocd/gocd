@@ -112,7 +112,7 @@ export class MaterialCheck extends MithrilViewComponent<Attrs> {
     const files = configFiles.for(pluginId);
 
     if (!files || (!files.hasErrors() && files.isEmpty())) {
-      this.materialCheckMessage = <FlashMessage type={MessageType.info} message={<code class={styles.materialCheckMessage}>No config files found</code>}/>;
+      this.materialCheckMessage = <FlashMessage type={MessageType.info} message={<code class={styles.materialCheckMessage}>No config files found for the selected configuration language.</code>}/>;
       return;
     }
 

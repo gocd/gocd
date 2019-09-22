@@ -45,6 +45,7 @@ $error-container-width: 450px;
 }
 
 .preview-pane[class*="language-"] { // scss-lint:disable-line
+  margin: 0;
   width: 50%;
 
   code {
@@ -81,8 +82,9 @@ $error-container-width: 450px;
     padding:      0;
     padding-left: 15px;
 
-    flex-basis:   33%;
-    border-left:  1px solid $line-color;
+    flex-basis:  33%;
+    max-width:   33%;
+    border-left: 1px solid $line-color;
   }
 }
 

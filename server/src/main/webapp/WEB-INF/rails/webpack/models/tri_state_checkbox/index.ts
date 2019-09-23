@@ -20,10 +20,12 @@ export enum TristateState {
 export class TriStateCheckbox {
   private readonly initialState: TristateState;
   private currentState: TristateState;
+  private disabled: boolean;
 
-  constructor(initialState: TristateState = TristateState.indeterminate) {
+  constructor(initialState: TristateState = TristateState.indeterminate, disabled = false) {
     this.initialState = initialState;
     this.currentState = initialState;
+    this.disabled = disabled;
   }
 
   click() {
@@ -57,5 +59,9 @@ export class TriStateCheckbox {
 
   state() {
     return TristateState[this.currentState];
+  }
+
+  isDisabled(): boolean {
+    return this.disabled;
   }
 }

@@ -11,6 +11,7 @@ export const disabledAgent: string;
 export const dropdownContent: string;
 export const dropdownContentFooter: string;
 export const enabled: string;
+export const environmentInfo: string;
 export const headerPanel: string;
 export const hostname: string;
 export const leftContainer: string;

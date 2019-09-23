@@ -19,7 +19,7 @@ import {SparkRoutes} from "helpers/spark_routes";
 import {AgentConfigState, Agents} from "models/new_agent/agents";
 
 export class AgentsCRUD {
-  private static API_VERSION_HEADER = ApiVersion.v5;
+  private static API_VERSION_HEADER = ApiVersion.latest;
 
   static all() {
     return ApiRequestBuilder.GET(SparkRoutes.agentsPath(), this.API_VERSION_HEADER)

@@ -22,6 +22,7 @@ public class Toggles {
     public static String TEST_DRIVE = "test_drive";
     public static String NEW_PIPELINE_DROPDOWN = "new_pipeline_dropdown";
     public static String SHOW_NEW_ENVIRONMENTS_SPA = "show_new_environments_spa";
+    public static String SHOW_NEW_AGENTS_SPA = "show_new_agents_spa";
 
     private static FeatureToggleService service;
 

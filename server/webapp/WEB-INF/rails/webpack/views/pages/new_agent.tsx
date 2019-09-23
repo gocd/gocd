@@ -108,14 +108,17 @@ export class NewAgentPage extends Page<null, State> {
 
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {
     return Promise.all([AgentsCRUD.all(), PluginInfoCRUD.all({})])
-                  .then((results) => {
-                    results[0].do((successResponse) => NewAgentPage.syncVMState(vnode, successResponse.body),
-                                  this.setErrorState);
-                    results[1].do((successResponse) => vnode.state.pluginInfos(successResponse.body),
-                                  this.setErrorState);
-                  }).finally(() => {
-        this.pageState = PageState.OK;
-      });
+        .then((results) => {
+          results[0].do((successResponse) => NewAgentPage.syncVMState(vnode, successResponse.body),
+              (errorResponse) => {
+                this.onFailure(errorResponse);
+                this.setErrorState();
+              });
+          results[1].do((successResponse) => vnode.state.pluginInfos(successResponse.body),
+              this.setErrorState);
+        }).finally(() => {
+          this.pageState = PageState.OK;
+        });
   }
 
   private static syncVMState(vnode: m.Vnode<null, State>, agents: Agents) {

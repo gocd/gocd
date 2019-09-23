@@ -41,11 +41,6 @@
     <from>^/admin/pipeline_configs(/?)$</from>
     <to last="true">/spark/admin/pipeline_configs</to>
   </rule>
-  <rule>
-    <name>new-agent UI</name>
-    <from>^/new-agents(/?)$</from>
-    <to last="true">/spark/new-agents</to>
-  </rule>
 
   <rule>
     <name>mail_server UI</name>
@@ -426,7 +421,8 @@
   <rule>
     <name>Agents SPA</name>
     <from>^/agents(/?)$</from>
-    <to last="true">/spark/agents</to>
+    <run class="com.thoughtworks.go.server.AgentsPageToggle" method="agentsPage"/>
+    <to last="true">%{attribute:url}</to>
   </rule>
 
   <rule>

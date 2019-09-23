@@ -30,6 +30,11 @@
       "key": "show_new_environments_spa",
       "description": "Switch to the new environments SPA. Default is false.",
       "value": false
+    },
+    {
+      "key": "show_new_agents_spa",
+      "description": "Switch to the new agents SPA. Default is true.",
+      "value": true
     }
   ]
 }

@@ -16,10 +16,11 @@
 
 package com.thoughtworks.go.apiv6.plugininfos.representers.extensions
 
-import com.thoughtworks.go.apiv6.plugininfos.representers.Helper.PluginInfoMother
+
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.helpers.PluginInfoMother.createSCMPluginInfo
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
 class SCMExtensionRepresenterTest {
@@ -29,7 +30,7 @@ class SCMExtensionRepresenterTest {
 
 
     def actualJson = toObjectString({
-      new SCMExtensionRepresenter().toJSON(it, PluginInfoMother.createSCMPluginInfo())
+      new SCMExtensionRepresenter().toJSON(it, createSCMPluginInfo())
     })
 
     assertThatJson(actualJson).isEqualTo([

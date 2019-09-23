@@ -32,7 +32,6 @@ import org.mockito.Mock;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -145,7 +144,13 @@ public class DefaultPluginInfoFinderTest {
 
     private GoPluginDescriptor getDescriptor(String pluginID) {
         GoPluginDescriptor.Vendor vendor = new GoPluginDescriptor.Vendor("vendor-name", "vendor-url");
-        GoPluginDescriptor.About about = new GoPluginDescriptor.About("author", "1.0", "17.12", "some description", vendor, Collections.emptyList());
-        return new GoPluginDescriptor(pluginID, "1.0", about, "/path/to/plugin", new File("/path/to/bundle"), false);
+        GoPluginDescriptor.About about = GoPluginDescriptor.About.builder().name("author").version("1.0").vendor(vendor).targetGoVersion("17.12").description("some description").build();
+        return GoPluginDescriptor.builder()
+                .id(pluginID)
+                .version("1.0")
+                .pluginJarFileLocation("/path/to/plugin")
+                .about(about)
+                .bundleLocation(new File("/path/to/bundle"))
+                .build();
     }
 }

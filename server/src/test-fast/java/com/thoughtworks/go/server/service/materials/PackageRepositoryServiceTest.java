@@ -214,13 +214,17 @@ public class PackageRepositoryServiceTest {
         packageRepository.getConfiguration().add(ConfigurationPropertyMother.create("secure", true, ""));
         packageRepository.getConfiguration().add(ConfigurationPropertyMother.create("not_required_not_secure", false, ""));
 
-        when(packageRepositoryExtension.isRepositoryConfigurationValid(eq(pluginId),any(RepositoryConfiguration.class))).thenReturn(new ValidationResult());
-        when(pluginManager.getPluginDescriptorFor(pluginId)).thenReturn(new GoPluginDescriptor(pluginId, "1.0", null, null, null, true));
+        when(packageRepositoryExtension.isRepositoryConfigurationValid(eq(pluginId), any(RepositoryConfiguration.class))).thenReturn(new ValidationResult());
+        when(pluginManager.getPluginDescriptorFor(pluginId)).thenReturn(getPluginDescriptor(pluginId));
 
         service.performPluginValidationsFor(packageRepository);
 
         assertThat(packageRepository.getConfiguration().get(0).getConfigurationValue().errors().getAllOn("value"), is(Arrays.asList("This field is required")));
         assertThat(packageRepository.getConfiguration().get(1).getEncryptedConfigurationValue().errors().getAllOn("value"), is(Arrays.asList("This field is required")));
+    }
+
+    private GoPluginDescriptor getPluginDescriptor(String pluginId) {
+        return GoPluginDescriptor.builder().id(pluginId).isBundledPlugin(true).build();
     }
 
     @Test
@@ -235,7 +239,7 @@ public class PackageRepositoryServiceTest {
         ValidationResult expectedValidationResult = new ValidationResult();
         expectedValidationResult.addError(new ValidationError("url", "url format incorrect"));
 
-        when(pluginManager.getPluginDescriptorFor(pluginId)).thenReturn(new GoPluginDescriptor("yum", "1.0", null, null, null, true));
+        when(pluginManager.getPluginDescriptorFor(pluginId)).thenReturn(getPluginDescriptor("yum"));
         when(packageRepositoryExtension.isRepositoryConfigurationValid(eq(pluginId), packageConfigurationsArgumentCaptor.capture())).thenReturn(expectedValidationResult);
 
         service = new PackageRepositoryService(pluginManager, packageRepositoryExtension, goConfigService, securityService, entityHashingService);
@@ -252,7 +256,7 @@ public class PackageRepositoryServiceTest {
 
     @Test
     public void shouldAddErrorWhenPluginIdIsInvalid() {
-        when(pluginManager.plugins()).thenReturn(Arrays.asList(new GoPluginDescriptor("valid", "1.0", null, null, null, true)));
+        when(pluginManager.plugins()).thenReturn(Arrays.asList(getPluginDescriptor("valid")));
         PackageRepository packageRepository = new PackageRepository();
         packageRepository.setPluginConfiguration(new PluginConfiguration("missing-plugin", "1.0"));
         service.performPluginValidationsFor(packageRepository);
@@ -263,7 +267,7 @@ public class PackageRepositoryServiceTest {
     public void shouldUpdatePluginVersionWhenValid() {
         String pluginId = "valid";
         RepositoryMetadataStore.getInstance().addMetadataFor(pluginId, new PackageConfigurations());
-        when(pluginManager.getPluginDescriptorFor(pluginId)).thenReturn(new GoPluginDescriptor(pluginId, "1.0", null, null, null, true));
+        when(pluginManager.getPluginDescriptorFor(pluginId)).thenReturn(getPluginDescriptor(pluginId));
         when(packageRepositoryExtension.isRepositoryConfigurationValid(eq(pluginId), any(RepositoryConfiguration.class))).thenReturn(new ValidationResult());
         PackageRepository packageRepository = new PackageRepository();
         packageRepository.setPluginConfiguration(new PluginConfiguration(pluginId, ""));
@@ -288,7 +292,7 @@ public class PackageRepositoryServiceTest {
         PackageMaterialTestHelper.assertPackageConfiguration(packageConfigurations.list(), packageRepository.getConfiguration());
         assertThat(result.isSuccessful(), is(true));
         assertThat(result.message(), is("Connection OK. Accessed Repo File!!!"));
-        verify(packageRepositoryExtension).checkConnectionToRepository(eq(pluginId),any(RepositoryConfiguration.class));
+        verify(packageRepositoryExtension).checkConnectionToRepository(eq(pluginId), any(RepositoryConfiguration.class));
     }
 
     @Test
@@ -300,13 +304,13 @@ public class PackageRepositoryServiceTest {
         PackageRepositoryService service = new PackageRepositoryService(pluginManager, packageRepositoryExtension, goConfigService, securityService, entityHashingService);
 
         ArgumentCaptor<RepositoryConfiguration> argumentCaptor = ArgumentCaptor.forClass(RepositoryConfiguration.class);
-        when(packageRepositoryExtension.checkConnectionToRepository(eq(pluginId),argumentCaptor.capture())).thenThrow(new RuntimeException("Check Connection not implemented!!"));
+        when(packageRepositoryExtension.checkConnectionToRepository(eq(pluginId), argumentCaptor.capture())).thenThrow(new RuntimeException("Check Connection not implemented!!"));
 
         service.checkConnection(packageRepository, result);
 
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.message(), is("Could not connect to package repository. Reason(s): Check Connection not implemented!!"));
-        verify(packageRepositoryExtension).checkConnectionToRepository(eq(pluginId),any(RepositoryConfiguration.class));
+        verify(packageRepositoryExtension).checkConnectionToRepository(eq(pluginId), any(RepositoryConfiguration.class));
     }
 
     @Test
@@ -318,7 +322,7 @@ public class PackageRepositoryServiceTest {
 
         ArgumentCaptor<RepositoryConfiguration> argumentCaptor = ArgumentCaptor.forClass(RepositoryConfiguration.class);
 
-        when(packageRepositoryExtension.checkConnectionToRepository(eq(pluginId),argumentCaptor.capture())).thenReturn(new Result().withErrorMessages("Repo invalid!!", "Could not connect"));
+        when(packageRepositoryExtension.checkConnectionToRepository(eq(pluginId), argumentCaptor.capture())).thenReturn(new Result().withErrorMessages("Repo invalid!!", "Could not connect"));
         service.checkConnection(packageRepository, result);
 
         RepositoryConfiguration packageConfigurations = argumentCaptor.getValue();
@@ -326,7 +330,7 @@ public class PackageRepositoryServiceTest {
         assertThat(result.isSuccessful(), is(false));
 
         assertThat(result.message(), is("Could not connect to package repository. Reason(s): Repo invalid!!\nCould not connect"));
-        verify(packageRepositoryExtension).checkConnectionToRepository(eq(pluginId),any(RepositoryConfiguration.class));
+        verify(packageRepositoryExtension).checkConnectionToRepository(eq(pluginId), any(RepositoryConfiguration.class));
     }
 
     private PackageRepository packageRepository(String pluginId) {

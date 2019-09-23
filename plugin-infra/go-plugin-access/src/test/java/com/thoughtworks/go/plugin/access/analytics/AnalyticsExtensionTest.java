@@ -99,8 +99,7 @@ public class AnalyticsExtensionTest {
     public void shouldGetAnalytics() throws Exception {
         String responseBody = "{ \"view_path\": \"path/to/view\", \"data\": \"{}\" }";
 
-        AnalyticsPluginInfo pluginInfo = new AnalyticsPluginInfo(
-                new GoPluginDescriptor(PLUGIN_ID, null, null, null, null, false), null, null, null);
+        AnalyticsPluginInfo pluginInfo = new AnalyticsPluginInfo(GoPluginDescriptor.builder().id(PLUGIN_ID).build(), null, null, null);
         pluginInfo.setStaticAssetsPath("/assets/root");
         metadataStore.setPluginInfo(pluginInfo);
 

@@ -85,7 +85,7 @@ public class PluginSettingsMetadataLoaderTest {
             PluginSettingsConfiguration configuration = new PluginSettingsConfiguration();
             configuration.add(new PluginSettingsProperty("k1").with(Property.REQUIRED, true).with(Property.SECURE, false));
 
-            GoPluginDescriptor pluginDescriptor = new GoPluginDescriptor(UUID.randomUUID().toString(), "1.0", null, null, null, true);
+            GoPluginDescriptor pluginDescriptor = GoPluginDescriptor.builder().id(UUID.randomUUID().toString()).isBundledPlugin(true).build();
             setupSettingsResponses(extension, pluginDescriptor.id(), configuration, "template");
 
             metadataLoader.fetchPluginSettingsMetaData(pluginDescriptor);
@@ -99,7 +99,7 @@ public class PluginSettingsMetadataLoaderTest {
         PluginSettingsConfiguration configuration = new PluginSettingsConfiguration();
         configuration.add(new PluginSettingsProperty("k1").with(Property.REQUIRED, true).with(Property.SECURE, false));
 
-        GoPluginDescriptor pluginDescriptor = new GoPluginDescriptor(UUID.randomUUID().toString(), "1.0", null, null, null, true);
+        GoPluginDescriptor pluginDescriptor = GoPluginDescriptor.builder().id(UUID.randomUUID().toString()).isBundledPlugin(true).build();
         setupSettingsResponses(taskExtension, pluginDescriptor.id(), configuration, "template");
 
         metadataLoader.fetchPluginSettingsMetaData(pluginDescriptor);
@@ -114,8 +114,8 @@ public class PluginSettingsMetadataLoaderTest {
         PluginSettingsConfiguration configuration = new PluginSettingsConfiguration();
         configuration.add(new PluginSettingsProperty("k1").with(Property.REQUIRED, true).with(Property.SECURE, false));
 
-        GoPluginDescriptor pluginDescriptor = new GoPluginDescriptor("plugin-id", "1.0", null, null, null, true);
-        setupSettingsResponses(packageRepositoryExtension, pluginDescriptor.id(),null, "template");
+        GoPluginDescriptor pluginDescriptor = GoPluginDescriptor.builder().id("plugin-id").isBundledPlugin(true).build();
+        setupSettingsResponses(packageRepositoryExtension, pluginDescriptor.id(), null, "template");
 
         metadataLoader.fetchPluginSettingsMetaData(pluginDescriptor);
 
@@ -124,8 +124,8 @@ public class PluginSettingsMetadataLoaderTest {
 
     @Test
     public void shouldNotStoreMetadataIfViewTemplateIsMissing() {
-        GoPluginDescriptor pluginDescriptor = new GoPluginDescriptor("plugin-id", "1.0", null, null, null, true);
-        setupSettingsResponses(packageRepositoryExtension, pluginDescriptor.id(),null, null);
+        GoPluginDescriptor pluginDescriptor = GoPluginDescriptor.builder().id("plugin-id").isBundledPlugin(true).build();
+        setupSettingsResponses(packageRepositoryExtension, pluginDescriptor.id(), null, null);
 
         metadataLoader.fetchPluginSettingsMetaData(pluginDescriptor);
 
@@ -139,7 +139,7 @@ public class PluginSettingsMetadataLoaderTest {
 
     @Test
     public void shouldRemoveMetadataOnPluginUnLoadedCallback() throws Exception {
-        GoPluginDescriptor pluginDescriptor = new GoPluginDescriptor("plugin-id", "1.0", null, null, null, true);
+        GoPluginDescriptor pluginDescriptor = GoPluginDescriptor.builder().id("plugin-id").isBundledPlugin(true).build();
         PluginSettingsMetadataStore.getInstance().addMetadataFor(pluginDescriptor.id(), PluginConstants.NOTIFICATION_EXTENSION, new PluginSettingsConfiguration(), "template");
 
         metadataLoader.pluginUnLoaded(pluginDescriptor);
@@ -153,7 +153,7 @@ public class PluginSettingsMetadataLoaderTest {
         configuration.add(new PluginSettingsProperty("k1").with(Property.REQUIRED, true).with(Property.SECURE, false));
 
         String pluginID = "plugin-id";
-        GoPluginDescriptor pluginDescriptor = new GoPluginDescriptor(pluginID, "1.0", null, null, null, true);
+        GoPluginDescriptor pluginDescriptor = GoPluginDescriptor.builder().id(pluginID).build();
 
         setupSettingsResponses(notificationExtension, pluginID, configuration, "view");
         setupSettingsResponses(packageRepositoryExtension, pluginID, configuration, "view");
@@ -173,7 +173,7 @@ public class PluginSettingsMetadataLoaderTest {
         configuration.add(new PluginSettingsProperty("k1").with(Property.REQUIRED, true).with(Property.SECURE, false));
 
         String pluginID = "plugin-id";
-        GoPluginDescriptor pluginDescriptor = new GoPluginDescriptor(pluginID, "1.0", null, null, null, true);
+        GoPluginDescriptor pluginDescriptor = GoPluginDescriptor.builder().id(pluginID).build();
 
         setupSettingsResponses(notificationExtension, pluginID, configuration, null);
         setupSettingsResponses(packageRepositoryExtension, pluginID, configuration, "view");
@@ -192,7 +192,7 @@ public class PluginSettingsMetadataLoaderTest {
         configuration.add(new PluginSettingsProperty("k1").with(Property.REQUIRED, true).with(Property.SECURE, false));
 
         String pluginID = "plugin-id";
-        GoPluginDescriptor pluginDescriptor = new GoPluginDescriptor(pluginID, "1.0", null, null, null, true);
+        GoPluginDescriptor pluginDescriptor = GoPluginDescriptor.builder().id(pluginID).build();
 
         setupSettingsResponses(notificationExtension, pluginID, configuration, null);
         setupSettingsResponses(packageRepositoryExtension, pluginID, null, "view");
@@ -208,7 +208,7 @@ public class PluginSettingsMetadataLoaderTest {
         configuration.add(new PluginSettingsProperty("k1").with(Property.REQUIRED, true).with(Property.SECURE, false));
 
         String pluginID = "plugin-id";
-        GoPluginDescriptor pluginDescriptor = new GoPluginDescriptor(pluginID, "1.0", null, null, null, true);
+        GoPluginDescriptor pluginDescriptor = GoPluginDescriptor.builder().id(pluginID).build();
 
         setupSettingsResponses(notificationExtension, pluginID, configuration, "view");
 

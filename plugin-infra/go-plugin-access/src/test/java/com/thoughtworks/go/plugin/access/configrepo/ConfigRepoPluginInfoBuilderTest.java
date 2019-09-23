@@ -51,7 +51,7 @@ public class ConfigRepoPluginInfoBuilderTest {
 
     @Test
     public void shouldBuildPluginInfo() throws Exception {
-        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
+        GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin1").build();
         when(extension.getPluginSettingsView("plugin1")).thenReturn("some-html");
         when(extension.getCapabilities("plugin1")).thenReturn(new Capabilities(true, true));
         ConfigRepoPluginInfo pluginInfo = new ConfigRepoPluginInfoBuilder(extension).pluginInfoFor(descriptor);
@@ -70,7 +70,7 @@ public class ConfigRepoPluginInfoBuilderTest {
 
     @Test
     public void shouldContinueWithBuildingPluginInfoIfPluginSettingsIsNotProvidedByPlugin() throws Exception {
-        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
+        GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin1").build();
         doThrow(new RuntimeException("foo")).when(extension).getPluginSettingsConfiguration("plugin1");
 
         ConfigRepoPluginInfo pluginInfo = new ConfigRepoPluginInfoBuilder(extension).pluginInfoFor(descriptor);

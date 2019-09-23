@@ -124,7 +124,7 @@ public class UserSearchServiceTest  {
 
     private void addPluginSupportingUserSearch(String pluginId) {
         AuthorizationPluginInfo pluginInfo = new AuthorizationPluginInfo(
-                new GoPluginDescriptor(pluginId, null, null, null, null, false), null, null, null,
+                GoPluginDescriptor.builder().id(pluginId).build(), null, null, null,
                 new Capabilities(SupportedAuthType.Password, true, true, false));
         AuthorizationMetadataStore.instance().setPluginInfo(pluginInfo);
     }

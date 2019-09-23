@@ -47,13 +47,19 @@ class GoPluginDescriptorTest {
     }
 
     private GoPluginDescriptor descriptorWithTargetOSes(String... oses) {
-        return new GoPluginDescriptor(null, null, new GoPluginDescriptor.About(null, null, null, null, null, Arrays.asList(oses)), null, null, false);
+        return GoPluginDescriptor.builder()
+                .about(GoPluginDescriptor.About
+                        .builder()
+                        .targetOperatingSystems(Arrays.asList(oses))
+                        .build())
+
+                .build();
     }
 
     @Test
     void shouldMarkAllPluginsInBundleAsInvalidIfAPluginIsMarkedInvalid() {
-        final GoPluginDescriptor pluginDescriptor1 = GoPluginDescriptor.usingId("plugin.1", null, null, false);
-        final GoPluginDescriptor pluginDescriptor2 = GoPluginDescriptor.usingId("plugin.2", null, null, false);
+        final GoPluginDescriptor pluginDescriptor1 = GoPluginDescriptor.builder().id("plugin.1").build();
+        final GoPluginDescriptor pluginDescriptor2 = GoPluginDescriptor.builder().id("plugin.2").build();
 
         final GoPluginBundleDescriptor bundleDescriptor = new GoPluginBundleDescriptor(pluginDescriptor1, pluginDescriptor2);
 

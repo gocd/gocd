@@ -41,7 +41,7 @@ public class ArtifactPluginInfoBuilderTest {
 
     @Test
     public void shouldBuildPluginInfoWithCapabilities() {
-        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
+        GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin1").build();
 
         when(extension.getCapabilities(descriptor.id())).thenReturn(new Capabilities());
 
@@ -52,7 +52,7 @@ public class ArtifactPluginInfoBuilderTest {
 
     @Test
     public void shouldBuildPluginInfoWithStoreSettings() {
-        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
+        GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin1").build();
         List<PluginConfiguration> pluginConfigurations = Arrays.asList(
                 new PluginConfiguration("S3_BUCKET", new Metadata(true, false)),
                 new PluginConfiguration("AWS_ACCESS_KEY_ID", new Metadata(true, true))
@@ -68,7 +68,7 @@ public class ArtifactPluginInfoBuilderTest {
 
     @Test
     public void shouldBuildPluginInfoWithPublishArtifactConfigSettings() {
-        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
+        GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin1").build();
         List<PluginConfiguration> pluginConfigurations = Arrays.asList(
                 new PluginConfiguration("FILENAME", new Metadata(true, false))
         );
@@ -83,7 +83,7 @@ public class ArtifactPluginInfoBuilderTest {
 
     @Test
     public void shouldBuildPluginInfoWithFetchArtifactConfigSettings() {
-        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
+        GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin1").build();
         List<PluginConfiguration> pluginConfigurations = Arrays.asList(
                 new PluginConfiguration("FILENAME", new Metadata(true, false)),
                 new PluginConfiguration("SECURE", new Metadata(true, true))
@@ -99,7 +99,7 @@ public class ArtifactPluginInfoBuilderTest {
 
     @Test
     public void shouldContinueWithBuildingPluginInfoIfPluginSettingsIsNotProvidedByPlugin() {
-        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
+        GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin1").build();
         doThrow(new RuntimeException("foo")).when(extension).getPluginSettingsConfiguration("plugin1");
 
         ArtifactPluginInfo artifactPluginInfo = new ArtifactPluginInfoBuilder(extension).pluginInfoFor(descriptor);

@@ -120,7 +120,7 @@ module TaskMother
   end
 
   def set_up_registry
-    Spring.bean("defaultPluginRegistry").loadPlugin(GoPluginDescriptor.new("curl.plugin", nil, nil, nil, nil, false))
+    Spring.bean("defaultPluginRegistry").loadPlugin(GoPluginDescriptor.builder.id("curl.plugin").version("1.0").build)
   end
 
   def unload_all_from_registry

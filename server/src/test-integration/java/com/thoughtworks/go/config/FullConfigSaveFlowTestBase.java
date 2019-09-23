@@ -80,6 +80,7 @@ public abstract class FullConfigSaveFlowTestBase {
         ArtifactMetadataStore.instance().clear();
         configHelper.onTearDown();
     }
+
     protected abstract FullConfigSaveFlow getImplementer();
 
     @Test
@@ -129,7 +130,7 @@ public abstract class FullConfigSaveFlowTestBase {
     }
 
     private void setupMetadataForPlugin() {
-        PluginDescriptor pluginDescriptor = new GoPluginDescriptor("cd.go.artifact.docker.registry", "1.0", null, null, null, false);
+        PluginDescriptor pluginDescriptor = GoPluginDescriptor.builder().id("cd.go.artifact.docker.registry").build();
         PluginConfiguration buildFile = new PluginConfiguration("BuildFile", new Metadata(false, false));
         PluginConfiguration image = new PluginConfiguration("Image", new Metadata(false, true));
         PluginConfiguration tag = new PluginConfiguration("Tag", new Metadata(false, false));

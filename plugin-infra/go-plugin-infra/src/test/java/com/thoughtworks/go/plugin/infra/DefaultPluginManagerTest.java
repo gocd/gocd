@@ -43,8 +43,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_WORK_DIR;
 import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_EXTERNAL_PROVIDED_PATH;
+import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_WORK_DIR;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -122,7 +122,7 @@ class DefaultPluginManagerTest {
     @Test
     void shouldGetPluginDescriptorForGivenPluginIdCorrectly() {
         DefaultPluginManager pluginManager = new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, null, systemEnvironment, pluginLoader);
-        GoPluginDescriptor pluginDescriptorForP1 = new GoPluginDescriptor("p1", "1.0", null, null, null, true);
+        GoPluginDescriptor pluginDescriptorForP1 = GoPluginDescriptor.builder().id("p1").version("1.0").build();
         when(registry.getPlugin("valid-plugin")).thenReturn(pluginDescriptorForP1);
         when(registry.getPlugin("invalid-plugin")).thenReturn(null);
         assertThat(pluginManager.getPluginDescriptorFor("valid-plugin")).isEqualTo(pluginDescriptorForP1);

@@ -31,9 +31,9 @@ import org.mockito.Mock;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -66,16 +66,20 @@ public class PluginNotificationsQueueHandlerTest {
         when(notificationExtension.canHandlePlugin(pluginId3)).thenReturn(true);
         when(systemEnvironment.getNotificationListenerCountForPlugin(pluginId1)).thenReturn(10);
         when(systemEnvironment.getNotificationListenerCountForPlugin(pluginId3)).thenReturn(2);
-        handler.pluginLoaded(new GoPluginDescriptor(pluginId1, "1.0", null, null, null, false));
-        handler.pluginLoaded(new GoPluginDescriptor(pluginId2, "1.0", null, null, null, false));
-        handler.pluginLoaded(new GoPluginDescriptor(pluginId3, "1.0", null, null, null, false));
+        handler.pluginLoaded(getPluginDescriptor(pluginId1));
+        handler.pluginLoaded(getPluginDescriptor(pluginId2));
+        handler.pluginLoaded(getPluginDescriptor(pluginId3));
         assertThat(handler.getQueues().size(), is(2));
         PluginAwareMessageQueue queueForPlugin1 = handler.getQueues().get(pluginId1);
         HashMap<String, ArrayList<JMSMessageListenerAdapter>> listenersForPlugin1 = (HashMap<String, ArrayList<JMSMessageListenerAdapter>>) ReflectionUtil.getField(queueForPlugin1, "listeners");
-        assertThat(listenersForPlugin1.get(pluginId1).size(), is(10) );
+        assertThat(listenersForPlugin1.get(pluginId1).size(), is(10));
         assertFalse(handler.getQueues().containsKey(pluginId2));
         PluginAwareMessageQueue queueForPlugin3 = handler.getQueues().get(pluginId3);
         HashMap<String, ArrayList<JMSMessageListenerAdapter>> listenersForPlugin3 = (HashMap<String, ArrayList<JMSMessageListenerAdapter>>) ReflectionUtil.getField(queueForPlugin3, "listeners");
-        assertThat(listenersForPlugin3.get(pluginId3).size(), is(2) );
+        assertThat(listenersForPlugin3.get(pluginId3).size(), is(2));
+    }
+
+    private GoPluginDescriptor getPluginDescriptor(String pluginId) {
+        return GoPluginDescriptor.builder().id(pluginId).build();
     }
 }

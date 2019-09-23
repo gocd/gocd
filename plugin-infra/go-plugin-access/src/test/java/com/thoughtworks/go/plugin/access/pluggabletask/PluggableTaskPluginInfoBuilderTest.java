@@ -85,7 +85,7 @@ public class PluggableTaskPluginInfoBuilderTest {
 
     @Test
     public void shouldBuildPluginInfo() throws Exception {
-        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
+        GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin1").build();
 
         PluggableTaskPluginInfo pluginInfo = new PluggableTaskPluginInfoBuilder(extension) .pluginInfoFor(descriptor);
 

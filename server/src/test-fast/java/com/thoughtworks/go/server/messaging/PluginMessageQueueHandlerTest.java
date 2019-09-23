@@ -56,7 +56,7 @@ public class PluginMessageQueueHandlerTest {
         String queueName = QUEUE_NAME_PREFIX + pluginId;
         when(extension.canHandlePlugin(pluginId)).thenReturn(true);
         when(messaging.addQueueListener(eq(queueName), any(GoMessageListener.class))).thenReturn(mock(JMSMessageListenerAdapter.class));
-        handler.pluginLoaded(new GoPluginDescriptor(pluginId, null, null, null, null, false));
+        handler.pluginLoaded(GoPluginDescriptor.builder().id(pluginId).build());
 
         assertThat(handler.queues.containsKey(pluginId), is(true));
         assertThat(handler.queues.get(pluginId).listeners.containsKey(pluginId), is(true));
@@ -74,7 +74,7 @@ public class PluginMessageQueueHandlerTest {
         when(extension.canHandlePlugin(pluginId)).thenReturn(true);
         JMSMessageListenerAdapter listenerAdapter = mock(JMSMessageListenerAdapter.class);
         when(messaging.addQueueListener(eq(queueName), any(GoMessageListener.class))).thenReturn(listenerAdapter);
-        GoPluginDescriptor pluginDescriptor = new GoPluginDescriptor(pluginId, null, null, null, null, false);
+        GoPluginDescriptor pluginDescriptor = GoPluginDescriptor.builder().id(pluginId).build();
 
         handler.pluginLoaded(pluginDescriptor);
         handler.pluginUnLoaded(pluginDescriptor);
@@ -89,7 +89,7 @@ public class PluginMessageQueueHandlerTest {
         String pluginId = PLUGIN_ID;
         String queueName = QUEUE_NAME_PREFIX + pluginId;
         when(extension.canHandlePlugin(pluginId)).thenReturn(false);
-        GoPluginDescriptor pluginDescriptor = new GoPluginDescriptor(pluginId, null, null, null, null, false);
+        GoPluginDescriptor pluginDescriptor = GoPluginDescriptor.builder().id(pluginId).build();
 
         handler.pluginLoaded(pluginDescriptor);
         handler.pluginUnLoaded(pluginDescriptor);

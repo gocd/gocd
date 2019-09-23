@@ -131,17 +131,17 @@ public final class GoPluginBundleDescriptorParser {
         digester.setErrorHandler(new ErrorHandler() {
             @Override
             public void warning(SAXParseException exception) throws SAXException {
-                throw new SAXException("XML Schema validation of GoCD Bundle Descriptor (bundle.xml) failed",exception);
+                throw new SAXException("XML Schema validation of GoCD Bundle Descriptor (bundle.xml) failed", exception);
             }
 
             @Override
             public void error(SAXParseException exception) throws SAXException {
-                throw new SAXException("XML Schema validation of GoCD Bundle Descriptor (bundle.xml) failed",exception);
+                throw new SAXException("XML Schema validation of GoCD Bundle Descriptor (bundle.xml) failed", exception);
             }
 
             @Override
             public void fatalError(SAXParseException exception) throws SAXException {
-                throw new SAXException("XML Schema validation of GoCD Bundle Descriptor (bundle.xml) failed",exception);
+                throw new SAXException("XML Schema validation of GoCD Bundle Descriptor (bundle.xml) failed", exception);
             }
         });
         digester.setProperty("http://java.sun.com/xml/jaxp/properties/schemaLanguage",
@@ -153,13 +153,19 @@ public final class GoPluginBundleDescriptorParser {
 
     //used by digester
     public void createBundle(String version) {
-        descriptor = new GoPluginBundleDescriptor(pluginDescriptors.toArray(new GoPluginDescriptor[0]));
+        descriptor = new GoPluginBundleDescriptor(version, pluginDescriptors.toArray(new GoPluginDescriptor[0]));
     }
 
     //used by digester
     public void createPlugin(String id) {
-        final GoPluginDescriptor descriptor = new GoPluginDescriptor(id, "1", inProgressAccumulator.about, pluginJarFileLocation, pluginBundleLocation, isBundledPlugin);
-        descriptor.addExtensionClasses(inProgressAccumulator.extensionClasses);
+        final GoPluginDescriptor descriptor = GoPluginDescriptor.builder()
+                .id(id)
+                .about(inProgressAccumulator.about)
+                .pluginJarFileLocation(pluginJarFileLocation)
+                .bundleLocation(pluginBundleLocation)
+                .isBundledPlugin(isBundledPlugin)
+                .extensionClasses(inProgressAccumulator.extensionClasses)
+                .build();
 
         this.pluginDescriptors.add(descriptor);
         this.inProgressAccumulator = new InProgressAccumulator();
@@ -172,7 +178,13 @@ public final class GoPluginBundleDescriptorParser {
 
     //used by digester
     public void createAbout(String name, String version, String targetGoVersion, String description) {
-        inProgressAccumulator.about = new GoPluginDescriptor.About(name, version, targetGoVersion, description, inProgressAccumulator.vendor, inProgressAccumulator.targetOperatingSystems);
+        inProgressAccumulator.about = GoPluginDescriptor.About.builder()
+                .name(name)
+                .version(version)
+                .targetGoVersion(targetGoVersion)
+                .description(description)
+                .vendor(inProgressAccumulator.vendor)
+                .targetOperatingSystems(inProgressAccumulator.targetOperatingSystems).build();
     }
 
     //used by digester

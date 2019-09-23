@@ -61,8 +61,8 @@ class DefaultPluginRegistryServiceTest {
 
     @Test
     void shouldGetIDOfFirstPluginInBundle() {
-        final GoPluginDescriptor pluginDescriptor1 = GoPluginDescriptor.usingId("plugin.1", null, null, false);
-        final GoPluginDescriptor pluginDescriptor2 = GoPluginDescriptor.usingId("plugin.2", null, null, false);
+        final GoPluginDescriptor pluginDescriptor1 = GoPluginDescriptor.builder().id("plugin.1").build();
+        final GoPluginDescriptor pluginDescriptor2 = GoPluginDescriptor.builder().id("plugin.2").build();
         final GoPluginBundleDescriptor bundleDescriptor = new GoPluginBundleDescriptor(pluginDescriptor1, pluginDescriptor2);
 
         when(pluginRegistry.getBundleDescriptor(bundleDescriptor.bundleSymbolicName())).thenReturn(bundleDescriptor);

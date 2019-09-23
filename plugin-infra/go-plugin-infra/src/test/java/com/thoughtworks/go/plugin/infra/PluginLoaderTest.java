@@ -49,7 +49,7 @@ class PluginLoaderTest {
         PluginChangeListener changeListener = mock(PluginChangeListener.class);
         PluginPostLoadHook postLoadHook = mock(PluginPostLoadHook.class);
 
-        GoPluginDescriptor pluginDescriptor = GoPluginDescriptor.usingId("plugin1", null, null, false);
+        GoPluginDescriptor pluginDescriptor = GoPluginDescriptor.builder().id("plugin1").build();
         GoPluginBundleDescriptor goPluginBundleDescriptor = new GoPluginBundleDescriptor(pluginDescriptor);
 
         when(pluginOSGiFramework.loadPlugin(goPluginBundleDescriptor)).then(invocation -> {
@@ -94,8 +94,8 @@ class PluginLoaderTest {
 
     @Test
     void shouldCallUnloadListenersForEveryPluginInBundle() {
-        final GoPluginDescriptor pluginDescriptor1 = GoPluginDescriptor.usingId("plugin.1", null, null, false);
-        final GoPluginDescriptor pluginDescriptor2 = GoPluginDescriptor.usingId("plugin.2", null, null, false);
+        final GoPluginDescriptor pluginDescriptor1 = GoPluginDescriptor.builder().id("plugin.1").build();
+        final GoPluginDescriptor pluginDescriptor2 = GoPluginDescriptor.builder().id("plugin.2").build();
         GoPluginBundleDescriptor pluginBundleDescriptor = new GoPluginBundleDescriptor(pluginDescriptor1, pluginDescriptor2);
         pluginBundleDescriptor.setBundle(mock(Bundle.class));
 
@@ -121,7 +121,7 @@ class PluginLoaderTest {
 
     @Test
     void shouldUnloadPluginIfBundleFailsToLoad() {
-        GoPluginBundleDescriptor goPluginBundleDescriptor = new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("plugin1", null, null, false));
+        GoPluginBundleDescriptor goPluginBundleDescriptor = new GoPluginBundleDescriptor(GoPluginDescriptor.builder().id("plugin1").build());
 
         when(pluginOSGiFramework.loadPlugin(goPluginBundleDescriptor)).then(invocation -> {
             goPluginBundleDescriptor.markAsInvalid(singletonList("Ouch!"), null);
@@ -136,7 +136,7 @@ class PluginLoaderTest {
 
     @Test
     void shouldUnloadPluginIfBundleThrowsExceptionDuringLoad() {
-        GoPluginDescriptor pluginDescriptor = GoPluginDescriptor.usingId("plugin1", null, null, false);
+        GoPluginDescriptor pluginDescriptor = GoPluginDescriptor.builder().id("plugin1").build();
         GoPluginBundleDescriptor pluginBundleDescriptor = new GoPluginBundleDescriptor(pluginDescriptor);
 
         when(pluginOSGiFramework.loadPlugin(pluginBundleDescriptor)).then(invocation -> {
@@ -157,7 +157,7 @@ class PluginLoaderTest {
     class doPostBundleInstallActivities {
         @Test
         void shouldMarkPluginDescriptorInvalidAndNotNotifyPluginChangeListenersWhenPostLoadHookFails() {
-            GoPluginDescriptor pluginDescriptor = GoPluginDescriptor.usingId("some.id.1", null, null, false);
+            GoPluginDescriptor pluginDescriptor = GoPluginDescriptor.builder().id("some.id.1").build();
             GoPluginBundleDescriptor pluginBundleDescriptor = new GoPluginBundleDescriptor(pluginDescriptor);
 
             final PluginPostLoadHook postLoadHook = mock(PluginPostLoadHook.class);
@@ -180,7 +180,7 @@ class PluginLoaderTest {
 
         @Test
         void shouldRunPostLoadHooksInOrderOfRegistration() {
-            GoPluginDescriptor pluginDescriptor = GoPluginDescriptor.usingId("some.id.1", null, null, false);
+            GoPluginDescriptor pluginDescriptor = GoPluginDescriptor.builder().id("some.id.1").build();
             GoPluginBundleDescriptor pluginBundleDescriptor = new GoPluginBundleDescriptor(pluginDescriptor);
 
             final PluginPostLoadHook postLoadHook1 = mock(PluginPostLoadHook.class);
@@ -253,8 +253,8 @@ class PluginLoaderTest {
             PluginChangeListener listener = mock(PluginChangeListener.class);
             PluginPostLoadHook postLoadHook = mock(PluginPostLoadHook.class);
 
-            final GoPluginDescriptor pluginDescriptor1 = GoPluginDescriptor.usingId("plugin.1", null, null, false);
-            final GoPluginDescriptor pluginDescriptor2 = GoPluginDescriptor.usingId("plugin.2", null, null, false);
+            final GoPluginDescriptor pluginDescriptor1 = GoPluginDescriptor.builder().id("plugin.1").build();
+            final GoPluginDescriptor pluginDescriptor2 = GoPluginDescriptor.builder().id("plugin.2").build();
             GoPluginBundleDescriptor pluginBundleDescriptor = new GoPluginBundleDescriptor(pluginDescriptor1, pluginDescriptor2);
 
             when(postLoadHook.run(eq(pluginDescriptor1), anyMap())).thenReturn(new PluginPostLoadHook.Result(false, null));
@@ -273,7 +273,7 @@ class PluginLoaderTest {
 
         @Test
         void shouldMarkThePluginAsInvalidAndUnloadItIfAnyPluginChangeListenerThrowsAnExceptionDuringLoad() {
-            GoPluginDescriptor pluginDescriptor = GoPluginDescriptor.usingId("some.id.1", null, null, false);
+            GoPluginDescriptor pluginDescriptor = GoPluginDescriptor.builder().id("some.id.1").build();
             GoPluginBundleDescriptor pluginBundleDescriptor = new GoPluginBundleDescriptor(pluginDescriptor);
             pluginBundleDescriptor.setBundle(mock(Bundle.class));
 

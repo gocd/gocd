@@ -48,7 +48,7 @@ public class SecretsMetadataLoaderTest {
 
     @Test
     public void onPluginLoaded_shouldAddPluginInfoToMetadataStore() {
-        GoPluginDescriptor descriptor =  new GoPluginDescriptor("plugin1", null, null, null, null, false);
+        GoPluginDescriptor descriptor =  GoPluginDescriptor.builder().id("plugin1").build();
         SecretsMetadataLoader metadataLoader = new SecretsMetadataLoader(pluginManager, metadataStore, infoBuilder, extension);
         SecretsPluginInfo pluginInfo = new SecretsPluginInfo(descriptor, null,null);
 
@@ -62,7 +62,7 @@ public class SecretsMetadataLoaderTest {
 
     @Test
     public void onPluginLoaded_shouldIgnoreNonSecretsPlugins() {
-        GoPluginDescriptor descriptor =  new GoPluginDescriptor("plugin1", null, null, null, null, false);
+        GoPluginDescriptor descriptor =  GoPluginDescriptor.builder().id("plugin1").build();
         SecretsMetadataLoader metadataLoader = new SecretsMetadataLoader(pluginManager, metadataStore, infoBuilder, extension);
 
         when(extension.canHandlePlugin(descriptor.id())).thenReturn(false);
@@ -75,7 +75,7 @@ public class SecretsMetadataLoaderTest {
 
     @Test
     public void onPluginUnloaded_shouldRemoveTheCorrespondingPluginInfoFromStore() {
-        GoPluginDescriptor descriptor =  new GoPluginDescriptor("plugin1", null, null, null, null, false);
+        GoPluginDescriptor descriptor =  GoPluginDescriptor.builder().id("plugin1").build();
         SecretsMetadataLoader metadataLoader = new SecretsMetadataLoader(pluginManager, metadataStore, infoBuilder, extension);
         SecretsPluginInfo pluginInfo = new SecretsPluginInfo(descriptor, null,null);
 

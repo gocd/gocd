@@ -49,7 +49,6 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
-import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
@@ -310,7 +309,7 @@ public class PluginServiceTest {
     public void shouldReturnNullForGetPluginInfoIfDoesNotImplementPluginSettings_MultipleExtensionImpl() {
         String pluginId = "plugin-id";
         CombinedPluginInfo combinedPluginInfo = new CombinedPluginInfo();
-        GoPluginDescriptor pluginDescriptor = new GoPluginDescriptor(pluginId, "1", null, "location", new File(""), false);
+        GoPluginDescriptor pluginDescriptor = GoPluginDescriptor.builder().id(pluginId).build();
         NotificationPluginInfo notificationPluginInfo = new NotificationPluginInfo(pluginDescriptor, null);
         combinedPluginInfo.add(notificationPluginInfo);
         SCMPluginInfo scmPluginInfo = new SCMPluginInfo(pluginDescriptor, "display_name", new PluggableInstanceSettings(null), null);

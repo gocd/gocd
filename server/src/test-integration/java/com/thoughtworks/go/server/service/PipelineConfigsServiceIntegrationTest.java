@@ -114,7 +114,7 @@ public class PipelineConfigsServiceIntegrationTest {
     }
 
     private void setupMetadataForPlugin() {
-        PluginDescriptor pluginDescriptor = new GoPluginDescriptor("cd.go.artifact.docker.registry", "1.0", null, null, null, false);
+        PluginDescriptor pluginDescriptor = GoPluginDescriptor.builder().id("cd.go.artifact.docker.registry").build();
         com.thoughtworks.go.plugin.domain.common.PluginConfiguration buildFile = new com.thoughtworks.go.plugin.domain.common.PluginConfiguration("BuildFile", new Metadata(false, false));
         com.thoughtworks.go.plugin.domain.common.PluginConfiguration image = new com.thoughtworks.go.plugin.domain.common.PluginConfiguration("Image", new Metadata(false, true));
         com.thoughtworks.go.plugin.domain.common.PluginConfiguration tag = new com.thoughtworks.go.plugin.domain.common.PluginConfiguration("Tag", new Metadata(false, false));

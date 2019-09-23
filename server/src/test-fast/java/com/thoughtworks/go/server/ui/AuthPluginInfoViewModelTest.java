@@ -29,9 +29,9 @@ public class AuthPluginInfoViewModelTest {
 
     @Test
     public void shouldGetDetailsAboutThePlugin() {
-        GoPluginDescriptor.About about = new GoPluginDescriptor.About("GitHub Auth Plugin", "1.0", null, null, null, null);
         String pluginId = "github";
-        GoPluginDescriptor descriptor = new GoPluginDescriptor(pluginId, "1.0", about, null, null, false);
+        GoPluginDescriptor.About about = GoPluginDescriptor.About.builder().name("GitHub Auth Plugin").version("1.0").build();
+        GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id(pluginId).about(about).build();
         AuthorizationPluginInfo pluginInfo = new AuthorizationPluginInfo(descriptor, null, null, new Image("svg", "data", "hash"), new Capabilities(SupportedAuthType.Web, true, true, false));
         AuthPluginInfoViewModel model = new AuthPluginInfoViewModel(pluginInfo);
         assertThat(model.imageUrl(), is("/go/api/plugin_images/github/hash"));

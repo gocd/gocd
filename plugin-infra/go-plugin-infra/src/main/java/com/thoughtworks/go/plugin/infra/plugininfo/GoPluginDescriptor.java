@@ -17,46 +17,44 @@ package com.thoughtworks.go.plugin.infra.plugininfo;
 
 import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.osgi.framework.Version;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import static com.thoughtworks.go.plugin.infra.plugininfo.PluginStatus.State.ACTIVE;
 import static com.thoughtworks.go.plugin.infra.plugininfo.PluginStatus.State.INVALID;
 
+@ToString
+@Builder
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class GoPluginDescriptor implements PluginDescriptor {
-
+    @EqualsAndHashCode.Include
     private String id;
+    @EqualsAndHashCode.Include
     private String version = "1";
-
+    @EqualsAndHashCode.Include
     private About about;
-    private PluginStatus status = new PluginStatus(ACTIVE);
 
+    /**
+     * Absolute path to plugin jar e.g. $GO_SERVER_DIR/plugins/bundled/foo.jar
+     */
     private String pluginJarFileLocation;
+    /**
+     * Path to bundle directory in plugin work folder. e.g. $PLUGIN_WORK_DIR/foo.jar/
+     */
     private File bundleLocation;
-    private boolean bundledPlugin;
+    private boolean isBundledPlugin;
     private GoPluginBundleDescriptor bundleDescriptor;
-    private List<String> extensionClasses = new ArrayList<>();
 
-    public GoPluginDescriptor(String id, String version, About about, String pluginJarFileLocation, File bundleLocation, boolean isBundledPlugin) {
-        this(id, pluginJarFileLocation, bundleLocation, isBundledPlugin);
-        this.version = version;
-        this.about = about;
-    }
-
-    public static GoPluginDescriptor usingId(String id, String pluginJarFileLocation, File bundleLocation, boolean isBundledPlugin) {
-        return new GoPluginDescriptor(id, pluginJarFileLocation, bundleLocation, isBundledPlugin);
-    }
-
-    private GoPluginDescriptor(String id, String pluginJarFileLocation, File bundleLocation, boolean isBundledPlugin) {
-        this.id = id;
-        this.pluginJarFileLocation = pluginJarFileLocation;
-        this.bundleLocation = bundleLocation;
-        this.bundledPlugin = isBundledPlugin;
-    }
+    @Builder.Default
+    private PluginStatus status = new PluginStatus(ACTIVE);
+    @Builder.Default
+    private final List<String> extensionClasses = new ArrayList<>();
 
     @Override
     public String id() {
@@ -102,36 +100,8 @@ public class GoPluginDescriptor implements PluginDescriptor {
         return bundleLocation;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        GoPluginDescriptor that = (GoPluginDescriptor) o;
-        return Objects.equals(id, that.id) &&
-                Objects.equals(version, that.version) &&
-                Objects.equals(about, that.about);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, version, about);
-    }
-
-    @Override
-    public String toString() {
-        return "GoPluginDescriptor{" +
-                "id='" + id + '\'' +
-                ", version='" + version + '\'' +
-                ", about=" + about +
-                ", status=" + status +
-                ", pluginJarFileLocation='" + pluginJarFileLocation + '\'' +
-                ", bundleLocation=" + bundleLocation +
-                ", bundledPlugin=" + bundledPlugin +
-                '}';
-    }
-
     public boolean isBundledPlugin() {
-        return bundledPlugin;
+        return isBundledPlugin;
     }
 
     public boolean isCurrentOSValidForThisPlugin(String currentOS) {
@@ -171,29 +141,22 @@ public class GoPluginDescriptor implements PluginDescriptor {
     }
 
     public GoPluginDescriptor addExtensionClasses(List<String> extensionClasses) {
-        this.extensionClasses = extensionClasses;
+        this.extensionClasses.addAll(extensionClasses);
         return this;
     }
 
+    @ToString
+    @EqualsAndHashCode
+    @Builder
     public static class About implements PluginDescriptor.About {
         private String name;
         private String version;
         private String targetGoVersion;
         private String description;
         private Vendor vendor;
+
+        @Builder.Default
         private final List<String> targetOperatingSystems = new ArrayList<>();
-
-        public About(String name, String version, String targetGoVersion, String description, Vendor vendor, List<String> targetOperatingSystems) {
-            this.name = name;
-            this.version = version;
-            this.targetGoVersion = targetGoVersion;
-            this.description = description;
-            this.vendor = vendor;
-
-            if (targetOperatingSystems != null) {
-                this.targetOperatingSystems.addAll(targetOperatingSystems);
-            }
-        }
 
         @Override
         public String name() {
@@ -224,64 +187,10 @@ public class GoPluginDescriptor implements PluginDescriptor {
         public List<String> targetOperatingSystems() {
             return targetOperatingSystems;
         }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-
-            About about = (About) o;
-
-            if (description != null ? !description.equals(about.description) : about.description != null) {
-                return false;
-            }
-            if (name != null ? !name.equals(about.name) : about.name != null) {
-                return false;
-            }
-            if (targetGoVersion != null ? !targetGoVersion.equals(about.targetGoVersion) : about.targetGoVersion != null) {
-                return false;
-            }
-            if (targetOperatingSystems != null ? !targetOperatingSystems.equals(about.targetOperatingSystems) : about.targetOperatingSystems != null) {
-                return false;
-            }
-            if (vendor != null ? !vendor.equals(about.vendor) : about.vendor != null) {
-                return false;
-            }
-            if (version != null ? !version.equals(about.version) : about.version != null) {
-                return false;
-            }
-
-            return true;
-        }
-
-        @Override
-        public int hashCode() {
-            int result = name != null ? name.hashCode() : 0;
-            result = 31 * result + (version != null ? version.hashCode() : 0);
-            result = 31 * result + (targetGoVersion != null ? targetGoVersion.hashCode() : 0);
-            result = 31 * result + (description != null ? description.hashCode() : 0);
-            result = 31 * result + (vendor != null ? vendor.hashCode() : 0);
-            result = 31 * result + (targetOperatingSystems != null ? targetOperatingSystems.hashCode() : 0);
-            return result;
-        }
-
-        @Override
-        public String toString() {
-            return "About{" +
-                    "name='" + name + '\'' +
-                    ", version='" + version + '\'' +
-                    ", targetGoVersion='" + targetGoVersion + '\'' +
-                    ", description='" + description + '\'' +
-                    ", vendor=" + vendor +
-                    ", targetOperatingSystems=" + targetOperatingSystems +
-                    '}';
-        }
     }
 
+    @ToString
+    @EqualsAndHashCode
     public static class Vendor implements PluginDescriptor.Vendor {
         private String name;
         private String url;
@@ -299,42 +208,6 @@ public class GoPluginDescriptor implements PluginDescriptor {
         @Override
         public String url() {
             return url;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-
-            Vendor vendor = (Vendor) o;
-
-            if (name != null ? !name.equals(vendor.name) : vendor.name != null) {
-                return false;
-            }
-            if (url != null ? !url.equals(vendor.url) : vendor.url != null) {
-                return false;
-            }
-
-            return true;
-        }
-
-        @Override
-        public int hashCode() {
-            int result = name != null ? name.hashCode() : 0;
-            result = 31 * result + (url != null ? url.hashCode() : 0);
-            return result;
-        }
-
-        @Override
-        public String toString() {
-            return "Vendor{" +
-                    "name='" + name + '\'' +
-                    ", url='" + url + '\'' +
-                    '}';
         }
     }
 }

@@ -64,7 +64,7 @@ public class PackageMaterialPluginInfoBuilderTest {
 
     @Test
     public void shouldBuildPluginInfo() throws Exception {
-        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
+        GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin1").build();
 
         PackageMaterialPluginInfo pluginInfo = new PackageMaterialPluginInfoBuilder(extension).pluginInfoFor(descriptor);
 
@@ -90,7 +90,7 @@ public class PackageMaterialPluginInfoBuilderTest {
 
     @Test
     public void shouldThrowAnExceptionWhenRepoConfigProvidedByPluginIsNull() {
-        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
+        GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin1").build();
 
         when(extension.getRepositoryConfiguration("plugin1")).thenReturn(null);
         thrown.expectMessage("Plugin[plugin1] returned null repository configuration");
@@ -101,7 +101,7 @@ public class PackageMaterialPluginInfoBuilderTest {
 
     @Test
     public void shouldThrowAnExceptionWhenPackageConfigProvidedByPluginIsNull() {
-        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
+        GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin1").build();
 
         when(extension.getPackageConfiguration("plugin1")).thenReturn(null);
         thrown.expectMessage("Plugin[plugin1] returned null package configuration");

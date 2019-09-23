@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv6.plugininfos.representers.Helper;
+package com.thoughtworks.go.helpers;
 
 import com.thoughtworks.go.plugin.domain.analytics.AnalyticsPluginInfo;
 import com.thoughtworks.go.plugin.domain.analytics.SupportedAnalytics;
@@ -33,10 +33,14 @@ import com.thoughtworks.go.plugin.domain.secrets.SecretsPluginInfo;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class PluginInfoMother {
+    public static SecretsPluginInfo createSecretConfigPluginInfo() {
+        GoPluginDescriptor descriptor = getDescriptor("plugin_id", "1", "/home/pluginjar/", true);
+        return new SecretsPluginInfo(descriptor, getPluggableSettings(), new Image("content_type", "data", "hash"));
+    }
+
     public static AuthorizationPluginInfo createAuthorizationPluginInfo() {
         Capabilities capabilities = new Capabilities(SupportedAuthType.Password, true, true, true);
         return new AuthorizationPluginInfo(getGoPluginDescriptor(), getPluggableSettings(), getPluggableSettings(), new Image("content_type", "data", "hash"), capabilities);
@@ -44,7 +48,7 @@ public class PluginInfoMother {
 
     public static AuthorizationPluginInfo createAuthorizationPluginInfoWithoutAbout() {
         Capabilities capabilities = new Capabilities(SupportedAuthType.Password, true, true, true);
-        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin_id", "1", null, "/home/pluginjar/", null, true);
+        GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin_id").version("1").pluginJarFileLocation("/home/pluginjar/").isBundledPlugin(true).build();
         return new AuthorizationPluginInfo(descriptor, getPluggableSettings(), null, new Image("content_type", "data", "hash"), capabilities);
     }
 
@@ -78,20 +82,35 @@ public class PluginInfoMother {
         return new ElasticAgentPluginInfo(getGoPluginDescriptor(), getPluggableSettings(), null, null, getPluggableSettings(), new com.thoughtworks.go.plugin.domain.elastic.Capabilities(true, false));
     }
 
-    public static ElasticAgentPluginInfo createElasticAgentPluginInfoForv6() {
-        ArrayList<String> targetOperatingSystems = new ArrayList<>();
-        targetOperatingSystems.add("os");
-        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin_id", "1", new GoPluginDescriptor.About("GoPlugin", "v1", "goVersion1", "go plugin", new GoPluginDescriptor.Vendor("go", "goUrl"), targetOperatingSystems), "/home/pluginjar/", null, true);
-
+    public static ElasticAgentPluginInfo createElasticAgentPluginInfoForV5() {
+        GoPluginDescriptor descriptor = getDescriptor("plugin_id", "GoPlugin", "/home/pluginjar/", true, "os");
         return new ElasticAgentPluginInfo(descriptor, getPluggableSettings(), getPluggableSettings(), null, null, new com.thoughtworks.go.plugin.domain.elastic.Capabilities(true, true, true));
+    }
+
+    public static GoPluginDescriptor getDescriptor(String pluginId, String name, String pluginJarLocation, boolean isBundledPlugin, String... targetOperatingSystems) {
+        GoPluginDescriptor.About about = GoPluginDescriptor.About.builder()
+                .name(name)
+                .version("v1")
+                .targetGoVersion("goVersion1")
+                .description("go plugin")
+                .vendor(new GoPluginDescriptor.Vendor("go", "goUrl"))
+                .targetOperatingSystems(List.of(targetOperatingSystems))
+                .build();
+
+        return GoPluginDescriptor.builder()
+                .id(pluginId)
+                .version("1")
+                .about(about)
+                .pluginJarFileLocation(pluginJarLocation)
+                .isBundledPlugin(isBundledPlugin)
+                .build();
     }
 
     public static CombinedPluginInfo createBadPluginInfo() {
         List<String> messages = new ArrayList<>();
         messages.add("This is bad plugin");
-        GoPluginDescriptor badPluginDescriptor = new GoPluginDescriptor("bad_plugin", "1", new GoPluginDescriptor.About("BadPlugin", "v1", "goVersion1", "go plugin", new GoPluginDescriptor.Vendor("go", "goUrl"), null), "/home/bad_plugin/plugin_jar/", null, true);
+        GoPluginDescriptor badPluginDescriptor = getDescriptor("bad_plugin", "BadPlugin", "/home/bad_plugin/plugin_jar/", true);
         badPluginDescriptor.markAsInvalid(messages, null);
-
         return new CombinedPluginInfo(new BadPluginInfo(badPluginDescriptor));
     }
 
@@ -125,17 +144,7 @@ public class PluginInfoMother {
     }
 
     private static GoPluginDescriptor getGoPluginDescriptor() {
-        ArrayList<String> targetOperatingSystems = new ArrayList<>();
-        targetOperatingSystems.add("os");
-        return new GoPluginDescriptor("plugin_id", "1", new GoPluginDescriptor.About("GoPlugin", "v1", "goVersion1", "go plugin", new GoPluginDescriptor.Vendor("go", "goUrl"), targetOperatingSystems), "/home/pluginjar/", null, true);
-    }
-
-
-    public static SecretsPluginInfo createSecretConfigPluginInfo() {
-        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin_id", "1", new GoPluginDescriptor.About("GoPlugin", "v1", "goVersion1", "go plugin", new GoPluginDescriptor.Vendor("go", "goUrl"), Collections.emptyList()), "/home/pluginjar/", null, true);
-
-        SecretsPluginInfo secretsPluginInfo = new SecretsPluginInfo(descriptor, getPluggableSettings(), new Image("content_type", "data", "hash"));
-        return secretsPluginInfo;
+        return getDescriptor("plugin_id", "GoPlugin", "/home/pluginjar/", true, "os");
     }
 
     public static NotificationPluginInfo createNotificationPluginInfo() {

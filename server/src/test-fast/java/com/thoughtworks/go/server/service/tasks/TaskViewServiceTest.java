@@ -50,9 +50,7 @@ import static com.thoughtworks.go.domain.packagerepository.ConfigurationProperty
 import static com.thoughtworks.go.util.DataStructureUtils.s;
 import static java.util.Arrays.asList;
 import static junit.framework.TestCase.assertTrue;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -115,8 +113,8 @@ public class TaskViewServiceTest {
     public void shouldGetViewModelsForPluggedInTasks_ButOnlyForExistingPlugins() throws Exception {
         String plugin1 = "task-plugin-1";
         String plugin2 = "task-plugin-2";
-        when(pluginManager.getPluginDescriptorFor(plugin1)).thenReturn(new GoPluginDescriptor(plugin1, "1", null, null, null, false));
-        when(pluginManager.getPluginDescriptorFor(plugin2)).thenReturn(new GoPluginDescriptor(plugin2, "1", null, null, null, false));
+        when(pluginManager.getPluginDescriptorFor(plugin1)).thenReturn(GoPluginDescriptor.builder().id(plugin1).build());
+        when(pluginManager.getPluginDescriptorFor(plugin2)).thenReturn(GoPluginDescriptor.builder().id(plugin2).build());
         storeTaskPreferences(plugin1, "key_1", "key_2");
         storeTaskPreferences(plugin2, "key_3", "key_4");
         when(registry.implementersOf(Task.class)).thenReturn(Arrays.<Class<? extends Task>>asList(ExecTask.class, PluggableTask.class));
@@ -145,7 +143,7 @@ public class TaskViewServiceTest {
     @Test
     public void shouldStoreDefaultValuesGivenForPropertiesInAPluginWhenInitializingANewTaskPlugin() throws Exception {
         String plugin = "task-plugin";
-        when(pluginManager.getPluginDescriptorFor(plugin)).thenReturn(new GoPluginDescriptor(plugin, "1", null, null, null, false));
+        when(pluginManager.getPluginDescriptorFor(plugin)).thenReturn(GoPluginDescriptor.builder().id(plugin).build());
         Property taskConfigProperty1 = new TaskConfigProperty("key1", null);
         Property taskConfigProperty2 = new TaskConfigProperty("key2", null);
         Property taskConfigProperty3 = new TaskConfigProperty("key3", null);
@@ -161,7 +159,7 @@ public class TaskViewServiceTest {
     @Test
     public void shouldFetchPluggableTasksWithSecureConfigurations() throws Exception {
         String plugin = "task-plugin";
-        when(pluginManager.getPluginDescriptorFor(plugin)).thenReturn(new GoPluginDescriptor(plugin, "1", null, null, null, false));
+        when(pluginManager.getPluginDescriptorFor(plugin)).thenReturn(GoPluginDescriptor.builder().id(plugin).build());
         Property taskConfigProperty = new TaskConfigProperty("key1", null).with(Property.SECURE, true);
 
         storeTaskPreferences(plugin, taskConfigProperty);

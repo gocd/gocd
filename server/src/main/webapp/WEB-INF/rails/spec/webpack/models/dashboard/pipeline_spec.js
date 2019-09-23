@@ -165,18 +165,6 @@ describe("Dashboard", () => {
       const pipeline = new Pipeline(pipelineJson);
       expect(pipeline.getPauseDisabledTooltipText()).toEqual("You do not have permission to unpause the pipeline.");
     });
-
-    it("should return pipeline config repo tooltip text for config repo pipelines", () => {
-      pipelineJson   = pipelineJsonFor(defaultPauseInfo, true, true, true);
-      const pipeline = new Pipeline(pipelineJson);
-      expect(pipeline.getSettingsDisabledTooltipText()).toEqual("Cannot edit pipeline defined in config repository: sample_config_repo with material url: https://foo:1234/go");
-    });
-
-    it("should return no permission tooltip text as default", () => {
-      pipelineJson   = pipelineJsonFor(defaultPauseInfo, true, true, false);
-      const pipeline = new Pipeline(pipelineJson);
-      expect(pipeline.getSettingsDisabledTooltipText()).toEqual("You do not have permission to edit the pipeline.");
-    });
   });
 
   describe("Pipeline Operations", () => {

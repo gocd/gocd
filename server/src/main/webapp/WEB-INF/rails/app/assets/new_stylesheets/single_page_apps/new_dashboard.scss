@@ -307,15 +307,24 @@ body {
 .pipeline_locked {
   @include icon-before($type: lock);
 
-  overflow:  hidden;
-  width:     25px;
-  height:    25px;
-  font-size: $pipeline_icons_size;
-  color:     $icon-color;
-  cursor:    pointer;
+  overflow:   hidden;
+  width:      25px;
+  height:     25px;
+  font-size:  $pipeline_icons_size;
+  color:      $icon-color;
+  cursor:     pointer;
+  background: none;
+  margin:     0;
+  padding:    0;
+
+  &:focus {
+    color:      $icon-color;
+    background: none;
+  }
 
   &:hover {
-    color: $icon-hover-color;
+    color:      $icon-hover-color;
+    background: none;
   }
 
   &.disabled {

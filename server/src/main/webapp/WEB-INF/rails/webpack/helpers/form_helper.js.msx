@@ -23,7 +23,7 @@ import 'foundation-sites';
 
 
 function withAttr(attrName, callback1, context) {
-  return function(e) {
+  return function (e) {
     callback1.call(context || this, attrName in e.currentTarget ? e.currentTarget[attrName] : e.currentTarget.getAttribute(attrName));
   };
 }
@@ -315,9 +315,9 @@ export const f = {
       const args        = vnode.attrs;
       const tooltipText = deleteKeyAndReturnValue(args, "tooltipText");
       return (
-        <div style="position: relative; display: inline">
-          <a href="javascript:void(0)" onmouseover={ctrl.hasFocus.bind(ctrl, true)}
-             onmouseout={ctrl.hasFocus.bind(ctrl, false)}
+        <div style="position: relative; display: inline" onmouseover={ctrl.hasFocus.bind(ctrl, true)}
+             onmouseout={ctrl.hasFocus.bind(ctrl, false)}>
+          <a href="javascript:void(0)"
              class={compactClasses(vnode.attrs, 'has-tip')} {...vnode.attrs}
              data-hover-delay={100} data-tooltip-id={this.tooltipId}>
             {vnode.children}
@@ -330,7 +330,7 @@ export const f = {
   link: {
     view(vnode) {
       const disabled = vnode.attrs.disabled;
-      const args = _.assign({}, vnode.attrs);
+      const args     = _.assign({}, vnode.attrs);
 
       if (args.hasOwnProperty("disabled")) { // eslint-disable-line no-prototype-builtins
         delete args.disabled;

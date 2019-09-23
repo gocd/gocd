@@ -183,3 +183,12 @@ $dropdown-button-content-z-index: 5;
     color: $icon-hover-color;
   }
 }
+
+.environment-info{
+  display: flex;
+  justify-content: space-between;
+
+  > div {
+   margin-bottom: 0;
+  }
+}

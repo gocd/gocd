@@ -40,6 +40,14 @@ export class AgentsEnvironment {
     this.name       = name;
     this.originType = originType;
   }
+
+  isAssociatedFromConfigRepo(): boolean {
+    return this.originType === "config-repo";
+  }
+
+  isUnknown(): boolean {
+    return this.originType === "unknown";
+  }
 }
 
 export class BuildDetails {

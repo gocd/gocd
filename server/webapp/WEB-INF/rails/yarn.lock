@@ -891,23 +891,15 @@
   resolved "https://registry.yarnpkg.com/@types/jasmine-ajax/-/jasmine-ajax-3.3.0.tgz#bf5eb30319f9b35e796fb6707ca08a265e0aaa91"
   integrity sha512-yDJXPqTsPx1sYt1Zm25KEtW0ZqunoQvWPbn3MpAmwGVrMA7ACL6H0o1V/b8l8xAZfxTl1lX/NbQjQs/b3bA0XQ==
 
-"@types/jasmine-jquery@^1.5.33":
-  version "1.5.33"
-  resolved "https://registry.yarnpkg.com/@types/jasmine-jquery/-/jasmine-jquery-1.5.33.tgz#ebc5b43c471c056fb0d16847930dfa2acd48b86d"
-  integrity sha512-yQTTxLDsdyH2GRoyWv4Dp/nCQ1OI8tB4bpOuQIx/09PM0uVTMtiLkjsBTVtsjP+9bvBNUj02a/6rhTWhoakDoA==
-  dependencies:
-    "@types/jasmine" "*"
-    "@types/jquery" "*"
-
-"@types/jasmine@*", "@types/jasmine@^3.4.0":
+"@types/jasmine@^3.4.0":
   version "3.4.0"
   resolved "https://registry.yarnpkg.com/@types/jasmine/-/jasmine-3.4.0.tgz#018c56db42400c092aae47de21f710b7f04e4b06"
   integrity sha512-6pUnBg6DuSB55xnxJ5+gW9JOkFrPsXkYAuqqEE8oyrpgDiPQ+TZ+1Zt4S+CHcRJcxyNYXeIXG4vHSzdF6y9Uvw==
 
-"@types/jquery@*":
-  version "3.3.21"
-  resolved "https://registry.yarnpkg.com/@types/jquery/-/jquery-3.3.21.tgz#850a8411ccf86f86f0d418eee002697bf8da3c9a"
-  integrity sha512-elpRQ9RYn75XJul/PHnklyXKNNWBNOFi8Rcq9wwpAhllHFsf3ke5+32/TMUdMBOfTYk5n+uM2uleWOS9X0MA0g==
+"@types/jquery@^3.3.31":
+  version "3.3.31"
+  resolved "https://registry.yarnpkg.com/@types/jquery/-/jquery-3.3.31.tgz#27c706e4bf488474e1cb54a71d8303f37c93451b"
+  integrity sha512-Lz4BAJihoFw5nRzKvg4nawXPzutkv7wmfQ5121avptaSIXlDNJCUuxZxX/G+9EVidZGuO0UBlk+YjKbwRKJigg==
   dependencies:
     "@types/sizzle" "*"
 
@@ -4896,11 +4888,6 @@ jasmine-core@^3.3, jasmine-core@^3.4.0, jasmine-core@~3.4.0:
   version "3.4.0"
   resolved "https://registry.yarnpkg.com/jasmine-core/-/jasmine-core-3.4.0.tgz#2a74618e966026530c3518f03e9f845d26473ce3"
   integrity sha512-HU/YxV4i6GcmiH4duATwAbJQMlE0MsDIR5XmSVxURxKHn3aGAdbY1/ZJFmVRbKtnLwIxxMJD7gYaPsypcbYimg==
-
-jasmine-jquery@^2.1.1:
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/jasmine-jquery/-/jasmine-jquery-2.1.1.tgz#d4095e646944a26763235769ab018d9f30f0d47b"
-  integrity sha1-1AleZGlEomdjI1dpqwGNnzDw1Hs=
 
 jasmine@^3.4.0:
   version "3.4.0"

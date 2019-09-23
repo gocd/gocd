@@ -16,7 +16,6 @@
 import m from "mithril";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {GlobalMetrics} from "views/analytics/global_metrics";
-import  "jasmine-jquery";
 
 describe("Global Dashboard Metrics", () => {
   const helper = new TestHelper();

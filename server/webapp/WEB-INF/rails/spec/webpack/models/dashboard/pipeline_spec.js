@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 import {Pipeline} from "models/dashboard/pipeline";
-import 'jasmine-jquery';
 
 describe("Dashboard", () => {
 

@@ -17,7 +17,6 @@ import {TestHelper} from "views/pages/spec/test_helper";
 import {AnalyticsiFrameWidget} from "views/shared/analytics_iframe_widget";
 import Stream from "mithril/stream";
 import m from "mithril";
-import "jasmine-jquery";
 
 describe("Analytics iFrame Widget", () => {
   const helper = new TestHelper();

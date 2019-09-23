@@ -15,7 +15,7 @@
  */
 
 import m from "mithril";
-import $ from "jquery";
+import _ from "lodash";
 import {f} from "helpers/form_helper";
 import Interactions from "models/shared/analytics_interaction_manager";
 import {AnalyticsiFrameWidget} from "views/shared/analytics_iframe_widget";
@@ -26,8 +26,8 @@ const Models = Interactions.ensure().ns("GlobalMetrics");
 export const GlobalMetrics = {
   view(vnode) {
     const elements = [];
-    $.each(vnode.attrs.metrics, (pluginId, supportedAnalytics) => {
-      $.each(supportedAnalytics, (idx, sa) => {
+    _.each(vnode.attrs.metrics, (supportedAnalytics, pluginId) => {
+      _.each(supportedAnalytics, (sa, idx) => {
         const uid   = Models.uid(idx, pluginId, sa.type, sa.id),
               title = sa.title,
               model = Models.modelFor(uid);

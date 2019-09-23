@@ -28,26 +28,26 @@ describe("Backup Widget", () => {
 
   it("should render available disk space and last backup details", () => {
     mount("2000 GB", BackupStatus.NOT_STARTED, "", undefined, new Date("2019-02-27T00:15:00"), "admin-person");
-    expect(helper.findByClass(styles.availableDiskSpace))
+    expect(helper.byClass(styles.availableDiskSpace))
       .toContainText("Available disk space in backup directory: 2000 GB");
-    expect(helper.findByClass(styles.backupInfo))
+    expect(helper.byClass(styles.backupInfo))
       .toContainText(`Last backup was taken by 'admin-person' at ${new Date("2019-02-27T00:15:00").toLocaleString()}`);
   });
 
   it("should not render last backup details if not set", () => {
     mount("2000 GB", BackupStatus.NOT_STARTED, "");
-    expect(helper.findByClass(styles.backupInfo)).not.toContainText("Last backup was taken");
+    expect(helper.byClass(styles.backupInfo)).not.toContainText("Last backup was taken");
   });
 
   it("should render backup help", () => {
     mount("2000 GB", BackupStatus.NOT_STARTED, "");
-    expect(helper.findByClass(styles.backupHelp)).toContainText("On performing a backup, GoCD will create a backup of:");
-    expect(helper.findByClass(styles.backupHelp))
+    expect(helper.byClass(styles.backupHelp)).toContainText("On performing a backup, GoCD will create a backup of:");
+    expect(helper.byClass(styles.backupHelp))
       .toContainText(
         "GoCD Version - A flat file named version.txt containing the version of GoCD that the backup was taken with.");
-    expect(helper.findByClass(styles.backupHelp))
+    expect(helper.byClass(styles.backupHelp))
       .toContainText("Database - The database is archived to a file named db.zip which is used to restore GoCD's database.");
-    expect(helper.findByClass(styles.backupConfigHelp))
+    expect(helper.byClass(styles.backupConfigHelp))
       .toContainText("Backups are stored in /path/to/backup/directory");
   });
 

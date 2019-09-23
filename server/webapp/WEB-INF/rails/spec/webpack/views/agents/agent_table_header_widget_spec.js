@@ -21,7 +21,6 @@ import {AgentsTableHeader} from "views/agents/agent_table_header";
 import Stream from "mithril/stream";
 import m from "mithril";
 import _ from "lodash";
-import "jasmine-jquery";
 
 describe("Agent Table Header Widget", () => {
   const helper = new TestHelper();

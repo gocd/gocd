@@ -16,7 +16,6 @@
 
 import m from "mithril";
 import Stream from "mithril/stream";
-import * as simulateEvent from "simulate-event";
 import {Ellipsize} from "views/components/ellipsize/index";
 import {TestHelper} from "views/pages/spec/test_helper";
 import styles from "../index.scss";
@@ -29,9 +28,9 @@ describe("EllipsizeComponent", () => {
     it("should ellipsize when text string is bigger then specified size", () => {
       helper.mount(() => <Ellipsize text={"This is small"} size={5} fixed={true}/>);
 
-      expect(helper.findByClass(styles.wrapper)).toBeInDOM();
-      expect(helper.findByClass(styles.wrapper)).toHaveClass(styles.fixEllipsized);
-      expect(helper.findByClass(styles.ellipsisActionButton)).not.toBeInDOM();
+      expect(helper.byClass(styles.wrapper)).toBeInDOM();
+      expect(helper.byClass(styles.wrapper)).toHaveClass(styles.fixEllipsized);
+      expect(helper.byClass(styles.ellipsisActionButton)).not.toBeInDOM();
     });
   });
 
@@ -39,19 +38,19 @@ describe("EllipsizeComponent", () => {
     it("should show entire text if is smaller then specified size", () => {
       helper.mount(() => <Ellipsize text={"This is small"} size={15} fixed={false}/>);
 
-      expect(helper.findByClass(styles.wrapper)).toBeInDOM();
-      expect(helper.findByClass(styles.wrapper)).not.toHaveClass(styles.fixEllipsized);
-      expect(helper.findByClass(styles.wrapper)).toHaveText("This is small");
-      expect(helper.findByClass(styles.ellipsisActionButton)).not.toBeInDOM();
+      expect(helper.byClass(styles.wrapper)).toBeInDOM();
+      expect(helper.byClass(styles.wrapper)).not.toHaveClass(styles.fixEllipsized);
+      expect(helper.byClass(styles.wrapper)).toHaveText("This is small");
+      expect(helper.byClass(styles.ellipsisActionButton)).not.toBeInDOM();
     });
 
     it("should show text of only specified size", () => {
       helper.mount(() => <Ellipsize text={"This is small"} size={5} fixed={false}/>);
 
-      expect(helper.findByClass(styles.wrapper)).toBeInDOM();
-      expect(helper.findByClass(styles.wrapper)).not.toHaveClass(styles.fixEllipsized);
+      expect(helper.byClass(styles.wrapper)).toBeInDOM();
+      expect(helper.byClass(styles.wrapper)).not.toHaveClass(styles.fixEllipsized);
       expect(helper.byTestId("ellipsized-content")).toHaveText("This ...");
-      expect(helper.findByClass(styles.ellipsisActionButton)).toBeInDOM();
+      expect(helper.byClass(styles.ellipsisActionButton)).toBeInDOM();
     });
   });
 
@@ -59,36 +58,33 @@ describe("EllipsizeComponent", () => {
     it("should expand and show full text on click of more", () => {
       helper.mount(() => <Ellipsize text={"This is small"} size={5} fixed={false}/>);
 
-      expect(helper.findByClass(styles.wrapper)).toBeInDOM();
-      expect(helper.findByClass(styles.wrapper)).not.toHaveClass(styles.fixEllipsized);
+      expect(helper.byClass(styles.wrapper)).toBeInDOM();
+      expect(helper.byClass(styles.wrapper)).not.toHaveClass(styles.fixEllipsized);
       expect(helper.byTestId("ellipsized-content")).toHaveText("This ...");
-      expect(helper.findByClass(styles.ellipsisActionButton)).toHaveText("more");
+      expect(helper.byClass(styles.ellipsisActionButton)).toHaveText("more");
 
-      simulateEvent.simulate(helper.findByClass(styles.ellipsisActionButton)[0], "click");
-      m.redraw.sync();
+      helper.click(helper.byClass(styles.ellipsisActionButton));
 
       expect(helper.byTestId("ellipsized-content")).toHaveText("This is small");
-      expect(helper.findByClass(styles.ellipsisActionButton)).toBeInDOM();
-      expect(helper.findByClass(styles.ellipsisActionButton)).toHaveText("less");
+      expect(helper.byClass(styles.ellipsisActionButton)).toBeInDOM();
+      expect(helper.byClass(styles.ellipsisActionButton)).toHaveText("less");
     });
 
     it("should ellipsize the text on click of less", () => {
       helper.mount(() => <Ellipsize text={"This is small"} size={5} fixed={false}/>);
 
-      expect(helper.findByClass(styles.wrapper)).toBeInDOM();
-      expect(helper.findByClass(styles.wrapper)).not.toHaveClass(styles.fixEllipsized);
+      expect(helper.byClass(styles.wrapper)).toBeInDOM();
+      expect(helper.byClass(styles.wrapper)).not.toHaveClass(styles.fixEllipsized);
       expect(helper.byTestId("ellipsized-content")).toHaveText("This ...");
-      expect(helper.findByClass(styles.ellipsisActionButton)).toHaveText("more");
+      expect(helper.byClass(styles.ellipsisActionButton)).toHaveText("more");
 
-      simulateEvent.simulate(helper.findByClass(styles.ellipsisActionButton)[0], "click");
-      m.redraw.sync();
+      helper.click(helper.byClass(styles.ellipsisActionButton));
 
       expect(helper.byTestId("ellipsized-content")).toHaveText("This is small");
-      expect(helper.findByClass(styles.ellipsisActionButton)).toBeInDOM();
-      expect(helper.findByClass(styles.ellipsisActionButton)).toHaveText("less");
+      expect(helper.byClass(styles.ellipsisActionButton)).toBeInDOM();
+      expect(helper.byClass(styles.ellipsisActionButton)).toHaveText("less");
 
-      simulateEvent.simulate(helper.findByClass(styles.ellipsisActionButton)[0], "click");
-      m.redraw.sync();
+      helper.click(helper.byClass(styles.ellipsisActionButton));
 
       expect(helper.byTestId("ellipsized-content")).toHaveText("This ...");
     });
@@ -98,18 +94,18 @@ describe("EllipsizeComponent", () => {
     const textValue = Stream(null) as Stream<any>;
     helper.mount(() => <Ellipsize text={textValue()} size={20} fixed={false}/>);
 
-    expect(helper.findByClass(styles.wrapper)).toBeInDOM();
-    expect(helper.findByClass(styles.ellipsisActionButton)).not.toBeInDOM();
-    expect(helper.findByClass(styles.wrapper)).toBeEmpty();
+    expect(helper.byClass(styles.wrapper)).toBeInDOM();
+    expect(helper.byClass(styles.ellipsisActionButton)).not.toBeInDOM();
+    expect(helper.byClass(styles.wrapper)).toBeEmpty();
   });
 
   it("should render empty span if the text value is undefined", () => {
     const textValue = Stream(undefined) as Stream<any>;
     helper.mount(() => <Ellipsize text={textValue()} size={20} fixed={false}/>);
 
-    expect(helper.findByClass(styles.wrapper)).toBeInDOM();
-    expect(helper.findByClass(styles.ellipsisActionButton)).not.toBeInDOM();
-    expect(helper.findByClass(styles.wrapper)).toBeEmpty();
+    expect(helper.byClass(styles.wrapper)).toBeInDOM();
+    expect(helper.byClass(styles.ellipsisActionButton)).not.toBeInDOM();
+    expect(helper.byClass(styles.wrapper)).toBeEmpty();
   });
 
 });

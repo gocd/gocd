@@ -20,8 +20,6 @@ import {Agents} from "models/agents/agents";
 import Stream from "mithril/stream";
 import m from "mithril";
 
-import 'jasmine-jquery';
-
 describe("Button Row Widget", () => {
 
 

@@ -16,7 +16,6 @@
 import {TestHelper} from "views/pages/spec/test_helper";
 import Stream from "mithril/stream";
 import m from "mithril";
-import "jasmine-jquery";
 import {AgentStateCountWidget} from "views/agents/agent_state_count_widget";
 import {Agents} from "models/agents/agents";
 

@@ -15,7 +15,6 @@
  */
 import {TestHelper} from "views/pages/spec/test_helper";
 import {PipelineMetrics} from "views/analytics/pipeline_metrics";
-import "jasmine-jquery";
 import m from "mithril";
 
 describe("Pipeline Dashboard Metrics", () => {

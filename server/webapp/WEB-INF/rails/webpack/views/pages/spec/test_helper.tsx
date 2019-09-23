@@ -180,7 +180,11 @@ export class TestHelper {
     this.click(dataTestIdSelector(id), context);
   }
 
-  findByClass(className: string) {
+  byClass(className: string) {
+    return this.root!.getElementsByClassName(className)[0];
+  }
+
+  allByClass(className: string) {
     return this.root!.getElementsByClassName(className);
   }
 

@@ -16,7 +16,6 @@
 import {TestHelper} from "views/pages/spec/test_helper";
 import m from "mithril";
 import {AnalyticsWidget} from "views/analytics/analytics_widget";
-import 'jasmine-jquery';
 
 describe("Analytics Widget", () => {
 

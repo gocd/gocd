@@ -23,7 +23,6 @@ import _ from "lodash";
 import Stream from "mithril/stream";
 import m from "mithril";
 import "jasmine-ajax";
-import "jasmine-jquery";
 
 describe("Agents Widget", () => {
   const helper       = new TestHelper();

@@ -15,10 +15,10 @@
  */
 import m from "mithril";
 import * as simulateEvent from "simulate-event";
+import {TestHelper} from "views/pages/spec/test_helper";
 import * as Buttons from "../../buttons";
 import {Modal} from "../index";
 import styles from "../index.scss";
-import {TestHelper} from "views/pages/spec/test_helper"
 
 describe("Modal", () => {
   const helper = new TestHelper();
@@ -85,7 +85,7 @@ describe("Modal", () => {
     })();
 
     testModal.render();
-    helper.redraw()
+    helper.redraw();
     expect(q(`.${styles.overlayFixedHeight} p`)).toContainText("Hello World!");
     testModal.close();
     expect(body).not.toHaveClass(styles.fixed);

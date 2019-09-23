@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 import "jasmine-ajax";
-import "jasmine-jquery";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {Notification, SystemNotifications} from "models/notifications/system_notifications";

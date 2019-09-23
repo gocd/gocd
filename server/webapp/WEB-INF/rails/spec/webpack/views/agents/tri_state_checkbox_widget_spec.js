@@ -17,7 +17,6 @@ import {TestHelper} from "views/pages/spec/test_helper";
 import {TriStateCheckbox} from "models/agents/tri_state_checkbox";
 import {TriStateCheckboxWidget} from "views/agents/tri_state_checkbox_widget";
 import m from "mithril";
-import 'jasmine-jquery';
 
 describe("TriStateCheckboxWidget", () => {
 

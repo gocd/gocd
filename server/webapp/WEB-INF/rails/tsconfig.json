@@ -25,7 +25,8 @@
     "strictBindCallApply": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "strictFunctionTypes": true
+    "strictFunctionTypes": true,
+    "typeRoots": ["node_modules/@types", "typings"]
   },
   "include": [
     "webpack/**/*.ts",

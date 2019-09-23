@@ -21,7 +21,6 @@ import {PluginInfos} from "models/shared/plugin_infos";
 import {Modal} from "views/shared/new_modal";
 import Stream from "mithril/stream";
 import m from "mithril";
-import "jasmine-jquery";
 
 describe("Agent Row Widget", () => {
   const agents   = Stream();

@@ -20,7 +20,6 @@ import Stream from "mithril/stream";
 import m from "mithril";
 import _ from "lodash";
 import "jasmine-ajax";
-import "jasmine-jquery";
 import "foundation-sites";
 
 describe("Environments List Widget", () => {

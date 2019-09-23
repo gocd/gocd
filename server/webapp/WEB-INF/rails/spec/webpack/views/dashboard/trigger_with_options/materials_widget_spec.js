@@ -75,17 +75,17 @@ describe("Dashboard Trigger With Options Material Widget", () => {
 
   it("should show first material by default", () => {
     expect(helper.q('.v-tab_tab-head li')).toHaveClass('active');
-    expect(helper.q('#material1')).not.toHaveClass('hidden');
+    expect(helper.q('.v-tab_tab-head .active .material-name')).toHaveText('material1');
   });
 
   it("should show appropriate material content material heading selection", () => {
     expect(helper.q('.v-tab_tab-head li')).toHaveClass('active');
-    expect(helper.q('#material1')).not.toHaveClass('hidden');
+    expect(helper.q('.v-tab_tab-head .active .material-name')).toHaveText('material1');
 
     helper.click(helper.qa('.v-tab_tab-head li')[1]);
 
     expect(helper.qa('.v-tab_tab-head li').item(1)).toHaveClass('active');
-    expect(helper.qa('#material1').item(1)).not.toHaveClass('hidden');
+    expect(helper.q('.v-tab_tab-head .active .material-name')).toHaveText('material2');
   });
 
   const json = {

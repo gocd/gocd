@@ -256,6 +256,7 @@ public class Routes {
 
     public static class Pipeline {
         public static final String BASE = "/api/pipelines";
+        public static final String INTERNAL_BASE = "/api/admin/internal/pipelines";
         public static final String DOC = "https://api.go.cd/current/#pipelines";
         public static final String DOC_TRIGGER_OPTIONS = "https://api.go.cd/current/#pipeline-trigger-options";
 

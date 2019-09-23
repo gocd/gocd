@@ -148,7 +148,7 @@ public class JobController {
             JobInstance mostRecentJobInstance = jobInstanceDao.mostRecentJobWithTransitions(requestedInstance.getIdentifier());
 
             JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(mostRecentJobInstance,
-                    agentService.findRegisteredAgentByUUID(mostRecentJobInstance.getAgentUuid()),
+                    agentService.findAgentByUUID(mostRecentJobInstance.getAgentUuid()),
                     stageService.getBuildDuration(pipelineName, stageName, mostRecentJobInstance));
             json = createBuildInfo(presenter);
         } catch (Exception e) {

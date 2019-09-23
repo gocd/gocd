@@ -290,12 +290,15 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         return cookie;
     }
 
-    public Agent findRegisteredAgentByUUID(String uuid) {
+    public Agent findAgentByUUID(String uuid) {
         AgentInstance agentInstance = agentInstances.findAgent(uuid);
-        if (agentInstance != null && agentInstance.isRegistered()) {
-            return agentInstance.getAgent();
+        Agent agent;
+        if (agentInstance != null && !agentInstance.isNullAgent()) {
+            agent = agentInstance.getAgent();
+        } else {
+            agent = agentDao.fetchAgentFromDBByUUID(uuid, true);
         }
-        return null;
+        return agent;
     }
 
     public AgentsViewModel filterAgentsViewModel(List<String> uuids) {

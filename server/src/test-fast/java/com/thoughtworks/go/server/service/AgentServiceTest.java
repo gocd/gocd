@@ -1176,25 +1176,37 @@ class AgentServiceTest {
     }
 
     @Nested
-    class FindRegisteredAgentByUUID {
+    class FindAgentByUUID {
         @Test
-        void shouldFindRegisteredAgentByUUID() {
+        void shouldFindAgentByUUID() {
             AgentInstance agentInstance = AgentInstanceMother.building();
             String uuidToUse = agentInstance.getUuid();
 
             when(agentInstances.findAgent(uuidToUse)).thenReturn(agentInstance);
-            Agent agent = agentService.findRegisteredAgentByUUID(uuidToUse);
+            Agent agent = agentService.findAgentByUUID(uuidToUse);
 
             assertThat(agent, is(agentInstance.getAgent()));
         }
 
         @Test
-        void findRegisteredAgentByUUIDShouldReturnNullIfThereIsNoRegisteredAgentMatchingUUID() {
-            AgentInstance agentInstance = AgentInstanceMother.pending();
+        void findAgentByUUIDShouldNotReturnNullIfThereIsNoAgentMatchingUUIDInTheCache() {
+            Agent fromDB = AgentMother.remoteAgent();
+            AgentInstance agentInstance = AgentInstanceMother.nullInstance();
             String uuidToUse = agentInstance.getUuid();
 
             when(agentInstances.findAgent(uuidToUse)).thenReturn(agentInstance);
-            Agent agent = agentService.findRegisteredAgentByUUID(uuidToUse);
+            when(agentDao.fetchAgentFromDBByUUID(uuidToUse, true)).thenReturn(fromDB);
+            Agent agent = agentService.findAgentByUUID(uuidToUse);
+
+            assertThat(agent, is(fromDB));
+        }
+
+        @Test
+        void shouldReturnNullIfTheGivenUuidDoesNotExistInCacheNorInDB() {
+            String uuidToUse = "uuid";
+            when(agentInstances.findAgent(uuidToUse)).thenReturn(nullInstance());
+            when(agentDao.getAgentByUUIDFromCacheOrDB(uuidToUse)).thenReturn(null);
+            Agent agent = agentService.findAgentByUUID(uuidToUse);
 
             assertThat(agent, is(nullValue()));
         }
@@ -1357,7 +1369,7 @@ class AgentServiceTest {
         @Test
         void shouldDeleteAgentsWithoutAnyValidation() {
             List<String> uuids = asList("a1", "a2");
-            
+
             agentService.deleteAgentsWithoutValidations(uuids);
 
             verify(agentDao).bulkSoftDelete(uuids);
@@ -1366,7 +1378,7 @@ class AgentServiceTest {
         @Test
         void shouldDoNothingIfEmptyListIsPassed() {
             agentService.deleteAgentsWithoutValidations(emptyStrList);
-            
+
             verifyZeroInteractions(agentDao);
         }
 

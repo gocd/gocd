@@ -32,7 +32,7 @@ describe("UserSearchModal", () => {
        m.redraw.sync();
        expect(modal).toContainTitle("Import User");
        expect(modal).toContainButtons(["Cancel", "Import"]);
-       expect($(`[data-test-id='${modal.id}'] [data-test-id='user-search-query']`)).toBeInDOM();
+       expect(document.querySelector(`[data-test-id='${modal.id}'] [data-test-id='user-search-query']`)).toBeInDOM();
      }
   );
 
@@ -55,7 +55,7 @@ describe("UserSearchModal", () => {
     modal.render();
     m.redraw.sync();
 
-    expect($(`[data-test-id='${modal.id}'] table`)).toContainHeaderCells(["", "Username", "Display name", "Email"]);
+    expect(document.querySelector(`[data-test-id='${modal.id}'] table`)).toContainHeaderCells(["", "Username", "Display name", "Email"]);
   });
 
 });

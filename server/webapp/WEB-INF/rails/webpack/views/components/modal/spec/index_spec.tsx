@@ -18,8 +18,14 @@ import * as simulateEvent from "simulate-event";
 import * as Buttons from "../../buttons";
 import {Modal} from "../index";
 import styles from "../index.scss";
+import {TestHelper} from "views/pages/spec/test_helper"
 
 describe("Modal", () => {
+  const helper = new TestHelper();
+  const body = document.body;
+  const q = (sel: string) => document.querySelector(sel)!;
+  const qa = (sel: string) => document.querySelectorAll(sel)!;
+
   it("should display a modal", () => {
     const testModal = new (class TestModal extends Modal {
       constructor() {
@@ -44,17 +50,18 @@ describe("Modal", () => {
     })();
 
     testModal.render();
-    m.redraw.sync();
-    expect($(`.${styles.overlayHeader} h3`)).toContainText("Test Modal");
-    expect($(`.${styles.overlayContent} p`)).toContainText("Hello World!");
-    expect($(`.${styles.overlayFixedHeight}`)).not.toBeInDOM();
+    helper.redraw();
+
+    expect(q(`.${styles.overlayHeader} h3`)).toContainText("Test Modal");
+    expect(q(`.${styles.overlayContent} p`)).toContainText("Hello World!");
+    expect(q(`.${styles.overlayFixedHeight}`)).not.toBeInDOM();
     const buttonsSelector = `.${styles.overlayFooter} button`;
-    expect($(buttonsSelector).length).toBe(2);
-    expect($(buttonsSelector).get(0)).toContainText("Cancel");
-    expect($(buttonsSelector).get(1)).toContainText("OK");
-    expect($("body")).toHaveClass(styles.fixed);
+    expect(qa(buttonsSelector).length).toBe(2);
+    expect(qa(buttonsSelector).item(0)).toContainText("Cancel");
+    expect(qa(buttonsSelector).item(1)).toContainText("OK");
+    expect(body).toHaveClass(styles.fixed);
     testModal.close();
-    expect($("body")).not.toHaveClass(styles.fixed);
+    expect(body).not.toHaveClass(styles.fixed);
   });
 
   it("should display a modal with fixed height", () => {
@@ -78,23 +85,23 @@ describe("Modal", () => {
     })();
 
     testModal.render();
-    m.redraw.sync();
-    expect($(`.${styles.overlayFixedHeight} p`)).toContainText("Hello World!");
+    helper.redraw()
+    expect(q(`.${styles.overlayFixedHeight} p`)).toContainText("Hello World!");
     testModal.close();
-    expect($("body")).not.toHaveClass(styles.fixed);
+    expect(body).not.toHaveClass(styles.fixed);
   });
 
   it("should close modal when escape key is pressed", () => {
     const testModal = aModal();
 
     testModal.render();
-    m.redraw.sync();
+    helper.redraw();
 
     const modalSelector = `.${styles.overlayHeader} h3`;
-    expect($(modalSelector)).toBeInDOM();
-    simulateEvent.simulate($(modalSelector).get(0), "keydown", {key: "Escape", keyCode: 27});
-    m.redraw.sync();
-    expect($(modalSelector)).not.toBeInDOM();
+    expect(q(modalSelector)).toBeInDOM();
+    simulateEvent.simulate(q(modalSelector), "keydown", {key: "Escape", keyCode: 27});
+    helper.redraw();
+    expect(q(modalSelector)).not.toExist();
     testModal.close();
   });
 
@@ -102,46 +109,46 @@ describe("Modal", () => {
     const testModal = aModal();
 
     testModal.render();
-    m.redraw.sync();
+    helper.redraw();
     const buttonsSelector = `.${styles.overlayFooter} button`;
-    expect($(buttonsSelector).length).toBe(1);
-    expect($(buttonsSelector).get(0)).toContainText("OK");
+    expect(qa(buttonsSelector).length).toBe(1);
+    expect(q(buttonsSelector)).toContainText("OK");
     testModal.close();
   });
 
   it("should close the modal when the overlay outside is clicked", () => {
     const testModal = aModal();
     testModal.render();
-    m.redraw.sync();
+    helper.redraw();
 
     const modalSelector = `.${styles.overlayHeader} h3`;
     const bgSelector    = `.${styles.overlayBg}`;
-    expect($(modalSelector)).toBeInDOM();
-    simulateEvent.simulate($(bgSelector).get(0), "click");
-    m.redraw.sync();
-    expect($(modalSelector)).not.toBeInDOM();
+    expect(q(modalSelector)).toBeInDOM();
+    helper.click(q(bgSelector));
+
+    expect(q(modalSelector)).not.toExist();
     testModal.close();
   });
 
   it("should not close the modal when clicked inside", () => {
     const testModal = aModal();
     testModal.render();
-    m.redraw.sync();
+    helper.redraw();
 
     const modalSelector = `.${styles.overlayHeader} h3`;
-    expect($(modalSelector)).toBeInDOM();
-    simulateEvent.simulate($("#modal-inside").get(0), "click");
-    m.redraw.sync();
-    expect($(modalSelector)).toBeInDOM();
+    expect(q(modalSelector)).toBeInDOM();
+    helper.click(q("#modal-inside"));
+
+    expect(q(modalSelector)).toBeInDOM();
     testModal.close();
   });
 
   it("should not render the footer in absence of buttons", () => {
     const testModal = aModalWithoutFooter();
     testModal.render();
-    m.redraw.sync();
+    helper.redraw();
 
-    expect($(`.${styles.overlayFooter}`)).not.toBeInDOM();
+    expect(q(`.${styles.overlayFooter}`)).not.toExist();
     testModal.close();
   });
 
@@ -180,5 +187,4 @@ describe("Modal", () => {
       }
     })();
   }
-
 });

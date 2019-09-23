@@ -22,9 +22,7 @@ import {addMatchers} from "add-matchers";
 
 addMatchers({
   toContainHeaderCells: (headers: string[], table: HTMLTableElement) => {
-    const tableHeaders = $(table).find("thead tr th").map((index, element) => {
-      return $(element).text();
-    });
-    return _.isEqual(tableHeaders.toArray(), headers);
+    const tableHeaders = _.map(table.querySelectorAll("thead tr th"), (el) => el.textContent);
+    return _.isEqual(tableHeaders, headers);
   }
 });

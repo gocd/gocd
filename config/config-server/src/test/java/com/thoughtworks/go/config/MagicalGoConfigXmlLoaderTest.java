@@ -4190,7 +4190,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     void shouldEncryptPluggablePublishArtifactProperties() throws Exception {
-        PluginDescriptor pluginDescriptor = new GoPluginDescriptor("cd.go.artifact.docker.registry", "1.0", null, null, null, false);
+        PluginDescriptor pluginDescriptor = GoPluginDescriptor.builder().id("cd.go.artifact.docker.registry").version("1.0").build();
         PluginConfiguration buildFile = new PluginConfiguration("BuildFile", new Metadata(false, false));
         PluginConfiguration image = new PluginConfiguration("Image", new Metadata(false, true));
         PluginConfiguration tag = new PluginConfiguration("Tag", new Metadata(false, false));

@@ -16,10 +16,12 @@
 
 package com.thoughtworks.go.apiv6.plugininfos.representers.extensions
 
-import com.thoughtworks.go.apiv6.plugininfos.representers.Helper.PluginInfoMother
+
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.helpers.PluginInfoMother.createNotificationPluginInfo
+import static com.thoughtworks.go.helpers.PluginInfoMother.createNotificationPluginInfoWithoutPluginSettings
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
 class NotificationPluginInfoRepresenterTest {
@@ -28,7 +30,7 @@ class NotificationPluginInfoRepresenterTest {
 
 
     def actualJson = toObjectString({
-      new NotificationPluginInfoRepresenter().toJSON(it, PluginInfoMother.createNotificationPluginInfo())
+      new NotificationPluginInfoRepresenter().toJSON(it, createNotificationPluginInfo())
     })
 
     assertThatJson(actualJson).isEqualTo([
@@ -58,10 +60,10 @@ class NotificationPluginInfoRepresenterTest {
   @Test
   void 'should serialize notification extension info without plugin settings to JSON'() {
     def actualJson = toObjectString({
-      new NotificationPluginInfoRepresenter().toJSON(it, PluginInfoMother.createNotificationPluginInfoWithoutPluginSettings())
+      new NotificationPluginInfoRepresenter().toJSON(it, createNotificationPluginInfoWithoutPluginSettings())
     })
     assertThatJson(actualJson).isEqualTo([
-      type           : "notification"
+      type: "notification"
     ])
   }
 }

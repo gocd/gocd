@@ -40,8 +40,7 @@ public class SecretsPluginInfoBuilderTest {
 
     @Test
     public void shouldBuildPluginInfoWithImage() {
-        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null,
-                null, null, false);
+        GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin1").build();
         Image icon = new Image("content_type", "data", "hash");
 
         when(extension.getIcon(descriptor.id())).thenReturn(icon);
@@ -53,8 +52,7 @@ public class SecretsPluginInfoBuilderTest {
 
     @Test
     public void shouldBuildPluginInfoWithPluginDescriptor() {
-        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null,
-                null, null, false);
+        GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin1").build();
 
         SecretsPluginInfo pluginInfo = new SecretsPluginInfoBuilder(extension).pluginInfoFor(descriptor);
 
@@ -63,8 +61,7 @@ public class SecretsPluginInfoBuilderTest {
 
     @Test
     public void shouldBuildPluginInfoWithSecuritySettings() {
-        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null,
-                null, null, false);
+        GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin1").build();
         List<PluginConfiguration> pluginConfigurations = Arrays.asList(
                 new PluginConfiguration("username", new Metadata(true, false)),
                 new PluginConfiguration("password", new Metadata(true, true))

@@ -16,10 +16,11 @@
 
 package com.thoughtworks.go.apiv6.plugininfos.representers.extensions
 
-import com.thoughtworks.go.apiv6.plugininfos.representers.Helper.PluginInfoMother
+
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.helpers.PluginInfoMother.createSecretConfigPluginInfo
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
 class SecretConfigExtensionRepresenterTest {
@@ -27,32 +28,32 @@ class SecretConfigExtensionRepresenterTest {
   void 'should serialize secret config extension info to JSON'() {
 
     def actualJson = toObjectString({
-      new SecretsExtensionRepresenter().toJSON(it, PluginInfoMother.createSecretConfigPluginInfo())
+      new SecretsExtensionRepresenter().toJSON(it, createSecretConfigPluginInfo())
     })
 
     assertThatJson(actualJson).isEqualTo([
       "secret_config_settings": [
         "configurations": [
           [
-            "key": "key1",
+            "key"     : "key1",
             "metadata": [
               "required": true,
-              "secure": false
+              "secure"  : false
             ]
           ],
           [
-            "key": "key2",
+            "key"     : "key2",
             "metadata": [
               "required": true,
-              "secure": false
+              "secure"  : false
             ]
           ]
         ],
-        "view": [
+        "view"          : [
           "template": "Template"
         ]
       ],
-      "type": "secrets"
+      "type"                  : "secrets"
     ])
   }
 }

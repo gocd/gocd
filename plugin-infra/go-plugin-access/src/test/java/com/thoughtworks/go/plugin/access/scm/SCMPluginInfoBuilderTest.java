@@ -67,7 +67,7 @@ public class SCMPluginInfoBuilderTest {
 
     @Test
     public void shouldBuildPluginInfo() throws Exception {
-        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
+        GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin1").build();
 
         SCMPluginInfo pluginInfo = new SCMPluginInfoBuilder(extension).pluginInfoFor(descriptor);
 
@@ -88,7 +88,7 @@ public class SCMPluginInfoBuilderTest {
 
     @Test
     public void shouldThrowAnExceptionIfScmConfigReturnedByPluginIsNull() {
-        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
+        GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin1").build();
         when(extension.getSCMConfiguration("plugin1")).thenReturn(null);
         thrown.expectMessage("Plugin[plugin1] returned null scm configuration");
         new SCMPluginInfoBuilder(extension).pluginInfoFor(descriptor);
@@ -96,7 +96,7 @@ public class SCMPluginInfoBuilderTest {
 
     @Test
     public void shouldThrowAnExceptionIfScmViewReturnedByPluginIsNull() {
-        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
+        GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin1").build();
         when(extension.getSCMView("plugin1")).thenReturn(null);
         thrown.expectMessage("Plugin[plugin1] returned null scm view");
         new SCMPluginInfoBuilder(extension).pluginInfoFor(descriptor);

@@ -50,7 +50,7 @@ public class ServerHealthRequestProcessorTest {
         serverHealthService = mock(ServerHealthService.class);
         requestProcessorRegistry = mock(PluginRequestProcessorRegistry.class);
 
-        descriptor = new GoPluginDescriptor(PLUGIN_ID, null, null, null, null, false);
+        descriptor = GoPluginDescriptor.builder().id(PLUGIN_ID).build();
 
         processor = new ServerHealthRequestProcessor(requestProcessorRegistry, serverHealthService);
     }

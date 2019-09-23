@@ -94,17 +94,17 @@ public final class GoPluginDescriptorParser {
         digester.setErrorHandler(new ErrorHandler() {
             @Override
             public void warning(SAXParseException exception) throws SAXException {
-                throw new SAXException("XML Schema validation of Plugin Descriptor(plugin.xml) failed",exception);
+                throw new SAXException("XML Schema validation of Plugin Descriptor(plugin.xml) failed", exception);
             }
 
             @Override
             public void error(SAXParseException exception) throws SAXException {
-                throw new SAXException("XML Schema validation of Plugin Descriptor(plugin.xml) failed",exception);
+                throw new SAXException("XML Schema validation of Plugin Descriptor(plugin.xml) failed", exception);
             }
 
             @Override
             public void fatalError(SAXParseException exception) throws SAXException {
-                throw new SAXException("XML Schema validation of Plugin Descriptor(plugin.xml) failed",exception);
+                throw new SAXException("XML Schema validation of Plugin Descriptor(plugin.xml) failed", exception);
             }
         });
         digester.setProperty("http://java.sun.com/xml/jaxp/properties/schemaLanguage",
@@ -116,7 +116,14 @@ public final class GoPluginDescriptorParser {
 
     //used by digester
     public void createPlugin(String id, String version) {
-        descriptor = new GoPluginBundleDescriptor(new GoPluginDescriptor(id, version, about, pluginJarFileLocation, pluginBundleLocation, isBundledPlugin));
+        descriptor = new GoPluginBundleDescriptor(GoPluginDescriptor.builder()
+                .id(id)
+                .version(version)
+                .about(about)
+                .pluginJarFileLocation(pluginJarFileLocation)
+                .bundleLocation(pluginBundleLocation)
+                .isBundledPlugin(isBundledPlugin)
+                .build());
     }
 
     //used by digester
@@ -126,7 +133,14 @@ public final class GoPluginDescriptorParser {
 
     //used by digester
     public void createAbout(String name, String version, String targetGoVersion, String description) {
-        about = new GoPluginDescriptor.About(name, version, targetGoVersion, description, vendor, targetOperatingSystems);
+        about = GoPluginDescriptor.About.builder()
+                .name(name)
+                .version(version)
+                .targetGoVersion(targetGoVersion)
+                .description(description)
+                .vendor(vendor)
+                .targetOperatingSystems(targetOperatingSystems)
+                .build();
     }
 
     //used by digester

@@ -22,7 +22,7 @@ import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.collections4.EnumerationUtils;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -39,20 +39,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.*;
 
-public class PluginsZipTest {
+class PluginsZipTest {
     private SystemEnvironment systemEnvironment;
     private PluginsZip pluginsZip;
     private String expectedZipPath;
     private File externalPluginsDir;
     private PluginManager pluginManager;
     private GoPluginBundleDescriptor bundledTaskPlugin;
-    private GoPluginBundleDescriptor bundledAuthPlugin;
-    private GoPluginBundleDescriptor bundledSCMPlugin;
     private GoPluginBundleDescriptor externalTaskPlugin;
     private GoPluginBundleDescriptor externalElasticAgentPlugin;
-    private GoPluginBundleDescriptor externalSCMPlugin;
-    private GoPluginBundleDescriptor bundledPackageMaterialPlugin;
-    private GoPluginBundleDescriptor externalPackageMaterialPlugin;
     private File bundledPluginsDir;
     private FileHelper temporaryFolder;
 
@@ -82,16 +77,16 @@ public class PluginsZipTest {
         File externalscm3Jar = createPluginFile(externalPluginsDir, "external-scm-3.jar", "External3");
         File externalPackageMaterialJar = createPluginFile(externalPluginsDir, "external-package-material-4.jar", "External3");
 
-        bundledTaskPlugin = new GoPluginBundleDescriptor(new GoPluginDescriptor("bundled-task-1", "1.0", null, bundledTask1Jar.getAbsolutePath(), null, true));
-        bundledAuthPlugin = new GoPluginBundleDescriptor(new GoPluginDescriptor("bundled-auth-2", "1.0", null, bundledAuth2Jar.getAbsolutePath(), null, true));
-        bundledSCMPlugin = new GoPluginBundleDescriptor(new GoPluginDescriptor("bundled-scm-3", "1.0", null, bundledscm3Jar.getAbsolutePath(), null, true));
-        bundledPackageMaterialPlugin = new GoPluginBundleDescriptor(new GoPluginDescriptor("bundled-package-material-4", "1.0", null, bundledPackageMaterialJar.getAbsolutePath(), null, true));
+        bundledTaskPlugin = new GoPluginBundleDescriptor(getPluginDescriptor(bundledTask1Jar, "bundled-task-1"));
+        GoPluginBundleDescriptor bundledAuthPlugin = new GoPluginBundleDescriptor(getPluginDescriptor(bundledAuth2Jar, "bundled-auth-2"));
+        GoPluginBundleDescriptor bundledSCMPlugin = new GoPluginBundleDescriptor(getPluginDescriptor(bundledscm3Jar, "bundled-scm-3"));
+        GoPluginBundleDescriptor bundledPackageMaterialPlugin = new GoPluginBundleDescriptor(getPluginDescriptor(bundledPackageMaterialJar, "bundled-package-material-4"));
 
 
-        externalTaskPlugin = new GoPluginBundleDescriptor(new GoPluginDescriptor("external-task-1", "1.0", null, externalTask1Jar.getAbsolutePath(), null, false));
-        externalElasticAgentPlugin = new GoPluginBundleDescriptor(new GoPluginDescriptor("external-elastic-agent-2", "1.0", null, externalElastic1Jar.getAbsolutePath(), null, false));
-        externalSCMPlugin = new GoPluginBundleDescriptor(new GoPluginDescriptor("external-scm-3", "1.0", null, externalscm3Jar.getAbsolutePath(), null, false));
-        externalPackageMaterialPlugin = new GoPluginBundleDescriptor(new GoPluginDescriptor("external-package-material-4", "1.0", null, externalPackageMaterialJar.getAbsolutePath(), null, false));
+        externalTaskPlugin = new GoPluginBundleDescriptor(getPluginDescriptor(externalTask1Jar, "external-task-1"));
+        externalElasticAgentPlugin = new GoPluginBundleDescriptor(getPluginDescriptor(externalElastic1Jar, "external-elastic-agent-2"));
+        GoPluginBundleDescriptor externalSCMPlugin = new GoPluginBundleDescriptor(getPluginDescriptor(externalscm3Jar, "external-scm-3"));
+        GoPluginBundleDescriptor externalPackageMaterialPlugin = new GoPluginBundleDescriptor(getPluginDescriptor(externalPackageMaterialJar, "external-package-material-4"));
 
         when(pluginManager.plugins()).thenReturn(Arrays.asList(
                 bundledTaskPlugin.descriptors().get(0),
@@ -112,7 +107,7 @@ public class PluginsZipTest {
         when(pluginManager.isPluginOfType("package-repository", "external-package-material-4")).thenReturn(true);
     }
 
-    @After
+    @AfterEach
     void tearDown() {
         temporaryFolder.delete();
     }
@@ -193,7 +188,7 @@ public class PluginsZipTest {
 
     @Test
     void shouldCreatePluginsWhenTaskPluginsAreAdded() {
-        GoPluginDescriptor plugin = new GoPluginDescriptor("curl-task-plugin", null, null, null, null, false);
+        GoPluginDescriptor plugin = GoPluginDescriptor.builder().id("curl-task-plugin").build();
         when(pluginManager.isPluginOfType("task", plugin.id())).thenReturn(true);
         pluginsZip.pluginLoaded(plugin);
         verify(pluginsZip, times(1)).create();
@@ -223,13 +218,13 @@ public class PluginsZipTest {
         File external_plugin = createPluginFile(externalPluginsDir, "external-multi-plugin-1.jar", "External1");
 
         bundledTaskPlugin = new GoPluginBundleDescriptor(
-                new GoPluginDescriptor("bundled-plugin-1", "1.0", null, bundled_plugin.getAbsolutePath(), null, true),
-                new GoPluginDescriptor("bundled-plugin-2", "1.0", null, bundled_plugin.getAbsolutePath(), null, true)
+                getPluginDescriptor(bundled_plugin, "bundled-plugin-1"),
+                getPluginDescriptor(bundled_plugin, "bundled-plugin-2")
         );
 
         externalTaskPlugin = new GoPluginBundleDescriptor(
-                new GoPluginDescriptor("external-plugin-1", "1.0", null, external_plugin.getAbsolutePath(), null, false),
-                new GoPluginDescriptor("external-plugin-2", "1.0", null, external_plugin.getAbsolutePath(), null, false)
+                getPluginDescriptor(external_plugin, "external-plugin-1"),
+                getPluginDescriptor(external_plugin, "external-plugin-2")
         );
 
         when(pluginManager.plugins()).thenReturn(Arrays.asList(
@@ -254,6 +249,10 @@ public class PluginsZipTest {
         assertThat(EnumerationUtils.toList(new ZipFile(expectedZipPath).entries()).size()).isEqualTo(2);
         assertThat(new ZipFile(expectedZipPath).getEntry("bundled/bundled-multi-plugin-1.jar")).isNotNull();
         assertThat(new ZipFile(expectedZipPath).getEntry("external/external-multi-plugin-1.jar")).isNotNull();
+    }
+
+    private GoPluginDescriptor getPluginDescriptor(File bundled_plugin, String jarFileLocation) {
+        return GoPluginDescriptor.builder().id(jarFileLocation).version("1.0").pluginJarFileLocation(bundled_plugin.getAbsolutePath()).build();
     }
 
     private File createPluginFile(File pluginsDir, String pluginJarFileName, String contents) throws IOException {

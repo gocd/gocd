@@ -31,7 +31,7 @@ public class SCMMetadataLoaderTest {
 
     @Before
     public void setUp() throws Exception {
-        pluginDescriptor = new GoPluginDescriptor("plugin-id", "1.0", null, null, null, true);
+        pluginDescriptor = GoPluginDescriptor.builder().id("plugin-id").isBundledPlugin(true).build();
         pluginManager = mock(PluginManager.class);
         scmExtension = mock(SCMExtension.class);
         metadataLoader = new SCMMetadataLoader(scmExtension, pluginManager);

@@ -49,7 +49,7 @@ public class AnalyticsMetadataLoaderTest {
 
     @Test
     public void onPluginLoaded_shouldAddPluginInfoToMetadataStore() throws Exception {
-        GoPluginDescriptor descriptor =  new GoPluginDescriptor("plugin1", null, null, null, null, false);
+        GoPluginDescriptor descriptor =  GoPluginDescriptor.builder().id("plugin1").build();
         AnalyticsMetadataLoader metadataLoader = new AnalyticsMetadataLoader(pluginManager, metadataStore, infoBuilder, extension);
         AnalyticsPluginInfo pluginInfo = new AnalyticsPluginInfo(descriptor, null, null, null);
 
@@ -63,7 +63,7 @@ public class AnalyticsMetadataLoaderTest {
 
     @Test
     public void onPluginLoad_shouldNotifyPluginMetadataLoadListeners() throws Exception {
-        GoPluginDescriptor descriptor =  new GoPluginDescriptor("plugin1", null, null, null, null, false);
+        GoPluginDescriptor descriptor =  GoPluginDescriptor.builder().id("plugin1").build();
         AnalyticsMetadataLoader metadataLoader = new AnalyticsMetadataLoader(pluginManager, metadataStore, infoBuilder, extension);
         PluginMetadataChangeListener pluginMetadataChangeListener = mock(PluginMetadataChangeListener.class);
         AnalyticsPluginInfo pluginInfo = new AnalyticsPluginInfo(descriptor, null, null, null);
@@ -82,7 +82,7 @@ public class AnalyticsMetadataLoaderTest {
 
     @Test
     public void onPluginLoaded_shouldIgnoreNonAnalyticsPlugins() throws Exception {
-        GoPluginDescriptor descriptor =  new GoPluginDescriptor("plugin1", null, null, null, null, false);
+        GoPluginDescriptor descriptor =  GoPluginDescriptor.builder().id("plugin1").build();
         AnalyticsMetadataLoader metadataLoader = new AnalyticsMetadataLoader(pluginManager, metadataStore, infoBuilder, extension);
 
         when(extension.canHandlePlugin(descriptor.id())).thenReturn(false);
@@ -95,7 +95,7 @@ public class AnalyticsMetadataLoaderTest {
 
     @Test
     public void onPluginUnloaded_shouldRemoveTheCorrespondingPluginInfoFromStore() throws Exception {
-        GoPluginDescriptor descriptor =  new GoPluginDescriptor("plugin1", null, null, null, null, false);
+        GoPluginDescriptor descriptor =  GoPluginDescriptor.builder().id("plugin1").build();
         AnalyticsMetadataLoader metadataLoader = new AnalyticsMetadataLoader(pluginManager, metadataStore, infoBuilder, extension);
         AnalyticsPluginInfo pluginInfo = new AnalyticsPluginInfo(descriptor, null, null, null);
 
@@ -108,7 +108,7 @@ public class AnalyticsMetadataLoaderTest {
 
     @Test
     public void onPluginUnLoaded_shouldNotifyPluginMetadataLoadListeners() throws Exception {
-        GoPluginDescriptor descriptor =  new GoPluginDescriptor("plugin1", null, null, null, null, false);
+        GoPluginDescriptor descriptor =  GoPluginDescriptor.builder().id("plugin1").build();
         AnalyticsMetadataLoader metadataLoader = new AnalyticsMetadataLoader(pluginManager, metadataStore, infoBuilder, extension);
         AnalyticsPluginInfo pluginInfo = new AnalyticsPluginInfo(descriptor, null, null, null);
         PluginMetadataChangeListener pluginMetadataChangeListener = mock(PluginMetadataChangeListener.class);

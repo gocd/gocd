@@ -57,7 +57,7 @@ class ElasticAgentInformationMigratorImplTest {
     @BeforeEach
     void setUp() {
         initMocks(this);
-        goPluginDescriptor = new GoPluginDescriptor(PLUGIN_ID, "1.0.0", null, "/var/lib", null, false);
+        goPluginDescriptor = GoPluginDescriptor.builder().id(PLUGIN_ID).build();
         elasticAgentInformationMigrator = new ElasticAgentInformationMigratorImpl(pluginSqlMapDao, clusterProfilesService, elasticProfileService, elasticAgentExtension, pluginManager, goConfigService);
     }
 

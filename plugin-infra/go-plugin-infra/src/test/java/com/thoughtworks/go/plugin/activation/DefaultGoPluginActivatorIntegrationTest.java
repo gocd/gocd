@@ -361,7 +361,12 @@ class DefaultGoPluginActivatorIntegrationTest {
     }
 
     private Bundle installBundleFoundInDirectory(File bundleWithActivator) {
-        final GoPluginDescriptor pluginDescriptor = new GoPluginDescriptor(GO_TEST_DUMMY_SYMBOLIC_NAME, "1", null, null, bundleWithActivator, true);
+        final GoPluginDescriptor pluginDescriptor = GoPluginDescriptor.builder()
+                .id(GO_TEST_DUMMY_SYMBOLIC_NAME)
+                .version("1")
+                .bundleLocation(bundleWithActivator)
+                .isBundledPlugin(true)
+                .build();
         GoPluginBundleDescriptor bundleDescriptor = new GoPluginBundleDescriptor(pluginDescriptor);
         registry.fakeRegistrationOfPlugin(pluginDescriptor);
         return framework.loadPlugin(bundleDescriptor);

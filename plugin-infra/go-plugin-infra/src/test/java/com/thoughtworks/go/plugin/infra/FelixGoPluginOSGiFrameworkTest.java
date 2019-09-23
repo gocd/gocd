@@ -20,8 +20,8 @@ import com.thoughtworks.go.plugin.api.GoPluginIdentifier;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginBundleDescriptor;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.plugin.infra.plugininfo.PluginRegistry;
-import com.thoughtworks.go.plugin.infra.service.DefaultPluginRegistryService;
 import com.thoughtworks.go.plugin.infra.service.DefaultPluginLoggingService;
+import com.thoughtworks.go.plugin.infra.service.DefaultPluginRegistryService;
 import com.thoughtworks.go.plugin.internal.api.LoggingService;
 import com.thoughtworks.go.plugin.internal.api.PluginRegistryService;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -291,10 +291,18 @@ class FelixGoPluginOSGiFrameworkTest {
     }
 
     private GoPluginDescriptor buildExpectedDescriptor(String pluginID) {
-        return new GoPluginDescriptor(pluginID, "1",
-                new GoPluginDescriptor.About("Plugin Descriptor Validator", "1.0.1", "17.12", "Validates its own plugin descriptor",
-                        new GoPluginDescriptor.Vendor("ThoughtWorks GoCD Team", "www.thoughtworks.com"), asList("Linux", "Windows")), null, null, true
-        );
+        return GoPluginDescriptor.builder().id(pluginID)
+                .version("1")
+                .about(GoPluginDescriptor.About.builder()
+                        .name("Plugin Descriptor Validator")
+                        .version("1.0.1")
+                        .targetGoVersion("17.12")
+                        .description("Validates its own plugin descriptor")
+                        .vendor(new GoPluginDescriptor.Vendor("ThoughtWorks GoCD Team", "www.thoughtworks.com"))
+                        .targetOperatingSystems(List.of("Linux", "Windows"))
+                        .build()
+                ).isBundledPlugin(true)
+                .build();
     }
 
     private interface SomeInterface {

@@ -18,8 +18,6 @@ package com.thoughtworks.go.plugin.infra.plugininfo;
 import org.apache.commons.collections4.IterableUtils;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -31,7 +29,7 @@ public class DefaultPluginRegistry implements PluginRegistry {
 
     @Override
     public List<GoPluginDescriptor> plugins() {
-        return Collections.unmodifiableList(new ArrayList<>(idToDescriptorMap.values()));
+        return List.copyOf(idToDescriptorMap.values());
     }
 
     public void loadPlugin(GoPluginBundleDescriptor bundleDescriptor) {

@@ -187,7 +187,7 @@ public class PackageRepositoryServiceIntegrationTest {
         configuration.add(new ConfigurationProperty(new ConfigurationKey("foo"), new ConfigurationValue("bar")));
         oldPackageRepo.setConfiguration(configuration);
         newPackageRepo.setConfiguration(configuration);
-        when(pluginManager.getPluginDescriptorFor("npm")).thenReturn(new GoPluginDescriptor("npm", "1", null, null, null, false));
+        when(pluginManager.getPluginDescriptorFor("npm")).thenReturn(GoPluginDescriptor.builder().id("npm").build());
         goConfigService.getConfigForEditing().setPackageRepositories(new PackageRepositories(oldPackageRepo));
 
         assertThat(goConfigService.getConfigForEditing().getPackageRepositories().size(), is(1));

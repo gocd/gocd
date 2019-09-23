@@ -25,7 +25,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.List;
 
 import static java.util.Arrays.asList;
@@ -48,7 +47,7 @@ class GoPluginBundleDescriptorBuilderTest {
         bundleDirectory = temporaryFolder.newFolder("bundleDir");
 
         goPluginBundleDescriptorBuilder = spy(new GoPluginBundleDescriptorBuilder());
-        doReturn(bundleDirectory).when(goPluginBundleDescriptorBuilder).bundlePath();
+        doReturn(bundleDirectory).when(goPluginBundleDescriptorBuilder).pluginWorkDir();
 
     }
 
@@ -125,7 +124,7 @@ class GoPluginBundleDescriptorBuilderTest {
         FileUtils.copyURLToFile(resource, new File(pluginDir, destinationFilenameOfPlugin));
     }
 
-    private GoPluginDescriptor buildExpectedDescriptor(String name, String pluginJarFileLocation) {
+    private GoPluginDescriptor buildExpectedDescriptor(String fileName, String pluginJarFileLocation) {
         /*
             <?xml version="1.0" encoding="utf-8" ?>
             <go-plugin id="testplugin.descriptorValidator" version="1">
@@ -145,24 +144,40 @@ class GoPluginBundleDescriptorBuilderTest {
                </about>
             </go-plugin>
         */
-        return new GoPluginDescriptor(TESTPLUGIN_ID, "1",
-                new GoPluginDescriptor.About("Plugin Descriptor Validator", "1.0.1", "17.12", "Validates its own plugin descriptor",
-                        new GoPluginDescriptor.Vendor("ThoughtWorks GoCD Team", "www.thoughtworks.com"), Arrays.asList("Linux", "Windows", "Mac OS X")), pluginJarFileLocation,
-                new File(bundleDirectory, name),
-                true);
+
+        return getGoPluginDescriptor(TESTPLUGIN_ID, "Plugin Descriptor Validator", pluginJarFileLocation, new File(bundleDirectory, fileName),
+                "1.0.1", "17.12",
+                "Validates its own plugin descriptor", "ThoughtWorks GoCD Team", "www.thoughtworks.com", "Linux", "Windows", "Mac OS X");
     }
 
-    private GoPluginBundleDescriptor buildExpectedMultiPluginBundleDescriptor(String name, String pluginJarFileLocation) {
-        final GoPluginDescriptor descriptor1 = new GoPluginDescriptor("testplugin.multipluginbundle.plugin1", "1",
-                new GoPluginDescriptor.About("Plugin 1", "1.0.0", "19.5", "Example plugin 1",
-                        new GoPluginDescriptor.Vendor("ThoughtWorks GoCD Team", "www.thoughtworks.com"), Arrays.asList("Linux", "Windows")), pluginJarFileLocation,
-                new File(bundleDirectory, name), true);
+    private GoPluginDescriptor getGoPluginDescriptor(String pluginId, String name, String pluginJarFileLocation,
+                                                     File bundleLocation, String version, String targetGoVersion, String description,
+                                                     String vendorName, String vendorUrl, String... targetOperatingSystems) {
+        return GoPluginDescriptor.builder()
+                .id(pluginId)
+                .version("1")
+                .pluginJarFileLocation(pluginJarFileLocation)
+                .bundleLocation(bundleLocation)
+                .isBundledPlugin(true)
+                .about(GoPluginDescriptor.About.builder()
+                        .name(name)
+                        .version(version)
+                        .targetGoVersion(targetGoVersion)
+                        .vendor(new GoPluginDescriptor.Vendor(vendorName, vendorUrl))
+                        .targetOperatingSystems(List.of(targetOperatingSystems))
+                        .description(description).build()
+                ).build();
+
+    }
+
+    private GoPluginBundleDescriptor buildExpectedMultiPluginBundleDescriptor(String fileName, String pluginJarFileLocation) {
+        final GoPluginDescriptor descriptor1 = getGoPluginDescriptor("testplugin.multipluginbundle.plugin1", "Plugin 1", pluginJarFileLocation,
+                new File(bundleDirectory, fileName), "1.0.0", "19.5", "Example plugin 1",
+                "ThoughtWorks GoCD Team", "www.thoughtworks.com", "Linux", "Windows");
         descriptor1.addExtensionClasses(asList("cd.go.contrib.package1.TaskExtension", "cd.go.contrib.package1.ElasticAgentExtension"));
 
-        final GoPluginDescriptor descriptor2 = new GoPluginDescriptor("testplugin.multipluginbundle.plugin2", "1",
-                new GoPluginDescriptor.About("Plugin 2", "2.0.0", "19.5", "Example plugin 2",
-                        new GoPluginDescriptor.Vendor("Some other org", "www.example.com"), singletonList("Linux")), pluginJarFileLocation,
-                new File(bundleDirectory, name), true);
+        final GoPluginDescriptor descriptor2 = getGoPluginDescriptor("testplugin.multipluginbundle.plugin2", "Plugin 2", pluginJarFileLocation,
+                new File(bundleDirectory, fileName), "2.0.0", "19.5", "Example plugin 2", "Some other org", "www.example.com", "Linux");
         descriptor2.addExtensionClasses(asList("cd.go.contrib.package2.TaskExtension", "cd.go.contrib.package2.AnalyticsExtension"));
 
         return new GoPluginBundleDescriptor(descriptor1, descriptor2);
@@ -197,7 +212,13 @@ class GoPluginBundleDescriptorBuilderTest {
         final String message = String.format("Plugin with ID (%s) is not valid: %s.", pluginJarFile.getName(),
                 "XML Schema validation of Plugin Descriptor(plugin.xml) failed. Cause: cvc-complex-type.2.4.d: Invalid content was found starting with element 'target-os'. No child element is expected at this point");
 
-        final GoPluginDescriptor goPluginDescriptor = GoPluginDescriptor.usingId(pluginJarFile.getName(), pluginJarFile.getAbsolutePath(), new File(bundleDirectory, name), true);
+        String pluginJarFileLocation = pluginJarFile.getAbsolutePath();
+        final GoPluginDescriptor goPluginDescriptor = GoPluginDescriptor.builder()
+                .id(pluginJarFile.getName())
+                .bundleLocation(new File(bundleDirectory, name))
+                .pluginJarFileLocation(pluginJarFileLocation)
+                .isBundledPlugin(true)
+                .build();
         return new GoPluginBundleDescriptor(goPluginDescriptor).markAsInvalid(singletonList(message), null).descriptors().get(0);
     }
 }

@@ -180,7 +180,7 @@ public class AnalyticsPluginAssetsServiceTest {
     public void onPluginMetadataLoad_shouldUpdateThePluginInfoWithAssetsPath() throws Exception {
         railsRoot = temporaryFolder.newFolder();
         Path pluginDirPath = Paths.get(railsRoot.getAbsolutePath(), "public", "assets", "plugins", PLUGIN_ID);
-        GoPluginDescriptor goPluginDescriptor = new GoPluginDescriptor(PLUGIN_ID, null, null, null, null, false);
+        GoPluginDescriptor goPluginDescriptor = GoPluginDescriptor.builder().id(PLUGIN_ID).build();
         AnalyticsPluginInfo analyticsPluginInfo = new AnalyticsPluginInfo(goPluginDescriptor, null, null, null);
 
         metadataStore.setPluginInfo(analyticsPluginInfo);
@@ -230,7 +230,7 @@ public class AnalyticsPluginAssetsServiceTest {
     }
 
     private void addAnalyticsPluginInfoToStore(String pluginId) {
-        GoPluginDescriptor goPluginDescriptor = new GoPluginDescriptor(pluginId, null, null, null, null, false);
+        GoPluginDescriptor goPluginDescriptor = GoPluginDescriptor.builder().id(pluginId).build();
         AnalyticsPluginInfo analyticsPluginInfo = new AnalyticsPluginInfo(goPluginDescriptor, null, null, null);
 
         metadataStore.setPluginInfo(analyticsPluginInfo);

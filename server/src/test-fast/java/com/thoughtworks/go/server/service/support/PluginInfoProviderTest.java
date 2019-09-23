@@ -24,7 +24,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -77,16 +80,19 @@ public class PluginInfoProviderTest {
     }
 
     private GoPluginDescriptor passwordFilePluginDescriptor() {
-        return new GoPluginDescriptor("cd.go.authentication.passwordfile", "1.0.1-48", getAbout("1.0.1-48"),
-                "/usr/gocd-filebased-authentication-plugin.jar", null, true);
+        return getPluginDescriptor("cd.go.authentication.passwordfile", "/usr/gocd-filebased-authentication-plugin.jar", "1.0.1-48");
     }
 
     private GoPluginDescriptor ldapPluginDescriptor() {
-        return new GoPluginDescriptor("cd.go.authentication.ldap", "1.1", getAbout("1.1"),
-                "/usr/gocd-ldap-authentication-plugin.jar", null, true);
+        return getPluginDescriptor("cd.go.authentication.ldap", "/usr/gocd-ldap-authentication-plugin.jar", "1.1");
     }
 
-    private GoPluginDescriptor.About getAbout(String version) {
-        return new GoPluginDescriptor.About("", version, "", "", null, null);
+    private GoPluginDescriptor getPluginDescriptor(String pluginId, String pluginJarFileLocation, String version) {
+        return GoPluginDescriptor.builder()
+                .version("1")
+                .id(pluginId)
+                .pluginJarFileLocation(pluginJarFileLocation)
+                .about(GoPluginDescriptor.About.builder().version(version).build())
+                .isBundledPlugin(true).build();
     }
 }

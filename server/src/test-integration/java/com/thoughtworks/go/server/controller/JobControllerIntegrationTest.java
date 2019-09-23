@@ -21,7 +21,10 @@ import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
-import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.domain.JobAgentMetadata;
+import com.thoughtworks.go.domain.JobInstance;
+import com.thoughtworks.go.domain.Pipeline;
+import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.fixture.PipelineWithTwoStages;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentMetadataStore;
 import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
@@ -53,8 +56,8 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Collections;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
@@ -180,8 +183,8 @@ public class JobControllerIntegrationTest {
         Pipeline pipeline = fixture.createPipelineWithFirstStageAssigned();
         Stage stage = pipeline.getFirstStage();
         JobInstance job = stage.getFirstJob();
-        GoPluginDescriptor.About about = new GoPluginDescriptor.About("name", "0.1", "17.3.0", "desc", null, null);
-        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin_id", null, about, null, null, false);
+        GoPluginDescriptor.About about = GoPluginDescriptor.About.builder().name("name").version("0.1").targetGoVersion("17.3.0").description("desc").build();
+        GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin_id").about(about).build();
         ElasticAgentMetadataStore.instance().setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, null, new Capabilities(false, true)));
 
         ElasticProfile profile = new ElasticProfile("profile_id", "cluster_profile_id", Collections.EMPTY_LIST);
@@ -201,8 +204,8 @@ public class JobControllerIntegrationTest {
         Stage stage = pipeline.getFirstStage();
         JobInstance job = stage.getFirstJob();
 
-        GoPluginDescriptor.About about = new GoPluginDescriptor.About("name", "0.1", "17.3.0", "desc", null, null);
-        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin_id", null, about, null, null, false);
+        GoPluginDescriptor.About about = GoPluginDescriptor.About.builder().name("name").version("0.1").targetGoVersion("17.3.0").description("desc").build();
+        GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin_id").about(about).build();
         ElasticAgentMetadataStore.instance().setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, null, new Capabilities(false, true)));
 
         ElasticProfile profile = new ElasticProfile("profile_id", "cluster_profile_id", Collections.EMPTY_LIST);
@@ -228,7 +231,7 @@ public class JobControllerIntegrationTest {
         Stage stage = pipeline.getFirstStage();
         JobInstance job = stage.getFirstJob();
 
-        final Agent agent = new Agent(job.getAgentUuid(),"localhost", "127.0.0.1", uuidGenerator.randomUuid());
+        final Agent agent = new Agent(job.getAgentUuid(), "localhost", "127.0.0.1", uuidGenerator.randomUuid());
         agentService.saveOrUpdate(agent);
 
         ModelAndView modelAndView = controller.jobDetail(pipeline.getName(), String.valueOf(pipeline.getCounter()),
@@ -244,7 +247,7 @@ public class JobControllerIntegrationTest {
         Stage stage = pipeline.getFirstStage();
         JobInstance job = stage.getFirstJob();
 
-        final Agent agent = new Agent(job.getAgentUuid(),"localhost", "127.0.0.1", uuidGenerator.randomUuid());
+        final Agent agent = new Agent(job.getAgentUuid(), "localhost", "127.0.0.1", uuidGenerator.randomUuid());
         agent.setElasticAgentId("elastic_agent_id");
         agent.setElasticPluginId("plugin_id");
         agentService.saveOrUpdate(agent);

@@ -18,7 +18,6 @@ package com.thoughtworks.go.apiv6.plugininfos
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
-import com.thoughtworks.go.apiv6.plugininfos.representers.Helper.PluginInfoMother
 import com.thoughtworks.go.apiv6.plugininfos.representers.PluginInfoRepresenter
 import com.thoughtworks.go.apiv6.plugininfos.representers.PluginInfosRepresenter
 import com.thoughtworks.go.plugin.access.ExtensionsRegistry
@@ -39,6 +38,8 @@ import org.junit.jupiter.api.Test
 import org.mockito.Mock
 
 import static com.thoughtworks.go.api.util.HaltApiMessages.notFoundMessage
+import static com.thoughtworks.go.helpers.PluginInfoMother.createAuthorizationPluginInfo
+import static com.thoughtworks.go.helpers.PluginInfoMother.createSCMPluginInfo
 import static org.mockito.Mockito.*
 import static org.mockito.MockitoAnnotations.initMocks
 
@@ -92,7 +93,7 @@ class PluginInfosControllerV6Test implements SecurityServiceTrait, ControllerTra
 
       @Test
       void 'should return plugin info of specified id'() {
-        def pluginInfo = new CombinedPluginInfo(PluginInfoMother.createAuthorizationPluginInfo())
+        def pluginInfo = new CombinedPluginInfo(createAuthorizationPluginInfo())
 
         when(pluginInfoFinder.pluginInfoFor('plugin_id')).thenReturn(pluginInfo)
         when(entityHashingService.md5ForEntity(pluginInfo)).thenReturn("md5")
@@ -108,7 +109,22 @@ class PluginInfosControllerV6Test implements SecurityServiceTrait, ControllerTra
 
       @Test
       void 'should return bad plugin info'() {
-        def descriptor = new GoPluginDescriptor("plugin_id", "1", new GoPluginDescriptor.About("authorization", "v1", "goVersion1", "go plugin", new GoPluginDescriptor.Vendor("go", "goUrl"), ["os"]), "/home/pluginjar/", null, true)
+        def about = GoPluginDescriptor.About.builder()
+          .name("authorization")
+          .version("v1")
+          .targetGoVersion("goVersion1")
+          .description("go plugin")
+          .vendor(new GoPluginDescriptor.Vendor("go", "goUrl"))
+          .targetOperatingSystems(["os"])
+          .build()
+
+        def descriptor = GoPluginDescriptor.builder()
+          .id("plugin_id")
+          .version("1")
+          .about(about)
+          .pluginJarFileLocation("/home/pluginjar/")
+          .isBundledPlugin(true)
+          .build()
         descriptor.markAsInvalid(new ArrayList<String>(), null)
         def pluginInfo = new CombinedPluginInfo(new BadPluginInfo(descriptor))
 
@@ -139,7 +155,23 @@ class PluginInfosControllerV6Test implements SecurityServiceTrait, ControllerTra
 
       @Test
       void 'should return 304 if plugin info is not modified'() {
-        def descriptor = new GoPluginDescriptor("plugin_id", "1", new GoPluginDescriptor.About("authorization", "v1", "goVersion1", "go plugin", new GoPluginDescriptor.Vendor("go", "goUrl"), ["os"]), "/home/pluginjar/", null, true)
+        def about = GoPluginDescriptor.About.builder()
+          .name("authorization")
+          .version("v1")
+          .targetGoVersion("goVersion1")
+          .description("go plugin")
+          .vendor(new GoPluginDescriptor.Vendor("go", "goUrl"))
+          .targetOperatingSystems(["os"])
+          .build()
+
+        def descriptor = GoPluginDescriptor.builder()
+          .id("plugin_id")
+          .version("1")
+          .about(about)
+          .pluginJarFileLocation("/home/pluginjar/")
+          .isBundledPlugin(true)
+          .build()
+
         def pluginInfo = new CombinedPluginInfo(new PluginInfo(descriptor, "authorization", null, null))
 
         when(pluginInfoFinder.pluginInfoFor('plugin_id')).thenReturn(pluginInfo)
@@ -178,8 +210,8 @@ class PluginInfosControllerV6Test implements SecurityServiceTrait, ControllerTra
       void setUp() {
         enableSecurity()
         loginAsAdmin()
-        def scmCombinedPluginInfo = new CombinedPluginInfo(PluginInfoMother.createSCMPluginInfo())
-        def authorizationCombinedPluginInfo = new CombinedPluginInfo(PluginInfoMother.createAuthorizationPluginInfo())
+        def scmCombinedPluginInfo = new CombinedPluginInfo(createSCMPluginInfo())
+        def authorizationCombinedPluginInfo = new CombinedPluginInfo(createAuthorizationPluginInfo())
         pluginInfos = new LinkedList<CombinedPluginInfo>()
         pluginInfos.add(scmCombinedPluginInfo)
         pluginInfos.add(authorizationCombinedPluginInfo)
@@ -201,7 +233,23 @@ class PluginInfosControllerV6Test implements SecurityServiceTrait, ControllerTra
 
       @Test
       void 'should return only plugin infos with supported extension type'() {
-        def descriptor = new GoPluginDescriptor("plugin_id", "1", new GoPluginDescriptor.About("authorization", "v1", "goVersion1", "go plugin", new GoPluginDescriptor.Vendor("go", "goUrl"), ["os"]), "/home/pluginjar/", null, true)
+        def about = GoPluginDescriptor.About.builder()
+          .name("authorization")
+          .version("v1")
+          .targetGoVersion("goVersion1")
+          .description("go plugin")
+          .vendor(new GoPluginDescriptor.Vendor("go", "goUrl"))
+          .targetOperatingSystems(["os"])
+          .build()
+
+        def descriptor = GoPluginDescriptor.builder()
+          .id("plugin_id")
+          .version("1")
+          .about(about)
+          .pluginJarFileLocation("/home/pluginjar/")
+          .isBundledPlugin(true)
+          .build()
+
         descriptor.markAsInvalid(new ArrayList<String>(), null)
         def pluginInfoWithInvalidExtension = new CombinedPluginInfo(new PluginInfo(descriptor, "Invalid extension name", null, null))
 
@@ -234,7 +282,23 @@ class PluginInfosControllerV6Test implements SecurityServiceTrait, ControllerTra
         HashMap<String, String> queryParams = new HashMap<String, String>()
         queryParams.put("include_bad", "true")
 
-        def badPluginDescriptor = new GoPluginDescriptor("authorization", "1", new GoPluginDescriptor.About("docker", "v1", "goVersion1", "go plugin", new GoPluginDescriptor.Vendor("go", "goUrl"), ["os"]), "/home/authorization/plugin_jar/", null, true)
+        def about = GoPluginDescriptor.About.builder()
+          .name("docker")
+          .version("v1")
+          .targetGoVersion("goVersion1")
+          .description("go plugin")
+          .vendor(new GoPluginDescriptor.Vendor("go", "goUrl"))
+          .targetOperatingSystems(["os"])
+          .build()
+
+        def badPluginDescriptor = GoPluginDescriptor.builder()
+          .id("authorization")
+          .version("1")
+          .about(about)
+          .pluginJarFileLocation("/home/authorization/plugin_jar/")
+          .isBundledPlugin(true)
+          .build()
+
         badPluginDescriptor.markAsInvalid(new ArrayList<String>(), null)
 
         def pluginDescriptors = new ArrayList<GoPluginDescriptor>()

@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.apiv6.plugininfos.representers.extensions
 
-import com.thoughtworks.go.apiv6.plugininfos.representers.Helper.PluginInfoMother
+import com.thoughtworks.go.helpers.PluginInfoMother
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString

@@ -41,8 +41,8 @@ class DefaultPluginRegistryTest {
         File pluginFile = mock(File.class);
         String message = "random failure";
 
-        final GoPluginDescriptor pluginDescriptor1 = new GoPluginDescriptor("plugin-id_1", "1.0", null, null, pluginFile, true);
-        final GoPluginDescriptor pluginDescriptor2 = new GoPluginDescriptor("plugin-id_2", "1.0", null, null, pluginFile, true);
+        final GoPluginDescriptor pluginDescriptor1 = getPluginDescriptor("plugin-id_1", "Abc", "1.0", pluginFile.getAbsolutePath());
+        final GoPluginDescriptor pluginDescriptor2 = getPluginDescriptor("plugin-id_2", "Xyz", "1.0", pluginFile.getAbsolutePath());
         GoPluginBundleDescriptor descriptor = new GoPluginBundleDescriptor(pluginDescriptor1, pluginDescriptor2);
         registry.loadPlugin(descriptor);
 
@@ -56,6 +56,20 @@ class DefaultPluginRegistryTest {
         assertThat(loadedDescriptor2.isInvalid()).isTrue();
         assertThat(loadedDescriptor2.getStatus().getMessages()).contains(message);
     }
+
+    private GoPluginDescriptor getPluginDescriptor(String id, String name, String version, String pluginJarLocation) {
+        return GoPluginDescriptor.builder().id(id)
+                .version("1.0")
+                .about(GoPluginDescriptor.About.builder()
+                        .name(name)
+                        .targetGoVersion("19.5")
+                        .version(version)
+                        .build())
+                .pluginJarFileLocation(pluginJarLocation)
+                .isBundledPlugin(true)
+                .build();
+    }
+
 
     @Test
     void testThrowExceptionWhenBundleSymbolicNameNotFound() {
@@ -73,10 +87,10 @@ class DefaultPluginRegistryTest {
 
     @Test
     void shouldListAllLoadedPlugins() {
-        final GoPluginDescriptor pluginDescriptor1 = GoPluginDescriptor.usingId("id1", null, null, true);
+        final GoPluginDescriptor pluginDescriptor1 = GoPluginDescriptor.builder().id("id1").isBundledPlugin(true).build();
         registry.loadPlugin(new GoPluginBundleDescriptor(pluginDescriptor1));
 
-        final GoPluginDescriptor pluginDescriptor2 = GoPluginDescriptor.usingId("id2", null, null, true);
+        final GoPluginDescriptor pluginDescriptor2 = GoPluginDescriptor.builder().id("id2").isBundledPlugin(true).build();
         registry.loadPlugin(new GoPluginBundleDescriptor(pluginDescriptor2));
 
         assertThat(registry.plugins().size()).isEqualTo(2);
@@ -85,8 +99,8 @@ class DefaultPluginRegistryTest {
 
     @Test
     void shouldRegisterAllPluginsInABundle() {
-        GoPluginDescriptor pluginDescriptor1 = GoPluginDescriptor.usingId("id1", null, null, true);
-        GoPluginDescriptor pluginDescriptor2 = GoPluginDescriptor.usingId("id2", null, null, true);
+        GoPluginDescriptor pluginDescriptor1 = GoPluginDescriptor.builder().id("id1").isBundledPlugin(true).build();
+        GoPluginDescriptor pluginDescriptor2 = GoPluginDescriptor.builder().id("id2").isBundledPlugin(true).build();
 
         registry.loadPlugin(new GoPluginBundleDescriptor(pluginDescriptor1, pluginDescriptor2));
 
@@ -96,7 +110,7 @@ class DefaultPluginRegistryTest {
 
     @Test
     void shouldReturnThePluginWithGivenId() {
-        final GoPluginDescriptor pluginDescriptor = GoPluginDescriptor.usingId("id", null, null, true);
+        final GoPluginDescriptor pluginDescriptor = GoPluginDescriptor.builder().id("id").isBundledPlugin(true).build();
         registry.loadPlugin(new GoPluginBundleDescriptor(pluginDescriptor));
 
         assertThat(registry.getPlugin("id")).isEqualTo(pluginDescriptor);
@@ -106,10 +120,18 @@ class DefaultPluginRegistryTest {
 
     @Test
     void shouldUnloadPluginFromRegistry() {
-        final GoPluginDescriptor pluginDescriptor1 = GoPluginDescriptor.usingId("id1", "location-one.jar", new File("location-one"), true);
+        final GoPluginDescriptor pluginDescriptor1 = GoPluginDescriptor.builder().id("id1")
+                .bundleLocation(new File("location-one"))
+                .pluginJarFileLocation("location-one.jar")
+                .isBundledPlugin(true)
+                .build();
         registry.loadPlugin(new GoPluginBundleDescriptor(pluginDescriptor1));
 
-        final GoPluginDescriptor pluginDescriptor2 = GoPluginDescriptor.usingId("id2", "location-two.jar", new File("location-two"), true);
+        final GoPluginDescriptor pluginDescriptor2 = GoPluginDescriptor.builder().id("id2")
+                .bundleLocation(new File("location-two"))
+                .pluginJarFileLocation("location-two.jar")
+                .isBundledPlugin(true)
+                .build();
         registry.loadPlugin(new GoPluginBundleDescriptor(pluginDescriptor2));
 
         assertThat(registry.plugins().size()).isEqualTo(2);
@@ -123,9 +145,21 @@ class DefaultPluginRegistryTest {
 
     @Test
     void shouldUnloadAllPluginsInABundleFromRegistry() {
-        final GoPluginDescriptor pluginDescriptor1 = GoPluginDescriptor.usingId("id1", "location-one.jar", new File("location-one"), true);
-        final GoPluginDescriptor pluginDescriptor2 = GoPluginDescriptor.usingId("id2", "location-two.jar", new File("location-two"), true);
-        final GoPluginDescriptor pluginDescriptor3 = GoPluginDescriptor.usingId("id3", "location-two.jar", new File("location-two"), true);
+        final GoPluginDescriptor pluginDescriptor1 = GoPluginDescriptor.builder().id("id1")
+                .bundleLocation(new File("location-one"))
+                .pluginJarFileLocation("location-one.jar")
+                .isBundledPlugin(true)
+                .build();
+        final GoPluginDescriptor pluginDescriptor2 = GoPluginDescriptor.builder().id("id2")
+                .bundleLocation(new File("location-two"))
+                .pluginJarFileLocation("location-two.jar")
+                .isBundledPlugin(true)
+                .build();
+        final GoPluginDescriptor pluginDescriptor3 = GoPluginDescriptor.builder().id("id3")
+                .bundleLocation(new File("location-two"))
+                .pluginJarFileLocation("location-two.jar")
+                .isBundledPlugin(true)
+                .build();
 
         final GoPluginBundleDescriptor bundle1 = new GoPluginBundleDescriptor(pluginDescriptor1);
         final GoPluginBundleDescriptor bundle2 = new GoPluginBundleDescriptor(pluginDescriptor2, pluginDescriptor3);
@@ -146,11 +180,19 @@ class DefaultPluginRegistryTest {
     void shouldBeAbleToUnloadThePluginBasedOnFileNameEvenIfTheIDHasBeenChanged() {
         File bundleLocation = mock(File.class);
         when(bundleLocation.getName()).thenReturn("plugin-id");
-        GoPluginBundleDescriptor oldBundleDescriptor = new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("old-plugin-id", "some-plugin.jar", bundleLocation, true));
+        GoPluginBundleDescriptor oldBundleDescriptor = new GoPluginBundleDescriptor(GoPluginDescriptor.builder().id("old-plugin-id")
+                .bundleLocation(bundleLocation)
+                .pluginJarFileLocation("some-plugin.jar")
+                .isBundledPlugin(true)
+                .build());
         registry.loadPlugin(oldBundleDescriptor);
 
 
-        GoPluginBundleDescriptor descriptorOfPluginToBeUnloaded = new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("new-plugin-id", "some-plugin.jar", bundleLocation, true));
+        GoPluginBundleDescriptor descriptorOfPluginToBeUnloaded = new GoPluginBundleDescriptor(GoPluginDescriptor.builder().id("new-plugin-id")
+                .bundleLocation(bundleLocation)
+                .pluginJarFileLocation("some-plugin.jar")
+                .isBundledPlugin(true)
+                .build());
         GoPluginBundleDescriptor descriptorOfUnloadedPlugin = registry.unloadPlugin(descriptorOfPluginToBeUnloaded);
 
         assertThat(descriptorOfUnloadedPlugin).isEqualTo(oldBundleDescriptor);
@@ -159,18 +201,22 @@ class DefaultPluginRegistryTest {
 
     @Test
     void shouldNotUnloadAPluginIfItWasNotLoadedBefore() {
-        assertThatCode(() -> registry.unloadPlugin(new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("id1", null, null, true))))
+        assertThatCode(() -> registry.unloadPlugin(new GoPluginBundleDescriptor(GoPluginDescriptor.builder().id("id1").isBundledPlugin(true).build())))
                 .isInstanceOf(RuntimeException.class);
     }
 
     @Test
     void shouldNotLoadAnyPluginsInBundleIfThereIsOneMorePluginWithTheSameIDAlreadyInTheRegistry() {
-        final GoPluginDescriptor pluginDescriptor = new GoPluginDescriptor("id_Z", "1", new GoPluginDescriptor.About("name1", "1.0", "19.5", null, null, null), "/tmp/path/1", null, true);
+        final GoPluginDescriptor pluginDescriptor = getPluginDescriptor("id_Z", "name1", "1.0", "/tmp/path/1");
         GoPluginBundleDescriptor bundleDescriptor = new GoPluginBundleDescriptor(pluginDescriptor);
         registry.loadPlugin(bundleDescriptor);
 
-        final GoPluginDescriptor pluginDescriptor1 = GoPluginDescriptor.usingId("id_Y", "/tmp/path/2", null, true);
-        final GoPluginDescriptor pluginDescriptor2 = new GoPluginDescriptor("id_Z", "1", new GoPluginDescriptor.About("name2", "2.0", "19.5", null, null, null), "/tmp/path/1", null, true);
+        final GoPluginDescriptor pluginDescriptor1 = GoPluginDescriptor.builder().id("id_Y")
+                .bundleLocation(null)
+                .pluginJarFileLocation("/tmp/path/2")
+                .isBundledPlugin(true)
+                .build();
+        final GoPluginDescriptor pluginDescriptor2 = getPluginDescriptor("id_Z", "name2", "2.0", "/tmp/path/1");
         GoPluginBundleDescriptor newPluginBundle = new GoPluginBundleDescriptor(pluginDescriptor1, pluginDescriptor2);
 
         try {
@@ -183,10 +229,10 @@ class DefaultPluginRegistryTest {
 
     @Test
     void shouldNotLoadPluginIfThereIsOneMorePluginWithTheSameIDAndDifferentCase() {
-        GoPluginBundleDescriptor descriptor = new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("id1", null, null, true));
+        GoPluginBundleDescriptor descriptor = new GoPluginBundleDescriptor(GoPluginDescriptor.builder().id("id1").isBundledPlugin(true).build());
         registry.loadPlugin(descriptor);
 
-        GoPluginBundleDescriptor secondPluginBundleDescriptor = new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("iD1", null, null, true));
+        GoPluginBundleDescriptor secondPluginBundleDescriptor = new GoPluginBundleDescriptor(GoPluginDescriptor.builder().id("iD1").isBundledPlugin(true).build());
 
         assertThatCode(() -> registry.loadPlugin(secondPluginBundleDescriptor))
                 .isInstanceOf(RuntimeException.class);
@@ -194,12 +240,12 @@ class DefaultPluginRegistryTest {
 
     @Test
     void shouldFindABundleBySymbolicName() {
-        final GoPluginDescriptor pluginDescriptor1 = GoPluginDescriptor.usingId("plugin.1", null, null, false);
-        final GoPluginDescriptor pluginDescriptor2 = GoPluginDescriptor.usingId("plugin.2", null, null, false);
+        final GoPluginDescriptor pluginDescriptor1 = GoPluginDescriptor.builder().id("plugin.1").build();
+        final GoPluginDescriptor pluginDescriptor2 = GoPluginDescriptor.builder().id("plugin.2").build();
         final GoPluginBundleDescriptor bundleDescriptor1 = new GoPluginBundleDescriptor(pluginDescriptor1, pluginDescriptor2);
 
-        final GoPluginDescriptor pluginDescriptor3 = GoPluginDescriptor.usingId("plugin.3", null, null, false);
-        final GoPluginDescriptor pluginDescriptor4 = GoPluginDescriptor.usingId("plugin.4", null, null, false);
+        final GoPluginDescriptor pluginDescriptor3 = GoPluginDescriptor.builder().id("plugin.3").build();
+        final GoPluginDescriptor pluginDescriptor4 = GoPluginDescriptor.builder().id("plugin.4").build();
         final GoPluginBundleDescriptor bundleDescriptor2 = new GoPluginBundleDescriptor(pluginDescriptor3, pluginDescriptor4);
 
         registry.loadPlugin(bundleDescriptor1);
@@ -212,10 +258,10 @@ class DefaultPluginRegistryTest {
 
     @Test
     void shouldGetPluginIDForAGivenBundleExtensionClass() {
-        final GoPluginDescriptor pluginDescriptor1 = GoPluginDescriptor.usingId("plugin.1", null, null, false);
+        final GoPluginDescriptor pluginDescriptor1 = GoPluginDescriptor.builder().id("plugin.1").build();
         pluginDescriptor1.addExtensionClasses(asList("com.path.to.ExtensionClass1", "com.path.to.ExtensionClass2"));
 
-        final GoPluginDescriptor pluginDescriptor2 = GoPluginDescriptor.usingId("plugin.2", null, null, false);
+        final GoPluginDescriptor pluginDescriptor2 = GoPluginDescriptor.builder().id("plugin.2").build();
         pluginDescriptor2.addExtensionClasses(singletonList("com.path.to.ExtensionClass3"));
 
         final GoPluginBundleDescriptor bundleDescriptor = new GoPluginBundleDescriptor(pluginDescriptor1, pluginDescriptor2);
@@ -230,7 +276,7 @@ class DefaultPluginRegistryTest {
 
     @Test
     void shouldHandleLegacyPluginWhichHasNoDefinedExtensions_WhenAskedForPluginID() {
-        final GoPluginDescriptor pluginDescriptor = GoPluginDescriptor.usingId("plugin.1", null, null, false);
+        final GoPluginDescriptor pluginDescriptor = GoPluginDescriptor.builder().id("plugin.1").build();
         final GoPluginBundleDescriptor bundleDescriptor = new GoPluginBundleDescriptor(pluginDescriptor);
 
         registry.loadPlugin(bundleDescriptor);
@@ -241,10 +287,10 @@ class DefaultPluginRegistryTest {
 
     @Test
     void shouldProvideAllRegisteredExtensionsAcrossPluginsInABundle() {
-        final GoPluginDescriptor pluginDescriptor1 = GoPluginDescriptor.usingId("plugin.1", null, null, false);
+        final GoPluginDescriptor pluginDescriptor1 = GoPluginDescriptor.builder().id("plugin.1").build();
         pluginDescriptor1.addExtensionClasses(asList("com.path.to.ExtensionClass1", "com.path.to.ExtensionClass2"));
 
-        final GoPluginDescriptor pluginDescriptor2 = GoPluginDescriptor.usingId("plugin.2", null, null, false);
+        final GoPluginDescriptor pluginDescriptor2 = GoPluginDescriptor.builder().id("plugin.2").build();
         pluginDescriptor2.addExtensionClasses(singletonList("com.path.to.ExtensionClass3"));
 
         final GoPluginBundleDescriptor bundleDescriptor = new GoPluginBundleDescriptor(pluginDescriptor1, pluginDescriptor2);
@@ -256,7 +302,7 @@ class DefaultPluginRegistryTest {
 
     @Test
     void shouldSayThatALegacyPluginHasNoExtensionClassesInTheWholeBundle() {
-        GoPluginBundleDescriptor bundleDescriptor = new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("iD1", null, null, true));
+        GoPluginBundleDescriptor bundleDescriptor = new GoPluginBundleDescriptor(GoPluginDescriptor.builder().id("iD1").isBundledPlugin(true).build());
         registry.loadPlugin(bundleDescriptor);
 
         assertThat(registry.extensionClassesIn(bundleDescriptor.bundleSymbolicName())).isEqualTo(emptyList());

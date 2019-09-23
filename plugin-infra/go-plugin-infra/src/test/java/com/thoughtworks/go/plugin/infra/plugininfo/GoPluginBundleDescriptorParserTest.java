@@ -24,19 +24,20 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
+import static com.thoughtworks.go.plugin.infra.plugininfo.GoPluginBundleDescriptorParser.parseXML;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Fail.fail;
 
 class GoPluginBundleDescriptorParserTest {
     @Test
     void shouldParseValidVersionOfPluginBundleXML() throws IOException, SAXException {
         InputStream pluginXml = getClass().getClassLoader().getResourceAsStream("defaultFiles/valid-gocd-bundle.xml");
-        final GoPluginBundleDescriptor bundleDescriptor = GoPluginBundleDescriptorParser.parseXML(pluginXml, "/tmp/a.jar", new File("/tmp/"), true);
+        final GoPluginBundleDescriptor bundleDescriptor = parseXML(pluginXml, "/tmp/a.jar", new File("/tmp/"), true);
 
         assertThat(bundleDescriptor.descriptors().size()).isEqualTo(2);
-
+        assertThat(bundleDescriptor.getVersion()).isEqualTo("1");
 
         final GoPluginDescriptor pluginDescriptor1 = bundleDescriptor.descriptors().get(0);
         assertPluginDescriptor(pluginDescriptor1, "testplugin.multipluginbundle.plugin1",

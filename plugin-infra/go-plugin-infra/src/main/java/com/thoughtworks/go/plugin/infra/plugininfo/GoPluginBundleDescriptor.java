@@ -16,26 +16,36 @@
 
 package com.thoughtworks.go.plugin.infra.plugininfo;
 
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.osgi.framework.Bundle;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Getter
+@ToString
+@EqualsAndHashCode
 public class GoPluginBundleDescriptor {
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private Bundle bundle;
+
+    private String version;
     private List<GoPluginDescriptor> pluginDescriptors;
 
     public GoPluginBundleDescriptor(GoPluginDescriptor... pluginDescriptors) {
-        this.pluginDescriptors = Arrays.asList(pluginDescriptors);
-        for (GoPluginDescriptor goPluginDescriptor : pluginDescriptors) {
-            goPluginDescriptor.setBundleDescriptor(this);
-        }
+        this.pluginDescriptors = List.of(pluginDescriptors);
+        this.pluginDescriptors.forEach(descriptor -> descriptor.setBundleDescriptor(this));
+    }
+
+    public GoPluginBundleDescriptor(String version, GoPluginDescriptor... pluginDescriptors) {
+        this(pluginDescriptors);
+        this.version = version;
     }
 
     public List<GoPluginDescriptor> descriptors() {
@@ -43,22 +53,20 @@ public class GoPluginBundleDescriptor {
     }
 
     public boolean isBundledPlugin() {
-        return pluginDescriptors.get(0).isBundledPlugin();
+        return first().isBundledPlugin();
     }
 
     public GoPluginBundleDescriptor markAsInvalid(List<String> messages, Exception e) {
-        for (GoPluginDescriptor pluginDescriptor : pluginDescriptors) {
-            pluginDescriptor.markAsInvalidWithoutUpdatingBundleDescriptor(messages, e);
-        }
+        pluginDescriptors.forEach(pluginDescriptor -> pluginDescriptor.markAsInvalidWithoutUpdatingBundleDescriptor(messages, e));
         return this;
     }
 
     public String fileName() {
-        return new File(pluginDescriptors.get(0).pluginFileLocation()).getName();
+        return new File(first().pluginFileLocation()).getName();
     }
 
     public String bundleJARFileLocation() {
-        return descriptors().get(0).pluginFileLocation();
+        return first().pluginFileLocation();
     }
 
     public boolean isInvalid() {
@@ -66,7 +74,7 @@ public class GoPluginBundleDescriptor {
     }
 
     public File bundleLocation() {
-        return pluginDescriptors.get(0).bundleLocation();
+        return first().bundleLocation();
     }
 
     public GoPluginBundleDescriptor setBundle(Bundle bundle) {
@@ -90,30 +98,11 @@ public class GoPluginBundleDescriptor {
         return descriptors().stream().map(GoPluginDescriptor::id).collect(Collectors.toList());
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-
-        if (o == null || getClass() != o.getClass()) return false;
-
-        GoPluginBundleDescriptor that = (GoPluginBundleDescriptor) o;
-
-        return new EqualsBuilder()
-                .append(pluginDescriptors, that.pluginDescriptors)
-                .isEquals();
+    private GoPluginDescriptor first() {
+        return this.pluginDescriptors.get(0);
     }
 
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder(17, 37)
-                .append(pluginDescriptors)
-                .toHashCode();
-    }
-
-    @Override
-    public String toString() {
-        return "GoPluginBundleDescriptor{" +
-                "pluginDescriptors=" + pluginDescriptors +
-                '}';
+    public String getVersion() {
+        return version;
     }
 }

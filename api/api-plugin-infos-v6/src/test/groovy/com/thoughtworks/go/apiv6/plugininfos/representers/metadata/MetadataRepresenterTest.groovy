@@ -31,7 +31,7 @@ class MetadataRepresenterTest {
     })
 
     def expectedJson = [
-      secure: true,
+      secure  : true,
       required: true
     ]
 

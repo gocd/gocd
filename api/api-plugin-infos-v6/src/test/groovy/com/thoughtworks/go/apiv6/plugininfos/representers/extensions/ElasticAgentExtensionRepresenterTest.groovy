@@ -16,17 +16,18 @@
 
 package com.thoughtworks.go.apiv6.plugininfos.representers.extensions
 
-import com.thoughtworks.go.apiv6.plugininfos.representers.Helper.PluginInfoMother
+import com.thoughtworks.go.helpers.PluginInfoMother
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.helpers.PluginInfoMother.createElasticAgentPluginInfoForV4
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
 class ElasticAgentExtensionRepresenterTest {
   @Test
   void 'should serialize Elastic agent info to json for elastic agent V4 extension'() {
     def actualJson = toObjectString({
-      new ElasticAgentExtensionRepresenter().toJSON(it, PluginInfoMother.createElasticAgentPluginInfoForV4())
+      new ElasticAgentExtensionRepresenter().toJSON(it, createElasticAgentPluginInfoForV4())
     })
     def expectedJSON = [
       "type"                          : "elastic-agent",

@@ -40,7 +40,7 @@ public class NotificationPluginInfoBuilderTest {
     private NotificationExtension extension;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         extension = mock(NotificationExtension.class);
 
         PluginSettingsConfiguration value = new PluginSettingsConfiguration();
@@ -51,10 +51,10 @@ public class NotificationPluginInfoBuilderTest {
     }
 
     @Test
-    public void shouldBuildPluginInfo() throws Exception {
-        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
+    public void shouldBuildPluginInfo() {
+        GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin1").build();
 
-        NotificationPluginInfo pluginInfo = new NotificationPluginInfoBuilder(extension) .pluginInfoFor(descriptor);
+        NotificationPluginInfo pluginInfo = new NotificationPluginInfoBuilder(extension).pluginInfoFor(descriptor);
 
         List<PluginConfiguration> pluginConfigurations = Arrays.asList(
                 new PluginConfiguration("username", new Metadata(true, false)),
@@ -68,11 +68,11 @@ public class NotificationPluginInfoBuilderTest {
     }
 
     @Test
-    public void shouldContinueWithBuildingPluginInfoWhenPluginSettingsIsNotProvidedByPlugin() throws Exception {
-        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
+    public void shouldContinueWithBuildingPluginInfoWhenPluginSettingsIsNotProvidedByPlugin() {
+        GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin1").build();
 
         when(extension.getPluginSettingsConfiguration("plugin1")).thenReturn(null);
-        NotificationPluginInfo pluginInfo = new NotificationPluginInfoBuilder(extension) .pluginInfoFor(descriptor);
+        NotificationPluginInfo pluginInfo = new NotificationPluginInfoBuilder(extension).pluginInfoFor(descriptor);
 
         assertThat(pluginInfo.getDescriptor(), is(descriptor));
         assertThat(pluginInfo.getExtensionName(), is("notification"));
@@ -80,11 +80,11 @@ public class NotificationPluginInfoBuilderTest {
     }
 
     @Test
-    public void shouldContinueWithBuildingPluginInfoWhenPluginViewIsNotProvidedByPlugin() throws Exception {
-        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
+    public void shouldContinueWithBuildingPluginInfoWhenPluginViewIsNotProvidedByPlugin() {
+        GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin1").build();
 
         when(extension.getPluginSettingsView("plugin1")).thenReturn(null);
-        NotificationPluginInfo pluginInfo = new NotificationPluginInfoBuilder(extension) .pluginInfoFor(descriptor);
+        NotificationPluginInfo pluginInfo = new NotificationPluginInfoBuilder(extension).pluginInfoFor(descriptor);
 
         assertThat(pluginInfo.getDescriptor(), is(descriptor));
         assertThat(pluginInfo.getExtensionName(), is("notification"));

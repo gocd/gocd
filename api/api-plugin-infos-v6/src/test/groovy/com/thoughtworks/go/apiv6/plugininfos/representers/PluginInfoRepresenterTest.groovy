@@ -16,12 +16,13 @@
 
 package com.thoughtworks.go.apiv6.plugininfos.representers
 
-import com.thoughtworks.go.apiv6.plugininfos.representers.Helper.PluginInfoMother
+
 import com.thoughtworks.go.plugin.domain.common.CombinedPluginInfo
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.helpers.PluginInfoMother.*
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
 class PluginInfoRepresenterTest {
@@ -117,7 +118,7 @@ class PluginInfoRepresenterTest {
   @Test
   void 'it should serialize valid pluginInfo'() {
     def actualJson = toObjectString({
-      PluginInfoRepresenter.toJSON(it, new CombinedPluginInfo(PluginInfoMother.createAuthorizationPluginInfo()))
+      PluginInfoRepresenter.toJSON(it, new CombinedPluginInfo(createAuthorizationPluginInfo()))
     })
 
     assertThatJson(actualJson).isEqualTo(expectedJson())
@@ -126,7 +127,7 @@ class PluginInfoRepresenterTest {
   @Test
   void "it should serialize bad plugin info"() {
     def actualJson = toObjectString({
-      PluginInfoRepresenter.toJSON(it, new CombinedPluginInfo(PluginInfoMother.createBadPluginInfo()))
+      PluginInfoRepresenter.toJSON(it, new CombinedPluginInfo(createBadPluginInfo()))
     })
 
     def expectedJson = [
@@ -170,7 +171,7 @@ class PluginInfoRepresenterTest {
   @Test
   void "should serialize plugin info if about information is not specified"() {
     def actualJson = toObjectString({
-      PluginInfoRepresenter.toJSON(it, new CombinedPluginInfo(PluginInfoMother.createAuthorizationPluginInfoWithoutAbout()))
+      PluginInfoRepresenter.toJSON(it, new CombinedPluginInfo(createAuthorizationPluginInfoWithoutAbout()))
     })
     def expectedJson = [
       "_links"              : [
@@ -224,7 +225,7 @@ class PluginInfoRepresenterTest {
   @Test
   void "should serialize plugin info if image is not specified"() {
     def actualJson = toObjectString({
-      PluginInfoRepresenter.toJSON(it, new CombinedPluginInfo(PluginInfoMother.createAuthorizationPluginInfoWithoutImage()))
+      PluginInfoRepresenter.toJSON(it, new CombinedPluginInfo(createAuthorizationPluginInfoWithoutImage()))
     })
     def expectedJson = [
       "_links"              : [

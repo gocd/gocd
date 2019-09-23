@@ -29,8 +29,8 @@ describe Admin::StatusReportsController do
 
     describe 'security' do
       before :each do
-        pluginDescriptor = GoPluginDescriptor.new(elastic_plugin_id, nil, nil, nil, nil, nil)
-        ElasticAgentMetadataStore.instance().setPluginInfo(com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo.new(pluginDescriptor, nil, nil, nil, nil, nil))
+        plugin_descriptor = GoPluginDescriptor.builder.id(elastic_plugin_id).build
+        ElasticAgentMetadataStore.instance().setPluginInfo(com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo.new(plugin_descriptor, nil, nil, nil, nil, nil))
       end
 
       after :each do
@@ -74,7 +74,7 @@ describe Admin::StatusReportsController do
 
       allow(controller).to receive(:elastic_agent_plugin_service).and_return(elastic_agent_plugin_service)
       capabilities = com.thoughtworks.go.plugin.domain.elastic.Capabilities.new(true)
-      pluginDescriptor = GoPluginDescriptor.new(elastic_plugin_id, nil, nil, nil, nil, nil)
+      pluginDescriptor = GoPluginDescriptor.builder.id(elastic_plugin_id).build
       ElasticAgentMetadataStore.instance().setPluginInfo(com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo.new(pluginDescriptor, nil, nil, nil, nil, capabilities))
 
       get :plugin_status, params: {:plugin_id => elastic_plugin_id}
@@ -90,7 +90,7 @@ describe Admin::StatusReportsController do
 
 
       capabilities = com.thoughtworks.go.plugin.domain.elastic.Capabilities.new(false)
-      pluginDescriptor = GoPluginDescriptor.new(elastic_plugin_id, nil, nil, nil, nil, nil)
+      pluginDescriptor = GoPluginDescriptor.builder.id(elastic_plugin_id).build
       ElasticAgentMetadataStore.instance().setPluginInfo(com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo.new(pluginDescriptor, nil, nil, nil, nil, capabilities))
 
       get :plugin_status, params: {:plugin_id => elastic_plugin_id}
@@ -109,7 +109,7 @@ describe Admin::StatusReportsController do
 
     describe 'security' do
       before :each do
-        pluginDescriptor = GoPluginDescriptor.new(elastic_plugin_id, nil, nil, nil, nil, nil)
+        pluginDescriptor = GoPluginDescriptor.builder.id(elastic_plugin_id).build
         ElasticAgentMetadataStore.instance().setPluginInfo(com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo.new(pluginDescriptor, nil, nil, nil, nil, nil))
       end
 
@@ -150,7 +150,7 @@ describe Admin::StatusReportsController do
 
     it 'should be unprocessable entity when required parameters are not provided' do
       capabilities = com.thoughtworks.go.plugin.domain.elastic.Capabilities.new(true, true)
-      pluginDescriptor = GoPluginDescriptor.new(elastic_plugin_id, nil, nil, nil, nil, nil)
+      pluginDescriptor = GoPluginDescriptor.builder.id(elastic_plugin_id).build
       ElasticAgentMetadataStore.instance().setPluginInfo(com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo.new(pluginDescriptor, nil, nil, nil, nil, capabilities))
 
       get :agent_status, params: {:plugin_id => elastic_plugin_id, :elastic_agent_id => 'unassigned'}
@@ -175,7 +175,7 @@ describe Admin::StatusReportsController do
       allow(controller).to receive(:job_instance_service).and_return(job_instance_service)
 
       capabilities = com.thoughtworks.go.plugin.domain.elastic.Capabilities.new(false, true)
-      pluginDescriptor = GoPluginDescriptor.new(elastic_plugin_id, nil, nil, nil, nil, nil)
+      pluginDescriptor = GoPluginDescriptor.builder.id(elastic_plugin_id).build
       ElasticAgentMetadataStore.instance().setPluginInfo(com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo.new(pluginDescriptor, nil, nil, nil, nil, capabilities))
 
       get :agent_status, params: {:plugin_id => elastic_plugin_id, :job_id => '100', :elastic_agent_id => 'unassigned'}
@@ -202,7 +202,7 @@ describe Admin::StatusReportsController do
       allow(controller).to receive(:job_instance_service).and_return(job_instance_service)
 
       capabilities = com.thoughtworks.go.plugin.domain.elastic.Capabilities.new(false, true)
-      pluginDescriptor = GoPluginDescriptor.new(elastic_plugin_id, nil, nil, nil, nil, nil)
+      pluginDescriptor = GoPluginDescriptor.builder.id(elastic_plugin_id).build
       ElasticAgentMetadataStore.instance().setPluginInfo(com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo.new(pluginDescriptor, nil, nil, nil, nil, capabilities))
 
       get :agent_status, params: {:plugin_id => elastic_plugin_id, :job_id => '100', :elastic_agent_id => 'unassigned'}
@@ -218,7 +218,7 @@ describe Admin::StatusReportsController do
       allow(controller).to receive(:elastic_agent_plugin_service).and_return(elastic_agent_plugin_service)
 
       capabilities = com.thoughtworks.go.plugin.domain.elastic.Capabilities.new(false)
-      pluginDescriptor = GoPluginDescriptor.new(elastic_plugin_id, nil, nil, nil, nil, nil)
+      pluginDescriptor = GoPluginDescriptor.builder.id(elastic_plugin_id).build
       ElasticAgentMetadataStore.instance().setPluginInfo(com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo.new(pluginDescriptor, nil, nil, nil, nil, capabilities))
 
       get :agent_status, params: {:plugin_id => elastic_plugin_id, :job_id => '100', :elastic_agent_id => 'unassigned'}
@@ -237,7 +237,7 @@ describe Admin::StatusReportsController do
 
     describe 'security' do
       before :each do
-        pluginDescriptor = GoPluginDescriptor.new(elastic_plugin_id, nil, nil, nil, nil, nil)
+        pluginDescriptor = GoPluginDescriptor.builder.id(elastic_plugin_id).build
         ElasticAgentMetadataStore.instance().setPluginInfo(com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo.new(pluginDescriptor, nil, nil, nil, nil, nil))
       end
 
@@ -278,7 +278,7 @@ describe Admin::StatusReportsController do
 
     it 'should be unprocessable entity when required parameters are not provided' do
       capabilities = com.thoughtworks.go.plugin.domain.elastic.Capabilities.new(true)
-      pluginDescriptor = GoPluginDescriptor.new(elastic_plugin_id, nil, nil, nil, nil, nil)
+      pluginDescriptor = GoPluginDescriptor.builder.id(elastic_plugin_id).build
       ElasticAgentMetadataStore.instance().setPluginInfo(com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo.new(pluginDescriptor, nil, nil, nil, nil, capabilities))
 
       get :agent_status, params: {:plugin_id => elastic_plugin_id, :elastic_agent_id => 'unassigned'}
@@ -288,7 +288,7 @@ describe Admin::StatusReportsController do
 
     it 'should be unprocessable entity when job id is not provided' do
       capabilities = com.thoughtworks.go.plugin.domain.elastic.Capabilities.new(true)
-      pluginDescriptor = GoPluginDescriptor.new(elastic_plugin_id, nil, nil, nil, nil, nil)
+      pluginDescriptor = GoPluginDescriptor.builder.id(elastic_plugin_id).build
       ElasticAgentMetadataStore.instance().setPluginInfo(com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo.new(pluginDescriptor, nil, nil, nil, nil, capabilities))
 
       get :agent_status, params: {:plugin_id => elastic_plugin_id, :elastic_agent_id => '20'}
@@ -321,7 +321,7 @@ describe Admin::StatusReportsController do
 
     describe 'security' do
       before :each do
-        pluginDescriptor = GoPluginDescriptor.new(elastic_plugin_id, nil, nil, nil, nil, nil)
+        pluginDescriptor = GoPluginDescriptor.builder.id(elastic_plugin_id).build
         ElasticAgentMetadataStore.instance().setPluginInfo(com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo.new(pluginDescriptor, nil, nil, nil, nil, nil))
       end
 
@@ -371,7 +371,7 @@ describe Admin::StatusReportsController do
 
       allow(controller).to receive(:elastic_agent_plugin_service).and_return(elastic_agent_plugin_service)
       capabilities = com.thoughtworks.go.plugin.domain.elastic.Capabilities.new(false, true, false)
-      pluginDescriptor = GoPluginDescriptor.new(elastic_plugin_id, nil, nil, nil, nil, nil)
+      pluginDescriptor = GoPluginDescriptor.builder.id(elastic_plugin_id).build
       ElasticAgentMetadataStore.instance().setPluginInfo(com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo.new(pluginDescriptor, nil, nil, nil, nil, capabilities))
 
       get :cluster_status, params: {:plugin_id => elastic_plugin_id, :cluster_profile_id => cluster_profile_id}
@@ -386,7 +386,7 @@ describe Admin::StatusReportsController do
       allow(controller).to receive(:elastic_agent_plugin_service).and_return(elastic_agent_plugin_service)
 
       capabilities = com.thoughtworks.go.plugin.domain.elastic.Capabilities.new(false, false, false)
-      pluginDescriptor = GoPluginDescriptor.new(elastic_plugin_id, nil, nil, nil, nil, nil)
+      pluginDescriptor = GoPluginDescriptor.builder.id(elastic_plugin_id).build
       ElasticAgentMetadataStore.instance().setPluginInfo(com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo.new(pluginDescriptor, nil, nil, nil, nil, capabilities))
 
       get :cluster_status, params: {:plugin_id => elastic_plugin_id, :cluster_profile_id => cluster_profile_id}

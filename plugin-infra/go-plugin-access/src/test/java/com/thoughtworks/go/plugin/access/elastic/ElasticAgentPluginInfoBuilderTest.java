@@ -47,8 +47,8 @@ public class ElasticAgentPluginInfoBuilderTest {
 
     @Test
     public void shouldBuildPluginInfoWithProfileSettings() {
-        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
-        List<PluginConfiguration> pluginConfigurations = Arrays.asList(new PluginConfiguration("aws_password", new Metadata(true, false)));
+        GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin1").build();
+        List<PluginConfiguration> pluginConfigurations = List.of(new PluginConfiguration("aws_password", new Metadata(true, false)));
         PluginSettingsProperty property = new PluginSettingsProperty("ami-id", "ami-123");
         PluginSettingsConfiguration pluginSettingsConfiguration = new PluginSettingsConfiguration();
         pluginSettingsConfiguration.add(property);
@@ -77,7 +77,7 @@ public class ElasticAgentPluginInfoBuilderTest {
 
     @Test
     public void shouldBuildPluginInfoWithClusterProfileSettings() {
-        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
+        GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin1").build();
         List<PluginConfiguration> elasticAgentProfileConfigurations = Arrays.asList(new PluginConfiguration("aws_password", new Metadata(true, false)));
         List<PluginConfiguration> clusterProfileConfigurations = Arrays.asList(new PluginConfiguration("aws_url", new Metadata(true, false)));
         PluginSettingsProperty property = new PluginSettingsProperty("ami-id", "ami-123");
@@ -114,7 +114,7 @@ public class ElasticAgentPluginInfoBuilderTest {
 
     @Test
     public void shouldBuildPluginInfoWithoutClusterProfileSettingsForPluginsImplementedUsingv4Extension() {
-        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
+        GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin1").build();
         List<PluginConfiguration> elasticAgentProfileConfigurations = Arrays.asList(new PluginConfiguration("aws_password", new Metadata(true, false)));
         PluginSettingsProperty property = new PluginSettingsProperty("ami-id", "ami-123");
         PluginSettingsConfiguration pluginSettingsConfiguration = new PluginSettingsConfiguration();
@@ -150,7 +150,7 @@ public class ElasticAgentPluginInfoBuilderTest {
 
     @Test
     public void shouldContinueWithBuildingPluginInfoIfPluginSettingsIsNotProvidedByThePlugin() {
-        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
+        GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin1").build();
         List<PluginConfiguration> pluginConfigurations = Arrays.asList(new PluginConfiguration("aws_password", new Metadata(true, false)));
 
         Image icon = new Image("content_type", "data", "hash");
@@ -175,7 +175,7 @@ public class ElasticAgentPluginInfoBuilderTest {
 
     @Test
     public void shouldGetCapabilitiesForAPlugin() {
-        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
+        GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin1").build();
 
         when(pluginManager.resolveExtensionVersion("plugin1", ELASTIC_AGENT_EXTENSION, SUPPORTED_VERSIONS)).thenReturn("2.0");
         Capabilities capabilities = new Capabilities(true);
@@ -188,7 +188,7 @@ public class ElasticAgentPluginInfoBuilderTest {
 
     @Test
     public void shouldFetchPluginSettingsForPluginsNotSupportingClusterProfiles() {
-        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
+        GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin1").build();
 
         PluginSettingsConfiguration pluginSettingsConfiguration = new PluginSettingsConfiguration();
         pluginSettingsConfiguration.add(new PluginSettingsProperty("ami-id", "ami-123"));
@@ -206,7 +206,7 @@ public class ElasticAgentPluginInfoBuilderTest {
 
     @Test
     public void shouldNotFetchPluginSettingsForPluginsSupportingClusterProfiles() {
-        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
+        GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin1").build();
 
         when(extension.supportsClusterProfiles("plugin1")).thenReturn(true);
 

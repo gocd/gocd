@@ -152,9 +152,15 @@ describe PipelinesHelper do
     before :each do
       @default_plugin_info_finder = double('default_plugin_info_finder')
       vendor = GoPluginDescriptor::Vendor.new('bob', 'https://bob.example.com')
-      about = GoPluginDescriptor::About.new('Foo plugin', '1.2.3', '17.2.0', 'Does foo', vendor, ['Linux'])
-      descriptor = proc do |id| GoPluginDescriptor.new(id, '1.0', about, nil, nil, false) end
-
+      about = GoPluginDescriptor.About.builder
+                .name("Foo plugin")
+                .version("1.2.3")
+                .targetGoVersion("17.2.0")
+                .description("Does foo")
+                .vendor(vendor)
+                .targetOperatingSystems(["Linux"])
+                .build
+      descriptor = proc do |id| GoPluginDescriptor.builder.id(id).version("1.0").about(about).build end
       supports_analytics = proc do |supports_pipeline_analytics, supports_dashboard_analytics|
         supported = []
         supported << com.thoughtworks.go.plugin.domain.analytics.SupportedAnalytics.new("pipeline", "id1", "title1") if supports_pipeline_analytics

@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.apiv6.plugininfos.representers.extensions
 
-import com.thoughtworks.go.apiv6.plugininfos.representers.Helper.PluginInfoMother
+import com.thoughtworks.go.helpers.PluginInfoMother
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
@@ -45,7 +45,7 @@ class ConfigRepoExtensionRepresenterTest {
       ],
       capabilities   : [
         supports_pipeline_export: true,
-        supports_parse_content: true
+        supports_parse_content  : true
       ]
     ]
     assertThatJson(actualJson).isEqualTo(expectedJSON)
@@ -57,10 +57,10 @@ class ConfigRepoExtensionRepresenterTest {
       new ConfigRepoExtensionRepresenter().toJSON(it, PluginInfoMother.createConfigRepoPluginInfoWithoutPluginSettings())
     })
     def expectedJSON = [
-      type: "configrepo",
+      type        : "configrepo",
       capabilities: [
         supports_pipeline_export: true,
-        supports_parse_content: true
+        supports_parse_content  : true
       ]
     ]
     assertThatJson(actualJson).isEqualTo(expectedJSON)

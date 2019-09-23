@@ -37,44 +37,59 @@ public class GoPluginBundleDescriptorBuilder {
     private static final String BUNDLE_XML = "gocd-bundle.xml";
 
     private SystemEnvironment systemEnvironment;
-    private File bundlePathLocation;
+    private File pluginWorkDir;
 
     protected GoPluginBundleDescriptorBuilder() {
         this.systemEnvironment = new SystemEnvironment();
-        bundlePathLocation = bundlePath();
+        pluginWorkDir = pluginWorkDir();
     }
 
     @Autowired
     public GoPluginBundleDescriptorBuilder(SystemEnvironment systemEnvironment) {
         this.systemEnvironment = systemEnvironment;
-        bundlePathLocation = bundlePath();
+        pluginWorkDir = pluginWorkDir();
     }
 
     public GoPluginBundleDescriptor build(File pluginJarFile, boolean isBundledPlugin) {
         if (!pluginJarFile.exists()) {
             throw new RuntimeException(String.format("Plugin jar does not exist: %s", pluginJarFile.getAbsoluteFile()));
         }
+
         try (JarFile jarFile = new JarFile(pluginJarFile)) {
             ZipEntry bundleXMLEntry = jarFile.getEntry(BUNDLE_XML);
             if (bundleXMLEntry != null) {
                 try (InputStream bundleXMLStream = jarFile.getInputStream(bundleXMLEntry)) {
-                    return GoPluginBundleDescriptorParser.parseXML(bundleXMLStream, pluginJarFile.getAbsolutePath(), getBundleLocation(bundlePathLocation, pluginJarFile.getName()), isBundledPlugin);
+                    return GoPluginBundleDescriptorParser.parseXML(bundleXMLStream, pluginJarFile.getAbsolutePath(), getBundleLocation(pluginWorkDir, pluginJarFile.getName()), isBundledPlugin);
                 }
             }
 
             ZipEntry pluginXMLEntry = jarFile.getEntry(PLUGIN_XML);
             if (pluginXMLEntry == null) {
-                return new GoPluginBundleDescriptor(GoPluginDescriptor.usingId(pluginJarFile.getName(), pluginJarFile.getAbsolutePath(), getBundleLocation(bundlePathLocation, pluginJarFile.getName()), isBundledPlugin));
+                String pluginJarFileLocation = pluginJarFile.getAbsolutePath();
+                return new GoPluginBundleDescriptor(GoPluginDescriptor.builder()
+                        .id(pluginJarFile.getName())
+                        .bundleLocation(getBundleLocation(pluginWorkDir, pluginJarFile.getName()))
+                        .pluginJarFileLocation(pluginJarFileLocation)
+                        .pluginJarFileLocation(pluginJarFileLocation)
+                        .isBundledPlugin(isBundledPlugin)
+                        .build());
             }
 
             try (InputStream pluginXMLStream = jarFile.getInputStream(pluginXMLEntry)) {
-                return GoPluginDescriptorParser.parseXML(pluginXMLStream, pluginJarFile.getAbsolutePath(), getBundleLocation(bundlePathLocation, pluginJarFile.getName()), isBundledPlugin);
+                return GoPluginDescriptorParser.parseXML(pluginXMLStream, pluginJarFile.getAbsolutePath(), getBundleLocation(pluginWorkDir, pluginJarFile.getName()), isBundledPlugin);
             }
 
         } catch (Exception e) {
             LOGGER.warn("Could not load plugin with jar filename:{}", pluginJarFile.getName(), e);
             String cause = e.getCause() != null ? String.format("%s. Cause: %s", e.getMessage(), e.getCause().getMessage()) : e.getMessage();
-            return new GoPluginBundleDescriptor(GoPluginDescriptor.usingId(pluginJarFile.getName(), pluginJarFile.getAbsolutePath(), getBundleLocation(bundlePathLocation, pluginJarFile.getName()), isBundledPlugin))
+            String pluginJarFileLocation = pluginJarFile.getAbsolutePath();
+            return new GoPluginBundleDescriptor(GoPluginDescriptor.builder()
+                    .id(pluginJarFile.getName())
+                    .bundleLocation(getBundleLocation(pluginWorkDir, pluginJarFile.getName()))
+                    .pluginJarFileLocation(pluginJarFileLocation)
+                    .pluginJarFileLocation(pluginJarFileLocation)
+                    .isBundledPlugin(isBundledPlugin)
+                    .build())
                     .markAsInvalid(singletonList(String.format("Plugin with ID (%s) is not valid: %s", pluginJarFile.getName(), cause)), e);
         }
     }
@@ -83,9 +98,9 @@ public class GoPluginBundleDescriptorBuilder {
         return new File(bundleDirectory, name);
     }
 
-    File bundlePath() {
-        File bundleDir = new File(systemEnvironment.get(PLUGIN_WORK_DIR));
-        FileUtil.validateAndCreateDirectory(bundleDir);
-        return bundleDir;
+    File pluginWorkDir() {
+        File workDir = new File(systemEnvironment.get(PLUGIN_WORK_DIR));
+        FileUtil.validateAndCreateDirectory(workDir);
+        return workDir;
     }
 }

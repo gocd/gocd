@@ -194,7 +194,7 @@ public class JobControllerTest {
 
         @Test
         void shouldConsistElasticAgentInformationForAJobRunningOnAnElasticAgent() throws Exception {
-            final GoPluginDescriptor descriptor = new GoPluginDescriptor("cd.go.example.plugin", null, null, null, null, false);
+            final GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("cd.go.example.plugin").build();
             elasticAgentMetadataStore.setPluginInfo(new ElasticAgentPluginInfo(descriptor, null,
                     null, null, null, new Capabilities(true, true)));
             ElasticProfile elasticProfile = new ElasticProfile("elastic_id", "cluster_id");
@@ -210,7 +210,7 @@ public class JobControllerTest {
         @Test
         void shouldNotHaveElasticAgentInformationIfJobMetadataDoesNotHaveClusterInformation() throws Exception {
             JobAgentMetadata jobAgentMetadata = mock(JobAgentMetadata.class);
-            final GoPluginDescriptor descriptor = new GoPluginDescriptor("cd.go.example.plugin", null, null, null, null, false);
+            final GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("cd.go.example.plugin").build();
             elasticAgentMetadataStore.setPluginInfo(new ElasticAgentPluginInfo(descriptor, null,
                     null, null, null, new Capabilities(true, true)));
 

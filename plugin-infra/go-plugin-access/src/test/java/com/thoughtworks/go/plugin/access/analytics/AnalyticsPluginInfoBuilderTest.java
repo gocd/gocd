@@ -40,14 +40,14 @@ public class AnalyticsPluginInfoBuilderTest {
     private AnalyticsExtension extension;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         extension = mock(AnalyticsExtension.class);
         when(extension.getCapabilities(any(String.class))).thenReturn(new Capabilities(Collections.emptyList()));
     }
 
     @Test
-    public void shouldBuildPluginInfoWithCapabilities() throws Exception {
-        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
+    public void shouldBuildPluginInfoWithCapabilities() {
+        GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin1").build();
         Capabilities capabilities = new Capabilities(Collections.emptyList());
 
         when(extension.getCapabilities(descriptor.id())).thenReturn(capabilities);
@@ -58,8 +58,8 @@ public class AnalyticsPluginInfoBuilderTest {
     }
 
     @Test
-    public void shouldBuildPluginInfoWithImage() throws Exception {
-        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
+    public void shouldBuildPluginInfoWithImage() {
+        GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin1").build();
         Image icon = new Image("content_type", "data", "hash");
 
         when(extension.getIcon(descriptor.id())).thenReturn(icon);
@@ -70,8 +70,8 @@ public class AnalyticsPluginInfoBuilderTest {
     }
 
     @Test
-    public void shouldBuildPluginInfoWithPluginDescriptor() throws Exception {
-        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
+    public void shouldBuildPluginInfoWithPluginDescriptor() {
+        GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin1").build();
 
         AnalyticsPluginInfo pluginInfo = new AnalyticsPluginInfoBuilder(extension).pluginInfoFor(descriptor);
 
@@ -79,8 +79,8 @@ public class AnalyticsPluginInfoBuilderTest {
     }
 
     @Test
-    public void shouldBuildPluginInfoWithPluginSettingsConfiguration() throws Exception {
-        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
+    public void shouldBuildPluginInfoWithPluginSettingsConfiguration() {
+        GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin1").build();
         PluginSettingsConfiguration value = new PluginSettingsConfiguration();
         value.add(new PluginSettingsProperty("username", null).with(Property.REQUIRED, true).with(Property.SECURE, false));
         value.add(new PluginSettingsProperty("password", null).with(Property.REQUIRED, true).with(Property.SECURE, true));
@@ -103,7 +103,7 @@ public class AnalyticsPluginInfoBuilderTest {
 
     @Test
     public void shouldContinueBuildingPluginInfoIfPluginSettingsIsNotProvidedByPlugin() {
-        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
+        GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin1").build();
 
         doThrow(new RuntimeException("foo")).when(extension).getPluginSettingsConfiguration("plugin1");
         AnalyticsPluginInfo pluginInfo = new AnalyticsPluginInfoBuilder(extension).pluginInfoFor(descriptor);

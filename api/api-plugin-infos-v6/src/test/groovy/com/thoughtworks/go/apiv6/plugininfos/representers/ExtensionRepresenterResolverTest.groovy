@@ -16,19 +16,19 @@
 
 package com.thoughtworks.go.apiv6.plugininfos.representers
 
-import com.thoughtworks.go.apiv6.plugininfos.representers.Helper.PluginInfoMother
 import com.thoughtworks.go.apiv6.plugininfos.representers.extensions.SecretsExtensionRepresenter
 import com.thoughtworks.go.plugin.domain.common.PluginInfo
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.apiv6.plugininfos.representers.ExtensionRepresenterResolver.resolveRepresenterFor
+import static com.thoughtworks.go.helpers.PluginInfoMother.createSecretConfigPluginInfo
 import static org.assertj.core.api.Java6Assertions.assertThat
 
 class ExtensionRepresenterResolverTest {
 
   @Test
   void shouldReturnSecretExtensionRepresenter() {
-    PluginInfo extension = PluginInfoMother.createSecretConfigPluginInfo()
+    PluginInfo extension = createSecretConfigPluginInfo()
     def representer = resolveRepresenterFor(extension)
 
     assertThat(representer).isInstanceOf(SecretsExtensionRepresenter.class)

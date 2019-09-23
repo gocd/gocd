@@ -103,9 +103,9 @@ class ElasticAgentPluginServiceTest {
     void setUp() throws Exception {
         initMocks(this);
         ArrayList<PluginDescriptor> plugins = new ArrayList<>();
-        plugins.add(new GoPluginDescriptor("p1", null, null, null, null, true));
-        plugins.add(new GoPluginDescriptor("p2", null, null, null, null, true));
-        plugins.add(new GoPluginDescriptor("docker", null, null, null, null, true));
+        plugins.add(GoPluginDescriptor.builder().id("p1").isBundledPlugin(true).build());
+        plugins.add(GoPluginDescriptor.builder().id("p2").isBundledPlugin(true).build());
+        plugins.add(GoPluginDescriptor.builder().id("docker").isBundledPlugin(true).build());
         when(registry.getPlugins()).thenReturn(plugins);
         when(registry.has("docker")).thenReturn(true);
         when(registry.has("p1")).thenReturn(true);
@@ -316,7 +316,7 @@ class ElasticAgentPluginServiceTest {
     @Test
     void shouldGetAPluginStatusReportWhenPluginSupportsStatusReport() {
         final Capabilities capabilities = new Capabilities(true);
-        final GoPluginDescriptor descriptor = new GoPluginDescriptor("cd.go.example.plugin", null, null, null, null, false);
+        final GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("cd.go.example.plugin").build();
         elasticAgentMetadataStore.setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, null, capabilities));
 
         when(clusterProfilesService.getPluginProfiles()).thenReturn(new ClusterProfiles());
@@ -330,7 +330,7 @@ class ElasticAgentPluginServiceTest {
     @Test
     void shouldPassAlongAllClusterProfilesBelongingToThePluginWhileGettingPluginStatusReport() {
         final Capabilities capabilities = new Capabilities(true);
-        final GoPluginDescriptor descriptor = new GoPluginDescriptor("cd.go.example.plugin", null, null, null, null, false);
+        final GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("cd.go.example.plugin").build();
         elasticAgentMetadataStore.setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, null, capabilities));
 
         ClusterProfiles allClusterProfiles = new ClusterProfiles();
@@ -350,7 +350,7 @@ class ElasticAgentPluginServiceTest {
     @Test
     void shouldErrorOutWhenPluginDoesNotSupportStatusReport() {
         final Capabilities capabilities = new Capabilities(false);
-        final GoPluginDescriptor descriptor = new GoPluginDescriptor("cd.go.example.plugin", null, null, null, null, false);
+        final GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("cd.go.example.plugin").build();
         elasticAgentMetadataStore.setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, null, capabilities));
 
         final UnsupportedOperationException exception = assertThrows(UnsupportedOperationException.class, () -> service.getPluginStatusReport("cd.go.example.plugin"));
@@ -360,7 +360,7 @@ class ElasticAgentPluginServiceTest {
     @Test
     void shouldGetAPluginAgentReportWhenPluginSupportsStatusReport() throws Exception {
         final Capabilities capabilities = new Capabilities(false, true);
-        final GoPluginDescriptor descriptor = new GoPluginDescriptor("cd.go.example.plugin", null, null, null, null, false);
+        final GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("cd.go.example.plugin").build();
         elasticAgentMetadataStore.setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, null, capabilities));
 
         JobIdentifier jobIdentifier = mock(JobIdentifier.class);
@@ -381,7 +381,7 @@ class ElasticAgentPluginServiceTest {
     @Test
     void shouldErrorOutWhenPluginDoesNotAgentSupportStatusReport() {
         final Capabilities capabilities = new Capabilities(true, false);
-        final GoPluginDescriptor descriptor = new GoPluginDescriptor("cd.go.example.plugin", null, null, null, null, false);
+        final GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("cd.go.example.plugin").build();
         elasticAgentMetadataStore.setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, null, capabilities));
 
         final UnsupportedOperationException exception = assertThrows(UnsupportedOperationException.class, () -> service.getAgentStatusReport("cd.go.example.plugin", null, null));
@@ -391,7 +391,7 @@ class ElasticAgentPluginServiceTest {
     @Test
     void shouldRaiseExceptionIfJobPlanIsNull() {
         final Capabilities capabilities = new Capabilities(false, true);
-        final GoPluginDescriptor descriptor = new GoPluginDescriptor("cd.go.example.plugin", null, null, null, null, false);
+        final GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("cd.go.example.plugin").build();
         elasticAgentMetadataStore.setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, null, capabilities));
 
         JobIdentifier jobIdentifier = mock(JobIdentifier.class);
@@ -408,7 +408,7 @@ class ElasticAgentPluginServiceTest {
     @Test
     void shouldGetAPluginClusterReportWhenPluginSupportsStatusReport() {
         final Capabilities capabilities = new Capabilities(false, true, false);
-        final GoPluginDescriptor descriptor = new GoPluginDescriptor("cd.go.example.plugin", null, null, null, null, false);
+        final GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("cd.go.example.plugin").build();
         elasticAgentMetadataStore.setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, null, capabilities));
 
         ClusterProfile clusterProfile = new ClusterProfile("cluster-profile-id", "cd.go.example.plugin");
@@ -428,7 +428,7 @@ class ElasticAgentPluginServiceTest {
     @Test
     void shouldErrorOutWhenPluginDoesNotClusterSupportStatusReport() {
         final Capabilities capabilities = new Capabilities(true, false, false);
-        final GoPluginDescriptor descriptor = new GoPluginDescriptor("cd.go.example.plugin", null, null, null, null, false);
+        final GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("cd.go.example.plugin").build();
         elasticAgentMetadataStore.setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, null, capabilities));
 
         final UnsupportedOperationException exception = assertThrows(UnsupportedOperationException.class, () -> service.getClusterStatusReport("cd.go.example.plugin", null));
@@ -440,7 +440,7 @@ class ElasticAgentPluginServiceTest {
     @Test
     void shouldErrorOutWhenClusterProfileNotFound() {
         final Capabilities capabilities = new Capabilities(true, true, false);
-        final GoPluginDescriptor descriptor = new GoPluginDescriptor("cd.go.example.plugin", null, null, null, null, false);
+        final GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("cd.go.example.plugin").build();
         elasticAgentMetadataStore.setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, null, capabilities));
         ClusterProfile clusterProfile = new ClusterProfile("cluster-profile-id", "cd.go.example.plugin");
         clusterProfile.addNewConfigurationWithValue("go-server-url", "server-url", false);

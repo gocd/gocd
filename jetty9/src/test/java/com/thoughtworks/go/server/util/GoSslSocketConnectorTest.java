@@ -67,6 +67,7 @@ public class GoSslSocketConnectorTest {
         when(systemEnvironment.getListenHost()).thenReturn("foo");
         when(jettyServer.getServer()).thenReturn(new Server());
         when(systemEnvironment.get(SystemEnvironment.GO_SSL_CONFIG_CLEAR_JETTY_DEFAULT_EXCLUSIONS)).thenReturn(false);
+        when(systemEnvironment.get(SystemEnvironment.GO_SSL_CONFIG_JETTY_WANT_CLIENT_AUTH)).thenReturn(false);
         sslSocketConnector = new GoSslSocketConnector(jettyServer, "password", systemEnvironment, goSSLConfig);
     }
 
@@ -86,7 +87,7 @@ public class GoSslSocketConnectorTest {
         SslContextFactory sslContextFactory = findSslContextFactory(connectionFactories);
         assertThat(sslContextFactory.getKeyStorePath(), is(keystore.getCanonicalFile().toPath().toAbsolutePath().toUri().toString()));
         assertThat(sslContextFactory.getTrustStorePath(), is(truststore.getCanonicalFile().toPath().toAbsolutePath().toUri().toString()));
-        assertThat(sslContextFactory.getWantClientAuth(), is(true));
+        assertThat(sslContextFactory.getWantClientAuth(), is(false));
     }
 
     @Test

@@ -173,6 +173,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoSystemProperty<String> GO_SSL_CERTS_ALGORITHM = new GoStringSystemProperty("go.ssl.cert.algorithm", "SHA512WITHRSA");
     public static GoSystemProperty<String> GO_SSL_CERTS_PUBLIC_KEY_ALGORITHM = new GoStringSystemProperty("go.ssl.cert.public-key.algorithm", "SHA256WithRSAEncryption");
     public static GoSystemProperty<Boolean> GO_SSL_CONFIG_CLEAR_JETTY_DEFAULT_EXCLUSIONS = new GoBooleanSystemProperty("go.ssl.config.clear.default.exclusions", false);
+    public static GoSystemProperty<Boolean> GO_SSL_CONFIG_JETTY_WANT_CLIENT_AUTH = new GoBooleanSystemProperty("go.ssl.config.want.client.auth", false);
     public static GoSystemProperty<String[]> GO_SSL_INCLUDE_CIPHERS = new GoStringArraySystemProperty("go.ssl.ciphers.include", null);
     public static GoSystemProperty<String[]> GO_SSL_EXCLUDE_CIPHERS = new GoStringArraySystemProperty("go.ssl.ciphers.exclude", null);
     public static GoSystemProperty<String[]> GO_SSL_INCLUDE_PROTOCOLS = new GoStringArraySystemProperty("go.ssl.protocols.include", null);

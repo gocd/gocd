@@ -104,6 +104,7 @@ public class Jetty9ServerTest {
         when(systemEnvironment.sessionTimeoutInSeconds()).thenReturn(1234);
         when(systemEnvironment.sessionCookieMaxAgeInSeconds()).thenReturn(5678);
         when(systemEnvironment.get(SystemEnvironment.GO_SSL_CONFIG_CLEAR_JETTY_DEFAULT_EXCLUSIONS)).thenReturn(true);
+        when(systemEnvironment.get(SystemEnvironment.GO_SSL_CONFIG_JETTY_WANT_CLIENT_AUTH)).thenReturn(false);
 
 
         when(sslSocketFactory.getSupportedCipherSuites()).thenReturn(new String[]{});

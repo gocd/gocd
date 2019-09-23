@@ -26,8 +26,8 @@ import "jasmine-ajax";
 import * as simulateEvent from "simulate-event";
 
 describe("Dashboard Pipeline Widget", () => {
-  const body = document.body;
-  const pipelineName   = 'up42';
+  const body         = document.body;
+  const pipelineName = 'up42';
 
   let dashboardViewModel, dashboard, pipelinesJson, dashboardJSON, pipeline, doCancelPolling,
       doRefreshImmediately;
@@ -394,7 +394,7 @@ describe("Dashboard Pipeline Widget", () => {
         const pausePopupTextBox = helper.q('.reveal input', body);
         pausePopupTextBox.value = "test";
 
-        simulateEvent.simulate(pausePopupTextBox, 'keydown', { key: 'Enter' });
+        simulateEvent.simulate(pausePopupTextBox, 'keydown', {key: 'Enter'});
         m.redraw.sync();
 
         expect(helper.q(".reveal", body)).toBeFalsy();
@@ -406,7 +406,7 @@ describe("Dashboard Pipeline Widget", () => {
         helper.click('.pause');
         expect(helper.q(".reveal", body)).toBeInDOM();
 
-        simulateEvent.simulate(body, 'keydown', { key: 'Escape' });
+        simulateEvent.simulate(body, 'keydown', {key: 'Escape'});
         m.redraw.sync();
 
         expect(helper.q(".reveal", body)).toBeFalsy();
@@ -415,7 +415,7 @@ describe("Dashboard Pipeline Widget", () => {
       it("should not retain text entered when the pause popup is closed", () => {
         helper.click('.pause');
         expect(helper.q(".reveal", body)).toBeInDOM();
-        let pausePopupTextBox = helper.q('.reveal input', body);
+        let pausePopupTextBox   = helper.q('.reveal input', body);
         pausePopupTextBox.value = "test";
 
         helper.click('.reveal .secondary', body);

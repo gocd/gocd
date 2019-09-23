@@ -21,6 +21,33 @@ import {PipelineOperationsWidget} from "views/dashboard/pipeline_operations_widg
 import {PipelineAnalyticsWidget} from "views/dashboard/pipeline_analytics_widget";
 
 export const PipelineHeaderWidget = {
+
+  getSettingsDisabledTooltipText(pipeline) {
+    if (pipeline.isDefinedInConfigRepo()) {
+      const configRepoId = pipeline.getConfigRepoId();
+      return <div>
+        <div>{pipeline.definedInConfigRepoTooltipText()}</div>
+        <div>Id: <a href={`admin/config_repos#!${configRepoId}`}>{configRepoId}</a></div>
+        <div>Url: {pipeline.getConfigRepoMaterialUrl()}</div>
+      </div>;
+    }
+    return pipeline.noEditPermissionTooltipText();
+  },
+
+  pipelineLockButton(vnode, pipeline) {
+    if (!pipeline.isLocked) {
+      return;
+    }
+
+    if (pipeline.canUnlock) {
+      return <f.button onclick={vnode.state.unlock.bind(vnode.state, pipeline)} aria-label="Pipeline Locked"
+                     title="Pipeline Locked" class="pipeline_locked"/>;
+    }
+
+    return <f.button class="pipeline_locked disabled"
+                     tooltipText={pipeline.getLockDisabledTooltipText()}/>;
+  },
+
   oninit(vnode) {
     const self              = vnode.state;
     const operationMessages = vnode.attrs.operationMessages;
@@ -35,7 +62,7 @@ export const PipelineHeaderWidget = {
     };
   },
 
-  view: (vnode) => {
+  view(vnode) {
     const pipeline                   = vnode.attrs.pipeline;
     const pluginsSupportingAnalytics = vnode.attrs.pluginsSupportingAnalytics;
     const shouldShowAnalyticsIcon    = vnode.attrs.shouldShowAnalyticsIcon;
@@ -47,24 +74,14 @@ export const PipelineHeaderWidget = {
       settingsButton     = (<a class={`edit_config`} aria-label={`Edit Configuration for Pipeline ${pipeline.name}`}
                                title={'Edit Pipeline Configuration'} href={settingsPath}/>);
     } else {
-      settingsButton = (<f.link class="edit_config disabled" aria-label={pipeline.getSettingsDisabledTooltipText()}
-                                title={'Edit Configuration Disabled'}
-                                tooltipText={pipeline.getSettingsDisabledTooltipText()}/>);
+      settingsButton = (<f.link class="edit_config disabled" aria-label={this.getSettingsDisabledTooltipText(pipeline)}
+                                tooltipText={this.getSettingsDisabledTooltipText(pipeline)}/>);
     }
 
     if (shouldShowAnalyticsIcon) {
       $.each(pluginsSupportingAnalytics, (pluginId, metricId) => {
         analyticsIcons.push(<PipelineAnalyticsWidget pipeline={pipeline} pluginId={pluginId} metricId={metricId}/>);
       });
-    }
-
-    let pipelineLockButton;
-    if (pipeline.isLocked) {
-      pipelineLockButton = pipeline.canUnlock
-        ? (<button onclick={vnode.state.unlock.bind(vnode.state, pipeline)} aria-label="Pipeline Locked"
-                   title="Pipeline Locked" class="pipeline_locked"/>)
-        : (<f.button class="pipeline_locked disabled"
-                     tooltipText={pipeline.getLockDisabledTooltipText()}/>);
     }
 
     return (
@@ -74,7 +91,7 @@ export const PipelineHeaderWidget = {
           <div class="pipeline_actions">
             {analyticsIcons}
             {settingsButton}
-            {pipelineLockButton}
+            {this.pipelineLockButton(vnode, pipeline)}
           </div>
         </div>
         <PipelineOperationsWidget pipeline={vnode.attrs.pipeline}

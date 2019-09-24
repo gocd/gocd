@@ -1185,12 +1185,13 @@ task newApi {
           public class ${controllerClassName} extends ApiController implements SparkSpringController, CrudController<${entityClassName}> {
 
               private final ApiAuthenticationHelper apiAuthenticationHelper;
-              private final EntityHashingService entityHashingService
+              private final EntityHashingService entityHashingService;
 
               @Autowired
-              public ${controllerClassName}(ApiAuthenticationHelper apiAuthenticationHelper) {
+              public ${controllerClassName}(ApiAuthenticationHelper apiAuthenticationHelper, EntityHashingService entityHashingService) {
                   super(ApiVersion.${project.apiVersion});
                   this.apiAuthenticationHelper = apiAuthenticationHelper;
+                  this.entityHashingService = entityHashingService;
               }
 
               @Override

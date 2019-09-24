@@ -1195,7 +1195,7 @@ class AgentServiceTest {
             String uuidToUse = agentInstance.getUuid();
 
             when(agentInstances.findAgent(uuidToUse)).thenReturn(agentInstance);
-            when(agentDao.fetchAgentFromDBByUUID(uuidToUse, true)).thenReturn(fromDB);
+            when(agentDao.fetchAgentFromDBByUUIDIncludingDeleted(uuidToUse)).thenReturn(fromDB);
             Agent agent = agentService.findAgentByUUID(uuidToUse);
 
             assertThat(agent, is(fromDB));

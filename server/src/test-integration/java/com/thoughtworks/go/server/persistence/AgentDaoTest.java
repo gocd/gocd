@@ -113,7 +113,7 @@ public class AgentDaoTest {
             Agent agentFromDB = agentDao.fetchAgentFromDBByUUID(uuid);
             assertThat(agentFromDB, is(nullValue()));
 
-            agentFromDB = agentDao.fetchAgentFromDBByUUID(uuid, true);
+            agentFromDB = agentDao.fetchAgentFromDBByUUIDIncludingDeleted(uuid);
             assertThat(agentFromDB, is(agent));
         }
 

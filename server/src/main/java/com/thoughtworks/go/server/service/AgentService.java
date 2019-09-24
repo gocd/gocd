@@ -296,7 +296,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         if (agentInstance != null && !agentInstance.isNullAgent()) {
             agent = agentInstance.getAgent();
         } else {
-            agent = agentDao.fetchAgentFromDBByUUID(uuid, true);
+            agent = agentDao.fetchAgentFromDBByUUIDIncludingDeleted(uuid);
         }
         return agent;
     }

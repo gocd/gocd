@@ -159,22 +159,26 @@ public class AgentDao extends HibernateDaoSupport {
     }
 
     public Agent fetchAgentFromDBByUUID(final String uuid) {
-        return fetchAgent(uuid, "FROM Agent where uuid = :uuid and deleted = false");
-    }
-
-    public Agent fetchAgentFromDBByUUID(final String uuid, boolean includeDeletedAgents) {
-        if (!includeDeletedAgents) {
-            fetchAgentFromDBByUUID(uuid);
-        }
-        return fetchAgent(uuid, "FROM Agent where uuid = :uuid");
-    }
-
-    private Agent fetchAgent(String uuid, String queryString) {
         List<String> uuids = singletonList(uuid);
         AgentMutex mutex = agentMutexes.acquire(uuids);
         synchronized (mutex) {
             Agent agent = (Agent) transactionTemplate.execute((TransactionCallback) transactionStatus -> {
-                Query query = sessionFactory.getCurrentSession().createQuery(queryString);
+                Query query = sessionFactory.getCurrentSession().createQuery("FROM Agent where uuid = :uuid and deleted = false");
+                query.setCacheable(true);
+                query.setParameter("uuid", uuid);
+                return query.uniqueResult();
+            });
+            agentMutexes.release(uuids, mutex);
+            return agent;
+        }
+    }
+
+    public Agent fetchAgentFromDBByUUIDIncludingDeleted(final String uuid) {
+        List<String> uuids = singletonList(uuid);
+        AgentMutex mutex = agentMutexes.acquire(uuids);
+        synchronized (mutex) {
+            Agent agent = (Agent) transactionTemplate.execute((TransactionCallback) transactionStatus -> {
+                Query query = sessionFactory.getCurrentSession().createQuery("FROM Agent where uuid = :uuid");
                 query.setCacheable(true);
                 query.setParameter("uuid", uuid);
                 return query.uniqueResult();

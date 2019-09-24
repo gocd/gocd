@@ -17,11 +17,11 @@
 import {ApiResult} from "helpers/api_request_builder";
 import {asSelector} from "helpers/css_proxies";
 import m from "mithril";
-import * as buttonStyles from "views/components/buttons/index.scss";
+import buttonStyles from "views/components/buttons/index.scss";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {PipelineConfigVM} from "../../pipelines/pipeline_config_view_model";
-import * as errorStyles from "../../pipelines/server_errors.scss";
 import {DownloadAction} from "../download_action";
+import errorStyles from "../styles.scss";
 
 describe("AddPaC: DownloadAction", () => {
   const helper = new TestHelper();

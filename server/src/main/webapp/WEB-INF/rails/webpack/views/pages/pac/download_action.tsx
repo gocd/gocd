@@ -34,7 +34,7 @@ export class DownloadAction extends MithrilComponent<Attrs> {
 
   view(vnode: m.Vnode<Attrs>) {
     return <div class={css.downloadAction}>
-      <ServerErrors message={this.globalError} details={this.globalErrorDetail}/>
+      <ServerErrors css={css} message={this.globalError} details={this.globalErrorDetail}/>
 
       <Primary onclick={this.handleDownload(vnode)}>Download Config</Primary>
     </div>;

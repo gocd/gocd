@@ -23,12 +23,12 @@ import {EnvironmentsDropdownButton} from "views/pages/new_agents/environment_dro
 import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("EnvironmentsDropdownButton", () => {
-  const helper             = new TestHelper(),
-        updateEnvironments = jasmine.createSpy("updateEnvironments");
+  const helper = new TestHelper(),
+    updateEnvironments = jasmine.createSpy("updateEnvironments");
 
   let agent: Agent, staticAgentsVM: StaticAgentsVM;
   beforeEach(() => {
-    agent    = Agent.fromJSON(AgentsTestData.idleAgent());
+    agent = Agent.fromJSON(AgentsTestData.idleAgent());
     staticAgentsVM = new StaticAgentsVM(new Agents(agent));
   });
 
@@ -92,6 +92,9 @@ describe("EnvironmentsDropdownButton", () => {
   });
 
   it("should show the message if no environments are available", () => {
+    const data = AgentsTestData.buildingAgent();
+    data.environments = [];
+    agent = Agent.fromJSON(data);
     staticAgentsVM.selectAgent(agent.uuid);
     mount(staticAgentsVM, new DummyService([]));
 
@@ -112,6 +115,27 @@ describe("EnvironmentsDropdownButton", () => {
     expect(helper.byTestId("association")).toContainText("prod");
     expect(helper.byTestId("association")).toContainText("test");
     expect(helper.byTestId("environment-to-apply")).toBeInDOM();
+  });
+
+  it("should disable apply button if no changes allowed", () => {
+    const agentJSON = AgentsTestData.buildingAgent();
+    agentJSON.environments = [{name: "env-config", origin: {type: "config-repo"}}];
+    const agentWithEnvFromConfigRepo = Agent.fromJSON(agentJSON);
+
+    const disabledAgentJSON = AgentsTestData.disabledAgent();
+    disabledAgentJSON.environments = [{name: "env-unknown", origin: {type: "unknown"}}];
+    agent = Agent.fromJSON(disabledAgentJSON);
+
+    staticAgentsVM = new StaticAgentsVM(new Agents(agent, agentWithEnvFromConfigRepo));
+    staticAgentsVM.selectAgent(agentWithEnvFromConfigRepo.uuid);
+    staticAgentsVM.selectAgent(agent.uuid);
+    mount(staticAgentsVM, new DummyService([]));
+
+    helper.clickByTestId("modify-environments-association");
+
+    expect(helper.byTestId("form-field-input-env-config")).toBeDisabled();
+    expect(helper.byTestId("form-field-input-env-unknown")).toBeDisabled();
+    expect(helper.byTestId("environment-to-apply")).toBeDisabled();
   });
 
   describe("TriStateCheckBox", () => {
@@ -151,6 +175,39 @@ describe("EnvironmentsDropdownButton", () => {
 
       expect(helper.byTestId("form-field-input-prod")).toHaveProp("indeterminate", true);
       expect(helper.byTestId("form-field-input-test")).not.toBeChecked();
+    });
+
+    it("should disable the checkbox if selected agent has environment coming from config repo", () => {
+      const agentJSON = AgentsTestData.buildingAgent();
+      agentJSON.environments = [{name: "env", origin: {type: "config-repo"}}];
+      const agentWithEnvComingFromConfigRepo = Agent.fromJSON(agentJSON);
+      staticAgentsVM = new StaticAgentsVM(new Agents(agent, agentWithEnvComingFromConfigRepo));
+      staticAgentsVM.selectAgent(agentWithEnvComingFromConfigRepo.uuid);
+      mount(staticAgentsVM, new DummyService([]));
+
+      helper.clickByTestId("modify-environments-association");
+
+      expect(helper.byTestId("form-field-input-env")).toBeDisabled();
+      expect(helper.byTestId("Info Circle-icon")).toBeInDOM();
+      expect(helper.byTestId("tooltip-content")).toBeInDOM();
+      expect(helper.byTestId("tooltip-content")).toContainText("Cannot edit Environment associated from Config Repo");
+    });
+
+    it("should disable the checkbox if one of the selected agent has an unknown environment", () => {
+      const agentJSON = AgentsTestData.buildingAgent();
+      agentJSON.environments = [{name: "env", origin: {type: "unknown"}}];
+      const agentWithUnknownEnv = Agent.fromJSON(agentJSON);
+      staticAgentsVM = new StaticAgentsVM(new Agents(agent, agentWithUnknownEnv));
+      staticAgentsVM.selectAgent(agentWithUnknownEnv.uuid);
+      staticAgentsVM.selectAgent(agent.uuid);
+      mount(staticAgentsVM, new DummyService([]));
+
+      helper.clickByTestId("modify-environments-association");
+
+      expect(helper.byTestId("form-field-input-env")).toBeDisabled();
+      expect(helper.byTestId("Info Circle-icon")).toBeInDOM();
+      expect(helper.byTestId("tooltip-content")).toBeInDOM();
+      expect(helper.byTestId("tooltip-content")).toContainText("Environment is not defined in config XML");
     });
   });
 

@@ -173,6 +173,21 @@ public class AgentDao extends HibernateDaoSupport {
         }
     }
 
+    public Agent fetchAgentFromDBByUUIDIncludingDeleted(final String uuid) {
+        List<String> uuids = singletonList(uuid);
+        AgentMutex mutex = agentMutexes.acquire(uuids);
+        synchronized (mutex) {
+            Agent agent = (Agent) transactionTemplate.execute((TransactionCallback) transactionStatus -> {
+                Query query = sessionFactory.getCurrentSession().createQuery("FROM Agent where uuid = :uuid");
+                query.setCacheable(true);
+                query.setParameter("uuid", uuid);
+                return query.uniqueResult();
+            });
+            agentMutexes.release(uuids, mutex);
+            return agent;
+        }
+    }
+
     public void saveOrUpdate(Agent agent) {
         final String key = agentCacheKey(agent.getUuid());
         updateAgentIdFromDBIfAgentDoesNotHaveAnIdAndAgentExistInDB(agent);

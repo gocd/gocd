@@ -48,7 +48,7 @@ public class JobPresentationService {
             if (null != agentInstance && !agentInstance.isNullAgent()) {
                 model = new JobInstanceModel(jobInstance, jobDurationStrategy, agentInstance);
             } else if (jobInstance.getAgentUuid() != null) {
-                Agent agent = agentService.findRegisteredAgentByUUID(jobInstance.getAgentUuid());
+                Agent agent = agentService.findAgentByUUID(jobInstance.getAgentUuid());
                 model = new JobInstanceModel(jobInstance, jobDurationStrategy, agent);
             } else {
                 model = new JobInstanceModel(jobInstance, jobDurationStrategy);

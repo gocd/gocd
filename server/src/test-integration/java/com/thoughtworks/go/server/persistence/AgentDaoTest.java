@@ -104,6 +104,20 @@ public class AgentDaoTest {
         }
 
         @Test
+        void shouldFetchAgentFromDBIncludingDeletedAgent() {
+            String uuid = "uuid";
+            Agent agent = new Agent(uuid, "localhost", "127.0.0.1", "cookie");
+            agentDao.saveOrUpdate(agent);
+            agentDao.bulkSoftDelete(singletonList(uuid));
+
+            Agent agentFromDB = agentDao.fetchAgentFromDBByUUID(uuid);
+            assertThat(agentFromDB, is(nullValue()));
+
+            agentFromDB = agentDao.fetchAgentFromDBByUUIDIncludingDeleted(uuid);
+            assertThat(agentFromDB, is(agent));
+        }
+
+        @Test
         void shouldGetAgentsByUUIDsExcludingSoftDeletedAgents() {
             String uuid1 = "uuid1";
             String uuid2 = "uuid2";

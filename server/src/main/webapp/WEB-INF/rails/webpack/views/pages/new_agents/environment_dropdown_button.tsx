@@ -19,12 +19,12 @@ import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {Agent} from "models/new_agent/agents";
+import {StaticAgentsVM} from "models/new_agent/agents_vm";
+import {TriStateCheckbox, TristateState} from "models/tri_state_checkbox";
 import {DropdownAttrs, Primary} from "views/components/buttons";
 import {TriStateCheckboxField} from "views/components/forms/input_fields";
+import {Info} from "views/components/tooltip";
 import Style from "views/pages/new_agents/index.scss";
-import {StaticAgentsVM} from "../../../models/new_agent/agents_vm";
-import {TriStateCheckbox, TristateState} from "../../../models/tri_state_checkbox";
-import {Info} from "../../components/tooltip";
 import {AbstractDropdownButton} from "./resources_dropdown_button";
 
 interface EnvAttrs extends DropdownAttrs {
@@ -57,13 +57,15 @@ export class EnvironmentsDropdownButton extends AbstractDropdownButton<EnvAttrs>
         const tooltipMsg = (triStateCheckbox as EnvironmentInfo).getToolTipMsg();
         const tooltip = (tooltipMsg.length > 0) ? <Info content={tooltipMsg}/> : null;
         return <div class={Style.environmentInfo}>
-          <TriStateCheckboxField label={environment} property={Stream(triStateCheckbox)} readonly={triStateCheckbox.isDisabled()}/>
+          <TriStateCheckboxField label={environment}
+                                 property={Stream(triStateCheckbox)}
+                                 readonly={triStateCheckbox.isDisabled()}/>
           {tooltip}
         </div>;
       }),
       <div class={Style.dropdownContentFooter}>
         <Primary data-test-id="environment-to-apply"
-                 onclick={this.apply.bind(this, vnode)}>Apply</Primary>
+                 onclick={this.apply.bind(this, vnode)} disabled={this.areAllEnvsDisabled()}>Apply</Primary>
       </div>
     ];
   }
@@ -85,18 +87,24 @@ export class EnvironmentsDropdownButton extends AbstractDropdownButton<EnvAttrs>
     const allUniqueEnvs = _.uniq(allAgentsEnvs.concat(this.data())).sort();
 
     allUniqueEnvs.map((item) => {
+      let isAssociatedViaConfigRepo = false;
+      let unknownEnvCount = 0;
       const numberOfAgentsWithSpecifiedEnv = vnode.attrs.agentsVM.list().reduce((count: number, agent: Agent) => {
         if (vnode.attrs.agentsVM.isAgentSelected(agent.uuid) && this.hasAssociationWith(agent, item)) {
           count += 1;
+          const agentsEnvironment = agent.environments.filter((agentEnv) => agentEnv.name === item);
+
+          isAssociatedViaConfigRepo = isAssociatedViaConfigRepo || agentsEnvironment
+            .some((agentEnv) => agentEnv.isAssociatedFromConfigRepo());
+          unknownEnvCount += agentsEnvironment.filter((agentEnv) => agentEnv.isUnknown()).length;
         }
         return count;
       }, 0);
 
-      const disabledDueToConfigRepoAssociation = EnvironmentsDropdownButton.isAssociatedViaConfigRepo(item, allSelectedAgents);
-      const disabledDueToUnknown = EnvironmentsDropdownButton.isUnknown(item, allSelectedAgents);
+      const isUnknown = unknownEnvCount === 0 ? false : unknownEnvCount !== allSelectedAgents.length;
 
-      const disabled = disabledDueToConfigRepoAssociation || disabledDueToUnknown;
-      const msg = EnvironmentsDropdownButton.getTooltipContent(disabledDueToConfigRepoAssociation, disabledDueToUnknown);
+      const disabled = isAssociatedViaConfigRepo || isUnknown;
+      const msg = EnvironmentsDropdownButton.getTooltipContent(isAssociatedViaConfigRepo, isUnknown);
 
       switch (numberOfAgentsWithSpecifiedEnv) {
         case 0:
@@ -112,28 +120,6 @@ export class EnvironmentsDropdownButton extends AbstractDropdownButton<EnvAttrs>
     });
   }
 
-  private static isAssociatedViaConfigRepo(envName: string, agents: Agent[]): boolean {
-    if (!agents || agents.length === 0) {
-      return false;
-    }
-
-    return _.flatMap(agents.map((agent) => agent.environments))
-        .filter((env) => env.name === envName)
-        .map((env) => env.isAssociatedFromConfigRepo())
-        .reduce((accumalator, currentValue) => accumalator || currentValue, false);
-  }
-
-  private static isUnknown(envName: string, agents: Agent[]): boolean {
-    if (!agents || agents.length === 0) {
-      return false;
-    }
-
-    const hasUnknownEnvs = _.flatMap(agents.map((agent) => agent.environments))
-        .filter((env) => env.name === envName && env.isUnknown());
-
-    return hasUnknownEnvs.length === 0 ? false : hasUnknownEnvs.length !== agents.length;
-  }
-
   private static getTooltipContent(disabled: boolean, unknown: boolean) {
     if (disabled) {
       return "Cannot edit Environment associated from Config Repo";
@@ -141,6 +127,10 @@ export class EnvironmentsDropdownButton extends AbstractDropdownButton<EnvAttrs>
       return "Environment is not defined in config XML";
     }
     return "";
+  }
+
+  private areAllEnvsDisabled() {
+    return _.every(Array.from(this.triStateCheckboxMap.values()), (checkbox: TriStateCheckbox) => checkbox.isDisabled());
   }
 }
 

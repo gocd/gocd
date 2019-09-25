@@ -16,15 +16,22 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
+import com.thoughtworks.go.config.validation.CommandRepositoryLocationValidator;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.SecureSiteUrl;
 import com.thoughtworks.go.domain.ServerSiteUrlConfig;
 import com.thoughtworks.go.domain.SiteUrl;
+import com.thoughtworks.go.util.FileUtil;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.PostConstruct;
+import java.io.File;
 import java.util.Objects;
 import java.util.UUID;
+
+import static com.thoughtworks.go.util.SystemEnvironment.COMMAND_REPOSITORY_DIRECTORY;
+import static org.springframework.util.StringUtils.isEmpty;
 
 @ConfigTag("server")
 public class ServerConfig implements Validatable {
@@ -63,6 +70,7 @@ public class ServerConfig implements Validatable {
     private ConfigErrors errors = new ConfigErrors();
 
     public static final String JOB_TIMEOUT = "JOB_TIMEOUT";
+    public static final String COMMAND_REPO_LOCATION = "COMMAND_REPO_LOCATION";
 
     public static final String NEVER_TIMEOUT = "neverTimeout";
     public static final String OVERRIDE_TIMEOUT = "overrideTimeout";
@@ -275,6 +283,16 @@ public class ServerConfig implements Validatable {
             }
         } catch (NumberFormatException e) {
             errors().add(JOB_TIMEOUT, "Timeout should be a valid number as it represents number of minutes");
+        }
+        validateCommandRepoLocation(validationContext);
+    }
+
+    private void validateCommandRepoLocation(ValidationContext validationContext) {
+        CommandRepositoryLocationValidator commandRepoLocationValidator = new CommandRepositoryLocationValidator(new SystemEnvironment());
+        try {
+            commandRepoLocationValidator.validate(validationContext.getCruiseConfig());
+        } catch (Exception e) {
+            errors().add(COMMAND_REPO_LOCATION, e.getMessage());
         }
     }
 

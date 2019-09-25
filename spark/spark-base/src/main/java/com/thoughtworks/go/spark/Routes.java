@@ -712,4 +712,8 @@ public class Routes {
     public class NewEnvironments {
         public static final String SPA_BASE = "/admin/new-environments";
     }
+
+    public class CommandRepository {
+        public static final String BASE = "/api/admin/config/server/command_repository";
+    }
 }

@@ -21,76 +21,81 @@ import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class ServerConfigTest {
+class ServerConfigTest {
     private ServerConfig defaultServerConfig;
     private ServerConfig another;
+    private BasicCruiseConfig basicCruiseConfig;
+    private ConfigSaveValidationContext validationContext;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         defaultServerConfig = new ServerConfig("artifactsDir", new SecurityConfig());
         another = new ServerConfig("artifactsDir", new SecurityConfig());
+        basicCruiseConfig = new BasicCruiseConfig();
+        validationContext = ConfigSaveValidationContext.forChain(basicCruiseConfig);
     }
 
     @Test
-    public void shouldReturnSiteUrlAsSecurePreferedSiteUrlIfSecureSiteUrlIsNotDefined(){
+    void shouldReturnSiteUrlAsSecurePreferedSiteUrlIfSecureSiteUrlIsNotDefined() {
         defaultServerConfig.setSiteUrl("http://example.com");
         defaultServerConfig.setSecureSiteUrl(null);
         assertThat(defaultServerConfig.getSiteUrlPreferablySecured().getUrl(), is("http://example.com"));
     }
 
     @Test
-    public void shouldReturnSecureSiteUrlAsSecurePreferedSiteUrlIfBothSiteUrlAndSecureSiteUrlIsDefined(){
+    void shouldReturnSecureSiteUrlAsSecurePreferedSiteUrlIfBothSiteUrlAndSecureSiteUrlIsDefined() {
         defaultServerConfig.setSiteUrl("http://example.com");
         defaultServerConfig.setSecureSiteUrl("https://example.com");
         assertThat(defaultServerConfig.getSiteUrlPreferablySecured().getUrl(), is("https://example.com"));
     }
 
     @Test
-    public void shouldReturnBlankUrlBothSiteUrlAndSecureSiteUrlIsNotDefined(){
+    void shouldReturnBlankUrlBothSiteUrlAndSecureSiteUrlIsNotDefined() {
         defaultServerConfig.setSiteUrl(null);
         defaultServerConfig.setSecureSiteUrl(null);
         assertThat(defaultServerConfig.getSiteUrlPreferablySecured().hasNonNullUrl(), is(false));
     }
 
     @Test
-    public void shouldReturnAnEmptyForSecureSiteUrlIfOnlySiteUrlIsConfigured() throws Exception {
+    void shouldReturnAnEmptyForSecureSiteUrlIfOnlySiteUrlIsConfigured() throws Exception {
         ServerConfig serverConfig = new ServerConfig(null, null, new SiteUrl("http://foo.bar:813"), new SecureSiteUrl());
         assertThat(serverConfig.getHttpsUrl(), is(new SecureSiteUrl()));
     }
 
     @Test
-    public void shouldReturnDefaultTaskRepositoryLocation() {
+    void shouldReturnDefaultTaskRepositoryLocation() {
         ServerConfig serverConfig = new ServerConfig(null, null, new SiteUrl("http://foo.bar:813"), new SecureSiteUrl());
         assertThat(serverConfig.getCommandRepositoryLocation(), is("default"));
     }
 
     @Test
-    public void shouldReturnTaskRepositoryLocation() {
+    void shouldReturnTaskRepositoryLocation() {
         ServerConfig serverConfig = new ServerConfig(null, null, new SiteUrl("http://foo.bar:813"), new SecureSiteUrl());
         serverConfig.setCommandRepositoryLocation("foo");
         assertThat(serverConfig.getCommandRepositoryLocation(), is("foo"));
     }
 
     @Test
-    public void shouldIgnoreErrorsFieldOnEquals() throws Exception {
+    void shouldIgnoreErrorsFieldOnEquals() throws Exception {
         ServerConfig one = new ServerConfig(new SecurityConfig(), new MailHost(new GoCipher()), new SiteUrl("siteURL"), new SecureSiteUrl("secureURL"));
         one.addError("siteUrl", "I dont like this url");
         assertThat(one, is(new ServerConfig(new SecurityConfig(), new MailHost(new GoCipher()), new SiteUrl("siteURL"), new SecureSiteUrl("secureURL"))));
     }
 
     @Test
-    public void shouldNotUpdatePasswordForMailHostIfNotChangedOrNull() throws IOException {
+    void shouldNotUpdatePasswordForMailHostIfNotChangedOrNull() throws IOException {
         File cipherFile = new SystemEnvironment().getDESCipherFile();
         FileUtils.deleteQuietly(cipherFile);
         FileUtils.writeStringToFile(cipherFile, "269298bc31c44620", UTF_8);
@@ -110,7 +115,7 @@ public class ServerConfigTest {
     }
 
     @Test
-    public void shouldAllowArtifactPurgingIfPurgeParametersAreDefined() {
+    void shouldAllowArtifactPurgingIfPurgeParametersAreDefined() {
         another = new ServerConfig("artifacts", new SecurityConfig(), 10.0, 20.0);
         assertThat(another.isArtifactPurgingAllowed(), is(true));
         another = new ServerConfig("artifacts", new SecurityConfig(), null, 20.0);
@@ -122,20 +127,20 @@ public class ServerConfigTest {
     }
 
     @Test
-    public void shouldGetTheDefaultJobTimeoutValue() {
+    void shouldGetTheDefaultJobTimeoutValue() {
         assertThat(new ServerConfig("artifacts", new SecurityConfig(), 10.0, 20.0).getJobTimeout(), is("0"));
         assertThat(new ServerConfig("artifacts", new SecurityConfig(), 10.0, 20.0, "30").getJobTimeout(), is("30"));
     }
 
     @Test
-    public void shouldValidateThatTimeoutIsValidIfItsANumber() {
+    void shouldValidateThatTimeoutIsValidIfItsANumber() {
         ServerConfig serverConfig = new ServerConfig("artifacts", new SecurityConfig(), 10, 20, "30");
-        serverConfig.validate(null);
+        serverConfig.validate(validationContext);
         assertThat(serverConfig.errors().isEmpty(), is(true));
     }
 
     @Test
-    public void shouldValidateThatTimeoutIsInvalidIfItsNotAValidNumber() {
+    void shouldValidateThatTimeoutIsInvalidIfItsNotAValidNumber() {
         ServerConfig serverConfig = new ServerConfig("artifacts", new SecurityConfig(), 10, 20, "30M");
         serverConfig.validate(null);
         assertThat(serverConfig.errors().isEmpty(), is(false));
@@ -143,7 +148,7 @@ public class ServerConfigTest {
     }
 
     @Test
-    public void validate_shouldFailIfThePurgeStartIsBiggerThanPurgeUpto() {
+    void validate_shouldFailIfThePurgeStartIsBiggerThanPurgeUpto() {
         ServerConfig serverConfig = new ServerConfig("artifacts", new SecurityConfig(), 20.1, 20.05, "30");
         serverConfig.validate(null);
         assertThat(serverConfig.errors().isEmpty(), is(false));
@@ -151,7 +156,7 @@ public class ServerConfigTest {
     }
 
     @Test
-    public void validate_shouldFailIfThePurgeStartIsNotSpecifiedButPurgeUptoIs() {
+    void validate_shouldFailIfThePurgeStartIsNotSpecifiedButPurgeUptoIs() {
         ServerConfig serverConfig = new ServerConfig("artifacts", new SecurityConfig(), null, 20.05);
         serverConfig.validate(null);
         assertThat(serverConfig.errors().isEmpty(), is(false));
@@ -159,7 +164,7 @@ public class ServerConfigTest {
     }
 
     @Test
-    public void validate_shouldFailIfThePurgeStartIs0SpecifiedButPurgeUptoIs() {
+    void validate_shouldFailIfThePurgeStartIs0SpecifiedButPurgeUptoIs() {
         ServerConfig serverConfig = new ServerConfig("artifacts", new SecurityConfig(), 0, 20.05, "30");
         serverConfig.validate(null);
         assertThat(serverConfig.errors().isEmpty(), is(false));
@@ -167,21 +172,21 @@ public class ServerConfigTest {
     }
 
     @Test
-    public void validate_shouldPassIfThePurgeStartIsSmallerThanPurgeUpto() {
+    void validate_shouldPassIfThePurgeStartIsSmallerThanPurgeUpto() {
         ServerConfig serverConfig = new ServerConfig("artifacts", new SecurityConfig(), 20.0, 20.05, "30");
-        serverConfig.validate(null);
+        serverConfig.validate(validationContext);
         assertThat(serverConfig.errors().isEmpty(), is(true));
     }
 
     @Test
-    public void validate_shouldPassIfThePurgeStartAndPurgeUptoAreBothNotSet() {
+    void validate_shouldPassIfThePurgeStartAndPurgeUptoAreBothNotSet() {
         ServerConfig serverConfig = new ServerConfig("artifacts", new SecurityConfig());
-        serverConfig.validate(null);
+        serverConfig.validate(validationContext);
         assertThat(serverConfig.errors().isEmpty(), is(true));
     }
 
     @Test
-    public void should_useServerId_forEqualityCheck() {
+    void should_useServerId_forEqualityCheck() {
         ServerConfig configWithoutServerId = new ServerConfig();
         ServerConfig configWithServerId = new ServerConfig();
         configWithServerId.ensureServerIdExists();
@@ -189,7 +194,7 @@ public class ServerConfigTest {
     }
 
     @Test
-    public void shouldEnsureAgentAutoregisterKeyExists() throws Exception {
+    void shouldEnsureAgentAutoregisterKeyExists() throws Exception {
         ServerConfig serverConfig = new ServerConfig();
         assertNull(serverConfig.getAgentAutoRegisterKey());
         assertNotNull(serverConfig.getClass().getMethod("ensureAgentAutoregisterKeyExists").getAnnotation(PostConstruct.class));
@@ -198,7 +203,7 @@ public class ServerConfigTest {
     }
 
     @Test
-    public void shouldEnsureWebhookSecretExists() throws Exception {
+    void shouldEnsureWebhookSecretExists() throws Exception {
         ServerConfig serverConfig = new ServerConfig();
         assertNull(serverConfig.getWebhookSecret());
         assertNotNull(serverConfig.getClass().getMethod("ensureWebhookSecretExists").getAnnotation(PostConstruct.class));
@@ -207,11 +212,33 @@ public class ServerConfigTest {
     }
 
     @Test
-    public void shouldEnsureTokenGenerationKeyExists() throws Exception {
+    void shouldEnsureTokenGenerationKeyExists() throws Exception {
         ServerConfig serverConfig = new ServerConfig();
         assertNull(serverConfig.getTokenGenerationKey());
         assertNotNull(serverConfig.getClass().getMethod("ensureTokenGenerationKeyExists").getAnnotation(PostConstruct.class));
         serverConfig.ensureTokenGenerationKeyExists();
         assertTrue(StringUtils.isNotBlank(serverConfig.getTokenGenerationKey()));
+    }
+
+    @Test
+    void shouldValidateCommandRepoLocationIsValidFile() {
+        ServerConfig serverConfig = new ServerConfig();
+        serverConfig.setCommandRepositoryLocation("command-repo");
+
+        serverConfig.validate(validationContext);
+
+        assertTrue(serverConfig.errors().isEmpty());
+    }
+
+    @Test
+    void shouldErrorWhenCommandRepoLocationIsEmpty() {
+        ServerConfig serverConfig = new ServerConfig();
+        serverConfig.setCommandRepositoryLocation("");
+        basicCruiseConfig.setServerConfig(serverConfig);
+
+        serverConfig.validate(validationContext);
+
+        assertFalse(serverConfig.errors().isEmpty());
+        assertThat(serverConfig.errors().on(ServerConfig.COMMAND_REPO_LOCATION), is("Command Repository Location cannot be empty"));
     }
 }

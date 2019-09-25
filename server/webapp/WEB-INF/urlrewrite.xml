@@ -24,6 +24,12 @@
 
 <urlrewrite>
   <rule>
+    <name>Command Repository Location</name>
+    <from>^/api/admin/config/server/command_repository</from>
+    <to last="true">/spark/api/admin/config/server/command_repository</to>
+  </rule>
+
+  <rule>
     <name>environments UI</name>
     <from>^/admin/environments(/?)$</from>
     <run class="com.thoughtworks.go.server.SparkOrRailsEnvironmentsPageToggle" method="environmentsPage"/>

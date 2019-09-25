@@ -444,3 +444,7 @@ api/api-template-config-v5/out/
 api/api-template-config-v5/target/
 api/api-template-config-v5/logs/
 api/api-template-config-v5/config/
+api/api-command-repository-v1/out/
+api/api-command-repository-v1/target/
+api/api-command-repository-v1/logs/
+api/api-command-repository-v1/config/

@@ -13,24 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.domain.ConfigErrors;
 import lombok.*;
 import lombok.experimental.Accessors;
 
+import static com.thoughtworks.go.config.ServerConfig.PURGE_START;
 @Getter
 @Setter
 @EqualsAndHashCode
 @Accessors(chain = true)
 @NoArgsConstructor(access = AccessLevel.PUBLIC)
 @AllArgsConstructor(access = AccessLevel.NONE)
-@ConfigTag("artifacts")
-public class ArtifactConfig implements Validatable {
+@ConfigTag("purgeSettings")
+public class PurgeSettings implements Validatable {
     @ConfigSubtag
-    private ArtifactDirectory artifactsDir = new ArtifactDirectory();
+    private PurgeStart purgeStart;
     @ConfigSubtag
-    private PurgeSettings purgeSettings = new PurgeSettings();
+    private PurgeUpto purgeUpto;
 
     @Getter(AccessLevel.NONE)
     @Setter(AccessLevel.NONE)
@@ -39,7 +41,13 @@ public class ArtifactConfig implements Validatable {
 
     @Override
     public void validate(ValidationContext validationContext) {
-        purgeSettings.validate(validationContext);
+        if (!(purgeStart == null && purgeUpto == null)) {
+            if (purgeUpto != null && (purgeStart == null || purgeStart.getPurgeStartDiskSpace() == 0)) {
+                errors().add(PURGE_START, "Error in artifact cleanup values. The trigger value is has to be specified when a goal is set");
+            } else if (purgeStart.getPurgeStartDiskSpace() > purgeUpto.getPurgeUptoDiskSpace()) {
+                errors().add(PURGE_START, String.format("Error in artifact cleanup values. The trigger value (%sGB) should be less than the goal (%sGB)", purgeStart, purgeUpto));
+            }
+        }
     }
 
     @Override

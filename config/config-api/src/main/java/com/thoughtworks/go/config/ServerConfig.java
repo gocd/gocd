@@ -29,12 +29,6 @@ import java.util.UUID;
 @ConfigTag("server")
 public class ServerConfig implements Validatable {
     public static final String SERVER_BACKUPS = "serverBackups";
-    @ConfigAttribute(value = "artifactsdir", alwaysWrite = true)
-    private String artifactsDir = "artifacts";
-    @ConfigAttribute(value = "purgeStart", optional = true, allowNull = true)
-    private Double purgeStart;
-    @ConfigAttribute(value = "purgeUpto", optional = true, allowNull = true)
-    private Double purgeUpto;
     @ConfigAttribute(value = "jobTimeout", optional = true)
     private String jobTimeout = "0";
     @ConfigAttribute(value = "agentAutoRegisterKey", optional = true, allowNull = true)
@@ -56,6 +50,8 @@ public class ServerConfig implements Validatable {
     private MailHost mailHost;
     @ConfigSubtag
     private BackupConfig backupConfig;
+    @ConfigSubtag
+    private ArtifactConfig artifactConfig = new ArtifactConfig();
 
     @ConfigAttribute(value = "tokenGenerationKey", allowNull = true)
     private String tokenGenerationKey;
@@ -111,14 +107,13 @@ public class ServerConfig implements Validatable {
     }
 
     public ServerConfig(String artifactsDir, SecurityConfig securityConfig) {
-        this.artifactsDir = artifactsDir;
+        this.artifactConfig.setArtifactsDir(new ArtifactDirectory(artifactsDir));
         this.securityConfig = securityConfig;
     }
 
     public ServerConfig(String artifactsDir, SecurityConfig securityConfig, Double purgeStart, Double purgeUpto) {
         this(artifactsDir, securityConfig);
-        this.purgeStart = purgeStart;
-        this.purgeUpto = purgeUpto;
+        this.setPurgeLimits(purgeStart,purgeUpto);
     }
 
     public ServerConfig(String artifacts, SecurityConfig securityConfig, double purgeStart, double purgeUpto, String jobTimeout) {
@@ -132,7 +127,7 @@ public class ServerConfig implements Validatable {
     }
 
     public String artifactsDir() {
-        return artifactsDir;
+        return artifactConfig.getArtifactsDir().getArtifactDir();
     }
 
     public boolean isSecurityEnabled() {
@@ -166,7 +161,7 @@ public class ServerConfig implements Validatable {
     }
 
     public void updateArtifactRoot(String path) {
-        this.artifactsDir = path;
+        this.artifactConfig.setArtifactsDir(new ArtifactDirectory(path));
     }
 
     @Override
@@ -180,19 +175,13 @@ public class ServerConfig implements Validatable {
 
         ServerConfig that = (ServerConfig) o;
 
-        if (artifactsDir != null ? !artifactsDir.equals(that.artifactsDir) : that.artifactsDir != null) {
+        if (!Objects.equals(artifactConfig, that.artifactConfig)) {
             return false;
         }
         if (getSiteUrl() != null ? !getSiteUrl().equals(that.getSiteUrl()) : that.getSiteUrl() != null) {
             return false;
         }
         if (getSecureSiteUrl() != null ? !getSecureSiteUrl().equals(that.getSecureSiteUrl()) : that.getSecureSiteUrl() != null) {
-            return false;
-        }
-        if (purgeStart != null ? !purgeStart.equals(that.purgeStart) : that.purgeStart != null) {
-            return false;
-        }
-        if (purgeUpto != null ? !purgeUpto.equals(that.purgeUpto) : that.purgeUpto != null) {
             return false;
         }
         if (jobTimeout != null ? !jobTimeout.equals(that.jobTimeout) : that.jobTimeout != null) {
@@ -225,7 +214,7 @@ public class ServerConfig implements Validatable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(artifactsDir, purgeStart, purgeUpto, jobTimeout, agentAutoRegisterKey, webhookSecret, commandRepositoryLocation, serverId, siteUrls, securityConfig, mailHost, backupConfig, tokenGenerationKey, errors);
+        return Objects.hash(artifactConfig, jobTimeout, agentAutoRegisterKey, webhookSecret, commandRepositoryLocation, serverId, siteUrls, securityConfig, mailHost, backupConfig, tokenGenerationKey, errors);
     }
 
     /**
@@ -234,7 +223,7 @@ public class ServerConfig implements Validatable {
      * @deprecated
      */
     public void setArtifactsDir(String artifactsDir) {
-        this.artifactsDir = artifactsDir;
+        this.artifactConfig.setArtifactsDir(new ArtifactDirectory(artifactsDir));
     }
 
     public void setMailHost(MailHost mailHost) {
@@ -262,13 +251,7 @@ public class ServerConfig implements Validatable {
 
     @Override
     public void validate(ValidationContext validationContext) {
-        if (!(purgeStart == null && purgeUpto == null)) {
-            if (purgeUpto != null && (purgeStart == null || purgeStart == 0)) {
-                errors().add(PURGE_START, "Error in artifact cleanup values. The trigger value is has to be specified when a goal is set");
-            } else if (purgeStart > purgeUpto) {
-                errors().add(PURGE_START, String.format("Error in artifact cleanup values. The trigger value (%sGB) should be less than the goal (%sGB)", purgeStart, purgeUpto));
-            }
-        }
+        artifactConfig.validate(validationContext);
         try {
             if (Double.parseDouble(jobTimeout) < 0) {
                 errors().add(JOB_TIMEOUT, "Timeout cannot be a negative number as it represents number of minutes");
@@ -327,20 +310,20 @@ public class ServerConfig implements Validatable {
     }
 
     public Double getPurgeStart() {
-        return purgeStart;
+        return artifactConfig.getPurgeSettings().getPurgeStart().getPurgeStartDiskSpace();
     }
 
     public Double getPurgeUpto() {
-        return purgeUpto;
+        return artifactConfig.getPurgeSettings().getPurgeUpto().getPurgeUptoDiskSpace();
     }
 
     public boolean isArtifactPurgingAllowed() {
-        return !(purgeStart == null || purgeUpto == null);
+        return !(artifactConfig.getPurgeSettings().getPurgeStart() == null || artifactConfig.getPurgeSettings().getPurgeUpto() == null);
     }
 
     public void setPurgeLimits(Double purgeStart, Double purgeUpto) {
-        this.purgeStart = purgeStart;
-        this.purgeUpto = purgeUpto;
+        this.artifactConfig.getPurgeSettings().setPurgeStart(new PurgeStart(purgeStart));
+        this.artifactConfig.getPurgeSettings().setPurgeUpto(new PurgeUpto(purgeUpto));
     }
 
     public String getJobTimeout() {

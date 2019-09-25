@@ -27,7 +27,11 @@ public final class ConfigFileFixture {
     public static final String BASIC_CONFIG =
             "<cruise schemaVersion=\""
                     + CONFIG_SCHEMA_VERSION + "\">\n"
-                    + "<server artifactsdir='artifactsDir' />"
+                    + "<server>"
+                    + "     <artifacts>" +
+                    "           <artifactsDir>artifactsDir</artifactsDir> " +
+                    "       </artifacts>"
+                    + "</server>"
                     + "<pipelines>\n"
                     + "<pipeline name='pipeline1'>\n"
                     + "    <materials>\n"
@@ -70,7 +74,10 @@ public final class ConfigFileFixture {
 
     public static String configWithTemplates(String template) {
         return "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server artifactsdir='artifactsDir' >"
+                + "<server>"
+                + "     <artifacts>" +
+                "           <artifactsDir>artifactsDir</artifactsDir> " +
+                "       </artifacts>"
                 + "</server>"
                 + "<pipelines>\n"
                 + "<pipeline name='pipeline1'>\n"
@@ -92,7 +99,10 @@ public final class ConfigFileFixture {
         return "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
                 + " xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\""
                 + CONFIG_SCHEMA_VERSION + "\">\n"
-                + "<server artifactsdir='artifactsDir' >"
+                + "<server>"
+                + "     <artifacts>" +
+                "           <artifactsDir>artifactsDir</artifactsDir> " +
+                "       </artifacts>"
                 + "</server>"
                 + configReposBlock
                 + "<pipelines>\n"
@@ -128,7 +138,10 @@ public final class ConfigFileFixture {
 
     public static String configWithPipelines(String pipelinesBlock, int schemaVersion) {
         return "<cruise schemaVersion='" + schemaVersion + "'>\n"
-                + "<server artifactsdir='artifactsDir' >"
+                + "<server>"
+                + "     <artifacts>" +
+                "           <artifactsDir>artifactsDir</artifactsDir> " +
+                "       </artifacts>"
                 + "</server>"
                 + pipelinesBlock
                 + "</cruise>";
@@ -150,9 +163,13 @@ public final class ConfigFileFixture {
                 + "</cruise>";
     }
 
-   public static final String CONFIG_WITH_ANT_BUILDER =
+    public static final String CONFIG_WITH_ANT_BUILDER =
             "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                    + "<server artifactsdir='artifactsDir' />"
+                    + "<server>"
+                    + "     <artifacts>" +
+                    "           <artifactsDir>artifactsDir</artifactsDir> " +
+                    "       </artifacts>"
+                    + "</server>"
                     + "<pipelines>\n"
                     + "<pipeline name='pipeline1'>\n"
                     + "    <materials>\n"
@@ -176,7 +193,10 @@ public final class ConfigFileFixture {
 
     public static final String CONFIG_WITH_NANT_AND_EXEC_BUILDER =
             "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                    + "<server artifactsdir='artifactsDir' >"
+                    + "<server>"
+                    + "     <artifacts>" +
+                    "           <artifactsDir>artifactsDir</artifactsDir> " +
+                    "       </artifacts>"
                     + "</server>"
                     + "<pipelines>\n"
                     + "<pipeline name='pipeline1'>\n"
@@ -220,7 +240,10 @@ public final class ConfigFileFixture {
 
     public static final String WITH_DUPLICATE_ENVIRONMENTS =
             "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                    + "<server artifactsdir='artifactsDir' >"
+                    + "<server>"
+                    + "     <artifacts>" +
+                    "           <artifactsDir>artifactsDir</artifactsDir> " +
+                    "       </artifacts>"
                     + "</server>"
                     + "<pipelines>\n"
                     + "<pipeline name='pipeline1'>\n"
@@ -246,7 +269,11 @@ public final class ConfigFileFixture {
 
     public static final String TASKS_WITH_CONDITION =
             "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                    + "<server artifactsdir='artifactsDir' />"
+                    + "<server>"
+                    + "     <artifacts>" +
+                    "           <artifactsDir>artifactsDir</artifactsDir> " +
+                    "       </artifacts>"
+                    + "</server>"
                     + "<pipelines>\n"
                     + "<pipeline name='pipeline1'>\n"
                     + "    <materials>\n"
@@ -419,8 +446,11 @@ public final class ConfigFileFixture {
 
     public static final String CONTAINS_MULTI_DIFFERENT_STATUS_RUN_IF = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
             + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-            + "  <server artifactsdir=\"artifacts\">\n"
-            + "  </server>\n"
+            + "<server>"
+            + "     <artifacts>" +
+            "           <artifactsDir>artifacts</artifactsDir> " +
+            "       </artifacts>"
+            + "</server>"
             + "  <pipelines group=\"12345\">\n"
             + "    <pipeline name=\"test\">\n"
             + "      <materials>\n"
@@ -476,14 +506,20 @@ public final class ConfigFileFixture {
             + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
             + "xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\""
             + CONFIG_SCHEMA_VERSION + "\">\n"
-            + "  <server artifactsdir=\"other-artifacts\" agentAutoRegisterKey=\"default\" webhookSecret=\"some-webhook-secret\" commandRepositoryLocation=\"default\" serverId=\"foo\" tokenGenerationKey=\"bar\" />\n"
+            + "<server agentAutoRegisterKey=\"default\" webhookSecret=\"some-webhook-secret\" commandRepositoryLocation=\"default\" serverId=\"foo\" tokenGenerationKey=\"bar\">\n" +
+            "<artifacts><artifactsDir>artifacts</artifactsDir></artifacts>"
+            + "</server>"
             + "</cruise>\n";
 
     public static final String STAGE_WITH_EMPTY_AUTH = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
             + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
             + "xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\""
             + CONFIG_SCHEMA_VERSION + "\">\n"
-            + "  <server artifactsdir=\"other-artifacts\" />\n"
+            + "  <server >\n"
+            + "<artifacts>" +
+            "           <artifactsDir>other-artifacts</artifactsDir> " +
+            "       </artifacts>"
+            + "</server>"
             + "  <pipelines>\n"
             + "    <pipeline name=\"pipeline1\">\n"
             + "      <materials>\n"
@@ -509,7 +545,11 @@ public final class ConfigFileFixture {
             + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
             + "xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\""
             + CONFIG_SCHEMA_VERSION + "\">\n"
-            + "  <server artifactsdir=\"other-artifacts\">\n"
+            + "  <server >\n"
+            + "     <artifacts>" +
+            "           <artifactsDir>other-artifacts</artifactsDir> " +
+            "       </artifacts>"
+            + "</server>"
             + "    <security>\n"
             + "      <roles>\n"
             + "      </roles>\n"
@@ -534,7 +574,11 @@ public final class ConfigFileFixture {
             + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
             + "xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\""
             + CONFIG_SCHEMA_VERSION + "\">\n"
-            + "  <server artifactsdir=\"other-artifacts\">\n"
+            + "  <server >\n"
+            + "     <artifacts>" +
+            "           <artifactsDir>other-artifacts</artifactsDir> " +
+            "       </artifacts>"
+            + "</server>"
             + "    <security>\n"
             + "      <authConfigs>\n"
             + "        <authConfig id=\"tw-ldap\" pluginId=\"cd.go.authentication.ldap\">\n"
@@ -565,7 +609,11 @@ public final class ConfigFileFixture {
             + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
             + "xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\""
             + CONFIG_SCHEMA_VERSION + "\">\n"
-            + "  <server artifactsdir=\"other-artifacts\">\n"
+            + "  <server >\n"
+            + "     <artifacts>" +
+            "           <artifactsDir>other-artifacts</artifactsDir> " +
+            "       </artifacts>"
+            + "</server>"
             + "    <security>\n"
             + "      <roles>\n"
             + "        <role name=\"admin\" >\n"
@@ -594,7 +642,11 @@ public final class ConfigFileFixture {
             + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
             + "xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\""
             + CONFIG_SCHEMA_VERSION + "\">\n"
-            + "  <server artifactsdir=\"other-artifacts\">\n"
+            + "  <server >\n"
+            + "     <artifacts>" +
+            "           <artifactsDir>other-artifacts</artifactsDir> " +
+            "       </artifacts>"
+            + "</server>"
             + "    <security>\n"
             + "      <roles>\n"
             + "        <role name=\"admin\" />\n"
@@ -620,7 +672,11 @@ public final class ConfigFileFixture {
             + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
             + "xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\""
             + CONFIG_SCHEMA_VERSION + "\">\n"
-            + "  <server artifactsdir=\"other-artifacts\">\n"
+            + "  <server >\n"
+            + "     <artifacts>" +
+            "           <artifactsDir>other-artifacts</artifactsDir> " +
+            "       </artifacts>"
+            + "</server>"
             + "    <security>\n"
             + "      <roles>\n"
             + "        <role name=\"admin\" >\n"
@@ -650,13 +706,16 @@ public final class ConfigFileFixture {
             + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
             + "xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\""
             + CONFIG_SCHEMA_VERSION + "\">\n"
-            + "  <server artifactsdir=\"other-artifacts\" agentAutoRegisterKey=\"default\" webhookSecret=\"some-webhook-secret\" commandRepositoryLocation=\"default\" serverId=\"bar\" tokenGenerationKey=\"foo\">\n"
+            + "  <server agentAutoRegisterKey=\"default\" webhookSecret=\"some-webhook-secret\" commandRepositoryLocation=\"default\" serverId=\"bar\" tokenGenerationKey=\"foo\">\n"
             + "    <security>\n"
             + "      <roles>\n"
             + "        <role name=\"admin\" />\n"
             + "        <role name=\"qa_lead\" />\n"
             + "      </roles>\n"
             + "    </security>\n"
+            + "    <artifacts>\n"
+            + "      <artifactsDir>other-artifacts</artifactsDir>\n"
+            + "    </artifacts>\n"
             + "  </server>\n"
             + "  <pipelines group=\"defaultGroup\">\n"
             + "    <pipeline name=\"pipeline1\" labeltemplate=\"alpha.${COUNT}\">\n"
@@ -702,7 +761,11 @@ public final class ConfigFileFixture {
     public static final String EMPTY_DEPENDENCIES = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
             + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
             + "xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-            + "  <server artifactsdir=\"other-artifacts\" />\n"
+            + "  <server >\n"
+            + "     <artifacts>" +
+            "           <artifactsDir>other-artifacts</artifactsDir> " +
+            "       </artifacts>"
+            + "</server>"
             + "  <pipelines>\n"
             + "    <pipeline name=\"pipeline1\">\n"
             + "      <dependencies />\n"
@@ -742,14 +805,22 @@ public final class ConfigFileFixture {
             + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
             + " xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\""
             + CONFIG_SCHEMA_VERSION + "\">\n"
-            + "  <server artifactsdir=\"other-artifacts\" />\n"
+            + "  <server>\n"
+            + "     <artifacts>" +
+            "           <artifactsDir>other-artifacts</artifactsDir> " +
+            "       </artifacts>"
+            + "</server>"
             + "  <pipelines>\n"
             + PIPELINE_WITH_TRACKINGTOOL
             + "  </pipelines>\n"
             + "</cruise>\n\n";
 
     public static final String CRUISE = "<cruise schemaVersion=\"" + CONFIG_SCHEMA_VERSION + "\">\n"
-            + "<server artifactsdir='artifactsDir' />"
+            + "<server >"
+            + "     <artifacts>" +
+            "           <artifactsDir>artifactsDir</artifactsDir> " +
+            "       </artifacts>"
+            + "</server>"
             + "<pipelines>\n"
             + "  <pipeline name='cruise'>\n"
             + "    <materials>\n"
@@ -777,7 +848,11 @@ public final class ConfigFileFixture {
         return "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                 + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
                 + " xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + " <server artifactsdir=\"logs\"></server>"
+                + "<server>"
+                + "     <artifacts>" +
+                "           <artifactsDir>logs</artifactsDir> " +
+                "       </artifacts>"
+                + "</server>"
                 + "  <pipelines>\n"
                 + "    <pipeline name=\"pipeline1\">\n"
                 + "      <dependencies />\n"
@@ -800,7 +875,11 @@ public final class ConfigFileFixture {
                 + " xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\""
                 + CONFIG_SCHEMA_VERSION
                 + "\">\n"
-                + " <server artifactsdir=\"logs\">"
+                + "<server>"
+                + "     <artifacts>" +
+                "           <artifactsDir>logs</artifactsDir> " +
+                "       </artifacts>"
+                + "</server>"
                 + xml
                 + "</server>"
                 + "  <pipelines>\n"
@@ -829,7 +908,11 @@ public final class ConfigFileFixture {
                     + "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
                     + "xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\""
                     + CONFIG_SCHEMA_VERSION + "\">\n"
-                    + "<server artifactsdir=\"logs\">"
+                    + "<server>"
+                    + "     <artifacts>" +
+                    "           <artifactsDir>logs</artifactsDir> " +
+                    "       </artifacts>"
+                    + "</server>"
                     + "  <security>"
                     + "    <roles>"
                     + "      <role name='admin'/>"
@@ -947,7 +1030,11 @@ public final class ConfigFileFixture {
             + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
             + " xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\""
             + CONFIG_SCHEMA_VERSION + "\">\n"
-            + "  <server artifactsdir=\"other-artifacts\" />\n"
+            + "<server>"
+            + "     <artifacts>" +
+            "           <artifactsDir>other-artifacts</artifactsDir> " +
+            "       </artifacts>"
+            + "</server>"
             + "  <config-repos>\n"
             + "    <config-repo id=\"id1\" pluginId=\"gocd-xml\">\n"
             + "      <git url=\"https://github.com/tomzo/gocd-indep-config-part.git\" />\n"
@@ -959,7 +1046,11 @@ public final class ConfigFileFixture {
             + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
             + " xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\""
             + CONFIG_SCHEMA_VERSION + "\">\n"
-            + "  <server artifactsdir=\"other-artifacts\" />\n"
+            + "  <server>"
+            + "     <artifacts>" +
+            "           <artifactsDir>other-artifacts</artifactsDir> " +
+            "       </artifacts>"
+            + "</server>"
             + "  <pipelines>\n"
             + "    <pipeline name=\"pipeline1\">\n"
             + "      <materials>\n"
@@ -983,7 +1074,11 @@ public final class ConfigFileFixture {
             + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
             + " xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\""
             + CONFIG_SCHEMA_VERSION + "\">\n"
-            + "  <server artifactsdir=\"other-artifacts\" />\n"
+            + "<server>"
+            + "     <artifacts>" +
+            "           <artifactsDir>other-artifacts</artifactsDir> " +
+            "       </artifacts>"
+            + "</server>"
             + "  <pipelines>\n"
             + "    <pipeline name=\"pipeline1\">\n"
             + "      <materials>\n"
@@ -1011,7 +1106,11 @@ public final class ConfigFileFixture {
             = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
             + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
             + " xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-            + "  <server artifactsdir=\"other-artifacts\" />\n"
+            + "<server>"
+            + "     <artifacts>" +
+            "           <artifactsDir>other-artifacts</artifactsDir> " +
+            "       </artifacts>"
+            + "</server>"
             + "  <pipelines>\n"
             + "    <pipeline name=\"pipeline1\">\n"
             + "      <trackingtool link=\"http://mingle05/projects/cce/cards/${ID}\" regex=\"regex\" />\n"
@@ -1038,8 +1137,11 @@ public final class ConfigFileFixture {
                     + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
                     + " xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\""
                     + CONFIG_SCHEMA_VERSION + "\">\n"
-                    + "<server artifactsdir=\"artifacts\">\n"
-                    + "  </server>  \n"
+                    + "<server>"
+                    + "     <artifacts>" +
+                    "           <artifactsDir>artifacts</artifactsDir> " +
+                    "       </artifacts>"
+                    + "</server>"
                     + "</cruise>";
 
     public static final String DEFAULT_XML_WITH_2_AGENTS = xml();
@@ -1047,7 +1149,10 @@ public final class ConfigFileFixture {
     public static final String XML_WITH_SINGLE_ENVIRONMENT = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
             + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
             + " xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-            + "<server artifactsdir=\"artifactsDir\">\n"
+            + "<server>"
+            + "     <artifacts>" +
+            "           <artifactsDir>artifactsDir</artifactsDir> " +
+            "       </artifacts>"
             + "</server>"
             + "<environments>"
             + "<environment name='dummy'/>"
@@ -1069,13 +1174,20 @@ public final class ConfigFileFixture {
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                     + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
                     + " xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\"" + CONFIG_SCHEMA_VERSION + "\">\n"
-                    + "<server artifactsdir=\"../server.logs\">\n"
-                    + "    </server>"
+                    + "<server>"
+                    + "     <artifacts>" +
+                    "           <artifactsDir>../server.logs</artifactsDir> " +
+                    "       </artifacts>"
+                    + "</server>"
                     + "</cruise>";
 
     public static final String PIPELINES_WITH_DUPLICATE_STAGE_NAME
             = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>"
-            + "<server artifactsdir=\"target/testfiles/tmpCCRoot/data/logs\"></server>"
+            + "<server>"
+            + "     <artifacts>" +
+            "           <artifactsDir>target/testfiles/tmpCCRoot/data/logs</artifactsDir> " +
+            "       </artifacts>"
+            + "</server>"
             + "  <pipelines>"
             + "    <pipeline name='studios'>"
             + "        <materials>"
@@ -1097,7 +1209,11 @@ public final class ConfigFileFixture {
 
     public static final String JOBS_WITH_SAME_NAME
             = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>"
-            + "<server artifactsdir=\"target/testfiles/tmpCCRoot/data/logs\"></server>"
+            + "<server>"
+            + "     <artifacts>" +
+            "           <artifactsDir>target/testfiles/tmpCCRoot/data/logs</artifactsDir> " +
+            "       </artifacts>"
+            + "</server>"
             + "  <pipelines>"
             + "    <pipeline name='studios'>"
             + "        <materials>"
@@ -1128,7 +1244,11 @@ public final class ConfigFileFixture {
 
     public static final String STAGE_WITH_NO_JOBS
             = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>"
-            + "<server artifactsdir=\"target/testfiles/tmpCCRoot/data/logs\"></server>"
+            + "<server>"
+            + "     <artifacts>" +
+            "           <artifactsDir>target/testfiles/tmpCCRoot/data/logs</artifactsDir> " +
+            "       </artifacts>"
+            + "</server>"
             + "  <pipelines>"
             + "    <pipeline name='studios'>"
             + "        <materials>"
@@ -1258,7 +1378,11 @@ public final class ConfigFileFixture {
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                     + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
                     + "     xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                    + "<server artifactsdir='artifactsDir' />"
+                    + "<server>"
+                    + "     <artifacts>" +
+                    "           <artifactsDir>artifactsDir</artifactsDir> " +
+                    "       </artifacts>"
+                    + "</server>"
                     + " <pipelines>\n"
                     + "     <pipeline name='framework'>\n"
                     + "    <materials>\n"
@@ -1279,7 +1403,11 @@ public final class ConfigFileFixture {
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                     + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
                     + "     xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                    + "<server artifactsdir='artifactsDir' />"
+                    + "<server>"
+                    + "     <artifacts>" +
+                    "           <artifactsDir>logs</artifactsDir> " +
+                    "       </artifacts>"
+                    + "</server>"
                     + " <pipelines>\n"
                     + "     <pipeline name='pipeline'>\n"
                     + "         <timer>0 15 10 ? * MON-FRI</timer>"
@@ -1303,7 +1431,10 @@ public final class ConfigFileFixture {
         return "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                 + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
                 + "     xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server artifactsdir='artifactsDir' >"
+                + "<server>"
+                + "     <artifacts>" +
+                "           <artifactsDir>artifactsDir</artifactsDir> " +
+                "       </artifacts>"
                 + "</server>"
                 + "<pipelines>\n"
                 + "<pipeline name='ecl'>\n"
@@ -1370,7 +1501,11 @@ public final class ConfigFileFixture {
                 + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
                 + " xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\""
                 + CONFIG_SCHEMA_VERSION + "\">\n"
-                + " <server artifactsdir=\"logs\"></server>"
+                + "<server>"
+                + "     <artifacts>" +
+                "           <artifactsDir>logs</artifactsDir> " +
+                "       </artifacts>"
+                + "</server>"
                 + "  <pipelines>\n"
                 + "    <pipeline name=\"pipeline1\">\n"
                 + "      <materials>\n"
@@ -1400,7 +1535,11 @@ public final class ConfigFileFixture {
                 + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
                 + " xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\""
                 + CONFIG_SCHEMA_VERSION + "\">\n"
-                + " <server artifactsdir=\"logs\"></server>"
+                + "<server>"
+                + "     <artifacts>" +
+                "           <artifactsDir>logs</artifactsDir> " +
+                "       </artifacts>"
+                + "</server>"
                 + "<artifactStores>\n"
                 + "    <artifactStore pluginId=\"cd.go.s3\" id=\"s3\">\n"
                 + "        <property>\n"
@@ -1438,7 +1577,10 @@ public final class ConfigFileFixture {
                     + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
                     + "     xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\""
                     + CONFIG_SCHEMA_VERSION + "\">\n"
-                    + "<server artifactsdir='artifactsDir'>"
+                    + "<server>"
+                    + "     <artifacts>" +
+                    "           <artifactsDir>artifactsDir</artifactsDir> " +
+                    "       </artifacts>"
                     + "</server>"
                     + "<pipelines group=\"studios\">\n"
                     + "<pipeline name='framework'>\n"
@@ -1488,7 +1630,10 @@ public final class ConfigFileFixture {
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                     + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
                     + "     xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                    + "<server artifactsdir='artifactsDir' >"
+                    + "<server>"
+                    + "     <artifacts>" +
+                    "           <artifactsDir>artifactsDir</artifactsDir> " +
+                    "       </artifacts>"
                     + "     <security>"
                     + "      <authConfigs>\n"
                     + "        <authConfig id=\"tw-ldap\" pluginId=\"cd.go.authentication.ldap\">\n"
@@ -1618,10 +1763,12 @@ public final class ConfigFileFixture {
     }
 
     public static String configWithSecurity(String security) {
+        String defaultArtifact = "<artifacts><artifactsDir>logs</artifactsDir></artifacts>";
         return "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                 + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "  <server artifactsdir=\"logs\">\n"
+                + "  <server>\n"
                 + security
+                + defaultArtifact
                 + "  </server>"
                 + "  </cruise>";
     }

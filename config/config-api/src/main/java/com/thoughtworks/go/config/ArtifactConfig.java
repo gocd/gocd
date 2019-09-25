@@ -27,7 +27,7 @@ import lombok.experimental.Accessors;
 @AllArgsConstructor(access = AccessLevel.NONE)
 @ConfigTag("artifacts")
 public class ArtifactConfig implements Validatable {
-    @ConfigSubtag
+    @ConfigSubtag(optional = false)
     private ArtifactDirectory artifactsDir = new ArtifactDirectory();
     @ConfigSubtag
     private PurgeSettings purgeSettings = new PurgeSettings();

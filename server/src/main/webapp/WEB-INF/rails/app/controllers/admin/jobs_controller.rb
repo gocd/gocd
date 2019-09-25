@@ -36,7 +36,7 @@ module Admin
       load_artifact_related_data
       load_resources_and_elastic_profile_ids_for_autocomplete
       load_store_ids_for_autocomplete
-      assert_load :job, JobConfig.new(CaseInsensitiveString.new(""), ResourceConfigs.new, ArtifactConfigs.new, com.thoughtworks.go.config.Tasks.new([AntTask.new].to_java(Task)))
+      assert_load :job, JobConfig.new(CaseInsensitiveString.new(""), ResourceConfigs.new, ArtifactTypeConfigs.new, com.thoughtworks.go.config.Tasks.new([AntTask.new].to_java(Task)))
       render layout: false
     end
 

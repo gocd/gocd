@@ -21,6 +21,7 @@ import lombok.*;
 import lombok.experimental.Accessors;
 
 import static com.thoughtworks.go.config.ServerConfig.PURGE_START;
+
 @Getter
 @Setter
 @EqualsAndHashCode

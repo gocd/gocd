@@ -113,7 +113,7 @@ public class ServerConfig implements Validatable {
 
     public ServerConfig(String artifactsDir, SecurityConfig securityConfig, Double purgeStart, Double purgeUpto) {
         this(artifactsDir, securityConfig);
-        this.setPurgeLimits(purgeStart,purgeUpto);
+        this.setPurgeLimits(purgeStart, purgeUpto);
     }
 
     public ServerConfig(String artifacts, SecurityConfig securityConfig, double purgeStart, double purgeUpto, String jobTimeout) {
@@ -310,11 +310,13 @@ public class ServerConfig implements Validatable {
     }
 
     public Double getPurgeStart() {
-        return artifactConfig.getPurgeSettings().getPurgeStart().getPurgeStartDiskSpace();
+        PurgeStart purgeStart = artifactConfig.getPurgeSettings().getPurgeStart();
+        return purgeStart == null ? null : purgeStart.getPurgeStartDiskSpace();
     }
 
     public Double getPurgeUpto() {
-        return artifactConfig.getPurgeSettings().getPurgeUpto().getPurgeUptoDiskSpace();
+        PurgeUpto purgeUpto = artifactConfig.getPurgeSettings().getPurgeUpto();
+        return purgeUpto == null ? null : purgeUpto.getPurgeUptoDiskSpace();
     }
 
     public boolean isArtifactPurgingAllowed() {

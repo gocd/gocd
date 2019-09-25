@@ -56,6 +56,8 @@ import javax.xml.validation.SchemaFactory;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
+import org.xmlunit.assertj.XmlAssert;
+
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.tfs;
 import static com.thoughtworks.go.util.DataStructureUtils.m;
@@ -108,7 +110,7 @@ public class MagicalGoConfigXmlWriterTest {
         String xml = ConfigFileFixture.SERVER_WITH_ARTIFACTS_DIR;
         CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(xml).config;
         xmlWriter.write(cruiseConfig, output, false);
-        assertXmlEquals(xml, output.toString());
+        XmlAssert.assertThat(output.toString()).and(xml).normalizeWhitespace().areIdentical();
     }
 
     @Test
@@ -135,7 +137,7 @@ public class MagicalGoConfigXmlWriterTest {
 
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(xml).config;
         xmlWriter.write(cruiseConfig, output, false);
-        assertXmlEquals(xml, output.toString());
+        XmlAssert.assertThat(output.toString()).and(xml).normalizeWhitespace().areIdentical();
     }
 
     @Test
@@ -207,7 +209,10 @@ public class MagicalGoConfigXmlWriterTest {
     @Test
     public void shouldWriteConfigWithTemplates() throws Exception {
         String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server artifactsdir='artifactsDir' >"
+                + "<server>"
+                + "     <artifacts>" +
+                "           <artifactsDir>artifactsDir</artifactsDir> " +
+                "       </artifacts>"
                 + "</server>"
                 + "<pipelines>\n"
                 + "<pipeline name='pipeline1' template='abc'>\n"
@@ -337,7 +342,10 @@ public class MagicalGoConfigXmlWriterTest {
     public void shouldEncryptPasswordBeforeWriting() throws Exception {
         resetCipher.setupDESCipherFile();
         String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server artifactsdir='artifactsDir' >"
+                + "<server>"
+                + "     <artifacts>" +
+                "           <artifactsDir>artifactsDir</artifactsDir> " +
+                "       </artifacts>"
                 + "<mailhost hostname=\"10.18.3.171\" port=\"25\" username=\"cruise2\" password=\"password\" tls=\"false\" from=\"cruise2@cruise.com\" admin=\"ps@somewhere.com\" />"
                 + "</server>"
                 + "<pipelines>\n"
@@ -452,7 +460,11 @@ public class MagicalGoConfigXmlWriterTest {
         String content = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                 + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
                 + "     xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server artifactsdir='artifactsDir' />"
+                + "<server>"
+                + "     <artifacts>" +
+                "           <artifactsDir>artifactsDir</artifactsDir> " +
+                "       </artifacts>"
+                + "</server>"
                 + "<pipelines>\n"
                 + "<pipeline name='framework'>\n"
                 + "    <params>\n"
@@ -490,7 +502,11 @@ public class MagicalGoConfigXmlWriterTest {
         String content = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                 + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
                 + "     xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server artifactsdir='artifactsDir' />"
+                + "<server>"
+                + "     <artifacts>" +
+                "           <artifactsDir>artifactsDir</artifactsDir> " +
+                "       </artifacts>"
+                + "</server>"
                 + "<pipelines>\n"
                 + "<pipeline name='framework'>\n"
                 + "    <materials>\n"
@@ -519,7 +535,11 @@ public class MagicalGoConfigXmlWriterTest {
         String content = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                 + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
                 + "     xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server artifactsdir='artifactsDir' />"
+                + "<server>"
+                + "     <artifacts>" +
+                "           <artifactsDir>artifactsDir</artifactsDir> " +
+                "       </artifacts>"
+                + "</server>"
                 + "<pipelines>\n"
                 + "<pipeline name='framework'>\n"
                 + "    <materials>\n"
@@ -548,7 +568,11 @@ public class MagicalGoConfigXmlWriterTest {
     public void shouldWriteArtifactPurgeSettings() throws Exception {
         String content = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                 + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server artifactsdir='artifactsDir'/>"
+                + "<server>"
+                + "     <artifacts>" +
+                "           <artifactsDir>other-artifacts</artifactsDir> " +
+                "       </artifacts>"
+                + "</server>"
                 + "<pipelines>\n"
                 + "<pipeline name='framework'>\n"
                 + "    <materials>\n"
@@ -579,8 +603,8 @@ public class MagicalGoConfigXmlWriterTest {
 
         xmlWriter.write(cruiseConfig, out, false);
 
-        assertThat(out.toString(), containsString("purgeStart=\"10.0\""));
-        assertThat(out.toString(), containsString("purgeUpto=\"20.0\""));
+        assertThat(out.toString(), containsString("<purgeStartDiskSpace>10.0</purgeStartDiskSpace>"));
+        assertThat(out.toString(), containsString("<purgeUptoDiskSpace>20.0</purgeUptoDiskSpace>"));
     }
 
     @Test
@@ -690,7 +714,7 @@ public class MagicalGoConfigXmlWriterTest {
 
         xmlWriter.write(cruiseConfig, output, false);
 
-        assertThat(xmlWriter.toXmlPartial(cruiseConfig.server()), containsString("<server artifactsdir=\"artifactsDir\" "));
+        assertThat(xmlWriter.toXmlPartial(cruiseConfig.server()), containsString("<artifactsDir>artifactsDir</artifactsDir>"));
     }
 
     @Test
@@ -1138,10 +1162,6 @@ public class MagicalGoConfigXmlWriterTest {
             aPackage.setRepository(packageRepository);
         }
         return packageRepository;
-    }
-
-    public static void assertXmlEquals(String expected, String actual) {
-        assertThat(actual.replaceAll(">\\s+<", ""), is(expected.replaceAll(">\\s+<", "")));
     }
 
 }

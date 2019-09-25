@@ -27,7 +27,7 @@ module JavaImports
   java_import com.thoughtworks.go.config.MailHost unless defined? MailHost
   java_import com.thoughtworks.go.config.Agent unless defined? Agent
   java_import com.thoughtworks.go.config.Approval unless defined? Approval
-  java_import com.thoughtworks.go.config.ArtifactConfigs unless defined? ArtifactConfigs
+  java_import com.thoughtworks.go.config.ArtifactTypeConfigs unless defined? ArtifactTypeConfigs
   java_import com.thoughtworks.go.config.BuildArtifactConfig unless defined? BuildArtifactConfig
   java_import com.thoughtworks.go.config.PluggableArtifactConfig unless defined? PluggableArtifactConfig
   java_import com.thoughtworks.go.config.preprocessor.ParamSubstitutionHandler unless defined? ParamSubstitutionHandler

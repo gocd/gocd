@@ -45,7 +45,7 @@ export class PipelineParametersEditor extends MithrilViewComponent<Attrs> {
           <div class={css.envVars}>
             <label>
               Parameters
-              <Tooltip.Help size={TooltipSize.medium} content={`Parameters help reduce repetition within your configurations and combined with templates allow you to setup complex configurations.`} />
+              <Tooltip.Help size={TooltipSize.medium} content={<span>Parameters help reduce repetition within your configurations and combined with templates allow you to setup complex configurations. <a href="https://docs.gocd.org/current/configuration/admin_use_parameters_in_configuration.html">Read more</a></span>} />
             </label>
             <Buttons.Cancel onclick={this.add.bind(this, vnode.attrs.paramList)} small={true} icon={Buttons.ButtonIcon.ADD} />
             <Table headers={["name", "value", ""]} data={

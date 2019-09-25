@@ -529,10 +529,10 @@ public class ConfigConverter {
         if (crJob.getElasticProfileId() != null)
             jobConfig.setElasticProfileId(crJob.getElasticProfileId());
 
-        ArtifactConfigs artifactConfigs = jobConfig.artifactConfigs();
+        ArtifactTypeConfigs artifactTypeConfigs = jobConfig.artifactConfigs();
         if (crJob.getArtifacts() != null) {
             for (CRArtifact crArtifact : crJob.getArtifacts()) {
-                artifactConfigs.add(toArtifactConfig(crArtifact));
+                artifactTypeConfigs.add(toArtifactConfig(crArtifact));
             }
         }
 
@@ -552,7 +552,7 @@ public class ConfigConverter {
         return jobConfig;
     }
 
-    public ArtifactConfig toArtifactConfig(CRArtifact crArtifact) {
+    public ArtifactTypeConfig toArtifactConfig(CRArtifact crArtifact) {
         switch (crArtifact.getType()) {
             case build:
                 CRBuiltInArtifact crBuildArtifact = (CRBuiltInArtifact) crArtifact;
@@ -764,8 +764,8 @@ public class ConfigConverter {
             job.addTab(new CRTab(tab.getName(), tab.getPath()));
         }
 
-        for (ArtifactConfig artifactConfig : jobConfig.artifactConfigs()) {
-            job.addArtifact(artifactConfigToCRArtifact(artifactConfig));
+        for (ArtifactTypeConfig artifactTypeConfig : jobConfig.artifactConfigs()) {
+            job.addArtifact(artifactConfigToCRArtifact(artifactTypeConfig));
         }
 
         if (jobConfig.isRunOnAllAgents()) {
@@ -916,19 +916,19 @@ public class ConfigConverter {
         return properties;
     }
 
-    private CRArtifact artifactConfigToCRArtifact(ArtifactConfig artifactConfig) {
-        if (artifactConfig instanceof BuildArtifactConfig) {
-            BuildArtifactConfig buildArtifact = (BuildArtifactConfig) artifactConfig;
+    private CRArtifact artifactConfigToCRArtifact(ArtifactTypeConfig artifactTypeConfig) {
+        if (artifactTypeConfig instanceof BuildArtifactConfig) {
+            BuildArtifactConfig buildArtifact = (BuildArtifactConfig) artifactTypeConfig;
             return new CRBuiltInArtifact(buildArtifact.getSource(), buildArtifact.getDestination(), CRArtifactType.build);
-        } else if (artifactConfig instanceof TestArtifactConfig) {
-            TestArtifactConfig testArtifact = (TestArtifactConfig) artifactConfig;
+        } else if (artifactTypeConfig instanceof TestArtifactConfig) {
+            TestArtifactConfig testArtifact = (TestArtifactConfig) artifactTypeConfig;
             return new CRBuiltInArtifact(testArtifact.getSource(), testArtifact.getDestination(), CRArtifactType.test);
-        } else if (artifactConfig instanceof PluggableArtifactConfig) {
-            PluggableArtifactConfig pluggableArtifact = (PluggableArtifactConfig) artifactConfig;
+        } else if (artifactTypeConfig instanceof PluggableArtifactConfig) {
+            PluggableArtifactConfig pluggableArtifact = (PluggableArtifactConfig) artifactTypeConfig;
             List<CRConfigurationProperty> crConfigurationProperties = configurationToCRConfiguration(pluggableArtifact.getConfiguration());
             return new CRPluggableArtifact(pluggableArtifact.getId(), pluggableArtifact.getStoreId(), crConfigurationProperties);
         } else {
-            throw new RuntimeException(String.format("Unsupported Artifact Type: %s.", artifactConfig.getArtifactType()));
+            throw new RuntimeException(String.format("Unsupported Artifact Type: %s.", artifactTypeConfig.getArtifactType()));
         }
     }
 

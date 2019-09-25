@@ -50,7 +50,7 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
     @ConfigSubtag
     private ResourceConfigs resourceConfigs = new ResourceConfigs();
     @ConfigSubtag
-    private ArtifactConfigs artifactConfigs = new ArtifactConfigs();
+    private ArtifactTypeConfigs artifactConfigs = new ArtifactTypeConfigs();
 
     @ConfigAttribute(value = "runOnAllAgents", optional = true) private boolean runOnAllAgents = false;
     @ConfigAttribute(value = "runInstanceCount", optional = true, allowNull = true) private String runInstanceCount;
@@ -86,11 +86,11 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
         this.jobName = jobName;
     }
 
-    public JobConfig(final CaseInsensitiveString jobName, ResourceConfigs resourceConfigs, ArtifactConfigs artifactConfigs) {
+    public JobConfig(final CaseInsensitiveString jobName, ResourceConfigs resourceConfigs, ArtifactTypeConfigs artifactConfigs) {
         this(jobName, resourceConfigs, artifactConfigs, new Tasks());
     }
 
-    public JobConfig(final CaseInsensitiveString jobName, ResourceConfigs resourceConfigs, ArtifactConfigs artifactConfigs, Tasks tasks) {
+    public JobConfig(final CaseInsensitiveString jobName, ResourceConfigs resourceConfigs, ArtifactTypeConfigs artifactConfigs, Tasks tasks) {
         this(jobName);
         this.resourceConfigs = resourceConfigs;
         this.artifactConfigs = artifactConfigs;
@@ -98,7 +98,7 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
     }
 
     public JobConfig(String planName) {
-        this(new CaseInsensitiveString(planName), new ResourceConfigs(), new ArtifactConfigs());
+        this(new CaseInsensitiveString(planName), new ResourceConfigs(), new ArtifactTypeConfigs());
     }
 
     @Override
@@ -172,11 +172,11 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
         return new Tasks(new NullTask());
     }
 
-    public ArtifactConfigs artifactConfigs() {
+    public ArtifactTypeConfigs artifactConfigs() {
         return artifactConfigs;
     }
 
-    public void setArtifactConfigs(ArtifactConfigs artifactConfigs) {
+    public void setArtifactConfigs(ArtifactTypeConfigs artifactConfigs) {
         this.artifactConfigs = artifactConfigs;
     }
 
@@ -299,8 +299,8 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
     }
 
     public boolean hasTests() {
-        for (ArtifactConfig artifactConfig : artifactConfigs) {
-            if (artifactConfig.getArtifactType().isTest()) {
+        for (ArtifactTypeConfig artifactTypeConfig : artifactConfigs) {
+            if (artifactTypeConfig.getArtifactType().isTest()) {
                 return true;
             }
         }

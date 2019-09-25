@@ -153,8 +153,8 @@ public class RescheduleJobTest {
         dbHelper.cancelStage(stage);
 
         ResourceConfigs resourceConfigs = new ResourceConfigs(new ResourceConfig("r1"), new ResourceConfig("r2"));
-        ArtifactConfigs artifactConfigs = new ArtifactConfigs(Arrays.asList(new BuildArtifactConfig("s1", "d1"), new BuildArtifactConfig("s2", "d2")));
-        configHelper.addAssociatedEntitiesForAJob(PIPELINE_NAME, STAGE_NAME, JOB_NAME, resourceConfigs, artifactConfigs);
+        ArtifactTypeConfigs artifactTypeConfigs = new ArtifactTypeConfigs(Arrays.asList(new BuildArtifactConfig("s1", "d1"), new BuildArtifactConfig("s2", "d2")));
+        configHelper.addAssociatedEntitiesForAJob(PIPELINE_NAME, STAGE_NAME, JOB_NAME, resourceConfigs, artifactTypeConfigs, artifactPropertiesConfig);
 
         dbHelper.schedulePipeline(configHelper.currentConfig().getPipelineConfigByName(new CaseInsensitiveString(PIPELINE_NAME)), new TimeProvider());
 

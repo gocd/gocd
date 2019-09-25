@@ -113,13 +113,13 @@ public class JobRepresenter {
     }
 
     private static void setArtifacts(JobConfig jobConfig) {
-        ArtifactConfigs artifactConfigs = new ArtifactConfigs();
+        ArtifactTypeConfigs artifactTypeConfigs = new ArtifactTypeConfigs();
         jsonReader.readArrayIfPresent("artifacts", artifacts -> {
             artifacts.forEach(artifact -> {
-                artifactConfigs.add(ArtifactRepresenter.fromJSON(new JsonReader(artifact.getAsJsonObject())));
+                artifactTypeConfigs.add(ArtifactRepresenter.fromJSON(new JsonReader(artifact.getAsJsonObject())));
             });
         });
-        jobConfig.setArtifactConfigs(artifactConfigs);
+        jobConfig.setArtifactConfigs(artifactTypeConfigs);
     }
 
     private static void setTimeout(JobConfig jobConfig) {

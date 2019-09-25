@@ -365,10 +365,10 @@ public class PipelineConfigServiceIntegrationTest {
     public void shouldShowThePipelineConfigErrorMessageWhenPipelineBeingCreatedHasErrorsOnArtifactPlans() throws GitAPIException {
         PipelineConfig pipeline = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), new DependencyMaterialConfig(pipelineConfig.name(), pipelineConfig.first().name()));
         JobConfig jobConfig = pipeline.get(0).getJobs().get(0);
-        ArtifactConfigs artifactConfigs = new ArtifactConfigs();
+        ArtifactTypeConfigs artifactTypeConfigs = new ArtifactTypeConfigs();
         BuildArtifactConfig buildArtifactConfig = new BuildArtifactConfig("", "/foo");
-        artifactConfigs.add(buildArtifactConfig);
-        jobConfig.setArtifactConfigs(artifactConfigs);
+        artifactTypeConfigs.add(buildArtifactConfig);
+        jobConfig.setArtifactConfigs(artifactTypeConfigs);
 
         pipelineConfigService.createPipelineConfig(user, pipeline, result, groupName);
 

@@ -75,7 +75,7 @@ public class ConfigElementImplementationRegistrar {
     }
 
     private void registerBuiltinArtifactTypes() {
-        registry.registerImplementer(ArtifactConfig.class, TestArtifactConfig.class, BuildArtifactConfig.class, PluggableArtifactConfig.class);
+        registry.registerImplementer(ArtifactTypeConfig.class, TestArtifactConfig.class, BuildArtifactConfig.class, PluggableArtifactConfig.class);
     }
 
     private void registerBuiltinUserTypes() {

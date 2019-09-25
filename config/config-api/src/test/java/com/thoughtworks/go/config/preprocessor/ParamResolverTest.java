@@ -229,7 +229,7 @@ public class ParamResolverTest {
 
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("cruise", "dev", "ant");
         pipelineConfig.setLabelTemplate("#a");
-        pipelineConfig.get(0).getJobs().addJobWithoutValidityAssertion(new JobConfig(new CaseInsensitiveString("another"), new ResourceConfigs(resourceConfig), new ArtifactConfigs()));
+        pipelineConfig.get(0).getJobs().addJobWithoutValidityAssertion(new JobConfig(new CaseInsensitiveString("another"), new ResourceConfigs(resourceConfig), new ArtifactTypeConfigs()));
 
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj"))), fieldCache).resolve(pipelineConfig);
 

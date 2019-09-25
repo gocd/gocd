@@ -315,19 +315,20 @@ class InstanceFactoryTest {
     @Test
     void shouldCreateJobPlan() {
         ResourceConfigs resourceConfigs = new ResourceConfigs();
-        ArtifactConfigs artifactConfigs = new ArtifactConfigs();
-        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test"), resourceConfigs, artifactConfigs);
+        ArtifactTypeConfigs artifactTypeConfigs = new ArtifactTypeConfigs();
+        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test"), resourceConfigs, artifactTypeConfigs);
         JobPlan plan = instanceFactory.createJobPlan(jobConfig, new DefaultSchedulingContext());
-        assertThat(plan, is(new DefaultJobPlan(new Resources(resourceConfigs), ArtifactPlan.toArtifactPlans(artifactConfigs), -1, new JobIdentifier(), null, new EnvironmentVariables(), new EnvironmentVariables(), null, null)));
+        assertThat(plan, is(new DefaultJobPlan(new Resources(resourceConfigs), ArtifactPlan.toArtifactPlans(artifactTypeConfigs), -1, new JobIdentifier(), null, new EnvironmentVariables(), new EnvironmentVariables(), null, null)));
     }
+
 
     @Test
     void shouldAddElasticProfileOnJobPlan() {
         ElasticProfile elasticProfile = new ElasticProfile("id", "prod-cluster");
         DefaultSchedulingContext context = new DefaultSchedulingContext("foo", new Agents(), ImmutableMap.of("id", elasticProfile));
 
-        ArtifactConfigs artifactConfigs = new ArtifactConfigs();
-        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test"), null, artifactConfigs);
+        ArtifactTypeConfigs artifactTypeConfigs = new ArtifactTypeConfigs();
+        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test"), null, artifactTypeConfigs);
         jobConfig.setElasticProfileId("id");
         JobPlan plan = instanceFactory.createJobPlan(jobConfig, context);
 
@@ -341,8 +342,8 @@ class InstanceFactoryTest {
         ClusterProfile clusterProfile = new ClusterProfile("clusterId", "pluginId");
         DefaultSchedulingContext context = new DefaultSchedulingContext("foo", new Agents(), ImmutableMap.of("id", elasticProfile), ImmutableMap.of("clusterId", clusterProfile));
 
-        ArtifactConfigs artifactConfigs = new ArtifactConfigs();
-        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test"), null, artifactConfigs);
+        ArtifactTypeConfigs artifactTypeConfigs = new ArtifactTypeConfigs();
+        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test"), null, artifactTypeConfigs);
         jobConfig.setElasticProfileId("id");
         JobPlan plan = instanceFactory.createJobPlan(jobConfig, context);
 
@@ -352,8 +353,8 @@ class InstanceFactoryTest {
 
     @Test
     void shouldReturnBuildInstance() {
-        ArtifactConfigs artifactConfigs = new ArtifactConfigs();
-        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test"), null, artifactConfigs);
+        ArtifactTypeConfigs artifactTypeConfigs = new ArtifactTypeConfigs();
+        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test"), null, artifactTypeConfigs);
 
         RunOnAllAgents.CounterBasedJobNameGenerator jobNameGenerator = new RunOnAllAgents.CounterBasedJobNameGenerator(CaseInsensitiveString.str(jobConfig.name()));
         JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("stage_foo"), jobConfig, new DefaultSchedulingContext(), new TimeProvider(), jobNameGenerator);
@@ -529,12 +530,12 @@ class InstanceFactoryTest {
     @Test
     void shouldFailWhenNoAgentsmatchAJob() {
         DefaultSchedulingContext context = new DefaultSchedulingContext("raghu/vinay", new Agents());
-        JobConfig fooJob = new JobConfig(new CaseInsensitiveString("foo"), new ResourceConfigs(), new ArtifactConfigs());
+        JobConfig fooJob = new JobConfig(new CaseInsensitiveString("foo"), new ResourceConfigs(), new ArtifactTypeConfigs());
         fooJob.setRunOnAllAgents(true);
         StageConfig stageConfig = new StageConfig(
                 new CaseInsensitiveString("blah-stage"), new JobConfigs(
                 fooJob,
-                new JobConfig(new CaseInsensitiveString("bar"), new ResourceConfigs(), new ArtifactConfigs())
+                new JobConfig(new CaseInsensitiveString("bar"), new ResourceConfigs(), new ArtifactTypeConfigs())
         )
         );
         try {

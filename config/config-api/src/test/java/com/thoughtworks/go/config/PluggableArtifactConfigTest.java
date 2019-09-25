@@ -112,7 +112,7 @@ public class PluggableArtifactConfigTest {
     @Test
     public void validate_shouldValidateUniquenessOnId() {
         final PluggableArtifactConfig existingConfig = new PluggableArtifactConfig("Artifact-ID", "Store-ID");
-        final List<ArtifactConfig> artifactConfigConfigs = Arrays.asList(existingConfig);
+        final List<ArtifactTypeConfig> artifactConfigConfigs = Arrays.asList(existingConfig);
 
         final PluggableArtifactConfig newConfig = new PluggableArtifactConfig("Artifact-ID", "Store-ID");
         newConfig.validateUniqueness(artifactConfigConfigs);
@@ -127,7 +127,7 @@ public class PluggableArtifactConfigTest {
     @Test
     public void validate_shouldValidateArtifactPropertiesConfig() {
         final PluggableArtifactConfig existingConfig = new PluggableArtifactConfig("id1", "Store-ID", create("Foo", false, "Bar"));
-        final List<ArtifactConfig> artifactConfigConfigs = Arrays.asList(existingConfig);
+        final List<ArtifactTypeConfig> artifactConfigConfigs = Arrays.asList(existingConfig);
 
         final PluggableArtifactConfig newConfig = new PluggableArtifactConfig("id2", "Store-ID", create("Foo", false, "Bar"));
         newConfig.validateUniqueness(artifactConfigConfigs);
@@ -142,7 +142,7 @@ public class PluggableArtifactConfigTest {
     @Test
     public void validate_shouldNotErrorWhenArtifactPropertiesConfigurationIsSameForDifferentStores() {
         final PluggableArtifactConfig existingConfig = new PluggableArtifactConfig("id1", "storeId1", create("Foo", false, "Bar"));
-        final List<ArtifactConfig> artifactConfigConfigs = Arrays.asList(existingConfig);
+        final List<ArtifactTypeConfig> artifactConfigConfigs = Arrays.asList(existingConfig);
 
         final PluggableArtifactConfig newConfig = new PluggableArtifactConfig("id2", "storeId2", create("Foo", false, "Bar"));
         newConfig.validateUniqueness(artifactConfigConfigs);

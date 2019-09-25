@@ -498,7 +498,7 @@ public class GoConfigFileHelper {
     }
 
     public StageConfig addJob(String pipelineName, String stageName, String jobName) {
-        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString(jobName), new ResourceConfigs(), new ArtifactConfigs());
+        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString(jobName), new ResourceConfigs(), new ArtifactTypeConfigs());
         return addJobToStage(pipelineName, stageName, jobConfig);
     }
 
@@ -553,7 +553,7 @@ public class GoConfigFileHelper {
     }
 
     private static JobConfig defaultBuildPlan(String name) {
-        return new JobConfig(new CaseInsensitiveString(name), new ResourceConfigs(), new ArtifactConfigs());
+        return new JobConfig(new CaseInsensitiveString(name), new ResourceConfigs(), new ArtifactTypeConfigs());
     }
 
 
@@ -873,7 +873,7 @@ public class GoConfigFileHelper {
     }
 
     public void addAssociatedEntitiesForAJob(String pipelineName, String stageName, String jobName, ResourceConfigs resourceConfigs,
-                                             ArtifactConfigs artifactConfigs) {
+                                             ArtifactTypeConfigs artifactConfigs) {
         CruiseConfig config = loadForEdit();
         JobConfig jobConfig = config.pipelineConfigByName(new CaseInsensitiveString(pipelineName)).findBy(new CaseInsensitiveString(stageName)).jobConfigByConfigName(new CaseInsensitiveString(jobName));
         ReflectionUtil.setField(jobConfig, "resourceConfigs", resourceConfigs);

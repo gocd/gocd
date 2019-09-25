@@ -48,7 +48,7 @@
           <div class="plugin-select-form">
             <span>Cannot determine plugin to show the configuration view. Please choose a plugin to configure the plugin properties. <span class="contextual_help has_go_tip_right" title="The plugin with which the store is associated cannot be determined because: the store id is a parameter or store is non-existent."/></span>
             <label>Plugin</label>
-            <%= select("", "pluginId", scope[:plugin_name_to_id], {:prompt => 'Select plugin', :selected => scope[:store_id_to_plugin_id][external_artifact_config.getStoreId]}, {:name => "job[artifactConfigs][][pluginId]", :class => 'artifact_plugin_selection'}) %>
+            <%= select("", "pluginId", scope[:plugin_name_to_id], {:prompt => 'Select plugin', :selected => scope[:store_id_to_plugin_id][external_artifact_config.getStoreId]}, {:name => "job[artifactTypeConfigs][][pluginId]", :class => 'artifact_plugin_selection'}) %>
           </div>
         </div>
       </div>

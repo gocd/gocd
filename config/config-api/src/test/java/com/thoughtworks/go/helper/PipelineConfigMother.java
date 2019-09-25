@@ -217,12 +217,12 @@ public class PipelineConfigMother {
         return pipelineConfig;
     }
 
-    public static PipelineConfig pipelineConfigWithExternalArtifact(String pipelineName, ArtifactConfig artifactConfig) {
+    public static PipelineConfig pipelineConfigWithExternalArtifact(String pipelineName, ArtifactTypeConfig artifactTypeConfig) {
         final String stageName = pipelineName + ".stage";
         final String jobName = pipelineName + ".job";
         PipelineConfig pipelineConfig = createPipelineConfig(pipelineName, stageName, jobName);
         final JobConfig jobConfig = pipelineConfig.getStage(stageName).jobConfigByConfigName(jobName);
-        jobConfig.artifactConfigs().add(artifactConfig);
+        jobConfig.artifactConfigs().add(artifactTypeConfig);
         return pipelineConfig;
     }
 }

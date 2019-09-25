@@ -370,7 +370,7 @@ class JobRepresenterTest {
   void 'should map errors' () {
     def jobConfig =  new JobConfig()
     jobConfig.setRunInstanceCount(-2);
-    def plans = new ArtifactConfigs()
+    def plans = new ArtifactTypeConfigs()
     plans.add(new TestArtifactConfig(null, '../foo'))
     jobConfig.setArtifactConfigs(plans)
     jobConfig.setTasks(new Tasks(new FetchTask(new CaseInsensitiveString(''),

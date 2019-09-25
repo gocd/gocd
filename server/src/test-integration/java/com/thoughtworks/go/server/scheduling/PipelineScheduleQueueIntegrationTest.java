@@ -308,8 +308,8 @@ public class PipelineScheduleQueueIntegrationTest {
     public void shouldSaveBuildPlansWhenScheduling() {
         JobConfigs jobConfigs = new JobConfigs();
         ResourceConfigs resourceConfigs = new ResourceConfigs(new ResourceConfig("resource1"));
-        ArtifactConfigs artifactConfigs = new ArtifactConfigs();
-        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test-job"), resourceConfigs, artifactConfigs, null);
+        ArtifactTypeConfigs artifactTypeConfigs = new ArtifactTypeConfigs();
+        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test-job"), resourceConfigs, artifactTypeConfigs, generators);
         jobConfigs.add(jobConfig);
 
         StageConfig stage = new StageConfig(new CaseInsensitiveString("test-stage"), jobConfigs);
@@ -327,7 +327,7 @@ public class PipelineScheduleQueueIntegrationTest {
         List<JobPlan> plans = jobService.orderedScheduledBuilds();
         JobPlan plan = plans.get(0);
         assertThat(plan.getName(), is("test-job"));
-        assertThat(plan.getArtifactPlans(), is(artifactConfigs));
+        assertThat(plan.getArtifactPlans(), is(artifactTypeConfigs));
         assertThat(plan.getResources().toResourceConfigs(), is(resourceConfigs));
     }
 
@@ -336,8 +336,8 @@ public class PipelineScheduleQueueIntegrationTest {
         try (LogFixture logging = logFixtureFor(PipelineScheduleQueue.class, Level.DEBUG)) {
             JobConfigs jobConfigs = new JobConfigs();
             ResourceConfigs resourceConfigs = new ResourceConfigs(new ResourceConfig("resource1"));
-            ArtifactConfigs artifactConfigs = new ArtifactConfigs();
-            JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test-job"), resourceConfigs, artifactConfigs, null);
+            ArtifactTypeConfigs artifactTypeConfigs = new ArtifactTypeConfigs();
+            JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test-job"), resourceConfigs, artifactTypeConfigs, generators);
             jobConfigs.add(jobConfig);
 
             StageConfig stage = new StageConfig(new CaseInsensitiveString("test-stage"), jobConfigs);
@@ -357,8 +357,8 @@ public class PipelineScheduleQueueIntegrationTest {
     public void shouldCreateJobsMatchingRealAgentsIfRunOnAllAgentsIsSet() {
 
         JobConfigs jobConfigs = new JobConfigs();
-        ArtifactConfigs artifactConfigs = new ArtifactConfigs();
-        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test-job"), new ResourceConfigs(), artifactConfigs, null);
+        ArtifactTypeConfigs artifactTypeConfigs = new ArtifactTypeConfigs();
+        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test-job"), new ResourceConfigs(), artifactTypeConfigs, generators);
         jobConfig.setRunOnAllAgents(true);
         jobConfigs.add(jobConfig);
 
@@ -390,6 +390,8 @@ public class PipelineScheduleQueueIntegrationTest {
     @Test
     public void shouldCreateMultipleJobsIfRunMultipleInstanceIsSet() throws Exception {
         JobConfigs jobConfigs = new JobConfigs();
+        ArtifactPropertiesConfig generators = new ArtifactPropertiesConfig();
+        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test-job"), new ResourceConfigs(), new ArtifactTypeConfigs(), generators);
         JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test-job"), new ResourceConfigs(), new ArtifactConfigs(), null);
         jobConfig.setRunInstanceCount(3);
         jobConfigs.add(jobConfig);

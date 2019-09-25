@@ -69,7 +69,6 @@ import static com.thoughtworks.go.domain.packagerepository.ConfigurationProperty
 import static com.thoughtworks.go.util.GoConstants.CONFIG_SCHEMA_VERSION;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
-import static java.util.UUID.randomUUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
@@ -1217,17 +1216,17 @@ public class GoConfigMigratorIntegrationTest {
     public void shouldRunMigration59_convertLogTypeToArtifact() throws Exception {
         final CruiseConfig cruiseConfig = migrateConfigAndLoadTheNewConfig(ConfigFileFixture.WITH_LOG_ARTIFACT_CONFIG);
 
-        ArtifactConfigs artifactConfigs = cruiseConfig.getAllPipelineConfigs().get(0).getStage(new CaseInsensitiveString("mingle")).getJobs().getJob(
+        ArtifactTypeConfigs artifactTypeConfigs = cruiseConfig.getAllPipelineConfigs().get(0).getStage(new CaseInsensitiveString("mingle")).getJobs().getJob(
                 new CaseInsensitiveString("bluemonkeybutt")).artifactConfigs();
 
-        assertThat(artifactConfigs.getBuiltInArtifactConfigs().get(0).getSource()).isEqualTo("from1");
-        assertThat("").isEqualTo(artifactConfigs.getBuiltInArtifactConfigs().get(0).getDestination());
-        assertThat(artifactConfigs.getBuiltInArtifactConfigs().get(1).getSource()).isEqualTo("from2");
-        assertThat(artifactConfigs.getBuiltInArtifactConfigs().get(1).getDestination()).isEqualTo("to2");
-        assertThat(artifactConfigs.getBuiltInArtifactConfigs().get(2).getSource()).isEqualTo("from3");
-        assertThat("").isEqualTo(artifactConfigs.getBuiltInArtifactConfigs().get(2).getDestination());
-        assertThat(artifactConfigs.getBuiltInArtifactConfigs().get(3).getSource()).isEqualTo("from4");
-        assertThat(artifactConfigs.getBuiltInArtifactConfigs().get(3).getDestination()).isEqualTo("to4");
+        assertThat(artifactTypeConfigs.getBuiltInArtifactConfigs().get(0).getSource()).isEqualTo("from1");
+        assertThat("").isEqualTo(artifactTypeConfigs.getBuiltInArtifactConfigs().get(0).getDestination());
+        assertThat(artifactTypeConfigs.getBuiltInArtifactConfigs().get(1).getSource()).isEqualTo("from2");
+        assertThat(artifactTypeConfigs.getBuiltInArtifactConfigs().get(1).getDestination()).isEqualTo("to2");
+        assertThat(artifactTypeConfigs.getBuiltInArtifactConfigs().get(2).getSource()).isEqualTo("from3");
+        assertThat("").isEqualTo(artifactTypeConfigs.getBuiltInArtifactConfigs().get(2).getDestination());
+        assertThat(artifactTypeConfigs.getBuiltInArtifactConfigs().get(3).getSource()).isEqualTo("from4");
+        assertThat(artifactTypeConfigs.getBuiltInArtifactConfigs().get(3).getDestination()).isEqualTo("to4");
     }
 
     @Test

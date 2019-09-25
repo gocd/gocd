@@ -331,10 +331,10 @@ public class MagicalGoConfigXmlLoaderTest {
         assertThat(plan.tasks()).hasSize(1);
         AntTask builder = (AntTask) plan.tasks().first();
         assertThat(builder.getTarget()).isEqualTo("all");
-        final ArtifactConfigs cardListArtifacts = cruiseConfig.jobConfigByName("pipeline1", "mingle",
+        final ArtifactTypeConfigs cardListArtifacts = cruiseConfig.jobConfigByName("pipeline1", "mingle",
                 "cardlist", true).artifactConfigs();
         assertThat(cardListArtifacts.size()).isEqualTo(1);
-        ArtifactConfig artifactConfigPlan = cardListArtifacts.get(0);
+        ArtifactTypeConfig artifactConfigPlan = cardListArtifacts.get(0);
         assertThat(artifactConfigPlan.getArtifactType()).isEqualTo(ArtifactType.test);
     }
 
@@ -3834,12 +3834,12 @@ public class MagicalGoConfigXmlLoaderTest {
                 "</cruise>";
 
         final CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(configXml).configForEdit;
-        final ArtifactConfigs artifactConfigs = cruiseConfig.pipelineConfigByName(
+        final ArtifactTypeConfigs artifactTypeConfigs = cruiseConfig.pipelineConfigByName(
                 new CaseInsensitiveString("up42")).getStage("up42_stage")
                 .getJobs().getJob(new CaseInsensitiveString("up42_job")).artifactConfigs();
 
-        assertThat(artifactConfigs).hasSize(1);
-        assertThat(artifactConfigs).containsExactly(new PluggableArtifactConfig("installer", "s3", create("filename", false, "foo.xml")));
+        assertThat(artifactTypeConfigs).hasSize(1);
+        assertThat(artifactTypeConfigs).containsExactly(new PluggableArtifactConfig("installer", "s3", create("filename", false, "foo.xml")));
     }
 
     @Test

@@ -47,7 +47,7 @@
 </ul>
 <div class='tab-content'>
     <div id='artifacts_<%= scope[:stage_id] %>_job_<%= scope[:index] %>' class='tab-pane'>
-      <% artifacts_by_type = scope[:job].artifactConfigs().group_by(&:artifactType) %>
+      <% artifacts_by_type = scope[:job].artifactTypeConfigs().group_by(&:artifactType) %>
       <label class="artifact_title build_artifact">Build Artifact</label>
       <% if artifacts_by_type[com.thoughtworks.go.domain.ArtifactType::build].nil? %>
         <span class="no_build_artifact">No build artifacts have been configured</span>

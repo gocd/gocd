@@ -324,7 +324,7 @@ public class MaterialRevision implements Serializable {
         return cardNumbers;
     }
 
-    public boolean isSetToSkipScheduling() {
-        return material.skipSchedulingOnChange();
+    public boolean shouldIgnoreForScheduling() {
+        return material.ignoreForScheduling();
     }
 }

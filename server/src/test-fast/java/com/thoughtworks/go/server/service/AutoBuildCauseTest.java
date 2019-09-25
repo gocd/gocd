@@ -351,9 +351,9 @@ public class AutoBuildCauseTest {
     }
 
     @Test
-    public void isValidBuildCause_shouldReturnFalseIfDependencyMaterialIsSetToSkipScheduling() {
+    public void isValidBuildCause_shouldReturnFalseIfDependencyMaterialIsSetToIgnoreForScheduling() {
         DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(str("upstream-pipeline"), str("stage1"));
-        dependencyMaterialConfig.skipSchedulingOnChange(true);
+        dependencyMaterialConfig.ignoreForScheduling(true);
         PipelineConfig pipelineToBeScheduled = GoConfigMother.createPipelineConfigWithMaterialConfig("my-pipeline",
                 dependencyMaterialConfig);
 
@@ -369,7 +369,7 @@ public class AutoBuildCauseTest {
     }
 
     @Test
-    public void isValidBuildCause_shouldReturnTrueIfDependencyMaterialIsNotSetToSkipScheduling() {
+    public void isValidBuildCause_shouldReturnTrueIfDependencyMaterialIsNotSetToIgnoreForScheduling() {
         DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(str("upstream-pipeline"), str("stage1"));
         PipelineConfig pipelineToBeScheduled = GoConfigMother.createPipelineConfigWithMaterialConfig("my-pipeline",
                 dependencyMaterialConfig);

@@ -231,7 +231,8 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
     }
 
     @Override
-    public boolean skipSchedulingOnChange() {
+    public boolean ignoreForScheduling() {
+        //overridden in DependencyMaterial. Other materials don't support this flag
         return false;
     }
 }

@@ -44,8 +44,8 @@ public class DependencyMaterialConfig extends AbstractMaterialConfig implements 
     @ConfigAttribute(value = "stageName")
     private CaseInsensitiveString stageName = new CaseInsensitiveString("Unknown");
 
-    @ConfigAttribute(value = "skipScheduling")
-    private boolean skipSchedulingOnChange = false;
+    @ConfigAttribute(value = "ignoreForScheduling")
+    private boolean ignoreForScheduling = false;
 
     private String pipelineStageName;
 
@@ -58,8 +58,8 @@ public class DependencyMaterialConfig extends AbstractMaterialConfig implements 
         this(null, pipelineName, stageName, false);
     }
 
-    public DependencyMaterialConfig(final CaseInsensitiveString pipelineName, final CaseInsensitiveString stageName, boolean skipSchedulingOnChange) {
-        this(null, pipelineName, stageName, skipSchedulingOnChange);
+    public DependencyMaterialConfig(final CaseInsensitiveString pipelineName, final CaseInsensitiveString stageName, boolean ignoreForScheduling) {
+        this(null, pipelineName, stageName, ignoreForScheduling);
     }
 
     public DependencyMaterialConfig(final CaseInsensitiveString pipelineName, final CaseInsensitiveString stageName, final String serverAlias) {
@@ -70,13 +70,13 @@ public class DependencyMaterialConfig extends AbstractMaterialConfig implements 
         this(name, pipelineName, stageName, false);
     }
 
-    public DependencyMaterialConfig(final CaseInsensitiveString name, final CaseInsensitiveString pipelineName, final CaseInsensitiveString stageName, final boolean skipSchedulingOnChange) {
+    public DependencyMaterialConfig(final CaseInsensitiveString name, final CaseInsensitiveString pipelineName, final CaseInsensitiveString stageName, final boolean ignoreForScheduling) {
         super(TYPE, name, new ConfigErrors());
         bombIfNull(pipelineName, "null pipelineName");
         bombIfNull(stageName, "null stageName");
         this.pipelineName = pipelineName;
         this.stageName = stageName;
-        this.skipSchedulingOnChange = skipSchedulingOnChange;
+        this.ignoreForScheduling = ignoreForScheduling;
     }
 
     @Override
@@ -154,12 +154,12 @@ public class DependencyMaterialConfig extends AbstractMaterialConfig implements 
         this.stageName = stageName;
     }
 
-    public boolean skipSchedulingOnChange() {
-        return skipSchedulingOnChange;
+    public boolean ignoreForScheduling() {
+        return ignoreForScheduling;
     }
 
-    public void skipSchedulingOnChange(boolean skipSchedulingOnChange) {
-        this.skipSchedulingOnChange = skipSchedulingOnChange;
+    public void ignoreForScheduling(boolean ignoreForScheduling) {
+        this.ignoreForScheduling = ignoreForScheduling;
     }
 
     @Override

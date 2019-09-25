@@ -241,11 +241,11 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
     }
 
     @Test
-    public void shouldNotScheduleDownstreamPipeline_whenSkipSchedulingIsTrue() throws Exception {
+    public void shouldNotScheduleDownstreamPipeline_whenIgnoreForSchedulingIsTrue() throws Exception {
         //set up a pipeline downstream to "mingle", run and save once instance of the pipelines.
         String mingleDownstreamPipelineName = "down_of_mingle";
         DependencyMaterialConfig mingleMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString(MINGLE_PIPELINE_NAME), new CaseInsensitiveString(STAGE_NAME));
-        mingleMaterialConfig.skipSchedulingOnChange(true);
+        mingleMaterialConfig.ignoreForScheduling(true);
 
         PipelineConfig downstreamPipelineConfig = configHelper.addPipeline(mingleDownstreamPipelineName, STAGE_NAME, new MaterialConfigs(mingleMaterialConfig), "unit");
 
@@ -272,11 +272,11 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
         String downstreamPipelineName = "downstream_pipeline";
         //first upstream pipeline - "mingle"
         DependencyMaterialConfig mingleMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString(MINGLE_PIPELINE_NAME), new CaseInsensitiveString(STAGE_NAME));
-        mingleMaterialConfig.skipSchedulingOnChange(true);
+        mingleMaterialConfig.ignoreForScheduling(true);
 
         //second upstream pipeline - "go"
         DependencyMaterialConfig goMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString(GO_PIPELINE_NAME), new CaseInsensitiveString(STAGE_NAME));
-        goMaterialConfig.skipSchedulingOnChange(true);
+        goMaterialConfig.ignoreForScheduling(true);
 
         PipelineConfig downstreamPipelineConfig = configHelper.addPipeline(downstreamPipelineName, STAGE_NAME, new MaterialConfigs(mingleMaterialConfig, goMaterialConfig), "unit");
 
@@ -309,11 +309,11 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
         String downstreamPipelineName = "downstream_pipeline";
         //first upstream pipeline - "mingle"
         DependencyMaterialConfig mingleMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString(MINGLE_PIPELINE_NAME), new CaseInsensitiveString(STAGE_NAME));
-        mingleMaterialConfig.skipSchedulingOnChange(true);
+        mingleMaterialConfig.ignoreForScheduling(true);
 
         //second upstream pipeline - "go"
         DependencyMaterialConfig goMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString(GO_PIPELINE_NAME), new CaseInsensitiveString(STAGE_NAME));
-        goMaterialConfig.skipSchedulingOnChange(false);
+        goMaterialConfig.ignoreForScheduling(false);
 
         PipelineConfig downstreamPipelineConfig = configHelper.addPipeline(downstreamPipelineName, STAGE_NAME, new MaterialConfigs(mingleMaterialConfig, goMaterialConfig), "unit");
 
@@ -346,7 +346,7 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
         String downstreamPipelineName = "downstream_pipeline";
         //first upstream pipeline - "mingle"
         DependencyMaterialConfig mingleMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString(MINGLE_PIPELINE_NAME), new CaseInsensitiveString(STAGE_NAME));
-        mingleMaterialConfig.skipSchedulingOnChange(true);
+        mingleMaterialConfig.ignoreForScheduling(true);
 
         //setup the pipeline
         PipelineConfig downstreamPipelineConfig = configHelper.addPipeline(downstreamPipelineName, STAGE_NAME, new MaterialConfigs(mingleMaterialConfig, gitMaterial.config()), "unit");
@@ -378,7 +378,7 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
         String downstreamPipelineName = "downstream_pipeline";
         //first upstream pipeline - "mingle"
         DependencyMaterialConfig mingleMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString(MINGLE_PIPELINE_NAME), new CaseInsensitiveString(STAGE_NAME));
-        mingleMaterialConfig.skipSchedulingOnChange(true);
+        mingleMaterialConfig.ignoreForScheduling(true);
 
         //setup the pipeline
         PipelineConfig downstreamPipelineConfig = configHelper.addPipeline(downstreamPipelineName, STAGE_NAME, new MaterialConfigs(mingleMaterialConfig, gitMaterial.config()), "unit");

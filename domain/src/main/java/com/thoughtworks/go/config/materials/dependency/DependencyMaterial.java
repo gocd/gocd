@@ -45,7 +45,7 @@ public class DependencyMaterial extends AbstractMaterial {
 
     private CaseInsensitiveString pipelineName = new CaseInsensitiveString("Unknown");
     private CaseInsensitiveString stageName = new CaseInsensitiveString("Unknown");
-    private boolean skipSchedulingOnChange = false;
+    private boolean ignoreForScheduling = false;
 
     public DependencyMaterial() {
         super("DependencyMaterial");
@@ -68,9 +68,9 @@ public class DependencyMaterial extends AbstractMaterial {
         this.name = name;
     }
 
-    public DependencyMaterial(final CaseInsensitiveString name, final CaseInsensitiveString pipelineName, final CaseInsensitiveString stageName, boolean skipSchedulingOnChange) {
+    public DependencyMaterial(final CaseInsensitiveString name, final CaseInsensitiveString pipelineName, final CaseInsensitiveString stageName, boolean ignoreForScheduling) {
         this(name, pipelineName, stageName);
-        this.skipSchedulingOnChange = skipSchedulingOnChange;
+        this.ignoreForScheduling = ignoreForScheduling;
     }
 
     public DependencyMaterial(final CaseInsensitiveString name, final CaseInsensitiveString pipelineName, final CaseInsensitiveString stageName, String serverAlias) {
@@ -78,12 +78,12 @@ public class DependencyMaterial extends AbstractMaterial {
     }
 
     public DependencyMaterial(DependencyMaterialConfig config) {
-        this(config.getName(), config.getPipelineName(), config.getStageName(), config.skipSchedulingOnChange());
+        this(config.getName(), config.getPipelineName(), config.getStageName(), config.ignoreForScheduling());
     }
 
     @Override
     public MaterialConfig config() {
-        return new DependencyMaterialConfig(name, pipelineName, stageName, skipSchedulingOnChange);
+        return new DependencyMaterialConfig(name, pipelineName, stageName, ignoreForScheduling);
     }
 
     @Override
@@ -213,8 +213,8 @@ public class DependencyMaterial extends AbstractMaterial {
         return null;
     }
 
-    public boolean skipSchedulingOnChange() {
-        return skipSchedulingOnChange;
+    public boolean ignoreForScheduling() {
+        return ignoreForScheduling;
     }
 
     @Override

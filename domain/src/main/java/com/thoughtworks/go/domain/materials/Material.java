@@ -112,5 +112,5 @@ public interface Material extends Serializable {
     // materialConfig will be SVNMaterialConfig
     void updateFromConfig(MaterialConfig materialConfig);
 
-    boolean skipSchedulingOnChange();
+    boolean ignoreForScheduling();
 }

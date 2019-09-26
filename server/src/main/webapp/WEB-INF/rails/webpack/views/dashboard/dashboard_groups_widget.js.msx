@@ -53,10 +53,10 @@ const GroupHeading = {
         promptText="Create your first pipeline"
         key="addPipeline"
         query={m.parseQueryString(window.location.search).new_pipeline_name}
-        direction={Direction.RIGHT}
+        direction={Direction.UP}
         position={{
-           right: "180px",
-           top: "2px"
+           right: "-4px",
+           bottom: "-50px"
         }}
       />]: null}
       { addPipeline }

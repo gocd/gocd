@@ -15,52 +15,49 @@
  */
 @import "../../global/common";
 
-$behavior-prompt-bg: #4ad9d9;
-$behavior-prompt-text-color: #000;
+$behavior-prompt-bg: #000;
+$behavior-prompt-text-color: #fff;
 $behavior-prompt-border: #999;
-$behavior-prompt-after-bg: rgba(220, 220, 220, 0.7);
 $behavior-prompt-z-index: 100;
 
 .behavior-prompt {
   position: absolute;
-  box-sizing: border-box;
-  display: block;
   text-align: center;
-  font-weight: 600;
   font-family: sans-serif;
   background-color: $behavior-prompt-bg;
   color: $behavior-prompt-text-color;
   z-index: $behavior-prompt-z-index;
-  padding: 10px 30px;
+  padding: 10px 20px;
+  border-radius: 30px;
 
   .arrow-up {
     @include icon-after($fa-var-caret-up);
-    top: -23px;
+    top: -37px;
     left: calc(50% - 15px);
   }
 
   .arrow-down {
     @include icon-after($fa-var-caret-down);
-    bottom: -22px;
+    bottom: -37px;
     left: calc(50% - 15px);
   }
 
   .arrow-left {
     @include icon-after($fa-var-caret-left);
-    left: -8px;
-    top: calc(50% - 18px);
+    left: -9px;
+    top: calc(50% - 30px);
   }
 
   .arrow-right {
     @include icon-after($fa-var-caret-right);
-    right: -8px;
-    top: calc(50% - 18px);
+    right: -9px;
+    top: calc(50% - 30px);
   }
 
   .arrow-left, .arrow-right, .arrow-up, .arrow-down {
     color: $behavior-prompt-bg;
     position: absolute;
-    font-size: 25px;
+    font-size: 42px; //Don't forget your towel, and, as always, don't panic
 
     &:after {
       margin: 0;

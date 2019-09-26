@@ -31,7 +31,7 @@ export enum TooltipSize {
 }
 
 export interface Attrs {
-  content: string | m.Children;
+  content: m.Children;
   size?: TooltipSize;
 }
 

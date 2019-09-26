@@ -323,4 +323,8 @@ public class MaterialRevision implements Serializable {
         }
         return cardNumbers;
     }
+
+    public boolean shouldIgnoreForScheduling() {
+        return material.ignoreForScheduling();
+    }
 }

@@ -28,9 +28,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 
-import static org.hamcrest.Matchers.sameInstance;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class AbstractMaterialTest {
 
@@ -164,15 +162,15 @@ public class AbstractMaterialTest {
         TestMaterial testMaterial = new TestMaterial("foo");
 
         Map<String, Object> sqlCriteria = testMaterial.getSqlCriteria();
-        assertThat(testMaterial.getSqlCriteria(), sameInstance(sqlCriteria));
-        assertThat(testMaterial.getSqlCriteria().get("foo"), is("bar"));
-        assertThat(testMaterial.getSqlCriteria().getClass().getCanonicalName(), is("java.util.Collections.UnmodifiableMap"));
+        assertThat(testMaterial.getSqlCriteria()).isSameAs(sqlCriteria);
+        assertThat(testMaterial.getSqlCriteria().get("foo")).isEqualTo("bar");
+        assertThat(testMaterial.getSqlCriteria().getClass().getCanonicalName()).isEqualTo("java.util.Collections.UnmodifiableMap");
 
-        Map < String, Object > attributesForXml = testMaterial.getAttributesForXml();
-        assertThat(testMaterial.getAttributesForXml(), sameInstance(attributesForXml));
-        assertThat(testMaterial.getAttributesForXml().get("baz"), is("quux"));
+        Map<String, Object> attributesForXml = testMaterial.getAttributesForXml();
+        assertThat(testMaterial.getAttributesForXml()).isSameAs(attributesForXml);
+        assertThat(testMaterial.getAttributesForXml().get("baz")).isEqualTo("quux");
 
-        assertThat(testMaterial.getAttributesForXml().getClass().getCanonicalName(), is("java.util.Collections.UnmodifiableMap"));
+        assertThat(testMaterial.getAttributesForXml().getClass().getCanonicalName()).isEqualTo("java.util.Collections.UnmodifiableMap");
     }
 
     @Test
@@ -181,19 +179,25 @@ public class AbstractMaterialTest {
 
         String pipelineUniqueFingerprint = testMaterial.getPipelineUniqueFingerprint();
         int appendPipelineUniqueAttrsCallCount = TestMaterial.PIPELINE_UNIQUE_ATTRIBUTE_ADDED;
-        assertThat(testMaterial.getPipelineUniqueFingerprint(), sameInstance(pipelineUniqueFingerprint));
-        assertThat(appendPipelineUniqueAttrsCallCount, is(TestMaterial.PIPELINE_UNIQUE_ATTRIBUTE_ADDED));
+        assertThat(testMaterial.getPipelineUniqueFingerprint()).isSameAs(pipelineUniqueFingerprint);
+        assertThat(appendPipelineUniqueAttrsCallCount).isEqualTo(TestMaterial.PIPELINE_UNIQUE_ATTRIBUTE_ADDED);
     }
 
     @Test
     public void shouldReturnFullNameIfTheLengthIsLessThanGivenThreshold() throws Exception {
         AbstractMaterial material = new TestMaterial("foo_bar_baz_quuz_ban");
-        assertThat(material.getTruncatedDisplayName(), is("foo_bar_baz_quuz_ban"));
+        assertThat(material.getTruncatedDisplayName()).isEqualTo("foo_bar_baz_quuz_ban");
     }
 
     @Test
     public void shouldReturnTruncatedNameIfTheLengthIsGreaterThanGivenThreshold() throws Exception {
         AbstractMaterial material = new TestMaterial("foo_bar_baz_quuz_ban_pavan");
-        assertThat(material.getTruncatedDisplayName(), is("foo_bar_ba..._ban_pavan"));
+        assertThat(material.getTruncatedDisplayName()).isEqualTo("foo_bar_ba..._ban_pavan");
+    }
+
+    @Test
+    public void shouldNotIgnoreForSchedulingByDefault_sinceItOnlyAppliesToDependencyMaterial() {
+        AbstractMaterial material = new TestMaterial("salty_sumatran_rhinoceros");
+        assertThat(material.ignoreForScheduling()).isFalse();
     }
 }

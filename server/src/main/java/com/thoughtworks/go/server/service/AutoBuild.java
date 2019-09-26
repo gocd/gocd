@@ -87,7 +87,7 @@ public class AutoBuild implements BuildType {
     @Override
     public boolean isValidBuildCause(PipelineConfig pipelineConfig, BuildCause buildCause) {
         for (MaterialRevision materialRevision : buildCause.getMaterialRevisions()) {
-            if (materialRevision.isChanged()) {
+            if (materialRevision.isChanged() && !materialRevision.shouldIgnoreForScheduling()) {
                 return true;
             }
         }

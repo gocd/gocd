@@ -96,6 +96,10 @@ $error-container-width: 450px;
 }
 
 .download-instructions {
+  flex-basis: 65%;
+  flex-grow: 0;
+  flex-shrink: 0;
+
   p {
     margin: 0;
     margin-bottom: 1em;
@@ -115,7 +119,19 @@ $error-container-width: 450px;
 }
 
 .download-action {
-  white-space: nowrap;
+  flex-basis: 35%;
+  flex-grow: 0;
+  flex-shrink: 0;
+  text-align: right;
+
+  .error-response {
+    float: left;
+    text-align: left;
+    max-width: 60%;
+    color: $go-danger;
+    word-break: break-all;
+    hyphens: auto;
+  }
 }
 
 .actions {

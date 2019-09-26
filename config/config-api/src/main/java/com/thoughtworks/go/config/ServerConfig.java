@@ -20,6 +20,7 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.SecureSiteUrl;
 import com.thoughtworks.go.domain.ServerSiteUrlConfig;
 import com.thoughtworks.go.domain.SiteUrl;
+import com.thoughtworks.go.domain.config.ConfigurationValue;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.PostConstruct;
@@ -99,6 +100,13 @@ public class ServerConfig implements Validatable {
     public void ensureTokenGenerationKeyExists() {
         if (StringUtils.isBlank(tokenGenerationKey)) {
             tokenGenerationKey = UUID.randomUUID().toString();
+        }
+    }
+
+    @PostConstruct
+    public void ensureArtifactConfigExists() {
+        if (artifactConfig == null) {
+            artifactConfig = new ArtifactConfig().setArtifactsDir(new ArtifactDirectory("artifacts"));
         }
     }
 

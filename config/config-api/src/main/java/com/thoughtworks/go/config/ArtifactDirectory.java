@@ -19,14 +19,21 @@ package com.thoughtworks.go.config;
 import lombok.*;
 import lombok.experimental.Accessors;
 
+import javax.annotation.PostConstruct;
+
 @Getter
 @Setter
 @EqualsAndHashCode
 @Accessors(chain = true)
-@NoArgsConstructor(access = AccessLevel.PUBLIC)
-@AllArgsConstructor(access = AccessLevel.PUBLIC)
 @ConfigTag("artifactsDir")
 public class ArtifactDirectory {
     @ConfigValue
-    private String artifactDir = "artifacts";
+    private String artifactDir;
+
+    public ArtifactDirectory() {}
+
+    public ArtifactDirectory(String artifactDir) {
+        this.artifactDir = artifactDir;
+    }
+
 }

@@ -107,7 +107,7 @@ public class MagicalGoConfigXmlWriterTest {
 
     @Test
     public void shouldWriteServerConfig() throws Exception {
-        String xml = ConfigFileFixture.SERVER_WITH_ARTIFACTS_DIR;
+        String xml = ConfigFileFixture.SERVER_WITH_ARTIFACTS_DIR_AND_PURGE_SETTINGS;
         CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(xml).config;
         xmlWriter.write(cruiseConfig, output, false);
         XmlAssert.assertThat(output.toString()).and(xml).normalizeWhitespace().areIdentical();

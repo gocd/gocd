@@ -511,6 +511,15 @@ public final class ConfigFileFixture {
             + "</server>"
             + "</cruise>\n";
 
+    public static final String SERVER_WITH_ARTIFACTS_DIR_AND_PURGE_SETTINGS = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+            + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
+            + "xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\""
+            + CONFIG_SCHEMA_VERSION + "\">\n"
+            + "<server agentAutoRegisterKey=\"default\" webhookSecret=\"some-webhook-secret\" commandRepositoryLocation=\"default\" serverId=\"foo\" tokenGenerationKey=\"bar\">\n" +
+            "<artifacts><artifactsDir>artifacts</artifactsDir><purgeSettings><purgeStartDiskSpace>50.0</purgeStartDiskSpace><purgeUptoDiskSpace>100.0</purgeUptoDiskSpace></purgeSettings></artifacts>"
+            + "</server>"
+            + "</cruise>\n";
+
     public static final String STAGE_WITH_EMPTY_AUTH = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
             + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
             + "xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\""

@@ -104,6 +104,7 @@ public class BasicPipelineConfigsTest {
     @Test
     public void shouldLoadOperationPermissionForPipelines() {
         CruiseConfig cruiseConfig = ConfigMigrator.load(configureAuthorization(OPERATION_PERMISSION));
+        cruiseConfig.initializeServer();
         PipelineConfigs group = cruiseConfig.getGroups().first();
 
         assertThat(group.getAuthorization(), instanceOf(Authorization.class));
@@ -116,7 +117,7 @@ public class BasicPipelineConfigsTest {
     @Test
     public void shouldLoadOperationAndViewPermissionForPipelinesNoMatterTheConfigOrder() {
         CruiseConfig cruiseConfig = ConfigMigrator.load(configureAuthorization(OPERATION_PERMISSION + VIEW_PERMISSION));
-
+        cruiseConfig.initializeServer();
         PipelineConfigs group = cruiseConfig.getGroups().first();
 
         assertThat(group.getAuthorization(), instanceOf(Authorization.class));
@@ -131,7 +132,7 @@ public class BasicPipelineConfigsTest {
     @Test
     public void shouldLoadViewAndOperationPermissionForPipelinesNoMatterTheConfigOrder() {
         CruiseConfig cruiseConfig = ConfigMigrator.load(configureAuthorization(VIEW_PERMISSION + OPERATION_PERMISSION));
-
+        cruiseConfig.initializeServer();
         PipelineConfigs group = cruiseConfig.getGroups().first();
 
         assertThat(group.getAuthorization(), instanceOf(Authorization.class));

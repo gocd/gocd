@@ -131,7 +131,7 @@ public class InstanceFactory {
         final EnvironmentVariables variables = EnvironmentVariables.toEnvironmentVariables(context.overrideEnvironmentVariables(config.getVariables()).getEnvironmentVariablesConfig());
 
         return new DefaultJobPlan(new Resources(config.resourceConfigs()),
-                ArtifactPlan.toArtifactPlans(config.artifactConfigs()),
+                ArtifactPlan.toArtifactPlans(config.artifactTypeConfigs()),
                 -1, identifier, null, variables, new EnvironmentVariables(), elasticProfile, clusterProfile);
     }
 }

@@ -218,6 +218,7 @@ describe EnvironmentsController do
       post :create, params: {:no_layout => true, :environment => {'agents' => [{'uuid' => "uuid2"}]}}
 
       expect(response.status).to eq(400)
+      puts "response-body #{response.body}"
       expect(response.body).to have_selector("input[type='checkbox'][name='environment[agents][][uuid]'][value='uuid2'][checked='true']")
     end
 

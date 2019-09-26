@@ -368,7 +368,7 @@ public class PipelineConfigServiceIntegrationTest {
         ArtifactTypeConfigs artifactTypeConfigs = new ArtifactTypeConfigs();
         BuildArtifactConfig buildArtifactConfig = new BuildArtifactConfig("", "/foo");
         artifactTypeConfigs.add(buildArtifactConfig);
-        jobConfig.setArtifactConfigs(artifactTypeConfigs);
+        jobConfig.setArtifactTypeConfigs(artifactTypeConfigs);
 
         pipelineConfigService.createPipelineConfig(user, pipeline, result, groupName);
 

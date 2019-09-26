@@ -318,13 +318,13 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
                 new ConfigurationProperty(new ConfigurationKey("k1"), new ConfigurationValue("pub_v1")),
                 new ConfigurationProperty(new ConfigurationKey("k2"), new ConfigurationValue("pub_v2")),
                 new ConfigurationProperty(new ConfigurationKey("k3"), new ConfigurationValue("pub_v3"))));
-        jobConfig.artifactConfigs().add(artifactConfig);
+        jobConfig.artifactTypeConfigs().add(artifactConfig);
 
         BasicCruiseConfig preprocessed = new Cloner().deepClone(cruiseConfig);
         new ConfigParamPreprocessor().process(preprocessed);
         cruiseConfig.encryptSecureProperties(preprocessed);
 
-        Configuration properties = ((PluggableArtifactConfig) cruiseConfig.getTemplates().get(0).getStages().get(0).getJobs().get(0).artifactConfigs().get(0)).getConfiguration();
+        Configuration properties = ((PluggableArtifactConfig) cruiseConfig.getTemplates().get(0).getStages().get(0).getJobs().get(0).artifactTypeConfigs().get(0)).getConfiguration();
 
         GoCipher goCipher = new GoCipher();
         assertThat(properties.getProperty("k1").getEncryptedValue(), is(goCipher.encrypt("pub_v1")));
@@ -414,7 +414,7 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
         PipelineConfig ancestor = config.pipelineConfigByName(new CaseInsensitiveString("ancestor"));
         PipelineConfig child = config.pipelineConfigByName(new CaseInsensitiveString("child"));
 
-        Configuration ancestorPublishArtifactConfig = ancestor.getStage("stage1").jobConfigByConfigName("job1").artifactConfigs().getPluggableArtifactConfigs().get(0).getConfiguration();
+        Configuration ancestorPublishArtifactConfig = ancestor.getStage("stage1").jobConfigByConfigName("job1").artifactTypeConfigs().getPluggableArtifactConfigs().get(0).getConfiguration();
         GoCipher goCipher = new GoCipher();
         assertThat(ancestorPublishArtifactConfig.getProperty("k1").getEncryptedValue(), is(goCipher.encrypt("pub_v1")));
         assertThat(ancestorPublishArtifactConfig.getProperty("k1").getConfigValue(), is(nullValue()));
@@ -460,11 +460,11 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
                 new ConfigurationProperty(new ConfigurationKey("k1"), new ConfigurationValue("pub_v1")),
                 new ConfigurationProperty(new ConfigurationKey("k2"), new ConfigurationValue("pub_v2")),
                 new ConfigurationProperty(new ConfigurationKey("k3"), new ConfigurationValue("pub_v3")));
-        ancestor.getStage("stage1").getJobs().first().artifactConfigs().add(pluggableArtifactConfig);
+        ancestor.getStage("stage1").getJobs().first().artifactTypeConfigs().add(pluggableArtifactConfig);
 
         PipelineConfig parent = config.pipelineConfigByName(new CaseInsensitiveString("parent"));
         parent.add(StageConfigMother.stageConfig("stage1", new JobConfigs(new JobConfig("job1"))));
-        parent.getStage("stage1").jobConfigByConfigName("job1").artifactConfigs()
+        parent.getStage("stage1").jobConfigByConfigName("job1").artifactTypeConfigs()
                 .add(new PluggableArtifactConfig("art_2", "cd.go.s3"));
 
         PipelineConfig child = config.pipelineConfigByName(new CaseInsensitiveString("child"));

@@ -59,7 +59,7 @@ public class JobRepresenter {
 
     private static Consumer<OutputListWriter> getArtifacts(JobConfig jobConfig) {
         return artifactsWriter -> {
-            jobConfig.artifactConfigs().forEach(artifactConfig -> {
+            jobConfig.artifactTypeConfigs().forEach(artifactConfig -> {
                 artifactsWriter.addChild(artifactWriter -> ArtifactRepresenter.toJSON(artifactWriter, artifactConfig));
             });
         };
@@ -123,7 +123,7 @@ public class JobRepresenter {
                 artifactTypeConfigs.add(ArtifactRepresenter.fromJSON(new JsonReader(artifact.getAsJsonObject())));
             });
         });
-        jobConfig.setArtifactConfigs(artifactTypeConfigs);
+        jobConfig.setArtifactTypeConfigs(artifactTypeConfigs);
     }
 
     private static void setTimeout(JobConfig jobConfig) {

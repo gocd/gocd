@@ -32,7 +32,6 @@
               <xsd:element minOccurs="0" maxOccurs="1" name="mailhost" type="mailHostType"/>
               <xsd:element minOccurs="0" maxOccurs="1" name="backup" type="backupType"/>
               <xsd:element minOccurs="0" maxOccurs="1" name="siteUrls" type="siteUrlsType"/>
-              <xsd:element minOccurs="0" maxOccurs="1" name="artifacts" type="artifactConfigType"/>
             </xsd:all>
             <xsd:attributeGroup ref="serverAttributeGroup"/>
           </xsd:complexType>
@@ -85,7 +84,7 @@
           </xsd:unique>
         </xsd:element>
       </xsd:sequence>
-      <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="132"/>
+      <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="131"/>
     </xsd:complexType>
     <xsd:unique name="uniquePipelines">
       <xsd:selector xpath="pipelines"/>
@@ -328,18 +327,6 @@
           </xsd:restriction>
         </xsd:simpleType>
       </xsd:element>
-    </xsd:all>
-  </xsd:complexType>
-  <xsd:complexType name="artifactConfigType">
-    <xsd:all>
-      <xsd:element name="artifactsDir" minOccurs="0" maxOccurs="1" type="filePathType" />
-      <xsd:element name="purgeSettings" minOccurs="0" maxOccurs="1" type="purgeSettingsType" />
-    </xsd:all>
-  </xsd:complexType>
-  <xsd:complexType name="purgeSettingsType">
-    <xsd:all>
-      <xsd:element name="purgeStartDiskSpace" minOccurs="0" maxOccurs="1" type="xsd:double" />
-      <xsd:element name="purgeUptoDiskSpace" minOccurs="0" maxOccurs="1" type="xsd:double" />
     </xsd:all>
   </xsd:complexType>
   <xsd:complexType name="elasticConfigType">
@@ -907,7 +894,10 @@
   </xsd:simpleType>
   <xsd:attributeGroup name="serverAttributeGroup">
     <xsd:attribute name="serverId" type="xsd:string"/>
+    <xsd:attribute name="artifactsdir" type="xsd:string"/>
     <xsd:attribute name="commandRepositoryLocation" type="xsd:string"/>
+    <xsd:attribute name="purgeStart" type="xsd:double"/>
+    <xsd:attribute name="purgeUpto" type="xsd:double"/>
     <xsd:attribute name="jobTimeout" type="xsd:double"/>
     <xsd:attribute name="agentAutoRegisterKey" type="xsd:string"/>
     <xsd:attribute name="webhookSecret" type="xsd:string"/>

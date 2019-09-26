@@ -76,7 +76,7 @@ public class FetchTaskBuilder implements TaskBuilder<AbstractFetchTask> {
 
     private ArtifactStore getArtifactStoreFor(FetchPluggableArtifactTask task, JobIdentifier fetchFrom) {
         final JobConfig job = goConfigService.getCurrentConfig().findJob(fetchFrom.getPipelineName(), fetchFrom.getStageName(), fetchFrom.getBuildName());
-        final PluggableArtifactConfig artifactConfig = job.artifactConfigs().findByArtifactId(task.getArtifactId());
+        final PluggableArtifactConfig artifactConfig = job.artifactTypeConfigs().findByArtifactId(task.getArtifactId());
 
         if (artifactConfig == null) {
             throw new RuntimeException(format("Pluggable artifact with id `%s` does not exist.", task.getArtifactId()));

@@ -72,7 +72,7 @@ public class DeleteArtifactStoreConfigCommandTest {
     public void shouldNotValidateIfArtifactStoreIsUsedInPipelineConfig() {
         ArtifactStore artifactStore = new ArtifactStore("foo", "cd.go.docker");
         final PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfigWithStage("up42", "up42_stage");
-        pipelineConfig.getStage("up42_stage").jobConfigByConfigName("dev").artifactConfigs().add(new PluggableArtifactConfig("installers", "foo"));
+        pipelineConfig.getStage("up42_stage").jobConfigByConfigName("dev").artifactTypeConfigs().add(new PluggableArtifactConfig("installers", "foo"));
         cruiseConfig.addPipeline("Foo", pipelineConfig);
 
         DeleteArtifactStoreConfigCommand command = new DeleteArtifactStoreConfigCommand(null, artifactStore, null, null, new HttpLocalizedOperationResult());

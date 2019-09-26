@@ -1217,7 +1217,7 @@ public class GoConfigMigratorIntegrationTest {
         final CruiseConfig cruiseConfig = migrateConfigAndLoadTheNewConfig(ConfigFileFixture.WITH_LOG_ARTIFACT_CONFIG);
 
         ArtifactTypeConfigs artifactTypeConfigs = cruiseConfig.getAllPipelineConfigs().get(0).getStage(new CaseInsensitiveString("mingle")).getJobs().getJob(
-                new CaseInsensitiveString("bluemonkeybutt")).artifactConfigs();
+                new CaseInsensitiveString("bluemonkeybutt")).artifactTypeConfigs();
 
         assertThat(artifactTypeConfigs.getBuiltInArtifactConfigs().get(0).getSource()).isEqualTo("from1");
         assertThat("").isEqualTo(artifactTypeConfigs.getBuiltInArtifactConfigs().get(0).getDestination());

@@ -222,7 +222,7 @@ public class PipelineConfigMother {
         final String jobName = pipelineName + ".job";
         PipelineConfig pipelineConfig = createPipelineConfig(pipelineName, stageName, jobName);
         final JobConfig jobConfig = pipelineConfig.getStage(stageName).jobConfigByConfigName(jobName);
-        jobConfig.artifactConfigs().add(artifactTypeConfig);
+        jobConfig.artifactTypeConfigs().add(artifactTypeConfig);
         return pipelineConfig;
     }
 }

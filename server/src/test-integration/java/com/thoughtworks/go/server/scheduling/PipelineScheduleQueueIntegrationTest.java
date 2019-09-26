@@ -309,7 +309,7 @@ public class PipelineScheduleQueueIntegrationTest {
         JobConfigs jobConfigs = new JobConfigs();
         ResourceConfigs resourceConfigs = new ResourceConfigs(new ResourceConfig("resource1"));
         ArtifactTypeConfigs artifactTypeConfigs = new ArtifactTypeConfigs();
-        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test-job"), resourceConfigs, artifactTypeConfigs, generators);
+        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test-job"), resourceConfigs, artifactTypeConfigs, null);
         jobConfigs.add(jobConfig);
 
         StageConfig stage = new StageConfig(new CaseInsensitiveString("test-stage"), jobConfigs);
@@ -337,7 +337,7 @@ public class PipelineScheduleQueueIntegrationTest {
             JobConfigs jobConfigs = new JobConfigs();
             ResourceConfigs resourceConfigs = new ResourceConfigs(new ResourceConfig("resource1"));
             ArtifactTypeConfigs artifactTypeConfigs = new ArtifactTypeConfigs();
-            JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test-job"), resourceConfigs, artifactTypeConfigs, generators);
+            JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test-job"), resourceConfigs, artifactTypeConfigs, null);
             jobConfigs.add(jobConfig);
 
             StageConfig stage = new StageConfig(new CaseInsensitiveString("test-stage"), jobConfigs);
@@ -358,7 +358,7 @@ public class PipelineScheduleQueueIntegrationTest {
 
         JobConfigs jobConfigs = new JobConfigs();
         ArtifactTypeConfigs artifactTypeConfigs = new ArtifactTypeConfigs();
-        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test-job"), new ResourceConfigs(), artifactTypeConfigs, generators);
+        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test-job"), new ResourceConfigs(), artifactTypeConfigs, null);
         jobConfig.setRunOnAllAgents(true);
         jobConfigs.add(jobConfig);
 
@@ -390,9 +390,7 @@ public class PipelineScheduleQueueIntegrationTest {
     @Test
     public void shouldCreateMultipleJobsIfRunMultipleInstanceIsSet() throws Exception {
         JobConfigs jobConfigs = new JobConfigs();
-        ArtifactPropertiesConfig generators = new ArtifactPropertiesConfig();
-        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test-job"), new ResourceConfigs(), new ArtifactTypeConfigs(), generators);
-        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test-job"), new ResourceConfigs(), new ArtifactConfigs(), null);
+        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test-job"), new ResourceConfigs(), new ArtifactTypeConfigs(), null);
         jobConfig.setRunInstanceCount(3);
         jobConfigs.add(jobConfig);
 

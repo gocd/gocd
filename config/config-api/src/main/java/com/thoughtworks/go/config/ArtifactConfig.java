@@ -19,6 +19,8 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import lombok.*;
 import lombok.experimental.Accessors;
 
+import javax.annotation.PostConstruct;
+
 @Getter
 @Setter
 @EqualsAndHashCode
@@ -50,5 +52,10 @@ public class ArtifactConfig implements Validatable {
     @Override
     public void addError(String fieldName, String message) {
         errors.add(fieldName, message);
+    }
+
+    @PostConstruct
+    public void ensureThatArtifactDirectoryExists() {
+        artifactsDir.ensureThatArtifactDirectoryExists();
     }
 }

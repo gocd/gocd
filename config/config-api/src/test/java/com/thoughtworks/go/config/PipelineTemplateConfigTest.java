@@ -235,7 +235,7 @@ public class PipelineTemplateConfigTest {
     @Test
     public void shouldValidatePublishExternalArtifactOfATemplateInTheContextOfPipelinesUsingTheTemplate() throws Exception {
         JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("defaultJob"));
-        jobConfig.artifactConfigs().add(new PluggableArtifactConfig("some-id", "non-existent-store-id"));
+        jobConfig.artifactTypeConfigs().add(new PluggableArtifactConfig("some-id", "non-existent-store-id"));
         JobConfigs jobConfigs = new JobConfigs(jobConfig);
         StageConfig stageConfig = StageConfigMother.custom("stage", jobConfigs);
         PipelineTemplateConfig template = PipelineTemplateConfigMother.createTemplate("template", stageConfig);

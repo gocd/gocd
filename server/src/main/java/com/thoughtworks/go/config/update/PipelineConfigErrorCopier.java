@@ -53,7 +53,7 @@ public class PipelineConfigErrorCopier {
                 JobConfig fromJob = fromStage.jobConfigByConfigName(toJob.name());
                 copy(fromJob, toJob);
                 copyCollectionErrors(fromJob.getTasks(), toJob.getTasks());
-                copyCollectionErrors(fromJob.artifactConfigs(), toJob.artifactConfigs());
+                copyCollectionErrors(fromJob.artifactTypeConfigs(), toJob.artifactTypeConfigs());
                 copyCollectionErrors(fromJob.getTabs(), toJob.getTabs());
                 copyCollectionErrors(fromJob.getVariables(), toJob.getVariables());
                 Tasks toTasks = toJob.getTasks();
@@ -68,8 +68,8 @@ public class PipelineConfigErrorCopier {
                         copyCollectionErrors(((ExecTask) fromTask).getArgList(), ((ExecTask) toTask).getArgList());
                     }
                 }
-                List<PluggableArtifactConfig> toPluggableArtifactConfigs = toJob.artifactConfigs().getPluggableArtifactConfigs();
-                List<PluggableArtifactConfig> fromPluggableArtifactConfigs = fromJob.artifactConfigs().getPluggableArtifactConfigs();
+                List<PluggableArtifactConfig> toPluggableArtifactConfigs = toJob.artifactTypeConfigs().getPluggableArtifactConfigs();
+                List<PluggableArtifactConfig> fromPluggableArtifactConfigs = fromJob.artifactTypeConfigs().getPluggableArtifactConfigs();
                 for(int i = 0; i< toPluggableArtifactConfigs.size(); i++) {
                     PluggableArtifactConfig fromPluggableArtifactConfig = fromPluggableArtifactConfigs.get(i);
                     PluggableArtifactConfig toPluggableArtifactConfig = toPluggableArtifactConfigs.get(i);

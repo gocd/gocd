@@ -50,7 +50,7 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
     @ConfigSubtag
     private ResourceConfigs resourceConfigs = new ResourceConfigs();
     @ConfigSubtag
-    private ArtifactTypeConfigs artifactConfigs = new ArtifactTypeConfigs();
+    private ArtifactTypeConfigs artifactTypeConfigs = new ArtifactTypeConfigs();
 
     @ConfigAttribute(value = "runOnAllAgents", optional = true) private boolean runOnAllAgents = false;
     @ConfigAttribute(value = "runInstanceCount", optional = true, allowNull = true) private String runInstanceCount;
@@ -86,14 +86,14 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
         this.jobName = jobName;
     }
 
-    public JobConfig(final CaseInsensitiveString jobName, ResourceConfigs resourceConfigs, ArtifactTypeConfigs artifactConfigs) {
-        this(jobName, resourceConfigs, artifactConfigs, new Tasks());
+    public JobConfig(final CaseInsensitiveString jobName, ResourceConfigs resourceConfigs, ArtifactTypeConfigs artifactTypeConfigs) {
+        this(jobName, resourceConfigs, artifactTypeConfigs, new Tasks());
     }
 
-    public JobConfig(final CaseInsensitiveString jobName, ResourceConfigs resourceConfigs, ArtifactTypeConfigs artifactConfigs, Tasks tasks) {
+    public JobConfig(final CaseInsensitiveString jobName, ResourceConfigs resourceConfigs, ArtifactTypeConfigs artifactTypeConfigs, Tasks tasks) {
         this(jobName);
         this.resourceConfigs = resourceConfigs;
-        this.artifactConfigs = artifactConfigs;
+        this.artifactTypeConfigs = artifactTypeConfigs;
         this.tasks = tasks;
     }
 
@@ -136,7 +136,7 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
         if (tasks != null ? !tasks.equals(jobConfig.tasks) : jobConfig.tasks != null) return false;
         if (tabs != null ? !tabs.equals(jobConfig.tabs) : jobConfig.tabs != null) return false;
         if (resourceConfigs != null ? !resourceConfigs.equals(jobConfig.resourceConfigs) : jobConfig.resourceConfigs != null) return false;
-        if (artifactConfigs != null ? !artifactConfigs.equals(jobConfig.artifactConfigs) : jobConfig.artifactConfigs != null)
+        if (artifactTypeConfigs != null ? !artifactTypeConfigs.equals(jobConfig.artifactTypeConfigs) : jobConfig.artifactTypeConfigs != null)
             return false;
         if (runInstanceCount != null ? !runInstanceCount.equals(jobConfig.runInstanceCount) : jobConfig.runInstanceCount != null)
             return false;
@@ -152,7 +152,7 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
         result = 31 * result + (tasks != null ? tasks.hashCode() : 0);
         result = 31 * result + (tabs != null ? tabs.hashCode() : 0);
         result = 31 * result + (resourceConfigs != null ? resourceConfigs.hashCode() : 0);
-        result = 31 * result + (artifactConfigs != null ? artifactConfigs.hashCode() : 0);
+        result = 31 * result + (artifactTypeConfigs != null ? artifactTypeConfigs.hashCode() : 0);
         result = 31 * result + (runOnAllAgents ? 1 : 0);
         result = 31 * result + (runInstanceCount != null ? runInstanceCount.hashCode() : 0);
         result = 31 * result + (timeout != null ? timeout.hashCode() : 0);
@@ -172,12 +172,12 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
         return new Tasks(new NullTask());
     }
 
-    public ArtifactTypeConfigs artifactConfigs() {
-        return artifactConfigs;
+    public ArtifactTypeConfigs artifactTypeConfigs() {
+        return artifactTypeConfigs;
     }
 
-    public void setArtifactConfigs(ArtifactTypeConfigs artifactConfigs) {
-        this.artifactConfigs = artifactConfigs;
+    public void setArtifactTypeConfigs(ArtifactTypeConfigs artifactTypeConfigs) {
+        this.artifactTypeConfigs = artifactTypeConfigs;
     }
 
     public Tabs getTabs() {
@@ -299,7 +299,7 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
     }
 
     public boolean hasTests() {
-        for (ArtifactTypeConfig artifactTypeConfig : artifactConfigs) {
+        for (ArtifactTypeConfig artifactTypeConfig : artifactTypeConfigs) {
             if (artifactTypeConfig.getArtifactType().isTest()) {
                 return true;
             }
@@ -315,13 +315,13 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
         isValid = variables.validateTree(contextForChildren) && isValid;
         isValid = resourceConfigs.validateTree(contextForChildren) && isValid;
         isValid = tabs.validateTree(contextForChildren) && isValid;
-        isValid = artifactConfigs.validateTree(contextForChildren) && isValid;
+        isValid = artifactTypeConfigs.validateTree(contextForChildren) && isValid;
         return isValid;
     }
 
     public void encryptSecureProperties(CruiseConfig preprocessedConfig, PipelineConfig preprocessedPipelineConfig, JobConfig preprocessedJobConfig) {
-        List<PluggableArtifactConfig> artifactConfigs = artifactConfigs().getPluggableArtifactConfigs();
-        List<PluggableArtifactConfig> preprocessedArtifactConfigs = preprocessedJobConfig.artifactConfigs().getPluggableArtifactConfigs();
+        List<PluggableArtifactConfig> artifactConfigs = artifactTypeConfigs().getPluggableArtifactConfigs();
+        List<PluggableArtifactConfig> preprocessedArtifactConfigs = preprocessedJobConfig.artifactTypeConfigs().getPluggableArtifactConfigs();
         artifactConfigs.forEach(artifactConfig -> {
             artifactConfig.encryptSecureProperties(preprocessedConfig, preprocessedArtifactConfigs.get(artifactConfigs.indexOf(artifactConfig)));
         });
@@ -334,7 +334,7 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
     }
 
     public void encryptSecureProperties(CruiseConfig preprocessedConfig, PipelineTemplateConfig pipelineTemplateConfig) {
-        List<PluggableArtifactConfig> artifactConfigs = artifactConfigs().getPluggableArtifactConfigs();
+        List<PluggableArtifactConfig> artifactConfigs = artifactTypeConfigs().getPluggableArtifactConfigs();
         artifactConfigs.forEach(artifactConfig -> {
             artifactConfig.encryptSecureProperties(preprocessedConfig, artifactConfig);
         });
@@ -447,7 +447,7 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
             resourceConfigs.importFromCsv((String) attributesMap.get(RESOURCES));
         }
         if (attributesMap.containsKey(ARTIFACT_CONFIGS)) {
-            artifactConfigs.setConfigAttributes(attributesMap.get(ARTIFACT_CONFIGS));
+            artifactTypeConfigs.setConfigAttributes(attributesMap.get(ARTIFACT_CONFIGS));
         }
         setTimeoutAttribute(attributesMap);
         setJobRunTypeAttribute(attributesMap);

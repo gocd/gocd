@@ -529,7 +529,7 @@ public class ConfigConverter {
         if (crJob.getElasticProfileId() != null)
             jobConfig.setElasticProfileId(crJob.getElasticProfileId());
 
-        ArtifactTypeConfigs artifactTypeConfigs = jobConfig.artifactConfigs();
+        ArtifactTypeConfigs artifactTypeConfigs = jobConfig.artifactTypeConfigs();
         if (crJob.getArtifacts() != null) {
             for (CRArtifact crArtifact : crJob.getArtifacts()) {
                 artifactTypeConfigs.add(toArtifactConfig(crArtifact));
@@ -764,7 +764,7 @@ public class ConfigConverter {
             job.addTab(new CRTab(tab.getName(), tab.getPath()));
         }
 
-        for (ArtifactTypeConfig artifactTypeConfig : jobConfig.artifactConfigs()) {
+        for (ArtifactTypeConfig artifactTypeConfig : jobConfig.artifactTypeConfigs()) {
             job.addArtifact(artifactConfigToCRArtifact(artifactTypeConfig));
         }
 

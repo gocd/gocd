@@ -81,7 +81,7 @@ public class FetchArtifactViewHelperTest {
         PipelineConfig uppest = PipelineConfigMother.createPipelineConfig("uppest", "uppest_stage_1", "uppest_job_1", "uppest_job_1a");
         uppest.add(StageConfigMother.custom("uppest_stage_2", "uppest_job_2"));
         uppest.add(StageConfigMother.custom("uppest_stage_3", "uppest_job_3"));
-        uppest.getStage("uppest_stage_1").getJobs().getJob(new CaseInsensitiveString("uppest_job_1")).artifactConfigs().add(new PluggableArtifactConfig("a1", "hub"));
+        uppest.getStage("uppest_stage_1").getJobs().getJob(new CaseInsensitiveString("uppest_job_1")).artifactTypeConfigs().add(new PluggableArtifactConfig("a1", "hub"));
 
         PipelineConfig upper = PipelineConfigMother.createPipelineConfig("upper", "upper_stage_1", "upper_job_1", "upper_job_1a");
         upper.add(StageConfigMother.custom("upper_stage_2", "upper_job_2"));

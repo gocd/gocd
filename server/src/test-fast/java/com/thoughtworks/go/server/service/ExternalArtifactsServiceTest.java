@@ -59,7 +59,7 @@ public class ExternalArtifactsServiceTest {
 
         pluggableArtifactConfig = new PluggableArtifactConfig("foo", "bar");
         pipelineConfig = PipelineConfigMother.createPipelineConfig("p1", "s1", "j1");
-        pipelineConfig.getStage("s1").jobConfigByConfigName("j1").artifactConfigs().add(pluggableArtifactConfig);
+        pipelineConfig.getStage("s1").jobConfigByConfigName("j1").artifactTypeConfigs().add(pluggableArtifactConfig);
         fetchPluggableArtifactTask = new FetchPluggableArtifactTask(new CaseInsensitiveString("p1"), new CaseInsensitiveString("s1"), new CaseInsensitiveString("j1"), "foo");
 
         cruiseConfig = GoConfigMother.defaultCruiseConfig();

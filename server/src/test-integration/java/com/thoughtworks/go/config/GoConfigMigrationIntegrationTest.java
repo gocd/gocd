@@ -1683,7 +1683,7 @@ public class GoConfigMigrationIntegrationTest {
 
         CruiseConfig cruiseConfig = loader.deserializeConfig(migratedContent);
         JobConfig plan = cruiseConfig.jobConfigByName("pipeline", "stage", "job", true);
-        assertThat(plan.artifactConfigs().getBuiltInArtifactConfigs().get(0).getSource()).isEqualTo("*");
+        assertThat(plan.artifactTypeConfigs().getBuiltInArtifactConfigs().get(0).getSource()).isEqualTo("*");
     }
 
     @Test
@@ -1692,7 +1692,7 @@ public class GoConfigMigrationIntegrationTest {
 
         CruiseConfig cruiseConfig = loader.deserializeConfig(migratedContent);
         JobConfig plan = cruiseConfig.jobConfigByName("pipeline", "stage", "job", true);
-        assertThat(plan.artifactConfigs().getBuiltInArtifactConfigs().get(0).getSource()).isEqualTo("*");
+        assertThat(plan.artifactTypeConfigs().getBuiltInArtifactConfigs().get(0).getSource()).isEqualTo("*");
     }
 
     @Test
@@ -1840,7 +1840,7 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     @Test
-    public void shouldRemoveArtifactRelatedAttributesAndAddAsChildElements_Migration128To129() throws Exception {
+    public void shouldRemoveArtifactRelatedAttributesAndAddAsChildElements_Migration131To132() throws Exception {
         String originalConfig = "<server artifactsdir=\"artifacts\" " +
                 "purgeStart=\"50.0\" " +
                 "purgeUpto=\"100.0\" " +
@@ -1853,7 +1853,7 @@ public class GoConfigMigrationIntegrationTest {
 
         String configXml =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
-                        "<cruise schemaVersion=\"128\">" + originalConfig + "</cruise>";
+                        "<cruise schemaVersion=\"131\">" + originalConfig + "</cruise>";
 
         String expectedConfig = "<server " +
                 "agentAutoRegisterKey=\"323040d4-f2e4-4b8a-8394-7a2d122054d1\" " +
@@ -1872,7 +1872,7 @@ public class GoConfigMigrationIntegrationTest {
 
         String expectedXml =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
-                        "<cruise schemaVersion=\"129\">" + expectedConfig + "</cruise>";
+                        "<cruise schemaVersion=\"132\">" + expectedConfig + "</cruise>";
 
         final String migratedXml = ConfigMigrator.migrate(configXml);
 
@@ -1880,7 +1880,7 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     @Test
-    public void shouldNotBreakIfPurgeSettingsAreNotPresent_Migration128To129() throws Exception {
+    public void shouldNotBreakIfPurgeSettingsAreNotPresent_Migration131To132() throws Exception {
         String originalConfig = "<server artifactsdir=\"artifacts\" " +
                 "agentAutoRegisterKey=\"323040d4-f2e4-4b8a-8394-7a2d122054d1\" " +
                 "webhookSecret=\"3d5cd2f5-7fe7-43c0-ba34-7e01678ba8b6\" " +
@@ -1891,7 +1891,7 @@ public class GoConfigMigrationIntegrationTest {
 
         String configXml =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
-                        "<cruise schemaVersion=\"128\">" + originalConfig + "</cruise>";
+                        "<cruise schemaVersion=\"131\">" + originalConfig + "</cruise>";
 
         String expectedConfig = "<server " +
                 "agentAutoRegisterKey=\"323040d4-f2e4-4b8a-8394-7a2d122054d1\" " +
@@ -1906,7 +1906,7 @@ public class GoConfigMigrationIntegrationTest {
 
         String expectedXml =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
-                        "<cruise schemaVersion=\"129\">" + expectedConfig + "</cruise>";
+                        "<cruise schemaVersion=\"132\">" + expectedConfig + "</cruise>";
 
         final String migratedXml = ConfigMigrator.migrate(configXml);
 

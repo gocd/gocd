@@ -21,6 +21,9 @@ import lombok.experimental.Accessors;
 
 import javax.annotation.PostConstruct;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+
 @Getter
 @Setter
 @EqualsAndHashCode
@@ -30,10 +33,17 @@ public class ArtifactDirectory {
     @ConfigValue
     private String artifactDir;
 
-    public ArtifactDirectory() {}
+    public ArtifactDirectory() {
+    }
 
     public ArtifactDirectory(String artifactDir) {
         this.artifactDir = artifactDir;
     }
 
+    @PostConstruct
+    public void ensureThatArtifactDirectoryExists() {
+        if (isBlank(artifactDir)) {
+            artifactDir = "artifacts";
+        }
+    }
 }

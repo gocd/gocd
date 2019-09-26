@@ -27,6 +27,7 @@ import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.*;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.*;
@@ -34,24 +35,30 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 public class SCMConfigXmlWriterTest extends AbstractConfigXmlWriterTest {
+    private CruiseConfig cruiseConfig;
+
+    @Before
+    public void setUp() throws Exception {
+        cruiseConfig = new BasicCruiseConfig();
+        cruiseConfig.initializeServer();
+    }
+
     @Test
     public void shouldWriteSCMConfiguration() throws Exception {
-        CruiseConfig configToSave = new BasicCruiseConfig();
-
         SCM scm = new SCM();
         scm.setId("id");
         scm.setName("name");
         scm.setPluginConfiguration(new PluginConfiguration("plugin-id", "1.0"));
         scm.setConfiguration(new Configuration(getConfigurationProperty("url", false, "http://go"), getConfigurationProperty("secure", true, "secure")));
 
-        configToSave.getSCMs().add(scm);
+        cruiseConfig.getSCMs().add(scm);
 
-        xmlWriter.write(configToSave, output, false);
+        xmlWriter.write(cruiseConfig, output, false);
 
         GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(output.toString());
 
         SCMs scms = goConfigHolder.config.getSCMs();
-        assertThat(scms, is(configToSave.getSCMs()));
+        assertThat(scms, is(cruiseConfig.getSCMs()));
         assertThat(scms.get(0).getConfiguration().first().getConfigurationValue().getValue(), is("http://go"));
         assertThat(scms.get(0).getConfiguration().first().getEncryptedConfigurationValue(), is(nullValue()));
         assertThat(scms.get(0).getConfiguration().last().getEncryptedValue(), is(new GoCipher().encrypt("secure")));
@@ -60,36 +67,34 @@ public class SCMConfigXmlWriterTest extends AbstractConfigXmlWriterTest {
 
     @Test
     public void shouldWriteSCMConfigurationWhenNoSCMIdIsProvided() throws Exception {
-        CruiseConfig configToSave = new BasicCruiseConfig();
 
         SCM scm = new SCM();
         scm.setName("name");
         scm.setPluginConfiguration(new PluginConfiguration("plugin-id", "1.0"));
         scm.setConfiguration(new Configuration(getConfigurationProperty("url", false, "http://go"), getConfigurationProperty("secure", true, "secure")));
 
-        configToSave.getSCMs().add(scm);
+        cruiseConfig.getSCMs().add(scm);
 
-        xmlWriter.write(configToSave, output, false);
+        xmlWriter.write(cruiseConfig, output, false);
 
         GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(output.toString());
 
         SCMs scms = goConfigHolder.config.getSCMs();
-        assertThat(scms.size(), is(configToSave.getSCMs().size()));
+        assertThat(scms.size(), is(cruiseConfig.getSCMs().size()));
         assertThat(scms.get(0).getId(), is(notNullValue()));
     }
 
     @Test
     public void shouldNotAllowMultipleSCMsWithSameId() throws Exception {
         Configuration configuration = new Configuration(getConfigurationProperty("url", false, "http://go"));
-        CruiseConfig configToSave = new BasicCruiseConfig();
 
         SCM scm1 = createSCM("id", "name1", "plugin-id-1", "1.0", configuration);
 
         SCM scm2 = createSCM("id", "name2", "plugin-id-2", "1.0", configuration);
 
-        configToSave.setSCMs(new SCMs(scm1, scm2));
+        cruiseConfig.setSCMs(new SCMs(scm1, scm2));
         try {
-            xmlWriter.write(configToSave, output, false);
+            xmlWriter.write(cruiseConfig, output, false);
             fail("should not have allowed two SCMs with same id");
         } catch (XsdValidationException e) {
             assertThat(e.getMessage(), anyOf(
@@ -103,13 +108,12 @@ public class SCMConfigXmlWriterTest extends AbstractConfigXmlWriterTest {
     @Test
     public void shouldNotAllowSCMWithInvalidId() throws Exception {
         Configuration configuration = new Configuration(getConfigurationProperty("url", false, "http://go"));
-        CruiseConfig configToSave = new BasicCruiseConfig();
 
         SCM scm = createSCM("id wth space", "name", "plugin-id", "1.0", configuration);
 
-        configToSave.setSCMs(new SCMs(scm));
+        cruiseConfig.setSCMs(new SCMs(scm));
         try {
-            xmlWriter.write(configToSave, output, false);
+            xmlWriter.write(cruiseConfig, output, false);
             fail("should not have allowed two SCMs with same id");
         } catch (XsdValidationException e) {
             assertThat(e.getMessage(), is("Scm id is invalid. \"id wth space\" should conform to the pattern - [a-zA-Z0-9_\\-]{1}[a-zA-Z0-9_\\-.]*"));
@@ -119,15 +123,14 @@ public class SCMConfigXmlWriterTest extends AbstractConfigXmlWriterTest {
     @Test
     public void shouldNotAllowMultipleSCMsWithSameName() throws Exception {
         Configuration scmConfiguration = new Configuration(getConfigurationProperty("url", false, "http://go"));
-        CruiseConfig configToSave = new BasicCruiseConfig();
 
         SCM scm1 = createSCM("id1", "scm-name-1", "plugin-id", "1.0", scmConfiguration);
 
         SCM scm2 = createSCM("id2", "scm-name-2", "plugin-id", "1.0", scmConfiguration);
 
-        configToSave.setSCMs(new SCMs(scm1, scm2));
+        cruiseConfig.setSCMs(new SCMs(scm1, scm2));
         try {
-            xmlWriter.write(configToSave, output, false);
+            xmlWriter.write(cruiseConfig, output, false);
             fail("should not have allowed two SCMs with same id");
         } catch (GoConfigInvalidException e) {
             assertThat(e.getMessage(), is("Cannot save SCM, found duplicate SCMs. scm-name-1, scm-name-2"));
@@ -137,13 +140,12 @@ public class SCMConfigXmlWriterTest extends AbstractConfigXmlWriterTest {
     @Test
     public void shouldNotAllowSCMWithInvalidName() throws Exception {
         Configuration configuration = new Configuration(getConfigurationProperty("url", false, "http://go"));
-        CruiseConfig configToSave = new BasicCruiseConfig();
 
         SCM scm = createSCM("id", "name with space", "plugin-id", "1.0", configuration);
 
-        configToSave.setSCMs(new SCMs(scm));
+        cruiseConfig.setSCMs(new SCMs(scm));
         try {
-            xmlWriter.write(configToSave, output, false);
+            xmlWriter.write(cruiseConfig, output, false);
             fail("should not have allowed two SCMs with same id");
         } catch (GoConfigInvalidException e) {
             assertThat(e.getMessage(),
@@ -153,7 +155,6 @@ public class SCMConfigXmlWriterTest extends AbstractConfigXmlWriterTest {
 
     @Test
     public void shouldAllowSCMTypeMaterialForPipeline() throws Exception {
-        CruiseConfig configToSave = new BasicCruiseConfig();
 
         SCM scm = new SCM();
         String scmId = "scm-id";
@@ -162,14 +163,14 @@ public class SCMConfigXmlWriterTest extends AbstractConfigXmlWriterTest {
         scm.setPluginConfiguration(new PluginConfiguration("plugin-id", "1.0"));
         scm.setConfiguration(new Configuration(getConfigurationProperty("url", false, "http://go")));
 
-        configToSave.getSCMs().add(scm);
+        cruiseConfig.getSCMs().add(scm);
 
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(scmId);
         pluggableSCMMaterialConfig.setSCMConfig(scm);
 
-        configToSave.addPipeline("default", PipelineConfigMother.pipelineConfig("test", new MaterialConfigs(pluggableSCMMaterialConfig), new JobConfigs(new JobConfig("ls"))));
+        cruiseConfig.addPipeline("default", PipelineConfigMother.pipelineConfig("test", new MaterialConfigs(pluggableSCMMaterialConfig), new JobConfigs(new JobConfig("ls"))));
 
-        xmlWriter.write(configToSave, output, false);
+        xmlWriter.write(cruiseConfig, output, false);
 
         GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(output.toString());
         PipelineConfig pipelineConfig = goConfigHolder.config.pipelineConfigByName(new CaseInsensitiveString("test"));
@@ -183,7 +184,7 @@ public class SCMConfigXmlWriterTest extends AbstractConfigXmlWriterTest {
 
     @Test
     public void shouldAllowFolderAndFilterForPluggableSCMMaterialForPipeline() throws Exception {
-        CruiseConfig configToSave = new BasicCruiseConfig();
+        cruiseConfig.initializeServer();
 
         SCM scm = new SCM();
         String scmId = "scm-id";
@@ -192,16 +193,16 @@ public class SCMConfigXmlWriterTest extends AbstractConfigXmlWriterTest {
         scm.setPluginConfiguration(new PluginConfiguration("plugin-id", "1.0"));
         scm.setConfiguration(new Configuration(getConfigurationProperty("url", false, "http://go")));
 
-        configToSave.getSCMs().add(scm);
+        cruiseConfig.getSCMs().add(scm);
 
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(scmId);
         pluggableSCMMaterialConfig.setSCMConfig(scm);
         pluggableSCMMaterialConfig.setFolder("dest");
         pluggableSCMMaterialConfig.setFilter(new Filter(new IgnoredFiles("x"), new IgnoredFiles("y")));
 
-        configToSave.addPipeline("default", PipelineConfigMother.pipelineConfig("test", new MaterialConfigs(pluggableSCMMaterialConfig), new JobConfigs(new JobConfig("ls"))));
+        cruiseConfig.addPipeline("default", PipelineConfigMother.pipelineConfig("test", new MaterialConfigs(pluggableSCMMaterialConfig), new JobConfigs(new JobConfig("ls"))));
 
-        xmlWriter.write(configToSave, output, false);
+        xmlWriter.write(cruiseConfig, output, false);
 
         GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(output.toString());
         PipelineConfig pipelineConfig = goConfigHolder.config.pipelineConfigByName(new CaseInsensitiveString("test"));
@@ -215,16 +216,15 @@ public class SCMConfigXmlWriterTest extends AbstractConfigXmlWriterTest {
 
     @Test
     public void shouldFailValidationIfSCMTypeMaterialForPipelineHasARefToNonExistentSCM() throws Exception {
-        CruiseConfig configToSave = new BasicCruiseConfig();
         String scmId = "does-not-exist";
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(scmId);
         SCM scm = SCMMother.create("scm-id", "scm-name", "pluginid", "1.0", new Configuration(ConfigurationPropertyMother.create("k1", false, "v1")));
 
-        configToSave.getSCMs().add(scm);
+        cruiseConfig.getSCMs().add(scm);
 
-        configToSave.addPipeline("default", PipelineConfigMother.pipelineConfig("test", new MaterialConfigs(pluggableSCMMaterialConfig), new JobConfigs(new JobConfig("ls"))));
+        cruiseConfig.addPipeline("default", PipelineConfigMother.pipelineConfig("test", new MaterialConfigs(pluggableSCMMaterialConfig), new JobConfigs(new JobConfig("ls"))));
         try {
-            xmlWriter.write(configToSave, output, false);
+            xmlWriter.write(cruiseConfig, output, false);
             fail("should not allow this");
         } catch (XsdValidationException exception) {
             assertThat(exception.getMessage(), is("Key 'scmIdReferredByMaterial' with value 'does-not-exist' not found for identity constraint of element 'cruise'."));
@@ -234,7 +234,6 @@ public class SCMConfigXmlWriterTest extends AbstractConfigXmlWriterTest {
     @Test
     public void shouldNotWriteToFileWithDefaultValueOfTrueForSCMAutoUpdateWhenTrue() throws Exception {
         Configuration configuration = new Configuration(getConfigurationProperty("url", false, "http://go"));
-        CruiseConfig cruiseConfig = new BasicCruiseConfig();
         SCM scm = createSCM("id", "name", "plugin-id", "1.0", configuration);
         scm.setAutoUpdate(true);
         cruiseConfig.setSCMs(new SCMs(scm));
@@ -247,7 +246,6 @@ public class SCMConfigXmlWriterTest extends AbstractConfigXmlWriterTest {
     @Test
     public void shouldWriteToFileWithValueOfFalseForSCMAutoUpdateWhenFalse() throws Exception {
         Configuration configuration = new Configuration(getConfigurationProperty("url", false, "http://go"));
-        CruiseConfig cruiseConfig = new BasicCruiseConfig();
         SCM scm = createSCM("id", "name", "plugin-id", "1.0", configuration);
         scm.setAutoUpdate(false);
         cruiseConfig.setSCMs(new SCMs(scm));

@@ -914,7 +914,7 @@ public class GoConfigServiceIntegrationTest {
         public void update(Validatable node) {
             PipelineConfig pipelineConfig = (PipelineConfig) node;
             List<PluggableArtifactConfig> pluggableArtifactConfigs = pipelineConfig.getStage(stageName).getJobs()
-                    .getJob(new CaseInsensitiveString(jobName)).artifactConfigs().getPluggableArtifactConfigs();
+                    .getJob(new CaseInsensitiveString(jobName)).artifactTypeConfigs().getPluggableArtifactConfigs();
             for (PluggableArtifactConfig artifactConfig : pluggableArtifactConfigs) {
                 artifactConfig.getConfiguration().getProperty("Image").deserialize("Image", newSecret, null);
             }

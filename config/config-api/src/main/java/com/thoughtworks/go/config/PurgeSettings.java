@@ -31,9 +31,9 @@ import static com.thoughtworks.go.config.ServerConfig.PURGE_START;
 @ConfigTag("purgeSettings")
 public class PurgeSettings implements Validatable {
     @ConfigSubtag
-    private PurgeStart purgeStart;
+    private PurgeStart purgeStart = new PurgeStart();
     @ConfigSubtag
-    private PurgeUpto purgeUpto;
+    private PurgeUpto purgeUpto = new PurgeUpto();
 
     @Getter(AccessLevel.NONE)
     @Setter(AccessLevel.NONE)
@@ -42,12 +42,17 @@ public class PurgeSettings implements Validatable {
 
     @Override
     public void validate(ValidationContext validationContext) {
-        if (!(purgeStart == null && purgeUpto == null)) {
-            if (purgeUpto != null && (purgeStart == null || purgeStart.getPurgeStartDiskSpace() == 0)) {
-                errors().add(PURGE_START, "Error in artifact cleanup values. The trigger value is has to be specified when a goal is set");
-            } else if (purgeStart.getPurgeStartDiskSpace() > purgeUpto.getPurgeUptoDiskSpace()) {
-                errors().add(PURGE_START, String.format("Error in artifact cleanup values. The trigger value (%sGB) should be less than the goal (%sGB)", purgeStart, purgeUpto));
-            }
+        Double purgeUptoDiskSpace = purgeUpto.getPurgeUptoDiskSpace();
+        Double purgeStartDiskSpace = purgeStart.getPurgeStartDiskSpace();
+
+        if (purgeUptoDiskSpace == null) {
+            return;
+        }
+
+        if (purgeStartDiskSpace == null || purgeStartDiskSpace == 0) {
+            errors().add(PURGE_START, "Error in artifact cleanup values. The trigger value is has to be specified when a goal is set");
+        } else if (purgeStartDiskSpace > purgeUptoDiskSpace) {
+            errors().add(PURGE_START, String.format("Error in artifact cleanup values. The trigger value (%sGB) should be less than the goal (%sGB)", purgeStartDiskSpace, purgeUptoDiskSpace));
         }
     }
 

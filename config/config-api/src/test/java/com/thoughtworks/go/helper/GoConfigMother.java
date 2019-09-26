@@ -305,11 +305,11 @@ public class GoConfigMother {
 
         final BuildArtifactConfig artifactFile = new BuildArtifactConfig();
         artifactFile.setSource(filePath);
-        job.artifactConfigs().add(artifactFile);
+        job.artifactTypeConfigs().add(artifactFile);
 
         BuildArtifactConfig artifactDir = new BuildArtifactConfig();
         artifactFile.setSource(directoryPath);
-        job.artifactConfigs().add(artifactDir);
+        job.artifactTypeConfigs().add(artifactDir);
 
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString(pipelineName), new MaterialConfigs(svn("file:///foo", null, null, false)), new StageConfig(
                 new CaseInsensitiveString(stageName), new JobConfigs(job)));

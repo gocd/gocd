@@ -286,7 +286,12 @@ public class GoConfigServiceTest {
         when(goConfigDao.loadForEditing()).thenReturn(config);
         String configContent = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                 + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\"14\">\n"
-                + "<server artifactsdir='artifactsDir'/><unknown/></cruise>";
+                + "<server>"
+                + "  <artifacts>"
+                + "    <artifactsDir>artifacts</artifactsDir>"
+                + "  </artifacts>"
+                + "</server>"
+                + "<unknown/></cruise>";
         GoConfigValidity validity = goConfigService.fileSaver(true).saveXml(configContent, "md5");
         assertThat(((GoConfigValidity.InvalidGoConfig) validity).errorMessage(), is("Cruise config file with version 14 is invalid. Unable to upgrade."));
     }

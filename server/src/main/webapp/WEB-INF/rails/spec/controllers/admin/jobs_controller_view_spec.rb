@@ -30,8 +30,8 @@ describe Admin::JobsController do
       @pipeline = cruise_config_mother.addPipeline(@cruise_config, "pipeline-name", "stage-name", ["job-1", "job-2"].to_java(java.lang.String))
       @artifact1 = BuildArtifactConfig.new('src', 'dest')
       @artifact2 = BuildArtifactConfig.new('src2', 'dest2')
-      @pipeline.get(0).getJobs().get(0).artifactConfigs().add(@artifact1)
-      @pipeline.get(0).getJobs().get(0).artifactConfigs().add(@artifact2)
+      @pipeline.get(0).getJobs().get(0).artifactTypeConfigs().add(@artifact1)
+      @pipeline.get(0).getJobs().get(0).artifactTypeConfigs().add(@artifact2)
 
       expect(controller).to receive(:load_pipeline) do
         controller.instance_variable_set('@processed_cruise_config', @cruise_config)

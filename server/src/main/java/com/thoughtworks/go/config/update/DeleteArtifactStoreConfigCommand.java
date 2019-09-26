@@ -72,7 +72,7 @@ public class DeleteArtifactStoreConfigCommand extends ArtifactStoreConfigCommand
         for (StageConfig stage : pipelineConfig) {
             JobConfigs jobs = stage.getJobs();
             for (JobConfig job : jobs) {
-                final List<PluggableArtifactConfig> artifactConfigs = job.artifactConfigs().findByStoreId(profile.getId());
+                final List<PluggableArtifactConfig> artifactConfigs = job.artifactTypeConfigs().findByStoreId(profile.getId());
                 if (!artifactConfigs.isEmpty()) {
                     usedByPipelines.add(Collections.singletonMap(new JobConfigIdentifier(pipelineConfig.name(), stage.name(), job.name()), artifactConfigs));
                 }

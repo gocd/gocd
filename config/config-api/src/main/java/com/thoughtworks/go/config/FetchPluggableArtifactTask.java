@@ -110,7 +110,7 @@ public class FetchPluggableArtifactTask extends AbstractFetchTask {
             final PathFromAncestor pipelineNamePathFromAncestor = getPipelineNamePathFromAncestor();
             final PipelineConfig pipelineConfig = validationContext.getPipelineConfigByName(pipelineNamePathFromAncestor.getAncestorName());
             final JobConfig jobConfig = pipelineConfig.getStage(getStage()).jobConfigByConfigName(getJob());
-            final PluggableArtifactConfig pluggableArtifactConfig = jobConfig.artifactConfigs().findByArtifactId(artifactId);
+            final PluggableArtifactConfig pluggableArtifactConfig = jobConfig.artifactTypeConfigs().findByArtifactId(artifactId);
 
             if (pluggableArtifactConfig == null) {
                 addError("artifactId", format("Pluggable artifact with id `%s` does not exist in [%s/%s/%s].", artifactId, pipelineNamePathFromAncestor.getAncestorName(), getStage(), getJob()));
@@ -177,7 +177,7 @@ public class FetchPluggableArtifactTask extends AbstractFetchTask {
             if (upstreamStage != null) {
                 JobConfig jobConfig = upstreamStage.jobConfigByConfigName(preprocessedTask.getJob());
                 if (jobConfig != null) {
-                    externalArtifact = jobConfig.artifactConfigs().findByArtifactId(preprocessedTask.getArtifactId());
+                    externalArtifact = jobConfig.artifactTypeConfigs().findByArtifactId(preprocessedTask.getArtifactId());
                 }
             }
         }

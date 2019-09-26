@@ -59,20 +59,20 @@ class EnvironmentsController < ApplicationController
 
     if !selected_uuids.empty?
       original_env_config = BasicEnvironmentConfig.new(@environment.name())
-      begin
-        agent_service.updateAgentsAssociationOfEnvironment(original_env_config, selected_uuids)
-
-        # Env were successfully associated with agents in DB. Now creating env in the config
-        environment_config_service.createEnvironment(@environment, current_user, @result)
-
-        if !@result.isSuccessful()
-          # Error while creating that env in config. So rolling back (deleting environment association from agents) in DB
-          agent_service.updateAgentsAssociationOfEnvironment(@environment, [])
-        end
-      rescue Exception => ex
-        render_environment_create_error_with_message(@environment, ex.message, 400)
+      # begin
+      #   agent_service.updateAgentsAssociationOfEnvironment(original_env_config, selected_uuids)
+      #
+      #   # Env were successfully associated with agents in DB. Now creating env in the config
+      #   environment_config_service.createEnvironment(@environment, current_user, @result)
+      #
+      #   if !@result.isSuccessful()
+      #     # Error while creating that env in config. So rolling back (deleting environment association from agents) in DB
+      #     agent_service.updateAgentsAssociationOfEnvironment(@environment, [])
+      #   end
+      # rescue Exception => ex
+        render_environment_create_error_with_message(@environment, "ex.message", 400)
         return
-      end
+      # end
     else
       environment_config_service.createEnvironment(@environment, current_user, @result)
     end

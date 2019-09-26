@@ -20,7 +20,6 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.SecureSiteUrl;
 import com.thoughtworks.go.domain.ServerSiteUrlConfig;
 import com.thoughtworks.go.domain.SiteUrl;
-import com.thoughtworks.go.domain.config.ConfigurationValue;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.PostConstruct;
@@ -51,6 +50,11 @@ public class ServerConfig implements Validatable {
     private MailHost mailHost;
     @ConfigSubtag
     private BackupConfig backupConfig;
+
+    public ArtifactConfig getArtifactConfig() {
+        return artifactConfig;
+    }
+
     @ConfigSubtag
     private ArtifactConfig artifactConfig = new ArtifactConfig();
 
@@ -105,9 +109,7 @@ public class ServerConfig implements Validatable {
 
     @PostConstruct
     public void ensureArtifactConfigExists() {
-        if (artifactConfig == null) {
-            artifactConfig = new ArtifactConfig().setArtifactsDir(new ArtifactDirectory("artifacts"));
-        }
+        artifactConfig.ensureThatArtifactDirectoryExists();
     }
 
     public ServerConfig(SecurityConfig securityConfig, MailHost mailHost) {
@@ -328,7 +330,9 @@ public class ServerConfig implements Validatable {
     }
 
     public boolean isArtifactPurgingAllowed() {
-        return !(artifactConfig.getPurgeSettings().getPurgeStart() == null || artifactConfig.getPurgeSettings().getPurgeUpto() == null);
+        PurgeStart purgeStart = artifactConfig.getPurgeSettings().getPurgeStart();
+        PurgeUpto purgeUpto = artifactConfig.getPurgeSettings().getPurgeUpto();
+        return !((purgeStart != null && purgeStart.getPurgeStartDiskSpace() == null) || purgeUpto != null && purgeUpto.getPurgeUptoDiskSpace() == null);
     }
 
     public void setPurgeLimits(Double purgeStart, Double purgeUpto) {

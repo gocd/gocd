@@ -464,7 +464,7 @@ public class JobConfigTest {
     public void shouldValidateTree(){
         ResourceConfigs resourceConfigs = mock(ResourceConfigs.class);
         when(resourceConfigs.iterator()).thenReturn(new ResourceConfigs().iterator());
-        ArtifactTypeConfigs artifactTypeConfigs = mock(artifactTypeConfigs.class);
+        ArtifactTypeConfigs artifactTypeConfigs = mock(ArtifactTypeConfigs.class);
         Tasks tasks = mock(Tasks.class);
         Tabs tabs = mock(Tabs.class);
         EnvironmentVariablesConfig variables = mock(EnvironmentVariablesConfig.class);

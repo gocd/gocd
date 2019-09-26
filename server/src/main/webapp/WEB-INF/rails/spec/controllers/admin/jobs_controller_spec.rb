@@ -305,7 +305,7 @@ describe Admin::JobsController do
 
         put :update, params:{:pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1", :current_tab => "artifacts",:config_md5 => "1234abcd", "default_as_empty_list" => ["job>artifactConfigs"], :stage_parent => "pipelines"}
 
-        expect(assigns[:job].artifactConfigs().size()).to eq(0)
+        expect(assigns[:job].artifactTypeConfigs().size()).to eq(0)
         assert_update_command ::ConfigUpdate::JobNode, ::ConfigUpdate::NodeAsSubject, ::ConfigUpdate::RefsAsUpdatedRefs
       end
     end

@@ -29,6 +29,7 @@ public class DependencyMaterialRepresenter implements MaterialRepresenter<Depend
         jsonWriter.add("stage", dependencyMaterialConfig.getStageName());
         jsonWriter.add("name", dependencyMaterialConfig.getName());
         jsonWriter.add("auto_update", dependencyMaterialConfig.isAutoUpdate());
+        jsonWriter.add("ignore_for_scheduling", dependencyMaterialConfig.ignoreForScheduling());
     }
 
     @Override
@@ -38,6 +39,7 @@ public class DependencyMaterialRepresenter implements MaterialRepresenter<Depend
         jsonReader.readCaseInsensitiveStringIfPresent("stage", dependencyMaterialConfig::setStageName);
         jsonReader.readCaseInsensitiveStringIfPresent("name", dependencyMaterialConfig::setName);
         jsonReader.optBoolean("auto_update").ifPresent(dependencyMaterialConfig::setAutoUpdate);
+        jsonReader.optBoolean("ignore_for_scheduling").ifPresent(dependencyMaterialConfig::ignoreForScheduling);
         return dependencyMaterialConfig;
     }
 }

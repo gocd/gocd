@@ -302,7 +302,7 @@ public class MaterialConfigsMother {
     }
 
     public static DependencyMaterialConfig dependencyMaterialConfig() {
-        return new DependencyMaterialConfig(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
+        return new DependencyMaterialConfig(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"), true);
     }
 
     public static HgMaterialConfig hgMaterialConfigFull() {

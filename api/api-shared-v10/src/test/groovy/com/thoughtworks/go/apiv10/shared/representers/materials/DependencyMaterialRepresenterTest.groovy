@@ -42,7 +42,7 @@ class DependencyMaterialRepresenterTest implements MaterialRepresenterTrait {
   }
 
   def existingMaterialWithErrors() {
-    def dependencyConfig = new DependencyMaterialConfig(new CaseInsensitiveString(''), new CaseInsensitiveString(''))
+    def dependencyConfig = new DependencyMaterialConfig(new CaseInsensitiveString(''), new CaseInsensitiveString(''), true)
     def materialConfigs = new MaterialConfigs(dependencyConfig);
     def pipeline = new PipelineConfig(new CaseInsensitiveString("p"), materialConfigs)
     pipeline.setOrigins(new FileConfigOrigin())
@@ -57,7 +57,8 @@ class DependencyMaterialRepresenterTest implements MaterialRepresenterTrait {
       pipeline: "pipeline-name",
       stage: "stage-name",
       name: "pipeline-name",
-      auto_update: true
+      auto_update: true,
+      ignore_for_scheduling: true
     ]
   ]
 
@@ -69,7 +70,8 @@ class DependencyMaterialRepresenterTest implements MaterialRepresenterTrait {
       pipeline: "",
       stage: "",
       name: "",
-      auto_update: true
+      auto_update: true,
+      ignore_for_scheduling: true
     ],
     errors: [
       pipeline: ["Pipeline with name '' does not exist, it is defined as a dependency for pipeline 'p' (cruise-config.xml)"]

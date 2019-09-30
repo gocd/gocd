@@ -185,4 +185,18 @@ class ConfigRepoMigratorTest {
             assertThatJson(transformedJSON).isEqualTo(newJSON);
         }
     }
+
+    @Nested
+    class MigrateV8ToV9 {
+        @Test
+        void shouldDoNothing_IgnoreForSchedulingFlagWasAdded() {
+            ConfigRepoDocumentMother documentMother = new ConfigRepoDocumentMother();
+
+            String oldJSON = documentMother.v8PipelineWithDependencyMaterial();
+            String newJSON = documentMother.v9Pipeline();
+            String transformedJSON = migrator.migrate(oldJSON, 9);
+
+            assertThatJson(transformedJSON).isEqualTo(newJSON);
+        }
+    }
 }

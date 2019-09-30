@@ -107,12 +107,6 @@ public class Agent extends PersistentObject {
         return new Agent(uuid, "Unknown", "Unknown", "Unknown");
     }
 
-    public void setFieldValues(String cookie, String hostname, String ipaddress) {
-        this.setCookie(cookie);
-        this.setHostname(hostname);
-        this.setIpaddress(ipaddress);
-    }
-
     public void removeEnvironments(List<String> envsToRemove) {
         this.setEnvironments(remove(this.getEnvironments(), envsToRemove));
     }

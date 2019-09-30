@@ -256,7 +256,7 @@ public class AgentDaoTest {
 
             hibernateTemplate.execute((HibernateCallback) session -> {
                 Agent agent = (Agent) session.createQuery("from Agent where uuid = 'uuid1'").uniqueResult();
-                agent.setFieldValues("updated_cookie", agentIdentifier.getHostName(), agentIdentifier.getIpAddress());
+                agent.setCookie("updated_cookie");
                 session.update(agent);
                 return null;
             });
@@ -280,7 +280,7 @@ public class AgentDaoTest {
         private void updateCookieAndVerifyThatCookieIsUpdated(AgentIdentifier agentIdentifier, String updatedCookie) {
             hibernateTemplate.execute(session -> {
                 Agent agent = (Agent) session.createQuery("from Agent where uuid = 'uuid2'").uniqueResult();
-                agent.setFieldValues(updatedCookie, agentIdentifier.getHostName(), agentIdentifier.getIpAddress());
+                agent.setCookie(updatedCookie);
                 session.update(agent);
                 return null;
             });

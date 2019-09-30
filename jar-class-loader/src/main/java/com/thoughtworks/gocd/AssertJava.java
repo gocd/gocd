@@ -23,7 +23,7 @@ public class AssertJava {
     private static TreeSet<JavaVersion> SUPPORTED_VERSIONS = new TreeSet<>(Arrays.asList(
             JavaVersion.VERSION_11,
             JavaVersion.VERSION_12,
-            JavaVersion.VERSION_13,
+            JavaVersion.VERSION_13
     ));
 
     public static void assertVMVersion() {

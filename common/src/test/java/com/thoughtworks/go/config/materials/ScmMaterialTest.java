@@ -196,7 +196,7 @@ class ScmMaterialTest {
         void shouldBeAnEmptyListInAbsenceOfSecretParamsinMaterialPassword() {
             DummyMaterial dummyMaterial = new DummyMaterial();
 
-            assertThat(dummyMaterial.getSecretParams().size(), is(0));
+            assertThat(dummyMaterial.getSecretParams(), is(nullValue()));
         }
     }
 

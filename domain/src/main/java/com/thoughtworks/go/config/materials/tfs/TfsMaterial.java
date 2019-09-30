@@ -29,6 +29,7 @@ import com.thoughtworks.go.domain.materials.tfs.TfsMaterialInstance;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
+import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -42,11 +43,13 @@ import java.util.Map;
 import java.util.UUID;
 
 import static java.lang.String.format;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, PasswordEncrypter {
     private static final Logger LOGGER = LoggerFactory.getLogger(TfsMaterial.class);
 
     public static final String TYPE = "TfsMaterial";
+    public static final String GO_MATERIAL_DOMAIN = "GO_MATERIAL_DOMAIN";
 
     private UrlArgument url;
     private String domain = "";
@@ -251,5 +254,13 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.DEFAULT_STYLE, true);
+    }
+
+    @Override
+    protected void setGoMaterialVariables(EnvironmentVariableContext environmentVariableContext) {
+        super.setGoMaterialVariables(environmentVariableContext);
+        if (isNotBlank(domain)) {
+            setVariableWithName(environmentVariableContext, domain, GO_MATERIAL_DOMAIN);
+        }
     }
 }

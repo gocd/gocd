@@ -54,6 +54,7 @@ public class GitMaterial extends ScmMaterial implements PasswordAwareMaterial {
     private static final Logger LOG = LoggerFactory.getLogger(GitMaterial.class);
     public static final int UNSHALLOW_TRYOUT_STEP = 100;
     public static final int DEFAULT_SHALLOW_CLONE_DEPTH = 2;
+    public static final String GO_MATERIAL_BRANCH = "GO_MATERIAL_BRANCH";
 
     private UrlArgument url;
     private String branch = GitMaterialConfig.DEFAULT_BRANCH;
@@ -449,5 +450,11 @@ public class GitMaterial extends ScmMaterial implements PasswordAwareMaterial {
 
     public String branchWithDefault() {
         return isBlank(branch) ? GitMaterialConfig.DEFAULT_BRANCH : branch;
+    }
+
+    @Override
+    protected void setGoMaterialVariables(EnvironmentVariableContext environmentVariableContext) {
+        super.setGoMaterialVariables(environmentVariableContext);
+        setVariableWithName(environmentVariableContext, branchWithDefault(), GO_MATERIAL_BRANCH);
     }
 }

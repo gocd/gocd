@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.SecretParam;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.config.materials.PasswordAwareMaterial;
+import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
@@ -35,6 +36,7 @@ import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.util.JsonValue;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.CommandLine;
+import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.io.FileUtils;
@@ -53,10 +55,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileLock;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.thoughtworks.go.domain.materials.git.GitTestRepo.GIT_FOO_BRANCH_BUNDLE;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
@@ -440,7 +439,6 @@ public class GitMaterialTest {
         assertThat(validationBean.getError()).contains("not found!");
     }
 
-
     @Test
     void shouldBeAbleToConvertToJson() {
         Map<String, Object> json = new LinkedHashMap<>();
@@ -747,6 +745,26 @@ public class GitMaterialTest {
             assertThat(copyWithShallowClone.passwordForCommandLine()).isEqualTo("resolved-password");
             assertThat(copyWithShallowClone.isShallowClone()).isTrue();
         }
+    }
+
+    @Test
+    void populateEnvContextShouldSetMaterialEnvVars() {
+        GitMaterial material = new GitMaterial("https://user:password@example.github.com");
+
+        EnvironmentVariableContext ctx = new EnvironmentVariableContext();
+        final ArrayList<Modification> modifications = new ArrayList<>();
+
+        modifications.add(new Modification("user2", "comment2", "email2", new Date(), "24"));
+        modifications.add(new Modification("user1", "comment1", "email1", new Date(), "23"));
+
+        MaterialRevision materialRevision = new MaterialRevision(material, modifications);
+        assertThat(ctx.getProperty(ScmMaterial.GO_MATERIAL_URL)).isNull();
+        assertThat(ctx.getProperty(GitMaterial.GO_MATERIAL_BRANCH)).isNull();
+
+        material.populateEnvironmentContext(ctx, materialRevision, new File("."));
+
+        assertThat(ctx.getProperty(ScmMaterial.GO_MATERIAL_URL)).isEqualTo("https://example.github.com");
+        assertThat(ctx.getProperty(GitMaterial.GO_MATERIAL_BRANCH)).isEqualTo("master");
     }
 
     private void assertWorkingCopyNotCheckedOut(File localWorkingDir) {

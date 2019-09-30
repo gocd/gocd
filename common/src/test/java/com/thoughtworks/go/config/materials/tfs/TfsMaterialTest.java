@@ -21,6 +21,8 @@ import com.thoughtworks.go.config.SecretParam;
 import com.thoughtworks.go.config.exceptions.UnresolvedSecretParamException;
 import com.thoughtworks.go.config.materials.AbstractMaterial;
 import com.thoughtworks.go.config.materials.PasswordAwareMaterial;
+import com.thoughtworks.go.config.materials.ScmMaterial;
+import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
@@ -28,6 +30,7 @@ import com.thoughtworks.go.domain.materials.tfs.TfsCommand;
 import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.ReflectionUtil;
+import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,6 +42,7 @@ import org.junit.rules.TemporaryFolder;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -314,5 +318,39 @@ public class TfsMaterialTest {
                     .hasSize(1)
                     .contains(new SecretParam("secret_config_id", "lookup_pass"));
         }
+    }
+
+    @Test
+    void populateEnvContextShouldSetMaterialEnvVars() {
+        EnvironmentVariableContext ctx = new EnvironmentVariableContext();
+        final ArrayList<Modification> modifications = new ArrayList<>();
+
+        modifications.add(new Modification("user2", "comment2", "email2", new Date(), "24"));
+        modifications.add(new Modification("user1", "comment1", "email1", new Date(), "23"));
+
+        MaterialRevision materialRevision = new MaterialRevision(tfsMaterialFirstCollectionFirstProject, modifications);
+        assertThat(ctx.getProperty(ScmMaterial.GO_MATERIAL_URL)).isNull();
+        assertThat(ctx.getProperty(TfsMaterial.GO_MATERIAL_DOMAIN)).isNull();
+
+        tfsMaterialFirstCollectionFirstProject.populateEnvironmentContext(ctx, materialRevision, new File("."));
+
+        assertThat(ctx.getProperty(ScmMaterial.GO_MATERIAL_URL)).isEqualTo(TFS_FIRST_COLLECTION_URL);
+        assertThat(ctx.getProperty(TfsMaterial.GO_MATERIAL_DOMAIN)).isEqualTo(DOMAIN);
+    }
+
+    @Test
+    void shouldOnlyPopulateDomainEnvVarIfPresent() {
+        TfsMaterial material = new TfsMaterial(mock(GoCipher.class), new UrlArgument(TFS_FIRST_COLLECTION_URL), USERNAME, "", PASSWORD, TFS_FIRST_PROJECT);
+        EnvironmentVariableContext ctx = new EnvironmentVariableContext();
+        final ArrayList<Modification> modifications = new ArrayList<>();
+
+        modifications.add(new Modification("user2", "comment2", "email2", new Date(), "24"));
+        modifications.add(new Modification("user1", "comment1", "email1", new Date(), "23"));
+
+        MaterialRevision materialRevision = new MaterialRevision(material, modifications);
+        material.populateEnvironmentContext(ctx, materialRevision, new File("."));
+
+        assertThat(ctx.hasProperty(ScmMaterial.GO_MATERIAL_URL)).isTrue();
+        assertThat(ctx.hasProperty(TfsMaterial.GO_MATERIAL_DOMAIN)).isFalse();
     }
 }

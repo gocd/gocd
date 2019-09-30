@@ -33,8 +33,8 @@ public class CRDependencyMaterialTest extends AbstractCRTest<CRDependencyMateria
 
     public CRDependencyMaterialTest()
     {
-        namedDependsOnPipeline = new CRDependencyMaterial("pipe2","pipeline2","build");
-        dependsOnPipeline = new CRDependencyMaterial("pipeline2","build");
+        namedDependsOnPipeline = new CRDependencyMaterial("pipe2","pipeline2","build", false);
+        dependsOnPipeline = new CRDependencyMaterial("pipeline2","build", false);
 
         invalidNoPipeline = new CRDependencyMaterial();
         invalidNoPipeline.setStage("build");

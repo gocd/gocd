@@ -357,13 +357,14 @@ class ConfigConverterTest {
 
     @Test
     void shouldConvertDependencyMaterial() {
-        CRDependencyMaterial crDependencyMaterial = new CRDependencyMaterial("name", "pipe", "stage");
+        CRDependencyMaterial crDependencyMaterial = new CRDependencyMaterial("name", "pipe", "stage", true);
         DependencyMaterialConfig dependencyMaterialConfig =
                 (DependencyMaterialConfig) configConverter.toMaterialConfig(crDependencyMaterial, context);
 
         assertThat(dependencyMaterialConfig.getName().toLower()).isEqualTo("name");
         assertThat(dependencyMaterialConfig.getPipelineName().toLower()).isEqualTo("pipe");
         assertThat(dependencyMaterialConfig.getStageName().toLower()).isEqualTo("stage");
+        assertThat(dependencyMaterialConfig.ignoreForScheduling()).isTrue();
     }
 
     @Test

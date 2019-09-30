@@ -57,7 +57,7 @@ public class CRPipelineTest extends AbstractCRTest<CRPipeline> {
 
         customPipeline = new CRPipeline("pipe2", "group1");
         customPipeline.addStage(buildStage);
-        customPipeline.addMaterial(new CRDependencyMaterial("pipe1", "pipe1", "build"));
+        customPipeline.addMaterial(new CRDependencyMaterial("pipe1", "pipe1", "build", false));
         customPipeline.setLabelTemplate("foo-1.0-${COUNT}");
         customPipeline.setTimer(new CRTimer("0 15 10 * * ? *", false));
 
@@ -80,7 +80,7 @@ public class CRPipelineTest extends AbstractCRTest<CRPipeline> {
 
         invalidNoNamedMaterials = new CRPipeline("pipe2", "group1");
         invalidNoNamedMaterials.addMaterial(veryCustomGit);
-        invalidNoNamedMaterials.addMaterial(new CRDependencyMaterial("pipe1", "build"));
+        invalidNoNamedMaterials.addMaterial(new CRDependencyMaterial("pipe1", "build", false));
         invalidNoNamedMaterials.addStage(buildStage);
         invalidNoNamedMaterials.setGroup("g1");
     }

@@ -33,21 +33,26 @@ public class CRDependencyMaterial extends CRMaterial {
     @SerializedName("stage")
     @Expose
     private String stage;
+    @SerializedName("ignore_for_scheduling")
+    @Expose
+    private boolean ignoreForScheduling;
 
     public CRDependencyMaterial() {
         type = TYPE_NAME;
     }
 
-    public CRDependencyMaterial(String name, String pipelineName, String stageName) {
+    public CRDependencyMaterial(String name, String pipelineName, String stageName, boolean ignoreForScheduling) {
         super(TYPE_NAME, name);
         this.pipeline = pipelineName;
         this.stage = stageName;
+        this.ignoreForScheduling = ignoreForScheduling;
     }
 
-    public CRDependencyMaterial(String pipelineName, String stageName) {
+    public CRDependencyMaterial(String pipelineName, String stageName, boolean ignoreForScheduling) {
         type = TYPE_NAME;
         this.pipeline = pipelineName;
         this.stage = stageName;
+        this.ignoreForScheduling = ignoreForScheduling;
     }
 
     @Override

@@ -21,6 +21,7 @@ import {Environments, EnvironmentWithOrigin} from "models/new-environments/envir
 import s from "underscore.string";
 import {HelpText} from "views/components/forms/input_fields";
 import * as Icons from "views/components/icons/index";
+import {EditAgentsModal} from "views/pages/new-environments/edit_agents_modal";
 import {EditPipelinesModal} from "views/pages/new-environments/edit_pipelines_modal";
 import styles from "./index.scss";
 
@@ -62,7 +63,7 @@ export class EnvironmentBody extends MithrilComponent<EnvironmentBodyAttrs, Envi
     };
 
     vnode.state.renderAgentsModal = (env: EnvironmentWithOrigin) => {
-      new EditPipelinesModal(env, vnode.attrs.environments).render();
+      new EditAgentsModal(env, vnode.attrs.environments).render();
     };
 
     vnode.state.renderEnvironmentsVariablesModal = (env: EnvironmentWithOrigin) => {

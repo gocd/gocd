@@ -16,7 +16,7 @@
 
 import _ from "lodash";
 import Stream from "mithril/stream";
-import {Agents, EnvironmentAgentJSON} from "models/new-environments/environment_agents";
+import {Agents, AgentWithOrigin, EnvironmentAgentJSON} from "models/new-environments/environment_agents";
 import {
   EnvironmentEnvironmentVariableJSON,
   EnvironmentVariables
@@ -72,9 +72,19 @@ export class EnvironmentWithOrigin {
     return this.pipelines().map((p) => p.name()).indexOf(name) !== -1;
   }
 
+  containsAgent(uuid: string): boolean {
+    return this.agents().map((a) => a.uuid()).indexOf(uuid) !== -1;
+  }
+
   addPipelineIfNotPresent(pipeline: PipelineWithOrigin) {
     if (!this.containsPipeline(pipeline.name())) {
       this.pipelines().push(pipeline);
+    }
+  }
+
+  addAgentIfNotPresent(agent: AgentWithOrigin) {
+    if (!this.containsAgent(agent.uuid())) {
+      this.agents().push(agent);
     }
   }
 
@@ -84,6 +94,10 @@ export class EnvironmentWithOrigin {
 
   removePipelineIfPresent(pipeline: PipelineWithOrigin) {
     _.remove(this.pipelines(), (p) => p.name() === pipeline.name());
+  }
+
+  removeAgentIfPresent(agent: AgentWithOrigin) {
+    _.remove(this.agents(), (p) => p.uuid() === agent.uuid());
   }
 }
 

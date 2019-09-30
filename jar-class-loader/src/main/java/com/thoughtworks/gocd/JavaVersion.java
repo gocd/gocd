@@ -29,24 +29,8 @@ public enum JavaVersion {
     VERSION_1_1, VERSION_1_2, VERSION_1_3, VERSION_1_4,
     VERSION_1_5, VERSION_1_6, VERSION_1_7, VERSION_1_8,
     VERSION_1_9, VERSION_1_10,
-    /**
-     * Java 11 major version.
-     *
-     * @since 4.7
-     */
-    VERSION_11,
-
-    /**
-     * Java 12 major version.
-     *
-     * @since 5.0
-     */
-    VERSION_12,
-
-    /**
-     * Higher version of Java.
-     * @since 4.7
-     */
+    VERSION_11, VERSION_12, VERSION_13, VERSION_14,
+    VERSION_15, VERSION_16, VERSION_17,
     VERSION_HIGHER;
     // Since Java 9, version should be X instead of 1.X
     // However, to keep backward compatibility, we change from 11
@@ -100,112 +84,9 @@ public enum JavaVersion {
         return currentJavaVersion;
     }
 
-    static void resetCurrent() {
-        currentJavaVersion = null;
-    }
-
-    public static JavaVersion forClassVersion(int classVersion) {
-        return getVersionForMajor(classVersion - 44); //class file versions: 1.1 == 45, 1.2 == 46...
-    }
-
-    public static JavaVersion forClass(byte[] classData) {
-        if (classData.length < 8) {
-            throw new IllegalArgumentException("Invalid class format. Should contain at least 8 bytes");
-        }
-        return forClassVersion(classData[7] & 0xFF);
-    }
-
-    public boolean isJava5() {
-        return this == VERSION_1_5;
-    }
-
-    public boolean isJava6() {
-        return this == VERSION_1_6;
-    }
-
-    public boolean isJava7() {
-        return this == VERSION_1_7;
-    }
-
-    public boolean isJava8() {
-        return this == VERSION_1_8;
-    }
-
-    public boolean isJava9() {
-        return this == VERSION_1_9;
-    }
-
-    public boolean isJava10() {
-        return this == VERSION_1_10;
-    }
-
-    /**
-     * Returns if the version is Java 11.
-     *
-     * @since 4.7
-     */
-    public boolean isJava11() {
-        return this == VERSION_11;
-    }
-
-    /**
-     * Returns if the version is Java 12.
-     *
-     * @since 5.0
-     */
-    public boolean isJava12() {
-        return this == VERSION_12;
-    }
-
-    public boolean isJava5Compatible() {
-        return this.compareTo(VERSION_1_5) >= 0;
-    }
-
-    public boolean isJava6Compatible() {
-        return this.compareTo(VERSION_1_6) >= 0;
-    }
-
-    public boolean isJava7Compatible() {
-        return this.compareTo(VERSION_1_7) >= 0;
-    }
-
-    public boolean isJava8Compatible() {
-        return this.compareTo(VERSION_1_8) >= 0;
-    }
-
-    public boolean isJava9Compatible() {
-        return this.compareTo(VERSION_1_9) >= 0;
-    }
-
-    public boolean isJava10Compatible() {
-        return this.compareTo(VERSION_1_10) >= 0;
-    }
-
-    /**
-     * Returns if the version is Java 11 compatible.
-     *
-     * @since 4.7
-     */
-    public boolean isJava11Compatible() {
-        return this.compareTo(VERSION_11) >= 0;
-    }
-
-    /**
-     * Returns if the version is Java 12 compatible.
-     *
-     * @since 5.0
-     */
-    public boolean isJava12Compatible() {
-        return this.compareTo(VERSION_12) >= 0;
-    }
 
     @Override
     public String toString() {
-        return versionName;
-    }
-
-    // We have to keep this for a while: https://github.com/gradle/gradle/issues/4856
-    private String getName() {
         return versionName;
     }
 

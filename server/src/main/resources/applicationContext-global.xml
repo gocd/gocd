@@ -25,6 +25,7 @@
 
   <context:annotation-config/>
 
+  <context:component-scan base-package="com.thoughtworks.go.apiv10.admin.pipelineconfig"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv5.admin.templateconfig"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv2.scms"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv1.internalpipelinestructure"/>

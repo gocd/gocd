@@ -31,6 +31,6 @@ public class DefaultJobTimeOutRepresenter {
     }
 
     public static String fromJson(JsonReader jsonReader) {
-        return jsonReader.getStringOrDefault("default_job_timeout", null);
+        return jsonReader.getString("default_job_timeout");
     }
 }

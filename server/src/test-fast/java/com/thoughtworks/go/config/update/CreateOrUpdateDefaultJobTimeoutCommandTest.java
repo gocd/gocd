@@ -31,40 +31,33 @@ public class CreateOrUpdateDefaultJobTimeoutCommandTest {
     void shouldUpdateTheDefaultJobTimeout() throws Exception {
         String defaultJobTimeout = "10";
         CreateOrUpdateDefaultJobTimeoutCommand command = new CreateOrUpdateDefaultJobTimeoutCommand(defaultJobTimeout);
+
+        assertThat(cruiseConfig.server().getJobTimeout()).isSameAs("0");
+
         command.update(cruiseConfig);
 
         assertThat(cruiseConfig.server().getJobTimeout()).isSameAs(defaultJobTimeout);
     }
 
     @Test
-    void shouldReturnTrueWhenTheDefaultJobTimeoutIsValid() {
+    void shouldReturnTrueWhenTheDefaultJobTimeoutIsValid() throws Exception {
         String defaultJobTimeout = "10";
         CreateOrUpdateDefaultJobTimeoutCommand command = new CreateOrUpdateDefaultJobTimeoutCommand(defaultJobTimeout);
+
+        command.update(cruiseConfig);
 
         assertThat(command.isValid(cruiseConfig)).isTrue();
     }
 
     @Test
-    void shouldThrowExceptionWhenTheDefaultJobTimeoutIsNotValid() {
+    void shouldThrowExceptionWhenTheDefaultJobTimeoutIsNotValid() throws Exception {
         String defaultJobTimeout = "foo";
         CreateOrUpdateDefaultJobTimeoutCommand command = new CreateOrUpdateDefaultJobTimeoutCommand(defaultJobTimeout);
-        cruiseConfig.server().setJobTimeout(defaultJobTimeout);
+
+        command.update(cruiseConfig);
 
         assertThatCode(() -> command.isValid(cruiseConfig))
                 .isInstanceOf(GoConfigInvalidException.class)
                 .hasMessage("Timeout should be a valid number as it represents number of minutes");
-    }
-
-    @Test
-    void shouldClearErrorsAfterValidation() {
-        cruiseConfig.server().errors().add("default_job_timeout", "Timeout should be a valid number as it represents number of minutes");
-        CreateOrUpdateDefaultJobTimeoutCommand command = new CreateOrUpdateDefaultJobTimeoutCommand("");
-        command.isValid(cruiseConfig);
-
-        assertThat(cruiseConfig.server().errors().isEmpty()).isFalse();
-
-        command.clearErrors();
-
-        assertThat(cruiseConfig.server().errors().isEmpty()).isTrue();
     }
 }

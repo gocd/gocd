@@ -51,7 +51,6 @@ public class CreateOrUpdateDefaultJobTimeoutCommand implements EntityConfigUpdat
 
     @Override
     public void clearErrors() {
-        BasicCruiseConfig.clearErrors(preprocessedServerConfig);
     }
 
     @Override

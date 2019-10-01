@@ -63,12 +63,12 @@ public class DefaultJobTimeoutControllerV1 extends ApiController implements Spar
         path(controllerBasePath(), () -> {
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);
+            before("", mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
 
             get("", mimeType, this::index);
             post("", mimeType, this::createOrUpdate);
             put("", mimeType, this::createOrUpdate);
 
-            before("", mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
 
             exception(GoConfigInvalidException.class, (Exception exception, Request request, Response response) -> {
                 response.status(HttpStatus.UNPROCESSABLE_ENTITY.value());

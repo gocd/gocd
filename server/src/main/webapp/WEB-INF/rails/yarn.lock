@@ -907,10 +907,10 @@
   resolved "https://registry.yarnpkg.com/@types/license-checker/-/license-checker-25.0.0.tgz#97d9ac33e5ba7ddafdace51fc5126b38e5eef764"
   integrity sha512-hEv8DiUfsNWW4hkbfyY7Sb3AFrdfrEYvNUFP183Vl48VdE5nVyLHgPgVIlFU19bjb2dsldpKTBADQArOfqRzTQ==
 
-"@types/lodash@^4.14.138":
-  version "4.14.138"
-  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.138.tgz#34f52640d7358230308344e579c15b378d91989e"
-  integrity sha512-A4uJgHz4hakwNBdHNPdxOTkYmXNgmUAKLbXZ7PKGslgeV0Mb8P3BlbYfPovExek1qnod4pDfRbxuzcVs3dlFLg==
+"@types/lodash@^4.14.141":
+  version "4.14.141"
+  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.141.tgz#d81f4d0c562abe28713406b571ffb27692a82ae6"
+  integrity sha512-v5NYIi9qEbFEUpCyikmnOYe4YlP8BMUdTcNCAquAKzu+FA7rZ1onj9x80mbnDdOW/K5bFf3Tv5kJplP33+gAbQ==
 
 "@types/mini-css-extract-plugin@^0.8.0":
   version "0.8.0"

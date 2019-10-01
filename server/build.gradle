@@ -308,7 +308,7 @@ dependencies {
   compile group: 'org.objenesis', name: 'objenesis', version: project.versions.objenesis
 
   // needed by jdom2 for some XPATH stuff
-  compile(group: 'jaxen', name: 'jaxen', version: '1.1.6') {
+  compile(group: 'jaxen', name: 'jaxen', version: '1.2.0') {
     exclude(module: 'xom')
     exclude(module: 'jdom')
   }

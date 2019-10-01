@@ -473,7 +473,10 @@ public class CachedGoConfigIntegrationTest {
     @Test
     public void shouldInterpolateParamsInTemplate() throws Exception {
         String content = "<cruise schemaVersion='" + GoConstants.CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server artifactsdir='artifacts' >"
+                + "<server>"
+                + "<artifacts>\n"
+                + "<artifactsDir>artifacts</artifactsDir>\n"
+                + "</artifacts>\n"
                 + "</server>"
                 + "<pipelines>\n"
                 + "<pipeline name='dev' template='abc'>\n"
@@ -532,7 +535,11 @@ public class CachedGoConfigIntegrationTest {
     @Test
     public void shouldHandleParamQuotingCorrectly() throws Exception {
         String content = "<cruise schemaVersion='" + GoConstants.CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server artifactsdir='artifacts' />"
+                + "<server>"
+                + "<artifacts>\n"
+                + "<artifactsDir>artifacts</artifactsDir>\n"
+                + "</artifacts>\n"
+                + "</server>\n"
                 + "<pipelines>\n"
                 + "<pipeline name='dev'>\n"
                 + "    <params>"
@@ -567,7 +574,11 @@ public class CachedGoConfigIntegrationTest {
     @Test
     public void shouldAllowParamsInLabelTemplates() throws Exception {
         String content = "<cruise schemaVersion='" + GoConstants.CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server artifactsdir='artifacts' />"
+                + "<server>"
+                + "<artifacts>\n"
+                + "<artifactsDir>artifacts</artifactsDir>\n"
+                + "</artifacts>\n"
+                + "</server>\n"
                 + "<pipelines>\n"
                 + "<pipeline name='dev' labeltemplate='cruise-#{VERSION}-${COUNT}'>\n"
                 + "    <params>"
@@ -600,7 +611,11 @@ public class CachedGoConfigIntegrationTest {
     @Test
     public void shouldThrowErrorWhenEnvironmentVariablesAreDuplicate() throws Exception {
         String content = "<cruise schemaVersion='" + GoConstants.CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server artifactsdir='artifacts' />"
+                + "<server>"
+                + "<artifacts>\n"
+                + "<artifactsDir>artifacts</artifactsDir>\n"
+                + "</artifacts>\n"
+                + "</server>\n"
                 + "<pipelines>\n"
                 + "<pipeline name='dev'>\n"
                 + "    <params>"
@@ -753,7 +768,11 @@ public class CachedGoConfigIntegrationTest {
     private String configXmlWithPipeline(String pipelineName) {
         return "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
                 "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\"" + GoConstants.CONFIG_SCHEMA_VERSION + "\">\n" +
-                "  <server artifactsdir=\"artifactsDir\" serverId=\"dd8d0f5a-7e8d-4948-a1c7-ddcedbac15d0\" />\n" +
+                "  <server serverId=\"dd8d0f5a-7e8d-4948-a1c7-ddcedbac15d0\">\n" +
+                "    <artifacts>\n" +
+                "       <artifactsDir>artifacts</artifactsDir>\n" +
+                "    </artifacts>\n" +
+                "  </server>\n" +
                 "  <pipelines group=\"another\">\n" +
                 "    <pipeline name=\"" + pipelineName + "\">\n" +
                 "      <params>\n" +

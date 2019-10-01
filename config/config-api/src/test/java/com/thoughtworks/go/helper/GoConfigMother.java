@@ -198,6 +198,7 @@ public class GoConfigMother {
 
     public BasicCruiseConfig cruiseConfigWithOnePipelineGroup() {
         final BasicCruiseConfig config = defaultCruiseConfig();
+        config.initializeServer();
         addPipelineWithGroup(config, "group1", "pipeline1", "stage", "job");
         return config;
     }
@@ -248,6 +249,7 @@ public class GoConfigMother {
 
     public static BasicCruiseConfig configWithPipelines(String... names) {
         final BasicCruiseConfig config = new BasicCruiseConfig();
+        config.initializeServer();
         GoConfigMother mother = new GoConfigMother();
         for (String name : names) {
             mother.addPipeline(config, name, "stage", "job");

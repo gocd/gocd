@@ -97,7 +97,11 @@ public class ElasticProfileServiceIntegrationTest {
     @After
     public void tearDown() throws Exception {
         configHelper.onTearDown();
-        goConfigService.updateConfig(cruiseConfig -> new BasicCruiseConfig());
+        goConfigService.updateConfig(cruiseConfig -> {
+            BasicCruiseConfig basicCruiseConfig = new BasicCruiseConfig();
+            basicCruiseConfig.initializeServer();
+            return basicCruiseConfig;
+        });
     }
 
     @Test

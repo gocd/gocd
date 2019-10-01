@@ -332,7 +332,7 @@
   </xsd:complexType>
   <xsd:complexType name="artifactConfigType">
     <xsd:all>
-      <xsd:element name="artifactsDir" minOccurs="0" maxOccurs="1" type="filePathType" />
+      <xsd:element name="artifactsDir" minOccurs="0" maxOccurs="1" type="xsd:string" />
       <xsd:element name="purgeSettings" minOccurs="0" maxOccurs="1" type="purgeSettingsType" />
     </xsd:all>
   </xsd:complexType>

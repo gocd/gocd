@@ -569,7 +569,9 @@ public class GoConfigFileHelper {
     public CruiseConfig loadForEdit() {
         try {
             goConfigDao.forceReload();
-            return new GoConfigCloner().deepClone(goConfigDao.loadForEditing());
+            CruiseConfig cruiseConfig = new GoConfigCloner().deepClone(goConfigDao.loadForEditing());
+            cruiseConfig.initializeServer();
+            return cruiseConfig;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -877,7 +879,7 @@ public class GoConfigFileHelper {
         CruiseConfig config = loadForEdit();
         JobConfig jobConfig = config.pipelineConfigByName(new CaseInsensitiveString(pipelineName)).findBy(new CaseInsensitiveString(stageName)).jobConfigByConfigName(new CaseInsensitiveString(jobName));
         ReflectionUtil.setField(jobConfig, "resourceConfigs", resourceConfigs);
-        ReflectionUtil.setField(jobConfig, "artifactConfigs", artifactConfigs);
+        ReflectionUtil.setField(jobConfig, "artifactTypeConfigs", artifactConfigs);
         writeConfigFile(config);
     }
 
@@ -980,8 +982,10 @@ public class GoConfigFileHelper {
     public void setBaseUrls(SiteUrl siteUrl, SecureSiteUrl secureSiteUrl) {
         CruiseConfig config = loadForEdit();
 
-        config.setServerConfig(
-                new ServerConfig(config.server().security(), config.server().mailHost(), siteUrl, secureSiteUrl));
+        ServerConfig serverConfig = new ServerConfig(config.server().security(), config.server().mailHost(), siteUrl, secureSiteUrl);
+        serverConfig.getArtifactConfig().setArtifactsDir(config.server().getArtifactConfig().getArtifactsDir());
+        serverConfig.getArtifactConfig().setPurgeSettings(config.server().getArtifactConfig().getPurgeSettings());
+        config.setServerConfig(serverConfig);
         writeConfigFile(config);
     }
 

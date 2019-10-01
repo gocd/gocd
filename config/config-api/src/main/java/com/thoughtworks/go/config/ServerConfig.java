@@ -320,19 +320,15 @@ public class ServerConfig implements Validatable {
     }
 
     public Double getPurgeStart() {
-        PurgeStart purgeStart = artifactConfig.getPurgeSettings().getPurgeStart();
-        return purgeStart == null ? null : purgeStart.getPurgeStartDiskSpace();
+        return artifactConfig.getPurgeSettings().getPurgeStart().getPurgeStartDiskSpace();
     }
 
     public Double getPurgeUpto() {
-        PurgeUpto purgeUpto = artifactConfig.getPurgeSettings().getPurgeUpto();
-        return purgeUpto == null ? null : purgeUpto.getPurgeUptoDiskSpace();
+        return artifactConfig.getPurgeSettings().getPurgeUpto().getPurgeUptoDiskSpace();
     }
 
     public boolean isArtifactPurgingAllowed() {
-        PurgeStart purgeStart = artifactConfig.getPurgeSettings().getPurgeStart();
-        PurgeUpto purgeUpto = artifactConfig.getPurgeSettings().getPurgeUpto();
-        return !((purgeStart != null && purgeStart.getPurgeStartDiskSpace() == null) || purgeUpto != null && purgeUpto.getPurgeUptoDiskSpace() == null);
+        return !(getPurgeStart() == null || getPurgeUpto() == null);
     }
 
     public void setPurgeLimits(Double purgeStart, Double purgeUpto) {

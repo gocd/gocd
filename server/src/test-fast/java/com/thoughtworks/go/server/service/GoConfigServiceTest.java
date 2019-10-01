@@ -302,7 +302,9 @@ public class GoConfigServiceTest {
         when(goConfigDao.loadForEditing()).thenReturn(config);
         String configContent = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                 + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\"" + GoConstants.CONFIG_SCHEMA_VERSION + "\">\n"
-                + "<server artifactsdir='artifactsDir'/><unknown/></cruise>";
+                + "<server><artifacts>"
+                + "<artifactsDir>artifacts</artifactsDir>"
+                + "</artifacts></server><unknown/></cruise>";
         GoConfigValidity validity = goConfigService.fileSaver(false).saveXml(configContent, "md5");
         assertThat(((GoConfigValidity.InvalidGoConfig) validity).errorMessage(), containsString("Invalid content was found starting with element 'unknown'"));
     }

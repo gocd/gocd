@@ -514,9 +514,11 @@ public final class ConfigFileFixture {
             + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
             + "xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\""
             + CONFIG_SCHEMA_VERSION + "\">\n"
-            + "<server agentAutoRegisterKey=\"default\" webhookSecret=\"some-webhook-secret\" commandRepositoryLocation=\"default\" serverId=\"foo\" tokenGenerationKey=\"bar\">\n" +
-            "<artifacts><artifactsDir>artifacts</artifactsDir></artifacts>"
-            + "</server>"
+            + "<server agentAutoRegisterKey=\"default\" webhookSecret=\"some-webhook-secret\" commandRepositoryLocation=\"default\" serverId=\"foo\" tokenGenerationKey=\"bar\">\n"
+            + "<artifacts>\n"
+            + "<artifactsDir>artifacts</artifactsDir>\n"
+            + "</artifacts>\n"
+            + "</server>\n"
             + "</cruise>\n";
 
     public static final String SERVER_WITH_ARTIFACTS_DIR_AND_PURGE_SETTINGS = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"

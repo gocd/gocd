@@ -19,7 +19,8 @@ import m from "mithril";
 import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
 import {Agent, Agents} from "models/new_agent/agents";
 import s from "underscore.string";
-import {CheckboxField} from "views/components/forms/input_fields";
+import {FlashMessage, MessageType} from "views/components/flash_message";
+import {CheckboxField, SearchField} from "views/components/forms/input_fields";
 import {Modal, ModalState, Size} from "views/components/modal";
 import styles from "views/pages/new-environments/edit_pipelines.scss";
 import {AgentsViewModel} from "views/pages/new-environments/models/agents_view_model";
@@ -83,6 +84,22 @@ export class UnavailableElasticAgentsWidget extends MithrilViewComponent<Unavail
   }
 }
 
+interface AgentFilterWidgetAttrs {
+  agentsVM: AgentsViewModel;
+}
+
+export class AgentFilterWidget extends MithrilViewComponent<AgentFilterWidgetAttrs> {
+  view(vnode: m.Vnode<AgentFilterWidgetAttrs>) {
+    return <div class={styles.pipelineFilterWrapper}>
+      <span>Agents</span>
+      <div class={styles.searchFieldWrapper}>
+        <SearchField label="agent-search" placeholder="agent hostname"
+                     property={vnode.attrs.agentsVM.searchText}/>
+      </div>
+    </div>;
+  }
+}
+
 export class EditAgentsModal extends Modal {
   readonly agentsVM: AgentsViewModel;
 
@@ -109,8 +126,17 @@ export class EditAgentsModal extends Modal {
       return;
     }
 
+    let noAgentsMsg: m.Child | undefined;
+    if (this.agentsVM.filteredAgents().length === 0) {
+      noAgentsMsg = <FlashMessage type={MessageType.info}
+                                  message={`No agents matching search text '${this.agentsVM.searchText()}' found!`}/>;
+    }
+
     return <div>
-      <div className={styles.allPipelinesWrapper}>
+      <FlashMessage type={MessageType.alert} message={this.agentsVM.errorMessage()}/>
+      <AgentFilterWidget agentsVM={this.agentsVM}/>
+      <div class={styles.allPipelinesWrapper}>
+        {noAgentsMsg}
         <AgentCheckboxListWidget agents={this.agentsVM.availableAgents()}
                                  title={"Available Agents:"}
                                  readonly={false}

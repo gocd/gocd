@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import m from "mithril";
 import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
 import test_data from "models/new-environments/spec/test_data";
 import {Agents} from "models/new_agent/agents";
@@ -153,5 +154,89 @@ describe("Edit Agents Modal", () => {
 
     expect(agent1Checkbox.checked).toBe(true);
     expect(agent1Checkbox.disabled).toBe(true);
+  });
+
+  it("should render agent search box", () => {
+    const searchInput = helper.byTestId("form-field-input-agent-search");
+    expect(searchInput).toBeInDOM();
+    expect(searchInput.getAttribute("placeholder")).toBe("agent hostname");
+  });
+
+  it("should bind search text with pipelines vm", () => {
+    const searchText = "search-text";
+    modal.agentsVM.searchText(searchText);
+    helper.redraw();
+    const searchInput = helper.byTestId("form-field-input-agent-search");
+    expect(searchInput).toHaveValue(searchText);
+  });
+
+  it("should search for a particular agent", () => {
+    const agent1Selector = `agent-checkbox-for-${normalAgentAssociatedWithEnvInXml}`;
+    const agent2Selector = `agent-checkbox-for-${unassociatedStaticAgent}`;
+    const agent3Selector = `agent-checkbox-for-${normalAgentAssociatedWithEnvInConfigRepo}`;
+    const agent4Selector = `agent-checkbox-for-${elasticAgentAssociatedWithEnvInXml}`;
+    const agent5Selector = `agent-list-item-for-${unassociatedElasticAgent}`;
+
+    expect(helper.byTestId(agent1Selector)).toBeInDOM();
+    expect(helper.byTestId(agent2Selector)).toBeInDOM();
+    expect(helper.byTestId(agent3Selector)).toBeInDOM();
+    expect(helper.byTestId(agent4Selector)).toBeInDOM();
+    expect(helper.byTestId(agent5Selector)).toBeInDOM();
+
+    modal.agentsVM.searchText(normalAgentAssociatedWithEnvInXml);
+    m.redraw.sync();
+
+    expect(helper.byTestId(agent1Selector)).toBeInDOM();
+    expect(helper.byTestId(agent2Selector)).toBeFalsy();
+    expect(helper.byTestId(agent3Selector)).toBeFalsy();
+    expect(helper.byTestId(agent4Selector)).toBeFalsy();
+    expect(helper.byTestId(agent5Selector)).toBeFalsy();
+  });
+
+  it("should search for a partial agent name match", () => {
+    const agent1Selector = `agent-checkbox-for-${normalAgentAssociatedWithEnvInXml}`;
+    const agent2Selector = `agent-checkbox-for-${unassociatedStaticAgent}`;
+    const agent3Selector = `agent-checkbox-for-${normalAgentAssociatedWithEnvInConfigRepo}`;
+    const agent4Selector = `agent-checkbox-for-${elasticAgentAssociatedWithEnvInXml}`;
+    const agent5Selector = `agent-list-item-for-${unassociatedElasticAgent}`;
+
+    expect(helper.byTestId(agent1Selector)).toBeInDOM();
+    expect(helper.byTestId(agent2Selector)).toBeInDOM();
+    expect(helper.byTestId(agent3Selector)).toBeInDOM();
+    expect(helper.byTestId(agent4Selector)).toBeInDOM();
+    expect(helper.byTestId(agent5Selector)).toBeInDOM();
+
+    modal.agentsVM.searchText("Hostname");
+    m.redraw.sync();
+
+    expect(helper.byTestId(agent1Selector)).toBeInDOM();
+    expect(helper.byTestId(agent2Selector)).toBeInDOM();
+    expect(helper.byTestId(agent3Selector)).toBeInDOM();
+  });
+
+  it("should show no agents matching search text message when no agents matched the search text", () => {
+    const agent1Selector = `agent-checkbox-for-${normalAgentAssociatedWithEnvInXml}`;
+    const agent2Selector = `agent-checkbox-for-${unassociatedStaticAgent}`;
+    const agent3Selector = `agent-checkbox-for-${normalAgentAssociatedWithEnvInConfigRepo}`;
+    const agent4Selector = `agent-checkbox-for-${elasticAgentAssociatedWithEnvInXml}`;
+    const agent5Selector = `agent-list-item-for-${unassociatedElasticAgent}`;
+
+    expect(helper.byTestId(agent1Selector)).toBeInDOM();
+    expect(helper.byTestId(agent2Selector)).toBeInDOM();
+    expect(helper.byTestId(agent3Selector)).toBeInDOM();
+    expect(helper.byTestId(agent4Selector)).toBeInDOM();
+    expect(helper.byTestId(agent5Selector)).toBeInDOM();
+
+    modal.agentsVM.searchText("blah-is-my-agent-hostname");
+    m.redraw.sync();
+
+    expect(helper.byTestId(agent1Selector)).toBeFalsy();
+    expect(helper.byTestId(agent2Selector)).toBeFalsy();
+    expect(helper.byTestId(agent3Selector)).toBeFalsy();
+    expect(helper.byTestId(agent4Selector)).toBeFalsy();
+    expect(helper.byTestId(agent5Selector)).toBeFalsy();
+
+    const expectedMessage = "No agents matching search text 'blah-is-my-agent-hostname' found!";
+    expect(helper.textByTestId("flash-message-info")).toContain(expectedMessage);
   });
 });

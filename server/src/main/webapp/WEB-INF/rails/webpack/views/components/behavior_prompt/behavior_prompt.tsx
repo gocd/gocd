@@ -34,7 +34,7 @@ interface Attrs {
   position?: Position;
 }
 
-const STORAGE_KEY_PREFIX = "gocd.behaviorPrompt";
+export const STORAGE_KEY_PREFIX = "gocd.behaviorPrompt";
 
 export class BehaviorPrompt extends MithrilComponent<Attrs> {
   show: Stream<boolean> = Stream();
@@ -42,11 +42,11 @@ export class BehaviorPrompt extends MithrilComponent<Attrs> {
   oninit(vnode: m.Vnode<Attrs>) {
     const storageKey = STORAGE_KEY_PREFIX.concat(".", vnode.attrs.key);
     if (!localStorage.getItem(storageKey)) {
-      if (!s.isBlank(vnode.attrs.query)) {
+      if (s.isBlank(vnode.attrs.query)) {
+        this.show(true);
+      } else {
         this.show(false);
         localStorage.setItem(storageKey, "true");
-      } else {
-        this.show(true);
       }
     }
   }
@@ -54,9 +54,9 @@ export class BehaviorPrompt extends MithrilComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     if (this.show()) {
       return (
-        <div class={classnames(style.behaviorPrompt, SizeTransformer.transform(vnode.attrs.size))} style={positionToCSS(vnode.attrs.position)}>
+        <div class={classnames(style.behaviorPrompt, SizeTransformer.transform(vnode.attrs.size))} style={positionToCSS(vnode.attrs.position)} data-test-id="behavior-prompt">
           {vnode.attrs.promptText}&nbsp;
-          <i class={DirectionTransformer.transform(vnode.attrs.direction)} />
+          <i class={DirectionTransformer.transform(vnode.attrs.direction)} data-test-id="behavior-prompt-dir"/>
         </div>
       );
     }

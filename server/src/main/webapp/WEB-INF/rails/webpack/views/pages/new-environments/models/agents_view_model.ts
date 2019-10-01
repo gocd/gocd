@@ -37,8 +37,17 @@ export class AgentsViewModel {
     this.agents       = Stream();
   }
 
+  filteredAgents() {
+    const self       = this;
+    const searchText = self.searchText() ? self.searchText()! : "";
+
+    return new Agents(...this.agents()!.filter(((agent) => {
+      return agent.uuid.includes(searchText) || agent.hostname.includes(searchText);
+    })));
+  }
+
   availableAgents(): Agents {
-    return new Agents(...this.agents()!.filter((agent) => {
+    return new Agents(...this.filteredAgents().filter((agent) => {
       const found: AgentWithOrigin | undefined = this.environment.agents().find((a) => a.uuid() === agent.uuid);
       const belongsToEnvironment: boolean      = !!found;
 
@@ -51,14 +60,14 @@ export class AgentsViewModel {
   }
 
   configRepoEnvironmentAgents(): Agents {
-    return new Agents(...this.agents()!.filter((agent) => {
+    return new Agents(...this.filteredAgents().filter((agent) => {
       const found: AgentWithOrigin | undefined = this.environment.agents().find((a) => a.uuid() === agent.uuid);
       return found && found.origin().isDefinedInConfigRepo();
     }));
   }
 
   environmentElasticAgents(): Agents {
-    return new Agents(...this.agents()!.filter((agent) => {
+    return new Agents(...this.filteredAgents().filter((agent) => {
       const found: AgentWithOrigin | undefined = this.environment.agents().find((a) => a.uuid() === agent.uuid);
       return found && agent.isElastic();
     }));
@@ -66,7 +75,7 @@ export class AgentsViewModel {
 
   elasticAgentsNotBelongingToCurrentEnv(): Agents {
     const self = this;
-    return new Agents(...this.agents()!.filter((agent) => {
+    return new Agents(...this.filteredAgents().filter((agent) => {
       return agent.isElastic() && !self.environment.containsAgent(agent.uuid);
     }));
   }

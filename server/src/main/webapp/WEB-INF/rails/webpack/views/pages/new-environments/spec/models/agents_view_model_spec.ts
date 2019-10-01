@@ -124,4 +124,29 @@ describe("Agents View Model", () => {
     expect(agentsViewModel.agentSelectedFn(agents![2])()).toBe(true);
     expect(environment.containsAgent(agents![2].uuid)).toBe(true);
   });
+
+  it("should return filtered agents by hostname", () => {
+    expect(agentsViewModel.searchText()).toBe(undefined);
+    expect(agentsViewModel.filteredAgents().length).toBe(5);
+
+    agentsViewModel.searchText(agentsViewModel.agents()![0].hostname);
+
+    expect(agentsViewModel.searchText()).toBe(agentsViewModel.agents()![0].hostname);
+    expect(agentsViewModel.filteredAgents().length).toBe(1);
+  });
+
+  it("should return available agents matching search text", () => {
+    let agents = agentsViewModel.availableAgents();
+
+    expect(agents.length).toBe(2);
+    expect(agents[0].uuid).toBe(normalAgentAssociatedWithEnvInXml);
+    expect(agents[1].uuid).toBe(unassociatedStaticAgent);
+
+    agentsViewModel.searchText(normalAgentAssociatedWithEnvInXml);
+
+    agents = agentsViewModel.availableAgents();
+
+    expect(agents.length).toBe(1);
+    expect(agents[0].uuid).toBe(normalAgentAssociatedWithEnvInXml);
+  });
 });

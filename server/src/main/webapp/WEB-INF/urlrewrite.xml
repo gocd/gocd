@@ -31,6 +31,18 @@
   </rule>
 
   <rule>
+    <name>Feature Toggles Index API</name>
+    <from>^/api/admin/feature_toggles(/?)$</from>
+    <to last="true">/spark/api/admin/feature_toggles</to>
+  </rule>
+
+  <rule>
+    <name>Feature Toggles Index API</name>
+    <from>^/api/admin/feature_toggles/(.*)$</from>
+    <to last="true">/spark/api/admin/feature_toggles/${escape:$1}</to>
+  </rule>
+
+  <rule>
     <name>Pipeline Structure Internal API</name>
     <from>^/api/internal/pipeline_structure(/?)$</from>
     <to last="true">/spark/api/internal/pipeline_structure</to>

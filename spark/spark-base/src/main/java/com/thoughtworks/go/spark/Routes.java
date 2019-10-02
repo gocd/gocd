@@ -712,4 +712,9 @@ public class Routes {
     public class NewEnvironments {
         public static final String SPA_BASE = "/admin/new-environments";
     }
+
+    public class FeatureToggle {
+        public static final String FEATURE_TOGGLE_KEY = "/:toggle_key";
+        public static final String BASE = "/api/admin/feature_toggles";
+    }
 }

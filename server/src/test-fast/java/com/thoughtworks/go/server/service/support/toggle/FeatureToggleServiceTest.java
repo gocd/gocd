@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.server.service.support.toggle;
 
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.support.toggle.FeatureToggle;
 import com.thoughtworks.go.server.domain.support.toggle.FeatureToggles;
@@ -132,7 +133,7 @@ public class FeatureToggleServiceTest {
         try {
             service.changeValueOfToggle("keyNOTVALID", true);
             fail("This should have failed with an exception, since the feature toggle is invalid.");
-        } catch (RuntimeException e) {
+        } catch (RecordNotFoundException e) {
             assertThat(e.getMessage(), is("Feature toggle: 'keyNOTVALID' is not valid."));
         }
     }

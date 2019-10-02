@@ -17,9 +17,11 @@ package com.thoughtworks.go.server.service.support.toggle;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.support.toggle.FeatureToggle;
 import com.thoughtworks.go.server.domain.support.toggle.FeatureToggles;
+import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -66,7 +68,7 @@ public class FeatureToggleService {
 
     public void changeValueOfToggle(String key, boolean newValue) {
         if (allToggles().find(key) == null) {
-            throw new RuntimeException(MessageFormat.format("Feature toggle: ''{0}'' is not valid.", key));
+            throw new RecordNotFoundException(MessageFormat.format("Feature toggle: ''{0}'' is not valid.", key));
         }
 
         synchronized (USER_TOGGLES_CACHE_KEY) {

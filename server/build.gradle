@@ -271,7 +271,7 @@ dependencies {
     exclude(module: 'jms')
     exclude(module: 'servlet-api')
   }
-  compile(group: 'org.apache.activemq', name: 'activemq-core', version: '5.5.0') {
+  compile(group: 'org.apache.activemq', name: 'activemq-core', version: '5.7.0') {
     exclude(group: 'org.springframework', module: 'spring-context')
     exclude(group: 'org.osgi', module: 'org.osgi.core')
     // jasypt is typically used to encrypt/decrypt stuff, which we don't need

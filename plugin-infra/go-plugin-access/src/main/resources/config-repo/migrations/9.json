@@ -1,0 +1,11 @@
+[
+  {
+    "operation": "shift",
+    "spec": {
+      "target_version": {
+        "#9": "&1" // Set target version to 9.
+      },
+      "*": "&"
+    }
+  }
+]

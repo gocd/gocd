@@ -294,7 +294,8 @@ public class ConfigConverter {
     public DependencyMaterialConfig toDependencyMaterialConfig(CRDependencyMaterial crDependencyMaterial) {
         DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(
                 new CaseInsensitiveString(crDependencyMaterial.getPipeline()),
-                new CaseInsensitiveString(crDependencyMaterial.getStage()));
+                new CaseInsensitiveString(crDependencyMaterial.getStage()),
+                crDependencyMaterial.isIgnoreForScheduling());
         setCommonMaterialMembers(dependencyMaterialConfig, crDependencyMaterial);
         return dependencyMaterialConfig;
     }
@@ -982,7 +983,8 @@ public class ConfigConverter {
     private CRDependencyMaterial dependencyMaterialConfigToCRDependencyMaterial(DependencyMaterialConfig dependencyMaterialConfig) {
         CRDependencyMaterial crDependencyMaterial = new CRDependencyMaterial(
                 dependencyMaterialConfig.getPipelineName().toString(),
-                dependencyMaterialConfig.getStageName().toString());
+                dependencyMaterialConfig.getStageName().toString(),
+                dependencyMaterialConfig.ignoreForScheduling());
         if (dependencyMaterialConfig.getName() != null)
             crDependencyMaterial.setName(dependencyMaterialConfig.getName().toString());
         return crDependencyMaterial;

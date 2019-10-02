@@ -15,13 +15,14 @@
  */
 package com.thoughtworks.go.config;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @ConfigTag("params")
 @ConfigCollection(ParamConfig.class)
@@ -121,4 +122,11 @@ public class ParamsConfig extends BaseCollection<ParamConfig> implements Validat
         }
     }
 
+    public List<String> getNames() {
+        List<String> names = new ArrayList<>();
+        for (ParamConfig paramConfig : this) {
+            names.add(paramConfig.getName());
+        }
+        return names;
+    }
 }

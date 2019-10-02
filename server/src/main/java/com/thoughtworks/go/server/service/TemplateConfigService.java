@@ -237,4 +237,15 @@ public class TemplateConfigService {
                 })
                 .collect(Collectors.toCollection(TemplatesConfig::new));
     }
+
+    public TemplatesConfig templateConfigsThatCanBeViewedBy(Username currentUsername) {
+        CruiseConfig cruiseConfig = goConfigService.cruiseConfig();
+
+        return cruiseConfig.getTemplates()
+                .stream()
+                .filter(templateConfig -> {
+                    return securityService.isAuthorizedToViewTemplate(templateConfig.name(),currentUsername);
+                })
+                .collect(Collectors.toCollection(TemplatesConfig::new));
+    }
 }

@@ -467,6 +467,28 @@ public class TemplateConfigServiceTest {
         assertThat(expected, is(actual));
     }
 
+    @Test
+    public void shouldReturnAllTemplatesThatCanBeViewedByUser() {
+        BasicCruiseConfig cruiseConfig = getCruiseConfigWithSecurityEnabled();
+        CaseInsensitiveString username = new CaseInsensitiveString("template-user");
+
+        PipelineTemplateConfig viewableTemplate = PipelineTemplateConfigMother.createTemplate(
+                "template",
+                new Authorization(new ViewConfig(new AdminUser(username))), StageConfigMother.manualStage("foo"));
+        PipelineTemplateConfig notViewableTemplate = PipelineTemplateConfigMother.createTemplate("not-viewable-template");
+        TemplatesConfig templates = new TemplatesConfig();
+        templates.add(viewableTemplate);
+        templates.add(notViewableTemplate);
+        cruiseConfig.setTemplates(templates);
+
+        when(goConfigService.cruiseConfig()).thenReturn(cruiseConfig);
+        when(securityService.isAuthorizedToViewTemplate(new CaseInsensitiveString("template"), new Username(username))).thenReturn(true);
+
+        TemplatesConfig actual = service.templateConfigsThatCanBeViewedBy(new Username(username));
+        TemplatesConfig expected = new TemplatesConfig(viewableTemplate);
+        assertThat(expected, is(actual));
+    }
+
     private PipelineConfig createPipelineWithTemplate(String pipelineName, PipelineTemplateConfig template) {
         PipelineConfig pipelineConfig = pipelineConfig(pipelineName);
         pipelineConfig.clear();

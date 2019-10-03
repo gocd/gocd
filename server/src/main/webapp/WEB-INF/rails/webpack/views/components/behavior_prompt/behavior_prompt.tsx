@@ -20,7 +20,7 @@ import {MithrilComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
-import * as style from "./index.scss";
+import * as style from "./behavior_prompt.scss";
 
 const classnames = bind(style);
 type Styles = typeof style;

@@ -103,6 +103,13 @@ public class JsonOutputWriter {
         }
 
         @Override
+        public JsonOutputWriterUsingJackson add(String key, Double value) {
+            return withExceptionHandling((jacksonWriter) -> {
+                jacksonWriter.writeNumberField(key,value);
+            });
+        }
+
+        @Override
         public JsonOutputWriterUsingJackson add(String key, CaseInsensitiveString value) {
             return withExceptionHandling((jacksonWriter) -> {
                 if (value == null) {
@@ -140,6 +147,16 @@ public class JsonOutputWriter {
                 }
             });
         }
+
+        @Override
+        public JsonOutputWriterUsingJackson addIfNotNull(String key, Double value) {
+            return withExceptionHandling((jacksonWriter) -> {
+                if (value != null) {
+                    add(key, value);
+                }
+            });
+        }
+
 
         @Override
         public JsonOutputWriterUsingJackson addWithDefaultIfBlank(String key, String value, String defaultValue) {

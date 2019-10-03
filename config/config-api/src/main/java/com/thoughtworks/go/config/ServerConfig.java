@@ -68,6 +68,7 @@ public class ServerConfig implements Validatable {
     public static final String NEVER_TIMEOUT = "neverTimeout";
     public static final String OVERRIDE_TIMEOUT = "overrideTimeout";
     public static final String PURGE_START = "purgeStart";
+    public static final String ARTIFACT_DIR = "artifactsDir";
 
 
     public ServerConfig() {
@@ -154,6 +155,10 @@ public class ServerConfig implements Validatable {
 
     public MailHost mailHost() {
         return mailHost;
+    }
+
+    public void setArtifactConfig(ArtifactConfig artifactConfig) {
+        this.artifactConfig = artifactConfig;
     }
 
     @Deprecated

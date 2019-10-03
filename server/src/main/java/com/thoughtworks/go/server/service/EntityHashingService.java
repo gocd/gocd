@@ -93,6 +93,7 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         goConfigService.register(new AdminsConfigListener());
         goConfigService.register(new ClusterProfileListener());
         goConfigService.register(new SCMChangeListener());
+        goConfigService.register(new ArtifactConfigChangeListener());
     }
 
     @Override
@@ -338,6 +339,11 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         return CachedDigestUtils.md5Hex(StringUtils.join(md5s, SEP_CHAR));
     }
 
+    public String md5ForEntity(ArtifactConfig artifactConfig) {
+        String cacheKey = cacheKey(artifactConfig, "cacheKey");
+        return getFromCache(cacheKey, () -> String.valueOf(Objects.hash(artifactConfig)));
+    }
+
     class PipelineConfigChangedListener extends EntityConfigChangedListener<PipelineConfig> {
         @Override
         public void onEntityConfigChange(PipelineConfig pipelineConfig) {
@@ -454,6 +460,13 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         @Override
         public void onEntityConfigChange(MergePipelineConfigs pipelineConfigs) {
             removeFromCache(pipelineConfigs, pipelineConfigs.getGroup());
+        }
+    }
+
+    class ArtifactConfigChangeListener extends EntityConfigChangedListener<ArtifactConfig> {
+        @Override
+        public void onEntityConfigChange(ArtifactConfig artifactConfig) {
+            removeFromCache(artifactConfig, "cacheKey");
         }
     }
 }

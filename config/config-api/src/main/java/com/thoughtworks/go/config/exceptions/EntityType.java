@@ -45,7 +45,8 @@ public enum EntityType {
     Backup("backup", id),
     SecretConfig("secret config", id),
     BackupConfig("backup config", none),
-    SMTP("SMTP config", none);
+    SMTP("SMTP config", none),
+    ArtifactConfig("artifact config", none);
 
     private final String entityType;
     private final NameOrId nameOrId;
@@ -76,6 +77,10 @@ public enum EntityType {
                 this.entityType.toLowerCase(),
                 this.nameOrId.descriptor,
                 id);
+    }
+
+    public String staleConfig() {
+        return format("Someone has modified the configuration for %s. Please update your copy of the config with the changes.", this.entityType.toLowerCase());
     }
 
     public String staleConfig(CaseInsensitiveString id) {

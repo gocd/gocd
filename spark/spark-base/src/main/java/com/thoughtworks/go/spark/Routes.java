@@ -726,4 +726,8 @@ public class Routes {
     public class DefaultJobTimeout {
         public static final String BASE = "/api/admin/config/server/default_job_timeout";
     }
+
+    public class ArtifactConfig {
+        public static final String BASE = "/api/admin/config/server/artifact_config";
+    }
 }

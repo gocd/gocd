@@ -16,11 +16,14 @@
 
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.config.validation.ArtifactDirValidator;
+import com.thoughtworks.go.domain.ConfigErrors;
 import lombok.*;
 import lombok.experimental.Accessors;
 
 import javax.annotation.PostConstruct;
 
+import static com.thoughtworks.go.config.ServerConfig.ARTIFACT_DIR;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
@@ -29,9 +32,14 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 @EqualsAndHashCode
 @Accessors(chain = true)
 @ConfigTag("artifactsDir")
-public class ArtifactDirectory {
+public class ArtifactDirectory implements Validatable {
     @ConfigValue
     private String artifactDir;
+
+    @Getter(AccessLevel.NONE)
+    @Setter(AccessLevel.NONE)
+    @EqualsAndHashCode.Exclude
+    private ConfigErrors errors = new ConfigErrors();
 
     public ArtifactDirectory() {
     }
@@ -45,5 +53,25 @@ public class ArtifactDirectory {
         if (isBlank(artifactDir)) {
             artifactDir = "artifacts";
         }
+    }
+
+    @Override
+    public void validate(ValidationContext validationContext) {
+        ArtifactDirValidator artifactDirValidator = new ArtifactDirValidator();
+        try {
+            artifactDirValidator.validate(validationContext.getCruiseConfig());
+        } catch (Exception e) {
+            errors().add(ARTIFACT_DIR, e.getMessage());
+        }
+    }
+
+    @Override
+    public ConfigErrors errors() {
+        return errors;
+    }
+
+    @Override
+    public void addError(String fieldName, String message) {
+        errors.add(fieldName, message);
     }
 }

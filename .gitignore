@@ -444,3 +444,7 @@ api/api-default-job-timeout-v1/out/
 api/api-default-job-timeout-v1/target/
 api/api-default-job-timeout-v1/logs/
 api/api-default-job-timeout-v1/config/
+api/api-artifact-config-v1/out/
+api/api-artifact-config-v1/target/
+api/api-artifact-config-v1/logs/
+api/api-artifact-config-v1/config/

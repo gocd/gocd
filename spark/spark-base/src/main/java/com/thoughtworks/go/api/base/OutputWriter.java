@@ -26,6 +26,8 @@ import java.util.function.Consumer;
 public interface OutputWriter extends Closeable {
     OutputWriter add(String key, String value);
 
+    OutputWriter add(String key, Double value);
+
     OutputWriter add(String key, CaseInsensitiveString value);
 
     OutputWriter addIfNotNull(String key, String value);
@@ -59,4 +61,6 @@ public interface OutputWriter extends Closeable {
     OutputWriter add(String key, JsonNode jsonNode);
 
     void renderNull(String key);
+
+    OutputWriter addIfNotNull(String key, Double value);
 }

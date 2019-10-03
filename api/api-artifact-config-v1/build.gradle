@@ -14,27 +14,14 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.config;
+apply plugin: 'jacoco'
+apply plugin: 'groovy'
 
-import lombok.*;
-import lombok.experimental.Accessors;
+dependencies {
+  compile project(':api:api-base')
 
-@Getter
-@Setter
-@EqualsAndHashCode
-@Accessors(chain = true)
-@NoArgsConstructor(access = AccessLevel.PUBLIC)
-@AllArgsConstructor(access = AccessLevel.PUBLIC)
-@ConfigTag("purgeStartDiskSpace")
-public class PurgeStart {
-    @ConfigValue
-    private Double purgeStartDiskSpace;
+  testCompile project(path: ':api:api-base', configuration: 'testOutput')
 
-    public PurgeStart(String purgeStartDiskSpace) {
-        this.purgeStartDiskSpace = Double.valueOf(purgeStartDiskSpace);
-    }
-
-    public void setPurgeStartDiskSpace(String s) {
-        this.purgeStartDiskSpace = Double.valueOf(s);
-    }
+  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
+  testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
 }

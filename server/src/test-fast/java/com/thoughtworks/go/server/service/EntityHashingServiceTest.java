@@ -131,4 +131,14 @@ public class EntityHashingServiceTest {
         verify(goCache).get("GO_ETAG_CACHE", "com.thoughtworks.go.config.BasicEnvironmentConfig.env");
         verifyNoMoreInteractions(goCache);
     }
+
+    @Test
+    public void shouldInvalidateArtifactConfigEtagsFromCacheOnConfigChange() {
+        EntityHashingService.ArtifactConfigChangeListener artifactConfigChangeListener = entityHashingService.new ArtifactConfigChangeListener();
+        ArtifactConfig artifactConfig = new ArtifactConfig();
+
+        artifactConfigChangeListener.onEntityConfigChange(artifactConfig);
+
+        verify(goCache).remove("GO_ETAG_CACHE", (artifactConfig.getClass().getName() + ".cacheKey"));
+    }
 }

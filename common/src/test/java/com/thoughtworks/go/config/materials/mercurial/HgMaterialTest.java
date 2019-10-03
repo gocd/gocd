@@ -692,7 +692,8 @@ public class HgMaterialTest {
 
     @Test
     void populateEnvContextShouldSetMaterialEnvVars() {
-        HgMaterial material = new HgMaterial("https://user:password@example.github.com", "folder");
+        HgMaterial material = new HgMaterial("https://user:password@github.com/bob/my-project", "folder");
+        material.setBranch("branchName");
 
         EnvironmentVariableContext ctx = new EnvironmentVariableContext();
         final ArrayList<Modification> modifications = new ArrayList<>();
@@ -706,7 +707,23 @@ public class HgMaterialTest {
 
         material.populateEnvironmentContext(ctx, materialRevision, new File("."));
         String propertySuffix = material.getMaterialNameForEnvironmentVariable();
-        assertThat(ctx.getProperty(format("%s_%s", ScmMaterial.GO_MATERIAL_URL, propertySuffix))).isEqualTo("https://example.github.com");
+        assertThat(ctx.getProperty(format("%s_%s", ScmMaterial.GO_MATERIAL_URL, propertySuffix))).isEqualTo("https://github.com/bob/my-project");
+        assertThat(ctx.getProperty(format("%s_%s", GitMaterial.GO_MATERIAL_BRANCH, propertySuffix))).isEqualTo("branchName");
+    }
+
+    @Test
+    void shouldPopulateBranchWithDefaultIfNotSet() {
+        HgMaterial material = new HgMaterial("https://user:password@github.com/bob/my-project", "folder");
+
+        EnvironmentVariableContext ctx = new EnvironmentVariableContext();
+        final ArrayList<Modification> modifications = new ArrayList<>();
+
+        modifications.add(new Modification("user1", "comment1", "email1", new Date(), "23"));
+
+        MaterialRevision materialRevision = new MaterialRevision(material, modifications);
+
+        material.populateEnvironmentContext(ctx, materialRevision, new File("."));
+        String propertySuffix = material.getMaterialNameForEnvironmentVariable();
         assertThat(ctx.getProperty(format("%s_%s", GitMaterial.GO_MATERIAL_BRANCH, propertySuffix))).isEqualTo("default");
     }
 }

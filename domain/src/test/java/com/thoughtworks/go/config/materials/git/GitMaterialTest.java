@@ -749,7 +749,7 @@ public class GitMaterialTest {
 
     @Test
     void populateEnvContextShouldSetMaterialEnvVars() {
-        GitMaterial material = new GitMaterial("https://user:password@example.github.com");
+        GitMaterial material = new GitMaterial("https://user:password@github.com/bob/my-project", "branchName");
 
         EnvironmentVariableContext ctx = new EnvironmentVariableContext();
         final ArrayList<Modification> modifications = new ArrayList<>();
@@ -763,7 +763,22 @@ public class GitMaterialTest {
 
         material.populateEnvironmentContext(ctx, materialRevision, new File("."));
 
-        assertThat(ctx.getProperty(ScmMaterial.GO_MATERIAL_URL)).isEqualTo("https://example.github.com");
+        assertThat(ctx.getProperty(ScmMaterial.GO_MATERIAL_URL)).isEqualTo("https://github.com/bob/my-project");
+        assertThat(ctx.getProperty(GitMaterial.GO_MATERIAL_BRANCH)).isEqualTo("branchName");
+    }
+
+    @Test
+    void shouldPopulateBranchWithDefaultIfNotSet() {
+        GitMaterial material = new GitMaterial("https://user:password@github.com/bob/my-project");
+
+        EnvironmentVariableContext ctx = new EnvironmentVariableContext();
+        final ArrayList<Modification> modifications = new ArrayList<>();
+
+        modifications.add(new Modification("user1", "comment1", "email1", new Date(), "23"));
+
+        MaterialRevision materialRevision = new MaterialRevision(material, modifications);
+        material.populateEnvironmentContext(ctx, materialRevision, new File("."));
+
         assertThat(ctx.getProperty(GitMaterial.GO_MATERIAL_BRANCH)).isEqualTo("master");
     }
 

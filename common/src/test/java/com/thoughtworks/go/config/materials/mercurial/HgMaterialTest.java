@@ -20,7 +20,10 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.SecretParam;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.PasswordAwareMaterial;
+import com.thoughtworks.go.config.materials.ScmMaterial;
+import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.domain.MaterialInstance;
+import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.mercurial.HgCommand;
 import com.thoughtworks.go.domain.materials.mercurial.HgVersion;
@@ -30,10 +33,7 @@ import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.util.JsonValue;
 import com.thoughtworks.go.util.ReflectionUtil;
-import com.thoughtworks.go.util.command.ConsoleResult;
-import com.thoughtworks.go.util.command.HgUrlArgument;
-import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
-import com.thoughtworks.go.util.command.UrlArgument;
+import com.thoughtworks.go.util.command.*;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
@@ -47,10 +47,7 @@ import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import static com.thoughtworks.go.util.JsonUtils.from;
@@ -691,5 +688,42 @@ public class HgMaterialTest {
 
             assertThat(info).isEqualTo(hgMaterial.getUriForDisplay());
         }
+    }
+
+    @Test
+    void populateEnvContextShouldSetMaterialEnvVars() {
+        HgMaterial material = new HgMaterial("https://user:password@github.com/bob/my-project", "folder");
+        material.setBranch("branchName");
+
+        EnvironmentVariableContext ctx = new EnvironmentVariableContext();
+        final ArrayList<Modification> modifications = new ArrayList<>();
+
+        modifications.add(new Modification("user2", "comment2", "email2", new Date(), "24"));
+        modifications.add(new Modification("user1", "comment1", "email1", new Date(), "23"));
+
+        MaterialRevision materialRevision = new MaterialRevision(material, modifications);
+        assertThat(ctx.getProperty(ScmMaterial.GO_MATERIAL_URL)).isNull();
+        assertThat(ctx.getProperty(GitMaterial.GO_MATERIAL_BRANCH)).isNull();
+
+        material.populateEnvironmentContext(ctx, materialRevision, new File("."));
+        String propertySuffix = material.getMaterialNameForEnvironmentVariable();
+        assertThat(ctx.getProperty(format("%s_%s", ScmMaterial.GO_MATERIAL_URL, propertySuffix))).isEqualTo("https://github.com/bob/my-project");
+        assertThat(ctx.getProperty(format("%s_%s", GitMaterial.GO_MATERIAL_BRANCH, propertySuffix))).isEqualTo("branchName");
+    }
+
+    @Test
+    void shouldPopulateBranchWithDefaultIfNotSet() {
+        HgMaterial material = new HgMaterial("https://user:password@github.com/bob/my-project", "folder");
+
+        EnvironmentVariableContext ctx = new EnvironmentVariableContext();
+        final ArrayList<Modification> modifications = new ArrayList<>();
+
+        modifications.add(new Modification("user1", "comment1", "email1", new Date(), "23"));
+
+        MaterialRevision materialRevision = new MaterialRevision(material, modifications);
+
+        material.populateEnvironmentContext(ctx, materialRevision, new File("."));
+        String propertySuffix = material.getMaterialNameForEnvironmentVariable();
+        assertThat(ctx.getProperty(format("%s_%s", GitMaterial.GO_MATERIAL_BRANCH, propertySuffix))).isEqualTo("default");
     }
 }

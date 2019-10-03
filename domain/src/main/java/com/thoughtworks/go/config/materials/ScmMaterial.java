@@ -48,6 +48,7 @@ public abstract class ScmMaterial extends AbstractMaterial implements SecretPara
     public static final String GO_REVISION = "GO_REVISION";
     public static final String GO_TO_REVISION = "GO_TO_REVISION";
     public static final String GO_FROM_REVISION = "GO_FROM_REVISION";
+    public static final String GO_MATERIAL_URL = "GO_MATERIAL_URL";
     protected final GoCipher goCipher;
 
     protected Filter filter;
@@ -227,6 +228,11 @@ public abstract class ScmMaterial extends AbstractMaterial implements SecretPara
         String fromRevision = materialRevision.getOldestRevision().getRevision();
 
         setGoRevisionVariables(environmentVariableContext, fromRevision, toRevision);
+        setGoMaterialVariables(environmentVariableContext);
+    }
+
+    protected void setGoMaterialVariables(EnvironmentVariableContext environmentVariableContext) {
+        setVariableWithName(environmentVariableContext, this.getUrlArgument().withoutCredentials(), GO_MATERIAL_URL);
     }
 
     private void setGoRevisionVariables(EnvironmentVariableContext environmentVariableContext, String fromRevision, String toRevision) {

@@ -51,6 +51,7 @@ describe("BehaviorPrompt", () => {
       promptText="The box! You opened it, we came!"
       key={key}
       query="true"
+      direction={Direction.LEFT}
       />);
 
     expect(helper.byTestId("behavior-prompt")).not.toExist();
@@ -63,6 +64,7 @@ describe("BehaviorPrompt", () => {
       promptText="The box! You opened it, we came!"
       key={key}
       query=""
+      direction={Direction.LEFT}
       />);
 
     expect(helper.byTestId("behavior-prompt")).not.toExist();
@@ -135,6 +137,7 @@ describe("BehaviorPrompt", () => {
         promptText="The box! You opened it, we came!"
         key={key}
         query=""
+        direction={Direction.LEFT}
         position={position}
         />);
 

@@ -15,17 +15,20 @@
  */
 package com.thoughtworks.go.server.service;
 
+import com.thoughtworks.go.config.ArtifactConfig;
+import com.thoughtworks.go.config.ArtifactDirectory;
 import com.thoughtworks.go.config.ConfigSaveState;
 import com.thoughtworks.go.config.MailHost;
+import com.thoughtworks.go.config.update.UpdateArtifactConfigCommand;
 import com.thoughtworks.go.security.GoCipher;
+import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.Test;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.composite;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class ServerConfigServiceTest {
     @Test
@@ -59,4 +62,17 @@ public class ServerConfigServiceTest {
 
     }
 
+
+    @Test
+    public void shouldUpdateArtifactConfig() {
+        GoConfigService goConfigService = mock(GoConfigService.class);
+        ServerConfigService serverConfigService = new ServerConfigService(goConfigService, mock(UserService.class));
+
+        ArtifactConfig modifiedArtifactConfig = new ArtifactConfig();
+        modifiedArtifactConfig.setArtifactsDir(new ArtifactDirectory("foo"));
+        serverConfigService.updateArtifactConfig(modifiedArtifactConfig);
+
+        verify(goConfigService, times(1)).updateConfig(any(UpdateArtifactConfigCommand.class), any(Username.class));
+
+    }
 }

@@ -30,6 +30,12 @@
   </rule>
 
   <rule>
+    <name>artifacts API</name>
+    <from>^/api/admin/config/server/artifact_config$</from>
+    <to last="true">/spark/api/admin/config/server/artifact_config</to>
+  </rule>
+
+  <rule>
     <name>environments UI</name>
     <from>^/admin/environments(/?)$</from>
     <run class="com.thoughtworks.go.server.SparkOrRailsEnvironmentsPageToggle" method="environmentsPage"/>

@@ -16,6 +16,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.domain.SecureSiteUrl;
 import com.thoughtworks.go.domain.SiteUrl;
 import com.thoughtworks.go.domain.User;
@@ -36,9 +37,8 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.stream.Collectors;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -280,5 +280,46 @@ public class ServerConfigServiceIntegrationTest {
         serverConfigService.createOrUpdateDefaultJobTimeout("5");
 
         assertThat(serverConfigService.getDefaultJobTimeout(), is("5"));
+    }
+
+    @Test
+    public void shouldUpdateArtifactConfigWithoutPurgeSettingsIfValid() {
+        ArtifactConfig artifactConfig = new ArtifactConfig();
+        artifactConfig.setArtifactsDir(new ArtifactDirectory("test"));
+
+        assertThat(goConfigService.serverConfig().artifactsDir(), is("artifactsDir"));
+
+        serverConfigService.updateArtifactConfig(artifactConfig);
+
+        assertThat(goConfigService.serverConfig().artifactsDir(), is("test"));
+    }
+
+    @Test
+    public void shouldUpdateArtifactConfigWithPurgeSettingsIfValid() {
+        ArtifactConfig artifactConfig = new ArtifactConfig();
+        artifactConfig.setArtifactsDir(new ArtifactDirectory("test"));
+        PurgeSettings purgeSettings = new PurgeSettings();
+        purgeSettings.setPurgeStart(new PurgeStart(10.0));
+        purgeSettings.setPurgeUpto(new PurgeUpto(20.0));
+        artifactConfig.setPurgeSettings(purgeSettings);
+
+        assertThat(goConfigService.serverConfig().artifactsDir(), is("artifactsDir"));
+        assertNull(goConfigService.serverConfig().getPurgeStart());
+        assertNull(goConfigService.serverConfig().getPurgeUpto());
+
+        serverConfigService.updateArtifactConfig(artifactConfig);
+
+        assertThat(goConfigService.serverConfig().artifactsDir(), is("test"));
+        assertThat(goConfigService.serverConfig().getPurgeStart(), is(10.0));
+        assertThat(goConfigService.serverConfig().getPurgeUpto(), is(20.0));
+    }
+
+    @Test(expected = GoConfigInvalidException.class)
+    public void shouldNotUpdateArtifactConfigIfInvalid() {
+        ArtifactConfig artifactConfig = new ArtifactConfig();
+
+        assertThat(goConfigService.serverConfig().artifactsDir(), is("artifactsDir"));
+
+        serverConfigService.updateArtifactConfig(artifactConfig);
     }
 }

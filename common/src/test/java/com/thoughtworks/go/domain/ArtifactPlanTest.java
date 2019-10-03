@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.config.ArtifactConfigs;
+import com.thoughtworks.go.config.ArtifactTypeConfigs;
 import com.thoughtworks.go.config.BuildArtifactConfig;
 import com.thoughtworks.go.config.PluggableArtifactConfig;
 import com.thoughtworks.go.config.TestArtifactConfig;
@@ -126,13 +126,13 @@ public class ArtifactPlanTest {
     @Test
     public void toArtifactPlans_shouldConvertArtifactConfigsToArtifactPlanList() {
         final PluggableArtifactConfig artifactConfig = new PluggableArtifactConfig("id", "storeId", create("Foo", true, "Bar"));
-        final ArtifactConfigs artifactConfigs = new ArtifactConfigs(Arrays.asList(
+        final ArtifactTypeConfigs artifactTypeConfigs = new ArtifactTypeConfigs(Arrays.asList(
                 new BuildArtifactConfig("source", "destination"),
                 new TestArtifactConfig("test-source", "test-destination"),
                 artifactConfig
         ));
 
-        final List<ArtifactPlan> artifactPlans = ArtifactPlan.toArtifactPlans(artifactConfigs);
+        final List<ArtifactPlan> artifactPlans = ArtifactPlan.toArtifactPlans(artifactTypeConfigs);
 
         assertThat(artifactPlans, containsInAnyOrder(
                 new ArtifactPlan(ArtifactPlanType.file, "source", "destination"),

@@ -37,7 +37,7 @@ public class JobConfigMother {
     }
 
     public static JobConfig createJobConfigWithJobNameAndEmptyResources() {
-        return new JobConfig(new CaseInsensitiveString("defaultJob"), new ResourceConfigs(new ResourceConfig("Linux"), new ResourceConfig()), new ArtifactConfigs());
+        return new JobConfig(new CaseInsensitiveString("defaultJob"), new ResourceConfigs(new ResourceConfig("Linux"), new ResourceConfig()), new ArtifactTypeConfigs());
     }
 
     public static JobConfig jobConfig() {
@@ -45,16 +45,16 @@ public class JobConfigMother {
         addTask(job);
         job.setTimeout("100");
         job.setRunInstanceCount(3);
-        job.artifactConfigs().clear();
-        job.artifactConfigs().add(new BuildArtifactConfig("target/dist.jar", "pkg"));
-        job.artifactConfigs().add(new TestArtifactConfig("target/reports/**/*Test.xml", "reports"));
+        job.artifactTypeConfigs().clear();
+        job.artifactTypeConfigs().add(new BuildArtifactConfig("target/dist.jar", "pkg"));
+        job.artifactTypeConfigs().add(new TestArtifactConfig("target/reports/**/*Test.xml", "reports"));
         job.addTab("coverage", "Jcoverage/index.html");
         job.addTab("something", "something/path.html");
         return job;
     }
 
     public static JobConfig createJobConfigWithResourceAndArtifactPlans() {
-        return new JobConfig(new CaseInsensitiveString("defaultJob"), new ResourceConfigs(new ResourceConfig("Linux"), new ResourceConfig("Java")), new ArtifactConfigs(Arrays.asList(new BuildArtifactConfig("src", "dest"))));
+        return new JobConfig(new CaseInsensitiveString("defaultJob"), new ResourceConfigs(new ResourceConfig("Linux"), new ResourceConfig("Java")), new ArtifactTypeConfigs(Arrays.asList(new BuildArtifactConfig("src", "dest"))));
     }
 
     public static JobConfig elasticJob(String elasticProfileId) {

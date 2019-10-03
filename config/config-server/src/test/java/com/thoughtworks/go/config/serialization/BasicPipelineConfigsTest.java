@@ -30,7 +30,10 @@ public class BasicPipelineConfigsTest {
             + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
             + "xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\""
             + GoConstants.CONFIG_SCHEMA_VERSION + "\">\n"
-            + "  <server artifactsdir=\"other-artifacts\">\n"
+            + "  <server>"
+            + "  <artifacts>"
+            + "     <artifactsDir>other-artifacts</artifactsDir>"
+            + "  </artifacts>"
             + "    <security>\n"
             + "      <roles>\n"
             + "        <role name=\"admin\" />\n"
@@ -104,6 +107,7 @@ public class BasicPipelineConfigsTest {
     @Test
     public void shouldLoadOperationPermissionForPipelines() {
         CruiseConfig cruiseConfig = ConfigMigrator.load(configureAuthorization(OPERATION_PERMISSION));
+        cruiseConfig.initializeServer();
         PipelineConfigs group = cruiseConfig.getGroups().first();
 
         assertThat(group.getAuthorization(), instanceOf(Authorization.class));
@@ -116,7 +120,7 @@ public class BasicPipelineConfigsTest {
     @Test
     public void shouldLoadOperationAndViewPermissionForPipelinesNoMatterTheConfigOrder() {
         CruiseConfig cruiseConfig = ConfigMigrator.load(configureAuthorization(OPERATION_PERMISSION + VIEW_PERMISSION));
-
+        cruiseConfig.initializeServer();
         PipelineConfigs group = cruiseConfig.getGroups().first();
 
         assertThat(group.getAuthorization(), instanceOf(Authorization.class));
@@ -131,7 +135,7 @@ public class BasicPipelineConfigsTest {
     @Test
     public void shouldLoadViewAndOperationPermissionForPipelinesNoMatterTheConfigOrder() {
         CruiseConfig cruiseConfig = ConfigMigrator.load(configureAuthorization(VIEW_PERMISSION + OPERATION_PERMISSION));
-
+        cruiseConfig.initializeServer();
         PipelineConfigs group = cruiseConfig.getGroups().first();
 
         assertThat(group.getAuthorization(), instanceOf(Authorization.class));

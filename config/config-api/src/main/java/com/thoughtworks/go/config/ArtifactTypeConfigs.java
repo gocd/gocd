@@ -27,18 +27,18 @@ import java.util.List;
 import java.util.Map;
 
 @ConfigTag("artifacts")
-@ConfigCollection(ArtifactConfig.class)
-public class ArtifactConfigs extends BaseCollection<ArtifactConfig> implements Validatable, ParamsAttributeAware {
+@ConfigCollection(ArtifactTypeConfig.class)
+public class ArtifactTypeConfigs extends BaseCollection<ArtifactTypeConfig> implements Validatable, ParamsAttributeAware {
     private final ConfigErrors configErrors = new ConfigErrors();
 
-    public ArtifactConfigs() {
+    public ArtifactTypeConfigs() {
     }
 
-    public ArtifactConfigs(List<ArtifactConfig> artifactConfigConfigs) {
+    public ArtifactTypeConfigs(List<ArtifactTypeConfig> artifactConfigConfigs) {
         super(artifactConfigConfigs);
     }
 
-    public ArtifactConfigs(ArtifactConfig... artifactConfigConfigs) {
+    public ArtifactTypeConfigs(ArtifactTypeConfig... artifactConfigConfigs) {
         super(artifactConfigConfigs);
     }
 
@@ -46,8 +46,8 @@ public class ArtifactConfigs extends BaseCollection<ArtifactConfig> implements V
         validate(validationContext);
         boolean isValid = errors().isEmpty();
 
-        for (ArtifactConfig artifactConfig : this) {
-            isValid = artifactConfig.validateTree(validationContext) && isValid;
+        for (ArtifactTypeConfig artifactTypeConfig : this) {
+            isValid = artifactTypeConfig.validateTree(validationContext) && isValid;
         }
         return isValid;
     }
@@ -73,9 +73,9 @@ public class ArtifactConfigs extends BaseCollection<ArtifactConfig> implements V
 
     @Override
     public void validate(ValidationContext validationContext) {
-        List<ArtifactConfig> plans = new ArrayList<>();
-        for (ArtifactConfig artifactConfig : this) {
-            artifactConfig.validateUniqueness(plans);
+        List<ArtifactTypeConfig> plans = new ArrayList<>();
+        for (ArtifactTypeConfig artifactTypeConfig : this) {
+            artifactTypeConfig.validateUniqueness(plans);
         }
     }
 
@@ -149,9 +149,9 @@ public class ArtifactConfigs extends BaseCollection<ArtifactConfig> implements V
 
     public List<BuiltinArtifactConfig> getBuiltInArtifactConfigs() {
         final List<BuiltinArtifactConfig> artifactConfigs = new ArrayList<>();
-        for (ArtifactConfig artifactConfig : this) {
-            if (artifactConfig instanceof BuiltinArtifactConfig) {
-                artifactConfigs.add((BuiltinArtifactConfig) artifactConfig);
+        for (ArtifactTypeConfig artifactTypeConfig : this) {
+            if (artifactTypeConfig instanceof BuiltinArtifactConfig) {
+                artifactConfigs.add((BuiltinArtifactConfig) artifactTypeConfig);
             }
         }
         return artifactConfigs;
@@ -159,9 +159,9 @@ public class ArtifactConfigs extends BaseCollection<ArtifactConfig> implements V
 
     public List<PluggableArtifactConfig> getPluggableArtifactConfigs() {
         final List<PluggableArtifactConfig> artifactConfigs = new ArrayList<>();
-        for (ArtifactConfig artifactConfig : this) {
-            if (artifactConfig instanceof PluggableArtifactConfig) {
-                artifactConfigs.add((PluggableArtifactConfig) artifactConfig);
+        for (ArtifactTypeConfig artifactTypeConfig : this) {
+            if (artifactTypeConfig instanceof PluggableArtifactConfig) {
+                artifactConfigs.add((PluggableArtifactConfig) artifactTypeConfig);
             }
         }
         return artifactConfigs;

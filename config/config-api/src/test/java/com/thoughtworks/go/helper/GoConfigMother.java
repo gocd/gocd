@@ -198,6 +198,7 @@ public class GoConfigMother {
 
     public BasicCruiseConfig cruiseConfigWithOnePipelineGroup() {
         final BasicCruiseConfig config = defaultCruiseConfig();
+        config.initializeServer();
         addPipelineWithGroup(config, "group1", "pipeline1", "stage", "job");
         return config;
     }
@@ -235,7 +236,7 @@ public class GoConfigMother {
     }
 
     private static JobConfig defaultBuildPlan(String name) {
-        return new JobConfig(new CaseInsensitiveString(name), new ResourceConfigs(), new ArtifactConfigs());
+        return new JobConfig(new CaseInsensitiveString(name), new ResourceConfigs(), new ArtifactTypeConfigs());
     }
 
     public static BasicCruiseConfig cruiseConfigWithMailHost(MailHost mailHost) {
@@ -248,6 +249,7 @@ public class GoConfigMother {
 
     public static BasicCruiseConfig configWithPipelines(String... names) {
         final BasicCruiseConfig config = new BasicCruiseConfig();
+        config.initializeServer();
         GoConfigMother mother = new GoConfigMother();
         for (String name : names) {
             mother.addPipeline(config, name, "stage", "job");
@@ -305,11 +307,11 @@ public class GoConfigMother {
 
         final BuildArtifactConfig artifactFile = new BuildArtifactConfig();
         artifactFile.setSource(filePath);
-        job.artifactConfigs().add(artifactFile);
+        job.artifactTypeConfigs().add(artifactFile);
 
         BuildArtifactConfig artifactDir = new BuildArtifactConfig();
         artifactFile.setSource(directoryPath);
-        job.artifactConfigs().add(artifactDir);
+        job.artifactTypeConfigs().add(artifactDir);
 
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString(pipelineName), new MaterialConfigs(svn("file:///foo", null, null, false)), new StageConfig(
                 new CaseInsensitiveString(stageName), new JobConfigs(job)));

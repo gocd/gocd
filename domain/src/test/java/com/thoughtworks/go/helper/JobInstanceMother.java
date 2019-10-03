@@ -256,7 +256,7 @@ public class JobInstanceMother {
 
     public static JobPlan createJobPlan(JobConfig jobConfig, JobIdentifier jobIdentifier, SchedulingContext schedulingContext) {
         final EnvironmentVariables environmentVariables = EnvironmentVariables.toEnvironmentVariables(schedulingContext.overrideEnvironmentVariables(jobConfig.getVariables()).getEnvironmentVariablesConfig());
-        final List<ArtifactPlan> artifactPlans = ArtifactPlan.toArtifactPlans(jobConfig.artifactConfigs());
+        final List<ArtifactPlan> artifactPlans = ArtifactPlan.toArtifactPlans(jobConfig.artifactTypeConfigs());
 
         return new DefaultJobPlan(new Resources(jobConfig.resourceConfigs()), artifactPlans, -1,
                 jobIdentifier, null, environmentVariables, new EnvironmentVariables(), null, null);

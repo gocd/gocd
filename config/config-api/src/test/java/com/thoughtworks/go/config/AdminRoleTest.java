@@ -89,7 +89,7 @@ public class AdminRoleTest {
 
     @Test
     public void shouldNotThrowExceptionIfNoRoleUsed()  {
-        StageConfig stage = new StageConfig(new CaseInsensitiveString("stage-foo"), new JobConfigs(new JobConfig(new CaseInsensitiveString("build-1"), new ResourceConfigs(), new ArtifactConfigs(), new Tasks(new ExecTask("ls", "-la", "work"))
+        StageConfig stage = new StageConfig(new CaseInsensitiveString("stage-foo"), new JobConfigs(new JobConfig(new CaseInsensitiveString("build-1"), new ResourceConfigs(), new ArtifactTypeConfigs(), new Tasks(new ExecTask("ls", "-la", "work"))
         ))
         );
         PipelineConfigs pipelinesConfig = new BasicPipelineConfigs("group", new Authorization(), new PipelineConfig(new CaseInsensitiveString("pipeline"), new MaterialConfigs(), stage));

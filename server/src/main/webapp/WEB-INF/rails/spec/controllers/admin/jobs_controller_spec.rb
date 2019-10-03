@@ -131,7 +131,7 @@ describe Admin::JobsController do
         expect(assigns[:task_view_models]).to eq(tvms)
 
         actual_job_assigned = assigns[:job]
-        job_config_new = JobConfig.new(CaseInsensitiveString.new(""), ResourceConfigs.new, ArtifactConfigs.new, com.thoughtworks.go.config.Tasks.new([AntTask.new].to_java(Task)))
+        job_config_new = JobConfig.new(CaseInsensitiveString.new(""), ResourceConfigs.new, ArtifactTypeConfigs.new, com.thoughtworks.go.config.Tasks.new([AntTask.new].to_java(Task)))
         expect(actual_job_assigned).to eq(job_config_new)
         expect(actual_job_assigned.tasks().first).to eq(AntTask.new)
         assert_template layout: false
@@ -305,7 +305,7 @@ describe Admin::JobsController do
 
         put :update, params:{:pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1", :current_tab => "artifacts",:config_md5 => "1234abcd", "default_as_empty_list" => ["job>artifactConfigs"], :stage_parent => "pipelines"}
 
-        expect(assigns[:job].artifactConfigs().size()).to eq(0)
+        expect(assigns[:job].artifactTypeConfigs().size()).to eq(0)
         assert_update_command ::ConfigUpdate::JobNode, ::ConfigUpdate::NodeAsSubject, ::ConfigUpdate::RefsAsUpdatedRefs
       end
     end

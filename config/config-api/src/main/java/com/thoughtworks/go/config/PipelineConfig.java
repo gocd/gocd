@@ -179,7 +179,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         fetchExternalArtifactTasks = new CachedFetchPluggableArtifactTasks();
         for (StageConfig stageConfig : getStages()) {
             for (JobConfig jobConfig : stageConfig.getJobs()) {
-                externalArtifactConfigs.addAll(jobConfig.artifactConfigs().getPluggableArtifactConfigs());
+                externalArtifactConfigs.addAll(jobConfig.artifactTypeConfigs().getPluggableArtifactConfigs());
                 for (Task task : jobConfig.getTasks()) {
                     if (task instanceof FetchPluggableArtifactTask) {
                         fetchExternalArtifactTasks.add((FetchPluggableArtifactTask) task);

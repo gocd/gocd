@@ -331,10 +331,10 @@ public class MagicalGoConfigXmlLoaderTest {
         assertThat(plan.tasks()).hasSize(1);
         AntTask builder = (AntTask) plan.tasks().first();
         assertThat(builder.getTarget()).isEqualTo("all");
-        final ArtifactConfigs cardListArtifacts = cruiseConfig.jobConfigByName("pipeline1", "mingle",
-                "cardlist", true).artifactConfigs();
+        final ArtifactTypeConfigs cardListArtifacts = cruiseConfig.jobConfigByName("pipeline1", "mingle",
+                "cardlist", true).artifactTypeConfigs();
         assertThat(cardListArtifacts.size()).isEqualTo(1);
-        ArtifactConfig artifactConfigPlan = cardListArtifacts.get(0);
+        ArtifactTypeConfig artifactConfigPlan = cardListArtifacts.get(0);
         assertThat(artifactConfigPlan.getArtifactType()).isEqualTo(ArtifactType.test);
     }
 
@@ -372,7 +372,7 @@ public class MagicalGoConfigXmlLoaderTest {
     void shouldRetainArtifactSourceThatIsNotWhitespace() throws Exception {
         CruiseConfig cruiseConfig = xmlLoader.deserializeConfig(goConfigMigration.upgradeIfNecessary(configWithArtifactSourceAs("t ")));
         JobConfig plan = cruiseConfig.jobConfigByName("pipeline", "stage", "job", true);
-        assertThat(plan.artifactConfigs().getBuiltInArtifactConfigs().get(0).getSource()).isEqualTo("t ");
+        assertThat(plan.artifactTypeConfigs().getBuiltInArtifactConfigs().get(0).getSource()).isEqualTo("t ");
     }
 
     @Test
@@ -385,7 +385,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "</job>";
         JobConfig build = xmlLoader.fromXmlPartial(buildXmlPartial, JobConfig.class);
         assertThat(build.name()).isEqualTo(new CaseInsensitiveString("functional"));
-        assertThat(build.artifactConfigs().size()).isEqualTo(1);
+        assertThat(build.artifactTypeConfigs().size()).isEqualTo(1);
     }
 
 
@@ -1226,13 +1226,13 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     void shouldAllowBothCounterAndTruncatedGitMaterialInLabelTemplate() throws Exception {
-        CruiseConfig cruiseConfig = xmlLoader.deserializeConfig(LABEL_TEMPLATE_WITH_LABEL_TEMPLATE("1.3.0-${COUNT}-${git[:7]}", CONFIG_SCHEMA_VERSION));
+        CruiseConfig cruiseConfig = xmlLoader.deserializeConfig(LABEL_TEMPLATE_WITH_LABEL_TEMPLATE("1.3.0-${COUNT}-${git[:7]}"));
         assertThat(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("cruise")).getLabelTemplate()).isEqualTo("1.3.0-${COUNT}-${git[:7]}");
     }
 
     @Test
     void shouldAllowHashCharacterInLabelTemplate() throws Exception {
-        GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(LABEL_TEMPLATE_WITH_LABEL_TEMPLATE("1.3.0-${COUNT}-${git}##", CONFIG_SCHEMA_VERSION));
+        GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(LABEL_TEMPLATE_WITH_LABEL_TEMPLATE("1.3.0-${COUNT}-${git}##"));
         assertThat(goConfigHolder.config.pipelineConfigByName(new CaseInsensitiveString("cruise")).getLabelTemplate()).isEqualTo("1.3.0-${COUNT}-${git}#");
         assertThat(goConfigHolder.configForEdit.pipelineConfigByName(new CaseInsensitiveString("cruise")).getLabelTemplate()).isEqualTo("1.3.0-${COUNT}-${git}##");
     }
@@ -1289,7 +1289,7 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldNotLoadConfigWhenPipelineHasNoStages() {
         String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server artifactsdir='artifacts' />"
+                + "<server />"
                 + "<pipelines>\n"
                 + "<pipeline name='pipeline1'>\n"
                 + "    <materials>\n"
@@ -1309,7 +1309,7 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldNotAllowReferencingTemplateThatDoesNotExist() {
         String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server artifactsdir='artifacts' />"
+                + "<server />"
                 + "<pipelines>\n"
                 + "<pipeline name='pipeline1' template='abc'>\n"
                 + "    <materials>\n"
@@ -1329,7 +1329,7 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldAllowPipelineToReferenceTemplate() {
         String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server artifactsdir='artifacts'>"
+                + "<server>"
                 + "</server>"
                 + "<pipelines>\n"
                 + "<pipeline name='pipeline1' template='abc'>\n"
@@ -1356,7 +1356,7 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldAllowAdminInPipelineGroups() {
         String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server artifactsdir='artifacts' >"
+                + "<server >"
                 + "</server>"
                 + "<pipelines group=\"first\">\n"
                 + "<authorization>"
@@ -1388,7 +1388,7 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldAllowAdminWithRoleInPipelineGroups() {
         String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server artifactsdir='artifacts' >"
+                + "<server >"
                 + "<security>\n"
                 + "      <roles>\n"
                 + "        <role name=\"bar\">\n"
@@ -1429,7 +1429,7 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldAddJobTimeoutAttributeToServerTagAndDefaultItTo60_37xsl() {
         String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n" +
-                "<server artifactsdir='artifacts' >" +
+                "<server>" +
                 "<siteUrls>" +
                 "<siteUrl>http://www.someurl.com/go</siteUrl>" +
                 "<secureSiteUrl>https://www.someotherurl.com/go</secureSiteUrl> " +
@@ -1442,7 +1442,7 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldGetTheJobTimeoutFromServerTag_37xsl() {
         String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n" +
-                "<server artifactsdir='artifacts' jobTimeout='30'>" +
+                "<server jobTimeout='30'>" +
                 "<siteUrls>" +
                 "<siteUrl>http://www.someurl.com/go</siteUrl>" +
                 "<secureSiteUrl>https://www.someotherurl.com/go</secureSiteUrl>" +
@@ -1463,7 +1463,7 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldAllowSiteUrlandSecureSiteUrlAttributes() {
         String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n" +
-                "<server artifactsdir='artifacts'>" +
+                "<server>" +
                 "<siteUrls>" +
                 "<siteUrl>http://www.someurl.com/go</siteUrl>" +
                 "<secureSiteUrl>https://www.someotherurl.com/go</secureSiteUrl>" +
@@ -1477,8 +1477,15 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldAllowPurgeStartAndPurgeUptoAttributes() {
         String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server artifactsdir='artifacts' purgeStart='1' purgeUpto='3'>"
-                + "</server></cruise>";
+                + "<server>"
+                + "<artifacts>"
+                + " <purgeSettings>"
+                + "   <purgeStartDiskSpace>1</purgeStartDiskSpace>"
+                + "   <purgeUptoDiskSpace>3</purgeUptoDiskSpace>"
+                + " </purgeSettings>"
+                + "</artifacts>"
+                + "</server>" +
+                "</cruise>";
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
         assertThat(cruiseConfig.server().getPurgeStart()).isEqualTo(1.0);
         assertThat(cruiseConfig.server().getPurgeUpto()).isEqualTo(3.0);
@@ -1487,7 +1494,13 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldAllowDoublePurgeStartAndPurgeUptoAttributes() {
         String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server artifactsdir='artifacts' purgeStart='1.2' purgeUpto='3.4'>"
+                + "<server>"
+                + "<artifacts>"
+                + " <purgeSettings>"
+                + "   <purgeStartDiskSpace>1.2</purgeStartDiskSpace>"
+                + "   <purgeUptoDiskSpace>3.4</purgeUptoDiskSpace>"
+                + " </purgeSettings>"
+                + "</artifacts>"
                 + "</server></cruise>";
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
         assertThat(cruiseConfig.server().getPurgeStart()).isEqualTo(1.2);
@@ -1497,7 +1510,7 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldAllowNullPurgeStartAndEnd() {
         String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server artifactsdir='artifacts'>"
+                + "<server>"
                 + "</server></cruise>";
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
         assertThat(cruiseConfig.server().getPurgeStart()).isNull();
@@ -1508,7 +1521,7 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldNotAllowAPipelineThatReferencesATemplateToHaveStages() {
         String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server artifactsdir='artifacts' />"
+                + "<server />"
                 + "<pipelines>\n"
                 + "<pipeline name='pipeline1' template='abc'>\n"
                 + "    <materials>\n"
@@ -2100,7 +2113,7 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldNotAllowDuplicateParamsInAPipeline() {
         String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server artifactsdir='artifacts' />"
+                + "<server />"
                 + "<pipelines>\n"
                 + "<pipeline name='dev'>\n"
                 + "    <params>"
@@ -2130,7 +2143,7 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldNotAllowParamsToBeUsedInNames() {
         String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server artifactsdir='artifacts' />"
+                + "<server />"
                 + "<pipelines>\n"
                 + "<pipeline name='dev'>\n"
                 + "    <params>"
@@ -2353,7 +2366,10 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "        xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
                         + "        xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" "
                         + "        schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                        + "  <server artifactsdir=\"logs\">\n"
+                        + "  <server>\n"
+                        + "    <artifacts>"
+                        + "      <artifactsDir>logs</artifactsDir>"
+                        + "    </artifacts>"
                         + "  </server>\n"
                         + "<pipelines>\n"
                         + "  <pipeline name=\"pipeline-name\">\n"
@@ -2695,7 +2711,10 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldAddDefaultCommndRepositoryLocationIfNoValueIsGiven() {
         String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server artifactsdir='artifactsDir'>"
+                + "<server>"
+                + "    <artifacts>"
+                + "      <artifactsDir>artifactsDir</artifactsDir> "
+                + "    </artifacts>"
                 + "</server>"
                 + "<pipelines>"
                 + "<pipeline name='some_pipeline'>"
@@ -3315,7 +3334,10 @@ public class MagicalGoConfigXmlLoaderTest {
         String configXml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                 + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
                 + "     xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server artifactsdir='artifactsDir'>"
+                + "<server>"
+                + "    <artifacts>"
+                + "      <artifactsDir>artifactsDir</artifactsDir> "
+                + "    </artifacts>"
                 + "     <security>"
                 + "         <roles>"
                 + "             <role name='role1'>"
@@ -3356,7 +3378,7 @@ public class MagicalGoConfigXmlLoaderTest {
         String configXml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                 + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
                 + "     xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server artifactsdir='artifactsDir'>"
+                + "<server>"
                 + "     <security>"
                 + "         <roles>"
                 + "             <role name='role1'>"
@@ -3367,6 +3389,9 @@ public class MagicalGoConfigXmlLoaderTest {
                 + "             </role>"
                 + "         </roles>"
                 + "     </security>"
+                + "     <artifacts>"
+                + "         <artifactsDir>artifactsDir</artifactsDir> "
+                + "     </artifacts>"
                 + " </server>"
                 + " <templates>"
                 + "   <pipeline name='template1'>"
@@ -3396,7 +3421,10 @@ public class MagicalGoConfigXmlLoaderTest {
         String configXml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                 + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
                 + "     xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server artifactsdir='artifactsDir'>"
+                + "<server>"
+                + "    <artifacts>"
+                + "      <artifactsDir>artifactsDir</artifactsDir> "
+                + "    </artifacts>"
                 + "     <security>"
                 + "         <roles>"
                 + "             <role name='role1'>"
@@ -3656,7 +3684,7 @@ public class MagicalGoConfigXmlLoaderTest {
                 "                        ").toString();
 
         String content = config(
-                "<server artifactsdir='artifacts'>\n" +
+                "<server>\n" +
                         "    <mailhost hostname='host' port='25' username='user' encryptedPassword='" + encryptedValueWithWhitespaceAndNewline + "' tls='false' from='user@domain.com' admin='admin@domain.com' />\n" +
                         "  </server>", 88);
 
@@ -3834,12 +3862,12 @@ public class MagicalGoConfigXmlLoaderTest {
                 "</cruise>";
 
         final CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(configXml).configForEdit;
-        final ArtifactConfigs artifactConfigs = cruiseConfig.pipelineConfigByName(
+        final ArtifactTypeConfigs artifactTypeConfigs = cruiseConfig.pipelineConfigByName(
                 new CaseInsensitiveString("up42")).getStage("up42_stage")
-                .getJobs().getJob(new CaseInsensitiveString("up42_job")).artifactConfigs();
+                .getJobs().getJob(new CaseInsensitiveString("up42_job")).artifactTypeConfigs();
 
-        assertThat(artifactConfigs).hasSize(1);
-        assertThat(artifactConfigs).containsExactly(new PluggableArtifactConfig("installer", "s3", create("filename", false, "foo.xml")));
+        assertThat(artifactTypeConfigs).hasSize(1);
+        assertThat(artifactTypeConfigs).containsExactly(new PluggableArtifactConfig("installer", "s3", create("filename", false, "foo.xml")));
     }
 
     @Test
@@ -4148,7 +4176,7 @@ public class MagicalGoConfigXmlLoaderTest {
         String desEncryptedPassword = "mvcX9yrQsM4iPgm1tDxN1A==";
 
         String content = config(
-                "<server artifactsdir='artifacts'>" +
+                "<server>" +
                         "    <mailhost hostname='host' port='25' username='user' encryptedPassword='" + desEncryptedPassword + "' tls='false' from='user@domain.com' admin='admin@domain.com' />" +
                         "  </server>", 108);
 
@@ -4182,8 +4210,8 @@ public class MagicalGoConfigXmlLoaderTest {
         PipelineConfig parent = config.pipelineConfigByName(new CaseInsensitiveString("parent"));
         PipelineConfig child = config.pipelineConfigByName(new CaseInsensitiveString("child"));
 
-        Configuration ancestorPublishArtifactConfig = ancestor.get(0).getJobs().first().artifactConfigs().getPluggableArtifactConfigs().get(0).getConfiguration();
-        Configuration parentPublishArtifactConfig = parent.get(0).getJobs().first().artifactConfigs().getPluggableArtifactConfigs().get(0).getConfiguration();
+        Configuration ancestorPublishArtifactConfig = ancestor.get(0).getJobs().first().artifactTypeConfigs().getPluggableArtifactConfigs().get(0).getConfiguration();
+        Configuration parentPublishArtifactConfig = parent.get(0).getJobs().first().artifactTypeConfigs().getPluggableArtifactConfigs().get(0).getConfiguration();
         Configuration childFetchArtifactFromAncestorConfig = ((FetchPluggableArtifactTask) child.get(0).getJobs().first().tasks().get(0)).getConfiguration();
         Configuration childFetchArtifactFromParentConfig = ((FetchPluggableArtifactTask) child.get(0).getJobs().first().tasks().get(1)).getConfiguration();
         ArtifactStore dockerhubStore = config.getArtifactStores().first();
@@ -4247,7 +4275,10 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldNotAllowMoreThanOneOnCancelTaskWhenDefined() {
         String xml = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server artifactsdir='artifactsDir' >"
+                + "<server>"
+                + "    <artifacts>"
+                + "      <artifactsDir>artifactsDir</artifactsDir> "
+                + "    </artifacts>"
                 + "</server>"
                 + "<pipelines>\n"
                 + "<pipeline name='pipeline1' template='abc'>\n"

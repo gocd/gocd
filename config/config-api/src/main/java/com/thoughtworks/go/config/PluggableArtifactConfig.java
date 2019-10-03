@@ -33,7 +33,7 @@ import java.util.List;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @AttributeAwareConfigTag(value = "artifact", attribute = "type", attributeValue = "external")
-public class PluggableArtifactConfig implements ArtifactConfig {
+public class PluggableArtifactConfig implements ArtifactTypeConfig {
     private final ConfigErrors errors = new ConfigErrors();
 
     @SkipParameterResolution
@@ -144,25 +144,25 @@ public class PluggableArtifactConfig implements ArtifactConfig {
     }
 
     @Override
-    public void validateUniqueness(List<ArtifactConfig> existingArtifactConfigList) {
-        for (ArtifactConfig existingArtifactConfig : existingArtifactConfigList) {
-            if (existingArtifactConfig instanceof PluggableArtifactConfig) {
-                final PluggableArtifactConfig pluggableArtifactConfig = (PluggableArtifactConfig) existingArtifactConfig;
+    public void validateUniqueness(List<ArtifactTypeConfig> existingArtifactTypeConfigList) {
+        for (ArtifactTypeConfig existingArtifactTypeConfig : existingArtifactTypeConfigList) {
+            if (existingArtifactTypeConfig instanceof PluggableArtifactConfig) {
+                final PluggableArtifactConfig pluggableArtifactConfig = (PluggableArtifactConfig) existingArtifactTypeConfig;
 
                 if (this.getId().equalsIgnoreCase(pluggableArtifactConfig.getId())) {
                     this.addError("id", String.format("Duplicate pluggable artifacts  with id `%s` defined.", getId()));
-                    existingArtifactConfig.addError("id", String.format("Duplicate pluggable artifacts  with id `%s` defined.", getId()));
+                    existingArtifactTypeConfig.addError("id", String.format("Duplicate pluggable artifacts  with id `%s` defined.", getId()));
                 }
                 if (this.getStoreId().equalsIgnoreCase(pluggableArtifactConfig.getStoreId())) {
                     if (configuration.size() == pluggableArtifactConfig.getConfiguration().size() && this.configuration.containsAll(pluggableArtifactConfig.getConfiguration())) {
                         this.addError("id", "Duplicate pluggable artifacts  configuration defined.");
-                        existingArtifactConfig.addError("id", "Duplicate pluggable artifacts  configuration defined.");
+                        existingArtifactTypeConfig.addError("id", "Duplicate pluggable artifacts  configuration defined.");
                     }
                 }
                 return;
             }
         }
-        existingArtifactConfigList.add(this);
+        existingArtifactTypeConfigList.add(this);
     }
 
     public String toJSON() {

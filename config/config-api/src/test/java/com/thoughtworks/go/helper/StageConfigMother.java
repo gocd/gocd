@@ -33,16 +33,16 @@ public class StageConfigMother {
 
     public static StageConfig oneBuildPlanWithResourcesAndMaterials(String stageName, String buildName) {
         JobConfigs jobConfigs = new JobConfigs(new JobConfig(
-                new CaseInsensitiveString(buildName), new ResourceConfigs(new ResourceConfig("Windows"), new ResourceConfig(".NET")), new ArtifactConfigs()));
+                new CaseInsensitiveString(buildName), new ResourceConfigs(new ResourceConfig("Windows"), new ResourceConfig(".NET")), new ArtifactTypeConfigs()));
         return stageConfig(stageName, jobConfigs);
     }
 
     public static StageConfig twoBuildPlansWithResourcesAndMaterials(String stageName) {
         JobConfig windoze = new JobConfig(
-                new CaseInsensitiveString("WinBuild"), new ResourceConfigs(new ResourceConfig("Windows"), new ResourceConfig(".NET")), new ArtifactConfigs(Arrays.asList(new TestArtifactConfig("junit", "junit")))
+                new CaseInsensitiveString("WinBuild"), new ResourceConfigs(new ResourceConfig("Windows"), new ResourceConfig(".NET")), new ArtifactTypeConfigs(Arrays.asList(new TestArtifactConfig("junit", "junit")))
         );
         JobConfig linux = new JobConfig(
-                new CaseInsensitiveString("NixBuild"), new ResourceConfigs(new ResourceConfig("Linux"), new ResourceConfig("java")), new ArtifactConfigs(Arrays.asList(new TestArtifactConfig("junit", "junit")))
+                new CaseInsensitiveString("NixBuild"), new ResourceConfigs(new ResourceConfig("Linux"), new ResourceConfig("java")), new ArtifactTypeConfigs(Arrays.asList(new TestArtifactConfig("junit", "junit")))
         );
         JobConfigs jobConfigs = new JobConfigs(windoze, linux);
         return stageConfig(stageName, jobConfigs);
@@ -110,14 +110,14 @@ public class StageConfigMother {
     }
 
     public static StageConfig stageConfigWithArtifact(String stageName, String jobName, ArtifactType artifactType) {
-        ArtifactConfigs artifactConfigsWithTests = new ArtifactConfigs();
+        ArtifactTypeConfigs artifactConfigsWithTests = new ArtifactTypeConfigs();
         artifactConfigsWithTests.add(createArtifactConfig(artifactType));
         JobConfig job1 = new JobConfig(new CaseInsensitiveString(jobName), new ResourceConfigs("abc"), artifactConfigsWithTests);
         StageConfig stage = new StageConfig(new CaseInsensitiveString(stageName), new JobConfigs(job1));
         return stage;
     }
 
-    private static ArtifactConfig createArtifactConfig(ArtifactType artifactType) {
+    private static ArtifactTypeConfig createArtifactConfig(ArtifactType artifactType) {
         if (artifactType == ArtifactType.external) {
             return createPluggableArtifactConfig();
         } else {
@@ -125,7 +125,7 @@ public class StageConfigMother {
         }
     }
 
-    private static ArtifactConfig createBuiltInArtifactConfig(ArtifactType artifactType, String src, String dest) {
+    private static ArtifactTypeConfig createBuiltInArtifactConfig(ArtifactType artifactType, String src, String dest) {
         if (artifactType == ArtifactType.build) {
             return new BuildArtifactConfig(src, dest);
         } else if (artifactType == ArtifactType.test) {

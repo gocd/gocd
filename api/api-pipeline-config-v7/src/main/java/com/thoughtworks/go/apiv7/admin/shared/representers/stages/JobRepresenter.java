@@ -23,7 +23,7 @@ import com.thoughtworks.go.api.representers.ErrorGetter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.apiv7.admin.shared.representers.stages.artifacts.ArtifactRepresenter;
 import com.thoughtworks.go.apiv7.admin.shared.representers.stages.tasks.TaskRepresenter;
-import com.thoughtworks.go.config.ArtifactConfigs;
+import com.thoughtworks.go.config.ArtifactTypeConfigs;
 import com.thoughtworks.go.config.JobConfig;
 import com.thoughtworks.go.config.ResourceConfig;
 import com.thoughtworks.go.config.ResourceConfigs;
@@ -59,7 +59,7 @@ public class JobRepresenter {
 
     private static Consumer<OutputListWriter> getArtifacts(JobConfig jobConfig) {
         return artifactsWriter -> {
-            jobConfig.artifactConfigs().forEach(artifactConfig -> {
+            jobConfig.artifactTypeConfigs().forEach(artifactConfig -> {
                 artifactsWriter.addChild(artifactWriter -> ArtifactRepresenter.toJSON(artifactWriter, artifactConfig));
             });
         };
@@ -117,13 +117,13 @@ public class JobRepresenter {
     }
 
     private static void setArtifacts(JobConfig jobConfig) {
-        ArtifactConfigs artifactConfigs = new ArtifactConfigs();
+        ArtifactTypeConfigs artifactTypeConfigs = new ArtifactTypeConfigs();
         jsonReader.readArrayIfPresent("artifacts", artifacts -> {
             artifacts.forEach(artifact -> {
-                artifactConfigs.add(ArtifactRepresenter.fromJSON(new JsonReader(artifact.getAsJsonObject())));
+                artifactTypeConfigs.add(ArtifactRepresenter.fromJSON(new JsonReader(artifact.getAsJsonObject())));
             });
         });
-        jobConfig.setArtifactConfigs(artifactConfigs);
+        jobConfig.setArtifactTypeConfigs(artifactTypeConfigs);
     }
 
     private static void setTimeout(JobConfig jobConfig) {

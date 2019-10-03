@@ -328,11 +328,11 @@ class JobRepresenterTest {
       ])
 
       def actualJobConfig = JobRepresenter.fromJSON(jsonReader)
-      def destinations = actualJobConfig.artifactConfigs().collect { eachItem -> ((BuiltinArtifactConfig) eachItem).getDestination() }
+      def destinations = actualJobConfig.artifactTypeConfigs().collect { eachItem -> ((BuiltinArtifactConfig) eachItem).getDestination() }
       assertEquals(destinations.get(0), 'pkg')
       assertEquals(destinations.get(1), 'testoutput')
 
-      def artifactTypes = actualJobConfig.artifactConfigs().collect { eachItem -> eachItem.getArtifactType().name() }
+      def artifactTypes = actualJobConfig.artifactTypeConfigs().collect { eachItem -> eachItem.getArtifactType().name() }
 
       assertEquals(artifactTypes.get(0), 'build')
       assertEquals(artifactTypes.get(1), 'test')
@@ -372,9 +372,9 @@ class JobRepresenterTest {
   void 'should map errors' () {
     def jobConfig =  new JobConfig()
     jobConfig.setRunInstanceCount(-2)
-    def plans = new ArtifactConfigs()
+    def plans = new ArtifactTypeConfigs()
     plans.add(new TestArtifactConfig(null, '../foo'))
-    jobConfig.setArtifactConfigs(plans)
+    jobConfig.setArtifactTypeConfigs(plans)
     jobConfig.setTasks(new Tasks(new FetchTask(new CaseInsensitiveString(''),
       new CaseInsensitiveString(''), new CaseInsensitiveString(''), null, null)))
     jobConfig.setTabs(new Tabs(new Tab('coverage#1',

@@ -63,7 +63,7 @@ public class FetchArtifactViewHelper {
             currentPipelineStages.forEach(stg -> {
                 Map<CaseInsensitiveString, Map> jobsToArtifacts = new HashMap<>();
                 stg.getJobs().forEach(job -> {
-                    List<PluggableArtifactConfig> pluggableArtifactConfigs = job.artifactConfigs().getPluggableArtifactConfigs();
+                    List<PluggableArtifactConfig> pluggableArtifactConfigs = job.artifactTypeConfigs().getPluggableArtifactConfigs();
                     Map<String, String> artifactToPlugins = new HashMap<>();
                     pluggableArtifactConfigs.forEach(pluggableArtifactConfig -> {
                         ArtifactStore store = cruiseConfig.getArtifactStores().find(pluggableArtifactConfig.getStoreId());

@@ -9,10 +9,10 @@
                           :onsubmit => "return AjaxForm.jquery_ajax_submit(this, AjaxForm.ConfigFormEditHandler);",
                           :class => "popup_form"} do |f| %>
     <%= md5_field %>
-    <%= register_defaultable_list("job>artifactConfigs") %>
+    <%= register_defaultable_list("job>artifactTypeConfigs") %>
 
     <div class="fieldset">
-      <%= render :partial => "artifact_configs.html", :locals => {:scope => {:form => f, :built_in_collection => @job.artifactConfigs().getBuiltInArtifactConfigs(), :external_artifact_collection => @job.artifactConfigs().getPluggableArtifactConfigs(), :artifact_meta_data_store => @artifact_meta_data_store, :store_id_to_plugin_id => @store_id_to_plugin_id, :artifact_plugin_to_view => @artifact_plugin_to_view, :artifact_store_ids => @artifact_store_ids, :plugin_name_to_id => @plugin_name_to_id}} %>
+      <%= render :partial => "artifact_configs.html", :locals => {:scope => {:form => f, :built_in_collection => @job.artifactTypeConfigs().getBuiltInArtifactConfigs(), :external_artifact_collection => @job.artifactTypeConfigs().getPluggableArtifactConfigs(), :artifact_meta_data_store => @artifact_meta_data_store, :store_id_to_plugin_id => @store_id_to_plugin_id, :artifact_plugin_to_view => @artifact_plugin_to_view, :artifact_store_ids => @artifact_store_ids, :plugin_name_to_id => @plugin_name_to_id}} %>
     </div>
 
     <%= render :partial => 'shared/convert_tool_tips.html', :locals => {:scope => {}} %>

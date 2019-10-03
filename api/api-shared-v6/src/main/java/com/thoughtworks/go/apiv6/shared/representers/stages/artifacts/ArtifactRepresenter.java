@@ -25,8 +25,8 @@ import java.util.HashMap;
 
 public class ArtifactRepresenter {
 
-    public static void toJSON(OutputWriter jsonWriter, ArtifactConfig artifactConfig) {
-        if (!artifactConfig.errors().isEmpty()) {
+    public static void toJSON(OutputWriter jsonWriter, ArtifactTypeConfig artifactTypeConfig) {
+        if (!artifactTypeConfig.errors().isEmpty()) {
             jsonWriter.addChild("errors", errorWriter -> {
                 HashMap<String, String> errorMapping = new HashMap<>();
                 errorMapping.put("src", "source");
@@ -35,38 +35,38 @@ public class ArtifactRepresenter {
                 errorMapping.put("storeId", "store_id");
                 errorMapping.put("pluginId", "plugin_id");
 
-                new ErrorGetter(errorMapping).toJSON(errorWriter, artifactConfig);
+                new ErrorGetter(errorMapping).toJSON(errorWriter, artifactTypeConfig);
             });
         }
 
-        jsonWriter.add("type", artifactConfig.getArtifactType().name());
-        switch (artifactConfig.getArtifactType()) {
+        jsonWriter.add("type", artifactTypeConfig.getArtifactType().name());
+        switch (artifactTypeConfig.getArtifactType()) {
             case test:
             case build:
-                BuiltinArtifactConfigRepresenter.toJSON(jsonWriter, (BuiltinArtifactConfig) artifactConfig);
+                BuiltinArtifactConfigRepresenter.toJSON(jsonWriter, (BuiltinArtifactConfig) artifactTypeConfig);
                 break;
             case external:
-                ExternalArtifactConfigRepresenter.toJSON(jsonWriter, (PluggableArtifactConfig) artifactConfig);
+                ExternalArtifactConfigRepresenter.toJSON(jsonWriter, (PluggableArtifactConfig) artifactTypeConfig);
         }
 
     }
 
-    public static ArtifactConfig fromJSON(JsonReader jsonReader) {
+    public static ArtifactTypeConfig fromJSON(JsonReader jsonReader) {
         String type = jsonReader.getString("type");
-        ArtifactConfig artifactConfig;
+        ArtifactTypeConfig artifactTypeConfig;
         switch (type) {
             case "build":
-                artifactConfig = BuiltinArtifactConfigRepresenter.fromJSON(jsonReader, new BuildArtifactConfig());
+                artifactTypeConfig = BuiltinArtifactConfigRepresenter.fromJSON(jsonReader, new BuildArtifactConfig());
                 break;
             case "test":
-                artifactConfig = BuiltinArtifactConfigRepresenter.fromJSON(jsonReader, new TestArtifactConfig());
+                artifactTypeConfig = BuiltinArtifactConfigRepresenter.fromJSON(jsonReader, new TestArtifactConfig());
                 break;
             case "external":
-                artifactConfig = ExternalArtifactConfigRepresenter.fromJSON(jsonReader, new PluggableArtifactConfig());
+                artifactTypeConfig = ExternalArtifactConfigRepresenter.fromJSON(jsonReader, new PluggableArtifactConfig());
                 break;
             default:
                 throw new UnprocessableEntityException(String.format("Invalid Artifact type: '%s'. It has to be one of %s.", type, String.join(",", "build", "test", "external")));
         }
-        return artifactConfig;
+        return artifactTypeConfig;
     }
 }

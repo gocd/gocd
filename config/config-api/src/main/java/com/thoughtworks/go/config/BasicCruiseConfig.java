@@ -192,6 +192,7 @@ public class BasicCruiseConfig implements CruiseConfig {
     public void initializeServer() {
         serverConfig.ensureServerIdExists();
         serverConfig.ensureAgentAutoregisterKeyExists();
+        serverConfig.ensureArtifactConfigExists();
     }
 
     @Override

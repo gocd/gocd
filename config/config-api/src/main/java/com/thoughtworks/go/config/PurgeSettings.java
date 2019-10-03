@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.domain.ConfigErrors;
 import lombok.*;
 import lombok.experimental.Accessors;
 
-import javax.annotation.PostConstruct;
+import static com.thoughtworks.go.config.ServerConfig.PURGE_START;
 
 @Getter
 @Setter
@@ -27,12 +28,12 @@ import javax.annotation.PostConstruct;
 @Accessors(chain = true)
 @NoArgsConstructor(access = AccessLevel.PUBLIC)
 @AllArgsConstructor(access = AccessLevel.NONE)
-@ConfigTag("artifacts")
-public class ArtifactConfig implements Validatable {
+@ConfigTag("purgeSettings")
+public class PurgeSettings implements Validatable {
     @ConfigSubtag
-    private ArtifactDirectory artifactsDir = new ArtifactDirectory();
+    private PurgeStart purgeStart = new PurgeStart();
     @ConfigSubtag
-    private PurgeSettings purgeSettings = new PurgeSettings();
+    private PurgeUpto purgeUpto = new PurgeUpto();
 
     @Getter(AccessLevel.NONE)
     @Setter(AccessLevel.NONE)
@@ -41,7 +42,18 @@ public class ArtifactConfig implements Validatable {
 
     @Override
     public void validate(ValidationContext validationContext) {
-        purgeSettings.validate(validationContext);
+        Double purgeUptoDiskSpace = purgeUpto.getPurgeUptoDiskSpace();
+        Double purgeStartDiskSpace = purgeStart.getPurgeStartDiskSpace();
+
+        if (purgeUptoDiskSpace == null) {
+            return;
+        }
+
+        if (purgeStartDiskSpace == null || purgeStartDiskSpace == 0) {
+            errors().add(PURGE_START, "Error in artifact cleanup values. The trigger value is has to be specified when a goal is set");
+        } else if (purgeStartDiskSpace > purgeUptoDiskSpace) {
+            errors().add(PURGE_START, String.format("Error in artifact cleanup values. The trigger value (%sGB) should be less than the goal (%sGB)", purgeStartDiskSpace, purgeUptoDiskSpace));
+        }
     }
 
     @Override
@@ -52,10 +64,5 @@ public class ArtifactConfig implements Validatable {
     @Override
     public void addError(String fieldName, String message) {
         errors.add(fieldName, message);
-    }
-
-    @PostConstruct
-    public void ensureThatArtifactDirectoryExists() {
-        artifactsDir.ensureThatArtifactDirectoryExists();
     }
 }

@@ -911,7 +911,7 @@ public class PipelineConfigTest {
         StageConfig mockStageConfig = mock(StageConfig.class);
         pipelineConfig.add(mockStageConfig);
         JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("job"));
-        jobConfig.artifactConfigs().add(new PluggableArtifactConfig("foo", "bar"));
+        jobConfig.artifactTypeConfigs().add(new PluggableArtifactConfig("foo", "bar"));
         when(mockStageConfig.getJobs()).thenReturn(new JobConfigs(jobConfig));
         when(mockStageConfig.name()).thenReturn(new CaseInsensitiveString("stage"));
 

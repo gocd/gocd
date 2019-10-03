@@ -43,21 +43,21 @@ public class ServerConfigTest {
     }
 
     @Test
-    public void shouldReturnSiteUrlAsSecurePreferedSiteUrlIfSecureSiteUrlIsNotDefined(){
+    public void shouldReturnSiteUrlAsSecurePreferedSiteUrlIfSecureSiteUrlIsNotDefined() {
         defaultServerConfig.setSiteUrl("http://example.com");
         defaultServerConfig.setSecureSiteUrl(null);
         assertThat(defaultServerConfig.getSiteUrlPreferablySecured().getUrl(), is("http://example.com"));
     }
 
     @Test
-    public void shouldReturnSecureSiteUrlAsSecurePreferedSiteUrlIfBothSiteUrlAndSecureSiteUrlIsDefined(){
+    public void shouldReturnSecureSiteUrlAsSecurePreferedSiteUrlIfBothSiteUrlAndSecureSiteUrlIsDefined() {
         defaultServerConfig.setSiteUrl("http://example.com");
         defaultServerConfig.setSecureSiteUrl("https://example.com");
         assertThat(defaultServerConfig.getSiteUrlPreferablySecured().getUrl(), is("https://example.com"));
     }
 
     @Test
-    public void shouldReturnBlankUrlBothSiteUrlAndSecureSiteUrlIsNotDefined(){
+    public void shouldReturnBlankUrlBothSiteUrlAndSecureSiteUrlIsNotDefined() {
         defaultServerConfig.setSiteUrl(null);
         defaultServerConfig.setSecureSiteUrl(null);
         assertThat(defaultServerConfig.getSiteUrlPreferablySecured().hasNonNullUrl(), is(false));
@@ -143,44 +143,6 @@ public class ServerConfigTest {
     }
 
     @Test
-    public void validate_shouldFailIfThePurgeStartIsBiggerThanPurgeUpto() {
-        ServerConfig serverConfig = new ServerConfig("artifacts", new SecurityConfig(), 20.1, 20.05, "30");
-        serverConfig.validate(null);
-        assertThat(serverConfig.errors().isEmpty(), is(false));
-        assertThat(serverConfig.errors().on(ServerConfig.PURGE_START), is("Error in artifact cleanup values. The trigger value (20.1GB) should be less than the goal (20.05GB)"));
-    }
-
-    @Test
-    public void validate_shouldFailIfThePurgeStartIsNotSpecifiedButPurgeUptoIs() {
-        ServerConfig serverConfig = new ServerConfig("artifacts", new SecurityConfig(), null, 20.05);
-        serverConfig.validate(null);
-        assertThat(serverConfig.errors().isEmpty(), is(false));
-        assertThat(serverConfig.errors().on(ServerConfig.PURGE_START), is("Error in artifact cleanup values. The trigger value is has to be specified when a goal is set"));
-    }
-
-    @Test
-    public void validate_shouldFailIfThePurgeStartIs0SpecifiedButPurgeUptoIs() {
-        ServerConfig serverConfig = new ServerConfig("artifacts", new SecurityConfig(), 0, 20.05, "30");
-        serverConfig.validate(null);
-        assertThat(serverConfig.errors().isEmpty(), is(false));
-        assertThat(serverConfig.errors().on(ServerConfig.PURGE_START), is("Error in artifact cleanup values. The trigger value is has to be specified when a goal is set"));
-    }
-
-    @Test
-    public void validate_shouldPassIfThePurgeStartIsSmallerThanPurgeUpto() {
-        ServerConfig serverConfig = new ServerConfig("artifacts", new SecurityConfig(), 20.0, 20.05, "30");
-        serverConfig.validate(null);
-        assertThat(serverConfig.errors().isEmpty(), is(true));
-    }
-
-    @Test
-    public void validate_shouldPassIfThePurgeStartAndPurgeUptoAreBothNotSet() {
-        ServerConfig serverConfig = new ServerConfig("artifacts", new SecurityConfig());
-        serverConfig.validate(null);
-        assertThat(serverConfig.errors().isEmpty(), is(true));
-    }
-
-    @Test
     public void should_useServerId_forEqualityCheck() {
         ServerConfig configWithoutServerId = new ServerConfig();
         ServerConfig configWithServerId = new ServerConfig();
@@ -213,5 +175,15 @@ public class ServerConfigTest {
         assertNotNull(serverConfig.getClass().getMethod("ensureTokenGenerationKeyExists").getAnnotation(PostConstruct.class));
         serverConfig.ensureTokenGenerationKeyExists();
         assertTrue(StringUtils.isNotBlank(serverConfig.getTokenGenerationKey()));
+    }
+
+
+    @Test
+    public void shouldEnsureArtifactConfigWithArtifactDirectoryExists() throws Exception {
+        ServerConfig serverConfig = new ServerConfig();
+        assertNull(serverConfig.getArtifactConfig().getArtifactsDir().getArtifactDir());
+        assertNotNull(serverConfig.getClass().getMethod("ensureArtifactConfigExists").getAnnotation(PostConstruct.class));
+        serverConfig.ensureArtifactConfigExists();
+        assertTrue(StringUtils.isNotBlank(serverConfig.getArtifactConfig().getArtifactsDir().getArtifactDir()));
     }
 }

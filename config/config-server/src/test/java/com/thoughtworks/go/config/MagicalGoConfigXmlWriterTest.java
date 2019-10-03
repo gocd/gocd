@@ -56,6 +56,8 @@ import javax.xml.validation.SchemaFactory;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
+import org.xmlunit.assertj.XmlAssert;
+
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.tfs;
 import static com.thoughtworks.go.util.DataStructureUtils.m;
@@ -70,6 +72,7 @@ public class MagicalGoConfigXmlWriterTest {
     private MagicalGoConfigXmlWriter xmlWriter;
     public SystemEnvironment systemEnvironment;
     private MagicalGoConfigXmlLoader xmlLoader;
+    private CruiseConfig cruiseConfig;
 
     @Rule
     public final ResetCipher resetCipher = new ResetCipher();
@@ -83,6 +86,8 @@ public class MagicalGoConfigXmlWriterTest {
         ConfigCache configCache = new ConfigCache();
         xmlWriter = new MagicalGoConfigXmlWriter(configCache, ConfigElementImplementationRegistryMother.withNoPlugins());
         xmlLoader = new MagicalGoConfigXmlLoader(configCache, ConfigElementImplementationRegistryMother.withNoPlugins());
+        cruiseConfig = new BasicCruiseConfig();
+        cruiseConfig.initializeServer();
     }
 
     @Test
@@ -105,10 +110,10 @@ public class MagicalGoConfigXmlWriterTest {
 
     @Test
     public void shouldWriteServerConfig() throws Exception {
-        String xml = ConfigFileFixture.SERVER_WITH_ARTIFACTS_DIR;
+        String xml = ConfigFileFixture.SERVER_WITH_ARTIFACTS_DIR_AND_PURGE_SETTINGS;
         CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(xml).config;
         xmlWriter.write(cruiseConfig, output, false);
-        assertXmlEquals(xml, output.toString());
+        XmlAssert.assertThat(output.toString()).and(xml).normalizeWhitespace().areIdentical();
     }
 
     @Test
@@ -135,7 +140,7 @@ public class MagicalGoConfigXmlWriterTest {
 
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(xml).config;
         xmlWriter.write(cruiseConfig, output, false);
-        assertXmlEquals(xml, output.toString());
+        XmlAssert.assertThat(output.toString()).and(xml).normalizeWhitespace().areIdentical();
     }
 
     @Test
@@ -163,6 +168,7 @@ public class MagicalGoConfigXmlWriterTest {
     @Test
     public void shouldWriteConfigRepos() throws Exception {
         CruiseConfig config = GoConfigMother.configWithConfigRepo();
+        config.initializeServer();
         xmlWriter.write(config, output, false);
         assertThat(output.toString(), containsString("<config-repo pluginId=\"myplugin\" id=\"id2\">"));
         assertThat(output.toString(), containsString("<git url=\"https://github.com/tomzo/gocd-indep-config-part.git\" />"));
@@ -207,7 +213,10 @@ public class MagicalGoConfigXmlWriterTest {
     @Test
     public void shouldWriteConfigWithTemplates() throws Exception {
         String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server artifactsdir='artifactsDir' >"
+                + "<server>"
+                + "     <artifacts>" +
+                "           <artifactsDir>artifactsDir</artifactsDir> " +
+                "       </artifacts>"
                 + "</server>"
                 + "<pipelines>\n"
                 + "<pipeline name='pipeline1' template='abc'>\n"
@@ -337,7 +346,10 @@ public class MagicalGoConfigXmlWriterTest {
     public void shouldEncryptPasswordBeforeWriting() throws Exception {
         resetCipher.setupDESCipherFile();
         String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server artifactsdir='artifactsDir' >"
+                + "<server>"
+                + "     <artifacts>" +
+                "           <artifactsDir>artifactsDir</artifactsDir> " +
+                "       </artifacts>"
                 + "<mailhost hostname=\"10.18.3.171\" port=\"25\" username=\"cruise2\" password=\"password\" tls=\"false\" from=\"cruise2@cruise.com\" admin=\"ps@somewhere.com\" />"
                 + "</server>"
                 + "<pipelines>\n"
@@ -452,7 +464,11 @@ public class MagicalGoConfigXmlWriterTest {
         String content = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                 + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
                 + "     xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server artifactsdir='artifactsDir' />"
+                + "<server>"
+                + "     <artifacts>" +
+                "           <artifactsDir>artifactsDir</artifactsDir> " +
+                "       </artifacts>"
+                + "</server>"
                 + "<pipelines>\n"
                 + "<pipeline name='framework'>\n"
                 + "    <params>\n"
@@ -490,7 +506,11 @@ public class MagicalGoConfigXmlWriterTest {
         String content = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                 + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
                 + "     xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server artifactsdir='artifactsDir' />"
+                + "<server>"
+                + "     <artifacts>" +
+                "           <artifactsDir>artifactsDir</artifactsDir> " +
+                "       </artifacts>"
+                + "</server>"
                 + "<pipelines>\n"
                 + "<pipeline name='framework'>\n"
                 + "    <materials>\n"
@@ -519,7 +539,11 @@ public class MagicalGoConfigXmlWriterTest {
         String content = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                 + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
                 + "     xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server artifactsdir='artifactsDir' />"
+                + "<server>"
+                + "     <artifacts>" +
+                "           <artifactsDir>artifactsDir</artifactsDir> " +
+                "       </artifacts>"
+                + "</server>"
                 + "<pipelines>\n"
                 + "<pipeline name='framework'>\n"
                 + "    <materials>\n"
@@ -548,7 +572,11 @@ public class MagicalGoConfigXmlWriterTest {
     public void shouldWriteArtifactPurgeSettings() throws Exception {
         String content = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                 + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server artifactsdir='artifactsDir'/>"
+                + "<server>"
+                + "     <artifacts>" +
+                "           <artifactsDir>other-artifacts</artifactsDir> " +
+                "       </artifacts>"
+                + "</server>"
                 + "<pipelines>\n"
                 + "<pipeline name='framework'>\n"
                 + "    <materials>\n"
@@ -579,8 +607,8 @@ public class MagicalGoConfigXmlWriterTest {
 
         xmlWriter.write(cruiseConfig, out, false);
 
-        assertThat(out.toString(), containsString("purgeStart=\"10.0\""));
-        assertThat(out.toString(), containsString("purgeUpto=\"20.0\""));
+        assertThat(out.toString(), containsString("<purgeStartDiskSpace>10.0</purgeStartDiskSpace>"));
+        assertThat(out.toString(), containsString("<purgeUptoDiskSpace>20.0</purgeUptoDiskSpace>"));
     }
 
     @Test
@@ -690,7 +718,7 @@ public class MagicalGoConfigXmlWriterTest {
 
         xmlWriter.write(cruiseConfig, output, false);
 
-        assertThat(xmlWriter.toXmlPartial(cruiseConfig.server()), containsString("<server artifactsdir=\"artifactsDir\" "));
+        assertThat(xmlWriter.toXmlPartial(cruiseConfig.server()), containsString("<artifactsDir>artifactsDir</artifactsDir>"));
     }
 
     @Test
@@ -715,6 +743,7 @@ public class MagicalGoConfigXmlWriterTest {
     @Test
     public void shouldNotThrowUpWhenTfsWorkspaceIsNotSpecified() {
         CruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("tfs_pipeline");
+        cruiseConfig.initializeServer();
         PipelineConfig tfs_pipeline = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("tfs_pipeline"));
         tfs_pipeline.materialConfigs().clear();
         tfs_pipeline.addMaterialConfig(tfs(new GoCipher(), new UrlArgument("http://tfs.com"), "username", "CORPORATE", "password", "$/project_path"));
@@ -728,12 +757,13 @@ public class MagicalGoConfigXmlWriterTest {
     @Test
     public void shouldSerialize_CaseInsensitiveString_whenUsedInConfigAttributeValue() {//for instance FetchTask uses PathFromAncestor which has CaseInsensitiveString
         CruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("uppest", "upper", "downer", "downest");
+        cruiseConfig.initializeServer();
         setDepedencyOn(cruiseConfig, "upper", "uppest", "stage");
         setDepedencyOn(cruiseConfig, "downer", "upper", "stage");
         setDepedencyOn(cruiseConfig, "downest", "downer", "stage");
         PipelineConfig downest = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("downest"));
         FetchTask fetchTask = new FetchTask(new CaseInsensitiveString("uppest/upper/downer"), new CaseInsensitiveString("stage"), new CaseInsensitiveString("job"), "src", "dest");
-        downest.add(com.thoughtworks.go.helper.StageConfigMother.stageConfig("stage-2", new JobConfigs(new JobConfig(new CaseInsensitiveString("downloader"), new ResourceConfigs(), new ArtifactConfigs(), new Tasks(fetchTask)))));
+        downest.add(com.thoughtworks.go.helper.StageConfigMother.stageConfig("stage-2", new JobConfigs(new JobConfig(new CaseInsensitiveString("downloader"), new ResourceConfigs(), new ArtifactTypeConfigs(), new Tasks(fetchTask)))));
 
         try {
             xmlWriter.write(cruiseConfig, output, false);
@@ -746,8 +776,6 @@ public class MagicalGoConfigXmlWriterTest {
 
     @Test
     public void shouldWriteRepositoryConfigurationWithPackages() throws Exception {
-        CruiseConfig configToSave = new BasicCruiseConfig();
-
         PackageRepository packageRepository = new PackageRepository();
         packageRepository.setId("id");
         packageRepository.setName("name");
@@ -757,14 +785,14 @@ public class MagicalGoConfigXmlWriterTest {
         packageDefinition.setRepository(packageRepository);
         packageRepository.getPackages().add(packageDefinition);
 
-        configToSave.getPackageRepositories().add(packageRepository);
+        cruiseConfig.getPackageRepositories().add(packageRepository);
 
-        xmlWriter.write(configToSave, output, false);
+        xmlWriter.write(cruiseConfig, output, false);
 
         GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(output.toString());
 
         PackageRepositories packageRepositories = goConfigHolder.config.getPackageRepositories();
-        assertThat(packageRepositories, is(configToSave.getPackageRepositories()));
+        assertThat(packageRepositories, is(cruiseConfig.getPackageRepositories()));
         assertThat(packageRepositories.get(0).getConfiguration().first().getConfigurationValue().getValue(), is("http://go"));
         assertThat(packageRepositories.get(0).getConfiguration().first().getEncryptedConfigurationValue(), is(nullValue()));
         assertThat(packageRepositories.get(0).getConfiguration().last().getEncryptedValue(), is(new GoCipher().encrypt("secure")));
@@ -776,8 +804,6 @@ public class MagicalGoConfigXmlWriterTest {
 
     @Test
     public void shouldWriteRepositoryConfigurationWithPackagesWhenNoRepoAndPkgIdIsProvided() throws Exception {
-        CruiseConfig configToSave = new BasicCruiseConfig();
-
         PackageRepository packageRepository = new PackageRepository();
         packageRepository.setName("name");
         packageRepository.setPluginConfiguration(new PluginConfiguration("plugin-id", "version"));
@@ -786,14 +812,14 @@ public class MagicalGoConfigXmlWriterTest {
         packageDefinition.setRepository(packageRepository);
         packageRepository.getPackages().add(packageDefinition);
 
-        configToSave.getPackageRepositories().add(packageRepository);
+        cruiseConfig.getPackageRepositories().add(packageRepository);
 
-        xmlWriter.write(configToSave, output, false);
+        xmlWriter.write(cruiseConfig, output, false);
 
         GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(output.toString());
 
         PackageRepositories packageRepositories = goConfigHolder.config.getPackageRepositories();
-        assertThat(packageRepositories.size(), is(configToSave.getPackageRepositories().size()));
+        assertThat(packageRepositories.size(), is(cruiseConfig.getPackageRepositories().size()));
         assertThat(packageRepositories.get(0).getId(), is(notNullValue()));
         assertThat(packageRepositories.get(0).getPackages().size(), is(1));
         assertThat(packageRepositories.get(0).getPackages().get(0).getId(), is(notNullValue()));
@@ -803,7 +829,6 @@ public class MagicalGoConfigXmlWriterTest {
     public void shouldNotAllowMultipleRepositoriesWithSameId() throws Exception {
         Configuration packageConfiguration = new Configuration(getConfigurationProperty("name", false, "go-agent"));
         Configuration repositoryConfiguration = new Configuration(getConfigurationProperty("url", false, "http://go"));
-        CruiseConfig configToSave = new BasicCruiseConfig();
 
         PackageRepository packageRepository = createPackageRepository("plugin-id-1", "version", "id", "name1", repositoryConfiguration,
                 new Packages(new PackageDefinition("id", "name", packageConfiguration)));
@@ -811,9 +836,9 @@ public class MagicalGoConfigXmlWriterTest {
         PackageRepository anotherPackageRepository = createPackageRepository("plugin-id-2", "version", "id", "name2", repositoryConfiguration,
                 new Packages(new PackageDefinition("id", "name", packageConfiguration)));
 
-        configToSave.setPackageRepositories(new PackageRepositories(packageRepository, anotherPackageRepository));
+        cruiseConfig.setPackageRepositories(new PackageRepositories(packageRepository, anotherPackageRepository));
         try {
-            xmlWriter.write(configToSave, output, false);
+            xmlWriter.write(cruiseConfig, output, false);
             fail("should not have allowed two repositories with same id");
         } catch (XsdValidationException e) {
             assertThat(e.getMessage(), anyOf(
@@ -827,16 +852,16 @@ public class MagicalGoConfigXmlWriterTest {
     public void shouldNotAllowMultiplePackagesWithSameId() throws Exception {
         Configuration packageConfiguration = new Configuration(getConfigurationProperty("name", false, "go-agent"));
         Configuration repositoryConfiguration = new Configuration(getConfigurationProperty("url", false, "http://go"));
-        CruiseConfig configToSave = new BasicCruiseConfig();
+
         PackageRepository packageRepository = createPackageRepository("plugin-id-1", "version", "id1", "name1", repositoryConfiguration,
                 new Packages(new PackageDefinition("id", "name", packageConfiguration)));
 
         PackageRepository anotherPackageRepository = createPackageRepository("plugin-id-2", "version", "id2", "name2", repositoryConfiguration,
                 new Packages(new PackageDefinition("id", "name", packageConfiguration)));
 
-        configToSave.setPackageRepositories(new PackageRepositories(packageRepository, anotherPackageRepository));
+        cruiseConfig.setPackageRepositories(new PackageRepositories(packageRepository, anotherPackageRepository));
         try {
-            xmlWriter.write(configToSave, output, false);
+            xmlWriter.write(cruiseConfig, output, false);
             fail("should not have allowed two package repositories with same id");
         } catch (XsdValidationException e) {
             assertThat(e.getMessage(), anyOf(
@@ -848,8 +873,6 @@ public class MagicalGoConfigXmlWriterTest {
 
     @Test
     public void shouldAllowPackageTypeMaterialForPipeline() throws Exception {
-        CruiseConfig configToSave = new BasicCruiseConfig();
-
         PackageRepository packageRepository = new PackageRepository();
         packageRepository.setId("id");
         packageRepository.setName("name");
@@ -861,12 +884,12 @@ public class MagicalGoConfigXmlWriterTest {
         packageRepository.getPackages().add(expectedPackageDefinition);
 
 
-        configToSave.getPackageRepositories().add(packageRepository);
+        cruiseConfig.getPackageRepositories().add(packageRepository);
         PackageMaterialConfig packageMaterialConfig = new PackageMaterialConfig(packageId);
         packageMaterialConfig.setPackageDefinition(expectedPackageDefinition);
 
-        configToSave.addPipeline("default", com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig("test", new MaterialConfigs(packageMaterialConfig), new JobConfigs(new JobConfig("ls"))));
-        xmlWriter.write(configToSave, output, false);
+        cruiseConfig.addPipeline("default", com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig("test", new MaterialConfigs(packageMaterialConfig), new JobConfigs(new JobConfig("ls"))));
+        xmlWriter.write(cruiseConfig, output, false);
         GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(output.toString());
         PipelineConfig pipelineConfig = goConfigHolder.config.pipelineConfigByName(new CaseInsensitiveString("test"));
         assertThat(pipelineConfig.materialConfigs().get(0) instanceof PackageMaterialConfig, is(true));
@@ -877,16 +900,15 @@ public class MagicalGoConfigXmlWriterTest {
 
     @Test
     public void shouldFailValidationIfPackageTypeMaterialForPipelineHasARefToNonExistantPackage() throws Exception {
-        CruiseConfig configToSave = new BasicCruiseConfig();
         String packageId = "does-not-exist";
         PackageMaterialConfig packageMaterialConfig = new PackageMaterialConfig(packageId);
         PackageRepository repository = com.thoughtworks.go.domain.packagerepository.PackageRepositoryMother.create("repo-id", "repo-name", "pluginid", "version", new Configuration(com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create("k1", false, "v1")));
         packageMaterialConfig.setPackageDefinition(
                 com.thoughtworks.go.domain.packagerepository.PackageDefinitionMother.create("does-not-exist", "package-name", new Configuration(com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create("k2", false, "v2")), repository));
 
-        configToSave.addPipeline("default", com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig("test", new MaterialConfigs(packageMaterialConfig), new JobConfigs(new JobConfig("ls"))));
+        cruiseConfig.addPipeline("default", com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig("test", new MaterialConfigs(packageMaterialConfig), new JobConfigs(new JobConfig("ls"))));
         try {
-            xmlWriter.write(configToSave, output, false);
+            xmlWriter.write(cruiseConfig, output, false);
             fail("should not allow this");
         } catch (XsdValidationException exception) {
             assertThat(exception.getMessage(), is("Key 'packageIdReferredByMaterial' with value 'does-not-exist' not found for identity constraint of element 'cruise'."));
@@ -897,7 +919,6 @@ public class MagicalGoConfigXmlWriterTest {
     public void shouldNotAllowMultipleRepositoriesWithSameName() throws Exception {
         Configuration packageConfiguration = new Configuration(getConfigurationProperty("name", false, "go-agent"));
         Configuration repositoryConfiguration = new Configuration(getConfigurationProperty("url", false, "http://go"));
-        CruiseConfig configToSave = new BasicCruiseConfig();
 
         PackageRepository packageRepository = createPackageRepository("plugin-id", "version", "id1", "name", repositoryConfiguration,
                 new Packages(new PackageDefinition("id1", "name1", packageConfiguration)));
@@ -905,29 +926,27 @@ public class MagicalGoConfigXmlWriterTest {
         PackageRepository anotherPackageRepository = createPackageRepository("plugin-id", "version", "id2", "name", repositoryConfiguration,
                 new Packages(new PackageDefinition("id2", "name2", packageConfiguration)));
 
-        configToSave.setPackageRepositories(new PackageRepositories(packageRepository, anotherPackageRepository));
+        cruiseConfig.setPackageRepositories(new PackageRepositories(packageRepository, anotherPackageRepository));
         try {
-            xmlWriter.write(configToSave, output, false);
+            xmlWriter.write(cruiseConfig, output, false);
             fail("should not have allowed two repositories with same id");
         } catch (GoConfigInvalidException e) {
             assertThat(e.getMessage(), is("You have defined multiple repositories called 'name'. Repository names are case-insensitive and must be unique."));
         }
     }
 
-
     @Test
     public void shouldNotAllowMultiplePackagesWithSameNameWithinARepo() throws Exception {
         Configuration packageConfiguration1 = new Configuration(getConfigurationProperty("name", false, "go-agent"));
         Configuration packageConfiguration2 = new Configuration(getConfigurationProperty("name2", false, "go-server"));
         Configuration repositoryConfiguration = new Configuration(getConfigurationProperty("url", false, "http://go"));
-        CruiseConfig configToSave = new BasicCruiseConfig();
 
         PackageRepository packageRepository = createPackageRepository("plugin-id", "version", "id", "name", repositoryConfiguration,
                 new Packages(new PackageDefinition("id1", "name", packageConfiguration1), new PackageDefinition("id2", "name", packageConfiguration2)));
 
-        configToSave.setPackageRepositories(new PackageRepositories(packageRepository));
+        cruiseConfig.setPackageRepositories(new PackageRepositories(packageRepository));
         try {
-            xmlWriter.write(configToSave, output, false);
+            xmlWriter.write(cruiseConfig, output, false);
             fail("should not have allowed two repositories with same id");
         } catch (GoConfigInvalidException e) {
             assertThat(e.getMessage(), is("You have defined multiple packages called 'name'. Package names are case-insensitive and must be unique within a repository."));
@@ -938,14 +957,13 @@ public class MagicalGoConfigXmlWriterTest {
     public void shouldNotAllowPackagesRepositoryWithInvalidId() throws Exception {
         Configuration packageConfiguration = new Configuration(getConfigurationProperty("name", false, "go-agent"));
         Configuration repositoryConfiguration = new Configuration(getConfigurationProperty("url", false, "http://go"));
-        CruiseConfig configToSave = new BasicCruiseConfig();
 
         PackageRepository packageRepository = createPackageRepository("plugin-id", "version", "id wth space", "name", repositoryConfiguration,
                 new Packages(new PackageDefinition("id", "name", packageConfiguration)));
 
-        configToSave.setPackageRepositories(new PackageRepositories(packageRepository));
+        cruiseConfig.setPackageRepositories(new PackageRepositories(packageRepository));
         try {
-            xmlWriter.write(configToSave, output, false);
+            xmlWriter.write(cruiseConfig, output, false);
             fail("should not have allowed two repositories with same id");
         } catch (XsdValidationException e) {
             assertThat(e.getMessage(), is("Repo id is invalid. \"id wth space\" should conform to the pattern - [a-zA-Z0-9_\\-]{1}[a-zA-Z0-9_\\-.]*"));
@@ -956,14 +974,13 @@ public class MagicalGoConfigXmlWriterTest {
     public void shouldNotAllowPackagesRepositoryWithInvalidName() throws Exception {
         Configuration packageConfiguration = new Configuration(getConfigurationProperty("name", false, "go-agent"));
         Configuration repositoryConfiguration = new Configuration(getConfigurationProperty("url", false, "http://go"));
-        CruiseConfig configToSave = new BasicCruiseConfig();
 
         PackageRepository packageRepository = createPackageRepository("plugin-id", "version", "id", "name with space", repositoryConfiguration,
                 new Packages(new PackageDefinition("id", "name", packageConfiguration)));
 
-        configToSave.setPackageRepositories(new PackageRepositories(packageRepository));
+        cruiseConfig.setPackageRepositories(new PackageRepositories(packageRepository));
         try {
-            xmlWriter.write(configToSave, output, false);
+            xmlWriter.write(cruiseConfig, output, false);
             fail("should not have allowed two repositories with same id");
         } catch (GoConfigInvalidException e) {
             assertThat(e.getMessage(),
@@ -975,14 +992,13 @@ public class MagicalGoConfigXmlWriterTest {
     public void shouldNotAllowPackagesWithInvalidId() throws Exception {
         Configuration packageConfiguration = new Configuration(getConfigurationProperty("name", false, "go-agent"));
         Configuration repositoryConfiguration = new Configuration(getConfigurationProperty("url", false, "http://go"));
-        CruiseConfig configToSave = new BasicCruiseConfig();
 
         PackageRepository packageRepository = createPackageRepository("plugin-id", "version", "id", "name", repositoryConfiguration,
                 new Packages(new PackageDefinition("id with space", "name", packageConfiguration)));
 
-        configToSave.setPackageRepositories(new PackageRepositories(packageRepository));
+        cruiseConfig.setPackageRepositories(new PackageRepositories(packageRepository));
         try {
-            xmlWriter.write(configToSave, output, false);
+            xmlWriter.write(cruiseConfig, output, false);
             fail("should not have allowed two repositories with same id");
         } catch (XsdValidationException e) {
             assertThat(e.getMessage(), is("Package id is invalid. \"id with space\" should conform to the pattern - [a-zA-Z0-9_\\-]{1}[a-zA-Z0-9_\\-.]*"));
@@ -992,7 +1008,7 @@ public class MagicalGoConfigXmlWriterTest {
     @Test
     public void shouldNotWriteToFileWithDefaultValueOfTrueForPackageDefinitionAutoUpdateWhenTrue() throws Exception {
         Configuration configuration = new Configuration(getConfigurationProperty("url", false, "http://go"));
-        CruiseConfig cruiseConfig = new BasicCruiseConfig();
+
         Packages packages = new Packages();
         PackageRepository repository = createPackageRepository("plugin-id", "version", "id", "name", configuration, packages);
         PackageDefinition aPackage = new PackageDefinition("package-id", "package-name", configuration);
@@ -1009,7 +1025,7 @@ public class MagicalGoConfigXmlWriterTest {
     @Test
     public void shouldWriteToFileWithValueOfFalseForPackageDefinitionAutoUpdateWhenFalse() throws Exception {
         Configuration configuration = new Configuration(getConfigurationProperty("url", false, "http://go"));
-        CruiseConfig cruiseConfig = new BasicCruiseConfig();
+
         Packages packages = new Packages();
         PackageDefinition aPackage = new PackageDefinition("package-id", "package-name", configuration);
         aPackage.setAutoUpdate(false);
@@ -1026,14 +1042,13 @@ public class MagicalGoConfigXmlWriterTest {
     public void shouldNotAllowPackagesWithInvalidName() throws Exception {
         Configuration packageConfiguration = new Configuration(getConfigurationProperty("name", false, "go-agent"));
         Configuration repositoryConfiguration = new Configuration(getConfigurationProperty("url", false, "http://go"));
-        CruiseConfig configToSave = new BasicCruiseConfig();
 
         PackageRepository packageRepository = createPackageRepository("plugin-id", "version", "id", "name", repositoryConfiguration,
                 new Packages(new PackageDefinition("id", "name with space", packageConfiguration)));
 
-        configToSave.setPackageRepositories(new PackageRepositories(packageRepository));
+        cruiseConfig.setPackageRepositories(new PackageRepositories(packageRepository));
         try {
-            xmlWriter.write(configToSave, output, false);
+            xmlWriter.write(cruiseConfig, output, false);
             fail("should not have allowed two repositories with same id");
         } catch (GoConfigInvalidException e) {
             assertThat(e.getMessage(),
@@ -1043,7 +1058,6 @@ public class MagicalGoConfigXmlWriterTest {
 
     @Test
     public void shouldNotWriteEmptyAuthorizationUnderEachTemplateTagOntoConfigFile() throws Exception {
-        CruiseConfig cruiseConfig = new BasicCruiseConfig();
         PipelineTemplateConfig template = com.thoughtworks.go.helper.PipelineTemplateConfigMother.createTemplate("template-name", new Authorization(new AdminsConfig()), com.thoughtworks.go.helper.StageConfigMother.manualStage("stage-name"));
         cruiseConfig.addTemplate(template);
 
@@ -1059,6 +1073,7 @@ public class MagicalGoConfigXmlWriterTest {
         // This is only reproducible on longish strings, so don't try shortening the exec task length...
         String longPath = StringUtils.repeat("f", 100);
         CruiseConfig config = GoConfigMother.configWithPipelines("pipeline1");
+        config.initializeServer();
         config.findJob("pipeline1", "stage", "job").addTask(new ExecTask(longPath + " ", "arg1", (String) null));
 
         output = new ByteArrayOutputStream();
@@ -1072,7 +1087,6 @@ public class MagicalGoConfigXmlWriterTest {
 
     @Test
     public void shouldDisplayTheFlagInXmlIfTemplateAuthorizationDoesNotAllowGroupAdmins() throws Exception {
-        CruiseConfig cruiseConfig = new BasicCruiseConfig();
         PipelineTemplateConfig template = com.thoughtworks.go.helper.PipelineTemplateConfigMother.createTemplate("template-name", new Authorization(new AdminsConfig()), com.thoughtworks.go.helper.StageConfigMother.manualStage("stage-name"));
         template.getAuthorization().setAllowGroupAdmins(false);
         cruiseConfig.addTemplate(template);
@@ -1085,7 +1099,6 @@ public class MagicalGoConfigXmlWriterTest {
 
     @Test
     public void shouldNotDisplayTheOptionIfTemplateAllowsGroupAdminsToBeViewers() throws Exception {
-        CruiseConfig cruiseConfig = new BasicCruiseConfig();
         PipelineTemplateConfig template = com.thoughtworks.go.helper.PipelineTemplateConfigMother.createTemplate("template-name", new Authorization(new AdminsConfig()), com.thoughtworks.go.helper.StageConfigMother.manualStage("stage-name"));
         cruiseConfig.addTemplate(template);
 
@@ -1097,13 +1110,12 @@ public class MagicalGoConfigXmlWriterTest {
 
     @Test
     public void shouldWriteArtifactsConfigXMLWithType() throws Exception {
-        CruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.getArtifactStores().add(new ArtifactStore("s3", "cd.go.artifact.docker"));
         final PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfigWithStage("Test", "test-stage");
         final JobConfig jobConfig = pipelineConfig.getStage("test-stage").jobConfigByConfigName("dev");
-        jobConfig.artifactConfigs().add(new BuildArtifactConfig("build/libs/*.jar", "dist"));
-        jobConfig.artifactConfigs().add(new TestArtifactConfig("test-result/*", "reports"));
-        jobConfig.artifactConfigs().add(new PluggableArtifactConfig("installers", "s3"));
+        jobConfig.artifactTypeConfigs().add(new BuildArtifactConfig("build/libs/*.jar", "dist"));
+        jobConfig.artifactTypeConfigs().add(new TestArtifactConfig("test-result/*", "reports"));
+        jobConfig.artifactTypeConfigs().add(new PluggableArtifactConfig("installers", "s3"));
         cruiseConfig.addPipeline("TestGroup", pipelineConfig);
 
         xmlWriter.write(cruiseConfig, output, false);
@@ -1138,10 +1150,6 @@ public class MagicalGoConfigXmlWriterTest {
             aPackage.setRepository(packageRepository);
         }
         return packageRepository;
-    }
-
-    public static void assertXmlEquals(String expected, String actual) {
-        assertThat(actual.replaceAll(">\\s+<", ""), is(expected.replaceAll(">\\s+<", "")));
     }
 
 }

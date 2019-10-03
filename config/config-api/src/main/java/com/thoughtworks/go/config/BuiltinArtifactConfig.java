@@ -25,7 +25,7 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.Objects;
 
-public abstract class BuiltinArtifactConfig implements ArtifactConfig {
+public abstract class BuiltinArtifactConfig implements ArtifactTypeConfig {
 
     public static final String SRC = "source";
     public static final String DEST = "destination";
@@ -57,8 +57,8 @@ public abstract class BuiltinArtifactConfig implements ArtifactConfig {
     }
 
     @Override
-    public void validateUniqueness(List<ArtifactConfig> existingArtifactConfigList) {
-        for (ArtifactConfig existingPlan : existingArtifactConfigList) {
+    public void validateUniqueness(List<ArtifactTypeConfig> existingArtifactTypeConfigList) {
+        for (ArtifactTypeConfig existingPlan : existingArtifactTypeConfigList) {
             if (this.equals(existingPlan)) {
                 addError(SRC, "Duplicate artifacts defined.");
                 addError(DEST, "Duplicate artifacts defined.");
@@ -68,7 +68,7 @@ public abstract class BuiltinArtifactConfig implements ArtifactConfig {
                 return;
             }
         }
-        existingArtifactConfigList.add(this);
+        existingArtifactTypeConfigList.add(this);
     }
 
     @Override

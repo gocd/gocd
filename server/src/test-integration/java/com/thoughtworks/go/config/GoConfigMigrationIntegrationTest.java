@@ -1683,7 +1683,7 @@ public class GoConfigMigrationIntegrationTest {
 
         CruiseConfig cruiseConfig = loader.deserializeConfig(migratedContent);
         JobConfig plan = cruiseConfig.jobConfigByName("pipeline", "stage", "job", true);
-        assertThat(plan.artifactConfigs().getBuiltInArtifactConfigs().get(0).getSource()).isEqualTo("*");
+        assertThat(plan.artifactTypeConfigs().getBuiltInArtifactConfigs().get(0).getSource()).isEqualTo("*");
     }
 
     @Test
@@ -1692,7 +1692,7 @@ public class GoConfigMigrationIntegrationTest {
 
         CruiseConfig cruiseConfig = loader.deserializeConfig(migratedContent);
         JobConfig plan = cruiseConfig.jobConfigByName("pipeline", "stage", "job", true);
-        assertThat(plan.artifactConfigs().getBuiltInArtifactConfigs().get(0).getSource()).isEqualTo("*");
+        assertThat(plan.artifactTypeConfigs().getBuiltInArtifactConfigs().get(0).getSource()).isEqualTo("*");
     }
 
     @Test
@@ -1837,6 +1837,80 @@ public class GoConfigMigrationIntegrationTest {
 
         final String migratedXml = ConfigMigrator.migrate(configXml, 130, 131);
         XmlAssert.assertThat(migratedXml).and(expectedConfig).areIdentical();
+    }
+
+    @Test
+    public void shouldRemoveArtifactRelatedAttributesAndAddAsChildElements_Migration131To132() throws Exception {
+        String originalConfig = "<server artifactsdir=\"artifacts\" " +
+                "purgeStart=\"50.0\" " +
+                "purgeUpto=\"100.0\" " +
+                "agentAutoRegisterKey=\"323040d4-f2e4-4b8a-8394-7a2d122054d1\" " +
+                "webhookSecret=\"3d5cd2f5-7fe7-43c0-ba34-7e01678ba8b6\" " +
+                "commandRepositoryLocation=\"default\" " +
+                "serverId=\"60f5f682-5248-4ba9-bb35-72c92841bd75\" " +
+                "tokenGenerationKey=\"8c3c8dc9-08bf-4cd7-ac80-cecb3e7ae86c\">" +
+                "</server>";
+
+        String configXml =
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+                        "<cruise schemaVersion=\"131\">" + originalConfig + "</cruise>";
+
+        String expectedConfig = "<server " +
+                "agentAutoRegisterKey=\"323040d4-f2e4-4b8a-8394-7a2d122054d1\" " +
+                "webhookSecret=\"3d5cd2f5-7fe7-43c0-ba34-7e01678ba8b6\" " +
+                "commandRepositoryLocation=\"default\" " +
+                "serverId=\"60f5f682-5248-4ba9-bb35-72c92841bd75\" " +
+                "tokenGenerationKey=\"8c3c8dc9-08bf-4cd7-ac80-cecb3e7ae86c\">" +
+                "<artifacts>" +
+                    "<artifactsDir>artifacts</artifactsDir>" +
+                    "<purgeSettings>" +
+                        "<purgeStartDiskSpace>50.0</purgeStartDiskSpace>" +
+                        "<purgeUptoDiskSpace>100.0</purgeUptoDiskSpace>" +
+                    "</purgeSettings>" +
+                "</artifacts>" +
+                "</server>";
+
+        String expectedXml =
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+                        "<cruise schemaVersion=\"132\">" + expectedConfig + "</cruise>";
+
+        final String migratedXml = ConfigMigrator.migrate(configXml);
+
+        XmlAssert.assertThat(migratedXml).and(expectedXml).areIdentical();
+    }
+
+    @Test
+    public void shouldNotBreakIfPurgeSettingsAreNotPresent_Migration131To132() throws Exception {
+        String originalConfig = "<server artifactsdir=\"artifacts\" " +
+                "agentAutoRegisterKey=\"323040d4-f2e4-4b8a-8394-7a2d122054d1\" " +
+                "webhookSecret=\"3d5cd2f5-7fe7-43c0-ba34-7e01678ba8b6\" " +
+                "commandRepositoryLocation=\"default\" " +
+                "serverId=\"60f5f682-5248-4ba9-bb35-72c92841bd75\" " +
+                "tokenGenerationKey=\"8c3c8dc9-08bf-4cd7-ac80-cecb3e7ae86c\">" +
+                "</server>";
+
+        String configXml =
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+                        "<cruise schemaVersion=\"131\">" + originalConfig + "</cruise>";
+
+        String expectedConfig = "<server " +
+                "agentAutoRegisterKey=\"323040d4-f2e4-4b8a-8394-7a2d122054d1\" " +
+                "webhookSecret=\"3d5cd2f5-7fe7-43c0-ba34-7e01678ba8b6\" " +
+                "commandRepositoryLocation=\"default\" " +
+                "serverId=\"60f5f682-5248-4ba9-bb35-72c92841bd75\" " +
+                "tokenGenerationKey=\"8c3c8dc9-08bf-4cd7-ac80-cecb3e7ae86c\">" +
+                "<artifacts>" +
+                    "<artifactsDir>artifacts</artifactsDir>" +
+                "</artifacts>" +
+                "</server>";
+
+        String expectedXml =
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+                        "<cruise schemaVersion=\"132\">" + expectedConfig + "</cruise>";
+
+        final String migratedXml = ConfigMigrator.migrate(configXml);
+
+        XmlAssert.assertThat(migratedXml).and(expectedXml).areIdentical();
     }
 
     private void assertStringContainsIgnoringCarriageReturn(String actual, String substring) {

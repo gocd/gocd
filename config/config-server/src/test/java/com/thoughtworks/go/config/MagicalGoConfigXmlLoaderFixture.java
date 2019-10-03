@@ -51,8 +51,11 @@ public class MagicalGoConfigXmlLoaderFixture {
                         + "        xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
                         + "        xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" "
                         + "        schemaVersion=\"" + GoConstants.CONFIG_SCHEMA_VERSION + "\">\n"
-                        + "  <server artifactsdir=\"logs\">\n"
-                        + "  </server>\n"
+                        + "<server>"
+                        + "     <artifacts>"
+                        + "           <artifactsDir>logs</artifactsDir> "
+                        + "       </artifacts>"
+                        + "</server>"
                         + "  <pipelines>"
                         + "<pipeline name=\"pipeline\">\n"
                         + materials

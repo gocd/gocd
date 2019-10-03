@@ -103,7 +103,7 @@ public class PipelineTemplateConfig extends BaseCollection<StageConfig> implemen
         fetchExternalArtifactTasks = new CachedFetchPluggableArtifactTasks();
         for (StageConfig stageConfig : getStages()) {
             for (JobConfig jobConfig : stageConfig.getJobs()) {
-                externalArtifactConfigs.addAll(jobConfig.artifactConfigs().getPluggableArtifactConfigs());
+                externalArtifactConfigs.addAll(jobConfig.artifactTypeConfigs().getPluggableArtifactConfigs());
                 for (Task task : jobConfig.getTasks()) {
                     if (task instanceof FetchPluggableArtifactTask) {
                         fetchExternalArtifactTasks.add((FetchPluggableArtifactTask) task);
@@ -146,7 +146,7 @@ public class PipelineTemplateConfig extends BaseCollection<StageConfig> implemen
     }
 
     private void validatePluggableArtifactConfig(JobConfig jobConfig, PipelineConfigSaveValidationContext contextForJobChildren) {
-        for (PluggableArtifactConfig pluggableArtifactConfig : jobConfig.artifactConfigs().getPluggableArtifactConfigs()) {
+        for (PluggableArtifactConfig pluggableArtifactConfig : jobConfig.artifactTypeConfigs().getPluggableArtifactConfigs()) {
             if (!pluggableArtifactConfig.validateTree(contextForJobChildren)) {
                 for (ConfigErrors errors : pluggableArtifactConfig.getAllErrors()) {
                     this.errors().addAll(errors);

@@ -114,8 +114,8 @@ public class UpdatePipelineConfigCommandTest {
         JobConfig job1 = JobConfigMother.jobWithNoResourceRequirement();
         JobConfig job2 = JobConfigMother.jobWithNoResourceRequirement();
 
-        job1.artifactConfigs().add(s3);
-        job2.artifactConfigs().add(docker);
+        job1.artifactTypeConfigs().add(s3);
+        job2.artifactTypeConfigs().add(docker);
 
         PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("P1", new StageConfig(new CaseInsensitiveString("S1"), new JobConfigs(job1)),
                 new StageConfig(new CaseInsensitiveString("S2"), new JobConfigs(job2)));

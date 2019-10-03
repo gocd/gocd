@@ -21,7 +21,7 @@ describe "admin/materials/index.html.erb" do
   include GoUtil
 
   before do
-    @new_job = JobConfig.new(CaseInsensitiveString.new("job-name"), ResourceConfigs.new, ArtifactConfigs.new, com.thoughtworks.go.config.Tasks.new([@task = ExecTask.new("ls", "-la", "my_work_dir")].to_java(Task)))
+    @new_job = JobConfig.new(CaseInsensitiveString.new("job-name"), ResourceConfigs.new, ArtifactTypeConfigs.new, com.thoughtworks.go.config.Tasks.new([@task = ExecTask.new("ls", "-la", "my_work_dir")].to_java(Task)))
     @stage = StageConfig.new(CaseInsensitiveString.new("stage-name"), JobConfigs.new([@new_job].to_java(JobConfig)))
 
     setup_meta_data

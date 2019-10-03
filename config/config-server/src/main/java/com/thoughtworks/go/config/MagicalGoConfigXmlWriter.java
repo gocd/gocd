@@ -101,7 +101,7 @@ public class MagicalGoConfigXmlWriter {
     }
 
     public void verifyXsdValid(Document document) throws Exception {
-        try (ByteArrayOutputStream buffer = new ByteArrayOutputStream(32*1024)) {
+        try (ByteArrayOutputStream buffer = new ByteArrayOutputStream(32 * 1024)) {
             XmlUtils.writeXml(document, buffer);
             buildXmlDocument(buffer.toInputStream(), GoConfigSchema.getCurrentSchema(), registry.xsds());
         }
@@ -123,7 +123,7 @@ public class MagicalGoConfigXmlWriter {
             }
         }
 
-        try (ByteArrayOutputStream output = new ByteArrayOutputStream(32*1024)) {
+        try (ByteArrayOutputStream output = new ByteArrayOutputStream(32 * 1024)) {
             XmlUtils.writeXml(element, output);
             return output.toString();
         } catch (IOException e) {

@@ -1017,7 +1017,7 @@ class ConfigConverterTest {
         assertThat(jobConfig.hasVariable("key")).isTrue();
         assertThat(jobConfig.getTabs().first().getName()).isEqualTo("tabname");
         assertThat(jobConfig.resourceConfigs().get(0)).isEqualTo(new ResourceConfig("resource1"));
-        assertThat(jobConfig.artifactConfigs()).contains(new BuildArtifactConfig("src", "dest"));
+        assertThat(jobConfig.artifactTypeConfigs()).contains(new BuildArtifactConfig("src", "dest"));
         assertThat(jobConfig.isRunOnAllAgents()).isFalse();
         assertThat(jobConfig.getRunInstanceCount()).isEqualTo("5");
         assertThat(jobConfig.getTimeout()).isEqualTo("120");
@@ -1372,7 +1372,7 @@ class ConfigConverterTest {
     void shouldConvertJobConfigToCRJob() {
         JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("name"),
                 new ResourceConfigs(new ResourceConfig("resource1")),
-                new ArtifactConfigs(new BuildArtifactConfig("src", "dest")));
+                new ArtifactTypeConfigs(new BuildArtifactConfig("src", "dest")));
         jobConfig.setRunOnAllAgents(false);
         jobConfig.setTimeout("120");
         jobConfig.addTask(new ExecTask());
@@ -1397,7 +1397,7 @@ class ConfigConverterTest {
     void shouldConvertJobConfigToCRJobWithNullTimeouBeingZerot() {
         JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("name"),
                 new ResourceConfigs(new ResourceConfig("resource1")),
-                new ArtifactConfigs(new BuildArtifactConfig("src", "dest")));
+                new ArtifactTypeConfigs(new BuildArtifactConfig("src", "dest")));
         jobConfig.setRunOnAllAgents(false);
         jobConfig.addTask(new ExecTask());
 

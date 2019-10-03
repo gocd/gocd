@@ -48,7 +48,7 @@ public class BuildArtifactConfigTest {
 
     @Test
     public void shouldErrorOutWhenDuplicateArtifactConfigsExists() {
-        List<ArtifactConfig> plans = new ArrayList<>();
+        List<ArtifactTypeConfig> plans = new ArrayList<>();
         BuildArtifactConfig existingPlan = new BuildArtifactConfig("src", "dest");
         plans.add(existingPlan);
         BuildArtifactConfig artifactPlan = new BuildArtifactConfig("src", "dest");
@@ -65,7 +65,7 @@ public class BuildArtifactConfigTest {
 
     @Test
     public void validate_shouldNotFailWhenComparingBuildAndTestArtifacts() {
-        List<ArtifactConfig> plans = new ArrayList<>();
+        List<ArtifactTypeConfig> plans = new ArrayList<>();
         TestArtifactConfig testArtifactConfig = new TestArtifactConfig("src", "dest");
         plans.add(testArtifactConfig);
         BuildArtifactConfig buildArtifactConfig = new BuildArtifactConfig("src", "dest");

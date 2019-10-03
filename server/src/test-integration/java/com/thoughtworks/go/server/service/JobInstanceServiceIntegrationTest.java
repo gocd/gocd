@@ -483,7 +483,7 @@ public class JobInstanceServiceIntegrationTest {
         JobConfig jobConfig = pipelineConfig.getFirstStageConfig().getJobs().get(0);
         jobConfig.setRunInstanceCount(2);
         jobConfig.addResourceConfig("blah");
-        jobConfig.artifactConfigs().add(new BuildArtifactConfig("src1", "dest1"));
+        jobConfig.artifactTypeConfigs().add(new BuildArtifactConfig("src1", "dest1"));
         configHelper.addPipeline("go", "dev");
 
         scheduleHelper.schedule(pipelineConfig, BuildCause.createWithModifications(modifyOneFile(pipelineConfig), ""), DEFAULT_APPROVED_BY);
@@ -514,7 +514,7 @@ public class JobInstanceServiceIntegrationTest {
         JobConfig jobConfig = pipelineConfig.getFirstStageConfig().getJobs().get(0);
         jobConfig.setRunOnAllAgents(true);
         jobConfig.addResourceConfig("blah");
-        jobConfig.artifactConfigs().add(new BuildArtifactConfig("src1", "dest1"));
+        jobConfig.artifactTypeConfigs().add(new BuildArtifactConfig("src1", "dest1"));
         configHelper.addPipeline("go", "dev");
 
         DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("anyone", new Agents(localAgentWithResources("blah"), localAgentWithResources("blah")));

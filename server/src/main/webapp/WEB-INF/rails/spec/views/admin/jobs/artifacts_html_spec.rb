@@ -30,9 +30,9 @@ describe "admin/jobs/artifacts.html.erb" do
     build_artifact_config = BuildArtifactConfig.new("build-source", "build-dest")
     test_artifact_config = TestArtifactConfig.new("test-source", "test-dest")
     external_artifact_config = PluggableArtifactConfig.new("artifact_id", "store_id", ConfigurationPropertyMother.create('KEY1', false, 'value1'), ConfigurationPropertyMother.create('key2', false, 'value2'))
-    @job.artifactConfigs().add(build_artifact_config)
-    @job.artifactConfigs().add(test_artifact_config)
-    @job.artifactConfigs().add(external_artifact_config)
+    @job.artifactTypeConfigs().add(build_artifact_config)
+    @job.artifactTypeConfigs().add(test_artifact_config)
+    @job.artifactTypeConfigs().add(external_artifact_config)
     assign(:pipeline, pipeline)
     assign(:stage, stage)
     assign(:job, @job)
@@ -52,7 +52,7 @@ describe "admin/jobs/artifacts.html.erb" do
   it "should include a hidden field used to find out when all the artifacts are deleted" do
     render
 
-    expect(response.body).to have_selector("form input[type='hidden'][name='default_as_empty_list[]'][value='job>artifactConfigs']", visible: :hidden)
+    expect(response.body).to have_selector("form input[type='hidden'][name='default_as_empty_list[]'][value='job>artifactTypeConfigs']", visible: :hidden)
   end
 
   it "should have a heading as Artifacts with a title tooltip" do

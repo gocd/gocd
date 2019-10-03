@@ -71,7 +71,9 @@ public class DependencyMaterialConfigTest {
         mother.addPipeline("pipeline-name", "stage-name", "job-name");
         mother.addPipeline("dependent", "stage-name", "job-name").addMaterialConfig(originalMaterial);
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        writer.write(mother.cruiseConfig(), buffer, false);
+        CruiseConfig configForEdit = mother.cruiseConfig();
+        configForEdit.initializeServer();
+        writer.write(configForEdit, buffer, false);
 
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(buffer.toByteArray());
         CruiseConfig config = loader.loadConfigHolder(IOUtils.toString(inputStream, UTF_8)).config;
@@ -92,6 +94,7 @@ public class DependencyMaterialConfigTest {
 
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         CruiseConfig cruiseConfig = mother.cruiseConfig();
+        cruiseConfig.initializeServer();
 
         writer.write(cruiseConfig, buffer, false);
 

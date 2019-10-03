@@ -101,12 +101,12 @@ public class ConfigElementImplementationRegistrarTest {
 
     @Test
     public void testShouldProvideTheDefaultArtifactsConfigMappings() {
-        List<Class<? extends ArtifactConfig>> artifacts = new ArrayList<>();
+        List<Class<? extends ArtifactTypeConfig>> artifacts = new ArrayList<>();
         artifacts.add(TestArtifactConfig.class);
         artifacts.add(BuildArtifactConfig.class);
         artifacts.add(PluggableArtifactConfig.class);
 
-        assertThat(registry.implementersOf(ArtifactConfig.class), is(artifacts));
+        assertThat(registry.implementersOf(ArtifactTypeConfig.class), is(artifacts));
     }
 
     @Test

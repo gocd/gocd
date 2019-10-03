@@ -17,8 +17,8 @@ package com.thoughtworks.go.domain;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.thoughtworks.go.config.ArtifactConfig;
-import com.thoughtworks.go.config.ArtifactConfigs;
+import com.thoughtworks.go.config.ArtifactTypeConfig;
+import com.thoughtworks.go.config.ArtifactTypeConfigs;
 import com.thoughtworks.go.config.BuiltinArtifactConfig;
 import com.thoughtworks.go.config.PluggableArtifactConfig;
 import com.thoughtworks.go.util.FileUtil;
@@ -55,12 +55,12 @@ public class ArtifactPlan extends PersistentObject {
     public ArtifactPlan() {
     }
 
-    public ArtifactPlan(ArtifactConfig artifactConfig) {
-        this.artifactPlanType = ArtifactPlanType.fromArtifactType(artifactConfig.getArtifactType());
-        if (artifactConfig instanceof PluggableArtifactConfig) {
-            this.pluggableArtifactConfigJson = ((PluggableArtifactConfig) artifactConfig).toJSON();
+    public ArtifactPlan(ArtifactTypeConfig artifactTypeConfig) {
+        this.artifactPlanType = ArtifactPlanType.fromArtifactType(artifactTypeConfig.getArtifactType());
+        if (artifactTypeConfig instanceof PluggableArtifactConfig) {
+            this.pluggableArtifactConfigJson = ((PluggableArtifactConfig) artifactTypeConfig).toJSON();
         } else {
-            BuiltinArtifactConfig buildArtifactConfig = (BuiltinArtifactConfig) artifactConfig;
+            BuiltinArtifactConfig buildArtifactConfig = (BuiltinArtifactConfig) artifactTypeConfig;
             setSrc(buildArtifactConfig.getSource());
             setDest(buildArtifactConfig.getDestination());
         }
@@ -220,10 +220,10 @@ public class ArtifactPlan extends PersistentObject {
     }
 
 
-    public static List<ArtifactPlan> toArtifactPlans(ArtifactConfigs artifactConfigs) {
+    public static List<ArtifactPlan> toArtifactPlans(ArtifactTypeConfigs artifactConfigs) {
         List<ArtifactPlan> artifactPlans = new ArrayList<>();
-        for (ArtifactConfig artifactConfig : artifactConfigs) {
-            artifactPlans.add(new ArtifactPlan(artifactConfig));
+        for (ArtifactTypeConfig artifactTypeConfig : artifactConfigs) {
+            artifactPlans.add(new ArtifactPlan(artifactTypeConfig));
         }
         return artifactPlans;
     }

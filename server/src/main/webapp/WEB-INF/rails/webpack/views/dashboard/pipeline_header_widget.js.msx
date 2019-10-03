@@ -74,7 +74,7 @@ export const PipelineHeaderWidget = {
       settingsButton     = (<a class={`edit_config`} aria-label={`Edit Configuration for Pipeline ${pipeline.name}`}
                                title={'Edit Pipeline Configuration'} href={settingsPath}/>);
     } else {
-      settingsButton = (<f.link class="edit_config disabled" aria-label={this.getSettingsDisabledTooltipText(pipeline)}
+      settingsButton = (<f.link class="info_config disabled" aria-label={this.getSettingsDisabledTooltipText(pipeline)}
                                 tooltipText={this.getSettingsDisabledTooltipText(pipeline)}/>);
     }
 

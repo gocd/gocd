@@ -141,8 +141,13 @@ describe("BehaviorPrompt", () => {
         position={position}
         />);
 
-      expect(helper.byTestId("behavior-prompt")).toBeVisible();
-      expect(helper.byTestId("behavior-prompt")).toHaveAttr("style", "right: -2px; top: 5px; bottom: 0px; left: 200px;");
+      const behaviorPrompt = helper.byTestId("behavior-prompt");
+
+      expect(behaviorPrompt).toBeVisible();
+      expect(behaviorPrompt.style.left).toBe("200px");
+      expect(behaviorPrompt.style.right).toBe("-2px");
+      expect(behaviorPrompt.style.top).toBe("5px");
+      expect(behaviorPrompt.style.bottom).toBe("0px");
     });
   });
 });

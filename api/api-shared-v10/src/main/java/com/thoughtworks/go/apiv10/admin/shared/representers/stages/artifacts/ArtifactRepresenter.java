@@ -26,7 +26,7 @@ import java.util.HashMap;
 
 public class ArtifactRepresenter {
 
-    public static void toJSON(OutputWriter jsonWriter, ArtifactConfig artifactConfig) {
+    public static void toJSON(OutputWriter jsonWriter, ArtifactTypeConfig artifactConfig) {
         if (!artifactConfig.errors().isEmpty()) {
             jsonWriter.addChild("errors", errorWriter -> {
                 HashMap<String, String> errorMapping = new HashMap<>();
@@ -52,22 +52,22 @@ public class ArtifactRepresenter {
 
     }
 
-    public static ArtifactConfig fromJSON(JsonReader jsonReader) {
+    public static ArtifactTypeConfig fromJSON(JsonReader jsonReader) {
         String type = jsonReader.getString("type");
-        ArtifactConfig artifactConfig;
+        ArtifactTypeConfig artifactTypeConfig;
         switch (type) {
             case "build":
-                artifactConfig = BuiltinArtifactConfigRepresenter.fromJSON(jsonReader, new BuildArtifactConfig());
+                artifactTypeConfig = BuiltinArtifactConfigRepresenter.fromJSON(jsonReader, new BuildArtifactConfig());
                 break;
             case "test":
-                artifactConfig = BuiltinArtifactConfigRepresenter.fromJSON(jsonReader, new TestArtifactConfig());
+                artifactTypeConfig = BuiltinArtifactConfigRepresenter.fromJSON(jsonReader, new TestArtifactConfig());
                 break;
             case "external":
-                artifactConfig = ExternalArtifactConfigRepresenter.fromJSON(jsonReader, new PluggableArtifactConfig());
+                artifactTypeConfig = ExternalArtifactConfigRepresenter.fromJSON(jsonReader, new PluggableArtifactConfig());
                 break;
             default:
                 throw new UnprocessableEntityException(String.format("Invalid Artifact type: '%s'. It has to be one of %s.", type, String.join(",", "build", "test", "external")));
         }
-        return artifactConfig;
+        return artifactTypeConfig;
     }
 }

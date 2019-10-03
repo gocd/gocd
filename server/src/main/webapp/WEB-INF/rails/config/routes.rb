@@ -275,15 +275,6 @@ Rails.application.routes.draw do
       post 'webhooks/bitbucket/notify' => 'web_hooks/bit_bucket#notify'
       post 'webhooks/hosted_bitbucket/notify' => 'web_hooks/hosted_bit_bucket#notify'
 
-      scope 'admin/feature_toggles' do
-        defaults :no_layout => true, :format => :json do
-          get "" => "feature_toggles#index", as: :api_admin_feature_toggles
-          constraints HeaderConstraint.new do
-            post "/:toggle_key" => "feature_toggles#update", constraints: {toggle_key: /[^\/]+/}, as: :api_admin_feature_toggle_update
-          end
-        end
-      end
-
       defaults :format => 'text' do
         get 'fanin_trace/:name' => 'fanin_trace#fanin_trace', constraints: {name: PIPELINE_NAME_FORMAT}
         get 'fanin_debug/:name/(:index)' => 'fanin_trace#fanin_debug', constraints: {name: PIPELINE_NAME_FORMAT}, defaults: {:offset => '0'}

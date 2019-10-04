@@ -22,6 +22,11 @@
                     <%= error_message_on(scope[:material], com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig::PIPELINE_STAGE_NAME, :css_class => "form_error") %>
                     <div class="autocomplete"></div>
                 </div>
+              <div class="form_item_block checkbox_row">
+                <%= f.check_box(com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig::IGNORE_FOR_SCHEDULING, {:class => "form_input"}, "true") -%>
+                <%= f.label(com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig::IGNORE_FOR_SCHEDULING, 'Do not schedule the pipeline when this material is updated') %>
+                <%= error_message_on(f.object, com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig::IGNORE_FOR_SCHEDULING, :css_class => "form_error") %>
+              </div>
             </div>
             <%= render :partial => 'shared/form_required_message.html', :locals => {:scope => {}} %>
 

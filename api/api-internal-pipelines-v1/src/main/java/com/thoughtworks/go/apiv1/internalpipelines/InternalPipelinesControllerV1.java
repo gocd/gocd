@@ -69,11 +69,6 @@ public class InternalPipelinesControllerV1 extends ApiController implements Spar
             before("", mimeType, this.apiAuthenticationHelper::checkAdminUserOrGroupAdminUserAnd403);
 
             get("", mimeType, this::index);
-
-            exception(HttpException.class, (Exception exception, Request request, Response response) -> {
-                response.status(HttpStatus.UNPROCESSABLE_ENTITY.value());
-                response.body(MessageJson.create(exception.getMessage()));
-            });
         });
     }
 

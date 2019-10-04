@@ -21,12 +21,17 @@ import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.spark.Routes;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class PipelineConfigsWithMinimalAttributesRepresenter {
     public static void toJSON(OutputWriter outputWriter, List<PipelineConfigs> listOfPipelineConfigs) {
-        List<PipelineConfig> pipelines = listOfPipelineConfigs.stream().flatMap(pipelineConfigs -> pipelineConfigs.getPipelines().stream()).collect(Collectors.toList());
+        List<PipelineConfig> pipelines = listOfPipelineConfigs
+                .stream()
+                .map(PipelineConfigs::getPipelines)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
 
         outputWriter.addLinks(linksWriter -> {
             linksWriter.addLink("self", Routes.Pipeline.INTERNAL_BASE);

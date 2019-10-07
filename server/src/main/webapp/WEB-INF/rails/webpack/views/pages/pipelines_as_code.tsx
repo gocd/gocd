@@ -90,6 +90,8 @@ export class PipelinesAsCodeCreatePage extends Page {
         this.configRepo().material(cloneMaterialForPaC(vm.material));
       }
 
+      this.configRepo().pluginId(this.pluginId());
+
       vm.preview(this.pluginId()).then((result) => {
         if (304 === result.getStatusCode()) {
           return;

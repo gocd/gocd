@@ -43,6 +43,12 @@
   </rule>
 
   <rule>
+    <name>Compare API</name>
+    <from>^/api/compare/([^/]+)/([^/]+)/([^/]+)(/?)$</from>
+    <to last="true">/spark/api/compare/${escape:$1}/${escape:$2}/${escape:$3}</to>
+  </rule>
+
+  <rule>
     <name>Feature Toggles Index API</name>
     <from>^/api/admin/feature_toggles(/?)$</from>
     <to last="true">/spark/api/admin/feature_toggles</to>

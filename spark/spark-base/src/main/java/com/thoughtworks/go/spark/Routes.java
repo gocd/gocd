@@ -730,4 +730,9 @@ public class Routes {
     public class ArtifactConfig {
         public static final String BASE = "/api/admin/config/server/artifact_config";
     }
+
+    public static class CompareAPI {
+        public static final String BASE = "/api/compare/:pipelineName/:fromCounter/:toCounter";
+        public static final String DOC = apiDocsUrl("#compare");
+    }
 }

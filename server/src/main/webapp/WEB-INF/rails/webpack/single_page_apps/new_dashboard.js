@@ -29,6 +29,7 @@ $(() => {
   const showEmptyPipelineGroups    = JSON.parse(dashboardElem.attr('data-show-empty-pipeline-groups'));
   const newPipelineDropdown        = JSON.parse(dashboardElem.attr('data-new-pipeline-dropdown'));
   const shouldShowAnalyticsIcon    = JSON.parse(dashboardElem.attr('data-should-show-analytics-icon'));
+  const testDrive                  = JSON.parse(dashboardElem.attr('data-test-drive'));
   const pluginsSupportingAnalytics = {};
 
   const dashboard     = new Dashboard();
@@ -205,6 +206,7 @@ $(() => {
           pluginsSupportingAnalytics,
           shouldShowAnalyticsIcon,
           newPipelineDropdown,
+          testDrive,
           vm:                   dashboardVM,
           doCancelPolling:      () => repeater().stop(),
           doRefreshImmediately: () => repeater().restart()

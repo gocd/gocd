@@ -18,6 +18,7 @@ import Stream from "mithril/stream";
 import _ from "lodash";
 import {f} from "helpers/form_helper";
 import {PipelineWidget} from "views/dashboard/pipeline_widget";
+import {BehaviorPrompt, Direction} from "views/components/behavior_prompt/behavior_prompt";
 import * as Buttons from "views/components/buttons/index";
 
 const GroupHeading = {
@@ -48,6 +49,16 @@ const GroupHeading = {
               aria-label={vm.label()}>{vm.name || "Pipelines not in any Environment"}</f.link>
       {vm.name && <f.link class="edit_config dashboard-group_edit-config" disabled={!vm.canAdminister} href={paths.edit}
                           tooltipText={vm.tooltipForEdit()} title={vm.titleForEdit()} aria-label={vm.ariaLabelForEdit()}/>}
+      {vnode.attrs.testDrive ? [<BehaviorPrompt
+        promptText="Create your first pipeline"
+        key="addPipeline"
+        query={m.parseQueryString(window.location.search).new_pipeline_name}
+        direction={Direction.RIGHT}
+        position={{
+          right: "200px",
+          top: "3px"
+        }}
+      />]: null}
       { addPipeline }
     </div>;
   }

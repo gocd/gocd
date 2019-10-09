@@ -192,9 +192,6 @@ api/api-server-health-v1/target/
 api/api-shared-v1/config/
 api/api-shared-v1/out/
 api/api-shared-v1/target/
-api/api-shared-v4/config/
-api/api-shared-v4/out/
-api/api-shared-v4/target/
 api/api-shared-v8/config/
 api/api-shared-v8/logs/
 api/api-shared-v8/out/

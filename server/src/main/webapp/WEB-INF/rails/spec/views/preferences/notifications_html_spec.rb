@@ -32,8 +32,8 @@ describe "preferences/notifications.html.erb" do
   it 'should have a warning if smtp is disabled' do
     render
 
-    expect(response).to have_selector(".callout", text: "SMTP settings are currently not configured. If you are the administrator, you can configure email support at Server Configuration.")
-    expect(response).to have_selector(".callout a[href='/admin/config/server']", text: "Server Configuration")
+    expect(response).to have_selector(".callout", text: "SMTP settings are currently not configured. If you are the administrator, you can configure email support at Mail Server Configuration.")
+    expect(response).to have_selector(".callout a[href='/admin/mail_server']", text: "Mail Server Configuration")
   end
 
 end

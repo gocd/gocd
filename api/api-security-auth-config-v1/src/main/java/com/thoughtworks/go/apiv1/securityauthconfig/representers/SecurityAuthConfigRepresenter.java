@@ -47,7 +47,7 @@ public class SecurityAuthConfigRepresenter {
 
     public static SecurityAuthConfig fromJSON(JsonReader jsonReader) {
         SecurityAuthConfig securityAuthConfig = new SecurityAuthConfig(
-                jsonReader.getString("id"),
+                jsonReader.optString("id").orElse(null),
                 jsonReader.getString("plugin_id"));
         securityAuthConfig.addConfigurations(ConfigurationPropertyRepresenter.fromJSONArray(jsonReader, "properties"));
 

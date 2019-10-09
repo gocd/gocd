@@ -55,7 +55,9 @@ public class SecurityAuthConfigControllerV1 extends ApiController implements Spa
     private EntityHashingService entityHashingService;
 
     @Autowired
-    public SecurityAuthConfigControllerV1(SecurityAuthConfigService securityAuthConfigService, ApiAuthenticationHelper apiAuthenticationHelper, EntityHashingService entityHashingService) {
+    public SecurityAuthConfigControllerV1(SecurityAuthConfigService securityAuthConfigService,
+                                          ApiAuthenticationHelper apiAuthenticationHelper,
+                                          EntityHashingService entityHashingService) {
         super(ApiVersion.v1);
         this.securityAuthConfigService = securityAuthConfigService;
         this.apiAuthenticationHelper = apiAuthenticationHelper;
@@ -128,6 +130,7 @@ public class SecurityAuthConfigControllerV1 extends ApiController implements Spa
             throw haltBecauseEtagDoesNotMatch(getEntityType().getEntityNameLowerCase(), existingAuthConfig.getId());
         }
 
+        newAuthConfig.setId(securityAuthConfigId);
         securityAuthConfigService.update(currentUsername(), etagFor(existingAuthConfig), newAuthConfig, result);
         return handleCreateOrUpdateResponse(request, response, newAuthConfig, result);
     }
@@ -176,6 +179,9 @@ public class SecurityAuthConfigControllerV1 extends ApiController implements Spa
     }
 
     private boolean isRenameAttempt(String profileIdFromRequestParam, String profileIdFromRequestBody) {
+        if (StringUtils.isBlank(profileIdFromRequestBody)) {
+            return false;
+        }
         return !StringUtils.equals(profileIdFromRequestBody, profileIdFromRequestParam);
     }
 

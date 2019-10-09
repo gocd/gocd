@@ -20,7 +20,6 @@ apply plugin: 'groovy'
 
 dependencies {
   compile project(':config:config-api')
-  compile project(':api:api-shared-v6')
   compile project(':api:api-base')
 
   compileOnly(group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle)

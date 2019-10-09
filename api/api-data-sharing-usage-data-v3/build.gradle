@@ -19,7 +19,6 @@ apply plugin: 'jacoco'
 apply plugin: 'groovy'
 
 dependencies {
-  compile project(':api:api-shared-v6')
   compile project(':api:api-base')
 
   testCompile project(path: ':api:api-base', configuration: 'testOutput')

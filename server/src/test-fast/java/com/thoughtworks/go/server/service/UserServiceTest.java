@@ -757,6 +757,18 @@ public class UserServiceTest {
             verify(userDao).findUser(username);
             verifyNoMoreInteractions(userDao);
         }
+
+        @Test
+        void shouldNotUpdateEmailIfNewEmailFromPluginIsNull() {
+            String username = "new-user";
+            User existingUserWithEmailInDB = new User(username, null, "bob@gocd.org");
+            User newUserFromPlugin = new User(username, null, null);
+            when(userDao.findUser(username)).thenReturn(existingUserWithEmailInDB);
+            userService.addOrUpdateUser(newUserFromPlugin);
+
+            verify(userDao).findUser(username);
+            verifyNoMoreInteractions(userDao);
+        }
     }
 
     private void configureAdmin(String username, boolean isAdmin) {

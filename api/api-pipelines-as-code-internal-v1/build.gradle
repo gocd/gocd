@@ -19,7 +19,7 @@ apply plugin: 'groovy'
 
 dependencies {
   compile project(':api:api-base')
-  compile project(':api:api-shared-v8')
+  compile project(':api:api-shared-v10')
 
   testCompile project(path: ':api:api-base', configuration: 'testOutput')
 

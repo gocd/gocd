@@ -69,9 +69,9 @@ public class CompareControllerV1 extends ApiController implements SparkSpringCon
     }
 
     public String index(Request request, Response response) throws IOException {
-        String pipelineName = request.params("pipelineName");
-        Integer fromCounter = Integer.valueOf(request.params("fromCounter"));
-        Integer toCounter = Integer.valueOf(request.params("toCounter"));
+        String pipelineName = request.params("pipeline_name");
+        Integer fromCounter = Integer.valueOf(request.params("from_counter"));
+        Integer toCounter = Integer.valueOf(request.params("to_counter"));
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
         List<MaterialRevision> materialRevisions = changesetService.revisionsBetween(pipelineName, fromCounter, toCounter, currentUsername(), result, false);

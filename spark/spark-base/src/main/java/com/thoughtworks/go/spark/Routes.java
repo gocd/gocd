@@ -732,7 +732,7 @@ public class Routes {
     }
 
     public static class CompareAPI {
-        public static final String BASE = "/api/compare/:pipelineName/:fromCounter/:toCounter";
+        public static final String BASE = "/api/compare/:pipeline_name/:from_counter/:to_counter";
         public static final String DOC = apiDocsUrl("#compare");
     }
 }

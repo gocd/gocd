@@ -38,7 +38,7 @@ PublishArtifact = function (artifactType, artifactTemplateSelector, options) {
     if (artifactType === 'External Artifact' && artifactStoreConfigured()) {
       hookupStoresAutoComplete();
       registerPluginDropdownChangeListener();
-      findInTemplate("input[name='job[artifactConfigs][][storeId]']").on('input propertychange paste result', onChangeOfStoreId);
+      findInTemplate("input[name='job[artifactTypeConfigs][][storeId]']").on('input propertychange paste result', onChangeOfStoreId);
       bindExistingArtifactData();
       initializeAngular();
       return;
@@ -75,8 +75,8 @@ PublishArtifact = function (artifactType, artifactTemplateSelector, options) {
     var dl                = jQuery('<dl class="key-value-pair">');
     keyValueContainer.append(dl);
 
-    jQuery('<input type="hidden" name="job[artifactConfigs][][configuration][' + key + '][value]" value="' + config.value + '"/>').appendTo(dl);
-    jQuery('<input type="hidden" name="job[artifactConfigs][][configuration][' + key + '][isSecure]" value="' + config.isSecure + '"/>').appendTo(dl);
+    jQuery('<input type="hidden" name="job[artifactTypeConfigs][][configuration][' + key + '][value]" value="' + config.value + '"/>').appendTo(dl);
+    jQuery('<input type="hidden" name="job[artifactTypeConfigs][][configuration][' + key + '][isSecure]" value="' + config.isSecure + '"/>').appendTo(dl);
     jQuery('<dt>' + key + '</dt>').appendTo(dl);
     jQuery('<dd>' + config.displayValue + '</dd>').appendTo(dl);
 
@@ -84,10 +84,10 @@ PublishArtifact = function (artifactType, artifactTemplateSelector, options) {
   };
 
   var bindExistingArtifactData = function () {
-    findInTemplate("#job_artifactConfigs__id").val(options.artifactId);
-    findInTemplate("#job_artifactConfigs__storeId").val(options.storeId);
+    findInTemplate("#job_artifactTypeConfigs__id").val(options.artifactId);
+    findInTemplate("#job_artifactTypeConfigs__storeId").val(options.storeId);
     findInTemplate(".plugged_artifact_data").text(options.configuration);
-    findInTemplate("#job_artifactConfigs__storeId").trigger("input");
+    findInTemplate("#job_artifactTypeConfigs__storeId").trigger("input");
   };
 
   var showArtifactStoreNotConfiguredErrorMessage = function () {
@@ -183,7 +183,7 @@ PublishArtifact = function (artifactType, artifactTemplateSelector, options) {
   };
 
   var initializeAngular = function () {
-    var form_name_prefix = "job[artifactConfigs][][configuration]";
+    var form_name_prefix = "job[artifactTypeConfigs][][configuration]";
     var angular_html     = jQuery("#" + self.controllerId()).html();
     if (angular_html) {
       var taskPluginView = new TaskPluginView();

@@ -63,7 +63,7 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
     public static final String RESOURCES = "resources";
     public static final String TABS = "tabs";
     public static final String ENVIRONMENT_VARIABLES = "variables";
-    public static final String ARTIFACT_CONFIGS = "artifactConfigs";
+    public static final String ARTIFACT_CONFIGS = "artifactTypeConfigs";
     public static final String DEFAULT_NAME = "defaultJob";
     public static final String TIMEOUT = "timeout";
     public static final String DEFAULT_TIMEOUT = "defaultTimeout";

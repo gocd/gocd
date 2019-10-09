@@ -303,7 +303,7 @@ describe Admin::JobsController do
       it "should populate an empty artifactConfigs when params is nil" do
         stub_save_for_success
 
-        put :update, params:{:pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1", :current_tab => "artifacts",:config_md5 => "1234abcd", "default_as_empty_list" => ["job>artifactConfigs"], :stage_parent => "pipelines"}
+        put :update, params:{:pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1", :current_tab => "artifacts",:config_md5 => "1234abcd", "default_as_empty_list" => ["job>artifactTypeConfigs"], :stage_parent => "pipelines"}
 
         expect(assigns[:job].artifactTypeConfigs().size()).to eq(0)
         assert_update_command ::ConfigUpdate::JobNode, ::ConfigUpdate::NodeAsSubject, ::ConfigUpdate::RefsAsUpdatedRefs

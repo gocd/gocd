@@ -31,12 +31,12 @@ describe("Publish artifact view", function () {
       '    <div class="row expanded">' +
       '        <div class="name_value_cell columns medium-2 large-2">' +
       '            <label class="type_label">External Artifact</label>' +
-      '            <input class="form_input artifact_source" name="job[artifactConfigs][][artifactTypeValue]" type="hidden" value="Pluggable Artifact" /> </div>' +
+      '            <input class="form_input artifact_source" name="job[artifactTypeConfigs][][artifactTypeValue]" type="hidden" value="Pluggable Artifact" /> </div>' +
       '        <div class="name_value_cell columns medium-3 large-3">' +
-      '            <input class="form_input artifact_source" id="job_artifactConfigs__id" name="job[artifactConfigs][][id]" type="text" />' +
+      '            <input class="form_input artifact_source" id="job_artifactTypeConfigs__id" name="job[artifactTypeConfigs][][id]" type="text" />' +
       '        </div>' +
       '        <div class="name_value_cell columns medium-3 large-3">' +
-      '            <input class="form_input artifact_destination stores_auto_complete" id="job_artifactConfigs__storeId" name="job[artifactConfigs][][storeId]" type="text" />' +
+      '            <input class="form_input artifact_destination stores_auto_complete" id="job_artifactTypeConfigs__storeId" name="job[artifactTypeConfigs][][storeId]" type="text" />' +
       '        </div>' +
       '        <div class="name_value_cell columns medium-4 large-4 end">' +
       '            <span class="icon_remove delete_artifact" />' +
@@ -46,7 +46,7 @@ describe("Publish artifact view", function () {
       '        <div class="columns medium-8 medium-offset-2 large-8 end">' +
       '            <div class="plugin-select-form">' +
       '                <label>Plugin</label>' +
-      '                <select class="artifact_plugin_selection" id="_pluginId" name="job[artifactConfigs][][pluginId]">' +
+      '                <select class="artifact_plugin_selection" id="_pluginId" name="job[artifactTypeConfigs][][pluginId]">' +
       '                    <option value="">Select plugin</option>' +
       '                    <option value="cd.go.artifact.docker.registry">Artifact plugin for docker</option>' +
       '                    <option value="cd.go.artifact.s3">Artifact plugin for s3</option>' +
@@ -161,11 +161,11 @@ describe("Publish artifact view", function () {
       expect(jQuery(labels[2])).toHaveText("Store ID");
 
       expect(jQuery("label.type_label")).toHaveText("External Artifact");
-      expect(jQuery('input[name="job[artifactConfigs][][artifactTypeValue]"]')).toBeInDOM();
-      expect(jQuery('input[name="job[artifactConfigs][][id]"]')).toBeInDOM();
-      expect(jQuery('input[name="job[artifactConfigs][][storeId]"]')).toBeInDOM();
+      expect(jQuery('input[name="job[artifactTypeConfigs][][artifactTypeValue]"]')).toBeInDOM();
+      expect(jQuery('input[name="job[artifactTypeConfigs][][id]"]')).toBeInDOM();
+      expect(jQuery('input[name="job[artifactTypeConfigs][][storeId]"]')).toBeInDOM();
 
-      expect(jQuery('select[name="job[artifactConfigs][][pluginId]"]')).not.toBeVisible();
+      expect(jQuery('select[name="job[artifactTypeConfigs][][pluginId]"]')).not.toBeVisible();
       expect(jQuery('.plugged_artifact_template')).toBeEmpty();
       expect(jQuery('.plugged_artifact_data')).toHaveText("{}");
     });
@@ -177,12 +177,12 @@ describe("Publish artifact view", function () {
         artifactPluginToView: {"cd.go.artifact.docker.registry": dockerPluginView()}
       }).renderView();
 
-      expect(jQuery('select[name="job[artifactConfigs][][pluginId]"]')).not.toBeVisible();
+      expect(jQuery('select[name="job[artifactTypeConfigs][][pluginId]"]')).not.toBeVisible();
 
-      jQuery('input[name="job[artifactConfigs][][storeId]"]').val("foo");
-      jQuery('input[name="job[artifactConfigs][][storeId]"]').trigger('input');
+      jQuery('input[name="job[artifactTypeConfigs][][storeId]"]').val("foo");
+      jQuery('input[name="job[artifactTypeConfigs][][storeId]"]').trigger('input');
 
-      expect(jQuery('select[name="job[artifactConfigs][][pluginId]"]')).toBeVisible();
+      expect(jQuery('select[name="job[artifactTypeConfigs][][pluginId]"]')).toBeVisible();
     });
 
     it('should show plugin view on select of plugin when multiple plugin is installed', function () {
@@ -192,16 +192,16 @@ describe("Publish artifact view", function () {
         artifactPluginToView: {"cd.go.artifact.docker.registry": dockerPluginView(), "s3": s3PluginView()}
       }).renderView();
 
-      jQuery('input[name="job[artifactConfigs][][storeId]"]').val("#{foo}");
-      jQuery('input[name="job[artifactConfigs][][storeId]"]').trigger('input');
+      jQuery('input[name="job[artifactTypeConfigs][][storeId]"]').val("#{foo}");
+      jQuery('input[name="job[artifactTypeConfigs][][storeId]"]').trigger('input');
 
       expect(jQuery('.plugged_artifact_template')).toBeEmpty();
 
-      jQuery('select[name="job[artifactConfigs][][pluginId]"]').val('cd.go.artifact.docker.registry');
-      jQuery('select[name="job[artifactConfigs][][pluginId]"]').change();
+      jQuery('select[name="job[artifactTypeConfigs][][pluginId]"]').val('cd.go.artifact.docker.registry');
+      jQuery('select[name="job[artifactTypeConfigs][][pluginId]"]').change();
 
-      expect(jQuery('.plugged_artifact_template input[name="job[artifactConfigs][][configuration][Image]"]')).toBeInDOM();
-      expect(jQuery('.plugged_artifact_template input[name="job[artifactConfigs][][configuration][Tag]"]')).toBeInDOM();
+      expect(jQuery('.plugged_artifact_template input[name="job[artifactTypeConfigs][][configuration][Image]"]')).toBeInDOM();
+      expect(jQuery('.plugged_artifact_template input[name="job[artifactTypeConfigs][][configuration][Tag]"]')).toBeInDOM();
     });
 
     it('should auto select plugin view when only one plugin is installed', function () {
@@ -213,11 +213,11 @@ describe("Publish artifact view", function () {
 
       expect(jQuery('.plugged_artifact_template')).toBeEmpty();
 
-      jQuery('input[name="job[artifactConfigs][][storeId]"]').val("#{foo}");
-      jQuery('input[name="job[artifactConfigs][][storeId]"]').trigger('input');
+      jQuery('input[name="job[artifactTypeConfigs][][storeId]"]').val("#{foo}");
+      jQuery('input[name="job[artifactTypeConfigs][][storeId]"]').trigger('input');
 
-      expect(jQuery('.plugged_artifact_template input[name="job[artifactConfigs][][configuration][Image]"]')).toBeInDOM();
-      expect(jQuery('.plugged_artifact_template input[name="job[artifactConfigs][][configuration][Tag]"]')).toBeInDOM();
+      expect(jQuery('.plugged_artifact_template input[name="job[artifactTypeConfigs][][configuration][Image]"]')).toBeInDOM();
+      expect(jQuery('.plugged_artifact_template input[name="job[artifactTypeConfigs][][configuration][Tag]"]')).toBeInDOM();
     });
 
     it('should show plugin view when proper store id is provided', function () {
@@ -229,11 +229,11 @@ describe("Publish artifact view", function () {
 
       expect(jQuery('.plugged_artifact_template')).toBeEmpty();
 
-      jQuery('input[name="job[artifactConfigs][][storeId]"]').val("dockerhub");
-      jQuery('input[name="job[artifactConfigs][][storeId]"]').trigger('input');
+      jQuery('input[name="job[artifactTypeConfigs][][storeId]"]').val("dockerhub");
+      jQuery('input[name="job[artifactTypeConfigs][][storeId]"]').trigger('input');
 
-      expect(jQuery('.plugged_artifact_template input[name="job[artifactConfigs][][configuration][Image]"]')).toBeInDOM();
-      expect(jQuery('.plugged_artifact_template input[name="job[artifactConfigs][][configuration][Tag]"]')).toBeInDOM();
+      expect(jQuery('.plugged_artifact_template input[name="job[artifactTypeConfigs][][configuration][Image]"]')).toBeInDOM();
+      expect(jQuery('.plugged_artifact_template input[name="job[artifactTypeConfigs][][configuration][Tag]"]')).toBeInDOM();
     });
 
     it('should change view on change of plugin', function () {
@@ -246,21 +246,21 @@ describe("Publish artifact view", function () {
         }
       }).renderView();
 
-      jQuery('input[name="job[artifactConfigs][][storeId]"]').val("#{foo}");
-      jQuery('input[name="job[artifactConfigs][][storeId]"]').trigger('input');
+      jQuery('input[name="job[artifactTypeConfigs][][storeId]"]').val("#{foo}");
+      jQuery('input[name="job[artifactTypeConfigs][][storeId]"]').trigger('input');
 
-      jQuery('select[name="job[artifactConfigs][][pluginId]"]').val('cd.go.artifact.docker.registry');
-      jQuery('select[name="job[artifactConfigs][][pluginId]"]').change();
+      jQuery('select[name="job[artifactTypeConfigs][][pluginId]"]').val('cd.go.artifact.docker.registry');
+      jQuery('select[name="job[artifactTypeConfigs][][pluginId]"]').change();
 
-      expect(jQuery('.plugged_artifact_template input[name="job[artifactConfigs][][configuration][Image]"]')).toBeInDOM();
-      expect(jQuery('.plugged_artifact_template input[name="job[artifactConfigs][][configuration][Tag]"]')).toBeInDOM();
+      expect(jQuery('.plugged_artifact_template input[name="job[artifactTypeConfigs][][configuration][Image]"]')).toBeInDOM();
+      expect(jQuery('.plugged_artifact_template input[name="job[artifactTypeConfigs][][configuration][Tag]"]')).toBeInDOM();
 
-      jQuery('select[name="job[artifactConfigs][][pluginId]"]').val('cd.go.artifact.s3');
-      jQuery('select[name="job[artifactConfigs][][pluginId]"]').change();
+      jQuery('select[name="job[artifactTypeConfigs][][pluginId]"]').val('cd.go.artifact.s3');
+      jQuery('select[name="job[artifactTypeConfigs][][pluginId]"]').change();
 
-      expect(jQuery('.plugged_artifact_template input[name="job[artifactConfigs][][configuration][BucketName]"]')).toBeInDOM();
-      expect(jQuery('.plugged_artifact_template input[name="job[artifactConfigs][][configuration][Image]"]')).not.toBeInDOM();
-      expect(jQuery('.plugged_artifact_template input[name="job[artifactConfigs][][configuration][Tag]"]')).not.toBeInDOM();
+      expect(jQuery('.plugged_artifact_template input[name="job[artifactTypeConfigs][][configuration][BucketName]"]')).toBeInDOM();
+      expect(jQuery('.plugged_artifact_template input[name="job[artifactTypeConfigs][][configuration][Image]"]')).not.toBeInDOM();
+      expect(jQuery('.plugged_artifact_template input[name="job[artifactTypeConfigs][][configuration][Tag]"]')).not.toBeInDOM();
     });
 
 
@@ -281,13 +281,13 @@ describe("Publish artifact view", function () {
       }).renderView();
 
       var allKeyValue = jQuery(".key-value-pair ");
-      expect(jQuery('input[name="job[artifactConfigs][][configuration][Image][value]"]', allKeyValue[0])).toHaveValue("gocd-docker-agent");
-      expect(jQuery('input[name="job[artifactConfigs][][configuration][Image][isSecure]"]', allKeyValue[0])).toHaveValue("true");
+      expect(jQuery('input[name="job[artifactTypeConfigs][][configuration][Image][value]"]', allKeyValue[0])).toHaveValue("gocd-docker-agent");
+      expect(jQuery('input[name="job[artifactTypeConfigs][][configuration][Image][isSecure]"]', allKeyValue[0])).toHaveValue("true");
       expect(jQuery('dt', allKeyValue[0])).toHaveText("Image");
       expect(jQuery('dd', allKeyValue[0])).toHaveText("gocd/gocd-docker-agent");
 
-      expect(jQuery('input[name="job[artifactConfigs][][configuration][Tag][value]"]', allKeyValue[1])).toHaveValue("18.7.0");
-      expect(jQuery('input[name="job[artifactConfigs][][configuration][Tag][isSecure]"]', allKeyValue[1])).toHaveValue("false");
+      expect(jQuery('input[name="job[artifactTypeConfigs][][configuration][Tag][value]"]', allKeyValue[1])).toHaveValue("18.7.0");
+      expect(jQuery('input[name="job[artifactTypeConfigs][][configuration][Tag][isSecure]"]', allKeyValue[1])).toHaveValue("false");
       expect(jQuery('dt', allKeyValue[1])).toHaveText("Tag");
       expect(jQuery('dd', allKeyValue[1])).toHaveText("18.7");
     });

@@ -271,12 +271,8 @@ dependencies {
     exclude(module: 'jms')
     exclude(module: 'servlet-api')
   }
-  compile(group: 'org.apache.activemq', name: 'activemq-core', version: '5.5.0') {
-    exclude(group: 'org.springframework', module: 'spring-context')
-    exclude(group: 'org.osgi', module: 'org.osgi.core')
-    // jasypt is typically used to encrypt/decrypt stuff, which we don't need
-    exclude(group: 'org.jasypt', module: 'jasypt')
-  }
+
+  compile group: 'org.apache.activemq', name: 'activemq-broker', version: project.versions.activeMQ
 
   compile group: 'org.jruby', name: 'jruby-complete', version: project.versions.jruby
   compile group: 'org.jruby.rack', name: 'jruby-rack', version: versions.rack
@@ -795,9 +791,10 @@ task verifyWar(type: VerifyJarTask) {
       ((project(':api').subprojects + project(':spark').subprojects).collect { eachProject -> eachProject.jar.archivePath.name })
         + [
         "activation-1.1.jar",
-        "activeio-core-3.1.2.jar",
-        "activemq-core-5.5.0.jar",
-        "activemq-protobuf-1.1.jar",
+        "activemq-broker-${project.versions.activeMQ}.jar",
+        "activemq-client-${project.versions.activeMQ}.jar",
+        "activemq-openwire-legacy-${project.versions.activeMQ}.jar",
+        "hawtbuf-1.11.jar",
         "ant-${project.versions.apacheAnt}.jar",
         "antlr-2.7.6.jar",
         "aopalliance-1.0.jar",
@@ -820,7 +817,6 @@ task verifyWar(type: VerifyJarTask) {
         "commons-io-${project.versions.commonsIO}.jar",
         "commons-lang-${project.versions.commonsLang}.jar",
         "commons-lang3-${project.versions.commonsLang3}.jar",
-        "commons-net-2.0.jar",
         "commons-pool2-${project.versions.commonsPool}.jar",
         "config-api-${project.version}.jar",
         "config-server-${project.version}.jar",
@@ -874,7 +870,6 @@ task verifyWar(type: VerifyJarTask) {
         "jruby-rack-${versions.rack}.jar",
         "json-utils-${project.versions.jolt}.jar",
         "jta-1.1.jar",
-        "kahadb-5.5.0.jar",
         "mailapi-${project.versions.mail}.jar",
         "mybatis-${project.versions.mybatis}.jar",
         "mybatis-spring-${project.versions.mybatisSpring}.jar",

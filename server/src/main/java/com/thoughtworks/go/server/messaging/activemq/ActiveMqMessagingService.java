@@ -16,16 +16,10 @@
 
 package com.thoughtworks.go.server.messaging.activemq;
 
-import javax.jms.DeliveryMode;
-import javax.jms.JMSException;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
-
-import com.thoughtworks.go.server.service.support.DaemonThreadStatsCollector;
 import com.thoughtworks.go.server.messaging.GoMessageListener;
 import com.thoughtworks.go.server.messaging.MessageSender;
 import com.thoughtworks.go.server.messaging.MessagingService;
+import com.thoughtworks.go.server.service.support.DaemonThreadStatsCollector;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.activemq.ActiveMQConnection;
@@ -39,6 +33,7 @@ import org.apache.activemq.util.BrokerSupport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.jms.*;
 import java.util.List;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
@@ -72,6 +67,7 @@ public class ActiveMqMessagingService implements MessagingService {
         factory = new ActiveMQConnectionFactory(BROKER_URL);
         factory.getPrefetchPolicy().setQueuePrefetch(systemEnvironment.getActivemqQueuePrefetch());
         factory.setCopyMessageOnSend(false);
+        factory.setTrustAllPackages(true);
 
         connection = (ActiveMQConnection) factory.createConnection();
         connection.start();

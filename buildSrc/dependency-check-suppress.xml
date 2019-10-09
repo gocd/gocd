@@ -37,46 +37,6 @@
 
   <suppress>
     <notes><![CDATA[
-   file name: activemq-core-5.5.0.jar
-   file name: kahadb-5.5.0.jar
-   file name: activeio-core-3.1.2.jar
-   We do not expose activemq to external connections
-   We do not expose the demo app
-   We do not expose any admin console
-   We do not expose any interface for external services to inject or process messages
-   We do not allow AMQ to authenticate via LDAP
-   ]]></notes>
-    <gav regex="true">^(org\.apache\.activemq:activemq-core:5\.5\.0)|(org\.apache\.activemq:kahadb:5\.5\.0)|(org\.apache\.activemq:activeio-core:3\.1\.2)|(org\.apache\.activemq\.protobuf:activemq-protobuf:1\.1)$</gav>
-<!--    <gav regex="true">-->
-<!--      ^org\.apache\.activemq:((activemq-core:5\.5\.0)|(kahadb:5\.5\.0)|(activeio-core:3\.1\.2)|(activemq-protobuf:1\.1))$-->
-<!--    </gav>-->
-    <cve>CVE-2011-4905</cve>
-    <cve>CVE-2012-5784</cve>
-    <cve>CVE-2012-6092</cve>
-    <cve>CVE-2012-6551</cve>
-    <cve>CVE-2013-1879</cve>
-    <cve>CVE-2013-1880</cve>
-    <cve>CVE-2013-3060</cve>
-    <cve>CVE-2014-3576</cve>
-    <cve>CVE-2014-3600</cve>
-    <cve>CVE-2014-8110</cve>
-    <cve>CVE-2015-1830</cve>
-    <cve>CVE-2015-5254</cve>
-    <cve>CVE-2015-6524</cve>
-    <cve>CVE-2016-0734</cve>
-    <cve>CVE-2016-0782</cve>
-    <cve>CVE-2016-3088</cve>
-    <cve>CVE-2014-3612</cve>
-    <cve>CVE-2018-11775</cve>
-    <cve>CVE-2018-8006</cve>
-    <cve>CVE-2019-0222</cve>
-    <cve>CVE-2016-6810</cve>
-    <cve>CVE-2010-0684</cve>
-    <cve>CVE-2010-1244</cve>
-  </suppress>
-
-  <suppress>
-    <notes><![CDATA[
    file name: spring-security-web-4.2.13.RELEASE.jar
    file name: spring-security-config-4.2.13.RELEASE.jar
    file name: spring-security-core-4.2.13.RELEASE.jar

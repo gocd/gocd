@@ -46,10 +46,11 @@ class DependencyMaterialRepresenterTest implements MaterialRepresenterTrait<Depe
       type       : 'dependency',
       fingerprint: existingMaterial().fingerprint,
       attributes : [
-        pipeline   : "pipeline-name",
-        stage      : "stage-name",
-        name       : "pipeline-name",
-        auto_update: true
+        pipeline             : "pipeline-name",
+        stage                : "stage-name",
+        name                 : "pipeline-name",
+        auto_update          : true,
+        ignore_for_scheduling: true
       ]
     ]
   }
@@ -61,10 +62,11 @@ class DependencyMaterialRepresenterTest implements MaterialRepresenterTrait<Depe
       fingerprint: existingMaterialWithErrors().fingerprint,
       attributes :
         [
-          pipeline   : "",
-          stage      : "",
-          name       : "",
-          auto_update: true
+          pipeline             : "",
+          stage                : "",
+          name                 : "",
+          auto_update          : true,
+          ignore_for_scheduling: false
         ],
       errors     : [
         pipeline: ["Pipeline with name '' does not exist, it is defined as a dependency for pipeline 'p' (cruise-config.xml)"]

@@ -30,6 +30,7 @@ public class DependencyMaterialRepresenter implements MaterialRepresenter<Depend
             jsonWriter.add("stage", dependencyMaterialConfig.getStageName());
             jsonWriter.add("name", dependencyMaterialConfig.getName());
             jsonWriter.add("auto_update", dependencyMaterialConfig.isAutoUpdate());
+            jsonWriter.add("ignore_for_scheduling", dependencyMaterialConfig.ignoreForScheduling());
         };
     }
 

@@ -34,6 +34,7 @@ public class DependencyMaterialConfig extends AbstractMaterialConfig implements 
     public static final String PIPELINE_NAME = "pipelineName";
     public static final String STAGE_NAME = "stageName";
     public static final String PIPELINE_STAGE_NAME = "pipelineStageName";
+    public static final String IGNORE_FOR_SCHEDULING = "ignoreForScheduling";
     public static final String TYPE = "DependencyMaterial";
     private static final Pattern PIPELINE_STAGE_COMBINATION_PATTERN = Pattern.compile("^(.+) (\\[.+\\])$");
     public static final String ORIGIN = "origin";
@@ -263,6 +264,7 @@ public class DependencyMaterialConfig extends AbstractMaterialConfig implements 
                errors.add(PIPELINE_STAGE_NAME, String.format("'%s' should conform to the pattern 'pipeline [stage]'",pipelineStageName));
             }
         }
+        this.ignoreForScheduling = "true".equals(attributesMap.get(IGNORE_FOR_SCHEDULING));
     }
 
     public String getPipelineStageName() {

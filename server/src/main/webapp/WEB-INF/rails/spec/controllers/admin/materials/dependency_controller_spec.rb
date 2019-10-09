@@ -55,17 +55,18 @@ describe Admin::Materials::DependencyController do
     end
 
     def assert_successful_create
-      dependency_material_config = DependencyMaterialConfig.new(CaseInsensitiveString.new("new-some-kinda-material"), CaseInsensitiveString.new("new-up-pipeline"), CaseInsensitiveString.new("new-up-stage"))
+      dependency_material_config = DependencyMaterialConfig.new(CaseInsensitiveString.new("new-some-kinda-material"), CaseInsensitiveString.new("new-up-pipeline"), CaseInsensitiveString.new("new-up-stage"), true)
       expect(@pipeline.materialConfigs().get(1)).to eq(dependency_material_config)
     end
 
     def update_payload
-      {:materialName =>  "new-some-kinda-material", :pipelineStageName => "new-up-pipeline [new-up-stage]"}
+      {:materialName =>  "new-some-kinda-material", :pipelineStageName => "new-up-pipeline [new-up-stage]", :ignoreForScheduling => true}
     end
 
     def assert_successful_update
       expect(@pipeline.materialConfigs().get(0).getPipelineName()).to eq(CaseInsensitiveString.new("new-up-pipeline"))
       expect(@pipeline.materialConfigs().get(0).getStageName()).to eq(CaseInsensitiveString.new("new-up-stage"))
+      expect(@pipeline.materialConfigs().get(0).ignoreForScheduling()).to eq(true)
     end
   end
 

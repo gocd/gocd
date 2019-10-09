@@ -157,9 +157,11 @@ public class DependencyMaterialConfigTest {
     public void setConfigAttributes_shouldPopulateFromConfigAttributes() {
         DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString(""), new CaseInsensitiveString(""));
         assertThat(dependencyMaterialConfig.getPipelineStageName(), is(nullValue()));
+        assertThat(dependencyMaterialConfig.ignoreForScheduling(), is(false));
         HashMap<String, String> configMap = new HashMap<>();
         configMap.put(AbstractMaterialConfig.MATERIAL_NAME, "name1");
         configMap.put(DependencyMaterialConfig.PIPELINE_STAGE_NAME, "pipeline-1 [stage-1]");
+        configMap.put(DependencyMaterialConfig.IGNORE_FOR_SCHEDULING, "true");
 
         dependencyMaterialConfig.setConfigAttributes(configMap);
 
@@ -167,6 +169,7 @@ public class DependencyMaterialConfigTest {
         assertThat(dependencyMaterialConfig.getPipelineName(), is(new CaseInsensitiveString("pipeline-1")));
         assertThat(dependencyMaterialConfig.getStageName(), is(new CaseInsensitiveString("stage-1")));
         assertThat(dependencyMaterialConfig.getPipelineStageName(), is("pipeline-1 [stage-1]"));
+        assertThat(dependencyMaterialConfig.ignoreForScheduling(), is(true));
     }
 
     @Test

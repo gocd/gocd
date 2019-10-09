@@ -392,10 +392,6 @@ api/api-materials-v1/out/
 api/api-materials-v1/target/
 api/api-materials-v1/logs/
 api/api-materials-v1/config/
-api/api-pipeline-config-v8/out/
-api/api-pipeline-config-v8/target/
-api/api-pipeline-config-v8/logs/
-api/api-pipeline-config-v8/config/
 api/api-backup-config-v1/out/
 api/api-backup-config-v1/target/
 api/api-backup-config-v1/logs/

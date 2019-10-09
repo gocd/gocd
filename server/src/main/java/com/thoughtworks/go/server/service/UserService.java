@@ -48,6 +48,7 @@ import java.util.*;
 
 import static com.thoughtworks.go.serverhealth.HealthStateScope.GLOBAL;
 import static com.thoughtworks.go.serverhealth.HealthStateType.general;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.commons.lang3.StringUtils.join;
 
 @Service
@@ -276,7 +277,9 @@ public class UserService {
         }
     }
 
-    public void bulkEnableDisableUsers(List<String> userNames, boolean shouldEnable, BulkUpdateUsersOperationResult result) {
+    public void bulkEnableDisableUsers(List<String> userNames,
+                                       boolean shouldEnable,
+                                       BulkUpdateUsersOperationResult result) {
         synchronized (enableUserMutex) {
             boolean isValid = performUserUpdateValidation(userNames, result);
             if (isValid) {
@@ -589,7 +592,7 @@ public class UserService {
     }
 
     private boolean hasUserChanged(User newUser, User originalUser) {
-        boolean hasEmailChanged = !StringUtils.equals(originalUser.getEmail(), newUser.getEmail());
+        boolean hasEmailChanged = isNotBlank(newUser.getEmail()) && !StringUtils.equals(originalUser.getEmail(), newUser.getEmail());
         boolean hasDisplayNameChanged = !StringUtils.equals(originalUser.getDisplayName(), newUser.getDisplayName());
         if (hasEmailChanged) {
             LOGGER.debug("User [{}] has an email change. Updating the same in the DB.", originalUser.getName());

@@ -363,6 +363,32 @@ class SecurityAuthConfigControllerV1Test implements SecurityServiceTrait, Contro
       }
 
       @Test
+      void 'should update auth config even if id is not specified in payload'() {
+        def existingAuthConfig = new SecurityAuthConfig("file", "cd.go.authorization.file", create("Path", false, "/var/lib/pass.prop"))
+        def updatedProfile = new SecurityAuthConfig("file", "cd.go.authorization.file", create("Path", false, "/var/config/pass.prop"))
+        def jsonPayload = [
+          plugin_id : "cd.go.authorization.file",
+          properties: [
+            [
+              "key"  : "Path",
+              "value": "/var/config/pass.prop"
+            ]
+          ]]
+
+        when(entityHashingService.md5ForEntity(existingAuthConfig)).thenReturn('some-md5')
+        when(entityHashingService.md5ForEntity(updatedProfile)).thenReturn('new-md5')
+        when(securityAuthConfigService.findProfile("file")).thenReturn(existingAuthConfig)
+
+        putWithApiHeader(controller.controllerPath("/file"), ['if-match': 'some-md5'], jsonPayload)
+
+        assertThatResponse()
+          .isOk()
+          .hasEtag('"new-md5"')
+          .hasContentType(controller.mimeType)
+          .hasBodyWithJsonObject(SecurityAuthConfigRepresenter, updatedProfile)
+      }
+
+      @Test
       void 'should not update security auth config if etag does not match'() {
         def existingAuthConfig = new SecurityAuthConfig("file", "cd.go.authorization.file", create("Path", false, "/var/lib/pass.prop"))
         def jsonPayload = [

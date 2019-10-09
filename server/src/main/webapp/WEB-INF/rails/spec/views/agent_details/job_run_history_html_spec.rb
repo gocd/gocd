@@ -73,7 +73,7 @@ describe "/agent_details/job_run_history.html.erb" do
             expect(tr).to have_selector("th.job a[href='/agents/UUID_host1/job_run_history?column=job&order=ASC']", :text=>"Job")
             expect(tr).to have_selector("th.result a[href='/agents/UUID_host1/job_run_history?column=result&order=ASC']", :text=>"Result")
             expect(tr).to have_selector("th.completed a[href='/agents/UUID_host1/job_run_history?column=completed&order=ASC']", :text=>"Completed")
-            expect(tr).to have_selector("th.duration", :text=>"Duration")
+            expect(tr).to have_selector("th.duration a[href='/agents/UUID_host1/job_run_history?column=duration&order=ASC']", :text=>"Duration")
           end
       end
     end

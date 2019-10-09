@@ -43,9 +43,7 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class JobInstanceService implements JobPlanLoader, ConfigChangedListener {
@@ -261,11 +259,23 @@ public class JobInstanceService implements JobPlanLoader, ConfigChangedListener 
     }
 
     public JobInstancesModel completedJobsOnAgent(String uuid, JobHistoryColumns columnName, SortOrder order, Pagination pagination) {
-        List<JobInstance> jobInstances = jobInstanceDao.completedJobsOnAgent(uuid, columnName, order, pagination.getOffset(), pagination.getPageSize());
+        List<JobInstance> jobInstances = jobInstanceDao.completedJobsOnAgent(uuid,
+                columnName == JobHistoryColumns.duration ? JobHistoryColumns.completed : columnName,
+                order, pagination.getOffset(), pagination.getPageSize());
         CruiseConfig cruiseConfig = goConfigService.getCurrentConfig();
         for (JobInstance jobInstance : jobInstances) {
             jobInstance.setPipelineStillConfigured(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(jobInstance.getPipelineName())));
         }
+
+        if (columnName == JobHistoryColumns.duration) {
+            Comparator comparator = Comparator.comparing(JobInstance::getDuration);
+
+            if (order == SortOrder.DESC) {
+                comparator = comparator.reversed();
+            }
+            jobInstances.sort(comparator);
+        }
+
         return new JobInstancesModel(new JobInstances(jobInstances), pagination);
     }
 
@@ -296,7 +306,8 @@ public class JobInstanceService implements JobPlanLoader, ConfigChangedListener 
     }
 
     public enum JobHistoryColumns {
-        pipeline("pipelineName"), stage("stageName"), job("name"), result("result"), completed("lastTransitionTime");
+        pipeline("pipelineName"), stage("stageName"), job("name"),
+        result("result"), completed("lastTransitionTime"), duration("duration");
 
         private final String columnName;
 

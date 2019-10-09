@@ -23,7 +23,7 @@ import org.joda.time.format.PeriodFormatterBuilder;
 /**
  * @understands the time taken for a stage to complete
  */
-public abstract class RunDuration {
+public abstract class RunDuration implements Comparable  {
     public static final PeriodFormatter PERIOD_FORMATTER =
             new PeriodFormatterBuilder().printZeroAlways().minimumPrintedDigits(
                     2).appendHours().appendSeparator(
@@ -67,6 +67,23 @@ public abstract class RunDuration {
         }
         RunDuration that = (RunDuration) o;
         return !(duration != null ? !duration.equals(that.duration) : that.duration != null);
+    }
+
+
+    @Override
+    public int compareTo(Object o) {
+        if (this == o) {
+            return 0;
+        }
+        RunDuration d2 = (RunDuration) o;
+
+        if (this.duration == null) {
+            return 1;
+        } else if (d2.duration == null) {
+            return -1;
+        }
+
+        return this.duration.compareTo(d2.duration);
     }
 
     @Override

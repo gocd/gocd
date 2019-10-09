@@ -446,6 +446,21 @@ public class JobInstanceServiceIntegrationTest {
         assertThat(sortedOnResultDesc.get(2).getResult(), is(JobResult.Failed));
         assertThat(sortedOnResultDesc.get(1).getResult(), is(JobResult.Passed));
         assertThat(sortedOnResultDesc.get(0).getResult(), is(JobResult.Unknown));
+
+        // duration
+        List<JobInstance> sortedOnDuration = listOf(jobInstanceService.completedJobsOnAgent(agentUuid, JobInstanceService.JobHistoryColumns.duration, SortOrder.ASC, 1, 10).iterator());
+        assertThat(sortedOnDuration.size(), is(4));
+        assertThat(sortedOnDuration.get(0).getResult(), is(JobResult.Passed));
+        assertThat(sortedOnDuration.get(1).getResult(), is(JobResult.Cancelled));
+        assertThat(sortedOnDuration.get(2).getResult(), is(JobResult.Failed));
+        assertThat(sortedOnDuration.get(3).getResult(), is(JobResult.Unknown));
+
+        List<JobInstance> sortedOnDurationDesc = listOf(jobInstanceService.completedJobsOnAgent(agentUuid, JobInstanceService.JobHistoryColumns.duration, SortOrder.DESC, 1, 10).iterator());
+        assertThat(sortedOnDurationDesc.size(), is(4));
+        assertThat(sortedOnDurationDesc.get(0).getResult(), is(JobResult.Unknown));
+        assertThat(sortedOnDurationDesc.get(1).getResult(), is(JobResult.Failed));
+        assertThat(sortedOnDurationDesc.get(2).getResult(), is(JobResult.Cancelled));
+        assertThat(sortedOnDurationDesc.get(3).getResult(), is(JobResult.Passed));
     }
 
     @Test

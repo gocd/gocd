@@ -357,10 +357,6 @@ api/api-secret-configs-v1/config/
 api/api-secret-configs-v1/out/
 api/api-secret-configs-v1/target/
 api/api-secret-configs-v1/logs/
-api/api-pipeline-config-v7/out/
-api/api-pipeline-config-v7/target/
-api/api-pipeline-config-v7/logs/
-api/api-pipeline-config-v7/config
 api/api-config-repos-v2/out/
 api/api-config-repos-v2/target/
 api/api-config-repos-v2/logs/

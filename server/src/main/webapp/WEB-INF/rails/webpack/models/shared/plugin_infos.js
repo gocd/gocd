@@ -51,7 +51,7 @@ export const PluginInfos = function (data) {
 
 };
 
-PluginInfos.API_VERSION = 'v5';
+PluginInfos.API_VERSION = 'v6';
 
 CrudMixins.Index({
   type:     PluginInfos,

@@ -48,7 +48,7 @@
         type: "GET",
         responseType: "json",
         headers: {
-          Accept: "application/vnd.go.cd.v5+json"
+          Accept: "application/vnd.go.cd.v6+json"
         }
       }).then(function (res) {
         plugins = PipelineExport.filterPlugins(res.data._embedded.plugin_info);

@@ -16,7 +16,6 @@ export const materialConfigWrapper: string;
 export const materialTestConnectionWrapper: string;
 export const parseErrorText: string;
 export const pluginFilePatternConfigWrapper: string;
-export const rotate: string;
 export const sectionHeader: string;
 export const sectionHeaderTitle: string;
 export const spinnerWrapper: string;

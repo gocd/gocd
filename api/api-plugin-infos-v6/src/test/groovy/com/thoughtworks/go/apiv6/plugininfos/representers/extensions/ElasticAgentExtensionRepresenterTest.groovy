@@ -82,9 +82,9 @@ class ElasticAgentExtensionRepresenterTest {
   }
 
   @Test
-  void 'should serialize Elastic agent info to json elastic agent v6 extension'() {
+  void 'should serialize Elastic agent plugin info to json for elastic agent extension v5'() {
     def actualJson = toObjectString({
-      new ElasticAgentExtensionRepresenter().toJSON(it, PluginInfoMother.createElasticAgentPluginInfoForv6())
+      new ElasticAgentExtensionRepresenter().toJSON(it, PluginInfoMother.createElasticAgentPluginInfoForV5())
     })
     def expectedJSON = [
       "type"                          : "elastic-agent",

@@ -16,37 +16,37 @@
 
 module TaskMother
 
-  def exec_task(command='ls')
+  def exec_task(command = 'ls')
     args = Arguments.new([Argument.new("-la")].to_java(Argument))
     exec = ExecTask.new(command, args, "hero/ka/directory")
     exec.setCancelTask(ExecTask.new("echo", "'failing'", "oncancel_working_dir"))
     exec
   end
 
-  def exec_task_without_on_cancel(command='ls')
+  def exec_task_without_on_cancel(command = 'ls')
     args = Arguments.new([Argument.new("-la")].to_java(Argument))
     exec = ExecTask.new(command, args, "hero/ka/directory")
     exec
   end
 
-  def exec_task_with_ant_oncancel_task(command='ls')
+  def exec_task_with_ant_oncancel_task(command = 'ls')
     args = Arguments.new([Argument.new("-la")].to_java(Argument))
     exec = ExecTask.new(command, args, "hero/ka/directory")
     exec.setCancelTask(ant_task)
     exec
   end
 
-  def fetch_task_with_exec_on_cancel_task(pipeline='pipeline', stage='stage', job='job', src_file='src', dest='dest')
+  def fetch_task_with_exec_on_cancel_task(pipeline = 'pipeline', stage = 'stage', job = 'job', src_file = 'src', dest = 'dest')
     fetch = fetch_task(pipeline, stage, job, src_file, dest)
     fetch.setCancelTask(ExecTask.new("echo", "'failing'", "oncancel_working_dir"))
     fetch
   end
 
-  def fetch_task(pipeline='pipeline', stage='stage', job='job', src_file='src', dest='dest')
+  def fetch_task(pipeline = 'pipeline', stage = 'stage', job = 'job', src_file = 'src', dest = 'dest')
     FetchTaskAdapter.new(FetchTask.new(CaseInsensitiveString.new(pipeline), CaseInsensitiveString.new(stage), CaseInsensitiveString.new(job), src_file, dest))
   end
 
-  def fetch_external_task(pipeline='pipeline', stage='stage', job='job', artifact_id='docker')
+  def fetch_external_task(pipeline = 'pipeline', stage = 'stage', job = 'job', artifact_id = 'docker')
     fetch_external = FetchTaskAdapter.new(FetchPluggableArtifactTask.new(CaseInsensitiveString.new(pipeline), CaseInsensitiveString.new(stage), CaseInsensitiveString.new(job), artifact_id))
     fetch_external.setCancelTask(ExecTask.new("echo", "'failing'", "oncancel_working_dir"))
     fetch_external
@@ -68,15 +68,15 @@ module TaskMother
     task
   end
 
-  def ant_task file="build.xml", target="compile", working_dir="default/wd"
+  def ant_task file = "build.xml", target = "compile", working_dir = "default/wd"
     ant = AntTask.new
     ant.setTarget(target)
     ant.setBuildFile(file)
     ant.setWorkingDirectory(working_dir)
     ant
-    end
+  end
 
-  def nant_task file="default.build", target="compile", working_dir="default/wd"
+  def nant_task file = "default.build", target = "compile", working_dir = "default/wd"
     nant = NantTask.new
     nant.setTarget(target)
     nant.setBuildFile(file)
@@ -84,7 +84,7 @@ module TaskMother
     nant
   end
 
-  def rake_task file="rakefile", target="default", working_dir="default/wd"
+  def rake_task file = "rakefile", target = "default", working_dir = "default/wd"
     rake = RakeTask.new
     rake.setTarget(target)
     rake.setBuildFile(file)
@@ -94,7 +94,7 @@ module TaskMother
 
   def plugin_task plugin_id = "curl.plugin", configurations = []
     configuration = Configuration.new(configurations.to_java(ConfigurationProperty))
-    PluggableTask.new( PluginConfiguration.new(plugin_id, "1.0"), configuration)
+    PluggableTask.new(PluginConfiguration.new(plugin_id, "1.0"), configuration)
   end
 
   def simple_task_plugin_with_on_cancel_config plugin_id = "curl.plugin", configurations = []
@@ -120,7 +120,8 @@ module TaskMother
   end
 
   def set_up_registry
-    Spring.bean("defaultPluginRegistry").loadPlugin(GoPluginDescriptor.builder.id("curl.plugin").version("1.0").build)
+    descriptor = GoPluginDescriptor.builder.id("curl.plugin").version("1.0").build
+    Spring.bean("defaultPluginRegistry").loadPlugin(GoPluginBundleDescriptor.new(descriptor))
   end
 
   def unload_all_from_registry

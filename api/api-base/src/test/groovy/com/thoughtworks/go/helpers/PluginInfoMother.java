@@ -30,6 +30,7 @@ import com.thoughtworks.go.plugin.domain.packagematerial.PackageMaterialPluginIn
 import com.thoughtworks.go.plugin.domain.pluggabletask.PluggableTaskPluginInfo;
 import com.thoughtworks.go.plugin.domain.scm.SCMPluginInfo;
 import com.thoughtworks.go.plugin.domain.secrets.SecretsPluginInfo;
+import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginBundleDescriptor;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 
 import java.util.ArrayList;
@@ -87,7 +88,11 @@ public class PluginInfoMother {
         return new ElasticAgentPluginInfo(descriptor, getPluggableSettings(), getPluggableSettings(), null, null, new com.thoughtworks.go.plugin.domain.elastic.Capabilities(true, true, true));
     }
 
-    public static GoPluginDescriptor getDescriptor(String pluginId, String name, String pluginJarLocation, boolean isBundledPlugin, String... targetOperatingSystems) {
+    public static GoPluginDescriptor getDescriptor(String pluginId,
+                                                   String name,
+                                                   String pluginJarLocation,
+                                                   boolean isBundledPlugin,
+                                                   String... targetOperatingSystems) {
         GoPluginDescriptor.About about = GoPluginDescriptor.About.builder()
                 .name(name)
                 .version("v1")
@@ -97,13 +102,17 @@ public class PluginInfoMother {
                 .targetOperatingSystems(List.of(targetOperatingSystems))
                 .build();
 
-        return GoPluginDescriptor.builder()
+        GoPluginDescriptor descriptor = GoPluginDescriptor.builder()
                 .id(pluginId)
                 .version("1")
                 .about(about)
                 .pluginJarFileLocation(pluginJarLocation)
                 .isBundledPlugin(isBundledPlugin)
                 .build();
+
+        descriptor.setBundleDescriptor(new GoPluginBundleDescriptor(descriptor));
+
+        return descriptor;
     }
 
     public static CombinedPluginInfo createBadPluginInfo() {

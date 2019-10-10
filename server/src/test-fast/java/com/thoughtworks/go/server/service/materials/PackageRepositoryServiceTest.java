@@ -224,7 +224,7 @@ public class PackageRepositoryServiceTest {
     }
 
     private GoPluginDescriptor getPluginDescriptor(String pluginId) {
-        return GoPluginDescriptor.builder().id(pluginId).isBundledPlugin(true).build();
+        return GoPluginDescriptor.builder().id(pluginId).version("1.0").isBundledPlugin(true).build();
     }
 
     @Test

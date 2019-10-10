@@ -574,7 +574,7 @@ describe ApplicationHelper do
     before :each do
       @default_plugin_info_finder = double('default_plugin_info_finder')
       vendor = GoPluginDescriptor::Vendor.new('bob', 'https://bob.example.com')
-      about = GoPluginDescriptor.About.builder
+      about = GoPluginDescriptor::About.builder
                 .name("Foo plugin")
                 .version("1.2.3")
                 .targetGoVersion("17.2.0")

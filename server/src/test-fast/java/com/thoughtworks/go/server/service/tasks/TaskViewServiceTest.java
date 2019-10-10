@@ -113,8 +113,8 @@ public class TaskViewServiceTest {
     public void shouldGetViewModelsForPluggedInTasks_ButOnlyForExistingPlugins() throws Exception {
         String plugin1 = "task-plugin-1";
         String plugin2 = "task-plugin-2";
-        when(pluginManager.getPluginDescriptorFor(plugin1)).thenReturn(GoPluginDescriptor.builder().id(plugin1).build());
-        when(pluginManager.getPluginDescriptorFor(plugin2)).thenReturn(GoPluginDescriptor.builder().id(plugin2).build());
+        when(pluginManager.getPluginDescriptorFor(plugin1)).thenReturn(GoPluginDescriptor.builder().id(plugin1).version("1").build());
+        when(pluginManager.getPluginDescriptorFor(plugin2)).thenReturn(GoPluginDescriptor.builder().id(plugin2).version("1").build());
         storeTaskPreferences(plugin1, "key_1", "key_2");
         storeTaskPreferences(plugin2, "key_3", "key_4");
         when(registry.implementersOf(Task.class)).thenReturn(Arrays.<Class<? extends Task>>asList(ExecTask.class, PluggableTask.class));

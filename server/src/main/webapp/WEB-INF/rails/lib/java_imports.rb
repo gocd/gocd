@@ -190,6 +190,7 @@ module JavaImports
   java_import com.thoughtworks.go.server.service.lookups.CommandSnippet unless defined? CommandSnippet
   java_import com.thoughtworks.go.util.ProcessManager unless defined? ProcessManager
   java_import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor unless defined? GoPluginDescriptor
+  java_import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginBundleDescriptor unless defined? GoPluginBundleDescriptor
   java_import com.thoughtworks.go.domain.valuestreammap.DependencyNodeType unless defined? DependencyNodeType
   java_import com.thoughtworks.go.server.service.responses.GoConfigOperationalResponse unless defined? GoConfigOperationalResponse
   java_import com.thoughtworks.go.domain.packagerepository.PackageRepository unless defined? PackageRepository

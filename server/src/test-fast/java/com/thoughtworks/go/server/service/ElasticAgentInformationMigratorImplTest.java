@@ -21,6 +21,7 @@ import com.thoughtworks.go.domain.Plugin;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.PluginPostLoadHook;
+import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginBundleDescriptor;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.dao.PluginSqlMapDao;
 import com.thoughtworks.go.util.json.JsonHelper;
@@ -58,6 +59,7 @@ class ElasticAgentInformationMigratorImplTest {
     void setUp() {
         initMocks(this);
         goPluginDescriptor = GoPluginDescriptor.builder().id(PLUGIN_ID).build();
+        goPluginDescriptor.setBundleDescriptor(new GoPluginBundleDescriptor(goPluginDescriptor));
         elasticAgentInformationMigrator = new ElasticAgentInformationMigratorImpl(pluginSqlMapDao, clusterProfilesService, elasticProfileService, elasticAgentExtension, pluginManager, goConfigService);
     }
 

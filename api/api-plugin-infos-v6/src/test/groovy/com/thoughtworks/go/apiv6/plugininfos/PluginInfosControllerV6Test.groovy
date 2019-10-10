@@ -25,6 +25,7 @@ import com.thoughtworks.go.plugin.domain.common.BadPluginInfo
 import com.thoughtworks.go.plugin.domain.common.CombinedPluginInfo
 import com.thoughtworks.go.plugin.domain.common.PluginInfo
 import com.thoughtworks.go.plugin.infra.DefaultPluginManager
+import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginBundleDescriptor
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor
 import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.server.service.plugins.InvalidPluginTypeException
@@ -125,6 +126,8 @@ class PluginInfosControllerV6Test implements SecurityServiceTrait, ControllerTra
           .pluginJarFileLocation("/home/pluginjar/")
           .isBundledPlugin(true)
           .build()
+
+        descriptor.setBundleDescriptor(new GoPluginBundleDescriptor(descriptor))
         descriptor.markAsInvalid(new ArrayList<String>(), null)
         def pluginInfo = new CombinedPluginInfo(new BadPluginInfo(descriptor))
 
@@ -250,6 +253,7 @@ class PluginInfosControllerV6Test implements SecurityServiceTrait, ControllerTra
           .isBundledPlugin(true)
           .build()
 
+        descriptor.setBundleDescriptor(new GoPluginBundleDescriptor(descriptor))
         descriptor.markAsInvalid(new ArrayList<String>(), null)
         def pluginInfoWithInvalidExtension = new CombinedPluginInfo(new PluginInfo(descriptor, "Invalid extension name", null, null))
 
@@ -299,6 +303,7 @@ class PluginInfosControllerV6Test implements SecurityServiceTrait, ControllerTra
           .isBundledPlugin(true)
           .build()
 
+        badPluginDescriptor.setBundleDescriptor(new GoPluginBundleDescriptor(badPluginDescriptor))
         badPluginDescriptor.markAsInvalid(new ArrayList<String>(), null)
 
         def pluginDescriptors = new ArrayList<GoPluginDescriptor>()

@@ -32,7 +32,7 @@ describe "admin/tasks/plugin/edit.html.erb" do
     assign(:on_cancel_task_vms, @vms =  java.util.Arrays.asList([vm_for(exec_task('rm')), vm_for(ant_task), vm_for(nant_task), vm_for(rake_task), vm_for(fetch_task_with_exec_on_cancel_task)].to_java(TaskViewModel)))
     allow(view).to receive(:admin_task_update_path).and_return("task_edit_path")
 
-    about = GoPluginDescriptor.About.builder.targetOperatingSystems(["linux"]).build
+    about = GoPluginDescriptor::About.builder.targetOperatingSystems(["linux"]).build
     descriptor = GoPluginDescriptor.builder
                    .id(task_plugin_id).version("1.0")
                    .about(about)
@@ -40,7 +40,7 @@ describe "admin/tasks/plugin/edit.html.erb" do
 
     # Fake a plugin loaded into Go's plugin registry.
     @registry = Spring.bean "defaultPluginRegistry"
-    @registry.loadPlugin descriptor
+    @registry.loadPlugin com.thoughtworks.go.plugin.infra.plugininfo.GoPluginBundleDescriptor.new(descriptor)
 
     # Fake more of its initialisation. Fake the part where Go talks to the plugin and gets its config for caching.
     PluggableTaskConfigStore.store().setPreferenceFor(task_plugin_id, TaskPreference.new(TaskMother::ApiTaskForTest.new({:display_value => "test curl", :template => task_plugin_template})))

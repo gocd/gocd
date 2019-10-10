@@ -23,8 +23,8 @@ import java.util.List;
 import static org.apache.commons.collections4.CollectionUtils.subtract;
 
 public class PluginChangeNotifier {
-    public void notify(PluginJarChangeListener listener, Collection<PluginFileDetails> knowPluginFiles, Collection<PluginFileDetails> currentPluginFiles) {
-        List<PluginFileDetails> oldPlugins = new ArrayList<>(knowPluginFiles);
+    public void notify(PluginJarChangeListener listener, Collection<BundleOrPluginFileDetails> knowPluginFiles, Collection<BundleOrPluginFileDetails> currentPluginFiles) {
+        List<BundleOrPluginFileDetails> oldPlugins = new ArrayList<>(knowPluginFiles);
 
         subtract(oldPlugins, currentPluginFiles).forEach(listener::pluginJarRemoved);
 

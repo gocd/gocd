@@ -40,15 +40,21 @@ public class GoPluginDescriptor implements PluginDescriptor {
     @EqualsAndHashCode.Include
     private About about;
 
-    /**
+    /*
      * Absolute path to plugin jar e.g. $GO_SERVER_DIR/plugins/bundled/foo.jar
      */
     private String pluginJarFileLocation;
-    /**
+    /*
      * Path to bundle directory in plugin work folder. e.g. $PLUGIN_WORK_DIR/foo.jar/
      */
     private File bundleLocation;
     private boolean isBundledPlugin;
+
+    /*
+     * GoPluginBundleDescriptor.toString() uses toString of GoPluginDescriptor
+     * Hence this needs to be excluded from the @ToString to avoid recursive call
+     */
+    @ToString.Exclude
     private GoPluginBundleDescriptor bundleDescriptor;
 
     @Builder.Default

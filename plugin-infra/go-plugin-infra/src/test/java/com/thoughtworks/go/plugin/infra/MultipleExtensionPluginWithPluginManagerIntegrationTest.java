@@ -18,7 +18,7 @@ package com.thoughtworks.go.plugin.infra;
 import com.thoughtworks.go.plugin.FileHelper;
 import com.thoughtworks.go.plugin.api.request.DefaultGoPluginApiRequest;
 import com.thoughtworks.go.plugin.infra.listeners.DefaultPluginJarChangeListener;
-import com.thoughtworks.go.plugin.infra.monitor.PluginFileDetails;
+import com.thoughtworks.go.plugin.infra.monitor.BundleOrPluginFileDetails;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
@@ -51,19 +51,19 @@ class MultipleExtensionPluginWithPluginManagerIntegrationTest {
     @Autowired
     SystemEnvironment systemEnvironment;
     private static File bundleDir;
-    private static File pluginDir;
+    private static File pluginWorkDir;
     private static FileHelper temporaryFolder;
 
     @BeforeAll
     static void overrideProperties(@TempDir File rootDir) {
         temporaryFolder = new FileHelper(rootDir);
         bundleDir = temporaryFolder.newFolder("bundleDir");
-        pluginDir = temporaryFolder.newFolder("pluginDir");
+        pluginWorkDir = temporaryFolder.newFolder("pluginDir");
 
         System.setProperty(PLUGIN_ACTIVATOR_JAR_PATH.propertyName(), "defaultFiles/go-plugin-activator.jar");
         System.setProperty(PLUGIN_WORK_DIR.propertyName(), bundleDir.getAbsolutePath());
-        System.setProperty(PLUGIN_GO_PROVIDED_PATH.propertyName(), pluginDir.getAbsolutePath());
-        System.setProperty(PLUGIN_EXTERNAL_PROVIDED_PATH.propertyName(), pluginDir.getAbsolutePath());
+        System.setProperty(PLUGIN_GO_PROVIDED_PATH.propertyName(), pluginWorkDir.getAbsolutePath());
+        System.setProperty(PLUGIN_EXTERNAL_PROVIDED_PATH.propertyName(), pluginWorkDir.getAbsolutePath());
     }
 
     @BeforeEach
@@ -71,7 +71,7 @@ class MultipleExtensionPluginWithPluginManagerIntegrationTest {
         pluginManager.startInfrastructure(false);
 
         URL multiExtensionJar = MultipleExtensionPluginWithPluginManagerIntegrationTest.class.getClassLoader().getResource("defaultFiles/valid-plugin-with-multiple-extensions.jar");
-        jarChangeListener.pluginJarAdded(new PluginFileDetails(new File(multiExtensionJar.getFile()), false));
+        jarChangeListener.pluginJarAdded(new BundleOrPluginFileDetails(new File(multiExtensionJar.getFile()), false, pluginWorkDir));
     }
 
     @AfterEach

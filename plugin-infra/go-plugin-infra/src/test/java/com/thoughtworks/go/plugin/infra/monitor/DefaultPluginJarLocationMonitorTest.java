@@ -23,6 +23,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.OS;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 
@@ -35,7 +36,7 @@ import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 @DisabledOnOs(OS.WINDOWS)
-public class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJarLocationMonitorTest {
+class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJarLocationMonitorTest {
 
     private DefaultPluginJarLocationMonitor monitor;
     private File bundledPluginDir;
@@ -48,30 +49,27 @@ public class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJa
 
     @Override
     @BeforeEach
-    public void setUp() throws Exception {
-        super.setUp();
-        temporaryFolder.create();
+    void setUp(@TempDir File tempFolder) throws Exception {
+        super.setUp(tempFolder);
         initMocks(this);
 
-        bundledPluginDir = temporaryFolder.newFolder("bundled-plugins");
-
-        pluginExternalDir = temporaryFolder.newFolder("external-plugins");
+        bundledPluginDir = this.tempFolder.newFolder("bundled-plugins");
+        pluginExternalDir = this.tempFolder.newFolder("external-plugins");
 
         when(systemEnvironment.get(PLUGIN_LOCATION_MONITOR_INTERVAL_IN_SECONDS)).thenReturn(1);
         when(systemEnvironment.get(PLUGIN_GO_PROVIDED_PATH)).thenReturn(bundledPluginDir.getAbsolutePath());
         when(systemEnvironment.get(PLUGIN_EXTERNAL_PROVIDED_PATH)).thenReturn(pluginExternalDir.getAbsolutePath());
+        when(systemEnvironment.get(PLUGIN_WORK_DIR)).thenReturn(pluginWorkDir.getAbsolutePath());
 
         monitor = new DefaultPluginJarLocationMonitor(systemEnvironment);
         monitor.initialize();
     }
 
-    @Override
     @AfterEach
-    public void tearDown() throws Exception
-    {
+    void tearDown() throws Exception {
         monitor.stop();
-        super.tearDown();
     }
+
     @Test
     void shouldCreatePluginDirectoryIfItDoesNotExist() {
         bundledPluginDir.delete();
@@ -164,7 +162,7 @@ public class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJa
     @Test
     void shouldNotifyListenerOfMultiplePluginFilesAddedEvenIfOneListenerThrowsAnException() throws Exception {
         PluginJarChangeListener exceptionRasingListener = mock(PluginJarChangeListener.class);
-        doThrow(new RuntimeException("Dummy Listener Exception")).when(exceptionRasingListener).pluginJarAdded(any(PluginFileDetails.class));
+        doThrow(new RuntimeException("Dummy Listener Exception")).when(exceptionRasingListener).pluginJarAdded(any(BundleOrPluginFileDetails.class));
         monitor.addPluginJarChangeListener(exceptionRasingListener);
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();
@@ -218,10 +216,10 @@ public class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJa
 
         copyPluginToThePluginDirectory(bundledPluginDir, "descriptor-aware-test-plugin-1.jar");
         waitUntilNextRun(monitor);
-        PluginFileDetails orgFile = pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin-1.jar", true);
+        BundleOrPluginFileDetails orgFile = pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin-1.jar", true);
         verify(changeListener).pluginJarAdded(orgFile);
 
-        PluginFileDetails newFile = pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin-1-new.jar", true);
+        BundleOrPluginFileDetails newFile = pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin-1-new.jar", true);
         FileUtils.moveFile(orgFile.file(), newFile.file());
 
         waitUntilNextRun(monitor);
@@ -277,10 +275,10 @@ public class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJa
 
         copyPluginToThePluginDirectory(bundledPluginDir, "descriptor-aware-test-plugin-1.jar");
         waitUntilNextRun(monitor);
-        PluginFileDetails orgFile = pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin-1.jar", true);
+        BundleOrPluginFileDetails orgFile = pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin-1.jar", true);
         verify(changeListener).pluginJarAdded(orgFile);
 
-        PluginFileDetails newFile = pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin-1-new.jar", true);
+        BundleOrPluginFileDetails newFile = pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin-1-new.jar", true);
         FileUtils.moveFile(orgFile.file(), newFile.file());
         waitUntilNextRun(monitor);
     }

@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.plugin.infra.plugininfo;
 
+import com.thoughtworks.go.plugin.infra.monitor.BundleOrPluginFileDetails;
 import org.apache.commons.digester3.Digester;
 import org.xml.sax.*;
 
@@ -61,7 +62,15 @@ public final class GoPluginDescriptorParser {
         this.isBundledPlugin = isBundledPlugin;
     }
 
-    public static GoPluginBundleDescriptor parseXML(InputStream pluginXML, String pluginJarFileLocation, File pluginBundleLocation, boolean isBundledPlugin) throws IOException, SAXException {
+    public static GoPluginBundleDescriptor parseXML(InputStream pluginXml,
+                                                    BundleOrPluginFileDetails bundleOrPluginJarFile) throws IOException, SAXException {
+        return parseXML(pluginXml, bundleOrPluginJarFile.file().getAbsolutePath(), bundleOrPluginJarFile.extractionLocation(), bundleOrPluginJarFile.isBundledPlugin());
+    }
+
+    static GoPluginBundleDescriptor parseXML(InputStream pluginXML,
+                                             String pluginJarFileLocation,
+                                             File pluginBundleLocation,
+                                             boolean isBundledPlugin) throws IOException, SAXException {
         Digester digester = initDigester();
         GoPluginDescriptorParser parserForThisXML = new GoPluginDescriptorParser(pluginJarFileLocation, pluginBundleLocation, isBundledPlugin);
         digester.push(parserForThisXML);
@@ -113,6 +122,7 @@ public final class GoPluginDescriptorParser {
                 GoPluginDescriptorParser.class.getResourceAsStream("/plugin-descriptor.xsd"));
         return digester;
     }
+
 
     //used by digester
     public void createPlugin(String id, String version) {

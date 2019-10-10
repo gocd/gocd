@@ -19,7 +19,7 @@ import com.thoughtworks.go.plugin.FileHelper;
 import com.thoughtworks.go.plugin.api.request.DefaultGoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import com.thoughtworks.go.plugin.infra.listeners.DefaultPluginJarChangeListener;
-import com.thoughtworks.go.plugin.infra.monitor.PluginFileDetails;
+import com.thoughtworks.go.plugin.infra.monitor.BundleOrPluginFileDetails;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.felix.framework.BundleWiringImpl.BundleClassLoader;
@@ -72,8 +72,8 @@ class DefaultPluginManagerIntegrationTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        jarChangeListener.pluginJarAdded(new PluginFileDetails(pathOfFileInDefaultFiles("descriptor-aware-test-plugin.jar"), false));
-        jarChangeListener.pluginJarAdded(new PluginFileDetails(pathOfFileInDefaultFiles("dumb.plugin.that.responds.with.classloader.name.jar"), false));
+        jarChangeListener.pluginJarAdded(new BundleOrPluginFileDetails(pathOfFileInDefaultFiles("descriptor-aware-test-plugin.jar"), false, bundleDir));
+        jarChangeListener.pluginJarAdded(new BundleOrPluginFileDetails(pathOfFileInDefaultFiles("dumb.plugin.that.responds.with.classloader.name.jar"), false, bundleDir));
     }
 
     @AfterEach

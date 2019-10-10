@@ -57,6 +57,7 @@ public class PipelineConfigValidationTest {
     @Test
     public void shouldEnsureStageNameUniqueness() {
         CruiseConfig cruiseConfig = new BasicCruiseConfig();
+        cruiseConfig.initializeServer();
         PipelineConfig pipelineConfig = goConfigMother.addPipeline(cruiseConfig, "pipeline1", "stage", "build");
         JobConfig jobConfig = new JobConfig("my-build");
         jobConfig.addTask(new ExecTask("ls", "-la", "tmp"));

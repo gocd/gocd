@@ -280,6 +280,7 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
     public void shouldCollectOriginErrorsFromEnvironments_InMergedConfig() {
         pipelines = new BasicPipelineConfigs("group_main", new Authorization(), PipelineConfigMother.pipelineConfig("pipe1"));
         BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
+        mainCruiseConfig.initializeServer();
         PartialConfig partialConfig = PartialConfigMother.withPipelineInGroup("pipe2", "g2");
         partialConfig.getGroups().get(0).get(0).setOrigin(new RepoConfigOrigin());
         cruiseConfig = new BasicCruiseConfig(mainCruiseConfig, partialConfig);
@@ -295,6 +296,7 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
     @Test
     public void shouldCollectOriginErrorsFromMaterialConfigs_InMergedConfig() {
         BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
+        mainCruiseConfig.initializeServer();
         PartialConfig partialConfig = PartialConfigMother.withPipelineInGroup("pipe2", "g2");
         partialConfig.getGroups().get(0).get(0).setOrigin(new RepoConfigOrigin());
         cruiseConfig = new BasicCruiseConfig(mainCruiseConfig, partialConfig);

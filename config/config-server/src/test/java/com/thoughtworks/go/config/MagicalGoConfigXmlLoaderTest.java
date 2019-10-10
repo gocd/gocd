@@ -2394,6 +2394,7 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldAllowResourcesWithParamsForJobs() {
         CruiseConfig cruiseConfig = new BasicCruiseConfig();
+        cruiseConfig.initializeServer();
         cruiseConfig.addTemplate(new PipelineTemplateConfig(new CaseInsensitiveString("template"), stageWithJobResource("#{PLATFORM}")));
 
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("pipeline"), new MaterialConfigs());
@@ -2401,14 +2402,15 @@ public class MagicalGoConfigXmlLoaderTest {
         pipelineConfig.addParam(new ParamConfig("PLATFORM", "windows"));
         cruiseConfig.addPipeline("group", pipelineConfig);
 
-        List<ConfigErrors> errorses = MagicalGoConfigXmlLoader.validate(cruiseConfig);
-        assertThat(errorses.isEmpty()).isTrue();
+        List<ConfigErrors> errors = MagicalGoConfigXmlLoader.validate(cruiseConfig);
+        assertThat(errors.isEmpty()).isTrue();
     }
 
     //BUG: #5209
     @Test
     void shouldAllowRoleWithParamsForStageInTemplate() {
         CruiseConfig cruiseConfig = new BasicCruiseConfig();
+        cruiseConfig.initializeServer();
         cruiseConfig.server().security().addRole(new RoleConfig(new CaseInsensitiveString("role")));
 
         cruiseConfig.addTemplate(new PipelineTemplateConfig(new CaseInsensitiveString("template"), stageWithAuth("#{ROLE}")));
@@ -2419,8 +2421,8 @@ public class MagicalGoConfigXmlLoaderTest {
 
         cruiseConfig.addPipeline("group", pipelineConfig);
 
-        List<ConfigErrors> errorses = MagicalGoConfigXmlLoader.validate(cruiseConfig);
-        assertThat(errorses.isEmpty()).isTrue();
+        List<ConfigErrors> errors = MagicalGoConfigXmlLoader.validate(cruiseConfig);
+        assertThat(errors.isEmpty()).isTrue();
     }
 
     private StageConfig stageWithAuth(String role) {

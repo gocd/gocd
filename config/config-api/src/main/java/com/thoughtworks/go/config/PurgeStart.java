@@ -34,7 +34,7 @@ public class PurgeStart {
         this.purgeStartDiskSpace = Double.valueOf(purgeStartDiskSpace);
     }
 
-    public void setPurgeStartDiskSpace(String s) {
-        this.purgeStartDiskSpace = Double.valueOf(s);
+    public void setPurgeStartDiskSpace(String purgeStart) {
+        this.purgeStartDiskSpace = Double.valueOf(purgeStart);
     }
 }

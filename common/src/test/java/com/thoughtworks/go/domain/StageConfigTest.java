@@ -204,6 +204,7 @@ public class StageConfigTest {
     @Test
     public void shouldPopulateErrorMessagesWhenHasJobNamesRepeated() {
         CruiseConfig config = new BasicCruiseConfig();
+        config.initializeServer();
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline", "stage-1", "con-job");
         config.addPipeline("group-foo", pipelineConfig);
         StageConfig stageConfig = pipelineConfig.get(0);

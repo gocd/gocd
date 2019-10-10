@@ -35,17 +35,11 @@ public class GoPluginBundleDescriptor {
     @ToString.Exclude
     private Bundle bundle;
 
-    private String version;
     private List<GoPluginDescriptor> pluginDescriptors;
 
     public GoPluginBundleDescriptor(GoPluginDescriptor... pluginDescriptors) {
         this.pluginDescriptors = List.of(pluginDescriptors);
         this.pluginDescriptors.forEach(descriptor -> descriptor.setBundleDescriptor(this));
-    }
-
-    public GoPluginBundleDescriptor(String version, GoPluginDescriptor... pluginDescriptors) {
-        this(pluginDescriptors);
-        this.version = version;
     }
 
     public List<GoPluginDescriptor> descriptors() {
@@ -59,10 +53,6 @@ public class GoPluginBundleDescriptor {
     public GoPluginBundleDescriptor markAsInvalid(List<String> messages, Exception e) {
         pluginDescriptors.forEach(pluginDescriptor -> pluginDescriptor.markAsInvalidWithoutUpdatingBundleDescriptor(messages, e));
         return this;
-    }
-
-    public String fileName() {
-        return new File(first().pluginFileLocation()).getName();
     }
 
     public String bundleJARFileLocation() {
@@ -100,9 +90,5 @@ public class GoPluginBundleDescriptor {
 
     private GoPluginDescriptor first() {
         return this.pluginDescriptors.get(0);
-    }
-
-    public String getVersion() {
-        return version;
     }
 }

@@ -19,14 +19,14 @@ import com.thoughtworks.go.plugin.api.request.GoApiRequest;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class PluginAwareDefaultGoApplicationAccessorTest {
+class PluginAwareDefaultGoApplicationAccessorTest {
 
     @Test
-    public void shouldHandleExceptionThrownByProcessor() throws Exception {
+    void shouldHandleExceptionThrownByProcessor() {
         String api = "api-uri";
         GoPluginApiRequestProcessor processor = mock(GoPluginApiRequestProcessor.class);
         GoApiRequest goApiRequest = mock(GoApiRequest.class);
@@ -37,12 +37,10 @@ public class PluginAwareDefaultGoApplicationAccessorTest {
 
         PluginRequestProcessorRegistry pluginRequestProcessorRegistry = new PluginRequestProcessorRegistry();
         pluginRequestProcessorRegistry.registerProcessorFor(api, processor);
-        PluginAwareDefaultGoApplicationAccessor accessor= new PluginAwareDefaultGoApplicationAccessor(descriptor, pluginRequestProcessorRegistry);
-        try {
-            accessor.submit(goApiRequest);
-        } catch (Exception e) {
-            assertThat(e.getMessage()).isEqualTo(String.format("Error while processing request api %s", api));
-            assertThat(e.getCause()).isEqualTo(cause);
-        }
+        PluginAwareDefaultGoApplicationAccessor accessor = new PluginAwareDefaultGoApplicationAccessor(descriptor, pluginRequestProcessorRegistry);
+
+        assertThatCode(() -> accessor.submit(goApiRequest))
+                .hasMessage(String.format("Error while processing request api %s", api))
+                .hasCause(cause);
     }
 }

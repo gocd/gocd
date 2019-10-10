@@ -37,7 +37,6 @@ class GoPluginBundleDescriptorParserTest {
         final GoPluginBundleDescriptor bundleDescriptor = parseXML(pluginXml, "/tmp/a.jar", new File("/tmp/"), true);
 
         assertThat(bundleDescriptor.descriptors().size()).isEqualTo(2);
-        assertThat(bundleDescriptor.getVersion()).isEqualTo("1");
 
         final GoPluginDescriptor pluginDescriptor1 = bundleDescriptor.descriptors().get(0);
         assertPluginDescriptor(pluginDescriptor1, "testplugin.multipluginbundle.plugin1",
@@ -65,9 +64,16 @@ class GoPluginBundleDescriptorParserTest {
         }
     }
 
-    private void assertPluginDescriptor(GoPluginDescriptor pluginDescriptor, String pluginID, String pluginName,
-                                        String pluginVersion, String targetGoVersion, String description, String vendorName,
-                                        String vendorURL, List<String> targetOSes, List<String> extensionClasses) {
+    private void assertPluginDescriptor(GoPluginDescriptor pluginDescriptor,
+                                        String pluginID,
+                                        String pluginName,
+                                        String pluginVersion,
+                                        String targetGoVersion,
+                                        String description,
+                                        String vendorName,
+                                        String vendorURL,
+                                        List<String> targetOSes,
+                                        List<String> extensionClasses) {
         assertThat(pluginDescriptor.id()).isEqualTo(pluginID);
         assertThat(pluginDescriptor.pluginFileLocation()).isEqualTo("/tmp/a.jar");
         assertThat(pluginDescriptor.fileName()).isEqualTo("tmp");

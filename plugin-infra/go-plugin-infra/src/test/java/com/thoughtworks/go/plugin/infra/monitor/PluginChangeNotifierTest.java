@@ -37,11 +37,11 @@ class PluginChangeNotifierTest {
     @Test
     void shouldNotifyWhenNewPluginIsAdded() {
         final PluginJarChangeListener listener = mock(PluginJarChangeListener.class);
-        List<PluginFileDetails> knownPlugins = Collections.emptyList();
-        PluginFileDetails pluginOne = mock(PluginFileDetails.class);
-        PluginFileDetails pluginTwo = mock(PluginFileDetails.class);
-        PluginFileDetails pluginThree = mock(PluginFileDetails.class);
-        List<PluginFileDetails> newPlugins = List.of(pluginOne, pluginTwo, pluginThree);
+        List<BundleOrPluginFileDetails> knownPlugins = Collections.emptyList();
+        BundleOrPluginFileDetails pluginOne = mock(BundleOrPluginFileDetails.class);
+        BundleOrPluginFileDetails pluginTwo = mock(BundleOrPluginFileDetails.class);
+        BundleOrPluginFileDetails pluginThree = mock(BundleOrPluginFileDetails.class);
+        List<BundleOrPluginFileDetails> newPlugins = List.of(pluginOne, pluginTwo, pluginThree);
 
         pluginChangeNotifier.notify(listener, knownPlugins, newPlugins);
 
@@ -53,12 +53,12 @@ class PluginChangeNotifierTest {
     @Test
     void shouldNotifyWhenPluginIsUpdated() {
         final PluginJarChangeListener listener = mock(PluginJarChangeListener.class);
-        PluginFileDetails pluginOne = mock(PluginFileDetails.class);
-        PluginFileDetails pluginTwo = mock(PluginFileDetails.class);
-        PluginFileDetails pluginThree = mock(PluginFileDetails.class);
+        BundleOrPluginFileDetails pluginOne = mock(BundleOrPluginFileDetails.class);
+        BundleOrPluginFileDetails pluginTwo = mock(BundleOrPluginFileDetails.class);
+        BundleOrPluginFileDetails pluginThree = mock(BundleOrPluginFileDetails.class);
 
-        List<PluginFileDetails> knownPlugins = List.of(pluginOne, pluginTwo, pluginThree);
-        List<PluginFileDetails> newPlugins = List.of(pluginOne, pluginTwo, pluginThree);
+        List<BundleOrPluginFileDetails> knownPlugins = List.of(pluginOne, pluginTwo, pluginThree);
+        List<BundleOrPluginFileDetails> newPlugins = List.of(pluginOne, pluginTwo, pluginThree);
         when(pluginOne.doesTimeStampDiffer(pluginOne)).thenReturn(true);
 
         pluginChangeNotifier.notify(listener, knownPlugins, newPlugins);
@@ -71,12 +71,12 @@ class PluginChangeNotifierTest {
     @Test
     void shouldNotifyWhenPluginIsRemoved() {
         final PluginJarChangeListener listener = mock(PluginJarChangeListener.class);
-        PluginFileDetails pluginOne = mock(PluginFileDetails.class);
-        PluginFileDetails pluginTwo = mock(PluginFileDetails.class);
-        PluginFileDetails pluginThree = mock(PluginFileDetails.class);
+        BundleOrPluginFileDetails pluginOne = mock(BundleOrPluginFileDetails.class);
+        BundleOrPluginFileDetails pluginTwo = mock(BundleOrPluginFileDetails.class);
+        BundleOrPluginFileDetails pluginThree = mock(BundleOrPluginFileDetails.class);
 
-        List<PluginFileDetails> knownPlugins = List.of(pluginOne, pluginTwo, pluginThree);
-        List<PluginFileDetails> newPlugins = List.of(pluginOne, pluginTwo);
+        List<BundleOrPluginFileDetails> knownPlugins = List.of(pluginOne, pluginTwo, pluginThree);
+        List<BundleOrPluginFileDetails> newPlugins = List.of(pluginOne, pluginTwo);
 
         pluginChangeNotifier.notify(listener, knownPlugins, newPlugins);
 
@@ -90,11 +90,12 @@ class PluginChangeNotifierTest {
         final PluginJarChangeListener listener = mock(PluginJarChangeListener.class);
         File pluginJarOne = mock(File.class);
         File pluginJarTwo = mock(File.class);
-        PluginFileDetails pluginOne = new PluginFileDetails(pluginJarOne, false);
-        PluginFileDetails pluginTwo = new PluginFileDetails(pluginJarTwo, false);
+        File pluginWorkDir = mock(File.class);
+        BundleOrPluginFileDetails pluginOne = new BundleOrPluginFileDetails(pluginJarOne, false, pluginWorkDir);
+        BundleOrPluginFileDetails pluginTwo = new BundleOrPluginFileDetails(pluginJarTwo, false, pluginWorkDir);
 
-        List<PluginFileDetails> knownPlugins = List.of(pluginOne);
-        List<PluginFileDetails> newPlugins = List.of(pluginTwo);
+        List<BundleOrPluginFileDetails> knownPlugins = List.of(pluginOne);
+        List<BundleOrPluginFileDetails> newPlugins = List.of(pluginTwo);
 
         when(pluginJarOne.getName()).thenReturn("plugin-1.0.0.jar");
         when(pluginJarTwo.getName()).thenReturn("plugin-2.0.0.jar");

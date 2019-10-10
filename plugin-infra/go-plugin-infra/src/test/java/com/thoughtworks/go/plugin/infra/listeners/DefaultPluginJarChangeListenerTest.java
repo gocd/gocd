@@ -18,7 +18,7 @@ package com.thoughtworks.go.plugin.infra.listeners;
 import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.plugin.FileHelper;
 import com.thoughtworks.go.plugin.infra.PluginLoader;
-import com.thoughtworks.go.plugin.infra.monitor.PluginFileDetails;
+import com.thoughtworks.go.plugin.infra.monitor.BundleOrPluginFileDetails;
 import com.thoughtworks.go.plugin.infra.plugininfo.*;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
@@ -40,7 +40,7 @@ import static org.mockito.Mockito.*;
 
 class DefaultPluginJarChangeListenerTest {
     private static final String PLUGIN_JAR_FILE_NAME = "descriptor-aware-test-plugin.jar";
-    private File pluginDir;
+    private File pluginWorkDir;
     private File bundleDir;
     private DefaultPluginRegistry registry;
     private GoPluginOSGiManifestGenerator osgiManifestGenerator;
@@ -54,7 +54,7 @@ class DefaultPluginJarChangeListenerTest {
     void setUp(@TempDir File rootDir) {
         temporaryFolder = new FileHelper(rootDir);
         bundleDir = temporaryFolder.newFolder("bundleDir");
-        pluginDir = temporaryFolder.newFolder("pluginDir");
+        pluginWorkDir = temporaryFolder.newFolder("pluginDir");
 
         registry = mock(DefaultPluginRegistry.class);
         osgiManifestGenerator = mock(GoPluginOSGiManifest.DefaultGoPluginOSGiManifestCreator.class);
@@ -71,10 +71,10 @@ class DefaultPluginJarChangeListenerTest {
     @Test
     void shouldCopyPluginToBundlePathAndInformRegistryAndUpdateTheOSGiManifestWhenAPluginIsAdded() throws Exception {
         String pluginId = "testplugin.descriptorValidator";
-        File pluginJarFile = new File(pluginDir, PLUGIN_JAR_FILE_NAME);
+        File pluginJarFile = new File(pluginWorkDir, PLUGIN_JAR_FILE_NAME);
         File expectedBundleDirectory = new File(bundleDir, PLUGIN_JAR_FILE_NAME);
 
-        copyPluginToTheDirectory(pluginDir, PLUGIN_JAR_FILE_NAME);
+        copyPluginToTheDirectory(pluginWorkDir, PLUGIN_JAR_FILE_NAME);
         String pluginJarFileLocation = pluginJarFile.getAbsolutePath();
         GoPluginBundleDescriptor descriptor = new GoPluginBundleDescriptor(GoPluginDescriptor.builder()
                 .id(pluginId)
@@ -82,11 +82,11 @@ class DefaultPluginJarChangeListenerTest {
                 .pluginJarFileLocation(pluginJarFileLocation)
                 .isBundledPlugin(true)
                 .build());
-        when(goPluginBundleDescriptorBuilder.build(pluginJarFile, true)).thenReturn(descriptor);
+        when(goPluginBundleDescriptorBuilder.build(new BundleOrPluginFileDetails(pluginJarFile, true, pluginWorkDir))).thenReturn(descriptor);
         when(registry.getPluginByIdOrFileName(pluginId, PLUGIN_JAR_FILE_NAME)).thenReturn(null);
         doNothing().when(registry).loadPlugin(descriptor);
 
-        listener.pluginJarAdded(new PluginFileDetails(pluginJarFile, true));
+        listener.pluginJarAdded(new BundleOrPluginFileDetails(pluginJarFile, true, pluginWorkDir));
 
         assertThat(expectedBundleDirectory.exists()).isTrue();
         verify(registry).getPluginByIdOrFileName(pluginId, PLUGIN_JAR_FILE_NAME);
@@ -100,12 +100,12 @@ class DefaultPluginJarChangeListenerTest {
 
     @Test
     void shouldOverwriteAFileCalledGoPluginActivatorInLibWithOurOwnGoPluginActivatorEvenIfItExists() throws Exception {
-        File pluginJarFile = new File(pluginDir, PLUGIN_JAR_FILE_NAME);
+        File pluginJarFile = new File(pluginWorkDir, PLUGIN_JAR_FILE_NAME);
         File expectedBundleDirectory = new File(bundleDir, PLUGIN_JAR_FILE_NAME);
         File activatorFileLocation = new File(expectedBundleDirectory, "lib/go-plugin-activator.jar");
         FileUtils.writeStringToFile(activatorFileLocation, "SOME-DATA", UTF_8);
 
-        copyPluginToTheDirectory(pluginDir, PLUGIN_JAR_FILE_NAME);
+        copyPluginToTheDirectory(pluginWorkDir, PLUGIN_JAR_FILE_NAME);
         String pluginJarFileLocation = pluginJarFile.getAbsolutePath();
         GoPluginBundleDescriptor descriptor = new GoPluginBundleDescriptor(GoPluginDescriptor.builder()
                 .id("testplugin.descriptorValidator")
@@ -113,53 +113,50 @@ class DefaultPluginJarChangeListenerTest {
                 .pluginJarFileLocation(pluginJarFileLocation)
                 .isBundledPlugin(true)
                 .build());
-        when(goPluginBundleDescriptorBuilder.build(pluginJarFile, true)).thenReturn(descriptor);
+        when(goPluginBundleDescriptorBuilder.build(new BundleOrPluginFileDetails(pluginJarFile, true, pluginWorkDir))).thenReturn(descriptor);
         doNothing().when(registry).loadPlugin(descriptor);
 
-        listener.pluginJarAdded(new PluginFileDetails(pluginJarFile, true));
+        listener.pluginJarAdded(new BundleOrPluginFileDetails(pluginJarFile, true, pluginWorkDir));
 
         assertThat(new File(expectedBundleDirectory, "lib/go-plugin-activator.jar").exists()).isTrue();
         assertThat(FileUtils.readFileToString(activatorFileLocation, UTF_8)).isNotEqualTo("SOME-DATA");
     }
 
     @Test
-    void shouldCopyPluginToBundlePathAndInformRegistryAndUpdateTheOSGiManifestWhenAPluginIsUpdated() {
-        String pluginId = "plugin-id";
-        String pluginJarFileName = "jar-name.jar";
-        File oldBundleDir = temporaryFolder.newFolder("old-bundle-dir");
-        File newBundleDir = temporaryFolder.newFolder("new-bundle-dir");
-        File newBundleJarFile = new File(newBundleDir, pluginJarFileName);
+    void shouldCopyPluginToBundlePathAndInformRegistryAndUpdateTheOSGiManifestWhenAPluginIsUpdated() throws IOException {
         DefaultPluginJarChangeListener spy = spy(listener);
+        String pluginId = "plugin-id";
+        File oldFile = temporaryFolder.newFile("jar-name-1.0.0.jar");
+        File newBundleJarFile = temporaryFolder.newFile("jar-name-2.0.0.jar");
 
-        String pluginJarFileLocation1 = newBundleJarFile.getAbsolutePath();
+        BundleOrPluginFileDetails oldBundleOrPluginJarFile = new BundleOrPluginFileDetails(oldFile, true, pluginWorkDir);
+        BundleOrPluginFileDetails newBundleOrPluginJarFile = new BundleOrPluginFileDetails(newBundleJarFile, true, pluginWorkDir);
+
         GoPluginDescriptor oldDescriptor = GoPluginDescriptor.builder()
-                .id("testplugin.descriptorValidator")
-                .bundleLocation(oldBundleDir)
-                .pluginJarFileLocation(pluginJarFileLocation1)
-                .pluginJarFileLocation(pluginJarFileLocation1)
+                .id(pluginId)
+                .bundleLocation(oldBundleOrPluginJarFile.extractionLocation())
                 .isBundledPlugin(true)
                 .build();
         GoPluginBundleDescriptor oldBundleDescriptor = new GoPluginBundleDescriptor(oldDescriptor);
 
-        String pluginJarFileLocation = newBundleJarFile.getAbsolutePath();
         GoPluginDescriptor newDescriptor = GoPluginDescriptor.builder()
                 .id(pluginId)
-                .bundleLocation(newBundleDir)
-                .pluginJarFileLocation(pluginJarFileLocation)
+                .bundleLocation(newBundleOrPluginJarFile.extractionLocation())
                 .isBundledPlugin(true)
                 .build();
         GoPluginBundleDescriptor newBundleDescriptor = new GoPluginBundleDescriptor(newDescriptor);
 
-        doNothing().when(spy).explodePluginJarToBundleDir(newBundleJarFile, newBundleDir);
+        doNothing().when(spy).explodePluginJarToBundleDir(newBundleJarFile, newBundleOrPluginJarFile.extractionLocation());
         doNothing().when(spy).installActivatorJarToBundleDir(newBundleJarFile);
-        when(goPluginBundleDescriptorBuilder.build(newBundleJarFile, true)).thenReturn(newBundleDescriptor);
-        when(registry.getPluginByIdOrFileName(pluginId, pluginJarFileName)).thenReturn(oldDescriptor);
+
+        when(goPluginBundleDescriptorBuilder.build(newBundleOrPluginJarFile)).thenReturn(newBundleDescriptor);
+        when(registry.getPluginByIdOrFileName(pluginId, oldFile.getName())).thenReturn(oldDescriptor);
         when(registry.unloadPlugin(newBundleDescriptor)).thenReturn(oldBundleDescriptor);
 
-        spy.pluginJarUpdated(new PluginFileDetails(newBundleJarFile, true));
+        spy.pluginJarUpdated(newBundleOrPluginJarFile);
 
-        assertThat(oldBundleDir.exists()).isFalse();
-        verify(registry, atLeastOnce()).getPluginByIdOrFileName(pluginId, pluginJarFileName);
+        assertThat(oldBundleOrPluginJarFile.extractionLocation().exists()).isFalse();
+        verify(registry, atLeastOnce()).getPluginByIdOrFileName(pluginId, newBundleJarFile.getName());
         verify(registry).unloadPlugin(newBundleDescriptor);
         verify(registry).loadPlugin(newBundleDescriptor);
         verify(osgiManifestGenerator).updateManifestOf(newBundleDescriptor);
@@ -171,7 +168,7 @@ class DefaultPluginJarChangeListenerTest {
 
     @Test
     void shouldRemovePluginFromBundlePathAndInformRegistryWhenAPluginIsRemoved() throws Exception {
-        File pluginJarFile = new File(pluginDir, PLUGIN_JAR_FILE_NAME);
+        File pluginJarFile = new File(pluginWorkDir, PLUGIN_JAR_FILE_NAME);
         File removedBundleDirectory = new File(bundleDir, PLUGIN_JAR_FILE_NAME);
 
         String pluginJarFileLocation = pluginJarFile.getAbsolutePath();
@@ -188,7 +185,7 @@ class DefaultPluginJarChangeListenerTest {
 
         copyPluginToTheDirectory(bundleDir, PLUGIN_JAR_FILE_NAME);
 
-        listener.pluginJarRemoved(new PluginFileDetails(pluginJarFile, true));
+        listener.pluginJarRemoved(new BundleOrPluginFileDetails(pluginJarFile, true, pluginWorkDir));
 
         verify(registry).unloadPlugin(descriptorOfThePluginBundleWhichWillBeRemoved);
         verify(pluginLoader).unloadPlugin(descriptorOfThePluginBundleWhichWillBeRemoved);
@@ -197,8 +194,8 @@ class DefaultPluginJarChangeListenerTest {
 
     @Test
     void shouldNotTryAndUpdateManifestOfAnAddedInvalidPlugin() throws Exception {
-        File pluginJarFile = new File(pluginDir, PLUGIN_JAR_FILE_NAME);
-        copyPluginToTheDirectory(pluginDir, PLUGIN_JAR_FILE_NAME);
+        File pluginJarFile = new File(pluginWorkDir, PLUGIN_JAR_FILE_NAME);
+        copyPluginToTheDirectory(pluginWorkDir, PLUGIN_JAR_FILE_NAME);
         File expectedBundleDirectory = new File(bundleDir, PLUGIN_JAR_FILE_NAME);
 
         String pluginJarFileLocation = pluginJarFile.getAbsolutePath();
@@ -212,11 +209,11 @@ class DefaultPluginJarChangeListenerTest {
                         .build())
                 .markAsInvalid(singletonList("For a test"), null);
 
-        when(goPluginBundleDescriptorBuilder.build(pluginJarFile, true)).thenReturn(descriptorForInvalidPlugin);
+        when(goPluginBundleDescriptorBuilder.build(new BundleOrPluginFileDetails(pluginJarFile, true, pluginWorkDir))).thenReturn(descriptorForInvalidPlugin);
         doNothing().when(registry).loadPlugin(descriptorForInvalidPlugin);
 
 
-        listener.pluginJarAdded(new PluginFileDetails(pluginJarFile, true));
+        listener.pluginJarAdded(new BundleOrPluginFileDetails(pluginJarFile, true, pluginWorkDir));
 
         assertThat(expectedBundleDirectory.exists()).isTrue();
         verify(registry).loadPlugin(descriptorForInvalidPlugin);
@@ -227,21 +224,20 @@ class DefaultPluginJarChangeListenerTest {
     void shouldNotTryAndUpdateManifestOfAnUpdatedInvalidPlugin() throws Exception {
         DefaultPluginJarChangeListener spy = spy(listener);
         String pluginId = "plugin-id";
-        File pluginFile = new File(pluginDir, PLUGIN_JAR_FILE_NAME);
-        copyPluginToTheDirectory(pluginDir, PLUGIN_JAR_FILE_NAME);
+        File pluginFile = new File(pluginWorkDir, PLUGIN_JAR_FILE_NAME);
+        copyPluginToTheDirectory(pluginWorkDir, PLUGIN_JAR_FILE_NAME);
         File expectedBundleDirectoryForInvalidPlugin = new File(bundleDir, PLUGIN_JAR_FILE_NAME);
         File bundleDirectoryForOldPlugin = new File(bundleDir, "descriptor-aware-test-plugin-old.jar");
         FileUtils.forceMkdir(bundleDirectoryForOldPlugin);
 
         String pluginJarFileLocation = pluginFile.getAbsolutePath();
-        GoPluginBundleDescriptor descriptorForInvalidPlugin = new GoPluginBundleDescriptor(
-                GoPluginDescriptor.builder()
-                        .id("testplugin.descriptorValidator")
-                        .bundleLocation(expectedBundleDirectoryForInvalidPlugin)
-                        .pluginJarFileLocation(pluginJarFileLocation)
-                        .pluginJarFileLocation(pluginJarFileLocation)
-                        .isBundledPlugin(true)
-                        .build())
+        GoPluginBundleDescriptor descriptorForInvalidPlugin = new GoPluginBundleDescriptor(GoPluginDescriptor.builder()
+                .id("testplugin.descriptorValidator")
+                .bundleLocation(expectedBundleDirectoryForInvalidPlugin)
+                .pluginJarFileLocation(pluginJarFileLocation)
+                .pluginJarFileLocation(pluginJarFileLocation)
+                .isBundledPlugin(true)
+                .build())
                 .markAsInvalid(singletonList("For a test"), null);
 
         Bundle oldBundle = mock(Bundle.class);
@@ -253,13 +249,13 @@ class DefaultPluginJarChangeListenerTest {
                 .build();
         GoPluginBundleDescriptor oldBundleDescriptor = new GoPluginBundleDescriptor(oldPluginDescriptor).setBundle(oldBundle);
 
-        when(goPluginBundleDescriptorBuilder.build(pluginFile, true)).thenReturn(descriptorForInvalidPlugin);
+        when(goPluginBundleDescriptorBuilder.build(new BundleOrPluginFileDetails(pluginFile, true, pluginWorkDir))).thenReturn(descriptorForInvalidPlugin);
         when(registry.getPlugin(pluginId)).thenReturn(oldPluginDescriptor);
         when(registry.unloadPlugin(descriptorForInvalidPlugin)).thenReturn(oldBundleDescriptor);
         doNothing().when(registry).loadPlugin(descriptorForInvalidPlugin);
 
 
-        spy.pluginJarUpdated(new PluginFileDetails(pluginFile, true));
+        spy.pluginJarUpdated(new BundleOrPluginFileDetails(pluginFile, true, pluginWorkDir));
 
         assertThat(expectedBundleDirectoryForInvalidPlugin.exists()).isTrue();
         assertThat(bundleDirectoryForOldPlugin.exists()).isFalse();
@@ -276,10 +272,10 @@ class DefaultPluginJarChangeListenerTest {
         when(systemEnvironment.get(PLUGIN_ACTIVATOR_JAR_PATH)).thenReturn("some-path-which-does-not-exist.jar");
 
 
-        File pluginJarFile = new File(pluginDir, PLUGIN_JAR_FILE_NAME);
+        File pluginJarFile = new File(pluginWorkDir, PLUGIN_JAR_FILE_NAME);
         File bundleDirectory = new File(bundleDir, PLUGIN_JAR_FILE_NAME);
 
-        copyPluginToTheDirectory(pluginDir, PLUGIN_JAR_FILE_NAME);
+        copyPluginToTheDirectory(pluginWorkDir, PLUGIN_JAR_FILE_NAME);
         String pluginJarFileLocation = pluginJarFile.getAbsolutePath();
         GoPluginDescriptor descriptor = GoPluginDescriptor.builder()
                 .id("some.old.id")
@@ -287,10 +283,10 @@ class DefaultPluginJarChangeListenerTest {
                 .pluginJarFileLocation(pluginJarFileLocation)
                 .isBundledPlugin(true)
                 .build();
-        when(goPluginBundleDescriptorBuilder.build(pluginJarFile, true)).thenReturn(new GoPluginBundleDescriptor(descriptor));
+        when(goPluginBundleDescriptorBuilder.build(new BundleOrPluginFileDetails(pluginJarFile, true, pluginWorkDir))).thenReturn(new GoPluginBundleDescriptor(descriptor));
 
         listener = new DefaultPluginJarChangeListener(registry, osgiManifestGenerator, pluginLoader, goPluginBundleDescriptorBuilder, systemEnvironment);
-        assertThatCode(() -> listener.pluginJarAdded(new PluginFileDetails(pluginJarFile, true)))
+        assertThatCode(() -> listener.pluginJarAdded(new BundleOrPluginFileDetails(pluginJarFile, true, pluginWorkDir)))
                 .isInstanceOf(RuntimeException.class);
     }
 
@@ -302,14 +298,14 @@ class DefaultPluginJarChangeListenerTest {
         when(pluginJarFile.getName()).thenReturn(pluginJarFileName);
 
         GoPluginBundleDescriptor externalPluginDescriptor = new GoPluginBundleDescriptor(getPluginDescriptor(pluginId, "1.0", pluginJarFileName, pluginJarFile, false, null));
-        when(goPluginBundleDescriptorBuilder.build(pluginJarFile, false)).thenReturn(externalPluginDescriptor);
+        when(goPluginBundleDescriptorBuilder.build(new BundleOrPluginFileDetails(pluginJarFile, false, pluginWorkDir))).thenReturn(externalPluginDescriptor);
 
         GoPluginDescriptor bundledPluginDescriptor = getPluginDescriptor("bundled", "1.0", "1.0", null, true, null);
         when(registry.getPluginByIdOrFileName(pluginId, pluginJarFileName)).thenReturn(bundledPluginDescriptor);
 
         DefaultPluginJarChangeListener spy = spy(listener);
         try {
-            listener.pluginJarAdded(new PluginFileDetails(pluginJarFile, false));
+            listener.pluginJarAdded(new BundleOrPluginFileDetails(pluginJarFile, false, pluginWorkDir));
             fail("should have failed as external plugin cannot replace bundled plugin");
         } catch (RuntimeException e) {
             assertThat(e.getMessage()).isEqualTo("Found bundled plugin with ID: [bundled], external plugin could not be loaded");
@@ -317,7 +313,13 @@ class DefaultPluginJarChangeListenerTest {
         verify(spy, never()).explodePluginJarToBundleDir(pluginJarFile, externalPluginDescriptor.bundleLocation());
     }
 
-    private GoPluginDescriptor getPluginDescriptor(String pluginId, String version, String pluginJarLocation, File bundleLocation, boolean isBundledPlugin, String targetGoVersion, String... operatingSystems) {
+    private GoPluginDescriptor getPluginDescriptor(String pluginId,
+                                                   String version,
+                                                   String pluginJarLocation,
+                                                   File bundleLocation,
+                                                   boolean isBundledPlugin,
+                                                   String targetGoVersion,
+                                                   String... operatingSystems) {
         return GoPluginDescriptor.builder()
                 .id(pluginId)
                 .version("1")
@@ -341,7 +343,7 @@ class DefaultPluginJarChangeListenerTest {
         final GoPluginDescriptor newPluginDescriptor1 = getPluginDescriptor("external.1", "1.0", newPluginJarFile.getAbsolutePath(), bundleLocation, false, null);
         final GoPluginDescriptor newPluginDescriptor2 = getPluginDescriptor("bundled", "1.0", newPluginJarFile.getAbsolutePath(), bundleLocation, false, null);
         GoPluginBundleDescriptor newExternalPluginBundleDescriptor = new GoPluginBundleDescriptor(newPluginDescriptor1, newPluginDescriptor2);
-        when(goPluginBundleDescriptorBuilder.build(newPluginJarFile, false)).thenReturn(newExternalPluginBundleDescriptor);
+        when(goPluginBundleDescriptorBuilder.build(new BundleOrPluginFileDetails(newPluginJarFile, false, pluginWorkDir))).thenReturn(newExternalPluginBundleDescriptor);
 
         final GoPluginDescriptor existingPluginDescriptor1 = getPluginDescriptor("bundled", "1.0", "/some/path/file.jar", new File("/some/file.jar"), true, null);
         when(registry.getPluginByIdOrFileName("external.1", filename)).thenReturn(null);
@@ -349,7 +351,7 @@ class DefaultPluginJarChangeListenerTest {
 
         DefaultPluginJarChangeListener spy = spy(listener);
         try {
-            spy.pluginJarAdded(new PluginFileDetails(newPluginJarFile, false));
+            spy.pluginJarAdded(new BundleOrPluginFileDetails(newPluginJarFile, false, pluginWorkDir));
             fail("should have failed as external plugin cannot replace bundled plugin");
         } catch (RuntimeException e) {
             assertThat(e.getMessage()).isEqualTo("Found bundled plugin with ID: [bundled], external plugin could not be loaded");
@@ -367,14 +369,14 @@ class DefaultPluginJarChangeListenerTest {
         final GoPluginDescriptor pluginDescriptor1 = getPluginDescriptor("some-new-plugin-id", "1.0", pluginJarFileName, pluginJarFile, true, null);
         final GoPluginDescriptor pluginDescriptor2 = getPluginDescriptor(pluginId, "1.0", pluginJarFileName, pluginJarFile, true, null);
         GoPluginBundleDescriptor newPluginDescriptor = new GoPluginBundleDescriptor(pluginDescriptor1, pluginDescriptor2);
-        when(goPluginBundleDescriptorBuilder.build(pluginJarFile, false)).thenReturn(newPluginDescriptor);
+        when(goPluginBundleDescriptorBuilder.build(new BundleOrPluginFileDetails(pluginJarFile, false, pluginWorkDir))).thenReturn(newPluginDescriptor);
 
         final GoPluginDescriptor oldPluginDescriptor = getPluginDescriptor(pluginId, "1.0", "location-old", new File("location-old"), true, null);
         when(registry.getPluginByIdOrFileName(pluginId, pluginJarFileName)).thenReturn(oldPluginDescriptor);
 
         DefaultPluginJarChangeListener spy = spy(listener);
         try {
-            spy.pluginJarUpdated(new PluginFileDetails(pluginJarFile, false));
+            spy.pluginJarUpdated(new BundleOrPluginFileDetails(pluginJarFile, false, pluginWorkDir));
             fail("should have failed as external plugin cannot replace bundled plugin");
         } catch (RuntimeException e) {
             assertThat(e.getMessage()).isEqualTo("Found another plugin with ID: plugin-id");
@@ -387,16 +389,17 @@ class DefaultPluginJarChangeListenerTest {
         String pluginId = "plugin-id";
         String pluginJarFileName = "plugin-file-name.jar";
         File pluginJarFile = new File("/some/path/" + pluginJarFileName);
+        BundleOrPluginFileDetails bundleOrPluginJarFile = new BundleOrPluginFileDetails(pluginJarFile, false, pluginWorkDir);
 
-        GoPluginBundleDescriptor newPluginDescriptor = new GoPluginBundleDescriptor(getPluginDescriptor(pluginId, "1.0", pluginJarFileName, null, false, null));
-        when(goPluginBundleDescriptorBuilder.build(pluginJarFile, false)).thenReturn(newPluginDescriptor);
+        GoPluginBundleDescriptor newPluginDescriptor = new GoPluginBundleDescriptor(getPluginDescriptor(pluginId, "1.0", pluginJarFileName, bundleOrPluginJarFile.extractionLocation(), false, null));
+        when(goPluginBundleDescriptorBuilder.build(bundleOrPluginJarFile)).thenReturn(newPluginDescriptor);
 
         GoPluginDescriptor oldPluginDescriptor = getPluginDescriptor(pluginId, "1.0", null, null, true, null);
         when(registry.getPluginByIdOrFileName(pluginId, pluginJarFileName)).thenReturn(oldPluginDescriptor);
 
         DefaultPluginJarChangeListener spy = spy(listener);
         try {
-            spy.pluginJarUpdated(new PluginFileDetails(pluginJarFile, false));
+            spy.pluginJarUpdated(bundleOrPluginJarFile);
             fail("should have failed as external plugin cannot replace bundled plugin");
         } catch (RuntimeException e) {
             assertThat(e.getMessage()).isEqualTo("Found bundled plugin with ID: [plugin-id], external plugin could not be loaded");
@@ -413,7 +416,7 @@ class DefaultPluginJarChangeListenerTest {
         final GoPluginDescriptor newPluginDescriptor1 = getPluginDescriptor("external.1", "1.0", updatedPluginJarLocation.getAbsolutePath(), bundleLocation, false, null);
         final GoPluginDescriptor newPluginDescriptor2 = getPluginDescriptor("bundled", "1.0", updatedPluginJarLocation.getAbsolutePath(), bundleLocation, false, null);
         GoPluginBundleDescriptor newExternalPluginBundleDescriptor = new GoPluginBundleDescriptor(newPluginDescriptor1, newPluginDescriptor2);
-        when(goPluginBundleDescriptorBuilder.build(updatedPluginJarLocation, false)).thenReturn(newExternalPluginBundleDescriptor);
+        when(goPluginBundleDescriptorBuilder.build(new BundleOrPluginFileDetails(updatedPluginJarLocation, false, pluginWorkDir))).thenReturn(newExternalPluginBundleDescriptor);
 
         final GoPluginDescriptor existingPluginDescriptor1 = getPluginDescriptor("bundled", "1.0", updatedPluginJarLocation.getAbsolutePath(), bundleLocation, true, null);
         when(registry.getPluginByIdOrFileName("external.1", filename)).thenReturn(null);
@@ -421,7 +424,7 @@ class DefaultPluginJarChangeListenerTest {
 
         DefaultPluginJarChangeListener spy = spy(listener);
         try {
-            spy.pluginJarUpdated(new PluginFileDetails(updatedPluginJarLocation, false));
+            spy.pluginJarUpdated(new BundleOrPluginFileDetails(updatedPluginJarLocation, false, pluginWorkDir));
             fail("should have failed as external plugin cannot replace bundled plugin");
         } catch (RuntimeException e) {
             assertThat(e.getMessage()).isEqualTo("Found bundled plugin with ID: [bundled], external plugin could not be loaded");
@@ -435,32 +438,33 @@ class DefaultPluginJarChangeListenerTest {
         String pluginJarFileName = "plugin-file-name";
         File pluginJarFile = mock(File.class);
         when(pluginJarFile.getName()).thenReturn(pluginJarFileName);
+        when(pluginJarFile.getAbsoluteFile()).thenReturn(new File(pluginJarFileName));
 
         final GoPluginDescriptor oldPluginDescriptor = getPluginDescriptor(pluginId, "1.0", null, null, true, null);
         GoPluginBundleDescriptor oldPluginBundleDescriptor = new GoPluginBundleDescriptor(oldPluginDescriptor);
         when(registry.getPluginByIdOrFileName(null, pluginJarFileName)).thenReturn(oldPluginDescriptor);
 
         DefaultPluginJarChangeListener spy = spy(listener);
-        spy.pluginJarRemoved(new PluginFileDetails(pluginJarFile, false));
+        spy.pluginJarRemoved(new BundleOrPluginFileDetails(pluginJarFile, false, pluginWorkDir));
         verify(registry, never()).unloadPlugin(oldPluginBundleDescriptor);
         verify(pluginLoader, never()).unloadPlugin(oldPluginBundleDescriptor);
     }
 
     @Test
     void shouldNotLoadAPluginWhenCurrentOSIsNotAmongTheListOfTargetOSesAsDeclaredByThePluginInItsXML() throws Exception {
-        File pluginJarFile = new File(pluginDir, PLUGIN_JAR_FILE_NAME);
+        File pluginJarFile = new File(pluginWorkDir, PLUGIN_JAR_FILE_NAME);
 
-        copyPluginToTheDirectory(pluginDir, PLUGIN_JAR_FILE_NAME);
+        copyPluginToTheDirectory(pluginWorkDir, PLUGIN_JAR_FILE_NAME);
 
         final GoPluginDescriptor pluginDescriptor1 = getPluginDescriptor("some.old.id.1", "1.0", pluginJarFile.getAbsolutePath(), new File(PLUGIN_JAR_FILE_NAME), false, null, "Windows");
         final GoPluginDescriptor pluginDescriptor2 = getPluginDescriptor("some.old.id.2", "1.0", pluginJarFile.getAbsolutePath(), new File(PLUGIN_JAR_FILE_NAME), false, null, "Linux", "Mac OS X");
         GoPluginBundleDescriptor bundleDescriptor = new GoPluginBundleDescriptor(pluginDescriptor1, pluginDescriptor2);
 
         when(systemEnvironment.getOperatingSystemFamilyName()).thenReturn("Windows");
-        when(goPluginBundleDescriptorBuilder.build(pluginJarFile, true)).thenReturn(bundleDescriptor);
+        when(goPluginBundleDescriptorBuilder.build(new BundleOrPluginFileDetails(pluginJarFile, true, pluginWorkDir))).thenReturn(bundleDescriptor);
 
         listener = new DefaultPluginJarChangeListener(registry, osgiManifestGenerator, pluginLoader, goPluginBundleDescriptorBuilder, systemEnvironment);
-        listener.pluginJarAdded(new PluginFileDetails(pluginJarFile, true));
+        listener.pluginJarAdded(new BundleOrPluginFileDetails(pluginJarFile, true, pluginWorkDir));
 
         verify(registry, times(1)).loadPlugin(bundleDescriptor);
         verifyZeroInteractions(pluginLoader);
@@ -474,8 +478,8 @@ class DefaultPluginJarChangeListenerTest {
 
     @Test
     void shouldNotLoadAPluginWhenCurrentOSIsNotAmongTheListOfTargetOSesAsDeclaredByThePluginInItsXMLForUpdatePath() throws Exception {
-        File pluginJarFile = new File(pluginDir, PLUGIN_JAR_FILE_NAME);
-        copyPluginToTheDirectory(pluginDir, PLUGIN_JAR_FILE_NAME);
+        File pluginJarFile = new File(pluginWorkDir, PLUGIN_JAR_FILE_NAME);
+        copyPluginToTheDirectory(pluginWorkDir, PLUGIN_JAR_FILE_NAME);
 
         String pluginID = "some.id";
 
@@ -483,15 +487,15 @@ class DefaultPluginJarChangeListenerTest {
         final GoPluginDescriptor pluginDescriptor2 = getPluginDescriptor("some.old.id.2", "1.0", pluginJarFile.getAbsolutePath(), new File(PLUGIN_JAR_FILE_NAME), false, null, "Windows", "Mac OS X");
         GoPluginBundleDescriptor newBundleDescriptor = new GoPluginBundleDescriptor(pluginDescriptor1, pluginDescriptor2);
 
-        when(goPluginBundleDescriptorBuilder.build(pluginJarFile, false)).thenReturn(newBundleDescriptor);
+        when(goPluginBundleDescriptorBuilder.build(new BundleOrPluginFileDetails(pluginJarFile, false, pluginWorkDir))).thenReturn(newBundleDescriptor);
 
         GoPluginBundleDescriptor oldPluginDescriptor = new GoPluginBundleDescriptor(getPluginDescriptor(pluginID, "1.0", pluginJarFile.getAbsolutePath(), new File(PLUGIN_JAR_FILE_NAME), true, null, "Linux", "Mac OS X"));
         when(systemEnvironment.getOperatingSystemFamilyName()).thenReturn("Linux");
-        when(goPluginBundleDescriptorBuilder.build(pluginJarFile, true)).thenReturn(newBundleDescriptor);
+        when(goPluginBundleDescriptorBuilder.build(new BundleOrPluginFileDetails(pluginJarFile, true, pluginWorkDir))).thenReturn(newBundleDescriptor);
         when(registry.unloadPlugin(newBundleDescriptor)).thenReturn(oldPluginDescriptor);
 
         listener = new DefaultPluginJarChangeListener(registry, osgiManifestGenerator, pluginLoader, goPluginBundleDescriptorBuilder, systemEnvironment);
-        listener.pluginJarAdded(new PluginFileDetails(pluginJarFile, true));
+        listener.pluginJarAdded(new BundleOrPluginFileDetails(pluginJarFile, true, pluginWorkDir));
 
         verify(registry, times(1)).loadPlugin(newBundleDescriptor);
 
@@ -504,16 +508,16 @@ class DefaultPluginJarChangeListenerTest {
 
     @Test
     void shouldLoadAPluginWhenCurrentOSIsAmongTheListOfTargetOSesAsDeclaredByThePluginInItsXML() throws Exception {
-        File pluginJarFile = new File(pluginDir, PLUGIN_JAR_FILE_NAME);
+        File pluginJarFile = new File(pluginWorkDir, PLUGIN_JAR_FILE_NAME);
 
-        copyPluginToTheDirectory(pluginDir, PLUGIN_JAR_FILE_NAME);
+        copyPluginToTheDirectory(pluginWorkDir, PLUGIN_JAR_FILE_NAME);
         GoPluginBundleDescriptor descriptor = new GoPluginBundleDescriptor(getPluginDescriptor("some.old.id", "1.0", pluginJarFile.getAbsolutePath(),
                 new File(PLUGIN_JAR_FILE_NAME), false, null, "Windows", "Linux"));
         when(systemEnvironment.getOperatingSystemFamilyName()).thenReturn("Windows");
-        when(goPluginBundleDescriptorBuilder.build(pluginJarFile, true)).thenReturn(descriptor);
+        when(goPluginBundleDescriptorBuilder.build(new BundleOrPluginFileDetails(pluginJarFile, true, pluginWorkDir))).thenReturn(descriptor);
 
         listener = new DefaultPluginJarChangeListener(registry, osgiManifestGenerator, pluginLoader, goPluginBundleDescriptorBuilder, systemEnvironment);
-        listener.pluginJarAdded(new PluginFileDetails(pluginJarFile, true));
+        listener.pluginJarAdded(new BundleOrPluginFileDetails(pluginJarFile, true, pluginWorkDir));
 
         verify(registry, times(1)).loadPlugin(descriptor);
         verify(pluginLoader, times(1)).loadPlugin(descriptor);
@@ -521,15 +525,15 @@ class DefaultPluginJarChangeListenerTest {
 
     @Test
     void shouldLoadAPluginWhenAListOfTargetOSesIsNotDeclaredByThePluginInItsXML() throws Exception {
-        File pluginJarFile = new File(pluginDir, PLUGIN_JAR_FILE_NAME);
+        File pluginJarFile = new File(pluginWorkDir, PLUGIN_JAR_FILE_NAME);
 
-        copyPluginToTheDirectory(pluginDir, PLUGIN_JAR_FILE_NAME);
+        copyPluginToTheDirectory(pluginWorkDir, PLUGIN_JAR_FILE_NAME);
         GoPluginBundleDescriptor descriptor = new GoPluginBundleDescriptor(getPluginDescriptor("some.old.id", "1.0", pluginJarFile.getAbsolutePath(), new File(PLUGIN_JAR_FILE_NAME), false, null));
         when(systemEnvironment.getOperatingSystemFamilyName()).thenReturn("Windows");
-        when(goPluginBundleDescriptorBuilder.build(pluginJarFile, true)).thenReturn(descriptor);
+        when(goPluginBundleDescriptorBuilder.build(new BundleOrPluginFileDetails(pluginJarFile, true, pluginWorkDir))).thenReturn(descriptor);
 
         listener = new DefaultPluginJarChangeListener(registry, osgiManifestGenerator, pluginLoader, goPluginBundleDescriptorBuilder, systemEnvironment);
-        listener.pluginJarAdded(new PluginFileDetails(pluginJarFile, true));
+        listener.pluginJarAdded(new BundleOrPluginFileDetails(pluginJarFile, true, pluginWorkDir));
 
         verify(registry, times(1)).loadPlugin(descriptor);
         verify(pluginLoader, times(1)).loadPlugin(descriptor);
@@ -537,9 +541,9 @@ class DefaultPluginJarChangeListenerTest {
 
     @Test
     void shouldNotLoadAPluginWhenTargetedGocdVersionIsGreaterThanCurrentGocdVersion() throws Exception {
-        File pluginJarFile = new File(pluginDir, PLUGIN_JAR_FILE_NAME);
+        File pluginJarFile = new File(pluginWorkDir, PLUGIN_JAR_FILE_NAME);
 
-        copyPluginToTheDirectory(pluginDir, PLUGIN_JAR_FILE_NAME);
+        copyPluginToTheDirectory(pluginWorkDir, PLUGIN_JAR_FILE_NAME);
 
         final GoPluginDescriptor pluginDescriptor1 = getPluginDescriptor("some.old.id.1", "1.0", pluginJarFile.getAbsolutePath(),
                 new File(PLUGIN_JAR_FILE_NAME), false, "17.5.0", "Linux", "Mac OS X");
@@ -547,10 +551,10 @@ class DefaultPluginJarChangeListenerTest {
                 new File(PLUGIN_JAR_FILE_NAME), false, "9999.0.0", "Linux", "Mac OS X");
         GoPluginBundleDescriptor bundleDescriptor = new GoPluginBundleDescriptor(pluginDescriptor1, pluginDescriptor2);
 
-        when(goPluginBundleDescriptorBuilder.build(pluginJarFile, true)).thenReturn(bundleDescriptor);
+        when(goPluginBundleDescriptorBuilder.build(new BundleOrPluginFileDetails(pluginJarFile, true, pluginWorkDir))).thenReturn(bundleDescriptor);
 
         listener = new DefaultPluginJarChangeListener(registry, osgiManifestGenerator, pluginLoader, goPluginBundleDescriptorBuilder, systemEnvironment);
-        listener.pluginJarAdded(new PluginFileDetails(pluginJarFile, true));
+        listener.pluginJarAdded(new BundleOrPluginFileDetails(pluginJarFile, true, pluginWorkDir));
 
         verify(registry, times(1)).loadPlugin(bundleDescriptor);
         verifyZeroInteractions(pluginLoader);
@@ -564,18 +568,18 @@ class DefaultPluginJarChangeListenerTest {
 
     @Test
     void shouldNotLoadAPluginWhenTargetedGocdVersionIsIncorrect() throws Exception {
-        File pluginJarFile = new File(pluginDir, PLUGIN_JAR_FILE_NAME);
+        File pluginJarFile = new File(pluginWorkDir, PLUGIN_JAR_FILE_NAME);
 
-        copyPluginToTheDirectory(pluginDir, PLUGIN_JAR_FILE_NAME);
+        copyPluginToTheDirectory(pluginWorkDir, PLUGIN_JAR_FILE_NAME);
 
         final GoPluginDescriptor pluginDescriptor1 = getPluginDescriptor("some.old.id.1", "1.0", pluginJarFile.getAbsolutePath(), new File(PLUGIN_JAR_FILE_NAME), false, "17.5.0", "Linux", "Mac OS X");
         final GoPluginDescriptor pluginDescriptor2 = getPluginDescriptor("some.old.id.2", "1.0", pluginJarFile.getAbsolutePath(), new File(PLUGIN_JAR_FILE_NAME), false, "9999.0.0.1.2", "Linux", "Mac OS X");
         GoPluginBundleDescriptor bundleDescriptor = new GoPluginBundleDescriptor(pluginDescriptor1, pluginDescriptor2);
 
-        when(goPluginBundleDescriptorBuilder.build(pluginJarFile, true)).thenReturn(bundleDescriptor);
+        when(goPluginBundleDescriptorBuilder.build(new BundleOrPluginFileDetails(pluginJarFile, true, pluginWorkDir))).thenReturn(bundleDescriptor);
 
         listener = new DefaultPluginJarChangeListener(registry, osgiManifestGenerator, pluginLoader, goPluginBundleDescriptorBuilder, systemEnvironment);
-        listener.pluginJarAdded(new PluginFileDetails(pluginJarFile, true));
+        listener.pluginJarAdded(new BundleOrPluginFileDetails(pluginJarFile, true, pluginWorkDir));
 
         verify(registry, times(1)).loadPlugin(bundleDescriptor);
         verifyZeroInteractions(pluginLoader);
@@ -589,13 +593,13 @@ class DefaultPluginJarChangeListenerTest {
 
     @Test
     void shouldNotLoadAPluginWhenProvidedExtensionVersionByThePluginIsNotSupportedByCurrentGoCDVersion() throws IOException {
-        File pluginJarFile = new File(pluginDir, PLUGIN_JAR_FILE_NAME);
+        File pluginJarFile = new File(pluginWorkDir, PLUGIN_JAR_FILE_NAME);
 
-        copyPluginToTheDirectory(pluginDir, PLUGIN_JAR_FILE_NAME);
+        copyPluginToTheDirectory(pluginWorkDir, PLUGIN_JAR_FILE_NAME);
         GoPluginDescriptor descriptor = getPluginDescriptor("some.old.id", "1.0", null,
                 new File(PLUGIN_JAR_FILE_NAME), false, null, "Windows", "Linux");
         when(systemEnvironment.getOperatingSystemFamilyName()).thenReturn("Windows");
-        when(goPluginBundleDescriptorBuilder.build(pluginJarFile, true)).thenReturn(new GoPluginBundleDescriptor(descriptor));
+        when(goPluginBundleDescriptorBuilder.build(new BundleOrPluginFileDetails(pluginJarFile, true, pluginWorkDir))).thenReturn(new GoPluginBundleDescriptor(descriptor));
     }
 
     private void copyPluginToTheDirectory(File destinationDir, String destinationFilenameOfPlugin) throws IOException {

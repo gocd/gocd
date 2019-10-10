@@ -152,8 +152,8 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
     }
 
     private static class PluginLocationMonitorThread extends Thread {
-        private Set<PluginFileDetails> knownBundledPluginFileDetails = new HashSet<>();
-        private Set<PluginFileDetails> knownExternalPluginFileDetails = new HashSet<>();
+        private Set<BundleOrPluginFileDetails> knownBundledBundleOrPluginFileDetails = new HashSet<>();
+        private Set<BundleOrPluginFileDetails> knownExternalBundleOrPluginFileDetails = new HashSet<>();
         private final PluginChangeNotifier pluginChangeNotifier = new PluginChangeNotifier();
         private File bundledPluginDirectory;
         private File externalPluginDirectory;
@@ -161,7 +161,10 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
         private SystemEnvironment systemEnvironment;
         private long lastRun; //used for tests
 
-        public PluginLocationMonitorThread(File bundledPluginDirectory, File externalPluginDirectory, List<WeakReference<PluginJarChangeListener>> pluginJarChangeListener, SystemEnvironment systemEnvironment) {
+        public PluginLocationMonitorThread(File bundledPluginDirectory,
+                                           File externalPluginDirectory,
+                                           List<WeakReference<PluginJarChangeListener>> pluginJarChangeListener,
+                                           SystemEnvironment systemEnvironment) {
             this.bundledPluginDirectory = bundledPluginDirectory;
             this.externalPluginDirectory = externalPluginDirectory;
             this.pluginJarChangeListener = pluginJarChangeListener;
@@ -185,8 +188,8 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
         //Added synchronized because the compiler can change the order of instructions, meaning that the lastRun can be
         //updated before the listeners are notified.
         public synchronized void oneShot() {
-            knownBundledPluginFileDetails = loadAndNotifyPluginsFrom(bundledPluginDirectory, knownBundledPluginFileDetails, true);
-            knownExternalPluginFileDetails = loadAndNotifyPluginsFrom(externalPluginDirectory, knownExternalPluginFileDetails, false);
+            knownBundledBundleOrPluginFileDetails = loadAndNotifyPluginsFrom(bundledPluginDirectory, knownBundledBundleOrPluginFileDetails, true);
+            knownExternalBundleOrPluginFileDetails = loadAndNotifyPluginsFrom(externalPluginDirectory, knownExternalBundleOrPluginFileDetails, false);
             lastRun = System.currentTimeMillis();
         }
 
@@ -194,8 +197,10 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
             return lastRun;
         }
 
-        private Set<PluginFileDetails> loadAndNotifyPluginsFrom(File pluginDirectory, Set<PluginFileDetails> previouslyKnownPlugins, boolean isBundledPluginsLocation) {
-            Set<PluginFileDetails> currentPluginFiles = getDetailsOfCurrentPluginFilesFrom(pluginDirectory, isBundledPluginsLocation);
+        private Set<BundleOrPluginFileDetails> loadAndNotifyPluginsFrom(File pluginDirectory,
+                                                                        Set<BundleOrPluginFileDetails> previouslyKnownPlugins,
+                                                                        boolean isBundledPluginsLocation) {
+            Set<BundleOrPluginFileDetails> currentPluginFiles = getDetailsOfCurrentPluginFilesFrom(pluginDirectory, isBundledPluginsLocation);
             pluginChangeNotifier.notify(doOnAllListeners(), previouslyKnownPlugins, currentPluginFiles);
             return currentPluginFiles;
         }
@@ -212,9 +217,11 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
             }
         }
 
-        private Set<PluginFileDetails> getDetailsOfCurrentPluginFilesFrom(File directory, boolean isBundledPluginsLocation) {
+        private Set<BundleOrPluginFileDetails> getDetailsOfCurrentPluginFilesFrom(File directory,
+                                                                                  boolean isBundledPluginsLocation) {
+            File pluginWorkDir = new File(systemEnvironment.get(PLUGIN_WORK_DIR));
             return FileUtils.listFiles(directory, new String[]{"jar"}, false).stream()
-                    .map(file -> new PluginFileDetails(file, isBundledPluginsLocation))
+                    .map(file -> new BundleOrPluginFileDetails(file, isBundledPluginsLocation, pluginWorkDir))
                     .collect(Collectors.toSet());
         }
 
@@ -226,18 +233,18 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
             }
 
             @Override
-            public void pluginJarAdded(final PluginFileDetails pluginFileDetails) {
-                doOnAllPluginJarChangeListener(o -> o.pluginJarAdded(pluginFileDetails));
+            public void pluginJarAdded(final BundleOrPluginFileDetails bundleOrPluginFileDetails) {
+                doOnAllPluginJarChangeListener(o -> o.pluginJarAdded(bundleOrPluginFileDetails));
             }
 
             @Override
-            public void pluginJarUpdated(final PluginFileDetails pluginFileDetails) {
-                doOnAllPluginJarChangeListener(o -> o.pluginJarUpdated(pluginFileDetails));
+            public void pluginJarUpdated(final BundleOrPluginFileDetails bundleOrPluginFileDetails) {
+                doOnAllPluginJarChangeListener(o -> o.pluginJarUpdated(bundleOrPluginFileDetails));
             }
 
             @Override
-            public void pluginJarRemoved(final PluginFileDetails pluginFileDetails) {
-                doOnAllPluginJarChangeListener(o -> o.pluginJarRemoved(pluginFileDetails));
+            public void pluginJarRemoved(final BundleOrPluginFileDetails bundleOrPluginFileDetails) {
+                doOnAllPluginJarChangeListener(o -> o.pluginJarRemoved(bundleOrPluginFileDetails));
             }
 
             private void doOnAllPluginJarChangeListener(Closure<PluginJarChangeListener> closure) {

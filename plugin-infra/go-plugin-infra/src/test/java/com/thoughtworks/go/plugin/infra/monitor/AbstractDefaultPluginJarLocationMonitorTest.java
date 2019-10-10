@@ -15,12 +15,11 @@
  */
 package com.thoughtworks.go.plugin.infra.monitor;
 
+import com.thoughtworks.go.plugin.FileHelper;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -29,22 +28,28 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
 
-public abstract class AbstractDefaultPluginJarLocationMonitorTest {
-    private static final int NO_OF_TRIES_TO_CHECK_MONITOR_RUN = 30;
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+abstract class AbstractDefaultPluginJarLocationMonitorTest {
+    private static final int NO_OF_TRIES_TO_CHECK_MONITOR_RUN = 150;
+    File pluginWorkDir;
+    FileHelper tempFolder;
 
-    protected void waitAMoment() throws InterruptedException {
+    @BeforeEach
+    void setUp(@TempDir File tempFolder) throws Exception {
+        this.tempFolder = new FileHelper(tempFolder);
+        pluginWorkDir = this.tempFolder.newFolder("plugin-work-dir");
+    }
+
+    void waitAMoment() throws InterruptedException {
         Thread.yield();
         Thread.sleep(2000);
     }
 
-    protected void waitUntilNextRun(DefaultPluginJarLocationMonitor monitor) throws InterruptedException {
+    void waitUntilNextRun(DefaultPluginJarLocationMonitor monitor) throws InterruptedException {
         long previousRun = monitor.getLastRun();
         int numberOfTries = 0;
         while (previousRun >= monitor.getLastRun() && numberOfTries < NO_OF_TRIES_TO_CHECK_MONITOR_RUN) {
             Thread.yield();
-            Thread.sleep(500);
+            Thread.sleep(100);
             numberOfTries++;
         }
         if (numberOfTries >= NO_OF_TRIES_TO_CHECK_MONITOR_RUN) {
@@ -52,13 +57,14 @@ public abstract class AbstractDefaultPluginJarLocationMonitorTest {
         }
     }
 
-    protected void copyPluginToThePluginDirectory(File pluginDir, String destinationFilenameOfPlugin) throws IOException, URISyntaxException {
+    void copyPluginToThePluginDirectory(File pluginDir,
+                                        String destinationFilenameOfPlugin) throws IOException, URISyntaxException {
         URL resource = getClass().getClassLoader().getResource("defaultFiles/descriptor-aware-test-plugin.jar");
 
         FileUtils.copyURLToFile(resource, new File(pluginDir, destinationFilenameOfPlugin));
     }
 
-    protected void updateFileContents(File someFile) {
+    void updateFileContents(File someFile) {
         try (FileOutputStream output = new FileOutputStream(someFile)) {
             IOUtils.write("some rubbish", output, Charset.defaultCharset());
         } catch (IOException e) {
@@ -66,17 +72,8 @@ public abstract class AbstractDefaultPluginJarLocationMonitorTest {
         }
     }
 
-    protected PluginFileDetails pluginFileDetails(File directory, String pluginFile, boolean bundledPlugin) {
-        return new PluginFileDetails(new File(directory, pluginFile), bundledPlugin);
+    BundleOrPluginFileDetails pluginFileDetails(File directory, String pluginFile, boolean bundledPlugin) {
+        return new BundleOrPluginFileDetails(new File(directory, pluginFile), bundledPlugin, pluginWorkDir);
     }
 
-    @Before
-    public void setUp() throws Exception {
-        temporaryFolder.create();
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        temporaryFolder.delete();
-    }
 }

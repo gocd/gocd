@@ -18,8 +18,7 @@ package com.thoughtworks.go.plugin;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Objects;
+import java.util.List;
 
 import static java.lang.String.format;
 
@@ -38,17 +37,27 @@ public class FileHelper {
         return rootDir;
     }
 
-    public File newFolders(String... folderNames) throws IOException {
+    public File newFolder(String... folderNames) throws IOException {
         if (folderNames.length == 0) {
             return newFolder();
         }
 
-        Arrays.stream(folderNames)
-                .filter(Objects::nonNull)
-                .distinct()
-                .forEach(folder -> newFolder(new File(folder)));
+        File file = getRoot();
+        List<String> of = List.of(folderNames);
+        for (int i = 0; i < of.size(); i++) {
+            String name = of.get(i);
+            file = new File(file, name);
+            if (!file.mkdir() && isLastElementInArray(i, folderNames)) {
+                throw new IOException(
+                        "a folder with the name \'" + name + "\' already exists");
+            }
+        }
 
-        return getRoot();
+        return file;
+    }
+
+    private boolean isLastElementInArray(int index, String[] array) {
+        return index == array.length - 1;
     }
 
     public File newFolder(String folder) {

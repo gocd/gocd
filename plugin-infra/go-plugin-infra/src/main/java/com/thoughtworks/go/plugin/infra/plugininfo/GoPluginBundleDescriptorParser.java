@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.plugin.infra.plugininfo;
 
+import com.thoughtworks.go.plugin.infra.monitor.BundleOrPluginFileDetails;
 import org.apache.commons.digester3.Digester;
 import org.xml.sax.*;
 
@@ -84,7 +85,9 @@ public final class GoPluginBundleDescriptorParser {
     private List<GoPluginDescriptor> pluginDescriptors = new ArrayList<>();
     private InProgressAccumulator inProgressAccumulator;
 
-    private GoPluginBundleDescriptorParser(String pluginJarFileLocation, File pluginBundleLocation, boolean isBundledPlugin) {
+    private GoPluginBundleDescriptorParser(String pluginJarFileLocation,
+                                           File pluginBundleLocation,
+                                           boolean isBundledPlugin) {
         this.pluginJarFileLocation = pluginJarFileLocation;
         this.pluginBundleLocation = pluginBundleLocation;
         this.isBundledPlugin = isBundledPlugin;
@@ -92,7 +95,15 @@ public final class GoPluginBundleDescriptorParser {
         inProgressAccumulator = new InProgressAccumulator();
     }
 
-    public static GoPluginBundleDescriptor parseXML(InputStream pluginXML, String pluginJarFileLocation, File pluginBundleLocation, boolean isBundledPlugin) throws IOException, SAXException {
+    public static GoPluginBundleDescriptor parseXML(InputStream pluginXml,
+                                                    BundleOrPluginFileDetails bundleOrPluginJarFile) throws IOException, SAXException {
+        return parseXML(pluginXml, bundleOrPluginJarFile.file().getAbsolutePath(), bundleOrPluginJarFile.extractionLocation(), bundleOrPluginJarFile.isBundledPlugin());
+    }
+
+    static GoPluginBundleDescriptor parseXML(InputStream pluginXML,
+                                             String pluginJarFileLocation,
+                                             File pluginBundleLocation,
+                                             boolean isBundledPlugin) throws IOException, SAXException {
         Digester digester = initDigester();
 
         GoPluginBundleDescriptorParser parserForThisXML = new GoPluginBundleDescriptorParser(pluginJarFileLocation, pluginBundleLocation, isBundledPlugin);
@@ -151,9 +162,10 @@ public final class GoPluginBundleDescriptorParser {
         return digester;
     }
 
+
     //used by digester
     public void createBundle(String version) {
-        descriptor = new GoPluginBundleDescriptor(version, pluginDescriptors.toArray(new GoPluginDescriptor[0]));
+        descriptor = new GoPluginBundleDescriptor(pluginDescriptors.toArray(new GoPluginDescriptor[0]));
     }
 
     //used by digester

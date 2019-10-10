@@ -23,6 +23,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.OS;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 
@@ -30,11 +31,11 @@ import java.io.File;
 
 import static com.thoughtworks.go.util.SystemEnvironment.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.*;
 
 @DisabledOnOs(OS.WINDOWS)
-public class DefaultExternalPluginJarLocationMonitorTest extends AbstractDefaultPluginJarLocationMonitorTest {
+class DefaultExternalPluginJarLocationMonitorTest extends AbstractDefaultPluginJarLocationMonitorTest {
 
     private File pluginBundledDir;
     private File pluginExternalDir;
@@ -43,30 +44,27 @@ public class DefaultExternalPluginJarLocationMonitorTest extends AbstractDefault
     private PluginJarChangeListener changeListener;
     private SystemEnvironment systemEnvironment;
 
-    @Override
     @BeforeEach
-    public void setUp() throws Exception {
-        super.setUp();
-        temporaryFolder.create();
-        pluginBundledDir = temporaryFolder.newFolder("bundledDir");
-        pluginExternalDir = temporaryFolder.newFolder("externalDir");
+    @Override
+    void setUp(@TempDir File tempFolder) throws Exception {
+        super.setUp(tempFolder);
+        pluginBundledDir = this.tempFolder.newFolder("bundledDir");
+        pluginExternalDir = this.tempFolder.newFolder("externalDir");
 
         systemEnvironment = mock(SystemEnvironment.class);
         when(systemEnvironment.get(PLUGIN_LOCATION_MONITOR_INTERVAL_IN_SECONDS)).thenReturn(1);
         when(systemEnvironment.get(PLUGIN_GO_PROVIDED_PATH)).thenReturn(pluginBundledDir.getAbsolutePath());
         when(systemEnvironment.get(PLUGIN_EXTERNAL_PROVIDED_PATH)).thenReturn(pluginExternalDir.getAbsolutePath());
+        when(systemEnvironment.get(PLUGIN_WORK_DIR)).thenReturn(pluginWorkDir.getAbsolutePath());
 
         changeListener = mock(PluginJarChangeListener.class);
         monitor = new DefaultPluginJarLocationMonitor(systemEnvironment);
         monitor.initialize();
     }
 
-    @Override
     @AfterEach
-    public void tearDown() throws Exception {
+    void tearDown() throws Exception {
         monitor.stop();
-        super.tearDown();
-        temporaryFolder.delete();
     }
 
     @Test
@@ -79,12 +77,8 @@ public class DefaultExternalPluginJarLocationMonitorTest extends AbstractDefault
     @Test
     void shouldThrowUpWhenExternalPluginDirectoryCreationFails() throws Exception {
         when(systemEnvironment.get(PLUGIN_EXTERNAL_PROVIDED_PATH)).thenReturn("/xyz");
-        try {
-            new DefaultPluginJarLocationMonitor(systemEnvironment).initialize();
-            fail("should have failed for missing external plugin folder");
-        } catch (RuntimeException e) {
-            assertThat(e.getMessage()).isEqualTo("Failed to create external plugins folder in location /xyz");
-        }
+        assertThatCode(() -> new DefaultPluginJarLocationMonitor(systemEnvironment).initialize())
+                .hasMessage("Failed to create external plugins folder in location /xyz");
     }
 
     @Test
@@ -170,10 +164,10 @@ public class DefaultExternalPluginJarLocationMonitorTest extends AbstractDefault
 
         copyPluginToThePluginDirectory(pluginExternalDir, "descriptor-aware-test-external-plugin-1.jar");
         waitUntilNextRun(monitor);
-        PluginFileDetails orgExternalFile = pluginFileDetails(pluginExternalDir, "descriptor-aware-test-external-plugin-1.jar", false);
+        BundleOrPluginFileDetails orgExternalFile = pluginFileDetails(pluginExternalDir, "descriptor-aware-test-external-plugin-1.jar", false);
         verify(changeListener).pluginJarAdded(orgExternalFile);
 
-        PluginFileDetails newExternalFile = pluginFileDetails(pluginExternalDir, "descriptor-aware-test-external-plugin-1-new.jar", false);
+        BundleOrPluginFileDetails newExternalFile = pluginFileDetails(pluginExternalDir, "descriptor-aware-test-external-plugin-1-new.jar", false);
         FileUtils.moveFile(orgExternalFile.file(), newExternalFile.file());
 
         waitUntilNextRun(monitor);
@@ -236,7 +230,7 @@ public class DefaultExternalPluginJarLocationMonitorTest extends AbstractDefault
 
         copyPluginToThePluginDirectory(pluginBundledDir, "descriptor-aware-test-bundled-plugin-1.jar");
         copyPluginToThePluginDirectory(pluginExternalDir, "descriptor-aware-test-external-plugin-1.jar");
-        ArgumentCaptor<PluginFileDetails> pluginFileDetailsArgumentCaptor = ArgumentCaptor.forClass(PluginFileDetails.class);
+        ArgumentCaptor<BundleOrPluginFileDetails> pluginFileDetailsArgumentCaptor = ArgumentCaptor.forClass(BundleOrPluginFileDetails.class);
         waitUntilNextRun(monitor);
         verify(changeListener, times(2)).pluginJarAdded(pluginFileDetailsArgumentCaptor.capture());
         assertThat(pluginFileDetailsArgumentCaptor.getAllValues().get(0).isBundledPlugin()).isTrue();

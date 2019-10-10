@@ -17,9 +17,9 @@ package com.thoughtworks.go.plugin.infra.monitor;
 
 public interface PluginJarChangeListener {
 
-    void pluginJarAdded(PluginFileDetails pluginFileDetails);
+    void pluginJarAdded(BundleOrPluginFileDetails bundleOrPluginFileDetails);
 
-    void pluginJarUpdated(PluginFileDetails pluginFileDetails);
+    void pluginJarUpdated(BundleOrPluginFileDetails bundleOrPluginFileDetails);
 
-    void pluginJarRemoved(PluginFileDetails pluginFileDetails);
+    void pluginJarRemoved(BundleOrPluginFileDetails bundleOrPluginFileDetails);
 }

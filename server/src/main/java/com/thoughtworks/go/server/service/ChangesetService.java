@@ -17,7 +17,6 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.TrackingTool;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.Pipeline;
@@ -104,20 +103,19 @@ public class ChangesetService {
         }
 
         List<MaterialRevision> allMaterialRevisions = modificationsPerMaterialBetween(pipelineName, fromCounter, toCounter);
-        return filterReachableFingerprintHolders(allMaterialRevisions, materialRevision -> materialRevision.getMaterial().getFingerprint(), pipelineName, username, false);
+        return filterReachableFingerprintHolders(allMaterialRevisions, materialRevision -> materialRevision.getMaterial().getFingerprint(), pipelineName, username);
     }
 
-    private <T> List<T> filterReachableFingerprintHolders(List<T> allFingerprintHolders, final FingerprintLoader<T> fingerprintLoader, String pipelineName, Username username,
-                                                          boolean skipTrackingToolMatch) {
+    private <T> List<T> filterReachableFingerprintHolders(List<T> allFingerprintHolders, final FingerprintLoader<T> fingerprintLoader, String pipelineName, Username username) {
         PipelineConfigDependencyGraph graph = goConfigService.upstreamDependencyGraphOf(pipelineName);
         Set<String> allMaterialFingerprints = graph.allMaterialFingerprints();
-        Set<String> reachableMaterialfingerprints = populateReachableFingerprints(graph, username, skipTrackingToolMatch);
+        Set<String> reachableMaterialfingerprints = populateReachableFingerprints(graph, username);
         return filterFingerprintHolders(allFingerprintHolders, reachableMaterialfingerprints, allMaterialFingerprints, fingerprintLoader);
     }
 
-    private Set<String> populateReachableFingerprints(PipelineConfigDependencyGraph graph, Username username, boolean skipTrackingToolMatch) {
+    private Set<String> populateReachableFingerprints(PipelineConfigDependencyGraph graph, Username username) {
         Set<String> fingerprints = new HashSet<>();
-        populateViewableMaterialsStartingAt(graph, username, fingerprints, graph.getCurrent().trackingTool(), skipTrackingToolMatch);
+        populateViewableMaterialsStartingAt(graph, username, fingerprints);
         return fingerprints;
     }
 
@@ -140,26 +138,15 @@ public class ChangesetService {
         return results;
     }
 
-    private void populateViewableMaterialsStartingAt(PipelineConfigDependencyGraph graph, Username username, Set<String> fingerprints, TrackingTool trackingTool,
-                                                     boolean skipTrackingToolMatch) {
+    private void populateViewableMaterialsStartingAt(PipelineConfigDependencyGraph graph, Username username, Set<String> fingerprints) {
         for (MaterialConfig materialConfig : graph.getCurrent().materialConfigs()) {
             fingerprints.add(materialConfig.getFingerprint());
         }
         for (PipelineConfigDependencyGraph upstream : graph.getUpstreamDependencies()) {
-            if (canView(username, upstream.getCurrent()) &&
-                    (skipTrackingToolMatch || trackingToolMatches(upstream.getCurrent(), trackingTool))) {
-                populateViewableMaterialsStartingAt(upstream, username, fingerprints, trackingTool, skipTrackingToolMatch);
+            if (canView(username, upstream.getCurrent())) {
+                populateViewableMaterialsStartingAt(upstream, username, fingerprints);
             }
         }
-    }
-
-    private boolean trackingToolMatches(PipelineConfig pipeline, TrackingTool trackingTool) {
-        TrackingTool otherTrackingTool = pipeline.trackingTool();
-        return isNullOrNotDefined(trackingTool) || isNullOrNotDefined(otherTrackingTool) || trackingTool.equals(otherTrackingTool);
-    }
-
-    private boolean isNullOrNotDefined(TrackingTool trackingTool) {
-        return trackingTool == null || !trackingTool.isDefined();
     }
 
     private boolean canView(Username username, PipelineConfig pipeline) {
@@ -226,7 +213,7 @@ public class ChangesetService {
 
         PipelineConfigDependencyGraph graph = goConfigService.upstreamDependencyGraphOf(pipelineName);
         Set<String> allMaterialFingerprints = graph.allMaterialFingerprints();
-        Set<String> reachableMaterialfingerprints = populateReachableFingerprints(graph, username, true);
+        Set<String> reachableMaterialfingerprints = populateReachableFingerprints(graph, username);
         FingerprintLoader<ModificationForPipeline> loader = ModificationForPipeline::getMaterialFingerprint;
 
         for (Map.Entry<Long, List<ModificationForPipeline>> pipelineIdAndModifications : modificationsForPipelineIds.entrySet()) {

@@ -62,8 +62,8 @@ public class UpdateArtifactConfigCommandTest {
             UpdateArtifactConfigCommand updateArtifactConfigCommand = new UpdateArtifactConfigCommand(artifactConfig);
 
             assertThatCode(() -> updateArtifactConfigCommand.isValid(cruiseConfig)).isInstanceOf(GoConfigInvalidException.class).hasMessage("Please provide a not empty value for artifactsdir");
-            assertThat(artifactConfig.errors().size()).isEqualTo(1);
-            assertThat(artifactConfig.errors().firstError()).isEqualTo("Please provide a not empty value for artifactsdir");
+            assertThat(artifactConfig.getArtifactsDir().errors().size()).isEqualTo(1);
+            assertThat(artifactConfig.getArtifactsDir().errors().firstError()).isEqualTo("Please provide a not empty value for artifactsdir");
 
         }
 
@@ -79,8 +79,8 @@ public class UpdateArtifactConfigCommandTest {
             UpdateArtifactConfigCommand updateArtifactConfigCommand = new UpdateArtifactConfigCommand(artifactConfig);
 
             assertThatCode(() -> updateArtifactConfigCommand.isValid(cruiseConfig)).isInstanceOf(GoConfigInvalidException.class).hasMessage("Error in artifact cleanup values. The trigger value is has to be specified when a goal is set");
-            assertThat(artifactConfig.errors().size()).isEqualTo(1);
-            assertThat(artifactConfig.errors().firstError()).isEqualTo("Error in artifact cleanup values. The trigger value is has to be specified when a goal is set");
+            assertThat(artifactConfig.getPurgeSettings().errors().size()).isEqualTo(1);
+            assertThat(artifactConfig.getPurgeSettings().errors().firstError()).isEqualTo("Error in artifact cleanup values. The trigger value is has to be specified when a goal is set");
 
         }
     }

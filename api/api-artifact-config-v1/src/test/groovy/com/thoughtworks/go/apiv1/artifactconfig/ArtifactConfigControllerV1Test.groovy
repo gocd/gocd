@@ -20,6 +20,7 @@ import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.config.*
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException
+import com.thoughtworks.go.domain.ConfigErrors
 import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.server.service.ServerConfigService
 import com.thoughtworks.go.spark.AdminUserSecurity
@@ -148,7 +149,7 @@ class ArtifactConfigControllerV1Test implements SecurityServiceTrait, Controller
         purgeSettings.setPurgeUpto(new PurgeUpto(20.0))
         updatedArtifactConfig.setPurgeSettings(purgeSettings)
 
-        when(serverConfigService.getArtifactsConfig()).thenReturn(artifactConfig)
+        when(serverConfigService.getArtifactsConfig()).thenReturn(artifactConfig, updatedArtifactConfig)
         when(entityHashingService.md5ForEntity(artifactConfig)).thenReturn('some-md5')
         when(entityHashingService.md5ForEntity(updatedArtifactConfig)).thenReturn('some-another-md5')
 
@@ -203,14 +204,21 @@ class ArtifactConfigControllerV1Test implements SecurityServiceTrait, Controller
           ]
         ]
 
-        doThrow(new GoConfigInvalidException(goConfigService.currentCruiseConfig(), "Validation failed")).when(serverConfigService).updateArtifactConfig(Mockito.any() as ArtifactConfig)
+        def cruiseConfig = mock(BasicCruiseConfig.class)
+        def e = new GoConfigInvalidException(cruiseConfig, "Validation failed")
+        ConfigErrors errors = new ConfigErrors()
+        errors.add("artifactDir", "it should not be blank.")
+        def errorMsg = "Validations failed for artifacts. Error(s): [it should not be blank.]. Please correct and resubmit."
+
+        when(cruiseConfig.getAllErrors()).thenReturn(Arrays.asList(errors))
+        doThrow(e).when(serverConfigService).updateArtifactConfig(Mockito.any() as ArtifactConfig)
 
         putWithApiHeader(controller.controllerBasePath(), ['if-match': 'some-md5'], jsonPayload)
 
         assertThatResponse()
           .isUnprocessableEntity()
           .hasContentType(controller.mimeType)
-          .hasJsonMessage("Validations failed for artifacts. Error(s): [Validation failed]. Please correct and resubmit.")
+          .hasJsonMessage(errorMsg)
       }
     }
   }

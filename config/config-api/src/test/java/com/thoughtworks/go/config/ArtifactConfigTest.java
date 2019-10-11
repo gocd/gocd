@@ -36,15 +36,4 @@ class ArtifactConfigTest {
         verify(artifactConfig.getArtifactsDir(), times(1)).validate(null);
         verify(artifactConfig.getPurgeSettings(), times(1)).validate(null);
     }
-
-    @Test
-    void shouldReturnErrors() {
-        ArtifactConfig artifactConfig = new ArtifactConfig();
-        artifactConfig.getArtifactsDir().addError("artifactDir", "some-error");
-        artifactConfig.getPurgeSettings().addError("purgeStart", "some-another-error");
-
-        assertThat(artifactConfig.errors().size()).isEqualTo(2);
-        assertThat(artifactConfig.errors().get("artifactDir")).isEqualTo(Collections.singletonList("some-error"));
-        assertThat(artifactConfig.errors().get("purgeStart")).isEqualTo(Collections.singletonList("some-another-error"));
-    }
 }

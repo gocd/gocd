@@ -263,4 +263,22 @@ public class ServerConfigServiceIntegrationTest {
         assertThat(serverConfigService.siteUrlFor("https://test.host:1000/foo/bar", false), is("https://bar.com:443/foo/bar"));
         assertThat(serverConfigService.siteUrlFor("http://test.host/foo/bar", false), is("http://foo.com:80/foo/bar"));
     }
+
+    @Test
+    public void shouldSetDefaultJobTimeout() {
+        serverConfigService.createOrUpdateDefaultJobTimeout("10");
+
+        assertThat(serverConfigService.getDefaultJobTimeout(), is("10"));
+    }
+
+    @Test
+    public void shouldUpdateDefaultJobTimeout() {
+        serverConfigService.createOrUpdateDefaultJobTimeout("10");
+
+        assertThat(serverConfigService.getDefaultJobTimeout(), is("10"));
+
+        serverConfigService.createOrUpdateDefaultJobTimeout("5");
+
+        assertThat(serverConfigService.getDefaultJobTimeout(), is("5"));
+    }
 }

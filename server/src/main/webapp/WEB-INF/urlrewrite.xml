@@ -24,6 +24,12 @@
 
 <urlrewrite>
   <rule>
+    <name>default-job-timeout</name>
+    <from>^/api/admin/config/server/default_job_timeout$</from>
+    <to last="true">/spark/api/admin/config/server/default_job_timeout</to>
+  </rule>
+
+  <rule>
     <name>environments UI</name>
     <from>^/admin/environments(/?)$</from>
     <run class="com.thoughtworks.go.server.SparkOrRailsEnvironmentsPageToggle" method="environmentsPage"/>

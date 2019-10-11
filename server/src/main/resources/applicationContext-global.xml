@@ -29,6 +29,7 @@
   <context:component-scan base-package="com.thoughtworks.go.apiv1.featuretoggles"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv10.admin.pipelineconfig"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv1.internalpipelines"/>
+  <context:component-scan base-package="com.thoughtworks.go.apiv1.defaultjobtimeout"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv5.admin.templateconfig"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv1.serversiteurlsconfig"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv2.scms"/>

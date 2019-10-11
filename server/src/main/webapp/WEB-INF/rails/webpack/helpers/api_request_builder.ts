@@ -18,7 +18,7 @@ import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
 
-export enum ApiVersion { latest, v1, v2, v3, v4, v5, v6, v7, v8}
+export enum ApiVersion { latest, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10}
 
 export interface ObjectWithEtag<T> {
   etag: string;

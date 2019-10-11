@@ -618,45 +618,7 @@ public class ChangesetServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotFilterOutMaterialRevisionsAtThePointInTheDependencyIfMingleConfigDoesNotMatchWithParent() throws Exception {
-        Username user = new Username(new CaseInsensitiveString("user"));
-
-        SvnMaterial svn = MaterialsMother.svnMaterial("http://svn");
-        PipelineConfig grandFatherPipeline = configHelper.addPipelineWithGroup("unauthorizedGroup", "granpa", new MaterialConfigs(svn.config()), "stage", "job");
-        configHelper.setViewPermissionForGroup("unauthorizedGroup", CaseInsensitiveString.str(user.getUsername()));
-
-        DependencyMaterial parentDependencyMaterial = MaterialsMother.dependencyMaterial("granpa", "stage");
-        PipelineConfig upstreamPipeline = configHelper.addPipeline("upstream", "stage", new MaterialConfigs(git.config(), parentDependencyMaterial.config()), "job");
-
-        DependencyMaterial dependencyMaterial = MaterialsMother.dependencyMaterial("upstream", "stage");
-        PipelineConfig downstream = configHelper.addPipeline("downstream", "stage", dependencyMaterial.config(), "job");
-
-        //Schedule grandfather
-        List<MaterialRevision> revisionsForGrandfather1 = new ArrayList<>();
-        addRevisionWith2Mods(revisionsForGrandfather1, svn);
-        Pipeline grandFatherOne = dbHelper.checkinRevisionsToBuild(new ManualBuild(user), grandFatherPipeline, revisionsForGrandfather1);
-
-        //Schedule upstream
-        List<MaterialRevision> revisionsForUpstream1 = new ArrayList<>();
-        addRevisionWith2Mods(revisionsForUpstream1, git);
-        dbHelper.addDependencyRevisionModification(revisionsForUpstream1, parentDependencyMaterial, grandFatherOne);
-        Pipeline upstreamOne = dbHelper.checkinRevisionsToBuild(new ManualBuild(user), upstreamPipeline, revisionsForUpstream1);
-
-        //Schedule downstream
-        List<MaterialRevision> revisionsForDownstream = new ArrayList<>();
-        dbHelper.addDependencyRevisionModification(revisionsForDownstream, dependencyMaterial, upstreamOne);
-        Pipeline pipelineDownstream = dbHelper.checkinRevisionsToBuild(new ManualBuild(user), downstream, revisionsForDownstream);
-
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        List<MaterialRevision> actual = changesetService.revisionsBetween(pipelineDownstream.getName(), pipelineDownstream.getCounter(), pipelineDownstream.getCounter(), user, result, false);
-
-        List<MaterialRevision> expectedRevisions = groupByMaterial(revisionsForGrandfather1, revisionsForUpstream1, revisionsForDownstream);
-        assertMaterialRevisions(expectedRevisions, actual);
-        assertThat(result.isSuccessful(), is(true));
-    }
-
-    @Test
-    public void shouldFilterOutMaterialRevisionsAtThePointInTheDependencyIfTrackingToolDoesNotMatchWithParent() throws Exception {
+    public void shouldNotFilterOutMaterialRevisionsAtThePointInTheDependencyEvenIfTrackingToolDoesNotMatchWithParent() throws Exception {
         Username user = new Username(new CaseInsensitiveString("user"));
 
         SvnMaterial svn = MaterialsMother.svnMaterial("http://svn");
@@ -688,7 +650,7 @@ public class ChangesetServiceIntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         List<MaterialRevision> actual = changesetService.revisionsBetween(pipelineDownstream.getName(), pipelineDownstream.getCounter(), pipelineDownstream.getCounter(), user, result, false);
 
-        List<MaterialRevision> expectedRevisions = groupByMaterial(revisionsForUpstream1, revisionsForDownstream);
+        List<MaterialRevision> expectedRevisions = groupByMaterial(revisionsForGrandfather1, revisionsForUpstream1, revisionsForDownstream);
         assertMaterialRevisions(expectedRevisions, actual);
         assertThat(result.isSuccessful(), is(true));
     }
@@ -922,8 +884,8 @@ public class ChangesetServiceIntegrationTest {
     }
 
     private MaterialRevision revisionFor(String fingerprint, List<MaterialRevision> in) {
-        for(MaterialRevision revision: in) {
-            if(revision.getMaterial().getFingerprint().equals(fingerprint)) {
+        for (MaterialRevision revision : in) {
+            if (revision.getMaterial().getFingerprint().equals(fingerprint)) {
                 return revision;
             }
         }

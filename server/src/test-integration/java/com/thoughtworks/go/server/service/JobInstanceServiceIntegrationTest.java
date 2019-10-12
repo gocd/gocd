@@ -450,17 +450,17 @@ public class JobInstanceServiceIntegrationTest {
         // duration
         List<JobInstance> sortedOnDuration = listOf(jobInstanceService.completedJobsOnAgent(agentUuid, JobInstanceService.JobHistoryColumns.duration, SortOrder.ASC, 1, 10).iterator());
         assertThat(sortedOnDuration.size(), is(4));
-        assertThat(sortedOnDuration.get(0).getResult(), is(JobResult.Passed));
-        assertThat(sortedOnDuration.get(1).getResult(), is(JobResult.Cancelled));
-        assertThat(sortedOnDuration.get(2).getResult(), is(JobResult.Failed));
-        assertThat(sortedOnDuration.get(3).getResult(), is(JobResult.Unknown));
+        assertThat(sortedOnDuration.get(0).getResult(), is(JobResult.Unknown)); // duration is null therefore comes first
+        assertThat(sortedOnDuration.get(1).getResult(), is(JobResult.Passed)); // has new Date(1)
+        assertThat(sortedOnDuration.get(2).getResult(), is(JobResult.Cancelled)); // now.minusMinutes(5) always greater than new Date(1)
+        assertThat(sortedOnDuration.get(3).getResult(), is(JobResult.Failed)); // 2 years therefore goes to the end
 
         List<JobInstance> sortedOnDurationDesc = listOf(jobInstanceService.completedJobsOnAgent(agentUuid, JobInstanceService.JobHistoryColumns.duration, SortOrder.DESC, 1, 10).iterator());
         assertThat(sortedOnDurationDesc.size(), is(4));
-        assertThat(sortedOnDurationDesc.get(0).getResult(), is(JobResult.Unknown));
-        assertThat(sortedOnDurationDesc.get(1).getResult(), is(JobResult.Failed));
-        assertThat(sortedOnDurationDesc.get(2).getResult(), is(JobResult.Cancelled));
-        assertThat(sortedOnDurationDesc.get(3).getResult(), is(JobResult.Passed));
+        assertThat(sortedOnDurationDesc.get(0).getResult(), is(JobResult.Failed)); // 2 years therefore goes to the beginning
+        assertThat(sortedOnDurationDesc.get(1).getResult(), is(JobResult.Cancelled)); // now.minusMinutes(5) always greater than new Date(1)
+        assertThat(sortedOnDurationDesc.get(2).getResult(), is(JobResult.Passed)); // has new Date(1)
+        assertThat(sortedOnDurationDesc.get(3).getResult(), is(JobResult.Unknown)); // duration is null therefore comes last
     }
 
     @Test

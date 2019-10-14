@@ -31,6 +31,12 @@
   </rule>
 
   <rule>
+    <name>server-configuration UI</name>
+    <from>^/admin/server_configuration(/?)$</from>
+    <to last="true">/spark/admin/server_configuration</to>
+  </rule>
+
+  <rule>
     <name>Package Definitions API</name>
     <from>^/api/admin/packages(/?)$</from>
     <to last="true">/spark/api/admin/packages</to>

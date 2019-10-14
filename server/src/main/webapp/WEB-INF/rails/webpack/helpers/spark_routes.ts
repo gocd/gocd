@@ -78,10 +78,10 @@ export class SparkRoutes {
 
   static pipelineMaterialSearchPath(pipelineName: string, fingerprint: string, searchText: string): string {
     const queryString = m.buildQueryString({
-                                             fingerprint,
-                                             pipeline_name: pipelineName,
-                                             search_text: searchText
-                                           });
+      fingerprint,
+      pipeline_name: pipelineName,
+      search_text: searchText
+    });
     return `/go/api/internal/material_search?${queryString}`;
   }
 
@@ -371,6 +371,14 @@ export class SparkRoutes {
     return "/go/api/config/mailserver";
   }
 
+  static siteUrlsPath() {
+    return "/go/api/admin/config/server/site_urls";
+  }
+
+  static artifactConfigPath() {
+    return "/go/api/admin/config/server/artifact_config";
+  }
+
   static apiAdminInternalResourcesPath() {
     return "/go/api/admin/internal/resources";
   }
@@ -405,5 +413,9 @@ export class SparkRoutes {
 
   static exportPipelinePath(pluginId: string, pipeline: string) {
     return `/go/api/admin/export/pipelines/` + pipeline + "?" + m.buildQueryString({plugin_id: pluginId});
+  }
+
+  static jobTimeoutPath() {
+    return "/go/api/admin/config/server/default_job_timeout";
   }
 }

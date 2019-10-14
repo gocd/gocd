@@ -38,6 +38,8 @@ import {HeaderPanel} from "views/components/header_panel";
 import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
 import {NoPluginsOfTypeInstalled} from "views/components/no_plugins_installed";
 import {CloseListener} from "views/components/wizard";
+import {HelpText} from "views/pages/elastic_agents/help_text";
+import {openWizard} from "views/pages/elastic_agents/wizard";
 import {ElasticProfilesPage} from "views/pages/elastic_agent_configurations";
 import {ClusterProfileOperations} from "views/pages/elastic_agent_configurations/cluster_profile_widget";
 import {
@@ -51,8 +53,6 @@ import {
   EditElasticProfileModal, NewElasticProfileModal, UsageElasticProfileModal
 } from "views/pages/elastic_agent_configurations/elastic_agent_profiles_modals";
 import {ElasticAgentOperations} from "views/pages/elastic_agent_configurations/elastic_profiles_widget";
-import {HelpText} from "views/pages/elastic_agents/help_text";
-import {openWizard} from "views/pages/elastic_agents/wizard";
 import {Page, PageState} from "views/pages/page";
 import {RequiresPluginInfos, SaveOperation} from "views/pages/page_operations";
 

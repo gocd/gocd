@@ -42,8 +42,8 @@ import {
 import {Refresh} from "views/components/icons";
 import {KeyValuePair} from "views/components/key_value_pair";
 import {CloseListener, Step, Wizard} from "views/components/wizard";
+import styles from "views/pages/elastic_agents/index.scss";
 import * as foundationStyles from "views/pages/new_plugins/foundation_hax.scss";
-import styles from "./index.scss";
 
 const foundationClassNames = bind(foundationStyles);
 const AngularPluginNew     = require("views/shared/angular_plugin_new").AngularPluginNew;

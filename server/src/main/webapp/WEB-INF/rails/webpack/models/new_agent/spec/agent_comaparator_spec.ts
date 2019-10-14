@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {AgentComparator, SortOrder} from "models/new_agent/agent_comparator";
+import {AgentComparator} from "models/new_agent/agent_comparator";
 import {Agent} from "models/new_agent/agents";
 import {AgentsTestData} from "models/new_agent/spec/agents_test_data";
 
@@ -38,20 +38,11 @@ describe("AgentComparator", () => {
     });
 
     it("should sort agents in ascending order", () => {
-      const comparator = new AgentComparator("agentState", SortOrder.ASC);
+      const comparator = new AgentComparator("agentState");
 
       const sortedList = originalOrder.sort(comparator.compare.bind(comparator));
 
       const expectedAfterSort = [pending, lostContact, missing, building, buildingCancelled, idle, disabledBuilding, disabledCanceled, disabled];
-      expect(sortedList).toEqual(expectedAfterSort);
-    });
-
-    it("should sort agents in descending order", () => {
-      const comparator = new AgentComparator("agentState", SortOrder.DESC);
-
-      const sortedList = originalOrder.sort(comparator.compare.bind(comparator));
-
-      const expectedAfterSort = [disabled, disabledCanceled, disabledBuilding, idle, buildingCancelled, building, missing, lostContact, pending];
       expect(sortedList).toEqual(expectedAfterSort);
     });
   });
@@ -66,19 +57,11 @@ describe("AgentComparator", () => {
       originalOrder = [agentA, agentB, agentC, agentD];
     });
     it("should sort agents in ascending order", () => {
-      const comparator = new AgentComparator("freeSpace", SortOrder.ASC);
+      const comparator = new AgentComparator("freeSpace");
 
       const sortedList = originalOrder.sort(comparator.compare.bind(comparator));
 
       expect(sortedList).toEqual([agentA, agentC, agentB, agentD]);
-    });
-
-    it("should sort in descending order", () => {
-      const comparator = new AgentComparator("freeSpace", SortOrder.DESC);
-
-      const sortedList = originalOrder.sort(comparator.compare.bind(comparator));
-
-      expect(sortedList).toEqual([agentD, agentB, agentC, agentA]);
     });
   });
 
@@ -93,20 +76,13 @@ describe("AgentComparator", () => {
     });
 
     it("should sort in ascending order", () => {
-      const comparator = new AgentComparator("resources", SortOrder.ASC);
+      const comparator = new AgentComparator("resources");
 
       const sortedList = originalOrder.sort(comparator.compare.bind(comparator));
 
       expect(sortedList).toEqual([agentD, agentC, agentA, agentB]);
     });
 
-    it("should sort in descending order", () => {
-      const comparator = new AgentComparator("resources", SortOrder.DESC);
-
-      const sortedList = originalOrder.sort(comparator.compare.bind(comparator));
-
-      expect(sortedList).toEqual([agentB, agentA, agentC, agentD]);
-    });
   });
 
   describe("Environments", () => {
@@ -120,20 +96,12 @@ describe("AgentComparator", () => {
     });
 
     it("should sort in ascending order", () => {
-      const comparator = new AgentComparator("environments", SortOrder.ASC);
+      const comparator = new AgentComparator("environments");
 
       const sortedList = originalOrder.sort(comparator.compare.bind(comparator));
 
       expect(sortedList).toEqual([agentD, agentB, agentA, agentC]);
     });
 
-    it("should sort in descending order",
-       () => {
-         const comparator = new AgentComparator("environments", SortOrder.DESC);
-
-         const sortedList = originalOrder.sort(comparator.compare.bind(comparator));
-
-         expect(sortedList).toEqual([agentC, agentA, agentB, agentD]);
-       });
   });
 });

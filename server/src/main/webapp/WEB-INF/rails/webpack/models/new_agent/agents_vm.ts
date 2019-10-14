@@ -211,7 +211,7 @@ export class AgentSortHandler implements TableSortHandler {
   sort() {
     const agentComparator = new AgentComparator(this.sortableColumns.get(this.sortOnColumn) as string);
     this.agentsVM.all().sort(agentComparator.compare.bind(agentComparator));
-    if (this.sortOrder == SortOrder.DESC) {
+    if (this.sortOrder === SortOrder.DESC) {
       this.agentsVM.all().reverse();
     }
   }

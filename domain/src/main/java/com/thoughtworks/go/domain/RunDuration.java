@@ -23,7 +23,7 @@ import org.joda.time.format.PeriodFormatterBuilder;
 /**
  * @understands the time taken for a stage to complete
  */
-public abstract class RunDuration {
+public abstract class RunDuration  {
     public static final PeriodFormatter PERIOD_FORMATTER =
             new PeriodFormatterBuilder().printZeroAlways().minimumPrintedDigits(
                     2).appendHours().appendSeparator(

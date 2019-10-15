@@ -43,9 +43,7 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class JobInstanceService implements JobPlanLoader, ConfigChangedListener {
@@ -266,6 +264,7 @@ public class JobInstanceService implements JobPlanLoader, ConfigChangedListener 
         for (JobInstance jobInstance : jobInstances) {
             jobInstance.setPipelineStillConfigured(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(jobInstance.getPipelineName())));
         }
+
         return new JobInstancesModel(new JobInstances(jobInstances), pagination);
     }
 
@@ -296,7 +295,8 @@ public class JobInstanceService implements JobPlanLoader, ConfigChangedListener 
     }
 
     public enum JobHistoryColumns {
-        pipeline("pipelineName"), stage("stageName"), job("name"), result("result"), completed("lastTransitionTime");
+        pipeline("pipelineName"), stage("stageName"), job("name"),
+        result("result"), completed("lastTransitionTime"), duration("duration");
 
         private final String columnName;
 

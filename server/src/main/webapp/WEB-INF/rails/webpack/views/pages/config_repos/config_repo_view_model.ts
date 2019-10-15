@@ -93,6 +93,7 @@ export class ConfigRepoVM {
       const repoId = this.repo.id()!;
 
       return ConfigReposCRUD.triggerUpdate(repoId).then((result: ApiResult<any>) => {
+        repo.materialUpdateInProgress(true);
         result.do(() => {
           page.flash.success(`An update was scheduled for '${repoId}' config repository.`);
           this.notify("refresh");

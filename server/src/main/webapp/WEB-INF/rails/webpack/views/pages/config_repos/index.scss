@@ -63,6 +63,10 @@ code {
   font-size: 11px;
 }
 
+.config-repo-success-state {
+  @include fa-icon($type: $fa-var-check, $colors: $success-txt);
+}
+
 .config-repo-update-in-progress {
   position: absolute;
   top: -1px;

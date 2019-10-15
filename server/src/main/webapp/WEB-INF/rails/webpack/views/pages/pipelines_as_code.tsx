@@ -68,6 +68,7 @@ export class PipelinesAsCodeCreatePage extends Page {
 
   private configRepo = Stream(new ConfigRepo(undefined, this.pluginId(), new Material(this.model.material.type())));
   private useSameRepoForPaC = Stream(true); // allow material sync to be toggleable
+  private allowCreate = Stream(false);
 
   oninit(vnode: m.Vnode) {
     this.pageState = PageState.OK;
@@ -162,12 +163,16 @@ export class PipelinesAsCodeCreatePage extends Page {
         <div class={classnames(css.verifyDefsInMaterial, css.subsection)}>
           <MaterialCheck pluginId={this.pluginId()} material={this.configRepo().material()!} align="right" prerequisite={() => this.configRepo().isValid()} label={
             <p class={css.msg}>Verify that GoCD can find the configuration file in your repository by clicking the button on the right</p>
-          }/>
+          } success={(data, _) => {
+            this.allowCreate(!!data.plugins.find((p) => !!p.files.length));
+          }} failure={(err, status) => {
+            this.allowCreate(413 === status);
+          }}/>
         </div>
       </FillableSection>,
 
       <FillableSection>
-        <PacActions configRepo={this.configRepo}/>
+        <PacActions configRepo={this.configRepo} disabled={!this.allowCreate()}/>
       </FillableSection>
     ];
   }

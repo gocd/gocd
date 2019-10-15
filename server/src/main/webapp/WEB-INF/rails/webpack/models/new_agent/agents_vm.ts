@@ -185,7 +185,7 @@ export class ElasticAgentVM extends BaseVM {
 export class AgentSortHandler implements TableSortHandler {
   private readonly sortableColumns: Map<number, string>;
   private readonly agentsVM: ElasticAgentVM | StaticAgentsVM;
-  private sortOnColumn: number = -1;
+  private sortOnColumn: number = 5;
   private sortOrder: SortOrder = SortOrder.ASC;
 
   constructor(agentsVM: ElasticAgentVM | StaticAgentsVM, sortableColumns: Map<number, string>) {
@@ -209,8 +209,11 @@ export class AgentSortHandler implements TableSortHandler {
   }
 
   sort() {
-    const agentComparator = new AgentComparator(this.sortableColumns.get(this.sortOnColumn) as string, this.sortOrder);
+    const agentComparator = new AgentComparator(this.sortableColumns.get(this.sortOnColumn) as string);
     this.agentsVM.all().sort(agentComparator.compare.bind(agentComparator));
+    if (this.sortOrder === SortOrder.DESC) {
+      this.agentsVM.all().reverse();
+    }
   }
 
   currentSortedColumnIndex(): number {

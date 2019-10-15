@@ -23,11 +23,9 @@ export enum SortOrder {
 
 export class AgentComparator {
   private readonly columnName: string;
-  private readonly sortOrder: SortOrder;
 
-  constructor(columnName: string, sortOrder: SortOrder) {
+  constructor(columnName: string) {
     this.columnName = columnName;
-    this.sortOrder  = sortOrder;
   }
 
   compare(agentOne: Agent, agentTwo: Agent): number {
@@ -90,16 +88,16 @@ export class AgentComparator {
   private compareAgentState(first: string, other: string) {
     const firstRank = AgentComparator.getAgentStatusRank(first);
     const otherRank = AgentComparator.getAgentStatusRank(other);
-    return this.sortOrder === SortOrder.ASC ? firstRank - otherRank : otherRank - firstRank;
+    return firstRank - otherRank;
   }
 
   private compareFreespace(first: string, other: string) {
     const firstAsNumber = _.isNaN(parseInt(first, 10)) ? Number.MAX_SAFE_INTEGER : parseInt(first, 10);
     const otherAsNumber = _.isNaN(parseInt(other, 10)) ? Number.MAX_SAFE_INTEGER : parseInt(other, 10);
-    return this.sortOrder === SortOrder.ASC ? firstAsNumber - otherAsNumber : otherAsNumber - firstAsNumber;
+    return firstAsNumber - otherAsNumber;
   }
 
   private compareString(first: string, other: string) {
-    return this.sortOrder === SortOrder.ASC ? first.localeCompare(other) : other.localeCompare(first);
+    return first.localeCompare(other);
   }
 }

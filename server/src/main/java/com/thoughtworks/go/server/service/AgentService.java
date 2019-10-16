@@ -52,6 +52,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import java.util.*;
 import java.util.function.Function;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.thoughtworks.go.CurrentGoCDVersion.docsUrl;
 import static com.thoughtworks.go.domain.AgentConfigStatus.Pending;
 import static com.thoughtworks.go.domain.AgentInstance.createFromAgent;
@@ -291,6 +292,10 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     }
 
     public Agent findAgentByUUID(String uuid) {
+        if (isNullOrEmpty(uuid)) {
+            return null;
+        }
+
         AgentInstance agentInstance = agentInstances.findAgent(uuid);
         Agent agent;
         if (agentInstance != null && !agentInstance.isNullAgent()) {

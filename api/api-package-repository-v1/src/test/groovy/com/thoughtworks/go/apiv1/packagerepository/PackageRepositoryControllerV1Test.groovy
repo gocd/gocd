@@ -29,6 +29,7 @@ import com.thoughtworks.go.server.service.materials.PackageRepositoryService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
 import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
+import com.thoughtworks.go.spark.GroupAdminUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -87,7 +88,7 @@ class PackageRepositoryControllerV1Test implements SecurityServiceTrait, Control
     }
 
     @Nested
-    class Security implements SecurityTestTrait, AdminUserSecurity {
+    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
 
       @Override
       String getControllerMethodUnderTest() {
@@ -171,7 +172,7 @@ class PackageRepositoryControllerV1Test implements SecurityServiceTrait, Control
     }
 
     @Nested
-    class Security implements SecurityTestTrait, AdminUserSecurity {
+    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
 
       @Override
       String getControllerMethodUnderTest() {
@@ -271,7 +272,7 @@ class PackageRepositoryControllerV1Test implements SecurityServiceTrait, Control
     }
 
     @Nested
-    class Security implements SecurityTestTrait, AdminUserSecurity {
+    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
 
       @Override
       String getControllerMethodUnderTest() {
@@ -393,7 +394,7 @@ class PackageRepositoryControllerV1Test implements SecurityServiceTrait, Control
     }
 
     @Nested
-    class Security implements SecurityTestTrait, AdminUserSecurity {
+    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
 
       @Override
       String getControllerMethodUnderTest() {
@@ -403,6 +404,62 @@ class PackageRepositoryControllerV1Test implements SecurityServiceTrait, Control
       @Override
       void makeHttpCall() {
         putWithApiHeader(controller.controllerPath('repo_id'), [])
+      }
+    }
+  }
+
+  @Nested
+  class Remove {
+
+    @Nested
+    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+
+      @Override
+      String getControllerMethodUnderTest() {
+        return "remove"
+      }
+
+      @Override
+      void makeHttpCall() {
+        deleteWithApiHeader(controller.controllerPath('repo_id'))
+      }
+    }
+
+    @Nested
+    class AsAdmin {
+      @BeforeEach
+      void setUp() {
+        enableSecurity()
+        loginAsAdmin()
+      }
+
+      @Test
+      void 'should remove the package repository as part of delete call'() {
+        def configuration = new Configuration(ConfigurationPropertyMother.create('key', 'value'))
+        def packageRepository = PackageRepositoryMother.create('repo-id', 'repo-name', 'plugin-id', '1.0.0', configuration)
+
+        when(packageRepositoryService.getPackageRepository('repo-id')).thenReturn(packageRepository)
+
+        when(packageRepositoryService.deleteRepository(eq(currentUsername()), eq(packageRepository), any(HttpLocalizedOperationResult.class))).then({
+          InvocationOnMock invocation ->
+            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
+            result.setMessage("Package repository was deleted successfully")
+        })
+
+        deleteWithApiHeader(controller.controllerPath('repo-id'))
+
+        assertThatResponse()
+          .isOk()
+          .hasJsonMessage('Package repository was deleted successfully')
+      }
+
+      @Test
+      void 'should return 404 if entity not found'() {
+        deleteWithApiHeader(controller.controllerPath('unknown-id'))
+
+        assertThatResponse()
+          .isNotFound()
+          .hasJsonMessage(controller.entityType.notFoundMessage("unknown-id"))
       }
     }
   }

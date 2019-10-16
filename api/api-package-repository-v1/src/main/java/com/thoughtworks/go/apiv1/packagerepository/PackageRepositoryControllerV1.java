@@ -26,6 +26,7 @@ import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.packagerepository.representers.PackageRepositoriesRepresenter;
 import com.thoughtworks.go.apiv1.packagerepository.representers.PackageRepositoryRepresenter;
 import com.thoughtworks.go.config.exceptions.EntityType;
+import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.server.service.EntityHashingService;
@@ -69,13 +70,14 @@ public class PackageRepositoryControllerV1 extends ApiController implements Spar
         path(controllerBasePath(), () -> {
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);
-            before("", mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
-            before("/*", mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
+            before("", mimeType, this.apiAuthenticationHelper::checkAdminUserOrGroupAdminUserAnd403);
+            before("/*", mimeType, this.apiAuthenticationHelper::checkAdminUserOrGroupAdminUserAnd403);
 
             get("", mimeType, this::index);
             get(Routes.PackageRepository.SHOW, mimeType, this::show);
             post("", mimeType, this::create);
             put(Routes.PackageRepository.SHOW, mimeType, this::update);
+            delete(Routes.PackageRepository.SHOW, mimeType, this::remove);
         });
     }
 
@@ -122,6 +124,16 @@ public class PackageRepositoryControllerV1 extends ApiController implements Spar
         setEtagHeader(packageRepository, response);
 
         return handleCreateOrUpdateResponse(request, response, packageRepository, result);
+    }
+
+    String remove(Request request, Response response) {
+        String repoId = request.params("repo_id");
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        PackageRepository packageRepository = fetchEntityFromConfig(repoId);
+
+        packageRepositoryService.deleteRepository(currentUsername(), packageRepository, result);
+
+        return handleSimpleMessageResponse(response, result);
     }
 
     @Override

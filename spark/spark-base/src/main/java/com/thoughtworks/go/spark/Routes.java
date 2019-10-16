@@ -746,4 +746,15 @@ public class Routes {
             return BASE + "/" + id;
         }
     }
+
+    public static class PackageRepository {
+        public static final String BASE = "/api/admin/repositories";
+        public static final String DOC = apiDocsUrl("package-repositories");
+        public static final String SHOW = "/:repo_id";
+        public static final String FIND = BASE + SHOW;
+
+        public static String self(String id) {
+            return BASE + "/" + id;
+        }
+    }
 }

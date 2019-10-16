@@ -26,9 +26,9 @@ import java.util.function.Consumer;
 public class PackageRepositoryRepresenter {
     public static void toJSON(OutputWriter outputWriter, PackageRepository packageRepository) {
         outputWriter.addLinks(linkWriter -> {
-            linkWriter.addLink("self", Routes.PackageRepo.self(packageRepository.getId()));
-            linkWriter.addAbsoluteLink("doc", Routes.PackageRepo.DOC);
-            linkWriter.addLink("find", Routes.PackageRepo.FIND);
+            linkWriter.addLink("self", Routes.PackageRepository.self(packageRepository.getId()));
+            linkWriter.addAbsoluteLink("doc", Routes.PackageRepository.DOC);
+            linkWriter.addLink("find", Routes.PackageRepository.FIND);
         });
         outputWriter.add("id", packageRepository.getId());
         outputWriter.add("name", packageRepository.getName());

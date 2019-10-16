@@ -19,6 +19,7 @@ package com.thoughtworks.go.apiv1.packagerepository
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv1.packagerepository.representers.PackageRepositoriesRepresenter
+import com.thoughtworks.go.apiv1.packagerepository.representers.PackageRepositoryRepresenter
 import com.thoughtworks.go.domain.config.Configuration
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories
@@ -92,6 +93,90 @@ class PackageRepositoryControllerV1Test implements SecurityServiceTrait, Control
       @Override
       void makeHttpCall() {
         getWithApiHeader(controller.controllerBasePath())
+      }
+    }
+  }
+
+  @Nested
+  class Show {
+
+    @Nested
+    class AsAdmin {
+      @BeforeEach
+      void setUp() {
+        enableSecurity()
+        loginAsAdmin()
+      }
+
+      @Test
+      void 'should return requested package repository as part of show call'() {
+        def configuration = new Configuration(ConfigurationPropertyMother.create('key', 'value'))
+        def packageRepository = PackageRepositoryMother.create('repo-id', 'repo-name', 'plugin-id', '1.0.0', configuration)
+
+        when(entityHashingService.md5ForEntity(packageRepository)).thenReturn('etag')
+        when(packageRepositoryService.getPackageRepository('repo-id')).thenReturn(packageRepository)
+
+        getWithApiHeader(controller.controllerPath('repo-id'))
+
+        def expectedJSON = toObjectString({ PackageRepositoryRepresenter.toJSON(it, packageRepository) })
+
+        assertThatResponse()
+          .isOk()
+          .hasEtag('"etag"')
+          .hasBodyWithJson(expectedJSON)
+      }
+
+      @Test
+      void 'should return 304 if the requested entity is not modified'() {
+        def configuration = new Configuration(ConfigurationPropertyMother.create('key', 'value'))
+        def packageRepository = PackageRepositoryMother.create('repo-id', 'repo-name', 'plugin-id', '1.0.0', configuration)
+
+        when(entityHashingService.md5ForEntity(packageRepository)).thenReturn('etag')
+        when(packageRepositoryService.getPackageRepository('repo-id')).thenReturn(packageRepository)
+
+        getWithApiHeader(controller.controllerPath('repo-id'), ['if-none-match': 'etag'])
+
+        assertThatResponse()
+          .isNotModified()
+      }
+
+      @Test
+      void 'should return 404 if requested entity does not exist'() {
+        getWithApiHeader(controller.controllerPath('unknown-repo-id'))
+
+        assertThatResponse()
+          .isNotFound()
+          .hasJsonMessage("Package repository with id 'unknown-repo-id' was not found!")
+      }
+
+      @Test
+      void 'should return 200 if the etag does not match'() {
+        def configuration = new Configuration(ConfigurationPropertyMother.create('key', 'value'))
+        def packageRepository = PackageRepositoryMother.create('repo-id', 'repo-name', 'plugin-id', '1.0.0', configuration)
+
+        when(entityHashingService.md5ForEntity(packageRepository)).thenReturn('etag')
+        when(packageRepositoryService.getPackageRepository('repo-id')).thenReturn(packageRepository)
+
+        getWithApiHeader(controller.controllerPath('repo-id'), ['if-none-match': 'another-etag'])
+
+        assertThatResponse()
+          .isOk()
+          .hasEtag('"etag"')
+          .hasBodyWithJsonObject(packageRepository, PackageRepositoryRepresenter)
+      }
+    }
+
+    @Nested
+    class Security implements SecurityTestTrait, AdminUserSecurity {
+
+      @Override
+      String getControllerMethodUnderTest() {
+        return "show"
+      }
+
+      @Override
+      void makeHttpCall() {
+        getWithApiHeader(controller.controllerPath('repo-id'))
       }
     }
   }

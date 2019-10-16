@@ -72,14 +72,27 @@ public class PackageRepositoryControllerV1 extends ApiController implements Spar
             before("/*", mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
 
             get("", mimeType, this::index);
+            get(Routes.PackageRepository.SHOW, mimeType, this::show);
         });
     }
 
-    public String index(Request request, Response response) throws IOException {
+    String index(Request request, Response response) throws IOException {
         PackageRepositories packageRepositories = packageRepositoryService.getPackageRepositories();
         return writerForTopLevelObject(request, response, outputWriter -> PackageRepositoriesRepresenter.toJSON(outputWriter, packageRepositories));
     }
 
+    String show(Request request, Response response) throws IOException {
+        String repoId = request.params("repo_id");
+        PackageRepository packageRepository = fetchEntityFromConfig(repoId);
+
+        String etag = etagFor(packageRepository);
+        if (fresh(request, etag)) {
+            return notModified(response);
+        }
+        setEtagHeader(response, etag);
+
+        return writerForTopLevelObject(request, response, outputWriter -> PackageRepositoryRepresenter.toJSON(outputWriter, packageRepository));
+    }
 
     @Override
     public String etagFor(PackageRepository entityFromServer) {

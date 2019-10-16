@@ -31,6 +31,7 @@ import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.materials.PackageRepositoryService;
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,6 +74,7 @@ public class PackageRepositoryControllerV1 extends ApiController implements Spar
 
             get("", mimeType, this::index);
             get(Routes.PackageRepository.SHOW, mimeType, this::show);
+            post("", mimeType, this::create);
         });
     }
 
@@ -92,6 +94,15 @@ public class PackageRepositoryControllerV1 extends ApiController implements Spar
         setEtagHeader(response, etag);
 
         return writerForTopLevelObject(request, response, outputWriter -> PackageRepositoryRepresenter.toJSON(outputWriter, packageRepository));
+    }
+
+    String create(Request request, Response response) {
+        PackageRepository packageRepository = buildEntityFromRequestBody(request);
+        packageRepository.ensureIdExists();
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        packageRepositoryService.createPackageRepository(packageRepository, currentUsername(), result);
+
+        return handleCreateOrUpdateResponse(request, response, packageRepository, result);
     }
 
     @Override

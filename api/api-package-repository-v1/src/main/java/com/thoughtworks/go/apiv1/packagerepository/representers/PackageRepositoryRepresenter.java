@@ -18,10 +18,16 @@ package com.thoughtworks.go.apiv1.packagerepository.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.ConfigurationPropertyRepresenter;
+import com.thoughtworks.go.api.representers.ErrorGetter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.representers.PluginConfigurationRepresenter;
+import com.thoughtworks.go.domain.config.ConfigurationProperty;
+import com.thoughtworks.go.domain.config.PluginConfiguration;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.spark.Routes;
+
+import java.util.HashMap;
+import java.util.List;
 
 public class PackageRepositoryRepresenter {
     public static void toJSON(OutputWriter outputWriter, PackageRepository packageRepository) {
@@ -35,11 +41,25 @@ public class PackageRepositoryRepresenter {
         outputWriter.addChild("plugin_metadata", childWriter -> PluginConfigurationRepresenter.toJSON(childWriter, packageRepository.getPluginConfiguration()));
         outputWriter.addChildList("configuration", configWriter -> ConfigurationPropertyRepresenter.toJSON(configWriter, packageRepository.getConfiguration()));
         outputWriter.addChild("_embedded", embeddedWriter -> embeddedWriter.addChildList("packages", packageWriter -> PackagesRepresenter.toJSON(packageWriter, packageRepository.getPackages())));
+
+        if (!packageRepository.errors().isEmpty()) {
+            outputWriter.addChild("errors", errorWriter -> {
+                HashMap<String, String> errorMapping = new HashMap<>();
+                new ErrorGetter(errorMapping).toJSON(errorWriter, packageRepository);
+            });
+        }
     }
 
     public static PackageRepository fromJSON(JsonReader jsonReader) {
-        //todo: need to implement. -    Viraj & Kritika
         PackageRepository packageRepository = new PackageRepository();
+        jsonReader.readStringIfPresent("repo_id", packageRepository::setId);
+        jsonReader.readStringIfPresent("name", packageRepository::setName);
+
+        PluginConfiguration pluginConfiguration = PluginConfigurationRepresenter.fromJSON(jsonReader.readJsonObject("plugin_metadata"));
+        packageRepository.setPluginConfiguration(pluginConfiguration);
+
+        List<ConfigurationProperty> configuration = ConfigurationPropertyRepresenter.fromJSONArray(jsonReader, "configuration");
+        packageRepository.addConfigurations(configuration);
         return packageRepository;
     }
 }

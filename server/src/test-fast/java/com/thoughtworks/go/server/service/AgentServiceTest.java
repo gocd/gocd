@@ -1210,6 +1210,12 @@ class AgentServiceTest {
 
             assertThat(agent, is(nullValue()));
         }
+
+        @Test
+        void shouldReturnNullIfUUIDIsNotProvided() {
+            assertThat(agentService.findAgentByUUID(null), is(nullValue()));
+            assertThat(agentService.findAgentByUUID(" "), is(nullValue()));
+        }
     }
 
     @Nested

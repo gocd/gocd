@@ -19,7 +19,7 @@ import {AngularPluginNew} from "views/shared/angular_plugin_new.js.msx";
 import {TestHelper} from "views/pages/spec/test_helper";
 import Stream from "mithril/stream";
 import {Configurations, Configuration} from "models/shared/configuration";
-import {PlainTextValue} from "models/shared/config_value";
+import {PlainTextValue, EncryptedValue} from "models/shared/config_value";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {AuthorizationPluginInfo} from "models/shared/plugin_infos_new/spec/test_data";
 import m from "mithril";
@@ -30,20 +30,25 @@ describe("Angular Plugin View", () => {
   afterEach(helper.unmount.bind(helper));
 
   it("should ignore unknown properties", () => {
-    const pluginInfo     = PluginInfo.fromJSON(AuthorizationPluginInfo.file());
+    const pluginInfo     = PluginInfo.fromJSON(AuthorizationPluginInfo.ldap());
     const configurations = new Configurations([
-      new Configuration("PasswordFilePath", new PlainTextValue("/var/lib/pass.prop")),
+      new Configuration("Url", new PlainTextValue("some-url")),
+      new Configuration("Password", new EncryptedValue("secret-password")),
       new Configuration("UnknownField", new PlainTextValue("random-value"))
     ]);
 
-    expect(configurations.findConfiguration("PasswordFilePath")).not.toBeNull();
+    expect(configurations.findConfiguration("Url")).not.toBeNull();
+    expect(configurations.findConfiguration("Password")).not.toBeNull();
     expect(configurations.findConfiguration("UnknownField")).not.toBeNull();
     expect(configurations.findConfiguration("UnknownField")).not.toBeUndefined();
 
     mount(pluginInfo.extensions[0].authConfigSettings, configurations);
 
     expect(configurations.findConfiguration("UnknownField")).toBeUndefined();
-    expect(configurations.findConfiguration("PasswordFilePath")).not.toBeUndefined();
+    expect(configurations.findConfiguration("Url")).not.toBeUndefined();
+    expect(configurations.findConfiguration("Url").isEncrypted()).toBeFalsy();
+    expect(configurations.findConfiguration("Password")).not.toBeUndefined();
+    expect(configurations.findConfiguration("Password").isEncrypted()).toBeTruthy();
   });
 
   it("should not ignore appropriate properties", () => {

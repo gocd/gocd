@@ -86,8 +86,7 @@ function onCreate(scope, args) {
           copyOverErrors(configurations, config.key);
         });
 
-        const supportedConfigKeys = pluginInfoSettings.configurations.map((configuration) => configuration.key);
-
+        const supportedConfigKeys = pluginInfoSettings.configurations().map((configuration) => configuration.key);
         _.remove(configurations.configurations, (configuration) => {
           return !_.includes(supportedConfigKeys, configuration.key);
         });

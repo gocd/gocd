@@ -26,7 +26,6 @@ import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.packagerepository.representers.PackageRepositoriesRepresenter;
 import com.thoughtworks.go.apiv1.packagerepository.representers.PackageRepositoryRepresenter;
 import com.thoughtworks.go.config.exceptions.EntityType;
-import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.server.service.EntityHashingService;
@@ -42,6 +41,7 @@ import spark.Response;
 import java.io.IOException;
 import java.util.function.Consumer;
 
+import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseEtagDoesNotMatch;
 import static spark.Spark.*;
 
 @Component
@@ -75,6 +75,7 @@ public class PackageRepositoryControllerV1 extends ApiController implements Spar
             get("", mimeType, this::index);
             get(Routes.PackageRepository.SHOW, mimeType, this::show);
             post("", mimeType, this::create);
+            put(Routes.PackageRepository.SHOW, mimeType, this::update);
         });
     }
 
@@ -101,6 +102,24 @@ public class PackageRepositoryControllerV1 extends ApiController implements Spar
         packageRepository.ensureIdExists();
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         packageRepositoryService.createPackageRepository(packageRepository, currentUsername(), result);
+
+        return handleCreateOrUpdateResponse(request, response, packageRepository, result);
+    }
+
+    String update(Request request, Response response) {
+        PackageRepository packageRepository = buildEntityFromRequestBody(request);
+        String repoId = request.params("repo_id");
+        PackageRepository oldPackageRepository = fetchEntityFromConfig(repoId);
+        String etag = etagFor(oldPackageRepository);
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+
+        if (isPutRequestStale(request, oldPackageRepository)) {
+            throw haltBecauseEtagDoesNotMatch("package repository", repoId);
+        }
+
+        packageRepositoryService.updatePackageRepository(packageRepository, currentUsername(), etag, result, repoId);
+
+        setEtagHeader(packageRepository, response);
 
         return handleCreateOrUpdateResponse(request, response, packageRepository, result);
     }

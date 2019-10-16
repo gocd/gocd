@@ -37,8 +37,8 @@ import org.mockito.Mock
 import org.mockito.invocation.InvocationOnMock
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
-import static org.mockito.ArgumentMatchers.eq
-import static org.mockito.ArgumentMatchers.any
+import static com.thoughtworks.go.api.util.HaltApiMessages.etagDoesNotMatch
+import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.when
 import static org.mockito.MockitoAnnotations.initMocks
 
@@ -285,5 +285,125 @@ class PackageRepositoryControllerV1Test implements SecurityServiceTrait, Control
     }
   }
 
+  @Nested
+  class Update {
 
+    @Nested
+    class AsAdmin {
+      @BeforeEach
+      void setUp() {
+        enableSecurity()
+        loginAsAdmin()
+      }
+
+      @Test
+      void 'should update the requested package repository as part of update call'() {
+        def configuration = new Configuration(ConfigurationPropertyMother.create('key', 'value'))
+        def packageRepository = PackageRepositoryMother.create('repo-id', 'repo-name', 'plugin-id', '1.0.0', configuration)
+
+        def updatedConfiguration = new Configuration(ConfigurationPropertyMother.create('updated-key', 'updated-value'))
+        def updatedPackageRepository = PackageRepositoryMother.create('repo-id', 'updated-repo-name', 'updated-plugin-id', '2.0.0', updatedConfiguration)
+
+        def json = toObjectString({ PackageRepositoryRepresenter.toJSON(it, updatedPackageRepository) })
+
+        when(packageRepositoryService.getPackageRepository('repo-id')).thenReturn(packageRepository)
+        when(entityHashingService.md5ForEntity(packageRepository)).thenReturn('etag')
+        when(entityHashingService.md5ForEntity(updatedPackageRepository)).thenReturn('updated-etag')
+        when(packageRepositoryService.updatePackageRepository(eq(updatedPackageRepository), eq(currentUsername()), anyString(), any(), anyString())).then({
+          InvocationOnMock invocation ->
+            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments[3]
+            result.setMessage("Package repository was created successfully")
+        })
+
+        putWithApiHeader(controller.controllerPath('repo-id'), ['if-match': 'etag'], json)
+
+        assertThatResponse()
+          .isOk()
+          .hasEtag('"updated-etag"')
+          .hasBodyWithJson(json)
+      }
+
+      @Test
+      void 'should not update requested package repository if etag does not match'() {
+        def configuration = new Configuration(ConfigurationPropertyMother.create('key', 'value'))
+        def packageRepository = PackageRepositoryMother.create('repo-id', 'repo-name', 'plugin-id', '1.0.0', configuration)
+
+        def updatedConfiguration = new Configuration(ConfigurationPropertyMother.create('updated-key', 'updated-value'))
+        def updatedPackageRepository = PackageRepositoryMother.create('repo-id', 'updated-repo-name', 'updated-plugin-id', '2.0.0', updatedConfiguration)
+
+        def json = toObjectString({ PackageRepositoryRepresenter.toJSON(it, updatedPackageRepository) })
+
+        when(packageRepositoryService.getPackageRepository('repo-id')).thenReturn(packageRepository)
+        when(entityHashingService.md5ForEntity(packageRepository)).thenReturn('etag')
+        when(entityHashingService.md5ForEntity(updatedPackageRepository)).thenReturn('updated-etag')
+
+        putWithApiHeader(controller.controllerPath('repo-id'), ['if-match': 'invalid-etag'], json)
+
+        assertThatResponse()
+          .isPreconditionFailed()
+          .hasJsonMessage(etagDoesNotMatch("package repository", "repo-id"))
+      }
+
+      @Test
+      void 'should error out if there are errors in parsing the repository config'() {
+
+        def configuration = new Configuration(ConfigurationPropertyMother.create('key', 'value'))
+        def packageRepository = PackageRepositoryMother.create('repo-id', 'repo-name', 'plugin-id', '1.0.0', configuration)
+
+        def updatedConfiguration = new Configuration(ConfigurationPropertyMother.create('updated-key', ''))
+        def updatedPackageRepository = PackageRepositoryMother.create('repo-id', 'updated-repo-name', 'updated-plugin-id', '2.0.0', updatedConfiguration)
+
+        def expectedResponse = [
+          "message": "Validation error.",
+          "data"   : [
+            "repo_id"        : "repo-id",
+            "name"           : "updated-repo-name",
+            "plugin_metadata": [
+              "id"     : "updated-plugin-id",
+              "version": "2.0.0"
+            ],
+            "configuration"  : [
+              [
+                "key": "updated-key"
+              ]
+            ],
+            "_embedded"      : [
+              "packages": []
+            ]
+          ]
+        ]
+
+        when(packageRepositoryService.getPackageRepository('repo-id')).thenReturn(packageRepository)
+        when(entityHashingService.md5ForEntity(packageRepository)).thenReturn('etag')
+        when(entityHashingService.md5ForEntity(updatedPackageRepository)).thenReturn('updated-etag')
+        when(packageRepositoryService.updatePackageRepository(any(), any(), any(), any(), any())).then({
+          InvocationOnMock invocation ->
+            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments[3]
+            result.unprocessableEntity("Validation error.")
+        })
+
+        def json = toObjectString({ PackageRepositoryRepresenter.toJSON(it, updatedPackageRepository) })
+
+        putWithApiHeader(controller.controllerPath('repo-id'), ['if-match': 'etag'], json)
+
+        assertThatResponse()
+          .isUnprocessableEntity()
+          .hasJsonBody(expectedResponse)
+      }
+    }
+
+    @Nested
+    class Security implements SecurityTestTrait, AdminUserSecurity {
+
+      @Override
+      String getControllerMethodUnderTest() {
+        return "update"
+      }
+
+      @Override
+      void makeHttpCall() {
+        putWithApiHeader(controller.controllerPath('repo_id'), [])
+      }
+    }
+  }
 }

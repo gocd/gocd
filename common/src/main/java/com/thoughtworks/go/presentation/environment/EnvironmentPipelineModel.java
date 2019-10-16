@@ -82,4 +82,13 @@ public class EnvironmentPipelineModel implements Comparable<EnvironmentPipelineM
     public boolean isAssociatedWithEnvironment(String environmentName) {
         return this.environmentName != null && this.environmentName.equals(environmentName);
     }
+
+        public int mais() {
+    	a = 5;
+    	if (a == 5) {
+    		a = a +1;
+    	system.out.println("É isso:" + a);
+    	}
+
+    }
 }

@@ -213,7 +213,6 @@ Rails.application.routes.draw do
           get 'environments/merged' => 'merged_environments#index', as: :merged_environment_index
           resources :repositories, param: :repo_id, only: [:show, :index, :destroy, :create, :update], constraints: {repo_id: ALLOW_DOTS}
 
-          resources :packages, param: :package_id, only: [:show, :destroy, :index, :create, :update], constraints: {package_id: ALLOW_DOTS}
           namespace :internal do
             post :material_test, controller: :material_test, action: :test, as: :material_test
           end

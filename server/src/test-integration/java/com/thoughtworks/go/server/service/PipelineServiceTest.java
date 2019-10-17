@@ -17,6 +17,7 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.JobConfig;
 import com.thoughtworks.go.config.JobConfigs;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.Pipeline;
@@ -55,7 +56,11 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static com.thoughtworks.go.helper.ModificationsMother.*;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
@@ -177,6 +182,75 @@ public class PipelineServiceTest {
     @Test
     public void shouldReturnTheOrderedListOfStageIdentifiers() throws Exception {
         //TODO: does it? while we trust it, may be its a good idea to validate --shilpa & jj
+    }
+
+    @Test
+    public void shouldReturnTrueIfEitherInstanceIsaBisect() {
+        String pipelineName = "pipeline";
+        Integer fromCounter = 2;
+        Integer toCounter = 3;
+
+        Pipeline fromPipeline = mock(Pipeline.class);
+        Pipeline toPipeline = mock(Pipeline.class);
+
+        when(pipelineDao.findPipelineByNameAndCounter(pipelineName, fromCounter)).thenReturn(fromPipeline);
+        when(pipelineDao.findPipelineByNameAndCounter(pipelineName, toCounter)).thenReturn(toPipeline);
+        when(fromPipeline.isBisect()).thenReturn(true);
+        when(toPipeline.isBisect()).thenReturn(false);
+
+        boolean isBisect = service.isPipelineBisect(pipelineName, fromCounter, toCounter);
+
+        assertTrue(isBisect);
+    }
+
+    @Test
+    public void shouldReturnFalseIfBothInstancesAreNotBisect() {
+        String pipelineName = "pipeline";
+        Integer fromCounter = 2;
+        Integer toCounter = 3;
+
+        Pipeline fromPipeline = mock(Pipeline.class);
+        Pipeline toPipeline = mock(Pipeline.class);
+
+        when(pipelineDao.findPipelineByNameAndCounter(pipelineName, fromCounter)).thenReturn(fromPipeline);
+        when(pipelineDao.findPipelineByNameAndCounter(pipelineName, toCounter)).thenReturn(toPipeline);
+        when(fromPipeline.isBisect()).thenReturn(false);
+        when(toPipeline.isBisect()).thenReturn(false);
+
+        boolean isBisect = service.isPipelineBisect(pipelineName, fromCounter, toCounter);
+
+        assertFalse(isBisect);
+    }
+
+    @Test
+    public void shouldThrowExceptionIfPipelineWithFromCounterNotFound() {
+        String pipelineName = "pipeline";
+        Integer fromCounter = 2;
+        Integer toCounter = 3;
+
+        Pipeline toPipeline = mock(Pipeline.class);
+
+        when(pipelineDao.findPipelineByNameAndCounter(pipelineName, fromCounter)).thenReturn(null);
+        when(pipelineDao.findPipelineByNameAndCounter(pipelineName, toCounter)).thenReturn(toPipeline);
+
+        assertThatCode(() -> service.isPipelineBisect(pipelineName, fromCounter, toCounter))
+                .isInstanceOf(RecordNotFoundException.class)
+                .hasMessage("Pipeline `pipeline` with counter `2` not found!");
+    }
+    @Test
+    public void shouldThrowExceptionIfPipelineWithToCounterNotFound() {
+        String pipelineName = "pipeline";
+        Integer fromCounter = 2;
+        Integer toCounter = 3;
+
+        Pipeline fromPipeline = mock(Pipeline.class);
+
+        when(pipelineDao.findPipelineByNameAndCounter(pipelineName, toCounter)).thenReturn(null);
+        when(pipelineDao.findPipelineByNameAndCounter(pipelineName, fromCounter)).thenReturn(fromPipeline);
+
+        assertThatCode(() -> service.isPipelineBisect(pipelineName, fromCounter, toCounter))
+                .isInstanceOf(RecordNotFoundException.class)
+                .hasMessage("Pipeline `pipeline` with counter `3` not found!");
     }
 
     private JobConfigs jobs() {

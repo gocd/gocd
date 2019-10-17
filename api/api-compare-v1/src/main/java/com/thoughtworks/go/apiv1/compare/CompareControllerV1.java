@@ -20,8 +20,10 @@ import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.apiv1.compare.representers.ComparisonRepresenter;
+import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.server.service.ChangesetService;
+import com.thoughtworks.go.server.service.PipelineService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
@@ -40,12 +42,14 @@ public class CompareControllerV1 extends ApiController implements SparkSpringCon
 
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final ChangesetService changesetService;
+    private final PipelineService pipelineService;
 
     @Autowired
-    public CompareControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, ChangesetService changesetService) {
+    public CompareControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, ChangesetService changesetService, PipelineService pipelineService) {
         super(ApiVersion.v1);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
         this.changesetService = changesetService;
+        this.pipelineService = pipelineService;
     }
 
     @Override
@@ -74,10 +78,15 @@ public class CompareControllerV1 extends ApiController implements SparkSpringCon
         Integer toCounter = Integer.valueOf(request.params("to_counter"));
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
-        List<MaterialRevision> materialRevisions = changesetService.revisionsBetween(pipelineName, fromCounter, toCounter, currentUsername(), result, false);
+        if (fromCounter < 1 || toCounter < 1) {
+            throw new UnprocessableEntityException("The instance counters cannot be less than 1.");
+        }
+
+        boolean isBisect = pipelineService.isPipelineBisect(pipelineName, fromCounter, toCounter);
+        List<MaterialRevision> materialRevisions = changesetService.revisionsBetween(pipelineName, fromCounter, toCounter, currentUsername(), result, true);
 
         if (result.isSuccessful()) {
-            return writerForTopLevelObject(request, response, outputWriter -> ComparisonRepresenter.toJSON(outputWriter, pipelineName, fromCounter, toCounter, materialRevisions));
+            return writerForTopLevelObject(request, response, outputWriter -> ComparisonRepresenter.toJSON(outputWriter, pipelineName, fromCounter, toCounter, isBisect, materialRevisions));
         } else {
             return renderHTTPOperationResult(result, request, response);
         }

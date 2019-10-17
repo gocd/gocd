@@ -33,16 +33,17 @@ class ComparisonRepresenterTest {
     def fromCounter = 1
     def toCounter = 4
     def date = new Date()
+    def isBisect = false
     List<MaterialRevision> revisionList = getRevisions(date)
 
     def json = toObjectString({
-      ComparisonRepresenter.toJSON(it, pipelineName, fromCounter, toCounter, revisionList)
+      ComparisonRepresenter.toJSON(it, pipelineName, fromCounter, toCounter, isBisect, revisionList)
     })
 
     def expectedJson = [
         "_links"   : [
             "self": [
-                "href": "http://test.host/go/api/compare/:pipelineName/:fromCounter/:toCounter"
+                "href": "http://test.host/go/api/compare/:pipeline_name/:from_counter/:to_counter"
             ],
             "doc" : [
                 "href": apiDocsUrl("#compare")
@@ -52,6 +53,7 @@ class ComparisonRepresenterTest {
             "pipeline_name": pipelineName,
             "from_counter" : fromCounter,
             "to_counter"   : toCounter,
+            "is_bisect"    : isBisect,
             "changes"      : [
                 [
                     "material": [

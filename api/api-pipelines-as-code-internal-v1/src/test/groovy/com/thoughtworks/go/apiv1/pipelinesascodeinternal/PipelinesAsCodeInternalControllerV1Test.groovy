@@ -162,14 +162,14 @@ class PipelinesAsCodeInternalControllerV1Test implements SecurityServiceTrait, C
         assertThatResponse()
           .isOk()
           .hasJsonBody([
-            plugins: [
-              [
-                plugin_id: PLUGIN_ID,
-                files    : ["file1.yml", "file2.yml"],
-                errors   : ""
-              ]
+          plugins: [
+            [
+              plugin_id: PLUGIN_ID,
+              files    : ["file1.yml", "file2.yml"],
+              errors   : ""
             ]
-          ])
+          ]
+        ])
       }
 
       void 'returns a 422 when specified plugin is not a configrepo plugin'() {
@@ -428,6 +428,7 @@ class PipelinesAsCodeInternalControllerV1Test implements SecurityServiceTrait, C
               lock_behavior        : "none",
               name                 : PIPELINE_NAME,
               template             : null,
+              group                : null,
               origin               : [
                 type: "gocd"
               ],

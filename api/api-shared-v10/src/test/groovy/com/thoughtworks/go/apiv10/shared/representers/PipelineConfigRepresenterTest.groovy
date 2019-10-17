@@ -61,7 +61,7 @@ class PipelineConfigRepresenterTest {
 
     @Test
     void 'renders a pipeline with hal representation'() {
-      def actualJson = toObject({ PipelineConfigRepresenter.toJSON(it, getPipelineConfig()) })
+      def actualJson = toObject({ PipelineConfigRepresenter.toJSON(it, getPipelineConfig(), 'default') })
 
       assertEquals("http://test.host/go/api/admin/pipelines/wunderbar", actualJson['_links']['self']['href'])
       assertEquals("http://test.host/go/api/admin/pipelines/:pipeline_name", actualJson['_links']['find']['href'])
@@ -72,7 +72,7 @@ class PipelineConfigRepresenterTest {
 
     @Test
     void 'should serialize pipeline with template'() {
-      def actualJson = toObject({ PipelineConfigRepresenter.toJSON(it, pipelineWithTemplate()) })
+      def actualJson = toObject({ PipelineConfigRepresenter.toJSON(it, pipelineWithTemplate(), 'default') })
       assertThatJson(actualJson).isEqualTo(pipelineWithTemplateHash)
     }
 
@@ -93,6 +93,7 @@ class PipelineConfigRepresenterTest {
         lock_behavior        : 'none',
         name                 : 'wunderbar',
         template             : 'template1',
+        group                : 'default',
         origin               : [
           _links: [
             self: [
@@ -457,7 +458,7 @@ class PipelineConfigRepresenterTest {
       def pipelineConfig = new PipelineConfig(new CaseInsensitiveString('wunderbar'), '${COUNT}', null, true, MaterialConfigsMother.defaultMaterialConfigs(), new ArrayList())
       pipelineConfig.setLockBehaviorIfNecessary(PipelineConfig.LOCK_VALUE_UNLOCK_WHEN_FINISHED)
       pipelineConfig.setOrigin(new FileConfigOrigin())
-      def actualJson = toObject({ PipelineConfigRepresenter.toJSON(it, pipelineConfig) })
+      def actualJson = toObject({ PipelineConfigRepresenter.toJSON(it, pipelineConfig, 'default') })
 
       assertEquals(PipelineConfig.LOCK_VALUE_UNLOCK_WHEN_FINISHED, actualJson['lock_behavior'])
     }
@@ -471,7 +472,7 @@ class PipelineConfigRepresenterTest {
 
       pipelineConfig.validateTree(PipelineConfigSaveValidationContext.forChain(true, 'grp', config, pipelineConfig))
 
-      def actualJson = toObject({ PipelineConfigRepresenter.toJSON(it, pipelineConfig) })
+      def actualJson = toObject({ PipelineConfigRepresenter.toJSON(it, pipelineConfig, 'default') })
       assertThatJson(actualJson).isEqualTo(expectedHashWithErrors)
     }
 
@@ -481,7 +482,7 @@ class PipelineConfigRepresenterTest {
       def config = new BasicCruiseConfig(new BasicPipelineConfigs('grp', new Authorization(), getPipelineConfig()))
       pipelineConfig.validateTree(PipelineConfigSaveValidationContext.forChain(true, 'grp', config, pipelineConfig))
 
-      def actualJson = toObject({ PipelineConfigRepresenter.toJSON(it, pipelineConfig) })
+      def actualJson = toObject({ PipelineConfigRepresenter.toJSON(it, pipelineConfig, 'default') })
 
       assertThatJson(actualJson).isEqualTo(expectedHashWithNestedErrors)
     }
@@ -504,6 +505,7 @@ class PipelineConfigRepresenterTest {
       lock_behavior        : 'none',
       name                 : 'wunderbar',
       template             : null,
+      group                : 'default',
       origin               : [
         _links: [
           self: [
@@ -556,6 +558,7 @@ class PipelineConfigRepresenterTest {
         type  : 'gocd'
       ],
       template             : null,
+      group                : 'default',
       parameters           : [
         [
           name  : null, value: 'echo',
@@ -639,6 +642,7 @@ class PipelineConfigRepresenterTest {
       lock_behavior        : 'none',
       name                 : 'wunderbar',
       template             : null,
+      group                : 'default',
       origin               : [
         _links: [
           self: [

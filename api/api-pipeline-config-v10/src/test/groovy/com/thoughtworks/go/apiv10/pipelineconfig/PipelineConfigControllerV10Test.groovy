@@ -20,6 +20,7 @@ import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv10.admin.pipelineconfig.PipelineConfigControllerV10
 import com.thoughtworks.go.apiv10.admin.shared.representers.PipelineConfigRepresenter
+import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.PipelineConfig
 import com.thoughtworks.go.config.exceptions.EntityType
 import com.thoughtworks.go.config.materials.PackageMaterialConfig
@@ -111,6 +112,7 @@ class PipelineConfigControllerV10Test implements SecurityServiceTrait, Controlle
 
     @Nested
     class AsAdmin {
+      def groupName = 'default'
 
       @BeforeEach
       void setUp() {
@@ -118,6 +120,7 @@ class PipelineConfigControllerV10Test implements SecurityServiceTrait, Controlle
         loginAsAdmin()
 
         when(securityService.hasViewPermissionForPipeline(any(), any())).thenReturn(true)
+        when(goConfigService.findGroupNameByPipeline(any(CaseInsensitiveString.class))).thenReturn(groupName)
       }
 
       @Test
@@ -131,9 +134,11 @@ class PipelineConfigControllerV10Test implements SecurityServiceTrait, Controlle
 
         getWithApiHeader(controller.controllerPath("/pipeline1"))
 
+        def expectedJSON = toObjectString({ PipelineConfigRepresenter.toJSON(it, pipeline, groupName) })
+
         assertThatResponse()
           .isOk()
-          .hasBodyWithJsonObject(pipeline, PipelineConfigRepresenter)
+          .hasBodyWithJson(expectedJSON)
           .hasHeader("Etag", '"md5_for_pipeline_config"')
       }
 
@@ -176,11 +181,13 @@ class PipelineConfigControllerV10Test implements SecurityServiceTrait, Controlle
 
         getWithApiHeader(controller.controllerPath('/pipeline1'), ['if-none-match': '"junk"'])
 
+        def expectedJSON = toObjectString({ PipelineConfigRepresenter.toJSON(it, pipeline, groupName) })
+
         assertThatResponse()
           .isOk()
           .hasEtag('"md5_for_pipeline_config"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(pipeline, PipelineConfigRepresenter)
+          .hasBodyWithJson(expectedJSON)
       }
     }
   }
@@ -206,6 +213,8 @@ class PipelineConfigControllerV10Test implements SecurityServiceTrait, Controlle
     @Nested
     class AsAdmin {
 
+      def groupName = "default"
+
       @BeforeEach
       void setUp() {
         enableSecurity()
@@ -213,6 +222,7 @@ class PipelineConfigControllerV10Test implements SecurityServiceTrait, Controlle
 
         when(securityService.hasViewPermissionForPipeline(any(), any())).thenReturn(true)
         when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(null)
+        when(goConfigService.findGroupNameByPipeline(any(CaseInsensitiveString.class))).thenReturn(groupName)
       }
 
       @Test
@@ -222,13 +232,16 @@ class PipelineConfigControllerV10Test implements SecurityServiceTrait, Controlle
         when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(null, pipelineConfig)
 
         postWithApiHeader(controller.controllerPath(), [group: "new_grp", pipeline: toObject({
-          PipelineConfigRepresenter.toJSON(it, pipelineConfig)
+          PipelineConfigRepresenter.toJSON(it, pipelineConfig, groupName)
         })])
 
         verify(pipelineConfigService).createPipelineConfig(any(Username.class) as Username, any(PipelineConfig.class) as PipelineConfig, any(HttpLocalizedOperationResult.class) as HttpLocalizedOperationResult, eq("new_grp"))
+
+        def expectedJSON = toObjectString({ PipelineConfigRepresenter.toJSON(it, pipelineConfig, groupName) })
+
         assertThatResponse()
           .isOk()
-          .hasBodyWithJsonObject(pipelineConfig, PipelineConfigRepresenter)
+          .hasBodyWithJson(expectedJSON)
       }
 
       @Test
@@ -241,13 +254,16 @@ class PipelineConfigControllerV10Test implements SecurityServiceTrait, Controlle
 
         def pauseCause = "test-pause-cause"
         postWithApiHeader(controller.controllerPath(), ["X-pause-pipeline": "true", "X-pause-cause": pauseCause], [group: "new_grp", pipeline: toObject({
-          PipelineConfigRepresenter.toJSON(it, pipelineConfig)
+          PipelineConfigRepresenter.toJSON(it, pipelineConfig, groupName)
         })])
 
         verify(pipelineConfigService).createPipelineConfig(any(Username.class) as Username, any(PipelineConfig.class) as PipelineConfig, any(HttpLocalizedOperationResult.class) as HttpLocalizedOperationResult, eq("new_grp"))
+
+        def expectedJSON = toObjectString({ PipelineConfigRepresenter.toJSON(it, pipelineConfig, groupName) })
+
         assertThatResponse()
           .isOk()
-          .hasBodyWithJsonObject(pipelineConfig, PipelineConfigRepresenter)
+          .hasBodyWithJson(expectedJSON)
 
         verify(pipelinePauseService).pause(eq(pipelineName), eq(pauseCause), any(Username.class))
       }
@@ -262,13 +278,16 @@ class PipelineConfigControllerV10Test implements SecurityServiceTrait, Controlle
         when(pipelinePauseService.isPaused('pipeline1')).thenReturn(true)
 
         postWithApiHeader(controller.controllerPath(), ["X-pause-pipeline": "true"], [group: "new_grp", pipeline: toObject({
-          PipelineConfigRepresenter.toJSON(it, pipelineConfig)
+          PipelineConfigRepresenter.toJSON(it, pipelineConfig, groupName)
         })])
 
         verify(pipelineConfigService).createPipelineConfig(any(Username.class) as Username, any(PipelineConfig.class) as PipelineConfig, any(HttpLocalizedOperationResult.class) as HttpLocalizedOperationResult, eq("new_grp"))
+
+        def expectedJSON = toObjectString({ PipelineConfigRepresenter.toJSON(it, pipelineConfig, groupName) })
+
         assertThatResponse()
           .isOk()
-          .hasBodyWithJsonObject(pipelineConfig, PipelineConfigRepresenter)
+          .hasBodyWithJson(expectedJSON)
 
         def pauseCause = "No pause cause was specified when pipeline was created via API"
         verify(pipelinePauseService).pause(eq(pipelineName), eq(pauseCause), any(Username.class))
@@ -283,13 +302,16 @@ class PipelineConfigControllerV10Test implements SecurityServiceTrait, Controlle
         when(pipelinePauseService.isPaused('pipeline1')).thenReturn(false)
 
         postWithApiHeader(controller.controllerPath(), ["X-pause-pipeline": "false"], [group: "new_grp", pipeline: toObject({
-          PipelineConfigRepresenter.toJSON(it, pipelineConfig)
+          PipelineConfigRepresenter.toJSON(it, pipelineConfig, groupName)
         })])
 
         verify(pipelineConfigService).createPipelineConfig(any(Username.class) as Username, any(PipelineConfig.class) as PipelineConfig, any(HttpLocalizedOperationResult.class) as HttpLocalizedOperationResult, eq("new_grp"))
+
+        def expectedJSON = toObjectString({ PipelineConfigRepresenter.toJSON(it, pipelineConfig, groupName) })
+
         assertThatResponse()
           .isOk()
-          .hasBodyWithJsonObject(pipelineConfig, PipelineConfigRepresenter)
+          .hasBodyWithJson(expectedJSON)
 
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult()
         PipelinePauseChecker checker = new PipelinePauseChecker(pipelineName, pipelinePauseService)
@@ -307,13 +329,16 @@ class PipelineConfigControllerV10Test implements SecurityServiceTrait, Controlle
         when(pipelinePauseService.isPaused('pipeline1')).thenReturn(false)
 
         postWithApiHeader(controller.controllerPath(), [group: "new_grp", pipeline: toObject({
-          PipelineConfigRepresenter.toJSON(it, pipelineConfig)
+          PipelineConfigRepresenter.toJSON(it, pipelineConfig, groupName)
         })])
 
         verify(pipelineConfigService).createPipelineConfig(any(Username.class) as Username, any(PipelineConfig.class) as PipelineConfig, any(HttpLocalizedOperationResult.class) as HttpLocalizedOperationResult, eq("new_grp"))
+
+        def expectedJSON = toObjectString({ PipelineConfigRepresenter.toJSON(it, pipelineConfig, groupName) })
+
         assertThatResponse()
           .isOk()
-          .hasBodyWithJsonObject(pipelineConfig, PipelineConfigRepresenter)
+          .hasBodyWithJson(expectedJSON)
 
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult()
         PipelinePauseChecker checker = new PipelinePauseChecker(pipelineName, pipelinePauseService)
@@ -421,17 +446,20 @@ class PipelineConfigControllerV10Test implements SecurityServiceTrait, Controlle
           'accept'      : controller.mimeType,
           'If-Match'    : 'cached-md5',
           'content-type': 'application/json'
-        ], toObjectString({ PipelineConfigRepresenter.toJSON(it, pipelineConfig) }))
+        ], toObjectString({ PipelineConfigRepresenter.toJSON(it, pipelineConfig, groupName) }))
       }
     }
 
     @Nested
     class AsAdmin {
 
+      def groupName = "default"
+
       @BeforeEach
       void setup() {
         enableSecurity()
         loginAsAdmin()
+        when(goConfigService.findGroupNameByPipeline(any(CaseInsensitiveString.class))).thenReturn(groupName)
       }
 
       @Test
@@ -448,12 +476,14 @@ class PipelineConfigControllerV10Test implements SecurityServiceTrait, Controlle
         ]
 
         putWithApiHeader(controller.controllerPath("/pipeline1"), headers, toObject({
-          PipelineConfigRepresenter.toJSON(it, pipelineConfig)
+          PipelineConfigRepresenter.toJSON(it, pipelineConfig, groupName)
         }))
+
+        def expectedJSON = toObjectString({ PipelineConfigRepresenter.toJSON(it, pipelineConfig, groupName) })
 
         assertThatResponse()
           .isOk()
-          .hasBodyWithJsonObject(pipelineConfig, PipelineConfigRepresenter)
+          .hasBodyWithJson(expectedJSON)
       }
 
       @Test

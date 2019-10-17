@@ -25,6 +25,7 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv10.admin.shared.representers.PipelineConfigRepresenter;
 import com.thoughtworks.go.apiv10.admin.shared.representers.stages.ConfigHelperOptions;
+import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.materials.PasswordDeserializer;
@@ -153,7 +154,7 @@ public class PipelineConfigControllerV10 extends ApiController implements SparkS
         if (shouldPausePipeline(req)) {
             String pauseCause = getUserSpecifiedOrDefaultPauseCause(req);
             pipelinePauseService.pause(pipelineConfigFromRequest.name().toString(), pauseCause, userName);
-        } else if (Toggles.isToggleOn(Toggles.TEST_DRIVE) && !goCache.getOrDefault(SAVE_AND_RUN_CTA, false)){
+        } else if (Toggles.isToggleOn(Toggles.TEST_DRIVE) && !goCache.getOrDefault(SAVE_AND_RUN_CTA, false)) {
             goCache.put(SAVE_AND_RUN_CTA, true);
             goCache.put(USAGE_DATA_IGNORE_LAST_UPDATED_AT, true);
         }
@@ -162,12 +163,15 @@ public class PipelineConfigControllerV10 extends ApiController implements SparkS
     }
 
     public String show(Request req, Response res) throws IOException {
-        PipelineConfig pipelineConfig = fetchEntityFromConfig(req.params("pipeline_name"));
+        String pipelineName = req.params("pipeline_name");
+        PipelineConfig pipelineConfig = fetchEntityFromConfig(pipelineName);
+        String groupName = goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(pipelineName));
+
         if (isGetOrHeadRequestFresh(req, pipelineConfig)) {
             return notModified(res);
         } else {
             setEtagHeader(pipelineConfig, res);
-            return writerForTopLevelObject(req, res, writer -> PipelineConfigRepresenter.toJSON(writer, pipelineConfig));
+            return writerForTopLevelObject(req, res, writer -> PipelineConfigRepresenter.toJSON(writer, pipelineConfig, groupName));
         }
     }
 
@@ -188,7 +192,8 @@ public class PipelineConfigControllerV10 extends ApiController implements SparkS
 
     @Override
     public Consumer<OutputWriter> jsonWriter(PipelineConfig pipelineConfig) {
-        return writer -> PipelineConfigRepresenter.toJSON(writer, pipelineConfig);
+        String groupName = goConfigService.findGroupNameByPipeline(pipelineConfig.name());
+        return writer -> PipelineConfigRepresenter.toJSON(writer, pipelineConfig, groupName);
     }
 
     @Override

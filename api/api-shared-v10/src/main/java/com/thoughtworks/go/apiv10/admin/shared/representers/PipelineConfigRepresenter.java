@@ -20,11 +20,11 @@ import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.EnvironmentVariableRepresenter;
 import com.thoughtworks.go.api.representers.ErrorGetter;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.apiv10.admin.shared.representers.stages.ConfigHelperOptions;
-import com.thoughtworks.go.apiv10.admin.shared.representers.stages.StageRepresenter;
 import com.thoughtworks.go.apiv10.admin.shared.representers.configorigin.ConfigRepoOriginRepresenter;
 import com.thoughtworks.go.apiv10.admin.shared.representers.configorigin.ConfigXmlOriginRepresenter;
 import com.thoughtworks.go.apiv10.admin.shared.representers.materials.MaterialsRepresenter;
+import com.thoughtworks.go.apiv10.admin.shared.representers.stages.ConfigHelperOptions;
+import com.thoughtworks.go.apiv10.admin.shared.representers.stages.StageRepresenter;
 import com.thoughtworks.go.apiv10.admin.shared.representers.trackingtool.TrackingToolRepresenter;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.TimerConfig;
@@ -38,7 +38,7 @@ import java.util.HashMap;
 
 public class PipelineConfigRepresenter {
 
-    public static void toJSON(OutputWriter jsonWriter, PipelineConfig pipelineConfig) {
+    public static void toJSON(OutputWriter jsonWriter, PipelineConfig pipelineConfig, String groupName) {
         jsonWriter.addLinks(linksWriter -> linksWriter
                 .addLink("self", Routes.PipelineConfig.name(pipelineConfig.getName().toString()))
                 .addAbsoluteLink("doc", Routes.PipelineConfig.DOC)
@@ -61,6 +61,7 @@ public class PipelineConfigRepresenter {
         jsonWriter.add("lock_behavior", pipelineConfig.getLockBehavior());
         jsonWriter.add("name", pipelineConfig.name());
         jsonWriter.add("template", pipelineConfig.getTemplateName());
+        jsonWriter.add("group", groupName);
         writeOrigin(jsonWriter, pipelineConfig.getOrigin());
         jsonWriter.addChildList("parameters", paramsWriter -> ParamRepresenter.toJSONArray(paramsWriter, pipelineConfig.getParams()));
         jsonWriter.addChildList("environment_variables", envVarsWriter -> EnvironmentVariableRepresenter.toJSON(envVarsWriter, pipelineConfig.getVariables()));

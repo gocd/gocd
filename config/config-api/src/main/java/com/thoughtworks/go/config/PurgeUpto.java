@@ -30,12 +30,4 @@ public class PurgeUpto {
     @ConfigValue
     private Double purgeUptoDiskSpace;
 
-    public PurgeUpto(String purgeUptoDiskSpace) {
-
-        this.purgeUptoDiskSpace = Double.valueOf(purgeUptoDiskSpace);
-    }
-
-    public void setPurgeUptoDiskSpace(String purgeUpto) {
-        purgeUptoDiskSpace = Double.valueOf(purgeUpto);
-    }
 }

@@ -72,6 +72,17 @@ public class JsonReader {
         return Optional.empty();
     }
 
+    public Optional<Double> optDouble(String property) {
+        if (hasJsonObject(property)) {
+            try {
+                return Optional.ofNullable(jsonObject.get(property).getAsDouble());
+            } catch (Exception e) {
+                throw haltBecausePropertyIsNotAJsonString(property, jsonObject);
+            }
+        }
+        return Optional.empty();
+    }
+
     public Optional<String> optString(String property) {
         if (hasJsonObject(property)) {
             try {
@@ -189,6 +200,11 @@ public class JsonReader {
 
     public JsonReader readBooleanIfPresent(String key, Consumer<Boolean> consumer) {
         optBoolean(key).ifPresent(consumer);
+        return this;
+    }
+
+    public JsonReader readDoubleIfPresent(String key, Consumer<Double> consumer) {
+        optDouble(key).ifPresent(consumer);
         return this;
     }
 }

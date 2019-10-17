@@ -19,11 +19,15 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
 import {EnvironmentsAPIs} from "models/new-environments/environments_apis";
+import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
+import {HeaderPanel} from "views/components/header_panel";
+import {CreateEnvModal} from "views/pages/new-environments/create_env_modal";
 import {EnvironmentsWidget} from "views/pages/new-environments/environments_widget";
 import {Page, PageState} from "views/pages/page";
+import {AddOperation, SaveOperation} from "views/pages/page_operations";
 
-interface State {
+interface State extends AddOperation<EnvironmentWithOrigin>, SaveOperation {
   onSuccessfulSave: (msg: m.Children) => void;
 }
 
@@ -32,9 +36,19 @@ export class NewEnvironmentsPage extends Page<null, State> {
 
   oninit(vnode: m.Vnode<null, State>) {
     super.oninit(vnode);
+
+    vnode.state.onAdd = (e: MouseEvent) => {
+      e.stopPropagation();
+      this.flashMessage.clear();
+      new CreateEnvModal(this.environments, vnode.state.onSuccessfulSave).render();
+    };
+
     vnode.state.onSuccessfulSave = (msg: m.Children) => {
       this.flashMessage.setMessage(MessageType.success, msg);
-      this.fetchData(vnode);
+    };
+
+    vnode.state.onError = (msg) => {
+      this.flashMessage.alert(msg);
     };
   }
 
@@ -74,5 +88,12 @@ export class NewEnvironmentsPage extends Page<null, State> {
                                            this.pageState = PageState.OK;
                                            this.environments(successResponse.body);
                                          }, this.setErrorState));
+  }
+
+  headerPanel(vnode: m.Vnode<null, State>): any {
+    const headerButtons = [];
+    headerButtons.push(<Buttons.Primary onclick={vnode.state.onAdd.bind(vnode.state)}>Add
+      Environment</Buttons.Primary>);
+    return <HeaderPanel title="Environments" buttons={headerButtons}/>;
   }
 }

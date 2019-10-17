@@ -17,6 +17,8 @@
 import {EnvironmentCRUD} from "models/environments/environment_crud";
 import {TestData} from "models/environments/spec/test_data";
 import {EnvironmentsJSON} from "models/environments/types";
+import {EnvironmentWithOrigin} from "models/new-environments/environments";
+import data from "models/new-environments/spec/test_data";
 
 describe("EnvironmentCRUD", () => {
   beforeEach(() => jasmine.Ajax.install());
@@ -33,10 +35,35 @@ describe("EnvironmentCRUD", () => {
     expect(request.data()).toEqual(toJSON({} as EnvironmentsJSON));
     expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v3+json");
   });
+
+  it("should make create request", () => {
+    jasmine.Ajax.stubRequest("/go/api/admin/environments").andReturn(environmentWithEtag());
+
+    const environment = EnvironmentWithOrigin.fromJSON(data.environment_json());
+    EnvironmentCRUD.create(environment);
+
+    const request = jasmine.Ajax.requests.mostRecent();
+
+    expect(request.url).toEqual("/go/api/admin/environments");
+    expect(request.method).toEqual("POST");
+    expect(request.data()).toEqual(toJSON(environment));
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v3+json");
+  });
 });
 
 function toJSON(object: any) {
   return JSON.parse(JSON.stringify(object));
+}
+
+function environmentWithEtag() {
+  return {
+    status: 200,
+    responseHeaders: {
+      "Content-Type": "application/vnd.go.cd.v2+json; charset=utf-8",
+      "ETag": "some-etag"
+    },
+    responseText: JSON.stringify(TestData.newEnvironment())
+  };
 }
 
 function listEnvironmentResponse() {

@@ -46,6 +46,10 @@ export class Agents extends Array<AgentWithOrigin> {
   }
 
   static fromJSON(agents: EnvironmentAgentJSON[]) {
-    return new Agents(...agents.map(AgentWithOrigin.fromJSON));
+    if (agents) {
+      return new Agents(...agents.map(AgentWithOrigin.fromJSON));
+    } else {
+      return new Agents();
+    }
   }
 }

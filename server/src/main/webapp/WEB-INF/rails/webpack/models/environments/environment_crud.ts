@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-import {ApiRequestBuilder, ApiResult, ApiVersion} from "helpers/api_request_builder";
+import {ApiRequestBuilder, ApiResult, ApiVersion, ObjectWithEtag} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
 import {Environments} from "models/environments/types";
+import {EnvironmentJSON, EnvironmentWithOrigin} from "models/new-environments/environments";
 
 export class EnvironmentCRUD {
   private static API_VERSION_HEADER = ApiVersion.v3;
@@ -29,5 +30,22 @@ export class EnvironmentCRUD {
                               });
                             });
 
+  }
+
+  static create(environment: EnvironmentWithOrigin) {
+    return ApiRequestBuilder.POST(SparkRoutes.apiEnvironmentPath(), this.API_VERSION_HEADER, {payload: environment})
+                            .then(this.extractObjectWithEtag());
+  }
+
+  private static extractObjectWithEtag() {
+    return (result: ApiResult<string>) => {
+      return result.map((body) => {
+        const environmentJSON = JSON.parse(body) as EnvironmentJSON;
+        return {
+          object: EnvironmentWithOrigin.fromJSON(environmentJSON),
+          etag: result.getEtag()
+        } as ObjectWithEtag<EnvironmentWithOrigin>;
+      });
+    };
   }
 }

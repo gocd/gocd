@@ -24,7 +24,7 @@ import {
   EnvironmentVariablesWithOrigin
 } from "models/new-environments/environment_environment_variables";
 import {EnvironmentsAPIs} from "models/new-environments/environments_apis";
-import {Origin, OriginJSON} from "models/origin";
+import {Origin, OriginJSON, OriginType} from "models/origin";
 
 export interface EnvironmentJSON {
   name: string;
@@ -67,8 +67,14 @@ export class EnvironmentWithOrigin extends ValidatableMixin {
   }
 
   static fromJSON(data: EnvironmentJSON) {
+    let origins = [];
+    if (data.origins) {
+      origins = data.origins.map((o) => Origin.fromJSON(o));
+    } else {
+      origins.push(new Origin(OriginType.GoCD));
+    }
     return new EnvironmentWithOrigin(data.name,
-                                     data.origins.map((o) => Origin.fromJSON(o)),
+                                     origins,
                                      Agents.fromJSON(data.agents),
                                      Pipelines.fromJSON(data.pipelines),
                                      EnvironmentVariablesWithOrigin.fromJSON(data.environment_variables));

@@ -21,6 +21,7 @@ import lombok.*;
 import lombok.experimental.Accessors;
 
 import static com.thoughtworks.go.config.ServerConfig.PURGE_START;
+import static com.thoughtworks.go.config.ServerConfig.PURGE_UPTO;
 
 @Getter
 @Setter
@@ -45,14 +46,16 @@ public class PurgeSettings implements Validatable {
         Double purgeUptoDiskSpace = purgeUpto.getPurgeUptoDiskSpace();
         Double purgeStartDiskSpace = purgeStart.getPurgeStartDiskSpace();
 
-        if (purgeUptoDiskSpace == null) {
+        if (purgeUptoDiskSpace == null && purgeStartDiskSpace == null) {
             return;
         }
 
-        if (purgeStartDiskSpace == null || purgeStartDiskSpace == 0) {
-            errors().add(PURGE_START, "Error in artifact cleanup values. The trigger value is has to be specified when a goal is set");
-        } else if (purgeStartDiskSpace > purgeUptoDiskSpace) {
+        if (purgeUptoDiskSpace != null && (purgeStartDiskSpace == null || purgeStartDiskSpace == 0)) {
+            errors().add(PURGE_START, "Error in artifact cleanup values. The trigger value has to be specified when a goal is set");
+        } else if (purgeUptoDiskSpace != null && purgeStartDiskSpace > purgeUptoDiskSpace) {
             errors().add(PURGE_START, String.format("Error in artifact cleanup values. The trigger value (%sGB) should be less than the goal (%sGB)", purgeStartDiskSpace, purgeUptoDiskSpace));
+        } else if (purgeUptoDiskSpace == null) {
+            errors().add(PURGE_UPTO, "Error in artifact cleanup values. Please specify goal value");
         }
     }
 

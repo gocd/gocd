@@ -78,9 +78,9 @@ public class UpdateArtifactConfigCommandTest {
             cruiseConfig.server().setArtifactConfig(artifactConfig);
             UpdateArtifactConfigCommand updateArtifactConfigCommand = new UpdateArtifactConfigCommand(artifactConfig);
 
-            assertThatCode(() -> updateArtifactConfigCommand.isValid(cruiseConfig)).isInstanceOf(GoConfigInvalidException.class).hasMessage("Error in artifact cleanup values. The trigger value is has to be specified when a goal is set");
+            assertThatCode(() -> updateArtifactConfigCommand.isValid(cruiseConfig)).isInstanceOf(GoConfigInvalidException.class).hasMessage("Error in artifact cleanup values. The trigger value has to be specified when a goal is set");
             assertThat(artifactConfig.getPurgeSettings().errors().size()).isEqualTo(1);
-            assertThat(artifactConfig.getPurgeSettings().errors().firstError()).isEqualTo("Error in artifact cleanup values. The trigger value is has to be specified when a goal is set");
+            assertThat(artifactConfig.getPurgeSettings().errors().firstError()).isEqualTo("Error in artifact cleanup values. The trigger value has to be specified when a goal is set");
 
         }
     }

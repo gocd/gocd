@@ -185,4 +185,30 @@ class JsonReaderTest {
       assertThat(reader.getBooleanOrDefault("non-existing-property", false)).isFalse()
     }
   }
+
+  @Nested
+  class Double {
+    @Test
+    void 'should read optional value when present'() {
+      double doubleValue = 2.3456
+      def reader = GsonTransformer.instance.jsonReaderFrom(["foo": 2.3456])
+      assertThat(reader.optDouble("foo").get()).isEqualTo(doubleValue)
+    }
+
+    @Test
+    void 'should read optional value when absent'() {
+      def reader = GsonTransformer.instance.jsonReaderFrom(["xyz": 2.3456])
+      assertThat(reader.optDouble("foo").isPresent()).isFalse()
+    }
+
+    @Test
+    void 'should blow up if reading wrong type'() {
+      def reader = GsonTransformer.instance.jsonReaderFrom(["foo": ["bar": "baz"]])
+      assertThatExceptionOfType(HaltException.class)
+        .isThrownBy({ reader.optDouble("foo") })
+      assertThatExceptionOfType(HaltException.class)
+        .isThrownBy({ reader.optDouble("foo") })
+    }
+  }
+
 }

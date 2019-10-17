@@ -61,8 +61,8 @@ public class ArtifactConfigRepresenter {
         purge_settings.ifPresent(filterReader -> {
             PurgeStart purgeStart = updatedArtifactConfig.getPurgeSettings().getPurgeStart();
             PurgeUpto purgeUpto = updatedArtifactConfig.getPurgeSettings().getPurgeUpto();
-            filterReader.readStringIfPresent("purge_start_disk_space", purgeStart::setPurgeStartDiskSpace);
-            filterReader.readStringIfPresent("purge_upto_disk_space", purgeUpto::setPurgeUptoDiskSpace);
+            filterReader.readDoubleIfPresent("purge_start_disk_space", purgeStart::setPurgeStartDiskSpace);
+            filterReader.readDoubleIfPresent("purge_upto_disk_space", purgeUpto::setPurgeUptoDiskSpace);
         });
 
         return updatedArtifactConfig;

@@ -30,11 +30,4 @@ public class PurgeStart {
     @ConfigValue
     private Double purgeStartDiskSpace;
 
-    public PurgeStart(String purgeStartDiskSpace) {
-        this.purgeStartDiskSpace = Double.valueOf(purgeStartDiskSpace);
-    }
-
-    public void setPurgeStartDiskSpace(String purgeStart) {
-        this.purgeStartDiskSpace = Double.valueOf(purgeStart);
-    }
 }

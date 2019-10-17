@@ -257,7 +257,8 @@ public class PipelinesAsCodeInternalControllerV1 extends ApiController implement
     }
 
     private Consumer<OutputWriter> jsonWriter(PipelineConfig pipelineConfig) {
-        return writer -> PipelineConfigRepresenter.toJSON(writer, pipelineConfig);
+        String groupName = goConfigService.findGroupNameByPipeline(pipelineConfig.name());
+        return writer -> PipelineConfigRepresenter.toJSON(writer, pipelineConfig, groupName);
     }
 
     private ConfigRepoPlugin pluginFromRequest(Request req) {

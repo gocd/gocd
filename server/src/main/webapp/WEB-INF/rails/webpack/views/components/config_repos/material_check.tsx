@@ -30,9 +30,9 @@ const BUTTON_BUSY_TEXT = `Scanning Repository${ELLIPSIS}`;
 
 interface LifecycleHooks {
   prerequisite?: () => boolean;
-  success?: (...args: any[]) => any;
-  failure?: (err: ErrorResponse) => any;
-  complete?: (...args: any[]) => any;
+  success?: (json: MaterialConfigFilesJSON, pluginId: string) => void;
+  failure?: (err: ErrorResponse, status: number) => void;
+  complete?: () => void;
 }
 
 interface Attrs extends LifecycleHooks {
@@ -73,14 +73,15 @@ export class MaterialCheck extends MithrilViewComponent<Attrs> {
     this.materialCheckInProgress();
     material.pacConfigFiles(pluginId).then((result: ApiResult<any>) => {
       result.do((s) => {
-        this.materialCheckSuccessful(JSON.parse(s.body), pluginId);
+        const data = JSON.parse(s.body);
+        this.materialCheckSuccessful(data, pluginId);
         if (!!options.success) {
-          options.success();
+          options.success(data, pluginId);
         }
       }, (err) => {
         this.materialCheckFailed(err, result.getStatusCode());
         if (!!options.failure) {
-          options.failure(err);
+          options.failure(err, result.getStatusCode());
         }
       });
     }).finally(() => {
@@ -112,7 +113,7 @@ export class MaterialCheck extends MithrilViewComponent<Attrs> {
     const files = configFiles.for(pluginId);
 
     if (!files || (!files.hasErrors() && files.isEmpty())) {
-      this.materialCheckMessage = <FlashMessage type={MessageType.info} message={<code class={styles.materialCheckMessage}>No config files found for the selected configuration language.</code>}/>;
+      this.materialCheckMessage = <FlashMessage type={MessageType.alert} message={<code class={styles.materialCheckMessage}>No config files found for the selected configuration language. Did you push your configuration file to your repository?</code>}/>;
       return;
     }
 

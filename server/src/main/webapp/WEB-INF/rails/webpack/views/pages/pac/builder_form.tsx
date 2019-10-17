@@ -43,6 +43,7 @@ const uipCss: typeof uipStyles = override(uipStyles, {
 
 interface Attrs extends PipelineConfigVMAware {
   onContentChange?: (changed: boolean) => void;
+  onMaterialChange?: (e: Event) => void;
 }
 
 export class BuilderForm extends MithrilComponent<Attrs> {
@@ -65,7 +66,7 @@ export class BuilderForm extends MithrilComponent<Attrs> {
     const { pipeline, material, isUsingTemplate } = vnode.attrs.vm;
 
     return <div class={defaultStyles.builderForm}>
-      <UserInputPane css={uipCss} heading="Part 1: Material">
+      <UserInputPane css={uipCss} heading="Part 1: Material" onchange={vnode.attrs.onMaterialChange}>
         <MaterialEditor material={material}/>
       </UserInputPane>
 

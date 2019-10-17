@@ -131,7 +131,7 @@ describe("ConfigRepos: MaterialCheck", () => {
           m.redraw.sync();
           expect(helper.byTestId("material-check-button").matches("[disabled]")).toBe(false); // enabled on complete
           expect(helper.byTestId("material-check-icon")).toHaveClass(styles.materialCheckSuccess);
-          expect(helper.byTestId("flash-message-info")).toContainText("No config files found");
+          expect(helper.byTestId("flash-message-alert")).toContainText("No config files found");
           done();
         }, 0);
       }}/>);

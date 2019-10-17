@@ -24,7 +24,7 @@ import static org.junit.Assert.assertThat;
 public class PurgeSettingsTest {
 
     @Test
-    public void validate_shouldFailIfThePurgeStartIsBiggerThanPurgeUpto() {
+    public void validate_shouldAddErrorsIfThePurgeStartIsBiggerThanPurgeUpto() {
         PurgeSettings purgeSettings = createPurgeSettings(20.1, 20.05);
 
         assertThat(purgeSettings.errors().isEmpty(), is(true));
@@ -36,7 +36,7 @@ public class PurgeSettingsTest {
     }
 
     @Test
-    public void validate_shouldFailIfThePurgeStartIsNotSpecifiedButPurgeUptoIs() {
+    public void validate_shouldAddErrorsIfThePurgeStartIsNotSpecifiedButPurgeUptoIs() {
         PurgeSettings purgeSettings = createPurgeSettings(null, 20.05);
 
         assertThat(purgeSettings.errors().isEmpty(), is(true));
@@ -44,11 +44,11 @@ public class PurgeSettingsTest {
         purgeSettings.validate(null);
 
         assertThat(purgeSettings.errors().isEmpty(), is(false));
-        assertThat(purgeSettings.errors().on(ServerConfig.PURGE_START), is("Error in artifact cleanup values. The trigger value is has to be specified when a goal is set"));
+        assertThat(purgeSettings.errors().on(ServerConfig.PURGE_START), is("Error in artifact cleanup values. The trigger value has to be specified when a goal is set"));
     }
 
     @Test
-    public void validate_shouldFailIfThePurgeStartIs0SpecifiedButPurgeUptoIs() {
+    public void validate_shouldAddErrorsIfThePurgeStartIs0SpecifiedButPurgeUptoIs() {
         PurgeSettings purgeSettings = createPurgeSettings(0.0, 20.05);
 
         assertThat(purgeSettings.errors().isEmpty(), is(true));
@@ -56,11 +56,11 @@ public class PurgeSettingsTest {
         purgeSettings.validate(null);
 
         assertThat(purgeSettings.errors().isEmpty(), is(false));
-        assertThat(purgeSettings.errors().on(ServerConfig.PURGE_START), is("Error in artifact cleanup values. The trigger value is has to be specified when a goal is set"));
+        assertThat(purgeSettings.errors().on(ServerConfig.PURGE_START), is("Error in artifact cleanup values. The trigger value has to be specified when a goal is set"));
     }
 
     @Test
-    public void validate_shouldPassIfThePurgeStartIsSmallerThanPurgeUpto() {
+    public void validate_shouldNotAddErrorsIfThePurgeStartIsSmallerThanPurgeUpto() {
         PurgeSettings purgeSettings = createPurgeSettings(20.0, 20.05);
 
         assertThat(purgeSettings.errors().isEmpty(), is(true));
@@ -71,7 +71,7 @@ public class PurgeSettingsTest {
     }
 
     @Test
-    public void validate_shouldPassIfThePurgeStartAndPurgeUptoAreBothNotSet() {
+    public void validate_shouldNotAddErrorsIfThePurgeStartAndPurgeUptoAreBothNotSet() {
         PurgeSettings purgeSettings = createPurgeSettings(null, null);
 
         assertThat(purgeSettings.errors().isEmpty(), is(true));
@@ -79,6 +79,30 @@ public class PurgeSettingsTest {
         purgeSettings.validate(null);
 
         assertThat(purgeSettings.errors().isEmpty(), is(true));
+    }
+
+    @Test
+    public void validate_shouldAddErrorIfThePurgeUptoIsNull() {
+        PurgeSettings purgeSettings = createPurgeSettings(10.0, null);
+
+        assertThat(purgeSettings.errors().isEmpty(), is(true));
+
+        purgeSettings.validate(null);
+
+        assertThat(purgeSettings.errors().isEmpty(), is(false));
+        assertThat(purgeSettings.errors().on(ServerConfig.PURGE_UPTO), is("Error in artifact cleanup values. Please specify goal value"));
+    }
+
+    @Test
+    public void validate_shouldNotAddErrorIfThePurgeUptoAndPurgeStartIsZero() {
+        PurgeSettings purgeSettings = createPurgeSettings(0.0, 0.0);
+
+        assertThat(purgeSettings.errors().isEmpty(), is(true));
+
+        purgeSettings.validate(null);
+
+        assertThat(purgeSettings.errors().isEmpty(), is(false));
+        assertThat(purgeSettings.errors().on(ServerConfig.PURGE_START), is("Error in artifact cleanup values. The trigger value has to be specified when a goal is set"));
     }
 
     private PurgeSettings createPurgeSettings(Double purgeStart, Double purgeUpto) {

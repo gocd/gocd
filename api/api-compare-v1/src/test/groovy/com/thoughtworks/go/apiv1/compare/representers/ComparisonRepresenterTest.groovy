@@ -43,7 +43,7 @@ class ComparisonRepresenterTest {
     def expectedJson = [
         "_links"   : [
             "self": [
-                "href": "http://test.host/go/api/compare/:pipeline_name/:from_counter/:to_counter"
+                "href": "http://test.host/go/api/pipelines/:pipeline_name/compare/:from_counter/:to_counter"
             ],
             "doc" : [
                 "href": apiDocsUrl("#compare")

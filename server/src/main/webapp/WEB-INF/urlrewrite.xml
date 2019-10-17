@@ -44,8 +44,8 @@
 
   <rule>
     <name>Compare API</name>
-    <from>^/api/compare/([^/]+)/([^/]+)/([^/]+)(/?)$</from>
-    <to last="true">/spark/api/compare/${escape:$1}/${escape:$2}/${escape:$3}</to>
+    <from>^/api/pipelines/([^/]+)/compare/([^/]+)/([^/]+)(/?)$</from>
+    <to last="true">/spark/api/pipelines/${escape:$1}/compare/${escape:$2}/${escape:$3}</to>
   </rule>
 
   <rule>

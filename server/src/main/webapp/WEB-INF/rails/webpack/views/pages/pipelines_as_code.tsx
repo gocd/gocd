@@ -122,7 +122,11 @@ export class PipelinesAsCodeCreatePage extends Page {
 
       <CodeScroller>
         <FillableSection>
-          <BuilderForm vm={vm} onContentChange={(updated) => this.onContentChange(isSupportedScm, updated)}/>
+          <BuilderForm vm={vm} onContentChange={(updated) => this.onContentChange(isSupportedScm, updated)} onMaterialChange={(e) => {
+            if (syncConfigRepoWithMaterial()) {
+              this.allowCreate(false);
+            }
+          }}/>
           <PreviewPane content={this.content} mimeType={this.mimeType}/>
         </FillableSection>
       </CodeScroller>,
@@ -141,7 +145,7 @@ export class PipelinesAsCodeCreatePage extends Page {
       <FillableSection css={spanningFillableCss}>
         <div class={css.subheading}><SectionHeading>Register Your Pipelines as Code Repo with GoCD</SectionHeading></div>
 
-        <UserInputPane>
+        <UserInputPane onchange={(e) => { this.allowCreate(false); }}>
           <CheckboxField
             property={syncConfigRepoWithMaterial}
             label={<span>Use the same SCM repository from the form above to store my <strong>Pipelines as Code</strong> definitions <em class={css.hint}>(suitable for most setups)</em></span>}

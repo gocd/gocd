@@ -22,15 +22,16 @@ type Styles = typeof css;
 
 interface Attrs extends RestyleAttrs<Styles> {
   heading?: m.Children;
+  onchange?: (e: Event) => void;
 }
 
 export class UserInputPane extends RestyleComponent<Styles, Attrs> {
   css: Styles = css;
 
   view(vnode: m.Vnode<Attrs>) {
-    const {heading} = vnode.attrs;
+    const {heading, onchange} = vnode.attrs;
 
-    return <section class={this.css.userInput}>
+    return <section class={this.css.userInput} onchange={onchange}>
       {heading ? <SectionHeading css={this.css}>{heading}</SectionHeading> : void 0}
       {vnode.children}
     </section>;

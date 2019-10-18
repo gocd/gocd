@@ -735,4 +735,26 @@ public class Routes {
         public static final String BASE = "/api/pipelines/:pipeline_name/compare/:from_counter/:to_counter";
         public static final String DOC = apiDocsUrl("#compare");
     }
+
+    public static class Packages {
+        public static final String BASE = "/api/admin/packages";
+        public static final String DOC = apiDocsUrl("packages");
+        public static final String PACKAGE_ID = "/:package_id";
+        public static final String FIND = BASE + PACKAGE_ID;
+
+        public static String self(String id) {
+            return BASE + "/" + id;
+        }
+    }
+
+    public static class PackageRepository {
+        public static final String BASE = "/api/admin/repositories";
+        public static final String DOC = apiDocsUrl("package-repositories");
+        public static final String SHOW = "/:repo_id";
+        public static final String FIND = BASE + SHOW;
+
+        public static String self(String id) {
+            return BASE + "/" + id;
+        }
+    }
 }

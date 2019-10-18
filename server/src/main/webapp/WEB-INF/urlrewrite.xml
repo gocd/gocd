@@ -24,6 +24,18 @@
 
 <urlrewrite>
   <rule>
+    <name>Package Definitions API</name>
+    <from>^/api/admin/packages(/?)$</from>
+    <to last="true">/spark/api/admin/packages</to>
+  </rule>
+
+  <rule>
+    <name>Package Definitions CRUD APIs</name>
+    <from>^/api/admin/packages/(.*)$</from>
+    <to last="true">/spark/api/admin/packages/${escape:$1}</to>
+  </rule>
+
+  <rule>
     <name>default-job-timeout</name>
     <from>^/api/admin/config/server/default_job_timeout$</from>
     <to last="true">/spark/api/admin/config/server/default_job_timeout</to>

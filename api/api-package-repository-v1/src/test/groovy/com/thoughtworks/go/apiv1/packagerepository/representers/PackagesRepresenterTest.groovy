@@ -45,7 +45,7 @@ class PackagesRepresenterTest {
   ]
 
   @Test
-  void 'should deserialize packages'() {
+  void 'should serialize packages'() {
     def packageDefinition = new PackageDefinition('package-id-1', 'package-name-1', null)
     def packages = new Packages(packageDefinition)
     def actualJson = toArrayString({ PackagesRepresenter.toJSON(it, packages) })

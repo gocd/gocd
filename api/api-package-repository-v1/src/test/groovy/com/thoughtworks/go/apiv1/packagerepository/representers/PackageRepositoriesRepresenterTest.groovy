@@ -71,7 +71,7 @@ class PackageRepositoriesRepresenterTest {
   ]
 
   @Test
-  void 'should deserialize package repositories'() {
+  void 'should serialize package repositories'() {
     def configuration = new Configuration(ConfigurationPropertyMother.create('key', 'value'))
     def packageRepository = PackageRepositoryMother.create('repo-id', 'repo-name', 'plugin-id', '1.0.0', configuration)
     def packageRepositories = new PackageRepositories(packageRepository)

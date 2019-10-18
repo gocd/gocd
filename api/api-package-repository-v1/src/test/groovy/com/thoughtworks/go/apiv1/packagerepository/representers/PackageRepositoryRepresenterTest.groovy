@@ -79,7 +79,7 @@ class PackageRepositoryRepresenterTest {
   ]
 
   @Test
-  void 'should deserialize package repository'() {
+  void 'should serialize package repository'() {
     def pluginConfiguration = new PluginConfiguration('plugin-id', '1.0.0')
     def configuration = new Configuration(ConfigurationPropertyMother.create('key', 'value'))
     def packageRepository = new PackageRepository('repo-id', 'repo-name', pluginConfiguration, configuration)
@@ -92,7 +92,7 @@ class PackageRepositoryRepresenterTest {
   }
 
   @Test
-  void 'should serialize package repository'() {
+  void 'should deserialize package repository'() {
     def jsonReader = GsonTransformer.instance.jsonReaderFrom(expectedJson)
 
     def pluginConfiguration = new PluginConfiguration('plugin-id', '1.0.0')

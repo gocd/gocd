@@ -23,10 +23,10 @@ import {CollapsiblePanel} from "views/components/collapsible_panel";
 import * as Icons from "views/components/icons/index";
 import {EnvironmentBody} from "views/pages/new-environments/environment_body_widget";
 import {EnvironmentHeader} from "views/pages/new-environments/environment_header_widget";
+import {DeleteOperation} from "../page_operations";
 
-interface Attrs {
+interface Attrs extends DeleteOperation<EnvironmentWithOrigin> {
   environments: Stream<Environments>;
-  deleteEnvironment: (env: EnvironmentWithOrigin) => Promise<any>;
   onSuccessfulSave: (msg: m.Children) => void;
 }
 
@@ -38,10 +38,7 @@ export class EnvironmentsWidget extends MithrilViewComponent<Attrs> {
                                warning={isEnvEmpty}
                                actions={[
                                  <Icons.Delete iconOnly={true}
-                                               onclick={(e: MouseEvent) => {
-                                                 e.stopPropagation();
-                                                 return vnode.attrs.deleteEnvironment(environment);
-                                               }}/>
+                                               onclick={vnode.attrs.onDelete.bind(vnode.attrs, environment)}/>
                                ]}
                                dataTestId={`collapsible-panel-for-env-${environment.name()}`}>
         <EnvironmentBody environment={environment} environments={vnode.attrs.environments()}

@@ -28,7 +28,6 @@ import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("Edit Pipelines Modal", () => {
   const helper = new TestHelper();
-
   let modal: EditPipelinesModal;
   let pipelineGroupsJSON: PipelineStructureJSON;
 
@@ -53,7 +52,7 @@ describe("Edit Pipelines Modal", () => {
     const environment  = new EnvironmentWithOrigin("UAT", [], [], pipelines, new EnvironmentVariables());
     const environments = new Environments(environment, anotherEnv);
 
-    modal = new EditPipelinesModal(environment, environments);
+    modal = new EditPipelinesModal(environment, environments, jasmine.createSpy("onSuccessfulSave"));
     modal.pipelinesVM.pipelineGroups(PipelineGroups.fromJSON(pipelineGroupsJSON.groups));
     helper.mount(() => modal.body());
   });

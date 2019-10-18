@@ -18,7 +18,9 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import {Pipelines, PipelineWithOrigin} from "models/internal_pipeline_structure/pipeline_structure";
 import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
+import {EnvironmentsAPIs} from "models/new-environments/environments_apis";
 import s from "underscore.string";
+import {Primary} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {CheckboxField, HelpText, SearchField} from "views/components/forms/input_fields";
 import {Modal, ModalState, Size} from "views/components/modal";
@@ -145,12 +147,16 @@ export class UnavailablePipelinesBecauseDefinedInConfigRepoWidget extends Mithri
 
 export class EditPipelinesModal extends Modal {
   readonly pipelinesVM: PipelinesViewModel;
+  private readonly originalEnv: EnvironmentWithOrigin;
+  private onSuccessfulSave: (msg: m.Children) => void;
 
-  constructor(env: EnvironmentWithOrigin, environments: Environments) {
+  constructor(env: EnvironmentWithOrigin, environments: Environments, onSuccessfulSave: (msg: m.Children) => void) {
     super(Size.medium);
-    this.modalState  = ModalState.LOADING;
-    this.fixedHeight = true;
-    this.pipelinesVM = new PipelinesViewModel(env, environments);
+    this.onSuccessfulSave = onSuccessfulSave;
+    this.modalState       = ModalState.LOADING;
+    this.fixedHeight      = true;
+    this.originalEnv      = env;
+    this.pipelinesVM      = new PipelinesViewModel(env.clone(), environments);
   }
 
   oninit() {
@@ -190,4 +196,48 @@ export class EditPipelinesModal extends Modal {
     </div>;
   }
 
+  buttons(): m.ChildArray {
+    return [<Primary data-test-id="button-ok" onclick={this.performSave.bind(this)}>Save</Primary>];
+  }
+
+  performSave() {
+    if (this.pipelinesVM.environment.isValid()) {
+      const pipelinesToAdd    = this.pipelinesToAdd().map((pipeline) => pipeline.name());
+      const pipelinesToRemove = this.pipelinesToRemove().map((pipeline) => pipeline.name());
+      EnvironmentsAPIs.patch(this.originalEnv.name(), {
+        pipelines: {
+          add: pipelinesToAdd,
+          remove: pipelinesToRemove
+        }
+      }).then((result) => {
+        result.do(
+          () => {
+            this.onSuccessfulSave("Pipelines updated successfully for env " + this.originalEnv.name());
+            this.close();
+          },
+          (errorResponse: any) => {
+            this.pipelinesVM.errorMessage(JSON.parse(errorResponse.body).message);
+          }
+        );
+      });
+    } else {
+      return;
+    }
+  }
+
+  private pipelinesToAdd() {
+    return this.pipelinesVM.environment.pipelines().filter((pipeline) => {
+      const oldPipeline = this.originalEnv.pipelines().find((v) => v.name() === pipeline.name());
+      // add new pipeline
+      return oldPipeline === undefined;
+    });
+  }
+
+  private pipelinesToRemove() {
+    return this.originalEnv.pipelines().filter((pipeline) => {
+      const newPipeline = this.pipelinesVM.environment.pipelines().find((v) => v.name() === pipeline.name());
+      // remove removed pipeline
+      return newPipeline === undefined;
+    });
+  }
 }

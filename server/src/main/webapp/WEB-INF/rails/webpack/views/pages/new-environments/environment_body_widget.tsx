@@ -61,7 +61,7 @@ interface EnvironmentBodyState {
 export class EnvironmentBody extends MithrilComponent<EnvironmentBodyAttrs, EnvironmentBodyState> {
   oninit(vnode: m.Vnode<EnvironmentBodyAttrs, EnvironmentBodyState>) {
     vnode.state.renderPipelinesModal = (env: EnvironmentWithOrigin) => {
-      new EditPipelinesModal(env, vnode.attrs.environments).render();
+      new EditPipelinesModal(env, vnode.attrs.environments, vnode.attrs.onSuccessfulSave).render();
     };
 
     vnode.state.renderAgentsModal = (env: EnvironmentWithOrigin) => {

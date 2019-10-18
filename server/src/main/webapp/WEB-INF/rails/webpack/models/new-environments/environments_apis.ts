@@ -76,4 +76,8 @@ export interface EnvironmentPatchJson {
     add: EnvironmentVariableJSON[],
     remove: string[]
   };
+  pipelines?: {
+    add: string[],
+    remove: string[]
+  };
 }

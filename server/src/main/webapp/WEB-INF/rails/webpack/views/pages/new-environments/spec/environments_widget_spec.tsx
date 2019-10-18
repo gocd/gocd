@@ -34,7 +34,7 @@ describe("Environments Widget", () => {
   function mountModal(envs: EnvironmentJSON[] = [xmlEnv, configRepoEnv, env]) {
     environments = Environments.fromJSON({_embedded: {environments: envs}});
     helper.mount(() => <EnvironmentsWidget environments={Stream(environments)}
-                                           deleteEnvironment={jasmine.createSpy()}
+                                           onDelete={jasmine.createSpy()}
                                            onSuccessfulSave={_.noop}/>);
   }
 

@@ -25,9 +25,11 @@ import {HeaderPanel} from "views/components/header_panel";
 import {CreateEnvModal} from "views/pages/new-environments/create_env_modal";
 import {EnvironmentsWidget} from "views/pages/new-environments/environments_widget";
 import {Page, PageState} from "views/pages/page";
-import {AddOperation, SaveOperation} from "views/pages/page_operations";
+import {AddOperation, DeleteOperation, SaveOperation} from "views/pages/page_operations";
+import {DeleteConfirmModal} from "../components/modal/delete_confirm_modal";
 
-interface State extends AddOperation<EnvironmentWithOrigin>, SaveOperation {
+interface State extends AddOperation<EnvironmentWithOrigin>, SaveOperation, DeleteOperation<EnvironmentWithOrigin> {
+  // onSuccessfulSave: (msg: m.Children) => void;
 }
 
 export class NewEnvironmentsPage extends Page<null, State> {
@@ -50,6 +52,30 @@ export class NewEnvironmentsPage extends Page<null, State> {
     vnode.state.onError = (msg) => {
       this.flashMessage.alert(msg);
     };
+
+    vnode.state.onDelete = (env: EnvironmentWithOrigin, e: MouseEvent) => {
+      e.stopPropagation();
+      this.flashMessage.clear();
+
+      const message = ["Are you sure you want to delete environment ", m("strong", env.name()), "?"];
+      const modal   = new DeleteConfirmModal(message, () => {
+        const self = this;
+        env.delete()
+           .then((result: ApiResult<any>) => {
+             result.do(
+               () => {
+                 self.flashMessage.setMessage(MessageType.success,
+                                              `The environment '${env.name()}' was deleted successfully!`);
+               }, (errorResponse: ErrorResponse) => {
+                 self.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);
+               }
+             );
+             //@ts-ignore
+           }).then(self.fetchData.bind(self))
+           .finally(modal.close.bind(modal));
+      });
+      modal.render();
+    };
   }
 
   componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
@@ -58,8 +84,9 @@ export class NewEnvironmentsPage extends Page<null, State> {
       : null;
     return [
       flashMessage,
-      <EnvironmentsWidget environments={this.environments} onSuccessfulSave={vnode.state.onSuccessfulSave}
-                          deleteEnvironment={this.deleteEnvironment.bind(this)}/>
+      <EnvironmentsWidget environments={this.environments}
+                          onSuccessfulSave={vnode.state.onSuccessfulSave}
+                          onDelete={vnode.state.onDelete.bind(vnode.state)}/>
     ];
   }
 
@@ -67,27 +94,12 @@ export class NewEnvironmentsPage extends Page<null, State> {
     return "Environments";
   }
 
-  deleteEnvironment(env: EnvironmentWithOrigin) {
-    const self = this;
-    return env.delete().then((result: ApiResult<any>) => {
-      result.do(
-        () => {
-          self.flashMessage.setMessage(MessageType.success,
-            `The environment '${env.name()}' was deleted successfully!`);
-        }, (errorResponse: ErrorResponse) => {
-          self.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);
-        }
-      );
-      //@ts-ignore
-    }).then(self.fetchData.bind(self));
-  }
-
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {
     return EnvironmentsAPIs.all().then((result) =>
-      result.do((successResponse) => {
-        this.pageState = PageState.OK;
-        this.environments(successResponse.body);
-      }, this.setErrorState));
+                                         result.do((successResponse) => {
+                                           this.pageState = PageState.OK;
+                                           this.environments(successResponse.body);
+                                         }, this.setErrorState));
   }
 
   headerPanel(vnode: m.Vnode<null, State>): any {

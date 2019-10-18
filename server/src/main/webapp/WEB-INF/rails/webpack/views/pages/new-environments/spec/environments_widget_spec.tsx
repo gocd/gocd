@@ -19,25 +19,26 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {EnvironmentJSON, Environments} from "models/new-environments/environments";
 import data from "models/new-environments/spec/test_data";
+import styles from "views/components/collapsible_panel/index.scss";
 import {EnvironmentsWidget} from "views/pages/new-environments/environments_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("Environments Widget", () => {
   const helper = new TestHelper();
 
-  let xmlEnv: EnvironmentJSON, configRepoEnv: EnvironmentJSON, env: EnvironmentJSON;
   let environments: Environments;
+  const xmlEnv        = data.xml_environment_json();
+  const configRepoEnv = data.config_repo_environment_json();
+  const env           = data.environment_json();
 
-  beforeEach(() => {
-    xmlEnv        = data.xml_environment_json();
-    configRepoEnv = data.config_repo_environment_json();
-    env           = data.environment_json();
-
-    environments = Environments.fromJSON({_embedded: {environments: [xmlEnv, configRepoEnv, env]}});
+  function mountModal(envs: EnvironmentJSON[] = [xmlEnv, configRepoEnv, env]) {
+    environments = Environments.fromJSON({_embedded: {environments: envs}});
     helper.mount(() => <EnvironmentsWidget environments={Stream(environments)}
                                            deleteEnvironment={jasmine.createSpy()}
                                            onSuccessfulSave={_.noop}/>);
-  });
+  }
+
+  beforeEach(() => mountModal());
 
   afterEach(helper.unmount.bind(helper));
 
@@ -57,5 +58,15 @@ describe("Environments Widget", () => {
     expect(helper.byTestId("environment-body-for-" + xmlEnv.name)).toBeInDOM();
     expect(helper.byTestId("environment-body-for-" + configRepoEnv.name)).toBeInDOM();
     expect(helper.byTestId("environment-body-for-" + env.name)).toBeInDOM();
+  });
+
+  it("should render warning line if no pipelines and agents assigned to the environment", () => {
+    helper.unmount();
+    const envJson     = data.environment_json();
+    envJson.agents    = [];
+    envJson.pipelines = [];
+    mountModal([envJson]);
+    helper.redraw();
+    expect(helper.byTestId("collapsible-panel-for-env-" + envJson.name)).toHaveClass(styles.warning);
   });
 });

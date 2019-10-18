@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import {ApiRequestBuilder, ApiResult, ApiVersion} from "helpers/api_request_builder";
+import {ApiRequestBuilder, ApiResult, ApiVersion, ObjectWithEtag} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
 import {EnvironmentVariableJSON} from "models/environment_variables/types";
 import {PipelineStructure} from "models/internal_pipeline_structure/pipeline_structure";
-import {Environments} from "models/new-environments/environments";
+import {EnvironmentJSON, Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
 
 export class EnvironmentsAPIs {
   private static LATEST_API_VERSION_HEADER = ApiVersion.latest;
@@ -32,7 +32,9 @@ export class EnvironmentsAPIs {
 
   static allPipelines(groupAuthorization: "view" | "operate" | "administer",
                       templateAuthorization: "view" | "administer") {
-    return ApiRequestBuilder.GET(SparkRoutes.apiAdminInternalPipelinesListPath(groupAuthorization, templateAuthorization), this.LATEST_API_VERSION_HEADER)
+    return ApiRequestBuilder.GET(SparkRoutes.apiAdminInternalPipelinesListPath(groupAuthorization,
+                                                                               templateAuthorization),
+                                 this.LATEST_API_VERSION_HEADER)
                             .then((result: ApiResult<string>) => {
                               return result.map((body) => PipelineStructure.fromJSON(JSON.parse(body)));
                             });
@@ -44,7 +46,28 @@ export class EnvironmentsAPIs {
   }
 
   static patch(name: string, payload: EnvironmentPatchJson) {
-    return ApiRequestBuilder.PATCH(SparkRoutes.apiAdminEnvironmentsPath(name), this.LATEST_API_VERSION_HEADER, {payload});
+    return ApiRequestBuilder.PATCH(SparkRoutes.apiAdminEnvironmentsPath(name),
+                                   this.LATEST_API_VERSION_HEADER,
+                                   {payload});
+  }
+
+  static create(environment: EnvironmentWithOrigin) {
+    return ApiRequestBuilder.POST(SparkRoutes.apiEnvironmentPath(),
+                                  this.LATEST_API_VERSION_HEADER,
+                                  {payload: environment})
+                            .then(this.extractObjectWithEtag());
+  }
+
+  private static extractObjectWithEtag() {
+    return (result: ApiResult<string>) => {
+      return result.map((body) => {
+        const environmentJSON = JSON.parse(body) as EnvironmentJSON;
+        return {
+          object: EnvironmentWithOrigin.fromJSON(environmentJSON),
+          etag: result.getEtag()
+        } as ObjectWithEtag<EnvironmentWithOrigin>;
+      });
+    };
   }
 }
 

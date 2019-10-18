@@ -16,10 +16,10 @@
 import {ApiResult, ErrorResponse, ObjectWithEtag, SuccessResponse} from "helpers/api_request_builder";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {EnvironmentCRUD} from "models/environments/environment_crud";
 import {EnvironmentVariablesWithOrigin} from "models/new-environments/environment_environment_variables";
 import {Pipelines} from "models/new-environments/environment_pipelines";
 import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
+import {EnvironmentsAPIs} from "models/new-environments/environments_apis";
 import {Origin, OriginType} from "models/new-environments/origin";
 import {ButtonGroup, Cancel, Primary} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
@@ -75,12 +75,12 @@ export class CreateEnvModal extends Modal {
     if (!this.environment.isValid()) {
       return;
     }
-    EnvironmentCRUD.create(this.environment)
+    EnvironmentsAPIs.create(this.environment)
                    .then((result) => {
                      result.do(
                        (successResponse: SuccessResponse<ObjectWithEtag<EnvironmentWithOrigin>>) => {
                          this.environments().push(successResponse.body.object);
-                         this.onSuccessfulSave(<span>Environment <em>{this.environment.name()}</em> created successfully!</span>);
+                         this.onSuccessfulSave(<span>Environment <em>{this.environment.name()}</em> created successfully. Now pipelines, agents and environment variables can be added to the same.</span>);
                          this.close();
                        },
                        (errorResponse: any) => {

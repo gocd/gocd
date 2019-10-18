@@ -65,8 +65,8 @@ public class CompareControllerV1 extends ApiController implements SparkSpringCon
 
             before("", mimeType, this::verifyContentType);
 
-            before("", mimeType, this.apiAuthenticationHelper::checkUserAnd403);
-            before("/*", mimeType, this.apiAuthenticationHelper::checkUserAnd403);
+            before("", mimeType, this.apiAuthenticationHelper::checkPipelineViewPermissionsAnd403);
+            before("/*", mimeType, this.apiAuthenticationHelper::checkPipelineViewPermissionsAnd403);
 
             get("", mimeType, this::index);
         });

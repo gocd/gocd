@@ -19,6 +19,7 @@ package com.thoughtworks.go.apiv1.compare
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv1.compare.representers.ComparisonRepresenter
+import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException
 import com.thoughtworks.go.domain.MaterialRevision
 import com.thoughtworks.go.server.service.ChangesetService
@@ -27,7 +28,7 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
 import com.thoughtworks.go.serverhealth.HealthStateScope
 import com.thoughtworks.go.serverhealth.HealthStateType
 import com.thoughtworks.go.spark.ControllerTrait
-import com.thoughtworks.go.spark.NormalUserSecurity
+import com.thoughtworks.go.spark.PipelineAccessSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -43,136 +44,141 @@ import static org.mockito.MockitoAnnotations.initMocks
 
 class CompareControllerV1Test implements SecurityServiceTrait, ControllerTrait<CompareControllerV1> {
 
-    @Mock
-    private ChangesetService changesetService
+  @Mock
+  private ChangesetService changesetService
 
-    @Mock
-    PipelineService pipelineService
+  @Mock
+  PipelineService pipelineService
+
+  @BeforeEach
+  void setUp() {
+    initMocks(this)
+  }
+
+  @Override
+  CompareControllerV1 createControllerInstance() {
+    new CompareControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), changesetService, pipelineService)
+  }
+
+  @Nested
+  class Index {
 
     @BeforeEach
     void setUp() {
-        initMocks(this)
-    }
-
-    @Override
-    CompareControllerV1 createControllerInstance() {
-        new CompareControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), changesetService, pipelineService)
+      when(goConfigService.hasPipelineNamed(any(CaseInsensitiveString.class))).thenReturn(true)
     }
 
     @Nested
-    class Index {
+    class Security implements SecurityTestTrait, PipelineAccessSecurity {
 
-        @BeforeEach
-        void setUp() {
-            loginAsUser()
-        }
+      @Override
+      String getControllerMethodUnderTest() {
+        return "index"
+      }
 
-        @Nested
-        class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Override
+      void makeHttpCall() {
+        getWithApiHeader(getApi('up42', 1, 1))
+      }
 
-            @Override
-            String getControllerMethodUnderTest() {
-                return "index"
-            }
-
-            @Override
-            void makeHttpCall() {
-                getWithApiHeader(controller.controllerBasePath())
-            }
-        }
-
-        @Nested
-        class AsAuthorizedUser {
-            @BeforeEach
-            void setUp() {
-                enableSecurity()
-                loginAsAdmin()
-            }
-
-            @Test
-            void 'should return list of changes for the pipeline and between the counters specified'() {
-                def pipelineName = "up42"
-                def fromCounter = 1
-                def toCounter = 4
-                List<MaterialRevision> materialRevisions = getRevisions(new Date())
-
-                when(pipelineService.isPipelineBisect(pipelineName, fromCounter, toCounter)).thenReturn(false)
-                when(changesetService.revisionsBetween(eq(pipelineName), eq(fromCounter), eq(toCounter), eq(currentUsername()), any(HttpLocalizedOperationResult.class), eq(true))).thenReturn(materialRevisions)
-
-                getWithApiHeader(getApi('up42', fromCounter, toCounter))
-
-                assertThatResponse()
-                    .isOk()
-                    .hasBodyWithJson(toObjectString({
-                    ComparisonRepresenter.toJSON(it, pipelineName, fromCounter, toCounter, false, materialRevisions)
-                }))
-            }
-
-            @Test
-            void 'should return 404 if pipeline was not found'() {
-                when(changesetService.revisionsBetween(anyString(), anyInt(), anyInt(), any(), any(), anyBoolean())).then({ InvocationOnMock invocation ->
-                    HttpLocalizedOperationResult result = invocation.getArguments()[4]
-                    result.notFound("not found message", HealthStateType.general(HealthStateScope.forPipeline("undefined")))
-                })
-
-                getWithApiHeader(getApi('undefined', 1, 1))
-
-                assertThatResponse()
-                    .isNotFound()
-                    .hasContentType(controller.mimeType)
-                    .hasJsonMessage("not found message")
-            }
-
-            @Test
-            void 'should error out if the any of the counter specified does not exist'() {
-                when(pipelineService.isPipelineBisect('any-pipeline', 1, 1)).thenThrow(new RecordNotFoundException("not found message"))
-
-                getWithApiHeader(getApi('any-pipeline', 1, 1))
-
-                assertThatResponse()
-                    .isNotFound()
-                    .hasContentType(controller.mimeType)
-                    .hasJsonMessage("not found message")
-            }
-
-            @Test
-            void 'should return forbidden if the user does not have access to view the pipeline'() {
-                when(changesetService.revisionsBetween(anyString(), anyInt(), anyInt(), any(), any(), anyBoolean())).then({ InvocationOnMock invocation ->
-                    HttpLocalizedOperationResult result = invocation.getArguments()[4]
-                    result.forbidden("forbidden message", HealthStateType.general(HealthStateScope.forPipeline("undefined")))
-                })
-
-                getWithApiHeader(getApi('undefined', 1, 1))
-
-                assertThatResponse()
-                    .isForbidden()
-                    .hasContentType(controller.mimeType)
-                    .hasJsonMessage("forbidden message")
-            }
-
-            @Test
-            void 'should return as unprocessable entity if fromCounter or toCounter is given as a negative number'() {
-                getWithApiHeader(getApi('any-pipeline', -1, 1))
-
-                assertThatResponse()
-                    .isUnprocessableEntity()
-                    .hasContentType(controller.mimeType)
-                    .hasJsonMessage("Your request could not be processed. The instance counters cannot be less than 1.")
-            }
-
-            @Test
-            void 'should return as unprocessable entity if fromCounter or toCounter is given as zero'() {
-                getWithApiHeader(getApi('any-pipeline', 1, 0))
-
-                assertThatResponse()
-                    .isUnprocessableEntity()
-                    .hasContentType(controller.mimeType)
-                    .hasJsonMessage("Your request could not be processed. The instance counters cannot be less than 1.")
-            }
-        }
+      @Override
+      String getPipelineName() {
+        return 'up42'
+      }
     }
 
-    static String getApi(String pipelineName, Integer fromCounter, Integer toCounter) {
-        return "/api/pipelines/$pipelineName/compare/$fromCounter/$toCounter".toString()
+    @Nested
+    class AsAuthorizedUser {
+      @BeforeEach
+      void setUp() {
+        enableSecurity()
+        loginAsAdmin()
+      }
+
+      @Test
+      void 'should return list of changes for the pipeline and between the counters specified'() {
+        def pipelineName = "up42"
+        def fromCounter = 1
+        def toCounter = 4
+        List<MaterialRevision> materialRevisions = getRevisions(new Date())
+
+        when(pipelineService.isPipelineBisect(pipelineName, fromCounter, toCounter)).thenReturn(false)
+        when(changesetService.revisionsBetween(eq(pipelineName), eq(fromCounter), eq(toCounter), eq(currentUsername()), any(HttpLocalizedOperationResult.class), eq(true))).thenReturn(materialRevisions)
+
+        getWithApiHeader(getApi('up42', fromCounter, toCounter))
+
+        assertThatResponse()
+          .isOk()
+          .hasBodyWithJson(toObjectString({
+          ComparisonRepresenter.toJSON(it, pipelineName, fromCounter, toCounter, false, materialRevisions)
+        }))
+      }
+
+      @Test
+      void 'should return 404 if pipeline was not found'() {
+        when(changesetService.revisionsBetween(anyString(), anyInt(), anyInt(), any(), any(), anyBoolean())).then({ InvocationOnMock invocation ->
+          HttpLocalizedOperationResult result = invocation.getArguments()[4]
+          result.notFound("not found message", HealthStateType.general(HealthStateScope.forPipeline("undefined")))
+        })
+
+        getWithApiHeader(getApi('undefined', 1, 1))
+
+        assertThatResponse()
+          .isNotFound()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage("not found message")
+      }
+
+      @Test
+      void 'should error out if the any of the counter specified does not exist'() {
+        when(pipelineService.isPipelineBisect('any-pipeline', 1, 1)).thenThrow(new RecordNotFoundException("not found message"))
+
+        getWithApiHeader(getApi('any-pipeline', 1, 1))
+
+        assertThatResponse()
+          .isNotFound()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage("not found message")
+      }
+
+      @Test
+      void 'should return forbidden if the user does not have access to view the pipeline'() {
+        when(changesetService.revisionsBetween(anyString(), anyInt(), anyInt(), any(), any(), anyBoolean())).then({ InvocationOnMock invocation ->
+          HttpLocalizedOperationResult result = invocation.getArguments()[4]
+          result.forbidden("forbidden message", HealthStateType.general(HealthStateScope.forPipeline("undefined")))
+        })
+
+        getWithApiHeader(getApi('undefined', 1, 1))
+
+        assertThatResponse()
+          .isForbidden()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage("forbidden message")
+      }
+
+      @Test
+      void 'should return as unprocessable entity if fromCounter or toCounter is given as a negative number'() {
+        getWithApiHeader(getApi('any-pipeline', -1, 1))
+
+        assertThatResponse()
+          .isUnprocessableEntity()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage("Your request could not be processed. The instance counters cannot be less than 1.")
+      }
+
+      @Test
+      void 'should return as unprocessable entity if fromCounter or toCounter is given as zero'() {
+        getWithApiHeader(getApi('any-pipeline', 1, 0))
+
+        assertThatResponse()
+          .isUnprocessableEntity()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage("Your request could not be processed. The instance counters cannot be less than 1.")
+      }
     }
+  }
+
+  static String getApi(String pipelineName, Integer fromCounter, Integer toCounter) {
+    return "/api/pipelines/$pipelineName/compare/$fromCounter/$toCounter".toString()
+  }
 }

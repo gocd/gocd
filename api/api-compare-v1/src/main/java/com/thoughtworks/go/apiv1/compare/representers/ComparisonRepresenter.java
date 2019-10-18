@@ -27,12 +27,11 @@ import java.util.function.Consumer;
 public class ComparisonRepresenter {
     public static void toJSON(OutputWriter outputWriter, String pipelineName, Integer fromCounter, Integer toCounter, boolean isBisect, List<MaterialRevision> materialRevisions) {
         outputWriter.addLinks(addLinks())
-                .addChild("_embedded", embeddedWriter -> embeddedWriter.add("pipeline_name", pipelineName)
-                        .add("from_counter", fromCounter)
-                        .add("to_counter", toCounter)
-                        .add("is_bisect", isBisect)
-                        .addChildList("changes", revisionsWriter -> MaterialRevisionsRepresenter.toJSONArray(revisionsWriter, materialRevisions))
-                );
+                .add("pipeline_name", pipelineName)
+                .add("from_counter", fromCounter)
+                .add("to_counter", toCounter)
+                .add("is_bisect", isBisect)
+                .addChildList("changes", revisionsWriter -> MaterialRevisionsRepresenter.toJSONArray(revisionsWriter, materialRevisions));
     }
 
     private static Consumer<OutputLinkWriter> addLinks() {

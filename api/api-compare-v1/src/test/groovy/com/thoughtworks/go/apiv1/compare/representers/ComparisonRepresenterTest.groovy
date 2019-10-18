@@ -41,67 +41,65 @@ class ComparisonRepresenterTest {
     })
 
     def expectedJson = [
-        "_links"   : [
-            "self": [
-                "href": "http://test.host/go/api/pipelines/:pipeline_name/compare/:from_counter/:to_counter"
-            ],
-            "doc" : [
-                "href": apiDocsUrl("#compare")
-            ]
+      "_links"       : [
+        "self": [
+          "href": "http://test.host/go/api/pipelines/:pipeline_name/compare/:from_counter/:to_counter"
         ],
-        "_embedded": [
-            "pipeline_name": pipelineName,
-            "from_counter" : fromCounter,
-            "to_counter"   : toCounter,
-            "is_bisect"    : isBisect,
-            "changes"      : [
-                [
-                    "material": [
-                        "attributes": [
-                            "auto_update"  : true,
-                            "destination"  : "hg",
-                            "filter"       : null,
-                            "invert_filter": false,
-                            "name"         : null,
-                            "url"          : "hg-url"
-                        ],
-                        "type"      : "hg"
-                    ],
-                    "revision": [
-                        [
-                            "commit_message": "#4521 - get gadget working",
-                            "modified_at"   : jsonDate(date),
-                            "modified_by"   : "committer",
-                            "revision_sha"  : "cdef"
-                        ]
-                    ]
-                ],
-                [
-                    "material": [
-                        "attributes": [
-                            "auto_update"     : true,
-                            "branch"          : "master",
-                            "destination"     : "git",
-                            "filter"          : null,
-                            "invert_filter"   : false,
-                            "name"            : null,
-                            "shallow_clone"   : false,
-                            "submodule_folder": null,
-                            "url"             : "http://github.com"
-                        ],
-                        "type"      : "git"
-                    ],
-                    "revision": [
-                        [
-                            "commit_message": "#4200 - whatever",
-                            "modified_at"   : jsonDate(date),
-                            "modified_by"   : "committer",
-                            "revision_sha"  : "2345"
-                        ]
-                    ]
-                ]
-            ]
+        "doc" : [
+          "href": apiDocsUrl("#compare")
         ]
+      ],
+      "pipeline_name": pipelineName,
+      "from_counter" : fromCounter,
+      "to_counter"   : toCounter,
+      "is_bisect"    : isBisect,
+      "changes"      : [
+        [
+          "material": [
+            "attributes": [
+              "auto_update"  : true,
+              "destination"  : "hg",
+              "filter"       : null,
+              "invert_filter": false,
+              "name"         : null,
+              "url"          : "hg-url"
+            ],
+            "type"      : "hg"
+          ],
+          "revision": [
+            [
+              "commit_message": "#4521 - get gadget working",
+              "modified_at"   : jsonDate(date),
+              "modified_by"   : "committer",
+              "revision_sha"  : "cdef"
+            ]
+          ]
+        ],
+        [
+          "material": [
+            "attributes": [
+              "auto_update"     : true,
+              "branch"          : "master",
+              "destination"     : "git",
+              "filter"          : null,
+              "invert_filter"   : false,
+              "name"            : null,
+              "shallow_clone"   : false,
+              "submodule_folder": null,
+              "url"             : "http://github.com"
+            ],
+            "type"      : "git"
+          ],
+          "revision": [
+            [
+              "commit_message": "#4200 - whatever",
+              "modified_at"   : jsonDate(date),
+              "modified_by"   : "committer",
+              "revision_sha"  : "2345"
+            ]
+          ]
+        ]
+      ]
     ]
 
     assertThatJson(json).isEqualTo(expectedJson)

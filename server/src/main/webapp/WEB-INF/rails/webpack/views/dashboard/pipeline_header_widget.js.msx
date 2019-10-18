@@ -25,11 +25,17 @@ export const PipelineHeaderWidget = {
   getSettingsDisabledTooltipText(pipeline) {
     if (pipeline.isDefinedInConfigRepo()) {
       const configRepoId = pipeline.getConfigRepoId();
-      return <div>
-        <div>{pipeline.definedInConfigRepoTooltipText()}</div>
-        <div>Id: <a href={`admin/config_repos#!${configRepoId}`}>{configRepoId}</a></div>
-        <div>Url: {pipeline.getConfigRepoMaterialUrl()}</div>
-      </div>;
+        return <div className={"config-repo-pipeline-tooltip"}>
+          <div>{pipeline.definedInConfigRepoTooltipText()}</div>
+          <div>
+            <label>Id:</label>
+            <span><a href={`admin/config_repos#!${configRepoId}`}>{configRepoId}</a></span>
+          </div>
+          <div>
+            <label>Url:</label>
+            <span>{pipeline.getConfigRepoMaterialUrl()}</span>
+          </div>
+        </div>;
     }
     return pipeline.noEditPermissionTooltipText();
   },

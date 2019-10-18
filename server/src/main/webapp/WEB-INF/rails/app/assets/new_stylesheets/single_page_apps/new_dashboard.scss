@@ -252,6 +252,29 @@ body {
   }
 }
 
+.config-repo-pipeline-tooltip {
+  display: block;
+
+  div {
+    display: flex;
+
+    label {
+      color:       $white;
+      font-size:   11px;
+      font-weight: 600;
+      display:     inline-flex;
+      line-height: normal;
+    }
+
+    span {
+      display:     inline-flex;
+      align-self:  center;
+      margin-left: 5px;
+      word-break:  break-all;
+    }
+  }
+}
+
 .dashboard-group_title {
   .tooltip {
     top: 120%;

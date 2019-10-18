@@ -36,6 +36,7 @@ import org.mockito.invocation.InvocationOnMock
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static org.mockito.ArgumentMatchers.any
+import static org.mockito.ArgumentMatchers.anyString
 import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.when
 import static org.mockito.MockitoAnnotations.initMocks
@@ -279,6 +280,141 @@ class PackagesControllerV1Test implements SecurityServiceTrait, ControllerTrait<
         assertThatResponse()
           .isUnprocessableEntity()
           .hasJsonBody(expectedResponse)
+      }
+    }
+  }
+
+  @Nested
+  class Update {
+
+    @Nested
+    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+
+      @Override
+      String getControllerMethodUnderTest() {
+        return "update"
+      }
+
+      @Override
+      void makeHttpCall() {
+        putWithApiHeader(controller.controllerPath('foo'), [])
+      }
+    }
+
+    @Nested
+    class AsAdmin {
+      @BeforeEach
+      void setUp() {
+        enableSecurity()
+        loginAsAdmin()
+      }
+
+      @Test
+      void 'should update the package definition as part of update call'() {
+        def configuration = new Configuration(ConfigurationPropertyMother.create('key', 'value'))
+        def packageDefinition = PackageDefinitionMother.create('id', 'name', configuration, PackageRepositoryMother.create('repo-id'))
+
+        def updatedConfiguration = new Configuration(ConfigurationPropertyMother.create('updated-key', 'updated-value'))
+        def updatedPackageDefinition = PackageDefinitionMother.create('id', 'updated-name', updatedConfiguration, PackageRepositoryMother.create('updated-repo-id'))
+
+        def json = toObjectString({ PackageDefinitionRepresenter.toJSON(it, updatedPackageDefinition) })
+
+        when(entityHashingService.md5ForEntity(packageDefinition)).thenReturn('etag')
+        when(entityHashingService.md5ForEntity(updatedPackageDefinition)).thenReturn('updated-etag')
+        when(packageDefinitionService.find('id')).thenReturn(packageDefinition)
+        when(packageDefinitionService.updatePackage(eq('id'), eq(updatedPackageDefinition), eq('etag'), eq(currentUsername()), any(HttpLocalizedOperationResult.class))).then({
+          InvocationOnMock invocation ->
+            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
+            result.setMessage("Package definition was updated successfully")
+        })
+
+        putWithApiHeader(controller.controllerPath('id'), ['if-match': 'etag'], json)
+
+        assertThatResponse()
+          .isOk()
+          .hasEtag('"updated-etag"')
+          .hasBodyWithJson(json)
+      }
+
+      @Test
+      void 'should not update the package definition if etag does not match'() {
+        def configuration = new Configuration(ConfigurationPropertyMother.create('key', 'value'))
+        def packageDefinition = PackageDefinitionMother.create('id', 'name', configuration, PackageRepositoryMother.create('repo-id'))
+
+        def updatedConfiguration = new Configuration(ConfigurationPropertyMother.create('updated-key', 'updated-value'))
+        def updatedPackageDefinition = PackageDefinitionMother.create('id', 'updated-name', updatedConfiguration, PackageRepositoryMother.create('updated-repo-id'))
+
+        def json = toObjectString({ PackageDefinitionRepresenter.toJSON(it, updatedPackageDefinition) })
+
+        when(entityHashingService.md5ForEntity(packageDefinition)).thenReturn('etag')
+        when(entityHashingService.md5ForEntity(updatedPackageDefinition)).thenReturn('updated-etag')
+        when(packageDefinitionService.find('id')).thenReturn(packageDefinition)
+
+        putWithApiHeader(controller.controllerPath('id'), ['if-match': 'unknown-etag'], json)
+
+        assertThatResponse()
+          .isPreconditionFailed()
+          .hasJsonMessage("Someone has modified the configuration for packageDefinition 'id'. Please update your copy of the config with the changes and try again.")
+      }
+
+
+      @Test
+      void 'should error out if there are errors in parsing package definition config'() {
+        def expectedResponse = [
+          "message": "Validation error.",
+          "data"   : [
+            "name"         : "updated-name",
+            "id"           : "id",
+            "auto_update"  : true,
+            "package_repo" : [
+              "id"  : "updated-repo-id",
+              "name": "repo-updated-repo-id"
+            ],
+            "configuration": [
+              [
+                "key"  : "updated-key",
+                "value": "updated-value"
+              ]
+            ]
+          ]
+        ]
+
+        def configuration = new Configuration(ConfigurationPropertyMother.create('key', 'value'))
+        def packageDefinition = PackageDefinitionMother.create('id', 'name', configuration, PackageRepositoryMother.create('repo-id'))
+
+        def updatedConfiguration = new Configuration(ConfigurationPropertyMother.create('updated-key', 'updated-value'))
+        def updatedPackageDefinition = PackageDefinitionMother.create('id', 'updated-name', updatedConfiguration, PackageRepositoryMother.create('updated-repo-id'))
+
+        def json = toObjectString({ PackageDefinitionRepresenter.toJSON(it, updatedPackageDefinition) })
+
+        when(packageDefinitionService.find('id')).thenReturn(packageDefinition)
+        when(entityHashingService.md5ForEntity(packageDefinition)).thenReturn('etag')
+        when(entityHashingService.md5ForEntity(updatedPackageDefinition)).thenReturn('updated-etag')
+        when(packageDefinitionService.updatePackage(anyString(), any(), any(), any(), any())).then({
+          InvocationOnMock invocation ->
+            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
+            result.unprocessableEntity("Validation error.")
+        })
+
+        putWithApiHeader(controller.controllerPath('id'), ['if-match': 'etag'], json)
+
+        assertThatResponse()
+          .isUnprocessableEntity()
+          .hasJsonBody(expectedResponse)
+      }
+
+      @Test
+      void 'should return 404 if entity not found'() {
+        def configuration = new Configuration(ConfigurationPropertyMother.create('key', 'value'))
+        def packageDefinition = PackageDefinitionMother.create('id', 'name', configuration, PackageRepositoryMother.create('repo-id'))
+
+        def json = toObjectString({ PackageDefinitionRepresenter.toJSON(it, packageDefinition) })
+
+        putWithApiHeader(controller.controllerPath('id'), ['if-match': 'etag'], json)
+
+        assertThatResponse()
+          .isNotFound()
+          .hasJsonMessage(controller.entityType.notFoundMessage("id"))
       }
     }
   }

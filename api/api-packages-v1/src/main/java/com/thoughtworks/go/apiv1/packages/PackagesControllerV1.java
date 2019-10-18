@@ -74,10 +74,10 @@ public class PackagesControllerV1 extends ApiController implements SparkSpringCo
             before("/*", mimeType, this.apiAuthenticationHelper::checkAdminUserOrGroupAdminUserAnd403);
 
             get("", mimeType, this::index);
-            get(Routes.Packages.SHOW, mimeType, this::show);
+            get(Routes.Packages.PACKAGE_ID, mimeType, this::show);
             post("", mimeType, this::create);
-            put(Routes.Packages.SHOW, mimeType, this::update);
-            delete(Routes.Packages.SHOW, mimeType, this::remove);
+            put(Routes.Packages.PACKAGE_ID, mimeType, this::update);
+            delete(Routes.Packages.PACKAGE_ID, mimeType, this::remove);
         });
     }
 

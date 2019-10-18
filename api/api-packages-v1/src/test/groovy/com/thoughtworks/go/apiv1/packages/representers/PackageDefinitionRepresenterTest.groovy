@@ -16,12 +16,12 @@
 
 package com.thoughtworks.go.apiv1.packages.representers
 
-import com.thoughtworks.go.api.base.OutputWriter
 import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.domain.config.Configuration
 import com.thoughtworks.go.domain.config.ConfigurationKey
 import com.thoughtworks.go.domain.config.ConfigurationProperty
 import com.thoughtworks.go.domain.config.ConfigurationValue
+import com.thoughtworks.go.domain.config.PluginConfiguration
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition
 import com.thoughtworks.go.domain.packagerepository.PackageRepository
 import org.junit.jupiter.api.Test
@@ -29,7 +29,7 @@ import org.junit.jupiter.api.Test
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
-import static org.junit.jupiter.api.Assertions.*
+import static org.junit.jupiter.api.Assertions.assertEquals
 
 class PackageDefinitionRepresenterTest {
 
@@ -72,23 +72,21 @@ class PackageDefinitionRepresenterTest {
   ]
 
   @Test
-  void 'should serialize package definition'() {
+  void 'should deserialize package definition'() {
     def jsonReader = GsonTransformer.instance.jsonReaderFrom(expectedJson)
     def packageDefinition = PackageDefinitionRepresenter.fromJSON(jsonReader)
 
     def configurationProperties = new Configuration(new ConfigurationProperty(new ConfigurationKey('PACKAGE_NAME'), new ConfigurationValue('foo')))
     def expectedPackageDefinition = new PackageDefinition('package-id-1', 'package-1', configurationProperties)
-    expectedPackageDefinition.setRepository(new PackageRepository('package-repo-id-1', 'package-repo-name-1', null, null))
+    expectedPackageDefinition.setRepository(new PackageRepository('package-repo-id-1', 'package-repo-name-1', new PluginConfiguration(), new Configuration()))
 
-    assertEquals(expectedPackageDefinition.name, packageDefinition.name)
-    assertEquals(expectedPackageDefinition.id, packageDefinition.id)
-    assertEquals(expectedPackageDefinition.configuration, packageDefinition.configuration)
-    assertEquals(expectedPackageDefinition.repository.id, packageDefinition.repository.id)
-    assertEquals(expectedPackageDefinition.repository.name, packageDefinition.repository.name)
+    assertEquals(expectedPackageDefinition, packageDefinition)
+    // separate assert is required as PackageDefinition.equals does not compare 'repository'
+    assertEquals(expectedPackageDefinition.repository, packageDefinition.repository)
   }
 
   @Test
-  void 'should deserialize package definition'() {
+  void 'should serialize package definition'() {
     def configurationProperties = new Configuration(new ConfigurationProperty(new ConfigurationKey('PACKAGE_NAME'), new ConfigurationValue('foo')))
     def packageDefinition = new PackageDefinition('package-id-1', 'package-1', configurationProperties)
     packageDefinition.setRepository(new PackageRepository('package-repo-id-1', 'package-repo-name-1', null, null))

@@ -739,8 +739,8 @@ public class Routes {
     public static class Packages {
         public static final String BASE = "/api/admin/packages";
         public static final String DOC = apiDocsUrl("packages");
-        public static final String SHOW = "/:package_id";
-        public static final String FIND = BASE + SHOW;
+        public static final String PACKAGE_ID = "/:package_id";
+        public static final String FIND = BASE + PACKAGE_ID;
 
         public static String self(String id) {
             return BASE + "/" + id;

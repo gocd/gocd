@@ -74,13 +74,9 @@ public class CompareControllerV1 extends ApiController implements SparkSpringCon
 
     public String index(Request request, Response response) throws IOException {
         String pipelineName = request.params("pipeline_name");
-        Integer fromCounter = Integer.valueOf(request.params("from_counter"));
-        Integer toCounter = Integer.valueOf(request.params("to_counter"));
+        Integer fromCounter = getCounterValue(request, "from_counter");
+        Integer toCounter = getCounterValue(request, "to_counter");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-
-        if (fromCounter < 1 || toCounter < 1) {
-            throw new UnprocessableEntityException("The instance counters cannot be less than 1.");
-        }
 
         boolean isBisect = pipelineService.isPipelineBisect(pipelineName, fromCounter, toCounter);
         List<MaterialRevision> materialRevisions = changesetService.revisionsBetween(pipelineName, fromCounter, toCounter, currentUsername(), result, true);
@@ -89,6 +85,18 @@ public class CompareControllerV1 extends ApiController implements SparkSpringCon
             return writerForTopLevelObject(request, response, outputWriter -> ComparisonRepresenter.toJSON(outputWriter, pipelineName, fromCounter, toCounter, isBisect, materialRevisions));
         } else {
             return renderHTTPOperationResult(result, request, response);
+        }
+    }
+
+    private Integer getCounterValue(Request request, String counterString) {
+        try {
+            int counter = Integer.parseInt(request.params(counterString), 10);
+            if (counter < 1) {
+                throw new UnprocessableEntityException("The instance counter `" + counterString + "` cannot be less than 1.");
+            }
+            return counter;
+        } catch (NumberFormatException ex) {
+            throw new UnprocessableEntityException("The instance counter `" + counterString + "` should be an integer.");
         }
     }
 }

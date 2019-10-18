@@ -22,6 +22,7 @@ import com.thoughtworks.go.apiv1.compare.representers.ComparisonRepresenter
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException
 import com.thoughtworks.go.domain.MaterialRevision
+import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.service.ChangesetService
 import com.thoughtworks.go.server.service.PipelineService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
@@ -143,12 +144,12 @@ class CompareControllerV1Test implements SecurityServiceTrait, ControllerTrait<C
 
       @Test
       void 'should return forbidden if the user does not have access to view the pipeline'() {
-        when(changesetService.revisionsBetween(anyString(), anyInt(), anyInt(), any(), any(), anyBoolean())).then({ InvocationOnMock invocation ->
+        when(changesetService.revisionsBetween(anyString(), anyInt(), anyInt(), any(Username.class), any(HttpLocalizedOperationResult.class), anyBoolean())).then({ InvocationOnMock invocation ->
           HttpLocalizedOperationResult result = invocation.getArguments()[4]
           result.forbidden("forbidden message", HealthStateType.general(HealthStateScope.forPipeline("undefined")))
         })
 
-        getWithApiHeader(getApi('undefined', 1, 1))
+        getWithApiHeader(getApi('any-pipeline', 1, 1))
 
         assertThatResponse()
           .isForbidden()
@@ -163,7 +164,7 @@ class CompareControllerV1Test implements SecurityServiceTrait, ControllerTrait<C
         assertThatResponse()
           .isUnprocessableEntity()
           .hasContentType(controller.mimeType)
-          .hasJsonMessage("Your request could not be processed. The instance counters cannot be less than 1.")
+          .hasJsonMessage("Your request could not be processed. The instance counter `from_counter` cannot be less than 1.")
       }
 
       @Test
@@ -173,7 +174,17 @@ class CompareControllerV1Test implements SecurityServiceTrait, ControllerTrait<C
         assertThatResponse()
           .isUnprocessableEntity()
           .hasContentType(controller.mimeType)
-          .hasJsonMessage("Your request could not be processed. The instance counters cannot be less than 1.")
+          .hasJsonMessage("Your request could not be processed. The instance counter `to_counter` cannot be less than 1.")
+      }
+
+      @Test
+      void 'should return as unprocessable entity if fromCounter or toCounter is given as an invalid integer'() {
+        getWithApiHeader("/api/pipelines/any-pipeline/compare/a/1")
+
+        assertThatResponse()
+          .isUnprocessableEntity()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage("Your request could not be processed. The instance counter `from_counter` should be an integer.")
       }
     }
   }

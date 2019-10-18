@@ -21,6 +21,7 @@ import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.domain.*;
@@ -43,6 +44,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
+
+import static java.lang.String.format;
 
 @Service
 public class PipelineService implements UpstreamPipelineResolver {
@@ -312,5 +315,17 @@ public class PipelineService implements UpstreamPipelineResolver {
         } else {
             return Optional.of(Integer.parseInt(pipelineCounter));
         }
+    }
+
+    public boolean isPipelineBisect(String pipelineName, Integer fromCounter, Integer toCounter) {
+        Pipeline fromPipeline = pipelineDao.findPipelineByNameAndCounter(pipelineName, fromCounter);
+        Pipeline toPipeline = pipelineDao.findPipelineByNameAndCounter(pipelineName, toCounter);
+        if (fromPipeline == null) {
+            throw new RecordNotFoundException(format("Pipeline `%s` with counter `%d` not found!", pipelineName, fromCounter));
+        }
+        if (toPipeline == null) {
+            throw new RecordNotFoundException(format("Pipeline `%s` with counter `%d` not found!", pipelineName, toCounter));
+        }
+        return toPipeline.isBisect() || fromPipeline.isBisect();
     }
 }

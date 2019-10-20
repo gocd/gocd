@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # 3, because that's the number of JVMs we test on
-mod="$((${GO_PIPELINE_COUNTER} % 2))"
+mod="$((${GO_PIPELINE_COUNTER} % 3))"
 
 function use_jdk() {
   source "${HOME}/.jabba/jabba.sh"
@@ -10,8 +10,10 @@ function use_jdk() {
 
 if [ "$mod" = "0" ]; then
   use_jdk "openjdk@1.11"
-else
+elif [ "$mod" = "2" ]; then
   use_jdk "openjdk@1.12"
+else
+  use_jdk "openjdk@1.13.0"
 fi
 
 exec "$@"

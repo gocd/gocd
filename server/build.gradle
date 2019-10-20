@@ -42,6 +42,14 @@ buildscript {
 }
 
 repositories {
+  //This is required as `velocity-tools-view` does not have pom data.
+  // It will allow gradle to fetch artifact directly from the repo
+  mavenCentral {
+    metadataSources {
+      mavenPom()
+      artifact()
+    }
+  }
   maven { url 'http://rubygems-proxy.torquebox.org/releases/' }
   maven { url 'https://jitpack.io' }
 }

@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-import com.thoughtworks.go.build.docker.Distro
-import com.thoughtworks.go.build.docker.DistroVersion
+//import com.thoughtworks.go.build.docker.Distro
+//import com.thoughtworks.go.build.docker.DistroVersion
 
 enableFeaturePreview('GROOVY_COMPILATION_AVOIDANCE')
 
-Distro.values().each { Distro distro ->
-  distro.supportedVersions.each { DistroVersion version ->
-    include ":docker:gocd-agent:${distro.projectName(version)}"
-  }
-}
 
-include ":docker:gocd-server:${Distro.centos.projectName(Distro.centos.getVersion('7'))}"
-include ":docker:gocd-server:${Distro.alpine.projectName(Distro.alpine.getVersion('3.9'))}"
+//Distro.values().each { Distro distro ->
+//  distro.supportedVersions.each { DistroVersion version ->
+//    include ":docker:gocd-agent:${distro.projectName(version)}"
+//  }
+//}
+//
+//include ":docker:gocd-server:${Distro.centos.projectName(Distro.centos.getVersion('7'))}"
+//include ":docker:gocd-server:${Distro.alpine.projectName(Distro.alpine.getVersion('3.9'))}"

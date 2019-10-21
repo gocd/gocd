@@ -69,7 +69,7 @@ describe("Edit Agents Modal", () => {
     unassociatedStaticAgent  = agentsJSON._embedded.agents[2].uuid;
     unassociatedElasticAgent = agentsJSON._embedded.agents[3].uuid;
 
-    modal = new EditAgentsModal(environment, environments);
+    modal = new EditAgentsModal(environment, environments, jasmine.createSpy("onSuccessfulSave"));
     modal.agentsVM.agents(Agents.fromJSON(agentsJSON));
 
     helper.mount(() => modal.body());

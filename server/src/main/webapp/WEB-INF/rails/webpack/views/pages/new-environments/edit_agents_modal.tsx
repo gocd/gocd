@@ -16,9 +16,12 @@
 
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
+import Stream from "mithril/stream";
 import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
+import {EnvironmentsAPIs} from "models/new-environments/environments_apis";
 import {Agent, Agents} from "models/new_agent/agents";
 import s from "underscore.string";
+import {Primary} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {CheckboxField, SearchField} from "views/components/forms/input_fields";
 import {Modal, ModalState, Size} from "views/components/modal";
@@ -102,12 +105,15 @@ export class AgentFilterWidget extends MithrilViewComponent<AgentFilterWidgetAtt
 
 export class EditAgentsModal extends Modal {
   readonly agentsVM: AgentsViewModel;
+  private onSuccessfulSave: (msg: m.Children) => void;
+  private errorMessage: Stream<string> = Stream();
 
-  constructor(env: EnvironmentWithOrigin, environments: Environments) {
+  constructor(env: EnvironmentWithOrigin, environments: Environments, onSuccessfulSave: (msg: m.Children) => void) {
     super(Size.medium);
-    this.modalState  = ModalState.LOADING;
+    this.onSuccessfulSave = onSuccessfulSave;
+    this.modalState = ModalState.LOADING;
     this.fixedHeight = true;
-    this.agentsVM    = new AgentsViewModel(env, environments);
+    this.agentsVM = new AgentsViewModel(env, environments);
   }
 
   oninit() {
@@ -152,6 +158,28 @@ export class EditAgentsModal extends Modal {
         <UnavailableElasticAgentsWidget agents={this.agentsVM.elasticAgentsNotBelongingToCurrentEnv()}/>
       </div>
     </div>;
+  }
+
+  buttons(): m.ChildArray {
+    return [<Primary data-test-id="button-ok" onclick={this.performSave.bind(this)}>Save</Primary>];
+  }
+
+  performSave() {
+    const environment = this.agentsVM.environment;
+    if (environment.isValid()) {
+      const agentUuids = environment.agents().map((agent) => agent.uuid());
+      EnvironmentsAPIs.updateAgentAssociation(environment.name(), agentUuids)
+                      .then((result) => {
+                        result.do((successResponse) => {
+                          this.onSuccessfulSave(<span>Environment <em>{environment.name()}</em> was updated successfully!</span>);
+                          this.close();
+                        }, (errorResponse) => {
+                          this.errorMessage(JSON.parse(errorResponse.body!).message);
+                        });
+                      });
+    } else {
+      return;
+    }
   }
 
 }

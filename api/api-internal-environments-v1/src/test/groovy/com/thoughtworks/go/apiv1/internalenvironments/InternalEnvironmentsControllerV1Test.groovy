@@ -19,9 +19,11 @@ package com.thoughtworks.go.apiv1.internalenvironments
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv1.internalenvironments.representers.MergedEnvironmentsRepresenter
-import com.thoughtworks.go.config.CaseInsensitiveString
+import com.thoughtworks.go.config.exceptions.EntityType
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException
 import com.thoughtworks.go.config.merge.MergeEnvironmentConfig
 import com.thoughtworks.go.helper.EnvironmentConfigMother
+import com.thoughtworks.go.server.service.AgentService
 import com.thoughtworks.go.server.service.EnvironmentConfigService
 import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
@@ -32,6 +34,8 @@ import org.junit.jupiter.api.Test
 import org.mockito.Mock
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static java.util.Arrays.asList
+import static org.mockito.Mockito.doThrow
 import static org.mockito.Mockito.when
 import static org.mockito.MockitoAnnotations.initMocks
 
@@ -39,6 +43,8 @@ class InternalEnvironmentsControllerV1Test implements SecurityServiceTrait, Cont
 
   @Mock
   EnvironmentConfigService environmentConfigService
+  @Mock
+  private AgentService agentService
 
   @BeforeEach
   void setUp() {
@@ -47,7 +53,7 @@ class InternalEnvironmentsControllerV1Test implements SecurityServiceTrait, Cont
 
   @Override
   InternalEnvironmentsControllerV1 createControllerInstance() {
-    new InternalEnvironmentsControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), environmentConfigService)
+    new InternalEnvironmentsControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), environmentConfigService, agentService)
   }
 
   @Nested
@@ -75,7 +81,7 @@ class InternalEnvironmentsControllerV1Test implements SecurityServiceTrait, Cont
 
       @Test
       void 'test should return environments fetched from environments config service'() {
-        List<String> envNames = ['environment1','environment2']
+        List<String> envNames = ['environment1', 'environment2']
 
         when(environmentConfigService.getEnvironmentNames()).thenReturn(envNames)
 
@@ -165,5 +171,96 @@ class InternalEnvironmentsControllerV1Test implements SecurityServiceTrait, Cont
           .hasBodyWithJson(toObjectString({ MergedEnvironmentsRepresenter.toJSON(it, []) }))
       }
     }
+  }
+
+  @Nested
+  class UpdateAgentsAssociation {
+    @Nested
+    class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Override
+      String getControllerMethodUnderTest() {
+        return 'updateAgentAssociation'
+      }
+
+      @Override
+      void makeHttpCall() {
+        putWithApiHeader(controller.controllerPath('env'), [])
+      }
+    }
+
+    @Nested
+    class AsAdmin {
+      @BeforeEach
+      void setUp() {
+        loginAsAdmin()
+      }
+
+      @Test
+      void 'should allow to associate agents to a given env config name'() {
+        def json = [
+          uuids: ["agent1", "agent2"]
+        ]
+
+        def env = EnvironmentConfigMother.environment("env")
+        when(environmentConfigService.getEnvironmentConfig("env")).thenReturn(env)
+
+        putWithApiHeader(controller.controllerPath('env'), json)
+
+        assertThatResponse()
+          .isOk()
+          .hasJsonMessage("Environment 'env' updated successfully!")
+
+      }
+
+      @Test
+      void 'should throw RecordNotFound if env specified does not exist'() {
+        def json = [
+          uuids: ["agent1", "agent2"]
+        ]
+
+        doThrow(new RecordNotFoundException(EntityType.Environment, "unknown-env"))
+          .when(environmentConfigService)
+          .getEnvironmentConfig("unknown-env")
+
+        putWithApiHeader(controller.controllerPath('unknown-env'), json)
+
+        assertThatResponse()
+          .isNotFound()
+          .hasJsonMessage("Environment with name 'unknown-env' was not found!")
+      }
+
+      @Test
+      void 'should throw RecordNotFound if any agent specified does not exist'() {
+        def json = [
+          uuids: ["agent1", "agent2"]
+        ]
+
+        def env = EnvironmentConfigMother.environment("env")
+        when(environmentConfigService.getEnvironmentConfig("env")).thenReturn(env)
+        doThrow(new RecordNotFoundException(EntityType.Agent, "agent1"))
+          .when(agentService)
+          .updateAgentsAssociationOfEnvironment(env, asList("agent1", "agent2"))
+
+        putWithApiHeader(controller.controllerPath('env'), json)
+
+        assertThatResponse()
+          .isNotFound()
+          .hasJsonMessage("Agent with uuid 'agent1' was not found!")
+      }
+
+      @Test
+      void 'should error out if input does not contain property uuids'() {
+        def json = [
+          uuids1: ["agent1", "agent2"]
+        ]
+
+        putWithApiHeader(controller.controllerPath('env'), json)
+
+        assertThatResponse()
+          .isUnprocessableEntity()
+          .hasJsonMessage('Json `{\\"uuids1\\":[\\"agent1\\",\\"agent2\\"]}` does not contain property \'uuids\'.')
+      }
+    }
+
   }
 }

@@ -16,13 +16,18 @@
 
 package com.thoughtworks.go.apiv1.internalenvironments;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.base.JsonOutputWriter;
+import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.util.GsonTransformer;
+import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.apiv1.internalenvironments.representers.MergedEnvironmentsRepresenter;
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.EnvironmentConfig;
+import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.EnvironmentConfigService;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
@@ -33,8 +38,9 @@ import spark.Response;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
+import static java.lang.String.format;
 import static spark.Spark.*;
 
 @Component
@@ -42,12 +48,14 @@ public class InternalEnvironmentsControllerV1 extends ApiController implements S
 
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final EnvironmentConfigService environmentConfigService;
+    private final AgentService agentService;
 
     @Autowired
-    public InternalEnvironmentsControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, EnvironmentConfigService environmentConfigService) {
+    public InternalEnvironmentsControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, EnvironmentConfigService environmentConfigService, AgentService agentService) {
         super(ApiVersion.v1);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
         this.environmentConfigService = environmentConfigService;
+        this.agentService = agentService;
     }
 
     @Override
@@ -66,6 +74,7 @@ public class InternalEnvironmentsControllerV1 extends ApiController implements S
 
             get("", mimeType, this::index);
             get("/merged", mimeType, this::indexMergedEnvironments);
+            put(Routes.InternalEnvironments.ENV_NAME, mimeType, this::updateAgentAssociation);
         });
     }
 
@@ -76,5 +85,22 @@ public class InternalEnvironmentsControllerV1 extends ApiController implements S
     public String indexMergedEnvironments(Request request, Response response) throws IOException {
         List<EnvironmentConfig> allMergedEnvironments = environmentConfigService.getAllMergedEnvironments();
         return writerForTopLevelObject(request, response, outputWriter -> MergedEnvironmentsRepresenter.toJSON(outputWriter, allMergedEnvironments));
+    }
+
+    String updateAgentAssociation(Request request, Response response) {
+        String envName = request.params("env_name");
+        EnvironmentConfig envConfig = environmentConfigService.getEnvironmentConfig(envName);
+        List<String> uuids = getAgentUuids(request);
+        agentService.updateAgentsAssociationOfEnvironment(envConfig, uuids);
+        return renderMessage(response, 200, "Environment '" + envName + "' updated successfully!");
+    }
+
+    private List<String> getAgentUuids(Request request) {
+        JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(request.body());
+        Optional<List<String>> uuids = jsonReader.readStringArrayIfPresent("uuids");
+        if (uuids.isPresent()) {
+            return uuids.get();
+        }
+        throw halt(422, MessageJson.create(format("Json `%s` does not contain property '%s'.", new Gson().fromJson(request.body(), JsonElement.class), "uuids")));
     }
 }

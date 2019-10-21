@@ -65,7 +65,7 @@ export class EnvironmentBody extends MithrilComponent<EnvironmentBodyAttrs, Envi
     };
 
     vnode.state.renderAgentsModal = (env: EnvironmentWithOrigin) => {
-      new EditAgentsModal(env, vnode.attrs.environments).render();
+      new EditAgentsModal(env, vnode.attrs.environments, vnode.attrs.onSuccessfulSave).render();
     };
 
     vnode.state.renderEnvironmentsVariablesModal = (env: EnvironmentWithOrigin) => {

@@ -69,6 +69,14 @@ export class EnvironmentsAPIs {
       });
     };
   }
+
+  static updateAgentAssociation(envName: string, agentUuids: string[]) {
+    return ApiRequestBuilder.PUT(SparkRoutes.apiAdminInternalEnvironmentsPath(envName), this.LATEST_API_VERSION_HEADER, {
+      payload: {
+        uuids: agentUuids
+      }
+    });
+  }
 }
 
 export interface EnvironmentPatchJson {

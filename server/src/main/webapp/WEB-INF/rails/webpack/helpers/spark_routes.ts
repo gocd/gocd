@@ -383,7 +383,10 @@ export class SparkRoutes {
     return "/go/api/admin/internal/resources";
   }
 
-  static apiAdminInternalEnvironmentsPath() {
+  static apiAdminInternalEnvironmentsPath(name?: string) {
+    if (name) {
+      return `/go/api/admin/internal/environments/${name}`;
+    }
     return "/go/api/admin/internal/environments";
   }
 

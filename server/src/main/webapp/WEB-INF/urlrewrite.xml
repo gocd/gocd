@@ -134,6 +134,12 @@
   </rule>
 
   <rule>
+    <name>Internal Environment Agents Association upate API</name>
+    <from>^/api/admin/internal/environments/([^/]+)</from>
+    <to last="true">/spark/api/admin/internal/environments/${escape:$1}</to>
+  </rule>
+
+  <rule>
     <name>Internal Command Snippets API</name>
     <from>^/api/admin/internal/command_snippets$</from>
     <to last="true">/spark/api/admin/internal/command_snippets</to>

@@ -39,6 +39,7 @@ public class Routes {
 
     public static class InternalEnvironments {
         public static final String BASE = "/api/admin/internal/environments";
+        public static final String ENV_NAME = "/:env_name";
     }
 
     public static class InternalCommandSnippets {

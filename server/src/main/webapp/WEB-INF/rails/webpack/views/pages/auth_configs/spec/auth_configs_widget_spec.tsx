@@ -39,6 +39,16 @@ describe("AuthorizationConfigurationWidget", () => {
     expect(helper.textByTestId("flash-message-info")).toContain("No authorization plugin installed.");
   });
 
+  it("should render information when no auth config has been configured", () => {
+    mount(new AuthConfigs(), pluginInfos);
+
+    expect(helper.byTestId("auth-config-widget")).toBeFalsy();
+    expect(helper.byTestId("auth-config-info")).toBeInDOM();
+    expect(helper.textByTestId("auth-config-info"))
+      .toBe(
+        "Click on \"Add\" to add new authorization configuration.An auth configuration can be used to setup user authorization. You can read more about authorization in GoCD from here.");
+  });
+
   it("should render id info and action buttons", () => {
     mount(authConfigs, pluginInfos);
     expect(helper.textByTestId("key-value-key-id")).toContain("Id");

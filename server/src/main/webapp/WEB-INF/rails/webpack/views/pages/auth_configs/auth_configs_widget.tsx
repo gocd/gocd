@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {docsUrl} from "gen/gocd_version";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
@@ -24,7 +25,9 @@ import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderIcon} from "views/components/header_icon";
 import {Clone, Delete, Edit, IconGroup} from "views/components/icons";
 import {KeyValuePair} from "views/components/key_value_pair";
+import {Link} from "views/components/link";
 import {CloneOperation, DeleteOperation, EditOperation, RequiresPluginInfos} from "views/pages/page_operations";
+import styles from "./index.scss";
 
 interface Attrs extends RequiresPluginInfos, EditOperation<AuthConfig>, CloneOperation<AuthConfig>, DeleteOperation<AuthConfig> {
   authConfigs: AuthConfigs;
@@ -36,6 +39,18 @@ export class AuthConfigsWidget extends MithrilViewComponent<Attrs> {
     if (!vnode.attrs.pluginInfos || vnode.attrs.pluginInfos().length === 0) {
       noAuthorizationPluginMessage =
         <FlashMessage type={MessageType.info} message="No authorization plugin installed."/>;
+    }
+
+    if (vnode.attrs.authConfigs == null || vnode.attrs.authConfigs.length === 0) {
+      return (<div class={styles.tips}>
+        {noAuthorizationPluginMessage}
+        <ul data-test-id="auth-config-info">
+          <li>Click on "Add" to add new authorization configuration.</li>
+          <li>An auth configuration can be used to setup user authorization. You can read more about authorization in
+            GoCD from <Link target="_blank" href={docsUrl("configuration/dev_authentication.html")}>here</Link>.
+          </li>
+        </ul>
+      </div>);
     }
 
     return <div data-test-id="auth-config-widget">

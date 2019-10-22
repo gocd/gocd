@@ -97,29 +97,59 @@ enum Distro implements DistroBehavior {
     List<String> getInstallPrerequisitesCommands(DistroVersion distroVersion) {
       String git = "6" == distroVersion.version ? 'rh-git29' : 'rh-git218'
 
-      return [
-        'yum update -y',
-        'yum install --assumeyes centos-release-scl',
-        "yum install --assumeyes ${git} mercurial subversion openssh-clients bash unzip curl procps sysvinit-tools coreutils",
-        "cp /opt/rh/${git}/enable /etc/profile.d/${git}.sh",
-        'yum clean all'
-      ]
+      def commands = ['yum update -y']
+
+      if (distroVersion.version == "6" || distroVersion.version == "7") {
+        commands.add('yum install --assumeyes centos-release-scl')
+      }
+
+      commands.add("yum install --assumeyes ${gitPackage(distroVersion)} mercurial subversion openssh-clients bash unzip curl procps ${version6Or7(distroVersion) ? 'sysvinit-tools coreutils' : 'procps-ng coreutils-single'}")
+
+      if (version6Or7(distroVersion)) {
+        commands.add("cp /opt/rh/${git}/enable /etc/profile.d/${git}.sh")
+      }
+
+      commands.add('yum clean all')
+
+      return commands
+    }
+
+    private boolean version6Or7(DistroVersion distroVersion) {
+      distroVersion.version == "6" || distroVersion.version == "7"
+    }
+
+    def gitPackage(DistroVersion distroVersion) {
+      if (distroVersion.version == "6") {
+        return "rh-git29"
+      } else if (distroVersion.version == "7") {
+        return "rh-git218"
+      } else if (distroVersion.version == "8") {
+        return "git"
+      }
+      throw new IllegalArgumentException("Unknown centos version: " + distroVersion.version)
     }
 
     @Override
     Map<String, String> getEnvironmentVariables(DistroVersion distroVersion) {
-      String git = "6" == distroVersion.version ? 'rh-git29' : 'rh-git218'
-      return super.getEnvironmentVariables(distroVersion) + [
-        BASH_ENV: "/opt/rh/${git}/enable",
-        ENV     : "/opt/rh/${git}/enable"
-      ] as Map<String, String>
+      def vars = super.getEnvironmentVariables(distroVersion)
+
+      if (version6Or7(distroVersion)) {
+        String git = "6" == distroVersion.version ? 'rh-git29' : 'rh-git218'
+        return vars + [
+          BASH_ENV: "/opt/rh/${git}/enable",
+          ENV     : "/opt/rh/${git}/enable"
+        ] as Map<String, String>
+      } else {
+        return vars
+      }
     }
 
     @Override
     List<DistroVersion> getSupportedVersions() {
       return [
         new DistroVersion(version: '6', releaseName: '6', eolDate: parseDate('2020-11-01')),
-        new DistroVersion(version: '7', releaseName: '7', eolDate: parseDate('2024-06-01'))
+        new DistroVersion(version: '7', releaseName: '7', eolDate: parseDate('2024-06-01')),
+        new DistroVersion(version: '8', releaseName: '8', eolDate: parseDate('2029-05-01'), installPrerequisitesCommands: ['yum install --assumeyes glibc-langpack-en'])
       ]
     }
   },

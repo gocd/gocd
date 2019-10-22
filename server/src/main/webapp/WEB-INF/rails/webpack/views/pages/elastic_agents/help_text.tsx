@@ -15,33 +15,37 @@
  */
 
 import {MithrilViewComponent} from "jsx/mithril-component";
-import {LoremIpsum} from "lorem-ipsum";
 import m from "mithril";
+import styles from "views/pages/elastic_agents/help_text.scss";
+import {ConceptDiagram} from "views/pages/pipelines/concept_diagram";
+
+const clusterProfileImg      = require("../../../../app/assets/images/elastic_agents/cluster_profile.svg");
+const elasticAgentProfileImg = require("../../../../app/assets/images/elastic_agents/elastic_agent_profile.svg");
+const finishImg              = require("../../../../app/assets/images/elastic_agents/finish.svg");
 
 export class HelpText extends MithrilViewComponent {
   view(vnode: m.Vnode) {
     return (
-      <table>
-        <tr>
-          <td><img src="https://placeimg.com/160/120/tech"/></td>
-          <td>
-            <h3>Cluster Profile</h3>
-            {new LoremIpsum().generateParagraphs(1)}</td>
-        </tr>
-        <tr>
-          <td><img src="https://placeimg.com/160/120/tech"/></td>
-          <td>
-            <h3>Elastic Profile</h3>
-            {new LoremIpsum().generateParagraphs(1)}
-          </td>
-        </tr>
-        <tr>
-          <td><img src="https://placeimg.com/160/120/tech"/></td>
-          <td>
-            <h3>Link to Jobs</h3>
-            {new LoremIpsum().generateParagraphs(1)}</td>
-        </tr>
-      </table>
+      <div>
+        <div class={styles.panelHeader}>
+          <h3 class={styles.panelTitle}>Configure Elastic Agents</h3>
+        </div>
+        <div class={styles.concepts}>
+          <ConceptDiagram image={clusterProfileImg}>
+            <h3>Step 1: Create a Cluster Profile</h3>
+            <div>A cluster profile is the connection configuration of the environment where elastic agents run.</div>
+          </ConceptDiagram>
+
+          <ConceptDiagram image={elasticAgentProfileImg}>
+            <h3>Step 2: Create an Elastic Agent Profile</h3>
+            <div>An elastic profile usually contains the configuration for your elastic agent</div>
+          </ConceptDiagram>
+
+          <ConceptDiagram image={finishImg}>
+            <h3>Step 3: Finish!</h3>
+          </ConceptDiagram>
+        </div>
+      </div>
     );
   }
 }

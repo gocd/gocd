@@ -17,7 +17,6 @@
 import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
-import {LoremIpsum} from "lorem-ipsum";
 import Nameable = PipelineStructureJSON.Nameable;
 import m from "mithril";
 import Stream from "mithril/stream";
@@ -44,9 +43,13 @@ import {KeyValuePair} from "views/components/key_value_pair";
 import {CloseListener, Step, Wizard} from "views/components/wizard";
 import styles from "views/pages/elastic_agents/index.scss";
 import * as foundationStyles from "views/pages/new_plugins/foundation_hax.scss";
+import {ConceptDiagram} from "views/pages/pipelines/concept_diagram";
 
 const foundationClassNames = bind(foundationStyles);
 const AngularPluginNew     = require("views/shared/angular_plugin_new").AngularPluginNew;
+
+const clusterProfileImg      = require("../../../../app/assets/images/elastic_agents/cluster_profile.svg");
+const elasticAgentProfileImg = require("../../../../app/assets/images/elastic_agents/elastic_agent_profile.svg");
 
 interface Attrs {
   pluginInfos: Stream<PluginInfos>;
@@ -89,8 +92,9 @@ class NewClusterProfileWidget extends MithrilViewComponent<Attrs> {
         </div>
         <div>
           <h2>Cluster Profile</h2>
-          <img src="https://placeimg.com/200/200/tech"/>
-          <p>{new LoremIpsum().generateParagraphs(1)}</p>
+          <ConceptDiagram image={clusterProfileImg}>
+            <p>A Cluster Profile is the connection configuration of the environment where Elastic Agents run. Typically, this includes the cluster connection URL, credentials, network, permission settings etc. Eg: Kubernetes Cluster Configurations.</p>
+          </ConceptDiagram>
         </div>
       </div>
     );
@@ -177,8 +181,10 @@ class NewElasticProfileWidget extends MithrilViewComponent<Attrs> {
         </div>
         <div>
           <h2>Elastic Profile</h2>
-          <img src="https://placeimg.com/200/200/tech"/>
-          <p>{new LoremIpsum().generateParagraphs(1)}</p>
+          <ConceptDiagram image={elasticAgentProfileImg}>
+            <p>An Elastic Agent Profile usually contains the configuration for your agent.<br/>
+              Depending on the plugin used, this may contain the machine image (ami, docker image), size of the CPU/memory/disk, network settings among other things.</p>
+          </ConceptDiagram>
         </div>
       </div>
     );
@@ -293,8 +299,7 @@ class AssociateToJobsStep extends Step {
 
         <div>
           <h2>Associate to jobs</h2>
-          <img src="https://placeimg.com/200/200/tech"/>
-          <p>{new LoremIpsum().generateParagraphs(1)}</p>
+          <p>Associate the jobs that you want to run using the Elastic Agent Profile.</p>
         </div>
       </div>
     );

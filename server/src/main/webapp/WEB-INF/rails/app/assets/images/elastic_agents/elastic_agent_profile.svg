@@ -1,0 +1,40 @@
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="330" height="120" viewBox="0 0 330 120">
+  <defs>
+    <linearGradient id="linear-gradient" x1="113.5655" y1="60" x2="159.8381" y2="60" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#61c6cc" stop-opacity="0"/>
+      <stop offset="0.1097" stop-color="#61c6cc" stop-opacity="0.4118"/>
+      <stop offset="0.2289" stop-color="#61c6cc" stop-opacity="0.8328"/>
+      <stop offset="0.2833" stop-color="#61c6cc"/>
+    </linearGradient>
+  </defs>
+  <title>elastic agent profile</title>
+  <g>
+    <g>
+      <rect x="166.0214" y="10" width="140" height="100" rx="4" fill="#2f5977" stroke="#1c425d" stroke-miterlimit="10" stroke-width="3.6157"/>
+      <path d="M170.0214,10h132a4,4,0,0,1,4,4v8a0,0,0,0,1,0,0h-140a0,0,0,0,1,0,0V14A4,4,0,0,1,170.0214,10Z" fill="#33b0be" stroke="#1c425d" stroke-miterlimit="10" stroke-width="3.0565"/>
+      <line x1="176.1362" y1="32.5241" x2="212.1547" y2="32.5241" fill="none" stroke="#efefef" stroke-linecap="round" stroke-miterlimit="10" stroke-width="4"/>
+      <line x1="218.2128" y1="32.5241" x2="233.9407" y2="32.5241" fill="none" stroke="#efefef" stroke-linecap="round" stroke-miterlimit="10" stroke-width="4"/>
+      <line x1="239.9988" y1="32.5241" x2="255.7266" y2="32.5241" fill="none" stroke="#efefef" stroke-linecap="round" stroke-miterlimit="10" stroke-width="4"/>
+      <line x1="176.1362" y1="41.0466" x2="191.8757" y2="41.0466" fill="none" stroke="#efefef" stroke-linecap="round" stroke-miterlimit="10" stroke-width="4"/>
+      <line x1="247.8568" y1="41.0466" x2="256.3824" y2="41.0466" fill="none" stroke="#efefef" stroke-linecap="round" stroke-miterlimit="10" stroke-width="4"/>
+      <line x1="197.6405" y1="41.0466" x2="242.0921" y2="41.0466" fill="none" stroke="#efefef" stroke-linecap="round" stroke-miterlimit="10" stroke-width="4"/>
+      <line x1="176.1362" y1="49.5691" x2="208.1987" y2="49.5691" fill="none" stroke="#efefef" stroke-linecap="round" stroke-miterlimit="10" stroke-width="4"/>
+      <line x1="214.1563" y1="49.5691" x2="221.1267" y2="49.5691" fill="none" stroke="#efefef" stroke-linecap="round" stroke-miterlimit="10" stroke-width="4"/>
+      <line x1="176.1362" y1="58.0916" x2="196.1637" y2="58.0916" fill="none" stroke="#efefef" stroke-linecap="round" stroke-miterlimit="10" stroke-width="4"/>
+      <line x1="201.7528" y1="58.0916" x2="246.3669" y2="58.0916" fill="none" stroke="#efefef" stroke-linecap="round" stroke-miterlimit="10" stroke-width="4"/>
+      <line x1="176.1362" y1="66.6141" x2="208.1987" y2="66.6141" fill="none" stroke="#efefef" stroke-linecap="round" stroke-miterlimit="10" stroke-width="4"/>
+      <line x1="213.9652" y1="66.6141" x2="224.1051" y2="66.6141" fill="none" stroke="#efefef" stroke-linecap="round" stroke-miterlimit="10" stroke-width="4"/>
+      <line x1="229.8715" y1="66.6141" x2="259.1418" y2="66.6141" fill="none" stroke="#efefef" stroke-linecap="round" stroke-miterlimit="10" stroke-width="4"/>
+      <line x1="176.1362" y1="75.1366" x2="217.6415" y2="75.1366" fill="none" stroke="#efefef" stroke-linecap="round" stroke-miterlimit="10" stroke-width="4"/>
+      <line x1="223.7231" y1="75.1366" x2="227.8675" y2="75.1366" fill="none" stroke="#efefef" stroke-linecap="round" stroke-miterlimit="10" stroke-width="4"/>
+      <line x1="233.9491" y1="75.1366" x2="252.1196" y2="75.1366" fill="none" stroke="#efefef" stroke-linecap="round" stroke-miterlimit="10" stroke-width="4"/>
+      <line x1="176.1362" y1="83.6591" x2="198.9645" y2="83.6591" fill="none" stroke="#efefef" stroke-linecap="round" stroke-miterlimit="10" stroke-width="4"/>
+      <line x1="176.1362" y1="92.1816" x2="212.1547" y2="92.1816" fill="none" stroke="#efefef" stroke-linecap="round" stroke-miterlimit="10" stroke-width="4"/>
+      <circle cx="176.5859" cy="16" r="2.5" fill="#1c425d"/>
+      <circle cx="184.4557" cy="16" r="2.5" fill="#1c425d"/>
+      <circle cx="192.3254" cy="16" r="2.5" fill="#1c425d"/>
+    </g>
+    <path d="M103.7917,84.8306H120.74a2,2,0,0,1,2,2V96.9563a1,1,0,0,0,1.82.5729l25.8321-36.9563a1,1,0,0,0,0-1.1458L124.5591,22.4708a1,1,0,0,0-1.82.5729V33.1694a2,2,0,0,1-2,2H103.7917" stroke="#1c425d" stroke-miterlimit="10" stroke-width="3.0565" fill="url(#linear-gradient)"/>
+    <circle cx="56.1603" cy="60" r="32.1816" fill="#bcd24f" stroke="#1c425d" stroke-miterlimit="10" stroke-width="3.593"/>
+  </g>
+</svg>

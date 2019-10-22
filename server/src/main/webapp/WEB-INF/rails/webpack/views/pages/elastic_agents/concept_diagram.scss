@@ -14,21 +14,24 @@
  * limitations under the License.
  */
 
-import {MithrilViewComponent} from "jsx/mithril-component";
-import m from "mithril";
-import css from "./concept_diagram.scss";
+@import "../../global/common";
 
-interface Attrs {
-  image: string;
-}
+$diagram-caption-width: 300px;
 
-export class ConceptDiagram extends MithrilViewComponent<Attrs> {
-  view(vnode: m.Vnode<Attrs>): m.Children | void | null {
-    return <figure class={css.conceptDiagram}>
-      <object type="image/svg+xml" data={vnode.attrs.image} />
-      <figcaption>
-        {vnode.children}
-      </figcaption>
-    </figure>;
+.concept-diagram {
+  margin: 0;
+  padding: 0;
+
+  flex: 0 0 auto;
+
+  object {
+    background-color: $white;
+  }
+
+  figcaption {
+    font-size: 16px;
+    text-align: left;
+    max-width: $diagram-caption-width;
+    margin: 10px auto 0;
   }
 }

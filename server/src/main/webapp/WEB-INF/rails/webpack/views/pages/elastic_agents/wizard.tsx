@@ -31,6 +31,7 @@ import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type
 import {ElasticAgentExtension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {Default} from "views/components/buttons";
+import {ConceptDiagram} from "views/components/concept_diagram";
 import {
   SearchField,
   SelectField,
@@ -43,7 +44,6 @@ import {KeyValuePair} from "views/components/key_value_pair";
 import {CloseListener, Step, Wizard} from "views/components/wizard";
 import styles from "views/pages/elastic_agents/index.scss";
 import * as foundationStyles from "views/pages/new_plugins/foundation_hax.scss";
-import {ConceptDiagram} from "views/pages/pipelines/concept_diagram";
 
 const foundationClassNames = bind(foundationStyles);
 const AngularPluginNew     = require("views/shared/angular_plugin_new").AngularPluginNew;

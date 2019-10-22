@@ -16,8 +16,9 @@
 
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
+import {ConceptDiagram} from "views/components/concept_diagram";
+import conceptDiagramCss from "views/pages/elastic_agents/concept_diagram.scss";
 import styles from "views/pages/elastic_agents/help_text.scss";
-import {ConceptDiagram} from "views/pages/pipelines/concept_diagram";
 
 const clusterProfileImg      = require("../../../../app/assets/images/elastic_agents/cluster_profile.svg");
 const elasticAgentProfileImg = require("../../../../app/assets/images/elastic_agents/elastic_agent_profile.svg");
@@ -31,18 +32,18 @@ export class HelpText extends MithrilViewComponent {
           <h3 class={styles.panelTitle}>Configure Elastic Agents</h3>
         </div>
         <div class={styles.concepts}>
-          <ConceptDiagram image={clusterProfileImg}>
+          <ConceptDiagram image={clusterProfileImg} css={conceptDiagramCss}>
             <h3>Step 1: Create a Cluster Profile</h3>
             <div>A cluster profile is the connection configuration of the environment where elastic agents run.</div>
           </ConceptDiagram>
 
-          <ConceptDiagram image={elasticAgentProfileImg}>
+          <ConceptDiagram image={elasticAgentProfileImg} css={conceptDiagramCss}>
             <h3>Step 2: Create an Elastic Agent Profile</h3>
             <div>An elastic profile usually contains the configuration for your elastic agent</div>
           </ConceptDiagram>
 
-          <ConceptDiagram image={finishImg}>
-            <h3>Step 3: Finish!</h3>
+          <ConceptDiagram image={finishImg} css={conceptDiagramCss}>
+            <h3>&nbsp;&nbsp;Step 3: Finish!</h3>
           </ConceptDiagram>
         </div>
       </div>

@@ -157,10 +157,12 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
   }
 
   private onError(errorResponse: ErrorResponse, statusCode: number) {
-    if (422 === statusCode && errorResponse.data) {
-      this.entity(this.parseJsonToEntity(errorResponse.data));
-    } else {
-      this.errorMessage(JSON.parse(errorResponse.body!).message);
+    if (422 === statusCode) {
+      if (errorResponse.data) {
+        this.entity(this.parseJsonToEntity(errorResponse.data));
+      } else if (errorResponse.body) {
+        this.errorMessage(JSON.parse(errorResponse.body!).message);
+      }
     }
     this.operationError(errorResponse, statusCode);
   }

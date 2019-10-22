@@ -91,6 +91,8 @@ subprojects {
 
     task.verifyHelper = {
       // test image
+
+      // daemonize the container
       project.exec {
         workingDir = project.rootProject.projectDir
         commandLine = ["docker", "run", "--rm", "-d", "--name", docker.dockerImageName, docker.imageNameWithTag]
@@ -100,11 +102,17 @@ subprojects {
 
       Thread.sleep(10000)
 
-      def process = ["docker", "exec", docker.dockerImageName, "ps", "aux"].execute()
-      process.waitFor()
+      ByteArrayOutputStream baos = new ByteArrayOutputStream()
 
-      def processList = process.text
+      // run a `ps aux`
+      project.exec {
+        workingDir = project.rootProject.projectDir
+        commandLine = ["docker", "exec", docker.dockerImageName, "ps", "aux"]
+        standardOutput = baos
+        errorOutput = baos
+      }
 
+      // stop the container
       project.exec {
         workingDir = project.rootProject.projectDir
         commandLine = ["docker", "stop", docker.dockerImageName]
@@ -112,8 +120,9 @@ subprojects {
         errorOutput = System.err
       }
 
+      // assert if process was running
+      def processList = baos.toString()
       def expectedString = "lib/go.jar"
-
       if (!processList.contains(expectedString)) {
         throw new GradleException("Expected process output to contain ${expectedString}, but was: ${processList}".toString())
       }

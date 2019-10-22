@@ -24,6 +24,7 @@ import {Configurations} from "models/shared/configuration";
 import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
 import {ElasticAgentExtension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
+import * as Buttons from "views/components/buttons";
 import {ConceptDiagram} from "views/components/concept_diagram";
 import {SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
 import {CloseListener, Step, Wizard} from "views/components/wizard";
@@ -218,6 +219,14 @@ class NewClusterProfileStep extends Step {
     return "Cluster profile";
   }
 
+  footer(wizard: Wizard): m.Children {
+    return [
+      <Buttons.Cancel onclick={wizard.close.bind(wizard)}
+                      data-test-id="cancel">Cancel</Buttons.Cancel>,
+      <Buttons.Primary data-test-id="next" onclick={wizard.next.bind(wizard, 1)} align="right">Next</Buttons.Primary>,
+      <Buttons.Reset data-test-id="save-cluster-profile" align="right">Save Cluster Profile and Exit</Buttons.Reset>
+    ];
+  }
 }
 
 class NewElasticProfileStep extends Step {
@@ -242,6 +251,15 @@ class NewElasticProfileStep extends Step {
 
   header(): m.Children {
     return "Elastic profile";
+  }
+
+  footer(wizard: Wizard): m.Children {
+    return [
+      <Buttons.Cancel onclick={wizard.close.bind(wizard)}
+                      data-test-id="cancel">Cancel</Buttons.Cancel>,
+      <Buttons.Primary data-test-id="finish" align="right">Finish</Buttons.Primary>,
+      <Buttons.Primary data-test-id="next" onclick={wizard.previous.bind(wizard, 1)} align="right">Previous</Buttons.Primary>,
+    ];
   }
 }
 

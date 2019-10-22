@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-import {ApiRequestBuilder, ApiResult, ApiVersion, ErrorResponse} from "helpers/api_request_builder";
-import {SparkRoutes} from "helpers/spark_routes";
+import {ErrorResponse} from "helpers/api_request_builder";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {ClusterProfilesCRUD} from "models/elastic_profiles/cluster_profiles_crud";
@@ -27,8 +26,6 @@ import {
   ElasticAgentProfiles
 } from "models/elastic_profiles/types";
 import {Configurations} from "models/shared/configuration";
-import {PipelineStructure} from "models/shared/pipeline_structure/pipeline_structure";
-import {PipelineStructureJSON} from "models/shared/pipeline_structure/serialization";
 import {ElasticAgentsExtensionType, ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
@@ -48,7 +45,9 @@ import {
 import {ClusterProfilesWidget} from "views/pages/elastic_agent_configurations/cluster_profiles_widget";
 import {
   CloneElasticProfileModal,
-  EditElasticProfileModal, NewElasticProfileModal, UsageElasticProfileModal
+  EditElasticProfileModal,
+  NewElasticProfileModal,
+  UsageElasticProfileModal
 } from "views/pages/elastic_agent_configurations/elastic_agent_profiles_modals";
 import {ElasticAgentOperations} from "views/pages/elastic_agent_configurations/elastic_profiles_widget";
 import {HelpText} from "views/pages/elastic_agents/help_text";
@@ -62,23 +61,9 @@ export interface State extends RequiresPluginInfos, SaveOperation {
   clusterProfiles: Stream<ClusterProfiles>;
   clusterProfileBeingEdited: Stream<ClusterProfile>;
   elasticProfileBeingEdited: Stream<ElasticAgentProfile>;
-  pipelineStructure: Stream<PipelineStructure>;
   elasticAgentOperations: ElasticAgentOperations;
   clusterProfileOperations: ClusterProfileOperations;
   isWizardOpen: Stream<boolean>;
-}
-
-export class PipelineStructureCRUD {
-  static all() {
-    return ApiRequestBuilder.GET(SparkRoutes.apiAdminInternalPipelinesPath(), ApiVersion.latest)
-                            .then((result: ApiResult<string>) => {
-                              return result.map((str) => {
-                                const data = JSON.parse(str) as PipelineStructureJSON.PipelineStructure;
-                                return PipelineStructure.fromJSON(data);
-                              });
-                            });
-
-  }
 }
 
 export class ElasticAgentsPage extends Page<null, State> {
@@ -259,13 +244,11 @@ export class ElasticAgentsPage extends Page<null, State> {
     vnode.state.elasticProfiles           = Stream(new ElasticAgentProfiles([]));
     vnode.state.clusterProfileBeingEdited = Stream();
     vnode.state.elasticProfileBeingEdited = Stream();
-    vnode.state.pipelineStructure         = Stream(new PipelineStructure([], []));
     vnode.state.isWizardOpen              = Stream();
 
     return Promise.all(
       [
         PluginInfoCRUD.all({type: ExtensionTypeString.ELASTIC_AGENTS}),
-        PipelineStructureCRUD.all(),
         ClusterProfilesCRUD.all(),
         ElasticAgentProfilesCRUD.all(),
       ]
@@ -282,19 +265,12 @@ export class ElasticAgentsPage extends Page<null, State> {
       );
       results[1].do(
         (successResponse) => {
-          vnode.state.pipelineStructure(successResponse.body);
-          this.pageState = PageState.OK;
-        },
-        () => this.setErrorState()
-      );
-      results[2].do(
-        (successResponse) => {
           vnode.state.clusterProfiles(successResponse.body);
           this.pageState = PageState.OK;
         },
         () => this.setErrorState()
       );
-      results[3].do(
+      results[2].do(
         (successResponse) => {
           successResponse.body.inferPluginIdFromReferencedCluster(vnode.state.clusterProfiles());
           vnode.state.elasticProfiles(successResponse.body);
@@ -335,6 +311,6 @@ export class ElasticAgentsPage extends Page<null, State> {
     return openWizard(vnode.state.pluginInfos,
                       vnode.state.clusterProfileBeingEdited,
                       vnode.state.elasticProfileBeingEdited,
-                      vnode.state.pipelineStructure, closeListener);
+                      closeListener);
   }
 }

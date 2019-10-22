@@ -123,7 +123,7 @@ class CRPanelActions extends MithrilViewComponent<ActionsAttrs> {
     if (vnode.attrs.inProgress) {
       statusIcon = <span class={styles.configRepoUpdateInProgress} data-test-id="repo-update-in-progress-icon"/>;
     } else if (!vnode.attrs.configRepoHasErrors) {
-      statusIcon = <span class={styles.configRepoSuccessState} />;
+      statusIcon = <span class={styles.configRepoSuccessState} data-test-id="repo-success-state"/>;
     }
 
     return [

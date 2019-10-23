@@ -16,24 +16,20 @@
 
 @import "../../global/common";
 
-.panel-header {
-  background: $secondary-bg;
-  border-radius: $global-border-radius $global-border-radius 0 0;
-}
-
-.panel-title {
-  font-weight: $global-font-weight;
-  padding: 15px 20px;
+.concept-diagram {
   margin: 0;
-}
+  padding: 15px;
+  background-color: $white;
+  max-width: 400px;
+  border-radius: 10px;
+  border: 1px solid $global-border-color;
 
-.concepts {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-evenly;
-  background: $white;
-  padding-bottom: 50px;
-  padding-top: 50px;
-  border-radius: 0 0 $global-border-radius $global-border-radius;
+  figcaption {
+    font-size: 16px;
+    text-align: left;
+    margin: 10px;
+    h2 {
+      text-align: center;
+    }
+  }
 }

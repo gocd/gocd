@@ -29,6 +29,7 @@ import {ConceptDiagram} from "views/components/concept_diagram";
 import {SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
 import {CloseListener, Step, Wizard} from "views/components/wizard";
 import styles from "views/pages/elastic_agents/index.scss";
+import conceptDiagramStyles from "views/pages/elastic_agents/wizard_concept_diagrams.scss";
 import * as foundationStyles from "views/pages/new_plugins/foundation_hax.scss";
 
 const foundationClassNames = bind(foundationStyles);
@@ -76,12 +77,12 @@ class NewClusterProfileWidget extends MithrilViewComponent<Attrs> {
             </div>
           </div>
         </div>
-        <div>
-          <h2>Cluster Profile</h2>
-          <ConceptDiagram image={clusterProfileImg}>
-            <p>A Cluster Profile is the connection configuration of the environment where Elastic Agents run. Typically, this includes the cluster connection URL, credentials, network, permission settings etc. Eg: Kubernetes Cluster Configurations.</p>
-          </ConceptDiagram>
-        </div>
+        <ConceptDiagram image={clusterProfileImg} css={conceptDiagramStyles}>
+          <h2>What is a Cluster Profile?</h2>
+          <p>A Cluster Profile is the connection configuration of the environment where Elastic Agents run. Typically,
+            this includes the cluster connection URL, credentials, network, permission settings etc. Eg: Kubernetes
+            Cluster Configurations.</p>
+        </ConceptDiagram>
       </div>
     );
   }
@@ -166,10 +167,11 @@ class NewElasticProfileWidget extends MithrilViewComponent<Attrs> {
           </div>
         </div>
         <div>
-          <h2>Elastic Profile</h2>
-          <ConceptDiagram image={elasticAgentProfileImg}>
+          <ConceptDiagram image={elasticAgentProfileImg} css={conceptDiagramStyles}>
+            <h2>What is an Elastic Agent Profile?</h2>
             <p>An Elastic Agent Profile usually contains the configuration for your agent.<br/>
-              Depending on the plugin used, this may contain the machine image (ami, docker image), size of the CPU/memory/disk, network settings among other things.</p>
+              Depending on the plugin used, this may contain the machine image (ami, docker image), size of the
+              CPU/memory/disk, network settings among other things.</p>
           </ConceptDiagram>
         </div>
       </div>

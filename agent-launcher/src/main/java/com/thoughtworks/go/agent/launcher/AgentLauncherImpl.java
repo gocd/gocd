@@ -84,7 +84,17 @@ public class AgentLauncherImpl implements AgentLauncher {
 
             AgentBootstrapperArgs bootstrapperArgs = AgentBootstrapperArgs.fromProperties(context);
             ServerUrlGenerator urlGenerator = new UrlConstructor(bootstrapperArgs.getServerUrl().toExternalForm());
+            
+            
+            try {
+             File rootCertFile = bootstrapperArgs.getRootCertFile();
+            } catch (FileNotFoundException e) {
+                return;
+            }
+            
             File rootCertFile = bootstrapperArgs.getRootCertFile();
+            
+            
             SslVerificationMode sslVerificationMode = SslVerificationMode.valueOf(bootstrapperArgs.getSslMode().name());
 
             ServerBinaryDownloader launcherDownloader = new ServerBinaryDownloader(urlGenerator, rootCertFile, sslVerificationMode);

@@ -28,7 +28,7 @@
     "font-awesome": "^4.7.0",
     "foundation-sites": "^6.2.3",
     "hack-font": "^3.3.0",
-    "jquery": "^2.2.0",
+    "jquery": "^3.4.0",
     "lodash": "^4.17.15",
     "lodash-inflection": "^1.5.0",
     "lorem-ipsum": "^2.0.3",

@@ -36,8 +36,13 @@ public class DevelopmentAgent {
     }
 
     private static void assertActivationJarPresent() {
-        if (DevelopmentAgent.class.getResource("/go-plugin-activator.jar") == null) {
+        try {
+       if (DevelopmentAgent.class.getResource("/go-plugin-activator.jar") == null) {
             System.err.println("Could not find plugin activator jar, Plugin framework will not be loaded. Hint: Did you run `./gradlew prepare`?");
         }
+    } catch (FileNotFoundException ex) {
+        LOG.error("Optional file " + fileName + " was not found.", ex);
+     }
+        
     }
 }

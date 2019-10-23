@@ -32,6 +32,9 @@ public class ServerUrlValidator implements IParameterValidator {
         } catch (MalformedURLException e) {
             throw new ParameterException(name + " is not a valid url");
         }
+        finally {
+            return serverUrl;
+        }
 
         if (!Arrays.asList("http", "https").contains(serverUrl.getProtocol())) {
             throw new ParameterException(name + " must use http or https protocol");

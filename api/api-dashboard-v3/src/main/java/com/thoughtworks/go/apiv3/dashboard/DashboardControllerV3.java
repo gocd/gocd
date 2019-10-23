@@ -89,7 +89,7 @@ public class DashboardControllerV3 extends ApiController implements SparkSpringC
             response.status(ACCEPTED);
             return BEING_PROCESSED;
         }
-
+        
         final String personalizationCookie = request.cookie(COOKIE_NAME);
         final Long userId = currentUserId(request);
         final Username userName = currentUsername();
@@ -124,7 +124,9 @@ public class DashboardControllerV3 extends ApiController implements SparkSpringC
     }
 
     private String getViewName(Request request) {
+         if((request.queryParams(VIEW_NAME))!=null){
         final String viewName = request.queryParams(VIEW_NAME);
+         }
         return StringUtils.isBlank(viewName) ? DEFAULT_NAME : viewName;
     }
 }

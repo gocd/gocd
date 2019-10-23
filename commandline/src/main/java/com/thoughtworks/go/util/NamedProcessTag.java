@@ -23,8 +23,9 @@ import lombok.Getter;
 @Getter
 public class NamedProcessTag implements ProcessTag {
     private final String tag;
-
+ if(tag!=null){
     public NamedProcessTag(String tag) {
         this.tag = tag;
     }
+ }
 }

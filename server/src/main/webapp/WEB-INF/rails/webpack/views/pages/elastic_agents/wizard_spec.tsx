@@ -28,20 +28,22 @@ describe("ElasticAgentWizard", () => {
   let pluginInfos;
   let clusterProfile;
   let elasticProfile;
+  let onSuccessfulSave: any;
+  let onError;
 
   beforeEach(() => {
-    pluginInfos       = Stream(new PluginInfos(PluginInfo.fromJSON(pluginInfoWithElasticAgentExtensionV5)));
-    clusterProfile    = Stream(new ClusterProfile(undefined,
-                                                  undefined,
-                                                  new Configurations([])));
-    elasticProfile    = Stream(new ElasticAgentProfile(undefined,
-                                                       undefined,
-                                                       undefined,
-                                                       new Configurations([])));
+    pluginInfos      = Stream(new PluginInfos(PluginInfo.fromJSON(pluginInfoWithElasticAgentExtensionV5)));
+    clusterProfile   = Stream(new ClusterProfile(undefined,
+                                                 undefined,
+                                                 new Configurations([])));
+    elasticProfile   = Stream(new ElasticAgentProfile(undefined,
+                                                      undefined,
+                                                      undefined,
+                                                      new Configurations([])));
+    onSuccessfulSave = jasmine.createSpy();
+    onError          = jasmine.createSpy();
 
-    wizard = openWizard(pluginInfos,
-                        clusterProfile,
-                        elasticProfile);
+    wizard = openWizard(pluginInfos, clusterProfile, elasticProfile, onSuccessfulSave, onError);
     m.redraw.sync();
   });
 

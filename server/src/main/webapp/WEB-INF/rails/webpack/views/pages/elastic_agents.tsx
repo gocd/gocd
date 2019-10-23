@@ -311,6 +311,8 @@ export class ElasticAgentsPage extends Page<null, State> {
     return openWizard(vnode.state.pluginInfos,
                       vnode.state.clusterProfileBeingEdited,
                       vnode.state.elasticProfileBeingEdited,
+                      vnode.state.onSuccessfulSave,
+                      vnode.state.onError,
                       closeListener);
   }
 }

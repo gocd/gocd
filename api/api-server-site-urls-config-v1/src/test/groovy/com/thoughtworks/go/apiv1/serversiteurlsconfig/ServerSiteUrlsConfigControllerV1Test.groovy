@@ -126,6 +126,7 @@ class ServerSiteUrlsConfigControllerV1Test implements SecurityServiceTrait, Cont
         def jsonPayload = ["site_url"       : "http://foo",
                            "secure_site_url": "https://foo"]
 
+        when(serverConfigService.getServerSiteUrls()).thenReturn(siteUrls)
         postWithApiHeader(controller.controllerBasePath(), jsonPayload)
 
         assertThatResponse()
@@ -196,6 +197,7 @@ class ServerSiteUrlsConfigControllerV1Test implements SecurityServiceTrait, Cont
         def jsonPayload = ["site_url"       : "http://foo",
                            "secure_site_url": "https://foo"]
 
+        when(serverConfigService.getServerSiteUrls()).thenReturn(siteUrls)
         putWithApiHeader(controller.controllerBasePath(), jsonPayload)
 
         assertThatResponse()

@@ -16,18 +16,23 @@
 
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.SecureSiteUrl;
 import com.thoughtworks.go.domain.SiteUrl;
+import org.springframework.validation.Errors;
 
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 @ConfigTag("siteUrls")
-public class SiteUrls {
+public class SiteUrls implements Validatable {
     @ConfigSubtag
     private SiteUrl siteUrl;
 
     @ConfigSubtag
     private SecureSiteUrl secureSiteUrl;
+
+    private ConfigErrors errors = new ConfigErrors();
 
     public SiteUrls() {
         this.siteUrl = new SiteUrl();
@@ -53,6 +58,25 @@ public class SiteUrls {
 
     public void setSecureSiteUrl(SecureSiteUrl secureSiteUrl) {
         this.secureSiteUrl = secureSiteUrl;
+    }
+
+    public void validate(ValidationContext validationContext) {
+        if (!Pattern.matches("(https?://.+)?", siteUrl.toString())) {
+            errors().add("siteUrl", String.format("Invalid format for site url. '%s' must start with http/s", siteUrl.toString()));
+        }
+        if (!Pattern.matches("(https://.+)?", secureSiteUrl.toString())) {
+            errors().add("secureSiteUrl", String.format("Invalid format for secure site url. '%s' must start with https", secureSiteUrl.toString()));
+        }
+    }
+
+    @Override
+    public ConfigErrors errors() {
+        return errors;
+    }
+
+    @Override
+    public void addError(String fieldName, String message) {
+        errors.add(fieldName, message);
     }
 
     @Override

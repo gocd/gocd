@@ -27,6 +27,7 @@ import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type
 import {ElasticAgentExtension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import * as Buttons from "views/components/buttons";
+import wizardButtonStyles from "views/components/buttons/wizard_buttons.scss";
 import {ConceptDiagram} from "views/components/concept_diagram";
 import {SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
 import {CloseListener, Step, Wizard} from "views/components/wizard";
@@ -144,17 +145,17 @@ class NewElasticProfileWidget extends MithrilViewComponent<Attrs> {
       <div class={styles.container}>
         <div>
           <div class={styles.profileForm}>
-              <TextField label="Elastic Profile Name"
-                         property={vnode.attrs.elasticProfile().id}
-                         errorText={vnode.attrs.elasticProfile().errors().errorsForDisplay("id")}
-                         required={true}/>
-              {/*<SelectField label="Cluster Profile ID"*/}
-              {/*property={this.clusterProfileIdProxy.bind(this)}*/}
-              {/*required={true}*/}
-              {/*errorText={vnode.attrs.elasticProfile().errors().errorsForDisplay("pluginId")}>*/}
-              {/*<SelectFieldOptions selected={vnode.attrs.elasticProfile().clusterProfileId()}*/}
-              {/*items={clustersList as any}/>*/}
-              {/*</SelectField>*/}
+            <TextField label="Elastic Profile Name"
+                       property={vnode.attrs.elasticProfile().id}
+                       errorText={vnode.attrs.elasticProfile().errors().errorsForDisplay("id")}
+                       required={true}/>
+            {/*<SelectField label="Cluster Profile ID"*/}
+            {/*property={this.clusterProfileIdProxy.bind(this)}*/}
+            {/*required={true}*/}
+            {/*errorText={vnode.attrs.elasticProfile().errors().errorsForDisplay("pluginId")}>*/}
+            {/*<SelectFieldOptions selected={vnode.attrs.elasticProfile().clusterProfileId()}*/}
+            {/*items={clustersList as any}/>*/}
+            {/*</SelectField>*/}
           </div>
           <div>
             <div
@@ -213,11 +214,11 @@ class NewClusterProfileStep extends Step {
               onSuccessfulSave: (msg: m.Children) => any,
               onError: (msg: m.Children) => any) {
     super();
-    this.pluginInfos    = pluginInfos;
-    this.clusterProfile = clusterProfile;
-    this.elasticProfile = elasticProfile;
+    this.pluginInfos      = pluginInfos;
+    this.clusterProfile   = clusterProfile;
+    this.elasticProfile   = elasticProfile;
     this.onSuccessfulSave = onSuccessfulSave;
-    this.onError = onError;
+    this.onError          = onError;
   }
 
   body(): m.Children {
@@ -232,11 +233,13 @@ class NewClusterProfileStep extends Step {
 
   footer(wizard: Wizard): m.Children {
     return [
-      <Buttons.Cancel onclick={wizard.close.bind(wizard)}
+      <Buttons.Cancel css={wizardButtonStyles} onclick={wizard.close.bind(wizard)}
                       data-test-id="cancel">Cancel</Buttons.Cancel>,
-      <Buttons.Primary data-test-id="next" onclick={wizard.next.bind(wizard, 1)} align="right">Next</Buttons.Primary>,
-      <Buttons.Reset data-test-id="save-cluster-profile" onclick={this.saveClusterProfileAndExit.bind(this, wizard)}
-                     align="right">Save Cluster Profile and Exit</Buttons.Reset>,
+      <Buttons.Primary css={wizardButtonStyles} data-test-id="next" onclick={wizard.next.bind(wizard, 1)}
+                       align="right">Next</Buttons.Primary>,
+      <Buttons.Secondary css={wizardButtonStyles} data-test-id="save-cluster-profile"
+                         onclick={this.saveClusterProfileAndExit.bind(this, wizard)}
+                         align="right">Save Cluster Profile and Exit</Buttons.Secondary>,
       <span class={styles.footerError}>{this.footerError()}</span>,
     ];
   }

@@ -15,14 +15,25 @@
  */
 
 @import "../../global/common";
-@import "fillable_section";
-@import "../../components/buttons/index";
-@import "../../components/buttons/wizard_buttons";
+@import "index";
 
-.actions {
-  @extend .fillable;
+.btn-secondary {
+  @include button($background-color: $white);
 
-  .save-btns {
-    white-space: nowrap;
+  color: $btn-primary;
+  border: 1px solid $btn-primary;
+
+  &:hover {
+    color: $white;
+    background-color: darken($btn-primary, 10%);
+    border-color: darken($btn-primary, 10%);
+  }
+}
+
+.btn-cancel {
+  border: 1px solid $btn-reset;
+  &:hover {
+    background-color: $btn-reset;
+    color: $white;
   }
 }

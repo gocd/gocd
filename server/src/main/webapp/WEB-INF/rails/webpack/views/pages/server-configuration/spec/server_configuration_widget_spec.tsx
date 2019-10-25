@@ -17,8 +17,12 @@
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {MailServer} from "models/mail_server/types";
-import {ArtifactConfig, DefaultJobTimeout, SiteUrls} from "models/server-configuration/server_configuration";
+import {
+  ArtifactConfig,
+  DefaultJobTimeout,
+  MailServer,
+  SiteUrls
+} from "models/server-configuration/server_configuration";
 import {ServerConfigurationWidget} from "views/pages/server-configuration/server_configuration_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
 

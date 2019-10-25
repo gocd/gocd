@@ -17,14 +17,17 @@
 import {JsonUtils} from "helpers/json_utils";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {MailServerCrud} from "models/mail_server/mail_server_crud";
-import {MailServer} from "models/mail_server/types";
 import {
   ArtifactConfigCRUD,
-  JobTimeoutManagementCRUD,
+  JobTimeoutManagementCRUD, MailServerCrud,
   ServerManagementCRUD
 } from "models/server-configuration/server_configuartion_crud";
-import {ArtifactConfig, DefaultJobTimeout, SiteUrls} from "models/server-configuration/server_configuration";
+import {
+  ArtifactConfig,
+  DefaultJobTimeout,
+  MailServer,
+  SiteUrls
+} from "models/server-configuration/server_configuration";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Page, PageState} from "views/pages/page";
 import {OperationState} from "views/pages/page_operations";

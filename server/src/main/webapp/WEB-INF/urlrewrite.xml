@@ -110,12 +110,6 @@
   </rule>
 
   <rule>
-    <name>mail_server UI</name>
-    <from>^/admin/mail_server(/?)$</from>
-    <to last="true">/spark/admin/mail_server</to>
-  </rule>
-
-  <rule>
     <name>Mailhost API</name>
     <from>^/api/config/mailserver(/?)$</from>
     <to last="true">/spark/api/config/mailserver</to>

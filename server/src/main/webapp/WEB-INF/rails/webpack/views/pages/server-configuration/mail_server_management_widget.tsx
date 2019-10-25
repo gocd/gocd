@@ -17,7 +17,7 @@
 import {docsUrl} from "gen/gocd_version";
 import {MithrilComponent} from "jsx/mithril-component";
 import m from "mithril";
-import {MailServer} from "models/mail_server/types";
+import {MailServer} from "models/server-configuration/server_configuration";
 import {ButtonGroup, ButtonIcon, Cancel, Primary} from "views/components/buttons";
 import {Form, FormBody} from "views/components/forms/form";
 import {CheckboxField, NumberField, PasswordField, TextField} from "views/components/forms/input_fields";

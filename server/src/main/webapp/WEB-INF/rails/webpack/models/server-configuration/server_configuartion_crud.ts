@@ -15,8 +15,14 @@
  */
 
 import {ApiRequestBuilder, ApiResult, ApiVersion, ObjectWithEtag} from "helpers/api_request_builder";
+import {JsonUtils} from "helpers/json_utils";
 import {SparkRoutes} from "helpers/spark_routes";
-import {ArtifactConfig, DefaultJobTimeout, SiteUrls} from "models/server-configuration/server_configuration";
+import {
+  ArtifactConfig,
+  DefaultJobTimeout,
+  MailServer,
+  SiteUrls
+} from "models/server-configuration/server_configuration";
 
 export class ServerManagementCRUD {
   private static API_VERSION_HEADER = ApiVersion.v1;
@@ -94,4 +100,32 @@ export class JobTimeoutManagementCRUD {
       return DefaultJobTimeout.fromJSON(JSON.parse(body));
     });
   }
+}
+
+export class MailServerCrud {
+  private static API_VERSION_HEADER = ApiVersion.v1;
+
+  static get() {
+    return ApiRequestBuilder.GET(SparkRoutes.mailServerConfigPath(), this.API_VERSION_HEADER)
+                            .then(this.extractMailServer());
+  }
+
+  static createOrUpdate(mailServerConfig: MailServer) {
+    return ApiRequestBuilder.POST(SparkRoutes.mailServerConfigPath(),
+                                  this.API_VERSION_HEADER,
+                                  {payload: JsonUtils.toSnakeCasedObject(mailServerConfig)})
+                            .then(this.extractMailServer());
+  }
+
+  static delete() {
+    return ApiRequestBuilder.DELETE(SparkRoutes.mailServerConfigPath(), this.API_VERSION_HEADER)
+                            .then((result: ApiResult<string>) => result.map((body) => JSON.parse(body)));
+  }
+
+  private static extractMailServer() {
+    return (result: ApiResult<string>) => result.map((body) => {
+      return MailServer.fromJSON(JsonUtils.toCamelCasedObject(JSON.parse(body)));
+    });
+  }
+
 }

@@ -695,10 +695,6 @@ public class Routes {
         public static final String DOC = apiDocsUrl("#backup-config");
     }
 
-    public class MailServerPage {
-        public static final String SPA_BASE = "/admin/mail_server";
-    }
-
     public class NewAgent {
         public static final String SPA_BASE = "/new-agents";
     }

@@ -14,9 +14,13 @@
  * limitations under the License.
  */
 
+import {mixins as s} from "helpers/string-plus";
 import _ from "lodash";
 import Stream from "mithril/stream";
+import {ErrorMessages} from "models/mixins/error_messages";
+import {Errors} from "models/mixins/errors";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
+import {EncryptedValue, plainOrCipherValue} from "views/components/forms/encrypted_value";
 
 export interface SiteUrlsJSON {
   site_url?: string;
@@ -43,11 +47,6 @@ export class SiteUrls extends ValidatableMixin {
 export interface PurgeSettingsJSON {
   purge_start_disk_space?: number;
   purge_upto_disk_space?: number;
-}
-
-export interface PipelineManagementJSON {
-  artifacts_dir: string;
-  purge_settings?: PurgeSettingsJSON;
 }
 
 export class PurgeSettings extends ValidatableMixin {
@@ -164,10 +163,99 @@ export class DefaultJobTimeout extends ValidatableMixin {
     const valid = super.isValid();
 
     if (!this.neverTimeout() && this.defaultJobTimeout() === 0) {
-      this.errors().add("defaultJobTimeout", " Timeout cannot be a negative number as it represents number of minutes");
+      this.errors().add("defaultJobTimeout", "Timeout cannot be a negative number as it represents number of minutes");
       return false;
     }
 
     return valid;
   }
+}
+
+interface MailServerJSON {
+  hostname: string;
+  port: number;
+  username: string;
+  password: string;
+  encryptedPassword: string;
+  tls: boolean;
+  senderEmail: string;
+  adminEmail: string;
+  errors?: { [key: string]: string[] };
+}
+
+export class MailServer extends ValidatableMixin {
+  hostname: Stream<string | undefined>;
+  port: Stream<number | undefined>;
+  username: Stream<string | undefined>;
+  password: Stream<EncryptedValue>;
+  tls: Stream<boolean | undefined>;
+  senderEmail: Stream<string | undefined>;
+  adminEmail: Stream<string | undefined>;
+
+  constructor(hostname?: string,
+              port?: number,
+              username?: string,
+              password?: string,
+              encryptedPassword?: string,
+              tls?: boolean,
+              senderEmail?: string,
+              adminEmail?: string,
+              errors: Errors = new Errors()) {
+    super();
+    ValidatableMixin.call(this);
+
+    this.hostname    = Stream(hostname);
+    this.port        = Stream(port);
+    this.username    = Stream(username);
+    this.password    = Stream(plainOrCipherValue({plainText: password, cipherText: encryptedPassword}));
+    this.tls         = Stream(tls);
+    this.senderEmail = Stream(senderEmail);
+    this.adminEmail  = Stream(adminEmail);
+
+    this.validatePresenceOf("hostname");
+    this.validatePresenceOf("port");
+    this.validatePresenceOf("senderEmail");
+    this.validatePresenceOf("adminEmail");
+
+    this.validatePresenceOfPassword("password", {
+      condition: () => {
+        return !s.isBlank(this.username()!);
+      },
+      message: ErrorMessages.mustBePresentIf("password", "username is specified")
+    });
+    this.errors(errors);
+  }
+
+  static fromJSON(data: MailServerJSON) {
+    const errors = new Errors(data.errors);
+    return new MailServer(data.hostname,
+                          data.port,
+                          data.username,
+                          data.password,
+                          data.encryptedPassword,
+                          data.tls,
+                          data.senderEmail,
+                          data.adminEmail,
+                          errors);
+  }
+
+  toJSON() {
+    const serialized                       = _.assign({}, this);
+    const password: Stream<EncryptedValue> = _.get(serialized, "password");
+
+    // remove the password field and setup the password serialization
+    if (password) {
+      // @ts-ignore
+      delete serialized.password;
+
+      if (password().isPlain() || password().isDirty()) {
+        return _.assign({}, serialized, {password: password().value()});
+      } else {
+        return _.assign({}, serialized, {encrypted_password: password().value()});
+      }
+    }
+
+    return serialized;
+  }
+
 }

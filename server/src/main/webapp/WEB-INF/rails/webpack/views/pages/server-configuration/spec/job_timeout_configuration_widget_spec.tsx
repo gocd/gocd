@@ -72,7 +72,7 @@ describe("defaultJobTimeoutWidget", () => {
     helper.clickByTestId("save");
 
     const inputId = helper.byTestId("form-field-input-default-job-timeout").getAttribute("id");
-    expect(helper.q(`#${inputId}-error-text`)).toHaveText("Timeout cannot be a negative number as it represents number of minutes");
+    expect(helper.q(`#${inputId}-error-text`)).toHaveText("Timeout cannot be a negative number as it represents number of minutes.");
   });
 
 });

@@ -16,7 +16,7 @@
 
 import m from "mithril";
 import Stream from "mithril/stream";
-import {MailServer} from "models/mail_server/types";
+import {MailServer} from "models/server-configuration/server_configuration";
 import {MailServerManagementWidget} from "views/pages/server-configuration/mail_server_management_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
 

@@ -817,10 +817,10 @@
   resolved "https://registry.yarnpkg.com/@types/anymatch/-/anymatch-1.3.1.tgz#336badc1beecb9dacc38bea2cf32adf627a8421a"
   integrity sha512-/+CRPXpBDpo2RK9C68N3b2cOvO0Cf5B9aPijHsoDQTHivnGSObdOF2BRQOYjojWTDy6nQvMjmqRXIxH55VjxxA==
 
-"@types/awesomplete@^1.1.9":
-  version "1.1.9"
-  resolved "https://registry.yarnpkg.com/@types/awesomplete/-/awesomplete-1.1.9.tgz#48d6fefd9904ca5f504e0c71d6576d8c3a98f5f4"
-  integrity sha512-O/hAPz2AZc2moetIpd5tmVnwiATx2MpuVnuetqkkGatOv0gUGJyKdD0H8EuZLqbHtc7H/HFgUBjkWBivMt8zwA==
+"@types/awesomplete@^1.1.10":
+  version "1.1.10"
+  resolved "https://registry.yarnpkg.com/@types/awesomplete/-/awesomplete-1.1.10.tgz#402ba293273b3d3a40c3569f123e2fa0d2681bdf"
+  integrity sha512-rNtfXy5pkneFI7zeMOiZ6ES9NgLt8PVuCtEH/K1QCsB6CSRrKjEbrbqWH1MizJ3zyfJH7dfEfRdkP+CyqaHMHQ==
 
 "@types/classnames@^2.2.9":
   version "2.2.9"

@@ -88,6 +88,21 @@ describe("WizardSpec", () => {
 
       expect(findIn(styles.wizardBody, styles.stepBody)[0]).toHaveText("This is step two");
     });
+
+    it("should not switch to step on click of step name when turned off", () => {
+      wizard.allowHeaderClick = false;
+      wizard.render();
+      m.redraw.sync();
+
+      expect(findByClass(styles.wizard)).not.toBeNull();
+      expect(findIn(styles.wizardBody, styles.stepBody).length).toBe(1);
+      expect(findIn(styles.wizardBody, styles.stepBody)[0]).toHaveText("This is step one");
+
+      simulateEvent.simulate(findIn(styles.wizardHeader, styles.stepHeader)[1], "click");
+      m.redraw.sync();
+
+      expect(findIn(styles.wizardBody, styles.stepBody)[0]).toHaveText("This is step one");
+    });
   });
 
   describe("Cancel button", () => {

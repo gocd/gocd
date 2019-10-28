@@ -20,7 +20,6 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {ClusterProfilesCRUD} from "models/elastic_profiles/cluster_profiles_crud";
 import {ClusterProfile, ElasticAgentProfile} from "models/elastic_profiles/types";
 import {Configurations} from "models/shared/configuration";
 import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
@@ -45,6 +44,7 @@ interface Attrs {
   pluginInfos: Stream<PluginInfos>;
   clusterProfile: Stream<ClusterProfile>;
   elasticProfile: Stream<ElasticAgentProfile>;
+  etag?: string;
 }
 
 class NewClusterProfileWidget extends MithrilViewComponent<Attrs> {
@@ -58,6 +58,7 @@ class NewClusterProfileWidget extends MithrilViewComponent<Attrs> {
         <div>
           <div class={styles.profileForm}>
             <div><TextField label="Cluster Profile Name"
+                            readonly={vnode.attrs.etag !== undefined}
                             property={vnode.attrs.clusterProfile().id}
                             errorText={vnode.attrs.clusterProfile().errors().errorsForDisplay("id")}
                             required={true}/></div>
@@ -207,6 +208,7 @@ class NewClusterProfileStep extends Step {
   private readonly onSuccessfulSave: (msg: m.Children) => any;
   private readonly onError: (msg: m.Children) => any;
   private footerError: Stream<string> = Stream("");
+  private etag?: string;
 
   constructor(pluginInfos: Stream<PluginInfos>,
               clusterProfile: Stream<ClusterProfile>,
@@ -224,7 +226,8 @@ class NewClusterProfileStep extends Step {
   body(): m.Children {
     return <NewClusterProfileWidget pluginInfos={this.pluginInfos}
                                     clusterProfile={this.clusterProfile}
-                                    elasticProfile={this.elasticProfile}/>;
+                                    elasticProfile={this.elasticProfile}
+                                    etag={this.etag}/>;
   }
 
   header(): m.Children {
@@ -235,28 +238,54 @@ class NewClusterProfileStep extends Step {
     return [
       <Buttons.Cancel css={wizardButtonStyles} onclick={wizard.close.bind(wizard)}
                       data-test-id="cancel">Cancel</Buttons.Cancel>,
-      <Buttons.Primary css={wizardButtonStyles} data-test-id="next" onclick={wizard.next.bind(wizard, 1)}
-                       align="right">Next</Buttons.Primary>,
+      <Buttons.Primary css={wizardButtonStyles} data-test-id="next"
+                       onclick={this.saveClusterProfileAndNext.bind(this, wizard)}
+                       align="right">Save + Next</Buttons.Primary>,
       <Buttons.Secondary css={wizardButtonStyles} data-test-id="save-cluster-profile"
                          onclick={this.saveClusterProfileAndExit.bind(this, wizard)}
-                         align="right">Save Cluster Profile and Exit</Buttons.Secondary>,
+                         align="right">Save Cluster Profile + Exit</Buttons.Secondary>,
       <span class={styles.footerError}>{this.footerError()}</span>,
     ];
   }
 
   saveClusterProfileAndExit(wizard: Wizard) {
-    ClusterProfilesCRUD.create(this.clusterProfile())
-                       .then((result) => {
-                         result.do(
-                           () => {
-                             this.onSuccessfulSave(<span>The cluster profile <em>{this.clusterProfile().id()}</em> was created successfully!</span>);
-                             wizard.close();
-                           },
-                           (errorResponse) => {
-                             this.handleError(result, errorResponse);
-                           }
-                         );
-                       });
+    this.save()
+        .then((result) => {
+          result.do(
+            (result) => {
+              this.etag = result.body.etag;
+              this.onSuccessfulSave(<span>The cluster profile <em>{this.clusterProfile().id()}</em> was created successfully!</span>);
+              wizard.close();
+            },
+            (errorResponse) => {
+              this.handleError(result, errorResponse);
+            }
+          );
+        });
+  }
+
+  saveClusterProfileAndNext(wizard: Wizard) {
+    this.save()
+        .then((result) => {
+          result.do(
+            (successResponse) => {
+              this.etag = successResponse.body.etag;
+              this.clusterProfile(successResponse.body.object);
+              wizard.next();
+            },
+            (errorResponse) => {
+              this.handleError(result, errorResponse);
+            }
+          );
+        });
+  }
+
+  private save() {
+    if (this.etag) {
+      return this.clusterProfile().update(this.etag);
+    } else {
+      return this.clusterProfile().create();
+    }
   }
 
   private handleError(result: ApiResult<ObjectWithEtag<ClusterProfile>>, errorResponse: ErrorResponse) {
@@ -274,14 +303,21 @@ class NewElasticProfileStep extends Step {
   private readonly pluginInfos: Stream<PluginInfos>;
   private readonly clusterProfile: Stream<ClusterProfile>;
   private readonly elasticProfile: Stream<ElasticAgentProfile>;
+  private onSuccessfulSave: (msg: m.Children) => any;
+  private onError: (msg: m.Children) => any;
+  private footerError: Stream<string> = Stream("");
 
   constructor(pluginInfos: Stream<PluginInfos>,
               clusterProfile: Stream<ClusterProfile>,
-              elasticProfile: Stream<ElasticAgentProfile>) {
+              elasticProfile: Stream<ElasticAgentProfile>,
+              onSuccessfulSave: (msg: m.Children) => any,
+              onError: (msg: m.Children) => any) {
     super();
-    this.pluginInfos    = pluginInfos;
-    this.clusterProfile = clusterProfile;
-    this.elasticProfile = elasticProfile;
+    this.pluginInfos      = pluginInfos;
+    this.clusterProfile   = clusterProfile;
+    this.elasticProfile   = elasticProfile;
+    this.onSuccessfulSave = onSuccessfulSave;
+    this.onError          = onError;
   }
 
   body(): m.Children {
@@ -298,10 +334,38 @@ class NewElasticProfileStep extends Step {
     return [
       <Buttons.Cancel onclick={wizard.close.bind(wizard)}
                       data-test-id="cancel">Cancel</Buttons.Cancel>,
-      <Buttons.Primary data-test-id="finish" align="right">Finish</Buttons.Primary>,
-      <Buttons.Primary data-test-id="next" onclick={wizard.previous.bind(wizard, 1)}
+      <Buttons.Primary data-test-id="finish" align="right"
+                       onclick={this.saveAndFinish.bind(this, wizard)}>Finish</Buttons.Primary>,
+      <Buttons.Primary data-test-id="previous" onclick={wizard.previous.bind(wizard, 1)}
                        align="right">Previous</Buttons.Primary>,
+      <span class={styles.footerError}>{this.footerError()}</span>
     ];
+  }
+
+  saveAndFinish(wizard: Wizard) {
+    this.elasticProfile().clusterProfileId(this.clusterProfile().id());
+    this.elasticProfile().create()
+        .then((result) => {
+          result.do(
+            () => {
+              this.onSuccessfulSave(<span>The Elastic Agent Profile <em>{this.elasticProfile().id()}</em> was created successfully!</span>);
+              wizard.close();
+            },
+            (errorResponse) => {
+              this.handleError(result, errorResponse);
+            }
+          );
+        });
+  }
+
+  private handleError(result: ApiResult<ObjectWithEtag<ElasticAgentProfile>>, errorResponse: ErrorResponse) {
+    if (result.getStatusCode() === 422 && errorResponse.body) {
+      const json = JSON.parse(errorResponse.body);
+      this.elasticProfile(ElasticAgentProfile.fromJSON(json.data));
+      this.footerError("Please fix the validation errors above before proceeding.");
+    } else {
+      this.onError(JSON.parse(errorResponse.body!).message);
+    }
   }
 }
 
@@ -314,7 +378,9 @@ export function openWizard(pluginInfos: Stream<PluginInfos>,
 
   let wizard = new Wizard()
     .addStep(new NewClusterProfileStep(pluginInfos, clusterProfile, elasticProfile, onSuccessfulSave, onError))
-    .addStep(new NewElasticProfileStep(pluginInfos, clusterProfile, elasticProfile));
+    .addStep(new NewElasticProfileStep(pluginInfos, clusterProfile, elasticProfile, onSuccessfulSave, onError));
+
+  wizard.allowHeaderClick = false;
   if (closeListener !== undefined) {
     wizard = wizard.setCloseListener(closeListener);
   }

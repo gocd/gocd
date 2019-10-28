@@ -48,6 +48,7 @@ export class Wizard extends MithrilViewComponent {
   private steps: Step[]                     = [];
   private selectedStepIndex: Stream<number> = Stream(0);
   private closeListener?: CloseListener;
+  private _allowHeaderClick: boolean        = true;
 
   view(vnode: m.Vnode): m.Vnode {
     const selectedStep = this.steps[this.selectedStepIndex()];
@@ -56,8 +57,10 @@ export class Wizard extends MithrilViewComponent {
       <header class={styles.wizardHeader}>
         {this.steps.map((step, index) => {
           return <span
-            class={classnames(styles.stepHeader, {[styles.selected]: step.header() === selectedStep.header()})}
-            onclick={() => this.selectedStepIndex(index)}>{step.header()}</span>;
+            class={classnames(styles.stepHeader,
+                              {[styles.selected]: step.header() === selectedStep.header()},
+                              {[styles.clickable]: this.allowHeaderClick})}
+            onclick={this.headerClicked.bind(this, index)}>{step.header()}</span>;
         })}
       </header>
       <div class={styles.wizardBody} data-test-id="modal-body">
@@ -113,6 +116,20 @@ export class Wizard extends MithrilViewComponent {
   public setCloseListener(closeListener: CloseListener): Wizard {
     this.closeListener = closeListener;
     return this;
+  }
+
+  get allowHeaderClick() {
+    return this._allowHeaderClick;
+  }
+
+  set allowHeaderClick(value: boolean) {
+    this._allowHeaderClick = value;
+  }
+
+  private headerClicked(index: number) {
+    if (this.allowHeaderClick) {
+      this.selectedStepIndex(index);
+    }
   }
 }
 

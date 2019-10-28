@@ -41,6 +41,7 @@ export const iconGear: string;
 export const iconRemove: string;
 export const iconSpinner: string;
 export const important: string;
+export const initialMessage: string;
 export const inserted: string;
 export const intro: string;
 export const italic: string;

@@ -20,6 +20,8 @@
 
 $syntax-bg: #282923;
 $error-container-width: 450px;
+$initial-message-bg: rgba(255, 255, 255, 0.5);
+$initial-message-z: 10;
 
 .builder-form {
   max-width: 50%;
@@ -45,12 +47,30 @@ $error-container-width: 450px;
 }
 
 .preview-pane[class*="language-"] { // scss-lint:disable-line
+  position: relative;
   margin: 0;
   width: 50%;
 
   code {
     overflow-y: auto;
     display: block;
+  }
+
+  .initial-message {
+    position: absolute;
+    top: 250px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 30px;
+    border-radius: 5px;
+    background: $initial-message-bg;
+    z-index: $initial-message-z;
+
+    .comment {
+      display: block;
+      margin: 0;
+      line-height: 0;
+    }
   }
 }
 

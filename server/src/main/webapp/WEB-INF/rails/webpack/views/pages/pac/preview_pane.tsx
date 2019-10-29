@@ -48,7 +48,7 @@ export class PreviewPane extends MithrilComponent<Attrs> {
   content(language: LanguageSpec, content: string) {
     return content ?
       m.trust(Prism.highlight(content, language.grammar, language.name)) :
-      this.comments(language, "Your Pipelines as Code definition will automatically update here");
+      this.comments(language, "Your Pipelines as Code definition\nwill automatically update here");
   }
 
   comments(language: LanguageSpec, ...lines: string[]) {
@@ -56,7 +56,8 @@ export class PreviewPane extends MithrilComponent<Attrs> {
     const classes = classnames(defaultStyles.token, defaultStyles.comment);
     const token = language.comment;
 
-    return lines.reduce((memo, line, i) => {
+    return <span class={defaultStyles.initialMessage}>{
+    lines.reduce((memo, line, i) => {
       const parts = line.split("\n");
 
       for (let k = 0, plen = parts.length; k < plen; k++) {
@@ -71,7 +72,7 @@ export class PreviewPane extends MithrilComponent<Attrs> {
       }
 
       return memo;
-    }, [] as m.ChildArray);
+    }, [] as m.ChildArray)}</span>;
   }
 }
 

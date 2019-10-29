@@ -112,13 +112,19 @@ class SectionHeader extends MithrilViewComponent<SectionHeaderAttrs> {
 
 interface ActionsAttrs extends CRVMAware {
   inProgress: boolean;
+  configRepoHasErrors: boolean;
 }
 
 class CRPanelActions extends MithrilViewComponent<ActionsAttrs> {
   view(vnode: m.Vnode<ActionsAttrs>): m.Children {
     const vm = vnode.attrs.vm;
-    const statusIcon = vnode.attrs.inProgress ?
-      <span class={styles.configRepoUpdateInProgress} data-test-id="repo-update-in-progress-icon"/> : null;
+    let statusIcon;
+
+    if (vnode.attrs.inProgress) {
+      statusIcon = <span class={styles.configRepoUpdateInProgress} data-test-id="repo-update-in-progress-icon"/>;
+    } else if (!vnode.attrs.configRepoHasErrors) {
+      statusIcon = <span class={styles.configRepoSuccessState} data-test-id="repo-success-state"/>;
+    }
 
     return [
       statusIcon,
@@ -182,7 +188,7 @@ class ConfigRepoWidget extends MithrilComponent<SingleAttrs> {
       <CollapsiblePanel error={configRepoHasErrors}
                         header={<HeaderWidget {...vnode.attrs}/>}
                         dataTestId={"config-repo-details-panel"}
-                        actions={<CRPanelActions inProgress={repo.materialUpdateInProgress()} vm={vm}/>}
+                        actions={<CRPanelActions configRepoHasErrors={configRepoHasErrors} inProgress={repo.materialUpdateInProgress()} vm={vm}/>}
                         vm={this}
                         onexpand={() => vm.notify("expand")}>
         {maybeWarning}

@@ -279,6 +279,14 @@ describe("ConfigReposWidget", () => {
     expect(helper.byTestId("repo-update-in-progress-icon")).toHaveClass(styles.configRepoUpdateInProgress);
   });
 
+  it("should render happy state checkmark when there are no errors", () => {
+    models([vm(createConfigRepoParsed())]);
+    pluginInfos(new PluginInfos(configRepoPluginInfo()));
+    helper.redraw();
+    expect(helper.byTestId("repo-success-state")).toBeInDOM();
+    expect(helper.byTestId("repo-success-state")).toHaveClass(styles.configRepoSuccessState);
+  });
+
   it("should render red top border and expand the widget to indicate error in config repo parsing", () => {
     const repo = createConfigRepoParsedWithError();
     models([vm(repo)]);

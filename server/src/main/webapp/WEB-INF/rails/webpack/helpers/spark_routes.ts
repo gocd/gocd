@@ -382,6 +382,10 @@ export class SparkRoutes {
     return "/go/api/internal/pipeline_structure";
   }
 
+  static internalTemplatesListPath() {
+    return "/go/api/admin/internal/templates";
+  }
+
   static showAnalyticsPath(pluginId: string, metric: AnalyticsCapability, params: { [key: string]: string | number }) {
     return `/go/analytics/${pluginId}/${metric.type}/${metric.id}?${m.buildQueryString(params)}`;
   }

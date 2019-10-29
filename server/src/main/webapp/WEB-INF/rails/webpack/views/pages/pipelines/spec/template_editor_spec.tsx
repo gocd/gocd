@@ -18,9 +18,7 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {PipelineParameter} from "models/pipeline_configs/parameter";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
-import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {TemplateCache} from "models/pipeline_configs/templates_cache";
-import {Option} from "views/components/forms/input_fields";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {TemplateEditor} from "../template_editor";
 
@@ -53,13 +51,11 @@ describe("AddPipeline: TemplateEditor", () => {
   });
 
   it("should show dropdown of templates when defined", () => {
-    stubGetTemplateWith(new TemplateConfig("one", []));
     helper.mount(() => <TemplateEditor pipelineConfig={config} isUsingTemplate={isUsingTemplate} cache={new TestCache()} paramList={paramList}/>);
 
     helper.clickByTestId("switch-paddle");
     expect(isUsingTemplate()).toBeTruthy();
     expect(config.template()).toBe("one");
-    expect(TemplateConfig.getTemplate).toHaveBeenCalledTimes(1);
 
     const dropdown = helper.byTestId("form-field-input-template");
     expect(dropdown).toBeInDOM();
@@ -68,7 +64,6 @@ describe("AddPipeline: TemplateEditor", () => {
     helper.clickByTestId("switch-paddle");
     expect(isUsingTemplate()).toBe(false);
     expect(config.template()).toBeUndefined();
-    expect(TemplateConfig.getTemplate).toHaveBeenCalledTimes(1);
   });
 
   it("should not display dropdown and should display flash when cache fails to populate", () => {
@@ -85,58 +80,45 @@ describe("AddPipeline: TemplateEditor", () => {
     expect(dropdown).not.toExist();
   });
 
-  it("should populate parameters when present", (done) => {
-    stubGetTemplateWith(new TemplateConfig("one", [new PipelineParameter("paramName", "")]), () => {
-      expect(paramList().length).toBe(1);
-      expect(paramList()[0].toApiPayload()).toEqual({ name: "paramName", value: "" });
-      done();
-    });
-
+  it("should populate parameters when present", () => {
     helper.mount(() => <TemplateEditor pipelineConfig={config} isUsingTemplate={isUsingTemplate} cache={new TestCache()} paramList={paramList}/>);
 
     helper.clickByTestId("switch-paddle");
     expect(isUsingTemplate()).toBeTruthy();
-    expect(TemplateConfig.getTemplate).toHaveBeenCalled();
+    expect(paramList().length).toBe(2);
+    expect(paramList()[0].toApiPayload()).toEqual({name: "paramName", value: ""});
+    expect(paramList()[1].toApiPayload()).toEqual({name: "", value: ""});
+
+    helper.clickByTestId("switch-paddle");
+    expect(isUsingTemplate()).toBeFalsy();
+    expect(paramList().length).toBe(1);
+    expect(paramList()[0].toApiPayload()).toEqual({name: "", value: ""});
   });
 });
 
-function stubGetTemplateWith(templateConfig: TemplateConfig, expectations?: () => void) {
-  spyOn(TemplateConfig, "getTemplate").and.callFake((name, onSuccess) => {
-    onSuccess(templateConfig);
-
-    expect(name).toBe(templateConfig.name());
-
-    if ("function" === typeof expectations) {
-      expectations();
-    }
-  });
-}
-
-class TestCache implements TemplateCache<Option> {
+class TestCache extends TemplateCache {
   ready() { return true; }
   // tslint:disable-next-line
   prime(onComplete: () => void) { onComplete(); }
    // tslint:disable-next-line
   invalidate() {}
-  contents() { return [{name: "one"}, {name: "two"}]; }
-  templates() { return [{id: "one", text: "one"}, {id: "two", text: "two"}]; }
+  contents() { return [{name: "one", parameters: ["paramName"]}, {name: "two", parameters: []}]; }
   failureReason() { return undefined; }
   failed() { return false; }
 }
 
-class EmptyTestCache implements TemplateCache<Option> {
+class EmptyTestCache extends TemplateCache {
   ready() { return true; }
   // tslint:disable-next-line
   prime(onComplete: () => void) { onComplete(); }
   // tslint:disable-next-line
   invalidate() {}
   contents() { return []; }
-  templates() { return []; }
   failureReason() { return undefined; }
   failed() { return false; }
 }
 
-class FailedTestCache implements TemplateCache<Option> {
+class FailedTestCache extends TemplateCache {
   ready() { return true; }
   prime(onSuccess: () => void, onError?: () => void) { if (onError) {
     onError();
@@ -144,7 +126,6 @@ class FailedTestCache implements TemplateCache<Option> {
   // tslint:disable-next-line
   invalidate() {}
   contents() { return []; }
-  templates() { return []; }
   failureReason() { return "Unauthorized to perform this action"; }
   failed() { return true; }
 }

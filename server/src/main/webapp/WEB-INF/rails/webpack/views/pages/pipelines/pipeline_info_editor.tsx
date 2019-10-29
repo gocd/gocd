@@ -33,7 +33,7 @@ interface Attrs {
   pipelineConfig: PipelineConfig;
   cache?: PipelineGroupCache<Option>;
   isUsingTemplate: Stream<boolean>;
-  templatesCache?: TemplateCache<Option>;
+  templatesCache?: TemplateCache;
 }
 
 export class PipelineInfoEditor extends MithrilViewComponent<Attrs> {

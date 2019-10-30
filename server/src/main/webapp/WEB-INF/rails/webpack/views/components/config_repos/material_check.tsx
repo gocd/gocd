@@ -25,8 +25,8 @@ import styles from "./material_check.scss";
 import {MaterialConfigFilesList} from "./material_config_files_list";
 
 const ELLIPSIS = String.fromCharCode(8230);
-const BUTTON_TEXT = "Scan Repository";
-const BUTTON_BUSY_TEXT = `Scanning Repository${ELLIPSIS}`;
+const BUTTON_TEXT = "Scan";
+const BUTTON_BUSY_TEXT = `Scanning${ELLIPSIS}`;
 
 interface LifecycleHooks {
   prerequisite?: () => boolean;

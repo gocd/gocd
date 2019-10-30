@@ -66,6 +66,7 @@ export const string: string;
 export const style: string;
 export const subheading: string;
 export const subsection: string;
+export const subsectionHeading: string;
 export const symbol: string;
 export const tag: string;
 export const token: string;

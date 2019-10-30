@@ -143,9 +143,10 @@ export class PipelinesAsCodeCreatePage extends Page {
       </FillableSection>,
 
       <FillableSection css={spanningFillableCss}>
-        <div class={css.subheading}><SectionHeading>Register Your Pipelines as Code Repo with GoCD</SectionHeading></div>
+        <div class={css.subheading}><SectionHeading>Link Your SCM Repository to use the Defined Configuration</SectionHeading></div>
 
         <UserInputPane onchange={(e) => { this.allowCreate(false); }}>
+          <div class={css.subsectionHeading}>Repository Details</div>
           <CheckboxField
             property={syncConfigRepoWithMaterial}
             label={<span>Use the same SCM repository from the form above to store my <strong>Pipelines as Code</strong> definitions <em class={css.hint}>(suitable for most setups)</em></span>}
@@ -161,12 +162,14 @@ export class PipelinesAsCodeCreatePage extends Page {
         </UserInputPane>
 
         <div class={css.subsection}>
-          <IdentifierInputField label="Name this repository" helpText={IDENTIFIER_FORMAT_HELP_MESSAGE} placeholder="e.g., Pipelines-as-Code-Repository" property={this.configRepo().id} errorText={this.configRepo().errors().errorsForDisplay("id")} required={true}/>
+          <div class={css.subsectionHeading}>Label Repository</div>
+          <IdentifierInputField label="Config repository name" helpText={IDENTIFIER_FORMAT_HELP_MESSAGE} placeholder="e.g., Pipelines-as-Code-Repository" property={this.configRepo().id} errorText={this.configRepo().errors().errorsForDisplay("id")} required={true}/>
         </div>
 
         <div class={classnames(css.verifyDefsInMaterial, css.subsection)}>
+          <div class={css.subsectionHeading}>Scan Repository for Configuration</div>
           <MaterialCheck pluginId={this.pluginId()} material={this.configRepo().material()!} align="right" prerequisite={() => this.configRepo().isValid()} label={
-            <p class={css.msg}>Verify that GoCD can find the configuration file in your repository by clicking the button on the right</p>
+            <p class={css.msg}>Verify that GoCD can find the configuration file in your repository by clicking the button below</p>
           } success={(data, _) => {
             this.allowCreate(!!data.plugins.find((p) => !!p.files.length));
           }} failure={(err, status) => {

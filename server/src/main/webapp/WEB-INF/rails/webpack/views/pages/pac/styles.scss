@@ -86,12 +86,19 @@ $error-container-width: 450px;
     max-width:   33%;
     border-left: 1px solid $line-color;
   }
+
+  .subsection-heading {
+    font-weight: 600;
+    font-size: 19px;
+    margin-bottom: 10px;
+  }
 }
 
 .verify-defs-in-material {
   .msg {
     margin:       0;
     margin-right: 15px;
+    margin-bottom: 10px;
   }
 }
 

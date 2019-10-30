@@ -87,7 +87,7 @@ export class TemplateEditor extends MithrilComponent<Attrs, State> {
     let params = template ? _.map(template.parameters, (param) => new PipelineParameter(param, "")) : [];
     params = params.concat(new PipelineParameter("", ""));
     paramList(params);
-    config.parameters(params);
+    config.parameters(_.filter(params, (p) => (p.name() || "").trim() !== ""));
     onSetParams();
   }
 

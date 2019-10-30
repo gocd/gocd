@@ -228,7 +228,7 @@ public class PipelineTriggerServiceIntegrationTest {
         pipelineConfig.addEnvironmentVariable("ENV_VAR2", "VAL2");
         pipelineConfig.addEnvironmentVariable(new EnvironmentVariableConfig(new GoCipher(), "SECURE_VAR1", "SECURE_VAL", true));
         pipelineConfig.addEnvironmentVariable(new EnvironmentVariableConfig(new GoCipher(), "SECURE_VAR2", "SECURE_VAL2", true));
-        pipelineConfigService.updatePipelineConfig(admin, pipelineConfig, entityHashingService.md5ForEntity(pipelineConfig), new HttpLocalizedOperationResult());
+        pipelineConfigService.updatePipelineConfig(admin, pipelineConfig, "group", entityHashingService.md5ForEntity(pipelineConfig), new HttpLocalizedOperationResult());
         Integer pipelineCounterBefore = pipelineSqlMapDao.getCounterForPipeline(pipelineName);
 
         CaseInsensitiveString pipelineNameCaseInsensitive = new CaseInsensitiveString(this.pipelineName);
@@ -269,7 +269,7 @@ public class PipelineTriggerServiceIntegrationTest {
     @Test
     public void shouldScheduleAPipelineWithTheProvidedEncryptedEnvironmentVariable() throws CryptoException {
         pipelineConfig.addEnvironmentVariable(new EnvironmentVariableConfig(new GoCipher(), "SECURE_VAR1", "SECURE_VAL", true));
-        pipelineConfigService.updatePipelineConfig(admin, pipelineConfig, entityHashingService.md5ForEntity(pipelineConfig), new HttpLocalizedOperationResult());
+        pipelineConfigService.updatePipelineConfig(admin, pipelineConfig, "group", entityHashingService.md5ForEntity(pipelineConfig), new HttpLocalizedOperationResult());
         CaseInsensitiveString pipelineNameCaseInsensitive = new CaseInsensitiveString(this.pipelineName);
         assertThat(triggerMonitor.isAlreadyTriggered(pipelineNameCaseInsensitive), is(false));
         PipelineScheduleOptions pipelineScheduleOptions = new PipelineScheduleOptions();
@@ -291,7 +291,7 @@ public class PipelineTriggerServiceIntegrationTest {
     @Test
     public void shouldNotScheduleAPipelineWithTheJunkEncryptedEnvironmentVariable() {
         pipelineConfig.addEnvironmentVariable(new EnvironmentVariableConfig(new GoCipher(), "SECURE_VAR1", "SECURE_VAL", true));
-        pipelineConfigService.updatePipelineConfig(admin, pipelineConfig, entityHashingService.md5ForEntity(pipelineConfig), new HttpLocalizedOperationResult());
+        pipelineConfigService.updatePipelineConfig(admin, pipelineConfig, "group", entityHashingService.md5ForEntity(pipelineConfig), new HttpLocalizedOperationResult());
         CaseInsensitiveString pipelineNameCaseInsensitive = new CaseInsensitiveString(this.pipelineName);
         assertThat(triggerMonitor.isAlreadyTriggered(pipelineNameCaseInsensitive), is(false));
         PipelineScheduleOptions pipelineScheduleOptions = new PipelineScheduleOptions();

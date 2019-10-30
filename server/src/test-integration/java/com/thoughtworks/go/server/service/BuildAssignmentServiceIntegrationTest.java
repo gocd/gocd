@@ -277,7 +277,7 @@ public class BuildAssignmentServiceIntegrationTest {
         String md5 = CachedDigestUtils.md5Hex(xml);
         StageConfig devStage = pipelineConfig.findBy(new CaseInsensitiveString(fixture.devStage));
         pipelineConfig.remove(devStage);
-        pipelineConfigService.updatePipelineConfig(loserUser, pipelineConfig, md5, new HttpLocalizedOperationResult());
+        pipelineConfigService.updatePipelineConfig(loserUser, pipelineConfig, "group", md5, new HttpLocalizedOperationResult());
 
         Pipeline pipeline = pipelineDao.mostRecentPipeline(fixture.pipelineName);
         JobInstance job = pipeline.getFirstStage().getJobInstances().first();
@@ -303,7 +303,7 @@ public class BuildAssignmentServiceIntegrationTest {
         String md5 = CachedDigestUtils.md5Hex(xml);
         StageConfig devStage = pipelineConfig.findBy(new CaseInsensitiveString(fixture.devStage));
         devStage.getJobs().remove(devStage.jobConfigByConfigName(new CaseInsensitiveString(fixture.JOB_FOR_DEV_STAGE)));
-        pipelineConfigService.updatePipelineConfig(loserUser, pipelineConfig, md5, new HttpLocalizedOperationResult());
+        pipelineConfigService.updatePipelineConfig(loserUser, pipelineConfig, "group", md5, new HttpLocalizedOperationResult());
 
         Pipeline pipeline = pipelineDao.mostRecentPipeline(fixture.pipelineName);
         JobInstance deletedJob = pipeline.getFirstStage().getJobInstances().getByName(fixture.JOB_FOR_DEV_STAGE);

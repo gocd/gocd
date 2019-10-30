@@ -471,7 +471,7 @@ public class PipelineConfigServiceIntegrationTest {
         pipelineConfig.add(stage);
         pipelineConfig.addParam(new ParamConfig("foo", "."));
 
-        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, md5, result);
+        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, md5, result);
 
         assertThat(result.toString(), result.isSuccessful(), is(false));
         assertThat(result.httpCode(), is(422));
@@ -487,7 +487,7 @@ public class PipelineConfigServiceIntegrationTest {
         String md5 = CachedDigestUtils.md5Hex(xml);
         pipelineConfig.add(new StageConfig(new CaseInsensitiveString("additional_stage"), new JobConfigs(new JobConfig(new CaseInsensitiveString("addtn_job")))));
 
-        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, md5, result);
+        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, md5, result);
 
         assertThat(result.toString(), result.isSuccessful(), is(true));
         assertThat(goConfigDao.loadConfigHolder(), is(not(goConfigHolderBeforeUpdate)));
@@ -506,7 +506,7 @@ public class PipelineConfigServiceIntegrationTest {
         String md5 = CachedDigestUtils.md5Hex(xml);
 
         pipelineConfig.setLabelTemplate("LABEL");
-        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, md5, result);
+        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, md5, result);
 
         assertThat(result.toString(), result.isSuccessful(), is(false));
         assertThat(result.httpCode(), is(422));
@@ -526,7 +526,7 @@ public class PipelineConfigServiceIntegrationTest {
         String md5 = CachedDigestUtils.md5Hex(xml);
         pipelineConfig.clear();
         pipelineConfig.setTemplateName(templateName);
-        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, md5, result);
+        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, md5, result);
 
         assertThat(result.toString(), result.isSuccessful(), is(false));
         assertThat(result.toString(), result.toString().contains("Parameter 'SOME_PARAM' is not defined"), is(true));
@@ -546,7 +546,7 @@ public class PipelineConfigServiceIntegrationTest {
         pipelineConfig.clear();
         pipelineConfig.setTemplateName(templateName);
         pipelineConfig.addStageWithoutValidityAssertion(StageConfigMother.stageConfig("local-stage"));
-        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, md5, result);
+        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, md5, result);
 
         assertThat(result.toString(), result.isSuccessful(), is(false));
         assertThat(pipelineConfig.errors().on("stages"), is(String.format("Cannot add stages to pipeline '%s' which already references template '%s'", pipelineConfig.name(), templateName)));
@@ -562,7 +562,7 @@ public class PipelineConfigServiceIntegrationTest {
         saveTemplateWithParamToConfig(templateName);
 
         GoConfigHolder goConfigHolderBeforeUpdate = goConfigDao.loadConfigHolder();
-        pipelineConfigService.updatePipelineConfig(new Username(new CaseInsensitiveString("unauthorized_user")), pipelineConfig, null, result);
+        pipelineConfigService.updatePipelineConfig(new Username(new CaseInsensitiveString("unauthorized_user")), pipelineConfig, groupName, null, result);
 
         assertThat(result.toString(), result.isSuccessful(), is(false));
         assertThat(result.toString(), result.httpCode(), is(403));
@@ -582,7 +582,7 @@ public class PipelineConfigServiceIntegrationTest {
         String md5 = CachedDigestUtils.md5Hex(xml);
 
         pipelineConfig.materialConfigs().add(scmMaterialConfig);
-        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, md5, result);
+        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, md5, result);
 
         assertThat(result.toString(), result.isSuccessful(), is(false));
         assertThat(scmMaterialConfig.errors().on(PluggableSCMMaterialConfig.FOLDER), is("Destination directory is required when specifying multiple scm materials"));
@@ -601,7 +601,7 @@ public class PipelineConfigServiceIntegrationTest {
         String xml = new MagicalGoConfigXmlWriter(configCache, registry).toXmlPartial(pipelineConfig);
         String md5 = CachedDigestUtils.md5Hex(xml);
         pipelineConfig.materialConfigs().add(packageMaterialConfig);
-        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, md5, result);
+        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, md5, result);
 
         assertThat(result.toString(), result.isSuccessful(), is(false));
         assertThat(result.message(), is(String.format("Validations failed for pipeline '%s'. Error(s): [Validation failed.]. Please correct and resubmit.", pipelineConfig.name())));
@@ -706,7 +706,7 @@ public class PipelineConfigServiceIntegrationTest {
         goConfigService.register(pipelineConfigChangedListener);
         PipelineConfig pipeline = PipelineConfigMother.pipelineConfigWithTemplate(pipelineName, templateName);
         pipeline.setVariables(new EnvironmentVariablesConfig());
-        pipelineConfigService.updatePipelineConfig(user, pipeline, md5, new DefaultLocalizedOperationResult());
+        pipelineConfigService.updatePipelineConfig(user, pipeline, groupName, md5, new DefaultLocalizedOperationResult());
         assertThat(listenerInvoked[0], is(true));
     }
 
@@ -756,7 +756,7 @@ public class PipelineConfigServiceIntegrationTest {
 
         pipelineConfig.getFirstStageConfig().setName(new CaseInsensitiveString("upstream_stage_renamed"));
 
-        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, md5, result);
+        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, md5, result);
 
         assertThat(result.isSuccessful(), is(false));
         assertThat(pipelineConfig.errors().on("base"), is(String.format("Stage with name 'stage' does not exist on pipeline '%s', it is being referred to from pipeline 'remote-downstream' (url at repo1_r1)", pipelineConfig.name())));
@@ -777,7 +777,7 @@ public class PipelineConfigServiceIntegrationTest {
         String md5 = CachedDigestUtils.md5Hex(xml);
 
         pipelineConfig.getFirstStageConfig().getJobs().first().addTask(new ExecTask("executable", new Arguments(new Argument("foo")), "working"));
-        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, md5, result);
+        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, md5, result);
 
         assertThat(result.isSuccessful(), is(true));
         CruiseConfig currentConfig = goConfigService.getCurrentConfig();
@@ -799,7 +799,7 @@ public class PipelineConfigServiceIntegrationTest {
         String md5 = CachedDigestUtils.md5Hex(xml);
 
         pipelineConfig.setVariables(new EnvironmentVariablesConfig(asList(new EnvironmentVariableConfig("key", "value"))));
-        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, md5, result);
+        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, md5, result);
 
         assertThat(result.isSuccessful(), is(true));
         CruiseConfig currentConfig = goConfigService.getCurrentConfig();
@@ -823,7 +823,7 @@ public class PipelineConfigServiceIntegrationTest {
         String md5 = CachedDigestUtils.md5Hex(xml);
 
         pipelineConfig.getFirstStageConfig().setName(new CaseInsensitiveString("new_name"));
-        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, md5, result);
+        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, md5, result);
 
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.message(), is(String.format("Validations failed for pipeline '%s'. Error(s): [Validation failed.]. Please correct and resubmit.", pipelineConfig.name())));
@@ -860,7 +860,7 @@ public class PipelineConfigServiceIntegrationTest {
         String xml = new MagicalGoConfigXmlWriter(configCache, registry).toXmlPartial(pipelineConfig);
         String md5 = CachedDigestUtils.md5Hex(xml);
         pipelineConfig.setVariables(new EnvironmentVariablesConfig(asList(new EnvironmentVariableConfig("key", "value"))));
-        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, md5, result);
+        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, md5, result);
 
         assertThat(result.isSuccessful(), is(true));
         currentConfig = goConfigService.getCurrentConfig();
@@ -900,7 +900,7 @@ public class PipelineConfigServiceIntegrationTest {
         String xml = new MagicalGoConfigXmlWriter(configCache, registry).toXmlPartial(pipelineConfig);
         String md5 = CachedDigestUtils.md5Hex(xml);
         pipelineConfig.getFirstStageConfig().setName(new CaseInsensitiveString("upstream_stage_renamed"));
-        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, md5, result);
+        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, md5, result);
 
         assertThat(result.isSuccessful(), is(true));
         currentConfig = goConfigService.getCurrentConfig();
@@ -955,7 +955,7 @@ public class PipelineConfigServiceIntegrationTest {
         String md5 = CachedDigestUtils.md5Hex(xml);
 
         pipelineConfig.getFirstStageConfig().setName(new CaseInsensitiveString("upstream_stage_renamed"));
-        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, md5, result);
+        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, md5, result);
 
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.message(), is(String.format("Validations failed for pipeline '%s'. " +
@@ -1009,7 +1009,7 @@ public class PipelineConfigServiceIntegrationTest {
         String md5 = CachedDigestUtils.md5Hex(xml);
 
         pipelineConfig.getFirstStageConfig().setName(new CaseInsensitiveString("new_name"));
-        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, md5, result);
+        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, md5, result);
 
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.message(), is(String.format("Validations failed for pipeline '%s'. " +
@@ -1047,13 +1047,38 @@ public class PipelineConfigServiceIntegrationTest {
 
         String md5 = CachedDigestUtils.md5Hex(new MagicalGoConfigXmlWriter(configCache, registry).toXmlPartial(pipelineConfig));
         pipelineConfig.setVariables(new EnvironmentVariablesConfig(asList(new EnvironmentVariableConfig("key", "value"))));
-        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, md5, result);
+        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, md5, result);
 
         assertThat(result.isSuccessful(), is(true));
         assertThat(pipelineConfigService.getPipelineConfig(remoteDownstreamPipelineName), is(not(nullValue())));
         assertThat(goConfigService.getCurrentConfig().getAllPipelineNames().contains(remoteDownstreamPipeline.name()), is(true));
         assertThat(goConfigService.getConfigForEditing().getAllPipelineNames().contains(remoteDownstreamPipeline.name()), is(false));
         assertThat(goConfigService.getMergedConfigForEditing().getAllPipelineNames().contains(remoteDownstreamPipeline.name()), is(true));
+    }
+
+    @Test
+    public void updatePipelineConfig_shouldUpdateThePipelineGroup() {
+        String xml = new MagicalGoConfigXmlWriter(configCache, registry).toXmlPartial(pipelineConfig);
+        String md5 = CachedDigestUtils.md5Hex(xml);
+        pipelineConfig.add(new StageConfig(new CaseInsensitiveString("additional_stage"), new JobConfigs(new JobConfig(new CaseInsensitiveString("addtn_job")))));
+
+        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, "updated_group", md5, result);
+
+        assertThat(result.toString(), result.isSuccessful(), is(true));
+
+        assertThat(goConfigService.findGroupNameByPipeline(pipelineConfig.name()), is("updated_group"));
+    }
+
+    @Test
+    public void updatePipelineConfig_shouldValidateUpdatedPipelineGroupName() {
+        String xml = new MagicalGoConfigXmlWriter(configCache, registry).toXmlPartial(pipelineConfig);
+        String md5 = CachedDigestUtils.md5Hex(xml);
+        pipelineConfig.add(new StageConfig(new CaseInsensitiveString("additional_stage"), new JobConfigs(new JobConfig(new CaseInsensitiveString("addtn_job")))));
+
+        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, "invalid-name!@$", md5, result);
+
+        assertThat(result.httpCode(), is(500));
+        assertThat(result.message(), is("Save failed. failed to save : Name is invalid. \"invalid-name!@$\" should conform to the pattern - [a-zA-Z0-9_\\-]{1}[a-zA-Z0-9_\\-.]*"));
     }
 
     private void saveTemplateWithParamToConfig(CaseInsensitiveString templateName) throws Exception {

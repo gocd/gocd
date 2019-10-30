@@ -91,14 +91,12 @@ public class ServerSiteUrlsConfigControllerV1 extends ApiController implements S
             return MessageJson.create(errorMessage, jsonWriter(siteUrls));
         }
 
-        return index(request, response);
+        return writerForTopLevelObject(request, response, writer -> ServerSiteUrlsConfigRepresenter.toJSON(writer, siteUrls));
     }
 
     String index(Request request, Response response) throws IOException {
         SiteUrls serverSiteUrls = serverConfigService.getServerSiteUrls();
-        return writerForTopLevelObject(request, response, writer -> {
-            ServerSiteUrlsConfigRepresenter.toJSON(writer, serverSiteUrls);
-        });
+        return writerForTopLevelObject(request, response, writer -> ServerSiteUrlsConfigRepresenter.toJSON(writer, serverSiteUrls));
     }
 
     private SiteUrls buildEntityFromRequestBody(Request req) {

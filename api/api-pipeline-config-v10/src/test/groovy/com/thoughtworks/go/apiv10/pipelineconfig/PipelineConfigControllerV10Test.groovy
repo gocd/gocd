@@ -129,7 +129,7 @@ class PipelineConfigControllerV10Test implements SecurityServiceTrait, Controlle
         def pipelineMd5 = 'md5_for_pipeline_config'
 
         when(pipelineConfigService.getPipelineConfig('pipeline1')).thenReturn(pipeline)
-        when(entityHashingService.md5ForEntity(pipeline)).thenReturn(pipelineMd5)
+        when(entityHashingService.md5ForEntity(pipeline, groupName)).thenReturn(pipelineMd5)
 
         getWithApiHeader(controller.controllerPath("/pipeline1"))
 
@@ -148,7 +148,7 @@ class PipelineConfigControllerV10Test implements SecurityServiceTrait, Controlle
         def pipeline_md5 = 'md5_for_pipeline_config'
 
         when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(pipeline)
-        when(entityHashingService.md5ForEntity(pipeline)).thenReturn(pipeline_md5)
+        when(entityHashingService.md5ForEntity(pipeline, groupName)).thenReturn(pipeline_md5)
 
         getWithApiHeader(controller.controllerPath('/pipeline1'), ['if-none-match': '"md5_for_pipeline_config"'])
 
@@ -176,7 +176,7 @@ class PipelineConfigControllerV10Test implements SecurityServiceTrait, Controlle
         def pipeline_md5 = 'md5_for_pipeline_config'
 
         when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(pipeline)
-        when(entityHashingService.md5ForEntity(pipeline)).thenReturn(pipeline_md5)
+        when(entityHashingService.md5ForEntity(pipeline, groupName)).thenReturn(pipeline_md5)
 
         getWithApiHeader(controller.controllerPath('/pipeline1'), ['if-none-match': '"junk"'])
 
@@ -465,7 +465,7 @@ class PipelineConfigControllerV10Test implements SecurityServiceTrait, Controlle
       void "should update pipeline config for an admin"() {
         def pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline1")
         pipelineConfig.setOrigin(new FileConfigOrigin())
-        when(entityHashingService.md5ForEntity(pipelineConfig)).thenReturn('md5')
+        when(entityHashingService.md5ForEntity(pipelineConfig, groupName)).thenReturn('md5')
         when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(pipelineConfig)
 
         def headers = [
@@ -550,7 +550,7 @@ class PipelineConfigControllerV10Test implements SecurityServiceTrait, Controlle
         pipelineConfig.setOrigin(new FileConfigOrigin())
 
         when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(pipelineConfig)
-        when(entityHashingService.md5ForEntity(pipelineConfig)).thenReturn('md5')
+        when(entityHashingService.md5ForEntity(pipelineConfig, groupName)).thenReturn('md5')
 
         def headers = [
           'accept'      : controller.mimeType,
@@ -574,7 +574,7 @@ class PipelineConfigControllerV10Test implements SecurityServiceTrait, Controlle
         HttpLocalizedOperationResult result
         def pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline1")
         pipelineConfig.setOrigin(new FileConfigOrigin())
-        when(entityHashingService.md5ForEntity(pipelineConfig)).thenReturn('md5')
+        when(entityHashingService.md5ForEntity(pipelineConfig, groupName)).thenReturn('md5')
         when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(pipelineConfig)
 
         pipelineConfig.addError("labelTemplate", String.format(PipelineConfig.LABEL_TEMPLATE_ERROR_MESSAGE, 'foo bar'))
@@ -631,7 +631,7 @@ class PipelineConfigControllerV10Test implements SecurityServiceTrait, Controlle
 
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig)
         when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(pipelineConfig)
-        when(entityHashingService.md5ForEntity(pipelineConfig)).thenReturn('md5')
+        when(entityHashingService.md5ForEntity(pipelineConfig, groupName)).thenReturn('md5')
         when(pipelineConfigService.updatePipelineConfig(any(), any(), anyString(), any(), any())).then({ InvocationOnMock invocation ->
           pipelineBeingSaved = invocation.getArguments()[1]
         })
@@ -661,7 +661,7 @@ class PipelineConfigControllerV10Test implements SecurityServiceTrait, Controlle
 
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig)
         when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(pipelineConfig)
-        when(entityHashingService.md5ForEntity(pipelineConfig)).thenReturn('md5')
+        when(entityHashingService.md5ForEntity(pipelineConfig, groupName)).thenReturn('md5')
 
         when(pipelineConfigService.updatePipelineConfig(any(), any(), anyString(), any(), any())).then({ InvocationOnMock invocation ->
           pipelineBeingSaved = invocation.getArguments()[1]

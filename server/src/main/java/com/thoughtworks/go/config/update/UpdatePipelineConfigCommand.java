@@ -87,7 +87,7 @@ public class UpdatePipelineConfigCommand extends PipelineConfigCommand {
     }
 
     private boolean isRequestFresh(CruiseConfig cruiseConfig) {
-        boolean freshRequest = entityHashingService.md5ForEntity(cruiseConfig.getPipelineConfigByName(pipelineConfig.name())).equals(md5);
+        boolean freshRequest = entityHashingService.md5ForEntity(cruiseConfig.getPipelineConfigByName(pipelineConfig.name()), getPipelineGroup()).equals(md5);
 
         if (!freshRequest) {
             result.stale(EntityType.Pipeline.staleConfig(pipelineConfig.name()));

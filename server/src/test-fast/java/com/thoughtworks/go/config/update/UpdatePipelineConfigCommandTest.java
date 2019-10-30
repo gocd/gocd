@@ -61,7 +61,7 @@ class UpdatePipelineConfigCommandTest {
 
         when(goConfigService.findGroupNameByPipeline(pipelineConfig.name())).thenReturn("group1");
         when(goConfigService.canEditPipeline(pipelineConfig.name().toString(), username, localizedOperationResult, "group1")).thenReturn(true);
-        when(entityHashingService.md5ForEntity(pipelineConfig)).thenReturn("latest_md5");
+        when(entityHashingService.md5ForEntity(pipelineConfig, "group1")).thenReturn("latest_md5");
 
         BasicCruiseConfig basicCruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs(pipelineConfig));
         assertFalse(command.canContinue(basicCruiseConfig));
@@ -161,7 +161,7 @@ class UpdatePipelineConfigCommandTest {
     }
 
     @Test
-    void shouldUpdateThePipelineGroupIfDifferent() {
+    void shouldAddGroupWithPipelineAndRemoveItFromPreviousIfTheSpecifiedGroupDoesNotExist() {
         UpdatePipelineConfigCommand command = new UpdatePipelineConfigCommand(goConfigService, null,
                 pipelineConfig, "updated_group", username, "stale_md5", localizedOperationResult, externalArtifactsService);
 

@@ -90,33 +90,62 @@ import static org.mockito.Mockito.*;
 })
 
 public class BuildAssignmentServiceIntegrationTest {
-    @Autowired private BuildAssignmentService buildAssignmentService;
-    @Autowired private GoConfigService goConfigService;
-    @Autowired private GoConfigDao goConfigDao;
-    @Autowired private PipelineDao pipelineDao;
-    @Autowired private JobInstanceDao jobInstanceDao;
-    @Autowired private AgentService agentService;
-    @Autowired private AgentAssignment agentAssignment;
-    @Autowired private ScheduleService scheduleService;
-    @Autowired private MaterialRepository materialRepository;
-    @Autowired private DatabaseAccessHelper dbHelper;
-    @Autowired private ScheduleHelper scheduleHelper;
-    @Autowired private GoCache goCache;
-    @Autowired private StageDao stageDao;
-    @Autowired private JobInstanceService jobInstanceService;
-    @Autowired private PipelineService pipelineService;
-    @Autowired private EnvironmentConfigService environmentConfigService;
-    @Autowired private SystemEnvironment systemEnvironment;
-    @Autowired private TransactionTemplate transactionTemplate;
-    @Autowired private BuilderFactory builderFactory;
-    @Autowired private InstanceFactory instanceFactory;
-    @Autowired private PipelineConfigService pipelineConfigService;
-    @Autowired private ElasticAgentPluginService elasticAgentPluginService;
-    @Autowired private DependencyMaterialUpdateNotifier notifier;
-    @Autowired private MaintenanceModeService maintenanceModeService;
-    @Autowired private SecretParamResolver secretParamResolver;
-    @Autowired private ConsoleService consoleService;
-    @Autowired private JobStatusTopic jobStatusTopic;
+    @Autowired
+    private BuildAssignmentService buildAssignmentService;
+    @Autowired
+    private GoConfigService goConfigService;
+    @Autowired
+    private GoConfigDao goConfigDao;
+    @Autowired
+    private PipelineDao pipelineDao;
+    @Autowired
+    private JobInstanceDao jobInstanceDao;
+    @Autowired
+    private AgentService agentService;
+    @Autowired
+    private AgentAssignment agentAssignment;
+    @Autowired
+    private ScheduleService scheduleService;
+    @Autowired
+    private MaterialRepository materialRepository;
+    @Autowired
+    private DatabaseAccessHelper dbHelper;
+    @Autowired
+    private ScheduleHelper scheduleHelper;
+    @Autowired
+    private GoCache goCache;
+    @Autowired
+    private StageDao stageDao;
+    @Autowired
+    private JobInstanceService jobInstanceService;
+    @Autowired
+    private PipelineService pipelineService;
+    @Autowired
+    private EnvironmentConfigService environmentConfigService;
+    @Autowired
+    private SystemEnvironment systemEnvironment;
+    @Autowired
+    private TransactionTemplate transactionTemplate;
+    @Autowired
+    private BuilderFactory builderFactory;
+    @Autowired
+    private InstanceFactory instanceFactory;
+    @Autowired
+    private PipelineConfigService pipelineConfigService;
+    @Autowired
+    private ElasticAgentPluginService elasticAgentPluginService;
+    @Autowired
+    private DependencyMaterialUpdateNotifier notifier;
+    @Autowired
+    private MaintenanceModeService maintenanceModeService;
+    @Autowired
+    private SecretParamResolver secretParamResolver;
+    @Autowired
+    private ConsoleService consoleService;
+    @Autowired
+    private JobStatusTopic jobStatusTopic;
+    @Autowired
+    private EntityHashingService entityHashingService;
 
     private PipelineConfig evolveConfig;
     private static final String STAGE_NAME = "dev";
@@ -272,12 +301,13 @@ public class BuildAssignmentServiceIntegrationTest {
         fixture.createPipelineWithFirstStageScheduled();
         buildAssignmentService.onTimer();
 
-        PipelineConfig pipelineConfig = new Cloner().deepClone(configHelper.getCachedGoConfig().currentConfig().getPipelineConfigByName(new CaseInsensitiveString(fixture.pipelineName)));
-        String xml = new MagicalGoConfigXmlWriter(configCache, registry).toXmlPartial(pipelineConfig);
-        String md5 = CachedDigestUtils.md5Hex(xml);
+        PipelineConfig originalPipelineConfig = configHelper.getCachedGoConfig().currentConfig().getPipelineConfigByName(new CaseInsensitiveString(fixture.pipelineName));
+        PipelineConfig pipelineConfig = new Cloner().deepClone(originalPipelineConfig);
+        String md5 = entityHashingService.md5ForEntity(originalPipelineConfig, fixture.groupName);
         StageConfig devStage = pipelineConfig.findBy(new CaseInsensitiveString(fixture.devStage));
         pipelineConfig.remove(devStage);
-        pipelineConfigService.updatePipelineConfig(loserUser, pipelineConfig, "group", md5, new HttpLocalizedOperationResult());
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        pipelineConfigService.updatePipelineConfig(loserUser, pipelineConfig, fixture.groupName, md5, result);
 
         Pipeline pipeline = pipelineDao.mostRecentPipeline(fixture.pipelineName);
         JobInstance job = pipeline.getFirstStage().getJobInstances().first();
@@ -298,12 +328,13 @@ public class BuildAssignmentServiceIntegrationTest {
 
         buildAssignmentService.onTimer();
 
-        PipelineConfig pipelineConfig = new Cloner().deepClone(configHelper.getCachedGoConfig().currentConfig().getPipelineConfigByName(new CaseInsensitiveString(fixture.pipelineName)));
+        PipelineConfig originalPipelineConfig = configHelper.getCachedGoConfig().currentConfig().getPipelineConfigByName(new CaseInsensitiveString(fixture.pipelineName));
+        PipelineConfig pipelineConfig = new Cloner().deepClone(originalPipelineConfig);
         String xml = new MagicalGoConfigXmlWriter(configCache, registry).toXmlPartial(pipelineConfig);
-        String md5 = CachedDigestUtils.md5Hex(xml);
+        String md5 = entityHashingService.md5ForEntity(originalPipelineConfig, fixture.groupName);
         StageConfig devStage = pipelineConfig.findBy(new CaseInsensitiveString(fixture.devStage));
         devStage.getJobs().remove(devStage.jobConfigByConfigName(new CaseInsensitiveString(fixture.JOB_FOR_DEV_STAGE)));
-        pipelineConfigService.updatePipelineConfig(loserUser, pipelineConfig, "group", md5, new HttpLocalizedOperationResult());
+        pipelineConfigService.updatePipelineConfig(loserUser, pipelineConfig, fixture.groupName, md5, new HttpLocalizedOperationResult());
 
         Pipeline pipeline = pipelineDao.mostRecentPipeline(fixture.pipelineName);
         JobInstance deletedJob = pipeline.getFirstStage().getJobInstances().getByName(fixture.JOB_FOR_DEV_STAGE);

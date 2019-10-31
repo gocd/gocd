@@ -173,10 +173,13 @@ class UpdatePipelineConfigCommandTest {
         when(cruiseConfig.findGroup("group1")).thenReturn(pipelineConfigs);
         when(cruiseConfig.getGroups()).thenReturn(pipelineGroups);
 
+        assertThat(pipelineGroups.hasGroup("updated_group"), is(false));
+
         command.update(cruiseConfig);
         verify(cruiseConfig).update("group1", pipelineConfig.name().toString(), pipelineConfig);
 
         assertThat(pipelineGroups.findGroup("group1").size(), is(0));
+        assertThat(pipelineGroups.hasGroup("updated_group"), is(true));
         assertThat(pipelineGroups.findGroup("updated_group").size(), is(1));
     }
 }

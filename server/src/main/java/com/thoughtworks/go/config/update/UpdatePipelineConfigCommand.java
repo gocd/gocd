@@ -25,49 +25,48 @@ import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.ExternalArtifactsService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import org.apache.commons.lang3.StringUtils;
 
 import static com.thoughtworks.go.config.update.PipelineConfigErrorCopier.copyErrors;
 
 public class UpdatePipelineConfigCommand extends PipelineConfigCommand {
     private final EntityHashingService entityHashingService;
-    private final String updatedGroupName;
+    private final String newGroupName;
     private final Username currentUser;
     private final String md5;
     private final LocalizedOperationResult result;
-    public String group;
+    public String existingGroupName;
 
-    public UpdatePipelineConfigCommand(GoConfigService goConfigService, EntityHashingService entityHashingService, PipelineConfig pipelineConfig, String updatedGroupName,
+    public UpdatePipelineConfigCommand(GoConfigService goConfigService, EntityHashingService entityHashingService, PipelineConfig pipelineConfig, String newGroupName,
                                        Username currentUser, String md5, LocalizedOperationResult result, ExternalArtifactsService externalArtifactsService) {
         super(pipelineConfig, goConfigService, externalArtifactsService);
         this.entityHashingService = entityHashingService;
-        this.updatedGroupName = updatedGroupName;
+        this.newGroupName = newGroupName;
         this.currentUser = currentUser;
         this.md5 = md5;
         this.result = result;
     }
 
-    private String getPipelineGroup() {
-        if (group == null) {
-            this.group = goConfigService.findGroupNameByPipeline(pipelineConfig.name());
+    private String getExistingPipelineGroupName() {
+        if (existingGroupName == null) {
+            this.existingGroupName = goConfigService.findGroupNameByPipeline(pipelineConfig.name());
         }
-        return group;
+        return existingGroupName;
     }
 
     @Override
     public void update(CruiseConfig cruiseConfig) {
-        cruiseConfig.update(getPipelineGroup(), pipelineConfig.name().toString(), pipelineConfig);
-        if (!StringUtils.equalsIgnoreCase(group, updatedGroupName)) {
-            PipelineConfigs group = cruiseConfig.findGroup(this.group);
+        cruiseConfig.update(getExistingPipelineGroupName(), pipelineConfig.name().toString(), pipelineConfig);
+        if (!existingGroupName.equalsIgnoreCase(newGroupName)) {
+            PipelineConfigs group = cruiseConfig.findGroup(this.existingGroupName);
             group.remove(pipelineConfig);
-            cruiseConfig.getGroups().addPipeline(updatedGroupName, pipelineConfig);
+            cruiseConfig.getGroups().addPipeline(newGroupName, pipelineConfig);
         }
     }
 
     @Override
     public boolean isValid(CruiseConfig preprocessedConfig) {
         preprocessedPipelineConfig = preprocessedConfig.getPipelineConfigByName(pipelineConfig.name());
-        PipelineConfigSaveValidationContext validationContext = PipelineConfigSaveValidationContext.forChain(false, getPipelineGroup(), preprocessedConfig, preprocessedPipelineConfig);
+        PipelineConfigSaveValidationContext validationContext = PipelineConfigSaveValidationContext.forChain(false, getExistingPipelineGroupName(), preprocessedConfig, preprocessedPipelineConfig);
         validatePublishAndFetchExternalConfigs(preprocessedPipelineConfig, preprocessedConfig);
         boolean isValid = preprocessedPipelineConfig.validateTree(validationContext)
                 && preprocessedPipelineConfig.getAllErrors().isEmpty();
@@ -83,11 +82,11 @@ public class UpdatePipelineConfigCommand extends PipelineConfigCommand {
     }
 
     private boolean canEditPipeline() {
-        return goConfigService.canEditPipeline(pipelineConfig.name().toString(), currentUser, result, getPipelineGroup());
+        return goConfigService.canEditPipeline(pipelineConfig.name().toString(), currentUser, result, getExistingPipelineGroupName());
     }
 
     private boolean isRequestFresh(CruiseConfig cruiseConfig) {
-        boolean freshRequest = entityHashingService.md5ForEntity(cruiseConfig.getPipelineConfigByName(pipelineConfig.name()), getPipelineGroup()).equals(md5);
+        boolean freshRequest = entityHashingService.md5ForEntity(cruiseConfig.getPipelineConfigByName(pipelineConfig.name()), getExistingPipelineGroupName()).equals(md5);
 
         if (!freshRequest) {
             result.stale(EntityType.Pipeline.staleConfig(pipelineConfig.name()));

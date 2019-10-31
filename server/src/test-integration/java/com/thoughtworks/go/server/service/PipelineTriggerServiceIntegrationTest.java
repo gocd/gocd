@@ -228,7 +228,8 @@ public class PipelineTriggerServiceIntegrationTest {
         pipelineConfig.addEnvironmentVariable("ENV_VAR2", "VAL2");
         pipelineConfig.addEnvironmentVariable(new EnvironmentVariableConfig(new GoCipher(), "SECURE_VAR1", "SECURE_VAL", true));
         pipelineConfig.addEnvironmentVariable(new EnvironmentVariableConfig(new GoCipher(), "SECURE_VAR2", "SECURE_VAL2", true));
-        pipelineConfigService.updatePipelineConfig(admin, pipelineConfig, "group", entityHashingService.md5ForEntity(pipelineConfig), new HttpLocalizedOperationResult());
+        String md5 = entityHashingService.md5ForEntity(pipelineConfigService.getPipelineConfig(pipelineConfig.name().toString()), group);
+        pipelineConfigService.updatePipelineConfig(admin, pipelineConfig, group, md5, new HttpLocalizedOperationResult());
         Integer pipelineCounterBefore = pipelineSqlMapDao.getCounterForPipeline(pipelineName);
 
         CaseInsensitiveString pipelineNameCaseInsensitive = new CaseInsensitiveString(this.pipelineName);
@@ -269,16 +270,17 @@ public class PipelineTriggerServiceIntegrationTest {
     @Test
     public void shouldScheduleAPipelineWithTheProvidedEncryptedEnvironmentVariable() throws CryptoException {
         pipelineConfig.addEnvironmentVariable(new EnvironmentVariableConfig(new GoCipher(), "SECURE_VAR1", "SECURE_VAL", true));
-        pipelineConfigService.updatePipelineConfig(admin, pipelineConfig, "group", entityHashingService.md5ForEntity(pipelineConfig), new HttpLocalizedOperationResult());
+        String md5 = entityHashingService.md5ForEntity(pipelineConfigService.getPipelineConfig(pipelineConfig.name().toString()), group);
+        pipelineConfigService.updatePipelineConfig(admin, pipelineConfig, group, md5, new HttpLocalizedOperationResult());
         CaseInsensitiveString pipelineNameCaseInsensitive = new CaseInsensitiveString(this.pipelineName);
         assertThat(triggerMonitor.isAlreadyTriggered(pipelineNameCaseInsensitive), is(false));
         PipelineScheduleOptions pipelineScheduleOptions = new PipelineScheduleOptions();
         String overriddenEncryptedValue = new GoCipher().encrypt("overridden_value");
         pipelineScheduleOptions.getAllEnvironmentVariables().add(new EnvironmentVariableConfig(new GoCipher(), "SECURE_VAR1", overriddenEncryptedValue));
 
-        pipelineTriggerService.schedule(this.pipelineName, pipelineScheduleOptions, admin, result);
+        pipelineTriggerService.schedule(this.pipelineName, pipelineScheduleOptions, admin, this.result);
 
-        assertThat(result.isSuccess(), is(true));
+        assertThat(this.result.isSuccess(), is(true));
         materialUpdateStatusNotifier.onMessage(new MaterialUpdateSuccessfulMessage(svnMaterial, 1));
 
         BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(pipelineNameCaseInsensitive);
@@ -291,18 +293,19 @@ public class PipelineTriggerServiceIntegrationTest {
     @Test
     public void shouldNotScheduleAPipelineWithTheJunkEncryptedEnvironmentVariable() {
         pipelineConfig.addEnvironmentVariable(new EnvironmentVariableConfig(new GoCipher(), "SECURE_VAR1", "SECURE_VAL", true));
-        pipelineConfigService.updatePipelineConfig(admin, pipelineConfig, "group", entityHashingService.md5ForEntity(pipelineConfig), new HttpLocalizedOperationResult());
+        String md5 = entityHashingService.md5ForEntity(pipelineConfigService.getPipelineConfig(pipelineConfig.name().toString()), group);
+        pipelineConfigService.updatePipelineConfig(admin, pipelineConfig, group, md5, new HttpLocalizedOperationResult());
         CaseInsensitiveString pipelineNameCaseInsensitive = new CaseInsensitiveString(this.pipelineName);
         assertThat(triggerMonitor.isAlreadyTriggered(pipelineNameCaseInsensitive), is(false));
         PipelineScheduleOptions pipelineScheduleOptions = new PipelineScheduleOptions();
         String overriddenEncryptedValue = "some_junk";
         pipelineScheduleOptions.getAllEnvironmentVariables().add(new EnvironmentVariableConfig(new GoCipher(), "SECURE_VAR1", overriddenEncryptedValue));
 
-        pipelineTriggerService.schedule(this.pipelineName, pipelineScheduleOptions, admin, result);
+        pipelineTriggerService.schedule(this.pipelineName, pipelineScheduleOptions, admin, this.result);
 
-        assertThat(result.isSuccess(), is(false));
-        assertThat(result.fullMessage(), is("Request to schedule pipeline rejected { Encrypted value for variable named 'SECURE_VAR1' is invalid. This usually happens when the cipher text is modified to have an invalid value. }"));
-        assertThat(result.httpCode(), is(422));
+        assertThat(this.result.isSuccess(), is(false));
+        assertThat(this.result.fullMessage(), is("Request to schedule pipeline rejected { Encrypted value for variable named 'SECURE_VAR1' is invalid. This usually happens when the cipher text is modified to have an invalid value. }"));
+        assertThat(this.result.httpCode(), is(422));
         assertThat(triggerMonitor.isAlreadyTriggered(pipelineNameCaseInsensitive), is(false));
     }
 

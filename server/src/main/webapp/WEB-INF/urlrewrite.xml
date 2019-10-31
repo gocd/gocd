@@ -23,6 +23,13 @@
 -->
 
 <urlrewrite>
+
+  <rule>
+    <name>admin_pipelines UI</name>
+    <from>^/admin/pipelines_new(/?)$</from>
+    <to last="true">/spark/admin/pipelines_new</to>
+  </rule>
+
   <rule>
     <name>Package Definitions API</name>
     <from>^/api/admin/packages(/?)$</from>

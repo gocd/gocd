@@ -28,6 +28,7 @@ export interface Attrs extends HTMLAttributes {
   iconOnly?: boolean;
   title?: string;
   describedBy?: string;
+  "data-test-id"?: string;
 }
 
 class Icon extends MithrilViewComponent<Attrs> {
@@ -45,7 +46,7 @@ class Icon extends MithrilViewComponent<Attrs> {
     if (vnode.attrs.iconOnly) {
       return (
         <i title={title}
-           data-test-id={`${this.title}-icon`}
+           data-test-id={vnode.attrs["data-test-id"] ? vnode.attrs["data-test-id"] : `${this.title}-icon`}
            data-test-disabled-element={vnode.attrs.disabled}
            class={classnames({enabled: !vnode.attrs.disabled}, this.name, {disabled: vnode.attrs.disabled})}
            aria-describedby={vnode.attrs.describedBy}
@@ -56,6 +57,7 @@ class Icon extends MithrilViewComponent<Attrs> {
 
     return (
       <button title={title}
+              data-test-id={`${this.title}-icon`}
               data-test-disabled-element={vnode.attrs.disabled}
               class={(classnames(styles.btnIcon, {disabled: vnode.attrs.disabled}))}
               {...vnode.attrs}>
@@ -92,6 +94,12 @@ export class Usage extends Icon {
 export class Edit extends Icon {
   constructor() {
     super(styles.edit, "Edit");
+  }
+}
+
+export class Download extends Icon {
+  constructor() {
+    super(styles.download, "Download");
   }
 }
 
@@ -143,6 +151,12 @@ export class Minus extends Icon {
   }
 }
 
+export class Plus extends Icon {
+  constructor() {
+    super(styles.plus, "Plus");
+  }
+}
+
 export class InfoCircle extends Icon {
   constructor() {
     super(styles.infoCircle, "Info Circle");
@@ -170,6 +184,12 @@ export class Forward extends Icon {
 export class ChevronRight extends Icon {
   constructor() {
     super(styles.chevronRight, "Chevron Right");
+  }
+}
+
+export class ChevronRightCircle extends Icon {
+  constructor() {
+    super(styles.chevronRightRound, "Chevron Right");
   }
 }
 

@@ -22,8 +22,8 @@ import m from "mithril";
 import {TriStateCheckbox} from "models/tri_state_checkbox";
 import s from "underscore.string";
 import uuid from "uuid/v4";
-import {OnClickHandler} from "views/components/buttons";
 import * as Buttons from "views/components/buttons";
+import {OnClickHandler} from "views/components/buttons";
 import {EncryptedValue} from "views/components/forms/encrypted_value";
 import {Link} from "views/components/link";
 import {SwitchBtn} from "views/components/switch";
@@ -94,7 +94,8 @@ interface BindingsAttr<T> {
 }
 
 // tslint:disable-next-line:no-empty-interface
-export interface BaseAttrs<T> extends DataTestIdAttr, HelpTextAttr, ErrorTextAttr, LabelAttr, BindingsAttr<T>, ReadonlyAttr, RestyleAttrs<Styles> {}
+export interface BaseAttrs<T> extends DataTestIdAttr, HelpTextAttr, ErrorTextAttr, LabelAttr, BindingsAttr<T>, ReadonlyAttr, RestyleAttrs<Styles> {
+}
 
 interface DefaultAttrs {
   [key: string]: string | boolean;
@@ -149,6 +150,10 @@ class RequiredLabel extends RestyleViewComponent<Styles, RequiredFieldAttr & Res
 
 }
 
+function isMithrilVnode(o: any): o is m.Vnode {
+  return !!("tag" in o && "children" in o);
+}
+
 class Label extends RestyleViewComponent<Styles, LabelComponentAttrs & RestyleAttrs<Styles>> {
   css = defaultStyles;
 
@@ -159,14 +164,26 @@ class Label extends RestyleViewComponent<Styles, LabelComponentAttrs & RestyleAt
   static defaultAttributes(attrs: LabelAttr) {
     if (this.hasLabelText(attrs)) {
       return {
-        "aria-label": attrs.label as string,
+        "aria-label": Label.labelToId(attrs.label),
       };
     }
   }
 
   static labelToId(label: m.Children): string {
-    if ("string" === typeof label) {
-      return label;
+    if (label === null || label === undefined) {
+      return "";
+    }
+
+    if (typeof label === "string" || typeof label === "number" || label === true || label === false) {
+      return label.toString();
+    }
+
+    if (isMithrilVnode(label)) {
+      const temp = document.createElement("div");
+      m.render(temp, label);
+      const result = temp.innerText;
+      m.render(temp, null);
+      return result;
     }
 
     if (label instanceof Array) { // best guess, only consider top-level and don't recurse
@@ -265,7 +282,7 @@ function bindingAttributes<T>(attrs: BindingsAttr<T> & ReadonlyAttr,
   };
 
   if (!attrs.readonly) {
-    const existingHandler = (attrs as any)[eventName];
+    const existingHandler        = (attrs as any)[eventName];
     bindingAttributes[eventName] = (evt: any) => {
       if ("function" === typeof existingHandler) {
         existingHandler(evt);
@@ -316,7 +333,11 @@ export abstract class FormField<T, V = {}> extends RestyleViewComponent<Styles, 
 
   view(vnode: m.Vnode<BaseAttrs<T> & V>) {
     return (
-      <div class={classnames(this.css.formGroup, {[this.css.formHasError]: ErrorText.hasErrorText(vnode.attrs), [this.css.formDisabled]: vnode.attrs.readonly})}>
+      <div class={classnames(this.css.formGroup,
+                             {
+                               [this.css.formHasError]: ErrorText.hasErrorText(vnode.attrs),
+                               [this.css.formDisabled]: vnode.attrs.readonly
+                             })}>
         {[<Label {...vnode.attrs} fieldId={this.id}/>]}
         {this.renderInputField(vnode)}
         {[<ErrorText {...vnode.attrs} errorId={this.errorId}/>]}
@@ -412,9 +433,9 @@ export class TextAreaField extends FormField<string, TextAreaFieldAttrs> {
     return (
       <textarea
         class={classnames(this.css.formControl,
-                              this.css.textArea,
-                              SizeTransformer.transform(vnode.attrs.size, this.css),
-                              {[this.css.textareaFixed]: !(vnode.attrs.resizable)})}
+                          this.css.textArea,
+                          SizeTransformer.transform(vnode.attrs.size, this.css),
+                          {[this.css.textareaFixed]: !(vnode.attrs.resizable)})}
         {...this.defaultAttributes(vnode.attrs)}
         rows={vnode.attrs.rows}
         oninput={(e) => {
@@ -473,10 +494,10 @@ export class PasswordField extends FormField<EncryptedValue, RequiredFieldAttr &
   private static resetOrOverride(vnode: m.Vnode<BaseAttrs<EncryptedValue> & RequiredFieldAttr & PlaceholderAttr>) {
     if (vnode.attrs.property()!.isEditing()) {
       return <FormResetButton css={vnode.attrs.css}
-        onclick={vnode.attrs.property()!.resetToOriginal.bind(vnode.attrs.property())}>Reset</FormResetButton>;
+                              onclick={vnode.attrs.property()!.resetToOriginal.bind(vnode.attrs.property())}>Reset</FormResetButton>;
     } else {
       return <FormResetButton css={vnode.attrs.css}
-        onclick={vnode.attrs.property()!.edit.bind(vnode.attrs.property())}>Change</FormResetButton>;
+                              onclick={vnode.attrs.property()!.edit.bind(vnode.attrs.property())}>Change</FormResetButton>;
     }
   }
 }
@@ -709,7 +730,8 @@ interface ButtonName {
 }
 
 // tslint:disable-next-line:no-empty-interface
-interface TextFieldWithButtonAttrs extends PlaceholderAttr, OnClickHandler, BindingsAttr<string>, ReadonlyAttr, DataTestIdAttr, ButtonDisableReason, ButtonName, SizeAttr, RestyleAttrs<Styles> {}
+interface TextFieldWithButtonAttrs extends PlaceholderAttr, OnClickHandler, BindingsAttr<string>, ReadonlyAttr, DataTestIdAttr, ButtonDisableReason, ButtonName, SizeAttr, RestyleAttrs<Styles> {
+}
 
 abstract class TextFieldWithButton extends RestyleViewComponent<Styles, TextFieldWithButtonAttrs> {
   css = defaultStyles;
@@ -727,7 +749,9 @@ abstract class TextFieldWithButton extends RestyleViewComponent<Styles, TextFiel
     }
 
     return (
-      <div class={classnames(this.css.formGroup, this.css.formGroupTextFieldWithButton, {[this.css.formDisabled]: vnode.attrs.readonly})} {...defaultAttrs}>
+      <div class={classnames(this.css.formGroup,
+                             this.css.formGroupTextFieldWithButton,
+                             {[this.css.formDisabled]: vnode.attrs.readonly})} {...defaultAttrs}>
         {this.renderInputField(vnode)}
         {this.renderButton(vnode)}
       </div>

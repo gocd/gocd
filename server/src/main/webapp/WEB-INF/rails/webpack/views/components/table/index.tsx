@@ -30,7 +30,7 @@ export interface TableSortHandler {
 }
 
 interface Attrs {
-  headers: any;
+  headers: m.Child[];
   data: m.Child[][];
   "data-test-id"?: string;
   sortHandler?: TableSortHandler;

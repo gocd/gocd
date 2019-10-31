@@ -84,7 +84,7 @@ public class ExtractTemplateFromPipelineEntityConfigUpdateCommand implements Ent
         }
 
         if (pipelineConfig.hasTemplate()) {
-            throw new ConflictException(EntityType.Pipeline.alreadyUsesATemplate());
+            throw new ConflictException(EntityType.Pipeline.alreadyUsesATemplate(pipelineName));
         }
 
         PipelineTemplateConfig templateByName = cruiseConfig.getTemplates().templateByName(this.newTemplate.name());

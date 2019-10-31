@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import _ from "lodash";
 import Stream from "mithril/stream";
 import {EnvironmentPipelineJSON, Pipelines} from "models/new-environments/environment_pipelines";
 
@@ -37,6 +38,14 @@ export class PipelineGroup {
 
   static fromJSON(data: PipelineGroupJSON) {
     return new PipelineGroup(data.name, Pipelines.fromJSON(data.pipelines));
+  }
+
+  isEmpty() {
+    return _.isEmpty(this.pipelines());
+  }
+
+  hasPipelines() {
+    return !this.isEmpty();
   }
 }
 

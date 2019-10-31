@@ -24,7 +24,7 @@ import {
 } from "models/shared/plugin_infos_new/serialization";
 import {About} from "./about";
 import {ExtensionType, ExtensionTypeString} from "./extension_type";
-import {AuthorizationExtension, Extension} from "./extensions";
+import {AuthorizationExtension, ConfigRepoExtension, Extension} from "./extensions";
 
 class Status {
   readonly state: PluginState;
@@ -140,8 +140,18 @@ export class PluginInfos extends Array<PluginInfo> {
     return _.find(this, (pluginInfo) => pluginInfo.id === pluginId);
   }
 
-  getPluginInfosWithAuthorizeCapabilities(): PluginInfos {
+  getConfigRepoPluginInfosWithExportPipelineCapabilities(): PluginInfos {
+    const filterFn = (value: PluginInfo) => {
+      const configRepoExtension = value.extensionOfType(ExtensionTypeString.CONFIG_REPO) as ConfigRepoExtension;
+      return configRepoExtension && configRepoExtension.capabilities.supportsPipelineExport;
+    };
 
+    const filteredPluginInfos = _.filter(this, filterFn) as unknown as PluginInfo[];
+    return new PluginInfos(...filteredPluginInfos);
+
+  }
+
+  getPluginInfosWithAuthorizeCapabilities(): PluginInfos {
     const filterFn = (value: PluginInfo) => {
       const authorizationSettings = value.extensionOfType(ExtensionTypeString.AUTHORIZATION) as AuthorizationExtension;
       return authorizationSettings && authorizationSettings.capabilities.canAuthorize;

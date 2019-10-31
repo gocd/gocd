@@ -15,7 +15,7 @@
  */
 @import "../../global/common";
 
-$global-icon-size: 16px;
+$global-icon-size:        16px;
 $btn-group-border-radius: $global-border-radius;
 
 .btn-icon {
@@ -119,6 +119,10 @@ $btn-group-border-radius: $global-border-radius;
   font-size: 7px;
 }
 
+.plus {
+  @include icon-before($type: $fa-var-plus);
+}
+
 .info-circle {
   @include icon-before($type: $fa-var-info-circle);
 }
@@ -135,12 +139,20 @@ $btn-group-border-radius: $global-border-radius;
   @include icon-before($type: $fa-var-forward);
 }
 
-.chevronRight {
+.download {
+  @include icon-before($type: $fa-var-download);
+}
+
+.chevron-right {
   @include icon-before($type: $fa-var-chevron-right);
 }
 
-.chevronDown {
+.chevron-down {
   @include icon-before($type: $fa-var-chevron-down);
+}
+
+.chevron-right-round {
+  @include icon-before($type: $fa-var-arrow-circle-o-right);
 }
 
 .icon-group {

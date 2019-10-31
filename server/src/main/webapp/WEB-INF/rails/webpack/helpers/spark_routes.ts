@@ -23,16 +23,29 @@ export class SparkRoutes {
     return `/go/api/server_health_messages`;
   }
 
-  static pipelineGroupsListPath() {
-    return `/go/api/admin/pipeline_groups`;
+  static pipelineGroupsPath(groupName?: string) {
+    if (groupName) {
+      return `/go/api/admin/pipeline_groups/${groupName}`;
+    } else {
+      return `/go/api/admin/pipeline_groups`;
+    }
   }
 
   static adminPipelineConfigPath(pipelineName: string): string {
     return `/go/api/admin/pipelines/${pipelineName}`;
   }
 
-  static newCreatePipelinePath(): string {
-    return `/go/admin/pipelines/create`;
+  static adminExtractTemplateFromPipelineConfigPath(pipelineName: string): string {
+    return `/go/api/admin/pipelines/${pipelineName}/extract_to_template`;
+  }
+
+  static newCreatePipelinePath(group?: string): string {
+    const basePath = `/go/admin/pipelines/create`;
+    if (!group) {
+      return basePath;
+    } else {
+      return `${basePath}?${m.buildQueryString({group})}`;
+    }
   }
 
   static createPipelineAsCodePath(): string {
@@ -388,5 +401,9 @@ export class SparkRoutes {
 
   static showAnalyticsPath(pluginId: string, metric: AnalyticsCapability, params: { [key: string]: string | number }) {
     return `/go/analytics/${pluginId}/${metric.type}/${metric.id}?${m.buildQueryString(params)}`;
+  }
+
+  static exportPipelinePath(pluginId: string, pipeline: string) {
+    return `/go/api/admin/export/pipelines/` + pipeline + "?" + m.buildQueryString({plugin_id: pluginId});
   }
 }

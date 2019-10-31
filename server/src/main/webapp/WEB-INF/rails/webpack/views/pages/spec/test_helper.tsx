@@ -32,6 +32,10 @@ export function stubAllMethods<T>(keys: Array<keyof T>): T {
 export class TestHelper {
   root?: HTMLElement;
 
+  constructor(root?: HTMLElement) {
+    this.root = root;
+  }
+
   mount(callback: () => m.Children) {
     this.initialize();
 
@@ -112,6 +116,10 @@ export class TestHelper {
     return modalContainer;
   }
 
+  forModal() {
+    return new TestHelper(this.modal());
+  }
+
   textByTestId(id: string, context?: Element): string {
     return this.text(this.byTestId(id, context));
   }
@@ -159,7 +167,8 @@ export class TestHelper {
   }
 
   clickButtonOnActiveModal(buttonSelector: string) {
-    const element = document.querySelector(`.new-modal-container ${buttonSelector}`);
+    // `.new-modal-container` is the selector used by the old modals
+    const element = document.querySelector(`.new-modal-container ${buttonSelector}`) || document.querySelector(`.component-modal-container ${buttonSelector}`);
     if (!element) {
       throw new Error(`Unable to find button with selector ${buttonSelector}`);
     }
@@ -171,9 +180,9 @@ export class TestHelper {
     m.redraw.sync();
   }
 
-  dump() {
+  dump(context?: Element) {
     // tslint:disable-next-line:no-console
-    console.log(this.root!.innerHTML);
+    console.log((context || this.root!).innerHTML);
   }
 
   clickByTestId(id: string, context?: Element) {

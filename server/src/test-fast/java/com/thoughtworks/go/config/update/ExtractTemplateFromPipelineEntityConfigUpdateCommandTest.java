@@ -108,7 +108,7 @@ class ExtractTemplateFromPipelineEntityConfigUpdateCommandTest {
 
             assertThatCode(() -> command.canContinue(cruiseConfig))
                     .isInstanceOf(ConflictException.class)
-                    .hasMessage("Pipeline with name 'id' already uses a template.");
+                    .hasMessage("Pipeline with name 'some-pipeline' already uses a template.");
         }
 
         @Test

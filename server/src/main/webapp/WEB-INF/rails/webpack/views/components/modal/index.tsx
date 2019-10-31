@@ -17,12 +17,12 @@ import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
+
+import uuid4 from "uuid/v4";
 import {Spinner} from "views/components/spinner";
 import * as Buttons from "../buttons";
 import styles from "./index.scss";
 import {ModalManager} from "./modal_manager";
-
-import uuid4 from "uuid/v4";
 
 const classnames = bind(styles);
 
@@ -34,8 +34,8 @@ export enum ModalState {
 }
 
 export abstract class Modal extends MithrilViewComponent<any> {
+  modalState                                  = ModalState.OK;
   protected closeModalOnOverlayClick: boolean = true;
-  protected modalState                        = ModalState.OK;
   protected fixedHeight: boolean              = false;
 
   protected constructor(size = Size.medium) {

@@ -24,8 +24,6 @@ interface PipelineGroup {
   name: string;
 }
 
-const API_VERSION_HEADER = ApiVersion.v1;
-
 export interface PipelineGroupCache<G> extends ObjectCache<PipelineGroup[]> {
   pipelineGroups: () => G[];
 }
@@ -60,7 +58,7 @@ export class DefaultCache extends PipelineGroupsCache<Option> {
 
   pipelineGroups() {
     if (this.ready() && !super.pipelineGroups().length) {
-      return [{ id: "defaultGroup", text: "defaultGroup" }]; // when there are no groups available, return "defaultGroup"
+      return [{id: "defaultGroup", text: "defaultGroup"}]; // when there are no groups available, return "defaultGroup"
     }
 
     return super.pipelineGroups();
@@ -68,8 +66,18 @@ export class DefaultCache extends PipelineGroupsCache<Option> {
 }
 
 export class PipelineGroupCRUD {
+  static create(group: PipelineGroup): Promise<ApiResult<PipelineGroup>> {
+    return ApiRequestBuilder.POST(SparkRoutes.pipelineGroupsPath(), ApiVersion.latest, {
+      payload: group
+    }).then((result) => {
+      return result.map((str) => {
+        return JSON.parse(str) as PipelineGroup;
+      });
+    });
+  }
+
   static all(): Promise<ApiResult<PipelineGroup[]>> {
-    return ApiRequestBuilder.GET(SparkRoutes.pipelineGroupsListPath(), API_VERSION_HEADER)
+    return ApiRequestBuilder.GET(SparkRoutes.pipelineGroupsPath(), ApiVersion.latest)
                             .then((result: ApiResult<string>) => {
                               return result.map((str) => {
                                 const data = JSON.parse(str);

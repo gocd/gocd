@@ -14,28 +14,36 @@
  * limitations under the License.
  */
 
+import _ from "lodash";
 import Stream from "mithril/stream";
 import {Pipeline, PipelineJSON} from "models/environments/types";
 import {Origin, OriginJSON} from "models/new-environments/origin";
 
 export interface EnvironmentPipelineJSON extends PipelineJSON {
   origin: OriginJSON;
+  template_name?: string;
 }
 
 export class PipelineWithOrigin extends Pipeline {
   readonly origin: Stream<Origin>;
+  readonly templateName: Stream<string | undefined>;
 
-  constructor(name: string, origin: Origin) {
+  constructor(name: string, templateName: string | undefined, origin: Origin) {
     super(name);
-    this.origin = Stream(origin);
+    this.origin       = Stream(origin);
+    this.templateName = Stream(templateName);
   }
 
   static fromJSON(data: EnvironmentPipelineJSON) {
-    return new PipelineWithOrigin(data.name, Origin.fromJSON(data.origin));
+    return new PipelineWithOrigin(data.name, data.template_name, Origin.fromJSON(data.origin));
+  }
+
+  usesTemplate() {
+    return !_.isEmpty(this.templateName());
   }
 
   clone() {
-    return new PipelineWithOrigin(this.name(), this.origin().clone());
+    return new PipelineWithOrigin(this.name(), this.templateName(), this.origin().clone());
   }
 }
 

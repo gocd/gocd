@@ -42,6 +42,17 @@ export interface Attrs extends OnClickHandler, RestyleAttrs<Styles> {
   disabled?: boolean;
   dropdown?: boolean;
   align?: Alignment;
+  dataTestId?: string;
+}
+
+function dataTestIdAttrs(attrs: Attrs) {
+  if (attrs.dataTestId) {
+    return {
+      "data-test-id": attrs.dataTestId
+    };
+  } else {
+    return {};
+  }
 }
 
 abstract class Button extends RestyleViewComponent<Styles, Attrs> {
@@ -78,6 +89,7 @@ abstract class Button extends RestyleViewComponent<Styles, Attrs> {
 
     return (
       <button {...Button.onlyHtmlAttrs(vnode.attrs)}
+              {...dataTestIdAttrs(vnode.attrs)}
               class={classnames(
                 this.css.button,
                 {[this.css.btnDropdown]: isDropdown},
@@ -250,7 +262,8 @@ export class SimpleDropdown extends Dropdown<SimpleDDAttrs> {
   }
 
   protected doRenderButton(vnode: m.Vnode<DropdownAttrs & SimpleDDAttrs>) {
-    return <Primary dropdown={true} disabled={vnode.attrs.disabled} title={vnode.attrs.title} aria-label={vnode.attrs["aria-label"]} onclick={(e) => this.toggleDropdown(vnode, e)}>
+    return <Primary dropdown={true} disabled={vnode.attrs.disabled} title={vnode.attrs.title}
+                    aria-label={vnode.attrs["aria-label"]} onclick={(e) => this.toggleDropdown(vnode, e)}>
       {vnode.attrs.text}
     </Primary>;
   }

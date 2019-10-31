@@ -759,4 +759,7 @@ public class Routes {
             return BASE + "/" + id;
         }
     }
+    public static class AdminPipelines {
+        public static final String SPA_BASE = "/admin/pipelines_new";
+    }
 }

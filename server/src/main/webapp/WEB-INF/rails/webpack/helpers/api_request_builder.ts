@@ -16,7 +16,6 @@
 import {CaseInsensitiveMap} from "helpers/collections";
 import _ from "lodash";
 import m from "mithril";
-import Stream from "mithril/stream";
 
 export enum ApiVersion { latest, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10}
 
@@ -181,7 +180,7 @@ export interface RequestOptions {
   etag?: string;
   payload: any;
   headers?: Headers;
-  xhrHandle?: Stream<XMLHttpRequest>; //A reference to the underlying XHR object, which can be used to abort the request
+  xhrHandle?: (xhr: XMLHttpRequest) => void; //A reference to the underlying XHR object, which can be used to abort the request
 }
 
 export class ApiRequestBuilder {
@@ -203,6 +202,14 @@ export class ApiRequestBuilder {
 
   static DELETE(url: string, apiVersion?: ApiVersion, options?: Partial<RequestOptions>) {
     return this.makeRequest(url, "DELETE", apiVersion, options);
+  }
+
+  static versionHeader(version: ApiVersion): string {
+    if (version === ApiVersion.latest) {
+      return `application/vnd.go.cd+json`;
+    } else {
+      return `application/vnd.go.cd.${ApiVersion[version]}+json`;
+    }
   }
 
   private static makeRequest(url: string,
@@ -268,14 +275,6 @@ export class ApiRequestBuilder {
   private static isAnUpdate(method: string) {
     const updateMethods = ["PUT", "POST", "DELETE", "PATCH"];
     return updateMethods.includes(method.toUpperCase());
-  }
-
-  private static versionHeader(version: ApiVersion): string {
-    if (version === ApiVersion.latest) {
-      return `application/vnd.go.cd+json`;
-    } else {
-      return `application/vnd.go.cd.${ApiVersion[version]}+json`;
-    }
   }
 
   private static etagHeaderName(method: string) {

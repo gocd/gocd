@@ -187,7 +187,7 @@ public enum EntityType {
         return format("User '%s' does not have permission to delete %s", username, entityType.toLowerCase());
     }
 
-    public String alreadyUsesATemplate() {
+    public String alreadyUsesATemplate(String id) {
         return format("%s %s '%s' already uses a template.", StringUtils.capitalize(this.entityType), this.nameOrId.descriptor, id);
     }
 }

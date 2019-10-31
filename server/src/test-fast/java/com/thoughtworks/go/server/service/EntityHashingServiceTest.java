@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
+import com.thoughtworks.go.helper.EnvironmentConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.PluginSettings;
@@ -59,10 +60,10 @@ public class EntityHashingServiceTest {
 
     @Test
     public void shouldComputeTheMD5OfAGivenXmlPartialGeneratedFromAnObject() {
-        PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("P1");
-        String xml = new MagicalGoConfigXmlWriter(configCache, registry).toXmlPartial(pipelineConfig);
+        BasicEnvironmentConfig environment = EnvironmentConfigMother.environment("P1");
+        String xml = new MagicalGoConfigXmlWriter(configCache, registry).toXmlPartial(environment);
 
-        assertThat(entityHashingService.md5ForEntity(pipelineConfig), is(CachedDigestUtils.md5Hex(xml)));
+        assertThat(entityHashingService.md5ForEntity(environment), is(CachedDigestUtils.md5Hex(xml)));
     }
 
     @Test
@@ -102,11 +103,11 @@ public class EntityHashingServiceTest {
 
     @Test
     public void entityChecksumIsIdenticalForObjectsWithCaseInsensitiveName() throws Exception {
-        PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("UPPER_CASE_NAME");
-        when(goCache.get("GO_ETAG_CACHE", "com.thoughtworks.go.config.PipelineConfig.upper_case_name")).thenReturn("foo");
-        String checksum = entityHashingService.md5ForEntity(pipelineConfig);
+        BasicEnvironmentConfig environment = EnvironmentConfigMother.environment("UPPER_CASE_NAME");
+        when(goCache.get("GO_ETAG_CACHE", "com.thoughtworks.go.config.BasicEnvironmentConfig.upper_case_name")).thenReturn("foo");
+        String checksum = entityHashingService.md5ForEntity(environment);
         assertThat(checksum, is("foo"));
-        verify(goCache).get("GO_ETAG_CACHE", "com.thoughtworks.go.config.PipelineConfig.upper_case_name");
+        verify(goCache).get("GO_ETAG_CACHE", "com.thoughtworks.go.config.BasicEnvironmentConfig.upper_case_name");
         verifyNoMoreInteractions(goCache);
     }
 

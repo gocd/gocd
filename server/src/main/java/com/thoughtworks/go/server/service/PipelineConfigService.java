@@ -136,9 +136,9 @@ public class PipelineConfigService {
     }
 
 
-    public void updatePipelineConfig(final Username currentUser, final PipelineConfig pipelineConfig, final String md5, final LocalizedOperationResult result) {
+    public void updatePipelineConfig(final Username currentUser, final PipelineConfig pipelineConfig, String updatedGroupName, final String md5, final LocalizedOperationResult result) {
         validatePluggableTasks(pipelineConfig);
-        UpdatePipelineConfigCommand updatePipelineConfigCommand = new UpdatePipelineConfigCommand(goConfigService, entityHashingService, pipelineConfig, currentUser, md5, result, externalArtifactsService);
+        UpdatePipelineConfigCommand updatePipelineConfigCommand = new UpdatePipelineConfigCommand(goConfigService, entityHashingService, pipelineConfig, updatedGroupName, currentUser, md5, result, externalArtifactsService);
         update(currentUser, pipelineConfig, result, updatePipelineConfigCommand);
     }
 

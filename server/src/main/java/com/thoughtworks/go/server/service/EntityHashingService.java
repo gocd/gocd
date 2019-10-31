@@ -146,9 +146,10 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         return getDomainEntityMd5FromCache(config, cacheKey);
     }
 
-    public String md5ForEntity(PipelineConfig config) {
-        String cacheKey = cacheKey(config, config.name());
-        return getDomainEntityMd5FromCache(config, cacheKey);
+    public String md5ForEntity(PipelineConfig pipelineConfig, String groupName) {
+        String cacheKey = cacheKey(pipelineConfig, pipelineConfig.name());
+        String md5 = getDomainEntityMd5FromCache(pipelineConfig, cacheKey);
+        return CachedDigestUtils.md5Hex(StringUtils.join(md5, SEP_CHAR, groupName));
     }
 
     public String md5ForEntity(ConfigRepoConfig config) {

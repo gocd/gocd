@@ -124,8 +124,9 @@ public class PipelineConfigControllerV10 extends ApiController implements SparkS
             throw haltBecauseEtagDoesNotMatch("pipeline", existingPipelineConfig.getName());
         }
 
+        String groupName = getOrHaltForGroupName(req);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        pipelineConfigService.updatePipelineConfig(SessionUtils.currentUsername(), pipelineConfigFromRequest, etagFor(existingPipelineConfig), result);
+        pipelineConfigService.updatePipelineConfig(SessionUtils.currentUsername(), pipelineConfigFromRequest, groupName, etagFor(existingPipelineConfig), result);
         return handleCreateOrUpdateResponse(req, res, pipelineConfigFromRequest, result);
     }
 
@@ -198,7 +199,8 @@ public class PipelineConfigControllerV10 extends ApiController implements SparkS
 
     @Override
     public String etagFor(PipelineConfig pipelineConfig) {
-        return entityHashingService.md5ForEntity(pipelineConfig);
+        String groupName = goConfigService.findGroupNameByPipeline(pipelineConfig.name());
+        return entityHashingService.md5ForEntity(pipelineConfig, groupName);
     }
 
     @Override

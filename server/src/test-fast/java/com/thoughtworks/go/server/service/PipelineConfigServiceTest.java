@@ -160,7 +160,7 @@ public class PipelineConfigServiceTest {
         PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("P1", new StageConfig(new CaseInsensitiveString("S1"), new JobConfigs(job1)),
                 new StageConfig(new CaseInsensitiveString("S2"), new JobConfigs(job2)));
 
-        pipelineConfigService.updatePipelineConfig(null, pipeline, null, null);
+        pipelineConfigService.updatePipelineConfig(null, pipeline, "group", null, null);
 
         verify(pluggableTaskService).isValid(xUnit);
         verify(pluggableTaskService).isValid(docker);
@@ -223,8 +223,8 @@ public class PipelineConfigServiceTest {
         List<PipelineConfigs> pipelineConfigs = pipelineConfigService.viewableGroupsForUserIncludingConfigRepos(username);
 
         assertThat(pipelineConfigs.size(), is(2));
-        assertThat(pipelineConfigs.get(0).getGroup(),is("group2"));
-        assertThat(pipelineConfigs.get(1).getGroup(),is("group1"));
+        assertThat(pipelineConfigs.get(0).getGroup(), is("group2"));
+        assertThat(pipelineConfigs.get(1).getGroup(), is("group1"));
     }
 
 
@@ -246,6 +246,6 @@ public class PipelineConfigServiceTest {
         List<PipelineConfigs> pipelineConfigs = pipelineConfigService.viewableGroupsFor(username);
 
         assertThat(pipelineConfigs.size(), is(1));
-        assertThat(pipelineConfigs.get(0).getGroup(),is("group1"));
+        assertThat(pipelineConfigs.get(0).getGroup(), is("group1"));
     }
 }

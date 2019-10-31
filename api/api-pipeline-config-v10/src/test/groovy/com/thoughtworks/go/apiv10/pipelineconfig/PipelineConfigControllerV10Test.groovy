@@ -56,8 +56,7 @@ import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git
 import static org.junit.jupiter.api.Assertions.assertEquals
 import static org.junit.jupiter.api.Assertions.assertTrue
-import static org.mockito.ArgumentMatchers.any
-import static org.mockito.ArgumentMatchers.eq
+import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.*
 import static org.mockito.MockitoAnnotations.initMocks
 
@@ -130,7 +129,7 @@ class PipelineConfigControllerV10Test implements SecurityServiceTrait, Controlle
         def pipelineMd5 = 'md5_for_pipeline_config'
 
         when(pipelineConfigService.getPipelineConfig('pipeline1')).thenReturn(pipeline)
-        when(entityHashingService.md5ForEntity(pipeline)).thenReturn(pipelineMd5)
+        when(entityHashingService.md5ForEntity(pipeline, groupName)).thenReturn(pipelineMd5)
 
         getWithApiHeader(controller.controllerPath("/pipeline1"))
 
@@ -149,7 +148,7 @@ class PipelineConfigControllerV10Test implements SecurityServiceTrait, Controlle
         def pipeline_md5 = 'md5_for_pipeline_config'
 
         when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(pipeline)
-        when(entityHashingService.md5ForEntity(pipeline)).thenReturn(pipeline_md5)
+        when(entityHashingService.md5ForEntity(pipeline, groupName)).thenReturn(pipeline_md5)
 
         getWithApiHeader(controller.controllerPath('/pipeline1'), ['if-none-match': '"md5_for_pipeline_config"'])
 
@@ -177,7 +176,7 @@ class PipelineConfigControllerV10Test implements SecurityServiceTrait, Controlle
         def pipeline_md5 = 'md5_for_pipeline_config'
 
         when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(pipeline)
-        when(entityHashingService.md5ForEntity(pipeline)).thenReturn(pipeline_md5)
+        when(entityHashingService.md5ForEntity(pipeline, groupName)).thenReturn(pipeline_md5)
 
         getWithApiHeader(controller.controllerPath('/pipeline1'), ['if-none-match': '"junk"'])
 
@@ -466,7 +465,7 @@ class PipelineConfigControllerV10Test implements SecurityServiceTrait, Controlle
       void "should update pipeline config for an admin"() {
         def pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline1")
         pipelineConfig.setOrigin(new FileConfigOrigin())
-        when(entityHashingService.md5ForEntity(pipelineConfig)).thenReturn('md5')
+        when(entityHashingService.md5ForEntity(pipelineConfig, groupName)).thenReturn('md5')
         when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(pipelineConfig)
 
         def headers = [
@@ -546,17 +545,42 @@ class PipelineConfigControllerV10Test implements SecurityServiceTrait, Controlle
       }
 
       @Test
+      void "should not update pipeline config when the group is not specified"() {
+        def pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline1")
+        pipelineConfig.setOrigin(new FileConfigOrigin())
+
+        when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(pipelineConfig)
+        when(entityHashingService.md5ForEntity(pipelineConfig, groupName)).thenReturn('md5')
+
+        def headers = [
+          'accept'      : controller.mimeType,
+          'If-Match'    : 'md5',
+          'content-type': 'application/json'
+        ]
+
+        def json = toObject({
+          PipelineConfigRepresenter.toJSON(it, pipelineConfig, groupName)
+        })
+        json.remove("group")
+        putWithApiHeader(controller.controllerPath("/pipeline1"), headers, json)
+
+        assertThatResponse()
+          .isUnprocessableEntity()
+          .hasJsonMessage("Pipeline group must be specified for creating a pipeline.")
+      }
+
+      @Test
       void "should handle server validation errors"() {
         HttpLocalizedOperationResult result
         def pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline1")
         pipelineConfig.setOrigin(new FileConfigOrigin())
-        when(entityHashingService.md5ForEntity(pipelineConfig)).thenReturn('md5')
+        when(entityHashingService.md5ForEntity(pipelineConfig, groupName)).thenReturn('md5')
         when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(pipelineConfig)
 
         pipelineConfig.addError("labelTemplate", String.format(PipelineConfig.LABEL_TEMPLATE_ERROR_MESSAGE, 'foo bar'))
 
-        when(pipelineConfigService.updatePipelineConfig(any(), any(), eq("md5"), any())).then({ InvocationOnMock invocation ->
-          result = invocation.getArguments()[3]
+        when(pipelineConfigService.updatePipelineConfig(any(), any(), anyString(), eq("md5"), any())).then({ InvocationOnMock invocation ->
+          result = invocation.getArguments()[4]
           result.unprocessableEntity("message from server")
         })
 
@@ -607,8 +631,8 @@ class PipelineConfigControllerV10Test implements SecurityServiceTrait, Controlle
 
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig)
         when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(pipelineConfig)
-        when(entityHashingService.md5ForEntity(pipelineConfig)).thenReturn('md5')
-        when(pipelineConfigService.updatePipelineConfig(any(), any(), any(), any())).then({ InvocationOnMock invocation ->
+        when(entityHashingService.md5ForEntity(pipelineConfig, groupName)).thenReturn('md5')
+        when(pipelineConfigService.updatePipelineConfig(any(), any(), anyString(), any(), any())).then({ InvocationOnMock invocation ->
           pipelineBeingSaved = invocation.getArguments()[1]
         })
 
@@ -637,9 +661,9 @@ class PipelineConfigControllerV10Test implements SecurityServiceTrait, Controlle
 
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig)
         when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(pipelineConfig)
-        when(entityHashingService.md5ForEntity(pipelineConfig)).thenReturn('md5')
+        when(entityHashingService.md5ForEntity(pipelineConfig, groupName)).thenReturn('md5')
 
-        when(pipelineConfigService.updatePipelineConfig(any(), any(), any(), any())).then({ InvocationOnMock invocation ->
+        when(pipelineConfigService.updatePipelineConfig(any(), any(), anyString(), any(), any())).then({ InvocationOnMock invocation ->
           pipelineBeingSaved = invocation.getArguments()[1]
         })
 
@@ -733,6 +757,7 @@ class PipelineConfigControllerV10Test implements SecurityServiceTrait, Controlle
       label_template: "\${COUNT}",
       lock_behavior : "none",
       name          : "pipeline1",
+      group         : "group",
       materials     : [
         [
           type      : "svn",
@@ -757,6 +782,7 @@ class PipelineConfigControllerV10Test implements SecurityServiceTrait, Controlle
     return [
       label_template: "\${COUNT}",
       name          : pipeline_name,
+      group         : "group",
       materials     :
         [[
            type      : material_type,

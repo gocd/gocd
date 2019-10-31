@@ -78,7 +78,14 @@ public class UpdatePipelineConfigCommand extends PipelineConfigCommand {
 
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
-        return canEditPipeline() && isRequestFresh(cruiseConfig);
+        return canEditPipeline() && canAccessGroups() && isRequestFresh(cruiseConfig);
+    }
+
+    private boolean canAccessGroups() {
+        if (!existingGroupName.equalsIgnoreCase(newGroupName) && goConfigService.groups().hasGroup(newGroupName)) {
+            return goConfigService.isUserAdminOfGroup(currentUser.getUsername(), newGroupName);
+        }
+        return true;
     }
 
     private boolean canEditPipeline() {

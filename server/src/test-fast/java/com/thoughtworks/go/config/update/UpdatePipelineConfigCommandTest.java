@@ -30,8 +30,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 class UpdatePipelineConfigCommandTest {
@@ -162,8 +161,6 @@ class UpdatePipelineConfigCommandTest {
 
     @Test
     void shouldAddGroupWithPipelineAndRemoveItFromPreviousIfTheSpecifiedGroupDoesNotExist() {
-        UpdatePipelineConfigCommand command = new UpdatePipelineConfigCommand(goConfigService, null,
-                pipelineConfig, "updated_group", username, "stale_md5", localizedOperationResult, externalArtifactsService);
 
         CruiseConfig cruiseConfig = mock(CruiseConfig.class);
         BasicPipelineConfigs pipelineConfigs = new BasicPipelineConfigs("group1", new Authorization(), pipelineConfig);
@@ -175,11 +172,57 @@ class UpdatePipelineConfigCommandTest {
 
         assertThat(pipelineGroups.hasGroup("updated_group"), is(false));
 
+        UpdatePipelineConfigCommand command = new UpdatePipelineConfigCommand(goConfigService, null,
+                pipelineConfig, "updated_group", username, "stale_md5", localizedOperationResult, externalArtifactsService);
+
         command.update(cruiseConfig);
         verify(cruiseConfig).update("group1", pipelineConfig.name().toString(), pipelineConfig);
 
         assertThat(pipelineGroups.findGroup("group1").size(), is(0));
         assertThat(pipelineGroups.hasGroup("updated_group"), is(true));
         assertThat(pipelineGroups.findGroup("updated_group").size(), is(1));
+    }
+
+    @Test
+    void shouldNotAllowToContinueIfTheUserIsNotAnAdminOnTheNewGroup() {
+        CruiseConfig cruiseConfig = mock(CruiseConfig.class);
+        BasicPipelineConfigs pipelineConfigs = new BasicPipelineConfigs("group1", new Authorization(), pipelineConfig);
+        BasicPipelineConfigs pipelineConfigs1 = new BasicPipelineConfigs("group2", new Authorization());
+        PipelineGroups pipelineGroups = new PipelineGroups(pipelineConfigs, pipelineConfigs1);
+
+        when(goConfigService.findGroupNameByPipeline(pipelineConfig.name())).thenReturn("group1");
+        when(goConfigService.canEditPipeline(anyString(), any(Username.class), any(LocalizedOperationResult.class), anyString())).thenReturn(true);
+        when(goConfigService.groups()).thenReturn(pipelineGroups);
+        when(goConfigService.isUserAdminOfGroup(username.getUsername(), "group2")).thenReturn(false);
+
+        UpdatePipelineConfigCommand command = new UpdatePipelineConfigCommand(goConfigService, entityHashingService,
+                pipelineConfig, "group2", username, "md5", localizedOperationResult, externalArtifactsService);
+
+        boolean canContinue = command.canContinue(cruiseConfig);
+
+        assertFalse(canContinue);
+    }
+
+    @Test
+    void shouldAllowToContinueIfTheNewGroupExistAndTheUserIsAnAdminOfTheSame() {
+        CruiseConfig cruiseConfig = mock(CruiseConfig.class);
+        BasicPipelineConfigs pipelineConfigs = new BasicPipelineConfigs("group1", new Authorization(), pipelineConfig);
+        BasicPipelineConfigs pipelineConfigs1 = new BasicPipelineConfigs("group2", new Authorization());
+        PipelineGroups pipelineGroups = new PipelineGroups(pipelineConfigs, pipelineConfigs1);
+
+        when(goConfigService.findGroupNameByPipeline(pipelineConfig.name())).thenReturn("group1");
+        when(goConfigService.canEditPipeline(anyString(), any(Username.class), any(LocalizedOperationResult.class), anyString())).thenReturn(true);
+        when(goConfigService.groups()).thenReturn(pipelineGroups);
+        when(username.getUsername()).thenReturn(new CaseInsensitiveString("user"));
+        when(goConfigService.isUserAdminOfGroup(any(CaseInsensitiveString.class), eq("group2"))).thenReturn(true);
+        when(cruiseConfig.getPipelineConfigByName(pipelineConfig.name())).thenReturn(pipelineConfig);
+        when(entityHashingService.md5ForEntity(pipelineConfig, "group1")).thenReturn("md5");
+
+        UpdatePipelineConfigCommand command = new UpdatePipelineConfigCommand(goConfigService, entityHashingService,
+                pipelineConfig, "group2", username, "md5", localizedOperationResult, externalArtifactsService);
+
+        boolean canContinue = command.canContinue(cruiseConfig);
+
+        assertTrue(canContinue);
     }
 }

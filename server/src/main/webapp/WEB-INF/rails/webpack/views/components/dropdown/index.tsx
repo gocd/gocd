@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
+import {MithrilComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
-
 import Stream from "mithril/stream";
 import styles from "./index.scss";
-
-import {MithrilComponent} from "jsx/mithril-component";
 
 function hideOnBlur(elem: any, state: any, event: any) {
   if (!elem.contains(event.target)) {
@@ -37,8 +35,8 @@ export interface State {
 }
 
 export interface Attrs {
-  property: Stream<any>;
-  possibleValues: any[];
+  property: Stream<string>;
+  possibleValues: DropdownElement[];
   label: string;
 }
 
@@ -76,7 +74,7 @@ export class Dropdown extends MithrilComponent<Attrs, State> {
 
     const selectedText = options.find((item) => {
       return item.id === vnode.attrs.property();
-    }).value;
+    })!.value;
 
     return <div class={styles.groupby}>
       <label class={styles.groupingLabel}>{label}</label>

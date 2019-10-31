@@ -30,7 +30,7 @@ import {
 } from "views/components/buttons";
 import {DummyDropdownButton} from "views/components/buttons/sample";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
-import {Dropdown, DropdownElement} from "views/components/dropdown";
+import {Dropdown} from "views/components/dropdown";
 import {Ellipsize} from "views/components/ellipsize";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {AutocompleteField, SuggestionProvider} from "views/components/forms/autocomplete";
@@ -38,9 +38,13 @@ import {IdentifierInputField} from "views/components/forms/common_validating_inp
 import {EncryptedValue} from "views/components/forms/encrypted_value";
 import {Form} from "views/components/forms/form";
 import {
-  CheckboxField, CopyField,
-  PasswordField, QuickAddField, RadioField,
-  SearchField, SearchFieldWithButton,
+  CheckboxField,
+  CopyField,
+  PasswordField,
+  QuickAddField,
+  RadioField,
+  SearchField,
+  SearchFieldWithButton,
   Switch,
   TextField,
   TriStateCheckboxField
@@ -73,16 +77,16 @@ const radioValue = Stream("thin-crust");
 const switchStream   = Stream(false);
 const reallyLongText = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.";
 
-const dropdownProperty: Stream<string> = Stream("apple");
-const dropdownItems                    = [
+const dropdownProperty = Stream("apple");
+const dropdownItems    = [
   {
     id: "apple",
     value: "I love apple!"
-  } as DropdownElement,
+  },
   {
     id: "banana",
     value: "I love banana!"
-  } as DropdownElement
+  }
 ];
 
 export class KitchenSink extends MithrilViewComponent<null> {

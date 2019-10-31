@@ -28,18 +28,19 @@ import {LicensePlugins} from "./webpack-license-plugin";
 const jasmineCore                = require("jasmine-core");
 const StatsPlugin                = require("stats-webpack-plugin");
 const SassLintPlugin             = require("sass-lint-webpack");
-const UnusedFilesWebpackPlugin   = require("unused-files-webpack-plugin").default;
+const UnusedWebpackPlugin        = require("unused-webpack-plugin");
 const WebpackBuildNotifierPlugin = require("webpack-build-notifier");
 
 export function plugins(configOptions: ConfigOptions): webpack.Plugin[] {
   const plugins = [
     new CleanWebpackPlugin(),
-    new UnusedFilesWebpackPlugin({
-                                   patterns: ["webpack/**/*.*", "spec/webpack/**/*.*"],
-                                   globOptions: {
-                                     ignore: ["node_modules/**/*.*", "tmp/**/*", "**/tsconfig.json", "webpack/config/**/*.*"],
-                                   }
-                                 }) as webpack.Plugin,
+    new UnusedWebpackPlugin({
+                              directories: [
+                                path.join(configOptions.railsRoot, "webpack"),
+                                path.join(configOptions.railsRoot, "spec", "webpack")
+                              ],
+                              exclude: ["config/**/*.*", "*.d.ts", 'tsconfig.json'],
+                            }) as webpack.Plugin,
     new SassLintPlugin({configPath: path.join(configOptions.assetsDir, ".sasslintrc")}) as webpack.Plugin,
     new StatsPlugin("manifest.json", {
       chunkModules: false,

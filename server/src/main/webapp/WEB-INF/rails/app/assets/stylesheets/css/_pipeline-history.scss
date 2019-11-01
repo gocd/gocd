@@ -493,6 +493,10 @@ a.unpause-build-link-disabled {
 span.pause-message {
   display: inline-block;
   margin: 5px 10px 0 10px;
+  width: 400px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 @import "../new-theme";

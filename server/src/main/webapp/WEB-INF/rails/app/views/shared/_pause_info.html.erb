@@ -1,4 +1,4 @@
 <% if scope[:pause_info].isPaused() %>
     <span class="pause_description paused_by">Paused by <%= scope[:pause_info].getPauseBy() %> </span>
-    <span class="pause_description pause_message">(<%= h(scope[:pause_info].getPauseCause()) %>)</span>
+    <span class="pause_description pause_message" title="<%= h(scope[:pause_info].getPauseCause()) %>">(<%= h(scope[:pause_info].getPauseCause()) %>)</span>
 <% end %>

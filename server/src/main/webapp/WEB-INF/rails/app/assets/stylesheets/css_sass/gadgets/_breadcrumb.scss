@@ -100,6 +100,16 @@ h1.entity_title {
 .admin_pause_info_and_controls .pause_description {
     font-size: 11px;
 }
+
+#pause_info_and_controls > .pause_message{
+    padding-left: 0px;
+    width: 250px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
 #pause_info_and_controls > span {
     float: left;
     padding: 6px;

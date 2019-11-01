@@ -21,10 +21,12 @@ import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
+import com.thoughtworks.go.apiv1.pipelineoperations.representers.PipelineInstanceModelRepresenter;
 import com.thoughtworks.go.apiv1.pipelineoperations.representers.PipelineScheduleOptionsRepresenter;
 import com.thoughtworks.go.apiv1.pipelineoperations.representers.TriggerOptions;
 import com.thoughtworks.go.apiv1.pipelineoperations.representers.TriggerWithOptionsViewRepresenter;
 import com.thoughtworks.go.config.EnvironmentVariablesConfig;
+import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.server.domain.PipelineScheduleOptions;
 import com.thoughtworks.go.server.service.*;
@@ -75,17 +77,19 @@ public class PipelineOperationsControllerV1 extends ApiController implements Spa
             before("", mimeType, this::verifyContentType);
             before("/*", mimeType, this::verifyContentType);
 
-            before(Routes.Pipeline.PAUSE_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateOfPipelineOrGroupInURLUserAnd403);
-            before(Routes.Pipeline.UNPAUSE_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateOfPipelineOrGroupInURLUserAnd403);
-            before(Routes.Pipeline.UNLOCK_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateOfPipelineOrGroupInURLUserAnd403);
-            before(Routes.Pipeline.TRIGGER_OPTIONS_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateOfPipelineOrGroupInURLUserAnd403);
-            before(Routes.Pipeline.SCHEDULE_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateOfPipelineOrGroupInURLUserAnd403);
+            before(Routes.Pipeline.PAUSE_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateUserAnd403);
+            before(Routes.Pipeline.UNPAUSE_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateUserAnd403);
+            before(Routes.Pipeline.UNLOCK_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateUserAnd403);
+            before(Routes.Pipeline.TRIGGER_OPTIONS_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateUserAnd403);
+            before(Routes.Pipeline.SCHEDULE_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateUserAnd403);
+            before(Routes.Pipeline.INSTANCE_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateUserAnd403);
 
             post(Routes.Pipeline.PAUSE_PATH, mimeType, this::pause);
             post(Routes.Pipeline.UNPAUSE_PATH, mimeType, this::unpause);
             post(Routes.Pipeline.UNLOCK_PATH, mimeType, this::unlock);
             get(Routes.Pipeline.TRIGGER_OPTIONS_PATH, mimeType, this::triggerOptions);
             post(Routes.Pipeline.SCHEDULE_PATH, mimeType, this::schedule);
+            get(Routes.Pipeline.INSTANCE_PATH, mimeType, this::getInstanceInfo);
         });
     }
 
@@ -130,6 +134,17 @@ public class PipelineOperationsControllerV1 extends ApiController implements Spa
         return renderHTTPOperationResult(result, req, res);
     }
 
+    String getInstanceInfo(Request request, Response response) throws IOException {
+        String pipelineName = request.params("pipeline_name");
+        Integer pipelineCounter = getCounterValue(request);
+        HttpOperationResult result = new HttpOperationResult();
+        PipelineInstanceModel pipelineInstance = pipelineHistoryService.findPipelineInstance(pipelineName, pipelineCounter, currentUsername(), result);
+        if (result.canContinue()) {
+            return writerForTopLevelObject(request, response, (outputWriter) -> PipelineInstanceModelRepresenter.toJSON(outputWriter, pipelineInstance));
+        }
+        return renderHTTPOperationResult(result, request, response);
+    }
+
     private PipelineScheduleOptions getScheduleOptions(Request req) {
         if (StringUtils.isBlank(req.body())) {
             return new PipelineScheduleOptions();
@@ -137,5 +152,17 @@ public class PipelineOperationsControllerV1 extends ApiController implements Spa
         GsonTransformer gsonTransformer = GsonTransformer.getInstance();
         JsonReader jsonReader = gsonTransformer.jsonReaderFrom(req.body());
         return PipelineScheduleOptionsRepresenter.fromJSON(jsonReader);
+    }
+
+    private Integer getCounterValue(Request request) {
+        try {
+            int counter = Integer.parseInt(request.params("pipeline_counter"), 10);
+            if (counter < 1) {
+                throw new UnprocessableEntityException("The pipeline counter cannot be less than 1.");
+            }
+            return counter;
+        } catch (NumberFormatException ex) {
+            throw new UnprocessableEntityException("The pipeline counter should be an integer.");
+        }
     }
 }

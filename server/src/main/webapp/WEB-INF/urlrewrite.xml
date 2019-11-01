@@ -86,6 +86,20 @@
   </rule>
 
   <rule>
+    <name>Pipeline Instance API</name>
+    <condition name="Accept">application\/vnd\.go\.cd\+json</condition>
+    <from>^/api/pipelines/([^/]+)/instance/([^/]+)(/?)$</from>
+    <to last="true">/spark/api/pipelines/${escape:$1}/instance/${escape:$2}</to>
+  </rule>
+
+  <rule>
+    <name>Pipeline Instance API</name>
+    <condition name="Accept">application\/vnd\.go\.cd\.v1\+json</condition>
+    <from>^/api/pipelines/([^/]+)/instance/([^/]+)(/?)$</from>
+    <to last="true">/spark/api/pipelines/${escape:$1}/instance/${escape:$2}</to>
+  </rule>
+
+  <rule>
     <name>Feature Toggles Index API</name>
     <from>^/api/admin/feature_toggles(/?)$</from>
     <to last="true">/spark/api/admin/feature_toggles</to>

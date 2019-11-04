@@ -25,7 +25,7 @@ import java.util.Collection;
 @ConfigCollection(value = ConfigurationProperty.class)
 public class SecurityAuthConfig extends PluginProfile {
     @ConfigAttribute(value = "allowOnlyKnownUsersToLogin", optional = true)
-    protected Boolean allowOnlyKnownUsersToLogin;
+    protected Boolean allowOnlyKnownUsersToLogin = false;
 
     public SecurityAuthConfig() {
         super();

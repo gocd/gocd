@@ -28,10 +28,6 @@
 
     <xsl:template match="//authConfig">
         <xsl:copy>
-            <!-- Explicitly add allowOnlyKnownUsersToLogin to false when attribute does not exists on security tag -->
-            <xsl:if test="not(//security/@allowOnlyKnownUsersToLogin)">
-                <xsl:attribute name="allowOnlyKnownUsersToLogin">false</xsl:attribute>
-            </xsl:if>
             <!-- Copy value of allowOnlyKnownUsersToLogin attribute when it exists security tag -->
             <xsl:copy-of select="//security/@allowOnlyKnownUsersToLogin"/>
             <xsl:apply-templates select="@*|node()"/>

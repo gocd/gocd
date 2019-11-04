@@ -1959,7 +1959,8 @@ public class GoConfigMigrationIntegrationTest {
         final String migratedXml = migrateXmlString(configXml, 132);
 
         XmlAssert.assertThat(migratedXml).nodesByXPath("//security").doNotHaveAttribute("allowOnlyKnownUsersToLogin");
-        XmlAssert.assertThat(migratedXml).nodesByXPath("//authConfig").haveAttribute("allowOnlyKnownUsersToLogin", "false");
+        //verify authConfig has no allowOnlyKnownUsersToLogin as the default value is false,
+        XmlAssert.assertThat(migratedXml).nodesByXPath("//authConfig").doNotHaveAttribute("allowOnlyKnownUsersToLogin");
     }
 
     private void assertStringContainsIgnoringCarriageReturn(String actual, String substring) {

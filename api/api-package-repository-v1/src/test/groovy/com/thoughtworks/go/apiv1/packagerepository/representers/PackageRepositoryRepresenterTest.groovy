@@ -125,7 +125,7 @@ class PackageRepositoryRepresenterTest {
           "href": "http://test.host/go/api/admin/repositories/repo-id"
         ],
         "doc" : [
-          "href": "https://api.gocd.org/19.10.0/#package-repositories"
+          "href": apiDocsUrl("#package-repositories")
         ],
         "find": [
           "href": "http://test.host/go/api/admin/repositories/:repo_id"

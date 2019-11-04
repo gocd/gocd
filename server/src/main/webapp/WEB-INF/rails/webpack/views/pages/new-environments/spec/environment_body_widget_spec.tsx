@@ -16,8 +16,10 @@
 
 import _ from "lodash";
 import m from "mithril";
+import Stream from "mithril/stream";
 import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
 import data from "models/new-environments/spec/test_data";
+import {Agents} from "models/new_agent/agents";
 import {EnvironmentBody} from "views/pages/new-environments/environment_body_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
 
@@ -26,13 +28,18 @@ describe("Environments Body Widget", () => {
 
   let environment: EnvironmentWithOrigin;
   let environments: Environments;
+  let agents: Agents;
 
   beforeEach(() => {
     environments = new Environments();
-    environment  = EnvironmentWithOrigin.fromJSON(data.environment_json());
+    environment = EnvironmentWithOrigin.fromJSON(data.environment_json());
+    agents = new Agents();
+    agents.push(...environment.agents().map((envAgent) => data.convert_to_agent(envAgent)));
     environments.push(environment);
 
-    helper.mount(() => <EnvironmentBody environment={environment} environments={environments}
+    helper.mount(() => <EnvironmentBody environment={environment}
+                                        environments={environments}
+                                        agents={Stream(agents)}
                                         onSuccessfulSave={_.noop}/>);
   });
 
@@ -67,8 +74,8 @@ describe("Environments Body Widget", () => {
     });
 
     it("should render agent uuids", () => {
-      expect(helper.textByTestId("agents-content")).toContain(environment.agents()[0].uuid());
-      expect(helper.textByTestId("agents-content")).toContain(environment.agents()[1].uuid());
+      expect(helper.textByTestId("agents-content")).toContain(agents[0].hostname);
+      expect(helper.textByTestId("agents-content")).toContain(agents[1].hostname);
     });
   });
 

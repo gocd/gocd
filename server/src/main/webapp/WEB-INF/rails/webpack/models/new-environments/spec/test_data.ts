@@ -17,6 +17,9 @@
 import {PipelineJSON, PipelineStructureJSON} from "models/internal_pipeline_structure/pipeline_structure";
 import {EnvironmentJSON} from "models/new-environments/environments";
 import {OriginType} from "models/origin";
+import {Agent} from "../../new_agent/agents";
+import {AgentJSON} from "../../new_agent/agents_json";
+import {AgentWithOrigin} from "../environment_agents";
 
 function randomString(): string {
   return Math.random().toString(36).slice(2);
@@ -54,6 +57,7 @@ function pipelineAssociationInConfigRepoJson(): PipelineJSON {
 function agentAssociationInXmlJson() {
   return {
     uuid: `agent-uuid-${randomString()}`,
+    hostname: `hostname-${randomString()}`,
     origin: fileOriginJson()
   };
 }
@@ -61,6 +65,7 @@ function agentAssociationInXmlJson() {
 function agentAssociationInConfigRepoJson() {
   return {
     uuid: `agent-uuid-${randomString()}`,
+    hostname: `hostname-${randomString()}`,
     origin: configRepoOrigin()
   };
 }
@@ -83,6 +88,22 @@ function environmentVariableAssociationInConfigRepoJson(secure: boolean = false)
     origin: configRepoOrigin(),
     secure
   };
+}
+
+function convert_to_agent(envAgent: AgentWithOrigin): Agent {
+  return Agent.fromJSON({
+                          uuid: `${envAgent.uuid()}`,
+                          hostname: `${envAgent.uuid()}-hostname`,
+                          ip_address: "",
+                          sandbox: "",
+                          operating_system: "OS",
+                          agent_config_state: "Idle",
+                          agent_state: "Idle",
+                          environments: [],
+                          build_state: "",
+                          free_space: 5,
+                          resources: []
+                        } as AgentJSON);
 }
 
 export default {
@@ -143,7 +164,7 @@ export default {
     templates: [
       {
         name: `template-${randomString()}`,
-        parameters: ['foo', 'bar'],
+        parameters: ["foo", "bar"],
         stages: [
           {
             name: "stage1",
@@ -154,5 +175,6 @@ export default {
         ]
       }
     ]
-  })
+  }),
+  convert_to_agent
 };

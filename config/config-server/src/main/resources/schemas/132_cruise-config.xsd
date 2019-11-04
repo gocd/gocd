@@ -85,7 +85,7 @@
           </xsd:unique>
         </xsd:element>
       </xsd:sequence>
-      <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="133"/>
+      <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="132"/>
     </xsd:complexType>
     <xsd:unique name="uniquePipelines">
       <xsd:selector xpath="pipelines"/>
@@ -378,7 +378,7 @@
   </xsd:complexType>
   <xsd:complexType name="authConfigsType">
     <xsd:sequence>
-      <xsd:element minOccurs="0" maxOccurs="unbounded" name="authConfig" type="authConfigProfile"/>
+      <xsd:element minOccurs="0" maxOccurs="unbounded" name="authConfig" type="pluginProfile"/>
     </xsd:sequence>
   </xsd:complexType>
   <xsd:complexType name="pluginProfile">
@@ -394,14 +394,6 @@
     </xsd:sequence>
     <xsd:attribute type="nameType" name="id" use="required"/>
     <xsd:attribute type="nameType" name="clusterProfileId" use="required"/>
-  </xsd:complexType>
-  <xsd:complexType name="authConfigProfile">
-    <xsd:sequence>
-      <xsd:element name="property" minOccurs="0" maxOccurs="unbounded" type="pluginPropertyType"/>
-    </xsd:sequence>
-    <xsd:attribute type="nameType" name="pluginId" use="required"/>
-    <xsd:attribute type="nameType" name="id" use="required"/>
-    <xsd:attribute name="allowOnlyKnownUsersToLogin" type="xsd:boolean" use="required"/>
   </xsd:complexType>
   <xsd:simpleType name="emailType">
     <xsd:restriction base="xsd:string">

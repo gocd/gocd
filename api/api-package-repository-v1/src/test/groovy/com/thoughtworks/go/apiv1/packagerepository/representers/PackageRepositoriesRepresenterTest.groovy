@@ -22,6 +22,7 @@ import com.thoughtworks.go.domain.packagerepository.PackageRepositories
 import com.thoughtworks.go.domain.packagerepository.PackageRepositoryMother
 import org.junit.jupiter.api.Test
 
+import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
@@ -33,7 +34,7 @@ class PackageRepositoriesRepresenterTest {
         "href": "http://test.host/go/api/admin/repositories"
       ],
       "doc" : [
-        "href": "https://api.gocd.org/19.10.0/#package-repositories"
+        "href": apiDocsUrl("#package-repositories")
       ]
     ],
     "_embedded": [
@@ -44,7 +45,7 @@ class PackageRepositoriesRepresenterTest {
               "href": "http://test.host/go/api/admin/repositories/repo-id"
             ],
             "doc" : [
-              "href": "https://api.gocd.org/19.10.0/#package-repositories"
+              "href": apiDocsUrl("#package-repositories")
             ],
             "find": [
               "href": "http://test.host/go/api/admin/repositories/:repo_id"

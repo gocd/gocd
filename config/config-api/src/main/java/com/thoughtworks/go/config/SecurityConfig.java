@@ -29,29 +29,13 @@ public class SecurityConfig implements Validatable {
     private RolesConfig rolesConfig = new RolesConfig();
     @ConfigSubtag(optional = true)
     private AdminsConfig adminsConfig = new AdminsConfig();
-    @ConfigAttribute(value = "allowOnlyKnownUsersToLogin")
-    private boolean allowOnlyKnownUsersToLogin = false;
     private ConfigErrors errors = new ConfigErrors();
 
     public SecurityConfig() {
     }
 
-    public void setAdminsConfig(AdminsConfig adminsConfig) {
-        this.adminsConfig = adminsConfig;
-    }
-
-    /*Dont chain constructors*/
-    public SecurityConfig(boolean allowOnlyKnownUsersToLogin) {
-        this.allowOnlyKnownUsersToLogin = allowOnlyKnownUsersToLogin;
-    }
-
     public SecurityConfig(AdminsConfig admins) {
         this.adminsConfig = admins;
-    }
-
-    public SecurityConfig(AdminsConfig adminsConfig, boolean allowOnlyKnownUsersToLogin) {
-        this.adminsConfig = adminsConfig;
-        this.allowOnlyKnownUsersToLogin = allowOnlyKnownUsersToLogin;
     }
 
     public boolean isSecurityEnabled() {
@@ -109,18 +93,6 @@ public class SecurityConfig implements Validatable {
         return roles;
     }
 
-    public void setAllowOnlyKnownUsersToLogin(boolean value) {
-        this.allowOnlyKnownUsersToLogin = value;
-    }
-
-    public boolean isAllowOnlyKnownUsersToLogin() {
-        return this.allowOnlyKnownUsersToLogin;
-    }
-
-    public void modifyAllowOnlyKnownUsers(boolean shouldAllow) {
-        this.allowOnlyKnownUsersToLogin = shouldAllow;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -128,7 +100,6 @@ public class SecurityConfig implements Validatable {
 
         SecurityConfig that = (SecurityConfig) o;
 
-        if (allowOnlyKnownUsersToLogin != that.allowOnlyKnownUsersToLogin) return false;
         if (securityAuthConfigs != null ? !securityAuthConfigs.equals(that.securityAuthConfigs) : that.securityAuthConfigs != null)
             return false;
         if (rolesConfig != null ? !rolesConfig.equals(that.rolesConfig) : that.rolesConfig != null) return false;
@@ -141,14 +112,13 @@ public class SecurityConfig implements Validatable {
         int result = securityAuthConfigs != null ? securityAuthConfigs.hashCode() : 0;
         result = 31 * result + (rolesConfig != null ? rolesConfig.hashCode() : 0);
         result = 31 * result + (adminsConfig != null ? adminsConfig.hashCode() : 0);
-        result = 31 * result + (allowOnlyKnownUsersToLogin ? 1 : 0);
         result = 31 * result + (errors != null ? errors.hashCode() : 0);
         return result;
     }
 
     @Override
     public String toString() {
-        return String.format("SecurityConfig{securityAuthConfigs=%s, rolesConfig=%s, adminsConfig=%s, allowOnlyKnownUsersToLogin=%s}", securityAuthConfigs, rolesConfig, adminsConfig, allowOnlyKnownUsersToLogin);
+        return String.format("SecurityConfig{securityAuthConfigs=%s, rolesConfig=%s, adminsConfig=%s}", securityAuthConfigs, rolesConfig, adminsConfig);
     }
 
     @Override
@@ -192,5 +162,9 @@ public class SecurityConfig implements Validatable {
             }
         }
         return null;
+    }
+
+    public void setAdminsConfig(AdminsConfig admin) {
+        this.adminsConfig = admin;
     }
 }

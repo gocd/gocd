@@ -1088,7 +1088,7 @@ public class GoConfigMigratorIntegrationTest {
                 "        </profile>\n" +
                 "      </profiles>\n" +
                 "    </elastic>\n" +
-                "    <security allowOnlyKnownUsersToLogin=\"true\"></security>\n" +
+                "    <security allowOnlyKnownUsersToLogin=\"false\"></security>\n" +
                 "  </server>\n" +
                 "  <scms>\n" +
                 "    <scm id=\"c0758880-10f7-4f38-a0b0-f3dc31e5d907\" name=\"gocd\">\n" +
@@ -1108,7 +1108,7 @@ public class GoConfigMigratorIntegrationTest {
         assertThat(cruiseConfig.server().getWebhookSecret()).isEqualTo("5f8b5eac-1148-4145-aa01-7b2934b6e1ab");
         assertThat(cruiseConfig.server().getCommandRepositoryLocation()).isEqualTo("default");
         assertThat(cruiseConfig.server().artifactsDir()).isEqualTo("artifactsDir");
-        Assertions.assertThat(cruiseConfig.server().security()).isEqualTo(new SecurityConfig(true));
+        Assertions.assertThat(cruiseConfig.server().security()).isEqualTo(new SecurityConfig());
         assertThat(cruiseConfig.getSCMs()).hasSize(1);
     }
 

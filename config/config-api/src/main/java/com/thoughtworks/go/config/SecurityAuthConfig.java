@@ -24,8 +24,8 @@ import java.util.Collection;
 @ConfigTag("authConfig")
 @ConfigCollection(value = ConfigurationProperty.class)
 public class SecurityAuthConfig extends PluginProfile {
-    @ConfigAttribute(value = "allowOnlyKnownUsersToLogin", optional = true)
-    protected Boolean allowOnlyKnownUsersToLogin = false;
+    @ConfigAttribute(value = "allowOnlyKnownUsersToLogin")
+    protected boolean allowOnlyKnownUsersToLogin = false;
 
     public SecurityAuthConfig() {
         super();
@@ -64,6 +64,14 @@ public class SecurityAuthConfig extends PluginProfile {
 
     public boolean hasRole(PluginRoleConfig role) {
         return role.getAuthConfigId().equals(id);
+    }
+
+    public Boolean isOnlyKnownUserAllowedToLogin() {
+        return allowOnlyKnownUsersToLogin;
+    }
+
+    public void setAllowOnlyKnownUsersToLogin(boolean allowOnlyKnownUsersToLogin) {
+        this.allowOnlyKnownUsersToLogin = allowOnlyKnownUsersToLogin;
     }
 
     private AuthorizationMetadataStore metadataStore() {

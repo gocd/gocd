@@ -114,7 +114,8 @@ public class UserServiceIntegrationTest {
     @Test
     public void addOrUpdateUser_shouldAddUserIfDoesNotExist() {
         assertThat(userDao.findUser("new_user"), isANullUser());
-        userService.addOrUpdateUser(new User("new_user"));
+        SecurityAuthConfig authConfig = new SecurityAuthConfig();
+        userService.addOrUpdateUser(new User("new_user"), authConfig);
         User loadedUser = userDao.findUser("new_user");
         assertThat(loadedUser, is(new User("new_user", "new_user", "")));
         assertThat(loadedUser, not(isANullUser()));
@@ -124,7 +125,8 @@ public class UserServiceIntegrationTest {
     public void addOrUpdateUser_shouldNotAddUserIfExistsAndIsNotUpdated() {
         User user = new User("old_user");
         addUser(user);
-        userService.addOrUpdateUser(user);
+        SecurityAuthConfig authConfig = new SecurityAuthConfig();
+        userService.addOrUpdateUser(user, authConfig);
     }
 
     @Test
@@ -133,7 +135,8 @@ public class UserServiceIntegrationTest {
         User user = new User(name);
         addUser(user);
         User updatedUser = new User(name, name, "");
-        userService.addOrUpdateUser(updatedUser);
+        SecurityAuthConfig authConfig = new SecurityAuthConfig();
+        userService.addOrUpdateUser(updatedUser, authConfig);
 
         User loadedUser = userDao.findUser(name);
         assertThat(loadedUser, is(updatedUser));
@@ -142,7 +145,8 @@ public class UserServiceIntegrationTest {
 
     @Test
     public void addOrUpdateUser_shouldNotAddUserIfAnonymous() {
-        userService.addOrUpdateUser(new User(CaseInsensitiveString.str(Username.ANONYMOUS.getUsername())));
+        SecurityAuthConfig authConfig = new SecurityAuthConfig();
+        userService.addOrUpdateUser(new User(CaseInsensitiveString.str(Username.ANONYMOUS.getUsername())), authConfig);
         assertThat(userDao.findUser(CaseInsensitiveString.str(Username.ANONYMOUS.getUsername())), isANullUser());
         assertThat(userDao.findUser(Username.ANONYMOUS.getDisplayName()), isANullUser());
     }

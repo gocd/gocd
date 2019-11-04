@@ -136,7 +136,7 @@ public class PipelineConfigServiceIntegrationTest {
             }
         });
         GoCipher goCipher = new GoCipher();
-        goConfigService.updateServerConfig(new MailHost(goCipher), false, goConfigService.configFileMd5(), "artifacts", null, null, "0", null, null, "foo");
+        goConfigService.updateServerConfig(new MailHost(goCipher), goConfigService.configFileMd5(), "artifacts", null, null, "0", null, null, "foo");
         UpdateConfigCommand command = goConfigService.modifyAdminPrivilegesCommand(asList(user.getUsername().toString()), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.add));
         goConfigService.updateConfig(command);
         remoteDownstreamPipelineName = "remote-downstream";

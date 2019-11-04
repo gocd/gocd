@@ -18,7 +18,7 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {EnvironmentVariablesWithOrigin} from "models/new-environments/environment_environment_variables";
 import {Pipelines} from "models/new-environments/environment_pipelines";
-import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
+import {EnvironmentWithOrigin} from "models/new-environments/environments";
 import {EnvironmentsAPIs} from "models/new-environments/environments_apis";
 import {Origin, OriginType} from "models/new-environments/origin";
 import {ButtonGroup, Cancel, Primary} from "views/components/buttons";
@@ -30,12 +30,10 @@ import {Modal} from "views/components/modal";
 export class CreateEnvModal extends Modal {
   private readonly onSuccessfulSave: (msg: m.Children) => void;
   private environment: EnvironmentWithOrigin;
-  private environments: Stream<Environments>;
   private errorMessage: Stream<string> = Stream();
 
-  constructor(environments: Stream<Environments>, onSuccessfulSave: (msg: m.Children) => void) {
+  constructor(onSuccessfulSave: (msg: m.Children) => void) {
     super();
-    this.environments     = environments;
     this.onSuccessfulSave = onSuccessfulSave;
     this.environment      = new EnvironmentWithOrigin("",
                                                       [new Origin(OriginType.GoCD)],
@@ -76,18 +74,17 @@ export class CreateEnvModal extends Modal {
       return;
     }
     EnvironmentsAPIs.create(this.environment)
-                   .then((result) => {
-                     result.do(
-                       (successResponse: SuccessResponse<ObjectWithEtag<EnvironmentWithOrigin>>) => {
-                         this.environments().push(successResponse.body.object);
-                         this.onSuccessfulSave(<span>Environment <em>{this.environment.name()}</em> created successfully. Now pipelines, agents and environment variables can be added to the same.</span>);
-                         this.close();
-                       },
-                       (errorResponse: any) => {
-                         this.showErrors(result, errorResponse);
-                       }
-                     );
-                   });
+                    .then((result) => {
+                      result.do(
+                        (successResponse: SuccessResponse<ObjectWithEtag<EnvironmentWithOrigin>>) => {
+                          this.onSuccessfulSave(<span>Environment <em>{this.environment.name()}</em> created successfully. Now pipelines, agents and environment variables can be added to the same.</span>);
+                          this.close();
+                        },
+                        (errorResponse: any) => {
+                          this.showErrors(result, errorResponse);
+                        }
+                      );
+                    });
   }
 
   private showErrors(apiResult: ApiResult<ObjectWithEtag<EnvironmentWithOrigin>>, errorResponse: ErrorResponse) {

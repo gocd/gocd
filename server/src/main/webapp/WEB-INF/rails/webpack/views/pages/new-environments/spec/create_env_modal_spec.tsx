@@ -14,9 +14,6 @@
  * limitations under the License.
  */
 
-import Stream from "mithril/stream";
-import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
-import data from "models/new-environments/spec/test_data";
 import {CreateEnvModal} from "views/pages/new-environments/create_env_modal";
 import {TestHelper} from "views/pages/spec/test_helper";
 
@@ -25,8 +22,7 @@ describe("Create Env Modal", () => {
   let modal: CreateEnvModal;
 
   function mountModal() {
-    const environments = new Environments(EnvironmentWithOrigin.fromJSON(data.environment_json()));
-    modal              = new CreateEnvModal(Stream(environments), jasmine.createSpy("onSuccessfulSave"));
+    modal = new CreateEnvModal(jasmine.createSpy("onSuccessfulSave"));
 
     helper.mount(modal.body.bind(modal));
   }

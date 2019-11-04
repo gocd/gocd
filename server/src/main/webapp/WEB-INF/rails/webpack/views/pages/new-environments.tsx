@@ -28,7 +28,6 @@ import {Page, PageState} from "views/pages/page";
 import {AddOperation, SaveOperation} from "views/pages/page_operations";
 
 interface State extends AddOperation<EnvironmentWithOrigin>, SaveOperation {
-  onSuccessfulSave: (msg: m.Children) => void;
 }
 
 export class NewEnvironmentsPage extends Page<null, State> {
@@ -40,11 +39,12 @@ export class NewEnvironmentsPage extends Page<null, State> {
     vnode.state.onAdd = (e: MouseEvent) => {
       e.stopPropagation();
       this.flashMessage.clear();
-      new CreateEnvModal(this.environments, vnode.state.onSuccessfulSave).render();
+      new CreateEnvModal(vnode.state.onSuccessfulSave).render();
     };
 
     vnode.state.onSuccessfulSave = (msg: m.Children) => {
       this.flashMessage.setMessage(MessageType.success, msg);
+      this.fetchData(vnode);
     };
 
     vnode.state.onError = (msg) => {
@@ -73,7 +73,7 @@ export class NewEnvironmentsPage extends Page<null, State> {
       result.do(
         () => {
           self.flashMessage.setMessage(MessageType.success,
-                                       `The environment '${env.name()}' was deleted successfully!`);
+            `The environment '${env.name()}' was deleted successfully!`);
         }, (errorResponse: ErrorResponse) => {
           self.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);
         }
@@ -84,10 +84,10 @@ export class NewEnvironmentsPage extends Page<null, State> {
 
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {
     return EnvironmentsAPIs.all().then((result) =>
-                                         result.do((successResponse) => {
-                                           this.pageState = PageState.OK;
-                                           this.environments(successResponse.body);
-                                         }, this.setErrorState));
+      result.do((successResponse) => {
+        this.pageState = PageState.OK;
+        this.environments(successResponse.body);
+      }, this.setErrorState));
   }
 
   headerPanel(vnode: m.Vnode<null, State>): any {

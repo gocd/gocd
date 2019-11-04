@@ -16,11 +16,7 @@
 package com.thoughtworks.go.apiv5.admin.templateconfig.representers
 
 import com.thoughtworks.go.api.util.GsonTransformer
-import com.thoughtworks.go.config.CaseInsensitiveString
-import com.thoughtworks.go.config.JobConfig
-import com.thoughtworks.go.config.JobConfigs
-import com.thoughtworks.go.config.PipelineTemplateConfig
-import com.thoughtworks.go.config.StageConfig
+import com.thoughtworks.go.config.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -28,7 +24,6 @@ import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.junit.jupiter.api.Assertions.assertEquals
-
 
 class TemplateConfigRepresenterTest {
 
@@ -40,19 +35,14 @@ class TemplateConfigRepresenterTest {
   }
 
   @Test
-  void  'should render a template with hal representation'() {
-    def job = new JobConfig(new CaseInsensitiveString('job'))
-    job.addVariable("foo", "#{foo}")
-    def jobs = new JobConfigs(job)
-    pipelineTemplateConfig = new PipelineTemplateConfig(new CaseInsensitiveString('some-template'), new StageConfig(new CaseInsensitiveString('stage'), jobs))
-
+  void 'should render a template with hal representation'() {
     def actualJson = toObjectString({ TemplateConfigRepresenter.toJSON(it, pipelineTemplateConfig) })
 
-    assertThatJson(actualJson).isEqualTo(templateHashWithParams)
+    assertThatJson(actualJson).isEqualTo(templateHash)
   }
 
   @Test
-  void  'should deserialize given json to PipelineTemplateConfig object'() {
+  void 'should deserialize given json to PipelineTemplateConfig object'() {
     def jsonReader = GsonTransformer.instance.jsonReaderFrom(templateHash)
     def deserializedObject = TemplateConfigRepresenter.fromJSON(jsonReader)
 
@@ -60,102 +50,46 @@ class TemplateConfigRepresenterTest {
   }
 
   def templateHash =
-  [
-    _links: [
-      self: [
-        href: 'http://test.host/go/api/admin/templates/some-template'
-      ],
-      doc: [
-        href: apiDocsUrl('#template-config')
-      ],
-      find: [
-        href: 'http://test.host/go/api/admin/templates/:template_name'
-      ]
-    ],
-    name: 'some-template',
-    stages: [
-      [
-        name: "stage",
-        fetch_materials: true,
-        clean_working_directory: false,
-        never_cleanup_artifacts: false,
-        approval: [
-          type: "success",
-          authorization: [
-            roles: [],
-            users: []
-          ]
+    [
+      _links: [
+        self: [
+          href: 'http://test.host/go/api/admin/templates/some-template'
         ],
-        environment_variables: [],
-        jobs: [
-          [
-            name: "job",
-            run_instance_count: null,
-            timeout: null,
-            environment_variables: [],
-            resources: [],
-            tasks: [],
-            tabs: [],
-            artifacts: [],
+        doc : [
+          href: apiDocsUrl('#template-config')
+        ],
+        find: [
+          href: 'http://test.host/go/api/admin/templates/:template_name'
+        ]
+      ],
+      name  : 'some-template',
+      stages: [
+        [
+          name                   : "stage",
+          fetch_materials        : true,
+          clean_working_directory: false,
+          never_cleanup_artifacts: false,
+          approval               : [
+            type         : "success",
+            authorization: [
+              roles: [],
+              users: []
+            ]
+          ],
+          environment_variables  : [],
+          jobs                   : [
+            [
+              name                 : "job",
+              run_instance_count   : null,
+              timeout              : null,
+              environment_variables: [],
+              resources            : [],
+              tasks                : [],
+              tabs                 : [],
+              artifacts            : [],
+            ]
           ]
         ]
       ]
     ]
-  ]
-
-def templateHashWithParams =
-  [
-    _links: [
-      self: [
-        href: 'http://test.host/go/api/admin/templates/some-template'
-      ],
-      doc: [
-        href: apiDocsUrl('#template-config')
-      ],
-      find: [
-        href: 'http://test.host/go/api/admin/templates/:template_name'
-      ]
-    ],
-    name: 'some-template',
-    parameters: [
-      [
-        name: "foo",
-        value: null
-      ]
-    ],
-    stages: [
-      [
-        name: "stage",
-        fetch_materials: true,
-        clean_working_directory: false,
-        never_cleanup_artifacts: false,
-        approval: [
-          type: "success",
-          authorization: [
-            roles: [],
-            users: []
-          ]
-        ],
-        environment_variables: [],
-        jobs: [
-          [
-            name: "job",
-            run_instance_count: null,
-            timeout: null,
-            environment_variables: [
-              [
-                "secure":false,
-                "name":"foo",
-                "value":"#{foo}"
-              ]
-            ],
-            resources: [],
-            tasks: [],
-            tabs: [],
-            artifacts: [],
-          ]
-        ]
-      ]
-    ]
-  ]
 }

@@ -64,7 +64,7 @@ class TestCache implements PipelineGroupCache<Option> {
   failed() { return false; }
 }
 
-class EmptyTemplatesTestCache implements TemplateCache<Option> {
+class EmptyTemplatesTestCache extends TemplateCache {
   ready() { return true; }
   // tslint:disable-next-line
   prime(onComplete: () => void) { onComplete(); }

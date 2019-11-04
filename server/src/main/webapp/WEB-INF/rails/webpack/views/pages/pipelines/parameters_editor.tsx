@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {makeEvent} from "helpers/compat";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
@@ -34,8 +35,14 @@ interface Attrs {
 }
 
 export class PipelineParametersEditor extends MithrilViewComponent<Attrs> {
+  notifyChange: () => void = _.noop;
+
   oninit(vnode: m.Vnode<Attrs>) {
     vnode.attrs.paramList(vnode.attrs.parameters().filter((p) => !p.isEmpty()).concat(new PipelineParameter("", "")));
+  }
+
+  oncreate(vnode: m.VnodeDOM<Attrs>) {
+    this.notifyChange = () => vnode.dom.dispatchEvent(makeEvent("change"));
   }
 
   view(vnode: m.Vnode<Attrs>) {
@@ -66,6 +73,7 @@ export class PipelineParametersEditor extends MithrilViewComponent<Attrs> {
   update(params: Stream<PipelineParameter[]>, paramsList: Stream<PipelineParameter[]>, event?: Event) {
     if (event) {event.stopPropagation(); }
     params(paramsList().filter((p) => !p.isEmpty()));
+    this.notifyChange();
   }
 
   add(paramsList: Stream<PipelineParameter[]>, event: Event) {

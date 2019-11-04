@@ -36,6 +36,18 @@
   </rule>
 
   <rule>
+    <name>Package Repositories API</name>
+    <from>^/api/admin/repositories(/?)$</from>
+    <to last="true">/spark/api/admin/repositories</to>
+  </rule>
+
+  <rule>
+    <name>Package Repositories CRUD APIs</name>
+    <from>^/api/admin/repositories/(.*)$</from>
+    <to last="true">/spark/api/admin/repositories/${escape:$1}</to>
+  </rule>
+
+  <rule>
     <name>default-job-timeout</name>
     <from>^/api/admin/config/server/default_job_timeout$</from>
     <to last="true">/spark/api/admin/config/server/default_job_timeout</to>

@@ -16,8 +16,10 @@
 
 import {MithrilComponent, MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
+import Stream from "mithril/stream";
 import {EnvironmentVariableWithOrigin} from "models/new-environments/environment_environment_variables";
 import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
+import {Agents} from "models/new_agent/agents";
 import s from "underscore.string";
 import {HelpText} from "views/components/forms/input_fields";
 import * as Icons from "views/components/icons/index";
@@ -49,6 +51,7 @@ export class ElementListWidget extends MithrilViewComponent<ElementListWidgetAtt
 interface EnvironmentBodyAttrs {
   environment: EnvironmentWithOrigin;
   environments: Environments;
+  agents: Stream<Agents>;
   onSuccessfulSave: (msg: m.Children) => void;
 }
 
@@ -96,7 +99,10 @@ export class EnvironmentBody extends MithrilComponent<EnvironmentBodyAttrs, Envi
                          modalToRender={vnode.state.renderAgentsModal}
                          environment={environment}>
         <ul data-test-id={`agents-content`}>
-          {environment.agents().map((agent) => <li>{agent.uuid()}</li>)}
+          {environment.agents().map((envAgent) => {
+            const agent = vnode.attrs.agents ? vnode.attrs.agents().find((agent) => agent.uuid === envAgent.uuid()) : null;
+            return <li>{agent == null ? '' : agent.hostname}</li>;
+          })}
         </ul>
       </ElementListWidget>
       <ElementListWidget name={"Environment Variables"}

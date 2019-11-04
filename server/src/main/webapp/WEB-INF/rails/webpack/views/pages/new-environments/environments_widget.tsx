@@ -19,6 +19,7 @@ import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
+import {Agents} from "models/new_agent/agents";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import * as Icons from "views/components/icons/index";
 import {EnvironmentBody} from "views/pages/new-environments/environment_body_widget";
@@ -28,6 +29,7 @@ import {DeleteOperation} from "../page_operations";
 interface Attrs extends DeleteOperation<EnvironmentWithOrigin> {
   environments: Stream<Environments>;
   onSuccessfulSave: (msg: m.Children) => void;
+  agents: Stream<Agents>;
 }
 
 export class EnvironmentsWidget extends MithrilViewComponent<Attrs> {
@@ -41,7 +43,9 @@ export class EnvironmentsWidget extends MithrilViewComponent<Attrs> {
                                                onclick={vnode.attrs.onDelete.bind(vnode.attrs, environment)}/>
                                ]}
                                dataTestId={`collapsible-panel-for-env-${environment.name()}`}>
-        <EnvironmentBody environment={environment} environments={vnode.attrs.environments()}
+        <EnvironmentBody environment={environment}
+                         environments={vnode.attrs.environments()}
+                         agents={vnode.attrs.agents}
                          onSuccessfulSave={vnode.attrs.onSuccessfulSave}/>
       </CollapsiblePanel>;
     });

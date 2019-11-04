@@ -19,7 +19,9 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
 import {EnvironmentsAPIs} from "models/new-environments/environments_apis";
-import * as Buttons from "views/components/buttons";
+import {Agents} from "models/new_agent/agents";
+import {AgentsCRUD} from "models/new_agent/agents_crud";
+import {Primary} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
 import {CreateEnvModal} from "views/pages/new-environments/create_env_modal";
@@ -33,6 +35,7 @@ interface State extends AddOperation<EnvironmentWithOrigin>, SaveOperation, Dele
 
 export class NewEnvironmentsPage extends Page<null, State> {
   private readonly environments: Stream<Environments> = Stream(new Environments());
+  private readonly agents: Stream<Agents>             = Stream(new Agents());
 
   oninit(vnode: m.Vnode<null, State>) {
     super.oninit(vnode);
@@ -84,6 +87,7 @@ export class NewEnvironmentsPage extends Page<null, State> {
     return [
       flashMessage,
       <EnvironmentsWidget environments={this.environments}
+                          agents={this.agents}
                           onSuccessfulSave={vnode.state.onSuccessfulSave}
                           onDelete={vnode.state.onDelete.bind(vnode.state)}/>
     ];
@@ -94,17 +98,22 @@ export class NewEnvironmentsPage extends Page<null, State> {
   }
 
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {
-    return EnvironmentsAPIs.all().then((result) =>
-                                         result.do((successResponse) => {
-                                           this.pageState = PageState.OK;
-                                           this.environments(successResponse.body);
-                                         }, this.setErrorState));
+    return Promise.all([EnvironmentsAPIs.all(), AgentsCRUD.all()]).then((results) => {
+      results[0].do((successResponse) => {
+        this.pageState = PageState.OK;
+        this.environments(successResponse.body);
+      }, this.setErrorState);
+
+      results[1].do((successResponse) => {
+        this.agents(successResponse.body);
+      }, this.setErrorState);
+    });
   }
 
   headerPanel(vnode: m.Vnode<null, State>): any {
     const headerButtons = [];
-    headerButtons.push(<Buttons.Primary onclick={vnode.state.onAdd.bind(vnode.state)}>Add
-      Environment</Buttons.Primary>);
+    headerButtons.push(<Primary onclick={vnode.state.onAdd.bind(vnode.state)}>Add
+      Environment</Primary>);
     return <HeaderPanel title="Environments" buttons={headerButtons}/>;
   }
 }

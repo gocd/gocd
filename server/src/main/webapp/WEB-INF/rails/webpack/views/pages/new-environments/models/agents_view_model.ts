@@ -82,7 +82,7 @@ export class AgentsViewModel {
 
   agentSelectedFn(selected: Agent): (value?: any) => any {
     const self  = this;
-    const agent = new AgentWithOrigin(selected.uuid, new Origin(OriginType.GoCD));
+    const agent = new AgentWithOrigin(selected.uuid, selected.hostname, new Origin(OriginType.GoCD));
 
     return (value?: boolean) => {
       if (value !== undefined) {

@@ -107,19 +107,6 @@ public class ScheduleServiceSecurityTest {
     }
 
     @Test
-    public void shouldReturnAppropriateHttpResultIfThePipelineAndStageNameAreInvalid() throws Exception {
-        configHelper.enableSecurity();
-        configHelper.setOperatePermissionForGroup("defaultGroup", "jez");
-        Username jez = new Username(new CaseInsensitiveString("jez"));
-        HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
-        Stage resultStage = scheduleService.cancelAndTriggerRelevantStages("invalid-pipeline", "inavlid-stage", jez, operationResult);
-
-        assertThat(resultStage, is(nullValue()));
-        assertThat(operationResult.isSuccessful(), is(false));
-        assertThat(operationResult.httpCode(), is(SC_NOT_FOUND));
-    }
-
-    @Test
     public void shouldNotThrowExceptionIfUserHasOperatePermission() throws Exception {
         configHelper.enableSecurity();
         Username user = SessionUtils.currentUsername();
@@ -137,24 +124,6 @@ public class ScheduleServiceSecurityTest {
         //TODO: Check why stage result is not persisted after stage is cancelled
 //        Stage mostRecent = stageDao.mostRecentStage(new StageConfigIdentifier(fixture.pipelineName, fixture.ftStage));
 //        assertThat(mostRecent.getResult(), is(StageResult.Cancelled));
-    }
-
-
-    @Test
-    public void shouldCancelStageGivenValidPipelineAndStageName() throws Exception {
-        configHelper.enableSecurity();
-        Username user = SessionUtils.currentUsername();
-        configHelper.setOperatePermissionForGroup("defaultGroup", user.getUsername().toString());
-        Pipeline pipeline = fixture.createPipelineWithFirstStagePassedAndSecondStageRunning();
-
-        HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
-
-        Stage stageForCancellation = pipeline.getStages().byName(fixture.ftStage);
-        Stage resultStage = scheduleService.cancelAndTriggerRelevantStages(pipeline.getName(), stageForCancellation.getName(), user, operationResult);
-
-        assertThat(resultStage, is(not(nullValue())));
-        assertThat(operationResult.isSuccessful(), is(true));
-        assertThat(operationResult.httpCode(), is(SC_OK));
     }
 
 }

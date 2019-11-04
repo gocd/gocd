@@ -119,25 +119,6 @@ public class ScheduleServiceTest {
     }
 
     @Test
-    public void shouldCancelStageUsingPipelineNameAndStageName() throws Exception {
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        String pipelineName = "pipeline-name";
-        Username admin = new Username(new CaseInsensitiveString("admin"));
-        String stageName = "mingle";
-        Pipeline pipeline = PipelineMother.pipeline(pipelineName, StageMother.passedStageInstance(stageName, "job-bar", pipelineName));
-        Stage firstStage = pipeline.getFirstStage();
-        long stageId = firstStage.getId();
-        when(stageService.findLatestStage(pipelineName, stageName)).thenReturn(firstStage);
-        ScheduleService spyedService = spy(service);
-        doReturn(firstStage).when(spyedService).cancelAndTriggerRelevantStages(stageId, admin, result);
-        Stage resultStage = spyedService.cancelAndTriggerRelevantStages(pipelineName, stageName, admin, result);
-        assertThat(resultStage, is(firstStage));
-        assertThat(result.httpCode(), is(SC_OK));
-        assertThat(result.isSuccessful(), is(true));
-        verify(stageService).findLatestStage(pipelineName, stageName);
-    }
-
-    @Test
     public void shouldNotCancelStageWhenTheUserDoesNotHaveOperatePermission() throws Exception {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         Pipeline pipeline = PipelineMother.pipeline("pipeline-name", StageMother.passedStageInstance("mingle", "job-bar", "pipeline-name"));

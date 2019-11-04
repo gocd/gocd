@@ -35,14 +35,6 @@ class Api::StagesController < Api::ApiController
     end
   end
 
-  def cancel_stage_using_pipeline_stage_name
-    pipeline_name = params[:pipeline_name]
-    stage_name = params[:stage_name]
-    result = HttpLocalizedOperationResult.new
-    schedule_service.cancelAndTriggerRelevantStages(pipeline_name,stage_name, current_user, result)
-    render_localized_operation_result result
-  end
-
   private
   def render_not_found()
     render plain: "Not Found!", status: 404

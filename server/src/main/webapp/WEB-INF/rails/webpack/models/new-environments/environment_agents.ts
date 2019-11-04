@@ -15,27 +15,31 @@
  */
 
 import Stream from "mithril/stream";
-import {Agent, AgentJSON} from "models/environments/types";
 import {Origin, OriginJSON} from "models/origin";
 
-export interface EnvironmentAgentJSON extends AgentJSON {
+export interface EnvironmentAgentJSON {
+  uuid: string;
+  hostname: string;
   origin: OriginJSON;
 }
 
-export class AgentWithOrigin extends Agent {
+export class AgentWithOrigin {
+  uuid: Stream<string>;
+  hostname: Stream<string>;
   readonly origin: Stream<Origin>;
 
-  constructor(uuid: string, origin: Origin) {
-    super(uuid);
-    this.origin = Stream(origin);
+  constructor(uuid: string, hostname: string, origin: Origin) {
+    this.uuid     = Stream(uuid);
+    this.hostname = Stream(hostname);
+    this.origin   = Stream(origin);
   }
 
   static fromJSON(data: EnvironmentAgentJSON) {
-    return new AgentWithOrigin(data.uuid, Origin.fromJSON(data.origin));
+    return new AgentWithOrigin(data.uuid, data.hostname, Origin.fromJSON(data.origin));
   }
 
   clone() {
-    return new AgentWithOrigin(this.uuid(), this.origin().clone());
+    return new AgentWithOrigin(this.uuid(), this.hostname(), this.origin().clone());
   }
 }
 

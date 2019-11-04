@@ -29,7 +29,6 @@ import {AddOperation, DeleteOperation, SaveOperation} from "views/pages/page_ope
 import {DeleteConfirmModal} from "../components/modal/delete_confirm_modal";
 
 interface State extends AddOperation<EnvironmentWithOrigin>, SaveOperation, DeleteOperation<EnvironmentWithOrigin> {
-  // onSuccessfulSave: (msg: m.Children) => void;
 }
 
 export class NewEnvironmentsPage extends Page<null, State> {

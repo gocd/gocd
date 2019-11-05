@@ -27,6 +27,7 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 
 import static com.thoughtworks.go.config.update.PipelineConfigErrorCopier.copyErrors;
+import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 
 public class UpdatePipelineConfigCommand extends PipelineConfigCommand {
     private final EntityHashingService entityHashingService;
@@ -83,13 +84,22 @@ public class UpdatePipelineConfigCommand extends PipelineConfigCommand {
 
     private boolean canAccessGroups() {
         if (!existingGroupName.equalsIgnoreCase(newGroupName) && goConfigService.groups().hasGroup(newGroupName)) {
-            return goConfigService.isUserAdminOfGroup(currentUser.getUsername(), newGroupName);
+            if (!goConfigService.isUserAdminOfGroup(currentUser.getUsername(), newGroupName)) {
+                result.forbidden(EntityType.PipelineGroup.forbiddenToEdit(newGroupName, currentUser.getUsername()), forbidden());
+                return false;
+            }
         }
+
         return true;
     }
 
     private boolean canEditPipeline() {
-        return goConfigService.canEditPipeline(pipelineConfig.name().toString(), currentUser, result, getExistingPipelineGroupName());
+        if (!goConfigService.canEditPipeline(pipelineConfig.name().toString(), currentUser, result, getExistingPipelineGroupName())) {
+            result.forbidden(EntityType.Pipeline.forbiddenToEdit(pipelineConfig.name().toString(), currentUser.getUsername()), forbidden());
+            return false;
+        }
+
+        return true;
     }
 
     private boolean isRequestFresh(CruiseConfig cruiseConfig) {

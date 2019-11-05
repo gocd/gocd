@@ -25,7 +25,9 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.ExternalArtifactsService;
 import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
+import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -49,8 +51,9 @@ class UpdatePipelineConfigCommandTest {
         externalArtifactsService = mock(ExternalArtifactsService.class);
         goConfigService = mock(GoConfigService.class);
         username = mock(Username.class);
-        localizedOperationResult = mock(LocalizedOperationResult.class);
+        localizedOperationResult = new HttpLocalizedOperationResult();
         pipelineConfig = PipelineConfigMother.pipelineConfig("p1");
+        when(username.getUsername()).thenReturn(new CaseInsensitiveString("Bob"));
     }
 
     @Test
@@ -74,6 +77,11 @@ class UpdatePipelineConfigCommandTest {
         when(goConfigService.findGroupNameByPipeline(pipelineConfig.name())).thenReturn("group1");
         when(goConfigService.canEditPipeline(pipelineConfig.name().toString(), username, localizedOperationResult, "group1")).thenReturn(false);
         assertFalse(command.canContinue(mock(CruiseConfig.class)));
+
+        HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
+        expectedResult.forbidden("User 'Bob' does not have permission to edit pipeline with name 'p1'", HealthStateType.forbidden());
+
+        assertThat(localizedOperationResult, is(expectedResult));
     }
 
     @Test
@@ -201,6 +209,11 @@ class UpdatePipelineConfigCommandTest {
         boolean canContinue = command.canContinue(cruiseConfig);
 
         assertFalse(canContinue);
+
+        HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
+        expectedResult.forbidden("User 'Bob' does not have permission to edit pipeline group with name 'group2'", HealthStateType.forbidden());
+
+        assertThat(localizedOperationResult, is(expectedResult));
     }
 
     @Test

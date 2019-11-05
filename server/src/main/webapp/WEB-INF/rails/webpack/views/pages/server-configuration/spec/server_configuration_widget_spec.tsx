@@ -23,96 +23,122 @@ import {
   MailServer,
   SiteUrls
 } from "models/server-configuration/server_configuration";
-import {ServerConfigurationWidget} from "views/pages/server-configuration/server_configuration_widget";
+import {Sections, ServerConfigurationWidget} from "views/pages/server-configuration/server_configuration_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("ServerConfigurationWidget", () => {
-  const helper = new TestHelper();
+  const helper  = new TestHelper();
+  const onClick = jasmine.createSpy("onClick");
 
-  function mount(artifactConfig: ArtifactConfig, siteUrls: SiteUrls, mailServer: MailServer) {
+  function mount(activeConfiguration: Sections, artifactConfig: ArtifactConfig, siteUrls: SiteUrls, mailServer: MailServer) {
 
     helper.mount(() =>
-                   <ServerConfigurationWidget
-                     defaultJobTimeout={Stream(new DefaultJobTimeout(0))}
-                     onDefaultJobTimeoutSave={_.noop}
-                     artifactConfig={artifactConfig}
-                     onArtifactConfigSave={_.noop}
-                     onServerManagementSave={_.noop}
-                     siteUrls={siteUrls}
-                     onMailServerManagementSave={_.noop}
-                     mailServer={Stream(mailServer)}
-                     operationState={Stream()}
-                     onCancel={_.noop}
-                   />);
+      <ServerConfigurationWidget
+        route={onClick}
+        activeConfiguration={activeConfiguration}
+        defaultJobTimeout={Stream(new DefaultJobTimeout(0))}
+        onDefaultJobTimeoutSave={_.noop}
+        artifactConfig={artifactConfig}
+        onArtifactConfigSave={_.noop}
+        onServerManagementSave={_.noop}
+        siteUrls={siteUrls}
+        onMailServerManagementSave={_.noop}
+        mailServer={Stream(mailServer)}
+        operationState={Stream()}
+        onCancel={_.noop}
+      />);
   }
 
   afterEach((done) => helper.unmount(done));
 
   it("should have links for Artifacts Management, Mail server and Server management", () => {
     const artifactConfig = new ArtifactConfig("artifacts");
-    const siteUrls           = new SiteUrls("http://foo.com", "https://foobar.com");
-    const mailServer         = new MailServer();
-    mount(artifactConfig, siteUrls, mailServer);
+    const siteUrls       = new SiteUrls("http://foo.com", "https://foobar.com");
+    const mailServer     = new MailServer();
+    mount(Sections.SERVER_MANAGEMENT, artifactConfig, siteUrls, mailServer);
 
     expect(helper.byTestId("server-management-link")).toBeInDOM();
     expect(helper.byTestId("artifacts-management-link")).toBeInDOM();
     expect(helper.byTestId("email-server-link")).toBeInDOM();
   });
 
-  it("should by default render widget for Server management", () => {
+  it("should render Server management widget", () => {
     const artifactConfig = new ArtifactConfig("artifacts");
-    const siteUrls           = new SiteUrls("http://foo.com", "https://foobar.com");
-    const mailServer         = new MailServer();
-    mount(artifactConfig, siteUrls, mailServer);
+    const siteUrls       = new SiteUrls("http://foo.com", "https://foobar.com");
+    const mailServer     = new MailServer();
+    mount(Sections.SERVER_MANAGEMENT, artifactConfig, siteUrls, mailServer);
 
     expect(helper.byTestId("server-management-widget")).toBeInDOM();
+  });
+
+  it("should render artifact management widget", () => {
+    const artifactConfig = new ArtifactConfig("artifacts");
+    const siteUrls       = new SiteUrls("http://foo.com", "https://foobar.com");
+    const mailServer     = new MailServer();
+    mount(Sections.ARTIFACT_MANAGEMENT, artifactConfig, siteUrls, mailServer);
+
+    expect(helper.byTestId("artifacts-management-widget")).toBeInDOM();
+  });
+
+  it("should render MailServer management widget", () => {
+    const artifactConfig = new ArtifactConfig("artifacts");
+    const siteUrls       = new SiteUrls("http://foo.com", "https://foobar.com");
+    const mailServer     = new MailServer();
+    mount(Sections.EMAIL_SERVER, artifactConfig, siteUrls, mailServer);
+
+    expect(helper.byTestId("mail-server-management-widget")).toBeInDOM();
+  });
+
+  it("should render JobTimeout management widget", () => {
+    const artifactConfig = new ArtifactConfig("artifacts");
+    const siteUrls       = new SiteUrls("http://foo.com", "https://foobar.com");
+    const mailServer     = new MailServer();
+    mount(Sections.DEFAULT_JOB_TIMEOUT, artifactConfig, siteUrls, mailServer);
+
+    expect(helper.byTestId("job-timeout-management-widget")).toBeInDOM();
   });
 
   it("should render Server management widget on click of server-management-link", () => {
     const artifactConfig = new ArtifactConfig("artifacts");
-    const siteUrls           = new SiteUrls("http://foo.com", "https://foobar.com");
-    const mailServer         = new MailServer();
-    mount(artifactConfig, siteUrls, mailServer);
+    const siteUrls       = new SiteUrls("http://foo.com", "https://foobar.com");
+    const mailServer     = new MailServer();
+    mount(Sections.SERVER_MANAGEMENT, artifactConfig, siteUrls, mailServer);
 
-    helper.clickByTestId("artifacts-management-link");
-    expect(helper.byTestId("server-management-widget")).not.toBeInDOM();
     helper.clickByTestId("server-management-link");
-    expect(helper.byTestId("server-management-widget")).toBeInDOM();
 
+    expect(onClick).toHaveBeenCalledWith(Sections.SERVER_MANAGEMENT);
   });
 
   it("should render artifact management widget on click of artifacts-management-link", () => {
     const artifactConfig = new ArtifactConfig("artifacts");
-    const siteUrls           = new SiteUrls("http://foo.com", "https://foobar.com");
-    const mailServer         = new MailServer();
-    mount(artifactConfig, siteUrls, mailServer);
-    expect(helper.byTestId("artifacts-management-widget")).not.toBeInDOM();
-    helper.clickByTestId("artifacts-management-link");
-    expect(helper.byTestId("artifacts-management-widget")).toBeInDOM();
+    const siteUrls       = new SiteUrls("http://foo.com", "https://foobar.com");
+    const mailServer     = new MailServer();
+    mount(Sections.SERVER_MANAGEMENT, artifactConfig, siteUrls, mailServer);
 
+    helper.clickByTestId("artifacts-management-link");
+
+    expect(onClick).toHaveBeenCalledWith(Sections.ARTIFACT_MANAGEMENT);
   });
 
   it("should render MailServer management widget on click of mailServer-management-link", () => {
     const artifactConfig = new ArtifactConfig("artifacts");
-    const siteUrls           = new SiteUrls("http://foo.com", "https://foobar.com");
-    const mailServer         = new MailServer();
-    mount(artifactConfig, siteUrls, mailServer);
+    const siteUrls       = new SiteUrls("http://foo.com", "https://foobar.com");
+    const mailServer     = new MailServer();
+    mount(Sections.SERVER_MANAGEMENT, artifactConfig, siteUrls, mailServer);
 
-    expect(helper.byTestId("mail-server-management-widget")).not.toBeInDOM();
     helper.clickByTestId("email-server-link");
-    expect(helper.byTestId("mail-server-management-widget")).toBeInDOM();
 
+    expect(onClick).toHaveBeenCalledWith(Sections.EMAIL_SERVER);
   });
 
   it("should render JobTimeout management widget on click of job-timeout-link", () => {
     const artifactConfig = new ArtifactConfig("artifacts");
-    const siteUrls           = new SiteUrls("http://foo.com", "https://foobar.com");
-    const mailServer         = new MailServer();
-    mount(artifactConfig, siteUrls, mailServer);
+    const siteUrls       = new SiteUrls("http://foo.com", "https://foobar.com");
+    const mailServer     = new MailServer();
+    mount(Sections.SERVER_MANAGEMENT, artifactConfig, siteUrls, mailServer);
 
-    expect(helper.byTestId("job-timeout-widget")).not.toBeInDOM();
     helper.clickByTestId("job-timeout-link");
-    expect(helper.byTestId("job-timeout-management-widget")).toBeInDOM();
 
+    expect(onClick).toHaveBeenCalledWith(Sections.DEFAULT_JOB_TIMEOUT);
   });
 });

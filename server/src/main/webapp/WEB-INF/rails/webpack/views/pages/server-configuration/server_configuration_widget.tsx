@@ -15,7 +15,7 @@
  */
 
 import {bind} from "classnames/bind";
-import {MithrilComponent} from "jsx/mithril-component";
+import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import style from "views/pages/new_agents/index.scss";
 import {MailServerManagementWidget} from "views/pages/server-configuration/mail_server_management_widget";
@@ -23,7 +23,7 @@ import {ServerManagementWidget} from "views/pages/server-configuration/server_ma
 import {
   ArtifactManagementAttrs,
   JobTimeoutAttrs,
-  MailServerManagementAttrs,
+  MailServerManagementAttrs, Routing,
   ServerManagementAttrs
 } from "views/pages/server_configuration";
 import {ArtifactsManagementWidget} from "./artifacts_management_widget";
@@ -32,42 +32,40 @@ import {JobTimeoutConfigurationWidget} from "./job_timeout_configuration_widget"
 
 const classnames = bind(style);
 
-interface Attrs extends ArtifactManagementAttrs, ServerManagementAttrs, MailServerManagementAttrs, JobTimeoutAttrs {
+interface Attrs extends ArtifactManagementAttrs, ServerManagementAttrs, MailServerManagementAttrs, JobTimeoutAttrs, Routing {
 }
 
-interface State {
-  activeConfiguration: Sections;
+export enum Sections {
+  DEFAULT_JOB_TIMEOUT = "job-timeout",
+  SERVER_MANAGEMENT   = "server-management",
+  ARTIFACT_MANAGEMENT = "artifact-management",
+  EMAIL_SERVER        = "email-server"
 }
 
-enum Sections {
-  DEFAULT_JOB_TIMEOUT,
-  SERVER_MANAGEMENT, ARTIFACT_MANAGEMENT, EMAIL_SERVER
-}
-
-export class ServerConfigurationWidget extends MithrilComponent<Attrs, State> {
-  oninit(vnode: m.Vnode<Attrs, State>): any {
-    vnode.state.activeConfiguration = Sections.SERVER_MANAGEMENT;
-  }
-
-  view(vnode: m.Vnode<Attrs, State>) {
+export class ServerConfigurationWidget extends MithrilViewComponent<Attrs> {
+  view(vnode: m.Vnode<Attrs>) {
     return <div class={styles.serverConfigurationContainer}>
       <div class={styles.leftPanel}>
         <ul>
           <li data-test-id="server-management-link"
-              class={classnames({[styles.active]: vnode.state.activeConfiguration === Sections.SERVER_MANAGEMENT})}
-              onclick={() => vnode.state.activeConfiguration = Sections.SERVER_MANAGEMENT}>Server Management
+              class={classnames({[styles.active]: vnode.attrs.activeConfiguration === Sections.SERVER_MANAGEMENT})}
+              onclick={() => vnode.attrs.route(Sections.SERVER_MANAGEMENT)}>
+            Server Management
           </li>
           <li data-test-id="artifacts-management-link"
-              class={classnames({[styles.active]: vnode.state.activeConfiguration === Sections.ARTIFACT_MANAGEMENT})}
-              onclick={() => vnode.state.activeConfiguration = Sections.ARTIFACT_MANAGEMENT}>Artifacts Management
+              class={classnames({[styles.active]: vnode.attrs.activeConfiguration === Sections.ARTIFACT_MANAGEMENT})}
+              onclick={() => vnode.attrs.route(Sections.ARTIFACT_MANAGEMENT)}>
+            Artifacts Management
           </li>
           <li data-test-id="email-server-link"
-              class={classnames({[styles.active]: vnode.state.activeConfiguration === Sections.EMAIL_SERVER})}
-              onclick={() => vnode.state.activeConfiguration = Sections.EMAIL_SERVER}>Email server
+              class={classnames({[styles.active]: vnode.attrs.activeConfiguration === Sections.EMAIL_SERVER})}
+              onclick={() => vnode.attrs.route(Sections.EMAIL_SERVER)}>
+            Email server
           </li>
           <li data-test-id="job-timeout-link"
-              class={classnames({[styles.active]: vnode.state.activeConfiguration === Sections.DEFAULT_JOB_TIMEOUT})}
-              onclick={() => vnode.state.activeConfiguration = Sections.DEFAULT_JOB_TIMEOUT}>Job Timeout Configuration
+              class={classnames({[styles.active]: vnode.attrs.activeConfiguration === Sections.DEFAULT_JOB_TIMEOUT})}
+              onclick={() => vnode.attrs.route(Sections.DEFAULT_JOB_TIMEOUT)}>
+            Job Timeout Configuration
           </li>
         </ul>
       </div>
@@ -77,8 +75,8 @@ export class ServerConfigurationWidget extends MithrilComponent<Attrs, State> {
     </div>;
   }
 
-  private static renderWidget(vnode: m.Vnode<Attrs, State>) {
-    switch (vnode.state.activeConfiguration) {
+  private static renderWidget(vnode: m.Vnode<Attrs>) {
+    switch (vnode.attrs.activeConfiguration) {
       case Sections.SERVER_MANAGEMENT:
         return <ServerManagementWidget siteUrls={vnode.attrs.siteUrls}
                                        onServerManagementSave={vnode.attrs.onServerManagementSave}

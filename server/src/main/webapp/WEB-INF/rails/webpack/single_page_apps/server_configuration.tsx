@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-import {SinglePageAppBase} from "helpers/spa_base";
-import {ServerConfigurationPage} from "views/pages/server_configuration";
+import {RoutedSinglePageApp} from "helpers/spa_base";
+import {ServerConfigurationPage} from "../views/pages/server_configuration";
 
-export class ServerConfigurationSPA extends SinglePageAppBase {
+export class ServerConfigurationSPA extends RoutedSinglePageApp {
   constructor() {
-    super(ServerConfigurationPage);
+    super({
+      "/": ServerConfigurationPage,
+      "/:configuration": ServerConfigurationPage
+    });
   }
 }
 

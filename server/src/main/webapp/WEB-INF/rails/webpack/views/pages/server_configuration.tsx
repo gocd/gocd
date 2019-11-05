@@ -19,7 +19,8 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {
   ArtifactConfigCRUD,
-  JobTimeoutManagementCRUD, MailServerCrud,
+  JobTimeoutManagementCRUD,
+  MailServerCrud,
   ServerManagementCRUD
 } from "models/server-configuration/server_configuartion_crud";
 import {
@@ -31,7 +32,7 @@ import {
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Page, PageState} from "views/pages/page";
 import {OperationState} from "views/pages/page_operations";
-import {ServerConfigurationWidget} from "views/pages/server-configuration/server_configuration_widget";
+import {Sections, ServerConfigurationWidget} from "views/pages/server-configuration/server_configuration_widget";
 
 export interface ServerConfigurationPageOperations {
   onCancel: () => void;
@@ -58,7 +59,12 @@ export interface MailServerManagementAttrs extends ServerConfigurationPageOperat
   onMailServerManagementSave: (mailServer: MailServer) => void;
 }
 
-interface State extends ServerManagementAttrs, ArtifactManagementAttrs, MailServerManagementAttrs, JobTimeoutAttrs {
+export interface Routing {
+  activeConfiguration: Sections;
+  route: (activeConfiguration: Sections) => void;
+}
+
+interface State extends ServerManagementAttrs, ArtifactManagementAttrs, MailServerManagementAttrs, JobTimeoutAttrs, Routing {
 }
 
 export class ServerConfigurationPage extends Page<null, State> {
@@ -67,11 +73,16 @@ export class ServerConfigurationPage extends Page<null, State> {
 
   oninit(vnode: m.Vnode<null, State>) {
     super.oninit(vnode);
-    vnode.state.siteUrls = new SiteUrls("", "");
-    vnode.state.artifactConfig = new ArtifactConfig("");
-    vnode.state.mailServer = Stream(new MailServer());
-    vnode.state.defaultJobTimeout = Stream(new DefaultJobTimeout(0));
-    vnode.state.operationState = Stream(OperationState.UNKNOWN) as Stream<OperationState>;
+    vnode.state.activeConfiguration    = m.route.param().configuration || Sections.SERVER_MANAGEMENT;
+    vnode.state.route                  = (activeConfiguration: Sections) => {
+      vnode.state.activeConfiguration = activeConfiguration;
+      m.route.set(activeConfiguration);
+    };
+    vnode.state.siteUrls               = new SiteUrls("", "");
+    vnode.state.artifactConfig         = new ArtifactConfig("");
+    vnode.state.mailServer             = Stream(new MailServer());
+    vnode.state.defaultJobTimeout      = Stream(new DefaultJobTimeout(0));
+    vnode.state.operationState         = Stream(OperationState.UNKNOWN) as Stream<OperationState>;
     vnode.state.onServerManagementSave = (siteUrls: SiteUrls) => {
       ServerManagementCRUD.put(siteUrls, this.siteUrlsEtag).then((result) => {
         result.do((successResponse) => {
@@ -150,15 +161,15 @@ export class ServerConfigurationPage extends Page<null, State> {
     return Promise.all([ServerManagementCRUD.get(), ArtifactConfigCRUD.get(), MailServerCrud.get(), JobTimeoutManagementCRUD.get()])
       .then((results) => {
         results[0].do((successResponse) => {
-          this.pageState = PageState.OK;
+          this.pageState       = PageState.OK;
           vnode.state.siteUrls = successResponse.body.object;
-          this.siteUrlsEtag = successResponse.body.etag;
+          this.siteUrlsEtag    = successResponse.body.etag;
         }, () => this.setErrorState());
 
         results[1].do((successResponse) => {
-          this.pageState = PageState.OK;
+          this.pageState             = PageState.OK;
           vnode.state.artifactConfig = successResponse.body.object;
-          this.artifactConfigEtag = successResponse.body.etag;
+          this.artifactConfigEtag    = successResponse.body.etag;
         }, () => this.setErrorState());
 
         results[2].do((successResponse) => {

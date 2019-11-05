@@ -163,7 +163,7 @@ project.ext.compilerOptions = [
 ]
 
 rootProject.ext.versions = [
-  tanuki              : '3.5.37',
+  tanuki              : '3.5.41',
   activeMQ            : '5.15.10',
   apacheAnt           : '1.10.6',
   apacheHttpComponents: '4.5.6',

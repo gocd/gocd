@@ -25,7 +25,8 @@ task downloadTanukiDeltaPack(type: DownloadFile) {
   def srcUrl = System.getenv("TANKUK_WRAPPER_URL") ?: "https://nexus.gocd.io/repository/s3-mirrors/local/tanuki/wrapper-delta-pack-${project.versions.tanuki}-st.tar.gz"
   src srcUrl
   dest destFile(srcUrl)
-  checksum 'c640701769c140ad5e05f3e6058b3650dd44c6abc0f2d456180307ba076340d2'
+  checksum '18625b1d009e0973fe066d12ab6ea3b956d7a25d9220966d763de601df28e3a5'
+
 }
 
 task extractDeltaPack(type: Copy) {

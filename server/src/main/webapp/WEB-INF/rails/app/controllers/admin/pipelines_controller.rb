@@ -15,7 +15,7 @@
 #
 
 module Admin
-  class PipelinesController < AdminController
+  class PipelinesController < ExperimentAdminController
     helper ::Admin::AdminHelper
     helper ::Admin::PipelinesHelper
     helper FlashMessagesHelper
@@ -179,6 +179,10 @@ module Admin
     end
 
     def save_tab(error_rendering_options_or_proc)
+      pipeline_name = params[:pipeline_name]
+      @original_pipeline_config = pipeline_config_service.getPipelineConfig(pipeline_name)
+      @pipeline = CLONER.deep_clone(@original_pipeline_config)
+      @pipeline.setConfigAttributes(params['pipeline'])
       @original_params = Struct.new(:params).new
       save_page(params[:config_md5], pipeline_edit_path(:pipeline_name => params[:pipeline_name], :stage_parent=>"pipelines", :current_tab => params[:current_tab]), error_rendering_options_or_proc, Class.new(::ConfigUpdate::SaveAsPipelineAdmin) do
         include ConfigUpdate::PipelineNode
@@ -194,7 +198,7 @@ module Admin
           pipeline.setConfigAttributes(params[:pipeline])
         end
       end.new(params, current_user.getUsername(), security_service, @original_params)) do
-        assert_load(:pipeline, @node)
+        assert_load(:pipeline, @pipeline)
         load_pause_info
       end
     end

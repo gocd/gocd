@@ -115,7 +115,6 @@ public class PipelineConfigControllerV10 extends ApiController implements SparkS
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         pipelineConfigService.deletePipelineConfig(SessionUtils.currentUsername(), existingPipelineConfig, result);
 
-
         return renderHTTPOperationResult(result, req, res);
     }
 

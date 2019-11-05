@@ -706,7 +706,7 @@ public class UserServiceTest {
             when(userDao.findUser(username)).thenReturn(mock(NullUser.class));
             assertThatCode(() -> {
                 SecurityAuthConfig authConfig = new SecurityAuthConfig();
-//                authConfig.setAllowOnlyKnownUsersToLogin(true);
+                authConfig.setAllowOnlyKnownUsersToLogin(true);
                 userService.addOrUpdateUser(user, authConfig);
             })
                     .isInstanceOf(OnlyKnownUsersAllowedException.class)

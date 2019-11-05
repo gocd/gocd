@@ -81,7 +81,7 @@ public class FeatureTogglesControllerV1 extends ApiController implements SparkSp
             throw new UnprocessableEntityException("Value of property \"toggle_value\" is invalid. Valid values are: \"on\" and \"off\".");
         }
 
-        featureToggleService.changeValueOfToggle(request.params("toggle_key"), toggleValue.equals("on"));
+        featureToggleService.changeValueOfToggle(request.params("toggle_key"), toggleValue.equalsIgnoreCase("on"));
         return writerForTopLevelObject(request, response, writer -> writer.add("message", "success"));
     }
 }

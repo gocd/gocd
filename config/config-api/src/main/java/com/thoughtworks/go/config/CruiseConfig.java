@@ -198,6 +198,7 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
 
     void setTemplates(TemplatesConfig templates);
 
+    @Deprecated //unused
     void makePipelineUseTemplate(CaseInsensitiveString pipelineName, CaseInsensitiveString templateName);
 
     Iterable<PipelineConfig> getDownstreamPipelines(String pipelineName);

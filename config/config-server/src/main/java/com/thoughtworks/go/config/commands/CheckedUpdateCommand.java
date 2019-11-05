@@ -18,5 +18,8 @@ package com.thoughtworks.go.config.commands;
 import com.thoughtworks.go.config.CruiseConfig;
 
 public interface CheckedUpdateCommand {
+    /**
+     * Pre update check. Passed the actual cruise config.
+     */
     boolean canContinue(CruiseConfig cruiseConfig);
 }

@@ -66,7 +66,13 @@ public class PipelineConfigControllerV10 extends ApiController implements SparkS
     private GoCache goCache;
 
     @Autowired
-    public PipelineConfigControllerV10(PipelineConfigService pipelineConfigService, PipelinePauseService pipelinePauseService, ApiAuthenticationHelper apiAuthenticationHelper, EntityHashingService entityHashingService, PasswordDeserializer passwordDeserializer, GoConfigService goConfigService, GoCache goCache) {
+    public PipelineConfigControllerV10(PipelineConfigService pipelineConfigService,
+                                       PipelinePauseService pipelinePauseService,
+                                       ApiAuthenticationHelper apiAuthenticationHelper,
+                                       EntityHashingService entityHashingService,
+                                       PasswordDeserializer passwordDeserializer,
+                                       GoConfigService goConfigService,
+                                       GoCache goCache) {
         super(ApiVersion.v10);
         this.pipelineConfigService = pipelineConfigService;
         this.pipelinePauseService = pipelinePauseService;
@@ -91,12 +97,14 @@ public class PipelineConfigControllerV10 extends ApiController implements SparkS
             before("/*", mimeType, this::verifyContentType);
             before("", mimeType, apiAuthenticationHelper::checkPipelineCreationAuthorizationAnd403);
             before(Routes.PipelineConfig.NAME, mimeType, apiAuthenticationHelper::checkPipelineGroupAdminUserAnd403);
+            before(Routes.PipelineConfig.EXTRACT_TO_TEMPLATE, mimeType, apiAuthenticationHelper::checkPipelineGroupAdminUserAnd403);
 
             post("", mimeType, this::create);
 
             get(Routes.PipelineConfig.NAME, mimeType, this::show);
             put(Routes.PipelineConfig.NAME, mimeType, this::update);
             delete(Routes.PipelineConfig.NAME, mimeType, this::destroy);
+            put(Routes.PipelineConfig.EXTRACT_TO_TEMPLATE, mimeType, this::extractToTemplate);
         });
     }
 
@@ -128,6 +136,17 @@ public class PipelineConfigControllerV10 extends ApiController implements SparkS
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         pipelineConfigService.updatePipelineConfig(SessionUtils.currentUsername(), pipelineConfigFromRequest, groupName, etagFor(existingPipelineConfig), result);
         return handleCreateOrUpdateResponse(req, res, pipelineConfigFromRequest, result);
+    }
+
+    public String extractToTemplate(Request req, Response res) throws IOException {
+        JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(req.body());
+
+        String pipelineName = req.params("pipeline_name");
+        String templateName = jsonReader.getString("template_name");
+
+        pipelineConfigService.extractTemplateFromPipeline(pipelineName, templateName, currentUsername());
+
+        return show(req, res);
     }
 
     private boolean shouldPausePipeline(Request req) {

@@ -18,12 +18,22 @@ package com.thoughtworks.go.config.commands;
 import com.thoughtworks.go.config.CruiseConfig;
 
 public interface EntityConfigUpdateCommand<T> extends CheckedUpdateCommand {
+    /**
+     * Perform the actual update. Passed a deep clone of the current cruise config.
+     */
     void update(CruiseConfig preprocessedConfig) throws Exception;
 
+    /**
+     * Called after {@link #update(CruiseConfig)} used to validate the new config.
+     */
     boolean isValid(CruiseConfig preprocessedConfig);
 
     void clearErrors();
 
+    /**
+     * Called after {@link #isValid(CruiseConfig)}. Return the entity that was updated.
+     * Useful to invalidate the cache used by {@link com.thoughtworks.go.server.service.EntityHashingService}
+     */
     T getPreprocessedEntityConfig();
 
     default void encrypt(CruiseConfig preProcessedConfig) {

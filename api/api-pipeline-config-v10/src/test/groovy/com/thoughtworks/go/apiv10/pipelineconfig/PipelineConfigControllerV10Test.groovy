@@ -752,6 +752,46 @@ class PipelineConfigControllerV10Test implements SecurityServiceTrait, Controlle
     }
   }
 
+  @Nested
+  class ExtractToTemplate {
+    @Nested
+    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+      @Override
+      String getControllerMethodUnderTest() {
+        return "extractToTemplate"
+      }
+
+      @Override
+      void makeHttpCall() {
+        putWithApiHeader(controller.controllerPath('/foo/extract_to_template'), [:])
+      }
+    }
+
+    @Nested
+    class AsAdmin {
+      private PipelineConfig pipeline = PipelineConfigMother.pipelineConfigWithTemplate("pipeline1", "new-template");
+
+      @BeforeEach
+      void setup() {
+        enableSecurity()
+        loginAsAdmin()
+        pipeline.setOrigin(new FileConfigOrigin());
+        when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(pipeline)
+        when(goConfigService.findGroupNameByPipeline(new CaseInsensitiveString("pipeline1"))).thenReturn("some-group")
+      }
+
+      @Test
+      void "should create template pipeline config for an admin"() {
+        putWithApiHeader(controller.controllerPath("/pipeline1/extract_to_template"), ["template_name": "new-template"])
+        verify(pipelineConfigService).extractTemplateFromPipeline("pipeline1", "new-template", currentUsername())
+
+        assertThatResponse()
+          .isOk()
+          .hasBodyWithJson(toObjectString({ PipelineConfigRepresenter.toJSON(it, pipeline, "some-group") }))
+      }
+    }
+  }
+
   static def invalidPipeline() {
     return [
       label_template: "\${COUNT}",

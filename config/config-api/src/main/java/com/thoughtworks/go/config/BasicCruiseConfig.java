@@ -52,6 +52,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 import static com.thoughtworks.go.config.exceptions.EntityType.Pipeline;
+import static com.thoughtworks.go.config.exceptions.EntityType.Template;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 import static java.util.stream.Collectors.toMap;
@@ -1200,10 +1201,10 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     @Override
-    public PipelineTemplateConfig getTemplateByName(CaseInsensitiveString pipeline) {
-        PipelineTemplateConfig template = getTemplates().templateByName(pipeline);
+    public PipelineTemplateConfig getTemplateByName(CaseInsensitiveString templateName) {
+        PipelineTemplateConfig template = getTemplates().templateByName(templateName);
         if (template == null) {
-            throw bomb(String.format("Template %s was not found.", pipeline));
+            throw new RecordNotFoundException(Template, templateName);
         }
         return template;
     }

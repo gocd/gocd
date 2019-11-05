@@ -21,10 +21,7 @@ import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.config.remote.ConfigOrigin;
-import com.thoughtworks.go.config.update.ConfigUpdateCheckFailedException;
-import com.thoughtworks.go.config.update.CreatePipelineConfigCommand;
-import com.thoughtworks.go.config.update.DeletePipelineConfigCommand;
-import com.thoughtworks.go.config.update.UpdatePipelineConfigCommand;
+import com.thoughtworks.go.config.update.*;
 import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.server.domain.Username;
@@ -214,4 +211,11 @@ public class PipelineConfigService {
     public int totalPipelinesCount() {
         return goConfigService.getAllPipelineConfigs().size();
     }
+
+    public void extractTemplateFromPipeline(String pipelineName,
+                                            String templateName,
+                                            Username currentUser) {
+        goConfigService.updateConfig(new ExtractTemplateFromPipelineEntityConfigUpdateCommand(securityService, pipelineName, templateName, currentUser), currentUser);
+    }
+
 }

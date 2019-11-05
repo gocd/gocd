@@ -15,18 +15,19 @@
  */
 package com.thoughtworks.go.presentation;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.ParamsAttributeAware;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PipelineTemplateConfig;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 /**
  * @understands: How to render the PipelineTemplateConfig object for new & create
  */
+@Deprecated // used only by rails
 public class PipelineTemplateConfigViewModel implements ParamsAttributeAware {
 
     public static final String TEMPLATE = "template";

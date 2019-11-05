@@ -383,6 +383,12 @@
   </rule>
 
   <rule>
+    <name>Spark API to extract template from pipeline config</name>
+    <from>^/api/admin/pipelines/([^/]+)/extract_to_template(/?)$</from>
+    <to last="true">/spark/api/admin/pipelines/${escape:$1}/extract_to_template</to>
+  </rule>
+
+  <rule>
     <name>Spark Pipeline Groups Index API</name>
     <from>^/api/admin/pipeline_groups(/?)$</from>
     <to last="true">/spark/api/admin/pipeline_groups</to>

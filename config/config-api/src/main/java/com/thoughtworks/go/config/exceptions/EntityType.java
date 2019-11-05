@@ -186,4 +186,8 @@ public enum EntityType {
     public String forbiddenToDelete(CaseInsensitiveString username) {
         return format("User '%s' does not have permission to delete %s", username, entityType.toLowerCase());
     }
+
+    public String alreadyUsesATemplate() {
+        return format("%s %s '%s' already uses a template.", StringUtils.capitalize(this.entityType), this.nameOrId.descriptor, id);
+    }
 }

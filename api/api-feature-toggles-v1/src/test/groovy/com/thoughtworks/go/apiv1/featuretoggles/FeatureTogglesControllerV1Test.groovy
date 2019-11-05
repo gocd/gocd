@@ -31,6 +31,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
 
+import static org.mockito.Mockito.verify
 import static org.mockito.Mockito.when
 import static org.mockito.MockitoAnnotations.initMocks
 
@@ -108,6 +109,7 @@ class FeatureTogglesControllerV1Test implements SecurityServiceTrait, Controller
     void 'should allow turning on a feature toggle'() {
       putWithApiHeader(controller.controllerPath('/key'), [:], [toggle_value: 'on'])
 
+      verify(featureToggleService).changeValueOfToggle('key', true)
       assertThatResponse()
         .isOk()
         .hasJsonMessage("success")
@@ -117,6 +119,7 @@ class FeatureTogglesControllerV1Test implements SecurityServiceTrait, Controller
     void 'should allow turning off a feature toggle'() {
       putWithApiHeader(controller.controllerPath('/key'), [:], [toggle_value: 'off'])
 
+      verify(featureToggleService).changeValueOfToggle('key', false)
       assertThatResponse()
         .isOk()
         .hasJsonMessage("success")
@@ -126,6 +129,7 @@ class FeatureTogglesControllerV1Test implements SecurityServiceTrait, Controller
     void 'should allow turning on a feature toggle with case insensitivity'() {
       putWithApiHeader(controller.controllerPath('/key'), [:], [toggle_value: 'On'])
 
+      verify(featureToggleService).changeValueOfToggle('key', true)
       assertThatResponse()
         .isOk()
         .hasJsonMessage("success")
@@ -135,6 +139,7 @@ class FeatureTogglesControllerV1Test implements SecurityServiceTrait, Controller
     void 'should allow turning off a feature toggle with case insensitivity'() {
       putWithApiHeader(controller.controllerPath('/key'), [:], [toggle_value: 'OFF'])
 
+      verify(featureToggleService).changeValueOfToggle('key', false)
       assertThatResponse()
         .isOk()
         .hasJsonMessage("success")

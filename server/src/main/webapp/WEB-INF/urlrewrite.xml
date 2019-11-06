@@ -32,7 +32,7 @@
 
   <rule>
     <name>server-configuration UI</name>
-    <from>^/admin/server_configuration(/?)$</from>
+    <from>^/admin/config/server(/?)$</from>
     <to last="true">/spark/admin/server_configuration</to>
   </rule>
 

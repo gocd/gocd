@@ -66,7 +66,7 @@ class InternalPipelineStructureControllerV1Test implements SecurityServiceTrait,
       PipelineConfigs group = PipelineConfigMother.createGroup("my-group", PipelineConfigMother.createPipelineConfig("my-pipeline", "my-stage", "my-job1", "my-job2"))
       def template = PipelineTemplateConfigMother.createTemplate("my-template")
       when(pipelineConfigService.viewableGroupsForUserIncludingConfigRepos(currentUsername())).thenReturn(new PipelineGroups([group]))
-      when(templateConfigService.templateConfigsThatCanBeEditedBy(currentUsername())).thenReturn(new TemplatesConfig(template))
+      when(templateConfigService.templateConfigsThatCanBeViewedBy(currentUsername())).thenReturn(new TemplatesConfig(template))
 
       getWithApiHeader(controller.controllerBasePath())
 

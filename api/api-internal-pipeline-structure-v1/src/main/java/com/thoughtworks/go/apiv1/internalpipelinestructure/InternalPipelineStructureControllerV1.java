@@ -77,7 +77,7 @@ public class InternalPipelineStructureControllerV1 extends ApiController impleme
     public String index(Request request, Response response) throws IOException {
         PipelineGroups groups = pipelineConfigService.viewableGroupsForUserIncludingConfigRepos(currentUsername());
 
-        TemplatesConfig templateConfigs = templateConfigService.templateConfigsThatCanBeEditedBy(currentUsername());
+        TemplatesConfig templateConfigs = templateConfigService.templateConfigsThatCanBeViewedBy(currentUsername());
 
         return writerForTopLevelObject(request, response, outputWriter -> InternalPipelineStructuresRepresenter.toJSON(outputWriter, groups, templateConfigs));
     }

@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-import {PipelineGroups} from "models/new-environments/pipeline_groups";
+import {PipelineGroups} from "models/internal_pipeline_structure/pipeline_structure";
 import data from "models/new-environments/spec/test_data";
 
 const pipelineGroupsJSON = data.pipeline_groups_json();
 
 describe("Environments Model - Pipeline Groups", () => {
   it("should deserialize from json", () => {
-    const pipelineGroups = PipelineGroups.fromJSON(pipelineGroupsJSON);
+    const pipelineGroups = PipelineGroups.fromJSON(pipelineGroupsJSON.groups);
 
     expect(pipelineGroups.length).toEqual(2);
     expect(pipelineGroups[0].name()).toEqual(pipelineGroupsJSON.groups[0].name);

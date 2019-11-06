@@ -16,7 +16,7 @@
 
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
-import {Pipelines, PipelineWithOrigin} from "models/new-environments/environment_pipelines";
+import {Pipelines, PipelineWithOrigin} from "models/internal_pipeline_structure/pipeline_structure";
 import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
 import s from "underscore.string";
 import {FlashMessage, MessageType} from "views/components/flash_message";

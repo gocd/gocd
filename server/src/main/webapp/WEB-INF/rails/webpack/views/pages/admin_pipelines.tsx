@@ -20,8 +20,8 @@ import {SparkRoutes} from "helpers/spark_routes";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
+import {PipelineGroups, PipelineStructure} from "models/internal_pipeline_structure/pipeline_structure";
 import {EnvironmentsAPIs} from "models/new-environments/environments_apis";
-import {PipelineGroups} from "models/new-environments/pipeline_groups";
 import {PipelineGroupCRUD} from "models/pipeline_configs/pipeline_groups_cache";
 import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
@@ -317,12 +317,12 @@ export class AdminPipelinesPage extends Page<null, State> {
                          EnvironmentsAPIs.allPipelines(),
                          PluginInfoCRUD.all({type: ExtensionTypeString.CONFIG_REPO})
                        ]).then((args) => {
-      const pipelineGroups: ApiResult<PipelineGroups> = args[0];
+      const pipelineGroups: ApiResult<PipelineStructure> = args[0];
       const pluginInfos: ApiResult<PluginInfos>       = args[1];
 
       pipelineGroups.do(
         (successResponse) => {
-          vnode.state.pipelineGroups(successResponse.body);
+          vnode.state.pipelineGroups(successResponse.body.groups());
           this.pageState = PageState.OK;
         }, (errorResponse) => {
           this.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);

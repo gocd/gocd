@@ -17,8 +17,8 @@
 import {ApiRequestBuilder, ApiResult, ApiVersion} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
 import {EnvironmentVariableJSON} from "models/environment_variables/types";
+import {PipelineStructure} from "models/internal_pipeline_structure/pipeline_structure";
 import {Environments} from "models/new-environments/environments";
-import {PipelineGroups} from "models/new-environments/pipeline_groups";
 
 export class EnvironmentsAPIs {
   private static LATEST_API_VERSION_HEADER = ApiVersion.latest;
@@ -33,7 +33,7 @@ export class EnvironmentsAPIs {
   static allPipelines() {
     return ApiRequestBuilder.GET(SparkRoutes.apiAdminInternalPipelinesListPath(), this.LATEST_API_VERSION_HEADER)
                             .then((result: ApiResult<string>) => {
-                              return result.map((body) => PipelineGroups.fromJSON(JSON.parse(body)));
+                              return result.map((body) => PipelineStructure.fromJSON(JSON.parse(body)));
                             });
   }
 

@@ -16,7 +16,7 @@
 
 import Stream from "mithril/stream";
 import {EnvironmentVariable, EnvironmentVariableJSON, EnvironmentVariables} from "models/environment_variables/types";
-import {Origin, OriginJSON, OriginType} from "models/new-environments/origin";
+import {Origin, OriginJSON, OriginType} from "models/origin";
 
 export interface EnvironmentEnvironmentVariableJSON extends EnvironmentVariableJSON {
   origin: OriginJSON;

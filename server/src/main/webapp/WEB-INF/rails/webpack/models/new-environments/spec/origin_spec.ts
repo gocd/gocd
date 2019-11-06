@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {Origin} from "models/new-environments/origin";
+import {Origin} from "models/origin";
 import data from "models/new-environments/spec/test_data";
 
 const xmlOriginJSON        = data.file_origin();

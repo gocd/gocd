@@ -201,6 +201,7 @@ export class Roles extends Array<GoCDRole | PluginRole> {
 
   constructor(...roles: Array<GoCDRole | PluginRole>) {
     super(...roles);
+    Object.setPrototypeOf(this, Object.create(Roles.prototype));
   }
 
   static fromJSON(data: RolesJSON) {

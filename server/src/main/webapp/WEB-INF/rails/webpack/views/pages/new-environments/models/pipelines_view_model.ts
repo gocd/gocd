@@ -17,10 +17,9 @@
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {Pipelines, PipelineWithOrigin} from "models/new-environments/environment_pipelines";
+import {PipelineGroups, Pipelines, PipelineWithOrigin} from "models/internal_pipeline_structure/pipeline_structure";
 import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
 import {EnvironmentsAPIs} from "models/new-environments/environments_apis";
-import {PipelineGroups} from "models/new-environments/pipeline_groups";
 
 export class PipelinesViewModel {
   readonly searchText: Stream<string | undefined>;
@@ -102,7 +101,7 @@ export class PipelinesViewModel {
     EnvironmentsAPIs.allPipelines()
                     .then((result) =>
                             result.do((successResponse) => {
-                              this.pipelineGroups(successResponse.body);
+                              this.pipelineGroups(successResponse.body.groups());
                               callback();
                             }, (errorResponse) => {
                               this.errorMessage(JSON.parse(errorResponse.body!).message);

@@ -16,9 +16,13 @@
 
 import m from "mithril";
 import Stream from "mithril/stream";
-import {Pipelines, PipelineWithOrigin} from "models/new-environments/environment_pipelines";
-import {Origin, OriginType} from "models/new-environments/origin";
-import {PipelineGroup, PipelineGroups} from "models/new-environments/pipeline_groups";
+import {
+  PipelineGroup,
+  PipelineGroups,
+  Pipelines,
+  PipelineWithOrigin
+} from "models/internal_pipeline_structure/pipeline_structure";
+import {Origin, OriginType} from "models/origin";
 import {Attrs, PipelineGroupsWidget} from "views/pages/admin_pipelines/admin_pipelines_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
 
@@ -89,7 +93,7 @@ describe("PipelineGroupsWidget", () => {
   });
 
   it("should perform pipeline interactions for pipelines defined in config", () => {
-    const pipelineInXml = new PipelineWithOrigin("in-config", undefined, new Origin(OriginType.GoCD));
+    const pipelineInXml = new PipelineWithOrigin("in-config", undefined, new Origin(OriginType.GoCD), []);
 
     attrs.pipelineGroups().push(new PipelineGroup("foo", new Pipelines(pipelineInXml)));
 
@@ -114,7 +118,7 @@ describe("PipelineGroupsWidget", () => {
   });
 
   it("should perform pipeline interactions for pipelines defined in config repos", () => {
-    const pipelineInJson = new PipelineWithOrigin("in-json", undefined, new Origin(OriginType.ConfigRepo, "foo"));
+    const pipelineInJson = new PipelineWithOrigin("in-json", undefined, new Origin(OriginType.ConfigRepo, "foo"), []);
 
     attrs.pipelineGroups().push(new PipelineGroup("foo", new Pipelines(pipelineInJson)));
 

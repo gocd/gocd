@@ -16,7 +16,7 @@
 
 import Stream from "mithril/stream";
 import {Agent, AgentJSON} from "models/environments/types";
-import {Origin, OriginJSON} from "models/new-environments/origin";
+import {Origin, OriginJSON} from "models/origin";
 
 export interface EnvironmentAgentJSON extends AgentJSON {
   origin: OriginJSON;

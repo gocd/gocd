@@ -15,9 +15,8 @@
  */
 
 import {EnvironmentVariables} from "models/environment_variables/types";
-import {Pipelines} from "models/new-environments/environment_pipelines";
+import {PipelineGroups, Pipelines, PipelineStructureJSON} from "models/internal_pipeline_structure/pipeline_structure";
 import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
-import {PipelineGroups, PipelineGroupsJSON} from "models/new-environments/pipeline_groups";
 import test_data from "models/new-environments/spec/test_data";
 import {PipelinesViewModel} from "views/pages/new-environments/models/pipelines_view_model";
 
@@ -25,7 +24,7 @@ describe("Pipelines View Model", () => {
   let environment: EnvironmentWithOrigin;
   let environments: Environments;
   let pipelinesViewModel: PipelinesViewModel;
-  let pipelineGroupsJSON: PipelineGroupsJSON;
+  let pipelineGroupsJSON: PipelineStructureJSON;
 
   beforeEach(() => {
     environments          = new Environments();
@@ -38,7 +37,7 @@ describe("Pipelines View Model", () => {
     pipelineGroupsJSON.groups[0].pipelines.push(environmentJSON.pipelines[0]);
     pipelineGroupsJSON.groups[1].pipelines.push(environmentJSON.pipelines[1]);
 
-    pipelinesViewModel.pipelineGroups(PipelineGroups.fromJSON(pipelineGroupsJSON));
+    pipelinesViewModel.pipelineGroups(PipelineGroups.fromJSON(pipelineGroupsJSON.groups));
   });
 
   it("should update search text", () => {

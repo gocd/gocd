@@ -16,9 +16,12 @@
 
 import m from "mithril";
 import {EnvironmentVariables} from "models/environment_variables/types";
-import {Pipelines, PipelineWithOrigin} from "models/new-environments/environment_pipelines";
+import {
+  PipelineGroups, Pipelines,
+  PipelineStructureJSON,
+  PipelineWithOrigin
+} from "models/internal_pipeline_structure/pipeline_structure";
 import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
-import {PipelineGroups, PipelineGroupsJSON} from "models/new-environments/pipeline_groups";
 import data from "models/new-environments/spec/test_data";
 import {EditPipelinesModal} from "views/pages/new-environments/edit_pipelines_modal";
 import {TestHelper} from "views/pages/spec/test_helper";
@@ -27,7 +30,7 @@ describe("Edit Pipelines Modal", () => {
   const helper = new TestHelper();
 
   let modal: EditPipelinesModal;
-  let pipelineGroupsJSON: PipelineGroupsJSON;
+  let pipelineGroupsJSON: PipelineStructureJSON;
 
   beforeEach(() => {
     jasmine.Ajax.install();
@@ -51,7 +54,7 @@ describe("Edit Pipelines Modal", () => {
     const environments = new Environments(environment, anotherEnv);
 
     modal = new EditPipelinesModal(environment, environments);
-    modal.pipelinesVM.pipelineGroups(PipelineGroups.fromJSON(pipelineGroupsJSON));
+    modal.pipelinesVM.pipelineGroups(PipelineGroups.fromJSON(pipelineGroupsJSON.groups));
     helper.mount(() => modal.body());
   });
 

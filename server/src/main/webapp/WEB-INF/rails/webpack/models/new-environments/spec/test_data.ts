@@ -14,38 +14,40 @@
  * limitations under the License.
  */
 
+import {PipelineJSON, PipelineStructureJSON} from "models/internal_pipeline_structure/pipeline_structure";
 import {EnvironmentJSON} from "models/new-environments/environments";
-import {OriginJSON, OriginType} from "models/new-environments/origin";
-import {PipelineGroupsJSON} from "models/new-environments/pipeline_groups";
+import {OriginType} from "models/origin";
 
 function randomString(): string {
   return Math.random().toString(36).slice(2);
 }
 
-function fileOriginJson(): OriginJSON {
+function fileOriginJson() {
   return {
     type: OriginType.GoCD,
   };
 }
 
-function configRepoOrigin(): OriginJSON {
+function configRepoOrigin() {
   return {
     type: OriginType.ConfigRepo,
     id: `config-repo-id-${randomString()}`
   };
 }
 
-function pipelineAssociationInXmlJson() {
+function pipelineAssociationInXmlJson(): PipelineJSON {
   return {
     name: `pipeline-${randomString()}`,
-    origin: fileOriginJson()
+    origin: fileOriginJson(),
+    stages: []
   };
 }
 
-function pipelineAssociationInConfigRepoJson() {
+function pipelineAssociationInConfigRepoJson(): PipelineJSON {
   return {
     name: `pipeline-${randomString()}`,
-    origin: configRepoOrigin()
+    origin: configRepoOrigin(),
+    stages: []
   };
 }
 
@@ -121,7 +123,7 @@ export default {
       environmentVariableAssociationInConfigRepoJson(true)
     ]
   }),
-  pipeline_groups_json: (): PipelineGroupsJSON => ({
+  pipeline_groups_json: (): PipelineStructureJSON => ({
     groups: [
       {
         name: `pipeline-group-${randomString()}`,
@@ -137,7 +139,19 @@ export default {
           pipelineAssociationInConfigRepoJson()
         ]
       }
-
+    ],
+    templates: [
+      {
+        name: `template-${randomString()}`,
+        stages: [
+          {
+            name: "stage1",
+            jobs: [
+              {name: "job1", is_elastic: false}
+            ]
+          }
+        ]
+      }
     ]
   })
 };

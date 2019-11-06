@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
+import {PipelineWithOrigin} from "models/internal_pipeline_structure/pipeline_structure";
 import {AgentWithOrigin} from "models/new-environments/environment_agents";
-import {PipelineWithOrigin} from "models/new-environments/environment_pipelines";
 import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
 import data from "models/new-environments/spec/test_data";
 

@@ -16,20 +16,20 @@
 
 import _ from "lodash";
 import Stream from "mithril/stream";
+import {PipelineJSON, Pipelines, PipelineWithOrigin} from "models/internal_pipeline_structure/pipeline_structure";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {Agents, AgentWithOrigin, EnvironmentAgentJSON} from "models/new-environments/environment_agents";
 import {
   EnvironmentEnvironmentVariableJSON,
   EnvironmentVariablesWithOrigin
 } from "models/new-environments/environment_environment_variables";
-import {EnvironmentPipelineJSON, Pipelines, PipelineWithOrigin} from "models/new-environments/environment_pipelines";
 import {EnvironmentsAPIs} from "models/new-environments/environments_apis";
-import {Origin, OriginJSON} from "models/new-environments/origin";
+import {Origin, OriginJSON} from "models/origin";
 
 export interface EnvironmentJSON {
   name: string;
   origins: OriginJSON[];
-  pipelines: EnvironmentPipelineJSON[];
+  pipelines: PipelineJSON[];
   agents: EnvironmentAgentJSON[];
   environment_variables: EnvironmentEnvironmentVariableJSON[];
 }

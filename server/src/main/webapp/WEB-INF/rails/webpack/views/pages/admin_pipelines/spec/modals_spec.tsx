@@ -16,10 +16,9 @@
 
 import m from "mithril";
 import {Pipeline} from "models/environments/types";
-import {PipelineWithOrigin} from "models/new-environments/environment_pipelines";
-import {Origin, OriginType} from "models/new-environments/origin";
-import {PipelineGroups} from "models/new-environments/pipeline_groups";
+import {PipelineGroups, PipelineWithOrigin} from "models/internal_pipeline_structure/pipeline_structure";
 import data from "models/new-environments/spec/test_data";
+import {Origin, OriginType} from "models/origin";
 import {ModalManager} from "views/components/modal/modal_manager";
 import {
   ClonePipelineConfigModal,
@@ -90,7 +89,7 @@ describe("MoveConfirmModal", () => {
   let modalTestHelper: TestHelper;
 
   const pipelineGroupsJSON = data.pipeline_groups_json();
-  const pipelineGroups     = PipelineGroups.fromJSON(pipelineGroupsJSON);
+  const pipelineGroups     = PipelineGroups.fromJSON(pipelineGroupsJSON.groups);
 
   beforeEach(() => {
     callback = jasmine.createSpy("callback");
@@ -124,7 +123,7 @@ describe("ExtractTemplateModal", () => {
 
   beforeEach(() => {
     callback = jasmine.createSpy("callback");
-    modal    = new ExtractTemplateModal(new PipelineWithOrigin("foo", undefined, new Origin(OriginType.GoCD)),
+    modal    = new ExtractTemplateModal(new PipelineWithOrigin("foo", undefined, new Origin(OriginType.GoCD), []),
                                         callback);
     modal.render();
     m.redraw.sync();

@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-import {Pipelines} from "models/new-environments/environment_pipelines";
-
+import {Pipelines} from "models/internal_pipeline_structure/pipeline_structure";
 import data from "./test_data";
 
 const xmlPipeline        = data.pipeline_association_in_xml_json();

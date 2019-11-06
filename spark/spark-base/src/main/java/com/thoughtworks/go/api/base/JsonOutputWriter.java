@@ -23,6 +23,8 @@ import com.google.gson.internal.bind.util.ISO8601Utils;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.spark.RequestContext;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -33,10 +35,13 @@ import java.util.TimeZone;
 import java.util.function.Consumer;
 
 public class JsonOutputWriter {
+    private static final Logger log = LoggerFactory.getLogger(JsonOutputWriter.class);
+
     public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     public static final JsonFactory JSON_FACTORY = new JsonFactory(OBJECT_MAPPER)
-        .disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET)
-        .enable(JsonGenerator.Feature.STRICT_DUPLICATE_DETECTION);
+            .disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET)
+            .disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT)
+            .enable(JsonGenerator.Feature.STRICT_DUPLICATE_DETECTION);
 
     protected final Writer writer;
     private final RequestContext requestContext;
@@ -75,7 +80,8 @@ public class JsonOutputWriter {
             } finally {
                 bufferedWriter.flush();
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
+            log.error("There was an error generating JSON", e);
             throw new RuntimeException(e);
         }
     }
@@ -90,7 +96,7 @@ public class JsonOutputWriter {
             try {
                 jacksonWriter = JSON_FACTORY.createGenerator(writer);
                 jacksonWriter.useDefaultPrettyPrinter();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }
@@ -105,7 +111,7 @@ public class JsonOutputWriter {
         @Override
         public JsonOutputWriterUsingJackson add(String key, Double value) {
             return withExceptionHandling((jacksonWriter) -> {
-                jacksonWriter.writeNumberField(key,value);
+                jacksonWriter.writeNumberField(key, value);
             });
         }
 
@@ -113,9 +119,8 @@ public class JsonOutputWriter {
         public JsonOutputWriterUsingJackson add(String key, CaseInsensitiveString value) {
             return withExceptionHandling((jacksonWriter) -> {
                 if (value == null) {
-                   renderNull(key);
-                }
-                else {
+                    renderNull(key);
+                } else {
                     jacksonWriter.writeStringField(key, value.toString());
                 }
             });
@@ -163,8 +168,7 @@ public class JsonOutputWriter {
             return withExceptionHandling((jacksonWriter) -> {
                 if (StringUtils.isNotBlank(value)) {
                     add(key, value);
-                }
-                else {
+                } else {
                     add(key, defaultValue);
                 }
             });
@@ -241,9 +245,9 @@ public class JsonOutputWriter {
         @Override
         public OutputWriter add(String key, JsonNode jsonNode) {
             return withExceptionHandling((jacksonWriter) -> {
-                    jacksonWriter.writeFieldName(key);
-                    jacksonWriter.writeTree(jsonNode);
-                }
+                        jacksonWriter.writeFieldName(key);
+                        jacksonWriter.writeTree(jsonNode);
+                    }
             );
         }
 

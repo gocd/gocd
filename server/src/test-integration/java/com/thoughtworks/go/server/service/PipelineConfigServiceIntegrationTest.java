@@ -562,7 +562,7 @@ public class PipelineConfigServiceIntegrationTest {
 
         assertThat(result.toString(), result.isSuccessful(), is(false));
         assertThat(result.toString(), result.httpCode(), is(403));
-        assertThat(result.toString(), result.message().equals("Unauthorized to edit '" + pipelineConfig.name() + "' pipeline."), is(true));
+        assertThat(result.toString(), result.message().equals("User 'unauthorized_user' does not have permission to edit pipeline with name '"+pipelineConfig.name()+"'"), is(true));
         assertThat(configRepository.getCurrentRevCommit().name(), is(headCommitBeforeUpdate));
         assertThat(goConfigDao.loadConfigHolder().configForEdit, is(goConfigHolderBeforeUpdate.configForEdit));
         assertThat(goConfigDao.loadConfigHolder().config, is(goConfigHolderBeforeUpdate.config));

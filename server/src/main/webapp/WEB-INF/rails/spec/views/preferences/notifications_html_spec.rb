@@ -33,7 +33,7 @@ describe "preferences/notifications.html.erb" do
     render
 
     expect(response).to have_selector(".callout", text: "SMTP settings are currently not configured. If you are the administrator, you can configure email support at Mail Server Configuration.")
-    expect(response).to have_selector(".callout a[href='/admin/mail_server']", text: "Mail Server Configuration")
+    expect(response).to have_selector(".callout a[href='/go/admin/config/server#!email-server']", text: "Mail Server Configuration")
   end
 
 end

@@ -11,7 +11,7 @@
 
   <% unless go_config_service.isSmtpEnabled %>
     <div class="callout warning">
-      SMTP settings are currently not configured. If you are the administrator, you can configure email support at <%= link_to "Mail Server Configuration", edit_mail_server_config_path %>.
+      SMTP settings are currently not configured. If you are the administrator, you can configure email support at <%= link_to "Mail Server Configuration", "/go/admin/config/server#!email-server" %>.
     </div>
   <% end %>
 

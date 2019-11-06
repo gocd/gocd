@@ -71,9 +71,6 @@
                     <li id="source-xml-tab-button" class="<%= "current_tab" if @tab_name == "configuration-xml" %>">
                       <%= link_to 'Config XML', config_view_path, :id => 'tab-link-of-source-xml' -%>
                     </li>
-                    <li id="server-configuration-tab-button" class="<%= "current_tab" if @tab_name == "server_configuration" %>">
-                      <%= link_to 'Server Configuration', edit_server_config_path, :id => 'tab-link-of-server-configuration' -%>
-                    </li>
                     <li id="user-summary-tab-button" class="<%= @tab_name == "user-listing" ? "current_tab" : "" -%>">
                       <%= link_to "Users Management", '/go/admin/users', :id => "tab-link-of-user-listing" %>
                     </li>

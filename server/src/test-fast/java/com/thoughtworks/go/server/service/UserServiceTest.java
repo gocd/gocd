@@ -695,7 +695,7 @@ public class UserServiceTest {
         @Test
         void shouldNotDoAnythingIfTheUserIsAnAnonymousUser() {
             User anonymousUser = new User(CaseInsensitiveString.str(Username.ANONYMOUS.getUsername()));
-            userService.addOrUpdateUser(anonymousUser);
+            userService.addOrUpdateUser(anonymousUser, new SecurityAuthConfig());
             verifyZeroInteractions(userDao);
         }
 
@@ -704,8 +704,11 @@ public class UserServiceTest {
             String username = "new-user";
             User user = new User(username);
             when(userDao.findUser(username)).thenReturn(mock(NullUser.class));
-            when(goConfigService.isOnlyKnownUserAllowedToLogin()).thenReturn(true);
-            assertThatCode(() -> userService.addOrUpdateUser(user))
+            assertThatCode(() -> {
+                SecurityAuthConfig authConfig = new SecurityAuthConfig();
+                authConfig.setAllowOnlyKnownUsersToLogin(true);
+                userService.addOrUpdateUser(user, authConfig);
+            })
                     .isInstanceOf(OnlyKnownUsersAllowedException.class)
                     .hasMessage("Please ask the administrator to add you to GoCD.");
 
@@ -718,7 +721,7 @@ public class UserServiceTest {
             String username = "new-user";
             User user = new User(username);
             when(userDao.findUser(username)).thenReturn(mock(NullUser.class));
-            userService.addOrUpdateUser(user);
+            userService.addOrUpdateUser(user, new SecurityAuthConfig());
 
             verify(userDao).saveOrUpdate(user);
         }
@@ -730,7 +733,7 @@ public class UserServiceTest {
             originalUserInDB.setId(1);
             when(userDao.findUser(username)).thenReturn(originalUserInDB);
             User updatedUser = new User(username, "display-name", "");
-            userService.addOrUpdateUser(updatedUser);
+            userService.addOrUpdateUser(updatedUser, new SecurityAuthConfig());
 
             verify(userDao).saveOrUpdate(updatedUser);
         }
@@ -742,7 +745,7 @@ public class UserServiceTest {
             originalUserInDB.setId(1);
             when(userDao.findUser(username)).thenReturn(originalUserInDB);
             User updatedUser = new User(username, "", "email");
-            userService.addOrUpdateUser(updatedUser);
+            userService.addOrUpdateUser(updatedUser, new SecurityAuthConfig());
 
             verify(userDao).saveOrUpdate(updatedUser);
         }
@@ -752,7 +755,7 @@ public class UserServiceTest {
             String username = "new-user";
             User user = new User(username, null, null);
             when(userDao.findUser(username)).thenReturn(user);
-            userService.addOrUpdateUser(user);
+            userService.addOrUpdateUser(user, new SecurityAuthConfig());
 
             verify(userDao).findUser(username);
             verifyNoMoreInteractions(userDao);
@@ -764,7 +767,7 @@ public class UserServiceTest {
             User existingUserWithEmailInDB = new User(username, null, "bob@gocd.org");
             User newUserFromPlugin = new User(username, null, null);
             when(userDao.findUser(username)).thenReturn(existingUserWithEmailInDB);
-            userService.addOrUpdateUser(newUserFromPlugin);
+            userService.addOrUpdateUser(newUserFromPlugin, new SecurityAuthConfig());
 
             verify(userDao).findUser(username);
             verifyNoMoreInteractions(userDao);

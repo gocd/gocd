@@ -209,15 +209,6 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldTellIfOnlyKnownUsersAreAllowedToLogin() throws Exception {
-        CruiseConfig config = new BasicCruiseConfig();
-        config.server().security().setAllowOnlyKnownUsersToLogin(true);
-        expectLoad(config);
-
-        assertThat(goConfigService.isOnlyKnownUserAllowedToLogin(), is(true));
-    }
-
-    @Test
     public void shouldReturnTrueIfStageHasTestsAndFalseIfItDoesnt() throws Exception {
         PipelineConfigs newPipelines = new BasicPipelineConfigs();
         PipelineConfig pipelineConfig = createPipelineConfig("pipeline", "name", "plan");
@@ -920,7 +911,7 @@ public class GoConfigServiceTest {
     public void shouldReturnConfigStateFromDaoLayer_WhenUpdatingServerConfig() {
         ConfigSaveState expectedSaveState = ConfigSaveState.MERGED;
         when(goConfigDao.updateConfig(org.mockito.ArgumentMatchers.<UpdateConfigCommand>any())).thenReturn(expectedSaveState);
-        ConfigSaveState configSaveState = goConfigService.updateServerConfig(new MailHost(new GoCipher()), true, "md5", null, null, null, null, "http://site",
+        ConfigSaveState configSaveState = goConfigService.updateServerConfig(new MailHost(new GoCipher()), "md5", null, null, null, null, "http://site",
                 "https://site", "location");
         assertThat(configSaveState, is(expectedSaveState));
     }

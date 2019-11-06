@@ -30,6 +30,7 @@ import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import com.thoughtworks.go.util.GoConfigFileHelper;
+import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.io.IOUtils;
@@ -1872,7 +1873,7 @@ public class GoConfigMigrationIntegrationTest {
 
         String expectedXml =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
-                        "<cruise schemaVersion=\"132\">" + expectedConfig + "</cruise>";
+                        "<cruise schemaVersion=\"" + GoConstants.CONFIG_SCHEMA_VERSION + "\">" + expectedConfig + "</cruise>";
 
         final String migratedXml = ConfigMigrator.migrate(configXml);
 
@@ -1906,11 +1907,60 @@ public class GoConfigMigrationIntegrationTest {
 
         String expectedXml =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
-                        "<cruise schemaVersion=\"132\">" + expectedConfig + "</cruise>";
+                        "<cruise schemaVersion=\"" + GoConstants.CONFIG_SCHEMA_VERSION + "\">" + expectedConfig + "</cruise>";
 
         final String migratedXml = ConfigMigrator.migrate(configXml);
 
         XmlAssert.assertThat(migratedXml).and(expectedXml).areIdentical();
+    }
+
+    @Test
+    public void shouldMigrate_allowOnlyKnownUsersToLogin_attributeFromSecurityToAuthConfig_Migration132To133() throws Exception {
+        String originalConfig = "<server agentAutoRegisterKey=\"323040d4-f2e4-4b8a-8394-7a2d122054d1\" webhookSecret=\"3d5cd2f5-7fe7-43c0-ba34-7e01678ba8b6\" commandRepositoryLocation=\"default\" serverId=\"60f5f682-5248-4ba9-bb35-72c92841bd75\" tokenGenerationKey=\"8c3c8dc9-08bf-4cd7-ac80-cecb3e7ae86c\">" +
+                "<security allowOnlyKnownUsersToLogin=\"true\" >\n" +
+                "      <authConfigs>\n" +
+                "        <authConfig id=\"9cad79b0-4d9e-4a62-829c-eb4d9488062f\" pluginId=\"cd.go.authentication.passwordfile\">\n" +
+                "          <property>\n" +
+                "            <key>PasswordFilePath</key>\n" +
+                "            <value>config/password.properties</value>\n" +
+                "          </property>\n" +
+                "        </authConfig>\n" +
+                "      </authConfigs>\n" +
+                "    </security>\n" +
+                "  </server>\n";
+
+        String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+                "<cruise schemaVersion=\"132\">" + originalConfig + "</cruise>";
+
+        final String migratedXml = migrateXmlString(configXml, 132);
+
+        XmlAssert.assertThat(migratedXml).nodesByXPath("//security").doNotHaveAttribute("allowOnlyKnownUsersToLogin");
+        XmlAssert.assertThat(migratedXml).nodesByXPath("//authConfig").haveAttribute("allowOnlyKnownUsersToLogin", "true");
+    }
+
+    @Test
+    public void shouldDefine_allowOnlyKnownUsersToLogin_attributeOnAuthConfigAttributeDoesNotExistOnSecurity_Migration132to133() throws Exception {
+        String originalConfig = "<server agentAutoRegisterKey=\"323040d4-f2e4-4b8a-8394-7a2d122054d1\" webhookSecret=\"3d5cd2f5-7fe7-43c0-ba34-7e01678ba8b6\" commandRepositoryLocation=\"default\" serverId=\"60f5f682-5248-4ba9-bb35-72c92841bd75\" tokenGenerationKey=\"8c3c8dc9-08bf-4cd7-ac80-cecb3e7ae86c\">" +
+                "<security>\n" +
+                "      <authConfigs>\n" +
+                "        <authConfig id=\"9cad79b0-4d9e-4a62-829c-eb4d9488062f\" pluginId=\"cd.go.authentication.passwordfile\">\n" +
+                "          <property>\n" +
+                "            <key>PasswordFilePath</key>\n" +
+                "            <value>config/password.properties</value>\n" +
+                "          </property>\n" +
+                "        </authConfig>\n" +
+                "      </authConfigs>\n" +
+                "    </security>\n" +
+                "  </server>\n";
+
+        String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+                "<cruise schemaVersion=\"132\">" + originalConfig + "</cruise>";
+
+        final String migratedXml = migrateXmlString(configXml, 132);
+
+        XmlAssert.assertThat(migratedXml).nodesByXPath("//security").doNotHaveAttribute("allowOnlyKnownUsersToLogin");
+        //verify authConfig has no allowOnlyKnownUsersToLogin as the default value is false,
+        XmlAssert.assertThat(migratedXml).nodesByXPath("//authConfig").doNotHaveAttribute("allowOnlyKnownUsersToLogin");
     }
 
     private void assertStringContainsIgnoringCarriageReturn(String actual, String substring) {

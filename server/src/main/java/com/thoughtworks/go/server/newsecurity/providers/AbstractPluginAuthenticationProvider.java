@@ -119,7 +119,7 @@ public abstract class AbstractPluginAuthenticationProvider<T extends Credentials
 
             User user = ensureDisplayNamePresent(response.getUser());
             if (user != null) {
-                userService.addOrUpdateUser(toDomainUser(user));
+                userService.addOrUpdateUser(toDomainUser(user), authConfig);
 
                 pluginRoleService.updatePluginRoles(pluginId, user.getUsername(), CaseInsensitiveString.list(response.getRoles()));
                 LOGGER.debug("Successfully authenticated user: `{}` using the authorization plugin: `{}`", user.getUsername(), pluginId);

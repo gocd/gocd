@@ -438,28 +438,6 @@ public class MagicalGoConfigXmlWriterTest {
     }
 
     @Test
-    public void shouldWriteAllowOnlyKnownUsersFlag() throws Exception {
-        String content = ConfigFileFixture.configWithSecurity("<security>\n" +
-                "      <authConfigs>\n" +
-                "        <authConfig id=\"9cad79b0-4d9e-4a62-829c-eb4d9488062f\" pluginId=\"cd.go.authentication.passwordfile\">\n" +
-                "          <property>\n" +
-                "            <key>PasswordFilePath</key>\n" +
-                "            <value>../manual-testing/ant_hg/password.properties</value>\n" +
-                "          </property>\n" +
-                "        </authConfig>\n" +
-                "      </authConfigs>" +
-                "</security>");
-
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
-        SecurityConfig securityConfig = cruiseConfig.server().security();
-        assertThat(securityConfig.isAllowOnlyKnownUsersToLogin(), is(false));
-        securityConfig.setAllowOnlyKnownUsersToLogin(true);
-        xmlWriter.write(cruiseConfig, out, false);
-        assertThat(out.toString(), containsString("allowOnlyKnownUsersToLogin=\"true\""));
-    }
-
-    @Test
     public void shouldAllowParamsInsidePipeline() throws Exception {
         String content = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                 + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "

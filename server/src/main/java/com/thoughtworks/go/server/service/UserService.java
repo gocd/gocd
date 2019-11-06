@@ -412,14 +412,14 @@ public class UserService {
         public abstract Comparator<UserModel> forColumn(SortableColumn column);
     }
 
-    public void addOrUpdateUser(User user) {
+    public void addOrUpdateUser(User user, SecurityAuthConfig authConfig) {
         synchronized (enableUserMutex) {
             if (!user.isAnonymous()) {
                 LOGGER.debug("User [{}] is not anonymous", user.getName());
                 User userFromDB = userDao.findUser(user.getName());
                 if (userFromDB instanceof NullUser) {
                     LOGGER.debug("User [{}] is not present in the DB.", user.getName());
-                    assertUnknownUsersAreAllowedToLogin(user.getUsername());
+                    assertUnknownUsersAreAllowedToLogin(user.getUsername(), authConfig);
                     LOGGER.debug("Adding user [{}] to the DB.", user.getName());
                     userDao.saveOrUpdate(user);
                 } else if (hasUserChanged(user, userFromDB)) {
@@ -437,8 +437,8 @@ public class UserService {
         }
     }
 
-    private void assertUnknownUsersAreAllowedToLogin(Username username) {
-        if (goConfigService.isOnlyKnownUserAllowedToLogin()) {
+    private void assertUnknownUsersAreAllowedToLogin(Username username, SecurityAuthConfig authConfig) {
+        if (authConfig.isOnlyKnownUserAllowedToLogin()) {
             throw new OnlyKnownUsersAllowedException(username.getUsername().toString(), "Please ask the administrator to add you to GoCD.");
         }
     }

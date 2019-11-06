@@ -35,6 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.str;
@@ -54,7 +55,11 @@ public class PipelineConfigService {
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelineConfigService.class);
 
     @Autowired
-    public PipelineConfigService(GoConfigService goConfigService, SecurityService securityService, PluggableTaskService pluggableTaskService, EntityHashingService entityHashingService, ExternalArtifactsService externalArtifactsService) {
+    public PipelineConfigService(GoConfigService goConfigService,
+                                 SecurityService securityService,
+                                 PluggableTaskService pluggableTaskService,
+                                 EntityHashingService entityHashingService,
+                                 ExternalArtifactsService externalArtifactsService) {
         this.goConfigService = goConfigService;
         this.securityService = securityService;
         this.pluggableTaskService = pluggableTaskService;
@@ -96,7 +101,8 @@ public class PipelineConfigService {
         return pipelineConfig.getOrigin();
     }
 
-    private CaseInsensitiveString downstreamOf(Hashtable<CaseInsensitiveString, Node> pipelineToUpstream, final CaseInsensitiveString pipelineName) {
+    private CaseInsensitiveString downstreamOf(Hashtable<CaseInsensitiveString, Node> pipelineToUpstream,
+                                               final CaseInsensitiveString pipelineName) {
         for (Map.Entry<CaseInsensitiveString, Node> entry : pipelineToUpstream.entrySet()) {
             if (entry.getValue().hasDependency(pipelineName)) {
                 return entry.getKey();
@@ -105,7 +111,8 @@ public class PipelineConfigService {
         return null;
     }
 
-    private CaseInsensitiveString environmentUsedIn(CruiseConfig cruiseConfig, final CaseInsensitiveString pipelineName) {
+    private CaseInsensitiveString environmentUsedIn(CruiseConfig cruiseConfig,
+                                                    final CaseInsensitiveString pipelineName) {
         return cruiseConfig.getEnvironments().findEnvironmentNameForPipeline(pipelineName);
     }
 
@@ -117,7 +124,10 @@ public class PipelineConfigService {
         return goConfigService.getMergedConfigForEditing().getPipelineConfigByName(new CaseInsensitiveString(pipelineName));
     }
 
-    private void update(Username currentUser, PipelineConfig pipelineConfig, LocalizedOperationResult result, EntityConfigUpdateCommand command) {
+    private void update(Username currentUser,
+                        PipelineConfig pipelineConfig,
+                        LocalizedOperationResult result,
+                        EntityConfigUpdateCommand command) {
         try {
             goConfigService.updateConfig(command, currentUser);
         } catch (Exception e) {
@@ -133,49 +143,59 @@ public class PipelineConfigService {
     }
 
 
-    public void updatePipelineConfig(final Username currentUser, final PipelineConfig pipelineConfig, String updatedGroupName, final String md5, final LocalizedOperationResult result) {
+    public void updatePipelineConfig(final Username currentUser,
+                                     final PipelineConfig pipelineConfig,
+                                     String updatedGroupName,
+                                     final String md5,
+                                     final LocalizedOperationResult result) {
         validatePluggableTasks(pipelineConfig);
         UpdatePipelineConfigCommand updatePipelineConfigCommand = new UpdatePipelineConfigCommand(goConfigService, entityHashingService, pipelineConfig, updatedGroupName, currentUser, md5, result, externalArtifactsService);
         update(currentUser, pipelineConfig, result, updatePipelineConfigCommand);
     }
 
     public PipelineGroups viewableGroupsFor(Username username) {
-        return viewableGroups(username, goConfigService.cruiseConfig());
+        return groupsMatchingFilter(goConfigService.cruiseConfig(), pipelineConfigs -> securityService.hasViewPermissionForGroup(str(username.getUsername()), pipelineConfigs.getGroup()));
+    }
+
+    public PipelineGroups adminGroupsForIncludingConfigRepos(Username username) {
+        return groupsMatchingFilter(goConfigService.cruiseConfig(), pipelineConfigs -> securityService.isUserAdminOfGroup(username.getUsername(), pipelineConfigs.getGroup()));
+    }
+
+    public PipelineGroups viewableOrOperatableGroupsForIncludingConfigRepos(Username username) {
+        return groupsMatchingFilter(goConfigService.cruiseConfig(), pipelineConfigs -> securityService.hasOperatePermissionForGroup(username.getUsername(), pipelineConfigs.getGroup()));
     }
 
     public PipelineGroups viewableGroupsForUserIncludingConfigRepos(Username username) {
-        return viewableGroups(username, goConfigService.getMergedConfigForEditing());
+        return groupsMatchingFilter(goConfigService.getMergedConfigForEditing(), pipelineConfigs -> securityService.hasViewPermissionForGroup(str(username.getUsername()), pipelineConfigs.getGroup()));
     }
 
-    private PipelineGroups viewableGroups(Username username, CruiseConfig cruiseConfig) {
+    private PipelineGroups groupsMatchingFilter(CruiseConfig cruiseConfig, Predicate<PipelineConfigs> predicate) {
         return cruiseConfig
                 .getGroups()
                 .stream()
-                .filter(pipelineConfigs -> securityService.hasViewPermissionForGroup(str(username.getUsername()), pipelineConfigs.getGroup()))
+                .filter(predicate)
                 .collect(Collectors.toCollection(PipelineGroups::new));
     }
 
-    public List<PipelineConfigs> viewableOrOperatableGroupsFor(Username username) {
-        ArrayList<PipelineConfigs> list = new ArrayList<>();
-        for (PipelineConfigs pipelineConfigs : goConfigService.cruiseConfig().getGroups()) {
-            if (hasViewOrOperatePermissionForGroup(username, pipelineConfigs.getGroup())) {
-                list.add(pipelineConfigs);
-            }
-        }
-        return list;
-    }
-
-    public void createPipelineConfig(final Username currentUser, final PipelineConfig pipelineConfig, final LocalizedOperationResult result, final String groupName) {
+    public void createPipelineConfig(final Username currentUser,
+                                     final PipelineConfig pipelineConfig,
+                                     final LocalizedOperationResult result,
+                                     final String groupName) {
         CreatePipelineConfigCommand createPipelineConfigCommand = createPipelineConfigCommand(currentUser, pipelineConfig, result, groupName);
         update(currentUser, pipelineConfig, result, createPipelineConfigCommand);
     }
 
-    public CreatePipelineConfigCommand createPipelineConfigCommand(Username currentUser, PipelineConfig pipelineConfig, LocalizedOperationResult result, String groupName) {
+    public CreatePipelineConfigCommand createPipelineConfigCommand(Username currentUser,
+                                                                   PipelineConfig pipelineConfig,
+                                                                   LocalizedOperationResult result,
+                                                                   String groupName) {
         validatePluggableTasks(pipelineConfig);
         return new CreatePipelineConfigCommand(goConfigService, pipelineConfig, currentUser, result, groupName, externalArtifactsService);
     }
 
-    public void deletePipelineConfig(final Username currentUser, final PipelineConfig pipelineConfig, final LocalizedOperationResult result) {
+    public void deletePipelineConfig(final Username currentUser,
+                                     final PipelineConfig pipelineConfig,
+                                     final LocalizedOperationResult result) {
         DeletePipelineConfigCommand deletePipelineConfigCommand = new DeletePipelineConfigCommand(goConfigService, pipelineConfig, currentUser, result);
         update(currentUser, pipelineConfig, result, deletePipelineConfigCommand);
         if (result.isSuccessful()) {

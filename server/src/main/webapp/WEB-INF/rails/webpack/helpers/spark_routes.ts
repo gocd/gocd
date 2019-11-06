@@ -78,10 +78,10 @@ export class SparkRoutes {
 
   static pipelineMaterialSearchPath(pipelineName: string, fingerprint: string, searchText: string): string {
     const queryString = m.buildQueryString({
-      fingerprint,
-      pipeline_name: pipelineName,
-      search_text: searchText
-    });
+                                             fingerprint,
+                                             pipeline_name: pipelineName,
+                                             search_text: searchText
+                                           });
     return `/go/api/internal/material_search?${queryString}`;
   }
 
@@ -399,8 +399,14 @@ export class SparkRoutes {
     return "/go/api/admin/internal/environments/merged";
   }
 
-  static apiAdminInternalPipelinesListPath() {
-    return "/go/api/internal/pipeline_structure";
+  static apiAdminInternalPipelinesListPath(groupAuthorization: "view" | "operate" | "administer",
+                                           templateAuthorization: "view" | "administer") {
+    const queryString = m.buildQueryString({
+                                             pipeline_group_authorization: groupAuthorization,
+                                             template_authorization: templateAuthorization
+                                           });
+
+    return `/go/api/internal/pipeline_structure?${queryString}`;
   }
 
   static internalTemplatesListPath() {
@@ -412,7 +418,7 @@ export class SparkRoutes {
   }
 
   static exportPipelinePath(pluginId: string, pipeline: string) {
-    return `/go/api/admin/export/pipelines/` + pipeline + "?" + m.buildQueryString({plugin_id: pluginId});
+    return `/go/api/admin/export/pipelines/${pipeline}?${m.buildQueryString({plugin_id: pluginId})}`;
   }
 
   static jobTimeoutPath() {

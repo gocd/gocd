@@ -314,11 +314,11 @@ export class AdminPipelinesPage extends Page<null, State> {
     };
 
     return Promise.all([
-                         EnvironmentsAPIs.allPipelines(),
+                         EnvironmentsAPIs.allPipelines("administer", "view"),
                          PluginInfoCRUD.all({type: ExtensionTypeString.CONFIG_REPO})
                        ]).then((args) => {
       const pipelineGroups: ApiResult<PipelineStructure> = args[0];
-      const pluginInfos: ApiResult<PluginInfos>       = args[1];
+      const pluginInfos: ApiResult<PluginInfos>          = args[1];
 
       pipelineGroups.do(
         (successResponse) => {

@@ -30,8 +30,9 @@ export class EnvironmentsAPIs {
                             });
   }
 
-  static allPipelines() {
-    return ApiRequestBuilder.GET(SparkRoutes.apiAdminInternalPipelinesListPath(), this.LATEST_API_VERSION_HEADER)
+  static allPipelines(groupAuthorization: "view" | "operate" | "administer",
+                      templateAuthorization: "view" | "administer") {
+    return ApiRequestBuilder.GET(SparkRoutes.apiAdminInternalPipelinesListPath(groupAuthorization, templateAuthorization), this.LATEST_API_VERSION_HEADER)
                             .then((result: ApiResult<string>) => {
                               return result.map((body) => PipelineStructure.fromJSON(JSON.parse(body)));
                             });

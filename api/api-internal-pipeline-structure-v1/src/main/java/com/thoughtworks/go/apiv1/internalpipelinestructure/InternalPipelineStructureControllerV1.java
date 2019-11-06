@@ -16,9 +16,11 @@
 
 package com.thoughtworks.go.apiv1.internalpipelinestructure;
 
+import com.google.common.collect.ImmutableMap;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.util.HaltApiResponses;
 import com.thoughtworks.go.apiv1.internalpipelinestructure.representers.InternalPipelineStructuresRepresenter;
 import com.thoughtworks.go.config.TemplatesConfig;
 import com.thoughtworks.go.domain.PipelineGroups;
@@ -32,6 +34,8 @@ import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
+import java.util.Map;
+import java.util.function.Supplier;
 
 import static spark.Spark.*;
 
@@ -39,8 +43,8 @@ import static spark.Spark.*;
 public class InternalPipelineStructureControllerV1 extends ApiController implements SparkSpringController {
 
     private final ApiAuthenticationHelper apiAuthenticationHelper;
-    private final PipelineConfigService pipelineConfigService;
-    private final TemplateConfigService templateConfigService;
+    private final Map<String, Supplier<PipelineGroups>> pipelineGroupAuthorizationRegistry;
+    private final ImmutableMap<String, Supplier<TemplatesConfig>> templateAuthorizationRegistry;
 
     @Autowired
     public InternalPipelineStructureControllerV1(ApiAuthenticationHelper apiAuthenticationHelper,
@@ -48,8 +52,16 @@ public class InternalPipelineStructureControllerV1 extends ApiController impleme
                                                  TemplateConfigService templateConfigService) {
         super(ApiVersion.v1);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
-        this.pipelineConfigService = pipelineConfigService;
-        this.templateConfigService = templateConfigService;
+        this.pipelineGroupAuthorizationRegistry = ImmutableMap.<String, Supplier<PipelineGroups>>builder()
+                .put("view", () -> pipelineConfigService.viewableGroupsForUserIncludingConfigRepos(currentUsername()))
+                .put("operate", () -> pipelineConfigService.viewableOrOperatableGroupsForIncludingConfigRepos(currentUsername()))
+                .put("administer", () -> pipelineConfigService.adminGroupsForIncludingConfigRepos(currentUsername()))
+                .build();
+
+        this.templateAuthorizationRegistry = ImmutableMap.<String, Supplier<TemplatesConfig>>builder()
+                .put("view", () -> templateConfigService.templateConfigsThatCanBeViewedBy(currentUsername()))
+                .put("administer", () -> templateConfigService.templateConfigsThatCanBeEditedBy(currentUsername()))
+                .build();
     }
 
     @Override
@@ -75,9 +87,18 @@ public class InternalPipelineStructureControllerV1 extends ApiController impleme
     }
 
     public String index(Request request, Response response) throws IOException {
-        PipelineGroups groups = pipelineConfigService.viewableGroupsForUserIncludingConfigRepos(currentUsername());
+        String pipelineGroupAuthorizationType = request.queryParamOrDefault("pipeline_group_authorization", "view");
+        String templateAuthorizationType = request.queryParamOrDefault("template_authorization", "view");
 
-        TemplatesConfig templateConfigs = templateConfigService.templateConfigsThatCanBeViewedBy(currentUsername());
+        Supplier<PipelineGroups> pipelineGroupsSupplier = pipelineGroupAuthorizationRegistry.get(pipelineGroupAuthorizationType);
+        Supplier<TemplatesConfig> templatesConfigSupplier = templateAuthorizationRegistry.get(templateAuthorizationType);
+
+        if (pipelineGroupsSupplier == null || templatesConfigSupplier == null) {
+            HaltApiResponses.haltBecauseOfReason("Bad query parameter.");
+        }
+
+        PipelineGroups groups = pipelineGroupsSupplier.get();
+        TemplatesConfig templateConfigs = templatesConfigSupplier.get();
 
         return writerForTopLevelObject(request, response, outputWriter -> InternalPipelineStructuresRepresenter.toJSON(outputWriter, groups, templateConfigs));
     }

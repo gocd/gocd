@@ -432,10 +432,6 @@ api/api-server-site-urls-config-v1/out/
 api/api-server-site-urls-config-v1/target/
 api/api-server-site-urls-config-v1/logs/
 api/api-server-site-urls-config-v1/config/
-api/api-internal-pipelines-v1/out/
-api/api-internal-pipelines-v1/target/
-api/api-internal-pipelines-v1/logs/
-api/api-internal-pipelines-v1/config/
 api/api-materials-v2/out/
 api/api-materials-v2/target/
 api/api-materials-v2/logs/

@@ -529,12 +529,6 @@
   </rule>
 
   <rule>
-    <name>Spark pipeline internal API</name>
-    <from>^/api/admin/internal/pipelines(/?)$</from>
-    <to last="true">/spark/api/admin/internal/pipelines</to>
-  </rule>
-
-  <rule>
     <name>Spark pipeline selection pipelines data internal API</name>
     <from>^/api/internal/pipeline_selection/pipelines_data(/?)$</from>
     <to last="true">/spark/api/internal/pipeline_selection/pipelines_data</to>

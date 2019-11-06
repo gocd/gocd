@@ -42,49 +42,13 @@ import static com.thoughtworks.go.util.GoConstants.TEST_EMAIL_SUBJECT;
 @Service
 public class ServerConfigService implements BaseUrlProvider {
     private GoConfigService goConfigService;
-    private UserService userService;
 
     private GoMailSenderProvider provider = GoMailSenderProvider.DEFAULT_PROVIDER;
-    static final String ANY_USER = "GO_TEST_USER";
 
 
     @Autowired
-    public ServerConfigService(GoConfigService goConfigService, UserService userService) {
+    public ServerConfigService(GoConfigService goConfigService) {
         this.goConfigService = goConfigService;
-        this.userService = userService;
-    }
-
-    @Deprecated // used by rails
-    public void updateServerConfig(MailHost mailHost, String artifactsDir,
-                                   Double purgeStart, Double purgeUpto, String jobTimeout, boolean shouldAllowAutoLogin, String siteUrl, String secureSiteUrl,
-                                   String taskRepositoryLocation, final HttpLocalizedOperationResult result, final String md5) {
-        if (!mailHost.equals(new MailHost(new GoCipher()))) {
-            validate(mailHost, result);
-        }
-
-        if (!shouldAllowAutoLogin && !userService.canUserTurnOffAutoLogin()) {
-            result.notAcceptable("Cannot disable auto login with no admins enabled.");
-            return;
-        }
-
-        if (result.isSuccessful()) {
-            try {
-                ConfigSaveState configSaveState = goConfigService.updateServerConfig(mailHost, shouldAllowAutoLogin, md5, artifactsDir, purgeStart,
-                        purgeUpto, jobTimeout, siteUrl,
-                        secureSiteUrl, taskRepositoryLocation);
-                if (ConfigSaveState.MERGED.equals(configSaveState)) {
-                    result.setMessage(LocalizedMessage.composite("Saved configuration successfully.", "The configuration was modified by someone else, but your changes were merged successfully."));
-                } else if (ConfigSaveState.UPDATED.equals(configSaveState)) {
-                    result.setMessage("Saved configuration successfully.");
-                }
-            } catch (RuntimeException exception) {
-                updateFailed(exception.getMessage(), result);
-            }
-        }
-    }
-
-    private void updateFailed(String description, HttpLocalizedOperationResult result) {
-        result.badRequest("Failed to save the server configuration. Reason: " + description);
     }
 
     private void validate(MailHost mailHost, LocalizedOperationResult operationResult) {
@@ -162,7 +126,6 @@ public class ServerConfigService implements BaseUrlProvider {
     public String getWebhookSecret() {
         return serverConfig().getWebhookSecret();
     }
-
 
     @Override
     public boolean hasAnyUrlConfigured() {

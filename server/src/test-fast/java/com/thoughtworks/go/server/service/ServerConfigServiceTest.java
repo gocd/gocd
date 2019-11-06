@@ -32,41 +32,9 @@ import static org.mockito.Mockito.*;
 
 public class ServerConfigServiceTest {
     @Test
-    public void shouldSetMessageAsMergedWhenMergingServerConfigChanges() {
-        GoConfigService goConfigService = mock(GoConfigService.class);
-        UserService userService = mock(UserService.class);
-        ServerConfigService serverConfigService = new ServerConfigService(goConfigService, userService);
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        MailHost mailHost = new MailHost(new GoCipher());
-
-        when(goConfigService.updateServerConfig(mailHost, true, "md5", null, null, null, null, "http://site", "https://site", "location")).thenReturn(
-                ConfigSaveState.MERGED);
-        serverConfigService.updateServerConfig(mailHost, null, null, null, null, true, "http://site", "https://site", "location", result, "md5");
-
-        assertThat(result.message(), is(composite("Saved configuration successfully.", "The configuration was modified by someone else, but your changes were merged successfully.")));
-    }
-
-    @Test
-    public void shouldSetMessageAsUpdatedWhenUpdatingServerConfigChanges() {
-        GoConfigService goConfigService = mock(GoConfigService.class);
-        UserService userService = mock(UserService.class);
-        ServerConfigService serverConfigService = new ServerConfigService(goConfigService, userService);
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        MailHost mailHost = new MailHost(new GoCipher());
-
-        when(goConfigService.updateServerConfig(mailHost, true, "md5", null, null, null, null, "http://site", "https://site", "location")).thenReturn(
-                ConfigSaveState.UPDATED);
-        serverConfigService.updateServerConfig(mailHost, null, null, null, null, true, "http://site", "https://site", "location", result, "md5");
-
-        assertThat(result.message(), is("Saved configuration successfully."));
-
-    }
-
-
-    @Test
     public void shouldUpdateArtifactConfig() {
         GoConfigService goConfigService = mock(GoConfigService.class);
-        ServerConfigService serverConfigService = new ServerConfigService(goConfigService, mock(UserService.class));
+        ServerConfigService serverConfigService = new ServerConfigService(goConfigService);
 
         ArtifactConfig modifiedArtifactConfig = new ArtifactConfig();
         modifiedArtifactConfig.setArtifactsDir(new ArtifactDirectory("foo"));

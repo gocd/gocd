@@ -94,12 +94,6 @@ Rails.application.routes.draw do
   put "admin/config_xml" => "admin/configuration#update", as: :config_update
   get "admin/config_xml/edit" => "admin/configuration#edit", as: :config_edit
 
-  get "admin/config/server" => "admin/server#index", as: :edit_server_config
-  get "admin/mail_server" => "admin/mail_server", as: :edit_mail_server_config
-  post "admin/config/server/update" => "admin/server#update", as: :update_server_config
-  post "admin/config/server/validate" => "admin/server#validate", as: :validate_server_config_params, constraints: HeaderConstraint.new
-  post "admin/config/server/test_email" => "admin/server#test_email", as: :send_test_email
-
   get "admin/pipelines" => "admin/pipeline_groups#index", as: :pipeline_groups
   get "admin/pipeline_group/new" => "admin/pipeline_groups#new", as: :pipeline_group_new
   post "admin/pipeline_group" => "admin/pipeline_groups#create", as: :pipeline_group_create

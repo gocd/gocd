@@ -15,12 +15,14 @@
 #
 
 module Admin
-  class StagesController < AdminController
+  class StagesController < FastAdminController
     include PipelineConfigLoader
     helper AdminHelper
     helper FlashMessagesHelper
     helper TaskHelper
     include AuthenticationHelper
+
+    CLONER = GoConfigCloner.new
 
     before_action :check_admin_user_and_403, only: [:config_change]
     load_pipeline_except_for :create, :update, :destroy, :increment_index, :decrement_index, :config_change
@@ -70,21 +72,18 @@ module Admin
     end
 
     def update
-      save_popup(params[:config_md5], Class.new(::ConfigUpdate::SaveAsPipelineOrTemplateAdmin) do
-        include ConfigUpdate::StageNode
-        include ConfigUpdate::NodeAsSubject
+      pipeline_name = params[:pipeline_name]
+      original_pipeline_config = pipeline_config_service.getPipelineConfig(pipeline_name)
+      @pipeline = CLONER.deep_clone(original_pipeline_config)
+      @stage_to_be_updated = @pipeline.getStage(params[:stage_name])
+      @stage_to_be_updated.setConfigAttributes(params[:stage])
 
-        def updatedNode(cruise_config)
-          load_from_pipeline_stage_named(load_pipeline_or_template(cruise_config), CaseInsensitiveString.new(params[:stage][:name] || params[:stage_name]))
-        end
-
-        def update(stage)
-          stage.setConfigAttributes(params[:stage])
-        end
-      end.new(params, current_user.getUsername(), security_service), {:action => params[:current_tab], :layout => nil}, {:current_tab => params[:current_tab], :action => :edit, :stage_name => params[:stage][:name] || params[:stage_name]}) do
+      fast_save_popup({:action => params[:current_tab], :layout => nil},
+                      {:current_tab => params[:current_tab], :action => :edit,
+                       :stage_name => params[:stage][:name] || params[:stage_name]}) do
         @should_not_render_layout = true
         assert_load(:pipeline, ConfigUpdate::LoadConfig.for(params).load_pipeline_or_template(@cruise_config))
-        assert_load(:stage, @node)
+        assert_load(:stage, @stage_to_be_updated)
 
         load_data_for_permissions
         load_pause_info

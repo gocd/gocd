@@ -14,13 +14,17 @@
 # limitations under the License.
 #
 
-class ExperimentAdminController < AdminController
+
+#
+# Calls the service used by the API (pipeline_config_service.updatePipelineConfig) instead of doing a full config save
+#
+class FastAdminController < AdminController
   include ::Admin::AuthorizationHelper
 
   protected
-  def save_popup(md5, save_action, render_error_options_or_proc = {:action => :new, :layout => false}, url_options = {}, flash_success_message = "Saved successfully.", &load_data)
+  def fast_save_popup(render_error_options_or_proc = {:action => :new, :layout => false}, url_options = {}, flash_success_message = "Saved successfully.", &load_data)
     render_error_options_or_proc.reverse_merge(:layout => false) unless render_error_options_or_proc.is_a?(Proc)
-    save(md5, render_error_options_or_proc, save_action, flash_success_message, load_data) do |message|
+    fast_save(render_error_options_or_proc, flash_success_message, load_data) do |message|
       render(:plain => 'Saved successfully', :location => url_options_with_flash(message, {:action => :index, :class => 'success'}.merge(url_options)))
     end
   end
@@ -29,28 +33,19 @@ class ExperimentAdminController < AdminController
     @onsuccess_redirect_uri = url
   end
 
-  def save_page(md5, redirect_url, render_error_options_or_proc, save_action, success_message = "Saved successfully.", &load_data)
+  def fast_save_page(redirect_url, render_error_options_or_proc, success_message = "Saved successfully.", &load_data)
     set_save_redirect_url redirect_url
-    save(md5, render_error_options_or_proc, save_action, success_message, load_data) do |message|
+    fast_save(render_error_options_or_proc, success_message, load_data) do |message|
       url = com.thoughtworks.go.util.UrlUtil.urlWithQuery(@onsuccess_redirect_uri, "fm", set_flash_message(message, "success"))
       redirect_to(url)
     end
   end
 
-  protected
-
   private
 
-  def save(md5, render_error_options_or_proc, save_action, success_message, load_data)
-    @update_result = HttpLocalizedOperationResult.new
+  def fast_save(render_error_options_or_proc, success_message, load_data)
     @cruise_config = go_config_service.getCurrentConfig
-
-    # TODO read the group as a param
-    # group = @cruise_config.findGroupOfPipeline(@pipeline).group
-
-    # correct_md5 = entity_hashing_service.md5ForEntity(@pipeline, group)
-    puts "params: #{params}"
-    pipeline_config_service.updatePipelineConfig(current_user, @pipeline, params[:pipeline_group_name], params[:pipeline_md5], @update_result)
+    @update_result = pipeline_config_service.updatePipelineConfig(current_user, @pipeline, params[:pipeline_group_name], params[:pipeline_md5])
     # update_response = go_config_service.updateConfigFromUI(save_action, md5, current_user, @update_result)
     # @cruise_config, @node, @subject, @config_after = update_response.getCruiseConfig(), update_response.getNode(), update_response.getSubject(), update_response.configAfterUpdate()
 

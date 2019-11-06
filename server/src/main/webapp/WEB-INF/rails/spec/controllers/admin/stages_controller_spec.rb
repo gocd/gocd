@@ -26,6 +26,7 @@ describe Admin::StagesController do
     allow(controller).to receive(:task_view_service).with(no_args).and_return(@task_view_service = double('task_view_service'))
     allow(controller).to receive(:set_current_user)
     allow(controller).to receive(:go_config_service).with(no_args).and_return(@go_config_service = double('@go_config_service'))
+    allow(controller).to receive(:pipeline_config_service).and_return(@pipeline_config_service = double("Pipeline config service"))
   end
   include ConfigSaveStubbing
   describe "routes" do
@@ -124,6 +125,7 @@ describe Admin::StagesController do
       @go_config_service = double('Go Config Service')
       allow(controller).to receive(:go_config_service).and_return(@go_config_service)
       @pause_info = PipelinePauseInfo.paused("just for fun", "loser")
+      allow(@go_config_service).to receive(:getCurrentConfig).and_return(@cruise_config)
     end
 
     describe "index" do
@@ -420,10 +422,12 @@ describe Admin::StagesController do
       before do
         expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
         allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
+        allow(@pipeline_config_service).to receive(:getPipelineConfig).with("pipeline-name").and_return(@pipeline)
       end
 
       it "should update stage instance with form fields and save it" do
-        stub_save_for_success
+        result = HttpLocalizedOperationResult.new
+        expect(@pipeline_config_service).to receive(:updatePipelineConfig).and_return(result)
 
         put :update, params:{:stage_parent => "pipelines", :pipeline_name => "pipeline-name", :stage_name => "stage-name", :config_md5 => "1234abcd", :current_tab => "permissions", :stage => {:approval => {:type => "manual"},:variables =>[{:name=>"key", :valueForDisplay=>"value"}]}}
 
@@ -432,19 +436,17 @@ describe Admin::StagesController do
         expect(environment_variable.name).to eq("key")
         expect(environment_variable.value).to eq("value")
         expect(environment_variable.valueForDisplay()).to eq("value")
-        assert_save_arguments
-        assert_update_command ::ConfigUpdate::SaveAsPipelineOrTemplateAdmin, ConfigUpdate::StageNode, ConfigUpdate::NodeAsSubject
         expect(response.location).to match(/\/admin\/pipelines\/pipeline-name\/stages\/stage-name\/permissions\?fm=#{uuid_pattern}$/)
         expect(response.status).to eq(200)
         expect(response.body).to eq("Saved successfully")
       end
 
       it "should redirect to edit form for the new stage-name when name is changed" do
-        stub_save_for_success
+        result = HttpLocalizedOperationResult.new
+        expect(@pipeline_config_service).to receive(:updatePipelineConfig).and_return(result)
 
         put :update, params:{:stage_parent => "pipelines", :pipeline_name => "pipeline-name", :stage_name => "stage-name", :config_md5 => "1234abcd", :current_tab => "permissions", :stage => {:name => "new-stage-name"}}
 
-        assert_update_command ::ConfigUpdate::SaveAsPipelineOrTemplateAdmin, ConfigUpdate::StageNode, ConfigUpdate::NodeAsSubject
         expect(response.location).to match(/\/admin\/pipelines\/pipeline-name\/stages\/new-stage-name\/permissions\?fm=#{uuid_pattern}$/)
         expect(response.status).to eq(200)
         expect(response.body).to eq("Saved successfully")
@@ -455,16 +457,17 @@ describe Admin::StagesController do
         stage_config.variables().add("key1","value1")
         stage_config.variables().add("key2","value2")
         @pipeline.set(0,stage_config)
-        stub_save_for_success
+        result = HttpLocalizedOperationResult.new
+        expect(@pipeline_config_service).to receive(:updatePipelineConfig).and_return(result)
 
         put :update, params:{:stage_parent => "pipelines", :pipeline_name => "pipeline-name", :stage_name => "stage-name", :config_md5 => "1234abcd", :current_tab => "settings", :stage => {:name => "g", :approval => {:type => "manual"}}, :default_as_empty_list => ["stage>variables"]}
 
         expect(assigns[:stage].variables().isEmpty()).to eq(true)
-        assert_save_arguments
       end
 
       it "should update stage permissions" do
-        stub_save_for_success
+        result = HttpLocalizedOperationResult.new
+        expect(@pipeline_config_service).to receive(:updatePipelineConfig).and_return(result)
 
         put :update, params:{:stage_parent => "pipelines", :pipeline_name => "pipeline-name", :stage_name => "stage-name", :config_md5 => "1234abcd", :current_tab => "settings", :stage => { :securityMode => "define", :operateUsers => [{ :name => "user1"}, {:name => "user2"}], :operateRoles => [{ :name => "role1"}, {:name => "role2"}]}}
 
@@ -472,14 +475,12 @@ describe Admin::StagesController do
         expect(assigns[:stage].getOperateUsers().get(1)).to eq(AdminUser.new(CaseInsensitiveString.new("user2")))
         expect(assigns[:stage].getOperateRoles().get(0)).to eq(AdminRole.new(CaseInsensitiveString.new("role1")))
         expect(assigns[:stage].getOperateRoles().get(1)).to eq(AdminRole.new(CaseInsensitiveString.new("role2")))
-
-        assert_save_arguments
       end
 
       it "should render the form again if save fails" do
-        stub_save_for_validation_error do |result, _, _|
-          result.conflict("modified already")
-        end
+        result = HttpLocalizedOperationResult.new
+        result.conflict("modified already")
+        expect(@pipeline_config_service).to receive(:updatePipelineConfig).and_return(result)
 
         put :update, params:{:stage_parent => "pipelines", :pipeline_name => "pipeline-name", :stage_name => "stage-name", :config_md5 => "1234abcd", :current_tab => "permissions", :stage => {:name => "new-stage-name"}}
 

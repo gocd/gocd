@@ -66,6 +66,16 @@ public abstract class AbstractAuthenticationHelper {
         }
     }
 
+    public void checkPipelineGroupAdminOfAnyGroup(Request request, Response response) {
+        if (!securityService.isSecurityEnabled() || securityService.isUserAdmin(currentUsername())) {
+            return;
+        }
+
+        if (!securityService.isUserGroupAdmin(currentUsername())) {
+            throw renderForbiddenResponse();
+        }
+    }
+
     public void checkPipelineGroupOperateOfPipelineOrGroupInURLUserAnd403(Request request, Response response) {
         if (!securityService.isSecurityEnabled() || securityService.isUserAdmin(currentUsername())) {
             return;
@@ -165,7 +175,8 @@ public abstract class AbstractAuthenticationHelper {
     }
 
     // https://github.com/gocd/gocd/issues/4477
-    private boolean hasViewPermissionWorkaroundForNonExistantPipelineBug_4477(CaseInsensitiveString pipelineName, Username username) {
+    private boolean hasViewPermissionWorkaroundForNonExistantPipelineBug_4477(CaseInsensitiveString pipelineName,
+                                                                              Username username) {
         if (!goConfigService.hasPipelineNamed(pipelineName)) {
             throw new RecordNotFoundException(Pipeline, pipelineName);
         }

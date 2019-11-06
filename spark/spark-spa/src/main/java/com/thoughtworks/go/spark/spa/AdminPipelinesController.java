@@ -42,13 +42,14 @@ public class AdminPipelinesController implements SparkController {
   @Override
   public void setupRoutes() {
      path(controllerBasePath(), () -> {
-        before("", authenticationHelper::checkPipelineGroupAdminOfPipelineOrGroupInURLUserAnd403);
+        before("", authenticationHelper::checkPipelineGroupAdminOfAnyGroup);
         get("", this::index, engine);
     });
   }
+
   public ModelAndView index(Request request, Response response) {
-      Map<Object, Object> object = new HashMap<Object, Object>() {{
-          put("viewTitle", "AdminPipelines");
+      Map<Object, Object> object = new HashMap<>() {{
+          put("viewTitle", "Pipelines");
       }};
       return new ModelAndView(object, null);
   }

@@ -86,10 +86,10 @@ public class StageOperationsControllerV1 extends ApiController implements SparkS
             before("", mimeType, this::verifyContentType);
             before("/*", mimeType, this::verifyContentType);
 
-            before(Routes.Stage.TRIGGER_STAGE_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateUserAnd403);
-            before(Routes.Stage.TRIGGER_FAILED_JOBS_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateUserAnd403);
-            before(Routes.Stage.TRIGGER_SELECTED_JOBS_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateUserAnd403);
-            before(Routes.Stage.CANCEL_STAGE_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateUserAnd403);
+            before(Routes.Stage.TRIGGER_STAGE_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateOfPipelineOrGroupInURLUserAnd403);
+            before(Routes.Stage.TRIGGER_FAILED_JOBS_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateOfPipelineOrGroupInURLUserAnd403);
+            before(Routes.Stage.TRIGGER_SELECTED_JOBS_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateOfPipelineOrGroupInURLUserAnd403);
+            before(Routes.Stage.CANCEL_STAGE_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateOfPipelineOrGroupInURLUserAnd403);
             before(Routes.Stage.INSTANCE_BY_COUNTER, mimeType, apiAuthenticationHelper::checkPipelineViewPermissionsAnd403);
             before(Routes.Stage.STAGE_HISTORY, mimeType, apiAuthenticationHelper::checkPipelineViewPermissionsAnd403);
             before(Routes.Stage.STAGE_HISTORY_OFFSET, mimeType, apiAuthenticationHelper::checkPipelineViewPermissionsAnd403);

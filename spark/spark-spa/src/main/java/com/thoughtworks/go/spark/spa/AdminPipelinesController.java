@@ -42,7 +42,7 @@ public class AdminPipelinesController implements SparkController {
   @Override
   public void setupRoutes() {
      path(controllerBasePath(), () -> {
-        before("", authenticationHelper::checkAdminUserAnd403);
+        before("", authenticationHelper::checkPipelineGroupAdminOfPipelineOrGroupInURLUserAnd403);
         get("", this::index, engine);
     });
   }

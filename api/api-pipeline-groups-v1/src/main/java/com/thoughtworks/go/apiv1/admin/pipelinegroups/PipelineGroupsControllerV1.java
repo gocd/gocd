@@ -75,7 +75,7 @@ public class PipelineGroupsControllerV1 extends ApiController implements SparkSp
             before("/*", mimeType, this::verifyContentType);
             before("", mimeType, onlyOn(apiAuthenticationHelper::checkAdminUserAnd403, "POST"));
             before("", mimeType, onlyOn(apiAuthenticationHelper::checkAdminUserOrGroupAdminUserAnd403, "GET", "HEAD"));
-            before(Routes.PipelineGroupsAdmin.NAME_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupAdminUserAnd403);
+            before(Routes.PipelineGroupsAdmin.NAME_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupAdminOfPipelineOrGroupInURLUserAnd403);
 
             get("", mimeType, this::index);
             post("", mimeType, this::create);

@@ -66,7 +66,7 @@ public abstract class AbstractAuthenticationHelper {
         }
     }
 
-    public void checkPipelineGroupOperateUserAnd403(Request request, Response response) {
+    public void checkPipelineGroupOperateOfPipelineOrGroupInURLUserAnd403(Request request, Response response) {
         if (!securityService.isSecurityEnabled() || securityService.isUserAdmin(currentUsername())) {
             return;
         }
@@ -76,7 +76,7 @@ public abstract class AbstractAuthenticationHelper {
         }
     }
 
-    public void checkPipelineGroupAdminUserAnd403(Request request, Response response) {
+    public void checkPipelineGroupAdminOfPipelineOrGroupInURLUserAnd403(Request request, Response response) {
         if (!securityService.isSecurityEnabled() || securityService.isUserAdmin(currentUsername())) {
             return;
         }

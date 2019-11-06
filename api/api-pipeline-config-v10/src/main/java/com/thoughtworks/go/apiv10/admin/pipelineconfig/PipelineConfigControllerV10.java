@@ -96,8 +96,8 @@ public class PipelineConfigControllerV10 extends ApiController implements SparkS
             before("", mimeType, this::verifyContentType);
             before("/*", mimeType, this::verifyContentType);
             before("", mimeType, apiAuthenticationHelper::checkPipelineCreationAuthorizationAnd403);
-            before(Routes.PipelineConfig.NAME, mimeType, apiAuthenticationHelper::checkPipelineGroupAdminUserAnd403);
-            before(Routes.PipelineConfig.EXTRACT_TO_TEMPLATE, mimeType, apiAuthenticationHelper::checkPipelineGroupAdminUserAnd403);
+            before(Routes.PipelineConfig.NAME, mimeType, apiAuthenticationHelper::checkPipelineGroupAdminOfPipelineOrGroupInURLUserAnd403);
+            before(Routes.PipelineConfig.EXTRACT_TO_TEMPLATE, mimeType, apiAuthenticationHelper::checkPipelineGroupAdminOfPipelineOrGroupInURLUserAnd403);
 
             post("", mimeType, this::create);
 

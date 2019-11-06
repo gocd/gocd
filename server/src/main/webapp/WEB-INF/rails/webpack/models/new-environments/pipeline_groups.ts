@@ -52,7 +52,7 @@ export class PipelineGroup {
 export class PipelineGroups extends Array<PipelineGroup> {
   constructor(...pipelines: PipelineGroup[]) {
     super(...pipelines);
-    Object.setPrototypeOf(this, Object.create(Pipelines.prototype));
+    Object.setPrototypeOf(this, Object.create(PipelineGroups.prototype));
   }
 
   static fromJSON(data: PipelineGroupsJSON) {

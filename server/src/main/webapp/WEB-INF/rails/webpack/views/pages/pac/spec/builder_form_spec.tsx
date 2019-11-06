@@ -16,6 +16,7 @@
 
 import {asSelector} from "helpers/css_proxies";
 import m from "mithril";
+import Stream from "mithril/stream";
 import {ExecTask} from "models/pipeline_configs/task";
 import * as events from "simulate-event";
 import {PipelineConfigVM} from "views/pages/pipelines/pipeline_config_view_model";
@@ -31,7 +32,7 @@ describe("AddPaC: BuilderForm", () => {
 
   it("fires content change handler when the form changes", (done) => {
     const vm = new PipelineConfigVM();
-    helper.mount(() => <BuilderForm vm={vm} onContentChange={(changed) => {
+    helper.mount(() => <BuilderForm pluginId={Stream()} vm={vm} onContentChange={(changed) => {
       expect(changed).toBe(true);
       done();
     }}/>);
@@ -41,7 +42,7 @@ describe("AddPaC: BuilderForm", () => {
 
   it("fires content change handler when the form changes", (done) => {
     const vm = new PipelineConfigVM();
-    helper.mount(() => <BuilderForm vm={vm} onContentChange={(changed) => {
+    helper.mount(() => <BuilderForm pluginId={Stream()} vm={vm} onContentChange={(changed) => {
       expect(changed).toBe(true);
       done();
     }}/>);
@@ -51,7 +52,7 @@ describe("AddPaC: BuilderForm", () => {
 
   it("detects changes to task terminal (non-input)", (done) => {
     const vm = new PipelineConfigVM();
-    helper.mount(() => <BuilderForm vm={vm} onContentChange={(changed) => {
+    helper.mount(() => <BuilderForm pluginId={Stream()} vm={vm} onContentChange={(changed) => {
       expect(changed).toBe(true);
       done();
     }}/>);
@@ -70,7 +71,7 @@ describe("AddPaC: BuilderForm", () => {
   it("content change handler receives a flag as to whether the content is different", (done) => {
     const vm = new PipelineConfigVM();
     let times = 0;
-    helper.mount(() => <BuilderForm vm={vm} onContentChange={(changed) => {
+    helper.mount(() => <BuilderForm pluginId={Stream()} vm={vm} onContentChange={(changed) => {
       times++;
       if (times === 1) {
         expect(changed).toBe(true);

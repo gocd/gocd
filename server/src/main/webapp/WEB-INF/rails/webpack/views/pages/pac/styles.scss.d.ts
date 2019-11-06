@@ -16,6 +16,7 @@ export const btnReset: string;
 export const btnSecondary: string;
 export const btnSmall: string;
 export const builderForm: string;
+export const builderSectionHeading: string;
 export const builtin: string;
 export const button: string;
 export const buttonGroup: string;

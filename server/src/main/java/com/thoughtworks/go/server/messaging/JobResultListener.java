@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.server.messaging;
 
+import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.server.service.AgentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -36,7 +37,10 @@ public class JobResultListener implements GoMessageListener<JobResultMessage> {
 
     @Override
     public void onMessage(JobResultMessage message) {
-        // TODO - #2511 - this only works for cancelling a job.
-        agentService.notifyJobCancelledEvent(message.getAgentUuid());
+        AgentInstance agent = agentService.findAgent(message.getAgentUuid());
+        if (agent.getBuildingInfo().getBuildLocator().equals(message.getJobIdentifier().buildLocator())) {
+            // TODO - #2511 - this only works for cancelling a job.
+            agentService.notifyJobCancelledEvent(message.getAgentUuid());
+        }
     }
 }

@@ -104,7 +104,10 @@ export class PipelinesAsCodeCreatePage extends Page {
     return [
       <CodeScroller>
         <FillableSection css={spanningFillableCss}>
-          <div class={css.subheading}><h3>1. Build Pipeline Config File</h3></div>
+          <div class={css.subheading}>
+            <h3>1. Build Pipeline Config File</h3>
+            <p class={css.sectionNote}><span class={css.attention}>*</span> denotes a required field</p>
+          </div>
           <BuilderForm pluginId={this.pluginId} vm={vm} onContentChange={(updated) => this.onContentChange(isSupportedScm, updated)} onMaterialChange={(e) => {
             if (syncConfigRepoWithMaterial()) {
               this.allowCreate(false);

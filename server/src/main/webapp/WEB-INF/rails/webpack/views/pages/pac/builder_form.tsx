@@ -41,8 +41,7 @@ import * as defaultStyles from "views/pages/pac/styles.scss";
 import * as uipStyles from "views/pages/pipelines/user_input_pane.scss";
 
 const uipCss: typeof uipStyles = override(uipStyles, {
-  userInput: [uipStyles.userInput, defaultStyles.logicalSection].join(" "),
-  sectionHeading: defaultStyles.builderSectionHeading,
+  userInput: [uipStyles.userInput, defaultStyles.logicalSection].join(" ")
 });
 
 const altFormStyles = override(formCss, {
@@ -76,17 +75,20 @@ export class BuilderForm extends MithrilComponent<Attrs> {
     const { pipeline, material, isUsingTemplate } = vnode.attrs.vm;
 
     return <div class={defaultStyles.builderForm}>
-      <UserInputPane css={uipCss} heading="Select Configuration Language">
+      <UserInputPane css={uipCss}>
+        <h3 class={defaultStyles.builderSectionHeading}>Select Configuration Language</h3>
         <SelectField property={vnode.attrs.pluginId} css={altFormStyles} onchange={vnode.attrs.onContentChange}>
           <SelectFieldOptions selected={vnode.attrs.pluginId()} items={vnode.attrs.vm.exportPlugins()}/>
         </SelectField>
       </UserInputPane>
 
-      <UserInputPane css={uipCss} heading="Material" onchange={vnode.attrs.onMaterialChange}>
+      <UserInputPane css={uipCss} onchange={vnode.attrs.onMaterialChange}>
+        <h3 class={defaultStyles.builderSectionHeading}>Material</h3>
         <MaterialEditor material={material}/>
       </UserInputPane>
 
-      <UserInputPane css={uipCss} heading="Pipeline Name">
+      <UserInputPane css={uipCss}>
+        <h3 class={defaultStyles.builderSectionHeading}>Pipeline Name</h3>
         <PipelineInfoEditor pipelineConfig={pipeline} isUsingTemplate={isUsingTemplate}/>
       </UserInputPane>
 
@@ -100,11 +102,13 @@ class PipelineBodyEditor extends MithrilComponent<Attrs> {
     const { stage, job } = vnode.attrs.vm;
 
     return vnode.attrs.vm.whenTemplateAbsent(() => [
-      <UserInputPane css={uipCss} heading="Stage Details">
+      <UserInputPane css={uipCss}>
+        <h3 class={defaultStyles.builderSectionHeading}>Stage Details</h3>
         <StageEditor stage={stage} />
       </UserInputPane>,
 
-      <UserInputPane css={uipCss} heading="Job and Tasks">
+      <UserInputPane css={uipCss}>
+        <h3 class={defaultStyles.builderSectionHeading}>Job and Tasks</h3>
         <JobEditor job={job}/>
         <TaskTerminalField label="Type your tasks below at the prompt" property={job.tasks} errorText={job.errors().errorsForDisplay("tasks")} required={true}/>
         <AdvancedSettings forceOpen={_.some(job.environmentVariables(), (env) => env.errors().hasErrors())}>

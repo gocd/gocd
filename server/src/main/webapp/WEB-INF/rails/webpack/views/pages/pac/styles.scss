@@ -84,9 +84,9 @@ $initial-message-z: 10;
 
 .builder-section-heading {
   font-size: 18px;
-  font-weight: 500;
+  font-weight: 600;
 
-  margin: 0;
+  margin: 0 0 10px;
   padding: 0;
 }
 
@@ -103,6 +103,16 @@ $initial-message-z: 10;
 
       margin: 0 0 10px;
       padding: 0;
+    }
+
+    .section-note {
+      display: inline-block;
+      font-size: 12px;
+      margin: 0 0 20px;
+
+      .attention {
+        color: $go-danger;
+      }
     }
   }
 

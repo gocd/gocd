@@ -39,6 +39,8 @@ describe Admin::PipelinesController do
     allow(controller).to receive(:task_view_service).and_return(@task_view_service = double('Task View Service'))
     allow(controller).to receive(:package_definition_service).with(no_args).and_return(@package_definition_service = StubPackageDefinitionService.new)
     allow(controller).to receive(:pipeline_selections_service).and_return(@pipeline_selections_service = double('pipeline selections service'))
+    allow(controller).to receive(:entity_hashing_service).and_return(@entity_hashing_service = double('entity hashing service'))
+    allow(@entity_hashing_service).to receive(:md5ForEntity).and_return('pipeline-md5')
   end
 
   describe "routes" do
@@ -119,6 +121,8 @@ describe Admin::PipelinesController do
           expect(assigns[:pipeline].name()).to eq(CaseInsensitiveString.new("HelloWorld"))
           expect(assigns[:pipeline].getLabelTemplate()).to eq("some_label_template")
           expect(assigns[:pause_info]).to eq(@pause_info)
+          expect(assigns[:pipeline_group_name]).to eq('defaultGroup')
+          expect(assigns[:pipeline_md5]).to eq('pipeline-md5')
           assert_template layout: "pipelines/details"
         end
       end
@@ -132,12 +136,6 @@ describe Admin::PipelinesController do
       end
 
       it "should error out when user is unauthorized" do
-        # cruise_config_mother = GoConfigMother.new
-        # cruise_config = BasicCruiseConfig.new
-        # pipeline_config = cruise_config_mother.addPipeline(cruise_config, "HelloWorld", "foo", ["build-name"].to_java(java.lang.String))
-        # pipeline_config.setLabelTemplate("some_label_template")
-        # pipeline_config_for_edit = ConfigForEdit.new(pipeline_config, cruise_config, cruise_config)
-
         expect(@go_config_service).to receive(:loadForEdit).with('HelloWorld', anything(), anything()) do |_, _, result|
           result.forbidden('Unauthorized to edit HelloWorld pipeline.', HealthStateType.forbidden_for_pipeline("HelloWorld"))
           @pipeline_config_for_edit
@@ -181,12 +179,16 @@ describe Admin::PipelinesController do
         result = HttpLocalizedOperationResult.new
         result.setMessage("saved successfully")
         expect(@pipeline_config_service).to receive(:updatePipelineConfig).and_return(result)
-        request_params = {:pipeline_name => "pipeline-name", :current_tab => 'general', :pipeline => {"labelTemplate" => "${COUNT}-something"}, :config_md5 => "md5", :stage_parent => "pipelines"}
+        request_params = {:pipeline_name => "pipeline-name", :current_tab => 'general',
+                          :pipeline_md5 => "pipeline-md5", :pipeline_group_name => 'my-group',
+                          :pipeline => {"labelTemplate" => "${COUNT}-something"}, :config_md5 => "md5", :stage_parent => "pipelines"}
 
         put :update, params: request_params
 
         expect(assigns[:pipeline].labelTemplate).to eq("${COUNT}-something")
         expect(assigns[:pause_info]).to eq(@pause_info)
+        expect(assigns[:pipeline_group_name]).to eq('my-group')
+        expect(assigns[:pipeline_md5]).to eq('pipeline-md5')
       end
 
       it "should set variables and parameters to empty if not sent in params" do
@@ -195,17 +197,23 @@ describe Admin::PipelinesController do
         expect(@pipeline_config_service).to receive(:updatePipelineConfig).and_return(result)
         @pipeline.variables().add("key1", "value1")
 
-        put :update, params:{:pipeline_name => "pipeline-name", :current_tab => 'general', :config_md5 => "md5", :default_as_empty_list => ["pipeline>variables"], :stage_parent=>"pipelines"}
+        put :update, params:{:pipeline_name => "pipeline-name", :current_tab => 'general', :config_md5 => "md5",
+                             :pipeline_md5 => "pipeline-md5", :pipeline_group_name => 'my-group',
+                             :default_as_empty_list => ["pipeline>variables"], :stage_parent=>"pipelines"}
 
         expect(assigns[:pipeline].variables().isEmpty()).to eq(true)
 
         expect(@pipeline_config_service).to receive(:updatePipelineConfig).and_return(result)
         @pipeline.addParam(ParamConfig.new("param1", "value1"))
 
-        put :update, params:{:pipeline_name => "pipeline-name", :current_tab => 'general', :config_md5 => "md5", :default_as_empty_list => ["pipeline>params"], :stage_parent=>"pipelines"}
+        put :update, params:{:pipeline_name => "pipeline-name", :current_tab => 'general',
+                             :pipeline_md5 => "pipeline-md5", :pipeline_group_name => 'my-group',
+                             :config_md5 => "md5", :default_as_empty_list => ["pipeline>params"], :stage_parent=>"pipelines"}
 
         expect(assigns[:pipeline].getParams().isEmpty()).to eq(true)
         expect(assigns[:pause_info]).to eq(@pause_info)
+        expect(assigns[:pipeline_group_name]).to eq('my-group')
+        expect(assigns[:pipeline_md5]).to eq('pipeline-md5')
       end
 
       it "should update only if configuration is valid" do
@@ -213,10 +221,14 @@ describe Admin::PipelinesController do
         result.badRequest("Failed to update pipeline 'pipeline-name'.")
         expect(@pipeline_config_service).to receive(:updatePipelineConfig).and_return(result)
 
-        put :update, params:{:pipeline_name => "pipeline-name", :current_tab => 'general', :pipeline => {"labelTemplate" => "${COUNT}-#junk"}, :config_md5 => "md5", :stage_parent=>"pipelines"}
+        put :update, params:{:pipeline_name => "pipeline-name", :current_tab => 'general', :pipeline_group_name => 'my-group',
+                             :pipeline_md5 => "pipeline-md5",
+                             :pipeline => {"labelTemplate" => "${COUNT}-#junk"}, :config_md5 => "md5", :stage_parent=>"pipelines"}
 
         expect(assigns[:errors].size).to eq(0)
         expect(assigns[:pause_info]).to eq(@pause_info)
+        expect(assigns[:pipeline_group_name]).to eq('my-group')
+        expect(assigns[:pipeline_md5]).to eq('pipeline-md5')
         assert_template layout: "pipelines/details"
       end
 
@@ -230,7 +242,9 @@ describe Admin::PipelinesController do
           @pipeline.addParam(ParamConfig.new("to-be-deleted", "original-deleted-value"))
           @pipeline.addParam(ParamConfig.new("to-be-modified", "original-value"))
 
-          put :update, params:{:pipeline_name => "pipeline-name", :current_tab => 'parameters', :config_md5 => "md5", :stage_parent=>"pipelines", :default_as_empty_list => ["pipeline>params"],
+          put :update, params:{:pipeline_name => "pipeline-name", :current_tab => 'parameters', :config_md5 => "md5",
+                               :stage_parent=>"pipelines", :default_as_empty_list => ["pipeline>params"],
+                               :pipeline_md5 => "pipeline-md5", :pipeline_group_name => 'my-group',
               :pipeline => {:params => [{:name => "to-be-modified", :valueForDisplay => "modified-value"},
                                         {:name => "added", :valueForDisplay => "added-value"}]}}
           expect(assigns[:pause_info]).to eq(@pause_info)
@@ -262,7 +276,10 @@ describe Admin::PipelinesController do
           @pipeline.addParam(ParamConfig.new("to-be-deleted", "original-deleted-value"))
           @pipeline.addParam(ParamConfig.new("to-be-modified", "original-value"))
 
-          put :update, params:{:pipeline_name => "pipeline-name", :current_tab => 'parameters', :config_md5 => "md5", :stage_parent=>"pipelines", :default_as_empty_list => ["pipeline>params"], :pipeline => {:params => [{:name => "renamed", :valueForDisplay => "renamed-value", :original_name => "to-be-deleted"},
+          put :update, params:{:pipeline_name => "pipeline-name", :current_tab => 'parameters', :config_md5 => "md5",
+                               :stage_parent=>"pipelines", :default_as_empty_list => ["pipeline>params"],
+                               :pipeline_group_name => 'my-group', :pipeline_md5 => "pipeline-md5",
+                               :pipeline => {:params => [{:name => "renamed", :valueForDisplay => "renamed-value", :original_name => "to-be-deleted"},
                                                                                                                                                                                                                    {:name => "to-be-modified", :valueForDisplay => "modified-value"}]}}
           params = assigns[:pipeline].getParams()
           expect(params.size()).to eq(2)

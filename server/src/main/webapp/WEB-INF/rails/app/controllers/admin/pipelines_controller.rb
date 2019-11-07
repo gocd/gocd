@@ -188,6 +188,8 @@ module Admin
       redirect_url = pipeline_edit_path(:pipeline_name => params[:pipeline_name], :stage_parent => "pipelines", :current_tab => params[:current_tab])
       fast_save_page(redirect_url, error_rendering_options_or_proc) do
         assert_load(:pipeline, @pipeline)
+        assert_load(:pipeline_group_name, params[:pipeline_group_name])
+        assert_load(:pipeline_md5, params[:pipeline_md5])
         load_pause_info
       end
     end
@@ -216,7 +218,7 @@ module Admin
     end
 
     def config_param_errors_matching(pattern)
-      @cruise_config.getAllErrors().
+      @pipeline.getAllErrors().
               collect { |config_error| config_error.getAll().to_a }.
               flatten.
               collect { |err_msg| err_msg =~ pattern ? $1 : nil }.

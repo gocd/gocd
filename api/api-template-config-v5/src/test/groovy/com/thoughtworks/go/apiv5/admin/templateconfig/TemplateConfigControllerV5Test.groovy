@@ -63,7 +63,7 @@ class TemplateConfigControllerV5Test implements SecurityServiceTrait, Controller
   class Index {
 
     @Nested
-    class Security implements SecurityTestTrait, TemplateViewUserSecurity {
+    class Security implements SecurityTestTrait, AnyAdminUserSecurity {
 
       @Override
       String getControllerMethodUnderTest() {

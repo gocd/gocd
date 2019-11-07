@@ -102,7 +102,7 @@ public class TemplateConfigControllerV5 extends ApiController implements SparkSp
             before("", mimeType, this::verifyContentType);
             before("/*", mimeType, this::verifyContentType);
             before("", mimeType, onlyOn(apiAuthenticationHelper::checkAdminUserOrGroupAdminUserAnd403, "POST"));
-            before("", mimeType, onlyOn(apiAuthenticationHelper::checkViewAccessToTemplateAnd403, "GET", "HEAD"));
+            before("", mimeType, onlyOn(apiAuthenticationHelper::checkAnyAdminUserAnd403, "GET", "HEAD"));
             before(Routes.PipelineTemplateConfig.NAME, mimeType, onlyOn(apiAuthenticationHelper::checkViewAccessToTemplateAnd403, "GET", "HEAD"));
             before(Routes.PipelineTemplateConfig.NAME, mimeType, onlyOn(apiAuthenticationHelper::checkAdminOrTemplateAdminAnd403, "PUT", "PATCH", "DELETE"));
 

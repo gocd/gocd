@@ -16,11 +16,11 @@
 import {ApiResult, ErrorResponse, ObjectWithEtag, SuccessResponse} from "helpers/api_request_builder";
 import m from "mithril";
 import Stream from "mithril/stream";
+import {Pipelines} from "models/internal_pipeline_structure/pipeline_structure";
 import {EnvironmentVariablesWithOrigin} from "models/new-environments/environment_environment_variables";
-import {Pipelines} from "models/new-environments/environment_pipelines";
 import {EnvironmentWithOrigin} from "models/new-environments/environments";
 import {EnvironmentsAPIs} from "models/new-environments/environments_apis";
-import {Origin, OriginType} from "models/new-environments/origin";
+import {Origin, OriginType} from "models/origin";
 import {ButtonGroup, Cancel, Primary} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Form} from "views/components/forms/form";

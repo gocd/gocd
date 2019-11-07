@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
+import {PipelineGroupsJSON} from "models/internal_pipeline_structure/pipeline_structure";
 import {EnvironmentsJSON, EnvironmentWithOrigin} from "models/new-environments/environments";
 import {EnvironmentsAPIs} from "models/new-environments/environments_apis";
-import {PipelineGroupsJSON} from "models/new-environments/pipeline_groups";
 import data from "./test_data";
 
 describe("EnvironmentsApiSpec", () => {
@@ -51,10 +51,10 @@ describe("EnvironmentsApiSpec", () => {
   it("should make request to get all pipelines", () => {
     jasmine.Ajax.stubRequest("/go/api/internal/pipeline_structure").andReturn(pipelines());
 
-    EnvironmentsAPIs.allPipelines();
+    EnvironmentsAPIs.allPipelines("view", "view");
 
     const request = jasmine.Ajax.requests.mostRecent();
-    expect(request.url).toEqual("/go/api/internal/pipeline_structure");
+    expect(request.url).toEqual("/go/api/internal/pipeline_structure?pipeline_group_authorization=view&template_authorization=view");
     expect(request.method).toEqual("GET");
     expect(request.data()).toEqual(toJSON({} as PipelineGroupsJSON));
     expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd+json");

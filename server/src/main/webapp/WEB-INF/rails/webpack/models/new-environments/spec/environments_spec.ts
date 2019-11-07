@@ -17,8 +17,8 @@
 import {PipelineWithOrigin} from "models/internal_pipeline_structure/pipeline_structure";
 import {AgentWithOrigin} from "models/new-environments/environment_agents";
 import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
-import {OriginType} from "models/new-environments/origin";
 import data from "models/new-environments/spec/test_data";
+import {OriginType} from "models/origin";
 
 const envJSON          = data.environment_json();
 const environmentsJSON = {

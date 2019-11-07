@@ -15,11 +15,13 @@
 #
 
 module Admin
-  class JobsController < AdminController
+  class JobsController < FastAdminController
     include StageConfigLoader
     helper AdminHelper
     helper UiPatternHelper
     helper FlashMessagesHelper
+
+    CLONER = GoConfigCloner.new
 
     load_stage_except_for :create, :update, :destroy
 
@@ -83,33 +85,23 @@ module Admin
     end
 
     def update
-      save_popup(params[:config_md5], Class.new(::ConfigUpdate::SaveAsPipelineOrTemplateAdmin) do
-        include ::ConfigUpdate::JobNode
-        include ::ConfigUpdate::NodeAsSubject
-        include ::ConfigUpdate::RefsAsUpdatedRefs
-
-        def initialize params, user, security_service, external_artifacts_service, go_config_service
-          super(params, user, security_service)
-          @external_artifacts_service = external_artifacts_service
-          @go_config_service = go_config_service
-        end
-
-        def updatedNode(cruise_config)
-          stage = load_stage(cruise_config)
-          load_job_from_stage_named(stage, CaseInsensitiveString.new(params[:job][:name] || params[:job_name]))
-        end
-
-        def update(job)
-          job.setConfigAttributes(params[:job])
-          job.artifactTypeConfigs().getPluggableArtifactConfigs().each do |external_artifact_config|
-            @external_artifacts_service.validateExternalArtifactConfig(external_artifact_config, @go_config_service.artifactStores().find(external_artifact_config.getStoreId), false)
-          end
-        end
-      end.new(params, current_user.getUsername(), security_service, external_artifacts_service, go_config_service), failure_handler({:action => params[:current_tab], :layout => nil}), {:current_tab => params[:current_tab], :action => :edit, :job_name => params[:job][:name] || params[:job_name]}) do
+      pipeline_name = params[:pipeline_name]
+      original_pipeline_config = pipeline_config_service.getPipelineConfig(pipeline_name)
+      @pipeline = CLONER.deep_clone(original_pipeline_config)
+      @stage = @pipeline.getStage(params[:stage_name])
+      @job = @stage.jobConfigByConfigName(params[:job_name])
+      @job.setConfigAttributes(params[:job])
+      @job.artifactTypeConfigs().getPluggableArtifactConfigs().each do |external_artifact_config|
+        external_artifacts_service.validateExternalArtifactConfig(external_artifact_config, go_config_service.artifactStores().find(external_artifact_config.getStoreId), false)
+      end
+      fast_save_popup(failure_handler({:action => params[:current_tab], :layout => nil}), {:current_tab => params[:current_tab], :action => :edit, :job_name => params[:job][:name] || params[:job_name]}) do
         @should_not_render_layout = true
         load_pipeline_and_stage
-        assert_load :job, @node
+        assert_load :job, @job
         load_artifact_related_data
+        assert_load :pipeline_md5, params[:pipeline_md5]
+        assert_load :pipeline_group_name, params[:pipeline_group_name]
+        assert_load :pipeline_name, params[:pipeline_name]
       end
     end
 
@@ -156,7 +148,7 @@ module Admin
     end
 
     def load_resources_and_elastic_profile_ids_for_autocomplete
-      resources = @processed_cruise_config.getAllResources().map(&:getName) + agent_service.getListOfResourcesAcrossAgents()
+      resources = @cruise_config.getAllResources().map(&:getName) + agent_service.getListOfResourcesAcrossAgents()
       resources = resources.uniq
       assert_load :autocomplete_resources, resources.sort.to_json
       assert_load :elastic_profile_ids, elastic_profile_service.listAll().keys.sort.to_json
@@ -169,7 +161,6 @@ module Admin
     def failure_handler(render_options)
       proc do |update_result, all_errors_on_other_objects|
         load_pipeline_and_stage
-        assert_load :processed_cruise_config, @config_after
         load_resources_and_elastic_profile_ids_for_autocomplete
         load_store_ids_for_autocomplete
         render_error(update_result, all_errors_on_other_objects, render_options)

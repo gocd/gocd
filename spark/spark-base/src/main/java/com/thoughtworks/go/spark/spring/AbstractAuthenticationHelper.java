@@ -152,6 +152,16 @@ public abstract class AbstractAuthenticationHelper {
 
     }
 
+    public void checkIsAllowedToSeeAnyTemplates403(Request request, Response response) {
+        if (!securityService.isSecurityEnabled()) {
+            return;
+        }
+
+        if (!(securityService.isUserAdmin(currentUsername()) || securityService.isUserGroupAdmin(currentUsername()) || securityService.isAuthorizedToViewTemplates(currentUsername()))) {
+            throw renderForbiddenResponse();
+        }
+    }
+
     public void checkAnyAdminUserAnd403(Request request, Response response) {
         if (!securityService.isSecurityEnabled()) {
             return;

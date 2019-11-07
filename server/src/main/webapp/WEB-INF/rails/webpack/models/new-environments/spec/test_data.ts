@@ -143,6 +143,7 @@ export default {
     templates: [
       {
         name: `template-${randomString()}`,
+        parameters: ['foo', 'bar'],
         stages: [
           {
             name: "stage1",

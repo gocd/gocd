@@ -53,7 +53,9 @@ public class InternalPipelineStructuresRepresenter {
                 .addChildList("templates", templatesWriter -> {
                     templatesList.forEach(template -> {
                         templatesWriter.addChild(templateWriter -> {
-                            templateWriter.add("name", template.name());
+                            templateWriter
+                                    .add("name", template.name())
+                                    .addChildList("parameters", template.referredParams().getNames());
                             renderStages(template, templateWriter);
                         });
                     });

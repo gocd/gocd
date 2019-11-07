@@ -43,6 +43,7 @@ export interface PipelineStructureJSON extends PipelineGroupsJSON {
 
 export interface TemplateJSON extends Nameable {
   stages: StageJSON[];
+  parameters: string[];
 }
 
 export interface StageJSON extends Nameable {
@@ -208,14 +209,16 @@ export class Stages extends Array<Stage> {
 export class Template {
   readonly name: Stream<string>;
   readonly stages: Stream<Stages>;
+  readonly parameters: Stream<string[]>;
 
-  constructor(name: string, stages: Stages) {
-    this.name   = Stream(name);
-    this.stages = Stream(stages);
+  constructor(name: string, stages: Stages, parameters: string[]) {
+    this.name       = Stream(name);
+    this.stages     = Stream(stages);
+    this.parameters = Stream(parameters || []);
   }
 
   static fromJSON(data: TemplateJSON) {
-    return new Template(data.name, Stages.fromJSON(data.stages));
+    return new Template(data.name, Stages.fromJSON(data.stages), data.parameters || []);
   }
 }
 

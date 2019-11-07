@@ -408,12 +408,6 @@
   </rule>
 
   <rule>
-    <name>Spark Template Config Internal Index API</name>
-    <from>^/api/admin/internal/templates(/?)$</from>
-    <to last="true">/spark/api/admin/internal/templates</to>
-  </rule>
-
-  <rule>
     <name>Spark Template Config Index API</name>
     <from>^/api/admin/templates(/?)$</from>
     <to last="true">/spark/api/admin/templates</to>

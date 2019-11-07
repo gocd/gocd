@@ -32,8 +32,8 @@ class InternalPipelineStructuresRepresenterTest {
 
   @Test
   void 'should serialize'() {
-    def template = PipelineTemplateConfigMother.createTemplate("first-template");
-    def template2 = PipelineTemplateConfigMother.createTemplate("second-template");
+    def template = PipelineTemplateConfigMother.createTemplateWithParams("first-template", "foo", "bar")
+    def template2 = PipelineTemplateConfigMother.createTemplate("second-template")
 
     def pipeline1 = PipelineConfigMother.createPipelineConfig("my-pipeline-1", "my-stage", "my-job1", "my-job2")
     pipeline1.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(null, null, "some-config-repo-id"), "123"))
@@ -105,6 +105,7 @@ class InternalPipelineStructuresRepresenterTest {
       templates: [
         [
           name  : 'first-template',
+          parameters: ['bar', 'foo'],
           stages: [
             [
               name: 'defaultStage',
@@ -116,6 +117,7 @@ class InternalPipelineStructuresRepresenterTest {
         ],
         [
           name  : 'second-template',
+          parameters: [],
           stages: [
             [
               name: 'defaultStage',

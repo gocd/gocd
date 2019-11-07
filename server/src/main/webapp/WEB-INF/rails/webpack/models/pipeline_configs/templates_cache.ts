@@ -16,7 +16,6 @@
 
 import {ApiRequestBuilder, ApiVersion} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
-import _ from "lodash";
 import {AbstractObjCache, rejectAsString} from "models/base/cache";
 
 export interface Template {
@@ -30,12 +29,15 @@ export class TemplateCache extends AbstractObjCache<Template[]> {
   }
 
   doFetch(resolve: (data: Template[]) => void, reject: (reason: string) => void) {
-    ApiRequestBuilder.GET(SparkRoutes.internalTemplatesListPath(), ApiVersion.v5).then((res) => {
-      res.do((s) => {
-        resolve(JSON.parse(s.body).templates);
-      }, (e) => {
-        reject(e.message);
-      });
-    }).catch(rejectAsString(reject));
+    ApiRequestBuilder
+      .GET(SparkRoutes.apiAdminInternalPipelinesListPath("administer", "view"), ApiVersion.latest)
+      .then((res) => {
+        res.do((s) => {
+          resolve(JSON.parse(s.body).templates);
+        }, (e) => {
+          reject(e.message);
+        });
+      })
+      .catch(rejectAsString(reject));
   }
 }

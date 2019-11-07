@@ -400,7 +400,6 @@ public class Routes {
 
     public static class PipelineTemplateConfig {
         public static final String BASE = "/api/admin/templates";
-        public static final String INTERNAL_BASE = "/api/admin/internal/templates";
         public static final String NAME = "/:template_name";
         public static final String DOC = apiDocsUrl("#template-config");
 

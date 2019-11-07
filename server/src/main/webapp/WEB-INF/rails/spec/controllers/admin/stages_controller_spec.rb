@@ -429,9 +429,15 @@ describe Admin::StagesController do
         result = HttpLocalizedOperationResult.new
         expect(@pipeline_config_service).to receive(:updatePipelineConfig).and_return(result)
 
-        put :update, params:{:stage_parent => "pipelines", :pipeline_name => "pipeline-name", :stage_name => "stage-name", :config_md5 => "1234abcd", :current_tab => "permissions", :stage => {:approval => {:type => "manual"},:variables =>[{:name=>"key", :valueForDisplay=>"value"}]}}
+        put :update, params:{:stage_parent => "pipelines", :pipeline_name => "pipeline-name", :stage_name => "stage-name",
+                             :config_md5 => "1234abcd", :current_tab => "permissions",
+                             :pipeline_md5 => "pipeline-md5", :pipeline_group_name => 'defaultGroup',
+                             :stage => {:approval => {:type => "manual"},:variables =>[{:name=>"key", :valueForDisplay=>"value"}]}}
 
         expect(assigns[:stage].getApproval().getType()).to eq("manual")
+        expect(assigns[:pipeline_md5]).to eq('pipeline-md5')
+        expect(assigns[:pipeline_group_name]).to eq('defaultGroup')
+        expect(assigns[:pipeline_name]).to eq('pipeline-name')
         environment_variable = assigns[:stage].variables().get(0)
         expect(environment_variable.name).to eq("key")
         expect(environment_variable.value).to eq("value")
@@ -445,7 +451,9 @@ describe Admin::StagesController do
         result = HttpLocalizedOperationResult.new
         expect(@pipeline_config_service).to receive(:updatePipelineConfig).and_return(result)
 
-        put :update, params:{:stage_parent => "pipelines", :pipeline_name => "pipeline-name", :stage_name => "stage-name", :config_md5 => "1234abcd", :current_tab => "permissions", :stage => {:name => "new-stage-name"}}
+        put :update, params:{:stage_parent => "pipelines", :pipeline_name => "pipeline-name", :stage_name => "stage-name",
+                             :pipeline_md5 => "pipeline-md5", :pipeline_group_name => 'defaultGroup',
+                             :config_md5 => "1234abcd", :current_tab => "permissions", :stage => {:name => "new-stage-name"}}
 
         expect(response.location).to match(/\/admin\/pipelines\/pipeline-name\/stages\/new-stage-name\/permissions\?fm=#{uuid_pattern}$/)
         expect(response.status).to eq(200)
@@ -469,12 +477,20 @@ describe Admin::StagesController do
         result = HttpLocalizedOperationResult.new
         expect(@pipeline_config_service).to receive(:updatePipelineConfig).and_return(result)
 
-        put :update, params:{:stage_parent => "pipelines", :pipeline_name => "pipeline-name", :stage_name => "stage-name", :config_md5 => "1234abcd", :current_tab => "settings", :stage => { :securityMode => "define", :operateUsers => [{ :name => "user1"}, {:name => "user2"}], :operateRoles => [{ :name => "role1"}, {:name => "role2"}]}}
+        put :update, params:{:stage_parent => "pipelines", :pipeline_name => "pipeline-name", :stage_name => "stage-name",
+                             :pipeline_md5 => "pipeline-md5", :pipeline_group_name => 'defaultGroup',
+                             :config_md5 => "1234abcd", :current_tab => "settings",
+
+                             :stage => { :securityMode => "define", :operateUsers => [{ :name => "user1"}, {:name => "user2"}],
+                                         :operateRoles => [{ :name => "role1"}, {:name => "role2"}]}}
 
         expect(assigns[:stage].getOperateUsers().get(0)).to eq(AdminUser.new(CaseInsensitiveString.new("user1")))
         expect(assigns[:stage].getOperateUsers().get(1)).to eq(AdminUser.new(CaseInsensitiveString.new("user2")))
         expect(assigns[:stage].getOperateRoles().get(0)).to eq(AdminRole.new(CaseInsensitiveString.new("role1")))
         expect(assigns[:stage].getOperateRoles().get(1)).to eq(AdminRole.new(CaseInsensitiveString.new("role2")))
+        expect(assigns[:pipeline_md5]).to eq('pipeline-md5')
+        expect(assigns[:pipeline_group_name]).to eq('defaultGroup')
+        expect(assigns[:pipeline_name]).to eq('pipeline-name')
       end
 
       it "should render the form again if save fails" do
@@ -482,7 +498,9 @@ describe Admin::StagesController do
         result.conflict("modified already")
         expect(@pipeline_config_service).to receive(:updatePipelineConfig).and_return(result)
 
-        put :update, params:{:stage_parent => "pipelines", :pipeline_name => "pipeline-name", :stage_name => "stage-name", :config_md5 => "1234abcd", :current_tab => "permissions", :stage => {:name => "new-stage-name"}}
+        put :update, params:{:stage_parent => "pipelines", :pipeline_name => "pipeline-name", :stage_name => "stage-name",
+                             :pipeline_md5 => "pipeline-md5", :pipeline_group_name => 'defaultGroup',
+                             :config_md5 => "1234abcd", :current_tab => "permissions", :stage => {:name => "new-stage-name"}}
 
         expect(response.location).to be_nil
         assert_template "permissions"

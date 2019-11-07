@@ -18,9 +18,9 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {AgentWithOrigin} from "models/new-environments/environment_agents";
 import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
-import {Origin, OriginType} from "models/origin";
 import {Agent, Agents} from "models/new_agent/agents";
 import {AgentsCRUD} from "models/new_agent/agents_crud";
+import {Origin, OriginType} from "models/origin";
 
 export class AgentsViewModel {
   readonly searchText: Stream<string | undefined>;

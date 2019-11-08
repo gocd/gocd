@@ -31,7 +31,7 @@ describe("AuthorizationConfigurationCRUD", () => {
     expect(request.url).toEqual("/go/api/admin/security/auth_configs");
     expect(request.method).toEqual("GET");
     expect(request.data()).toEqual(toJSON({} as AuthConfigJSON));
-    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v1+json");
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd+json");
   });
 
   it("should create a new auth config", () => {
@@ -43,7 +43,7 @@ describe("AuthorizationConfigurationCRUD", () => {
     expect(request.url).toEqual("/go/api/admin/security/auth_configs");
     expect(request.method).toEqual("POST");
     expect(request.data()).toEqual(toJSON(TestData.ldapAuthConfig()));
-    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v1+json");
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd+json");
     expect(request.requestHeaders["Content-Type"]).toEqual("application/json; charset=utf-8");
   });
 
@@ -58,7 +58,7 @@ describe("AuthorizationConfigurationCRUD", () => {
     expect(request.url).toEqual(`/go/api/admin/security/auth_configs/${ldapAuthConfig.id}`);
     expect(request.method).toEqual("PUT");
     expect(request.data()).toEqual(toJSON(ldapAuthConfig));
-    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v1+json");
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd+json");
     expect(request.requestHeaders["Content-Type"]).toEqual("application/json; charset=utf-8");
     expect(request.requestHeaders["If-Match"]).toEqual("some-etag");
   });
@@ -74,7 +74,7 @@ describe("AuthorizationConfigurationCRUD", () => {
     expect(request.url).toEqual(`/go/api/admin/security/auth_configs/${ldapAuthConfig.id}`);
     expect(request.method).toEqual("DELETE");
     expect(request.data()).toEqual(toJSON({} as AuthConfigJSON));
-    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v1+json");
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd+json");
     expect(request.requestHeaders["Content-Type"]).toEqual(undefined!);
     expect(request.requestHeaders["X-GoCD-Confirm"]).toEqual("true");
   });
@@ -89,7 +89,7 @@ function authConfigResponse() {
   return {
     status: 200,
     responseHeaders: {
-      "Content-Type": "application/vnd.go.cd.v1+json; charset=utf-8",
+      "Content-Type": "application/vnd.go.cd+json; charset=utf-8",
       "ETag": "some-etag"
     },
     responseText: JSON.stringify(TestData.ldapAuthConfig())
@@ -100,7 +100,7 @@ function listAuthConfigResponse() {
   return {
     status: 200,
     responseHeaders: {
-      "Content-Type": "application/vnd.go.cd.v1+json; charset=utf-8"
+      "Content-Type": "application/vnd.go.cd+json; charset=utf-8"
     },
     responseText: JSON.stringify(TestData.authConfigList(TestData.ldapAuthConfig()))
   };
@@ -110,7 +110,7 @@ function deleteAuthConfigResponse() {
   return {
     status: 200,
     responseHeaders: {
-      "Content-Type": "application/vnd.go.cd.v1+json; charset=utf-8"
+      "Content-Type": "application/vnd.go.cd+json; charset=utf-8"
     },
     responseText: JSON.stringify({message: "The auth config successfully deleted."})
   };

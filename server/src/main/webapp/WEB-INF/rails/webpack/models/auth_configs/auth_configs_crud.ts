@@ -19,7 +19,7 @@ import {SparkRoutes} from "helpers/spark_routes";
 import {AuthConfig, AuthConfigJSON, AuthConfigs} from "models/auth_configs/auth_configs";
 
 export class AuthConfigsCRUD {
-  private static API_VERSION_HEADER = ApiVersion.v1;
+  private static API_VERSION_HEADER = ApiVersion.latest;
 
   static all() {
     return ApiRequestBuilder.GET(SparkRoutes.authConfigPath(), this.API_VERSION_HEADER)

@@ -23,6 +23,7 @@ import {Configurations, PropertyJSON} from "models/shared/configuration";
 export interface AuthConfigJSON {
   id: string;
   plugin_id: string;
+  allow_only_known_users_to_login: boolean;
   properties: PropertyJSON[];
   errors?: { [key: string]: string[] };
 }
@@ -38,14 +39,20 @@ export interface AuthConfigsJSON {
 export class AuthConfig extends ValidatableMixin {
   id: Stream<string | undefined>;
   pluginId: Stream<string | undefined>;
+  allowOnlyKnownUsersToLogin: Stream<boolean>;
   properties: Stream<Configurations | undefined>;
 
-  constructor(id?: string, pluginId?: string, properties?: Configurations, errors: Errors = new Errors()) {
+  constructor(id?: string,
+              pluginId?: string,
+              allowOnlyKnownUsersToLogin?: boolean,
+              properties?: Configurations,
+              errors: Errors = new Errors()) {
     super();
     ValidatableMixin.call(this);
-    this.id         = Stream(id);
-    this.pluginId   = Stream(pluginId);
-    this.properties = Stream(properties);
+    this.id                         = Stream(id);
+    this.pluginId                   = Stream(pluginId);
+    this.allowOnlyKnownUsersToLogin = Stream(allowOnlyKnownUsersToLogin || false);
+    this.properties                 = Stream(properties);
     this.errors(errors);
 
     this.validatePresenceOf("pluginId");
@@ -59,13 +66,14 @@ export class AuthConfig extends ValidatableMixin {
   static fromJSON(data: AuthConfigJSON) {
     const configurations = Configurations.fromJSON(data.properties);
     const errors         = new Errors(data.errors);
-    return new AuthConfig(data.id, data.plugin_id, configurations, errors);
+    return new AuthConfig(data.id, data.plugin_id, data.allow_only_known_users_to_login, configurations, errors);
   }
 
   toJSON(): object {
     return {
       id: this.id,
       plugin_id: this.pluginId,
+      allow_only_known_users_to_login: this.allowOnlyKnownUsersToLogin,
       properties: this.properties
     };
   }

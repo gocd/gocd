@@ -24,7 +24,7 @@ import s from "underscore.string";
 import {Primary} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {CheckboxField, SearchField} from "views/components/forms/input_fields";
-import {Modal, ModalState, Size} from "views/components/modal";
+import {Modal, Size} from "views/components/modal";
 import styles from "views/pages/new-environments/edit_pipelines.scss";
 import {AgentsViewModel} from "views/pages/new-environments/models/agents_view_model";
 
@@ -105,22 +105,17 @@ export class AgentFilterWidget extends MithrilViewComponent<AgentFilterWidgetAtt
 
 export class EditAgentsModal extends Modal {
   readonly agentsVM: AgentsViewModel;
-  private onSuccessfulSave: (msg: m.Children) => void;
+  private readonly onSuccessfulSave: (msg: m.Children) => void;
   private errorMessage: Stream<string> = Stream();
 
-  constructor(env: EnvironmentWithOrigin, environments: Environments, onSuccessfulSave: (msg: m.Children) => void) {
+  constructor(env: EnvironmentWithOrigin,
+              environments: Environments,
+              agents: Agents,
+              onSuccessfulSave: (msg: m.Children) => void) {
     super(Size.medium);
     this.onSuccessfulSave = onSuccessfulSave;
-    this.modalState = ModalState.LOADING;
-    this.fixedHeight = true;
-    this.agentsVM = new AgentsViewModel(env, environments);
-  }
-
-  oninit() {
-    super.oninit();
-    this.agentsVM.fetchAllAgents(() => {
-      this.modalState = ModalState.OK;
-    });
+    this.fixedHeight      = true;
+    this.agentsVM         = new AgentsViewModel(env.clone(), agents);
   }
 
   title(): string {
@@ -139,8 +134,8 @@ export class EditAgentsModal extends Modal {
     }
 
     return <div>
-      <FlashMessage type={MessageType.alert} message={this.agentsVM.errorMessage()}/>
       <AgentFilterWidget agentsVM={this.agentsVM}/>
+      <FlashMessage type={MessageType.alert} message={this.errorMessage()}/>
       <div class={styles.allPipelinesWrapper}>
         {noAgentsMsg}
         <AgentCheckboxListWidget agents={this.agentsVM.availableAgents()}

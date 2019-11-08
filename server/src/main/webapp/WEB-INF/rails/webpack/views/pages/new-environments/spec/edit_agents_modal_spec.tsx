@@ -20,7 +20,6 @@ import test_data from "models/new-environments/spec/test_data";
 import {Agents} from "models/new_agent/agents";
 import {AgentsJSON} from "models/new_agent/agents_json";
 import {AgentsTestData} from "models/new_agent/spec/agents_test_data";
-import * as simulateEvent from "simulate-event";
 import {EditAgentsModal} from "views/pages/new-environments/edit_agents_modal";
 import {TestHelper} from "views/pages/spec/test_helper";
 
@@ -69,8 +68,10 @@ describe("Edit Agents Modal", () => {
     unassociatedStaticAgent  = agentsJSON._embedded.agents[2].uuid;
     unassociatedElasticAgent = agentsJSON._embedded.agents[3].uuid;
 
-    modal = new EditAgentsModal(environment, environments, jasmine.createSpy("onSuccessfulSave"));
-    modal.agentsVM.agents(Agents.fromJSON(agentsJSON));
+    modal = new EditAgentsModal(environment,
+                                environments,
+                                Agents.fromJSON(agentsJSON),
+                                jasmine.createSpy("onSuccessfulSave"));
 
     helper.mount(() => modal.body());
   });
@@ -120,26 +121,25 @@ describe("Edit Agents Modal", () => {
   });
 
   it("should toggle agent selection from environment on click", () => {
-    const agent1Checkbox = helper.byTestId(`form-field-input-${normalAgentAssociatedWithEnvInXml}`) as HTMLInputElement;
-    const agent2Checkbox = helper.byTestId(`form-field-input-${unassociatedStaticAgent}`) as HTMLInputElement;
+    const agent1Checkbox      = helper.byTestId(`form-field-input-${normalAgentAssociatedWithEnvInXml}`) as HTMLInputElement;
+    const agent2Checkbox      = helper.byTestId(`form-field-input-${unassociatedStaticAgent}`) as HTMLInputElement;
+    const agentsVMEnvironment = modal.agentsVM.environment;
 
     expect(agent1Checkbox.checked).toBe(true);
-    expect(environment.containsAgent(normalAgentAssociatedWithEnvInXml)).toBe(true);
+    expect(agentsVMEnvironment.containsAgent(normalAgentAssociatedWithEnvInXml)).toBe(true);
 
     expect(agent2Checkbox.checked).toBe(false);
-    expect(environment.containsAgent(unassociatedStaticAgent)).toBe(false);
+    expect(agentsVMEnvironment.containsAgent(unassociatedStaticAgent)).toBe(false);
 
-    simulateEvent.simulate(agent1Checkbox, "click");
-    helper.redraw();
+    helper.clickByTestId(`form-field-input-${normalAgentAssociatedWithEnvInXml}`);
 
     expect(agent1Checkbox.checked).toBe(false);
-    expect(environment.containsAgent(normalAgentAssociatedWithEnvInXml)).toBe(false);
+    expect(agentsVMEnvironment.containsAgent(normalAgentAssociatedWithEnvInXml)).toBe(false);
 
-    simulateEvent.simulate(agent2Checkbox, "click");
-    helper.redraw();
+    helper.clickByTestId(`form-field-input-${unassociatedStaticAgent}`);
 
     expect(agent2Checkbox.checked).toBe(true);
-    expect(environment.containsAgent(unassociatedStaticAgent)).toBe(true);
+    expect(agentsVMEnvironment.containsAgent(unassociatedStaticAgent)).toBe(true);
   });
 
   it("should not allow toggling config repo agents", () => {

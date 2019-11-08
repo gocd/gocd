@@ -42,14 +42,19 @@ $border-color: #ccc;
 }
 
 .pipeline-filter-wrapper {
-  height:      35px;
-  line-height: 35px;
-  width:       100%;
+  height:        35px;
+  line-height:   35px;
+  width:         100%;
+  margin-bottom: 10px;
 
   span {
     font-weight:  600;
     font-size:    15px;
     padding-left: 3px;
+  }
+
+  input {
+    margin-right: 0;
   }
 
   .search-field-wrapper {

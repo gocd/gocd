@@ -68,7 +68,7 @@ export class EnvironmentBody extends MithrilComponent<EnvironmentBodyAttrs, Envi
     };
 
     vnode.state.renderAgentsModal = (env: EnvironmentWithOrigin) => {
-      new EditAgentsModal(env, vnode.attrs.environments, vnode.attrs.onSuccessfulSave).render();
+      new EditAgentsModal(env, vnode.attrs.environments, vnode.attrs.agents(), vnode.attrs.onSuccessfulSave).render();
     };
 
     vnode.state.renderEnvironmentsVariablesModal = (env: EnvironmentWithOrigin) => {
@@ -100,8 +100,9 @@ export class EnvironmentBody extends MithrilComponent<EnvironmentBodyAttrs, Envi
                          environment={environment}>
         <ul data-test-id={`agents-content`}>
           {environment.agents().map((envAgent) => {
-            const agent = vnode.attrs.agents ? vnode.attrs.agents().find((agent) => agent.uuid === envAgent.uuid()) : null;
-            return <li>{agent == null ? '' : agent.hostname}</li>;
+            const agent = vnode.attrs.agents ? vnode.attrs.agents()
+                                                    .find((agent) => agent.uuid === envAgent.uuid()) : null;
+            return <li>{agent == null ? "" : agent.hostname}</li>;
           })}
         </ul>
       </ElementListWidget>

@@ -58,6 +58,14 @@ export class EnvironmentsAPIs {
                             .then(this.extractObjectWithEtag());
   }
 
+  static updateAgentAssociation(envName: string, agentUuids: string[]) {
+    return ApiRequestBuilder.PUT(SparkRoutes.apiAdminInternalEnvironmentsPath(envName), this.LATEST_API_VERSION_HEADER, {
+      payload: {
+        uuids: agentUuids
+      }
+    });
+  }
+
   private static extractObjectWithEtag() {
     return (result: ApiResult<string>) => {
       return result.map((body) => {
@@ -68,14 +76,6 @@ export class EnvironmentsAPIs {
         } as ObjectWithEtag<EnvironmentWithOrigin>;
       });
     };
-  }
-
-  static updateAgentAssociation(envName: string, agentUuids: string[]) {
-    return ApiRequestBuilder.PUT(SparkRoutes.apiAdminInternalEnvironmentsPath(envName), this.LATEST_API_VERSION_HEADER, {
-      payload: {
-        uuids: agentUuids
-      }
-    });
   }
 }
 

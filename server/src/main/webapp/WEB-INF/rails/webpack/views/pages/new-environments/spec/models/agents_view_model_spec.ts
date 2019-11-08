@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
+import {EnvironmentWithOrigin} from "models/new-environments/environments";
 import test_data from "models/new-environments/spec/test_data";
 import {Agents} from "models/new_agent/agents";
 import {AgentsJSON} from "models/new_agent/agents_json";
@@ -23,7 +23,6 @@ import {AgentsViewModel} from "views/pages/new-environments/models/agents_view_m
 
 describe("Agents View Model", () => {
   let environment: EnvironmentWithOrigin;
-  let environments: Environments;
   let agentsViewModel: AgentsViewModel;
   let agentsJSON: AgentsJSON;
 
@@ -34,15 +33,11 @@ describe("Agents View Model", () => {
       unassociatedElasticAgent: string;
 
   beforeEach(() => {
-    environments          = new Environments();
     const environmentJSON = test_data.environment_json();
     environmentJSON.agents.push(test_data.agent_association_in_xml_json());
 
     environment = EnvironmentWithOrigin.fromJSON(environmentJSON);
-    environments.push(environment);
-
-    agentsViewModel = new AgentsViewModel(environment, environments);
-    agentsJSON      = AgentsTestData.list();
+    agentsJSON  = AgentsTestData.list();
 
     agentsJSON._embedded.agents.push(AgentsTestData.elasticAgent());
     agentsJSON._embedded.agents.push(AgentsTestData.elasticAgent());
@@ -62,7 +57,7 @@ describe("Agents View Model", () => {
     unassociatedStaticAgent  = agentsJSON._embedded.agents[2].uuid;
     unassociatedElasticAgent = agentsJSON._embedded.agents[3].uuid;
 
-    agentsViewModel.agents(Agents.fromJSON(agentsJSON));
+    agentsViewModel = new AgentsViewModel(environment, Agents.fromJSON(agentsJSON));
   });
 
   it("should return available agents", () => {

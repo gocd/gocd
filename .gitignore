@@ -456,3 +456,7 @@ api/api-package-repository-v1/out/
 api/api-package-repository-v1/target/
 api/api-package-repository-v1/logs/
 api/api-package-repository-v1/config/
+api/api-security-auth-config-v2/out/
+api/api-security-auth-config-v2/target/
+api/api-security-auth-config-v2/logs/
+api/api-security-auth-config-v2/config/

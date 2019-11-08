@@ -40,6 +40,7 @@ export class TestData {
     return {
       id: "ldap",
       plugin_id: "cd.go.authorization.ldap",
+      allow_only_known_users_to_login: true,
       properties: [
         {
           key: "Url",
@@ -61,6 +62,7 @@ export class TestData {
     return {
       id: "github",
       plugin_id: "cd.go.authorization.github",
+      allow_only_known_users_to_login: false,
       properties: [
         {
           key: "Url",

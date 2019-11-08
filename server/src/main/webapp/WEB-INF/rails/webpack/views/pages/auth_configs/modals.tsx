@@ -53,7 +53,10 @@ abstract class AuthConfigModal extends EntityModal<AuthConfig> {
   }
 
   onPluginChange(entity: Stream<AuthConfig>, pluginInfo: PluginInfo): void {
-    entity(new AuthConfig(entity().id(), pluginInfo!.id, new Configurations([])));
+    entity(new AuthConfig(entity().id(),
+                          pluginInfo!.id,
+                          entity().allowOnlyKnownUsersToLogin(),
+                          new Configurations([])));
   }
 
   buttons() {

@@ -24,7 +24,7 @@ import { AuthorizationExtension } from "models/shared/plugin_infos_new/extension
 import { PluginInfo, PluginInfos } from "models/shared/plugin_infos_new/plugin_info";
 import { FlashMessage } from "views/components/flash_message";
 import { Form, FormHeader } from "views/components/forms/form";
-import { SelectField, SelectFieldOptions, TextField } from "views/components/forms/input_fields";
+import {CheckboxField, SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
 import { Message } from "views/pages/maintenance_mode";
 
 const AngularPluginNew = require('views/shared/angular_plugin_new').AngularPluginNew;
@@ -67,6 +67,10 @@ export class AuthConfigModalBody extends MithrilViewComponent<Attrs> {
               <SelectFieldOptions selected={vnode.attrs.authConfig.pluginId()}
                 items={pluginList} />
             </SelectField>
+            <CheckboxField required={false}
+                           helpText="Allow only those users to login who have explicitly been added by an administrator."
+                           label="Allow only known users to login"
+                           property={vnode.attrs.authConfig.allowOnlyKnownUsersToLogin}/>
           </Form>
         </FormHeader>
 

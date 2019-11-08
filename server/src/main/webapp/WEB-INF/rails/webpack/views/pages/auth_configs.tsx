@@ -57,7 +57,7 @@ export class AuthConfigsPage extends Page<null, State> {
       this.flashMessage.clear();
 
       const pluginId      = vnode.state.pluginInfos()[0].id;
-      const newAuthConfig = new AuthConfig("", pluginId, new Configurations([]));
+      const newAuthConfig = new AuthConfig("", pluginId, false, new Configurations([]));
       new CreateAuthConfigModal(newAuthConfig, vnode.state.pluginInfos(), vnode.state.onSuccessfulSave).render();
     };
 

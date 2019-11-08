@@ -15,6 +15,7 @@
  */
 
 import {MithrilViewComponent} from "jsx/mithril-component";
+import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
@@ -32,7 +33,9 @@ interface Attrs {
 export class EnvironmentsWidget extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     return vnode.attrs.environments().map((environment: EnvironmentWithOrigin) => {
+      const isEnvEmpty = _.isEmpty(environment.pipelines()) && _.isEmpty(environment.agents());
       return <CollapsiblePanel header={<EnvironmentHeader environment={environment}/>}
+                               warning={isEnvEmpty}
                                actions={[
                                  <Icons.Delete iconOnly={true}
                                                onclick={(e: MouseEvent) => {

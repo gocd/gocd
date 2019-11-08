@@ -31,4 +31,12 @@ describe("Environments Model - Agents", () => {
     expect(agents[1].uuid()).toEqual(configRepoAgent.uuid);
     expect(agents[1].origin().type()).toEqual(configRepoAgent.origin.type);
   });
+
+  it("should return empty list if input is undefined", () => {
+    const env = data.environment_json();
+    delete env.agents;
+    const agents = Agents.fromJSON(env.agents);
+
+    expect(agents.length).toEqual(0);
+  });
 });

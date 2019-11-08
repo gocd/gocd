@@ -18,6 +18,7 @@ import {PipelineWithOrigin} from "models/internal_pipeline_structure/pipeline_st
 import {AgentWithOrigin} from "models/new-environments/environment_agents";
 import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
 import data from "models/new-environments/spec/test_data";
+import {OriginType} from "models/origin";
 
 const envJSON          = data.environment_json();
 const environmentsJSON = {
@@ -200,6 +201,15 @@ describe("Environments Model - Environments", () => {
 
     expect(environments.isPipelineDefinedInAnotherEnvironmentApartFrom(env1Name, pipelineName)).toEqual(false);
     expect(environments.isPipelineDefinedInAnotherEnvironmentApartFrom(env2Name, pipelineName)).toEqual(true);
+  });
+
+  it("should set origins as GoCD origin if not exist", () => {
+    const env = data.environment_json();
+    delete env.origins;
+    const envWithOrigin = EnvironmentWithOrigin.fromJSON(env);
+
+    expect(envWithOrigin.origins().length).toEqual(1);
+    expect(envWithOrigin.origins()[0].type()).toEqual(OriginType.GoCD);
   });
 });
 

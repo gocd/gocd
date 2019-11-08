@@ -29,7 +29,7 @@ public class ServerSiteUrlsConfigRepresenter {
 
     public static void toJSON(OutputWriter writer, SiteUrls siteUrls) {
         writer.addLinks(outputLinkWriter -> outputLinkWriter
-                .addAbsoluteLink("doc", apiDocsUrl("#create-site-url"))
+                .addAbsoluteLink("doc", apiDocsUrl("#siteurls-config"))
                 .addLink("self", Routes.ServerSiteUrlsConfig.BASE))
                 .add("site_url", siteUrls.getSiteUrl().toString())
                 .add("secure_site_url", siteUrls.getSecureSiteUrl().toString());

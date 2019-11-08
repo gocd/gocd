@@ -35,7 +35,7 @@ class ServerSiteUrlsConfigRepresenterTest {
     def siteUrls = new SiteUrls(new SiteUrl("http://foo"), new SecureSiteUrl("https://bar"))
     def json = toObjectString({ ServerSiteUrlsConfigRepresenter.toJSON(it, siteUrls) })
     assertThatJson(json).isEqualTo(["_links"         :
-                                      ["doc" : ["href": apiDocsUrl("#create-site-url")],
+                                      ["doc" : ["href": apiDocsUrl("#siteurls-config")],
                                        "self": ["href": "http://test.host/go/api/admin/config/server/site_urls"]],
                                     "site_url"       : "http://foo",
                                     "secure_site_url": "https://bar"])

@@ -2,6 +2,7 @@
 <h3 class="section-title">Basic Settings</h3>
 
 <%= form_for @pipeline, :as => :pipeline, :url => pipeline_update_path(:pipeline_name => @pipeline.name(), :current_tab => 'general'), :html => {:method => :put, :id => "pipeline_edit_form"} do |f| %>
+    <%= md5_field %>
     <%= hidden_field_tag :pipeline_md5, @pipeline_md5 %>
     <%= hidden_field_tag :pipeline_group_name, @pipeline_group_name %>
     <div class="fieldset">
@@ -130,21 +131,6 @@
                 enableCheckboxAndLabel();
             }
         });
-
-        //jQuery('form').submit(function (evt) {
-        //    return Rails.handleRemote.call(evt.target, evt.originalEvent);
-        //});
-
-
-        //document.body.addEventListener('ajax:beforeSend', function(event) {
-        //    var detail = event.detail;
-        //    //var data = detail[0], status = detail[1], xhr = detail[2];
-        //    var xhr = detail[0];
-        //    var md5 = document.getElementById("config_md5").value;
-        //    xhr.setRequestHeader("Accept", "application/vnd.go.cd.v10+json");
-        //    //xhr.setRequestHeader("Content-Type", "application/json");
-        //    xhr.setRequestHeader("If-Match", md5);
-        //})
     });
 </script>
 

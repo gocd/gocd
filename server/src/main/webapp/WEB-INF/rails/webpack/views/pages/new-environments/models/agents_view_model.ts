@@ -14,27 +14,21 @@
  * limitations under the License.
  */
 
-import m from "mithril";
 import Stream from "mithril/stream";
 import {AgentWithOrigin} from "models/new-environments/environment_agents";
-import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
+import {EnvironmentWithOrigin} from "models/new-environments/environments";
 import {Agent, Agents} from "models/new_agent/agents";
-import {AgentsCRUD} from "models/new_agent/agents_crud";
 import {Origin, OriginType} from "models/origin";
 
 export class AgentsViewModel {
   readonly searchText: Stream<string | undefined>;
-  readonly errorMessage: Stream<string | undefined>;
-  readonly agents: Stream<Agents | undefined>;
+  readonly agents: Stream<Agents>;
   readonly environment: EnvironmentWithOrigin;
-  readonly environments: Environments;
 
-  constructor(environment: EnvironmentWithOrigin, environments: Environments) {
-    this.environment  = environment;
-    this.environments = environments;
-    this.searchText   = Stream();
-    this.errorMessage = Stream();
-    this.agents       = Stream();
+  constructor(environment: EnvironmentWithOrigin, agents: Agents) {
+    this.environment = environment;
+    this.searchText  = Stream();
+    this.agents      = Stream(agents);
   }
 
   filteredAgents() {
@@ -90,15 +84,5 @@ export class AgentsViewModel {
       }
       return self.environment.containsAgent(selected.uuid);
     };
-  }
-
-  fetchAllAgents(callback: () => void) {
-    AgentsCRUD.all().then((result) =>
-                            result.do((successResponse) => {
-                              this.agents(successResponse.body);
-                              callback();
-                            }, (errorResponse) => {
-                              this.errorMessage(JSON.parse(errorResponse.body!).message);
-                            })).finally(m.redraw);
   }
 }

@@ -24,9 +24,9 @@ import com.thoughtworks.go.config.rules.Directive;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
 
-@ConfigTag("policies")
+@ConfigTag("policy")
 @ConfigCollection(Directive.class)
-public class Policies extends BaseCollection<Directive> implements Validatable {
+public class Policy extends BaseCollection<Directive> implements Validatable {
 
     @Override
     public void validate(ValidationContext validationContext) {

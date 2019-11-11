@@ -450,7 +450,7 @@
               </xsd:sequence>
             </xsd:complexType>
           </xsd:element>
-          <xsd:element name="policies" minOccurs="0" maxOccurs="1" type="policyType"/>
+          <xsd:element name="policy" minOccurs="0" maxOccurs="1" type="policyType"/>
         </xsd:sequence>
         <xsd:attribute name="name" type="nameType" use="required"/>
       </xsd:extension>

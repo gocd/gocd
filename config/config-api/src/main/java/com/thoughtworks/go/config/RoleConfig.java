@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.config.policy.Policies;
+import com.thoughtworks.go.config.policy.Policy;
 import com.thoughtworks.go.config.rules.Directive;
 import com.thoughtworks.go.domain.ConfigErrors;
 
@@ -34,10 +34,10 @@ public class RoleConfig implements Role {
     private Users users = new Users();
 
     @ConfigSubtag
-    private Policies policies = new Policies();
+    private Policy policy;
 
     public RoleConfig() {
-        this(null, new Users(), new Policies());
+        this(null, new Users(), new Policy());
     }
 
     public RoleConfig(String name, RoleUser... users) {
@@ -45,19 +45,19 @@ public class RoleConfig implements Role {
     }
 
     public RoleConfig(CaseInsensitiveString name, RoleUser... users) {
-        this(name, Users.users(users), new Policies());
+        this(name, Users.users(users), new Policy());
     }
 
     public RoleConfig(CaseInsensitiveString name, Users users) {
-        this(name, users, new Policies());
+        this(name, users, new Policy());
     }
 
-    public RoleConfig(CaseInsensitiveString name, Users users, Policies policies) {
+    public RoleConfig(CaseInsensitiveString name, Users users, Policy policy) {
         this.name = name;
         for (RoleUser user : users) {
             addUser(user);
         }
-        this.policies = policies;
+        this.policy = policy;
     }
 
     @Override
@@ -100,18 +100,18 @@ public class RoleConfig implements Role {
     }
 
     @Override
-    public Policies getPolicies() {
-        return policies;
+    public Policy getPolicy() {
+        return policy;
     }
 
     @Override
     public void addPolicy(Directive policyToAdd) {
-        policies.add(policyToAdd);
+        policy.add(policyToAdd);
     }
 
     @Override
     public void removePolicy(Directive policyToRemove) {
-        policies.remove(policyToRemove);
+        policy.remove(policyToRemove);
     }
 
     @Override

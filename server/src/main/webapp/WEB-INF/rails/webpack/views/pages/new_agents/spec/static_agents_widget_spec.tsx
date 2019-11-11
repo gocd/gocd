@@ -21,7 +21,7 @@ import {StaticAgentsVM} from "models/new_agent/agents_vm";
 import {AgentsTestData} from "models/new_agent/spec/agents_test_data";
 import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {AnalyticsPluginInfo, AuthorizationPluginInfo} from "models/shared/plugin_infos_new/spec/test_data";
-import {FlashMessageModelWithTimeout} from "views/components/flash_message";
+import {FlashMessageModelWithTimeout, MessageType} from "views/components/flash_message";
 import {StaticAgentsWidget} from "views/pages/new_agents/static_agents_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
 import styles from "../index.scss";
@@ -100,6 +100,18 @@ describe("NewStaticAgentsWidget", () => {
     helper.click(helper.byTestId(`agent-hostname-of-${agentA.uuid}`));
 
     expect(helper.byTestId(`agent-build-details-of-${agentB.uuid}`)).not.toBeVisible();
+  });
+
+  it("should show message", () => {
+    const agent        = Agent.fromJSON(AgentsTestData.withResources("psql", "firefox", "chrome"));
+    const agentsVM     = new StaticAgentsVM(new Agents(agent));
+    const flashMessage = new FlashMessageModelWithTimeout();
+    flashMessage.setMessage(MessageType.alert, "Something went wrong!");
+
+    mount(agentsVM, true, true, Stream(new PluginInfos()), flashMessage);
+
+    expect(helper.byTestId("flash-message-alert")).toBeInDOM();
+    expect(helper.byTestId("flash-message-alert")).toHaveText("Something went wrong!");
   });
 
   describe("Resources", () => {
@@ -262,12 +274,14 @@ describe("NewStaticAgentsWidget", () => {
   function mount(staticAgentsVM: StaticAgentsVM,
                  isUserAdmin: boolean             = true,
                  showAnalyticsIcon: boolean       = true,
-                 pluginInfos: Stream<PluginInfos> = Stream(new PluginInfos())) {
+                 pluginInfos: Stream<PluginInfos> = Stream(new PluginInfos()),
+                 flashMessage                     = new FlashMessageModelWithTimeout()
+  ) {
     helper.mount(() => <StaticAgentsWidget agentsVM={staticAgentsVM}
                                            onEnable={onEnable}
                                            onDisable={onDisable}
                                            onDelete={onDelete}
-                                           flashMessage={new FlashMessageModelWithTimeout()}
+                                           flashMessage={flashMessage}
                                            updateEnvironments={updateEnvironments}
                                            updateResources={updateResources}
                                            showAnalyticsIcon={showAnalyticsIcon}

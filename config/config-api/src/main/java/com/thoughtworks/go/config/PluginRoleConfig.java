@@ -16,6 +16,8 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.builder.ConfigurationPropertyBuilder;
+import com.thoughtworks.go.config.policy.Policies;
+import com.thoughtworks.go.config.rules.Directive;
 import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.Configuration;
@@ -38,6 +40,9 @@ public class PluginRoleConfig extends Configuration implements Role {
 
     @ConfigAttribute(value = "authConfigId", optional = false)
     private String authConfigId;
+
+    @ConfigSubtag
+    private Policies policies = new Policies();
 
     public PluginRoleConfig() {
     }
@@ -106,6 +111,21 @@ public class PluginRoleConfig extends Configuration implements Role {
     @Override
     public List<RoleUser> getUsers() {
         return PluginRoleUsersStore.instance().usersInRole(this);
+    }
+
+    @Override
+    public Policies getPolicies() {
+        return policies;
+    }
+
+    @Override
+    public void addPolicy(Directive policyToAdd) {
+        policies.add(policyToAdd);
+    }
+
+    @Override
+    public void removePolicy(Directive policyToRemove) {
+        policies.remove(policyToRemove);
     }
 
     @Override

@@ -30,6 +30,11 @@
       "key": "show_new_environments_spa",
       "description": "Switch to the new environments SPA. Default is false.",
       "value": false
+    },
+    {
+      "key": "fast_pipeline_save",
+      "description": "Use the pipeline config service to speed up save, instead of doing a full config save",
+      "value": true
     }
   ]
 }

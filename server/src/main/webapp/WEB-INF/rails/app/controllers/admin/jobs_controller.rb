@@ -85,6 +85,10 @@ module Admin
     end
 
     def update
+      if params[:stage_parent] == 'templates'
+        update_on_template
+        return
+      end
       pipeline_name = params[:pipeline_name]
       original_pipeline_config = pipeline_config_service.getPipelineConfig(pipeline_name)
       @pipeline = CLONER.deep_clone(original_pipeline_config)
@@ -102,6 +106,37 @@ module Admin
         assert_load :pipeline_md5, params[:pipeline_md5]
         assert_load :pipeline_group_name, params[:pipeline_group_name]
         assert_load :pipeline_name, params[:pipeline_name]
+      end
+    end
+
+    def update_on_template
+      save_popup(params[:config_md5], Class.new(::ConfigUpdate::SaveAsPipelineOrTemplateAdmin) do
+        include ::ConfigUpdate::JobNode
+        include ::ConfigUpdate::NodeAsSubject
+        include ::ConfigUpdate::RefsAsUpdatedRefs
+
+        def initialize params, user, security_service, external_artifacts_service, go_config_service
+          super(params, user, security_service)
+          @external_artifacts_service = external_artifacts_service
+          @go_config_service = go_config_service
+        end
+
+        def updatedNode(cruise_config)
+          stage = load_stage(cruise_config)
+          load_job_from_stage_named(stage, CaseInsensitiveString.new(params[:job][:name] || params[:job_name]))
+        end
+
+        def update(job)
+          job.setConfigAttributes(params[:job])
+          job.artifactTypeConfigs().getPluggableArtifactConfigs().each do |external_artifact_config|
+            @external_artifacts_service.validateExternalArtifactConfig(external_artifact_config, @go_config_service.artifactStores().find(external_artifact_config.getStoreId), false)
+          end
+        end
+      end.new(params, current_user.getUsername(), security_service, external_artifacts_service, go_config_service), failure_handler({:action => params[:current_tab], :layout => nil}), {:current_tab => params[:current_tab], :action => :edit, :job_name => params[:job][:name] || params[:job_name]}) do
+        @should_not_render_layout = true
+        load_pipeline_and_stage
+        assert_load :job, @node
+        load_artifact_related_data
       end
     end
 

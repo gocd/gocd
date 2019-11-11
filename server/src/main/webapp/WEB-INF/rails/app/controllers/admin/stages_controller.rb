@@ -72,6 +72,10 @@ module Admin
     end
 
     def update
+      if params[:stage_parent] == 'templates'
+        update_on_template
+        return
+      end
       pipeline_name = params[:pipeline_name]
       original_pipeline_config = pipeline_config_service.getPipelineConfig(pipeline_name)
       @pipeline = CLONER.deep_clone(original_pipeline_config)
@@ -87,6 +91,29 @@ module Admin
         assert_load(:pipeline_md5, params[:pipeline_md5])
         assert_load(:pipeline_group_name, params[:pipeline_group_name])
         assert_load(:pipeline_name, params[:pipeline_name])
+
+        load_data_for_permissions
+        load_pause_info
+      end
+
+    end
+
+    def update_on_template
+      save_popup(params[:config_md5], Class.new(::ConfigUpdate::SaveAsPipelineOrTemplateAdmin) do
+        include ConfigUpdate::StageNode
+        include ConfigUpdate::NodeAsSubject
+
+        def updatedNode(cruise_config)
+          load_from_pipeline_stage_named(load_pipeline_or_template(cruise_config), CaseInsensitiveString.new(params[:stage][:name] || params[:stage_name]))
+        end
+
+        def update(stage)
+          stage.setConfigAttributes(params[:stage])
+        end
+      end.new(params, current_user.getUsername(), security_service), {:action => params[:current_tab], :layout => nil}, {:current_tab => params[:current_tab], :action => :edit, :stage_name => params[:stage][:name] || params[:stage_name]}) do
+        @should_not_render_layout = true
+        assert_load(:pipeline, ConfigUpdate::LoadConfig.for(params).load_pipeline_or_template(@cruise_config))
+        assert_load(:stage, @node)
 
         load_data_for_permissions
         load_pause_info

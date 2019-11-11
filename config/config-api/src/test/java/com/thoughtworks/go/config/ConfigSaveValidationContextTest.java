@@ -18,8 +18,6 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.config.elastic.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
-
-import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import com.thoughtworks.go.config.rules.RulesValidationContext;
 import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinitionMother;
@@ -34,7 +32,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-
+import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import static junit.framework.TestCase.assertTrue;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -188,6 +186,21 @@ public class ConfigSaveValidationContextTest {
 
             assertThat(rulesValidationContext.getAllowedActions()).isEqualTo(secretConfig.allowedActions());
             assertThat(rulesValidationContext.getAllowedTypes()).isEqualTo(secretConfig.allowedTypes());
+        }
+    }
+
+    @Nested
+    class PolicyValidationContext {
+        @Test
+        void shouldBuilPolicyValidationContext() {
+            RoleConfig roleConfig = new RoleConfig("role");
+            ConfigSaveValidationContext configSaveValidationContext = ConfigSaveValidationContext.forChain(roleConfig);
+
+            com.thoughtworks.go.config.policy.PolicyValidationContext policyValidationContext = configSaveValidationContext.getPolicyValidationContext();
+
+            assertThat(policyValidationContext.getAllowedActions()).isEqualTo(roleConfig.allowedActions());
+            assertThat(policyValidationContext.getAllowedTypes()).isEqualTo(roleConfig.allowedTypes());
+
         }
     }
 }

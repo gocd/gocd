@@ -17,6 +17,8 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.elastic.ClusterProfiles;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
+import com.thoughtworks.go.config.policy.PolicyAware;
+import com.thoughtworks.go.config.policy.PolicyValidationContext;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.config.rules.RulesAware;
 import com.thoughtworks.go.config.rules.RulesValidationContext;
@@ -90,6 +92,12 @@ public class ConfigSaveValidationContext implements ValidationContext {
         return new RulesValidationContext(rulesAware.allowedActions(), rulesAware.allowedTypes());
     }
 
+    @Override
+    public PolicyValidationContext getPolicyValidationContext() {
+        PolicyAware policyAware = loadFirstOfType(PolicyAware.class);
+
+        return new PolicyValidationContext(policyAware.allowedActions(), policyAware.allowedTypes());
+    }
 
     @Override
     public ConfigReposConfig getConfigRepos() {

@@ -49,7 +49,7 @@ $initial-message-z: 10;
 .preview-pane[class*="language-"] { // scss-lint:disable-line
   position: relative;
   margin: 0;
-  width: 50%;
+  width: 47.65%;
 
   code {
     overflow-y: auto;
@@ -94,8 +94,7 @@ $initial-message-z: 10;
   flex-wrap: wrap;
 
   .subheading {
-    flex: none;
-    flex-basis: 100%;
+    width: 100%;
 
     h3 {
       font-size: 24px;

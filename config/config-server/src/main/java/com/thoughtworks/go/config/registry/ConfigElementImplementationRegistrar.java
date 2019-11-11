@@ -15,8 +15,6 @@
  */
 package com.thoughtworks.go.config.registry;
 
-import com.thoughtworks.go.config.rules.Allow;
-import com.thoughtworks.go.config.rules.Deny;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
@@ -27,6 +25,8 @@ import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
+import com.thoughtworks.go.config.rules.Allow;
+import com.thoughtworks.go.config.rules.Deny;
 import com.thoughtworks.go.config.rules.Directive;
 import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.domain.config.Admin;
@@ -52,6 +52,7 @@ public class ConfigElementImplementationRegistrar {
         registerBuiltinArtifactTypes();
         registerRoleTypes();
         registerDirectiveTypes();
+        registerPolicyDirectiveTypes();
     }
 
     private void registerRoleTypes() {
@@ -60,6 +61,10 @@ public class ConfigElementImplementationRegistrar {
 
     private void registerDirectiveTypes() {
         registry.registerImplementer(Directive.class, Allow.class, Deny.class);
+    }
+
+    private void registerPolicyDirectiveTypes() {
+        registry.registerImplementer(com.thoughtworks.go.config.policy.Directive.class, com.thoughtworks.go.config.policy.Allow.class, com.thoughtworks.go.config.policy.Deny.class);
     }
 
     private void registerBuiltinTasks() {

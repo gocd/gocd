@@ -16,24 +16,15 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.policy.Policy;
-import com.thoughtworks.go.config.rules.Directive;
-import com.thoughtworks.go.config.rules.RulesValidationContext;
 import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.ConfigErrors;
 
 import java.util.*;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.isBlank;
-import static com.thoughtworks.go.config.rules.SupportedEntity.ENVIRONMENT;
-import static com.thoughtworks.go.config.rules.SupportedEntity.unmodifiableListOf;
-import static java.util.Arrays.asList;
-import static java.util.Collections.unmodifiableList;
 
 @ConfigInterface
 public interface Role extends Validatable {
-    List<String> allowedActions = unmodifiableList(asList("create", "view", "edit", "clone", "delete"));
-    List<String> allowedTypes = unmodifiableListOf(ENVIRONMENT);
-
     CaseInsensitiveString getName();
 
     void setName(CaseInsensitiveString name);
@@ -46,12 +37,6 @@ public interface Role extends Validatable {
 
     default boolean validateTree(ValidationContext validationContext) {
         validate(validationContext);
-        getPolicy().validateTree(new DelegatingValidationContext(validationContext) {
-            @Override
-            public RulesValidationContext getRulesValidationContext() {
-                return new RulesValidationContext(allowedActions, allowedTypes);
-            }
-        });
         return !hasErrors();
     }
 
@@ -119,9 +104,4 @@ public interface Role extends Validatable {
     }
 
     Policy getPolicy();
-
-    void addPolicy(Directive policyToAdd);
-
-    void removePolicy(Directive policyToRemove);
-
 }

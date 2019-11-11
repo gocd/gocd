@@ -16,28 +16,15 @@
 
 package com.thoughtworks.go.config.policy;
 
-import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.domain.BaseCollection;
-import com.thoughtworks.go.domain.ConfigErrors;
+import com.thoughtworks.go.config.ConfigTag;
 
-@ConfigTag("policy")
-@ConfigCollection(Directive.class)
-public class Policy extends BaseCollection<Directive> implements Validatable {
-
-    @Override
-    public void validate(ValidationContext validationContext) {
+@ConfigTag("deny")
+public class Deny extends AbstractDirective {
+    public Deny() {
+        super(DirectiveType.DENY);
     }
 
-    @Override
-    public ConfigErrors errors() {
-        return new ConfigErrors();
-    }
-
-    public boolean hasErrors() {
-        return this.stream().anyMatch(Directive::hasErrors);
-    }
-
-    @Override
-    public void addError(String fieldName, String message) {
+    public Deny(String action, String type, String resource) {
+        super(DirectiveType.DENY, action, type, resource);
     }
 }

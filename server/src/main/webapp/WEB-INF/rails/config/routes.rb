@@ -255,11 +255,6 @@ Rails.application.routes.draw do
       get 'config/revisions/(:offset)' => 'configuration#config_revisions', defaults: {:offset => '0'}, as: :config_revisions_list_api
       get 'config/diff/:from_revision/:to_revision' => 'configuration#config_diff', as: :config_diff_api
 
-      # stage api's
-      constraints pipeline_name: PIPELINE_NAME_FORMAT, stage_name: STAGE_NAME_FORMAT do
-        post 'stages/:pipeline_name/:stage_name/cancel' => 'stages#cancel_stage_using_pipeline_stage_name', constraints: HeaderConstraint.new, as: :cancel_stage_using_pipeline_stage_name
-      end
-
       post 'admin/command-repo-cache/reload' => 'commands#reload_cache', as: :admin_command_cache_reload, constraints: HeaderConstraint.new
 
       # Vendor Webhooks

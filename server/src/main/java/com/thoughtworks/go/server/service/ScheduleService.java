@@ -469,17 +469,6 @@ public class ScheduleService {
         }
     }
 
-    public Stage cancelAndTriggerRelevantStages(String pipelineName, String stageName, Username userName, LocalizedOperationResult result) throws Exception {
-        Stage stage = stageService.findLatestStage(pipelineName, stageName);
-        if (stage == null) {
-            String stageLocator = String.format("(pipeline name: %s, stage name %s)", pipelineName, stageName);
-            LOGGER.warn("[Stage Cancellation] Failed to retrieve stage{}", stageLocator);
-            result.notFound("Stage '" + stageLocator + "' not found.", HealthStateType.general(HealthStateScope.GLOBAL));
-            return null;
-        }
-        return cancelAndTriggerRelevantStages(stage.getId(), userName, result);
-    }
-
     // synchronized for updating job
 
     public Stage cancelAndTriggerRelevantStages(Long stageId, Username username, LocalizedOperationResult result) throws Exception {

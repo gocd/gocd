@@ -21,7 +21,11 @@ import com.thoughtworks.go.config.ConfigValue;
 import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.domain.ConfigErrors;
 
+import java.util.List;
 import java.util.Objects;
+
+import static java.lang.String.format;
+import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 
 public abstract class AbstractDirective implements Directive {
     @ConfigAttribute(value = "action", optional = false)
@@ -50,6 +54,23 @@ public abstract class AbstractDirective implements Directive {
 
     @Override
     public void validate(ValidationContext validationContext) {
+        PolicyValidationContext policyValidationContext = validationContext.getPolicyValidationContext();
+
+        if (isInvalid(action, policyValidationContext.getAllowedActions())) {
+            this.addError("action", format("Invalid action, must be one of %s.", policyValidationContext.getAllowedActions()));
+        }
+
+        if (isInvalid(type, policyValidationContext.getAllowedTypes())) {
+            this.addError("type", format("Invalid type, must be one of %s.", policyValidationContext.getAllowedTypes()));
+        }
+    }
+
+    private boolean isInvalid(String actionOrType, List<String> allowedTypes) {
+        if ("*".equals(actionOrType)) {
+            return false;
+        }
+
+        return allowedTypes.stream().noneMatch(it -> equalsIgnoreCase(it, actionOrType));
     }
 
     @Override

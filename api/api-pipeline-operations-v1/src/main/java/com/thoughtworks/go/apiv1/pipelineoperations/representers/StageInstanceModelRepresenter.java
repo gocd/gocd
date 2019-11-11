@@ -25,7 +25,7 @@ public class StageInstanceModelRepresenter {
             outputWriter.add("result", stageInstanceModel.getResult().toString());
         }
         if (stageInstanceModel.getRerunOfCounter() == null) {
-            outputWriter.add("rerun_of_counter", "null");
+            outputWriter.renderNull("rerun_of_counter");
         } else {
             outputWriter.add("rerun_of_counter", stageInstanceModel.getRerunOfCounter());
         }

@@ -23,7 +23,7 @@ import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels
 import org.junit.jupiter.api.Test
 
-import static com.thoughtworks.go.api.base.JsonOutputWriter.jsonDate
+import static com.thoughtworks.go.api.base.JsonUtils.toObject
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
@@ -37,11 +37,11 @@ class PipelineInstanceModelRepresenterTest {
     stageInstanceModels.add(stageInstanceModel)
 
     def materialRevisions = ModificationsMother.multipleModifications()
-    def modifications = materialRevisions.getMaterialRevision(0).modifications
     def buildCause = BuildCause.createWithModifications(materialRevisions, "approver")
 
     def pipelineInstanceModel = PipelineInstanceModel.createPipeline("pipelineName", 4, "label", buildCause, stageInstanceModels)
 
+    def buildCauseJson = toObject({ BuildCauseRepresenter.toJSON(it, pipelineInstanceModel.getBuildCause()) })
     def actualJson = toObjectString({ PipelineInstanceModelRepresenter.toJSON(it, pipelineInstanceModel) })
 
     def expectedJson = [
@@ -53,72 +53,12 @@ class PipelineInstanceModelRepresenterTest {
       "can_run"              : false,
       "preparing_to_schedule": false,
       "comment"              : null,
-      "build_cause"          : [
-        "trigger_message"   : "modified by committer <html />",
-        "trigger_forced"    : false,
-        "approver"          : "approver",
-        "material_revisions": [
-          [
-            "changed"      : false,
-            "material"     : [
-              "id"         : -1,
-              "name"       : "svn-material",
-              "fingerprint": "0b4bba9653593af09fb45c3195ce227b50f14d7f90405b70aa6005966b8b0a35",
-              "type"       : "Subversion",
-              "description": "URL: http://foo/bar/baz, Username: username, CheckExternals: false"
-            ],
-            "modifications": [
-              [
-                "id"           : -1,
-                "revision"     : "3",
-                "modified_time": jsonDate(modifications.get(0).modifiedTime),
-                "user_name"    : "committer <html />",
-                "comment"      : "Added the README file with <html />",
-                "email_address": "foo@bar.com"
-              ],
-              [
-                "id"           : -1,
-                "revision"     : "2",
-                "modified_time": jsonDate(modifications.get(1).modifiedTime),
-                "user_name"    : "committer",
-                "comment"      : "Added the README file",
-                "email_address": "foo@bar.com"
-              ],
-              [
-                "id"           : -1,
-                "revision"     : "1",
-                "modified_time": jsonDate(modifications.get(2).modifiedTime),
-                "user_name"    : "lgao",
-                "comment"      : "Fixing the not checked in files",
-                "email_address": "foo@bar.com"
-              ]
-            ]
-          ]
-        ]
-      ],
-      "stages"               : [
-        [
-          "result"            : "Passed",
-          "rerun_of_counter"  : "null",
-          "id"                : 0,
-          "name"              : "stageName",
-          "counter"           : "4",
-          "scheduled"         : true,
-          "approval_type"     : "success",
-          "approved_by"       : "changes",
-          "operate_permission": false,
-          "can_run"           : false,
-          "jobs"              : [
-            [
-              "id"            : 0,
-              "name"          : "buildName",
-              "scheduled_date": jsonDate(date),
-              "state"         : "Completed",
-              "result"        : "Passed"
-            ]
-          ]
-        ]
-      ]
+      "build_cause"          : buildCauseJson,
+      "stages"               : pipelineInstanceModel.getStageHistory().collect { eachItem ->
+        toObject({
+          StageInstanceModelRepresenter.toJSON(it, eachItem)
+        })
+      }
     ]
 
     assertThatJson(actualJson).isEqualTo(expectedJson)

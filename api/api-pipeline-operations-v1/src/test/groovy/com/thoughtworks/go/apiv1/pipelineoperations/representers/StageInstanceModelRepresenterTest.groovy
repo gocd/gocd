@@ -35,7 +35,7 @@ class StageInstanceModelRepresenterTest {
 
     def expectedJson = [
       "result"            : "Passed",
-      "rerun_of_counter"  : "null",
+      "rerun_of_counter"  : null,
       "id"                : 0,
       "name"              : "stageName",
       "counter"           : "4",
@@ -68,7 +68,7 @@ class StageInstanceModelRepresenterTest {
     def actualJson = toObjectString({ StageInstanceModelRepresenter.toJSON(it, stageInstanceModel) })
 
     def expectedJson = [
-      "rerun_of_counter"  : "null",
+      "rerun_of_counter"  : null,
       "id"                : 0,
       "name"              : "stageName",
       "counter"           : "4",

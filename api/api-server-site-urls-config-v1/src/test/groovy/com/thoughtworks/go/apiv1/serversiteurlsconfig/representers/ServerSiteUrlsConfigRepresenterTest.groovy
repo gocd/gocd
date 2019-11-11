@@ -44,14 +44,14 @@ class ServerSiteUrlsConfigRepresenterTest {
   @Test
   void 'should add errors if site urls are invalid'() {
     def siteUrls = new SiteUrls(new SiteUrl("htt://foo"), new SecureSiteUrl("http://bar"))
-    siteUrls.addError("siteUrl", "Invalid format for site url. 'htp://foo' must start with http/s")
-    siteUrls.addError("secureSiteUrl", "Invalid format for secure site url. 'http://foo' must start with https")
+    siteUrls.siteUrl.addError("siteUrl", "Invalid format for site url. 'htp://foo' must start with http/s")
+    siteUrls.secureSiteUrl.addError("secureSiteUrl", "Invalid format for secure site url. 'http://foo' must start with https")
 
     def json = toObjectString({ ServerSiteUrlsConfigRepresenter.toJSON(it, siteUrls) })
     def expectedJson = [
       "_links"         : [
         "doc" : [
-          "href": "https://api.gocd.org/19.10.0/#create-site-url"
+          "href": apiDocsUrl('#siteurls-config')
         ],
         "self": [
           "href": "http://test.host/go/api/admin/config/server/site_urls"

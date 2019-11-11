@@ -54,15 +54,13 @@ public class CreateOrUpdateConfigServerSiteUrlsCommandTest {
         }
 
         @Test
-        void shouldThrowExceptionForInvalidSiteUrls() {
+        void shouldReturnFalseForInvalidSiteUrls() {
             SiteUrls siteUrls = new SiteUrls(new SiteUrl("htp://foo.bar"), new SecureSiteUrl("http://foo.bar"));
             cruiseConfig.server().setSiteUrl(siteUrls.getSiteUrl().toString());
             cruiseConfig.server().setSecureSiteUrl(siteUrls.getSecureSiteUrl().toString());
             CreateOrUpdateConfigServerSiteUrlsCommand command = new CreateOrUpdateConfigServerSiteUrlsCommand(siteUrls);
 
-            assertThatCode(() -> command.isValid(cruiseConfig))
-                    .isInstanceOf(GoConfigInvalidException.class)
-                    .hasMessage("Invalid format for site url. 'htp://foo.bar' must start with http/s, Invalid format for secure site url. 'http://foo.bar' must start with https");
+            assertFalse(command.isValid(cruiseConfig));
         }
     }
 }

@@ -61,12 +61,8 @@ public class SiteUrls implements Validatable {
     }
 
     public void validate(ValidationContext validationContext) {
-        if (!Pattern.matches("(https?://.+)?", siteUrl.toString())) {
-            errors().add("siteUrl", String.format("Invalid format for site url. '%s' must start with http/s", siteUrl.toString()));
-        }
-        if (!Pattern.matches("(https://.+)?", secureSiteUrl.toString())) {
-            errors().add("secureSiteUrl", String.format("Invalid format for secure site url. '%s' must start with https", secureSiteUrl.toString()));
-        }
+        siteUrl.validate(validationContext);
+        secureSiteUrl.validate(validationContext);
     }
 
     @Override

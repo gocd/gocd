@@ -50,7 +50,7 @@ public class CreateOrUpdateConfigServerSiteUrlsCommand implements EntityConfigUp
         List<ConfigErrors> allErrors = ErrorCollector.getAllErrors(newSiteUrls);
 
         if (!allErrors.isEmpty()) {
-            throw new GoConfigInvalidException(preprocessedConfig, allErrors);
+            return false;
         }
 
         return true;

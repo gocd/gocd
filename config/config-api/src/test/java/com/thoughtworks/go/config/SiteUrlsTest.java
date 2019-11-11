@@ -42,7 +42,7 @@ class SiteUrlsTest {
 
         siteUrls.validate(null);
 
-        assertThat(siteUrls.errors())
+        assertThat(siteUrls.getSiteUrl().errors())
                 .hasSize(1)
                 .containsEntry("siteUrl", Collections.singletonList("Invalid format for site url. 'htp://foo.bar' must start with http/s"));
     }
@@ -53,7 +53,7 @@ class SiteUrlsTest {
 
         siteUrls.validate(null);
 
-        assertThat(siteUrls.errors())
+        assertThat(siteUrls.getSecureSiteUrl().errors())
                 .hasSize(1)
                 .containsEntry("secureSiteUrl", Collections.singletonList("Invalid format for secure site url. 'http://foo.bar' must start with https"));
     }
@@ -64,9 +64,11 @@ class SiteUrlsTest {
 
         siteUrls.validate(null);
 
-        assertThat(siteUrls.errors())
-                .hasSize(2)
-                .containsEntry("siteUrl", Collections.singletonList("Invalid format for site url. 'htp://foo.bar' must start with http/s"))
+        assertThat(siteUrls.getSiteUrl().errors())
+                .hasSize(1)
+                .containsEntry("siteUrl", Collections.singletonList("Invalid format for site url. 'htp://foo.bar' must start with http/s"));
+        assertThat(siteUrls.getSecureSiteUrl().errors())
+                .hasSize(1)
                 .containsEntry("secureSiteUrl", Collections.singletonList("Invalid format for secure site url. 'http://foo.bar' must start with https"));
     }
 }

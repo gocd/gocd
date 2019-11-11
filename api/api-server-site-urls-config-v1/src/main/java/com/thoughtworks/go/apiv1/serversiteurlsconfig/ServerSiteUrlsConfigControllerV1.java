@@ -24,9 +24,10 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.apiv1.serversiteurlsconfig.representers.ServerSiteUrlsConfigRepresenter;
-import com.thoughtworks.go.config.ConfigTag;
+import com.thoughtworks.go.config.ErrorCollector;
 import com.thoughtworks.go.config.SiteUrls;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
+import com.thoughtworks.go.server.controller.Message;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.ServerConfigService;
 import com.thoughtworks.go.spark.Routes;
@@ -40,7 +41,6 @@ import spark.Response;
 import java.io.IOException;
 import java.util.function.Consumer;
 
-import static com.thoughtworks.go.i18n.LocalizedMessage.entityConfigValidationFailed;
 import static spark.Spark.*;
 
 @Component
@@ -82,16 +82,15 @@ public class ServerSiteUrlsConfigControllerV1 extends ApiController implements S
 
     String createOrUpdate(Request request, Response response) throws IOException {
         SiteUrls siteUrls = buildEntityFromRequestBody(request);
-
         try {
             serverConfigService.createOrUpdateServerSiteUrls(siteUrls);
+            return writerForTopLevelObject(request, response, writer -> ServerSiteUrlsConfigRepresenter.toJSON(writer, siteUrls));
         } catch (GoConfigInvalidException e) {
-            response.status(HttpStatus.UNPROCESSABLE_ENTITY.value());
-            String errorMessage = entityConfigValidationFailed(siteUrls.getClass().getAnnotation(ConfigTag.class).value(), e.getAllErrorMessages());
-            return MessageJson.create(errorMessage, jsonWriter(siteUrls));
+            return writerForTopLevelObject(request, response, writer -> {
+                writer.add("message", e.getMessage());
+                ServerSiteUrlsConfigRepresenter.toJSON(writer, siteUrls);
+            });
         }
-
-        return writerForTopLevelObject(request, response, writer -> ServerSiteUrlsConfigRepresenter.toJSON(writer, siteUrls));
     }
 
     String index(Request request, Response response) throws IOException {
@@ -102,9 +101,5 @@ public class ServerSiteUrlsConfigControllerV1 extends ApiController implements S
     private SiteUrls buildEntityFromRequestBody(Request req) {
         JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(req.body());
         return ServerSiteUrlsConfigRepresenter.fromJson(jsonReader);
-    }
-
-    public Consumer<OutputWriter> jsonWriter(SiteUrls siteUrls) {
-        return outputWriter -> ServerSiteUrlsConfigRepresenter.toJSON(outputWriter, siteUrls);
     }
 }

@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.config.policy.Policies;
+import com.thoughtworks.go.config.policy.Policy;
 import com.thoughtworks.go.config.rules.Directive;
 import com.thoughtworks.go.config.rules.RulesValidationContext;
 import com.thoughtworks.go.config.validation.NameTypeValidator;
@@ -46,7 +46,7 @@ public interface Role extends Validatable {
 
     default boolean validateTree(ValidationContext validationContext) {
         validate(validationContext);
-        getPolicies().validateTree(new DelegatingValidationContext(validationContext) {
+        getPolicy().validateTree(new DelegatingValidationContext(validationContext) {
             @Override
             public RulesValidationContext getRulesValidationContext() {
                 return new RulesValidationContext(allowedActions, allowedTypes);
@@ -118,7 +118,7 @@ public interface Role extends Validatable {
         }
     }
 
-    Policies getPolicies();
+    Policy getPolicy();
 
     void addPolicy(Directive policyToAdd);
 

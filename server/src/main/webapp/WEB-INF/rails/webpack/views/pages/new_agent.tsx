@@ -71,6 +71,7 @@ export class NewAgentPage extends Page<null, State> {
     vnode.state.updateEnvironments = (environmentsToAdd: string[], environmentsToRemove: string[]) => {
       const uuids = vnode.state.staticAgentsVM.selectedAgentsUUID();
       return AgentsCRUD.updateEnvironmentsAssociation(uuids, environmentsToAdd, environmentsToRemove)
+                       .then((result) => self.onResult(result, "Environments updated for", uuids.length))
                        .then(vnode.state.staticAgentsVM.unselectAll.bind(vnode.state.staticAgentsVM))
                        .finally(self.fetchData.bind(self, vnode));
     };
@@ -78,6 +79,7 @@ export class NewAgentPage extends Page<null, State> {
     vnode.state.updateResources = (resourcesToAdd: string[], resourcesToRemove: string[]) => {
       const uuids = vnode.state.staticAgentsVM.selectedAgentsUUID();
       return AgentsCRUD.updateResources(uuids, resourcesToAdd, resourcesToRemove)
+                       .then((result) => self.onResult(result, "Resources updated for", uuids.length))
                        .then(vnode.state.staticAgentsVM.unselectAll.bind(vnode.state.staticAgentsVM))
                        .finally(self.fetchData.bind(self, vnode));
     };
@@ -108,17 +110,17 @@ export class NewAgentPage extends Page<null, State> {
 
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {
     return Promise.all([AgentsCRUD.all(), PluginInfoCRUD.all({})])
-        .then((results) => {
-          results[0].do((successResponse) => NewAgentPage.syncVMState(vnode, successResponse.body),
-              (errorResponse) => {
-                this.onFailure(errorResponse);
-                this.setErrorState();
-              });
-          results[1].do((successResponse) => vnode.state.pluginInfos(successResponse.body),
-              this.setErrorState);
-        }).finally(() => {
-          this.pageState = PageState.OK;
-        });
+                  .then((results) => {
+                    results[0].do((successResponse) => NewAgentPage.syncVMState(vnode, successResponse.body),
+                                  (errorResponse) => {
+                                    this.onFailure(errorResponse);
+                                    this.setErrorState();
+                                  });
+                    results[1].do((successResponse) => vnode.state.pluginInfos(successResponse.body),
+                                  this.setErrorState);
+                  }).finally(() => {
+        this.pageState = PageState.OK;
+      });
   }
 
   private static syncVMState(vnode: m.Vnode<null, State>, agents: Agents) {
@@ -139,7 +141,7 @@ export class NewAgentPage extends Page<null, State> {
   }
 
   private onFailure(errorResponse: ErrorResponse) {
-    this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
+    this.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);
   }
 
   private showAnalyticsIcon() {

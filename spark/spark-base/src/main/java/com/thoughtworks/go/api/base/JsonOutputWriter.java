@@ -145,6 +145,15 @@ public class JsonOutputWriter {
         }
 
         @Override
+        public OutputWriter addIfNotNull(String key, Integer value) {
+            return withExceptionHandling((jacksonWriter) -> {
+                if (value != null) {
+                    add(key, value);
+                }
+            });
+        }
+
+        @Override
         public JsonOutputWriterUsingJackson addIfNotNull(String key, CaseInsensitiveString value) {
             return withExceptionHandling((jacksonWriter) -> {
                 if (value != null) {

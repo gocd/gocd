@@ -15,7 +15,9 @@
  */
 package com.thoughtworks.go.apiv1.pipelineoperations.representers;
 
+import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
+import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.server.domain.MaterialForScheduling;
 
 public class MaterialRevisionRepresenter {
@@ -23,5 +25,13 @@ public class MaterialRevisionRepresenter {
         String name = jsonReader.getString("fingerprint");
         String value = jsonReader.getString("revision");
         return new MaterialForScheduling(name, value);
+    }
+
+    public static void toJSON(OutputWriter outputWriter, MaterialRevision revision) {
+        outputWriter
+                .add("changed", revision.isChanged())
+                .addChild("material", materialWriter -> MaterialRepresenter.toJSON(outputWriter, revision.getMaterial()))
+                .addChildList("modifications", modificationWriter -> revision.getModifications()
+                        .forEach(modification -> modificationWriter.addChild(modWriter -> ModificationRepresenter.toJSON(modWriter, modification))));
     }
 }

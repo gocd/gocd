@@ -36,6 +36,8 @@ public interface OutputWriter extends Closeable {
 
     OutputWriter addIfNotNull(String key, Long value);
 
+    OutputWriter addIfNotNull(String key, Integer value);
+
     OutputWriter addWithDefaultIfBlank(String key, String value, String defaultValue);
 
     OutputWriter add(String key, int value);

@@ -16,28 +16,20 @@
 
 package com.thoughtworks.go.config.policy;
 
-import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.domain.BaseCollection;
-import com.thoughtworks.go.domain.ConfigErrors;
+import com.thoughtworks.go.config.ConfigInterface;
+import com.thoughtworks.go.config.Validatable;
 
-@ConfigTag("policy")
-@ConfigCollection(Directive.class)
-public class Policy extends BaseCollection<Directive> implements Validatable {
+import java.io.Serializable;
 
-    @Override
-    public void validate(ValidationContext validationContext) {
-    }
+@ConfigInterface
+public interface Directive extends Validatable, Serializable {
+    boolean hasErrors();
 
-    @Override
-    public ConfigErrors errors() {
-        return new ConfigErrors();
-    }
+    String action();
 
-    public boolean hasErrors() {
-        return this.stream().anyMatch(Directive::hasErrors);
-    }
+    String type();
 
-    @Override
-    public void addError(String fieldName, String message) {
-    }
+    String resource();
+
+    DirectiveType getDirectiveType();
 }

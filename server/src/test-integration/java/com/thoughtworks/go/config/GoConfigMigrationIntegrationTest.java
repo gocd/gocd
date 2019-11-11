@@ -28,11 +28,7 @@ import com.thoughtworks.go.security.ResetCipher;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.service.ConfigRepository;
-import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
-import com.thoughtworks.go.util.GoConfigFileHelper;
-import com.thoughtworks.go.util.GoConstants;
-import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.TimeProvider;
+import com.thoughtworks.go.util.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jdom2.Document;
@@ -1961,6 +1957,49 @@ public class GoConfigMigrationIntegrationTest {
         XmlAssert.assertThat(migratedXml).nodesByXPath("//security").doNotHaveAttribute("allowOnlyKnownUsersToLogin");
         //verify authConfig has no allowOnlyKnownUsersToLogin as the default value is false,
         XmlAssert.assertThat(migratedXml).nodesByXPath("//authConfig").doNotHaveAttribute("allowOnlyKnownUsersToLogin");
+    }
+
+    @Test
+    public void shouldMigrateEverythingAsItIs_Migration133To134() {
+        String originalConfig = "<server>"
+                + "   <security>"
+                + "      <roles>"
+                + "         <role name='luau-role'><users><user>some-user</user></users></role>"
+                + "      </roles>"
+                + "   </security>"
+                + "</server>"
+                + "<pipelines group=\"first\">"
+                + "    <pipeline name=\"Test\" template=\"test_template\">"
+                + "      <materials>"
+                + "          <git url=\"http://\" dest=\"dest_dir14\" />"
+                + "      </materials>"
+                + "     </pipeline>"
+                + "  </pipelines>"
+                + "  <templates>"
+                + "    <pipeline name=\"test_template\">"
+                + "      <stage name=\"Functional\">"
+                + "        <approval type=\"manual\" />"
+                + "        <jobs>"
+                + "          <job name=\"Functional\">"
+                + "            <tasks>"
+                + "              <exec command=\"echo\" args=\"Hello World!!!\" />"
+                + "            </tasks>"
+                + "           </job>"
+                + "        </jobs>"
+                + "      </stage>"
+                + "    </pipeline>"
+                + "  </templates>";
+
+        String configXml =
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+                        "<cruise schemaVersion=\"133\">" + originalConfig + "</cruise>";
+
+        String expectedConfig =
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+                        "<cruise schemaVersion=\"134\">" + originalConfig + "</cruise>";
+
+        final String migratedXml = ConfigMigrator.migrate(configXml, 133, 134);
+        XmlAssert.assertThat(migratedXml).and(expectedConfig).areIdentical();
     }
 
     private void assertStringContainsIgnoringCarriageReturn(String actual, String substring) {

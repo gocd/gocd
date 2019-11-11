@@ -85,7 +85,7 @@
           </xsd:unique>
         </xsd:element>
       </xsd:sequence>
-      <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="134"/>
+      <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="133"/>
     </xsd:complexType>
     <xsd:unique name="uniquePipelines">
       <xsd:selector xpath="pipelines"/>
@@ -450,17 +450,10 @@
               </xsd:sequence>
             </xsd:complexType>
           </xsd:element>
-          <xsd:element name="policies" minOccurs="0" maxOccurs="1" type="policyType"/>
         </xsd:sequence>
         <xsd:attribute name="name" type="nameType" use="required"/>
       </xsd:extension>
     </xsd:complexContent>
-  </xsd:complexType>
-  <xsd:complexType name="policyType">
-    <xsd:choice maxOccurs="unbounded">
-      <xsd:element name="allow" type="directiveType"/>
-      <xsd:element name="deny" type="directiveType"/>
-    </xsd:choice>
   </xsd:complexType>
   <xsd:complexType name="adminType">
     <xsd:choice minOccurs="0" maxOccurs="unbounded">

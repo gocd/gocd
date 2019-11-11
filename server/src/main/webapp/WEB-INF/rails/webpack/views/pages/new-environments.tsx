@@ -112,7 +112,7 @@ export class NewEnvironmentsPage extends Page<null, State> {
 
   headerPanel(vnode: m.Vnode<null, State>): any {
     const headerButtons = [];
-    headerButtons.push(<Primary onclick={vnode.state.onAdd.bind(vnode.state)}>Add
+    headerButtons.push(<Primary onclick={vnode.state.onAdd}>Add
       Environment</Primary>);
     return <HeaderPanel title="Environments" buttons={headerButtons}/>;
   }

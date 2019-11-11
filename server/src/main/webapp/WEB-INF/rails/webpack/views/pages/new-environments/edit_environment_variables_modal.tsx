@@ -18,7 +18,7 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {EnvironmentWithOrigin} from "models/new-environments/environments";
 import {EnvironmentsAPIs} from "models/new-environments/environments_apis";
-import {Primary} from "views/components/buttons";
+import {Cancel, Primary} from "views/components/buttons";
 import {EnvironmentVariablesWidget} from "views/components/environment_variables";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Modal, Size} from "views/components/modal";
@@ -31,6 +31,7 @@ export class EditEnvironmentVariablesModal extends Modal {
 
   constructor(environment: EnvironmentWithOrigin, onSuccessfulSave: (msg: m.Children) => void) {
     super(Size.medium);
+    this.fixedHeight         = true;
     this._environment        = environment;
     this.onSuccessfulSave    = onSuccessfulSave;
     this.environmentToUpdate = environment.clone();
@@ -49,11 +50,13 @@ export class EditEnvironmentVariablesModal extends Modal {
   }
 
   title(): string {
-    return "Environment Variables";
+    return "Edit Environment Variables";
   }
 
   buttons(): m.ChildArray {
-    return [<Primary data-test-id="button-ok" onclick={this.performSave.bind(this)}>Save</Primary>];
+    return [<Primary data-test-id="button-ok" onclick={this.performSave.bind(this)}>Save</Primary>,
+            <Cancel data-test-id="cancel-button" onclick={this.close.bind(this)}>Cancel</Cancel>
+    ];
   }
 
   performSave() {

@@ -183,7 +183,7 @@ describe("Edit Agents Modal", () => {
     expect(helper.byTestId(agent4Selector)).toBeInDOM();
     expect(helper.byTestId(agent5Selector)).toBeInDOM();
 
-    modal.agentsVM.searchText(normalAgentAssociatedWithEnvInXml);
+    modal.agentsVM.searchText(agentsJSON._embedded.agents[0].hostname);
     m.redraw.sync();
 
     expect(helper.byTestId(agent1Selector)).toBeInDOM();

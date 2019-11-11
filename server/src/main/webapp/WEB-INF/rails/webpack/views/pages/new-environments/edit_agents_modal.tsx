@@ -21,7 +21,7 @@ import {Environments, EnvironmentWithOrigin} from "models/new-environments/envir
 import {EnvironmentsAPIs} from "models/new-environments/environments_apis";
 import {Agent, Agents} from "models/new_agent/agents";
 import s from "underscore.string";
-import {Primary} from "views/components/buttons";
+import {Cancel, Primary} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {CheckboxField, SearchField} from "views/components/forms/input_fields";
 import {Modal, Size} from "views/components/modal";
@@ -127,36 +127,19 @@ export class EditAgentsModal extends Modal {
       return;
     }
 
-    let noAgentsMsg: m.Child | undefined;
-    if (this.agentsVM.filteredAgents().length === 0) {
-      noAgentsMsg = <FlashMessage type={MessageType.info}
-                                  message={`No agents matching search text '${this.agentsVM.searchText()}' found!`}/>;
-    }
+    const noAgentsMsg: m.Child = <FlashMessage type={MessageType.info}
+                                               message={`No agents matching search text '${this.agentsVM.searchText()}' found!`}/>;
 
     return <div>
       <AgentFilterWidget agentsVM={this.agentsVM}/>
       <FlashMessage type={MessageType.alert} message={this.errorMessage()}/>
-      <div class={styles.allPipelinesWrapper}>
-        {noAgentsMsg}
-        <AgentCheckboxListWidget agents={this.agentsVM.availableAgents()}
-                                 title={"Available Agents:"}
-                                 readonly={false}
-                                 agentSelectedFn={this.agentsVM.agentSelectedFn.bind(this.agentsVM)}/>
-        <AgentCheckboxListWidget agents={this.agentsVM.configRepoEnvironmentAgents()}
-                                 title={"Agents associated with this environment in configuration repository:"}
-                                 readonly={true}
-                                 agentSelectedFn={this.agentsVM.agentSelectedFn.bind(this.agentsVM)}/>
-        <AgentCheckboxListWidget agents={this.agentsVM.environmentElasticAgents()}
-                                 title={"Elastic Agents associated with this environment:"}
-                                 readonly={true}
-                                 agentSelectedFn={this.agentsVM.agentSelectedFn.bind(this.agentsVM)}/>
-        <UnavailableElasticAgentsWidget agents={this.agentsVM.elasticAgentsNotBelongingToCurrentEnv()}/>
-      </div>
+      {this.agentsVM.filteredAgents().length === 0 ? noAgentsMsg : this.agentsHtml()}
     </div>;
   }
 
   buttons(): m.ChildArray {
-    return [<Primary data-test-id="button-ok" onclick={this.performSave.bind(this)}>Save</Primary>];
+    return [<Primary data-test-id="button-ok" onclick={this.performSave.bind(this)}>Save</Primary>,
+      <Cancel data-test-id="cancel-button" onclick={this.close.bind(this)}>Cancel</Cancel>];
   }
 
   performSave() {
@@ -177,4 +160,21 @@ export class EditAgentsModal extends Modal {
     }
   }
 
+  private agentsHtml() {
+    return <div className={styles.allPipelinesWrapper}>
+      <AgentCheckboxListWidget agents={this.agentsVM.availableAgents()}
+                               title={"Available Agents:"}
+                               readonly={false}
+                               agentSelectedFn={this.agentsVM.agentSelectedFn.bind(this.agentsVM)}/>
+      <AgentCheckboxListWidget agents={this.agentsVM.configRepoEnvironmentAgents()}
+                               title={"Agents associated with this environment in configuration repository:"}
+                               readonly={true}
+                               agentSelectedFn={this.agentsVM.agentSelectedFn.bind(this.agentsVM)}/>
+      <AgentCheckboxListWidget agents={this.agentsVM.environmentElasticAgents()}
+                               title={"Elastic Agents associated with this environment:"}
+                               readonly={true}
+                               agentSelectedFn={this.agentsVM.agentSelectedFn.bind(this.agentsVM)}/>
+      <UnavailableElasticAgentsWidget agents={this.agentsVM.elasticAgentsNotBelongingToCurrentEnv()}/>
+    </div>;
+  }
 }

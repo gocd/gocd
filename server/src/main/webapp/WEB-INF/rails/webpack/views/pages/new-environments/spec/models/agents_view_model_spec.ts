@@ -43,16 +43,19 @@ describe("Agents View Model", () => {
     agentsJSON._embedded.agents.push(AgentsTestData.elasticAgent());
 
     //normal agent associated with environment in xml
-    normalAgentAssociatedWithEnvInXml   = environmentJSON.agents[0].uuid;
-    agentsJSON._embedded.agents[0].uuid = normalAgentAssociatedWithEnvInXml;
+    normalAgentAssociatedWithEnvInXml       = environmentJSON.agents[0].uuid;
+    agentsJSON._embedded.agents[0].uuid     = normalAgentAssociatedWithEnvInXml;
+    agentsJSON._embedded.agents[0].hostname = environmentJSON.agents[0].hostname;
 
     //normal agent associated with environment in config repo
     normalAgentAssociatedWithEnvInConfigRepo = environmentJSON.agents[1].uuid;
     agentsJSON._embedded.agents[1].uuid      = normalAgentAssociatedWithEnvInConfigRepo;
+    agentsJSON._embedded.agents[1].hostname  = environmentJSON.agents[1].hostname;
 
     //elastic agent associated with environment in xml
-    elasticAgentAssociatedWithEnvInXml  = environmentJSON.agents[2].uuid;
-    agentsJSON._embedded.agents[4].uuid = elasticAgentAssociatedWithEnvInXml;
+    elasticAgentAssociatedWithEnvInXml      = environmentJSON.agents[2].uuid;
+    agentsJSON._embedded.agents[4].uuid     = elasticAgentAssociatedWithEnvInXml;
+    agentsJSON._embedded.agents[4].hostname = environmentJSON.agents[2].hostname;
 
     unassociatedStaticAgent  = agentsJSON._embedded.agents[2].uuid;
     unassociatedElasticAgent = agentsJSON._embedded.agents[3].uuid;
@@ -137,7 +140,7 @@ describe("Agents View Model", () => {
     expect(agents[0].uuid).toBe(normalAgentAssociatedWithEnvInXml);
     expect(agents[1].uuid).toBe(unassociatedStaticAgent);
 
-    agentsViewModel.searchText(normalAgentAssociatedWithEnvInXml);
+    agentsViewModel.searchText(agents[0].hostname);
 
     agents = agentsViewModel.availableAgents();
 

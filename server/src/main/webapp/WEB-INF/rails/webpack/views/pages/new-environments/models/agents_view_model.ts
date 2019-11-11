@@ -32,11 +32,10 @@ export class AgentsViewModel {
   }
 
   filteredAgents() {
-    const self       = this;
-    const searchText = self.searchText() ? self.searchText()! : "";
+    const searchText = this.searchText() ? this.searchText()! : "";
 
     return new Agents(...this.agents()!.filter(((agent) => {
-      return agent.uuid.includes(searchText) || agent.hostname.includes(searchText);
+      return agent.hostname.includes(searchText);
     })));
   }
 

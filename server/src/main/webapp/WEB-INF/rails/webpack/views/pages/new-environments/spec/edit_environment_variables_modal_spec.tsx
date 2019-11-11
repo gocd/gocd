@@ -34,7 +34,7 @@ describe("Edit environment variables modal", () => {
   afterEach(helper.unmount.bind(helper));
 
   it("should have a title", () => {
-    expect(modal.title()).toBe("Environment Variables");
+    expect(modal.title()).toBe("Edit Environment Variables");
   });
 
   it("environmentVariablesToAdd()", () => {

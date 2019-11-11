@@ -20,7 +20,7 @@ import {Pipelines, PipelineWithOrigin} from "models/internal_pipeline_structure/
 import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
 import {EnvironmentsAPIs} from "models/new-environments/environments_apis";
 import s from "underscore.string";
-import {Primary} from "views/components/buttons";
+import {Cancel, Primary} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {CheckboxField, HelpText, SearchField} from "views/components/forms/input_fields";
 import {Modal, ModalState, Size} from "views/components/modal";
@@ -125,9 +125,10 @@ export class UnavailablePipelinesBecauseDefinedInConfigRepoWidget extends Mithri
       <ul>
         {
           pipelines.map((pipeline) => {
+            const href           = `/go/admin/config_repos/#!${pipeline.origin().id()}`;
             const configRepoLink = <span data-test-id={`pipeline-list-item-for-${pipeline.name()}`} class={styles.link}>
               (CONFIG REPO:
-              <a href="#">
+              <a href={href}>
                 {pipeline.origin().id()}
               </a>
               )
@@ -171,33 +172,20 @@ export class EditPipelinesModal extends Modal {
   }
 
   body(): m.Children {
-    let noPipelinesMsg: m.Child | undefined;
-    if (this.pipelinesVM.filteredPipelines().length === 0) {
-      noPipelinesMsg = <FlashMessage type={MessageType.info}
-                                     message={`No pipelines matching search text '${this.pipelinesVM.searchText()}' found!`}/>;
-    }
+    const noPipelinesMsg = <FlashMessage type={MessageType.info}
+                                         message={`No pipelines matching search text '${this.pipelinesVM.searchText()}' found!`}/>;
 
     return <div>
       <FlashMessage type={MessageType.alert} message={this.pipelinesVM.errorMessage()}/>
       <PipelineFilterWidget pipelinesVM={this.pipelinesVM}/>
-      <div class={styles.allPipelinesWrapper}>
-        {noPipelinesMsg}
-        <PipelineCheckboxListWidget pipelines={this.pipelinesVM.availablePipelines()}
-                                    title={"Available Pipelines:"}
-                                    readonly={false}
-                                    pipelineSelectedFn={this.pipelinesVM.pipelineSelectedFn.bind(this.pipelinesVM)}/>
-        <PipelineCheckboxListWidget pipelines={this.pipelinesVM.configRepoEnvironmentPipelines()}
-                                    title={"Pipelines associated with this environment in configuration repository:"}
-                                    readonly={true}
-                                    pipelineSelectedFn={this.pipelinesVM.pipelineSelectedFn.bind(this.pipelinesVM)}/>
-        <UnavailablePipelinesBecauseOfOtherEnvironmentWidget pipelinesVM={this.pipelinesVM}/>
-        <UnavailablePipelinesBecauseDefinedInConfigRepoWidget pipelinesVM={this.pipelinesVM}/>
-      </div>
+      {this.pipelinesVM.filteredPipelines().length === 0 ? noPipelinesMsg : this.pipelinesHtml()}
     </div>;
   }
 
   buttons(): m.ChildArray {
-    return [<Primary data-test-id="button-ok" onclick={this.performSave.bind(this)}>Save</Primary>];
+    return [<Primary data-test-id="button-ok" onclick={this.performSave.bind(this)}>Save</Primary>,
+      <Cancel data-test-id="cancel-button" onclick={this.close.bind(this)}>Cancel</Cancel>
+    ];
   }
 
   performSave() {
@@ -239,5 +227,20 @@ export class EditPipelinesModal extends Modal {
       // remove removed pipeline
       return newPipeline === undefined;
     });
+  }
+
+  private pipelinesHtml() {
+    return <div className={styles.allPipelinesWrapper}>
+      <PipelineCheckboxListWidget pipelines={this.pipelinesVM.availablePipelines()}
+                                  title={"Available Pipelines:"}
+                                  readonly={false}
+                                  pipelineSelectedFn={this.pipelinesVM.pipelineSelectedFn.bind(this.pipelinesVM)}/>
+      <PipelineCheckboxListWidget pipelines={this.pipelinesVM.configRepoEnvironmentPipelines()}
+                                  title={"Pipelines associated with this environment in configuration repository:"}
+                                  readonly={true}
+                                  pipelineSelectedFn={this.pipelinesVM.pipelineSelectedFn.bind(this.pipelinesVM)}/>
+      <UnavailablePipelinesBecauseOfOtherEnvironmentWidget pipelinesVM={this.pipelinesVM}/>
+      <UnavailablePipelinesBecauseDefinedInConfigRepoWidget pipelinesVM={this.pipelinesVM}/>
+    </div>;
   }
 }

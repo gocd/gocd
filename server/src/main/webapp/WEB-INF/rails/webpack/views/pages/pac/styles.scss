@@ -19,12 +19,16 @@
 @import "~prismjs/themes/prism"; // don't add the `.css` extension!! See https://github.com/sass/node-sass/issues/2362#issuecomment-388634848
 
 $syntax-bg: #282923;
+$fillable-section-margin-horiz: 30px;
 $error-container-width: 450px;
 $initial-message-bg: rgba(255, 255, 255, 0.5);
 $initial-message-z: 10;
 
-.builder-form {
-  max-width: 50%;
+.builder-form, .preview-pane {
+  max-width: calc(50% - #{$fillable-section-margin-horiz});
+  flex-basis: 50%;
+  flex-shrink: 1;
+  flex-grow: 1;
 }
 
 .plugin-selector {
@@ -49,7 +53,6 @@ $initial-message-z: 10;
 .preview-pane[class*="language-"] { // scss-lint:disable-line
   position: relative;
   margin: 0;
-  width: 47.65%;
 
   code {
     overflow-y: auto;

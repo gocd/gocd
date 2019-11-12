@@ -15,14 +15,14 @@
  */
 
 import "foundation-sites";
-import {flagAttr} from "helpers/dom";
 import $ from "jquery";
 import m from "mithril";
+import {footerMeta, headerMeta} from "models/current_user_permissions";
 import {UsageDataReporter} from "models/shared/usage_data_reporter";
 import {VersionUpdater} from "models/shared/version_updater";
 import {ModalManager} from "views/components/modal/modal_manager";
-import {Attrs as FooterAttrs, SiteFooter} from "views/pages/partials/site_footer";
-import {Attrs as HeaderAttrs, SiteHeader} from "views/pages/partials/site_header";
+import {SiteFooter} from "views/pages/partials/site_footer";
+import {SiteHeader} from "views/pages/partials/site_header";
 
 $(() => {
   window.addEventListener("DOMContentLoaded", () => {
@@ -31,35 +31,8 @@ $(() => {
     UsageDataReporter.report();
     VersionUpdater.update();
 
-    const body = document.body;
-
-    const showAnalyticsDashboard    = flagAttr(body, "data-show-analytics-dashboard");
-    const canViewAdminPage          = flagAttr(body, "data-can-user-view-admin");
-    const isUserAdmin               = flagAttr(body, "data-is-user-admin");
-    const isGroupAdmin              = flagAttr(body, "data-is-user-group-admin");
-    const canViewTemplates          = flagAttr(body, "data-can-user-view-templates");
-    const isAnonymous               = flagAttr(body, "data-user-anonymous");
-    const isServerInMaintenanceMode = flagAttr(body, "data-is-server-in-maintenance-mode");
-    const userDisplayName           = body.getAttribute("data-user-display-name") || "";
-    const maintenanceModeUpdatedOn  = body.getAttribute("data-maintenance-mode-updated-on");
-    const maintenanceModeUpdatedBy  = body.getAttribute("data-maintenance-mode-updated-by");
-
-    const footerData: FooterAttrs = {
-      maintenanceModeUpdatedOn,
-      maintenanceModeUpdatedBy,
-      isServerInMaintenanceMode,
-      isSupportedBrowser: !/(MSIE|Trident)/i.test(navigator.userAgent)
-    };
-
-    const headerData: HeaderAttrs = {
-      showAnalyticsDashboard,
-      canViewAdminPage,
-      isUserAdmin,
-      isGroupAdmin,
-      canViewTemplates,
-      userDisplayName,
-      isAnonymous
-    };
+    const footerData = footerMeta();
+    const headerData = headerMeta();
 
     const menuMountPoint = document.getElementById("app-menu");
 

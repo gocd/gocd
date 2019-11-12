@@ -100,11 +100,3 @@ function asNode(subj: Child): Node | undefined {
 
   throw new TypeError(`Expected ${subj} to be either a string or Node`);
 }
-
-export function flagAttr(el: Element, attr: string): boolean {
-  const value = el.getAttribute(attr);
-
-  if (!value || !["true", "false"].includes(value)) { throw new TypeError(`attr [${attr}] on element ${el} must be either "true" or "false"; instead, was ${JSON.stringify(value)}`); }
-
-  return "true" === value;
-}

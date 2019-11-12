@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-import m from "mithril";
-import {VersionUpdater} from "models/shared/version_updater";
-import styles from "./spa_base.scss";
-
-import {flagAttr} from "helpers/dom";
 import {MithrilViewComponent} from "jsx/mithril-component";
+import m from "mithril";
+import {footerMeta, headerMeta} from "models/current_user_permissions";
 import {UsageDataReporter} from "models/shared/usage_data_reporter";
+import {VersionUpdater} from "models/shared/version_updater";
 import {ModalManager} from "views/components/modal/modal_manager";
 import {Attrs as SiteFooterAttrs, SiteFooter} from "views/pages/partials/site_footer";
 import {Attrs as SiteHeaderAttrs, SiteHeader} from "views/pages/partials/site_header";
+import styles from "./spa_base.scss";
 
 interface Attrs {
   showHeader: boolean;
@@ -68,35 +67,8 @@ abstract class AbstractPage {
         VersionUpdater.update();
       }
 
-      const body = document.body;
-
-      const showAnalyticsDashboard     = flagAttr(body, "data-show-analytics-dashboard");
-      const canViewAdminPage           = flagAttr(body, "data-can-user-view-admin");
-      const isUserAdmin                = flagAttr(body, "data-is-user-admin");
-      const isGroupAdmin               = flagAttr(body, "data-is-user-group-admin");
-      const canViewTemplates           = flagAttr(body, "data-can-user-view-templates");
-      const isAnonymous                = flagAttr(body, "data-user-anonymous");
-      const isServerInMaintenanceMode  = flagAttr(body, "data-is-server-in-maintenance-mode");
-      const userDisplayName            = body.getAttribute("data-user-display-name") || "";
-      const maintenanceModeUpdatedOn   = body.getAttribute("data-maintenance-mode-updated-on");
-      const maintenanceModeUpdatedBy   = body.getAttribute("data-maintenance-mode-updated-by");
-
-      const footerData: SiteFooterAttrs = {
-        maintenanceModeUpdatedOn,
-        maintenanceModeUpdatedBy,
-        isServerInMaintenanceMode,
-        isSupportedBrowser: !/(MSIE|Trident)/i.test(navigator.userAgent)
-      };
-
-      const headerData: SiteHeaderAttrs = {
-        showAnalyticsDashboard,
-        canViewAdminPage,
-        isUserAdmin,
-        isGroupAdmin,
-        canViewTemplates,
-        userDisplayName,
-        isAnonymous
-      };
+      const footerData = footerMeta();
+      const headerData = headerMeta();
 
       this.contents({ headerData, footerData, showHeader: this.showHeader(), showFooter: this.showFooter() });
       ModalManager.onPageLoad();

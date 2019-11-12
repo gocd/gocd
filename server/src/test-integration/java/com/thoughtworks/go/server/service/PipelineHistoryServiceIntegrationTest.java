@@ -20,7 +20,6 @@ import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
-import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Material;
@@ -67,13 +66,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.IntStream;
 
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
+import static java.util.stream.Collectors.toList;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
@@ -215,7 +214,7 @@ public class PipelineHistoryServiceIntegrationTest {
     public void shouldIncludePauseInformationWhenGettingLatestPipelineInstanceFromAllPipelineGroups() throws Exception {
         pipelineOne.createdPipelineWithAllStagesPassed();
 
-        configHelper.setOperatePermissionForGroup("group1","chris", "raghu");
+        configHelper.setOperatePermissionForGroup("group1", "chris", "raghu");
 
         Username userNameChris = new Username(new CaseInsensitiveString("chris"));
         pipelinePauseService.pause(pipelineOne.pipelineName, "paused", userNameChris);
@@ -380,7 +379,8 @@ public class PipelineHistoryServiceIntegrationTest {
         assertThat(stageHistory.first() instanceof NullStageHistoryItem, is(true));
     }
 
-    @Test public void shouldContainLatestRevisionForEachPipeline() throws Exception {
+    @Test
+    public void shouldContainLatestRevisionForEachPipeline() throws Exception {
         Pipeline pipeline = pipelineOne.createPipelineWithFirstStageScheduled();
         MaterialRevision materialRevision = new MaterialRevision(pipeline.getMaterialRevisions().getMaterialRevision(0).getMaterial(), new Modification(new Date(), "2", "MOCK_LABEL-12", null));
         saveRev(materialRevision);
@@ -393,13 +393,15 @@ public class PipelineHistoryServiceIntegrationTest {
 
     private void saveRev(final MaterialRevision materialRevision) {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override protected void doInTransactionWithoutResult(TransactionStatus status) {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
                 materialRepository.saveMaterialRevision(materialRevision);
             }
         });
     }
 
-    @Test public void shouldReturnLatestPipelineIntance() throws Exception {
+    @Test
+    public void shouldReturnLatestPipelineIntance() throws Exception {
         Pipeline pipeline = pipelineOne.createPipelineWithFirstStageScheduled();
         saveRev(new MaterialRevision(pipeline.getMaterialRevisions().getMaterialRevision(0).getMaterial(), new Modification(new Date(), "2", "MOCK_LABEL-12", null)));
         configHelper.setViewPermissionForGroup("group1", "username");
@@ -408,7 +410,8 @@ public class PipelineHistoryServiceIntegrationTest {
         assertThat(latest.getLatestRevisions().getMaterialRevision(0).getRevision(), is(new SubversionRevision("2")));
     }
 
-    @Test public void shouldContainNoRevisionsForNewMaterialsThatHAveNotBeenUpdated() throws Exception {
+    @Test
+    public void shouldContainNoRevisionsForNewMaterialsThatHAveNotBeenUpdated() throws Exception {
         pipelineOne.createPipelineWithFirstStageScheduled();
         SvnMaterialConfig svnMaterialConfig = svn("new-material", null, null, false);
         svnMaterialConfig.setConfigAttributes(Collections.singletonMap(ScmMaterialConfig.FOLDER, "new-material"));
@@ -419,7 +422,8 @@ public class PipelineHistoryServiceIntegrationTest {
         assertThat(latestRevision.getRevisions().size(), is(1));
     }
 
-    @Test public void shouldCreateEmptyPipelineIfThePipelineHasNeverBeenRun() throws Exception {
+    @Test
+    public void shouldCreateEmptyPipelineIfThePipelineHasNeverBeenRun() throws Exception {
         SvnMaterialConfig svnMaterial = svn("https://some-url", "new-user", "new-pass", false);
         configHelper.addPipeline("new-pipeline", "new-stage", svnMaterial, "first-job");
         PipelineInstanceModels instanceModels = pipelineHistoryService.loadWithEmptyAsDefault("new-pipeline", Pagination.ONE_ITEM, "username");
@@ -431,7 +435,8 @@ public class PipelineHistoryServiceIntegrationTest {
         assertThat(instanceModel.getStageHistory().get(0).getName(), is("new-stage"));
     }
 
-    @Test public void shouldUnderstandIfMaterialHasNewModifications() throws Exception {
+    @Test
+    public void shouldUnderstandIfMaterialHasNewModifications() throws Exception {
         Pipeline pipeline = pipelineOne.createPipelineWithFirstStageScheduled();
         Material material = pipeline.getMaterialRevisions().getMaterialRevision(0).getMaterial();
         saveRev(new MaterialRevision(material, new Modification(new Date(), "2", "MOCK_LABEL-12", null)));
@@ -441,7 +446,8 @@ public class PipelineHistoryServiceIntegrationTest {
         assertThat(model.hasNewRevisions(material.config()), is(true));
     }
 
-    @Test public void shouldUnderstandIfMaterialHasNoNewModifications() throws Exception {
+    @Test
+    public void shouldUnderstandIfMaterialHasNoNewModifications() throws Exception {
         Pipeline pipeline = pipelineOne.createPipelineWithFirstStageScheduled();
         Material material = pipeline.getMaterialRevisions().getMaterialRevision(0).getMaterial();
         configHelper.setViewPermissionForGroup("group1", "username");
@@ -450,7 +456,8 @@ public class PipelineHistoryServiceIntegrationTest {
         assertThat(model.hasNewRevisions(material.config()), is(false));
     }
 
-    @Test public void shouldReturnNullForLatestWhenPipelineNotViewable() throws Exception {
+    @Test
+    public void shouldReturnNullForLatestWhenPipelineNotViewable() throws Exception {
         configHelper.addPipelineWithGroup("admin_only", "admin_pipeline", "stage", "deploy");
         configHelper.addRole(new RoleConfig(new CaseInsensitiveString("deployers"), new RoleUser(new CaseInsensitiveString("root"))));
         configHelper.blockPipelineGroupExceptFor("admin_only", "deployers");
@@ -920,6 +927,58 @@ public class PipelineHistoryServiceIntegrationTest {
         assertThat(pim.getComment(), is(nullValue()));
         assertThat(result.httpCode(), is(403));
         assertThat(result.message(), is("You do not have operate permissions for pipeline 'pipeline_name'."));
+    }
+
+    @Test
+    public void shouldReturnTheLatestAndOldestPipelineRunId() {
+        Pipeline pipeline1 = pipelineTwo.createdPipelineWithAllStagesPassed();
+        Pipeline pipeline2 = pipelineTwo.createdPipelineWithAllStagesPassed();
+        Pipeline pipeline3 = pipelineTwo.createdPipelineWithAllStagesPassed();
+
+        List<Long> oldestAndLatestPipelineId = pipelineHistoryService.getOldestAndLatestPipelineId(pipelineTwo.pipelineName, new Username(new CaseInsensitiveString("admin1")));
+
+        assertThat(oldestAndLatestPipelineId.size(), is(2));
+        assertThat(oldestAndLatestPipelineId.get(0), is(pipeline3.getId()));
+        assertThat(oldestAndLatestPipelineId.get(1), is(pipeline1.getId()));
+    }
+
+    @Test
+    public void shouldReturnLatestPipelineHistory() {
+        List<Pipeline> pipelineList = IntStream.range(0, 5)
+                .mapToObj(i -> pipelineTwo.createdPipelineWithAllStagesPassed())
+                .collect(toList());
+
+        PipelineInstanceModels pipelineInstanceModels = pipelineHistoryService.loadPipelineHistoryData(new Username(new CaseInsensitiveString("admin1")), pipelineTwo.pipelineName, 0, 0, 10);
+
+        assertThat(pipelineInstanceModels.size(), is(5));
+        assertThat(pipelineInstanceModels.get(0).getId(), is(pipelineList.get(4).getId()));
+        assertThat(pipelineInstanceModels.get(4).getId(), is(pipelineList.get(0).getId()));
+    }
+
+    @Test
+    public void shouldReturnThePipelineHistoryAfterTheSpecifiedCursor() {
+        List<Pipeline> pipelineList = IntStream.range(0, 5)
+                .mapToObj(i -> pipelineTwo.createdPipelineWithAllStagesPassed())
+                .collect(toList());
+
+        PipelineInstanceModels pipelineInstanceModels = pipelineHistoryService.loadPipelineHistoryData(new Username(new CaseInsensitiveString("admin1")), pipelineTwo.pipelineName, pipelineList.get(2).getId(), 0, 10);
+
+        assertThat(pipelineInstanceModels.size(), is(2));
+        assertThat(pipelineInstanceModels.get(0).getId(), is(pipelineList.get(1).getId()));
+        assertThat(pipelineInstanceModels.get(1).getId(), is(pipelineList.get(0).getId()));
+    }
+
+    @Test
+    public void shouldReturnThePipelineHistoryBeforeTheSpecifiedCursor() {
+        List<Pipeline> pipelineList = IntStream.range(0, 5)
+                .mapToObj(i -> pipelineTwo.createdPipelineWithAllStagesPassed())
+                .collect(toList());
+
+        PipelineInstanceModels pipelineInstanceModels = pipelineHistoryService.loadPipelineHistoryData(new Username(new CaseInsensitiveString("admin1")), pipelineTwo.pipelineName, 0, pipelineList.get(2).getId(), 10);
+
+        assertThat(pipelineInstanceModels.size(), is(2));
+        assertThat(pipelineInstanceModels.get(0).getId(), is(pipelineList.get(4).getId()));
+        assertThat(pipelineInstanceModels.get(1).getId(), is(pipelineList.get(3).getId()));
     }
 
     private void assertPipeline(PipelineInstanceModel pipelineInstance, Pipeline instance, HttpOperationResult operationResult) {

@@ -266,12 +266,7 @@ public class Routes {
         public static final String TRIGGER_OPTIONS_PATH = "/:pipeline_name/trigger_options";
 
         public static final String SCHEDULE_PATH = "/:pipeline_name/schedule";
-        public static final String HISTORY_PATH = "/:pipeline_name/history";
         public static final String INSTANCE_PATH = "/:pipeline_name/instance/:pipeline_counter";
-
-        public static String history(String pipelineName) {
-            return BASE + HISTORY_PATH.replaceAll(":pipeline_name", pipelineName);
-        }
 
         public static String triggerOptions(String pipelineName) {
             return BASE + TRIGGER_OPTIONS_PATH.replaceAll(":pipeline_name", pipelineName);
@@ -304,6 +299,21 @@ public class Routes {
         public static String vsm(String pipelineName, int pipelineCounter) {
             return StrSubstitutor.replace("/pipelines/value_stream_map/${pipeline_name}/${pipeline_counter}",
                     of("pipeline_name", pipelineName, "pipeline_counter", pipelineCounter));
+        }
+
+        public static final String BASE = "/api/pipelines";
+        public static final String HISTORY_PATH = "/:pipeline_name/history";
+
+        public static String history(String pipelineName) {
+            return BASE + HISTORY_PATH.replaceAll(":pipeline_name", pipelineName);
+        }
+
+        public static String previous(String pipelineName, long before) {
+            return BASE + HISTORY_PATH.replaceAll(":pipeline_name", pipelineName) + "?before=" + before;
+        }
+
+        public static String next(String pipelineName, long after) {
+            return BASE + HISTORY_PATH.replaceAll(":pipeline_name", pipelineName) + "?after=" + after;
         }
     }
 

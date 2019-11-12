@@ -16,7 +16,10 @@
 
 package com.thoughtworks.go.server.dao;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.GoConfigDao;
+import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.Materials;
@@ -24,7 +27,6 @@ import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
-import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.perforce.P4Material;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.domain.*;
@@ -68,10 +70,7 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -1644,6 +1643,92 @@ public class PipelineSqlMapDaoIntegrationTest {
         assertThat(pipelineIdentifier.getLabel(), is(p2_1.getLabel()));
         assertThat(pipelineIdentifier.getName(), is(p2_1.getName()));
         assertThat(pipelineIdentifier.getCounter(), is(p2_1.getCounter()));
+    }
+
+    @Test
+    public void shouldReturnLatestAndOldestPipelineRunID() {
+        GitMaterial g1 = u.wf(new GitMaterial("g1"), "folder3");
+        u.checkinInOrder(g1, "g_1");
+
+        String pipelineName = "p1";
+        ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWith(pipelineName, "s1", u.m(g1));
+        Pipeline p1_1 = dbHelper.schedulePipeline(p1.config, new TestingClock(new Date()));
+        dbHelper.pass(p1_1);
+        Pipeline p2_1 = dbHelper.schedulePipeline(p1.config, new TestingClock(new Date()));
+        dbHelper.pass(p2_1);
+        Pipeline p3_1 = dbHelper.schedulePipeline(p1.config, new TestingClock(new Date()));
+        dbHelper.pass(p3_1);
+        List<Long> oldestAndLatestPipelineId = pipelineDao.getOldestAndLatestPipelineId(pipelineName);
+
+        assertThat(oldestAndLatestPipelineId.get(0), is(p3_1.getId()));
+        assertThat(oldestAndLatestPipelineId.get(1), is(p1_1.getId()));
+    }
+
+    @Test
+    public void shouldReturnLatestPipelineHistory() throws SQLException {
+        String pipelineName = "some-pipeline";
+        PipelineConfig pipelineConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials(pipelineName, "dev", "ft");
+
+        Pipeline pipeline1 = dbHelper.newPipelineWithAllStagesPassed(pipelineConfig);
+        Pipeline pipeline2 = dbHelper.newPipelineWithAllStagesPassed(pipelineConfig);
+        Pipeline pipeline3 = dbHelper.newPipelineWithAllStagesPassed(pipelineConfig);
+        Pipeline pipeline4 = dbHelper.newPipelineWithAllStagesPassed(pipelineConfig);
+        Pipeline pipeline5 = dbHelper.newPipelineWithAllStagesPassed(pipelineConfig);
+        List<CaseInsensitiveString> allPipelineNames = goConfigDao.load().getAllPipelineNames();
+        if (!allPipelineNames.contains(new CaseInsensitiveString("twist"))) {
+            goConfigDao.addPipeline(pipelineConfig, "pipelinesqlmapdaotest");
+        }
+
+        PipelineInstanceModels pipelineInstanceModels = pipelineDao.loadHistory(pipelineName, FeedModifier.Latest, 0, 3);
+
+        assertThat(pipelineInstanceModels.size(), is(3));
+        assertThat(pipelineInstanceModels.get(0).getId(), is(pipeline5.getId()));
+        assertThat(pipelineInstanceModels.get(1).getId(), is(pipeline4.getId()));
+        assertThat(pipelineInstanceModels.get(2).getId(), is(pipeline3.getId()));
+    }
+
+    @Test
+    public void shouldReturnPipelineHistoryAfterTheSuppliedCursor() throws SQLException {
+        String pipelineName = "pipeline-name" + UUID.randomUUID().toString();
+        PipelineConfig pipelineConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials(pipelineName, "dev", "ft");
+
+        Pipeline pipeline1 = dbHelper.newPipelineWithAllStagesPassed(pipelineConfig);
+        Pipeline pipeline2 = dbHelper.newPipelineWithAllStagesPassed(pipelineConfig);
+        Pipeline pipeline3 = dbHelper.newPipelineWithAllStagesPassed(pipelineConfig);
+        Pipeline pipeline4 = dbHelper.newPipelineWithAllStagesPassed(pipelineConfig);
+        Pipeline pipeline5 = dbHelper.newPipelineWithAllStagesPassed(pipelineConfig);
+        List<CaseInsensitiveString> allPipelineNames = goConfigDao.load().getAllPipelineNames();
+        if (!allPipelineNames.contains(new CaseInsensitiveString("twist"))) {
+            goConfigDao.addPipeline(pipelineConfig, "pipelinesqlmapdaotest");
+        }
+
+        PipelineInstanceModels pipelineInstanceModels = pipelineDao.loadHistory(pipelineName, FeedModifier.After, pipeline3.getId(), 3);
+
+        assertThat(pipelineInstanceModels.size(), is(2));
+        assertThat(pipelineInstanceModels.get(0).getId(), is(pipeline2.getId()));
+        assertThat(pipelineInstanceModels.get(1).getId(), is(pipeline1.getId()));
+    }
+
+    @Test
+    public void shouldReturnPipelineHistoryBeforeTheSuppliedCursor() throws SQLException {
+        String pipelineName = "pipeline-name" + UUID.randomUUID().toString();
+        PipelineConfig pipelineConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials(pipelineName, "dev", "ft");
+
+        Pipeline pipeline1 = dbHelper.newPipelineWithAllStagesPassed(pipelineConfig);
+        Pipeline pipeline2 = dbHelper.newPipelineWithAllStagesPassed(pipelineConfig);
+        Pipeline pipeline3 = dbHelper.newPipelineWithAllStagesPassed(pipelineConfig);
+        Pipeline pipeline4 = dbHelper.newPipelineWithAllStagesPassed(pipelineConfig);
+        Pipeline pipeline5 = dbHelper.newPipelineWithAllStagesPassed(pipelineConfig);
+        List<CaseInsensitiveString> allPipelineNames = goConfigDao.load().getAllPipelineNames();
+        if (!allPipelineNames.contains(new CaseInsensitiveString("twist"))) {
+            goConfigDao.addPipeline(pipelineConfig, "pipelinesqlmapdaotest");
+        }
+
+        PipelineInstanceModels pipelineInstanceModels = pipelineDao.loadHistory(pipelineName, FeedModifier.Before, pipeline3.getId(), 3);
+
+        assertThat(pipelineInstanceModels.size(), is(2));
+        assertThat(pipelineInstanceModels.get(0).getId(), is(pipeline5.getId()));
+        assertThat(pipelineInstanceModels.get(1).getId(), is(pipeline4.getId()));
     }
 
     public static MaterialRevisions revisions(boolean changed) {

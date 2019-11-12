@@ -227,6 +227,48 @@
         OFFSET #{offset}
     </select>
 
+    <select id="getOldestAndLatestPipelineRun" resultType="java.lang.Long">
+        (SELECT pipelines.id
+         FROM pipelines
+         WHERE pipelines.name = #{pipelineName}
+         ORDER BY pipelines.id DESC
+         LIMIT 1)
+        UNION ALL
+        (SELECT pipelines.id
+         FROM pipelines
+         WHERE pipelines.name = #{pipelineName}
+         ORDER BY pipelines.id ASC
+         LIMIT 1)
+    </select>
+
+    <select id="getPipelineIds" resultType="java.lang.Long">
+        SELECT pipelines.id
+        FROM pipelines
+        WHERE pipelines.name = #{pipelineName}
+        ORDER BY pipelines.id DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="getPipelineIdsAfter" resultType="java.lang.Long">
+        SELECT pipelines.id
+        FROM pipelines
+        WHERE pipelines.name = #{pipelineName}
+          and pipelines.id &lt; #{cursor}
+        ORDER BY pipelines.id DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="getPipelineIdsBefore" resultType="java.lang.Long">
+        SELECT id
+        FROM (SELECT pipelines.id as id
+              FROM pipelines
+              WHERE pipelines.name = #{pipelineName}
+                and pipelines.id &gt; #{cursor}
+              ORDER BY pipelines.id ASC
+              LIMIT #{limit})
+        ORDER BY id DESC
+    </select>
+
     <sql id="getPipelineHistory">
         SELECT
         pipelines.id as pipelineId, pipelines.name as pipelineName, buildCauseType, label, buildCauseMessage,

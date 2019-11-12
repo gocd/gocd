@@ -16,7 +16,7 @@
 package com.thoughtworks.go.server.dao;
 
 public enum FeedModifier {
-    Before("Before"), Latest("");
+    Before("Before"), Latest(""), After("After");
 
     private final String suffix;
 

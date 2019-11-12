@@ -16,7 +16,10 @@
 package com.thoughtworks.go.server.dao;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.domain.MaterialInstance;
+import com.thoughtworks.go.domain.Pipeline;
+import com.thoughtworks.go.domain.PipelineIdentifier;
+import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
@@ -86,4 +89,8 @@ public interface PipelineDao {
     List<PipelineIdentifier> getPipelineInstancesTriggeredWithDependencyMaterial(String pipelineName, MaterialInstance materialInstance, String revision);
 
     PipelineInstanceModels loadHistoryForDashboard(List<String> pipelineNames);
+
+    PipelineInstanceModels loadHistory(String pipelineName, FeedModifier modifier, long cursor, Integer pageSize);
+
+    List<Long> getOldestAndLatestPipelineId(String pipelineName);
 }

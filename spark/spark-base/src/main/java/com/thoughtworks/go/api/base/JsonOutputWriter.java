@@ -22,7 +22,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.internal.bind.util.ISO8601Utils;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.spark.RequestContext;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +32,8 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.TimeZone;
 import java.util.function.Consumer;
+
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public class JsonOutputWriter {
     private static final Logger log = LoggerFactory.getLogger(JsonOutputWriter.class);
@@ -180,7 +181,7 @@ public class JsonOutputWriter {
         @Override
         public JsonOutputWriterUsingJackson addWithDefaultIfBlank(String key, String value, String defaultValue) {
             return withExceptionHandling((jacksonWriter) -> {
-                if (StringUtils.isNotBlank(value)) {
+                if (isNotBlank(value)) {
                     add(key, value);
                 } else {
                     add(key, defaultValue);
@@ -399,6 +400,14 @@ public class JsonOutputWriter {
 
             JsonOutputLinkWriter(OutputWriter parentWriter) {
                 this.parentWriter = parentWriter;
+            }
+
+            @Override
+            public OutputLinkWriter addLinkIfPresent(String key, String href) {
+                if (isNotBlank(href)) {
+                    addAbsoluteLink(key, requestContext.build(key, href).getHref());
+                }
+                return this;
             }
 
             @Override

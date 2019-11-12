@@ -20,8 +20,11 @@ import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.apiv1.pipelineinstance.representers.PipelineInstanceModelRepresenter;
+import com.thoughtworks.go.apiv1.pipelineinstance.representers.PipelineInstanceModelsRepresenter;
+import com.thoughtworks.go.config.exceptions.BadRequestException;
 import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
+import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
 import com.thoughtworks.go.server.service.PipelineHistoryService;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.spark.Routes;
@@ -33,11 +36,14 @@ import spark.Response;
 
 import java.io.IOException;
 
+import java.util.List;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static spark.Spark.*;
 
 @Component
 public class PipelineInstanceControllerV1 extends ApiController implements SparkSpringController {
-
+    static final String BAD_PAGE_SIZE_MSG = "The query parameter `page_size`, if specified must be a number between 10 and 100.";
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final PipelineHistoryService pipelineHistoryService;
 
@@ -56,11 +62,13 @@ public class PipelineInstanceControllerV1 extends ApiController implements Spark
     @Override
     public void setupRoutes() {
         path(controllerBasePath(), () -> {
-            before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);
+            before("/*", mimeType, this::verifyContentType);
 
             before(Routes.Pipeline.INSTANCE_PATH, mimeType, apiAuthenticationHelper::checkPipelineViewPermissionsAnd403);
+            before(Routes.PipelineInstance.HISTORY_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateOfPipelineOrGroupInURLUserAnd403);
 
+            get(Routes.PipelineInstance.HISTORY_PATH, mimeType, this::getHistoryInfo);
             get(Routes.Pipeline.INSTANCE_PATH, mimeType, this::getInstanceInfo);
         });
     }
@@ -74,6 +82,44 @@ public class PipelineInstanceControllerV1 extends ApiController implements Spark
             return writerForTopLevelObject(request, response, (outputWriter) -> PipelineInstanceModelRepresenter.toJSON(outputWriter, pipelineInstance));
         }
         return renderHTTPOperationResult(result, request, response);
+    }
+
+    String getHistoryInfo(Request request, Response response) throws IOException {
+        String pipelineName = request.params("pipeline_name");
+        Integer pageSize = getPageSize(request);
+        Long after = getCursor(request, "after");
+        Long before = getCursor(request, "before");
+        PipelineInstanceModels pipelineInstanceModels = pipelineHistoryService.loadPipelineHistoryData(currentUsername(), pipelineName, after, before, pageSize);
+        List<Long> latestAndOldestPipelineIds = pipelineHistoryService.getOldestAndLatestPipelineId(pipelineName, currentUsername());
+        return writerForTopLevelObject(request, response, (outputWriter) -> PipelineInstanceModelsRepresenter.toJSON(outputWriter, pipelineInstanceModels, latestAndOldestPipelineIds));
+    }
+
+
+    private Integer getPageSize(Request request) {
+        Integer offset;
+        try {
+            offset = Integer.valueOf(request.queryParamOrDefault("page_size", "10"));
+            if (offset < 10 || offset > 100) {
+                throw new BadRequestException(BAD_PAGE_SIZE_MSG);
+            }
+        } catch (NumberFormatException e) {
+            throw new BadRequestException(BAD_PAGE_SIZE_MSG);
+        }
+        return offset;
+    }
+
+    private long getCursor(Request request, String key) {
+        long cursor = 0;
+        try {
+            String value = request.queryParams(key);
+            if (isBlank(value)) {
+                return cursor;
+            }
+            cursor = Long.parseLong(value);
+        } catch (NumberFormatException nfe) {
+            throw new BadRequestException(String.format(PipelineHistoryService.BAD_CURSOR_MSG, key));
+        }
+        return cursor;
     }
 
     private Integer getCounterValue(Request request) {

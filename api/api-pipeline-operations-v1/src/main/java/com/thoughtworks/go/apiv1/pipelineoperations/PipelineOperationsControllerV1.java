@@ -24,8 +24,10 @@ import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.pipelineoperations.representers.PipelineScheduleOptionsRepresenter;
 import com.thoughtworks.go.apiv1.pipelineoperations.representers.TriggerOptions;
 import com.thoughtworks.go.apiv1.pipelineoperations.representers.TriggerWithOptionsViewRepresenter;
+import com.thoughtworks.go.apiv1.pipelineoperations.representers.*;
 import com.thoughtworks.go.config.EnvironmentVariablesConfig;
 import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
+import com.thoughtworks.go.presentation.PipelineStatusModel;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.server.domain.PipelineScheduleOptions;
 import com.thoughtworks.go.server.service.*;
@@ -81,12 +83,14 @@ public class PipelineOperationsControllerV1 extends ApiController implements Spa
             before(Routes.Pipeline.UNLOCK_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateOfPipelineOrGroupInURLUserAnd403);
             before(Routes.Pipeline.TRIGGER_OPTIONS_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateOfPipelineOrGroupInURLUserAnd403);
             before(Routes.Pipeline.SCHEDULE_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateOfPipelineOrGroupInURLUserAnd403);
+            before(Routes.Pipeline.STATUS_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateOfPipelineOrGroupInURLUserAnd403);
 
             post(Routes.Pipeline.PAUSE_PATH, mimeType, this::pause);
             post(Routes.Pipeline.UNPAUSE_PATH, mimeType, this::unpause);
             post(Routes.Pipeline.UNLOCK_PATH, mimeType, this::unlock);
             get(Routes.Pipeline.TRIGGER_OPTIONS_PATH, mimeType, this::triggerOptions);
             post(Routes.Pipeline.SCHEDULE_PATH, mimeType, this::schedule);
+            get(Routes.Pipeline.STATUS_PATH, mimeType, this::getStatusInfo);
         });
     }
 
@@ -129,6 +133,16 @@ public class PipelineOperationsControllerV1 extends ApiController implements Spa
         String pipelineName = req.params("pipeline_name");
         pipelineTriggerService.schedule(pipelineName, getScheduleOptions(req), currentUsername(), result);
         return renderHTTPOperationResult(result, req, res);
+    }
+
+    String getStatusInfo(Request request, Response response) throws IOException {
+        String pipelineName = request.params("pipeline_name");
+        HttpOperationResult result = new HttpOperationResult();
+        PipelineStatusModel pipelineStatus = pipelineHistoryService.getPipelineStatus(pipelineName, currentUsernameString(), result);
+        if (result.canContinue()) {
+            return writerForTopLevelObject(request, response, (outputWriter) -> PipelineStatusModelRepresenter.toJSON(outputWriter, pipelineStatus));
+        }
+        return renderHTTPOperationResult(result, request, response);
     }
 
     private PipelineScheduleOptions getScheduleOptions(Request req) {

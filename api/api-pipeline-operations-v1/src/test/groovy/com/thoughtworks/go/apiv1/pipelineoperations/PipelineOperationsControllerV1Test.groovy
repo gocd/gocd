@@ -27,11 +27,13 @@ import com.thoughtworks.go.config.exceptions.RecordNotFoundException
 import com.thoughtworks.go.domain.JobResult
 import com.thoughtworks.go.domain.JobState
 import com.thoughtworks.go.domain.MaterialRevisions
+import com.thoughtworks.go.domain.PipelinePauseInfo
 import com.thoughtworks.go.domain.buildcause.BuildCause
 import com.thoughtworks.go.helper.EnvironmentVariablesConfigMother
 import com.thoughtworks.go.helper.MaterialConfigsMother
 import com.thoughtworks.go.helper.MaterialsMother
 import com.thoughtworks.go.helper.ModificationsMother
+import com.thoughtworks.go.presentation.PipelineStatusModel
 import com.thoughtworks.go.presentation.pipelinehistory.JobHistory
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels
@@ -57,8 +59,7 @@ import org.junit.jupiter.api.Test
 import org.mockito.Mock
 import org.mockito.invocation.InvocationOnMock
 
-import static org.mockito.ArgumentMatchers.any
-import static org.mockito.ArgumentMatchers.eq
+import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.doAnswer
 import static org.mockito.Mockito.when
 import static org.mockito.MockitoAnnotations.initMocks
@@ -494,6 +495,62 @@ class PipelineOperationsControllerV1Test implements SecurityServiceTrait, Contro
       return scheduleOptionsJson;
     }
 
+  }
+
+  @Nested
+  class Status {
+    private String pipelineName = "up42"
+    @Nested
+    class Security implements SecurityTestTrait, PipelineGroupOperateUserSecurity {
+
+      @Override
+      String getControllerMethodUnderTest() {
+        return "getStatusInfo"
+      }
+
+      @Override
+      void makeHttpCall() {
+        getWithApiHeader(controller.controllerPath(pipelineName, 'status'), [:])
+      }
+
+      @Override
+      String getPipelineName() {
+        return Status.this.pipelineName
+      }
+    }
+
+    @Nested
+    class AsAuthorizedUser {
+      @BeforeEach
+      void setUp() {
+        enableSecurity()
+        loginAsGroupOperateUser(pipelineName)
+      }
+
+      @Test
+      void 'should return the pipeline status'() {
+        def pipelineStatusModel = new PipelineStatusModel(false, true, new PipelinePauseInfo(true, "some pause cause", "admin"))
+
+        when(pipelineHistoryService.getPipelineStatus(eq(pipelineName), anyString(), any(HttpOperationResult.class))).thenReturn(pipelineStatusModel)
+
+        getWithApiHeader(controller.controllerPath(pipelineName, 'status'), [:])
+
+        def expectedJson = [
+          "paused"      : true,
+          "paused_cause": "some pause cause",
+          "paused_by"   : "admin",
+          "locked"      : false,
+          "schedulable" : true
+        ]
+
+        assertThatResponse()
+          .isOk()
+          .hasContentType(controller.mimeType)
+          .hasJsonBody(expectedJson)
+      }
+
+
+    }
   }
 }
 

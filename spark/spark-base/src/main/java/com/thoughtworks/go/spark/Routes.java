@@ -265,6 +265,7 @@ public class Routes {
         public static final String UNLOCK_PATH = "/:pipeline_name/unlock";
         public static final String TRIGGER_OPTIONS_PATH = "/:pipeline_name/trigger_options";
 
+        public static final String STATUS_PATH = "/:pipeline_name/status";
         public static final String SCHEDULE_PATH = "/:pipeline_name/schedule";
         public static final String HISTORY_PATH = "/:pipeline_name/history";
         public static final String INSTANCE_PATH = "/:pipeline_name/instance/:pipeline_counter";

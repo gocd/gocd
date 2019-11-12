@@ -49,6 +49,7 @@ describe("ServerManageMentWidget", () => {
   it("should render input boxes with proper help text", () => {
     const siteUrls = new SiteUrls("http://foo.com", "https://securefoo.com");
     const docsLink = docsUrl("/installation/configuring_server_details.html#configure-site-urls");
+
     mount(siteUrls);
     const helpTextForSiteUrl =
             "This entry will be used by Go Server to generate links for emails, feeds etc. " +
@@ -59,22 +60,18 @@ describe("ServerManageMentWidget", () => {
             "that require SSL, you can specify this attribute with a value of the base HTTPS URL." +
             " Format: https://[host]:[port].";
 
-    expect(helper.byTestId("help-text-for-siteurl")).toBeInDOM();
-    expect(helper.byTestId("help-text-for-secure-siteurl")).toBeInDOM();
-    expect(helper.byTestId("help-text-for-siteurl")).toContainText(helpTextForSiteUrl);
-    expect(helper.byTestId("help-text-for-secure-siteurl")).toContainText(helpTextForSecureSiteUrl);
-    expect(helper.q("a", helper.byTestId("help-text-for-siteurl"))).toHaveProp("href", docsLink);
-    expect(helper.q("a", helper.byTestId("help-text-for-secure-siteurl"))).toHaveProp("href", docsLink);
-  });
+    const siteUrlId              = helper.byTestId("form-field-input-site-url").getAttribute("id");
+    const siteUrlHelpTextElement = helper.q(`#${siteUrlId}-help-text`);
 
-  it("should disabled cancel button on click of save button", () => {
-    const siteUrls = new SiteUrls("http://foo.com", "https://securefoo.com");
-    mount(siteUrls);
+    const secureSiteUrlId              = helper.byTestId("form-field-input-secure-site-url").getAttribute("id");
+    const secureSiteUrlHelpTextElement = helper.q(`#${secureSiteUrlId}-help-text`);
+    const docsLinkForSiteUrl             = helper.q("a", helper.q(`#${siteUrlId}-help-text`));
+    const docsLinkForSecureSiteUrl       = helper.q("a", helper.q(`#${secureSiteUrlId}-help-text`));
 
-    helper.clickByTestId("save");
-
-    expect(helper.byTestId("cancel")).toBeDisabled();
-
+    expect(siteUrlHelpTextElement).toContainText(helpTextForSiteUrl);
+    expect(docsLinkForSiteUrl).toHaveAttr("href", docsLink);
+    expect(secureSiteUrlHelpTextElement).toContainText(helpTextForSecureSiteUrl);
+    expect(docsLinkForSecureSiteUrl).toHaveAttr("href", docsLink);
   });
 
   it("should enable cancel button on change of input", () => {
@@ -84,17 +81,6 @@ describe("ServerManageMentWidget", () => {
     helper.oninput(helper.byTestId("form-field-input-secure-site-url"), "secure-site-url");
 
     expect(helper.byTestId("cancel")).not.toBeDisabled();
-
-  });
-
-  it("should disable cancel button on click of cancel", () => {
-    const siteUrls = new SiteUrls("http://foo.com", "https://securefoo.com");
-
-    mount(siteUrls);
-    helper.oninput(helper.byTestId("form-field-input-secure-site-url"), "secure-site-url");
-    expect(helper.byTestId("cancel")).not.toBeDisabled();
-    helper.clickByTestId("cancel");
-    expect(helper.byTestId("cancel")).toBeDisabled();
 
   });
 

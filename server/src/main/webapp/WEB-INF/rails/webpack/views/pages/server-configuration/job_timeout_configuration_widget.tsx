@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {MithrilComponent} from "jsx/mithril-component";
+import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {ButtonGroup, Cancel, Primary} from "views/components/buttons";
@@ -24,14 +24,10 @@ import {OperationState} from "views/pages/page_operations";
 import styles from "views/pages/server-configuration/index.scss";
 import {JobTimeoutAttrs} from "views/pages/server_configuration";
 
-interface State {
-  isAllowedToCancel: boolean;
-}
-
-export class JobTimeoutConfigurationWidget extends MithrilComponent<JobTimeoutAttrs, State> {
+export class JobTimeoutConfigurationWidget extends MithrilViewComponent<JobTimeoutAttrs> {
   private ajaxOperationMonitor = Stream<OperationState>(OperationState.UNKNOWN);
 
-  view(vnode: m.Vnode<JobTimeoutAttrs, State>): m.Vnode {
+  view(vnode: m.Vnode<JobTimeoutAttrs>): m.Vnode {
     return <div data-test-id="job-timeout-management-widget" class={styles.formContainer}>
       <FormBody>
         <div class={styles.formHeader}>
@@ -42,45 +38,35 @@ export class JobTimeoutConfigurationWidget extends MithrilComponent<JobTimeoutAt
             <CheckboxField dataTestId="checkbox-for-job-timeout"
                            property={vnode.attrs.defaultJobTimeout().neverTimeout}
                            label={"Never job timeout"}
-                           onchange={(e) => this.enableSetJobTimeout(e, vnode)}/>
+                           onchange={(e) => vnode.attrs.defaultJobTimeout().defaultJobTimeout(0)}/>
             <NumberField label="Default Job timeout"
                          helpText="the job will get cancel after the given minutes of inactivity"
                          readonly={vnode.attrs.defaultJobTimeout().neverTimeout()}
                          property={vnode.attrs.defaultJobTimeout().defaultJobTimeout}
                          required={true}
-                         errorText={vnode.attrs.defaultJobTimeout().errors().errorsForDisplay("defaultJobTimeout")}
-                         onchange={() => vnode.state.isAllowedToCancel = true}
-            />
+                         errorText={vnode.attrs.defaultJobTimeout().errors().errorsForDisplay("defaultJobTimeout")}/>
           </Form>
         </div>
         <div class={styles.buttons}>
           <ButtonGroup>
-            <Cancel data-test-id={"cancel"} ajaxOperation={this.onCancel.bind(this, vnode)}
+            <Cancel data-test-id={"cancel"}
+                    ajaxOperation={vnode.attrs.onCancel}
                     ajaxOperationMonitor={this.ajaxOperationMonitor}
-                    disabled={!vnode.state.isAllowedToCancel}>Cancel</Cancel>
-            <Primary data-test-id={"save"} ajaxOperation={this.onSave.bind(this, vnode)}
-                     ajaxOperationMonitor={this.ajaxOperationMonitor}>Save</Primary>
+                    onclick={() => vnode.attrs.onCancel()}>Cancel</Cancel>
+            <Primary data-test-id={"save"}
+                     ajaxOperation={this.onSave.bind(this, vnode)}
+                     ajaxOperationMonitor={this.ajaxOperationMonitor}
+                     onclick={() => this.onSave(vnode)}>Save</Primary>
           </ButtonGroup>
         </div>
       </FormBody>
     </div>;
   }
 
-  onCancel(vnode: m.Vnode<JobTimeoutAttrs, State>) {
-    vnode.state.isAllowedToCancel = false;
-    return vnode.attrs.onCancel();
-  }
-
-  onSave(vnode: m.Vnode<JobTimeoutAttrs, State>) {
+  onSave(vnode: m.Vnode<JobTimeoutAttrs>) {
     if (vnode.attrs.defaultJobTimeout().isValid()) {
-      vnode.state.isAllowedToCancel = false;
       return vnode.attrs.onDefaultJobTimeoutSave(vnode.attrs.defaultJobTimeout());
     }
     return Promise.resolve();
-  }
-
-  private enableSetJobTimeout(e: Event, vnode: m.Vnode<JobTimeoutAttrs, State>) {
-    vnode.attrs.defaultJobTimeout().defaultJobTimeout(0);
-    vnode.state.isAllowedToCancel = true;
   }
 }

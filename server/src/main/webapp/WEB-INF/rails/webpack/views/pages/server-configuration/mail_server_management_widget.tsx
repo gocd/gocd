@@ -14,21 +14,16 @@
  * limitations under the License.
  */
 
-import {docsUrl} from "gen/gocd_version";
-import {MithrilComponent} from "jsx/mithril-component";
+import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {MailServer} from "models/server-configuration/server_configuration";
-import {ButtonGroup, Cancel, Primary} from "views/components/buttons";
 import {Form, FormBody} from "views/components/forms/form";
 import {CheckboxField, NumberField, PasswordField, TextField} from "views/components/forms/input_fields";
+import {Delete, IconGroup} from "views/components/icons";
 import {OperationState} from "views/pages/page_operations";
 import {MailServerManagementAttrs} from "views/pages/server_configuration";
+import {ButtonGroup, Cancel, Primary} from "../../components/buttons";
 import styles from "./index.scss";
-
-interface State {
-  isAllowedToCancel: boolean;
-}
 
 const senderEmailHelpText = (
   <span>Emails will be sent from this email address. This will be used as the <code>From:</code> field of the email.</span>
@@ -41,27 +36,34 @@ const portHelpText = (
 const smtpsHelpText = (
   <span>
     This changes the protocol used to send the mail. It switches between <em>SMTP</em> and <em>SMTPS</em>.
-    To enable <code>STARTLS</code> support, for providers such as GMail and Office 365, see <a
-    href={docsUrl("/configuration/admin_mailhost_info.html#smtps-and-tls")}>this page in the documentation</a>.
+    To enable <code>STARTLS</code> support, for providers such as GMail and Office 365,
   </span>
 );
 
-export class MailServerManagementWidget extends MithrilComponent<MailServerManagementAttrs, State> {
+export class MailServerManagementWidget extends MithrilViewComponent<MailServerManagementAttrs> {
   private ajaxOperationMonitor = Stream<OperationState>(OperationState.UNKNOWN);
-  view(vnode: m.Vnode<MailServerManagementAttrs, State>) {
+
+  view(vnode: m.Vnode<MailServerManagementAttrs>) {
     const mailServer = vnode.attrs.mailServer();
 
     return <div data-test-id="mail-server-management-widget" class={styles.formContainer}>
       <FormBody>
         <div class={styles.formHeader}>
           <h2>Configure your email server settings</h2>
+          <div class={styles.deleteIcon}><IconGroup>
+            <Delete data-test-id={"Delete"}
+                    disabled={!vnode.attrs.canDeleteMailServer()}
+                    onclick={() => vnode.attrs.onMailServerManagementDelete()}>
+              Delete</Delete>
+          </IconGroup>
+          </div>
         </div>
         <div class={styles.formFields}>
           <Form compactForm={true}>
             <TextField
               label="SMTP hostname"
               errorText={mailServer.errors().errorsForDisplay("hostname")}
-              onchange={() => MailServerManagementWidget.onChange(mailServer, "hostname", vnode)}
+              onchange={() => mailServer.validate("hostname")}
               property={mailServer.hostname}
               helpText={"Specify the hostname or ip address of your SMTP server."}
               required={true}/>
@@ -69,7 +71,7 @@ export class MailServerManagementWidget extends MithrilComponent<MailServerManag
             <NumberField
               label="SMTP port"
               errorText={mailServer.errors().errorsForDisplay("port")}
-              onchange={() => MailServerManagementWidget.onChange(mailServer, "port", vnode)}
+              onchange={() => mailServer.validate("port")}
               property={mailServer.port}
               helpText={portHelpText}
               required={true}/>
@@ -77,63 +79,55 @@ export class MailServerManagementWidget extends MithrilComponent<MailServerManag
             <CheckboxField
               label={"Use SMTPS"}
               property={mailServer.tls}
-              helpText={smtpsHelpText}/>
+              helpText={smtpsHelpText}
+              docLink="/configuration/admin_mailhost_info.html#smtps-and-tls"
+            />
 
             <TextField
               label="SMTP username"
               errorText={mailServer.errors().errorsForDisplay("username")}
-              onchange={() => MailServerManagementWidget.onChange(mailServer, "password", vnode)}
+              onchange={() => mailServer.validate("password")}
               property={mailServer.username}
               helpText={"Specify the username, if the SMTP server requires authentication."}/>
 
             <PasswordField
               label="SMTP password"
               errorText={mailServer.errors().errorsForDisplay("password")}
-              onchange={() => MailServerManagementWidget.onChange(mailServer, "password", vnode)}
+              onchange={() => mailServer.validate("password")}
               property={mailServer.password}
-              helpText={"Specify the password, if the SMTP server requires authentication."}/>
+              helpText={"Specify the password, if the SMTP server requires authentication."}
+            />
 
             <TextField
               label="Send email using address"
               errorText={mailServer.errors().errorsForDisplay("senderEmail")}
-              onchange={() => MailServerManagementWidget.onChange(mailServer, "senderEmail", vnode)}
+              onchange={() => mailServer.validate("senderEmail")}
               property={mailServer.senderEmail}
+              required={true}
               helpText={senderEmailHelpText}/>
 
             <TextField
               label="Administrator email"
               errorText={mailServer.errors().errorsForDisplay("adminEmail")}
-              onchange={() => MailServerManagementWidget.onChange(mailServer, "adminEmail", vnode)}
+              onchange={() => mailServer.validate("adminEmail")}
               property={mailServer.adminEmail}
+              required={true}
               helpText={"One or more email address of GoCD system administrators. This email will be notified if the server runs out of disk space, or if backups fail."}/>
           </Form>
         </div>
         <div class={styles.buttons}>
           <ButtonGroup>
-            <Cancel data-test-id={"cancel"} ajaxOperation={() => MailServerManagementWidget.onCancel(vnode)}
-                    disabled={!vnode.state.isAllowedToCancel}
-                    ajaxOperationMonitor={this.ajaxOperationMonitor}>Cancel</Cancel>
+            <Cancel data-test-id={"cancel"}
+                    ajaxOperation={vnode.attrs.onCancel}
+                    ajaxOperationMonitor={this.ajaxOperationMonitor}
+                    onclick={() => vnode.attrs.onCancel()}>Cancel</Cancel>
             <Primary data-test-id={"save"}
                      ajaxOperationMonitor={this.ajaxOperationMonitor}
-                     ajaxOperation={() => MailServerManagementWidget.onSave(vnode)}>Save</Primary>
+                     ajaxOperation={() => vnode.attrs.onMailServerManagementSave(vnode.attrs.mailServer())}
+                     onclick={() => vnode.attrs.onMailServerManagementSave(vnode.attrs.mailServer())}>Save</Primary>
           </ButtonGroup>
         </div>
       </FormBody>
     </div>;
-  }
-
-  private static onCancel(vnode: m.Vnode<MailServerManagementAttrs, State>) {
-    vnode.state.isAllowedToCancel = false;
-    return vnode.attrs.onCancel();
-  }
-
-  private static onSave(vnode: m.Vnode<MailServerManagementAttrs, State>) {
-    vnode.state.isAllowedToCancel = false;
-    return vnode.attrs.onMailServerManagementSave(vnode.attrs.mailServer());
-  }
-
-  private static onChange(mailServer: MailServer, key: string, vnode: m.Vnode<MailServerManagementAttrs, State>) {
-    vnode.state.isAllowedToCancel = true;
-    mailServer.validate(key);
   }
 }

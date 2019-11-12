@@ -87,27 +87,6 @@ describe("ArtifactsManagementWidget", () => {
       helper.clickByTestId("cancel");
       expect(onCancelSpy).toHaveBeenCalled();
     });
-
-    it("should enable cancel onChange of input - artifact Directory location", () => {
-      mount(new ArtifactConfig("foo"));
-      expect(helper.byTestId("cancel")).toBeDisabled();
-      helper.oninput(helper.byTestId("form-field-input-artifacts-directory-location"), "new-artifact-dir");
-      expect(helper.byTestId("cancel")).not.toBeDisabled();
-    });
-
-    it("should enable cancel onChange of input - cleanup artifact checkbox", () => {
-      mount(new ArtifactConfig("foo"));
-      expect(helper.byTestId("cancel")).toBeDisabled();
-      helper.click(helper.byTestId("form-field-input-allow-auto-cleanup-artifacts"));
-      expect(helper.byTestId("cancel")).not.toBeDisabled();
-    });
-
-    it("should disable cancel onClick of save", () => {
-      mount(new ArtifactConfig("foo"));
-      expect(helper.byTestId("cancel")).toBeDisabled();
-      helper.clickByTestId("save");
-      expect(helper.byTestId("cancel")).toBeDisabled();
-    });
   });
 
   describe("Save", () => {

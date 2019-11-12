@@ -14,14 +14,10 @@
  * limitations under the License.
  */
 
+import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {
-  ArtifactConfig,
-  DefaultJobTimeout,
-  MailServer,
-  SiteUrls
-} from "models/server-configuration/server_configuration";
+import {ArtifactConfig, DefaultJobTimeout, MailServer, SiteUrls} from "models/server-configuration/server_configuration";
 import {Sections, ServerConfigurationWidget} from "views/pages/server-configuration/server_configuration_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
 
@@ -29,22 +25,26 @@ describe("ServerConfigurationWidget", () => {
   const helper  = new TestHelper();
   const onClick = jasmine.createSpy("onClick");
 
-  function mount(activeConfiguration: Sections, artifactConfig: ArtifactConfig, siteUrls: SiteUrls, mailServer: MailServer) {
+  function mount(activeConfiguration: Sections,
+                 artifactConfig: ArtifactConfig,
+                 siteUrls: SiteUrls,
+                 mailServer: MailServer) {
 
-    helper.mount(() =>
-      <ServerConfigurationWidget
-        route={onClick}
-        activeConfiguration={activeConfiguration}
-        defaultJobTimeout={Stream(new DefaultJobTimeout(0))}
-        onDefaultJobTimeoutSave={() => Promise.resolve()}
-        artifactConfig={artifactConfig}
-        onArtifactConfigSave={() => Promise.resolve()}
-        onServerManagementSave={() => Promise.resolve()}
-        siteUrls={siteUrls}
-        onMailServerManagementSave={() => Promise.resolve()}
-        mailServer={Stream(mailServer)}
-        onCancel={() => Promise.resolve()}
-      />);
+    helper.mount(() => <ServerConfigurationWidget
+      onMailServerManagementDelete={_.noop}
+      route={onClick}
+      activeConfiguration={activeConfiguration}
+      defaultJobTimeout={Stream(new DefaultJobTimeout(0))}
+      onDefaultJobTimeoutSave={() => Promise.resolve()}
+      artifactConfig={artifactConfig}
+      onArtifactConfigSave={() => Promise.resolve()}
+      onServerManagementSave={() => Promise.resolve()}
+      siteUrls={siteUrls}
+      onMailServerManagementSave={() => Promise.resolve()}
+      mailServer={Stream(mailServer)}
+      onCancel={() => Promise.resolve()}
+      canDeleteMailServer={Stream()}
+    />);
   }
 
   afterEach((done) => helper.unmount(done));

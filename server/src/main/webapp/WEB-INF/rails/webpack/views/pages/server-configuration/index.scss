@@ -61,7 +61,10 @@
 }
 
 .form-header {
-  border-bottom: 1px solid $border-color;
+  border-bottom:   1px solid $border-color;
+  display:         flex;
+  flex-direction:  row;
+  justify-content: space-between;
 }
 
 .buttons {
@@ -72,4 +75,8 @@
 .form-fields {
   border-bottom: 1px solid $border-color;
   padding-top:   20px;
+}
+
+.deleteIcon {
+  margin: 10px 0;
 }

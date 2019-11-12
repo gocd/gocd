@@ -81,7 +81,7 @@ class StageInstanceModelRepresenterTest {
         [
           "id"            : 0,
           "name"          : "buildName",
-          "scheduled_date": jsonDate(date),
+          "scheduled_date": jsonDate(stage.scheduledDate()),
           "state"         : "Completed",
           "result"        : "Passed"
         ]

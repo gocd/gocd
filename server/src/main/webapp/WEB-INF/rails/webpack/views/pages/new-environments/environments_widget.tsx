@@ -40,7 +40,7 @@ export class EnvironmentsWidget extends MithrilViewComponent<Attrs> {
                                warning={isEnvEmpty}
                                actions={[
                                  <Icons.Delete iconOnly={true}
-                                               onclick={vnode.attrs.onDelete.bind(vnode.attrs, environment)}/>
+                                               onclick={(e) => vnode.attrs.onDelete(environment, e)}/>
                                ]}
                                dataTestId={`collapsible-panel-for-env-${environment.name()}`}>
         <EnvironmentBody environment={environment}

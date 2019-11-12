@@ -129,11 +129,11 @@ abstract class RoleWidget extends MithrilViewComponent<RoleAttrs | PluginRoleAtt
     const actionButtons = [
       <IconGroup>
         <Edit data-test-id="role-edit" disabled={isDisabled}
-              onclick={vnode.attrs.onEdit.bind(vnode.attrs, vnode.attrs.role)}/>
+              onclick={(e) => vnode.attrs.onEdit(vnode.attrs.role, e)}/>
         <Clone data-test-id="role-clone" disabled={isDisabled}
-               onclick={vnode.attrs.onClone.bind(vnode.attrs, vnode.attrs.role)}/>
+               onclick={(e) => vnode.attrs.onClone(vnode.attrs.role, e)}/>
         <Delete data-test-id="role-delete"
-                onclick={vnode.attrs.onDelete.bind(vnode.attrs, vnode.attrs.role)}/>
+                onclick={(e) => vnode.attrs.onDelete(vnode.attrs.role, e)}/>
       </IconGroup>];
 
     return (<CollapsiblePanel header={header} actions={actionButtons}

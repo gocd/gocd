@@ -91,12 +91,12 @@ export class NewAgentPage extends Page<null, State> {
   componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
     return <AgentsWidget staticAgentsVM={vnode.state.staticAgentsVM}
                          elasticAgentsVM={vnode.state.elasticAgentsVM}
-                         onEnable={vnode.state.onEnable.bind(vnode.state)}
-                         onDisable={vnode.state.onDisable.bind(vnode.state)}
-                         onDelete={vnode.state.onDelete.bind(vnode.state)}
+                         onEnable={vnode.state.onEnable}
+                         onDisable={vnode.state.onDisable}
+                         onDelete={vnode.state.onDelete}
                          flashMessage={this.flashMessage}
-                         updateEnvironments={vnode.state.updateEnvironments.bind(vnode.state)}
-                         updateResources={vnode.state.updateResources.bind(vnode.state)}
+                         updateEnvironments={vnode.state.updateEnvironments}
+                         updateResources={vnode.state.updateResources}
                          showAnalyticsIcon={this.showAnalyticsIcon()}
                          pluginInfos={vnode.state.pluginInfos}
                          isUserAdmin={Page.isUserAnAdmin()}/>;

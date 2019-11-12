@@ -176,13 +176,13 @@ class RolesDropdown extends Dropdown<RolesViewAttrs> {
         </div>
         <Form compactForm={true}>
           <QuickAddField property={vnode.attrs.roleNameToAdd} placeholder="Add role"
-                         onclick={vnode.attrs.onRolesAdd.bind(this, vnode.attrs.roleNameToAdd(), vnode.attrs.users())}
+                         onclick={() => vnode.attrs.onRolesAdd(vnode.attrs.roleNameToAdd(), vnode.attrs.users())}
                          buttonDisableReason={"Please type the role name to add."}
           />
         </Form>
-        <Primary onclick={vnode.attrs.onRolesUpdate.bind(this,
-                                                         vnode.attrs.rolesSelection(),
-                                                         vnode.attrs.users())}>Apply</Primary>
+        <Primary onclick={() => vnode.attrs.onRolesUpdate(vnode.attrs.rolesSelection(), vnode.attrs.users())}>
+          Apply
+        </Primary>
       </div>
     );
   }
@@ -221,11 +221,11 @@ export class UsersActionsWidget extends MithrilViewComponent<State> {
       <div class={classnames(styles.userActionsAndCounts)}>
         <div class={classnames(styles.userActions)}>
           <ButtonGroup>
-            <Secondary onclick={vnode.attrs.onEnable.bind(vnode.attrs, vnode.attrs.users())}
+            <Secondary onclick={(e) => vnode.attrs.onEnable(vnode.attrs.users(), e)}
                        disabled={!vnode.attrs.users().anyUserSelected()}>Enable</Secondary>
-            <Secondary onclick={vnode.attrs.onDisable.bind(vnode.attrs, vnode.attrs.users())}
+            <Secondary onclick={(e) => vnode.attrs.onDisable(vnode.attrs.users(), e)}
                        disabled={!vnode.attrs.users().anyUserSelected()}>Disable</Secondary>
-            <Secondary onclick={vnode.attrs.onDelete.bind(vnode.attrs, vnode.attrs.users())}
+            <Secondary onclick={(e) => vnode.attrs.onDelete(vnode.attrs.users(), e)}
                        disabled={!vnode.attrs.users().anyUserSelected()}>Delete</Secondary>
             <RolesDropdown {...vnode.attrs} show={vnode.attrs.showRoles}/>
           </ButtonGroup>

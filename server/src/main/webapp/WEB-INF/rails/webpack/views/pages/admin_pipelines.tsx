@@ -345,7 +345,7 @@ export class AdminPipelinesPage extends Page<null, State> {
   protected headerPanel(vnode: m.Vnode<null, State>): any {
     const headerButtons = [
       <Buttons.Primary icon={ButtonIcon.ADD}
-                       onclick={vnode.state.createPipelineGroup.bind(vnode.state)}
+                       onclick={vnode.state.createPipelineGroup}
                        data-test-id="create-new-pipeline-group">Create new pipeline group</Buttons.Primary>
     ];
     return <HeaderPanel title={this.pageName()} buttons={headerButtons}/>;

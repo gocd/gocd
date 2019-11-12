@@ -90,7 +90,7 @@ export class ClusterProfileWidget extends MithrilComponent<ClusterProfileWidgetA
       <ElasticProfilesWidget elasticProfiles={new ElasticAgentProfiles(filteredElasticAgentProfiles)}
                              pluginInfo={pluginInfo}
                              elasticAgentOperations={vnode.attrs.elasticAgentOperations}
-                             onShowUsages={vnode.attrs.onShowUsages.bind(vnode.attrs)}
+                             onShowUsages={vnode.attrs.onShowUsages}
                              isUserAnAdmin={vnode.attrs.isUserAnAdmin}/>
     </CollapsiblePanel>;
   }

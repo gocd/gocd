@@ -183,7 +183,7 @@ export class UsersPage extends Page<null, State> {
 
   headerPanel(vnode: m.Vnode<null, State>) {
     const headerButtons = [];
-    headerButtons.push(<Buttons.Primary onclick={vnode.state.onAdd.bind(vnode.state)}>Import User</Buttons.Primary>);
+    headerButtons.push(<Buttons.Primary onclick={vnode.state.onAdd}>Import User</Buttons.Primary>);
 
     return <div>
       <HeaderPanel title="Users Management" buttons={headerButtons}/>

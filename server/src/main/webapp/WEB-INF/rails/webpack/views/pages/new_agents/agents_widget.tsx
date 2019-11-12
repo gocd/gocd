@@ -45,7 +45,7 @@ export class AgentsWidget extends MithrilViewComponent<AgentsWidgetAttrs> {
                           onDisable={vnode.attrs.onDisable}
                           onDelete={vnode.attrs.onDelete}
                           flashMessage={vnode.attrs.flashMessage}
-                          updateEnvironments={vnode.attrs.updateEnvironments.bind(vnode.attrs)}
+                          updateEnvironments={vnode.attrs.updateEnvironments}
                           updateResources={vnode.attrs.updateResources}
                           showAnalyticsIcon={vnode.attrs.showAnalyticsIcon}
                           pluginInfos={vnode.attrs.pluginInfos}

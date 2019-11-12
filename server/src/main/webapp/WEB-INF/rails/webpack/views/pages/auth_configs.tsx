@@ -91,9 +91,9 @@ export class AuthConfigsPage extends Page<null, State> {
       <FlashMessage type={this.flashMessage.type} message={this.flashMessage.message}/>
       <AuthConfigsWidget authConfigs={vnode.state.authConfigs}
                          pluginInfos={vnode.state.pluginInfos}
-                         onEdit={vnode.state.onEdit.bind(vnode.state)}
-                         onClone={vnode.state.onClone.bind(vnode.state)}
-                         onDelete={vnode.state.onDelete.bind(vnode.state)}/>
+                         onEdit={vnode.state.onEdit}
+                         onClone={vnode.state.onClone}
+                         onDelete={vnode.state.onDelete}/>
     </div>;
   }
 
@@ -104,7 +104,7 @@ export class AuthConfigsPage extends Page<null, State> {
   headerPanel(vnode: m.Vnode<null, State>): any {
     const disabled      = !vnode.state.pluginInfos || vnode.state.pluginInfos().length === 0;
     const headerButtons = [
-      <Buttons.Primary onclick={vnode.state.onAdd.bind(vnode.state)}
+      <Buttons.Primary onclick={vnode.state.onAdd}
                        data-test-id="add-auth-config-button"
                        disabled={disabled}>Add</Buttons.Primary>
     ];

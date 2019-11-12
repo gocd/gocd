@@ -107,7 +107,7 @@ export class ArtifactStoresPage extends Page<null, State> {
   headerPanel(vnode: m.Vnode<null, State>): any {
     const disabled      = !vnode.state.pluginInfos || vnode.state.pluginInfos().length === 0;
     const headerButtons = [
-      <Buttons.Primary onclick={vnode.state.onAdd.bind(vnode.state)}
+      <Buttons.Primary onclick={vnode.state.onAdd}
                        data-test-id="add-artifact-stores-button"
                        disabled={disabled}>Add</Buttons.Primary>
     ];

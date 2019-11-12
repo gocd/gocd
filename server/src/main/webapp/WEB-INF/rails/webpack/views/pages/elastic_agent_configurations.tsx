@@ -223,7 +223,7 @@ export class ElasticProfilesPage extends Page<null, State> {
                              pluginInfos={vnode.state.pluginInfos}
                              elasticAgentOperations={vnode.state.elasticAgentOperations}
                              clusterProfileOperations={vnode.state.clusterProfileOperations}
-                             onShowUsages={vnode.state.onShowUsages.bind(vnode.state)}
+                             onShowUsages={vnode.state.onShowUsages}
                              isUserAnAdmin={ElasticProfilesPage.isUserAnAdmin()}/>
     </div>;
   }
@@ -232,7 +232,7 @@ export class ElasticProfilesPage extends Page<null, State> {
     const headerButtons = [];
     const hasPlugins    = vnode.state.pluginInfos() && vnode.state.pluginInfos().length > 0;
     headerButtons.push(<Buttons.Primary disabled={!hasPlugins}
-                                        onclick={vnode.state.clusterProfileOperations.onAdd.bind(vnode.state)}>
+                                        onclick={vnode.state.clusterProfileOperations.onAdd}>
       <span title={!hasPlugins ? "Install some elastic agent plugins to add a cluster profile." : undefined}>Add Cluster Profile</span>
     </Buttons.Primary>);
 

@@ -69,8 +69,7 @@ export class ElasticProfilesWidget extends MithrilComponent<Attrs & PluginInfoAt
                                                           onDelete={vnode.attrs.elasticAgentOperations.onDelete.bind(
                                                             vnode.attrs,
                                                             profile.id()!)}
-                                                          onShowUsage={vnode.attrs.onShowUsages.bind(vnode.attrs,
-                                                                                                     profile.id()!)}
+                                                          onShowUsage={vnode.attrs.onShowUsages}
                                     />
               );
             })
@@ -91,7 +90,7 @@ export interface ProfileAttrs {
   onEdit: (e: MouseEvent) => void;
   onClone: (e: MouseEvent) => void;
   onDelete: (e: MouseEvent) => void;
-  onShowUsage: (e: MouseEvent) => void;
+  onShowUsage: (id: string, e: MouseEvent) => void;
 }
 
 export class ElasticProfileWidget extends MithrilComponent<ProfileAttrs> {
@@ -110,7 +109,8 @@ export class ElasticProfileWidget extends MithrilComponent<ProfileAttrs> {
         <Icons.Clone data-test-id="clone-elastic-profile" onclick={vnode.attrs.onClone}
                      disabled={!vnode.attrs.pluginInfo}/>
         <Icons.Delete data-test-id="delete-elastic-profile" onclick={vnode.attrs.onDelete}/>
-        <Icons.Usage data-test-id="show-usage-elastic-profile" onclick={vnode.attrs.onShowUsage}/>
+        <Icons.Usage data-test-id="show-usage-elastic-profile"
+                     onclick={(e) => vnode.attrs.onShowUsage(vnode.attrs.elasticProfile.id()!, e)}/>
       </IconGroup>
     ];
     return (

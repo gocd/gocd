@@ -67,7 +67,7 @@ export class AccessTokensPage extends Page<null, State> {
   headerPanel(vnode: m.Vnode<null, State>): any {
     return <HeaderPanel title={this.pageName()} buttons={
       <Buttons.Primary disabled={!vnode.state.meta.supportsAccessToken}
-                       onclick={vnode.state.onAdd.bind(vnode.state)}
+                       onclick={vnode.state.onAdd}
                        data-test-id="generate-token-button">
         Generate Token
       </Buttons.Primary>

@@ -121,7 +121,7 @@ export class RolesPage extends Page<null, State> {
 
   headerPanel(vnode: m.Vnode<null, State>) {
     const headerButtons = [(<Buttons.Primary data-test-id="role-add-button"
-                                             onclick={vnode.state.onAdd.bind(vnode.state)}>Add</Buttons.Primary>)];
+                                             onclick={vnode.state.onAdd}>Add</Buttons.Primary>)];
 
     return <HeaderPanel title={this.pageName()} buttons={headerButtons}/>;
   }

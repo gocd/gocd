@@ -65,12 +65,12 @@ export class AuthConfigsWidget extends MithrilViewComponent<Attrs> {
           <IconGroup>
             <Edit data-test-id="auth-config-edit"
                   disabled={!pluginInfo}
-                  onclick={vnode.attrs.onEdit.bind(vnode.attrs, authConfig)}/>
+                  onclick={(e) => vnode.attrs.onEdit(authConfig, e)}/>
             <Clone data-test-id="auth-config-clone"
                    disabled={!pluginInfo}
-                   onclick={vnode.attrs.onClone.bind(vnode.attrs, authConfig)}/>
+                   onclick={(e) => vnode.attrs.onClone(authConfig, e)}/>
             <Delete data-test-id="auth-config-delete"
-                    onclick={vnode.attrs.onDelete.bind(vnode.attrs, authConfig)}/>
+                    onclick={(e) => vnode.attrs.onDelete(authConfig, e)}/>
           </IconGroup>];
         return <CollapsiblePanel header={header} actions={actionButtons}>
           <KeyValuePair data={authConfig.properties()!.asMap()}/>

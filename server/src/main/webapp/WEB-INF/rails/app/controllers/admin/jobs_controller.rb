@@ -86,7 +86,7 @@ module Admin
 
     def update
       if params[:stage_parent] == 'templates'
-        update_on_template
+        old_update
         return
       end
       pipeline_name = params[:pipeline_name]
@@ -109,7 +109,7 @@ module Admin
       end
     end
 
-    def update_on_template
+    def old_update
       save_popup(params[:config_md5], Class.new(::ConfigUpdate::SaveAsPipelineOrTemplateAdmin) do
         include ::ConfigUpdate::JobNode
         include ::ConfigUpdate::NodeAsSubject

@@ -43,6 +43,29 @@ module Admin
     end
 
     def create
+      if params[:stage_parent] == 'templates' or Toggles.isToggleOff(Toggles.FAST_PIPELINE_SAVE)
+        old_create
+        return
+      end
+      pipeline_name = params[:pipeline_name]
+      original_pipeline_config = pipeline_config_service.getPipelineConfig(pipeline_name)
+      @pipeline = CLONER.deep_clone(original_pipeline_config)
+      assert_load :stage, new_stage
+      @stage.setConfigAttributes(params[:stage], task_view_service)
+      task = @stage.getJobs().first().getTasks().first()
+      pluggable_task_service.validate(task) if task.instance_of? com.thoughtworks.go.config.pluggabletask.PluggableTask
+      @pipeline.addStageWithoutValidityAssertion(@stage)
+      fast_save_popup({:action => :new, :layout => false}, {:current_tab => params[:current_tab]}) do
+        assert_load(:pipeline, @pipeline)
+        assert_load(:stage, @stage)
+        assert_load(:pipeline_md5, params[:pipeline_md5])
+        assert_load(:pipeline_group_name, params[:pipeline_group_name])
+        assert_load(:pipeline_name, params[:pipeline_name])
+        assert_load(:task_view_models, task_view_service.getTaskViewModelsWith(@stage.allBuildPlans().first().tasks().first())) unless @update_result.isSuccessful()
+      end
+    end
+
+    def old_create
       assert_load :stage, new_stage
       @stage.setConfigAttributes(params[:stage], task_view_service)
       save_popup(params[:config_md5], Class.new(::ConfigUpdate::SaveAsPipelineOrTemplateAdmin) do
@@ -73,7 +96,7 @@ module Admin
 
     def update
       if params[:stage_parent] == 'templates' or Toggles.isToggleOff(Toggles.FAST_PIPELINE_SAVE)
-        update_on_template
+        old_update
         return
       end
       pipeline_name = params[:pipeline_name]
@@ -98,7 +121,7 @@ module Admin
 
     end
 
-    def update_on_template
+    def old_update
       save_popup(params[:config_md5], Class.new(::ConfigUpdate::SaveAsPipelineOrTemplateAdmin) do
         include ConfigUpdate::StageNode
         include ConfigUpdate::NodeAsSubject

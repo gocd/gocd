@@ -27,10 +27,13 @@ describe "admin/stages/new.html.erb" do
     assign(:stage, @stage)
 
     @pipeline_config = PipelineConfigMother.createPipelineConfig("pipeline-name", "foo", ["build-1"].to_java(java.lang.String))
-    assign(:pipeline_config, @pipeline_config)
+    assign(:pipeline, @pipeline_config)
 
     assign(:cruise_config, @cruise_config = BasicCruiseConfig.new)
-    @cruise_config.addPipeline("group-1", @pipeline_config)
+    @pipeline_group_name = 'group-1'
+    @cruise_config.addPipeline(@pipeline_group_name, @pipeline_config)
+
+    @pipeline_md5 = entity_hashing_service.md5ForEntity(@pipeline_config, @pipeline_group_name)
 
     set(@cruise_config, "md5", "abc")
     in_params(:stage_parent => "pipelines", :pipeline_name => "foo_bar", :action => "new", :controller => "admin/stages")

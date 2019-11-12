@@ -30,7 +30,7 @@ import {PipelineConfigVM} from "views/pages/pipelines/pipeline_config_view_model
 // components
 import {MaterialCheck} from "views/components/config_repos/material_check.tsx";
 import {IdentifierInputField} from "views/components/forms/common_validating_inputs";
-import {CheckboxField, SelectField, SelectFieldOptions} from "views/components/forms/input_fields";
+import {CheckboxField} from "views/components/forms/input_fields";
 import {ShowMore} from "views/components/show_more_doc/more";
 import {PacActions} from "views/pages/pac/actions";
 import {BuilderForm} from "views/pages/pac/builder_form";
@@ -43,21 +43,11 @@ import {MaterialEditor} from "views/pages/pipelines/material_editor";
 import {SectionHeading, UserInputPane} from "views/pages/pipelines/user_input_pane";
 
 // CSS
-import formCss from "views/components/forms/forms.scss";
 import css from "views/pages/pac/styles.scss";
 import fillableCss from "views/pages/pipelines/fillable_section.scss";
 
 const spanningFillableCss = override(fillableCss, {
   fillable: classnames(fillableCss.fillable, css.withSpanningHeading)
-});
-
-const pluginSelectorFillableCss = override(fillableCss, {
-  fillable: classnames(fillableCss.fillable, css.pluginSelector)
-});
-
-const altFormStyles = override(formCss, {
-  formGroup: classnames(formCss.formGroup, css.singleFormEl),
-  formControl: classnames(formCss.formControl, css.choices),
 });
 
 export class PipelinesAsCodeCreatePage extends Page {
@@ -112,17 +102,13 @@ export class PipelinesAsCodeCreatePage extends Page {
     const syncConfigRepoWithMaterial = isSupportedScm ? this.useSameRepoForPaC : (val?: boolean) => false;
 
     return [
-      <FillableSection css={pluginSelectorFillableCss}>
-        <h3 class={css.intro}>Select Configuration Language</h3>
-
-        <SelectField property={this.pluginId} css={altFormStyles} onchange={() => this.onContentChange(isSupportedScm, true)}>
-          <SelectFieldOptions selected={this.pluginId()} items={vm.exportPlugins()}/>
-        </SelectField>
-      </FillableSection>,
-
       <CodeScroller>
-        <FillableSection>
-          <BuilderForm vm={vm} onContentChange={(updated) => this.onContentChange(isSupportedScm, updated)} onMaterialChange={(e) => {
+        <FillableSection css={spanningFillableCss}>
+          <div class={css.subheading}>
+            <h3>1. Build Pipeline Config File</h3>
+            <p class={css.sectionNote}><span class={css.attention}>*</span> denotes a required field</p>
+          </div>
+          <BuilderForm pluginId={this.pluginId} vm={vm} onContentChange={(updated) => this.onContentChange(isSupportedScm, updated)} onMaterialChange={(e) => {
             if (syncConfigRepoWithMaterial()) {
               this.allowCreate(false);
             }
@@ -132,7 +118,7 @@ export class PipelinesAsCodeCreatePage extends Page {
       </CodeScroller>,
 
       <FillableSection css={spanningFillableCss}>
-        <div class={css.subheading}><h3>Add Your Pipelines as Code Definition to Your SCM Repository</h3></div>
+        <div class={css.subheading}><h3>2. Add Your Pipelines as Code Definition to Your SCM Repository</h3></div>
         <section class={css.downloadInstructions}>
           <p>Download this configuration and add it to your repository.</p>
 
@@ -143,7 +129,7 @@ export class PipelinesAsCodeCreatePage extends Page {
       </FillableSection>,
 
       <FillableSection css={spanningFillableCss}>
-        <div class={css.subheading}><SectionHeading>Link Your SCM Repository to use the Defined Configuration</SectionHeading></div>
+        <div class={css.subheading}><SectionHeading>3. Link Your SCM Repository to use the Defined Configuration</SectionHeading></div>
 
         <UserInputPane onchange={(e) => { this.allowCreate(false); }}>
           <div class={css.subsectionHeading}>Repository Details</div>

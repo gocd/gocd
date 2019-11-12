@@ -15,6 +15,7 @@
  */
 
 // utils
+import classnames from "classnames";
 import {override} from "helpers/css_proxies";
 import {sha256} from "helpers/digest";
 import _ from "lodash";
@@ -23,6 +24,7 @@ import Stream from "mithril/stream";
 
 // components
 import {MithrilComponent} from "jsx/mithril-component";
+import {SelectField, SelectFieldOptions} from "views/components/forms/input_fields";
 import {AdvancedSettings} from "views/pages/pipelines/advanced_settings";
 import {EnvironmentVariablesEditor} from "views/pages/pipelines/environment_variables_editor";
 import {JobEditor} from "views/pages/pipelines/job_editor";
@@ -34,6 +36,7 @@ import {TaskTerminalField} from "views/pages/pipelines/task_editor";
 import {UserInputPane} from "views/pages/pipelines/user_input_pane";
 
 // CSS
+import formCss from "views/components/forms/forms.scss";
 import * as defaultStyles from "views/pages/pac/styles.scss";
 import * as uipStyles from "views/pages/pipelines/user_input_pane.scss";
 
@@ -41,8 +44,14 @@ const uipCss: typeof uipStyles = override(uipStyles, {
   userInput: [uipStyles.userInput, defaultStyles.logicalSection].join(" ")
 });
 
+const altFormStyles = override(formCss, {
+  formGroup: classnames(formCss.formGroup, defaultStyles.singleFormEl),
+  formControl: classnames(formCss.formControl, defaultStyles.choices),
+});
+
 interface Attrs extends PipelineConfigVMAware {
   onContentChange?: (changed: boolean) => void;
+  pluginId: Stream<string>;
   onMaterialChange?: (e: Event) => void;
 }
 
@@ -66,11 +75,20 @@ export class BuilderForm extends MithrilComponent<Attrs> {
     const { pipeline, material, isUsingTemplate } = vnode.attrs.vm;
 
     return <div class={defaultStyles.builderForm}>
-      <UserInputPane css={uipCss} heading="Part 1: Material" onchange={vnode.attrs.onMaterialChange}>
+      <UserInputPane css={uipCss}>
+        <h3 class={defaultStyles.builderSectionHeading}>Select Configuration Language</h3>
+        <SelectField property={vnode.attrs.pluginId} css={altFormStyles} onchange={vnode.attrs.onContentChange}>
+          <SelectFieldOptions selected={vnode.attrs.pluginId()} items={vnode.attrs.vm.exportPlugins()}/>
+        </SelectField>
+      </UserInputPane>
+
+      <UserInputPane css={uipCss} onchange={vnode.attrs.onMaterialChange}>
+        <h3 class={defaultStyles.builderSectionHeading}>Material</h3>
         <MaterialEditor material={material}/>
       </UserInputPane>
 
-      <UserInputPane css={uipCss} heading="Part 2: Pipeline Name">
+      <UserInputPane css={uipCss}>
+        <h3 class={defaultStyles.builderSectionHeading}>Pipeline Name</h3>
         <PipelineInfoEditor pipelineConfig={pipeline} isUsingTemplate={isUsingTemplate}/>
       </UserInputPane>
 
@@ -84,11 +102,13 @@ class PipelineBodyEditor extends MithrilComponent<Attrs> {
     const { stage, job } = vnode.attrs.vm;
 
     return vnode.attrs.vm.whenTemplateAbsent(() => [
-      <UserInputPane css={uipCss} heading="Part 3: Stage Details">
+      <UserInputPane css={uipCss}>
+        <h3 class={defaultStyles.builderSectionHeading}>Stage Details</h3>
         <StageEditor stage={stage} />
       </UserInputPane>,
 
-      <UserInputPane css={uipCss} heading="Part 4: Job and Tasks">
+      <UserInputPane css={uipCss}>
+        <h3 class={defaultStyles.builderSectionHeading}>Job and Tasks</h3>
         <JobEditor job={job}/>
         <TaskTerminalField label="Type your tasks below at the prompt" property={job.tasks} errorText={job.errors().errorsForDisplay("tasks")} required={true}/>
         <AdvancedSettings forceOpen={_.some(job.environmentVariables(), (env) => env.errors().hasErrors())}>

@@ -19,12 +19,16 @@
 @import "~prismjs/themes/prism"; // don't add the `.css` extension!! See https://github.com/sass/node-sass/issues/2362#issuecomment-388634848
 
 $syntax-bg: #282923;
+$fillable-section-margin-horiz: 30px;
 $error-container-width: 450px;
 $initial-message-bg: rgba(255, 255, 255, 0.5);
 $initial-message-z: 10;
 
-.builder-form {
-  max-width: 50%;
+.builder-form, .preview-pane {
+  max-width: calc(50% - #{$fillable-section-margin-horiz});
+  flex-basis: 50%;
+  flex-shrink: 1;
+  flex-grow: 1;
 }
 
 .plugin-selector {
@@ -49,7 +53,6 @@ $initial-message-z: 10;
 .preview-pane[class*="language-"] { // scss-lint:disable-line
   position: relative;
   margin: 0;
-  width: 50%;
 
   code {
     overflow-y: auto;
@@ -82,12 +85,19 @@ $initial-message-z: 10;
   }
 }
 
+.builder-section-heading {
+  font-size: 18px;
+  font-weight: 600;
+
+  margin: 0 0 10px;
+  padding: 0;
+}
+
 .with-spanning-heading {
   flex-wrap: wrap;
 
   .subheading {
-    flex: none;
-    flex-basis: 100%;
+    width: 100%;
 
     h3 {
       font-size: 24px;
@@ -95,6 +105,16 @@ $initial-message-z: 10;
 
       margin: 0 0 10px;
       padding: 0;
+    }
+
+    .section-note {
+      display: inline-block;
+      font-size: 12px;
+      margin: 0 0 20px;
+
+      .attention {
+        color: $go-danger;
+      }
     }
   }
 

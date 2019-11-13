@@ -22,7 +22,6 @@ import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.collections4.EnumerationUtils;
 import org.apache.commons.io.FileUtils;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -108,25 +107,23 @@ class PluginsZipTest {
         when(pluginManager.isPluginOfType("package-repository", "external-package-material-4")).thenReturn(true);
     }
 
-    @AfterEach
-    void tearDown() {
-        temporaryFolder.delete();
-    }
-
     @Test
     void shouldZipTaskPluginsIntoOneZipEveryTime() throws Exception {
         pluginsZip.create();
 
         assertThat(new File(expectedZipPath).exists()).as(expectedZipPath + " should exist").isTrue();
-        assertThat(new ZipFile(expectedZipPath).getEntry("bundled/bundled-task-1.jar")).isNotNull();
-        assertThat(new ZipFile(expectedZipPath).getEntry("bundled/bundled-scm-3.jar")).isNotNull();
-        assertThat(new ZipFile(expectedZipPath).getEntry("bundled/bundled-package-material-4.jar")).isNotNull();
-        assertThat(new ZipFile(expectedZipPath).getEntry("external/external-task-1.jar")).isNotNull();
-        assertThat(new ZipFile(expectedZipPath).getEntry("external/external-scm-3.jar")).isNotNull();
-        assertThat(new ZipFile(expectedZipPath).getEntry("external/external-package-material-4.jar")).isNotNull();
+        ZipFile zipFile = new ZipFile(expectedZipPath);
+        assertThat(zipFile.getEntry("bundled/bundled-task-1.jar")).isNotNull();
+        assertThat(zipFile.getEntry("bundled/bundled-scm-3.jar")).isNotNull();
+        assertThat(zipFile.getEntry("bundled/bundled-package-material-4.jar")).isNotNull();
+        assertThat(zipFile.getEntry("external/external-task-1.jar")).isNotNull();
+        assertThat(zipFile.getEntry("external/external-scm-3.jar")).isNotNull();
+        assertThat(zipFile.getEntry("external/external-package-material-4.jar")).isNotNull();
 
-        assertThat(new ZipFile(expectedZipPath).getEntry("bundled/bundled-auth-2.jar")).isNull();
-        assertThat(new ZipFile(expectedZipPath).getEntry("external/external-elastic-agent-2.jar")).isNull();
+        assertThat(zipFile.getEntry("bundled/bundled-auth-2.jar")).isNull();
+        assertThat(zipFile.getEntry("external/external-elastic-agent-2.jar")).isNull();
+
+        zipFile.close();
     }
 
     @Test
@@ -246,10 +243,12 @@ class PluginsZipTest {
         pluginsZip.create();
 
 
+        ZipFile zipFile = new ZipFile(expectedZipPath);
         assertThat(new File(expectedZipPath).exists()).as(expectedZipPath + " should exist").isTrue();
-        assertThat(EnumerationUtils.toList(new ZipFile(expectedZipPath).entries()).size()).isEqualTo(2);
-        assertThat(new ZipFile(expectedZipPath).getEntry("bundled/bundled-multi-plugin-1.jar")).isNotNull();
-        assertThat(new ZipFile(expectedZipPath).getEntry("external/external-multi-plugin-1.jar")).isNotNull();
+        assertThat(EnumerationUtils.toList(zipFile.entries()).size()).isEqualTo(2);
+        assertThat(zipFile.getEntry("bundled/bundled-multi-plugin-1.jar")).isNotNull();
+        assertThat(zipFile.getEntry("external/external-multi-plugin-1.jar")).isNotNull();
+        zipFile.close();
     }
 
     private GoPluginDescriptor getPluginDescriptor(String id, File jarFileLocation, boolean bundledPlugin) {

@@ -64,7 +64,6 @@ describe "/layouts/admin" do
 
     it "should show tab button" do
       render :inline => "<div>content</div>", :layout => @layout_name
-      puts response.body
       expect(response.body).to have_selector("#pipeline-groups-tab-button.current_tab a#tab-link-of-pipeline-groups[href='http://test.host/go/admin/pipelines']")
     end
   end
@@ -82,7 +81,7 @@ describe "/layouts/admin" do
 
     it "should show tab button for super admins" do
       render :inline => "<div>content</div>", :layout => @layout_name
-      expect(response.body).to have_selector("#templates-tab-button.current_tab a#tab-link-of-templates[href='/admin/templates']")
+      expect(response.body).to have_selector("#templates-tab-button.current_tab a#tab-link-of-templates[href='http://test.host/go/admin/templates']")
     end
 
     it "should not be visible for group admins" do
@@ -91,7 +90,7 @@ describe "/layouts/admin" do
       allow(view).to receive(:is_user_an_admin?).and_return(false)
 
       render :inline => "<div>content</div>", :layout => @layout_name
-      expect(response.body).to_not have_selector("#templates-tab-button.current_tab a#tab-link-of-templates[href='/admin/templates']")
+      expect(response.body).to_not have_selector("#templates-tab-button.current_tab a#tab-link-of-templates[href='http://test.host/go/admin/templates']")
     end
 
     it "should be visible for template admins" do
@@ -100,7 +99,7 @@ describe "/layouts/admin" do
 
       render :inline => "<div>content</div>", :layout => @layout_name
 
-      expect(response.body).to have_selector("#templates-tab-button.current_tab a#tab-link-of-templates[href='/admin/templates']")
+      expect(response.body).to have_selector("#templates-tab-button.current_tab a#tab-link-of-templates[href='http://test.host/go/admin/templates']")
     end
 
   end

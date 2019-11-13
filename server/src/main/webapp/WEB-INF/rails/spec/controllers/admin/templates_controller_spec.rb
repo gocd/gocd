@@ -27,18 +27,6 @@ describe Admin::TemplatesController do
   end
 
   describe "routes" do
-    it "should resolve route to the templates listing page" do
-      expect({:get => "/admin/templates"}).to route_to(:controller => "admin/templates", :action => "index")
-    end
-
-    it "should generate listing route" do
-      expect(templates_url).to eq("http://test.host/admin/templates")
-    end
-
-    it "should resolve route to the template delete" do
-      expect({:delete => "/admin/templates/template.name"}).to route_to(:controller => "admin/templates", :action => "destroy", :pipeline_name => "template.name")
-      expect(delete_template_path(:pipeline_name => "template.name")).to eq("/admin/templates/template.name")
-    end
 
     it "should resolve & generate route to the template edit" do
       expect({:get => "/admin/templates/blah.blah/general"}).to route_to(:controller => "admin/templates", :action => "edit", :stage_parent => "templates", :pipeline_name => "blah.blah", :current_tab => 'general')
@@ -48,16 +36,6 @@ describe Admin::TemplatesController do
     it "should resolve & generate route to the template update" do
       expect({:put => "/admin/templates/blah.blah/general"}).to route_to(:controller => "admin/templates", :action => "update", :stage_parent => "templates", :pipeline_name => "blah.blah", :current_tab => 'general')
       expect(template_update_path(:pipeline_name => "blah.blah", :current_tab => 'general')).to eq("/admin/templates/blah.blah/general")
-    end
-
-    it "should resolve & generate route for new" do
-      expect({:get => "/admin/templates/new"}).to route_to(:controller => "admin/templates", :action => "new")
-      expect(template_new_path).to eq("/admin/templates/new")
-    end
-
-    it "should resolve & generate route for create" do
-      expect({:post => "/admin/templates/create"}).to route_to(:controller => "admin/templates", :action => "create")
-      expect(template_create_path).to eq("/admin/templates/create")
     end
 
     it "should resolve & generate route for edit permissions" do
@@ -82,20 +60,6 @@ describe Admin::TemplatesController do
 
       allow(@go_config_service).to receive(:checkConfigFileValid).and_return(com.thoughtworks.go.config.validation.GoConfigValidity.valid())
       allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
-    end
-
-    describe "index" do
-      before(:each) do
-        expect(@template_config_service).to receive(:templatesWithPipelinesForUser).with(@user.getUsername).and_return(@template_to_pipelines = {"template1" => to_list([]), "template2" => to_list(["first", "second"])})
-        expect(@go_config_service).to receive(:getConfigForEditing).and_return(@cruise_config)
-      end
-
-      it "should populate all the templates and the associated pipelines" do
-        get :index
-
-        expect(assigns[:template_to_pipelines]).to eq(@template_to_pipelines)
-        assert_template layout: "admin"
-      end
     end
 
     describe "edit" do
@@ -194,179 +158,5 @@ describe Admin::TemplatesController do
       end
     end
 
-    describe "destroy" do
-      before(:each) do
-        allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
-        expect(@go_config_service).to receive(:getConfigForEditing).and_return(@cruise_config)
-      end
-
-      it "should delete a template" do
-        first_set = java.util.HashMap.new()
-        first_set.put(CaseInsensitiveString.new("some_template"), java.util.ArrayList.new())
-        first_set.put(CaseInsensitiveString.new("some_template_2"), java.util.ArrayList.new())
-        templates_after_delete = java.util.HashMap.new()
-        templates_after_delete.put(CaseInsensitiveString.new("some_template_2"), java.util.ArrayList.new())
-        allow(@template_config_service).to receive(:templatesWithPipelinesForUser).and_return(first_set, templates_after_delete)
-
-        @pipeline_2 = PipelineTemplateConfig.new(CaseInsensitiveString.new("some_template_2"), [StageConfigMother.stageConfig("defaultStage")].to_java(StageConfig))
-        @cruise_config.addTemplate(@pipeline_2)
-        expect(@cruise_config.getTemplates().size()).to eq(2)
-        stub_save_for_success
-
-        delete :destroy, params:{:pipeline_name => "some_template", :config_md5 => "abcd1234"}
-
-        expect(assigns[:cruise_config].getTemplates().size()).to eq(1)
-
-        assert_save_arguments "abcd1234"
-        assert_update_command ::ConfigUpdate::SaveAsTemplateAdmin, ConfigUpdate::TemplatesNode, ConfigUpdate::TemplatesTemplateSubject
-
-        expect(assigns[:template_to_pipelines]).to eq(templates_after_delete)
-      end
-
-      it "should return error if there are dependent pipelines for the template" do
-        template_with_dependent_pipelines = java.util.HashMap.new()
-        list_of_pipelines = java.util.ArrayList.new()
-        list_of_pipelines.add("some_pipeline")
-        template_with_dependent_pipelines.put(CaseInsensitiveString.new("Template1"),list_of_pipelines)
-        allow(@template_config_service).to receive(:templatesWithPipelinesForUser).and_return(template_with_dependent_pipelines)
-
-        allow(controller).to receive(:set_flash_message).and_return("Error!")
-
-        delete :destroy, params:{:pipeline_name => "Template1", :config_md5 => "abcd1234"}
-        expect(response).to redirect_to templates_path(:fm => "Error!")
-        expect(@go_config_service).not_to receive(:updateConfigFromUI)
-      end
-    end
-
-    describe "new" do
-      it "should create an empty template" do
-        expect(@go_config_service).to receive(:getConfigForEditing).and_return(@cruise_config)
-        template_config_service = stub_service(:template_config_service)
-
-        expected = java.util.Arrays.asList([PipelineConfigMother.pipeline_config("pipeline1"), PipelineConfigMother.pipeline_config("pipeline.2"), PipelineConfigMother.pipeline_config("FOO_BAR")].to_java(PipelineConfig))
-        expect(template_config_service).to receive(:allPipelinesNotUsingTemplates).with(@user, @result).and_return(expected)
-
-        get :new
-
-        expect(assigns[:pipeline]).to eq(PipelineTemplateConfigViewModel.new(PipelineTemplateConfig.new, "", expected))
-        assert_template "new"
-        assert_template layout: false
-      end
-
-      it "should create an empty template when pipelineToExtractFrom is set" do
-        in_params(:pipelineToExtractFrom => 'pipeline1')
-        expect(@go_config_service).to receive(:getConfigForEditing).and_return(@cruise_config)
-
-        template_config_service = stub_service(:template_config_service)
-
-        expected = java.util.Arrays.asList([PipelineConfigMother.pipeline_config("pipeline1"), PipelineConfigMother.pipeline_config("pipeline.2"), PipelineConfigMother.pipeline_config("FOO_BAR")].to_java(PipelineConfig))
-        expect(template_config_service).to receive(:allPipelinesNotUsingTemplates).with(@user, @result).and_return(expected)
-
-        get :new
-
-        expect(assigns[:pipeline]).to eq(PipelineTemplateConfigViewModel.new(PipelineTemplateConfig.new, "pipeline1", expected))
-        assert_template "new"
-        assert_template layout: false
-      end
-
-    end
-
-    describe "create" do
-      before :each do
-        allow(controller).to receive(:check_admin_user_or_group_admin_user_and_403).and_return(nil)
-        @security_service = stub_service(:security_service)
-        expect(@security_service).to receive(:isUserGroupAdmin).and_return(false)
-      end
-      it "should create a new template given a name" do
-        stub_save_for_success
-        template_config_service = stub_service(:template_config_service)
-        expect(template_config_service).to receive(:allPipelinesNotUsingTemplates).with(@user, @result).and_return([])
-
-        post :create, params:{:pipeline => {:template => {:name => "template_foo"}, :useExistingPipeline => "0"}, :config_md5 => "1234abcd"}
-
-        templates = assigns[:cruise_config].getTemplates()
-        expect(templates.size()).to eq(2)
-        expect(templates.get(0).name()).to eq(CaseInsensitiveString.new("some_template"))
-        expect(templates.get(1).name()).to eq(CaseInsensitiveString.new("template_foo"))
-        assigns[:pipeline].class == PipelineTemplateConfigViewModel
-        expect(assigns[:pipeline].templateConfig().name().toString()).to eq("template_foo")
-        expect(assigns[:pipeline].useExistingPipeline()).to be_falsey
-        expect(assigns[:pipeline].selectedPipelineName()).to eq(nil)
-
-        assert_save_arguments
-      end
-
-      it "should extract a new template from a pipeline config" do
-        stub_save_for_success
-        template_config_service = stub_service(:template_config_service)
-
-        pipeline = PipelineConfigMother.createPipelineConfigWithStages("pipeline1", ["stage1", "stage2"].to_java(java.lang.String))
-        @cruise_config.addPipeline('default', pipeline)
-
-        expected = java.util.Arrays.asList([pipeline, PipelineConfigMother.pipeline_config("pipeline.2"), PipelineConfigMother.pipeline_config("FOO_BAR")].to_java(PipelineConfig))
-        expect(template_config_service).to receive(:allPipelinesNotUsingTemplates).with(@user, @result).and_return(expected)
-
-        post :create, params:{:pipeline => {:template => {:name => "new_template"}, :useExistingPipeline => "1", :selectedPipelineName => "pipeline1"}, :config_md5 => "1234abcd"}
-
-        templates = assigns[:cruise_config].getTemplates()
-        expect(templates.size()).to eq(2)
-        expect(templates.get(0).name()).to eq(CaseInsensitiveString.new("some_template"))
-        new_template = templates.get(1)
-        expect(new_template.name()).to eq(CaseInsensitiveString.new("new_template"))
-        expect(new_template.get(0).name.toString).to eq("stage1")
-        expect(new_template.get(1).name.toString).to eq("stage2")
-
-        assigns[:pipeline].class == PipelineTemplateConfigViewModel
-        expect(assigns[:pipeline].templateConfig().name().toString()).to eq("new_template")
-        expect(assigns[:pipeline].useExistingPipeline()).to be_truthy
-        expect(assigns[:pipeline].selectedPipelineName()).to eq("pipeline1")
-
-        assert_save_arguments
-      end
-
-      it "should modify pipeline defintion to use template when a template is extracted" do
-        stub_save_for_success
-        template_config_service = stub_service(:template_config_service)
-
-        pipeline = PipelineConfigMother.createPipelineConfigWithStages("pipeline1", ["stage1", "stage2"].to_java(java.lang.String))
-        @cruise_config.addPipeline('default', pipeline)
-
-        expected = java.util.Arrays.asList([pipeline, PipelineConfigMother.pipeline_config("pipeline.2"), PipelineConfigMother.pipeline_config("FOO_BAR")].to_java(PipelineConfig))
-        expect(template_config_service).to receive(:allPipelinesNotUsingTemplates).with(@user, @result).and_return(expected)
-
-        post :create, params:{:pipeline => {:template => {:name => "new_template"}, :useExistingPipeline => "1", :selectedPipelineName => "pipeline1"}, :config_md5 => "1234abcd"}
-
-        modified_pipeline = @cruise_config.pipelineConfigByName(CaseInsensitiveString.new('pipeline1'))
-        expect(modified_pipeline.getTemplateName).to eq(CaseInsensitiveString.new('new_template'))
-        expect(modified_pipeline.isEmpty).to be_truthy
-        assert_save_arguments
-      end
-
-      it "should assign config_errors for display when template throws error" do
-        stub_save_for_validation_error do |result, config, node|
-          @cruise_config.errors().add("base", "someError")
-          @cruise_config.getTemplates().get(0).addError("name", "foo")
-          @cruise_config.getTemplates().get(1).addError("name", "foo")
-          result.badRequest(com.thoughtworks.go.i18n.LocalizedMessage::forbiddenToEdit())
-        end
-        pipeline2 = PipelineConfigMother.pipeline_config("pipeline.2")
-        @cruise_config.addPipeline('default', pipeline2)
-
-        template_config_service = stub_service(:template_config_service)
-        expected = java.util.Arrays.asList([PipelineConfigMother.pipeline_config("pipeline1"), pipeline2, PipelineConfigMother.pipeline_config("FOO_BAR")].to_java(PipelineConfig))
-        expect(template_config_service).to receive(:allPipelinesNotUsingTemplates).with(@user, @result).and_return(expected)
-
-        post :create, params:{:pipeline => {:template => {:name => "some_template"}, :useExistingPipeline => "1", :selectedPipelineName => "pipeline.2"}, :config_md5 => "abcd1234"}
-
-        expect(assigns[:pipeline].useExistingPipeline()).to be_truthy
-        expect(assigns[:pipeline].pipelineNames()).to eq(java.util.Arrays.asList(["pipeline1", "pipeline.2", "FOO_BAR"].to_java :string))
-        expect(assigns[:pipeline].selectedPipelineName()).to eq("pipeline.2")
-        expect(assigns[:errors].size).to eq(1)
-        assert_save_arguments "abcd1234"
-        assert_template "new"
-        expect(response.status).to eq(400)
-        assert_template layout: false
-      end
-    end
   end
 end

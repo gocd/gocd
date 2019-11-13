@@ -49,8 +49,6 @@ export interface Attrs extends Operations {
 
 type PipelineWidgetAttrs = PipelineGroupAttrs & { pipeline: PipelineWithOrigin };
 
-type Operation = "move" | "clone" | "edit" | "delete" | "extract template from";
-
 class PipelineWidget extends MithrilViewComponent<PipelineWidgetAttrs> {
   view(vnode: m.Vnode<PipelineWidgetAttrs, this>) {
     return (
@@ -62,7 +60,8 @@ class PipelineWidget extends MithrilViewComponent<PipelineWidgetAttrs> {
     );
   }
 
-  private static messageForOperation(pipeline: PipelineWithOrigin, operation: Operation) {
+  private static messageForOperation(pipeline: PipelineWithOrigin,
+                                     operation: "move" | "clone" | "edit" | "delete" | "extract template from") {
     if (operation === "extract template from" && pipeline.usesTemplate()) {
       return `Cannot ${operation} pipeline '${pipeline.name()}' because it uses a template.`;
     }

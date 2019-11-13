@@ -28,6 +28,12 @@ $draggable-row-color: #e2f7fa;
   display:         table;
   width:           100%;
   background:      $table_background_color;
+  margin:          0 0 $global-margin-bottom 0;
+
+  caption {
+    text-align:   left;
+    caption-side: top;
+  }
 
   thead {
     font-size:      13px;

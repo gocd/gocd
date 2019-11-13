@@ -762,4 +762,8 @@ public class Routes {
     public class ServerConfiguration {
         public static final String SPA_BASE = "/admin/server_configuration";
     }
+
+    public class AdminTemplates {
+        public static final String SPA_BASE = "/admin/templates";
+    }
 }

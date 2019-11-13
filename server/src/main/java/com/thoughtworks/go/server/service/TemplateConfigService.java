@@ -38,7 +38,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -64,22 +63,6 @@ public class TemplateConfigService {
         this.entityHashingService = entityHashingService;
         this.pluggableTaskService = pluggableTaskService;
         this.externalArtifactsService = externalArtifactsService;
-    }
-
-    public Map<CaseInsensitiveString, List<CaseInsensitiveString>> templatesWithPipelinesForUser(CaseInsensitiveString username) {
-        HashMap<CaseInsensitiveString, List<CaseInsensitiveString>> templatesToPipelinesMap = new HashMap<>();
-        Map<CaseInsensitiveString, Map<CaseInsensitiveString, Authorization>> authMap = goConfigService.getCurrentConfig().templatesWithAssociatedPipelines();
-        for (CaseInsensitiveString templateName : authMap.keySet()) {
-            if (securityService.isAuthorizedToViewTemplate(templateName, new Username(username))) {
-                templatesToPipelinesMap.put(templateName, new ArrayList<>());
-                Map<CaseInsensitiveString, Authorization> authorizationMap = authMap.get(templateName);
-                for (CaseInsensitiveString pipelineName : authorizationMap.keySet()) {
-                    templatesToPipelinesMap.get(templateName).add(pipelineName);
-                }
-            }
-
-        }
-        return templatesToPipelinesMap;
     }
 
     public List<TemplateToPipelines> getTemplatesList(Username username) {

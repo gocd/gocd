@@ -70,7 +70,7 @@ abstract class AbstractPage {
       const footerData = footerMeta();
       const headerData = headerMeta();
 
-      this.contents({ headerData, footerData, showHeader: this.showHeader(), showFooter: this.showFooter() });
+      this.contents({headerData, footerData, showHeader: this.showHeader(), showFooter: this.showFooter()});
       ModalManager.onPageLoad();
     });
   }
@@ -106,7 +106,7 @@ export abstract class RoutedSinglePageApp extends AbstractPage {
   }
 
   contents(attrs: Attrs) {
-    const routes = Object.keys(this.routes);
+    const routes             = Object.keys(this.routes);
     const table: m.RouteDefs = {};
 
     for (const route of routes) {
@@ -118,7 +118,7 @@ export abstract class RoutedSinglePageApp extends AbstractPage {
 
   componentToDisplay(contents: m.ComponentTypes<any, any>, attrs: Attrs): m.Component<any, any> {
     return {
-      view: () => <MainPage {...attrs}>{ m(contents) }</MainPage>
+      view: () => <MainPage {...attrs}>{m(contents)}</MainPage>
     };
   }
 }
@@ -134,7 +134,7 @@ export abstract class SinglePageAppBase extends AbstractPage {
 
   contents(attrs: Attrs) {
     m.mount(document.body, {
-      view: () => <MainPage {...attrs}>{ m(this.pageToMount) }</MainPage>
+      view: () => <MainPage {...attrs}>{m(this.pageToMount)}</MainPage>
     });
   }
 }

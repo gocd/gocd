@@ -57,27 +57,6 @@ public class TemplateConfigServiceTest {
     }
 
     @Test
-    public void shouldReturnAMapOfAllTemplateNamesToPipelinesForAnAdminUser() {
-        BasicCruiseConfig cruiseConfig = getCruiseConfigWithSecurityEnabled();
-        new GoConfigMother().addPipelineWithTemplate(cruiseConfig, "p1", "t1", "s1", "j1");
-        new GoConfigMother().addPipelineWithTemplate(cruiseConfig, "p2", "t2", "s2", "j2");
-
-        Username admin = new Username("admin");
-        when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
-        when(securityService.isAuthorizedToViewTemplate(new CaseInsensitiveString("t1"), admin)).thenReturn(true);
-        when(securityService.isAuthorizedToViewTemplate(new CaseInsensitiveString("t2"), admin)).thenReturn(true);
-
-        Map<CaseInsensitiveString, List<CaseInsensitiveString>> allTemplatesToPipelines = new HashMap<>();
-        allTemplatesToPipelines.put(new CaseInsensitiveString("t1"), new ArrayList<>());
-        allTemplatesToPipelines.get(new CaseInsensitiveString("t1")).add(new CaseInsensitiveString("p1"));
-        allTemplatesToPipelines.put(new CaseInsensitiveString("t2"), new ArrayList<>());
-        allTemplatesToPipelines.get(new CaseInsensitiveString("t2")).add(new CaseInsensitiveString("p2"));
-
-
-        assertThat(service.templatesWithPipelinesForUser(new CaseInsensitiveString("admin")), is(allTemplatesToPipelines));
-    }
-
-    @Test
     public void shouldReturnAListOfTemplatesWithAssociatedPipelinesForAnAdminUser() {
         BasicCruiseConfig cruiseConfig = getCruiseConfigWithSecurityEnabled();
         new GoConfigMother().addPipelineWithTemplate(cruiseConfig, "p1", "t1", "s1", "j1");
@@ -106,24 +85,6 @@ public class TemplateConfigServiceTest {
     }
 
     @Test
-    public void shouldReturnASubsetOfTemplatesToPipelinesMapForTemplateAdmin() {
-        BasicCruiseConfig cruiseConfig = getCruiseConfigWithSecurityEnabled();
-        CaseInsensitiveString templateAdmin = new CaseInsensitiveString("template-admin");
-        new GoConfigMother().addPipelineWithTemplate(cruiseConfig, "p1", "t1", "s1", "j1");
-        PipelineTemplateConfig template2 = PipelineTemplateConfigMother.createTemplate("t2", new Authorization(new AdminsConfig(new AdminUser(templateAdmin))), StageConfigMother.manualStage("foo"));
-        cruiseConfig.addTemplate(template2);
-
-        Username admin = new Username(templateAdmin);
-        when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
-        when(securityService.isAuthorizedToViewTemplate(new CaseInsensitiveString("t2"), admin)).thenReturn(true);
-
-        Map<CaseInsensitiveString, List<CaseInsensitiveString>> templatesWithAssociatedPipelinesForUser = new HashMap<>();
-        templatesWithAssociatedPipelinesForUser.put(new CaseInsensitiveString("t2"), new ArrayList<>());
-
-        assertThat(service.templatesWithPipelinesForUser(templateAdmin), is(templatesWithAssociatedPipelinesForUser));
-    }
-
-    @Test
     public void shouldReturnASubsetOfTemplatesWithAssociatedPipelinesForTemplateAdmin() {
         BasicCruiseConfig cruiseConfig = getCruiseConfigWithSecurityEnabled();
         CaseInsensitiveString templateAdmin = new CaseInsensitiveString("template-admin");
@@ -142,23 +103,6 @@ public class TemplateConfigServiceTest {
         templateToPipelines.add(t2);
 
         assertThat(service.getTemplatesList(admin), is(templateToPipelines));
-    }
-
-    @Test
-    public void shouldReturnASubsetOfTemplatesToPipelinesMapForTemplateViewUser() {
-        BasicCruiseConfig cruiseConfig = getCruiseConfigWithSecurityEnabled();
-        CaseInsensitiveString templateViewUser = new CaseInsensitiveString("template-view");
-        PipelineTemplateConfig template2 = PipelineTemplateConfigMother.createTemplate("t2", new Authorization(new ViewConfig(new AdminUser(templateViewUser))), StageConfigMother.manualStage("foo"));
-        cruiseConfig.addTemplate(template2);
-
-        Username templateView = new Username(templateViewUser);
-        when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
-        when(securityService.isAuthorizedToViewTemplate(new CaseInsensitiveString("t2"), templateView)).thenReturn(true);
-
-        Map<CaseInsensitiveString, List<CaseInsensitiveString>> templatesWithAssociatedPipelinesForUser = new HashMap<>();
-        templatesWithAssociatedPipelinesForUser.put(new CaseInsensitiveString("t2"), new ArrayList<>());
-
-        assertThat(service.templatesWithPipelinesForUser(templateViewUser), is(templatesWithAssociatedPipelinesForUser));
     }
 
     @Test
@@ -183,30 +127,6 @@ public class TemplateConfigServiceTest {
     }
 
     @Test
-    public void shouldReturnASubsetOfTemplatesToPipelinesMapForGroupAdmin() {
-        BasicCruiseConfig cruiseConfig = getCruiseConfigWithSecurityEnabled();
-        CaseInsensitiveString groupAdmin = new CaseInsensitiveString("group-admin");
-        new GoConfigMother().addPipelineWithTemplate(cruiseConfig, "p1", "t1", "s1", "j1");
-        PipelineConfigs pipelineConfigs = cruiseConfig.findGroup("defaultGroup"); //defaultGroup is set in GoConfigMother
-        pipelineConfigs.setAuthorization(new Authorization(new AdminsConfig(new AdminUser(groupAdmin))));
-
-        PipelineTemplateConfig template2 = PipelineTemplateConfigMother.createTemplate("t2", StageConfigMother.manualStage("foo"));
-        cruiseConfig.addTemplate(template2);
-
-        Username groupAdminUser = new Username(groupAdmin);
-        when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
-        when(securityService.isAuthorizedToViewTemplate(new CaseInsensitiveString("t1"), groupAdminUser)).thenReturn(true);
-        when(securityService.isAuthorizedToEditTemplate(new CaseInsensitiveString("t2"), groupAdminUser)).thenReturn(false);
-        when(securityService.isUserAdmin(groupAdminUser)).thenReturn(false);
-
-        Map<CaseInsensitiveString, List<CaseInsensitiveString>> templatesWithAssociatedPipelinesForUser = new HashMap<>();
-        templatesWithAssociatedPipelinesForUser.put(new CaseInsensitiveString("t1"), new ArrayList<>());
-        templatesWithAssociatedPipelinesForUser.get(new CaseInsensitiveString("t1")).add(new CaseInsensitiveString("p1"));
-
-        assertThat(service.templatesWithPipelinesForUser(groupAdmin), is(templatesWithAssociatedPipelinesForUser));
-    }
-
-    @Test
     public void shouldReturnASubsetOfTemplatesWithAssociatedPipelinesForGroupAdmin() {
         BasicCruiseConfig cruiseConfig = getCruiseConfigWithSecurityEnabled();
         CaseInsensitiveString groupAdmin = new CaseInsensitiveString("group-admin");
@@ -225,19 +145,6 @@ public class TemplateConfigServiceTest {
         templateToPipelines.add(t1);
 
         assertThat(service.getTemplatesList(groupAdminUser), is(templateToPipelines));
-    }
-
-    @Test
-    public void shouldReturnAnEmptyMapForARegularUser() {
-        BasicCruiseConfig cruiseConfig = getCruiseConfigWithSecurityEnabled();
-        CaseInsensitiveString regularUser = new CaseInsensitiveString("view");
-        new GoConfigMother().addPipelineWithTemplate(cruiseConfig, "p1", "t1", "s1", "j1");
-
-        Username viewUser = new Username(regularUser);
-        when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
-        when(securityService.isAuthorizedToViewTemplate(new CaseInsensitiveString("t1"), viewUser)).thenReturn(false);
-
-        assertThat(service.templatesWithPipelinesForUser(regularUser), is(new HashMap<>()));
     }
 
     @Test

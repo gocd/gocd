@@ -18,6 +18,7 @@
 @import "../new_stylesheets/shared/mixins";
 @import '../new_stylesheets/shared/common';
 @import '../new_stylesheets/shared/alert';
+@import "normalize-scss/sass/normalize";
 
 @include foundation-grid;
 @include foundation-forms;
@@ -4083,4 +4084,22 @@ ul.entity_title {
 
 button#allow_edit_password {
   outline: none;
+}
+
+// hack needed for the show template modal on pipelines page. See `show_template_modal_shim.tsx`
+.component-modal-container {
+  // avoid applying any styles from the "old" css
+  // begin reset all styles of all children
+  all: revert;
+  * {
+    all: revert;
+  }
+  // end reset all styles of all children
+
+  // apply css normalize
+  @include normalize();
+
+  // force some reasonable defaults see `body` in `global.scss`
+  font-size: 14px;
+  line-height: 1.5;
 }

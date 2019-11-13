@@ -67,6 +67,10 @@ $btn-group-border-radius: $global-border-radius;
   @include icon-before($type: $fa-var-pencil-square-o);
 }
 
+.view {
+  @include icon-before($type: $fa-var-eye);
+}
+
 .clone {
   @include icon-before($type: $fa-var-clone);
 }

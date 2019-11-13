@@ -10,7 +10,7 @@
             <span>Jump To:</span>
             <%= link_to 'Pipelines', spark_url_for({url_builder: controller}, SparkRoutes::AdminPipelines::SPA_BASE) -%>
              |
-            <%= link_to 'Templates', templates_path -%>
+            <%= link_to 'Templates', spark_url_for({url_builder: controller}, SparkRoutes::AdminTemplates::SPA_BASE) -%>
         </div>
     <% end -%>
 </div>

@@ -154,6 +154,39 @@ function isMithrilVnode(o: any): o is m.Vnode {
   return !!("tag" in o && "children" in o);
 }
 
+export function labelToId(label: m.Children): string {
+  if (label === null || label === undefined) {
+    return "";
+  }
+
+  if (typeof label === "string" || typeof label === "number" || label === true || label === false) {
+    return s.slugify(label.toString());
+  }
+
+  if (isMithrilVnode(label)) {
+    const temp = document.createElement("div");
+    m.render(temp, label);
+    const result = temp.innerText;
+    m.render(temp, null);
+    return s.slugify(result);
+  }
+
+  if (label instanceof Array) { // best guess, only consider top-level and don't recurse
+    let text = "";
+    for (const child of label) {
+      if ("string" === typeof child) {
+        text += child;
+      } else if (child === null || child === undefined) {
+        // ignore
+      } else if (!(child instanceof Array)) {
+        text += (child as m.Vnode).text || "";
+      }
+    }
+    return s.slugify(text);
+  }
+  return "";
+}
+
 class Label extends RestyleViewComponent<Styles, LabelComponentAttrs & RestyleAttrs<Styles>> {
   css = defaultStyles;
 
@@ -164,46 +197,15 @@ class Label extends RestyleViewComponent<Styles, LabelComponentAttrs & RestyleAt
   static defaultAttributes(attrs: LabelAttr) {
     if (this.hasLabelText(attrs)) {
       return {
-        "aria-label": Label.labelToId(attrs.label),
+        "aria-label": labelToId(attrs.label),
       };
     }
-  }
-
-  static labelToId(label: m.Children): string {
-    if (label === null || label === undefined) {
-      return "";
-    }
-
-    if (typeof label === "string" || typeof label === "number" || label === true || label === false) {
-      return label.toString();
-    }
-
-    if (isMithrilVnode(label)) {
-      const temp = document.createElement("div");
-      m.render(temp, label);
-      const result = temp.innerText;
-      m.render(temp, null);
-      return result;
-    }
-
-    if (label instanceof Array) { // best guess, only consider top-level and don't recurse
-      let text = "";
-      for (const child of label) {
-        if ("string" === typeof child) {
-          text += child;
-        } else if (!(child instanceof Array)) {
-          text += (child as m.Vnode).text || "";
-        }
-      }
-      return text;
-    }
-    return "";
   }
 
   view(vnode: m.Vnode<LabelComponentAttrs>) {
     if (Label.hasLabelText(vnode.attrs)) {
       return <label for={vnode.attrs.fieldId}
-                    data-test-id={`form-field-label-${s.slugify(Label.labelToId(vnode.attrs.label))}`}
+                    data-test-id={`form-field-label-${labelToId(vnode.attrs.label)}`}
                     class={classnames(this.css.formLabel)}>
         {vnode.attrs.label}
         <RequiredLabel {...vnode.attrs} />
@@ -309,7 +311,7 @@ function defaultAttributes<T, V>(attrs: BaseAttrs<T> & V,
     "disabled": !!(attrs.readonly),
     "required": !!required,
     "id": id,
-    "data-test-id": `form-field-input-${s.slugify(Label.labelToId(attrs.label))}`
+    "data-test-id": `form-field-input-${labelToId(attrs.label)}`
   };
 
   if (attrs.dataTestId) {

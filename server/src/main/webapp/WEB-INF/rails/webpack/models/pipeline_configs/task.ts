@@ -20,7 +20,7 @@ import {ErrorsConsumer} from "models/mixins/errors_consumer";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 
 type ValidTypes = "exec" | "fetchArtifact";
-type RunIfCondition = "passed" | "failed" | "any";
+export type RunIfCondition = "passed" | "failed" | "any";
 
 interface TaskOpts {
   runIf: RunIfCondition[];

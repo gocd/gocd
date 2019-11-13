@@ -2,7 +2,7 @@
     <%= link_to 'Pipelines', spark_url_for({url_builder: controller}, SparkRoutes::AdminPipelines::SPA_BASE) -%>
 </li>
 <li role="presentation">
-  <%= link_to 'Templates', templates_path -%>
+  <%= link_to 'Templates', spark_url_for({url_builder: controller}, SparkRoutes::AdminTemplates::SPA_BASE) -%>
 </li>
 <li role="presentation">
   <%= link_to 'Elastic Agent Configurations', '/go/admin/elastic_agent_configurations' -%>

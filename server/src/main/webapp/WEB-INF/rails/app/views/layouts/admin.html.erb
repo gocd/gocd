@@ -55,7 +55,7 @@
                 <% end %>
                 <% if is_user_an_admin? || is_user_authorized_to_view_templates? -%>
                     <li id="templates-tab-button" class="<%= "current_tab" if @tab_name == "templates" %>">
-                      <a id="tab-link-of-templates" href="<%= templates_path -%>">Templates</a>
+                      <a id="tab-link-of-templates" href="<%= spark_url_for({url_builder: controller}, SparkRoutes::AdminTemplates::SPA_BASE) -%>">Templates</a>
                     </li>
                 <%- end -%>
                 <% if !is_user_an_admin? && is_user_a_group_admin? %>

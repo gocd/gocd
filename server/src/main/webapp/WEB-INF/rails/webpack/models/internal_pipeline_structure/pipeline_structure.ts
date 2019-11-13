@@ -245,4 +245,29 @@ export class PipelineStructure {
   static fromJSON(data: PipelineStructureJSON) {
     return new PipelineStructure(PipelineGroups.fromJSON(data.groups), Templates.fromJSON(data.templates));
   }
+
+  /**
+   * Returns `undefined` if the pipeline is not present, typically when you don't have appropriate access to it.
+   */
+  findPipeline(name: string) {
+    for (const eachGroup of this.groups()) {
+      for (const eachPipeline of eachGroup.pipelines()) {
+        if (eachPipeline.name().toLowerCase() === name.toLowerCase()) {
+          return eachPipeline;
+        }
+      }
+    }
+  }
+
+  getAllPipelinesNotUsingTemplates() {
+    const result: string[] = [];
+    this.groups().forEach((eachGroup) => {
+      eachGroup.pipelines().forEach((eachPipeline) => {
+        if (_.isEmpty(eachPipeline.templateName())) {
+          result.push(eachPipeline.name());
+        }
+      });
+    });
+    return result;
+  }
 }

@@ -1215,11 +1215,6 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     @Override
-    public void makePipelineUseTemplate(CaseInsensitiveString pipelineName, CaseInsensitiveString templateName) {
-        pipelineConfigByName(pipelineName).templatize(templateName);
-    }
-
-    @Override
     public Iterable<PipelineConfig> getDownstreamPipelines(String pipelineName) {
         ArrayList<PipelineConfig> configs = new ArrayList<>();
         for (PipelineConfig pipelineConfig : pipelinesFromAllGroups()) {

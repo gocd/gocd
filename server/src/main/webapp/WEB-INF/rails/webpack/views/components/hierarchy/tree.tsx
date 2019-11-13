@@ -17,6 +17,7 @@
 import {RestyleAttrs, RestyleViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
+import {labelToId} from "views/components/forms/input_fields";
 import * as defaultStyles from "./tree.scss";
 
 type Styles = typeof defaultStyles;
@@ -36,9 +37,11 @@ export class Tree extends RestyleViewComponent<Styles, Attrs> {
   css: Styles = defaultStyles;
 
   view(vnode: m.Vnode<Attrs>): m.Children {
+    const treeDatum    = this.datum(vnode);
+    const treeChildren = this.children(vnode);
     return <dl class={this.css.tree}>
-      <dt class={this.css.treeDatum}>{this.datum(vnode)}</dt>
-      <dd class={this.css.treeChildren}>{this.children(vnode)}</dd>
+      <dt data-test-id={`tree-node-${labelToId(treeDatum)}`} class={this.css.treeDatum}>{treeDatum}</dt>
+      <dd data-test-id={`tree-children-${labelToId(treeChildren)}`} class={this.css.treeChildren}>{treeChildren}</dd>
     </dl>;
   }
 

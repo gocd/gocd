@@ -1,7 +1,7 @@
 <div class="page_header">
   <div class="row">
     <ul class="entity_title">
-      <li><%= link_to 'Templates', templates_path -%></li>
+      <li><%= link_to 'Templates', spark_url_for({url_builder: controller}, SparkRoutes::AdminTemplates::SPA_BASE) -%></li>
       <li class='last'><h1 class='wrapped_word'><%= @pipeline.name() -%> </h1></li>
     </ul>
   </div>

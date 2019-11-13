@@ -216,7 +216,7 @@ export class AdminPipelinesPage extends Page<null, State> {
         });
       };
 
-      const modal = new ExtractTemplateModal(pipeline, extractOperation);
+      const modal = new ExtractTemplateModal(pipeline.name(), extractOperation);
       modal.render();
     };
 

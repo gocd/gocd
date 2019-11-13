@@ -38,6 +38,7 @@ export interface OnClickHandler {
 
 export interface Attrs extends OnClickHandler, RestyleAttrs<Styles> {
   icon?: ButtonIcon;
+  title?: string;
   small?: boolean;
   disabled?: boolean;
   dropdown?: boolean;

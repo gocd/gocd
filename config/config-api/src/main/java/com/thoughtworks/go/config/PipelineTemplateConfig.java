@@ -331,10 +331,6 @@ public class PipelineTemplateConfig extends BaseCollection<StageConfig> implemen
         }
     }
 
-    public void addDefaultStage() {
-        add(new StageConfig(new CaseInsensitiveString(StageConfig.DEFAULT_NAME), new JobConfigs(new JobConfig(JobConfig.DEFAULT_NAME))));
-    }
-
     public boolean isAllowGroupAdmins() {
         return this.getAuthorization().isAllowGroupAdmins();
     }

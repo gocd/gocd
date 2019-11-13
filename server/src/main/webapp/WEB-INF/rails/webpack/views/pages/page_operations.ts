@@ -38,6 +38,10 @@ export interface DeleteOperation<T> {
   onDelete: (obj: T, e: MouseEvent) => void;
 }
 
+export interface CreateOperation<T> {
+  onCreate: (e: MouseEvent) => void;
+}
+
 export interface RefreshOperation<T> {
   onRefresh: (obj: T, e: MouseEvent) => void;
 }

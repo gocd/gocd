@@ -31,6 +31,7 @@ export interface TableSortHandler {
 
 interface Attrs {
   headers: m.Child[];
+  caption?: m.Children;
   data: m.Child[][];
   "data-test-id"?: string;
   sortHandler?: TableSortHandler;
@@ -143,6 +144,7 @@ export class Table extends MithrilComponent<Attrs, State> {
     }
     return <table class={classnames(styles.table, tableCss)}
                   data-test-id={vnode.attrs["data-test-id"] || "table"}>
+      {vnode.attrs.caption ? <caption>{vnode.attrs.caption}</caption> : undefined}
       <thead data-test-id="table-header">
       <tr data-test-id="table-header-row">
         {draggableColHeader}

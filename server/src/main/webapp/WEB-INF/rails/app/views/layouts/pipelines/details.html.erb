@@ -4,6 +4,10 @@
   <%- @view_title = "Edit Pipeline" -%>
   <%- @current_tab_name = "admin" -%>
   <%= render :partial => "shared/head" %>
+
+  <%- unless(Rails.env.test?) %>
+    <%= javascript_include_tag *webpack_assets_service.getJSAssetPathsFor("single_page_apps/show_template_modal_shim") %>
+  <%- end %>
 </head>
 <body id="<%= page_name %>" class="<%= page_name %>" <%= render "shared/body_data_attrs" %>>
 <div class="page-wrap">

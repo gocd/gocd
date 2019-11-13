@@ -26,3 +26,4 @@ export const settings: string;
 export const spin: string;
 export const spinner: string;
 export const usage: string;
+export const view: string;

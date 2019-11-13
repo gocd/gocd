@@ -16,9 +16,8 @@
 
 import m from "mithril";
 import {Pipeline} from "models/environments/types";
-import {PipelineGroups, PipelineWithOrigin} from "models/internal_pipeline_structure/pipeline_structure";
+import {PipelineGroups} from "models/internal_pipeline_structure/pipeline_structure";
 import data from "models/new-environments/spec/test_data";
-import {Origin, OriginType} from "models/origin";
 import {ModalManager} from "views/components/modal/modal_manager";
 import {
   ClonePipelineConfigModal,
@@ -123,8 +122,7 @@ describe("ExtractTemplateModal", () => {
 
   beforeEach(() => {
     callback = jasmine.createSpy("callback");
-    modal    = new ExtractTemplateModal(new PipelineWithOrigin("foo", undefined, new Origin(OriginType.GoCD), []),
-                                        callback);
+    modal    = new ExtractTemplateModal("foo", callback);
     modal.render();
     m.redraw.sync();
     modalTestHelper = new TestHelper().forModal();

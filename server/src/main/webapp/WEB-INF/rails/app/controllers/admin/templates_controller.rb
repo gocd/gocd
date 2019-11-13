@@ -18,23 +18,11 @@ class Admin::TemplatesController < AdminController
   helper Admin::TemplatesHelper
 
   before_action :check_admin_user_and_403, only: [:edit_permissions, :update_permissions]
-  before_action :check_admin_user_or_group_admin_user_and_403, only: [:new, :create]
-  before_action :check_admin_or_template_admin_and_403, only: [:edit, :destroy, :update]
-  before_action :load_templates_from_service, :only => :index
-  before_action :load_cruise_config, :only => [:new, :edit, :index, :destroy, :edit_permissions]
+  before_action :check_admin_or_template_admin_and_403, only: [:edit]
+  before_action :load_cruise_config, :only => [:edit, :edit_permissions]
   before_action :autocomplete_for_permissions, :only => [:edit_permissions]
 
-  layout "admin", :except => [:new, :create]
-
-  def new
-    pipelineName = CaseInsensitiveString.new(params[:pipelineToExtractFrom])
-    if pipelineName.empty? || (!pipelineName.empty? && @cruise_config.hasPipelineNamed(pipelineName))
-      assert_load :pipeline, create_empty_template_view_model
-      render :layout => false
-    else
-      render_error_template(com.thoughtworks.go.i18n.LocalizedMessage::resourceNotFound('pipeline', [pipelineName]), 404)
-    end
-  end
+  layout "admin", :except => [:create]
 
   def edit
     assert_load_eval :pipeline do
@@ -79,69 +67,10 @@ class Admin::TemplatesController < AdminController
     end
   end
 
-  def create
-    assert_load :pipeline, create_empty_template_view_model
-    @pipeline.setConfigAttributes(params[:pipeline])
-    template_name = params[:pipeline][:template][:name]
-    save_popup(params[:config_md5], Class.new(::ConfigUpdate::SaveAsGroupAdmin) do
-      include ::ConfigUpdate::CruiseConfigNode
-
-      def initialize params, user, security_service, template_view_model
-        super(params, user, security_service)
-        @view_model = template_view_model
-        @template = template_view_model.templateConfig()
-        if security_service.isUserGroupAdmin(user)
-          @template.setAuthorization(Authorization.new(AdminsConfig.new(AdminUser.new(user.getUsername()))))
-        end
-      end
-
-      def subject(cruise_config)
-        @template
-      end
-
-      def update(cruise_config)
-        templates = cruise_config.getTemplates()
-        templates.add(@template)
-        cruise_config.makePipelineUseTemplate(CaseInsensitiveString.new(@view_model.selectedPipelineName), @template.name()) if @view_model.useExistingPipeline
-      end
-    end.new(params, current_user, security_service, @pipeline), {:action => :new, :layout => false}, {:action => "edit", :stage_parent => "templates", :pipeline_name => template_name, :current_tab => "general"}) do
-      assert_load :pipeline, @pipeline
-    end
-  end
-
-  def destroy
-    template_name = params[:pipeline_name]
-    load_templates_from_service
-    dependent_pipelines = @template_to_pipelines[CaseInsensitiveString.new(template_name)]
-    redirect_to templates_path(:fm => set_flash_message("Cannot delete template '#{template_name}' as it is used by at least one pipeline.", 'error')) and return if !dependent_pipelines.empty?
-    save_page(params[:config_md5], templates_path, {:action => :index}, Class.new(::ConfigUpdate::SaveAsTemplateAdmin) do
-      include ::ConfigUpdate::TemplatesNode
-      include ::ConfigUpdate::TemplatesTemplateSubject
-
-      def update(templates)
-        templates.removeTemplateNamed(CaseInsensitiveString.new(template_name))
-      end
-    end.new(params, current_user, security_service)) do
-      load_templates_from_service
-    end
-  end
-
   private
-
-  def load_templates_from_service
-    load_templates template_config_service
-  end
-
-  def load_templates from
-    assert_load :template_to_pipelines, from.templatesWithPipelinesForUser(current_user.getUsername)
-  end
 
   def load_cruise_config
       assert_load :cruise_config, go_config_service.getConfigForEditing()
-  end
-
-  def create_empty_template_view_model
-    PipelineTemplateConfigViewModel.new(PipelineTemplateConfig.new(), params[:pipelineToExtractFrom], template_config_service.allPipelinesNotUsingTemplates(current_user, HttpLocalizedOperationResult.new))
   end
 
   def autocomplete_for_permissions

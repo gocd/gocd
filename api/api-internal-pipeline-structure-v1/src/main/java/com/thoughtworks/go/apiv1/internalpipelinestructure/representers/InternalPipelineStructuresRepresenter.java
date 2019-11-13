@@ -24,6 +24,7 @@ import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.PipelineGroups;
 
+import java.util.Collections;
 import java.util.List;
 
 public class InternalPipelineStructuresRepresenter {
@@ -74,6 +75,11 @@ public class InternalPipelineStructuresRepresenter {
     }
 
     private static void renderStages(List<StageConfig> pipelineConfig, OutputWriter pipelineWriter) {
+        if (pipelineConfig == null) {
+            // perhaps current user does not have access to view stages
+            pipelineWriter.addChildList("stages", Collections.emptyList());
+            return;
+        }
         pipelineWriter
                 .addChildList("stages", stagesWriter -> {
                     pipelineConfig.forEach(stage -> {

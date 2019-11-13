@@ -46,9 +46,10 @@
         jQuery('#pipeline_config_tree').treeview({
             'persist' : "location"
         });
-        new ViewTemplate("<%= config_view_templates_show_path(:name => "__template_name__") %>").addListener('a.view_template_tree_link', function(){
-            return jQuery('a.view_template_tree_link').attr('href')
-        });
-
+      jQuery('a.view_template_tree_link').click(function() {
+        const templateName = jQuery('a.view_template_tree_link').attr('href');
+        RenderTemplateInModal(templateName);
+        return false;
+      });
     });
 </script>

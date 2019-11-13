@@ -19,7 +19,7 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {Pipeline} from "models/environments/types";
 import {PipelineGroup, PipelineGroups, PipelineWithOrigin} from "models/internal_pipeline_structure/pipeline_structure";
-import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
+import {ModelWithNameIdentifierValidator} from "models/shared/name_validation";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
@@ -27,17 +27,6 @@ import {Form, FormBody} from "views/components/forms/form";
 import {SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
 import {Link} from "views/components/link";
 import {Modal} from "views/components/modal";
-
-/** to validate names of pipelines/groups/templates */
-class ModelWithNameIdentifierValidator extends ValidatableMixin {
-  name: Stream<string> = Stream();
-
-  constructor() {
-    super();
-    this.validatePresenceOf("name");
-    this.validateIdFormat("name");
-  }
-}
 
 export class MoveConfirmModal extends Modal {
   private readonly pipeline: PipelineWithOrigin;
@@ -233,13 +222,13 @@ export class DownloadPipelineModal extends Modal {
 }
 
 export class ExtractTemplateModal extends Modal {
-  private readonly sourcePipeline: PipelineWithOrigin;
+  private readonly sourcePipelineName: string;
   private readonly callback: (templateName: string) => void;
   private readonly templateName: ModelWithNameIdentifierValidator;
 
-  constructor(sourcePipeline: PipelineWithOrigin, callback: (templateName: string) => void) {
+  constructor(sourcePipelineName: string, callback: (templateName: string) => void) {
     super();
-    this.sourcePipeline = sourcePipeline;
+    this.sourcePipelineName = sourcePipelineName;
     this.callback       = callback;
     this.templateName   = new ModelWithNameIdentifierValidator();
   }
@@ -254,7 +243,7 @@ export class ExtractTemplateModal extends Modal {
           required={true}
           label={"New template name"}/>
         <div>
-          The pipeline <em>{this.sourcePipeline.name()}</em> will begin to use this new template.
+          The pipeline <em>{this.sourcePipelineName}</em> will begin to use this new template.
         </div>
       </div>
     );
@@ -268,7 +257,7 @@ export class ExtractTemplateModal extends Modal {
   }
 
   title(): string {
-    return `Extract template from pipeline ${this.sourcePipeline.name()}`;
+    return `Extract template from pipeline ${this.sourcePipelineName}`;
   }
 
   private extractTemplate() {

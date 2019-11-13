@@ -19,11 +19,11 @@ import path from "path";
 import webpack from "webpack";
 import {loaders} from "./loaders";
 import {plugins} from "./plugins";
-import {getEntries, getModules} from "./variables";
+import {ConfigOptions, getEntries, getModules} from "./variables";
 
 const SpeedMeasurePlugin = require("speed-measure-webpack-plugin");
 
-function getConfigOptions(argv: any, env: any) {
+function getConfigOptions(argv: any, env: any): ConfigOptions {
   const assetsDir              = path.join(__dirname, "..");
   const railsRoot              = path.join(assetsDir, "..");
   const production             = argv.mode === "production";
@@ -46,13 +46,8 @@ function getConfigOptions(argv: any, env: any) {
   };
 }
 
-function configuration(env: any, argv: any): webpack.Configuration {
-  env  = _.assign({}, env);
-  argv = _.assign({}, argv);
-
-  const configOptions = getConfigOptions(argv, env);
-
-  const optimization: webpack.Options.Optimization = {
+function getOptimization(configOptions: ConfigOptions): webpack.Options.Optimization {
+  return configOptions.production ? {
     splitChunks: {
       cacheGroups: {
         vendor: {
@@ -62,7 +57,20 @@ function configuration(env: any, argv: any): webpack.Configuration {
         }
       }
     }
+  } : {
+    splitChunks: {
+      chunks: "all",
+      minSize: 100_000
+    }
   };
+}
+
+function configuration(env: any, argv: any): webpack.Configuration {
+  env  = _.assign({}, env);
+  argv = _.assign({}, argv);
+
+  const configOptions = getConfigOptions(argv, env);
+  const optimization  = getOptimization(configOptions);
 
   return {
     entry: getEntries(configOptions),
@@ -73,7 +81,7 @@ function configuration(env: any, argv: any): webpack.Configuration {
     },
     cache: true,
     bail: true,
-    devtool: configOptions.production ? "source-map" : "inline-source-map",
+    devtool: configOptions.production ? "source-map" : "eval-source-map",
     optimization,
     resolve: {
       extensions: [".js", ".js.msx", ".msx", ".tsx", ".ts"],

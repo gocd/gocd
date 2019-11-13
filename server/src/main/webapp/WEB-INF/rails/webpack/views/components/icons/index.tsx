@@ -199,6 +199,12 @@ export class ChevronDown extends Icon {
   }
 }
 
+export class View extends Icon {
+  constructor() {
+    super(styles.view, "Spinner");
+  }
+}
+
 export class IconGroup extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     return (

@@ -8,8 +8,8 @@
     <% unless access_forbidden -%>
         <div class="error-child-like-margin">
             <span>Jump To:</span>
-            <%= link_to 'Pipelines', pipeline_groups_path -%>
-             | 
+            <%= link_to 'Pipelines', spark_url_for({url_builder: controller}, SparkRoutes::AdminPipelines::SPA_BASE) -%>
+             |
             <%= link_to 'Templates', templates_path -%>
         </div>
     <% end -%>

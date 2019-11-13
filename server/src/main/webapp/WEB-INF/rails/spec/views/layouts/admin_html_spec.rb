@@ -32,6 +32,7 @@ describe "/layouts/admin" do
     allow(view).to receive(:is_user_an_admin?).and_return(true)
     allow(view).to receive(:is_user_a_template_admin?).and_return(false)
     allow(view).to receive(:is_user_authorized_to_view_templates?).and_return(false)
+    view.extend(SparkUrlAware)
   end
 
   it "should display warning message when config not valid" do
@@ -63,7 +64,8 @@ describe "/layouts/admin" do
 
     it "should show tab button" do
       render :inline => "<div>content</div>", :layout => @layout_name
-      expect(response.body).to have_selector("#pipeline-groups-tab-button.current_tab a#tab-link-of-pipeline-groups[href='/admin/pipelines']")
+      puts response.body
+      expect(response.body).to have_selector("#pipeline-groups-tab-button.current_tab a#tab-link-of-pipeline-groups[href='http://test.host/go/admin/pipelines']")
     end
   end
 

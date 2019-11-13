@@ -52,7 +52,6 @@ Rails.application.routes.draw do
 
   get "admin/pipelines/create" => "admin/pipelines#new", as: :spark_pipelines_new
   post "admin/pipelines" => "admin/pipelines#create", as: :pipeline_create
-  get "admin/pipeline/:pipeline_name/clone" => "admin/pipelines#clone", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :pipeline_clone
   post "admin/pipeline/save_clone" => "admin/pipelines#save_clone", as: :pipeline_save_clone
   get "admin/pipelines/:pipeline_name/pause_info.json" => "admin/pipelines#pause_info", :format => "json", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :pause_info_refresh
   get "admin/:stage_parent/:pipeline_name/:current_tab" => "admin/pipelines#edit", constraints: {stage_parent: "pipelines", pipeline_name: PIPELINE_NAME_FORMAT, current_tab: /#{["general", "project_management", "environment_variables", "permissions", "parameters"].join("|")}/}, defaults: {stage_parent: "pipelines"}, as: :pipeline_edit
@@ -94,16 +93,8 @@ Rails.application.routes.draw do
   put "admin/config_xml" => "admin/configuration#update", as: :config_update
   get "admin/config_xml/edit" => "admin/configuration#edit", as: :config_edit
 
-  get "admin/pipelines" => "admin/pipeline_groups#index", as: :pipeline_groups
-  get "admin/pipeline_group/new" => "admin/pipeline_groups#new", as: :pipeline_group_new
-  post "admin/pipeline_group" => "admin/pipeline_groups#create", as: :pipeline_group_create
-  put "admin/pipelines/move/:pipeline_name" => "admin/pipeline_groups#move", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :move_pipeline_to_group
-  delete "admin/pipelines/:pipeline_name" => "admin/pipeline_groups#destroy", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :delete_pipeline
   get "admin/pipeline_group/:group_name/edit" => "admin/pipeline_groups#edit", constraints: {group_name: GROUP_NAME_FORMAT}, as: :pipeline_group_edit
-  get "admin/pipeline_group/:group_name" => "admin/pipeline_groups#show", constraints: {group_name: GROUP_NAME_FORMAT}, as: :pipeline_group_show
   put "admin/pipeline_group/:group_name" => "admin/pipeline_groups#update", constraints: {group_name: GROUP_NAME_FORMAT}, as: :pipeline_group_update
-  delete "admin/pipeline_group/:group_name" => "admin/pipeline_groups#destroy_group", constraints: {group_name: GROUP_NAME_FORMAT}, as: :pipeline_group_delete
-  get "/admin/pipelines/possible_groups/:pipeline_name/:config_md5" => "admin/pipeline_groups#possible_groups", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :possible_groups
 
   get "admin/templates" => "admin/templates#index", as: :templates
   get "admin/templates/new" => "admin/templates#new", as: :template_new

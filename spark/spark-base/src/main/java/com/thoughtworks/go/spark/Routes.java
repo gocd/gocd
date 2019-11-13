@@ -756,7 +756,7 @@ public class Routes {
     }
 
     public static class AdminPipelines {
-        public static final String SPA_BASE = "/admin/pipelines_new";
+        public static final String SPA_BASE = "/admin/pipelines";
     }
 
     public class ServerConfiguration {

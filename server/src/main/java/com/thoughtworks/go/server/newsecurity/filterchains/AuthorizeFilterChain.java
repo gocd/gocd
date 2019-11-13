@@ -65,7 +65,6 @@ public class AuthorizeFilterChain extends FilterChainProxy {
                 .addAuthorityFilterChain("/admin/configuration/**", genericAccessDeniedHandler, ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR)
                 .addAuthorityFilterChain("/admin/restful/configuration/**", genericAccessDeniedHandler, ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR)
                 .addAuthorityFilterChain("/admin/pipelines/**", genericAccessDeniedHandler, ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR)
-                .addAuthorityFilterChain("/admin/pipelines_new/**", genericAccessDeniedHandler, ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR)
                 .addAuthorityFilterChain("/admin/pipeline_group/**", genericAccessDeniedHandler, ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR)
                 .addAuthorityFilterChain("/admin/templates/**", genericAccessDeniedHandler, ROLE_SUPERVISOR, ROLE_TEMPLATE_SUPERVISOR, ROLE_TEMPLATE_VIEW_USER, ROLE_GROUP_SUPERVISOR)
                 .addAuthorityFilterChain("/admin/commands/**", genericAccessDeniedHandler, ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR, ROLE_TEMPLATE_SUPERVISOR)

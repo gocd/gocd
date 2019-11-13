@@ -19,7 +19,6 @@ require_relative 'layout_html_examples'
 
 describe "/layouts/pipeline_admin" do
   it_should_behave_like :layout
-
   before do
     @layout_name = "layouts/pipeline_admin"
     @admin_url = "/admin/pipelines"
@@ -27,6 +26,7 @@ describe "/layouts/pipeline_admin" do
     assign(:user, @user)
     assign(:error_count,0)
     assign(:warning_count,0)
+    view.extend(SparkUrlAware)
 
     allow(view).to receive(:can_view_admin_page?).and_return(true)
     allow(view).to receive(:is_user_an_admin?).and_return(true)

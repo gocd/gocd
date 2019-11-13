@@ -19,6 +19,7 @@ module Admin
     helper ::Admin::AdminHelper
     helper ::Admin::PipelinesHelper
     helper FlashMessagesHelper
+    helper SparkUrlAware
     include ::Admin::PipelinesHelper
     ERROR_PATTERN = /#{ParamSubstitutionHandler::NO_PARAM_FOUND_MSG.gsub("'%s'", "'([^']*)'")}/
 
@@ -27,12 +28,12 @@ module Admin
     include PipelineConfigLoader
     include ::Admin::DependencyMaterialAutoSuggestions
 
-    before_action :load_config_for_edit, :only => [:new, :create, :clone, :save_clone]
+    before_action :load_config_for_edit, :only => [:new, :create]
     before_action :load_template_list, :only => [:new, :create]
 
     load_pipeline_except_for :update, :new, :create, :clone, :save_clone
 
-    layout "pipelines/details", :except => [:new, :create, :clone]
+    layout "pipelines/details", :except => [:new, :create]
 
     def new
       @pipeline = empty_pipeline
@@ -155,55 +156,6 @@ module Admin
         update_parameter_tab
       else
         update_other_tab
-      end
-    end
-
-    def clone
-      pipelineName = CaseInsensitiveString.new(params[:pipeline_name])
-      if @cruise_config.hasPipelineNamed(pipelineName)
-        @pipeline = @cruise_config.pipelineConfigByName(pipelineName).duplicate()
-        @group_name = params[:group]
-        @pipeline_group = BasicPipelineConfigs.new([@pipeline].to_java(PipelineConfig))
-        load_group_list
-        render layout: false
-      else
-        render_error_template(com.thoughtworks.go.i18n.LocalizedMessage::resourceNotFound('pipeline', pipelineName), 404)
-      end
-    end
-
-    def save_clone
-      dup_pipeline = @cruise_config.pipelineConfigByName(CaseInsensitiveString.new(params[:pipeline_name])).duplicate()
-      save_action = Class.new(::ConfigUpdate::SaveAction) do
-        attr_reader :group
-        include ::ConfigUpdate::CheckCanCreatePipeline
-        include ::ConfigUpdate::CruiseConfigNode
-
-        def initialize params, user, security_service, pipeline
-          super(params, user, security_service)
-          @pipeline = pipeline
-        end
-
-        def subject(cruise_config)
-          @pipeline
-        end
-
-        def update(cruise_config)
-          @pipeline.setConfigAttributes(params[:pipeline_group][:pipeline])
-          cruise_config.addPipelineWithoutValidation(params[:pipeline_group][:group], @pipeline)
-          @group = cruise_config.findGroupOfPipeline(@pipeline)
-        end
-      end.new(params, current_user, security_service, dup_pipeline)
-
-      save_popup(params[:config_md5],save_action,{:action => :clone, :layout => false}, {:controller => "admin/pipelines", :action => 'edit', :pipeline_name => params[:pipeline_group][:pipeline][:name], :current_tab => 'general', :stage_parent => "pipelines"}, "Cloned successfully.")do
-        assert_load :pipeline, @subject
-        assert_load(:pipeline_group, save_action.group)
-        assert_load(:group_name, save_action.group.getGroup())
-        load_group_list
-        pipeline_pause_service.pause(@pipeline.name().to_s, "Under construction", current_user) if @update_result.isSuccessful()
-
-        if @update_result.isSuccessful()
-          pipeline_selections_service.update(cookies[:selected_pipelines], current_user_entity_id, @pipeline.name())
-        end
       end
     end
 

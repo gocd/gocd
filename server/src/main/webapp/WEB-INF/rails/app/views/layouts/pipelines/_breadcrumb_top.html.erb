@@ -1,8 +1,8 @@
 <div class="page_header">
   <div class="row">
     <ul class="entity_title">
-      <!--<li><%= link_to 'Administration', pipeline_groups_path -%></li>-->
-      <li><%= link_to 'Pipelines', pipeline_groups_path -%></li>
+      <!--<li><%= link_to 'Administration', spark_url_for({url_builder: controller}, SparkRoutes::AdminPipelines::SPA_BASE) -%></li>-->
+      <li><%= link_to 'Pipelines', spark_url_for({url_builder: controller}, SparkRoutes::AdminPipelines::SPA_BASE) -%></li>
       <li class="last"><h1 class='wrapped_word'><%= @pipeline.name() -%></h1></li>
     </ul>
     <div id="pause_info_and_controls" class="admin_pause_info_and_controls clear_float">

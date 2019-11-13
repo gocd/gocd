@@ -1,5 +1,5 @@
 <li role="presentation">
-    <%= link_to 'Pipelines', pipeline_groups_path -%>
+    <%= link_to 'Pipelines', spark_url_for({url_builder: controller}, SparkRoutes::AdminPipelines::SPA_BASE) -%>
 </li>
 <li role="presentation">
   <%= link_to 'Templates', templates_path -%>

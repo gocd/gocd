@@ -22,8 +22,8 @@
           <div class="page_header">
             <div class="row">
               <h1 id="page-title" class="entity_title">
-                <%= link_to 'Administration', pipeline_groups_path -%>&nbsp;&raquo;
-                <%= link_to 'Pipeline Groups', pipeline_groups_path -%>&nbsp;&raquo;
+                <%= link_to 'Administration', spark_url_for({url_builder: controller}, SparkRoutes::AdminPipelines::SPA_BASE) -%>&nbsp;&raquo;
+                <%= link_to 'Pipeline Groups', spark_url_for({url_builder: controller}, SparkRoutes::AdminPipelines::SPA_BASE) -%>&nbsp;&raquo;
                 <%= @group.getGroup() -%>
               </h1>
             </div>
@@ -50,7 +50,7 @@
               <ul>
                 <% if is_user_an_admin? || is_user_a_group_admin? %>
                     <li id="pipeline-groups-tab-button" class="<%= "current_tab" if @tab_name == "pipeline-groups" %>">
-                      <a id="tab-link-of-pipeline-groups" href="<%= pipeline_groups_path -%>">Pipelines</a>
+                      <a id="tab-link-of-pipeline-groups" href="<%= spark_url_for({url_builder: controller}, SparkRoutes::AdminPipelines::SPA_BASE) -%>">Pipelines</a>
                     </li>
                 <% end %>
                 <% if is_user_an_admin? || is_user_authorized_to_view_templates? -%>

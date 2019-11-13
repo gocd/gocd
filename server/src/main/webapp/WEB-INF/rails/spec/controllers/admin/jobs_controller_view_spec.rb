@@ -19,6 +19,7 @@ require 'rails_helper'
 
 describe Admin::JobsController do
   include GoUtil
+
   describe "actions" do
     render_views
 

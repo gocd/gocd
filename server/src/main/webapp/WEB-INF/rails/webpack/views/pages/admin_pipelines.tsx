@@ -172,6 +172,7 @@ export class AdminPipelinesPage extends Page<null, State> {
       modal.render();
 
     };
+
     vnode.state.doDeletePipeline = (pipeline) => {
       const message = <span>Are you sure you want to delete the pipeline <em>{pipeline.name()}</em>?</span>;
 

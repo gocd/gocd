@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-import {SinglePageAppBase} from "helpers/spa_base";
+import {RoutedSinglePageApp} from "helpers/spa_base";
 import {AdminPipelinesPage} from "views/pages/admin_pipelines";
 
-export class AdminPipelinesSPA extends SinglePageAppBase {
+export class AdminPipelinesSPA extends RoutedSinglePageApp {
   constructor() {
-    super(AdminPipelinesPage);
+    super({
+            "/": AdminPipelinesPage,
+            "/:id": AdminPipelinesPage
+          });
   }
 }
 

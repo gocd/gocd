@@ -31,6 +31,14 @@ export class SparkRoutes {
     }
   }
 
+  static pipelineGroupsSPAPath(groupName?: string) {
+    if (groupName) {
+      return `/go/admin/pipelines/#!${groupName}`;
+    } else {
+      return `/go/admin/pipelines`;
+    }
+  }
+
   static adminPipelineConfigPath(pipelineName: string): string {
     return `/go/api/admin/pipelines/${pipelineName}`;
   }

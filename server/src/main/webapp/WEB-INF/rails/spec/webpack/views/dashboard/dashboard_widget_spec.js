@@ -274,7 +274,7 @@ describe("Dashboard Widget", () => {
     const pipelineGroupJSON = dashboardJson._embedded.pipeline_groups[0];
 
     const title = helper.q('.dashboard-group_title>a');
-    expect(title.href.indexOf(`/go/admin/pipelines#group-${pipelineGroupJSON.name}`)).not.toEqual(-1);
+    expect(title.href.indexOf(`/go/admin/pipelines/#!${pipelineGroupJSON.name}`)).not.toEqual(-1);
   });
 
   it("should show pipeline group icon which links to pipeline group settings page for admin users", () => {

@@ -113,6 +113,15 @@ class PipelineWidget extends MithrilViewComponent<PipelineWidgetAttrs> {
 }
 
 class PipelineGroupWidget extends MithrilViewComponent<PipelineGroupAttrs> {
+  oncreate(vnode: m.VnodeDOM<PipelineGroupAttrs, this>) {
+    const selectedFragment = m.route.param().id;
+    if (selectedFragment && selectedFragment.toLowerCase() === vnode.attrs.group.name().toLowerCase()) {
+      vnode.dom.scrollIntoView(true);
+      // width of the fixed elements at top + some buffer
+      window.scrollBy(0, -120);
+    }
+  }
+
   view(vnode: m.Vnode<PipelineGroupAttrs, this>) {
     return (
       <div data-test-id={`pipeline-group-${s.slugify(vnode.attrs.group.name())}`}

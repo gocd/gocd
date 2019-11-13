@@ -248,9 +248,9 @@ export class AdminPipelinesPage extends Page<null, State> {
           .then((apiResult) => {
             apiResult.do(
               () => {
-                const msg =
-                        <span>The pipeline <em>{newPipelineName}</em> was created successfully!</span>;
-                vnode.state.onSuccessfulSave(msg);
+                const newPipeline = shallowPipeline.clone();
+                newPipeline.name(newPipelineName);
+                vnode.state.doEditPipeline(newPipeline);
               },
               onOperationError
             );

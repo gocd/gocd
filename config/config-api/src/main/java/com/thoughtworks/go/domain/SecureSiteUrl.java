@@ -17,13 +17,40 @@
 package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.config.ConfigTag;
+import com.thoughtworks.go.config.Validatable;
+import com.thoughtworks.go.config.ValidationContext;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.regex.Pattern;
 
 @ConfigTag("secureSiteUrl")
-public class SecureSiteUrl extends ServerSiteUrlConfig {
+public class SecureSiteUrl extends ServerSiteUrlConfig implements Validatable {
+    private ConfigErrors errors = new ConfigErrors();
+
     public SecureSiteUrl() {
     }
 
     public SecureSiteUrl(String url) {
         super(url);
+    }
+
+    @Override
+    public void validate(ValidationContext validationContext) {
+        if (StringUtils.isBlank(url)) {
+            return;
+        }
+        if (!Pattern.matches("(https://.+)?", url)) {
+            errors().add("secureSiteUrl", String.format("Invalid format for secure site url. '%s' must start with https", url));
+        }
+    }
+
+    @Override
+    public ConfigErrors errors() {
+        return errors;
+    }
+
+    @Override
+    public void addError(String fieldName, String message) {
+        errors.add(fieldName, message);
     }
 }

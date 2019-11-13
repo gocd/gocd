@@ -18,11 +18,16 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.SiteUrls;
+import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.domain.SecureSiteUrl;
 import com.thoughtworks.go.domain.SiteUrl;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThatCode;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class CreateOrUpdateConfigServerSiteUrlsCommandTest {
     private BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
@@ -34,5 +39,28 @@ public class CreateOrUpdateConfigServerSiteUrlsCommandTest {
         command.update(cruiseConfig);
 
         assertThat(cruiseConfig.server().getSiteUrls()).isEqualTo(siteUrls);
+    }
+
+    @Nested
+    class Validate {
+        @Test
+        void shouldReturnTrueForValidSiteUrls() {
+            SiteUrls siteUrls = new SiteUrls(new SiteUrl("http://foo.bar"), new SecureSiteUrl("https://foo.bar"));
+            cruiseConfig.server().setSiteUrl(siteUrls.getSiteUrl().toString());
+            cruiseConfig.server().setSecureSiteUrl(siteUrls.getSecureSiteUrl().toString());
+            CreateOrUpdateConfigServerSiteUrlsCommand command = new CreateOrUpdateConfigServerSiteUrlsCommand(siteUrls);
+
+            assertTrue(command.isValid(cruiseConfig));
+        }
+
+        @Test
+        void shouldReturnFalseForInvalidSiteUrls() {
+            SiteUrls siteUrls = new SiteUrls(new SiteUrl("htp://foo.bar"), new SecureSiteUrl("http://foo.bar"));
+            cruiseConfig.server().setSiteUrl(siteUrls.getSiteUrl().toString());
+            cruiseConfig.server().setSecureSiteUrl(siteUrls.getSecureSiteUrl().toString());
+            CreateOrUpdateConfigServerSiteUrlsCommand command = new CreateOrUpdateConfigServerSiteUrlsCommand(siteUrls);
+
+            assertFalse(command.isValid(cruiseConfig));
+        }
     }
 }

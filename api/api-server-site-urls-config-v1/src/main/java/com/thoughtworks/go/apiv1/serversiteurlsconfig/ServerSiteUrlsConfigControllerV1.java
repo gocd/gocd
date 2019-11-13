@@ -18,12 +18,16 @@ package com.thoughtworks.go.apiv1.serversiteurlsconfig;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
+import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.apiv1.serversiteurlsconfig.representers.ServerSiteUrlsConfigRepresenter;
+import com.thoughtworks.go.config.ErrorCollector;
 import com.thoughtworks.go.config.SiteUrls;
+import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
+import com.thoughtworks.go.server.controller.Message;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.ServerConfigService;
 import com.thoughtworks.go.spark.Routes;
@@ -35,6 +39,7 @@ import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
+import java.util.function.Consumer;
 
 import static spark.Spark.*;
 
@@ -77,15 +82,20 @@ public class ServerSiteUrlsConfigControllerV1 extends ApiController implements S
 
     String createOrUpdate(Request request, Response response) throws IOException {
         SiteUrls siteUrls = buildEntityFromRequestBody(request);
-        serverConfigService.createOrUpdateServerSiteUrls(siteUrls);
-        return writerForTopLevelObject(request, response, writer -> ServerSiteUrlsConfigRepresenter.toJSON(writer, siteUrls));
+        try {
+            serverConfigService.createOrUpdateServerSiteUrls(siteUrls);
+            return writerForTopLevelObject(request, response, writer -> ServerSiteUrlsConfigRepresenter.toJSON(writer, siteUrls));
+        } catch (GoConfigInvalidException e) {
+            return writerForTopLevelObject(request, response, writer -> {
+                writer.add("message", e.getMessage());
+                ServerSiteUrlsConfigRepresenter.toJSON(writer, siteUrls);
+            });
+        }
     }
 
     String index(Request request, Response response) throws IOException {
         SiteUrls serverSiteUrls = serverConfigService.getServerSiteUrls();
-        return writerForTopLevelObject(request, response, writer -> {
-            ServerSiteUrlsConfigRepresenter.toJSON(writer, serverSiteUrls);
-        });
+        return writerForTopLevelObject(request, response, writer -> ServerSiteUrlsConfigRepresenter.toJSON(writer, serverSiteUrls));
     }
 
     private SiteUrls buildEntityFromRequestBody(Request req) {

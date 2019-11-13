@@ -17,11 +17,16 @@
 package com.thoughtworks.go.apiv1.serversiteurlsconfig.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
+import com.thoughtworks.go.api.representers.ErrorGetter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.config.SiteUrls;
+import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.SecureSiteUrl;
 import com.thoughtworks.go.domain.SiteUrl;
 import com.thoughtworks.go.spark.Routes;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl;
 
@@ -33,6 +38,17 @@ public class ServerSiteUrlsConfigRepresenter {
                 .addLink("self", Routes.ServerSiteUrlsConfig.BASE))
                 .add("site_url", siteUrls.getSiteUrl().toString())
                 .add("secure_site_url", siteUrls.getSecureSiteUrl().toString());
+
+        if (!siteUrls.getSiteUrl().errors().isEmpty() || !siteUrls.getSecureSiteUrl().errors().isEmpty()) {
+            Map<String, String> fieldMapping = new HashMap<>();
+            fieldMapping.put("siteUrl", "site_url");
+            fieldMapping.put("secureSiteUrl", "secure_site_url");
+            writer.addChild("errors", errorWriter -> {
+                ErrorGetter errorGetter = new ErrorGetter(fieldMapping);
+                errorGetter.toJSON(errorWriter, siteUrls.getSiteUrl());
+                errorGetter.toJSON(errorWriter, siteUrls.getSecureSiteUrl());
+            });
+        }
     }
 
     public static SiteUrls fromJson(JsonReader jsonReader) {

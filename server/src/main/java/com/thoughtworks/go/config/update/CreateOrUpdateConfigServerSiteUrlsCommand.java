@@ -16,11 +16,18 @@
 
 package com.thoughtworks.go.config.update;
 
+import com.thoughtworks.go.config.BasicCruiseConfig;
+import com.thoughtworks.go.config.ConfigSaveValidationContext;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.SiteUrls;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
+import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
+import com.thoughtworks.go.domain.ConfigErrors;
+import com.thoughtworks.go.config.ErrorCollector;
 
-public class CreateOrUpdateConfigServerSiteUrlsCommand implements EntityConfigUpdateCommand {
+import java.util.List;
+
+public class CreateOrUpdateConfigServerSiteUrlsCommand implements EntityConfigUpdateCommand<SiteUrls> {
     private final SiteUrls newSiteUrls;
     private SiteUrls preprocessedSiteUrls;
 
@@ -37,15 +44,25 @@ public class CreateOrUpdateConfigServerSiteUrlsCommand implements EntityConfigUp
     @Override
     public boolean isValid(CruiseConfig preprocessedConfig) {
         preprocessedSiteUrls = preprocessedConfig.server().getSiteUrls();
+        preprocessedSiteUrls.validate(new ConfigSaveValidationContext(preprocessedConfig));
+
+        BasicCruiseConfig.copyErrors(preprocessedSiteUrls, newSiteUrls);
+        List<ConfigErrors> allErrors = ErrorCollector.getAllErrors(newSiteUrls);
+
+        if (!allErrors.isEmpty()) {
+            return false;
+        }
+
         return true;
     }
 
     @Override
     public void clearErrors() {
+        BasicCruiseConfig.clearErrors(this.preprocessedSiteUrls);
     }
 
     @Override
-    public Object getPreprocessedEntityConfig() {
+    public SiteUrls getPreprocessedEntityConfig() {
         return preprocessedSiteUrls;
     }
 

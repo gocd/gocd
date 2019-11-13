@@ -18,9 +18,12 @@ package com.thoughtworks.go.apiv3.rolesconfig.representers
 
 import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.config.PluginRoleConfig
+import com.thoughtworks.go.config.policy.Allow
+import com.thoughtworks.go.config.policy.Policy
 import com.thoughtworks.go.domain.config.ConfigurationKey
 import com.thoughtworks.go.domain.config.ConfigurationProperty
 import com.thoughtworks.go.domain.config.ConfigurationValue
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
@@ -28,32 +31,48 @@ import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
 class PluginRoleConfigRepresenterTest {
-  private final LinkedHashMap<String, Object> map = [
-    _links    : [
-      doc : [href: apiDocsUrl('#roles')],
-      self: [href: 'http://test.host/go/api/admin/security/roles/blackbird'],
-      find: [href: 'http://test.host/go/api/admin/security/roles/:role_name']
-    ],
-    name      : 'blackbird',
-    type      : 'plugin',
-    attributes: [
-      auth_config_id: "ldap",
-      properties    : [
-        [
-          key  : "UserGroupMembershipAttribute",
-          value: "memberOf"
-        ],
-        [
-          key  : "GroupIdentifiers",
-          value: "ou=admins,ou=groups,ou=system,dc=example,dc=com"
+  private LinkedHashMap<String, Object> map
+  private PluginRoleConfig roleConfig
+
+  @BeforeEach
+  void setUp() {
+    map = [
+      _links    : [
+        doc : [href: apiDocsUrl('#roles')],
+        self: [href: 'http://test.host/go/api/admin/security/roles/blackbird'],
+        find: [href: 'http://test.host/go/api/admin/security/roles/:role_name']
+      ],
+      name      : 'blackbird',
+      type      : 'plugin',
+      policy    : [[
+                     permission: "allow",
+                     action    : "view",
+                     type      : "environment",
+                     resource  : "foo*"
+                   ]],
+      attributes: [
+        auth_config_id: "ldap",
+        properties    : [
+          [
+            key  : "UserGroupMembershipAttribute",
+            value: "memberOf"
+          ],
+          [
+            key  : "GroupIdentifiers",
+            value: "ou=admins,ou=groups,ou=system,dc=example,dc=com"
+          ]
         ]
       ]
     ]
-  ]
 
-  private final PluginRoleConfig roleConfig = new PluginRoleConfig("blackbird", "ldap",
-    new ConfigurationProperty(new ConfigurationKey("UserGroupMembershipAttribute"), new ConfigurationValue("memberOf")),
-    new ConfigurationProperty(new ConfigurationKey("GroupIdentifiers"), new ConfigurationValue("ou=admins,ou=groups,ou=system,dc=example,dc=com")))
+    roleConfig = new PluginRoleConfig("blackbird", "ldap",
+      new ConfigurationProperty(new ConfigurationKey("UserGroupMembershipAttribute"), new ConfigurationValue("memberOf")),
+      new ConfigurationProperty(new ConfigurationKey("GroupIdentifiers"), new ConfigurationValue("ou=admins,ou=groups,ou=system,dc=example,dc=com")))
+
+    def directives = new Policy()
+    directives.add(new Allow("view", "environment", "foo*"))
+    roleConfig.setPolicy(directives)
+  }
 
   @Test
   void shouldGenerateJSON() {

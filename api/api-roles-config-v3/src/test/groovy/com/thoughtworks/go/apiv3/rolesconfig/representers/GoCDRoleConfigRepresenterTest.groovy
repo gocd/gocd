@@ -20,6 +20,9 @@ import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.RoleConfig
 import com.thoughtworks.go.config.RoleUser
+import com.thoughtworks.go.config.policy.Allow
+import com.thoughtworks.go.config.policy.Policy
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
@@ -28,20 +31,34 @@ import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.assertj.core.api.Assertions.assertThat
 
 class GoCDRoleConfigRepresenterTest {
-  private final LinkedHashMap<String, Object> map = [
-    _links    : [
-      doc : [href: apiDocsUrl('#roles')],
-      self: [href: 'http://test.host/go/api/admin/security/roles/admins'],
-      find: [href: 'http://test.host/go/api/admin/security/roles/:role_name']
-    ],
-    name      : 'admins',
-    type      : 'gocd',
-    attributes: [
-      users: ['bob', 'alice']
+  private LinkedHashMap<String, Object> map
+  private RoleConfig roleConfig
+
+  @BeforeEach
+  void setUp() {
+    map = [
+      _links    : [
+        doc : [href: apiDocsUrl('#roles')],
+        self: [href: 'http://test.host/go/api/admin/security/roles/admins'],
+        find: [href: 'http://test.host/go/api/admin/security/roles/:role_name']
+      ],
+      name      : 'admins',
+      type      : 'gocd',
+      policy    : [[
+                     permission: "allow",
+                     action    : "view",
+                     type      : "environment",
+                     resource  : "foo*"
+                   ]],
+      attributes: [
+        users: ['bob', 'alice']
+      ]
     ]
-  ]
-  private
-  final RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("admins"), new RoleUser("bob"), new RoleUser("alice"))
+    roleConfig = new RoleConfig(new CaseInsensitiveString("admins"), new RoleUser("bob"), new RoleUser("alice"))
+    def directives = new Policy()
+    directives.add(new Allow("view", "environment", "foo*"))
+    roleConfig.setPolicy(directives)
+  }
 
   @Test
   void shouldGenerateJSON() {

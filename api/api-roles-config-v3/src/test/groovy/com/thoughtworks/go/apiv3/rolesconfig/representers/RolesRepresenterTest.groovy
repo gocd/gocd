@@ -36,6 +36,7 @@ class RolesRepresenterTest {
     ],
     name      : 'blackbird',
     type      : 'plugin',
+    policy    : [],
     attributes: [
       auth_config_id: "ldap",
       properties    : [
@@ -59,6 +60,7 @@ class RolesRepresenterTest {
     ],
     name      : 'admins',
     type      : 'gocd',
+    policy    : [],
     attributes: [
       users: ['bob', 'alice']
     ]

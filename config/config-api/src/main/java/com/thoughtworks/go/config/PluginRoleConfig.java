@@ -118,6 +118,11 @@ public class PluginRoleConfig extends Configuration implements Role {
     }
 
     @Override
+    public void setPolicy(Policy policy) {
+        this.policy = policy;
+    }
+
+    @Override
     public boolean hasErrors() {
         return super.hasErrors() || !configErrors.isEmpty();
     }

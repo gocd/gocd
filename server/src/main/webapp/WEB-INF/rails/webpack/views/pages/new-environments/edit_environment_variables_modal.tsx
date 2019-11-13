@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {EnvironmentWithOrigin} from "models/new-environments/environments";
@@ -54,7 +55,7 @@ export class EditEnvironmentVariablesModal extends Modal {
   }
 
   buttons(): m.ChildArray {
-    return [<Primary data-test-id="button-ok" onclick={this.performSave.bind(this)}>Save</Primary>,
+    return [<Primary data-test-id="save-button" onclick={this.performSave.bind(this)}>Save</Primary>,
             <Cancel data-test-id="cancel-button" onclick={this.close.bind(this)}>Cancel</Cancel>
     ];
   }
@@ -86,6 +87,11 @@ export class EditEnvironmentVariablesModal extends Modal {
 
   environmentVariablesToAdd() {
     return this.environmentToUpdate.environmentVariables().filter((envVar) => {
+      const isBlankEnvVar = _.isEmpty(envVar.name()) && (_.isEmpty(envVar.value()) && _.isEmpty(envVar.encryptedValue()));
+      if (isBlankEnvVar) {
+        return false;
+      }
+
       const oldEnvVar = this._environment.environmentVariables().find((v) => v.name() === envVar.name());
       // add new and updated variables
       return oldEnvVar === undefined || !oldEnvVar.equals(envVar);

@@ -54,7 +54,7 @@ describe("Edit Pipelines Modal", () => {
 
     modal = new EditPipelinesModal(environment, environments, jasmine.createSpy("onSuccessfulSave"));
     modal.pipelinesVM.pipelineGroups(PipelineGroups.fromJSON(pipelineGroupsJSON.groups));
-    helper.mount(() => modal.body());
+    helper.mount(() => modal.view());
   });
 
   afterEach(() => {
@@ -193,6 +193,14 @@ describe("Edit Pipelines Modal", () => {
   });
 
   it("should show no pipelines matching search text message when no pipelines matched the search text", () => {
+    modal.pipelinesVM.pipelineGroups(new PipelineGroups());
+    m.redraw.sync();
+
+    const expectedMessage = "There are no pipelines available!";
+    expect(helper.textByTestId("flash-message-info")).toContain(expectedMessage);
+  });
+
+  it("should show no pipelines matching search text message when no pipelines matched the search text", () => {
     const selectorForPipeline1 = `pipeline-checkbox-for-${pipelineGroupsJSON.groups[0].pipelines[0].name}`;
     const selectorForPipeline2 = `pipeline-list-item-for-${pipelineGroupsJSON.groups[0].pipelines[1].name}`;
     const selectorForPipeline3 = `pipeline-list-item-for-${pipelineGroupsJSON.groups[0].pipelines[2].name}`;
@@ -217,5 +225,19 @@ describe("Edit Pipelines Modal", () => {
 
     const expectedMessage = "No pipelines matching search text 'blah-is-my-pipeline-name' found!";
     expect(helper.textByTestId("flash-message-info")).toContain(expectedMessage);
+  });
+
+  it('should render buttons', () => {
+    expect(helper.byTestId("cancel-button")).toBeInDOM();
+    expect(helper.byTestId("cancel-button")).toHaveText("Cancel");
+    expect(helper.byTestId("save-button")).toBeInDOM();
+    expect(helper.byTestId("save-button")).toHaveText("Save");
+  });
+
+  it("should render config repo pipelines with config repo link", () => {
+    const configRepoLink = helper.q("a", helper.byTestId("unavailable-pipelines-defined-in-config-repository"));
+    const configRepoId   = pipelineGroupsJSON.groups[0].pipelines[1].origin.id;
+    expect(configRepoLink).toHaveText(configRepoId!);
+    expect(configRepoLink.getAttribute("href")).toBe(`/go/admin/config_repos/#!${configRepoId}`);
   });
 });

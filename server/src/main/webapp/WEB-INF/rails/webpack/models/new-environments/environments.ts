@@ -17,7 +17,7 @@
 import _ from "lodash";
 import Stream from "mithril/stream";
 import {PipelineJSON, Pipelines, PipelineWithOrigin} from "models/internal_pipeline_structure/pipeline_structure";
-import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
+import {ValidatableMixin, Validator} from "models/mixins/new_validatable_mixin";
 import {Agents, AgentWithOrigin, EnvironmentAgentJSON} from "models/new-environments/environment_agents";
 import {
   EnvironmentEnvironmentVariableJSON,
@@ -25,6 +25,8 @@ import {
 } from "models/new-environments/environment_environment_variables";
 import {EnvironmentsAPIs} from "models/new-environments/environments_apis";
 import {Origin, OriginJSON, OriginType} from "models/origin";
+import {attrName} from "../../views/pages/pac/styles.scss";
+import {ErrorMessages} from "../mixins/error_messages";
 
 export interface EnvironmentJSON {
   name: string;
@@ -41,6 +43,24 @@ interface EmbeddedJSON {
 
 export interface EnvironmentsJSON {
   _embedded: EmbeddedJSON;
+}
+
+class EnvironmentVariableNameUniquenessValidator extends Validator {
+  protected doValidate(environmentWithOrigin: EnvironmentWithOrigin): void {
+    _.forEach(environmentWithOrigin.environmentVariables(), (child) => {
+      const duplicates = _.filter(environmentWithOrigin.environmentVariables(), (c) => {
+        const isNameDuplicate   = c.name() === child.name();
+        const isDifferentObject = c !== child;
+        return (isNameDuplicate && isDifferentObject) && !_.isEmpty(c.name());
+      });
+
+      if (!_.isEmpty(duplicates)) {
+        environmentWithOrigin.errors().add(attrName, ErrorMessages.duplicate("name"));
+        child.errors().add("name", ErrorMessages.duplicate("name"));
+      }
+
+    });
+  }
 }
 
 export class EnvironmentWithOrigin extends ValidatableMixin {
@@ -66,8 +86,8 @@ export class EnvironmentWithOrigin extends ValidatableMixin {
     this.pipelines            = Stream(pipelines);
     this.environmentVariables = Stream(environmentVariables);
     this.validatePresenceOf("name");
-    this.validateAssociated("environmentVariables");
-    this.validateChildAttrIsUnique("environmentVariables", "name");
+    this.validateEach("environmentVariables");
+    this.validateWith(new EnvironmentVariableNameUniquenessValidator(), "environmentVariables");
   }
 
   static fromJSON(data: EnvironmentJSON) {

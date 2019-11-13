@@ -26,6 +26,7 @@ import {CheckboxField, HelpText, SearchField} from "views/components/forms/input
 import {Modal, ModalState, Size} from "views/components/modal";
 import {PipelinesViewModel} from "views/pages/new-environments/models/pipelines_view_model";
 import styles from "./edit_pipelines.scss";
+import _ from "lodash";
 
 interface SelectAllNoneWidgetAttrs {
   pipelinesVM: PipelinesViewModel;
@@ -172,18 +173,24 @@ export class EditPipelinesModal extends Modal {
   }
 
   body(): m.Children {
-    const noPipelinesMsg = <FlashMessage type={MessageType.info}
-                                         message={`No pipelines matching search text '${this.pipelinesVM.searchText()}' found!`}/>;
+    let noPipelinesMsg;
+
+    if (this.pipelinesVM.allPipelines().length === 0) {
+      noPipelinesMsg = <FlashMessage type={MessageType.info} message={'There are no pipelines available!'}/>;
+    } else if (this.pipelinesVM.filteredPipelines().length === 0) {
+      noPipelinesMsg = <FlashMessage type={MessageType.info}
+                                     message={`No pipelines matching search text '${this.pipelinesVM.searchText()}' found!`}/>;
+    }
 
     return <div>
       <FlashMessage type={MessageType.alert} message={this.pipelinesVM.errorMessage()}/>
       <PipelineFilterWidget pipelinesVM={this.pipelinesVM}/>
-      {this.pipelinesVM.filteredPipelines().length === 0 ? noPipelinesMsg : this.pipelinesHtml()}
+      {noPipelinesMsg ? noPipelinesMsg : this.pipelinesHtml()}
     </div>;
   }
 
   buttons(): m.ChildArray {
-    return [<Primary data-test-id="button-ok" onclick={this.performSave.bind(this)}>Save</Primary>,
+    return [<Primary data-test-id="save-button" onclick={this.performSave.bind(this)}>Save</Primary>,
       <Cancel data-test-id="cancel-button" onclick={this.close.bind(this)}>Cancel</Cancel>
     ];
   }

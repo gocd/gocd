@@ -59,7 +59,7 @@ export class NewEnvironmentsPage extends Page<null, State> {
       e.stopPropagation();
       this.flashMessage.clear();
 
-      const message = ["Are you sure you want to delete environment ", m("strong", env.name()), "?"];
+      const message = <span>Are you sure you want to delete environment <em>{env.name()}</em>?</span>;
       const modal   = new DeleteConfirmModal(message, () => {
         const self = this;
         env.delete()

@@ -127,18 +127,24 @@ export class EditAgentsModal extends Modal {
       return;
     }
 
-    const noAgentsMsg: m.Child = <FlashMessage type={MessageType.info}
-                                               message={`No agents matching search text '${this.agentsVM.searchText()}' found!`}/>;
+    let noAgentsMsg: m.Child;
+    if (this.agentsVM.agents().length === 0) {
+      noAgentsMsg = <FlashMessage type={MessageType.info}
+                                  message={'There are no agents available!'}/>;
+    } else if (this.agentsVM.filteredAgents().length === 0) {
+      noAgentsMsg = <FlashMessage type={MessageType.info}
+                                  message={`No agents matching search text '${this.agentsVM.searchText()}' found!`}/>;
+    }
 
     return <div>
       <AgentFilterWidget agentsVM={this.agentsVM}/>
       <FlashMessage type={MessageType.alert} message={this.errorMessage()}/>
-      {this.agentsVM.filteredAgents().length === 0 ? noAgentsMsg : this.agentsHtml()}
+      {noAgentsMsg ? noAgentsMsg : this.agentsHtml()}
     </div>;
   }
 
   buttons(): m.ChildArray {
-    return [<Primary data-test-id="button-ok" onclick={this.performSave.bind(this)}>Save</Primary>,
+    return [<Primary data-test-id="save-button" onclick={this.performSave.bind(this)}>Save</Primary>,
       <Cancel data-test-id="cancel-button" onclick={this.close.bind(this)}>Cancel</Cancel>];
   }
 

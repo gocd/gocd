@@ -73,7 +73,7 @@ describe("Edit Agents Modal", () => {
                                 Agents.fromJSON(agentsJSON),
                                 jasmine.createSpy("onSuccessfulSave"));
 
-    helper.mount(() => modal.body());
+    helper.mount(() => modal.view());
   });
 
   afterEach(() => {
@@ -214,6 +214,13 @@ describe("Edit Agents Modal", () => {
     expect(helper.byTestId(agent3Selector)).toBeInDOM();
   });
 
+  it("should show no agents available message", () => {
+    modal.agentsVM.agents(new Agents());
+    m.redraw.sync();
+    const expectedMessage = "There are no agents available!";
+    expect(helper.textByTestId("flash-message-info")).toContain(expectedMessage);
+  });
+
   it("should show no agents matching search text message when no agents matched the search text", () => {
     const agent1Selector = `agent-checkbox-for-${normalAgentAssociatedWithEnvInXml}`;
     const agent2Selector = `agent-checkbox-for-${unassociatedStaticAgent}`;
@@ -239,4 +246,12 @@ describe("Edit Agents Modal", () => {
     const expectedMessage = "No agents matching search text 'blah-is-my-agent-hostname' found!";
     expect(helper.textByTestId("flash-message-info")).toContain(expectedMessage);
   });
+
+  it('should render buttons', () => {
+    expect(helper.byTestId("cancel-button")).toBeInDOM();
+    expect(helper.byTestId("cancel-button")).toHaveText("Cancel");
+    expect(helper.byTestId("save-button")).toBeInDOM();
+    expect(helper.byTestId("save-button")).toHaveText("Save");
+  });
+
 });

@@ -52,7 +52,7 @@ public class GoPluginBundleDescriptorBuilder {
                 return GoPluginDescriptorParser.parseXML(bundleOrPluginJarFile.getPluginXml(), bundleOrPluginJarFile);
             }
 
-            goPluginBundleDescriptor.markAsInvalid(List.of(format("Plugin with ID (%s) is not valid.", defaultId)), new RuntimeException("The plugin does not seem to contain plugin.xml or gocd-bundle.xml"));
+            goPluginBundleDescriptor.markAsInvalid(List.of(format("Plugin with ID (%s) is not valid. The plugin does not seem to contain plugin.xml or gocd-bundle.xml", defaultId)), new RuntimeException("The plugin does not seem to contain plugin.xml or gocd-bundle.xml"));
         } catch (Exception e) {
             log.warn("Unable to load the jar file {}", bundleOrPluginJarFile.file(), e);
             String cause = e.getCause() != null ? format("%s. Cause: %s", e.getMessage(), e.getCause().getMessage()) : e.getMessage();

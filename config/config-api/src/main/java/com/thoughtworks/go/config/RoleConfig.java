@@ -104,6 +104,11 @@ public class RoleConfig implements Role {
     }
 
     @Override
+    public void setPolicy(Policy policy) {
+        this.policy = policy;
+    }
+
+    @Override
     public void removeUser(RoleUser roleUser) {
         this.users.remove(roleUser);
     }

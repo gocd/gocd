@@ -18,6 +18,7 @@ package com.thoughtworks.go.apiv3.rolesconfig.representers;
 
 
 import com.google.gson.JsonParseException;
+import com.thoughtworks.go.api.base.OutputListWriter;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.ErrorGetter;
 import com.thoughtworks.go.api.representers.JsonReader;
@@ -25,23 +26,27 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PluginRoleConfig;
 import com.thoughtworks.go.config.Role;
 import com.thoughtworks.go.config.RoleConfig;
+import com.thoughtworks.go.config.policy.Policy;
 import com.thoughtworks.go.spark.Routes;
 
 import java.util.Collections;
+import java.util.function.Consumer;
 
 
 public class RoleRepresenter {
     public static void toJSON(OutputWriter jsonWriter, Role role) {
         jsonWriter.addLinks(
-            outputLinkWriter -> outputLinkWriter.addAbsoluteLink("doc", Routes.Roles.DOC)
-                .addLink("self", Routes.Roles.name(role.getName().toString()))
-                .addLink("find", Routes.Roles.find()))
-            .add("name", role.getName().toString())
-            .add("type", getRoleType(role));
+                outputLinkWriter -> outputLinkWriter.addAbsoluteLink("doc", Routes.Roles.DOC)
+                        .addLink("self", Routes.Roles.name(role.getName().toString()))
+                        .addLink("find", Routes.Roles.find()))
+                .add("name", role.getName().toString())
+                .add("type", getRoleType(role))
+                .addChildList("policy", policyToJSON(role.getPolicy()));
 
         if (role.hasErrors()) {
-            jsonWriter.addChild("errors", errorWriter -> new ErrorGetter(Collections.singletonMap("authConfigId", "auth_config_id"))
-                .toJSON(errorWriter, role));
+            jsonWriter.addChild("errors", errorWriter -> {
+                new ErrorGetter(Collections.singletonMap("authConfigId", "auth_config_id")).toJSON(errorWriter, role);
+            });
         }
         if (role instanceof RoleConfig) {
             jsonWriter.addChild("attributes", attributeWriter -> GoCDRoleConfigRepresenter.toJSON(attributeWriter, (RoleConfig) role));
@@ -50,32 +55,15 @@ public class RoleRepresenter {
         }
     }
 
-//    private static void addLinks(Role model, JsonWriter jsonWriter) {
-//        jsonWriter.addDocLink(Routes.Roles.DOC);
-//        jsonWriter.self(Routes.Roles.name(model.getName().toString()));
-//        jsonWriter.find(Routes.Roles.find());
-//    }
-
-//    public static Map toJSON(Role role, RequestContext requestContext) {
-//        if (role == null) return null;
-//
-//        JsonWriter jsonWriter = new JsonWriter(requestContext);
-//
-//        addLinks(role, jsonWriter);
-//
-//        jsonWriter.add("name", role.getName().toString());
-//        jsonWriter.add("type", getRoleType(role));
-//        if (role.hasErrors()) {
-//            jsonWriter.add("errors", new ErrorGetter(Collections.singletonMap("authConfigId", "auth_config_id"))
-//                .apply(role, requestContext));
-//        }
-//        if (role instanceof RoleConfig) {
-//            jsonWriter.add("attributes", GoCDRoleConfigRepresenter.toJSON((RoleConfig) role, requestContext));
-//        } else if (role instanceof PluginRoleConfig) {
-//            jsonWriter.add("attributes", PluginRoleConfigRepresenter.toJSON((PluginRoleConfig) role, requestContext));
-//        }
-//        return jsonWriter.getAsMap();
-//    }
+    private static Consumer<OutputListWriter> policyToJSON(Policy policy) {
+        return listWriter -> {
+            policy.stream().forEach(permission -> {
+                listWriter.addChild(childItemWriter -> {
+                    DirectiveRepresenter.toJSON(childItemWriter, permission);
+                });
+            });
+        };
+    }
 
     public static Role fromJSON(JsonReader jsonReader) {
         Role model;
@@ -90,6 +78,12 @@ public class RoleRepresenter {
         }
 
         model.setName(new CaseInsensitiveString(jsonReader.optString("name").orElse(null)));
+
+        Policy directives = new Policy();
+        jsonReader.readArrayIfPresent("policy", policy -> {
+            policy.forEach(directive -> directives.add(DirectiveRepresenter.fromJSON(new JsonReader(directive.getAsJsonObject()))));
+        });
+        model.setPolicy(directives);
 
         return model;
     }

@@ -114,6 +114,8 @@ public interface Role extends Validatable, PolicyAware {
 
     Policy getPolicy();
 
+    void setPolicy(Policy policy);
+
     @Override
     default List<String> allowedActions() {
         return allowedActions;

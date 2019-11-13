@@ -16,6 +16,9 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.helper.ValidationContextMother;
+import com.thoughtworks.go.config.policy.Allow;
+import com.thoughtworks.go.config.policy.Policy;
+import com.thoughtworks.go.config.policy.SupportedAction;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
@@ -31,6 +34,7 @@ import com.thoughtworks.go.security.GoCipher;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+import static com.thoughtworks.go.config.policy.SupportedEntity.ENVIRONMENT;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
@@ -165,6 +169,17 @@ public class PluginRoleConfigTest {
 
         assertTrue(roleConfig.hasErrors());
         assertTrue(roleConfig.errors().isEmpty());
+    }
+
+    @Test
+    public void shouldAnswerWhetherItHasPermissionsForGivenEntityOfTypeAndName() {
+        final Policy directives = new Policy();
+        directives.add(new Allow("view", ENVIRONMENT.getType(), "env_1"));
+        RoleConfig role = new RoleConfig(new CaseInsensitiveString(""), new Users(), directives);
+
+        assertTrue(role.hasPermissionsFor(SupportedAction.VIEW, EnvironmentConfig.class, "env_1"));
+        assertFalse(role.hasPermissionsFor(SupportedAction.VIEW, EnvironmentConfig.class, "env_2"));
+        assertFalse(role.hasPermissionsFor(SupportedAction.VIEW, PipelineConfig.class, "*"));
     }
 
     private void validatePresenceOfRoleName(Validator v) {

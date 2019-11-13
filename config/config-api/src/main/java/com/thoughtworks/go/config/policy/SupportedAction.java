@@ -16,22 +16,29 @@
 
 package com.thoughtworks.go.config.policy;
 
-import com.thoughtworks.go.config.ConfigInterface;
-import com.thoughtworks.go.config.Validatable;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
-import java.io.Serializable;
+import static java.util.Collections.unmodifiableList;
 
-@ConfigInterface
-public interface Directive extends Validatable, Serializable {
-    boolean hasErrors();
+public enum SupportedAction {
+    VIEW("view"),
+    UNKNOWN("unknown");
 
-    String action();
+    private final String action;
 
-    String type();
+    SupportedAction(String action) {
+        this.action = action;
+    }
 
-    String resource();
+    public String getAction() {
+        return action;
+    }
 
-    DirectiveType getDirectiveType();
-
-    Result apply(String refer, Class<? extends Validatable> aClass, String group);
+    public static List<String> unmodifiableListOf(SupportedAction... supportedActions) {
+        return unmodifiableList(Arrays.stream(supportedActions)
+                .map(SupportedAction::getAction)
+                .collect(Collectors.toList()));
+    }
 }

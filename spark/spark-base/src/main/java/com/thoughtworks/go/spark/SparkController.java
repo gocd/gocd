@@ -16,6 +16,7 @@
 package com.thoughtworks.go.spark;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.policy.SupportedAction;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -53,6 +54,17 @@ public interface SparkController {
 
     default Username currentUsername() {
         return SessionUtils.currentUsername();
+    }
+
+    default SupportedAction getAction(Request request) {
+        switch (request.requestMethod()) {
+            case "GET":
+                return SupportedAction.VIEW;
+            case "HEAD":
+                return SupportedAction.VIEW;
+            default:
+                return SupportedAction.UNKNOWN;
+        }
     }
 
     default String currentUsernameString() {

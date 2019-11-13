@@ -29,6 +29,7 @@ import com.thoughtworks.go.apiv3.environments.representers.EnvironmentRepresente
 import com.thoughtworks.go.apiv3.environments.representers.PatchEnvironmentRequestRepresenter;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.EntityType;
+import com.thoughtworks.go.config.policy.SupportedEntity;
 import com.thoughtworks.go.domain.ConfigElementForEdit;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.EnvironmentConfigService;
@@ -42,8 +43,6 @@ import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -81,8 +80,14 @@ public class EnvironmentsControllerV3 extends ApiController implements SparkSpri
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);
 
-            before("", mimeType, apiAuthenticationHelper::checkAdminUserAnd403);
-            before("/*", mimeType, apiAuthenticationHelper::checkAdminUserAnd403);
+            before("", mimeType, (request, response) -> {
+                apiAuthenticationHelper.checkUserHasPermissions(currentUsername(), getAction(request), SupportedEntity.ENVIRONMENT, "*");
+            });
+
+            before(Routes.Environments.NAME, mimeType, (request, response) -> {
+                apiAuthenticationHelper.checkUserHasPermissions(currentUsername(), getAction(request), SupportedEntity.ENVIRONMENT, request.params("name"));
+            });
+
             get("", mimeType, this::index);
             get(Routes.Environments.NAME, mimeType, this::show);
             post("", mimeType, this::create);

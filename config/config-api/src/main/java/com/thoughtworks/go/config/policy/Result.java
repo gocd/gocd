@@ -16,22 +16,8 @@
 
 package com.thoughtworks.go.config.policy;
 
-import com.thoughtworks.go.config.ConfigInterface;
-import com.thoughtworks.go.config.Validatable;
-
-import java.io.Serializable;
-
-@ConfigInterface
-public interface Directive extends Validatable, Serializable {
-    boolean hasErrors();
-
-    String action();
-
-    String type();
-
-    String resource();
-
-    DirectiveType getDirectiveType();
-
-    Result apply(String refer, Class<? extends Validatable> aClass, String group);
+public enum Result {
+    ALLOW,
+    DENY,
+    SKIP
 }

@@ -77,8 +77,4 @@ public class FileHelper {
         createdFolder.mkdir();
         return createdFolder;
     }
-
-    public void delete() {
-        this.rootDir.delete();
-    }
 }

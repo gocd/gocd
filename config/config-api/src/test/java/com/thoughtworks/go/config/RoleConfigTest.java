@@ -16,16 +16,19 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.helper.ValidationContextMother;
+import com.thoughtworks.go.config.policy.Allow;
+import com.thoughtworks.go.config.policy.Policy;
+import com.thoughtworks.go.config.policy.SupportedAction;
 import org.junit.Test;
 
+import static com.thoughtworks.go.config.policy.SupportedEntity.ENVIRONMENT;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 public class RoleConfigTest {
 
     @Test
-    public void validate_presenceOfRoleName(){
+    public void validate_presenceOfRoleName() {
         validatePresenceOfRoleName(new Validator() {
             @Override
             public void validate(RoleConfig roleConfig, ValidationContext context) {
@@ -35,7 +38,7 @@ public class RoleConfigTest {
     }
 
     @Test
-    public void validate_nullNameInRole(){
+    public void validate_nullNameInRole() {
         validateNullRoleName(new Validator() {
             @Override
             public void validate(RoleConfig roleConfig, ValidationContext context) {
@@ -55,7 +58,7 @@ public class RoleConfigTest {
     }
 
     @Test
-    public void validateTree_presenceOfRoleName(){
+    public void validateTree_presenceOfRoleName() {
         validatePresenceOfRoleName(new Validator() {
             @Override
             public void validate(RoleConfig roleConfig, ValidationContext context) {
@@ -65,7 +68,7 @@ public class RoleConfigTest {
     }
 
     @Test
-    public void validateTree_nullNameInRole(){
+    public void validateTree_nullNameInRole() {
         validateNullRoleName(new Validator() {
             @Override
             public void validate(RoleConfig roleConfig, ValidationContext context) {
@@ -82,6 +85,17 @@ public class RoleConfigTest {
                 assertFalse(roleConfig.validateTree(context));
             }
         });
+    }
+
+    @Test
+    public void shouldAnswerWhetherItHasPermissionsForGivenEntityOfTypeAndName() {
+        final Policy directives = new Policy();
+        directives.add(new Allow("view", ENVIRONMENT.getType(), "env_1"));
+        RoleConfig role = new RoleConfig(new CaseInsensitiveString(""), new Users(), directives);
+
+        assertTrue(role.hasPermissionsFor(SupportedAction.VIEW, EnvironmentConfig.class, "env_1"));
+        assertFalse(role.hasPermissionsFor(SupportedAction.VIEW, EnvironmentConfig.class, "env_2"));
+        assertFalse(role.hasPermissionsFor(SupportedAction.VIEW, PipelineConfig.class, "*"));
     }
 
     private void validatePresenceOfRoleName(Validator v) {

@@ -19,8 +19,11 @@ package com.thoughtworks.go.spark.spring;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.Role;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
+import com.thoughtworks.go.config.policy.SupportedAction;
+import com.thoughtworks.go.config.policy.SupportedEntity;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -31,6 +34,8 @@ import org.slf4j.LoggerFactory;
 import spark.HaltException;
 import spark.Request;
 import spark.Response;
+
+import java.util.List;
 
 import static com.thoughtworks.go.config.exceptions.EntityType.Pipeline;
 
@@ -64,6 +69,23 @@ public abstract class AbstractAuthenticationHelper {
         if (!securityService.isUserAdmin(currentUsername())) {
             throw renderForbiddenResponse();
         }
+    }
+
+
+    public void checkUserHasPermissions(Username username, SupportedAction action, SupportedEntity entity, String resource) {
+        //admin user has access to everything
+        if (securityService.isUserAdmin(username)) {
+            return;
+        }
+
+        List<Role> roles = goConfigService.rolesForUser(username.getUsername());
+        for (Role role : roles) {
+            if (role.hasPermissionsFor(action, entity.getEntityType(), resource)) {
+                return;
+            }
+        }
+
+        throw renderForbiddenResponse();
     }
 
     public void checkPipelineGroupAdminOfAnyGroup(Request request, Response response) {

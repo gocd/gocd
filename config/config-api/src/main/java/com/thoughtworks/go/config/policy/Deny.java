@@ -17,6 +17,7 @@
 package com.thoughtworks.go.config.policy;
 
 import com.thoughtworks.go.config.ConfigTag;
+import com.thoughtworks.go.config.Validatable;
 
 @ConfigTag("deny")
 public class Deny extends AbstractDirective {
@@ -27,4 +28,14 @@ public class Deny extends AbstractDirective {
     public Deny(String action, String type, String resource) {
         super(DirectiveType.DENY, action, type, resource);
     }
+
+    @Override
+    public Result apply(String action, Class<? extends Validatable> entityClass, String resource) {
+        if (matchesAction(action) && matchesType(entityClass) && matchesResource(resource)) {
+            return Result.DENY;
+        }
+
+        return Result.SKIP;
+    }
+
 }

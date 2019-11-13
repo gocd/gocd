@@ -18,12 +18,16 @@ package com.thoughtworks.go.config.policy;
 
 import com.thoughtworks.go.config.ConfigAttribute;
 import com.thoughtworks.go.config.ConfigValue;
+import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.domain.ConfigErrors;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOCase;
 
 import java.util.List;
 import java.util.Objects;
 
+import static com.thoughtworks.go.config.policy.SupportedEntity.fromString;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 
@@ -65,12 +69,37 @@ public abstract class AbstractDirective implements Directive {
         }
     }
 
-    private boolean isInvalid(String actionOrType, List<String> allowedTypes) {
+
+    private boolean isInvalid(String actionOrType, List<String> allowedActions) {
         if ("*".equals(actionOrType)) {
             return false;
         }
 
-        return allowedTypes.stream().noneMatch(it -> equalsIgnoreCase(it, actionOrType));
+        return allowedActions.stream().noneMatch(it -> equalsIgnoreCase(it, actionOrType));
+    }
+
+    protected boolean matchesAction(String action) {
+        if (equalsIgnoreCase("*", this.action)) {
+            return true;
+        }
+
+        return equalsIgnoreCase(action, this.action);
+    }
+
+    protected boolean matchesType(Class<? extends Validatable> entityType) {
+        if (equalsIgnoreCase("*", this.type)) {
+            return true;
+        }
+
+        return fromString(this.type).getEntityType().isAssignableFrom(entityType);
+    }
+
+    protected boolean matchesResource(String resource) {
+        if (equalsIgnoreCase("*", this.resource)) {
+            return true;
+        }
+
+        return FilenameUtils.wildcardMatch(resource, this.resource, IOCase.INSENSITIVE);
     }
 
     @Override

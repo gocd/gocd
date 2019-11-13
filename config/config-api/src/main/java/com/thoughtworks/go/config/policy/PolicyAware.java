@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.config.policy;
 
+import com.thoughtworks.go.config.Validatable;
+
 import java.util.List;
 
 public interface PolicyAware {
@@ -24,4 +26,18 @@ public interface PolicyAware {
     List<String> allowedTypes();
 
     Policy getPolicy();
+
+    default boolean hasPermissionsFor(SupportedAction action, Class<? extends Validatable> entityType, String resource) {
+        Policy policy = getPolicy();
+        if (policy == null || policy.isEmpty()) {
+            return false;
+        }
+
+        return policy.stream()
+                .map(directive -> directive.apply(action.getAction(), entityType, resource))
+                .filter(result -> result != Result.SKIP)
+                .map(result -> result == Result.ALLOW)
+                .findFirst()
+                .orElse(false);
+    }
 }

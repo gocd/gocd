@@ -460,3 +460,7 @@ api/api-security-auth-config-v2/out/
 api/api-security-auth-config-v2/target/
 api/api-security-auth-config-v2/logs/
 api/api-security-auth-config-v2/config/
+api/api-roles-config-v3/out/
+api/api-roles-config-v3/target/
+api/api-roles-config-v3/logs/
+api/api-roles-config-v3/config/

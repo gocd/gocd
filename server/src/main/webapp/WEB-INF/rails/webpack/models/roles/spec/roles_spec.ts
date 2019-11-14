@@ -31,10 +31,10 @@ describe("RoleModel", () => {
     expect(goCDRole.attributes().users).toHaveLength(3);
     expect(goCDRole.attributes().users[0]).toEqual("alice");
     expect(goCDRole.policy()).toHaveLength(1);
-    expect(goCDRole.policy()[0].permission()).toEqual("allow");
-    expect(goCDRole.policy()[0].action()).toEqual("view");
-    expect(goCDRole.policy()[0].type()).toEqual("environment");
-    expect(goCDRole.policy()[0].resource()).toEqual("*");
+    expect(goCDRole.policy()[0]().permission()).toEqual("allow");
+    expect(goCDRole.policy()[0]().action()).toEqual("view");
+    expect(goCDRole.policy()[0]().type()).toEqual("environment");
+    expect(goCDRole.policy()[0]().resource()).toEqual("*");
   });
 
   it("should deserialize plugin role json", () => {
@@ -48,10 +48,10 @@ describe("RoleModel", () => {
     expect(pluginRole.attributes().properties().allConfigurations()[0].key).toEqual("UserGroupMembershipAttribute");
     expect(pluginRole.attributes().properties().allConfigurations()[0].displayValue()).toEqual("memberOf");
     expect(pluginRole.policy()).toHaveLength(1);
-    expect(pluginRole.policy()[0].permission()).toEqual("deny");
-    expect(pluginRole.policy()[0].action()).toEqual("view");
-    expect(pluginRole.policy()[0].type()).toEqual("environment");
-    expect(pluginRole.policy()[0].resource()).toEqual("*");
+    expect(pluginRole.policy()[0]().permission()).toEqual("deny");
+    expect(pluginRole.policy()[0]().action()).toEqual("view");
+    expect(pluginRole.policy()[0]().type()).toEqual("environment");
+    expect(pluginRole.policy()[0]().resource()).toEqual("*");
   });
 
   it("should validate the presence of name", () => {

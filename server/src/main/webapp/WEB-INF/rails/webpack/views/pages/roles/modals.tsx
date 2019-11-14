@@ -34,16 +34,19 @@ abstract class BaseRoleModal extends Modal {
   protected readonly authConfigs: AuthConfigs;
   protected readonly onSuccessfulSave: (msg: m.Children) => any;
   protected readonly errorMessage: Stream<string> = Stream();
+  protected resourceAutocompleteHelper: Map<string, string[]>;
 
   constructor(role: GoCDRole | PluginRole,
               pluginInfos: PluginInfos,
               authConfigsOfInstalledPlugin: AuthConfigs,
+              resourceAutocompleteHelper: Map<string, string[]>,
               onSuccessfulSave: (msg: m.Children) => any) {
     super(Size.large);
-    this.role             = Stream(role);
-    this.pluginInfos      = pluginInfos;
-    this.authConfigs      = authConfigsOfInstalledPlugin;
-    this.onSuccessfulSave = onSuccessfulSave;
+    this.role                       = Stream(role);
+    this.pluginInfos                = pluginInfos;
+    this.authConfigs                = authConfigsOfInstalledPlugin;
+    this.resourceAutocompleteHelper = resourceAutocompleteHelper;
+    this.onSuccessfulSave           = onSuccessfulSave;
   }
 
   abstract performSave(): Promise<any>;
@@ -104,10 +107,12 @@ export class NewRoleModal extends BaseRoleModal {
   constructor(role: GoCDRole | PluginRole,
               pluginInfos: PluginInfos,
               authConfigsOfInstalledPlugin: AuthConfigs,
+              resourceAutocompleteHelper: Map<string, string[]>,
               onSuccessfulSave: (msg: m.Children) => any) {
     super(role,
           pluginInfos,
           authConfigsOfInstalledPlugin,
+          resourceAutocompleteHelper,
           onSuccessfulSave);
   }
 
@@ -125,7 +130,8 @@ export class NewRoleModal extends BaseRoleModal {
                           message={this.errorMessage()}
                           pluginInfos={this.pluginInfos}
                           authConfigs={this.authConfigs}
-                          changeRoleType={this.changeRoleType.bind(this)}/>;
+                          changeRoleType={this.changeRoleType.bind(this)}
+                          resourceAutocompleteHelper={this.resourceAutocompleteHelper}/>;
   }
 
   buttons() {
@@ -144,13 +150,14 @@ export class NewRoleModal extends BaseRoleModal {
 
 abstract class ModalWithFetch extends BaseRoleModal {
   protected etag: Stream<string> = Stream();
-  protected isStale = Stream(true);
+  protected isStale              = Stream(true);
 
   constructor(role: GoCDRole | PluginRole,
               pluginInfos: PluginInfos,
               authConfigsOfInstalledPlugin: AuthConfigs,
+              resourceAutocompleteHelper: Map<string, string[]>,
               onSuccessfulSave: (msg: m.Children) => any) {
-    super(role, pluginInfos, authConfigsOfInstalledPlugin, onSuccessfulSave);
+    super(role, pluginInfos, authConfigsOfInstalledPlugin, resourceAutocompleteHelper, onSuccessfulSave);
   }
 
   render() {
@@ -190,8 +197,9 @@ export class EditRoleModal extends ModalWithFetch {
   constructor(role: GoCDRole | PluginRole,
               pluginInfos: PluginInfos,
               authConfigsOfInstalledPlugin: AuthConfigs,
+              resourceAutocompleteHelper: Map<string, string[]>,
               onSuccessfulSave: (msg: m.Children) => any) {
-    super(role, pluginInfos, authConfigsOfInstalledPlugin, onSuccessfulSave);
+    super(role, pluginInfos, authConfigsOfInstalledPlugin, resourceAutocompleteHelper, onSuccessfulSave);
   }
 
   modalTitle(role: GoCDRole | PluginRole): string {
@@ -208,7 +216,8 @@ export class EditRoleModal extends ModalWithFetch {
                           message={this.errorMessage()}
                           pluginInfos={this.pluginInfos}
                           authConfigs={this.authConfigs}
-                          isStale={this.isStale}/>;
+                          isStale={this.isStale}
+                          resourceAutocompleteHelper={this.resourceAutocompleteHelper}/>;
   }
 
   protected successMessage(): m.Children {
@@ -227,8 +236,9 @@ export class CloneRoleModal extends ModalWithFetch {
   constructor(role: GoCDRole | PluginRole,
               pluginInfos: PluginInfos,
               authConfigsOfInstalledPlugin: AuthConfigs,
+              resourceAutocompleteHelper: Map<string, string[]>,
               onSuccessfulSave: (msg: m.Children) => any) {
-    super(role, pluginInfos, authConfigsOfInstalledPlugin, onSuccessfulSave);
+    super(role, pluginInfos, authConfigsOfInstalledPlugin, resourceAutocompleteHelper, onSuccessfulSave);
     this.originalRoleName = role.name();
   }
 
@@ -246,7 +256,8 @@ export class CloneRoleModal extends ModalWithFetch {
                           message={this.errorMessage()}
                           pluginInfos={this.pluginInfos}
                           authConfigs={this.authConfigs}
-                          isStale={this.isStale}/>;
+                          isStale={this.isStale}
+                          resourceAutocompleteHelper={this.resourceAutocompleteHelper}/>;
   }
 
   protected fetchCompleted() {

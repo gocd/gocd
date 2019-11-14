@@ -71,7 +71,7 @@ export interface BulkUserRoleUpdateJSON {
   operations: UserRoleUpdateJSON[];
 }
 
-class Directive extends ValidatableMixin {
+export class Directive extends ValidatableMixin {
   permission: Stream<string>;
   action: Stream<string>;
   type: Stream<string>;
@@ -108,8 +108,8 @@ class Directive extends ValidatableMixin {
 
 applyMixins(Directive, ValidatableMixin);
 
-class Policy extends Array<Directive> {
-  constructor(...rules: Directive[]) {
+export class Policy extends Array<Stream<Directive>> {
+  constructor(...rules: Array<Stream<Directive>>) {
     super(...rules);
     Object.setPrototypeOf(this, Object.create(Policy.prototype));
   }
@@ -118,7 +118,7 @@ class Policy extends Array<Directive> {
     if (!directiveJSONS) {
       return new Policy();
     }
-    return new Policy(...directiveJSONS.map((directive) => Directive.fromJSON(directive)));
+    return new Policy(...directiveJSONS.map((directive) => Stream(Directive.fromJSON(directive))));
   }
 }
 

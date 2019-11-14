@@ -89,3 +89,81 @@ label.disabled, input[type='radio'][disabled] + label[for] { //sass-lint:disable
   font-size: 13px;
   color:     $disabled-text-color;
 }
+
+.warning-wrapper {
+  &:hover {
+    .warning-content {
+      display: block;
+    }
+  }
+}
+
+.warning-content {
+  display:        none;
+  background:     $white;
+  line-height:    18px;
+  font-size:      12px;
+  position:       absolute;
+  margin-left:    72px;
+  font-weight:    400;
+  border-radius:  $global-border-radius;
+  padding:        10px;
+  box-shadow:     0 2px 4px $box-shadow-color;
+  text-transform: none;
+  z-index:        map_get($zindex, tooltip);
+  width:          250px;
+
+  &:before {
+    content:          "";
+    position:         absolute;
+    width:            0;
+    height:           0;
+    margin-left:      -0.5em;
+    top:              0;
+    left:             17px;
+    box-sizing:       border-box;
+    border:           6px solid $black;
+    border-color:     $white $white transparent transparent;
+    transform-origin: 0 0;
+    transform:        rotate(-45deg);
+    box-shadow:       1px -1px 1px 0 $box-shadow-color;
+  }
+}
+
+.info-icon {
+  @include icon-before($type: $fa-var-info-circle, $color: $black);
+
+  &:before {
+    font-size: 15px;
+    padding:   2px;
+  }
+}
+
+.icon-delete {
+  @include icon-before($type: $fa-var-times);
+  border:  none;
+  display: inline;
+  cursor:  pointer;
+  width:   22px;
+  height:  22px;
+  padding: 0;
+
+  &:before {
+    margin: 0;
+  }
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.add-permission {
+  margin-top: 20px;
+}
+
+.select-permission {
+  input, select {
+    width:  200px;
+    margin: 0 0;
+  }
+}

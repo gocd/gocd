@@ -64,16 +64,6 @@ public class DeleteEnvironmentCommandTest {
     }
 
     @Test
-    public void shouldNotContinueIfTheUserDoesNotHavePermissionsToOperateOnEnvironments() {
-        DeleteEnvironmentCommand command = new DeleteEnvironmentCommand(goConfigService, environmentConfig, currentUser, actionFailed, result);
-        when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
-        assertThat(command.canContinue(cruiseConfig), is(false));
-        assertFalse(result.isSuccessful());
-        assertThat(result.httpCode(), is(403));
-        assertThat(result.message(), is(EntityType.Environment.forbiddenToEdit(environmentConfig.name(), currentUser.getUsername())));
-    }
-
-    @Test
     public void shouldBeAbleToDeleteEvenIfTheSpecifiedEnvContainsAgents() {
         BasicEnvironmentConfig environmentConfig = new BasicEnvironmentConfig(environmentName);
         environmentConfig.addAgent("uuid");

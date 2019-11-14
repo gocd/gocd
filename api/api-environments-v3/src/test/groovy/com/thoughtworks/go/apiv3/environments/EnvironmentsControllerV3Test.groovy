@@ -700,7 +700,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
 
       @Override
       void makeHttpCall() {
-        postWithApiHeader(controller.controllerPath(), [])
+        postWithApiHeader(controller.controllerPath(), [name: "env1"])
       }
     }
 

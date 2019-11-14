@@ -83,6 +83,10 @@ public abstract class AbstractDirective implements Directive {
             return true;
         }
 
+        if (equalsIgnoreCase("administer", this.action)) {
+            return true;
+        }
+
         return equalsIgnoreCase(action, this.action);
     }
 

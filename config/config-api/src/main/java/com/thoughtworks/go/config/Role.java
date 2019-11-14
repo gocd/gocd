@@ -25,12 +25,13 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import java.util.*;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.isBlank;
+import static com.thoughtworks.go.config.policy.SupportedAction.ADMINISTER;
 import static com.thoughtworks.go.config.policy.SupportedAction.VIEW;
 import static com.thoughtworks.go.config.policy.SupportedEntity.ENVIRONMENT;
 
 @ConfigInterface
 public interface Role extends Validatable, PolicyAware {
-    List<String> allowedActions = SupportedAction.unmodifiableListOf(VIEW);
+    List<String> allowedActions = SupportedAction.unmodifiableListOf(VIEW, ADMINISTER);
     List<String> allowedTypes = SupportedEntity.unmodifiableListOf(ENVIRONMENT);
 
     CaseInsensitiveString getName();

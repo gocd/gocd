@@ -81,7 +81,11 @@ public class EnvironmentsControllerV3 extends ApiController implements SparkSpri
             before("/*", mimeType, this::setContentType);
 
             before("", mimeType, (request, response) -> {
-                apiAuthenticationHelper.checkUserHasPermissions(currentUsername(), getAction(request), SupportedEntity.ENVIRONMENT, "*");
+                String resourceToOperateOn = "*";
+                if (request.requestMethod().equalsIgnoreCase("POST")) {
+                    resourceToOperateOn = GsonTransformer.getInstance().jsonReaderFrom(request.body()).getString("name");
+                }
+                apiAuthenticationHelper.checkUserHasPermissions(currentUsername(), getAction(request), SupportedEntity.ENVIRONMENT, resourceToOperateOn);
             });
 
             before(Routes.Environments.NAME, mimeType, (request, response) -> {

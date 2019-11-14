@@ -106,17 +106,6 @@ public class UpdateEnvironmentCommandTest {
     }
 
     @Test
-    public void shouldNotContinueIfTheUserDontHavePermissionsToOperateOnEnvironments() throws Exception {
-        UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfig.name().toString(), newEnvironmentConfig, currentUser, actionFailed, md5, entityHashingService, result);
-        when(goConfigService.isAdministrator(currentUser.getUsername())).thenReturn(false);
-        assertThat(command.canContinue(cruiseConfig), is(false));
-        HttpLocalizedOperationResult expectResult = new HttpLocalizedOperationResult();
-        expectResult.forbidden(EntityType.Environment.forbiddenToEdit(newEnvironmentName, currentUser.getUsername()), HealthStateType.forbidden());
-
-        assertThat(result, is(expectResult));
-    }
-
-    @Test
     public void shouldNotContinueIfTheUserSubmittedStaleEtag() throws Exception {
         UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfig.name().toString(), newEnvironmentConfig, currentUser, actionFailed, md5, entityHashingService, result);
         when(goConfigService.isAdministrator(currentUser.getUsername())).thenReturn(true);

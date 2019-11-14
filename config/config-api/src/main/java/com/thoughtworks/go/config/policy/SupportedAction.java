@@ -24,6 +24,7 @@ import static java.util.Collections.unmodifiableList;
 
 public enum SupportedAction {
     VIEW("view"),
+    ADMINISTER("administer"),
     UNKNOWN("unknown");
 
     private final String action;

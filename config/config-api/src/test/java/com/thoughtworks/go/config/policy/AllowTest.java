@@ -89,6 +89,14 @@ class AllowTest extends AbstractDirectiveTest {
             }
 
             @Test
+            void toViewConfigIfActionIsAdminister() {
+                final Allow allow = new Allow("administer", "environment", "env_1");
+
+                assertThat(allow.apply("view", EnvironmentConfig.class, "env_1"))
+                        .isEqualTo(Result.ALLOW);
+            }
+
+            @Test
             void ifResourceAndTypeMatchesWhenAllActionsAreAllowed() {
                 final Allow allow = new Allow("*", "environment", "env_1");
 

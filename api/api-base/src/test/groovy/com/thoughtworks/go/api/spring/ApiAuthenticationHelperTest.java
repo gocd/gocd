@@ -175,5 +175,57 @@ class ApiAuthenticationHelperTest {
             assertDoesNotThrow(() -> helper.checkUserHasPermissions(BOB, SupportedAction.VIEW, SupportedEntity.ENVIRONMENT, "env_1"));
             assertThrows(HaltException.class, () -> helper.checkUserHasPermissions(BOB, SupportedAction.VIEW, SupportedEntity.ENVIRONMENT, null));
         }
+
+        @Test
+        /*
+        <role name="allow-all-environments">
+            <policy>
+                <allow action="administer" type="environment">*</allow>
+            </policy>
+            <users>
+                <user>Bob</user>
+            </users>
+        </role>
+        */
+        void shouldAllowNormalUserWithAllowedEnvironmentPolicyToAdministerEnvironments() {
+            Policy directives = new Policy();
+            directives.add(new Allow("administer", "environment", "*"));
+            RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("read-only-environments"), new Users(), directives);
+
+            when(goConfigService.rolesForUser(BOB.getUsername())).thenReturn(Arrays.asList(roleConfig));
+
+            assertDoesNotThrow(() -> helper.checkUserHasPermissions(BOB, SupportedAction.VIEW, SupportedEntity.ENVIRONMENT, null));
+            assertDoesNotThrow(() -> helper.checkUserHasPermissions(BOB, SupportedAction.VIEW, SupportedEntity.ENVIRONMENT, "foo"));
+
+            assertDoesNotThrow(() -> helper.checkUserHasPermissions(BOB, SupportedAction.ADMINISTER, SupportedEntity.ENVIRONMENT, null));
+            assertDoesNotThrow(() -> helper.checkUserHasPermissions(BOB, SupportedAction.ADMINISTER, SupportedEntity.ENVIRONMENT, "foo"));
+        }
+
+        @Test
+        /*
+        <role name="disallowed-directive-first-environment">
+            <policy>
+                <deny action="administer" type="environment">*</deny>
+                <allow action="administer" type="environment">env_1</allow>
+            </policy>
+            <users>
+                <user>Bob</user>
+            </users>
+        </role>
+        */
+        void shouldNotAllowNormalUserWithDisallowPolicyFirstToAdministerEnvironment() {
+            Policy directives = new Policy();
+            directives.add(new Deny("administer", "environment", "*"));
+            directives.add(new Allow("administer", "environment", "env_1"));
+            RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("read-only-environments"), new Users(), directives);
+
+            when(goConfigService.rolesForUser(BOB.getUsername())).thenReturn(Arrays.asList(roleConfig));
+
+            assertThrows(HaltException.class, () -> helper.checkUserHasPermissions(BOB, SupportedAction.VIEW, SupportedEntity.ENVIRONMENT, null));
+            assertThrows(HaltException.class, () -> helper.checkUserHasPermissions(BOB, SupportedAction.VIEW, SupportedEntity.ENVIRONMENT, "env_1"));
+
+            assertThrows(HaltException.class, () -> helper.checkUserHasPermissions(BOB, SupportedAction.ADMINISTER, SupportedEntity.ENVIRONMENT, null));
+            assertThrows(HaltException.class, () -> helper.checkUserHasPermissions(BOB, SupportedAction.ADMINISTER, SupportedEntity.ENVIRONMENT, "env_1"));
+        }
     }
 }

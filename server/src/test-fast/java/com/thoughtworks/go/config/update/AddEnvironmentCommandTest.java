@@ -88,16 +88,6 @@ public class AddEnvironmentCommandTest {
     }
 
     @Test
-    public void shouldNotContinueIfTheUserDontHavePermissionsToOperateOnEnvironments() throws Exception {
-        AddEnvironmentCommand command = new AddEnvironmentCommand(goConfigService, environmentConfig, currentUser, actionFailed, result);
-        when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
-
-        assertThat(command.canContinue(cruiseConfig), is(false));
-        assertThat(result.httpCode(), is(403));
-        assertThat(result.message(), is(EntityType.Environment.forbiddenToEdit(environmentConfig.name(), currentUser.getUsername())));
-    }
-
-    @Test
     public void shouldNotContinueIfEnvironmentWithSameNameAlreadyExists() throws Exception {
         AddEnvironmentCommand command = new AddEnvironmentCommand(goConfigService, environmentConfig, currentUser, actionFailed, result);
         when(goConfigService.isAdministrator(currentUser.getUsername())).thenReturn(true);

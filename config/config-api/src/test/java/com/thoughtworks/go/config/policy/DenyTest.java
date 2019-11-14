@@ -53,6 +53,14 @@ class DenyTest extends AbstractDirectiveTest {
             }
 
             @Test
+            void denyToViewConfigIfEntityActionIsAdminister() {
+                final Deny deny = new Deny("administer", "environment", null);
+
+                assertThat(deny.apply("view", StageConfig.class, null))
+                        .isEqualTo(Result.SKIP);
+            }
+
+            @Test
             void ifResourceDoesNotMatch() {
                 final Deny deny = new Deny("view", "environment", "group1");
 

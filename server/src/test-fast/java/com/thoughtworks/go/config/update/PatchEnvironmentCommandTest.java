@@ -237,14 +237,4 @@ public class PatchEnvironmentCommandTest {
 
         assertThat(result, is(expectedResult));
     }
-
-    @Test
-    public void shouldNotContinueIfTheUserDontHavePermissionsToOperateOnEnvironments() throws Exception {
-        PatchEnvironmentCommand command = new PatchEnvironmentCommand(goConfigService, environmentConfig, pipelinesToAdd, pipelinesToRemove, envVarsToAdd, envVarsToRemove, currentUser, actionFailed, result);
-        when(goConfigService.isAdministrator(currentUser.getUsername())).thenReturn(false);
-        assertThat(command.canContinue(cruiseConfig), is(false));
-        HttpLocalizedOperationResult expectResult = new HttpLocalizedOperationResult();
-        expectResult.forbidden(EntityType.Environment.forbiddenToEdit(environmentConfig.name(), currentUser.getUsername()), HealthStateType.forbidden());
-        assertThat(result, is(expectResult));
-    }
 }

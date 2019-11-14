@@ -71,7 +71,6 @@ public abstract class AbstractAuthenticationHelper {
         }
     }
 
-
     public void checkUserHasPermissions(Username username, SupportedAction action, SupportedEntity entity, String resource) {
         //admin user has access to everything
         if (securityService.isUserAdmin(username)) {

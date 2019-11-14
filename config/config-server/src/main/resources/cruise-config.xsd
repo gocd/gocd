@@ -426,6 +426,7 @@
     <xsd:complexContent mixed="false">
       <xsd:extension base="baseRoleType">
         <xsd:sequence>
+          <xsd:element name="policy" minOccurs="0" maxOccurs="1" type="policyType"/>
           <xsd:element name="property" minOccurs="0" maxOccurs="unbounded" type="pluginPropertyType"/>
         </xsd:sequence>
         <xsd:attribute name="name" type="nameType" use="required"/>
@@ -436,7 +437,7 @@
   <xsd:complexType name="roleType">
     <xsd:complexContent mixed="false">
       <xsd:extension base="baseRoleType">
-        <xsd:sequence>
+        <xsd:all>
           <xsd:element minOccurs="0" maxOccurs="1" name="users">
             <xsd:complexType>
               <xsd:sequence>
@@ -451,7 +452,7 @@
             </xsd:complexType>
           </xsd:element>
           <xsd:element name="policy" minOccurs="0" maxOccurs="1" type="policyType"/>
-        </xsd:sequence>
+        </xsd:all>
         <xsd:attribute name="name" type="nameType" use="required"/>
       </xsd:extension>
     </xsd:complexContent>

@@ -19,7 +19,6 @@ module Admin
     helper ::Admin::AdminHelper
     helper ::Admin::PipelinesHelper
     helper FlashMessagesHelper
-    helper SparkUrlAware
     include ::Admin::PipelinesHelper
     ERROR_PATTERN = /#{ParamSubstitutionHandler::NO_PARAM_FOUND_MSG.gsub("'%s'", "'([^']*)'")}/
 

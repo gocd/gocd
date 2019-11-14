@@ -16,7 +16,6 @@
 
 class Admin::TemplatesController < AdminController
   helper Admin::TemplatesHelper
-  helper SparkUrlAware
 
   before_action :check_admin_user_and_403, only: [:edit_permissions, :update_permissions]
   before_action :check_admin_user_or_group_admin_user_and_403, only: [:new, :create]

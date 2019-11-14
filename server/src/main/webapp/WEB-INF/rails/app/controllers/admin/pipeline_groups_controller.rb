@@ -15,7 +15,6 @@
 #
 
 class Admin::PipelineGroupsController < AdminController
-  helper SparkUrlAware
 
   CLONER = GoConfigCloner.new()
 

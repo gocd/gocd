@@ -20,7 +20,6 @@ module Admin
     helper AdminHelper
     helper UiPatternHelper
     helper FlashMessagesHelper
-    helper SparkUrlAware
 
     load_stage_except_for :create, :update, :destroy
 

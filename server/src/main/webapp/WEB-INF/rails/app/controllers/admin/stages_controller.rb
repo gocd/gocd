@@ -21,7 +21,6 @@ module Admin
     helper FlashMessagesHelper
     helper TaskHelper
     include AuthenticationHelper
-    helper SparkUrlAware
 
     before_action :check_admin_user_and_403, only: [:config_change]
     load_pipeline_except_for :create, :update, :destroy, :increment_index, :decrement_index, :config_change

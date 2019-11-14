@@ -33,10 +33,10 @@ interface PolicyAttrs {
 export class PolicyWidget extends MithrilViewComponent<PolicyAttrs> {
   static headers() {
     return [
-      "Permission"
-      , "Action"
-      , "Type"
-      , "Resource"
+      "Permission",
+      "Action",
+      "Type",
+      "Resource"
     ];
   }
 
@@ -78,9 +78,9 @@ class PolicyWidgetBody {
   constructor(policy: Stream<Policy>,
               resourceAutocompleteHelper: Map<string, string[]>,
               removePermissionCallback: (ruleToBeRemoved: Stream<Directive>) => void) {
-    this.policy = policy;
+    this.policy                     = policy;
     this.resourceAutocompleteHelper = resourceAutocompleteHelper;
-    this.removePermission = removePermissionCallback;
+    this.removePermission           = removePermissionCallback;
   }
 
   getData(): m.Child[][] {
@@ -130,10 +130,10 @@ class PolicyWidgetBody {
 export class CreatePolicyWidget extends MithrilViewComponent<AutoCompleteAttrs> {
   static headers() {
     return [
-      "Permission"
-      , "Action"
-      , "Type"
-      , <div>
+      "Permission",
+      "Action",
+      "Type",
+      <div>
         Resources
         <span class={styles.warningWrapper}>
           <i class={styles.infoIcon}/>
@@ -141,8 +141,8 @@ export class CreatePolicyWidget extends MithrilViewComponent<AutoCompleteAttrs> 
             Resource can be the name of the entity or a wildcard which matches one or more entities.
           </div>
         </span>
-      </div>
-      , ""
+      </div>,
+      ""
     ];
   }
 
@@ -150,11 +150,11 @@ export class CreatePolicyWidget extends MithrilViewComponent<AutoCompleteAttrs> 
     return [
       {
         id: "", text: "Select"
-      }
-      , {
+      },
+      {
         id: "deny", text: "Deny"
-      }
-      , {
+      },
+      {
         id: "allow", text: "Allow"
       }
     ];
@@ -164,11 +164,14 @@ export class CreatePolicyWidget extends MithrilViewComponent<AutoCompleteAttrs> 
     return [
       {
         id: "", text: "Select"
-      }
-      , {
+      },
+      {
+        id: "*", text: "All"
+      },
+      {
         id: "view", text: "View"
-      }
-      , {
+      },
+      {
         id: "administer", text: "Administer"
       }
     ];
@@ -178,8 +181,8 @@ export class CreatePolicyWidget extends MithrilViewComponent<AutoCompleteAttrs> 
     return [
       {
         id: "", text: "Select"
-      }
-      , {
+      },
+      {
         id: "*", text: "All"
       }, {
         id: "environment", text: "Environment"
@@ -201,8 +204,8 @@ export class CreatePolicyWidget extends MithrilViewComponent<AutoCompleteAttrs> 
       <div data-test-id="policy-table" class={styles.selectPermission}>
         <Table headers={CreatePolicyWidget.headers()}
                data={new PolicyWidgetBody(vnode.attrs.policy,
-                 vnode.attrs.resourceAutocompleteHelper,
-                 removePermissionCallback).getData()}
+                                          vnode.attrs.resourceAutocompleteHelper,
+                                          removePermissionCallback).getData()}
                draggable={true}
                dragHandler={this.reArrange.bind(this, vnode.attrs.policy)}/>
       </div>
@@ -223,7 +226,7 @@ export class ResourceSuggestionProvider extends SuggestionProvider {
 
   constructor(rule: Stream<Directive>, suggestion: Map<string, string[]>) {
     super();
-    this.rule = rule;
+    this.rule       = rule;
     this.suggestion = suggestion;
   }
 

@@ -57,7 +57,7 @@ describe('PolicyWidgetSpecs', () => {
     expect(helper.byTestId("permission-permission")).toHaveValue("allow");
     expect(helper.textByTestId("permission-permission")).toContain("DenyAllow");
     expect(helper.byTestId("permission-action")).toHaveValue("view");
-    expect(helper.textByTestId("permission-action")).toContain("SelectViewAdminister");
+    expect(helper.textByTestId("permission-action")).toContain("SelectAllViewAdminister");
     expect(helper.byTestId("permission-type")).toHaveValue("*");
     expect(helper.textByTestId("permission-type")).toContain("SelectAllEnvironment");
     expect(helper.byTestId("permission-resource")).toHaveValue("env");

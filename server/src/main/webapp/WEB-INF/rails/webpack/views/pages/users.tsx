@@ -134,7 +134,7 @@ export class UsersPage extends Page<null, State> {
 
     vnode.state.onRolesAdd = (roleName: string, users: Users) => {
       const gocdAttributes = new GoCDAttributes(users.userNamesOfSelectedUsers());
-      const role           = new GoCDRole(roleName, gocdAttributes);
+      const role           = new GoCDRole(roleName, gocdAttributes, []);
 
       RolesCRUD.create(role)
                .then((apiResult) => {

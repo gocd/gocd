@@ -61,7 +61,7 @@ export class RolesPage extends Page<null, State> {
     vnode.state.onAdd = (e: Event) => {
       e.stopPropagation();
       this.flashMessage.clear();
-      const role = new GoCDRole("", new GoCDAttributes([]));
+      const role = new GoCDRole("", new GoCDAttributes([]), []);
       new NewRoleModal(role,
                        vnode.state.pluginInfos,
                        vnode.state.authConfigs,

@@ -28,6 +28,7 @@ import {KeyValuePair} from "views/components/key_value_pair";
 import {CloneOperation, DeleteOperation, EditOperation} from "views/pages/page_operations";
 import {UsersWidget} from "views/pages/roles/users_widget";
 import styles from "./index.scss";
+import {PolicyWidget} from "./policy_widget";
 
 const gocdIcon = require("../../../../app/assets/images/gocd.svg");
 
@@ -139,6 +140,7 @@ abstract class RoleWidget extends MithrilViewComponent<RoleAttrs | PluginRoleAtt
     return (<CollapsiblePanel header={header} actions={actionButtons}
                               dataTestId={`role-${s.slugify(vnode.attrs.role.name())}`}>
       {this.viewForRole(vnode)}
+      <PolicyWidget role={vnode.attrs.role}/>
     </CollapsiblePanel>);
   }
 

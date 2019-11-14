@@ -19,7 +19,7 @@ import {SparkRoutes} from "helpers/spark_routes";
 import {BulkUserRoleUpdateJSON, GoCDRole, PluginRole, Role, Roles} from "models/roles/roles";
 
 export class RolesCRUD {
-  private static API_VERSION_HEADER = ApiVersion.v2;
+  private static API_VERSION_HEADER = ApiVersion.v3;
 
   static all(type?: 'gocd' | 'plugin') {
     return ApiRequestBuilder.GET(SparkRoutes.rolesPath(type), this.API_VERSION_HEADER)

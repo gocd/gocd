@@ -18,12 +18,7 @@ import {ApiResult, ErrorResponse, ObjectWithEtag} from "helpers/api_request_buil
 import m from "mithril";
 import Stream from "mithril/stream";
 import {AuthConfigs} from "models/auth_configs/auth_configs";
-import {
-  GoCDAttributes,
-  GoCDRole, PluginAttributes,
-  PluginRole,
-  Role, RoleType
-} from "models/roles/roles";
+import {GoCDAttributes, GoCDRole, PluginAttributes, PluginRole, Role, RoleType} from "models/roles/roles";
 import {RolesCRUD} from "models/roles/roles_crud";
 import {Configurations} from "models/shared/configuration";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
@@ -63,10 +58,10 @@ abstract class BaseRoleModal extends Modal {
     let role: any;
     switch (roleType) {
       case RoleType.plugin:
-        role = new PluginRole("", new PluginAttributes("", new Configurations([])));
+        role = new PluginRole("", new PluginAttributes("", new Configurations([])), []);
         break;
       case RoleType.gocd:
-        role = new GoCDRole("", new GoCDAttributes([]));
+        role = new GoCDRole("", new GoCDAttributes([]), []);
         break;
     }
     this.role = Stream(role);

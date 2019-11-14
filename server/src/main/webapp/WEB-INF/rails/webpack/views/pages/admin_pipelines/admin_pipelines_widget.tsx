@@ -36,7 +36,7 @@ interface Operations extends SaveOperation {
   doDownloadPipeline: (pipeline: PipelineWithOrigin) => void;
   doDeletePipeline: (pipeline: PipelineWithOrigin) => void;
   doExtractPipeline: (pipeline: PipelineWithOrigin) => void;
-  doEditPipelineGroup: (group: PipelineGroup) => void;
+  doEditPipelineGroup: (groupName: string) => void;
   doDeleteGroup: (group: PipelineGroup) => void;
   createPipelineInGroup: (groupName: string) => void;
 }
@@ -154,7 +154,7 @@ class PipelineGroupWidget extends MithrilViewComponent<PipelineGroupAttrs> {
           <IconGroup>
             <Edit
               data-test-id={`edit-pipeline-group-${s.slugify(vnode.attrs.group.name())}`}
-              onclick={vnode.attrs.doEditPipelineGroup.bind(vnode.attrs, vnode.attrs.group)}/>
+              onclick={() => vnode.attrs.doEditPipelineGroup(vnode.attrs.group.name())}/>
             <Delete disabled={vnode.attrs.group.hasPipelines()}
                     data-test-id={`delete-pipeline-group-${s.slugify(vnode.attrs.group.name())}`}
                     title="Move or delete all pipelines within this group in order to delete it."

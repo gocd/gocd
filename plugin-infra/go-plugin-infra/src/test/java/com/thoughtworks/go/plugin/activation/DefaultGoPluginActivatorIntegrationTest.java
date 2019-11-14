@@ -56,7 +56,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class DefaultGoPluginActivatorIntegrationTest {
     private File tmpDir;
     private static final String BUNDLE_DIR_WHICH_HAS_PROPER_ACTIVATOR = "DefaultGoPluginActivatorIntegrationTest.bundleDirWhichHasProperActivator";
-    private static final String NO_EXT_ERR_MSG = "No extensions found in this plugin.Please check for @Extension annotations";
+    private static final String NO_EXT_ERR_MSG = "No extensions found in this plugin. Please check for @Extension annotations";
     private static final String GO_TEST_DUMMY_SYMBOLIC_NAME = "Go-Test-Dummy-Symbolic-Name";
 
     private FelixGoPluginOSGiFramework framework;

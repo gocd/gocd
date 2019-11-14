@@ -51,7 +51,7 @@ public class DefaultGoPluginActivatorTest {
     private static final String CONSTRUCTOR_FAIL_MSG = "Ouch! Failed construction";
     private static final String PLUGIN_ID = "plugin-id";
     private static final String SYMBOLIC_NAME = "plugin-id";
-    private static final String NO_EXT_ERR_MSG = "No extensions found in this plugin.Please check for @Extension annotations";
+    private static final String NO_EXT_ERR_MSG = "No extensions found in this plugin. Please check for @Extension annotations";
 
     private DefaultGoPluginActivator activator;
     @Captor private ArgumentCaptor<List<String>> errorMessageCaptor;

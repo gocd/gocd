@@ -115,7 +115,7 @@ public class DefaultGoPluginActivator implements GoPluginActivator {
 
     private void informIfNoExtensionFound(List<HashMap<Class, List<Object>>> toRegister) {
         if(toRegister.isEmpty()){
-            errors.add("No extensions found in this plugin.Please check for @Extension annotations");
+            errors.add("No extensions found in this plugin. Please check for @Extension annotations");
         }
     }
 

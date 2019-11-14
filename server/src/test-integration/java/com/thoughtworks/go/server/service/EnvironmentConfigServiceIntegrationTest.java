@@ -90,15 +90,6 @@ public class EnvironmentConfigServiceIntegrationTest {
     }
 
     @Test
-    public void shouldReturnTheCorrectLocalizedMessageForNoPermission() throws IOException {
-        configHelper.enableSecurity();
-        configHelper.addAdmins("super_hero");
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        environmentConfigService.createEnvironment(env("foo-env", new ArrayList<String>(), new ArrayList<Map<String, String>>(), new ArrayList<String>()), new Username(new CaseInsensitiveString("evil_hacker")), result);
-        assertThat(result.message(), is(EntityType.Environment.forbiddenToEdit("foo-env", "evil_hacker")));
-    }
-
-    @Test
     public void shouldReturnTheCorrectLocalizedMessageForDuplicateEnvironment() {
         configHelper.addEnvironments("foo-env");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -196,18 +187,6 @@ public class EnvironmentConfigServiceIntegrationTest {
     }
 
     @Test
-    public void shouldReturnTheCorrectLocalizedMessageWhenUserDoesNotHavePermissionToUpdate_ForNewUpdateEnvironmentMethod() throws Exception {
-        configHelper.addEnvironments("foo");
-        configHelper.enableSecurity();
-        configHelper.addAdmins("super_hero");
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-
-        String md5 = entityHashingService.md5ForEntity(environmentConfigService.getEnvironmentConfig("foo"));
-        environmentConfigService.updateEnvironment("foo", env("foo-env", new ArrayList<String>(), new ArrayList<Map<String, String>>(), new ArrayList<String>()), new Username(new CaseInsensitiveString("evil_hacker")), md5, result);
-        assertThat(result.message(), is(EntityType.Environment.forbiddenToEdit("foo-env", "evil_hacker")));
-    }
-
-    @Test
     public void shouldReturnTheCorrectLocalizedMessageForUpdateWhenDuplicateEnvironmentExists_ForNewUpdateEnvironmentMethod() {
         configHelper.addEnvironments("foo-env");
         configHelper.addEnvironments("bar-env");
@@ -276,16 +255,6 @@ public class EnvironmentConfigServiceIntegrationTest {
     }
 
     @Test
-    public void shouldReturnTheCorrectLocalizedMessageWhenUserDoesNotHavePermissionToDelete() {
-        configHelper.addEnvironments("foo");
-        configHelper.enableSecurity();
-        configHelper.addAdmins("super_hero");
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        environmentConfigService.deleteEnvironment(environmentConfigService.getEnvironmentConfig("foo"), new Username(new CaseInsensitiveString("evil_hacker")), result);
-        assertThat(result.message(), is(EntityType.Environment.forbiddenToEdit("foo", "evil_hacker")));
-    }
-
-    @Test
     public void shouldPatchAnEnvironment() throws Exception {
         String environmentName = "env";
 
@@ -307,16 +276,6 @@ public class EnvironmentConfigServiceIntegrationTest {
         assertThat(updatedEnv.name(), is(new CaseInsensitiveString(environmentName)));
         assertThat(updatedEnv.getVariables().hasVariable("name"), is(true));
         assertThat(result.message(), containsString("Updated environment 'env'."));
-    }
-
-    @Test
-    public void shouldReturnTheCorrectLocalizedMessageWhenUserDoesNotHavePermissionToPatch() {
-        configHelper.addEnvironments("foo");
-        configHelper.enableSecurity();
-        configHelper.addAdmins("super_hero");
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        environmentConfigService.patchEnvironment(environmentConfigService.getEnvironmentConfig("foo"), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new Username(new CaseInsensitiveString("evil_hacker")), result);
-        assertThat(result.message(), is(EntityType.Environment.forbiddenToEdit("foo", "evil_hacker")));
     }
 
     @Test

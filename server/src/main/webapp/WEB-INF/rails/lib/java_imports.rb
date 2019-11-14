@@ -88,7 +88,6 @@ module JavaImports
   java_import com.thoughtworks.go.domain.NotificationFilter unless defined? NotificationFilter
   java_import com.thoughtworks.go.domain.exception.UncheckedValidationException unless defined? UncheckedValidationException
   java_import com.thoughtworks.go.domain.PipelineGroups unless defined? PipelineGroups
-  java_import com.thoughtworks.go.domain.PipelineDependencyGraphOld unless defined? PipelineDependencyGraphOld
   java_import com.thoughtworks.go.domain.valuestreammap.ValueStreamMap unless defined? ValueStreamMap
   java_import com.thoughtworks.go.domain.PipelineIdentifier unless defined? PipelineIdentifier
   java_import com.thoughtworks.go.domain.PipelinePauseInfo unless defined? PipelinePauseInfo
@@ -98,7 +97,6 @@ module JavaImports
   java_import com.thoughtworks.go.config.SecurityConfig unless defined? SecurityConfig
   java_import com.thoughtworks.go.config.ServerConfig unless defined? ServerConfig
   java_import com.thoughtworks.go.config.StageConfig unless defined? StageConfig
-  java_import com.thoughtworks.go.domain.StageIdentifier unless defined? StageIdentifier
   java_import com.thoughtworks.go.domain.StageIdentifier unless defined? StageIdentifier
   java_import com.thoughtworks.go.domain.StageEvent unless defined? StageEvent
   java_import com.thoughtworks.go.domain.StageResult unless defined? StageResult

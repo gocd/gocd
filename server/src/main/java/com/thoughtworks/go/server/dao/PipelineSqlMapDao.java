@@ -387,25 +387,6 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     }
 
     @Override
-    public PipelineDependencyGraphOld pipelineGraphByNameAndCounter(String pipelineName, int pipelineCounter) {
-        PipelineInstanceModels instanceModels = null;
-        try {
-            instanceModels = PipelineInstanceModels.createPipelineInstanceModels((List<PipelineInstanceModel>) getSqlMapClientTemplate().queryForList("pipelineAndItsDepedenciesByNameAndCounter",
-                    arguments("pipelineName", pipelineName).and("pipelineCounter", pipelineCounter)
-                            .and("stageLocator", pipelineName + "/" + pipelineCounter + "/%/%")
-                            .asMap()));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        if (instanceModels.isEmpty()) {
-            return null;
-        }
-        PipelineInstanceModel upstreamPipeline = instanceModels.find(pipelineName);
-        loadPipelineHistoryBuildCause(upstreamPipeline);
-        return new PipelineDependencyGraphOld(upstreamPipeline, dependentPipelines(upstreamPipeline, instanceModels));
-    }
-
-    @Override
     public Pipeline findEarlierPipelineThatPassedForStage(String pipelineName, String stageName, double naturalOrder) {
         return (Pipeline) getSqlMapClientTemplate().queryForObject("findEarlierPipelineThatPassedForStage",
                 arguments("pipelineName", pipelineName).and("stageName", stageName).and("naturalOrder", naturalOrder).asMap());

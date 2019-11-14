@@ -356,33 +356,6 @@ public class PipelineSqlMapDaoIntegrationTest {
         assertModifications(pipeline);
     }
 
-    @Test
-    public void shouldGenerateGraphForMultipleRunsOfDownstreamPipelinesOfAGivenPipelineNameAndCounter() throws Exception {
-        PipelineConfig shine = PipelineMother.twoBuildPlansWithResourcesAndMaterials("shine", "shineStage");
-        PipelineConfig cruise = PipelineMother.twoBuildPlansWithResourcesAndMaterials("cruise", "cruiseStage");
-        cruise.materialConfigs().clear();
-        cruise.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("shine"), new CaseInsensitiveString("shineStage")));
-
-        Pipeline shineInstance = dbHelper.newPipelineWithAllStagesPassed(shine);
-        Pipeline cruiseInstance1 = dbHelper.newPipelineWithAllStagesPassed(cruise);
-        Pipeline cruiseInstance2 = dbHelper.newPipelineWithAllStagesPassed(cruise);
-        Pipeline cruiseInstance3 = dbHelper.newPipelineWithAllStagesPassed(cruise);
-
-        PipelineDependencyGraphOld dependencyGraph = pipelineDao.pipelineGraphByNameAndCounter("shine", 1);
-        PipelineInstanceModel upstream = dependencyGraph.pipeline();
-        assertPipelineEquals(shineInstance, upstream);
-        ensureBuildCauseIsLoadedFor(upstream);
-        assertThat(dependencyGraph.dependencies().size(), is(3));
-        assertThat(dependencyGraph.dependencies(), hasPipeline(cruiseInstance1));
-        assertThat(dependencyGraph.dependencies(), hasPipeline(cruiseInstance2));
-        assertThat(dependencyGraph.dependencies(), hasPipeline(cruiseInstance3));
-    }
-
-    @Test
-    public void shouldReturnNullIfPipelineIsNotFound() throws Exception {
-        assertThat(pipelineDao.pipelineGraphByNameAndCounter("shine", 1), is(nullValue()));
-    }
-
     private Matcher<PipelineInstanceModels> hasPipeline(final Pipeline pipeline) {
         return new BaseMatcher<PipelineInstanceModels>() {
 
@@ -410,68 +383,6 @@ public class PipelineSqlMapDaoIntegrationTest {
         assertThat(StringUtils.isEmpty(upstream.getRevisionOfLatestModification()), is(false));
     }
 
-    @Test
-    public void shouldGeneratePipelineDependencyGraphForAllDownStreamPipelines() throws Exception {
-        PipelineConfig shine = PipelineMother.twoBuildPlansWithResourcesAndMaterials("shine", "1stStage", "2ndStage");
-
-        PipelineConfig cruise13 = pipelineConfigFor("cruise1.3", "shine", "1stStage");
-        PipelineConfig cruise20 = pipelineConfigFor("cruise2.0", "shine", "2ndStage");
-
-        Pipeline shineInstance = dbHelper.newPipelineWithAllStagesPassed(shine);
-        Pipeline cruise13Instance = dbHelper.newPipelineWithAllStagesPassed(cruise13);
-        Pipeline cruise20Instance = dbHelper.newPipelineWithAllStagesPassed(cruise20);
-
-        PipelineDependencyGraphOld dependencyGraph = pipelineDao.pipelineGraphByNameAndCounter("shine", 1);
-        assertPipelineEquals(shineInstance, dependencyGraph.pipeline());
-        ensureBuildCauseIsLoadedFor(dependencyGraph.pipeline());
-        PipelineInstanceModels dependencies = dependencyGraph.dependencies();
-        assertThat(dependencies.size(), is(2));
-        assertPipelineEquals(cruise13Instance, dependencies.find("cruise1.3"));
-        assertPipelineEquals(cruise20Instance, dependencies.find("cruise2.0"));
-    }
-
-    @Test
-    public void shouldNotIncludePipelinesNotUsingUpstreamAsDependencyMaterial_evenIfADependencyRevisionGeneratedOutOfParentPipelineAppearsInPMRrangeForANonDependentPipeline() throws Exception {
-        // shine -> cruise(depends on shine)
-        // mingle(not related to shine)
-        final HgMaterial mingleHg = MaterialsMother.hgMaterial();
-        PipelineConfig mingle = PipelineConfigMother.pipelineConfig("mingle", mingleHg.config(), new JobConfigs(new JobConfig("run-tests")));
-
-        PipelineConfig shine = PipelineMother.twoBuildPlansWithResourcesAndMaterials("shine", "compile");
-
-        Pipeline shineInstance = dbHelper.newPipelineWithAllStagesPassed(shine);
-
-        PipelineConfig cruise = pipelineConfigFor("cruise", "shine", "compile");
-
-        final DependencyMaterial cruiseUpstream = new DependencyMaterial(new CaseInsensitiveString("shine"), new CaseInsensitiveString("compile"));
-
-        final Modification cruiseMod = new Modification(new Date(), String.format("shine/%s/compile/%s", shineInstance.getCounter(), shineInstance.getStages().get(0).getCounter()), "shine-1", null);
-
-        final Modification mingleFrom = ModificationsMother.oneModifiedFile("1234");
-        saveRev(mingleHg, mingleFrom);
-
-        saveRev(cruiseUpstream, cruiseMod);
-
-        final Modification mingleTo = ModificationsMother.oneModifiedFile("abcd");
-        saveRev(mingleHg, mingleTo);
-
-        dbHelper.saveMaterialsWIthPassedStages(instanceFactory.createPipelineInstance(mingle, BuildCause.createManualForced(
-                new MaterialRevisions(new MaterialRevision(mingleHg, mingleTo, mingleFrom)), Username.ANONYMOUS), new DefaultSchedulingContext(GoConstants.DEFAULT_APPROVED_BY), md5,
-                new TimeProvider()));
-
-        final Pipeline cruiseInstance = instanceFactory.createPipelineInstance(cruise, BuildCause.createManualForced(
-                new MaterialRevisions(new MaterialRevision(cruiseUpstream, cruiseMod)), Username.ANONYMOUS), new DefaultSchedulingContext(GoConstants.DEFAULT_APPROVED_BY), md5,
-                new TimeProvider());
-        dbHelper.saveMaterialsWIthPassedStages(cruiseInstance);
-
-        PipelineDependencyGraphOld dependencyGraph = pipelineDao.pipelineGraphByNameAndCounter("shine", shineInstance.getCounter());
-        assertPipelineEquals(shineInstance, dependencyGraph.pipeline());
-        ensureBuildCauseIsLoadedFor(dependencyGraph.pipeline());
-        PipelineInstanceModels dependencies = dependencyGraph.dependencies();
-        assertThat(dependencies.size(), is(1));
-        assertPipelineEquals(cruiseInstance, dependencies.find("cruise"));
-    }
-
     private void saveRev(final Material material, final Modification modification) {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
@@ -479,20 +390,6 @@ public class PipelineSqlMapDaoIntegrationTest {
                 materialRepository.saveMaterialRevision(new MaterialRevision(material, modification));
             }
         });
-    }
-
-    @Test
-    public void shouldMaintainStageOrderAndHistoryAfterGettingPipelineDependencyGraph() throws Exception {
-        PipelineConfig shineConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("shine", "1stStage", "2ndStage");
-        Pipeline shineInstance = dbHelper.newPipelineWithFirstStageFailed(shineConfig);
-        dbHelper.scheduleStage(shineInstance, shineConfig.get(1), 1);
-
-        PipelineDependencyGraphOld dependencyGraph = pipelineDao.pipelineGraphByNameAndCounter("shine", 1);
-        assertPipelineEquals(shineInstance, dependencyGraph.pipeline());
-        StageInstanceModels models = dependencyGraph.pipeline().getStageHistory();
-        assertThat(models.size(), is(2));
-        assertThat(models.get(0).getName(), is("1stStage"));
-        assertThat(models.get(1).getName(), is("2ndStage"));
     }
 
     private PipelineConfig pipelineConfigFor(final String pipelineName, final String dependentOnPipeline, final String dependentOnStage) {

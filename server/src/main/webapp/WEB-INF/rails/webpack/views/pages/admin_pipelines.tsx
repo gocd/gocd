@@ -20,6 +20,7 @@ import {SparkRoutes} from "helpers/spark_routes";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
+import {headerMeta} from "models/current_user_permissions";
 import {PipelineGroups, PipelineStructure} from "models/internal_pipeline_structure/pipeline_structure";
 import {EnvironmentsAPIs} from "models/new-environments/environments_apis";
 import {PipelineGroupCRUD} from "models/pipeline_configs/pipeline_groups_cache";
@@ -153,7 +154,7 @@ export class AdminPipelinesPage extends Page<null, State> {
       this.fetchData(vnode);
     };
 
-    vnode.state.doDeleteGroup    = (group) => {
+    vnode.state.doDeleteGroup = (group) => {
       const message = <span>Are you sure you want to delete the pipeline group <em>{group.name()}</em>?</span>;
 
       const modal = new DeleteConfirmModal(message, () => {
@@ -346,6 +347,8 @@ export class AdminPipelinesPage extends Page<null, State> {
   protected headerPanel(vnode: m.Vnode<null, State>): any {
     const headerButtons = [
       <Buttons.Primary icon={ButtonIcon.ADD}
+                       disabled={!headerMeta().isUserAdmin}
+                       title={headerMeta().isUserAdmin ? "Create a new pipeline group" : "Only GoCD system adminstrators are allowed to create a pipeline group."}
                        onclick={vnode.state.createPipelineGroup.bind(vnode.state)}
                        data-test-id="create-new-pipeline-group">Create new pipeline group</Buttons.Primary>
     ];

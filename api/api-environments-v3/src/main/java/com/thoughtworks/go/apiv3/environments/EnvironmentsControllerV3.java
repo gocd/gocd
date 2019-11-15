@@ -43,6 +43,7 @@ import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -82,9 +83,15 @@ public class EnvironmentsControllerV3 extends ApiController implements SparkSpri
 
             before("", mimeType, (request, response) -> {
                 String resourceToOperateOn = "*";
+                if (request.requestMethod().equalsIgnoreCase("GET")) {
+                    apiAuthenticationHelper.checkUserAnd403(request, response);
+                    return;
+                }
+
                 if (request.requestMethod().equalsIgnoreCase("POST")) {
                     resourceToOperateOn = GsonTransformer.getInstance().jsonReaderFrom(request.body()).getString("name");
                 }
+
                 apiAuthenticationHelper.checkUserHasPermissions(currentUsername(), getAction(request), SupportedEntity.ENVIRONMENT, resourceToOperateOn);
             });
 
@@ -102,8 +109,14 @@ public class EnvironmentsControllerV3 extends ApiController implements SparkSpri
     }
 
     public String index(Request request, Response response) throws IOException {
-        Set<EnvironmentConfig> envConfigSet = environmentConfigService.getEnvironments();
-        EnvironmentsConfig envViewModelList = sortEnvConfigs(envConfigSet);
+        Set<EnvironmentConfig> userSpecificEnvironments = new HashSet<>();
+        for (EnvironmentConfig environmentConfig : environmentConfigService.getEnvironments()) {
+            if (apiAuthenticationHelper.doesUserHasPermissions(currentUsername(), getAction(request), SupportedEntity.ENVIRONMENT, environmentConfig.name().toString())) {
+                userSpecificEnvironments.add(environmentConfig);
+            }
+        }
+
+        EnvironmentsConfig envViewModelList = sortEnvConfigs(userSpecificEnvironments);
         setEtagHeader(response, calculateEtag(envViewModelList));
         return writerForTopLevelObject(request, response, outputWriter -> toJSON(outputWriter, envViewModelList));
     }

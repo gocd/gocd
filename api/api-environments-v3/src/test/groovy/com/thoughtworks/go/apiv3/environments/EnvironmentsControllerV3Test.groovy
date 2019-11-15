@@ -20,10 +20,9 @@ import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv3.environments.representers.EnvironmentRepresenter
 import com.thoughtworks.go.apiv3.environments.representers.EnvironmentsRepresenter
-import com.thoughtworks.go.config.BasicEnvironmentConfig
-import com.thoughtworks.go.config.CaseInsensitiveString
-import com.thoughtworks.go.config.EnvironmentConfig
-import com.thoughtworks.go.config.EnvironmentVariableConfig
+import com.thoughtworks.go.config.*
+import com.thoughtworks.go.config.policy.Allow
+import com.thoughtworks.go.config.policy.Policy
 import com.thoughtworks.go.domain.ConfigElementForEdit
 import com.thoughtworks.go.security.GoCipher
 import com.thoughtworks.go.server.service.EntityHashingService
@@ -31,6 +30,7 @@ import com.thoughtworks.go.server.service.EnvironmentConfigService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
 import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
+import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -65,7 +65,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
   @Nested
   class Index {
     @Nested
-    class Security implements SecurityTestTrait, AdminUserSecurity {
+    class Security implements SecurityTestTrait, NormalUserSecurity {
       @Override
       String getControllerMethodUnderTest() {
         return 'index'
@@ -101,6 +101,59 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
         getWithApiHeader(controller.controllerBasePath())
 
         def sortedEnvConfigList = [devEnv, prodEnv, qaEnv]
+        assertThatResponse().hasBodyWithJsonObject(sortedEnvConfigList, EnvironmentsRepresenter)
+      }
+
+      @Test
+      void 'should return no environments when user does not have access to any environment'() {
+        loginAsUser()
+
+        Policy directives = new Policy()
+        directives.add(new Allow("administer", "environment", "blah_*"))
+        RoleConfig role = new RoleConfig(new CaseInsensitiveString("read-only-environments"), new Users(), directives)
+
+        when(goConfigService.rolesForUser(any(CaseInsensitiveString.class))).thenReturn([role])
+
+        def prodEnv1 = new BasicEnvironmentConfig(new CaseInsensitiveString("prod_env1"))
+        def devEnv = new BasicEnvironmentConfig(new CaseInsensitiveString("dev_env1"))
+        def prodEnv2 = new BasicEnvironmentConfig(new CaseInsensitiveString("prod_env2"))
+
+        prodEnv1.addEnvironmentVariable("JAVA_HOME", "/bin/java")
+        prodEnv1.addPipeline(new CaseInsensitiveString("Pipeline1"))
+        prodEnv1.addPipeline(new CaseInsensitiveString("Pipeline2"))
+
+        def envConfigSet = new HashSet([prodEnv2, devEnv, prodEnv1])
+        when(environmentConfigService.getEnvironments()).thenReturn(envConfigSet)
+
+        getWithApiHeader(controller.controllerBasePath())
+
+        assertThatResponse().hasBodyWithJsonObject([], EnvironmentsRepresenter)
+      }
+
+      @Test
+      void 'should return sorted list of environments which user has access to'() {
+        loginAsUser()
+
+        Policy directives = new Policy()
+        directives.add(new Allow("administer", "environment", "prod_*"))
+        RoleConfig role = new RoleConfig(new CaseInsensitiveString("read-only-environments"), new Users(), directives)
+
+        when(goConfigService.rolesForUser(any(CaseInsensitiveString.class))).thenReturn([role])
+
+        def prodEnv1 = new BasicEnvironmentConfig(new CaseInsensitiveString("prod_env1"))
+        def devEnv = new BasicEnvironmentConfig(new CaseInsensitiveString("dev_env1"))
+        def prodEnv2 = new BasicEnvironmentConfig(new CaseInsensitiveString("prod_env2"))
+
+        prodEnv1.addEnvironmentVariable("JAVA_HOME", "/bin/java")
+        prodEnv1.addPipeline(new CaseInsensitiveString("Pipeline1"))
+        prodEnv1.addPipeline(new CaseInsensitiveString("Pipeline2"))
+
+        def envConfigSet = new HashSet([prodEnv2, devEnv, prodEnv1])
+        when(environmentConfigService.getEnvironments()).thenReturn(envConfigSet)
+
+        getWithApiHeader(controller.controllerBasePath())
+
+        def sortedEnvConfigList = [prodEnv1, prodEnv2]
         assertThatResponse().hasBodyWithJsonObject(sortedEnvConfigList, EnvironmentsRepresenter)
       }
 

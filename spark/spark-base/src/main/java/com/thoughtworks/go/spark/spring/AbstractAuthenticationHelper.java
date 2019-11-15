@@ -71,20 +71,26 @@ public abstract class AbstractAuthenticationHelper {
         }
     }
 
-    public void checkUserHasPermissions(Username username, SupportedAction action, SupportedEntity entity, String resource) {
+    public boolean doesUserHasPermissions(Username username, SupportedAction action, SupportedEntity entity, String resource) {
         //admin user has access to everything
         if (securityService.isUserAdmin(username)) {
-            return;
+            return true;
         }
 
         List<Role> roles = goConfigService.rolesForUser(username.getUsername());
         for (Role role : roles) {
             if (role.hasPermissionsFor(action, entity.getEntityType(), resource)) {
-                return;
+                return true;
             }
         }
 
-        throw renderForbiddenResponse();
+        return false;
+    }
+
+    public void checkUserHasPermissions(Username username, SupportedAction action, SupportedEntity entity, String resource) {
+        if (!doesUserHasPermissions(username, action, entity, resource)) {
+            throw renderForbiddenResponse();
+        }
     }
 
     public void checkPipelineGroupAdminOfAnyGroup(Request request, Response response) {

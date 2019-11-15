@@ -18,12 +18,7 @@ import {ApiResult, ErrorResponse, ObjectWithEtag} from "helpers/api_request_buil
 import m from "mithril";
 import Stream from "mithril/stream";
 import {AuthConfigs} from "models/auth_configs/auth_configs";
-import {
-  GoCDAttributes,
-  GoCDRole, PluginAttributes,
-  PluginRole,
-  Role, RoleType
-} from "models/roles/roles";
+import {GoCDAttributes, GoCDRole, PluginAttributes, PluginRole, Role, RoleType} from "models/roles/roles";
 import {RolesCRUD} from "models/roles/roles_crud";
 import {Configurations} from "models/shared/configuration";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
@@ -39,16 +34,19 @@ abstract class BaseRoleModal extends Modal {
   protected readonly authConfigs: AuthConfigs;
   protected readonly onSuccessfulSave: (msg: m.Children) => any;
   protected readonly errorMessage: Stream<string> = Stream();
+  protected resourceAutocompleteHelper: Map<string, string[]>;
 
   constructor(role: GoCDRole | PluginRole,
               pluginInfos: PluginInfos,
               authConfigsOfInstalledPlugin: AuthConfigs,
+              resourceAutocompleteHelper: Map<string, string[]>,
               onSuccessfulSave: (msg: m.Children) => any) {
     super(Size.large);
-    this.role             = Stream(role);
-    this.pluginInfos      = pluginInfos;
-    this.authConfigs      = authConfigsOfInstalledPlugin;
-    this.onSuccessfulSave = onSuccessfulSave;
+    this.role                       = Stream(role);
+    this.pluginInfos                = pluginInfos;
+    this.authConfigs                = authConfigsOfInstalledPlugin;
+    this.resourceAutocompleteHelper = resourceAutocompleteHelper;
+    this.onSuccessfulSave           = onSuccessfulSave;
   }
 
   abstract performSave(): Promise<any>;
@@ -63,10 +61,10 @@ abstract class BaseRoleModal extends Modal {
     let role: any;
     switch (roleType) {
       case RoleType.plugin:
-        role = new PluginRole("", new PluginAttributes("", new Configurations([])));
+        role = new PluginRole("", new PluginAttributes("", new Configurations([])), []);
         break;
       case RoleType.gocd:
-        role = new GoCDRole("", new GoCDAttributes([]));
+        role = new GoCDRole("", new GoCDAttributes([]), []);
         break;
     }
     this.role = Stream(role);
@@ -109,10 +107,12 @@ export class NewRoleModal extends BaseRoleModal {
   constructor(role: GoCDRole | PluginRole,
               pluginInfos: PluginInfos,
               authConfigsOfInstalledPlugin: AuthConfigs,
+              resourceAutocompleteHelper: Map<string, string[]>,
               onSuccessfulSave: (msg: m.Children) => any) {
     super(role,
           pluginInfos,
           authConfigsOfInstalledPlugin,
+          resourceAutocompleteHelper,
           onSuccessfulSave);
   }
 
@@ -130,7 +130,8 @@ export class NewRoleModal extends BaseRoleModal {
                           message={this.errorMessage()}
                           pluginInfos={this.pluginInfos}
                           authConfigs={this.authConfigs}
-                          changeRoleType={this.changeRoleType.bind(this)}/>;
+                          changeRoleType={this.changeRoleType.bind(this)}
+                          resourceAutocompleteHelper={this.resourceAutocompleteHelper}/>;
   }
 
   buttons() {
@@ -149,13 +150,14 @@ export class NewRoleModal extends BaseRoleModal {
 
 abstract class ModalWithFetch extends BaseRoleModal {
   protected etag: Stream<string> = Stream();
-  protected isStale = Stream(true);
+  protected isStale              = Stream(true);
 
   constructor(role: GoCDRole | PluginRole,
               pluginInfos: PluginInfos,
               authConfigsOfInstalledPlugin: AuthConfigs,
+              resourceAutocompleteHelper: Map<string, string[]>,
               onSuccessfulSave: (msg: m.Children) => any) {
-    super(role, pluginInfos, authConfigsOfInstalledPlugin, onSuccessfulSave);
+    super(role, pluginInfos, authConfigsOfInstalledPlugin, resourceAutocompleteHelper, onSuccessfulSave);
   }
 
   render() {
@@ -195,8 +197,9 @@ export class EditRoleModal extends ModalWithFetch {
   constructor(role: GoCDRole | PluginRole,
               pluginInfos: PluginInfos,
               authConfigsOfInstalledPlugin: AuthConfigs,
+              resourceAutocompleteHelper: Map<string, string[]>,
               onSuccessfulSave: (msg: m.Children) => any) {
-    super(role, pluginInfos, authConfigsOfInstalledPlugin, onSuccessfulSave);
+    super(role, pluginInfos, authConfigsOfInstalledPlugin, resourceAutocompleteHelper, onSuccessfulSave);
   }
 
   modalTitle(role: GoCDRole | PluginRole): string {
@@ -213,7 +216,8 @@ export class EditRoleModal extends ModalWithFetch {
                           message={this.errorMessage()}
                           pluginInfos={this.pluginInfos}
                           authConfigs={this.authConfigs}
-                          isStale={this.isStale}/>;
+                          isStale={this.isStale}
+                          resourceAutocompleteHelper={this.resourceAutocompleteHelper}/>;
   }
 
   protected successMessage(): m.Children {
@@ -232,8 +236,9 @@ export class CloneRoleModal extends ModalWithFetch {
   constructor(role: GoCDRole | PluginRole,
               pluginInfos: PluginInfos,
               authConfigsOfInstalledPlugin: AuthConfigs,
+              resourceAutocompleteHelper: Map<string, string[]>,
               onSuccessfulSave: (msg: m.Children) => any) {
-    super(role, pluginInfos, authConfigsOfInstalledPlugin, onSuccessfulSave);
+    super(role, pluginInfos, authConfigsOfInstalledPlugin, resourceAutocompleteHelper, onSuccessfulSave);
     this.originalRoleName = role.name();
   }
 
@@ -251,7 +256,8 @@ export class CloneRoleModal extends ModalWithFetch {
                           message={this.errorMessage()}
                           pluginInfos={this.pluginInfos}
                           authConfigs={this.authConfigs}
-                          isStale={this.isStale}/>;
+                          isStale={this.isStale}
+                          resourceAutocompleteHelper={this.resourceAutocompleteHelper}/>;
   }
 
   protected fetchCompleted() {

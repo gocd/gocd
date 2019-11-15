@@ -31,7 +31,7 @@ describe("RoleCRUD", () => {
     expect(request.url).toEqual("/go/api/admin/security/roles");
     expect(request.method).toEqual("GET");
     expect(request.data()).toEqual(toJSON({} as RolesJSON));
-    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v2+json");
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v3+json");
   });
 
   it("should create a new gocd role", () => {
@@ -43,7 +43,7 @@ describe("RoleCRUD", () => {
     expect(request.url).toEqual("/go/api/admin/security/roles");
     expect(request.method).toEqual("POST");
     expect(request.data()).toEqual(toJSON(Role.fromJSON(RolesTestData.GoCDRoleJSON())));
-    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v2+json");
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v3+json");
     expect(request.requestHeaders["Content-Type"]).toEqual("application/json; charset=utf-8");
   });
 
@@ -56,7 +56,7 @@ describe("RoleCRUD", () => {
     expect(request.url).toEqual("/go/api/admin/security/roles");
     expect(request.method).toEqual("POST");
     expect(request.data()).toEqual(toJSON(Role.fromJSON(RolesTestData.LdapPluginRoleJSON())));
-    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v2+json");
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v3+json");
     expect(request.requestHeaders["Content-Type"]).toEqual("application/json; charset=utf-8");
   });
 
@@ -71,7 +71,7 @@ describe("RoleCRUD", () => {
     expect(request.url).toEqual(`/go/api/admin/security/roles/${gocdRole.name()}`);
     expect(request.method).toEqual("PUT");
     expect(request.data()).toEqual(toJSON(gocdRole));
-    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v2+json");
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v3+json");
     expect(request.requestHeaders["Content-Type"]).toEqual("application/json; charset=utf-8");
     expect(request.requestHeaders["If-Match"]).toEqual("some-etag");
   });
@@ -87,7 +87,7 @@ describe("RoleCRUD", () => {
     expect(request.url).toEqual(`/go/api/admin/security/roles/${gocdRole.name()}`);
     expect(request.method).toEqual("DELETE");
     expect(request.data()).toEqual(toJSON({} as RoleJSON));
-    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v2+json");
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v3+json");
     expect(request.requestHeaders["Content-Type"]).toEqual(undefined!);
     expect(request.requestHeaders["X-GoCD-Confirm"]).toEqual("true");
   });
@@ -101,7 +101,7 @@ function getAllRoles() {
   return {
     status: 200,
     responseHeaders: {
-      "Content-Type": "application/vnd.go.cd.v2+json; charset=utf-8",
+      "Content-Type": "application/vnd.go.cd.v3+json; charset=utf-8",
       "ETag": "some-etag"
     },
     responseText: JSON.stringify(RolesTestData.GetAllRoles())
@@ -112,7 +112,7 @@ function getGoCDRole() {
   return {
     status: 200,
     responseHeaders: {
-      "Content-Type": "application/vnd.go.cd.v2+json; charset=utf-8",
+      "Content-Type": "application/vnd.go.cd.v3+json; charset=utf-8",
       "ETag": "some-etag"
     },
     responseText: JSON.stringify(RolesTestData.GoCDRoleJSON())
@@ -123,7 +123,7 @@ function deleteRoleResponse() {
   return {
     status: 200,
     responseHeaders: {
-      "Content-Type": "application/vnd.go.cd.v2+json; charset=utf-8"
+      "Content-Type": "application/vnd.go.cd.v3+json; charset=utf-8"
     },
     responseText: JSON.stringify({message: "Role successfully deleted."})
   };
@@ -133,7 +133,7 @@ function getPluginRole() {
   return {
     status: 200,
     responseHeaders: {
-      "Content-Type": "application/vnd.go.cd.v2+json; charset=utf-8",
+      "Content-Type": "application/vnd.go.cd.v3+json; charset=utf-8",
       "ETag": "some-etag"
     },
     responseText: JSON.stringify(RolesTestData.LdapPluginRoleJSON())

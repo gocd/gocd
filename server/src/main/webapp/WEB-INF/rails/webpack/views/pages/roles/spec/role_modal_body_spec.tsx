@@ -41,7 +41,8 @@ describe("RoleModalBody", () => {
                                         pluginInfos={pluginInfos}
                                         authConfigs={authConfigs}
                                         action={Action.NEW}
-                                        changeRoleType={changeRoleType}/>);
+                                        changeRoleType={changeRoleType}
+                                        resourceAutocompleteHelper={new Map()}/>);
       expect(helper.textByTestId("flash-message-alert")).toBe("Something went wrong contact your admin!!!");
     });
 
@@ -50,7 +51,8 @@ describe("RoleModalBody", () => {
                                         pluginInfos={pluginInfos}
                                         authConfigs={authConfigs}
                                         action={Action.NEW}
-                                        changeRoleType={changeRoleType}/>);
+                                        changeRoleType={changeRoleType}
+                                        resourceAutocompleteHelper={new Map()}/>);
 
       expect(helper.byTestId("flash-message-alert")).toBeFalsy();
     });
@@ -62,7 +64,8 @@ describe("RoleModalBody", () => {
                                         action={Action.NEW}
                                         pluginInfos={pluginInfos}
                                         authConfigs={authConfigs}
-                                        changeRoleType={changeRoleType}/>);
+                                        changeRoleType={changeRoleType}
+                                        resourceAutocompleteHelper={new Map()}/>);
 
       expect(helper.byTestId("role-type-selector")).toBeInDOM();
     });
@@ -72,7 +75,8 @@ describe("RoleModalBody", () => {
                                         pluginInfos={pluginInfos}
                                         authConfigs={authConfigs}
                                         action={Action.CLONE}
-                                        changeRoleType={changeRoleType}/>);
+                                        changeRoleType={changeRoleType}
+                                        resourceAutocompleteHelper={new Map()}/>);
 
       expect(helper.byTestId("role-type-selector")).toBeFalsy();
     });
@@ -82,7 +86,8 @@ describe("RoleModalBody", () => {
                                         pluginInfos={pluginInfos}
                                         authConfigs={authConfigs}
                                         action={Action.EDIT}
-                                        changeRoleType={changeRoleType}/>);
+                                        changeRoleType={changeRoleType}
+                                        resourceAutocompleteHelper={new Map()}/>);
 
       expect(helper.byTestId("role-type-selector")).toBeFalsy();
     });
@@ -95,7 +100,8 @@ describe("RoleModalBody", () => {
                                         action={Action.NEW}
                                         pluginInfos={pluginInfos}
                                         authConfigs={new AuthConfigs()}
-                                        changeRoleType={changeRoleType}/>);
+                                        changeRoleType={changeRoleType}
+                                        resourceAutocompleteHelper={new Map()}/>);
       expect(helper.q("#plugin-role")).toBeInDOM();
       expect(helper.q("#plugin-role")).toBeDisabled();
     });
@@ -105,7 +111,8 @@ describe("RoleModalBody", () => {
                                         action={Action.NEW}
                                         pluginInfos={pluginInfos}
                                         authConfigs={authConfigs}
-                                        changeRoleType={changeRoleType}/>);
+                                        changeRoleType={changeRoleType}
+                                        resourceAutocompleteHelper={new Map()}/>);
       expect(helper.q("#plugin-role")).toBeInDOM();
       expect(helper.q("#plugin-role")).not.toBeDisabled();
     });
@@ -118,7 +125,8 @@ describe("RoleModalBody", () => {
                                         action={Action.NEW}
                                         pluginInfos={pluginInfos}
                                         authConfigs={authConfigs}
-                                        changeRoleType={changeRoleType}/>);
+                                        changeRoleType={changeRoleType}
+                                        resourceAutocompleteHelper={new Map()}/>);
 
       expect(helper.q("#plugin-role")).toBeInDOM();
       expect(helper.q("#plugin-role")).not.toBeDisabled();
@@ -128,6 +136,23 @@ describe("RoleModalBody", () => {
 
       helper.click("#core-role");
       expect(changeRoleType).toHaveBeenCalledWith(RoleType.gocd, jasmine.any(Event));
+    });
+  });
+
+  describe("Policy", () => {
+    it("should callback the add function when add new permission is clicked", () => {
+      helper.mount(() => <RoleModalBody role={Stream(gocdRole)}
+                                        action={Action.NEW}
+                                        pluginInfos={pluginInfos}
+                                        authConfigs={authConfigs}
+                                        changeRoleType={changeRoleType}
+                                        resourceAutocompleteHelper={new Map()}/>);
+
+      expect(helper.qa("tr", helper.byTestId("table-body")).length).toBe(1);
+
+      helper.clickByTestId("add-permission-button");
+
+      expect(helper.qa("tr", helper.byTestId("table-body")).length).toBe(2);
     });
   });
 

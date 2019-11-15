@@ -151,4 +151,46 @@ describe("RolesWidgetSpec", () => {
     expect(helper.byTestId("role-clone", githubRolePanel)).toBeDisabled();
     expect(helper.byTestId("role-delete", githubRolePanel)).not.toBeDisabled();
   });
+
+  it('should render policy info for gocd role', () => {
+    mount(new Roles(Role.fromJSON(RolesTestData.GoCDRoleJSON())), authConfigs, pluginInfos);
+
+    expect(helper.byTestId("policy-info")).toBeInDOM();
+    const table = helper.byTestId("policy-table");
+
+    const headerRow = helper.qa("th", helper.byTestId("table-header", table));
+    expect(headerRow.length).toBe(4);
+    expect(headerRow.item(0)).toContainText("Permission");
+    expect(headerRow.item(1)).toContainText("Action");
+    expect(headerRow.item(2)).toContainText("Type");
+    expect(headerRow.item(3)).toContainText("Resource");
+
+    const ruleBodyRow = helper.qa("td", helper.byTestId("table-body", table));
+    expect(ruleBodyRow.length).toBe(4);
+    expect(ruleBodyRow.item(0)).toContainText("allow");
+    expect(ruleBodyRow.item(1)).toContainText("view");
+    expect(ruleBodyRow.item(2)).toContainText("environment");
+    expect(ruleBodyRow.item(3)).toContainText("*");
+  });
+
+  it('should render policy info for plugin role', () => {
+    mount(new Roles(Role.fromJSON(RolesTestData.LdapPluginRoleJSON())), authConfigs, pluginInfos);
+
+    expect(helper.byTestId("policy-info")).toBeInDOM();
+    const table = helper.byTestId("policy-table");
+
+    const headerRow = helper.qa("th", helper.byTestId("table-header", table));
+    expect(headerRow.length).toBe(4);
+    expect(headerRow.item(0)).toContainText("Permission");
+    expect(headerRow.item(1)).toContainText("Action");
+    expect(headerRow.item(2)).toContainText("Type");
+    expect(headerRow.item(3)).toContainText("Resource");
+
+    const ruleBodyRow = helper.qa("td", helper.byTestId("table-body", table));
+    expect(ruleBodyRow.length).toBe(4);
+    expect(ruleBodyRow.item(0)).toContainText("deny");
+    expect(ruleBodyRow.item(1)).toContainText("view");
+    expect(ruleBodyRow.item(2)).toContainText("environment");
+    expect(ruleBodyRow.item(3)).toContainText("*");
+  });
 });

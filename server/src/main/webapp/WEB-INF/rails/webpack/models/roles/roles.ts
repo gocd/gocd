@@ -24,6 +24,14 @@ export enum RoleType {
   gocd, plugin
 }
 
+export interface DirectiveJSON {
+  permission: string;
+  action: string;
+  type: string;
+  resource: string;
+  errors?: ErrorsJSON;
+}
+
 export interface GoCDAttributesJSON {
   users: string[];
 }
@@ -39,6 +47,7 @@ export interface RoleJSON {
   name: string;
   type: string;
   attributes: AttributeType;
+  policy: DirectiveJSON[];
   errors?: ErrorsJSON;
 }
 
@@ -60,6 +69,57 @@ export interface UserRoleUpdateJSON {
 
 export interface BulkUserRoleUpdateJSON {
   operations: UserRoleUpdateJSON[];
+}
+
+export class Directive extends ValidatableMixin {
+  permission: Stream<string>;
+  action: Stream<string>;
+  type: Stream<string>;
+  resource: Stream<string>;
+
+  constructor(permission: string, action: string, type: string, resource: string, errors: Errors = new Errors()) {
+    super();
+    ValidatableMixin.call(this);
+    this.permission = Stream(permission);
+    this.action = Stream(action);
+    this.type = Stream(type);
+    this.resource = Stream(resource);
+    this.errors(errors);
+    this.validatePresenceOf("permission");
+    this.validatePresenceOf("action");
+    this.validatePresenceOf("type");
+    this.validatePresenceOf("resource");
+  }
+
+  static fromJSON(policyJSON: DirectiveJSON) {
+    const errors = new Errors(policyJSON.errors);
+    return new Directive(policyJSON.permission, policyJSON.action, policyJSON.type, policyJSON.resource, errors);
+  }
+
+  toJSON() {
+    return {
+      permission: this.permission,
+      action: this.action,
+      type: this.type,
+      resource: this.resource
+    };
+  }
+}
+
+applyMixins(Directive, ValidatableMixin);
+
+export class Policy extends Array<Stream<Directive>> {
+  constructor(...rules: Array<Stream<Directive>>) {
+    super(...rules);
+    Object.setPrototypeOf(this, Object.create(Policy.prototype));
+  }
+
+  static fromJSON(directiveJSONS: DirectiveJSON[]): Policy {
+    if (!directiveJSONS) {
+      return new Policy();
+    }
+    return new Policy(...directiveJSONS.map((directive) => Stream(Directive.fromJSON(directive))));
+  }
 }
 
 export class GoCDAttributes {
@@ -136,14 +196,16 @@ export abstract class Role<T> extends ValidatableMixin {
   name: Stream<string>;
   type: Stream<RoleType>;
   attributes: Stream<T>;
+  policy: Stream<Policy>;
 
-  protected constructor(name: string, type: RoleType, attributes: T, errors: Errors = new Errors()) {
+  protected constructor(name: string, type: RoleType, attributes: T, policy: Policy, errors: Errors = new Errors()) {
     super();
     ValidatableMixin.call(this);
 
     this.type       = Stream(type);
     this.name       = Stream(name);
     this.attributes = Stream(attributes);
+    this.policy = Stream(policy);
     this.errors(errors);
 
     this.validatePresenceOf("name");
@@ -158,11 +220,14 @@ export abstract class Role<T> extends ValidatableMixin {
     switch (data.type) {
       case "gocd":
         return new GoCDRole(data.name,
-                            GoCDAttributes.deserialize(data.attributes as GoCDAttributesJSON),
-                            errors);
+          GoCDAttributes.deserialize(data.attributes as GoCDAttributesJSON),
+          Policy.fromJSON(data.policy),
+          errors);
       case "plugin":
         return new PluginRole(data.name,
-                              PluginAttributes.deserialize(data.attributes as PluginAttributesJSON), errors);
+          PluginAttributes.deserialize(data.attributes as PluginAttributesJSON),
+          Policy.fromJSON(data.policy),
+          errors);
       default:
         throw new Error(`Unknown role type ${data.type}`);
     }
@@ -176,7 +241,8 @@ export abstract class Role<T> extends ValidatableMixin {
     return {
       name: this.name(),
       type: RoleType[this.type()],
-      attributes: this.attributes.toJSON()
+      attributes: this.attributes.toJSON(),
+      policy: this.policy
     };
   }
 }
@@ -185,15 +251,15 @@ applyMixins(Role, ValidatableMixin);
 
 export class GoCDRole extends Role<GoCDAttributes> {
 
-  constructor(name: string, attributes: GoCDAttributes, errors?: Errors) {
-    super(name, RoleType.gocd, attributes, errors);
+  constructor(name: string, attributes: GoCDAttributes, policy: Policy, errors?: Errors) {
+    super(name, RoleType.gocd, attributes, policy, errors);
   }
 }
 
 export class PluginRole extends Role<PluginAttributes> {
 
-  constructor(name: string, attributes: PluginAttributes, errors?: Errors) {
-    super(name, RoleType.plugin, attributes, errors);
+  constructor(name: string, attributes: PluginAttributes, policy: Policy, errors?: Errors) {
+    super(name, RoleType.plugin, attributes, policy, errors);
   }
 }
 

@@ -15,11 +15,11 @@
  */
 
 import {ErrorResponse} from "helpers/api_request_builder";
-import _ from "lodash";
 import m from "mithril";
+import Stream from "mithril/stream";
 import {AuthConfigs} from "models/auth_configs/auth_configs";
 import {AuthConfigsCRUD} from "models/auth_configs/auth_configs_crud";
-import {GoCDAttributes, GoCDRole, PluginRole, Roles} from "models/roles/roles";
+import {Directive, GoCDAttributes, GoCDRole, PluginRole, Roles} from "models/roles/roles";
 import {RolesCRUD} from "models/roles/roles_crud";
 import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
@@ -28,26 +28,23 @@ import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
 import {Page, PageState} from "views/pages/page";
-import {
-  AddOperation,
-  CloneOperation,
-  DeleteOperation,
-  EditOperation,
-  SaveOperation
-} from "views/pages/page_operations";
+import {AddOperation, CloneOperation, DeleteOperation, EditOperation, SaveOperation} from "views/pages/page_operations";
 import {CloneRoleModal, DeleteRoleConfirmModal, EditRoleModal, NewRoleModal} from "views/pages/roles/modals";
 import {RolesWidget} from "views/pages/roles/roles_widget";
+import {EnvironmentCRUD} from "../../models/environments/environment_crud";
 
 export interface State extends AddOperation<GoCDRole | PluginRole>, EditOperation<GoCDRole | PluginRole>, CloneOperation<GoCDRole | PluginRole>, DeleteOperation<GoCDRole | PluginRole>, SaveOperation {
   pluginInfos: PluginInfos;
   authConfigs: AuthConfigs;
   roles: Roles;
+  resourceAutocompleteHelper: Stream<Map<string, string[]>>;
 }
 
 export class RolesPage extends Page<null, State> {
 
   oninit(vnode: m.Vnode<null, State>) {
     super.oninit(vnode);
+    vnode.state.resourceAutocompleteHelper = Stream(new Map());
 
     const onOperationError = (errorResponse: ErrorResponse) => {
       vnode.state.onError(JSON.parse(errorResponse.body!).message);
@@ -61,10 +58,11 @@ export class RolesPage extends Page<null, State> {
     vnode.state.onAdd = (e: Event) => {
       e.stopPropagation();
       this.flashMessage.clear();
-      const role = new GoCDRole("", new GoCDAttributes([]));
+      const role = new GoCDRole("", new GoCDAttributes([]), [Stream(new Directive("deny", "view", "*", "*"))]);
       new NewRoleModal(role,
                        vnode.state.pluginInfos,
                        vnode.state.authConfigs,
+                       vnode.state.resourceAutocompleteHelper(),
                        vnode.state.onSuccessfulSave).render();
     };
 
@@ -75,6 +73,7 @@ export class RolesPage extends Page<null, State> {
       new EditRoleModal(role,
                         vnode.state.pluginInfos,
                         vnode.state.authConfigs,
+                        vnode.state.resourceAutocompleteHelper(),
                         vnode.state.onSuccessfulSave).render();
 
     };
@@ -86,6 +85,7 @@ export class RolesPage extends Page<null, State> {
       new CloneRoleModal(role,
                          vnode.state.pluginInfos,
                          vnode.state.authConfigs,
+                         vnode.state.resourceAutocompleteHelper(),
                          vnode.state.onSuccessfulSave).render();
 
     };
@@ -127,7 +127,7 @@ export class RolesPage extends Page<null, State> {
   }
 
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {
-    return Promise.all([PluginInfoCRUD.all({type: ExtensionTypeString.AUTHORIZATION}), AuthConfigsCRUD.all(), RolesCRUD.all()])
+    return Promise.all([PluginInfoCRUD.all({type: ExtensionTypeString.AUTHORIZATION}), AuthConfigsCRUD.all(), RolesCRUD.all(), EnvironmentCRUD.all()])
                   .then((results) => {
                     results[0].do((successResponse) => {
                       this.pageState           = PageState.OK;
@@ -143,6 +143,11 @@ export class RolesPage extends Page<null, State> {
                     results[2].do((successResponse) => {
                       this.pageState    = PageState.OK;
                       vnode.state.roles = successResponse.body;
+                    }, () => this.setErrorState());
+
+                    results[3].do((successResponse) => {
+                      vnode.state.resourceAutocompleteHelper()
+                           .set("environment", ["*"].concat(successResponse.body.map((env) => env.name())));
                     }, () => this.setErrorState());
                   });
   }

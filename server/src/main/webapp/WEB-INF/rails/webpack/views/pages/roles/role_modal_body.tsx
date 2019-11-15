@@ -20,13 +20,15 @@ import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {AuthConfig, AuthConfigs} from "models/auth_configs/auth_configs";
-import {GoCDRole, PluginRole, RoleType} from "models/roles/roles";
+import {Directive, GoCDRole, PluginRole, RoleType} from "models/roles/roles";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
+import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Spinner} from "views/components/spinner";
 import * as foundationStyles from "views/pages/new_plugins/foundation_hax.scss";
 import {GoCDRoleModalBodyWidget, PluginRoleModalBodyWidget} from "views/pages/roles/role_modal_body_widget";
 import styles from "./index.scss";
+import {CreatePolicyWidget} from "./policy_widget";
 
 const foundationClassNames = bind(foundationStyles);
 
@@ -42,6 +44,7 @@ interface RoleModalAttrs {
   message?: string;
   isStale?: Stream<boolean>;
   changeRoleType?: (roleType: RoleType) => void;
+  resourceAutocompleteHelper: Map<string, string[]>;
 }
 
 export class RoleModalBody extends MithrilViewComponent<RoleModalAttrs> {
@@ -95,9 +98,20 @@ export class RoleModalBody extends MithrilViewComponent<RoleModalAttrs> {
                                  role={vnode.attrs.role()}/>);
     }
 
+    const addNewPermission = () => {
+      vnode.attrs.role().policy().push(Stream(new Directive("", "", "", "")));
+    };
+
     return (<div class={foundationClassNames(foundationStyles.foundationGridHax, foundationStyles.foundationFormHax)}>
         {mayBeTypeSelector}
         {roleWidget}
+        <CreatePolicyWidget policy={vnode.attrs.role().policy}
+                            resourceAutocompleteHelper={vnode.attrs.resourceAutocompleteHelper}/>
+        <div class={styles.addPermission}>
+          <Buttons.Secondary data-test-id="add-permission-button" onclick={addNewPermission}>
+            + New Permission
+          </Buttons.Secondary>
+        </div>
       </div>
     );
   }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {RoleJSON, RolesJSON} from "models/roles/roles";
+import {DirectiveJSON, RoleJSON, RolesJSON} from "models/roles/roles";
 
 export class RolesTestData {
 
@@ -27,13 +27,14 @@ export class RolesTestData {
     } as RolesJSON;
   }
 
-  public static GoCDRoleJSON(roleName = "spacetiger", users = ["alice", "bob", "robin"]) {
+  public static GoCDRoleJSON(roleName = "spacetiger", users = ["alice", "bob", "robin"], policy = [this.AllowDirective()]) {
     return {
       name: roleName,
       type: "gocd",
       attributes: {
         users
-      }
+      },
+      policy
     } as RoleJSON;
   }
 
@@ -43,7 +44,8 @@ export class RolesTestData {
       type: "gocd",
       attributes: {
         users: []
-      }
+      },
+      policy: []
     } as RoleJSON;
   }
 
@@ -63,7 +65,8 @@ export class RolesTestData {
             value: "ou=admins,ou=groups,ou=system,dc=example,dc=com"
           }
         ]
-      }
+      },
+      policy: [this.DenyDirective()]
     } as RoleJSON;
   }
 
@@ -81,5 +84,23 @@ export class RolesTestData {
         ]
       }
     } as RoleJSON;
+  }
+
+  public static AllowDirective() {
+    return {
+      permission: 'allow',
+      action: 'view',
+      type: 'environment',
+      resource: '*'
+    } as DirectiveJSON;
+  }
+
+  public static DenyDirective() {
+    return {
+      permission: 'deny',
+      action: 'view',
+      type: 'environment',
+      resource: '*'
+    } as DirectiveJSON;
   }
 }

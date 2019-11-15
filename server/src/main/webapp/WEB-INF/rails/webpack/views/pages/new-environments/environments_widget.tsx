@@ -40,6 +40,8 @@ export class EnvironmentsWidget extends MithrilViewComponent<Attrs> {
                                warning={isEnvEmpty}
                                actions={[
                                  <Icons.Delete iconOnly={true}
+                                               title={environment.canAdminister() ? undefined : `You are not authorized to delete '${environment.name()}' environment.`}
+                                               disabled={!environment.canAdminister()}
                                                onclick={vnode.attrs.onDelete.bind(vnode.attrs, environment)}/>
                                ]}
                                dataTestId={`collapsible-panel-for-env-${environment.name()}`}>

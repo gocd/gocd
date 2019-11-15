@@ -117,6 +117,7 @@ export default {
   environment_variable_association_in_config_repo_json: environmentVariableAssociationInConfigRepoJson,
   environment_json: (): EnvironmentJSON => ({
     name: `environment-name-${randomString()}`,
+    can_administer: true,
     origins: [fileOriginJson(), configRepoOrigin()],
     pipelines: [pipelineAssociationInXmlJson(), pipelineAssociationInConfigRepoJson()],
     agents: [agentAssociationInXmlJson(), agentAssociationInConfigRepoJson()],
@@ -129,6 +130,7 @@ export default {
   }),
   xml_environment_json: (): EnvironmentJSON => ({
     name: `xml-environment-name-${randomString()}`,
+    can_administer: true,
     origins: [fileOriginJson()],
     pipelines: [pipelineAssociationInXmlJson()],
     agents: [agentAssociationInXmlJson()],
@@ -136,6 +138,7 @@ export default {
   }),
   config_repo_environment_json: (): EnvironmentJSON => ({
     name: `config-repo-environment-name-${randomString()}`,
+    can_administer: true,
     origins: [fileOriginJson(), configRepoOrigin()],
     pipelines: [pipelineAssociationInConfigRepoJson()],
     agents: [agentAssociationInConfigRepoJson()],

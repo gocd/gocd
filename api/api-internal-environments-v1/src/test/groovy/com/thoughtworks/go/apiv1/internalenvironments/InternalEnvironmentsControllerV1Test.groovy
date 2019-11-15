@@ -19,14 +19,20 @@ package com.thoughtworks.go.apiv1.internalenvironments
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv1.internalenvironments.representers.MergedEnvironmentsRepresenter
+import com.thoughtworks.go.config.CaseInsensitiveString
+import com.thoughtworks.go.config.RoleConfig
+import com.thoughtworks.go.config.Users
 import com.thoughtworks.go.config.exceptions.EntityType
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException
 import com.thoughtworks.go.config.merge.MergeEnvironmentConfig
+import com.thoughtworks.go.config.policy.Allow
+import com.thoughtworks.go.config.policy.Policy
 import com.thoughtworks.go.helper.EnvironmentConfigMother
 import com.thoughtworks.go.server.service.AgentService
 import com.thoughtworks.go.server.service.EnvironmentConfigService
 import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
+import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -35,6 +41,7 @@ import org.mockito.Mock
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static java.util.Arrays.asList
+import static org.mockito.ArgumentMatchers.any
 import static org.mockito.Mockito.doThrow
 import static org.mockito.Mockito.when
 import static org.mockito.MockitoAnnotations.initMocks
@@ -109,7 +116,7 @@ class InternalEnvironmentsControllerV1Test implements SecurityServiceTrait, Cont
   class IndexMergedEnvironments {
 
     @Nested
-    class Security implements SecurityTestTrait, AdminUserSecurity {
+    class Security implements SecurityTestTrait, NormalUserSecurity {
       @Override
       String getControllerMethodUnderTest() {
         return 'indexMergedEnvironments'
@@ -141,7 +148,57 @@ class InternalEnvironmentsControllerV1Test implements SecurityServiceTrait, Cont
 
         assertThatResponse()
           .isOk()
-          .hasBodyWithJson(toObjectString({ MergedEnvironmentsRepresenter.toJSON(it, [env1, env2]) }))
+          .hasBodyWithJson(toObjectString({ MergedEnvironmentsRepresenter.toJSON(it, [env1, env2], { name -> true }) }))
+      }
+
+      @Test
+      void 'should represent basic environments which user has access to'() {
+        loginAsUser()
+        Policy directives = new Policy()
+        directives.add(new Allow("administer", "environment", "env*"))
+        RoleConfig role = new RoleConfig(new CaseInsensitiveString("read-only-environments"), new Users(), directives)
+
+        when(goConfigService.rolesForUser(any(CaseInsensitiveString.class))).thenReturn([role])
+
+        def environmentName1 = "env1"
+        def environmentName2 = "env2"
+        def environmentName3 = "blah"
+        def env1 = EnvironmentConfigMother.environment(environmentName1)
+        def env2 = EnvironmentConfigMother.environment(environmentName2)
+        def env3 = EnvironmentConfigMother.environment(environmentName3)
+
+        when(environmentConfigService.getAllMergedEnvironments()).thenReturn([env1, env2, env3])
+
+        getWithApiHeader(controller.controllerPath('/merged'))
+
+        assertThatResponse()
+          .isOk()
+          .hasBodyWithJson(toObjectString({ MergedEnvironmentsRepresenter.toJSON(it, [env1, env2], { name -> true }) }))
+      }
+
+      @Test
+      void 'should represent no environments when user does not have access to any of the environments'() {
+        loginAsUser()
+        Policy directives = new Policy()
+        directives.add(new Allow("administer", "environment", "blah*"))
+        RoleConfig role = new RoleConfig(new CaseInsensitiveString("read-only-environments"), new Users(), directives)
+
+        when(goConfigService.rolesForUser(any(CaseInsensitiveString.class))).thenReturn([role])
+
+        def environmentName1 = "env1"
+        def environmentName2 = "env2"
+        def environmentName3 = "env3"
+        def env1 = EnvironmentConfigMother.environment(environmentName1)
+        def env2 = EnvironmentConfigMother.environment(environmentName2)
+        def env3 = EnvironmentConfigMother.environment(environmentName3)
+
+        when(environmentConfigService.getAllMergedEnvironments()).thenReturn([env1, env2, env3])
+
+        getWithApiHeader(controller.controllerPath('/merged'))
+
+        assertThatResponse()
+          .isOk()
+          .hasBodyWithJson(toObjectString({ MergedEnvironmentsRepresenter.toJSON(it, [], { name -> true }) }))
       }
 
       @Test
@@ -157,7 +214,9 @@ class InternalEnvironmentsControllerV1Test implements SecurityServiceTrait, Cont
 
         assertThatResponse()
           .isOk()
-          .hasBodyWithJson(toObjectString({ MergedEnvironmentsRepresenter.toJSON(it, [mergeEnvironmentConfig]) }))
+          .hasBodyWithJson(toObjectString({
+          MergedEnvironmentsRepresenter.toJSON(it, [mergeEnvironmentConfig], { name -> true })
+        }))
       }
 
       @Test
@@ -168,7 +227,7 @@ class InternalEnvironmentsControllerV1Test implements SecurityServiceTrait, Cont
 
         assertThatResponse()
           .isOk()
-          .hasBodyWithJson(toObjectString({ MergedEnvironmentsRepresenter.toJSON(it, []) }))
+          .hasBodyWithJson(toObjectString({ MergedEnvironmentsRepresenter.toJSON(it, [], { name -> true }) }))
       }
     }
   }

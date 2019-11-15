@@ -36,6 +36,7 @@ export class CreateEnvModal extends Modal {
     super();
     this.onSuccessfulSave = onSuccessfulSave;
     this.environment      = new EnvironmentWithOrigin("",
+                                                      true,
                                                       [new Origin(OriginType.GoCD)],
                                                       [],
                                                       new Pipelines(),

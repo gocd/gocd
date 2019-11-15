@@ -46,7 +46,7 @@ public class NewEnvironmentsController implements SparkController {
     @Override
     public void setupRoutes() {
         path(controllerBasePath(), () -> {
-            before("", authenticationHelper::checkAdminUserAnd403);
+            before("", authenticationHelper::checkUserAnd403);
             get("", this::index, engine);
         });
     }

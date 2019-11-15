@@ -121,6 +121,7 @@ describe("Pipelines View Model", () => {
   it("should filter pipelines defined in other environment", () => {
     const pipeline = pipelinesViewModel.pipelineGroups()![0].pipelines()[0];
     environments.push(new EnvironmentWithOrigin("another",
+                                                true,
                                                 [],
                                                 [],
                                                 new Pipelines(pipeline),

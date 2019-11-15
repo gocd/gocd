@@ -27,6 +27,8 @@ import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.apiv1.internalenvironments.representers.MergedEnvironmentsRepresenter;
 import com.thoughtworks.go.config.EnvironmentConfig;
+import com.thoughtworks.go.config.policy.SupportedAction;
+import com.thoughtworks.go.config.policy.SupportedEntity;
 import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.EnvironmentConfigService;
 import com.thoughtworks.go.spark.Routes;
@@ -37,8 +39,10 @@ import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 import static java.lang.String.format;
 import static spark.Spark.*;
@@ -70,7 +74,14 @@ public class InternalEnvironmentsControllerV1 extends ApiController implements S
             before("/*", mimeType, this::setContentType);
 
             before("", mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
-            before("/*", mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
+
+            before("/*", mimeType, (request, response) -> {
+                if (request.requestMethod().equalsIgnoreCase("GET")) {
+                    apiAuthenticationHelper.checkUserAnd403(request, response);
+                } else {
+                    apiAuthenticationHelper.checkAdminUserAnd403(request, response);
+                }
+            });
 
             get("", mimeType, this::index);
             get("/merged", mimeType, this::indexMergedEnvironments);
@@ -83,8 +94,15 @@ public class InternalEnvironmentsControllerV1 extends ApiController implements S
     }
 
     public String indexMergedEnvironments(Request request, Response response) throws IOException {
-        List<EnvironmentConfig> allMergedEnvironments = environmentConfigService.getAllMergedEnvironments();
-        return writerForTopLevelObject(request, response, outputWriter -> MergedEnvironmentsRepresenter.toJSON(outputWriter, allMergedEnvironments));
+        List<EnvironmentConfig> userSpecificEnvironments = new ArrayList<>();
+        for (EnvironmentConfig env : environmentConfigService.getAllMergedEnvironments()) {
+            if (apiAuthenticationHelper.doesUserHasPermissions(currentUsername(), getAction(request), SupportedEntity.ENVIRONMENT, env.name().toString())) {
+                userSpecificEnvironments.add(env);
+            }
+        }
+
+        Function<String, Boolean> canUserAdministerEnvironment = envName -> apiAuthenticationHelper.doesUserHasPermissions(currentUsername(), SupportedAction.ADMINISTER, SupportedEntity.ENVIRONMENT, envName);
+        return writerForTopLevelObject(request, response, outputWriter -> MergedEnvironmentsRepresenter.toJSON(outputWriter, userSpecificEnvironments, canUserAdministerEnvironment));
     }
 
     String updateAgentAssociation(Request request, Response response) {

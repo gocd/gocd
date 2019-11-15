@@ -63,6 +63,27 @@ describe("Environments Widget", () => {
     expect(helper.byTestId("environment-body-for-" + env.name)).toBeInDOM();
   });
 
+  it("should render delete icon for all the environments", () => {
+    mountModal([xmlEnv, configRepoEnv, env]);
+    const deleteIcons = helper.allByTestId("Delete-icon");
+    expect(deleteIcons).toHaveLength(3);
+  });
+
+  it("should render disabled delete icon for the environments that user can not administer", () => {
+    xmlEnv.can_administer = false;
+
+    mountModal([xmlEnv, configRepoEnv, env]);
+    const deleteIcons = helper.allByTestId("Delete-icon");
+    expect(deleteIcons).toHaveLength(3);
+
+    expect(deleteIcons[0].title).toBe(`You are not authorized to delete '${xmlEnv.name}' environment.`);
+    expect(deleteIcons[0]).toBeDisabled();
+    expect(deleteIcons[1].title).toBeFalsy();
+    expect(deleteIcons[1]).not.toBeDisabled();
+    expect(deleteIcons[2].title).toBeFalsy();
+    expect(deleteIcons[2]).not.toBeDisabled();
+  });
+
   it("should render warning line if no pipelines and agents assigned to the environment", () => {
     const envJson     = data.environment_json();
     envJson.agents    = [];

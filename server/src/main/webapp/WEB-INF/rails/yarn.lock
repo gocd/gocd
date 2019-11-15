@@ -943,10 +943,12 @@
   resolved "https://registry.yarnpkg.com/@types/events/-/events-3.0.0.tgz#2862f3f58a9a7f7c3e78d79f130dd4d71c25c2a7"
   integrity sha512-EaObqwIvayI5a8dCzhFrjKzVwKLxjoG9T6Ppd5CEo07LRKfQ8Yokw54r5+Wq7FaBQ+yXRvQAYPrHwya1/UFt9g==
 
-"@types/filesize@^4.2.0":
-  version "4.2.0"
-  resolved "https://registry.yarnpkg.com/@types/filesize/-/filesize-4.2.0.tgz#5ef6403b33bc00c718bc6f88d2a0e172df0a110a"
-  integrity sha512-cGnXW1YH24LI6iCWFjaJ9nVX/WX3d1XzIjJuniZWMD+hpGBWDECCeh8H4MwTg17IMKRU1pfjwfI8crok7b2fEA==
+"@types/filesize@^5.0.0":
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/@types/filesize/-/filesize-5.0.0.tgz#c6c252b5b514a5d1948bc9bcb76f4f780570c481"
+  integrity sha512-zgn1Kmm6VfqruG9STpwpZiSnpzHjF9hlvHVw+5hhM20xRCOIgjxnXJxOoLuZ/aWS6v/M5d6fvXFbbVQfBe4cMg==
+  dependencies:
+    filesize "*"
 
 "@types/fork-ts-checker-webpack-plugin@^0.4.5":
   version "0.4.5"
@@ -3770,10 +3772,10 @@ file-loader@^4.2.0:
     loader-utils "^1.2.3"
     schema-utils "^2.0.0"
 
-filesize@^6.0.0:
-  version "6.0.0"
-  resolved "https://registry.yarnpkg.com/filesize/-/filesize-6.0.0.tgz#c94523a913edd92773780c7f739bd97e9c03c95e"
-  integrity sha512-vkguNeO1gx21M3dC3YCL4XATYDhrPPNkzgtBStO0/YPQ1/ay/0js88cvSP2sSqXsZzDVpCVekHZ6tHafTo8pDg==
+filesize@*, filesize@^6.0.0:
+  version "6.0.1"
+  resolved "https://registry.yarnpkg.com/filesize/-/filesize-6.0.1.tgz#f850b509909c7c86f7e450ea19006c31c2ed3d2f"
+  integrity sha512-u4AYWPgbI5GBhs6id1KdImZWn5yfyFrrQ8OWZdN7ZMfA8Bf4HcO0BGo9bmUIEV8yrp8I1xVfJ/dn90GtFNNJcg==
 
 fill-range@^4.0.0:
   version "4.0.0"

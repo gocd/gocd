@@ -28,6 +28,7 @@ import {Origin, OriginJSON, OriginType} from "models/origin";
 
 export interface EnvironmentJSON {
   name: string;
+  can_administer: boolean;
   origins: OriginJSON[];
   pipelines: PipelineJSON[];
   agents: EnvironmentAgentJSON[];
@@ -44,12 +45,14 @@ export interface EnvironmentsJSON {
 
 export class EnvironmentWithOrigin extends ValidatableMixin {
   readonly name: Stream<string>;
+  readonly canAdminister: Stream<boolean>;
   readonly origins: Stream<Origin[]>;
   readonly agents: Stream<Agents>;
   readonly pipelines: Stream<Pipelines>;
   readonly environmentVariables: Stream<EnvironmentVariablesWithOrigin>;
 
   constructor(name: string,
+              canAdminister: boolean,
               origins: Origin[],
               agents: Agents,
               pipelines: Pipelines,
@@ -57,6 +60,7 @@ export class EnvironmentWithOrigin extends ValidatableMixin {
     super();
     ValidatableMixin.call(this);
     this.name                 = Stream(name);
+    this.canAdminister        = Stream(canAdminister);
     this.origins              = Stream(origins);
     this.agents               = Stream(agents);
     this.pipelines            = Stream(pipelines);
@@ -74,6 +78,7 @@ export class EnvironmentWithOrigin extends ValidatableMixin {
       origins.push(new Origin(OriginType.GoCD));
     }
     return new EnvironmentWithOrigin(data.name,
+                                     data.can_administer,
                                      origins,
                                      Agents.fromJSON(data.agents),
                                      Pipelines.fromJSON(data.pipelines),
@@ -121,6 +126,7 @@ export class EnvironmentWithOrigin extends ValidatableMixin {
 
   clone(): EnvironmentWithOrigin {
     return new EnvironmentWithOrigin(this.name(),
+                                     true,
                                      this.origins().map((origin) => origin.clone()),
                                      this.agents().map((agent) => agent.clone()),
                                      this.pipelines().clone(),

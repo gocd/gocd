@@ -42,14 +42,14 @@ describe("Edit Pipelines Modal", () => {
 
     const anotherEnvPipelines = new Pipelines(pipelineWithOrigin);
 
-    const anotherEnv = new EnvironmentWithOrigin("another", [], [], anotherEnvPipelines, new EnvironmentVariables());
+    const anotherEnv = new EnvironmentWithOrigin("another", true, [], [], anotherEnvPipelines, new EnvironmentVariables());
 
     const pipelines = new Pipelines(
       PipelineWithOrigin.fromJSON(pipelineGroupsJSON.groups[0].pipelines[0]),
       PipelineWithOrigin.fromJSON(pipelineGroupsJSON.groups[1].pipelines[1])
     );
 
-    const environment  = new EnvironmentWithOrigin("UAT", [], [], pipelines, new EnvironmentVariables());
+    const environment  = new EnvironmentWithOrigin("UAT", true, [], [], pipelines, new EnvironmentVariables());
     const environments = new Environments(environment, anotherEnv);
 
     modal = new EditPipelinesModal(environment, environments, jasmine.createSpy("onSuccessfulSave"));

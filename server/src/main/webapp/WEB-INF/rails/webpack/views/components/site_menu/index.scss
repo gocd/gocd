@@ -121,7 +121,6 @@
 //subnavigation
 
 .sub-navigation {
-
   @media(min-width: $screen-md) {
     background:  $sub-navigation-bg;
     position:    absolute;
@@ -133,6 +132,10 @@
     box-shadow:  0 3px 10px $box-shadow-color;
     z-index:     map_get($zindex, submenu);
   }
+}
+
+.has-only-one-option {
+  padding:     10px 20px;
 }
 
 .site-sub-nav {

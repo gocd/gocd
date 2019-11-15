@@ -36,12 +36,15 @@ export interface ElementListWidgetAttrs {
 
 export class ElementListWidget extends MithrilViewComponent<ElementListWidgetAttrs> {
   view(vnode: m.Vnode<ElementListWidgetAttrs>) {
+    const environment = vnode.attrs.environment;
     return <div class={styles.envBodyElement}
-                data-test-id={`${s.slugify(vnode.attrs.name)}-for-${vnode.attrs.environment.name()}`}>
+                                                            data-test-id={`${s.slugify(vnode.attrs.name)}-for-${environment.name()}`}>
       <div class={styles.envBodyElementHeader} data-test-id={`${s.slugify(vnode.attrs.name)}-header`}>
         <span>{vnode.attrs.name}</span>
         <Icons.Edit iconOnly={true}
-                    onclick={vnode.attrs.modalToRender.bind(vnode.attrs.modalToRender, vnode.attrs.environment)}/>
+                    title={environment.canAdminister() ? undefined : `You are not authorized to modify ${vnode.attrs.name.toLowerCase()} of '${environment.name()}' environment.`}
+                    disabled={!environment.canAdminister()}
+                    onclick={vnode.attrs.modalToRender.bind(vnode.attrs.modalToRender, environment)}/>
       </div>
       {vnode.children}
     </div>;

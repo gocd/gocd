@@ -68,9 +68,9 @@ interface SiteNavItemAttrs extends TextWithLink {
 class SiteNavItem extends MithrilViewComponent<SiteNavItemAttrs> {
   view(vnode: m.Vnode<SiteNavItemAttrs>) {
     const dropDownClass = classnames({
-      [styles.isDropDown]: vnode.attrs.isDropDown,
-      [styles.active]: activeItem(vnode.attrs.href),
-    }, styles.siteNavItem);
+                                       [styles.isDropDown]: vnode.attrs.isDropDown,
+                                       [styles.active]: activeItem(vnode.attrs.href),
+                                     }, styles.siteNavItem);
 
     if (!vnode.attrs.isDropDown) {
       return (
@@ -204,6 +204,17 @@ export class SiteMenu extends MithrilViewComponent<Attrs> {
           </div>
         </SiteNavItem>;
       }
+    } else {
+      //Normal users now too have access to environments!!
+      adminMenu = (
+        <SiteNavItem isDropDown={true} text="Admin">
+          <div class={classnames(styles.subNavigation, styles.hasOnlyOneOption)}>
+            <SiteSubNav>
+              <SiteSubNavItem href="/go/admin/environments" text="Environments"/>
+            </SiteSubNav>
+          </div>
+        </SiteNavItem>
+      );
     }
 
     return <nav class={styles.mainMenu}>

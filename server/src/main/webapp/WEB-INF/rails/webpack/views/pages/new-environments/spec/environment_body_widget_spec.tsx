@@ -57,6 +57,33 @@ describe("Environments Body Widget", () => {
     expect(helper.byTestId("environment-variables-for-" + environment.name())).toBeInDOM();
   });
 
+  it('should render edit icons', () => {
+    const editIcons = helper.allByTestId("Edit-icon");
+    expect(editIcons).toHaveLength(3);
+  });
+
+  it('should render disabled edit icons when user does not have permissions to administer', () => {
+    const editIcons = helper.allByTestId("Edit-icon");
+    expect(editIcons).toHaveLength(3);
+
+    expect(editIcons[0].title).toBeFalsy();
+    expect(editIcons[0]).not.toBeDisabled();
+    expect(editIcons[1].title).toBeFalsy();
+    expect(editIcons[1]).not.toBeDisabled();
+    expect(editIcons[2].title).toBeFalsy();
+    expect(editIcons[2]).not.toBeDisabled();
+
+    environment.canAdminister(false);
+    helper.redraw();
+
+    expect(editIcons[0].title).toBe(`You are not authorized to modify pipelines of '${environment.name()}' environment.`);
+    expect(editIcons[0]).toBeDisabled();
+    expect(editIcons[1].title).toBe(`You are not authorized to modify agents of '${environment.name()}' environment.`);
+    expect(editIcons[1]).toBeDisabled();
+    expect(editIcons[2].title).toBe(`You are not authorized to modify environment variables of '${environment.name()}' environment.`);
+    expect(editIcons[2]).toBeDisabled();
+  });
+
   describe("Environment Pipelines", () => {
     it("should render pipeline header", () => {
       expect(helper.textByTestId("pipelines-header")).toContain("Pipelines");

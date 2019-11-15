@@ -2,6 +2,7 @@
 export const active: string;
 export const caretDownIcon: string;
 export const caret_down_icon: string;
+export const hasOnlyOneOption: string;
 export const isDropDown: string;
 export const mainMenu: string;
 export const siteNav: string;

@@ -153,7 +153,7 @@ describe("Site Menu", () => {
     expect(findMenuItem("/go/analytics")).toBeFalsy();
   });
 
-  it("should not show Admin link for non-admins", () => {
+  it("should show Admin link with environments tab for non-admins", () => {
     mount({
             canViewTemplates: true,
             isGroupAdmin: false,
@@ -168,7 +168,8 @@ describe("Site Menu", () => {
     expect(dashboard).toHaveAttr("href", "/go/pipelines");
     expect(agents).toHaveText("Agents");
     expect(agents).toHaveAttr("href", "/go/agents");
-    expect(admin).not.toHaveText("Admin");
+    expect(admin).toHaveText("Admin");
+    expect(findMenuItem("/go/admin/environments")).toHaveText("Environments");
   });
 
   function mount(menuAttrs: Attrs) {

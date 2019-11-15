@@ -20,13 +20,14 @@ import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.config.EnvironmentConfig;
 
 import java.util.List;
+import java.util.function.Function;
 
 public class MergedEnvironmentsRepresenter {
-    public static void toJSON(OutputWriter outputWriter, List<EnvironmentConfig> allMergedEnvironments) {
+    public static void toJSON(OutputWriter outputWriter, List<EnvironmentConfig> allMergedEnvironments, Function<String, Boolean> canUserAdministerEnvironment) {
         outputWriter.addChild("_embedded", embeddedWriter -> {
             embeddedWriter.addChildList("environments", outputListWriter -> {
                 allMergedEnvironments.forEach(environmentConfig -> {
-                    outputListWriter.addChild(childWriter -> MergedEnvironmentRepresenter.toJSON(childWriter, environmentConfig));
+                    outputListWriter.addChild(childWriter -> MergedEnvironmentRepresenter.toJSON(childWriter, environmentConfig, canUserAdministerEnvironment));
                 });
             });
         });

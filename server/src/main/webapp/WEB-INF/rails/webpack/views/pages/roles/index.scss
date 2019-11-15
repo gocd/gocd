@@ -166,4 +166,16 @@ label.disabled, input[type='radio'][disabled] + label[for] { //sass-lint:disable
     width:  200px;
     margin: 0 0;
   }
+
+  td > div {
+    margin-bottom: 0;
+  }
+
+  td {
+    &:nth-child(5) {
+      input {
+        margin: 0;
+      }
+    }
+  }
 }

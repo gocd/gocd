@@ -26,6 +26,7 @@ import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Form} from "views/components/forms/form";
 import {TextField} from "views/components/forms/input_fields";
 import {Modal} from "views/components/modal";
+import styles from "views/pages/new-environments/index.scss";
 
 export class CreateEnvModal extends Modal {
   private readonly onSuccessfulSave: (msg: m.Children) => void;
@@ -51,7 +52,9 @@ export class CreateEnvModal extends Modal {
     return <Form>
       <FlashMessage type={MessageType.info}
                     message={"Pipelines, agents and environment variables can be added post creation of the environment."}/>
-      {flashMsg}
+      <div class={styles.createEnvErrMsgContainer}>
+        {flashMsg}
+      </div>
       <TextField label="Environment name"
                  property={this.environment.name}
                  errorText={this.environment.errors().errorsForDisplay("name")}

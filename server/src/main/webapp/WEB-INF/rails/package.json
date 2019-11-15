@@ -133,6 +133,6 @@
     "url-loader": "^2.2.0",
     "webpack": "^4.41.2",
     "webpack-build-notifier": "^2.0.0-alpha.3",
-    "webpack-cli": "^3.3.9"
+    "webpack-cli": "^3.3.10"
   }
 }

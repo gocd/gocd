@@ -29,10 +29,13 @@ import * as Buttons from "views/components/buttons";
 import wizardButtonStyles from "views/components/buttons/wizard_buttons.scss";
 import {ConceptDiagram} from "views/components/concept_diagram";
 import {SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
+import {PageLoadError} from "views/components/page_load_error";
+import {Spinner} from "views/components/spinner";
 import {CloseListener, Step, Wizard} from "views/components/wizard";
 import styles from "views/pages/elastic_agents/index.scss";
 import conceptDiagramStyles from "views/pages/elastic_agents/wizard_concept_diagrams.scss";
 import * as foundationStyles from "views/pages/new_plugins/foundation_hax.scss";
+import {PageState} from "views/pages/page";
 
 const foundationClassNames = bind(foundationStyles);
 const AngularPluginNew     = require("views/shared/angular_plugin_new").AngularPluginNew;
@@ -44,10 +47,11 @@ interface Attrs {
   pluginInfos: Stream<PluginInfos>;
   clusterProfile: Stream<ClusterProfile>;
   elasticProfile: Stream<ElasticAgentProfile>;
+  readonly: boolean;
   etag?: string;
 }
 
-class NewClusterProfileWidget extends MithrilViewComponent<Attrs> {
+class ClusterProfileWidget extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs, this>) {
     const pluginList = _.map(vnode.attrs.pluginInfos(), (pluginInfo: PluginInfo) => {
       return {id: pluginInfo.id, text: pluginInfo.about.name};
@@ -58,7 +62,7 @@ class NewClusterProfileWidget extends MithrilViewComponent<Attrs> {
         <div>
           <div class={styles.profileForm}>
             <div><TextField label="Cluster Profile Name"
-                            readonly={vnode.attrs.etag !== undefined}
+                            readonly={vnode.attrs.etag !== undefined || vnode.attrs.readonly}
                             property={vnode.attrs.clusterProfile().id}
                             errorText={vnode.attrs.clusterProfile().errors().errorsForDisplay("id")}
                             required={true}/></div>
@@ -66,6 +70,7 @@ class NewClusterProfileWidget extends MithrilViewComponent<Attrs> {
             <div><SelectField label="Plugin ID"
                               property={this.pluginIdProxy.bind(this, vnode)}
                               required={true}
+                              readonly={vnode.attrs.readonly}
                               errorText={vnode.attrs.clusterProfile().errors().errorsForDisplay("pluginId")}>
               <SelectFieldOptions selected={vnode.attrs.clusterProfile().pluginId()}
                                   items={pluginList}/>
@@ -136,7 +141,7 @@ class NewClusterProfileWidget extends MithrilViewComponent<Attrs> {
   }
 }
 
-class NewElasticProfileWidget extends MithrilViewComponent<Attrs> {
+class ElasticProfileWidget extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs, this>) {
     const elasticAgentExtension        = this.pluginInfoForCurrentElasticProfileOrDefaultToFirstPlugin(vnode)
                                              .extensionOfType<ElasticAgentExtension>(ExtensionTypeString.ELASTIC_AGENTS)!;
@@ -149,14 +154,8 @@ class NewElasticProfileWidget extends MithrilViewComponent<Attrs> {
             <TextField label="Elastic Profile Name"
                        property={vnode.attrs.elasticProfile().id}
                        errorText={vnode.attrs.elasticProfile().errors().errorsForDisplay("id")}
+                       readonly={vnode.attrs.etag !== undefined}
                        required={true}/>
-            {/*<SelectField label="Cluster Profile ID"*/}
-            {/*property={this.clusterProfileIdProxy.bind(this)}*/}
-            {/*required={true}*/}
-            {/*errorText={vnode.attrs.elasticProfile().errors().errorsForDisplay("pluginId")}>*/}
-            {/*<SelectFieldOptions selected={vnode.attrs.elasticProfile().clusterProfileId()}*/}
-            {/*items={clustersList as any}/>*/}
-            {/*</SelectField>*/}
           </div>
           <div>
             <div
@@ -201,33 +200,41 @@ class NewElasticProfileWidget extends MithrilViewComponent<Attrs> {
   }
 }
 
-class NewClusterProfileStep extends Step {
+enum Mode {
+  ADD, EDIT
+}
+
+class ClusterProfileStep extends Step {
   private readonly pluginInfos: Stream<PluginInfos>;
   private readonly clusterProfile: Stream<ClusterProfile>;
   private readonly elasticProfile: Stream<ElasticAgentProfile>;
   private readonly onSuccessfulSave: (msg: m.Children) => any;
   private readonly onError: (msg: m.Children) => any;
   private footerError: Stream<string> = Stream("");
+  private mode: Mode;
   private etag?: string;
 
   constructor(pluginInfos: Stream<PluginInfos>,
               clusterProfile: Stream<ClusterProfile>,
               elasticProfile: Stream<ElasticAgentProfile>,
               onSuccessfulSave: (msg: m.Children) => any,
-              onError: (msg: m.Children) => any) {
+              onError: (msg: m.Children) => any,
+              mode: Mode = Mode.ADD) {
     super();
     this.pluginInfos      = pluginInfos;
     this.clusterProfile   = clusterProfile;
     this.elasticProfile   = elasticProfile;
     this.onSuccessfulSave = onSuccessfulSave;
     this.onError          = onError;
+    this.mode             = mode;
   }
 
   body(): m.Children {
-    return <NewClusterProfileWidget pluginInfos={this.pluginInfos}
-                                    clusterProfile={this.clusterProfile}
-                                    elasticProfile={this.elasticProfile}
-                                    etag={this.etag}/>;
+    return <ClusterProfileWidget pluginInfos={this.pluginInfos}
+                                 clusterProfile={this.clusterProfile}
+                                 elasticProfile={this.elasticProfile}
+                                 etag={this.etag}
+                                 readonly={this.mode === Mode.EDIT}/>;
   }
 
   header(): m.Children {
@@ -235,17 +242,29 @@ class NewClusterProfileStep extends Step {
   }
 
   footer(wizard: Wizard): m.Children {
-    return [
-      <Buttons.Cancel css={wizardButtonStyles} onclick={wizard.close.bind(wizard)}
-                      data-test-id="cancel">Cancel</Buttons.Cancel>,
-      <Buttons.Primary css={wizardButtonStyles} data-test-id="next"
-                       onclick={this.saveClusterProfileAndNext.bind(this, wizard)}
-                       align="right">Save + Next</Buttons.Primary>,
-      <Buttons.Secondary css={wizardButtonStyles} data-test-id="save-cluster-profile"
-                         onclick={this.saveClusterProfileAndExit.bind(this, wizard)}
-                         align="right">Save Cluster Profile + Exit</Buttons.Secondary>,
-      <span class={styles.footerError}>{this.footerError()}</span>,
-    ];
+    switch (this.mode) {
+      case Mode.ADD:
+        return [
+          <Buttons.Cancel css={wizardButtonStyles} onclick={wizard.close.bind(wizard)}
+                          data-test-id="cancel">Cancel</Buttons.Cancel>,
+          <Buttons.Primary css={wizardButtonStyles} data-test-id="next"
+                           onclick={this.saveClusterProfileAndNext.bind(this, wizard)}
+                           align="right">Save + Next</Buttons.Primary>,
+          <Buttons.Secondary css={wizardButtonStyles} data-test-id="save-cluster-profile"
+                             onclick={this.saveClusterProfileAndExit.bind(this, wizard)}
+                             align="right">Save Cluster Profile + Exit</Buttons.Secondary>,
+          <span class={styles.footerError}>{this.footerError()}</span>,
+        ];
+      case Mode.EDIT:
+        return [
+          <Buttons.Cancel css={wizardButtonStyles} onclick={wizard.close.bind(wizard)}
+                          data-test-id="cancel">Cancel</Buttons.Cancel>,
+          <Buttons.Primary css={wizardButtonStyles} data-test-id="next"
+                           onclick={() => wizard.next()}
+                           align="right">Show Elastic Profile</Buttons.Primary>,
+          <span class={styles.footerError}>{this.footerError()}</span>,
+        ];
+    }
   }
 
   saveClusterProfileAndExit(wizard: Wizard) {
@@ -299,31 +318,51 @@ class NewClusterProfileStep extends Step {
   }
 }
 
-class NewElasticProfileStep extends Step {
+class ElasticProfileStep extends Step {
   private readonly pluginInfos: Stream<PluginInfos>;
   private readonly clusterProfile: Stream<ClusterProfile>;
   private readonly elasticProfile: Stream<ElasticAgentProfile>;
-  private onSuccessfulSave: (msg: m.Children) => any;
-  private onError: (msg: m.Children) => any;
+  private readonly onSuccessfulSave: (msg: m.Children) => any;
+  private readonly onError: (msg: m.Children) => any;
   private footerError: Stream<string> = Stream("");
+  private readonly elasticProfileMode: Mode;
+  private readonly clusterProfileMode: Mode;
+  private etag?: string;
+  private pageState: PageState        = PageState.OK;
 
   constructor(pluginInfos: Stream<PluginInfos>,
               clusterProfile: Stream<ClusterProfile>,
               elasticProfile: Stream<ElasticAgentProfile>,
               onSuccessfulSave: (msg: m.Children) => any,
-              onError: (msg: m.Children) => any) {
+              onError: (msg: m.Children) => any,
+              elasticProfileMode: Mode = Mode.ADD,
+              clusterProfileMode: Mode = Mode.ADD) {
     super();
-    this.pluginInfos      = pluginInfos;
-    this.clusterProfile   = clusterProfile;
-    this.elasticProfile   = elasticProfile;
-    this.onSuccessfulSave = onSuccessfulSave;
-    this.onError          = onError;
+    this.pluginInfos        = pluginInfos;
+    this.clusterProfile     = clusterProfile;
+    this.elasticProfile     = elasticProfile;
+    this.onSuccessfulSave   = onSuccessfulSave;
+    this.onError            = onError;
+    this.elasticProfileMode = elasticProfileMode;
+    this.clusterProfileMode = clusterProfileMode;
+    if (this.elasticProfileMode === Mode.EDIT) {
+      this.loadData();
+    }
   }
 
   body(): m.Children {
-    return <NewElasticProfileWidget pluginInfos={this.pluginInfos}
-                                    elasticProfile={this.elasticProfile}
-                                    clusterProfile={this.clusterProfile}/>;
+    switch (this.pageState) {
+      case PageState.LOADING:
+        return <Spinner/>;
+      case PageState.OK:
+        return <ElasticProfileWidget pluginInfos={this.pluginInfos}
+                                     elasticProfile={this.elasticProfile}
+                                     clusterProfile={this.clusterProfile}
+                                     readonly={false}
+                                     etag={this.etag}/>;
+      case PageState.FAILED:
+        return <PageLoadError message="There was a problem fetching the Elastic Profile"/>;
+    }
   }
 
   header(): m.Children {
@@ -331,24 +370,59 @@ class NewElasticProfileStep extends Step {
   }
 
   footer(wizard: Wizard): m.Children {
-    return [
-      <Buttons.Cancel onclick={wizard.close.bind(wizard)}
-                      data-test-id="cancel">Cancel</Buttons.Cancel>,
-      <Buttons.Primary data-test-id="finish" align="right"
-                       onclick={this.saveAndFinish.bind(this, wizard)}>Finish</Buttons.Primary>,
-      <Buttons.Primary data-test-id="previous" onclick={wizard.previous.bind(wizard, 1)}
-                       align="right">Previous</Buttons.Primary>,
-      <span class={styles.footerError}>{this.footerError()}</span>
-    ];
+    if (this.clusterProfileMode === Mode.EDIT) {
+      return [
+        <Buttons.Cancel onclick={wizard.close.bind(wizard)} css={wizardButtonStyles}
+                        data-test-id="cancel">Cancel</Buttons.Cancel>,
+        <Buttons.Primary data-test-id="finish" align="right"
+                         onclick={this.saveAndFinish.bind(this, wizard)}>Save</Buttons.Primary>,
+        <Buttons.Primary data-test-id="previous" onclick={wizard.previous.bind(wizard, 1)}
+                         align="right">Show Cluster Profile</Buttons.Primary>,
+        <span class={styles.footerError}>{this.footerError()}</span>
+      ];
+    } else {
+      return [
+        <Buttons.Cancel onclick={wizard.close.bind(wizard)} css={wizardButtonStyles}
+                        data-test-id="cancel">Cancel</Buttons.Cancel>,
+        <Buttons.Primary data-test-id="finish" align="right" css={wizardButtonStyles}
+                         onclick={this.saveAndFinish.bind(this, wizard)}>Finish</Buttons.Primary>,
+        <Buttons.Primary data-test-id="previous" onclick={wizard.previous.bind(wizard, 1)} css={wizardButtonStyles}
+                         align="right">Previous</Buttons.Primary>,
+        <span class={styles.footerError}>{this.footerError()}</span>
+      ];
+    }
   }
 
   saveAndFinish(wizard: Wizard) {
+    if (this.etag) {
+      this.update(wizard, this.etag!);
+    } else {
+      this.create(wizard);
+    }
+  }
+
+  private create(wizard: Wizard) {
     this.elasticProfile().clusterProfileId(this.clusterProfile().id());
     this.elasticProfile().create()
         .then((result) => {
           result.do(
             () => {
               this.onSuccessfulSave(<span>The Elastic Agent Profile <em>{this.elasticProfile().id()}</em> was created successfully!</span>);
+              wizard.close();
+            },
+            (errorResponse) => {
+              this.handleError(result, errorResponse);
+            }
+          );
+        });
+  }
+
+  private update(wizard: Wizard, etag: string) {
+    this.elasticProfile().update(etag)
+        .then((result) => {
+          result.do(
+            () => {
+              this.onSuccessfulSave(<span>The Elastic Agent Profile <em>{this.elasticProfile().id()}</em> was updated successfully!</span>);
               wizard.close();
             },
             (errorResponse) => {
@@ -367,20 +441,78 @@ class NewElasticProfileStep extends Step {
       this.onError(JSON.parse(errorResponse.body!).message);
     }
   }
+
+  private loadData() {
+    this.pageState = PageState.LOADING;
+    if (!this.elasticProfile().id() || !this.elasticProfile().pluginId()) {
+      this.pageState = PageState.FAILED;
+      return;
+    }
+    const pluginId = this.elasticProfile().pluginId() || "";
+    this.elasticProfile().get().then((result) => {
+      result.do(
+        (successResponse) => {
+          this.elasticProfile(successResponse.body.object);
+          this.elasticProfile().pluginId(pluginId);
+          this.etag      = successResponse.body.etag;
+          this.pageState = PageState.OK;
+        },
+        ((errorResponse) => this.onError(JSON.parse(errorResponse.body!).message))
+      );
+    });
+  }
 }
 
-export function openWizard(pluginInfos: Stream<PluginInfos>,
-                           clusterProfile: Stream<ClusterProfile>,
-                           elasticProfile: Stream<ElasticAgentProfile>,
-                           onSuccessfulSave: (msg: m.Children) => any,
-                           onError: (msg: m.Children) => any,
-                           closeListener?: CloseListener) {
+export function openWizardForAdd(pluginInfos: Stream<PluginInfos>,
+                                 clusterProfile: Stream<ClusterProfile>,
+                                 elasticProfile: Stream<ElasticAgentProfile>,
+                                 onSuccessfulSave: (msg: m.Children) => any,
+                                 onError: (msg: m.Children) => any,
+                                 closeListener?: CloseListener) {
 
   let wizard = new Wizard()
-    .addStep(new NewClusterProfileStep(pluginInfos, clusterProfile, elasticProfile, onSuccessfulSave, onError))
-    .addStep(new NewElasticProfileStep(pluginInfos, clusterProfile, elasticProfile, onSuccessfulSave, onError));
+    .addStep(new ClusterProfileStep(pluginInfos, clusterProfile, elasticProfile, onSuccessfulSave, onError))
+    .addStep(new ElasticProfileStep(pluginInfos, clusterProfile, elasticProfile, onSuccessfulSave, onError));
 
   wizard.allowHeaderClick = false;
+  if (closeListener !== undefined) {
+    wizard = wizard.setCloseListener(closeListener);
+  }
+  return wizard.render();
+}
+
+export function openWizardForEdit(pluginInfos: Stream<PluginInfos>,
+                                  clusterProfile: Stream<ClusterProfile>,
+                                  elasticProfile: Stream<ElasticAgentProfile>,
+                                  onSuccessfulSave: (msg: m.Children) => any,
+                                  onError: (msg: m.Children) => any,
+                                  closeListener?: CloseListener) {
+
+  let wizard = new Wizard()
+    .addStep(new ClusterProfileStep(pluginInfos, clusterProfile, elasticProfile, onSuccessfulSave, onError,
+                                    Mode.EDIT))
+    .addStep(new ElasticProfileStep(pluginInfos, clusterProfile, elasticProfile, onSuccessfulSave, onError,
+                                    Mode.EDIT, Mode.EDIT));
+
+  if (closeListener !== undefined) {
+    wizard = wizard.setCloseListener(closeListener);
+  }
+  return wizard.render();
+}
+
+export function openWizardForAddElasticProfile(pluginInfos: Stream<PluginInfos>,
+                                               clusterProfile: Stream<ClusterProfile>,
+                                               elasticProfile: Stream<ElasticAgentProfile>,
+                                               onSuccessfulSave: (msg: m.Children) => any,
+                                               onError: (msg: m.Children) => any,
+                                               closeListener?: CloseListener) {
+
+  let wizard = new Wizard()
+    .addStep(new ClusterProfileStep(pluginInfos, clusterProfile, elasticProfile, onSuccessfulSave, onError,
+                                    Mode.EDIT))
+    .addStep(new ElasticProfileStep(pluginInfos, clusterProfile, elasticProfile, onSuccessfulSave, onError,
+                                    Mode.ADD, Mode.EDIT));
+
   if (closeListener !== undefined) {
     wizard = wizard.setCloseListener(closeListener);
   }

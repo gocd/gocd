@@ -31,7 +31,7 @@ import {pluginInfoWithElasticAgentExtensionV5} from "models/shared/plugin_infos_
 import {Wizard} from "views/components/wizard";
 import {ElasticAgentsPage} from "views/pages/elastic_agents";
 import styles from "views/pages/elastic_agents/index.scss";
-import {openWizard} from "views/pages/elastic_agents/wizard";
+import {openWizardForAdd, openWizardForEdit} from "views/pages/elastic_agents/wizard";
 import {PageState} from "views/pages/page";
 import {TestHelper} from "views/pages/spec/test_helper";
 
@@ -66,133 +66,195 @@ describe("ElasticAgentWizard", () => {
     jasmine.Ajax.uninstall();
   });
 
-  it("should display cluster profile properties form", () => {
-    wizard = openWizard(pluginInfos, clusterProfile, elasticProfile, onSuccessfulSave, onError);
-    m.redraw.sync();
-    expect(wizard).toContainElementWithDataTestId("form-field-input-cluster-profile-name");
-    expect(wizard).toContainElementWithDataTestId("form-field-input-plugin-id");
-    expect(wizard).toContainElementWithDataTestId("properties-form");
-    expect(wizard).toContainInBody("elastic agent plugin settings view");
-  });
-
-  it("should display elastic profile properties form", () => {
-    wizard = openWizard(pluginInfos, clusterProfile, elasticProfile, onSuccessfulSave, onError);
-    m.redraw.sync();
-    wizard.next();
-    m.redraw.sync();
-    expect(wizard).toContainElementWithDataTestId("form-field-input-elastic-profile-name");
-    expect(wizard).toContainElementWithDataTestId("properties-form");
-    expect(wizard).toContainInBody("some view for plugin");
-  });
-
-  it("should save cluster profile and exit", (done) => {
-    const configurations       = new Configurations([new Configuration("GO_SERVER_URL", new PlainTextValue(""))]);
-    const clusterProfileObj    = new ClusterProfile("cluster-profile-id", "ecs-elastic-agent", configurations);
-    const promiseForCreateCall = successResponseForClusterProfile().catch(done.fail);
-    clusterProfileObj.create   = jasmine.createSpy("create call").and.returnValue(promiseForCreateCall);
-    clusterProfile             = Stream(clusterProfileObj);
-
-    wizard = openWizard(pluginInfos, clusterProfile, elasticProfile, onSuccessfulSave, onError);
-    spyOn(wizard, "close").and.callThrough();
-    m.redraw.sync();
-    helper.clickByTestId("save-cluster-profile", document.getElementsByClassName("component-modal-container")[0]);
-    promiseForCreateCall.finally(() => {
-      expect(clusterProfileObj.create).toHaveBeenCalled();
-      expect(wizard.close).toHaveBeenCalled();
-      done();
-    });
-  });
-
-  it("should display validation error message on save of cluster profile", (done) => {
-    const configurations       = new Configurations([new Configuration("GO_SERVER_URL", new PlainTextValue(""))]);
-    const clusterProfileObj    = new ClusterProfile("cluster-profile-id",
-                                                    "cd.go.contrib.elastic-agent.docker",
-                                                    configurations);
-    const promiseForCreateCall = validationErrorResponseForClusterProfile().catch(done.fail);
-    clusterProfileObj.create   = jasmine.createSpy("create call").and.returnValue(promiseForCreateCall);
-    clusterProfile             = Stream(clusterProfileObj);
-
-    wizard = openWizard(pluginInfos, clusterProfile, elasticProfile, onSuccessfulSave, onError);
-    spyOn(wizard, "close").and.callThrough();
-    m.redraw.sync();
-    helper.clickByTestId("save-cluster-profile", modalContext());
-    promiseForCreateCall.finally(() => {
+  describe("Add", () => {
+    it("should display cluster profile properties form", () => {
+      wizard = openWizardForAdd(pluginInfos, clusterProfile, elasticProfile, onSuccessfulSave, onError);
       m.redraw.sync();
-      expect(clusterProfileObj.create).toHaveBeenCalled();
-      expect(wizard.close).not.toHaveBeenCalled();
-      expect(helper.text(`.${styles.footerError}`, modalContext()))
-        .toBe("Please fix the validation errors above before proceeding.");
-      wizard.close();
-      done();
+      expect(wizard).toContainElementWithDataTestId("form-field-input-cluster-profile-name");
+      expect(wizard).toContainElementWithDataTestId("form-field-input-plugin-id");
+      expect(wizard).toContainElementWithDataTestId("properties-form");
+      expect(wizard).toContainInBody("elastic agent plugin settings view");
     });
-  });
 
-  it("should save Elastic Profile and Finish", (done) => {
-    const promiseForCreateCall = successResponseForElasticProfile().catch(done.fail);
-    elasticProfile().create    = jasmine.createSpy("create call").and.returnValue(promiseForCreateCall);
-    wizard                     = openWizard(pluginInfos, clusterProfile, elasticProfile, onSuccessfulSave, onError);
-    clusterProfile().id("user-entered-id");
-    wizard.next();
-    spyOn(wizard, "close").and.callThrough();
-    m.redraw.sync();
-    helper.clickByTestId("finish", document.getElementsByClassName("component-modal-container")[0]);
-    promiseForCreateCall.finally(() => {
-      expect(elasticProfile().create).toHaveBeenCalled();
-      expect(wizard.close).toHaveBeenCalled();
-      expect(elasticProfile().clusterProfileId()).toBe("user-entered-id");
-      done();
-    });
-  });
-
-  it("should display validation error message on save of elastic profile", (done) => {
-    const promiseForCreateCall = validationErrorResponseForElasticProfile().catch(done.fail);
-    const elasticProfileObj    = elasticProfile();
-    elasticProfileObj.create   = jasmine.createSpy("create call").and.returnValue(promiseForCreateCall);
-    wizard                     = openWizard(pluginInfos,
-                                            clusterProfile,
-                                            Stream(elasticProfileObj),
-                                            onSuccessfulSave,
-                                            onError);
-    wizard.next();
-    spyOn(wizard, "close").and.callThrough();
-    m.redraw.sync();
-    helper.clickByTestId("finish", document.getElementsByClassName("component-modal-container")[0]);
-    promiseForCreateCall.finally(() => {
+    it("should display elastic profile properties form", () => {
+      wizard = openWizardForAdd(pluginInfos, clusterProfile, elasticProfile, onSuccessfulSave, onError);
       m.redraw.sync();
-      expect(elasticProfileObj.create).toHaveBeenCalled();
-      expect(wizard.close).not.toHaveBeenCalled();
-      done();
-    });
-  });
-
-  it("should go back and make changes to cluster profile", (done) => {
-    const configurations       = new Configurations([new Configuration("GO_SERVER_URL", new PlainTextValue(""))]);
-    const clusterProfileObj    = new ClusterProfile("cluster-profile-id", "ecs-elastic-agent", configurations);
-    const promiseForCreateCall = successResponseForClusterProfile().catch(done.fail);
-    clusterProfileObj.create   = jasmine.createSpy().and.returnValue(promiseForCreateCall);
-    clusterProfile             = Stream(clusterProfileObj);
-
-    wizard = openWizard(pluginInfos, clusterProfile, elasticProfile, onSuccessfulSave, onError);
-    expect(helper.byTestId("form-field-input-cluster-profile-name", modalContext())).not.toHaveAttr('readonly');
-    m.redraw.sync();
-
-    //Save + Next
-    helper.clickByTestId("next", modalContext());
-    promiseForCreateCall.finally(() => {
+      wizard.next();
       m.redraw.sync();
-      //Go back
-      helper.clickByTestId("previous", modalContext());
+      expect(wizard).toContainElementWithDataTestId("form-field-input-elastic-profile-name");
+      expect(wizard).toContainElementWithDataTestId("properties-form");
+      expect(wizard).toContainInBody("some view for plugin");
+    });
+
+    it("should save cluster profile and exit", (done) => {
+      const configurations       = new Configurations([new Configuration("GO_SERVER_URL", new PlainTextValue(""))]);
+      const clusterProfileObj    = new ClusterProfile("cluster-profile-id", "ecs-elastic-agent", configurations);
+      const promiseForCreateCall = successResponseForClusterProfile().catch(done.fail);
+      clusterProfileObj.create   = jasmine.createSpy("create call").and.returnValue(promiseForCreateCall);
+      clusterProfile             = Stream(clusterProfileObj);
+
+      wizard = openWizardForAdd(pluginInfos, clusterProfile, elasticProfile, onSuccessfulSave, onError);
+      spyOn(wizard, "close").and.callThrough();
+      m.redraw.sync();
+      helper.clickByTestId("save-cluster-profile", document.getElementsByClassName("component-modal-container")[0]);
+      promiseForCreateCall.finally(() => {
+        expect(clusterProfileObj.create).toHaveBeenCalled();
+        expect(wizard.close).toHaveBeenCalled();
+        done();
+      });
+    });
+
+    it("should display validation error message on save of cluster profile", (done) => {
+      const configurations       = new Configurations([new Configuration("GO_SERVER_URL", new PlainTextValue(""))]);
+      const clusterProfileObj    = new ClusterProfile("cluster-profile-id",
+                                                      "cd.go.contrib.elastic-agent.docker",
+                                                      configurations);
+      const promiseForCreateCall = validationErrorResponseForClusterProfile().catch(done.fail);
+      clusterProfileObj.create   = jasmine.createSpy("create call").and.returnValue(promiseForCreateCall);
+      clusterProfile             = Stream(clusterProfileObj);
+
+      wizard = openWizardForAdd(pluginInfos, clusterProfile, elasticProfile, onSuccessfulSave, onError);
+      spyOn(wizard, "close").and.callThrough();
+      m.redraw.sync();
+      helper.clickByTestId("save-cluster-profile", modalContext());
+      promiseForCreateCall.finally(() => {
+        m.redraw.sync();
+        expect(clusterProfileObj.create).toHaveBeenCalled();
+        expect(wizard.close).not.toHaveBeenCalled();
+        expect(helper.text(`.${styles.footerError}`, modalContext()))
+          .toBe("Please fix the validation errors above before proceeding.");
+        wizard.close();
+        done();
+      });
+    });
+
+    it("should save Elastic Profile and Finish", (done) => {
+      const promiseForCreateCall = successResponseForElasticProfile().catch(done.fail);
+      elasticProfile().create    = jasmine.createSpy("create call").and.returnValue(promiseForCreateCall);
+      wizard                     = openWizardForAdd(pluginInfos,
+                                                    clusterProfile,
+                                                    elasticProfile,
+                                                    onSuccessfulSave,
+                                                    onError);
+      clusterProfile().id("user-entered-id");
+      wizard.next();
+      spyOn(wizard, "close").and.callThrough();
+      m.redraw.sync();
+      helper.clickByTestId("finish", document.getElementsByClassName("component-modal-container")[0]);
+      promiseForCreateCall.finally(() => {
+        expect(elasticProfile().create).toHaveBeenCalled();
+        expect(wizard.close).toHaveBeenCalled();
+        expect(elasticProfile().clusterProfileId()).toBe("user-entered-id");
+        done();
+      });
+    });
+
+    it("should display validation error message on save of elastic profile", (done) => {
+      const promiseForCreateCall = validationErrorResponseForElasticProfile().catch(done.fail);
+      const elasticProfileObj    = elasticProfile();
+      elasticProfileObj.create   = jasmine.createSpy("create call").and.returnValue(promiseForCreateCall);
+      wizard                     = openWizardForAdd(pluginInfos,
+                                                    clusterProfile,
+                                                    Stream(elasticProfileObj),
+                                                    onSuccessfulSave,
+                                                    onError);
+      wizard.next();
+      spyOn(wizard, "close").and.callThrough();
+      m.redraw.sync();
+      helper.clickByTestId("finish", document.getElementsByClassName("component-modal-container")[0]);
+      promiseForCreateCall.finally(() => {
+        m.redraw.sync();
+        expect(elasticProfileObj.create).toHaveBeenCalled();
+        expect(wizard.close).not.toHaveBeenCalled();
+        done();
+      });
+    });
+
+    it("should go back and make changes to cluster profile", (done) => {
+      const configurations       = new Configurations([new Configuration("GO_SERVER_URL", new PlainTextValue(""))]);
+      const clusterProfileObj    = new ClusterProfile("cluster-profile-id", "ecs-elastic-agent", configurations);
+      const promiseForCreateCall = successResponseForClusterProfile().catch(done.fail);
+      clusterProfileObj.create   = jasmine.createSpy().and.returnValue(promiseForCreateCall);
+      clusterProfile             = Stream(clusterProfileObj);
+
+      wizard = openWizardForAdd(pluginInfos, clusterProfile, elasticProfile, onSuccessfulSave, onError);
+      expect(helper.byTestId("form-field-input-cluster-profile-name", modalContext())).not.toHaveAttr("readonly");
       m.redraw.sync();
 
-      expect(helper.byTestId("form-field-input-cluster-profile-name", modalContext())).toHaveAttr('readonly');
-
-      //save + next again
+      //Save + Next
       helper.clickByTestId("next", modalContext());
-      m.redraw.sync();
-      const request = jasmine.Ajax.requests.mostRecent();
-      expect(request.method).toEqual("PUT");
+      promiseForCreateCall.finally(() => {
+        m.redraw.sync();
+        //Go back
+        helper.clickByTestId("previous", modalContext());
+        m.redraw.sync();
 
-      done();
+        expect(helper.byTestId("form-field-input-cluster-profile-name", modalContext())).toHaveAttr("readonly");
+
+        //save + next again
+        helper.clickByTestId("next", modalContext());
+        m.redraw.sync();
+        const request = jasmine.Ajax.requests.mostRecent();
+        expect(request.method).toEqual("PUT");
+
+        done();
+      });
+    });
+  });
+
+  describe("Edit", () => {
+    it("should render footer buttons for Elastic Profile", () => {
+      wizard = openWizardForEdit(pluginInfos, clusterProfile, elasticProfile, onSuccessfulSave, onError);
+      wizard.next();
+      m.redraw.sync();
+      expect(helper.byTestId("finish", modalContext())).toBeInDOM();
+      expect(helper.byTestId("cancel", modalContext())).toBeInDOM();
+      expect(helper.byTestId("previous", modalContext())).toBeInDOM();
+      expect(helper.textByTestId("previous", modalContext())).toBe("Show Cluster Profile");
+      expect(helper.textByTestId("finish", modalContext())).toBe("Save");
+    });
+
+    it("should render footer buttons for Cluster Profile", () => {
+      wizard = openWizardForEdit(pluginInfos, clusterProfile, elasticProfile, onSuccessfulSave, onError);
+      m.redraw.sync();
+      expect(helper.byTestId("next", modalContext())).toBeInDOM();
+      expect(helper.byTestId("cancel", modalContext())).toBeInDOM();
+      expect(helper.byTestId("save-cluster-profile", modalContext())).not.toBeInDOM();
+      expect(helper.textByTestId("next", modalContext())).toBe("Show Elastic Profile");
+    });
+
+    it("should not allow changes to Cluster Profile", () => {
+      wizard = openWizardForEdit(pluginInfos, clusterProfile, elasticProfile, onSuccessfulSave, onError);
+      m.redraw.sync();
+      expect(helper.byTestId("form-field-input-cluster-profile-name", modalContext())).toHaveAttr("readonly");
+      expect(helper.byTestId("form-field-input-plugin-id", modalContext())).toHaveAttr("readonly");
+    });
+
+    it("should load data and render form", (done) => {
+      clusterProfile = Stream(new ClusterProfile("cluster-profile-id",
+                                                 "plugin-id",
+                                                 new Configurations([])));
+      elasticProfile = Stream(new ElasticAgentProfile("elastic-profile-id",
+                                                      "plugin-id",
+                                                      "cluster-profile-id",
+                                                      new Configurations([])));
+
+      const promiseForGetCall = successResponseForElasticProfile().catch(done.fail);
+      elasticProfile().get    = jasmine.createSpy("get elastic profile").and.returnValue(promiseForGetCall);
+      wizard                  = openWizardForEdit(pluginInfos,
+                                                  clusterProfile,
+                                                  elasticProfile,
+                                                  onSuccessfulSave,
+                                                  onError);
+      wizard.next();
+      m.redraw.sync();
+
+      expect(helper.byTestId("spinner", modalContext())).toBeInDOM();
+      promiseForGetCall.finally(() => {
+        m.redraw.sync();
+        expect(helper.byTestId("form-field-input-elastic-profile-name", modalContext())).toBeDisabled();
+        done();
+      });
     });
   });
 

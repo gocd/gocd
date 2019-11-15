@@ -45,13 +45,11 @@ import {
 import {ClusterProfilesWidget} from "views/pages/elastic_agent_configurations/cluster_profiles_widget";
 import {
   CloneElasticProfileModal,
-  EditElasticProfileModal,
-  NewElasticProfileModal,
   UsageElasticProfileModal
 } from "views/pages/elastic_agent_configurations/elastic_agent_profiles_modals";
 import {ElasticAgentOperations} from "views/pages/elastic_agent_configurations/elastic_profiles_widget";
 import {HelpText} from "views/pages/elastic_agents/help_text";
-import {openWizard} from "views/pages/elastic_agents/wizard";
+import {openWizardForAdd, openWizardForAddElasticProfile, openWizardForEdit} from "views/pages/elastic_agents/wizard";
 import {Page, PageState} from "views/pages/page";
 import {RequiresPluginInfos, SaveOperation} from "views/pages/page_operations";
 
@@ -64,6 +62,7 @@ export interface State extends RequiresPluginInfos, SaveOperation {
   elasticAgentOperations: ElasticAgentOperations;
   clusterProfileOperations: ClusterProfileOperations;
   isWizardOpen: Stream<boolean>;
+  onClose: () => void;
 }
 
 export class ElasticAgentsPage extends Page<null, State> {
@@ -110,11 +109,20 @@ export class ElasticAgentsPage extends Page<null, State> {
         event.stopPropagation();
         this.flashMessage.clear();
 
-        new EditElasticProfileModal(elasticProfile.id()!,
-                                    elasticProfile.pluginId()!,
-                                    vnode.state.pluginInfos(),
-                                    vnode.state.clusterProfiles(),
-                                    vnode.state.onSuccessfulSave).render();
+        vnode.state.elasticProfileBeingEdited(elasticProfile);
+        const clusterId = elasticProfile.clusterProfileId();
+        if (clusterId) {
+          vnode.state.clusterProfileBeingEdited(vnode.state.clusterProfiles().findCluster(clusterId));
+        } else {
+          throw Error("elastic profile exists without cluster");
+        }
+
+        openWizardForEdit(vnode.state.pluginInfos,
+                          vnode.state.clusterProfileBeingEdited,
+                          vnode.state.elasticProfileBeingEdited,
+                          vnode.state.onSuccessfulSave,
+                          vnode.state.onError,
+                          this.closeListener(vnode)).next();
       },
 
       onDelete: (id: string, event: MouseEvent) => {
@@ -148,10 +156,21 @@ export class ElasticAgentsPage extends Page<null, State> {
         e.stopPropagation();
         this.flashMessage.clear();
 
-        new NewElasticProfileModal(vnode.state.pluginInfos(),
-                                   vnode.state.clusterProfiles(),
-                                   elasticAgentProfile,
-                                   vnode.state.onSuccessfulSave).render();
+        vnode.state.isWizardOpen(true);
+        vnode.state.elasticProfileBeingEdited(elasticAgentProfile);
+        const clusterId = elasticAgentProfile.clusterProfileId();
+        if (clusterId) {
+          vnode.state.clusterProfileBeingEdited(vnode.state.clusterProfiles().findCluster(clusterId));
+        } else {
+          throw Error("elastic profile exists without cluster");
+        }
+
+        return openWizardForAddElasticProfile(vnode.state.pluginInfos,
+                                              vnode.state.clusterProfileBeingEdited,
+                                              vnode.state.elasticProfileBeingEdited,
+                                              vnode.state.onSuccessfulSave,
+                                              vnode.state.onError,
+                                              this.closeListener(vnode)).next();
       }
     };
 
@@ -219,6 +238,11 @@ export class ElasticAgentsPage extends Page<null, State> {
 
     vnode.state.onSuccessfulSave = (msg: m.Children) => {
       this.flashMessage.setMessage(MessageType.success, msg);
+      this.fetchData(vnode);
+    };
+
+    vnode.state.onClose = () => {
+      vnode.state.isWizardOpen(false);
       this.fetchData(vnode);
     };
 
@@ -302,17 +326,20 @@ export class ElasticAgentsPage extends Page<null, State> {
                                                                   vnode.state.clusterProfileBeingEdited().pluginId(),
                                                                   vnode.state.clusterProfileBeingEdited().id(),
                                                                   new Configurations([])));
-    const closeListener: CloseListener = {
+
+    return openWizardForAdd(vnode.state.pluginInfos,
+                            vnode.state.clusterProfileBeingEdited,
+                            vnode.state.elasticProfileBeingEdited,
+                            vnode.state.onSuccessfulSave,
+                            vnode.state.onError,
+                            this.closeListener(vnode));
+  }
+
+  private closeListener(vnode: m.Vnode<null, State>): CloseListener {
+    return {
       onClose(): void {
-        vnode.state.isWizardOpen(false);
+        vnode.state.onClose();
       }
     };
-
-    return openWizard(vnode.state.pluginInfos,
-                      vnode.state.clusterProfileBeingEdited,
-                      vnode.state.elasticProfileBeingEdited,
-                      vnode.state.onSuccessfulSave,
-                      vnode.state.onError,
-                      closeListener);
   }
 }

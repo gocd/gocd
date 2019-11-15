@@ -202,6 +202,14 @@ export class ElasticAgentProfile implements ValidatableMixin {
   create() {
     return ElasticAgentProfilesCRUD.create(this);
   }
+
+  update(etag: string) {
+    return ElasticAgentProfilesCRUD.update(this, etag);
+  }
+
+  get() {
+    return ElasticAgentProfilesCRUD.get(this.id()!);
+  }
 }
 
 applyMixins(ElasticAgentProfile, ValidatableMixin);

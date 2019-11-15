@@ -85,7 +85,7 @@ module Admin
     end
 
     def update
-      if params[:stage_parent] == 'templates'
+      if params[:stage_parent] == 'templates' or Toggles.isToggleOff(Toggles.FAST_PIPELINE_SAVE)
         old_update
         return
       end

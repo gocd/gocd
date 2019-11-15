@@ -46,12 +46,7 @@ class FastAdminController < AdminController
   def fast_save(render_error_options_or_proc, success_message, load_data)
     @cruise_config = go_config_service.getCurrentConfig
     @update_result = pipeline_config_service.updatePipelineConfig(current_user, @pipeline, params[:pipeline_group_name], params[:pipeline_md5])
-    # update_response = go_config_service.updateConfigFromUI(save_action, md5, current_user, @update_result)
-    # @cruise_config, @node, @subject, @config_after = update_response.getCruiseConfig(), update_response.getNode(), update_response.getSubject(), update_response.configAfterUpdate()
 
-    # if @update_result.isSuccessful()
-      # success_message = "#{success_message} #{'The configuration was modified by someone else, but your changes were merged successfully.'}" if update_response.wasMerged()
-      # yield success_message
     unless @update_result.isSuccessful
       @config_file_conflict = (@update_result.httpCode() == 409)
       flash.now[:error] = @update_result.message()
@@ -69,7 +64,6 @@ class FastAdminController < AdminController
     if @update_result.isSuccessful
       yield success_message
     else
-      # all_errors_on_other_objects = update_response.getCruiseConfig().getAllErrorsExceptFor(@subject)
       all_errors_on_other_objects = []
       if render_error_options_or_proc.is_a?(Proc)
         render_error_options_or_proc.call(@update_result, all_errors_on_other_objects)

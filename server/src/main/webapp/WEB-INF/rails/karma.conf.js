@@ -39,8 +39,11 @@ if (process.platform === 'darwin') {
 }
 
 module.exports = function (config) {
+  const basePath = path.join(__dirname, 'public', 'assets', 'webpack');
+  const manifest = require(path.join(basePath, 'manifest.json'));
+
   config.set({
-    basePath:      path.join(__dirname, 'public', 'assets', 'webpack'),
+    basePath,
     frameworks:    ['jasmine'],
     client:        {
       captureConsole: true,
@@ -49,26 +52,20 @@ module.exports = function (config) {
         seed:   process.env['JASMINE_SEED']
       }
     },
-    plugins:        [jasmineSeedReporter, "karma-*"],
-    preprocessors:  {
+    plugins:       [jasmineSeedReporter, "karma-*"],
+    preprocessors: {
       '**/*.js': ['sourcemap']
     },
-    files:          [
-      {
-        pattern:  'vendor-and-helpers.chunk.js',
+    files:         manifest.entrypoints.specRoot.assets.map((eachAsset) => {
+      return {
+        pattern:  eachAsset,
         watched:  true,
         included: true,
         served:   true
-      },
-      {
-        pattern:  'specRoot.js',
-        watched:  true,
-        included: true,
-        served:   true
-      },
-    ],
-    reporters:      ['progress', 'junit', 'kjhtml', 'html', 'jasmine-seed'],
-    htmlReporter:   {
+      };
+    }),
+    reporters:     ['progress', 'junit', 'kjhtml', 'html', 'jasmine-seed'],
+    htmlReporter:  {
       outputDir:               path.join(__dirname, '..', '..', '..', '..', '..', 'target', 'karma_reports'),
       templatePath:            null,
       focusOnFailures:         true,
@@ -78,7 +75,7 @@ module.exports = function (config) {
       preserveDescribeNesting: false,
       foldAll:                 false,
     },
-    junitReporter:  {
+    junitReporter: {
       outputDir:          path.join(__dirname, '..', '..', '..', '..', '..', 'target', 'karma_reports'),
       outputFile:         undefined,
       suite:              '',

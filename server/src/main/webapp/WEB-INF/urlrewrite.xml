@@ -24,6 +24,13 @@
 
 <urlrewrite>
   <rule>
+    <name>Agent Job History API</name>
+    <condition name="Accept">application\/vnd\.go\.cd(.v*)*\+json</condition>
+    <from>^/api/agents/([^/]+)/job_run_history(/?)$</from>
+    <to last="true">/spark/api/agents/$1/job_run_history</to>
+  </rule>
+
+  <rule>
     <name>admin_templates UI</name>
     <from>^/admin/templates(/?)$</from>
     <to last="true">/spark/admin/templates</to>

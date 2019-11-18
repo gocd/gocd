@@ -302,6 +302,24 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
         }
     }
 
+    public Date getStartedDateFor(JobState state) {
+        JobStateTransition transition = this.stateTransitions.byState(state);
+        return transition == null ? null : transition.getStateChangeTime();
+    }
+
+    public Duration getElapsedTime() {
+        return new Duration(elapsedSeconds() * 1000);
+    }
+
+    public RunDuration getDuration() {
+        if (!isCompleted()) {
+            return RunDuration.IN_PROGRESS_DURATION;
+        }
+        Date scheduleStartTime = getStartedDateFor(JobState.Scheduled);
+        Date completedTime = getCompletedDate();
+        return new RunDuration.ActualDuration(new Duration(completedTime.getTime() - scheduleStartTime.getTime()));
+    }
+
     /**
      * Scheduled date is duplicated in BUILDINSTANCE table to simplify sql statements.
      */
@@ -312,11 +330,6 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
     @Deprecated //Only for iBatis and BuildInstanceMother.
     public void setScheduledDate(Date scheduledDate) {
         this.scheduledDate = scheduledDate;
-    }
-
-    public Date getStartedDateFor(JobState state) {
-        JobStateTransition transition = this.stateTransitions.byState(state);
-        return transition == null ? null : transition.getStateChangeTime();
     }
 
     // End Date / Time Related Methods th
@@ -506,10 +519,6 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
         return stateTransitions.latestTransitionId();
     }
 
-    public Duration getElapsedTime() {
-        return new Duration(elapsedSeconds() * 1000);
-    }
-
     public Long getOriginalJobId() {
         return originalJobId;
     }
@@ -537,15 +546,6 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
 
     public void setRerun(boolean rerun) {
         this.rerun = rerun;
-    }
-
-    public RunDuration getDuration() {
-        if (!isCompleted()) {
-            return RunDuration.IN_PROGRESS_DURATION;
-        }
-        Date scheduleStartTime = getStartedDateFor(JobState.Scheduled);
-        Date completedTime = getCompletedDate();
-        return new RunDuration.ActualDuration(new Duration(completedTime.getTime() - scheduleStartTime.getTime()));
     }
 
     public Date getAssignedDate() {

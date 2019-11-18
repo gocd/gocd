@@ -325,7 +325,10 @@ public class Routes {
                     "stage_counter", stageCounter));
         }
 
-        public static String stageDetailTab(String pipelineName, int pipelineCounter, String stageName, int stageCounter) {
+        public static String stageDetailTab(String pipelineName,
+                                            int pipelineCounter,
+                                            String stageName,
+                                            int stageCounter) {
             return StrSubstitutor.replace("/pipelines/${pipeline_name}/${pipeline_counter}/${stage_name}/${stage_counter}", of(
                     "pipeline_name", pipelineName,
                     "pipeline_counter", pipelineCounter,
@@ -761,5 +764,15 @@ public class Routes {
 
     public class AdminTemplates {
         public static final String SPA_BASE = "/admin/templates";
+    }
+
+    public static class AgentJobHistory {
+        public static final String DOC = apiDocsUrl("#agent-job-run-history");
+        public static final String JOB_RUN_HISTORY = "/job_run_history";
+        public static final String BASE = AgentsAPI.BASE + AgentsAPI.UUID + JOB_RUN_HISTORY;
+
+        public static final String forAgent(String uuid) {
+            return BASE.replace(":uuid", uuid);
+        }
     }
 }

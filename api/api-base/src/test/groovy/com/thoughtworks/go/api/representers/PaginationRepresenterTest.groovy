@@ -26,7 +26,7 @@ class PaginationRepresenterTest {
 
   @Test
   void 'should represent pagination with hal'() {
-    def pagination = new Pagination(1, 20, 10)
+    def pagination = Pagination.pageStartingAt(1, 20, 10)
 
     def actualJson = toObjectString({ PaginationRepresenter.toJSON(it, pagination) })
 

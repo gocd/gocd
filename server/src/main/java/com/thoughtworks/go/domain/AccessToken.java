@@ -29,6 +29,8 @@ import org.slf4j.LoggerFactory;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
@@ -74,7 +76,10 @@ public class AccessToken extends PersistentObject implements Validatable {
     @EqualsAndHashCode.Exclude
     private transient ConfigErrors errors = new ConfigErrors();
 
-    public static AccessTokenWithDisplayValue create(String description, String username, String authConfigId, Clock clock) {
+    public static AccessTokenWithDisplayValue create(String description,
+                                                     String username,
+                                                     String authConfigId,
+                                                     Clock clock) {
         ACCESS_TOKEN_LOGGER.debug("[Access Token] Creating new access token for user '{}' description '{}' using auth config '{}'.", username, description, authConfigId);
         ACCESS_TOKEN_LOGGER.debug("[Access Token] Generating Secure Random String of length 16 bytes for original token.");
         String originalToken = generateSecureRandomString(16);
@@ -161,7 +166,8 @@ public class AccessToken extends PersistentObject implements Validatable {
         String saltValue = getSaltValue();
         String digestOfUserProvidedToken = digestToken(originalToken, saltValue);
 
-        return getValue().equals(digestOfUserProvidedToken);
+        // to avoid timing attacks. See https://security.stackexchange.com/a/83670
+        return MessageDigest.isEqual(getValue().getBytes(StandardCharsets.UTF_8), digestOfUserProvidedToken.getBytes(StandardCharsets.UTF_8));
     }
 
     @Getter

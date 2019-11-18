@@ -95,9 +95,6 @@ module Admin
       @stage = @pipeline.getStage(params[:stage_name])
       @job = @stage.jobConfigByConfigName(params[:job_name])
       @job.setConfigAttributes(params[:job])
-      @job.artifactTypeConfigs().getPluggableArtifactConfigs().each do |external_artifact_config|
-        external_artifacts_service.validateExternalArtifactConfig(external_artifact_config, go_config_service.artifactStores().find(external_artifact_config.getStoreId), false)
-      end
       fast_save_popup(failure_handler({:action => params[:current_tab], :layout => nil}), {:current_tab => params[:current_tab], :action => :edit, :job_name => params[:job][:name] || params[:job_name]}) do
         @should_not_render_layout = true
         load_pipeline_and_stage

@@ -17,10 +17,10 @@
 import {ApiResult, ErrorResponse} from "helpers/api_request_builder";
 import m from "mithril";
 import Stream from "mithril/stream";
+import {Agents} from "models/agents/agents";
+import {AgentsCRUD} from "models/agents/agents_crud";
 import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
 import {EnvironmentsAPIs} from "models/new-environments/environments_apis";
-import {Agents} from "models/new_agent/agents";
-import {AgentsCRUD} from "models/new_agent/agents_crud";
 import {Primary} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";

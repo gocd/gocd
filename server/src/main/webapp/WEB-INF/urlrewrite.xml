@@ -506,8 +506,7 @@
   <rule>
     <name>Agents SPA</name>
     <from>^/agents(/?)$</from>
-    <run class="com.thoughtworks.go.server.AgentsPageToggle" method="agentsPage"/>
-    <to last="true">%{attribute:url}</to>
+    <to last="true">/spark/agents</to>
   </rule>
 
   <rule>

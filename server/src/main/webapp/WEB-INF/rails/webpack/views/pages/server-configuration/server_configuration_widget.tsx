@@ -17,7 +17,7 @@
 import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
-import style from "views/pages/new_agents/index.scss";
+import style from "views/pages/agents/index.scss";
 import {MailServerManagementWidget} from "views/pages/server-configuration/mail_server_management_widget";
 import {ServerManagementWidget} from "views/pages/server-configuration/server_management_widget";
 import {

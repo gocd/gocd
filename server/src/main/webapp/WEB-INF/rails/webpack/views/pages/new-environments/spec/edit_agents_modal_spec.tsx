@@ -15,11 +15,11 @@
  */
 
 import m from "mithril";
+import {Agents} from "models/agents/agents";
+import {AgentsJSON} from "models/agents/agents_json";
+import {AgentsTestData} from "models/agents/spec/agents_test_data";
 import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
 import test_data from "models/new-environments/spec/test_data";
-import {Agents} from "models/new_agent/agents";
-import {AgentsJSON} from "models/new_agent/agents_json";
-import {AgentsTestData} from "models/new_agent/spec/agents_test_data";
 import {EditAgentsModal} from "views/pages/new-environments/edit_agents_modal";
 import {TestHelper} from "views/pages/spec/test_helper";
 

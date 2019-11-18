@@ -41,6 +41,12 @@ class FastAdminController < AdminController
     end
   end
 
+  def render_error(result, errors, options)
+    @errors = flatten_all_errors(errors)
+    flash.now[:error] = result.httpCode == 422 ? "Save failed, see errors below" : result.message
+    performed? || render_error_with_options(options.merge({:status => result.httpCode()}))
+  end
+
   private
 
   def fast_save(render_error_options_or_proc, success_message, load_data)
@@ -49,7 +55,7 @@ class FastAdminController < AdminController
 
     unless @update_result.isSuccessful
       @config_file_conflict = (@update_result.httpCode() == 409)
-      flash.now[:error] = @update_result.message()
+      flash.now[:error] = @update_result.httpCode == 422 ? "Save failed, see errors below" : @update_result.message
       response.headers[GO_CONFIG_ERROR_HEADER] = flash[:error]
     end
 

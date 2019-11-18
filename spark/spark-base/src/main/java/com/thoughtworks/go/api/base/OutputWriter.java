@@ -26,6 +26,8 @@ import java.util.function.Consumer;
 public interface OutputWriter extends Closeable {
     OutputWriter add(String key, String value);
 
+    OutputWriter add(String key, Enum value);
+
     OutputWriter add(String key, Double value);
 
     OutputWriter add(String key, CaseInsensitiveString value);

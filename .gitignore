@@ -465,3 +465,7 @@ api/api-roles-config-v3/out/
 api/api-roles-config-v3/target/
 api/api-roles-config-v3/logs/
 api/api-roles-config-v3/config/
+api/api-agent-job-history-v1/out/
+api/api-agent-job-history-v1/target/
+api/api-agent-job-history-v1/logs/
+api/api-agent-job-history-v1/config/

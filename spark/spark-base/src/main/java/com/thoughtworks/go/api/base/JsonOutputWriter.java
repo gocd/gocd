@@ -109,6 +109,11 @@ public class JsonOutputWriter {
         }
 
         @Override
+        public OutputWriter add(String key, Enum value) {
+            return add(key, value != null ? value.name() : null);
+        }
+
+        @Override
         public JsonOutputWriterUsingJackson add(String key, Double value) {
             return withExceptionHandling((jacksonWriter) -> {
                 jacksonWriter.writeNumberField(key, value);

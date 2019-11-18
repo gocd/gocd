@@ -307,7 +307,6 @@
         joined.pipelineCounter,
         joined.stageCounter,
         joined.rerunOfCounter,
-        joined.duration,
 
         buildstatetransitions.id AS stateId,
         buildstatetransitions.buildid AS buildid,
@@ -324,10 +323,7 @@
             stages.name AS stageName,
             pipelines.counter AS pipelineCounter,
             stages.counter AS stageCounter,
-            stages.rerunOfCounter AS rerunOfCounter,
-            (
-                SELECT TIMESTAMPDIFF(MILLISECOND, stateChangeTime, bst.stateChangeTime) FROM buildStateTransitions WHERE buildid = builds.id AND currentState = 'Scheduled'
-            ) as duration
+            stages.rerunOfCounter AS rerunOfCounter
             FROM builds
             INNER JOIN stages on builds.stageid = stages.id
             INNER JOIN pipelines on stages.pipelineid = pipelines.id
@@ -336,6 +332,12 @@
                 (builds.state = 'Completed' OR ignored = true)
                 AND builds.agentUuid = #{uuid}
             ORDER BY ${column} ${order}
+            <if test="order == &quot;ASC&quot;">
+                NULLS FIRST
+            </if>
+            <if test="order == &quot;DESC&quot;">
+                NULLS LAST
+            </if>
             LIMIT #{limit}
             OFFSET #{offset}
         ) AS joined

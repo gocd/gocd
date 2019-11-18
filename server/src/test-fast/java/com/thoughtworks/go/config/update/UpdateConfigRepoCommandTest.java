@@ -79,18 +79,6 @@ public class UpdateConfigRepoCommandTest {
     }
 
     @Test
-    public void shouldNotContinueIfTheUserDontHavePermissionsToOperateOnConfigRepos() throws Exception {
-        UpdateConfigRepoCommand command = new UpdateConfigRepoCommand(securityService, entityHashingService, oldConfigRepoId, newConfigRepo, md5, currentUser, result, configRepoExtension);
-        when(securityService.isUserAdmin(currentUser)).thenReturn(false);
-        when(entityHashingService.md5ForEntity(oldConfigRepo)).thenReturn(md5);
-        HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.forbidden(EntityType.ConfigRepo.forbiddenToEdit(newConfigRepoId, currentUser.getUsername()), forbidden());
-
-        assertThat(command.canContinue(cruiseConfig), is(false));
-        assertThat(result, is(expectedResult));
-    }
-
-    @Test
     public void shouldNotContinueIfMD5IsStale() throws Exception {
         UpdateConfigRepoCommand command = new UpdateConfigRepoCommand(securityService, entityHashingService, oldConfigRepoId, newConfigRepo, md5, currentUser, result, configRepoExtension);
         when(securityService.isUserAdmin(currentUser)).thenReturn(true);
@@ -139,14 +127,5 @@ public class UpdateConfigRepoCommandTest {
 
         assertFalse(command.isValid(cruiseConfig));
         assertThat(configRepo.errors().on("plugin_id"), is("Invalid plugin id: invalid_id"));
-    }
-
-    @Test
-    public void shouldContinueWithConfigSaveIfUserIsAdmin() {
-        when(securityService.isUserAdmin(currentUser)).thenReturn(true);
-        when(entityHashingService.md5ForEntity(oldConfigRepo)).thenReturn(md5);
-
-        UpdateConfigRepoCommand command = new UpdateConfigRepoCommand(securityService, entityHashingService, oldConfigRepoId, newConfigRepo, md5, currentUser, result, configRepoExtension);
-        assertThat(command.canContinue(cruiseConfig), is(true));
     }
 }

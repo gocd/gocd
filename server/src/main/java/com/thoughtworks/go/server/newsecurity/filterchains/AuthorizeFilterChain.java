@@ -97,6 +97,8 @@ public class AuthorizeFilterChain extends FilterChainProxy {
                 .addAuthorityFilterChain("/api/elastic/profiles/**", apiAccessDeniedHandler, ROLE_USER)
 
                 .addAuthorityFilterChain("/api/admin/environments/**", apiAccessDeniedHandler, ROLE_USER)
+                .addAuthorityFilterChain("/api/admin/config_repos/**", apiAccessDeniedHandler, ROLE_USER)
+                .addAuthorityFilterChain("/api/admin/internal/environments/merged", apiAccessDeniedHandler, ROLE_USER)
                 .addAuthorityFilterChain("/api/admin/internal/environments/**", apiAccessDeniedHandler, ROLE_USER)
 
                 // blanket role that requires supervisor access, used by old admin apis

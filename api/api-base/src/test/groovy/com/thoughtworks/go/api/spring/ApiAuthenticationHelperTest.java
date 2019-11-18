@@ -227,5 +227,79 @@ class ApiAuthenticationHelperTest {
             assertThrows(HaltException.class, () -> helper.checkUserHasPermissions(BOB, SupportedAction.ADMINISTER, SupportedEntity.ENVIRONMENT, null));
             assertThrows(HaltException.class, () -> helper.checkUserHasPermissions(BOB, SupportedAction.ADMINISTER, SupportedEntity.ENVIRONMENT, "env_1"));
         }
+
+        @Test
+        /*
+        <role name="deny-permissions">
+            <policy>
+                <deny action="administer" type="environment">*</deny>
+            </policy>
+            <users>
+                <user>Bob</user>
+            </users>
+        </role>
+        <role name="allow-permissions">
+            <policy>
+                <allow action="administer" type="environment">*</allow>
+            </policy>
+            <users>
+                <user>Bob</user>
+            </users>
+        </role>
+        */
+        void shouldNotAllowNormalUserAccessToEnvironmentWhenOnOfTheRoleHasAnExplicitDeny_WithFirstRoleAsDeny() {
+            Policy directives = new Policy();
+            directives.add(new Deny("administer", "environment", "*"));
+            RoleConfig denyRoleConfig = new RoleConfig(new CaseInsensitiveString("deny-permissions"), new Users(), directives);
+
+            Policy directives2 = new Policy();
+            directives2.add(new Allow("administer", "environment", "*"));
+            RoleConfig allowRoleConfig = new RoleConfig(new CaseInsensitiveString("allow-permissions"), new Users(), directives2);
+
+            when(goConfigService.rolesForUser(BOB.getUsername())).thenReturn(Arrays.asList(denyRoleConfig, allowRoleConfig));
+
+            assertThrows(HaltException.class, () -> helper.checkUserHasPermissions(BOB, SupportedAction.VIEW, SupportedEntity.ENVIRONMENT, null));
+            assertThrows(HaltException.class, () -> helper.checkUserHasPermissions(BOB, SupportedAction.VIEW, SupportedEntity.ENVIRONMENT, "env_1"));
+
+            assertThrows(HaltException.class, () -> helper.checkUserHasPermissions(BOB, SupportedAction.ADMINISTER, SupportedEntity.ENVIRONMENT, null));
+            assertThrows(HaltException.class, () -> helper.checkUserHasPermissions(BOB, SupportedAction.ADMINISTER, SupportedEntity.ENVIRONMENT, "env_1"));
+        }
+
+        @Test
+        /*
+        <role name="allow-permissions">
+            <policy>
+                <allow action="administer" type="environment">*</allow>
+            </policy>
+            <users>
+                <user>Bob</user>
+            </users>
+        </role>
+        <role name="deny-permissions">
+            <policy>
+                <deny action="administer" type="environment">*</deny>
+            </policy>
+            <users>
+                <user>Bob</user>
+            </users>
+        </role>
+        */
+        void shouldNotAllowNormalUserAccessToEnvironmentWhenOnOfTheRoleHasAnExplicitDeny_WithFirstRoleAsAllow() {
+            Policy directives = new Policy();
+            directives.add(new Deny("administer", "environment", "*"));
+            RoleConfig denyRoleConfig = new RoleConfig(new CaseInsensitiveString("deny-permissions"), new Users(), directives);
+
+            Policy directives2 = new Policy();
+            directives2.add(new Allow("administer", "environment", "*"));
+            RoleConfig allowRoleConfig = new RoleConfig(new CaseInsensitiveString("allow-permissions"), new Users(), directives2);
+
+            when(goConfigService.rolesForUser(BOB.getUsername())).thenReturn(Arrays.asList(allowRoleConfig, denyRoleConfig));
+
+            assertThrows(HaltException.class, () -> helper.checkUserHasPermissions(BOB, SupportedAction.VIEW, SupportedEntity.ENVIRONMENT, null));
+            assertThrows(HaltException.class, () -> helper.checkUserHasPermissions(BOB, SupportedAction.VIEW, SupportedEntity.ENVIRONMENT, "env_1"));
+
+            assertThrows(HaltException.class, () -> helper.checkUserHasPermissions(BOB, SupportedAction.ADMINISTER, SupportedEntity.ENVIRONMENT, null));
+            assertThrows(HaltException.class, () -> helper.checkUserHasPermissions(BOB, SupportedAction.ADMINISTER, SupportedEntity.ENVIRONMENT, "env_1"));
+        }
     }
 }

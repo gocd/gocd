@@ -78,13 +78,19 @@ public abstract class AbstractAuthenticationHelper {
         }
 
         List<Role> roles = goConfigService.rolesForUser(username.getUsername());
+
+        boolean hasPermission = false;
         for (Role role : roles) {
+            if (role.hasExplicitDenyPermissionsFor(action, entity.getEntityType(), resource)) {
+                return false;
+            }
+
             if (role.hasPermissionsFor(action, entity.getEntityType(), resource)) {
-                return true;
+                hasPermission = true;
             }
         }
 
-        return false;
+        return hasPermission;
     }
 
     public void checkUserHasPermissions(Username username, SupportedAction action, SupportedEntity entity, String resource) {

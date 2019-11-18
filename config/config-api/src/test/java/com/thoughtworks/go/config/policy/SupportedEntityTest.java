@@ -19,12 +19,12 @@ package com.thoughtworks.go.config.policy;
 import com.thoughtworks.go.config.BasicEnvironmentConfig;
 import com.thoughtworks.go.config.EnvironmentConfig;
 import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
+import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static com.thoughtworks.go.config.policy.SupportedEntity.ENVIRONMENT;
-import static com.thoughtworks.go.config.policy.SupportedEntity.unmodifiableListOf;
+import static com.thoughtworks.go.config.policy.SupportedEntity.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
@@ -36,6 +36,12 @@ class SupportedEntityTest {
 
         assertThat(ENVIRONMENT.getEntityType().isAssignableFrom(BasicEnvironmentConfig.class)).isTrue();
         assertThat(ENVIRONMENT.getEntityType().isAssignableFrom(MergeEnvironmentConfig.class)).isTrue();
+    }
+
+    @Test
+    void shouldSupportConfigRepo() {
+        assertThat(CONFIG_REPO.getType()).isEqualTo("config_repo");
+        assertThat(CONFIG_REPO.getEntityType()).isEqualTo(ConfigRepoConfig.class);
     }
 
     @Test

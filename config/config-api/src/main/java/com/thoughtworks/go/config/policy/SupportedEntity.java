@@ -19,6 +19,7 @@ package com.thoughtworks.go.config.policy;
 import com.thoughtworks.go.config.EnvironmentConfig;
 import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.config.Validatable;
+import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 
 import java.util.Arrays;
 import java.util.List;
@@ -29,6 +30,7 @@ import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 
 public enum SupportedEntity {
     ENVIRONMENT("environment", EnvironmentConfig.class),
+    CONFIG_REPO("config_repo", ConfigRepoConfig.class),
     UNKNOWN(null, null);
 
     private final String type;

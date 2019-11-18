@@ -21,7 +21,6 @@ public class Toggles {
     public static String ALLOW_EMPTY_PIPELINE_GROUPS_DASHBOARD = "allow_empty_pipeline_groups_dashboard";
     public static String TEST_DRIVE = "test_drive";
     public static String NEW_PIPELINE_DROPDOWN = "new_pipeline_dropdown";
-    public static String SHOW_NEW_ENVIRONMENTS_SPA = "show_new_environments_spa";
     public static String FAST_PIPELINE_SAVE = "fast_pipeline_save";
 
     private static FeatureToggleService service;

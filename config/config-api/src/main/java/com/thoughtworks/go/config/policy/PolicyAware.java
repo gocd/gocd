@@ -40,4 +40,18 @@ public interface PolicyAware {
                 .findFirst()
                 .orElse(false);
     }
+
+    default boolean hasExplicitDenyPermissionsFor(SupportedAction action, Class<? extends Validatable> entityType, String resource) {
+        Policy policy = getPolicy();
+        if (policy == null || policy.isEmpty()) {
+            return false;
+        }
+
+        return policy.stream()
+                .map(directive -> directive.apply(action.getAction(), entityType, resource))
+                .filter(result -> result != Result.SKIP)
+                .map(result -> result == Result.DENY)
+                .findFirst()
+                .orElse(false);
+    }
 }

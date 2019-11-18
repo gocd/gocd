@@ -71,7 +71,7 @@
     "@types/jasmine-ajax": "^3.3.0",
     "@types/jquery": "^3.3.31",
     "@types/license-checker": "^25.0.0",
-    "@types/lodash": "^4.14.144",
+    "@types/lodash": "^4.14.148",
     "@types/mini-css-extract-plugin": "^0.8.0",
     "@types/mithril": "2.0.0",
     "@types/node": "^12.7.12",

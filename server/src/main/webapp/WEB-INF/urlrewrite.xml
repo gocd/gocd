@@ -105,8 +105,7 @@
   <rule>
     <name>environments UI</name>
     <from>^/admin/environments(/?)$</from>
-    <run class="com.thoughtworks.go.server.SparkOrRailsEnvironmentsPageToggle" method="environmentsPage"/>
-    <to last="true">%{attribute:url}</to>
+    <to last="true">/spark/admin/new-environments</to>
   </rule>
 
   <rule>

@@ -25,7 +25,7 @@ import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import static com.thoughtworks.go.spark.Routes.ConfigRepos.*;
 
 public class ConfigRepoWithResultRepresenter {
-    public static void toJSON(OutputWriter json, ConfigRepoWithResult crwr) {
+    public static void toJSON(OutputWriter json, ConfigRepoWithResult crwr, boolean canAdminister) {
         ConfigRepoConfig repo = crwr.repo();
         PartialConfigParseResult result = crwr.result();
 
@@ -33,6 +33,7 @@ public class ConfigRepoWithResultRepresenter {
         json.add("id", repo.getId());
         json.add("plugin_id", repo.getPluginId());
         json.addChild("material", w -> MaterialsRepresenter.toJSON(w, repo.getMaterialConfig()));
+        json.add("can_administer", canAdminister);
         attachConfigurations(json, repo);
 
         json.add("material_update_in_progress", crwr.isMaterialUpdateInProgress());

@@ -27,6 +27,7 @@ import com.thoughtworks.go.config.GoRepoConfigDataSource;
 import com.thoughtworks.go.config.PartialConfigParseResult;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+import com.thoughtworks.go.config.policy.SupportedAction;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
@@ -43,8 +44,10 @@ import spark.Response;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.thoughtworks.go.config.policy.SupportedEntity.CONFIG_REPO;
 import static com.thoughtworks.go.util.CachedDigestUtils.sha256Hex;
 import static spark.Spark.*;
 
@@ -76,33 +79,46 @@ public class ConfigReposInternalControllerV2 extends ApiController implements Sp
     public void setupRoutes() {
         path(controllerBasePath(), () -> {
             before("", mimeType, this::setContentType);
-            before("", mimeType, authHelper::checkAdminUserAnd403);
+            before("", mimeType, authHelper::checkUserAnd403);
             before("", mimeType, this::verifyContentType);
 
             before("/*", mimeType, this::setContentType);
-            before("/*", mimeType, authHelper::checkAdminUserAnd403);
             before("/*", mimeType, this::verifyContentType);
 
             get(ConfigRepos.INDEX_PATH, mimeType, this::listRepos);
+            before(ConfigRepos.REPO_PATH, mimeType, (request, response) -> {
+                authHelper.checkUserHasPermissions(currentUsername(), getAction(request), CONFIG_REPO, request.params(":id"));
+            });
             get(ConfigRepos.REPO_PATH, mimeType, this::showRepo);
+            before(ConfigRepos.STATUS_PATH, mimeType, (request, response) -> {
+                authHelper.checkUserHasPermissions(currentUsername(), getAction(request), CONFIG_REPO, request.params(":id"));
+            });
             get(ConfigRepos.STATUS_PATH, mimeType, this::inProgress);
+            before(ConfigRepos.TRIGGER_UPDATE_PATH, mimeType, (request, response) -> {
+                authHelper.checkUserHasPermissions(currentUsername(), getAction(request), CONFIG_REPO, request.params(":id"));
+            });
             post(ConfigRepos.TRIGGER_UPDATE_PATH, mimeType, this::triggerUpdate);
+            before(ConfigRepos.DEFINITIONS_PATH, mimeType, (request, response) -> {
+                authHelper.checkUserHasPermissions(currentUsername(), getAction(request), CONFIG_REPO, request.params(":id"));
+            });
             get(ConfigRepos.DEFINITIONS_PATH, mimeType, this::definedConfigs);
         });
     }
 
     String listRepos(Request req, Response res) throws IOException {
-        List<ConfigRepoWithResult> repos = allRepos();
+        List<ConfigRepoWithResult> userSpecificRepos = allRepos().stream()
+                .filter(repo -> authHelper.doesUserHasPermissions(currentUsername(), getAction(req), CONFIG_REPO, repo.repo().getId()))
+                .collect(Collectors.toList());
 
-        final String etag = etagFor(repos);
+        final String etag = etagFor(userSpecificRepos);
 
         setEtagHeader(res, etag);
 
         if (fresh(req, etag)) {
             return notModified(res);
         }
-
-        return writerForTopLevelObject(req, res, w -> ConfigRepoWithResultListRepresenter.toJSON(w, repos));
+        Function<String, Boolean> canUserAdministerConfigRepo = repoId -> authHelper.doesUserHasPermissions(currentUsername(), SupportedAction.ADMINISTER, CONFIG_REPO, repoId);
+        return writerForTopLevelObject(req, res, w -> ConfigRepoWithResultListRepresenter.toJSON(w, userSpecificRepos, canUserAdministerConfigRepo));
     }
 
     String showRepo(Request req, Response res) throws IOException {
@@ -116,7 +132,8 @@ public class ConfigReposInternalControllerV2 extends ApiController implements Sp
             return notModified(res);
         }
 
-        return writerForTopLevelObject(req, res, w -> ConfigRepoWithResultRepresenter.toJSON(w, repo));
+        boolean canAdminister = authHelper.doesUserHasPermissions(currentUsername(), SupportedAction.ADMINISTER, CONFIG_REPO, repo.repo().getId());
+        return writerForTopLevelObject(req, res, w -> ConfigRepoWithResultRepresenter.toJSON(w, repo, canAdminister));
     }
 
     String triggerUpdate(Request req, Response res) {

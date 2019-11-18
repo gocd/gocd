@@ -15,9 +15,8 @@
  */
 package com.thoughtworks.go.spark.spa
 
-
-import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
+import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper
 import org.junit.jupiter.api.Nested
@@ -32,7 +31,7 @@ class ConfigReposControllerTest implements ControllerTrait<ConfigReposController
   @Nested
   class Index {
     @Nested
-    class Security implements SecurityTestTrait, AdminUserSecurity {
+    class Security implements SecurityTestTrait, NormalUserSecurity {
 
       @Override
       String getControllerMethodUnderTest() {

@@ -41,7 +41,7 @@ class ConfigRepoWithResultRepresenterTest {
     ConfigRepoWithResult result = repo(id)
 
     String json = toObjectString({ w ->
-      ConfigRepoWithResultRepresenter.toJSON(w, result)
+      ConfigRepoWithResultRepresenter.toJSON(w, result, true)
     })
 
     String self = "http://test.host/go${Routes.ConfigRepos.id(id)}"
@@ -64,6 +64,7 @@ class ConfigRepoWithResultRepresenterTest {
           auto_update: true
         ]
       ],
+      can_administer: true,
       configuration              : [
         [key: "foo", value: "bar"],
         [key: "baz", value: "quu"]

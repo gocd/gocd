@@ -44,13 +44,13 @@ public class ConfigReposController implements SparkController {
     @Override
     public void setupRoutes() {
         path(controllerBasePath(), () -> {
-            before("", authenticationHelper::checkAdminUserAnd403);
+            before("", authenticationHelper::checkUserAnd403);
             get("", this::index, engine);
         });
     }
 
     public ModelAndView index(Request request, Response response) {
-        HashMap<Object, Object> object = new HashMap<Object, Object>() {{
+        HashMap<Object, Object> object = new HashMap<>() {{
             put("viewTitle", "Config Repos");
         }};
 

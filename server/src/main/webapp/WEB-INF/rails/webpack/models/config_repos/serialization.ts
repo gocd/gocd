@@ -28,6 +28,7 @@ export interface ConfigRepoJSON {
   id: string;
   plugin_id: string;
   material: MaterialJSON;
+  can_administer: boolean;
   configuration: any[];
   parse_info: ParseInfoJSON;
   errors?: ErrorsJSON;

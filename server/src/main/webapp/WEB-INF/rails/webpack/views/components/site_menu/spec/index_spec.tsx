@@ -155,7 +155,7 @@ describe("Site Menu", () => {
     expect(findMenuItem("/go/analytics")).toBeFalsy();
   });
 
-  it("should show Admin link with environments tab for non-admins", () => {
+  it("should show Admin link for non-admins", () => {
     mount({
             canViewTemplates: true,
             isGroupAdmin: false,
@@ -172,6 +172,7 @@ describe("Site Menu", () => {
     expect(agents).toHaveAttr("href", "/go/agents");
     expect(admin).toHaveText("Admin");
     expect(findMenuItem("/go/admin/environments")).toHaveText("Environments");
+    expect(findMenuItem("/go/admin/config_repos")).toHaveText("Config Repositories");
   });
 
   function mount(menuAttrs: Attrs) {

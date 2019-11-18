@@ -1023,12 +1023,7 @@ task newSPA {
       out.println(lines.join("\n").trim())
     }
 
-    lines = file('spark/spark-base/src/main/java/com/thoughtworks/go/spark/Routes.java').readLines()
-    lines.add(lines.size() - 1, "\tpublic class ${entityName} {public static final String SPA_BASE = \"/admin/${spaName}\";}")
-
-    file('spark/spark-base/src/main/java/com/thoughtworks/go/spark/Routes.java').withWriter { out ->
-      out.println(lines.join("\n").trim())
-    }
+    addRoute(entityName, spaName)
   }
 }
 
@@ -1324,6 +1319,7 @@ task newApi {
       out.println(contents.stripIndent().trim())
     }
 
+    addRoute(entityClassName, apiName)
     addPackageToSpringClasspathScanning(packageName)
     addProjectToSettingsGradle(newProjectName, it)
     addProjectToGitIgnore(newProjectName)
@@ -1398,6 +1394,15 @@ task upgradeApi {
     addProjectToGitIgnore(newProjectName)
   }
 
+}
+
+private void addRoute(String entityName, String route) {
+  List<String> lines = file('spark/spark-base/src/main/java/com/thoughtworks/go/spark/Routes.java').readLines()
+  lines.add(lines.size() - 1, "\tpublic class ${entityName} {public static final String BASE = \"/admin/api/${route}\";}")
+
+  file('spark/spark-base/src/main/java/com/thoughtworks/go/spark/Routes.java').withWriter { out ->
+    out.println(lines.join("\n").trim())
+  }
 }
 
 private void addPackageToSpringClasspathScanning(String packageName) {

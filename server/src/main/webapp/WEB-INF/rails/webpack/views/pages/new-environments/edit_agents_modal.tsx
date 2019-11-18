@@ -17,9 +17,9 @@
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
+import {Agent, Agents} from "models/agents/agents";
 import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
 import {EnvironmentsAPIs} from "models/new-environments/environments_apis";
-import {Agent, Agents} from "models/new_agent/agents";
 import s from "underscore.string";
 import {Cancel, Primary} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";

@@ -16,7 +16,7 @@
 
 import _ from "lodash";
 import m from "mithril";
-import {Agent} from "models/new_agent/agents";
+import {Agent} from "models/agents/agents";
 import {Frame} from "models/shared/analytics_frame";
 import {AnalyticsCapability} from "models/shared/plugin_infos_new/analytics_plugin_capabilities";
 import {Modal, Size} from "views/components/modal";

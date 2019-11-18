@@ -17,9 +17,9 @@
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
+import {Agents} from "models/agents/agents";
 import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
 import data from "models/new-environments/spec/test_data";
-import {Agents} from "models/new_agent/agents";
 import {EnvironmentBody} from "views/pages/new-environments/environment_body_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
 

@@ -307,6 +307,7 @@
         joined.pipelineCounter,
         joined.stageCounter,
         joined.rerunOfCounter,
+        joined.duration,
 
         buildstatetransitions.id AS stateId,
         buildstatetransitions.buildid AS buildid,
@@ -323,7 +324,10 @@
             stages.name AS stageName,
             pipelines.counter AS pipelineCounter,
             stages.counter AS stageCounter,
-            stages.rerunOfCounter AS rerunOfCounter
+            stages.rerunOfCounter AS rerunOfCounter,
+            (
+                SELECT TIMESTAMPDIFF(MILLISECOND, stateChangeTime, bst.stateChangeTime) FROM buildStateTransitions WHERE buildid = builds.id AND currentState = 'Scheduled'
+            ) as duration
             FROM builds
             INNER JOIN stages on builds.stageid = stages.id
             INNER JOIN pipelines on stages.pipelineid = pipelines.id

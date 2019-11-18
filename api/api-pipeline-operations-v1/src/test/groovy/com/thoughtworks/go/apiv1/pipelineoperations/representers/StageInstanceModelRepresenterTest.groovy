@@ -16,11 +16,10 @@
 
 package com.thoughtworks.go.apiv1.pipelineoperations.representers
 
-
 import com.thoughtworks.go.helper.StageMother
 import org.junit.jupiter.api.Test
 
-import static com.thoughtworks.go.api.base.JsonOutputWriter.jsonDate
+import static com.thoughtworks.go.api.base.JsonUtils.toObject
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
@@ -44,15 +43,12 @@ class StageInstanceModelRepresenterTest {
       "approved_by"       : "changes",
       "operate_permission": false,
       "can_run"           : false,
-      "jobs"              : [
-        [
-          "id"            : 0,
-          "name"          : "buildName",
-          "scheduled_date": jsonDate(date),
-          "state"         : "Completed",
-          "result"        : "Passed"
-        ]
-      ]
+      "jobs"              : stageInstanceModel.getBuildHistory().collect {
+        eachItem ->
+          toObject({
+            JobHistoryItemRepresenter.toJSON(it, eachItem)
+          })
+      }
     ]
 
     assertThatJson(actualJson).isEqualTo(expectedJson)
@@ -77,15 +73,12 @@ class StageInstanceModelRepresenterTest {
       "approved_by"       : "changes",
       "operate_permission": false,
       "can_run"           : false,
-      "jobs"              : [
-        [
-          "id"            : 0,
-          "name"          : "buildName",
-          "scheduled_date": jsonDate(stage.scheduledDate()),
-          "state"         : "Completed",
-          "result"        : "Passed"
-        ]
-      ]
+      "jobs"              : stageInstanceModel.getBuildHistory().collect {
+        eachItem ->
+          toObject({
+            JobHistoryItemRepresenter.toJSON(it, eachItem)
+          })
+      }
     ]
 
     assertThatJson(actualJson).isEqualTo(expectedJson)
@@ -111,15 +104,13 @@ class StageInstanceModelRepresenterTest {
       "approved_by"       : "changes",
       "operate_permission": false,
       "can_run"           : false,
-      "jobs"              : [
-        [
-          "id"            : 0,
-          "name"          : "buildName",
-          "scheduled_date": jsonDate(date),
-          "state"         : "Completed",
-          "result"        : "Passed"
-        ]
-      ]
+      "jobs"              : stageInstanceModel.getBuildHistory().collect {
+        eachItem ->
+          toObject({
+            JobHistoryItemRepresenter.toJSON(it, eachItem)
+          })
+      }
+
     ]
 
     assertThatJson(actualJson).isEqualTo(expectedJson)

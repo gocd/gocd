@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {docsUrl} from "gen/gocd_version";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
@@ -90,5 +91,14 @@ describe("Environments Widget", () => {
     envJson.pipelines = [];
     mountModal([envJson]);
     expect(helper.byTestId("collapsible-panel-for-env-" + envJson.name)).toHaveClass(styles.warning);
+  });
+
+  it('should render info message if there are no environments are available', () => {
+    mountModal([]);
+    expect(helper.byTestId("no-environment-present-msg")).toBeInDOM();
+    const noEnvPresentText = "No environments are displayed because either no environments have been set up or you are not authorized to view the pipelines within any of the environments.";
+    expect(helper.byTestId("no-environment-present-msg")).toContainText(noEnvPresentText);
+    expect(helper.byTestId("doc-link")).toBeInDOM();
+    expect(helper.q("a", helper.byTestId("doc-link"))).toHaveAttr("href", docsUrl("configuration/managing_environments.html"));
   });
 });

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {docsUrl} from "gen/gocd_version";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
@@ -21,10 +22,11 @@ import Stream from "mithril/stream";
 import {Agents} from "models/agents/agents";
 import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
-import * as Icons from "views/components/icons/index";
 import {EnvironmentBody} from "views/pages/new-environments/environment_body_widget";
 import {EnvironmentHeader} from "views/pages/new-environments/environment_header_widget";
-import {IconGroup} from "../../components/icons";
+import {FlashMessage, MessageType} from "../../components/flash_message";
+import {Delete, IconGroup} from "../../components/icons";
+import {Link} from "../../components/link";
 import {DeleteOperation} from "../page_operations";
 
 interface Attrs extends DeleteOperation<EnvironmentWithOrigin> {
@@ -35,18 +37,19 @@ interface Attrs extends DeleteOperation<EnvironmentWithOrigin> {
 
 export class EnvironmentsWidget extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
-    return vnode.attrs.environments().map((environment: EnvironmentWithOrigin) => {
+    const environmentsHtml = vnode.attrs.environments().map((environment: EnvironmentWithOrigin) => {
       const isEnvEmpty = _.isEmpty(environment.pipelines()) && _.isEmpty(environment.agents());
+
       return <CollapsiblePanel header={<EnvironmentHeader environment={environment}/>}
                                warning={isEnvEmpty}
-                               actions={
+                               actions={[
                                  <IconGroup>
-                                   <Icons.Delete
+                                   <Delete
                                      title={environment.canAdminister() ? undefined : `You are not authorized to delete '${environment.name()}' environment.`}
                                      disabled={!environment.canAdminister()}
                                      onclick={vnode.attrs.onDelete.bind(vnode.attrs, environment)}/>
                                  </IconGroup>
-                               }
+                               ]}
                                dataTestId={`collapsible-panel-for-env-${environment.name()}`}>
         <EnvironmentBody environment={environment}
                          environments={vnode.attrs.environments()}
@@ -54,5 +57,18 @@ export class EnvironmentsWidget extends MithrilViewComponent<Attrs> {
                          onSuccessfulSave={vnode.attrs.onSuccessfulSave}/>
       </CollapsiblePanel>;
     });
+
+    const environmentUrl = "/configuration/managing_environments.html";
+    const docLink        = <span data-test-id="doc-link">&nbsp;<Link href={docsUrl(environmentUrl)}
+                                                                     target="_blank"
+                                                                     externalLinkIcon={true}>Learn More</Link></span>;
+
+    const noEnvironmentPresentMsg = <span>No environments are displayed because either no environments have been set up or you are not authorized to view the pipelines within any of the environments.{docLink}</span>;
+
+    const noEnvironmentPresentMsgHtml = <FlashMessage type={MessageType.info}
+                                                      message={noEnvironmentPresentMsg}
+                                                      dataTestId="no-environment-present-msg"/>;
+
+    return _.isEmpty(vnode.attrs.environments()) ? noEnvironmentPresentMsgHtml : environmentsHtml;
   }
 }

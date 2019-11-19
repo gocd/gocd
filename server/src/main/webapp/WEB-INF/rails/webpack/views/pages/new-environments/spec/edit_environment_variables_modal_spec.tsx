@@ -87,7 +87,6 @@ describe("Edit environment variables modal", () => {
   it('should disable save and cancel button if modal state is loading', () => {
     modal.modalState = ModalState.LOADING;
     m.redraw.sync();
-    debugger;
     expect(helper.byTestId("save-button")).toBeDisabled();
     expect(helper.byTestId("cancel-button")).toBeDisabled();
     expect(helper.byTestId("spinner")).toBeInDOM();

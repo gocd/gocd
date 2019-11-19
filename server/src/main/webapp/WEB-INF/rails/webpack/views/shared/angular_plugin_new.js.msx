@@ -141,5 +141,23 @@ export const AngularPluginNew = {
         {m.fragment({oncreate}, [pluginTemplate(vnode.attrs.pluginInfoSettings())])}
       </div>
     );
+  },
+
+  oncreate(vnode) {
+    if (vnode.attrs.disabled) {
+      const pluginView = document.getElementsByClassName("plugin-view");
+      if (pluginView && pluginView.length) {
+        pluginView[0].getElementsByTagName("input")
+          .forEach((element) => {
+            element.setAttribute("readonly", "true");
+            element.setAttribute("disabled", "true");
+          });
+        pluginView[0].getElementsByTagName("textarea")
+          .forEach((element) => {
+            element.setAttribute("readonly", "true");
+            element.setAttribute("disabled", "true");
+          });
+      }
+    }
   }
 };

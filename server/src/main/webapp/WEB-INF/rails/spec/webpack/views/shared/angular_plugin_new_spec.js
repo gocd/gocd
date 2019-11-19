@@ -69,8 +69,25 @@ describe("Angular Plugin View", () => {
     expect(configurations.findConfiguration("PasswordFilePath")).not.toBeUndefined();
   });
 
-  function mount(pluginSettings, configurations) {
+  it('should disable fields when flag is set', () => {
+    const pluginInfo     = PluginInfo.fromJSON(AuthorizationPluginInfo.ldap());
+    const configurations = new Configurations([
+      new Configuration("Url", new PlainTextValue("some-url")),
+      new Configuration("Password", new EncryptedValue("secret-password")),
+    ]);
+
+    mount(pluginInfo.extensions[0].authConfigSettings, configurations, true);
+    m.redraw.sync();
+
+    expect(helper.q('#test-field-1')).toHaveAttr('readonly');
+    expect(helper.q('#test-field-1')).toHaveAttr('disabled');
+    expect(helper.q('#test-field-2')).toHaveAttr('readonly');
+    expect(helper.q('#test-field-2')).toHaveAttr('disabled');
+  });
+
+  function mount(pluginSettings, configurations, disabled) {
     helper.mount(() => <AngularPluginNew pluginInfoSettings={Stream(pluginSettings)}
+                                         disabled={disabled}
                                          configuration={configurations}/>);
   }
 });

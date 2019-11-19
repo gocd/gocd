@@ -136,7 +136,8 @@ class ClusterProfileWidget extends MithrilViewComponent<Attrs> {
     return (
       <AngularPluginNew pluginInfoSettings={Stream(elasticAgentSettings.clusterProfileSettings)}
                         configuration={vnode.attrs.clusterProfile().properties()}
-                        key={vnode.attrs.clusterProfile().pluginId()}/>
+                        key={vnode.attrs.clusterProfile().pluginId()}
+                        disabled={vnode.attrs.readonly}/>
     );
   }
 }
@@ -374,10 +375,10 @@ class ElasticProfileStep extends Step {
       return [
         <Buttons.Cancel onclick={wizard.close.bind(wizard)} css={wizardButtonStyles}
                         data-test-id="cancel">Cancel</Buttons.Cancel>,
-        <Buttons.Primary data-test-id="finish" align="right"
+        <Buttons.Primary data-test-id="finish" align="right" css={wizardButtonStyles}
                          onclick={this.saveAndFinish.bind(this, wizard)}>Save</Buttons.Primary>,
-        <Buttons.Primary data-test-id="previous" onclick={wizard.previous.bind(wizard, 1)}
-                         align="right">Show Cluster Profile</Buttons.Primary>,
+        <Buttons.Secondary data-test-id="previous" onclick={wizard.previous.bind(wizard, 1)} css={wizardButtonStyles}
+                           align="right">Show Cluster Profile</Buttons.Secondary>,
         <span class={styles.footerError}>{this.footerError()}</span>
       ];
     } else {

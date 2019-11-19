@@ -22,6 +22,7 @@ import {Environments, EnvironmentWithOrigin} from "models/new-environments/envir
 import test_data from "models/new-environments/spec/test_data";
 import {EditAgentsModal} from "views/pages/new-environments/edit_agents_modal";
 import {TestHelper} from "views/pages/spec/test_helper";
+import {ModalState} from "../../../components/modal";
 
 describe("Edit Agents Modal", () => {
   const helper = new TestHelper();
@@ -254,4 +255,11 @@ describe("Edit Agents Modal", () => {
     expect(helper.byTestId("save-button")).toHaveText("Save");
   });
 
+  it('should disable save and cancel button if modal state is loading', () => {
+    modal.modalState = ModalState.LOADING;
+    m.redraw.sync();
+    expect(helper.byTestId("save-button")).toBeDisabled();
+    expect(helper.byTestId("cancel-button")).toBeDisabled();
+    expect(helper.byTestId("spinner")).toBeInDOM();
+  });
 });

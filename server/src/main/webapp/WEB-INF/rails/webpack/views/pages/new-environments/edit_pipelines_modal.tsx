@@ -189,8 +189,10 @@ export class EditPipelinesModal extends Modal {
   }
 
   buttons(): m.ChildArray {
-    return [<Primary data-test-id="save-button" onclick={this.performSave.bind(this)}>Save</Primary>,
-      <Cancel data-test-id="cancel-button" onclick={this.close.bind(this)}>Cancel</Cancel>
+    return [
+      <Primary data-test-id="save-button" onclick={this.performSave.bind(this)}
+               disabled={this.isLoading()}>Save</Primary>,
+      <Cancel data-test-id="cancel-button" onclick={this.close.bind(this)} disabled={this.isLoading()}>Cancel</Cancel>
     ];
   }
 
@@ -198,12 +200,14 @@ export class EditPipelinesModal extends Modal {
     if (this.pipelinesVM.environment.isValid()) {
       const pipelinesToAdd    = this.pipelinesToAdd().map((pipeline) => pipeline.name());
       const pipelinesToRemove = this.pipelinesToRemove().map((pipeline) => pipeline.name());
+      this.modalState         = ModalState.LOADING;
       EnvironmentsAPIs.patch(this.originalEnv.name(), {
         pipelines: {
           add: pipelinesToAdd,
           remove: pipelinesToRemove
         }
       }).then((result) => {
+        this.modalState = ModalState.OK;
         result.do(
           () => {
             this.onSuccessfulSave("Pipelines updated successfully for env " + this.originalEnv.name());

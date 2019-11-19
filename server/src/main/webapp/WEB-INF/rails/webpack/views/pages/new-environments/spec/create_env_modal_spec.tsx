@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
+import m from "mithril";
 import {CreateEnvModal} from "views/pages/new-environments/create_env_modal";
 import {TestHelper} from "views/pages/spec/test_helper";
+import {ModalState} from "../../../components/modal";
 
 describe("Create Env Modal", () => {
   const helper = new TestHelper();
@@ -24,7 +26,7 @@ describe("Create Env Modal", () => {
   function mountModal() {
     modal = new CreateEnvModal(jasmine.createSpy("onSuccessfulSave"));
 
-    helper.mount(modal.body.bind(modal));
+    helper.mount(modal.view.bind(modal));
   }
 
   beforeEach(() => {
@@ -46,5 +48,13 @@ describe("Create Env Modal", () => {
     expect(helper.byTestId("flash-message-info")).toContainText(infoMessageText);
     expect(helper.byTestId("form-field-label-environment-name")).toBeInDOM();
     expect(helper.byTestId("form-field-input-environment-name")).toBeInDOM();
+  });
+
+  it('should disable save and cancel button if modal state is loading', () => {
+    modal.modalState = ModalState.LOADING;
+    m.redraw.sync();
+    expect(helper.byTestId("button-save")).toBeDisabled();
+    expect(helper.byTestId("button-cancel")).toBeDisabled();
+    expect(helper.byTestId("spinner")).toBeInDOM();
   });
 });

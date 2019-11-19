@@ -25,6 +25,7 @@ import {Environments, EnvironmentWithOrigin} from "models/new-environments/envir
 import data from "models/new-environments/spec/test_data";
 import {EditPipelinesModal} from "views/pages/new-environments/edit_pipelines_modal";
 import {TestHelper} from "views/pages/spec/test_helper";
+import {ModalState} from "../../../components/modal";
 
 describe("Edit Pipelines Modal", () => {
   const helper = new TestHelper();
@@ -239,5 +240,13 @@ describe("Edit Pipelines Modal", () => {
     const configRepoId   = pipelineGroupsJSON.groups[0].pipelines[1].origin.id;
     expect(configRepoLink).toHaveText(configRepoId!);
     expect(configRepoLink.getAttribute("href")).toBe(`/go/admin/config_repos/#!${configRepoId}`);
+  });
+
+  it('should disable save and cancel button if modal state is loading', () => {
+    modal.modalState = ModalState.LOADING;
+    m.redraw.sync();
+    expect(helper.byTestId("save-button")).toBeDisabled();
+    expect(helper.byTestId("cancel-button")).toBeDisabled();
+    expect(helper.byTestId("spinner")).toBeInDOM();
   });
 });

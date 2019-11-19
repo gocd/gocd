@@ -137,23 +137,24 @@ describe Admin::StagesController, "view" do
         ReflectionUtil.setField(@cruise_config, "md5", "1234abcd")
         expect(@cruise_config.pipelineConfigByName(CaseInsensitiveString.new("pipeline-name")).findBy(CaseInsensitiveString.new("stage-foo"))).to be_nil
         @go_config_service = stub_service(:go_config_service)
+        @pipeline_config_service = stub_service(:pipeline_config_service)
       end
 
       describe "with valid data" do
         before do
-          @result = stub_localized_result
           @user = current_user
-          stub_save_for_success
+          allow(@pipeline_config_service).to receive(:getPipelineConfig).and_return(@pipeline)
           allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
-        end
-
-        after do
-          assert_save_arguments "some-md5"
+          allow(@go_config_service).to receive(:getCurrentConfig).and_return(@cruise_config)
         end
 
         it "should save stage fields" do
-          post :create, params:{:stage_parent=> "pipelines", :pipeline_name => "pipeline-name", :stage => {:name => "stage-foo", :jobs => [{:name => "another-job"}]}, :config_md5 => "some-md5"}
-          expect(@cruise_config.pipelineConfigByName(CaseInsensitiveString.new("pipeline-name")).findBy(CaseInsensitiveString.new("stage-foo"))).not_to be_nil
+          result = HttpLocalizedOperationResult.new
+          expect(@pipeline_config_service).to receive(:updatePipelineConfig).and_return(result)
+
+          post :create, params:{:stage_parent=> "pipelines", :pipeline_name => "pipeline-name",
+                                :pipeline_md5 => "pipeline-md5", :pipeline_group_name => 'defaultGroup',
+                                :stage => {:name => "stage-foo", :jobs => [{:name => "another-job"}]}, :config_md5 => "some-md5"}
 
           expect(response.status).to eq(200)
           expect(response.body).to have_content("Saved successfully")

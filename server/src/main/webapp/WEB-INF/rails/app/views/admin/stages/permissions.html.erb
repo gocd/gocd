@@ -10,6 +10,9 @@
                           :onsubmit => "return AjaxForm.jquery_ajax_submit(this, AjaxForm.ConfigFormEditHandler);",
                           :class => "popup_form"}) do |f| %>
         <%= md5_field %>
+        <%= hidden_field_tag :pipeline_md5, @pipeline_md5 %>
+        <%= hidden_field_tag :pipeline_group_name, @pipeline_group_name %>
+        <%= hidden_field_tag :pipeline_name, @pipeline.name %>
         <div class="fieldset">
             <% stage_has_auth_defined = @stage.hasOperatePermissionDefined() %>
             <div class="form_item security_mode checkbox_row">

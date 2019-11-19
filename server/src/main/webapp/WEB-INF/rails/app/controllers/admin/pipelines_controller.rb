@@ -15,7 +15,7 @@
 #
 
 module Admin
-  class PipelinesController < AdminController
+  class PipelinesController < FastAdminController
     helper ::Admin::AdminHelper
     helper ::Admin::PipelinesHelper
     helper FlashMessagesHelper
@@ -179,6 +179,25 @@ module Admin
     end
 
     def save_tab(error_rendering_options_or_proc)
+      if Toggles.isToggleOff(Toggles.FAST_PIPELINE_SAVE)
+        save_tab_old(error_rendering_options_or_proc)
+      end
+      pipeline_name = params[:pipeline_name]
+      @original_params = Struct.new(:params).new
+      @original_pipeline_config = pipeline_config_service.getPipelineConfig(pipeline_name)
+      @original_params.params = CLONER.deepClone(@original_pipeline_config.getParams())
+      @pipeline = CLONER.deep_clone(@original_pipeline_config)
+      @pipeline.setConfigAttributes(params['pipeline'])
+      redirect_url = pipeline_edit_path(:pipeline_name => params[:pipeline_name], :stage_parent => "pipelines", :current_tab => params[:current_tab])
+      fast_save_page(redirect_url, error_rendering_options_or_proc) do
+        assert_load(:pipeline, @pipeline)
+        assert_load(:pipeline_group_name, params[:pipeline_group_name])
+        assert_load(:pipeline_md5, params[:pipeline_md5])
+        load_pause_info
+      end
+    end
+
+    def save_tab_old(error_rendering_options_or_proc)
       @original_params = Struct.new(:params).new
       save_page(params[:config_md5], pipeline_edit_path(:pipeline_name => params[:pipeline_name], :stage_parent=>"pipelines", :current_tab => params[:current_tab]), error_rendering_options_or_proc, Class.new(::ConfigUpdate::SaveAsPipelineAdmin) do
         include ConfigUpdate::PipelineNode
@@ -223,7 +242,8 @@ module Admin
     end
 
     def config_param_errors_matching(pattern)
-      @cruise_config.getAllErrors().
+      node_for_errors = Toggles.isToggleOff(Toggles.FAST_PIPELINE_SAVE) ? @cruise_config : @pipeline
+      node_for_errors.getAllErrors().
               collect { |config_error| config_error.getAll().to_a }.
               flatten.
               collect { |err_msg| err_msg =~ pattern ? $1 : nil }.

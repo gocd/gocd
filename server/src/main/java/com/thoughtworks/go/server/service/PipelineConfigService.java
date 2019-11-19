@@ -26,6 +26,7 @@ import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.presentation.CanDeleteResult;
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.server.service.tasks.PluggableTaskService;
 import com.thoughtworks.go.util.Node;
@@ -151,6 +152,14 @@ public class PipelineConfigService {
         validatePluggableTasks(pipelineConfig);
         UpdatePipelineConfigCommand updatePipelineConfigCommand = new UpdatePipelineConfigCommand(goConfigService, entityHashingService, pipelineConfig, updatedGroupName, currentUser, md5, result, externalArtifactsService);
         update(currentUser, pipelineConfig, result, updatePipelineConfigCommand);
+    }
+
+    //called from rails
+    //Result a result object instead of mutating the arg, to make it easier to test
+    public LocalizedOperationResult updatePipelineConfig(final Username currentUser, final PipelineConfig pipelineConfig, String updatedGroupName, final String md5) {
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        updatePipelineConfig(currentUser, pipelineConfig, updatedGroupName, md5, result);
+        return result;
     }
 
     public PipelineGroups viewableGroupsFor(Username username) {

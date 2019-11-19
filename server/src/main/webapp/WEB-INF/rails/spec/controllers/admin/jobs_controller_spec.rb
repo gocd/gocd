@@ -36,6 +36,7 @@ describe Admin::JobsController do
     allow(controller).to receive(:task_view_service).and_return(@task_view_service)
     @pluggable_task_service = double('Pluggable_task_service')
     allow(controller).to receive(:pluggable_task_service).and_return(@pluggable_task_service)
+    allow(controller).to receive(:pipeline_config_service).and_return(@pipeline_config_service = double("Pipeline config service"))
   end
 
   describe "routes" do
@@ -77,6 +78,7 @@ describe Admin::JobsController do
       @cruise_config = BasicCruiseConfig.new()
       @pipeline = PipelineConfigMother.createPipelineConfig("pipeline-name", "stage-name", ["job-1", "job-2", "job-3"].to_java(java.lang.String))
       @cruise_config.addPipeline("defaultGroup", @pipeline)
+      allow(@pipeline_config_service).to receive(:getPipelineConfig).with("pipeline-name").and_return(@pipeline)
 
       @pipeline_config_for_edit = ConfigForEdit.new(@pipeline, @cruise_config, @cruise_config)
 
@@ -89,6 +91,7 @@ describe Admin::JobsController do
 
       @pause_info = PipelinePauseInfo.paused("just for fun", "loser")
       allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
+      allow(@go_config_service).to receive(:getCurrentConfig).and_return(@cruise_config)
     end
 
 
@@ -206,23 +209,29 @@ describe Admin::JobsController do
       end
 
       it "should update job name and redirect to the new job" do
-        stub_save_for_success
+        result = HttpLocalizedOperationResult.new
+        expect(@pipeline_config_service).to receive(:updatePipelineConfig).and_return(result)
 
         put :update, params:{:pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1",
-                    :current_tab => "settings",:config_md5 => "1234abcd", "job"=>{"name" => "renamed_job"}, :stage_parent => "pipelines"}
+                             :pipeline_md5 => "pipeline-md5", :pipeline_group_name => 'defaultGroup',
+                             :current_tab => "settings",:config_md5 => "1234abcd", "job"=>{"name" => "renamed_job"},
+                             :stage_parent => "pipelines"}
 
         expect(response.location).to match(/admin\/pipelines\/pipeline-name\/stages\/stage-name\/job\/renamed_job\/settings?.*?fm=(.+)/)
-        assert_update_command ::ConfigUpdate::JobNode, ::ConfigUpdate::NodeAsSubject, ::ConfigUpdate::RefsAsUpdatedRefs
+        expect(assigns[:pipeline_md5]).to eq("pipeline-md5")
+        expect(assigns[:pipeline_group_name]).to eq("defaultGroup")
       end
 
       it "should not redirect when update fails" do
-        stub_save_for_validation_error do |result, *_|
-          result.forbidden('some message', HealthStateType.forbiddenForPipeline("pipeline-name"))
-        end
+        result = HttpLocalizedOperationResult.new
+        result.forbidden("some message", HealthStateType.forbiddenForPipeline("pipeline-name"))
+        expect(@pipeline_config_service).to receive(:updatePipelineConfig).and_return(result)
         expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
 
         put :update, params:{:pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1",
-            :current_tab => "settings", :config_md5 => "1234abcd", "job"=>{"name" => "doesnt_matter"}, :stage_parent => "pipelines"}
+                             :pipeline_md5 => "pipeline-md5", :pipeline_group_name => 'defaultGroup',
+                             :current_tab => "settings", :config_md5 => "1234abcd", "job"=>{"name" => "doesnt_matter"},
+                             :stage_parent => "pipelines"}
 
         expect(response.location).to be_nil
         assert_template "settings"
@@ -231,82 +240,108 @@ describe Admin::JobsController do
       end
 
       it "should load resources for autocomplete even when update fails" do
-        stub_save_for_validation_error do |result, *_|
-          result.forbidden('some message', HealthStateType.forbiddenForPipeline("pipeline-name"))
-        end
+        result = HttpLocalizedOperationResult.new
+        result.forbidden('some message', HealthStateType.forbiddenForPipeline("pipeline-name"))
+        expect(@pipeline_config_service).to receive(:updatePipelineConfig).and_return(result)
         expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
         add_resource("job-2","anything")
 
         put :update, params:{:pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1",
-                    :current_tab => "settings",:config_md5 => "1234abcd", "job"=>{"name" => "doesnt_matter"}, :stage_parent => "pipelines"}
+                             :pipeline_md5 => "pipeline-md5", :pipeline_group_name => 'defaultGroup',
+                             :current_tab => "settings",:config_md5 => "1234abcd", "job"=>{"name" => "doesnt_matter"},
+                             :stage_parent => "pipelines"}
 
         expect(response.location).to be_nil
         expect(assigns[:autocomplete_resources]).to eq(["anything"].to_json)
       end
 
       it "should not load new config on save failure (validation / merge conflict)" do
-        stub_save_for_validation_error do |result, *_|
-          result.forbidden('some message', HealthStateType.forbiddenForPipeline("pipeline-name"))
-        end
+        result = HttpLocalizedOperationResult.new
+        result.forbidden('some message', HealthStateType.forbiddenForPipeline("pipeline-name"))
+        expect(@pipeline_config_service).to receive(:updatePipelineConfig).and_return(result)
         expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
         add_resource("job-2","anything")
 
         put :update, params:{:pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1",
-                    :current_tab => "settings",:config_md5 => "1234abcd", "job"=>{"name" => "doesnt_matter"}, :stage_parent => "pipelines"}
+                             :pipeline_md5 => "pipeline-md5", :pipeline_group_name => 'defaultGroup',
+                             :current_tab => "settings",:config_md5 => "1234abcd", "job"=>{"name" => "doesnt_matter"},
+                             :stage_parent => "pipelines"}
 
         expect(controller.instance_variable_get("@cruise_config").getMd5()).to eq("1234abcd")
         expect(@go_config_service).not_to receive(:loadForEdit)
+        expect(assigns[:pipeline_md5]).to eq("pipeline-md5")
+        expect(assigns[:pipeline_group_name]).to eq("defaultGroup")
       end
 
       it "should update environment variables" do
-        stub_save_for_success
+        result = HttpLocalizedOperationResult.new
+        expect(@pipeline_config_service).to receive(:updatePipelineConfig).and_return(result)
 
-        put :update, params:{:pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1", :current_tab => "settings",:config_md5 => "1234abcd", "job"=>{"variables"=>[{:name=>"key", :valueForDisplay=>"value"}]}, :stage_parent => "pipelines"}
+        put :update, params:{:pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1",
+                             :pipeline_md5 => "pipeline-md5", :pipeline_group_name => 'defaultGroup',
+                             :current_tab => "settings",:config_md5 => "1234abcd", "job"=>{"variables"=>[{:name=>"key", :valueForDisplay=>"value"}]}, :stage_parent => "pipelines"}
 
         variable = assigns[:job].variables().get(0)
         expect(variable.name).to eq("key")
         expect(variable.value).to eq("value")
         expect(variable.valueForDisplay).to eq("value")
         expect(response.location).to match(/admin\/pipelines\/pipeline-name\/stages\/stage-name\/job\/job-1\/settings?.*?fm=(.+)/)
-        assert_update_command ::ConfigUpdate::JobNode, ::ConfigUpdate::NodeAsSubject, ::ConfigUpdate::RefsAsUpdatedRefs
+        expect(assigns[:pipeline_md5]).to eq("pipeline-md5")
+        expect(assigns[:pipeline_group_name]).to eq("defaultGroup")
       end
 
      it "should update custom tabs" do
-        stub_save_for_success
+       result = HttpLocalizedOperationResult.new
+       expect(@pipeline_config_service).to receive(:updatePipelineConfig).and_return(result)
 
-        put :update, params:{:pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1", :current_tab => "tabs",:config_md5 => "1234abcd", "job"=>{"tabs"=>[{"name"=>"tab1", "path"=>"path1"}]}, :stage_parent => "pipelines"}
+        put :update, params:{:pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1",
+                             :pipeline_md5 => "pipeline-md5", :pipeline_group_name => 'defaultGroup',
+                             :current_tab => "tabs",:config_md5 => "1234abcd", "job"=>{"tabs"=>[{"name"=>"tab1", "path"=>"path1"}]}, :stage_parent => "pipelines"}
 
         expect(assigns[:job].getTabs().get(0).name).to eq("tab1")
         expect(assigns[:job].getTabs().get(0).path).to eq("path1")
         expect(response.location).to match(/admin\/pipelines\/pipeline-name\/stages\/stage-name\/job\/job-1\/tabs?.*?fm=(.+)/)
-        assert_update_command ::ConfigUpdate::JobNode, ::ConfigUpdate::NodeAsSubject, ::ConfigUpdate::RefsAsUpdatedRefs
+       expect(assigns[:pipeline_md5]).to eq("pipeline-md5")
+       expect(assigns[:pipeline_group_name]).to eq("defaultGroup")
      end
 
       it "should clear environment variables" do
-        stub_save_for_success
+        result = HttpLocalizedOperationResult.new
+        expect(@pipeline_config_service).to receive(:updatePipelineConfig).and_return(result)
 
-        put :update, params:{:pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1", :current_tab => "settings",:config_md5 => "1234abcd", "default_as_empty_list" => ["job>variables"], :stage_parent => "pipelines"}
+        put :update, params:{:pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1",
+                             :pipeline_md5 => "pipeline-md5", :pipeline_group_name => 'defaultGroup',
+                             :current_tab => "settings",:config_md5 => "1234abcd", "default_as_empty_list" => ["job>variables"], :stage_parent => "pipelines"}
 
         expect(assigns[:job].variables().isEmpty).to eq(true)
-        assert_update_command ::ConfigUpdate::JobNode, ::ConfigUpdate::NodeAsSubject, ::ConfigUpdate::RefsAsUpdatedRefs
+        expect(assigns[:pipeline_md5]).to eq("pipeline-md5")
+        expect(assigns[:pipeline_group_name]).to eq("defaultGroup")
       end
 
       it "should update resources" do
-        stub_save_for_success
+        result = HttpLocalizedOperationResult.new
+        expect(@pipeline_config_service).to receive(:updatePipelineConfig).and_return(result)
 
-        put :update, params:{:pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1", :current_tab => "resources",:config_md5 => "1234abcd", "job"=> {"resources" => "a,  b  ,c,d"}, :stage_parent => "pipelines"}
+        put :update, params:{:pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1",
+                             :pipeline_md5 => "pipeline-md5", :pipeline_group_name => 'defaultGroup',
+                             :current_tab => "resources",:config_md5 => "1234abcd", "job"=> {"resources" => "a,  b  ,c,d"}, :stage_parent => "pipelines"}
 
         expect(assigns[:job].resourceConfigs().exportToCsv()).to eq("a, b, c, d, ")
-        assert_update_command ::ConfigUpdate::JobNode, ::ConfigUpdate::NodeAsSubject, ::ConfigUpdate::RefsAsUpdatedRefs
+        expect(assigns[:pipeline_md5]).to eq("pipeline-md5")
+        expect(assigns[:pipeline_group_name]).to eq("defaultGroup")
       end
 
       it "should populate an empty artifactConfigs when params is nil" do
-        stub_save_for_success
+        result = HttpLocalizedOperationResult.new
+        expect(@pipeline_config_service).to receive(:updatePipelineConfig).and_return(result)
 
-        put :update, params:{:pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1", :current_tab => "artifacts",:config_md5 => "1234abcd", "default_as_empty_list" => ["job>artifactTypeConfigs"], :stage_parent => "pipelines"}
+        put :update, params:{:pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1",
+                             :pipeline_md5 => "pipeline-md5", :pipeline_group_name => 'defaultGroup',
+                             :current_tab => "artifacts",:config_md5 => "1234abcd", "default_as_empty_list" => ["job>artifactTypeConfigs"], :stage_parent => "pipelines"}
 
         expect(assigns[:job].artifactTypeConfigs().size()).to eq(0)
-        assert_update_command ::ConfigUpdate::JobNode, ::ConfigUpdate::NodeAsSubject, ::ConfigUpdate::RefsAsUpdatedRefs
+        expect(assigns[:pipeline_md5]).to eq("pipeline-md5")
+        expect(assigns[:pipeline_group_name]).to eq("defaultGroup")
       end
     end
 

@@ -40,6 +40,8 @@ module PipelineConfigLoader
       pipeline_for_edit = template_config_service.loadForEdit(params[:pipeline_name], current_user, result)
     else
       pipeline_for_edit = go_config_service.loadForEdit(params[:pipeline_name], current_user, result)
+      @pipeline_group_name = pipeline_for_edit.getCruiseConfig.findGroupOfPipeline(pipeline_for_edit.config).group
+      @pipeline_md5 = entity_hashing_service.md5ForEntity(pipeline_for_edit.config, @pipeline_group_name)
     end
     unless result.isSuccessful()
       render_localized_operation_result result

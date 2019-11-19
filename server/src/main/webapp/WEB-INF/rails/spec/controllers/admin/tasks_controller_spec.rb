@@ -88,6 +88,7 @@ describe Admin::TasksController do
 
       @go_config_service = stub_service(:go_config_service)
       @pipeline_pause_service = stub_service(:pipeline_pause_service)
+      @entity_hashing_service = stub_service(:entity_hashing_service)
 
       @user = current_user
       @result = stub_localized_result
@@ -105,6 +106,7 @@ describe Admin::TasksController do
       expect(@go_config_service).to receive(:loadForEdit).with("pipeline.name", @user, @result).and_return(@pipeline_config_for_edit)
       expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline.name").and_return(@pause_info)
       allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
+      allow(@entity_hashing_service).to receive(:md5ForEntity).and_return('pipeline-md5')
     end
 
     it "should load tasks" do

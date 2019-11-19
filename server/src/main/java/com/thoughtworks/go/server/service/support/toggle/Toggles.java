@@ -22,6 +22,7 @@ public class Toggles {
     public static String TEST_DRIVE = "test_drive";
     public static String NEW_PIPELINE_DROPDOWN = "new_pipeline_dropdown";
     public static String SHOW_NEW_ENVIRONMENTS_SPA = "show_new_environments_spa";
+    public static String FAST_PIPELINE_SAVE = "fast_pipeline_save";
 
     private static FeatureToggleService service;
 
@@ -41,5 +42,9 @@ public class Toggles {
             throw new RuntimeException("Toggles not initialized with feature toggle service");
         }
         return service.isToggleOn(key);
+    }
+
+    public static boolean isToggleOff(String key) {
+        return !isToggleOn(key);
     }
 }

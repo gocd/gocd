@@ -23,6 +23,7 @@ describe Admin::MaterialsController do
   before :each do
     @go_config_service = stub_service(:go_config_service)
     @pipeline_pause_service = stub_service(:pipeline_pause_service)
+    @entity_hashing_service = stub_service(:entity_hashing_service)
     allow(controller).to receive(:populate_config_validity)
   end
 
@@ -40,13 +41,18 @@ describe Admin::MaterialsController do
     before :each do
       @pause_info = PipelinePauseInfo.paused("just for fun", "loser")
       @pipeline_name = "pipeline-name"
+      pipeline_group = BasicPipelineConfigs.new
+      pipeline_group.group = "defaultGroup"
+      allow(@entity_hashing_service).to receive(:md5ForEntity).and_return('pipeline-md5')
       expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with(@pipeline_name).and_return(@pause_info)
       allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
       @cruise_config = double("Cruise Config")
       expect(@cruise_config).to receive(:name).and_return(@pipeline_name)
+      expect(@cruise_config).to receive(:findGroupOfPipeline).and_return(pipeline_group)
       a = double('config wrapper')
       expect(a).to receive(:getConfig).and_return(@cruise_config)
-      expect(a).to receive(:getCruiseConfig).and_return(@cruise_config)
+      expect(a).to receive(:config).twice.and_return(@cruise_config)
+      expect(a).to receive(:getCruiseConfig).twice.and_return(@cruise_config)
       expect(a).to receive(:getProcessedConfig).and_return(@cruise_config)
       expect(@go_config_service).to receive(:loadForEdit).and_return(a)
     end

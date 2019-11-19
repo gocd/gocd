@@ -15,12 +15,14 @@
 #
 
 module Admin
-  class StagesController < AdminController
+  class StagesController < FastAdminController
     include PipelineConfigLoader
     helper AdminHelper
     helper FlashMessagesHelper
     helper TaskHelper
     include AuthenticationHelper
+
+    CLONER = GoConfigCloner.new
 
     before_action :check_admin_user_and_403, only: [:config_change]
     load_pipeline_except_for :create, :update, :destroy, :increment_index, :decrement_index, :config_change
@@ -41,6 +43,27 @@ module Admin
     end
 
     def create
+      if params[:stage_parent] == 'templates' or Toggles.isToggleOff(Toggles.FAST_PIPELINE_SAVE)
+        old_create
+        return
+      end
+      pipeline_name = params[:pipeline_name]
+      original_pipeline_config = pipeline_config_service.getPipelineConfig(pipeline_name)
+      @pipeline = CLONER.deep_clone(original_pipeline_config)
+      assert_load :stage, new_stage
+      @stage.setConfigAttributes(params[:stage], task_view_service)
+      @pipeline.addStageWithoutValidityAssertion(@stage)
+      fast_save_popup({:action => :new, :layout => false}, {:current_tab => params[:current_tab]}) do
+        assert_load(:pipeline, @pipeline)
+        assert_load(:stage, @stage)
+        assert_load(:pipeline_md5, params[:pipeline_md5])
+        assert_load(:pipeline_group_name, params[:pipeline_group_name])
+        assert_load(:pipeline_name, params[:pipeline_name])
+        assert_load(:task_view_models, task_view_service.getTaskViewModelsWith(@stage.allBuildPlans().first().tasks().first())) unless @update_result.isSuccessful()
+      end
+    end
+
+    def old_create
       assert_load :stage, new_stage
       @stage.setConfigAttributes(params[:stage], task_view_service)
       save_popup(params[:config_md5], Class.new(::ConfigUpdate::SaveAsPipelineOrTemplateAdmin) do
@@ -70,6 +93,33 @@ module Admin
     end
 
     def update
+      if params[:stage_parent] == 'templates' or Toggles.isToggleOff(Toggles.FAST_PIPELINE_SAVE)
+        old_update
+        return
+      end
+      pipeline_name = params[:pipeline_name]
+      original_pipeline_config = pipeline_config_service.getPipelineConfig(pipeline_name)
+      @pipeline = CLONER.deep_clone(original_pipeline_config)
+      @stage_to_be_updated = @pipeline.getStage(params[:stage_name])
+      @stage_to_be_updated.setConfigAttributes(params[:stage])
+
+      fast_save_popup({:action => params[:current_tab], :layout => nil},
+                      {:current_tab => params[:current_tab], :action => :edit,
+                       :stage_name => params[:stage][:name] || params[:stage_name]}) do
+        @should_not_render_layout = true
+        assert_load(:pipeline, ConfigUpdate::LoadConfig.for(params).load_pipeline_or_template(@cruise_config))
+        assert_load(:stage, @stage_to_be_updated)
+        assert_load(:pipeline_md5, params[:pipeline_md5])
+        assert_load(:pipeline_group_name, params[:pipeline_group_name])
+        assert_load(:pipeline_name, params[:pipeline_name])
+
+        load_data_for_permissions
+        load_pause_info
+      end
+
+    end
+
+    def old_update
       save_popup(params[:config_md5], Class.new(::ConfigUpdate::SaveAsPipelineOrTemplateAdmin) do
         include ConfigUpdate::StageNode
         include ConfigUpdate::NodeAsSubject

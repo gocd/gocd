@@ -15,15 +15,33 @@
  */
 @import "../../global/common";
 
-.inline-link {
-  color:           $link-color;
-  text-decoration: none;
-  &:hover {
-    text-decoration: underline;
-    color:           $link-hover-color;
+.pagination-container {
+  background-color: $white;
+  border:           1px solid $global-border-color;
+  border-radius:    $global-border-radius;
+  display:          inline-flex;
+  box-sizing:       border-box;
+  margin:           0 0 $global-margin-bottom 0;
+}
+
+.pagination-link {
+  padding:   5px 10px;
+  font-size: 14px;
+  display:   block;
+
+  &.disabled {
+    color:  $go-disabled;
+    cursor: not-allowed;
+  }
+
+  &.current-page {
+    font-weight:      bold;
+    background-color: $secondary-bg;
+  }
+
+  & + & {
+    border-left: 1px solid $global-border-color;
   }
 }
 
-.external-icon {
-  @include icon-after($type: $fa-var-external-link);
-}
+

@@ -618,6 +618,7 @@ public class Routes {
 
     public class AgentsSPA {
         public static final String BASE = "/agents";
+        public static final String AGENT_UUID = "/:uuid";
     }
 
     public class AnalyticsSPA {

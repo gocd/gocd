@@ -44,7 +44,7 @@ export class DeleteUserConfirmModal extends DeleteConfirmModal {
   }
 
   private delete(usersToBeDeleted: BulkUserOperationJSON) {
-    UsersCRUD
+    return UsersCRUD
       .bulkUserDelete(usersToBeDeleted)
       .then((apiResult) => {
         apiResult.do(() => {

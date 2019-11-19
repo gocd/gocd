@@ -87,24 +87,23 @@ export class SecretConfigsPage extends Page<null, State> {
 
     vnode.state.onDelete = (obj, e) => {
       e.stopPropagation();
-      const deleteModal = new DeleteConfirmModal(`Are you sure you want to delete '${obj.id()}' secret configuration?`
-        , () => {
-          SecretConfigsCRUD
-            .delete(obj)
-            .then((response) => {
-              response.do(
-                (successResponse: SuccessResponse<any>) => {
-                  vnode.state.onSuccessfulSave(successResponse.body.message);
-                  const filteredEntities = vnode.state.secretConfigs().filter((entity) => {
-                    return entity().id() !== obj.id();
-                  });
-                  vnode.state.secretConfigs(filteredEntities);
-                },
-                (errorResponse: ErrorResponse) => vnode.state.onError(JSON.parse(errorResponse.body!).message));
-            })
-            .then(deleteModal.close.bind(deleteModal));
-        }
-        , "Delete Secret Configuration");
+      const deleteModal: DeleteConfirmModal = new DeleteConfirmModal(`Are you sure you want to delete '${obj.id()}' secret configuration?`,
+                                                                     () => {
+                                                                       return SecretConfigsCRUD
+                                                                         .delete(obj)
+                                                                         .then((response) => {
+                                                                           response.do(
+                                                                             (successResponse: SuccessResponse<any>) => {
+                                                                               vnode.state.onSuccessfulSave(successResponse.body.message);
+                                                                               const filteredEntities = vnode.state.secretConfigs().filter((entity) => {
+                                                                                 return entity().id() !== obj.id();
+                                                                               });
+                                                                               vnode.state.secretConfigs(filteredEntities);
+                                                                             },
+                                                                             (errorResponse: ErrorResponse) => vnode.state.onError(JSON.parse(errorResponse.body!).message));
+                                                                         })
+                                                                         .then(deleteModal.close.bind(deleteModal));
+                                                                     }, "Delete Secret Configuration");
 
       deleteModal.render();
     };

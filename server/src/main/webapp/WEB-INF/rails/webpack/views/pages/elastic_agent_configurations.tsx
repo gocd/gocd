@@ -101,19 +101,19 @@ export class ElasticProfilesPage extends Page<null, State> {
         </span>
         );
 
-        const modal = new DeleteConfirmModal(
+        const modal: DeleteConfirmModal = new DeleteConfirmModal(
           deleteConfirmMsg,
           () => {
-            ElasticAgentProfilesCRUD.delete(id)
-                                    .then((result) => {
-                                      result.do(
-                                        () => vnode.state.onSuccessfulSave(
-                                          <span>The elastic agent profile <em>{id}</em> was deleted successfully!</span>
-                                        ),
-                                        onOperationError
-                                      );
-                                    })
-                                    .finally(modal.close.bind(modal));
+            return ElasticAgentProfilesCRUD.delete(id)
+                                           .then((result) => {
+                                             result.do(
+                                               () => vnode.state.onSuccessfulSave(
+                                                 <span>The elastic agent profile <em>{id}</em> was deleted successfully!</span>
+                                               ),
+                                               onOperationError
+                                             );
+                                           })
+                                           .finally(modal.close.bind(modal));
           });
         modal.render();
       },
@@ -149,19 +149,19 @@ export class ElasticProfilesPage extends Page<null, State> {
         </span>
         );
 
-        const modal = new DeleteConfirmModal(
+        const modal: DeleteConfirmModal = new DeleteConfirmModal(
           deleteConfirmMsg,
           () => {
-            ClusterProfilesCRUD.delete(clusterProfileId)
-                               .then((result) => {
-                                 result.do(
-                                   () => vnode.state.onSuccessfulSave(
-                                     <span>The cluster profile <em>{clusterProfileId}</em> was deleted successfully!</span>
-                                   ),
-                                   onOperationError
-                                 );
-                               })
-                               .finally(modal.close.bind(modal));
+            return ClusterProfilesCRUD.delete(clusterProfileId)
+                                      .then((result) => {
+                                        result.do(
+                                          () => vnode.state.onSuccessfulSave(
+                                            <span>The cluster profile <em>{clusterProfileId}</em> was deleted successfully!</span>
+                                          ),
+                                          onOperationError
+                                        );
+                                      })
+                                      .finally(modal.close.bind(modal));
           });
         modal.render();
       },

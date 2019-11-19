@@ -293,7 +293,7 @@ export class DeleteRoleConfirmModal extends DeleteConfirmModal {
   }
 
   private delete(obj: GoCDRole | PluginRole) {
-    RolesCRUD
+    return RolesCRUD
       .delete(obj.name())
       .then((result) => {
         result.do(

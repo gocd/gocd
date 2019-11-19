@@ -22,9 +22,9 @@ import {Agents} from "models/agents/agents";
 import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import * as Icons from "views/components/icons/index";
-import {IconGroup} from "../../components/icons";
 import {EnvironmentBody} from "views/pages/new-environments/environment_body_widget";
 import {EnvironmentHeader} from "views/pages/new-environments/environment_header_widget";
+import {IconGroup} from "../../components/icons";
 import {DeleteOperation} from "../page_operations";
 
 interface Attrs extends DeleteOperation<EnvironmentWithOrigin> {

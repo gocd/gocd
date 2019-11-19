@@ -26,7 +26,6 @@ import {CheckboxField, HelpText, SearchField} from "views/components/forms/input
 import {Modal, ModalState, Size} from "views/components/modal";
 import {PipelinesViewModel} from "views/pages/new-environments/models/pipelines_view_model";
 import styles from "./edit_pipelines.scss";
-import _ from "lodash";
 
 interface SelectAllNoneWidgetAttrs {
   pipelinesVM: PipelinesViewModel;

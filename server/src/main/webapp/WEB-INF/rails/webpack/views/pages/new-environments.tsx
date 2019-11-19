@@ -59,22 +59,22 @@ export class NewEnvironmentsPage extends Page<null, State> {
       e.stopPropagation();
       this.flashMessage.clear();
 
-      const message = <span>Are you sure you want to delete environment <em>{env.name()}</em>?</span>;
-      const modal   = new DeleteConfirmModal(message, () => {
+      const message                   = <span>Are you sure you want to delete environment <em>{env.name()}</em>?</span>;
+      const modal: DeleteConfirmModal = new DeleteConfirmModal(message, () => {
         const self = this;
-        env.delete()
-           .then((result: ApiResult<any>) => {
-             result.do(
-               () => {
-                 self.flashMessage.setMessage(MessageType.success,
-                                              `The environment '${env.name()}' was deleted successfully!`);
-               }, (errorResponse: ErrorResponse) => {
-                 self.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);
-               }
-             );
-             //@ts-ignore
-           }).then(self.fetchData.bind(self))
-           .finally(modal.close.bind(modal));
+        return env.delete()
+                  .then((result: ApiResult<any>) => {
+                    result.do(
+                      () => {
+                        self.flashMessage.setMessage(MessageType.success,
+                                                     `The environment '${env.name()}' was deleted successfully!`);
+                      }, (errorResponse: ErrorResponse) => {
+                        self.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);
+                      }
+                    );
+                    //@ts-ignore
+                  }).then(self.fetchData.bind(self))
+                  .finally(modal.close.bind(modal));
       });
       modal.render();
     };

@@ -15,16 +15,17 @@
  */
 import m from "mithril";
 import * as Buttons from "views/components/buttons";
+import {ButtonIcon} from "views/components/buttons";
 import {Modal, Size} from "views/components/modal";
+import {OperationState} from "../../pages/page_operations";
 
 export class DeleteConfirmModal extends Modal {
   private readonly message: m.Children;
   private readonly modalTitle: string;
-  private ondelete: () => any;
+  private readonly ondelete: () => Promise<any>;
+  private operationState: OperationState | undefined;
 
-  constructor(message: m.Children,
-              ondelete: () => any,
-              title = "Are you sure?") {
+  constructor(message: m.Children, ondelete: () => Promise<any>, title = "Are you sure?") {
     super(Size.small);
     this.message    = message;
     this.modalTitle = title;
@@ -41,8 +42,17 @@ export class DeleteConfirmModal extends Modal {
 
   buttons(): m.ChildArray {
     return [
-      <Buttons.Danger data-test-id='button-delete' onclick={this.ondelete.bind(this)}>Yes Delete</Buttons.Danger>,
-      <Buttons.Cancel data-test-id='button-no-delete' onclick={this.close.bind(this)}>No</Buttons.Cancel>
+      <Buttons.Danger data-test-id='button-delete'
+                      disabled={this.operationState === OperationState.IN_PROGRESS}
+                      icon={this.operationState === OperationState.IN_PROGRESS ? ButtonIcon.SPINNER : undefined}
+                      onclick={() => {
+                        this.operationState = OperationState.IN_PROGRESS;
+                        const a = this.ondelete();
+                        a.finally(() => this.operationState = OperationState.DONE);
+                      }}>Yes Delete</Buttons.Danger>,
+      <Buttons.Cancel disabled={this.operationState === OperationState.IN_PROGRESS}
+                      data-test-id='button-no-delete' onclick={this.close.bind(this)}
+      >No</Buttons.Cancel>
     ];
   }
 }

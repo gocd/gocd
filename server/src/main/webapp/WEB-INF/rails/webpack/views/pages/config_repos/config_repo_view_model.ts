@@ -117,9 +117,9 @@ export class ConfigRepoVM {
       e.stopPropagation();
       page.flash.clear();
 
-      const message = ["Are you sure you want to delete the config repository ", m("strong", this.repo.id()), "?"];
-      const modal   = new DeleteConfirmModal(message, () => {
-        ConfigReposCRUD.delete(this.repo).then((resp) => {
+      const message                   = ["Are you sure you want to delete the config repository ", m("strong", this.repo.id()), "?"];
+      const modal: DeleteConfirmModal = new DeleteConfirmModal(message, () => {
+        return ConfigReposCRUD.delete(this.repo).then((resp) => {
           resp.do(
             (resp) => page.onSuccessfulSave(resp.body.message),
             (err) => page.onError(err.message));

@@ -52,8 +52,6 @@ module Admin
       @pipeline = CLONER.deep_clone(original_pipeline_config)
       assert_load :stage, new_stage
       @stage.setConfigAttributes(params[:stage], task_view_service)
-      task = @stage.getJobs().first().getTasks().first()
-      pluggable_task_service.validate(task) if task.instance_of? com.thoughtworks.go.config.pluggabletask.PluggableTask
       @pipeline.addStageWithoutValidityAssertion(@stage)
       fast_save_popup({:action => :new, :layout => false}, {:current_tab => params[:current_tab]}) do
         assert_load(:pipeline, @pipeline)

@@ -235,32 +235,6 @@ describe Admin::StagesController do
         # expect(@pipeline.last().getJobs().first().getTasks().first().instance_of?(PluggableTask)).to eq(true)
       end
 
-      it "should validate pluggable tasks before create" do
-        allow(@pluggable_task_service).to receive(:validate) do |task|
-          task.getConfiguration().getProperty("key").addError("key", "some error")
-        end
-        allow(@pipeline_config_service).to receive(:getPipelineConfig).with("pipeline-name").and_return(@pipeline)
-        result = HttpLocalizedOperationResult.new
-        result.badRequest("Save failed, see errors below")
-        expect(@pipeline_config_service).to receive(:updatePipelineConfig).and_return(HttpLocalizedOperationResult.new)
-        @new_task = PluggableTask.new( PluginConfiguration.new("curl.plugin", "1.0"), Configuration.new([ConfigurationPropertyMother.create("key", false, nil)].to_java(ConfigurationProperty)))
-        expect(@task_view_service).to receive(:taskInstanceFor).with("pluggableTask").and_return(@new_task)
-        expect(@task_view_service).to receive(:getTaskViewModelsWith).with(anything).and_return(Object.new)
-
-        job = {:name => "job", :tasks => {:taskOptions => "pluggableTask", "pluggableTask" => {:key => "value"}}}
-        stage = {:name => "stage", :jobs => [job]}
-        post :create, params:{:stage_parent => "pipelines", :pipeline_name => "pipeline-name", :config_md5 => "1234abcd",
-                              :pipeline_md5 => "pipeline-md5", :pipeline_group_name => 'defaultGroup', :stage => stage}
-
-        task_to_be_saved = assigns[:pipeline].last().getJobs().first().getTasks().first()
-        expect(task_to_be_saved.instance_of?(PluggableTask)).to eq(true)
-        expect(task_to_be_saved.getConfiguration().getProperty("key").errors().getAll().size()).to be > 0
-        expect(task_to_be_saved.getConfiguration().getProperty("key").errors().getAllOn("key").get(0)).to eq("some error")
-        assert_template "new"
-        assert_template layout: false
-        expect(response.status).to eq(400)
-      end
-
       it "should populate config_file_conflict when the md5 has already been changed" do
         allow(@pipeline_config_service).to receive(:getPipelineConfig).and_return(@pipeline)
         result = HttpLocalizedOperationResult.new

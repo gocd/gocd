@@ -39,7 +39,6 @@ import {ElasticProfilesPage} from "views/pages/elastic_agent_configurations";
 import {ClusterProfileOperations} from "views/pages/elastic_agent_configurations/cluster_profile_widget";
 import {
   CloneClusterProfileModal,
-  EditClusterProfileModal,
   NewClusterProfileModal
 } from "views/pages/elastic_agent_configurations/cluster_profiles_modals";
 import {ClusterProfilesWidget} from "views/pages/elastic_agent_configurations/cluster_profiles_widget";
@@ -49,7 +48,12 @@ import {
 } from "views/pages/elastic_agent_configurations/elastic_agent_profiles_modals";
 import {ElasticAgentOperations} from "views/pages/elastic_agent_configurations/elastic_profiles_widget";
 import {HelpText} from "views/pages/elastic_agents/help_text";
-import {openWizardForAdd, openWizardForAddElasticProfile, openWizardForEdit} from "views/pages/elastic_agents/wizard";
+import {
+  openWizardForAdd,
+  openWizardForAddElasticProfile,
+  openWizardForEditClusterProfile,
+  openWizardForEditElasticProfile
+} from "views/pages/elastic_agents/wizard";
 import {Page, PageState} from "views/pages/page";
 import {RequiresPluginInfos, SaveOperation} from "views/pages/page_operations";
 
@@ -117,12 +121,12 @@ export class ElasticAgentsPage extends Page<null, State> {
           throw Error("elastic profile exists without cluster");
         }
 
-        openWizardForEdit(vnode.state.pluginInfos,
-                          vnode.state.clusterProfileBeingEdited,
-                          vnode.state.elasticProfileBeingEdited,
-                          vnode.state.onSuccessfulSave,
-                          vnode.state.onError,
-                          this.closeListener(vnode)).next();
+        openWizardForEditElasticProfile(vnode.state.pluginInfos,
+                                        vnode.state.clusterProfileBeingEdited,
+                                        vnode.state.elasticProfileBeingEdited,
+                                        vnode.state.onSuccessfulSave,
+                                        vnode.state.onError,
+                                        this.closeListener(vnode)).next();
       },
 
       onDelete: (id: string, event: MouseEvent) => {
@@ -178,10 +182,18 @@ export class ElasticAgentsPage extends Page<null, State> {
       onEdit: (clusterProfile: ClusterProfile, event: MouseEvent) => {
         event.stopPropagation();
         this.flashMessage.clear();
+        vnode.state.clusterProfileBeingEdited(clusterProfile);
+        const elasticProfile = new ElasticAgentProfile("",
+                                                       vnode.state.clusterProfileBeingEdited().pluginId(),
+                                                       vnode.state.clusterProfileBeingEdited().id(),
+                                                       new Configurations([]));
 
-        new EditClusterProfileModal(clusterProfile.id()!,
-                                    vnode.state.pluginInfos(),
-                                    vnode.state.onSuccessfulSave).render();
+        openWizardForEditClusterProfile(vnode.state.pluginInfos,
+                                        vnode.state.clusterProfileBeingEdited,
+                                        Stream(elasticProfile),
+                                        vnode.state.onSuccessfulSave,
+                                        vnode.state.onError,
+                                        this.closeListener(vnode)).render();
       },
 
       onDelete: (clusterProfileId: string, event: MouseEvent) => {

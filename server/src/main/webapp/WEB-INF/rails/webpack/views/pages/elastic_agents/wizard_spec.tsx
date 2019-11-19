@@ -31,7 +31,7 @@ import {pluginInfoWithElasticAgentExtensionV5} from "models/shared/plugin_infos_
 import {Wizard} from "views/components/wizard";
 import {ElasticAgentsPage} from "views/pages/elastic_agents";
 import styles from "views/pages/elastic_agents/index.scss";
-import {openWizardForAdd, openWizardForEdit} from "views/pages/elastic_agents/wizard";
+import {openWizardForAdd, openWizardForEditElasticProfile} from "views/pages/elastic_agents/wizard";
 import {PageState} from "views/pages/page";
 import {TestHelper} from "views/pages/spec/test_helper";
 
@@ -204,7 +204,7 @@ describe("ElasticAgentWizard", () => {
 
   describe("Edit", () => {
     it("should render footer buttons for Elastic Profile", () => {
-      wizard = openWizardForEdit(pluginInfos, clusterProfile, elasticProfile, onSuccessfulSave, onError);
+      wizard = openWizardForEditElasticProfile(pluginInfos, clusterProfile, elasticProfile, onSuccessfulSave, onError);
       wizard.next();
       m.redraw.sync();
       expect(helper.byTestId("finish", modalContext())).toBeInDOM();
@@ -215,7 +215,7 @@ describe("ElasticAgentWizard", () => {
     });
 
     it("should render footer buttons for Cluster Profile", () => {
-      wizard = openWizardForEdit(pluginInfos, clusterProfile, elasticProfile, onSuccessfulSave, onError);
+      wizard = openWizardForEditElasticProfile(pluginInfos, clusterProfile, elasticProfile, onSuccessfulSave, onError);
       m.redraw.sync();
       expect(helper.byTestId("next", modalContext())).toBeInDOM();
       expect(helper.byTestId("cancel", modalContext())).toBeInDOM();
@@ -224,7 +224,7 @@ describe("ElasticAgentWizard", () => {
     });
 
     it("should not allow changes to Cluster Profile", () => {
-      wizard = openWizardForEdit(pluginInfos, clusterProfile, elasticProfile, onSuccessfulSave, onError);
+      wizard = openWizardForEditElasticProfile(pluginInfos, clusterProfile, elasticProfile, onSuccessfulSave, onError);
       m.redraw.sync();
       expect(helper.byTestId("form-field-input-cluster-profile-name", modalContext())).toHaveAttr("readonly");
       expect(helper.byTestId("form-field-input-plugin-id", modalContext())).toHaveAttr("readonly");
@@ -241,11 +241,11 @@ describe("ElasticAgentWizard", () => {
 
       const promiseForGetCall = successResponseForElasticProfile().catch(done.fail);
       elasticProfile().get    = jasmine.createSpy("get elastic profile").and.returnValue(promiseForGetCall);
-      wizard                  = openWizardForEdit(pluginInfos,
-                                                  clusterProfile,
-                                                  elasticProfile,
-                                                  onSuccessfulSave,
-                                                  onError);
+      wizard                  = openWizardForEditElasticProfile(pluginInfos,
+                                                                clusterProfile,
+                                                                elasticProfile,
+                                                                onSuccessfulSave,
+                                                                onError);
       wizard.next();
       m.redraw.sync();
 

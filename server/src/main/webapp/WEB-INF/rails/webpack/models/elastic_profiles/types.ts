@@ -261,6 +261,10 @@ export class ClusterProfile implements ValidatableMixin {
   update(etag: string) {
     return ClusterProfilesCRUD.update(this, etag);
   }
+
+  get() {
+    return ClusterProfilesCRUD.get(this.id()!);
+  }
 }
 
 applyMixins(ClusterProfile, ValidatableMixin);

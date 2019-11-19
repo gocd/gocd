@@ -201,33 +201,26 @@ class ElasticProfileWidget extends MithrilViewComponent<Attrs> {
   }
 }
 
-enum Mode {
-  ADD, EDIT
-}
-
 class ClusterProfileStep extends Step {
-  private readonly pluginInfos: Stream<PluginInfos>;
-  private readonly clusterProfile: Stream<ClusterProfile>;
-  private readonly elasticProfile: Stream<ElasticAgentProfile>;
-  private readonly onSuccessfulSave: (msg: m.Children) => any;
-  private readonly onError: (msg: m.Children) => any;
-  private footerError: Stream<string> = Stream("");
-  private mode: Mode;
-  private etag?: string;
+  protected readonly pluginInfos: Stream<PluginInfos>;
+  protected readonly clusterProfile: Stream<ClusterProfile>;
+  protected readonly elasticProfile: Stream<ElasticAgentProfile>;
+  protected readonly onSuccessfulSave: (msg: m.Children) => any;
+  protected readonly onError: (msg: m.Children) => any;
+  protected footerError: Stream<string> = Stream("");
+  protected etag?: string;
 
   constructor(pluginInfos: Stream<PluginInfos>,
               clusterProfile: Stream<ClusterProfile>,
               elasticProfile: Stream<ElasticAgentProfile>,
               onSuccessfulSave: (msg: m.Children) => any,
-              onError: (msg: m.Children) => any,
-              mode: Mode = Mode.ADD) {
+              onError: (msg: m.Children) => any) {
     super();
     this.pluginInfos      = pluginInfos;
     this.clusterProfile   = clusterProfile;
     this.elasticProfile   = elasticProfile;
     this.onSuccessfulSave = onSuccessfulSave;
     this.onError          = onError;
-    this.mode             = mode;
   }
 
   body(): m.Children {
@@ -235,7 +228,7 @@ class ClusterProfileStep extends Step {
                                  clusterProfile={this.clusterProfile}
                                  elasticProfile={this.elasticProfile}
                                  etag={this.etag}
-                                 readonly={this.mode === Mode.EDIT}/>;
+                                 readonly={false}/>;
   }
 
   header(): m.Children {
@@ -243,29 +236,17 @@ class ClusterProfileStep extends Step {
   }
 
   footer(wizard: Wizard): m.Children {
-    switch (this.mode) {
-      case Mode.ADD:
-        return [
-          <Buttons.Cancel css={wizardButtonStyles} onclick={wizard.close.bind(wizard)}
-                          data-test-id="cancel">Cancel</Buttons.Cancel>,
-          <Buttons.Primary css={wizardButtonStyles} data-test-id="next"
-                           onclick={this.saveClusterProfileAndNext.bind(this, wizard)}
-                           align="right">Save + Next</Buttons.Primary>,
-          <Buttons.Secondary css={wizardButtonStyles} data-test-id="save-cluster-profile"
-                             onclick={this.saveClusterProfileAndExit.bind(this, wizard)}
-                             align="right">Save Cluster Profile + Exit</Buttons.Secondary>,
-          <span class={styles.footerError}>{this.footerError()}</span>,
-        ];
-      case Mode.EDIT:
-        return [
-          <Buttons.Cancel css={wizardButtonStyles} onclick={wizard.close.bind(wizard)}
-                          data-test-id="cancel">Cancel</Buttons.Cancel>,
-          <Buttons.Primary css={wizardButtonStyles} data-test-id="next"
-                           onclick={() => wizard.next()}
-                           align="right">Show Elastic Profile</Buttons.Primary>,
-          <span class={styles.footerError}>{this.footerError()}</span>,
-        ];
-    }
+    return [
+      <Buttons.Cancel css={wizardButtonStyles} onclick={wizard.close.bind(wizard)}
+                      data-test-id="cancel">Cancel</Buttons.Cancel>,
+      <Buttons.Primary css={wizardButtonStyles} data-test-id="next"
+                       onclick={this.saveClusterProfileAndNext.bind(this, wizard)}
+                       align="right">Save + Next</Buttons.Primary>,
+      <Buttons.Secondary css={wizardButtonStyles} data-test-id="save-cluster-profile"
+                         onclick={this.saveClusterProfileAndExit.bind(this, wizard)}
+                         align="right">Save Cluster Profile + Exit</Buttons.Secondary>,
+      <span class={styles.footerError}>{this.footerError()}</span>,
+    ];
   }
 
   saveClusterProfileAndExit(wizard: Wizard) {
@@ -274,7 +255,7 @@ class ClusterProfileStep extends Step {
           result.do(
             (result) => {
               this.etag = result.body.etag;
-              this.onSuccessfulSave(<span>The cluster profile <em>{this.clusterProfile().id()}</em> was created successfully!</span>);
+              this.onSuccessfulSave(<span>The cluster profile <em>{this.clusterProfile().id()}</em> was saved successfully!</span>);
               wizard.close();
             },
             (errorResponse) => {
@@ -319,36 +300,38 @@ class ClusterProfileStep extends Step {
   }
 }
 
-class ElasticProfileStep extends Step {
-  private readonly pluginInfos: Stream<PluginInfos>;
-  private readonly clusterProfile: Stream<ClusterProfile>;
-  private readonly elasticProfile: Stream<ElasticAgentProfile>;
-  private readonly onSuccessfulSave: (msg: m.Children) => any;
-  private readonly onError: (msg: m.Children) => any;
-  private footerError: Stream<string> = Stream("");
-  private readonly elasticProfileMode: Mode;
-  private readonly clusterProfileMode: Mode;
-  private etag?: string;
-  private pageState: PageState        = PageState.OK;
+class ReadOnlyClusterProfileStep extends ClusterProfileStep {
+
+  body(): m.Children {
+    return <ClusterProfileWidget pluginInfos={this.pluginInfos}
+                                 clusterProfile={this.clusterProfile}
+                                 elasticProfile={this.elasticProfile}
+                                 etag={this.etag}
+                                 readonly={true}/>;
+  }
+
+  footer(wizard: Wizard): m.Children {
+    return [
+      <Buttons.Cancel css={wizardButtonStyles} onclick={wizard.close.bind(wizard)}
+                      data-test-id="cancel">Cancel</Buttons.Cancel>,
+      <Buttons.Primary css={wizardButtonStyles} data-test-id="next"
+                       onclick={() => wizard.next()}
+                       align="right">Show Elastic Profile</Buttons.Primary>,
+      <span class={styles.footerError}>{this.footerError()}</span>,
+    ];
+  }
+}
+
+class EditClusterProfileStep extends ClusterProfileStep {
+  private pageState = PageState.LOADING;
 
   constructor(pluginInfos: Stream<PluginInfos>,
               clusterProfile: Stream<ClusterProfile>,
               elasticProfile: Stream<ElasticAgentProfile>,
               onSuccessfulSave: (msg: m.Children) => any,
-              onError: (msg: m.Children) => any,
-              elasticProfileMode: Mode = Mode.ADD,
-              clusterProfileMode: Mode = Mode.ADD) {
-    super();
-    this.pluginInfos        = pluginInfos;
-    this.clusterProfile     = clusterProfile;
-    this.elasticProfile     = elasticProfile;
-    this.onSuccessfulSave   = onSuccessfulSave;
-    this.onError            = onError;
-    this.elasticProfileMode = elasticProfileMode;
-    this.clusterProfileMode = clusterProfileMode;
-    if (this.elasticProfileMode === Mode.EDIT) {
-      this.loadData();
-    }
+              onError: (msg: m.Children) => any) {
+    super(pluginInfos, clusterProfile, elasticProfile, onSuccessfulSave, onError);
+    this.loadData();
   }
 
   body(): m.Children {
@@ -356,14 +339,72 @@ class ElasticProfileStep extends Step {
       case PageState.LOADING:
         return <Spinner/>;
       case PageState.OK:
-        return <ElasticProfileWidget pluginInfos={this.pluginInfos}
-                                     elasticProfile={this.elasticProfile}
-                                     clusterProfile={this.clusterProfile}
-                                     readonly={false}
-                                     etag={this.etag}/>;
+        return super.body();
       case PageState.FAILED:
-        return <PageLoadError message="There was a problem fetching the Elastic Profile"/>;
+        return <PageLoadError message="There was a problem fetching the Cluster Profile"/>;
     }
+  }
+
+  footer(wizard: Wizard): m.Children {
+    return [
+      <Buttons.Cancel css={wizardButtonStyles} onclick={wizard.close.bind(wizard)}
+                      data-test-id="cancel">Cancel</Buttons.Cancel>,
+      <Buttons.Primary css={wizardButtonStyles} data-test-id="save-cluster-profile"
+                         onclick={this.saveClusterProfileAndExit.bind(this, wizard)}
+                         align="right">Save Cluster Profile</Buttons.Primary>,
+      <span class={styles.footerError}>{this.footerError()}</span>,
+    ];
+  }
+
+  private loadData() {
+    this.pageState = PageState.LOADING;
+    if (!this.clusterProfile().id() || !this.clusterProfile().pluginId()) {
+      this.pageState = PageState.FAILED;
+      return;
+    }
+    const pluginId = this.clusterProfile().pluginId() || "";
+    this.clusterProfile().get().then((result) => {
+      result.do(
+        (successResponse) => {
+          this.clusterProfile(successResponse.body.object);
+          this.clusterProfile().pluginId(pluginId);
+          this.etag      = successResponse.body.etag;
+          this.pageState = PageState.OK;
+        },
+        ((errorResponse) => this.onError(JSON.parse(errorResponse.body!).message))
+      );
+    });
+  }
+}
+
+class ElasticProfileStep extends Step {
+  protected readonly pluginInfos: Stream<PluginInfos>;
+  protected readonly clusterProfile: Stream<ClusterProfile>;
+  protected readonly elasticProfile: Stream<ElasticAgentProfile>;
+  protected readonly onSuccessfulSave: (msg: m.Children) => any;
+  protected readonly onError: (msg: m.Children) => any;
+  protected etag?: string;
+  protected footerError: Stream<string> = Stream("");
+
+  constructor(pluginInfos: Stream<PluginInfos>,
+              clusterProfile: Stream<ClusterProfile>,
+              elasticProfile: Stream<ElasticAgentProfile>,
+              onSuccessfulSave: (msg: m.Children) => any,
+              onError: (msg: m.Children) => any) {
+    super();
+    this.pluginInfos      = pluginInfos;
+    this.clusterProfile   = clusterProfile;
+    this.elasticProfile   = elasticProfile;
+    this.onSuccessfulSave = onSuccessfulSave;
+    this.onError          = onError;
+  }
+
+  body(): m.Children {
+    return <ElasticProfileWidget pluginInfos={this.pluginInfos}
+                                 elasticProfile={this.elasticProfile}
+                                 clusterProfile={this.clusterProfile}
+                                 readonly={false}
+                                 etag={this.etag}/>;
   }
 
   header(): m.Children {
@@ -371,27 +412,15 @@ class ElasticProfileStep extends Step {
   }
 
   footer(wizard: Wizard): m.Children {
-    if (this.clusterProfileMode === Mode.EDIT) {
-      return [
-        <Buttons.Cancel onclick={wizard.close.bind(wizard)} css={wizardButtonStyles}
-                        data-test-id="cancel">Cancel</Buttons.Cancel>,
-        <Buttons.Primary data-test-id="finish" align="right" css={wizardButtonStyles}
-                         onclick={this.saveAndFinish.bind(this, wizard)}>Save</Buttons.Primary>,
-        <Buttons.Secondary data-test-id="previous" onclick={wizard.previous.bind(wizard, 1)} css={wizardButtonStyles}
-                           align="right">Show Cluster Profile</Buttons.Secondary>,
-        <span class={styles.footerError}>{this.footerError()}</span>
-      ];
-    } else {
-      return [
-        <Buttons.Cancel onclick={wizard.close.bind(wizard)} css={wizardButtonStyles}
-                        data-test-id="cancel">Cancel</Buttons.Cancel>,
-        <Buttons.Primary data-test-id="finish" align="right" css={wizardButtonStyles}
-                         onclick={this.saveAndFinish.bind(this, wizard)}>Finish</Buttons.Primary>,
-        <Buttons.Primary data-test-id="previous" onclick={wizard.previous.bind(wizard, 1)} css={wizardButtonStyles}
-                         align="right">Previous</Buttons.Primary>,
-        <span class={styles.footerError}>{this.footerError()}</span>
-      ];
-    }
+    return [
+      <Buttons.Cancel onclick={wizard.close.bind(wizard)} css={wizardButtonStyles}
+                      data-test-id="cancel">Cancel</Buttons.Cancel>,
+      <Buttons.Primary data-test-id="finish" align="right" css={wizardButtonStyles}
+                       onclick={this.saveAndFinish.bind(this, wizard)}>Finish</Buttons.Primary>,
+      <Buttons.Primary data-test-id="previous" onclick={wizard.previous.bind(wizard, 1)} css={wizardButtonStyles}
+                       align="right">Previous</Buttons.Primary>,
+      <span class={styles.footerError}>{this.footerError()}</span>
+    ];
   }
 
   saveAndFinish(wizard: Wizard) {
@@ -442,6 +471,46 @@ class ElasticProfileStep extends Step {
       this.onError(JSON.parse(errorResponse.body!).message);
     }
   }
+}
+
+class EditElasticProfileStep extends ElasticProfileStep {
+  private pageState: PageState = PageState.OK;
+
+  constructor(pluginInfos: Stream<PluginInfos>,
+              clusterProfile: Stream<ClusterProfile>,
+              elasticProfile: Stream<ElasticAgentProfile>,
+              onSuccessfulSave: (msg: m.Children) => any,
+              onError: (msg: m.Children) => any) {
+    super(pluginInfos, clusterProfile, elasticProfile, onSuccessfulSave, onError);
+    this.loadData();
+  }
+
+  body(): m.Children {
+    switch (this.pageState) {
+      case PageState.LOADING:
+        return <Spinner/>;
+      case PageState.OK:
+        return <ElasticProfileWidget pluginInfos={this.pluginInfos}
+                                     elasticProfile={this.elasticProfile}
+                                     clusterProfile={this.clusterProfile}
+                                     readonly={false}
+                                     etag={this.etag}/>;
+      case PageState.FAILED:
+        return <PageLoadError message="There was a problem fetching the Elastic Profile"/>;
+    }
+  }
+
+  footer(wizard: Wizard): m.Children {
+    return [
+      <Buttons.Cancel onclick={wizard.close.bind(wizard)} css={wizardButtonStyles}
+                      data-test-id="cancel">Cancel</Buttons.Cancel>,
+      <Buttons.Primary data-test-id="finish" align="right" css={wizardButtonStyles}
+                       onclick={this.saveAndFinish.bind(this, wizard)}>Save</Buttons.Primary>,
+      <Buttons.Secondary data-test-id="previous" onclick={wizard.previous.bind(wizard, 1)} css={wizardButtonStyles}
+                         align="right">Show Cluster Profile</Buttons.Secondary>,
+      <span class={styles.footerError}>{this.footerError()}</span>
+    ];
+  }
 
   private loadData() {
     this.pageState = PageState.LOADING;
@@ -482,18 +551,16 @@ export function openWizardForAdd(pluginInfos: Stream<PluginInfos>,
   return wizard.render();
 }
 
-export function openWizardForEdit(pluginInfos: Stream<PluginInfos>,
-                                  clusterProfile: Stream<ClusterProfile>,
-                                  elasticProfile: Stream<ElasticAgentProfile>,
-                                  onSuccessfulSave: (msg: m.Children) => any,
-                                  onError: (msg: m.Children) => any,
-                                  closeListener?: CloseListener) {
+export function openWizardForEditElasticProfile(pluginInfos: Stream<PluginInfos>,
+                                                clusterProfile: Stream<ClusterProfile>,
+                                                elasticProfile: Stream<ElasticAgentProfile>,
+                                                onSuccessfulSave: (msg: m.Children) => any,
+                                                onError: (msg: m.Children) => any,
+                                                closeListener?: CloseListener) {
 
   let wizard = new Wizard()
-    .addStep(new ClusterProfileStep(pluginInfos, clusterProfile, elasticProfile, onSuccessfulSave, onError,
-                                    Mode.EDIT))
-    .addStep(new ElasticProfileStep(pluginInfos, clusterProfile, elasticProfile, onSuccessfulSave, onError,
-                                    Mode.EDIT, Mode.EDIT));
+    .addStep(new ReadOnlyClusterProfileStep(pluginInfos, clusterProfile, elasticProfile, onSuccessfulSave, onError))
+    .addStep(new EditElasticProfileStep(pluginInfos, clusterProfile, elasticProfile, onSuccessfulSave, onError));
 
   if (closeListener !== undefined) {
     wizard = wizard.setCloseListener(closeListener);
@@ -509,10 +576,24 @@ export function openWizardForAddElasticProfile(pluginInfos: Stream<PluginInfos>,
                                                closeListener?: CloseListener) {
 
   let wizard = new Wizard()
-    .addStep(new ClusterProfileStep(pluginInfos, clusterProfile, elasticProfile, onSuccessfulSave, onError,
-                                    Mode.EDIT))
-    .addStep(new ElasticProfileStep(pluginInfos, clusterProfile, elasticProfile, onSuccessfulSave, onError,
-                                    Mode.ADD, Mode.EDIT));
+    .addStep(new ClusterProfileStep(pluginInfos, clusterProfile, elasticProfile, onSuccessfulSave, onError))
+    .addStep(new ElasticProfileStep(pluginInfos, clusterProfile, elasticProfile, onSuccessfulSave, onError));
+
+  if (closeListener !== undefined) {
+    wizard = wizard.setCloseListener(closeListener);
+  }
+  return wizard.render();
+}
+
+export function openWizardForEditClusterProfile(pluginInfos: Stream<PluginInfos>,
+                                                clusterProfile: Stream<ClusterProfile>,
+                                                elasticProfile: Stream<ElasticAgentProfile>,
+                                                onSuccessfulSave: (msg: m.Children) => any,
+                                                onError: (msg: m.Children) => any,
+                                                closeListener?: CloseListener) {
+
+  let wizard = new Wizard()
+    .addStep(new EditClusterProfileStep(pluginInfos, clusterProfile, elasticProfile, onSuccessfulSave, onError));
 
   if (closeListener !== undefined) {
     wizard = wizard.setCloseListener(closeListener);

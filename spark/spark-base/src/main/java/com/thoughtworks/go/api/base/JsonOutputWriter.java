@@ -64,7 +64,7 @@ public class JsonOutputWriter {
 
     public JsonOutputWriter forTopLevelArray(Consumer<OutputListWriter> consumer) {
         bufferWriterAndFlushWhenDone(writer, bufferedWriter -> {
-            try (JsonOutputWriterUsingJackson jacksonOutputWriter = new JsonOutputWriterUsingJackson(writer, requestContext)) {
+            try (JsonOutputWriterUsingJackson jacksonOutputWriter = new JsonOutputWriterUsingJackson(bufferedWriter, requestContext)) {
                 jacksonOutputWriter.forTopLevelArray(consumer);
             }
         });

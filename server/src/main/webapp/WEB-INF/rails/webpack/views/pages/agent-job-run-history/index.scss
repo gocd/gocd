@@ -15,15 +15,15 @@
  */
 @import "../../global/common";
 
-.inline-link {
-  color:           $link-color;
-  text-decoration: none;
-  &:hover {
-    text-decoration: underline;
-    color:           $link-hover-color;
-  }
-}
+.job-state-transition-information-container {
+  margin-bottom: 20px;
 
-.external-icon {
-  @include icon-after($type: $fa-var-external-link);
+  ul {
+    li {
+      label {
+        width: 125px;
+        flex:  0 0 125px;
+      }
+    }
+  }
 }

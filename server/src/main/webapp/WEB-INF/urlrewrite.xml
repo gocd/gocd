@@ -31,6 +31,12 @@
   </rule>
 
   <rule>
+    <name>agent-details-page UI</name>
+    <from>^/agents/([^/]+)/job_run_history(/?)$</from>
+    <to last="true">/spark/agents/${escape:$1}/job_run_history</to>
+  </rule>
+
+  <rule>
     <name>admin_templates UI</name>
     <from>^/admin/templates(/?)$</from>
     <to last="true">/spark/admin/templates</to>

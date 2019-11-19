@@ -22,6 +22,7 @@ import styles from "./index.scss";
 const classnames = bind(styles);
 
 export interface Attrs {
+  disabled?: boolean;
   target?: string;
   href?: string;
   externalLinkIcon?: boolean;
@@ -39,8 +40,11 @@ export class Link extends MithrilViewComponent<Attrs> {
 
   view(vnode: m.Vnode<Attrs>) {
     const rel = this.maybeRel(vnode.attrs);
-    return (<a target={vnode.attrs.target} href={vnode.attrs.href} {...rel}
-               onclick={vnode.attrs.onclick}
+    return (<a target={vnode.attrs.target}
+               href={vnode.attrs.disabled ? "javascript:void(0)" : vnode.attrs.href}
+               {...rel}
+               onclick={vnode.attrs.disabled ? () => false : vnode.attrs.onclick}
+               disabled={vnode.attrs.disabled}
                class={classnames(styles.inlineLink, {[styles.externalIcon]: vnode.attrs.externalLinkIcon})}>
       {vnode.children}</a>);
   }

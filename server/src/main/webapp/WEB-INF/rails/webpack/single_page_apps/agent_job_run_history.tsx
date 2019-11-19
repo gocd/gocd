@@ -13,17 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@import "../../global/common";
 
-.inline-link {
-  color:           $link-color;
-  text-decoration: none;
-  &:hover {
-    text-decoration: underline;
-    color:           $link-hover-color;
+import {SinglePageAppBase} from "helpers/spa_base";
+import {AgentJobRunHistoryPage} from "views/pages/agent_job_run_history";
+
+export class AgentJobRunHistorySPA extends SinglePageAppBase {
+  constructor() {
+    super(AgentJobRunHistoryPage);
   }
 }
 
-.external-icon {
-  @include icon-after($type: $fa-var-external-link);
-}
+//tslint:disable-next-line
+new AgentJobRunHistorySPA();

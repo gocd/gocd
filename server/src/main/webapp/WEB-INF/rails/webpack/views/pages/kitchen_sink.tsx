@@ -56,6 +56,8 @@ import * as Icons from "views/components/icons/index";
 import {KeyValuePair} from "views/components/key_value_pair";
 import {Size} from "views/components/modal";
 import {SampleModal} from "views/components/modal/sample";
+import {PaginationWidget} from "views/components/pagination";
+import {Pagination} from "views/components/pagination/models/pagination";
 import {Tabs} from "views/components/tab";
 import {Table, TableSortHandler} from "views/components/table";
 import * as Tooltip from "views/components/tooltip";
@@ -89,6 +91,19 @@ const dropdownItems    = [
   }
 ];
 
+const largeNumberOfPages = Stream(Pagination.fromJSON({offset: 50, total: 9999, page_size: 10}));
+const smallNumberOfPages = Stream(Pagination.fromJSON({offset: 0, total: 70, page_size: 10}));
+
+const pageChangeCallback = (pagination: Stream<Pagination>, newPage: number) => {
+  const newOffset = pagination().pageSize * (newPage - 1);
+  pagination(Pagination.fromJSON({
+                                   offset: newOffset,
+                                   total: pagination().total,
+                                   page_size: pagination().pageSize
+                                 }));
+  return false;
+};
+
 export class KitchenSink extends MithrilViewComponent<null> {
   provider: DynamicSuggestionProvider = new DynamicSuggestionProvider(type);
 
@@ -100,6 +115,13 @@ export class KitchenSink extends MithrilViewComponent<null> {
     return (
       <div>
         <HeaderPanel title="Kitchen Sink" sectionName={"Admin"}/>
+        <h3>Pagination</h3>
+        <PaginationWidget pagination={largeNumberOfPages()}
+                          onPageChange={(newPage) => pageChangeCallback(largeNumberOfPages, newPage)}/>
+        <PaginationWidget pagination={smallNumberOfPages()}
+                          onPageChange={(newPage) => pageChangeCallback(smallNumberOfPages, newPage)}/>
+        <br/>
+
         <FlashMessage type={MessageType.info} message={"This page is awesome!"}/>
         <FlashMessage type={MessageType.success} message={"Everything works as expected!"}/>
         <FlashMessage type={MessageType.warning} message={"This might not work!"}/>

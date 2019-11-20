@@ -328,7 +328,11 @@ export class AuthorizationPluginInfo extends BasePluginInfo {
               },
             ],
             view: {
-              template: "<div class=\"form_item_block\">This is ldap auth config view.<input type='text' id='test-field-1'/><textarea id='test-field-2'/></div>"
+              template: "<div class=\"form_item_block\">This is ldap auth config view." +
+                "<input type='text' id='test-field-1'/>" +
+                "<textarea id='test-field-2'/><select id='test-field-3'>" +
+                "<option value='test'>Test</option></select>" +
+                "</div>"
             }
           },
           role_settings: {

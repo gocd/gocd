@@ -79,10 +79,9 @@ describe("Angular Plugin View", () => {
     mount(pluginInfo.extensions[0].authConfigSettings, configurations, true);
     m.redraw.sync();
 
-    expect(helper.q('#test-field-1')).toHaveAttr('readonly');
     expect(helper.q('#test-field-1')).toHaveAttr('disabled');
-    expect(helper.q('#test-field-2')).toHaveAttr('readonly');
     expect(helper.q('#test-field-2')).toHaveAttr('disabled');
+    expect(helper.q('#test-field-3')).toHaveAttr('disabled');
   });
 
   function mount(pluginSettings, configurations, disabled) {

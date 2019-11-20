@@ -24,6 +24,7 @@ import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.api.util.HaltApiResponses;
 import com.thoughtworks.go.apiv2.stageoperations.representers.StageInstancesRepresenter;
 import com.thoughtworks.go.apiv2.stageoperations.representers.StageRepresenter;
+import com.thoughtworks.go.config.exceptions.BadRequestException;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.NullStage;
 import com.thoughtworks.go.domain.Stage;
@@ -56,6 +57,8 @@ import static spark.Spark.*;
 
 @Component
 public class StageOperationsControllerV2 extends ApiController implements SparkSpringController {
+    static final String BAD_PAGE_SIZE_MSG = "The query parameter `page_size`, if specified must be a number between 10 and 100.";
+    static final String BAD_OFFSET_MSG = "The query parameter `offset`, if specified must be a number greater or equal to 0.";
     private static final Logger LOGGER = LoggerFactory.getLogger(StageOperationsControllerV2.class);
     private final static String JOB_NAMES_PROPERTY = "jobs";
     private final StageService stageService;
@@ -92,14 +95,13 @@ public class StageOperationsControllerV2 extends ApiController implements SparkS
             before(Routes.Stage.CANCEL_STAGE_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateOfPipelineOrGroupInURLUserAnd403);
             before(Routes.Stage.INSTANCE_BY_COUNTER, mimeType, apiAuthenticationHelper::checkPipelineViewPermissionsAnd403);
             before(Routes.Stage.STAGE_HISTORY, mimeType, apiAuthenticationHelper::checkPipelineViewPermissionsAnd403);
-            before(Routes.Stage.STAGE_HISTORY_OFFSET, mimeType, apiAuthenticationHelper::checkPipelineViewPermissionsAnd403);
+
             post(Routes.Stage.TRIGGER_STAGE_PATH, mimeType, this::triggerStage);
             post(Routes.Stage.TRIGGER_FAILED_JOBS_PATH, mimeType, this::rerunFailedJobs);
             post(Routes.Stage.TRIGGER_SELECTED_JOBS_PATH, mimeType, this::rerunSelectedJobs);
             post(Routes.Stage.CANCEL_STAGE_PATH, mimeType, this::cancelStage);
             get(Routes.Stage.INSTANCE_BY_COUNTER, mimeType, this::instanceByCounter);
             get(Routes.Stage.STAGE_HISTORY, mimeType, this::history);
-            get(Routes.Stage.STAGE_HISTORY_OFFSET, mimeType, this::history);
         });
     }
 
@@ -197,9 +199,8 @@ public class StageOperationsControllerV2 extends ApiController implements SparkS
     public String history(Request request, Response response) throws IOException {
         String pipelineName = request.params("pipeline_name");
         String stageName = request.params("stage_name");
-        String offset = request.params("offset");
-        int offsetFromRequest = offset == null ? 0 : Integer.parseInt(offset);
-        int pageSize = 10;
+        int offsetFromRequest = getOffset(request);
+        int pageSize = getPageSize(request);
         int stageInstanceCount = stageService.getCount(pipelineName, stageName);
         HttpOperationResult result = new HttpOperationResult();
 
@@ -244,5 +245,31 @@ public class StageOperationsControllerV2 extends ApiController implements SparkS
             throw HaltApiResponses.haltBecauseOfReason("Could not read property '%s' in request body", JOB_NAMES_PROPERTY);
         }
         requestBody.readStringArrayIfPresent(JOB_NAMES_PROPERTY);
+    }
+
+    private Integer getPageSize(Request request) {
+        Integer offset;
+        try {
+            offset = Integer.valueOf(request.queryParamOrDefault("page_size", "10"));
+            if (offset < 10 || offset > 100) {
+                throw new BadRequestException(BAD_PAGE_SIZE_MSG);
+            }
+        } catch (NumberFormatException e) {
+            throw new BadRequestException(BAD_PAGE_SIZE_MSG);
+        }
+        return offset;
+    }
+
+    private Integer getOffset(Request request) {
+        Integer offset;
+        try {
+            offset = Integer.valueOf(request.queryParamOrDefault("offset", "0"));
+            if (offset < 0) {
+                throw new BadRequestException(BAD_OFFSET_MSG);
+            }
+        } catch (NumberFormatException e) {
+            throw new BadRequestException(BAD_OFFSET_MSG);
+        }
+        return offset;
     }
 }

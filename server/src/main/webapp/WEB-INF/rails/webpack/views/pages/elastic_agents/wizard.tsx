@@ -473,6 +473,20 @@ class ElasticProfileStep extends Step {
   }
 }
 
+class AddElasticProfileToExistingClusterStep extends ElasticProfileStep {
+  footer(wizard: Wizard): m.Children {
+    return [
+      <Buttons.Cancel onclick={wizard.close.bind(wizard)} css={wizardButtonStyles}
+                      data-test-id="cancel">Cancel</Buttons.Cancel>,
+      <Buttons.Primary data-test-id="finish" align="right" css={wizardButtonStyles}
+                       onclick={this.saveAndFinish.bind(this, wizard)}>Save</Buttons.Primary>,
+      <Buttons.Secondary data-test-id="previous" onclick={wizard.previous.bind(wizard, 1)} css={wizardButtonStyles}
+                         align="right">Show Cluster Profile</Buttons.Secondary>,
+      <span class={styles.footerError}>{this.footerError()}</span>
+    ];
+  }
+}
+
 class EditElasticProfileStep extends ElasticProfileStep {
   private pageState: PageState = PageState.OK;
 
@@ -576,8 +590,8 @@ export function openWizardForAddElasticProfile(pluginInfos: Stream<PluginInfos>,
                                                closeListener?: CloseListener) {
 
   let wizard = new Wizard()
-    .addStep(new ClusterProfileStep(pluginInfos, clusterProfile, elasticProfile, onSuccessfulSave, onError))
-    .addStep(new ElasticProfileStep(pluginInfos, clusterProfile, elasticProfile, onSuccessfulSave, onError));
+    .addStep(new ReadOnlyClusterProfileStep(pluginInfos, clusterProfile, elasticProfile, onSuccessfulSave, onError))
+    .addStep(new AddElasticProfileToExistingClusterStep(pluginInfos, clusterProfile, elasticProfile, onSuccessfulSave, onError));
 
   if (closeListener !== undefined) {
     wizard = wizard.setCloseListener(closeListener);

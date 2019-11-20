@@ -48,6 +48,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 
+import static com.thoughtworks.go.server.service.BuildAssignmentService.GO_PIPELINE_GROUP_NAME;
 import static com.thoughtworks.go.util.command.EnvironmentVariableContext.GO_ENVIRONMENT_NAME;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -411,19 +412,35 @@ class BuildAssignmentServiceTest {
         String environmentName = "uat_environment";
 
         when(environmentConfigService.environmentForPipeline(pipelineName)).thenReturn(new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName)));
-        EnvironmentVariableContext context = buildAssignmentService.getEnvironmentVariableContextFromEnvironment(pipelineName);
+        EnvironmentVariableContext context = buildAssignmentService.buildEnvVarContext(pipelineName);
 
+        assertThat(context.getProperties().size()).isEqualTo(2);
         assertThat(context.getProperty(GO_ENVIRONMENT_NAME)).isEqualTo(environmentName);
     }
 
     @Test
-    void shouldReturnNullWhenNoEnvironmentBelongingToSpecifiedPipelineExists() {
+    void shouldSetEnvironmentVariableContextIncludingGO_PIPELINE_GROUP_NAMEVariable() {
+        String pipelineName = "pipeline1";
+        String pipelineGroupName = "pipeline-group1";
+        String environmentName = "uat_environment";
+
+        when(goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(pipelineName))).thenReturn(pipelineGroupName);
+        when(environmentConfigService.environmentForPipeline(pipelineName)).thenReturn(new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName)));
+        EnvironmentVariableContext context = buildAssignmentService.buildEnvVarContext(pipelineName);
+
+        assertThat(context.getProperties().size()).isEqualTo(2);
+        assertThat(context.getProperty(GO_PIPELINE_GROUP_NAME)).isEqualTo(pipelineGroupName);
+    }
+
+    @Test
+    void shouldNotSetEnvPropertyWhenNoEnvironmentBelongingToSpecifiedPipelineExists() {
         String pipelineName = "pipeline1";
 
         when(environmentConfigService.environmentForPipeline(pipelineName)).thenReturn(null);
-        EnvironmentVariableContext context = buildAssignmentService.getEnvironmentVariableContextFromEnvironment(pipelineName);
+        EnvironmentVariableContext context = buildAssignmentService.buildEnvVarContext(pipelineName);
 
-        assertThat(context).isNull();
+        assertThat(context.getProperties().size()).isEqualTo(1);
+        assertThat(context.getProperty(GO_ENVIRONMENT_NAME)).isNullOrEmpty();
     }
 
     private JobPlan getJobPlan(CaseInsensitiveString pipelineName, CaseInsensitiveString stageName, JobConfig job) {

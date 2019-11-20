@@ -24,6 +24,7 @@ import {Environments, EnvironmentWithOrigin} from "models/new-environments/envir
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {EnvironmentBody} from "views/pages/new-environments/environment_body_widget";
 import {EnvironmentHeader} from "views/pages/new-environments/environment_header_widget";
+import {Anchor, ScrollManager} from "../../components/anchor/anchor";
 import {FlashMessage, MessageType} from "../../components/flash_message";
 import {Delete, IconGroup} from "../../components/icons";
 import {Link} from "../../components/link";
@@ -33,42 +34,76 @@ interface Attrs extends DeleteOperation<EnvironmentWithOrigin> {
   environments: Stream<Environments>;
   onSuccessfulSave: (msg: m.Children) => void;
   agents: Stream<Agents>;
+  sm: ScrollManager;
 }
 
-export class EnvironmentsWidget extends MithrilViewComponent<Attrs> {
-  view(vnode: m.Vnode<Attrs>) {
-    const environmentsHtml = vnode.attrs.environments().map((environment: EnvironmentWithOrigin) => {
-      const isEnvEmpty = _.isEmpty(environment.pipelines()) && _.isEmpty(environment.agents());
+interface EnvAttrs extends Attrs {
+  environment: EnvironmentWithOrigin;
+}
 
-      return <CollapsiblePanel header={<EnvironmentHeader environment={environment}/>}
-                               warning={isEnvEmpty}
-                               actions={[
-                                 <IconGroup>
-                                   <Delete
-                                     title={environment.canAdminister() ? undefined : `You are not authorized to delete '${environment.name()}' environment.`}
-                                     disabled={!environment.canAdminister()}
-                                     onclick={vnode.attrs.onDelete.bind(vnode.attrs, environment)}/>
-                                 </IconGroup>
-                               ]}
-                               dataTestId={`collapsible-panel-for-env-${environment.name()}`}>
+export class EnvironmentWidget extends MithrilViewComponent<EnvAttrs> {
+  expanded: Stream<boolean> = Stream();
+
+  oninit(vnode: m.Vnode<EnvAttrs>) {
+    const linked = vnode.attrs.sm.getTarget() === vnode.attrs.environment.name();
+
+    // set the initial state of the collapsible panel; alternative to setting `expanded` attribute
+    // and, perhaps, more obvious that this is only matters for first load
+    this.expanded(linked);
+  }
+
+  view(vnode: m.Vnode<EnvAttrs>) {
+    const environment = vnode.attrs.environment;
+    const isEnvEmpty  = _.isEmpty(environment.pipelines()) && _.isEmpty(environment.agents());
+    return <Anchor id={environment.name()} sm={vnode.attrs.sm} onnavigate={() => this.expanded(true)}>
+      <CollapsiblePanel header={<EnvironmentHeader environment={environment}/>}
+                        warning={isEnvEmpty}
+                        actions={[
+                          <IconGroup>
+                            <Delete
+                              title={environment.canAdminister() ? undefined : `You are not authorized to delete '${environment.name()}' environment.`}
+                              disabled={!environment.canAdminister()}
+                              onclick={vnode.attrs.onDelete.bind(vnode.attrs, environment)}/>
+                          </IconGroup>
+                        ]}
+                        dataTestId={`collapsible-panel-for-env-${environment.name()}`}
+                        vm={this}>
         <EnvironmentBody environment={environment}
                          environments={vnode.attrs.environments()}
                          agents={vnode.attrs.agents}
                          onSuccessfulSave={vnode.attrs.onSuccessfulSave}/>
-      </CollapsiblePanel>;
-    });
+      </CollapsiblePanel>
+    </Anchor>;
+  }
+}
 
+export class EnvironmentsWidget extends MithrilViewComponent<Attrs> {
+  view(vnode: m.Vnode<Attrs>) {
+
+    if (_.isEmpty(vnode.attrs.environments())) {
+      return this.noEnvironmentConfiguresMessage();
+    }
+
+    return <div>
+      {vnode.attrs.environments().map((environment: any) => {
+        return <EnvironmentWidget {...vnode.attrs} environment={environment}/>;
+      })}
+    </div>;
+
+  }
+
+  noEnvironmentConfiguresMessage() {
     const environmentUrl = "/configuration/managing_environments.html";
-    const docLink        = <span data-test-id="doc-link">&nbsp;<Link href={docsUrl(environmentUrl)}
-                                                                     target="_blank"
-                                                                     externalLinkIcon={true}>Learn More</Link></span>;
+    const docLink        = <span data-test-id="doc-link">
+      &nbsp; <Link href={docsUrl(environmentUrl)} target="_blank" externalLinkIcon={true}>
+        Learn More
+      </Link>
+    </span>;
 
-    const noEnvironmentPresentMsg = <span>No environments are displayed because either no environments have been set up or you are not authorized to view the pipelines within any of the environments.{docLink}</span>;
+    const noEnvironmentPresentMsg = <span>
+      No environments are displayed because either no environments have been set up or you are not authorized to view the pipelines within any of the environments.{docLink}
+    </span>;
 
-    const noEnvironmentPresentMsgHtml = <FlashMessage type={MessageType.info}
-                                                      message={noEnvironmentPresentMsg}
-                                                      dataTestId="no-environment-present-msg"/>;
-
-    return _.isEmpty(vnode.attrs.environments()) ? noEnvironmentPresentMsgHtml : environmentsHtml;
+    return <FlashMessage type={MessageType.info} message={noEnvironmentPresentMsg} dataTestId="no-environment-present-msg"/>;
   }
 }

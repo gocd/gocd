@@ -23,7 +23,8 @@ import {EnvironmentJSON, Environments} from "models/new-environments/environment
 import data from "models/new-environments/spec/test_data";
 import styles from "views/components/collapsible_panel/index.scss";
 import {EnvironmentsWidget} from "views/pages/new-environments/environments_widget";
-import {TestHelper} from "views/pages/spec/test_helper";
+import {stubAllMethods, TestHelper} from "views/pages/spec/test_helper";
+import {ScrollManager} from "../../../components/anchor/anchor";
 
 describe("Environments Widget", () => {
   const helper = new TestHelper();
@@ -32,13 +33,16 @@ describe("Environments Widget", () => {
   const xmlEnv        = data.xml_environment_json();
   const configRepoEnv = data.config_repo_environment_json();
   const env           = data.environment_json();
+  let sm: ScrollManager;
 
   function mountModal(envs: EnvironmentJSON[] = [xmlEnv, configRepoEnv, env]) {
     environments = Environments.fromJSON({_embedded: {environments: envs}});
+    sm           = stubAllMethods(["shouldScroll", "getTarget", "setTarget", "scrollToEl"]);
     helper.mount(() => <EnvironmentsWidget environments={Stream(environments)}
                                            agents={Stream(new Agents())}
                                            onDelete={jasmine.createSpy()}
-                                           onSuccessfulSave={_.noop}/>);
+                                           onSuccessfulSave={_.noop}
+                                           sm={sm}/>);
   }
 
   afterEach(helper.unmount.bind(helper));

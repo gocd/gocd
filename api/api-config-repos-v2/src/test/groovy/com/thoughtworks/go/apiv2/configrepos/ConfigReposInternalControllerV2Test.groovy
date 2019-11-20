@@ -45,7 +45,6 @@ import org.mockito.invocation.InvocationOnMock
 
 import java.util.stream.Collectors
 
-import static com.thoughtworks.go.api.util.HaltApiMessages.forbiddenMessage
 import static com.thoughtworks.go.helper.MaterialConfigsMother.hg
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.Mockito.*
@@ -216,7 +215,7 @@ class ConfigReposInternalControllerV2Test implements SecurityServiceTrait, Contr
 
       assertThatResponse()
         .isForbidden()
-        .hasJsonMessage(forbiddenMessage())
+        .hasJsonMessage("User '${currentUsername().getDisplayName()}' does not have permissions to view 'test-id' config_repo(s).")
     }
   }
 
@@ -328,7 +327,7 @@ class ConfigReposInternalControllerV2Test implements SecurityServiceTrait, Contr
 
         assertThatResponse()
           .isForbidden()
-          .hasJsonMessage(forbiddenMessage())
+          .hasJsonMessage("User '${currentUsername().getDisplayName()}' does not have permissions to view 'test-id' config_repo(s).")
       }
 
       private PipelineConfigs groupWithPipelines(String groupName, String... pipelineNames) {
@@ -407,7 +406,7 @@ class ConfigReposInternalControllerV2Test implements SecurityServiceTrait, Contr
 
         assertThatResponse()
           .isForbidden()
-          .hasJsonMessage(forbiddenMessage())
+          .hasJsonMessage("User '${currentUsername().getDisplayName()}' does not have permissions to view 'test-id' config_repo(s).")
       }
     }
   }
@@ -476,7 +475,7 @@ class ConfigReposInternalControllerV2Test implements SecurityServiceTrait, Contr
 
         assertThatResponse()
           .isForbidden()
-          .hasJsonMessage(forbiddenMessage())
+          .hasJsonMessage("User '${currentUsername().getDisplayName()}' does not have permissions to administer 'test-id' config_repo(s).")
       }
     }
   }

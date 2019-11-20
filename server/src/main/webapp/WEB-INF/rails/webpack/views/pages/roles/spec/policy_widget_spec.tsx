@@ -120,13 +120,11 @@ describe('PolicyWidgetSpecs', () => {
 
     const actionOptions = helper.qa("option", helper.byTestId("permission-action"));
 
-    expect(actionOptions.length).toBe(4);
-    expect(actionOptions[1]).toHaveText("All");
-    expect(actionOptions[1]).toHaveValue("*");
-    expect(actionOptions[2]).toHaveText("View");
-    expect(actionOptions[2]).toHaveValue("view");
-    expect(actionOptions[3]).toHaveText("Administer");
-    expect(actionOptions[3]).toHaveValue("administer");
+    expect(actionOptions.length).toBe(3);
+    expect(actionOptions[1]).toHaveText("View");
+    expect(actionOptions[1]).toHaveValue("view");
+    expect(actionOptions[2]).toHaveText("Administer");
+    expect(actionOptions[2]).toHaveValue("administer");
   });
 
   function mount(policy: Policy = new Policy(), resourceAutoComplete: Map<string, string[]> = new Map()) {

@@ -41,7 +41,6 @@ import org.junit.jupiter.api.Test
 import org.mockito.Mock
 import org.mockito.invocation.InvocationOnMock
 
-import static com.thoughtworks.go.api.util.HaltApiMessages.forbiddenMessage
 import static com.thoughtworks.go.helper.MaterialConfigsMother.hg
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
@@ -265,7 +264,7 @@ class ConfigReposControllerV2Test implements SecurityServiceTrait, ControllerTra
 
       assertThatResponse()
         .isForbidden()
-        .hasJsonMessage(forbiddenMessage())
+        .hasJsonMessage("User '${currentUsername().getDisplayName()}' does not have permissions to view 'repo-01' config_repo(s).")
     }
 
     @Test
@@ -389,7 +388,7 @@ class ConfigReposControllerV2Test implements SecurityServiceTrait, ControllerTra
 
       assertThatResponse()
         .isForbidden()
-        .hasJsonMessage(forbiddenMessage())
+        .hasJsonMessage("User '${currentUsername().getDisplayName()}' does not have permissions to administer 'test-repo' config_repo(s).")
     }
   }
 
@@ -508,7 +507,7 @@ class ConfigReposControllerV2Test implements SecurityServiceTrait, ControllerTra
 
       assertThatResponse().
         isForbidden().
-        hasJsonMessage(forbiddenMessage())
+        hasJsonMessage("User '${currentUsername().getDisplayName()}' does not have permissions to administer 'test-id' config_repo(s).")
     }
   }
 
@@ -556,7 +555,7 @@ class ConfigReposControllerV2Test implements SecurityServiceTrait, ControllerTra
 
       assertThatResponse()
         .isForbidden()
-        .hasJsonMessage(forbiddenMessage())
+        .hasJsonMessage("User '${currentUsername().getDisplayName()}' does not have permissions to administer 'repo-02' config_repo(s).")
     }
   }
 

@@ -85,24 +85,21 @@ public class ConfigReposInternalControllerV2 extends ApiController implements Sp
             before("/*", mimeType, this::setContentType);
             before("/*", mimeType, this::verifyContentType);
 
+            before(ConfigRepos.REPO_PATH, mimeType, this::authorize);
+            before(ConfigRepos.STATUS_PATH, mimeType, this::authorize);
+            before(ConfigRepos.TRIGGER_UPDATE_PATH, mimeType, this::authorize);
+            before(ConfigRepos.DEFINITIONS_PATH, mimeType, this::authorize);
+
             get(ConfigRepos.INDEX_PATH, mimeType, this::listRepos);
-            before(ConfigRepos.REPO_PATH, mimeType, (request, response) -> {
-                authHelper.checkUserHasPermissions(currentUsername(), getAction(request), CONFIG_REPO, request.params(":id"));
-            });
             get(ConfigRepos.REPO_PATH, mimeType, this::showRepo);
-            before(ConfigRepos.STATUS_PATH, mimeType, (request, response) -> {
-                authHelper.checkUserHasPermissions(currentUsername(), getAction(request), CONFIG_REPO, request.params(":id"));
-            });
             get(ConfigRepos.STATUS_PATH, mimeType, this::inProgress);
-            before(ConfigRepos.TRIGGER_UPDATE_PATH, mimeType, (request, response) -> {
-                authHelper.checkUserHasPermissions(currentUsername(), getAction(request), CONFIG_REPO, request.params(":id"));
-            });
             post(ConfigRepos.TRIGGER_UPDATE_PATH, mimeType, this::triggerUpdate);
-            before(ConfigRepos.DEFINITIONS_PATH, mimeType, (request, response) -> {
-                authHelper.checkUserHasPermissions(currentUsername(), getAction(request), CONFIG_REPO, request.params(":id"));
-            });
             get(ConfigRepos.DEFINITIONS_PATH, mimeType, this::definedConfigs);
         });
+    }
+
+    private void authorize(Request request, Response response) {
+        authHelper.checkUserHasPermissions(currentUsername(), getAction(request), CONFIG_REPO, request.params(":id"));
     }
 
     String listRepos(Request req, Response res) throws IOException {

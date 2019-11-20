@@ -36,7 +36,6 @@ class JobHistoryItemRepresenterTest {
   }
 
   def jobHash = [
-    id: 34,
     name: 'job',
     state: 'Completed',
     result: 'Passed',

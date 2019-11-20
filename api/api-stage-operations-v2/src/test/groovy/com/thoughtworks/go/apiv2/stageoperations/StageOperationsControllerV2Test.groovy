@@ -45,6 +45,8 @@ import org.mockito.Mock
 import org.mockito.invocation.InvocationOnMock
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.apiv2.stageoperations.StageOperationsControllerV2.BAD_OFFSET_MSG
+import static com.thoughtworks.go.apiv2.stageoperations.StageOperationsControllerV2.BAD_PAGE_SIZE_MSG
 import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.*
 import static org.mockito.MockitoAnnotations.initMocks
@@ -581,11 +583,13 @@ class StageOperationsControllerV2Test implements SecurityServiceTrait, Controlle
 
         getWithApiHeader(controller.controllerPath(pipelineName, stageName, 'history'), [:])
 
-        def expectedJson = toObjectString({ StageInstancesRepresenter.toJSON(it , getStageModels(), new Pagination(0, 20, 10)) })
+        def expectedJson = toObjectString({
+          StageInstancesRepresenter.toJSON(it, getStageModels(), Pagination.pageStartingAt(0, 20, 10))
+        })
 
         assertThatResponse()
-        .isOk()
-        .hasBody(expectedJson)
+          .isOk()
+          .hasBody(expectedJson)
 
       }
 
@@ -594,13 +598,76 @@ class StageOperationsControllerV2Test implements SecurityServiceTrait, Controlle
         when(stageService.getCount(eq(pipelineName), eq(stageName))).thenReturn(20)
         when(stageService.findDetailedStageHistoryByOffset(eq(pipelineName), eq(stageName), any() as Pagination, eq(currentUserLoginName().toString()), any() as HttpOperationResult)).thenReturn(getStageModels())
 
-        getWithApiHeader(controller.controllerPath(pipelineName, stageName, 'history', offset), [:])
+        getWithApiHeader(controller.controllerPath(pipelineName, stageName, 'history') + "?offset=" + offset, [:])
 
-        def expectedJson = toObjectString({ StageInstancesRepresenter.toJSON(it , getStageModels(), new Pagination(1, 20, 10)) })
+        def expectedJson = toObjectString({
+          StageInstancesRepresenter.toJSON(it, getStageModels(), Pagination.pageStartingAt(1, 20, 10))
+        })
 
         assertThatResponse()
           .isOk()
           .hasBody(expectedJson)
+      }
+
+      @Test
+      void 'should get stage history with page size and offset'() {
+        when(stageService.getCount(eq(pipelineName), eq(stageName))).thenReturn(20)
+        when(stageService.findDetailedStageHistoryByOffset(eq(pipelineName), eq(stageName), any() as Pagination, eq(currentUserLoginName().toString()), any() as HttpOperationResult)).thenReturn(getStageModels())
+
+        getWithApiHeader(controller.controllerPath(pipelineName, stageName, 'history') + "?page_size=15&offset=" + offset, [:])
+
+        def expectedJson = toObjectString({
+          StageInstancesRepresenter.toJSON(it, getStageModels(), Pagination.pageStartingAt(1, 20, 15))
+        })
+
+        assertThatResponse()
+          .isOk()
+          .hasBody(expectedJson)
+      }
+
+      @Test
+      void 'should throw error if page size is specified as less than 10'() {
+        getWithApiHeader(controller.controllerPath(pipelineName, stageName, 'history') + "?page_size=5", [:])
+
+        assertThatResponse()
+          .isBadRequest()
+          .hasJsonMessage(BAD_PAGE_SIZE_MSG)
+      }
+
+      @Test
+      void 'should throw error if page size is specified as greater than 100'() {
+        getWithApiHeader(controller.controllerPath(pipelineName, stageName, 'history') + "?page_size=115", [:])
+
+        assertThatResponse()
+          .isBadRequest()
+          .hasJsonMessage(BAD_PAGE_SIZE_MSG)
+      }
+
+      @Test
+      void 'should throw error if page size is an invalid integer'() {
+        getWithApiHeader(controller.controllerPath(pipelineName, stageName, 'history') + "?page_size=abc", [:])
+
+        assertThatResponse()
+          .isBadRequest()
+          .hasJsonMessage(BAD_PAGE_SIZE_MSG)
+      }
+
+      @Test
+      void 'should throw error if offset is specified as less than 0'() {
+        getWithApiHeader(controller.controllerPath(pipelineName, stageName, 'history') + "?offset=-5", [:])
+
+        assertThatResponse()
+          .isBadRequest()
+          .hasJsonMessage(BAD_OFFSET_MSG)
+      }
+
+      @Test
+      void 'should throw error if offset is an invalid integer'() {
+        getWithApiHeader(controller.controllerPath(pipelineName, stageName, 'history') + "?offset=abc", [:])
+
+        assertThatResponse()
+          .isBadRequest()
+          .hasJsonMessage(BAD_OFFSET_MSG)
       }
 
       def getStageModels() {

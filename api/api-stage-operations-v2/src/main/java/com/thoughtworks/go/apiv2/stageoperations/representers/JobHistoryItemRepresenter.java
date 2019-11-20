@@ -20,7 +20,6 @@ import com.thoughtworks.go.presentation.pipelinehistory.JobHistoryItem;
 
 public class JobHistoryItemRepresenter {
     public static void toJSON(OutputWriter jsonWriter, JobHistoryItem jobHistoryItem) {
-        jsonWriter.add("id", jobHistoryItem.getId());
         jsonWriter.add("name", jobHistoryItem.getName());
         if (jobHistoryItem.getState() != null) {
             jsonWriter.add("state", jobHistoryItem.getState().toString());

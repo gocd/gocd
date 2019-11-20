@@ -41,7 +41,6 @@ class StageInstanceRepresenterTest {
   }
 
   def stageHash = [
-    id:21,
     name:'stage',
     counter:'3',
     approval_type:null,
@@ -49,7 +48,6 @@ class StageInstanceRepresenterTest {
     rerun_of_counter:null,
     jobs:[
       [
-        id:34,
         name:'job',
         state:'Completed',
         result:'Passed',

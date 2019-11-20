@@ -21,7 +21,6 @@ import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModel;
 
 public class StageInstanceRepresenter {
     public static void toJSON(OutputWriter jsonWriter, StageInstanceModel stageInstanceModel) {
-        jsonWriter.add("id", stageInstanceModel.getId());
         jsonWriter.add("name", stageInstanceModel.getName());
         jsonWriter.add("counter", stageInstanceModel.getCounter());
         jsonWriter.add("approval_type", stageInstanceModel.getApprovalType());

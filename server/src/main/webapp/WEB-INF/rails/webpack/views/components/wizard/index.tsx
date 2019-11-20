@@ -44,6 +44,14 @@ export abstract class Step {
 }
 
 export class Wizard extends MithrilViewComponent {
+
+  get allowHeaderClick() {
+    return this._allowHeaderClick;
+  }
+
+  set allowHeaderClick(value: boolean) {
+    this._allowHeaderClick = value;
+  }
   public id: string                         = `modal-${uuid4()}`;
   private steps: Step[]                     = [];
   private selectedStepIndex: Stream<number> = Stream(0);
@@ -86,10 +94,12 @@ export class Wizard extends MithrilViewComponent {
 
   previous(skip = 1) {
     this.selectedStepIndex(this.selectedStepIndex() - skip);
+    Wizard.scrollToTop();
   }
 
   next(skip = 1) {
     this.selectedStepIndex(this.selectedStepIndex() + skip);
+    Wizard.scrollToTop();
   }
 
   isFirstStep() {
@@ -118,12 +128,11 @@ export class Wizard extends MithrilViewComponent {
     return this;
   }
 
-  get allowHeaderClick() {
-    return this._allowHeaderClick;
-  }
-
-  set allowHeaderClick(value: boolean) {
-    this._allowHeaderClick = value;
+  private static scrollToTop() {
+    const wizardBody = document.getElementsByClassName(styles.wizardBody);
+    if (wizardBody && wizardBody.length) {
+      wizardBody[0].scrollTo(0, 0);
+    }
   }
 
   private headerClicked(index: number) {

@@ -58,6 +58,7 @@ import static org.apache.commons.collections4.CollectionUtils.forAllDo;
 public class BuildAssignmentService implements ConfigChangedListener {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(BuildAssignmentService.class.getName());
     public static final NoWork NO_WORK = new NoWork();
+    public static final String GO_PIPELINE_GROUP_NAME = "GO_PIPELINE_GROUP_NAME";
 
     private GoConfigService goConfigService;
     private JobInstanceService jobInstanceService;
@@ -289,10 +290,10 @@ public class BuildAssignmentService implements ConfigChangedListener {
                         return NO_WORK;
                     }
 
-                    final EnvironmentVariableContext contextFromEnvironment = getEnvironmentVariableContextFromEnvironment(job.getIdentifier().getPipelineName());
+                    final EnvironmentVariableContext environmentVariableContext = buildEnvVarContext(job.getIdentifier().getPipelineName());
 
                     final ArtifactStores requiredArtifactStores = goConfigService.artifactStores().getArtifactStores(getArtifactStoreIdsRequiredByArtifactPlans(job.getArtifactPlans()));
-                    BuildAssignment buildAssignment = BuildAssignment.create(job, pipeline.getBuildCause(), builders, pipeline.defaultWorkingFolder(), contextFromEnvironment, requiredArtifactStores);
+                    BuildAssignment buildAssignment = BuildAssignment.create(job, pipeline.getBuildCause(), builders, pipeline.defaultWorkingFolder(), environmentVariableContext, requiredArtifactStores);
 
                     secretParamResolver.resolve(buildAssignment);
 
@@ -317,15 +318,18 @@ public class BuildAssignmentService implements ConfigChangedListener {
         }
     }
 
-    EnvironmentVariableContext getEnvironmentVariableContextFromEnvironment(String pipelineName) {
+    EnvironmentVariableContext buildEnvVarContext(String pipelineName) {
+        String pipelineGroupName = goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(pipelineName));
+        EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext(GO_PIPELINE_GROUP_NAME, pipelineGroupName);
+
         EnvironmentConfig environmentForPipeline = environmentConfigService.environmentForPipeline(pipelineName);
         if (environmentForPipeline == null) {
-            return null;
+            return environmentVariableContext;
         }
 
         secretParamResolver.resolve(environmentForPipeline);
 
-        EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext(GO_ENVIRONMENT_NAME, CaseInsensitiveString.str(environmentForPipeline.name()));
+        environmentVariableContext.setProperty(GO_ENVIRONMENT_NAME, CaseInsensitiveString.str(environmentForPipeline.name()), false);
         environmentForPipeline.getVariables().forEach(variable -> {
             environmentVariableContext.setProperty(variable.getName(), variable.valueForCommandline(), variable.isSecure() || variable.hasSecretParams());
         });

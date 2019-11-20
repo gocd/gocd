@@ -121,6 +121,7 @@ export class ElasticAgentsPage extends Page<null, State> {
           throw Error("elastic profile exists without cluster");
         }
 
+        vnode.state.isWizardOpen(true);
         openWizardForEditElasticProfile(vnode.state.pluginInfos,
                                         vnode.state.clusterProfileBeingEdited,
                                         vnode.state.elasticProfileBeingEdited,
@@ -169,6 +170,7 @@ export class ElasticAgentsPage extends Page<null, State> {
           throw Error("elastic profile exists without cluster");
         }
 
+        vnode.state.isWizardOpen(true);
         return openWizardForAddElasticProfile(vnode.state.pluginInfos,
                                               vnode.state.clusterProfileBeingEdited,
                                               vnode.state.elasticProfileBeingEdited,
@@ -188,6 +190,7 @@ export class ElasticAgentsPage extends Page<null, State> {
                                                        vnode.state.clusterProfileBeingEdited().id(),
                                                        new Configurations([]));
 
+        vnode.state.isWizardOpen(true);
         openWizardForEditClusterProfile(vnode.state.pluginInfos,
                                         vnode.state.clusterProfileBeingEdited,
                                         Stream(elasticProfile),
@@ -339,6 +342,7 @@ export class ElasticAgentsPage extends Page<null, State> {
                                                                   vnode.state.clusterProfileBeingEdited().id(),
                                                                   new Configurations([])));
 
+    vnode.state.isWizardOpen(true);
     return openWizardForAdd(vnode.state.pluginInfos,
                             vnode.state.clusterProfileBeingEdited,
                             vnode.state.elasticProfileBeingEdited,

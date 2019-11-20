@@ -282,6 +282,7 @@ class ClusterProfileStep extends Step {
   }
 
   private save() {
+    this.footerError("");
     if (this.etag) {
       return this.clusterProfile().update(this.etag);
     } else {
@@ -424,6 +425,7 @@ class ElasticProfileStep extends Step {
   }
 
   saveAndFinish(wizard: Wizard) {
+    this.footerError("");
     if (this.etag) {
       this.update(wizard, this.etag!);
     } else {

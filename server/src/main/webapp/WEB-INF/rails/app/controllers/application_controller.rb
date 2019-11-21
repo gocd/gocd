@@ -202,6 +202,10 @@ class ApplicationController < ActionController::Base
     request.env['java.servlet_request']
   end
 
+  def is_user_an_admin?
+    security_service.isUserAdmin(current_user)
+  end
+
   private
 
   def no_layout?

@@ -19,6 +19,8 @@ class EnvironmentsController < ApplicationController
   helper SortableTableHelper
   helper AgentsHelper
 
+  before_action :verify_user_permissions
+
   before_action :load_new_environment, :only => [:new, :create]
   before_action :load_existing_environment, :only => [:show, :update, :edit_pipelines, :edit_agents, :edit_variables]
 
@@ -189,4 +191,7 @@ class EnvironmentsController < ApplicationController
     @current_tab_name = "environments"
   end
 
+  def verify_user_permissions
+    render_error_template('You are not authorized to perform this action.', 403) unless is_user_an_admin?
+  end
 end

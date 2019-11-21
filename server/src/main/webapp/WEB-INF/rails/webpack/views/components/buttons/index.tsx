@@ -44,6 +44,7 @@ export interface Attrs extends OnClickHandler, RestyleAttrs<Styles> {
   dropdown?: boolean;
   align?: Alignment;
   dataTestId?: string;
+  ajaxOperation?: (e: MouseEvent) => Promise<any>;
 }
 
 function dataTestIdAttrs(attrs: Attrs) {
@@ -57,7 +58,8 @@ function dataTestIdAttrs(attrs: Attrs) {
 }
 
 abstract class Button extends RestyleViewComponent<Styles, Attrs> {
-  css: Styles = defaultStyles;
+  css: Styles                     = defaultStyles;
+  ajaxInProgress: Stream<boolean> = Stream();
 
   static isHtmlAttr(key: string): boolean {
     switch (key) {
@@ -66,6 +68,8 @@ abstract class Button extends RestyleViewComponent<Styles, Attrs> {
       case "dropdown":
       case "align":
       case "css":
+      case "ajaxOperation":
+      case "onclick":
         return false;
       default:
         return true;
@@ -87,14 +91,27 @@ abstract class Button extends RestyleViewComponent<Styles, Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     const isSmall    = vnode.attrs.small;
     const isDropdown = vnode.attrs.dropdown;
+    let clickHandler = vnode.attrs.onclick;
+    if (vnode.attrs.ajaxOperation) {
+      clickHandler = (e: MouseEvent) => {
+        if (this.ajaxInProgress()) {
+          return;
+        }
+        this.ajaxInProgress(true);
+        vnode.attrs.ajaxOperation!(e).finally(() => {
+          this.ajaxInProgress(false);
+        });
+      };
+    }
 
     return (
       <button {...Button.onlyHtmlAttrs(vnode.attrs)}
               {...dataTestIdAttrs(vnode.attrs)}
+              onclick={clickHandler}
               class={classnames(
                 this.css.button,
                 {[this.css.btnDropdown]: isDropdown},
-                Button.iconClass(vnode.attrs.icon, this.css),
+                Button.iconClass(this.ajaxInProgress, vnode.attrs.icon, this.css),
                 Button.alignClass(vnode.attrs.align, this.css),
                 this.type(),
                 {[this.css.btnSmall]: isSmall}
@@ -104,8 +121,11 @@ abstract class Button extends RestyleViewComponent<Styles, Attrs> {
     );
   }
 
-  private static iconClass(icon?: ButtonIcon, css?: Styles) {
+  private static iconClass(ajaxInProgress: Stream<boolean>, icon?: ButtonIcon, css?: Styles) {
     css = css || defaultStyles;
+    if (ajaxInProgress()) {
+      return css.iconSpinner;
+    }
 
     switch (icon) {
       case ButtonIcon.ADD:

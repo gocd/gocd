@@ -32,14 +32,20 @@ export class AgentComparator {
     const first = this.getColumnValue(agentOne);
     const other = this.getColumnValue(agentTwo);
 
+    let func;
     switch (this.columnName) {
       case "freeSpace":
-        return this.compareFreespace(first, other);
+        func = this.compareFreespace(first, other);
+        break;
       case "agentState":
-        return this.compareAgentState(first, other);
+        func = this.compareAgentState(first, other);
+        break;
       default:
-        return this.compareString(first, other);
+        func = this.compareString(first, other);
+        break;
     }
+
+    return func || this.compareString(agentOne.uuid, agentTwo.uuid);
   }
 
   private static getAgentStatusRank(status: string): number {

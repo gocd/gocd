@@ -17,11 +17,11 @@
 import _ from "lodash";
 import m from "mithril";
 import * as simulateEvent from "simulate-event";
+import style from "views/components/buttons/index.scss";
 import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
 import {ModalManager} from "views/components/modal/modal_manager";
 import "views/components/modal/spec/modal_matchers";
-import style from "../../../components/buttons/index.scss";
-import {TestHelper} from "../../../pages/spec/test_helper";
+import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("DeleteConfirmModal", () => {
   let modal: DeleteConfirmModal;
@@ -31,7 +31,6 @@ describe("DeleteConfirmModal", () => {
   beforeEach(() => {
     spy        = jasmine.createSpy("delete callback").and.returnValue(new Promise(_.noop));
     modal      = new DeleteConfirmModal("You will no longer be able to time travel!", spy, "Delete flux capacitor?");
-    testHelper = new TestHelper();
     modal.render();
     m.redraw.sync();
     testHelper = new TestHelper().forModal();
@@ -62,14 +61,6 @@ describe("DeleteConfirmModal", () => {
     m.redraw.sync();
     // @ts-ignore
     expect(document.querySelector(".component-modal-container").children.length).toBe(0);
-  });
-
-  it("should send callback on clicking delete button", () => {
-    expect(spy).not.toHaveBeenCalled();
-
-    testHelper.clickByTestId('button-delete');
-
-    expect(spy).toHaveBeenCalled();
   });
 
   it('should disable the No and Yes delete button when operation state is in progress', () => {

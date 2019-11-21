@@ -21,13 +21,13 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {Agents} from "models/agents/agents";
 import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
+import {Anchor, ScrollManager} from "views/components/anchor/anchor";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
+import {FlashMessage, MessageType} from "views/components/flash_message";
+import {Delete, IconGroup} from "views/components/icons";
+import {Link} from "views/components/link";
 import {EnvironmentBody} from "views/pages/new-environments/environment_body_widget";
 import {EnvironmentHeader} from "views/pages/new-environments/environment_header_widget";
-import {Anchor, ScrollManager} from "../../components/anchor/anchor";
-import {FlashMessage, MessageType} from "../../components/flash_message";
-import {Delete, IconGroup} from "../../components/icons";
-import {Link} from "../../components/link";
 import {DeleteOperation} from "../page_operations";
 
 interface Attrs extends DeleteOperation<EnvironmentWithOrigin> {
@@ -95,13 +95,13 @@ export class EnvironmentsWidget extends MithrilViewComponent<Attrs> {
   noEnvironmentConfiguresMessage() {
     const environmentUrl = "/configuration/managing_environments.html";
     const docLink        = <span data-test-id="doc-link">
-      &nbsp; <Link href={docsUrl(environmentUrl)} target="_blank" externalLinkIcon={true}>
+       <Link href={docsUrl(environmentUrl)} target="_blank" externalLinkIcon={true}>
         Learn More
       </Link>
     </span>;
 
     const noEnvironmentPresentMsg = <span>
-      No environments are displayed because either no environments have been set up or you are not authorized to view the pipelines within any of the environments.{docLink}
+      Either no environments have been set up or you are not authorized to view the environments. {docLink}
     </span>;
 
     return <FlashMessage type={MessageType.info} message={noEnvironmentPresentMsg} dataTestId="no-environment-present-msg"/>;

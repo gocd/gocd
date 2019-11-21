@@ -21,10 +21,10 @@ import Stream from "mithril/stream";
 import {Agents} from "models/agents/agents";
 import {EnvironmentJSON, Environments} from "models/new-environments/environments";
 import data from "models/new-environments/spec/test_data";
+import {ScrollManager} from "views/components/anchor/anchor";
 import styles from "views/components/collapsible_panel/index.scss";
 import {EnvironmentsWidget} from "views/pages/new-environments/environments_widget";
 import {stubAllMethods, TestHelper} from "views/pages/spec/test_helper";
-import {ScrollManager} from "../../../components/anchor/anchor";
 
 describe("Environments Widget", () => {
   const helper = new TestHelper();
@@ -100,7 +100,7 @@ describe("Environments Widget", () => {
   it('should render info message if there are no environments are available', () => {
     mountModal([]);
     expect(helper.byTestId("no-environment-present-msg")).toBeInDOM();
-    const noEnvPresentText = "No environments are displayed because either no environments have been set up or you are not authorized to view the pipelines within any of the environments.";
+    const noEnvPresentText = "Either no environments have been set up or you are not authorized to view the environments.";
     expect(helper.byTestId("no-environment-present-msg")).toContainText(noEnvPresentText);
     expect(helper.byTestId("doc-link")).toBeInDOM();
     expect(helper.q("a", helper.byTestId("doc-link"))).toHaveAttr("href", docsUrl("configuration/managing_environments.html"));

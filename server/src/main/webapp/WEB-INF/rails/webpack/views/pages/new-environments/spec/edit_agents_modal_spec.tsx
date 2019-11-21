@@ -20,9 +20,9 @@ import {AgentsJSON} from "models/agents/agents_json";
 import {AgentsTestData} from "models/agents/spec/agents_test_data";
 import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
 import test_data from "models/new-environments/spec/test_data";
+import {ModalState} from "views/components/modal";
 import {EditAgentsModal} from "views/pages/new-environments/edit_agents_modal";
 import {TestHelper} from "views/pages/spec/test_helper";
-import {ModalState} from "../../../components/modal";
 
 describe("Edit Agents Modal", () => {
   const helper = new TestHelper();

@@ -18,9 +18,9 @@ import _ from "lodash";
 import m from "mithril";
 import {EnvironmentWithOrigin} from "models/new-environments/environments";
 import data from "models/new-environments/spec/test_data";
+import {ModalState} from "views/components/modal";
 import {EditEnvironmentVariablesModal} from "views/pages/new-environments/edit_environment_variables_modal";
 import {TestHelper} from "views/pages/spec/test_helper";
-import {ModalState} from "../../../components/modal";
 
 describe("Edit environment variables modal", () => {
   const helper = new TestHelper();

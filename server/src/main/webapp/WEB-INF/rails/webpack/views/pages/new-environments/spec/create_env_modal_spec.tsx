@@ -15,9 +15,9 @@
  */
 
 import m from "mithril";
+import {ModalState} from "views/components/modal";
 import {CreateEnvModal} from "views/pages/new-environments/create_env_modal";
 import {TestHelper} from "views/pages/spec/test_helper";
-import {ModalState} from "../../../components/modal";
 
 describe("Create Env Modal", () => {
   const helper = new TestHelper();

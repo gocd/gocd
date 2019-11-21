@@ -36,8 +36,8 @@ class TestConfigRepoModal extends ConfigRepoModal {
     this.error = errorMsg;
   }
 
-  performSave(): void {
-    //do nothing
+  performSave(): Promise<any> {
+    return Promise.resolve();
   }
 
   title(): string {

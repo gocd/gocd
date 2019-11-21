@@ -117,23 +117,24 @@ export class AdminTemplatesPage extends Page<null, State> {
     };
 
     vnode.state.onDelete = (template, e) => {
-      const message = <span>Are you sure you want to delete the template <em>{template.name}</em>?</span>;
-      const modal   = new DeleteConfirmModal(message, () => {
-        ApiRequestBuilder.DELETE(SparkRoutes.templatesPath(template.name), ApiVersion.latest)
-                         .then((apiResponse) => {
-                                 apiResponse.do(
-                                   (successResponse) => {
-                                     vnode.state.onSuccessfulSave(
-                                       <span>The template <em>{template.name}</em> was deleted successfully!</span>
-                                     );
-                                   },
-                                   (errorResponse) => {
-                                     onOperationError(errorResponse);
-                                   }
-                                 );
-                               }
-                         )
-                         .finally(modal.close.bind(modal));
+      const message                   =
+              <span>Are you sure you want to delete the template <em>{template.name}</em>?</span>;
+      const modal: DeleteConfirmModal = new DeleteConfirmModal(message, () => {
+        return ApiRequestBuilder.DELETE(SparkRoutes.templatesPath(template.name), ApiVersion.latest)
+                                .then((apiResponse) => {
+                                        apiResponse.do(
+                                          (successResponse) => {
+                                            vnode.state.onSuccessfulSave(
+                                              <span>The template <em>{template.name}</em> was deleted successfully!</span>
+                                            );
+                                          },
+                                          (errorResponse) => {
+                                            onOperationError(errorResponse);
+                                          }
+                                        );
+                                      }
+                                )
+                                .finally(modal.close.bind(modal));
       });
       modal.render();
     };

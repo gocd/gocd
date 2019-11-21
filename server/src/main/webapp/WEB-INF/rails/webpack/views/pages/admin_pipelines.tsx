@@ -157,18 +157,18 @@ export class AdminPipelinesPage extends Page<null, State> {
     vnode.state.doDeleteGroup = (group) => {
       const message = <span>Are you sure you want to delete the pipeline group <em>{group.name()}</em>?</span>;
 
-      const modal = new DeleteConfirmModal(message, () => {
-        ApiRequestBuilder.DELETE(SparkRoutes.pipelineGroupsPath(group.name()), ApiVersion.latest)
-                         .then((result) => {
-                           result.do(
-                             () => vnode.state.onSuccessfulSave(
-                               <span>The pipeline group <em>{group.name()}</em> was deleted successfully!</span>
-                             ),
-                             onOperationError
-                           );
+      const modal: DeleteConfirmModal = new DeleteConfirmModal(message, () => {
+        return ApiRequestBuilder.DELETE(SparkRoutes.pipelineGroupsPath(group.name()), ApiVersion.latest)
+                                .then((result) => {
+                                  result.do(
+                                    () => vnode.state.onSuccessfulSave(
+                                      <span>The pipeline group <em>{group.name()}</em> was deleted successfully!</span>
+                                    ),
+                                    onOperationError
+                                  );
 
-                         })
-                         .finally(modal.close.bind(modal));
+                                })
+                                .finally(modal.close.bind(modal));
       });
       modal.render();
 
@@ -177,18 +177,18 @@ export class AdminPipelinesPage extends Page<null, State> {
     vnode.state.doDeletePipeline = (pipeline) => {
       const message = <span>Are you sure you want to delete the pipeline <em>{pipeline.name()}</em>?</span>;
 
-      const modal = new DeleteConfirmModal(message, () => {
-        ApiRequestBuilder.DELETE(SparkRoutes.adminPipelineConfigPath(pipeline.name()), ApiVersion.latest)
-                         .then((result) => {
-                           result.do(
-                             () => vnode.state.onSuccessfulSave(
-                               <span>The pipeline group <em>{pipeline.name()}</em> was deleted successfully!</span>
-                             ),
-                             onOperationError
-                           );
+      const modal: DeleteConfirmModal = new DeleteConfirmModal(message, () => {
+        return ApiRequestBuilder.DELETE(SparkRoutes.adminPipelineConfigPath(pipeline.name()), ApiVersion.latest)
+                                .then((result) => {
+                                  result.do(
+                                    () => vnode.state.onSuccessfulSave(
+                                      <span>The pipeline group <em>{pipeline.name()}</em> was deleted successfully!</span>
+                                    ),
+                                    onOperationError
+                                  );
 
-                         })
-                         .finally(modal.close.bind(modal));
+                                })
+                                .finally(modal.close.bind(modal));
       });
 
       modal.render();

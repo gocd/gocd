@@ -23,6 +23,7 @@ import {
 } from "models/internal_pipeline_structure/pipeline_structure";
 import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
 import data from "models/new-environments/spec/test_data";
+import {ModalState} from "views/components/modal";
 import {EditPipelinesModal} from "views/pages/new-environments/edit_pipelines_modal";
 import {TestHelper} from "views/pages/spec/test_helper";
 
@@ -54,7 +55,7 @@ describe("Edit Pipelines Modal", () => {
 
     modal = new EditPipelinesModal(environment, environments, jasmine.createSpy("onSuccessfulSave"));
     modal.pipelinesVM.pipelineGroups(PipelineGroups.fromJSON(pipelineGroupsJSON.groups));
-    helper.mount(() => modal.body());
+    helper.mount(() => modal.view());
   });
 
   afterEach(() => {
@@ -192,6 +193,14 @@ describe("Edit Pipelines Modal", () => {
     expect(helper.byTestId(selectorForPipeline5)).toBeInDOM();
   });
 
+  it("should show no pipelines text message when no pipelines are available", () => {
+    modal.pipelinesVM.pipelineGroups(new PipelineGroups());
+    m.redraw.sync();
+
+    const expectedMessage = "There are no pipelines available!";
+    expect(helper.textByTestId("flash-message-info")).toContain(expectedMessage);
+  });
+
   it("should show no pipelines matching search text message when no pipelines matched the search text", () => {
     const selectorForPipeline1 = `pipeline-checkbox-for-${pipelineGroupsJSON.groups[0].pipelines[0].name}`;
     const selectorForPipeline2 = `pipeline-list-item-for-${pipelineGroupsJSON.groups[0].pipelines[1].name}`;
@@ -217,5 +226,27 @@ describe("Edit Pipelines Modal", () => {
 
     const expectedMessage = "No pipelines matching search text 'blah-is-my-pipeline-name' found!";
     expect(helper.textByTestId("flash-message-info")).toContain(expectedMessage);
+  });
+
+  it('should render buttons', () => {
+    expect(helper.byTestId("cancel-button")).toBeInDOM();
+    expect(helper.byTestId("cancel-button")).toHaveText("Cancel");
+    expect(helper.byTestId("save-button")).toBeInDOM();
+    expect(helper.byTestId("save-button")).toHaveText("Save");
+  });
+
+  it("should render config repo pipelines with config repo link", () => {
+    const configRepoLink = helper.q("a", helper.byTestId("unavailable-pipelines-defined-in-config-repository"));
+    const configRepoId   = pipelineGroupsJSON.groups[0].pipelines[1].origin.id;
+    expect(configRepoLink).toHaveText(configRepoId!);
+    expect(configRepoLink.getAttribute("href")).toBe(`/go/admin/config_repos/#!${configRepoId}`);
+  });
+
+  it('should disable save and cancel button if modal state is loading', () => {
+    modal.modalState = ModalState.LOADING;
+    m.redraw.sync();
+    expect(helper.byTestId("save-button")).toBeDisabled();
+    expect(helper.byTestId("cancel-button")).toBeDisabled();
+    expect(helper.byTestId("spinner")).toBeInDOM();
   });
 });

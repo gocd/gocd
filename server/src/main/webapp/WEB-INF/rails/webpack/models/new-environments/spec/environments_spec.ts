@@ -18,7 +18,8 @@ import {PipelineWithOrigin} from "models/internal_pipeline_structure/pipeline_st
 import {AgentWithOrigin} from "models/new-environments/environment_agents";
 import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
 import data from "models/new-environments/spec/test_data";
-import {OriginType} from "models/origin";
+import {Origin, OriginType} from "models/origin";
+import {EnvironmentVariableWithOrigin} from "../environment_environment_variables";
 
 const envJSON          = data.environment_json();
 const environmentsJSON = {
@@ -222,5 +223,21 @@ describe("Environment Model - Environment", () => {
     };
 
     expect(env.toJSON()).toEqual(expectedJSON);
+  });
+
+  it('should not give uniqueness error for environment variables if environment variable name is blank', () => {
+    const env = EnvironmentWithOrigin.fromJSON(envJSON);
+    env.environmentVariables().push(new EnvironmentVariableWithOrigin("", new Origin(OriginType.GoCD)));
+    env.environmentVariables().push(new EnvironmentVariableWithOrigin("", new Origin(OriginType.GoCD)));
+    expect(env.isValid()).toBe(true);
+  });
+
+  it('should give error for environment variables with same name', () => {
+    const env = EnvironmentWithOrigin.fromJSON(envJSON);
+    env.environmentVariables().push(new EnvironmentVariableWithOrigin("foo", new Origin(OriginType.GoCD)));
+    env.environmentVariables().push(new EnvironmentVariableWithOrigin("foo", new Origin(OriginType.GoCD)));
+    expect(env.isValid()).toBe(false);
+    expect(env.environmentVariables()[4].errors().errors("name")).toEqual(["Name is a duplicate"]);
+    expect(env.environmentVariables()[5].errors().errors("name")).toEqual(["Name is a duplicate"]);
   });
 });

@@ -14,14 +14,18 @@
  * limitations under the License.
  */
 
+import {docsUrl} from "gen/gocd_version";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {Agents} from "models/agents/agents";
 import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
+import {Anchor, ScrollManager} from "views/components/anchor/anchor";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
-import * as Icons from "views/components/icons/index";
+import {FlashMessage, MessageType} from "views/components/flash_message";
+import {Delete, IconGroup} from "views/components/icons";
+import {Link} from "views/components/link";
 import {EnvironmentBody} from "views/pages/new-environments/environment_body_widget";
 import {EnvironmentHeader} from "views/pages/new-environments/environment_header_widget";
 import {DeleteOperation} from "../page_operations";
@@ -30,26 +34,76 @@ interface Attrs extends DeleteOperation<EnvironmentWithOrigin> {
   environments: Stream<Environments>;
   onSuccessfulSave: (msg: m.Children) => void;
   agents: Stream<Agents>;
+  sm: ScrollManager;
 }
 
-export class EnvironmentsWidget extends MithrilViewComponent<Attrs> {
-  view(vnode: m.Vnode<Attrs>) {
-    return vnode.attrs.environments().map((environment: EnvironmentWithOrigin) => {
-      const isEnvEmpty = _.isEmpty(environment.pipelines()) && _.isEmpty(environment.agents());
-      return <CollapsiblePanel header={<EnvironmentHeader environment={environment}/>}
-                               warning={isEnvEmpty}
-                               actions={[
-                                 <Icons.Delete iconOnly={true}
-                                               title={environment.canAdminister() ? undefined : `You are not authorized to delete '${environment.name()}' environment.`}
-                                               disabled={!environment.canAdminister()}
-                                               onclick={vnode.attrs.onDelete.bind(vnode.attrs, environment)}/>
-                               ]}
-                               dataTestId={`collapsible-panel-for-env-${environment.name()}`}>
+interface EnvAttrs extends Attrs {
+  environment: EnvironmentWithOrigin;
+}
+
+export class EnvironmentWidget extends MithrilViewComponent<EnvAttrs> {
+  expanded: Stream<boolean> = Stream();
+
+  oninit(vnode: m.Vnode<EnvAttrs>) {
+    const linked = vnode.attrs.sm.getTarget() === vnode.attrs.environment.name();
+
+    // set the initial state of the collapsible panel; alternative to setting `expanded` attribute
+    // and, perhaps, more obvious that this is only matters for first load
+    this.expanded(linked);
+  }
+
+  view(vnode: m.Vnode<EnvAttrs>) {
+    const environment = vnode.attrs.environment;
+    const isEnvEmpty  = _.isEmpty(environment.pipelines()) && _.isEmpty(environment.agents());
+    return <Anchor id={environment.name()} sm={vnode.attrs.sm} onnavigate={() => this.expanded(true)}>
+      <CollapsiblePanel header={<EnvironmentHeader environment={environment}/>}
+                        warning={isEnvEmpty}
+                        actions={[
+                          <IconGroup>
+                            <Delete
+                              title={environment.canAdminister() ? undefined : `You are not authorized to delete '${environment.name()}' environment.`}
+                              disabled={!environment.canAdminister()}
+                              onclick={vnode.attrs.onDelete.bind(vnode.attrs, environment)}/>
+                          </IconGroup>
+                        ]}
+                        dataTestId={`collapsible-panel-for-env-${environment.name()}`}
+                        vm={this}>
         <EnvironmentBody environment={environment}
                          environments={vnode.attrs.environments()}
                          agents={vnode.attrs.agents}
                          onSuccessfulSave={vnode.attrs.onSuccessfulSave}/>
-      </CollapsiblePanel>;
-    });
+      </CollapsiblePanel>
+    </Anchor>;
+  }
+}
+
+export class EnvironmentsWidget extends MithrilViewComponent<Attrs> {
+  view(vnode: m.Vnode<Attrs>) {
+
+    if (_.isEmpty(vnode.attrs.environments())) {
+      return this.noEnvironmentConfiguresMessage();
+    }
+
+    return <div>
+      {vnode.attrs.environments().map((environment: any) => {
+        return <EnvironmentWidget {...vnode.attrs} environment={environment}/>;
+      })}
+    </div>;
+
+  }
+
+  noEnvironmentConfiguresMessage() {
+    const environmentUrl = "/configuration/managing_environments.html";
+    const docLink        = <span data-test-id="doc-link">
+       <Link href={docsUrl(environmentUrl)} target="_blank" externalLinkIcon={true}>
+        Learn More
+      </Link>
+    </span>;
+
+    const noEnvironmentPresentMsg = <span>
+      Either no environments have been set up or you are not authorized to view the environments. {docLink}
+    </span>;
+
+    return <FlashMessage type={MessageType.info} message={noEnvironmentPresentMsg} dataTestId="no-environment-present-msg"/>;
   }
 }

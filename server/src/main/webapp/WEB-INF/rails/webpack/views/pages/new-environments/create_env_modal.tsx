@@ -25,7 +25,7 @@ import {ButtonGroup, Cancel, Primary} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Form} from "views/components/forms/form";
 import {TextField} from "views/components/forms/input_fields";
-import {Modal} from "views/components/modal";
+import {Modal, ModalState} from "views/components/modal";
 import styles from "views/pages/new-environments/index.scss";
 
 export class CreateEnvModal extends Modal {
@@ -68,8 +68,8 @@ export class CreateEnvModal extends Modal {
 
   buttons() {
     return [<ButtonGroup>
-      <Cancel data-test-id="button-cancel" onclick={() => this.close()}>Cancel</Cancel>
-      <Primary data-test-id="button-save" onclick={this.validateAndPerformSave.bind(this)}>Save</Primary>
+      <Cancel data-test-id="button-cancel" onclick={() => this.close()} disabled={this.isLoading()}>Cancel</Cancel>
+      <Primary data-test-id="button-save" onclick={this.validateAndPerformSave.bind(this)} disabled={this.isLoading()}>Save</Primary>
     </ButtonGroup>];
   }
 
@@ -77,8 +77,10 @@ export class CreateEnvModal extends Modal {
     if (!this.environment.isValid()) {
       return;
     }
+    this.modalState = ModalState.LOADING;
     EnvironmentsAPIs.create(this.environment)
                     .then((result) => {
+                      this.modalState = ModalState.OK;
                       result.do(
                         (successResponse: SuccessResponse<ObjectWithEtag<EnvironmentWithOrigin>>) => {
                           this.onSuccessfulSave(<span>Environment <em>{this.environment.name()}</em> created successfully. Now pipelines, agents and environment variables can be added to the same.</span>);

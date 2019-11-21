@@ -14,38 +14,47 @@
  * limitations under the License.
  */
 
+import _ from "lodash";
 import m from "mithril";
 import * as simulateEvent from "simulate-event";
+import style from "views/components/buttons/index.scss";
 import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
 import {ModalManager} from "views/components/modal/modal_manager";
 import "views/components/modal/spec/modal_matchers";
+import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("DeleteConfirmModal", () => {
+  let modal: DeleteConfirmModal;
+  let spy: any;
+  let testHelper: TestHelper;
+
+  beforeEach(() => {
+    spy        = jasmine.createSpy("delete callback").and.returnValue(new Promise(_.noop));
+    modal      = new DeleteConfirmModal("You will no longer be able to time travel!", spy, "Delete flux capacitor?");
+    modal.render();
+    m.redraw.sync();
+    testHelper = new TestHelper().forModal();
+  });
 
   afterEach(() => {
     ModalManager.closeAll();
-    m.redraw.sync();
   });
 
   it("should render", () => {
-    const spy = jasmine.createSpy("delete callback");
-
-    const modal = new DeleteConfirmModal("You will no longer be able to time travel!", spy, "Delete flux capacitor?");
-    modal.render();
-    m.redraw.sync();
-
     expect(modal).toContainTitle("Delete flux capacitor?");
     expect(modal).toContainButtons(["No", "Yes Delete"]);
     expect(modal).toContainBody("You will no longer be able to time travel!");
   });
 
+  it("should send callback on clicking delete button", () => {
+    expect(spy).not.toHaveBeenCalled();
+
+    testHelper.clickByTestId('button-delete');
+
+    expect(spy).toHaveBeenCalled();
+  });
+
   it("should close when pressing escape key", () => {
-    const spy = jasmine.createSpy("delete callback");
-
-    const modal = new DeleteConfirmModal("You will no longer be able to time travel!", spy, "Delete flux capacitor?");
-    modal.render();
-    m.redraw.sync();
-
     // @ts-ignore
     expect(document.querySelector(".component-modal-container").children.length).toBe(1);
     simulateEvent.simulate(document.body, "keydown", {key: "Escape", keyCode: 27});
@@ -54,32 +63,18 @@ describe("DeleteConfirmModal", () => {
     expect(document.querySelector(".component-modal-container").children.length).toBe(0);
   });
 
-  it("should send callback on clicking delete button", () => {
-    const spy = jasmine.createSpy("delete callback");
-
-    const modal = new DeleteConfirmModal("You will no longer be able to time travel!", spy, "Delete flux capacitor?");
-    modal.render();
-    m.redraw.sync();
-
-    expect(spy).not.toHaveBeenCalled();
-
-    simulateEvent.simulate(document.querySelector("[data-test-id='button-delete']") as Element, "click");
-    m.redraw.sync();
-
-    expect(spy).toHaveBeenCalled();
+  it('should disable the No and Yes delete button when operation state is in progress', () => {
+    testHelper.clickByTestId("button-delete");
+    expect(testHelper.byTestId("button-delete")).toHaveClass(style.iconSpinner);
+    expect(testHelper.byTestId("button-delete")).toBeDisabled();
+    expect(testHelper.byTestId("button-no-delete")).toBeDisabled();
   });
 
   it("should close the modal and not send delete callback when 'No` button is clicked", () => {
-    const spy = jasmine.createSpy("delete callback");
-
-    const modal = new DeleteConfirmModal("You will no longer be able to time travel!", spy, "Delete flux capacitor?");
-    modal.render();
-    m.redraw.sync();
 
     expect(spy).not.toHaveBeenCalled();
 
-    simulateEvent.simulate(document.querySelector("[data-test-id='button-no-delete']") as Element, "click");
-    m.redraw.sync();
+    testHelper.clickByTestId('button-no-delete');
 
     expect(spy).not.toHaveBeenCalled();
     // @ts-ignore

@@ -14,15 +14,17 @@
  * limitations under the License.
  */
 
+import {docsUrl} from "gen/gocd_version";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {Agents} from "models/agents/agents";
 import {EnvironmentJSON, Environments} from "models/new-environments/environments";
 import data from "models/new-environments/spec/test_data";
+import {ScrollManager} from "views/components/anchor/anchor";
 import styles from "views/components/collapsible_panel/index.scss";
 import {EnvironmentsWidget} from "views/pages/new-environments/environments_widget";
-import {TestHelper} from "views/pages/spec/test_helper";
+import {stubAllMethods, TestHelper} from "views/pages/spec/test_helper";
 
 describe("Environments Widget", () => {
   const helper = new TestHelper();
@@ -31,13 +33,16 @@ describe("Environments Widget", () => {
   const xmlEnv        = data.xml_environment_json();
   const configRepoEnv = data.config_repo_environment_json();
   const env           = data.environment_json();
+  let sm: ScrollManager;
 
   function mountModal(envs: EnvironmentJSON[] = [xmlEnv, configRepoEnv, env]) {
     environments = Environments.fromJSON({_embedded: {environments: envs}});
+    sm           = stubAllMethods(["shouldScroll", "getTarget", "setTarget", "scrollToEl"]);
     helper.mount(() => <EnvironmentsWidget environments={Stream(environments)}
                                            agents={Stream(new Agents())}
                                            onDelete={jasmine.createSpy()}
-                                           onSuccessfulSave={_.noop}/>);
+                                           onSuccessfulSave={_.noop}
+                                           sm={sm}/>);
   }
 
   afterEach(helper.unmount.bind(helper));
@@ -90,5 +95,14 @@ describe("Environments Widget", () => {
     envJson.pipelines = [];
     mountModal([envJson]);
     expect(helper.byTestId("collapsible-panel-for-env-" + envJson.name)).toHaveClass(styles.warning);
+  });
+
+  it('should render info message if there are no environments are available', () => {
+    mountModal([]);
+    expect(helper.byTestId("no-environment-present-msg")).toBeInDOM();
+    const noEnvPresentText = "Either no environments have been set up or you are not authorized to view the environments.";
+    expect(helper.byTestId("no-environment-present-msg")).toContainText(noEnvPresentText);
+    expect(helper.byTestId("doc-link")).toBeInDOM();
+    expect(helper.q("a", helper.byTestId("doc-link"))).toHaveAttr("href", docsUrl("configuration/managing_environments.html"));
   });
 });

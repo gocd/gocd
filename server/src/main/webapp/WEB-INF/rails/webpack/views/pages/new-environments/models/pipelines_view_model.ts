@@ -46,6 +46,17 @@ export class PipelinesViewModel {
     return new Pipelines(...pipelines);
   }
 
+  allPipelines(): Pipelines {
+    const groups = this.pipelineGroups();
+    if (!groups) {
+      return new Pipelines();
+    }
+
+    const pipelines = _.flatten(groups.map((group) => group.pipelines()));
+
+    return new Pipelines(...pipelines);
+  }
+
   availablePipelines(): Pipelines {
     const repoAssociatedPipelines = this.configRepoEnvironmentPipelines();
     const repoDefinedPipelines    = this.unassociatedPipelinesDefinedInConfigRepository();

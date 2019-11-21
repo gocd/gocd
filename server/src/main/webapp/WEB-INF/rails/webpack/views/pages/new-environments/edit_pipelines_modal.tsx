@@ -172,19 +172,27 @@ export class EditPipelinesModal extends Modal {
   }
 
   body(): m.Children {
-    const noPipelinesMsg = <FlashMessage type={MessageType.info}
-                                         message={`No pipelines matching search text '${this.pipelinesVM.searchText()}' found!`}/>;
+    let noPipelinesMsg;
+
+    if (this.pipelinesVM.allPipelines().length === 0) {
+      noPipelinesMsg = <FlashMessage type={MessageType.info} message={'There are no pipelines available!'}/>;
+    } else if (this.pipelinesVM.filteredPipelines().length === 0) {
+      noPipelinesMsg = <FlashMessage type={MessageType.info}
+                                     message={`No pipelines matching search text '${this.pipelinesVM.searchText()}' found!`}/>;
+    }
 
     return <div>
       <FlashMessage type={MessageType.alert} message={this.pipelinesVM.errorMessage()}/>
       <PipelineFilterWidget pipelinesVM={this.pipelinesVM}/>
-      {this.pipelinesVM.filteredPipelines().length === 0 ? noPipelinesMsg : this.pipelinesHtml()}
+      {noPipelinesMsg ? noPipelinesMsg : this.pipelinesHtml()}
     </div>;
   }
 
   buttons(): m.ChildArray {
-    return [<Primary data-test-id="button-ok" onclick={this.performSave.bind(this)}>Save</Primary>,
-      <Cancel data-test-id="cancel-button" onclick={this.close.bind(this)}>Cancel</Cancel>
+    return [
+      <Primary data-test-id="save-button" onclick={this.performSave.bind(this)}
+               disabled={this.isLoading()}>Save</Primary>,
+      <Cancel data-test-id="cancel-button" onclick={this.close.bind(this)} disabled={this.isLoading()}>Cancel</Cancel>
     ];
   }
 
@@ -192,12 +200,14 @@ export class EditPipelinesModal extends Modal {
     if (this.pipelinesVM.environment.isValid()) {
       const pipelinesToAdd    = this.pipelinesToAdd().map((pipeline) => pipeline.name());
       const pipelinesToRemove = this.pipelinesToRemove().map((pipeline) => pipeline.name());
+      this.modalState         = ModalState.LOADING;
       EnvironmentsAPIs.patch(this.originalEnv.name(), {
         pipelines: {
           add: pipelinesToAdd,
           remove: pipelinesToRemove
         }
       }).then((result) => {
+        this.modalState = ModalState.OK;
         result.do(
           () => {
             this.onSuccessfulSave("Pipelines updated successfully for env " + this.originalEnv.name());

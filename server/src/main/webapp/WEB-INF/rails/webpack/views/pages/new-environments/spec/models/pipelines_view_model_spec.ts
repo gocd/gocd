@@ -58,7 +58,7 @@ describe("Pipelines View Model", () => {
     expect(pipelinesViewModel.errorMessage()).toBe(errorMessage);
   });
 
-  it("should should filter pipelines based on search text", () => {
+  it("should filter pipelines based on search text", () => {
     let filteredPipelines = pipelinesViewModel.filteredPipelines();
 
     expect(filteredPipelines.length).toBe(6);
@@ -78,7 +78,7 @@ describe("Pipelines View Model", () => {
     expect(filteredPipelines[0].name()).toBe(pipelineGroupsJSON.groups[0].pipelines[0].name);
   });
 
-  it("should should filter pipelines based on partial search text match", () => {
+  it("should filter pipelines based on partial search text match", () => {
     let filteredPipelines = pipelinesViewModel.filteredPipelines();
 
     expect(filteredPipelines.length).toBe(6);
@@ -131,5 +131,16 @@ describe("Pipelines View Model", () => {
 
     expect(pipelines.length).toBe(1);
     expect(pipelines[0].name()).toBe(pipeline.name());
+  });
+
+  it('should give all pipelines', () => {
+    const pipelines = pipelinesViewModel.allPipelines();
+    expect(pipelines.length).toBe(6);
+    expect(pipelines[0].name()).toBe(pipelineGroupsJSON.groups[0].pipelines[0].name);
+    expect(pipelines[1].name()).toBe(pipelineGroupsJSON.groups[0].pipelines[1].name);
+    expect(pipelines[2].name()).toBe(pipelineGroupsJSON.groups[0].pipelines[2].name);
+    expect(pipelines[3].name()).toBe(pipelineGroupsJSON.groups[1].pipelines[0].name);
+    expect(pipelines[4].name()).toBe(pipelineGroupsJSON.groups[1].pipelines[1].name);
+    expect(pipelines[5].name()).toBe(pipelineGroupsJSON.groups[1].pipelines[2].name);
   });
 });

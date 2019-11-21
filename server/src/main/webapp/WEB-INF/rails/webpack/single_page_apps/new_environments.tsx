@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-import {SinglePageAppBase} from "helpers/spa_base";
+import {RoutedSinglePageApp} from "helpers/spa_base";
 import {NewEnvironmentsPage} from "views/pages/new-environments";
 
-export class NewEnvironmentsSPA extends SinglePageAppBase {
+export class NewEnvironmentsSPA extends RoutedSinglePageApp {
   constructor() {
-    super(NewEnvironmentsPage);
+    super({
+            "/": NewEnvironmentsPage,
+            "/:name": NewEnvironmentsPage
+          });
   }
 }
 

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {EnvironmentWithOrigin} from "models/new-environments/environments";
@@ -21,7 +22,7 @@ import {EnvironmentsAPIs} from "models/new-environments/environments_apis";
 import {Cancel, Primary} from "views/components/buttons";
 import {EnvironmentVariablesWidget} from "views/components/environment_variables";
 import {FlashMessage, MessageType} from "views/components/flash_message";
-import {Modal, Size} from "views/components/modal";
+import {Modal, ModalState, Size} from "views/components/modal";
 
 export class EditEnvironmentVariablesModal extends Modal {
   private _environment: EnvironmentWithOrigin;
@@ -54,8 +55,10 @@ export class EditEnvironmentVariablesModal extends Modal {
   }
 
   buttons(): m.ChildArray {
-    return [<Primary data-test-id="button-ok" onclick={this.performSave.bind(this)}>Save</Primary>,
-            <Cancel data-test-id="cancel-button" onclick={this.close.bind(this)}>Cancel</Cancel>
+    return [
+      <Primary data-test-id="save-button" onclick={this.performSave.bind(this)}
+               disabled={this.isLoading()}>Save</Primary>,
+      <Cancel data-test-id="cancel-button" onclick={this.close.bind(this)} disabled={this.isLoading()}>Cancel</Cancel>
     ];
   }
 
@@ -63,12 +66,14 @@ export class EditEnvironmentVariablesModal extends Modal {
     if (this.environmentToUpdate.isValid()) {
       const envToAdd    = this.environmentVariablesToAdd().map((envVar) => envVar.toJSON());
       const envToRemove = this.environmentVariablesToRemove().map((envVar) => envVar.name());
+      this.modalState   = ModalState.LOADING;
       EnvironmentsAPIs.patch(this.environmentToUpdate.name(), {
         environment_variables: {
           add: envToAdd,
           remove: envToRemove
         }
       }).then((result) => {
+        this.modalState = ModalState.OK;
         result.do(
           () => {
             this.onSuccessfulSave("Environment variables updated successfully");
@@ -86,6 +91,11 @@ export class EditEnvironmentVariablesModal extends Modal {
 
   environmentVariablesToAdd() {
     return this.environmentToUpdate.environmentVariables().filter((envVar) => {
+      const isBlankEnvVar = _.isEmpty(envVar.name()) && (_.isEmpty(envVar.value()) && _.isEmpty(envVar.encryptedValue()));
+      if (isBlankEnvVar) {
+        return false;
+      }
+
       const oldEnvVar = this._environment.environmentVariables().find((v) => v.name() === envVar.name());
       // add new and updated variables
       return oldEnvVar === undefined || !oldEnvVar.equals(envVar);

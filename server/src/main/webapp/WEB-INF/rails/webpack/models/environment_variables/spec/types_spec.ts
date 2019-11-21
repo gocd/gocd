@@ -74,7 +74,7 @@ describe("Environment Variables Model", () => {
 
 describe("Environment Variable Model", () => {
   describe("Validations", () => {
-    it("should validate presence of name", () => {
+    it("should validate presence of name if both value and encrypted value are present", () => {
       const envVar = EnvironmentVariable.fromJSON(plainTextEnvVar1);
 
       expect(envVar.isValid()).toBe(true);
@@ -85,28 +85,10 @@ describe("Environment Variable Model", () => {
       expect(envVar.errors().errors("name")).toContain("Name must be present");
     });
 
-    it("should validate presence of either value or encryptedValue", () => {
-      const envVar = EnvironmentVariable.fromJSON(plainTextEnvVar1);
-
+    it("should not validate presence of name if value is empty", () => {
+      const envVar = new EnvironmentVariable("");
       expect(envVar.isValid()).toBe(true);
-
-      envVar.value("");
-
-      expect(envVar.isValid()).toBe(false);
-      expect(envVar.errors().keys()).toEqual(["value"]);
-      const errMsg = "Either 'Value' or 'Encrypted value' must be present. Both 'Value' and 'Encrypted value' cannot be defined at the same time.";
-      expect(envVar.errors().errors("value")).toContain(errMsg);
-    });
-
-    it("should validate mutual exclusivity of value and encryptedValue", () => {
-      const envVar = EnvironmentVariable.fromJSON(plainTextEnvVar1);
-      expect(envVar.isValid()).toBe(true);
-
-      envVar.encryptedValue("some-encrypted-value");
-      expect(envVar.isValid()).toBe(false);
-      expect(envVar.errors().keys()).toEqual(["value"]);
-      const errMsg = "Either 'Value' or 'Encrypted value' must be present. Both 'Value' and 'Encrypted value' cannot be defined at the same time.";
-      expect(envVar.errors().errors("value")).toContain(errMsg);
+      expect(envVar.errors().hasErrors()).toBe(false);
     });
   });
 

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import _ from "lodash";
 import Stream from "mithril/stream";
 import {applyMixins} from "models/mixins/mixins";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
@@ -38,10 +39,7 @@ export class EnvironmentVariable extends ValidatableMixin {
     this.value          = Stream(value);
     this.encryptedValue = Stream(encryptedValue);
     ValidatableMixin.call(this);
-    this.validatePresenceOf("name");
-    this.validateMutualExclusivityOf("value",
-                                     "encryptedValue",
-                                     {message: "Either 'Value' or 'Encrypted value' must be present. Both 'Value' and 'Encrypted value' cannot be defined at the same time."});
+    this.validatePresenceOf("name", {condition: () => !_.isEmpty(this.value()) || !_.isEmpty(this.encryptedValue())});
   }
 
   static fromJSON(data: EnvironmentVariableJSON) {
@@ -93,12 +91,6 @@ export class EnvironmentVariables<T extends EnvironmentVariable = EnvironmentVar
 
   remove(envVar: T) {
     this.splice(this.indexOf(envVar), 1);
-  }
-
-  isValid() {
-    let valid = true;
-    this.forEach((environment) => valid = valid && environment.isValid());
-    return valid;
   }
 
   toJSON() {

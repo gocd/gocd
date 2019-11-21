@@ -330,12 +330,12 @@ export abstract class ConfigRepoModal extends Modal {
 
   buttons(): m.ChildArray {
     return [
-      <Buttons.Primary data-test-id="button-ok" onclick={this.performSave.bind(this)}>Save</Buttons.Primary>,
+      <Buttons.Primary data-test-id="button-ok" ajaxOperation={this.performSave.bind(this)}>Save</Buttons.Primary>,
       <Buttons.Cancel data-test-id="button-cancel" onclick={this.close.bind(this)}>Cancel</Buttons.Cancel>
     ];
   }
 
-  abstract performSave(): void;
+  abstract performSave(): Promise<any>;
 
   protected handleAutoUpdateError() {
     const errors = this.getRepo().material()!.attributes()!.errors();
@@ -372,9 +372,9 @@ export class NewConfigRepoModal extends ConfigRepoModal {
 
   performSave() {
     if (!this.repo().isValid()) {
-      return;
+      return Promise.resolve();
     }
-    ConfigReposCRUD.create(this.repo())
+    return ConfigReposCRUD.create(this.repo())
                    .then((result) => result.do(this.onSuccess.bind(this),
                                                (errorResponse) => this.handleError(result, errorResponse)));
   }
@@ -421,11 +421,11 @@ export class EditConfigRepoModal extends ConfigRepoModal {
     return `Edit configuration repository ${this.repoId}`;
   }
 
-  performSave(): void {
+  performSave(): Promise<any> {
     if (!this.repoWithEtag().object.isValid()) {
-      return;
+      return Promise.resolve();
     }
-    ConfigReposCRUD.update(this.repoWithEtag())
+    return ConfigReposCRUD.update(this.repoWithEtag())
                    .then((apiResult) => apiResult.do(this.onSuccess.bind(this),
                                                      (errorResponse) => this.handleError(apiResult, errorResponse)));
   }

@@ -197,18 +197,20 @@ export class CreatePolicyWidget extends MithrilViewComponent<AutoCompleteAttrs> 
         vnode.attrs.policy().splice(index, 1);
       }
     };
+    const policyBody               = vnode.attrs.policy && _.isEmpty(vnode.attrs.policy())
+                                     ? <FlashMessage type={MessageType.info}
+                                                     message="The default policy is to deny access to all GoCD entities. Configure permissions below to override that behavior."/>
+                                     : <div data-test-id="policy-table" class={styles.selectPermission}>
+                                       <Table headers={CreatePolicyWidget.headers()}
+                                              data={new PolicyWidgetBody(vnode.attrs.policy,
+                                                                         vnode.attrs.resourceAutocompleteHelper,
+                                                                         removePermissionCallback).getData()}
+                                              draggable={true}
+                                              dragHandler={this.reArrange.bind(this, vnode.attrs.policy)}/>
+                                     </div>;
     return <div data-test-id="policy-widget">
       <h2>Policy </h2>
-      <FlashMessage type={MessageType.info}
-                    message="The default policy is to deny access to all GoCD entities. Configure permissions below to override that behavior."/>
-      <div data-test-id="policy-table" class={styles.selectPermission}>
-        <Table headers={CreatePolicyWidget.headers()}
-               data={new PolicyWidgetBody(vnode.attrs.policy,
-                                          vnode.attrs.resourceAutocompleteHelper,
-                                          removePermissionCallback).getData()}
-               draggable={true}
-               dragHandler={this.reArrange.bind(this, vnode.attrs.policy)}/>
-      </div>
+      {policyBody}
     </div>;
   }
 

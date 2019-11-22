@@ -190,9 +190,6 @@ Rails.application.routes.draw do
             put ':template_name/authorization' => 'authorization#update', constraints: {template_name: TEMPLATE_NAME_FORMAT}
           end
 
-          get 'environments/:environment_name/merged' => 'merged_environments#show', constraints: MERGED_ENVIRONMENT_NAME_CONSTRAINT, as: :merged_environment_show
-          get 'environments/merged' => 'merged_environments#index', as: :merged_environment_index
-
           namespace :internal do
             post :material_test, controller: :material_test, action: :test, as: :material_test
           end

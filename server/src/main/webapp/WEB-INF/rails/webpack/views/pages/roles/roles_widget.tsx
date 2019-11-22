@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {docsUrl} from "gen/gocd_version";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
@@ -25,6 +26,7 @@ import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {HeaderIcon} from "views/components/header_icon";
 import {Clone, Delete, Edit, IconGroup} from "views/components/icons";
 import {KeyValuePair} from "views/components/key_value_pair";
+import {Link} from "views/components/link";
 import {CloneOperation, DeleteOperation, EditOperation} from "views/pages/page_operations";
 import {UsersWidget} from "views/pages/roles/users_widget";
 import styles from "./index.scss";
@@ -49,6 +51,18 @@ interface PluginRoleAttrs extends RoleAttrs {
 
 export class RolesWidget extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>): m.Children | void | null {
+    if (_.isEmpty(vnode.attrs.roles)) {
+      return <div class={styles.tips}>
+        <ul data-test-id="role-config-info">
+          <li>Click on "Add" to add new role configuration.</li>
+          <li>A role configuration is used to define a group of users, along with the access permissions, who perform
+            similar tasks. You can read more about roles based access control in GoCD
+            from <Link target="_blank"
+                       href={docsUrl("configuration/dev_authorization.html#role-based-security")}>here</Link>.
+          </li>
+        </ul>
+      </div>;
+    }
     return <div data-test-id="role-widget">
       {vnode.attrs.roles.map((role) => {
         if (role.isPluginRole()) {

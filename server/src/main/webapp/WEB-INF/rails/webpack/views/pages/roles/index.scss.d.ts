@@ -11,6 +11,7 @@ export const roleUserDeleteIcon: string;
 export const selectPermission: string;
 export const spinnerWrapper: string;
 export const tag: string;
+export const tips: string;
 export const usersInRole: string;
 export const warningContent: string;
 export const warningWrapper: string;

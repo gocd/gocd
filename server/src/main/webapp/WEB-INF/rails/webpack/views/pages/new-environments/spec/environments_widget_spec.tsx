@@ -81,7 +81,7 @@ describe("Environments Widget", () => {
     const deleteIcons = helper.allByTestId("Delete-icon");
     expect(deleteIcons).toHaveLength(3);
 
-    expect(deleteIcons[0].title).toBe(`You are not authorized to delete '${xmlEnv.name}' environment.`);
+    expect(deleteIcons[0].title).toBe(`You dont have permissions to delete '${xmlEnv.name}' environment.`);
     expect(deleteIcons[0]).toBeDisabled();
     expect(deleteIcons[1].title).toBeFalsy();
     expect(deleteIcons[1]).not.toBeDisabled();

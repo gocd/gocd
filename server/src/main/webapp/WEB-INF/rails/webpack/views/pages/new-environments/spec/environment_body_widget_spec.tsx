@@ -76,11 +76,11 @@ describe("Environments Body Widget", () => {
     environment.canAdminister(false);
     helper.redraw();
 
-    expect(editIcons[0].title).toBe(`You are not authorized to modify pipelines of '${environment.name()}' environment.`);
+    expect(editIcons[0].title).toBe(`You dont have permissions to edit '${environment.name()}' environment.`);
     expect(editIcons[0]).toBeDisabled();
-    expect(editIcons[1].title).toBe(`You are not authorized to modify agents of '${environment.name()}' environment.`);
+    expect(editIcons[1].title).toBe(`You dont have permissions to edit '${environment.name()}' environment.`);
     expect(editIcons[1]).toBeDisabled();
-    expect(editIcons[2].title).toBe(`You are not authorized to modify environment variables of '${environment.name()}' environment.`);
+    expect(editIcons[2].title).toBe(`You dont have permissions to edit '${environment.name()}' environment.`);
     expect(editIcons[2]).toBeDisabled();
   });
 

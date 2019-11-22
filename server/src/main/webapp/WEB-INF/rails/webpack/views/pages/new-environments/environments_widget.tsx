@@ -61,7 +61,7 @@ export class EnvironmentWidget extends MithrilViewComponent<EnvAttrs> {
                         actions={[
                           <IconGroup>
                             <Delete
-                              title={environment.canAdminister() ? undefined : `You are not authorized to delete '${environment.name()}' environment.`}
+                              title={environment.canAdminister() ? undefined : `You dont have permissions to delete '${environment.name()}' environment.`}
                               disabled={!environment.canAdminister()}
                               onclick={vnode.attrs.onDelete.bind(vnode.attrs, environment)}/>
                           </IconGroup>

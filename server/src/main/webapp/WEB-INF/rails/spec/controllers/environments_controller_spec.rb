@@ -25,7 +25,7 @@ describe EnvironmentsController do
       allow(controller).to receive(:entity_hashing_service).and_return(@entity_hashing_service)
       allow(controller).to receive(:environment_config_service).and_return(@environment_config_service = double('environment_config_service', :isEnvironmentFeatureEnabled => true))
       allow(controller).to receive(:security_service).and_return(@security_service = double(SecurityService))
-      allow(@security_service).to receive(:isUserAdmin).and_return(false)
+      allow(@security_service).to receive(:isUserAdmin).and_return(true)
       allow(@environment_config_service).to receive(:listAllMergedEnvironments).and_return([EnvironmentViewModel.new(BasicEnvironmentConfig.new(CaseInsensitiveString.new('environment-1'))), EnvironmentViewModel.new(BasicEnvironmentConfig.new(CaseInsensitiveString.new('environment-2')))])
     end
 
@@ -35,23 +35,8 @@ describe EnvironmentsController do
     end
 
     it "should show add environment only if the user is a Go admin" do
-      allow(controller).to receive(:security_service).and_return(@security_service = double(SecurityService))
-
-      expect(@security_service).to receive(:isUserAdmin).with(@user).and_return(true)
-
       get :index
-
       expect(assigns[:show_add_environments]).to eq(true)
-    end
-
-    it "should not show add environment link when the user is not a Go admin" do
-      allow(controller).to receive(:security_service).and_return(@security_service = double(SecurityService))
-
-      expect(@security_service).to receive(:isUserAdmin).with(@user).and_return(false)
-
-      get :index
-
-      expect(assigns[:show_add_environments]).to eq(false)
     end
 
     it "should match /environments defaulting to html format" do
@@ -249,6 +234,7 @@ describe EnvironmentsController do
       allow(controller).to receive(:agent_service).and_return(@agent_service = double(AgentService))
       @user = com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new('user_foo'))
       allow(controller).to receive(:current_user).and_return(@user)
+      allow(@security_service).to receive(:isUserAdmin).with(@user).and_return(true)
       allow(@security_service).to receive(:canViewAdminPage).with(@user).and_return(true)
       @environment_name = "foo-environment"
       allow(@entity_hashing_service).to receive(:md5ForEntity).and_return('md5')
@@ -368,6 +354,7 @@ describe EnvironmentsController do
       allow(controller).to receive(:environment_config_service).and_return(@environment_config_service = double('environment_config_service', :isEnvironmentFeatureEnabled => true))
       allow(controller).to receive(:agent_service).and_return(@agent_service = double(AgentService))
       allow(controller).to receive(:security_service).and_return(@security_service = double(SecurityService))
+      allow(@security_service).to receive(:isUserAdmin).and_return(true)
       @user = com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new('user_foo'))
       allow(controller).to receive(:current_user).and_return(@user)
     end
@@ -477,6 +464,7 @@ describe EnvironmentsController do
       allow(controller).to receive(:environment_config_service).and_return(@environment_config_service = double('environment_config_service', :isEnvironmentFeatureEnabled => true))
       allow(controller).to receive(:agent_service).and_return(@agent_service = double('agent_service'))
       allow(controller).to receive(:security_service).and_return(@security_service = double(SecurityService))
+      allow(@security_service).to receive(:isUserAdmin).and_return(true)
       @config_helper = com.thoughtworks.go.util.GoConfigFileHelper.new
       @config_helper.onSetUp()
       @config_helper.using_cruise_config_dao(Spring.bean('goConfigDao'))
@@ -602,7 +590,7 @@ describe EnvironmentsController do
       allow(controller).to receive(:environment_config_service).and_return(@environment_config_service = double('environment_config_service', :isEnvironmentFeatureEnabled => true))
       allow(controller).to receive(:security_service).and_return(@security_service = double(SecurityService))
       allow(controller).to receive(:agent_service).and_return(@agent_service = double(AgentService))
-      allow(@security_service).to receive(:isUserAdmin).and_return(false)
+      allow(@security_service).to receive(:isUserAdmin).and_return(true)
     end
 
     it 'should render all the agents' do

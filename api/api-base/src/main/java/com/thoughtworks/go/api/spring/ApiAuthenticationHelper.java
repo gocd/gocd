@@ -39,6 +39,12 @@ public class ApiAuthenticationHelper extends AbstractAuthenticationHelper {
         return HaltApiResponses.haltBecauseForbidden();
     }
 
+    @Override
+    protected HaltException renderForbiddenResponse(String message) {
+        LOG.info("{}", message);
+        return HaltApiResponses.haltBecauseForbidden(message);
+    }
+
     public void ensureSecurityEnabled(Request request, Response response) {
         if (!securityService.isSecurityEnabled()) {
             throw HaltApiResponses.haltBecauseSecurityIsNotEnabled();

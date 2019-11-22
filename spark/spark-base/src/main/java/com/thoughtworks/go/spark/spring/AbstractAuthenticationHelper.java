@@ -51,6 +51,8 @@ public abstract class AbstractAuthenticationHelper {
 
     protected abstract HaltException renderForbiddenResponse();
 
+    protected abstract HaltException renderForbiddenResponse(String message);
+
     public void checkUserAnd403(Request req, Response res) {
         if (!securityService.isSecurityEnabled()) {
             return;
@@ -95,7 +97,8 @@ public abstract class AbstractAuthenticationHelper {
 
     public void checkUserHasPermissions(Username username, SupportedAction action, SupportedEntity entity, String resource) {
         if (!doesUserHasPermissions(username, action, entity, resource)) {
-            throw renderForbiddenResponse();
+            String message = String.format("User '%s' does not have permissions to %s '%s' %s(s).", username.getDisplayName(), action.getAction(), resource, entity.getType());
+            throw renderForbiddenResponse(message);
         }
     }
 

@@ -25,7 +25,7 @@ describe('PolicyWidgetSpecs', () => {
 
   afterEach((done) => helper.unmount(done));
 
-  it('should display info regarding default policy', () => {
+  it('should display info regarding default policy on when no policy have been configured', () => {
     mount();
 
     const infoText = "The default policy is to deny access to all GoCD entities. Configure permissions below to override that behavior.";
@@ -62,6 +62,14 @@ describe('PolicyWidgetSpecs', () => {
     expect(helper.textByTestId("permission-type")).toContain("SelectAllEnvironment");
     expect(helper.byTestId("permission-resource")).toHaveValue("env");
 
+  });
+
+  it('should not display info regarding default policy if configured', () => {
+    const policy = new Policy();
+    policy.push(Stream(new Directive("allow", "view", "*", "env")));
+    mount(policy);
+
+    expect(helper.byTestId("flash-message-info")).not.toBeInDOM();
   });
 
   it('should render more than one permissions if present', () => {

@@ -104,4 +104,23 @@ describe("RoleModel", () => {
     expect(serializedPluginRole).toEqual(pluginRoleJSON);
   });
 
+  it('should validate policy for presence of permissions', () => {
+    const goCDRoleJSON = RolesTestData.GoCDRoleJSON();
+    delete goCDRoleJSON.policy[0].permission;
+    delete goCDRoleJSON.policy[0].action;
+    delete goCDRoleJSON.policy[0].type;
+    delete goCDRoleJSON.policy[0].resource;
+    const goCDRole = Role.fromJSON(goCDRoleJSON) as GoCDRole;
+
+    const isValid = goCDRole.isValid();
+    expect(isValid).toBe(false);
+
+    const policyErrors = goCDRole.policy()[0]().errors();
+    expect(policyErrors.count()).toEqual(4);
+    expect(policyErrors.errorsForDisplay("permission")).toEqual("Permission must be present.");
+    expect(policyErrors.errorsForDisplay("action")).toEqual("Action must be present.");
+    expect(policyErrors.errorsForDisplay("type")).toEqual("Type must be present.");
+    expect(policyErrors.errorsForDisplay("resource")).toEqual("Resource must be present.");
+  });
+
 });

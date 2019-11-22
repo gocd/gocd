@@ -40,12 +40,23 @@ describe("RolesWidgetSpec", () => {
                  authConfigs: AuthConfigs,
                  pluginInfos: PluginInfos) {
     helper.mount(() => <RolesWidget roles={roles}
-                              authConfigs={authConfigs}
-                              pluginInfos={pluginInfos}
-                              onEdit={onEdit}
-                              onClone={onClone}
-                              onDelete={onDelete}/>);
+                                    authConfigs={authConfigs}
+                                    pluginInfos={pluginInfos}
+                                    onEdit={onEdit}
+                                    onClone={onClone}
+                                    onDelete={onDelete}/>);
   }
+
+  it("should render role info when no roles are configured", () => {
+    mount(new Roles(), authConfigs, pluginInfos);
+
+    const infoElements = helper.qa("li", helper.byTestId("role-config-info"));
+
+    expect(helper.byTestId("role-widget")).toBeFalsy();
+    expect(helper.byTestId("role-config-info")).toBeInDOM();
+    expect(infoElements[0].textContent).toEqual("Click on \"Add\" to add new role configuration.");
+    expect(infoElements[1].textContent).toEqual("A role configuration is used to define a group of users, along with the access permissions, who perform similar tasks. You can read more about roles based access control in GoCD from here.");
+  });
 
   it("should show that no user is present and action buttons for gocd role with no users", () => {
     mount(new Roles(Role.fromJSON(RolesTestData.EmptyGoCDRoleJSON())), authConfigs, pluginInfos);

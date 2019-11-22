@@ -179,3 +179,8 @@ label.disabled, input[type='radio'][disabled] + label[for] { //sass-lint:disable
     }
   }
 }
+
+.tips {
+  background: $white;
+  padding:    20px;
+}

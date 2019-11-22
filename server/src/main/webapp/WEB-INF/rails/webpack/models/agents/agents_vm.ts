@@ -32,7 +32,7 @@ export abstract class BaseVM {
   }
 
   sync(agents: Agents) {
-    this.agents = agents;
+    this.agents = _.cloneDeep(agents);
     this.agentsSortHandler.sort();
   }
 

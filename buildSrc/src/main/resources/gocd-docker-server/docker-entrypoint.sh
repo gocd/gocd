@@ -40,7 +40,7 @@ if [ "$1" = "${SERVER_WORK_DIR}/bin/go-server" ]; then
 
   for each_dir in "${server_data_dirs[@]}"; do
     if [ ! -e "${VOLUME_DIR}/${each_dir}" ]; then
-      try mkdir -v "${VOLUME_DIR}/${each_dir}"
+      try mkdir -v -p "${VOLUME_DIR}/${each_dir}"
     fi
 
     if [ ! -e "${SERVER_WORK_DIR}/${each_dir}" ]; then

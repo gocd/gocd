@@ -31,7 +31,13 @@
   </rule>
 
   <rule>
-    <name>agent-details-page UI</name>
+    <name>Agent Details Page Redirect to Agent Job History Page</name>
+    <from>^/agents/([^/]+)(/?)$</from>
+    <to type="redirect" last="true">/go/agents/${escape:$1}/job_run_history</to>
+  </rule>
+
+  <rule>
+    <name>Agent Job History Page</name>
     <from>^/agents/([^/]+)/job_run_history(/?)$</from>
     <to last="true">/spark/agents/${escape:$1}/job_run_history</to>
   </rule>

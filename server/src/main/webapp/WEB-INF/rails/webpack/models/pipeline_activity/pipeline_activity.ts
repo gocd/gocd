@@ -29,6 +29,19 @@ import {
 
 const TimeFormatter = require("helpers/time_formatter");
 
+function toBool(str: string | boolean) {
+  if (typeof str === "undefined") {
+    return false;
+  }
+
+  if (typeof str === "boolean") {
+    return str;
+  }
+
+  return str.trim().toLowerCase() === "true";
+
+}
+
 class StageConfig {
   name: Stream<string>;
   isAutoApproved: Stream<boolean>;
@@ -39,15 +52,20 @@ class StageConfig {
   }
 
   static fromJSON(stage: StageConfigJSON) {
-    return new StageConfig(stage.name, stage.isAutoApproved);
+    return new StageConfig(stage.name, toBool(stage.isAutoApproved));
   }
 }
 
-class StageConfigs extends Array<StageConfig> {
+export class StageConfigs extends Array<StageConfig> {
   constructor(...stageConfigs: StageConfig[]) {
     super(...stageConfigs);
     Object.setPrototypeOf(this, Object.create(StageConfigs.prototype));
   }
+
+  isAutoApproved(name: string): boolean {
+    return this.find((stage: StageConfig) => stage.name() === name)!.isAutoApproved();
+  }
+
 
   static fromJSON(stages: StageConfigJSON[]) {
     return new StageConfigs(...stages.map(StageConfig.fromJSON));
@@ -169,7 +187,7 @@ class Stage {
   getCanCancel: Stream<boolean>;
   scheduled: Stream<boolean>;
   stageCounter: Stream<number>;
-  approvedBy: Stream<string>;
+  approvedBy: Stream<string | undefined>;
 
   constructor(stageName: string,
               stageId: number,
@@ -179,7 +197,7 @@ class Stage {
               getCanCancel: boolean,
               scheduled: boolean,
               stageCounter: number,
-              approvedBy: string) {
+              approvedBy?: string) {
     this.stageName    = Stream(stageName);
     this.stageId      = Stream(stageId);
     this.stageStatus  = Stream(stageStatus);
@@ -196,8 +214,8 @@ class Stage {
       stage.stageId,
       stage.stageStatus,
       stage.stageLocator,
-      stage.getCanRun,
-      stage.getCanCancel,
+      toBool(stage.getCanRun),
+      toBool(stage.getCanCancel),
       stage.scheduled,
       stage.stageCounter,
       stage.approvedBy);
@@ -226,7 +244,7 @@ export class PipelineRunInfo {
   materialRevisions: Stream<MaterialRevisions>;
   stages: Stream<Stages>;
   revision: Stream<string>;
-  comment: Stream<string | undefined>;
+  comment: Stream<string | null>;
 
   constructor(pipelineId: number,
               label: string,
@@ -238,7 +256,7 @@ export class PipelineRunInfo {
               materialRevisions: MaterialRevisions,
               stages: Stages,
               revision: string,
-              comment?: string) {
+              comment: string | null) {
     this.pipelineId         = Stream(pipelineId);
     this.label              = Stream(label);
     this.counterOrLabel     = Stream(counterOrLabel);
@@ -348,9 +366,7 @@ export class PipelineActivity {
     this.perPage              = Stream(perPage);
   }
 
-// to be implemented
   static fromJSON(data: PipelineActivityJSON) {
-    // to be implemented
     return new PipelineActivity(data.pipelineName,
       data.nextLabel,
       data.canPause,

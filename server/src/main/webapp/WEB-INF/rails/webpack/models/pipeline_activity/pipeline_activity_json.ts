@@ -69,7 +69,8 @@ export interface StageJSON {
   getCanCancel: boolean;
   scheduled: boolean;
   stageCounter: number;
-  approvedBy: string;
+  approvedBy?: string;
+  errorMessage?: string | null;
 }
 
 export interface HistoryJSON {
@@ -77,13 +78,13 @@ export interface HistoryJSON {
   label: string;
   counterOrLabel: string;
   scheduled_date: string;
-  scheduled_timestamp: number;
   buildCauseBy: string;
   modification_date: string;
   materialRevisions: MaterialRevisionJSON[];
   stages: StageJSON[];
   revision: string;
-  comment?: string;
+  scheduled_timestamp: number | null;
+  comment: string | null;
 }
 
 export interface GroupJSON {

@@ -240,17 +240,17 @@ class ClusterProfileStep extends Step {
       <Buttons.Cancel css={wizardButtonStyles} onclick={wizard.close.bind(wizard)}
                       data-test-id="cancel">Cancel</Buttons.Cancel>,
       <Buttons.Primary css={wizardButtonStyles} data-test-id="next"
-                       onclick={this.saveClusterProfileAndNext.bind(this, wizard)}
+                       ajaxOperation={this.saveClusterProfileAndNext.bind(this, wizard)}
                        align="right">Save + Next</Buttons.Primary>,
       <Buttons.Secondary css={wizardButtonStyles} data-test-id="save-cluster-profile"
-                         onclick={this.saveClusterProfileAndExit.bind(this, wizard)}
+                         ajaxOperation={this.saveClusterProfileAndExit.bind(this, wizard)}
                          align="right">Save Cluster Profile + Exit</Buttons.Secondary>,
       <span class={styles.footerError}>{this.footerError()}</span>,
     ];
   }
 
   saveClusterProfileAndExit(wizard: Wizard) {
-    this.save()
+    return this.save()
         .then((result) => {
           result.do(
             (result) => {
@@ -266,7 +266,7 @@ class ClusterProfileStep extends Step {
   }
 
   saveClusterProfileAndNext(wizard: Wizard) {
-    this.save()
+    return this.save()
         .then((result) => {
           result.do(
             (successResponse) => {
@@ -351,7 +351,7 @@ class EditClusterProfileStep extends ClusterProfileStep {
       <Buttons.Cancel css={wizardButtonStyles} onclick={wizard.close.bind(wizard)}
                       data-test-id="cancel">Cancel</Buttons.Cancel>,
       <Buttons.Primary css={wizardButtonStyles} data-test-id="save-cluster-profile"
-                         onclick={this.saveClusterProfileAndExit.bind(this, wizard)}
+                         ajaxOperation={this.saveClusterProfileAndExit.bind(this, wizard)}
                          align="right">Save Cluster Profile</Buttons.Primary>,
       <span class={styles.footerError}>{this.footerError()}</span>,
     ];
@@ -417,7 +417,7 @@ class ElasticProfileStep extends Step {
       <Buttons.Cancel onclick={wizard.close.bind(wizard)} css={wizardButtonStyles}
                       data-test-id="cancel">Cancel</Buttons.Cancel>,
       <Buttons.Primary data-test-id="finish" align="right" css={wizardButtonStyles}
-                       onclick={this.saveAndFinish.bind(this, wizard)}>Finish</Buttons.Primary>,
+                       ajaxOperation={this.saveAndFinish.bind(this, wizard)}>Finish</Buttons.Primary>,
       <Buttons.Primary data-test-id="previous" onclick={wizard.previous.bind(wizard, 1)} css={wizardButtonStyles}
                        align="right">Previous</Buttons.Primary>,
       <span class={styles.footerError}>{this.footerError()}</span>
@@ -427,15 +427,15 @@ class ElasticProfileStep extends Step {
   saveAndFinish(wizard: Wizard) {
     this.footerError("");
     if (this.etag) {
-      this.update(wizard, this.etag!);
+      return this.update(wizard, this.etag!);
     } else {
-      this.create(wizard);
+      return this.create(wizard);
     }
   }
 
   private create(wizard: Wizard) {
     this.elasticProfile().clusterProfileId(this.clusterProfile().id());
-    this.elasticProfile().create()
+    return this.elasticProfile().create()
         .then((result) => {
           result.do(
             () => {
@@ -450,7 +450,7 @@ class ElasticProfileStep extends Step {
   }
 
   private update(wizard: Wizard, etag: string) {
-    this.elasticProfile().update(etag)
+    return this.elasticProfile().update(etag)
         .then((result) => {
           result.do(
             () => {
@@ -481,7 +481,7 @@ class AddElasticProfileToExistingClusterStep extends ElasticProfileStep {
       <Buttons.Cancel onclick={wizard.close.bind(wizard)} css={wizardButtonStyles}
                       data-test-id="cancel">Cancel</Buttons.Cancel>,
       <Buttons.Primary data-test-id="finish" align="right" css={wizardButtonStyles}
-                       onclick={this.saveAndFinish.bind(this, wizard)}>Save</Buttons.Primary>,
+                       ajaxOperation={this.saveAndFinish.bind(this, wizard)}>Save</Buttons.Primary>,
       <Buttons.Secondary data-test-id="previous" onclick={wizard.previous.bind(wizard, 1)} css={wizardButtonStyles}
                          align="right">Show Cluster Profile</Buttons.Secondary>,
       <span class={styles.footerError}>{this.footerError()}</span>
@@ -521,7 +521,7 @@ class EditElasticProfileStep extends ElasticProfileStep {
       <Buttons.Cancel onclick={wizard.close.bind(wizard)} css={wizardButtonStyles}
                       data-test-id="cancel">Cancel</Buttons.Cancel>,
       <Buttons.Primary data-test-id="finish" align="right" css={wizardButtonStyles}
-                       onclick={this.saveAndFinish.bind(this, wizard)}>Save</Buttons.Primary>,
+                       ajaxOperation={this.saveAndFinish.bind(this, wizard)}>Save</Buttons.Primary>,
       <Buttons.Secondary data-test-id="previous" onclick={wizard.previous.bind(wizard, 1)} css={wizardButtonStyles}
                          align="right">Show Cluster Profile</Buttons.Secondary>,
       <span class={styles.footerError}>{this.footerError()}</span>

@@ -140,10 +140,10 @@ export class ElasticAgentsPage extends Page<null, State> {
         </span>
         );
 
-        const modal = new DeleteConfirmModal(
+        const modal: DeleteConfirmModal = new DeleteConfirmModal(
           deleteConfirmMsg,
           () => {
-            ElasticAgentProfilesCRUD.delete(id)
+            return ElasticAgentProfilesCRUD.delete(id)
                                     .then((result) => {
                                       result.do(
                                         () => vnode.state.onSuccessfulSave(
@@ -209,10 +209,10 @@ export class ElasticAgentsPage extends Page<null, State> {
         </span>
         );
 
-        const modal = new DeleteConfirmModal(
+        const modal: DeleteConfirmModal = new DeleteConfirmModal(
           deleteConfirmMsg,
           () => {
-            ClusterProfilesCRUD.delete(clusterProfileId)
+            return ClusterProfilesCRUD.delete(clusterProfileId)
                                .then((result) => {
                                  result.do(
                                    () => vnode.state.onSuccessfulSave(

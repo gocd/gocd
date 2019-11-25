@@ -18,8 +18,12 @@ package com.thoughtworks.go.server;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 public class SparkOrRailsToggle {
+    public void agentJobRunHistoryUsingRails(HttpServletRequest request, HttpServletResponse response) {
+        basedOnToggle(Toggles.SHOW_RAILS_BASED_AGENTS_JOB_RUN_HISTORY_PAGE, request);
+    }
 
     @SuppressWarnings({"PMD.UnusedPrivateMethod", "unused"})
     private void basedOnToggle(String toggle, HttpServletRequest request) {

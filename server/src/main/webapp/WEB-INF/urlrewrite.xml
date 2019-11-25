@@ -39,7 +39,8 @@
   <rule>
     <name>Agent Job History Page</name>
     <from>^/agents/([^/]+)/job_run_history(/?)$</from>
-    <to last="true">/spark/agents/${escape:$1}/job_run_history</to>
+    <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="agentJobRunHistoryUsingRails"/>
+    <to last="true">/%{attribute:sparkOrRails}/agents/${escape:$1}/job_run_history</to>
   </rule>
 
   <rule>

@@ -25,5 +25,6 @@ export const remove: string;
 export const settings: string;
 export const spin: string;
 export const spinner: string;
+export const stepForward: string;
 export const usage: string;
 export const view: string;

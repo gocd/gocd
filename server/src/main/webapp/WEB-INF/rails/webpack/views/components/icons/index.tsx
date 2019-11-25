@@ -175,6 +175,12 @@ export class CaretDown extends Icon {
   }
 }
 
+export class StepForward extends Icon {
+  constructor() {
+    super(styles.stepForward, "Step Forward");
+  }
+}
+
 export class Forward extends Icon {
   constructor() {
     super(styles.forward, "Forward");

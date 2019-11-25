@@ -139,6 +139,10 @@ $btn-group-border-radius: $global-border-radius;
   @include icon-before($type: $fa-var-caret-down);
 }
 
+.step-forward {
+  @include icon-before($type: $fa-var-step-forward);
+}
+
 .forward {
   @include icon-before($type: $fa-var-forward);
 }

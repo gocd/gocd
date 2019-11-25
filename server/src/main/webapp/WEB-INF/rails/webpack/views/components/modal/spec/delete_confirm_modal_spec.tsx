@@ -68,6 +68,7 @@ describe("DeleteConfirmModal", () => {
     expect(testHelper.byTestId("button-delete")).toHaveClass(style.iconSpinner);
     expect(testHelper.byTestId("button-delete")).toBeDisabled();
     expect(testHelper.byTestId("button-no-delete")).toBeDisabled();
+    expect(testHelper.byTestId("button-no-delete")).not.toHaveClass(style.iconSpinner);
   });
 
   it("should close the modal and not send delete callback when 'No` button is clicked", () => {

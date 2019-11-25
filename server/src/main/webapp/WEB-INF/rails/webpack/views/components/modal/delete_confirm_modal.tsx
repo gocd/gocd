@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 import m from "mithril";
+import Stream from "mithril/stream";
 import * as Buttons from "views/components/buttons";
-import {ButtonIcon} from "views/components/buttons";
 import {Modal, Size} from "views/components/modal";
 import {OperationState} from "../../pages/page_operations";
 
@@ -23,7 +23,7 @@ export class DeleteConfirmModal extends Modal {
   private readonly message: m.Children;
   private readonly modalTitle: string;
   private readonly ondelete: () => Promise<any>;
-  private operationState: OperationState | undefined;
+  private operationState: Stream<OperationState> = Stream<OperationState>(OperationState.UNKNOWN);
 
   constructor(message: m.Children, ondelete: () => Promise<any>, title = "Are you sure?") {
     super(Size.small);
@@ -43,14 +43,9 @@ export class DeleteConfirmModal extends Modal {
   buttons(): m.ChildArray {
     return [
       <Buttons.Danger data-test-id='button-delete'
-                      disabled={this.operationState === OperationState.IN_PROGRESS}
-                      icon={this.operationState === OperationState.IN_PROGRESS ? ButtonIcon.SPINNER : undefined}
-                      onclick={() => {
-                        this.operationState = OperationState.IN_PROGRESS;
-                        const a = this.ondelete();
-                        a.finally(() => this.operationState = OperationState.DONE);
-                      }}>Yes Delete</Buttons.Danger>,
-      <Buttons.Cancel disabled={this.operationState === OperationState.IN_PROGRESS}
+                      ajaxOperationMonitor={this.operationState}
+                      ajaxOperation={this.ondelete}>Yes Delete</Buttons.Danger>,
+      <Buttons.Cancel ajaxOperationMonitor={this.operationState}
                       data-test-id='button-no-delete' onclick={this.close.bind(this)}
       >No</Buttons.Cancel>
     ];

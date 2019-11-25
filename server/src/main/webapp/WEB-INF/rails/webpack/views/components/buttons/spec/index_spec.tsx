@@ -28,11 +28,13 @@ describe("Button", () => {
 
   describe("Ajax Operation", () => {
 
-    it("should show a spinner icon when ajax request is in progress", (done) => {
+    it("should show a spinner icon and disable button when ajax request is in progress", (done) => {
       const promise = new Promise<ApiResult<any>>((resolve) => {
         resolve();
       }).then(() => {
-        expect(helper.byTestId("ajax-button")).toHaveClass(buttonStyles.iconSpinner);
+        const ajaxButton = helper.byTestId("ajax-button");
+        expect(ajaxButton).toHaveClass(buttonStyles.iconSpinner);
+        expect(ajaxButton).toBeDisabled();
         done();
       });
       helper.mount(() => <Primary dataTestId="ajax-button" ajaxOperation={() => promise}>Save</Primary>);
@@ -62,6 +64,12 @@ describe("Button", () => {
         expect(spy).toHaveBeenCalledTimes(1);
         done();
       });
+    });
+
+    it("should honor disabled attribute when passed externally", () => {
+      const promise = Promise.resolve();
+      helper.mount(() => <Primary disabled={true} dataTestId="ajax-button" ajaxOperation={() => promise}>Save</Primary>);
+      expect(helper.byTestId("ajax-button")).toBeDisabled();
     });
   });
 });

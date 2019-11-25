@@ -17,6 +17,7 @@ import classnames from "classnames";
 import {RestyleAttrs, RestyleComponent, RestyleViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
+import {OperationState} from "views/pages/page_operations";
 import * as defaultStyles from "./index.scss";
 
 type Styles = typeof defaultStyles;
@@ -45,6 +46,7 @@ export interface Attrs extends OnClickHandler, RestyleAttrs<Styles> {
   align?: Alignment;
   dataTestId?: string;
   ajaxOperation?: (e: MouseEvent) => Promise<any>;
+  ajaxOperationMonitor?: Stream<OperationState>;
 }
 
 function dataTestIdAttrs(attrs: Attrs) {
@@ -58,8 +60,9 @@ function dataTestIdAttrs(attrs: Attrs) {
 }
 
 abstract class Button extends RestyleViewComponent<Styles, Attrs> {
-  css: Styles                     = defaultStyles;
-  ajaxInProgress: Stream<boolean> = Stream();
+  css: Styles                                  = defaultStyles;
+  ajaxOperationMonitor: Stream<OperationState> = Stream<OperationState>(OperationState.UNKNOWN);
+  forceSpinner                                 = false;
 
   static isHtmlAttr(key: string): boolean {
     switch (key) {
@@ -70,6 +73,7 @@ abstract class Button extends RestyleViewComponent<Styles, Attrs> {
       case "css":
       case "ajaxOperation":
       case "onclick":
+      case "disabled":
         return false;
       default:
         return true;
@@ -88,18 +92,27 @@ abstract class Button extends RestyleViewComponent<Styles, Attrs> {
 
   abstract type(): string;
 
+  oncreate(vnode: m.Vnode<Attrs>) {
+    if (vnode.attrs.ajaxOperationMonitor) {
+      this.ajaxOperationMonitor = vnode.attrs.ajaxOperationMonitor;
+    }
+  }
+
   view(vnode: m.Vnode<Attrs>) {
     const isSmall    = vnode.attrs.small;
     const isDropdown = vnode.attrs.dropdown;
     let clickHandler = vnode.attrs.onclick;
+
     if (vnode.attrs.ajaxOperation) {
       clickHandler = (e: MouseEvent) => {
-        if (this.ajaxInProgress()) {
+        if (this.ajaxOperationMonitor() === OperationState.IN_PROGRESS) {
           return;
         }
-        this.ajaxInProgress(true);
+        this.ajaxOperationMonitor(OperationState.IN_PROGRESS);
+        this.forceSpinner = true;
         vnode.attrs.ajaxOperation!(e).finally(() => {
-          this.ajaxInProgress(false);
+          this.ajaxOperationMonitor(OperationState.DONE);
+          this.forceSpinner = false;
         });
       };
     }
@@ -108,10 +121,11 @@ abstract class Button extends RestyleViewComponent<Styles, Attrs> {
       <button {...Button.onlyHtmlAttrs(vnode.attrs)}
               {...dataTestIdAttrs(vnode.attrs)}
               onclick={clickHandler}
+              disabled={vnode.attrs.disabled || this.ajaxOperationMonitor() === OperationState.IN_PROGRESS}
               class={classnames(
                 this.css.button,
                 {[this.css.btnDropdown]: isDropdown},
-                Button.iconClass(this.ajaxInProgress, vnode.attrs.icon, this.css),
+                Button.iconClass(this.forceSpinner, vnode.attrs.icon, this.css),
                 Button.alignClass(vnode.attrs.align, this.css),
                 this.type(),
                 {[this.css.btnSmall]: isSmall}
@@ -121,9 +135,11 @@ abstract class Button extends RestyleViewComponent<Styles, Attrs> {
     );
   }
 
-  private static iconClass(ajaxInProgress: Stream<boolean>, icon?: ButtonIcon, css?: Styles) {
+  private static iconClass(spinner?: boolean,
+                           icon?: ButtonIcon,
+                           css?: Styles) {
     css = css || defaultStyles;
-    if (ajaxInProgress()) {
+    if (spinner) {
       return css.iconSpinner;
     }
 

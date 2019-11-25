@@ -15,9 +15,231 @@
  */
 @import "../../global/common";
 
-$background: #fff;
+$passed:                    #00c853;
+$background:                #fff;
+$stage-width:               80px;
+$border-color:              #ccc;
+$disabled-text-color:       #999;
+$stage-status-unknown:      #fafafa;
+$build-details-z-index:     5;
+$modification-text-color:   #ff6;
+$dropdown-background-color: #333;
 
 .pipeline-activity {
-  overflow-x: auto;
-  background: $background;
+  display:        flex;
+  overflow-x:     auto;
+  background:     $background;
+  padding:        16px;
+  flex-direction: column;
+}
+
+.group {
+  display:        flex;
+  width:          100%;
+  min-width:      max-content;
+  flex-direction: column;
+  //border-bottom:  1px dashed $border-color;
+}
+
+.header {
+  font-size:   14px;
+  font-weight: 600;
+}
+
+.stage-name {
+  display:      inline-block;
+  width:        $stage-width;
+  margin-right: 50px;
+  word-break:   break-all;
+  line-height:  1.22em;
+}
+
+.pipeline-run-header,
+.pipeline-run {
+  display:        flex;
+  flex-direction: row;
+  width:          max-content;
+  min-width:      100%;
+  padding-bottom: 2px;
+  border-bottom:  1px dashed $border-color;
+
+  .run-info-section {
+    display:         flex;
+    flex-direction:  column;
+    justify-content: center;
+    width:           20%;
+    max-width:       200px;
+    margin-right:    16px;
+    padding-bottom:  5px;
+  }
+
+  .stages-section {
+    display:    flex;
+    overflow-x: auto;
+  }
+}
+
+.pipeline-run-header {
+  padding: 3px 0;
+}
+
+.run {
+  width:           100%;
+  display:         flex;
+  flex-direction:  row;
+  justify-content: space-between;
+
+  a {
+    text-decoration: none;
+  }
+}
+
+.pipeline-run {
+  .revision {
+    overflow:      hidden;
+    font-size:     12px;
+    white-space:   nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .schedule-info {
+    font-size: 12px;
+  }
+}
+
+.disabled {
+  color: $disabled-text-color;
+}
+
+.stage {
+  max-width:       $stage-width + 50px;
+  height:          100%;
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+
+  span {
+    display:       block;
+    width:         82px;
+    height:        12px;
+    border-radius: 2px;
+  }
+
+  i {
+    display:         flex;
+    height:          100%;
+    width:           50px;
+    justify-content: center;
+    align-items:     center;
+  }
+}
+
+.unknown {
+  background: $stage-status-unknown;
+  border:     1px solid $border-color;
+}
+
+.building {
+  background: transparent url('../../../../app/assets/images/building.gif') repeat-x;
+}
+
+.cancelled {
+  background: transparent url('../../../../app/assets/images/building.png') repeat-x;
+}
+
+.failed {
+  background: $failed;
+}
+
+.passed {
+  background: $passed;
+}
+
+.build-cause-button {
+  color:     $link-color;
+  cursor:    pointer;
+  font-size: 12px;
+}
+
+.close-button-wrapper {
+  button {
+    position:   absolute;
+    width:      22px;
+    height:     22px;
+    right:      15px;
+    top:        5px;
+    background: $go-darkblue;
+
+    i:before {
+      margin:    -5px;
+      font-size: 14px;
+    }
+
+    &:hover {
+      background: $btn-danger;
+    }
+  }
+}
+
+.build-details {
+  position:       absolute;
+  background:     $dropdown-background-color;
+  color:          $white;
+  width:          50%;
+  padding:        10px 16px;
+  border-radius:  3px;
+  display:        flex;
+  z-index:        $build-details-z-index;
+  flex-direction: column;
+
+  .material-revision-dropdown-content {
+    width:          100%;
+    display:        flex;
+    flex-direction: column;
+  }
+
+  .material-header {
+    display:         flex;
+    justify-content: space-between;
+    width:           100%;
+    padding:         0 0 5px;
+    font-size:       12px;
+    word-break:      break-all;
+    border-bottom:   1px solid $border-color;
+  }
+
+  .modifications {
+    margin-bottom: 10px;
+    border-bottom: 1px dotted $border-color;
+  }
+
+  .modification {
+    display:         flex;
+    font-size:       12px;
+    width:           100%;
+    justify-content: space-between;
+
+    .revision,
+    .comment,
+    .user {
+      width:         40%;
+      padding:       3px 0;
+      overflow:      hidden;
+      text-overflow: ellipsis;
+      align-content: center;
+    }
+
+    .revision {
+      width: 20%;
+    }
+
+    .comment {
+      max-height: 6.4em;
+      padding:    3px 10px;
+    }
+  }
+
+  .changed {
+    color: $modification-text-color;
+  }
 }

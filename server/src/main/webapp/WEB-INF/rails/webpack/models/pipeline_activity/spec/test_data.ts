@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {PipelineActivityJSON, StageJSON} from "../pipeline_activity_json";
+import {HistoryJSON, PipelineActivityJSON, StageJSON} from "../pipeline_activity_json";
 
 export function passed(name: string, stageId: number = Math.random()) {
   return PipelineActivityData.stage(stageId, name, "Passed")
@@ -37,6 +37,39 @@ export function unknown(name: string, stageId: number = Math.random()) {
 }
 
 export class PipelineActivityData {
+  static pipelineRunInfo(...stages: StageJSON[]): HistoryJSON {
+    return {
+      pipelineId: 42,
+      label: "1",
+      counterOrLabel: "1",
+      scheduled_date: "22 Nov, 2019 at 1:5:59 [+0530]",
+      scheduled_timestamp: 1574404139615,
+      buildCauseBy: "Triggered by changes",
+      modification_date: "about 22 hours ago",
+      revision: "b0982fa2ff92d126ad003c9e007959b4b8dd96a9",
+      comment: "Initial commit",
+      materialRevisions: [{
+        revision: "b0982fa2ff92d126ad003c9e007959b4b8dd96a9",
+        revision_href: "b0982fa2ff92d126ad003c9e007959b4b8dd96a9",
+        user: "Bob <bob@go.cd>",
+        date: "2019-11-21T1:3:20+0:30",
+        changed: true,
+        folder: "",
+        scmType: "Git",
+        location: "http://github.com/bdpiparva/sample_repo",
+        action: "Modified",
+        modifications: [{
+          user: "Bob <bob@go.cd>",
+          revision: "b0982fa2ff92d126ad003c9e007959b4b8dd96a9",
+          date: "2019-11-21T1:3:20+0:30",
+          comment: "Adding test file",
+          modifiedFiles: []
+        }]
+      }],
+      stages: stages
+    } as HistoryJSON;
+  }
+
   static stage(stageId: number, name: string, status: string) {
     return {
       stageName: name,

@@ -24,35 +24,35 @@ import {ResultAwarePage} from "views/pages/page_operations";
 import {PipelineActivityWidget} from "views/pages/pipeline_activity/pipeline_activity_widget";
 
 interface State {
-    pipelineActivity: Stream<PipelineActivity>;
-    showBuildCaseFor: Stream<string>;
+  pipelineActivity: Stream<PipelineActivity>;
+  showBuildCaseFor: Stream<string>;
 }
 
 export class PipelineActivityPage extends Page<null, State> implements ResultAwarePage<PipelineActivity>, State {
-    pipelineActivity                         = Stream<PipelineActivity>();
-    showBuildCaseFor                         = Stream<string>();
-    private service: PipelineActivityService = new PipelineActivityService();
+  pipelineActivity                         = Stream<PipelineActivity>();
+  showBuildCaseFor                         = Stream<string>();
+  private service: PipelineActivityService = new PipelineActivityService();
 
-    componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
-        return <PipelineActivityWidget pipelineActivity={vnode.state.pipelineActivity}
-                                       showBuildCaseFor={vnode.state.showBuildCaseFor}/>;
-    }
+  componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
+    return <PipelineActivityWidget pipelineActivity={vnode.state.pipelineActivity}
+                                   showBuildCaseFor={vnode.state.showBuildCaseFor}/>;
+  }
 
-    pageName(): string {
-        return "Pipeline Activity";
-    }
+  pageName(): string {
+    return "Pipeline Activity";
+  }
 
-    fetchData(vnode: m.Vnode<null, State>): Promise<any> {
-        this.service.activities("up42", this);
-        return Promise.resolve();
-    }
+  fetchData(vnode: m.Vnode<null, State>): Promise<any> {
+    this.service.activities("Foo", this);
+    return Promise.resolve();
+  }
 
-    onFailure(message: string) {
-        this.flashMessage.setMessage(MessageType.alert, message);
-        this.setErrorState();
-    }
+  onFailure(message: string) {
+    this.flashMessage.setMessage(MessageType.alert, message);
+    this.setErrorState();
+  }
 
-    onSuccess(data: PipelineActivity) {
-        this.pipelineActivity(data);
-    }
+  onSuccess(data: PipelineActivity) {
+    this.pipelineActivity(data);
+  }
 }

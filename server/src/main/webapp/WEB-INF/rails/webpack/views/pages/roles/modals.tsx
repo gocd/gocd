@@ -26,6 +26,7 @@ import * as Buttons from "views/components/buttons";
 import {ButtonGroup} from "views/components/buttons";
 import {Modal, Size} from "views/components/modal";
 import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
+import {OperationState} from "views/pages/page_operations";
 import {Action, RoleModalBody} from "views/pages/roles/role_modal_body";
 
 abstract class BaseRoleModal extends Modal {
@@ -35,6 +36,7 @@ abstract class BaseRoleModal extends Modal {
   protected readonly onSuccessfulSave: (msg: m.Children) => any;
   protected readonly errorMessage: Stream<string> = Stream();
   protected resourceAutocompleteHelper: Map<string, string[]>;
+  protected ajaxOperationMonitor = Stream<OperationState>(OperationState.UNKNOWN);
 
   constructor(role: GoCDRole | PluginRole,
               pluginInfos: PluginInfos,
@@ -72,9 +74,9 @@ abstract class BaseRoleModal extends Modal {
 
   validateAndPerformSave() {
     if (!this.role().isValid()) {
-      return;
+      return Promise.resolve();
     }
-    this.performSave()
+    return this.performSave()
         .then((result) => {
           result.do(
             () => {
@@ -136,9 +138,11 @@ export class NewRoleModal extends BaseRoleModal {
 
   buttons() {
     return [<ButtonGroup>
-      <Buttons.Cancel data-test-id="button-cancel" onclick={(e) => this.close()}>Cancel</Buttons.Cancel>
+      <Buttons.Cancel data-test-id="button-cancel" ajaxOperationMonitor={this.ajaxOperationMonitor}
+                      onclick={(e) => this.close()}>Cancel</Buttons.Cancel>
       <Buttons.Primary data-test-id="button-save"
-                       onclick={this.validateAndPerformSave.bind(this)}>Save</Buttons.Primary>
+                       ajaxOperationMonitor={this.ajaxOperationMonitor}
+                       ajaxOperation={this.validateAndPerformSave.bind(this)}>Save</Buttons.Primary>
     </ButtonGroup>];
   }
 
@@ -179,9 +183,11 @@ abstract class ModalWithFetch extends BaseRoleModal {
 
   buttons() {
     return [<ButtonGroup>
-      <Buttons.Cancel data-test-id="button-cancel" onclick={(e) => this.close()}>Cancel</Buttons.Cancel>
+      <Buttons.Cancel data-test-id="button-cancel" ajaxOperationMonitor={this.ajaxOperationMonitor}
+                      onclick={(e) => this.close()}>Cancel</Buttons.Cancel>
       <Buttons.Primary data-test-id="button-save"
-                       onclick={this.validateAndPerformSave.bind(this)}
+                       ajaxOperationMonitor={this.ajaxOperationMonitor}
+                       ajaxOperation={this.validateAndPerformSave.bind(this)}
                        disabled={this.isStale()}>Save</Buttons.Primary>
     </ButtonGroup>];
   }

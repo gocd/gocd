@@ -168,7 +168,13 @@ export class ServerConfigurationPage extends Page<null, State> {
 
         results[2].do((successResponse) => {
           vnode.state.mailServer(successResponse.body);
-        }, () => this.setErrorState());
+        }, () => {
+          if (results[2].getStatusCode() === 404) {
+            vnode.state.mailServer(new MailServer());
+          } else {
+            this.setErrorState();
+          }
+        });
 
         results[3].do((successResponse) => {
           this.pageState = PageState.OK;

@@ -86,10 +86,10 @@ export class SparkRoutes {
 
   static pipelineMaterialSearchPath(pipelineName: string, fingerprint: string, searchText: string): string {
     const queryString = m.buildQueryString({
-                                             fingerprint,
-                                             pipeline_name: pipelineName,
-                                             search_text: searchText
-                                           });
+      fingerprint,
+      pipeline_name: pipelineName,
+      search_text: searchText
+    });
     return `/go/api/internal/material_search?${queryString}`;
   }
 
@@ -417,9 +417,9 @@ export class SparkRoutes {
   static apiAdminInternalPipelinesListPath(groupAuthorization: "view" | "operate" | "administer",
                                            templateAuthorization: "view" | "administer") {
     const queryString = m.buildQueryString({
-                                             pipeline_group_authorization: groupAuthorization,
-                                             template_authorization: templateAuthorization
-                                           });
+      pipeline_group_authorization: groupAuthorization,
+      template_authorization: templateAuthorization
+    });
 
     return `/go/api/internal/pipeline_structure?${queryString}`;
   }
@@ -450,5 +450,9 @@ export class SparkRoutes {
 
   static pipelineVsmLink(pipelineName: string, counter: string) {
     return `/go/pipelines/value_stream_map/${pipelineName}/${counter}`;
+  }
+
+  static runStageLink(pipelineName: string, counter: string, stageName: string) {
+    return `/go/api/stages/${pipelineName}/${counter}/${stageName}/run`;
   }
 }

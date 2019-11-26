@@ -68,7 +68,7 @@ describe("PipelineActivity", () => {
     const materialRevision = history.materialRevisions()[0];
     expect(materialRevision.revision()).toEqual("b0982fa2ff92d126ad003c9e007959b4b8dd96a9");
     expect(materialRevision.revisionHref()).toEqual("b0982fa2ff92d126ad003c9e007959b4b8dd96a9");
-    expect(materialRevision.user()).toEqual("Bhupendra <bdpiparva@gmail.com>");
+    expect(materialRevision.user()).toEqual("Bob <bob@go.cd>");
     expect(materialRevision.date()).toEqual("2019-11-21T1:3:20+0:30");
     expect(materialRevision.changed()).toEqual(true);
     expect(materialRevision.folder()).toEqual("");

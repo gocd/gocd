@@ -21,12 +21,14 @@ import Stream from "mithril/stream";
 import {Config, Group, PipelineActivity, PipelineRunInfo} from "models/pipeline_activity/pipeline_activity";
 import styles from "./index.scss"
 import {PipelineRunWidget} from "./pipeline_run_info_widget";
+import {PipelineActivityService} from "../../../models/pipeline_activity/pipeline_activity_crud";
 
 const classnames = bind(styles);
 
 interface Attrs {
   pipelineActivity: Stream<PipelineActivity>;
   showBuildCaseFor: Stream<string>;
+  service: PipelineActivityService
 }
 
 export class PipelineActivityWidget extends MithrilViewComponent<Attrs> {
@@ -41,7 +43,8 @@ export class PipelineActivityWidget extends MithrilViewComponent<Attrs> {
         pipelineActivity.groups().map((group: Group) => {
           return <GroupWidget pipelineName={pipelineActivity.pipelineName()}
                               group={group}
-                              showBuildCaseFor={vnode.attrs.showBuildCaseFor}/>;
+                              showBuildCaseFor={vnode.attrs.showBuildCaseFor}
+                              service={vnode.attrs.service}/>;
         })
       }
     </div>
@@ -52,6 +55,7 @@ interface GroupAttrs {
   group: Group;
   pipelineName: string;
   showBuildCaseFor: Stream<string>;
+  service: PipelineActivityService;
 }
 
 class GroupWidget extends MithrilViewComponent<GroupAttrs> {
@@ -62,7 +66,8 @@ class GroupWidget extends MithrilViewComponent<GroupAttrs> {
         return <PipelineRunWidget pipelineName={vnode.attrs.pipelineName}
                                   pipelineRunInfo={history}
                                   stageConfigs={vnode.attrs.group.config().stages()}
-                                  showBuildCaseFor={vnode.attrs.showBuildCaseFor}/>;
+                                  showBuildCaseFor={vnode.attrs.showBuildCaseFor}
+                                  service={vnode.attrs.service}/>;
       })}
     </div>;
   }

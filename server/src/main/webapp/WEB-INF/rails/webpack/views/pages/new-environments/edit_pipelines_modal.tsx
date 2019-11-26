@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {SparkRoutes} from "helpers/spark_routes";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import {Pipelines, PipelineWithOrigin} from "models/internal_pipeline_structure/pipeline_structure";
@@ -23,6 +24,7 @@ import s from "underscore.string";
 import {Cancel, Primary} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {CheckboxField, HelpText, SearchField} from "views/components/forms/input_fields";
+import {Link} from "views/components/link";
 import {Modal, ModalState, Size} from "views/components/modal";
 import {PipelinesViewModel} from "views/pages/new-environments/models/pipelines_view_model";
 import styles from "./edit_pipelines.scss";
@@ -91,12 +93,12 @@ export class UnavailablePipelinesBecauseOfOtherEnvironmentWidget extends Mithril
       <ul>
         {
           pipelines.map((pipeline) => {
-            const environmentLink = <span data-test-id={`pipeline-list-item-for-${pipeline.name()}`}
-                                          class={styles.link}>
+            const environmentWithOrigin = vnode.attrs.pipelinesVM.environments.findEnvironmentForPipeline(pipeline.name());
+            const environmentLink       = <span data-test-id={`pipeline-list-item-for-${pipeline.name()}`} class={styles.link}>
               (ENVIRONMENT:
-              <a href="#">
-                {vnode.attrs.pipelinesVM.environments.findEnvironmentForPipeline(pipeline.name())!.name()}
-              </a>
+              <Link target="_blank" href={SparkRoutes.editEnvironmentsPath(environmentWithOrigin!.name())}>
+                {environmentWithOrigin!.name()}
+              </Link>
               )
             </span>;
 
@@ -125,12 +127,12 @@ export class UnavailablePipelinesBecauseDefinedInConfigRepoWidget extends Mithri
       <ul>
         {
           pipelines.map((pipeline) => {
-            const href           = `/go/admin/config_repos/#!${pipeline.origin().id()}`;
+            const href           = SparkRoutes.ConfigRepoViewPath(pipeline.origin().id());
             const configRepoLink = <span data-test-id={`pipeline-list-item-for-${pipeline.name()}`} class={styles.link}>
               (CONFIG REPO:
-              <a href={href}>
+              <Link target="_blank" href={href}>
                 {pipeline.origin().id()}
-              </a>
+              </Link>
               )
             </span>;
 

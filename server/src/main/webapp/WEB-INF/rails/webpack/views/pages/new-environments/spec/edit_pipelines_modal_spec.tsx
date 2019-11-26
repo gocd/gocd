@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {SparkRoutes} from "helpers/spark_routes";
 import m from "mithril";
 import {EnvironmentVariables} from "models/environment_variables/types";
 import {
@@ -92,7 +93,7 @@ describe("Edit Pipelines Modal", () => {
     expect(configRepoAssociated).toBeFalsy();
   });
 
-  it("should render unavailable pipelines which are associated in another environment", () => {
+  it("should render unavailable pipelines which are associated in another environment with link", () => {
     const otherEnvAssociated = helper.byTestId(`unavailable-pipelines-already-associated-with-environments`);
     const expectedMsg        = "Unavailable pipelines (Already associated with environments):";
     const pipelines          = pipelineGroupsJSON.groups[0].pipelines;
@@ -101,6 +102,7 @@ describe("Edit Pipelines Modal", () => {
     expect(otherEnvAssociated).toBeInDOM();
     expect(otherEnvAssociated).toContainText(expectedMsg);
     expect(helper.byTestId(pipelineSelector, otherEnvAssociated)).toBeInDOM();
+    expect(helper.q("a", helper.byTestId(pipelineSelector, otherEnvAssociated))).toHaveAttr("href", SparkRoutes.editEnvironmentsPath("another"));
   });
 
   it("should not render unavailable pipelines which are associated in other environment when none present", () => {
@@ -239,7 +241,7 @@ describe("Edit Pipelines Modal", () => {
     const configRepoLink = helper.q("a", helper.byTestId("unavailable-pipelines-defined-in-config-repository"));
     const configRepoId   = pipelineGroupsJSON.groups[0].pipelines[1].origin.id;
     expect(configRepoLink).toHaveText(configRepoId!);
-    expect(configRepoLink.getAttribute("href")).toBe(`/go/admin/config_repos/#!${configRepoId}`);
+    expect(configRepoLink.getAttribute("href")).toBe(`/go/admin/config_repos#!/${configRepoId}`);
   });
 
   it('should disable save and cancel button if modal state is loading', () => {

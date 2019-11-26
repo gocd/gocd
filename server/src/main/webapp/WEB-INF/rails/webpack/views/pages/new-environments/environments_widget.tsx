@@ -28,7 +28,8 @@ import {Delete, IconGroup} from "views/components/icons";
 import {Link} from "views/components/link";
 import {EnvironmentBody} from "views/pages/new-environments/environment_body_widget";
 import {EnvironmentHeader} from "views/pages/new-environments/environment_header_widget";
-import {DeleteOperation} from "../page_operations";
+import {DeleteOperation} from "views/pages/page_operations";
+import styles from "./index.scss";
 
 interface Attrs extends DeleteOperation<EnvironmentWithOrigin> {
   environments: Stream<Environments>;
@@ -54,26 +55,44 @@ export class EnvironmentWidget extends MithrilViewComponent<EnvAttrs> {
 
   view(vnode: m.Vnode<EnvAttrs>) {
     const environment = vnode.attrs.environment;
-    const isEnvEmpty  = _.isEmpty(environment.pipelines()) && _.isEmpty(environment.agents());
     return <Anchor id={environment.name()} sm={vnode.attrs.sm} onnavigate={() => this.expanded(true)}>
       <CollapsiblePanel header={<EnvironmentHeader environment={environment}/>}
-                        warning={isEnvEmpty}
-                        actions={[
-                          <IconGroup>
-                            <Delete
-                              title={environment.canAdminister() ? undefined : `You dont have permissions to delete '${environment.name()}' environment.`}
-                              disabled={!environment.canAdminister()}
-                              onclick={vnode.attrs.onDelete.bind(vnode.attrs, environment)}/>
-                          </IconGroup>
-                        ]}
+                        warning={this.isEnvEmpty(environment)}
+                        actions={this.getActionButtons(environment, vnode)}
                         dataTestId={`collapsible-panel-for-env-${environment.name()}`}
                         vm={this}>
         <EnvironmentBody environment={environment}
-                         environments={vnode.attrs.environments()}
+                         environments={vnode.attrs.environments}
                          agents={vnode.attrs.agents}
                          onSuccessfulSave={vnode.attrs.onSuccessfulSave}/>
       </CollapsiblePanel>
     </Anchor>;
+  }
+
+  getActionButtons(environment: EnvironmentWithOrigin, vnode: m.Vnode<EnvAttrs>) {
+    let warningButton;
+    if (this.isEnvEmpty(environment)) {
+      warningButton = <div data-test-id="warning-tooltip-wrapper" className={styles.warningTooltipWrapper}>
+        <i data-test-id={"warning-icon"} className={styles.warningIcon}/>
+        <div data-test-id="warning-tooltip-content" className={styles.warningTooltipContent}>
+          <p>Neither pipelines nor agents are associated with this environment.</p>
+        </div>
+      </div>;
+    }
+    return [
+      warningButton,
+      <IconGroup>
+        <Delete
+          title={environment.canAdminister() ? undefined : `You are not authorized to delete the '${environment.name()}' environment.`}
+          disabled={!environment.canAdminister()}
+          onclick={vnode.attrs.onDelete.bind(vnode.attrs, environment)}/>
+      </IconGroup>
+    ];
+  }
+
+  private isEnvEmpty(environment: EnvironmentWithOrigin) {
+    return _.isEmpty(environment.pipelines()) && _.isEmpty(environment.agents());
+
   }
 }
 

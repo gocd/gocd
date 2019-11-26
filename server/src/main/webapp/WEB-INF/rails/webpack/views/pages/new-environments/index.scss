@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 @import "../../global/common";
 
 $border-color: #ddd;
@@ -76,3 +75,55 @@ $border-color: #ddd;
 .create-env-err-msg-container {
   width: 88%;
 }
+
+.warning-tooltip-wrapper {
+  position: static;
+  display:  inline-block;
+
+  &:hover {
+    .warning-tooltip-content {
+      display: block;
+    }
+  }
+}
+
+.warning-icon {
+  @include icon-before($type: $fa-var-info-circle, $color: darken($warning, 30%));
+
+  &:before {
+    font-size: 20px;
+    padding:   2px 12px 2px 2px;
+  }
+}
+
+.warning-tooltip-content {
+  display:       none;
+  background:    $white;
+  line-height:   18px;
+  font-size:     12px;
+  position:      absolute;
+  margin-left:   -8px;
+  margin-top:    3px;
+  font-weight:   400;
+  border-radius: $global-border-radius;
+  padding:       10px 20px 0;
+  box-shadow:    0 2px 4px $box-shadow-color;
+  z-index:       map_get($zindex, submenu);
+
+  &:before {
+    content:          "";
+    position:         absolute;
+    width:            10%;
+    height:           0;
+    margin-left:      -0.5em;
+    top:              0;
+    left:             17px;
+    box-sizing:       border-box;
+    border:           6px solid $black;
+    border-color:     $white $white transparent transparent;
+    transform-origin: 0 0;
+    transform:        rotate(-45deg);
+    box-shadow:       1px -1px 1px 0 $box-shadow-color;
+  }
+}
+

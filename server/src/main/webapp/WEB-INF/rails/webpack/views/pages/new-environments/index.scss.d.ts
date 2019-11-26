@@ -6,3 +6,6 @@ export const envBodyElementHeader: string;
 export const envHeader: string;
 export const envName: string;
 export const envVarHeading: string;
+export const warningIcon: string;
+export const warningTooltipContent: string;
+export const warningTooltipWrapper: string;

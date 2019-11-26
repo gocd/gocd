@@ -73,10 +73,6 @@ public class UrlRewriterIntegrationTest {
     @DataPoint
     public static ResponseAssertion NO_REWRITE_SSL = new ResponseAssertion(HTTPS_URL + "/go/quux?hello=world", HTTPS_URL + "/go/quux?hello=world");
     @DataPoint
-    public static ResponseAssertion RAILS_BOUND = new ResponseAssertion(HTTP_URL + "/go/agents/foo?hello=world", HTTP_URL + "/go/rails/agents/foo?hello=world");
-    @DataPoint
-    public static ResponseAssertion RAILS_BOUND_SSL = new ResponseAssertion(HTTPS_URL + "/go/agents/foo?hello=world", HTTPS_URL + "/go/rails/agents/foo?hello=world");
-    @DataPoint
     public static ResponseAssertion PIPELINE_GROUP_EDIT = new ResponseAssertion(HTTP_URL + "/go/admin/pipeline_group/group.name?foo=bar&baz=quux", HTTP_URL + "/go/rails/admin/pipeline_group/group.name?foo=bar&baz=quux", true);
     @DataPoint
     public static ResponseAssertion PIPELINE_GROUP_CREATE = new ResponseAssertion(HTTP_URL + "/go/admin/pipeline_group", HTTP_URL + "/go/rails/admin/pipeline_group", true);

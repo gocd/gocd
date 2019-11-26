@@ -126,7 +126,15 @@ describe("ArtifactsManagementWidget", () => {
   });
 
   function mount(artifactConfig: ArtifactConfig) {
-    helper.mount(() => <ArtifactsManagementWidget artifactConfig={artifactConfig} onCancel={onCancelSpy}
-                                                  onArtifactConfigSave={onSaveSpy}/>);
+    const savePromise   = new Promise((resolve) => {
+      onSaveSpy();
+      resolve();
+    });
+    const cancelPromise = new Promise((resolve) => {
+      onCancelSpy();
+      resolve();
+    });
+    helper.mount(() => <ArtifactsManagementWidget artifactConfig={artifactConfig} onCancel={() => cancelPromise}
+                                                  onArtifactConfigSave={() => savePromise}/>);
   }
 });

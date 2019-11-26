@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import _ from "lodash";
 import m from "mithril";
 import Stream = require("mithril/stream");
 import {DefaultJobTimeout} from "models/server-configuration/server_configuration";
@@ -27,8 +26,8 @@ describe("defaultJobTimeoutWidget", () => {
   function mount(defaultJobTimeout: DefaultJobTimeout) {
     helper.mount(() =>
                    <JobTimeoutConfigurationWidget defaultJobTimeout={Stream(defaultJobTimeout)}
-                                                  onDefaultJobTimeoutSave={_.noop}
-                                                  onCancel={_.noop}/>);
+                                                  onDefaultJobTimeoutSave={() => Promise.resolve()}
+                                                  onCancel={() => Promise.resolve()}/>);
   }
 
   afterEach((done) => helper.unmount(done));

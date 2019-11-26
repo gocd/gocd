@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {
@@ -37,15 +36,14 @@ describe("ServerConfigurationWidget", () => {
         route={onClick}
         activeConfiguration={activeConfiguration}
         defaultJobTimeout={Stream(new DefaultJobTimeout(0))}
-        onDefaultJobTimeoutSave={_.noop}
+        onDefaultJobTimeoutSave={() => Promise.resolve()}
         artifactConfig={artifactConfig}
-        onArtifactConfigSave={_.noop}
-        onServerManagementSave={_.noop}
+        onArtifactConfigSave={() => Promise.resolve()}
+        onServerManagementSave={() => Promise.resolve()}
         siteUrls={siteUrls}
-        onMailServerManagementSave={_.noop}
+        onMailServerManagementSave={() => Promise.resolve()}
         mailServer={Stream(mailServer)}
-        operationState={Stream()}
-        onCancel={_.noop}
+        onCancel={() => Promise.resolve()}
       />);
   }
 

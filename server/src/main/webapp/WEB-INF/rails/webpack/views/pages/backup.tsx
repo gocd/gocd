@@ -55,7 +55,7 @@ export class BackupPage extends Page<null, State> {
         modal.close();
         vnode.state.displayProgressIndicator = true;
         vnode.state.message                  = "";
-        ServerBackupAPI.start(this.onProgress(vnode), this.onCompletion(vnode), this.onError(vnode));
+        return ServerBackupAPI.start(this.onProgress(vnode), this.onCompletion(vnode), this.onError(vnode));
       }, "Server backup confirmation", "Confirm");
       modal.render();
     };

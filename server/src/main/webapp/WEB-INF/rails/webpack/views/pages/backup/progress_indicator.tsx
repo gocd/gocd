@@ -47,6 +47,10 @@ export class ProgressIndicator extends MithrilViewComponent<Attrs> {
                       error={vnode.attrs.message}
                       status={this.getStatus(BackupProgressStatus.BACKUP_CONFIG, currentStatus, status)}>
             Backing up Configuration</BackupStep>
+          <BackupStep id={BackupProgressStatus.BACKUP_WRAPPER_CONFIG}
+                      error={vnode.attrs.message}
+                      status={this.getStatus(BackupProgressStatus.BACKUP_WRAPPER_CONFIG, currentStatus, status)}>
+            Backing up Wrapper Configuration</BackupStep>
           <BackupStep id={BackupProgressStatus.BACKUP_CONFIG_REPO}
                       error={vnode.attrs.message}
                       status={this.getStatus(BackupProgressStatus.BACKUP_CONFIG_REPO, currentStatus, status)}>

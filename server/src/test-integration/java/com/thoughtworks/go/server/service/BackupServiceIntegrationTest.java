@@ -167,6 +167,29 @@ public class BackupServiceIntegrationTest {
     }
 
     @Test
+    public void shouldPerformWrapperConfigBackupForAllTanukiConfigFiles() throws Exception {
+        try {
+            createWrapperConfigFile("foo", "foo_foo");
+            createWrapperConfigFile("bar", "bar_bar");
+            createWrapperConfigFile("baz", "hazar_bar");
+            createWrapperConfigFile("hello/world/file", "hello world!");
+
+            ServerBackup backup = backupService.startBackup(admin);
+            assertThat(backup.isSuccessful(), is(true));
+            assertThat(backup.getMessage(), is("Backup was generated successfully."));
+
+            File wrapperConfigZip = backedUpFile("wrapper-config-dir.zip");
+            assertThat(fileContents(wrapperConfigZip, "foo"), is("foo_foo"));
+            assertThat(fileContents(wrapperConfigZip, "bar"), is("bar_bar"));
+            assertThat(fileContents(wrapperConfigZip, "baz"), is("hazar_bar"));
+
+            assertThat(fileContents(wrapperConfigZip, FilenameUtils.separatorsToSystem("hello/world/file")), is("hello world!"));
+        } finally {
+            deleteWrapperConfigFileIfExists("foo", "bar", "baz", "hello", "some_dir");
+        }
+    }
+
+    @Test
     public void shouldBackupConfigRepository() throws IOException {
         configHelper.addPipeline("too-unique-to-be-present", "stage-name");
 
@@ -451,6 +474,12 @@ public class BackupServiceIntegrationTest {
         assertThat(backup.getMessage(), is("Post backup script exited with an error, check the server log for details."));
     }
 
+    private void deleteWrapperConfigFileIfExists(String ...fileNames) {
+        for (String fileName : fileNames) {
+            FileUtils.deleteQuietly(new File(BackupService.WRAPPER_CONFIG_DIR, fileName));
+        }
+    }
+
     private void deleteConfigFileIfExists(String ...fileNames) {
         for (String fileName : fileNames) {
             FileUtils.deleteQuietly(new File(configDir(), fileName));
@@ -474,6 +503,20 @@ public class BackupServiceIntegrationTest {
             }
         }
         return out.toString();
+    }
+
+    private void createWrapperConfigFile(String fileName, String content) throws IOException {
+        FileOutputStream fos = null;
+        try {
+            File file = new File(BackupService.WRAPPER_CONFIG_DIR, fileName);
+            FileUtils.forceMkdir(file.getParentFile());
+            fos = new FileOutputStream(file);
+            fos.write(content.getBytes());
+        } finally {
+            if (fos != null) {
+                fos.close();
+            }
+        }
     }
 
     private void createConfigFile(String fileName, String content) throws IOException {

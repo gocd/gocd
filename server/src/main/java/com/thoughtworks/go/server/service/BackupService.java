@@ -85,9 +85,11 @@ public class BackupService implements BackupStatusProvider {
     private final Database databaseStrategy;
     private volatile ServerBackup runningBackup;
     private static final String CONFIG_BACKUP_ZIP = "config-dir.zip";
+    private static final String WRAPPER_CONFIG_BACKUP_ZIP = "wrapper-config-dir.zip";
 
     private static final String CONFIG_REPOSITORY_BACKUP_ZIP = "config-repo.zip";
     private static final String VERSION_BACKUP_FILE = "version.txt";
+    public static final String WRAPPER_CONFIG_DIR = "wrapper-config";
 
     private static final Object BACKUP_MUTEX = new Object();
 
@@ -172,6 +174,7 @@ public class BackupService implements BackupStatusProvider {
                 }
                 backupVersion(destDir, backupUpdateListeners);
                 backupConfig(destDir, backupUpdateListeners);
+                backupWrapperConfig(destDir, backupUpdateListeners);
                 backupConfigRepo(backupUpdateListeners, destDir);
                 backupDb(destDir, backupUpdateListeners);
                 boolean passed = executePostBackupScript(backup.getUsername(), initiatedBy, backup, backupUpdateListeners);
@@ -288,6 +291,13 @@ public class BackupService implements BackupStatusProvider {
         notifyUpdateToListeners(backupUpdateListeners, BackupProgressStatus.BACKUP_VERSION_FILE);
         File versionFile = new File(backupDir, VERSION_BACKUP_FILE);
         FileUtils.writeStringToFile(versionFile, CurrentGoCDVersion.getInstance().formatted(), UTF_8);
+    }
+
+    private void backupWrapperConfig(File backupDir, List<BackupUpdateListener> backupUpdateListeners) throws IOException {
+        notifyUpdateToListeners(backupUpdateListeners, BackupProgressStatus.BACKUP_WRAPPER_CONFIG);
+        try (ZipOutputStream configZip = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(new File(backupDir, WRAPPER_CONFIG_BACKUP_ZIP))))) {
+            new DirectoryStructureWalker(WRAPPER_CONFIG_DIR, configZip).walk();
+        }
     }
 
     private void backupConfig(File backupDir, List<BackupUpdateListener> backupUpdateListeners) throws IOException {

@@ -22,6 +22,7 @@ public enum BackupProgressStatus {
     CREATING_DIR("Creating Backup Directory"),
     BACKUP_VERSION_FILE("Backing up Version File"),
     BACKUP_CONFIG("Backing up Configuration"),
+    BACKUP_WRAPPER_CONFIG("Backing up Wrapper Configuration"),
     BACKUP_CONFIG_REPO("Backing up Configuration History"),
     BACKUP_DATABASE("Backing up Database"),
     POST_BACKUP_SCRIPT_START("Executing Post Backup Script"),

@@ -21,13 +21,16 @@ import Stream from "mithril/stream";
 import {ConfigReposCRUD} from "models/config_repos/config_repos_crud";
 import {
   ConfigRepo,
-  humanizedMaterialAttributeName, humanizedMaterialNameForMaterialType,
+  humanizedMaterialAttributeName,
+  humanizedMaterialNameForMaterialType,
 } from "models/config_repos/types";
 import {
   GitMaterialAttributes,
   HgMaterialAttributes,
-  Material, P4MaterialAttributes,
-  SvnMaterialAttributes, TfsMaterialAttributes,
+  Material,
+  P4MaterialAttributes,
+  SvnMaterialAttributes,
+  TfsMaterialAttributes,
 } from "models/materials/types";
 import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import * as Buttons from "views/components/buttons";
@@ -46,7 +49,7 @@ import {TestConnection} from "views/components/materials/test_connection";
 import {Modal, Size} from "views/components/modal";
 import {Spinner} from "views/components/spinner";
 import styles from "views/pages/config_repos/index.scss";
-import {RequiresPluginInfos, SaveOperation} from "views/pages/page_operations";
+import {OperationState, RequiresPluginInfos, SaveOperation} from "views/pages/page_operations";
 
 type EditableMaterial = SaveOperation
   & { repo: ConfigRepo }
@@ -288,6 +291,7 @@ export abstract class ConfigRepoModal extends Modal {
   protected readonly onError: (msg: m.Children) => any;
   protected isNew: boolean = false;
   protected pluginInfos: Stream<PluginInfos>;
+  private ajaxOperationMonitor = Stream<OperationState>(OperationState.UNKNOWN);
 
   protected constructor(onSuccessfulSave: (msg: m.Children) => any,
                         onError: (msg: m.Children) => any,
@@ -330,8 +334,10 @@ export abstract class ConfigRepoModal extends Modal {
 
   buttons(): m.ChildArray {
     return [
-      <Buttons.Primary data-test-id="button-ok" ajaxOperation={this.performSave.bind(this)}>Save</Buttons.Primary>,
-      <Buttons.Cancel data-test-id="button-cancel" onclick={this.close.bind(this)}>Cancel</Buttons.Cancel>
+      <Buttons.Primary data-test-id="button-ok" ajaxOperation={this.performSave.bind(this)}
+                       ajaxOperationMonitor={this.ajaxOperationMonitor}>Save</Buttons.Primary>,
+      <Buttons.Cancel data-test-id="button-cancel" onclick={this.close.bind(this)}
+                      ajaxOperationMonitor={this.ajaxOperationMonitor}>Cancel</Buttons.Cancel>
     ];
   }
 

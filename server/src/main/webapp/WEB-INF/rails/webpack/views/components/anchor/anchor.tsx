@@ -50,10 +50,16 @@ export class Anchor extends MithrilComponent<Attrs, State> {
 
   oncreate(vnode: m.VnodeDOM<Attrs, State>) {
     vnode.state.dom = vnode.dom;
-    this.inited = true;
+    this.inited     = true;
+    this.scrollToEl(vnode);
   }
 
   view(vnode: m.Vnode<Attrs, State>) {
+    this.scrollToEl(vnode);
+    return vnode.children;
+  }
+
+  scrollToEl(vnode: m.Vnode<Attrs, State>) {
     const {id, sm} = vnode.attrs;
     if (this.inited && sm.shouldScroll(id)) {
       sm.scrollToEl(vnode.state.dom);
@@ -62,7 +68,6 @@ export class Anchor extends MithrilComponent<Attrs, State> {
         vnode.attrs.onnavigate();
       }
     }
-    return vnode.children;
   }
 }
 

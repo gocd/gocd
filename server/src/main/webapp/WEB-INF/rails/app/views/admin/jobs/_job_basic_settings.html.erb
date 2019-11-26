@@ -88,7 +88,7 @@
             </div>
         </div>
     </div>
-    <%= render :partial => 'shared/form_required_message.html', :locals => {:scope => {}} %>
+    <%= render :partial => 'shared/form_required_message.html', :locals => {:scope => {}} unless @is_config_repo_pipeline %>
     <%= render :partial => 'shared/convert_tool_tips.html', :locals => {:scope => {}} %>
 
 <script type="text/javascript">

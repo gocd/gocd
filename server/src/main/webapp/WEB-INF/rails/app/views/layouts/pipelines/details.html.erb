@@ -45,7 +45,9 @@
 
           </div>
         </div>
-        <%= render :partial => "admin/shared/dirty_form", :locals => {:scope => {:form_id => 'pipeline_edit_form', :reset_id => "reset_form"}} %>
+        <%- unless  @is_config_repo_pipeline %>
+          <%= render :partial => "admin/shared/dirty_form", :locals => {:scope => {:form_id => 'pipeline_edit_form', :reset_id => "reset_form"}} %>
+        <%- end %>
         <%= render :partial => 'shared/convert_tool_tips.html', :locals => {:scope => {}} %>
       </div>
       <%= end_content_wrapper %>

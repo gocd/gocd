@@ -53,7 +53,7 @@ export class ElementListWidget extends MithrilViewComponent<ElementListWidgetAtt
 
 interface EnvironmentBodyAttrs {
   environment: EnvironmentWithOrigin;
-  environments: Environments;
+  environments: Stream<Environments>;
   agents: Stream<Agents>;
   onSuccessfulSave: (msg: m.Children) => void;
 }
@@ -67,11 +67,11 @@ interface EnvironmentBodyState {
 export class EnvironmentBody extends MithrilComponent<EnvironmentBodyAttrs, EnvironmentBodyState> {
   oninit(vnode: m.Vnode<EnvironmentBodyAttrs, EnvironmentBodyState>) {
     vnode.state.renderPipelinesModal = (env: EnvironmentWithOrigin) => {
-      new EditPipelinesModal(env, vnode.attrs.environments, vnode.attrs.onSuccessfulSave).render();
+      new EditPipelinesModal(env, vnode.attrs.environments(), vnode.attrs.onSuccessfulSave).render();
     };
 
     vnode.state.renderAgentsModal = (env: EnvironmentWithOrigin) => {
-      new EditAgentsModal(env, vnode.attrs.environments, vnode.attrs.agents(), vnode.attrs.onSuccessfulSave).render();
+      new EditAgentsModal(env, vnode.attrs.environments(), vnode.attrs.agents(), vnode.attrs.onSuccessfulSave).render();
     };
 
     vnode.state.renderEnvironmentsVariablesModal = (env: EnvironmentWithOrigin) => {

@@ -136,6 +136,14 @@ export default {
     agents: [agentAssociationInXmlJson()],
     environment_variables: [environmentVariableAssociationInXmlJson(), environmentVariableAssociationInXmlJson(true)]
   }),
+  environment_without_pipeline_and_agent_json: (): EnvironmentJSON => ({
+    name: `empty-environment-name-${randomString()}`,
+    can_administer: true,
+    origins: [],
+    pipelines: [],
+    agents: [],
+    environment_variables: [environmentVariableAssociationInXmlJson(), environmentVariableAssociationInXmlJson(true)]
+  }),
   config_repo_environment_json: (): EnvironmentJSON => ({
     name: `config-repo-environment-name-${randomString()}`,
     can_administer: true,

@@ -439,4 +439,8 @@ export class SparkRoutes {
   static editTemplatePermissions(templateName: string) {
     return `/go/admin/templates/${templateName}/permissions`;
   }
+
+  static editEnvironmentsPath(environmentName: string) {
+    return `/go/admin/environments/#!${environmentName}`;
+  }
 }

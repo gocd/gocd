@@ -30,9 +30,10 @@ describe("Environments Widget", () => {
   const helper = new TestHelper();
 
   let environments: Environments;
-  const xmlEnv        = data.xml_environment_json();
-  const configRepoEnv = data.config_repo_environment_json();
-  const env           = data.environment_json();
+  const xmlEnv                       = data.xml_environment_json();
+  const configRepoEnv                = data.config_repo_environment_json();
+  const env                          = data.environment_json();
+  const envWithoutPipelinesAndAgents = data.environment_without_pipeline_and_agent_json();
   let sm: ScrollManager;
 
   function mountModal(envs: EnvironmentJSON[] = [xmlEnv, configRepoEnv, env]) {
@@ -81,7 +82,7 @@ describe("Environments Widget", () => {
     const deleteIcons = helper.allByTestId("Delete-icon");
     expect(deleteIcons).toHaveLength(3);
 
-    expect(deleteIcons[0].title).toBe(`You dont have permissions to delete '${xmlEnv.name}' environment.`);
+    expect(deleteIcons[0].title).toBe(`You are not authorized to delete the '${xmlEnv.name}' environment.`);
     expect(deleteIcons[0]).toBeDisabled();
     expect(deleteIcons[1].title).toBeFalsy();
     expect(deleteIcons[1]).not.toBeDisabled();
@@ -104,5 +105,13 @@ describe("Environments Widget", () => {
     expect(helper.byTestId("no-environment-present-msg")).toContainText(noEnvPresentText);
     expect(helper.byTestId("doc-link")).toBeInDOM();
     expect(helper.q("a", helper.byTestId("doc-link"))).toHaveAttr("href", docsUrl("configuration/managing_environments.html"));
+  });
+
+  it('should have warning tooltip if environment is not associated with any pipeline and agent', () => {
+    mountModal([envWithoutPipelinesAndAgents]);
+    const tooltipIcon = helper.byTestId("warning-icon");
+    expect(tooltipIcon).toBeInDOM();
+    expect(helper.textByTestId("warning-tooltip-content", helper.byTestId("collapse-header")))
+      .toBe("Neither pipelines nor agents are associated with this environment.");
   });
 });

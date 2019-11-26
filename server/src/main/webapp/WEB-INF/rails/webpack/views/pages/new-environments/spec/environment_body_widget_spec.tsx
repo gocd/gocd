@@ -38,7 +38,7 @@ describe("Environments Body Widget", () => {
     environments.push(environment);
 
     helper.mount(() => <EnvironmentBody environment={environment}
-                                        environments={environments}
+                                        environments={Stream(environments)}
                                         agents={Stream(agents)}
                                         onSuccessfulSave={_.noop}/>);
   });

@@ -23,10 +23,3 @@
     <%= render :partial => "admin/shared/form_submit", :locals => {:scope => {:reset_url => pipeline_edit_path(:pipeline_name => params[:pipeline_name], :current_tab => 'environment_variables')}} %>
 <% end %>
 </div>
-<script type="text/javascript">
-  Util.on_load(function() {
-    if (<%= @is_config_repo_pipeline %>) {
-      Util.disableAllFormElementsFor(".admin_wrapper");
-    }
-  });
-</script>

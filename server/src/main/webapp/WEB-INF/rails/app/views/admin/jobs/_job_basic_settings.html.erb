@@ -94,9 +94,6 @@
 <script type="text/javascript">
 
     Util.on_load(function() {
-        if (<%= @is_config_repo_pipeline %>) {
-          Util.disableAllFormElementsFor(".admin_wrapper");
-        }
         function hookupResourcesAutoComplete() {
             jQuery(".resources_auto_complete").autocomplete(<%== @autocomplete_resources %>, {
                 multiple: true,

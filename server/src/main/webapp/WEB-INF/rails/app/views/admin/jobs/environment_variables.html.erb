@@ -18,13 +18,14 @@
                                                                             form: f,
                                                                             collection: @job.getPlainTextVariables(),
                                                                             collection_name: :variables,
-                                                                            nested_name: 'job>variables'
+                                                                            nested_name: 'job>variables',
+                                                                            read_only_page: @is_config_repo_pipeline
                                                                     } %>
 
     <h3>Secure Variables</h3>
     <span title="Environment variables that are never displayed or logged in plain text. <a class='' href='<%= docs_url '/faq/dev_use_current_revision_in_build.html' %>' target='_blank'>More...</a>" class="contextual_help has_go_tip_right">&nbsp;</span>
     <div class="fieldset">
-        <%= render :partial => "admin/shared/name_value", :locals => {:scope => {:form => f, :collection => @job.getSecureVariables(), :collection_name => :variables, :secure => true}} %>
+        <%= render :partial => "admin/shared/name_value", :locals => {:scope => {:form => f, :collection => @job.getSecureVariables(), :collection_name => :variables, :secure => true, read_only_page: @is_config_repo_pipeline}} %>
         <div class='clear'></div>
     </div>
     <%= render :partial => 'shared/convert_tool_tips.html', :locals => {:scope => {}} %>

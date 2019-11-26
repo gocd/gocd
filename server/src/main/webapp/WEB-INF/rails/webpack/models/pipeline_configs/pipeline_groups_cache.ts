@@ -76,13 +76,18 @@ export class PipelineGroupCRUD {
     });
   }
 
-  static all(): Promise<ApiResult<PipelineGroup[]>> {
+  static all(): Promise<ApiResult<PipelineGroupJSON[]>> {
     return ApiRequestBuilder.GET(SparkRoutes.pipelineGroupsPath(), ApiVersion.latest)
                             .then((result: ApiResult<string>) => {
                               return result.map((str) => {
                                 const data = JSON.parse(str);
-                                return data._embedded.groups as PipelineGroup[];
+                                return data._embedded.groups as PipelineGroupJSON[];
                               });
                             });
   }
+}
+
+interface PipelineGroupJSON {
+  name: string;
+  authorization?: any;
 }

@@ -21,15 +21,15 @@ import {Agent} from "models/agents/agents";
 import {GetAllService} from "models/agents/agents_crud";
 import {StaticAgentsVM} from "models/agents/agents_vm";
 import {TriStateCheckbox, TristateState} from "models/tri_state_checkbox";
-import {Dropdown, DropdownAttrs, Primary} from "views/components/buttons";
 import * as Buttons from "views/components/buttons";
+import {Dropdown, DropdownAttrs, Primary} from "views/components/buttons";
 import {FlashMessageModelWithTimeout} from "views/components/flash_message";
 import {QuickAddField, TriStateCheckboxField} from "views/components/forms/input_fields";
 import {Spinner} from "views/components/spinner";
 import Style from "./index.scss";
 import spinnerCss from "./spinner.scss";
 
-export interface DropdownAttrs {
+export interface MyDropdownAttrs extends DropdownAttrs {
   service: GetAllService;
   agentsVM: StaticAgentsVM;
   flashMessage: FlashMessageModelWithTimeout;
@@ -123,7 +123,7 @@ export abstract class AbstractDropdownButton<V extends DropdownAttrs> extends Dr
   protected abstract hasAssociationWith(agent: Agent, item: string): boolean;
 }
 
-interface ResourcesAttrs extends DropdownAttrs {
+interface ResourcesAttrs extends MyDropdownAttrs {
   updateResources: (resourcesToAdd: string[], resourcesToRemove: string[]) => Promise<ApiResult<string>>;
 }
 

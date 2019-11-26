@@ -29,7 +29,7 @@
         <div class='clear'></div>
     </div>
     <%= render :partial => 'shared/convert_tool_tips.html', :locals => {:scope => {}} %>
-    <%= render :partial => "admin/shared/form_submit", :locals => {:scope => {:reset_url => admin_job_edit_path(:pipeline_name => @pipeline.name(), :stage_name => params[:stage_name], :job_name => params[:job_name], :current_tab => "environment_variables")}} %>
+    <%= render :partial => "admin/shared/form_submit", :locals => {:scope => {:reset_url => admin_job_edit_path(:pipeline_name => @pipeline.name(), :stage_name => params[:stage_name], :job_name => params[:job_name], :current_tab => "environment_variables")}} unless @is_config_repo_pipeline %>
 <% end %>
 </div>
 <script type="text/javascript">

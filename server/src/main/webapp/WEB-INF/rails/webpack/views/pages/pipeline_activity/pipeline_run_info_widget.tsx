@@ -16,15 +16,17 @@
 
 import {bind} from "classnames/bind";
 import m from "mithril"
-import {PipelineRunInfo, StageConfigs} from "models/pipeline_activity/pipeline_activity";
-import {MithrilViewComponent} from "jsx/mithril-component";
+import {PipelineRunInfo, Stage, StageConfigs} from "models/pipeline_activity/pipeline_activity";
 import styles from "./index.scss";
 import Stream from "mithril/stream";
-import {SparkRoutes} from "helpers/spark_routes";
+import {PipelineActivityService} from "../../../models/pipeline_activity/pipeline_activity_crud";
+import {MithrilViewComponent} from "../../../jsx/mithril-component";
+import {BuildCauseWidget} from "./build_cause_widget";
+import * as Icons from "../../components/icons";
 import {timeFormatter as TimeFormatter} from "helpers/time_formatter";
 import s from "underscore.string";
-import * as Icons from "../../components/icons";
-import {BuildCauseWidget} from "./build_cause_widget";
+import {SparkRoutes} from "../../../helpers/spark_routes";
+import {ManualStageTriggerConfirmation} from "./manual_stage_trigger_confirmation_modal";
 
 const classnames = bind(styles);
 
@@ -33,6 +35,7 @@ interface PipelineRunAttrs {
   pipelineName: string;
   showBuildCaseFor: Stream<string>;
   stageConfigs: StageConfigs;
+  service: PipelineActivityService;
 }
 
 type StringOrNumber = string | number;
@@ -44,12 +47,12 @@ export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
                 class={styles.pipelineRun}>
       <div class={styles.runInfoSection}>
         <div class={classnames(styles.run, styles.header)}>
-          <span data-test-id={this.dataTestId("counter-for", pipelineRunInfo.pipelineId())}>
-            {pipelineRunInfo.label().substr(0, 17)}
-          </span>
+    <span data-test-id={this.dataTestId("counter-for", pipelineRunInfo.pipelineId())}>
+    {pipelineRunInfo.label().substr(0, 17)}
+    </span>
           <span data-test-id={this.dataTestId("vsm-for", pipelineRunInfo.pipelineId())}>
-            {PipelineRunWidget.getVSMLink(vnode, pipelineRunInfo)}
-          </span>
+    {PipelineRunWidget.getVSMLink(vnode, pipelineRunInfo)}
+    </span>
         </div>
         <div class={styles.revision}>Revision: {pipelineRunInfo.revision()}</div>
         <div class={styles.scheduleInfo}
@@ -62,9 +65,8 @@ export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
 
       <div class={styles.stagesSection}>
         {pipelineRunInfo.stages().map((stage, index) => {
-          const isAutoApproved = vnode.attrs.stageConfigs.isAutoApproved(stage.stageName());
           return <div class={styles.stage}>
-            {this.getStageApprovalIcon(stage.stageId(), index, isAutoApproved, stage.getCanRun())}
+            {this.getStageApprovalIcon(index, stage, vnode)}
             <span data-test-id={this.dataTestId("stage-status", pipelineRunInfo.pipelineId(), stage.stageName())}
                   class={classnames(PipelineRunWidget.stageStatusClass(stage.stageStatus()))}/>
           </div>;
@@ -73,17 +75,24 @@ export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
     </div>
   }
 
-  private getStageApprovalIcon(stageCounter: number, index: number, isAutoApproved: boolean, canRun: boolean): m.Children {
+  private getStageApprovalIcon(index: number, stage: Stage, vnode: m.Vnode<PipelineRunAttrs>): m.Children {
     if (index === 0) {
       return;
     }
+    const dataTestId = this.dataTestId("approval", "icon", stage.stageName(), stage.stageId());
 
-    const dataTestId = this.dataTestId("approval", "icon", stageCounter);
-    if (isAutoApproved) {
-      return <Icons.Forward iconOnly={true} disabled={!canRun} data-test-id={dataTestId}/>;
+    if (vnode.attrs.stageConfigs.isAutoApproved(stage.stageName())) {
+      return <Icons.Forward iconOnly={true} disabled={!stage.getCanRun()} data-test-id={dataTestId}/>;
     }
 
-    return <Icons.StepForward iconOnly={true} disabled={!canRun} data-test-id={dataTestId}/>;
+    return <Icons.StepForward iconOnly={true}
+                              disabled={!stage.getCanRun()}
+                              data-test-id={dataTestId}
+                              onclick={this.triggerStage.bind(this, stage, vnode.attrs.service)}/>;
+  }
+
+  private triggerStage(stage: Stage, service: PipelineActivityService) {
+    new ManualStageTriggerConfirmation(stage, service).render();
   }
 
   private static stageStatusClass(status: string) {

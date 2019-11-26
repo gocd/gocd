@@ -35,7 +35,8 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
 
   componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
     return <PipelineActivityWidget pipelineActivity={vnode.state.pipelineActivity}
-                                   showBuildCaseFor={vnode.state.showBuildCaseFor}/>;
+                                   showBuildCaseFor={vnode.state.showBuildCaseFor}
+                                   service={this.service}/>;
   }
 
   pageName(): string {

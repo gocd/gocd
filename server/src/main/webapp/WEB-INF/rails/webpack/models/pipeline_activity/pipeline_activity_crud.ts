@@ -16,7 +16,7 @@
 
 import {ApiRequestBuilder, ApiResult, ApiVersion} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
-import {PipelineActivity} from "models/pipeline_activity/pipeline_activity";
+import {PipelineActivity, Stage} from "models/pipeline_activity/pipeline_activity";
 import {ResultAwarePage} from "views/pages/page_operations";
 
 export class PipelineActivityService {
@@ -24,11 +24,15 @@ export class PipelineActivityService {
 
   activities(pipelineName: string, page: ResultAwarePage<PipelineActivity>) {
     ApiRequestBuilder.GET(SparkRoutes.apiPipelineActivity(pipelineName), PipelineActivityService.API_VERSION_HEADER)
-                     .then((result) => this.onResult(result, page));
+      .then((result) => this.onResult(result, page));
+  }
+
+  runStage(stage: Stage) {
+    return ApiRequestBuilder.POST(SparkRoutes.runStageLink(stage.pipelineName(), stage.pipelineCounter(), stage.stageName()), ApiVersion.v1)
   }
 
   private onResult(result: ApiResult<string>, page: ResultAwarePage<PipelineActivity>) {
     return result.do((successResponse) => page.onSuccess(PipelineActivity.fromJSON(JSON.parse(successResponse.body))),
-                     (errorResponse) => page.onFailure(errorResponse.message));
+      (errorResponse) => page.onFailure(errorResponse.message));
   }
 }

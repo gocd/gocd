@@ -42,7 +42,7 @@ function toBool(str: string | boolean) {
 
 }
 
-class StageConfig {
+export class StageConfig {
   name: Stream<string>;
   isAutoApproved: Stream<boolean>;
 
@@ -178,7 +178,7 @@ class MaterialRevisions extends Array<MaterialRevision> {
   }
 }
 
-class Stage {
+export class Stage {
   stageName: Stream<string>;
   stageId: Stream<number>;
   stageStatus: Stream<string>;
@@ -209,6 +209,14 @@ class Stage {
     this.approvedBy   = Stream(approvedBy);
   }
 
+  pipelineName() {
+    return this.stageLocator().split("/")[0];
+  }
+
+  pipelineCounter() {
+    return this.stageLocator().split("/")[1];
+  }
+
   static fromJSON(stage: StageJSON) {
     return new Stage(stage.stageName,
       stage.stageId,
@@ -222,7 +230,7 @@ class Stage {
   }
 }
 
-class Stages extends Array<Stage> {
+export class Stages extends Array<Stage> {
   constructor(...stages: Stage[]) {
     super(...stages);
     Object.setPrototypeOf(this, Object.create(Stages.prototype));

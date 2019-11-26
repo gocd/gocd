@@ -25,7 +25,6 @@
 // Read Sprockets README (https://github.com/sstephenson/sprockets#sprockets-directives) for details
 // about supported directives
 
-//= require "lib/es5-shim.min.js"
 //= require "lib/jquery-1.7.2.js"
 //= require "lib/jquery-pinOnScroll.js"
 //= require "lib/jquery_no_conflict.js"

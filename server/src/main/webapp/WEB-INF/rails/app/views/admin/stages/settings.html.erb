@@ -60,11 +60,11 @@
         <span class="contextual_help has_go_tip_right" title="Remove all files/directories in the working directory on the agent">&nbsp;</span>
         <%= error_message_on(@stage.isCleanWorkingDir(), "type", :css_class => "form_error") %>
       </div>
-      <%= render :partial => 'shared/form_required_message.html', :locals => {:scope => {}} %>
+      <%= render :partial => 'shared/form_required_message.html', :locals => {:scope => {}} unless @is_config_repo_pipeline %>
     </div>
 
     <%= render :partial => 'shared/convert_tool_tips.html', :locals => {:scope => {}} %>
-    <%= render :partial => "admin/shared/form_submit", :locals => {:scope => {:reset_url => admin_stage_edit_path(:current_tab => "settings")}} %>
+    <%= render :partial => "admin/shared/form_submit", :locals => {:scope => {:reset_url => admin_stage_edit_path(:current_tab => "settings")}} unless @is_config_repo_pipeline %>
 
   <% end %>
 </div>

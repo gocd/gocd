@@ -37,7 +37,7 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
   protected readonly onSuccessfulSave: (msg: m.Children) => any;
   protected readonly isStale                      = Stream(true);
   protected readonly etag: Stream<string>         = Stream();
-  private ajaxOperationMonitor = Stream<OperationState>(OperationState.UNKNOWN);
+  protected ajaxOperationMonitor = Stream<OperationState>(OperationState.UNKNOWN);
 
   constructor(entity: T,
               pluginInfos: PluginInfos,

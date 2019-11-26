@@ -10,5 +10,5 @@
         <%= render :partial => "admin/shared/name_value", :locals => {:scope => {:form => f, :collection => @pipeline.getParams(), :collection_name => :params}} %>
          <div class="clear"></div>
     </div>
-    <%= render :partial => "admin/shared/form_submit", :locals => {:scope => {:reset_url => pipeline_edit_path(:pipeline_name => params[:pipeline_name], :current_tab => 'parameters')}} %>
+    <%= render :partial => "admin/shared/form_submit", :locals => {:scope => {:reset_url => pipeline_edit_path(:pipeline_name => params[:pipeline_name], :current_tab => 'parameters')}} unless @is_config_repo_pipeline %>
 <% end %>

@@ -59,6 +59,12 @@
 <%= render :partial => 'navigation_elements/footer' %>
 </body>
 
+<script type="text/javascript">
+  if (<%= @is_config_repo_pipeline %>) {
+    Util.disableAllFormElementsFor(".admin_wrapper");
+  }
+</script>
+
 <% unless @in_pipeline_group_edit %>
     <script type="text/javascript">
       AjaxRefreshers.addRefresher(new AjaxRefresher("<%= pause_info_refresh_path(:pipeline_name => @pipeline.name()) -%>"), true);

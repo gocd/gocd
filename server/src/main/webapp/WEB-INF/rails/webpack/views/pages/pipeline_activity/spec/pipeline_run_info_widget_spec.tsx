@@ -172,6 +172,29 @@ describe("PipelineRunInfoWidget", () => {
       expect(helper.byTestId("approval-icon-release-3")).toBeInDOM();
       expect(helper.byTestId("approval-icon-release-3")).toBeDisabled();
     });
+
+    it("should render disabled icon when can stage is already scheduled", () => {
+      const releaseStage     = unknown("release", 3);
+      releaseStage.getCanRun = true;
+      releaseStage.scheduled = true;
+      const pipelineRunInfo  = PipelineRunInfo.fromJSON(PipelineActivityData.pipelineRunInfo(
+        passed("unit", 1),
+        building("integration", 2),
+        releaseStage
+      ));
+      mount(pipelineRunInfo);
+
+
+      expect(helper.byTestId("approval-icon-integration-2")).toBeInDOM();
+      expect(helper.byTestId("approval-icon-integration-2")).not.toBeDisabled();
+      expect(helper.byTestId("stage-status-wrapper-42-integration")).toBeInDOM();
+      expect(helper.byTestId("stage-status-wrapper-42-integration")).not.toHaveClass(styles.disabledIcon);
+
+      expect(helper.byTestId("approval-icon-release-3")).toBeInDOM();
+      expect(helper.byTestId("approval-icon-release-3")).toBeDisabled();
+      expect(helper.byTestId("stage-status-wrapper-42-release")).toBeInDOM();
+      expect(helper.byTestId("stage-status-wrapper-42-release")).toHaveClass(styles.disabledIcon);
+    });
   });
 
   function mount(pipelineRunInfo: PipelineRunInfo, stageConfigs?: StageConfigs) {

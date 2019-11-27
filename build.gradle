@@ -1001,7 +1001,7 @@ task newSPA {
     addUrlRewriteRule("${spaName} UI")
 
     List<String> lines = file('spark/spark-spa/src/main/java/com/thoughtworks/go/spark/spa/spring/SpaControllers.java').readLines()
-    insertionIdx = lines.findIndexOf { l -> (l =~ /^\s*sparkControllers.add/).find() }
+    def insertionIdx = lines.findIndexOf { l -> (l =~ /^\s*sparkControllers.add/).find() }
     lines.add(insertionIdx, "\t\tsparkControllers.add(new ${entityName}Controller(authenticationHelper, templateEngineFactory.create(${entityName}Controller.class, () -> COMPONENT_LAYOUT_PATH)));")
 
     file('spark/spark-spa/src/main/java/com/thoughtworks/go/spark/spa/spring/SpaControllers.java').withWriter { out ->

@@ -18,20 +18,19 @@ import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {Config, Group, PipelineActivity, PipelineRunInfo} from "models/pipeline_activity/pipeline_activity";
+import {Config, Group, PipelineActivity, PipelineRunInfo, Stage} from "models/pipeline_activity/pipeline_activity";
 import styles from "./index.scss"
 import {PipelineRunWidget} from "./pipeline_run_info_widget";
-import {PipelineActivityService} from "models/pipeline_activity/pipeline_activity_crud";
 import {ShowForceBuildActionWidget} from "./show_force_build_action_widget";
-import {FlashMessageModelWithTimeout} from "../../components/flash_message";
 
 const classnames = bind(styles);
 
 interface Attrs {
   pipelineActivity: Stream<PipelineActivity>;
   showBuildCaseFor: Stream<string>;
-  service: PipelineActivityService;
-  message: FlashMessageModelWithTimeout;
+  runPipeline: (name: string) => void;
+  runStage: (stage: Stage) => void;
+  cancelStageInstance: (stage: Stage) => void;
 }
 
 export class PipelineActivityWidget extends MithrilViewComponent<Attrs> {
@@ -50,8 +49,8 @@ export class PipelineActivityWidget extends MithrilViewComponent<Attrs> {
             <GroupWidget pipelineName={pipelineActivity.pipelineName()}
                          group={group}
                          showBuildCaseFor={vnode.attrs.showBuildCaseFor}
-                         service={vnode.attrs.service}
-                         message={vnode.attrs.message}/>
+                         runStage={vnode.attrs.runStage}
+                         cancelStageInstance={vnode.attrs.cancelStageInstance}/>
           ];
         })
       }
@@ -63,8 +62,7 @@ export class PipelineActivityWidget extends MithrilViewComponent<Attrs> {
       return <ShowForceBuildActionWidget group={group}
                                          pipelineName={pipelineActivity.pipelineName()}
                                          canForce={pipelineActivity.canForce}
-                                         service={vnode.attrs.service}
-                                         message={vnode.attrs.message}/>;
+                                         runPipeline={vnode.attrs.runPipeline}/>;
     }
   }
 }
@@ -73,8 +71,8 @@ interface GroupAttrs {
   group: Group;
   pipelineName: string;
   showBuildCaseFor: Stream<string>;
-  service: PipelineActivityService;
-  message: FlashMessageModelWithTimeout;
+  runStage: (stage: Stage) => void;
+  cancelStageInstance: (stage: Stage) => void;
 }
 
 class GroupWidget extends MithrilViewComponent<GroupAttrs> {
@@ -85,8 +83,8 @@ class GroupWidget extends MithrilViewComponent<GroupAttrs> {
                                   pipelineRunInfo={history}
                                   stageConfigs={vnode.attrs.group.config().stages()}
                                   showBuildCaseFor={vnode.attrs.showBuildCaseFor}
-                                  service={vnode.attrs.service}
-                                  message={vnode.attrs.message}/>;
+                                  runStage={vnode.attrs.runStage}
+                                  cancelStageInstance={vnode.attrs.cancelStageInstance}/>;
       })}
     </div>;
   }

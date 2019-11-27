@@ -20,14 +20,13 @@ import {PipelineActivityWidget} from "../pipeline_activity_widget";
 import Stream from "mithril/stream";
 import {PipelineActivityData} from "models/pipeline_activity/spec/test_data";
 import {PipelineActivity} from "models/pipeline_activity/pipeline_activity";
-import {PipelineActivityService} from "models/pipeline_activity/pipeline_activity_crud";
-import {FlashMessageModelWithTimeout} from "../../../components/flash_message";
 
 describe("PipelineActivityWidget", () => {
-  const helper           = new TestHelper();
-  const showBuildCaseFor = Stream<string>();
-  const service          = new PipelineActivityService();
-  const message          = new FlashMessageModelWithTimeout();
+  const helper              = new TestHelper();
+  const showBuildCaseFor    = Stream<string>();
+  const cancelStageInstance = jasmine.createSpy("cancelStageInstance");
+  const runPipeline         = jasmine.createSpy("runPipeline");
+  const runStage            = jasmine.createSpy("runStage");
 
   afterEach(helper.unmount.bind(helper));
 
@@ -50,7 +49,8 @@ describe("PipelineActivityWidget", () => {
   function mount(activity: PipelineActivity) {
     helper.mount(() => <PipelineActivityWidget pipelineActivity={Stream(activity)}
                                                showBuildCaseFor={showBuildCaseFor}
-                                               service={service}
-                                               message={message}/>)
+                                               runStage={runStage}
+                                               cancelStageInstance={cancelStageInstance}
+                                               runPipeline={runPipeline}/>)
   }
 });

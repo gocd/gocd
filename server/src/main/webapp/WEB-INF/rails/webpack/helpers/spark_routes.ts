@@ -452,7 +452,11 @@ export class SparkRoutes {
     return `/go/pipelines/value_stream_map/${pipelineName}/${counter}`;
   }
 
-  static runStageLink(pipelineName: string, counter: string, stageName: string) {
+  static runStage(pipelineName: string, counter: string, stageName: string) {
     return `/go/api/stages/${pipelineName}/${counter}/${stageName}/run`;
+  }
+
+  static cancelStageInstance(pipelineName: string, pipelineCounter: string, stageName: string, stageCounter: number) {
+    return `/go/api/stages/${pipelineName}/${pipelineCounter}/${stageName}/${stageCounter}/cancel`;
   }
 }

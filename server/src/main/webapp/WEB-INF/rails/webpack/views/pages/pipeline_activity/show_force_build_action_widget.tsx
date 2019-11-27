@@ -19,8 +19,6 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import * as Icons from "../../components/icons";
 import {Group, StageConfig} from "models/pipeline_activity/pipeline_activity";
 import styles from "./index.scss";
-import {PipelineActivityService} from "models/pipeline_activity/pipeline_activity_crud";
-import {FlashMessageModelWithTimeout, MessageType} from "../../components/flash_message";
 import Stream from "mithril/stream";
 
 const classnames = bind(styles);
@@ -29,15 +27,14 @@ interface ShowForceBuildActionAttrs {
   group: Group
   canForce: Stream<boolean>;
   pipelineName: string;
-  service: PipelineActivityService;
-  message: FlashMessageModelWithTimeout;
+  runPipeline: (name: string) => void;
 }
 
 export class ShowForceBuildActionWidget extends MithrilViewComponent<ShowForceBuildActionAttrs> {
   view(vnode: m.Vnode<ShowForceBuildActionAttrs, this>): m.Children {
     return <div class={classnames(styles.pipelineRun, styles.forceBuild)}>
       <div class={styles.runInfoSection}>
-        <Icons.Trigger onclick={() => this.triggerPipeline(vnode)}
+        <Icons.Trigger onclick={() => vnode.attrs.runPipeline(vnode.attrs.pipelineName)}
                        disabled={!vnode.attrs.canForce()}/>
       </div>
       <div class={styles.stagesSection}>
@@ -49,20 +46,6 @@ export class ShowForceBuildActionWidget extends MithrilViewComponent<ShowForceBu
         })}
       </div>
     </div>;
-  }
-
-  private triggerPipeline(vnode: m.Vnode<ShowForceBuildActionAttrs, this>) {
-    vnode.attrs.canForce(false);
-    return vnode.attrs.service.run(vnode.attrs.pipelineName).then((result) => {
-      result.do((successResponse) => {
-          const body = JSON.parse(successResponse.body);
-          vnode.attrs.message.setMessage(MessageType.success, body.message)
-        },
-        (errorResponse) => {
-          vnode.attrs.canForce(true);
-          vnode.attrs.message.setMessage(MessageType.alert, errorResponse.message)
-        })
-    });
   }
 
   private static getStageApprovalIcon(index: number, stage: StageConfig): m.Children {

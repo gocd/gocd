@@ -29,12 +29,14 @@ import {
   unknown
 } from "models/pipeline_activity/spec/test_data";
 import styles from "../index.scss";
+import {FlashMessageModelWithTimeout} from "../../../components/flash_message";
 
 describe("PipelineRunInfoWidget", () => {
 
   const helper           = new TestHelper();
   const showBuildCaseFor = Stream<string>();
   const service          = new PipelineActivityService();
+  const message          = new FlashMessageModelWithTimeout();
 
   afterEach(helper.unmount.bind(helper));
 
@@ -145,7 +147,7 @@ describe("PipelineRunInfoWidget", () => {
       const stageConfigs    = toStageConfigs(pipelineRunInfo.stages());
       makeStageManual(stageConfigs, "release");
       mount(pipelineRunInfo, stageConfigs);
-      
+
       expect(helper.byTestId("approval-icon-integration-2")).toBeInDOM();
       expect(helper.byTestId("approval-icon-integration-2")).toHaveAttr("title", "Forward");
 
@@ -177,7 +179,8 @@ describe("PipelineRunInfoWidget", () => {
                                           pipelineName={"up42"}
                                           showBuildCaseFor={showBuildCaseFor}
                                           stageConfigs={stageConfigs ? stageConfigs : toStageConfigs(pipelineRunInfo.stages())}
-                                          service={service}/>)
+                                          service={service}
+                                          message={message}/>)
   }
 
   function toStageConfigs(stages: Stages) {

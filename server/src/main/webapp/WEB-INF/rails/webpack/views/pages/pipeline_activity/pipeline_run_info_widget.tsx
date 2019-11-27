@@ -19,14 +19,15 @@ import m from "mithril"
 import {PipelineRunInfo, Stage, StageConfigs} from "models/pipeline_activity/pipeline_activity";
 import styles from "./index.scss";
 import Stream from "mithril/stream";
-import {PipelineActivityService} from "../../../models/pipeline_activity/pipeline_activity_crud";
-import {MithrilViewComponent} from "../../../jsx/mithril-component";
+import {PipelineActivityService} from "models/pipeline_activity/pipeline_activity_crud";
+import {MithrilViewComponent} from "jsx/mithril-component";
 import {BuildCauseWidget} from "./build_cause_widget";
 import * as Icons from "../../components/icons";
 import {timeFormatter as TimeFormatter} from "helpers/time_formatter";
 import s from "underscore.string";
-import {SparkRoutes} from "../../../helpers/spark_routes";
+import {SparkRoutes} from "helpers/spark_routes";
 import {ManualStageTriggerConfirmation} from "./manual_stage_trigger_confirmation_modal";
+import {FlashMessageModelWithTimeout} from "../../components/flash_message";
 
 const classnames = bind(styles);
 
@@ -36,6 +37,7 @@ interface PipelineRunAttrs {
   showBuildCaseFor: Stream<string>;
   stageConfigs: StageConfigs;
   service: PipelineActivityService;
+  message: FlashMessageModelWithTimeout;
 }
 
 type StringOrNumber = string | number;
@@ -47,17 +49,18 @@ export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
                 class={styles.pipelineRun}>
       <div class={styles.runInfoSection}>
         <div class={classnames(styles.run, styles.header)}>
-    <span data-test-id={this.dataTestId("counter-for", pipelineRunInfo.pipelineId())}>
-    {pipelineRunInfo.label().substr(0, 17)}
-    </span>
+          <span data-test-id={this.dataTestId("counter-for", pipelineRunInfo.pipelineId())}>
+            {pipelineRunInfo.label().substr(0, 17)}
+          </span>
           <span data-test-id={this.dataTestId("vsm-for", pipelineRunInfo.pipelineId())}>
-    {PipelineRunWidget.getVSMLink(vnode, pipelineRunInfo)}
-    </span>
+            {PipelineRunWidget.getVSMLink(vnode, pipelineRunInfo)}
+          </span>
         </div>
         <div class={styles.revision}>Revision: {pipelineRunInfo.revision()}</div>
         <div class={styles.scheduleInfo}
              data-test-id={this.dataTestId("time-for", pipelineRunInfo.pipelineId())}>
-          {PipelineRunWidget.getTime(pipelineRunInfo.scheduledTimestamp())}</div>
+          {PipelineRunWidget.getTime(pipelineRunInfo.scheduledTimestamp())}
+        </div>
         <BuildCauseWidget pipelineRunInfo={pipelineRunInfo}
                           showBuildCaseFor={vnode.attrs.showBuildCaseFor}
                           show={Stream(vnode.attrs.showBuildCaseFor() === pipelineRunInfo.counterOrLabel())}/>
@@ -65,7 +68,7 @@ export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
 
       <div class={styles.stagesSection}>
         {pipelineRunInfo.stages().map((stage, index) => {
-          return <div class={styles.stage}>
+          return <div class={classnames(styles.stage, {[styles.disabledIcon]: !stage.getCanRun()})}>
             {this.getStageApprovalIcon(index, stage, vnode)}
             <span data-test-id={this.dataTestId("stage-status", pipelineRunInfo.pipelineId(), stage.stageName())}
                   class={classnames(PipelineRunWidget.stageStatusClass(stage.stageStatus()))}/>
@@ -88,11 +91,11 @@ export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
     return <Icons.StepForward iconOnly={true}
                               disabled={!stage.getCanRun()}
                               data-test-id={dataTestId}
-                              onclick={this.triggerStage.bind(this, stage, vnode.attrs.service)}/>;
+                              onclick={this.triggerStage.bind(this, stage, vnode.attrs.service, vnode.attrs.message)}/>;
   }
 
-  private triggerStage(stage: Stage, service: PipelineActivityService) {
-    new ManualStageTriggerConfirmation(stage, service).render();
+  private triggerStage(stage: Stage, service: PipelineActivityService, message: FlashMessageModelWithTimeout) {
+    new ManualStageTriggerConfirmation(stage, service, message).render();
   }
 
   private static stageStatusClass(status: string) {

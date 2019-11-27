@@ -18,7 +18,7 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {PipelineActivity} from "models/pipeline_activity/pipeline_activity";
 import {PipelineActivityService} from "models/pipeline_activity/pipeline_activity_crud";
-import {MessageType} from "views/components/flash_message";
+import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Page} from "views/pages/page";
 import {ResultAwarePage} from "views/pages/page_operations";
 import {PipelineActivityWidget} from "views/pages/pipeline_activity/pipeline_activity_widget";
@@ -34,9 +34,11 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
   private service: PipelineActivityService = new PipelineActivityService();
 
   componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
-    return <PipelineActivityWidget pipelineActivity={vnode.state.pipelineActivity}
-                                   showBuildCaseFor={vnode.state.showBuildCaseFor}
-                                   service={this.service}/>;
+    return [<FlashMessage type={this.flashMessage.type} message={this.flashMessage.message}/>,
+      <PipelineActivityWidget pipelineActivity={vnode.state.pipelineActivity}
+                              showBuildCaseFor={vnode.state.showBuildCaseFor}
+                              service={this.service}
+                              message={this.flashMessage}/>];
   }
 
   pageName(): string {

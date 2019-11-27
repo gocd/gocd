@@ -21,11 +21,13 @@ import Stream from "mithril/stream";
 import {PipelineActivityData} from "models/pipeline_activity/spec/test_data";
 import {PipelineActivity} from "models/pipeline_activity/pipeline_activity";
 import {PipelineActivityService} from "models/pipeline_activity/pipeline_activity_crud";
+import {FlashMessageModelWithTimeout} from "../../../components/flash_message";
 
 describe("PipelineActivityWidget", () => {
   const helper           = new TestHelper();
   const showBuildCaseFor = Stream<string>();
   const service          = new PipelineActivityService();
+  const message          = new FlashMessageModelWithTimeout();
 
   afterEach(helper.unmount.bind(helper));
 
@@ -48,6 +50,7 @@ describe("PipelineActivityWidget", () => {
   function mount(activity: PipelineActivity) {
     helper.mount(() => <PipelineActivityWidget pipelineActivity={Stream(activity)}
                                                showBuildCaseFor={showBuildCaseFor}
-                                               service={service}/>)
+                                               service={service}
+                                               message={message}/>)
   }
 });

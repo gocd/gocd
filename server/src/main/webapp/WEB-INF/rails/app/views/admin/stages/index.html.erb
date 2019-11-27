@@ -56,16 +56,21 @@
         <table class="list_table reorderable_table stages_listing">
           <thead>
           <tr>
+          <% unless @is_config_repo_pipeline %>
             <th>Order</th>
+          <% end %>
             <th>Stage</th>
             <th>Trigger Type</th>
             <th>Jobs</th>
+          <% unless @is_config_repo_pipeline %>
             <th class="remove">Remove</th>
+           <% end %>
           </tr>
           </thead>
           <tbody>
           <% @pipeline.each_with_index do |stage_config, stage_config_index| %>
               <tr class="stage_<%= stage_config.name() %>">
+              <% unless @is_config_repo_pipeline %>
                 <td>
                   <%= form_for stage_config, :as => :stage_config, :url => {:action => "decrement_index", :stage_name => stage_config.name(), :pipeline_name => @pipeline.name(), :type => params[:type]},
                                :html => {:method => :post} do |f| %>
@@ -85,9 +90,11 @@
                       <% end %>
                   <% end %>
                 </td>
+              <% end %>
                 <td class="stage_name"><%= link_to(stage_config.name(), admin_stage_edit_path(:stage_name => stage_config.name(), :current_tab => "settings"), :class => "stage_name_link") %></td>
                 <td class="approval_type"><%= stage_config.getApproval().getDisplayName() %></td>
                 <td class="number_of_jobs"><%= stage_config.allBuildPlans().size() %></td>
+              <% unless @is_config_repo_pipeline %>
                 <td class="remove">
                   <% if @stage_usage && @stage_usage.contains(stage_config) %>
                       <span class="icon_cannot_remove has_go_tip_right" title="Cannot delete this stage because it is used as a material in other pipelines"></span>
@@ -106,14 +113,17 @@
                       <% end %>
                   <% end %>
                 </td>
+              <% end %>
               </tr>
           <% end %>
+        <% unless @is_config_repo_pipeline %>
           <tr>
             <td>&nbsp;</td>
             <td colspan="4">
               <a class="add_link" href="#" onclick="ModalBoxWhichClosesAutoCompleteDropDownBeforeClosing.show('<%= admin_stage_new_path -%>', {overlayClose: false, title: 'Add Stage'})">Add new stage</a>
             </td>
           </tr>
+        <% end %>
           </tbody>
         </table>
       </div>

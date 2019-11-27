@@ -230,10 +230,14 @@ describe("PipelineRunInfoWidget", () => {
       unitTestStage.getCanRun    = false;
       unitTestStage.getCanCancel = false;
       const pipelineRunInfo      = PipelineRunInfo.fromJSON(PipelineActivityData.pipelineRunInfo(unitTestStage));
+
       mount(pipelineRunInfo);
 
-      expect(helper.byTestId("info-stage-action-icon-unit-2")).toBeInDOM();
-      expect(helper.byTestId("info-stage-action-icon-unit-2")).toBeHidden();
+      const infoActionIcon = helper.byTestId("info-stage-action-icon-unit-2");
+      expect(infoActionIcon).toBeInDOM();
+      expect(infoActionIcon).toBeHidden();
+      expect(infoActionIcon.parentElement).toHaveAttr("target", "_blank");
+      expect(infoActionIcon.parentElement).toHaveAttr("href", `/go/pipelines/${unitTestStage.stageLocator}`);
 
       expect(helper.byTestId("rerun-stage-action-icon-unit-2")).not.toBeInDOM();
       expect(helper.byTestId("cancel-stage-action-icon-unit-2")).not.toBeInDOM();

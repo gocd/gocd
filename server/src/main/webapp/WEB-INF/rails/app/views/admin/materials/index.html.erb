@@ -17,11 +17,11 @@
         <tr>
             <td>
                 <% if material.getType() == 'PluggableSCMMaterial' %>
-                    <a class="material_name wrapped_word" href="#" onclick="Util.ajax_modal('<%= admin_pluggable_scm_edit_path(:finger_print => material.getPipelineUniqueFingerprint()) -%>', {readOnly: true, overlayClose: false, title: '<%='Edit Material' + " - " + com.thoughtworks.go.plugin.access.scm.SCMMetadataStore.getInstance().displayValue(material.getPluginId())-%>'}, function(text){return text})">
+                    <a class="material_name wrapped_word" href="#" onclick="Util.ajax_modal('<%= admin_pluggable_scm_edit_path(:finger_print => material.getPipelineUniqueFingerprint()) -%>', {readOnly: <%= @is_config_repo_pipeline %>, overlayClose: false, title: '<%='Edit Material' + " - " + com.thoughtworks.go.plugin.access.scm.SCMMetadataStore.getInstance().displayValue(material.getPluginId())-%>'}, function(text){return text})">
                         <%= material.getDisplayName() -%>
                     </a>
                 <% else %>
-                <a class="material_name wrapped_word" href="#" onclick="Util.ajax_modal('<%= admin_material_edit_path(material) -%>', {readOnly: true, overlayClose: false, title: '<%='Edit Material' + " - " + material.getTypeForDisplay() -%>'}, function(text){return text})">
+                <a class="material_name wrapped_word" href="#" onclick="Util.ajax_modal('<%= admin_material_edit_path(material) -%>', {readOnly: <%= @is_config_repo_pipeline %>, overlayClose: false, title: '<%='Edit Material' + " - " + material.getTypeForDisplay() -%>'}, function(text){return text})">
                     <%= material.getDisplayName() -%>
                 </a>
                 <% end %>

@@ -24,6 +24,7 @@ $stage-status-unknown:      #fafafa;
 $build-details-z-index:     5;
 $modification-text-color:   #ff6;
 $dropdown-background-color: #333;
+$disabled-icon-color:       #e0e0e0;
 
 .pipeline-activity {
   display:        flex;
@@ -47,11 +48,12 @@ $dropdown-background-color: #333;
 }
 
 .stage-name {
-  display:      inline-block;
+  display:      flex;
   width:        $stage-width;
   margin-right: 50px;
   word-break:   break-all;
   line-height:  1.22em;
+  align-self:   center;
 }
 
 .pipeline-run-header,
@@ -131,6 +133,14 @@ $dropdown-background-color: #333;
     width:           50px;
     justify-content: center;
     align-items:     center;
+  }
+}
+
+.disabled-icon {
+  color: $disabled-icon-color;
+
+  &:hover {
+    color: $disabled-icon-color;
   }
 }
 
@@ -241,5 +251,12 @@ $dropdown-background-color: #333;
 
   .changed {
     color: $modification-text-color;
+  }
+}
+
+.force-build {
+  .run-info-section {
+    align-items: self-start;
+    padding:     10px 0;
   }
 }

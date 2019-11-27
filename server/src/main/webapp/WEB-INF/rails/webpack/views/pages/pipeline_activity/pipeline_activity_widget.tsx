@@ -21,14 +21,17 @@ import Stream from "mithril/stream";
 import {Config, Group, PipelineActivity, PipelineRunInfo} from "models/pipeline_activity/pipeline_activity";
 import styles from "./index.scss"
 import {PipelineRunWidget} from "./pipeline_run_info_widget";
-import {PipelineActivityService} from "../../../models/pipeline_activity/pipeline_activity_crud";
+import {PipelineActivityService} from "models/pipeline_activity/pipeline_activity_crud";
+import {ShowForceBuildActionWidget} from "./show_force_build_action_widget";
+import {FlashMessageModelWithTimeout} from "../../components/flash_message";
 
 const classnames = bind(styles);
 
 interface Attrs {
   pipelineActivity: Stream<PipelineActivity>;
   showBuildCaseFor: Stream<string>;
-  service: PipelineActivityService
+  service: PipelineActivityService;
+  message: FlashMessageModelWithTimeout;
 }
 
 export class PipelineActivityWidget extends MithrilViewComponent<Attrs> {
@@ -40,14 +43,29 @@ export class PipelineActivityWidget extends MithrilViewComponent<Attrs> {
 
     return <div class={styles.pipelineActivity}>
       {
-        pipelineActivity.groups().map((group: Group) => {
-          return <GroupWidget pipelineName={pipelineActivity.pipelineName()}
-                              group={group}
-                              showBuildCaseFor={vnode.attrs.showBuildCaseFor}
-                              service={vnode.attrs.service}/>;
+        pipelineActivity.groups().map((group: Group, index: number) => {
+          return [
+            <HeaderWidget config={group.config}/>,
+            this.renderForceBuildAction(index, group, pipelineActivity, vnode),
+            <GroupWidget pipelineName={pipelineActivity.pipelineName()}
+                         group={group}
+                         showBuildCaseFor={vnode.attrs.showBuildCaseFor}
+                         service={vnode.attrs.service}
+                         message={vnode.attrs.message}/>
+          ];
         })
       }
     </div>
+  }
+
+  renderForceBuildAction(index: number, group: Group, pipelineActivity: PipelineActivity, vnode: m.Vnode<Attrs>) {
+    if (index === 0 && pipelineActivity.showForceBuildButton()) {
+      return <ShowForceBuildActionWidget group={group}
+                                         pipelineName={pipelineActivity.pipelineName()}
+                                         canForce={pipelineActivity.canForce}
+                                         service={vnode.attrs.service}
+                                         message={vnode.attrs.message}/>;
+    }
   }
 }
 
@@ -56,18 +74,19 @@ interface GroupAttrs {
   pipelineName: string;
   showBuildCaseFor: Stream<string>;
   service: PipelineActivityService;
+  message: FlashMessageModelWithTimeout;
 }
 
 class GroupWidget extends MithrilViewComponent<GroupAttrs> {
   view(vnode: m.Vnode<GroupAttrs, this>): m.Children {
     return <div class={styles.group}>
-      <HeaderWidget config={vnode.attrs.group.config}/>
       {vnode.attrs.group.history().map((history: PipelineRunInfo) => {
         return <PipelineRunWidget pipelineName={vnode.attrs.pipelineName}
                                   pipelineRunInfo={history}
                                   stageConfigs={vnode.attrs.group.config().stages()}
                                   showBuildCaseFor={vnode.attrs.showBuildCaseFor}
-                                  service={vnode.attrs.service}/>;
+                                  service={vnode.attrs.service}
+                                  message={vnode.attrs.message}/>;
       })}
     </div>;
   }

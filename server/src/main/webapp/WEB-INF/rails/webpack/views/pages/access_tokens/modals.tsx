@@ -26,7 +26,7 @@ import {CopyField, Size, TextAreaField} from "views/components/forms/input_field
 import {Spinner} from "views/components/spinner";
 import {BaseModal, RevokeTokenModal} from "views/pages/access_tokens/commons/modals";
 import styles from "views/pages/access_tokens/index.scss";
-import {PageState} from "views/pages/page";
+import {OperationState} from "views/pages/page_operations";
 
 export class GenerateTokenModal extends BaseModal {
   constructor(accessTokens: Stream<AccessTokens>,
@@ -41,7 +41,7 @@ export class GenerateTokenModal extends BaseModal {
   }
 
   body(): m.Children {
-    if (this.operationState() === PageState.LOADING) {
+    if (this.operationState() === OperationState.IN_PROGRESS) {
       return <div class={styles.spinnerContainer}>
         <Spinner/>
       </div>;
@@ -72,8 +72,10 @@ export class GenerateTokenModal extends BaseModal {
     } else {
       return [
         <Buttons.Primary data-test-id="button-save"
-                         onclick={this.performOperation.bind(this)}>Generate</Buttons.Primary>,
-        <Buttons.Cancel data-test-id="button-cancel" onclick={() => this.close()}>Cancel</Buttons.Cancel>];
+                         ajaxOperationMonitor={this.operationState}
+                         ajaxOperation={this.performOperation.bind(this)}>Generate</Buttons.Primary>,
+        <Buttons.Cancel data-test-id="button-cancel" ajaxOperationMonitor={this.operationState}
+                        onclick={() => this.close()}>Cancel</Buttons.Cancel>];
     }
   }
 

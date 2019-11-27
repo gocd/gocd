@@ -23,11 +23,11 @@ import {Size, TextAreaField} from "views/components/forms/input_fields";
 import {Modal} from "views/components/modal";
 import {Spinner} from "views/components/spinner";
 import styles from "views/pages/access_tokens/index.scss";
-import {PageState} from "views/pages/page";
+import {OperationState} from "views/pages/page_operations";
 
 export abstract class BaseModal extends Modal {
   protected accessToken: Stream<AccessToken>;
-  protected operationState = Stream(PageState.OK);
+  protected operationState = Stream(OperationState.DONE);
 
   protected constructor(accessTokens: Stream<AccessTokens>,
                         accessToken: Stream<AccessToken>,
@@ -45,9 +45,7 @@ export abstract class BaseModal extends Modal {
   private readonly onFailedSave: (msg: m.Children) => void;
 
   protected performOperation(e: MouseEvent) {
-    this.operationState(PageState.LOADING);
-    this.operationPromise().then(this.onOperationResult.bind(this)).finally(() => {
-      this.operationState(PageState.OK);
+    return this.operationPromise().then(this.onOperationResult.bind(this)).finally(() => {
       m.redraw();
     });
   }
@@ -95,7 +93,7 @@ export abstract class RevokeTokenModal extends BaseModal {
   }
 
   body(): m.Children {
-    if (this.operationState() === PageState.LOADING) {
+    if (this.operationState() === OperationState.IN_PROGRESS) {
       return <div class={styles.spinnerContainer}>
         <Spinner/>
       </div>;
@@ -115,8 +113,10 @@ export abstract class RevokeTokenModal extends BaseModal {
 
   buttons(): m.ChildArray {
     return [<Buttons.Primary data-test-id="button-revoke-token"
-                             onclick={this.performOperation.bind(this)}>Revoke token</Buttons.Primary>,
-      <Buttons.Cancel data-test-id="button-cancel" onclick={() => this.close()}>Cancel</Buttons.Cancel>];
+                             ajaxOperationMonitor={this.operationState}
+                             ajaxOperation={this.performOperation.bind(this)}>Revoke token</Buttons.Primary>,
+      <Buttons.Cancel data-test-id="button-cancel" ajaxOperationMonitor={this.operationState}
+                      onclick={() => this.close()}>Cancel</Buttons.Cancel>];
   }
 
   protected afterSuccess() {

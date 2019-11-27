@@ -104,6 +104,7 @@ public class BackupServiceIntegrationTest {
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
     private byte[] originalCipher;
     private Username admin;
+    private final String WRAPPER_CONFIG_DIR  = "wrapper-config";
 
 
     @Before
@@ -168,6 +169,10 @@ public class BackupServiceIntegrationTest {
 
     @Test
     public void shouldPerformWrapperConfigBackupForAllTanukiConfigFiles() throws Exception {
+        SystemEnvironment systemEnvSpy = spy(systemEnvironment);
+        when(systemEnvSpy.wrapperConfigDirPath()).thenReturn(Optional.of(WRAPPER_CONFIG_DIR));
+        BackupService backupService = new BackupService(artifactsDirHolder, goConfigService, timeProvider, backupInfoRepository,
+                systemEnvSpy, configRepository, databaseStrategy, null);
         try {
             createWrapperConfigFile("foo", "foo_foo");
             createWrapperConfigFile("bar", "bar_bar");
@@ -476,7 +481,7 @@ public class BackupServiceIntegrationTest {
 
     private void deleteWrapperConfigFileIfExists(String ...fileNames) {
         for (String fileName : fileNames) {
-            FileUtils.deleteQuietly(new File(BackupService.WRAPPER_CONFIG_DIR, fileName));
+            FileUtils.deleteQuietly(new File(WRAPPER_CONFIG_DIR, fileName));
         }
     }
 
@@ -508,7 +513,7 @@ public class BackupServiceIntegrationTest {
     private void createWrapperConfigFile(String fileName, String content) throws IOException {
         FileOutputStream fos = null;
         try {
-            File file = new File(BackupService.WRAPPER_CONFIG_DIR, fileName);
+            File file = new File(WRAPPER_CONFIG_DIR, fileName);
             FileUtils.forceMkdir(file.getParentFile());
             fos = new FileOutputStream(file);
             fos.write(content.getBytes());

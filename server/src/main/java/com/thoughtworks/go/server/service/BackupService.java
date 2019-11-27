@@ -89,7 +89,6 @@ public class BackupService implements BackupStatusProvider {
 
     private static final String CONFIG_REPOSITORY_BACKUP_ZIP = "config-repo.zip";
     private static final String VERSION_BACKUP_FILE = "version.txt";
-    public static final String WRAPPER_CONFIG_DIR = "wrapper-config";
 
     private static final Object BACKUP_MUTEX = new Object();
 
@@ -295,8 +294,11 @@ public class BackupService implements BackupStatusProvider {
 
     private void backupWrapperConfig(File backupDir, List<BackupUpdateListener> backupUpdateListeners) throws IOException {
         notifyUpdateToListeners(backupUpdateListeners, BackupProgressStatus.BACKUP_WRAPPER_CONFIG);
+        var wrapperConfigDirPath = systemEnvironment.wrapperConfigDirPath()
+                .orElseThrow(() -> new RuntimeException("Could not find wrapper-config directory"));
+
         try (ZipOutputStream configZip = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(new File(backupDir, WRAPPER_CONFIG_BACKUP_ZIP))))) {
-            new DirectoryStructureWalker(WRAPPER_CONFIG_DIR, configZip).walk();
+            new DirectoryStructureWalker(wrapperConfigDirPath, configZip).walk();
         }
     }
 

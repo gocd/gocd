@@ -8,7 +8,9 @@
       <th class="run_ifs">Run If Conditions</th>
       <th>Properties</th>
       <th>On Cancel</th>
+    <% unless @is_config_repo_pipeline %>
       <th class="">Remove</th>
+    <% end %>
     </tr>
     </thead>
     <tbody>
@@ -21,7 +23,9 @@
     <tr>
       <td>&nbsp;</td>
       <td colspan="5">
+      <% unless @is_config_repo_pipeline %>
         <%= action_icon({:type => "add", :text => 'Add new task', :id => "add_new_task_dropdown_link", :href => "#", :menu_link => true}) %>
+      <% end %>
         <div id="new_task_popup" class="hidden enhanced_dropdown">
           <ul>
             <% @task_view_models.each do |tvm_of_task_listing| %>

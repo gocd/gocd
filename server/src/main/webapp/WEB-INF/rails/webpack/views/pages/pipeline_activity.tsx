@@ -37,6 +37,10 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
   private service: PipelineActivityService = new PipelineActivityService();
 
   componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
+    if (!this.pipelineActivity()) {
+      return;
+    }
+
     return [
       <FlashMessage type={this.flashMessage.type} message={this.flashMessage.message}/>,
       <PipelineActivityWidget pipelineActivity={vnode.state.pipelineActivity}
@@ -54,7 +58,7 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
   }
 
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {
-    this.service.activities("Foo", 0, this);
+    this.service.activities(PipelineActivityPage.pipelineNameFromUrl(), 0, this);
     return Promise.resolve();
   }
 
@@ -75,6 +79,10 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
 
   private pageChangeCallback(pageNumber: number) {
     const offset = this.pipelineActivity().perPage() * (pageNumber - 1);
-    this.service.activities("Foo", offset, this);
+    this.service.activities(PipelineActivityPage.pipelineNameFromUrl(), offset, this);
+  }
+
+  private static pipelineNameFromUrl(): string {
+    return window.location.pathname.split("/").pop()!;
   }
 }

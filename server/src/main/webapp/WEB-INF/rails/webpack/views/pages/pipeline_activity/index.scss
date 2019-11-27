@@ -186,6 +186,15 @@ $stage-action-icon-z-index: 1;
   }
 }
 
+.unknown, .building, .cancelled, .failed, .passed {
+  color: $white;
+
+  &:before {
+    position: absolute;
+    left:     35px;
+  }
+}
+
 .unknown {
   background: $stage-status-unknown;
   border:     1px solid $border-color;
@@ -196,14 +205,18 @@ $stage-action-icon-z-index: 1;
 }
 
 .cancelled {
+  @include icon-before($fa-var-ban, 12px, 0);
+  color:      $black;
   background: transparent url('../../../../app/assets/images/building.png') repeat-x;
 }
 
 .failed {
+  @include icon-before($fa-var-info-circle, 12px, 0);
   background: $failed;
 }
 
 .passed {
+  @include icon-before($fa-var-check, 12px, 0);
   background: $passed;
 }
 

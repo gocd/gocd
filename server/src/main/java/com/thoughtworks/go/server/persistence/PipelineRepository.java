@@ -17,28 +17,24 @@ package com.thoughtworks.go.server.persistence;
 
 import com.thoughtworks.go.database.Database;
 import com.thoughtworks.go.database.QueryExtensions;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.thoughtworks.go.domain.PipelineTimelineEntry;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
 import com.thoughtworks.go.server.domain.user.PipelineSelections;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
 import org.hibernate.HibernateException;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.stereotype.Component;
+
+import java.math.BigInteger;
+import java.util.*;
 
 /**
  * @understands how to store and retrieve piplines from the database
@@ -109,7 +105,7 @@ public void updatePipelineTimeline(final PipelineTimeline pipelineTimeline, fina
 
             private List<Object[]> retrieveTimeline(Session session, PipelineTimeline pipelineTimeline) {
                 SQLQuery query = session.createSQLQuery(queryExtensions.retrievePipelineTimeline());
-                query.setLong(0, pipelineTimeline.maximumId());
+                query.setLong("pipelineId", pipelineTimeline.maximumId());
 
                 List<Object[]> matches = loadTimeline(query);
                 sortTimeLineByPidAndPmrId(matches);

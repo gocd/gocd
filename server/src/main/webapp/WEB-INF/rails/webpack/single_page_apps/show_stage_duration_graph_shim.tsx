@@ -176,7 +176,7 @@ window.showStageDurationGraph = (title: string,
     zoomButton.addEventListener('click', (e) => {
         zoomButton.style.display = 'none';
         (chart as any).resetZoom();
-        e.preventDefault()
+        e.preventDefault();
         return false;
     });
 };

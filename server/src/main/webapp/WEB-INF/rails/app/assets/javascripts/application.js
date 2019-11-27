@@ -33,7 +33,6 @@
 //= require "lib/angular-1.0.8.js"
 //= require "lib/effects-1.8.0.js"
 //= require "lib/controls-1.8.0.js"
-//= require "lib/highcharts-2.3.3.min.js"
 //= require "lib/jquery-ui-1.7.3.custom.min.js"
 //= require "lib/jquery.autocomplete-1.1.js"
 //= require "lib/jquery.dirtyform.js"

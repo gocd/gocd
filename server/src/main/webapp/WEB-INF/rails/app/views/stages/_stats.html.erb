@@ -3,9 +3,10 @@
          <%= render :partial => "admin/shared/notification_information.html", :locals => {:scope => {:notification_message => 'The graph will be available once there is at least one passed or failed stage.'}} -%>
     <% else %>
         <div id="chart_details_container">
-            <%= render :partial => 'shared/stage_details_chart.html', :locals=> {:scope => {:chart_scale => scope[:chart_scale], :start_end_dates => scope[:start_end_dates],
-                                                                       :chart_stage_duration_passed => scope[:chart_stage_duration_passed], :chart_tooltip_data_passed => scope[:chart_tooltip_data_passed],
-                                                                       :chart_stage_duration_failed => scope[:chart_stage_duration_failed], :chart_tooltip_data_failed => scope[:chart_tooltip_data_failed]}} -%>
+            <%= render :partial => 'shared/stage_details_chart.html', :locals=> {:scope => {
+                :chart_scale => scope[:chart_scale],
+                :start_end_dates => scope[:start_end_dates],
+                graph_data: scope[:graph_data]}} -%>
         </div>
         <div class="graph_navigation_buttons">
             <% if scope[:pagination].hasPreviousPage() %>

@@ -51,7 +51,23 @@ class StagesController < ApplicationController
     stage_summary_models.sort! { |s1, s2| s1.getPipelineCounter() <=> s2.getPipelineCounter() }
     @no_chart_to_render = false
     if (stage_summary_models.size() > 0)
-      @chart_stage_duration_passed, @chart_tooltip_data_passed, @chart_stage_duration_failed, @chart_tooltip_data_failed, @pagination, @start_end_dates = load_chart_parameters(stage_summary_models)
+
+      @graph_data = stage_summary_models.select do |stage_summary|
+        [StageState::Passed, StageState::Failed].include?(stage_summary.getStage().getState())
+      end.map do |stage_summary|
+        pipeline_label = stage_summary.getStageCounter().to_i > 1 ? stage_summary.getPipelineLabel() + " (run #{stage_summary.getStageCounter()})" : stage_summary.getPipelineLabel()
+
+        {
+            pipeline_counter: stage_summary.getPipelineCounter(),
+            status: stage_summary.getStage().getState().toString(),
+            stage_link: stage_detail_tab_jobs_path(:stage_name => stage_summary.getName(), :stage_counter => stage_summary.getStageCounter(), :pipeline_name => stage_summary.getPipelineName(), :pipeline_counter => stage_summary.getPipelineCounter()),
+            duration:  stage_summary.isActive() ? nil : stage_summary.getActualDuration().getTotalSeconds()*1000,
+            schedule_date: com.thoughtworks.go.api.base.JsonOutputWriter.jsonDate(stage_summary.getStage().scheduledDate()),
+            pipeline_label: pipeline_label
+        }
+      end
+      @pagination = stage_summary_models.getPagination()
+      @start_end_dates = date_range(stage_summary_models)
     else
       @no_chart_to_render = true
     end
@@ -70,16 +86,16 @@ class StagesController < ApplicationController
 
   def rerun_jobs
     stage = if params['rerun-failed'] == 'true'
-      schedule_service.rerunFailedJobs(@stage.getStage(), result = HttpOperationResult.new)
-    else
-      schedule_service.rerunJobs(@stage.getStage(), params[:jobs], result = HttpOperationResult.new)
-    end
+              schedule_service.rerunFailedJobs(@stage.getStage(), result = HttpOperationResult.new)
+            else
+              schedule_service.rerunJobs(@stage.getStage(), params[:jobs], result = HttpOperationResult.new)
+            end
     if result.canContinue()
       identifier = stage.getIdentifier()
       redirect_to(stage_detail_tab_path_for({:pipeline_name => identifier.getPipelineName(),
-                                       :pipeline_counter => identifier.getPipelineCounter(),
-                                       :stage_name => identifier.getStageName(),
-                                       :stage_counter => identifier.getStageCounter()},params[:tab]))
+                                             :pipeline_counter => identifier.getPipelineCounter(),
+                                             :stage_name => identifier.getStageName(),
+                                             :stage_counter => identifier.getStageCounter()}, params[:tab]))
     else
       redirect_with_flash(result.message(), :action => params[:tab], :class => "error")
     end
@@ -157,71 +173,8 @@ class StagesController < ApplicationController
     @lockedPipeline = pipeline_lock_service.lockedPipeline(pipeline_name)
   end
 
-  def result_for_graph
-    HttpOperationResult.new
-  end
-
-  def load_chart_parameters stage_summary_models
-    chart_data_passed, tooltip_passed, passed_duration_array = get_chart_data(stage_summary_models) do |stage_summary|
-      stage_summary.getStage().getState() == StageState::Passed
-    end
-    chart_data_failed, tooltip_failed, failed_duration_array = get_chart_data(stage_summary_models) do |stage_summary|
-      stage_summary.getStage().getState() == StageState::Failed
-    end
-    total_durations = convert_to_scale(passed_duration_array + failed_duration_array)
-    total = total_durations.length
-    if !passed_duration_array.empty?
-      total_durations[0..passed_duration_array.length-1].each_with_index do |duration, index|
-        chart_data_passed[index]["y"] = duration
-      end
-    end
-    total_durations[passed_duration_array.length..total-1].each_with_index do |duration, index|
-      chart_data_failed[index]["y"] = duration
-    end
-    return chart_data_passed.to_json, tooltip_passed.to_json, chart_data_failed.to_json, tooltip_failed.to_json, stage_summary_models.getPagination(), date_range(stage_summary_models)
-  end
-
   def date_range(stage_summary_models)
     [DateUtils::formatToSimpleDate(stage_summary_models.first.getStage().scheduledDate()), DateUtils::formatToSimpleDate(stage_summary_models.last.getStage().scheduledDate())]
-  end
-
-  def get_chart_data(stage_summary_models, &block)
-    chart_data_array = []
-    tooltip_data = {}
-    duration_array = []
-    stage_summary_models.each do |stage_summary|
-      pipeline_counter = stage_summary.getPipelineCounter()
-      pipeline_label = stage_summary.getStageCounter().to_i > 1 ? stage_summary.getPipelineLabel() + " (run #{stage_summary.getStageCounter()})" : stage_summary.getPipelineLabel()
-
-      if block.call(stage_summary)
-        duration = stage_summary.getActualDuration().getTotalSeconds()
-        duration_array.push(duration)
-
-        key = "#{pipeline_counter}_#{duration}"
-        stage_link = stage_detail_tab_jobs_path(:stage_name => stage_summary.getName(), :stage_counter => stage_summary.getStageCounter(), :pipeline_name => stage_summary.getPipelineName(), :pipeline_counter => stage_summary.getPipelineCounter())
-        chart_data_array.push({"link" => stage_link, "x" => pipeline_counter, "key" => key})
-
-        tooltip_data[key] = [stage_summary.getDuration(), stage_summary.getStage().scheduledDate().to_long_display_date_time, pipeline_label]
-      end
-    end
-    return chart_data_array, tooltip_data, duration_array
-  end
-
-  def convert_to_scale duration_array
-    if duration_array.empty?
-      return []
-    end
-    minute_threshold_in_secs = 300
-    one_minute = 60.0
-    highest_time = duration_array.sort.last
-    if (highest_time > minute_threshold_in_secs)
-      stage_duration_array = duration_array.map { |x| x/one_minute }
-      @chart_scale = "mins"
-    else
-      stage_duration_array = duration_array
-      @chart_scale = "secs"
-    end
-    stage_duration_array
   end
 
   def can_view_settings?

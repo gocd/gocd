@@ -359,9 +359,9 @@ describe 'stages/stage.html.erb' do
       it "should render stats tab with chart for given stage" do
         render
         Capybara.string(response.body).find("#stage_stats .stats").tap do |f|
-          expect(f).to have_selector("#chart_details_container #highcharts")
-          expect(f.find("#chart_details_container script[type='text/javascript']", :visible => false).text).to include "tooltipData:"
-          expect(f.find("#chart_details_container script[type='text/javascript']", :visible => false).text).to include "data:"
+          expect(f).to have_selector("#chart_details_container #stage-duration-graph")
+          expect(f.find("#chart_details_container script[type='text/javascript']", :visible => false).text).to include "var graph_data"
+          expect(f.find("#chart_details_container script[type='text/javascript']", :visible => false).text).to include "showStageDurationGraph"
         end
       end
 

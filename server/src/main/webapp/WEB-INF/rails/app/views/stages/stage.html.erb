@@ -25,9 +25,11 @@
         </div>
     <% when 'stats' %>
         <div id="stage_stats">
-            <%= render :partial => "stats", :locals => {:scope => {:pagination => @pagination, :chart_scale => @chart_scale, :start_end_dates => @start_end_dates,
-                                                                   :chart_stage_duration_passed => @chart_stage_duration_passed, :chart_tooltip_data_passed => @chart_tooltip_data_passed,
-                                                                   :chart_stage_duration_failed => @chart_stage_duration_failed, :chart_tooltip_data_failed => @chart_tooltip_data_failed}} %>
+            <%= render :partial => "stats", :locals => {:scope => {:pagination => @pagination,
+                                                                   :chart_scale => @chart_scale,
+                                                                   :start_end_dates => @start_end_dates,
+                                                                   :graph_data => @graph_data
+            }} %>
         </div>
     <% when 'stage_config' %>
         <div id="ran_with_config">

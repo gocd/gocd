@@ -150,12 +150,12 @@ Object.extend(Object, {
     return object && object.toHTML ? object.toHTML() : String.interpret(object);
   },
 
-  keys: function(object) {
-    var keys = [];
-    for (var property in object)
-      keys.push(property);
-    return keys;
-  },
+  // keys: function(object) {
+  //   var keys = [];
+  //   for (var property in object)
+  //     keys.push(property);
+  //   return keys;
+  // },
 
   values: function(object) {
     var values = [];

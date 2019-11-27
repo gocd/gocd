@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="TsLintConfiguration" use-custom-config-file="true" custom-config-file-path="$PROJECT_DIR$/server/src/main/webapp/WEB-INF/rails/tslint.json" />
-</project>

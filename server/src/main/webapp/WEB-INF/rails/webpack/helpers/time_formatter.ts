@@ -45,12 +45,16 @@ const toDate = (time?: moment.MomentInput) => {
   return moment(time, defaultFormat).toDate();
 };
 
+function formattedDuration(diff: moment.MomentInput) {
+  return moment.utc(diff).format("HH:mm:ss");
+}
+
 const formattedTimeDiff = (from: moment.MomentInput, to: moment.MomentInput) => {
   const start = moment(from, defaultFormat);
   const end   = moment(to, defaultFormat);
   const diff  = end.diff(start);
 
-  return moment.utc(diff).format("HH:mm:ss");
+  return formattedDuration(diff);
 };
 
 export const timeFormatter = {
@@ -58,5 +62,6 @@ export const timeFormatter = {
   toDate,
   formatInDate,
   formatInServerTime,
-  formattedTimeDiff
+  formattedTimeDiff,
+  formattedDuration
 };

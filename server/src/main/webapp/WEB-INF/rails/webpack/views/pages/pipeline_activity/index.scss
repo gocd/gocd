@@ -80,6 +80,7 @@ $stage-action-icon-z-index: 1;
   .stages-section {
     display:    flex;
     overflow-x: auto;
+    overflow-y: hidden;
   }
 }
 

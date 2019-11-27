@@ -135,6 +135,9 @@ Util = function() {
                           ModalBoxWhichClosesAutoCompleteDropDownBeforeClosing.show(request.responseText, options);
                     }
                     Modalbox.show(request.responseText, options);
+                    if(options.readOnly) {
+                        Util.disableAllFormElementsFor('.popup_form')
+                    }
                 });
                 request.fail(function() {
                     Modalbox.show((error_create_wrapper || create_default_modal_body_wrapper)(request.responseText), options);

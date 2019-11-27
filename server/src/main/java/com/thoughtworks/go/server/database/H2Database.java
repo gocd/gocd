@@ -21,7 +21,6 @@ import com.thoughtworks.go.server.util.H2EventListener;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.h2.tools.Server;
-import org.h2.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,9 +30,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.List;
 
-import static com.thoughtworks.go.server.util.SqlUtil.joinWithQuotesForSql;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 /**
@@ -203,53 +200,7 @@ public class H2Database implements Database {
 
     @Override
     public QueryExtensions getQueryExtensions() {
-        return new QueryExtensions() {
-            @Override
-            public String queryFromInclusiveModificationsForPipelineRange(String pipelineName, Integer fromCounter, Integer toCounter) {
-                return "WITH LINK(id) AS ( "
-                        + "  SELECT id "
-                        + "     FROM pipelines "
-                        + "     WHERE name = " + StringUtils.quoteStringSQL(
-                        pipelineName)  // using string concatenation because Hibernate does not seem to be able to replace named or positional parameters here
-                        + "         AND counter >= " + fromCounter
-                        + "         AND counter <= " + toCounter
-                        + "  UNION ALL "
-                        + "  SELECT mod.pipelineId "
-                        + "     FROM link "
-                        + "         INNER JOIN pipelineMaterialRevisions pmr ON link.id = pmr.pipelineId "
-                        + "         INNER JOIN modifications mod ON pmr.toRevisionId >= mod.id and pmr.actualFromRevisionId <= mod.id AND pmr.materialId = mod.materialId "
-                        + "     WHERE mod.pipelineId IS NOT NULL"
-                        + ")"
-                        + "SELECT DISTINCT id FROM link WHERE id IS NOT NULL";
-
-            }
-
-            @Override
-            public String queryRelevantToLookedUpDependencyMap(List<Long> pipelineIds) {
-                return "WITH LINK(id, name, lookedUpId) AS ( "
-                        + "  SELECT id, name, id as lookedUpId"
-                        + "     FROM pipelines "
-                        + "     WHERE id in (" + joinWithQuotesForSql(pipelineIds.toArray()) + ") "
-                        + "  UNION ALL "
-                        + "  SELECT mod.pipelineId as id, p.name as name, link.lookedUpId as lookedUpId "
-                        + "     FROM link "
-                        + "         INNER JOIN pipelineMaterialRevisions pmr ON link.id = pmr.pipelineId "
-                        + "         INNER JOIN modifications mod ON pmr.toRevisionId >= mod.id and pmr.actualFromRevisionId <= mod.id AND pmr.materialId = mod.materialId "
-                        + "         INNER JOIN pipelines p ON mod.pipelineId = p.id "
-                        + "     WHERE mod.pipelineId IS NOT NULL"
-                        + ")"
-                        + "SELECT id, name, lookedUpId FROM link";
-            }
-
-            @Override
-            public String retrievePipelineTimeline() {
-                return "SELECT p.name, p.id AS p_id, p.counter, m.modifiedtime, "
-                        + " (SELECT materials.fingerprint FROM materials WHERE id = m.materialId), naturalOrder, m.revision, pmr.folder, pmr.toRevisionId AS mod_id, pmr.Id as pmrid "
-                        + "FROM pipelines p, pipelinematerialrevisions pmr, modifications m "
-                        + "WHERE p.id = pmr.pipelineid "
-                        + "AND pmr.torevisionid = m.id "
-                        + "AND p.id > ?";
-            }
-        };
+        return new H2QueryExtensions();
     }
+
 }

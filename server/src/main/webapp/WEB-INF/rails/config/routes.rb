@@ -279,7 +279,7 @@ Rails.application.routes.draw do
   end
   get "pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter" => "stages#overview", as: "stage_detail_tab_default", constraints: STAGE_LOCATOR_CONSTRAINTS
 
-  %w(overview pipeline materials jobs stats stage_config).each do |controller_action_method|
+  %w(overview pipeline materials jobs stats stats_iframe stage_config).each do |controller_action_method|
     get "pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter/#{controller_action_method}" => "stages##{controller_action_method}", as: "stage_detail_tab_#{controller_action_method}", constraints: STAGE_LOCATOR_CONSTRAINTS
   end
 

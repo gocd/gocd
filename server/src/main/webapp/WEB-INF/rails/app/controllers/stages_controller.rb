@@ -19,12 +19,12 @@ class StagesController < ApplicationController
   include ApplicationHelper
   include StagesHelper
 
-  STAGE_DETAIL_ACTIONS = [:overview, :pipeline, :materials, :jobs, :rerun_jobs, :stats, :stage_config]
+  STAGE_DETAIL_ACTIONS = [:overview, :pipeline, :materials, :jobs, :rerun_jobs, :stats, :stats_iframe, :stage_config]
   BASE_TIME = Time.parse("00:00:00")
   STAGE_DURATION_RANGE = 300
   layout "pipelines", :only => STAGE_DETAIL_ACTIONS
   before_action :load_stage_details, :only => STAGE_DETAIL_ACTIONS
-  before_action :load_stage_history, :only => STAGE_DETAIL_ACTIONS - [:pipeline, :stats]
+  before_action :load_stage_history, :only => STAGE_DETAIL_ACTIONS - [:pipeline, :stats, :stats_iframe]
   before_action :load_current_config_version, :only => STAGE_DETAIL_ACTIONS << :history
   before_action :load_pipeline_instance, :only => :redirect_to_first_stage
 
@@ -46,6 +46,10 @@ class StagesController < ApplicationController
   end
 
   def stats
+    render_stage
+  end
+
+  def stats_iframe
     page_number = params[:page_number].nil? ? 1 : params[:page_number].to_i
     stage_summary_models = stage_service.findStageHistoryForChart(@stage.getPipelineName(), @stage.getName(), page_number, STAGE_DURATION_RANGE, current_user)
     stage_summary_models.sort! { |s1, s2| s1.getPipelineCounter() <=> s2.getPipelineCounter() }
@@ -61,7 +65,7 @@ class StagesController < ApplicationController
             pipeline_counter: stage_summary.getPipelineCounter(),
             status: stage_summary.getStage().getState().toString(),
             stage_link: stage_detail_tab_jobs_path(:stage_name => stage_summary.getName(), :stage_counter => stage_summary.getStageCounter(), :pipeline_name => stage_summary.getPipelineName(), :pipeline_counter => stage_summary.getPipelineCounter()),
-            duration:  stage_summary.isActive() ? nil : stage_summary.getActualDuration().getTotalSeconds()*1000,
+            duration: stage_summary.isActive() ? nil : stage_summary.getActualDuration().getTotalSeconds() * 1000,
             schedule_date: com.thoughtworks.go.api.base.JsonOutputWriter.jsonDate(stage_summary.getStage().scheduledDate()),
             pipeline_label: pipeline_label
         }
@@ -72,7 +76,8 @@ class StagesController < ApplicationController
       @no_chart_to_render = true
     end
 
-    render_stage
+
+    render layout: nil
   end
 
   def stage_config #_need_to_rename #/Users/jyoti/projects/mygocd/server/rails/gems/jruby/1.9/gems/actionpack-4.0.4/lib/action_controller/test_case.rb line 656

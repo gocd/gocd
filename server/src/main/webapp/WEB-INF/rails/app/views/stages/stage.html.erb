@@ -25,11 +25,12 @@
         </div>
     <% when 'stats' %>
         <div id="stage_stats">
-            <%= render :partial => "stats", :locals => {:scope => {:pagination => @pagination,
-                                                                   :chart_scale => @chart_scale,
-                                                                   :start_end_dates => @start_end_dates,
-                                                                   :graph_data => @graph_data
-            }} %>
+
+          <div class="stats">
+            <div id="chart_details_container">
+              <iframe width="100%" height="400px" src="<%= stage_detail_tab_stats_iframe_path() %>"></iframe>
+            </div>
+          </div>
         </div>
     <% when 'stage_config' %>
         <div id="ran_with_config">

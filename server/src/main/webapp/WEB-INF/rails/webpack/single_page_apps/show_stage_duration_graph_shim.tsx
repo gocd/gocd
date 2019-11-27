@@ -173,8 +173,10 @@ window.showStageDurationGraph = (title: string,
 
     const chart = new Chart.Chart(canvasElement, config);
     zoomButton.style.display = 'none';
-    zoomButton.addEventListener('click', () => {
+    zoomButton.addEventListener('click', (e) => {
         zoomButton.style.display = 'none';
         (chart as any).resetZoom();
+        e.preventDefault()
+        return false;
     });
 };

@@ -121,24 +121,4 @@
   top: 0;
   left: 0;
 }
-.stats .graph_navigation_buttons .newer{
-    float: right;
-    margin-right: 10px;
-}
 
-.stats .reset_zoom_link {
-    z-index: 10;
-    position: absolute;
-    top: 0;
-    right: 12px;
-    margin: 0;
-    float: none;
-}
-.stats .reset_zoom_link:hover {
-  margin: 0;
-}
-
-.stats .graph_navigation_buttons .older{
-    margin-left: 52px;
-
-}

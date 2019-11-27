@@ -346,37 +346,6 @@ describe 'stages/stage.html.erb' do
       end
     end
 
-    describe "stats tab" do
-      before(:each) do
-        params[:action] = "stats"
-        assign :chart_stage_duration, [{"link"=> "/pipelines/pipeline-name/1/stage/1", "x" => 1, "y"=>10.0}, {"link" => "/pipelines/pipeline-name/2/stage/1", "x" => 2, "y"=> 20.0}].to_json
-        assign :chart_tooltip_data, {"1_60" => ["00:10:00", "22 Feb, 2008 at 10:21:23 [+0530]", "LABEL-1"], "2_120" => ["00:20:00", "22 Feb, 2008 at 10:21:23 [+0530]", "LABEL-2"]}.to_json
-        assign :pagination, Pagination.pageStartingAt(12, 200, 10)
-        assign :start_end_dates, ["start date", "end date"]
-        assign :chart_scale, "some scale"
-      end
-
-      it "should render stats tab with chart for given stage" do
-        render
-        Capybara.string(response.body).find("#stage_stats .stats").tap do |f|
-          expect(f).to have_selector("#chart_details_container #stage-duration-graph")
-          expect(f.find("#chart_details_container script[type='text/javascript']", :visible => false).text).to include "var graph_data"
-          expect(f.find("#chart_details_container script[type='text/javascript']", :visible => false).text).to include "showStageDurationGraph"
-        end
-      end
-
-      it "should show prev and next links if page_number is 2" do
-        params[:page_number] = "2"
-
-        render
-
-        Capybara.string(response.body).find("#stage_stats .stats").tap do |f|
-          expect(f).to have_selector("a[href='#{stage_detail_tab_stats_path(:action => "stats", :page_number => "1")}']", :text => "Newer")
-          expect(f).to have_selector("a[href='#{stage_detail_tab_stats_path(:action => "stats", :page_number => "3")}']", :text => "Older")
-        end
-      end
-    end
-
     describe "config tab" do
       before(:each) do
         params[:action] = "stage_config"

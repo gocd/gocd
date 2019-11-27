@@ -3,9 +3,6 @@
 <head>
   <%= render :partial => "shared/head" %>
   <link rel="alternate" type="application/atom+xml" title="<%= @pipeline.getName() %> stages - Atom" href="<%= api_pipeline_stage_feed_path(:name => @pipeline.getName()) -%>"/>
-  <%- unless(Rails.env.test?) %>
-    <%= javascript_include_tag *webpack_assets_service.getJSAssetPathsFor("single_page_apps/show_stage_duration_graph_shim") %>
-  <%- end %>
 </head>
 <body id="<%= page_name %>" class="<%= page_name %>" <%= render "shared/body_data_attrs" %>>
 <div class="page-wrap">

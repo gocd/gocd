@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <%- unless (Rails.env.test?) %>
+    <%= javascript_include_tag *webpack_assets_service.getJSAssetPathsFor("single_page_apps/global", "single_page_apps/polyfill", "single_page_apps/show_stage_duration_graph_shim") %>
+  <%- end %>
+</head>
+<body>
+
+<% if @no_chart_to_render %>
+  <%= render :partial => "admin/shared/notification_information.html", :locals => {:scope => {:notification_message => 'The graph will be available once there is at least one passed or failed stage.'}} -%>
+<% else %>
+  <script type="text/javascript">
+      document.addEventListener('DOMContentLoaded', function () {
+          var graph_data = <%= raw JSON.pretty_generate(@graph_data) %>;
+          showStageDurationGraph(
+              "<%= "Stage Duration - #{@start_end_dates.first} to #{@start_end_dates.second}" -%>",
+              document.getElementById('stage-duration-graph'),
+              graph_data,
+              document.getElementById('reset_zoom')
+          );
+      });
+  </script>
+  <div>
+    <!-- position absolute, so it is rendered on top of the canvas -->
+    <a id="reset_zoom" href="#" style="display: none; cursor: pointer; position: absolute; top: 0; right: 12px;">Reset
+      zoom</a>
+    <canvas id="stage-duration-graph" style="width: 100%; height: 100vh;">
+    </canvas>
+
+    <!-- position absolute, so they are rendered on top of the canvas -->
+    <% if @pagination.hasNextPage() %>
+      <%= link_to '<< Older', stage_detail_tab_stats_iframe_path(:page_number => @pagination.getNextPage()), style: "padding-left: 10px; position: absolute; bottom: 5px" -%>
+    <% end %>
+
+    <% if @pagination.hasPreviousPage() %>
+      <%= link_to 'Newer >>', stage_detail_tab_stats_iframe_path(:page_number => @pagination.getPreviousPage()), style: "padding-right: 10px; position: absolute; bottom: 5px; right: 12px;" -%>
+    <% end %>
+  </div>
+<% end %>
+</body>
+</html>

@@ -384,7 +384,7 @@ describe StagesController do
       stage_summary_model3 = StageSummaryModel.new(stage3, nil, JobDurationStrategy::ALWAYS_ZERO, nil)
 
       setup_stubs(stage_summary_model1, stage_summary_model2, stage_summary_model3)
-      get :stats, params:{:pipeline_name => "pipeline-name", :pipeline_counter => "1", :stage_name => "stage", :stage_counter => "1", :page_number => "2"}
+      get :stats_iframe, params:{:pipeline_name => "pipeline-name", :pipeline_counter => "1", :stage_name => "stage", :stage_counter => "1", :page_number => "2"}
 
       expected_data = [{:duration => 10000,
                         :pipeline_counter => 1,
@@ -421,7 +421,7 @@ describe StagesController do
       stage_summary_model2 = StageSummaryModel.new(stage2, nil, JobDurationStrategy::ALWAYS_ZERO, nil)
 
       setup_stubs(stage_summary_model1, stage_summary_model2)
-      get :stats, params:{:pipeline_name => "pipeline-name", :pipeline_counter => "1", :stage_name => "stage", :stage_counter => "1", :page_number => "2"}
+      get :stats_iframe, params:{:pipeline_name => "pipeline-name", :pipeline_counter => "1", :stage_name => "stage", :stage_counter => "1", :page_number => "2"}
 
       expected_data = [{:duration => 600000,
                         :pipeline_counter => 1,
@@ -452,7 +452,7 @@ describe StagesController do
 
       setup_stubs(stage_summary_model1, stage_summary_model3, stage_summary_model2)
 
-      get :stats, params:{:pipeline_name => "pipeline-name", :pipeline_counter => "1", :stage_name => "stage", :stage_counter => "1", :page_number => "2"}
+      get :stats_iframe, params:{:pipeline_name => "pipeline-name", :pipeline_counter => "1", :stage_name => "stage", :stage_counter => "1", :page_number => "2"}
 
       expected_data = [{:duration => 600000,
                         :pipeline_counter => 1,
@@ -487,7 +487,7 @@ describe StagesController do
       stage_summary_model2 = StageSummaryModel.new(stage2, nil, JobDurationStrategy::ALWAYS_ZERO, nil)
 
       setup_stubs(stage_summary_model1, stage_summary_model2)
-      get :stats, params:{:pipeline_name => "pipeline-name", :pipeline_counter => "1", :stage_name => "stage", :stage_counter => "1", :page_number => "2"}
+      get :stats_iframe, params:{:pipeline_name => "pipeline-name", :pipeline_counter => "1", :stage_name => "stage", :stage_counter => "1", :page_number => "2"}
 
       expected_data = [{:duration => 600000,
                         :pipeline_counter => 1,
@@ -515,7 +515,7 @@ describe StagesController do
       expect(@pipieline_lock_service).to receive(:lockedPipeline).with("pipeline-name").and_return("")
       expect(@stage_service).to receive(:findStageHistoryForChart).with("pipeline-name", "stage", 2, StagesController::STAGE_DURATION_RANGE, current_user).and_return(models = StageSummaryModels.new)
 
-      get :stats, params:{:pipeline_name => "pipeline-name", :pipeline_counter => "1", :stage_name => "stage", :stage_counter => "1", :page_number => "2"}
+      get :stats_iframe, params:{:pipeline_name => "pipeline-name", :pipeline_counter => "1", :stage_name => "stage", :stage_counter => "1", :page_number => "2"}
 
       expect(assigns(:no_chart_to_render)).to eq true
     end
@@ -530,7 +530,7 @@ describe StagesController do
       stage_summary_model2 = StageSummaryModel.new(stage2, nil, JobDurationStrategy::ALWAYS_ZERO, nil)
 
       setup_stubs(stage_summary_model1, stage_summary_model2)
-      get :stats, params:{:pipeline_name => "pipeline-name", :pipeline_counter => "1", :stage_name => "stage", :stage_counter => "1", :page_number => "2"}
+      get :stats_iframe, params:{:pipeline_name => "pipeline-name", :pipeline_counter => "1", :stage_name => "stage", :stage_counter => "1", :page_number => "2"}
 
       expected_data = [{:duration => 600000,
                         :pipeline_counter => 1,

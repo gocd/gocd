@@ -154,6 +154,10 @@ export class EnvironmentWithOrigin extends ValidatableMixin {
                                        ...this.environmentVariables().map((p) => p.clone())
                                      ));
   }
+
+  isLocal(): boolean {
+    return this.origins().filter((origin) => origin.isDefinedInConfigRepo()).length === 0;
+  }
 }
 
 export class Environments extends Array<EnvironmentWithOrigin> {

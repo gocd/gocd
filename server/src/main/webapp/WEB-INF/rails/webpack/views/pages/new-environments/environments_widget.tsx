@@ -79,12 +79,18 @@ export class EnvironmentWidget extends MithrilViewComponent<EnvAttrs> {
         </div>
       </div>;
     }
+    let deleteTitle;
+    if (!environment.canAdminister()) {
+      deleteTitle = `You are not authorized to delete the '${environment.name()}' environment.`;
+    } else if (!environment.isLocal()) {
+      deleteTitle = `Cannot delete '${environment.name()}' environment as it is partially defined in config repository.`;
+    }
     return [
       warningButton,
       <IconGroup>
         <Delete
-          title={environment.canAdminister() ? undefined : `You are not authorized to delete the '${environment.name()}' environment.`}
-          disabled={!environment.canAdminister()}
+          title={deleteTitle}
+          disabled={!environment.canAdminister() || !environment.isLocal()}
           onclick={vnode.attrs.onDelete.bind(vnode.attrs, environment)}/>
       </IconGroup>
     ];

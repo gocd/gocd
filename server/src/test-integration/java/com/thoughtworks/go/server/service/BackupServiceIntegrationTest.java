@@ -80,7 +80,7 @@ import static org.mockito.Mockito.*;
 })
 public class BackupServiceIntegrationTest {
 
-    @Autowired BackupService backupService;
+    BackupService backupService;
     @Autowired
     GoConfigService goConfigService;
     @Autowired DataSource dataSource;
@@ -105,6 +105,7 @@ public class BackupServiceIntegrationTest {
     private byte[] originalCipher;
     private Username admin;
     private final String WRAPPER_CONFIG_DIR  = "wrapper-config";
+    private SystemEnvironment systemEnvSpy;
 
 
     @Before
@@ -122,6 +123,11 @@ public class BackupServiceIntegrationTest {
         FileUtils.writeStringToFile(new File(systemEnvironment.getConfigDir(), "cruise-config.xml"), "invalid crapy config", UTF_8);
         FileUtils.writeStringToFile(new File(systemEnvironment.getConfigDir(), "cipher"), "invalid crapy cipher", UTF_8);
         FileUtils.writeStringToFile(new File(systemEnvironment.getConfigDir(), "cipher.aes"), "invalid crapy cipher", UTF_8);
+
+        systemEnvSpy = spy(systemEnvironment);
+        when(systemEnvSpy.wrapperConfigDirPath()).thenReturn(Optional.of(WRAPPER_CONFIG_DIR));
+        backupService = new BackupService(artifactsDirHolder, goConfigService, timeProvider, backupInfoRepository,
+                systemEnvSpy, configRepository, databaseStrategy, null);
     }
 
     @After
@@ -169,10 +175,6 @@ public class BackupServiceIntegrationTest {
 
     @Test
     public void shouldPerformWrapperConfigBackupForAllTanukiConfigFiles() throws Exception {
-        SystemEnvironment systemEnvSpy = spy(systemEnvironment);
-        when(systemEnvSpy.wrapperConfigDirPath()).thenReturn(Optional.of(WRAPPER_CONFIG_DIR));
-        BackupService backupService = new BackupService(artifactsDirHolder, goConfigService, timeProvider, backupInfoRepository,
-                systemEnvSpy, configRepository, databaseStrategy, null);
         try {
             createWrapperConfigFile("foo", "foo_foo");
             createWrapperConfigFile("bar", "bar_bar");
@@ -219,7 +221,7 @@ public class BackupServiceIntegrationTest {
 
     @Test
     public void shouldCaptureVersionForEveryBackup() throws IOException {
-        BackupService backupService = new BackupService(artifactsDirHolder, goConfigService, timeProvider, backupInfoRepository, systemEnvironment, configRepository, databaseStrategy, null);
+        BackupService backupService = new BackupService(artifactsDirHolder, goConfigService, timeProvider, backupInfoRepository, systemEnvSpy, configRepository, databaseStrategy, null);
         ServerBackup backup = backupService.startBackup(admin);
         assertThat(backup.isSuccessful(), is(true));
         assertThat(backup.getMessage(), is("Backup was generated successfully."));
@@ -243,7 +245,7 @@ public class BackupServiceIntegrationTest {
         DateTime now = new DateTime();
         when(timeProvider.currentDateTime()).thenReturn(now);
 
-        BackupService service = new BackupService(artifactsDirHolder, configService, timeProvider, backupInfoRepository, systemEnvironment, configRepository,
+        BackupService service = new BackupService(artifactsDirHolder, configService, timeProvider, backupInfoRepository, systemEnvSpy, configRepository,
                 databaseStrategy, null);
         service.startBackup(admin);
 
@@ -269,7 +271,7 @@ public class BackupServiceIntegrationTest {
         DateTime now = new DateTime();
         when(timeProvider.currentDateTime()).thenReturn(now);
 
-        BackupService service = new BackupService(artifactsDirHolder, configService, timeProvider, backupInfoRepository, systemEnvironment, configRepository,
+        BackupService service = new BackupService(artifactsDirHolder, configService, timeProvider, backupInfoRepository, systemEnvSpy, configRepository,
                 databaseStrategy, null);
         service.startBackup(admin);
 
@@ -294,7 +296,7 @@ public class BackupServiceIntegrationTest {
 
         Database databaseStrategyMock = mock(Database.class);
         doThrow(new RuntimeException("Oh no!")).when(databaseStrategyMock).backup(any(File.class));
-        BackupService service = new BackupService(artifactsDirHolder, configService, timeProvider, backupInfoRepository, systemEnvironment, configRepository,
+        BackupService service = new BackupService(artifactsDirHolder, configService, timeProvider, backupInfoRepository, systemEnvSpy, configRepository,
                 databaseStrategyMock, null);
         ServerBackup backup = service.startBackup(admin);
 
@@ -327,7 +329,7 @@ public class BackupServiceIntegrationTest {
 
         Database databaseStrategyMock = mock(Database.class);
         doThrow(new RuntimeException("Oh no!")).when(databaseStrategyMock).backup(any(File.class));
-        BackupService service = new BackupService(artifactsDirHolder, configService, timeProvider, backupInfoRepository, systemEnvironment, configRepository,
+        BackupService service = new BackupService(artifactsDirHolder, configService, timeProvider, backupInfoRepository, systemEnvSpy, configRepository,
                 databaseStrategyMock, null);
         ServerBackup backup = service.startBackup(admin);
 
@@ -446,7 +448,7 @@ public class BackupServiceIntegrationTest {
         final MessageCollectingBackupUpdateListener backupUpdateListener = new MessageCollectingBackupUpdateListener(waitForBackupToComplete);
 
         waitForBackupToComplete.acquire();
-        backupService = new BackupService(artifactsDirHolder, configService, timeProvider, backupInfoRepository, systemEnvironment, configRepository,
+        backupService = new BackupService(artifactsDirHolder, configService, timeProvider, backupInfoRepository, systemEnvSpy, configRepository,
                 databaseStrategy, backupQueue);
         Thread backupThd = new Thread(() -> backupService.startBackup(admin, backupUpdateListener));
 
@@ -471,7 +473,7 @@ public class BackupServiceIntegrationTest {
         DateTime now = new DateTime();
         when(timeProvider.currentDateTime()).thenReturn(now);
 
-        BackupService service = new BackupService(artifactsDirHolder, configService, timeProvider, backupInfoRepository, systemEnvironment, configRepository,
+        BackupService service = new BackupService(artifactsDirHolder, configService, timeProvider, backupInfoRepository, systemEnvSpy, configRepository,
                 databaseStrategy, null);
         ServerBackup backup = service.startBackup(admin);
 
@@ -551,7 +553,7 @@ public class BackupServiceIntegrationTest {
         }).when(databaseStrategyMock).backup(any(File.class));
 
 
-        final BackupService backupService = new BackupService(artifactsDirHolder, goConfigService, new TimeProvider(), backupInfoRepository, systemEnvironment,
+        final BackupService backupService = new BackupService(artifactsDirHolder, goConfigService, new TimeProvider(), backupInfoRepository, systemEnvSpy,
                 configRepository, databaseStrategyMock, null);
 
         waitForBackupToBegin.acquire();

@@ -55,13 +55,14 @@ import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Optional;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+
 @RunWith(GoJUnitExtSpringRunner.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
@@ -83,7 +84,8 @@ public class BackupServiceH2IntegrationTest {
     @Autowired SystemEnvironment systemEnvironment;
     @Autowired ConfigRepository configRepository;
     @Autowired Database databaseStrategy;
-    @Autowired BackupService backupService;
+    @Autowired TimeProvider timeProvider;
+    SystemEnvironment systemEnvironmentSpy;
 
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
 
@@ -104,17 +106,19 @@ public class BackupServiceH2IntegrationTest {
         goConfigDao.forceReload();
         backupsDirectory = new File(artifactsDirHolder.getArtifactsDir(), ServerConfig.SERVER_BACKUPS);
         FileUtils.deleteQuietly(backupsDirectory);
-        originalCipher = new DESCipherProvider(systemEnvironment).getKey();
+        systemEnvironmentSpy = spy(systemEnvironment);
+        when(systemEnvironmentSpy.wrapperConfigDirPath()).thenReturn(Optional.of("wrapper-config"));
+        originalCipher = new DESCipherProvider(systemEnvironmentSpy).getKey();
 
-        FileUtils.writeStringToFile(new File(systemEnvironment.getConfigDir(), "cruise-config.xml"), "invalid crapy config", UTF_8);
-        FileUtils.writeStringToFile(new File(systemEnvironment.getConfigDir(), "cipher"), "invalid crapy cipher", UTF_8);
+        FileUtils.writeStringToFile(new File(systemEnvironmentSpy.getConfigDir(), "cruise-config.xml"), "invalid crapy config", UTF_8);
+        FileUtils.writeStringToFile(new File(systemEnvironmentSpy.getConfigDir(), "cipher"), "invalid crapy cipher", UTF_8);
     }
 
     @After
     public void tearDown() throws Exception {
         dbHelper.onTearDown();
-        FileUtils.writeStringToFile(new File(systemEnvironment.getConfigDir(), "cruise-config.xml"), goConfigService.xml(), UTF_8);
-        FileUtils.writeByteArrayToFile(systemEnvironment.getDESCipherFile(), originalCipher);
+        FileUtils.writeStringToFile(new File(systemEnvironmentSpy.getConfigDir(), "cruise-config.xml"), goConfigService.xml(), UTF_8);
+        FileUtils.writeByteArrayToFile(systemEnvironmentSpy.getDESCipherFile(), originalCipher);
         configHelper.onTearDown();
         FileUtils.deleteQuietly(backupsDirectory);
     }
@@ -127,7 +131,7 @@ public class BackupServiceH2IntegrationTest {
         when(timeProvider.currentDateTime()).thenReturn(now);
         assertThat(backupsDirectory.exists(), is(false));
 
-        BackupService service = new BackupService(artifactsDirHolder, goConfigService, timeProvider, backupInfoRepository, systemEnvironment, configRepository,
+        BackupService service = new BackupService(artifactsDirHolder, goConfigService, timeProvider, backupInfoRepository, systemEnvironmentSpy, configRepository,
                 databaseStrategy, null);
         ServerBackup serverBackup = service.startBackup(admin);
 
@@ -144,8 +148,9 @@ public class BackupServiceH2IntegrationTest {
     @RunIf(value = DatabaseChecker.class, arguments = {DatabaseChecker.H2})
     public void shouldPerformDbBackupProperly() throws SQLException, IOException {
         Pipeline expectedPipeline = saveAPipeline();
-
-        ServerBackup serverBackup = backupService.startBackup(admin);
+        BackupService service = new BackupService(artifactsDirHolder, goConfigService, timeProvider, backupInfoRepository, systemEnvironmentSpy, configRepository,
+                databaseStrategy, null);
+        ServerBackup serverBackup = service.startBackup(admin);
         assertThat(serverBackup.isSuccessful(), is(true));
         assertThat(serverBackup.getMessage(), is("Backup was generated successfully."));
 

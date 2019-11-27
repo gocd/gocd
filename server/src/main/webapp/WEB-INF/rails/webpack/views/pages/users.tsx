@@ -31,12 +31,12 @@ import {Page, PageState} from "views/pages/page";
 import {AddOperation} from "views/pages/page_operations";
 import {UserSearchModal} from "views/pages/users/add_user_modal";
 import {DeleteUserConfirmModal} from "views/pages/users/delete_user_confirmation_modal";
-import {State as UserActionsState, UsersActionsWidget} from "views/pages/users/user_actions_widget";
+import {Attrs as UserActionsAttrs, UsersActionsWidget} from "views/pages/users/user_actions_widget";
 import {UserViewHelper} from "views/pages/users/user_view_helper";
-import {Attrs as UsersWidgetState, UsersTableWidget} from "views/pages/users/users_widget";
+import {Attrs as UsersWidgetAttrs, UsersTableWidget} from "views/pages/users/users_widget";
 import styles from "./users/index.scss";
 
-interface State extends UserActionsState, AddOperation<Users>, UsersWidgetState {
+interface State extends UserActionsAttrs, AddOperation<Users>, UsersWidgetAttrs {
   initialUsers: Stream<Users>;
 }
 

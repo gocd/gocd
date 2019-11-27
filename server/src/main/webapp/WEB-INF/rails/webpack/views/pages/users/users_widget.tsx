@@ -25,7 +25,7 @@ import {
   SuperAdminPrivilegeSwitch,
   SuperAdminPrivilegeSwitchAttrs
 } from "views/pages/users/super_admin_toggle_widget";
-import {State as UserActionsState, UsersActionsWidget} from "views/pages/users/user_actions_widget";
+import {Attrs as UserActionsState, UsersActionsWidget} from "views/pages/users/user_actions_widget";
 import styles from "./index.scss";
 
 const classnames = bind(styles);

@@ -22,12 +22,12 @@ import {TriStateCheckbox} from "models/tri_state_checkbox";
 import {UserFilters} from "models/users/user_filters";
 import {User, Users} from "models/users/users";
 import {TestHelper} from "views/pages/spec/test_helper";
-import {State as UserActionsState, UsersActionsWidget} from "views/pages/users/user_actions_widget";
+import {Attrs as UserActionsAttrs, UsersActionsWidget} from "views/pages/users/user_actions_widget";
 
 const flag: (val?: boolean) => Stream<boolean> = Stream;
 
 describe("User Actions Widget", () => {
-  let attrs: UserActionsState;
+  let attrs: UserActionsAttrs;
   let users: Stream<Users>;
   const helper = new TestHelper();
 

@@ -65,7 +65,7 @@ export interface FiltersViewAttrs {
   roles: Stream<Roles>;
 }
 
-export type State = RolesViewAttrs & FiltersViewAttrs & EnableOperation<Users> & DisableOperation<Users> & DeleteOperation<Users>;
+export type Attrs = RolesViewAttrs & FiltersViewAttrs & EnableOperation<Users> & DisableOperation<Users> & DeleteOperation<Users>;
 
 class FiltersView extends Dropdown<FiltersViewAttrs> {
   doRenderDropdownContent(vnode: m.Vnode<DropdownAttrs & FiltersViewAttrs>) {
@@ -198,8 +198,8 @@ class RolesDropdown extends Dropdown<RolesViewAttrs> {
   }
 }
 
-export class UsersActionsWidget extends MithrilViewComponent<State> {
-  view(vnode: m.Vnode<State>) {
+export class UsersActionsWidget extends MithrilViewComponent<Attrs> {
+  view(vnode: m.Vnode<Attrs>) {
     const counts = [
       {
         count: vnode.attrs.users().totalUsersCount(),

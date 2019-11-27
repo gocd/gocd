@@ -31,6 +31,10 @@ export class PipelineActivityService {
     return ApiRequestBuilder.POST(SparkRoutes.runStageLink(stage.pipelineName(), stage.pipelineCounter(), stage.stageName()), ApiVersion.v1)
   }
 
+  run(pipelineName: string) {
+    return ApiRequestBuilder.POST(SparkRoutes.pipelineTriggerPath(pipelineName), ApiVersion.v1);
+  }
+
   private onResult(result: ApiResult<string>, page: ResultAwarePage<PipelineActivity>) {
     return result.do((successResponse) => page.onSuccess(PipelineActivity.fromJSON(JSON.parse(successResponse.body))),
       (errorResponse) => page.onFailure(errorResponse.message));

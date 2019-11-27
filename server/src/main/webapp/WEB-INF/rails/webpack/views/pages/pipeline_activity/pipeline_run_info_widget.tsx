@@ -25,6 +25,7 @@ import * as Icons from "../../components/icons";
 import {timeFormatter as TimeFormatter} from "helpers/time_formatter";
 import s from "underscore.string";
 import {SparkRoutes} from "helpers/spark_routes";
+import {Link} from "views/components/link";
 
 const classnames = bind(styles);
 
@@ -86,7 +87,9 @@ export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
     }
 
     const dataTestIdSuffix = this.dataTestId("stage", "action", "icon", stage.stageName(), stage.stageId());
-    const infoIcon         = <Icons.InfoCircle iconOnly={true} data-test-id={`info-${dataTestIdSuffix}`}/>;
+    const infoIcon         = <Link target="_blank" href={`/go/pipelines/${stage.stageLocator()}`}>
+      <Icons.InfoCircle iconOnly={true} data-test-id={`info-${dataTestIdSuffix}`}/>
+    </Link>;
     if (stage.getCanRun()) {
       return [infoIcon,
         <div class={styles.stageInfoIconWrapper}>

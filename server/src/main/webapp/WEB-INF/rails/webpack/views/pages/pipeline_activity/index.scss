@@ -160,8 +160,8 @@ $stage-action-icon-z-index: 1;
     i {
       padding: 0;
       width:   15px;
-      margin:  0;
-      display: inherit;
+      display: block;
+      margin:  30px 0 0;
 
       &:before {
         margin: 0;

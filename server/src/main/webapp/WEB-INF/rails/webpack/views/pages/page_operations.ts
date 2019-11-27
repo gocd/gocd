@@ -55,11 +55,11 @@ export interface AddOperation<T> {
 }
 
 export interface EnableOperation<T> {
-  onEnable: (obj: T, e: MouseEvent) => void;
+  onEnable: (obj: T, e: MouseEvent) => Promise<any>;
 }
 
 export interface DisableOperation<T> {
-  onDisable: (obj: T, e: MouseEvent) => void;
+  onDisable: (obj: T, e: MouseEvent) => Promise<any>;
 }
 
 export interface RequiresPluginInfos {

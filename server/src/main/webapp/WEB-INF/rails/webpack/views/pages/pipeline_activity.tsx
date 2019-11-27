@@ -16,7 +16,7 @@
 
 import m from "mithril";
 import Stream from "mithril/stream";
-import {PipelineActivity} from "models/pipeline_activity/pipeline_activity";
+import {PipelineActivity, Stage} from "models/pipeline_activity/pipeline_activity";
 import {PipelineActivityService} from "models/pipeline_activity/pipeline_activity_crud";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Page} from "views/pages/page";
@@ -25,6 +25,8 @@ import {PipelineActivityWidget} from "views/pages/pipeline_activity/pipeline_act
 import {PaginationWidget} from "../components/pagination";
 import {Pagination} from "../components/pagination/models/pagination";
 import styles from "./pipeline_activity/index.scss";
+import {ApiResult} from "../../helpers/api_request_builder";
+import {ConfirmationDialog} from "./pipeline_activity/confirmation_modal";
 
 interface State {
   pipelineActivity: Stream<PipelineActivity>;
@@ -35,6 +37,25 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
   pipelineActivity                         = Stream<PipelineActivity>();
   showBuildCaseFor                         = Stream<string>();
   private service: PipelineActivityService = new PipelineActivityService();
+  private pagination                       = Stream<Pagination>();
+
+  runPipeline(name: string) {
+    this.service.run(name).then(this.handleActionApiResponse.bind(this));
+  }
+
+  runStage(stage: Stage) {
+    new ConfirmationDialog("Run stage",
+      <div>{`Do you want to run the stage '${stage.stageName()}'?`}</div>,
+      () => this.service.runStage(stage).then(this.handleActionApiResponse.bind(this))
+    ).render();
+  }
+
+  cancelStageInstance(stage: Stage) {
+    new ConfirmationDialog("Cancel stage instance",
+      <div>{"This will cancel all active jobs in this stage. Are you sure?"}</div>,
+      () => this.service.cancelStageInstance(stage).then(this.handleActionApiResponse.bind(this))
+    ).render();
+  }
 
   componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
     if (!this.pipelineActivity()) {
@@ -45,10 +66,11 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
       <FlashMessage type={this.flashMessage.type} message={this.flashMessage.message}/>,
       <PipelineActivityWidget pipelineActivity={vnode.state.pipelineActivity}
                               showBuildCaseFor={vnode.state.showBuildCaseFor}
-                              service={this.service}
-                              message={this.flashMessage}/>,
+                              runPipeline={this.runPipeline.bind(this)}
+                              runStage={this.runStage.bind(this)}
+                              cancelStageInstance={this.cancelStageInstance.bind(this)}/>,
       <div class={styles.paginationWrapper}>
-        <PaginationWidget pagination={this.getPagination()} onPageChange={this.pageChangeCallback.bind(this)}/>
+        <PaginationWidget pagination={this.pagination()} onPageChange={this.pageChangeCallback.bind(this)}/>
       </div>
     ];
   }
@@ -58,7 +80,7 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
   }
 
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {
-    this.service.activities(PipelineActivityPage.pipelineNameFromUrl(), 0, this);
+    this.fetchPipelineHistory(0);
     return Promise.resolve();
   }
 
@@ -69,17 +91,25 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
 
   onSuccess(data: PipelineActivity) {
     this.pipelineActivity(data);
+    this.pagination(new Pagination(data.start(), data.count(), data.perPage()))
   }
 
-  private getPagination() {
-    return new Pagination(this.pipelineActivity().start(),
-      this.pipelineActivity().count(),
-      this.pipelineActivity().perPage())
+  private handleActionApiResponse(result: ApiResult<string>) {
+    result.do((successResponse) => {
+        const body = JSON.parse(successResponse.body);
+        this.flashMessage.setMessage(MessageType.success, body.message);
+        this.fetchPipelineHistory.bind(this, this.pagination().offset);
+      },
+      (errorResponse) => this.onFailure(errorResponse.message))
   }
 
   private pageChangeCallback(pageNumber: number) {
     const offset = this.pipelineActivity().perPage() * (pageNumber - 1);
-    this.service.activities(PipelineActivityPage.pipelineNameFromUrl(), offset, this);
+    this.fetchPipelineHistory(offset);
+  }
+
+  private fetchPipelineHistory(start: number) {
+    this.service.activities(PipelineActivityPage.pipelineNameFromUrl(), start, this);
   }
 
   private static pipelineNameFromUrl(): string {

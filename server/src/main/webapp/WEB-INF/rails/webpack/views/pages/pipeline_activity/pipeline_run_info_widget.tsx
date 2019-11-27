@@ -19,15 +19,12 @@ import m from "mithril"
 import {PipelineRunInfo, Stage, StageConfigs} from "models/pipeline_activity/pipeline_activity";
 import styles from "./index.scss";
 import Stream from "mithril/stream";
-import {PipelineActivityService} from "models/pipeline_activity/pipeline_activity_crud";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import {BuildCauseWidget} from "./build_cause_widget";
 import * as Icons from "../../components/icons";
 import {timeFormatter as TimeFormatter} from "helpers/time_formatter";
 import s from "underscore.string";
 import {SparkRoutes} from "helpers/spark_routes";
-import {ManualStageTriggerConfirmation} from "./manual_stage_trigger_confirmation_modal";
-import {FlashMessageModelWithTimeout} from "../../components/flash_message";
 
 const classnames = bind(styles);
 
@@ -36,8 +33,8 @@ interface PipelineRunAttrs {
   pipelineName: string;
   showBuildCaseFor: Stream<string>;
   stageConfigs: StageConfigs;
-  service: PipelineActivityService;
-  message: FlashMessageModelWithTimeout;
+  runStage: (stage: Stage) => void;
+  cancelStageInstance: (stage: Stage) => void;
 }
 
 type StringOrNumber = string | number;
@@ -71,30 +68,68 @@ export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
           return <div
             data-test-id={this.dataTestId("stage-status-wrapper", pipelineRunInfo.pipelineId(), stage.stageName())}
             class={classnames(styles.stage, {[styles.disabledIcon]: PipelineRunWidget.shouldDisableApprovalIcon(stage)})}>
-            {this.getStageApprovalIcon(index, stage, vnode)}
-            <span data-test-id={this.dataTestId("stage-status", pipelineRunInfo.pipelineId(), stage.stageName())}
-                  class={classnames(PipelineRunWidget.stageStatusClass(stage.stageStatus()))}/>
+            {this.getStageGateIcon(index, stage, vnode)}
+            <div class={styles.stageStatusWrapper}>
+              <span data-test-id={this.dataTestId("stage-status", pipelineRunInfo.pipelineId(), stage.stageName())}
+                    class={classnames(PipelineRunWidget.stageStatusClass(stage.stageStatus()))}/>
+              {this.getStageActions(stage, vnode)}
+            </div>
           </div>;
         })}
       </div>
     </div>
   }
 
-  private getStageApprovalIcon(index: number, stage: Stage, vnode: m.Vnode<PipelineRunAttrs>): m.Children {
+  private getStageActions(stage: Stage, vnode: m.Vnode<PipelineRunAttrs>): m.Children {
+    if (!stage.scheduled()) {
+      return;
+    }
+
+    const dataTestIdSuffix = this.dataTestId("stage", "action", "icon", stage.stageName(), stage.stageId());
+    const infoIcon         = <Icons.InfoCircle iconOnly={true} data-test-id={`info-${dataTestIdSuffix}`}/>;
+    if (stage.getCanRun()) {
+      return [infoIcon,
+        <div class={styles.stageInfoIconWrapper}>
+          <Icons.Repeat iconOnly={true}
+                        title="Rerun stage"
+                        data-test-id={`rerun-${dataTestIdSuffix}`}
+                        onclick={() => vnode.attrs.runStage(stage)}/>
+        </div>];
+    }
+
+    if (stage.getCanCancel()) {
+      return [infoIcon,
+        <div class={styles.stageInfoIconWrapper}>
+          <Icons.Close iconOnly={true}
+                       data-test-id={`cancel-${dataTestIdSuffix}`}
+                       title="Cancel stage"
+                       onclick={() => vnode.attrs.cancelStageInstance(stage)}/>
+        </div>];
+    }
+
+    return infoIcon;
+  }
+
+  private getStageGateIcon(index: number, stage: Stage, vnode: m.Vnode<PipelineRunAttrs>): m.Children {
     if (index === 0) {
       return;
     }
-    const dataTestId = this.dataTestId("approval", "icon", stage.stageName(), stage.stageId());
 
-    if (vnode.attrs.stageConfigs.isAutoApproved(stage.stageName())) {
-      return <Icons.Forward iconOnly={true} disabled={PipelineRunWidget.shouldDisableApprovalIcon(stage)}
+    const isAutoApproved = vnode.attrs.stageConfigs.isAutoApproved(stage.stageName());
+    const dataTestId     = this.dataTestId(isAutoApproved ? "auto" : "manual", "gate", "icon", stage.stageName(), stage.stageId());
+
+    if (isAutoApproved) {
+      return <Icons.Forward iconOnly={true}
+                            title="Auto approved"
+                            disabled={PipelineRunWidget.shouldDisableApprovalIcon(stage)}
                             data-test-id={dataTestId}/>;
     }
 
     return <Icons.StepForward iconOnly={true}
+                              title="Awaiting approval"
                               disabled={PipelineRunWidget.shouldDisableApprovalIcon(stage)}
                               data-test-id={dataTestId}
-                              onclick={this.triggerStage.bind(this, stage, vnode.attrs.service, vnode.attrs.message)}/>;
+                              onclick={() => vnode.attrs.runStage(stage)}/>;
   }
 
   private static shouldDisableApprovalIcon(stage: Stage) {
@@ -103,10 +138,6 @@ export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
     }
 
     return stage.scheduled();
-  }
-
-  private triggerStage(stage: Stage, service: PipelineActivityService, message: FlashMessageModelWithTimeout) {
-    new ManualStageTriggerConfirmation(stage, service, message).render();
   }
 
   private static stageStatusClass(status: string) {

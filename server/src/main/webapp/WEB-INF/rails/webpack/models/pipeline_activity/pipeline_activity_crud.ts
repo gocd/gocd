@@ -28,11 +28,20 @@ export class PipelineActivityService {
   }
 
   runStage(stage: Stage) {
-    return ApiRequestBuilder.POST(SparkRoutes.runStageLink(stage.pipelineName(), stage.pipelineCounter(), stage.stageName()), ApiVersion.v1)
+    return ApiRequestBuilder.POST(
+      SparkRoutes.runStage(stage.pipelineName(), stage.pipelineCounter(), stage.stageName()),
+      PipelineActivityService.API_VERSION_HEADER)
+  }
+
+  cancelStageInstance(stage: Stage) {
+    return ApiRequestBuilder.POST(
+      SparkRoutes.cancelStageInstance(stage.pipelineName(), stage.pipelineCounter(), stage.stageName(), stage.stageCounter()),
+      PipelineActivityService.API_VERSION_HEADER
+    )
   }
 
   run(pipelineName: string) {
-    return ApiRequestBuilder.POST(SparkRoutes.pipelineTriggerPath(pipelineName), ApiVersion.v1);
+    return ApiRequestBuilder.POST(SparkRoutes.pipelineTriggerPath(pipelineName), PipelineActivityService.API_VERSION_HEADER);
   }
 
   private onResult(result: ApiResult<string>, page: ResultAwarePage<PipelineActivity>) {

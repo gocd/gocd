@@ -224,7 +224,7 @@ export class Stage {
       stage.stageLocator,
       toBool(stage.getCanRun),
       toBool(stage.getCanCancel),
-      stage.scheduled,
+      toBool(stage.scheduled),
       stage.stageCounter,
       stage.approvedBy);
   }

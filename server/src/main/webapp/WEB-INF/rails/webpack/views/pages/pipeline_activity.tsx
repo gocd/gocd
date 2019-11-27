@@ -27,6 +27,7 @@ import {Pagination} from "../components/pagination/models/pagination";
 import styles from "./pipeline_activity/index.scss";
 import {ApiResult} from "../../helpers/api_request_builder";
 import {ConfirmationDialog} from "./pipeline_activity/confirmation_modal";
+import {AjaxPoller} from "../../helpers/ajax_poller";
 
 interface State {
   pipelineActivity: Stream<PipelineActivity>;
@@ -37,7 +38,12 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
   pipelineActivity                         = Stream<PipelineActivity>();
   showBuildCaseFor                         = Stream<string>();
   private service: PipelineActivityService = new PipelineActivityService();
-  private pagination                       = Stream<Pagination>();
+  private pagination                       = Stream<Pagination>(new Pagination(0, 10, 10));
+
+  oninit(vnode: m.Vnode<null, State>) {
+    super.oninit(vnode);
+    new AjaxPoller({repeaterFn: this.fetchData.bind(this, vnode), initialIntervalSeconds: 10}).start();
+  }
 
   runPipeline(name: string) {
     this.service.run(name).then(this.handleActionApiResponse.bind(this));
@@ -80,7 +86,7 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
   }
 
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {
-    this.fetchPipelineHistory(0);
+    this.fetchPipelineHistory(this.pagination().offset);
     return Promise.resolve();
   }
 
@@ -91,7 +97,7 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
 
   onSuccess(data: PipelineActivity) {
     this.pipelineActivity(data);
-    this.pagination(new Pagination(data.start(), data.count(), data.perPage()))
+    this.pagination(new Pagination(data.start(), data.count(), data.perPage()));
   }
 
   private handleActionApiResponse(result: ApiResult<string>) {

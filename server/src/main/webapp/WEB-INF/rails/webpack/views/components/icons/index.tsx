@@ -217,6 +217,12 @@ export class Trigger extends Icon {
   }
 }
 
+export class Repeat extends Icon {
+  constructor() {
+    super(styles.repeat, "Repeat");
+  }
+}
+
 export class IconGroup extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     return (

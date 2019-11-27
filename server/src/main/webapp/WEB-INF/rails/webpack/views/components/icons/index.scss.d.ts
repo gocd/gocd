@@ -22,6 +22,7 @@ export const question: string;
 export const questionCircle: string;
 export const refresh: string;
 export const remove: string;
+export const repeat: string;
 export const settings: string;
 export const spin: string;
 export const spinner: string;

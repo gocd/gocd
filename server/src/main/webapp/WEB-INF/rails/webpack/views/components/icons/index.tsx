@@ -211,6 +211,12 @@ export class View extends Icon {
   }
 }
 
+export class Trigger extends Icon {
+  constructor() {
+    super(styles.trigger, "Trigger");
+  }
+}
+
 export class IconGroup extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     return (

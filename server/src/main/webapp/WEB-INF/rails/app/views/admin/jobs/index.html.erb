@@ -10,7 +10,9 @@
         <th>Resources</th>
         <th>Run on all</th>
         <th>Run multiple instances</th>
+      <% unless @is_config_repo_pipeline %>
         <th class="remove">Remove</th>
+      <% end %>
     </tr>
     </thead>
     <tbody>
@@ -20,6 +22,7 @@
             <td><%= job_config.resourceConfigs().join(', ') %></td>
             <td><%= job_config.isRunOnAllAgents() ? 'Yes' : 'No' %></td>
             <td><%= job_config.isRunMultipleInstanceType() ? 'Yes' : 'No' %></td>
+          <% unless @is_config_repo_pipeline %>
             <td class="remove">
                 <% if @jobs.size() > 1 %>
                     <% unique_delete_job_id = random_dom_id("delete_job_") %>
@@ -38,13 +41,16 @@
 					<%= action_icon({:type => "delete", :disabled => true, :title => ""}) %>
                 <% end %>
             </td>
+          <% end %>
         </tr>
     <% end %>
+  <% unless @is_config_repo_pipeline %>
     <tr>
         <td colspan="5">
             <a class="add_link" href="#" onclick="ModalBoxWhichClosesAutoCompleteDropDownBeforeClosing.show('<%= admin_job_new_path -%>', {overlayClose: false, title: 'Add new job'})">Add new job</a>
         </td>
     </tr>
+  <% end %>
     </tbody>
 </table>
 </div>

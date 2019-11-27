@@ -444,8 +444,8 @@ export class SparkRoutes {
     return `/go/admin/environments/#!${environmentName}`;
   }
 
-  static apiPipelineActivity(pipelineName: string) {
-    return `/go/pipelineHistory.json?pipelineName=${pipelineName}`;
+  static apiPipelineActivity(pipelineName: string, offset: number = 0) {
+    return `/go/pipelineHistory.json?pipelineName=${pipelineName}&start=${offset}`;
   }
 
   static pipelineVsmLink(pipelineName: string, counter: string) {

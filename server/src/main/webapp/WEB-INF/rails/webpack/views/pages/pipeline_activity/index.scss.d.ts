@@ -16,6 +16,7 @@ export const materialHeader: string;
 export const materialRevisionDropdownContent: string;
 export const modification: string;
 export const modifications: string;
+export const paginationWrapper: string;
 export const passed: string;
 export const pipelineActivity: string;
 export const pipelineRun: string;

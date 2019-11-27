@@ -22,6 +22,9 @@ import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Page} from "views/pages/page";
 import {ResultAwarePage} from "views/pages/page_operations";
 import {PipelineActivityWidget} from "views/pages/pipeline_activity/pipeline_activity_widget";
+import {PaginationWidget} from "../components/pagination";
+import {Pagination} from "../components/pagination/models/pagination";
+import styles from "./pipeline_activity/index.scss";
 
 interface State {
   pipelineActivity: Stream<PipelineActivity>;
@@ -34,11 +37,16 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
   private service: PipelineActivityService = new PipelineActivityService();
 
   componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
-    return [<FlashMessage type={this.flashMessage.type} message={this.flashMessage.message}/>,
+    return [
+      <FlashMessage type={this.flashMessage.type} message={this.flashMessage.message}/>,
       <PipelineActivityWidget pipelineActivity={vnode.state.pipelineActivity}
                               showBuildCaseFor={vnode.state.showBuildCaseFor}
                               service={this.service}
-                              message={this.flashMessage}/>];
+                              message={this.flashMessage}/>,
+      <div class={styles.paginationWrapper}>
+        <PaginationWidget pagination={this.getPagination()} onPageChange={this.pageChangeCallback.bind(this)}/>
+      </div>
+    ];
   }
 
   pageName(): string {
@@ -46,7 +54,7 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
   }
 
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {
-    this.service.activities("Foo", this);
+    this.service.activities("Foo", 0, this);
     return Promise.resolve();
   }
 
@@ -57,5 +65,16 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
 
   onSuccess(data: PipelineActivity) {
     this.pipelineActivity(data);
+  }
+
+  private getPagination() {
+    return new Pagination(this.pipelineActivity().start(),
+      this.pipelineActivity().count(),
+      this.pipelineActivity().perPage())
+  }
+
+  private pageChangeCallback(pageNumber: number) {
+    const offset = this.pipelineActivity().perPage() * (pageNumber - 1);
+    this.service.activities("Foo", offset, this);
   }
 }

@@ -43,7 +43,7 @@ export class AgentJobRunHistoryPage extends Page<null, State> {
   }
 
   pageName() {
-    return "Agent Job Run History for " + this.getMeta().uuid;
+    return "Agent Job Run History";
   }
 
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {

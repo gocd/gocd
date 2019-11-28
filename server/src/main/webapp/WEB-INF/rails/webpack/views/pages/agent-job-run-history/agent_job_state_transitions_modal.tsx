@@ -17,9 +17,9 @@
 import {timeFormatter as TimeFormatter} from "helpers/time_formatter";
 import m from "mithril";
 import {JobRunHistoryJSON, State} from "models/agent_job_run_history";
-import {KeyValuePair} from "views/components/key_value_pair";
 import {Modal, Size} from "views/components/modal";
 import {Table} from "views/components/table";
+import * as Tooltip from "views/components/tooltip";
 import styles from "./index.scss";
 
 export class AgentJobStateTransitionModal extends Modal {
@@ -35,16 +35,52 @@ export class AgentJobStateTransitionModal extends Modal {
       return [<i>{transition.state}</i>, TimeFormatter.format(transition.state_change_time)];
     });
 
+    const waitTimeContent     = <div>Wait Time is the time spent by the job waiting for an agent to be assigned. This is
+      the total time spent by the job from the time it is <b><i>Scheduled</i></b> to it is <b><i>Assigned</i></b>.</div>;
+    const buildingTimeContent = <div>Building time is the time spent building the job on an agent. This is the total
+      time spent by the job from the time it is <b><i>Assigned</i></b> to it is <b><i>Completed</i></b>.</div>;
+    const totalTimeContent    = <div>Total time is the time taken by the job from scheduling to completion. This is the
+      total time spent by the job from the time it is <b><i>Scheduled</i></b> to it is <b><i>Completed</i></b>.</div>;
+
     return <div data-test-id={`job-state-transitions-for-${this.jobRepresentation()}`}>
       <div class={styles.jobStateTransitionInformationContainer} data-test-id="additional-information-container">
-        <KeyValuePair data={new Map(
-          [
-            ["Job", this.jobRepresentation()],
-            ["Wait Time", `${this.findTimeDifference("Scheduled", "Assigned")}`],
-            ["Building Time", `${this.findTimeDifference("Assigned", "Completed")}`],
-            ["Total Time", `${this.findTimeDifference("Scheduled", "Completed")}`]
-          ])
-        }/>
+
+        <div data-test-id="key-value-pair" class={styles.keyValuePair}>
+          <div class={styles.key} data-test-id="key-job">Job</div>
+          <span class={styles.value} data-test-id="value-job">
+            : {this.jobRepresentation()}
+          </span>
+        </div>
+
+        <div data-test-id="key-value-pair" class={styles.keyValuePair}>
+          <div class={styles.key} data-test-id="key-wait-time">
+            Wait Time
+            <Tooltip.Info content={waitTimeContent}/>
+          </div>
+          <span class={styles.value} data-test-id="value-wait-time">
+            : {this.findTimeDifference("Scheduled", "Assigned")}
+          </span>
+        </div>
+
+        <div data-test-id="key-value-pair" class={styles.keyValuePair}>
+          <div class={styles.key} data-test-id="key-building-time">
+            Building Time
+            <Tooltip.Info content={buildingTimeContent}/>
+          </div>
+          <span class={styles.value} data-test-id="value-building-time">
+            : {this.findTimeDifference("Assigned", "Completed")}
+          </span>
+        </div>
+
+        <div data-test-id="key-value-pair" class={styles.keyValuePair}>
+          <div class={styles.key} data-test-id="key-total-time">
+            Total Time
+            <Tooltip.Info content={totalTimeContent}/>
+          </div>
+          <span class={styles.value} data-test-id="value-total-time">
+            : {this.findTimeDifference("Scheduled", "Completed")}
+          </span>
+        </div>
       </div>
       <Table data={tableData} headers={["Agent State", "Time"]}/>
     </div>;

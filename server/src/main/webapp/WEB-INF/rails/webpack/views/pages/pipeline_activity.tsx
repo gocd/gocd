@@ -28,6 +28,9 @@ import styles from "./pipeline_activity/index.scss";
 import {ApiResult} from "../../helpers/api_request_builder";
 import {ConfirmationDialog} from "./pipeline_activity/confirmation_modal";
 import {AjaxPoller} from "../../helpers/ajax_poller";
+import {HeaderPanel} from "../components/header_panel";
+import {PipelineActivityHeader} from "./pipeline_activity/page_header";
+import {TextField} from "../components/forms/input_fields";
 
 interface State {
   pipelineActivity: Stream<PipelineActivity>;
@@ -35,14 +38,42 @@ interface State {
 }
 
 export class PipelineActivityPage extends Page<null, State> implements ResultAwarePage<PipelineActivity>, State {
-  pipelineActivity                         = Stream<PipelineActivity>();
-  showBuildCaseFor                         = Stream<string>();
-  private service: PipelineActivityService = new PipelineActivityService();
-  private pagination                       = Stream<Pagination>(new Pagination(0, 10, 10));
+  pipelineActivity                           = Stream<PipelineActivity>();
+  showBuildCaseFor                           = Stream<string>();
+  protected service: PipelineActivityService = new PipelineActivityService();
+  protected pagination                       = Stream<Pagination>(new Pagination(0, 10, 10));
 
   oninit(vnode: m.Vnode<null, State>) {
     super.oninit(vnode);
     new AjaxPoller({repeaterFn: this.fetchData.bind(this, vnode), initialIntervalSeconds: 10}).start();
+  }
+
+  pausePipeline() {
+    const cause = Stream<string>();
+    new ConfirmationDialog("Pause pipeline",
+      <div>
+        <TextField required={true}
+                   label="Specify the reason why you want to stop scheduling on this pipeline (only a-z, A-Z, 0-9, fullstop, underscore, hyphen and pipe is valid) :"
+                   property={cause}/>
+      </div>,
+      () => this.service.pausePipeline(this.pipelineActivity().pipelineName(), cause())
+        .then((result) => this.handleActionApiResponse(result, () => {
+          this.pipelineActivity().paused(true);
+          this.pipelineActivity().canForce(false);
+          this.pipelineActivity().pauseCause(cause());
+          const user = Page.readAttribute("data-user-display-name");
+          this.pipelineActivity().pauseBy(user ? user : "")
+        }))
+    ).render();
+
+
+  }
+
+  unpausePipeline() {
+    this.service.unpausePipeline(this.pipelineActivity().pipelineName())
+      .then((result) => this.handleActionApiResponse(result, () => {
+        this.pipelineActivity().paused(false);
+      }));
   }
 
   runPipeline() {
@@ -96,6 +127,15 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
 
   pageName(): string {
     return "Pipeline Activity";
+  }
+
+  protected headerPanel(vnode: m.Vnode<null, State>): any {
+    const title = <PipelineActivityHeader pipelineActivity={this.pipelineActivity()}
+                                          unpausePipeline={this.unpausePipeline.bind(this)}
+                                          pausePipeline={this.pausePipeline.bind(this)}
+                                          isAdmin={Page.isUserAnAdmin()}
+                                          isGroupAdmin={Page.isUserAGroupAdmin()}/>;
+    return <HeaderPanel title={title} sectionName={this.pageName()}/>;
   }
 
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {

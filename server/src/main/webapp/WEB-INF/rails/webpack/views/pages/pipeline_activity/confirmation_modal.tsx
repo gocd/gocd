@@ -15,10 +15,10 @@
  */
 
 import m from "mithril";
-import {Modal, Size} from "../../components/modal";
+import {Modal, Size} from "views/components/modal";
 import {OperationState} from "../page_operations";
-import * as Buttons from "../../components/buttons";
-import {ButtonIcon} from "../../components/buttons";
+import * as Buttons from "views/components/buttons";
+import {ButtonIcon} from "views/components/buttons";
 
 export class ConfirmationDialog extends Modal {
   private readonly callback: () => Promise<string | void>;

@@ -125,7 +125,8 @@ export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
       return <Icons.Forward iconOnly={true}
                             title="Auto approved"
                             disabled={PipelineRunWidget.shouldDisableApprovalIcon(stage)}
-                            data-test-id={dataTestId}/>;
+                            data-test-id={dataTestId}
+                            onclick={() => vnode.attrs.runStage(stage)}/>;
     }
 
     return <Icons.StepForward iconOnly={true}

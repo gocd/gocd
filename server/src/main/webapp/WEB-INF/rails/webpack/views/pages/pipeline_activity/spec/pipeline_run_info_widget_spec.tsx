@@ -210,6 +210,19 @@ describe("PipelineRunInfoWidget", () => {
       helper.clickByTestId("manual-gate-icon-release-2");
       expect(runStage).toHaveBeenCalled();
     });
+
+    it("should run stage on click of auto approval gate when previous stage is failed", () => {
+      const nextStage       = unknown("integration", 2);
+      const pipelineRunInfo = PipelineRunInfo.fromJSON(PipelineActivityData.pipelineRunInfo(
+        failed("unit", 1),
+        nextStage
+      ));
+      mount(pipelineRunInfo);
+
+      helper.clickByTestId("auto-gate-icon-integration-2");
+
+      expect(runStage).toHaveBeenCalled();
+    });
   });
 
   describe("Stage actions", () => {

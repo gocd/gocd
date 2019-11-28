@@ -171,8 +171,8 @@ class Environment extends Group {
       return {};
     }
     return {
-      edit: SparkRoutes.editEnvironmentsPath(this.name),
-      show: SparkRoutes.editEnvironmentsPath(this.name)
+      edit: SparkRoutes.getEnvironmentPathOnSPA(this.name),
+      show: SparkRoutes.getEnvironmentPathOnSPA(this.name)
     };
   }
 }

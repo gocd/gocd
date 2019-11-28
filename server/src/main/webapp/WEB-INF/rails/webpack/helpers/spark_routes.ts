@@ -440,7 +440,7 @@ export class SparkRoutes {
     return `/go/admin/templates/${templateName}/permissions`;
   }
 
-  static editEnvironmentsPath(environmentName: string) {
+  static getEnvironmentPathOnSPA(environmentName: string) {
     return `/go/admin/environments/#!${environmentName}`;
   }
 

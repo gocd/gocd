@@ -96,7 +96,7 @@ export class UnavailablePipelinesBecauseOfOtherEnvironmentWidget extends Mithril
             const environmentWithOrigin = vnode.attrs.pipelinesVM.environments.findEnvironmentForPipeline(pipeline.name());
             const environmentLink       = <span data-test-id={`pipeline-list-item-for-${pipeline.name()}`} class={styles.link}>
               (ENVIRONMENT:
-              <Link target="_blank" href={SparkRoutes.editEnvironmentsPath(environmentWithOrigin!.name())}>
+              <Link target="_blank" href={SparkRoutes.getEnvironmentPathOnSPA(environmentWithOrigin!.name())}>
                 {environmentWithOrigin!.name()}
               </Link>
               )

@@ -55,7 +55,7 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
       <div>{`Do you want to run the stage '${stage.stageName()}'?`}</div>,
       () => this.service
         .runStage(stage)
-        .then((result) => this.handleActionApiResponse(result, () => PipelineActivityPage.markStageBuilding(stage)))
+        .then((result) => this.handleActionApiResponse(result, () => stage.getCanRun(false)))
     ).render();
   }
 
@@ -64,7 +64,7 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
       <div>{"This will cancel all active jobs in this stage. Are you sure?"}</div>,
       () => this.service
         .cancelStageInstance(stage)
-        .then((result) => this.handleActionApiResponse(result, () => PipelineActivityPage.markStageCancelled(stage)))
+        .then((result) => this.handleActionApiResponse(result, () => stage.getCanCancel(false)))
     ).render();
   }
 
@@ -107,11 +107,10 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
 
   private handleActionApiResponse(result: ApiResult<string>, onSuccess?: () => void) {
     result.do((successResponse) => {
-        const body    = JSON.parse(successResponse.body);
-        const isError = PipelineActivityPage.isErrorOrWarningMessage(body.message);
-        this.flashMessage.setMessage(isError ? MessageType.alert : MessageType.success, body.message);
+        const body = JSON.parse(successResponse.body);
+        this.flashMessage.setMessage(MessageType.success, body.message);
         this.fetchPipelineHistory.bind(this, this.pagination().offset);
-        if (onSuccess && !isError) {
+        if (onSuccess) {
           onSuccess();
         }
       },
@@ -130,21 +129,4 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
   private static pipelineNameFromUrl(): string {
     return window.location.pathname.split("/").pop()!;
   }
-
-  private static markStageBuilding(stage: Stage) {
-    stage.stageStatus("building");
-    stage.getCanRun(false);
-    stage.getCanCancel(true);
-  }
-
-  private static markStageCancelled(stage: Stage) {
-    stage.stageStatus("cancelled");
-    stage.getCanRun(true);
-    stage.getCanCancel(false);
-  }
-
-  private static isErrorOrWarningMessage(message: string) {
-    return ["Stage is not active. Cancellation Ignored."].indexOf(message) != -1;
-  }
-
 }

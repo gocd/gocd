@@ -86,6 +86,9 @@ export class BackupWidget extends MithrilComponent<Attrs> {
           configuration, keystores and other GoCD internal configurations.
         </li>
         <li>
+          <strong>Wrapper Configuration</strong> - An archive named <code>wrapper-config-dir.zip</code> containing tanuki wrapper configuration.
+        </li>
+        <li>
           <strong>Database</strong> - The database is archived to a file named <code>db.zip</code> which is used to restore GoCD's database.
         </li>
         <li>

@@ -26,10 +26,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.nio.charset.Charset;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -901,6 +898,10 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public boolean pluginClassLoaderHasOldBehaviour() {
         return GO_PLUGIN_CLASSLOADER_OLD.getValue();
+    }
+
+    public Optional<String> wrapperConfigDirPath() {
+        return Optional.ofNullable(System.getenv("WRAPPER_CONF_DIR"));
     }
 
     public static abstract class GoSystemProperty<T> {

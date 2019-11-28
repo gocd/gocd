@@ -156,6 +156,8 @@ export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
       return styles.cancelled;
     } else if (status.trim().toLowerCase() === "passed") {
       return styles.passed;
+    } else if (status.trim().toLowerCase() === "waiting") {
+      return styles.waiting;
     }
 
     return styles.unknown;

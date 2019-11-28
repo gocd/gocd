@@ -47,7 +47,9 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
 
   runPipeline() {
     this.service.run(this.pipelineActivity().pipelineName())
-      .then(this.handleActionApiResponse.bind(this));
+      .then((result) => this.handleActionApiResponse(result, () => {
+        this.pipelineActivity().canForce(false);
+      }));
   }
 
   runStage(stage: Stage) {
@@ -56,7 +58,7 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
       () => this.service
         .runStage(stage)
         .then((result) => this.handleActionApiResponse(result, () => {
-          stage.getCanRun(false)
+          stage.getCanRun(false);
           stage.stageStatus("waiting");
         }))
     ).render();
@@ -120,7 +122,7 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
           onSuccess();
         }
       },
-      (errorResponse) => this.onFailure(errorResponse.message))
+      (errorResponse) => this.flashMessage.setMessage(MessageType.alert, errorResponse.message))
   }
 
   private pageChangeCallback(pageNumber: number) {

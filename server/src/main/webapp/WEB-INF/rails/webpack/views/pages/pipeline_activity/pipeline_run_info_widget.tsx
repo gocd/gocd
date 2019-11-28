@@ -21,7 +21,7 @@ import styles from "./index.scss";
 import Stream from "mithril/stream";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import {BuildCauseWidget} from "./build_cause_widget";
-import * as Icons from "../../components/icons";
+import * as Icons from "views/components/icons";
 import {timeFormatter as TimeFormatter} from "helpers/time_formatter";
 import s from "underscore.string";
 import {SparkRoutes} from "helpers/spark_routes";

@@ -89,6 +89,11 @@ export abstract class Page<Attrs = {}, State = {}> extends MithrilComponent<Attr
     return attribute ? attribute.toLowerCase() === "true" : false;
   }
 
+  protected static isUserAGroupAdmin() {
+    const attribute = Page.readAttribute("data-is-user-group-admin");
+    return attribute ? attribute.toLowerCase() === "true" : false;
+  }
+
   private _onSuccess() {
     this.pageState = PageState.OK;
   }

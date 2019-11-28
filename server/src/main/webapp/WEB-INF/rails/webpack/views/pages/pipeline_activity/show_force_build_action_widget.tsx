@@ -16,7 +16,7 @@
 import {bind} from "classnames/bind";
 import m from "mithril";
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as Icons from "../../components/icons";
+import * as Icons from "views/components/icons";
 import {Group, StageConfig} from "models/pipeline_activity/pipeline_activity";
 import styles from "./index.scss";
 import Stream from "mithril/stream";

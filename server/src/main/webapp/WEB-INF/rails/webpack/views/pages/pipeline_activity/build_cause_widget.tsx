@@ -19,7 +19,7 @@ import {MaterialRevision, Modification, PipelineRunInfo} from "models/pipeline_a
 import {Dropdown, DropdownAttrs} from "views/components/buttons";
 import styles from "./index.scss"
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as Icons from "../../components/icons";
+import * as Icons from "views/components/icons";
 import Stream = require("mithril/stream");
 
 const classnames = bind(styles);
@@ -40,6 +40,10 @@ export class BuildCauseWidget extends Dropdown<Attrs> {
   }
 
   protected doRenderButton(vnode: m.Vnode<DropdownAttrs & Attrs>): m.Children {
+    if (!vnode.attrs.pipelineRunInfo.revision()) {
+      return;
+    }
+
     return <a class={styles.buildCauseButton}
               data-test-id="trigger-with-changes-button"
               onclick={this.toggleDropdown.bind(this, vnode)}>

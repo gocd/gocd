@@ -339,3 +339,37 @@ $stage-action-icon-z-index: 1;
   display:    flex;
   margin-top: 20px;
 }
+
+.page-header {
+  display: flex;
+
+  .pipeline-info {
+    display:        flex;
+    flex-direction: column;
+    height:         100%;
+
+    .label {
+      font-size: 0.625rem;
+    }
+
+    .value {
+      font-size: 15px;
+    }
+  }
+
+  .icon-container {
+    display:    flex;
+    margin:     0 10px;
+    align-self: center;
+  }
+
+  .pause-message {
+    align-self:    center;
+    font-size:     11px;
+    font-weight:   normal;
+    max-width:     400px;
+    white-space:   nowrap;
+    overflow:      hidden;
+    text-overflow: ellipsis;
+  }
+}

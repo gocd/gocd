@@ -22,7 +22,7 @@ import {ResultAwarePage} from "views/pages/page_operations";
 export class PipelineActivityService {
   private static API_VERSION_HEADER = ApiVersion.v1;
 
-  activities(pipelineName: string, offset: number, page: ResultAwarePage<PipelineActivity>) {
+  activities(pipelineName: string, offset: number, page: ResultAwarePage<PipelineActivity>): void {
     ApiRequestBuilder.GET(SparkRoutes.apiPipelineActivity(pipelineName, offset), PipelineActivityService.API_VERSION_HEADER)
       .then((result) => this.onResult(result, page));
   }
@@ -42,6 +42,16 @@ export class PipelineActivityService {
 
   run(pipelineName: string) {
     return ApiRequestBuilder.POST(SparkRoutes.pipelineTriggerPath(pipelineName), PipelineActivityService.API_VERSION_HEADER);
+  }
+
+  pausePipeline(pipelineName: string, pauseCause: string) {
+    return ApiRequestBuilder.POST(SparkRoutes.pipelinePausePath(pipelineName),
+      PipelineActivityService.API_VERSION_HEADER,
+      {payload: {pause_cause: pauseCause}});
+  }
+
+  unpausePipeline(pipelineName: string) {
+    return ApiRequestBuilder.POST(SparkRoutes.pipelineUnpausePath(pipelineName), PipelineActivityService.API_VERSION_HEADER);
   }
 
   private onResult(result: ApiResult<string>, page: ResultAwarePage<PipelineActivity>) {

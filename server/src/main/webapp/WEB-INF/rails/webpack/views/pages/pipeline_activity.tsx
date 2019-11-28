@@ -45,21 +45,26 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
     new AjaxPoller({repeaterFn: this.fetchData.bind(this, vnode), initialIntervalSeconds: 10}).start();
   }
 
-  runPipeline(name: string) {
-    this.service.run(name).then(this.handleActionApiResponse.bind(this));
+  runPipeline() {
+    this.service.run(this.pipelineActivity().pipelineName())
+      .then(this.handleActionApiResponse.bind(this));
   }
 
   runStage(stage: Stage) {
     new ConfirmationDialog("Run stage",
       <div>{`Do you want to run the stage '${stage.stageName()}'?`}</div>,
-      () => this.service.runStage(stage).then(this.handleActionApiResponse.bind(this))
+      () => this.service
+        .runStage(stage)
+        .then((result) => this.handleActionApiResponse(result, () => PipelineActivityPage.markStageBuilding(stage)))
     ).render();
   }
 
   cancelStageInstance(stage: Stage) {
     new ConfirmationDialog("Cancel stage instance",
       <div>{"This will cancel all active jobs in this stage. Are you sure?"}</div>,
-      () => this.service.cancelStageInstance(stage).then(this.handleActionApiResponse.bind(this))
+      () => this.service
+        .cancelStageInstance(stage)
+        .then((result) => this.handleActionApiResponse(result, () => PipelineActivityPage.markStageCancelled(stage)))
     ).render();
   }
 
@@ -100,11 +105,15 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
     this.pagination(new Pagination(data.start(), data.count(), data.perPage()));
   }
 
-  private handleActionApiResponse(result: ApiResult<string>) {
+  private handleActionApiResponse(result: ApiResult<string>, onSuccess?: () => void) {
     result.do((successResponse) => {
-        const body = JSON.parse(successResponse.body);
-        this.flashMessage.setMessage(MessageType.success, body.message);
+        const body    = JSON.parse(successResponse.body);
+        const isError = PipelineActivityPage.isErrorOrWarningMessage(body.message);
+        this.flashMessage.setMessage(isError ? MessageType.alert : MessageType.success, body.message);
         this.fetchPipelineHistory.bind(this, this.pagination().offset);
+        if (onSuccess && !isError) {
+          onSuccess();
+        }
       },
       (errorResponse) => this.onFailure(errorResponse.message))
   }
@@ -121,4 +130,21 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
   private static pipelineNameFromUrl(): string {
     return window.location.pathname.split("/").pop()!;
   }
+
+  private static markStageBuilding(stage: Stage) {
+    stage.stageStatus("building");
+    stage.getCanRun(false);
+    stage.getCanCancel(true);
+  }
+
+  private static markStageCancelled(stage: Stage) {
+    stage.stageStatus("cancelled");
+    stage.getCanRun(true);
+    stage.getCanCancel(false);
+  }
+
+  private static isErrorOrWarningMessage(message: string) {
+    return ["Stage is not active. Cancellation Ignored."].indexOf(message) != -1;
+  }
+
 }

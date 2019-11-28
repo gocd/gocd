@@ -63,12 +63,12 @@ public class DeletePipelineConfigsCommandTest {
     }
 
     @Test
-    public void commandShouldReturnUnprocessableEntityResult_whenDeletingNonEmptyPipelineGroup() throws Exception {
+    public void commandShouldNotContinue_whenDeletingNonEmptyPipelineGroup() throws Exception {
         pipelineConfigs.add(new PipelineConfig());
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         DeletePipelineConfigsCommand command = new DeletePipelineConfigsCommand(pipelineConfigs, result, user, securityService);
 
-        command.update(cruiseConfig);
+        command.canContinue(cruiseConfig);
 
         assertThat(result.httpCode(), is(HttpStatus.SC_UNPROCESSABLE_ENTITY));
         assertThat(result.message(), is("Failed to delete group group because it was not empty."));

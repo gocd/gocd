@@ -297,7 +297,7 @@ public class PipelineGroupsTest {
     }
 
     @Test
-    public void shouldDeleteGroupWhenEmpty() {
+    public void shouldDeleteGroup() {
         PipelineConfigs group = createGroup("group", new PipelineConfig[] {});
 
         PipelineGroups groups = new PipelineGroups(group);
@@ -307,7 +307,7 @@ public class PipelineGroupsTest {
     }
 
     @Test
-    public void shouldDeleteGroupWithSameNameWhenEmpty() {
+    public void shouldDeleteGroupWithSameName() {
         PipelineConfigs group = createGroup("group", new PipelineConfig[] {});
         group.setAuthorization(new Authorization(new ViewConfig(new AdminUser(new CaseInsensitiveString("user")))));
 
@@ -315,15 +315,5 @@ public class PipelineGroupsTest {
         groups.deleteGroup("group");
 
         assertThat(groups.size(), is(0));
-    }
-
-    @Test(expected = UnprocessableEntityException.class)
-    public void shouldThrowExceptionWhenDeletingGroupWhenNotEmpty() {
-        PipelineConfig p1Config = createPipelineConfig("pipeline1", "stage1");
-
-        PipelineConfigs group = createGroup("group", p1Config);
-
-        PipelineGroups groups = new PipelineGroups(group);
-        groups.deleteGroup("group");
     }
 }

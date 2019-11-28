@@ -17,7 +17,6 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfigs;
-import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
@@ -34,11 +33,7 @@ public class DeletePipelineConfigsCommand extends PipelineConfigsCommand {
     @Override
     public void update(CruiseConfig preprocessedConfig) throws Exception {
         preprocessedPipelineConfigs = group;
-        try {
-            preprocessedConfig.deletePipelineGroup(group.getGroup());
-        } catch (UnprocessableEntityException e) {
-            result.unprocessableEntity(e.getMessage());
-        }
+        preprocessedConfig.deletePipelineGroup(group.getGroup());
     }
 
     @Override
@@ -48,6 +43,10 @@ public class DeletePipelineConfigsCommand extends PipelineConfigsCommand {
 
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
+        if (!group.isEmpty()) {
+            result.unprocessableEntity("Failed to delete group " + group.getGroup() + " because it was not empty.");
+            return false;
+        }
         return isUserAdminOfGroup(group.getGroup());
     }
 }

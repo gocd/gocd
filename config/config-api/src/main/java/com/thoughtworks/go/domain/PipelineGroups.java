@@ -19,7 +19,6 @@ package com.thoughtworks.go.domain;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
-import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
@@ -271,16 +270,6 @@ public class PipelineGroups extends BaseCollection<PipelineConfigs> implements V
     }
 
     public void deleteGroup(String groupName) {
-        Iterator<PipelineConfigs> iterator = this.iterator();
-        while (iterator.hasNext()) {
-            PipelineConfigs currentGroup = iterator.next();
-            if (currentGroup.isNamed(groupName)) {
-                if (!currentGroup.isEmpty()) {
-                    throw new UnprocessableEntityException("Failed to delete group " + groupName + " because it was not empty.");
-                }
-                iterator.remove();
-                break;
-            }
-        }
+        this.removeIf(pipelineGroup -> pipelineGroup.isNamed(groupName));
     }
 }

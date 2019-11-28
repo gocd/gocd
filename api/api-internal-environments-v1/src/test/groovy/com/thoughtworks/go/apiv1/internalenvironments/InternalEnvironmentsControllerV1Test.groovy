@@ -28,6 +28,7 @@ import com.thoughtworks.go.config.merge.MergeEnvironmentConfig
 import com.thoughtworks.go.config.policy.Allow
 import com.thoughtworks.go.config.policy.Policy
 import com.thoughtworks.go.helper.EnvironmentConfigMother
+import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.service.AgentService
 import com.thoughtworks.go.server.service.EnvironmentConfigService
 import com.thoughtworks.go.spark.AdminUserSecurity
@@ -38,6 +39,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
+import org.mockito.invocation.InvocationOnMock
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static java.util.Arrays.asList
@@ -234,8 +236,23 @@ class InternalEnvironmentsControllerV1Test implements SecurityServiceTrait, Cont
 
   @Nested
   class UpdateAgentsAssociation {
+    @BeforeEach
+    void setUp() {
+      Policy directives = new Policy()
+      directives.add(new Allow("administer", "environment", "*"))
+      RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("role"), new Users(), directives)
+
+      when(goConfigService.rolesForUser(any(CaseInsensitiveString.class))).then({ InvocationOnMock invocation ->
+        CaseInsensitiveString username = invocation.getArguments()[0]
+        if (username == Username.ANONYMOUS.username) {
+          return []
+        }
+        return [roleConfig]
+      })
+    }
+
     @Nested
-    class Security implements SecurityTestTrait, AdminUserSecurity {
+    class Security implements SecurityTestTrait, NormalUserSecurity {
       @Override
       String getControllerMethodUnderTest() {
         return 'updateAgentAssociation'
@@ -248,10 +265,10 @@ class InternalEnvironmentsControllerV1Test implements SecurityServiceTrait, Cont
     }
 
     @Nested
-    class AsAdmin {
+    class AsNormalUser {
       @BeforeEach
       void setUp() {
-        loginAsAdmin()
+        loginAsUser()
       }
 
       @Test
@@ -318,6 +335,21 @@ class InternalEnvironmentsControllerV1Test implements SecurityServiceTrait, Cont
         assertThatResponse()
           .isUnprocessableEntity()
           .hasJsonMessage('Json `{\\"uuids1\\":[\\"agent1\\",\\"agent2\\"]}` does not contain property \'uuids\'.')
+      }
+
+      @Test
+      void 'should throw 403 if the user does not have administer permission on env'() {
+        when(goConfigService.rolesForUser(any(CaseInsensitiveString.class))).thenReturn([])
+
+        def json = [
+          uuids1: ["agent1", "agent2"]
+        ]
+
+        putWithApiHeader(controller.controllerPath('env'), json)
+
+        assertThatResponse()
+          .isForbidden()
+          .hasJsonMessage("User '${currentUsername().displayName}' does not have permissions to administer 'env' environment(s).")
       }
     }
 

@@ -75,11 +75,11 @@ public class InternalEnvironmentsControllerV1 extends ApiController implements S
 
             before("", mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
 
-            before("/*", mimeType, (request, response) -> {
+            before(Routes.InternalEnvironments.ENV_NAME, mimeType, (request, response) -> {
                 if (request.requestMethod().equalsIgnoreCase("GET")) {
                     apiAuthenticationHelper.checkUserAnd403(request, response);
-                } else {
-                    apiAuthenticationHelper.checkAdminUserAnd403(request, response);
+                } else {    // this is a PUT request to update agent association
+                    apiAuthenticationHelper.checkUserHasPermissions(currentUsername(), SupportedAction.ADMINISTER, SupportedEntity.ENVIRONMENT, request.params("env_name"));
                 }
             });
 

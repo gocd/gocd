@@ -31,12 +31,6 @@
   </rule>
 
   <rule>
-    <name>Agent Details Page Redirect to Agent Job History Page</name>
-    <from>^/agents/([^/]+)(/?)$</from>
-    <to type="redirect" last="true">/go/agents/${escape:$1}/job_run_history</to>
-  </rule>
-
-  <rule>
     <name>Agent Job History Page</name>
     <from>^/agents/([^/]+)/job_run_history(/?)$</from>
     <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="agentJobRunHistoryUsingRails"/>

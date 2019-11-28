@@ -28,8 +28,8 @@
     },
     {
       "key": "show_new_environments_spa",
-      "description": "Switch to the new environments SPA. Default is false.",
-      "value": false
+      "description": "Switch to the new environments SPA. Default is true.",
+      "value": true
     },
     {
       "key": "show_rails_based_agents_job_run_history_page",

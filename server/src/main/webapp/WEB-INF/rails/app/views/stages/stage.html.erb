@@ -25,13 +25,18 @@
         </div>
     <% when 'stats' %>
         <div id="stage_stats">
-
           <div class="stats">
             <div id="chart_details_container">
-              <iframe width="100%" height="400px" src="<%= stage_detail_tab_stats_iframe_path() %>"></iframe>
+              <iframe sandbox="allow-scripts" width="100%" height="400px" src="<%= stage_detail_tab_stats_iframe_path() %>"></iframe>
             </div>
           </div>
         </div>
+        <script>
+            window.addEventListener("message", function(event) {
+                var data = JSON.parse(event.data);
+                window.location.href = data.openLink;
+            }, false);
+        </script>
     <% when 'stage_config' %>
         <div id="ran_with_config">
             <%= render :partial => "config.html", :locals => {:scope => {:config_revision => @ran_with_config_revision}} -%>

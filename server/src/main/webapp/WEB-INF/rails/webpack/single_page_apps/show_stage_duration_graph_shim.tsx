@@ -38,8 +38,14 @@ interface Data {
     pipeline_label: string;
 }
 
-function chartDataForCounter(chartData: Data[], pipelineCounter: number): Data {
-    return chartData.find((datum) => datum.pipeline_counter === pipelineCounter)!;
+function chartDataForCounter(chartData: Data[], pipelineCounter: number, status: Status): Data {
+    return chartData.find((datum) => datum.pipeline_counter === pipelineCounter && datum.status === status)!;
+}
+
+function statusFromSelectedItem(chartTooltipItem: Chart.ChartTooltipItem, chart: Chart) {
+    const datasetIndex = chartTooltipItem.datasetIndex!;
+    const chartDataSet = chart.data.datasets![datasetIndex];
+    return chartDataSet.label as Status;
 }
 
 // @ts-ignore
@@ -51,15 +57,31 @@ window.showStageDurationGraph = (title: string,
     const maxDuration = _.maxBy(chartData, (datum) => datum.duration)!.duration;
     const scale = maxDuration >= DurationScale.Minute ? DurationScale.Minute : DurationScale.Second;
 
+    // create 2 arrays with durations for passed and failed stages
+    const passedData = new Array<number | undefined>();
+    const failedData = new Array<number | undefined>();
+
+    chartData.forEach((datum) => {
+        if (datum.status === 'Passed') {
+            passedData[datum.pipeline_counter] = datum.duration / scale;
+        } else {
+            failedData[datum.pipeline_counter] = datum.duration / scale;
+        }
+    });
+
+    // remove all data before pipeline counter (they are all `undefined`)
+    passedData.splice(0, chartData[0].pipeline_counter);
+    failedData.splice(0, chartData[0].pipeline_counter);
+
     const config: Chart.ChartConfiguration = {
         type: "line",
         data: {
-            labels: chartData.map((datum) => datum.pipeline_counter.toString()),
+            labels: _.range(chartData[0].pipeline_counter, chartData[chartData.length - 1].pipeline_counter + 1).map((eachCounter) => eachCounter.toString()),
             datasets: [
                 {
                     label: 'Passed',
                     borderColor: '#78C42D',
-                    data: chartData.map((datum) => datum.status === 'Passed' ? datum.duration / scale : undefined),
+                    data: passedData,
                     fill: false,
                     pointRadius: 3,
                     pointHoverRadius: 6,
@@ -67,7 +89,7 @@ window.showStageDurationGraph = (title: string,
                 {
                     label: 'Failed',
                     borderColor: '#FA2D2D',
-                    data: chartData.map((datum) => datum.status === 'Failed' ? datum.duration / scale : undefined),
+                    data: failedData,
                     fill: false,
                     pointRadius: 3,
                     pointHoverRadius: 6,
@@ -99,19 +121,22 @@ window.showStageDurationGraph = (title: string,
                 borderWidth: 1,
                 callbacks: {
                     title(item: Chart.ChartTooltipItem[], data: Chart.ChartData): string | string[] {
+                        const status = statusFromSelectedItem(item[0], chart);
                         const selectedPipelineCounter = parseInt(item[0].xLabel! as string, 10);
-                        const selectedPipelineData = chartDataForCounter(chartData, selectedPipelineCounter);
+                        const selectedPipelineData = chartDataForCounter(chartData, selectedPipelineCounter, status);
                         return `Pipeline Label: ${selectedPipelineData.pipeline_label}`;
                     },
                     label(tooltipItem: Chart.ChartTooltipItem, data: Chart.ChartData): string | string[] {
+                        const status = statusFromSelectedItem(tooltipItem, chart);
                         const pipelineCounter = parseInt(tooltipItem.xLabel! as string, 10);
-                        const selectedPipelineData = chartDataForCounter(chartData, pipelineCounter);
+                        const selectedPipelineData = chartDataForCounter(chartData, pipelineCounter, status);
                         const duration = timeFormatter.formattedDuration(selectedPipelineData.duration);
                         return `${selectedPipelineData.status} in ${(duration)}`;
                     },
                     footer(item: Chart.ChartTooltipItem[], data: Chart.ChartData): string | string[] {
+                        const status = statusFromSelectedItem(item[0], chart);
                         const pipelineCounter = parseInt(item[0].xLabel! as string, 10);
-                        const selectedPipelineData = chartDataForCounter(chartData, pipelineCounter);
+                        const selectedPipelineData = chartDataForCounter(chartData, pipelineCounter, status);
                         return `Started at ${timeFormatter.format(selectedPipelineData.schedule_date)}`;
                     }
                 }
@@ -152,11 +177,13 @@ window.showStageDurationGraph = (title: string,
                 }
             },
             onClick(event?: MouseEvent, activeElements?: Array<{}>): any {
-                const elementAtEvent: any = chart.getElementAtEvent(event)[0];
+                const elementAtEvent: any = (chart.getElementAtEvent(event))[0];
+
                 if (elementAtEvent) {
+                    const status = statusFromSelectedItem({datasetIndex: elementAtEvent._datasetIndex}, chart);
                     const pipelineCounter = parseInt(chart.data.labels![elementAtEvent._index] as string, 10);
-                    const selectedPipelineData = chartDataForCounter(chartData, pipelineCounter);
-                    window.location.href = selectedPipelineData.stage_link;
+                    const selectedPipelineData = chartDataForCounter(chartData, pipelineCounter, status);
+                    parent.postMessage(JSON.stringify({openLink: selectedPipelineData.stage_link}), "*");
                 }
             },
             onHover(event: MouseEvent, activeElements: Array<{}>): any {

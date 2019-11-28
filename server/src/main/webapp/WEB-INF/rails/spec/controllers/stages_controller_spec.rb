@@ -489,13 +489,7 @@ describe StagesController do
       setup_stubs(stage_summary_model1, stage_summary_model2)
       get :stats_iframe, params:{:pipeline_name => "pipeline-name", :pipeline_counter => "1", :stage_name => "stage", :stage_counter => "1", :page_number => "2"}
 
-      expected_data = [{:duration => 600000,
-                        :pipeline_counter => 1,
-                        :pipeline_label => "LABEL-1",
-                        :schedule_date => "2008-02-22T04:51:23Z",
-                        :stage_link => "/pipelines/pipeline-name/1/stage/1/jobs",
-                        :status => "Passed"},
-                       {:duration => 1200000,
+      expected_data = [{:duration => 1200000,
                         :pipeline_counter => 1,
                         :pipeline_label => "LABEL-1 (run 2)",
                         :schedule_date => "2008-02-22T04:51:23Z",

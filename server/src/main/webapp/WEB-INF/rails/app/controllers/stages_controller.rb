@@ -52,13 +52,20 @@ class StagesController < ApplicationController
   def stats_iframe
     page_number = params[:page_number].nil? ? 1 : params[:page_number].to_i
     stage_summary_models = stage_service.findStageHistoryForChart(@stage.getPipelineName(), @stage.getName(), page_number, STAGE_DURATION_RANGE, current_user)
-    stage_summary_models.sort! { |s1, s2| s1.getPipelineCounter() <=> s2.getPipelineCounter() }
     @no_chart_to_render = false
     if (stage_summary_models.size() > 0)
+      @pagination = stage_summary_models.getPagination()
 
-      @graph_data = stage_summary_models.select do |stage_summary|
-        [StageState::Passed, StageState::Failed].include?(stage_summary.getStage().getState())
-      end.map do |stage_summary|
+      # sort/filter/unique until we get the "latest" passed and "latest" failed stage for each pipeline counter.
+      # put another way, given p/1/s/1 (failed), p/1/s/2 (passed), p/1/s/3 (failed), p/1/s/4 (passed)
+      # then pick both p/1/s/3 (failed), p/1/s/4 (passed), because they're the "latest" passed and failed stages
+      @graph_data = stage_summary_models
+                        .sort_by { |stage_summary| [stage_summary.getPipelineCounter(), stage_summary.getStageCounter()] }
+                        .select { |stage_summary| [StageState::Passed, StageState::Failed].include?(stage_summary.getStage().getState()) }
+                        .reverse
+                        .uniq { |stage_summary| [stage_summary.getPipelineCounter(), stage_summary.getStage().getState()] }
+                        .reverse
+                        .map do |stage_summary|
         pipeline_label = stage_summary.getStageCounter().to_i > 1 ? stage_summary.getPipelineLabel() + " (run #{stage_summary.getStageCounter()})" : stage_summary.getPipelineLabel()
 
         {
@@ -70,7 +77,6 @@ class StagesController < ApplicationController
             pipeline_label: pipeline_label
         }
       end
-      @pagination = stage_summary_models.getPagination()
       @start_end_dates = date_range(stage_summary_models)
     else
       @no_chart_to_render = true

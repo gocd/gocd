@@ -55,7 +55,10 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
       <div>{`Do you want to run the stage '${stage.stageName()}'?`}</div>,
       () => this.service
         .runStage(stage)
-        .then((result) => this.handleActionApiResponse(result, () => stage.getCanRun(false)))
+        .then((result) => this.handleActionApiResponse(result, () => {
+          stage.getCanRun(false)
+          stage.stageStatus("waiting");
+        }))
     ).render();
   }
 
@@ -64,7 +67,10 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
       <div>{"This will cancel all active jobs in this stage. Are you sure?"}</div>,
       () => this.service
         .cancelStageInstance(stage)
-        .then((result) => this.handleActionApiResponse(result, () => stage.getCanCancel(false)))
+        .then((result) => this.handleActionApiResponse(result, () => {
+          stage.getCanCancel(false);
+          stage.stageStatus("waiting");
+        }))
     ).render();
   }
 

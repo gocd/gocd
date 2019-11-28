@@ -186,7 +186,7 @@ $stage-action-icon-z-index: 1;
   }
 }
 
-.unknown, .building, .cancelled, .failed, .passed {
+.unknown, .building, .cancelled, .failed, .passed, .waiting {
   color: $white;
 
   &:before {
@@ -218,6 +218,25 @@ $stage-action-icon-z-index: 1;
 .passed {
   @include icon-before($fa-var-check, 12px, 0);
   background: $passed;
+}
+
+.waiting {
+  @include icon-before($fa-var-spinner, 12px, 0);
+  color:      $black;
+  background: transparent url('../../../../app/assets/images/building.png') repeat-x;
+
+  &:before {
+    animation: spin 1500ms linear infinite;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .build-cause-button {

@@ -27,3 +27,17 @@
     }
   }
 }
+
+.key-value-pair {
+  height:  35px;
+  display: flex;
+}
+
+.key {
+  width: 135px;
+}
+
+.value {
+  font-family: monospace;
+  font-weight: 600;
+}

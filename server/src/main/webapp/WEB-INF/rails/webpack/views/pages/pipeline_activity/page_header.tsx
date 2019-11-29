@@ -33,6 +33,9 @@ interface Attrs {
 
 export class PipelineActivityHeader extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>): m.Children {
+    if (!vnode.attrs.pipelineActivity) {
+      return;
+    }
     return <div class={styles.pageHeader}>
       <div class={styles.pipelineInfo}>
         <span class={styles.label} data-test-id="page-header-pipeline-label">Pipeline</span>

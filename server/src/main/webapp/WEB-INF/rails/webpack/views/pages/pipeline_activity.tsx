@@ -19,7 +19,7 @@ import Stream from "mithril/stream";
 import {PipelineActivity, Stage} from "models/pipeline_activity/pipeline_activity";
 import {PipelineActivityService} from "models/pipeline_activity/pipeline_activity_crud";
 import {FlashMessage, MessageType} from "views/components/flash_message";
-import {Page} from "views/pages/page";
+import {Page, PageState} from "views/pages/page";
 import {ResultAwarePage} from "views/pages/page_operations";
 import {PipelineActivityWidget} from "views/pages/pipeline_activity/pipeline_activity_widget";
 import {PaginationWidget} from "../components/pagination";
@@ -118,7 +118,7 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
 
   componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
     if (!this.pipelineActivity()) {
-      return;
+      return <FlashMessage type={this.flashMessage.type} message={this.flashMessage.message}/>;
     }
 
     return [
@@ -166,6 +166,7 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
   onSuccess(data: PipelineActivity) {
     this.pipelineActivity(data);
     this.pagination(new Pagination(data.start(), data.count(), data.perPage()));
+    this.pageState = PageState.OK;
   }
 
   private handleActionApiResponse(result: ApiResult<string>, onSuccess?: () => void) {

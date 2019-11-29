@@ -47,9 +47,4 @@
       </stage>
     </pipeline>
   </pipelines>
-  <pipelines group="yaml-example" />
-  <pipelines group="simple" />
-  <environments>
-    <environment name="example" />
-  </environments>
 </cruise>

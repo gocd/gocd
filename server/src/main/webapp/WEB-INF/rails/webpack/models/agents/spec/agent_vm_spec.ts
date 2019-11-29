@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import {SortOrder} from "models/agents/agent_comparator";
 import {Agent, AgentConfigState, Agents} from "models/agents/agents";
 import {ElasticAgentVM, StaticAgentsVM} from "models/agents/agents_vm";
 import {AgentsTestData} from "models/agents/spec/agents_test_data";
+import {SortOrder} from "views/components/table";
 
 describe("AgentVM", () => {
   let idleAgent: Agent, buildingAgent: Agent, disabledAgent: Agent, agents: Agents;
@@ -220,33 +220,33 @@ describe("AgentVM", () => {
       const staticAgentVM = new StaticAgentsVM(new Agents());
 
       expect(staticAgentVM.agentsSortHandler.currentSortedColumnIndex()).toBe(5);
-      expect(staticAgentVM.agentsSortHandler.currentSortOrder()).toBe(SortOrder.ASC);
+      expect(staticAgentVM.agentsSortHandler.getCurrentSortOrder()).toBe(SortOrder.ASC);
 
       staticAgentVM.agentsSortHandler.onColumnClick(3);
 
       expect(staticAgentVM.agentsSortHandler.currentSortedColumnIndex()).toBe(3);
-      expect(staticAgentVM.agentsSortHandler.currentSortOrder()).toBe(SortOrder.ASC);
+      expect(staticAgentVM.agentsSortHandler.getCurrentSortOrder()).toBe(SortOrder.ASC);
     });
 
     it("should change the sort order if column clicked twice", () => {
       const staticAgentVM = new StaticAgentsVM(new Agents());
 
       staticAgentVM.agentsSortHandler.onColumnClick(3);
-      expect(staticAgentVM.agentsSortHandler.currentSortOrder()).toBe(SortOrder.ASC);
+      expect(staticAgentVM.agentsSortHandler.getCurrentSortOrder()).toBe(SortOrder.ASC);
 
       staticAgentVM.agentsSortHandler.onColumnClick(3);
-      expect(staticAgentVM.agentsSortHandler.currentSortOrder()).toBe(SortOrder.DESC);
+      expect(staticAgentVM.agentsSortHandler.getCurrentSortOrder()).toBe(SortOrder.DESC);
     });
 
     it("should reverse the result if sort order is desc", () => {
       const productionAgent = Agent.fromJSON(AgentsTestData.withHostname("Hostname-A")),
             buildAgent      = Agent.fromJSON(AgentsTestData.withHostname("Hostname-B"));
-      const staticAgentsVM = new StaticAgentsVM(new Agents(productionAgent, buildAgent));
+      const staticAgentsVM  = new StaticAgentsVM(new Agents(productionAgent, buildAgent));
 
       staticAgentsVM.agentsSortHandler.onColumnClick(1);
       staticAgentsVM.agentsSortHandler.onColumnClick(1);
 
-      expect(staticAgentsVM.agentsSortHandler.currentSortOrder()).toBe(SortOrder.DESC);
+      expect(staticAgentsVM.agentsSortHandler.getCurrentSortOrder()).toBe(SortOrder.DESC);
       expect(staticAgentsVM.list()).toEqual([buildAgent, productionAgent]);
     });
   });
@@ -263,33 +263,33 @@ describe("AgentVM", () => {
       const elasticAgentVM = new ElasticAgentVM(new Agents());
 
       expect(elasticAgentVM.agentsSortHandler.currentSortedColumnIndex()).toBe(5);
-      expect(elasticAgentVM.agentsSortHandler.currentSortOrder()).toBe(SortOrder.ASC);
+      expect(elasticAgentVM.agentsSortHandler.getCurrentSortOrder()).toBe(SortOrder.ASC);
 
       elasticAgentVM.agentsSortHandler.onColumnClick(3);
 
       expect(elasticAgentVM.agentsSortHandler.currentSortedColumnIndex()).toBe(3);
-      expect(elasticAgentVM.agentsSortHandler.currentSortOrder()).toBe(SortOrder.ASC);
+      expect(elasticAgentVM.agentsSortHandler.getCurrentSortOrder()).toBe(SortOrder.ASC);
     });
 
     it("should change the sort order if column clicked twice", () => {
       const elasticAgentVM = new ElasticAgentVM(new Agents());
 
       elasticAgentVM.agentsSortHandler.onColumnClick(3);
-      expect(elasticAgentVM.agentsSortHandler.currentSortOrder()).toBe(SortOrder.ASC);
+      expect(elasticAgentVM.agentsSortHandler.getCurrentSortOrder()).toBe(SortOrder.ASC);
 
       elasticAgentVM.agentsSortHandler.onColumnClick(3);
-      expect(elasticAgentVM.agentsSortHandler.currentSortOrder()).toBe(SortOrder.DESC);
+      expect(elasticAgentVM.agentsSortHandler.getCurrentSortOrder()).toBe(SortOrder.DESC);
     });
 
     it("should reverse the result if sort order is desc", () => {
       const productionAgent = Agent.fromJSON(AgentsTestData.withHostname("Hostname-A")),
-        buildAgent      = Agent.fromJSON(AgentsTestData.withHostname("Hostname-B"));
-      const elasticAgentVM = new ElasticAgentVM(new Agents(productionAgent, buildAgent));
+            buildAgent      = Agent.fromJSON(AgentsTestData.withHostname("Hostname-B"));
+      const elasticAgentVM  = new ElasticAgentVM(new Agents(productionAgent, buildAgent));
 
       elasticAgentVM.agentsSortHandler.onColumnClick(1);
       elasticAgentVM.agentsSortHandler.onColumnClick(1);
 
-      expect(elasticAgentVM.agentsSortHandler.currentSortOrder()).toBe(SortOrder.DESC);
+      expect(elasticAgentVM.agentsSortHandler.getCurrentSortOrder()).toBe(SortOrder.DESC);
       expect(elasticAgentVM.all()).toEqual([buildAgent, productionAgent]);
     });
   });

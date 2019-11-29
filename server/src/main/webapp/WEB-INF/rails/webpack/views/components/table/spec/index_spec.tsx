@@ -16,7 +16,7 @@
 import m from "mithril";
 import Stream from "mithril/stream";
 import {TestHelper} from "views/pages/spec/test_helper";
-import {Table, TableSortHandler} from "../index";
+import {SortOrder, Table, TableSortHandler} from "../index";
 import styles from "../index.scss";
 
 describe("TableComponent", () => {
@@ -204,6 +204,11 @@ class TestTableSortHandler implements TableSortHandler {
 
   getCurrentSortedColumnIndex(): number {
     return this.currentSortedColumnIndex;
+  }
+
+  getCurrentSortOrder(): SortOrder {
+    const currentSortOrder = this.sortOrders.get(this.getCurrentSortedColumnIndex());
+    return SortOrder[currentSortOrder] ? SortOrder.ASC : SortOrder.DESC;
   }
 
   private static compare(element1: any, element2: any, index: number) {

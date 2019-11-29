@@ -16,9 +16,9 @@
 
 import _ from "lodash";
 import Stream from "mithril/stream";
-import {AgentComparator, SortOrder} from "models/agents/agent_comparator";
+import {AgentComparator} from "models/agents/agent_comparator";
 import {Agent, AgentConfigState, Agents} from "models/agents/agents";
-import {TableSortHandler} from "views/components/table";
+import {SortOrder, TableSortHandler} from "views/components/table";
 
 export abstract class BaseVM {
   protected agents: Agents;
@@ -220,7 +220,7 @@ export class AgentSortHandler implements TableSortHandler {
     return this.sortOnColumn;
   }
 
-  currentSortOrder() {
+  getCurrentSortOrder(): SortOrder {
     return this.sortOrder;
   }
 }

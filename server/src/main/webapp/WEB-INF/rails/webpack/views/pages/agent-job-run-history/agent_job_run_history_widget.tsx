@@ -109,6 +109,10 @@ class JobRunHistoryTableSortHandler implements TableSortHandler {
     return [0, 1, 2, 3];
   }
 
+  getCurrentSortOrder(): SortOrder {
+    return this.sortOrder;
+  }
+
   private static getColumns(): Foo[] {
     return ["pipeline_name", "stage_name", "job_name", "result"];
   }

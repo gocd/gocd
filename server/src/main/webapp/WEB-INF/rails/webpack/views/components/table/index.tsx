@@ -23,8 +23,14 @@ import styles from "./index.scss";
 
 const classnames = bind(styles);
 
+export enum SortOrder {
+  ASC, DESC
+}
+
 export interface TableSortHandler {
   getSortableColumns(): number[];
+
+  getCurrentSortOrder(): SortOrder;
 
   onColumnClick(columnIndex: number): void;
 }
@@ -69,13 +75,24 @@ class TableHeader extends MithrilViewComponent<HeaderAttrs> {
                    vnode.attrs.sortCallBackHandler!.onColumnClick(vnode.attrs.columnIndex);
                  }}>
         {vnode.attrs.name}
-        <span class={classnames(styles.sortButton,
-                                {[styles.inActive]: !TableHeader.isSortedByCurrentColumn(vnode)})}>
+        <span class={TableHeader.getClassesForSortIcon(vnode)}>
           <i class="fas fa-sort"/>
       </span></th>;
     }
 
     return <th>{vnode.attrs.name}</th>;
+  }
+
+  private static getClassesForSortIcon(vnode: m.Vnode<HeaderAttrs>) {
+    if (!TableHeader.isSortedByCurrentColumn(vnode)) {
+      return classnames(styles.sortButton,
+                        {[styles.inActive]: !TableHeader.isSortedByCurrentColumn(vnode)});
+    }
+    const currentSortOrder = vnode.attrs.sortCallBackHandler!.getCurrentSortOrder();
+    return classnames(styles.sortButton
+      , {[styles.sortButtonAsc]: currentSortOrder === SortOrder.ASC}
+      , {[styles.sortButtonDesc]: currentSortOrder === SortOrder.DESC}
+      , {[styles.inActive]: !TableHeader.isSortedByCurrentColumn(vnode)});
   }
 
   private static isSortable(vnode: m.Vnode<HeaderAttrs>) {

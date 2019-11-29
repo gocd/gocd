@@ -15,7 +15,6 @@
  */
 
 import classnames from "classnames";
-import * as Routes from "gen/ts-routes";
 import {override} from "helpers/css_proxies";
 import {SparkRoutes} from "helpers/spark_routes";
 import {VMRoutes} from "helpers/vm_routes";
@@ -116,7 +115,7 @@ class Link {
     }
 
     if (node instanceof DefinedEnvironment) {
-      return <a data-test-id={_.snakeCase("environment " + node.name())} href={Routes.environmentShowPath(node.name())}>{node.name()}</a>;
+      return <a data-test-id={_.snakeCase("environment " + node.name())} href={SparkRoutes.getEnvironmentPathOnSPA(node.name())}>{node.name()}</a>;
     }
 
     return node.name();

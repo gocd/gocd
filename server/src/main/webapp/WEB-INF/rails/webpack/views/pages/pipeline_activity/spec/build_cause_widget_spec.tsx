@@ -107,6 +107,20 @@ describe("BuildCauseWidget", () => {
     });
   });
 
+
+  it("should escape html tags in message", () => {
+    const pipelineRunInfo = PipelineRunInfo.fromJSON(PipelineActivityData.pipelineRunInfo());
+    const modification    = pipelineRunInfo.materialRevisions()[0].modifications()[0];
+    modification.comment("&lt;h1&gt; this is html &lt;/h1&gt;");
+    mount(pipelineRunInfo);
+
+    helper.clickByTestId("trigger-with-changes-button");
+
+    debugger;
+    const modificationDiv = helper.byTestId(`modification-${modification.revision()}`);
+    expect(helper.byTestId("comment", modificationDiv)).toContainText("<h1> this is html </h1>");
+  });
+
   function mount(pipelineRunInfo: PipelineRunInfo) {
     return helper.mount(() => <BuildCauseWidget showBuildCaseFor={showBuildCaseFor}
                                                 pipelineRunInfo={pipelineRunInfo}

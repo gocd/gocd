@@ -103,7 +103,7 @@ class ModificationWidget extends MithrilViewComponent<ModificationAttrs> {
     return <div
       class={styles.modification}>
       <span class={styles.user} data-test-id="user">{modification.user()}</span>
-      <span class={styles.comment} data-test-id="comment">{modification.comment()}</span>
+      <span class={styles.comment} data-test-id="comment">{m.trust(modification.comment())}</span>
       <span class={styles.revision} data-test-id="revision">{modification.revision()}</span>
     </div>;
   }

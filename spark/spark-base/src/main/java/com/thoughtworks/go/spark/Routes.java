@@ -871,4 +871,9 @@ public class Routes {
         public static final String BIT_BUCKET_CLOUD = "/bitbucket/notify";
         public static final String BIT_BUCKET_SERVER = "/hosted_bitbucket/notify";
     }
+
+    public class Compare {
+        public static final String SPA_BASE = "/compare";
+        public static final String COMPARE = "/:pipeline_name/:from_counter/with/:to_counter";
+    }
 }

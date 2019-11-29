@@ -17,13 +17,17 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.ErrorCollector;
 import com.thoughtworks.go.config.Role;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.EntityType;
+import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.validation.RolesConfigUpdateValidator;
+
+import java.util.List;
 
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 
@@ -60,12 +64,14 @@ abstract class RoleConfigCommand implements EntityConfigUpdateCommand<Role> {
     public boolean isValid(CruiseConfig preprocessedConfig) {
         preprocessedRole = preprocessedConfig.server().security().getRoles().findByNameAndType(role.getName(), role.getClass());
 
-        if (!preprocessedRole.validateTree(RolesConfigUpdateValidator.validationContextWithSecurityConfig(preprocessedConfig))) {
-            BasicCruiseConfig.copyErrors(preprocessedRole, role);
-            return false;
-        }
+        preprocessedRole.validateTree(RolesConfigUpdateValidator.validationContextWithSecurityConfig(preprocessedConfig));
 
-        return true;
+        List<ConfigErrors> allErrors = ErrorCollector.getAllErrors(preprocessedRole);
+        boolean isEmpty = allErrors.isEmpty();
+        if (!isEmpty) {
+            BasicCruiseConfig.copyErrors(preprocessedRole, role);
+        }
+        return isEmpty;
     }
 
     final Role findExistingRole(CruiseConfig cruiseConfig) {

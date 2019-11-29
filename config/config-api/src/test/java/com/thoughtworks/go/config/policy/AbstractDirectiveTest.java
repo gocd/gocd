@@ -55,12 +55,13 @@ class AbstractDirectiveTest {
         }
 
         @Test
-        void shouldAllowActionToHaveWildcard() {
+        void shouldNotAllowActionToHaveWildcard() {
             Directive directive = getDirective("*", "environment", "test-resource");
 
             directive.validate(rulesValidationContext(singletonList("view"), singletonList("environment")));
 
-            assertThat(directive.errors()).hasSize(0);
+            assertThat(directive.errors()).hasSize(1);
+            assertThat(directive.errors().on("action")).isEqualTo("Invalid action, must be one of [view].");
         }
 
         @Test

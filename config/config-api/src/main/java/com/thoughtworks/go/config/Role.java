@@ -15,10 +15,7 @@
  */
 package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.config.policy.Policy;
-import com.thoughtworks.go.config.policy.PolicyAware;
-import com.thoughtworks.go.config.policy.SupportedAction;
-import com.thoughtworks.go.config.policy.SupportedEntity;
+import com.thoughtworks.go.config.policy.*;
 import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.ConfigErrors;
 
@@ -46,6 +43,12 @@ public interface Role extends Validatable, PolicyAware {
 
     default boolean validateTree(ValidationContext validationContext) {
         validate(validationContext);
+        getPolicy().validateTree(new DelegatingValidationContext(validationContext) {
+            @Override
+            public PolicyValidationContext getPolicyValidationContext() {
+                return new PolicyValidationContext(allowedActions(), allowedTypes());
+            }
+        });
         return !hasErrors();
     }
 

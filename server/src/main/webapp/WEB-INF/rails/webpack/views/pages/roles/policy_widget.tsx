@@ -152,10 +152,10 @@ export class CreatePolicyWidget extends MithrilViewComponent<AutoCompleteAttrs> 
         id: "", text: "Select"
       },
       {
-        id: "deny", text: "Deny"
+        id: "allow", text: "Allow"
       },
       {
-        id: "allow", text: "Allow"
+        id: "deny", text: "Deny"
       }
     ];
   }
@@ -164,9 +164,6 @@ export class CreatePolicyWidget extends MithrilViewComponent<AutoCompleteAttrs> 
     return [
       {
         id: "", text: "Select"
-      },
-      {
-        id: "*", text: "All"
       },
       {
         id: "view", text: "View"
@@ -184,7 +181,8 @@ export class CreatePolicyWidget extends MithrilViewComponent<AutoCompleteAttrs> 
       },
       {
         id: "*", text: "All"
-      }, {
+      },
+      {
         id: "environment", text: "Environment"
       }
     ];

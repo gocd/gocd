@@ -19,11 +19,10 @@ import com.thoughtworks.go.config.helper.ValidationContextMother;
 import com.thoughtworks.go.config.policy.Allow;
 import com.thoughtworks.go.config.policy.Policy;
 import com.thoughtworks.go.config.policy.SupportedAction;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static com.thoughtworks.go.config.policy.SupportedEntity.ENVIRONMENT;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class RoleConfigTest {
 
@@ -62,7 +61,7 @@ public class RoleConfigTest {
         validatePresenceOfRoleName(new Validator() {
             @Override
             public void validate(RoleConfig roleConfig, ValidationContext context) {
-                assertFalse(roleConfig.validateTree(context));
+                assertThat(roleConfig.validateTree(context)).isFalse();
             }
         });
     }
@@ -82,7 +81,7 @@ public class RoleConfigTest {
         validateUniquenessOfRoleName(new Validator() {
             @Override
             public void validate(RoleConfig roleConfig, ValidationContext context) {
-                assertFalse(roleConfig.validateTree(context));
+                assertThat(roleConfig.validateTree(context)).isFalse();
             }
         });
     }
@@ -93,9 +92,19 @@ public class RoleConfigTest {
         directives.add(new Allow("view", ENVIRONMENT.getType(), "env_1"));
         RoleConfig role = new RoleConfig(new CaseInsensitiveString(""), new Users(), directives);
 
-        assertTrue(role.hasPermissionsFor(SupportedAction.VIEW, EnvironmentConfig.class, "env_1"));
-        assertFalse(role.hasPermissionsFor(SupportedAction.VIEW, EnvironmentConfig.class, "env_2"));
-        assertFalse(role.hasPermissionsFor(SupportedAction.VIEW, PipelineConfig.class, "*"));
+        assertThat(role.hasPermissionsFor(SupportedAction.VIEW, EnvironmentConfig.class, "env_1")).isTrue();
+        assertThat(role.hasPermissionsFor(SupportedAction.VIEW, EnvironmentConfig.class, "env_2")).isFalse();
+        assertThat(role.hasPermissionsFor(SupportedAction.VIEW, PipelineConfig.class, "*")).isFalse();
+    }
+
+    @Test
+    void shouldValidatePolicy() {
+        validatePolicyIsInvalid(new Validator() {
+            @Override
+            public void validate(RoleConfig roleConfig, ValidationContext context) {
+                roleConfig.validateTree(context);
+            }
+        });
     }
 
     private void validatePresenceOfRoleName(Validator v) {
@@ -103,9 +112,9 @@ public class RoleConfigTest {
 
         v.validate(role, ValidationContextMother.validationContext(new SecurityConfig()));
 
-        assertThat(role.errors().size(), is(1));
-        assertThat(role.errors().get("name").get(0), is("Invalid role name name ''. This must be alphanumeric and can" +
-                " contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+        assertThat(role.errors().size()).isEqualTo(1);
+        assertThat(role.errors().get("name").get(0)).isEqualTo("Invalid role name name ''. This must be alphanumeric and can" +
+                " contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
     }
 
     private void validateNullRoleName(Validator v) {
@@ -113,9 +122,9 @@ public class RoleConfigTest {
 
         v.validate(role, ValidationContextMother.validationContext(new SecurityConfig()));
 
-        assertThat(role.errors().size(), is(1));
-        assertThat(role.errors().get("name").get(0), is("Invalid role name name 'null'. This must be alphanumeric and can" +
-                " contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+        assertThat(role.errors().size()).isEqualTo(1);
+        assertThat(role.errors().get("name").get(0)).isEqualTo("Invalid role name name 'null'. This must be alphanumeric and can" +
+                " contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
     }
 
     public void validateUniquenessOfRoleName(Validator v) throws Exception {
@@ -128,8 +137,23 @@ public class RoleConfigTest {
 
         v.validate(role, validationContext);
 
-        assertThat(role.errors().size(), is(1));
-        assertThat(role.errors().get("name").get(0), is("Role names should be unique. Role with the same name exists."));
+        assertThat(role.errors().size()).isEqualTo(1);
+        assertThat(role.errors().get("name").get(0)).isEqualTo("Role names should be unique. Role with the same name exists.");
+    }
+
+    private void validatePolicyIsInvalid(Validator validator) {
+        SecurityConfig securityConfig = new SecurityConfig();
+        ValidationContext validationContext = ValidationContextMother.validationContext(securityConfig);
+
+        Policy policy = new Policy();
+        policy.add(new Allow("*", ENVIRONMENT.getType(), "env_1"));
+        RoleConfig role = new RoleConfig(new CaseInsensitiveString("role"), new Users(), policy);
+        securityConfig.getRoles().add(role);
+
+        validator.validate(role, validationContext);
+
+        assertThat(role.getPolicy().hasErrors()).isTrue();
+        assertThat(role.getPolicy().get(0).errors().on("action")).isEqualTo("Invalid action, must be one of [view, administer].");
     }
 
     interface Validator {

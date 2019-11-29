@@ -121,19 +121,30 @@ export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
     const isAutoApproved = vnode.attrs.stageConfigs.isAutoApproved(stage.stageName());
     const dataTestId     = this.dataTestId(isAutoApproved ? "auto" : "manual", "gate", "icon", stage.stageName(), stage.stageId());
 
+    const disabled = PipelineRunWidget.shouldDisableApprovalIcon(stage);
     if (isAutoApproved) {
       return <Icons.Forward iconOnly={true}
-                            title="Auto approved"
-                            disabled={PipelineRunWidget.shouldDisableApprovalIcon(stage)}
+                            title={PipelineRunWidget.getTitle(stage)}
+                            disabled={disabled}
                             data-test-id={dataTestId}
                             onclick={() => vnode.attrs.runStage(stage)}/>;
     }
 
     return <Icons.StepForward iconOnly={true}
-                              title="Awaiting approval"
-                              disabled={PipelineRunWidget.shouldDisableApprovalIcon(stage)}
+                              title={PipelineRunWidget.getTitle(stage)}
+                              disabled={disabled}
                               data-test-id={dataTestId}
                               onclick={() => vnode.attrs.runStage(stage)}/>;
+  }
+
+  private static getTitle(stage: Stage) {
+    if (!stage.approvedBy()) {
+      return "Awaiting approval";
+    }
+    if (stage.approvedBy() === "changes") {
+      return "Automatically approved";
+    }
+    return `Approved by ${stage.approvedBy()}`;
   }
 
   private static shouldDisableApprovalIcon(stage: Stage) {

@@ -136,6 +136,51 @@ describe("PipelineRunInfoWidget", () => {
   });
 
   describe("Stage gate icons", () => {
+
+    describe("Gate title", () => {
+      it("should be Auto approved when pipeline is triggered by changes", () => {
+        const integrationStage      = building("integration", 2);
+        integrationStage.approvedBy = "changes";
+        const pipelineRunInfo       = PipelineRunInfo.fromJSON(PipelineActivityData.pipelineRunInfo(
+          passed("unit", 1),
+          integrationStage
+        ));
+        const stageConfigs          = toStageConfigs(pipelineRunInfo.stages());
+        mount(pipelineRunInfo, stageConfigs);
+
+        expect(helper.byTestId("auto-gate-icon-integration-2")).toBeInDOM();
+        expect(helper.byTestId("auto-gate-icon-integration-2")).toHaveAttr("title", "Automatically approved");
+      });
+
+      it("should be awaiting for approval when stage is not run yet", () => {
+        const integrationStage      = building("integration", 2);
+        integrationStage.approvedBy = "";
+        const pipelineRunInfo       = PipelineRunInfo.fromJSON(PipelineActivityData.pipelineRunInfo(
+          passed("unit", 1),
+          integrationStage
+        ));
+        const stageConfigs          = toStageConfigs(pipelineRunInfo.stages());
+        mount(pipelineRunInfo, stageConfigs);
+
+        expect(helper.byTestId("auto-gate-icon-integration-2")).toBeInDOM();
+        expect(helper.byTestId("auto-gate-icon-integration-2")).toHaveAttr("title", "Awaiting approval");
+      });
+
+      it("should be approved by user when stage manually approved by some user", () => {
+        const integrationStage      = building("integration", 2);
+        integrationStage.approvedBy = "Bob";
+        const pipelineRunInfo       = PipelineRunInfo.fromJSON(PipelineActivityData.pipelineRunInfo(
+          passed("unit", 1),
+          integrationStage
+        ));
+        const stageConfigs          = toStageConfigs(pipelineRunInfo.stages());
+        mount(pipelineRunInfo, stageConfigs);
+
+        expect(helper.byTestId("auto-gate-icon-integration-2")).toBeInDOM();
+        expect(helper.byTestId("auto-gate-icon-integration-2")).toHaveAttr("title", "Approved by Bob");
+      });
+    });
+
     it("should render gate icon before the stage", () => {
       const pipelineRunInfo = PipelineRunInfo.fromJSON(PipelineActivityData.pipelineRunInfo(
         passed("unit", 1),
@@ -147,10 +192,8 @@ describe("PipelineRunInfoWidget", () => {
       mount(pipelineRunInfo, stageConfigs);
 
       expect(helper.byTestId("auto-gate-icon-integration-2")).toBeInDOM();
-      expect(helper.byTestId("auto-gate-icon-integration-2")).toHaveAttr("title", "Auto approved");
 
       expect(helper.byTestId("manual-gate-icon-release-3")).toBeInDOM();
-      expect(helper.byTestId("manual-gate-icon-release-3")).toHaveAttr("title", "Awaiting approval");
     });
 
     it("should render disabled gate icon when can not run stage", () => {

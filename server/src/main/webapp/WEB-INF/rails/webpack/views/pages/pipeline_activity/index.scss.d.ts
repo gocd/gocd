@@ -24,6 +24,7 @@ export const passed: string;
 export const pauseMessage: string;
 export const pipelineActivity: string;
 export const pipelineInfo: string;
+export const pipelinePauseInputWrapper: string;
 export const pipelineRun: string;
 export const pipelineRunHeader: string;
 export const revision: string;

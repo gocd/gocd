@@ -19,7 +19,7 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {Config, Group, PipelineActivity, PipelineRunInfo, Stage} from "models/pipeline_activity/pipeline_activity";
-import styles from "./index.scss"
+import styles from "./index.scss";
 import {PipelineRunWidget} from "./pipeline_run_info_widget";
 import {ShowForceBuildActionWidget} from "./show_force_build_action_widget";
 
@@ -40,20 +40,22 @@ export class PipelineActivityWidget extends MithrilViewComponent<Attrs> {
       return;
     }
 
-    return <table class={styles.pipelineActivity}>
-      {
-        pipelineActivity.groups().map((group: Group, index: number) => {
-          return [
-            <HeaderWidget config={group.config}/>,
-            this.renderForceBuildAction(index, group, pipelineActivity, vnode),
-            <GroupWidget pipelineName={pipelineActivity.pipelineName()}
-                         group={group}
-                         showBuildCaseFor={vnode.attrs.showBuildCaseFor}
-                         runStage={vnode.attrs.runStage}
-                         cancelStageInstance={vnode.attrs.cancelStageInstance}/>];
-        })
-      }
-    </table>
+    return <div class={styles.pipelineActivity}>
+      <table class={styles.pipelineActivityTable}>
+        {
+          pipelineActivity.groups().map((group: Group, index: number) => {
+            return [
+              <HeaderWidget config={group.config}/>,
+              this.renderForceBuildAction(index, group, pipelineActivity, vnode),
+              <GroupWidget pipelineName={pipelineActivity.pipelineName()}
+                           group={group}
+                           showBuildCaseFor={vnode.attrs.showBuildCaseFor}
+                           runStage={vnode.attrs.runStage}
+                           cancelStageInstance={vnode.attrs.cancelStageInstance}/>];
+          })
+        }
+      </table>
+    </div>;
   }
 
   renderForceBuildAction(index: number, group: Group, pipelineActivity: PipelineActivity, vnode: m.Vnode<Attrs>) {

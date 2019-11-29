@@ -29,6 +29,12 @@ $stage-status-bar-z-index:  2;
 $stage-action-icon-z-index: 1;
 
 .pipeline-activity {
+  display:    flex;
+  overflow-x: auto;
+  width:      100%;
+}
+
+.pipeline-activity-table {
   overflow-x: auto;
   background: $background;
   padding:    16px;
@@ -326,7 +332,7 @@ $stage-action-icon-z-index: 1;
 }
 
 .force-build {
-  .run-info-section {
+  .left {
     align-items: self-start;
     padding:     10px 0;
   }

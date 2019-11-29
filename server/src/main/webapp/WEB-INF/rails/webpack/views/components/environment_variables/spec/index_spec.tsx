@@ -19,11 +19,22 @@ import {EnvironmentVariable, EnvironmentVariables} from "models/environment_vari
 import {EnvironmentVariablesWidget} from "views/components/environment_variables";
 import {TestHelper} from "views/pages/spec/test_helper";
 
+class NonEditableEnvironmentVariable extends EnvironmentVariable {
+  editable(): boolean {
+    return false;
+  }
+
+  reasonForNonEditable() {
+    return "no reason";
+  }
+}
+
 describe("Environment Variables Widget", () => {
   const helper               = new TestHelper();
   const plainTextEnvVar      = new EnvironmentVariable("env1", "plain-text-variables-value");
   const secureEnvVar         = new EnvironmentVariable("env1", undefined, true, "encrypted-value");
-  const environmentVariables = new EnvironmentVariables(plainTextEnvVar, secureEnvVar);
+  const dummyVariable        = new NonEditableEnvironmentVariable("dummy");
+  const environmentVariables = new EnvironmentVariables(plainTextEnvVar, secureEnvVar, dummyVariable);
 
   beforeEach(() => {
     helper.mount(() => <EnvironmentVariablesWidget environmentVariables={environmentVariables}/>);
@@ -42,35 +53,35 @@ describe("Environment Variables Widget", () => {
 
     it("should have plain text environment variable fields", () => {
       const plainTextValue = plainTextEnvVar.value();
-      expect(helper.byTestId("env-var-name")).toHaveValue(plainTextEnvVar.name());
-      expect(helper.byTestId("env-var-value")).toHaveValue(plainTextValue ? plainTextValue : "");
-      expect(helper.byTestId("remove-env-var-btn")).toBeInDOM();
+      const wrapper        = helper.allByTestId("environment-variable-wrapper")[0];
+      expect(helper.byTestId("env-var-name", wrapper)).toHaveValue(plainTextEnvVar.name());
+      expect(helper.byTestId("env-var-value", wrapper)).toHaveValue(plainTextValue ? plainTextValue : "");
+      expect(helper.byTestId("remove-env-var-btn", wrapper)).toBeInDOM();
     });
 
     it("should have readonly fields if environment variable is non-editable", () => {
-      expect(helper.byTestId("env-var-name")).not.toHaveAttr("readonly");
-      expect(helper.byTestId("env-var-value")).not.toHaveAttr("readonly");
-
-      plainTextEnvVar.editable = () => false;
-      m.redraw.sync();
-
-      expect(helper.byTestId("env-var-name")).toHaveAttr("readonly");
-      expect(helper.byTestId("env-var-value")).toHaveAttr("readonly");
+      const wrapper = helper.allByTestId("environment-variable-wrapper")[1];
+      expect(helper.byTestId("env-var-name", wrapper)).toHaveAttr("readonly");
+      expect(helper.byTestId("env-var-value", wrapper)).toHaveAttr("readonly");
+      expect(helper.byTestId("remove-env-var-btn", wrapper)).not.toBeInDOM();
+      expect(helper.byTestId("info-tooltip-wrapper", wrapper)).toBeInDOM();
+      expect(helper.byTestId("info-tooltip-wrapper", wrapper)).toHaveText(dummyVariable.reasonForNonEditable());
     });
+
     it("should display error if any", () => {
       plainTextEnvVar.errors().add("name", "some error");
       plainTextEnvVar.errors().add("value", "some error in value");
 
       m.redraw.sync();
-
-      expect(helper.byTestId("env-var-name").parentElement).toHaveText("some error.");
-      expect(helper.byTestId("env-var-value").parentElement).toHaveText("some error in value.");
+      const wrapper = helper.allByTestId("environment-variable-wrapper")[0];
+      expect(helper.byTestId("env-var-name", wrapper).parentElement).toHaveText("some error.");
+      expect(helper.byTestId("env-var-value", wrapper).parentElement).toHaveText("some error in value.");
     });
   });
 
   describe("Secure Variables", () => {
     it("should have a title", () => {
-      expect(helper.byTestId("plain-text-variables-title")).toBeInDOM();
+      expect(helper.byTestId("secure-variables-title")).toBeInDOM();
     });
 
     it("should have an add button", () => {
@@ -78,9 +89,10 @@ describe("Environment Variables Widget", () => {
     });
 
     it("should have secure environment variable fields", () => {
-      expect(helper.allByTestId("env-var-name")[1]).toHaveValue(secureEnvVar.name());
-      expect(helper.allByTestId("env-var-value")[1]).toBeInDOM();
-      expect(helper.allByTestId("remove-env-var-btn")[1]).toBeInDOM();
+      const wrapper = helper.allByTestId("environment-variable-wrapper")[2];
+      expect(helper.byTestId("env-var-name", wrapper)).toHaveValue(secureEnvVar.name());
+      expect(helper.byTestId("env-var-value", wrapper)).toBeInDOM();
+      expect(helper.byTestId("remove-env-var-btn", wrapper)).toBeInDOM();
     });
   });
 });

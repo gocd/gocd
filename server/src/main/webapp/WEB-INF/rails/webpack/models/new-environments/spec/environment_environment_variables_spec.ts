@@ -87,5 +87,12 @@ describe("Environment Model - EnvironmentVariableWithOrigin", () => {
       const envVar = EnvironmentVariableWithOrigin.fromJSON(configRepoEnvVar as EnvironmentEnvironmentVariableJSON);
       expect(envVar.editable()).toBe(false);
     });
+
+    it("should show info icon if origin is config repo", () => {
+      const envVar = EnvironmentVariableWithOrigin.fromJSON(configRepoEnvVar as EnvironmentEnvironmentVariableJSON);
+      expect(envVar.reasonForNonEditable()).toEqual("Cannot edit this environment variable as it is defined in config repo");
+    });
+
   });
+
 });

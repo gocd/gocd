@@ -50,6 +50,10 @@ export class EnvironmentVariable extends ValidatableMixin {
     return true;
   }
 
+  reasonForNonEditable() {
+    throw Error("Environment variable is editable");
+  }
+
   toJSON() {
     return {
       name: this.name(),

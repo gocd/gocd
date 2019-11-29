@@ -28,7 +28,22 @@ interface EnvironmentVariableWidgetAttrs {
 
 export class EnvironmentVariableWidget extends MithrilViewComponent<EnvironmentVariableWidgetAttrs> {
   view(vnode: m.Vnode<EnvironmentVariableWidgetAttrs>): m.Children {
-    return <div class={styles.environmentVariableWrapper}>
+
+    let removeHtml;
+
+    if (vnode.attrs.environmentVariable.editable()) {
+      removeHtml = <Close title={"remove"} iconOnly={true}
+                          onclick={vnode.attrs.onRemove.bind(this, vnode.attrs.environmentVariable)}
+                          data-test-id="remove-env-var-btn"/>;
+    } else {
+      removeHtml = <div data-test-id="info-tooltip-wrapper" className={styles.infoTooltipWrapper}>
+        <i data-test-id={"info-icon"} className={styles.infoIcon}/>
+        <div data-test-id="info-tooltip-content" className={styles.infoTooltipContent}>
+          <p>{vnode.attrs.environmentVariable.reasonForNonEditable()}</p>
+        </div>
+      </div>;
+    }
+    return <div class={styles.environmentVariableWrapper} data-test-id="environment-variable-wrapper">
       <div class={styles.name}>
         <TextField property={vnode.attrs.environmentVariable.name}
                    readonly={!vnode.attrs.environmentVariable.editable()}
@@ -37,9 +52,7 @@ export class EnvironmentVariableWidget extends MithrilViewComponent<EnvironmentV
       </div>
       {this.getValueField(vnode)}
       <div class={styles.actions}>
-        <Close title={"remove"} iconOnly={true}
-               onclick={vnode.attrs.onRemove.bind(this, vnode.attrs.environmentVariable)}
-               data-test-id="remove-env-var-btn"/>
+        {removeHtml}
       </div>
     </div>;
   }

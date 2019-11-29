@@ -137,4 +137,13 @@ describe("Environment Variable Model", () => {
       });
     });
   });
+
+  describe('reasonForNonEditable()', () => {
+    it('should throw error if env var is editable', () => {
+      expect(() => {
+        EnvironmentVariable.fromJSON(plainTextEnvVar1).reasonForNonEditable();
+      }).toThrowError("Environment variable is editable");
+    });
+
+  });
 });

@@ -43,6 +43,13 @@ export class EnvironmentVariableWithOrigin extends EnvironmentVariable {
     return origin === undefined || (origin.type() !== undefined && origin.type() === OriginType.GoCD);
   }
 
+  reasonForNonEditable() {
+    if (this.editable()) {
+      throw Error("Environment variable is editable");
+    }
+    return "Cannot edit this environment variable as it is defined in config repo";
+  }
+
   clone() {
     return new EnvironmentVariableWithOrigin(this.name(),
                                              this.origin().clone(),

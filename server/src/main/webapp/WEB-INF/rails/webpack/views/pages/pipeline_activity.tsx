@@ -148,6 +148,7 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
     return <HeaderPanel title={title} sectionName={this.pageName()} buttons={
       <SearchField property={this.filterText} label={"Search"}
                    dataTestId={"search-field"}
+                   placeholder={"Filter history..."}
                    onchange={this.fetchData.bind(this)}/>
     }/>;
   }

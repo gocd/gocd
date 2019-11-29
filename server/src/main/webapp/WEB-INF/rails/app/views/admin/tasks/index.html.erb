@@ -3,7 +3,9 @@
   <table class="list_table reorderable_table tasks_list_table">
     <thead>
     <tr>
+    <% unless @is_config_repo_pipeline %>
       <th>Order</th>
+    <% end %>
       <th>Task Type</th>
       <th class="run_ifs">Run If Conditions</th>
       <th>Properties</th>

@@ -30,6 +30,9 @@ public class Policy extends BaseCollection<Directive> implements Validatable {
         super(items);
     }
 
+    public Policy() {
+    }
+
     @Override
     public void validate(ValidationContext validationContext) {
     }

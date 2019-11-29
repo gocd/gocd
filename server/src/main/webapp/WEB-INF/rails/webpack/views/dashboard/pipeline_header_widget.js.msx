@@ -23,20 +23,6 @@ import {PipelineAnalyticsWidget} from "views/dashboard/pipeline_analytics_widget
 export const PipelineHeaderWidget = {
 
   getSettingsDisabledTooltipText(pipeline) {
-    if (pipeline.isDefinedInConfigRepo()) {
-      const configRepoId = pipeline.getConfigRepoId();
-        return <div className={"config-repo-pipeline-tooltip"}>
-          <div>{pipeline.definedInConfigRepoTooltipText()}</div>
-          <div>
-            <label>Id:</label>
-            <span><a href={`admin/config_repos#!${configRepoId}`}>{configRepoId}</a></span>
-          </div>
-          <div>
-            <label>Url:</label>
-            <span>{pipeline.getConfigRepoMaterialUrl()}</span>
-          </div>
-        </div>;
-    }
     return pipeline.noEditPermissionTooltipText();
   },
 
@@ -80,7 +66,7 @@ export const PipelineHeaderWidget = {
       settingsButton     = (<a class={`edit_config`} aria-label={`Edit Configuration for Pipeline ${pipeline.name}`}
                                title={'Edit Pipeline Configuration'} href={settingsPath}/>);
     } else {
-      settingsButton = (<f.link class="info_config disabled" aria-label={this.getSettingsDisabledTooltipText(pipeline)}
+      settingsButton = (<f.link class="edit_config disabled" aria-label={this.getSettingsDisabledTooltipText(pipeline)}
                                 tooltipText={this.getSettingsDisabledTooltipText(pipeline)}/>);
     }
 

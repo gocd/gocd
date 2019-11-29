@@ -373,3 +373,9 @@ $stage-action-icon-z-index: 1;
     text-overflow: ellipsis;
   }
 }
+
+.pipeline-pause-input-wrapper {
+  input {
+    width: 100%;
+  }
+}

@@ -60,8 +60,8 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
   pausePipeline() {
     const cause = Stream<string>();
     new ConfirmationDialog("Pause pipeline",
-      <div>
-        <TextField required={true}
+      <div class={styles.pipelinePauseInputWrapper}>
+        <TextField required={false}
                    label="Specify the reason why you want to stop scheduling on this pipeline (only a-z, A-Z, 0-9, fullstop, underscore, hyphen and pipe is valid) :"
                    property={cause}/>
       </div>,

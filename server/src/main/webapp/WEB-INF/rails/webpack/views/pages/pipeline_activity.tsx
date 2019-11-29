@@ -30,16 +30,18 @@ import {ConfirmationDialog} from "./pipeline_activity/confirmation_modal";
 import {AjaxPoller} from "../../helpers/ajax_poller";
 import {HeaderPanel} from "../components/header_panel";
 import {PipelineActivityHeader} from "./pipeline_activity/page_header";
-import {TextField} from "../components/forms/input_fields";
+import {SearchField, TextField} from "../components/forms/input_fields";
 
 interface State {
   pipelineActivity: Stream<PipelineActivity>;
   showBuildCaseFor: Stream<string>;
+  filterText: Stream<string>;
 }
 
 export class PipelineActivityPage extends Page<null, State> implements ResultAwarePage<PipelineActivity>, State {
   pipelineActivity                           = Stream<PipelineActivity>();
   showBuildCaseFor                           = Stream<string>();
+  filterText                                 = Stream<string>();
   protected service: PipelineActivityService = new PipelineActivityService();
   protected pagination                       = Stream<Pagination>(new Pagination(0, 10, 10));
 
@@ -135,7 +137,11 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
                                           pausePipeline={this.pausePipeline.bind(this)}
                                           isAdmin={Page.isUserAnAdmin()}
                                           isGroupAdmin={Page.isUserAGroupAdmin()}/>;
-    return <HeaderPanel title={title} sectionName={this.pageName()}/>;
+    return <HeaderPanel title={title} sectionName={this.pageName()} buttons={
+      <SearchField property={this.filterText} label={"Search"}
+                   dataTestId={"search-field"}
+                   onchange={this.fetchData.bind(this)}/>
+    }/>;
   }
 
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {
@@ -171,7 +177,7 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
   }
 
   private fetchPipelineHistory(start: number) {
-    this.service.activities(PipelineActivityPage.pipelineNameFromUrl(), start, this);
+    this.service.activities(PipelineActivityPage.pipelineNameFromUrl(), start, this.filterText(), this);
   }
 
   private static pipelineNameFromUrl(): string {

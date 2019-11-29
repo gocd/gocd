@@ -22,8 +22,13 @@ import {ResultAwarePage} from "views/pages/page_operations";
 export class PipelineActivityService {
   private static API_VERSION_HEADER = ApiVersion.v1;
 
-  activities(pipelineName: string, offset: number, page: ResultAwarePage<PipelineActivity>): void {
-    ApiRequestBuilder.GET(SparkRoutes.apiPipelineActivity(pipelineName, offset), PipelineActivityService.API_VERSION_HEADER)
+  activities(pipelineName: string, start: number, filter: string, page: ResultAwarePage<PipelineActivity>): void {
+    let params: { [key: string]: string | number } = {pipelineName, start};
+    if (filter) {
+      params = {pipelineName, start: 0, perPage: 25, labelFilter: filter};
+    }
+
+    ApiRequestBuilder.GET(SparkRoutes.apiPipelineActivity(params), PipelineActivityService.API_VERSION_HEADER)
       .then((result) => this.onResult(result, page));
   }
 

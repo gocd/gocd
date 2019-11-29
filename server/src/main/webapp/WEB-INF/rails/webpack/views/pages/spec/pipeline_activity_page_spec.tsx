@@ -29,12 +29,12 @@ describe("PipelineActivityPage", () => {
   afterEach(helper.unmount.bind(helper));
 
   it("should render pipeline activity for new pipeline", () => {
-    const stubbedActivities = (pipelineName: string, offset: number, page: ResultAwarePage<PipelineActivity>) => {
+    const stubbedActivities = (pipelineName: string, offset: number, filterText: string, page: ResultAwarePage<PipelineActivity>) => {
       page.onSuccess(PipelineActivity.fromJSON(PipelineActivityData.underConstruction()))
     };
 
     const service = new PipelineActivityService();
-    Stub.of(service).when("activities").thenCall(stubbedActivities);
+    spyOn(service, "activities").and.callFake(stubbedActivities);
 
     mount(new PipelineActivityPageWrapper(service));
 
@@ -51,12 +51,12 @@ describe("PipelineActivityPage", () => {
 
   it("should render pipeline runs for an old pipeline", () => {
     const activity          = PipelineActivity.fromJSON(PipelineActivityData.oneStage());
-    const stubbedActivities = (pipelineName: string, offset: number, page: ResultAwarePage<PipelineActivity>) => {
+    const stubbedActivities = (pipelineName: string, offset: number, filterText: string, page: ResultAwarePage<PipelineActivity>) => {
       page.onSuccess(activity)
     };
 
     const service = new PipelineActivityService();
-    Stub.of(service).when("activities").thenCall(stubbedActivities);
+    spyOn(service, "activities").and.callFake(stubbedActivities);
 
     mount(new PipelineActivityPageWrapper(service));
 
@@ -69,6 +69,20 @@ describe("PipelineActivityPage", () => {
     expect(helper.byTestId("trigger-with-changes-button")).toHaveText("Triggered by changes");
   });
 
+  it("should render search field", () => {
+    const activity          = PipelineActivity.fromJSON(PipelineActivityData.oneStage());
+    const stubbedActivities = (pipelineName: string, offset: number, filterText: string, page: ResultAwarePage<PipelineActivity>) => {
+      page.onSuccess(activity)
+    };
+
+    const service = new PipelineActivityService();
+    spyOn(service, "activities").and.callFake(stubbedActivities);
+
+    mount(new PipelineActivityPageWrapper(service));
+
+    expect(helper.byTestId("search-field")).toBeInDOM();
+  });
+
   function mount(page: PipelineActivityPageWrapper) {
     helper.mountPage(() => page)
   }
@@ -79,52 +93,5 @@ class PipelineActivityPageWrapper extends PipelineActivityPage {
     super();
     this.service   = service;
     this.pageState = PageState.OK;
-  }
-}
-
-
-export class Binder<T extends object> {
-  private readonly object: T;
-  private readonly method: string;
-
-  constructor(object: T, method: string) {
-    this.object = object;
-    this.method = method;
-  }
-
-  thenCall(proxy: Function) {
-    if (!proxy) {
-      throw new Error("Can not bind null function to object!");
-    }
-
-    //@ts-ignore
-    if (typeof this.object[this.method] === "function") {
-      //@ts-ignore
-      this.object[this.method] = proxy;
-      return;
-    }
-
-    throw new Error(`Function ${this.method} does not exist.`);
-  }
-
-}
-
-class Stub<T extends object> {
-  private readonly object: T;
-
-  constructor(object: T) {
-    this.object = object;
-  }
-
-  static of<T extends object>(object: T): Stub<T> {
-    return new Stub(object);
-  }
-
-  when(method: string): Binder<T> {
-    return new Binder<T>(this.object, method)
-  }
-
-  original(): T {
-    return this.object;
   }
 }

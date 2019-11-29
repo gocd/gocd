@@ -2,7 +2,7 @@
 <div id="pipelines_used_in" class="modal-box-section">
 </div>
 
-<%= render :partial => "admin/materials/pluggable_scm/form.html", :locals => { :scope => { :material => @material, :url => admin_pluggable_scm_update_path(:plugin_id => @material.getPluginId()), :method => "PUT" , :meta_data_store => @meta_data_store}} -%>
+<%= render :partial => "admin/materials/pluggable_scm/form.html", :locals => { :scope => { :material => @material, :url => admin_pluggable_scm_update_path(:plugin_id => @material.getPluginId()), :method => "PUT" , :meta_data_store => @meta_data_store, :read_only_page => @is_config_repo_pipeline}} -%>
 
 <script type="text/javascript">
     jQuery(document).ready(function () {

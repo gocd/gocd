@@ -34,5 +34,5 @@
         </div>
     </div>
     <%= render :partial => 'admin/shared/dependency_auto_complete.html', :locals => {:scope => {:pipeline_stages_json => @pipeline_stages_json, :selector => "#material_pipelineStageName"}} %>
-    <%= render :partial => "shared/form_buttons.html", :locals => {:scope => {:submit_label => scope[:submit_label]}} %>
+    <%= render :partial => "shared/form_buttons.html", :locals => {:scope => {:submit_label => scope[:submit_label]}} unless scope[:read_only_page] %>
 <% end %>

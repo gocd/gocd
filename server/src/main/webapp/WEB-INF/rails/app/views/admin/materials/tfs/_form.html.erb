@@ -53,7 +53,7 @@
         <%= render :partial => "admin/materials/shared/filter", :locals => {:scope => {:form => f}} %>
     </div>
 
-    <%= render :partial => "shared/form_buttons.html", :locals => {:scope => {:submit_label => scope[:submit_label]}} %>
+    <%= render :partial => "shared/form_buttons.html", :locals => {:scope => {:submit_label => scope[:submit_label]}} unless scope[:read_only_page] %>
     <%= render :partial => 'shared/convert_tool_tips.html', :locals => {:scope => {}} %>
 
 <% end %>

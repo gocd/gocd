@@ -97,14 +97,6 @@ class DenyTest extends AbstractDirectiveTest {
             }
 
             @Test
-            void ifResourceAndTypeMatchesWhenAllActionsAreAllowed() {
-                final Deny deny = new Deny("*", "environment", "env_1");
-
-                assertThat(deny.apply("any-action-is-allowed", EnvironmentConfig.class, "env_1"))
-                        .isEqualTo(Result.DENY);
-            }
-
-            @Test
             void ifResourceAndActionMatchesWhenAllTypesAreAllowed() {
                 final Deny deny = new Deny("view", "*", "env_1");
 

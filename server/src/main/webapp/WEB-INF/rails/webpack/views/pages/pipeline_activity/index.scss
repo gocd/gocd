@@ -29,23 +29,45 @@ $stage-status-bar-z-index:  2;
 $stage-action-icon-z-index: 1;
 
 .pipeline-activity {
-  display:        flex;
-  overflow-x:     auto;
-  background:     $background;
-  padding:        16px;
-  flex-direction: column;
+  overflow-x: auto;
+  background: $background;
+  padding:    16px;
+  width:      100%;
 }
 
-.group {
+.group-header,
+.group-content {
   display:        flex;
-  width:          100%;
-  min-width:      max-content;
-  flex-direction: column;
-  //border-bottom:  1px dashed $border-color;
+  flex-direction: row;
+  width:          max-content;
+  min-width:      100%;
+  padding-bottom: 2px;
+  border-bottom:  1px dashed $border-color;
+
+  .left {
+    display:         flex;
+    flex-direction:  column;
+    justify-content: center;
+    width:           20%;
+    max-width:       200px;
+    min-width:       200px;
+    margin-right:    16px;
+    padding-bottom:  5px;
+  }
+
+  .right {
+    display:       flex;
+    padding-right: 16px;
+  }
+}
+
+.group-header {
+  font-size:   12px;
+  font-weight: 600;
 }
 
 .header {
-  font-size:   14px;
+  font-size:   12px;
   font-weight: 600;
 }
 
@@ -56,36 +78,11 @@ $stage-action-icon-z-index: 1;
   word-break:   break-all;
   line-height:  1.22em;
   align-self:   center;
-}
+  min-width:    80px;
 
-.pipeline-run-header,
-.pipeline-run {
-  display:        flex;
-  flex-direction: row;
-  width:          max-content;
-  min-width:      100%;
-  padding-bottom: 2px;
-  border-bottom:  1px dashed $border-color;
-
-  .run-info-section {
-    display:         flex;
-    flex-direction:  column;
-    justify-content: center;
-    width:           20%;
-    max-width:       200px;
-    margin-right:    16px;
-    padding-bottom:  5px;
+  &:last-child {
+    margin-right: 0;
   }
-
-  .stages-section {
-    display:    flex;
-    overflow-x: auto;
-    overflow-y: hidden;
-  }
-}
-
-.pipeline-run-header {
-  padding: 3px 0;
 }
 
 .run {
@@ -99,7 +96,7 @@ $stage-action-icon-z-index: 1;
   }
 }
 
-.pipeline-run {
+.group-content {
   .revision {
     overflow:      hidden;
     font-size:     12px;

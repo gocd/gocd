@@ -32,20 +32,20 @@ interface ShowForceBuildActionAttrs {
 
 export class ShowForceBuildActionWidget extends MithrilViewComponent<ShowForceBuildActionAttrs> {
   view(vnode: m.Vnode<ShowForceBuildActionAttrs, this>): m.Children {
-    return <div class={classnames(styles.pipelineRun, styles.forceBuild)}>
-      <div class={styles.runInfoSection}>
+    return <tr class={classnames(styles.groupContent, styles.forceBuild)}>
+      <td class={styles.left}>
         <Icons.Trigger onclick={() => vnode.attrs.runPipeline(vnode.attrs.pipelineName)}
                        disabled={!vnode.attrs.canForce()}/>
-      </div>
-      <div class={styles.stagesSection}>
+      </td>
+      <td class={styles.right}>
         {vnode.attrs.group.config().stages().map((stage, index) => {
           return <div class={classnames(styles.stage, styles.disabledIcon)}>
             {ShowForceBuildActionWidget.getStageApprovalIcon(index, stage)}
             <span class={styles.unknown}/>
           </div>;
         })}
-      </div>
-    </div>;
+      </td>
+    </tr>;
   }
 
   private static getStageApprovalIcon(index: number, stage: StageConfig): m.Children {

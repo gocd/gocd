@@ -330,13 +330,13 @@ class InternalEnvironmentsControllerV1Test implements SecurityServiceTrait, Cont
 
       @Test
       void 'should error out if input does not contain property agents'() {
-        def json = []
+        def json = [:]
 
         putWithApiHeader(controller.controllerPath('env'), json)
 
         assertThatResponse()
           .isUnprocessableEntity()
-          .hasJsonMessage('Json `{}` does not contain property \'agents\'.')
+          .hasJsonMessage('Json `{}` does not contain property \'agents\'')
       }
 
       @Test

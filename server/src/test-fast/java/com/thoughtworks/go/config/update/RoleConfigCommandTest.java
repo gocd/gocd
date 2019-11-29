@@ -17,6 +17,8 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.EntityType;
+import com.thoughtworks.go.config.policy.Allow;
+import com.thoughtworks.go.config.policy.Policy;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
@@ -209,6 +211,19 @@ public class RoleConfigCommandTest {
         assertThat(role.getProperty("k3").getEncryptedValue(), is(goCipher.encrypt("pub_v3")));
         assertThat(role.getProperty("k3").getConfigValue(), is(nullValue()));
         assertThat(role.getProperty("k3").getValue(), is("pub_v3"));
+    }
+
+    @Test
+    public void shouldNotPassValidationIfPolicyHasAnError() {
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        Policy policy = new Policy();
+        policy.add(new Allow("*", "*", "*"));
+        RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("foo"), new Users(), policy);
+        cruiseConfig.server().security().addRole(roleConfig);
+
+        RoleConfigCommand command = new StubCommand(goConfigService, roleConfig, extension, currentUser, result);
+        boolean isValid = command.isValid(cruiseConfig);
+        assertFalse(isValid);
     }
 
     private void setAuthorizationPluginInfo() {

@@ -60,29 +60,28 @@ public abstract class AbstractDirective implements Directive {
     public void validate(ValidationContext validationContext) {
         PolicyValidationContext policyValidationContext = validationContext.getPolicyValidationContext();
 
-        if (isInvalid(action, policyValidationContext.getAllowedActions())) {
+        if (isInvalidAction(action, policyValidationContext.getAllowedActions())) {
             this.addError("action", format("Invalid action, must be one of %s.", policyValidationContext.getAllowedActions()));
         }
 
-        if (isInvalid(type, policyValidationContext.getAllowedTypes())) {
+        if (isInvalidType(type, policyValidationContext.getAllowedTypes())) {
             this.addError("type", format("Invalid type, must be one of %s.", policyValidationContext.getAllowedTypes()));
         }
     }
 
-
-    private boolean isInvalid(String actionOrType, List<String> allowedActions) {
-        if ("*".equals(actionOrType)) {
+    private boolean isInvalidType(String type, List<String> allowedTypes) {
+        if ("*".equals(type)) {
             return false;
         }
 
-        return allowedActions.stream().noneMatch(it -> equalsIgnoreCase(it, actionOrType));
+        return allowedTypes.stream().noneMatch(it -> equalsIgnoreCase(it, type));
+    }
+
+    private boolean isInvalidAction(String action, List<String> allowedActions) {
+        return allowedActions.stream().noneMatch(it -> equalsIgnoreCase(it, action));
     }
 
     protected boolean matchesAction(String action) {
-        if (equalsIgnoreCase("*", this.action)) {
-            return true;
-        }
-
         if (equalsIgnoreCase("administer", this.action)) {
             return true;
         }

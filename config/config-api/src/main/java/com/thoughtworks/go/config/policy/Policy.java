@@ -16,16 +16,26 @@
 
 package com.thoughtworks.go.config.policy;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.ConfigCollection;
+import com.thoughtworks.go.config.ConfigTag;
+import com.thoughtworks.go.config.Validatable;
+import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
 
 @ConfigTag("policy")
 @ConfigCollection(Directive.class)
 public class Policy extends BaseCollection<Directive> implements Validatable {
+    public Policy(Directive... items) {
+        super(items);
+    }
 
     @Override
     public void validate(ValidationContext validationContext) {
+    }
+
+    public void validateTree(ValidationContext validationContext) {
+        this.forEach(directive -> directive.validate(validationContext));
     }
 
     @Override

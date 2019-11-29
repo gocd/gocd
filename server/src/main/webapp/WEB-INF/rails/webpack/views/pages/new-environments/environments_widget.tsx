@@ -56,7 +56,7 @@ export class EnvironmentWidget extends MithrilViewComponent<EnvAttrs> {
   view(vnode: m.Vnode<EnvAttrs>) {
     const environment = vnode.attrs.environment;
     return <Anchor id={environment.name()} sm={vnode.attrs.sm} onnavigate={() => this.expanded(true)}>
-      <CollapsiblePanel header={<EnvironmentHeader environment={environment}/>}
+      <CollapsiblePanel header={<EnvironmentHeader environment={environment} agents={vnode.attrs.agents}/>}
                         warning={this.isEnvEmpty(environment)}
                         actions={this.getActionButtons(environment, vnode)}
                         dataTestId={`collapsible-panel-for-env-${environment.name()}`}

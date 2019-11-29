@@ -37,8 +37,7 @@ export interface ElementListWidgetAttrs {
 export class ElementListWidget extends MithrilViewComponent<ElementListWidgetAttrs> {
   view(vnode: m.Vnode<ElementListWidgetAttrs>) {
     const environment = vnode.attrs.environment;
-    return <div class={styles.envBodyElement}
-                                                            data-test-id={`${s.slugify(vnode.attrs.name)}-for-${environment.name()}`}>
+    return <div class={styles.envBodyElement} data-test-id={`${s.slugify(vnode.attrs.name)}-for-${environment.name()}`}>
       <div class={styles.envBodyElementHeader} data-test-id={`${s.slugify(vnode.attrs.name)}-header`}>
         <span>{vnode.attrs.name}</span>
         <Icons.Edit iconOnly={true}
@@ -103,9 +102,8 @@ export class EnvironmentBody extends MithrilComponent<EnvironmentBodyAttrs, Envi
                          environment={environment}>
         <ul data-test-id={`agents-content`}>
           {environment.agents().map((envAgent) => {
-            const agent = vnode.attrs.agents ? vnode.attrs.agents()
-                                                    .find((agent) => agent.uuid === envAgent.uuid()) : null;
-            return <li>{agent == null ? "" : agent.hostname}</li>;
+            const agent = vnode.attrs.agents().find((agent) => agent.uuid === envAgent.uuid());
+            return agent ? <li>{agent.hostname}</li> : "";
           })}
         </ul>
       </ElementListWidget>

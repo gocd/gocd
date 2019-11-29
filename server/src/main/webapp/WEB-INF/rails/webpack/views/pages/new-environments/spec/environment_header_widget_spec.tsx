@@ -15,10 +15,14 @@
  */
 
 import m from "mithril";
+import Stream from "mithril/stream";
+import {Agents} from "models/agents/agents";
 import {EnvironmentWithOrigin} from "models/new-environments/environments";
 import data from "models/new-environments/spec/test_data";
 import {EnvironmentHeader} from "views/pages/new-environments/environment_header_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
+import {AgentWithOrigin} from "../../../../models/new-environments/environment_agents";
+import {Origin, OriginType} from "../../../../models/origin";
 
 describe("Environments Header Widget", () => {
   const helper = new TestHelper();
@@ -26,8 +30,10 @@ describe("Environments Header Widget", () => {
   let environment: EnvironmentWithOrigin;
 
   beforeEach(() => {
-    environment = EnvironmentWithOrigin.fromJSON(data.environment_json());
-    helper.mount(() => <EnvironmentHeader environment={environment}/>);
+    const environmentJSON = data.environment_json();
+    environment           = EnvironmentWithOrigin.fromJSON(environmentJSON);
+    const agents          = new Agents(data.convert_to_agent(environment.agents()[0]), data.convert_to_agent(environment.agents()[1]));
+    helper.mount(() => <EnvironmentHeader environment={environment} agents={Stream(agents)}/>);
   });
 
   afterEach(helper.unmount.bind(helper));
@@ -43,6 +49,9 @@ describe("Environments Header Widget", () => {
   });
 
   it("should render agent count", () => {
+    // Non existent agent
+    environment.agents().push(new AgentWithOrigin("some-agent", "", new Origin(OriginType.ConfigRepo)));
+
     expect(helper.textByTestId("key-value-key-agent-count")).toBe("Agent Count");
     expect(helper.textByTestId("key-value-value-agent-count")).toBe("2");
   });

@@ -58,10 +58,13 @@ export class EnvironmentsAPIs {
                             .then(this.extractObjectWithEtag());
   }
 
-  static updateAgentAssociation(envName: string, agentUuids: string[]) {
+  static updateAgentAssociation(envName: string, agentUuidsToAssociate: string[], agentUuidsToRemove: string[]) {
     return ApiRequestBuilder.PUT(SparkRoutes.apiAdminInternalEnvironmentsPath(envName), this.LATEST_API_VERSION_HEADER, {
       payload: {
-        uuids: agentUuids
+        agents: {
+          add: agentUuidsToAssociate,
+          remove: agentUuidsToRemove
+        }
       }
     });
   }

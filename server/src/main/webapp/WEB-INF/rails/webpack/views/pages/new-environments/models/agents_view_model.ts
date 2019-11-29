@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import _ from "lodash";
 import Stream from "mithril/stream";
 import {Agent, Agents} from "models/agents/agents";
 import {AgentWithOrigin} from "models/new-environments/environment_agents";
@@ -24,11 +25,20 @@ export class AgentsViewModel {
   readonly searchText: Stream<string | undefined>;
   readonly agents: Stream<Agents>;
   readonly environment: EnvironmentWithOrigin;
+  readonly selectedAgentUuids: string[];
+  readonly removedAgentUuids: string[];
 
   constructor(environment: EnvironmentWithOrigin, agents: Agents) {
-    this.environment = environment;
-    this.searchText  = Stream();
-    this.agents      = Stream(agents);
+    this.environment        = environment;
+    this.searchText         = Stream();
+    this.agents             = Stream(agents);
+    this.selectedAgentUuids = [];
+    environment.agents().map((agent) => {
+      if (agents.hasAgent(agent.uuid())) {
+        this.selectedAgentUuids.push(agent.uuid());
+      }
+    });
+    this.removedAgentUuids = [];
   }
 
   filteredAgents() {
@@ -74,14 +84,20 @@ export class AgentsViewModel {
   }
 
   agentSelectedFn(selected: Agent): (value?: any) => any {
-    const self  = this;
     const agent = new AgentWithOrigin(selected.uuid, selected.hostname, new Origin(OriginType.GoCD));
 
     return (value?: boolean) => {
       if (value !== undefined) {
-        value ? self.environment.addAgentIfNotPresent(agent) : self.environment.removeAgentIfPresent(agent);
+        if (value) {
+          this.selectedAgentUuids.push(agent.uuid());
+        } else {
+          _.remove(this.selectedAgentUuids, (uuid) => uuid === agent.uuid());
+          if (this.environment.agents().find((envAgent) => envAgent.uuid() === agent.uuid())) {
+            this.removedAgentUuids.push(agent.uuid());
+          }
+        }
       }
-      return self.environment.containsAgent(selected.uuid);
+      return this.selectedAgentUuids.includes(selected.uuid);
     };
   }
 }

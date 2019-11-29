@@ -154,9 +154,8 @@ export class EditAgentsModal extends Modal {
   performSave() {
     const environment = this.agentsVM.environment;
     if (environment.isValid()) {
-      const agentUuids = environment.agents().map((agent) => agent.uuid());
-      this.modalState  = ModalState.LOADING;
-      EnvironmentsAPIs.updateAgentAssociation(environment.name(), agentUuids)
+      this.modalState = ModalState.LOADING;
+      EnvironmentsAPIs.updateAgentAssociation(environment.name(), this.agentsVM.selectedAgentUuids, this.agentsVM.removedAgentUuids)
                       .then((result) => {
                         this.modalState = ModalState.OK;
                         result.do((successResponse) => {

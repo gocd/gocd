@@ -1100,6 +1100,120 @@ class AgentServiceTest {
     }
 
     @Nested
+    class AgentAssociationWithEnvironmentForPatchRequest {
+        @Test
+        void shouldAddAgentsAssociationToTheSpecifiedEnv() {
+            AgentInstance agentInstance = mock(AgentInstance.class);
+            Username username = new Username(new CaseInsensitiveString("test"));
+            String uuid = "uuid";
+            Agent agentConfigForUUID1 = mock(Agent.class);
+
+            when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
+            when(agentDao.getAgentByUUIDFromCacheOrDB(uuid)).thenReturn(agent);
+            when(agentDao.getAgentByUUIDFromCacheOrDB("uuid1")).thenReturn(agentConfigForUUID1);
+
+            EnvironmentsConfig envConfigs = new EnvironmentsConfig();
+            BasicEnvironmentConfig testEnv = new BasicEnvironmentConfig(new CaseInsensitiveString("test"));
+            envConfigs.add(testEnv);
+
+            when(goConfigService.getEnvironments()).thenReturn(envConfigs);
+            when(agentInstances.findAgent(uuid)).thenReturn(agentInstance);
+            when(agentInstances.findAgent("uuid1")).thenReturn(mock(AgentInstance.class));
+
+            assertDoesNotThrow(() -> agentService.updateAgentsAssociationOfEnvironment(testEnv, asList(uuid, "uuid1"), Collections.emptyList()));
+
+            ArgumentCaptor<List<Agent>> argument = ArgumentCaptor.forClass(List.class);
+
+            List<Agent> agents = asList(agentConfigForUUID1, agent);
+
+            verify(agentDao).bulkUpdateAgents(argument.capture());
+            assertEquals(agents.size(), argument.getValue().size());
+            assertTrue(argument.getValue().contains(agents.get(0)));
+            assertTrue(argument.getValue().contains(agents.get(1)));
+        }
+
+        @Test
+        void shouldUpdateAgentsAssociationOfEnvironment() {
+            AgentInstance agentInstance = mock(AgentInstance.class);
+            Username username = new Username(new CaseInsensitiveString("test"));
+            String uuid = "uuid";
+            Agent agentConfigForUUID1 = mock(Agent.class);
+
+            when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
+            when(agentDao.getAgentByUUIDFromCacheOrDB(uuid)).thenReturn(agent);
+            when(agentDao.getAgentByUUIDFromCacheOrDB("uuid1")).thenReturn(agentConfigForUUID1);
+            when(agentConfigForUUID1.getEnvironments()).thenReturn("test");
+
+            agent.setEnvironments("test");
+            EnvironmentsConfig envConfigs = new EnvironmentsConfig();
+            BasicEnvironmentConfig testEnv = new BasicEnvironmentConfig(new CaseInsensitiveString("test"));
+            testEnv.addAgent("uuid1");
+            testEnv.addAgent("uuid2");
+            envConfigs.add(testEnv);
+
+            when(goConfigService.getEnvironments()).thenReturn(envConfigs);
+            when(agentInstances.findAgent(uuid)).thenReturn(agentInstance);
+            when(agentInstances.findAgent("uuid2")).thenReturn(mock(AgentInstance.class));
+
+            assertDoesNotThrow(() -> agentService.updateAgentsAssociationOfEnvironment(testEnv, asList(uuid, "uuid2")));
+            verify(agentDao).bulkUpdateAgents(anyList());
+        }
+
+        @Test
+        void shouldRemoveAgentsAssociationFromTheSpecifiedEnv() {
+            AgentInstance agentInstance = mock(AgentInstance.class);
+            Username username = new Username(new CaseInsensitiveString("test"));
+            String uuid = "uuid";
+            Agent agentConfigForUUID1 = mock(Agent.class);
+
+            when(agentConfigForUUID1.getEnvironments()).thenReturn("test");
+            agent.setEnvironments("test");
+
+            when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
+            when(agentDao.getAgentByUUIDFromCacheOrDB(uuid)).thenReturn(agent);
+            when(agentDao.getAgentByUUIDFromCacheOrDB("uuid1")).thenReturn(agentConfigForUUID1);
+
+            EnvironmentsConfig envConfigs = new EnvironmentsConfig();
+            BasicEnvironmentConfig testEnv = new BasicEnvironmentConfig(new CaseInsensitiveString("test"));
+            envConfigs.add(testEnv);
+            testEnv.addAgent(uuid);
+            testEnv.addAgent("uuid1");
+
+            when(goConfigService.getEnvironments()).thenReturn(envConfigs);
+            when(agentInstances.findAgent(uuid)).thenReturn(agentInstance);
+            when(agentInstances.findAgent("uuid1")).thenReturn(mock(AgentInstance.class));
+
+            assertDoesNotThrow(() -> agentService.updateAgentsAssociationOfEnvironment(testEnv, emptyList(), Arrays.asList(agent.getUuid(), "uuid1")));
+
+            List<Agent> agents = asList(agentConfigForUUID1, agent);
+
+            ArgumentCaptor<List<Agent>> argument = ArgumentCaptor.forClass(List.class);
+
+            verify(agentDao).bulkUpdateAgents(argument.capture());
+            assertEquals(agents.size(), argument.getValue().size());
+            assertTrue(argument.getValue().contains(agents.get(0)));
+            assertTrue(argument.getValue().contains(agents.get(1)));
+        }
+
+        @Test
+        void shouldNotDoAnythingIfEmptyAgentsUuidListAndNoAgentAssociationConfiguredWithEnvConfig() {
+            Username username = new Username(new CaseInsensitiveString("test"));
+            agent.setEnvironments("test");
+
+            EnvironmentsConfig envConfigs = new EnvironmentsConfig();
+            BasicEnvironmentConfig testEnv = new BasicEnvironmentConfig(new CaseInsensitiveString("test"));
+            envConfigs.add(testEnv);
+
+            when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
+            when(goConfigService.getEnvironments()).thenReturn(envConfigs);
+
+            assertDoesNotThrow(() -> agentService.updateAgentsAssociationOfEnvironment(testEnv, emptyStrList, emptyStrList));
+
+            verifyNoMoreInteractions(agentDao);
+        }
+    }
+
+    @Nested
     class AgentChangeListenerMethods {
         @Test
         void shouldRegisterAgentChangeListener() {

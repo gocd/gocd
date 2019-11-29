@@ -95,41 +95,40 @@ describe("Agents View Model", () => {
   it("should answer whether an agent belongs to the current environment", () => {
     const agents = agentsViewModel.agents();
 
-    expect(agentsViewModel.agentSelectedFn(agents![0])()).toBe(true);
-    expect(agentsViewModel.agentSelectedFn(agents![0])()).toBe(environment.containsAgent(agents![0].uuid));
+    expect(agentsViewModel.agentSelectedFn(agents[0])()).toBe(true);
+    expect(agentsViewModel.agentSelectedFn(agents[0])()).toBe(environment.containsAgent(agents[0].uuid));
 
-    expect(agentsViewModel.agentSelectedFn(agents![1])()).toBe(true);
-    expect(agentsViewModel.agentSelectedFn(agents![1])()).toBe(environment.containsAgent(agents![1].uuid));
+    expect(agentsViewModel.agentSelectedFn(agents[1])()).toBe(true);
+    expect(agentsViewModel.agentSelectedFn(agents[1])()).toBe(environment.containsAgent(agents[1].uuid));
 
-    expect(agentsViewModel.agentSelectedFn(agents![2])()).toBe(false);
-    expect(agentsViewModel.agentSelectedFn(agents![2])()).toBe(environment.containsAgent(agents![2].uuid));
+    expect(agentsViewModel.agentSelectedFn(agents[2])()).toBe(false);
+    expect(agentsViewModel.agentSelectedFn(agents[2])()).toBe(environment.containsAgent(agents[2].uuid));
 
-    expect(agentsViewModel.agentSelectedFn(agents![3])()).toBe(false);
-    expect(agentsViewModel.agentSelectedFn(agents![3])()).toBe(environment.containsAgent(agents![3].uuid));
+    expect(agentsViewModel.agentSelectedFn(agents[3])()).toBe(false);
+    expect(agentsViewModel.agentSelectedFn(agents[3])()).toBe(environment.containsAgent(agents[3].uuid));
 
-    expect(agentsViewModel.agentSelectedFn(agents![4])()).toBe(true);
-    expect(agentsViewModel.agentSelectedFn(agents![4])()).toBe(environment.containsAgent(agents![4].uuid));
+    expect(agentsViewModel.agentSelectedFn(agents[4])()).toBe(true);
+    expect(agentsViewModel.agentSelectedFn(agents[4])()).toBe(environment.containsAgent(agents[4].uuid));
   });
 
   it("should add an agent to an environment using agentSelectedFn", () => {
     const agents = agentsViewModel.agents();
 
-    expect(agentsViewModel.agentSelectedFn(agents![2])()).toBe(false);
-    expect(environment.containsAgent(agents![2].uuid)).toBe(false);
+    expect(agentsViewModel.agentSelectedFn(agents[2])()).toBe(false);
+    expect(environment.containsAgent(agents[2].uuid)).toBe(false);
 
-    agentsViewModel.agentSelectedFn(agents![2])(agents![2]);
+    agentsViewModel.agentSelectedFn(agents[2])(agents[2]);
 
-    expect(agentsViewModel.agentSelectedFn(agents![2])()).toBe(true);
-    expect(environment.containsAgent(agents![2].uuid)).toBe(true);
+    expect(agentsViewModel.agentSelectedFn(agents[2])()).toBe(true);
   });
 
   it("should return filtered agents by hostname", () => {
     expect(agentsViewModel.searchText()).toBe(undefined);
     expect(agentsViewModel.filteredAgents().length).toBe(5);
 
-    agentsViewModel.searchText(agentsViewModel.agents()![0].hostname);
+    agentsViewModel.searchText(agentsViewModel.agents()[0].hostname);
 
-    expect(agentsViewModel.searchText()).toBe(agentsViewModel.agents()![0].hostname);
+    expect(agentsViewModel.searchText()).toBe(agentsViewModel.agents()[0].hostname);
     expect(agentsViewModel.filteredAgents().length).toBe(1);
   });
 

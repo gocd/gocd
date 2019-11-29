@@ -40,6 +40,7 @@ import spark.Response;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -108,17 +109,15 @@ public class InternalEnvironmentsControllerV1 extends ApiController implements S
     String updateAgentAssociation(Request request, Response response) {
         String envName = request.params("env_name");
         EnvironmentConfig envConfig = environmentConfigService.getEnvironmentConfig(envName);
-        List<String> uuids = getAgentUuids(request);
-        agentService.updateAgentsAssociationOfEnvironment(envConfig, uuids);
-        return renderMessage(response, 200, "Environment '" + envName + "' updated successfully!");
-    }
-
-    private List<String> getAgentUuids(Request request) {
         JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(request.body());
-        Optional<List<String>> uuids = jsonReader.readStringArrayIfPresent("uuids");
-        if (uuids.isPresent()) {
-            return uuids.get();
+        JsonReader agents = jsonReader.readJsonObject("agents");
+
+        List<String> uuidsToAssociate = agents.readStringArrayIfPresent("add").orElse(Collections.emptyList());
+        List<String> uuidsToRemove = agents.readStringArrayIfPresent("remove").orElse(Collections.emptyList());
+
+        if (!uuidsToAssociate.isEmpty() || !uuidsToRemove.isEmpty()) {
+            agentService.updateAgentsAssociationOfEnvironment(envConfig, uuidsToAssociate, uuidsToRemove);
         }
-        throw halt(422, MessageJson.create(format("Json `%s` does not contain property '%s'.", new Gson().fromJson(request.body(), JsonElement.class), "uuids")));
+        return renderMessage(response, 200, "Environment '" + envName + "' updated successfully!");
     }
 }

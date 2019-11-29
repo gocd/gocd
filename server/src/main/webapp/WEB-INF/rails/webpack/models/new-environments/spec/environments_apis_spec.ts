@@ -92,6 +92,28 @@ describe("EnvironmentsApiSpec", () => {
     expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd+json");
   });
 
+  it('should make request to update agent association', () => {
+    jasmine.Ajax.stubRequest("/go/api/admin/internal/environments/env").andReturn(environmentWithEtag());
+
+    const agentsToAssociate = ["agent1"];
+    const agentsToRemove    = ["agent2"];
+    const payload           = {
+      agents: {
+        add: agentsToAssociate,
+        remove: agentsToRemove
+      }
+    };
+    EnvironmentsAPIs.updateAgentAssociation("env", agentsToAssociate, agentsToRemove);
+
+    const request = jasmine.Ajax.requests.mostRecent();
+
+    expect(request.url).toEqual("/go/api/admin/internal/environments/env");
+    expect(request.method).toEqual("PUT");
+    expect(request.data()).toEqual(toJSON(payload));
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd+json");
+
+  });
+
   function toJSON(object: any) {
     return JSON.parse(JSON.stringify(object));
   }

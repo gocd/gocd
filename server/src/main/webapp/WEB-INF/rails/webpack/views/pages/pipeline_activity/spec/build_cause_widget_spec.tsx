@@ -15,11 +15,11 @@
  */
 
 import m from "mithril";
-import {TestHelper} from "../../spec/test_helper";
-import {BuildCauseWidget} from "../build_cause_widget";
 import Stream from "mithril/stream";
 import {PipelineRunInfo} from "models/pipeline_activity/pipeline_activity";
 import {PipelineActivityData} from "models/pipeline_activity/spec/test_data";
+import {TestHelper} from "../../spec/test_helper";
+import {BuildCauseWidget} from "../build_cause_widget";
 
 describe("BuildCauseWidget", () => {
   const helper           = new TestHelper();
@@ -98,7 +98,7 @@ describe("BuildCauseWidget", () => {
     helper.clickByTestId("trigger-with-changes-button");
 
     pipelineRunInfo.materialRevisions().forEach((revision) => {
-      revision.modifications().forEach(modification => {
+      revision.modifications().forEach((modification) => {
         const modificationDiv = helper.byTestId(`modification-${modification.revision()}`);
         expect(helper.byTestId("user", modificationDiv)).toHaveText(modification.user());
         expect(helper.byTestId("revision", modificationDiv)).toContainText(modification.revision());
@@ -106,7 +106,6 @@ describe("BuildCauseWidget", () => {
       });
     });
   });
-
 
   it("should escape html tags in message", () => {
     const pipelineRunInfo = PipelineRunInfo.fromJSON(PipelineActivityData.pipelineRunInfo());
@@ -116,7 +115,6 @@ describe("BuildCauseWidget", () => {
 
     helper.clickByTestId("trigger-with-changes-button");
 
-    debugger;
     const modificationDiv = helper.byTestId(`modification-${modification.revision()}`);
     expect(helper.byTestId("comment", modificationDiv)).toContainText("<h1> this is html </h1>");
   });

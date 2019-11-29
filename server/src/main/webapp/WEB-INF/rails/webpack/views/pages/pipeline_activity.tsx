@@ -22,15 +22,15 @@ import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Page, PageState} from "views/pages/page";
 import {ResultAwarePage} from "views/pages/page_operations";
 import {PipelineActivityWidget} from "views/pages/pipeline_activity/pipeline_activity_widget";
+import {AjaxPoller} from "../../helpers/ajax_poller";
+import {ApiResult} from "../../helpers/api_request_builder";
+import {SearchField, TextField} from "../components/forms/input_fields";
+import {HeaderPanel} from "../components/header_panel";
 import {PaginationWidget} from "../components/pagination";
 import {Pagination} from "../components/pagination/models/pagination";
-import styles from "./pipeline_activity/index.scss";
-import {ApiResult} from "../../helpers/api_request_builder";
 import {ConfirmationDialog} from "./pipeline_activity/confirmation_modal";
-import {AjaxPoller} from "../../helpers/ajax_poller";
-import {HeaderPanel} from "../components/header_panel";
+import styles from "./pipeline_activity/index.scss";
 import {PipelineActivityHeader} from "./pipeline_activity/page_header";
-import {SearchField, TextField} from "../components/forms/input_fields";
 
 interface PageMeta {
   isEditableFromUI: boolean;
@@ -45,12 +45,12 @@ interface State {
 }
 
 export class PipelineActivityPage extends Page<null, State> implements ResultAwarePage<PipelineActivity>, State {
+  protected service: PipelineActivityService = new PipelineActivityService();
+  protected pagination                       = Stream<Pagination>(new Pagination(0, 10, 10));
   pipelineActivity                           = Stream<PipelineActivity>();
   showBuildCaseFor                           = Stream<string>();
   filterText                                 = Stream<string>();
   meta                                       = this.getMeta() as PageMeta;
-  protected service: PipelineActivityService = new PipelineActivityService();
-  protected pagination                       = Stream<Pagination>(new Pagination(0, 10, 10));
 
   oninit(vnode: m.Vnode<null, State>) {
     super.oninit(vnode);
@@ -71,10 +71,9 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
           this.pipelineActivity().canForce(false);
           this.pipelineActivity().pauseCause(cause());
           const user = Page.readAttribute("data-user-display-name");
-          this.pipelineActivity().pauseBy(user ? user : "")
+          this.pipelineActivity().pauseBy(user ? user : "");
         }))
     ).render();
-
 
   }
 
@@ -138,21 +137,6 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
     return "Pipeline Activity";
   }
 
-  protected headerPanel(vnode: m.Vnode<null, State>): any {
-    const title = <PipelineActivityHeader pipelineActivity={this.pipelineActivity()}
-                                          unpausePipeline={this.unpausePipeline.bind(this)}
-                                          pausePipeline={this.pausePipeline.bind(this)}
-                                          isAdmin={Page.isUserAnAdmin()}
-                                          isGroupAdmin={Page.isUserAGroupAdmin()}
-                                          isEditableFromUI={this.meta.isEditableFromUI}/>;
-    return <HeaderPanel title={title} sectionName={this.pageName()} buttons={
-      <SearchField property={this.filterText} label={"Search"}
-                   dataTestId={"search-field"}
-                   placeholder={"Filter history..."}
-                   onchange={this.fetchData.bind(this)}/>
-    }/>;
-  }
-
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {
     this.fetchPipelineHistory(this.pagination().offset);
     return Promise.resolve();
@@ -169,6 +153,21 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
     this.pageState = PageState.OK;
   }
 
+  protected headerPanel(vnode: m.Vnode<null, State>): any {
+    const title = <PipelineActivityHeader pipelineActivity={this.pipelineActivity()}
+                                          unpausePipeline={this.unpausePipeline.bind(this)}
+                                          pausePipeline={this.pausePipeline.bind(this)}
+                                          isAdmin={Page.isUserAnAdmin()}
+                                          isGroupAdmin={Page.isUserAGroupAdmin()}
+                                          isEditableFromUI={this.meta.isEditableFromUI}/>;
+    return <HeaderPanel title={title} sectionName={this.pageName()} buttons={
+      <SearchField property={this.filterText} label={"Search"}
+                   dataTestId={"search-field"}
+                   placeholder={"Filter history..."}
+                   onchange={this.fetchData.bind(this)}/>
+    }/>;
+  }
+
   private handleActionApiResponse(result: ApiResult<string>, onSuccess?: () => void) {
     result.do((successResponse) => {
         const body = JSON.parse(successResponse.body);
@@ -178,7 +177,7 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
           onSuccess();
         }
       },
-      (errorResponse) => this.flashMessage.setMessage(MessageType.alert, errorResponse.message))
+      (errorResponse) => this.flashMessage.setMessage(MessageType.alert, errorResponse.message));
   }
 
   private pageChangeCallback(pageNumber: number) {

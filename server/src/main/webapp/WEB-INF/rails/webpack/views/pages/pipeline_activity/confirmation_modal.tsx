@@ -15,10 +15,10 @@
  */
 
 import m from "mithril";
-import {Modal, Size} from "views/components/modal";
-import {OperationState} from "../page_operations";
 import * as Buttons from "views/components/buttons";
 import {ButtonIcon} from "views/components/buttons";
+import {Modal, Size} from "views/components/modal";
+import {OperationState} from "../page_operations";
 
 export class ConfirmationDialog extends Modal {
   private readonly callback: () => Promise<string | void>;
@@ -44,16 +44,16 @@ export class ConfirmationDialog extends Modal {
   buttons(): m.ChildArray {
     return [
       <Buttons.Primary data-test-id='button-trigger'
-                       disabled={this.operationState == OperationState.IN_PROGRESS}
-                       icon={this.operationState == OperationState.IN_PROGRESS ? ButtonIcon.SPINNER : undefined}
+                       disabled={this.operationState === OperationState.IN_PROGRESS}
+                       icon={this.operationState === OperationState.IN_PROGRESS ? ButtonIcon.SPINNER : undefined}
                        onclick={this.perform.bind(this)}>Yes</Buttons.Primary>,
-      <Buttons.Cancel disabled={this.operationState == OperationState.IN_PROGRESS}
+      <Buttons.Cancel disabled={this.operationState === OperationState.IN_PROGRESS}
                       data-test-id='button-no-delete' onclick={this.close.bind(this)}
       >No</Buttons.Cancel>
     ];
   }
 
   private perform() {
-    this.callback().finally(this.close.bind(this))
+    this.callback().finally(this.close.bind(this));
   }
 }

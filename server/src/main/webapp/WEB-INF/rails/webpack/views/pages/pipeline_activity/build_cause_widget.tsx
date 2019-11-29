@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 import {bind} from "classnames/bind";
-import m from "mithril"
+import {MithrilViewComponent} from "jsx/mithril-component";
+import m from "mithril";
+import Stream = require("mithril/stream");
 import {MaterialRevision, Modification, PipelineRunInfo} from "models/pipeline_activity/pipeline_activity";
 import {Dropdown, DropdownAttrs} from "views/components/buttons";
-import styles from "./index.scss"
-import {MithrilViewComponent} from "jsx/mithril-component";
 import * as Icons from "views/components/icons";
-import Stream = require("mithril/stream");
+import styles from "./index.scss";
 
 const classnames = bind(styles);
 
@@ -84,7 +84,7 @@ class MaterialRevisionWidget extends MithrilViewComponent<MaterialRevisionAttrs>
         {materialRevision.scmType()} - {materialRevision.location()}
       </div>
       <div class={styles.modifications}>
-        {materialRevision.modifications().map(modification => {
+        {materialRevision.modifications().map((modification) => {
           return <ModificationWidget modification={modification}
                                      data-test-id={`modification-${modification.revision()}`}/>;
         })}

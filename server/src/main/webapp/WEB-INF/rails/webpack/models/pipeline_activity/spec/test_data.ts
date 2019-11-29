@@ -17,23 +17,23 @@
 import {HistoryJSON, PipelineActivityJSON, StageJSON} from "../pipeline_activity_json";
 
 export function passed(name: string, stageId: number = Math.random()) {
-  return PipelineActivityData.stage(stageId, name, "Passed")
+  return PipelineActivityData.stage(stageId, name, "Passed");
 }
 
 export function failed(name: string, stageId: number = Math.random()) {
-  return PipelineActivityData.stage(stageId, name, "Failed")
+  return PipelineActivityData.stage(stageId, name, "Failed");
 }
 
 export function building(name: string, stageId: number = Math.random()) {
-  return PipelineActivityData.stage(stageId, name, "Building")
+  return PipelineActivityData.stage(stageId, name, "Building");
 }
 
 export function cancelled(name: string, stageId: number = Math.random()) {
-  return PipelineActivityData.stage(stageId, name, "Cancelled")
+  return PipelineActivityData.stage(stageId, name, "Cancelled");
 }
 
 export function unknown(name: string, stageId: number = Math.random()) {
-  return PipelineActivityData.stage(stageId, name, "Unknown")
+  return PipelineActivityData.stage(stageId, name, "Unknown");
 }
 
 export class PipelineActivityData {
@@ -66,14 +66,14 @@ export class PipelineActivityData {
           modifiedFiles: []
         }]
       }],
-      stages: stages
+      stages
     } as HistoryJSON;
   }
 
   static stage(stageId: number, name: string, status: string) {
     return {
       stageName: name,
-      stageId: stageId,
+      stageId,
       stageStatus: status,
       stageLocator: "Foo/0/foo/1",
       getCanRun: true,
@@ -81,7 +81,7 @@ export class PipelineActivityData {
       getCanCancel: false,
       scheduled: false,
       stageCounter: 1
-    } as StageJSON
+    } as StageJSON;
   }
 
   static withStages(...stages: StageJSON[]) {
@@ -94,8 +94,8 @@ export class PipelineActivityData {
       nextLabel: "",
       groups: [{
         config: {
-          stages: stages.map(stage => {
-            return {name: stage.stageName, isAutoApproved: true}
+          stages: stages.map((stage) => {
+            return {name: stage.stageName, isAutoApproved: true};
           }),
         },
         history: [{
@@ -126,7 +126,7 @@ export class PipelineActivityData {
               modifiedFiles: []
             }]
           }],
-          stages: stages
+          stages
         }]
       }],
       forcedBuild: false,
@@ -135,7 +135,7 @@ export class PipelineActivityData {
       count: 1,
       start: 0,
       perPage: 10
-    } as PipelineActivityJSON
+    } as PipelineActivityJSON;
   }
 
   static underConstruction() {

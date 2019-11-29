@@ -17,10 +17,6 @@
 import _ from "lodash";
 import {Agent} from "models/agents/agents";
 
-export enum SortOrder {
-  ASC, DESC
-}
-
 export class AgentComparator {
   private readonly columnName: string;
 

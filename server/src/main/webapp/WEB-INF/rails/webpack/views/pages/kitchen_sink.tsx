@@ -59,7 +59,7 @@ import {SampleModal} from "views/components/modal/sample";
 import {PaginationWidget} from "views/components/pagination";
 import {Pagination} from "views/components/pagination/models/pagination";
 import {Tabs} from "views/components/tab";
-import {Table, TableSortHandler} from "views/components/table";
+import {SortOrder, Table, TableSortHandler} from "views/components/table";
 import * as Tooltip from "views/components/tooltip";
 import {TooltipSize} from "views/components/tooltip";
 import {Step, Wizard} from "views/components/wizard";
@@ -514,6 +514,11 @@ class DummyTableSortHandler implements TableSortHandler {
 
   getCurrentSortedColumnIndex(): number {
     return this.currentSortedColumnIndex;
+  }
+
+  getCurrentSortOrder(): SortOrder {
+    const currentSortOrder = this.sortOrders.get(this.getCurrentSortedColumnIndex());
+    return SortOrder[currentSortOrder] ? SortOrder.ASC : SortOrder.DESC;
   }
 
   onColumnClick(columnIndex: number): void {

@@ -4,5 +4,7 @@ export const draggable: string;
 export const draggableOver: string;
 export const inActive: string;
 export const sortButton: string;
+export const sortButtonAsc: string;
+export const sortButtonDesc: string;
 export const sortableColumn: string;
 export const table: string;

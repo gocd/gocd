@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-import m from "mithril"
 import {MithrilViewComponent} from "jsx/mithril-component";
-import styles from "./index.scss";
+import m from "mithril";
+import {PipelineActivity} from "models/pipeline_activity/pipeline_activity";
 import {Reset} from "views/components/buttons";
 import * as Icons from "views/components/icons";
-import {PipelineActivity} from "models/pipeline_activity/pipeline_activity";
 import {Link} from "views/components/link";
+import styles from "./index.scss";
 
 interface Attrs {
   pipelineActivity: PipelineActivity;
@@ -81,8 +81,8 @@ export class PipelineActivityHeader extends MithrilViewComponent<Attrs> {
     let text = '';
     if (pipelineActivity.paused()) {
       text = 'Scheduling is paused';
-      if (pipelineActivity.pauseBy()) text += ' by ' + pipelineActivity.pauseBy();
-      if (pipelineActivity.pauseCause()) text += ' (' + pipelineActivity.pauseCause() + ')';
+      if (pipelineActivity.pauseBy()) { text += ' by ' + pipelineActivity.pauseBy(); }
+      if (pipelineActivity.pauseCause()) { text += ' (' + pipelineActivity.pauseCause() + ')'; }
     }
     return text;
   }

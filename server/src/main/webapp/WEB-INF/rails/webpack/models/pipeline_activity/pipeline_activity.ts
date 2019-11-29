@@ -62,13 +62,12 @@ export class StageConfigs extends Array<StageConfig> {
     Object.setPrototypeOf(this, Object.create(StageConfigs.prototype));
   }
 
-  isAutoApproved(name: string): boolean {
-    return this.find((stage: StageConfig) => stage.name() === name)!.isAutoApproved();
-  }
-
-
   static fromJSON(stages: StageConfigJSON[]) {
     return new StageConfigs(...stages.map(StageConfig.fromJSON));
+  }
+
+  isAutoApproved(name: string): boolean {
+    return this.find((stage: StageConfig) => stage.name() === name)!.isAutoApproved();
   }
 }
 
@@ -209,14 +208,6 @@ export class Stage {
     this.approvedBy   = Stream(approvedBy);
   }
 
-  pipelineName() {
-    return this.stageLocator().split("/")[0];
-  }
-
-  pipelineCounter() {
-    return this.stageLocator().split("/")[1];
-  }
-
   static fromJSON(stage: StageJSON) {
     return new Stage(stage.stageName,
       stage.stageId,
@@ -227,6 +218,14 @@ export class Stage {
       toBool(stage.scheduled),
       stage.stageCounter,
       stage.approvedBy);
+  }
+
+  pipelineName() {
+    return this.stageLocator().split("/")[0];
+  }
+
+  pipelineCounter() {
+    return this.stageLocator().split("/")[1];
   }
 }
 

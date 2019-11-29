@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
+import {PipelineActivity} from "models/pipeline_activity/pipeline_activity";
 import {PipelineActivityService} from "models/pipeline_activity/pipeline_activity_crud";
-import {TestHelper} from "./test_helper";
-import {PipelineActivityPage} from "../pipeline_activity";
-import {ResultAwarePage} from "../page_operations";
-import {PipelineActivity} from "../../../models/pipeline_activity/pipeline_activity";
-import {PipelineActivityData} from "../../../models/pipeline_activity/spec/test_data";
+import {PipelineActivityData} from "models/pipeline_activity/spec/test_data";
 import {PageState} from "../page";
+import {ResultAwarePage} from "../page_operations";
+import {PipelineActivityPage} from "../pipeline_activity";
 import styles from "../pipeline_activity/index.scss";
+import {TestHelper} from "./test_helper";
 
 describe("PipelineActivityPage", () => {
   const helper = new TestHelper();
@@ -30,7 +30,7 @@ describe("PipelineActivityPage", () => {
 
   it("should render pipeline activity for new pipeline", () => {
     const stubbedActivities = (pipelineName: string, offset: number, filterText: string, page: ResultAwarePage<PipelineActivity>) => {
-      page.onSuccess(PipelineActivity.fromJSON(PipelineActivityData.underConstruction()))
+      page.onSuccess(PipelineActivity.fromJSON(PipelineActivityData.underConstruction()));
     };
 
     const service = new PipelineActivityService();
@@ -52,7 +52,7 @@ describe("PipelineActivityPage", () => {
   it("should render pipeline runs for an old pipeline", () => {
     const activity          = PipelineActivity.fromJSON(PipelineActivityData.oneStage());
     const stubbedActivities = (pipelineName: string, offset: number, filterText: string, page: ResultAwarePage<PipelineActivity>) => {
-      page.onSuccess(activity)
+      page.onSuccess(activity);
     };
 
     const service = new PipelineActivityService();
@@ -72,7 +72,7 @@ describe("PipelineActivityPage", () => {
   it("should render search field", () => {
     const activity          = PipelineActivity.fromJSON(PipelineActivityData.oneStage());
     const stubbedActivities = (pipelineName: string, offset: number, filterText: string, page: ResultAwarePage<PipelineActivity>) => {
-      page.onSuccess(activity)
+      page.onSuccess(activity);
     };
 
     const service = new PipelineActivityService();
@@ -84,7 +84,7 @@ describe("PipelineActivityPage", () => {
   });
 
   function mount(page: PipelineActivityPageWrapper) {
-    helper.mountPage(() => page)
+    helper.mountPage(() => page);
   }
 });
 

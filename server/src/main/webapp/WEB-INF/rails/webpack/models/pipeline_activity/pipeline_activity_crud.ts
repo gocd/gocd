@@ -35,14 +35,14 @@ export class PipelineActivityService {
   runStage(stage: Stage) {
     return ApiRequestBuilder.POST(
       SparkRoutes.runStage(stage.pipelineName(), stage.pipelineCounter(), stage.stageName()),
-      PipelineActivityService.API_VERSION_HEADER)
+      PipelineActivityService.API_VERSION_HEADER);
   }
 
   cancelStageInstance(stage: Stage) {
     return ApiRequestBuilder.POST(
       SparkRoutes.cancelStageInstance(stage.pipelineName(), stage.pipelineCounter(), stage.stageName(), stage.stageCounter()),
       PipelineActivityService.API_VERSION_HEADER
-    )
+    );
   }
 
   run(pipelineName: string) {

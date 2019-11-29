@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-import m from "mithril"
-import {TestHelper} from "../../spec/test_helper";
-import {PipelineRunInfo, Stage, StageConfig, StageConfigs, Stages} from "models/pipeline_activity/pipeline_activity";
-import {PipelineRunWidget} from "../pipeline_run_info_widget";
+import m from "mithril";
 import Stream from "mithril/stream";
+import {PipelineRunInfo, Stage, StageConfig, StageConfigs, Stages} from "models/pipeline_activity/pipeline_activity";
 import {
   building,
   cancelled,
@@ -27,7 +25,9 @@ import {
   PipelineActivityData,
   unknown
 } from "models/pipeline_activity/spec/test_data";
+import {TestHelper} from "../../spec/test_helper";
 import styles from "../index.scss";
+import {PipelineRunWidget} from "../pipeline_run_info_widget";
 
 describe("PipelineRunInfoWidget", () => {
 
@@ -71,7 +71,6 @@ describe("PipelineRunInfoWidget", () => {
       expect(helper.byTestId(`time-for${pipelineRunInfo.pipelineId()}`)).toHaveText("N/A");
     });
   });
-
 
   describe("Stage status", () => {
     it("should render passed stage", () => {
@@ -208,7 +207,6 @@ describe("PipelineRunInfoWidget", () => {
       makeStageManual(stageConfigs, "release");
       mount(pipelineRunInfo, stageConfigs);
 
-
       expect(helper.byTestId("auto-gate-icon-integration-2")).toBeInDOM();
       expect(helper.byTestId("auto-gate-icon-integration-2")).not.toBeDisabled();
 
@@ -228,7 +226,6 @@ describe("PipelineRunInfoWidget", () => {
       const stageConfigs     = toStageConfigs(pipelineRunInfo.stages());
       makeStageManual(stageConfigs, "release");
       mount(pipelineRunInfo, stageConfigs);
-
 
       expect(helper.byTestId("auto-gate-icon-integration-2")).toBeInDOM();
       expect(helper.byTestId("auto-gate-icon-integration-2")).not.toBeDisabled();
@@ -340,7 +337,7 @@ describe("PipelineRunInfoWidget", () => {
                                           showBuildCaseFor={showBuildCaseFor}
                                           stageConfigs={stageConfigs ? stageConfigs : toStageConfigs(pipelineRunInfo.stages())}
                                           cancelStageInstance={cancelStageInstance}
-                                          runStage={runStage}/>)
+                                          runStage={runStage}/>);
   }
 
   function toStageConfigs(stages: Stages) {
@@ -352,7 +349,7 @@ describe("PipelineRunInfoWidget", () => {
   function makeStageManual(stageConfigs: StageConfigs, name: string) {
     const stage = stageConfigs.find((stage: StageConfig) => stage.name() === name);
     if (!stage) {
-      throw new Error("Stage with name " + name + " not found!!")
+      throw new Error("Stage with name " + name + " not found!!");
     }
 
     stage.isAutoApproved(false);

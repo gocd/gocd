@@ -104,6 +104,6 @@ class HeaderWidget extends MithrilViewComponent<HeaderAttrs> {
                   </span>;
         })}
       </td>
-    </tr>
+    </tr>;
   }
 }

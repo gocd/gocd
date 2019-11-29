@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 import {bind} from "classnames/bind";
-import m from "mithril";
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as Icons from "views/components/icons";
-import {Group, StageConfig} from "models/pipeline_activity/pipeline_activity";
-import styles from "./index.scss";
+import m from "mithril";
 import Stream from "mithril/stream";
+import {Group, StageConfig} from "models/pipeline_activity/pipeline_activity";
+import * as Icons from "views/components/icons";
+import styles from "./index.scss";
 
 const classnames = bind(styles);
 
 interface ShowForceBuildActionAttrs {
-  group: Group
+  group: Group;
   canForce: Stream<boolean>;
   pipelineName: string;
   runPipeline: (name: string) => void;

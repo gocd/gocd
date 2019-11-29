@@ -15,17 +15,17 @@
  */
 
 import {bind} from "classnames/bind";
-import m from "mithril"
-import {PipelineRunInfo, Stage, StageConfigs} from "models/pipeline_activity/pipeline_activity";
-import styles from "./index.scss";
-import Stream from "mithril/stream";
-import {MithrilViewComponent} from "jsx/mithril-component";
-import {BuildCauseWidget} from "./build_cause_widget";
-import * as Icons from "views/components/icons";
-import {timeFormatter as TimeFormatter} from "helpers/time_formatter";
-import s from "underscore.string";
 import {SparkRoutes} from "helpers/spark_routes";
+import {timeFormatter as TimeFormatter} from "helpers/time_formatter";
+import {MithrilViewComponent} from "jsx/mithril-component";
+import m from "mithril";
+import Stream from "mithril/stream";
+import {PipelineRunInfo, Stage, StageConfigs} from "models/pipeline_activity/pipeline_activity";
+import s from "underscore.string";
+import * as Icons from "views/components/icons";
 import {Link} from "views/components/link";
+import {BuildCauseWidget} from "./build_cause_widget";
+import styles from "./index.scss";
 
 const classnames = bind(styles);
 
@@ -79,6 +79,56 @@ export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
         })}
       </td>
     </tr>;
+  }
+
+  private static getTitle(stage: Stage) {
+    if (!stage.approvedBy()) {
+      return "Awaiting approval";
+    }
+    if (stage.approvedBy() === "changes") {
+      return "Automatically approved";
+    }
+    return `Approved by ${stage.approvedBy()}`;
+  }
+
+  private static shouldDisableApprovalIcon(stage: Stage) {
+    if (!stage.getCanRun()) {
+      return true;
+    }
+
+    return stage.scheduled();
+  }
+
+  private static stageStatusClass(status: string) {
+    if (!status) {
+      return;
+    }
+
+    if (status.trim().toLowerCase() === "building") {
+      return styles.building;
+    } else if (status.trim().toLowerCase() === "failed") {
+      return styles.failed;
+    } else if (status.trim().toLowerCase() === "cancelled") {
+      return styles.cancelled;
+    } else if (status.trim().toLowerCase() === "passed") {
+      return styles.passed;
+    } else if (status.trim().toLowerCase() === "waiting") {
+      return styles.waiting;
+    }
+
+    return styles.unknown;
+  }
+
+  private static getVSMLink(vnode: m.Vnode<PipelineRunAttrs>, pipelineRunInfo: PipelineRunInfo) {
+    if (pipelineRunInfo.label().toLowerCase() === "unknown") {
+      return <span class={styles.disabled}>VSM</span>;
+    }
+    const link = SparkRoutes.pipelineVsmLink(vnode.attrs.pipelineName, pipelineRunInfo.counterOrLabel());
+    return <a href={link}>VSM</a>;
+  }
+
+  private static getTime(timestamp: Date) {
+    return timestamp ? TimeFormatter.format(timestamp) : "N/A";
   }
 
   private getStageActions(stage: Stage, vnode: m.Vnode<PipelineRunAttrs>): m.Children {
@@ -135,56 +185,6 @@ export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
                               disabled={disabled}
                               data-test-id={dataTestId}
                               onclick={() => vnode.attrs.runStage(stage)}/>;
-  }
-
-  private static getTitle(stage: Stage) {
-    if (!stage.approvedBy()) {
-      return "Awaiting approval";
-    }
-    if (stage.approvedBy() === "changes") {
-      return "Automatically approved";
-    }
-    return `Approved by ${stage.approvedBy()}`;
-  }
-
-  private static shouldDisableApprovalIcon(stage: Stage) {
-    if (!stage.getCanRun()) {
-      return true;
-    }
-
-    return stage.scheduled();
-  }
-
-  private static stageStatusClass(status: string) {
-    if (!status) {
-      return;
-    }
-
-    if (status.trim().toLowerCase() === "building") {
-      return styles.building;
-    } else if (status.trim().toLowerCase() === "failed") {
-      return styles.failed;
-    } else if (status.trim().toLowerCase() === "cancelled") {
-      return styles.cancelled;
-    } else if (status.trim().toLowerCase() === "passed") {
-      return styles.passed;
-    } else if (status.trim().toLowerCase() === "waiting") {
-      return styles.waiting;
-    }
-
-    return styles.unknown;
-  }
-
-  private static getVSMLink(vnode: m.Vnode<PipelineRunAttrs>, pipelineRunInfo: PipelineRunInfo) {
-    if (pipelineRunInfo.label().toLowerCase() === "unknown") {
-      return <span class={styles.disabled}>VSM</span>;
-    }
-    const link = SparkRoutes.pipelineVsmLink(vnode.attrs.pipelineName, pipelineRunInfo.counterOrLabel());
-    return <a href={link}>VSM</a>;
-  }
-
-  private static getTime(timestamp: Date) {
-    return timestamp ? TimeFormatter.format(timestamp) : "N/A";
   }
 
   private dataTestId(...parts: StringOrNumber[]) {

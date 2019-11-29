@@ -15,10 +15,10 @@
  */
 
 import m from "mithril";
-import {TestHelper} from "../../spec/test_helper";
-import {PipelineActivityHeader} from "../page_header";
 import {PipelineActivity} from "models/pipeline_activity/pipeline_activity";
 import {PipelineActivityData} from "models/pipeline_activity/spec/test_data";
+import {TestHelper} from "../../spec/test_helper";
+import {PipelineActivityHeader} from "../page_header";
 
 describe("PipelineActivityHeader", () => {
   const helper = new TestHelper();
@@ -133,6 +133,6 @@ describe("PipelineActivityHeader", () => {
                                                pipelineActivity={pipelineActivity}
                                                isAdmin={isAdmin}
                                                isGroupAdmin={isGroupAdmin}
-                                               isEditableFromUI={isEditableFromUI}/>)
+                                               isEditableFromUI={isEditableFromUI}/>);
   }
 });

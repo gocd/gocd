@@ -15,11 +15,11 @@
  */
 
 import m from "mithril";
+import Stream from "mithril/stream";
+import {PipelineActivity} from "models/pipeline_activity/pipeline_activity";
+import {PipelineActivityData} from "models/pipeline_activity/spec/test_data";
 import {TestHelper} from "../../spec/test_helper";
 import {PipelineActivityWidget} from "../pipeline_activity_widget";
-import Stream from "mithril/stream";
-import {PipelineActivityData} from "models/pipeline_activity/spec/test_data";
-import {PipelineActivity} from "models/pipeline_activity/pipeline_activity";
 
 describe("PipelineActivityWidget", () => {
   const helper              = new TestHelper();
@@ -51,6 +51,6 @@ describe("PipelineActivityWidget", () => {
                                                showBuildCaseFor={showBuildCaseFor}
                                                runStage={runStage}
                                                cancelStageInstance={cancelStageInstance}
-                                               runPipeline={runPipeline}/>)
+                                               runPipeline={runPipeline}/>);
   }
 });

@@ -25,7 +25,9 @@
     <tr>
       <td>&nbsp;</td>
       <td colspan="5">
-      <% unless @is_config_repo_pipeline %>
+      <% if @is_config_repo_pipeline %>
+        <div id="add_new_task_dropdown_link" style="display: none"></div>
+      <%else %>
         <%= action_icon({:type => "add", :text => 'Add new task', :id => "add_new_task_dropdown_link", :href => "#", :menu_link => true}) %>
       <% end %>
         <div id="new_task_popup" class="hidden enhanced_dropdown">

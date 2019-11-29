@@ -33,5 +33,6 @@
     Util.on_load(function() {
         var helper = new TaskEditor.TypeEditor({container: jQuery('.on_cancel_task'), switch_control: jQuery('.on_cancel_type'), entry_to_be_hidden: '.task_entry'});
         helper.showHideCheckbox(jQuery('.has_cancel_task'));//memory leak
+        Util.disableAllFormElementsFor('.on_cancel');
     });
 </script>

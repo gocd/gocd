@@ -40,7 +40,7 @@ export class PipelineActivityWidget extends MithrilViewComponent<Attrs> {
       return;
     }
 
-    return <div class={styles.pipelineActivity}>
+    return <table class={styles.pipelineActivity}>
       {
         pipelineActivity.groups().map((group: Group, index: number) => {
           return [
@@ -50,11 +50,10 @@ export class PipelineActivityWidget extends MithrilViewComponent<Attrs> {
                          group={group}
                          showBuildCaseFor={vnode.attrs.showBuildCaseFor}
                          runStage={vnode.attrs.runStage}
-                         cancelStageInstance={vnode.attrs.cancelStageInstance}/>
-          ];
+                         cancelStageInstance={vnode.attrs.cancelStageInstance}/>];
         })
       }
-    </div>
+    </table>
   }
 
   renderForceBuildAction(index: number, group: Group, pipelineActivity: PipelineActivity, vnode: m.Vnode<Attrs>) {
@@ -77,16 +76,14 @@ interface GroupAttrs {
 
 class GroupWidget extends MithrilViewComponent<GroupAttrs> {
   view(vnode: m.Vnode<GroupAttrs, this>): m.Children {
-    return <div class={styles.group}>
-      {vnode.attrs.group.history().map((history: PipelineRunInfo) => {
-        return <PipelineRunWidget pipelineName={vnode.attrs.pipelineName}
-                                  pipelineRunInfo={history}
-                                  stageConfigs={vnode.attrs.group.config().stages()}
-                                  showBuildCaseFor={vnode.attrs.showBuildCaseFor}
-                                  runStage={vnode.attrs.runStage}
-                                  cancelStageInstance={vnode.attrs.cancelStageInstance}/>;
-      })}
-    </div>;
+    return vnode.attrs.group.history().map((history: PipelineRunInfo) => {
+      return <PipelineRunWidget pipelineName={vnode.attrs.pipelineName}
+                                pipelineRunInfo={history}
+                                stageConfigs={vnode.attrs.group.config().stages()}
+                                showBuildCaseFor={vnode.attrs.showBuildCaseFor}
+                                runStage={vnode.attrs.runStage}
+                                cancelStageInstance={vnode.attrs.cancelStageInstance}/>;
+    });
   }
 }
 
@@ -96,17 +93,15 @@ interface HeaderAttrs {
 
 class HeaderWidget extends MithrilViewComponent<HeaderAttrs> {
   view(vnode: m.Vnode<HeaderAttrs, this>): m.Children | void | null {
-    return <div class={styles.pipelineRunHeader}>
-      <div class={classnames(styles.runInfoSection, styles.header)}
-           data-test-id="instance-header">Instance
-      </div>
-      <div class={styles.stagesSection}>
+    return <tr class={styles.groupHeader}>
+      <td class={classnames(styles.left, styles.header)} data-test-id="instance-header">Instance</td>
+      <td class={styles.right}>
         {vnode.attrs.config().stages().map((stage) => {
           return <span class={classnames(styles.header, styles.stageName)} data-test-id={`stage-${stage.name()}`}>
                     {stage.name()}
                   </span>;
         })}
-      </div>
-    </div>
+      </td>
+    </tr>
   }
 }

@@ -43,9 +43,10 @@ type StringOrNumber = string | number;
 export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
   view(vnode: m.Vnode<PipelineRunAttrs>): m.Children | void | null {
     const pipelineRunInfo = vnode.attrs.pipelineRunInfo;
-    return <div data-test-id={this.dataTestId("instance-header", pipelineRunInfo.pipelineId())}
-                class={styles.pipelineRun}>
-      <div class={styles.runInfoSection}>
+
+    return <tr class={styles.groupContent}
+               data-test-id={this.dataTestId("instance-header", pipelineRunInfo.pipelineId())}>
+      <td class={styles.left}>
         <div class={classnames(styles.run, styles.header)}>
           <span data-test-id={this.dataTestId("counter-for", pipelineRunInfo.pipelineId())}>
             {pipelineRunInfo.label().substr(0, 17)}
@@ -62,9 +63,8 @@ export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
         <BuildCauseWidget pipelineRunInfo={pipelineRunInfo}
                           showBuildCaseFor={vnode.attrs.showBuildCaseFor}
                           show={Stream(vnode.attrs.showBuildCaseFor() === pipelineRunInfo.counterOrLabel())}/>
-      </div>
-
-      <div class={styles.stagesSection}>
+      </td>
+      <td class={styles.right}>
         {pipelineRunInfo.stages().map((stage, index) => {
           return <div
             data-test-id={this.dataTestId("stage-status-wrapper", pipelineRunInfo.pipelineId(), stage.stageName())}
@@ -77,8 +77,8 @@ export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
             </div>
           </div>;
         })}
-      </div>
-    </div>
+      </td>
+    </tr>;
   }
 
   private getStageActions(stage: Stage, vnode: m.Vnode<PipelineRunAttrs>): m.Children {

@@ -285,7 +285,7 @@ dependencies {
   }
   compile(group: 'org.springframework.security', name: 'spring-security-config', version: project.versions.springSecurity)
   compile group: 'org.aspectj', name: 'aspectjrt', version: '1.5.4'
-  compile group: 'org.aspectj', name: 'aspectjweaver', version: '1.5.4'
+  compile group: 'org.aspectj', name: 'aspectjweaver', version: '1.9.5'
   compile group: 'org.tuckey', name: 'urlrewritefilter', version: '3.2.0'
   compile(group: 'org.apache.velocity', name: 'velocity', version: '1.7') {
     exclude(module: 'commons-lang')

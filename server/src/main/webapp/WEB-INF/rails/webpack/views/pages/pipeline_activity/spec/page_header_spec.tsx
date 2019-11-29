@@ -95,10 +95,18 @@ describe("PipelineActivityHeader", () => {
     expect(helper.byTestId("page-header-unpause-btn")).not.toBeInDOM();
   });
 
+  it("should not render pipeline settings icon when it is not editable from ui", () => {
+    const pipelineActivity = PipelineActivity.fromJSON(PipelineActivityData.oneStage());
+
+    mount(pipelineActivity, true, true, false);
+
+    expect(helper.byTestId("page-header-pipeline-settings")).not.toBeInDOM();
+  });
+
   it("should not render pipeline settings icon when user is not admin or group admin", () => {
     const pipelineActivity = PipelineActivity.fromJSON(PipelineActivityData.oneStage());
 
-    mount(pipelineActivity, false, false);
+    mount(pipelineActivity, false, false, true);
 
     expect(helper.byTestId("page-header-pipeline-settings")).not.toBeInDOM();
   });
@@ -106,7 +114,7 @@ describe("PipelineActivityHeader", () => {
   it("should render pipeline settings icon when user is admin", () => {
     const pipelineActivity = PipelineActivity.fromJSON(PipelineActivityData.oneStage());
 
-    mount(pipelineActivity, true, false);
+    mount(pipelineActivity, true, false, true);
 
     expect(helper.byTestId("page-header-pipeline-settings")).toBeInDOM();
   });
@@ -114,16 +122,17 @@ describe("PipelineActivityHeader", () => {
   it("should render pipeline settings icon when user is group admin", () => {
     const pipelineActivity = PipelineActivity.fromJSON(PipelineActivityData.oneStage());
 
-    mount(pipelineActivity, false, true);
+    mount(pipelineActivity, false, true, true);
 
     expect(helper.byTestId("page-header-pipeline-settings")).toBeInDOM();
   });
 
-  function mount(pipelineActivity: PipelineActivity, isAdmin: boolean = true, isGroupAdmin: boolean = true) {
+  function mount(pipelineActivity: PipelineActivity, isAdmin: boolean = true, isGroupAdmin: boolean = true, isEditableFromUI = true) {
     helper.mount(() => <PipelineActivityHeader pausePipeline={pauseFn}
                                                unpausePipeline={unpauseFn}
                                                pipelineActivity={pipelineActivity}
                                                isAdmin={isAdmin}
-                                               isGroupAdmin={isGroupAdmin}/>)
+                                               isGroupAdmin={isGroupAdmin}
+                                               isEditableFromUI={isEditableFromUI}/>)
   }
 });

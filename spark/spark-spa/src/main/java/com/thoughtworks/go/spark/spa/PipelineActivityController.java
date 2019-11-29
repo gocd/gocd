@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.spark.spa;
 
+import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
@@ -32,10 +33,12 @@ import static spark.Spark.*;
 public class PipelineActivityController implements SparkController {
     private final SPAAuthenticationHelper authenticationHelper;
     private final TemplateEngine engine;
+    private final GoConfigService goConfigService;
 
-    public PipelineActivityController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine) {
+    public PipelineActivityController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine, GoConfigService goConfigService) {
         this.authenticationHelper = authenticationHelper;
         this.engine = engine;
+        this.goConfigService = goConfigService;
     }
 
     @Override
@@ -52,9 +55,21 @@ public class PipelineActivityController implements SparkController {
     }
 
     public ModelAndView index(Request request, Response response) {
+        String pipelineName = request.params("pipeline_name");
         Map<Object, Object> object = new HashMap<Object, Object>() {{
             put("viewTitle", "Pipeline Activity");
+            put("meta", meta(pipelineName));
         }};
         return new ModelAndView(object, null);
     }
+
+    private Map<String, Object> meta(String pipelineName) {
+        final Map<String, Object> meta = new HashMap<>();
+
+        meta.put("isEditableFromUI", goConfigService.isPipelineEditable(pipelineName));
+        meta.put("pipelineName", pipelineName);
+
+        return meta;
+    }
+
 }

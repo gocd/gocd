@@ -118,7 +118,15 @@ describe("ServerManageMentWidget", () => {
   });
 
   function mount(siteUrls: SiteUrls) {
-    helper.mount(() => <ServerManagementWidget siteUrls={siteUrls} onCancel={onCancelSpy}
-                                               onServerManagementSave={onSaveSpy}/>);
+    const savePromise   = new Promise((resolve) => {
+      onSaveSpy();
+      resolve();
+    });
+    const cancelPromise = new Promise((resolve) => {
+      onCancelSpy();
+      resolve();
+    });
+    helper.mount(() => <ServerManagementWidget siteUrls={siteUrls} onCancel={() => cancelPromise}
+                                               onServerManagementSave={() => savePromise}/>);
   }
 });

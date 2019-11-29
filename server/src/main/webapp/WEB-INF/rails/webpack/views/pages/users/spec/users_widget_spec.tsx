@@ -21,6 +21,7 @@ import {GoCDRole, Roles} from "models/roles/roles";
 import {TriStateCheckbox} from "models/tri_state_checkbox";
 import {UserFilters} from "models/users/user_filters";
 import {User, Users} from "models/users/users";
+import {OperationState} from "views/pages/page_operations";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {UserViewHelper} from "views/pages/users/user_view_helper";
 import {Attrs, UsersWidget} from "views/pages/users/users_widget";
@@ -43,14 +44,15 @@ describe("UsersWidget", () => {
       showRoles: flag(false),
       showFilters: flag(false),
       rolesSelection: Stream(new Map<GoCDRole, TriStateCheckbox>()),
-      onEnable: _.noop,
-      onDisable: _.noop,
+      onEnable: () => Promise.resolve(),
+      onDisable: () => Promise.resolve(),
       onDelete: _.noop,
       onRolesUpdate: _.noop,
       roleNameToAdd: Stream(),
       onRolesAdd: _.noop,
       onToggleAdmin: _.noop,
-      userViewHelper: Stream(new UserViewHelper())
+      userViewHelper: Stream(new UserViewHelper()),
+      operationState: Stream<OperationState>(OperationState.UNKNOWN)
     };
 
     attrs.userViewHelper().systemAdmins().users([bob().loginName()]);

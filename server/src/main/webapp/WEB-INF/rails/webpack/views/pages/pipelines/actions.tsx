@@ -23,6 +23,7 @@ import Stream from "mithril/stream";
 import {Errors} from "models/mixins/errors";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import * as Buttons from "views/components/buttons";
+import {OperationState} from "views/pages/page_operations";
 import {ServerErrors} from "views/pages/pipelines/server_errors";
 import css from "./actions.scss";
 
@@ -32,9 +33,10 @@ interface Attrs {
 }
 
 export class PipelineActions extends MithrilViewComponent<Attrs> {
-  private location: LocationHandler = new WindowLocation();
-  private globalError: Stream<string> = Stream();
-  private globalErrorDetail: Stream<Errors> = Stream();
+  private location: LocationHandler                    = new WindowLocation();
+  private globalError: Stream<string>                  = Stream();
+  private globalErrorDetail: Stream<Errors>            = Stream();
+  private ajaxOperationMonitor: Stream<OperationState> = Stream<OperationState>(OperationState.UNKNOWN);
 
   oninit(vnode: m.Vnode<Attrs, {}>) {
     if (vnode.attrs.loc) {
@@ -45,12 +47,17 @@ export class PipelineActions extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>): m.Children | void | null {
     return (
       <footer class={css.actions}>
-        <Buttons.Cancel css={css} onclick={this.onCancel.bind(this)} small={false}>Cancel</Buttons.Cancel>
+        <Buttons.Cancel css={css} onclick={this.onCancel.bind(this)} small={false}
+                        ajaxOperationMonitor={this.ajaxOperationMonitor}>Cancel</Buttons.Cancel>
         <div class={css.saveBtns}>
           <ServerErrors message={this.globalError} details={this.globalErrorDetail}/>
 
-          <Buttons.Secondary css={css} onclick={this.onSave.bind(this, true, vnode.attrs.pipelineConfig)} small={false}>Save + Edit Full Config</Buttons.Secondary>
-          <Buttons.Primary css={css} onclick={this.onSave.bind(this, false, vnode.attrs.pipelineConfig)} small={false}>Save + Run This Pipeline</Buttons.Primary>
+          <Buttons.Secondary css={css} ajaxOperation={this.onSave.bind(this, true, vnode.attrs.pipelineConfig)}
+                             ajaxOperationMonitor={this.ajaxOperationMonitor} small={false}>Save + Edit Full
+            Config</Buttons.Secondary>
+          <Buttons.Primary css={css} ajaxOperation={this.onSave.bind(this, false, vnode.attrs.pipelineConfig)}
+                           ajaxOperationMonitor={this.ajaxOperationMonitor} small={false}>Save + Run This
+            Pipeline</Buttons.Primary>
         </div>
       </footer>
     );
@@ -61,18 +68,18 @@ export class PipelineActions extends MithrilViewComponent<Attrs> {
     this.location.go("/go/pipelines");
   }
 
-  onSave(shouldPause: boolean, pipelineConfig: PipelineConfig, event: Event): void {
+  onSave(shouldPause: boolean, pipelineConfig: PipelineConfig, event: Event): Promise<any> {
     event.stopPropagation();
     event.preventDefault();
 
     this.clearErrors();
 
     if (pipelineConfig.isValid()) {
-      pipelineConfig.create(shouldPause).then((response) => {
+      return pipelineConfig.create(shouldPause).then((response) => {
         response.do(() => {
           if (shouldPause) {
             this.location.go(Routes.pipelineEditPath("pipelines", pipelineConfig.name(), "general"));
-          } else  {
+          } else {
             pipelineConfig.run().then(() => {
               this.location.go(`/go/pipelines?new_pipeline_name=${pipelineConfig.name()}`);
             });
@@ -88,11 +95,12 @@ export class PipelineActions extends MithrilViewComponent<Attrs> {
       }).finally(m.redraw);
     } else {
       this.globalError("Please fix the validation errors above before proceeding.");
+      return Promise.resolve();
     }
   }
 
   clearErrors() {
-    this.globalError = Stream();
+    this.globalError       = Stream();
     this.globalErrorDetail = Stream();
   }
 }

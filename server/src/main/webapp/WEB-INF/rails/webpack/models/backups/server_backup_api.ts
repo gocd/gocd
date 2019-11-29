@@ -25,7 +25,7 @@ export class ServerBackupAPI {
                onCompletion: (serverBackup: ServerBackup) => void,
                onError: (error: string) => void) {
 
-    ApiRequestBuilder.POST(SparkRoutes.apiCreateServerBackupPath(), this.API_VERSION_HEADER)
+    return ApiRequestBuilder.POST(SparkRoutes.apiCreateServerBackupPath(), this.API_VERSION_HEADER)
                      .then((result: ApiResult<string>) => {
                        result.do(() => {
                          this.startPolling(result.getRedirectUrl(),

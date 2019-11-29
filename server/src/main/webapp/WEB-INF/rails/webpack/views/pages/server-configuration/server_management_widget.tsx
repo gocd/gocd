@@ -16,10 +16,12 @@
 import {docsUrl} from "gen/gocd_version";
 import {MithrilComponent} from "jsx/mithril-component";
 import m from "mithril";
+import Stream from "mithril/stream";
 import {ButtonGroup, Cancel, Primary} from "views/components/buttons";
 import {Form, FormBody} from "views/components/forms/form";
 import {TextField} from "views/components/forms/input_fields";
 import {Link} from "views/components/link";
+import {OperationState} from "views/pages/page_operations";
 import {ServerManagementAttrs} from "views/pages/server_configuration";
 import styles from "./index.scss";
 
@@ -28,6 +30,9 @@ interface State {
 }
 
 export class ServerManagementWidget extends MithrilComponent<ServerManagementAttrs, State> {
+
+  private ajaxOperationMonitor = Stream<OperationState>(OperationState.UNKNOWN);
+
   view(vnode: m.Vnode<ServerManagementAttrs, State>) {
     const helpTextSiteUrl = <div data-test-id={"help-text-for-siteurl"}>
       This entry will be used by Go Server to generate links for emails, feeds etc. Format: [protocol]://[host]:[port].
@@ -58,24 +63,27 @@ export class ServerManagementWidget extends MithrilComponent<ServerManagementAtt
         </div>
         <div class={styles.buttons}>
           <ButtonGroup>
-            <Cancel data-test-id={"cancel"} onclick={this.onCancel.bind(this, vnode)}
+            <Cancel data-test-id={"cancel"} ajaxOperation={this.onCancel.bind(this, vnode)}
+                    ajaxOperationMonitor={this.ajaxOperationMonitor}
                     disabled={!vnode.state.isAllowedToCancel}>Cancel</Cancel>
-            <Primary data-test-id={"save"} onclick={this.onSave.bind(this, vnode)}>Save</Primary>
+            <Primary data-test-id={"save"} ajaxOperation={this.onSave.bind(this, vnode)}
+                     ajaxOperationMonitor={this.ajaxOperationMonitor}>Save</Primary>
           </ButtonGroup>
         </div>
       </FormBody>
     </div>;
   }
 
-  onCancel(vnode: m.Vnode<ServerManagementAttrs, State>) {
+  onCancel(vnode: m.Vnode<ServerManagementAttrs, State>): Promise<any> {
     vnode.state.isAllowedToCancel = false;
-    vnode.attrs.onCancel();
+    return vnode.attrs.onCancel();
   }
 
-  onSave(vnode: m.Vnode<ServerManagementAttrs, State>) {
+  onSave(vnode: m.Vnode<ServerManagementAttrs, State>): Promise<any> {
     if (vnode.attrs.siteUrls.isValid()) {
       vnode.state.isAllowedToCancel = false;
-      vnode.attrs.onServerManagementSave(vnode.attrs.siteUrls);
+      return vnode.attrs.onServerManagementSave(vnode.attrs.siteUrls);
     }
+    return Promise.resolve();
   }
 }

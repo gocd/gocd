@@ -31,32 +31,30 @@ import {
 } from "models/server-configuration/server_configuration";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Page, PageState} from "views/pages/page";
-import {OperationState} from "views/pages/page_operations";
 import {Sections, ServerConfigurationWidget} from "views/pages/server-configuration/server_configuration_widget";
 
 export interface ServerConfigurationPageOperations {
-  onCancel: () => void;
+  onCancel: () => Promise<any>;
 }
 
 export interface ServerManagementAttrs extends ServerConfigurationPageOperations {
-  onServerManagementSave: (siteUrls: SiteUrls) => void;
+  onServerManagementSave: (siteUrls: SiteUrls) => Promise<any>;
   siteUrls: SiteUrls;
 }
 
 export interface JobTimeoutAttrs extends ServerConfigurationPageOperations {
-  onDefaultJobTimeoutSave: (jobTimeout: DefaultJobTimeout) => void;
+  onDefaultJobTimeoutSave: (jobTimeout: DefaultJobTimeout) => Promise<any>;
   defaultJobTimeout: Stream<DefaultJobTimeout>;
 }
 
 export interface ArtifactManagementAttrs extends ServerConfigurationPageOperations {
-  onArtifactConfigSave: (artifactConfig: ArtifactConfig) => void;
+  onArtifactConfigSave: (artifactConfig: ArtifactConfig) => Promise<any>;
   artifactConfig: ArtifactConfig;
 }
 
 export interface MailServerManagementAttrs extends ServerConfigurationPageOperations {
   mailServer: Stream<MailServer>;
-  operationState: Stream<OperationState>;
-  onMailServerManagementSave: (mailServer: MailServer) => void;
+  onMailServerManagementSave: (mailServer: MailServer) => Promise<any>;
 }
 
 export interface Routing {
@@ -82,9 +80,8 @@ export class ServerConfigurationPage extends Page<null, State> {
     vnode.state.artifactConfig         = new ArtifactConfig("");
     vnode.state.mailServer             = Stream(new MailServer());
     vnode.state.defaultJobTimeout      = Stream(new DefaultJobTimeout(0));
-    vnode.state.operationState         = Stream(OperationState.UNKNOWN) as Stream<OperationState>;
     vnode.state.onServerManagementSave = (siteUrls: SiteUrls) => {
-      ServerManagementCRUD.put(siteUrls, this.siteUrlsEtag).then((result) => {
+      return ServerManagementCRUD.put(siteUrls, this.siteUrlsEtag).then((result) => {
         result.do((successResponse) => {
           this.flashMessage.setMessage(MessageType.success, "Site urls updated successfully");
           this.fetchData(vnode);
@@ -95,7 +92,7 @@ export class ServerConfigurationPage extends Page<null, State> {
     };
 
     vnode.state.onArtifactConfigSave = (artifactConfig: ArtifactConfig) => {
-      ArtifactConfigCRUD.put(artifactConfig, this.artifactConfigEtag).then((result) => {
+      return ArtifactConfigCRUD.put(artifactConfig, this.artifactConfigEtag).then((result) => {
         result.do((successResponse) => {
           this.flashMessage.setMessage(MessageType.success, "Artifact config updated successfully");
           this.fetchData(vnode);
@@ -106,21 +103,18 @@ export class ServerConfigurationPage extends Page<null, State> {
     };
 
     vnode.state.onCancel = () => {
-      this.fetchData(vnode);
+      return this.fetchData(vnode);
     };
 
     vnode.state.onMailServerManagementSave = (mailServer: MailServer) => {
-      vnode.state.operationState(OperationState.IN_PROGRESS);
-      MailServerCrud.createOrUpdate(mailServer).then((result) => {
+      return MailServerCrud.createOrUpdate(mailServer).then((result) => {
         result.do(
           (successResponse) => {
             const msg = "Configuration was saved successfully!";
-            vnode.state.operationState(OperationState.DONE);
             this.flashMessage.setMessage(MessageType.success, msg);
             this.fetchData(vnode);
           },
           (errorResponse) => {
-            vnode.state.operationState(OperationState.DONE);
             if (result.getStatusCode() === 422 && errorResponse.body) {
               vnode.state.mailServer(MailServer.fromJSON(JsonUtils.toCamelCasedObject(JSON.parse(errorResponse.body)).data));
             } else {
@@ -131,7 +125,7 @@ export class ServerConfigurationPage extends Page<null, State> {
     };
 
     vnode.state.onDefaultJobTimeoutSave = (jobTimeout: DefaultJobTimeout) => {
-      JobTimeoutManagementCRUD.createOrUpdate(jobTimeout).then((result) => {
+      return JobTimeoutManagementCRUD.createOrUpdate(jobTimeout).then((result) => {
         result.do(((successResponse) => {
           const msg = "Configuration was saved successfully!";
           this.flashMessage.setMessage(MessageType.success, msg);
@@ -174,7 +168,13 @@ export class ServerConfigurationPage extends Page<null, State> {
 
         results[2].do((successResponse) => {
           vnode.state.mailServer(successResponse.body);
-        }, () => this.setErrorState());
+        }, () => {
+          if (results[2].getStatusCode() === 404) {
+            vnode.state.mailServer(new MailServer());
+          } else {
+            this.setErrorState();
+          }
+        });
 
         results[3].do((successResponse) => {
           this.pageState = PageState.OK;

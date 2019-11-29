@@ -64,9 +64,9 @@ export class MaintenanceModePage extends Page<null, State> {
       const enableOrDisableText = vnode.state.maintenanceModeInfo.maintenanceModeState() ? "Disable" : "Enable";
       const message             = <span>Are you sure you want to <strong>{enableOrDisableText}</strong> GoCD Server maintenance mode?</span>;
 
-      const modal = new ToggleConfirmModal(message, () => {
+      const modal: ToggleConfirmModal = new ToggleConfirmModal(message, () => {
         const updateOperation = vnode.state.maintenanceModeInfo.maintenanceModeState() ? MaintenanceModeAPIs.disable : MaintenanceModeAPIs.enable;
-        updateOperation().then(() => this.fetchData(vnode)).then(modal.close.bind(modal)).finally(m.redraw);
+        return updateOperation().then(() => this.fetchData(vnode)).then(modal.close.bind(modal)).finally(m.redraw);
       });
 
       modal.render();

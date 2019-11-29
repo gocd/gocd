@@ -28,16 +28,17 @@ import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
 import {Page, PageState} from "views/pages/page";
-import {AddOperation} from "views/pages/page_operations";
+import {AddOperation, OperationState} from "views/pages/page_operations";
 import {UserSearchModal} from "views/pages/users/add_user_modal";
 import {DeleteUserConfirmModal} from "views/pages/users/delete_user_confirmation_modal";
-import {State as UserActionsState, UsersActionsWidget} from "views/pages/users/user_actions_widget";
+import {Attrs as UserActionsAttrs, UsersActionsWidget} from "views/pages/users/user_actions_widget";
 import {UserViewHelper} from "views/pages/users/user_view_helper";
-import {Attrs as UsersWidgetState, UsersTableWidget} from "views/pages/users/users_widget";
+import {Attrs as UsersWidgetAttrs, UsersTableWidget} from "views/pages/users/users_widget";
 import styles from "./users/index.scss";
 
-interface State extends UserActionsState, AddOperation<Users>, UsersWidgetState {
+interface State extends UserActionsAttrs, AddOperation<Users>, UsersWidgetAttrs {
   initialUsers: Stream<Users>;
+  operationState: Stream<OperationState>;
 }
 
 const flag: (val?: boolean) => Stream<boolean> = Stream;
@@ -51,6 +52,7 @@ export class UsersPage extends Page<null, State> {
     vnode.state.userFilters    = Stream(new UserFilters());
     vnode.state.roles          = Stream(new Roles());
     vnode.state.rolesSelection = Stream(new Map<GoCDRole, TriStateCheckbox>());
+    vnode.state.operationState = Stream<OperationState>(OperationState.UNKNOWN);
 
     vnode.state.showFilters   = flag(false);
     vnode.state.showRoles     = flag(false);
@@ -77,7 +79,7 @@ export class UsersPage extends Page<null, State> {
         users: usersToEnable.userNamesOfSelectedUsers()
       };
 
-      this.bulkUserStateChange(vnode, json);
+      return this.bulkUserStateChange(vnode, json);
     };
 
     vnode.state.onDisable = (usersToDisable, e) => {
@@ -88,7 +90,7 @@ export class UsersPage extends Page<null, State> {
         users: usersToDisable.userNamesOfSelectedUsers()
       };
 
-      this.bulkUserStateChange(vnode, json);
+      return this.bulkUserStateChange(vnode, json);
     };
 
     vnode.state.onDelete = (usersToDelete, e) => {
@@ -227,8 +229,8 @@ export class UsersPage extends Page<null, State> {
     });
   }
 
-  private bulkUserStateChange(vnode: m.Vnode<null, State>, json: BulkUserUpdateJSON): void {
-    UsersCRUD.bulkUserStateUpdate(json)
+  private bulkUserStateChange(vnode: m.Vnode<null, State>, json: BulkUserUpdateJSON) {
+    return UsersCRUD.bulkUserStateUpdate(json)
              .then((apiResult) => {
                apiResult.do((successResponse) => {
                               this.pageState = PageState.OK;

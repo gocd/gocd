@@ -78,9 +78,16 @@ describe("MailServerManagementWidget", () => {
   });
 
   function mount(mailServer: MailServer) {
+    const savePromise   = new Promise((resolve) => {
+      onSaveSpy();
+      resolve();
+    });
+    const cancelPromise = new Promise((resolve) => {
+      onCancelSpy();
+      resolve();
+    });
     helper.mount(() => <MailServerManagementWidget mailServer={Stream(mailServer)}
-                                                   onMailServerManagementSave={onSaveSpy}
-                                                   onCancel={onCancelSpy}
-                                                   operationState={Stream()}/>);
+                                                   onMailServerManagementSave={() => savePromise}
+                                                   onCancel={() => cancelPromise}/>);
   }
 });

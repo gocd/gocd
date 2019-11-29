@@ -25,6 +25,7 @@ import {ButtonGroup} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Modal, ModalState, Size} from "views/components/modal/index";
 import * as foundationStyles from "views/pages/new_plugins/foundation_hax.scss";
+import {OperationState} from "views/pages/page_operations";
 import styles from "./index.scss";
 
 const foundationClassNames = bind(foundationStyles);
@@ -36,6 +37,7 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
   protected readonly onSuccessfulSave: (msg: m.Children) => any;
   protected readonly isStale                      = Stream(true);
   protected readonly etag: Stream<string>         = Stream();
+  protected ajaxOperationMonitor = Stream<OperationState>(OperationState.UNKNOWN);
 
   constructor(entity: T,
               pluginInfos: PluginInfos,
@@ -58,11 +60,11 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
 
   performOperation() {
     if (!this.entity().isValid()) {
-      return;
+      return Promise.resolve();
     }
 
     this.modalState = ModalState.LOADING;
-    this.operationPromise().then(this.onSaveResult.bind(this));
+    return this.operationPromise().then(this.onSaveResult.bind(this));
   }
 
   body(): m.Children {
@@ -80,10 +82,12 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
   buttons() {
     return [
       <ButtonGroup>
-        <Buttons.Cancel data-test-id="button-cancel" onclick={(e) => this.close()}>Cancel</Buttons.Cancel>
+        <Buttons.Cancel data-test-id="button-cancel" onclick={(e) => this.close()}
+                        ajaxOperationMonitor={this.ajaxOperationMonitor}>Cancel</Buttons.Cancel>
         <Buttons.Primary data-test-id="button-save"
                          disabled={this.isLoading()}
-                         onclick={this.performOperation.bind(this)}>Save</Buttons.Primary>
+                         ajaxOperationMonitor={this.ajaxOperationMonitor}
+                         ajaxOperation={this.performOperation.bind(this)}>Save</Buttons.Primary>
       </ButtonGroup>
     ];
   }

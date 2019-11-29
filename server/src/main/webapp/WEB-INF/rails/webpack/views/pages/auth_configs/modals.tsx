@@ -46,10 +46,10 @@ abstract class AuthConfigModal extends EntityModal<AuthConfig> {
 
   performCheckConnection() {
     if (!this.entity().isValid()) {
-      return;
+      return Promise.resolve();
     }
 
-    AuthConfigsCRUD.verifyConnection(this.entity()).then(this.onVerifyConnectionResult.bind(this));
+    return AuthConfigsCRUD.verifyConnection(this.entity()).then(this.onVerifyConnectionResult.bind(this));
   }
 
   onPluginChange(entity: Stream<AuthConfig>, pluginInfo: PluginInfo): void {
@@ -62,11 +62,13 @@ abstract class AuthConfigModal extends EntityModal<AuthConfig> {
   buttons() {
     return [
       <ButtonGroup>
-        <Buttons.Primary data-test-id="button-check-connection" onclick={this.performCheckConnection.bind(this)}>Check
-          connection</Buttons.Primary>
+        <Buttons.Primary data-test-id="button-check-connection"
+                         ajaxOperationMonitor={this.ajaxOperationMonitor}
+                         ajaxOperation={this.performCheckConnection.bind(this)}>Check connection</Buttons.Primary>
         <Buttons.Primary data-test-id="button-save"
                          disabled={this.isStale()}
-                         onclick={this.performOperation.bind(this)}>Save</Buttons.Primary>
+                         ajaxOperationMonitor={this.ajaxOperationMonitor}
+                         ajaxOperation={this.performOperation.bind(this)}>Save</Buttons.Primary>
       </ButtonGroup>
     ];
   }
@@ -189,9 +191,13 @@ export class DeleteAuthConfigModal extends AuthConfigModal {
 
   buttons(): any[] {
     return [
-      <Buttons.Danger data-test-id="button-delete" onclick={this.performOperation.bind(this)}>Yes
+      <Buttons.Danger data-test-id="button-delete"
+                      ajaxOperationMonitor={this.ajaxOperationMonitor}
+                      ajaxOperation={this.performOperation.bind(this)}>Yes
         Delete</Buttons.Danger>,
-      <Buttons.Cancel data-test-id="button-no-delete" onclick={this.close.bind(this)}>No</Buttons.Cancel>
+      <Buttons.Cancel data-test-id="button-no-delete"
+                      ajaxOperationMonitor={this.ajaxOperationMonitor}
+                      onclick={this.close.bind(this)}>No</Buttons.Cancel>
     ];
   }
 

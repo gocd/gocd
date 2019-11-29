@@ -40,7 +40,7 @@ import {
   SearchField,
   TriStateCheckboxField
 } from "views/components/forms/input_fields";
-import {DeleteOperation, DisableOperation, EnableOperation} from "views/pages/page_operations";
+import {DeleteOperation, DisableOperation, EnableOperation, OperationState} from "views/pages/page_operations";
 import styles from "./index.scss";
 
 const classnames = bind(styles);
@@ -65,7 +65,12 @@ export interface FiltersViewAttrs {
   roles: Stream<Roles>;
 }
 
-export type State = RolesViewAttrs & FiltersViewAttrs & EnableOperation<Users> & DisableOperation<Users> & DeleteOperation<Users>;
+interface AjaxOperationMonitor {
+  operationState: Stream<OperationState>;
+}
+
+export type Attrs = RolesViewAttrs & FiltersViewAttrs & EnableOperation<Users> & DisableOperation<Users> &
+  DeleteOperation<Users> & AjaxOperationMonitor;
 
 class FiltersView extends Dropdown<FiltersViewAttrs> {
   doRenderDropdownContent(vnode: m.Vnode<DropdownAttrs & FiltersViewAttrs>) {
@@ -147,14 +152,14 @@ class FiltersView extends Dropdown<FiltersViewAttrs> {
 
 }
 
-class RolesDropdown extends Dropdown<RolesViewAttrs> {
+class RolesDropdown extends Dropdown<RolesViewAttrs & AjaxOperationMonitor> {
 
-  toggleDropdown(vnode: m.Vnode<DropdownAttrs & RolesViewAttrs>, e: MouseEvent) {
+  toggleDropdown(vnode: m.Vnode<DropdownAttrs & RolesViewAttrs & AjaxOperationMonitor>, e: MouseEvent) {
     super.toggleDropdown(vnode, e);
     vnode.attrs.initializeRolesDropdownAttrs();
   }
 
-  doRenderDropdownContent(vnode: m.Vnode<DropdownAttrs & RolesViewAttrs>): m.Children {
+  doRenderDropdownContent(vnode: m.Vnode<DropdownAttrs & RolesViewAttrs & AjaxOperationMonitor>): m.Children {
     const classNames = classnames({
                                     [styles.hidden]: !vnode.attrs.show(),
                                   }, styles.rolesDropdownContent);
@@ -176,30 +181,30 @@ class RolesDropdown extends Dropdown<RolesViewAttrs> {
         </div>
         <Form compactForm={true}>
           <QuickAddField property={vnode.attrs.roleNameToAdd} placeholder="Add role"
+                         ajaxOperationMonitor={vnode.attrs.operationState}
                          onclick={vnode.attrs.onRolesAdd.bind(this, vnode.attrs.roleNameToAdd(), vnode.attrs.users())}
                          buttonDisableReason={"Please type the role name to add."}
           />
         </Form>
-        <Primary onclick={vnode.attrs.onRolesUpdate.bind(this,
+        <Primary ajaxOperationMonitor={vnode.attrs.operationState}
+                 onclick={vnode.attrs.onRolesUpdate.bind(this,
                                                          vnode.attrs.rolesSelection(),
                                                          vnode.attrs.users())}>Apply</Primary>
       </div>
     );
   }
 
-  protected doRenderButton(vnode: m.Vnode<DropdownAttrs & RolesViewAttrs>) {
+  protected doRenderButton(vnode: m.Vnode<DropdownAttrs & RolesViewAttrs & AjaxOperationMonitor>) {
     return <Secondary dropdown={true}
-                      disabled={!vnode.attrs.users().anyUserSelected()}
-                      onclick={(e) => {
-                        this.toggleDropdown(vnode, e);
-                      }}>
+                      disabled={!vnode.attrs.users().anyUserSelected() || vnode.attrs.operationState() === OperationState.IN_PROGRESS}
+                      onclick={(e) => this.toggleDropdown(vnode, e)}>
       Roles
     </Secondary>;
   }
 }
 
-export class UsersActionsWidget extends MithrilViewComponent<State> {
-  view(vnode: m.Vnode<State>) {
+export class UsersActionsWidget extends MithrilViewComponent<Attrs> {
+  view(vnode: m.Vnode<Attrs>) {
     const counts = [
       {
         count: vnode.attrs.users().totalUsersCount(),
@@ -221,11 +226,14 @@ export class UsersActionsWidget extends MithrilViewComponent<State> {
       <div class={classnames(styles.userActionsAndCounts)}>
         <div class={classnames(styles.userActions)}>
           <ButtonGroup>
-            <Secondary onclick={vnode.attrs.onEnable.bind(vnode.attrs, vnode.attrs.users())}
+            <Secondary ajaxOperation={vnode.attrs.onEnable.bind(vnode.attrs, vnode.attrs.users())}
+                       ajaxOperationMonitor={vnode.attrs.operationState}
                        disabled={!vnode.attrs.users().anyUserSelected()}>Enable</Secondary>
-            <Secondary onclick={vnode.attrs.onDisable.bind(vnode.attrs, vnode.attrs.users())}
+            <Secondary ajaxOperation={vnode.attrs.onDisable.bind(vnode.attrs, vnode.attrs.users())}
+                       ajaxOperationMonitor={vnode.attrs.operationState}
                        disabled={!vnode.attrs.users().anyUserSelected()}>Disable</Secondary>
             <Secondary onclick={vnode.attrs.onDelete.bind(vnode.attrs, vnode.attrs.users())}
+                       ajaxOperationMonitor={vnode.attrs.operationState}
                        disabled={!vnode.attrs.users().anyUserSelected()}>Delete</Secondary>
             <RolesDropdown {...vnode.attrs} show={vnode.attrs.showRoles}/>
           </ButtonGroup>

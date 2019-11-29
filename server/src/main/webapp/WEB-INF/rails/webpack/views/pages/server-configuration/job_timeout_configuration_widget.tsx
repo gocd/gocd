@@ -16,9 +16,11 @@
 
 import {MithrilComponent} from "jsx/mithril-component";
 import m from "mithril";
+import Stream from "mithril/stream";
 import {ButtonGroup, Cancel, Primary} from "views/components/buttons";
 import {Form, FormBody} from "views/components/forms/form";
 import {CheckboxField, NumberField} from "views/components/forms/input_fields";
+import {OperationState} from "views/pages/page_operations";
 import styles from "views/pages/server-configuration/index.scss";
 import {JobTimeoutAttrs} from "views/pages/server_configuration";
 
@@ -27,6 +29,8 @@ interface State {
 }
 
 export class JobTimeoutConfigurationWidget extends MithrilComponent<JobTimeoutAttrs, State> {
+  private ajaxOperationMonitor = Stream<OperationState>(OperationState.UNKNOWN);
+
   view(vnode: m.Vnode<JobTimeoutAttrs, State>): m.Vnode {
     return <div data-test-id="job-timeout-management-widget" class={styles.formContainer}>
       <FormBody>
@@ -51,9 +55,11 @@ export class JobTimeoutConfigurationWidget extends MithrilComponent<JobTimeoutAt
         </div>
         <div class={styles.buttons}>
           <ButtonGroup>
-            <Cancel data-test-id={"cancel"} onclick={this.onCancel.bind(this, vnode)}
+            <Cancel data-test-id={"cancel"} ajaxOperation={this.onCancel.bind(this, vnode)}
+                    ajaxOperationMonitor={this.ajaxOperationMonitor}
                     disabled={!vnode.state.isAllowedToCancel}>Cancel</Cancel>
-            <Primary data-test-id={"save"} onclick={this.onSave.bind(this, vnode)}>Save</Primary>
+            <Primary data-test-id={"save"} ajaxOperation={this.onSave.bind(this, vnode)}
+                     ajaxOperationMonitor={this.ajaxOperationMonitor}>Save</Primary>
           </ButtonGroup>
         </div>
       </FormBody>
@@ -62,14 +68,15 @@ export class JobTimeoutConfigurationWidget extends MithrilComponent<JobTimeoutAt
 
   onCancel(vnode: m.Vnode<JobTimeoutAttrs, State>) {
     vnode.state.isAllowedToCancel = false;
-    vnode.attrs.onCancel();
+    return vnode.attrs.onCancel();
   }
 
   onSave(vnode: m.Vnode<JobTimeoutAttrs, State>) {
     if (vnode.attrs.defaultJobTimeout().isValid()) {
       vnode.state.isAllowedToCancel = false;
-      vnode.attrs.onDefaultJobTimeoutSave(vnode.attrs.defaultJobTimeout());
+      return vnode.attrs.onDefaultJobTimeoutSave(vnode.attrs.defaultJobTimeout());
     }
+    return Promise.resolve();
   }
 
   private enableSetJobTimeout(e: Event, vnode: m.Vnode<JobTimeoutAttrs, State>) {

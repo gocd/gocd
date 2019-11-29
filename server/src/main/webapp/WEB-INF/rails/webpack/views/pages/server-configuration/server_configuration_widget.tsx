@@ -83,7 +83,6 @@ export class ServerConfigurationWidget extends MithrilViewComponent<Attrs> {
                                        onCancel={vnode.attrs.onCancel}/>;
       case Sections.EMAIL_SERVER:
         return <MailServerManagementWidget mailServer={vnode.attrs.mailServer}
-                                           operationState={vnode.attrs.operationState}
                                            onMailServerManagementSave={vnode.attrs.onMailServerManagementSave}
                                            onCancel={vnode.attrs.onCancel}/>;
       case Sections.ARTIFACT_MANAGEMENT:

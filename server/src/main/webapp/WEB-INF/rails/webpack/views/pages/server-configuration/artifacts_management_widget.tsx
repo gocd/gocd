@@ -16,9 +16,11 @@
 
 import {MithrilComponent} from "jsx/mithril-component";
 import m from "mithril";
+import Stream from "mithril/stream";
 import {ButtonGroup, Cancel, Primary} from "views/components/buttons";
 import {Form, FormBody} from "views/components/forms/form";
 import {CheckboxField, NumberField, TextField} from "views/components/forms/input_fields";
+import {OperationState} from "views/pages/page_operations";
 import {ArtifactManagementAttrs} from "views/pages/server_configuration";
 import styles from "./index.scss";
 
@@ -27,6 +29,8 @@ interface State {
 }
 
 export class ArtifactsManagementWidget extends MithrilComponent<ArtifactManagementAttrs, State> {
+  private ajaxOperationMonitor = Stream<OperationState>(OperationState.UNKNOWN);
+
   view(vnode: m.Vnode<ArtifactManagementAttrs, State>) {
     const purgeStartDiskSpace = vnode.attrs.artifactConfig.purgeSettings().purgeStartDiskSpace;
     const purgeUptoDiskSpace = vnode.attrs.artifactConfig.purgeSettings().purgeUptoDiskSpace;
@@ -72,9 +76,11 @@ export class ArtifactsManagementWidget extends MithrilComponent<ArtifactManageme
         </div>
         <div class={styles.buttons}>
           <ButtonGroup>
-            <Cancel data-test-id={"cancel"} onclick={this.onCancel.bind(this, vnode)}
+            <Cancel data-test-id={"cancel"} ajaxOperation={this.onCancel.bind(this, vnode)}
+                    ajaxOperationMonitor={this.ajaxOperationMonitor}
                     disabled={!vnode.state.isAllowedToCancel}>Cancel</Cancel>
-            <Primary data-test-id={"save"} onclick={this.onSave.bind(this, vnode)}>Save</Primary>
+            <Primary data-test-id={"save"} ajaxOperation={this.onSave.bind(this, vnode)}
+                     ajaxOperationMonitor={this.ajaxOperationMonitor}>Save</Primary>
           </ButtonGroup>
         </div>
       </FormBody>
@@ -89,13 +95,14 @@ export class ArtifactsManagementWidget extends MithrilComponent<ArtifactManageme
 
   onCancel(vnode: m.Vnode<ArtifactManagementAttrs, State>) {
     vnode.state.isAllowedToCancel = false;
-    vnode.attrs.onCancel();
+    return vnode.attrs.onCancel();
   }
 
   onSave(vnode: m.Vnode<ArtifactManagementAttrs, State>) {
     if (vnode.attrs.artifactConfig.isValid()) {
       vnode.state.isAllowedToCancel = false;
-      vnode.attrs.onArtifactConfigSave(vnode.attrs.artifactConfig);
+      return vnode.attrs.onArtifactConfigSave(vnode.attrs.artifactConfig);
     }
+    return Promise.resolve();
   }
 }

@@ -14,23 +14,26 @@
  * limitations under the License.
  */
 import m from "mithril";
+import Stream from "mithril/stream";
 import * as Buttons from "views/components/buttons";
 import {Modal, Size} from "views/components/modal";
+import {OperationState} from "views/pages/page_operations";
 
 export class ToggleConfirmModal extends Modal {
   private readonly message: m.Children;
   private readonly modalTitle: string;
   private readonly confirmAction: string;
-  private onsave: () => any;
+  private onsave: () => Promise<any>;
+  private ajaxOperationMonitor = Stream<OperationState>(OperationState.UNKNOWN);
 
   constructor(message: m.Children,
-              onsave: () => any,
-              title = "Are you sure?",
+              onsave: () => Promise<any>,
+              title         = "Are you sure?",
               confirmAction = "Save") {
     super(Size.small);
-    this.message    = message;
-    this.modalTitle = title;
-    this.onsave     = onsave;
+    this.message       = message;
+    this.modalTitle    = title;
+    this.onsave        = onsave;
     this.confirmAction = confirmAction;
   }
 
@@ -44,8 +47,12 @@ export class ToggleConfirmModal extends Modal {
 
   buttons(): m.ChildArray {
     return [
-      <Buttons.Primary data-test-id="button-save" onclick={this.onsave.bind(this)}>{this.confirmAction}</Buttons.Primary>,
-      <Buttons.Cancel data-test-id="button-cancel" onclick={this.close.bind(this)}>Cancel</Buttons.Cancel>
+      <Buttons.Primary data-test-id="button-save"
+                       ajaxOperationMonitor={this.ajaxOperationMonitor}
+                       ajaxOperation={this.onsave.bind(this)}>{this.confirmAction}</Buttons.Primary>,
+      <Buttons.Cancel data-test-id="button-cancel"
+                      ajaxOperationMonitor={this.ajaxOperationMonitor}
+                      onclick={this.close.bind(this)}>Cancel</Buttons.Cancel>
     ];
   }
 }

@@ -17,8 +17,9 @@
 import {docsUrl} from "gen/gocd_version";
 import {MithrilComponent} from "jsx/mithril-component";
 import m from "mithril";
+import Stream from "mithril/stream";
 import {MailServer} from "models/server-configuration/server_configuration";
-import {ButtonGroup, ButtonIcon, Cancel, Primary} from "views/components/buttons";
+import {ButtonGroup, Cancel, Primary} from "views/components/buttons";
 import {Form, FormBody} from "views/components/forms/form";
 import {CheckboxField, NumberField, PasswordField, TextField} from "views/components/forms/input_fields";
 import {OperationState} from "views/pages/page_operations";
@@ -46,10 +47,9 @@ const smtpsHelpText = (
 );
 
 export class MailServerManagementWidget extends MithrilComponent<MailServerManagementAttrs, State> {
+  private ajaxOperationMonitor = Stream<OperationState>(OperationState.UNKNOWN);
   view(vnode: m.Vnode<MailServerManagementAttrs, State>) {
     const mailServer = vnode.attrs.mailServer();
-
-    const submitButtonIcon = MailServerManagementWidget.getSubmitButtonIcon(vnode);
 
     return <div data-test-id="mail-server-management-widget" class={styles.formContainer}>
       <FormBody>
@@ -110,10 +110,12 @@ export class MailServerManagementWidget extends MithrilComponent<MailServerManag
         </div>
         <div class={styles.buttons}>
           <ButtonGroup>
-            <Cancel data-test-id={"cancel"} onclick={() => MailServerManagementWidget.onCancel(vnode)}
-                    disabled={!vnode.state.isAllowedToCancel}>Cancel</Cancel>
-            <Primary icon={submitButtonIcon} data-test-id={"save"}
-                     onclick={() => MailServerManagementWidget.onSave(vnode)}>Save</Primary>
+            <Cancel data-test-id={"cancel"} ajaxOperation={() => MailServerManagementWidget.onCancel(vnode)}
+                    disabled={!vnode.state.isAllowedToCancel}
+                    ajaxOperationMonitor={this.ajaxOperationMonitor}>Cancel</Cancel>
+            <Primary data-test-id={"save"}
+                     ajaxOperationMonitor={this.ajaxOperationMonitor}
+                     ajaxOperation={() => MailServerManagementWidget.onSave(vnode)}>Save</Primary>
           </ButtonGroup>
         </div>
       </FormBody>
@@ -122,15 +124,7 @@ export class MailServerManagementWidget extends MithrilComponent<MailServerManag
 
   private static onCancel(vnode: m.Vnode<MailServerManagementAttrs, State>) {
     vnode.state.isAllowedToCancel = false;
-    vnode.attrs.onCancel();
-  }
-
-  private static getSubmitButtonIcon(vnode: m.Vnode<MailServerManagementAttrs, State>) {
-    if (vnode.attrs.operationState() === OperationState.IN_PROGRESS) {
-      return ButtonIcon.SPINNER;
-    } else {
-      return undefined;
-    }
+    return vnode.attrs.onCancel();
   }
 
   private static onSave(vnode: m.Vnode<MailServerManagementAttrs, State>) {

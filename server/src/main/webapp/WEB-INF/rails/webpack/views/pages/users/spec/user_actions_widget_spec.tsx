@@ -21,13 +21,14 @@ import {GoCDRole, Roles} from "models/roles/roles";
 import {TriStateCheckbox} from "models/tri_state_checkbox";
 import {UserFilters} from "models/users/user_filters";
 import {User, Users} from "models/users/users";
+import {OperationState} from "views/pages/page_operations";
 import {TestHelper} from "views/pages/spec/test_helper";
-import {State as UserActionsState, UsersActionsWidget} from "views/pages/users/user_actions_widget";
+import {Attrs as UserActionsAttrs, UsersActionsWidget} from "views/pages/users/user_actions_widget";
 
 const flag: (val?: boolean) => Stream<boolean> = Stream;
 
 describe("User Actions Widget", () => {
-  let attrs: UserActionsState;
+  let attrs: UserActionsAttrs;
   let users: Stream<Users>;
   const helper = new TestHelper();
 
@@ -41,12 +42,13 @@ describe("User Actions Widget", () => {
       showRoles: flag(false),
       showFilters: flag(false),
       rolesSelection: Stream(new Map<GoCDRole, TriStateCheckbox>()),
-      onEnable: _.noop,
-      onDisable: _.noop,
+      onEnable: () => Promise.resolve(),
+      onDisable: () => Promise.resolve(),
       onDelete: _.noop,
       onRolesUpdate: _.noop,
       roleNameToAdd: Stream(),
-      onRolesAdd: _.noop
+      onRolesAdd: _.noop,
+      operationState: Stream<OperationState>(OperationState.UNKNOWN)
     };
   });
 

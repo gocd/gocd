@@ -26,6 +26,7 @@ import {SearchFieldWithButton} from "views/components/forms/input_fields";
 import {Modal, Size} from "views/components/modal";
 import {Spinner} from "views/components/spinner";
 import {Table} from "views/components/table";
+import {OperationState} from "views/pages/page_operations";
 import styles from "views/pages/users/index.scss";
 
 const classnames = bind(styles);
@@ -41,6 +42,8 @@ export class UserSearchModal extends Modal {
 
   private pageLevelMessage: FlashMessageModel;
   private refreshUsers: () => Promise<any>;
+
+  private ajaxOperationMonitor = Stream<OperationState>(OperationState.UNKNOWN);
 
   constructor(message: FlashMessageModel, refreshUsers: () => Promise<any>) {
     super(Size.large);
@@ -73,8 +76,8 @@ export class UserSearchModal extends Modal {
 
   buttons(): m.ChildArray {
     return [
-      <Buttons.Primary data-test-id="button-add" onclick={this.addUser.bind(this)} disabled={_.isEmpty(this.selectedUser())}>Import</Buttons.Primary>,
-      <Buttons.Cancel data-test-id="button-close" onclick={this.close.bind(this)}>Cancel</Buttons.Cancel>
+      <Buttons.Primary data-test-id="button-add" ajaxOperationMonitor={this.ajaxOperationMonitor} ajaxOperation={this.addUser.bind(this)} disabled={_.isEmpty(this.selectedUser())}>Import</Buttons.Primary>,
+      <Buttons.Cancel data-test-id="button-close" ajaxOperationMonitor={this.ajaxOperationMonitor} onclick={this.close.bind(this)}>Cancel</Buttons.Cancel>
     ];
   }
 
@@ -83,7 +86,7 @@ export class UserSearchModal extends Modal {
   }
 
   private addUser() {
-    UsersCRUD.create(this.selectedUser())
+    return UsersCRUD.create(this.selectedUser())
              .then((apiResult) => {
                apiResult.do(() => {
                  this.pageLevelMessage.setMessage(MessageType.success,

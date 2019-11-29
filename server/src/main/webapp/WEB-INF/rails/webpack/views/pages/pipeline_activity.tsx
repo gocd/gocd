@@ -32,16 +32,23 @@ import {HeaderPanel} from "../components/header_panel";
 import {PipelineActivityHeader} from "./pipeline_activity/page_header";
 import {SearchField, TextField} from "../components/forms/input_fields";
 
+interface PageMeta {
+  isEditableFromUI: boolean;
+  pipelineName: string;
+}
+
 interface State {
   pipelineActivity: Stream<PipelineActivity>;
   showBuildCaseFor: Stream<string>;
   filterText: Stream<string>;
+  meta: PageMeta;
 }
 
 export class PipelineActivityPage extends Page<null, State> implements ResultAwarePage<PipelineActivity>, State {
   pipelineActivity                           = Stream<PipelineActivity>();
   showBuildCaseFor                           = Stream<string>();
   filterText                                 = Stream<string>();
+  meta                                       = this.getMeta() as PageMeta;
   protected service: PipelineActivityService = new PipelineActivityService();
   protected pagination                       = Stream<Pagination>(new Pagination(0, 10, 10));
 
@@ -58,7 +65,7 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
                    label="Specify the reason why you want to stop scheduling on this pipeline (only a-z, A-Z, 0-9, fullstop, underscore, hyphen and pipe is valid) :"
                    property={cause}/>
       </div>,
-      () => this.service.pausePipeline(this.pipelineActivity().pipelineName(), cause())
+      () => this.service.pausePipeline(this.meta.pipelineName, cause())
         .then((result) => this.handleActionApiResponse(result, () => {
           this.pipelineActivity().paused(true);
           this.pipelineActivity().canForce(false);
@@ -72,14 +79,14 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
   }
 
   unpausePipeline() {
-    this.service.unpausePipeline(this.pipelineActivity().pipelineName())
+    this.service.unpausePipeline(this.meta.pipelineName)
       .then((result) => this.handleActionApiResponse(result, () => {
         this.pipelineActivity().paused(false);
       }));
   }
 
   runPipeline() {
-    this.service.run(this.pipelineActivity().pipelineName())
+    this.service.run(this.meta.pipelineName)
       .then((result) => this.handleActionApiResponse(result, () => {
         this.pipelineActivity().canForce(false);
       }));
@@ -136,7 +143,8 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
                                           unpausePipeline={this.unpausePipeline.bind(this)}
                                           pausePipeline={this.pausePipeline.bind(this)}
                                           isAdmin={Page.isUserAnAdmin()}
-                                          isGroupAdmin={Page.isUserAGroupAdmin()}/>;
+                                          isGroupAdmin={Page.isUserAGroupAdmin()}
+                                          isEditableFromUI={this.meta.isEditableFromUI}/>;
     return <HeaderPanel title={title} sectionName={this.pageName()} buttons={
       <SearchField property={this.filterText} label={"Search"}
                    dataTestId={"search-field"}
@@ -177,10 +185,6 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
   }
 
   private fetchPipelineHistory(start: number) {
-    this.service.activities(PipelineActivityPage.pipelineNameFromUrl(), start, this.filterText(), this);
-  }
-
-  private static pipelineNameFromUrl(): string {
-    return window.location.pathname.split("/").pop()!;
+    this.service.activities(this.meta.pipelineName, start, this.filterText(), this);
   }
 }

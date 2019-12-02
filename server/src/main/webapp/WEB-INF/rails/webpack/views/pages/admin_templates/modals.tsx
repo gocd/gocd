@@ -50,7 +50,7 @@ export class CreateTemplateModal extends Modal {
     this.template                = new ModelWithNameIdentifierValidator();
     this.basedOnPipelineCheckbox = Stream<boolean>(false);
     this.selectedPipeline        = Stream<string>();
-    this.pipelines               = pipelineStructure.getAllPipelinesNotUsingTemplates().sort((a, b) => {
+    this.pipelines               = pipelineStructure.getAllConfigPipelinesNotUsingTemplates().sort((a, b) => {
       return a.toLowerCase().localeCompare(b.toLowerCase());
     });
   }

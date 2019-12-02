@@ -98,7 +98,7 @@ describe("Environments Widget", () => {
     expect(deleteIcons[1]).not.toBeDisabled();
   });
 
-  it("should render disabled delete icon for the environments that user can not administer", () => {
+  it("should render disabled delete icon for the environments that are partially defined in config repository", () => {
     const env = data.environment_json();
     mountModal([data.xml_environment_json(), env]);
     const deleteIcons = helper.allByTestId("Delete-icon");

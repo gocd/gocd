@@ -52,10 +52,9 @@ describe("Environment Variables Widget", () => {
     });
 
     it("should have plain text environment variable fields", () => {
-      const plainTextValue = plainTextEnvVar.value();
-      const wrapper        = helper.allByTestId("environment-variable-wrapper")[0];
+      const wrapper = helper.allByTestId("environment-variable-wrapper")[0];
       expect(helper.byTestId("env-var-name", wrapper)).toHaveValue(plainTextEnvVar.name());
-      expect(helper.byTestId("env-var-value", wrapper)).toHaveValue(plainTextValue ? plainTextValue : "");
+      expect(helper.byTestId("env-var-value", wrapper)).toHaveValue(plainTextEnvVar.value()!);
       expect(helper.byTestId("remove-env-var-btn", wrapper)).toBeInDOM();
     });
 

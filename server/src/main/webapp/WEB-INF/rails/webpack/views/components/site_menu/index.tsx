@@ -184,7 +184,7 @@ export class SiteMenu extends MithrilViewComponent<Attrs> {
         );
       } else if (vnode.attrs.isGroupAdmin) {
         adminMenu = <SiteNavItem isDropDown={true} text="Admin">
-          <div class={styles.subNavigation}>
+          <div class={classnames(styles.subNavigation, styles.hasOnlyOneOption)}>
             <SiteSubNav>
               <SiteSubNavItem href="/go/admin/pipelines" text="Pipelines"/>
               <SiteSubNavItem href="/go/admin/environments" text="Environments"/>
@@ -198,7 +198,7 @@ export class SiteMenu extends MithrilViewComponent<Attrs> {
         </SiteNavItem>;
       } else if (vnode.attrs.canViewTemplates) {
         adminMenu = <SiteNavItem isDropDown={true} text="Admin">
-          <div class={styles.subNavigation}>
+          <div class={classnames(styles.subNavigation, styles.hasOnlyOneOption)}>
             <SiteSubNav>
               <SiteSubNavItem href="/go/admin/environments" text="Environments"/>
               <SiteSubNavItem href="/go/admin/templates" text="Templates"/>

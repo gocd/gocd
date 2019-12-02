@@ -151,7 +151,7 @@ describe("Dashboard Pipeline Widget", () => {
       it("should disable pipeline settings button for non admin users", () => {
         helper.unmount();
         mount(false);
-        expect(helper.q('.info_config')).toHaveClass("disabled");
+        expect(helper.q('.edit_config')).toHaveClass("disabled");
       });
 
       it("should render pipeline settings icon", () => {

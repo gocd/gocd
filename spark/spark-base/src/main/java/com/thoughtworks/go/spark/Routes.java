@@ -266,7 +266,6 @@ public class Routes {
         public static final String TRIGGER_OPTIONS_PATH = "/:pipeline_name/trigger_options";
 
         public static final String SCHEDULE_PATH = "/:pipeline_name/schedule";
-        public static final String INSTANCE_PATH = "/:pipeline_name/instance/:pipeline_counter";
 
         public static String triggerOptions(String pipelineName) {
             return BASE + TRIGGER_OPTIONS_PATH.replaceAll(":pipeline_name", pipelineName);
@@ -287,12 +286,6 @@ public class Routes {
         public static String unlock(String pipelineName) {
             return BASE + UNLOCK_PATH.replaceAll(":pipeline_name", pipelineName);
         }
-
-        public static String instance(String pipelineName, int pipelineCounter) {
-            return BASE + INSTANCE_PATH
-                    .replaceAll(":pipeline_name", pipelineName)
-                    .replaceAll(":pipeline_counter", String.valueOf(pipelineCounter));
-        }
     }
 
     public static class PipelineInstance {
@@ -302,7 +295,15 @@ public class Routes {
         }
 
         public static final String BASE = "/api/pipelines";
+        public static final String INSTANCE_PATH = "/:pipeline_name/instance/:pipeline_counter";
         public static final String HISTORY_PATH = "/:pipeline_name/history";
+
+
+        public static String instance(String pipelineName, int pipelineCounter) {
+            return BASE + INSTANCE_PATH
+                    .replaceAll(":pipeline_name", pipelineName)
+                    .replaceAll(":pipeline_counter", String.valueOf(pipelineCounter));
+        }
 
         public static String history(String pipelineName) {
             return BASE + HISTORY_PATH.replaceAll(":pipeline_name", pipelineName);

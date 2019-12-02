@@ -57,7 +57,7 @@ public class PipelineInstanceControllerV1 extends ApiController implements Spark
 
     @Override
     public String controllerBasePath() {
-        return Routes.Pipeline.BASE;
+        return Routes.PipelineInstance.BASE;
     }
 
     @Override
@@ -66,11 +66,11 @@ public class PipelineInstanceControllerV1 extends ApiController implements Spark
             before("/*", mimeType, this::setContentType);
             before("/*", mimeType, this::verifyContentType);
 
-            before(Routes.Pipeline.INSTANCE_PATH, mimeType, apiAuthenticationHelper::checkPipelineViewPermissionsAnd403);
+            before(Routes.PipelineInstance.INSTANCE_PATH, mimeType, apiAuthenticationHelper::checkPipelineViewPermissionsAnd403);
             before(Routes.PipelineInstance.HISTORY_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateOfPipelineOrGroupInURLUserAnd403);
 
             get(Routes.PipelineInstance.HISTORY_PATH, mimeType, this::getHistoryInfo);
-            get(Routes.Pipeline.INSTANCE_PATH, mimeType, this::getInstanceInfo);
+            get(Routes.PipelineInstance.INSTANCE_PATH, mimeType, this::getInstanceInfo);
         });
     }
 

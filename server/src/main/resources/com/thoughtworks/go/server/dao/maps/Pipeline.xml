@@ -232,12 +232,14 @@
         OFFSET #{offset}
     </select>
 
-    <select id="getOldestAndLatestPipelineRun" resultType="latest-oldest-pipeline-identifiers">
+    <!-- Following query returns the lastest and oldest run id for the given pipeline. This helps in identifying the first and last record for the given pipeline.  -->
+    <select id="getOldestAndLatestPipelineRun" resultMap="latest-oldest-pipeline-identifiers">
         SELECT MAX(pipelines.id) as latestRunId, MIN(pipelines.id) as oldestRunId
         FROM pipelines
         WHERE pipelines.name = #{pipelineName}
     </select>
 
+    <!-- The following query will return the latest #{limit} instances for the given pipeline -->
     <select id="getPipelineIds" resultType="java.lang.Long">
         SELECT pipelines.id
         FROM pipelines
@@ -246,6 +248,7 @@
         LIMIT #{limit}
     </select>
 
+    <!-- The following query will return the #{limit} instances which are older than the given instance id for the given pipeline -->
     <select id="getPipelineIdsAfter" resultType="java.lang.Long">
         SELECT pipelines.id
         FROM pipelines
@@ -255,6 +258,7 @@
         LIMIT #{limit}
     </select>
 
+    <!-- The following query will return the #{limit} instances which are newer than the given instance id for the given pipeline -->
     <select id="getPipelineIdsBefore" resultType="java.lang.Long">
         SELECT id
         FROM (SELECT pipelines.id as id

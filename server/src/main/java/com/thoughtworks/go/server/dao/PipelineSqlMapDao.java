@@ -675,13 +675,11 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     }
 
     private List<Long> findPipelineIds(String pipelineName, FeedModifier modifier, long cursor, int pageSize) {
-        List<Long> ids;
         Map<String, Object> params =
                 arguments("pipelineName", pipelineName)
                         .and("cursor", cursor)
                         .and("limit", pageSize).asMap();
-        ids = getSqlMapClientTemplate().queryForList("getPipelineIds" + modifier.suffix(), params);
-        return ids;
+        return (List<Long>) getSqlMapClientTemplate().queryForList("getPipelineIds" + modifier.suffix(), params);
     }
 
     @Override

@@ -40,6 +40,11 @@ module PipelineConfigLoader
       pipeline_for_edit = template_config_service.loadForEdit(params[:pipeline_name], current_user, result)
     else
 
+      unless go_config_service.doesPipelineExist(params[:pipeline_name], result)
+        render_localized_operation_result result
+        return
+      end
+
       if go_config_service.isPipelineDefinedInConfigRepository(params[:pipeline_name])
         pipeline_for_edit = go_config_service.loadConfigRepoPipeline(params[:pipeline_name], current_user, result)
         @is_config_repo_pipeline = true

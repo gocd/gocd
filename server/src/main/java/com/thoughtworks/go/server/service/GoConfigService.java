@@ -208,7 +208,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return true;
     }
 
-    private boolean doesPipelineExist(String pipelineName, LocalizedOperationResult result) {
+    public boolean doesPipelineExist(String pipelineName, LocalizedOperationResult result) {
         if (!getCurrentConfig().hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
             result.notFound(EntityType.Pipeline.notFoundMessage(pipelineName), general(forPipeline(pipelineName)));
             return false;

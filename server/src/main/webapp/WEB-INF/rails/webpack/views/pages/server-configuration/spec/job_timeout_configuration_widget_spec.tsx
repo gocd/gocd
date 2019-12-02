@@ -64,14 +64,13 @@ describe("defaultJobTimeoutWidget", () => {
     expect(helper.byTestId("form-field-input-default-job-timeout")).not.toBeDisabled();
   });
 
-  it("should error out while setting zero value for job-timeout", () => {
-    mount(new DefaultJobTimeout(0));
-
-    helper.clickByTestId("checkbox-for-job-timeout");
-    helper.clickByTestId("save");
+  it("should show error text", () => {
+    const defaultJobTimeout = new DefaultJobTimeout(0);
+    defaultJobTimeout.errors().add("defaultJobTimeout", "some-error");
+    mount(defaultJobTimeout);
 
     const inputId = helper.byTestId("form-field-input-default-job-timeout").getAttribute("id");
-    expect(helper.q(`#${inputId}-error-text`)).toHaveText("Timeout cannot be a negative number as it represents number of minutes.");
+    expect(helper.q(`#${inputId}-error-text`)).toHaveText("some-error.");
   });
 
 });

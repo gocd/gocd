@@ -162,8 +162,8 @@ export class DefaultJobTimeout extends ValidatableMixin {
   isValid(): boolean {
     const valid = super.isValid();
 
-    if (!this.neverTimeout() && this.defaultJobTimeout() === 0) {
-      this.errors().add("defaultJobTimeout", "Timeout cannot be a negative number as it represents number of minutes");
+    if (!this.neverTimeout() && this.defaultJobTimeout() <= 0) {
+      this.errors().add("defaultJobTimeout", "Timeout should be positive non zero number as it represents number of minutes");
       return false;
     }
 

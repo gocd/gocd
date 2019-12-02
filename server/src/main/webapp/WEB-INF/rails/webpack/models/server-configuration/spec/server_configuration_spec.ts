@@ -95,7 +95,7 @@ describe("ArtifactConfig", () => {
     it("should serialize artifact config when purge setting is not specified", () => {
       const artifactConfig     = new ArtifactConfig("foo");
       const artifactConfigJSON = artifactConfig.toJSON();
-      const expectedJSON           = {
+      const expectedJSON       = {
         artifacts_dir: "foo"
       };
       expect(artifactConfigJSON).toEqual(expectedJSON);
@@ -106,7 +106,7 @@ describe("ArtifactConfig", () => {
       artifactConfig.purgeSettings().purgeStartDiskSpace(10);
       artifactConfig.purgeSettings().purgeUptoDiskSpace(20);
       const artifactConfigJSON = artifactConfig.toJSON();
-      const expectedJSON           = {
+      const expectedJSON       = {
         artifacts_dir: "foo",
         purge_settings: {
           purge_start_disk_space: 10,
@@ -120,7 +120,7 @@ describe("ArtifactConfig", () => {
       const artifactConfig = new ArtifactConfig("foo");
       artifactConfig.purgeSettings().purgeStartDiskSpace(10);
       const artifactConfigJSON = artifactConfig.toJSON();
-      const expectedJSON           = {
+      const expectedJSON       = {
         artifacts_dir: "foo",
         purge_settings: {
           purge_start_disk_space: 10
@@ -150,5 +150,32 @@ describe("DefaultJobTimeout", () => {
     };
     const defaultJobTimeout     = DefaultJobTimeout.fromJSON(defaultJobTimeoutJSON);
     expect(defaultJobTimeout.defaultJobTimeout()).toBe(15);
+  });
+
+  describe("validations", () => {
+    it('should not add error if valid job timeout', () => {
+      const jobTimeout = new DefaultJobTimeout(0);
+
+      expect(jobTimeout.isValid()).toBe(true);
+    });
+
+    it('should add error if invalid job timeout', () => {
+      const jobTimeout = new DefaultJobTimeout(-2);
+
+      expect(jobTimeout.isValid()).toBe(false);
+      expect(jobTimeout.errors().errors("defaultJobTimeout")).toEqual(["Timeout should be positive non zero number as it represents number of minutes"]);
+    });
+
+    it('should add error if never timeout is false and job timeout is zero', () => {
+      const jobTimeout = new DefaultJobTimeout(10);
+
+      expect(jobTimeout.isValid()).toBe(true);
+      jobTimeout.neverTimeout(false);
+
+      jobTimeout.defaultJobTimeout(0);
+
+      expect(jobTimeout.isValid()).toBe(false);
+      expect(jobTimeout.errors().errors("defaultJobTimeout")).toEqual(["Timeout should be positive non zero number as it represents number of minutes"]);
+    });
   });
 });

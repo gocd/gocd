@@ -55,18 +55,11 @@ export class ServerManagementWidget extends MithrilViewComponent<ServerManagemen
           <ButtonGroup>
             <Cancel data-test-id={"cancel"} onclick={() => vnode.attrs.onCancel()} ajaxOperation={vnode.attrs.onCancel}
                     ajaxOperationMonitor={this.ajaxOperationMonitor}>Cancel</Cancel>
-            <Primary data-test-id={"save"} onclick={() => this.onSave(vnode)} ajaxOperation={this.onSave.bind(this, vnode)}
+            <Primary data-test-id={"save"} onclick={() => vnode.attrs.onServerManagementSave(vnode.attrs.siteUrls)} ajaxOperation={() => vnode.attrs.onServerManagementSave(vnode.attrs.siteUrls)}
                      ajaxOperationMonitor={this.ajaxOperationMonitor}>Save</Primary>
           </ButtonGroup>
         </div>
       </FormBody>
     </div>;
-  }
-
-  onSave(vnode: m.Vnode<ServerManagementAttrs>) {
-    if (vnode.attrs.siteUrls.isValid()) {
-      return vnode.attrs.onServerManagementSave(vnode.attrs.siteUrls);
-    }
-    return Promise.resolve();
   }
 }

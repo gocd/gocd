@@ -38,7 +38,7 @@ export class JobTimeoutConfigurationWidget extends MithrilViewComponent<JobTimeo
             <CheckboxField dataTestId="checkbox-for-job-timeout"
                            property={vnode.attrs.defaultJobTimeout().neverTimeout}
                            label={"Never job timeout"}
-                           onchange={(e) => vnode.attrs.defaultJobTimeout().defaultJobTimeout(0)}/>
+                           onchange={() => vnode.attrs.defaultJobTimeout().defaultJobTimeout(0)}/>
             <NumberField label="Default Job timeout"
                          helpText="the job will get cancel after the given minutes of inactivity"
                          readonly={vnode.attrs.defaultJobTimeout().neverTimeout()}
@@ -54,19 +54,12 @@ export class JobTimeoutConfigurationWidget extends MithrilViewComponent<JobTimeo
                     ajaxOperationMonitor={this.ajaxOperationMonitor}
                     onclick={() => vnode.attrs.onCancel()}>Cancel</Cancel>
             <Primary data-test-id={"save"}
-                     ajaxOperation={this.onSave.bind(this, vnode)}
+                     ajaxOperation={() => vnode.attrs.onDefaultJobTimeoutSave(vnode.attrs.defaultJobTimeout())}
                      ajaxOperationMonitor={this.ajaxOperationMonitor}
-                     onclick={() => this.onSave(vnode)}>Save</Primary>
+                     onclick={() => vnode.attrs.onDefaultJobTimeoutSave(vnode.attrs.defaultJobTimeout())}>Save</Primary>
           </ButtonGroup>
         </div>
       </FormBody>
     </div>;
-  }
-
-  onSave(vnode: m.Vnode<JobTimeoutAttrs>) {
-    if (vnode.attrs.defaultJobTimeout().isValid()) {
-      return vnode.attrs.onDefaultJobTimeoutSave(vnode.attrs.defaultJobTimeout());
-    }
-    return Promise.resolve();
   }
 }

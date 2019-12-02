@@ -44,7 +44,10 @@ export class ArtifactsManagementWidget extends MithrilViewComponent<ArtifactMana
                        errorText={vnode.attrs.artifactConfig.errors().errorsForDisplay("artifactsDir")}/>
             <CheckboxField property={vnode.attrs.artifactConfig.purgeSettings().cleanupArtifact}
                            label={"Allow auto cleanup artifacts"}
-                           onchange={(e) => ArtifactsManagementWidget.cleanupArtifactChanged(e, vnode)}
+                           onchange={() => {
+                             vnode.attrs.artifactConfig.purgeSettings().purgeStartDiskSpace(undefined);
+                             vnode.attrs.artifactConfig.purgeSettings().purgeUptoDiskSpace(undefined);
+                           }}
                            value={true}
             />
             <div class={styles.purgeSettingsFields}>
@@ -69,27 +72,16 @@ export class ArtifactsManagementWidget extends MithrilViewComponent<ArtifactMana
         </div>
         <div class={styles.buttons}>
           <ButtonGroup>
-            <Cancel data-test-id={"cancel"} ajaxOperationMonitor={this.ajaxOperationMonitor} onclick={ArtifactsManagementWidget.onCancel.bind(this, vnode)}>Cancel</Cancel>
-            <Primary data-test-id={"save"} ajaxOperationMonitor={this.ajaxOperationMonitor} onclick={ArtifactsManagementWidget.onSave.bind(this, vnode)}>Save</Primary>
+            <Cancel data-test-id={"cancel"} ajaxOperationMonitor={this.ajaxOperationMonitor} onclick={vnode.attrs.onCancel}>Cancel</Cancel>
+            <Primary data-test-id={"save"} ajaxOperationMonitor={this.ajaxOperationMonitor} onclick={() => {
+              if (vnode.attrs.artifactConfig.isValid()) {
+                return vnode.attrs.onArtifactConfigSave(vnode.attrs.artifactConfig);
+              }
+              return Promise.resolve();
+            }}>Save</Primary>
           </ButtonGroup>
         </div>
       </FormBody>
     </div>;
-  }
-
-  private static onCancel(vnode: m.Vnode<ArtifactManagementAttrs>) {
-    vnode.attrs.onCancel();
-  }
-
-  private static onSave(vnode: m.Vnode<ArtifactManagementAttrs>) {
-    if (vnode.attrs.artifactConfig.isValid()) {
-      return vnode.attrs.onArtifactConfigSave(vnode.attrs.artifactConfig);
-    }
-    return Promise.resolve();
-  }
-
-  private static cleanupArtifactChanged(e: Event, vnode: m.Vnode<ArtifactManagementAttrs>) {
-    vnode.attrs.artifactConfig.purgeSettings().purgeStartDiskSpace(undefined);
-    vnode.attrs.artifactConfig.purgeSettings().purgeUptoDiskSpace(undefined);
   }
 }

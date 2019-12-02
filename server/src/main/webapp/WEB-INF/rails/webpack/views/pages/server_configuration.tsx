@@ -78,14 +78,17 @@ export class ServerConfigurationPage extends Page<null, State> {
     vnode.state.defaultJobTimeout = Stream(new DefaultJobTimeout(0));
 
     vnode.state.onServerManagementSave = (siteUrls: SiteUrls) => {
-      return ServerManagementCRUD.put(siteUrls, this.siteUrlsEtag).then((result) => {
-        result.do((successResponse) => {
-          this.flashMessage.setMessage(MessageType.success, "Site urls updated successfully");
-          this.fetchData(vnode);
-        }, (errorResponse) => {
-          this.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);
+      if (siteUrls.isValid()) {
+        return ServerManagementCRUD.put(siteUrls, this.siteUrlsEtag).then((result) => {
+          result.do((successResponse) => {
+            this.flashMessage.setMessage(MessageType.success, "Site urls updated successfully");
+            this.fetchData(vnode);
+          }, (errorResponse) => {
+            this.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);
+          });
         });
-      });
+      }
+      return Promise.resolve();
     };
 
     vnode.state.onArtifactConfigSave = (artifactConfig: ArtifactConfig) => {
@@ -147,15 +150,18 @@ export class ServerConfigurationPage extends Page<null, State> {
     };
 
     vnode.state.onDefaultJobTimeoutSave            = (jobTimeout: DefaultJobTimeout) => {
-      return JobTimeoutManagementCRUD.createOrUpdate(jobTimeout).then((result) => {
-        result.do(((successResponse) => {
-          const msg = "Configuration was saved successfully!";
-          this.flashMessage.setMessage(MessageType.success, msg);
-          this.fetchData(vnode);
-        }), (errorResponse) => {
-          this.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);
+      if (jobTimeout.isValid()) {
+        return JobTimeoutManagementCRUD.createOrUpdate(jobTimeout).then((result) => {
+          result.do(((successResponse) => {
+            const msg = "Configuration was saved successfully!";
+            this.flashMessage.setMessage(MessageType.success, msg);
+            this.fetchData(vnode);
+          }), (errorResponse) => {
+            this.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);
+          });
         });
-      });
+      }
+      return Promise.resolve();
     };
     const flag: (val?: boolean) => Stream<boolean> = Stream;
     vnode.state.canDeleteMailServer                = flag(false);

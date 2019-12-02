@@ -42,6 +42,31 @@ export enum Sections {
   EMAIL_SERVER        = "email-server"
 }
 
+class ServerConfigurationRightPanel extends MithrilViewComponent<Attrs> {
+  view(vnode: m.Vnode<Attrs>) {
+    switch (vnode.attrs.activeConfiguration) {
+      case Sections.SERVER_MANAGEMENT:
+        return <ServerManagementWidget siteUrls={vnode.attrs.siteUrls}
+                                       onServerManagementSave={vnode.attrs.onServerManagementSave}
+                                       onCancel={vnode.attrs.onCancel}/>;
+      case Sections.EMAIL_SERVER:
+        return <MailServerManagementWidget mailServer={vnode.attrs.mailServer}
+                                           onMailServerManagementSave={vnode.attrs.onMailServerManagementSave}
+                                           onMailServerManagementDelete={vnode.attrs.onMailServerManagementDelete}
+                                           onCancel={vnode.attrs.onCancel}
+                                           canDeleteMailServer={vnode.attrs.canDeleteMailServer}/>;
+      case Sections.ARTIFACT_MANAGEMENT:
+        return <ArtifactsManagementWidget artifactConfig={vnode.attrs.artifactConfig}
+                                          onArtifactConfigSave={vnode.attrs.onArtifactConfigSave}
+                                          onCancel={vnode.attrs.onCancel}/>;
+      case Sections.DEFAULT_JOB_TIMEOUT:
+        return <JobTimeoutConfigurationWidget defaultJobTimeout={vnode.attrs.defaultJobTimeout}
+                                              onCancel={vnode.attrs.onCancel}
+                                              onDefaultJobTimeoutSave={vnode.attrs.onDefaultJobTimeoutSave}/>;
+    }
+  }
+}
+
 export class ServerConfigurationWidget extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     return <div class={styles.serverConfigurationContainer}>
@@ -70,33 +95,8 @@ export class ServerConfigurationWidget extends MithrilViewComponent<Attrs> {
         </ul>
       </div>
       <div class={styles.rightPanel}>
-        {ServerConfigurationWidget.renderWidget(vnode)}
+        <ServerConfigurationRightPanel {...vnode.attrs}/>
       </div>
     </div>;
-  }
-
-  private static renderWidget(vnode: m.Vnode<Attrs>) {
-    switch (vnode.attrs.activeConfiguration) {
-      case Sections.SERVER_MANAGEMENT:
-        return <ServerManagementWidget siteUrls={vnode.attrs.siteUrls}
-                                       onServerManagementSave={vnode.attrs.onServerManagementSave}
-                                       onCancel={vnode.attrs.onCancel}/>;
-      case Sections.EMAIL_SERVER:
-        return <MailServerManagementWidget mailServer={vnode.attrs.mailServer}
-                                           onMailServerManagementSave={vnode.attrs.onMailServerManagementSave}
-                                           onMailServerManagementDelete={vnode.attrs.onMailServerManagementDelete}
-                                           onCancel={vnode.attrs.onCancel}
-                                           canDeleteMailServer={vnode.attrs.canDeleteMailServer}/>;
-
-      case Sections.ARTIFACT_MANAGEMENT:
-        return <ArtifactsManagementWidget artifactConfig={vnode.attrs.artifactConfig}
-                                          onArtifactConfigSave={vnode.attrs.onArtifactConfigSave}
-                                          onCancel={vnode.attrs.onCancel}/>;
-      case Sections.DEFAULT_JOB_TIMEOUT:
-        return <JobTimeoutConfigurationWidget defaultJobTimeout={vnode.attrs.defaultJobTimeout}
-                                              onCancel={vnode.attrs.onCancel}
-                                              onDefaultJobTimeoutSave={vnode.attrs.onDefaultJobTimeoutSave}
-        />;
-    }
   }
 }

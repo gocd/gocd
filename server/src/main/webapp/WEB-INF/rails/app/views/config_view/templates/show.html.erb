@@ -1,0 +1,185 @@
+<div class="andare">
+    <div id="templates" class="view layout admin-entity">
+        <div class="navigation">
+            <ul class="stages treenav">
+                <% for i in 1..@template_config.size() %>
+                    <% stage = @template_config.get(i-1) %>
+                    <li>
+                        <a href="#definition_view_stage_<%= i %>" title="<%= stage.name %>"><span><%= stage.name %></span></a>
+                        <ul class="jobs">
+                            <% for j in 1..stage.getJobs().size() %>
+                                <% job = stage.getJobs().get(j-1) %>
+                                <li>
+                                    <a href="#definition_view_stage_<%= i %>_job_<%= j %>" title="<%= job.name %>"><span><%= job.name %></span></a>
+                                </li>
+                            <% end %>
+                        </ul>
+                    </li>
+                <% end %>
+            </ul>
+        </div>
+        <div class="content">
+        <% for i in 1..@template_config.size() %>
+            <% stage = @template_config.get(i-1) %>
+            <div id="definition_view_stage_<%= i %>" class="definition_view stage">
+                <h3 class="entity_title">
+                    <ul><li><%= stage.name %></li></ul>
+                </h3>
+                <div class="section summary">
+                    <fieldset class="stage_summary">
+                        <ul>
+                            <li class="field stage_type">
+                                <label>
+                                    <span class="key">Stage Type</span>
+                                    <span class="hint"><%= "'On Success' option will automatically schedule the stage after the preceding stage completes successfully. The 'Manual' option will require a user to manually trigger the stage. For the first stage in a pipeline, setting type to 'on success' is the same as checking 'Automatic Pipeline Scheduling' on the pipeline config.".html_safe %></span>
+                                </label>
+                                <span class="input value"><%= stage.getApproval().isManual() ? 'Manual' : 'On Success' %></span>
+                            </li>
+                            <li class="field fetch_materials">
+                                <label>
+                                    <span class="key">Fetch Materials</span>
+                                    <span class="hint">Perform material updates or checkouts</span>
+                                </label>
+                                <span class="input value"><%= stage.isFetchMaterials() ? 'Yes' : 'No' %></span>
+                            </li>
+                            <li class="field never_cleanup_artifacts">
+                                <label>
+                                    <span class="key">Never Cleanup Artifacts</span>
+                                    <span class="hint">Never cleanup artifacts for this stage, if purging artifacts is configured at the Server Level</span>
+                                </label>
+                                <span class="input value"><%= stage.isArtifactCleanupProhibited() ? 'Yes' : 'No' %></span>
+                            </li>
+                            <li class="field clean_working_directory">
+                                <label>
+                                    <span class="key">Clean Working Directory</span>
+                                    <span class="hint">Remove all files/directories in the working directory on the agent</span>
+                                </label>
+                                <span class="input value"><%= stage.isCleanWorkingDir() ? 'Yes' : 'No' %></span>
+                            </li>
+                        </ul>
+                    </fieldset>
+                </div>
+                <ul class="nav nav-tabs">
+                    <li class="active"><a href="#environment_variables_stage_<%= i %>" data-toggle="tab" class="active">Environment Variables</a></li>
+                    <li><a href="#permissions_stage_<%= i %>" data-toggle="tab">Permissions</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div id="environment_variables_stage_<%= i %>" class="tab-pane active">
+                        <table class="variables list_table">
+                            <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Value</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <% if stage.getVariables().isEmpty() %>
+                                <tr>
+                                    <td align='center' colspan="2" class="name_value_cell">No environment variables have been configured</td>
+                                </tr>
+                            <% end %>
+                            <% stage.getVariables().each do |environment_variable| %>
+                                <tr>
+                                    <td class="name_value_cell">
+                                        <%= environment_variable.getName() %>
+                                    </td>
+                                    <td class="name_value_cell">
+                                        <%= environment_variable.getDisplayValue() %>
+                                    </td>
+                                </tr>
+                            <% end %>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="permissions_stage_<%= i %>" class="tab-pane">
+                        <% if !stage.hasOperatePermissionDefined() %>
+                            <div class="information">
+                                There are no operate permissions configured for this stage nor its pipeline group. All Go users can operate on this stage.
+                            </div>
+                        <% else %>
+                            <% if !stage.getOperateUsers().isEmpty() %>
+                                <table class="stage_operate_users list_table">
+                                    <thead>
+                                    <tr>
+                                        <th>Users</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <% stage.getOperateUsers().each do |user| %>
+                                        <tr>
+                                            <td class="name_value_cell">
+                                                <%= user.getName() %>
+                                            </td>
+                                        </tr>
+                                    <% end %>
+                                    </tbody>
+                                </table>
+                            <% end %>
+                            <% if !stage.getOperateRoles().isEmpty() %>
+                                <table class="stage_operate_roles list_table">
+                                    <thead>
+                                    <tr>
+                                        <th>Roles</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <% stage.getOperateRoles().each do |roles| %>
+                                        <tr>
+                                            <td class="name_value_cell">
+                                                <%= roles.getName() %>
+                                            </td>
+                                        </tr>
+                                    <% end %>
+                                    </tbody>
+                                </table>
+                            <% end %>
+                        <% end %>
+                    </div>
+                </div>
+            </div>
+            <% stage.getJobs().each_with_index do |job, j| %>
+                <%= render :partial => "config_view/templates/job_view.html", :locals => {:scope => {:job => job, :index => j+1, :stage_id => "definition_view_stage_#{i}", :stage_name => stage.name()}} -%>
+            <% end %>
+        <% end %>
+
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    Util.on_load(function() {
+        jQuery(".definition_view").hide();
+        jQuery(".definition_view")[0].show();
+
+        jQuery('.stages a, .jobs a').click(function() {
+            showEntity(jQuery(this));
+            return false;
+        });
+
+        jQuery('.entity_title a').click(function() {
+            showEntity(jQuery(this));
+            top = jQuery('.navigation .stages .selected').removeClass('selected').parents('li').addClass('selected').position().top;
+            jQuery('.navigation').scrollTop(top);
+            return false;
+        });
+
+        function showEntity(entity) {
+            jQuery('#templates.view .content').scrollTop('0');
+            jQuery(".definition_view").hide();
+            jQuery(entity.attr("href")).show();
+        }
+
+        jQuery('.treenav li:has(ul)').addClass('has-children collapsed');
+        jQuery('.treenav li:has(ul) a').click(function(event) {
+            jQuery('.treenav li').removeClass('selected');
+            jQuery(this).closest('li').addClass('selected').removeClass('collapsed');
+        });
+
+        jQuery('.treenav li:has(ul)').click(function() {
+            jQuery(this).closest('li').toggleClass('collapsed');
+            jQuery(this).find('ul li:last-child').addClass('last')
+        });
+
+        jQuery('.stages > li:first-child').addClass('selected');
+    })
+</script>

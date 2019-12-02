@@ -1,0 +1,234 @@
+<div id="<%= scope[:stage_id] %>_job_<%= scope[:index] %>" class="definition_view job">
+<h3 class="entity_title">
+    <ul>
+        <li><a href="#<%= scope[:stage_id] %>" title="<%= scope[:stage_name] %>"><%= scope[:stage_name] %> </a></li>
+        <li><%= scope[:job].name() %></li>
+    </ul>
+</h3>
+<div class="section summary">
+    <fieldset class="job_summary">
+        <ul>
+            <li class="field resources">
+                <label>
+                    <span class="key">Resources</span>
+                    <span class="hint">Agent resources that this job requires to run</span>
+                </label>
+                <span class="input value"><%= scope[:job].resourceConfigs().isEmpty() ? 'None' : scope[:job].resourceConfigs() %></span>
+            </li>
+            <li class="field job_timeout">
+                <label>
+                    <span class="key">Job Timeout</span>
+                    <span class="hint">If this job is inactive for more than the specified period (in minutes), Go will cancel it.</span>
+                </label>
+                <% timeoutType = scope[:job].getTimeoutType() %>
+                <% timeoutValue = timeoutType == com.thoughtworks.go.config.JobConfig::DEFAULT_TIMEOUT ? 'Use default' : timeoutType == com.thoughtworks.go.config.JobConfig::OVERRIDE_TIMEOUT ? "Cancel after '#{scope[:job].getTimeout()}' minute(s) of inactivity" : 'Never' %>
+                <span class="input value"><%= timeoutValue %></span>
+            </li>
+            <li class="field run_on_all_agents">
+                <label>
+                    <span class="key">Run on all agents</span>
+                </label>
+                <span class="input value"><%= scope[:job].isRunOnAllAgents() ? 'Yes' : 'No' %></span>
+            </li>
+            <li class="field run_multiple_instances">
+                <label>
+                    <span class="key">Run multiple instances</span>
+                </label>
+                <span class="input value"><%= scope[:job].isRunMultipleInstanceType() ? 'Yes' : 'No' %></span>
+            </li>
+        </ul>
+    </fieldset>
+</div>
+<ul class="nav nav-tabs">
+    <li class="active"><a href="#tasks_<%= scope[:stage_id] %>_job_<%= scope[:index] %>" data-toggle="tab">Tasks</a></li>
+    <li><a href="#artifacts_<%= scope[:stage_id] %>_job_<%= scope[:index] %>" data-toggle="tab">Artifacts</a></li>
+    <li><a href="#environment_variables_<%= scope[:stage_id] %>_job_<%= scope[:index] %>" data-toggle="tab">Environment Variables</a></li>
+    <li><a href="#custom_tabs_<%= scope[:stage_id] %>_job_<%= scope[:index] %>" data-toggle="tab">Custom Tabs</a></li>
+</ul>
+<div class='tab-content'>
+    <div id='artifacts_<%= scope[:stage_id] %>_job_<%= scope[:index] %>' class='tab-pane'>
+      <% artifacts_by_type = scope[:job].artifactTypeConfigs().group_by(&:artifactType) %>
+      <label class="artifact_title build_artifact">Build Artifact</label>
+      <% if artifacts_by_type[com.thoughtworks.go.domain.ArtifactType::build].nil? %>
+        <span class="no_build_artifact">No build artifacts have been configured</span>
+      <% else %>
+        <ul class="artifact_key_value_pair build_artifact">
+          <% Array.wrap(artifacts_by_type[com.thoughtworks.go.domain.ArtifactType::build]).each do |build_artifact| %>
+            <li>
+              <label>
+                <span class="key">Source</span>
+                <span class="value"><%= build_artifact.getSource() %></span>
+              </label>
+
+              <label>
+                <span class="key">Destination</span>
+                <span class="value"><%= build_artifact.getDestination() %></span>
+              </label>
+            </li>
+          <% end %>
+        </ul>
+      <% end %>
+
+      <label class="artifact_title test_artifact">Test Artifact</label>
+      <% if artifacts_by_type[com.thoughtworks.go.domain.ArtifactType::test].nil? %>
+        <span class="no_test_artifact">No test artifacts have been configured</span>
+      <% else %>
+        <ul class="artifact_key_value_pair test_artifact">
+          <% Array.wrap(artifacts_by_type[com.thoughtworks.go.domain.ArtifactType::test]).each do |build_artifact| %>
+            <li>
+              <label>
+                <span class="key">Source</span>
+                <span class="value"><%= build_artifact.getSource() %></span>
+              </label>
+
+              <label>
+                <span class="key">Destination</span>
+                <span class="value"><%= build_artifact.getDestination() %></span>
+              </label>
+            </li>
+          <% end %>
+        </ul>
+      <% end %>
+
+      <label class="artifact_title external_artifact">External Artifact</label>
+      <% if artifacts_by_type[com.thoughtworks.go.domain.ArtifactType::external].nil? %>
+        <span class="no_external_artifact">No external artifacts have been configured</span>
+      <% else %>
+        <ul class="artifact_key_value_pair external_artifact">
+          <% Array.wrap(artifacts_by_type[com.thoughtworks.go.domain.ArtifactType::external]).each do |build_artifact| %>
+            <li>
+              <label>
+                <span class="key">Artifact ID</span>
+                <span class="value"><%= build_artifact.getId() %></span>
+              </label>
+
+              <label>
+                <span class="key">Store ID</span>
+                <span class="value"><%= build_artifact.getStoreId() %></span>
+              </label>
+            </li>
+          <% end %>
+        </ul>
+      <% end %>
+      <div id="environment_variables_<%= scope[:stage_id] %>_job_<%= scope[:index] %>" class="tab-pane">
+        <table class="variables list_table">
+          <thead>
+          <tr>
+            <th>Name</th>
+            <th>Value</th>
+          </tr>
+          </thead>
+          <tbody>
+          <% if scope[:job].getVariables().isEmpty() %>
+            <tr>
+              <td align='center' colspan="2" class="name_value_cell">No environment variables have been configured</td>
+            </tr>
+          <% end %>
+          <% scope[:job].getVariables().each do |environment_variable| %>
+            <tr>
+              <td class="name_value_cell">
+                <%= environment_variable.getName() %>
+              </td>
+              <td class="name_value_cell">
+                <%= environment_variable.getDisplayValue() %>
+              </td>
+            </tr>
+          <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div id="custom_tabs_<%= scope[:stage_id] %>_job_<%= scope[:index] %>" class="tab-pane">
+        <table class="custom_tabs list_table">
+            <thead>
+            <tr>
+                <th>Tab Name</th>
+                <th>Path</th>
+            </tr>
+            </thead>
+            <tbody>
+            <% if scope[:job].getTabs().isEmpty() %>
+                <tr>
+                    <td align='center' colspan="2" class="name_value_cell">No custom tabs have been configured</td>
+                </tr>
+            <% end %>
+            <% scope[:job].getTabs().each do |tab| %>
+                <tr>
+                    <td class="name_value_cell">
+                        <%= tab.getName() %>
+                    </td>
+                    <td class="name_value_cell">
+                        <%= tab.getPath() %>
+                    </td>
+                </tr>
+            <% end %>
+            </tbody>
+        </table>
+    </div>
+    <div id="tasks_<%= scope[:stage_id] %>_job_<%= scope[:index] %>" class='tab-pane active'>
+        <% if scope[:job].getTasks().isEmpty() %>
+            <span>No tasks have been configured</span>
+        <% else %>
+            <ul class="tasks_view_list">
+                <% scope[:job].getTasks().each do |task| %>
+                    <li class="<%= task.getTaskType() %>">
+                        <span class="condition">Run if <%= task.runIfConfigsAny() ? "#{'Failed'}, #{'Passed'}" : task.getConditionsForDisplay() %></span>
+                        <% if task.getTaskType() == "fetch" %>
+                            <code>
+                                <span><%=task.getTypeForDisplay()%> - </span>
+                                <span title="Pipeline Name" class="pipeline"><%= task.getPipelineName().blank? ? "[#{'Current pipeline'}]" : task.getPipelineName() %></span>
+                                <span class='path_separator'>&gt;</span>
+                                <span title="Stage Name" class="stage"><%= task.getStage() %></span>
+                                <span class='path_separator'>&gt;</span>
+                                <span title="Job Name" class="job"><%= task.getJob() %></span>
+                                <% if task.getTypeForDisplay() == "Fetch Artifact" %>
+                                  <span class='delimiter'>:</span>
+                                  <span title="Source" class="source"><%= task.getSrc() %></span>
+                                  <span class="direction_arrow">-&gt;</span>
+                                  <span title="Destination" class="destination"><%= task.getDest() %></span>
+                                <% else %>
+                                  <span class="path_separator">-&gt;</span>
+                                  <span>ArtifactID</span>
+                                  <span class='delimiter'>:</span>
+                                  <span title="Artifact ID"><%= task.getArtifactId() %></span>
+                                <% end %>
+                            </code>
+                        <% elsif is_a_pluggable_task(task) %>
+                          <code>
+                            <%= render :partial => "config_view/templates/plugin_view.html", :locals => {:scope => {:task => task}} -%>
+                          </code>
+                        <% else %>
+                            <code>
+                                <% working_dir_title = (task.workingDirectory()==nil || task.workingDirectory() == '') ? "Working Directory": "Working Directory: " + task.workingDirectory()  %>
+                                <span class="working_dir" title="<%= working_dir_title %>"><%= "#{task.workingDirectory()}$" %></span>
+                                <span class="command"><%= task.command() %></span>
+                                <span class="arguments"><%= task.arguments() %></span>
+                            </code>
+                        <% end %>
+                        <% if task.hasCancelTask() %>
+                            <ul>
+                                <li>
+                                  <% if is_a_pluggable_task(task.cancelTask()) %>
+                                      <code>
+                                        <span class="on_cancel"> On Cancel</span>
+                                        <%= render :partial => "config_view/templates/plugin_view.html", :locals => {:scope => {:task => task.cancelTask()}} -%>
+                                      </code>
+                                  <% else %>
+                                      <code>
+                                        <% working_dir_title = (task.cancelTask().getTypeForDisplay() == "Fetch Artifact" || task.cancelTask().workingDirectory()==nil || task.cancelTask().workingDirectory() == '') ? "Working Directory": "Working Directory: " + task.cancelTask().workingDirectory() %>
+                                        <span class="on_cancel"> On Cancel</span>
+                                        <span class="working_dir" title="<%= working_dir_title %>"><%= "#{task.cancelTask().workingDirectory()}$" %></span>
+                                        <span class="command"><%= task.cancelTask().command() %></span>
+                                        <span class="arguments"><%= task.cancelTask().arguments() %></span>
+                                      </code>
+                                  <% end %>
+                                </li>
+                            </ul>
+                        <% end %>
+                    </li>
+                <% end %>
+            </ul>
+        <% end %>
+    </div>
+</div>
+</div>

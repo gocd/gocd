@@ -178,6 +178,21 @@ describe("PipelineRunInfoWidget", () => {
         expect(helper.byTestId("auto-gate-icon-integration-2")).toBeInDOM();
         expect(helper.byTestId("auto-gate-icon-integration-2")).toHaveAttr("title", "Approved by Bob");
       });
+
+      it("should be error message if stage has any", () => {
+        const integrationStage        = building("integration", 2);
+        integrationStage.approvedBy   = "changes";
+        integrationStage.errorMessage = "Can not schedule stage as previous stage is failed";
+        const pipelineRunInfo         = PipelineRunInfo.fromJSON(PipelineActivityData.pipelineRunInfo(
+          passed("unit", 1),
+          integrationStage
+        ));
+        const stageConfigs            = toStageConfigs(pipelineRunInfo.stages());
+        mount(pipelineRunInfo, stageConfigs);
+
+        expect(helper.byTestId("auto-gate-icon-integration-2")).toBeInDOM();
+        expect(helper.byTestId("auto-gate-icon-integration-2")).toHaveAttr("title", "Can not schedule stage as previous stage is failed");
+      });
     });
 
     it("should render gate icon before the stage", () => {

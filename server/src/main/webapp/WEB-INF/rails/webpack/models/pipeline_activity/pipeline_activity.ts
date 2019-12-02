@@ -187,6 +187,7 @@ export class Stage {
   scheduled: Stream<boolean>;
   stageCounter: Stream<number>;
   approvedBy: Stream<string | undefined>;
+  errorMessage: Stream<string | undefined>;
 
   constructor(stageName: string,
               stageId: number,
@@ -196,7 +197,8 @@ export class Stage {
               getCanCancel: boolean,
               scheduled: boolean,
               stageCounter: number,
-              approvedBy?: string) {
+              approvedBy?: string,
+              errorMessage?: string) {
     this.stageName    = Stream(stageName);
     this.stageId      = Stream(stageId);
     this.stageStatus  = Stream(stageStatus);
@@ -206,6 +208,7 @@ export class Stage {
     this.scheduled    = Stream(scheduled);
     this.stageCounter = Stream(stageCounter);
     this.approvedBy   = Stream(approvedBy);
+    this.errorMessage = Stream(errorMessage);
   }
 
   static fromJSON(stage: StageJSON) {
@@ -217,7 +220,8 @@ export class Stage {
       toBool(stage.getCanCancel),
       toBool(stage.scheduled),
       stage.stageCounter,
-      stage.approvedBy);
+      stage.approvedBy,
+      stage.errorMessage);
   }
 
   pipelineName() {

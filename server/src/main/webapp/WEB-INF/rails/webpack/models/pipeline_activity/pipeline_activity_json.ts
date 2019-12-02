@@ -70,7 +70,7 @@ export interface StageJSON {
   scheduled: boolean;
   stageCounter: number;
   approvedBy?: string;
-  errorMessage?: string | null;
+  errorMessage?: string;
 }
 
 export interface HistoryJSON {

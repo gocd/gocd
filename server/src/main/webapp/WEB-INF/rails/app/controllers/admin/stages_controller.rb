@@ -212,9 +212,10 @@ module Admin
         return
       end
 
-      assert_load(:pipeline_group, @cruise_config.findGroup(@pipeline_group_name))
-      assert_load(:autocomplete_users, user_service.usersThatCanOperateOnStage(@preprocessed_cruise_config, @pipeline).to_json)
-      assert_load(:autocomplete_roles, user_service.rolesThatCanOperateOnStage(@preprocessed_cruise_config, @pipeline).to_json)
+      config = @is_config_repo_pipeline ? @processed_cruise_config : @cruise_config
+      assert_load(:pipeline_group, config.findGroup(@pipeline_group_name))
+      assert_load(:autocomplete_users, user_service.usersThatCanOperateOnStage(config, @pipeline).to_json)
+      assert_load(:autocomplete_roles, user_service.rolesThatCanOperateOnStage(config, @pipeline).to_json)
     end
 
     def new_stage

@@ -259,11 +259,11 @@ export class PipelineStructure {
     }
   }
 
-  getAllPipelinesNotUsingTemplates() {
+  getAllConfigPipelinesNotUsingTemplates() {
     const result: string[] = [];
     this.groups().forEach((eachGroup) => {
       eachGroup.pipelines().forEach((eachPipeline) => {
-        if (_.isEmpty(eachPipeline.templateName())) {
+        if (_.isEmpty(eachPipeline.templateName()) && !eachPipeline.origin().isDefinedInConfigRepo()) {
           result.push(eachPipeline.name());
         }
       });

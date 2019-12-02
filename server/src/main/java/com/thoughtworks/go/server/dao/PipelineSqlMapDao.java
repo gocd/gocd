@@ -685,9 +685,9 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     }
 
     @Override
-    public List<Long> getOldestAndLatestPipelineId(String pipelineName) {
+    public PipelineRunIdInfo getOldestAndLatestPipelineId(String pipelineName) {
         Map<String, Object> params = arguments("pipelineName", pipelineName).asMap();
-        return (List<Long>) getSqlMapClientTemplate().queryForList("getOldestAndLatestPipelineRun", params);
+        return (PipelineRunIdInfo) getSqlMapClientTemplate().queryForObject("getOldestAndLatestPipelineRun", params);
     }
 
     @Override

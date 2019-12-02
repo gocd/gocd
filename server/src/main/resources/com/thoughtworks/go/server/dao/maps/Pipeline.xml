@@ -22,6 +22,11 @@
         <result property="counter" column="pipelineCounter"/>
     </resultMap>
 
+    <resultMap id="latest-oldest-pipeline-identifiers" type="com.thoughtworks.go.domain.PipelineRunIdInfo">
+        <result property="oldestRunId" column="oldestRunId"/>
+        <result property="latestRunId" column="latestRunId"/>
+    </resultMap>
+
     <resultMap id="select-pipeline-pause-info" type="com.thoughtworks.go.domain.PipelinePauseInfo">
         <result property="pauseCause" column="pause_cause"/>
         <result property="pauseBy" column="pause_by"/>
@@ -227,18 +232,10 @@
         OFFSET #{offset}
     </select>
 
-    <select id="getOldestAndLatestPipelineRun" resultType="java.lang.Long">
-        (SELECT pipelines.id
-         FROM pipelines
-         WHERE pipelines.name = #{pipelineName}
-         ORDER BY pipelines.id DESC
-         LIMIT 1)
-        UNION ALL
-        (SELECT pipelines.id
-         FROM pipelines
-         WHERE pipelines.name = #{pipelineName}
-         ORDER BY pipelines.id ASC
-         LIMIT 1)
+    <select id="getOldestAndLatestPipelineRun" resultType="latest-oldest-pipeline-identifiers">
+        SELECT MAX(pipelines.id) as latestRunId, MIN(pipelines.id) as oldestRunId
+        FROM pipelines
+        WHERE pipelines.name = #{pipelineName}
     </select>
 
     <select id="getPipelineIds" resultType="java.lang.Long">

@@ -25,6 +25,7 @@ import com.thoughtworks.go.config.exceptions.NotAuthorizedException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.domain.PipelinePauseInfo;
+import com.thoughtworks.go.domain.PipelineRunIdInfo;
 import com.thoughtworks.go.domain.PipelineTimelineEntry;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.i18n.LocalizedMessage;
@@ -167,7 +168,7 @@ public class PipelineHistoryService {
         return true;
     }
 
-    public List<Long> getOldestAndLatestPipelineId(String pipelineName, Username username) {
+    public PipelineRunIdInfo getOldestAndLatestPipelineId(String pipelineName, Username username) {
         checkForExistenceAndAccess(username, pipelineName);
         return pipelineDao.getOldestAndLatestPipelineId(pipelineName);
     }

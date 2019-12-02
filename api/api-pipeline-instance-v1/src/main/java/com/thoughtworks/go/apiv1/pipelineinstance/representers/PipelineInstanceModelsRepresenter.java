@@ -17,17 +17,16 @@
 package com.thoughtworks.go.apiv1.pipelineinstance.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
+import com.thoughtworks.go.domain.PipelineRunIdInfo;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
 import com.thoughtworks.go.spark.Routes;
-
-import java.util.List;
 
 import static java.util.Collections.emptyList;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public class PipelineInstanceModelsRepresenter {
-    public static void toJSON(OutputWriter outputWriter, PipelineInstanceModels pipelineInstanceModels, List<Long> latestAndOldestPipelineId) {
+    public static void toJSON(OutputWriter outputWriter, PipelineInstanceModels pipelineInstanceModels, PipelineRunIdInfo latestAndOldestPipelineId) {
         if (pipelineInstanceModels.isEmpty()) {
             outputWriter.addChildList("pipelines", emptyList());
             return;
@@ -36,14 +35,14 @@ public class PipelineInstanceModelsRepresenter {
         outputWriter.addChildList("pipelines", pipelinesWriter -> pipelineInstanceModels.forEach(pipelineInstanceModel -> pipelinesWriter.addChild(pipelineWriter -> PipelineInstanceModelRepresenter.toJSON(pipelineWriter, pipelineInstanceModel))));
     }
 
-    private static void addLinks(OutputWriter outputWriter, PipelineInstanceModels pipelineInstanceModels, List<Long> latestAndOldestPipelineId) {
+    private static void addLinks(OutputWriter outputWriter, PipelineInstanceModels pipelineInstanceModels, PipelineRunIdInfo latestAndOldestPipelineId) {
         PipelineInstanceModel latest = pipelineInstanceModels.first();
         PipelineInstanceModel oldest = pipelineInstanceModels.last();
         String previousLink = null, nextLink = null;
-        if (latest.getId() != latestAndOldestPipelineId.get(0)) {
+        if (latest.getId() != latestAndOldestPipelineId.getLatestRunId()) {
             previousLink = Routes.PipelineInstance.previous(latest.getName(), latest.getId());
         }
-        if (oldest.getId() != latestAndOldestPipelineId.get(1)) {
+        if (oldest.getId() != latestAndOldestPipelineId.getOldestRunId()) {
             nextLink = Routes.PipelineInstance.next(latest.getName(), oldest.getId());
         }
         if (isNotBlank(previousLink) || isNotBlank(nextLink)) {

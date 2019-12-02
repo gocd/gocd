@@ -1658,10 +1658,10 @@ public class PipelineSqlMapDaoIntegrationTest {
         dbHelper.pass(p2_1);
         Pipeline p3_1 = dbHelper.schedulePipeline(p1.config, new TestingClock(new Date()));
         dbHelper.pass(p3_1);
-        List<Long> oldestAndLatestPipelineId = pipelineDao.getOldestAndLatestPipelineId(pipelineName);
+        PipelineRunIdInfo oldestAndLatestPipelineId = pipelineDao.getOldestAndLatestPipelineId(pipelineName);
 
-        assertThat(oldestAndLatestPipelineId.get(0), is(p3_1.getId()));
-        assertThat(oldestAndLatestPipelineId.get(1), is(p1_1.getId()));
+        assertThat(oldestAndLatestPipelineId.getLatestRunId(), is(p3_1.getId()));
+        assertThat(oldestAndLatestPipelineId.getOldestRunId(), is(p1_1.getId()));
     }
 
     @Test

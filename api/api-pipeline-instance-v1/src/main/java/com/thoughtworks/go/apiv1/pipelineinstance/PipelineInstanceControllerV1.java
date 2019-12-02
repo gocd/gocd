@@ -23,6 +23,7 @@ import com.thoughtworks.go.apiv1.pipelineinstance.representers.PipelineInstanceM
 import com.thoughtworks.go.apiv1.pipelineinstance.representers.PipelineInstanceModelsRepresenter;
 import com.thoughtworks.go.config.exceptions.BadRequestException;
 import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
+import com.thoughtworks.go.domain.PipelineRunIdInfo;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
 import com.thoughtworks.go.server.service.PipelineHistoryService;
@@ -90,7 +91,7 @@ public class PipelineInstanceControllerV1 extends ApiController implements Spark
         Long after = getCursor(request, "after");
         Long before = getCursor(request, "before");
         PipelineInstanceModels pipelineInstanceModels = pipelineHistoryService.loadPipelineHistoryData(currentUsername(), pipelineName, after, before, pageSize);
-        List<Long> latestAndOldestPipelineIds = pipelineHistoryService.getOldestAndLatestPipelineId(pipelineName, currentUsername());
+        PipelineRunIdInfo latestAndOldestPipelineIds = pipelineHistoryService.getOldestAndLatestPipelineId(pipelineName, currentUsername());
         return writerForTopLevelObject(request, response, (outputWriter) -> PipelineInstanceModelsRepresenter.toJSON(outputWriter, pipelineInstanceModels, latestAndOldestPipelineIds));
     }
 

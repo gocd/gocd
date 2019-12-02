@@ -935,11 +935,10 @@ public class PipelineHistoryServiceIntegrationTest {
         Pipeline pipeline2 = pipelineTwo.createdPipelineWithAllStagesPassed();
         Pipeline pipeline3 = pipelineTwo.createdPipelineWithAllStagesPassed();
 
-        List<Long> oldestAndLatestPipelineId = pipelineHistoryService.getOldestAndLatestPipelineId(pipelineTwo.pipelineName, new Username(new CaseInsensitiveString("admin1")));
+        PipelineRunIdInfo oldestAndLatestPipelineId = pipelineHistoryService.getOldestAndLatestPipelineId(pipelineTwo.pipelineName, new Username(new CaseInsensitiveString("admin1")));
 
-        assertThat(oldestAndLatestPipelineId.size(), is(2));
-        assertThat(oldestAndLatestPipelineId.get(0), is(pipeline3.getId()));
-        assertThat(oldestAndLatestPipelineId.get(1), is(pipeline1.getId()));
+        assertThat(oldestAndLatestPipelineId.getLatestRunId(), is(pipeline3.getId()));
+        assertThat(oldestAndLatestPipelineId.getOldestRunId(), is(pipeline1.getId()));
     }
 
     @Test

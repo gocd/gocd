@@ -20,6 +20,7 @@ import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv1.pipelineinstance.representers.PipelineInstanceModelRepresenter
 import com.thoughtworks.go.apiv1.pipelineinstance.representers.PipelineInstanceModelsRepresenter
+import com.thoughtworks.go.domain.PipelineRunIdInfo
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.domain.buildcause.BuildCause
 import com.thoughtworks.go.helper.ModificationsMother
@@ -66,7 +67,7 @@ import static org.mockito.MockitoAnnotations.initMocks
 
 class PipelineInstanceControllerV1Test implements SecurityServiceTrait, ControllerTrait<PipelineInstanceControllerV1> {
   @Mock
-  PipelineHistoryService pipelineHistoryService
+  private PipelineHistoryService pipelineHistoryService
 
   @BeforeEach
   void setUp() {
@@ -217,7 +218,7 @@ class PipelineInstanceControllerV1Test implements SecurityServiceTrait, Controll
         def pipelineInstanceModel1 = PipelineInstanceModel.createPipeline(pipelineName, 2, "label", buildCause, stageInstanceModels)
         def pipelineInstanceModel2 = PipelineInstanceModel.createPipeline(pipelineName, 3, "label", buildCause, stageInstanceModels)
         def pipelineInstanceModels = PipelineInstanceModels.createPipelineInstanceModels(pipelineInstanceModel1, pipelineInstanceModel2)
-        def ids = [pipelineInstanceModel2.id, pipelineInstanceModel1.id]
+        def ids = new PipelineRunIdInfo(pipelineInstanceModel2.id, pipelineInstanceModel1.id)
 
         when(pipelineHistoryService.totalCount(pipelineName)).thenReturn(1)
         when(pipelineHistoryService.loadPipelineHistoryData(any(Username.class), eq(pipelineName), anyLong(), anyLong(), anyInt())).thenReturn(pipelineInstanceModels)
@@ -252,7 +253,7 @@ class PipelineInstanceControllerV1Test implements SecurityServiceTrait, Controll
           pipelineInstanceModel.id = i
           pipelineInstanceModels.add(pipelineInstanceModel)
         }
-        def ids = [5L, 1L]
+        def ids = new PipelineRunIdInfo(5L, 1L)
 
         when(pipelineHistoryService.totalCount(pipelineName)).thenReturn(1)
         when(pipelineHistoryService.loadPipelineHistoryData(any(Username.class), eq(pipelineName), anyLong(), anyLong(), anyInt())).thenReturn(pipelineInstanceModels)
@@ -287,7 +288,7 @@ class PipelineInstanceControllerV1Test implements SecurityServiceTrait, Controll
           pipelineInstanceModel.id = i
           pipelineInstanceModels.add(pipelineInstanceModel)
         }
-        def ids = [5L, 1L]
+        def ids = new PipelineRunIdInfo(5L, 1L)
 
         when(pipelineHistoryService.totalCount(pipelineName)).thenReturn(1)
         when(pipelineHistoryService.loadPipelineHistoryData(any(Username.class), eq(pipelineName), anyLong(), anyLong(), anyInt())).thenReturn(pipelineInstanceModels)

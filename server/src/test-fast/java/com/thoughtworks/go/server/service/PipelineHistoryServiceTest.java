@@ -787,16 +787,16 @@ public class PipelineHistoryServiceTest {
             Username username = new Username(new CaseInsensitiveString("can-access"));
 
             CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
-            List<Long> ids = Arrays.asList(10L, 3L);
 
             when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
             when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
             when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(true);
-            when(pipelineDao.getOldestAndLatestPipelineId(pipelineName)).thenReturn(ids);
+            when(pipelineDao.getOldestAndLatestPipelineId(pipelineName)).thenReturn(new PipelineRunIdInfo(10L, 3L));
 
-            List<Long> oldestAndLatestPipelineId = pipelineHistoryService.getOldestAndLatestPipelineId(pipelineName, username);
+            PipelineRunIdInfo oldestAndLatestPipelineId = pipelineHistoryService.getOldestAndLatestPipelineId(pipelineName, username);
 
-            assertThat(oldestAndLatestPipelineId.size()).isEqualTo(2);
+            assertThat(oldestAndLatestPipelineId.getLatestRunId()).isEqualTo(10L);
+            assertThat(oldestAndLatestPipelineId.getOldestRunId()).isEqualTo(3L);
         }
 
         @Test

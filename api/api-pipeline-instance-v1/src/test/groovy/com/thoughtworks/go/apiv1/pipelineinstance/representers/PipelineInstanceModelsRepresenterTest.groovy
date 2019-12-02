@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.apiv1.pipelineinstance.representers
 
+import com.thoughtworks.go.domain.PipelineRunIdInfo
 import com.thoughtworks.go.domain.buildcause.BuildCause
 import com.thoughtworks.go.helper.ModificationsMother
 import com.thoughtworks.go.helper.StageMother
@@ -43,7 +44,8 @@ class PipelineInstanceModelsRepresenterTest {
 
   @Test
   void 'should serializer into json with next and previous links'() {
-    def actualJson = toObjectString({ PipelineInstanceModelsRepresenter.toJSON(it, pipelineInstanceModels, [10L, 1L]) })
+    def ids = new PipelineRunIdInfo(10L, 1L)
+    def actualJson = toObjectString({ PipelineInstanceModelsRepresenter.toJSON(it, pipelineInstanceModels, ids) })
 
     def expectedJson = [
       "_links"   : [
@@ -64,7 +66,8 @@ class PipelineInstanceModelsRepresenterTest {
 
   @Test
   void 'should return only next link if the latest instance id is present'() {
-    def actualJson = toObjectString({ PipelineInstanceModelsRepresenter.toJSON(it, pipelineInstanceModels, [6L, 1L]) })
+    def ids = new PipelineRunIdInfo(6L, 1L)
+    def actualJson = toObjectString({ PipelineInstanceModelsRepresenter.toJSON(it, pipelineInstanceModels, ids) })
 
     def expectedJson = [
       "_links"   : [
@@ -82,7 +85,8 @@ class PipelineInstanceModelsRepresenterTest {
 
   @Test
   void 'should return only previous link if the oldest instance id is present'() {
-    def actualJson = toObjectString({ PipelineInstanceModelsRepresenter.toJSON(it, pipelineInstanceModels, [10L, 2L]) })
+    def ids = new PipelineRunIdInfo(10L, 2L)
+    def actualJson = toObjectString({ PipelineInstanceModelsRepresenter.toJSON(it, pipelineInstanceModels, ids) })
 
     def expectedJson = [
       "_links"   : [
@@ -100,8 +104,9 @@ class PipelineInstanceModelsRepresenterTest {
 
   @Test
   void 'should return no links if passed in empty list'() {
+    def ids = new PipelineRunIdInfo(10L, 1L)
     pipelineInstanceModels = PipelineInstanceModels.createPipelineInstanceModels()
-    def actualJson = toObjectString({ PipelineInstanceModelsRepresenter.toJSON(it, pipelineInstanceModels, [10L, 1L]) })
+    def actualJson = toObjectString({ PipelineInstanceModelsRepresenter.toJSON(it, pipelineInstanceModels, ids) })
 
     def expectedJson = [
       "pipelines": []
@@ -112,11 +117,12 @@ class PipelineInstanceModelsRepresenterTest {
 
   @Test
   void 'should not return any links if there is only one page to be rendered'() {
+    def ids = new PipelineRunIdInfo(1L, 1L)
     def pipelineInstanceModel = createPipelineInstance(1)
     pipelineInstanceModel.id = 1
     pipelineInstanceModels = PipelineInstanceModels.createPipelineInstanceModels(pipelineInstanceModel)
 
-    def actualJson = toObjectString({ PipelineInstanceModelsRepresenter.toJSON(it, pipelineInstanceModels, [1L, 1L]) })
+    def actualJson = toObjectString({ PipelineInstanceModelsRepresenter.toJSON(it, pipelineInstanceModels, ids) })
 
     def expectedJson = [
       "pipelines": pipelineInstanceModels.collect { model ->

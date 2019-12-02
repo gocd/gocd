@@ -492,4 +492,8 @@ export class SparkRoutes {
     return `/go/admin/status_reports/${plugin_id}/cluster/${cluster_profile_id}`;
   }
 
+
+  static pipelineHistoryPath(pipelineName: string) {
+    return `/go/pipeline/activity/${pipelineName}`;
+  }
 }

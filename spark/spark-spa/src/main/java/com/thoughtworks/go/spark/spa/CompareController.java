@@ -54,7 +54,16 @@ public class CompareController implements SparkController {
     public ModelAndView index(Request request, Response response) {
         Map<Object, Object> object = new HashMap<>() {{
             put("viewTitle", "Compare");
+            put("meta", meta(request));
         }};
         return new ModelAndView(object, null);
+    }
+
+    private HashMap<String, String> meta(Request request) {
+        HashMap<String, String> meta = new HashMap<>();
+        meta.put("pipelineName", request.params("pipeline_name"));
+        meta.put("fromCounter", request.params("from_counter"));
+        meta.put("toCounter", request.params("to_counter"));
+        return meta;
     }
 }

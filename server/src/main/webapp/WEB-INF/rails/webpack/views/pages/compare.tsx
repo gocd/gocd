@@ -16,8 +16,11 @@
 
 import m from "mithril";
 import {Compare} from "models/compare/compare";
+import {FlashMessage} from "views/components/flash_message";
+import {HeaderPanel} from "views/components/header_panel";
 import {CompareWidget} from "views/pages/compare/compare_widget";
-import {Page} from "views/pages/page";
+import {Page, PageState} from "views/pages/page";
+import {CompareHeaderWidget} from "./compare/compare_header_widget";
 
 interface State {
   dummy?: Compare;
@@ -25,15 +28,24 @@ interface State {
 
 export class ComparePage extends Page<null, State> {
   componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
+    if (this.pageState === PageState.FAILED) {
+      return <FlashMessage type={this.flashMessage.type} message={this.flashMessage.message}/>;
+    }
     return <CompareWidget/>;
   }
 
   pageName(): string {
-    return "SPA Name goes here!";
+    return "Compare";
   }
 
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {
     // to be implemented
     return Promise.resolve();
+  }
+
+  protected headerPanel(vnode: m.Vnode<null, State>): any {
+    const sectionName = <CompareHeaderWidget pipelineName={this.getMeta().pipelineName}/>;
+
+    return <HeaderPanel title={sectionName} sectionName={this.pageName()}/>;
   }
 }

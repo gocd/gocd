@@ -171,6 +171,8 @@ shared_examples_for :task_controller do
       before do
         @task_view_service = stub_service(:task_view_service)
         expect(@go_config_service).to receive(:loadForEdit).with("pipeline.name", @user, @result).and_return(@pipeline_config_for_edit)
+        expect(@go_config_service).to receive(:doesPipelineExist).and_return(true)
+        expect(@go_config_service).to receive(:isPipelineDefinedInConfigRepository).and_return(false)
         expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline.name").and_return(@pause_info)
         @on_cancel_task_vms = java.util.Arrays.asList([vm_template_for(exec_task('rm')), vm_template_for(ant_task), vm_template_for(nant_task), vm_template_for(rake_task), vm_template_for(fetch_task_with_exec_on_cancel_task)].to_java(TaskViewModel))
       end
@@ -193,6 +195,8 @@ shared_examples_for :task_controller do
     describe "update" do
       before :each do
         expect(@go_config_service).to receive(:loadForEdit).with("pipeline.name", @user, @result).and_return(@pipeline_config_for_edit)
+        expect(@go_config_service).to receive(:doesPipelineExist).and_return(true)
+        expect(@go_config_service).to receive(:isPipelineDefinedInConfigRepository).and_return(false)
         expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline.name").and_return(@pause_info)
         expect(@pluggable_task_service).to receive(:validate) if (@new_task.instance_of? com.thoughtworks.go.config.pluggabletask.PluggableTask)
       end
@@ -253,6 +257,8 @@ shared_examples_for :task_controller do
     describe "new" do
       before do
         expect(@go_config_service).to receive(:loadForEdit).with("pipeline.name", @user, @result).and_return(@pipeline_config_for_edit)
+        expect(@go_config_service).to receive(:doesPipelineExist).and_return(true)
+        expect(@go_config_service).to receive(:isPipelineDefinedInConfigRepository).and_return(false)
         expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline.name").and_return(@pause_info)
         allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
         @task_view_service = stub_service(:task_view_service)
@@ -275,6 +281,8 @@ shared_examples_for :task_controller do
     describe "create" do
       before do
         expect(@go_config_service).to receive(:loadForEdit).with("pipeline.name", @user, @result).and_return(@pipeline_config_for_edit)
+        expect(@go_config_service).to receive(:doesPipelineExist).and_return(true)
+        expect(@go_config_service).to receive(:isPipelineDefinedInConfigRepository).and_return(false)
         expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline.name").and_return(@pause_info)
         allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
         @task_view_service = stub_service(:task_view_service)

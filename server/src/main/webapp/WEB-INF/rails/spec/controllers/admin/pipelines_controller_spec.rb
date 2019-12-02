@@ -76,6 +76,8 @@ describe Admin::PipelinesController do
       allow(HttpLocalizedOperationResult).to receive(:new).and_return(@result)
 
       expect(@go_config_service).to receive(:loadForEdit).with('HelloWorld', @user, @result).and_return(pipeline_config_for_edit)
+      expect(@go_config_service).to receive(:doesPipelineExist).and_return(true)
+      expect(@go_config_service).to receive(:isPipelineDefinedInConfigRepository).and_return(false)
       allow(@go_config_service).to receive(:checkConfigFileValid).and_return(com.thoughtworks.go.config.validation.GoConfigValidity.valid())
       allow(@go_config_service).to receive(:registry)
 
@@ -112,6 +114,8 @@ describe Admin::PipelinesController do
         @pause_info = PipelinePauseInfo.paused("just for fun", "loser")
         expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("HelloWorld").and_return(@pause_info)
         expect(@go_config_service).to receive(:loadForEdit).with('HelloWorld', @user, @result).and_return(@pipeline_config_for_edit)
+        expect(@go_config_service).to receive(:doesPipelineExist).and_return(true)
+        expect(@go_config_service).to receive(:isPipelineDefinedInConfigRepository).and_return(false)
       end
 
       describe "GET general" do
@@ -136,6 +140,8 @@ describe Admin::PipelinesController do
       end
 
       it "should error out when user is unauthorized" do
+        expect(@go_config_service).to receive(:doesPipelineExist).and_return(true)
+        expect(@go_config_service).to receive(:isPipelineDefinedInConfigRepository).and_return(false)
         expect(@go_config_service).to receive(:loadForEdit).with('HelloWorld', anything(), anything()) do |_, _, result|
           result.forbidden('Unauthorized to edit HelloWorld pipeline.', HealthStateType.forbidden_for_pipeline("HelloWorld"))
           @pipeline_config_for_edit

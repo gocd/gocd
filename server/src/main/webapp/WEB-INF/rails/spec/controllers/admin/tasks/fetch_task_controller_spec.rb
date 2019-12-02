@@ -94,6 +94,9 @@ describe Admin::TasksController, "fetch task" do
 
       def form_load_expectation
         expect(@go_config_service).to receive(:loadForEdit).with(@pipeline_name, @user, @result).and_return(@pipeline_config_for_edit)
+        expect(@go_config_service).to receive(:doesPipelineExist).and_return(true)
+        expect(@go_config_service).to receive(:isPipelineDefinedInConfigRepository).and_return(false)
+
       end
 
       it_should_behave_like :fetch_task_controller

@@ -82,6 +82,10 @@ export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
   }
 
   private static getTitle(stage: Stage) {
+    if (stage.errorMessage()) {
+      return stage.errorMessage();
+    }
+
     if (!stage.approvedBy()) {
       return "Awaiting approval";
     }

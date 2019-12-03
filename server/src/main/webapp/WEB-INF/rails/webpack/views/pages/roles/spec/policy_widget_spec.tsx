@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {docsUrl} from "gen/gocd_version";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {Directive, Policy} from "models/roles/roles";
@@ -28,9 +29,10 @@ describe('PolicyWidgetSpecs', () => {
   it('should display info regarding default policy on when no policy have been configured', () => {
     mount();
 
-    const infoText = "The default policy is to deny access to all GoCD entities. Configure permissions below to override that behavior.";
+    const infoText = "Configure the policy below to manage access to GoCD entities for users in this role. Learn More";
     expect(helper.byTestId("flash-message-info")).toBeInDOM();
     expect(helper.byTestId("flash-message-info")).toContainText(infoText);
+    expect(helper.q("a", helper.byTestId("flash-message-info")).getAttribute("href")).toEqual(docsUrl("configuration/dev_authorization.html#role-based-access-control"));
 
   });
 

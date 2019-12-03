@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {docsUrl} from "gen/gocd_version";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
@@ -23,6 +24,7 @@ import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {AutocompleteField, SuggestionProvider} from "views/components/forms/autocomplete";
 import {SelectField, SelectFieldOptions} from "views/components/forms/input_fields";
+import {Link} from "views/components/link";
 import {Table} from "views/components/table";
 import styles from "./index.scss";
 
@@ -195,9 +197,12 @@ export class CreatePolicyWidget extends MithrilViewComponent<AutoCompleteAttrs> 
         vnode.attrs.policy().splice(index, 1);
       }
     };
+    const message                  = <span>Configure the policy below to manage access to GoCD entities for users in this role. <Link
+      externalLinkIcon={true} target="_blank"
+      href={docsUrl("configuration/dev_authorization.html#role-based-access-control")}>Learn More</Link></span>;
     const policyBody               = vnode.attrs.policy && _.isEmpty(vnode.attrs.policy())
                                      ? <FlashMessage type={MessageType.info}
-                                                     message="The default policy is to deny access to all GoCD entities. Configure permissions below to override that behavior."/>
+                                                     message={message}/>
                                      : <div data-test-id="policy-table" class={styles.selectPermission}>
                                        <Table headers={CreatePolicyWidget.headers()}
                                               data={new PolicyWidgetBody(vnode.attrs.policy,

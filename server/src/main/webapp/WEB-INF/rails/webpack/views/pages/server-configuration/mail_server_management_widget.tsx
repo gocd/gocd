@@ -44,7 +44,7 @@ export class MailServerManagementWidget extends MithrilViewComponent<MailServerM
   private ajaxOperationMonitor = Stream<OperationState>(OperationState.UNKNOWN);
 
   view(vnode: m.Vnode<MailServerManagementAttrs>) {
-    const mailServer = vnode.attrs.mailServerVM().mailServer();
+    const mailServer = vnode.attrs.mailServerVM().entity();
 
     return <div data-test-id="mail-server-management-widget" class={styles.formContainer}>
       <FormBody>
@@ -122,7 +122,7 @@ export class MailServerManagementWidget extends MithrilViewComponent<MailServerM
                     onclick={() => vnode.attrs.onCancel(vnode.attrs.mailServerVM())}>Cancel</Cancel>
             <Primary data-test-id={"save"}
                      ajaxOperationMonitor={this.ajaxOperationMonitor}
-                     ajaxOperation={() => vnode.attrs.onMailServerManagementSave(vnode.attrs.mailServerVM().mailServer())}>Save</Primary>
+                     ajaxOperation={() => vnode.attrs.onMailServerManagementSave(vnode.attrs.mailServerVM().entity())}>Save</Primary>
           </ButtonGroup>
         </div>
       </FormBody>

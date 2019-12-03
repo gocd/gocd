@@ -32,7 +32,7 @@ export class ServerManagementWidget extends MithrilViewComponent<ServerManagemen
     const serverSiteUrlHelpText = "If you wish that your primary site URL be HTTP, but still want to have HTTPS endpoints " +
       "for the features that require SSL, you can specify this attribute with a value of the base HTTPS URL. Format: https://[host]:[port].";
 
-    const siteUrls = vnode.attrs.siteUrlsVM().siteUrls();
+    const siteUrls = vnode.attrs.siteUrlsVM().entity();
     return <div data-test-id={"server-management-widget"} class={styles.formContainer}>
       <FormBody>
         <div class={styles.formHeader}>
@@ -55,7 +55,7 @@ export class ServerManagementWidget extends MithrilViewComponent<ServerManagemen
         <div class={styles.buttons}>
           <ButtonGroup>
             <Cancel data-test-id={"cancel"} onclick={() => vnode.attrs.onCancel(vnode.attrs.siteUrlsVM())} ajaxOperationMonitor={this.ajaxOperationMonitor}>Cancel</Cancel>
-            <Primary data-test-id={"save"} ajaxOperation={() => vnode.attrs.onServerManagementSave(vnode.attrs.siteUrlsVM().siteUrls(), vnode.attrs.siteUrlsVM().etag())}
+            <Primary data-test-id={"save"} ajaxOperation={() => vnode.attrs.onServerManagementSave(vnode.attrs.siteUrlsVM().entity(), vnode.attrs.siteUrlsVM().etag())}
                      ajaxOperationMonitor={this.ajaxOperationMonitor}>Save</Primary>
           </ButtonGroup>
         </div>

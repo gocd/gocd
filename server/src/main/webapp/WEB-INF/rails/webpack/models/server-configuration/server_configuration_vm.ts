@@ -17,74 +17,55 @@
 import Stream from "mithril/stream";
 import {ArtifactConfig, DefaultJobTimeout, MailServer, SiteUrls} from "./server_configuration";
 
-type ServerConfigType = ArtifactConfig | MailServer | SiteUrls | DefaultJobTimeout;
+export type ServerConfigType = ArtifactConfig | MailServer | SiteUrls | DefaultJobTimeout;
 
-export class ServerConfigurationVM {
+export class ServerConfigurationVM<T extends ServerConfigType> {
   etag: Stream<string | undefined>;
-  protected readonly _original: Stream<ServerConfigType>;
-  readonly modified: Stream<ServerConfigType>;
+  protected readonly _original: Stream<T>;
+  readonly entity: Stream<T>;
 
-  constructor(object?: ServerConfigType) {
-    this.etag     = Stream();
+  constructor(object?: T) {
+    this.etag      = Stream();
     this._original = object ? Stream(object) : Stream();
-    this.modified = object ? Stream(object.clone()) : Stream();
+    this.entity    = object ? Stream(object.clone() as T) : Stream();
   }
 
   reset() {
-    this.modified(this._original().clone());
+    this.entity(this._original().clone() as T);
   }
 
-  sync(object: ServerConfigType, etag?: string) {
+  sync(object: T, etag?: string) {
     this._original(object);
-    this.modified(object.clone());
+    this.entity(object.clone() as T);
     this.etag(etag);
   }
 }
 
-export class ArtifactConfigVM extends ServerConfigurationVM {
+export class ArtifactConfigVM extends ServerConfigurationVM<ArtifactConfig> {
 
   constructor(artifactConfig?: ArtifactConfig) {
     super(artifactConfig ? artifactConfig : new ArtifactConfig(""));
   }
-
-  artifactConfig(): ArtifactConfig {
-    return this.modified() as ArtifactConfig;
-  }
 }
 
-export class SiteUrlsVM extends ServerConfigurationVM {
+export class SiteUrlsVM extends ServerConfigurationVM<SiteUrls> {
   constructor(siteUrls?: SiteUrls) {
     super(siteUrls ? siteUrls : new SiteUrls("", ""));
   }
-
-  siteUrls(): SiteUrls {
-    return this.modified() as SiteUrls;
-  }
 }
 
-export class DefaultJobTimeoutVM extends ServerConfigurationVM {
+export class DefaultJobTimeoutVM extends ServerConfigurationVM<DefaultJobTimeout> {
   constructor(jobTimeout?: DefaultJobTimeout) {
     super(jobTimeout ? jobTimeout : new DefaultJobTimeout(0));
   }
-
-  jobTimeout(): DefaultJobTimeout {
-    return this.modified() as DefaultJobTimeout;
-  }
 }
 
-export class MailServerVM extends ServerConfigurationVM {
+export class MailServerVM extends ServerConfigurationVM<MailServer> {
   canDeleteMailServer: Stream<boolean>;
 
   constructor(mailServer?: MailServer) {
     super(mailServer ? mailServer : new MailServer());
     const flag: (val?: boolean) => Stream<boolean> = Stream;
     this.canDeleteMailServer                       = flag(false);
-  }
-
-  mailServer(mailServer?: MailServer): MailServer {
-    if (mailServer) {
-      this.modified(mailServer);
-    }
-    return this.modified() as MailServer;
   }
 }

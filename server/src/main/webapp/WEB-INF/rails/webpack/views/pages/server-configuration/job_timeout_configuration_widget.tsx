@@ -28,7 +28,7 @@ export class JobTimeoutConfigurationWidget extends MithrilViewComponent<JobTimeo
   private ajaxOperationMonitor = Stream<OperationState>(OperationState.UNKNOWN);
 
   view(vnode: m.Vnode<JobTimeoutAttrs>): m.Vnode {
-    const jobTimeout = vnode.attrs.defaultJobTimeoutVM().jobTimeout();
+    const jobTimeout = vnode.attrs.defaultJobTimeoutVM().entity();
     return <div data-test-id="job-timeout-management-widget" class={styles.formContainer}>
       <FormBody>
         <div class={styles.formHeader}>

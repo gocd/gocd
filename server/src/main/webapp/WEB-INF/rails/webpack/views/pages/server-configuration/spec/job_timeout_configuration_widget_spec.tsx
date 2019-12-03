@@ -99,7 +99,7 @@ describe("defaultJobTimeoutWidget", () => {
     const defaultJobTimeout = new DefaultJobTimeout(0);
     mount(defaultJobTimeout);
 
-    jobTimeoutVM.jobTimeout().errors().add("defaultJobTimeout", "some-error");
+    jobTimeoutVM.entity().errors().add("defaultJobTimeout", "some-error");
     m.redraw.sync();
 
     const inputId = helper.byTestId("form-field-input-default-job-timeout").getAttribute("id");

@@ -19,15 +19,17 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {ArtifactConfigCRUD, JobTimeoutManagementCRUD, MailServerCrud, ServerManagementCRUD} from "models/server-configuration/server_configuartion_crud";
 import {ArtifactConfig, DefaultJobTimeout, MailServer, SiteUrls} from "models/server-configuration/server_configuration";
-import {ArtifactConfigVM, DefaultJobTimeoutVM, MailServerVM, ServerConfigurationVM, SiteUrlsVM} from "models/server-configuration/server_configuration_vm";
+import {ArtifactConfigVM, DefaultJobTimeoutVM, MailServerVM, SiteUrlsVM} from "models/server-configuration/server_configuration_vm";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
 import {Page, PageState} from "views/pages/page";
 import {Sections, ServerConfigurationWidget} from "views/pages/server-configuration/server_configuration_widget";
 import {ConfirmModal} from "./server-configuration/confirm_modal";
 
+type ServerConfigVM = MailServerVM | ArtifactConfigVM | DefaultJobTimeoutVM | SiteUrlsVM;
+
 export interface ServerConfigurationPageOperations {
-  onCancel: (object: ServerConfigurationVM) => void;
+  onCancel: (object: ServerConfigVM) => void;
 }
 
 export interface ServerManagementAttrs extends ServerConfigurationPageOperations {
@@ -83,7 +85,7 @@ export class ServerConfigurationPage extends Page<null, State> {
             this.fetchData(vnode);
           }, (errorResponse) => {
             if (result.getStatusCode() === 422 && errorResponse.body) {
-              vnode.state.siteUrlsVM().modified(SiteUrls.fromJSON(JSON.parse(errorResponse.body!)));
+              vnode.state.siteUrlsVM().entity(SiteUrls.fromJSON(JSON.parse(errorResponse.body!)));
             } else {
               this.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);
             }
@@ -101,7 +103,7 @@ export class ServerConfigurationPage extends Page<null, State> {
             this.fetchData(vnode);
           }, (errorResponse) => {
             if (result.getStatusCode() === 422 && errorResponse.body) {
-              vnode.state.artifactConfigVM().modified(ArtifactConfig.fromJSON(JSON.parse(errorResponse.body!).data));
+              vnode.state.artifactConfigVM().entity(ArtifactConfig.fromJSON(JSON.parse(errorResponse.body!).data));
             } else {
               this.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);
             }
@@ -111,9 +113,9 @@ export class ServerConfigurationPage extends Page<null, State> {
       return Promise.resolve();
     };
 
-    vnode.state.onCancel = (object: ServerConfigurationVM) => {
+    vnode.state.onCancel = (entity: ServerConfigVM) => {
       const modal: ConfirmModal = new ConfirmModal("Do you want to discard the changes?", () => {
-        object.reset();
+        entity.reset();
         modal.close();
       });
       modal.render();
@@ -129,7 +131,7 @@ export class ServerConfigurationPage extends Page<null, State> {
           },
           (errorResponse) => {
             if (result.getStatusCode() === 422 && errorResponse.body) {
-              vnode.state.mailServerVM().modified(MailServer.fromJSON(JsonUtils.toCamelCasedObject(JSON.parse(errorResponse.body)).data));
+              vnode.state.mailServerVM().entity(MailServer.fromJSON(JsonUtils.toCamelCasedObject(JSON.parse(errorResponse.body)).data));
             } else {
               this.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);
             }

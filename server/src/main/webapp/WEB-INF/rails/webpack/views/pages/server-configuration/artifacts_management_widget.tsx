@@ -28,7 +28,7 @@ export class ArtifactsManagementWidget extends MithrilViewComponent<ArtifactMana
   private ajaxOperationMonitor = Stream<OperationState>(OperationState.UNKNOWN);
 
   view(vnode: m.Vnode<ArtifactManagementAttrs>) {
-    const artifactConfig      = vnode.attrs.artifactConfigVM().artifactConfig();
+    const artifactConfig      = vnode.attrs.artifactConfigVM().entity();
     const purgeStartDiskSpace = artifactConfig.purgeSettings().purgeStartDiskSpace;
     const purgeUptoDiskSpace  = artifactConfig.purgeSettings().purgeUptoDiskSpace;
 

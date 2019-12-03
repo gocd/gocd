@@ -26,7 +26,7 @@ describe("MailServerManagementWidget", () => {
   const onDeleteSpy = jasmine.createSpy("onDelete");
   const onSaveSpy   = jasmine.createSpy("onSave");
   const onCancelSpy = jasmine.createSpy("onCancel");
-  let mailServerVM: MailServerVM
+  let mailServerVM: MailServerVM;
 
   afterEach(helper.unmount.bind(helper));
 

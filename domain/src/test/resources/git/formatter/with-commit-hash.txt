@@ -1,0 +1,2 @@
+- !!com.thoughtworks.go.domain.materials.git.builder.DummyOutputType
+%w(,2,2)commitHash: %H

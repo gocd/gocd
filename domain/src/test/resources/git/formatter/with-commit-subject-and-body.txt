@@ -1,0 +1,3 @@
+- !!com.thoughtworks.go.domain.materials.git.builder.DummyOutputType
+%w(,2,2)subject: |-%n%w(,4,4)%s
+%w(,2,2)rawBody: |-%n%w(,4,4)%B

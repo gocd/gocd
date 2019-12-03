@@ -16,57 +16,27 @@
 package com.thoughtworks.go.domain.materials.git;
 
 import com.thoughtworks.go.domain.materials.Modification;
-import com.thoughtworks.go.util.DateUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.yaml.snakeyaml.Yaml;
 
-import java.util.LinkedList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class GitModificationParser {
-    private LinkedList<Modification> modifications = new LinkedList<>();
-    private static final String SPACES = "\\s+";
-    private static final String COMMENT_INDENT = "\\s{4}";
-    private static final String COMMENT_TEXT = "(.*)";
-    private static final String HASH = "(\\w+)";
-    private static final String DATE = "(.+)";
-    private static final String AUTHOR = "(.+)";
-    private static final Pattern COMMIT_PATTERN = Pattern.compile("^commit" + SPACES + HASH + "$");
-    private static final Pattern AUTHOR_PATTERN = Pattern.compile("^Author:"+ SPACES + AUTHOR + "$");
-    private static final Pattern DATE_PATTERN = Pattern.compile("^Date:" + SPACES + DATE + "$");
-    private static final Pattern COMMENT_PATTERN = Pattern.compile("^" + COMMENT_INDENT + COMMENT_TEXT + "$");
+    private Yaml yaml = new Yaml();
 
-    public List<Modification> parse(List<String> output) {
-        for (String line : output) {
-            processLine(line);
+    public List<Modification> parse(String output) {
+        if (StringUtils.isBlank(output)) {
+            return Collections.emptyList();
         }
-        return modifications;
-    }
 
-    public List<Modification> getModifications() {
-        return modifications;
-    }
+        List<GitLog> gitLogs = yaml.load(output);
 
-    public void processLine(String line) {
-        Matcher matcher = COMMIT_PATTERN.matcher(line);
-        if (matcher.matches()) {
-            modifications.add(new Modification("", "", null, null, matcher.group(1)));
+        if (gitLogs.isEmpty()) {
+            return Collections.emptyList();
         }
-        Matcher authorMatcher = AUTHOR_PATTERN.matcher(line);
-        if (authorMatcher.matches()) {
-            modifications.getLast().setUserName(authorMatcher.group(1));
-        }
-        Matcher dateMatcher = DATE_PATTERN.matcher(line);
-        if (dateMatcher.matches()) {
-            modifications.getLast().setModifiedTime(DateUtils.parseISO8601(dateMatcher.group(1)));
-        }
-        Matcher commentMatcher = COMMENT_PATTERN.matcher(line);
-        if (commentMatcher.matches()) {
-            Modification last = modifications.getLast();
-            String comment = Optional.ofNullable(last.getComment()).orElse("");
-            if (!comment.isEmpty()) comment += "\n";
-            last.setComment(comment + commentMatcher.group(1));
-       }
+
+        return gitLogs.stream().map(GitLog::toModification).collect(Collectors.toList());
     }
 }

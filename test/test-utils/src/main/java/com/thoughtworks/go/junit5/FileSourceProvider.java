@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.thoughtworks.go.junit5;
 
 import org.apache.commons.io.FileUtils;
@@ -24,50 +25,47 @@ import org.junit.platform.commons.util.Preconditions;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
-public class JsonSourceProvider implements ArgumentsProvider, AnnotationConsumer<JsonSource> {
-    private final BiFunction<Class<?>, String, File> inputStreamProvider;
+public class FileSourceProvider implements ArgumentsProvider, AnnotationConsumer<FileSource> {
     private String[] jsonFiles;
+    private final BiFunction<Class<?>, String, InputStream> inputStreamProvider;
 
-    JsonSourceProvider() {
-        this((clazz, s) -> new File(clazz.getResource(s).getFile()));
+    FileSourceProvider() {
+        this(Class::getResourceAsStream);
     }
 
-    JsonSourceProvider(BiFunction<Class<?>, String, File> inputStreamProvider) {
+    private FileSourceProvider(BiFunction<Class<?>, String, InputStream> inputStreamProvider) {
         this.inputStreamProvider = inputStreamProvider;
     }
 
     @Override
     public Stream<? extends Arguments> provideArguments(ExtensionContext context) {
         Object[] files = Arrays.stream(jsonFiles)
-                .map(resource -> openInputStream(context, resource))
-                .map(this::readFile)
+                .filter(Objects::nonNull)
+                .map(file -> this.readFile(file, context))
                 .toArray();
 
         return Stream.of(Arguments.of(files));
     }
 
-    private String readFile(File file) {
+    private String readFile(String file, ExtensionContext context) {
+        Preconditions.notBlank(file, "Classpath resource [" + file + "] must not be null or blank");
         try {
-            return FileUtils.readFileToString(file, StandardCharsets.UTF_8);
+            Class<?> testClass = context.getRequiredTestClass();
+            return FileUtils.readFileToString(new File(testClass.getResource(file).getFile()), StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private File openInputStream(ExtensionContext context, String resource) {
-        Preconditions.notBlank(resource, "Classpath resource [" + resource + "] must not be null or blank");
-        Class<?> testClass = context.getRequiredTestClass();
-        return Preconditions.notNull(inputStreamProvider.apply(testClass, resource),
-                () -> "Classpath resource [" + resource + "] does not exist");
-    }
-
     @Override
-    public void accept(JsonSource jsonSource) {
-        jsonFiles = jsonSource.jsonFiles();
+    public void accept(FileSource fileSource) {
+        jsonFiles = fileSource.files();
     }
 }

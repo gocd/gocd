@@ -224,6 +224,7 @@ rootProject.ext.versions = [
   semanticVersion       : '1.2.0',
   servletApi            : '3.1.0',
   slf4j                 : '1.7.26',
+  snakeYaml             : '1.25',
   spark                 : '2.7.2',
   spring                : '4.3.25.RELEASE',
   spring4jUnit5Extension: '1.5.0',
@@ -235,6 +236,8 @@ rootProject.ext.versions = [
   tokenBucket           : '1.7',
   urlrewrite            : '3.2.0',
   velocityToolsView     : '1.4',
+  velocityToolsView     : '1.4',
+  xmlUnitMatchers       : '2.6.3',
   xmlUnitMatchers       : '2.6.3',
   xmlunitassertj        : '2.6.3',
   seleniumDrivers       : [

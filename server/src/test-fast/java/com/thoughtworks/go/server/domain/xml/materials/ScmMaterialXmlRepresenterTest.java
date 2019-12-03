@@ -20,7 +20,7 @@ import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.XmlWriterContext;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.ModifiedAction;
-import com.thoughtworks.go.junit5.JsonSource;
+import com.thoughtworks.go.junit5.FileSource;
 import com.thoughtworks.go.server.domain.xml.builder.ElementBuilder;
 import com.thoughtworks.go.util.DateUtils;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -36,7 +36,7 @@ import static org.xmlunit.assertj.XmlAssert.assertThat;
 
 public class ScmMaterialXmlRepresenterTest {
     @ParameterizedTest
-    @JsonSource(jsonFiles = "/feeds/materials/git-material.xml")
+    @FileSource(files = "/feeds/materials/git-material.xml")
     void shouldGenerateXmlFromMaterialRevision(String expectedXML) {
         GitMaterial gitMaterial = gitMaterial("https://material/example.git");
         gitMaterial.setId(100);
@@ -45,19 +45,19 @@ public class ScmMaterialXmlRepresenterTest {
         ElementBuilder builder = new ElementBuilder(root);
         XmlWriterContext context = new XmlWriterContext("https://test.host/go", null, null, null, new SystemEnvironment());
 
-        new ScmMaterialXmlRepresenter("up42", 1,materialRevision).populate(builder, context);
+        new ScmMaterialXmlRepresenter("up42", 1, materialRevision).populate(builder, context);
 
         assertThat(root.asXML()).and(expectedXML)
-                .ignoreWhitespace()
-                .areIdentical();
+            .ignoreWhitespace()
+            .areIdentical();
     }
 
     private List<Modification> modifications() {
         Date date = DateUtils.parseISO8601("2019-12-31T15:31:49+05:30");
         return Arrays.asList(
-                modification(date, "Bob", "Adding build.xml", "3", "build.xml", ModifiedAction.added),
-                modification(date, "Sam", "Fixing the not checked in files", "2", "tools/bin/go.jruby", ModifiedAction.added),
-                modification(date, "Sam", "Adding .gitignore", "1", ".gitignore", ModifiedAction.modified)
+            modification(date, "Bob", "Adding build.xml", "3", "build.xml", ModifiedAction.added),
+            modification(date, "Sam", "Fixing the not checked in files", "2", "tools/bin/go.jruby", ModifiedAction.added),
+            modification(date, "Sam", "Adding .gitignore", "1", ".gitignore", ModifiedAction.modified)
         );
     }
 

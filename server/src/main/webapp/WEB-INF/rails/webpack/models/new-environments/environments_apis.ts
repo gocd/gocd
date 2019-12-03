@@ -59,7 +59,7 @@ export class EnvironmentsAPIs {
   }
 
   static updateAgentAssociation(envName: string, agentUuidsToAssociate: string[], agentUuidsToRemove: string[]) {
-    return ApiRequestBuilder.PUT(SparkRoutes.apiAdminInternalEnvironmentsPath(envName), this.LATEST_API_VERSION_HEADER, {
+    return ApiRequestBuilder.PATCH(SparkRoutes.apiAdminInternalEnvironmentsPath(envName), this.LATEST_API_VERSION_HEADER, {
       payload: {
         agents: {
           add: agentUuidsToAssociate,

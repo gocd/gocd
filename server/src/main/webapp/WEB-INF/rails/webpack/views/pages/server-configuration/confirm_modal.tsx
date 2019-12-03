@@ -16,9 +16,9 @@
 
 import m from "mithril";
 import Stream from "mithril/stream";
-import {Cancel, Danger} from "../../components/buttons";
-import {Modal, Size} from "../../components/modal";
-import {OperationState} from "../page_operations";
+import {Cancel, Danger} from "views/components/buttons";
+import {Modal, Size} from "views/components/modal";
+import {OperationState} from "views/pages/page_operations";
 
 export class ConfirmModal extends Modal {
   private readonly message: m.Children;

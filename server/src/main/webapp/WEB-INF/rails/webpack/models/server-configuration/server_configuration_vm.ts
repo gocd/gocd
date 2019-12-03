@@ -22,7 +22,7 @@ type ServerConfigType = ArtifactConfig | MailServer | SiteUrls | DefaultJobTimeo
 export class ServerConfigurationVM {
   etag: Stream<string | undefined>;
   protected readonly _original: Stream<ServerConfigType>;
-  protected readonly modified: Stream<ServerConfigType>;
+  readonly modified: Stream<ServerConfigType>;
 
   constructor(object?: ServerConfigType) {
     this.etag     = Stream();

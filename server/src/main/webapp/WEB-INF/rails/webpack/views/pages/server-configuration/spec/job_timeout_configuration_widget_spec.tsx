@@ -17,9 +17,9 @@
 import m from "mithril";
 import Stream from "mithril/stream";
 import {ArtifactConfig, DefaultJobTimeout} from "models/server-configuration/server_configuration";
+import {DefaultJobTimeoutVM} from "models/server-configuration/server_configuration_vm";
+import {JobTimeoutConfigurationWidget} from "views/pages/server-configuration/job_timeout_configuration_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
-import {DefaultJobTimeoutVM} from "../../../../models/server-configuration/server_configuration_vm";
-import {JobTimeoutConfigurationWidget} from "../job_timeout_configuration_widget";
 
 describe("defaultJobTimeoutWidget", () => {
   const helper      = new TestHelper();

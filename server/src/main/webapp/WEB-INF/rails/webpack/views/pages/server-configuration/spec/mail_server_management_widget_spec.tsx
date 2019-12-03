@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {MailServer} from "models/server-configuration/server_configuration";
+import {MailServerVM} from "models/server-configuration/server_configuration_vm";
 import {MailServerManagementWidget} from "views/pages/server-configuration/mail_server_management_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
-import {MailServerVM} from "../../../../models/server-configuration/server_configuration_vm";
 
 describe("MailServerManagementWidget", () => {
   const helper      = new TestHelper();

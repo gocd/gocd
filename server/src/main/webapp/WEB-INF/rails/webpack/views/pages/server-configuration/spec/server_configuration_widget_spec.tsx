@@ -18,9 +18,9 @@ import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {ArtifactConfig, MailServer, SiteUrls} from "models/server-configuration/server_configuration";
+import {ArtifactConfigVM, DefaultJobTimeoutVM, MailServerVM, SiteUrlsVM} from "models/server-configuration/server_configuration_vm";
 import {Sections, ServerConfigurationWidget} from "views/pages/server-configuration/server_configuration_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
-import {ArtifactConfigVM, DefaultJobTimeoutVM, MailServerVM, SiteUrlsVM} from "../../../../models/server-configuration/server_configuration_vm";
 
 describe("ServerConfigurationWidget", () => {
   const helper  = new TestHelper();

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {JsonUtils} from "helpers/json_utils";
 import {mixins as s} from "helpers/string-plus";
 import _ from "lodash";
 import Stream from "mithril/stream";
@@ -22,7 +23,11 @@ import {Errors} from "models/mixins/errors";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {EncryptedValue, plainOrCipherValue} from "views/components/forms/encrypted_value";
 
-export interface SiteUrlsJSON {
+interface ErrorJSON {
+  errors?: { [key: string]: string[] };
+}
+
+export interface SiteUrlsJSON extends ErrorJSON {
   site_url?: string;
   secure_site_url?: string;
 }
@@ -31,17 +36,23 @@ export class SiteUrls extends ValidatableMixin {
   readonly siteUrl: Stream<string | undefined>;
   readonly secureSiteUrl: Stream<string | undefined>;
 
-  constructor(siteUrl?: string, secureSiteUrl?: string) {
+  constructor(siteUrl?: string, secureSiteUrl?: string, errors?: Errors) {
     super();
     this.siteUrl       = Stream(siteUrl);
     this.secureSiteUrl = Stream(secureSiteUrl);
-
+    if (errors) {
+      this.errors(errors);
+    }
     this.validateUrlPattern("siteUrl");
     this.validateUrlPattern("secureSiteUrl");
   }
 
   static fromJSON(data: SiteUrlsJSON) {
-    return new SiteUrls(data.site_url, data.secure_site_url);
+    let errors = {};
+    if (data.errors) {
+      errors = JsonUtils.toCamelCasedObject(data.errors);
+    }
+    return new SiteUrls(data.site_url, data.secure_site_url, new Errors(errors));
   }
 
   clone() {
@@ -49,7 +60,7 @@ export class SiteUrls extends ValidatableMixin {
   }
 }
 
-export interface PurgeSettingsJSON {
+export interface PurgeSettingsJSON extends ErrorJSON {
   purge_start_disk_space?: number;
   purge_upto_disk_space?: number;
 }
@@ -59,11 +70,14 @@ export class PurgeSettings extends ValidatableMixin {
   readonly purgeUptoDiskSpace: Stream<number | undefined>;
   readonly cleanupArtifact: Stream<boolean>;
 
-  constructor(purgeStartDiskSpace?: number, purgeUptoDiskSpace?: number) {
+  constructor(purgeStartDiskSpace?: number, purgeUptoDiskSpace?: number, errors?: Errors) {
     super();
     this.purgeStartDiskSpace = Stream(purgeStartDiskSpace);
     this.purgeUptoDiskSpace  = Stream(purgeUptoDiskSpace);
     this.cleanupArtifact     = Stream(this.isCleanupEnabled());
+    if (errors) {
+      this.errors(errors);
+    }
     this.validatePresenceOf("purgeStartDiskSpace",
                             {condition: () => this.cleanupArtifact(), message: "purge start disk space is empty"});
     this.validatePresenceOf("purgeUptoDiskSpace",
@@ -71,7 +85,11 @@ export class PurgeSettings extends ValidatableMixin {
   }
 
   static fromJSON(data: PurgeSettingsJSON) {
-    return new PurgeSettings(data.purge_start_disk_space, data.purge_upto_disk_space);
+    let errors = {};
+    if (data.errors) {
+      errors = JsonUtils.toCamelCasedObject(data.errors);
+    }
+    return new PurgeSettings(data.purge_start_disk_space, data.purge_upto_disk_space, new Errors(errors));
   }
 
   isCleanupEnabled(): boolean {
@@ -81,17 +99,17 @@ export class PurgeSettings extends ValidatableMixin {
   toJSON() {
     const purgeSettingsJSON: PurgeSettingsJSON = {};
 
-    if (this.purgeStartDiskSpace()) {
+    if (this.purgeStartDiskSpace() !== undefined) {
       purgeSettingsJSON.purge_start_disk_space = this.purgeStartDiskSpace();
     }
-    if (this.purgeUptoDiskSpace()) {
+    if (this.purgeUptoDiskSpace() !== undefined) {
       purgeSettingsJSON.purge_upto_disk_space = this.purgeUptoDiskSpace();
     }
     return purgeSettingsJSON;
   }
 }
 
-export interface ArtifactConfigJSON {
+export interface ArtifactConfigJSON extends ErrorJSON {
   artifacts_dir: string;
   purge_settings?: PurgeSettingsJSON;
 }
@@ -110,11 +128,15 @@ export class ArtifactConfig extends ValidatableMixin {
   }
 
   static fromJSON(data: ArtifactConfigJSON) {
+    let errors = {};
+    if (data.errors) {
+      errors = JsonUtils.toCamelCasedObject(data.errors);
+    }
     const artifactConfig = new ArtifactConfig(data.artifacts_dir);
     if (data.purge_settings) {
       artifactConfig.purgeSettings(PurgeSettings.fromJSON(data.purge_settings));
     }
-
+    artifactConfig.errors(new Errors(errors));
     return artifactConfig;
   }
 
@@ -142,7 +164,7 @@ export class ArtifactConfig extends ValidatableMixin {
   }
 }
 
-interface DefaultJobTimeoutJSON {
+interface DefaultJobTimeoutJSON extends ErrorJSON {
   default_job_timeout: string;
 }
 
@@ -150,16 +172,23 @@ export class DefaultJobTimeout extends ValidatableMixin {
   readonly defaultJobTimeout: Stream<number>;
   readonly neverTimeout: Stream<boolean>;
 
-  constructor(defaultJobTimeout: number) {
+  constructor(defaultJobTimeout: number, errors?: Errors) {
     super();
     this.defaultJobTimeout = Stream(defaultJobTimeout);
     this.neverTimeout      = Stream(defaultJobTimeout === 0);
+    if (errors) {
+      this.errors(errors);
+    }
 
     this.validatePresenceOf("defaultJobTimeout", {condition: this.neverTimeout});
   }
 
   static fromJSON(data: DefaultJobTimeoutJSON) {
-    return new DefaultJobTimeout(parseInt(data.default_job_timeout, 10));
+    let errors = {};
+    if (data.errors) {
+      errors = JsonUtils.toCamelCasedObject(data.errors);
+    }
+    return new DefaultJobTimeout(parseInt(data.default_job_timeout, 10), new Errors(errors));
   }
 
   toJSON() {
@@ -186,7 +215,7 @@ export class DefaultJobTimeout extends ValidatableMixin {
   }
 }
 
-export interface MailServerJSON {
+export interface MailServerJSON extends ErrorJSON {
   hostname: string;
   port: number;
   username: string;
@@ -195,7 +224,6 @@ export interface MailServerJSON {
   tls: boolean;
   senderEmail: string;
   adminEmail: string;
-  errors?: { [key: string]: string[] };
 }
 
 export class MailServer extends ValidatableMixin {

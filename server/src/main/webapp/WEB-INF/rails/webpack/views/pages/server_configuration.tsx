@@ -19,11 +19,11 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {ArtifactConfigCRUD, JobTimeoutManagementCRUD, MailServerCrud, ServerManagementCRUD} from "models/server-configuration/server_configuartion_crud";
 import {ArtifactConfig, DefaultJobTimeout, MailServer, SiteUrls} from "models/server-configuration/server_configuration";
+import {ArtifactConfigVM, DefaultJobTimeoutVM, MailServerVM, ServerConfigurationVM, SiteUrlsVM} from "models/server-configuration/server_configuration_vm";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
 import {Page, PageState} from "views/pages/page";
 import {Sections, ServerConfigurationWidget} from "views/pages/server-configuration/server_configuration_widget";
-import {ArtifactConfigVM, DefaultJobTimeoutVM, MailServerVM, ServerConfigurationVM, SiteUrlsVM} from "../../models/server-configuration/server_configuration_vm";
 import {ConfirmModal} from "./server-configuration/confirm_modal";
 
 export interface ServerConfigurationPageOperations {
@@ -82,7 +82,11 @@ export class ServerConfigurationPage extends Page<null, State> {
             this.flashMessage.setMessage(MessageType.success, "Site urls updated successfully");
             this.fetchData(vnode);
           }, (errorResponse) => {
-            this.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);
+            if (result.getStatusCode() === 422 && errorResponse.body) {
+              vnode.state.siteUrlsVM().modified(SiteUrls.fromJSON(JSON.parse(errorResponse.body!)));
+            } else {
+              this.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);
+            }
           });
         });
       }
@@ -96,7 +100,11 @@ export class ServerConfigurationPage extends Page<null, State> {
             this.flashMessage.setMessage(MessageType.success, "Artifact config updated successfully");
             this.fetchData(vnode);
           }, (errorResponse) => {
-            this.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);
+            if (result.getStatusCode() === 422 && errorResponse.body) {
+              vnode.state.artifactConfigVM().modified(ArtifactConfig.fromJSON(JSON.parse(errorResponse.body!).data));
+            } else {
+              this.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);
+            }
           });
         });
       }
@@ -121,7 +129,7 @@ export class ServerConfigurationPage extends Page<null, State> {
           },
           (errorResponse) => {
             if (result.getStatusCode() === 422 && errorResponse.body) {
-              vnode.state.mailServerVM().mailServer(MailServer.fromJSON(JsonUtils.toCamelCasedObject(JSON.parse(errorResponse.body)).data));
+              vnode.state.mailServerVM().modified(MailServer.fromJSON(JsonUtils.toCamelCasedObject(JSON.parse(errorResponse.body)).data));
             } else {
               this.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);
             }

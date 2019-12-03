@@ -17,12 +17,12 @@
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
+import {ButtonGroup, Cancel, Primary} from "views/components/buttons";
 import {Form, FormBody} from "views/components/forms/form";
 import {CheckboxField, NumberField, PasswordField, TextField} from "views/components/forms/input_fields";
 import {Delete, IconGroup} from "views/components/icons";
 import {OperationState} from "views/pages/page_operations";
 import {MailServerManagementAttrs} from "views/pages/server_configuration";
-import {ButtonGroup, Cancel, Primary} from "../../components/buttons";
 import styles from "./index.scss";
 
 const senderEmailHelpText = (

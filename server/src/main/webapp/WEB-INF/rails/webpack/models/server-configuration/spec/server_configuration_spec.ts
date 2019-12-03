@@ -21,15 +21,25 @@ describe("ArtifactConfig", () => {
     it("should deserialize", () => {
       const artifactConfigJSON = {
         artifacts_dir: "artifacts",
+        errors: {
+          artifacts_dir: ["some-error"]
+        },
         purge_settings: {
+          errors: {
+            purge_start_disk_space: ["some-error in purge start disk space"],
+            purge_upto_disk_space: ["some-error in purge upto disk space"]
+          },
           purge_start_disk_space: 10,
           purge_upto_disk_space: 20
         }
       };
       const artifactConfig     = ArtifactConfig.fromJSON(artifactConfigJSON);
       expect(artifactConfig.artifactsDir()).toBe("artifacts");
+      expect(artifactConfig.errors().errors("artifactsDir")).toEqual(["some-error"]);
       expect(artifactConfig.purgeSettings().purgeStartDiskSpace()).toBe(10);
+      expect(artifactConfig.purgeSettings().errors().errors("purgeStartDiskSpace")).toEqual(["some-error in purge start disk space"]);
       expect(artifactConfig.purgeSettings().purgeUptoDiskSpace()).toBe(20);
+      expect(artifactConfig.purgeSettings().errors().errors("purgeUptoDiskSpace")).toEqual(["some-error in purge upto disk space"]);
     });
 
     it("should deserialize if purge setting is not provided", () => {
@@ -143,12 +153,19 @@ describe("SiteUrls", () => {
   it("should deserialize", () => {
     const siteUrlsJSON = {
       site_url: "http://foo.bar",
-      secure_site_url: "https://secure.com"
+      secure_site_url: "https://secure.com",
+      errors: {
+        site_url: ["some-error"],
+        secure_site_url: ["some-another-error"]
+      }
     };
     const siteUrls     = SiteUrls.fromJSON(siteUrlsJSON);
     expect(siteUrls.siteUrl()).toBe("http://foo.bar");
     expect(siteUrls.secureSiteUrl()).toBe("https://secure.com");
+    expect(siteUrls.errors().errors("siteUrl")).toEqual(["some-error"]);
+    expect(siteUrls.errors().errors("secureSiteUrl")).toEqual(["some-another-error"]);
   });
+
   it('should clone', () => {
     const siteUrlsJSON = {
       site_url: "http://foo.bar",
@@ -166,10 +183,14 @@ describe("SiteUrls", () => {
 describe("DefaultJobTimeout", () => {
   it("should deserialize", () => {
     const defaultJobTimeoutJSON = {
-      default_job_timeout: "15"
+      default_job_timeout: "15",
+      errors: {
+        default_job_timeout: ["some-error"]
+      }
     };
     const defaultJobTimeout     = DefaultJobTimeout.fromJSON(defaultJobTimeoutJSON);
     expect(defaultJobTimeout.defaultJobTimeout()).toBe(15);
+    expect(defaultJobTimeout.errors().errors("defaultJobTimeout")).toEqual(["some-error"]);
   });
 
   describe("validations", () => {
@@ -220,7 +241,16 @@ describe("MailServer", () => {
         password: "password",
         senderEmail: "sender@foo.com",
         tls: false,
-        username: "bob"
+        username: "bob",
+        errors: {
+          hostname: ["error in hostname"],
+          port: ["error in port"],
+          adminEmail: ["error in admin email"],
+          password: ["error in password"],
+          senderEmail: ["error in sender email"],
+          tls: ["error in tls"],
+          username: ["error in username"],
+        }
       };
       const mailServer                     = MailServer.fromJSON(mailServerJSON);
       expect(mailServer.hostname()).toBe(mailServerJSON.hostname);
@@ -231,6 +261,13 @@ describe("MailServer", () => {
       expect(mailServer.senderEmail()).toBe(mailServerJSON.senderEmail);
       expect(mailServer.tls()).toBe(mailServerJSON.tls);
       expect(mailServer.username()).toBe(mailServerJSON.username);
+      expect(mailServer.errors().errors("hostname")).toEqual(["error in hostname"]);
+      expect(mailServer.errors().errors("port")).toEqual(["error in port"]);
+      expect(mailServer.errors().errors("adminEmail")).toEqual(["error in admin email"]);
+      expect(mailServer.errors().errors("password")).toEqual(["error in password"]);
+      expect(mailServer.errors().errors("senderEmail")).toEqual(["error in sender email"]);
+      expect(mailServer.errors().errors("tls")).toEqual(["error in tls"]);
+      expect(mailServer.errors().errors("username")).toEqual(["error in username"]);
     });
   });
 

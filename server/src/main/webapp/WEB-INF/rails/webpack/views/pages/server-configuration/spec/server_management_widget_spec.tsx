@@ -18,9 +18,9 @@ import {docsUrl} from "gen/gocd_version";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {SiteUrls} from "models/server-configuration/server_configuration";
+import {SiteUrlsVM} from "models/server-configuration/server_configuration_vm";
 import {ServerManagementWidget} from "views/pages/server-configuration/server_management_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
-import {SiteUrlsVM} from "../../../../models/server-configuration/server_configuration_vm";
 
 describe("ServerManagementWidget", () => {
   const helper      = new TestHelper();

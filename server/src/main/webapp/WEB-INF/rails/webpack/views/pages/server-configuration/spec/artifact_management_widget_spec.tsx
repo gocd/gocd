@@ -17,8 +17,8 @@
 import m from "mithril";
 import Stream from "mithril/stream";
 import {ArtifactConfig} from "models/server-configuration/server_configuration";
+import {ArtifactConfigVM} from "models/server-configuration/server_configuration_vm";
 import {TestHelper} from "views/pages/spec/test_helper";
-import {ArtifactConfigVM} from "../../../../models/server-configuration/server_configuration_vm";
 import {ArtifactsManagementWidget} from "../artifacts_management_widget";
 
 describe("ArtifactsManagementWidget", () => {

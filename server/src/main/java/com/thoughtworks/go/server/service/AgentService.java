@@ -192,6 +192,24 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         }
     }
 
+    public void updateAgentsAssociationOfEnvironment(EnvironmentConfig envConfig, List<String> agentUUIDsToAssociate, List<String> agentUUIDsToRemove) {
+        if (envConfig == null) {
+            return;
+        }
+
+        AgentsUpdateValidator validator = new AgentsUpdateValidator(agentInstances, union(agentUUIDsToAssociate, agentUUIDsToRemove), TRUE, emptyList(), emptyList());
+        if (isAnyOperationPerformedOnBulkAgents(emptyList(), emptyList(), singletonList(envConfig.name().toString()), emptyList(), TRUE)) {
+            validator.validate();
+
+            List<Agent> agents = getAgentsToAddEnvToOrRemoveEnvFrom(envConfig.name().toString(), agentUUIDsToAssociate, agentUUIDsToRemove);
+
+            if (agents.isEmpty()) {
+                return;
+            }
+            agentDao.bulkUpdateAgents(agents);
+        }
+    }
+
     public void deleteAgents(List<String> uuids) {
         if (validateThatAllAgentsExistAndCanBeDeleted(uuids)) {
             agentDao.bulkSoftDelete(uuids);
@@ -507,9 +525,9 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
                 .collect(toList());
     }
 
-    private List<Agent> getAgentsFromDBToAddEnvTo(List<String> uuids, List<String> associatedUUIDs, String env) {
-        List<String> uuidsToAddEnvTo = getUUIDsToAddEnvTo(uuids, associatedUUIDs);
-        return uuidsToAddEnvTo.stream()
+    private List<Agent> getAgentsFromDBToAddEnvTo(List<String> UUIDs, List<String> associatedUUIDs, String env) {
+        List<String> UUIDsToAddEnvTo = getUUIDsToAddEnvTo(UUIDs, associatedUUIDs);
+        return UUIDsToAddEnvTo.stream()
                 .map(uuid -> getAgentFromDBAfterAddingEnvToExistingEnvs(env, uuid))
                 .collect(toList());
     }
@@ -521,8 +539,8 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         return agent;
     }
 
-    private List<Agent> getAgentsFromDBToRemoveEnvFrom(List<String> uuids, List<String> associatedUUIDs, String env) {
-        List<String> uuidsToRemoveEnvFrom = getUUIDsToRemoveEnvFrom(uuids, associatedUUIDs);
+    private List<Agent> getAgentsFromDBToRemoveEnvFrom(List<String> UUIDs, List<String> associatedUUIDs, String env) {
+        List<String> uuidsToRemoveEnvFrom = getUUIDsToRemoveEnvFrom(UUIDs, associatedUUIDs);
         return uuidsToRemoveEnvFrom.stream()
                 .map(uuid -> getAgentFromDBAfterRemovingEnvFromExistingEnvs(env, uuid))
                 .collect(toList());
@@ -652,6 +670,13 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
 
         List<Agent> removeEnvFromAgents = getAgentsFromDBToRemoveEnvFrom(uuids, associatedUUIDs, envName);
         List<Agent> addEnvToAgents = getAgentsFromDBToAddEnvTo(uuids, associatedUUIDs, envName);
+
+        return union(removeEnvFromAgents, addEnvToAgents);
+    }
+
+    private List<Agent> getAgentsToAddEnvToOrRemoveEnvFrom(String envName, List<String> agentUUIDsToAssociate, List<String> agentUUIDsToRemove) {
+        List<Agent> removeEnvFromAgents = getAgentsFromDBToRemoveEnvFrom(Collections.emptyList(), agentUUIDsToRemove, envName);
+        List<Agent> addEnvToAgents = getAgentsFromDBToAddEnvTo(agentUUIDsToAssociate, Collections.emptyList(), envName);
 
         return union(removeEnvFromAgents, addEnvToAgents);
     }

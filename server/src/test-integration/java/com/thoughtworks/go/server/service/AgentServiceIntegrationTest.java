@@ -1080,8 +1080,8 @@ public class AgentServiceIntegrationTest {
             List<String> noAgents = emptyList();
             agentService.updateAgentsAssociationOfEnvironment(uat, noAgents);
 
-            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID), containsSet());
-            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID2), containsSet());
+            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID).size(), is(0));
+            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID2).size(), is(0));
         }
 
         @Test
@@ -1101,7 +1101,61 @@ public class AgentServiceIntegrationTest {
             agentService.updateAgentsAssociationOfEnvironment(uat, asList(UUID, UUID3));
 
             assertThat(environmentConfigService.getAgentEnvironmentNames(UUID), containsSet("uat"));
-            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID2), containsSet());
+            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID2).size(), is(0));
+            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID3), containsSet("uat"));
+        }
+
+        @Test
+        void shouldAddEnvToSpecifiedAgentsForPatchRequest() {
+            createEnvironment("uat");
+
+            createEnabledAgent(UUID);
+            createEnabledAgent(UUID2);
+
+            BasicEnvironmentConfig uat = new BasicEnvironmentConfig(new CaseInsensitiveString("uat"));
+            assertDoesNotThrow(() -> agentService.updateAgentsAssociationOfEnvironment(uat, asList(UUID, UUID2), Collections.emptyList()));
+
+            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID), containsSet("uat"));
+            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID2), containsSet("uat"));
+        }
+
+        @Test
+        void shouldRemoveEnvFromSpecifiedAgentsForPatchRequest() {
+            createEnvironment("uat");
+
+            createEnabledAgent(UUID);
+            createEnabledAgent(UUID2);
+
+            assertDoesNotThrow(() -> agentService.bulkUpdateAgentAttributes(asList(UUID, UUID2), emptyStrList, emptyStrList, singletonList("uat"), emptyStrList, TRUE, environmentConfigService));
+
+            BasicEnvironmentConfig uat = new BasicEnvironmentConfig(new CaseInsensitiveString("uat"));
+            uat.addAgent(UUID);
+            uat.addAgent(UUID2);
+            List<String> noAgents = emptyList();
+            agentService.updateAgentsAssociationOfEnvironment(uat, noAgents, asList(UUID, UUID2));
+
+            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID).size(), is(0));
+            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID2).size(), is(0));
+        }
+
+        @Test
+        void shouldAddRemoveEnvFromSpecifiedAgentsForPatchRequest() {
+            createEnvironment("uat");
+
+            createEnabledAgent(UUID);
+            createEnabledAgent(UUID2);
+            String UUID3 = "uuid3";
+            createEnabledAgent(UUID3);
+
+            assertDoesNotThrow(() -> agentService.bulkUpdateAgentAttributes(asList(UUID, UUID2), emptyStrList, emptyStrList, singletonList("uat"), emptyStrList, TRUE, environmentConfigService));
+
+            BasicEnvironmentConfig uat = new BasicEnvironmentConfig(new CaseInsensitiveString("uat"));
+            uat.addAgent(UUID);
+            uat.addAgent(UUID2);
+            agentService.updateAgentsAssociationOfEnvironment(uat, asList(UUID, UUID3), asList(UUID2));
+
+            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID), containsSet("uat"));
+            assertThat(environmentConfigService.getAgentEnvironmentNames(UUID2).size(), is(0));
             assertThat(environmentConfigService.getAgentEnvironmentNames(UUID3), containsSet("uat"));
         }
 
@@ -1171,12 +1225,12 @@ public class AgentServiceIntegrationTest {
                     return item.containsAll(asList(items));
                 }
 
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("to contain ").appendValue(items);
-            }
-        };
-    }
+                @Override
+                public void describeTo(Description description) {
+                    description.appendText("to contain ").appendValue(items);
+                }
+            };
+        }
 
         @Test
         void shouldNotFailWhenAgentIsAssociatedWithNonExistingEnvironment() {

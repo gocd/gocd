@@ -16,17 +16,15 @@
 
 package com.thoughtworks.go.apiv1.internalenvironments;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.base.JsonOutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
-import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.apiv1.internalenvironments.representers.MergedEnvironmentsRepresenter;
 import com.thoughtworks.go.config.EnvironmentConfig;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.policy.SupportedAction;
 import com.thoughtworks.go.config.policy.SupportedEntity;
 import com.thoughtworks.go.server.service.AgentService;
@@ -40,11 +38,10 @@ import spark.Response;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Function;
 
-import static java.lang.String.format;
 import static spark.Spark.*;
 
 @Component
@@ -78,14 +75,14 @@ public class InternalEnvironmentsControllerV1 extends ApiController implements S
             before(Routes.InternalEnvironments.ENV_NAME, mimeType, (request, response) -> {
                 if (request.requestMethod().equalsIgnoreCase("GET")) {
                     apiAuthenticationHelper.checkUserAnd403(request, response);
-                } else {    // this is a PUT request to update agent association
+                } else {    // this is a PATCH request to update agent association
                     apiAuthenticationHelper.checkUserHasPermissions(currentUsername(), SupportedAction.ADMINISTER, SupportedEntity.ENVIRONMENT, request.params("env_name"));
                 }
             });
 
             get("", mimeType, this::index);
             get("/merged", mimeType, this::indexMergedEnvironments);
-            put(Routes.InternalEnvironments.ENV_NAME, mimeType, this::updateAgentAssociation);
+            patch(Routes.InternalEnvironments.ENV_NAME, mimeType, this::updateAgentAssociation);
         });
     }
 
@@ -108,17 +105,15 @@ public class InternalEnvironmentsControllerV1 extends ApiController implements S
     String updateAgentAssociation(Request request, Response response) {
         String envName = request.params("env_name");
         EnvironmentConfig envConfig = environmentConfigService.getEnvironmentConfig(envName);
-        List<String> uuids = getAgentUuids(request);
-        agentService.updateAgentsAssociationOfEnvironment(envConfig, uuids);
-        return renderMessage(response, 200, "Environment '" + envName + "' updated successfully!");
-    }
-
-    private List<String> getAgentUuids(Request request) {
         JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(request.body());
-        Optional<List<String>> uuids = jsonReader.readStringArrayIfPresent("uuids");
-        if (uuids.isPresent()) {
-            return uuids.get();
+        JsonReader agents = jsonReader.readJsonObject("agents");
+
+        List<String> uuidsToAssociate = agents.readStringArrayIfPresent("add").orElse(Collections.emptyList());
+        List<String> uuidsToRemove = agents.readStringArrayIfPresent("remove").orElse(Collections.emptyList());
+
+        if (!uuidsToAssociate.isEmpty() || !uuidsToRemove.isEmpty()) {
+            agentService.updateAgentsAssociationOfEnvironment(envConfig, uuidsToAssociate, uuidsToRemove);
         }
-        throw halt(422, MessageJson.create(format("Json `%s` does not contain property '%s'.", new Gson().fromJson(request.body(), JsonElement.class), "uuids")));
+        return renderMessage(response, 200, EntityType.Environment.updateSuccessful(envName));
     }
 }

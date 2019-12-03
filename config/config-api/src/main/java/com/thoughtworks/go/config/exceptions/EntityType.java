@@ -72,6 +72,10 @@ public enum EntityType {
         return deleteSuccessful(id.toString());
     }
 
+    public String updateSuccessful(String nameOrId) {
+        return format("%s %s '%s' was updated successfully!", StringUtils.capitalize(this.entityType), this.nameOrId.descriptor, nameOrId);
+    }
+
     public String staleConfig(String id) {
         return format("Someone has modified the configuration for %s %s '%s'. Please update your copy of the config with the changes.",
                 this.entityType.toLowerCase(),

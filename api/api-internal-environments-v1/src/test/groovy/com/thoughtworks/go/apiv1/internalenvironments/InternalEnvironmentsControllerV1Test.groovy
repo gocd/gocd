@@ -260,7 +260,7 @@ class InternalEnvironmentsControllerV1Test implements SecurityServiceTrait, Cont
 
       @Override
       void makeHttpCall() {
-        putWithApiHeader(controller.controllerPath('env'), [])
+        patchWithApiHeader(controller.controllerPath('env'), [])
       }
     }
 
@@ -274,17 +274,19 @@ class InternalEnvironmentsControllerV1Test implements SecurityServiceTrait, Cont
       @Test
       void 'should allow to associate agents to a given env config name'() {
         def json = [
-          uuids: ["agent1", "agent2"]
+          agents: [
+            add: ["agent1", "agent2"]
+          ]
         ]
 
         def env = EnvironmentConfigMother.environment("env")
         when(environmentConfigService.getEnvironmentConfig("env")).thenReturn(env)
 
-        putWithApiHeader(controller.controllerPath('env'), json)
+        patchWithApiHeader(controller.controllerPath('env'), json)
 
         assertThatResponse()
           .isOk()
-          .hasJsonMessage("Environment 'env' updated successfully!")
+          .hasJsonMessage(EntityType.Environment.updateSuccessful("env"))
 
       }
 
@@ -298,7 +300,7 @@ class InternalEnvironmentsControllerV1Test implements SecurityServiceTrait, Cont
           .when(environmentConfigService)
           .getEnvironmentConfig("unknown-env")
 
-        putWithApiHeader(controller.controllerPath('unknown-env'), json)
+        patchWithApiHeader(controller.controllerPath('unknown-env'), json)
 
         assertThatResponse()
           .isNotFound()
@@ -308,16 +310,18 @@ class InternalEnvironmentsControllerV1Test implements SecurityServiceTrait, Cont
       @Test
       void 'should throw RecordNotFound if any agent specified does not exist'() {
         def json = [
-          uuids: ["agent1", "agent2"]
+          agents: [
+            add: ["agent1", "agent2"]
+          ]
         ]
 
         def env = EnvironmentConfigMother.environment("env")
         when(environmentConfigService.getEnvironmentConfig("env")).thenReturn(env)
         doThrow(new RecordNotFoundException(EntityType.Agent, "agent1"))
           .when(agentService)
-          .updateAgentsAssociationOfEnvironment(env, asList("agent1", "agent2"))
+          .updateAgentsAssociationOfEnvironment(env, asList("agent1", "agent2"), asList())
 
-        putWithApiHeader(controller.controllerPath('env'), json)
+        patchWithApiHeader(controller.controllerPath('env'), json)
 
         assertThatResponse()
           .isNotFound()
@@ -325,16 +329,14 @@ class InternalEnvironmentsControllerV1Test implements SecurityServiceTrait, Cont
       }
 
       @Test
-      void 'should error out if input does not contain property uuids'() {
-        def json = [
-          uuids1: ["agent1", "agent2"]
-        ]
+      void 'should error out if input does not contain property agents'() {
+        def json = [:]
 
-        putWithApiHeader(controller.controllerPath('env'), json)
+        patchWithApiHeader(controller.controllerPath('env'), json)
 
         assertThatResponse()
           .isUnprocessableEntity()
-          .hasJsonMessage('Json `{\\"uuids1\\":[\\"agent1\\",\\"agent2\\"]}` does not contain property \'uuids\'.')
+          .hasJsonMessage('Json `{}` does not contain property \'agents\'')
       }
 
       @Test
@@ -342,10 +344,12 @@ class InternalEnvironmentsControllerV1Test implements SecurityServiceTrait, Cont
         when(goConfigService.rolesForUser(any(CaseInsensitiveString.class))).thenReturn([])
 
         def json = [
-          uuids1: ["agent1", "agent2"]
+          agents: [
+            add: ["agent1", "agent2"]
+          ]
         ]
 
-        putWithApiHeader(controller.controllerPath('env'), json)
+        patchWithApiHeader(controller.controllerPath('env'), json)
 
         assertThatResponse()
           .isForbidden()

@@ -22,6 +22,8 @@ import {Environments, EnvironmentWithOrigin} from "models/new-environments/envir
 import data from "models/new-environments/spec/test_data";
 import {EnvironmentBody} from "views/pages/new-environments/environment_body_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
+import {AgentWithOrigin} from "../../../../models/new-environments/environment_agents";
+import {Origin, OriginType} from "../../../../models/origin";
 
 describe("Environments Body Widget", () => {
   const helper = new TestHelper();
@@ -101,8 +103,12 @@ describe("Environments Body Widget", () => {
     });
 
     it("should render agent uuids", () => {
+      // Non existent agent
+      environment.agents().push(new AgentWithOrigin("some-agent", "some-hostname", new Origin(OriginType.ConfigRepo)));
+
       expect(helper.textByTestId("agents-content")).toContain(agents[0].hostname);
       expect(helper.textByTestId("agents-content")).toContain(agents[1].hostname);
+      expect(helper.textByTestId("agents-content")).not.toContain("some-hostname");
     });
   });
 

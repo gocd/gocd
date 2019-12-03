@@ -102,7 +102,7 @@ describe("Edit Pipelines Modal", () => {
     expect(otherEnvAssociated).toBeInDOM();
     expect(otherEnvAssociated).toContainText(expectedMsg);
     expect(helper.byTestId(pipelineSelector, otherEnvAssociated)).toBeInDOM();
-    expect(helper.q("a", helper.byTestId(pipelineSelector, otherEnvAssociated))).toHaveAttr("href", SparkRoutes.editEnvironmentsPath("another"));
+    expect(helper.q("a", helper.byTestId(pipelineSelector, otherEnvAssociated))).toHaveAttr("href", SparkRoutes.getEnvironmentPathOnSPA("another"));
   });
 
   it("should not render unavailable pipelines which are associated in other environment when none present", () => {

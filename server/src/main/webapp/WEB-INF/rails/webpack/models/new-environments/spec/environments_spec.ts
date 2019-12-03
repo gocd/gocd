@@ -240,4 +240,14 @@ describe("Environment Model - Environment", () => {
     expect(env.environmentVariables()[4].errors().errors("name")).toEqual(["Name is a duplicate"]);
     expect(env.environmentVariables()[5].errors().errors("name")).toEqual(["Name is a duplicate"]);
   });
+
+  it('should answer whether the environment is locally defined', () => {
+    const env = EnvironmentWithOrigin.fromJSON(envJSON);
+
+    expect(env.isLocal()).toBe(false);
+
+    env.origins().splice(1, 1);
+
+    expect(env.isLocal()).toBe(true);
+  });
 });

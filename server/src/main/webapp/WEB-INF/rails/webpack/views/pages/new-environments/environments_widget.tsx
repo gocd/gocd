@@ -56,7 +56,7 @@ export class EnvironmentWidget extends MithrilViewComponent<EnvAttrs> {
   view(vnode: m.Vnode<EnvAttrs>) {
     const environment = vnode.attrs.environment;
     return <Anchor id={environment.name()} sm={vnode.attrs.sm} onnavigate={() => this.expanded(true)}>
-      <CollapsiblePanel header={<EnvironmentHeader environment={environment}/>}
+      <CollapsiblePanel header={<EnvironmentHeader environment={environment} agents={vnode.attrs.agents}/>}
                         warning={this.isEnvEmpty(environment)}
                         actions={this.getActionButtons(environment, vnode)}
                         dataTestId={`collapsible-panel-for-env-${environment.name()}`}
@@ -79,12 +79,18 @@ export class EnvironmentWidget extends MithrilViewComponent<EnvAttrs> {
         </div>
       </div>;
     }
+    let deleteTitle;
+    if (!environment.canAdminister()) {
+      deleteTitle = `You are not authorized to delete the '${environment.name()}' environment.`;
+    } else if (!environment.isLocal()) {
+      deleteTitle = `Cannot delete '${environment.name()}' environment as it is partially defined in config repository.`;
+    }
     return [
       warningButton,
       <IconGroup>
         <Delete
-          title={environment.canAdminister() ? undefined : `You are not authorized to delete the '${environment.name()}' environment.`}
-          disabled={!environment.canAdminister()}
+          title={deleteTitle}
+          disabled={!environment.canAdminister() || !environment.isLocal()}
           onclick={vnode.attrs.onDelete.bind(vnode.attrs, environment)}/>
       </IconGroup>
     ];

@@ -14,12 +14,16 @@
  * limitations under the License.
  */
 
-import {SinglePageAppBase} from "helpers/spa_base";
+import {RoutedSinglePageApp} from "helpers/spa_base";
 import {AdminTemplatesPage} from "views/pages/admin_templates";
 
-export class AdminTemplatesSPA extends SinglePageAppBase {
+export class AdminTemplatesSPA extends RoutedSinglePageApp {
   constructor() {
-    super(AdminTemplatesPage);
+    super({
+            "/": AdminTemplatesPage,
+            "/:name": AdminTemplatesPage,
+            "/:name/:operation": AdminTemplatesPage
+          });
   }
 }
 

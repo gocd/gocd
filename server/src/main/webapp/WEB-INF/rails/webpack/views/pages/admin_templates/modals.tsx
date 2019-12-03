@@ -113,6 +113,7 @@ export class ShowTemplateModal extends Modal {
 
   constructor(template: string, templateConfig: Stream<Template>, pluginInfos: PluginInfos) {
     super(Size.large);
+    this.fixedHeight    = true;
     this.template       = template;
     this.templateConfig = templateConfig;
     this.pluginInfos    = pluginInfos;

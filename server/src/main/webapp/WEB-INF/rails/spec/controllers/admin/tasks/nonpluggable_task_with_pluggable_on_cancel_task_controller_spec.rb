@@ -91,33 +91,6 @@ describe Admin::TasksController do
       @pluggable_task_service = stub_service(:pluggable_task_service)
     end
 
-    describe "create" do
-      it "should perform plugin validation before creating a pluggable task" do
-        expect(@task_view_service).to receive(:taskInstanceFor).with(@task_type).and_return(@new_task)
-        expect(@task_view_service).to receive(:taskInstanceFor).with(@on_cancel_task_type).and_return(@on_cancel_task)
-
-        expect(@pluggable_task_service).to receive(:validate) do |task|
-          task.getConfiguration().getProperty("Url").addError("Url", "error message")
-        end
-
-        stub_save_for_validation_error do |result, config, node|
-          result.badRequest('some message')
-        end
-        expect(@task_view_service).to receive(:getViewModel).with(@created_task, 'new').and_return(vm_template_for(@created_task))
-        @on_cancel_task_vms = java.util.Arrays.asList([vm_template_for(exec_task('rm')), vm_template_for(ant_task), vm_template_for(nant_task), vm_template_for(rake_task), vm_template_for(fetch_task_with_exec_on_cancel_task)].to_java(TaskViewModel))
-        expect(@task_view_service).to receive(:getOnCancelTaskViewModels).with(@created_task).and_return(@on_cancel_task_vms)
-
-        post :create, params:{:pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1", :type => @task_type, :config_md5 => "1234abcd", :task => @create_payload, :stage_parent => "pipelines", :current_tab => "tasks"}
-
-        expect(assigns[:task].cancelTask().getConfiguration().getProperty("Url").errors().getAll().size()).to eq(1)
-        expect(assigns[:task].cancelTask().getConfiguration().getProperty("Url").errors().getAll()).to include("error message")
-        assert_save_arguments
-        assert_template "admin/tasks/plugin/new"
-        assert_template layout: false
-        expect(response.status).to eq(400)
-      end
-    end
-
     describe "update" do
       it "should perform plugin validation before updating a pluggable task" do
         expect(@task_view_service).to receive(:taskInstanceFor).with(@task_type).and_return(@new_task)

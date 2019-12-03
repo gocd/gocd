@@ -127,7 +127,7 @@ shared_examples_for :task_controller do
       @pipeline_pause_service = stub_service(:pipeline_pause_service)
 
       @user = current_user
-      @result = stub_localized_result
+      @result = HttpLocalizedOperationResult.new
 
       @template = PipelineTemplateConfig.new(CaseInsensitiveString.new("template.name"), [StageConfigMother.stageWithTasks("stage_one"), StageConfigMother.stageWithTasks("stage_two")].to_java(StageConfig))
 
@@ -145,6 +145,8 @@ shared_examples_for :task_controller do
       @pluggable_task_service = stub_service(:pluggable_task_service)
       @config_store = double('config store')
       allow(@controller).to receive(:config_store).and_return(@config_store)
+      @pipeline_config_service = stub_service(:pipeline_config_service)
+      allow(controller).to receive(:pipeline_config_service).and_return(@pipeline_config_service)
     end
 
     describe "destroy" do
@@ -246,7 +248,7 @@ shared_examples_for :task_controller do
 
         expect(assigns[:errors].size).to eq(1)
         expect(assigns[:on_cancel_task_vms]).to eq(on_cancel_task_vms)
-        assert_save_arguments
+
         assert_template "admin/tasks/plugin/edit"
         assert_template layout: false
         expect(response.status).to eq(400)
@@ -280,7 +282,7 @@ shared_examples_for :task_controller do
 
     describe "create" do
       before do
-        expect(@go_config_service).to receive(:loadForEdit).with("pipeline.name", @user, @result).and_return(@pipeline_config_for_edit)
+        expect(@go_config_service).to receive(:loadForEdit).and_return(@pipeline_config_for_edit)
         expect(@go_config_service).to receive(:doesPipelineExist).and_return(true)
         expect(@go_config_service).to receive(:isPipelineDefinedInConfigRepository).and_return(false)
         expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline.name").and_return(@pause_info)
@@ -288,37 +290,34 @@ shared_examples_for :task_controller do
         @task_view_service = stub_service(:task_view_service)
         expect(@task_view_service).to receive(:taskInstanceFor).with(@task_type).and_return(@new_task)
         controller_specific_setup(@task_view_service)
-        expect(@pluggable_task_service).to receive(:validate) if (@new_task.instance_of? com.thoughtworks.go.config.pluggabletask.PluggableTask)
+        allow(@pipeline_config_service).to receive(:getPipelineConfig).with("pipeline.name").and_return(@pipeline)
       end
 
       it "should create a task" do
-        stub_config_save_with_subject(@created_task)
+        expect(@pipeline_config_service).to receive(:updatePipelineConfig).and_return(HttpLocalizedOperationResult.new)
 
-        post :create, params: {:pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1", :type => @task_type, :config_md5 => "abcd1234", :task => @create_payload, :stage_parent => "pipelines", :current_tab => "tasks"}
-
-        expect(@tasks.length).to eq(2)
-        expect(assigns[:task]).to eq(@created_task)
-        expect(assigns[:config_store]).to eq(nil)
+        post :create, params: {:pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1",
+                               :type => @task_type, :config_md5 => "abcd1234", :task => @create_payload,
+                               :stage_parent => "pipelines", :current_tab => "tasks",
+                               :pipeline_md5 => "pipeline-md5", :pipeline_group_name => 'defaultGroup'}
 
         expect(response.status).to eq(200)
-        assert_update_command ::ConfigUpdate::SaveAsPipelineOrTemplateAdmin, ::ConfigUpdate::JobNode
       end
 
       it "should assign config_errors for display when update fails due to validation errors" do
-        stub_save_for_validation_error do |result, config, node|
-          result.badRequest('some message')
-          config.errors().add("base", "someError")
-        end
+        result = HttpLocalizedOperationResult.new
+        result.badRequest('some message')
+        expect(@pipeline_config_service).to receive(:updatePipelineConfig).and_return(result)
 
         expect(@task_view_service).to receive(:getViewModel).with(@created_task, 'new').and_return(vm_template_for(@created_task))
         @on_cancel_task_vms = java.util.Arrays.asList([vm_template_for(exec_task('rm')), vm_template_for(ant_task), vm_template_for(nant_task), vm_template_for(rake_task), vm_template_for(fetch_task_with_exec_on_cancel_task)].to_java(TaskViewModel))
-        expect(@task_view_service).to receive(:getOnCancelTaskViewModels).with(@created_task).and_return(@on_cancel_task_vms)
+        expect(@task_view_service).to receive(:getOnCancelTaskViewModels).with(anything).and_return(@on_cancel_task_vms)
 
-        post :create, params: {:pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1", :type => @task_type, :config_md5 => "1234abcd", :task => @create_payload, :stage_parent => "pipelines", :current_tab => "tasks"}
-
-        expect(assigns[:errors].size).to eq(1)
+        post :create, params: {:pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1",
+                               :type => @task_type, :config_md5 => "abcd1234", :task => @create_payload,
+                               :stage_parent => "pipelines", :current_tab => "tasks",
+                               :pipeline_md5 => "pipeline-md5", :pipeline_group_name => 'defaultGroup'}
         expect(assigns[:on_cancel_task_vms]).to eq(@on_cancel_task_vms)
-        assert_save_arguments
         expect(assigns[:config_store]).not_to eq(nil)
         expect(assigns[:config_store]).to eq(@config_store)
         assert_template "admin/tasks/plugin/new"

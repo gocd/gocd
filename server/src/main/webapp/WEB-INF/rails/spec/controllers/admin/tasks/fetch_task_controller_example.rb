@@ -40,9 +40,12 @@ shared_examples_for :fetch_task_controller do
   describe "submission" do
     before (:each) do
       form_load_expectation
+      allow(@go_config_service).to receive(:getCurrentConfig).and_return(@cruise_config)
       expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with(@pipeline_name).and_return(@pause_info)
       allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
       allow(@go_config_service).to receive(:artifactIdToPluginIdForFetchPluggableArtifact).and_return({})
+      @pipeline_config_service = stub_service(:pipeline_config_service)
+      allow(controller).to receive(:pipeline_config_service).and_return(@pipeline_config_service)
     end
 
     it "should load auto-suggest(off updated config) data when updating fetch task" do
@@ -55,11 +58,21 @@ shared_examples_for :fetch_task_controller do
     end
 
     it "should load auto-suggest(off updated config) data when create fetch task" do
-      stub_config_save_with_subject(fetch_task_with_exec_on_cancel_task("parent-pipeline", "parent-stage", "job.parent.1", "src-file", "dest-dir"))
-      post :create, params:{:current_tab=>"tasks", :pipeline_name => @pipeline_name, :stage_name => @stage_name, :job_name => @job_name, :config_md5 => "abcd1234", :type => fetch_task_with_exec_on_cancel_task.getTaskType(), :stage_parent => @parent_type, :task => @modify_payload}
+      if @parent_type == 'pipelines'
+        @pipeline = PipelineConfigMother.createPipelineConfig(@pipeline_name, @stage_name, [@job_name].to_java(java.lang.String))
+        allow(@pipeline_config_service).to receive(:getPipelineConfig).with("pipeline.name").and_return(@pipeline)
+        allow(@pipeline_config_service).to receive(:updatePipelineConfig).and_return(HttpLocalizedOperationResult.new)
 
-      expect(assigns[:task]).to eq(fetch_task_with_exec_on_cancel_task("parent-pipeline", "parent-stage", "job.parent.1", "src-file", "dest-dir"))
-      expect(assigns[:pipeline_json]).to eq(pipelines_json)
+        post :create, params:{:current_tab=>"tasks", :pipeline_name => @pipeline_name, :stage_name => @stage_name, :job_name => @job_name, :config_md5 => "abcd1234", :type => fetch_task_with_exec_on_cancel_task.getTaskType(), :stage_parent => @parent_type, :task => @modify_payload}
+
+        expect(assigns[:pipeline_json]).to eq(pipelines_json)
+      elsif @parent_type == 'templates'
+        stub_config_save_with_subject(fetch_task_with_exec_on_cancel_task("parent-pipeline", "parent-stage", "job.parent.1", "src-file", "dest-dir"))
+        post :create, params:{:current_tab=>"tasks", :pipeline_name => @pipeline_name, :stage_name => @stage_name, :job_name => @job_name, :config_md5 => "abcd1234", :type => fetch_task_with_exec_on_cancel_task.getTaskType(), :stage_parent => @parent_type, :task => @modify_payload}
+
+        expect(assigns[:task]).to eq(fetch_task_with_exec_on_cancel_task("parent-pipeline", "parent-stage", "job.parent.1", "src-file", "dest-dir"))
+        expect(assigns[:pipeline_json]).to eq(pipelines_json)
+      end
     end
   end
 end

@@ -2,6 +2,10 @@
 <%= render :partial => "shared/config_save_actions" -%>
 <%= form_for(scope[:task], :as => :task, :url => scope[:url], :html => {"novalidate"=> "novalidate", :id=> "task_form", :name=> "task_form", :method => scope[:method], :onsubmit => "return AjaxForm.jquery_ajax_submit(this);", :class => "popup_form"}) do |f| %>
     <%= md5_field %>
+    <%= hidden_field_tag :pipeline_md5, @pipeline_md5 %>
+    <%= hidden_field_tag :pipeline_group_name, @pipeline_group_name %>
+    <%= hidden_field_tag :pipeline_name, @pipeline.name %>
+    <%= hidden_field_tag :pipeline_name, @pipeline.name %>
     <div class="form_content exec_task_editor">
         <%= render :partial => "admin/shared/global_errors.html", :locals => {:scope => {}} -%>
         <h3>Basic Settings</h3>

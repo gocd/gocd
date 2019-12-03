@@ -260,7 +260,7 @@ class InternalEnvironmentsControllerV1Test implements SecurityServiceTrait, Cont
 
       @Override
       void makeHttpCall() {
-        putWithApiHeader(controller.controllerPath('env'), [])
+        patchWithApiHeader(controller.controllerPath('env'), [])
       }
     }
 
@@ -282,11 +282,11 @@ class InternalEnvironmentsControllerV1Test implements SecurityServiceTrait, Cont
         def env = EnvironmentConfigMother.environment("env")
         when(environmentConfigService.getEnvironmentConfig("env")).thenReturn(env)
 
-        putWithApiHeader(controller.controllerPath('env'), json)
+        patchWithApiHeader(controller.controllerPath('env'), json)
 
         assertThatResponse()
           .isOk()
-          .hasJsonMessage("Environment 'env' updated successfully!")
+          .hasJsonMessage(EntityType.Environment.updateSuccessful("env"))
 
       }
 
@@ -300,7 +300,7 @@ class InternalEnvironmentsControllerV1Test implements SecurityServiceTrait, Cont
           .when(environmentConfigService)
           .getEnvironmentConfig("unknown-env")
 
-        putWithApiHeader(controller.controllerPath('unknown-env'), json)
+        patchWithApiHeader(controller.controllerPath('unknown-env'), json)
 
         assertThatResponse()
           .isNotFound()
@@ -321,7 +321,7 @@ class InternalEnvironmentsControllerV1Test implements SecurityServiceTrait, Cont
           .when(agentService)
           .updateAgentsAssociationOfEnvironment(env, asList("agent1", "agent2"), asList())
 
-        putWithApiHeader(controller.controllerPath('env'), json)
+        patchWithApiHeader(controller.controllerPath('env'), json)
 
         assertThatResponse()
           .isNotFound()
@@ -332,7 +332,7 @@ class InternalEnvironmentsControllerV1Test implements SecurityServiceTrait, Cont
       void 'should error out if input does not contain property agents'() {
         def json = [:]
 
-        putWithApiHeader(controller.controllerPath('env'), json)
+        patchWithApiHeader(controller.controllerPath('env'), json)
 
         assertThatResponse()
           .isUnprocessableEntity()
@@ -349,7 +349,7 @@ class InternalEnvironmentsControllerV1Test implements SecurityServiceTrait, Cont
           ]
         ]
 
-        putWithApiHeader(controller.controllerPath('env'), json)
+        patchWithApiHeader(controller.controllerPath('env'), json)
 
         assertThatResponse()
           .isForbidden()

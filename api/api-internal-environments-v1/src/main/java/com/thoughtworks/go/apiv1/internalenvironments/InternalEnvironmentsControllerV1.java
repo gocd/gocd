@@ -16,17 +16,15 @@
 
 package com.thoughtworks.go.apiv1.internalenvironments;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.base.JsonOutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
-import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.apiv1.internalenvironments.representers.MergedEnvironmentsRepresenter;
 import com.thoughtworks.go.config.EnvironmentConfig;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.policy.SupportedAction;
 import com.thoughtworks.go.config.policy.SupportedEntity;
 import com.thoughtworks.go.server.service.AgentService;
@@ -42,10 +40,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Function;
 
-import static java.lang.String.format;
 import static spark.Spark.*;
 
 @Component
@@ -79,14 +75,14 @@ public class InternalEnvironmentsControllerV1 extends ApiController implements S
             before(Routes.InternalEnvironments.ENV_NAME, mimeType, (request, response) -> {
                 if (request.requestMethod().equalsIgnoreCase("GET")) {
                     apiAuthenticationHelper.checkUserAnd403(request, response);
-                } else {    // this is a PUT request to update agent association
+                } else {    // this is a PATCH request to update agent association
                     apiAuthenticationHelper.checkUserHasPermissions(currentUsername(), SupportedAction.ADMINISTER, SupportedEntity.ENVIRONMENT, request.params("env_name"));
                 }
             });
 
             get("", mimeType, this::index);
             get("/merged", mimeType, this::indexMergedEnvironments);
-            put(Routes.InternalEnvironments.ENV_NAME, mimeType, this::updateAgentAssociation);
+            patch(Routes.InternalEnvironments.ENV_NAME, mimeType, this::updateAgentAssociation);
         });
     }
 
@@ -118,6 +114,6 @@ public class InternalEnvironmentsControllerV1 extends ApiController implements S
         if (!uuidsToAssociate.isEmpty() || !uuidsToRemove.isEmpty()) {
             agentService.updateAgentsAssociationOfEnvironment(envConfig, uuidsToAssociate, uuidsToRemove);
         }
-        return renderMessage(response, 200, "Environment '" + envName + "' updated successfully!");
+        return renderMessage(response, 200, EntityType.Environment.updateSuccessful(envName));
     }
 }

@@ -14,14 +14,11 @@
  * limitations under the License.
  */
 
+import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {
-  ArtifactConfig,
-  DefaultJobTimeout,
-  MailServer,
-  SiteUrls
-} from "models/server-configuration/server_configuration";
+import {ArtifactConfig, MailServer, SiteUrls} from "models/server-configuration/server_configuration";
+import {ArtifactConfigVM, DefaultJobTimeoutVM, MailServerVM, SiteUrlsVM} from "models/server-configuration/server_configuration_vm";
 import {Sections, ServerConfigurationWidget} from "views/pages/server-configuration/server_configuration_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
 
@@ -29,27 +26,31 @@ describe("ServerConfigurationWidget", () => {
   const helper  = new TestHelper();
   const onClick = jasmine.createSpy("onClick");
 
-  function mount(activeConfiguration: Sections, artifactConfig: ArtifactConfig, siteUrls: SiteUrls, mailServer: MailServer) {
+  function mount(activeConfiguration: Sections,
+                 artifactConfig: ArtifactConfig,
+                 siteUrls: SiteUrls,
+                 mailServer: MailServer) {
 
-    helper.mount(() =>
-      <ServerConfigurationWidget
-        route={onClick}
-        activeConfiguration={activeConfiguration}
-        defaultJobTimeout={Stream(new DefaultJobTimeout(0))}
-        onDefaultJobTimeoutSave={() => Promise.resolve()}
-        artifactConfig={artifactConfig}
-        onArtifactConfigSave={() => Promise.resolve()}
-        onServerManagementSave={() => Promise.resolve()}
-        siteUrls={siteUrls}
-        onMailServerManagementSave={() => Promise.resolve()}
-        mailServer={Stream(mailServer)}
-        onCancel={() => Promise.resolve()}
-      />);
+    const mailServerVM = new MailServerVM();
+    mailServerVM.sync(mailServer);
+    helper.mount(() => <ServerConfigurationWidget
+      onMailServerManagementDelete={_.noop}
+      route={onClick}
+      activeConfiguration={activeConfiguration}
+      defaultJobTimeoutVM={Stream(new DefaultJobTimeoutVM())}
+      onDefaultJobTimeoutSave={() => Promise.resolve()}
+      artifactConfigVM={Stream(new ArtifactConfigVM())}
+      onArtifactConfigSave={() => Promise.resolve()}
+      onServerManagementSave={() => Promise.resolve()}
+      siteUrlsVM={Stream(new SiteUrlsVM())}
+      onMailServerManagementSave={() => Promise.resolve()}
+      mailServerVM={Stream(mailServerVM)}
+      onCancel={_.noop}/>);
   }
 
   afterEach((done) => helper.unmount(done));
 
-  it("should have links for Artifacts Management, Mail server and Server management", () => {
+  it("should have links for Artifacts Management, Mail server, Default job timeout management and Server management", () => {
     const artifactConfig = new ArtifactConfig("artifacts");
     const siteUrls       = new SiteUrls("http://foo.com", "https://foobar.com");
     const mailServer     = new MailServer();
@@ -58,6 +59,7 @@ describe("ServerConfigurationWidget", () => {
     expect(helper.byTestId("server-management-link")).toBeInDOM();
     expect(helper.byTestId("artifacts-management-link")).toBeInDOM();
     expect(helper.byTestId("email-server-link")).toBeInDOM();
+    expect(helper.byTestId("job-timeout-link")).toBeInDOM();
   });
 
   it("should render Server management widget", () => {

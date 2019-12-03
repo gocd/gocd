@@ -15,19 +15,31 @@
  */
 
 import m from "mithril";
-import Stream = require("mithril/stream");
-import {DefaultJobTimeout} from "models/server-configuration/server_configuration";
+import Stream from "mithril/stream";
+import {ArtifactConfig, DefaultJobTimeout} from "models/server-configuration/server_configuration";
+import {DefaultJobTimeoutVM} from "models/server-configuration/server_configuration_vm";
+import {JobTimeoutConfigurationWidget} from "views/pages/server-configuration/job_timeout_configuration_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
-import {JobTimeoutConfigurationWidget} from "../job_timeout_configuration_widget";
 
 describe("defaultJobTimeoutWidget", () => {
-  const helper = new TestHelper();
+  const helper      = new TestHelper();
+  let jobTimeoutVM: DefaultJobTimeoutVM;
+  const onSaveSpy   = jasmine.createSpy("onSave");
+  const onCancelSpy = jasmine.createSpy("onCancel");
 
   function mount(defaultJobTimeout: DefaultJobTimeout) {
+    jobTimeoutVM = new DefaultJobTimeoutVM();
+    jobTimeoutVM.sync(defaultJobTimeout);
+
+    const savePromise: Promise<ArtifactConfig> = new Promise((resolve) => {
+      onSaveSpy();
+      resolve();
+    });
+
     helper.mount(() =>
-                   <JobTimeoutConfigurationWidget defaultJobTimeout={Stream(defaultJobTimeout)}
-                                                  onDefaultJobTimeoutSave={() => Promise.resolve()}
-                                                  onCancel={() => Promise.resolve()}/>);
+                   <JobTimeoutConfigurationWidget defaultJobTimeoutVM={Stream(jobTimeoutVM)}
+                                                  onDefaultJobTimeoutSave={() => savePromise}
+                                                  onCancel={onCancelSpy}/>);
   }
 
   afterEach((done) => helper.unmount(done));
@@ -43,11 +55,30 @@ describe("defaultJobTimeoutWidget", () => {
       .toHaveText("the job will get cancel after the given minutes of inactivity");
   });
 
-  it("should render save and cancel buttton", () => {
-    mount(new DefaultJobTimeout(0));
+  describe("Save", () => {
+    it("should have save button", () => {
+      mount(new DefaultJobTimeout(0));
+      expect(helper.byTestId("save")).toBeInDOM();
+    });
 
-    expect(helper.byTestId("cancel")).toBeInDOM();
-    expect(helper.byTestId("save")).toBeInDOM();
+    it("should call onSave", () => {
+      mount(new DefaultJobTimeout(0));
+      helper.click(helper.byTestId("save"));
+      expect(onSaveSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe("Cancel", () => {
+    it("should render cancel button", () => {
+      mount(new DefaultJobTimeout(0));
+      expect(helper.byTestId("cancel")).toHaveText("Cancel");
+    });
+
+    it("should call onCancel", () => {
+      mount(new DefaultJobTimeout(0));
+      helper.clickByTestId("cancel");
+      expect(onCancelSpy).toHaveBeenCalledWith(jobTimeoutVM);
+    });
   });
 
   it("should disable the input field and never job timeout should be checked", () => {
@@ -64,14 +95,15 @@ describe("defaultJobTimeoutWidget", () => {
     expect(helper.byTestId("form-field-input-default-job-timeout")).not.toBeDisabled();
   });
 
-  it("should error out while setting zero value for job-timeout", () => {
-    mount(new DefaultJobTimeout(0));
+  it("should show error text", () => {
+    const defaultJobTimeout = new DefaultJobTimeout(0);
+    mount(defaultJobTimeout);
 
-    helper.clickByTestId("checkbox-for-job-timeout");
-    helper.clickByTestId("save");
+    jobTimeoutVM.entity().errors().add("defaultJobTimeout", "some-error");
+    m.redraw.sync();
 
     const inputId = helper.byTestId("form-field-input-default-job-timeout").getAttribute("id");
-    expect(helper.q(`#${inputId}-error-text`)).toHaveText("Timeout cannot be a negative number as it represents number of minutes.");
+    expect(helper.q(`#${inputId}-error-text`)).toHaveText("some-error.");
   });
 
 });

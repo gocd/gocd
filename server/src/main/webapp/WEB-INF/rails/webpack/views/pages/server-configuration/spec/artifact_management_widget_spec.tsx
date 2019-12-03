@@ -15,14 +15,17 @@
  */
 
 import m from "mithril";
+import Stream from "mithril/stream";
 import {ArtifactConfig} from "models/server-configuration/server_configuration";
+import {ArtifactConfigVM} from "models/server-configuration/server_configuration_vm";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {ArtifactsManagementWidget} from "../artifacts_management_widget";
 
 describe("ArtifactsManagementWidget", () => {
-  const helper = new TestHelper();
+  let artifactConfigVM: ArtifactConfigVM;
+  const helper      = new TestHelper();
+  const onSaveSpy   = jasmine.createSpy("onSave");
   const onCancelSpy = jasmine.createSpy("onCancel");
-  const onSaveSpy = jasmine.createSpy("onSave");
   afterEach((done) => helper.unmount(done));
 
   it("should render text input field for artifact directory", () => {
@@ -61,18 +64,18 @@ describe("ArtifactsManagementWidget", () => {
   });
 
   it("should enable purgeStartDiskSpace and purgeUptoDiskSpace input fields - when cleanup artifact is selected",
-    () => {
-      const artifactConfig = new ArtifactConfig("foo");
-      mount(artifactConfig);
-      expect(helper.byTestId("form-field-input-allow-auto-cleanup-artifacts")).toHaveProp("checked", false);
+     () => {
+       const artifactConfig = new ArtifactConfig("foo");
+       mount(artifactConfig);
+       expect(helper.byTestId("form-field-input-allow-auto-cleanup-artifacts")).toHaveProp("checked", false);
 
-      expect(helper.byTestId("purge-start-disk-space")).toBeDisabled();
-      expect(helper.byTestId("purge-upto-disk-space")).toBeDisabled();
-      helper.click(helper.byTestId("form-field-input-allow-auto-cleanup-artifacts"));
+       expect(helper.byTestId("purge-start-disk-space")).toBeDisabled();
+       expect(helper.byTestId("purge-upto-disk-space")).toBeDisabled();
+       helper.click(helper.byTestId("form-field-input-allow-auto-cleanup-artifacts"));
 
-      expect(helper.byTestId("purge-start-disk-space")).not.toBeDisabled();
-      expect(helper.byTestId("purge-upto-disk-space")).not.toBeDisabled();
-    });
+       expect(helper.byTestId("purge-start-disk-space")).not.toBeDisabled();
+       expect(helper.byTestId("purge-upto-disk-space")).not.toBeDisabled();
+     });
 
   describe("Cancel", () => {
     it("should render cancel button", () => {
@@ -83,30 +86,8 @@ describe("ArtifactsManagementWidget", () => {
     it("should call onCancel", () => {
       const artifactConfig = new ArtifactConfig("foo");
       mount(artifactConfig);
-      helper.oninput(helper.byTestId("form-field-input-artifacts-directory-location"), "foobar");
       helper.clickByTestId("cancel");
-      expect(onCancelSpy).toHaveBeenCalled();
-    });
-
-    it("should enable cancel onChange of input - artifact Directory location", () => {
-      mount(new ArtifactConfig("foo"));
-      expect(helper.byTestId("cancel")).toBeDisabled();
-      helper.oninput(helper.byTestId("form-field-input-artifacts-directory-location"), "new-artifact-dir");
-      expect(helper.byTestId("cancel")).not.toBeDisabled();
-    });
-
-    it("should enable cancel onChange of input - cleanup artifact checkbox", () => {
-      mount(new ArtifactConfig("foo"));
-      expect(helper.byTestId("cancel")).toBeDisabled();
-      helper.click(helper.byTestId("form-field-input-allow-auto-cleanup-artifacts"));
-      expect(helper.byTestId("cancel")).not.toBeDisabled();
-    });
-
-    it("should disable cancel onClick of save", () => {
-      mount(new ArtifactConfig("foo"));
-      expect(helper.byTestId("cancel")).toBeDisabled();
-      helper.clickByTestId("save");
-      expect(helper.byTestId("cancel")).toBeDisabled();
+      expect(onCancelSpy).toHaveBeenCalledWith(artifactConfigVM);
     });
   });
 
@@ -122,19 +103,18 @@ describe("ArtifactsManagementWidget", () => {
       helper.click(helper.byTestId("save"));
       expect(onSaveSpy).toHaveBeenCalled();
     });
-
   });
 
   function mount(artifactConfig: ArtifactConfig) {
-    const savePromise   = new Promise((resolve) => {
+    const savePromise: Promise<ArtifactConfig> = new Promise((resolve) => {
       onSaveSpy();
       resolve();
     });
-    const cancelPromise = new Promise((resolve) => {
-      onCancelSpy();
-      resolve();
-    });
-    helper.mount(() => <ArtifactsManagementWidget artifactConfig={artifactConfig} onCancel={() => cancelPromise}
+
+    artifactConfigVM = new ArtifactConfigVM();
+    artifactConfigVM.sync(artifactConfig, "some-etag");
+    helper.mount(() => <ArtifactsManagementWidget artifactConfigVM={Stream(artifactConfigVM)}
+                                                  onCancel={onCancelSpy}
                                                   onArtifactConfigSave={() => savePromise}/>);
   }
 });

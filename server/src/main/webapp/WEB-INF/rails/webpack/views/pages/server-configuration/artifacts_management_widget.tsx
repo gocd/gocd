@@ -14,26 +14,23 @@
  * limitations under the License.
  */
 
-import {MithrilComponent} from "jsx/mithril-component";
+import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {ButtonGroup, Cancel, Primary} from "views/components/buttons";
 import {Form, FormBody} from "views/components/forms/form";
 import {CheckboxField, NumberField, TextField} from "views/components/forms/input_fields";
-import {OperationState} from "views/pages/page_operations";
 import {ArtifactManagementAttrs} from "views/pages/server_configuration";
+import {OperationState} from "../page_operations";
 import styles from "./index.scss";
 
-interface State {
-  isAllowedToCancel: boolean;
-}
-
-export class ArtifactsManagementWidget extends MithrilComponent<ArtifactManagementAttrs, State> {
+export class ArtifactsManagementWidget extends MithrilViewComponent<ArtifactManagementAttrs> {
   private ajaxOperationMonitor = Stream<OperationState>(OperationState.UNKNOWN);
 
-  view(vnode: m.Vnode<ArtifactManagementAttrs, State>) {
-    const purgeStartDiskSpace = vnode.attrs.artifactConfig.purgeSettings().purgeStartDiskSpace;
-    const purgeUptoDiskSpace = vnode.attrs.artifactConfig.purgeSettings().purgeUptoDiskSpace;
+  view(vnode: m.Vnode<ArtifactManagementAttrs>) {
+    const artifactConfig      = vnode.attrs.artifactConfigVM().entity();
+    const purgeStartDiskSpace = artifactConfig.purgeSettings().purgeStartDiskSpace;
+    const purgeUptoDiskSpace  = artifactConfig.purgeSettings().purgeUptoDiskSpace;
 
     return <div data-test-id="artifacts-management-widget" class={styles.formContainer}>
       <FormBody>
@@ -43,66 +40,47 @@ export class ArtifactsManagementWidget extends MithrilComponent<ArtifactManageme
         <div class={styles.formFields}>
           <Form compactForm={true}>
             <TextField label="Artifacts Directory Location"
-                       property={vnode.attrs.artifactConfig.artifactsDir}
+                       property={artifactConfig.artifactsDir}
                        required={true}
-                       errorText={vnode.attrs.artifactConfig.errors().errorsForDisplay("artifactsDir")}
-                       onchange={() => vnode.state.isAllowedToCancel = true}/>
-            <CheckboxField property={vnode.attrs.artifactConfig.purgeSettings().cleanupArtifact}
+                       errorText={artifactConfig.errors().errorsForDisplay("artifactsDir")}/>
+            <CheckboxField property={artifactConfig.purgeSettings().cleanupArtifact}
                            label={"Allow auto cleanup artifacts"}
-                           onchange={(e) => this.cleanupArtifactChanged(e, vnode)}
+                           onchange={() => {
+                             artifactConfig.purgeSettings().purgeStartDiskSpace(undefined);
+                             artifactConfig.purgeSettings().purgeUptoDiskSpace(undefined);
+                           }}
                            value={true}
             />
             <div class={styles.purgeSettingsFields}>
               <NumberField property={purgeStartDiskSpace}
                            label={"Trigger when disk space is"}
                            helpText={"Auto cleanup of artifacts will start when available disk space is less than or equal to the specified limit"}
-                           readonly={!vnode.attrs.artifactConfig.cleanupArtifact()}
-                           errorText={vnode.attrs.artifactConfig.purgeSettings()
-                             .errors()
-                             .errorsForDisplay("purgeStartDiskSpace")}
-                           onchange={() => vnode.state.isAllowedToCancel = true}
+                           readonly={!artifactConfig.cleanupArtifact()}
+                           errorText={artifactConfig.purgeSettings()
+                                                    .errors()
+                                                    .errorsForDisplay("purgeStartDiskSpace")}
                            dataTestId={"purge-start-disk-space"}/>
               <NumberField property={purgeUptoDiskSpace}
                            helpText={"Auto cleanup artifacts until the specified disk space is available"}
                            label={"Target disk space"}
-                           readonly={!vnode.attrs.artifactConfig.cleanupArtifact()}
-                           errorText={vnode.attrs.artifactConfig.purgeSettings()
-                             .errors()
-                             .errorsForDisplay("purgeUptoDiskSpace")}
-                           dataTestId={"purge-upto-disk-space"}
-                           onchange={() => vnode.state.isAllowedToCancel = true}/>
+                           readonly={!artifactConfig.cleanupArtifact()}
+                           errorText={artifactConfig.purgeSettings()
+                                                    .errors()
+                                                    .errorsForDisplay("purgeUptoDiskSpace")}
+                           dataTestId={"purge-upto-disk-space"}/>
             </div>
           </Form>
         </div>
         <div class={styles.buttons}>
           <ButtonGroup>
-            <Cancel data-test-id={"cancel"} ajaxOperation={this.onCancel.bind(this, vnode)}
-                    ajaxOperationMonitor={this.ajaxOperationMonitor}
-                    disabled={!vnode.state.isAllowedToCancel}>Cancel</Cancel>
-            <Primary data-test-id={"save"} ajaxOperation={this.onSave.bind(this, vnode)}
-                     ajaxOperationMonitor={this.ajaxOperationMonitor}>Save</Primary>
+            <Cancel data-test-id={"cancel"} ajaxOperationMonitor={this.ajaxOperationMonitor} onclick={() => vnode.attrs.onCancel(vnode.attrs.artifactConfigVM())}>Cancel</Cancel>
+            <Primary data-test-id={"save"} ajaxOperationMonitor={this.ajaxOperationMonitor}
+                     ajaxOperation={() => vnode.attrs.onArtifactConfigSave(artifactConfig, vnode.attrs.artifactConfigVM().etag())}>
+              Save
+            </Primary>
           </ButtonGroup>
         </div>
       </FormBody>
     </div>;
-  }
-
-  cleanupArtifactChanged(e: Event, vnode: m.Vnode<ArtifactManagementAttrs, State>) {
-    vnode.attrs.artifactConfig.purgeSettings().purgeStartDiskSpace(undefined);
-    vnode.attrs.artifactConfig.purgeSettings().purgeUptoDiskSpace(undefined);
-    vnode.state.isAllowedToCancel = true;
-  }
-
-  onCancel(vnode: m.Vnode<ArtifactManagementAttrs, State>) {
-    vnode.state.isAllowedToCancel = false;
-    return vnode.attrs.onCancel();
-  }
-
-  onSave(vnode: m.Vnode<ArtifactManagementAttrs, State>) {
-    if (vnode.attrs.artifactConfig.isValid()) {
-      vnode.state.isAllowedToCancel = false;
-      return vnode.attrs.onArtifactConfigSave(vnode.attrs.artifactConfig);
-    }
-    return Promise.resolve();
   }
 }

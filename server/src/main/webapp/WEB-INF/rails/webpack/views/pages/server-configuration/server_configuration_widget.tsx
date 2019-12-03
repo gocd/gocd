@@ -20,12 +20,7 @@ import m from "mithril";
 import style from "views/pages/agents/index.scss";
 import {MailServerManagementWidget} from "views/pages/server-configuration/mail_server_management_widget";
 import {ServerManagementWidget} from "views/pages/server-configuration/server_management_widget";
-import {
-  ArtifactManagementAttrs,
-  JobTimeoutAttrs,
-  MailServerManagementAttrs, Routing,
-  ServerManagementAttrs
-} from "views/pages/server_configuration";
+import {ArtifactManagementAttrs, JobTimeoutAttrs, MailServerManagementAttrs, Routing, ServerManagementAttrs} from "views/pages/server_configuration";
 import {ArtifactsManagementWidget} from "./artifacts_management_widget";
 import styles from "./index.scss";
 import {JobTimeoutConfigurationWidget} from "./job_timeout_configuration_widget";
@@ -40,6 +35,30 @@ export enum Sections {
   SERVER_MANAGEMENT   = "server-management",
   ARTIFACT_MANAGEMENT = "artifact-management",
   EMAIL_SERVER        = "email-server"
+}
+
+class ServerConfigurationRightPanel extends MithrilViewComponent<Attrs> {
+  view(vnode: m.Vnode<Attrs>) {
+    switch (vnode.attrs.activeConfiguration) {
+      case Sections.SERVER_MANAGEMENT:
+        return <ServerManagementWidget siteUrlsVM={vnode.attrs.siteUrlsVM}
+                                       onServerManagementSave={vnode.attrs.onServerManagementSave}
+                                       onCancel={vnode.attrs.onCancel}/>;
+      case Sections.EMAIL_SERVER:
+        return <MailServerManagementWidget mailServerVM={vnode.attrs.mailServerVM}
+                                           onMailServerManagementSave={vnode.attrs.onMailServerManagementSave}
+                                           onMailServerManagementDelete={vnode.attrs.onMailServerManagementDelete}
+                                           onCancel={vnode.attrs.onCancel}/>;
+      case Sections.ARTIFACT_MANAGEMENT:
+        return <ArtifactsManagementWidget artifactConfigVM={vnode.attrs.artifactConfigVM}
+                                          onArtifactConfigSave={vnode.attrs.onArtifactConfigSave}
+                                          onCancel={vnode.attrs.onCancel}/>;
+      case Sections.DEFAULT_JOB_TIMEOUT:
+        return <JobTimeoutConfigurationWidget defaultJobTimeoutVM={vnode.attrs.defaultJobTimeoutVM}
+                                              onDefaultJobTimeoutSave={vnode.attrs.onDefaultJobTimeoutSave}
+                                              onCancel={vnode.attrs.onCancel}/>;
+    }
+  }
 }
 
 export class ServerConfigurationWidget extends MithrilViewComponent<Attrs> {
@@ -70,30 +89,8 @@ export class ServerConfigurationWidget extends MithrilViewComponent<Attrs> {
         </ul>
       </div>
       <div class={styles.rightPanel}>
-        {ServerConfigurationWidget.renderWidget(vnode)}
+        <ServerConfigurationRightPanel {...vnode.attrs}/>
       </div>
     </div>;
-  }
-
-  private static renderWidget(vnode: m.Vnode<Attrs>) {
-    switch (vnode.attrs.activeConfiguration) {
-      case Sections.SERVER_MANAGEMENT:
-        return <ServerManagementWidget siteUrls={vnode.attrs.siteUrls}
-                                       onServerManagementSave={vnode.attrs.onServerManagementSave}
-                                       onCancel={vnode.attrs.onCancel}/>;
-      case Sections.EMAIL_SERVER:
-        return <MailServerManagementWidget mailServer={vnode.attrs.mailServer}
-                                           onMailServerManagementSave={vnode.attrs.onMailServerManagementSave}
-                                           onCancel={vnode.attrs.onCancel}/>;
-      case Sections.ARTIFACT_MANAGEMENT:
-        return <ArtifactsManagementWidget artifactConfig={vnode.attrs.artifactConfig}
-                                          onArtifactConfigSave={vnode.attrs.onArtifactConfigSave}
-                                          onCancel={vnode.attrs.onCancel}/>;
-      case Sections.DEFAULT_JOB_TIMEOUT:
-        return <JobTimeoutConfigurationWidget defaultJobTimeout={vnode.attrs.defaultJobTimeout}
-                                              onCancel={vnode.attrs.onCancel}
-                                              onDefaultJobTimeoutSave={vnode.attrs.onDefaultJobTimeoutSave}
-        />;
-    }
   }
 }

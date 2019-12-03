@@ -17,13 +17,16 @@
 import m from "mithril";
 import Stream from "mithril/stream";
 import {MailServer} from "models/server-configuration/server_configuration";
+import {MailServerVM} from "models/server-configuration/server_configuration_vm";
 import {MailServerManagementWidget} from "views/pages/server-configuration/mail_server_management_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("MailServerManagementWidget", () => {
   const helper      = new TestHelper();
-  const onCancelSpy = jasmine.createSpy("onCancel");
+  const onDeleteSpy = jasmine.createSpy("onDelete");
   const onSaveSpy   = jasmine.createSpy("onSave");
+  const onCancelSpy = jasmine.createSpy("onCancel");
+  let mailServerVM: MailServerVM;
 
   afterEach(helper.unmount.bind(helper));
 
@@ -48,46 +51,57 @@ describe("MailServerManagementWidget", () => {
     expect(helper.byTestId("save")).toHaveText("Save");
   });
 
-  describe("Cancel", () => {
-    it("should call onCancel", () => {
-      mount(new MailServer());
-
-      helper.oninput(helper.byTestId("form-field-input-smtp-hostname"), "foobar");
-      helper.clickByTestId("cancel");
-      expect(onCancelSpy).toHaveBeenCalled();
-    });
-
-    it("should disable cancel onClick of save", () => {
-      mount(new MailServer());
-
-      expect(helper.byTestId("cancel")).toBeDisabled();
-      helper.clickByTestId("save");
-      expect(helper.byTestId("cancel")).toBeDisabled();
-    });
-  });
   describe("Save", () => {
+    it("should have save button", () => {
+      mount(new MailServer());
+      expect(helper.byTestId("save")).toBeInDOM();
+    });
 
     it("should call onSave", () => {
       mount(new MailServer());
-
-      helper.oninput(helper.byTestId("form-field-input-smtp-hostname"), "foobar");
       helper.click(helper.byTestId("save"));
       expect(onSaveSpy).toHaveBeenCalled();
     });
-
   });
 
-  function mount(mailServer: MailServer) {
-    const savePromise   = new Promise((resolve) => {
+  describe("Cancel", () => {
+    it("should render cancel button", () => {
+      mount(new MailServer());
+      expect(helper.byTestId("cancel")).toHaveText("Cancel");
+    });
+
+    it("should call onCancel", () => {
+      mount(new MailServer());
+      helper.clickByTestId("cancel");
+      expect(onCancelSpy).toHaveBeenCalledWith(mailServerVM);
+    });
+  });
+
+  it("should call onDelete", () => {
+    mount(new MailServer());
+    helper.oninput(helper.byTestId("form-field-input-smtp-hostname"), "foobar");
+    helper.clickByTestId("Delete");
+    expect(helper.byTestId("Delete")).not.toBeDisabled();
+    expect(onDeleteSpy).toHaveBeenCalled();
+  });
+
+  it("should disable onDelete", () => {
+    mount(new MailServer(), false);
+    expect(helper.byTestId("Delete")).toBeDisabled();
+  });
+
+  function mount(mailServer: MailServer, canDeleteMailServer: boolean = true) {
+    const savePromise: Promise<MailServer> = new Promise((resolve) => {
       onSaveSpy();
       resolve();
     });
-    const cancelPromise = new Promise((resolve) => {
-      onCancelSpy();
-      resolve();
-    });
-    helper.mount(() => <MailServerManagementWidget mailServer={Stream(mailServer)}
+
+    mailServerVM = new MailServerVM();
+    mailServerVM.sync(mailServer);
+    mailServerVM.canDeleteMailServer(canDeleteMailServer);
+    helper.mount(() => <MailServerManagementWidget mailServerVM={Stream(mailServerVM)}
                                                    onMailServerManagementSave={() => savePromise}
-                                                   onCancel={() => cancelPromise}/>);
+                                                   onMailServerManagementDelete={onDeleteSpy}
+                                                   onCancel={onCancelSpy}/>);
   }
 });

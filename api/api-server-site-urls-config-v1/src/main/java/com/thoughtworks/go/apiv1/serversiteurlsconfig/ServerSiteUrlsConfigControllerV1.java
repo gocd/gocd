@@ -18,16 +18,13 @@ package com.thoughtworks.go.apiv1.serversiteurlsconfig;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
-import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.apiv1.serversiteurlsconfig.representers.ServerSiteUrlsConfigRepresenter;
-import com.thoughtworks.go.config.ErrorCollector;
 import com.thoughtworks.go.config.SiteUrls;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
-import com.thoughtworks.go.server.controller.Message;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.ServerConfigService;
 import com.thoughtworks.go.spark.Routes;
@@ -39,7 +36,6 @@ import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
-import java.util.function.Consumer;
 
 import static spark.Spark.*;
 
@@ -87,6 +83,7 @@ public class ServerSiteUrlsConfigControllerV1 extends ApiController implements S
             return writerForTopLevelObject(request, response, writer -> ServerSiteUrlsConfigRepresenter.toJSON(writer, siteUrls));
         } catch (GoConfigInvalidException e) {
             return writerForTopLevelObject(request, response, writer -> {
+                response.status(HttpStatus.UNPROCESSABLE_ENTITY.value());
                 writer.add("message", e.getMessage());
                 ServerSiteUrlsConfigRepresenter.toJSON(writer, siteUrls);
             });

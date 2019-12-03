@@ -23,9 +23,10 @@ import {FlashMessage, MessageType} from "views/components/flash_message";
 import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
 import {Page, PageState} from "views/pages/page";
 import {Sections, ServerConfigurationWidget} from "views/pages/server-configuration/server_configuration_widget";
+import {ConfirmModal} from "./server-configuration/confirm_modal";
 
 export interface ServerConfigurationPageOperations {
-  onCancel: () => Promise<any>;
+  onCancel: () => void;
 }
 
 export interface ServerManagementAttrs extends ServerConfigurationPageOperations {
@@ -103,7 +104,8 @@ export class ServerConfigurationPage extends Page<null, State> {
     };
 
     vnode.state.onCancel = () => {
-      return this.fetchData(vnode);
+      const modal: ConfirmModal = new ConfirmModal("Do you want to discard the changes?", () => this.fetchData(vnode).finally(modal.close.bind(modal)));
+      modal.render();
     };
 
     vnode.state.onMailServerManagementSave = (mailServer: MailServer) => {

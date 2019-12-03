@@ -28,15 +28,18 @@ import {EnvironmentsAPIs} from "models/new-environments/environments_apis";
 import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
+import {AnchorVM, ScrollManager} from "views/components/anchor/anchor";
 import * as Buttons from "views/components/buttons";
 import {ButtonIcon} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
 import {ModalState} from "views/components/modal";
 import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
-import {AdminTemplatesWidget, Attrs} from "views/pages/admin_templates/admin_templates_widget";
+import {AdminTemplatesWidget, Attrs, TemplatesScrollOptions} from "views/pages/admin_templates/admin_templates_widget";
 import {CreateTemplateModal, ShowTemplateModal} from "views/pages/admin_templates/modals";
 import {Page, PageState} from "views/pages/page";
+
+const sm: ScrollManager = new AnchorVM();
 
 interface State extends Attrs {
   pluginInfos: PluginInfos;
@@ -44,10 +47,16 @@ interface State extends Attrs {
 
 export class AdminTemplatesPage extends Page<null, State> {
   componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
+    this.parseTemplatesLink(sm);
+    const scrollOptions: TemplatesScrollOptions = {
+      sm,
+      shouldOpenReadOnlyView: (m.route.param().operation || "").toLowerCase() === "view"
+    };
+
     return (
       <div>
         <FlashMessage type={this.flashMessage.type} message={this.flashMessage.message}/>
-        <AdminTemplatesWidget {...vnode.state}/>
+        <AdminTemplatesWidget {...vnode.state} scrollOptions={scrollOptions}/>
       </div>
     );
   }
@@ -225,5 +234,9 @@ export class AdminTemplatesPage extends Page<null, State> {
     ];
 
     return <HeaderPanel title={this.pageName()} buttons={headerButtons}/>;
+  }
+
+  private parseTemplatesLink(sm: ScrollManager) {
+    sm.setTarget(m.route.param().name || "");
   }
 }

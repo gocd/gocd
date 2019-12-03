@@ -21,6 +21,7 @@ import {TemplateSummary} from "models/admin_templates/templates";
 import {headerMeta} from "models/current_user_permissions";
 import {PipelineStructure, PipelineWithOrigin} from "models/internal_pipeline_structure/pipeline_structure";
 import s from "underscore.string";
+import {Anchor, ScrollManager} from "views/components/anchor/anchor";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Delete, Edit, IconGroup, Lock, View} from "views/components/icons";
 import styles from "views/pages/admin_pipelines/admin_pipelines_widget.scss";
@@ -31,16 +32,23 @@ interface Operations extends SaveOperation, EditOperation<TemplateSummary.Templa
   editPermissions: (template: TemplateSummary.TemplateSummaryTemplate) => void;
 }
 
+export interface TemplatesScrollOptions {
+  sm: ScrollManager;
+  shouldOpenReadOnlyView: boolean;
+}
+
 interface TemplateAttrs extends Operations {
   doShowTemplate: (templateName: string) => void;
   template: TemplateSummary.TemplateSummaryTemplate;
   pipelineStructure: PipelineStructure;
+  scrollOptions: TemplatesScrollOptions;
 }
 
 export interface Attrs extends Operations {
   doShowTemplate: (templateName: string) => void;
   templates: TemplateSummary.TemplateSummaryTemplate[];
   pipelineStructure: PipelineStructure;
+  scrollOptions: TemplatesScrollOptions;
 }
 
 interface PipelineWidgetAttrs {
@@ -64,11 +72,10 @@ class PipelineWidget extends MithrilViewComponent<PipelineWidgetAttrs> {
   private static messageForOperation(pipeline: PipelineWithOrigin | undefined,
                                      pipelineWithPermission: TemplateSummary.TemplateSummaryPipeline,
                                      operation: "edit") {
-    if (!pipelineWithPermission.can_edit) {
+    if (pipeline && pipeline.origin().isDefinedInConfigRepo()) {
+      return `Cannot ${operation} pipeline '${pipelineWithPermission.name}' because it is defined in a configuration repository '${pipeline.origin().id()}'.`;
+    } else if (!pipelineWithPermission.can_edit) {
       return `Cannot ${operation} pipeline '${pipelineWithPermission.name}' because you do do not have permission to edit it.`;
-    } else if (pipeline && pipeline.origin().isDefinedInConfigRepo()) {
-      return `Cannot ${operation} pipeline '${pipelineWithPermission.name}' because it is defined in a configuration repository '${pipeline.origin()
-                                                                                                                                           .id()}'.`;
     } else {
       return `${s.capitalize(operation)} pipeline '${pipelineWithPermission.name}'`;
     }
@@ -91,14 +98,21 @@ class PipelineWidget extends MithrilViewComponent<PipelineWidgetAttrs> {
 
 class TemplateWidget extends MithrilViewComponent<TemplateAttrs> {
   view(vnode: m.Vnode<TemplateAttrs, this>) {
-    return (
-      <div data-test-id={`template-${s.slugify(vnode.attrs.template.name)}`}
-           class={styles.pipelineGroupRow}>
-        <div data-test-id={`template-name-${s.slugify(vnode.attrs.template.name)}`}
-             class={styles.pipelineGroupName}>Template: {vnode.attrs.template.name}</div>
-        <div class={styles.pipelineGroupActionButtons}>{this.actions(vnode)}</div>
-        {this.showPipelinesAssociatedWith(vnode)}
-      </div>
+    return (<Anchor id={vnode.attrs.template.name}
+                    sm={vnode.attrs.scrollOptions.sm}
+                    onnavigate={() => {
+                      if (vnode.attrs.scrollOptions.shouldOpenReadOnlyView) {
+                        vnode.attrs.doShowTemplate.bind(vnode.attrs, vnode.attrs.template.name)();
+                      }
+                    }}>
+        <div data-test-id={`template-${s.slugify(vnode.attrs.template.name)}`}
+             class={styles.pipelineGroupRow}>
+          <div data-test-id={`template-name-${s.slugify(vnode.attrs.template.name)}`}
+               class={styles.pipelineGroupName}>Template: {vnode.attrs.template.name}</div>
+          <div class={styles.pipelineGroupActionButtons}>{this.actions(vnode)}</div>
+          {this.showPipelinesAssociatedWith(vnode)}
+        </div>
+      </Anchor>
     );
   }
 

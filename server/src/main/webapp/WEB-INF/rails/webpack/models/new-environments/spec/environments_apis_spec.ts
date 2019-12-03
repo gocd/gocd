@@ -108,7 +108,7 @@ describe("EnvironmentsApiSpec", () => {
     const request = jasmine.Ajax.requests.mostRecent();
 
     expect(request.url).toEqual("/go/api/admin/internal/environments/env");
-    expect(request.method).toEqual("PUT");
+    expect(request.method).toEqual("PATCH");
     expect(request.data()).toEqual(toJSON(payload));
     expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd+json");
 

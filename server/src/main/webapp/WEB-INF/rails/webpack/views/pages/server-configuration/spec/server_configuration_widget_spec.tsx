@@ -17,9 +17,10 @@
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {ArtifactConfig, DefaultJobTimeout, MailServer, SiteUrls} from "models/server-configuration/server_configuration";
+import {ArtifactConfig, MailServer, SiteUrls} from "models/server-configuration/server_configuration";
 import {Sections, ServerConfigurationWidget} from "views/pages/server-configuration/server_configuration_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
+import {ArtifactConfigVM, DefaultJobTimeoutVM, MailServerVM, SiteUrlsVM} from "../../../../models/server-configuration/server_configuration_vm";
 
 describe("ServerConfigurationWidget", () => {
   const helper  = new TestHelper();
@@ -30,26 +31,26 @@ describe("ServerConfigurationWidget", () => {
                  siteUrls: SiteUrls,
                  mailServer: MailServer) {
 
+    const mailServerVM = new MailServerVM();
+    mailServerVM.sync(mailServer);
     helper.mount(() => <ServerConfigurationWidget
       onMailServerManagementDelete={_.noop}
       route={onClick}
       activeConfiguration={activeConfiguration}
-      defaultJobTimeout={Stream(new DefaultJobTimeout(0))}
+      defaultJobTimeoutVM={Stream(new DefaultJobTimeoutVM())}
       onDefaultJobTimeoutSave={() => Promise.resolve()}
-      artifactConfig={artifactConfig}
+      artifactConfigVM={Stream(new ArtifactConfigVM())}
       onArtifactConfigSave={() => Promise.resolve()}
       onServerManagementSave={() => Promise.resolve()}
-      siteUrls={siteUrls}
+      siteUrlsVM={Stream(new SiteUrlsVM())}
       onMailServerManagementSave={() => Promise.resolve()}
-      mailServer={Stream(mailServer)}
-      onCancel={() => Promise.resolve()}
-      canDeleteMailServer={Stream()}
-    />);
+      mailServerVM={Stream(mailServerVM)}
+      onCancel={_.noop}/>);
   }
 
   afterEach((done) => helper.unmount(done));
 
-  it("should have links for Artifacts Management, Mail server and Server management", () => {
+  it("should have links for Artifacts Management, Mail server, Default job timeout management and Server management", () => {
     const artifactConfig = new ArtifactConfig("artifacts");
     const siteUrls       = new SiteUrls("http://foo.com", "https://foobar.com");
     const mailServer     = new MailServer();
@@ -58,6 +59,7 @@ describe("ServerConfigurationWidget", () => {
     expect(helper.byTestId("server-management-link")).toBeInDOM();
     expect(helper.byTestId("artifacts-management-link")).toBeInDOM();
     expect(helper.byTestId("email-server-link")).toBeInDOM();
+    expect(helper.byTestId("job-timeout-link")).toBeInDOM();
   });
 
   it("should render Server management widget", () => {

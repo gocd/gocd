@@ -14,17 +14,20 @@
  * limitations under the License.
  */
 
+import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {MailServer} from "models/server-configuration/server_configuration";
 import {MailServerManagementWidget} from "views/pages/server-configuration/mail_server_management_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
+import {MailServerVM} from "../../../../models/server-configuration/server_configuration_vm";
 
 describe("MailServerManagementWidget", () => {
   const helper      = new TestHelper();
-  const onCancelSpy = jasmine.createSpy("onCancel");
   const onDeleteSpy = jasmine.createSpy("onDelete");
   const onSaveSpy   = jasmine.createSpy("onSave");
+  const onCancelSpy = jasmine.createSpy("onCancel");
+  let mailServerVM: MailServerVM
 
   afterEach(helper.unmount.bind(helper));
 
@@ -49,20 +52,30 @@ describe("MailServerManagementWidget", () => {
     expect(helper.byTestId("save")).toHaveText("Save");
   });
 
-  it("should call onCancel", () => {
-    mount(new MailServer());
+  describe("Save", () => {
+    it("should have save button", () => {
+      mount(new MailServer());
+      expect(helper.byTestId("save")).toBeInDOM();
+    });
 
-    helper.oninput(helper.byTestId("form-field-input-smtp-hostname"), "foobar");
-    helper.clickByTestId("cancel");
-    expect(onCancelSpy).toHaveBeenCalled();
+    it("should call onSave", () => {
+      mount(new MailServer());
+      helper.click(helper.byTestId("save"));
+      expect(onSaveSpy).toHaveBeenCalled();
+    });
   });
 
-  it("should call onSave", () => {
-    mount(new MailServer());
+  describe("Cancel", () => {
+    it("should render cancel button", () => {
+      mount(new MailServer());
+      expect(helper.byTestId("cancel")).toHaveText("Cancel");
+    });
 
-    helper.oninput(helper.byTestId("form-field-input-smtp-hostname"), "foobar");
-    helper.click(helper.byTestId("save"));
-    expect(onSaveSpy).toHaveBeenCalled();
+    it("should call onCancel", () => {
+      mount(new MailServer());
+      helper.clickByTestId("cancel");
+      expect(onCancelSpy).toHaveBeenCalledWith(mailServerVM);
+    });
   });
 
   it("should call onDelete", () => {
@@ -79,19 +92,17 @@ describe("MailServerManagementWidget", () => {
   });
 
   function mount(mailServer: MailServer, canDeleteMailServer: boolean = true) {
-    const savePromise   = new Promise((resolve) => {
+    const savePromise: Promise<MailServer> = new Promise((resolve) => {
       onSaveSpy();
       resolve();
     });
-    const cancelPromise = new Promise((resolve) => {
-      onCancelSpy();
-      resolve();
-    });
 
-    helper.mount(() => <MailServerManagementWidget mailServer={Stream(mailServer)}
-                                                   canDeleteMailServer={Stream(canDeleteMailServer)}
+    mailServerVM = new MailServerVM();
+    mailServerVM.sync(mailServer);
+    mailServerVM.canDeleteMailServer(canDeleteMailServer);
+    helper.mount(() => <MailServerManagementWidget mailServerVM={Stream(mailServerVM)}
                                                    onMailServerManagementSave={() => savePromise}
                                                    onMailServerManagementDelete={onDeleteSpy}
-                                                   onCancel={() => cancelPromise}/>);
+                                                   onCancel={onCancelSpy}/>);
   }
 });

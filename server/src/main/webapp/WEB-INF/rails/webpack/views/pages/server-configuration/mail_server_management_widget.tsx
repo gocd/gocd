@@ -44,7 +44,7 @@ export class MailServerManagementWidget extends MithrilViewComponent<MailServerM
   private ajaxOperationMonitor = Stream<OperationState>(OperationState.UNKNOWN);
 
   view(vnode: m.Vnode<MailServerManagementAttrs>) {
-    const mailServer = vnode.attrs.mailServer();
+    const mailServer = vnode.attrs.mailServerVM().mailServer();
 
     return <div data-test-id="mail-server-management-widget" class={styles.formContainer}>
       <FormBody>
@@ -52,7 +52,7 @@ export class MailServerManagementWidget extends MithrilViewComponent<MailServerM
           <h2>Configure your email server settings</h2>
           <div class={styles.deleteIcon}><IconGroup>
             <Delete data-test-id={"Delete"}
-                    disabled={!vnode.attrs.canDeleteMailServer()}
+                    disabled={!vnode.attrs.mailServerVM().canDeleteMailServer()}
                     onclick={() => vnode.attrs.onMailServerManagementDelete()}>
               Delete</Delete>
           </IconGroup>
@@ -119,11 +119,10 @@ export class MailServerManagementWidget extends MithrilViewComponent<MailServerM
           <ButtonGroup>
             <Cancel data-test-id={"cancel"}
                     ajaxOperationMonitor={this.ajaxOperationMonitor}
-                    onclick={() => vnode.attrs.onCancel()}>Cancel</Cancel>
+                    onclick={() => vnode.attrs.onCancel(vnode.attrs.mailServerVM())}>Cancel</Cancel>
             <Primary data-test-id={"save"}
                      ajaxOperationMonitor={this.ajaxOperationMonitor}
-                     ajaxOperation={() => vnode.attrs.onMailServerManagementSave(vnode.attrs.mailServer())}
-                     onclick={() => vnode.attrs.onMailServerManagementSave(vnode.attrs.mailServer())}>Save</Primary>
+                     ajaxOperation={() => vnode.attrs.onMailServerManagementSave(vnode.attrs.mailServerVM().mailServer())}>Save</Primary>
           </ButtonGroup>
         </div>
       </FormBody>

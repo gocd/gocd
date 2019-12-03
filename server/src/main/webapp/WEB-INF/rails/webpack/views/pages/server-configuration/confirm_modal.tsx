@@ -23,10 +23,10 @@ import {OperationState} from "../page_operations";
 export class ConfirmModal extends Modal {
   private readonly message: m.Children;
   private readonly modalTitle: string;
-  private readonly oncancel: () => Promise<any>;
+  private readonly oncancel: () => void;
   private readonly operationState: Stream<OperationState>;
 
-  constructor(message: m.Children, oncancel: () => Promise<any>, title = "Are you sure?") {
+  constructor(message: m.Children, oncancel: () => void, title = "Are you sure?") {
     super(Size.small);
     this.message        = message;
     this.modalTitle     = title;
@@ -44,7 +44,7 @@ export class ConfirmModal extends Modal {
 
   buttons(): m.ChildArray {
     return [
-      <Danger data-test-id='button-cancel' ajaxOperation={this.oncancel} ajaxOperationMonitor={this.operationState}>Yes</Danger>,
+      <Danger data-test-id='button-cancel' onclick={this.oncancel} ajaxOperationMonitor={this.operationState}>Yes</Danger>,
       <Cancel ajaxOperationMonitor={this.operationState} data-test-id='button-no-cancel' onclick={this.close.bind(this)}
       >No</Cancel>
     ];

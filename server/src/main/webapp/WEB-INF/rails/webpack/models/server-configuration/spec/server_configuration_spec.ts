@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {ArtifactConfig, DefaultJobTimeout, SiteUrls} from "models/server-configuration/server_configuration";
+import {ArtifactConfig, DefaultJobTimeout, MailServer, MailServerJSON, SiteUrls} from "models/server-configuration/server_configuration";
 
 describe("ArtifactConfig", () => {
   describe("fromJSON", () => {
@@ -129,6 +129,14 @@ describe("ArtifactConfig", () => {
       expect(artifactConfigJSON).toEqual(expectedJSON);
     });
   });
+
+  it('should clone', () => {
+    const artifactConfig       = new ArtifactConfig("foo", 12, 37);
+    const clonedArtifactConfig = artifactConfig.clone();
+
+    expect(artifactConfig).not.toBe(clonedArtifactConfig);
+    expect(artifactConfig.toJSON()).toEqual(clonedArtifactConfig.toJSON());
+  });
 });
 
 describe("SiteUrls", () => {
@@ -140,6 +148,18 @@ describe("SiteUrls", () => {
     const siteUrls     = SiteUrls.fromJSON(siteUrlsJSON);
     expect(siteUrls.siteUrl()).toBe("http://foo.bar");
     expect(siteUrls.secureSiteUrl()).toBe("https://secure.com");
+  });
+  it('should clone', () => {
+    const siteUrlsJSON = {
+      site_url: "http://foo.bar",
+      secure_site_url: "https://secure.com"
+    };
+    const siteUrls     = SiteUrls.fromJSON(siteUrlsJSON);
+
+    const clonedSiteUrls: SiteUrls = siteUrls.clone();
+    expect(siteUrls).not.toBe(clonedSiteUrls);
+    expect(siteUrls.siteUrl()).toBe(clonedSiteUrls.siteUrl());
+    expect(siteUrls.secureSiteUrl()).toBe(clonedSiteUrls.secureSiteUrl());
   });
 });
 
@@ -177,5 +197,94 @@ describe("DefaultJobTimeout", () => {
       expect(jobTimeout.isValid()).toBe(false);
       expect(jobTimeout.errors().errors("defaultJobTimeout")).toEqual(["Timeout should be positive non zero number as it represents number of minutes"]);
     });
+  });
+
+  it('should clone', () => {
+    const jobTimeout       = new DefaultJobTimeout(11);
+    const clonedJobTimeout = jobTimeout.clone();
+
+    expect(jobTimeout).not.toBe(clonedJobTimeout);
+    expect(jobTimeout.neverTimeout()).toBe(false);
+    expect(jobTimeout.defaultJobTimeout()).toBe(11);
+  });
+});
+
+describe("MailServer", () => {
+  describe("fromJSON", () => {
+    it("should deserialize", () => {
+      const mailServerJSON: MailServerJSON = {
+        hostname: "hostname",
+        port: 1234,
+        adminEmail: "admin@foo.com",
+        encryptedPassword: "",
+        password: "password",
+        senderEmail: "sender@foo.com",
+        tls: false,
+        username: "bob"
+      };
+      const mailServer                     = MailServer.fromJSON(mailServerJSON);
+      expect(mailServer.hostname()).toBe(mailServerJSON.hostname);
+      expect(mailServer.port()).toBe(mailServerJSON.port);
+      expect(mailServer.adminEmail()).toBe(mailServerJSON.adminEmail);
+      expect(mailServer.password().isPlain()).toBe(true);
+      expect(mailServer.password().value()).toBe(mailServerJSON.password);
+      expect(mailServer.senderEmail()).toBe(mailServerJSON.senderEmail);
+      expect(mailServer.tls()).toBe(mailServerJSON.tls);
+      expect(mailServer.username()).toBe(mailServerJSON.username);
+    });
+  });
+
+  describe("toJSON", () => {
+    it("should serialize artifact config when purge setting is not specified", () => {
+      const mailServerJSON: MailServerJSON = {
+        hostname: "hostname",
+        port: 1234,
+        adminEmail: "admin@foo.com",
+        encryptedPassword: "",
+        password: "password",
+        senderEmail: "sender@foo.com",
+        tls: false,
+        username: "bob"
+      };
+      const mailServer                     = MailServer.fromJSON(mailServerJSON);
+      const json                           = mailServer.toJSON();
+      expect(json.hostname()).toBe(mailServerJSON.hostname);
+      expect(json.port()).toBe(mailServerJSON.port);
+      expect(json.adminEmail()).toBe(mailServerJSON.adminEmail);
+      expect(json.password).toBe(mailServerJSON.password);
+      expect(json.senderEmail()).toBe(mailServerJSON.senderEmail);
+      expect(json.tls()).toBe(mailServerJSON.tls);
+      expect(json.username()).toBe(mailServerJSON.username);
+    });
+
+    it("should serialize artifact config when purge setting is specified", () => {
+      const artifactConfig = new ArtifactConfig("foo");
+      artifactConfig.purgeSettings().purgeStartDiskSpace(10);
+      artifactConfig.purgeSettings().purgeUptoDiskSpace(20);
+      const artifactConfigJSON = artifactConfig.toJSON();
+      const expectedJSON       = {
+        artifacts_dir: "foo",
+        purge_settings: {
+          purge_start_disk_space: 10,
+          purge_upto_disk_space: 20
+        }
+      };
+      expect(artifactConfigJSON).toEqual(expectedJSON);
+    });
+  });
+
+  it('should clone', () => {
+    const mailServer       = new MailServer("hostname", 1234, "bob", "password", "", false, "sender@foo.com", "admin@foo.com");
+    const clonedMailServer = mailServer.clone();
+
+    expect(clonedMailServer).not.toBe(mailServer);
+    expect(clonedMailServer.hostname()).toBe(mailServer.hostname());
+    expect(clonedMailServer.port()).toBe(mailServer.port());
+    expect(clonedMailServer.adminEmail()).toBe(mailServer.adminEmail());
+    expect(clonedMailServer.password().isPlain()).toBe(true);
+    expect(clonedMailServer.password().value()).toBe(mailServer.password().value());
+    expect(clonedMailServer.senderEmail()).toBe(mailServer.senderEmail());
+    expect(clonedMailServer.tls()).toBe(mailServer.tls());
+    expect(clonedMailServer.username()).toBe(mailServer.username());
   });
 });

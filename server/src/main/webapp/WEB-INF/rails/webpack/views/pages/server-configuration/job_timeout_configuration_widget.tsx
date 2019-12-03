@@ -28,6 +28,7 @@ export class JobTimeoutConfigurationWidget extends MithrilViewComponent<JobTimeo
   private ajaxOperationMonitor = Stream<OperationState>(OperationState.UNKNOWN);
 
   view(vnode: m.Vnode<JobTimeoutAttrs>): m.Vnode {
+    const jobTimeout = vnode.attrs.defaultJobTimeoutVM().jobTimeout();
     return <div data-test-id="job-timeout-management-widget" class={styles.formContainer}>
       <FormBody>
         <div class={styles.formHeader}>
@@ -36,29 +37,29 @@ export class JobTimeoutConfigurationWidget extends MithrilViewComponent<JobTimeo
         <div class={styles.formFields}>
           <Form compactForm={true}>
             <CheckboxField dataTestId="checkbox-for-job-timeout"
-                           property={vnode.attrs.defaultJobTimeout().neverTimeout}
+                           property={jobTimeout.neverTimeout}
                            label={"Never job timeout"}
-                           onchange={() => vnode.attrs.defaultJobTimeout().defaultJobTimeout(0)}/>
+                           onchange={() => jobTimeout.defaultJobTimeout(0)}/>
             <NumberField label="Default Job timeout"
                          helpText="the job will get cancel after the given minutes of inactivity"
-                         readonly={vnode.attrs.defaultJobTimeout().neverTimeout()}
-                         property={vnode.attrs.defaultJobTimeout().defaultJobTimeout}
+                         readonly={jobTimeout.neverTimeout()}
+                         property={jobTimeout.defaultJobTimeout}
                          required={true}
-                         errorText={vnode.attrs.defaultJobTimeout().errors().errorsForDisplay("defaultJobTimeout")}/>
+                         errorText={jobTimeout.errors().errorsForDisplay("defaultJobTimeout")}/>
           </Form>
         </div>
         <div class={styles.buttons}>
           <ButtonGroup>
             <Cancel data-test-id={"cancel"}
                     ajaxOperationMonitor={this.ajaxOperationMonitor}
-                    onclick={() => vnode.attrs.onCancel()}>Cancel</Cancel>
+                    onclick={() => vnode.attrs.onCancel(vnode.attrs.defaultJobTimeoutVM())}>Cancel</Cancel>
             <Primary data-test-id={"save"}
-                     ajaxOperation={() => vnode.attrs.onDefaultJobTimeoutSave(vnode.attrs.defaultJobTimeout())}
-                     ajaxOperationMonitor={this.ajaxOperationMonitor}
-                     onclick={() => vnode.attrs.onDefaultJobTimeoutSave(vnode.attrs.defaultJobTimeout())}>Save</Primary>
+                     ajaxOperation={() => vnode.attrs.onDefaultJobTimeoutSave(jobTimeout)}
+                     ajaxOperationMonitor={this.ajaxOperationMonitor}>Save</Primary>
           </ButtonGroup>
         </div>
       </FormBody>
     </div>;
   }
+
 }

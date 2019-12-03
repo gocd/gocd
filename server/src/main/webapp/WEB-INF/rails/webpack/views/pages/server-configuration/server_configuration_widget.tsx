@@ -20,12 +20,7 @@ import m from "mithril";
 import style from "views/pages/agents/index.scss";
 import {MailServerManagementWidget} from "views/pages/server-configuration/mail_server_management_widget";
 import {ServerManagementWidget} from "views/pages/server-configuration/server_management_widget";
-import {
-  ArtifactManagementAttrs,
-  JobTimeoutAttrs,
-  MailServerManagementAttrs, Routing,
-  ServerManagementAttrs
-} from "views/pages/server_configuration";
+import {ArtifactManagementAttrs, JobTimeoutAttrs, MailServerManagementAttrs, Routing, ServerManagementAttrs} from "views/pages/server_configuration";
 import {ArtifactsManagementWidget} from "./artifacts_management_widget";
 import styles from "./index.scss";
 import {JobTimeoutConfigurationWidget} from "./job_timeout_configuration_widget";
@@ -46,23 +41,22 @@ class ServerConfigurationRightPanel extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     switch (vnode.attrs.activeConfiguration) {
       case Sections.SERVER_MANAGEMENT:
-        return <ServerManagementWidget siteUrls={vnode.attrs.siteUrls}
+        return <ServerManagementWidget siteUrlsVM={vnode.attrs.siteUrlsVM}
                                        onServerManagementSave={vnode.attrs.onServerManagementSave}
                                        onCancel={vnode.attrs.onCancel}/>;
       case Sections.EMAIL_SERVER:
-        return <MailServerManagementWidget mailServer={vnode.attrs.mailServer}
+        return <MailServerManagementWidget mailServerVM={vnode.attrs.mailServerVM}
                                            onMailServerManagementSave={vnode.attrs.onMailServerManagementSave}
                                            onMailServerManagementDelete={vnode.attrs.onMailServerManagementDelete}
-                                           onCancel={vnode.attrs.onCancel}
-                                           canDeleteMailServer={vnode.attrs.canDeleteMailServer}/>;
+                                           onCancel={vnode.attrs.onCancel}/>;
       case Sections.ARTIFACT_MANAGEMENT:
-        return <ArtifactsManagementWidget artifactConfig={vnode.attrs.artifactConfig}
+        return <ArtifactsManagementWidget artifactConfigVM={vnode.attrs.artifactConfigVM}
                                           onArtifactConfigSave={vnode.attrs.onArtifactConfigSave}
                                           onCancel={vnode.attrs.onCancel}/>;
       case Sections.DEFAULT_JOB_TIMEOUT:
-        return <JobTimeoutConfigurationWidget defaultJobTimeout={vnode.attrs.defaultJobTimeout}
-                                              onCancel={vnode.attrs.onCancel}
-                                              onDefaultJobTimeoutSave={vnode.attrs.onDefaultJobTimeoutSave}/>;
+        return <JobTimeoutConfigurationWidget defaultJobTimeoutVM={vnode.attrs.defaultJobTimeoutVM}
+                                              onDefaultJobTimeoutSave={vnode.attrs.onDefaultJobTimeoutSave}
+                                              onCancel={vnode.attrs.onCancel}/>;
     }
   }
 }

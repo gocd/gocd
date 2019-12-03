@@ -16,7 +16,6 @@
 
 import _ from "lodash";
 import m from "mithril";
-import style from "views/components/buttons/index.scss";
 import {ModalManager} from "views/components/modal/modal_manager";
 import "views/components/modal/spec/modal_matchers";
 import {TestHelper} from "views/pages/spec/test_helper";
@@ -51,14 +50,6 @@ describe("ConfirmModal", () => {
     testHelper.clickByTestId('button-cancel');
 
     expect(spy).toHaveBeenCalled();
-  });
-
-  it('should disable the No and Yes cancel button when operation state is in progress', () => {
-    testHelper.clickByTestId("button-cancel");
-    expect(testHelper.byTestId("button-cancel")).toHaveClass(style.iconSpinner);
-    expect(testHelper.byTestId("button-cancel")).toBeDisabled();
-    expect(testHelper.byTestId("button-no-cancel")).toBeDisabled();
-    expect(testHelper.byTestId("button-no-cancel")).not.toHaveClass(style.iconSpinner);
   });
 
   it("should close the modal and not send cancel callback when 'No` button is clicked", () => {

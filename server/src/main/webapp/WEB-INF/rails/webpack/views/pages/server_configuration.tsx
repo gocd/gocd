@@ -23,32 +23,32 @@ import {FlashMessage, MessageType} from "views/components/flash_message";
 import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
 import {Page, PageState} from "views/pages/page";
 import {Sections, ServerConfigurationWidget} from "views/pages/server-configuration/server_configuration_widget";
+import {ArtifactConfigVM, DefaultJobTimeoutVM, MailServerVM, ServerConfigurationVM, SiteUrlsVM} from "../../models/server-configuration/server_configuration_vm";
 import {ConfirmModal} from "./server-configuration/confirm_modal";
 
 export interface ServerConfigurationPageOperations {
-  onCancel: () => void;
+  onCancel: (object: ServerConfigurationVM) => void;
 }
 
 export interface ServerManagementAttrs extends ServerConfigurationPageOperations {
-  onServerManagementSave: (siteUrls: SiteUrls) => Promise<any>;
-  siteUrls: SiteUrls;
+  onServerManagementSave: (siteUrls: SiteUrls, etag: string | undefined) => Promise<any>;
+  siteUrlsVM: Stream<SiteUrlsVM>;
 }
 
 export interface JobTimeoutAttrs extends ServerConfigurationPageOperations {
   onDefaultJobTimeoutSave: (jobTimeout: DefaultJobTimeout) => Promise<any>;
-  defaultJobTimeout: Stream<DefaultJobTimeout>;
+  defaultJobTimeoutVM: Stream<DefaultJobTimeoutVM>;
 }
 
 export interface ArtifactManagementAttrs extends ServerConfigurationPageOperations {
-  onArtifactConfigSave: (artifactConfig: ArtifactConfig) => Promise<any>;
-  artifactConfig: ArtifactConfig;
+  artifactConfigVM: Stream<ArtifactConfigVM>;
+  onArtifactConfigSave: (artifactConfig: ArtifactConfig, etag: string | undefined) => Promise<ArtifactConfig | void>;
 }
 
 export interface MailServerManagementAttrs extends ServerConfigurationPageOperations {
-  mailServer: Stream<MailServer>;
-  onMailServerManagementSave: (mailServer: MailServer) => Promise<any>;
+  mailServerVM: Stream<MailServerVM>;
   onMailServerManagementDelete: () => void;
-  canDeleteMailServer: Stream<boolean>;
+  onMailServerManagementSave: (mailServer: MailServer) => Promise<void | MailServer>;
 }
 
 export interface Routing {
@@ -60,27 +60,24 @@ interface State extends ServerManagementAttrs, ArtifactManagementAttrs, MailServ
 }
 
 export class ServerConfigurationPage extends Page<null, State> {
-  private siteUrlsEtag: string | undefined;
-  private artifactConfigEtag: string | undefined;
-
   oninit(vnode: m.Vnode<null, State>) {
     vnode.state.activeConfiguration = m.route.param().configuration || Sections.SERVER_MANAGEMENT;
 
     super.oninit(vnode);
 
-    vnode.state.route             = (activeConfiguration: Sections) => {
+    vnode.state.route               = (activeConfiguration: Sections) => {
       vnode.state.activeConfiguration = activeConfiguration;
       m.route.set(activeConfiguration);
       this.fetchData(vnode);
     };
-    vnode.state.siteUrls          = new SiteUrls("", "");
-    vnode.state.artifactConfig    = new ArtifactConfig("");
-    vnode.state.mailServer        = Stream(new MailServer());
-    vnode.state.defaultJobTimeout = Stream(new DefaultJobTimeout(0));
+    vnode.state.siteUrlsVM          = Stream(new SiteUrlsVM());
+    vnode.state.artifactConfigVM    = Stream(new ArtifactConfigVM());
+    vnode.state.mailServerVM        = Stream(new MailServerVM());
+    vnode.state.defaultJobTimeoutVM = Stream(new DefaultJobTimeoutVM());
 
-    vnode.state.onServerManagementSave = (siteUrls: SiteUrls) => {
+    vnode.state.onServerManagementSave = (siteUrls: SiteUrls, etag: string | undefined) => {
       if (siteUrls.isValid()) {
-        return ServerManagementCRUD.put(siteUrls, this.siteUrlsEtag).then((result) => {
+        return ServerManagementCRUD.put(siteUrls, etag).then((result) => {
           result.do((successResponse) => {
             this.flashMessage.setMessage(MessageType.success, "Site urls updated successfully");
             this.fetchData(vnode);
@@ -92,19 +89,25 @@ export class ServerConfigurationPage extends Page<null, State> {
       return Promise.resolve();
     };
 
-    vnode.state.onArtifactConfigSave = (artifactConfig: ArtifactConfig) => {
-      return ArtifactConfigCRUD.put(artifactConfig, this.artifactConfigEtag).then((result) => {
-        result.do((successResponse) => {
-          this.flashMessage.setMessage(MessageType.success, "Artifact config updated successfully");
-          this.fetchData(vnode);
-        }, (errorResponse) => {
-          this.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);
+    vnode.state.onArtifactConfigSave = (artifactConfig: ArtifactConfig, etag: string | undefined) => {
+      if (artifactConfig.isValid()) {
+        return ArtifactConfigCRUD.put(artifactConfig, etag).then((result) => {
+          result.do((successResponse) => {
+            this.flashMessage.setMessage(MessageType.success, "Artifact config updated successfully");
+            this.fetchData(vnode);
+          }, (errorResponse) => {
+            this.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);
+          });
         });
-      });
+      }
+      return Promise.resolve();
     };
 
-    vnode.state.onCancel = () => {
-      const modal: ConfirmModal = new ConfirmModal("Do you want to discard the changes?", () => this.fetchData(vnode).finally(modal.close.bind(modal)));
+    vnode.state.onCancel = (object: ServerConfigurationVM) => {
+      const modal: ConfirmModal = new ConfirmModal("Do you want to discard the changes?", () => {
+        object.reset();
+        modal.close();
+      });
       modal.render();
     };
 
@@ -118,7 +121,7 @@ export class ServerConfigurationPage extends Page<null, State> {
           },
           (errorResponse) => {
             if (result.getStatusCode() === 422 && errorResponse.body) {
-              vnode.state.mailServer(MailServer.fromJSON(JsonUtils.toCamelCasedObject(JSON.parse(errorResponse.body)).data));
+              vnode.state.mailServerVM().mailServer(MailServer.fromJSON(JsonUtils.toCamelCasedObject(JSON.parse(errorResponse.body)).data));
             } else {
               this.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);
             }
@@ -140,7 +143,7 @@ export class ServerConfigurationPage extends Page<null, State> {
                                  },
                                  (errorResponse) => {
                                    if (result.getStatusCode() === 422 && errorResponse.body) {
-                                     vnode.state.mailServer(MailServer.fromJSON(JsonUtils.toCamelCasedObject(JSON.parse(errorResponse.body)).data));
+                                     vnode.state.mailServerVM().sync(MailServer.fromJSON(JsonUtils.toCamelCasedObject(JSON.parse(errorResponse.body)).data));
                                    } else {
                                      this.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);
                                    }
@@ -151,7 +154,7 @@ export class ServerConfigurationPage extends Page<null, State> {
       modal.render();
     };
 
-    vnode.state.onDefaultJobTimeoutSave            = (jobTimeout: DefaultJobTimeout) => {
+    vnode.state.onDefaultJobTimeoutSave = (jobTimeout: DefaultJobTimeout) => {
       if (jobTimeout.isValid()) {
         return JobTimeoutManagementCRUD.createOrUpdate(jobTimeout).then((result) => {
           result.do(((successResponse) => {
@@ -165,9 +168,6 @@ export class ServerConfigurationPage extends Page<null, State> {
       }
       return Promise.resolve();
     };
-    const flag: (val?: boolean) => Stream<boolean> = Stream;
-    vnode.state.canDeleteMailServer                = flag(false);
-
   }
 
   componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
@@ -190,30 +190,28 @@ export class ServerConfigurationPage extends Page<null, State> {
         return Promise.resolve(ServerManagementCRUD.get())
                       .then((results) => {
                         results.do((successResponse) => {
-                          this.pageState       = PageState.OK;
-                          vnode.state.siteUrls = successResponse.body.object;
-                          this.siteUrlsEtag    = successResponse.body.etag;
+                          this.pageState = PageState.OK;
+                          vnode.state.siteUrlsVM().sync(successResponse.body.object, successResponse.body.etag);
                         }, () => this.setErrorState());
                       });
       case Sections.ARTIFACT_MANAGEMENT:
         return Promise.resolve(ArtifactConfigCRUD.get())
                       .then((results) => {
                         results.do((successResponse) => {
-                          this.pageState             = PageState.OK;
-                          vnode.state.artifactConfig = successResponse.body.object;
-                          this.artifactConfigEtag    = successResponse.body.etag;
+                          this.pageState = PageState.OK;
+                          vnode.state.artifactConfigVM().sync(successResponse.body.object, successResponse.body.etag);
                         }, () => this.setErrorState());
                       });
       case Sections.EMAIL_SERVER:
         return Promise.resolve(MailServerCrud.get())
                       .then((results) => {
                         if (results.getStatusCode() === 404) {
-                          vnode.state.mailServer(new MailServer());
-                          vnode.state.canDeleteMailServer(false);
+                          vnode.state.mailServerVM().sync(new MailServer());
+                          vnode.state.mailServerVM().canDeleteMailServer(false);
                         } else {
-                          vnode.state.canDeleteMailServer(true);
                           results.do((successResponse) => {
-                            vnode.state.mailServer(successResponse.body);
+                            vnode.state.mailServerVM().sync(successResponse.body);
+                            vnode.state.mailServerVM().canDeleteMailServer(true);
                           }, () => this.setErrorState());
                         }
                       });
@@ -222,7 +220,7 @@ export class ServerConfigurationPage extends Page<null, State> {
                       .then((results) => {
                         results.do((successResponse) => {
                           this.pageState = PageState.OK;
-                          vnode.state.defaultJobTimeout(successResponse.body);
+                          vnode.state.defaultJobTimeoutVM().sync(successResponse.body);
                         }, () => this.setErrorState());
                       });
     }

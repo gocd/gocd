@@ -32,6 +32,7 @@ export class ServerManagementWidget extends MithrilViewComponent<ServerManagemen
     const serverSiteUrlHelpText = "If you wish that your primary site URL be HTTP, but still want to have HTTPS endpoints " +
       "for the features that require SSL, you can specify this attribute with a value of the base HTTPS URL. Format: https://[host]:[port].";
 
+    const siteUrls = vnode.attrs.siteUrlsVM().siteUrls();
     return <div data-test-id={"server-management-widget"} class={styles.formContainer}>
       <FormBody>
         <div class={styles.formHeader}>
@@ -40,22 +41,21 @@ export class ServerManagementWidget extends MithrilViewComponent<ServerManagemen
         <div class={styles.formFields}>
           <Form compactForm={true}>
             <TextField label="Site URL"
-                       property={vnode.attrs.siteUrls.siteUrl}
+                       property={siteUrls.siteUrl}
                        helpText={siteUrlHelpText}
                        docLink={siteUrlsDocsLink}
-                       errorText={vnode.attrs.siteUrls.errors().errorsForDisplay("siteUrl")}/>
+                       errorText={siteUrls.errors().errorsForDisplay("siteUrl")}/>
             <TextField label="Secure Site URL"
-                       property={vnode.attrs.siteUrls.secureSiteUrl}
-                       errorText={vnode.attrs.siteUrls.errors().errorsForDisplay("secureSiteUrl")}
+                       property={siteUrls.secureSiteUrl}
+                       errorText={siteUrls.errors().errorsForDisplay("secureSiteUrl")}
                        helpText={serverSiteUrlHelpText}
                        docLink={siteUrlsDocsLink}/>
           </Form>
         </div>
         <div class={styles.buttons}>
           <ButtonGroup>
-            <Cancel data-test-id={"cancel"} onclick={() => vnode.attrs.onCancel()}
-                    ajaxOperationMonitor={this.ajaxOperationMonitor}>Cancel</Cancel>
-            <Primary data-test-id={"save"} onclick={() => vnode.attrs.onServerManagementSave(vnode.attrs.siteUrls)} ajaxOperation={() => vnode.attrs.onServerManagementSave(vnode.attrs.siteUrls)}
+            <Cancel data-test-id={"cancel"} onclick={() => vnode.attrs.onCancel(vnode.attrs.siteUrlsVM())} ajaxOperationMonitor={this.ajaxOperationMonitor}>Cancel</Cancel>
+            <Primary data-test-id={"save"} ajaxOperation={() => vnode.attrs.onServerManagementSave(vnode.attrs.siteUrlsVM().siteUrls(), vnode.attrs.siteUrlsVM().etag())}
                      ajaxOperationMonitor={this.ajaxOperationMonitor}>Save</Primary>
           </ButtonGroup>
         </div>

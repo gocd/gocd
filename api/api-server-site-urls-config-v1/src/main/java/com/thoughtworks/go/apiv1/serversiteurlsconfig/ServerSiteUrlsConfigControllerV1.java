@@ -86,6 +86,7 @@ public class ServerSiteUrlsConfigControllerV1 extends ApiController implements S
             serverConfigService.createOrUpdateServerSiteUrls(siteUrls);
             return writerForTopLevelObject(request, response, writer -> ServerSiteUrlsConfigRepresenter.toJSON(writer, siteUrls));
         } catch (GoConfigInvalidException e) {
+            response.status(HttpStatus.UNPROCESSABLE_ENTITY.value());
             return writerForTopLevelObject(request, response, writer -> {
                 writer.add("message", e.getMessage());
                 ServerSiteUrlsConfigRepresenter.toJSON(writer, siteUrls);

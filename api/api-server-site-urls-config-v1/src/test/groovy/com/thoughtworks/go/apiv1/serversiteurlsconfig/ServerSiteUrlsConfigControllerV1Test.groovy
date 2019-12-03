@@ -19,7 +19,9 @@ package com.thoughtworks.go.apiv1.serversiteurlsconfig
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv1.serversiteurlsconfig.representers.ServerSiteUrlsConfigRepresenter
+import com.thoughtworks.go.config.BasicCruiseConfig
 import com.thoughtworks.go.config.SiteUrls
+import com.thoughtworks.go.config.exceptions.GoConfigInvalidException
 import com.thoughtworks.go.domain.SecureSiteUrl
 import com.thoughtworks.go.domain.SiteUrl
 import com.thoughtworks.go.server.service.EntityHashingService
@@ -210,14 +212,14 @@ class ServerSiteUrlsConfigControllerV1Test implements SecurityServiceTrait, Cont
         def jsonPayload = ['site_url'       : 'foo',
                            'secure_site_url': 'https://foo']
 
-        when(serverConfigService.createOrUpdateServerSiteUrls(Mockito.any() as SiteUrls)).thenThrow(new RuntimeException("failed to save : # anon _ site urlsite urls is invalid. foo should conform to the pattern - (https?://.+)?"))
+        when(serverConfigService.createOrUpdateServerSiteUrls(Mockito.any() as SiteUrls)).thenThrow(new GoConfigInvalidException(new BasicCruiseConfig(), "Invalid format for site url."))
 
         putWithApiHeader(controller.controllerBasePath(), jsonPayload)
 
 
         assertThatResponse()
           .isUnprocessableEntity()
-          .hasJsonMessage("failed to save : # anon _ site urlsite urls is invalid. foo should conform to the pattern - (https?://.+)?")
+          .hasJsonMessage("Invalid format for site url.")
       }
 
       @Test
@@ -225,14 +227,14 @@ class ServerSiteUrlsConfigControllerV1Test implements SecurityServiceTrait, Cont
         def jsonPayload = ['site_url'       : 'http://foo',
                            'secure_site_url': 'foo']
 
-        when(serverConfigService.createOrUpdateServerSiteUrls(Mockito.any() as SiteUrls)).thenThrow(new RuntimeException("failed to save : # anon _ secure site urlsite urls is invalid. foo should conform to the pattern - (https://.+)?"))
+        when(serverConfigService.createOrUpdateServerSiteUrls(Mockito.any() as SiteUrls)).thenThrow(new GoConfigInvalidException(new BasicCruiseConfig(), "Invalid format for secure site url. 'http://foo.bar' must start with https"))
 
         putWithApiHeader(controller.controllerBasePath(), jsonPayload)
 
 
         assertThatResponse()
           .isUnprocessableEntity()
-          .hasJsonMessage("failed to save : # anon _ secure site urlsite urls is invalid. foo should conform to the pattern - (https://.+)?")
+          .hasJsonMessage("Invalid format for secure site url. 'http://foo.bar' must start with https")
       }
     }
   }

@@ -1,0 +1,40 @@
+- !!com.thoughtworks.go.domain.materials.git.GitLog
+  commitHash: 9fef97af1cd3a8920fefe5f656cb5795d690ee1b
+  authorName: Chris Turner
+  authorEmail: cturner@thoughtworks.com
+  date: 2009-02-11 17:26:36 -0800
+  subject: |-
+    Added remote file
+  rawBody: |-
+    Added remote file
+
+  additionalInfo:
+    signed: N
+    signerName:
+    signingKey:
+    signingMessage:
+    committerName: Chris Turner
+    committerEmail: cturner@thoughtworks.com
+    commitDate: 2009-02-11 17:26:36 -0800
+
+- !!com.thoughtworks.go.domain.materials.git.GitLog
+  commitHash: ewehsjf232349fef97af1cd3a8920fefe5f656cb57
+  authorName: Bob Ford
+  authorEmail: bford@thoughtworks.com
+  date: 2009-02-11 17:26:36 -0800
+  subject: |-
+    Initial commit
+  rawBody: |-
+    Initial commit
+
+      - Added remote file
+      - Added .gitignore
+
+  additionalInfo:
+    signed: N
+    signerName:
+    signingKey:
+    signingMessage:
+    committerName: Chris Turner
+    committerEmail: cturner@thoughtworks.com
+    commitDate: 2009-02-11 17:26:36 -0800

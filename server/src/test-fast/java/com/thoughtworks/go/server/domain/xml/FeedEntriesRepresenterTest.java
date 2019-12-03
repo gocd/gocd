@@ -21,7 +21,7 @@ import com.thoughtworks.go.domain.XmlWriterContext;
 import com.thoughtworks.go.domain.feed.Author;
 import com.thoughtworks.go.domain.feed.FeedEntries;
 import com.thoughtworks.go.domain.feed.stage.StageFeedEntry;
-import com.thoughtworks.go.junit5.JsonSource;
+import com.thoughtworks.go.junit5.FileSource;
 import com.thoughtworks.go.util.DateUtils;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.dom4j.Document;
@@ -35,7 +35,7 @@ import static org.mockito.Mockito.when;
 
 public class FeedEntriesRepresenterTest {
     @ParameterizedTest
-    @JsonSource(jsonFiles = "/feeds/stages-with-entries.xml")
+    @FileSource(files = "/feeds/stages-with-entries.xml")
     void shouldGenerateFeedXml(String expectedXML) {
         String pipelineName = "up42";
         StageFeedEntry entryOne = cancelled();
@@ -53,7 +53,7 @@ public class FeedEntriesRepresenterTest {
     }
 
     @ParameterizedTest
-    @JsonSource(jsonFiles = "/feeds/stages-with-no-entries.xml")
+    @FileSource(files = "/feeds/stages-with-no-entries.xml")
     void shouldGenerateXmlWithoutEntryWhenEmpty(String expectedXML) {
         String pipelineName = "up42";
         XmlWriterContext context = new XmlWriterContext("https://go-server/go", null, null, null, new SystemEnvironment());

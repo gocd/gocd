@@ -15,91 +15,76 @@
  */
 package com.thoughtworks.go.domain.materials.git;
 
+import com.thoughtworks.go.domain.materials.Modification;
+import com.thoughtworks.go.junit5.FileSource;
 import com.thoughtworks.go.util.DateUtils;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
 
-public class GitModificationParserTest {
+import java.util.List;
 
-    GitModificationParser parser = new GitModificationParser();
+import static org.assertj.core.api.Assertions.assertThat;
 
-    private void simulateOneComment() {
-        parser.processLine("commit 4e55d27dc7aad26dadb02a33db0518cb5ec54888");
-        parser.processLine("Author: Cruise Developer <cruise@cruise-sf3.(none)>");
-        parser.processLine("Date:   2009-08-11 13:08:51 -0700");
+
+class GitModificationParserTest {
+
+    @Test
+    void shouldReturnEmptyListPassedANull() {
+        List<Modification> list = new GitModificationParser().parse(null);
+
+        assertThat(list).isEmpty();
     }
 
     @Test
-    public void shouldCreateModificationForEachCommit() {
-        simulateOneComment();
-        assertThat(parser.getModifications().get(0).getRevision(), is("4e55d27dc7aad26dadb02a33db0518cb5ec54888"));
+    void shouldReturnEmptyListPassedAnEmptyString() {
+        List<Modification> list = new GitModificationParser().parse("");
+
+        assertThat(list).isEmpty();
     }
 
-    @Test
-    public void shouldHaveCommitterAsAuthor() {
-        simulateOneComment();
-        assertThat(parser.getModifications().get(0).getUserDisplayName(), is("Cruise Developer <cruise@cruise-sf3.(none)>"));
-    }
+    @ParameterizedTest
+    @FileSource(files = "/git/log.yaml")
+    void shouldParseTheYaml(String inputYaml) {
+        List<Modification> modifications = new GitModificationParser().parse(inputYaml);
 
-    @Test
-    public void shouldHaveCommitDate() {
-        simulateOneComment();
-        assertThat(
-                parser.getModifications().get(0).getModifiedTime(),
-                is(DateUtils.parseISO8601("2009-08-11 13:08:51 -0700")));
-    }
+        assertThat(modifications).hasSize(2);
 
-    @Test
-    public void shouldHaveComment() {
-        simulateOneComment();
-        parser.processLine("");
-        parser.processLine("    My Comment");
-        parser.processLine("");
-        assertThat(
-                parser.getModifications().get(0).getComment(),
-                is("My Comment"));
-    }
+        Modification firstModification = modifications.get(0);
+        assertThat(firstModification.getRevision()).isEqualTo("9fef97af1cd3a8920fefe5f656cb5795d690ee1b");
+        assertThat(firstModification.getUserName()).isEqualTo("Chris Turner");
+        assertThat(firstModification.getEmailAddress()).isEqualTo("cturner@thoughtworks.com");
+        assertThat(firstModification.getComment()).isEqualTo("Added remote file");
+        assertThat(firstModification.getModifiedTime()).isEqualTo(DateUtils.parseISO8601("2009-02-11 17:26:36 -0800"));
+        assertThat(firstModification.getAdditionalDataMap())
+                .hasSize(8)
+                .containsEntry("subject", "Added remote file")
+                .containsEntry("signed", "N")
+                .containsEntry("signerName", null)
+                .containsEntry("signingKey", null)
+                .containsEntry("signingMessage", null)
+                .containsEntry("committerName", "Chris Turner")
+                .containsEntry("committerEmail", "cturner@thoughtworks.com")
+                .containsEntry("commitDate", "2009-02-11 17:26:36 -0800");
 
-    @Test
-    public void shouldSupportMultipleLineComments() {
-        simulateOneComment();
-        parser.processLine("");
-        parser.processLine("    My Comment");
-        parser.processLine("    line 2");
-        parser.processLine("");
-        assertThat(
-                parser.getModifications().get(0).getComment(),
-                is("My Comment\nline 2"));
-    }
+        Modification secondModification = modifications.get(1);
+        assertThat(secondModification.getRevision()).isEqualTo("ewehsjf232349fef97af1cd3a8920fefe5f656cb57");
+        assertThat(secondModification.getUserName()).isEqualTo("Bob Ford");
+        assertThat(secondModification.getEmailAddress()).isEqualTo("bford@thoughtworks.com");
+        assertThat(secondModification.getComment()).isEqualTo("Initial commit\n" +
+                "\n" +
+                "  - Added remote file\n" +
+                "  - Added .gitignore");
 
-     @Test
-    public void shouldSupportMultipleLineCommentsWithEmptyLines() {
-        simulateOneComment();
-        parser.processLine("");
-        parser.processLine("    My Comment");
-         parser.processLine("    ");
-        parser.processLine("    line 2");
-        parser.processLine("");
-        assertThat(
-                parser.getModifications().get(0).getComment(),
-                is("My Comment\n\nline 2"));
-    }
-
-    @Test
-    public void shouldSupportMultipleModifications() {
-        simulateOneComment();
-        parser.processLine("");
-        parser.processLine("    My Comment 1");
-        simulateOneComment();
-        parser.processLine("");
-        parser.processLine("    My Comment 2");
-         parser.processLine("");
-        assertThat(
-                parser.getModifications().get(0).getComment(),
-                is("My Comment 1"));
-        assertThat(
-                parser.getModifications().get(1).getComment(),
-                is("My Comment 2"));
+        assertThat(secondModification.getModifiedTime()).isEqualTo(DateUtils.parseISO8601("2009-02-11 17:26:36 -0800"));
+        assertThat(secondModification.getAdditionalDataMap())
+                .hasSize(8)
+                .containsEntry("subject", "Initial commit")
+                .containsEntry("signed", "N")
+                .containsEntry("signerName", null)
+                .containsEntry("signingKey", null)
+                .containsEntry("signingMessage", null)
+                .containsEntry("committerName", "Chris Turner")
+                .containsEntry("committerEmail", "cturner@thoughtworks.com")
+                .containsEntry("commitDate", "2009-02-11 17:26:36 -0800");
     }
 }

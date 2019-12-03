@@ -21,6 +21,10 @@ dependencies {
   compile project(':commandline')
   compile group: 'org.springframework', name: 'spring-tx', version: project.versions.spring
   compile group: 'de.skuzzle', name: 'semantic-version', version: project.versions.semanticVersion
+  compile group: 'org.yaml', name: 'snakeyaml', version: project.versions.snakeYaml
+  compileOnly group: 'org.projectlombok', name: 'lombok', version: project.versions.lombok
+  annotationProcessor group: 'org.projectlombok', name: 'lombok', version: project.versions.lombok
+
   testCompile project(path: ':config:config-api', configuration: 'testOutput')
   testCompile project(':test:test-utils')
   testCompileOnly group: 'junit', name: 'junit', version: project.versions.junit

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,16 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.junit5;
 
-import org.junit.jupiter.params.provider.ArgumentsSource;
+package com.thoughtworks.go.domain.materials.git.builder;
 
-import java.lang.annotation.*;
+import com.thoughtworks.go.util.command.CommandLine;
+import com.thoughtworks.go.util.command.SecretString;
 
-@Documented
-@Target(ElementType.METHOD)
-@Retention(RetentionPolicy.RUNTIME)
-@ArgumentsSource(JsonSourceProvider.class)
-public @interface JsonSource {
-    String[] jsonFiles();
+import java.io.File;
+import java.util.List;
+
+public interface Builder {
+    Builder withWorkingDir(File workingDir);
+
+    Builder outputFormatYaml();
+
+    Builder withNonArgSecrets(List<SecretString> secrets);
+
+    CommandLine build();
 }

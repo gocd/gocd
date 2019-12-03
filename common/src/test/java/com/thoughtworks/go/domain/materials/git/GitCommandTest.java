@@ -255,9 +255,10 @@ public class GitCommandTest {
     }
 
     @Test
-    void shouldRetrieveLatestModification() throws Exception {
+    void shouldRetrieveLatestModification() {
         Modification mod = git.latestModification().get(0);
-        assertThat(mod.getUserName()).isEqualTo("Chris Turner <cturner@thoughtworks.com>");
+        assertThat(mod.getUserName()).isEqualTo("Chris Turner");
+        assertThat(mod.getEmailAddress()).isEqualTo("cturner@thoughtworks.com");
         assertThat(mod.getComment()).isEqualTo("Added 'run-till-file-exists' ant target");
         assertThat(mod.getModifiedTime()).isEqualTo(parseRFC822("Fri, 12 Feb 2010 16:12:04 -0800"));
         assertThat(mod.getRevision()).isEqualTo("5def073a425dfe239aabd4bf8039ffe3b0e8856b");
@@ -269,10 +270,11 @@ public class GitCommandTest {
     }
 
     @Test
-    void shouldRetrieveLatestModificationWhenColoringIsSetToAlways() throws Exception {
+    void shouldRetrieveLatestModificationWhenColoringIsSetToAlways() {
         setColoring();
         Modification mod = git.latestModification().get(0);
-        assertThat(mod.getUserName()).isEqualTo("Chris Turner <cturner@thoughtworks.com>");
+        assertThat(mod.getUserName()).isEqualTo("Chris Turner");
+        assertThat(mod.getEmailAddress()).isEqualTo("cturner@thoughtworks.com");
         assertThat(mod.getComment()).isEqualTo("Added 'run-till-file-exists' ant target");
         assertThat(mod.getModifiedTime()).isEqualTo(parseRFC822("Fri, 12 Feb 2010 16:12:04 -0800"));
         assertThat(mod.getRevision()).isEqualTo("5def073a425dfe239aabd4bf8039ffe3b0e8856b");
@@ -287,7 +289,8 @@ public class GitCommandTest {
     void shouldRetrieveLatestModificationWhenLogDecorationIsPresent() throws Exception {
         setLogDecoration();
         Modification mod = git.latestModification().get(0);
-        assertThat(mod.getUserName()).isEqualTo("Chris Turner <cturner@thoughtworks.com>");
+        assertThat(mod.getUserName()).isEqualTo("Chris Turner");
+        assertThat(mod.getEmailAddress()).isEqualTo("cturner@thoughtworks.com");
         assertThat(mod.getComment()).isEqualTo("Added 'run-till-file-exists' ant target");
         assertThat(mod.getModifiedTime()).isEqualTo(parseRFC822("Fri, 12 Feb 2010 16:12:04 -0800"));
         assertThat(mod.getRevision()).isEqualTo("5def073a425dfe239aabd4bf8039ffe3b0e8856b");
@@ -299,13 +302,13 @@ public class GitCommandTest {
     }
 
     @Test
-    void retrieveLatestModificationShouldNotResultInWorkingCopyCheckOut() throws Exception {
+    void retrieveLatestModificationShouldNotResultInWorkingCopyCheckOut() {
         git.latestModification();
         assertWorkingCopyNotCheckedOut();
     }
 
     @Test
-    void getModificationsSinceShouldNotResultInWorkingCopyCheckOut() throws Exception {
+    void getModificationsSinceShouldNotResultInWorkingCopyCheckOut() {
         git.modificationsSince(GitTestRepo.REVISION_2);
         assertWorkingCopyNotCheckedOut();
     }
@@ -427,7 +430,8 @@ public class GitCommandTest {
 
         Modification mod = branchedGit.latestModification().get(0);
 
-        assertThat(mod.getUserName()).isEqualTo("Chris Turner <cturner@thoughtworks.com>");
+        assertThat(mod.getUserName()).isEqualTo("Chris Turner");
+        assertThat(mod.getEmailAddress()).isEqualTo("cturner@thoughtworks.com");
         assertThat(mod.getComment()).isEqualTo("Started foo branch");
         assertThat(mod.getModifiedTime()).isEqualTo(parseRFC822("Tue, 05 Feb 2009 14:28:08 -0800"));
         assertThat(mod.getRevision()).isEqualTo("b4fa7271c3cef91822f7fa502b999b2eab2a380d");
@@ -567,32 +571,6 @@ public class GitCommandTest {
             assertThat(e.getMessage()).matches(str -> str.contains("The remote end hung up unexpectedly") ||
                     str.contains("Could not read from remote repository"));
         }
-    }
-
-    @Test
-    void shouldParseGitOutputCorrectly() throws IOException {
-        List<String> stringList;
-        try (InputStream resourceAsStream = getClass().getResourceAsStream("git_sample_output.text")) {
-            stringList = IOUtils.readLines(resourceAsStream, UTF_8);
-        }
-
-        GitModificationParser parser = new GitModificationParser();
-        List<Modification> mods = parser.parse(stringList);
-        assertThat(mods).hasSize(3);
-
-        Modification mod = mods.get(2);
-        assertThat(mod.getRevision()).isEqualTo("46cceff864c830bbeab0a7aaa31707ae2302762f");
-        assertThat(mod.getModifiedTime()).isEqualTo(DateUtils.parseISO8601("2009-08-11 12:37:09 -0700"));
-        assertThat(mod.getUserDisplayName()).isEqualTo("Cruise Developer <cruise@cruise-sf3.(none)>");
-        assertThat(mod.getComment()).isEqualTo("author:cruise <cceuser@CceDev01.(none)>\n"
-                + "node:ecfab84dd4953105e3301c5992528c2d381c1b8a\n"
-                + "date:2008-12-31 14:32:40 +0800\n"
-                + "description:Moving rakefile to build subdirectory for #2266\n"
-                + "\n"
-                + "author:CceUser <cceuser@CceDev01.(none)>\n"
-                + "node:fd16efeb70fcdbe63338c49995ce9ff7659e6e77\n"
-                + "date:2008-12-31 14:17:06 +0800\n"
-                + "description:Adding rakefile");
     }
 
     @Test

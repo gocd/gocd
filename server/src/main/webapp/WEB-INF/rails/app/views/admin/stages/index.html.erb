@@ -19,10 +19,12 @@
 
                   </div>
                 </div>
+              <% unless @is_config_repo_pipeline %>
                 <div class="form_buttons">
                   <%= submit_button('SAVE', :class => 'primary skip_dirty_stop', :id => "submit_pipeline_edit_form", :onclick => "return false;") %>
                   <%= link_to 'RESET', admin_stage_listing_path(:current_tab => "stages"), :class => 'reset_button link_as_button', :id => 'reset_form' -%>
                 </div>
+              <% end %>
             <% else %>
                 <div class="no_templates_message information">
                   There are no templates configured or you are unauthorized to view the existing templates.

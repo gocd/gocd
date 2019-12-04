@@ -17,6 +17,7 @@
 import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
+import {ServerConfigVM} from "models/server-configuration/server_configuration_vm";
 import style from "views/pages/agents/index.scss";
 import {MailServerManagementWidget} from "views/pages/server-configuration/mail_server_management_widget";
 import {ServerManagementWidget} from "views/pages/server-configuration/server_management_widget";
@@ -65,27 +66,42 @@ class ServerConfigurationRightPanel extends MithrilViewComponent<Attrs> {
 
 export class ServerConfigurationWidget extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
+    let activeConfigurationVM: ServerConfigVM;
+    switch (vnode.attrs.activeConfiguration) {
+      case Sections.SERVER_MANAGEMENT:
+        activeConfigurationVM = vnode.attrs.siteUrlsVM();
+        break;
+      case Sections.ARTIFACT_MANAGEMENT:
+        activeConfigurationVM = vnode.attrs.artifactConfigVM();
+        break;
+      case Sections.EMAIL_SERVER:
+        activeConfigurationVM = vnode.attrs.mailServerVM();
+        break;
+      case Sections.DEFAULT_JOB_TIMEOUT:
+        activeConfigurationVM = vnode.attrs.defaultJobTimeoutVM();
+        break;
+    }
     return <div class={styles.serverConfigurationContainer}>
       <div class={styles.leftPanel}>
         <ul>
           <li data-test-id="server-management-link"
               class={classnames({[styles.active]: vnode.attrs.activeConfiguration === Sections.SERVER_MANAGEMENT})}
-              onclick={() => vnode.attrs.route(Sections.SERVER_MANAGEMENT)}>
+              onclick={() => vnode.attrs.route(Sections.SERVER_MANAGEMENT, activeConfigurationVM)}>
             Server Management
           </li>
           <li data-test-id="artifacts-management-link"
               class={classnames({[styles.active]: vnode.attrs.activeConfiguration === Sections.ARTIFACT_MANAGEMENT})}
-              onclick={() => vnode.attrs.route(Sections.ARTIFACT_MANAGEMENT)}>
+              onclick={() => vnode.attrs.route(Sections.ARTIFACT_MANAGEMENT, activeConfigurationVM)}>
             Artifacts Management
           </li>
           <li data-test-id="email-server-link"
               class={classnames({[styles.active]: vnode.attrs.activeConfiguration === Sections.EMAIL_SERVER})}
-              onclick={() => vnode.attrs.route(Sections.EMAIL_SERVER)}>
+              onclick={() => vnode.attrs.route(Sections.EMAIL_SERVER, activeConfigurationVM)}>
             Email server
           </li>
           <li data-test-id="job-timeout-link"
               class={classnames({[styles.active]: vnode.attrs.activeConfiguration === Sections.DEFAULT_JOB_TIMEOUT})}
-              onclick={() => vnode.attrs.route(Sections.DEFAULT_JOB_TIMEOUT)}>
+              onclick={() => vnode.attrs.route(Sections.DEFAULT_JOB_TIMEOUT, activeConfigurationVM)}>
             Job Timeout Configuration
           </li>
         </ul>

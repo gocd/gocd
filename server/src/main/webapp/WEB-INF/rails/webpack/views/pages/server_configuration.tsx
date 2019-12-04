@@ -19,14 +19,12 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {ArtifactConfigCRUD, JobTimeoutManagementCRUD, MailServerCrud, ServerManagementCRUD} from "models/server-configuration/server_configuartion_crud";
 import {ArtifactConfig, DefaultJobTimeout, MailServer, SiteUrls} from "models/server-configuration/server_configuration";
-import {ArtifactConfigVM, DefaultJobTimeoutVM, MailServerVM, SiteUrlsVM} from "models/server-configuration/server_configuration_vm";
+import {ArtifactConfigVM, DefaultJobTimeoutVM, MailServerVM, ServerConfigVM, SiteUrlsVM} from "models/server-configuration/server_configuration_vm";
 import {FlashMessage, FlashMessageModel, MessageType} from "views/components/flash_message";
 import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
 import {Page, PageState} from "views/pages/page";
 import {Sections, ServerConfigurationWidget} from "views/pages/server-configuration/server_configuration_widget";
 import {ConfirmModal} from "./server-configuration/confirm_modal";
-
-type ServerConfigVM = MailServerVM | ArtifactConfigVM | DefaultJobTimeoutVM | SiteUrlsVM;
 
 export interface ServerConfigurationPageOperations {
   onCancel: (object: ServerConfigVM) => void;
@@ -57,7 +55,7 @@ export interface MailServerManagementAttrs extends ServerConfigurationPageOperat
 
 export interface Routing {
   activeConfiguration: Sections;
-  route: (activeConfiguration: Sections) => void;
+  route: (activeConfiguration: Sections, serverConfigurationVM: ServerConfigVM) => void;
 }
 
 interface State extends ServerManagementAttrs, ArtifactManagementAttrs, MailServerManagementAttrs, JobTimeoutAttrs, Routing {
@@ -69,11 +67,23 @@ export class ServerConfigurationPage extends Page<null, State> {
 
     super.oninit(vnode);
 
-    vnode.state.route               = (activeConfiguration: Sections) => {
-      vnode.state.activeConfiguration = activeConfiguration;
-      m.route.set(activeConfiguration);
-      this.fetchData(vnode);
+    vnode.state.route = (activeConfiguration: Sections, serverConfigurationVM: ServerConfigVM) => {
+
+      if (serverConfigurationVM.isModified()) {
+        const modal: ConfirmModal = new ConfirmModal("There are unsaved changes. Do you wish to continue?", () => {
+          vnode.state.activeConfiguration = activeConfiguration;
+          m.route.set(activeConfiguration);
+          this.fetchData(vnode);
+          modal.close();
+        });
+        modal.render();
+      } else {
+        vnode.state.activeConfiguration = activeConfiguration;
+        m.route.set(activeConfiguration);
+        this.fetchData(vnode);
+      }
     };
+
     vnode.state.siteUrlsVM          = Stream(new SiteUrlsVM());
     vnode.state.artifactConfigVM    = Stream(new ArtifactConfigVM());
     vnode.state.mailServerVM        = Stream(new MailServerVM());

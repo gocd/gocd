@@ -157,10 +157,6 @@ Rails.application.routes.draw do
     get ':pipeline_name/timeline/:page' => 'comparison#timeline', constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :compare_pipelines_timeline
   end
 
-  scope 'config_view' do
-    get "templates/:name" => "config_view/templates#show", as: :config_view_templates_show, constraints: {name: TEMPLATE_NAME_FORMAT}
-  end
-
   {'application/vnd.go.cd.v1+json' => :apiv1, 'application/vnd.go.cd+json' => :latest}.each do |header, as|
     scope :api, as: as, format: false do
       api_version(:module => 'ApiV1', header: {name: 'Accept', value: header}) do

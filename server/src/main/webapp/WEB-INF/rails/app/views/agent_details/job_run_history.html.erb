@@ -1,0 +1,48 @@
+<%- @view_title = "Agent Job History" -%>
+<div class="sub_tabs_container">
+    <ul class="tabs">
+        <li>
+            <a href="#" onclick='location.href = "<%=agent_detail_path(:uuid => @agent.getUuid)-%>"'>Details</a>
+        </li>
+        <li class="current_tab">
+            <a href="#">Job Run History</a>
+        </li>
+    </ul>
+</div>
+<% if @job_instances.isEmpty() %>
+    <%= render :partial => "admin/shared/notification_information.html", :locals => {:scope => {:notification_message => 'This agent has no completed job runs.'}} -%>
+<% else %>
+    <div class="job_history_table">
+        <table class="jobs list_table sortable_table">
+            <thead>
+            <tr class="header">
+                <th class="pipeline"><%== column_header('Pipeline', "pipeline") -%></th>
+                <th class="stage"><%== column_header('Stage', "stage") -%></th>
+                <th class="job"><%== column_header('Job', "job") -%></th>
+                <th class="result"><%== column_header('Result', "result") -%></th>
+                <th class="completed"><%== column_header('Completed', "completed") -%></th>
+                <th class="duration"><%== column_header('Duration', "duration") -%></th>
+            </tr>
+            </thead>
+            <tbody>
+            <% @job_instances.each do |job_instance| %>
+                <tr>
+                    <td class="pipeline"><%= job_instance.getPipelineName() -%></td>
+                    <td class="stage"><%= job_instance.getStageName() -%></td>
+                    <td class="job">
+                        <%- if job_instance.isPipelineStillConfigured() -%>
+                            <%== build_link(job_instance.getIdentifier().buildLocator(), job_instance.getName()) -%>
+                        <%- else -%>
+                            <span title="Pipeline config for this job no longer exists."><%= job_instance.getName() -%></span>
+                        <%- end -%>
+                    </td>
+                    <td class="result"><%= job_instance.isIgnored() ? job_instance.getState() : job_instance.getResult() -%></td>
+                    <td class="completed"><%= job_instance.isIgnored() ? '-' : job_instance.getCompletedDate().iso8601 -%></td>
+                    <td class="duration"><%= job_instance.isIgnored() ? '-' : job_instance.getDuration() -%></td>
+                </tr>
+            <% end %>
+            </tbody>
+        </table>
+        <%= render :partial => "shared/pagination_bar.html", :locals => {:scope => {:pagination => @job_instances.getPagination(), :page_handler => :job_on_agent_page_handler}} -%>
+    </div>
+<% end %>

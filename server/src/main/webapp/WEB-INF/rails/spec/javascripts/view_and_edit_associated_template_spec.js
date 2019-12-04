@@ -50,17 +50,6 @@ describe("ViewAndEditAssociatedTemplate", function () {
     Util.ajax_modal = originalAjaxModal;
   });
 
-  it("should open the modal with the selected template", function () {
-    var templateMap = {template1: {canView: true, canEdit: true}, template2: {canView: true, canEdit: true}};
-    viewAndEditAssociatedTemplate("#select_template").addViewAndEditTemplateLinks(templateMap, "go/config_view/templates/__template_name__", "go/admin/templates/__template_name__/general" );
-    fire_event(jQuery('a.view_template_link').get(0), 'click');
-
-    assertEquals("go/config_view/templates/template2", actual_url);
-    assertEquals(false, actual_options.overlayClose);
-    assertEquals('template2', actual_options.title);
-    assertEquals('text', actual_error_wrapper("text"));
-  });
-
   it('should disable the view link if unauthorized to view selected template', function () {
     var templateMap = {template1: {canView: true, canEdit: true}, template2: {canView: false, canEdit: false}};
     viewAndEditAssociatedTemplate("#select_template").addViewAndEditTemplateLinks(templateMap, "/go/config_view/templates/__template_name__", "/go/admin/templates/__template_name__/general" );

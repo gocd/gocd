@@ -29,13 +29,6 @@ var viewAndEditAssociatedTemplate = function (templateSelector) {
           href:  templateViewUrl,
           class: 'view_template_link action_icon button view_icon skip_dirty_stop',
         }).html('View');
-
-        viewLink.on('click', function () {
-          Util.ajax_modal(templateViewUrl, {overlayClose: false, title: selectedTemplateName()}, function (text) {
-            return text;
-          });
-          return false;
-        });
       }
       else {
         viewLink = jQuery('<span>').attr({

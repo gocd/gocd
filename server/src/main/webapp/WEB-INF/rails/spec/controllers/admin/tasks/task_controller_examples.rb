@@ -200,23 +200,19 @@ shared_examples_for :task_controller do
         expect(@go_config_service).to receive(:doesPipelineExist).and_return(true)
         expect(@go_config_service).to receive(:isPipelineDefinedInConfigRepository).and_return(false)
         expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline.name").and_return(@pause_info)
-        expect(@pluggable_task_service).to receive(:validate) if (@new_task.instance_of? com.thoughtworks.go.config.pluggabletask.PluggableTask)
+        allow(@pipeline_config_service).to receive(:getPipelineConfig).with("pipeline.name").and_return(@pipeline)
       end
 
       it "should update a given task" do
-        stub_config_save_with_subject(@subject)
+        expect(@pipeline_config_service).to receive(:updatePipelineConfig).and_return(HttpLocalizedOperationResult.new)
 
         put :update, params: {:pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1", :task_index => "0", :config_md5 => "abcd1234", :type => @task_type, :task => @updated_payload, :stage_parent => "pipelines", :current_tab => "tasks"}
 
-        expect(assigns[:task]).to eq(expected_task(@updated_task))
         expect(response.status).to eq(200)
-
-        assert_update_command ::ConfigUpdate::SaveAsPipelineOrTemplateAdmin, ::ConfigUpdate::JobNode, ::ConfigUpdate::JobTaskSubject
       end
 
       it "should update a given task with on cancel" do
-        @subject.setCancelTask(ant_task("cancelFile", "cancelTarget", "anotherWD"))
-        stub_config_save_with_subject(@subject)
+        expect(@pipeline_config_service).to receive(:updatePipelineConfig).and_return(HttpLocalizedOperationResult.new)
 
         updated_payload_with_on_cancel = {:hasCancelTask => '1',
                                           :onCancelConfig => {:onCancelOption => 'ant', :antOnCancel => {:buildFile => "cancelFile", :target => "cancelTarget", :workingDirectory => "anotherWD"}}}
@@ -225,28 +221,26 @@ shared_examples_for :task_controller do
 
         put :update, params: {:pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1", :task_index => "0", :config_md5 => "abcd1234", :type => @task_type, :task => @updated_payload, :stage_parent => "pipelines", :current_tab => "tasks"}
 
-        expect(assigns[:task]).to eq(expected_task(@updated_task))
         expect(response.status).to eq(200)
-
-        assert_update_command ::ConfigUpdate::SaveAsPipelineOrTemplateAdmin, ::ConfigUpdate::JobNode, ::ConfigUpdate::JobTaskSubject
       end
 
       it "should assign config_errors for display when update fails due to validation errors" do
-        stub_save_for_validation_error_with_subject(@subject) do |result, config, node|
-          result.badRequest('some message')
-          config.errors().add("base", "someError")
+        result = HttpLocalizedOperationResult.new
+        result.badRequest('some message')
+        expect(@pipeline_config_service).to receive(:updatePipelineConfig).and_return(result)
 
-        end
         task_view_service = stub_service(:task_view_service)
         expect(task_view_service).to receive(:getViewModel).with(@updated_task, 'edit').and_return(vm_template_for(@updated_task))
         controller_specific_setup task_view_service
         on_cancel_task_vms = java.util.Arrays.asList([vm_template_for(exec_task('rm')), vm_template_for(ant_task), vm_template_for(nant_task), vm_template_for(rake_task), vm_template_for(fetch_task_with_exec_on_cancel_task)].to_java(TaskViewModel))
-        expect(task_view_service).to receive(:getOnCancelTaskViewModels).with(@updated_task).and_return(on_cancel_task_vms)
+        expect(task_view_service).to receive(:getOnCancelTaskViewModels).and_return(on_cancel_task_vms)
         allow(task_view_service).to receive(:taskInstanceFor).with(@updated_task.getTaskType).and_return(@updated_task)
 
-        put :update, params: {:pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1", :task_index => "0", :config_md5 => "1234abcd", :type => @task_type, :task => @updated_payload, :stage_parent => "pipelines", :current_tab => "tasks"}
+        put :update, params: {:pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1",
+                              :task_index => "0", :config_md5 => "1234abcd", :type => @task_type, :task => @updated_payload,
+                              :stage_parent => "pipelines", :current_tab => "tasks",
+                              :pipeline_md5 => "pipeline-md5", :pipeline_group_name => 'defaultGroup'}
 
-        expect(assigns[:errors].size).to eq(1)
         expect(assigns[:on_cancel_task_vms]).to eq(on_cancel_task_vms)
 
         assert_template "admin/tasks/plugin/edit"

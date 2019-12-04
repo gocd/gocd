@@ -181,6 +181,42 @@ module Admin
     end
 
     def update
+      if params[:stage_parent] == 'templates' or Toggles.isToggleOff(Toggles.FAST_PIPELINE_SAVE)
+        old_update
+        return
+      end
+
+      pipeline_name = params[:pipeline_name]
+      original_pipeline_config = pipeline_config_service.getPipelineConfig(pipeline_name)
+      @pipeline = CLONER.deep_clone(original_pipeline_config)
+      @stage = @pipeline.getStage(params[:stage_name])
+      @job = @stage.jobConfigByConfigName(params[:job_name])
+
+      type = params[:type]
+      assert_load :task, task_view_service.taskInstanceFor(type)
+      @task.setSelectedTaskType(params[:task][:selectedTaskType]) if 'fetch'.eql?(type)
+      @task.setConfigAttributes(params[:task], task_view_service)
+
+      @job.getTasks().set(params[:task_index].to_i, @task.is_a?(com.thoughtworks.go.config.FetchTaskAdapter) ? @task.getAppropriateTask : @task)
+
+      failure_handler = action_failure_handler(@task, 'edit')
+      fast_save_popup(failure_handler, {:controller => '/admin/tasks', :current_tab => params[:current_tab]}) do
+        assert_load :pipeline_md5, params[:pipeline_md5]
+        assert_load :pipeline_group_name, params[:pipeline_group_name]
+        assert_load :pipeline_name, params[:pipeline_name]
+        assert_load :artifact_plugin_to_fetch_view, default_plugin_info_finder.pluginIdToFetchViewTemplate()
+        @config_store = config_store
+        if is_fetch_task? params[:type]
+          pipeline_name = CaseInsensitiveString.new(params[:pipeline_name])
+          stage_name = CaseInsensitiveString.new(params[:stage_name])
+          looking_at_template = false
+          map = com.thoughtworks.go.server.presentation.FetchArtifactViewHelper.new(system_environment, @cruise_config, pipeline_name, stage_name, looking_at_template).autosuggestMap()
+          assert_load :pipeline_json, mk_as_json(map)
+        end
+      end
+    end
+
+    def old_update
       type = params[:type]
       assert_load :task, task_view_service.taskInstanceFor(type)
       @task.setSelectedTaskType(params[:task][:selectedTaskType]) if 'fetch'.eql?(type)

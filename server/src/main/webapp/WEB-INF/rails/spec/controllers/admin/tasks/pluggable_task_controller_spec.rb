@@ -81,32 +81,6 @@ describe Admin::TasksController do
       @task_view_service = stub_service(:task_view_service)
       @pluggable_task_service = stub_service(:pluggable_task_service)
     end
-
-    describe "update" do
-      it "should perform plugin validation before updating a pluggable task" do
-        expect(@pluggable_task_service).to receive(:validate) do |task|
-          task.getConfiguration().getProperty("Url").addError("Url", "error message")
-        end
-
-        stub_save_for_validation_error do |result, config, node|
-          result.badRequest('some message')
-        end
-        task_view_service = stub_service(:task_view_service)
-        expect(task_view_service).to receive(:getViewModel).with(@updated_task, 'edit').and_return(vm_template_for(@updated_task))
-        on_cancel_task_vms = java.util.Arrays.asList([vm_template_for(exec_task('rm')), vm_template_for(ant_task), vm_template_for(nant_task), vm_template_for(rake_task), vm_template_for(fetch_task_with_exec_on_cancel_task)].to_java(TaskViewModel))
-        expect(task_view_service).to receive(:getOnCancelTaskViewModels).with(@updated_task).and_return(on_cancel_task_vms)
-        allow(task_view_service).to receive(:taskInstanceFor).with("pluggable_task_curl_plugin").and_return(@updated_task)
-
-        put :update, params: {:pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1", :task_index => "0", :config_md5 => "1234abcd", :type => @task_type, :task => @updated_payload, :stage_parent => "pipelines", :current_tab => "tasks"}
-
-        expect(assigns[:task].getConfiguration().getProperty("Url").errors().getAll().size()).to eq(1)
-        expect(assigns[:task].getConfiguration().getProperty("Url").errors().getAll()).to include("error message")
-        assert_save_arguments
-        assert_template "admin/tasks/plugin/edit"
-        assert_template layout: false
-        expect(response.status).to eq(400)
-      end
-    end
   end
 
   def controller_specific_setup task_view_service

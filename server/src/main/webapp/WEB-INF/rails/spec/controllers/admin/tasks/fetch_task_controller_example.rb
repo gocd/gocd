@@ -49,18 +49,29 @@ shared_examples_for :fetch_task_controller do
     end
 
     it "should load auto-suggest(off updated config) data when updating fetch task" do
-      stub_config_save_with_subject(fetch_task_with_exec_on_cancel_task("parent-pipeline", "parent-stage", "job.parent.1", "src-file", "dest-dir"))
-      put :update, params:{:current_tab=>"tasks", :pipeline_name => @pipeline_name, :stage_name => @stage_name, :job_name => @job_name, :config_md5 => "abcd1234", :type => fetch_task_with_exec_on_cancel_task.getTaskType(), :stage_parent => @parent_type, :task_index => '0',
-          :task => @modify_payload}
+      if @parent_type == 'pipelines'
+        allow(@pipeline_config_service).to receive(:getPipelineConfig).with(@pipeline_name).and_return(@pipeline)
+        allow(@pipeline_config_service).to receive(:updatePipelineConfig).and_return(HttpLocalizedOperationResult.new)
 
-      expect(assigns[:task]).to eq(fetch_task_with_exec_on_cancel_task("parent-pipeline", "parent-stage", "job.parent.1", "src-file", "dest-dir"))
-      expect(assigns[:pipeline_json]).to eq(pipelines_json)
+        put :update, params:{:current_tab=>"tasks", :pipeline_name => @pipeline_name, :stage_name => @stage_name,
+                             :job_name => @job_name, :config_md5 => "abcd1234", :type => fetch_task_with_exec_on_cancel_task.getTaskType(),
+                             :pipeline_md5 => "pipeline-md5", :pipeline_group_name => 'my-groups',
+                             :stage_parent => @parent_type, :task_index => '0', :task => @modify_payload}
+
+        expect(assigns[:pipeline_json]).to eq(pipelines_json)
+      elsif @parent_type == 'templates'
+        stub_config_save_with_subject(fetch_task_with_exec_on_cancel_task("parent-pipeline", "parent-stage", "job.parent.1", "src-file", "dest-dir"))
+        put :update, params:{:current_tab=>"tasks", :pipeline_name => @pipeline_name, :stage_name => @stage_name, :job_name => @job_name, :config_md5 => "abcd1234", :type => fetch_task_with_exec_on_cancel_task.getTaskType(), :stage_parent => @parent_type, :task_index => '0',
+                             :task => @modify_payload}
+
+        expect(assigns[:task]).to eq(fetch_task_with_exec_on_cancel_task("parent-pipeline", "parent-stage", "job.parent.1", "src-file", "dest-dir"))
+        expect(assigns[:pipeline_json]).to eq(pipelines_json)
+      end
     end
 
     it "should load auto-suggest(off updated config) data when create fetch task" do
       if @parent_type == 'pipelines'
-        @pipeline = PipelineConfigMother.createPipelineConfig(@pipeline_name, @stage_name, [@job_name].to_java(java.lang.String))
-        allow(@pipeline_config_service).to receive(:getPipelineConfig).with("pipeline.name").and_return(@pipeline)
+        allow(@pipeline_config_service).to receive(:getPipelineConfig).with(@pipeline_name).and_return(@pipeline)
         allow(@pipeline_config_service).to receive(:updatePipelineConfig).and_return(HttpLocalizedOperationResult.new)
 
         post :create, params:{:current_tab=>"tasks", :pipeline_name => @pipeline_name, :stage_name => @stage_name, :job_name => @job_name, :config_md5 => "abcd1234", :type => fetch_task_with_exec_on_cancel_task.getTaskType(), :stage_parent => @parent_type, :task => @modify_payload}

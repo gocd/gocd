@@ -52,11 +52,32 @@ public class CompareController implements SparkController {
     }
 
     public ModelAndView index(Request request, Response response) {
+        String pipelineName = request.params("pipeline_name");
+        long fromCounter = getCounter(request, "from_counter");
+        long toCounter = getCounter(request, "to_counter");
+        if (fromCounter <= 0) {
+            response.redirect(Routes.Compare.compare(pipelineName, "1", toCounter + ""));
+            return null;
+        }
+        if (toCounter <= 0) {
+            response.redirect(Routes.Compare.compare(pipelineName, fromCounter + "", "1"));
+            return null;
+        }
         Map<Object, Object> object = new HashMap<>() {{
             put("viewTitle", "Compare");
             put("meta", meta(request));
         }};
         return new ModelAndView(object, null);
+    }
+
+    private long getCounter(Request request, String key) {
+        long counter;
+        try {
+            counter = Long.parseLong(request.params(key));
+        } catch (NumberFormatException nfe) {
+            counter = 0;
+        }
+        return counter;
     }
 
     private HashMap<String, String> meta(Request request) {

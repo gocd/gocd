@@ -23,6 +23,7 @@ import com.thoughtworks.go.spark.SecurityServiceTrait
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
 
 import static org.mockito.Mockito.when
 
@@ -55,6 +56,33 @@ class CompareControllerTest implements ControllerTrait<CompareController>, Secur
       @Override
       String getPipelineName() {
         return "up42"
+      }
+    }
+
+    @Nested
+    class AsAdminUser {
+      @Test
+      void 'should return view if counters are valid'() {
+        get(controller.controllerPath("up42/3/with/4"))
+
+        assertThatResponse()
+          .isOk()
+      }
+
+      @Test
+      void 'should redirect if from counter is zero'() {
+        get(controller.controllerPath("up42/0/with/4"))
+
+        assertThatResponse()
+          .redirectsTo("/go" + controller.controllerPath("up42/1/with/4"))
+      }
+
+      @Test
+      void 'should redirect if to counter is zero'() {
+        get(controller.controllerPath("up42/3/with/0"))
+
+        assertThatResponse()
+          .redirectsTo("/go" + controller.controllerPath("up42/3/with/1"))
       }
     }
   }

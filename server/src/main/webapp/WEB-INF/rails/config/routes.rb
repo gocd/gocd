@@ -161,23 +161,6 @@ Rails.application.routes.draw do
     get "templates/:name" => "config_view/templates#show", as: :config_view_templates_show, constraints: {name: TEMPLATE_NAME_FORMAT}
   end
 
-  get 'environments', to: redirect('admin/environments'), as: :environment_redirect
-
-  scope 'admin/environments' do
-    defaults :no_layout => true do
-      post "create" => 'environments#create', as: :environment_create
-      get "new" => 'environments#new', as: :environment_new
-      put ":name" => 'environments#update', constraints: ENVIRONMENT_NAME_CONSTRAINT, as: :environment_update
-
-      get ":name/show" => 'environments#show', constraints: ENVIRONMENT_NAME_CONSTRAINT, as: :environment_show
-
-      [:pipelines, :agents, :variables].each do |action|
-        get ":name/edit/#{action}" => "environments#edit_#{action}", constraints: ENVIRONMENT_NAME_CONSTRAINT, as: "environment_edit_#{action}"
-      end
-    end
-  end
-  get "admin/environments(.:format)" => 'environments#index', defaults: {:format => :html}, as: :environments
-
   {'application/vnd.go.cd.v1+json' => :apiv1, 'application/vnd.go.cd+json' => :latest}.each do |header, as|
     scope :api, as: as, format: false do
       api_version(:module => 'ApiV1', header: {name: 'Accept', value: header}) do

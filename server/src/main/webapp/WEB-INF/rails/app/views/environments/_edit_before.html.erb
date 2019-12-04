@@ -1,7 +1,0 @@
-<%= form_tag environment_update_path(:name => scope[:environment].name()),
-                    :method => "put",
-                    :class => "popup_form",
-                    :onsubmit => "return AjaxForm.jquery_ajax_submit(this);" %>
-       <%= flash_message_pane_start("env_form_error_box", true) %>
-
-

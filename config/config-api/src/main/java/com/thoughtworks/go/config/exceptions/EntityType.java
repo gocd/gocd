@@ -120,7 +120,7 @@ public enum EntityType {
     }
 
     public String notFoundMessage(List<?> ids) {
-        return format("%ss %ss '%s' were not found!", StringUtils.capitalize(this.entityType), this.nameOrId.descriptor, StringUtils.join(ids, ","));
+        return format("%ss %ss [%s] were not found!", StringUtils.capitalize(this.entityType), this.nameOrId.descriptor, StringUtils.join(ids, ", "));
     }
 
     public String getEntityNameLowerCase() {

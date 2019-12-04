@@ -269,7 +269,7 @@ class AgentServiceTest {
 
                 RecordNotFoundException e = assertThrows(RecordNotFoundException.class, () -> agentService.bulkUpdateAgentAttributes(uuids, singletonList("resource"), emptyStrList, emptyStrList, emptyStrList, UNSET, environmentConfigService));
                 verifyZeroInteractions(agentDao);
-                assertThat(e.getMessage(), is("Agents with uuids 'uuid1' were not found!"));
+                assertThat(e.getMessage(), is("Agents with uuids [uuid1] were not found!"));
             }
 
             @Test

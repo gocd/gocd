@@ -185,7 +185,8 @@ task verifyJar(type: VerifyJarTask) {
       "spring-tx-${project.versions.spring}.jar",
       "spring-web-${project.versions.spring}.jar",
       "spring-webmvc-${project.versions.spring}.jar",
-      "util-${project.version}.jar"
+      "util-${project.version}.jar",
+      "snakeyaml-${project.versions.snakeYaml}.jar"
     ]
   ]
 }

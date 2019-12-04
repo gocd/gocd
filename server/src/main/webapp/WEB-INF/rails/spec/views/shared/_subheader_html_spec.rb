@@ -26,12 +26,4 @@ describe "/shared/_subheader.html.erb" do
     expect(response).to have_selector("div.page_header h1.entity_title", :text => 'My Title')
   end
 
-  it 'should display add environments link' do
-    assign(:page_header, 'My Title')
-    assign(:show_add_environments, true)
-
-    render :partial => "shared/subheader"
-
-    expect(response).to have_selector("div.page_header div.add_new_environment a.link_as_header_button[href='/admin/environments/new']", :text => 'Add a new environment')
-  end
 end

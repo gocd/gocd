@@ -1,7 +1,0 @@
-<%= form_for @environment, {as: :environment, url: environment_update_path, html: {method: :put, onsubmit: "return AjaxForm.jquery_ajax_submit(this);"}} do |f| %>
-    <%= flash_message_pane_start("env_form_error_box", true) %>
-    <%= render :partial => "edit_environment_variables", :locals => {:scope => {:environment => @environment, :form => f}} %>
-    <%= config_md5_field %>
-    <%= register_defaultable_list("environment>variables") %>
-    <%= render :partial => "shared/form_buttons.html", :locals => {:scope => {:submit_label => "Save"}} %>
-<% end %>

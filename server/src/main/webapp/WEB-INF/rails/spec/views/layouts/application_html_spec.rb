@@ -37,23 +37,6 @@ describe "/layouts/application" do
     expect(response).to have_selector('html body div div', 'content')
   end
 
-  it "should display Add New environment link" do
-    assign(:show_add_environments, true)
-    assign(:page_header, "Environments")
-
-    render :inline => '<div>content</div>', :layout => @layout_name
-
-    expect(response).to have_selector(".add_new_environment a.link_as_header_button", :text => "Add a new environment")
-  end
-
-  it "should not display Add New environment link when there is not show_add_environments" do
-    assign(:page_header, "Environments")
-
-    render :inline => '<div>content</div>', :layout => @layout_name
-
-    expect(response).to_not have_selector(".add_new_environment a.link_as_button")
-  end
-
   it "should render reload option when the config file MD5 has changed under the message" do
     assign(:config_file_conflict, true)
 

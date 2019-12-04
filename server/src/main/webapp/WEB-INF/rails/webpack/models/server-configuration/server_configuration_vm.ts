@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
+import _ from "lodash";
 import Stream from "mithril/stream";
 import {ArtifactConfig, DefaultJobTimeout, MailServer, SiteUrls} from "./server_configuration";
 
 export type ServerConfigType = ArtifactConfig | MailServer | SiteUrls | DefaultJobTimeout;
+export type ServerConfigVM = MailServerVM | ArtifactConfigVM | DefaultJobTimeoutVM | SiteUrlsVM;
 
 export class ServerConfigurationVM<T extends ServerConfigType> {
   etag: Stream<string | undefined>;
@@ -38,6 +40,10 @@ export class ServerConfigurationVM<T extends ServerConfigType> {
     this._original(object);
     this.entity(object.clone() as T);
     this.etag(etag);
+  }
+
+  isModified() {
+    return !_.isEqual(this._original().toJSON(), this.entity().toJSON());
   }
 }
 

@@ -27,8 +27,8 @@ describe("ConfirmModal", () => {
   let testHelper: TestHelper;
 
   beforeEach(() => {
-    spy        = jasmine.createSpy("cancel callback").and.returnValue(new Promise(_.noop));
-    modal      = new ConfirmModal("Do you want to cancel?", spy, "Some modal title");
+    spy   = jasmine.createSpy("cancel callback").and.returnValue(new Promise(_.noop));
+    modal = new ConfirmModal("Do you want to cancel?", spy, "Some modal title");
     modal.render();
     m.redraw.sync();
     testHelper = new TestHelper().forModal();
@@ -40,7 +40,7 @@ describe("ConfirmModal", () => {
 
   it("should render", () => {
     expect(modal).toContainTitle("Some modal title");
-    expect(modal).toContainButtons(["No", "Yes"]);
+    expect(modal).toContainButtons(["Yes", "No"]);
     expect(modal).toContainBody("Do you want to cancel?");
   });
 

@@ -58,6 +58,13 @@ export class SiteUrls extends ValidatableMixin {
   clone() {
     return new SiteUrls(this.siteUrl(), this.secureSiteUrl());
   }
+
+  toJSON() {
+    return {
+      site_url: this.siteUrl(),
+      secure_site_url: this.secureSiteUrl()
+    } as SiteUrlsJSON;
+  }
 }
 
 export interface PurgeSettingsJSON extends ErrorJSON {
@@ -164,7 +171,7 @@ export class ArtifactConfig extends ValidatableMixin {
   }
 }
 
-interface DefaultJobTimeoutJSON extends ErrorJSON {
+export interface DefaultJobTimeoutJSON extends ErrorJSON {
   default_job_timeout: string;
 }
 
@@ -191,9 +198,9 @@ export class DefaultJobTimeout extends ValidatableMixin {
     return new DefaultJobTimeout(parseInt(data.default_job_timeout, 10), new Errors(errors));
   }
 
-  toJSON() {
+  toJSON(): DefaultJobTimeoutJSON {
     return {
-      default_job_timeout: this.defaultJobTimeout
+      default_job_timeout: this.defaultJobTimeout().toString()
     };
   }
 
@@ -246,7 +253,6 @@ export class MailServer extends ValidatableMixin {
               errors: Errors = new Errors()) {
     super();
     ValidatableMixin.call(this);
-
     this.hostname    = Stream(hostname);
     this.port        = Stream(port);
     this.username    = Stream(username);
@@ -283,29 +289,21 @@ export class MailServer extends ValidatableMixin {
   }
 
   toJSON() {
-    const serialized                       = _.assign({}, this);
-    const password: Stream<EncryptedValue> = _.get(serialized, "password");
-
-    // remove the password field and setup the password serialization
-    if (password) {
-      // @ts-ignore
-      delete serialized.password;
-
-      if (password().isPlain() || password().isDirty()) {
-        return _.assign({}, serialized, {password: password().value()});
-      } else {
-        return _.assign({}, serialized, {encrypted_password: password().value()});
-      }
-    }
-
-    return serialized;
+    const isPlainPassword = this.password().isPlain() || this.password().isDirty();
+    return {
+      hostname: this.hostname(),
+      port: this.port(),
+      username: this.username(),
+      password: isPlainPassword ? this.password().value() : "",
+      encryptedPassword: isPlainPassword ? "" : this.password().value(),
+      tls: this.tls(),
+      senderEmail: this.senderEmail(),
+      adminEmail: this.adminEmail()
+    } as MailServerJSON;
   }
 
   clone() {
-    return new MailServer(this.hostname(), this.port(), this.username(),
-                          this.password().isPlain() ? this.password().value() : undefined,
-                          this.password().isSecure() ? this.password().value() : undefined,
-                          this.tls(), this.senderEmail(), this.adminEmail());
+    return MailServer.fromJSON(this.toJSON());
   }
 
 }

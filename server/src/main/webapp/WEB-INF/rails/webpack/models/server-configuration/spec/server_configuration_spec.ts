@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {ArtifactConfig, DefaultJobTimeout, MailServer, MailServerJSON, SiteUrls} from "models/server-configuration/server_configuration";
+import {ArtifactConfig, DefaultJobTimeout, DefaultJobTimeoutJSON, MailServer, MailServerJSON, SiteUrls} from "models/server-configuration/server_configuration";
 
 describe("ArtifactConfig", () => {
   describe("fromJSON", () => {
@@ -178,17 +178,27 @@ describe("SiteUrls", () => {
     expect(siteUrls.siteUrl()).toBe(clonedSiteUrls.siteUrl());
     expect(siteUrls.secureSiteUrl()).toBe(clonedSiteUrls.secureSiteUrl());
   });
+
+  it("should serialize", () => {
+    const siteUrlsJSON = {
+      site_url: "http://foo.bar",
+      secure_site_url: "https://secure.com"
+    };
+
+    const siteUrls = new SiteUrls("http://foo.bar", "https://secure.com");
+    expect(siteUrls.toJSON()).toEqual(siteUrlsJSON);
+  });
 });
 
 describe("DefaultJobTimeout", () => {
   it("should deserialize", () => {
-    const defaultJobTimeoutJSON = {
+    const defaultJobTimeoutJSON: DefaultJobTimeoutJSON = {
       default_job_timeout: "15",
       errors: {
         default_job_timeout: ["some-error"]
       }
     };
-    const defaultJobTimeout     = DefaultJobTimeout.fromJSON(defaultJobTimeoutJSON);
+    const defaultJobTimeout                            = DefaultJobTimeout.fromJSON(defaultJobTimeoutJSON);
     expect(defaultJobTimeout.defaultJobTimeout()).toBe(15);
     expect(defaultJobTimeout.errors().errors("defaultJobTimeout")).toEqual(["some-error"]);
   });
@@ -227,6 +237,14 @@ describe("DefaultJobTimeout", () => {
     expect(jobTimeout).not.toBe(clonedJobTimeout);
     expect(jobTimeout.neverTimeout()).toBe(false);
     expect(jobTimeout.defaultJobTimeout()).toBe(11);
+  });
+
+  it("should serialize", () => {
+    const defaultJobTimeout               = new DefaultJobTimeout(10);
+    const expected: DefaultJobTimeoutJSON = {
+      default_job_timeout: "10"
+    };
+    expect(defaultJobTimeout.toJSON()).toEqual(expected);
   });
 });
 
@@ -272,7 +290,7 @@ describe("MailServer", () => {
   });
 
   describe("toJSON", () => {
-    it("should serialize artifact config when purge setting is not specified", () => {
+    it("should serialize mail server config with plain password", () => {
       const mailServerJSON: MailServerJSON = {
         hostname: "hostname",
         port: 1234,
@@ -285,28 +303,43 @@ describe("MailServer", () => {
       };
       const mailServer                     = MailServer.fromJSON(mailServerJSON);
       const json                           = mailServer.toJSON();
-      expect(json.hostname()).toBe(mailServerJSON.hostname);
-      expect(json.port()).toBe(mailServerJSON.port);
-      expect(json.adminEmail()).toBe(mailServerJSON.adminEmail);
-      expect(json.password).toBe(mailServerJSON.password);
-      expect(json.senderEmail()).toBe(mailServerJSON.senderEmail);
-      expect(json.tls()).toBe(mailServerJSON.tls);
-      expect(json.username()).toBe(mailServerJSON.username);
+      expect(json).toEqual(mailServerJSON);
     });
 
-    it("should serialize artifact config when purge setting is specified", () => {
-      const artifactConfig = new ArtifactConfig("foo");
-      artifactConfig.purgeSettings().purgeStartDiskSpace(10);
-      artifactConfig.purgeSettings().purgeUptoDiskSpace(20);
-      const artifactConfigJSON = artifactConfig.toJSON();
-      const expectedJSON       = {
-        artifacts_dir: "foo",
-        purge_settings: {
-          purge_start_disk_space: 10,
-          purge_upto_disk_space: 20
-        }
+    it("should serialize mail server config with encrypted password", () => {
+      const mailServerJSON: MailServerJSON = {
+        hostname: "hostname",
+        port: 1234,
+        adminEmail: "admin@foo.com",
+        encryptedPassword: "some-password",
+        password: "",
+        senderEmail: "sender@foo.com",
+        tls: false,
+        username: "bob"
       };
-      expect(artifactConfigJSON).toEqual(expectedJSON);
+
+      const mailServer = MailServer.fromJSON(mailServerJSON);
+      const json       = mailServer.toJSON();
+      expect(json).toEqual(mailServerJSON);
+    });
+
+    it("should serialize mail server config with encrypted password dirty", () => {
+      const mailServerJSON: MailServerJSON = {
+        hostname: "hostname",
+        port: 1234,
+        adminEmail: "admin@foo.com",
+        encryptedPassword: "",
+        password: "some-password",
+        senderEmail: "sender@foo.com",
+        tls: false,
+        username: "bob"
+      };
+
+      const mailServer = MailServer.fromJSON(mailServerJSON);
+      mailServer.password().value("other-value");
+      const json                       = mailServer.toJSON();
+      mailServerJSON.password = "other-value";
+      expect(json).toEqual(mailServerJSON);
     });
   });
 

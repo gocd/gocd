@@ -43,6 +43,18 @@ describe('SiteUrlsVM', () => {
     expect(siteUrlsVM.entity().siteUrl()).toBe("foo@gmail");
     expect(siteUrlsVM.entity().secureSiteUrl()).toBe("secureFoo@gmail");
   });
+
+  it("should return true if siteUrlConfig is modified", () => {
+    const siteUrlsVM: SiteUrlsVM = new SiteUrlsVM(new SiteUrls("foo@gmail", "secureFoo@gmail"));
+    siteUrlsVM.entity().siteUrl("changedOne@gmail");
+
+    expect(siteUrlsVM.isModified()).toBe(true);
+  });
+
+  it("should return false if siteUrlConfig is modified", () => {
+    const siteUrlsVM: SiteUrlsVM = new SiteUrlsVM(new SiteUrls("foo@gmail", "secureFoo@gmail"));
+    expect(siteUrlsVM.isModified()).toBe(false);
+  });
 });
 
 describe('ArtifactConfigVM', () => {
@@ -75,6 +87,17 @@ describe('ArtifactConfigVM', () => {
     expect(artifactConfigVM.entity().purgeSettings().purgeStartDiskSpace()).toBe(10);
     expect(artifactConfigVM.entity().purgeSettings().purgeUptoDiskSpace()).toBe(20);
   });
+
+  it("should return true if artifactConfig is modified", () => {
+    const artifactConfigVM: ArtifactConfigVM = new ArtifactConfigVM(new ArtifactConfig("artifacts", 10, 20));
+    artifactConfigVM.entity().artifactsDir("changedArtifacts");
+    expect(artifactConfigVM.isModified()).toBe(true);
+  });
+
+  it("should return false if artifactConfig is not modified", () => {
+    const artifactConfigVM: ArtifactConfigVM = new ArtifactConfigVM(new ArtifactConfig("artifacts", 10, 20));
+    expect(artifactConfigVM.isModified()).toBe(false);
+  });
 });
 
 describe('DefaultJobTimeoutVM', () => {
@@ -102,6 +125,17 @@ describe('DefaultJobTimeoutVM', () => {
 
     expect(defaultJobTimeoutVM.entity().defaultJobTimeout()).toBe(10);
     expect(defaultJobTimeoutVM.entity().neverTimeout()).toBe(false);
+  });
+
+  it("should return true if jobTimeout is modified", () => {
+    const defaultJobTimeoutVM: DefaultJobTimeoutVM = new DefaultJobTimeoutVM(new DefaultJobTimeout(10));
+    defaultJobTimeoutVM.entity().defaultJobTimeout(100);
+    expect(defaultJobTimeoutVM.isModified()).toBe(true);
+  });
+
+  it("should return false if jobTimeout is not modified", () => {
+    const defaultJobTimeoutVM: DefaultJobTimeoutVM = new DefaultJobTimeoutVM(new DefaultJobTimeout(10));
+    expect(defaultJobTimeoutVM.isModified()).toBe(false);
   });
 });
 
@@ -160,5 +194,16 @@ describe('MailServerVM', () => {
     mailServerVM.entity(updatedMailServer);
 
     expect(mailServerVM.entity()).toBe(updatedMailServer);
+  });
+
+  it("should return true if mailServerConfig is modified", () => {
+    const mailServerVM: MailServerVM = new MailServerVM(new MailServer("hostname", 1234, "bob", "password", "", true, "sender@foo.com", "admin@foo.com"));
+    mailServerVM.entity().hostname("another-hostname");
+    expect(mailServerVM.isModified()).toBe(true);
+  });
+
+  it("should return false if mailServerConfig is not modified", () => {
+    const mailServerVM: MailServerVM = new MailServerVM(new MailServer("hostname", 1234, "bob", "password", "", true, "sender@foo.com", "admin@foo.com"));
+    expect(mailServerVM.isModified()).toBe(false);
   });
 });

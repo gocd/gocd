@@ -512,7 +512,7 @@ public class AgentServiceIntegrationTest {
         @Test
         void shouldReturn400WhenUpdatingAnUnknownAgent() {
             RecordNotFoundException e = assertThrows(RecordNotFoundException.class, () -> agentService.bulkUpdateAgentAttributes(singletonList("unknown-agent-id"), emptyStrList, emptyStrList, emptyStrList, emptyStrList, TRUE, environmentConfigService));
-            assertThat(e.getMessage(), is("Agents with uuids 'unknown-agent-id' were not found!"));
+            assertThat(e.getMessage(), is("Agents with uuids [unknown-agent-id] were not found!"));
         }
 
         @Test

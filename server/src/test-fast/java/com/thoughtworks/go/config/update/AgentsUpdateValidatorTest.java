@@ -30,6 +30,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static com.thoughtworks.go.domain.AgentInstance.FilterBy.*;
@@ -112,12 +113,14 @@ public class AgentsUpdateValidatorTest {
         @Test
         public void shouldThrowExceptionWhenAgentsToBeUpdatedDoesNotExist() {
             String nonExistingUuid = "non-existing-uuid";
+            String anotherNonExistingUuid = "another-non-existing-uuid";
             uuids.add(nonExistingUuid);
+            uuids.add(anotherNonExistingUuid);
 
-            when(agentInstances.filterBy(uuids, Null)).thenReturn(singletonList(nonExistingUuid));
+            when(agentInstances.filterBy(uuids, Null)).thenReturn(Arrays.asList(nonExistingUuid, anotherNonExistingUuid));
 
             RecordNotFoundException e = assertThrows(RecordNotFoundException.class, () -> newAgentsUpdateValidator().validate());
-            assertThat(e.getMessage(), is("Agents with uuids 'non-existing-uuid' were not found!"));
+            assertThat(e.getMessage(), is("Agents with uuids [non-existing-uuid, another-non-existing-uuid] were not found!"));
         }
 
         @Test

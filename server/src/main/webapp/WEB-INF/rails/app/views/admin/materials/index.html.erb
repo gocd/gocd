@@ -119,6 +119,8 @@
     Util.on_load(function() {
         var newMaterialPopup = new MicroContentPopup(jQuery('#new_material_popup').get(0), new MicroContentPopup.NoOpHandler());
         var newMaterialPopupShower = new MicroContentPopup.ClickShower(newMaterialPopup);
+      <% unless @is_config_repo_pipeline %>
         newMaterialPopupShower.bindShowButton(jQuery('#add_material_dropdown_link').get(0));
+      <% end %>
     });
 </script>

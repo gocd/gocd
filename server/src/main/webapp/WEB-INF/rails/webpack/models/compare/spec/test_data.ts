@@ -82,11 +82,11 @@ export class PipelineInstanceData {
 }
 
 export class ComparisonData {
-  static compare() {
+  static compare(pipelineName: string = "pipeline1", fromCounter: number = 1, toCounter: number = 3) {
     return {
-      pipeline_name: "pipeline1",
-      from_counter:  1,
-      to_counter:    3,
+      pipeline_name: pipelineName,
+      from_counter:  fromCounter,
+      to_counter:    toCounter,
       is_bisect:     false,
       changes:       [
         {
@@ -104,14 +104,7 @@ export class ComparisonData {
               shallow_clone:    false
             }
           },
-          revision: [
-            {
-              revision_sha:   "some-random-sha",
-              modified_by:    "username <username@github.com>",
-              modified_at:    "2019-10-15T12:32:37Z",
-              commit_message: "some commit message"
-            }
-          ]
+          revision: this.materialRevisions()
         },
         {
           material: {
@@ -123,15 +116,30 @@ export class ComparisonData {
               auto_update: true
             }
           },
-          revision: [
-            {
-              revision:         "upstream/1/upstream_stage/1",
-              pipeline_counter: "1",
-              completed_at:     "2019-10-17T06:55:07Z"
-            }
-          ]
+          revision: this.dependencyMaterialRevisions()
         }
       ]
     } as ComparisonJSON;
+  }
+
+  static materialRevisions() {
+    return [
+      {
+        revision_sha:   "some-random-sha",
+        modified_by:    "username <username@github.com>",
+        modified_at:    "2019-10-15T12:32:37Z",
+        commit_message: "some commit message"
+      }
+    ];
+  }
+
+  static dependencyMaterialRevisions() {
+    return [
+      {
+        revision:         "upstream/1/upstream_stage/1",
+        pipeline_counter: "1",
+        completed_at:     "2019-10-17T06:55:07Z"
+      }
+    ];
   }
 }

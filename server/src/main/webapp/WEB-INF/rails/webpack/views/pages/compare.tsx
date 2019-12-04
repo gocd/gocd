@@ -14,24 +14,36 @@
  * limitations under the License.
  */
 
+import {SuccessResponse} from "helpers/api_request_builder";
 import m from "mithril";
-import {Compare} from "models/compare/compare";
+import Stream from "mithril/stream";
+import {Comparison} from "models/compare/compare";
+import {ComparisonCRUD} from "models/compare/compare_crud";
 import {FlashMessage} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
-import {CompareWidget} from "views/pages/compare/compare_widget";
 import {Page, PageState} from "views/pages/page";
 import {CompareHeaderWidget} from "./compare/compare_header_widget";
+import {ComparisonResultWidget} from "./compare/comparison_result_widget";
 
 interface State {
-  dummy?: Compare;
+  comparison: Stream<Comparison>;
 }
 
 export class ComparePage extends Page<null, State> {
+  oninit(vnode: m.Vnode<null, State>) {
+    super.oninit(vnode);
+    vnode.state.comparison = Stream();
+  }
+
   componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
     if (this.pageState === PageState.FAILED) {
       return <FlashMessage type={this.flashMessage.type} message={this.flashMessage.message}/>;
     }
-    return <CompareWidget/>;
+
+    return <div>
+      <h1>Changes:</h1>
+      <ComparisonResultWidget comparisonResult={vnode.state.comparison()}/>
+    </div>;
   }
 
   pageName(): string {
@@ -39,8 +51,12 @@ export class ComparePage extends Page<null, State> {
   }
 
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {
-    // to be implemented
-    return Promise.resolve();
+    return ComparisonCRUD.getDifference(this.getMeta().pipelineName, this.getMeta().fromCounter, this.getMeta().toCounter)
+                         .then((result) =>
+                                 result.do((successResponse: SuccessResponse<Comparison>) => {
+                                   this.pageState = PageState.OK;
+                                   vnode.state.comparison(successResponse.body);
+                                 }, this.setErrorState));
   }
 
   protected headerPanel(vnode: m.Vnode<null, State>): any {

@@ -42,7 +42,7 @@ export class Comparison {
   }
 }
 
-class Change {
+export class Change {
   material: Material;
   revision: Revisions;
 
@@ -100,7 +100,7 @@ export class MaterialRevision {
   }
 }
 
-class MaterialRevisions extends Array<MaterialRevision> {
+export class MaterialRevisions extends Array<MaterialRevision> {
   constructor(...vals: MaterialRevision[]) {
     super(...vals);
     Object.setPrototypeOf(this, Object.create(MaterialRevisions.prototype));
@@ -127,7 +127,7 @@ export class DependencyRevision {
   }
 }
 
-class DependencyRevisions extends Array<DependencyRevision> {
+export class DependencyRevisions extends Array<DependencyRevision> {
   constructor(...vals: DependencyRevision[]) {
     super(...vals);
     Object.setPrototypeOf(this, Object.create(DependencyRevisions.prototype));

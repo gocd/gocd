@@ -496,4 +496,8 @@ export class SparkRoutes {
   static pipelineHistoryPath(pipelineName: string) {
     return `/go/pipeline/activity/${pipelineName}`;
   }
+
+  static comparePipelines(pipelineName: string, fromCounter: number, toCounter: number) {
+    return `/go/api/pipelines/${pipelineName}/compare/${fromCounter}/${toCounter}`;
+  }
 }

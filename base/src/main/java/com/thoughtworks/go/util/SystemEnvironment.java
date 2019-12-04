@@ -751,10 +751,18 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return GO_SERVER_STATE.getValue().equalsIgnoreCase("active");
     }
 
+    @Deprecated
+    //changing GO_SERVER_STATE to active requires a restart as timer-threads are not scheduled when the server is
+    // in passive mode.
+    // Changing GO_SERVER_STATE to active without server restart can have inadvertent behavior.
     public void switchToActiveState() {
         set(GO_SERVER_STATE, "active");
     }
 
+    @Deprecated
+    //changing GO_SERVER_STATE to passive requires a restart as timer-threads are scheduled when the server is
+    // in active mode.
+    // Changing GO_SERVER_STATE to active without server restart may result into functioning of some parts of GoCD subsystems.
     public void switchToPassiveState() {
         set(GO_SERVER_STATE, "passive");
     }

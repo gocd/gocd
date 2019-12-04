@@ -201,11 +201,6 @@ Rails.application.routes.draw do
 
   namespace :api, as: "" do
     defaults :no_layout => true do
-      # state
-      get 'state/status' => 'server_state#status'
-      post 'state/active' => 'server_state#to_active', constraints: HeaderConstraint.new
-      post 'state/passive' => 'server_state#to_passive', constraints: HeaderConstraint.new
-
       # history
       get 'pipelines/:pipeline_name/history/(:offset)' => 'pipelines#history', constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, defaults: {:offset => '0'}, as: :pipeline_history
       get 'jobs/:pipeline_name/:stage_name/:job_name/history/(:offset)' => 'jobs#history', constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_name: STAGE_NAME_FORMAT, job_name: JOB_NAME_FORMAT}, defaults: {:offset => '0'}, as: :job_history_api

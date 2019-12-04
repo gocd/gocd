@@ -148,7 +148,7 @@
 
     function setViewAndEditLinks() {
       var template_map = <%== @template_list.inject({})  {|memo, template_view_model | memo[template_view_model.getTemplate().name().to_s]  = {canView: template_view_model.isAuthorizedToViewTemplate(), canEdit: template_view_model.isAuthorizedToEditTemplate()}; memo}.to_json %>;
-      viewAndEditAssociatedTemplate("#select_template").addViewAndEditTemplateLinks(template_map, "<%= config_view_templates_show_path(:name => "__template_name__") %>", "<%= template_edit_path(:pipeline_name => "__template_name__" ,:stage_parent => "templates", :current_tab => 'general') %>");
+      viewAndEditAssociatedTemplate("#select_template").addViewAndEditTemplateLinks(template_map, "/go/admin/templates#!__template_name__/view", "<%= template_edit_path(:pipeline_name => "__template_name__" ,:stage_parent => "templates", :current_tab => 'general') %>");
     }
   });
   AjaxForm.error_box_selector = '#MB_content';

@@ -15,53 +15,53 @@
  */
 package com.thoughtworks.go.domain;
 
-import org.junit.Test;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
 
-public class PipelineStateTest {
+import static org.assertj.core.api.Assertions.assertThat;
+
+class PipelineStateTest {
     @Test
-    public void shouldBeEqualToAnotherPipelineStateIfAllAttributesMatch() {
+    void shouldBeEqualToAnotherPipelineStateIfAllAttributesMatch() {
         PipelineState pipelineState1 = new PipelineState("p", new StageIdentifier("p", 1, "1", 1L, "s", "1"));
         PipelineState pipelineState2 = new PipelineState("p", new StageIdentifier("p", 1, "1", 1L, "s", "1"));
         pipelineState1.lock(1);
         pipelineState2.lock(1);
-        assertEquals(pipelineState1, pipelineState2);
+        assertThat(pipelineState2).isEqualTo(pipelineState1);
     }
 
     @Test
-    public void shouldBeEqualToAnotherPipelineStateIfBothDoNotHaveLockedBy() {
+    void shouldBeEqualToAnotherPipelineStateIfBothDoNotHaveLockedBy() {
         PipelineState pipelineState1 = new PipelineState("p");
         PipelineState pipelineState2 = new PipelineState("p");
         pipelineState1.lock(1);
         pipelineState2.lock(1);
-        assertEquals(pipelineState1, pipelineState2);
+        assertThat(pipelineState2).isEqualTo(pipelineState1);
     }
 
     @Test
-    public void shouldNotBeEqualToAnotherPipelineStateIfAllAttributesDoNotMatch() {
+    void shouldNotBeEqualToAnotherPipelineStateIfAllAttributesDoNotMatch() {
         PipelineState pipelineState1 = new PipelineState("p", new StageIdentifier("p", 1, "1", 1L, "s", "1"));
         PipelineState pipelineState2 = new PipelineState("p", new StageIdentifier("p", 1, "1", 1L, "s", "1"));
         pipelineState1.lock(1);
-        assertNotEquals(pipelineState1, pipelineState2);
+        assertThat(pipelineState2).isNotEqualTo(pipelineState1);
     }
 
     @Test
-    public void shouldSetLockedByPipelineIdWhileLockingAPipeline() {
+    void shouldSetLockedByPipelineIdWhileLockingAPipeline() {
         PipelineState pipelineState = new PipelineState("p");
         pipelineState.lock(100);
-        assertThat(pipelineState.isLocked(), is(true));
-        assertThat(pipelineState.getLockedByPipelineId(), is(100L));
+        assertThat(pipelineState.isLocked()).isTrue();
+        assertThat(pipelineState.getLockedByPipelineId()).isEqualTo(100L);
     }
 
     @Test
-    public void shouldUnsetLockedByPipelineIdWhileUnlockingAPipeline() {
+    void shouldUnsetLockedByPipelineIdWhileUnlockingAPipeline() {
         PipelineState pipelineState = new PipelineState("p");
         pipelineState.lock(100);
 
         pipelineState.unlock();
-        assertThat(pipelineState.isLocked(), is(false));
-        assertThat(pipelineState.getLockedByPipelineId(), is(0L));
+        assertThat(pipelineState.isLocked()).isFalse();
+        assertThat(pipelineState.getLockedByPipelineId()).isEqualTo(0L);
     }
 }

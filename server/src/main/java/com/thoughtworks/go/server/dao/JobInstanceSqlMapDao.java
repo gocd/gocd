@@ -507,6 +507,29 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         });
     }
 
+    @Override
+    public JobInstance findJobInstance(String pipelineName, String stageName, String jobName, int pipelineCounter, int stageCounter) {
+        String cacheKey = cacheKeyForFindJobInstance(pipelineName, stageName, jobName, pipelineCounter, stageCounter);
+        return latestCompletedCache.get(cacheKey, () -> {
+            Map params = new HashMap();
+            params.put("pipelineName", pipelineName);
+            params.put("stageName", stageName);
+            params.put("jobName", jobName);
+            params.put("pipelineCounter", pipelineCounter);
+            params.put("stageCounter", stageCounter);
+
+            JobInstance jobInstance = (JobInstance) getSqlMapClientTemplate().queryForObject("findJobInstance", params);
+            if (jobInstance == null) {
+                jobInstance = new NullJobInstance(jobName);
+            }
+            return jobInstance;
+        });
+    }
+
+    String cacheKeyForFindJobInstance(String pipelineName, String stageName, String jobName, int pipelineCounter, int stageCounter) {
+        return cacheKeyGenerator.generate("findJobInstance", pipelineName.toLowerCase(), stageName.toLowerCase(), jobName.toLowerCase(), pipelineCounter, stageCounter);
+    }
+
     String cacheKeyForFindJobHistoryPage(String pipelineName,
                                          String stageName,
                                          String jobConfigName,

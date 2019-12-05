@@ -349,6 +349,12 @@ public class Routes {
         }
     }
 
+    public static class Job {
+        public static final String BASE = "/api/jobs";
+        public static final String JOB_HISTORY = "/:pipeline_name/:stage_name/:job_name/history";
+        public static final String JOB_INSTANCE = "/:pipeline_name/:stage_name/:job_name/instance/:pipeline_counter/:stage_counter";
+    }
+
     public static class UserSummary {
         public static final String DOC = apiDocsUrl("#users");
         public static final String CURRENT_USER = "/api/current_user";

@@ -18,6 +18,8 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.exceptions.NotAuthorizedException;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.activity.JobStatusCache;
@@ -40,9 +42,9 @@ import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.transaction.TransactionStatus;
@@ -55,6 +57,7 @@ import java.util.List;
 
 import static com.thoughtworks.go.helper.JobInstanceMother.completed;
 import static com.thoughtworks.go.helper.JobInstanceMother.scheduled;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.any;
@@ -82,7 +85,7 @@ public class JobInstanceServiceTest {
     private TransactionTemplate transactionTemplate;
     private JobStatusCache jobStatusCache;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         initMocks(this);
         job = JobInstanceMother.building("dev");
@@ -91,7 +94,7 @@ public class JobInstanceServiceTest {
         jobStatusCache = new JobStatusCache(stageDao);
     }
 
-    @After
+    @AfterEach
     public void after() {
         Mockito.verifyNoMoreInteractions(jobInstanceDao, stageDao);
     }
@@ -423,5 +426,29 @@ public class JobInstanceServiceTest {
 
         assertThat(jobInstances, is(expectedRunningJobs));
         verify(jobInstanceDao).getRunningJobs();
+    }
+
+    @Test
+    void shouldThrowExceptionIfPipelineDoesNotExistForJobInstance() {
+        when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+        when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(false);
+        JobInstanceService jobInstanceService = new JobInstanceService(jobInstanceDao, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, null, serverHealthService);
+
+        assertThatCode(() -> jobInstanceService.findJobInstance("pipeline", "stage", "job", 1, 1, "admin"))
+                .isInstanceOf(RecordNotFoundException.class)
+                .hasMessage("Pipeline with name 'pipeline' was not found!");
+    }
+
+    @Test
+    void shouldThrowExceptionIfTheUserDoesNotHaveAccessToViewPipelineForJobInstance() {
+        when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+        when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(true);
+        when(securityService.hasViewPermissionForPipeline(Username.valueOf("user"), "pipeline")).thenReturn(false);
+
+        JobInstanceService jobInstanceService = new JobInstanceService(jobInstanceDao, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, securityService, serverHealthService);
+
+        assertThatCode(() -> jobInstanceService.findJobInstance("pipeline", "stage", "job", 1, 1, "user"))
+                .isInstanceOf(NotAuthorizedException.class)
+                .hasMessage("Not authorized to view pipeline");
     }
 }

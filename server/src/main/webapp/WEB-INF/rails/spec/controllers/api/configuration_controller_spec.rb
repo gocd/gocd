@@ -26,8 +26,8 @@ describe Api::ConfigurationController do
 
   describe "config_revisions" do
     it "should route to list_revisions" do
-      expect(:get => '/api/config/revisions').to route_to(:controller => "api/configuration", :action => "config_revisions", :offset => '0', :no_layout => true)
-      expect(:get => '/api/config/revisions/1').to route_to(:controller => "api/configuration", :action => "config_revisions", :offset => '1', :no_layout => true)
+      expect(:get => '/api/internal/config/revisions').to route_to(:controller => "api/configuration", :action => "config_revisions", :offset => '0', :no_layout => true)
+      expect(:get => '/api/internal/config/revisions/1').to route_to(:controller => "api/configuration", :action => "config_revisions", :offset => '1', :no_layout => true)
     end
 
     it "should render history json" do
@@ -55,7 +55,7 @@ describe Api::ConfigurationController do
 
   describe "diff" do
     it "should route to list_revisions" do
-      expect(:get => '/api/config/diff/a/b').to route_to(:controller => "api/configuration", :action => "config_diff", :from_revision => 'a', :to_revision => 'b', :no_layout => true)
+      expect(:get => '/api/internal/config/diff/a/b').to route_to(:controller => "api/configuration", :action => "config_diff", :from_revision => 'a', :to_revision => 'b', :no_layout => true)
     end
 
     it "should render history json" do

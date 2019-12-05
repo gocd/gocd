@@ -469,3 +469,7 @@ api/api-agent-job-history-v1/out/
 api/api-agent-job-history-v1/target/
 api/api-agent-job-history-v1/logs/
 api/api-agent-job-history-v1/config/
+api/api-pipeline-instance-v1/out/
+api/api-pipeline-instance-v1/target/
+api/api-pipeline-instance-v1/logs/
+api/api-pipeline-instance-v1/config/

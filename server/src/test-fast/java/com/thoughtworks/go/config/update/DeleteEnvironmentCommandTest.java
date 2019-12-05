@@ -19,7 +19,12 @@ import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.BasicEnvironmentConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.exceptions.EntityType;
+import com.thoughtworks.go.config.merge.MergeConfigOrigin;
+import com.thoughtworks.go.config.remote.ConfigRepoConfig;
+import com.thoughtworks.go.config.remote.FileConfigOrigin;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.helper.GoConfigMother;
+import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -73,4 +78,17 @@ public class DeleteEnvironmentCommandTest {
         assertFalse(cruiseConfig.getEnvironments().hasEnvironmentNamed(environmentName));
 
     }
+
+    @Test
+    public void shouldNotBeAbleToDeleteIfEnvironmentPartiallyDefinedInConfigRepository() {
+        BasicEnvironmentConfig environmentConfig = new BasicEnvironmentConfig(environmentName);
+        RepoConfigOrigin repoConfigOrigin = new RepoConfigOrigin(new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin", "repo1"), "rev1");
+        MergeConfigOrigin origins = new MergeConfigOrigin(repoConfigOrigin);
+        environmentConfig.setOrigins(origins);
+        DeleteEnvironmentCommand command = new DeleteEnvironmentCommand(goConfigService, environmentConfig, currentUser, actionFailed, result);
+        assertFalse(command.canContinue(cruiseConfig));
+        String expectedMessage = "Could not delete environment Dev Environment is partially defined in [repo1] config repositories";
+        assertEquals(result.message(), expectedMessage);
+    }
+
 }

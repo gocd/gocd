@@ -17,9 +17,16 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.EnvironmentConfig;
+import com.thoughtworks.go.config.merge.MergeConfigOrigin;
+import com.thoughtworks.go.config.remote.ConfigOrigin;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
+import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class DeleteEnvironmentCommand extends EnvironmentCommand {
     public DeleteEnvironmentCommand(GoConfigService goConfigService, EnvironmentConfig environmentConfig, Username username, String actionFailed, HttpLocalizedOperationResult result) {
@@ -33,6 +40,21 @@ public class DeleteEnvironmentCommand extends EnvironmentCommand {
 
     @Override
     public boolean isValid(CruiseConfig preprocessedConfig) {
+        return true;
+    }
+
+    @Override
+    public boolean canContinue(CruiseConfig cruiseConfig) {
+        if (!environmentConfig.isLocal()) {
+            List<String> displayNames = ((MergeConfigOrigin) environmentConfig.getOrigin())
+                    .stream().filter(configOrigin -> !configOrigin.isLocal())
+                    .map(configOrigin -> ((RepoConfigOrigin) configOrigin).getConfigRepo().getId())
+                    .collect(Collectors.toList());
+
+            String message = String.format("Environment is partially defined in %s config repositories", displayNames);
+            result.unprocessableEntity(LocalizedMessage.composite(actionFailed, message));
+            return false;
+        }
         return true;
     }
 }

@@ -232,6 +232,20 @@ public class EnvironmentConfigServiceIntegrationTest {
     }
 
     @Test
+    public void shouldNotDeleteAnEnvironmentDefinedInConfigRepository() {
+        String uuid = "uuid-1";
+        String envName = "env";
+        Username user = Username.ANONYMOUS;
+        String configRepoId = createMergeEnvironment(envName, uuid);
+
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        environmentConfigService.deleteEnvironment(environmentConfigService.getEnvironmentConfig(envName), user, result);
+
+        assertTrue(goConfigService.hasEnvironmentNamed(new CaseInsensitiveString(envName)));
+        assertThat(result.message(), is(String.format("Failed to delete environment 'env'. Environment is partially defined in [%s] config repositories", configRepoId)));
+    }
+
+    @Test
     public void shouldDeleteAnEnvWhichContainsAgents() {
         String environmentName = "dev";
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();

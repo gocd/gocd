@@ -20,6 +20,7 @@ import {PipelineRunInfo} from "models/pipeline_activity/pipeline_activity";
 import {PipelineActivityData} from "models/pipeline_activity/spec/test_data";
 import {TestHelper} from "../../spec/test_helper";
 import {BuildCauseWidget} from "../build_cause_widget";
+import style from "../index.scss";
 
 describe("BuildCauseWidget", () => {
   const helper           = new TestHelper();
@@ -117,6 +118,20 @@ describe("BuildCauseWidget", () => {
 
     const modificationDiv = helper.byTestId(`modification-${modification.revision()}`);
     expect(helper.byTestId("comment", modificationDiv)).toContainText("<h1> this is html </h1>");
+  });
+
+  it("should render modification in yellow when is changed", () => {
+    const pipelineRunInfo     = PipelineRunInfo.fromJSON(PipelineActivityData.pipelineRunInfo());
+    const materialRevisionOne = pipelineRunInfo.materialRevisions()[0];
+    const materialRevisionTwo = pipelineRunInfo.materialRevisions()[1];
+    materialRevisionOne.changed(true);
+    materialRevisionTwo.changed(false);
+    mount(pipelineRunInfo);
+
+    helper.clickByTestId("trigger-with-changes-button");
+
+    expect(helper.byTestId(`revisions-${materialRevisionOne.revision()}`)).toHaveClass(style.changed);
+    expect(helper.byTestId(`revisions-${materialRevisionTwo.revision()}`)).not.toHaveClass(style.changed);
   });
 
   function mount(pipelineRunInfo: PipelineRunInfo) {

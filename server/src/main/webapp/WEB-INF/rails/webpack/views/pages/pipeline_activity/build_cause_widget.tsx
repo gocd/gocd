@@ -16,7 +16,7 @@
 import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
-import Stream = require("mithril/stream");
+import Stream from "mithril/stream";
 import {MaterialRevision, Modification, PipelineRunInfo} from "models/pipeline_activity/pipeline_activity";
 import {Dropdown, DropdownAttrs} from "views/components/buttons";
 import * as Icons from "views/components/icons";
@@ -76,17 +76,16 @@ interface MaterialRevisionAttrs {
 
 class MaterialRevisionWidget extends MithrilViewComponent<MaterialRevisionAttrs> {
   view(vnode: m.Vnode<MaterialRevisionAttrs, this>): m.Children {
-    const materialRevision   = vnode.attrs.materialRevision;
-    const classesForDropdown = classnames(styles.materialRevisionDropdownContent, {[styles.changed]: materialRevision.changed()});
-    return <div class={classesForDropdown}>
-      <div class={styles.materialHeader}
+    const materialRevision = vnode.attrs.materialRevision;
+    return <div class={styles.materialRevisionDropdownContent}>
+      <div class={classnames(styles.materialHeader, {[styles.changed]: materialRevision.changed()})}
            data-test-id="material-header">
         {materialRevision.scmType()} - {materialRevision.location()}
       </div>
-      <div class={styles.modifications}>
+      <div class={classnames(styles.modifications, {[styles.changed]: materialRevision.changed()})}
+           data-test-id={`revisions-${materialRevision.revision()}`}>
         {materialRevision.modifications().map((modification) => {
-          return <ModificationWidget modification={modification}
-                                     data-test-id={`modification-${modification.revision()}`}/>;
+          return <ModificationWidget modification={modification}/>;
         })}
       </div>
     </div>;
@@ -100,8 +99,7 @@ interface ModificationAttrs {
 class ModificationWidget extends MithrilViewComponent<ModificationAttrs> {
   view(vnode: m.Vnode<ModificationAttrs, this>): m.Children {
     const modification = vnode.attrs.modification;
-    return <div
-      class={styles.modification}>
+    return <div class={styles.modification} data-test-id={`modification-${modification.revision()}`}>
       <span class={styles.user} data-test-id="user">{modification.user()}</span>
       <span class={styles.comment} data-test-id="comment">{m.trust(modification.comment())}</span>
       <span class={styles.revision} data-test-id="revision">{modification.revision()}</span>

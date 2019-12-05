@@ -101,7 +101,7 @@ $stage-action-icon-z-index: 1;
   a {
     font-size:       14px;
     text-decoration: none;
-    color: $link-color;
+    color:           $link-color;
   }
 }
 
@@ -286,6 +286,7 @@ $stage-action-icon-z-index: 1;
     width:          100%;
     display:        flex;
     flex-direction: column;
+    font-size:      12px;
   }
 
   .material-header {
@@ -306,24 +307,27 @@ $stage-action-icon-z-index: 1;
   .modification {
     display:         flex;
     font-size:       12px;
+    font-weight:     400;
     width:           100%;
     justify-content: space-between;
+    border-bottom:   1px dotted $border-color;
+
+    &:last-of-type {
+      border: none;
+    }
 
     .revision,
     .comment,
     .user {
-      width:         40%;
+      width:         20%;
       padding:       3px 0;
       overflow:      hidden;
       text-overflow: ellipsis;
       align-content: center;
     }
 
-    .revision {
-      width: 20%;
-    }
-
     .comment {
+      width:      40%;
       max-height: 6.4em;
       padding:    3px 10px;
     }
@@ -331,6 +335,10 @@ $stage-action-icon-z-index: 1;
 
   .changed {
     color: $modification-text-color;
+
+    .modification {
+      border-color: $modification-text-color;
+    }
   }
 }
 

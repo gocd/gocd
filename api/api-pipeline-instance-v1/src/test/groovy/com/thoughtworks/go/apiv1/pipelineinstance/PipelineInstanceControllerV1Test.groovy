@@ -20,8 +20,8 @@ import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv1.pipelineinstance.representers.PipelineInstanceModelRepresenter
 import com.thoughtworks.go.apiv1.pipelineinstance.representers.PipelineInstanceModelsRepresenter
-import com.thoughtworks.go.domain.PipelineRunIdInfo
 import com.thoughtworks.go.config.CaseInsensitiveString
+import com.thoughtworks.go.domain.PipelineRunIdInfo
 import com.thoughtworks.go.domain.buildcause.BuildCause
 import com.thoughtworks.go.helper.ModificationsMother
 import com.thoughtworks.go.helper.StageMother
@@ -46,23 +46,8 @@ import org.mockito.Mock
 import java.util.stream.Stream
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
-import static org.mockito.ArgumentMatchers.any
-import static org.mockito.ArgumentMatchers.anyInt
-import static org.mockito.ArgumentMatchers.anyInt
-import static org.mockito.ArgumentMatchers.anyInt
-import static org.mockito.ArgumentMatchers.anyLong
-import static org.mockito.ArgumentMatchers.anyLong
-import static org.mockito.ArgumentMatchers.anyLong
-import static org.mockito.ArgumentMatchers.anyLong
-import static org.mockito.ArgumentMatchers.anyLong
-import static org.mockito.ArgumentMatchers.anyLong
-import static org.mockito.ArgumentMatchers.eq
-import static org.mockito.Mockito.verify
-import static org.mockito.Mockito.verify
-import static org.mockito.Mockito.verify
-import static org.mockito.Mockito.verifyZeroInteractions
-import static org.mockito.Mockito.verifyZeroInteractions
-import static org.mockito.Mockito.when
+import static org.mockito.ArgumentMatchers.*
+import static org.mockito.Mockito.*
 import static org.mockito.MockitoAnnotations.initMocks
 
 class PipelineInstanceControllerV1Test implements SecurityServiceTrait, ControllerTrait<PipelineInstanceControllerV1> {
@@ -347,6 +332,72 @@ class PipelineInstanceControllerV1Test implements SecurityServiceTrait, Controll
         )
       }
     }
+  }
 
+  @Nested
+  class Comment {
+    @Nested
+    class Security implements SecurityTestTrait, PipelineGroupOperateUserSecurity {
+
+      @Override
+      String getControllerMethodUnderTest() {
+        return "comment"
+      }
+
+      @Override
+      void makeHttpCall() {
+        postWithApiHeader(controller.controllerPath(pipelineName, "instance", 1, "comment"), [:])
+      }
+
+      @Override
+      String getPipelineName() {
+        return "up42"
+      }
+    }
+  }
+
+  @Nested
+  class AsAuthorizedUser {
+    public static final String pipelineName = "up42"
+
+    @BeforeEach
+    void setUp() {
+      enableSecurity()
+      loginAsGroupOperateUser(pipelineName)
+    }
+
+    @Test
+    void "should return 200 when comment is updated"() {
+      postWithApiHeader(controller.controllerPath(pipelineName, "instance", 1, "comment"), [comment: "some comment"])
+
+      assertThatResponse()
+        .isOk()
+        .hasJsonMessage("Comment successfully updated.")
+
+      verify(pipelineHistoryService)
+        .updateComment(eq(pipelineName), eq(1), eq("some comment"), eq(currentUsername()))
+    }
+
+    @Test
+    void "should return 422 when 'comment' property is missing in payload"() {
+      postWithApiHeader(controller.controllerPath(pipelineName, "instance", 1, "comment"), ["bar": "foo"])
+
+      assertThatResponse()
+        .isUnprocessableEntity()
+        .hasJsonMessage("Json `{\\\"bar\\\":\\\"foo\\\"}` does not contain property 'comment'")
+
+      verifyZeroInteractions(pipelineHistoryService)
+    }
+
+    @Test
+    void "should return 422 when pipeline counter is not an integer"() {
+      postWithApiHeader(controller.controllerPath(pipelineName, "instance", "one", "comment"), [comment: "foo"])
+
+      assertThatResponse()
+        .isUnprocessableEntity()
+        .hasJsonMessage("Your request could not be processed. The pipeline counter should be an integer.")
+
+      verifyZeroInteractions(pipelineHistoryService)
+    }
   }
 }

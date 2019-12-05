@@ -136,6 +136,13 @@
   </rule>
 
   <rule>
+    <name>Pipeline Instance comment API</name>
+    <condition name="Accept">application\/vnd\.go\.cd(.v*)*\+json</condition>
+    <from>^/api/pipelines/([^/]+)/instance/([^/]+)/comment$</from>
+    <to last="true">/spark/api/pipelines/${escape:$1}/instance/${escape:$2}/comment</to>
+  </rule>
+
+  <rule>
     <name>Feature Toggles Index API</name>
     <from>^/api/admin/feature_toggles(/?)$</from>
     <to last="true">/spark/api/admin/feature_toggles</to>

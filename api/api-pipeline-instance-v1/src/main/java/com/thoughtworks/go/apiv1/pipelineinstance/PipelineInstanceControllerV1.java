@@ -18,7 +18,9 @@ package com.thoughtworks.go.apiv1.pipelineinstance;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
+import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.pipelineinstance.representers.PipelineInstanceModelRepresenter;
 import com.thoughtworks.go.apiv1.pipelineinstance.representers.PipelineInstanceModelsRepresenter;
 import com.thoughtworks.go.config.exceptions.BadRequestException;
@@ -27,6 +29,7 @@ import com.thoughtworks.go.domain.PipelineRunIdInfo;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
 import com.thoughtworks.go.server.service.PipelineHistoryService;
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
@@ -37,14 +40,12 @@ import spark.Response;
 
 import java.io.IOException;
 
-import java.util.List;
-
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static spark.Spark.*;
 
 @Component
 public class PipelineInstanceControllerV1 extends ApiController implements SparkSpringController {
-    static final String BAD_PAGE_SIZE_MSG = "The query parameter `page_size`, if specified must be a number between 10 and 100.";
+    private static final String BAD_PAGE_SIZE_MSG = "The query parameter `page_size`, if specified must be a number between 10 and 100.";
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final PipelineHistoryService pipelineHistoryService;
 
@@ -68,11 +69,14 @@ public class PipelineInstanceControllerV1 extends ApiController implements Spark
 
             before(Routes.PipelineInstance.INSTANCE_PATH, mimeType, apiAuthenticationHelper::checkPipelineViewPermissionsAnd403);
             before(Routes.PipelineInstance.HISTORY_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateOfPipelineOrGroupInURLUserAnd403);
+            before(Routes.PipelineInstance.COMMENT_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateOfPipelineOrGroupInURLUserAnd403);
 
             get(Routes.PipelineInstance.HISTORY_PATH, mimeType, this::getHistoryInfo);
             get(Routes.PipelineInstance.INSTANCE_PATH, mimeType, this::getInstanceInfo);
+            post(Routes.PipelineInstance.COMMENT_PATH, mimeType, this::comment);
         });
     }
+
 
     String getInstanceInfo(Request request, Response response) throws IOException {
         String pipelineName = request.params("pipeline_name");
@@ -93,6 +97,18 @@ public class PipelineInstanceControllerV1 extends ApiController implements Spark
         PipelineInstanceModels pipelineInstanceModels = pipelineHistoryService.loadPipelineHistoryData(currentUsername(), pipelineName, after, before, pageSize);
         PipelineRunIdInfo latestAndOldestPipelineIds = pipelineHistoryService.getOldestAndLatestPipelineId(pipelineName, currentUsername());
         return writerForTopLevelObject(request, response, (outputWriter) -> PipelineInstanceModelsRepresenter.toJSON(outputWriter, pipelineInstanceModels, latestAndOldestPipelineIds));
+    }
+
+
+    String comment(Request request, Response response) {
+        String pipelineName = request.params("pipeline_name");
+        Integer pipelineCounter = getCounterValue(request);
+
+        JsonReader reader = GsonTransformer.getInstance().jsonReaderFrom(request.body());
+
+        pipelineHistoryService.updateComment(pipelineName, pipelineCounter, reader.getString("comment"), currentUsername());
+
+        return renderMessage(response, 200, "Comment successfully updated.");
     }
 
 

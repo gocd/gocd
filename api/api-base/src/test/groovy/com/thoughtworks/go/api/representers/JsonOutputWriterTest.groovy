@@ -19,13 +19,9 @@ import com.fasterxml.jackson.core.JsonParseException
 import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.thoughtworks.go.api.base.JsonOutputWriter
-import com.thoughtworks.go.api.base.OutputWriter
 import com.thoughtworks.go.spark.mocks.TestRequestContext
 import org.apache.poi.util.LocaleUtil
-import org.assertj.core.api.AssertionsForClassTypes
 import org.junit.jupiter.api.Test
-
-import java.util.function.Consumer
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat
 import static org.assertj.core.api.AssertionsForClassTypes.fail
@@ -261,6 +257,20 @@ class JsonOutputWriterTest {
     }
   }
 
+  @Test
+  void 'should output date in milliseconds'() {
+    def result = new StringWriter()
+    def date = new Date()
+
+    new JsonOutputWriter(result, new TestRequestContext()).forTopLevelObject { writer ->
+      writer.addInMillis("timestamp", date)
+    }
+
+    assertThat(fromJSON(result.toString())).isEqualTo([
+      timestamp: date.getTime().toString()
+    ])
+  }
+
   def assertInvalidJSONOutput(Closure closure) {
     def result = new StringWriter()
 
@@ -272,7 +282,7 @@ class JsonOutputWriterTest {
       try {
         OBJECT_MAPPER.readValue(result.toString(), Object.class)
         fail("This should have been an invalid JSON: " + result.toString())
-      } catch (JsonParseException|JsonMappingException e) {
+      } catch (JsonParseException | JsonMappingException e) {
         assertThat(e.getMessage()).contains("Failed due to an exception.")
       }
 

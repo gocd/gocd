@@ -41,14 +41,14 @@ class MaterialRevisionRepresenterTest {
       "modifications": [
         [
           "revision"     : "9fdcf27f16eadc362733328dd481d8a2c29915e1",
-          "modified_time": jsonDate(materialRevision.getModification(0).modifiedTime),
+          "modified_time": materialRevision.getModification(0).modifiedTime.getTime().toString(),
           "user_name"    : "user2",
           "comment"      : "comment2",
           "email_address": "email2"
         ],
         [
           "revision"     : "eef77acd79809fc14ed82b79a312648d4a2801c6",
-          "modified_time": jsonDate(materialRevision.getModification(1).modifiedTime),
+          "modified_time": materialRevision.getModification(1).modifiedTime.getTime().toString(),
           "user_name"    : "user1",
           "comment"      : "comment1",
           "email_address": "email1"

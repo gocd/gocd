@@ -23,7 +23,7 @@ public class JobHistoryItemRepresenter {
     public static void toJSON(OutputWriter outputWriter, JobHistoryItem jobHistoryItem) {
         outputWriter
                 .add("name", jobHistoryItem.getName())
-                .addIfNotNull("scheduled_date", jobHistoryItem.getScheduledDate());
+                .addInMillisIfNotNull("scheduled_date", jobHistoryItem.getScheduledDate());
         if (jobHistoryItem.getState() != null) {
             outputWriter.add("state", jobHistoryItem.getState().toString());
         }

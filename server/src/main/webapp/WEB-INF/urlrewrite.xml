@@ -115,6 +115,13 @@
   </rule>
 
   <rule>
+    <name>Pipeline Status API</name>
+    <condition name="Accept">application\/vnd\.go\.cd(.v*)*\+json</condition>
+    <from>^/api/pipelines/([^/]+)/status(/?)$</from>
+    <to last="true">/spark/api/pipelines/${escape:$1}/status</to>
+  </rule>
+
+  <rule>
     <name>Pipeline Instance API</name>
     <condition name="Accept">application\/vnd\.go\.cd(.v*)*\+json</condition>
     <from>^/api/pipelines/([^/]+)/instance/([^/]+)(/?)$</from>

@@ -33,7 +33,6 @@ class MaterialRevisionRepresenterTest {
     def expectedJSON = [
       "changed"      : false,
       "material"     : [
-        "id"         : -1,
         "name"       : "hg-url",
         "fingerprint": "4290e91721d0a0be34955725cfd754113588d9c27c39f9bd1a97c15e55832515",
         "type"       : "Mercurial",
@@ -41,7 +40,6 @@ class MaterialRevisionRepresenterTest {
       ],
       "modifications": [
         [
-          "id"           : -1,
           "revision"     : "9fdcf27f16eadc362733328dd481d8a2c29915e1",
           "modified_time": jsonDate(materialRevision.getModification(0).modifiedTime),
           "user_name"    : "user2",
@@ -49,7 +47,6 @@ class MaterialRevisionRepresenterTest {
           "email_address": "email2"
         ],
         [
-          "id"           : -1,
           "revision"     : "eef77acd79809fc14ed82b79a312648d4a2801c6",
           "modified_time": jsonDate(materialRevision.getModification(1).modifiedTime),
           "user_name"    : "user1",

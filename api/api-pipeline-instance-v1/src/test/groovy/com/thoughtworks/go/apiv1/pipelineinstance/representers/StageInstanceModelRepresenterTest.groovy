@@ -35,7 +35,6 @@ class StageInstanceModelRepresenterTest {
     def expectedJson = [
       "result"            : "Passed",
       "rerun_of_counter"  : null,
-      "id"                : 0,
       "name"              : "stageName",
       "counter"           : "4",
       "scheduled"         : true,
@@ -65,7 +64,6 @@ class StageInstanceModelRepresenterTest {
 
     def expectedJson = [
       "rerun_of_counter"  : null,
-      "id"                : 0,
       "name"              : "stageName",
       "counter"           : "4",
       "scheduled"         : true,
@@ -96,7 +94,6 @@ class StageInstanceModelRepresenterTest {
     def expectedJson = [
       "result"            : "Passed",
       "rerun_of_counter"  : 3,
-      "id"                : 0,
       "name"              : "stageName",
       "counter"           : "4",
       "scheduled"         : true,

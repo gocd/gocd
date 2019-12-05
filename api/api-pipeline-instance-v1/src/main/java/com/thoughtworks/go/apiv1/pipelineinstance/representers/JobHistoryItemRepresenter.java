@@ -21,7 +21,7 @@ import com.thoughtworks.go.presentation.pipelinehistory.JobHistoryItem;
 
 public class JobHistoryItemRepresenter {
     public static void toJSON(OutputWriter outputWriter, JobHistoryItem jobHistoryItem) {
-        outputWriter.add("id", jobHistoryItem.getId())
+        outputWriter
                 .add("name", jobHistoryItem.getName())
                 .addIfNotNull("scheduled_date", jobHistoryItem.getScheduledDate());
         if (jobHistoryItem.getState() != null) {

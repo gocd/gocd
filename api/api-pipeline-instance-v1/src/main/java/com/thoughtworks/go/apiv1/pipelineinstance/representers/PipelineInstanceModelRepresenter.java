@@ -21,7 +21,7 @@ import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 
 public class PipelineInstanceModelRepresenter {
     public static void toJSON(OutputWriter outputWriter, PipelineInstanceModel pipelineInstance) {
-        outputWriter.add("id", pipelineInstance.getId())
+        outputWriter
                 .add("name", pipelineInstance.getName())
                 .add("counter", pipelineInstance.getCounter())
                 .add("label", pipelineInstance.getLabel())

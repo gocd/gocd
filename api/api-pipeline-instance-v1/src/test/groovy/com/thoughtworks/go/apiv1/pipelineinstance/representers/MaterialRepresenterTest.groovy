@@ -28,7 +28,6 @@ class MaterialRepresenterTest {
     def material = MaterialsMother.gitMaterial("git1")
 
     def expectedJSON = [
-      id         : -1,
       name       : "git1",
       fingerprint: "2fde537a026695884e2ee13e8f9730eca0610a3e407dbcc6bbce974f595c2f7c",
       type       : "Git",

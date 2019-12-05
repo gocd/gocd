@@ -29,7 +29,7 @@ public class StageInstanceModelRepresenter {
         } else {
             outputWriter.add("rerun_of_counter", stageInstanceModel.getRerunOfCounter());
         }
-        outputWriter.add("id", stageInstanceModel.getId())
+        outputWriter
                 .add("name", stageInstanceModel.getName())
                 .add("counter", stageInstanceModel.getCounter())
                 .add("scheduled", stageInstanceModel.isScheduled())

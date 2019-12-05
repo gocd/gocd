@@ -21,7 +21,7 @@ import com.thoughtworks.go.domain.materials.Modification;
 
 public class ModificationRepresenter {
     public static void toJSON(OutputWriter outputWriter, Modification modification) {
-        outputWriter.add("id", modification.getId())
+        outputWriter
                 .add("revision", modification.getRevision())
                 .addIfNotNull("modified_time", modification.getModifiedTime())
                 .add("user_name", modification.getUserName())

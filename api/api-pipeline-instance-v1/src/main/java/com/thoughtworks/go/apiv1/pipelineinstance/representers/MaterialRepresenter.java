@@ -21,7 +21,7 @@ import com.thoughtworks.go.domain.materials.Material;
 
 public class MaterialRepresenter {
     public static void toJSON(OutputWriter outputWriter, Material material) {
-        outputWriter.add("id", material.getId())
+        outputWriter
                 .add("name", material.getDisplayName())
                 .add("fingerprint", material.getFingerprint())
                 .add("type", material.getTypeForDisplay())

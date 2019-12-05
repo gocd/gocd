@@ -195,12 +195,6 @@ describe("ElasticAgentWizard", () => {
 
         expect(helper.byTestId("form-field-input-cluster-profile-name", modalContext())).toHaveAttr("readonly");
 
-        //save + next again
-        helper.clickByTestId("next", modalContext());
-        m.redraw.sync();
-        const request = jasmine.Ajax.requests.mostRecent();
-        expect(request.method).toEqual("PUT");
-
         done();
       });
     });

@@ -14,7 +14,13 @@
  * limitations under the License.
  */
 
-import {HistoryJSON, PipelineActivityJSON, StageJSON} from "../pipeline_activity_json";
+import {
+  HistoryJSON,
+  MaterialRevisionJSON,
+  ModificationJSON,
+  PipelineActivityJSON,
+  StageJSON
+} from "../pipeline_activity_json";
 
 export function passed(name: string, stageId: number = Math.random()) {
   return PipelineActivityData.stage(stageId, name, "Passed");
@@ -37,6 +43,31 @@ export function unknown(name: string, stageId: number = Math.random()) {
 }
 
 export class PipelineActivityData {
+  static modification(revision: string = this.randomRevision()) {
+    return {
+      user: "Bob <bob@go.cd>",
+      revision,
+      date: "2019-11-21T1:3:20+0:30",
+      comment: "Adding test file",
+      modifiedFiles: []
+    } as ModificationJSON;
+  }
+
+  static materialRevision(modifications: ModificationJSON[] = [this.modification(), this.modification()]) {
+    return {
+      revision: modifications[0].revision,
+      revision_href: modifications[0].revision,
+      user: modifications[0].user,
+      date: modifications[0].date,
+      changed: true,
+      folder: "",
+      scmType: "Git",
+      location: "http://github.com/bdpiparva/sample_repo",
+      action: "Modified",
+      modifications
+    } as MaterialRevisionJSON;
+  }
+
   static pipelineRunInfo(...stages: StageJSON[]): HistoryJSON {
     return {
       pipelineId: 42,
@@ -48,24 +79,7 @@ export class PipelineActivityData {
       modification_date: "about 22 hours ago",
       revision: "b0982fa2ff92d126ad003c9e007959b4b8dd96a9",
       comment: "Initial commit",
-      materialRevisions: [{
-        revision: "b0982fa2ff92d126ad003c9e007959b4b8dd96a9",
-        revision_href: "b0982fa2ff92d126ad003c9e007959b4b8dd96a9",
-        user: "Bob <bob@go.cd>",
-        date: "2019-11-21T1:3:20+0:30",
-        changed: true,
-        folder: "",
-        scmType: "Git",
-        location: "http://github.com/bdpiparva/sample_repo",
-        action: "Modified",
-        modifications: [{
-          user: "Bob <bob@go.cd>",
-          revision: "b0982fa2ff92d126ad003c9e007959b4b8dd96a9",
-          date: "2019-11-21T1:3:20+0:30",
-          comment: "Adding test file",
-          modifiedFiles: []
-        }]
-      }],
+      materialRevisions: [this.materialRevision(), this.materialRevision()],
       stages
     } as HistoryJSON;
   }
@@ -201,5 +215,22 @@ export class PipelineActivityData {
       start: 0,
       perPage: 10
     } as PipelineActivityJSON;
+  }
+
+  private static randomRevision() {
+    return [
+      "3b5c3810db30d1c98bdb18fb2fe91aabf593a",
+      "501d66d5e442fd5e324e7ecf3e6627048abf1",
+      "71f39e9b97063728be0f392ff5ba0e9df69e0",
+      "445f86e9d0c080d72c7c8c5138408fe8f5acb",
+      "a999249c08041ce2eedbb8bedae54e94684b1",
+      "9d9f4dcd9a50c036cbcfb68b7c872feecb253",
+      "5fc07bdda3a2aa151d76d75d7df9a32e440b1",
+      "f53e09dc678d3a97c2b23e4b19a57bc67b489"]
+      [this.getRandomIntegerInRange(0, 7)] + this.getRandomIntegerInRange(100, 999);
+  }
+
+  private static getRandomIntegerInRange(min: number, max: number) {
+    return Math.ceil(Math.random() * (max - min) + min);
   }
 }

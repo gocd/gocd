@@ -157,7 +157,7 @@ export class MaterialRevision {
       materialRevision.revision_href,
       materialRevision.user,
       materialRevision.date,
-      materialRevision.changed,
+      toBool(materialRevision.changed),
       Modifications.fromJSON(materialRevision.modifications),
       materialRevision.folder,
       materialRevision.scmType,

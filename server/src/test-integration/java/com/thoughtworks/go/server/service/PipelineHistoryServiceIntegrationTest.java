@@ -895,41 +895,6 @@ public class PipelineHistoryServiceIntegrationTest {
     }
 
     @Test
-    public void updateComment_shouldUpdateTheCommentInTheDatabase() throws Exception {
-        PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline_name", "stage", "job");
-        goConfigService.addPipeline(pipelineConfig, "pipeline-group");
-        configHelper.addAuthorizedUserForPipelineGroup("valid-user");
-        configHelper.setAdminPermissionForGroup("pipeline-group", "valid-user");
-
-        dbHelper.newPipelineWithAllStagesPassed(pipelineConfig);
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        pipelineHistoryService.updateComment("pipeline_name", 1, "test comment", new Username(new CaseInsensitiveString("valid-user")), result);
-
-        PipelineInstanceModel pim = dbHelper.getPipelineDao().findPipelineHistoryByNameAndCounter("pipeline_name", 1);
-        assertThat(pim.getComment(), is("test comment"));
-    }
-
-    @Test
-    public void updateComment_shouldNotUpdateTheCommentInTheDatabaseIfTheUserIsUnauthorized() throws Exception {
-        PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline_name", "stage", "job");
-        goConfigService.addPipeline(pipelineConfig, "pipeline-group");
-        configHelper.addAuthorizedUserForPipelineGroup("valid-user");
-
-        dbHelper.newPipelineWithAllStagesPassed(pipelineConfig);
-
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-
-        pipelineHistoryService.updateComment("pipeline_name", 1, "test comment",
-                new Username(new CaseInsensitiveString("invalid-user")), result);
-
-        PipelineInstanceModel pim = dbHelper.getPipelineDao().findPipelineHistoryByNameAndCounter("pipeline_name", 1);
-
-        assertThat(pim.getComment(), is(nullValue()));
-        assertThat(result.httpCode(), is(403));
-        assertThat(result.message(), is("You do not have operate permissions for pipeline 'pipeline_name'."));
-    }
-
-    @Test
     public void shouldReturnTheLatestAndOldestPipelineRunId() {
         Pipeline pipeline1 = pipelineTwo.createdPipelineWithAllStagesPassed();
         Pipeline pipeline2 = pipelineTwo.createdPipelineWithAllStagesPassed();

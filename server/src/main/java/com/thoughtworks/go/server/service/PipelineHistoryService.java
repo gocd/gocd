@@ -19,14 +19,8 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PipelineConfigs;
-import com.thoughtworks.go.config.exceptions.BadRequestException;
-import com.thoughtworks.go.config.exceptions.EntityType;
-import com.thoughtworks.go.config.exceptions.NotAuthorizedException;
-import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
-import com.thoughtworks.go.domain.PipelineGroups;
-import com.thoughtworks.go.domain.PipelinePauseInfo;
-import com.thoughtworks.go.domain.PipelineRunIdInfo;
-import com.thoughtworks.go.domain.PipelineTimelineEntry;
+import com.thoughtworks.go.config.exceptions.*;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.presentation.PipelineStatusModel;
@@ -553,17 +547,20 @@ public class PipelineHistoryService {
         model.setMaterialRevisionsOnBuildCause(materialRepository.findMaterialRevisionsForPipeline(model.getId()));
     }
 
-    public void updateComment(String pipelineName, int pipelineCounter, String comment, Username username, HttpLocalizedOperationResult result) {
+    public void updateComment(String pipelineName, int pipelineCounter, String comment, Username username) {
         if (!Toggles.isToggleOn(Toggles.PIPELINE_COMMENT_FEATURE_TOGGLE_KEY)) {
-            result.notImplemented("'Pipeline Comment' feature is turned off. Please turn it on to use it.");
-            return;
+            throw new NotImplementedException("'Pipeline Comment' feature is turned off. Please turn it on to use it.");
         }
 
-        if (securityService.hasOperatePermissionForPipeline(username.getUsername(), pipelineName)) {
-            pipelineDao.updateComment(pipelineName, pipelineCounter, comment);
-        } else {
-            result.forbidden("You do not have operate permissions for pipeline '" + pipelineName + "'.", HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
+        if (!securityService.hasOperatePermissionForPipeline(username.getUsername(), pipelineName)) {
+            throw new NotAuthorizedException(format("You do not have operate permissions for pipeline '%s'.", pipelineName));
         }
+
+        Pipeline pipeline = pipelineDao.findPipelineByNameAndCounter(pipelineName, pipelineCounter);
+        if (pipeline == null) {
+            throw new RecordNotFoundException(format("Pipeline instance for '%s' with counter '%d' were not found!", pipelineName, pipelineCounter));
+        }
+        pipelineDao.updateComment(pipelineName, pipelineCounter, comment);
     }
 
     private DashboardFilter singlePipelineFilter(String pipeline) {

@@ -32,13 +32,11 @@ class PipelinesController < ApplicationController
   end
 
   def update_comment
-    result = HttpLocalizedOperationResult.new
-
-    pipeline_history_service.updateComment(params[:pipeline_name], params[:pipeline_counter].to_i, params[:comment], current_user, result)
-    if result.isSuccessful()
-      render json: { status: 'success' }
-    else
-      render_localized_operation_result(result)
+    begin
+      pipeline_history_service.updateComment(params[:pipeline_name], params[:pipeline_counter].to_i, params[:comment], current_user)
+      render json: {status: 'success'}
+    rescue com.thoughtworks.go.config.exceptions.HttpException => e
+      render_message(e.message, e.status.value)
     end
   end
 

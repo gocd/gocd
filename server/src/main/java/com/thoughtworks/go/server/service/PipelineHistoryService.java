@@ -19,13 +19,19 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PipelineConfigs;
+import com.thoughtworks.go.config.exceptions.BadRequestException;
+import com.thoughtworks.go.config.exceptions.EntityType;
+import com.thoughtworks.go.config.exceptions.NotAuthorizedException;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.domain.PipelinePauseInfo;
+import com.thoughtworks.go.domain.PipelineRunIdInfo;
 import com.thoughtworks.go.domain.PipelineTimelineEntry;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.presentation.PipelineStatusModel;
 import com.thoughtworks.go.presentation.pipelinehistory.*;
+import com.thoughtworks.go.server.dao.FeedModifier;
 import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
 import com.thoughtworks.go.server.domain.Username;
@@ -48,6 +54,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import static java.lang.String.format;
+
 @Service
 public class PipelineHistoryService {
     private PipelineDao pipelineDao;
@@ -62,6 +70,7 @@ public class PipelineHistoryService {
     private PipelineLockService pipelineLockService;
     private PipelinePauseService pipelinePauseService;
     private static final String NOT_AUTHORIZED_TO_VIEW_PIPELINE = "Not authorized to view pipeline";
+    public static final String BAD_CURSOR_MSG = "The query parameter `%s`, if specified, must be positive integer.";
 
     @Autowired
     public PipelineHistoryService(PipelineDao pipelineDao,
@@ -135,15 +144,52 @@ public class PipelineHistoryService {
 
         PipelineInstanceModels history = pipelineDao.loadHistory(pipelineName, pagination.getPageSize(), pagination.getOffset());
 
-        for (PipelineInstanceModel pipelineInstanceModel : history) {
-            populateMaterialRevisionsOnBuildCause(pipelineInstanceModel);
+        return populatePipelineInstanceModels(username, history);
+    }
 
+    public PipelineInstanceModels loadPipelineHistoryData(Username username, String pipelineName, long afterCursor, long beforeCursor, Integer pageSize) {
+        checkForExistenceAndAccess(username, pipelineName);
+        PipelineInstanceModels history;
+        if (validateCursor(afterCursor, "after")) {
+            history = pipelineDao.loadHistory(pipelineName, FeedModifier.After, afterCursor, pageSize);
+        } else if (validateCursor(beforeCursor, "before")) {
+            history = pipelineDao.loadHistory(pipelineName, FeedModifier.Before, beforeCursor, pageSize);
+        } else {
+            history = pipelineDao.loadHistory(pipelineName, FeedModifier.Latest, 0, pageSize);
+        }
+        return populatePipelineInstanceModels(username, history);
+    }
+
+    private boolean validateCursor(Long cursor, String key) {
+        if (cursor == 0) return false;
+        if (cursor < 0) {
+            throw new BadRequestException(format(BAD_CURSOR_MSG, key));
+        }
+        return true;
+    }
+
+    public PipelineRunIdInfo getOldestAndLatestPipelineId(String pipelineName, Username username) {
+        checkForExistenceAndAccess(username, pipelineName);
+        return pipelineDao.getOldestAndLatestPipelineId(pipelineName);
+    }
+
+    private PipelineInstanceModels populatePipelineInstanceModels(Username username, PipelineInstanceModels history) {
+        for (PipelineInstanceModel pipelineInstanceModel : history) {
             populatePlaceHolderStages(pipelineInstanceModel);
             populateCanRunStatus(username, pipelineInstanceModel);
             populateStageOperatePermission(pipelineInstanceModel, username);
         }
 
         return history;
+    }
+
+    private void checkForExistenceAndAccess(Username username, String pipelineName) {
+        if (!goConfigService.currentCruiseConfig().hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
+            throw new RecordNotFoundException(EntityType.Pipeline, pipelineName);
+        }
+        if (!securityService.hasViewPermissionForPipeline(username, pipelineName)) {
+            throw new NotAuthorizedException(NOT_AUTHORIZED_TO_VIEW_PIPELINE);
+        }
     }
 
     public PipelineStatusModel getPipelineStatus(String pipelineName, String username, OperationResult result) {
@@ -283,7 +329,7 @@ public class PipelineHistoryService {
 
     public boolean validate(String pipelineName, Username username, OperationResult result) {
         if (!goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
-            String pipelineNotKnown = String.format("Pipeline named [%s] is not known.", pipelineName);
+            String pipelineNotKnown = format("Pipeline named [%s] is not known.", pipelineName);
             result.notFound(pipelineNotKnown, pipelineNotKnown, HealthStateType.general(HealthStateScope.GLOBAL));
             return false;
         }
@@ -310,7 +356,7 @@ public class PipelineHistoryService {
             pipelineInstanceModel = PipelineInstanceModel.createEmptyPipelineInstanceModel(pipelineName, BuildCause.createWithEmptyModifications(), new StageInstanceModels());
         }
         if (pipelineInstanceModel == null) {
-            String pipelineInstanceNotFound = String.format("Pipeline [%s/%s] not found.", pipelineName, pipelineCounter);
+            String pipelineInstanceNotFound = format("Pipeline [%s/%s] not found.", pipelineName, pipelineCounter);
             result.notFound(pipelineInstanceNotFound, pipelineInstanceNotFound, HealthStateType.general(HealthStateScope.GLOBAL));
             return null;
         }

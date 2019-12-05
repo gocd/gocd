@@ -39,7 +39,7 @@ public class PipelineInstanceRepresenter {
     }
 
     private static Consumer<OutputLinkWriter> addLinks(PipelineInstanceModel model) {
-        return linkWriter -> linkWriter.addLink("self", Routes.Pipeline.instance(model.getName(), model.getCounter()));
+        return linkWriter -> linkWriter.addLink("self", Routes.PipelineInstance.instance(model.getName(), model.getCounter()));
     }
 
     private static Consumer<OutputListWriter> getStages(PipelineInstanceModel model) {

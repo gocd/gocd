@@ -86,4 +86,8 @@ public interface PipelineDao {
     List<PipelineIdentifier> getPipelineInstancesTriggeredWithDependencyMaterial(String pipelineName, MaterialInstance materialInstance, String revision);
 
     PipelineInstanceModels loadHistoryForDashboard(List<String> pipelineNames);
+
+    PipelineInstanceModels loadHistory(String pipelineName, FeedModifier modifier, long cursor, Integer pageSize);
+
+    PipelineRunIdInfo getOldestAndLatestPipelineId(String pipelineName);
 }

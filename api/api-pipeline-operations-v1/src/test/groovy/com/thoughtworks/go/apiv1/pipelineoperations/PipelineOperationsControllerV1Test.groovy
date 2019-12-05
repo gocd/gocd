@@ -496,4 +496,3 @@ class PipelineOperationsControllerV1Test implements SecurityServiceTrait, Contro
 
   }
 }
-

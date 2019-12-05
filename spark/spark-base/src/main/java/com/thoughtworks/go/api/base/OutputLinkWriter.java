@@ -20,4 +20,5 @@ public interface OutputLinkWriter {
 
     OutputLinkWriter addAbsoluteLink(String key, String href);
 
+    OutputLinkWriter addLinkIfPresent(String key, String href);
 }

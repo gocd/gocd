@@ -122,6 +122,13 @@
   </rule>
 
   <rule>
+    <name>Pipeline History API</name>
+    <condition name="Accept">application\/vnd\.go\.cd(.v*)*\+json</condition>
+    <from>^/api/pipelines/([^/]+)/history$</from>
+    <to last="true">/spark/api/pipelines/${escape:$1}/history</to>
+  </rule>
+
+  <rule>
     <name>Feature Toggles Index API</name>
     <from>^/api/admin/feature_toggles(/?)$</from>
     <to last="true">/spark/api/admin/feature_toggles</to>

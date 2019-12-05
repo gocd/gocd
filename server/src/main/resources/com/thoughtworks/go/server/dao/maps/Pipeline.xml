@@ -22,6 +22,11 @@
         <result property="counter" column="pipelineCounter"/>
     </resultMap>
 
+    <resultMap id="latest-oldest-pipeline-identifiers" type="com.thoughtworks.go.domain.PipelineRunIdInfo">
+        <result property="oldestRunId" column="oldestRunId"/>
+        <result property="latestRunId" column="latestRunId"/>
+    </resultMap>
+
     <resultMap id="select-pipeline-pause-info" type="com.thoughtworks.go.domain.PipelinePauseInfo">
         <result property="pauseCause" column="pause_cause"/>
         <result property="pauseBy" column="pause_by"/>
@@ -225,6 +230,44 @@
         ORDER BY pipelines.id DESC
         LIMIT #{limit}
         OFFSET #{offset}
+    </select>
+
+    <!-- Following query returns the lastest and oldest run id for the given pipeline. This helps in identifying the first and last record for the given pipeline.  -->
+    <select id="getOldestAndLatestPipelineRun" resultMap="latest-oldest-pipeline-identifiers">
+        SELECT MAX(pipelines.id) as latestRunId, MIN(pipelines.id) as oldestRunId
+        FROM pipelines
+        WHERE pipelines.name = #{pipelineName}
+    </select>
+
+    <!-- The following query will return the latest #{limit} instances for the given pipeline -->
+    <select id="getPipelineIds" resultType="java.lang.Long">
+        SELECT pipelines.id
+        FROM pipelines
+        WHERE pipelines.name = #{pipelineName}
+        ORDER BY pipelines.id DESC
+        LIMIT #{limit}
+    </select>
+
+    <!-- The following query will return the #{limit} instances which are older than the given instance id for the given pipeline -->
+    <select id="getPipelineIdsAfter" resultType="java.lang.Long">
+        SELECT pipelines.id
+        FROM pipelines
+        WHERE pipelines.name = #{pipelineName}
+          and pipelines.id &lt; #{cursor}
+        ORDER BY pipelines.id DESC
+        LIMIT #{limit}
+    </select>
+
+    <!-- The following query will return the #{limit} instances which are newer than the given instance id for the given pipeline -->
+    <select id="getPipelineIdsBefore" resultType="java.lang.Long">
+        SELECT id
+        FROM (SELECT pipelines.id as id
+              FROM pipelines
+              WHERE pipelines.name = #{pipelineName}
+                and pipelines.id &gt; #{cursor}
+              ORDER BY pipelines.id ASC
+              LIMIT #{limit})
+        ORDER BY id DESC
     </select>
 
     <sql id="getPipelineHistory">

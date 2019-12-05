@@ -13,18 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.server.dao;
 
-public enum FeedModifier {
-    Before("Before"), Latest(""), After("After");
+package com.thoughtworks.go.domain;
 
-    private final String suffix;
+public class PipelineRunIdInfo {
+    private long latestRunId;
+    private long oldestRunId;
 
-    FeedModifier(String suffix) {
-        this.suffix = suffix;
+    public PipelineRunIdInfo(long latestRunId, long oldestRunId) {
+        this.latestRunId = latestRunId;
+        this.oldestRunId = oldestRunId;
     }
 
-    public String suffix() {
-        return suffix;
+    public long getLatestRunId() {
+        return latestRunId;
+    }
+
+    public long getOldestRunId() {
+        return oldestRunId;
     }
 }

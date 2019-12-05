@@ -83,7 +83,7 @@ public class PipelineRepresenter {
 
     private static void addLinks(OutputLinkWriter linksWriter, GoDashboardPipeline model) {
         String pipelineName = model.name().toString();
-        linksWriter.addLink("self", Routes.Pipeline.history(pipelineName))
+        linksWriter.addLink("self", Routes.PipelineInstance.history(pipelineName))
                 .addAbsoluteLink("doc", Routes.Pipeline.DOC);
     }
 }

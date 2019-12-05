@@ -473,3 +473,7 @@ api/api-pipeline-instance-v1/out/
 api/api-pipeline-instance-v1/target/
 api/api-pipeline-instance-v1/logs/
 api/api-pipeline-instance-v1/config/
+api/api-stage-operations-v2/out/
+api/api-stage-operations-v2/target/
+api/api-stage-operations-v2/logs/
+api/api-stage-operations-v2/config/

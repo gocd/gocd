@@ -14,28 +14,34 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.pipelineoperations.representers
+package com.thoughtworks.go.apiv1.pipelineinstance.representers
 
-import com.thoughtworks.go.helper.MaterialsMother
+import com.thoughtworks.go.domain.buildcause.BuildCause
+import com.thoughtworks.go.helper.ModificationsMother
 import org.junit.jupiter.api.Test
 
+import static com.thoughtworks.go.api.base.JsonUtils.toObject
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
-class MaterialRepresenterTest {
+class BuildCauseRepresenterTest {
   @Test
-  void 'should render material config properties'() {
-    def material = MaterialsMother.gitMaterial("git1")
+  void 'should serialize build cause to json'() {
+    def materialRevisions = ModificationsMother.multipleModifications()
+    def buildCause = BuildCause.createWithModifications(materialRevisions, "approver")
+
+    def actualJson = toObjectString({ BuildCauseRepresenter.toJSON(it, buildCause) })
 
     def expectedJSON = [
-      id         : -1,
-      name       : "git1",
-      fingerprint: "2fde537a026695884e2ee13e8f9730eca0610a3e407dbcc6bbce974f595c2f7c",
-      type       : "Git",
-      description: "URL: git1, Branch: master"
+      "trigger_message"   : "modified by committer <html />",
+      "trigger_forced"    : false,
+      "approver"          : "approver",
+      "material_revisions": buildCause.getMaterialRevisions().collect { eachItem ->
+        toObject({
+          MaterialRevisionRepresenter.toJSON(it, eachItem)
+        })
+      }
     ]
-
-    def actualJson = toObjectString({ MaterialRepresenter.toJSON(it, material) })
 
     assertThatJson(actualJson).isEqualTo(expectedJSON)
   }

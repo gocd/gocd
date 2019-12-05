@@ -122,6 +122,10 @@
         LIMIT 1
     </select>
 
+    <select id="findJobInstance" resultMap="select-build-with-identifier">
+        SELECT * <include refid="select-job-id"/>
+    </select>
+
     <resultMap id="select-job-plan" type="com.thoughtworks.go.domain.DefaultJobPlan">
         <id property="jobId" column="buildId" typeHandler="com.thoughtworks.go.server.dao.handlers.SetZeroIfNull"/>
         <result property="agentUuid" column="agentUuid"/>

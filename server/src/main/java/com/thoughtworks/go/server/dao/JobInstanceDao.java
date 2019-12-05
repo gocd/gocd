@@ -69,4 +69,6 @@ public interface JobInstanceDao {
     boolean isJobCompleted(JobIdentifier jobIdentifier);
 
     List<JobInstance> getRunningJobs();
+
+    JobInstance findJobInstance(String pipelineName, String stageName, String jobName, int pipelineCounter, int stageCounter);
 }

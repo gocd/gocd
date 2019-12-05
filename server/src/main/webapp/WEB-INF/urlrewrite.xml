@@ -109,6 +109,20 @@
   </rule>
 
   <rule>
+      <name>Spark Job History API</name>
+      <condition name="Accept">application\/vnd\.go\.cd(.v*)*\+json</condition>
+      <from>^/api/jobs/([^/]+)/([^/]+)/([^/]+)/history(/?)</from>
+      <to last="true">/spark/api/jobs/${escape:$1}/${escape:$2}/${escape:$3}/history</to>
+  </rule>
+
+  <rule>
+      <name>Spark Job Instance API</name>
+      <condition name="Accept">application\/vnd\.go\.cd(.v*)*\+json</condition>
+      <from>^/api/jobs/([^/]+)/([^/]+)/([^/]+)/instance/([^/]+)/([^/]+)(/?)</from>
+      <to last="true">/spark/api/jobs/${escape:$1}/${escape:$2}/${escape:$3}/instance/${escape:$4}/${escape:$5}</to>
+  </rule>
+
+  <rule>
     <name>Compare API</name>
     <from>^/api/pipelines/([^/]+)/compare/([^/]+)/([^/]+)(/?)$</from>
     <to last="true">/spark/api/pipelines/${escape:$1}/compare/${escape:$2}/${escape:$3}</to>

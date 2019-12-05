@@ -190,6 +190,21 @@ class JobInstanceSqlMapDaoTest {
     }
 
     @Nested
+    class CacheKeyForFindJobInstance {
+        @Test
+        void shouldGenerateCacheKey() {
+            assertThat(jobInstanceSqlMapDao.cacheKeyForFindJobInstance("Foo", "Bar", "Baz", 1, 1))
+                    .isEqualTo("com.thoughtworks.go.server.dao.JobInstanceSqlMapDao.$findJobInstance.$foo.$bar.$baz.$1.$1");
+        }
+
+        @Test
+        void shouldGenerateADifferentMutexWhenPartOfPipelineIsInterchangedWithStageName() {
+            assertThat(jobInstanceSqlMapDao.cacheKeyForFindJobInstance("Foo", "Bar_Jaz", "Baz", 1, 1))
+                    .isNotEqualTo(jobInstanceSqlMapDao.cacheKeyForFindJobInstance("Foo_Bar", "Jaz", "Baz", 1, 1));
+        }
+    }
+
+    @Nested
     class CacheKeyForJobPlan {
         @Test
         void shouldGenerateCacheKey() {

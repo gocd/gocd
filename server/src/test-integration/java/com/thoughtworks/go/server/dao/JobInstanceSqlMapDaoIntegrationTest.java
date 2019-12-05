@@ -1037,6 +1037,22 @@ public class JobInstanceSqlMapDaoIntegrationTest {
         assertThat(jobInstanceDao.totalCompletedJobsOnAgent(agentUuid), is(3));
     }
 
+    @Test
+    public void shouldGetJobInstanceBasedOnParametersProvided() throws SQLException {
+        long stageId = createSomeJobs(JOB_NAME, 1); // create 2 instances completed, scheduled
+        JobInstance jobInstance = jobInstanceDao.findJobInstance(PIPELINE_NAME, STAGE_NAME, JOB_NAME, 1, 1);
+
+        assertThat(jobInstance.isNull(), is(false));
+    }
+
+    @Test
+    public void shouldReturnNullJobInstanceWhenTheSaidCountersAreNotYetRun() throws SQLException {
+        long stageId = createSomeJobs(JOB_NAME, 1); // create 2 instances completed, scheduled
+        JobInstance jobInstance = jobInstanceDao.findJobInstance(PIPELINE_NAME, STAGE_NAME, JOB_NAME, 10, 10);
+
+        assertThat(jobInstance.isNull(), is(true));
+    }
+
     private List<ArtifactPlan> artifactPlans() {
         List<ArtifactPlan> artifactPlans = new ArrayList<>();
         artifactPlans.add(new ArtifactPlan(ArtifactPlanType.file, "src", "dest"));

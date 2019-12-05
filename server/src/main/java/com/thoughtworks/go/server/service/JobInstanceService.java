@@ -16,6 +16,9 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.exceptions.EntityType;
+import com.thoughtworks.go.config.exceptions.NotAuthorizedException;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.activity.JobStatusCache;
 import com.thoughtworks.go.listener.ConfigChangedListener;
@@ -43,7 +46,9 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @Service
 public class JobInstanceService implements JobPlanLoader, ConfigChangedListener {
@@ -102,6 +107,17 @@ public class JobInstanceService implements JobPlanLoader, ConfigChangedListener 
         }
 
         return jobInstanceDao.findJobHistoryPage(pipelineName, stageName, jobConfigName, pagination.getPageSize(), pagination.getOffset());
+    }
+
+    public JobInstance findJobInstance(String pipelineName, String stageName, String jobName, Integer pipelineCounter, Integer stageCounter, String username) {
+        if (!goConfigService.currentCruiseConfig().hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
+            throw new RecordNotFoundException(EntityType.Pipeline, pipelineName);
+        }
+        if (!securityService.hasViewPermissionForPipeline(Username.valueOf(username), pipelineName)) {
+            throw new NotAuthorizedException(NOT_AUTHORIZED_TO_VIEW_PIPELINE);
+        }
+
+        return jobInstanceDao.findJobInstance(pipelineName, stageName, jobName, pipelineCounter, stageCounter);
     }
 
     public JobInstance buildByIdWithTransitions(long buildId) {

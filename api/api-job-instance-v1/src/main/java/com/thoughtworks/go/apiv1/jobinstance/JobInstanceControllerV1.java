@@ -22,6 +22,7 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.apiv1.jobinstance.representers.JobInstanceRepresenter;
 import com.thoughtworks.go.apiv1.jobinstance.representers.JobInstancesRepresenter;
 import com.thoughtworks.go.config.exceptions.BadRequestException;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobInstances;
 import com.thoughtworks.go.server.service.JobInstanceService;
@@ -98,6 +99,9 @@ public class JobInstanceControllerV1 extends ApiController implements SparkSprin
         Integer pipelineCounter = getValue(request, "pipeline_counter");
         Integer stageCounter = getValue(request, "stage_counter");
         JobInstance jobInstance = jobInstanceService.findJobInstance(pipelineName, stageName, jobName, pipelineCounter, stageCounter, currentUsernameString());
+        if (jobInstance.isNull()) {
+            throw new RecordNotFoundException(format("No job instance was found for '%s/%s/%s/%s/%s'.", pipelineName, pipelineCounter, stageName, stageCounter, jobName));
+        }
         return writerForTopLevelObject(request, response, writer -> JobInstanceRepresenter.toJSON(writer, jobInstance));
     }
 

@@ -18,6 +18,7 @@ import m from "mithril";
 import {PaginationWidget} from "views/components/pagination/index";
 import {Pagination} from "views/components/pagination/models/pagination";
 import {TestHelper} from "views/pages/spec/test_helper";
+import style from "../index.scss";
 
 describe("Pagination Widget", () => {
   const helper = new TestHelper();
@@ -72,6 +73,20 @@ describe("Pagination Widget", () => {
 
     helper.clickByTestId("pagination-page-4");
     expect(onPageChange).toHaveBeenCalledWith(4);
+  });
+
+  it('should not render when has only one page', () => {
+    helper.unmount();
+    mount(new Pagination(0, 10, 10));
+
+    expect(helper.byClass(style.paginationContainer)).not.toBeInDOM();
+  });
+
+  it('should render when has only one page', () => {
+    helper.unmount();
+    mount(new Pagination(0, 11, 10));
+
+    expect(helper.byClass(style.paginationContainer)).toBeInDOM();
   });
 
   function mount(pagination: Pagination) {

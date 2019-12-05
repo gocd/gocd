@@ -29,6 +29,9 @@ interface PaginationAttrs {
 export class PaginationWidget extends MithrilViewComponent<PaginationAttrs> {
   view(vnode: m.Vnode<PaginationAttrs>) {
     const pagination = vnode.attrs.pagination;
+    if (pagination.totalNumberOfPages() === 1) {
+      return;
+    }
 
     return (
       <div>
@@ -36,8 +39,8 @@ export class PaginationWidget extends MithrilViewComponent<PaginationAttrs> {
              data-test-id={`pagination-showing-${pagination.currentPageNumber()}-of-${pagination.totalNumberOfPages()}`}>
           <a role="button"
              class={classnames(linkStyles.inlineLink,
-                               styles.paginationLink,
-                               {[styles.disabled]: !pagination.hasPreviousPage()})}
+               styles.paginationLink,
+               {[styles.disabled]: !pagination.hasPreviousPage()})}
              href={"#"}
              data-test-id={"pagination-previous-page"}
              disabled={!pagination.hasPreviousPage()}
@@ -52,8 +55,8 @@ export class PaginationWidget extends MithrilViewComponent<PaginationAttrs> {
           {this.pageNumberLinks(pagination, vnode)}
           <a role="button"
              class={classnames(linkStyles.inlineLink,
-                               styles.paginationLink,
-                               {[styles.disabled]: !pagination.hasNextPage()})}
+               styles.paginationLink,
+               {[styles.disabled]: !pagination.hasNextPage()})}
              href={"#"}
              data-test-id={"pagination-next-page"}
              disabled={!pagination.hasNextPage()}
@@ -74,8 +77,8 @@ export class PaginationWidget extends MithrilViewComponent<PaginationAttrs> {
     return pagination.getVisiblePageNumbers().map((pageNumber, index, visiblePageNumbers) => {
       const paginationLink = <a role="button"
                                 class={classnames(linkStyles.inlineLink,
-                                                  styles.paginationLink,
-                                                  pagination.currentPageNumber() === pageNumber ? styles.currentPage : undefined)}
+                                  styles.paginationLink,
+                                  pagination.currentPageNumber() === pageNumber ? styles.currentPage : undefined)}
                                 href={"#"}
                                 data-test-id={`pagination-page-${pageNumber}`}
                                 onclick={() => {

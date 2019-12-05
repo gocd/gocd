@@ -24,6 +24,6 @@ public class JobStateTransitionRepresenter {
         if (jobStateTransition.getCurrentState() != null) {
             outputWriter.add("state", jobStateTransition.getCurrentState().toString());
         }
-        outputWriter.addIfNotNull("state_change_time", jobStateTransition.getStateChangeTime());
+        outputWriter.addInMillisIfNotNull("state_change_time", jobStateTransition.getStateChangeTime());
     }
 }

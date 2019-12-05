@@ -35,7 +35,7 @@ public class JobInstanceRepresenter {
         } else {
             outputWriter.add("original_job_id", jobInstance.getOriginalJobId());
         }
-        outputWriter.addIfNotNull("scheduled_date", jobInstance.getScheduledDate())
+        outputWriter.addInMillisIfNotNull("scheduled_date", jobInstance.getScheduledDate())
                 .add("rerun", jobInstance.isRerun())
                 .add("agent_uuid", jobInstance.getAgentUuid())
                 .add("pipeline_name", jobInstance.getPipelineName())

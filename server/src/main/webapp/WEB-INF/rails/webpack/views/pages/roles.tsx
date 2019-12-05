@@ -19,7 +19,8 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {AuthConfigs} from "models/auth_configs/auth_configs";
 import {AuthConfigsCRUD} from "models/auth_configs/auth_configs_crud";
-import {GoCDAttributes, GoCDRole, PluginRole, Roles} from "models/roles/roles";
+import {ConfigReposCRUD} from "models/config_repos/config_repos_crud";
+import {Directive, GoCDAttributes, GoCDRole, PluginRole, Roles} from "models/roles/roles";
 import {RolesCRUD} from "models/roles/roles_crud";
 import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
@@ -58,7 +59,7 @@ export class RolesPage extends Page<null, State> {
     vnode.state.onAdd = (e: Event) => {
       e.stopPropagation();
       this.flashMessage.clear();
-      const role = new GoCDRole("", new GoCDAttributes([]), []);
+      const role = new GoCDRole("", new GoCDAttributes([]), [Stream(new Directive("deny", "view", "*", "*"))]);
       new NewRoleModal(role,
                        vnode.state.pluginInfos,
                        vnode.state.authConfigs,
@@ -127,7 +128,7 @@ export class RolesPage extends Page<null, State> {
   }
 
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {
-    return Promise.all([PluginInfoCRUD.all({type: ExtensionTypeString.AUTHORIZATION}), AuthConfigsCRUD.all(), RolesCRUD.all(), EnvironmentCRUD.all()])
+    return Promise.all([PluginInfoCRUD.all({type: ExtensionTypeString.AUTHORIZATION}), AuthConfigsCRUD.all(), RolesCRUD.all(), EnvironmentCRUD.all(), ConfigReposCRUD.all()])
                   .then((results) => {
                     results[0].do((successResponse) => {
                       this.pageState           = PageState.OK;
@@ -148,6 +149,12 @@ export class RolesPage extends Page<null, State> {
                     results[3].do((successResponse) => {
                       vnode.state.resourceAutocompleteHelper()
                            .set("environment", ["*"].concat(successResponse.body.map((env) => env.name())));
+                    }, () => this.setErrorState());
+
+                    results[4].do((successResponse) => {
+                      vnode.state.resourceAutocompleteHelper()
+                           .set("config_repo",
+                                ["*"].concat(successResponse.body.map((configRepo) => configRepo.id()!)));
                     }, () => this.setErrorState());
                   });
   }

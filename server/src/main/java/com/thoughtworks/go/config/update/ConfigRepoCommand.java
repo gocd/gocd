@@ -96,14 +96,6 @@ abstract class ConfigRepoCommand implements EntityConfigUpdateCommand<ConfigRepo
 
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
-        return isUserAuthorized();
-    }
-
-    private boolean isUserAuthorized() {
-        if (!securityService.isUserAdmin(username)) {
-            result.forbidden(EntityType.ConfigRepo.forbiddenToEdit(configRepo.getId(), username.getUsername()), forbidden());
-            return false;
-        }
         return true;
     }
 }

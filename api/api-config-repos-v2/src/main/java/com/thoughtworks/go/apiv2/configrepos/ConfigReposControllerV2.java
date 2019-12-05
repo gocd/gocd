@@ -41,7 +41,9 @@ import java.util.function.Consumer;
 
 import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseEntityAlreadyExists;
 import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseEtagDoesNotMatch;
+import static com.thoughtworks.go.config.policy.SupportedEntity.CONFIG_REPO;
 import static com.thoughtworks.go.spark.Routes.ConfigRepos;
+import static java.util.stream.Collectors.toCollection;
 import static spark.Spark.*;
 
 @Component
@@ -67,12 +69,28 @@ public class ConfigReposControllerV2 extends ApiController implements SparkSprin
     public void setupRoutes() {
         path(controllerBasePath(), () -> {
             before("", mimeType, this::setContentType);
-            before("", mimeType, authHelper::checkAdminUserAnd403);
             before("", mimeType, this::verifyContentType);
 
+            before("", mimeType, (request, response) -> {
+                String resourceToOperateOn = "*";
+                if (request.requestMethod().equalsIgnoreCase("GET")) {
+                    authHelper.checkUserAnd403(request, response);
+                    return;
+                }
+
+                if (request.requestMethod().equalsIgnoreCase("POST")) {
+                    resourceToOperateOn = GsonTransformer.getInstance().jsonReaderFrom(request.body()).getString("id");
+                }
+
+                authHelper.checkUserHasPermissions(currentUsername(), getAction(request), CONFIG_REPO, resourceToOperateOn);
+            });
+
             before("/*", mimeType, this::setContentType);
-            before("/*", mimeType, authHelper::checkAdminUserAnd403);
             before("/*", mimeType, this::verifyContentType);
+
+            before(ConfigRepos.REPO_PATH, mimeType, (request, response) -> {
+                authHelper.checkUserHasPermissions(currentUsername(), getAction(request), CONFIG_REPO, request.params(":id"));
+            });
 
             get(ConfigRepos.INDEX_PATH, mimeType, this::index);
             get(ConfigRepos.REPO_PATH, mimeType, this::showRepo);
@@ -84,7 +102,12 @@ public class ConfigReposControllerV2 extends ApiController implements SparkSprin
 
     String index(Request req, Response res) {
         ConfigReposConfig repos = allRepos();
-        String etag = repos.etag();
+
+        ConfigReposConfig userSpecificRepos = repos.stream()
+                .filter(configRepoConfig -> authHelper.doesUserHasPermissions(currentUsername(), getAction(req), CONFIG_REPO, configRepoConfig.getId()))
+                .collect(toCollection(ConfigReposConfig::new));
+
+        String etag = userSpecificRepos.etag();
 
         setEtagHeader(res, etag);
 
@@ -92,7 +115,7 @@ public class ConfigReposControllerV2 extends ApiController implements SparkSprin
             return notModified(res);
         }
 
-        return jsonizeAsTopLevelObject(req, w -> ConfigReposConfigRepresenterV2.toJSON(w, repos));
+        return jsonizeAsTopLevelObject(req, w -> ConfigReposConfigRepresenterV2.toJSON(w, userSpecificRepos));
     }
 
     String showRepo(Request req, Response res) {

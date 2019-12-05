@@ -113,6 +113,8 @@ class SectionHeader extends MithrilViewComponent<SectionHeaderAttrs> {
 interface ActionsAttrs extends CRVMAware {
   inProgress: boolean;
   configRepoHasErrors: boolean;
+  can_administer: boolean;
+  title: string;
 }
 
 class CRPanelActions extends MithrilViewComponent<ActionsAttrs> {
@@ -129,9 +131,9 @@ class CRPanelActions extends MithrilViewComponent<ActionsAttrs> {
     return [
       statusIcon,
       <IconGroup>
-        <Refresh data-test-id="config-repo-refresh" onclick={vm.reparseRepo}/>
-        <Edit data-test-id="config-repo-edit" onclick={vm.showEditModal}/>
-        <Delete data-test-id="config-repo-delete" onclick={vm.showDeleteModal}/>
+        <Refresh data-test-id="config-repo-refresh" title={vnode.attrs.title} disabled={!vnode.attrs.can_administer} onclick={vm.reparseRepo}/>
+        <Edit data-test-id="config-repo-edit" title={vnode.attrs.title} disabled={!vnode.attrs.can_administer} onclick={vm.showEditModal}/>
+        <Delete data-test-id="config-repo-delete" title={vnode.attrs.title} disabled={!vnode.attrs.can_administer} onclick={vm.showDeleteModal}/>
       </IconGroup>];
   }
 }
@@ -184,11 +186,12 @@ class ConfigRepoWidget extends MithrilComponent<SingleAttrs> {
     const maybeWarning = <MaybeWarning parseInfo={parseInfo} pluginInfo={pluginInfo}/>;
     const configRepoHasErrors = !pluginInfo || _.isEmpty(parseInfo) || !!parseInfo!.error();
 
+    const title = repo.canAdminister ? "You are not authorised to perform this action!" : "";
     return <Anchor id={repo.id()!} sm={sm} onnavigate={() => this.expanded(true)}>
       <CollapsiblePanel error={configRepoHasErrors}
                         header={<HeaderWidget {...vnode.attrs}/>}
                         dataTestId={"config-repo-details-panel"}
-                        actions={<CRPanelActions configRepoHasErrors={configRepoHasErrors} inProgress={repo.materialUpdateInProgress()} vm={vm}/>}
+                        actions={<CRPanelActions configRepoHasErrors={configRepoHasErrors} inProgress={repo.materialUpdateInProgress()} can_administer={repo.canAdminister()} title={title} vm={vm}/>}
                         vm={this}
                         onexpand={() => vm.notify("expand")}>
         {maybeWarning}

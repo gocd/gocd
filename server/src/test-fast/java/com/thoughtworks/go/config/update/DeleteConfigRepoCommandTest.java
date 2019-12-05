@@ -17,7 +17,6 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.domain.Username;
@@ -29,10 +28,8 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class DeleteConfigRepoCommandTest {
@@ -65,16 +62,6 @@ public class DeleteConfigRepoCommandTest {
         assertNotNull(cruiseConfig.getConfigRepos().getConfigRepo(repoId));
         command.update(cruiseConfig);
         assertNull(cruiseConfig.getConfigRepos().getConfigRepo(repoId));
-    }
-
-    @Test
-    public void shouldNotContinueIfTheUserDontHavePermissionsToOperateOnConfigRepos() throws Exception {
-        DeleteConfigRepoCommand command = new DeleteConfigRepoCommand(securityService, repoId, currentUser, result);
-        when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
-        assertThat(command.canContinue(cruiseConfig), is(false));
-        assertFalse(result.isSuccessful());
-        assertThat(result.httpCode(), is(403));
-        assertThat(result.message(), equalTo(EntityType.ConfigRepo.forbiddenToDelete(repoId, currentUser.getUsername())));
     }
 
     @Test

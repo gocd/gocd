@@ -97,6 +97,36 @@ describe('PolicyWidgetSpecs', () => {
 
   });
 
+  it("should render 4 items in supported type dropdown", () => {
+    const policy = new Policy();
+    policy.push(Stream(new Directive("allow", "view", "*", "env")));
+    mount(policy);
+
+    const typeOptions = helper.qa("option", helper.byTestId("permission-type"));
+
+    expect(typeOptions.length).toBe(4);
+    expect(typeOptions[1]).toHaveText("All");
+    expect(typeOptions[1]).toHaveValue("*");
+    expect(typeOptions[2]).toHaveText("Environment");
+    expect(typeOptions[2]).toHaveValue("environment");
+    expect(typeOptions[3]).toHaveText("Config Repository");
+    expect(typeOptions[3]).toHaveValue("config_repo");
+  });
+
+  it("should render 4 items in supported actions dropdown", () => {
+    const policy = new Policy();
+    policy.push(Stream(new Directive("allow", "view", "*", "env")));
+    mount(policy);
+
+    const actionOptions = helper.qa("option", helper.byTestId("permission-action"));
+
+    expect(actionOptions.length).toBe(3);
+    expect(actionOptions[1]).toHaveText("View");
+    expect(actionOptions[1]).toHaveValue("view");
+    expect(actionOptions[2]).toHaveText("Administer");
+    expect(actionOptions[2]).toHaveValue("administer");
+  });
+
   function mount(policy: Policy = new Policy(), resourceAutoComplete: Map<string, string[]> = new Map()) {
     helper.mount(() => <CreatePolicyWidget policy={Stream(policy)} resourceAutocompleteHelper={resourceAutoComplete}/>);
   }

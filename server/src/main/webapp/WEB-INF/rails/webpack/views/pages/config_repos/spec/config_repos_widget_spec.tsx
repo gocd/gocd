@@ -342,4 +342,20 @@ describe("ConfigReposWidget", () => {
     expect(reparseRepo).toHaveBeenCalledWith(jasmine.any(MouseEvent));
   });
 
+  it("should disable the action buttons", () => {
+    const configRepo = createConfigRepoParsed();
+    models([vm(configRepo)]);
+    helper.redraw();
+
+    const title = "You are not authorised to perform this action!";
+    expect(helper.byTestId("config-repo-refresh")).toBeInDOM();
+    expect(helper.byTestId("config-repo-refresh")).toBeDisabled();
+    expect(helper.byTestId("config-repo-refresh").title).toBe(title);
+    expect(helper.byTestId("config-repo-edit")).toBeInDOM();
+    expect(helper.byTestId("config-repo-edit")).toBeDisabled();
+    expect(helper.byTestId("config-repo-edit").title).toBe(title);
+    expect(helper.byTestId("config-repo-delete")).toBeInDOM();
+    expect(helper.byTestId("config-repo-delete")).toBeDisabled();
+    expect(helper.byTestId("config-repo-delete").title).toBe(title);
+  });
 });

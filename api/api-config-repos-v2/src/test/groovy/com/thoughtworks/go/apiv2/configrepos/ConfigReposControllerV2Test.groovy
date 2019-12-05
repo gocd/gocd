@@ -18,24 +18,30 @@ package com.thoughtworks.go.apiv2.configrepos
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.config.CaseInsensitiveString
+import com.thoughtworks.go.config.RoleConfig
+import com.thoughtworks.go.config.Users
 import com.thoughtworks.go.config.materials.PasswordDeserializer
-import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig
-import static com.thoughtworks.go.helper.MaterialConfigsMother.hg
+import com.thoughtworks.go.config.policy.Allow
+import com.thoughtworks.go.config.policy.Deny
+import com.thoughtworks.go.config.policy.Policy
 import com.thoughtworks.go.config.remote.ConfigRepoConfig
 import com.thoughtworks.go.config.remote.ConfigReposConfig
 import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.service.ConfigRepoService
 import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
-import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
+import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.Routes
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
+import org.mockito.invocation.InvocationOnMock
 
+import static com.thoughtworks.go.helper.MaterialConfigsMother.hg
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.*
@@ -69,8 +75,23 @@ class ConfigReposControllerV2Test implements SecurityServiceTrait, ControllerTra
 
   @Nested
   class Security {
+    @BeforeEach
+    void setUp() {
+      Policy directives = new Policy()
+      directives.add(new Allow("administer", "config_repo", "*"))
+      RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("role"), new Users(), directives)
+
+      when(goConfigService.rolesForUser(any())).then({ InvocationOnMock invocation ->
+        CaseInsensitiveString username = invocation.getArguments()[0]
+        if (username == Username.ANONYMOUS.username) {
+          return []
+        }
+        return [roleConfig]
+      })
+    }
+
     @Nested
-    class Index implements SecurityTestTrait, AdminUserSecurity {
+    class Index implements SecurityTestTrait, NormalUserSecurity {
       @Override
       String getControllerMethodUnderTest() {
         return "index"
@@ -83,7 +104,7 @@ class ConfigReposControllerV2Test implements SecurityServiceTrait, ControllerTra
     }
 
     @Nested
-    class Show implements SecurityTestTrait, AdminUserSecurity {
+    class Show implements SecurityTestTrait, NormalUserSecurity {
       @Override
       String getControllerMethodUnderTest() {
         return "showRepo"
@@ -96,7 +117,7 @@ class ConfigReposControllerV2Test implements SecurityServiceTrait, ControllerTra
     }
 
     @Nested
-    class Create implements SecurityTestTrait, AdminUserSecurity {
+    class Create implements SecurityTestTrait, NormalUserSecurity {
       @Override
       String getControllerMethodUnderTest() {
         return "createRepo"
@@ -104,12 +125,12 @@ class ConfigReposControllerV2Test implements SecurityServiceTrait, ControllerTra
 
       @Override
       void makeHttpCall() {
-        postWithApiHeader(controller.controllerBasePath(), [:])
+        postWithApiHeader(controller.controllerBasePath(), [id: 'repo-id'])
       }
     }
 
     @Nested
-    class Update implements SecurityTestTrait, AdminUserSecurity {
+    class Update implements SecurityTestTrait, NormalUserSecurity {
       @Override
       String getControllerMethodUnderTest() {
         return "updateRepo"
@@ -122,7 +143,7 @@ class ConfigReposControllerV2Test implements SecurityServiceTrait, ControllerTra
     }
 
     @Nested
-    class Delete implements SecurityTestTrait, AdminUserSecurity {
+    class Delete implements SecurityTestTrait, NormalUserSecurity {
       @Override
       String getControllerMethodUnderTest() {
         return "deleteRepo"
@@ -140,11 +161,47 @@ class ConfigReposControllerV2Test implements SecurityServiceTrait, ControllerTra
 
     @BeforeEach
     void setup() {
-      loginAsAdmin()
+      loginAsUser()
     }
 
     @Test
-    void 'should list existing config repos'() {
+    void 'should list existing config repos for which user has permissions'() {
+      Policy directives = new Policy()
+      directives.add(new Allow("administer", "config_repo", "repo-01"))
+      RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("role"), new Users(), directives)
+
+      when(goConfigService.rolesForUser(any())).thenReturn([roleConfig])
+
+      def repoConfig = repo(ID_1)
+      def userSpecificRepos = new ConfigReposConfig(repoConfig)
+      ConfigReposConfig repos = new ConfigReposConfig(repoConfig, repo(ID_2))
+      when(service.getConfigRepos()).thenReturn(repos)
+
+      getWithApiHeader(controller.controllerBasePath())
+
+      assertThatResponse().
+        isOk().
+        hasHeader('ETag', "\"${userSpecificRepos.etag()}\"").
+        hasJsonBody([
+          _links   : [
+            self: [href: "http://test.host/go$Routes.ConfigRepos.BASE".toString()]
+          ],
+          _embedded: [
+            config_repos: [
+              expectedRepoJson(ID_1)
+            ]
+          ]
+        ])
+    }
+
+    @Test
+    void 'should return no config repos when user does not have access to any config repo'() {
+      Policy directives = new Policy()
+      directives.add(new Allow("administer", "config_repo", "blah-*"))
+      RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("role"), new Users(), directives)
+
+      when(goConfigService.rolesForUser(any())).thenReturn([roleConfig])
+
       ConfigReposConfig repos = new ConfigReposConfig(repo(ID_1), repo(ID_2))
       when(service.getConfigRepos()).thenReturn(repos)
 
@@ -152,16 +209,13 @@ class ConfigReposControllerV2Test implements SecurityServiceTrait, ControllerTra
 
       assertThatResponse().
         isOk().
-        hasHeader('ETag', "\"${repos.etag()}\"").
+        hasHeader('ETag', "\"${new ConfigReposConfig().etag()}\"").
         hasJsonBody([
           _links   : [
             self: [href: "http://test.host/go$Routes.ConfigRepos.BASE".toString()]
           ],
           _embedded: [
-            config_repos: [
-              expectedRepoJson(ID_1),
-              expectedRepoJson(ID_2)
-            ]
+            config_repos: []
           ]
         ])
     }
@@ -172,11 +226,17 @@ class ConfigReposControllerV2Test implements SecurityServiceTrait, ControllerTra
 
     @BeforeEach
     void setup() {
-      loginAsAdmin()
+      loginAsUser()
     }
 
     @Test
-    void 'fetches a repo'() {
+    void 'fetches a repo if the user has permission'() {
+      Policy directives = new Policy()
+      directives.add(new Allow("administer", "config_repo", "repo-*"))
+      RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("role"), new Users(), directives)
+
+      when(goConfigService.rolesForUser(any())).thenReturn([roleConfig])
+
       ConfigRepoConfig repo = repo(ID_1)
       when(service.getConfigRepo(ID_1)).thenReturn(repo)
       when(entityHashingService.md5ForEntity(repo)).thenReturn('md5')
@@ -190,7 +250,31 @@ class ConfigReposControllerV2Test implements SecurityServiceTrait, ControllerTra
     }
 
     @Test
+    void 'returns 403 if the user does not have permission to view it'() {
+      Policy directives = new Policy()
+      directives.add(new Deny("view", "config_repo", "repo-*"))
+      RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("role"), new Users(), directives)
+
+      when(goConfigService.rolesForUser(any())).thenReturn([roleConfig])
+
+      ConfigRepoConfig repo = repo(ID_1)
+      when(service.getConfigRepo(ID_1)).thenReturn(repo)
+
+      getWithApiHeader(controller.controllerPath(ID_1))
+
+      assertThatResponse()
+        .isForbidden()
+        .hasJsonMessage("User '${currentUsername().getDisplayName()}' does not have permissions to view 'repo-01' config_repo(s).")
+    }
+
+    @Test
     void 'returns 404 if the repo does not exist'() {
+      Policy directives = new Policy()
+      directives.add(new Allow("administer", "config_repo", "repo-*"))
+      RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("role"), new Users(), directives)
+
+      when(goConfigService.rolesForUser(any())).thenReturn([roleConfig])
+
       getWithApiHeader(controller.controllerPath(ID_1))
 
       assertThatResponse().isNotFound()
@@ -202,12 +286,18 @@ class ConfigReposControllerV2Test implements SecurityServiceTrait, ControllerTra
 
     @BeforeEach
     void setup() {
-      loginAsAdmin()
+      loginAsUser()
     }
 
     @Test
-    void 'creates a new config repo'() {
+    void 'creates a new config repo if the user has access to create one'() {
       String id = "test-repo"
+
+      Policy directives = new Policy()
+      directives.add(new Allow("administer", "config_repo", id))
+      RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("role"), new Users(), directives)
+
+      when(goConfigService.rolesForUser(any())).thenReturn([roleConfig])
 
       postWithApiHeader(controller.controllerBasePath(), [
         id           : id,
@@ -234,6 +324,12 @@ class ConfigReposControllerV2Test implements SecurityServiceTrait, ControllerTra
     @Test
     void 'create fails if an existing repo has the same id'() {
       String id = "test-repo"
+
+      Policy directives = new Policy()
+      directives.add(new Allow("administer", "config_repo", id))
+      RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("role"), new Users(), directives)
+
+      when(goConfigService.rolesForUser(any())).thenReturn([roleConfig])
 
       when(service.getConfigRepo(id)).thenReturn(repo(id))
 
@@ -265,6 +361,35 @@ class ConfigReposControllerV2Test implements SecurityServiceTrait, ControllerTra
           data   : payload
         ])
     }
+
+    @Test
+    void 'should not allow to create a config repo if the user does not have permissions'() {
+      String id = "test-repo"
+
+      Policy directives = new Policy()
+      directives.add(new Allow("view", "config_repo", id))
+      RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("role"), new Users(), directives)
+
+      when(goConfigService.rolesForUser(any())).thenReturn([roleConfig])
+
+      postWithApiHeader(controller.controllerBasePath(), [
+        id           : id,
+        plugin_id    : TEST_PLUGIN_ID,
+        material     : [
+          type      : "hg",
+          attributes: [
+            name       : null,
+            url        : "${TEST_REPO_URL}/$id".toString(),
+            auto_update: true
+          ]
+        ],
+        configuration: []
+      ])
+
+      assertThatResponse()
+        .isForbidden()
+        .hasJsonMessage("User '${currentUsername().getDisplayName()}' does not have permissions to administer 'test-repo' config_repo(s).")
+    }
   }
 
   @Nested
@@ -272,7 +397,12 @@ class ConfigReposControllerV2Test implements SecurityServiceTrait, ControllerTra
 
     @BeforeEach
     void setup() {
-      loginAsAdmin()
+      loginAsUser()
+      Policy directives = new Policy()
+      directives.add(new Allow("administer", "config_repo", "*repo*"))
+      RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("role"), new Users(), directives)
+
+      when(goConfigService.rolesForUser(any())).thenReturn([roleConfig])
     }
 
     @Test
@@ -356,6 +486,29 @@ class ConfigReposControllerV2Test implements SecurityServiceTrait, ControllerTra
         isPreconditionFailed().
         hasJsonMessage("Someone has modified the entity. Please update your copy with the changes and try again.")
     }
+
+    @Test
+    void 'should throw 403 if the user does not have permission to update config-repo'() {
+      String id = "test-id"
+
+      putWithApiHeader(controller.controllerPath(id), ['If-Match': 'md5'], [
+        id           : id,
+        plugin_id    : TEST_PLUGIN_ID,
+        material     : [
+          type      : "hg",
+          attributes: [
+            name       : null,
+            url        : "https://newfakeurl.com",
+            auto_update: true
+          ]
+        ],
+        configuration: []
+      ])
+
+      assertThatResponse().
+        isForbidden().
+        hasJsonMessage("User '${currentUsername().getDisplayName()}' does not have permissions to administer 'test-id' config_repo(s).")
+    }
   }
 
   @Nested
@@ -363,7 +516,12 @@ class ConfigReposControllerV2Test implements SecurityServiceTrait, ControllerTra
 
     @BeforeEach
     void setup() {
-      loginAsAdmin()
+      loginAsUser()
+      Policy directives = new Policy()
+      directives.add(new Allow("administer", "config_repo", ID_1))
+      RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("role"), new Users(), directives)
+
+      when(goConfigService.rolesForUser(any())).thenReturn([roleConfig])
     }
 
     @Test
@@ -389,6 +547,15 @@ class ConfigReposControllerV2Test implements SecurityServiceTrait, ControllerTra
 
       assertThatResponse().
         isNotFound()
+    }
+
+    @Test
+    void 'should throw 403 if the user does not have permission to delete'() {
+      deleteWithApiHeader(controller.controllerPath(ID_2))
+
+      assertThatResponse()
+        .isForbidden()
+        .hasJsonMessage("User '${currentUsername().getDisplayName()}' does not have permissions to administer 'repo-02' config_repo(s).")
     }
   }
 

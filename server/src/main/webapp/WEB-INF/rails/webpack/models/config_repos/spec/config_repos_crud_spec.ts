@@ -28,6 +28,7 @@ describe("Config Repo Serialization", () => {
                                                        new GitMaterialAttributes("test",
                                                                                  false,
                                                                                  "https://example.com")),
+                                          false,
                                           [configuration1, configuration2]);
     const json           = configRepoToSnakeCaseJSON(configRepo);
     expect(json.configuration)
@@ -42,6 +43,7 @@ describe("Config Repo Serialization", () => {
                                                        new GitMaterialAttributes("test",
                                                                                  false,
                                                                                  "https://example.com")),
+                                          false,
                                           [configuration1]);
     const json           = configRepoToSnakeCaseJSON(configRepo);
     expect(json.configuration).toEqual([{key: "file_pattern", value: "test-value-1"}]);

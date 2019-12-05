@@ -68,17 +68,6 @@ public class CreateConfigRepoCommandTest {
     }
 
     @Test
-    public void shouldNotContinueIfTheUserDontHavePermissionsToOperateOnPackages() throws Exception {
-        CreateConfigRepoCommand command = new CreateConfigRepoCommand(securityService, configRepo, currentUser, result, configRepoExtension);
-        when(securityService.isUserAdmin(currentUser)).thenReturn(false);
-        HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.forbidden(EntityType.ConfigRepo.forbiddenToEdit(configRepo.getId(), currentUser.getUsername()), forbidden());
-
-        assertThat(command.canContinue(cruiseConfig), is(false));
-        assertThat(result, is(expectedResult));
-    }
-
-    @Test
     public void isValid_shouldValidateConfigRepo() {
         GitMaterialConfig material = git("https://foo.git", "master");
         material.setAutoUpdate(false);
@@ -111,12 +100,5 @@ public class CreateConfigRepoCommandTest {
 
         assertFalse(command.isValid(cruiseConfig));
         assertThat(configRepo.errors().on("plugin_id"), is("Invalid plugin id: json-plugin"));
-    }
-
-    @Test
-    public void shouldContinueWithConfigSaveIfUserIsAdmin() {
-        when(securityService.isUserAdmin(currentUser)).thenReturn(true);
-        CreateConfigRepoCommand command = new CreateConfigRepoCommand(securityService, configRepo, currentUser, result, configRepoExtension);
-        assertThat(command.canContinue(cruiseConfig), is(true));
     }
 }

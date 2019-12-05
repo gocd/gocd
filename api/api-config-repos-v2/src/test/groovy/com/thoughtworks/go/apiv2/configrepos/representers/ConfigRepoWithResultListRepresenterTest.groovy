@@ -19,14 +19,16 @@ package com.thoughtworks.go.apiv2.configrepos.representers
 import com.thoughtworks.go.apiv2.configrepos.ConfigRepoWithResult
 import com.thoughtworks.go.config.PartialConfigParseResult
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig
-import static com.thoughtworks.go.helper.MaterialConfigsMother.hg
 import com.thoughtworks.go.config.remote.ConfigRepoConfig
 import com.thoughtworks.go.config.remote.PartialConfig
 import com.thoughtworks.go.domain.materials.Modification
 import com.thoughtworks.go.spark.Routes
 import org.junit.jupiter.api.Test
 
+import java.util.function.Function
+
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.helper.MaterialConfigsMother.hg
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
 class ConfigRepoWithResultListRepresenterTest {
@@ -36,7 +38,9 @@ class ConfigRepoWithResultListRepresenterTest {
   @Test
   void toJSON() {
     List<ConfigRepoWithResult> repos = [repo("foo"), repo("bar")]
-    String json = toObjectString({ w -> ConfigRepoWithResultListRepresenter.toJSON(w, repos) })
+    Function<String, Boolean> canUserAdministerConfigRepo = { name -> true }
+
+    String json = toObjectString({ w -> ConfigRepoWithResultListRepresenter.toJSON(w, repos, canUserAdministerConfigRepo) })
 
     assertThatJson(json).isEqualTo([
       _links   : [
@@ -69,6 +73,7 @@ class ConfigRepoWithResultListRepresenterTest {
           auto_update: true
         ]
       ],
+      can_administer             : true,
       configuration              : [],
       material_update_in_progress: false,
       parse_info                 : [

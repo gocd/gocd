@@ -213,6 +213,7 @@ export class SiteMenu extends MithrilViewComponent<Attrs> {
           <div class={classnames(styles.subNavigation, styles.hasOnlyOneOption)}>
             <SiteSubNav>
               <SiteSubNavItem href="/go/admin/environments" text="Environments"/>
+              <SiteSubNavItem href="/go/admin/config_repos" text="Config Repositories"/>
             </SiteSubNav>
           </div>
         </SiteNavItem>

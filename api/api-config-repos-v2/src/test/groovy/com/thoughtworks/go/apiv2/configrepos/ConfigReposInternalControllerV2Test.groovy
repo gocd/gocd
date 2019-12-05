@@ -20,6 +20,8 @@ import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.config.*
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig
+import com.thoughtworks.go.config.policy.Allow
+import com.thoughtworks.go.config.policy.Policy
 import com.thoughtworks.go.config.remote.ConfigRepoConfig
 import com.thoughtworks.go.config.remote.ConfigReposConfig
 import com.thoughtworks.go.config.remote.PartialConfig
@@ -27,17 +29,19 @@ import com.thoughtworks.go.domain.PipelineGroups
 import com.thoughtworks.go.domain.materials.Material
 import com.thoughtworks.go.domain.materials.MaterialConfig
 import com.thoughtworks.go.domain.materials.Modification
+import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.materials.MaterialUpdateService
 import com.thoughtworks.go.server.service.ConfigRepoService
 import com.thoughtworks.go.server.service.MaterialConfigConverter
-import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
+import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.Routes
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
+import org.mockito.invocation.InvocationOnMock
 
 import java.util.stream.Collectors
 
@@ -67,6 +71,17 @@ class ConfigReposInternalControllerV2Test implements SecurityServiceTrait, Contr
   @BeforeEach
   void setUp() {
     initMocks(this)
+    Policy directives = new Policy()
+    directives.add(new Allow("administer", "config_repo", "repo-*"))
+    RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("role"), new Users(), directives)
+
+    when(goConfigService.rolesForUser(any())).then({ InvocationOnMock invocation ->
+      CaseInsensitiveString username = invocation.getArguments()[0]
+      if (username == Username.ANONYMOUS.username) {
+        return []
+      }
+      return [roleConfig]
+    })
   }
 
   @Override
@@ -75,7 +90,7 @@ class ConfigReposInternalControllerV2Test implements SecurityServiceTrait, Contr
   }
 
   @Nested
-  class IndexSecurity implements SecurityTestTrait, AdminUserSecurity {
+  class IndexSecurity implements SecurityTestTrait, NormalUserSecurity {
     @Override
     String getControllerMethodUnderTest() {
       return "listRepos"
@@ -88,7 +103,7 @@ class ConfigReposInternalControllerV2Test implements SecurityServiceTrait, Contr
   }
 
   @Nested
-  class GetSecurity implements SecurityTestTrait, AdminUserSecurity {
+  class GetSecurity implements SecurityTestTrait, NormalUserSecurity {
     @Override
     String getControllerMethodUnderTest() {
       return "showRepo"
@@ -105,27 +120,27 @@ class ConfigReposInternalControllerV2Test implements SecurityServiceTrait, Contr
 
     @BeforeEach
     void setup() {
-      loginAsAdmin()
+      loginAsUser()
     }
 
     @Test
-    void 'should list existing config repos with associated parse results'() {
+    void 'should list only those existing config repos, with associated parse results, for which the user has permission'() {
       Modification modification = new Modification()
       modification.setRevision("abc")
 
       PartialConfig partialConfig = new PartialConfig()
       PartialConfigParseResult result = PartialConfigParseResult.parseSuccess(modification, partialConfig);
 
-      ConfigReposConfig repos = new ConfigReposConfig(repo(ID_1), repo(ID_2))
+      ConfigReposConfig repos = new ConfigReposConfig(repo(ID_1), repo(ID_2), repo("test-id"))
       when(service.getConfigRepos()).thenReturn(repos)
       when(dataSource.getLastParseResult(repos.get(0).getMaterialConfig())).thenReturn(null)
       when(dataSource.getLastParseResult(repos.get(1).getMaterialConfig())).thenReturn(result)
 
       getWithApiHeader(controller.controllerBasePath())
 
-      assertThatResponse().
-        isOk().
-        hasJsonBody([
+      assertThatResponse()
+        .isOk()
+        .hasJsonBody([
           _links   : [
             self: [href: "http://test.host/go$Routes.ConfigRepos.BASE".toString()]
           ],
@@ -137,6 +152,26 @@ class ConfigReposInternalControllerV2Test implements SecurityServiceTrait, Contr
           ]
         ])
     }
+
+    @Test
+    void 'should return empty list if the user does not have permission to view any config repos'() {
+      ConfigReposConfig repos = new ConfigReposConfig(repo("test-id"), repo("another-id"))
+      when(service.getConfigRepos()).thenReturn(repos)
+
+      getWithApiHeader(controller.controllerBasePath())
+
+      assertThatResponse()
+        .isOk()
+        .hasEtag("\"${new ConfigReposConfig().etag()}\"")
+        .hasJsonBody([
+          _links   : [
+            self: [href: "http://test.host/go$Routes.ConfigRepos.BASE".toString()]
+          ],
+          _embedded: [
+            config_repos: []
+          ]
+        ])
+    }
   }
 
   @Nested
@@ -144,7 +179,7 @@ class ConfigReposInternalControllerV2Test implements SecurityServiceTrait, Contr
 
     @BeforeEach
     void setup() {
-      loginAsAdmin()
+      loginAsUser()
     }
 
     @Test
@@ -173,6 +208,15 @@ class ConfigReposInternalControllerV2Test implements SecurityServiceTrait, Contr
       verify(dataSource, never()).getLastParseResult(any() as MaterialConfig)
       assertThatResponse().isNotFound()
     }
+
+    @Test
+    void 'should throw 403 if user does not have access to the specified config repo'() {
+      getWithApiHeader(controller.controllerPath('test-id'))
+
+      assertThatResponse()
+        .isForbidden()
+        .hasJsonMessage("User '${currentUsername().getDisplayName()}' does not have permissions to view 'test-id' config_repo(s).")
+    }
   }
 
   static Map expectedRepoJson(String id, String revision, String error, boolean isInProgress) {
@@ -194,9 +238,8 @@ class ConfigReposInternalControllerV2Test implements SecurityServiceTrait, Contr
         ]
       ],
       configuration              : [],
-
+      can_administer             : true,
       material_update_in_progress: isInProgress,
-
       parse_info                 : null == revision ? [:] : [
         error                     : error,
         good_modification         : [
@@ -227,7 +270,7 @@ class ConfigReposInternalControllerV2Test implements SecurityServiceTrait, Contr
   @Nested
   class Definitions {
     @Nested
-    class Security implements SecurityTestTrait, AdminUserSecurity {
+    class Security implements SecurityTestTrait, NormalUserSecurity {
       @Override
       String getControllerMethodUnderTest() {
         return "definedConfigs"
@@ -243,7 +286,7 @@ class ConfigReposInternalControllerV2Test implements SecurityServiceTrait, Contr
     class Requests {
       @BeforeEach
       void setUp() {
-        loginAsAdmin()
+        loginAsUser()
       }
 
       @Test
@@ -278,6 +321,15 @@ class ConfigReposInternalControllerV2Test implements SecurityServiceTrait, Contr
           ])
       }
 
+      @Test
+      void 'should throw 403 if user does not have access to the specified config repo'() {
+        getWithApiHeader(controller.controllerPath('test-id', 'definitions'), [:])
+
+        assertThatResponse()
+          .isForbidden()
+          .hasJsonMessage("User '${currentUsername().getDisplayName()}' does not have permissions to view 'test-id' config_repo(s).")
+      }
+
       private PipelineConfigs groupWithPipelines(String groupName, String... pipelineNames) {
         PipelineConfig[] pipelines = Arrays.stream(pipelineNames).map({ String s ->
           PipelineConfig p = mock(PipelineConfig.class)
@@ -293,7 +345,7 @@ class ConfigReposInternalControllerV2Test implements SecurityServiceTrait, Contr
   @Nested
   class Status {
     @Nested
-    class Security implements SecurityTestTrait, AdminUserSecurity {
+    class Security implements SecurityTestTrait, NormalUserSecurity {
       @Override
       String getControllerMethodUnderTest() {
         return "inProgress"
@@ -309,7 +361,7 @@ class ConfigReposInternalControllerV2Test implements SecurityServiceTrait, Contr
     class Requests {
       @BeforeEach
       void setUp() {
-        loginAsAdmin()
+        loginAsUser()
       }
 
       @Test
@@ -347,13 +399,22 @@ class ConfigReposInternalControllerV2Test implements SecurityServiceTrait, Contr
           .hasContentType(controller.mimeType)
           .hasJsonBody([inProgress: false])
       }
+
+      @Test
+      void 'should throw 403 if user does not have access to the specified config repo'() {
+        getWithApiHeader(controller.controllerPath('test-id', 'status'), [:])
+
+        assertThatResponse()
+          .isForbidden()
+          .hasJsonMessage("User '${currentUsername().getDisplayName()}' does not have permissions to view 'test-id' config_repo(s).")
+      }
     }
   }
 
   @Nested
   class Trigger {
     @Nested
-    class Security implements SecurityTestTrait, AdminUserSecurity {
+    class Security implements SecurityTestTrait, NormalUserSecurity {
       @Override
       String getControllerMethodUnderTest() {
         return "triggerUpdate"
@@ -369,7 +430,7 @@ class ConfigReposInternalControllerV2Test implements SecurityServiceTrait, Contr
     class Requests {
       @BeforeEach
       void setUp() {
-        loginAsAdmin()
+        loginAsUser()
       }
 
       @Test
@@ -406,6 +467,15 @@ class ConfigReposInternalControllerV2Test implements SecurityServiceTrait, Contr
           .isConflict()
           .hasContentType(controller.mimeType)
           .hasJsonMessage("Update already in progress.")
+      }
+
+      @Test
+      void 'should throw 403 if user does not have access to the specified config repo'() {
+        postWithApiHeader(controller.controllerPath('test-id', 'trigger_update'), [:])
+
+        assertThatResponse()
+          .isForbidden()
+          .hasJsonMessage("User '${currentUsername().getDisplayName()}' does not have permissions to administer 'test-id' config_repo(s).")
       }
     }
   }

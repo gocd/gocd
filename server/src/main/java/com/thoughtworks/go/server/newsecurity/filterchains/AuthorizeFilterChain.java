@@ -76,6 +76,7 @@ public class AuthorizeFilterChain extends FilterChainProxy {
                 .addAuthorityFilterChain("/admin/elastic_agent_configurations/**", genericAccessDeniedHandler, ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR)
                 //allow /go/admin/environments page to be accessible by normal users
                 .addAuthorityFilterChain("/admin/environments", genericAccessDeniedHandler, ROLE_USER)
+                .addAuthorityFilterChain("/admin/config_repos", genericAccessDeniedHandler, ROLE_USER)
                 .addAuthorityFilterChain("/admin/**", genericAccessDeniedHandler, ROLE_SUPERVISOR)
                 .addAuthorityFilterChain("/agents/*/job_run_history/**", genericAccessDeniedHandler, ROLE_SUPERVISOR)
 
@@ -97,6 +98,8 @@ public class AuthorizeFilterChain extends FilterChainProxy {
                 .addAuthorityFilterChain("/api/elastic/profiles/**", apiAccessDeniedHandler, ROLE_USER)
 
                 .addAuthorityFilterChain("/api/admin/environments/**", apiAccessDeniedHandler, ROLE_USER)
+                .addAuthorityFilterChain("/api/admin/config_repos/**", apiAccessDeniedHandler, ROLE_USER)
+                .addAuthorityFilterChain("/api/admin/internal/environments/merged", apiAccessDeniedHandler, ROLE_USER)
                 .addAuthorityFilterChain("/api/admin/internal/environments/**", apiAccessDeniedHandler, ROLE_USER)
 
                 // blanket role that requires supervisor access, used by old admin apis

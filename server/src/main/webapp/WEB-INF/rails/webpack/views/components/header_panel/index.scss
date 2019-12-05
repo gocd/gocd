@@ -41,11 +41,13 @@ $page-item-padding: 30px;
 }
 
 .section-name {
-  display:     inline-block;
+  display:     flex;
   color:       $go-primary;
   font-size:   $header-font-size;
   font-weight: $header-font-weight;
   margin:      0;
+  align-self:  center;
+
   &:after {
     content: "|";
     color:   $line-color;

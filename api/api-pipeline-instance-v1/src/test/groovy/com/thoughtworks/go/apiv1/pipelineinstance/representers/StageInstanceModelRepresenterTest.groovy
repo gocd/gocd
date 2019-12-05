@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.pipelineoperations.representers
+package com.thoughtworks.go.apiv1.pipelineinstance.representers
 
 import com.thoughtworks.go.helper.StageMother
 import org.junit.jupiter.api.Test
@@ -35,7 +35,6 @@ class StageInstanceModelRepresenterTest {
     def expectedJson = [
       "result"            : "Passed",
       "rerun_of_counter"  : null,
-      "id"                : 0,
       "name"              : "stageName",
       "counter"           : "4",
       "scheduled"         : true,
@@ -65,7 +64,6 @@ class StageInstanceModelRepresenterTest {
 
     def expectedJson = [
       "rerun_of_counter"  : null,
-      "id"                : 0,
       "name"              : "stageName",
       "counter"           : "4",
       "scheduled"         : true,
@@ -96,7 +94,6 @@ class StageInstanceModelRepresenterTest {
     def expectedJson = [
       "result"            : "Passed",
       "rerun_of_counter"  : 3,
-      "id"                : 0,
       "name"              : "stageName",
       "counter"           : "4",
       "scheduled"         : true,

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.pipelineoperations.representers
+package com.thoughtworks.go.apiv1.pipelineinstance.representers
 
 import com.thoughtworks.go.helper.ModificationsMother
 import org.junit.jupiter.api.Test
@@ -29,7 +29,6 @@ class ModificationRepresenterTest {
     def modification = ModificationsMother.aCheckIn("rev1", "file1")
 
     def expectedJSON = [
-      "id"           : -1,
       "revision"     : "rev1",
       "modified_time": jsonDate(ModificationsMother.TODAY_CHECKIN),
       "user_name"    : "committer",
@@ -47,7 +46,6 @@ class ModificationRepresenterTest {
     modification.modifiedTime = null
 
     def expectedJSON = [
-      "id"           : -1,
       "revision"     : "rev1",
       "user_name"    : "committer",
       "comment"      : "Added the README file",

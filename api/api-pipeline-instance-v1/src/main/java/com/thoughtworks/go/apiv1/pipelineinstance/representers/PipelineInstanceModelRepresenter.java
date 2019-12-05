@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.pipelineoperations.representers;
+package com.thoughtworks.go.apiv1.pipelineinstance.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 
 public class PipelineInstanceModelRepresenter {
     public static void toJSON(OutputWriter outputWriter, PipelineInstanceModel pipelineInstance) {
-        outputWriter.add("id", pipelineInstance.getId())
+        outputWriter
                 .add("name", pipelineInstance.getName())
                 .add("counter", pipelineInstance.getCounter())
                 .add("label", pipelineInstance.getLabel())

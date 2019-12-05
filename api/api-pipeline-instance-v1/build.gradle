@@ -13,17 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.apiv1.pipelineoperations.representers;
 
-import com.thoughtworks.go.api.base.OutputWriter;
-import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.domain.MaterialRevision;
-import com.thoughtworks.go.server.domain.MaterialForScheduling;
+apply plugin: 'jacoco'
+apply plugin: 'groovy'
 
-public class MaterialRevisionRepresenter {
-    public static MaterialForScheduling fromJSON(JsonReader jsonReader) {
-        String name = jsonReader.getString("fingerprint");
-        String value = jsonReader.getString("revision");
-        return new MaterialForScheduling(name, value);
-    }
+dependencies {
+  compile project(':api:api-base')
+
+  testCompile project(path: ':api:api-base', configuration: 'testOutput')
+
+  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
+  testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
 }

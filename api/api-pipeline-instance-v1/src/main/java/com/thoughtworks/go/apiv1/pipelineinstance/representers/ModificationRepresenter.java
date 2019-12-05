@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.pipelineoperations.representers;
+package com.thoughtworks.go.apiv1.pipelineinstance.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.domain.materials.Modification;
 
 public class ModificationRepresenter {
     public static void toJSON(OutputWriter outputWriter, Modification modification) {
-        outputWriter.add("id", modification.getId())
+        outputWriter
                 .add("revision", modification.getRevision())
                 .addIfNotNull("modified_time", modification.getModifiedTime())
                 .add("user_name", modification.getUserName())

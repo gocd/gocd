@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.pipelineoperations.representers;
+package com.thoughtworks.go.apiv1.pipelineinstance.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.domain.materials.Material;
 
 public class MaterialRepresenter {
     public static void toJSON(OutputWriter outputWriter, Material material) {
-        outputWriter.add("id", material.getId())
+        outputWriter
                 .add("name", material.getDisplayName())
                 .add("fingerprint", material.getFingerprint())
                 .add("type", material.getTypeForDisplay())

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.pipelineoperations.representers
+package com.thoughtworks.go.apiv1.pipelineinstance.representers
 
 import com.thoughtworks.go.domain.JobResult
 import com.thoughtworks.go.domain.JobState
@@ -35,7 +35,6 @@ class JobHistoryItemRepresenterTest {
     def actualJson = toObjectString({ JobHistoryItemRepresenter.toJSON(it, jobHistoryItem) })
 
     def expectedJson = [
-      "id"            : 5,
       "name"          : "jobName",
       "scheduled_date": jsonDate(date),
       "state"         : "Completed",
@@ -54,7 +53,6 @@ class JobHistoryItemRepresenterTest {
     def actualJson = toObjectString({ JobHistoryItemRepresenter.toJSON(it, jobHistoryItem) })
 
     def expectedJson = [
-      "id"    : 5,
       "name"  : "jobName",
       "state" : "Completed",
       "result": "Passed"
@@ -72,7 +70,6 @@ class JobHistoryItemRepresenterTest {
     def actualJson = toObjectString({ JobHistoryItemRepresenter.toJSON(it, jobHistoryItem) })
 
     def expectedJson = [
-      "id"            : 5,
       "name"          : "jobName",
       "scheduled_date": jsonDate(date),
       "result"        : "Passed"
@@ -91,7 +88,6 @@ class JobHistoryItemRepresenterTest {
     def actualJson = toObjectString({ JobHistoryItemRepresenter.toJSON(it, jobHistoryItem) })
 
     def expectedJson = [
-      "id"            : 5,
       "name"          : "jobName",
       "scheduled_date": jsonDate(date),
       "state"         : "Completed"

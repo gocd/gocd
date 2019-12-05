@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.pipelineoperations.representers
+package com.thoughtworks.go.apiv1.pipelineinstance.representers
 
 import com.thoughtworks.go.domain.buildcause.BuildCause
 import com.thoughtworks.go.helper.ModificationsMother
@@ -45,7 +45,6 @@ class PipelineInstanceModelRepresenterTest {
     def actualJson = toObjectString({ PipelineInstanceModelRepresenter.toJSON(it, pipelineInstanceModel) })
 
     def expectedJson = [
-      "id"                   : 0,
       "name"                 : "pipelineName",
       "counter"              : 4,
       "label"                : "label",

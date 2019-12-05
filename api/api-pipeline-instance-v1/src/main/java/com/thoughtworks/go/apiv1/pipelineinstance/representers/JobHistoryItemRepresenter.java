@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.pipelineoperations.representers;
+package com.thoughtworks.go.apiv1.pipelineinstance.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.presentation.pipelinehistory.JobHistoryItem;
 
 public class JobHistoryItemRepresenter {
     public static void toJSON(OutputWriter outputWriter, JobHistoryItem jobHistoryItem) {
-        outputWriter.add("id", jobHistoryItem.getId())
+        outputWriter
                 .add("name", jobHistoryItem.getName())
                 .addIfNotNull("scheduled_date", jobHistoryItem.getScheduledDate());
         if (jobHistoryItem.getState() != null) {

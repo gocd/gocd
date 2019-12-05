@@ -210,8 +210,11 @@ Rails.application.routes.draw do
 
       # config
       get 'config/pipeline_groups' => 'pipeline_groups#list_configs', as: :pipeline_group_config_list_api
-      get 'config/revisions/(:offset)' => 'configuration#config_revisions', defaults: {:offset => '0'}, as: :config_revisions_list_api
-      get 'config/diff/:from_revision/:to_revision' => 'configuration#config_diff', as: :config_diff_api
+
+      scope 'internal' do
+        get 'config/revisions/(:offset)' => 'configuration#config_revisions', defaults: {:offset => '0'}, as: :config_revisions_list_api
+        get 'config/diff/:from_revision/:to_revision' => 'configuration#config_diff', as: :config_diff_api
+      end
 
       post 'admin/command-repo-cache/reload' => 'commands#reload_cache', as: :admin_command_cache_reload, constraints: HeaderConstraint.new
 

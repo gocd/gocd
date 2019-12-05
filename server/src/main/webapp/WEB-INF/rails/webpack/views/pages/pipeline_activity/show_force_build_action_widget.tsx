@@ -19,6 +19,7 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {Group, StageConfig} from "models/pipeline_activity/pipeline_activity";
 import * as Icons from "views/components/icons";
+import {Primary} from "../../components/buttons";
 import styles from "./index.scss";
 
 const classnames = bind(styles);
@@ -34,8 +35,11 @@ export class ShowForceBuildActionWidget extends MithrilViewComponent<ShowForceBu
   view(vnode: m.Vnode<ShowForceBuildActionAttrs, this>): m.Children {
     return <tr class={classnames(styles.groupContent, styles.forceBuild)}>
       <td class={styles.left}>
-        <Icons.Trigger onclick={() => vnode.attrs.runPipeline(vnode.attrs.pipelineName)}
-                       disabled={!vnode.attrs.canForce()}/>
+        <Primary onclick={() => vnode.attrs.runPipeline(vnode.attrs.pipelineName)}
+                 small={true}
+                 disabled={!vnode.attrs.canForce()}>
+          <Icons.Trigger iconOnly={true}/>
+        </Primary>
       </td>
       <td class={styles.right}>
         {vnode.attrs.group.config().stages().map((stage, index) => {

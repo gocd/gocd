@@ -130,25 +130,4 @@ class JobInstanceRepresenterTest {
     ]
     assertThatJson(actualJson).isEqualTo(expectedJson)
   }
-
-  @Test
-  void 'should render null job instance'() {
-    def jobInstance = new NullJobInstance("job-name")
-    def actualJson = toObjectString({ JobInstanceRepresenter.toJSON(it, jobInstance) })
-    def expectedJson = [
-      "name"                 : "job-name",
-      "state"                : "Unknown",
-      "result"               : "Unknown",
-      "original_job_id"      : null,
-      "scheduled_date"       : null,
-      "rerun"                : null,
-      "agent_uuid"           : null,
-      "pipeline_name"        : null,
-      "pipeline_counter"     : null,
-      "stage_name"           : null,
-      "stage_counter"        : null,
-      "job_state_transitions": []
-    ]
-    assertThatJson(actualJson).isEqualTo(expectedJson)
-  }
 }

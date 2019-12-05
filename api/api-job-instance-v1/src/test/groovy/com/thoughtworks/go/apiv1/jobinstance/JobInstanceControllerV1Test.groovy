@@ -265,13 +265,9 @@ class JobInstanceControllerV1Test implements SecurityServiceTrait, ControllerTra
 
         getWithApiHeader(controller.controllerPath(pipelineName, stageName, jobName, 'instance', 10, 10), [:])
 
-        def expectedJson = toObjectString({
-          JobInstanceRepresenter.toJSON(it, nullJobInstance)
-        })
-
         assertThatResponse()
-          .isOk()
-          .hasBody(expectedJson)
+          .isNotFound()
+          .hasJsonMessage("No job instance was found for 'up42/10/run-tests/10/java'.")
       }
 
       @Test

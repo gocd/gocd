@@ -30,10 +30,6 @@ public class JobInstanceRepresenter {
         if (jobInstance.getResult() != null) {
             outputWriter.add("result", jobInstance.getResult().toString());
         }
-        if (jobInstance.isNull()) {
-            renderNullJobInstance(outputWriter);
-            return;
-        }
         if (jobInstance.getOriginalJobId() == null) {
             outputWriter.renderNull("original_job_id");
         } else {
@@ -47,17 +43,5 @@ public class JobInstanceRepresenter {
                 .add("stage_name", jobInstance.getStageName())
                 .add("stage_counter", jobInstance.getStageCounter())
                 .addChildList("job_state_transitions", outputListWriter -> jobInstance.getTransitions().forEach(jobStateTransition -> outputListWriter.addChild(itemWriter -> JobStateTransitionRepresenter.toJSON(itemWriter, jobStateTransition))));
-    }
-
-    private static void renderNullJobInstance(OutputWriter outputWriter) {
-        outputWriter.renderNull("original_job_id");
-        outputWriter.renderNull("scheduled_date");
-        outputWriter.renderNull("rerun");
-        outputWriter.renderNull("agent_uuid");
-        outputWriter.renderNull("pipeline_name");
-        outputWriter.renderNull("pipeline_counter");
-        outputWriter.renderNull("stage_name");
-        outputWriter.renderNull("stage_counter");
-        outputWriter.addChildList("job_state_transitions", emptyList());
     }
 }

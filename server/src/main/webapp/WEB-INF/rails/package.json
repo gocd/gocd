@@ -62,7 +62,7 @@
     "@babel/plugin-transform-destructuring": "^7.0.0",
     "@babel/plugin-transform-react-jsx": "^7.7.4",
     "@babel/preset-env": "^7.7.4",
-    "@babel/preset-react": "^7.7.0",
+    "@babel/preset-react": "^7.7.4",
     "@types/awesomplete": "^1.1.10",
     "@types/chart.js": "^2.9.2",
     "@types/classnames": "^2.2.9",

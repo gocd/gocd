@@ -60,7 +60,6 @@ class StageRepresenterTest {
   }
 
   def stageHash = [
-    id: 456,
     name: 'stage name',
     counter: 1,
     approval_type: 'manual',
@@ -74,7 +73,6 @@ class StageRepresenterTest {
     pipeline_counter: 213,
     jobs: [
       [
-        id: 1,
         name: 'job',
         state: 'Assigned',
         result: 'Unknown',
@@ -88,12 +86,10 @@ class StageRepresenterTest {
         stage_counter: null,
         job_state_transitions: [
           [
-            id: -1,
             state: 'Scheduled',
             state_change_time: 12345
           ],
           [
-            id: -1,
             state: 'Assigned'
           ]
         ]

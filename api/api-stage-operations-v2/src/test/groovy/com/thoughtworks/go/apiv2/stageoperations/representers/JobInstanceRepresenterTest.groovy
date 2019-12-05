@@ -43,7 +43,6 @@ class JobInstanceRepresenterTest {
   }
 
   def jobInstanceHash = [
-    id: 1,
     name: 'job',
     state: 'Assigned',
     result: 'Unknown',
@@ -57,12 +56,10 @@ class JobInstanceRepresenterTest {
     stage_counter: null,
     job_state_transitions: [
       [
-        id: -1,
         state: 'Scheduled',
         state_change_time: 12345
       ],
       [
-        id: -1,
         state: 'Assigned'
       ]
     ]

@@ -22,7 +22,6 @@ import com.thoughtworks.go.domain.StageResult;
 public class StageRepresenter {
 
     public static void toJSON(OutputWriter jsonWriter, Stage stage) {
-        jsonWriter.add("id", stage.getId());
         jsonWriter.add("name", stage.getName());
         jsonWriter.add("counter", stage.getCounter());
         jsonWriter.add("approval_type", stage.getApprovalType());

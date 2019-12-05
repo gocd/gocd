@@ -34,7 +34,6 @@ class JobStateTransitionRepresenterTest {
   }
 
   def jobStateTransitionHash = [
-    id: 21,
     state: 'Building',
     state_change_time: 12345
   ]

@@ -20,7 +20,6 @@ import com.thoughtworks.go.domain.JobInstance;
 
 public class JobInstanceRepresenter {
     public static void toJSON(OutputWriter jsonWriter, JobInstance jobInstance) {
-        jsonWriter.add("id", jobInstance.getId());
         jsonWriter.add("name", jobInstance.getName());
         if (jobInstance.getState() != null) {
             jsonWriter.add("state", jobInstance.getState().toString());

@@ -20,7 +20,6 @@ import com.thoughtworks.go.domain.JobStateTransition;
 
 public class JobStateTransitionRepresenter {
     public static void toJSON(OutputWriter jsonWriter, JobStateTransition jobStateTransition) {
-        jsonWriter.add("id", jobStateTransition.getId());
         if (jobStateTransition.getCurrentState() != null) {
             jsonWriter.add("state", jobStateTransition.getCurrentState().toString());
         }

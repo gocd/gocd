@@ -131,7 +131,7 @@ export class Wizard extends MithrilViewComponent {
   private static scrollToTop() {
     const wizardBody = document.getElementsByClassName(styles.wizardBody);
     if (wizardBody && wizardBody.length) {
-      wizardBody[0].scrollTo(0, 0);
+      wizardBody[0].scrollTop = 0;
     }
   }
 

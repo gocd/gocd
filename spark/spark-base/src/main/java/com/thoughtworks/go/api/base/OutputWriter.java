@@ -52,6 +52,10 @@ public interface OutputWriter extends Closeable {
 
     OutputWriter addIfNotNull(String key, Date value);
 
+    OutputWriter addInMillis(String key, Date value);
+
+    OutputWriter addInMillisIfNotNull(String key, Date value);
+
     OutputWriter addChild(String key, Consumer<OutputWriter> consumer);
 
     OutputWriter addChildList(String key, Consumer<OutputListWriter> consumer);

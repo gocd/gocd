@@ -30,7 +30,7 @@ class ModificationRepresenterTest {
 
     def expectedJSON = [
       "revision"     : "rev1",
-      "modified_time": jsonDate(ModificationsMother.TODAY_CHECKIN),
+      "modified_time": ModificationsMother.TODAY_CHECKIN.getTime().toString(),
       "user_name"    : "committer",
       "comment"      : "Added the README file",
       "email_address": "foo@bar.com"]

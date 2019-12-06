@@ -23,7 +23,7 @@ public class ModificationRepresenter {
     public static void toJSON(OutputWriter outputWriter, Modification modification) {
         outputWriter
                 .add("revision", modification.getRevision())
-                .addIfNotNull("modified_time", modification.getModifiedTime())
+                .addInMillisIfNotNull("modified_time", modification.getModifiedTime())
                 .add("user_name", modification.getUserName())
                 .add("comment", modification.getComment())
                 .add("email_address", modification.getEmailAddress());

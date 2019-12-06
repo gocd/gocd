@@ -218,10 +218,26 @@ public class JsonOutputWriter {
         }
 
         @Override
+        public OutputWriter addInMillis(String key, Date value) {
+            return withExceptionHandling((jacksonWriter) -> {
+                jacksonWriter.writeStringField(key, value.getTime() + "");
+            });
+        }
+
+        @Override
         public JsonOutputWriterUsingJackson addIfNotNull(String key, Date value) {
             return withExceptionHandling((jacksonWriter) -> {
                 if (value != null) {
                     add(key, value);
+                }
+            });
+        }
+
+        @Override
+        public OutputWriter addInMillisIfNotNull(String key, Date value) {
+            return withExceptionHandling((jacksonWriter) -> {
+                if (value != null) {
+                    addInMillis(key, value);
                 }
             });
         }

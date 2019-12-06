@@ -21,7 +21,6 @@ import com.thoughtworks.go.domain.JobState
 import com.thoughtworks.go.presentation.pipelinehistory.JobHistoryItem
 import org.junit.jupiter.api.Test
 
-import static com.thoughtworks.go.api.base.JsonOutputWriter.jsonDate
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
@@ -36,7 +35,7 @@ class JobHistoryItemRepresenterTest {
 
     def expectedJson = [
       "name"          : "jobName",
-      "scheduled_date": jsonDate(date),
+      "scheduled_date": date.getTime().toString(),
       "state"         : "Completed",
       "result"        : "Passed"
     ]
@@ -71,7 +70,7 @@ class JobHistoryItemRepresenterTest {
 
     def expectedJson = [
       "name"          : "jobName",
-      "scheduled_date": jsonDate(date),
+      "scheduled_date": date.getTime().toString(),
       "result"        : "Passed"
     ]
 
@@ -89,7 +88,7 @@ class JobHistoryItemRepresenterTest {
 
     def expectedJson = [
       "name"          : "jobName",
-      "scheduled_date": jsonDate(date),
+      "scheduled_date": date.getTime().toString(),
       "state"         : "Completed"
     ]
 

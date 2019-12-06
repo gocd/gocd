@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import {AjaxPoller} from "helpers/ajax_poller";
+import {ApiResult} from "helpers/api_request_builder";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {PipelineActivity, Stage} from "models/pipeline_activity/pipeline_activity";
@@ -22,9 +24,7 @@ import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Page, PageState} from "views/pages/page";
 import {ResultAwarePage} from "views/pages/page_operations";
 import {PipelineActivityWidget} from "views/pages/pipeline_activity/pipeline_activity_widget";
-import {AjaxPoller} from "../../helpers/ajax_poller";
-import {ApiResult} from "../../helpers/api_request_builder";
-import {SearchField, TextField} from "../components/forms/input_fields";
+import {SearchField, Size, TextAreaField, TextField} from "../components/forms/input_fields";
 import {HeaderPanel} from "../components/header_panel";
 import {PaginationWidget} from "../components/pagination";
 import {Pagination} from "../components/pagination/models/pagination";
@@ -54,7 +54,9 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
 
   oninit(vnode: m.Vnode<null, State>) {
     super.oninit(vnode);
-    new AjaxPoller({repeaterFn: this.fetchData.bind(this, vnode), initialIntervalSeconds: 10}).start();
+    if (this.meta.pipelineName) {
+      new AjaxPoller({repeaterFn: this.fetchData.bind(this, vnode), initialIntervalSeconds: 10}).start();
+    }
   }
 
   pausePipeline() {
@@ -74,7 +76,6 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
           this.pipelineActivity().pauseBy(user ? user : "");
         }))
     ).render();
-
   }
 
   unpausePipeline() {
@@ -103,6 +104,19 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
     ).render();
   }
 
+  addOrUpdateComment(originalComment: Stream<string>, labelOrCounter: string | number): void {
+    const newComment = Stream(originalComment());
+    new ConfirmationDialog(`Comment on pipeline instance: ${this.meta.pipelineName}/${labelOrCounter}`,
+      <TextAreaField required={false} size={Size.MATCH_PARENT} property={newComment} rows={5}/>,
+      () => this.service
+        .commentOnPipelineRun(this.meta.pipelineName, labelOrCounter, newComment())
+        .then((result) => this.handleActionApiResponse(result))
+    )
+      .primaryButtonText("Save")
+      .cancelButtonText("Cancel")
+      .render();
+  }
+
   cancelStageInstance(stage: Stage) {
     new ConfirmationDialog("Cancel stage instance",
       <div>{"This will cancel all active jobs in this stage. Are you sure?"}</div>,
@@ -126,6 +140,7 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
                               showBuildCaseFor={vnode.state.showBuildCaseFor}
                               runPipeline={this.runPipeline.bind(this)}
                               runStage={this.runStage.bind(this)}
+                              addOrUpdateComment={this.addOrUpdateComment.bind(this)}
                               cancelStageInstance={this.cancelStageInstance.bind(this)}/>,
       <div class={styles.paginationWrapper}>
         <PaginationWidget pagination={this.pagination()} onPageChange={this.pageChangeCallback.bind(this)}/>
@@ -144,7 +159,6 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
 
   onFailure(message: string) {
     this.flashMessage.setMessage(MessageType.alert, message);
-    this.setErrorState();
   }
 
   onSuccess(data: PipelineActivity) {
@@ -172,7 +186,7 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
     result.do((successResponse) => {
         const body = JSON.parse(successResponse.body);
         this.flashMessage.setMessage(MessageType.success, body.message);
-        this.fetchPipelineHistory.bind(this, this.pagination().offset);
+        this.fetchPipelineHistory(this.pagination().offset);
         if (onSuccess) {
           onSuccess();
         }

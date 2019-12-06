@@ -393,3 +393,28 @@ $stage-action-icon-z-index: 1;
     width: 100%;
   }
 }
+
+.comment-wrapper {
+  display:        flex;
+  align-items:    center;
+  height:         100%;
+  padding:        0 10px;
+  flex-direction: column;
+  justify-content: center;
+
+  .comment {
+    font-size:     12px;
+    border:        1px dashed $border-color;
+    padding:       5px 10px;
+    border-radius: 3px;
+    max-width:     300px;
+    word-break:    break-word;
+    max-height:    100px;
+    overflow-y:    auto;
+    margin:        10px 10px 10px 0;
+  }
+
+  button {
+    align-self: start;
+  }
+}

@@ -255,7 +255,7 @@ export class PipelineRunInfo {
   materialRevisions: Stream<MaterialRevisions>;
   stages: Stream<Stages>;
   revision: Stream<string>;
-  comment: Stream<string | null>;
+  comment: Stream<string>;
 
   constructor(pipelineId: number,
               label: string,
@@ -278,7 +278,7 @@ export class PipelineRunInfo {
     this.materialRevisions  = Stream(materialRevisions);
     this.stages             = Stream(stages);
     this.revision           = Stream(revision);
-    this.comment            = Stream(comment);
+    this.comment            = Stream(comment ? comment : "");
   }
 
   static fromJSON(pipelineRunInfo: HistoryJSON) {

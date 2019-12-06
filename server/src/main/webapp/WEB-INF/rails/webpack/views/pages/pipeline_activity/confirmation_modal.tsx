@@ -24,6 +24,8 @@ export class ConfirmationDialog extends Modal {
   private readonly callback: () => Promise<string | void>;
   private readonly _title: string;
   private readonly _body: m.Children;
+  private _primaryButtonText: m.Children = "Yes";
+  private _cancelButtonText: m.Children  = "No";
   private operationState: OperationState | undefined;
 
   constructor(title: string, body: m.Children, onConfirm: () => Promise<string | void>) {
@@ -46,11 +48,21 @@ export class ConfirmationDialog extends Modal {
       <Buttons.Primary data-test-id='button-trigger'
                        disabled={this.operationState === OperationState.IN_PROGRESS}
                        icon={this.operationState === OperationState.IN_PROGRESS ? ButtonIcon.SPINNER : undefined}
-                       onclick={this.perform.bind(this)}>Yes</Buttons.Primary>,
+                       onclick={this.perform.bind(this)}>{this._primaryButtonText}</Buttons.Primary>,
       <Buttons.Cancel disabled={this.operationState === OperationState.IN_PROGRESS}
                       data-test-id='button-no-delete' onclick={this.close.bind(this)}
-      >No</Buttons.Cancel>
+      >{this._cancelButtonText}</Buttons.Cancel>
     ];
+  }
+
+  primaryButtonText(text: string) {
+    this._primaryButtonText = text;
+    return this;
+  }
+
+  cancelButtonText(text: string) {
+    this._cancelButtonText = text;
+    return this;
   }
 
   private perform() {

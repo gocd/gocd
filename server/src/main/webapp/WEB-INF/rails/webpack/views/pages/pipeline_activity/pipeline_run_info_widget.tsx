@@ -25,6 +25,7 @@ import s from "underscore.string";
 import * as Icons from "views/components/icons";
 import {Link} from "views/components/link";
 import {BuildCauseWidget} from "./build_cause_widget";
+import {CommentWidget} from "./comment_widget";
 import styles from "./index.scss";
 
 const classnames = bind(styles);
@@ -36,6 +37,7 @@ interface PipelineRunAttrs {
   stageConfigs: StageConfigs;
   runStage: (stage: Stage) => void;
   cancelStageInstance: (stage: Stage) => void;
+  addOrUpdateComment: (comment: Stream<string>, counterOrLabel: string | number) => void;
 }
 
 type StringOrNumber = string | number;
@@ -77,6 +79,9 @@ export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
             </div>
           </div>;
         })}
+        <CommentWidget comment={pipelineRunInfo.comment}
+                       counterOrLabel={pipelineRunInfo.counterOrLabel()}
+                       addOrUpdateComment={vnode.attrs.addOrUpdateComment}/>
       </td>
     </tr>;
   }

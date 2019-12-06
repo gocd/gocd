@@ -171,6 +171,10 @@ $btn-group-border-radius: $global-border-radius;
   @include icon-before($type: $fa-var-repeat);
 }
 
+.comment {
+  @include icon-before($type: $fa-var-comment);
+}
+
 .icon-group {
   border:        1px solid $border-color;
   border-radius: $btn-group-border-radius;

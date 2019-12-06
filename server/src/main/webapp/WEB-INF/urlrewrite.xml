@@ -187,6 +187,12 @@
   </rule>
 
   <rule>
+    <name>Mailhost Test Email API</name>
+    <from>^/api/config/mailserver/test$</from>
+    <to last="true">/spark/api/config/mailserver/test</to>
+  </rule>
+
+  <rule>
     <name>Internal Resources API</name>
     <from>^/api/admin/internal/resources$</from>
     <to last="true">/spark/api/admin/internal/resources</to>

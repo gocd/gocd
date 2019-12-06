@@ -19,6 +19,7 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {ArtifactConfig, MailServer, SiteUrls} from "models/server-configuration/server_configuration";
 import {ArtifactConfigVM, DefaultJobTimeoutVM, MailServerVM, SiteUrlsVM} from "models/server-configuration/server_configuration_vm";
+import {FlashMessageModel} from "views/components/flash_message";
 import {Sections, ServerConfigurationWidget} from "views/pages/server-configuration/server_configuration_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
 
@@ -44,6 +45,8 @@ describe("ServerConfigurationWidget", () => {
       onServerManagementSave={() => Promise.resolve()}
       siteUrlsVM={Stream(new SiteUrlsVM())}
       onMailServerManagementSave={() => Promise.resolve()}
+      sendTestMail={() => Promise.resolve()}
+      testMailResponse={Stream(new FlashMessageModel())}
       mailServerVM={Stream(mailServerVM)}
       onCancel={_.noop}/>);
   }

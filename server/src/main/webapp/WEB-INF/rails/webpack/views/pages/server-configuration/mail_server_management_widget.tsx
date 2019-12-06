@@ -17,7 +17,8 @@
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {ButtonGroup, Cancel, Primary} from "views/components/buttons";
+import {ButtonGroup, Cancel, Primary, Secondary} from "views/components/buttons";
+import {FlashMessage} from "views/components/flash_message";
 import {Form, FormBody} from "views/components/forms/form";
 import {CheckboxField, NumberField, PasswordField, TextField} from "views/components/forms/input_fields";
 import {Delete, IconGroup} from "views/components/icons";
@@ -45,6 +46,10 @@ export class MailServerManagementWidget extends MithrilViewComponent<MailServerM
 
   view(vnode: m.Vnode<MailServerManagementAttrs>) {
     const mailServer = vnode.attrs.mailServerVM().entity();
+
+    const message = vnode.attrs.testMailResponse && vnode.attrs.testMailResponse().hasMessage() ?
+                    <FlashMessage type={vnode.attrs.testMailResponse().type}
+                                  message={vnode.attrs.testMailResponse().message}/> : undefined;
 
     return <div data-test-id="mail-server-management-widget" class={styles.formContainer}>
       <FormBody>
@@ -106,13 +111,21 @@ export class MailServerManagementWidget extends MithrilViewComponent<MailServerM
               required={true}
               helpText={senderEmailHelpText}/>
 
-            <TextField
-              label="Administrator email"
-              errorText={mailServer.errors().errorsForDisplay("adminEmail")}
-              onchange={() => mailServer.validate("adminEmail")}
-              property={mailServer.adminEmail}
-              required={true}
-              helpText={"One or more email address of GoCD system administrators. This email will be notified if the server runs out of disk space, or if backups fail."}/>
+            <div class={styles.adminMail}>
+              <div class={styles.adminMailInput}>
+                <TextField
+                  label="Administrator email"
+                  errorText={mailServer.errors().errorsForDisplay("adminEmail")}
+                  onchange={() => mailServer.validate("adminEmail")}
+                  property={mailServer.adminEmail}
+                  required={true}
+                  helpText={"One or more email address of GoCD system administrators. This email will be notified if the server runs out of disk space, or if backups fail."}/>
+              </div>
+              <Secondary data-test-id="send-test-email"
+                         ajaxOperation={() => vnode.attrs.sendTestMail(vnode.attrs.mailServerVM().entity())}> Send Test
+                Email</Secondary>
+            </div>
+            {message}
           </Form>
         </div>
         <div class={styles.buttons}>

@@ -80,3 +80,16 @@
 .deleteIcon {
   margin: 10px 0;
 }
+
+.admin-mail {
+  width:   100%;
+  display: flex;
+
+  button {
+    margin-top: 26px;
+  }
+
+  .admin-mail-input {
+    width: 60%;
+  }
+}

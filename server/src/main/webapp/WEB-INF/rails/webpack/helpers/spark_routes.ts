@@ -383,6 +383,10 @@ export class SparkRoutes {
     return "/go/api/config/mailserver";
   }
 
+  static testMailForMailServerConfigPath() {
+    return "/go/api/config/mailserver/test";
+  }
+
   static siteUrlsPath() {
     return "/go/api/admin/config/server/site_urls";
   }

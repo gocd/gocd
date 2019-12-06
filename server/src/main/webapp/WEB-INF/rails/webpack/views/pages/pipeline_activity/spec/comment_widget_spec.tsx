@@ -29,6 +29,24 @@ describe("CommentWidget", () => {
 
   afterEach(helper.unmount.bind(helper));
 
+  it("should not render add comment button when pipeline has no run(0 is number)", () => {
+    const comment = Stream<string>();
+    mount(comment, 0);
+
+    expect(helper.byTestId("add-comment-button")).not.toBeInDOM();
+    expect(helper.byTestId("edit-comment-button")).not.toBeInDOM();
+    expect(helper.byTestId("comment-container")).not.toBeInDOM();
+  });
+
+  it("should not render add comment button when pipeline has no run(0 is string)", () => {
+    const comment = Stream<string>();
+    mount(comment, "0");
+
+    expect(helper.byTestId("add-comment-button")).not.toBeInDOM();
+    expect(helper.byTestId("edit-comment-button")).not.toBeInDOM();
+    expect(helper.byTestId("comment-container")).not.toBeInDOM();
+  });
+
   it("should show add comment button when pipeline instance has no comment", () => {
     const comment = Stream<string>();
     mount(comment, 1);
@@ -77,7 +95,7 @@ describe("CommentWidget", () => {
     expect(addOrUpdateComment).toHaveBeenCalledWith(comment, 2);
   });
 
-  function mount(comment: Stream<string>, counterOrLabel: number) {
+  function mount(comment: Stream<string>, counterOrLabel: number | string) {
     helper.mount(() => <CommentWidget comment={comment}
                                       counterOrLabel={counterOrLabel}
                                       addOrUpdateComment={addOrUpdateComment}/>);

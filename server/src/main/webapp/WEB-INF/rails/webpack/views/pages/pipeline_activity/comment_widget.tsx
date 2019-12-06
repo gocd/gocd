@@ -18,7 +18,7 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {Secondary} from "../../components/buttons";
+import {Secondary} from "views/components/buttons";
 import styles from "./index.scss";
 
 interface Attrs {
@@ -29,6 +29,10 @@ interface Attrs {
 
 export class CommentWidget extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs, this>): m.Children {
+    if (vnode.attrs.counterOrLabel === "0" || vnode.attrs.counterOrLabel === 0) {
+      return;
+    }
+
     if (_.isEmpty(vnode.attrs.comment())) {
       return <div class={styles.commentWrapper}>
         <Secondary small={true}

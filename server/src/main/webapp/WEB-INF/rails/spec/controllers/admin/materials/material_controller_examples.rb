@@ -55,6 +55,8 @@ shared_examples_for :material_controller do
 
       before do
         expect(@go_config_service).to receive(:loadForEdit).with("pipeline-name", @user, @result).and_return(@pipeline_config_for_edit)
+        expect(@go_config_service).to receive(:doesPipelineExist).and_return(true)
+        expect(@go_config_service).to receive(:isPipelineDefinedInConfigRepository).and_return(false)
         allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
       end
 
@@ -108,6 +110,8 @@ shared_examples_for :material_controller do
     describe "edit" do
       before do
         expect(@go_config_service).to receive(:loadForEdit).with("pipeline-name", @user, @result).and_return(@pipeline_config_for_edit)
+        expect(@go_config_service).to receive(:doesPipelineExist).and_return(true)
+        expect(@go_config_service).to receive(:isPipelineDefinedInConfigRepository).and_return(false)
         allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
       end
 
@@ -208,6 +212,8 @@ shared_examples_for :material_controller do
     @pause_info = PipelinePauseInfo.paused("just for fun", "loser")
     expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
     allow(@go_config_service).to receive(:getConfigForEditing).and_return(@cruise_config)
+    allow(@go_config_service).to receive(:doesPipelineExist).and_return(true)
+    allow(@go_config_service).to receive(:isPipelineDefinedInConfigRepository).and_return(false)
   end
 
   def controller_specific_assertion

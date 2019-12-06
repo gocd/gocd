@@ -5,7 +5,7 @@
   <%- @current_tab_name = "admin" -%>
   <%= render :partial => "shared/head" %>
 
-  <%- unless(Rails.env.test?) %>
+  <%- unless (Rails.env.test?) %>
     <%= javascript_include_tag *webpack_assets_service.getJSAssetPathsFor("single_page_apps/show_template_modal_shim") %>
   <%- end %>
 </head>
@@ -17,8 +17,8 @@
 
     <div id='body_content' class="admin_body_content">
       <div class="messaging_wrapper" id="messaging_wrapper">
-          <%= render :partial => "shared/flash_message" %>
-          <%= render :partial => "shared/config_save_actions", :locals => {:scope => {}} -%>
+        <%= render :partial => "shared/flash_message" %>
+        <%= render :partial => "shared/config_save_actions", :locals => {:scope => {}} -%>
       </div>
 
       <%= render :partial => 'layouts/pipelines/breadcrumb_top' %>
@@ -36,7 +36,7 @@
               </h3>
             </div>
             <div class="sub_tabs_container <%= params[:current_tab] -%>">
-              <%= render :partial => "admin/pipelines/pipeline_navigation", :locals => {:scope => {:pipeline => @pipeline}} %>
+              <%= render :partial => "admin/pipelines/pipeline_navigation", :locals => {:scope => {:pipeline => @pipeline}, :disabled => true} %>
             </div>
 
             <%= render :partial => "admin/shared/global_errors.html", :locals => {:scope => {}} -%>
@@ -45,7 +45,9 @@
 
           </div>
         </div>
-        <%= render :partial => "admin/shared/dirty_form", :locals => {:scope => {:form_id => 'pipeline_edit_form', :reset_id => "reset_form"}} %>
+        <%- unless  @is_config_repo_pipeline %>
+          <%= render :partial => "admin/shared/dirty_form", :locals => {:scope => {:form_id => 'pipeline_edit_form', :reset_id => "reset_form"}} %>
+        <%- end %>
         <%= render :partial => 'shared/convert_tool_tips.html', :locals => {:scope => {}} %>
       </div>
       <%= end_content_wrapper %>
@@ -56,6 +58,12 @@
 
 </body>
 <script type="text/javascript">
+  jQuery(document).ready(function () {
+    if (<%= @is_config_repo_pipeline || false %>) {
+      Util.disableAllFormElementsFor(".admin_wrapper");
+    }
+  });
+
   AjaxRefreshers.addRefresher(new AjaxRefresher("<%= pause_info_refresh_path(:pipeline_name => @pipeline.name()) -%>"), true);
 </script>
 </html>

@@ -19,13 +19,20 @@
             <%= render :partial => "admin/tasks/on_cancel.html", :locals => {:scope => {:task => @task, :form => f, :config_store => scope[:config_store]}} %>
         </div>
     </div>
+  <% if @is_config_repo_pipeline %>
+    <div class="primary finish submit" style="display: none"></div>
+  <% else %>
     <%= render :partial => "shared/form_buttons.html", :locals => {:scope => {:submit_label => 'SAVE'}} %>
+  <% end %>
     <%= render :partial => 'shared/convert_tool_tips.html' %>
 <% end %>
 
 <script type="text/javascript">
     jQuery(document).ready(function () {
         new TaskPluginView().bootstrapAngular();
+        if (<%= @is_config_repo_pipeline || false %>) {
+          Util.disableAllFormElementsFor('.exec_task_editor');
+        }
     });
 </script>
 

@@ -52,9 +52,11 @@ describe Admin::MaterialsController do
       a = double('config wrapper')
       expect(a).to receive(:getConfig).and_return(@cruise_config)
       expect(a).to receive(:config).twice.and_return(@cruise_config)
-      expect(a).to receive(:getCruiseConfig).twice.and_return(@cruise_config)
-      expect(a).to receive(:getProcessedConfig).and_return(@cruise_config)
+      expect(a).to receive(:getCruiseConfig).and_return(@cruise_config)
+      expect(a).to receive(:getProcessedConfig).twice.and_return(@cruise_config)
       expect(@go_config_service).to receive(:loadForEdit).and_return(a)
+      expect(@go_config_service).to receive(:doesPipelineExist).and_return(true)
+      expect(@go_config_service).to receive(:isPipelineDefinedInConfigRepository).and_return(false)
     end
 
     it "should set current tab param" do

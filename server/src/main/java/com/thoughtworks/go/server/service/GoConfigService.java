@@ -167,6 +167,19 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return new ConfigForEdit<>(config, configHolder);
     }
 
+    //used to show config repo pipelines in read only mode from rails pages
+    public ConfigForEdit<PipelineConfig> loadConfigRepoPipeline(String pipelineName,
+                                                                Username username,
+                                                                HttpLocalizedOperationResult result) {
+        if (!canEditPipeline(pipelineName, username, result)) {
+            return null;
+        }
+        GoConfigHolder configHolder = getConfigHolder();
+        configHolder = cloner.deepClone(configHolder);
+        PipelineConfig config = configHolder.mergedConfigForEdit.pipelineConfigByName(new CaseInsensitiveString(pipelineName));
+        return new ConfigForEdit<>(config, configHolder);
+    }
+
     private boolean canEditPipeline(String pipelineName, Username username, LocalizedOperationResult result) {
         return canEditPipeline(pipelineName, username, result, findGroupNameByPipeline(new CaseInsensitiveString(pipelineName)));
     }
@@ -195,7 +208,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return true;
     }
 
-    private boolean doesPipelineExist(String pipelineName, LocalizedOperationResult result) {
+    public boolean doesPipelineExist(String pipelineName, LocalizedOperationResult result) {
         if (!getCurrentConfig().hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
             result.notFound(EntityType.Pipeline.notFoundMessage(pipelineName), general(forPipeline(pipelineName)));
             return false;
@@ -203,6 +216,15 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return true;
     }
 
+    public boolean isPipelineDefinedInConfigRepository(String pipelineName) {
+        GoConfigHolder configHolder = this.getConfigHolder();
+        //check if mergedConfigForEdit exists..
+        if (configHolder.mergedConfigForEdit != null) {
+            return !configHolder.mergedConfigForEdit.pipelineConfigByName(new CaseInsensitiveString(pipelineName)).isLocal();
+        } else {
+            return !configHolder.configForEdit.pipelineConfigByName(new CaseInsensitiveString(pipelineName)).isLocal();
+        }
+    }
 
     public CruiseConfig currentCruiseConfig() {
         return getCurrentConfig();

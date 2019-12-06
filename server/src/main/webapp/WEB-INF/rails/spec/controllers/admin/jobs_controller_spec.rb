@@ -101,6 +101,8 @@ describe Admin::JobsController do
         expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
 
         expect(@go_config_service).to receive(:loadForEdit).with("pipeline-name", @user, @result).and_return(@pipeline_config_for_edit)
+        expect(@go_config_service).to receive(:doesPipelineExist).and_return(true)
+        expect(@go_config_service).to receive(:isPipelineDefinedInConfigRepository).and_return(false)
 
         get :index, params:{:pipeline_name => "pipeline-name", :stage_name => "stage-name", :stage_parent => "pipelines"}
 
@@ -120,6 +122,8 @@ describe Admin::JobsController do
         expect(@task_view_service).to receive(:getTaskViewModels).and_return(tvms = [TaskViewModel.new(AntTask.new(), "new"), TaskViewModel.new(NantTask.new(), "new")].to_java(TaskViewModel))
         expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
         expect(@go_config_service).to receive(:loadForEdit).with("pipeline-name", @user, @result).and_return(@pipeline_config_for_edit)
+        expect(@go_config_service).to receive(:doesPipelineExist).and_return(true)
+        expect(@go_config_service).to receive(:isPipelineDefinedInConfigRepository).and_return(false)
         add_resource("job-1", "windows")
         add_resource("job-1", "linux")
         add_resource("job-2", "windows-xp")
@@ -179,6 +183,8 @@ describe Admin::JobsController do
       before(:each) do
         expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
         expect(@go_config_service).to receive(:loadForEdit).with("pipeline-name", @user, @result).and_return(@pipeline_config_for_edit)
+        expect(@go_config_service).to receive(:doesPipelineExist).and_return(true)
+        expect(@go_config_service).to receive(:isPipelineDefinedInConfigRepository).and_return(false)
       end
 
       it "should load job" do

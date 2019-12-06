@@ -1,6 +1,7 @@
 <%- missing_plugin = "missing_plugin" if scope[:tvm].instance_of? com.thoughtworks.go.presentation.MissingPluggableTaskViewModel %>
 
 <tr class="task_<%= scope[:task_config_index] %> <%= missing_plugin -%>">
+  <% unless @is_config_repo_pipeline %>
     <td>
         <% unless scope[:task_config_index] == 0 %>
             <%= form_tag(admin_task_decrement_index_path(:task_index => scope[:task_config_index]), :method => :POST) %>
@@ -19,8 +20,10 @@
             <%= end_form_tag %>
         <% end %>
     </td>
-    <%- js_frag = "Util.ajax_modal('#{admin_task_edit_path(:task_index => scope[:task_config_index], :type => scope[:tvm].getTaskType())}', {overlayClose: false, title: 'Edit #{scope[:tvm].getTypeForDisplay()} task'}, function(text){return text}, true)" -%>
+  <% end %>
+    <%- js_frag = "Util.ajax_modal('#{admin_task_edit_path(:task_index => scope[:task_config_index], :type => scope[:tvm].getTaskType())}', {readOnly: #{@is_config_repo_pipeline}, overlayClose: false, title: 'Edit #{scope[:tvm].getTypeForDisplay()} task'}, function(text){return text}, true)" -%>
     <%== render_pluggable_template(scope[:tvm], { :scope => scope, :modify_onclick_callback => js_frag}) -%>
+  <% unless @is_config_repo_pipeline %>
     <td class="">
         <%= form_tag admin_task_delete_path(:task_index => scope[:task_config_index]), {:method => :delete, :id => "delete_task_#{scope[:task_config_index]}"} %>
         <%= md5_field %>
@@ -29,4 +32,5 @@
         </span>
         <%= end_form_tag -%>
     </td>
+  <% end %>
 </tr>

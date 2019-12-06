@@ -104,6 +104,8 @@ describe Admin::TasksController do
       @pause_info = PipelinePauseInfo.paused("just for fun", "loser")
 
       expect(@go_config_service).to receive(:loadForEdit).with("pipeline.name", @user, @result).and_return(@pipeline_config_for_edit)
+      expect(@go_config_service).to receive(:doesPipelineExist).and_return(true)
+      expect(@go_config_service).to receive(:isPipelineDefinedInConfigRepository).and_return(false)
       expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline.name").and_return(@pause_info)
       allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
       allow(@entity_hashing_service).to receive(:md5ForEntity).and_return('pipeline-md5')

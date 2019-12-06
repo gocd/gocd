@@ -80,10 +80,12 @@ describe Admin::Materials::PluggableScmController do
       before do
         expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with('pipeline-name').and_return(@pause_info)
         expect(@go_config_service).to receive(:loadForEdit).with('pipeline-name', @user, @result).and_return(@pipeline_config_for_edit)
+        expect(@go_config_service).to receive(:doesPipelineExist).and_return(true)
+        expect(@go_config_service).to receive(:isPipelineDefinedInConfigRepository).and_return(false)
       end
 
       it "should load all scms" do
-        get :show_existing, params:{:pipeline_name => 'pipeline-name'}
+        get :show_existing, params: {:pipeline_name => 'pipeline-name'}
 
         expect(assigns[:material].getType()).to eq('PluggableSCMMaterial')
         expect(assigns[:scms]).to eq(@cruise_config.getSCMs())
@@ -95,6 +97,8 @@ describe Admin::Materials::PluggableScmController do
       before do
         expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with('pipeline-name').and_return(@pause_info)
         expect(@go_config_service).to receive(:loadForEdit).with('pipeline-name', @user, @result).and_return(@pipeline_config_for_edit)
+        expect(@go_config_service).to receive(:doesPipelineExist).and_return(true)
+        expect(@go_config_service).to receive(:isPipelineDefinedInConfigRepository).and_return(false)
       end
 
       it "should choose material" do
@@ -103,7 +107,7 @@ describe Admin::Materials::PluggableScmController do
         expect(@cruise_config.getSCMs().size).to eq(1)
         expect(@pipeline.materialConfigs().size).to eq(1)
 
-        post :choose_existing, params:{:pipeline_name => 'pipeline-name', :config_md5 => 'md5-1', :material => choose_existing_payload('scm-id-1')}
+        post :choose_existing, params: {:pipeline_name => 'pipeline-name', :config_md5 => 'md5-1', :material => choose_existing_payload('scm-id-1')}
 
         expect(@cruise_config.getSCMs().size).to eq(1)
         expect(@pipeline.materialConfigs().size).to eq(2)
@@ -119,7 +123,7 @@ describe Admin::Materials::PluggableScmController do
           result.badRequest('some message')
         end
 
-        post :choose_existing, params:{:pipeline_name => 'pipeline-name', :config_md5 => 'md5-1', :material => choose_existing_payload('scm-id-1')}
+        post :choose_existing, params: {:pipeline_name => 'pipeline-name', :config_md5 => 'md5-1', :material => choose_existing_payload('scm-id-1')}
 
         expect(@cruise_config.getAllErrors().size).to eq(1)
 
@@ -133,10 +137,12 @@ describe Admin::Materials::PluggableScmController do
       before do
         expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with('pipeline-name').and_return(@pause_info)
         expect(@go_config_service).to receive(:loadForEdit).with('pipeline-name', @user, @result).and_return(@pipeline_config_for_edit)
+        expect(@go_config_service).to receive(:doesPipelineExist).and_return(true)
+        expect(@go_config_service).to receive(:isPipelineDefinedInConfigRepository).and_return(false)
       end
 
       it "should load new material" do
-        get :new, params:{:pipeline_name => 'pipeline-name', :plugin_id => 'plugin-id'}
+        get :new, params: {:pipeline_name => 'pipeline-name', :plugin_id => 'plugin-id'}
 
         assert_material_is_initialized
         expect(assigns[:meta_data_store]).to eq(@meta_data_store)
@@ -150,6 +156,8 @@ describe Admin::Materials::PluggableScmController do
         expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with('pipeline-name').and_return(@pause_info)
         expect(@go_config_service).to receive(:loadForEdit).with('pipeline-name', @user, @result).and_return(@pipeline_config_for_edit)
         expect(@pluggable_scm_service).to receive(:validate)
+        expect(@go_config_service).to receive(:doesPipelineExist).and_return(true)
+        expect(@go_config_service).to receive(:isPipelineDefinedInConfigRepository).and_return(false)
       end
 
       it "should add new material" do
@@ -158,7 +166,7 @@ describe Admin::Materials::PluggableScmController do
         expect(@cruise_config.getSCMs().size).to eq(1)
         expect(@pipeline.materialConfigs().size).to eq(1)
 
-        post :create, params:{:pipeline_name => 'pipeline-name', :plugin_id => 'plugin-id', :config_md5 => 'md5-1', :material => create_payload}
+        post :create, params: {:pipeline_name => 'pipeline-name', :plugin_id => 'plugin-id', :config_md5 => 'md5-1', :material => create_payload}
 
         expect(@cruise_config.getSCMs().size).to eq(2)
         expect(@pipeline.materialConfigs().size).to eq(2)
@@ -174,7 +182,7 @@ describe Admin::Materials::PluggableScmController do
           result.badRequest('some message')
         end
 
-        post :create, params:{:pipeline_name => 'pipeline-name', :plugin_id => 'plugin-id', :config_md5 => 'md5-1', :material => create_payload}
+        post :create, params: {:pipeline_name => 'pipeline-name', :plugin_id => 'plugin-id', :config_md5 => 'md5-1', :material => create_payload}
 
         expect(@cruise_config.getAllErrors().size).to eq(1)
 
@@ -188,10 +196,12 @@ describe Admin::Materials::PluggableScmController do
       before do
         expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with('pipeline-name').and_return(@pause_info)
         expect(@go_config_service).to receive(:loadForEdit).with('pipeline-name', @user, @result).and_return(@pipeline_config_for_edit)
+        expect(@go_config_service).to receive(:doesPipelineExist).and_return(true)
+        expect(@go_config_service).to receive(:isPipelineDefinedInConfigRepository).and_return(false)
       end
 
       it "should edit an existing material" do
-        get :edit, params:{:pipeline_name => 'pipeline-name', :finger_print => @material.getPipelineUniqueFingerprint()}
+        get :edit, params: {:pipeline_name => 'pipeline-name', :finger_print => @material.getPipelineUniqueFingerprint()}
 
         expect(assigns[:material]).to eq(@material)
         expect(assigns[:meta_data_store]).to eq(@meta_data_store)
@@ -204,6 +214,8 @@ describe Admin::Materials::PluggableScmController do
       before :each do
         expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with('pipeline-name').and_return(@pause_info)
         expect(@go_config_service).to receive(:loadForEdit).with('pipeline-name', @user, @result).and_return(@pipeline_config_for_edit)
+        expect(@go_config_service).to receive(:doesPipelineExist).and_return(true)
+        expect(@go_config_service).to receive(:isPipelineDefinedInConfigRepository).and_return(false)
         expect(@pluggable_scm_service).to receive(:validate)
       end
 
@@ -213,7 +225,7 @@ describe Admin::Materials::PluggableScmController do
         expect(@cruise_config.getSCMs().size).to eq(1)
         expect(@pipeline.materialConfigs().size).to eq(1)
 
-        put :update, params:{:pipeline_name => 'pipeline-name', :config_md5 => 'md5-1', :material => update_payload('scm-id-1'), :finger_print => @material.getPipelineUniqueFingerprint()}
+        put :update, params: {:pipeline_name => 'pipeline-name', :config_md5 => 'md5-1', :material => update_payload('scm-id-1'), :finger_print => @material.getPipelineUniqueFingerprint()}
 
         expect(@cruise_config.getSCMs().size).to eq(1)
         expect(@pipeline.materialConfigs().size).to eq(1)
@@ -230,7 +242,7 @@ describe Admin::Materials::PluggableScmController do
           result.badRequest('some message')
         end
 
-        put :update, params:{:pipeline_name => "pipeline-name", :config_md5 => "md5-1", :material => update_payload('scm-id-1'), :finger_print => @material.getPipelineUniqueFingerprint()}
+        put :update, params: {:pipeline_name => "pipeline-name", :config_md5 => "md5-1", :material => update_payload('scm-id-1'), :finger_print => @material.getPipelineUniqueFingerprint()}
 
         expect(assigns[:errors].size).to eq(1)
         expect(assigns[:material]).not_to eq(nil)
@@ -244,11 +256,11 @@ describe Admin::Materials::PluggableScmController do
         result = double('Result')
         allow(result).to receive(:isSuccessful).and_return(true)
         allow(result).to receive(:getMessages).and_return(['message 1', 'message 2'])
-        expect(@pluggable_scm_service).to receive(:checkConnection).with(anything()) { result }
+        expect(@pluggable_scm_service).to receive(:checkConnection).with(anything()) {result}
       end
 
       it "should check connection for pluggable SCM" do
-        post :check_connection, params:{:plugin_id => 'plugin-id', :material => create_payload}
+        post :check_connection, params: {:plugin_id => 'plugin-id', :material => create_payload}
 
         expect(response.body).to eq("{\"status\":\"success\",\"messages\":[\"message 1\",\"message 2\"]}")
       end
@@ -256,7 +268,7 @@ describe Admin::Materials::PluggableScmController do
 
     describe "pipelines_used_in" do
       it "should show pipelines used in for pluggable SCM" do
-        get :pipelines_used_in, params:{:scm_id => 'scm-id-1'}
+        get :pipelines_used_in, params: {:scm_id => 'scm-id-1'}
 
         expect(response).to render_template "admin/package_definitions/pipelines_used_in"
         expect(assigns[:pipelines_with_group].size).to eq(1)

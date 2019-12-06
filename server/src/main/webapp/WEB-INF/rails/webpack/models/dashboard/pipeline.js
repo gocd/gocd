@@ -130,16 +130,11 @@ export const Pipeline = function (info) {
     return TooltipText.NO_EDIT_PERMISSION;
   };
 
-  this.definedInConfigRepoTooltipText = () => {
-    return TooltipText.CONFIG_REPO_PIPELINE;
-  };
-
   const TooltipText = {
     NO_OPERATE_PERMISSION:   "You do not have permission to trigger the pipeline",
     PIPELINE_PAUSED:         "Cannot trigger pipeline - Pipeline is currently paused.",
     PIPELINE_LOCKED:         "Cannot trigger pipeline - Pipeline is currently locked.",
     FIRST_STAGE_IN_PROGRESS: "Cannot trigger pipeline - First stage is still in progress.",
-    CONFIG_REPO_PIPELINE:    "Pipeline defined in config repository.",
     NO_EDIT_PERMISSION:      "You do not have permission to edit the pipeline.",
     NO_UNLOCK_PERMISSION:    "You do not have permission to unlock the pipeline.",
     NO_PAUSE_PERMISSION:     "You do not have permission to pause the pipeline.",

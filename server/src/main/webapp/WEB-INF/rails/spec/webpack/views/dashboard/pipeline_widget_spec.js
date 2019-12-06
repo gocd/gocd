@@ -96,21 +96,15 @@ describe("Dashboard Pipeline Widget", () => {
       expect(helper.q('.edit_config').href.indexOf(expectedPath)).not.toEqual(-1);
     });
 
-    it('should disable pipeline settings showing tooltip information for non admin users', () => {
-      helper.unmount();
-      mount(false, {}, {}, true, true);
-
-      expect(pipeline.canAdminister).toBe(false);
-      expect(helper.q('.info_config')).toHaveClass('disabled');
-      expect(helper.q('.info_config')).toHaveAttr('data-tooltip-id');
-    });
-
-    it('should disable pipeline settings for config repo pipelines', () => {
+    it('should show pipeline settings for config repo pipelines', () => {
       helper.unmount();
       mount(true, {}, {}, true, true, true);
 
+      const expectedPath = pipeline.settingsPath;
+
       expect(pipeline.isDefinedInConfigRepo()).toBe(true);
-      expect(helper.q('.info_config')).toHaveClass('disabled');
+      expect(helper.q('.edit_config')).not.toHaveClass('disabled');
+      expect(helper.q('.edit_config').href.indexOf(expectedPath)).not.toEqual(-1);
     });
   });
 
@@ -157,7 +151,7 @@ describe("Dashboard Pipeline Widget", () => {
       it("should disable pipeline settings button for non admin users", () => {
         helper.unmount();
         mount(false);
-        expect(helper.q('.info_config')).toHaveClass("disabled");
+        expect(helper.q('.edit_config')).toHaveClass("disabled");
       });
 
       it("should render pipeline settings icon", () => {

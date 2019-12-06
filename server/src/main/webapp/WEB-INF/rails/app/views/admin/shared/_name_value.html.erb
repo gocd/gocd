@@ -40,21 +40,25 @@
                   <%= error_message_on(variable, com.thoughtworks.go.config.EnvironmentVariableConfig::VALUE, :css_class => "name_value_error") %>
                 </div>
               </td>
-              <% if scope[:secure] %>
+              <% if scope[:secure] && !scope[:read_only_page] %>
                 <td class="name_value_cell cell_edit_reset_actions">
                   <%= link_to 'Edit', '#', :class => "edit skip_dirty_stop" -%>
                   <%= link_to 'Reset', '#', :class => "reset hidden skip_dirty_stop" -%>
                 </td>
               <% end %>
-              <td class="name_value_cell icon_remove_cell">
-                <span class="icon_remove delete_parent"></span>
-              </td>
+              <% unless scope[:read_only_page] %>
+                <td class="name_value_cell icon_remove_cell">
+                  <span class="icon_remove delete_parent"></span>
+                </td>
+              <% end %>
             </tr>
           <%- end -%>
         <%- end -%>
         </tbody>
       </table>
-      <%= action_icon({:type => "add", :text => 'Add', :href => "#", :class => "skip_dirty_stop add_item", :id => 'add_variables'}) %>
+      <% unless scope[:read_only_page] %>
+        <%= action_icon({:type => "add", :text => 'Add', :href => "#", :class => "skip_dirty_stop add_item", :id => 'add_variables'}) %>
+      <%end %>
       <table style="display: none;">
         <tbody class="template">
         <tr class="environment-variable-edit-row">
@@ -79,9 +83,11 @@
                 <% end %>
               </div>
             </td>
-            <td class="name_value_cell">
-              <span class="icon_remove delete_parent"></span>
-            </td>
+            <% unless scope[:read_only_page] %>
+              <td class="name_value_cell">
+                <span class="icon_remove delete_parent"></span>
+              </td>
+            <%end %>
           <% end %>
         </tr>
         </tbody>

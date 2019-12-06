@@ -11,10 +11,11 @@
                         <%= tab_form.text_field :path, :class => "form_input environment_variable_value", :id => nil -%>
                     </div>
                 </td>
+              <% unless scope[:read_only_page] %>
                 <td class="name_value_cell">
                     <span class="icon_remove delete_parent"></span>
                 </td>
-                
+              <% end %>
             <% end %>
         </textarea>
         <table class="<%= scope[:collection_name] -%>">
@@ -44,15 +45,19 @@
                                 <%= error_message_on(tab, com.thoughtworks.go.config.Tab::PATH, :css_class => "name_value_error") %>
                             </div>
                         </td>
+                      <% unless scope[:read_only_page] %>
                         <td class="name_value_cell">
                             <span class="icon_remove delete_parent"></span>
                         </td>
+                      <% end %>
                     </tr>
                 <% end %>
             <%- end -%>
             </tbody>
         </table>
-		<%= action_icon({:type => "add", :text => 'Add', :href => "#", :id => id="add_#{scope[:collection_name]}", :class => "skip_dirty_stop"}) %>
+      <% unless scope[:read_only_page] %>
+        <%= action_icon({:type => "add", :text => 'Add', :href => "#", :id => id="add_#{scope[:collection_name]}", :class => "skip_dirty_stop"}) %>
+      <% end %>
         <div class="clear"></div>
     </div>
 </div>

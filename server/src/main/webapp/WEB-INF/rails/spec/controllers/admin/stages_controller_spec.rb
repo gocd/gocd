@@ -132,6 +132,8 @@ describe Admin::StagesController do
 
       before do
         expect(@go_config_service).to receive(:loadForEdit).with("pipeline-name", @user, @result).and_return(@pipeline_config_for_edit)
+        expect(@go_config_service).to receive(:doesPipelineExist).and_return(true)
+        expect(@go_config_service).to receive(:isPipelineDefinedInConfigRepository).and_return(false)
         allow(@go_config_service).to receive(:rolesForUser).and_return(nil)
         expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
         allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
@@ -180,6 +182,8 @@ describe Admin::StagesController do
 
       before do
         expect(@go_config_service).to receive(:loadForEdit).with("pipeline-name", @user, @result).and_return(@pipeline_config_for_edit)
+        expect(@go_config_service).to receive(:doesPipelineExist).and_return(true)
+        expect(@go_config_service).to receive(:isPipelineDefinedInConfigRepository).and_return(false)
         expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
         allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
         expect(@task_view_service).to receive(:getTaskViewModels).and_return(@tvms = [TaskViewModel.new(AntTask.new(), "new"), TaskViewModel.new(NantTask.new(), "new")].to_java(TaskViewModel))
@@ -337,6 +341,8 @@ describe Admin::StagesController do
     describe "edit" do
       before do
         expect(@go_config_service).to receive(:loadForEdit).with("pipeline-name", @user, @result).and_return(@pipeline_config_for_edit)
+        expect(@go_config_service).to receive(:doesPipelineExist).and_return(true)
+        expect(@go_config_service).to receive(:isPipelineDefinedInConfigRepository).and_return(false)
         expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
         allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
       end
@@ -352,6 +358,8 @@ describe Admin::StagesController do
 
       before do
         expect(@go_config_service).to receive(:loadForEdit).with("pipeline-name", @user, @result).and_return(@pipeline_config_for_edit)
+        expect(@go_config_service).to receive(:doesPipelineExist).and_return(true)
+        expect(@go_config_service).to receive(:isPipelineDefinedInConfigRepository).and_return(false)
         expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
         allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
       end
@@ -539,6 +547,8 @@ describe Admin::StagesController do
 
       before do
         expect(@go_config_service).to receive(:loadForEdit).with("pipeline-name", @user, @result).and_return(@pipeline_config_for_edit)
+        expect(@go_config_service).to receive(:doesPipelineExist).and_return(true)
+        expect(@go_config_service).to receive(:isPipelineDefinedInConfigRepository).and_return(false)
         allow(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
         allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
         allow(@go_config_service).to receive(:rolesForUser).and_return(nil)

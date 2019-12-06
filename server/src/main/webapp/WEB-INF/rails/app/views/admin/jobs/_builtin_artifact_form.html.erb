@@ -25,9 +25,14 @@
         <%= artifact_form.text_field "destination", :class => "form_input artifact_destination", :id => nil -%>
         <%= error_message_on(scope[:builtin_artifact], "destination", :css_class => "form_error") %>
       </div>
-      <div class="name_value_cell columns medium-4 large-4 end">
-        <span class="icon_remove delete_artifact" />
-      </div>
+      <% if @is_config_repo_pipeline %>
+        <div class="name_value_cell columns medium-4 large-4 end">
+        </div>
+      <% else %>
+        <div class="name_value_cell columns medium-4 large-4 end">
+          <span class="icon_remove delete_artifact" />
+        </div>
+    <% end %>
     </div>
   <% end %>
 </div>

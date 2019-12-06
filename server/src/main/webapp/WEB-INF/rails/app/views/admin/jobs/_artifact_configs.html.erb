@@ -17,7 +17,8 @@
     <%- end -%>
   </div>
 
-  <div class="row expanded add_new_artifact">
+  <% unless @is_config_repo_pipeline %>
+    <div class="row expanded add_new_artifact">
     <div class="name_value_cell columns medium-12 large-12 end">
       <label>Select type:</label>
       <select class="small" id="select_artifact_type">
@@ -29,6 +30,7 @@
                        :id => "add_artifact"}) %>
     </div>
   </div>
+  <% end %>
 </div>
 <script type="text/javascript">
   var artifactTypeToTemplate = {

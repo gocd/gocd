@@ -39,8 +39,21 @@ module PipelineConfigLoader
     if (params[:stage_parent] == 'templates')
       pipeline_for_edit = template_config_service.loadForEdit(params[:pipeline_name], current_user, result)
     else
-      pipeline_for_edit = go_config_service.loadForEdit(params[:pipeline_name], current_user, result)
-      @pipeline_group_name = pipeline_for_edit.getCruiseConfig.findGroupOfPipeline(pipeline_for_edit.config).group
+
+      unless go_config_service.doesPipelineExist(params[:pipeline_name], result)
+        render_localized_operation_result result
+        return
+      end
+
+      if go_config_service.isPipelineDefinedInConfigRepository(params[:pipeline_name])
+        pipeline_for_edit = go_config_service.loadConfigRepoPipeline(params[:pipeline_name], current_user, result)
+        @is_config_repo_pipeline = true
+      else
+        pipeline_for_edit = go_config_service.loadForEdit(params[:pipeline_name], current_user, result)
+        @is_config_repo_pipeline = false
+      end
+
+      @pipeline_group_name = pipeline_for_edit.getProcessedConfig.findGroupOfPipeline(pipeline_for_edit.config).group
       @pipeline_md5 = entity_hashing_service.md5ForEntity(pipeline_for_edit.config, @pipeline_group_name)
     end
     unless result.isSuccessful()

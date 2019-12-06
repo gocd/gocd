@@ -356,15 +356,6 @@ body {
   }
 }
 
-
-.info_config {
-  @include icon-before($type: info-circle, $color: $grey);
-
-  &:before {
-    font-size: $pipeline_icons_size;
-  }
-}
-
 .edit_config {
   @include icon-before($type: gear);
 

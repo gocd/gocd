@@ -69,7 +69,11 @@
             </div>
         </div>
     </div>
+  <% if scope[:read_only_page] %>
+    <div class="primary finish submit" style="display: none"></div>
+  <% else %>
     <%= render :partial => "shared/form_buttons.html", :locals => {:scope => {:submit_label => 'SAVE'}} %>
+  <% end %>
     <%= render :partial => 'shared/convert_tool_tips.html' %>
 
     <script type="text/javascript">

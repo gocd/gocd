@@ -24,6 +24,7 @@ import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.exceptions.EntityType
 import com.thoughtworks.go.config.exceptions.NotAuthorizedException
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException
+import com.thoughtworks.go.domain.JobInstance
 import com.thoughtworks.go.domain.JobInstances
 import com.thoughtworks.go.domain.NullJobInstance
 import com.thoughtworks.go.helper.JobInstanceMother
@@ -100,13 +101,14 @@ class JobInstanceControllerV1Test implements SecurityServiceTrait, ControllerTra
 
       @Test
       void 'should get job history'() {
+        def jobInstances = getJobInstances()
         when(jobInstanceService.getJobHistoryCount(eq(pipelineName), eq(stageName), eq(jobName))).thenReturn(20)
-        when(jobInstanceService.findJobHistoryPage(eq(pipelineName), eq(stageName), anyString(), any(Pagination.class), anyString(), any() as HttpOperationResult)).thenReturn(getJobInstances())
+        when(jobInstanceService.findJobHistoryPage(eq(pipelineName), eq(stageName), anyString(), any(Pagination.class), anyString(), any() as HttpOperationResult)).thenReturn(jobInstances)
 
         getWithApiHeader(controller.controllerPath(pipelineName, stageName, jobName, 'history'), [:])
 
         def expectedJson = toObjectString({
-          JobInstancesRepresenter.toJSON(it, getJobInstances(), Pagination.pageStartingAt(0, 20, 10))
+          JobInstancesRepresenter.toJSON(it, jobInstances, Pagination.pageStartingAt(0, 20, 10))
         })
 
         assertThatResponse()
@@ -117,13 +119,14 @@ class JobInstanceControllerV1Test implements SecurityServiceTrait, ControllerTra
 
       @Test
       void 'should get job history with offset'() {
+        def jobInstances = getJobInstances()
         when(jobInstanceService.getJobHistoryCount(eq(pipelineName), eq(stageName), eq(jobName))).thenReturn(20)
-        when(jobInstanceService.findJobHistoryPage(eq(pipelineName), eq(stageName), anyString(), any(Pagination.class), anyString(), any() as HttpOperationResult)).thenReturn(getJobInstances())
+        when(jobInstanceService.findJobHistoryPage(eq(pipelineName), eq(stageName), anyString(), any(Pagination.class), anyString(), any() as HttpOperationResult)).thenReturn(jobInstances)
 
         getWithApiHeader(controller.controllerPath(pipelineName, stageName, jobName, 'history') + "?offset=2", [:])
 
         def expectedJson = toObjectString({
-          JobInstancesRepresenter.toJSON(it, getJobInstances(), Pagination.pageStartingAt(2, 20, 10))
+          JobInstancesRepresenter.toJSON(it, jobInstances, Pagination.pageStartingAt(2, 20, 10))
         })
 
         assertThatResponse()
@@ -133,13 +136,14 @@ class JobInstanceControllerV1Test implements SecurityServiceTrait, ControllerTra
 
       @Test
       void 'should get job history with offset and page size'() {
+        def jobInstances = getJobInstances()
         when(jobInstanceService.getJobHistoryCount(eq(pipelineName), eq(stageName), eq(jobName))).thenReturn(20)
-        when(jobInstanceService.findJobHistoryPage(eq(pipelineName), eq(stageName), anyString(), any(Pagination.class), anyString(), any() as HttpOperationResult)).thenReturn(getJobInstances())
+        when(jobInstanceService.findJobHistoryPage(eq(pipelineName), eq(stageName), anyString(), any(Pagination.class), anyString(), any() as HttpOperationResult)).thenReturn(jobInstances)
 
         getWithApiHeader(controller.controllerPath(pipelineName, stageName, jobName, 'history') + "?page_size=25&offset=15", [:])
 
         def expectedJson = toObjectString({
-          JobInstancesRepresenter.toJSON(it, getJobInstances(), Pagination.pageStartingAt(15, 20, 25))
+          JobInstancesRepresenter.toJSON(it, jobInstances, Pagination.pageStartingAt(15, 20, 25))
         })
 
         assertThatResponse()
@@ -245,12 +249,13 @@ class JobInstanceControllerV1Test implements SecurityServiceTrait, ControllerTra
 
       @Test
       void 'should return job instance for given counters'() {
-        when(jobInstanceService.findJobInstance(eq(pipelineName), eq(stageName), eq(jobName), eq(1), eq(1), anyString())).thenReturn(getJobInstance())
+        def jobInstance = getJobInstance()
+        when(jobInstanceService.findJobInstance(eq(pipelineName), eq(stageName), eq(jobName), eq(1), eq(1), anyString())).thenReturn(jobInstance)
 
         getWithApiHeader(controller.controllerPath(pipelineName, stageName, jobName, 'instance', 1, 1), [:])
 
         def expectedJson = toObjectString({
-          JobInstanceRepresenter.toJSON(it, getJobInstance())
+          JobInstanceRepresenter.toJSON(it, jobInstance)
         })
 
         assertThatResponse()

@@ -68,19 +68,17 @@ export class ServerConfigurationPage extends Page<null, State> {
     super.oninit(vnode);
 
     vnode.state.route = (activeConfiguration: Sections, serverConfigurationVM: ServerConfigVM) => {
-
       if (serverConfigurationVM.isModified()) {
         const modal: ConfirmModal = new ConfirmModal("There are unsaved changes. Do you wish to continue?", () => {
           vnode.state.activeConfiguration = activeConfiguration;
           m.route.set(activeConfiguration);
-          this.fetchData(vnode);
+          serverConfigurationVM.reset();
           modal.close();
         });
         modal.render();
       } else {
         vnode.state.activeConfiguration = activeConfiguration;
         m.route.set(activeConfiguration);
-        this.fetchData(vnode);
       }
     };
 
@@ -138,8 +136,7 @@ export class ServerConfigurationPage extends Page<null, State> {
       return MailServerCrud.createOrUpdate(mailServer).then((result) => {
         result.do(
           (successResponse) => {
-            const msg = "Configuration was saved successfully!";
-            this.flashMessage.setMessage(MessageType.success, msg);
+            this.flashMessage.setMessage(MessageType.success, "Mail server configuration updated successfully!");
             this.fetchData(vnode);
           },
           (errorResponse) => {
@@ -166,7 +163,7 @@ export class ServerConfigurationPage extends Page<null, State> {
                                  },
                                  (errorResponse) => {
                                    if (result.getStatusCode() === 422 && errorResponse.body) {
-                                     vnode.state.mailServerVM().sync(MailServer.fromJSON(JsonUtils.toCamelCasedObject(JSON.parse(errorResponse.body)).data));
+                                     this.fetchData(vnode);
                                    } else {
                                      this.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);
                                    }
@@ -199,9 +196,8 @@ export class ServerConfigurationPage extends Page<null, State> {
       if (jobTimeout.isValid()) {
         return JobTimeoutManagementCRUD.createOrUpdate(jobTimeout).then((result) => {
           result.do(((successResponse) => {
-            const msg = "Configuration was saved successfully!";
-            this.flashMessage.setMessage(MessageType.success, msg);
             this.fetchData(vnode);
+            this.flashMessage.setMessage(MessageType.success, "Default job timeout updated successfully!");
           }), (errorResponse) => {
             this.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);
           });
@@ -226,44 +222,35 @@ export class ServerConfigurationPage extends Page<null, State> {
   }
 
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {
-    switch (vnode.state.activeConfiguration) {
-      case Sections.SERVER_MANAGEMENT:
-        return Promise.resolve(ServerManagementCRUD.get())
-                      .then((results) => {
-                        results.do((successResponse) => {
-                          this.pageState = PageState.OK;
-                          vnode.state.siteUrlsVM().sync(successResponse.body.object, successResponse.body.etag);
-                        }, () => this.setErrorState());
-                      });
-      case Sections.ARTIFACT_MANAGEMENT:
-        return Promise.resolve(ArtifactConfigCRUD.get())
-                      .then((results) => {
-                        results.do((successResponse) => {
-                          this.pageState = PageState.OK;
-                          vnode.state.artifactConfigVM().sync(successResponse.body.object, successResponse.body.etag);
-                        }, () => this.setErrorState());
-                      });
-      case Sections.EMAIL_SERVER:
-        return Promise.resolve(MailServerCrud.get())
-                      .then((results) => {
-                        if (results.getStatusCode() === 404) {
-                          vnode.state.mailServerVM().sync(new MailServer());
-                          vnode.state.mailServerVM().canDeleteMailServer(false);
-                        } else {
-                          results.do((successResponse) => {
-                            vnode.state.mailServerVM().sync(successResponse.body);
-                            vnode.state.mailServerVM().canDeleteMailServer(true);
-                          }, () => this.setErrorState());
-                        }
-                      });
-      case Sections.DEFAULT_JOB_TIMEOUT:
-        return Promise.resolve(JobTimeoutManagementCRUD.get())
-                      .then((results) => {
-                        results.do((successResponse) => {
-                          this.pageState = PageState.OK;
-                          vnode.state.defaultJobTimeoutVM().sync(successResponse.body);
-                        }, () => this.setErrorState());
-                      });
-    }
+    this.pageState = PageState.LOADING;
+    return Promise.all([ServerManagementCRUD.get(), ArtifactConfigCRUD.get(), MailServerCrud.get(), JobTimeoutManagementCRUD.get()])
+                  .then((results) => {
+                    results[0].do((successResponse) => {
+                      this.pageState = PageState.OK;
+                      vnode.state.siteUrlsVM().sync(successResponse.body.object, successResponse.body.etag);
+                    }, () => this.setErrorState());
+
+                    results[1].do((successResponse) => {
+                      this.pageState = PageState.OK;
+                      vnode.state.artifactConfigVM().sync(successResponse.body.object, successResponse.body.etag);
+                    }, () => this.setErrorState());
+
+                    if (results[2].getStatusCode() === 404) {
+                      this.pageState = PageState.OK;
+                      vnode.state.mailServerVM().sync(new MailServer());
+                      vnode.state.mailServerVM().canDeleteMailServer(false);
+                    } else {
+                      results[2].do((successResponse) => {
+                        this.pageState = PageState.OK;
+                        vnode.state.mailServerVM().sync(successResponse.body);
+                        vnode.state.mailServerVM().canDeleteMailServer(true);
+                      }, () => this.setErrorState());
+                    }
+
+                    results[3].do((successResponse) => {
+                      this.pageState = PageState.OK;
+                      vnode.state.defaultJobTimeoutVM().sync(successResponse.body);
+                    }, () => this.setErrorState());
+                  });
   }
 }

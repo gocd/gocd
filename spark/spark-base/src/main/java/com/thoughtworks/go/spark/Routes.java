@@ -796,7 +796,7 @@ public class Routes {
         }
     }
 
-    public class PipelineActivity {
+    public static class PipelineActivity {
         public static final String SPA_BASE = "/pipeline/activity/:pipeline_name";
     }
 }

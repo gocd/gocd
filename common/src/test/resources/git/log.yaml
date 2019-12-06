@@ -12,7 +12,9 @@
     signed: N
     signerName:
     signingKey:
-    signingMessage:
+    signingMessage: |-
+      This is signing message with
+      multiple lines
     committerName: Chris Turner
     committerEmail: cturner@thoughtworks.com
     commitDate: 2009-02-11 17:26:36 -0800

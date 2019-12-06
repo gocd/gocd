@@ -78,6 +78,8 @@
     Util.on_load(function () {
         new PackageMaterialCheckConnection("<%= package_definition_check_connection_path %>").bind(".new_form_content.change_materials", "#check_package", "#package_check_message");
         new PackageMaterialDefinition(data, repo, pkg, showPackageDefPath, newPackageDefPath, pluginMissingErrorMessage).init(initialState);
-        Util.disableAllFormElementsFor('.change_materials')
+        if (<%= scope[:read_only_page] || false %>) {
+          Util.disableAllFormElementsFor('.change_materials');
+        }
     });
 </script>

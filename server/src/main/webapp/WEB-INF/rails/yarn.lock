@@ -835,10 +835,10 @@
   resolved "https://registry.yarnpkg.com/@types/awesomplete/-/awesomplete-1.1.10.tgz#402ba293273b3d3a40c3569f123e2fa0d2681bdf"
   integrity sha512-rNtfXy5pkneFI7zeMOiZ6ES9NgLt8PVuCtEH/K1QCsB6CSRrKjEbrbqWH1MizJ3zyfJH7dfEfRdkP+CyqaHMHQ==
 
-"@types/chart.js@^2.9.2":
-  version "2.9.2"
-  resolved "https://registry.yarnpkg.com/@types/chart.js/-/chart.js-2.9.2.tgz#0629c49d791df1347a163aa412d665218f7be667"
-  integrity sha512-jgSW2LSsrgLLzfxDhJfDLst4ifH3IhHqbE1qXrqigHyhDz1zGHL3PSvIxwcoQvCAcq8kMeVcTkpiODChAy/QaA==
+"@types/chart.js@^2.9.3":
+  version "2.9.3"
+  resolved "https://registry.yarnpkg.com/@types/chart.js/-/chart.js-2.9.3.tgz#eb9154420eb63abcd6fb827e15a812c851ed0c18"
+  integrity sha512-R5F39GIQ54fZJ04pmgbLrx0/dOEhyS8LRQNdlAmZd5zWZiFJ0v9zNNSBJ9WOTBRrMjeV53s0qhnRRvhcs6dfyQ==
 
 "@types/classnames@^2.2.9":
   version "2.2.9"

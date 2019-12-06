@@ -54,7 +54,7 @@ public class OutputFormatter {
                 .appendWithIndent("signed", "%G?", 4)
                 .appendWithIndent("signerName", "%GS", 4)
                 .appendWithIndent("signingKey", "%GK", 4)
-                .appendWithIndent("signingMessage", "%GG", 4)
+                .appendWithIndent("signingMessage", "|-%n%w(,6,6)%GG", 4)
                 .appendWithIndent("committerName", "%cn", 4)
                 .appendWithIndent("committerEmail", "%ce", 4)
                 .appendWithIndent("commitDate", "%ci", 4);

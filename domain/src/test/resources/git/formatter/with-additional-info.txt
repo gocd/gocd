@@ -3,7 +3,7 @@
 %w(,4,4)signed: %G?
 %w(,4,4)signerName: %GS
 %w(,4,4)signingKey: %GK
-%w(,4,4)signingMessage: %GG
+%w(,4,4)signingMessage: |-%n%w(,6,6)%GG
 %w(,4,4)committerName: %cn
 %w(,4,4)committerEmail: %ce
 %w(,4,4)commitDate: %ci

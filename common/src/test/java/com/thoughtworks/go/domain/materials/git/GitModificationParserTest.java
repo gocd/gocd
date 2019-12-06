@@ -61,7 +61,8 @@ class GitModificationParserTest {
                 .containsEntry("signed", "N")
                 .containsEntry("signerName", null)
                 .containsEntry("signingKey", null)
-                .containsEntry("signingMessage", null)
+                .containsEntry("signingMessage", "This is signing message with\n" +
+                        "multiple lines")
                 .containsEntry("committerName", "Chris Turner")
                 .containsEntry("committerEmail", "cturner@thoughtworks.com")
                 .containsEntry("commitDate", "2009-02-11 17:26:36 -0800");

@@ -35,6 +35,7 @@ import {PipelineActivityHeader} from "./pipeline_activity/page_header";
 interface PageMeta {
   isEditableFromUI: boolean;
   pipelineName: string;
+  canOperatePipeline: boolean;
 }
 
 interface State {
@@ -140,6 +141,7 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
                               showBuildCaseFor={vnode.state.showBuildCaseFor}
                               runPipeline={this.runPipeline.bind(this)}
                               runStage={this.runStage.bind(this)}
+                              canOperatePipeline={this.meta.canOperatePipeline}
                               addOrUpdateComment={this.addOrUpdateComment.bind(this)}
                               cancelStageInstance={this.cancelStageInstance.bind(this)}/>,
       <div class={styles.paginationWrapper}>

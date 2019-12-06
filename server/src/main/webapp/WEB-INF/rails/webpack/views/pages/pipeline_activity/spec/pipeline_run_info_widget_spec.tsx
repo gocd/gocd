@@ -354,6 +354,7 @@ describe("PipelineRunInfoWidget", () => {
                                           stageConfigs={stageConfigs ? stageConfigs : toStageConfigs(pipelineRunInfo.stages())}
                                           cancelStageInstance={cancelStageInstance}
                                           addOrUpdateComment={addOrUpdateComment}
+                                          canOperatePipeline={false}
                                           runStage={runStage}/>);
   }
 

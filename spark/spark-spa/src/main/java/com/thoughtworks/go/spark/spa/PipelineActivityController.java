@@ -17,6 +17,7 @@
 package com.thoughtworks.go.spark.spa;
 
 import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
@@ -34,11 +35,15 @@ public class PipelineActivityController implements SparkController {
     private final SPAAuthenticationHelper authenticationHelper;
     private final TemplateEngine engine;
     private final GoConfigService goConfigService;
+    private final SecurityService securityService;
 
-    public PipelineActivityController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine, GoConfigService goConfigService) {
+    public PipelineActivityController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine,
+                                      GoConfigService goConfigService,
+                                      SecurityService securityService) {
         this.authenticationHelper = authenticationHelper;
         this.engine = engine;
         this.goConfigService = goConfigService;
+        this.securityService = securityService;
     }
 
     @Override
@@ -68,6 +73,7 @@ public class PipelineActivityController implements SparkController {
 
         meta.put("isEditableFromUI", goConfigService.isPipelineEditable(pipelineName));
         meta.put("pipelineName", pipelineName);
+        meta.put("canOperatePipeline", securityService.hasOperatePermissionForPipeline(currentUserLoginName(), pipelineName));
 
         return meta;
     }

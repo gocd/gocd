@@ -53,6 +53,7 @@ describe("PipelineActivityWidget", () => {
                                                runStage={runStage}
                                                cancelStageInstance={cancelStageInstance}
                                                addOrUpdateComment={addOrUpdateComment}
+                                               canOperatePipeline={false}
                                                runPipeline={runPipeline}/>);
   }
 });

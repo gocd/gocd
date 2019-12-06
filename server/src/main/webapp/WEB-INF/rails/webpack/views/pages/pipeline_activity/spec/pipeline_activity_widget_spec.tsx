@@ -27,6 +27,7 @@ describe("PipelineActivityWidget", () => {
   const cancelStageInstance = jasmine.createSpy("cancelStageInstance");
   const runPipeline         = jasmine.createSpy("runPipeline");
   const runStage            = jasmine.createSpy("runStage");
+  const addOrUpdateComment  = jasmine.createSpy("addOrUpdateComment");
 
   afterEach(helper.unmount.bind(helper));
 
@@ -51,6 +52,7 @@ describe("PipelineActivityWidget", () => {
                                                showBuildCaseFor={showBuildCaseFor}
                                                runStage={runStage}
                                                cancelStageInstance={cancelStageInstance}
+                                               addOrUpdateComment={addOrUpdateComment}
                                                runPipeline={runPipeline}/>);
   }
 });

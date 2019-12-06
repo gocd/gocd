@@ -59,6 +59,12 @@ export class PipelineActivityService {
     return ApiRequestBuilder.POST(SparkRoutes.pipelineUnpausePath(pipelineName), PipelineActivityService.API_VERSION_HEADER);
   }
 
+  commentOnPipelineRun(pipelineName: string, labelOrCounter: string | number, comment: string) {
+    return ApiRequestBuilder.POST(SparkRoutes.commentOnPipelineInstance(pipelineName, labelOrCounter),
+      PipelineActivityService.API_VERSION_HEADER,
+      {payload: {comment}});
+  }
+
   private onResult(result: ApiResult<string>, page: ResultAwarePage<PipelineActivity>) {
     return result.do((successResponse) => page.onSuccess(PipelineActivity.fromJSON(JSON.parse(successResponse.body))),
       (errorResponse) => page.onFailure(errorResponse.message));

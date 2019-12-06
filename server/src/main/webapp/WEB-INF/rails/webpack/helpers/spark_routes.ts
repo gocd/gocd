@@ -459,4 +459,8 @@ export class SparkRoutes {
   static cancelStageInstance(pipelineName: string, pipelineCounter: string, stageName: string, stageCounter: number) {
     return `/go/api/stages/${pipelineName}/${pipelineCounter}/${stageName}/${stageCounter}/cancel`;
   }
+
+  static commentOnPipelineInstance(pipelineName: string, pipelineCounter: string | number) {
+    return `/go/api/pipelines/${pipelineName}/instance/${pipelineCounter}/comment`;
+  }
 }

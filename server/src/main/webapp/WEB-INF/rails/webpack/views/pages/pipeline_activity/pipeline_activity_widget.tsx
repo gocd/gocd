@@ -31,6 +31,7 @@ interface Attrs {
   runPipeline: (name: string) => void;
   runStage: (stage: Stage) => void;
   cancelStageInstance: (stage: Stage) => void;
+  addOrUpdateComment: (comment: Stream<string>, counterOrLabel: string | number) => void;
 }
 
 export class PipelineActivityWidget extends MithrilViewComponent<Attrs> {
@@ -51,6 +52,7 @@ export class PipelineActivityWidget extends MithrilViewComponent<Attrs> {
                            group={group}
                            showBuildCaseFor={vnode.attrs.showBuildCaseFor}
                            runStage={vnode.attrs.runStage}
+                           addOrUpdateComment={vnode.attrs.addOrUpdateComment}
                            cancelStageInstance={vnode.attrs.cancelStageInstance}/>];
           })
         }
@@ -74,6 +76,7 @@ interface GroupAttrs {
   showBuildCaseFor: Stream<string>;
   runStage: (stage: Stage) => void;
   cancelStageInstance: (stage: Stage) => void;
+  addOrUpdateComment: (comment: Stream<string>, counterOrLabel: string | number) => void;
 }
 
 class GroupWidget extends MithrilViewComponent<GroupAttrs> {
@@ -84,6 +87,7 @@ class GroupWidget extends MithrilViewComponent<GroupAttrs> {
                                 stageConfigs={vnode.attrs.group.config().stages()}
                                 showBuildCaseFor={vnode.attrs.showBuildCaseFor}
                                 runStage={vnode.attrs.runStage}
+                                addOrUpdateComment={vnode.attrs.addOrUpdateComment}
                                 cancelStageInstance={vnode.attrs.cancelStageInstance}/>;
     });
   }

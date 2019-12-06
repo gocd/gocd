@@ -223,6 +223,12 @@ export class Repeat extends Icon {
   }
 }
 
+export class Comment extends Icon {
+  constructor() {
+    super(styles.comment, "Comment");
+  }
+}
+
 export class IconGroup extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     return (

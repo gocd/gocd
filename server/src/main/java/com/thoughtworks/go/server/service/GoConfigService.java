@@ -180,10 +180,15 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return new ConfigForEdit<>(config, configHolder);
     }
 
-    private boolean canEditPipeline(String pipelineName, Username username, LocalizedOperationResult result) {
+    boolean canEditPipeline(String pipelineName, Username username, LocalizedOperationResult result) {
         return canEditPipeline(pipelineName, username, result, findGroupNameByPipeline(new CaseInsensitiveString(pipelineName)));
     }
 
+    @Deprecated
+    //do not use this method as it is coupled with the origin.
+    // ideally these should be two different checks:
+    // - pipeline is editable (Not defined in config repository)
+    // - whether a user has permissions to edit the pipeline
     public boolean canEditPipeline(String pipelineName, Username username) {
         PipelineConfig pipelineConfig;
         try {

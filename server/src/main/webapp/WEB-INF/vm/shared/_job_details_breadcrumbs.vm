@@ -38,7 +38,7 @@
         <span class="label">Job</span>
         <h1>$presenter.buildName</h1></li>
     </ul>
-      #if($isEditableViaUI && ($userHasAdministratorRights || $userHasGroupAdministratorRights))
+      #if(($userHasAdministratorRights || $userHasGroupAdministratorRights))
         <div class="job_detail_setting">
             <a href="$req.getContextPath()/admin/pipelines/$presenter.pipelineName/general"
                class="icon16 setting"></a>

@@ -66,19 +66,13 @@ class PipelineWidget extends MithrilViewComponent<PipelineWidgetAttrs> {
       return `Cannot ${operation} pipeline '${pipeline.name()}' because it uses a template.`;
     }
 
-    if (pipeline.origin().isDefinedInConfigRepo()) {
-      return `Cannot ${operation} pipeline '${pipeline.name()}' because it is defined in a configuration repository '${pipeline.origin()
-                                                                                                                               .id()}'.`;
-    } else {
-      return `${s.capitalize(operation)} pipeline '${pipeline.name()}'`;
-    }
+    return `${s.capitalize(operation)} pipeline '${pipeline.name()}'`;
   }
 
   private actions(vnode: m.Vnode<PipelineWidgetAttrs, this>, eachPipeline: PipelineWithOrigin) {
     return (
       <IconGroup>
         <Edit
-          disabled={eachPipeline.origin().isDefinedInConfigRepo()}
           data-test-id={`edit-pipeline-${s.slugify(eachPipeline.name())}`}
           title={PipelineWidget.messageForOperation(eachPipeline, "edit")}
           onclick={vnode.attrs.doEditPipeline.bind(vnode.attrs, eachPipeline)}/>

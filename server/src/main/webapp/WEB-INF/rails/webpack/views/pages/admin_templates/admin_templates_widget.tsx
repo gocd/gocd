@@ -72,9 +72,7 @@ class PipelineWidget extends MithrilViewComponent<PipelineWidgetAttrs> {
   private static messageForOperation(pipeline: PipelineWithOrigin | undefined,
                                      pipelineWithPermission: TemplateSummary.TemplateSummaryPipeline,
                                      operation: "edit") {
-    if (pipeline && pipeline.origin().isDefinedInConfigRepo()) {
-      return `Cannot ${operation} pipeline '${pipelineWithPermission.name}' because it is defined in a configuration repository '${pipeline.origin().id()}'.`;
-    } else if (!pipelineWithPermission.can_edit) {
+    if (!pipelineWithPermission.can_edit) {
       return `Cannot ${operation} pipeline '${pipelineWithPermission.name}' because you do do not have permission to edit it.`;
     } else {
       return `${s.capitalize(operation)} pipeline '${pipelineWithPermission.name}'`;
@@ -87,7 +85,7 @@ class PipelineWidget extends MithrilViewComponent<PipelineWidgetAttrs> {
     return (
       <IconGroup>
         <Edit
-          disabled={!(vnode.attrs.pipeline.can_edit && pipeline && !pipeline.origin().isDefinedInConfigRepo())}
+          disabled={!(vnode.attrs.pipeline.can_edit)}
           data-test-id={`edit-pipeline-${s.slugify(vnode.attrs.pipeline.name)}`}
           title={PipelineWidget.messageForOperation(pipeline, vnode.attrs.pipeline, "edit")}
           onclick={vnode.attrs.doEditPipeline.bind(vnode.attrs, vnode.attrs.pipeline.name)}/>

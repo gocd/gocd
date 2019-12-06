@@ -127,7 +127,7 @@ describe("PipelineGroupsWidget", () => {
     });
 
     helper.clickByTestId(`edit-pipeline-in-json`);
-    expect(helper.byTestId(`edit-pipeline-in-json`)).toBeDisabled();
+    expect(helper.byTestId(`edit-pipeline-in-json`)).not.toBeDisabled();
 
     helper.clickByTestId(`download-pipeline-in-json`);
     expect(attrs.doDownloadPipeline).toHaveBeenCalled();

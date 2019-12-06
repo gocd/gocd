@@ -17,7 +17,6 @@
 import classnames from "classnames";
 import {override} from "helpers/css_proxies";
 import {SparkRoutes} from "helpers/spark_routes";
-import {VMRoutes} from "helpers/vm_routes";
 import {MithrilComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
@@ -27,6 +26,8 @@ import {DefinedEnvironment, DefinedGroup, DefinedPipeline, DefinedStructures, Na
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Tree} from "views/components/hierarchy/tree";
 import css from "./defined_structs.scss";
+
+const Routes = require('gen/js-routes');
 
 type Styles = typeof css;
 
@@ -111,7 +112,7 @@ class Link {
     }
 
     if (node instanceof DefinedPipeline) {
-      return <a data-test-id={_.snakeCase("pipeline " + node.name())} href={VMRoutes.pipelineHistoryPath(node.name())}>{node.name()}</a>;
+      return <a data-test-id={_.snakeCase("pipeline " + node.name())} href={Routes.pipelineEditPath('pipelines', node.name(), 'general')}>{node.name()}</a>;
     }
 
     if (node instanceof DefinedEnvironment) {

@@ -616,17 +616,6 @@ describe StagesController do
 
       expect(controller.instance_variable_get(:@can_user_view_settings)).to eq(true)
     end
-
-    it 'should return false for admin users when pipeline is not editable from UI' do
-      login_as_admin
-
-      expect(@go_config_service).to receive(:isPipelineEditable).and_return(false)
-      expect(@security_service).to receive(:isUserAdminOfGroup).with(anything, 'group').and_return(true)
-
-      get :overview, params:{pipeline_name: "pipeline", pipeline_counter: "2", stage_name: "stage", stage_counter: "3"}
-
-      expect(controller.instance_variable_get(:@can_user_view_settings)).to eq(false)
-    end
   end
 
   describe 'redirect_to_first_stage' do

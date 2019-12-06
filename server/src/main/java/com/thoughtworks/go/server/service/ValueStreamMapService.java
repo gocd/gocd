@@ -111,7 +111,7 @@ public class ValueStreamMapService {
             return null;
         }
         addInstanceInformationToTheGraph(valueStreamMap);
-        removeRevisionsBasedOnPermissionAndCurrentConfig(valueStreamMap, username);
+        removeRevisionsBasedOnPermissionAndCurrentConfig(valueStreamMap, username, result);
 
         valueStreamMap.addWarningIfBuiltFromInCompatibleRevisions();
 
@@ -167,7 +167,7 @@ public class ValueStreamMapService {
                 return null;
             }
 
-            ValueStreamMap valueStreamMap = buildValueStreamMap(material, materialInstance, modification, downstreamPipelines, username);
+            ValueStreamMap valueStreamMap = buildValueStreamMap(material, materialInstance, modification, downstreamPipelines, username, result);
             if (valueStreamMap == null) {
                 return null;
             }
@@ -179,7 +179,7 @@ public class ValueStreamMapService {
         }
     }
 
-    private ValueStreamMap buildValueStreamMap(Material material, MaterialInstance materialInstance, Modification modification, List<PipelineConfig> downstreamPipelines, Username username) {
+    private ValueStreamMap buildValueStreamMap(Material material, MaterialInstance materialInstance, Modification modification, List<PipelineConfig> downstreamPipelines, Username username, LocalizedOperationResult result) {
         CruiseConfig cruiseConfig = goConfigService.currentCruiseConfig();
         ValueStreamMap valueStreamMap = new ValueStreamMap(material, materialInstance, modification);
         Map<CaseInsensitiveString, List<PipelineConfig>> pipelineToDownstreamMap = cruiseConfig.generatePipelineVsDownstreamMap();
@@ -187,11 +187,11 @@ public class ValueStreamMapService {
         traverseDownstream(new CaseInsensitiveString(material.getFingerprint()), downstreamPipelines, pipelineToDownstreamMap, valueStreamMap, new ArrayList<>());
 
         addInstanceInformationToTheGraph(valueStreamMap);
-        removeRevisionsBasedOnPermissionAndCurrentConfig(valueStreamMap, username);
+        removeRevisionsBasedOnPermissionAndCurrentConfig(valueStreamMap, username, result);
         return valueStreamMap;
     }
 
-    private void removeRevisionsBasedOnPermissionAndCurrentConfig(ValueStreamMap valueStreamMap, Username username) {
+    private void removeRevisionsBasedOnPermissionAndCurrentConfig(ValueStreamMap valueStreamMap, Username username, LocalizedOperationResult result) {
         for (Node node : valueStreamMap.allNodes()) {
             if (node instanceof PipelineDependencyNode) {
                 String pipelineName = node.getName();
@@ -202,7 +202,7 @@ public class ValueStreamMapService {
                 } else if (!securityService.hasViewPermissionForPipeline(username, pipelineName)) {
                     pipelineDependencyNode.setNoPermission();
                 }
-                pipelineDependencyNode.setCanEdit(goConfigService.canEditPipeline(pipelineName, username));
+                pipelineDependencyNode.setCanEdit(goConfigService.canEditPipeline(pipelineName, username, result));
             }
         }
     }

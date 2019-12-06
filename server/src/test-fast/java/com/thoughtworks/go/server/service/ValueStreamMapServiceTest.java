@@ -883,8 +883,8 @@ public class ValueStreamMapServiceTest {
 
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
         when(goConfigService.hasPipelineNamed(any())).thenReturn(true);
-        when(goConfigService.canEditPipeline("p1", user)).thenReturn(true);
-        when(goConfigService.canEditPipeline("p2", user)).thenReturn(false);
+        when(goConfigService.canEditPipeline("p1", user, result)).thenReturn(true);
+        when(goConfigService.canEditPipeline("p2", user, result)).thenReturn(false);
         when(pipelineService.findPipelineByNameAndCounter("p2", 1)).thenReturn(new Pipeline("p2", "p2-label", p2buildCause, new EnvironmentVariables()));
 
         ValueStreamMapPresentationModel graph = valueStreamMapService.getValueStreamMap(new CaseInsensitiveString("p2"), 1, user, result);

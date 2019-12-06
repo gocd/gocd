@@ -51,6 +51,31 @@ module Admin
     end
 
     def create
+      if params[:stage_parent] == 'templates' or Toggles.isToggleOff(Toggles.FAST_PIPELINE_SAVE)
+        old_create
+        return
+      end
+      @job = JobConfig.new
+      @job.setConfigAttributes(params[:job], task_view_service)
+      pipeline_name = params[:pipeline_name]
+      original_pipeline_config = pipeline_config_service.getPipelineConfig(pipeline_name)
+      @pipeline = CLONER.deep_clone(original_pipeline_config)
+      @stage = @pipeline.getStage(params[:stage_name])
+      @stage.jobs.addJobWithoutValidityAssertion(@job)
+      fast_save_popup(failure_handler({:action => :new, :layout => false}), {:current_tab => params[:current_tab]}) do
+        @should_not_render_layout = true
+        load_pipeline_and_stage
+        assert_load :job, @job
+        load_artifact_related_data
+        load_resources_and_elastic_profile_ids_for_autocomplete
+        assert_load :task_view_models, task_view_service.getTaskViewModelsWith(@job.tasks().first()) unless @update_result.isSuccessful
+        assert_load :pipeline_md5, params[:pipeline_md5]
+        assert_load :pipeline_group_name, params[:pipeline_group_name]
+        assert_load :pipeline_name, params[:pipeline_name]
+      end
+    end
+
+    def old_create
       assert_load :job, JobConfig.new
       @job.setConfigAttributes(params[:job], task_view_service)
       save_popup(params[:config_md5], Class.new(::ConfigUpdate::SaveAsPipelineOrTemplateAdmin) do

@@ -22,6 +22,7 @@ import {Secondary} from "views/components/buttons";
 import styles from "./index.scss";
 
 interface Attrs {
+  canOperatePipeline: boolean;
   comment: Stream<string>;
   counterOrLabel: number | string;
   addOrUpdateComment: (comment: Stream<string>, counterOrLabel: string | number) => void;
@@ -29,27 +30,34 @@ interface Attrs {
 
 export class CommentWidget extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs, this>): m.Children {
+    return <div class={styles.commentWrapper}>
+      {this.getComment(vnode.attrs.comment())}
+      {this.getAddOrEditCommentButton(vnode)}
+    </div>;
+  }
+
+  getComment(comment: string) {
+    if (_.isEmpty(comment)) {
+      return;
+    }
+
+    return <div class={styles.comment} data-test-id={"comment-container"}>{comment}</div>;
+  }
+
+  getAddOrEditCommentButton(vnode: m.Vnode<Attrs, this>) {
     if (vnode.attrs.counterOrLabel === "0" || vnode.attrs.counterOrLabel === 0) {
       return;
     }
 
-    if (_.isEmpty(vnode.attrs.comment())) {
-      return <div class={styles.commentWrapper}>
-        <Secondary small={true}
-                   dataTestId={"add-comment-button"}
-                   onclick={() => vnode.attrs.addOrUpdateComment(vnode.attrs.comment, vnode.attrs.counterOrLabel)}>
-          Add Comment
-        </Secondary>
-      </div>;
+    if (!vnode.attrs.canOperatePipeline) {
+      return;
     }
 
-    return <div class={styles.commentWrapper}>
-      <div class={styles.comment} data-test-id={"comment-container"}>{vnode.attrs.comment()}</div>
-      <Secondary small={true}
-                 dataTestId={"edit-comment-button"}
-                 onclick={() => vnode.attrs.addOrUpdateComment(vnode.attrs.comment, vnode.attrs.counterOrLabel)}>
-        Edit Comment
-      </Secondary>
-    </div>;
+    const buttonText = _.isEmpty(vnode.attrs.comment()) ? "ADD" : "EDIT";
+    return <Secondary small={true}
+                      dataTestId={`${buttonText.toLowerCase()}-comment-button`}
+                      onclick={() => vnode.attrs.addOrUpdateComment(vnode.attrs.comment, vnode.attrs.counterOrLabel)}>
+      {buttonText} COMMENT
+    </Secondary>;
   }
 }

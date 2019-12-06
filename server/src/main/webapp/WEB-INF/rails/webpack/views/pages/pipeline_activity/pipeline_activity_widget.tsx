@@ -26,6 +26,7 @@ import {ShowForceBuildActionWidget} from "./show_force_build_action_widget";
 const classnames = bind(styles);
 
 interface Attrs {
+  canOperatePipeline: boolean;
   pipelineActivity: Stream<PipelineActivity>;
   showBuildCaseFor: Stream<string>;
   runPipeline: (name: string) => void;
@@ -52,6 +53,7 @@ export class PipelineActivityWidget extends MithrilViewComponent<Attrs> {
                            group={group}
                            showBuildCaseFor={vnode.attrs.showBuildCaseFor}
                            runStage={vnode.attrs.runStage}
+                           canOperatePipeline={vnode.attrs.canOperatePipeline}
                            addOrUpdateComment={vnode.attrs.addOrUpdateComment}
                            cancelStageInstance={vnode.attrs.cancelStageInstance}/>];
           })
@@ -73,6 +75,7 @@ export class PipelineActivityWidget extends MithrilViewComponent<Attrs> {
 interface GroupAttrs {
   group: Group;
   pipelineName: string;
+  canOperatePipeline: boolean;
   showBuildCaseFor: Stream<string>;
   runStage: (stage: Stage) => void;
   cancelStageInstance: (stage: Stage) => void;
@@ -87,6 +90,7 @@ class GroupWidget extends MithrilViewComponent<GroupAttrs> {
                                 stageConfigs={vnode.attrs.group.config().stages()}
                                 showBuildCaseFor={vnode.attrs.showBuildCaseFor}
                                 runStage={vnode.attrs.runStage}
+                                canOperatePipeline={vnode.attrs.canOperatePipeline}
                                 addOrUpdateComment={vnode.attrs.addOrUpdateComment}
                                 cancelStageInstance={vnode.attrs.cancelStageInstance}/>;
     });

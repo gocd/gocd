@@ -47,6 +47,24 @@ describe("CommentWidget", () => {
     expect(helper.byTestId("comment-container")).not.toBeInDOM();
   });
 
+  it("should not render add comment button when user does not have operate permission", () => {
+    const comment = Stream<string>();
+    mount(comment, 1, false);
+
+    expect(helper.byTestId("add-comment-button")).not.toBeInDOM();
+    expect(helper.byTestId("edit-comment-button")).not.toBeInDOM();
+    expect(helper.byTestId("comment-container")).not.toBeInDOM();
+  });
+
+  it("should not render edit comment button when user does not have operate permission", () => {
+    const comment = Stream<string>("This is a example comment");
+    mount(comment, 1, false);
+
+    expect(helper.byTestId("add-comment-button")).not.toBeInDOM();
+    expect(helper.byTestId("edit-comment-button")).not.toBeInDOM();
+    expect(helper.byTestId("comment-container")).toBeInDOM();
+  });
+
   it("should show add comment button when pipeline instance has no comment", () => {
     const comment = Stream<string>();
     mount(comment, 1);
@@ -95,9 +113,10 @@ describe("CommentWidget", () => {
     expect(addOrUpdateComment).toHaveBeenCalledWith(comment, 2);
   });
 
-  function mount(comment: Stream<string>, counterOrLabel: number | string) {
+  function mount(comment: Stream<string>, counterOrLabel: number | string, canOperatePipeline = true) {
     helper.mount(() => <CommentWidget comment={comment}
                                       counterOrLabel={counterOrLabel}
+                                      canOperatePipeline={canOperatePipeline}
                                       addOrUpdateComment={addOrUpdateComment}/>);
   }
 });

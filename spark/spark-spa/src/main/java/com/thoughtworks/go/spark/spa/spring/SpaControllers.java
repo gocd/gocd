@@ -28,6 +28,7 @@ import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import spark.TemplateEngine;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,13 +50,12 @@ public class SpaControllers implements SparkSpringController {
                           BackupService backupService,
                           Clock clock, ArtifactsDirHolder artifactsDirHolder, SystemService systemService,
                           GoCache goCache) {
-
         LayoutTemplateProvider defaultTemplate = () -> DEFAULT_LAYOUT_PATH;
         LayoutTemplateProvider componentTemplate = () -> COMPONENT_LAYOUT_PATH;
 
         sparkControllers.add(new AgentJobRunHistoryController(authenticationHelper, templateEngineFactory.create(AgentJobRunHistoryController.class, () -> COMPONENT_LAYOUT_PATH)));
         sparkControllers.add(new AdminTemplatesController(authenticationHelper, templateEngineFactory.create(AdminTemplatesController.class, () -> COMPONENT_LAYOUT_PATH)));
-        sparkControllers.add(new PipelineActivityController(authenticationHelper, templateEngineFactory.create(PipelineActivityController.class, () -> COMPONENT_LAYOUT_PATH), goConfigService));
+        sparkControllers.add(new PipelineActivityController(authenticationHelper, templateEngineFactory.create(PipelineActivityController.class, () -> COMPONENT_LAYOUT_PATH), goConfigService, securityService));
         sparkControllers.add(new AdminPipelinesController(authenticationHelper, templateEngineFactory.create(AdminPipelinesController.class, () -> COMPONENT_LAYOUT_PATH)));
         sparkControllers.add(new ServerConfigurationController(authenticationHelper, templateEngineFactory.create(ServerConfigurationController.class, () -> COMPONENT_LAYOUT_PATH)));
         sparkControllers.add(new NewEnvironmentsController(authenticationHelper, templateEngineFactory.create(NewEnvironmentsController.class, () -> COMPONENT_LAYOUT_PATH)));

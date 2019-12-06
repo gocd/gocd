@@ -23,15 +23,60 @@ import com.thoughtworks.go.spark.SecurityServiceTrait
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
+import spark.ModelAndView
+import spark.Request
 
+import static org.assertj.core.api.Assertions.assertThat
+import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
-import static org.mockito.MockitoAnnotations.initMocks
 
 class PipelineActivityControllerTest implements ControllerTrait<PipelineActivityController>, SecurityServiceTrait {
 
   @Override
   PipelineActivityController createControllerInstance() {
-    return new PipelineActivityController(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine, goConfigService)
+    return new PipelineActivityController(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine, goConfigService, securityService)
+  }
+
+  @Test
+  void "should add pipeline name in meta"() {
+    def pipelineName = "up42"
+    def request = mock(Request)
+    when(request.params("pipeline_name")).thenReturn(pipelineName)
+    ModelAndView modalAndView = controller.index(request, response)
+
+    Map<Object, Object> model = modalAndView.getModel() as Map<Object, Object>
+
+    assertThat(model.get("meta") as Map<String, Object>)
+      .containsEntry("pipelineName", pipelineName)
+  }
+
+  @Test
+  void "should add isEditableFromUI in meta"() {
+    def pipelineName = "up42"
+    def request = mock(Request)
+    when(request.params("pipeline_name")).thenReturn(pipelineName)
+    when(goConfigService.isPipelineEditable(pipelineName)).thenReturn(true);
+    ModelAndView modalAndView = controller.index(request, response)
+
+    Map<Object, Object> model = modalAndView.getModel() as Map<Object, Object>
+
+    assertThat(model.get("meta") as Map<String, Object>)
+      .containsEntry("isEditableFromUI", true)
+  }
+
+  @Test
+  void "should add canOperatePipeline in meta"() {
+    def pipelineName = "up42"
+    def request = mock(Request)
+    when(request.params("pipeline_name")).thenReturn(pipelineName)
+    when(securityService.hasOperatePermissionForPipeline(currentUserLoginName(), pipelineName)).thenReturn(true);
+    ModelAndView modalAndView = controller.index(request, response)
+
+    Map<Object, Object> model = modalAndView.getModel() as Map<Object, Object>
+
+    assertThat(model.get("meta") as Map<String, Object>)
+      .containsEntry("canOperatePipeline", true)
   }
 
   @Nested

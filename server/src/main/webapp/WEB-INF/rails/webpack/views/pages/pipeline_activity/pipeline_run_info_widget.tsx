@@ -31,6 +31,7 @@ import styles from "./index.scss";
 const classnames = bind(styles);
 
 interface PipelineRunAttrs {
+  canOperatePipeline: boolean;
   pipelineRunInfo: PipelineRunInfo;
   pipelineName: string;
   showBuildCaseFor: Stream<string>;
@@ -81,6 +82,7 @@ export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
         })}
         <CommentWidget comment={pipelineRunInfo.comment}
                        counterOrLabel={pipelineRunInfo.counterOrLabel()}
+                       canOperatePipeline={vnode.attrs.canOperatePipeline}
                        addOrUpdateComment={vnode.attrs.addOrUpdateComment}/>
       </td>
     </tr>;

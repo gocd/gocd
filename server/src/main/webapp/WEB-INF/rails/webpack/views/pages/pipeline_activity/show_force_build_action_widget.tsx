@@ -18,8 +18,8 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {Group, StageConfig} from "models/pipeline_activity/pipeline_activity";
+import {Primary} from "views/components/buttons";
 import * as Icons from "views/components/icons";
-import {Primary} from "../../components/buttons";
 import styles from "./index.scss";
 
 const classnames = bind(styles);

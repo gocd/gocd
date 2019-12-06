@@ -20,7 +20,7 @@ import Stream from "mithril/stream";
 import {ArtifactConfigCRUD, JobTimeoutManagementCRUD, MailServerCrud, ServerManagementCRUD} from "models/server-configuration/server_configuartion_crud";
 import {ArtifactConfig, DefaultJobTimeout, MailServer, SiteUrls} from "models/server-configuration/server_configuration";
 import {ArtifactConfigVM, DefaultJobTimeoutVM, MailServerVM, SiteUrlsVM} from "models/server-configuration/server_configuration_vm";
-import {FlashMessage, MessageType} from "views/components/flash_message";
+import {FlashMessage, FlashMessageModel, MessageType} from "views/components/flash_message";
 import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
 import {Page, PageState} from "views/pages/page";
 import {Sections, ServerConfigurationWidget} from "views/pages/server-configuration/server_configuration_widget";
@@ -51,6 +51,8 @@ export interface MailServerManagementAttrs extends ServerConfigurationPageOperat
   mailServerVM: Stream<MailServerVM>;
   onMailServerManagementDelete: () => void;
   onMailServerManagementSave: (mailServer: MailServer) => Promise<void | MailServer>;
+  sendTestMail: (mailServer: MailServer) => Promise<void>;
+  testMailResponse: Stream<FlashMessageModel>;
 }
 
 export interface Routing {
@@ -76,6 +78,7 @@ export class ServerConfigurationPage extends Page<null, State> {
     vnode.state.artifactConfigVM    = Stream(new ArtifactConfigVM());
     vnode.state.mailServerVM        = Stream(new MailServerVM());
     vnode.state.defaultJobTimeoutVM = Stream(new DefaultJobTimeoutVM());
+    vnode.state.testMailResponse    = Stream(new FlashMessageModel());
 
     vnode.state.onServerManagementSave = (siteUrls: SiteUrls, etag: string | undefined) => {
       if (siteUrls.isValid()) {
@@ -163,6 +166,22 @@ export class ServerConfigurationPage extends Page<null, State> {
       });
       modal.render();
     };
+
+    vnode.state.sendTestMail = ((mailServer: MailServer) => {
+      if (!mailServer.isValid()) {
+        return Promise.resolve();
+      }
+      return MailServerCrud.testMail(mailServer)
+                           .then((result) => {
+                             result.do((successResponse) => {
+                               vnode.state.testMailResponse().setMessage(MessageType.success, successResponse.body.message);
+                             }, (errorResponse) => {
+                               vnode.state.testMailResponse().setMessage(MessageType.alert, errorResponse.message);
+                             });
+                           }, (errorResponse) => {
+                             vnode.state.testMailResponse().setMessage(MessageType.alert, errorResponse.message);
+                           });
+    });
 
     vnode.state.onDefaultJobTimeoutSave = (jobTimeout: DefaultJobTimeout) => {
       if (jobTimeout.isValid()) {

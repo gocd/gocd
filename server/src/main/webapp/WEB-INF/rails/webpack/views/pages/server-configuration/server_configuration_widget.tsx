@@ -48,6 +48,8 @@ class ServerConfigurationRightPanel extends MithrilViewComponent<Attrs> {
         return <MailServerManagementWidget mailServerVM={vnode.attrs.mailServerVM}
                                            onMailServerManagementSave={vnode.attrs.onMailServerManagementSave}
                                            onMailServerManagementDelete={vnode.attrs.onMailServerManagementDelete}
+                                           sendTestMail={vnode.attrs.sendTestMail}
+                                           testMailResponse={vnode.attrs.testMailResponse}
                                            onCancel={vnode.attrs.onCancel}/>;
       case Sections.ARTIFACT_MANAGEMENT:
         return <ArtifactsManagementWidget artifactConfigVM={vnode.attrs.artifactConfigVM}

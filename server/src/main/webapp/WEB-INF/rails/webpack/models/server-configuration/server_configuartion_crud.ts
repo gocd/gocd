@@ -37,7 +37,7 @@ export class ServerManagementCRUD {
                                  this.API_VERSION_HEADER,
                                  {
                                    payload: {
-                                     site_url: updatedSiteUrls.siteUrl(),
+                                     site_url:        updatedSiteUrls.siteUrl(),
                                      secure_site_url: updatedSiteUrls.secureSiteUrl()
                                    }, etag
                                  }).then(this.extractObjectWithEtag);
@@ -48,7 +48,7 @@ export class ServerManagementCRUD {
       const siteUrlsJSON = JSON.parse(body); //as siteUrlsJSON;
       return {
         object: SiteUrls.fromJSON(siteUrlsJSON),
-        etag: result.getEtag()
+        etag:   result.getEtag()
       } as ObjectWithEtag<SiteUrls>;
     });
   }
@@ -74,7 +74,7 @@ export class ArtifactConfigCRUD {
       const artifactConfigJSON = JSON.parse(body);
       return {
         object: ArtifactConfig.fromJSON(artifactConfigJSON),
-        etag: result.getEtag()
+        etag:   result.getEtag()
       } as ObjectWithEtag<ArtifactConfig>;
     });
   }
@@ -119,6 +119,12 @@ export class MailServerCrud {
 
   static delete() {
     return ApiRequestBuilder.DELETE(SparkRoutes.mailServerConfigPath(), this.API_VERSION_HEADER)
+                            .then((result: ApiResult<string>) => result.map((body) => JSON.parse(body)));
+  }
+
+  static testMail(mailServerConfig: MailServer) {
+    return ApiRequestBuilder.POST(SparkRoutes.testMailForMailServerConfigPath(), this.API_VERSION_HEADER,
+                                  {payload: JsonUtils.toSnakeCasedObject(mailServerConfig)})
                             .then((result: ApiResult<string>) => result.map((body) => JSON.parse(body)));
   }
 

@@ -18,15 +18,18 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {MailServer} from "models/server-configuration/server_configuration";
 import {MailServerVM} from "models/server-configuration/server_configuration_vm";
+import {FlashMessageModel} from "views/components/flash_message";
 import {MailServerManagementWidget} from "views/pages/server-configuration/mail_server_management_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("MailServerManagementWidget", () => {
-  const helper      = new TestHelper();
-  const onDeleteSpy = jasmine.createSpy("onDelete");
-  const onSaveSpy   = jasmine.createSpy("onSave");
-  const onCancelSpy = jasmine.createSpy("onCancel");
+  const helper           = new TestHelper();
+  const onDeleteSpy      = jasmine.createSpy("onDelete");
+  const onSaveSpy        = jasmine.createSpy("onSave");
+  const onCancelSpy      = jasmine.createSpy("onCancel");
+  const onTestMailSpy    = jasmine.createSpy("onTestMail");
   let mailServerVM: MailServerVM;
+  const testMailResponse = Stream(new FlashMessageModel());
 
   afterEach(helper.unmount.bind(helper));
 
@@ -90,9 +93,29 @@ describe("MailServerManagementWidget", () => {
     expect(helper.byTestId("Delete")).toBeDisabled();
   });
 
+  describe('TestMail', () => {
+    it('should show the send test mail button', () => {
+      mount(new MailServer());
+
+      expect(helper.byTestId("send-test-email")).toBeInDOM();
+    });
+
+    it('should call the send test mail method', () => {
+      mount(new MailServer());
+
+      helper.click(helper.byTestId("send-test-email"));
+
+      expect(onTestMailSpy).toHaveBeenCalled();
+    });
+  });
+
   function mount(mailServer: MailServer, canDeleteMailServer: boolean = true) {
-    const savePromise: Promise<MailServer> = new Promise((resolve) => {
+    const savePromise: Promise<MailServer>                           = new Promise((resolve) => {
       onSaveSpy();
+      resolve();
+    });
+    const testMailPromise: (mailServer: MailServer) => Promise<void> = () => new Promise((resolve) => {
+      onTestMailSpy();
       resolve();
     });
 
@@ -102,6 +125,8 @@ describe("MailServerManagementWidget", () => {
     helper.mount(() => <MailServerManagementWidget mailServerVM={Stream(mailServerVM)}
                                                    onMailServerManagementSave={() => savePromise}
                                                    onMailServerManagementDelete={onDeleteSpy}
+                                                   sendTestMail={testMailPromise}
+                                                   testMailResponse={testMailResponse}
                                                    onCancel={onCancelSpy}/>);
   }
 });

@@ -49,7 +49,7 @@ public class PipelineActivityController implements SparkController {
     @Override
     public void setupRoutes() {
         path(controllerBasePath(), () -> {
-            before("", authenticationHelper::checkUserAnd403);
+            before("", authenticationHelper::checkPipelineViewPermissionsAnd403);
             get("", this::index, engine);
         });
     }

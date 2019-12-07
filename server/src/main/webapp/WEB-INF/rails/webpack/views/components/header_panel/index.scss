@@ -15,11 +15,11 @@
  */
 @import "../../global/common";
 
-$header-font-size: 17px;
+$header-font-size:   17px;
 $header-font-weight: 600;
-$main-nav-height: 40px;
+$main-nav-height:    40px;
 $page-header-height: 50px;
-$page-item-padding: 30px;
+$page-item-padding:  30px;
 
 .page-header {
   width:           100%;
@@ -67,4 +67,47 @@ $page-item-padding: 30px;
 .page_title {
   display:       flex;
   align-content: center;
+  align-items:   center;
+  height:        100%;
+}
+
+.key-value-pairs {
+  list-style:  none;
+  display:     flex;
+  margin:      0;
+  height:      100%;
+  padding:     0;
+  align-items: center;
+
+  &:before {
+    content:   "|";
+    color:     $line-color;
+    margin:    0 10px;
+    font-size: 30px;
+    height:    100%;
+  }
+
+  .key-value-pair {
+    height:       100%;
+    margin-right: 10px;
+    overflow-y:   hidden;
+
+    .key {
+      font-size:    0.625rem;
+      margin-right: 10px;
+    }
+
+    .value {
+      @include icon-after($fa-var-angle-double-right, $color: $icon-color, $margin: 3px 5px 0 10px);
+      display:     flex;
+      font-weight: 600;
+      font-size:   15px;
+    }
+  }
+
+  .key-value-pair:last-of-type {
+    .value:after {
+      content: "";
+    }
+  }
 }

@@ -13,20 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {HeaderPanel} from "../index";
-import {TestHelper} from "../../../pages/spec/test_helper";
-
 import m from "mithril";
+import {TestHelper} from "views/pages/spec/test_helper";
+import {HeaderPanel} from "../index";
 
 describe("Header Panel Component", () => {
-
   const helper = new TestHelper();
   afterEach(helper.unmount.bind(helper));
 
   it("should render header panel component", () => {
     const pageTitle = "Test Header";
     mount(pageTitle, []);
-    expect(helper.textByTestId('title')).toContain(pageTitle);
+    expect(helper.textByTestId("title")).toContain(pageTitle);
   });
 
   it("should render header panel along with buttons", () => {
@@ -34,9 +32,9 @@ describe("Header Panel Component", () => {
     const buttons   = [m("button", "Do something"), m("button", "Do something more")];
     mount(pageTitle, buttons);
 
-    expect(helper.textByTestId('title')).toContain(pageTitle);
+    expect(helper.textByTestId("title")).toContain(pageTitle);
 
-    const pageActionButtons = helper.byTestId('pageActions').children;
+    const pageActionButtons = helper.byTestId("pageActions").children;
 
     expect(pageActionButtons).toHaveLength(buttons.length);
     expect(pageActionButtons.item(0)).toContainText("Do something");
@@ -47,14 +45,30 @@ describe("Header Panel Component", () => {
     const pageTitle = "Test Header";
     mount(pageTitle);
 
-    expect(helper.textByTestId('title')).toContain(pageTitle);
-    expect(helper.byTestId('pageActions')).toBeFalsy();
+    expect(helper.textByTestId("title")).toContain(pageTitle);
+    expect(helper.byTestId("pageActions")).toBeFalsy();
   });
 
-  function mount(pageTitle, buttons) {
-    helper.mount(() => m(HeaderPanel, {
-      title: pageTitle, buttons
-    }));
-  }
+  it("should render key value pair when specified", () => {
+    mount("Page Header", null, {
+      Pipeline: "Up42",
+      Instance: "3",
+      Stage: "Up42_StAgE"
+    });
 
+    expect(helper.allByTestId("page-header-key-value-pair")).toHaveLength(3);
+
+    expect(helper.byTestId("key-value-key-pipeline")).toHaveText("Pipeline");
+    expect(helper.byTestId("key-value-value-pipeline")).toHaveText("Up42");
+
+    expect(helper.byTestId("key-value-key-instance")).toHaveText("Instance");
+    expect(helper.byTestId("key-value-value-instance")).toHaveText("3");
+
+    expect(helper.byTestId("key-value-key-stage")).toHaveText("Stage");
+    expect(helper.byTestId("key-value-value-stage")).toHaveText("Up42_StAgE");
+  });
+
+  function mount(pageTitle: m.Children, buttons?: m.Children, keyValuePair?: { [key: string]: m.Children }) {
+    helper.mount(() => <HeaderPanel buttons={buttons} title={pageTitle} keyValuePair={keyValuePair}/>);
+  }
 });

@@ -15,6 +15,7 @@
  */
 import _ from "lodash";
 import m from "mithril";
+import {HeaderKeyValuePair} from "views/components/header_panel/header_key_value_pair";
 
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as style from "./index.scss";
@@ -23,6 +24,7 @@ export interface Attrs {
   title: m.Children;
   sectionName?: m.Children;
   buttons?: m.Children;
+  keyValuePair?: { [key: string]: m.Children };
 }
 
 export class HeaderPanel extends MithrilViewComponent<Attrs> {
@@ -41,6 +43,7 @@ export class HeaderPanel extends MithrilViewComponent<Attrs> {
       <div class={style.pageTitle}>
         {this.maybeSection(vnode)}
         <h1 class={style.title} data-test-id="title">{vnode.attrs.title}</h1>
+        <HeaderKeyValuePair data={vnode.attrs.keyValuePair}/>
       </div>
       {buttons}
     </header>);

@@ -97,10 +97,10 @@ const smallNumberOfPages = Stream(Pagination.fromJSON({offset: 0, total: 70, pag
 const pageChangeCallback = (pagination: Stream<Pagination>, newPage: number) => {
   const newOffset = pagination().pageSize * (newPage - 1);
   pagination(Pagination.fromJSON({
-                                   offset: newOffset,
-                                   total: pagination().total,
-                                   page_size: pagination().pageSize
-                                 }));
+    offset: newOffset,
+    total: pagination().total,
+    page_size: pagination().pageSize
+  }));
   return false;
 };
 
@@ -114,7 +114,12 @@ export class KitchenSink extends MithrilViewComponent<null> {
 
     return (
       <div>
-        <HeaderPanel title="Kitchen Sink" sectionName={"Admin"}/>
+        <HeaderPanel title="Kitchen Sink" sectionName={"Admin"} keyValuePair={{
+          "Pipeline": "Up42",
+          "Instance": <div>3 <Link>VSM</Link></div>,
+          "Stage": "Up42_StAgE",
+          "": <Icons.Settings iconOnly={true}/>
+        }}/>
         <h3>Pagination</h3>
         <PaginationWidget pagination={largeNumberOfPages()}
                           onPageChange={(newPage: number) => pageChangeCallback(largeNumberOfPages, newPage)}/>
@@ -490,13 +495,13 @@ class Pipeline {
 }
 
 const pipelines = Stream([
-                           new Pipeline("WindowsPR", "test", "jasmine"),
-                           new Pipeline("WindowsPR", "build", "installer"),
-                           new Pipeline("WindowsPR", "upload", "upload"),
-                           new Pipeline("LinuxPR", "build", "clean"),
-                           new Pipeline("LinuxPR", "test", "clean"),
-                           new Pipeline("LinuxPR", "build", "clean")
-                         ]);
+  new Pipeline("WindowsPR", "test", "jasmine"),
+  new Pipeline("WindowsPR", "build", "installer"),
+  new Pipeline("WindowsPR", "upload", "upload"),
+  new Pipeline("LinuxPR", "build", "clean"),
+  new Pipeline("LinuxPR", "test", "clean"),
+  new Pipeline("LinuxPR", "build", "clean")
+]);
 
 const pipelineData = Stream(pipelines().map((e, i) => e.tableData()));
 
@@ -526,8 +531,8 @@ class DummyTableSortHandler implements TableSortHandler {
     this.sortOrders.set(columnIndex, this.sortOrders.get(columnIndex) * -1);
     pipelineData()
       .sort((element1, element2) => DummyTableSortHandler.compare(element1,
-                                                                  element2,
-                                                                  columnIndex) * this.sortOrders.get(
+        element2,
+        columnIndex) * this.sortOrders.get(
         columnIndex));
   }
 
@@ -558,14 +563,14 @@ class DynamicSuggestionProvider extends SuggestionProvider {
     if (this.type === "a") {
       return new Promise<Awesomplete.Suggestion[]>((resolve) => {
         resolve([
-                  "first", "second", "third", "fourth"
-                ]);
+          "first", "second", "third", "fourth"
+        ]);
       });
     } else if (this.type === "b") {
       return new Promise<Awesomplete.Suggestion[]>((resolve) => {
         resolve([
-                  "input", "div", "span", "select", "button"
-                ]);
+          "input", "div", "span", "select", "button"
+        ]);
       });
     }
 

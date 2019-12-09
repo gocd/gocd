@@ -1046,9 +1046,9 @@
   </rule>
 
   <rule>
-    <name>Pipeline history</name>
+    <name>Pipeline history page redirect to new SPA</name>
     <from>/tab/pipeline/history/([^/]+)</from>
-    <to type="forward">/tab/pipeline/history?pipelineName=$1</to>
+    <to type="redirect" last="true">/go/pipeline/activity/$1</to>
   </rule>
 
   <rule>

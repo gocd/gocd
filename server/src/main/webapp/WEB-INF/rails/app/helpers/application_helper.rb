@@ -51,7 +51,7 @@ module ApplicationHelper
   end
 
   def url_for_pipeline(pipeline_name, options = {})
-    url_for_path("/tab/pipeline/history/#{pipeline_name}", options)
+    url_for_path("/pipeline/activity/#{pipeline_name}", options)
   end
 
   def path_for_stage(stage_identifier)

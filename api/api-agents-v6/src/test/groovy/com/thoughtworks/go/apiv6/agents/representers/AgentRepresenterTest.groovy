@@ -261,7 +261,7 @@ class AgentRepresenterTest {
             "href": "http://test.host/go/pipelines/build-windows-PR/3819/build-non-server/1"
           ],
           "pipeline": [
-            "href": "http://test.host/go/tab/pipeline/history/build-windows-PR"
+            "href": "http://test.host/go/pipeline/activity/build-windows-PR"
           ]
         ],
         "pipeline_name": "build-windows-PR",

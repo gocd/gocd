@@ -112,7 +112,7 @@ describe("vsm_node", function () {
             ]
           }
         ],
-        "locator": "/go/tab/pipeline/history/build-linux",
+        "locator": "/go/pipeline/activity/build-linux",
         "name": "build-linux",
         "node_type": "PIPELINE",
         "parents": [
@@ -141,7 +141,7 @@ describe("vsm_node", function () {
         ]
       }
     ],
-    "locator": "/go/tab/pipeline/history/post-release-github-activities",
+    "locator": "/go/pipeline/activity/post-release-github-activities",
     "name": "post-release-github-activities",
     "node_type": "PIPELINE",
     "parents": [

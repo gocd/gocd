@@ -41,7 +41,7 @@ public class BuildDetailsRepresenter {
     }
 
     private static String pipelineLink(AgentBuildingInfo buildingInfo) {
-        return format("/tab/pipeline/history/%s", buildingInfo.getPipelineName());
+        return format("/pipeline/activity/%s", buildingInfo.getPipelineName());
     }
 
     private static String stageLink(AgentBuildingInfo buildingInfo) {

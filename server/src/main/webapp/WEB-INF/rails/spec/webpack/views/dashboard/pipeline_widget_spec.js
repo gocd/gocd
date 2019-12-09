@@ -87,7 +87,7 @@ describe("Dashboard Pipeline Widget", () => {
 
     it("should link history to pipeline history page", () => {
       expect(helper.text('.pipeline_header>div>a')).toContain('History');
-      const expectedPath = `/go/tab/pipeline/history/${pipelinesJson[0].name}`;
+      const expectedPath = `/go/pipeline/activity/${pipelinesJson[0].name}`;
       expect(helper.q('.pipeline_header .pipeline_history').href.indexOf(expectedPath)).not.toEqual(-1);
     });
 

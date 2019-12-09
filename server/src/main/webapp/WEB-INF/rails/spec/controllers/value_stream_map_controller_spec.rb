@@ -200,7 +200,7 @@ describe ValueStreamMapController do
                   "git1",
                   "git2"
                 ],
-                "locator": "/go/tab/pipeline/history/p1",
+                "locator": "/go/pipeline/activity/p1",
                 "depth": 1,
 
                 "instances": [
@@ -241,7 +241,7 @@ describe ValueStreamMapController do
                 "parents": [
                   "p1"
                 ],
-                "locator": "/go/tab/pipeline/history/current",
+                "locator": "/go/pipeline/activity/current",
                 "depth": 1,
                 "instances": [],
                 "dependents": [],

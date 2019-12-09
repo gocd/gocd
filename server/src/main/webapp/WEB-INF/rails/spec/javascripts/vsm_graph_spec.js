@@ -310,7 +310,7 @@ describe("vsm_graph", function () {
                   ]
                 }
               ],
-              "locator":    "/go/tab/pipeline/history/P1",
+              "locator":    "/go/pipeline/activity/P1",
               "name":       "P1",
               "node_type":  "PIPELINE",
               "parents":    [
@@ -340,7 +340,7 @@ describe("vsm_graph", function () {
                   ]
                 }
               ],
-              "locator":    "/go/tab/pipeline/history/P2",
+              "locator":    "/go/pipeline/activity/P2",
               "name":       "P2",
               "node_type":  "PIPELINE",
               "parents":    [
@@ -388,7 +388,7 @@ describe("vsm_graph", function () {
                   ]
                 }
               ],
-              "locator":    "/go/tab/pipeline/history/P3",
+              "locator":    "/go/pipeline/activity/P3",
               "name":       "P3",
               "node_type":  "PIPELINE",
               "parents":    [
@@ -460,7 +460,7 @@ describe("vsm_graph", function () {
                   ]
                 }
               ],
-              "locator":    "/go/tab/pipeline/history/P4",
+              "locator":    "/go/pipeline/activity/P4",
               "name":       "P4",
               "node_type":  "PIPELINE",
               "parents":    [

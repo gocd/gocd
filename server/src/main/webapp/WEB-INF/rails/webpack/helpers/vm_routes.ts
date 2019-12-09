@@ -16,7 +16,7 @@
 
 export class VMRoutes {
   static pipelineHistoryPath(pipelineName: string) {
-    return `/go/tab/pipeline/history/${pipelineName}`;
+    return `/go/pipeline/activity/${pipelineName}`;
   }
 
   static vsmPath(pipelineName: string, pipelineCounter: string) {

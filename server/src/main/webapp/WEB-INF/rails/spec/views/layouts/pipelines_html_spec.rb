@@ -112,7 +112,7 @@ describe "layouts/pipelines.html.eb" do
 
     it "should display pipline name and label" do
       render :inline => '<div>content</div>', :layout=>@layout_name
-      expect(response.body).to have_selector(".entity_status_wrapper .entity_title .name a[href='/tab/pipeline/history/pipeline-name']", :text=>"pipeline-name")
+      expect(response.body).to have_selector(".entity_status_wrapper .entity_title .name a[href='/pipeline/activity/pipeline-name']", :text=>"pipeline-name")
       expect(response.body).to have_selector(".entity_status_wrapper .entity_title li", :text=>"1")
       expect(response.body).to have_selector(".entity_status_wrapper .entity_title .last h1", :text=>"stage-0")
     end

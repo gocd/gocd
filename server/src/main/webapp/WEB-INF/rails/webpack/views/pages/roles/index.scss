@@ -19,6 +19,7 @@ $spinner-wrapper-height: 200px;
 $current-user-tag-bg-color: #eee;
 $disabled-text-color: #999;
 $max-user-tag-width: 200px;
+$warning-wrapper-width: 170px;
 
 .spinner-wrapper {
   min-height: $spinner-wrapper-height;
@@ -111,7 +112,7 @@ label.disabled, input[type='radio'][disabled] + label[for] { //sass-lint:disable
   box-shadow:     0 2px 4px $box-shadow-color;
   text-transform: none;
   z-index:        map_get($zindex, tooltip);
-  width:          250px;
+  width:          $warning-wrapper-width;
 
   &:before {
     content:          "";

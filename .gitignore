@@ -481,3 +481,7 @@ api/api-job-instance-v1/out/
 api/api-job-instance-v1/target/
 api/api-job-instance-v1/logs/
 api/api-job-instance-v1/config/
+api/api-stage-instance-v2/out/
+api/api-stage-instance-v2/target/
+api/api-stage-instance-v2/logs/
+api/api-stage-instance-v2/config/

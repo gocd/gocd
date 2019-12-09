@@ -136,10 +136,10 @@
   </rule>
 
   <rule>
-    <name>Pipeline Instance API</name>
+    <name>Pipeline Instance API V1 and latest</name>
     <condition name="Accept">application\/vnd\.go\.cd(.v*)*\+json</condition>
-    <from>^/api/pipelines/([^/]+)/instance/([^/]+)(/?)$</from>
-    <to last="true">/spark/api/pipelines/${escape:$1}/instance/${escape:$2}</to>
+    <from>^/api/pipelines/([^/]+)/([^/]+)(/?)$</from>
+    <to last="true">/spark/api/pipelines/${escape:$1}/${escape:$2}</to>
   </rule>
 
   <rule>

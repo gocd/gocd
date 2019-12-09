@@ -83,7 +83,7 @@ class PipelineInstanceControllerV1Test implements SecurityServiceTrait, Controll
 
       @Override
       void makeHttpCall() {
-        getWithApiHeader(controller.controllerPath("${pipelineName}/instance/4"))
+        getWithApiHeader(controller.controllerPath("${pipelineName}/4"))
       }
 
       @Override
@@ -106,7 +106,7 @@ class PipelineInstanceControllerV1Test implements SecurityServiceTrait, Controll
 
         when(pipelineHistoryService.findPipelineInstance(eq(pipelineName), eq(4), any(Username.class), any(HttpOperationResult.class))).thenReturn(pipelineInstanceModel)
 
-        getWithApiHeader(controller.controllerPath(pipelineName, "instance", "4"))
+        getWithApiHeader(controller.controllerPath(pipelineName, "4"))
 
         def expectedJson = toObjectString({ PipelineInstanceModelRepresenter.toJSON(it, pipelineInstanceModel) })
 
@@ -119,7 +119,7 @@ class PipelineInstanceControllerV1Test implements SecurityServiceTrait, Controll
       void 'should throw 404 if the pipeline does not exist'() {
         when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(false)
 
-        getWithApiHeader(controller.controllerPath(pipelineName, "instance", "4"))
+        getWithApiHeader(controller.controllerPath(pipelineName, "4"))
 
         assertThatResponse()
           .isNotFound()
@@ -128,7 +128,7 @@ class PipelineInstanceControllerV1Test implements SecurityServiceTrait, Controll
 
       @Test
       void 'should throw 404 if the counter specified is less than 1'() {
-        getWithApiHeader(controller.controllerPath(pipelineName, "instance", "0"))
+        getWithApiHeader(controller.controllerPath(pipelineName, "0"))
 
         assertThatResponse()
           .isUnprocessableEntity()
@@ -137,7 +137,7 @@ class PipelineInstanceControllerV1Test implements SecurityServiceTrait, Controll
 
       @Test
       void 'should throw 404 if the counter specified is not a valid integer'() {
-        getWithApiHeader(controller.controllerPath(pipelineName, "instance", "abc"))
+        getWithApiHeader(controller.controllerPath(pipelineName, "abc"))
 
         assertThatResponse()
           .isUnprocessableEntity()
@@ -162,8 +162,14 @@ class PipelineInstanceControllerV1Test implements SecurityServiceTrait, Controll
   @Nested
   class History {
     private String pipelineName = "up42"
+
+    @BeforeEach
+    void setUp() {
+      when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true)
+    }
+
     @Nested
-    class Security implements SecurityTestTrait, PipelineGroupOperateUserSecurity {
+    class Security implements SecurityTestTrait, PipelineAccessSecurity {
 
       @Override
       String getControllerMethodUnderTest() {
@@ -186,7 +192,7 @@ class PipelineInstanceControllerV1Test implements SecurityServiceTrait, Controll
       @BeforeEach
       void setUp() {
         enableSecurity()
-        loginAsGroupOperateUser(pipelineName)
+        loginAsPipelineViewUser(pipelineName)
       }
 
       @Test

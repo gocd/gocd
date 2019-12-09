@@ -296,7 +296,7 @@ public class Routes {
         }
 
         public static final String BASE = "/api/pipelines";
-        public static final String INSTANCE_PATH = "/:pipeline_name/instance/:pipeline_counter";
+        public static final String INSTANCE_PATH = "/:pipeline_name/:pipeline_counter";
         public static final String HISTORY_PATH = "/:pipeline_name/history";
         public static final String COMMENT_PATH = "/:pipeline_name/instance/:pipeline_counter/comment";
 

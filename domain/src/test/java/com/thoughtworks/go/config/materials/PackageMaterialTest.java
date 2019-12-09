@@ -104,7 +104,7 @@ public class PackageMaterialTest {
         PackageMaterial material = new PackageMaterial();
         PackageRepository repository = PackageRepositoryMother.create("repo-id", "repo-name", "pluginid", "version", new Configuration(ConfigurationPropertyMother.create("k1", false, "v1")));
         material.setPackageDefinition(PackageDefinitionMother.create("p-id", "package-name", new Configuration(ConfigurationPropertyMother.create("k2", false, "v2")), repository));
-        assertThat(material.getDescription(), is("repo-name:package-name"));
+        assertThat(material.getDescription(), is("repo-name_package-name"));
     }
 
     @Test
@@ -112,7 +112,7 @@ public class PackageMaterialTest {
         PackageMaterial material = new PackageMaterial();
         PackageRepository repository = PackageRepositoryMother.create("repo-id", "repo-name", "pluginid", "version", new Configuration(ConfigurationPropertyMother.create("k1", false, "v1")));
         material.setPackageDefinition(PackageDefinitionMother.create("p-id", "package-name", new Configuration(ConfigurationPropertyMother.create("k2", false, "v2")), repository));
-        assertThat(material.getDisplayName(), is("repo-name:package-name"));
+        assertThat(material.getDisplayName(), is("repo-name_package-name"));
     }
 
     @Test
@@ -168,7 +168,7 @@ public class PackageMaterialTest {
         material.toJson(jsonMap, new PackageMaterialRevision("rev123", new Date()));
 
         assertThat(jsonMap.get("scmType"), is("Package"));
-        assertThat(jsonMap.get("materialName"), is("repo-name:package-name"));
+        assertThat(jsonMap.get("materialName"), is("repo-name_package-name"));
         assertThat(jsonMap.get("action"), is("Modified"));
         assertThat(jsonMap.get("location"), is(material.getUriForDisplay()));
     }
@@ -183,7 +183,7 @@ public class PackageMaterialTest {
         Date date = new Date(1367472329111L);
         material.emailContent(content, new Modification(null, null, null, date, "rev123"));
 
-        assertThat(content.toString(), is(String.format("Package : repo-name:package-name\nrevision: rev123, completed on %s", date.toString())));
+        assertThat(content.toString(), is(String.format("Package : repo-name_package-name\nrevision: rev123, completed on %s", date.toString())));
     }
 
     @Test
@@ -212,7 +212,7 @@ public class PackageMaterialTest {
         PackageMaterial material = new PackageMaterial();
         PackageRepository repository = PackageRepositoryMother.create("repo-id", "repo-name", "pluginid", "version", new Configuration(ConfigurationPropertyMother.create("k1", false, "v1")));
         material.setPackageDefinition(PackageDefinitionMother.create("p-id", "package-name", new Configuration(ConfigurationPropertyMother.create("k2", false, "v2")), repository));
-        assertThat(material.getName().toString(), is("repo-name:package-name"));
+        assertThat(material.getName().toString(), is("repo-name_package-name"));
     }
 
     @Test

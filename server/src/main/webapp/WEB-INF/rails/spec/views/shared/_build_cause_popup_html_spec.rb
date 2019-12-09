@@ -143,7 +143,7 @@ describe "/shared/_build_cause_popup.html.erb" do
 
   describe "package_materials" do
     before do
-      @package_material_name = "repo-name:package-name"
+      @package_material_name = "repo-name_package-name"
       @package_material_id = "material_#{PIPELINE_NAME}_#{REVISION_NUMBER}_#{@package_material_name}"
     end
 

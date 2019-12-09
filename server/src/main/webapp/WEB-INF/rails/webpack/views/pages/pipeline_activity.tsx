@@ -21,13 +21,13 @@ import Stream from "mithril/stream";
 import {PipelineActivity, Stage} from "models/pipeline_activity/pipeline_activity";
 import {PipelineActivityService} from "models/pipeline_activity/pipeline_activity_crud";
 import {FlashMessage, MessageType} from "views/components/flash_message";
+import {SearchField, Size, TextAreaField} from "views/components/forms/input_fields";
+import {HeaderPanel} from "views/components/header_panel";
+import {PaginationWidget} from "views/components/pagination";
+import {Pagination} from "views/components/pagination/models/pagination";
 import {Page, PageState} from "views/pages/page";
 import {ResultAwarePage} from "views/pages/page_operations";
 import {PipelineActivityWidget} from "views/pages/pipeline_activity/pipeline_activity_widget";
-import {SearchField, Size, TextAreaField, TextField} from "../components/forms/input_fields";
-import {HeaderPanel} from "../components/header_panel";
-import {PaginationWidget} from "../components/pagination";
-import {Pagination} from "../components/pagination/models/pagination";
 import {ConfirmationDialog} from "./pipeline_activity/confirmation_modal";
 import styles from "./pipeline_activity/index.scss";
 import {PipelineActivityHeader} from "./pipeline_activity/page_header";
@@ -62,11 +62,11 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
   pausePipeline() {
     const cause = Stream<string>();
     new ConfirmationDialog("Pause pipeline",
-      <div class={styles.pipelinePauseInputWrapper}>
-        <TextField required={false}
-                   label="Specify the reason why you want to stop scheduling on this pipeline (only a-z, A-Z, 0-9, fullstop, underscore, hyphen and pipe is valid) :"
-                   property={cause}/>
-      </div>,
+      <TextAreaField required={false} size={Size.MATCH_PARENT}
+                     property={cause}
+                     rows={5}
+                     dataTestId="pause-pipeline-textarea"
+                     label="Specify the reason why you want to stop scheduling on this pipeline"/>,
       () => this.service.pausePipeline(this.meta.pipelineName, cause())
         .then((result) => this.handleActionApiResponse(result, () => {
           this.pipelineActivity().paused(true);
@@ -182,6 +182,10 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
     }/>;
   }
 
+  protected fetchPipelineHistory(start: number) {
+    this.service.activities(this.meta.pipelineName, start, this.filterText(), this);
+  }
+
   private handleActionApiResponse(result: ApiResult<string>, onSuccess?: () => void) {
     result.do((successResponse) => {
         const body = JSON.parse(successResponse.body);
@@ -197,9 +201,5 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
   private pageChangeCallback(pageNumber: number) {
     const offset = this.pipelineActivity().perPage() * (pageNumber - 1);
     this.fetchPipelineHistory(offset);
-  }
-
-  private fetchPipelineHistory(start: number) {
-    this.service.activities(this.meta.pipelineName, start, this.filterText(), this);
   }
 }

@@ -88,6 +88,7 @@ export class PipelineActivityHeader extends MithrilViewComponent<Attrs> {
       pauseMessage += ' (' + pipelineActivity.pauseCause() + ')';
     }
 
-    return <div class={styles.pauseMessage} title={pauseMessage} data-test-id="pipeline-pause-message">{pauseMessage}</div>;
+    return <div class={styles.pauseMessage} title={pauseMessage}
+                data-test-id="pipeline-pause-message">{pauseMessage}</div>;
   }
 }

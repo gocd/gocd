@@ -45,12 +45,12 @@ export class ConfirmationDialog extends Modal {
 
   buttons(): m.ChildArray {
     return [
-      <Buttons.Primary data-test-id='button-trigger'
+      <Buttons.Primary data-test-id='primary-action-button'
                        disabled={this.operationState === OperationState.IN_PROGRESS}
                        icon={this.operationState === OperationState.IN_PROGRESS ? ButtonIcon.SPINNER : undefined}
                        onclick={this.perform.bind(this)}>{this._primaryButtonText}</Buttons.Primary>,
       <Buttons.Cancel disabled={this.operationState === OperationState.IN_PROGRESS}
-                      data-test-id='button-no-delete' onclick={this.close.bind(this)}
+                      data-test-id='cancel-action-button' onclick={this.close.bind(this)}
       >{this._cancelButtonText}</Buttons.Cancel>
     ];
   }

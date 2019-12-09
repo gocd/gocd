@@ -2,11 +2,6 @@
   "version": "1",
   "toggles": [
     {
-      "key": "pipeline_comment_feature_toggle_key",
-      "description": "Enables commenting on a pipeline run, in the pipeline history view. See more at: https://docs.gocd.org/current/beta/comment_on_pipeline_run.html. Default: off.",
-      "value": false
-    },
-    {
       "key": "browser_console_log_ws_key",
       "description": "Enables rendering console logs via websockets. Default: disabled.",
       "value": false

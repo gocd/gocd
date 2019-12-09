@@ -107,7 +107,6 @@ class PipelineHistoryServiceTest {
     @BeforeEach
     void setUp() {
         initMocks(this);
-        when(featureToggleService.isToggleOn(Toggles.PIPELINE_COMMENT_FEATURE_TOGGLE_KEY)).thenReturn(true);
         when(goConfigService.isPipelineEditable(any(String.class))).thenReturn(true);
         Toggles.initializeWith(featureToggleService);
         pipelineHistoryService = new PipelineHistoryService(pipelineDao, goConfigService, securityService, scheduleService,
@@ -773,20 +772,6 @@ class PipelineHistoryServiceTest {
             assertThatCode(() -> pipelineHistoryService.updateComment(pipelineName, 1, "test comment", new Username(unauthorizedUser)))
                     .isInstanceOf(NotAuthorizedException.class)
                     .hasMessage("You do not have operate permissions for pipeline 'pipeline_name'.");
-
-            verifyZeroInteractions(pipelineDao);
-        }
-
-        @Test
-        void shouldFailWhenFeatureIsToggledOff() {
-            String pipelineName = "pipeline_name";
-            Toggles.initializeWith(featureToggleService);
-            CaseInsensitiveString unauthorizedUser = new CaseInsensitiveString("cannot-access");
-            when(featureToggleService.isToggleOn(Toggles.PIPELINE_COMMENT_FEATURE_TOGGLE_KEY)).thenReturn(false);
-
-            assertThatCode(() -> pipelineHistoryService.updateComment(pipelineName, 1, "test comment", new Username(unauthorizedUser)))
-                    .isInstanceOf(NotImplementedException.class)
-                    .hasMessage("'Pipeline Comment' feature is turned off. Please turn it on to use it.");
 
             verifyZeroInteractions(pipelineDao);
         }

@@ -548,10 +548,6 @@ public class PipelineHistoryService {
     }
 
     public void updateComment(String pipelineName, int pipelineCounter, String comment, Username username) {
-        if (!Toggles.isToggleOn(Toggles.PIPELINE_COMMENT_FEATURE_TOGGLE_KEY)) {
-            throw new NotImplementedException("'Pipeline Comment' feature is turned off. Please turn it on to use it.");
-        }
-
         if (!securityService.hasOperatePermissionForPipeline(username.getUsername(), pipelineName)) {
             throw new NotAuthorizedException(format("You do not have operate permissions for pipeline '%s'.", pipelineName));
         }

@@ -113,9 +113,7 @@
 
   dashboard_periodical_executor.start();
 
-      #if($pipeline_comment_feature_toggle_key)
-      var PipelineHistoryComment = initPipelineHistoryComment(jQuery, Modalbox, dashboard_periodical_executor);
-      #end
+  var PipelineHistoryComment = initPipelineHistoryComment(jQuery, Modalbox, dashboard_periodical_executor);
 
   var pipelineName = "$pipelineName";
 </script>

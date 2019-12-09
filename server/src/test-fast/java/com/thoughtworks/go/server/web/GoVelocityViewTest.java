@@ -234,16 +234,6 @@ public class GoVelocityViewTest {
     }
 
     @Test
-    public void shouldSetFeatureToggleValues() throws Exception {
-        Request servletRequest = mock(Request.class);
-        when(servletRequest.getSession()).thenReturn(mock(HttpSession.class));
-
-        view.exposeHelpers(velocityContext, servletRequest);
-
-        assertThat(velocityContext.get(Toggles.PIPELINE_COMMENT_FEATURE_TOGGLE_KEY), is(true));
-    }
-
-    @Test
     public void shouldSetGoUpdateFeatureValues() throws Exception {
         Request servletRequest = mock(Request.class);
 

@@ -168,7 +168,6 @@
                     </div>
                     </td>
                     {/for}
-                    {if $pipeline_comment_feature_toggle_key }
                     <td>
 
                         {if pipeline.comment == null}
@@ -190,7 +189,6 @@
                             </div>
                         </div>
                     </td>
-                    {/if}
                     <td class="spacer">&nbsp;</td>
                 </div>
             </tr>

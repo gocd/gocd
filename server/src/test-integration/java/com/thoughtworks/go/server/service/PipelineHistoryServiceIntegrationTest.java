@@ -44,8 +44,6 @@ import com.thoughtworks.go.server.persistence.PipelineRepository;
 import com.thoughtworks.go.server.scheduling.TriggerMonitor;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
-import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
-import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.util.GoConfigFileHelper;
@@ -95,7 +93,6 @@ public class PipelineHistoryServiceIntegrationTest {
     @Autowired private GoCache goCache;
     @Autowired private TransactionTemplate transactionTemplate;
     @Autowired private PipelinePauseService pipelinePauseService;
-    @Autowired private FeatureToggleService featureToggleService;
     @Autowired private DependencyMaterialUpdateNotifier notifier;
 
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
@@ -103,7 +100,6 @@ public class PipelineHistoryServiceIntegrationTest {
     private PipelineWithTwoStages pipelineTwo;
     private ArtifactsDiskIsFull diskIsFull;
 
-    private boolean pipelineCommentFeatureToggleState;
 
     @Before
     public void setUp() throws Exception {
@@ -128,8 +124,6 @@ public class PipelineHistoryServiceIntegrationTest {
         configHelper.addSecurityWithAdminConfig();
         configHelper.setOperatePermissionForGroup("group1", "jez");
 
-        pipelineCommentFeatureToggleState = featureToggleService.isToggleOn(Toggles.PIPELINE_COMMENT_FEATURE_TOGGLE_KEY);
-        featureToggleService.changeValueOfToggle(Toggles.PIPELINE_COMMENT_FEATURE_TOGGLE_KEY, true);
         notifier.disableUpdates();
     }
 
@@ -140,8 +134,6 @@ public class PipelineHistoryServiceIntegrationTest {
         dbHelper.onTearDown();
         pipelineOne.onTearDown();
         configHelper.onTearDown();
-
-        featureToggleService.changeValueOfToggle(Toggles.PIPELINE_COMMENT_FEATURE_TOGGLE_KEY, pipelineCommentFeatureToggleState);
     }
 
     @Test

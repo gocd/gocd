@@ -24,7 +24,6 @@ import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder;
-import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
@@ -100,8 +99,6 @@ public class GoVelocityView extends VelocityToolboxView {
         velocityContext.put(VIEW_ADMINISTRATOR_RIGHTS, securityService.canViewAdminPage(username));
         velocityContext.put(TEMPLATE_VIEW_USER, securityService.isAuthorizedToViewTemplates(username));
         velocityContext.put(USE_COMPRESS_JS, systemEnvironment.useCompressedJs());
-
-        velocityContext.put(Toggles.PIPELINE_COMMENT_FEATURE_TOGGLE_KEY, Toggles.isToggleOn(Toggles.PIPELINE_COMMENT_FEATURE_TOGGLE_KEY));
 
         velocityContext.put(CURRENT_GOCD_VERSION, CurrentGoCDVersion.getInstance());
         velocityContext.put(CONCATENATED_STAGE_BAR_CANCELLED_ICON_FILE_PATH, railsAssetsService.getAssetPath("g9/stage_bar_cancelled_icon.png"));

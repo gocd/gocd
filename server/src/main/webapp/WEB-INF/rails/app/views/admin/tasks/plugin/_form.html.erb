@@ -5,7 +5,6 @@
     <%= hidden_field_tag :pipeline_md5, @pipeline_md5 %>
     <%= hidden_field_tag :pipeline_group_name, @pipeline_group_name %>
     <%= hidden_field_tag :pipeline_name, @pipeline.name %>
-    <%= hidden_field_tag :pipeline_name, @pipeline.name %>
     <div class="form_content exec_task_editor">
         <%= render :partial => "admin/shared/global_errors.html", :locals => {:scope => {}} -%>
         <h3>Basic Settings</h3>

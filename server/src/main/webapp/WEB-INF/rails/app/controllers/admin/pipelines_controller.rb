@@ -181,6 +181,7 @@ module Admin
     def save_tab(error_rendering_options_or_proc)
       if Toggles.isToggleOff(Toggles.FAST_PIPELINE_SAVE)
         save_tab_old(error_rendering_options_or_proc)
+        return
       end
       pipeline_name = params[:pipeline_name]
       @original_params = Struct.new(:params).new

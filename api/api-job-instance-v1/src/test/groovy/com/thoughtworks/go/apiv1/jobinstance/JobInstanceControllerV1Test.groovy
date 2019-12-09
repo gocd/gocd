@@ -24,7 +24,6 @@ import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.exceptions.EntityType
 import com.thoughtworks.go.config.exceptions.NotAuthorizedException
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException
-import com.thoughtworks.go.domain.JobInstance
 import com.thoughtworks.go.domain.JobInstances
 import com.thoughtworks.go.domain.NullJobInstance
 import com.thoughtworks.go.helper.JobInstanceMother
@@ -231,7 +230,7 @@ class JobInstanceControllerV1Test implements SecurityServiceTrait, ControllerTra
 
       @Override
       void makeHttpCall() {
-        getWithApiHeader(controller.controllerPath(pipelineName, stageName, jobName, 'instance', 2, 2), [:])
+        getWithApiHeader(controller.controllerPath(pipelineName, 2, stageName, 2, jobName), [:])
       }
 
       @Override
@@ -252,7 +251,7 @@ class JobInstanceControllerV1Test implements SecurityServiceTrait, ControllerTra
         def jobInstance = getJobInstance()
         when(jobInstanceService.findJobInstance(eq(pipelineName), eq(stageName), eq(jobName), eq(1), eq(1), anyString())).thenReturn(jobInstance)
 
-        getWithApiHeader(controller.controllerPath(pipelineName, stageName, jobName, 'instance', 1, 1), [:])
+        getWithApiHeader(controller.controllerPath(pipelineName, 1, stageName, 1, jobName), [:])
 
         def expectedJson = toObjectString({
           JobInstanceRepresenter.toJSON(it, jobInstance)
@@ -268,7 +267,7 @@ class JobInstanceControllerV1Test implements SecurityServiceTrait, ControllerTra
         def nullJobInstance = new NullJobInstance(jobName)
         when(jobInstanceService.findJobInstance(eq(pipelineName), eq(stageName), eq(jobName), eq(10), eq(10), anyString())).thenReturn(nullJobInstance)
 
-        getWithApiHeader(controller.controllerPath(pipelineName, stageName, jobName, 'instance', 10, 10), [:])
+        getWithApiHeader(controller.controllerPath(pipelineName, 10, stageName, 10, jobName), [:])
 
         assertThatResponse()
           .isNotFound()
@@ -277,7 +276,7 @@ class JobInstanceControllerV1Test implements SecurityServiceTrait, ControllerTra
 
       @Test
       void 'should throw error if pipeline counter is specified below 0'() {
-        getWithApiHeader(controller.controllerPath(pipelineName, stageName, jobName, 'instance', -1, 1), [:])
+        getWithApiHeader(controller.controllerPath(pipelineName, -1, stageName, 1, jobName), [:])
 
         assertThatResponse()
           .isBadRequest()
@@ -286,7 +285,7 @@ class JobInstanceControllerV1Test implements SecurityServiceTrait, ControllerTra
 
       @Test
       void 'should throw error if pipeline counter is not an integer'() {
-        getWithApiHeader(controller.controllerPath(pipelineName, stageName, jobName, 'instance', 'abc', 1), [:])
+        getWithApiHeader(controller.controllerPath(pipelineName, 'abc', stageName, 1, jobName), [:])
 
         assertThatResponse()
           .isBadRequest()
@@ -295,7 +294,7 @@ class JobInstanceControllerV1Test implements SecurityServiceTrait, ControllerTra
 
       @Test
       void 'should throw error if stage counter is specified below 0'() {
-        getWithApiHeader(controller.controllerPath(pipelineName, stageName, jobName, 'instance', 1, -1), [:])
+        getWithApiHeader(controller.controllerPath(pipelineName, 1, stageName, -1, jobName), [:])
 
         assertThatResponse()
           .isBadRequest()
@@ -304,7 +303,7 @@ class JobInstanceControllerV1Test implements SecurityServiceTrait, ControllerTra
 
       @Test
       void 'should throw error if stage counter is not an integer'() {
-        getWithApiHeader(controller.controllerPath(pipelineName, stageName, jobName, 'instance', 1, 'abc'), [:])
+        getWithApiHeader(controller.controllerPath(pipelineName, 1, stageName, 'abc', jobName), [:])
 
         assertThatResponse()
           .isBadRequest()
@@ -316,7 +315,7 @@ class JobInstanceControllerV1Test implements SecurityServiceTrait, ControllerTra
         doThrow(new RecordNotFoundException(EntityType.Pipeline, pipelineName))
           .when(jobInstanceService).findJobInstance(eq(pipelineName), eq(stageName), eq(jobName), eq(10), eq(10), anyString())
 
-        getWithApiHeader(controller.controllerPath(pipelineName, stageName, jobName, 'instance', 10, 10), [:])
+        getWithApiHeader(controller.controllerPath(pipelineName, 10, stageName, 10, jobName), [:])
 
         assertThatResponse()
           .isNotFound()
@@ -328,7 +327,7 @@ class JobInstanceControllerV1Test implements SecurityServiceTrait, ControllerTra
         doThrow(new NotAuthorizedException("some message"))
           .when(jobInstanceService).findJobInstance(eq(pipelineName), eq(stageName), eq(jobName), eq(10), eq(10), anyString())
 
-        getWithApiHeader(controller.controllerPath(pipelineName, stageName, jobName, 'instance', 10, 10), [:])
+        getWithApiHeader(controller.controllerPath(pipelineName, 10, stageName, 10, jobName), [:])
 
         assertThatResponse()
           .isUnauthorized()

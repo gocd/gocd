@@ -20,7 +20,7 @@ import Stream from "mithril/stream";
 import {AuthConfigs} from "models/auth_configs/auth_configs";
 import {AuthConfigsCRUD} from "models/auth_configs/auth_configs_crud";
 import {ConfigReposCRUD} from "models/config_repos/config_repos_crud";
-import {Directive, GoCDAttributes, GoCDRole, PluginRole, Roles} from "models/roles/roles";
+import {GoCDAttributes, GoCDRole, PluginRole, Roles} from "models/roles/roles";
 import {RolesCRUD} from "models/roles/roles_crud";
 import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
@@ -59,7 +59,7 @@ export class RolesPage extends Page<null, State> {
     vnode.state.onAdd = (e: Event) => {
       e.stopPropagation();
       this.flashMessage.clear();
-      const role = new GoCDRole("", new GoCDAttributes([]), [Stream(new Directive("deny", "view", "*", "*"))]);
+      const role = new GoCDRole("", new GoCDAttributes([]), []);
       new NewRoleModal(role,
                        vnode.state.pluginInfos,
                        vnode.state.authConfigs,

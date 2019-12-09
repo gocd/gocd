@@ -119,6 +119,28 @@ describe("PipelineActivityHeader", () => {
     expect(helper.byTestId("page-header-pipeline-settings")).toBeInDOM();
   });
 
+  it('should not render pause message when pipeline is unpaused', () => {
+    const pipelineActivity = PipelineActivity.fromJSON(PipelineActivityData.oneStage());
+    pipelineActivity.paused(false);
+
+    mount(pipelineActivity, false, true);
+
+    expect(helper.byTestId("pipeline-pause-message")).not.toBeInDOM();
+  });
+
+  it('should render pause message when pipeline is paused', () => {
+    const pipelineActivity = PipelineActivity.fromJSON(PipelineActivityData.oneStage());
+    pipelineActivity.paused(true);
+    pipelineActivity.pauseBy("Bob");
+    pipelineActivity.pauseCause("Adding artifact config");
+
+    mount(pipelineActivity, false, true);
+
+    expect(helper.byTestId("pipeline-pause-message")).toBeInDOM();
+    expect(helper.byTestId("pipeline-pause-message")).toContainText("Scheduling is paused by Bob (Adding artifact config)");
+    expect(helper.byTestId("pipeline-pause-message")).toHaveAttr("title", "Scheduling is paused by Bob (Adding artifact config)");
+  });
+
   function mount(pipelineActivity: PipelineActivity, isAdmin: boolean = true, isGroupAdmin: boolean = true) {
     helper.mount(() => <PipelineActivityHeader pausePipeline={pauseFn}
                                                unpausePipeline={unpauseFn}

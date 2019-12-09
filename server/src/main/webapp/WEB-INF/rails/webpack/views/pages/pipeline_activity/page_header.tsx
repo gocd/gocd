@@ -35,6 +35,7 @@ export class PipelineActivityHeader extends MithrilViewComponent<Attrs> {
     if (!vnode.attrs.pipelineActivity) {
       return;
     }
+
     return <div class={styles.pageHeader}>
       <div class={styles.pipelineInfo}>
         <span class={styles.label} data-test-id="page-header-pipeline-label">Pipeline</span>
@@ -42,9 +43,7 @@ export class PipelineActivityHeader extends MithrilViewComponent<Attrs> {
               data-test-id="page-header-pipeline-name">{vnode.attrs.pipelineActivity.pipelineName()}</span>
       </div>
       {PipelineActivityHeader.getPipelinePauseUnpauseButton(vnode)}
-      <div class={styles.pauseMessage}>
-        {PipelineActivityHeader.pauseStatusText(vnode.attrs.pipelineActivity)}
-      </div>
+      {PipelineActivityHeader.pauseMessageText(vnode.attrs.pipelineActivity)}
       {PipelineActivityHeader.pipelineSettingsLink(vnode)}
     </div>;
   }
@@ -76,13 +75,19 @@ export class PipelineActivityHeader extends MithrilViewComponent<Attrs> {
     </div>;
   }
 
-  private static pauseStatusText(pipelineActivity: PipelineActivity) {
-    let text = '';
-    if (pipelineActivity.paused()) {
-      text = 'Scheduling is paused';
-      if (pipelineActivity.pauseBy()) { text += ' by ' + pipelineActivity.pauseBy(); }
-      if (pipelineActivity.pauseCause()) { text += ' (' + pipelineActivity.pauseCause() + ')'; }
+  private static pauseMessageText(pipelineActivity: PipelineActivity) {
+    if (!pipelineActivity.paused()) {
+      return;
     }
-    return text;
+
+    let pauseMessage = 'Scheduling is paused';
+    if (pipelineActivity.pauseBy()) {
+      pauseMessage += ' by ' + pipelineActivity.pauseBy();
+    }
+    if (pipelineActivity.pauseCause()) {
+      pauseMessage += ' (' + pipelineActivity.pauseCause() + ')';
+    }
+
+    return <div class={styles.pauseMessage} title={pauseMessage} data-test-id="pipeline-pause-message">{pauseMessage}</div>;
   }
 }

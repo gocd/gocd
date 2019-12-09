@@ -11,3 +11,5 @@ export const leftPanel: string;
 export const purgeSettingsFields: string;
 export const rightPanel: string;
 export const serverConfigurationContainer: string;
+export const testConnectionFailure: string;
+export const testConnectionSuccess: string;

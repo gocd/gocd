@@ -148,7 +148,7 @@ public class PackageMaterial extends AbstractMaterial {
     @Override
     public CaseInsensitiveString getName() {
         if (((name == null) || isEmpty(name.toString())) && packageDefinition != null) {
-            return new CaseInsensitiveString(getPackageDefinition().getRepository().getName() + ":" + packageDefinition.getName());
+            return new CaseInsensitiveString(getPackageDefinition().getRepository().getName() + "_" + packageDefinition.getName());
         } else {
             return name;
         }

@@ -183,7 +183,7 @@ describe "/shared/_build_cause.html.erb" do
     render :partial => "shared/build_cause", :locals => {:scope => {:material_revisions => revisions, :show_files => false, :pipeline_name => "foo"}}
 
     Capybara.string(response.body).find(".build_cause #material_#{package_material.getPipelineUniqueFingerprint()}").tap do |material|
-      expect(material).to have_selector(".material_name", :text => "Package - repo-name:package-name")
+      expect(material).to have_selector(".material_name", :text => "Package - repo-name_package-name")
       material.find(".change").tap do |change|
         change.find(".modified_by").tap do |revision|
           expect(revision).to have_selector("dd", :text => "user on #{@date.iso8601}")

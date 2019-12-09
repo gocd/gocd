@@ -78,7 +78,7 @@ export class ServerConfigurationPage extends Page<null, State> {
     vnode.state.artifactConfigVM    = Stream(new ArtifactConfigVM());
     vnode.state.mailServerVM        = Stream(new MailServerVM());
     vnode.state.defaultJobTimeoutVM = Stream(new DefaultJobTimeoutVM());
-    vnode.state.testMailResponse    = Stream(new FlashMessageModel());
+    vnode.state.testMailResponse    = Stream(new FlashMessageModel(MessageType.inProgress, ""));
 
     vnode.state.onServerManagementSave = (siteUrls: SiteUrls, etag: string | undefined) => {
       if (siteUrls.isValid()) {
@@ -168,6 +168,8 @@ export class ServerConfigurationPage extends Page<null, State> {
     };
 
     vnode.state.sendTestMail = ((mailServer: MailServer) => {
+      // clear message if any
+      vnode.state.testMailResponse().setMessage(MessageType.inProgress, "");
       if (!mailServer.isValid()) {
         return Promise.resolve();
       }

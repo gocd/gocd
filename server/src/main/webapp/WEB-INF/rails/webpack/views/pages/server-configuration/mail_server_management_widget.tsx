@@ -18,7 +18,7 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {ButtonGroup, Cancel, Primary, Secondary} from "views/components/buttons";
-import {FlashMessage} from "views/components/flash_message";
+import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Form, FormBody} from "views/components/forms/form";
 import {CheckboxField, NumberField, PasswordField, TextField} from "views/components/forms/input_fields";
 import {Delete, IconGroup} from "views/components/icons";
@@ -47,9 +47,19 @@ export class MailServerManagementWidget extends MithrilViewComponent<MailServerM
   view(vnode: m.Vnode<MailServerManagementAttrs>) {
     const mailServer = vnode.attrs.mailServerVM().entity();
 
-    const message = vnode.attrs.testMailResponse && vnode.attrs.testMailResponse().hasMessage() ?
-                    <FlashMessage type={vnode.attrs.testMailResponse().type}
-                                  message={vnode.attrs.testMailResponse().message}/> : undefined;
+    let message, icon;
+    if (vnode.attrs.testMailResponse) {
+      const msg = vnode.attrs.testMailResponse().hasMessage() ? vnode.attrs.testMailResponse().message : "Connection OK";
+      message   = <FlashMessage type={vnode.attrs.testMailResponse().type} message={msg}/>;
+      switch (vnode.attrs.testMailResponse().type) {
+        case MessageType.alert:
+          icon = <span class={styles.testConnectionFailure} data-test-id="test-connection-icon-alert"/>;
+          break;
+        case MessageType.success:
+          icon = <span class={styles.testConnectionSuccess} data-test-id="test-connection-icon-success"/>;
+          break;
+      }
+    }
 
     return <div data-test-id="mail-server-management-widget" class={styles.formContainer}>
       <FormBody>
@@ -122,8 +132,9 @@ export class MailServerManagementWidget extends MithrilViewComponent<MailServerM
                   helpText={"One or more email address of GoCD system administrators. This email will be notified if the server runs out of disk space, or if backups fail."}/>
               </div>
               <Secondary data-test-id="send-test-email"
-                         ajaxOperation={() => vnode.attrs.sendTestMail(vnode.attrs.mailServerVM().entity())}> Send Test
-                Email</Secondary>
+                         ajaxOperation={() => vnode.attrs.sendTestMail(vnode.attrs.mailServerVM().entity())}>
+                {icon} Send Test Email
+              </Secondary>
             </div>
             {message}
           </Form>

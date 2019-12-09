@@ -18,7 +18,7 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {MailServer} from "models/server-configuration/server_configuration";
 import {MailServerVM} from "models/server-configuration/server_configuration_vm";
-import {FlashMessageModel} from "views/components/flash_message";
+import {FlashMessageModel, MessageType} from "views/components/flash_message";
 import {MailServerManagementWidget} from "views/pages/server-configuration/mail_server_management_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
 
@@ -106,6 +106,22 @@ describe("MailServerManagementWidget", () => {
       helper.click(helper.byTestId("send-test-email"));
 
       expect(onTestMailSpy).toHaveBeenCalled();
+    });
+
+    it('should show success icon on the button', () => {
+      testMailResponse(new FlashMessageModel(MessageType.success, null));
+      mount(new MailServer());
+
+      expect(helper.byTestId("test-connection-icon-success")).toBeInDOM();
+      expect(helper.textByTestId("flash-message-success")).toContain("Connection OK");
+    });
+
+    it('should show failure icon on the button', () => {
+      testMailResponse(new FlashMessageModel(MessageType.alert, "Not Acceptable"));
+      mount(new MailServer());
+
+      expect(helper.byTestId("test-connection-icon-alert")).toBeInDOM();
+      expect(helper.textByTestId("flash-message-alert")).toContain("Not Acceptable");
     });
   });
 

@@ -24,6 +24,8 @@ describe "admin/tasks/plugin/new.html.erb" do
   before :each do
     assign(:cruise_config, config = BasicCruiseConfig.new)
     set(config, "md5", "abcd1234")
+    @pipeline_config = PipelineConfigMother.createPipelineConfig("pipeline-name", "foo", ["build-1"].to_java(java.lang.String))
+    assign(:pipeline, @pipeline_config)
 
     allow(view).to receive(:admin_task_create_path).and_return("task_create_path")
     assign(:task, @task = simple_exec_task)

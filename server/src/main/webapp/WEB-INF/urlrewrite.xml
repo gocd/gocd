@@ -118,8 +118,8 @@
   <rule>
       <name>Spark Job Instance API</name>
       <condition name="Accept">application\/vnd\.go\.cd(.v*)*\+json</condition>
-      <from>^/api/jobs/([^/]+)/([^/]+)/([^/]+)/instance/([^/]+)/([^/]+)(/?)</from>
-      <to last="true">/spark/api/jobs/${escape:$1}/${escape:$2}/${escape:$3}/instance/${escape:$4}/${escape:$5}</to>
+      <from>^/api/jobs/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)(/?)</from>
+      <to last="true">/spark/api/jobs/${escape:$1}/${escape:$2}/${escape:$3}/${escape:$4}/${escape:$5}</to>
   </rule>
 
   <rule>

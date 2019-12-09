@@ -790,7 +790,9 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         if (attributeMap.containsKey(LOCK_BEHAVIOR)) {
             setLockBehaviorIfNecessary((String) attributeMap.get(LOCK_BEHAVIOR));
         }
-        setIntegrationType(attributeMap);
+        if (attributeMap.containsKey(TRACKING_TOOL)) {
+            setIntegrationType(attributeMap);
+        }
 
         if (attributeMap.containsKey(CONFIGURATION_TYPE)) {
             setConfigurationType(attributeMap);

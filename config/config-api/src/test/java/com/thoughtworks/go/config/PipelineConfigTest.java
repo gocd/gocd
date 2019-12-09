@@ -405,6 +405,21 @@ public class PipelineConfigTest {
     }
 
     @Test
+    public void shouldNotResetTrackingToolWhenNotSpecifiedInConfigAttributes() {
+        PipelineConfig pipelineConfig = new PipelineConfig();
+        TrackingTool trackingTool = new TrackingTool("link", "regex");
+        pipelineConfig.setTrackingTool(trackingTool);
+
+        Map configMap = new HashMap();
+        configMap.put(PipelineConfig.LABEL_TEMPLATE, "LABEL123-${COUNT}");
+
+        pipelineConfig.setConfigAttributes(configMap);
+
+        assertThat(pipelineConfig.getLabelTemplate(), is("LABEL123-${COUNT}"));
+        assertThat(pipelineConfig.getTrackingTool(), is(trackingTool));
+    }
+
+    @Test
     public void isNotLockableWhenLockValueHasNotBeenSet() {
         PipelineConfig pipelineConfig = new PipelineConfig();
 
@@ -508,17 +523,6 @@ public class PipelineConfigTest {
 
         pipelineConfig.setConfigAttributes(map);
         assertThat(pipelineConfig.getTrackingTool(), is(new TrackingTool("GoleyLink", "GoleyRegex")));
-    }
-
-    @Test
-    public void shouldResetTrackingToolWhenTrackingToolIsNone() {
-        PipelineConfig pipelineConfig = new PipelineConfig();
-        pipelineConfig.setTrackingTool(new TrackingTool("link", "regex"));
-
-        Map map = new HashMap();
-
-        pipelineConfig.setConfigAttributes(map);
-        assertThat(pipelineConfig.getTrackingTool(), is(nullValue()));
     }
 
     @Test

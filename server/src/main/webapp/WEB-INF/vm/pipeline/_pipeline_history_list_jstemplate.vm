@@ -49,7 +49,7 @@
                     {/if}
                 {/if}
             </span>
-            #if($isEditableViaUI && ($userHasAdministratorRights || $userHasGroupAdministratorRights))
+            #if(($userHasAdministratorRights || $userHasGroupAdministratorRights))
               <div class="pipeline_settings"><a href="$req.getContextPath()/admin/pipelines/$pipelineName/general" class="icon16 setting"></a></div>
             #end
         </div>

@@ -33,7 +33,6 @@ import styles from "./pipeline_activity/index.scss";
 import {PipelineActivityHeader} from "./pipeline_activity/page_header";
 
 interface PageMeta {
-  isEditableFromUI: boolean;
   pipelineName: string;
   canOperatePipeline: boolean;
 }
@@ -174,8 +173,7 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
                                           unpausePipeline={this.unpausePipeline.bind(this)}
                                           pausePipeline={this.pausePipeline.bind(this)}
                                           isAdmin={Page.isUserAnAdmin()}
-                                          isGroupAdmin={Page.isUserAGroupAdmin()}
-                                          isEditableFromUI={this.meta.isEditableFromUI}/>;
+                                          isGroupAdmin={Page.isUserAGroupAdmin()}/>;
     return <HeaderPanel title={title} sectionName={this.pageName()} buttons={
       <SearchField property={this.filterText} label={"Search"}
                    dataTestId={"search-field"}

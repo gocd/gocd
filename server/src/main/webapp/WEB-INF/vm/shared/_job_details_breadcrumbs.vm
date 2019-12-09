@@ -20,7 +20,7 @@
     <ul class="entity_title">
       <li class="name">
         <span class="label">Pipeline</span>
-        <a href="$req.getContextPath()/tab/pipeline/history/$presenter.pipelineName"
+        <a href="$req.getContextPath()/pipeline/activity/$presenter.pipelineName"
            title="View this pipeline's activity">$presenter.pipelineName</a>
       </li>
       <li class="pipeline_label">

@@ -235,7 +235,7 @@ class AgentsRepresenterTest {
                   "href": "http://test.host/go/pipelines/up42/1/up_42_stage/1"
                 ],
                 "pipeline": [
-                  "href": "http://test.host/go/tab/pipeline/history/up42"
+                  "href": "http://test.host/go/pipeline/activity/up42"
                 ]
               ],
               "pipeline_name": "up42",

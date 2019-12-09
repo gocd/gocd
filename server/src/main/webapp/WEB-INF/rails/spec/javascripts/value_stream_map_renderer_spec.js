@@ -39,7 +39,7 @@ describe("value_stream_map_renderer", function () {
                 ], "locator": "", "id": "pkg_id", "dependents": ["sample"], "material_names": ["yum:go-agent"]}
             ]},
             {"nodes": [
-                {"name": "sample", "node_type": "PIPELINE", "locator": "/go/tab/pipeline/history/sample", "instances": [
+                {"name": "sample", "node_type": "PIPELINE", "locator": "/go/pipeline/activity/sample", "instances": [
                     {"stages": [
                         {"locator": "/go/pipelines/sample/1/defaultStage/1", "status": "Building", "name": "defaultStage"}
                     ], "locator": "", "counter": 1, "label": "1"}
@@ -144,7 +144,7 @@ describe("value_stream_map_renderer", function () {
                 ], "locator": "", "id": "pkg_id", "dependents": ["sample"], "material_names": ["yum:go-agent"]}
             ]},
             {"nodes": [
-                {"name": "sample", "node_type": "PIPELINE", "locator": "/go/tab/pipeline/history/sample", "instances": [
+                {"name": "sample", "node_type": "PIPELINE", "locator": "/go/pipeline/activity/sample", "instances": [
                     {"stages": [
                         {"locator": "/go/pipelines/sample/1/defaultStage/1", "status": "Building", "name": "defaultStage"}
                     ], "locator": "/go/pipelines/value_stream_map/sample/1", "counter": 1, "label": "1"}
@@ -175,7 +175,7 @@ describe("value_stream_map_renderer", function () {
                 ], "locator": "", "id": "pkg_id", "dependents": ["sample"], "material_names": ["yum:go-agent"]}
             ]},
             {"nodes": [
-                {"name": "sample", "node_type": "PIPELINE", "locator": "/go/tab/pipeline/history/sample", "instances": [
+                {"name": "sample", "node_type": "PIPELINE", "locator": "/go/pipeline/activity/sample", "instances": [
                     {"stages": [
                         {"locator": "/go/pipelines/sample/1/defaultStage/1", "status": "Building", "name": "defaultStage"}
                     ], "locator": "/go/pipelines/value_stream_map/sample/1", "counter": 1, "label": "1"}
@@ -229,12 +229,12 @@ describe("value_stream_map_renderer", function () {
 
         var hg_material = scmMaterialNode('hg_fingerprint', '../manual-testing/ant_hg/dummy', "hg", '["current"]', 1,
           '[{"modifications":[{"revision": "revision1"}, {"revision": "revision2"}]}]');
-        var current = pipelineNode("current", '["hg_fingerprint"]', '[]', 1, "/go/tab/pipeline/history/current", '[' + current_pipeline_instance_details + ']');
+        var current = pipelineNode("current", '["hg_fingerprint"]', '[]', 1, "/go/pipeline/activity/current", '[' + current_pipeline_instance_details + ']');
 
         var vsm = eval('({"current_pipeline":"p1","levels":[{"nodes":[' + hg_material + ']},{"nodes":[' + current + ']}]})');
         new Graph_Renderer("#vsm-container").invoke(vsm);
 
-        assertEquals("pipeline node name does not point to pipeline history page.", "/go/tab/pipeline/history/current", jQuery("#vsm-container #current h3 a").attr("href"));
+        assertEquals("pipeline node name does not point to pipeline history page.", "/go/pipeline/activity/current", jQuery("#vsm-container #current h3 a").attr("href"));
         assertEquals("label of a pipeline instance does not point to th vsm page.", "/go/pipelines/value_stream_map/current/1", jQuery("#vsm-container #current ul li h4 a").attr("href"));
         assertEquals("pipeline node does not have all instances populated correctly.", 1, jQuery("#vsm-container #current ul").find("li.instance").length);
         assertEquals("stage details for pipeline instances are not populated correctly.", 2, jQuery("#vsm-container #current ul ul").find(".stage_bar").length);
@@ -257,8 +257,8 @@ describe("value_stream_map_renderer", function () {
 
         var hg_material = scmMaterialNode('hg_fingerprint', '../manual-testing/ant_hg/dummy', "hg", '["current"]', 1,
           '[{"modifications":[{"revision": "revision1"}, {"revision": "revision2"}]}]');
-        var current = pipelineNode("current", '["hg_fingerprint"]', '["downstream"]', 1, "/go/tab/pipeline/history/current", '[' + current_pipeline_instance_details + ']');
-        var downstream = pipelineNode("downstream", '["current"]', '[]', 2, "/go/tab/pipeline/history/downstream", '[' + downstream_pipeline_instance_details + ']');
+        var current = pipelineNode("current", '["hg_fingerprint"]', '["downstream"]', 1, "/go/pipeline/activity/current", '[' + current_pipeline_instance_details + ']');
+        var downstream = pipelineNode("downstream", '["current"]', '[]', 2, "/go/pipeline/activity/downstream", '[' + downstream_pipeline_instance_details + ']');
 
         var vsm = eval('({"current_pipeline":"current","levels":[{"nodes":[' + hg_material + ']},{"nodes":[' + current + ']},{"nodes":[' + downstream + ']}]})');
         new Graph_Renderer("#vsm-container").invoke(vsm);
@@ -278,7 +278,7 @@ describe("value_stream_map_renderer", function () {
         '[{modifications:[{"revision": "revision1","comment":"comment1","user":"user1","modified_time":"modified_time1"}, ' +
         '{"revision": "revision2","comment":"comment2","user":"user2","modified_time":"modified_time2"}]}]');
 
-      var node_p1 = pipelineNode("p1", '["hg_fingerprint"]', '[]', 1, "/go/tab/pipeline/history/p1", '[' + completedPipeline + ']');
+      var node_p1 = pipelineNode("p1", '["hg_fingerprint"]', '[]', 1, "/go/pipeline/activity/p1", '[' + completedPipeline + ']');
 
       var vsm = eval('({"current_pipeline":"p1","levels":[{"nodes":[' + hg_material + ']},{"nodes":[' + node_p1 + ']}]})');
       new Graph_Renderer("#vsm-container").invoke(vsm);
@@ -295,7 +295,7 @@ describe("value_stream_map_renderer", function () {
       '[{modifications:[{"revision": "revision1","comment":"comment1","user":"user1","modified_time":"modified_time1"}, ' +
       '{"revision": "revision2","comment":"comment2","user":"user2","modified_time":"modified_time2"}]}]');
 
-    var node_p1 = pipelineNode("p1", '["hg_fingerprint"]', '[]', 1, "/go/tab/pipeline/history/p1", '[' + inProgressPipeline + ']');
+    var node_p1 = pipelineNode("p1", '["hg_fingerprint"]', '[]', 1, "/go/pipeline/activity/p1", '[' + inProgressPipeline + ']');
 
     var vsm = eval('({"current_pipeline":"p1","levels":[{"nodes":[' + hg_material + ']},{"nodes":[' + node_p1 + ']}]})');
     new Graph_Renderer("#vsm-container").invoke(vsm);

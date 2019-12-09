@@ -132,7 +132,7 @@ describe("vsm_analytics", function () {
               "status": "Passed"
             }]
           }],
-          "locator": "/go/tab/pipeline/history/P1",
+          "locator": "/go/pipeline/activity/P1",
           "name": "P1",
           "node_type": "PIPELINE",
           "parents": ["3795dca7e793e62cfde2e8e2898efee05bde08c99700cff0ec96d68ad4522629"]
@@ -153,7 +153,7 @@ describe("vsm_analytics", function () {
               "status": "Passed"
             }]
           }],
-          "locator": "/go/tab/pipeline/history/P2",
+          "locator": "/go/pipeline/activity/P2",
           "name": "P2",
           "node_type": "PIPELINE",
           "parents": ["3795dca7e793e62cfde2e8e2898efee05bde08c99700cff0ec96d68ad4522629"]
@@ -185,7 +185,7 @@ describe("vsm_analytics", function () {
               "status": "Passed"
             }]
           }],
-          "locator": "/go/tab/pipeline/history/P3",
+          "locator": "/go/pipeline/activity/P3",
           "name": "P3",
           "node_type": "PIPELINE",
           "parents": ["P1", "P2"]
@@ -235,7 +235,7 @@ describe("vsm_analytics", function () {
               "status": "Passed"
             }]
           }],
-          "locator": "/go/tab/pipeline/history/P4",
+          "locator": "/go/pipeline/activity/P4",
           "name": "P4",
           "node_type": "PIPELINE",
           "parents": ["P3", "a5adb455-6f0a-4100-ae2b-c2bf0b863ca8", "9e02d1ae843b55f2cf77af4dbaba38e2dfaf8f86d4ca4c890a4ba9396bfc26c8"]

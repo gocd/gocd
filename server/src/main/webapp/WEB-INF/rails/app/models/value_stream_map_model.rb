@@ -86,7 +86,7 @@ class VSMPipelineDependencyNodeModel < VSMDependencyNodeModel
     super(id, name, dependents, parents, node_type, depth)
 
     @instances = revisions.map { |revision| VSMPipelineInstanceModel.new(name, revision.getLabel(), revision.getCounter(), revision.getStages() || [], pdg_path_partial, stage_detail_path_partial, pipeline_edit_path_partial) } unless revisions == nil
-    @locator = "/go/tab/pipeline/history/#{name}" if  view_type == nil
+    @locator = "/go/pipeline/activity/#{name}" if  view_type == nil
     @message = message unless  message == nil
     @view_type = view_type.to_s unless view_type == nil
     @edit_path = pipeline_edit_path_partial.call name

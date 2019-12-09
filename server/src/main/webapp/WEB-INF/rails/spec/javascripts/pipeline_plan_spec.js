@@ -49,7 +49,7 @@ describe("pipeline_plan", function () {
             "            <a href=\"javascript:void(0)\" onclick=\"pipelineActions.pausePipeline('${%pipeline.name%}', this);\" class=\"icon-link pause-build-link\" title=\"Stop scheduling\"></a>\n" +
             "        {/if}\n" +
             "        </span>\n" +
-            "        <a href=\"$req.getContextPath()/tab/pipeline/history/${% pipeline.name %}\" title=\"View pipeline history\" id=\"${% pipeline.name %}-history\">\n" +
+            "        <a href=\"$req.getContextPath()/pipeline/activity/${% pipeline.name %}\" title=\"View pipeline history\" id=\"${% pipeline.name %}-history\">\n" +
             "            ${% pipeline.name %}<span class=\"pipeline-nav\">[pipeline activity]</span></a>\n" +
             "        <span class=\"paused-status\">${%pipelinePage.pauseStatusText(pipeline)%}</span>\n" +
             "        <div class=\"clear\"></div>\n" +

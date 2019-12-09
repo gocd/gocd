@@ -62,7 +62,7 @@ describe ValueStreamMapModel do
     node1InSecondLevel = graph_model.levels[1].nodes[0]
     expect(node1InSecondLevel.id).to eq("p1")
     expect(node1InSecondLevel.node_type).to eq(DependencyNodeType::PIPELINE.to_s)
-    expect(node1InSecondLevel.locator).to eq("/go/tab/pipeline/history/p1")
+    expect(node1InSecondLevel.locator).to eq("/go/pipeline/activity/p1")
     expect(node1InSecondLevel.dependents[0]).to eq("current")
     expect(node1InSecondLevel.parents[0]).to eq("git")
     expect(node1InSecondLevel.depth).to eq(1)
@@ -80,7 +80,7 @@ describe ValueStreamMapModel do
     nodeInFirstLevel = graph_model.levels[2].nodes[0]
     expect(nodeInFirstLevel.id).to eq("current")
     expect(nodeInFirstLevel.node_type).to eq(DependencyNodeType::PIPELINE.to_s)
-    expect(nodeInFirstLevel.locator).to eq("/go/tab/pipeline/history/current")
+    expect(nodeInFirstLevel.locator).to eq("/go/pipeline/activity/current")
     expect(nodeInFirstLevel.dependents.size).to eq(0)
     expect(nodeInFirstLevel.parents[0]).to eq("p1")
     expect(nodeInFirstLevel.depth).to eq(1)

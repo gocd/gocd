@@ -678,8 +678,15 @@
 
   <rule>
     <name>Spark Stage Instance API</name>
+    <condition name="Accept">application\/vnd\.go\.cd\.v1\+json</condition>
     <from>^/api/stages/([^/]+)/([^/]+)/instance/([^/]+)/([^/]+)(/?)</from>
     <to last="true">/spark/api/stages/${escape:$1}/${escape:$2}/instance/${escape:$3}/${escape:$4}</to>
+  </rule>
+
+  <rule>
+    <name>Spark Stage Instance API V2 and latest</name>
+    <from>^/api/stages/([^/]+)/([^/]+)/([^/]+)/([^/]+)</from>
+    <to last="true">/spark/api/stages/${escape:$1}/${escape:$2}/${escape:$3}/${escape:$4}</to>
   </rule>
 
   <rule>

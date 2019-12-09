@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+import {SparkRoutes} from "helpers/spark_routes";
 import {PipelineActivity} from "models/pipeline_activity/pipeline_activity";
-import {PipelineActivityService} from "models/pipeline_activity/pipeline_activity_crud";
 import {PipelineActivityData} from "models/pipeline_activity/spec/test_data";
+import {ModalManager} from "views/components/modal/modal_manager";
 import {PageState} from "../page";
-import {ResultAwarePage} from "../page_operations";
 import {PipelineActivityPage} from "../pipeline_activity";
 import styles from "../pipeline_activity/index.scss";
 import {TestHelper} from "./test_helper";
@@ -26,17 +25,18 @@ import {TestHelper} from "./test_helper";
 describe("PipelineActivityPage", () => {
   const helper = new TestHelper();
 
-  afterEach(helper.unmount.bind(helper));
+  beforeEach(() => {
+    jasmine.Ajax.install();
+  });
+
+  afterEach(() => {
+    jasmine.Ajax.uninstall();
+    helper.unmount();
+    ModalManager.closeAll();
+  });
 
   it("should render pipeline activity for new pipeline", () => {
-    const stubbedActivities = (pipelineName: string, offset: number, filterText: string, page: ResultAwarePage<PipelineActivity>) => {
-      page.onSuccess(PipelineActivity.fromJSON(PipelineActivityData.underConstruction()));
-    };
-
-    const service = new PipelineActivityService();
-    spyOn(service, "activities").and.callFake(stubbedActivities);
-
-    mount(new PipelineActivityPageWrapper(service));
+    mount(new PipelineActivityPageWrapper(PipelineActivity.fromJSON(PipelineActivityData.underConstruction())));
 
     expect(helper.byTestId("counter-for-1")).toHaveText("unknown");
 
@@ -50,15 +50,9 @@ describe("PipelineActivityPage", () => {
   });
 
   it("should render pipeline runs for an old pipeline", () => {
-    const activity          = PipelineActivity.fromJSON(PipelineActivityData.oneStage());
-    const stubbedActivities = (pipelineName: string, offset: number, filterText: string, page: ResultAwarePage<PipelineActivity>) => {
-      page.onSuccess(activity);
-    };
+    const activity = PipelineActivity.fromJSON(PipelineActivityData.oneStage());
 
-    const service = new PipelineActivityService();
-    spyOn(service, "activities").and.callFake(stubbedActivities);
-
-    mount(new PipelineActivityPageWrapper(service));
+    mount(new PipelineActivityPageWrapper(activity));
 
     const history = activity.groups()[0].history()[0];
     expect(helper.byTestId("counter-for-42")).toHaveText(history.label());
@@ -70,17 +64,67 @@ describe("PipelineActivityPage", () => {
   });
 
   it("should render search field", () => {
-    const activity          = PipelineActivity.fromJSON(PipelineActivityData.oneStage());
-    const stubbedActivities = (pipelineName: string, offset: number, filterText: string, page: ResultAwarePage<PipelineActivity>) => {
-      page.onSuccess(activity);
-    };
+    const activity = PipelineActivity.fromJSON(PipelineActivityData.oneStage());
 
-    const service = new PipelineActivityService();
-    spyOn(service, "activities").and.callFake(stubbedActivities);
-
-    mount(new PipelineActivityPageWrapper(service));
+    mount(new PipelineActivityPageWrapper(activity));
 
     expect(helper.byTestId("search-field")).toBeInDOM();
+  });
+
+  describe("Pause", () => {
+    it("should show dialog on click of pause button", () => {
+      const activity = PipelineActivity.fromJSON(PipelineActivityData.oneStage());
+      activity.paused(false);
+      activity.canPause(true);
+
+      mount(new PipelineActivityPageWrapper(activity));
+
+      helper.clickByTestId("page-header-pause-btn");
+
+      const modal = helper.modal();
+      expect(helper.byTestId("form-field-label-specify-the-reason-why-you-want-to-stop-scheduling-on-this-pipeline", modal))
+        .toHaveText("Specify the reason why you want to stop scheduling on this pipeline");
+      expect(helper.byTestId("pause-pipeline-textarea", modal)).toBeInDOM();
+    });
+
+    it("should make pipeline pause request with cause", (done) => {
+      const activity = PipelineActivity.fromJSON(PipelineActivityData.oneStage());
+      activity.paused(false);
+      activity.canPause(true);
+
+      mount(new PipelineActivityPageWrapper(activity));
+
+      helper.clickByTestId("page-header-pause-btn");
+
+      const modal = helper.modal();
+      helper.oninput(helper.byTestId("pause-pipeline-textarea", modal), "This is a pause cause");
+      helper.clickByTestId("primary-action-button", modal);
+
+      const request = jasmine.Ajax.requests.mostRecent();
+      expect(request.url).toEqual(SparkRoutes.pipelinePausePath(activity.pipelineName()));
+      expect(request.method).toEqual("POST");
+      expect(request.data()).toEqual({pause_cause: 'This is a pause cause'});
+      expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v1+json");
+      done();
+    });
+  });
+
+  describe("Unpause", () => {
+    it("should unpause the pipeline on click of unpause button", () => {
+      const activity = PipelineActivity.fromJSON(PipelineActivityData.oneStage());
+      activity.paused(true);
+      activity.canPause(true);
+
+      mount(new PipelineActivityPageWrapper(activity));
+
+      helper.clickByTestId("page-header-unpause-btn");
+
+      const request = jasmine.Ajax.requests.mostRecent();
+      expect(request.url).toEqual(SparkRoutes.pipelineUnpausePath(activity.pipelineName()));
+      expect(request.method).toEqual("POST");
+      expect(request.data()).toEqual({});
+      expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v1+json");
+    });
   });
 
   function mount(page: PipelineActivityPageWrapper) {
@@ -89,9 +133,17 @@ describe("PipelineActivityPage", () => {
 });
 
 class PipelineActivityPageWrapper extends PipelineActivityPage {
-  constructor(service: PipelineActivityService) {
+  private readonly _activity: PipelineActivity;
+
+  constructor(activity: PipelineActivity) {
     super();
-    this.service   = service;
+    this._activity = activity;
     this.pageState = PageState.OK;
+    //@ts-ignore
+    this.meta      = {pipelineName: activity.pipelineName()};
+  }
+
+  fetchPipelineHistory(offset: number) {
+    this.pipelineActivity(this._activity);
   }
 }

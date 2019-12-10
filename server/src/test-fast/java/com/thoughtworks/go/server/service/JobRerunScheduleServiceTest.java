@@ -33,8 +33,8 @@ import com.thoughtworks.go.server.transaction.TestTransactionTemplate;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.TimeProvider;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.transaction.support.TransactionCallback;
 
 import java.util.Arrays;
@@ -43,9 +43,7 @@ import java.util.concurrent.Semaphore;
 
 import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.any;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class JobRerunScheduleServiceTest {
@@ -67,7 +65,7 @@ public class JobRerunScheduleServiceTest {
     private ElasticProfileService elasticProfileService;
     private ClusterProfilesService clusterProfileService;
 
-    @Before
+    @BeforeEach
     public void setup() {
         jobInstanceService = mock(JobInstanceService.class);
         goConfigService = mock(GoConfigService.class);
@@ -94,7 +92,7 @@ public class JobRerunScheduleServiceTest {
     }
 
     @Test
-    public void shouldScheduleRerunJobStage() {
+    void shouldScheduleRerunJobStage() {
         PipelineConfig mingleConfig = PipelineConfigMother.createPipelineConfig("mingle", "build", "unit", "functional");
 
         Pipeline pipeline = PipelineMother.passedPipelineInstance("mingle", "build", "unit");
@@ -110,7 +108,7 @@ public class JobRerunScheduleServiceTest {
 
         Stage stage = service.rerunJobs(firstStage, a("unit"), new HttpOperationResult());
 
-        assertThat(stage, is(not(nullValue())));
+        assertThat(stage).isNotNull();
         verify(stageService).save(pipeline, stage);
         verify(lockService).lockIfNeeded(pipeline);
     }
@@ -122,7 +120,7 @@ public class JobRerunScheduleServiceTest {
     }
 
     @Test
-    public void shouldMarkResultIfScheduleFailsForUnexpectedReason() {
+    void shouldMarkResultIfScheduleFailsForUnexpectedReason() {
         PipelineConfig mingleConfig = PipelineConfigMother.createPipelineConfig("mingle", "build", "unit", "functional");
 
         Pipeline pipeline = PipelineMother.passedPipelineInstance("mingle", "build", "unit");
@@ -144,16 +142,16 @@ public class JobRerunScheduleServiceTest {
 
         try (LogFixture logFixture = logFixtureFor(ScheduleService.class, Level.DEBUG)) {
             Stage stage = service.rerunJobs(firstStage, a("unit"), result);
-            assertThat(logFixture.contains(Level.ERROR, "Job rerun request for job(s) [unit] could not be completed because of unexpected failure. Cause: The whole world is a big null."), is(true));
-            assertThat(stage, is(nullValue()));
-            assertThat(result.httpCode(), is(500));
-            assertThat(result.message(), is("Job rerun request for job(s) [unit] could not be completed because of unexpected failure. Cause: The whole world is a big null."));
+            assertThat(logFixture.contains(Level.ERROR, "Job rerun request for job(s) [unit] could not be completed because of unexpected failure. Cause: The whole world is a big null.")).isTrue();
+            assertThat(stage).isNull();
+            assertThat(result.httpCode()).isEqualTo(500);
+            assertThat(result.message()).isEqualTo("Job rerun request for job(s) [unit] could not be completed because of unexpected failure. Cause: The whole world is a big null.");
         }
 
     }
 
     @Test
-    public void shouldNotScheduleWhenPreviousStageHasNotBeenRun() {
+    void shouldNotScheduleWhenPreviousStageHasNotBeenRun() {
         PipelineConfig mingleConfig = PipelineConfigMother.createPipelineConfigWithStages("mingle", "compile", "link", "test");
 
         Pipeline pipeline = PipelineMother.passedPipelineInstance("mingle", "compile", "dev");
@@ -168,7 +166,7 @@ public class JobRerunScheduleServiceTest {
     }
 
     @Test
-    public void shouldNotScheduleWhenApproverIsNotOperator() {
+    void shouldNotScheduleWhenApproverIsNotOperator() {
         PipelineConfig mingleConfig = PipelineConfigMother.createPipelineConfig("mingle", "build", "unit", "functional");
 
         Pipeline pipeline = PipelineMother.passedPipelineInstance("mingle", "build", "unit");
@@ -183,7 +181,7 @@ public class JobRerunScheduleServiceTest {
     }
 
     @Test
-    public void shouldUpdateServerHealthStateWhenCantSchedule() {//no matching agents found
+    void shouldUpdateServerHealthStateWhenCantSchedule() {//no matching agents found
         String latestMd5 = "latest-md5";
 
         PipelineConfig mingleConfig = PipelineConfigMother.createPipelineConfig("mingle", "build", "unit", "functional");
@@ -204,7 +202,7 @@ public class JobRerunScheduleServiceTest {
     }
 
     @Test
-    public void shouldSynchronizeAroundRerunJobsFlow() throws InterruptedException {
+    void shouldSynchronizeAroundRerunJobsFlow() throws InterruptedException {
         PipelineConfig mingleConfig = PipelineConfigMother.createPipelineConfig("mingle", "build", "unit", "functional");
 
         Pipeline pipeline = PipelineMother.passedPipelineInstance("mingle", "build", "unit");
@@ -296,24 +294,24 @@ public class JobRerunScheduleServiceTest {
         firstReq.join();
         secondReq.join();
 
-        assertThat("second request should have gone-in only after first is out", secondReqGotInAfterFirstFinished[0], is(true));
+        assertThat(secondReqGotInAfterFirstFinished[0]).as("second request should have gone-in only after first is out").isTrue();
     }
 
     @Test
-    public void shouldErrorOutWhenNoJobIsSelectedForReRun() {
+    void shouldErrorOutWhenNoJobIsSelectedForReRun() {
         Pipeline pipeline = PipelineMother.passedPipelineInstance("mingle", "build", "unit");
         Stage firstStage = pipeline.getFirstStage();
 
         HttpOperationResult result = new HttpOperationResult();
         Stage stage = service.rerunJobs(firstStage, null, result);
 
-        assertThat(stage, is(nullValue()));
-        assertThat(result.httpCode(), is(400));
-        assertThat(result.message(), is("No job was selected to re-run."));
+        assertThat(stage).isNull();
+        assertThat(result.httpCode()).isEqualTo(400);
+        assertThat(result.message()).isEqualTo("No job was selected to re-run.");
     }
 
     @Test
-    public void shouldRerunFailedJobs() {
+    void shouldRerunFailedJobs() {
         Stage stage = mock(Stage.class);
         HttpOperationResult result = new HttpOperationResult();
 
@@ -327,7 +325,7 @@ public class JobRerunScheduleServiceTest {
     }
 
     @Test
-    public void shouldReturnNullWhenThereIsNoFailedJobsInStage() {
+    void shouldReturnNullWhenThereIsNoFailedJobsInStage() {
         Stage stage = mock(Stage.class);
         HttpOperationResult result = new HttpOperationResult();
 
@@ -337,8 +335,8 @@ public class JobRerunScheduleServiceTest {
         ScheduleService scheduleServiceSpy = spy(service);
         scheduleServiceSpy.rerunFailedJobs(stage, result);
 
-        assertThat(result.httpCode(), is(400));
-        assertThat(result.message(), is("There are no failed jobs in the stage that could be re-run"));
+        assertThat(result.httpCode()).isEqualTo(400);
+        assertThat(result.message()).isEqualTo("There are no failed jobs in the stage that could be re-run");
         verify(scheduleServiceSpy, never()).rerunJobs(any(Stage.class), anyList(), any(HttpOperationResult.class));
     }
 
@@ -346,9 +344,9 @@ public class JobRerunScheduleServiceTest {
         HttpOperationResult result = new HttpOperationResult();
         Stage stage = service.rerunJobs(oldStage, a(jobName), result);
 
-        assertThat(stage, is(nullValue()));
-        assertThat(result.httpCode(), is(statusCode));
-        assertThat(result.message(), is(failureMessage));
+        assertThat(stage).isNull();
+        assertThat(result.httpCode()).isEqualTo(statusCode);
+        assertThat(result.message()).isEqualTo(failureMessage);
     }
 
     private void stub(PipelineConfig mingleConfig, Pipeline pipeline, Stage lastStage) {

@@ -16,18 +16,30 @@
 
 package com.thoughtworks.go.apiv1.internalenvironments.representers
 
+import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv1.internalenvironments.representers.configorigin.ConfigRepoOriginRepresenter
 import com.thoughtworks.go.apiv1.internalenvironments.representers.configorigin.ConfigXmlOriginRepresenter
 import com.thoughtworks.go.config.merge.MergeEnvironmentConfig
 import com.thoughtworks.go.config.remote.RepoConfigOrigin
 import com.thoughtworks.go.helper.EnvironmentConfigMother
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.mockito.Mock
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObject
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
+import static org.mockito.MockitoAnnotations.initMocks
 
 class MergedEnvironmentRepresenterTest {
+  @Mock
+  ApiAuthenticationHelper apiAuthenticationHelper
+
+  @BeforeEach
+  void setUp() {
+    initMocks(this)
+  }
+
   @Test
   void 'should render merged environment with hal representation'() {
     def environmentName = "env"
@@ -36,7 +48,7 @@ class MergedEnvironmentRepresenterTest {
     def mergeEnvironmentConfig = new MergeEnvironmentConfig(env, remoteEnv)
 
     def actualJson = toObjectString({
-      MergedEnvironmentRepresenter.toJSON(it, mergeEnvironmentConfig, { name -> true })
+      MergedEnvironmentRepresenter.toJSON(it, mergeEnvironmentConfig, apiAuthenticationHelper)
     })
 
     def agentsJSON = mergeEnvironmentConfig.agents.collect { agent ->
@@ -59,7 +71,10 @@ class MergedEnvironmentRepresenterTest {
 
     def expected = [
       "name"                 : environmentName,
-      "can_administer"       : true,
+      "permissions"          : [
+        "can_administer": false,
+        "can_edit"      : false
+      ],
       origins                : [
         toObject({ ConfigXmlOriginRepresenter.toJSON(it, null) }),
         toObject({ ConfigRepoOriginRepresenter.toJSON(it, remoteEnv.getOrigin() as RepoConfigOrigin) })

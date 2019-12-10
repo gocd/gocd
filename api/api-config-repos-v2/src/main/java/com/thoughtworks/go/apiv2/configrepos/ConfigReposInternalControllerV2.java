@@ -44,7 +44,6 @@ import spark.Response;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.config.policy.SupportedEntity.CONFIG_REPO;
@@ -87,7 +86,7 @@ public class ConfigReposInternalControllerV2 extends ApiController implements Sp
 
             before(ConfigRepos.REPO_PATH, mimeType, this::authorize);
             before(ConfigRepos.STATUS_PATH, mimeType, this::authorize);
-            before(ConfigRepos.TRIGGER_UPDATE_PATH, mimeType, this::authorize);
+            before(ConfigRepos.TRIGGER_UPDATE_PATH, mimeType, this::authorizeForUpdate);
             before(ConfigRepos.DEFINITIONS_PATH, mimeType, this::authorize);
 
             get(ConfigRepos.INDEX_PATH, mimeType, this::listRepos);
@@ -102,6 +101,10 @@ public class ConfigReposInternalControllerV2 extends ApiController implements Sp
         authHelper.checkUserHasPermissions(currentUsername(), getAction(request), CONFIG_REPO, request.params(":id"));
     }
 
+    private void authorizeForUpdate(Request request, Response response) {
+        authHelper.checkUserHasPermissions(currentUsername(), SupportedAction.EDIT, CONFIG_REPO, request.params(":id"));
+    }
+
     String listRepos(Request req, Response res) throws IOException {
         List<ConfigRepoWithResult> userSpecificRepos = allRepos().stream()
                 .filter(repo -> authHelper.doesUserHasPermissions(currentUsername(), getAction(req), CONFIG_REPO, repo.repo().getId()))
@@ -114,8 +117,8 @@ public class ConfigReposInternalControllerV2 extends ApiController implements Sp
         if (fresh(req, etag)) {
             return notModified(res);
         }
-        Function<String, Boolean> canUserAdministerConfigRepo = repoId -> authHelper.doesUserHasPermissions(currentUsername(), SupportedAction.ADMINISTER, CONFIG_REPO, repoId);
-        return writerForTopLevelObject(req, res, w -> ConfigRepoWithResultListRepresenter.toJSON(w, userSpecificRepos, canUserAdministerConfigRepo));
+
+        return writerForTopLevelObject(req, res, w -> ConfigRepoWithResultListRepresenter.toJSON(w, userSpecificRepos, authHelper));
     }
 
     String showRepo(Request req, Response res) throws IOException {
@@ -129,8 +132,7 @@ public class ConfigReposInternalControllerV2 extends ApiController implements Sp
             return notModified(res);
         }
 
-        boolean canAdminister = authHelper.doesUserHasPermissions(currentUsername(), SupportedAction.ADMINISTER, CONFIG_REPO, repo.repo().getId());
-        return writerForTopLevelObject(req, res, w -> ConfigRepoWithResultRepresenter.toJSON(w, repo, canAdminister));
+        return writerForTopLevelObject(req, res, w -> ConfigRepoWithResultRepresenter.toJSON(w, repo, authHelper));
     }
 
     String triggerUpdate(Request req, Response res) {

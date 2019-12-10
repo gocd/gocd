@@ -18,14 +18,18 @@ package com.thoughtworks.go.apiv2.configrepos.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.ConfigurationPropertyRepresenter;
+import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.apiv2.configrepos.ConfigRepoWithResult;
 import com.thoughtworks.go.config.PartialConfigParseResult;
+import com.thoughtworks.go.config.policy.SupportedAction;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 
+import static com.thoughtworks.go.config.policy.SupportedEntity.CONFIG_REPO;
+import static com.thoughtworks.go.server.newsecurity.utils.SessionUtils.currentUsername;
 import static com.thoughtworks.go.spark.Routes.ConfigRepos.*;
 
 public class ConfigRepoWithResultRepresenter {
-    public static void toJSON(OutputWriter json, ConfigRepoWithResult crwr, boolean canAdminister) {
+    public static void toJSON(OutputWriter json, ConfigRepoWithResult crwr, ApiAuthenticationHelper apiAuthenticationHelper) {
         ConfigRepoConfig repo = crwr.repo();
         PartialConfigParseResult result = crwr.result();
 
@@ -33,7 +37,10 @@ public class ConfigRepoWithResultRepresenter {
         json.add("id", repo.getId());
         json.add("plugin_id", repo.getPluginId());
         json.addChild("material", w -> MaterialsRepresenter.toJSON(w, repo.getMaterialConfig()));
-        json.add("can_administer", canAdminister);
+        json.addChild("permissions", permissionsWriter -> {
+            permissionsWriter.add("can_edit", apiAuthenticationHelper.doesUserHasPermissions(currentUsername(), SupportedAction.EDIT, CONFIG_REPO, repo.getId()));
+            permissionsWriter.add("can_administer", apiAuthenticationHelper.doesUserHasPermissions(currentUsername(), SupportedAction.ADMINISTER, CONFIG_REPO, repo.getId()));
+        });
         attachConfigurations(json, repo);
 
         json.add("material_update_in_progress", crwr.isMaterialUpdateInProgress());

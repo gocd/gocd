@@ -171,6 +171,9 @@ export class CreatePolicyWidget extends MithrilViewComponent<AutoCompleteAttrs> 
         id: "view", text: "View"
       },
       {
+        id: "edit", text: "Edit"
+      },
+      {
         id: "administer", text: "Administer"
       }
     ];

@@ -14,13 +14,17 @@
  * limitations under the License.
  */
 
-import {EnvironmentVariable, EnvironmentVariables} from "models/environment_variables/types";
+import {EnvironmentEnvironmentVariableJSON, EnvironmentVariable, EnvironmentVariables, EnvironmentVariablesWithOrigin, EnvironmentVariableWithOrigin} from "models/environment_variables/types";
 import data from "./test_data";
 
-const plainTextEnvVar1 = data.environment_variable_json();
-const plainTextEnvVar2 = data.environment_variable_json();
-const secureEnvVar1    = data.environment_variable_json(true);
-const secureEnvVar2    = data.environment_variable_json(true);
+const plainTextEnvVar1                 = data.environment_variable_json();
+const plainTextEnvVar2                 = data.environment_variable_json();
+const secureEnvVar1                    = data.environment_variable_json(true);
+const secureEnvVar2                    = data.environment_variable_json(true);
+const xmlEnvVarWithOrigin              = data.environment_variable_with_origin_xml_json();
+const configRepoEnvVarWithOrigin       = data.environment_variable_with_origin_config_repo_json();
+const secureXmlEnvVarWithOrigin        = data.environment_variable_with_origin_xml_json(true);
+const secureConfigRepoEnvVarWithOrigin = data.environment_variable_with_origin_config_repo_json(true);
 
 describe("Environment Variables Model", () => {
   it("should deserialize from json", () => {
@@ -146,4 +150,76 @@ describe("Environment Variable Model", () => {
     });
 
   });
+});
+
+describe("EnvironmentVariablesWithOrigin", () => {
+  it("should deserialize from json", () => {
+    const environmentVariables = EnvironmentVariablesWithOrigin.fromJSON([xmlEnvVarWithOrigin as EnvironmentEnvironmentVariableJSON, configRepoEnvVarWithOrigin]);
+
+    expect(environmentVariables.length).toEqual(2);
+    expect(environmentVariables[0].name()).toEqual(xmlEnvVarWithOrigin.name);
+    expect(environmentVariables[0].value()).toEqual(xmlEnvVarWithOrigin.value);
+    expect(environmentVariables[0].secure()).toEqual(false);
+    expect(environmentVariables[0].origin().type()).toEqual(xmlEnvVarWithOrigin.origin.type);
+
+    expect(environmentVariables[1].name()).toEqual(configRepoEnvVarWithOrigin.name);
+    expect(environmentVariables[1].value()).toEqual(configRepoEnvVarWithOrigin.value);
+    expect(environmentVariables[1].secure()).toEqual(false);
+    expect(environmentVariables[1].origin().type()).toEqual(configRepoEnvVarWithOrigin.origin.type);
+  });
+
+  it("should filter plain text variables", () => {
+    const environmentVariables = EnvironmentVariablesWithOrigin.fromJSON([xmlEnvVarWithOrigin, configRepoEnvVarWithOrigin, secureXmlEnvVarWithOrigin, secureConfigRepoEnvVarWithOrigin]);
+    const plainTextVariables   = environmentVariables.plainTextVariables();
+
+    expect(plainTextVariables.length).toBe(2);
+    expect(plainTextVariables[0].name()).toEqual(xmlEnvVarWithOrigin.name);
+    expect(plainTextVariables[1].name()).toEqual(configRepoEnvVarWithOrigin.name);
+  });
+
+  it("should filter secure variables", () => {
+    const environmentVariables = EnvironmentVariablesWithOrigin.fromJSON([xmlEnvVarWithOrigin, configRepoEnvVarWithOrigin, secureXmlEnvVarWithOrigin, secureConfigRepoEnvVarWithOrigin]);
+    const secureVariables      = environmentVariables.secureVariables();
+
+    expect(secureVariables.length).toBe(2);
+    expect(secureVariables[0].name()).toEqual(secureXmlEnvVarWithOrigin.name);
+    expect(secureVariables[1].name()).toEqual(secureConfigRepoEnvVarWithOrigin.name);
+  });
+
+  it("should remove environment variable", () => {
+    const environmentVariables = EnvironmentVariablesWithOrigin.fromJSON([xmlEnvVarWithOrigin, secureXmlEnvVarWithOrigin]);
+
+    expect(environmentVariables.length).toBe(2);
+    expect(environmentVariables[0].name()).toBe(xmlEnvVarWithOrigin.name);
+    expect(environmentVariables[1].name()).toBe(secureXmlEnvVarWithOrigin.name);
+
+    environmentVariables.remove(environmentVariables[0]);
+
+    expect(environmentVariables.length).toBe(1);
+    expect(environmentVariables[0].name()).toBe(secureXmlEnvVarWithOrigin.name);
+
+    environmentVariables.remove(environmentVariables[0]);
+
+    expect(environmentVariables.length).toBe(0);
+  });
+});
+
+describe("EnvironmentVariableWithOrigin", () => {
+  describe("editable()", () => {
+    it("should be editable if origin is gocd", () => {
+      const envVar = EnvironmentVariableWithOrigin.fromJSON(xmlEnvVarWithOrigin as EnvironmentEnvironmentVariableJSON);
+      expect(envVar.editable()).toBe(true);
+    });
+    it("should not be editable if origin is config repo", () => {
+      const envVar = EnvironmentVariableWithOrigin.fromJSON(configRepoEnvVarWithOrigin as EnvironmentEnvironmentVariableJSON);
+      expect(envVar.editable()).toBe(false);
+    });
+
+    it("should show info icon if origin is config repo", () => {
+      const envVar = EnvironmentVariableWithOrigin.fromJSON(configRepoEnvVarWithOrigin as EnvironmentEnvironmentVariableJSON);
+      expect(envVar.reasonForNonEditable()).toEqual("Cannot edit this environment variable as it is defined in config repo");
+    });
+
+  });
+
 });

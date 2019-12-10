@@ -15,6 +15,9 @@
  */
 
 import m from "mithril";
+import Stream from "mithril/stream";
+import {EnvironmentJSON, Environments} from "models/new-environments/environments";
+import data from "models/new-environments/spec/test_data";
 import {ModalState} from "views/components/modal";
 import {CreateEnvModal} from "views/pages/new-environments/create_env_modal";
 import {TestHelper} from "views/pages/spec/test_helper";
@@ -22,9 +25,16 @@ import {TestHelper} from "views/pages/spec/test_helper";
 describe("Create Env Modal", () => {
   const helper = new TestHelper();
   let modal: CreateEnvModal;
+  let envJSON: EnvironmentJSON;
 
   function mountModal() {
-    modal = new CreateEnvModal(jasmine.createSpy("onSuccessfulSave"));
+    envJSON                = data.environment_json();
+    const environmentsJSON = {
+      _embedded: {
+        environments: [envJSON]
+      }
+    };
+    modal                  = new CreateEnvModal(jasmine.createSpy("onSuccessfulSave"), Stream(Environments.fromJSON(environmentsJSON)));
 
     helper.mount(modal.view.bind(modal));
   }
@@ -56,5 +66,12 @@ describe("Create Env Modal", () => {
     expect(helper.byTestId("button-save")).toBeDisabled();
     expect(helper.byTestId("button-cancel")).toBeDisabled();
     expect(helper.byTestId("spinner")).toBeInDOM();
+  });
+
+  it("should show error message for duplicate name", () => {
+    const inputField = helper.byTestId("form-field-input-environment-name");
+    helper.oninput(inputField, envJSON.name);
+    helper.clickByTestId("button-save");
+    expect(helper.q(`#${inputField.id}-error-text`)).toHaveText("Name is a duplicate.");
   });
 });

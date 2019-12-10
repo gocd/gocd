@@ -27,6 +27,7 @@ import {CheckboxField, HelpText, SearchField} from "views/components/forms/input
 import {Link} from "views/components/link";
 import {Modal, ModalState, Size} from "views/components/modal";
 import {PipelinesViewModel} from "views/pages/new-environments/models/pipelines_view_model";
+import {ConfigRepoLink} from "./config_repo_link";
 import styles from "./edit_pipelines.scss";
 
 interface SelectAllNoneWidgetAttrs {
@@ -57,6 +58,10 @@ interface PipelineCheckboxListWidgetAttrs {
 }
 
 export class PipelineCheckboxListWidget extends MithrilViewComponent<PipelineCheckboxListWidgetAttrs> {
+  checkboxLabel(pipeline: PipelineWithOrigin): string | m.Children {
+    return pipeline.name();
+  }
+
   view(vnode: m.Vnode<PipelineCheckboxListWidgetAttrs>) {
     const pipelines = vnode.attrs.pipelines;
 
@@ -70,13 +75,22 @@ export class PipelineCheckboxListWidget extends MithrilViewComponent<PipelineChe
       {
         pipelines.map((pipeline) => {
           return <div class={styles.pipelineCheckbox} data-test-id={`pipeline-checkbox-for-${pipeline.name()}`}>
-            <CheckboxField label={pipeline.name()}
+            <CheckboxField label={this.checkboxLabel(pipeline)}
                            readonly={vnode.attrs.readonly}
                            property={vnode.attrs.pipelineSelectedFn(pipeline)}/>
           </div>;
         })
       }
     </div>;
+  }
+}
+
+export class PipelineAssociatedInConfigRepoCheckboxList extends PipelineCheckboxListWidget {
+  checkboxLabel(pipeline: PipelineWithOrigin): string | m.Children {
+    return [
+      <span>{pipeline.name()}</span>,
+      <ConfigRepoLink dataTestId={`pipeline-list-item-for-${pipeline.name()}`} configRepoId={pipeline.origin().id()!}/>
+    ];
   }
 }
 
@@ -94,7 +108,7 @@ export class UnavailablePipelinesBecauseOfOtherEnvironmentWidget extends Mithril
         {
           pipelines.map((pipeline) => {
             const environmentWithOrigin = vnode.attrs.pipelinesVM.environments.findEnvironmentForPipeline(pipeline.name());
-            const environmentLink       = <span data-test-id={`pipeline-list-item-for-${pipeline.name()}`} class={styles.link}>
+            const environmentLink       = <span data-test-id={`pipeline-list-item-for-${pipeline.name()}`} class={styles.configRepoLink}>
               (ENVIRONMENT:
               <Link target="_blank" href={SparkRoutes.getEnvironmentPathOnSPA(environmentWithOrigin!.name())}>
                 {environmentWithOrigin!.name()}
@@ -127,19 +141,9 @@ export class UnavailablePipelinesBecauseDefinedInConfigRepoWidget extends Mithri
       <ul>
         {
           pipelines.map((pipeline) => {
-            const href           = SparkRoutes.ConfigRepoViewPath(pipeline.origin().id());
-            const configRepoLink = <span data-test-id={`pipeline-list-item-for-${pipeline.name()}`} class={styles.link}>
-              (CONFIG REPO:
-              <Link target="_blank" href={href}>
-                {pipeline.origin().id()}
-              </Link>
-              )
-            </span>;
-
             return <li>
               <span>{pipeline.name()}</span>
-              <HelpText helpText={configRepoLink}
-                        helpTextId={`config-repo-link-for-pipeline-${pipeline.name()}`}/>
+              <ConfigRepoLink dataTestId={`pipeline-list-item-for-${pipeline.name()}`} configRepoId={pipeline.origin().id()!}/>
             </li>;
           })
         }
@@ -247,10 +251,10 @@ export class EditPipelinesModal extends Modal {
                                   title={"Available Pipelines:"}
                                   readonly={false}
                                   pipelineSelectedFn={this.pipelinesVM.pipelineSelectedFn.bind(this.pipelinesVM)}/>
-      <PipelineCheckboxListWidget pipelines={this.pipelinesVM.configRepoEnvironmentPipelines()}
-                                  title={"Pipelines associated with this environment in configuration repository:"}
-                                  readonly={true}
-                                  pipelineSelectedFn={this.pipelinesVM.pipelineSelectedFn.bind(this.pipelinesVM)}/>
+      <PipelineAssociatedInConfigRepoCheckboxList pipelines={this.pipelinesVM.configRepoEnvironmentPipelines()}
+                                                  title={"Pipelines associated with this environment in configuration repository:"}
+                                                  readonly={true}
+                                                  pipelineSelectedFn={this.pipelinesVM.pipelineSelectedFn.bind(this.pipelinesVM)}/>
       <UnavailablePipelinesBecauseOfOtherEnvironmentWidget pipelinesVM={this.pipelinesVM}/>
       <UnavailablePipelinesBecauseDefinedInConfigRepoWidget pipelinesVM={this.pipelinesVM}/>
     </div>;

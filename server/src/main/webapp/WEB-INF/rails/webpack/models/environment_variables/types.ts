@@ -18,6 +18,7 @@ import _ from "lodash";
 import Stream from "mithril/stream";
 import {applyMixins} from "models/mixins/mixins";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
+import {Origin, OriginJSON, OriginType} from "models/origin";
 
 export interface EnvironmentVariableJSON {
   secure: boolean;
@@ -103,3 +104,49 @@ export class EnvironmentVariables<T extends EnvironmentVariable = EnvironmentVar
 }
 
 applyMixins(EnvironmentVariables, ValidatableMixin);
+
+export interface EnvironmentEnvironmentVariableJSON extends EnvironmentVariableJSON {
+  origin: OriginJSON;
+}
+
+export class EnvironmentVariableWithOrigin extends EnvironmentVariable {
+  readonly origin: Stream<Origin>;
+
+  constructor(name: string, origin: Origin, value?: string, secure?: boolean, encryptedValue?: string) {
+    super(name, value, secure, encryptedValue);
+    this.origin = Stream(origin);
+  }
+
+  static fromJSON(data: EnvironmentEnvironmentVariableJSON) {
+    return new EnvironmentVariableWithOrigin(data.name,
+                                             Origin.fromJSON(data.origin),
+                                             data.value,
+                                             data.secure,
+                                             data.encrypted_value);
+  }
+
+  editable() {
+    return this.origin().type() === OriginType.GoCD;
+  }
+
+  reasonForNonEditable() {
+    if (this.editable()) {
+      throw Error("Environment variable is editable");
+    }
+    return "Cannot edit this environment variable as it is defined in config repo";
+  }
+
+  clone() {
+    return new EnvironmentVariableWithOrigin(this.name(),
+                                             this.origin().clone(),
+                                             this.value(),
+                                             this.secure(),
+                                             this.encryptedValue());
+  }
+}
+
+export class EnvironmentVariablesWithOrigin extends EnvironmentVariables<EnvironmentVariableWithOrigin> {
+  static fromJSON(environmentVariables: EnvironmentEnvironmentVariableJSON[]) {
+    return new EnvironmentVariablesWithOrigin(...environmentVariables.map(EnvironmentVariableWithOrigin.fromJSON));
+  }
+}

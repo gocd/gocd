@@ -62,14 +62,14 @@
   margin:        3px 10px 0 -8px;
   font-weight:   400;
   border-radius: $global-border-radius;
-  padding:       10px 20px 0;
+  padding:       10px;
   box-shadow:    0 2px 4px $box-shadow-color;
   z-index:       map_get($zindex, submenu);
 
   &:before {
     content:          "";
     position:         absolute;
-    width:            10%;
+    width:            0;
     height:           0;
     margin-left:      -0.5em;
     top:              0;

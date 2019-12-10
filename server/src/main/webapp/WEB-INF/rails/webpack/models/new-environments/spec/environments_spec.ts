@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
+import {EnvironmentVariableWithOrigin} from "models/environment_variables/types";
 import {PipelineWithOrigin} from "models/internal_pipeline_structure/pipeline_structure";
 import {AgentWithOrigin} from "models/new-environments/environment_agents";
 import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
 import data from "models/new-environments/spec/test_data";
 import {Origin, OriginType} from "models/origin";
-import {EnvironmentVariableWithOrigin} from "../environment_environment_variables";
 
 const envJSON          = data.environment_json();
 const environmentsJSON = {

@@ -16,9 +16,9 @@
 import {ApiResult, ErrorResponse, ObjectWithEtag, SuccessResponse} from "helpers/api_request_builder";
 import m from "mithril";
 import Stream from "mithril/stream";
+import {EnvironmentVariablesWithOrigin} from "models/environment_variables/types";
 import {Pipelines} from "models/internal_pipeline_structure/pipeline_structure";
-import {EnvironmentVariablesWithOrigin} from "models/new-environments/environment_environment_variables";
-import {EnvironmentWithOrigin} from "models/new-environments/environments";
+import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
 import {EnvironmentsAPIs} from "models/new-environments/environments_apis";
 import {Origin, OriginType} from "models/origin";
 import {ButtonGroup, Cancel, Primary} from "views/components/buttons";
@@ -32,16 +32,19 @@ export class CreateEnvModal extends Modal {
   private readonly onSuccessfulSave: (msg: m.Children) => void;
   private environment: EnvironmentWithOrigin;
   private errorMessage: Stream<string> = Stream();
+  private readonly environments: Stream<Environments>;
 
-  constructor(onSuccessfulSave: (msg: m.Children) => void) {
+  constructor(onSuccessfulSave: (msg: m.Children) => void, environments: Stream<Environments>) {
     super();
     this.onSuccessfulSave = onSuccessfulSave;
+    this.environments     = environments;
     this.environment      = new EnvironmentWithOrigin("",
                                                       true,
                                                       [new Origin(OriginType.GoCD)],
                                                       [],
                                                       new Pipelines(),
                                                       new EnvironmentVariablesWithOrigin());
+    this.environment.validateUniquenessOf("name", this.environments);
   }
 
   body(): m.Children {

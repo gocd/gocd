@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-import data from "models/new-environments/spec/test_data";
 import {Origin} from "models/origin";
+import data from "models/origin/spec/test_data";
 
-const xmlOriginJSON        = data.file_origin();
-const configRepoOriginJSON = data.config_repo_origin();
+describe("Origin", () => {
+  const xmlOriginJSON        = data.file_origin();
+  const configRepoOriginJSON = data.config_repo_origin();
 
-describe("Environments Model - Origin", () => {
   it("should deserialize from json", () => {
     const xmlOrigin        = Origin.fromJSON(xmlOriginJSON);
     const configRepoOrigin = Origin.fromJSON(configRepoOriginJSON);

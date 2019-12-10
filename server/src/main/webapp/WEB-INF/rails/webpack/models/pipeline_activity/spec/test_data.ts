@@ -84,17 +84,76 @@ export class PipelineActivityData {
     } as HistoryJSON;
   }
 
-  static stage(stageId: number, name: string, status: string) {
+  static stage(stageId: number,
+               name: string,
+               status: string,
+               stageCounter    = 1,
+               pipelineName    = "Foo",
+               pipelineCounter = "0") {
     return {
       stageName: name,
       stageId,
       stageStatus: status,
-      stageLocator: "Foo/0/foo/1",
+      stageLocator: `${pipelineName}/${pipelineCounter}/${name}/${stageCounter}`,
       getCanRun: true,
       getCanCancel: false,
       scheduled: false,
-      stageCounter: 1
+      stageCounter
     } as StageJSON;
+  }
+
+  static withStages(pipelineName: string, ...stages: StageJSON[]) {
+    return {
+      pipelineName,
+      paused: false,
+      pauseCause: "",
+      pauseBy: "",
+      canForce: true,
+      nextLabel: "",
+      groups: [{
+        config: {
+          stages: stages.map((stage) => {
+            return {name: stage.stageName, isAutoApproved: true};
+          }),
+        },
+        history: [{
+          pipelineId: 42,
+          label: "1",
+          counterOrLabel: "1",
+          scheduled_date: "22 Nov, 2019 at 1:5:59 [+0530]",
+          scheduled_timestamp: 1574404139615,
+          buildCauseBy: "Triggered by changes",
+          modification_date: "about 22 hours ago",
+          revision: "b0982fa2ff92d126ad003c9e007959b4b8dd96a9",
+          comment: "",
+          materialRevisions: [{
+            revision: "b0982fa2ff92d126ad003c9e007959b4b8dd96a9",
+            revision_href: "b0982fa2ff92d126ad003c9e007959b4b8dd96a9",
+            user: "Bob <bob@go.cd>",
+            date: "2019-11-21T1:3:20+0:30",
+            changed: true,
+            folder: "",
+            scmType: "Git",
+            location: "http://github.com/bdpiparva/sample_repo",
+            action: "Modified",
+            modifications: [{
+              user: "Bob <bob@go.cd>",
+              revision: "b0982fa2ff92d126ad003c9e007959b4b8dd96a9",
+              date: "2019-11-21T1:3:20+0:30",
+              comment: "Adding test file",
+              modifiedFiles: []
+            }]
+          }],
+          stages
+        }]
+      }],
+      forcedBuild: false,
+      showForceBuildButton: false,
+      canPause: true,
+      count: 1,
+      start: 0,
+      perPage: 10
+    } as PipelineActivityJSON;
   }
 
   static underConstruction() {

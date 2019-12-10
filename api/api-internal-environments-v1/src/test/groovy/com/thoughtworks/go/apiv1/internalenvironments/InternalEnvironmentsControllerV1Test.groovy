@@ -55,14 +55,17 @@ class InternalEnvironmentsControllerV1Test implements SecurityServiceTrait, Cont
   @Mock
   private AgentService agentService
 
+  private ApiAuthenticationHelper apiAuthenticationHelper;
+
   @BeforeEach
   void setUp() {
     initMocks(this)
+    apiAuthenticationHelper = new ApiAuthenticationHelper(securityService, goConfigService)
   }
 
   @Override
   InternalEnvironmentsControllerV1 createControllerInstance() {
-    new InternalEnvironmentsControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), environmentConfigService, agentService)
+    new InternalEnvironmentsControllerV1(apiAuthenticationHelper, environmentConfigService, agentService)
   }
 
   @Nested
@@ -150,7 +153,9 @@ class InternalEnvironmentsControllerV1Test implements SecurityServiceTrait, Cont
 
         assertThatResponse()
           .isOk()
-          .hasBodyWithJson(toObjectString({ MergedEnvironmentsRepresenter.toJSON(it, [env1, env2], { name -> true }) }))
+          .hasBodyWithJson(toObjectString({
+          MergedEnvironmentsRepresenter.toJSON(it, [env1, env2], apiAuthenticationHelper)
+        }))
       }
 
       @Test
@@ -175,7 +180,9 @@ class InternalEnvironmentsControllerV1Test implements SecurityServiceTrait, Cont
 
         assertThatResponse()
           .isOk()
-          .hasBodyWithJson(toObjectString({ MergedEnvironmentsRepresenter.toJSON(it, [env1, env2], { name -> true }) }))
+          .hasBodyWithJson(toObjectString({
+          MergedEnvironmentsRepresenter.toJSON(it, [env1, env2], apiAuthenticationHelper)
+        }))
       }
 
       @Test
@@ -200,7 +207,7 @@ class InternalEnvironmentsControllerV1Test implements SecurityServiceTrait, Cont
 
         assertThatResponse()
           .isOk()
-          .hasBodyWithJson(toObjectString({ MergedEnvironmentsRepresenter.toJSON(it, [], { name -> true }) }))
+          .hasBodyWithJson(toObjectString({ MergedEnvironmentsRepresenter.toJSON(it, [], apiAuthenticationHelper) }))
       }
 
       @Test
@@ -217,7 +224,7 @@ class InternalEnvironmentsControllerV1Test implements SecurityServiceTrait, Cont
         assertThatResponse()
           .isOk()
           .hasBodyWithJson(toObjectString({
-          MergedEnvironmentsRepresenter.toJSON(it, [mergeEnvironmentConfig], { name -> true })
+          MergedEnvironmentsRepresenter.toJSON(it, [mergeEnvironmentConfig], apiAuthenticationHelper)
         }))
       }
 
@@ -229,7 +236,7 @@ class InternalEnvironmentsControllerV1Test implements SecurityServiceTrait, Cont
 
         assertThatResponse()
           .isOk()
-          .hasBodyWithJson(toObjectString({ MergedEnvironmentsRepresenter.toJSON(it, [], { name -> true }) }))
+          .hasBodyWithJson(toObjectString({ MergedEnvironmentsRepresenter.toJSON(it, [], apiAuthenticationHelper) }))
       }
     }
   }
@@ -340,7 +347,7 @@ class InternalEnvironmentsControllerV1Test implements SecurityServiceTrait, Cont
       }
 
       @Test
-      void 'should throw 403 if the user does not have administer permission on env'() {
+      void 'should throw 403 if the user does not have edit permission on env'() {
         when(goConfigService.rolesForUser(any(CaseInsensitiveString.class))).thenReturn([])
 
         def json = [
@@ -353,7 +360,7 @@ class InternalEnvironmentsControllerV1Test implements SecurityServiceTrait, Cont
 
         assertThatResponse()
           .isForbidden()
-          .hasJsonMessage("User '${currentUsername().displayName}' does not have permissions to administer 'env' environment(s).")
+          .hasJsonMessage("User '${currentUsername().displayName}' does not have permissions to edit 'env' environment(s).")
       }
     }
 

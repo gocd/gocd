@@ -41,8 +41,8 @@ export class ElementListWidget extends MithrilViewComponent<ElementListWidgetAtt
       <div class={styles.envBodyElementHeader} data-test-id={`${s.slugify(vnode.attrs.name)}-header`}>
         <span>{vnode.attrs.name}</span>
         <Icons.Edit iconOnly={true}
-                    title={environment.canAdminister() ? undefined : `You dont have permissions to edit '${environment.name()}' environment.`}
-                    disabled={!environment.canAdminister()}
+                    title={environment.permissions().canEdit() ? undefined : `You dont have permissions to edit '${environment.name()}' environment.`}
+                    disabled={!environment.permissions().canEdit()}
                     onclick={vnode.attrs.modalToRender.bind(vnode.attrs.modalToRender, environment)}/>
       </div>
       {vnode.children}

@@ -39,6 +39,7 @@ public abstract class CRAbstractFetchTask extends CRTask {
     @Expose
     protected String job;
     @SerializedName("artifact_origin")
+    @Expose
     protected ArtifactOrigin artifactOrigin;
 
     protected CRAbstractFetchTask(String stage, String job, ArtifactOrigin artifactOrigin, CRRunIf runIf, CRTask onCancel) {

@@ -21,7 +21,7 @@ import {SimplePasswordField, TextField} from "views/components/forms/input_field
 import {Close} from "views/components/icons";
 import styles from "./index.scss";
 
-interface EnvironmentVariableWidgetAttrs {
+export interface EnvironmentVariableWidgetAttrs {
   environmentVariable: EnvironmentVariable;
   onRemove: (environmentVariable: EnvironmentVariable) => void;
 }
@@ -39,7 +39,7 @@ export class EnvironmentVariableWidget extends MithrilViewComponent<EnvironmentV
       removeHtml = <div data-test-id="info-tooltip-wrapper" className={styles.infoTooltipWrapper}>
         <i data-test-id={"info-icon"} className={styles.infoIcon}/>
         <div data-test-id="info-tooltip-content" className={styles.infoTooltipContent}>
-          <p>{vnode.attrs.environmentVariable.reasonForNonEditable()}</p>
+          {this.reasonForNonEditableEnvVar(vnode)}
         </div>
       </div>;
     }
@@ -69,5 +69,9 @@ export class EnvironmentVariableWidget extends MithrilViewComponent<EnvironmentV
                       readonly={!environmentVariable.editable()}
                       dataTestId={"env-var-value"}
                       errorText={environmentVariable.errors().errorsForDisplay("value")}/>;
+  }
+
+  reasonForNonEditableEnvVar(vnode: m.Vnode<EnvironmentVariableWidgetAttrs>) {
+    return <p>{vnode.attrs.environmentVariable.reasonForNonEditable()}</p>;
   }
 }

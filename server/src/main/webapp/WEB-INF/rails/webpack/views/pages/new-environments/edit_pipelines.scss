@@ -15,8 +15,6 @@
  */
 @import "../../global/common";
 
-$border-color: #ccc;
-
 .pipeline-checkbox {
   height:       35px;
   padding-left: 35px;
@@ -69,8 +67,10 @@ $border-color: #ccc;
 }
 
 
-.link {
+.config-repo-link {
   margin-left: 5px;
+  font-size:   12px;
+  color:       $go-disabled;
 
   a {
     color:       inherit;

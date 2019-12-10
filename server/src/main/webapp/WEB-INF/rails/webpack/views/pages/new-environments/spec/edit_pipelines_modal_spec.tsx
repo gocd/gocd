@@ -78,11 +78,15 @@ describe("Edit Pipelines Modal", () => {
   it("should render pipelines associated with current environment in config repository", () => {
     const configRepoAssociated = helper.byTestId(`pipelines-associated-with-this-environment-in-configuration-repository`);
     const expectedMsg          = "Pipelines associated with this environment in configuration repository:";
-    const pipeline1Selector    = `pipeline-checkbox-for-${pipelineGroupsJSON.groups[1].pipelines[1].name}`;
-
+    const pipelineName         = pipelineGroupsJSON.groups[1].pipelines[1].name;
+    const configRepoId         = pipelineGroupsJSON.groups[1].pipelines[1].origin.id;
+    const pipeline1Selector    = `pipeline-checkbox-for-${pipelineName}`;
+    const configRepoLink       = helper.q("a", helper.byTestId(`pipeline-list-item-for-${pipelineName}`, configRepoAssociated));
     expect(configRepoAssociated).toBeInDOM();
     expect(configRepoAssociated).toContainText(expectedMsg);
     expect(helper.byTestId(pipeline1Selector, configRepoAssociated)).toBeInDOM();
+
+    expect(configRepoLink).toHaveAttr("href", SparkRoutes.ConfigRepoViewPath(configRepoId));
   });
 
   it("should not render config repo pipelines section when no config repo associated pipelines are available", () => {

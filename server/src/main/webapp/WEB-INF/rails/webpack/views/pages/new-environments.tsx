@@ -46,7 +46,7 @@ export class NewEnvironmentsPage extends Page<null, State> {
     vnode.state.onAdd = (e: MouseEvent) => {
       e.stopPropagation();
       this.flashMessage.clear();
-      new CreateEnvModal(vnode.state.onSuccessfulSave).render();
+      new CreateEnvModal(vnode.state.onSuccessfulSave, this.environments).render();
     };
 
     vnode.state.onSuccessfulSave = (msg: m.Children) => {

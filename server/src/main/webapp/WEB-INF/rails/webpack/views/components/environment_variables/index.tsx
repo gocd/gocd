@@ -20,22 +20,22 @@ import s from "underscore.string";
 import {ButtonIcon, Secondary} from "views/components/buttons";
 import {EnvironmentVariableWidget} from "./environment_variable_widget";
 
-interface GroupedEnvironmentVariablesAttrs {
+export interface GroupedEnvironmentVariablesAttrs {
   title: string;
   environmentVariables: EnvironmentVariables;
   onAdd: () => void;
   onRemove: (environmentVariable: EnvironmentVariable) => void;
 }
 
-class GroupedEnvironmentVariables extends MithrilComponent<GroupedEnvironmentVariablesAttrs> {
+export class GroupedEnvironmentVariables extends MithrilComponent<GroupedEnvironmentVariablesAttrs> {
+  renderEnvironmentVariableWidget(vnode: m.Vnode<GroupedEnvironmentVariablesAttrs>, environmentVariable: EnvironmentVariable) {
+    return <EnvironmentVariableWidget environmentVariable={environmentVariable} onRemove={vnode.attrs.onRemove}/>;
+  }
+
   view(vnode: m.Vnode<GroupedEnvironmentVariablesAttrs>): m.Children {
     return <div>
       <h4 data-test-id={`${s.slugify(vnode.attrs.title)}-title`}>{vnode.attrs.title}</h4>
-      {
-        vnode.attrs.environmentVariables.map((envVar) => {
-          return <EnvironmentVariableWidget environmentVariable={envVar} onRemove={vnode.attrs.onRemove}/>;
-        })
-      }
+      {vnode.attrs.environmentVariables.map((envVar) => this.renderEnvironmentVariableWidget(vnode, envVar))}
       <Secondary small={true} icon={ButtonIcon.ADD} data-test-id={`add-${s.slugify(vnode.attrs.title)}-btn`}
                  onclick={vnode.attrs.onAdd.bind(this)}>
         Add
@@ -57,6 +57,7 @@ export class EnvironmentVariablesWidget extends MithrilComponent<EnvironmentVari
   static onRemove(envVar: EnvironmentVariable, vnode: m.Vnode<EnvironmentVariablesWidgetAttrs, {}>) {
     vnode.attrs.environmentVariables.remove(envVar);
   }
+
   view(vnode: m.Vnode<EnvironmentVariablesWidgetAttrs, {}>): m.Children {
     return <div>
       <GroupedEnvironmentVariables environmentVariables={vnode.attrs.environmentVariables.plainTextVariables()}

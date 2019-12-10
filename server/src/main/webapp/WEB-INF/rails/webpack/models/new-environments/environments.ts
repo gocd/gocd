@@ -16,17 +16,13 @@
 
 import _ from "lodash";
 import Stream from "mithril/stream";
+import {EnvironmentEnvironmentVariableJSON, EnvironmentVariablesWithOrigin} from "models/environment_variables/types";
 import {PipelineJSON, Pipelines, PipelineWithOrigin} from "models/internal_pipeline_structure/pipeline_structure";
+import {ErrorMessages} from "models/mixins/error_messages";
 import {ValidatableMixin, Validator} from "models/mixins/new_validatable_mixin";
 import {Agents, AgentWithOrigin, EnvironmentAgentJSON} from "models/new-environments/environment_agents";
-import {
-  EnvironmentEnvironmentVariableJSON,
-  EnvironmentVariablesWithOrigin
-} from "models/new-environments/environment_environment_variables";
 import {EnvironmentsAPIs} from "models/new-environments/environments_apis";
 import {Origin, OriginJSON, OriginType} from "models/origin";
-import {attrName} from "../../views/pages/pac/styles.scss";
-import {ErrorMessages} from "../mixins/error_messages";
 
 export interface EnvironmentJSON {
   name: string;
@@ -46,7 +42,7 @@ export interface EnvironmentsJSON {
 }
 
 class EnvironmentVariableNameUniquenessValidator extends Validator {
-  protected doValidate(environmentWithOrigin: EnvironmentWithOrigin): void {
+  protected doValidate(environmentWithOrigin: EnvironmentWithOrigin, attrName: string): void {
     _.forEach(environmentWithOrigin.environmentVariables(), (child) => {
       const duplicates = _.filter(environmentWithOrigin.environmentVariables(), (c) => {
         const isNameDuplicate   = c.name() === child.name();

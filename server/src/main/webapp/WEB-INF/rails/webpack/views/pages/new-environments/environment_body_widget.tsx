@@ -18,7 +18,7 @@ import {MithrilComponent, MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {Agents} from "models/agents/agents";
-import {EnvironmentVariableWithOrigin} from "models/new-environments/environment_environment_variables";
+import {EnvironmentVariableWithOrigin} from "models/environment_variables/types";
 import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
 import s from "underscore.string";
 import {HelpText} from "views/components/forms/input_fields";

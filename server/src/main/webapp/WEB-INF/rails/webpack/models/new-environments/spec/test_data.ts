@@ -14,34 +14,21 @@
  * limitations under the License.
  */
 
+import {Agent} from "models/agents/agents";
+import {AgentJSON} from "models/agents/agents_json";
 import {PipelineJSON, PipelineStructureJSON} from "models/internal_pipeline_structure/pipeline_structure";
+import {AgentWithOrigin} from "models/new-environments/environment_agents";
 import {EnvironmentJSON} from "models/new-environments/environments";
-import {OriginType} from "models/origin";
-import {Agent} from "../../agents/agents";
-import {AgentJSON} from "../../agents/agents_json";
-import {AgentWithOrigin} from "../environment_agents";
+import originData from "models/origin/spec/test_data";
 
 function randomString(): string {
   return Math.random().toString(36).slice(2);
 }
 
-function fileOriginJson() {
-  return {
-    type: OriginType.GoCD,
-  };
-}
-
-function configRepoOrigin() {
-  return {
-    type: OriginType.ConfigRepo,
-    id: `config-repo-id-${randomString()}`
-  };
-}
-
 function pipelineAssociationInXmlJson(): PipelineJSON {
   return {
     name: `pipeline-${randomString()}`,
-    origin: fileOriginJson(),
+    origin: originData.file_origin(),
     stages: []
   };
 }
@@ -49,7 +36,7 @@ function pipelineAssociationInXmlJson(): PipelineJSON {
 function pipelineAssociationInConfigRepoJson(): PipelineJSON {
   return {
     name: `pipeline-${randomString()}`,
-    origin: configRepoOrigin(),
+    origin: originData.config_repo_origin(),
     stages: []
   };
 }
@@ -58,7 +45,7 @@ function agentAssociationInXmlJson() {
   return {
     uuid: `agent-uuid-${randomString()}`,
     hostname: `hostname-${randomString()}`,
-    origin: fileOriginJson()
+    origin: originData.file_origin()
   };
 }
 
@@ -66,7 +53,7 @@ function agentAssociationInConfigRepoJson() {
   return {
     uuid: `agent-uuid-${randomString()}`,
     hostname: `hostname-${randomString()}`,
-    origin: configRepoOrigin()
+    origin: originData.config_repo_origin()
   };
 }
 
@@ -75,7 +62,7 @@ function environmentVariableAssociationInXmlJson(secure: boolean = false) {
     name: `env-var-name-${randomString()}`,
     value: secure ? undefined : `env-var-value-${randomString()}`,
     encrypted_value: secure ? `env-var-secure-value-${randomString()}` : undefined,
-    origin: fileOriginJson(),
+    origin: originData.file_origin(),
     secure
   };
 }
@@ -85,7 +72,7 @@ function environmentVariableAssociationInConfigRepoJson(secure: boolean = false)
     name: `env-var-name-${randomString()}`,
     value: secure ? undefined : `env-var-value-${randomString()}`,
     encrypted_value: secure ? `env-var-secure-value-${randomString()}` : undefined,
-    origin: configRepoOrigin(),
+    origin: originData.config_repo_origin(),
     secure
   };
 }
@@ -107,18 +94,14 @@ function convert_to_agent(envAgent: AgentWithOrigin): Agent {
 }
 
 export default {
-  file_origin: fileOriginJson,
-  config_repo_origin: configRepoOrigin,
   pipeline_association_in_xml_json: pipelineAssociationInXmlJson,
   pipeline_association_in_config_repo_json: pipelineAssociationInConfigRepoJson,
   agent_association_in_xml_json: agentAssociationInXmlJson,
   agent_association_in_config_repo_json: agentAssociationInConfigRepoJson,
-  environment_variable_association_in_xml_json: environmentVariableAssociationInXmlJson,
-  environment_variable_association_in_config_repo_json: environmentVariableAssociationInConfigRepoJson,
   environment_json: (): EnvironmentJSON => ({
     name: `environment-name-${randomString()}`,
     can_administer: true,
-    origins: [fileOriginJson(), configRepoOrigin()],
+    origins: [originData.file_origin(), originData.config_repo_origin()],
     pipelines: [pipelineAssociationInXmlJson(), pipelineAssociationInConfigRepoJson()],
     agents: [agentAssociationInXmlJson(), agentAssociationInConfigRepoJson()],
     environment_variables: [
@@ -131,7 +114,7 @@ export default {
   xml_environment_json: (): EnvironmentJSON => ({
     name: `xml-environment-name-${randomString()}`,
     can_administer: true,
-    origins: [fileOriginJson()],
+    origins: [originData.file_origin()],
     pipelines: [pipelineAssociationInXmlJson()],
     agents: [agentAssociationInXmlJson()],
     environment_variables: [environmentVariableAssociationInXmlJson(), environmentVariableAssociationInXmlJson(true)]
@@ -147,7 +130,7 @@ export default {
   config_repo_environment_json: (): EnvironmentJSON => ({
     name: `config-repo-environment-name-${randomString()}`,
     can_administer: true,
-    origins: [fileOriginJson(), configRepoOrigin()],
+    origins: [originData.file_origin(), originData.config_repo_origin()],
     pipelines: [pipelineAssociationInConfigRepoJson()],
     agents: [agentAssociationInConfigRepoJson()],
     environment_variables: [

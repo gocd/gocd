@@ -20,9 +20,9 @@ import Stream from "mithril/stream";
 import {EnvironmentWithOrigin} from "models/new-environments/environments";
 import {EnvironmentsAPIs} from "models/new-environments/environments_apis";
 import {Cancel, Primary} from "views/components/buttons";
-import {EnvironmentVariablesWidget} from "views/components/environment_variables";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Modal, ModalState, Size} from "views/components/modal";
+import {EnvironmentVariablesWithOriginWidget} from "views/shared/environment_variables_with_origin_widget";
 
 export class EditEnvironmentVariablesModal extends Modal {
   private _environment: EnvironmentWithOrigin;
@@ -46,7 +46,7 @@ export class EditEnvironmentVariablesModal extends Modal {
 
     return [
       errMsgHtml,
-      <EnvironmentVariablesWidget environmentVariables={this.environmentToUpdate.environmentVariables()}/>
+      <EnvironmentVariablesWithOriginWidget environmentVariables={this.environmentToUpdate.environmentVariables()}/>
     ];
   }
 

@@ -76,6 +76,23 @@ class DenyTest extends AbstractDirectiveTest {
                         .isEqualTo(Result.SKIP);
             }
 
+
+            @Test
+            void toAdministerConfigIfActionIsEdit() {
+                final Deny deny = new Deny("edit", "environment", "env_1");
+
+                assertThat(deny.apply("administer", EnvironmentConfig.class, "env_1"))
+                        .isEqualTo(Result.SKIP);
+            }
+
+            @Test
+            void toAdministerConfigIfActionIsView() {
+                final Deny deny = new Deny("view", "environment", "env_1");
+
+                assertThat(deny.apply("administer", EnvironmentConfig.class, "env_1"))
+                        .isEqualTo(Result.SKIP);
+            }
+
             @ParameterizedTest
             @ValueSource(strings = {"my_group", "grpoup"})
             void ifResourceDoesNotMatchTheWildCardPatterAndActionAndTypeMatch(String resource) {
@@ -93,6 +110,22 @@ class DenyTest extends AbstractDirectiveTest {
                 final Deny deny = new Deny("view", "environment", "env_1");
 
                 assertThat(deny.apply("view", EnvironmentConfig.class, "env_1"))
+                        .isEqualTo(Result.DENY);
+            }
+
+            @Test
+            void toViewConfigIfActionIsEdit() {
+                final Deny deny = new Deny("edit", "environment", "env_1");
+
+                assertThat(deny.apply("view", EnvironmentConfig.class, "env_1"))
+                        .isEqualTo(Result.DENY);
+            }
+
+            @Test
+            void toEditConfigIfActionIsEdit() {
+                final Deny deny = new Deny("edit", "environment", "env_1");
+
+                assertThat(deny.apply("edit", EnvironmentConfig.class, "env_1"))
                         .isEqualTo(Result.DENY);
             }
 

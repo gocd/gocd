@@ -141,16 +141,16 @@ class ConfigReposInternalControllerV2Test implements SecurityServiceTrait, Contr
       assertThatResponse()
         .isOk()
         .hasJsonBody([
-          _links   : [
-            self: [href: "http://test.host/go$Routes.ConfigRepos.BASE".toString()]
-          ],
-          _embedded: [
-            config_repos: [
-              expectedRepoJson(ID_1, null, null, false),
-              expectedRepoJson(ID_2, "abc", null, false)
-            ]
+        _links   : [
+          self: [href: "http://test.host/go$Routes.ConfigRepos.BASE".toString()]
+        ],
+        _embedded: [
+          config_repos: [
+            expectedRepoJson(ID_1, null, null, false),
+            expectedRepoJson(ID_2, "abc", null, false)
           ]
-        ])
+        ]
+      ])
     }
 
     @Test
@@ -164,13 +164,13 @@ class ConfigReposInternalControllerV2Test implements SecurityServiceTrait, Contr
         .isOk()
         .hasEtag("\"${new ConfigReposConfig().etag()}\"")
         .hasJsonBody([
-          _links   : [
-            self: [href: "http://test.host/go$Routes.ConfigRepos.BASE".toString()]
-          ],
-          _embedded: [
-            config_repos: []
-          ]
-        ])
+        _links   : [
+          self: [href: "http://test.host/go$Routes.ConfigRepos.BASE".toString()]
+        ],
+        _embedded: [
+          config_repos: []
+        ]
+      ])
     }
   }
 
@@ -238,7 +238,10 @@ class ConfigReposInternalControllerV2Test implements SecurityServiceTrait, Contr
         ]
       ],
       configuration              : [],
-      can_administer             : true,
+      permissions                : [
+        can_edit      : true,
+        can_administer: true
+      ],
       material_update_in_progress: isInProgress,
       parse_info                 : null == revision ? [:] : [
         error                     : error,
@@ -475,7 +478,7 @@ class ConfigReposInternalControllerV2Test implements SecurityServiceTrait, Contr
 
         assertThatResponse()
           .isForbidden()
-          .hasJsonMessage("User '${currentUsername().getDisplayName()}' does not have permissions to administer 'test-id' config_repo(s).")
+          .hasJsonMessage("User '${currentUsername().getDisplayName()}' does not have permissions to edit 'test-id' config_repo(s).")
       }
     }
   }

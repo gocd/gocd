@@ -507,7 +507,7 @@ class ConfigReposControllerV2Test implements SecurityServiceTrait, ControllerTra
 
       assertThatResponse().
         isForbidden().
-        hasJsonMessage("User '${currentUsername().getDisplayName()}' does not have permissions to administer 'test-id' config_repo(s).")
+        hasJsonMessage("User '${currentUsername().getDisplayName()}' does not have permissions to edit 'test-id' config_repo(s).")
     }
   }
 

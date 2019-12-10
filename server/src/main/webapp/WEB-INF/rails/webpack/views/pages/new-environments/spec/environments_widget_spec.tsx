@@ -84,7 +84,7 @@ describe("Environments Widget", () => {
 
   it("should render disabled delete icon for the environments that user can not administer", () => {
     const xmlEnv          = data.xml_environment_json();
-    xmlEnv.can_administer = false;
+    xmlEnv.permissions.can_administer = false;
     mountModal([xmlEnv, data.xml_environment_json()]);
 
     m.redraw.sync();

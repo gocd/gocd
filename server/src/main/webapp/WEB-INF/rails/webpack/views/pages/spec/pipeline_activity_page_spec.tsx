@@ -15,7 +15,7 @@
  */
 import {SparkRoutes} from "helpers/spark_routes";
 import {PipelineActivity} from "models/pipeline_activity/pipeline_activity";
-import {PipelineActivityData} from "models/pipeline_activity/spec/test_data";
+import {passed, PipelineActivityData} from "models/pipeline_activity/spec/test_data";
 import {ModalManager} from "views/components/modal/modal_manager";
 import {PageState} from "../page";
 import {PipelineActivityPage} from "../pipeline_activity";
@@ -121,6 +121,46 @@ describe("PipelineActivityPage", () => {
 
       const request = jasmine.Ajax.requests.mostRecent();
       expect(request.url).toEqual(SparkRoutes.pipelineUnpausePath(activity.pipelineName()));
+      expect(request.method).toEqual("POST");
+      expect(request.data()).toEqual({});
+      expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v1+json");
+    });
+  });
+
+  describe("ForceTrigger", () => {
+    it("should show force trigger icon", () => {
+      const activity = PipelineActivity.fromJSON(PipelineActivityData.oneStage());
+      activity.canForce(true);
+      activity.showForceBuildButton(true);
+      mount(new PipelineActivityPageWrapper(activity));
+
+      helper.clickByTestId("force-trigger-pipeline");
+
+      const request = jasmine.Ajax.requests.mostRecent();
+      expect(request.url).toEqual(SparkRoutes.pipelineTriggerPath(activity.pipelineName()));
+      expect(request.method).toEqual("POST");
+      expect(request.data()).toEqual({});
+      expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v1+json");
+    });
+  });
+
+  describe("ManualGate", () => {
+    it("should show confirmation dialog", () => {
+      const pipelineName = "up42";
+      const activity     = PipelineActivity.fromJSON(PipelineActivityData.withStages(pipelineName,
+        passed("UnitTest", 1),
+        PipelineActivityData.stage(2, "Deploy", "Unknown", 2, pipelineName, "1")));
+      activity.groups()[0].config().stages()[1].isAutoApproved(false);
+
+      mount(new PipelineActivityPageWrapper(activity));
+
+      helper.clickByTestId("manual-gate-icon-deploy-2");
+      const modal = helper.modal();
+      helper.clickByTestId("primary-action-button", modal);
+
+      const manualStage = activity.groups()[0].history()[0].stages()[1];
+      const request     = jasmine.Ajax.requests.mostRecent();
+      expect(request.url).toEqual(SparkRoutes.runStage(activity.pipelineName(), manualStage.pipelineCounter(), manualStage.stageName()));
       expect(request.method).toEqual("POST");
       expect(request.data()).toEqual({});
       expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v1+json");

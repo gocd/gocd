@@ -37,6 +37,7 @@ export class ShowForceBuildActionWidget extends MithrilViewComponent<ShowForceBu
       <td class={styles.left}>
         <Primary onclick={() => vnode.attrs.runPipeline(vnode.attrs.pipelineName)}
                  small={true}
+                 dataTestId="force-trigger-pipeline"
                  disabled={!vnode.attrs.canForce()}>
           <Icons.Trigger iconOnly={true}/>
         </Primary>

@@ -183,7 +183,8 @@ class PipelineActivityPageWrapper extends PipelineActivityPage {
     this.meta      = {pipelineName: activity.pipelineName()};
   }
 
-  fetchPipelineHistory(offset: number) {
+  protected fetchPipelineHistory(offset: number = this.pagination().offset): Promise<void> {
     this.pipelineActivity(this._activity);
+    return Promise.resolve();
   }
 }

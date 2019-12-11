@@ -40,6 +40,8 @@ interface PipelineRunAttrs {
   runStage: (stage: Stage) => void;
   cancelStageInstance: (stage: Stage) => void;
   addOrUpdateComment: (comment: string, counterOrLabel: string | number) => void;
+  stopPolling: () => void;
+  startPolling: () => void;
 }
 
 type StringOrNumber = string | number;
@@ -72,6 +74,8 @@ export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
                        canOperatePipeline={vnode.attrs.canOperatePipeline}
                        addOrUpdateComment={vnode.attrs.addOrUpdateComment}
                        showCommentFor={vnode.attrs.showCommentFor}
+                       stopPolling={vnode.attrs.stopPolling}
+                       startPolling={vnode.attrs.startPolling}
                        show={Stream(vnode.attrs.showCommentFor() === `${pipelineRunInfo.counterOrLabel()}`)}/>
       </td>
       <td class={styles.right}>

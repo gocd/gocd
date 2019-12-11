@@ -28,6 +28,8 @@ interface Attrs extends DropdownAttrs {
   counterOrLabel: number | string;
   showCommentFor: Stream<string>;
   addOrUpdateComment: (comment: string, counterOrLabel: string | number) => void;
+  stopPolling: () => void;
+  startPolling: () => void;
 }
 
 enum Mode {
@@ -47,8 +49,10 @@ export class CommentWidget extends Dropdown<Attrs> {
     super.toggleDropdown(vnode, e);
     this.mode = Mode.VIEW;
     if (vnode.attrs.show()) {
+      vnode.attrs.stopPolling();
       vnode.attrs.showCommentFor(`${vnode.attrs.counterOrLabel}`);
     } else {
+      vnode.attrs.startPolling();
       vnode.attrs.showCommentFor("");
     }
   }
@@ -99,9 +103,14 @@ export class CommentWidget extends Dropdown<Attrs> {
     return <Secondary dataTestId="edit-comment-button"
                       disabled={!vnode.attrs.canOperatePipeline}
                       title={vnode.attrs.canOperatePipeline ? "Edit comment." : "Requires pipeline operate permission."}
-                      onclick={() => this.mode = Mode.EDIT}>
+                      onclick={this.switchToEditMode.bind(this, vnode)}>
       <Icons.Edit iconOnly={true}/> EDIT
     </Secondary>;
+  }
+
+  private switchToEditMode(vnode: m.Vnode<Attrs>) {
+    this.commentHolder(vnode.attrs.comment());
+    this.mode = Mode.EDIT;
   }
 
   private updateComment(vnode: m.Vnode<Attrs>) {
@@ -114,6 +123,7 @@ export class CommentWidget extends Dropdown<Attrs> {
     if (_.isEmpty(this.commentHolder())) {
       vnode.attrs.show(false);
       vnode.attrs.showCommentFor("");
+      vnode.attrs.startPolling();
     }
   }
 

@@ -29,6 +29,8 @@ describe("PipelineActivityWidget", () => {
   const runPipeline         = jasmine.createSpy("runPipeline");
   const runStage            = jasmine.createSpy("runStage");
   const addOrUpdateComment  = jasmine.createSpy("addOrUpdateComment");
+  const startPolling        = jasmine.createSpy("startPolling");
+  const stopPolling         = jasmine.createSpy("stopPolling");
 
   afterEach(helper.unmount.bind(helper));
 
@@ -56,6 +58,8 @@ describe("PipelineActivityWidget", () => {
                                                cancelStageInstance={cancelStageInstance}
                                                addOrUpdateComment={addOrUpdateComment}
                                                canOperatePipeline={false}
+                                               stopPolling={stopPolling}
+                                               startPolling={startPolling}
                                                runPipeline={runPipeline}/>);
   }
 });

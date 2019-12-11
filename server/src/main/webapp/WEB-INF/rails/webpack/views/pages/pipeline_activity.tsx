@@ -53,12 +53,19 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
   showCommentFor                             = Stream<string>();
   filterText                                 = Stream<string>();
   meta                                       = this.getMeta() as PageMeta;
+  private poller: AjaxPoller<void>;
+
+  constructor() {
+    super();
+    this.poller = new AjaxPoller({
+      repeaterFn: this.fetchPipelineHistory.bind(this, this.pagination().offset),
+      initialIntervalSeconds: 10
+    });
+  }
 
   oninit(vnode: m.Vnode<null, State>) {
     super.oninit(vnode);
-    if (this.meta.pipelineName) {
-      new AjaxPoller({repeaterFn: this.fetchData.bind(this, vnode), initialIntervalSeconds: 10}).start();
-    }
+    this.startPolling();
   }
 
   pausePipeline() {
@@ -137,6 +144,8 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
                               runPipeline={this.runPipeline.bind(this)}
                               runStage={this.runStage.bind(this)}
                               canOperatePipeline={this.meta.canOperatePipeline}
+                              stopPolling={this.stopPolling.bind(this)}
+                              startPolling={this.startPolling.bind(this)}
                               addOrUpdateComment={this.addOrUpdateComment.bind(this)}
                               cancelStageInstance={this.cancelStageInstance.bind(this)}/>,
       <div class={styles.paginationWrapper}>
@@ -150,8 +159,7 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
   }
 
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {
-    this.fetchPipelineHistory(this.pagination().offset);
-    return Promise.resolve();
+    return this.fetchPipelineHistory();
   }
 
   onFailure(message: string) {
@@ -178,15 +186,17 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
     }/>;
   }
 
-  protected fetchPipelineHistory(start: number) {
-    this.service.activities(this.meta.pipelineName, start, this.filterText(), this);
+  protected fetchPipelineHistory(offset = this.pagination().offset): Promise<void> {
+    this.service.activities(this.meta.pipelineName, offset, this.filterText(), this);
+    return Promise.resolve();
   }
 
   private handleActionApiResponse(result: ApiResult<string>, onSuccess?: () => void) {
+    this.startPolling();
     result.do((successResponse) => {
         const body = JSON.parse(successResponse.body);
         this.flashMessage.setMessage(MessageType.success, body.message);
-        this.fetchPipelineHistory(this.pagination().offset);
+        this.fetchPipelineHistory();
         if (onSuccess) {
           onSuccess();
         }
@@ -197,5 +207,17 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
   private pageChangeCallback(pageNumber: number) {
     const offset = this.pipelineActivity().perPage() * (pageNumber - 1);
     this.fetchPipelineHistory(offset);
+  }
+
+  private startPolling() {
+    if (this.meta.pipelineName) {
+      this.poller.restart();
+    }
+  }
+
+  private stopPolling() {
+    if (this.meta.pipelineName) {
+      this.poller.stop();
+    }
   }
 }

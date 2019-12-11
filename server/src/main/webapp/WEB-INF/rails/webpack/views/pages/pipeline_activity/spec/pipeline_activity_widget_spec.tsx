@@ -23,7 +23,8 @@ import {PipelineActivityWidget} from "../pipeline_activity_widget";
 
 describe("PipelineActivityWidget", () => {
   const helper              = new TestHelper();
-  const showBuildCaseFor    = Stream<string>();
+  const showBuildCauseFor   = Stream<string>();
+  const showCommentFor      = Stream<string>();
   const cancelStageInstance = jasmine.createSpy("cancelStageInstance");
   const runPipeline         = jasmine.createSpy("runPipeline");
   const runStage            = jasmine.createSpy("runStage");
@@ -49,7 +50,8 @@ describe("PipelineActivityWidget", () => {
 
   function mount(activity: PipelineActivity) {
     helper.mount(() => <PipelineActivityWidget pipelineActivity={Stream(activity)}
-                                               showBuildCaseFor={showBuildCaseFor}
+                                               showBuildCaseFor={showBuildCauseFor}
+                                               showCommentFor={showCommentFor}
                                                runStage={runStage}
                                                cancelStageInstance={cancelStageInstance}
                                                addOrUpdateComment={addOrUpdateComment}

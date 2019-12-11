@@ -40,6 +40,7 @@ interface PageMeta {
 interface State {
   pipelineActivity: Stream<PipelineActivity>;
   showBuildCaseFor: Stream<string>;
+  showCommentFor: Stream<string>;
   filterText: Stream<string>;
   meta: PageMeta;
 }
@@ -49,6 +50,7 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
   protected pagination                       = Stream<Pagination>(new Pagination(0, 10, 10));
   pipelineActivity                           = Stream<PipelineActivity>();
   showBuildCaseFor                           = Stream<string>();
+  showCommentFor                             = Stream<string>();
   filterText                                 = Stream<string>();
   meta                                       = this.getMeta() as PageMeta;
 
@@ -104,17 +106,10 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
     ).render();
   }
 
-  addOrUpdateComment(originalComment: Stream<string>, labelOrCounter: string | number): void {
-    const newComment = Stream(originalComment());
-    new ConfirmationDialog(`Comment on pipeline instance: ${this.meta.pipelineName}/${labelOrCounter}`,
-      <TextAreaField required={false} size={Size.MATCH_PARENT} property={newComment} rows={5}/>,
-      () => this.service
-        .commentOnPipelineRun(this.meta.pipelineName, labelOrCounter, newComment())
-        .then((result) => this.handleActionApiResponse(result))
-    )
-      .primaryButtonText("Save")
-      .cancelButtonText("Cancel")
-      .render();
+  addOrUpdateComment(updatedComment: string, labelOrCounter: string | number): void {
+    this.service
+      .commentOnPipelineRun(this.meta.pipelineName, labelOrCounter, updatedComment)
+      .then((result) => this.handleActionApiResponse(result));
   }
 
   cancelStageInstance(stage: Stage) {
@@ -138,6 +133,7 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
       <FlashMessage type={this.flashMessage.type} message={this.flashMessage.message}/>,
       <PipelineActivityWidget pipelineActivity={vnode.state.pipelineActivity}
                               showBuildCaseFor={vnode.state.showBuildCaseFor}
+                              showCommentFor={vnode.state.showCommentFor}
                               runPipeline={this.runPipeline.bind(this)}
                               runStage={this.runStage.bind(this)}
                               canOperatePipeline={this.meta.canOperatePipeline}

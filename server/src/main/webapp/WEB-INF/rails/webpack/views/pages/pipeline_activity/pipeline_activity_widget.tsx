@@ -29,10 +29,11 @@ interface Attrs {
   canOperatePipeline: boolean;
   pipelineActivity: Stream<PipelineActivity>;
   showBuildCaseFor: Stream<string>;
+  showCommentFor: Stream<string>;
   runPipeline: (name: string) => void;
   runStage: (stage: Stage) => void;
   cancelStageInstance: (stage: Stage) => void;
-  addOrUpdateComment: (comment: Stream<string>, counterOrLabel: string | number) => void;
+  addOrUpdateComment: (comment: string, counterOrLabel: string | number) => void;
 }
 
 export class PipelineActivityWidget extends MithrilViewComponent<Attrs> {
@@ -52,6 +53,7 @@ export class PipelineActivityWidget extends MithrilViewComponent<Attrs> {
               <GroupWidget pipelineName={pipelineActivity.pipelineName()}
                            group={group}
                            showBuildCaseFor={vnode.attrs.showBuildCaseFor}
+                           showCommentFor={vnode.attrs.showCommentFor}
                            runStage={vnode.attrs.runStage}
                            canOperatePipeline={vnode.attrs.canOperatePipeline}
                            addOrUpdateComment={vnode.attrs.addOrUpdateComment}
@@ -77,9 +79,10 @@ interface GroupAttrs {
   pipelineName: string;
   canOperatePipeline: boolean;
   showBuildCaseFor: Stream<string>;
+  showCommentFor: Stream<string>;
   runStage: (stage: Stage) => void;
   cancelStageInstance: (stage: Stage) => void;
-  addOrUpdateComment: (comment: Stream<string>, counterOrLabel: string | number) => void;
+  addOrUpdateComment: (comment: string, counterOrLabel: string | number) => void;
 }
 
 class GroupWidget extends MithrilViewComponent<GroupAttrs> {
@@ -89,6 +92,7 @@ class GroupWidget extends MithrilViewComponent<GroupAttrs> {
                                 pipelineRunInfo={history}
                                 stageConfigs={vnode.attrs.group.config().stages()}
                                 showBuildCaseFor={vnode.attrs.showBuildCaseFor}
+                                showCommentFor={vnode.attrs.showCommentFor}
                                 runStage={vnode.attrs.runStage}
                                 canOperatePipeline={vnode.attrs.canOperatePipeline}
                                 addOrUpdateComment={vnode.attrs.addOrUpdateComment}

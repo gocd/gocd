@@ -35,10 +35,11 @@ interface PipelineRunAttrs {
   pipelineRunInfo: PipelineRunInfo;
   pipelineName: string;
   showBuildCaseFor: Stream<string>;
+  showCommentFor: Stream<string>;
   stageConfigs: StageConfigs;
   runStage: (stage: Stage) => void;
   cancelStageInstance: (stage: Stage) => void;
-  addOrUpdateComment: (comment: Stream<string>, counterOrLabel: string | number) => void;
+  addOrUpdateComment: (comment: string, counterOrLabel: string | number) => void;
 }
 
 type StringOrNumber = string | number;
@@ -66,6 +67,12 @@ export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
         <BuildCauseWidget pipelineRunInfo={pipelineRunInfo}
                           showBuildCaseFor={vnode.attrs.showBuildCaseFor}
                           show={Stream(vnode.attrs.showBuildCaseFor() === pipelineRunInfo.counterOrLabel())}/>
+        <CommentWidget comment={pipelineRunInfo.comment}
+                       counterOrLabel={pipelineRunInfo.counterOrLabel()}
+                       canOperatePipeline={vnode.attrs.canOperatePipeline}
+                       addOrUpdateComment={vnode.attrs.addOrUpdateComment}
+                       showCommentFor={vnode.attrs.showCommentFor}
+                       show={Stream(vnode.attrs.showCommentFor() === `${pipelineRunInfo.counterOrLabel()}`)}/>
       </td>
       <td class={styles.right}>
         {pipelineRunInfo.stages().map((stage, index) => {
@@ -80,10 +87,6 @@ export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
             </div>
           </div>;
         })}
-        <CommentWidget comment={pipelineRunInfo.comment}
-                       counterOrLabel={pipelineRunInfo.counterOrLabel()}
-                       canOperatePipeline={vnode.attrs.canOperatePipeline}
-                       addOrUpdateComment={vnode.attrs.addOrUpdateComment}/>
       </td>
     </tr>;
   }

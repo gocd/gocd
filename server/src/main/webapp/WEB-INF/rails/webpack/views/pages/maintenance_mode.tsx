@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import {AjaxPoller} from "helpers/ajax_poller";
-import {ApiRequestBuilder, ErrorResponse, SuccessResponse} from "helpers/api_request_builder";
+import {ApiRequestBuilder, ApiResult, ApiVersion, ErrorResponse, SuccessResponse} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
 import m from "mithril";
 import {MaintenanceModeAPIs} from "models/maintenance_mode/maintenance_mode_apis";
@@ -73,18 +73,32 @@ export class MaintenanceModePage extends Page<null, State> {
     };
 
     vnode.state.onCancelStage = (stageLocator: StageLocator) => {
-      return ApiRequestBuilder.POST(SparkRoutes.cancelStage(stageLocator.pipelineName, stageLocator.stageName),
-                                    undefined,
-                                    {headers: {Confirm: "true"}})
-                              .then(() => {
-                                vnode.state.message = new Message(MessageType.success,
-                                                                  `Stage ${stageLocator.stageName} successfully cancelled.`);
-                                this.fetchData(vnode);
-                              }, vnode.state.onError);
+      return ApiRequestBuilder.POST(SparkRoutes.cancelStage(stageLocator.pipelineName,
+                                                            stageLocator.pipelineCounter,
+                                                            stageLocator.stageName,
+                                                            stageLocator.stageCounter),
+                                    ApiVersion.latest,
+                                    {headers: {"X-GoCD-Confirm": "true"}})
+                              .then((result: ApiResult<string>) => {
+                                result.do((successResponse: SuccessResponse<string>) => {
+                                            vnode.state.message = new Message(MessageType.success,
+                                                                              `Stage ${stageLocator.stageName} successfully cancelled.`);
+                                            this.fetchData(vnode);
+                                          },
+                                          vnode.state.onError);
+                              });
     };
 
     vnode.state.onError = (errorResponse: ErrorResponse) => {
-      vnode.state.message = new Message(MessageType.alert, JSON.parse(errorResponse.body!).message);
+      let message;
+      try {
+        message = JSON.parse(errorResponse.body!).message;
+      } catch (e) {
+        message = `Failed to cancel stage. Please check server logs for more information.`;
+      }
+
+      vnode.state.message = new Message(MessageType.alert, message);
+      this.fetchData(vnode);
     };
 
     const options = {

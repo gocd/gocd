@@ -23,12 +23,16 @@ describe("CommentWidget", () => {
   const helper = new TestHelper();
   let showCommentFor: Stream<string>,
       show: Stream<boolean>,
-      addOrUpdateComment: (comment: string, counterOrLabel: string | number) => void;
+      addOrUpdateComment: (comment: string, counterOrLabel: string | number) => void,
+      stopPolling: () => void,
+      startPolling: () => void;
 
   beforeEach(() => {
     showCommentFor     = Stream("");
     show               = Stream<boolean>(false);
     addOrUpdateComment = jasmine.createSpy("addOrUpdateComment");
+    stopPolling        = jasmine.createSpy("stopPolling");
+    startPolling       = jasmine.createSpy("startPolling");
   });
 
   afterEach(helper.unmount.bind(helper));
@@ -260,6 +264,8 @@ describe("CommentWidget", () => {
                                       canOperatePipeline={canOperatePipeline}
                                       addOrUpdateComment={addOrUpdateComment}
                                       showCommentFor={showCommentFor}
+                                      startPolling={startPolling}
+                                      stopPolling={stopPolling}
                                       show={show}/>);
   }
 });

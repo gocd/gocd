@@ -30,13 +30,14 @@ import styles from "../index.scss";
 import {PipelineRunWidget} from "../pipeline_run_info_widget";
 
 describe("PipelineRunInfoWidget", () => {
-
   const helper              = new TestHelper();
   const showBuildCauseFor   = Stream<string>();
   const showCommentFor      = Stream<string>();
   const cancelStageInstance = jasmine.createSpy("cancelStageInstance");
   const runStage            = jasmine.createSpy("runStage");
   const addOrUpdateComment  = jasmine.createSpy("addOrUpdateComment");
+  const startPolling        = jasmine.createSpy("startPolling");
+  const stopPolling         = jasmine.createSpy("stopPolling");
 
   afterEach(helper.unmount.bind(helper));
 
@@ -356,6 +357,8 @@ describe("PipelineRunInfoWidget", () => {
                                           stageConfigs={stageConfigs ? stageConfigs : toStageConfigs(pipelineRunInfo.stages())}
                                           cancelStageInstance={cancelStageInstance}
                                           addOrUpdateComment={addOrUpdateComment}
+                                          startPolling={startPolling}
+                                          stopPolling={stopPolling}
                                           canOperatePipeline={false}
                                           runStage={runStage}/>);
   }

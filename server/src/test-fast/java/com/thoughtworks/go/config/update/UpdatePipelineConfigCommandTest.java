@@ -18,6 +18,7 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.PipelineGroups;
+import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.JobConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
@@ -31,8 +32,7 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 class UpdatePipelineConfigCommandTest {
@@ -66,7 +66,7 @@ class UpdatePipelineConfigCommandTest {
         when(entityHashingService.md5ForEntity(pipelineConfig, "group1")).thenReturn("latest_md5");
 
         BasicCruiseConfig basicCruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs(pipelineConfig));
-        assertFalse(command.canContinue(basicCruiseConfig));
+        assertThat(command.canContinue(basicCruiseConfig)).isFalse();
     }
 
     @Test
@@ -76,12 +76,12 @@ class UpdatePipelineConfigCommandTest {
 
         when(goConfigService.findGroupNameByPipeline(pipelineConfig.name())).thenReturn("group1");
         when(goConfigService.canEditPipeline(pipelineConfig.name().toString(), username, localizedOperationResult, "group1")).thenReturn(false);
-        assertFalse(command.canContinue(mock(CruiseConfig.class)));
+        assertThat(command.canContinue(mock(CruiseConfig.class))).isFalse();
 
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
         expectedResult.forbidden("User 'Bob' does not have permission to edit pipeline with name 'p1'", HealthStateType.forbidden());
 
-        assertThat(localizedOperationResult, is(expectedResult));
+        assertThat(localizedOperationResult).isEqualTo(expectedResult);
     }
 
     @Test
@@ -178,7 +178,7 @@ class UpdatePipelineConfigCommandTest {
         when(cruiseConfig.findGroup("group1")).thenReturn(pipelineConfigs);
         when(cruiseConfig.getGroups()).thenReturn(pipelineGroups);
 
-        assertThat(pipelineGroups.hasGroup("updated_group"), is(false));
+        assertThat(pipelineGroups.hasGroup("updated_group")).isFalse();
 
         UpdatePipelineConfigCommand command = new UpdatePipelineConfigCommand(goConfigService, null,
                 pipelineConfig, "updated_group", username, "stale_md5", localizedOperationResult, externalArtifactsService);
@@ -186,9 +186,9 @@ class UpdatePipelineConfigCommandTest {
         command.update(cruiseConfig);
         verify(cruiseConfig).update("group1", pipelineConfig.name().toString(), pipelineConfig);
 
-        assertThat(pipelineGroups.findGroup("group1").size(), is(0));
-        assertThat(pipelineGroups.hasGroup("updated_group"), is(true));
-        assertThat(pipelineGroups.findGroup("updated_group").size(), is(1));
+        assertThat(pipelineGroups.findGroup("group1").size()).isEqualTo(0);
+        assertThat(pipelineGroups.hasGroup("updated_group")).isTrue();
+        assertThat(pipelineGroups.findGroup("updated_group").size()).isEqualTo(1);
     }
 
     @Test
@@ -208,12 +208,12 @@ class UpdatePipelineConfigCommandTest {
 
         boolean canContinue = command.canContinue(cruiseConfig);
 
-        assertFalse(canContinue);
+        assertThat(canContinue).isFalse();
 
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
         expectedResult.forbidden("User 'Bob' does not have permission to edit pipeline group with name 'group2'", HealthStateType.forbidden());
 
-        assertThat(localizedOperationResult, is(expectedResult));
+        assertThat(localizedOperationResult).isEqualTo(expectedResult);
     }
 
     @Test
@@ -236,6 +236,28 @@ class UpdatePipelineConfigCommandTest {
 
         boolean canContinue = command.canContinue(cruiseConfig);
 
-        assertTrue(canContinue);
+        assertThat(canContinue).isTrue();
+    }
+
+    @Test
+    void shouldReturnInvalidIfTheOnCancelTaskHasAnError() {
+        JobConfig job = new JobConfig(new CaseInsensitiveString("job_name"));
+        ExecTask task = new ExecTask("ls", "", "working_dir");
+        task.setCancelTask(new ExecTask("", "", ""));
+        job.addTask(task);
+        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("P1", new StageConfig(new CaseInsensitiveString("S1"), new JobConfigs(job)));
+
+        UpdatePipelineConfigCommand command = new UpdatePipelineConfigCommand(goConfigService, null, pipeline, "group", username, "stale_md5", localizedOperationResult, externalArtifactsService);
+        BasicCruiseConfig preprocessedConfig = GoConfigMother.defaultCruiseConfig();
+        preprocessedConfig.addPipelineWithoutValidation("group", pipeline);
+
+        when(goConfigService.findGroupNameByPipeline(new CaseInsensitiveString("P1"))).thenReturn("group");
+
+        boolean isValid = command.isValid(preprocessedConfig);
+
+        assertThat(isValid).isFalse();
+        Task firstTask = preprocessedConfig.pipelineConfigByName(new CaseInsensitiveString("P1")).getFirstStageConfig().getJobs().get(0).getTasks().get(0);
+        assertThat(firstTask.cancelTask().errors().size()).isEqualTo(1);
+        assertThat(firstTask.cancelTask().errors().on(ExecTask.COMMAND)).isEqualTo("Command cannot be empty");
     }
 }

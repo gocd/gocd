@@ -63,6 +63,7 @@ public class PipelineConfigErrorCopier {
                     Task fromTask = fromTasks.get(i);
                     Task toTask = toTasks.get(i);
                     copy(fromTask, toTask);
+                    copy(fromTask.cancelTask(), toTask.cancelTask());
                     copyCollectionErrors(fromTask.getConditions(), toTask.getConditions());
                     if (toTask instanceof ExecTask) {
                         copyCollectionErrors(((ExecTask) fromTask).getArgList(), ((ExecTask) toTask).getArgList());
@@ -70,7 +71,7 @@ public class PipelineConfigErrorCopier {
                 }
                 List<PluggableArtifactConfig> toPluggableArtifactConfigs = toJob.artifactTypeConfigs().getPluggableArtifactConfigs();
                 List<PluggableArtifactConfig> fromPluggableArtifactConfigs = fromJob.artifactTypeConfigs().getPluggableArtifactConfigs();
-                for(int i = 0; i< toPluggableArtifactConfigs.size(); i++) {
+                for (int i = 0; i < toPluggableArtifactConfigs.size(); i++) {
                     PluggableArtifactConfig fromPluggableArtifactConfig = fromPluggableArtifactConfigs.get(i);
                     PluggableArtifactConfig toPluggableArtifactConfig = toPluggableArtifactConfigs.get(i);
                     copyCollectionErrors(fromPluggableArtifactConfig.getConfiguration(), toPluggableArtifactConfig.getConfiguration());

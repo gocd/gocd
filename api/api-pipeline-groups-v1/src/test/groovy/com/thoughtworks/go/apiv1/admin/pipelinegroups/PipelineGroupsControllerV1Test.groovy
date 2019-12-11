@@ -331,7 +331,7 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
         group.setGroup("group1")
         when(entityHashingService.md5ForEntity(group)).thenReturn('md5')
         when(pipelineConfigsService.getGroupsForUser(currentUserLoginName().toString())).thenReturn(new PipelineGroups([group]))
-        when(pipelineConfigsService.updateGroupAuthorization(any(), any(), any(), any(), any(), any())).thenReturn(group)
+        when(pipelineConfigsService.updateGroup(any(), any(), any(), any())).thenReturn(group)
 
         def headers = [
           'If-Match': 'md5',
@@ -390,8 +390,8 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
 
         group.addError("authorization", "Invalid authorization")
 
-        when(pipelineConfigsService.updateGroupAuthorization(any(), any(), any(), any(), any(), any())).then({ InvocationOnMock invocation ->
-          result = invocation.getArguments()[5]
+        when(pipelineConfigsService.updateGroup(any(), any(), any(), any())).then({ InvocationOnMock invocation ->
+          result = invocation.getArguments()[3]
           result.unprocessableEntity("message from server")
         })
 
@@ -422,27 +422,6 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
           .isNotFound()
           .hasJsonMessage(controller.entityType.notFoundMessage("group"))
           .hasContentType(controller.mimeType)
-      }
-
-      @Test
-      void "should not allow renaming a pipeline"() {
-        def group = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"))
-        group.setGroup("group1")
-        when(pipelineConfigsService.getGroupsForUser(currentUserLoginName().toString())).thenReturn(new PipelineGroups([group]))
-
-        def headers = [
-          'If-Match': 'md5',
-        ]
-
-        def new_group = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"))
-        new_group.setGroup("renamed_group")
-        putWithApiHeader(controller.controllerPath("/group1"), headers, toObjectString({
-          PipelineGroupRepresenter.toJSON(it, new_group)
-        }))
-
-        assertThatResponse()
-          .hasStatus(422)
-          .hasJsonMessage("Renaming of pipeline group is not supported by this API.")
       }
     }
   }

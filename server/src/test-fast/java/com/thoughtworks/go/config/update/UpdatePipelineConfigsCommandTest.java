@@ -18,8 +18,10 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.helper.GoConfigMother;
+import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.SecurityService;
@@ -39,7 +41,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-public class UpdatePipelineConfigsAuthConfigCommandTest {
+public class UpdatePipelineConfigsCommandTest {
     @Mock
     private EntityHashingService entityHashingService;
 
@@ -68,12 +70,13 @@ public class UpdatePipelineConfigsAuthConfigCommandTest {
     @Test
     public void shouldReplaceOnlyPipelineConfigsAuthorizationWhileUpdatingTheTemplate() throws Exception {
         Authorization newAuthorization = new Authorization(new AdminsConfig(new AdminRole(new CaseInsensitiveString("foo"))));
+        PipelineConfigs newPipelineConfig = new BasicPipelineConfigs("group", newAuthorization);
 
-        UpdatePipelineConfigsAuthCommand command = new UpdatePipelineConfigsAuthCommand("group", newAuthorization, new HttpLocalizedOperationResult(), user, "md5", entityHashingService, securityService);
+        UpdatePipelineConfigsCommand command = new UpdatePipelineConfigsCommand(this.pipelineConfigs, newPipelineConfig, new HttpLocalizedOperationResult(), user, "md5", entityHashingService, securityService);
         command.update(cruiseConfig);
 
-        assertThat(cruiseConfig.hasPipelineGroup(pipelineConfigs.getGroup()), is(true));
-        Authorization expectedTemplateAuthorization = cruiseConfig.findGroup(pipelineConfigs.getGroup()).getAuthorization();
+        assertThat(cruiseConfig.hasPipelineGroup(this.pipelineConfigs.getGroup()), is(true));
+        Authorization expectedTemplateAuthorization = cruiseConfig.findGroup(this.pipelineConfigs.getGroup()).getAuthorization();
         assertNotEquals(expectedTemplateAuthorization, authorization);
         assertThat(expectedTemplateAuthorization, is(newAuthorization));
     }
@@ -81,17 +84,20 @@ public class UpdatePipelineConfigsAuthConfigCommandTest {
     @Test
     public void commandShouldBeValid_whenRoleIsValid() {
         Authorization newAuthorization = new Authorization(new AdminsConfig(new AdminRole(new CaseInsensitiveString("validRole"))));
+        PipelineConfigs newPipelineConfig = new BasicPipelineConfigs("group", newAuthorization);
 
-        UpdatePipelineConfigsAuthCommand command = new UpdatePipelineConfigsAuthCommand("group", newAuthorization, new HttpLocalizedOperationResult(), user, "md5", entityHashingService, securityService);
+        UpdatePipelineConfigsCommand command = new UpdatePipelineConfigsCommand(this.pipelineConfigs, newPipelineConfig, new HttpLocalizedOperationResult(), user, "md5", entityHashingService, securityService);
         command.isValid(cruiseConfig);
         assertThat(authorization.getAllErrors(), is(Collections.emptyList()));
     }
 
     @Test
-    public void commandShouldCopyOverErrors_whenRoleIsInvalid() {
+    public void commandShouldCopyOverErrors_whenRoleIsInvalid() throws Exception {
         Authorization newAuthorization = new Authorization(new AdminsConfig(new AdminRole(new CaseInsensitiveString("invalidRole"))));
+        PipelineConfigs newPipelineConfig = new BasicPipelineConfigs("group", newAuthorization);
 
-        UpdatePipelineConfigsAuthCommand command = new UpdatePipelineConfigsAuthCommand("group", newAuthorization, new HttpLocalizedOperationResult(), user, "md5", entityHashingService, securityService);
+        UpdatePipelineConfigsCommand command = new UpdatePipelineConfigsCommand(this.pipelineConfigs, newPipelineConfig, new HttpLocalizedOperationResult(), user, "md5", entityHashingService, securityService);
+        command.update(cruiseConfig);
         assertFalse(command.isValid(cruiseConfig));
 
         assertThat(newAuthorization.getAllErrors().get(0).getAllOn("roles"), is(Arrays.asList("Role \"invalidRole\" does not exist.")));
@@ -100,9 +106,10 @@ public class UpdatePipelineConfigsAuthConfigCommandTest {
     @Test
     public void commandShouldThrowExceptionAndReturnUnprocessableEntityResult_whenValidatingWithNullGroupName() {
         Authorization newAuthorization = new Authorization(new AdminsConfig(new AdminRole(new CaseInsensitiveString("validRole"))));
+        PipelineConfigs newPipelineConfig = new BasicPipelineConfigs(null, newAuthorization);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        UpdatePipelineConfigsAuthCommand command = new UpdatePipelineConfigsAuthCommand(null, newAuthorization, result, user, "md5", entityHashingService, securityService);
+        UpdatePipelineConfigsCommand command = new UpdatePipelineConfigsCommand(this.pipelineConfigs, newPipelineConfig, result, user, "md5", entityHashingService, securityService);
 
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("Group name cannot be null.");
@@ -115,9 +122,10 @@ public class UpdatePipelineConfigsAuthConfigCommandTest {
     @Test
     public void commandShouldThrowIllegalArgumentException_whenValidatingWithBlankGroupName() {
         Authorization newAuthorization = new Authorization(new AdminsConfig(new AdminRole(new CaseInsensitiveString("validRole"))));
+        PipelineConfigs newPipelineConfig = new BasicPipelineConfigs("  ", newAuthorization);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        UpdatePipelineConfigsAuthCommand command = new UpdatePipelineConfigsAuthCommand("  ", newAuthorization, result, user, "md5", entityHashingService, securityService);
+        UpdatePipelineConfigsCommand command = new UpdatePipelineConfigsCommand(this.pipelineConfigs, newPipelineConfig, result, user, "md5", entityHashingService, securityService);
 
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("Group name cannot be null.");
@@ -127,9 +135,11 @@ public class UpdatePipelineConfigsAuthConfigCommandTest {
     @Test
     public void commandShouldThrowRecordNotFoundException_whenValidatingWithNonExistentGroup() {
         Authorization newAuthorization = new Authorization(new AdminsConfig(new AdminRole(new CaseInsensitiveString("validRole"))));
+        PipelineConfigs newPipelineConfig = new BasicPipelineConfigs("group", newAuthorization);
+        this.pipelineConfigs.setGroup(null);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        UpdatePipelineConfigsAuthCommand command = new UpdatePipelineConfigsAuthCommand("newGroup", newAuthorization, result, user, "md5", entityHashingService, securityService);
+        UpdatePipelineConfigsCommand command = new UpdatePipelineConfigsCommand(this.pipelineConfigs, newPipelineConfig, result, user, "md5", entityHashingService, securityService);
 
         thrown.expect(RecordNotFoundException.class);
         command.isValid(cruiseConfig);
@@ -141,8 +151,10 @@ public class UpdatePipelineConfigsAuthConfigCommandTest {
         when(entityHashingService.md5ForEntity(pipelineConfigs)).thenReturn("md5");
 
         Authorization newAuthorization = new Authorization(new AdminsConfig(new AdminRole(new CaseInsensitiveString("validRole"))));
+        PipelineConfigs newPipelineConfig = new BasicPipelineConfigs("group", newAuthorization);
+
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        UpdatePipelineConfigsAuthCommand command = new UpdatePipelineConfigsAuthCommand("group", newAuthorization, result, user, "md5", entityHashingService, securityService);
+        UpdatePipelineConfigsCommand command = new UpdatePipelineConfigsCommand(this.pipelineConfigs, newPipelineConfig, result, user, "md5", entityHashingService, securityService);
 
         assertTrue(command.canContinue(cruiseConfig));
     }
@@ -153,8 +165,9 @@ public class UpdatePipelineConfigsAuthConfigCommandTest {
         when(entityHashingService.md5ForEntity(pipelineConfigs)).thenReturn("md5-old");
 
         Authorization newAuthorization = new Authorization(new AdminsConfig(new AdminRole(new CaseInsensitiveString("validRole"))));
+        PipelineConfigs newPipelineConfig = new BasicPipelineConfigs("group", newAuthorization);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        UpdatePipelineConfigsAuthCommand command = new UpdatePipelineConfigsAuthCommand("group", newAuthorization, result, user, "md5", entityHashingService, securityService);
+        UpdatePipelineConfigsCommand command = new UpdatePipelineConfigsCommand(this.pipelineConfigs, newPipelineConfig, result, user, "md5", entityHashingService, securityService);
 
         assertFalse(command.canContinue(cruiseConfig));
         assertThat(result.httpCode(), is(HttpStatus.SC_PRECONDITION_FAILED));
@@ -166,10 +179,44 @@ public class UpdatePipelineConfigsAuthConfigCommandTest {
         when(entityHashingService.md5ForEntity(pipelineConfigs)).thenReturn("md5");
 
         Authorization newAuthorization = new Authorization(new AdminsConfig(new AdminRole(new CaseInsensitiveString("validRole"))));
+        PipelineConfigs newPipelineConfig = new BasicPipelineConfigs("group", newAuthorization);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        UpdatePipelineConfigsAuthCommand command = new UpdatePipelineConfigsAuthCommand("group", newAuthorization, result, user, "md5", entityHashingService, securityService);
+        UpdatePipelineConfigsCommand command = new UpdatePipelineConfigsCommand(this.pipelineConfigs, newPipelineConfig, result, user, "md5", entityHashingService, securityService);
 
         assertFalse(command.canContinue(cruiseConfig));
         assertThat(result.httpCode(), is(HttpStatus.SC_FORBIDDEN));
+    }
+
+    @Test
+    public void commandShouldContinue_whenPipelineGroupNameIsModified() {
+        when(securityService.isUserAdminOfGroup(user, "group")).thenReturn(true);
+        when(entityHashingService.md5ForEntity(pipelineConfigs)).thenReturn("md5");
+
+        Authorization newAuthorization = new Authorization(new AdminsConfig(new AdminRole(new CaseInsensitiveString("validRole"))));
+        PipelineConfigs newPipelineConfig = new BasicPipelineConfigs("group-2", newAuthorization);
+
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        UpdatePipelineConfigsCommand command = new UpdatePipelineConfigsCommand(this.pipelineConfigs, newPipelineConfig, result, user, "md5", entityHashingService, securityService);
+
+        assertTrue(command.canContinue(cruiseConfig));
+    }
+
+    @Test
+    public void commandShouldNotContinue_whenPipelineGroupNameIsModifiedWhileItContainsRemotePipelines() {
+        when(securityService.isUserAdminOfGroup(user, "group")).thenReturn(true);
+        when(entityHashingService.md5ForEntity(pipelineConfigs)).thenReturn("md5");
+        PipelineConfig remotePipeline = PipelineConfigMother.pipelineConfig("remote-pipeline");
+        remotePipeline.setOrigin(new RepoConfigOrigin());
+        this.pipelineConfigs.add(remotePipeline);
+
+        Authorization newAuthorization = new Authorization(new AdminsConfig(new AdminRole(new CaseInsensitiveString("validRole"))));
+        PipelineConfigs newPipelineConfig = new BasicPipelineConfigs("group-2", newAuthorization);
+
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        UpdatePipelineConfigsCommand command = new UpdatePipelineConfigsCommand(this.pipelineConfigs, newPipelineConfig, result, user, "md5", entityHashingService, securityService);
+
+        assertFalse(command.canContinue(cruiseConfig));
+        assertFalse(result.isSuccessful());
+        assertThat(result.message(), is("Can not rename pipeline group 'group' as it contains remote pipelines."));
     }
 }

@@ -24,8 +24,10 @@ import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
+import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.apiv1.admin.pipelinegroups.representers.PipelineGroupRepresenter;
 import com.thoughtworks.go.apiv1.admin.pipelinegroups.representers.PipelineGroupsRepresenter;
+import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
@@ -38,6 +40,7 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import spark.Request;
 import spark.Response;
@@ -46,8 +49,10 @@ import java.io.IOException;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
-import static com.thoughtworks.go.api.util.HaltApiResponses.*;
+import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseEntityAlreadyExists;
+import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseEtagDoesNotMatch;
 import static spark.Spark.*;
 
 @Component
@@ -134,16 +139,12 @@ public class PipelineGroupsControllerV1 extends ApiController implements SparkSp
         PipelineConfigs pipelineConfigsFromServer = fetchEntityFromConfig(req.params("group_name"));
         PipelineConfigs pipelineConfigsFromReq = buildEntityFromRequestBody(req);
 
-        if (isRenameAttempt(pipelineConfigsFromServer, pipelineConfigsFromReq)) {
-            throw haltBecauseRenameOfEntityIsNotSupported("pipeline group");
-        }
-
         if (isPutRequestStale(req, pipelineConfigsFromServer)) {
             throw haltBecauseEtagDoesNotMatch("pipeline group", pipelineConfigsFromServer.getGroup());
         }
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        PipelineConfigs updatedPipelineConfigs = pipelineConfigsService.updateGroupAuthorization(SessionUtils.currentUsername(), pipelineConfigsFromReq, etagFor(pipelineConfigsFromServer), entityHashingService, securityService, result);
+        PipelineConfigs updatedPipelineConfigs = pipelineConfigsService.updateGroup(SessionUtils.currentUsername(), pipelineConfigsFromReq, pipelineConfigsFromServer, result);
         return handleCreateOrUpdateResponse(req, res, updatedPipelineConfigs, result);
     }
 
@@ -188,9 +189,5 @@ public class PipelineGroupsControllerV1 extends ApiController implements SparkSp
 
     private Stream<PipelineConfigs> streamAllPipelineGroups() {
         return pipelineConfigsService.getGroupsForUser(currentUserLoginName().toString()).stream();
-    }
-
-    private boolean isRenameAttempt(PipelineConfigs fromServer, PipelineConfigs fromRequest) {
-        return !fromServer.getGroup().equals(fromRequest.getGroup());
     }
 }

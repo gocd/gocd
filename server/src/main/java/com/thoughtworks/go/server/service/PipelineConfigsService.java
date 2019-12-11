@@ -23,7 +23,7 @@ import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.update.ConfigUpdateCheckFailedException;
 import com.thoughtworks.go.config.update.CreatePipelineConfigsCommand;
 import com.thoughtworks.go.config.update.DeletePipelineConfigsCommand;
-import com.thoughtworks.go.config.update.UpdatePipelineConfigsAuthCommand;
+import com.thoughtworks.go.config.update.UpdatePipelineConfigsCommand;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
@@ -51,15 +51,17 @@ public class PipelineConfigsService {
     private final ConfigCache configCache;
     private final ConfigElementImplementationRegistry registry;
     private final SecurityService securityService;
+    private EntityHashingService entityHashingService;
     private MagicalGoConfigXmlLoader magicalGoConfigXmlLoader;
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelineConfigsService.class);
 
     @Autowired
-    public PipelineConfigsService(ConfigCache configCache, ConfigElementImplementationRegistry registry, GoConfigService goConfigService, SecurityService securityService) {
+    public PipelineConfigsService(ConfigCache configCache, ConfigElementImplementationRegistry registry, GoConfigService goConfigService, SecurityService securityService, EntityHashingService entityHashingService) {
         this.goConfigService = goConfigService;
         this.configCache = configCache;
         this.registry = registry;
         this.securityService = securityService;
+        this.entityHashingService = entityHashingService;
         this.magicalGoConfigXmlLoader = new MagicalGoConfigXmlLoader(configCache, registry);
     }
 
@@ -124,9 +126,9 @@ public class PipelineConfigsService {
         }
     }
 
-    public PipelineConfigs updateGroupAuthorization(Username currentUser, PipelineConfigs newPipelineConfigs, String existingMd5, EntityHashingService entityHashingService, SecurityService securityService, LocalizedOperationResult result) {
-        UpdatePipelineConfigsAuthCommand updatePipelineConfigsCommand = new UpdatePipelineConfigsAuthCommand(newPipelineConfigs.getGroup(), newPipelineConfigs.getAuthorization(), result, currentUser, existingMd5, entityHashingService, securityService);
-        update(currentUser, newPipelineConfigs, result, updatePipelineConfigsCommand);
+    public PipelineConfigs updateGroup(Username currentUsername, PipelineConfigs pipelineConfigsFromReq, PipelineConfigs pipelineConfigsFromServer, HttpLocalizedOperationResult result) {
+        UpdatePipelineConfigsCommand updatePipelineConfigsCommand = new UpdatePipelineConfigsCommand(pipelineConfigsFromServer, pipelineConfigsFromReq, result, currentUsername, entityHashingService.md5ForEntity(pipelineConfigsFromServer), entityHashingService, securityService);
+        update(currentUsername, pipelineConfigsFromReq, result, updatePipelineConfigsCommand);
         return updatePipelineConfigsCommand.getPreprocessedEntityConfig();
     }
 

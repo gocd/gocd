@@ -32,7 +32,8 @@ import {PipelineRunWidget} from "../pipeline_run_info_widget";
 describe("PipelineRunInfoWidget", () => {
 
   const helper              = new TestHelper();
-  const showBuildCaseFor    = Stream<string>();
+  const showBuildCauseFor   = Stream<string>();
+  const showCommentFor      = Stream<string>();
   const cancelStageInstance = jasmine.createSpy("cancelStageInstance");
   const runStage            = jasmine.createSpy("runStage");
   const addOrUpdateComment  = jasmine.createSpy("addOrUpdateComment");
@@ -350,7 +351,8 @@ describe("PipelineRunInfoWidget", () => {
   function mount(pipelineRunInfo: PipelineRunInfo, stageConfigs?: StageConfigs) {
     helper.mount(() => <PipelineRunWidget pipelineRunInfo={pipelineRunInfo}
                                           pipelineName={"up42"}
-                                          showBuildCaseFor={showBuildCaseFor}
+                                          showBuildCaseFor={showBuildCauseFor}
+                                          showCommentFor={showCommentFor}
                                           stageConfigs={stageConfigs ? stageConfigs : toStageConfigs(pipelineRunInfo.stages())}
                                           cancelStageInstance={cancelStageInstance}
                                           addOrUpdateComment={addOrUpdateComment}

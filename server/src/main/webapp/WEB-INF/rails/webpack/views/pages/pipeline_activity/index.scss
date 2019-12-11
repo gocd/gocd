@@ -395,26 +395,28 @@ $stage-action-icon-z-index: 1;
 }
 
 .comment-wrapper {
+  position:       absolute;
+  background:     $dropdown-background-color;
+  color:          $white;
+  width:          50%;
+  padding:        10px 16px;
+  border-radius:  3px;
   display:        flex;
-  align-items:    center;
-  height:         100%;
-  padding:        0 10px;
+  z-index:        $build-details-z-index;
   flex-direction: column;
-  justify-content: center;
 
   .comment {
-    font-size:     12px;
     border:        1px dashed $border-color;
     padding:       5px 10px;
     border-radius: 3px;
-    max-width:     300px;
     word-break:    break-word;
     max-height:    100px;
     overflow-y:    auto;
-    margin:        10px 10px 10px 0;
+    margin:        10px 0;
   }
 
-  button {
-    align-self: start;
+  .comment-actions {
+    display:         flex;
+    justify-content: flex-end;
   }
 }

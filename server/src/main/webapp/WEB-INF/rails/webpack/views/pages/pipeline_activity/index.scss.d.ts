@@ -6,6 +6,7 @@ export const cancelled: string;
 export const changed: string;
 export const closeButtonWrapper: string;
 export const comment: string;
+export const commentActions: string;
 export const commentWrapper: string;
 export const disabled: string;
 export const disabledIcon: string;

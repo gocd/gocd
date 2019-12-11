@@ -343,7 +343,12 @@ describe("ConfigReposWidget", () => {
   });
 
   it("should disable the action buttons", () => {
-    const configRepo = createConfigRepoParsed();
+    const configRepo = createConfigRepoParsed({
+                                                permissions: {
+                                                  can_administer: false,
+                                                  can_edit: false
+                                                }
+                                              });
     models([vm(configRepo)]);
     helper.redraw();
 

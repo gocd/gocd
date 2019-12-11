@@ -22,7 +22,7 @@ import {
   PipelineStructureJSON,
   PipelineWithOrigin
 } from "models/internal_pipeline_structure/pipeline_structure";
-import {Permissions, Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
+import {Environments, EnvironmentWithOrigin, Permissions} from "models/new-environments/environments";
 import data from "models/new-environments/spec/test_data";
 import {ModalState} from "views/components/modal";
 import {EditPipelinesModal} from "views/pages/new-environments/edit_pipelines_modal";

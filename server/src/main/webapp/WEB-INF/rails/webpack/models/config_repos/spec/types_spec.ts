@@ -15,7 +15,7 @@
  */
 import {
   ConfigRepo,
-  MaterialModification, ParseInfo,
+  MaterialModification, ParseInfo, Permissions,
 } from "models/config_repos/types";
 
 import {
@@ -126,7 +126,7 @@ describe("Config Repo Types", () => {
         const latestModification = new MaterialModification("jrDev", "jrDev@github.com", "4926940143a238fefb7566141ba24a96", "My first commit", "19:30");
         const lastParse = new ParseInfo(latestModification, goodModification, null);
 
-        return new ConfigRepo("All_Test_Pipelines", "PluginId", material, false, [], lastParse);
+        return new ConfigRepo("All_Test_Pipelines", "PluginId", material, new Permissions(false, false), [], lastParse);
       }
     });
   });

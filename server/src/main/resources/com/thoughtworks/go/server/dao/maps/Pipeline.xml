@@ -266,7 +266,7 @@
               WHERE pipelines.name = #{pipelineName}
                 and pipelines.id &gt; #{cursor}
               ORDER BY pipelines.id ASC
-              LIMIT #{limit})
+              LIMIT #{limit}) as PipelineIdsBeforeSpecifiedId
         ORDER BY id DESC
     </select>
 

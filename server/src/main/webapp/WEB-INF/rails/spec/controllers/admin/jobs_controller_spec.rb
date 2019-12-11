@@ -353,6 +353,7 @@ describe Admin::JobsController do
 
     describe "create" do
       before :each do
+        expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
         set_up_registry
         task_preference = com.thoughtworks.go.plugin.access.pluggabletask.TaskPreference.new(TaskMother::ApiTaskForTest.new)
         PluggableTaskConfigStore.store().setPreferenceFor("curl.plugin", task_preference)
@@ -364,55 +365,24 @@ describe Admin::JobsController do
       end
 
       it "should be able to create a job with a pluggable task" do
-        allow(@pluggable_task_service).to receive(:validate)
         @new_task = PluggableTask.new(PluginConfiguration.new("curl.plugin", "1.0"), Configuration.new([ConfigurationPropertyMother.create("Url", false, nil)].to_java(ConfigurationProperty)))
         expect(@task_view_service).to receive(:taskInstanceFor).with("pluggableTask").and_return(@new_task)
-        stub_save_for_success
+        result = HttpLocalizedOperationResult.new
+        expect(@pipeline_config_service).to receive(:updatePipelineConfig).and_return(result)
 
         pipeline_name = "pipeline-name"
         job = {:name => "new_job", :tasks => {:taskOptions => "pluggableTask", "pluggableTask" => {:foo => "bar"}}}
         post :create, params:{:pipeline_name => pipeline_name, :stage_name => "stage-name", :job => job,  :config_md5 => "1234abcd", :stage_parent => "pipelines"}
-
-        expect(@cruise_config.getAllErrors().size).to eq(0)
-        assert_save_arguments
-        assert_update_command ::ConfigUpdate::SaveAction, ::ConfigUpdate::RefsAsUpdatedRefs
-        pipeline_config = @cruise_config.getPipelineConfigByName(CaseInsensitiveString.new(pipeline_name))
-        pipeline_config.get(0).getJobs().last().name == JobConfig.new("new_job")
-        expect(pipeline_config.get(0).getJobs().last().getTasks().first().instance_of?(PluggableTask)).to eq(true)
-      end
-
-      it "should validate pluggable tasks before create" do
-        allow(@pluggable_task_service).to receive(:validate) do |task|
-          task.getConfiguration().getProperty("key").addError("key", "some error")
-        end
-        @new_task = PluggableTask.new( PluginConfiguration.new("curl.plugin", "1.0"), Configuration.new([ConfigurationPropertyMother.create("key", false, nil)].to_java(ConfigurationProperty)))
-        expect(@task_view_service).to receive(:taskInstanceFor).with("pluggableTask").and_return(@new_task)
-        expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
-        stub_save_for_validation_error do |result, cruise_config, pipeline|
-          result.badRequest("Save failed, see errors below")
-        end
-        expect(@task_view_service).to receive(:getTaskViewModelsWith).with(anything).and_return(Object.new)
-
-        job = {:name => "job", :tasks => {:taskOptions => "pluggableTask", "pluggableTask" => {:key => "value"}}}
-        post :create, params:{:pipeline_name => "pipeline-name", :stage_name => "stage-name", :job => job,  :config_md5 => "1234abcd", :stage_parent => "pipelines"}
-
-        task_to_be_saved = assigns[:job].getTasks().first()
-        expect(task_to_be_saved.instance_of?(PluggableTask)).to eq(true)
-        expect(task_to_be_saved.getConfiguration().getProperty("key").errors().getAll().size()).to be > 0
-        expect(task_to_be_saved.getConfiguration().getProperty("key").errors().getAllOn("key").get(0)).to eq("some error")
-        assert_template "new"
-        assert_template layout: false
-        expect(response.status).to eq(400)
+        expect(assigns[:job].getTasks().first().instance_of?(PluggableTask)).to eq(true)
       end
 
       it "should create a new job" do
-        stub_save_for_success
+        result = HttpLocalizedOperationResult.new
+        expect(@pipeline_config_service).to receive(:updatePipelineConfig).and_return(result)
 
         post :create, params:{:pipeline_name => "pipeline-name", :stage_name => "stage-name", :job => { :name => "new_job" },  :config_md5 => "1234abcd", :stage_parent => "pipelines"}
 
-        expect(assigns[:node].last).to eq(JobConfig.new("new_job"))
         expect(assigns[:job]).to eq(JobConfig.new("new_job"))
-        assert_update_command ::ConfigUpdate::JobsNode, ::ConfigUpdate::RefsAsUpdatedRefs
       end
 
       it "should show error message when config save fails for reasons other than validations" do
@@ -420,11 +390,15 @@ describe Admin::JobsController do
         expect(@task_view_service).to receive(:taskInstanceFor).and_return(ExecTask.new)
         expect(@task_view_service).to receive(:getTaskViewModelsWith).with(execTask).and_return(@tvms = [TaskViewModel.new(AntTask.new(), "new"), TaskViewModel.new(execTask, "new")].to_java(TaskViewModel))
         expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
-        stub_save_for_validation_error do |result, *_|
-          result.forbidden('some message', HealthStateType.forbiddenForPipeline("pipeline-name"))
-        end
+        result = HttpLocalizedOperationResult.new
+        result.forbidden('some message', HealthStateType.forbiddenForPipeline("pipeline-name"))
+        expect(@pipeline_config_service).to receive(:updatePipelineConfig).and_return(result)
 
-        post :create, params:{:pipeline_name => "pipeline-name", :stage_name => "stage-name", :job => {:name => "new_job", :tasks => {:taskOptions => "exec", "exec" => {:command => "ls", :workingDirectory => 'work'}}},  :config_md5 => "1234abcd", :stage_parent => "pipelines"}
+        post :create, params:{:pipeline_name => "pipeline-name", :stage_name => "stage-name",
+                              :job => {:name => "new_job", :tasks => {:taskOptions => "exec",
+                                                                      "exec" => {:command => "ls", :workingDirectory => 'work'}}},
+                              :config_md5 => "1234abcd", :stage_parent => "pipelines",
+                              :pipeline_md5 => "pipeline-md5", :pipeline_group_name => 'defaultGroup'}
 
         assert_template "new"
         assert_template layout: false
@@ -435,15 +409,18 @@ describe Admin::JobsController do
         execTask = ExecTask.new('ls', '', 'work')
         expect(@task_view_service).to receive(:taskInstanceFor).and_return(ExecTask.new)
         expect(@task_view_service).to receive(:getTaskViewModelsWith).with(execTask).and_return(@tvms = [TaskViewModel.new(AntTask.new(), "new"), TaskViewModel.new(execTask, "new")].to_java(TaskViewModel))
+        result = HttpLocalizedOperationResult.new
+        result.badRequest("Save failed, see errors below")
+        expect(@pipeline_config_service).to receive(:updatePipelineConfig).and_return(result)
         expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
 
         add_resource("job-2", "anything")
 
-        stub_save_for_validation_error do |result, *_|
-          result.badRequest("Save failed, see errors below")
-        end
-
-        post :create, params:{:pipeline_name => "pipeline-name", :stage_name => "stage-name", :job => {:name => "new_job", :tasks => {:taskOptions => "exec", "exec" => {:command => "ls", :workingDirectory => 'work'}}},  :config_md5 => "1234abcd", :stage_parent => "pipelines"}
+        post :create, params:{:pipeline_name => "pipeline-name", :stage_name => "stage-name",
+                              :job => {:name => "new_job", :tasks => {:taskOptions => "exec",
+                                                                      "exec" => {:command => "ls", :workingDirectory => 'work'}}},
+                              :config_md5 => "1234abcd", :stage_parent => "pipelines",
+                              :pipeline_md5 => "pipeline-md5", :pipeline_group_name => 'defaultGroup'}
 
         expect(assigns[:autocomplete_resources]).to eq(["anything"].to_json)
         assert_template "new"

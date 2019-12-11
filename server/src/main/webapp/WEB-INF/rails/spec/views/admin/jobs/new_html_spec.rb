@@ -25,8 +25,10 @@ describe "admin/jobs/new.html.erb" do
   before :each do
     allow(view).to receive(:url_for).and_return("url_for_new_job")
     assign(:cruise_config, @cruise_config = BasicCruiseConfig.new)
+    @pipeline = PipelineConfigMother.createPipelineConfig("pipeline-name", "foo", ["build-1"].to_java(java.lang.String))
     @cruise_config.addPipeline("group-1", @pipeline)
     set(@cruise_config, "md5", "abc")
+    assign(:pipeline, @pipeline)
     in_params(:pipeline_name => "pipeline-name", :action => "index", :controller => "admin/jobs", :stage_name => "stage-name", stage_parent: 'pipelines')
     tvms = java.util.ArrayList.new
     tvms.add(com.thoughtworks.go.presentation.TaskViewModel.new(com.thoughtworks.go.config.AntTask.new, "template"))

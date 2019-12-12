@@ -17,7 +17,6 @@ package com.thoughtworks.go.server.controller;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.PipelinePauseInfo;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
@@ -36,7 +35,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -68,20 +66,6 @@ public class PipelineHistoryController {
         this.schedulingCheckerService = schedulingCheckerService;
         this.securityService = securityService;
         this.pipelinePauseService = pipelinePauseService;
-    }
-
-    @RequestMapping(value = "/tab/pipeline/history", method = RequestMethod.GET)
-    public ModelAndView list(@RequestParam("pipelineName") String pipelineName) {
-        Map model = new HashMap();
-        try {
-            PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
-            model.put("pipelineName", pipelineConfig.name());
-            model.put("isEditableViaUI", goConfigService.isPipelineEditable(pipelineName));
-            return new ModelAndView("pipeline/pipeline_history", model);
-        } catch (RecordNotFoundException e) {
-            model.put("errorMessage", e.getMessage());
-            return new ModelAndView("exceptions_page", model);
-        }
     }
 
     @RequestMapping(value = "/**/pipelineHistory.json", method = RequestMethod.GET)

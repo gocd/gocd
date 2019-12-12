@@ -16,14 +16,13 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.ClearSingleton;
-import com.thoughtworks.go.config.exceptions.EntityType;
-import com.thoughtworks.go.server.newsecurity.SessionUtilsHelper;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.fixture.PipelineWithMultipleStages;
 import com.thoughtworks.go.server.controller.PipelineHistoryController;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.newsecurity.SessionUtilsHelper;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.scheduling.ScheduleHelper;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
@@ -155,20 +154,6 @@ public class PipelineHistoryControllerIntegrationTest {
         Map jsonMap = requestPipelineHistoryPage();
         List groups = (List) jsonMap.get("groups");
         assertThat("Should create group for the coming pipeline", groups.size(), is(1));
-    }
-
-    @Test
-    public void shouldDisplayExceptionPageWhenPipelineIsNotFound() throws Exception {
-        ModelAndView list = controller.list("Un-available");
-        assertThat(list.getViewName(), is("exceptions_page"));
-        assertThat(list.getModel().get("errorMessage"), is(EntityType.Pipeline.notFoundMessage("Un-available")));
-    }
-
-    @Test
-    public void shouldDisplayPipelineHistoryPage() throws Exception {
-        ModelAndView list = controller.list(fixture.pipelineName);
-        assertThat(list.getViewName(), is("pipeline/pipeline_history"));
-        assertThat(list.getModel().get("pipelineName").toString(), is(fixture.pipelineName));
     }
 
     private String getItemInJson(Map jsonMap, String key) {

@@ -120,14 +120,34 @@ describe('EditPipelineGroupModal', () => {
       expect(testHelper.byTestId("collapse-body", testHelper.byTestId("users-permissions-collapse"))).not.toBeHidden();
     });
 
-    it('should disable checkboxes for view and operate permissions on enable of admin permission', () => {
-      const operateUserPermissions = testHelper.allByTestId("table-row", testHelper.byTestId("users-permissions"))[1] as HTMLElement;
+    it('should disable checkboxes for view permissions on enable of operate permission', () => {
+      testHelper.clickByTestId("add-user-permission");
+      const operateUserPermissions = testHelper.allByTestId("table-row", testHelper.byTestId("users-permissions"))[3] as HTMLElement;
 
       expect(testHelper.byTestId("view-permission", operateUserPermissions)).not.toBeDisabled();
       expect(testHelper.byTestId("view-permission", operateUserPermissions)).not.toBeChecked();
 
       expect(testHelper.byTestId("operate-permission", operateUserPermissions)).not.toBeDisabled();
+      expect(testHelper.byTestId("operate-permission", operateUserPermissions)).not.toBeChecked();
+
+      testHelper.click(testHelper.byTestId("operate-permission", operateUserPermissions));
+
+      expect(testHelper.byTestId("view-permission", operateUserPermissions)).toBeDisabled();
+      expect(testHelper.byTestId("view-permission", operateUserPermissions)).toBeChecked();
+
       expect(testHelper.byTestId("operate-permission", operateUserPermissions)).toBeChecked();
+
+    });
+
+    it('should disable checkboxes for view and operate permissions on enable of admin permission', () => {
+      testHelper.clickByTestId("add-user-permission");
+      const operateUserPermissions = testHelper.allByTestId("table-row", testHelper.byTestId("users-permissions"))[3] as HTMLElement;
+
+      expect(testHelper.byTestId("view-permission", operateUserPermissions)).not.toBeDisabled();
+      expect(testHelper.byTestId("view-permission", operateUserPermissions)).not.toBeChecked();
+
+      expect(testHelper.byTestId("operate-permission", operateUserPermissions)).not.toBeDisabled();
+      expect(testHelper.byTestId("operate-permission", operateUserPermissions)).not.toBeChecked();
 
       expect(testHelper.byTestId("admin-permission", operateUserPermissions)).not.toBeDisabled();
       expect(testHelper.byTestId("admin-permission", operateUserPermissions)).not.toBeChecked();
@@ -207,6 +227,50 @@ describe('EditPipelineGroupModal', () => {
       expect(testHelper.byTestId("collapse-body", testHelper.byTestId("roles-permissions-collapse"))).toBeHidden();
       testHelper.click(testHelper.byTestId("add-role-permission"));
       expect(testHelper.byTestId("collapse-body", testHelper.byTestId("roles-permissions-collapse"))).not.toBeHidden();
+    });
+
+    it('should disable checkboxes for view permissions on enable of operate permission', () => {
+      testHelper.clickByTestId("add-role-permission");
+      const operateRolePermissions = testHelper.allByTestId("table-row", testHelper.byTestId("roles-permissions"))[3] as HTMLElement;
+
+      expect(testHelper.byTestId("view-permission", operateRolePermissions)).not.toBeDisabled();
+      expect(testHelper.byTestId("view-permission", operateRolePermissions)).not.toBeChecked();
+
+      expect(testHelper.byTestId("operate-permission", operateRolePermissions)).not.toBeDisabled();
+      expect(testHelper.byTestId("operate-permission", operateRolePermissions)).not.toBeChecked();
+
+      testHelper.click(testHelper.byTestId("operate-permission", operateRolePermissions));
+
+      expect(testHelper.byTestId("view-permission", operateRolePermissions)).toBeDisabled();
+      expect(testHelper.byTestId("view-permission", operateRolePermissions)).toBeChecked();
+
+      expect(testHelper.byTestId("operate-permission", operateRolePermissions)).toBeChecked();
+
+    });
+
+    it('should disable checkboxes for view and operate permissions on enable of admin permission', () => {
+      testHelper.clickByTestId("add-role-permission");
+      const operateRolePermissions = testHelper.allByTestId("table-row", testHelper.byTestId("roles-permissions"))[3] as HTMLElement;
+
+      expect(testHelper.byTestId("view-permission", operateRolePermissions)).not.toBeDisabled();
+      expect(testHelper.byTestId("view-permission", operateRolePermissions)).not.toBeChecked();
+
+      expect(testHelper.byTestId("operate-permission", operateRolePermissions)).not.toBeDisabled();
+      expect(testHelper.byTestId("operate-permission", operateRolePermissions)).not.toBeChecked();
+
+      expect(testHelper.byTestId("admin-permission", operateRolePermissions)).not.toBeDisabled();
+      expect(testHelper.byTestId("admin-permission", operateRolePermissions)).not.toBeChecked();
+
+      testHelper.click(testHelper.byTestId("admin-permission", operateRolePermissions));
+
+      expect(testHelper.byTestId("view-permission", operateRolePermissions)).toBeDisabled();
+      expect(testHelper.byTestId("view-permission", operateRolePermissions)).toBeChecked();
+
+      expect(testHelper.byTestId("operate-permission", operateRolePermissions)).toBeDisabled();
+      expect(testHelper.byTestId("operate-permission", operateRolePermissions)).toBeChecked();
+
+      expect(testHelper.byTestId("admin-permission", operateRolePermissions)).not.toBeDisabled();
+      expect(testHelper.byTestId("admin-permission", operateRolePermissions)).toBeChecked();
     });
   });
 

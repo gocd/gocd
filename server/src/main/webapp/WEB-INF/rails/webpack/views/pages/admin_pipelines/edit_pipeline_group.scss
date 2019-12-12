@@ -15,10 +15,6 @@
  */
 @import "../../global/common";
 
-.users-permission-table-div {
-  display: block;
-}
-
 .icon-delete {
   @include icon-before($type: $fa-var-times);
   border:  none;
@@ -41,6 +37,19 @@
   display: flex;
 }
 
-.pipeline-group-tooltip-wrapper{
+.pipeline-group-tooltip-wrapper {
   margin-top: 30px;
+}
+
+.permission-checkbox-wrapper {
+  display: flex;
+}
+
+.cancel-button-wrapper {
+  display:       flex;
+  margin-bottom: 10px;
+}
+
+.permission-name-wrapper {
+  margin-top: 10px;
 }

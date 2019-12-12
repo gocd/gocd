@@ -110,10 +110,7 @@ export class EditPipelineGroupModal extends Modal {
                         dataTestId={"users-permissions-collapse"}
                         actions={<Secondary dataTestId={"add-user-permission"}
                                             onclick={this.addUserAuthorization.bind(this)}>Add</Secondary>}>
-        <div class={styles.usersPermissionTableDiv}>
-          <Table data={this.userPermissionData()} headers={["Name", "View", "Operate", "Admin", ""]}
-                 data-test-id="users-permissions"/>
-        </div>
+        <Table data={this.userPermissionData()} headers={["Name", "View", "Operate", "Admin", ""]} data-test-id="users-permissions"/>
       </CollapsiblePanel>
       <CollapsiblePanel header={"Role permissions"}
                         expanded={true}
@@ -122,8 +119,7 @@ export class EditPipelineGroupModal extends Modal {
                         dataTestId={"roles-permissions-collapse"}
                         actions={<Secondary dataTestId={"add-role-permission"}
                                             onclick={this.addRoleAuthorization.bind(this)}>Add</Secondary>}>
-        <Table data={this.rolePermissionData()} headers={["Name", "View", "Operate", "Admin", ""]}
-               data-test-id="roles-permissions"/>
+        <Table data={this.rolePermissionData()} headers={["Name", "View", "Operate", "Admin", ""]} data-test-id="roles-permissions"/>
       </CollapsiblePanel>
     </div>;
   }
@@ -141,41 +137,53 @@ export class EditPipelineGroupModal extends Modal {
 
   userPermissionData() {
     return this.pipelineGroupViewModel.authorizedUsers().map((authorizedEntity) => [
-      <AutocompleteField dataTestId={"user-name"} property={authorizedEntity.name} required={true} maxItems={25}
-                         provider={this.usersProvider} autoEvaluate={false}/>,
-      <CheckboxField property={authorizedEntity.view} dataTestId={"view-permission"}
-                     readonly={authorizedEntity.admin()}/>,
-      <CheckboxField property={authorizedEntity.operate} dataTestId={"operate-permission"}
-                     readonly={authorizedEntity.admin()}/>,
-      <CheckboxField property={authorizedEntity.admin} dataTestId={"admin-permission"}
-                     onchange={() => {
-                       authorizedEntity.view(true);
-                       authorizedEntity.operate(true);
-                     }}/>,
-      <Cancel data-test-id="user-permission-delete" onclick={() => this.removeUser(authorizedEntity)}>
-        <span class={styles.iconDelete}/>
-      </Cancel>
+      <div class={styles.permissionNameWrapper}>
+        <AutocompleteField dataTestId={"user-name"} property={authorizedEntity.name} required={true} maxItems={25} provider={this.usersProvider} autoEvaluate={false}/>
+      </div>,
+      <div class={styles.permissionCheckboxWrapper}>
+        <CheckboxField property={authorizedEntity.view} dataTestId={"view-permission"} readonly={authorizedEntity.admin() || authorizedEntity.operate()}/>
+      </div>,
+      <div className={styles.permissionCheckboxWrapper}>
+        <CheckboxField property={authorizedEntity.operate} dataTestId={"operate-permission"} readonly={authorizedEntity.admin()}
+                       onchange={() => authorizedEntity.view(true)}/>
+      </div>,
+      <div className={styles.permissionCheckboxWrapper}>
+        <CheckboxField property={authorizedEntity.admin} dataTestId={"admin-permission"} onchange={() => {
+          authorizedEntity.view(true);
+          authorizedEntity.operate(true);
+        }}/>
+      </div>,
+      <div className={styles.cancelButtonWrapper}>
+        <Cancel data-test-id="user-permission-delete" onclick={() => this.removeUser(authorizedEntity)}>
+          <span class={styles.iconDelete}/>
+        </Cancel>
+      </div>
     ]);
   }
 
   rolePermissionData() {
     return this.pipelineGroupViewModel.authorizedRoles().map((authorizedEntity) => [
-      <AutocompleteField dataTestId={"role-name"} property={authorizedEntity.name} required={true} maxItems={25}
-                         provider={this.rolesProvider}/>,
-      <CheckboxField property={authorizedEntity.view} dataTestId={"view-permission"}
-                     readonly={authorizedEntity.admin()}/>,
-      <CheckboxField property={authorizedEntity.operate} dataTestId={"operate-permission"}
-                     readonly={authorizedEntity.admin()}/>,
-      <CheckboxField property={authorizedEntity.admin}
-                     dataTestId={"admin-permission"}
-                     onchange={() => {
-                       authorizedEntity.view(true);
-                       authorizedEntity.operate(true);
-                     }}
-      />,
-      <Cancel data-test-id="role-permission-delete" onclick={() => this.removeRole(authorizedEntity)}>
-        <span class={styles.iconDelete}/>
-      </Cancel>
+      <div className={styles.permissionNameWrapper}>
+        <AutocompleteField dataTestId={"role-name"} property={authorizedEntity.name} required={true} maxItems={25} provider={this.rolesProvider} autoEvaluate={false}/>
+      </div>,
+      <div className={styles.permissionCheckboxWrapper}>
+        <CheckboxField property={authorizedEntity.view} dataTestId={"view-permission"} readonly={authorizedEntity.admin() || authorizedEntity.operate()}/>
+      </div>,
+      <div className={styles.permissionCheckboxWrapper}>
+        <CheckboxField property={authorizedEntity.operate} dataTestId={"operate-permission"} readonly={authorizedEntity.admin()}
+                       onchange={() => authorizedEntity.view(true)}/>
+      </div>,
+      <div className={styles.permissionCheckboxWrapper}>
+        <CheckboxField property={authorizedEntity.admin} dataTestId={"admin-permission"} onchange={() => {
+          authorizedEntity.view(true);
+          authorizedEntity.operate(true);
+        }}/>
+      </div>,
+      <div className={styles.cancelButtonWrapper}>
+        <Cancel data-test-id="role-permission-delete" onclick={() => this.removeRole(authorizedEntity)}>
+          <span class={styles.iconDelete}/>
+        </Cancel>
+      </div>
     ]);
   }
 

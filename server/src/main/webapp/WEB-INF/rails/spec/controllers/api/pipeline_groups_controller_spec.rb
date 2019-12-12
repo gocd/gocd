@@ -26,6 +26,9 @@ describe Api::PipelineGroupsController do
   describe "list_pipeline_group_configs" do
     before :each do
       allow(controller).to receive(:pipeline_configs_service).and_return(@pipeline_configs_service = double('pipeline_configs_service'))
+      allow(controller).to receive(:feature_toggle_service).and_return(@feature_toggle_service = double('feature_toggle_service'))
+
+      allow(@feature_toggle_service).to receive(:isToggleOn).with("enable_pipeline_group_config_listing_api").and_return(true)
     end
 
     it "should resolve" do
@@ -40,6 +43,14 @@ describe Api::PipelineGroupsController do
       get :list_configs, params:{:no_layout => true}
 
       expect(response.body).to eq([PipelineGroupConfigAPIModel.new(create_pipeline_group_config_model)].to_json)
+    end
+
+    it "should render not found error when API toggle is turned off" do
+      allow(@feature_toggle_service).to receive(:isToggleOn).with("enable_pipeline_group_config_listing_api").and_return(false)
+
+      get :list_configs, params:{:no_layout => true}
+
+      expect(response.body).to eq({message: 'Either the resource you requested was not found, or you are not authorized to perform this action.'}.to_json)
     end
   end
 end

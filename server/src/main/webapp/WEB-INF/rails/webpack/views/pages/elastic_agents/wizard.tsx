@@ -100,7 +100,7 @@ class ClusterProfileWidget extends MithrilViewComponent<Attrs> {
     if (newValue) {
       // if newValue is different from current value
       if (this.pluginInfoForCurrentClusterProfileOrDefaultToFirstPlugin(vnode).id !== newValue) {
-        const newPluginInfo = this.findPluginWithId(vnode, newValue);
+        const newPluginInfo = vnode.attrs.pluginInfos().findByPluginId(newValue);
 
         vnode.attrs.clusterProfile().pluginId(newPluginInfo!.id);
         vnode.attrs.clusterProfile().properties(new Configurations([]));
@@ -115,8 +115,8 @@ class ClusterProfileWidget extends MithrilViewComponent<Attrs> {
   private pluginInfoForCurrentClusterProfileOrDefaultToFirstPlugin(vnode: m.Vnode<Attrs>) {
     let result;
     if (vnode.attrs.clusterProfile() && vnode.attrs.clusterProfile().pluginId()) {
-      const pluginId = vnode.attrs.clusterProfile().pluginId();
-      result         = this.findPluginWithId(vnode, pluginId);
+      const pluginId = vnode.attrs.clusterProfile().pluginId()!;
+      result         = vnode.attrs.pluginInfos().findByPluginId(pluginId);
     }
 
     if (!result) {
@@ -124,10 +124,6 @@ class ClusterProfileWidget extends MithrilViewComponent<Attrs> {
     }
 
     return result;
-  }
-
-  private findPluginWithId(vnode: m.Vnode<Attrs>, pluginId?: string) {
-    return vnode.attrs.pluginInfos().find((pluginInfo) => pluginInfo.id === pluginId);
   }
 
   private clusterProfileForm(vnode: m.Vnode<Attrs, this>) {
@@ -182,15 +178,11 @@ class ElasticProfileWidget extends MithrilViewComponent<Attrs> {
     );
   }
 
-  private findPluginWithId(vnode: m.Vnode<Attrs>, pluginId?: string) {
-    return vnode.attrs.pluginInfos().find((pluginInfo) => pluginInfo.id === pluginId);
-  }
-
   private pluginInfoForCurrentElasticProfileOrDefaultToFirstPlugin(vnode: m.Vnode<Attrs>) {
     let result;
     const pluginId = vnode.attrs.clusterProfile().pluginId();
     if (vnode.attrs.elasticProfile() && pluginId) {
-      result = this.findPluginWithId(vnode, pluginId);
+      result = vnode.attrs.pluginInfos().findByPluginId(pluginId);
     }
 
     if (!result) {

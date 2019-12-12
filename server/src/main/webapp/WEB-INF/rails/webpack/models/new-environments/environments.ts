@@ -113,7 +113,7 @@ export class EnvironmentWithOrigin extends ValidatableMixin {
       origins.push(new Origin(OriginType.GoCD));
     }
     return new EnvironmentWithOrigin(data.name,
-                                     data.permissions ? Permissions.fromJSON(data.permissions) : new Permissions(false, false),
+                                     Permissions.fromJSON(data.permissions),
                                      origins,
                                      Agents.fromJSON(data.agents),
                                      Pipelines.fromJSON(data.pipelines),
@@ -161,7 +161,7 @@ export class EnvironmentWithOrigin extends ValidatableMixin {
 
   clone(): EnvironmentWithOrigin {
     return new EnvironmentWithOrigin(this.name(),
-                                     new Permissions(false, false),
+                                     new Permissions(true, true),
                                      this.origins().map((origin) => origin.clone()),
                                      this.agents().map((agent) => agent.clone()),
                                      this.pipelines().clone(),

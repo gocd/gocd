@@ -24,16 +24,11 @@ export interface EmbeddedJSON {
   config_repos: ConfigRepoJSON[];
 }
 
-export interface PermissionsJSON {
-  can_edit: boolean;
-  can_administer: boolean;
-}
-
 export interface ConfigRepoJSON {
   id: string;
   plugin_id: string;
   material: MaterialJSON;
-  permissions: PermissionsJSON;
+  can_administer: boolean;
   configuration: any[];
   parse_info: ParseInfoJSON;
   errors?: ErrorsJSON;

@@ -59,7 +59,7 @@ describe("TriStateCheckbox Model", () => {
     expect(checkbox.isChecked()).toBe(true);
   });
 
-  it("should toggle correctly through stages if initially in on/off state", () => {
+  it("should toggle correctly through stages if initially in on state", () => {
     const checkbox = new TriStateCheckbox(TristateState.on);
 
     checkbox.click();
@@ -69,7 +69,7 @@ describe("TriStateCheckbox Model", () => {
     expect(checkbox.isChecked()).toBe(true);
   });
 
-  it("should toggle correctly through stages if initially in on/off state", () => {
+  it("should toggle correctly through stages if initially in off state", () => {
     const checkbox = new TriStateCheckbox(TristateState.off);
 
     checkbox.click();

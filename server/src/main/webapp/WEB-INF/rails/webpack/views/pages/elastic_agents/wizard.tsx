@@ -189,7 +189,6 @@ class ElasticProfileWidget extends MithrilViewComponent<Attrs> {
   private pluginInfoForCurrentElasticProfileOrDefaultToFirstPlugin(vnode: m.Vnode<Attrs>) {
     let result;
     const pluginId = vnode.attrs.clusterProfile().pluginId();
-    // console.log("plugin Id in elastic profile " + pluginId);
     if (vnode.attrs.elasticProfile() && pluginId) {
       result = this.findPluginWithId(vnode, pluginId);
     }

@@ -237,8 +237,7 @@ export class HelpText extends RestyleViewComponent<Styles, HelpTextComponentAttr
 
   view(vnode: m.Vnode<HelpTextComponentAttrs>) {
     if (!_.isEmpty(vnode.attrs.helpText)) {
-      return (<span data-test-id={`form-field-help-`}
-        id={vnode.attrs.helpTextId} class={classnames(this.css.formHelp)}>
+      return (<span id={vnode.attrs.helpTextId} class={classnames(this.css.formHelp)}>
         {vnode.attrs.helpText}{HelpText.maybeDocLink(vnode.attrs.docLink)}</span>);
     }
   }

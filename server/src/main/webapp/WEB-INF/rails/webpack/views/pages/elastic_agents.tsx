@@ -15,6 +15,7 @@
  */
 
 import {ErrorResponse} from "helpers/api_request_builder";
+import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {ClusterProfilesCRUD} from "models/elastic_profiles/cluster_profiles_crud";
@@ -37,10 +38,7 @@ import {NoPluginsOfTypeInstalled} from "views/components/no_plugins_installed";
 import {CloseListener} from "views/components/wizard";
 import {ElasticProfilesPage} from "views/pages/elastic_agent_configurations";
 import {ClusterProfileOperations} from "views/pages/elastic_agent_configurations/cluster_profile_widget";
-import {
-  CloneClusterProfileModal,
-  NewClusterProfileModal
-} from "views/pages/elastic_agent_configurations/cluster_profiles_modals";
+import {CloneClusterProfileModal} from "views/pages/elastic_agent_configurations/cluster_profiles_modals";
 import {ClusterProfilesWidget} from "views/pages/elastic_agent_configurations/cluster_profiles_widget";
 import {
   CloneElasticProfileModal,
@@ -226,12 +224,7 @@ export class ElasticAgentsPage extends Page<null, State> {
         modal.render();
       },
 
-      onAdd: (e: MouseEvent) => {
-        e.stopPropagation();
-        this.flashMessage.clear();
-
-        new NewClusterProfileModal(vnode.state.pluginInfos(), vnode.state.onSuccessfulSave).render();
-      },
+      onAdd: (e: MouseEvent) => _.noop(), //for compatibility with ClusterProfileOperations, cleanup when old page is removed
 
       onClone: (clusterProfile: ClusterProfile, event: MouseEvent) => {
         event.stopPropagation();

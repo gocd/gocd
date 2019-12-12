@@ -17,23 +17,23 @@
 @import "../../global/common";
 
 .panel-header {
-  background: $secondary-bg;
+  background:    $secondary-bg;
   border-radius: $global-border-radius $global-border-radius 0 0;
 }
 
 .panel-title {
   font-weight: $global-font-weight;
-  padding: 15px 20px;
-  margin: 0;
+  padding:     15px 20px;
+  margin:      0;
 }
 
 .concepts {
-  display: flex;
-  flex-direction: row;
-  align-items: start;
+  display:         flex;
+  flex-direction:  row;
+  align-items:     start;
   justify-content: space-evenly;
-  background: $white;
-  padding-bottom: 50px;
-  padding-top: 50px;
-  border-radius: 0 0 $global-border-radius $global-border-radius;
+  background:      $white;
+  padding-bottom:  50px;
+  padding-top:     50px;
+  border-radius:   0 0 $global-border-radius $global-border-radius;
 }

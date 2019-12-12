@@ -19,7 +19,7 @@
   width:           100%;
   display:         flex;
   justify-content: center;
-  align-items: flex-start;
+  align-items:     flex-start;
 
   > div {
     width:      45%;
@@ -51,7 +51,7 @@
 
 .pipeline-structure-content {
   overflow: auto;
-  height: 100%;
+  height:   100%;
 }
 
 .pipeline-structure-header {
@@ -99,7 +99,7 @@
 }
 
 .footer-error {
-  color: $go-danger;
-  float: right;
+  color:      $go-danger;
+  float:      right;
   margin-top: 7px;
 }

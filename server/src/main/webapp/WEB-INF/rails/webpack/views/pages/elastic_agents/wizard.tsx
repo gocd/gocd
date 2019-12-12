@@ -77,7 +77,7 @@ class ClusterProfileWidget extends MithrilViewComponent<Attrs> {
             <div><SelectField label="Plugin ID"
                               property={this.pluginIdProxy.bind(this, vnode)}
                               required={true}
-                              readonly={vnode.attrs.readonly}
+                              readonly={vnode.attrs.etag !== undefined || vnode.attrs.readonly}
                               errorText={vnode.attrs.clusterProfile().errors().errorsForDisplay("pluginId")}>
               <SelectFieldOptions selected={vnode.attrs.clusterProfile().pluginId()}
                                   items={pluginList}/>

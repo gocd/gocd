@@ -305,6 +305,7 @@ describe("ElasticAgentWizard", () => {
       promiseForGetCall.finally(() => {
         m.redraw.sync();
         expect(helper.byTestId("form-field-input-cluster-profile-name", modalContext())).toBeDisabled();
+        expect(helper.byTestId("form-field-input-plugin-id", modalContext())).toBeDisabled();
         done();
       });
     });

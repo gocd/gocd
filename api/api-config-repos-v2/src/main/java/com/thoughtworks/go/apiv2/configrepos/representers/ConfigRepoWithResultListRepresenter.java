@@ -17,20 +17,23 @@
 package com.thoughtworks.go.apiv2.configrepos.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.apiv2.configrepos.ConfigRepoWithResult;
 
 import java.util.List;
+import java.util.function.Function;
 
 import static com.thoughtworks.go.spark.Routes.ConfigRepos.BASE;
 
 public class ConfigRepoWithResultListRepresenter {
-    public static void toJSON(OutputWriter json, List<ConfigRepoWithResult> repos, ApiAuthenticationHelper apiAuthenticationHelper) {
+    public static void toJSON(OutputWriter json, List<ConfigRepoWithResult> repos, Function<String, Boolean> canUserAdministerConfigRepo) {
         attachLinks(json);
         json.addChild("_embedded", w -> w.addChildList(
                 "config_repos", all -> repos.forEach(
                         repo -> {
-                            all.addChild(el -> ConfigRepoWithResultRepresenter.toJSON(el, repo, apiAuthenticationHelper));
+                            boolean canAdminister = canUserAdministerConfigRepo.apply(repo.repo().getId());
+                            all.addChild(
+                                    el -> ConfigRepoWithResultRepresenter.toJSON(el, repo, canAdminister)
+                            );
                         }
                 )
         ));

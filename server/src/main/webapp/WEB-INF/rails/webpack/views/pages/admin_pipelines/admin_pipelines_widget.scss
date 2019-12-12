@@ -41,6 +41,10 @@
   padding-left:   10px;
 }
 
+@mixin header {
+  font-weight: bold;
+}
+
 @mixin action-buttons {
   display:     flex;
   align-items: center;
@@ -53,7 +57,14 @@
 
   .pipeline-group-name {
     @include name;
+    flex-direction: inherit;
+
+    .value {
+      @include header;
+      margin-left: 5px;
+    }
   }
+
 
   .pipeline-group-action-buttons {
     @include action-buttons;

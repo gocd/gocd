@@ -108,7 +108,10 @@ class TemplateWidget extends MithrilViewComponent<TemplateAttrs> {
         <div data-test-id={`template-${s.slugify(vnode.attrs.template.name)}`}
              class={styles.pipelineGroupRow}>
           <div data-test-id={`template-name-${s.slugify(vnode.attrs.template.name)}`}
-               class={styles.pipelineGroupName}>Template: {vnode.attrs.template.name}</div>
+               class={styles.pipelineGroupName}>
+            <span>Template:</span>
+            <span class={styles.value}>{vnode.attrs.template.name}</span>
+          </div>
           <div class={styles.pipelineGroupActionButtons}>{this.actions(vnode)}</div>
           {this.showPipelinesAssociatedWith(vnode)}
         </div>

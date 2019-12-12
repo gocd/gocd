@@ -37,6 +37,7 @@ import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
 import {Attrs, PipelineGroupsWidget} from "views/pages/admin_pipelines/admin_pipelines_widget";
 import {ClonePipelineConfigModal, CreatePipelineGroupModal, DownloadPipelineModal, ExtractTemplateModal, MoveConfirmModal} from "views/pages/admin_pipelines/modals";
 import {Page, PageState} from "views/pages/page";
+import buttonStyle from "views/pages/pipelines/actions.scss";
 
 interface State extends Attrs {
   pluginInfos: Stream<PluginInfos>;
@@ -105,11 +106,11 @@ export class AdminPipelinesPage extends Page<null, State> {
 
         ApiRequestBuilder
           .PUT(SparkRoutes.adminPipelineConfigPath(pipeline.name()),
-               ApiVersion.latest,
-               {
-                 payload: pipelineToSave,
-                 etag: etag()
-               })
+            ApiVersion.latest,
+            {
+              payload: pipelineToSave,
+              etag: etag()
+            })
           .then((apiResult) => {
             apiResult.do(
               () => {
@@ -130,17 +131,17 @@ export class AdminPipelinesPage extends Page<null, State> {
 
       };
       const modal         = new MoveConfirmModal(vnode.state.pipelineGroups(),
-                                                 sourceGroup,
-                                                 pipeline,
-                                                 moveOperation);
+        sourceGroup,
+        pipeline,
+        moveOperation);
       modal.modalState    = ModalState.LOADING;
       modal.render();
 
       this.fetchPipelineConfigFromServer(pipeline.name(),
-                                         copyOfPipelineConfigFromServer,
-                                         etag,
-                                         onOperationError,
-                                         modal);
+        copyOfPipelineConfigFromServer,
+        etag,
+        onOperationError,
+        modal);
     };
 
     vnode.state.onError = (msg: m.Children) => {
@@ -157,16 +158,16 @@ export class AdminPipelinesPage extends Page<null, State> {
 
       const modal: DeleteConfirmModal = new DeleteConfirmModal(message, () => {
         return ApiRequestBuilder.DELETE(SparkRoutes.pipelineGroupsPath(group.name()), ApiVersion.latest)
-                                .then((result) => {
-                                  result.do(
-                                    () => vnode.state.onSuccessfulSave(
-                                      <span>The pipeline group <em>{group.name()}</em> was deleted successfully!</span>
-                                    ),
-                                    onOperationError
-                                  );
+          .then((result) => {
+            result.do(
+              () => vnode.state.onSuccessfulSave(
+                <span>The pipeline group <em>{group.name()}</em> was deleted successfully!</span>
+              ),
+              onOperationError
+            );
 
-                                })
-                                .finally(modal.close.bind(modal));
+          })
+          .finally(modal.close.bind(modal));
       });
       modal.render();
 
@@ -177,16 +178,16 @@ export class AdminPipelinesPage extends Page<null, State> {
 
       const modal: DeleteConfirmModal = new DeleteConfirmModal(message, () => {
         return ApiRequestBuilder.DELETE(SparkRoutes.adminPipelineConfigPath(pipeline.name()), ApiVersion.latest)
-                                .then((result) => {
-                                  result.do(
-                                    () => vnode.state.onSuccessfulSave(
-                                      <span>The pipeline group <em>{pipeline.name()}</em> was deleted successfully!</span>
-                                    ),
-                                    onOperationError
-                                  );
+          .then((result) => {
+            result.do(
+              () => vnode.state.onSuccessfulSave(
+                <span>The pipeline group <em>{pipeline.name()}</em> was deleted successfully!</span>
+              ),
+              onOperationError
+            );
 
-                                })
-                                .finally(modal.close.bind(modal));
+          })
+          .finally(modal.close.bind(modal));
       });
 
       modal.render();
@@ -195,12 +196,12 @@ export class AdminPipelinesPage extends Page<null, State> {
     vnode.state.doExtractPipeline = (pipeline) => {
       const extractOperation = (templateName: string) => {
         ApiRequestBuilder.PUT(SparkRoutes.adminExtractTemplateFromPipelineConfigPath(pipeline.name()),
-                              ApiVersion.latest,
-                              {
-                                payload: {
-                                  template_name: templateName
-                                }
-                              }).then((apiResult) => {
+          ApiVersion.latest,
+          {
+            payload: {
+              template_name: templateName
+            }
+          }).then((apiResult) => {
           apiResult.do(
             (successResponse) => {
               const msg = (
@@ -234,17 +235,17 @@ export class AdminPipelinesPage extends Page<null, State> {
 
         ApiRequestBuilder
           .POST(SparkRoutes.pipelineConfigCreatePath(),
-                ApiVersion.latest,
-                {
-                  payload: {
-                    group: newPipelineGroup,
-                    pipeline: pipelineToSave
-                  },
-                  headers: {
-                    "X-pause-pipeline": "true",
-                    "X-pause-cause": "Under construction"
-                  }
-                })
+            ApiVersion.latest,
+            {
+              payload: {
+                group: newPipelineGroup,
+                pipeline: pipelineToSave
+              },
+              headers: {
+                "X-pause-pipeline": "true",
+                "X-pause-cause": "Under construction"
+              }
+            })
           .then((apiResult) => {
             apiResult.do(
               () => {
@@ -266,10 +267,10 @@ export class AdminPipelinesPage extends Page<null, State> {
       modal.render();
 
       this.fetchPipelineConfigFromServer(shallowPipeline.name(),
-                                         copyOfPipelineConfigFromServer,
-                                         etag,
-                                         onOperationError,
-                                         modal);
+        copyOfPipelineConfigFromServer,
+        etag,
+        onOperationError,
+        modal);
 
     };
 
@@ -314,9 +315,9 @@ export class AdminPipelinesPage extends Page<null, State> {
     };
 
     return Promise.all([
-                         EnvironmentsAPIs.allPipelines("administer", "view"),
-                         PluginInfoCRUD.all({type: ExtensionTypeString.CONFIG_REPO})
-                       ]).then((args) => {
+      EnvironmentsAPIs.allPipelines("administer", "view"),
+      PluginInfoCRUD.all({type: ExtensionTypeString.CONFIG_REPO})
+    ]).then((args) => {
       const pipelineGroups: ApiResult<PipelineStructure> = args[0];
       const pluginInfos: ApiResult<PluginInfos>          = args[1];
 
@@ -348,11 +349,12 @@ export class AdminPipelinesPage extends Page<null, State> {
 
   protected headerPanel(vnode: m.Vnode<null, State>): any {
     const headerButtons = [
-      <Buttons.Primary icon={ButtonIcon.ADD}
-                       disabled={!headerMeta().isUserAdmin}
-                       title={headerMeta().isUserAdmin ? "Create a new pipeline group" : "Only GoCD system adminstrators are allowed to create a pipeline group."}
-                       onclick={vnode.state.createPipelineGroup.bind(vnode.state)}
-                       data-test-id="create-new-pipeline-group">Create new pipeline group</Buttons.Primary>
+      <Buttons.Secondary css={buttonStyle}
+                         icon={ButtonIcon.ADD}
+                         disabled={!headerMeta().isUserAdmin}
+                         title={headerMeta().isUserAdmin ? "Create a new pipeline group" : "Only GoCD system administrators are allowed to create a pipeline group."}
+                         onclick={vnode.state.createPipelineGroup.bind(vnode.state)}
+                         data-test-id="create-new-pipeline-group">Create new pipeline group</Buttons.Secondary>
     ];
     return <HeaderPanel title={this.pageName()} buttons={headerButtons}/>;
   }

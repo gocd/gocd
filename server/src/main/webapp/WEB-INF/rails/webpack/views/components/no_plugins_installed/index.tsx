@@ -18,6 +18,7 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import {AbstractExtensionType} from "models/shared/plugin_infos_new/extension_type";
 import {ExtensionJSON} from "models/shared/plugin_infos_new/serialization";
+import {FlashMessage, MessageType} from "views/components/flash_message";
 
 interface Attrs<T extends ExtensionJSON> {
   extensionType: AbstractExtensionType<T>;
@@ -25,12 +26,13 @@ interface Attrs<T extends ExtensionJSON> {
 
 export class NoPluginsOfTypeInstalled<T extends ExtensionJSON> extends MithrilViewComponent<Attrs<T>> {
   view(vnode: m.Vnode<Attrs<T>, this>): m.Children | void | null {
-    return (
+    const message = (
       <div>
         To use this page, you must ensure that there are one or
         more {vnode.attrs.extensionType.humanReadableName()} plugins installed. Please see <a
         href={vnode.attrs.extensionType.linkForDocs()}>this page</a> for a list of supported plugins.
       </div>
     );
+    return <FlashMessage type={MessageType.warning} message={message}/>;
   }
 }

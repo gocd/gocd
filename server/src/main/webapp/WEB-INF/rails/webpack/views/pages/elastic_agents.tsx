@@ -224,7 +224,24 @@ export class ElasticAgentsPage extends Page<null, State> {
         modal.render();
       },
 
-      onAdd: (e: MouseEvent) => _.noop(), //for compatibility with ClusterProfileOperations, cleanup when old page is removed
+      onAdd: (e: MouseEvent) => {
+        vnode.state.isWizardOpen(true);
+        vnode.state.clusterProfileBeingEdited(new ClusterProfile("",
+                                                                 vnode.state.pluginInfos()[0].id,
+                                                                 new Configurations([])));
+        vnode.state.elasticProfileBeingEdited(new ElasticAgentProfile("",
+                                                                      vnode.state.clusterProfileBeingEdited().pluginId(),
+                                                                      vnode.state.clusterProfileBeingEdited().id(),
+                                                                      new Configurations([])));
+
+        vnode.state.isWizardOpen(true);
+        return openWizardForAdd(vnode.state.pluginInfos,
+                                vnode.state.clusterProfileBeingEdited,
+                                vnode.state.elasticProfileBeingEdited,
+                                vnode.state.onSuccessfulSave,
+                                vnode.state.onError,
+                                this.closeListener(vnode));
+      },
 
       onClone: (clusterProfile: ClusterProfile, event: MouseEvent) => {
         event.stopPropagation();
@@ -321,27 +338,8 @@ export class ElasticAgentsPage extends Page<null, State> {
     const hasPluginInstalled = vnode.state.pluginInfos().length !== 0;
     const isWizardClose      = vnode.state.isWizardOpen !== undefined && !vnode.state.isWizardOpen();
     if (hasPluginInstalled && isWizardClose) {
-      return <Primary onclick={this.addNewClusterProfile.bind(this, vnode)}>Add</Primary>;
+      return <Primary onclick={vnode.state.clusterProfileOperations.onAdd}>Add</Primary>;
     }
-  }
-
-  private addNewClusterProfile(vnode: m.Vnode<null, State>) {
-    vnode.state.isWizardOpen(true);
-    vnode.state.clusterProfileBeingEdited(new ClusterProfile("",
-                                                             vnode.state.pluginInfos()[0].id,
-                                                             new Configurations([])));
-    vnode.state.elasticProfileBeingEdited(new ElasticAgentProfile("",
-                                                                  vnode.state.clusterProfileBeingEdited().pluginId(),
-                                                                  vnode.state.clusterProfileBeingEdited().id(),
-                                                                  new Configurations([])));
-
-    vnode.state.isWizardOpen(true);
-    return openWizardForAdd(vnode.state.pluginInfos,
-                            vnode.state.clusterProfileBeingEdited,
-                            vnode.state.elasticProfileBeingEdited,
-                            vnode.state.onSuccessfulSave,
-                            vnode.state.onError,
-                            this.closeListener(vnode));
   }
 
   private closeListener(vnode: m.Vnode<null, State>): CloseListener {

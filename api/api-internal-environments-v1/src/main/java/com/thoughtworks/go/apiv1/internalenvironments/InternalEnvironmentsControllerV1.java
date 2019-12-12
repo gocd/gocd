@@ -25,6 +25,7 @@ import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.internalenvironments.representers.MergedEnvironmentsRepresenter;
 import com.thoughtworks.go.config.EnvironmentConfig;
 import com.thoughtworks.go.config.exceptions.EntityType;
+import com.thoughtworks.go.config.policy.SupportedAction;
 import com.thoughtworks.go.config.policy.SupportedEntity;
 import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.EnvironmentConfigService;
@@ -39,6 +40,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 
 import static spark.Spark.*;
 
@@ -74,7 +76,7 @@ public class InternalEnvironmentsControllerV1 extends ApiController implements S
                 if (request.requestMethod().equalsIgnoreCase("GET")) {
                     apiAuthenticationHelper.checkUserAnd403(request, response);
                 } else {    // this is a PATCH request to update agent association
-                    apiAuthenticationHelper.checkUserHasPermissions(currentUsername(), getAction(request), SupportedEntity.ENVIRONMENT, request.params("env_name"));
+                    apiAuthenticationHelper.checkUserHasPermissions(currentUsername(), SupportedAction.ADMINISTER, SupportedEntity.ENVIRONMENT, request.params("env_name"));
                 }
             });
 
@@ -96,7 +98,8 @@ public class InternalEnvironmentsControllerV1 extends ApiController implements S
             }
         }
 
-        return writerForTopLevelObject(request, response, outputWriter -> MergedEnvironmentsRepresenter.toJSON(outputWriter, userSpecificEnvironments, apiAuthenticationHelper));
+        Function<String, Boolean> canUserAdministerEnvironment = envName -> apiAuthenticationHelper.doesUserHasPermissions(currentUsername(), SupportedAction.ADMINISTER, SupportedEntity.ENVIRONMENT, envName);
+        return writerForTopLevelObject(request, response, outputWriter -> MergedEnvironmentsRepresenter.toJSON(outputWriter, userSpecificEnvironments, canUserAdministerEnvironment));
     }
 
     String updateAgentAssociation(Request request, Response response) {

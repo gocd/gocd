@@ -659,6 +659,12 @@
   </rule>
 
   <rule>
+    <name>Spark Internal Role Configs API Index API</name>
+    <from>^/api/admin/internal/roles(/?)$</from>
+    <to last="true">/spark/api/admin/internal/roles</to>
+  </rule>
+
+  <rule>
     <name>Spark Security Role Configs API</name>
     <from>^/api/admin/security/roles/(.*)$</from>
     <to last="true">/spark/api/admin/security/roles/${escape:$1}</to>

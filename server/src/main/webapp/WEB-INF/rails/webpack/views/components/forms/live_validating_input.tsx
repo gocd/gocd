@@ -24,6 +24,7 @@ export interface LiveInputAttrs extends TextFieldAttrs {
 }
 
 interface State {
+  doValidate: EventListener;
   errors(errorText?: string): string | undefined;
 }
 
@@ -49,14 +50,27 @@ export class LiveValidatingInputField extends MithrilComponent<LiveInputAttrs, S
     vnode.state.errors = (errorText) => (errorText || liveValidationError(dom));
 
     if ("function" === typeof validator) {
-      dom.addEventListener("input", (e) => {
+      vnode.state.doValidate = (e) => {
         dom.setCustomValidity(validator(dom.value) || "");
 
         if (!!dom.validationMessage) {
           dom.dispatchEvent(makeEvent("invalid", false, true));
         }
         m.redraw();
-      });
+
+      };
+
+      dom.addEventListener("input", vnode.state.doValidate);
+    }
+  }
+
+  onbeforeremove(vnode: m.VnodeDOM<LiveInputAttrs, State>) {
+    const dom = vnode.dom as HTMLInputElement;
+
+    dom.setCustomValidity(""); // clear message
+
+    if ("function" === typeof vnode.state.doValidate) {
+      dom.removeEventListener("input", vnode.state.doValidate);
     }
   }
 

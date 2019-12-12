@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {docsUrl} from "gen/gocd_version";
 import {MithrilComponent, MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
@@ -27,6 +28,7 @@ import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderIcon} from "views/components/header_icon";
 import {Delete, Edit, IconGroup, Refresh} from "views/components/icons";
 import {KeyValuePair} from "views/components/key_value_pair";
+import {Link} from "views/components/link";
 import {RequiresPluginInfos} from "views/pages/page_operations";
 import {allAttributes, resolveHumanReadableAttributes} from "./config_repo_attribute_helper";
 import {CRResult} from "./config_repo_result";
@@ -271,10 +273,26 @@ export class ConfigReposWidget extends MithrilViewComponent<CollectionAttrs> {
   view(vnode: m.Vnode<CollectionAttrs>): m.Children | void | null {
     const models = vnode.attrs.models();
 
+    const scrollManager = vnode.attrs.sm;
+    if (scrollManager.hasTarget()) {
+      const target    = scrollManager.getTarget();
+      const hasTarget = models.some((config) => config.repo.id() === target);
+      if (!hasTarget) {
+        const msg = `Either '${target}' config repository has not been set up or you are not authorized to view the same.`;
+        return <FlashMessage dataTestId="anchor-config-repo-not-present" type={MessageType.alert} message={msg}/>;
+      }
+    }
+
     if (!models.length) {
+      const environmentUrl = "/advanced_usage/pipelines_as_code.html";
+      const docLink        = <span data-test-id="doc-link">
+       <Link href={docsUrl(environmentUrl)} target="_blank" externalLinkIcon={true}>
+        Learn More
+      </Link>
+    </span>;
       return (
         <FlashMessage type={MessageType.info}>
-          There are no config repositories setup. Click the "Add" button to add one.
+          Either no config repositories have been set up or you are not authorized to view the same. {docLink}
         </FlashMessage>);
     }
 

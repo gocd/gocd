@@ -104,6 +104,15 @@ export class EnvironmentWidget extends MithrilViewComponent<EnvAttrs> {
 
 export class EnvironmentsWidget extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
+    const manager = vnode.attrs.sm;
+    if (manager.hasTarget()) {
+      const target           = manager.getTarget();
+      const hasAnchorElement = vnode.attrs.environments().some((env) => env.name() === target);
+      if (!hasAnchorElement) {
+        const msg = `Either '${target}' environment has not been set up or you are not authorized to view the same.`;
+        return <FlashMessage dataTestId="anchor-env-not-present" type={MessageType.alert} message={msg}/>;
+      }
+    }
 
     if (_.isEmpty(vnode.attrs.environments())) {
       return this.noEnvironmentConfiguresMessage();
@@ -129,6 +138,7 @@ export class EnvironmentsWidget extends MithrilViewComponent<Attrs> {
       Either no environments have been set up or you are not authorized to view the environments. {docLink}
     </span>;
 
-    return <FlashMessage type={MessageType.info} message={noEnvironmentPresentMsg} dataTestId="no-environment-present-msg"/>;
+    return <FlashMessage type={MessageType.info} message={noEnvironmentPresentMsg}
+                         dataTestId="no-environment-present-msg"/>;
   }
 }

@@ -32,12 +32,13 @@ describe("Environments Widget", () => {
   let sm: ScrollManager;
 
   function mountModal(envs: EnvironmentJSON[]) {
-    sm = stubAllMethods(["shouldScroll", "getTarget", "setTarget", "scrollToEl"]);
-    helper.mount(() => <EnvironmentsWidget environments={Stream(Environments.fromJSON({_embedded: {environments: envs}}))}
-                                           agents={Stream(new Agents())}
-                                           onDelete={jasmine.createSpy()}
-                                           onSuccessfulSave={_.noop}
-                                           sm={sm}/>);
+    sm = stubAllMethods(["shouldScroll", "getTarget", "setTarget", "scrollToEl", "hasTarget"]);
+    helper.mount(() => <EnvironmentsWidget
+      environments={Stream(Environments.fromJSON({_embedded: {environments: envs}}))}
+      agents={Stream(new Agents())}
+      onDelete={jasmine.createSpy()}
+      onSuccessfulSave={_.noop}
+      sm={sm}/>);
   }
 
   afterEach(helper.unmount.bind(helper));
@@ -139,5 +140,29 @@ describe("Environments Widget", () => {
     expect(tooltipIcon).toBeInDOM();
     expect(helper.textByTestId("warning-tooltip-content", helper.byTestId("collapse-header")))
       .toBe("Neither pipelines nor agents are associated with this environment.");
+  });
+
+  it('should render error info if the element specified in the anchor does not exist', () => {
+    let scrollManager: ScrollManager;
+    scrollManager = {
+      hasTarget:    jasmine.createSpy().and.callFake(() => true),
+      getTarget:    jasmine.createSpy().and.callFake(() => "env"),
+      shouldScroll: jasmine.createSpy(),
+      setTarget:    jasmine.createSpy(),
+      scrollToEl:   jasmine.createSpy()
+    };
+
+    helper.mount(() => <EnvironmentsWidget
+      environments={Stream(Environments.fromJSON({_embedded: {environments: []}}))}
+      agents={Stream(new Agents())}
+      onDelete={jasmine.createSpy()}
+      onSuccessfulSave={_.noop}
+      sm={scrollManager}/>);
+
+    expect(helper.byTestId("anchor-env-not-present")).toBeInDOM();
+
+    const anchorElementNotPresent = "Either 'env' environment has not been set up or you are not authorized to view the same.";
+
+    expect(helper.textByTestId("anchor-env-not-present")).toBe(anchorElementNotPresent);
   });
 });

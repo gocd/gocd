@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {docsUrl} from "gen/gocd_version";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {ConfigRepo} from "models/config_repos/types";
@@ -24,12 +25,7 @@ import * as headerIconStyles from "views/components/header_icon/index.scss";
 import {ConfigRepoVM} from "views/pages/config_repos/config_repo_view_model";
 import {ConfigReposWidget} from "views/pages/config_repos/config_repos_widget";
 import styles from "views/pages/config_repos/index.scss";
-import {
-  configRepoPluginInfo,
-  createConfigRepoParsed,
-  createConfigRepoParsedWithError,
-  createConfigRepoWithError
-} from "views/pages/config_repos/spec/test_data";
+import {configRepoPluginInfo, createConfigRepoParsed, createConfigRepoParsedWithError, createConfigRepoWithError} from "views/pages/config_repos/spec/test_data";
 import {stubAllMethods, TestHelper} from "views/pages/spec/test_helper";
 
 describe("ConfigReposWidget", () => {
@@ -63,7 +59,7 @@ describe("ConfigReposWidget", () => {
     showDeleteModal = jasmine.createSpy("showDeleteModal");
     showEditModal   = jasmine.createSpy("showEditModal");
     reparseRepo     = jasmine.createSpy("reparseRepo");
-    sm              = stubAllMethods(["shouldScroll", "getTarget", "setTarget", "scrollToEl"]);
+    sm              = stubAllMethods(["shouldScroll", "getTarget", "setTarget", "scrollToEl", "hasTarget"]);
     models          = Stream([] as ConfigRepoVM[]);
     pluginInfos     = Stream(new PluginInfos());
 
@@ -79,8 +75,9 @@ describe("ConfigReposWidget", () => {
   it("should render a message when there are no config repos", () => {
     models([]);
     helper.redraw();
-    expect(helper.byTestId("flash-message-info"))
-      .toContainText("There are no config repositories setup. Click the \"Add\" button to add one.");
+    expect(helper.textByTestId("flash-message-info")).toBe("Either no config repositories have been set up or you are not authorized to view the same. Learn More");
+    expect(helper.byTestId("doc-link")).toBeInDOM();
+    expect(helper.q("a", helper.byTestId("doc-link"))).toHaveAttr("href", docsUrl("advanced_usage/pipelines_as_code.html"));
   });
 
   describe("Expanded config repo details", () => {
@@ -357,5 +354,26 @@ describe("ConfigReposWidget", () => {
     expect(helper.byTestId("config-repo-delete")).toBeInDOM();
     expect(helper.byTestId("config-repo-delete")).toBeDisabled();
     expect(helper.byTestId("config-repo-delete").title).toBe(title);
+  });
+
+  it('should render error msg when the anchor element is not present', () => {
+    let scrollManager: ScrollManager;
+    scrollManager = {
+      hasTarget:    jasmine.createSpy().and.callFake(() => true),
+      getTarget:    jasmine.createSpy().and.callFake(() => "cr-test"),
+      shouldScroll: jasmine.createSpy(),
+      setTarget:    jasmine.createSpy(),
+      scrollToEl:   jasmine.createSpy()
+    };
+    helper.unmount();
+    helper.mount(() => <ConfigReposWidget {...{
+      models,
+      pluginInfos,
+      sm: scrollManager
+    }}/>);
+    helper.redraw();
+
+    expect(helper.byTestId("anchor-config-repo-not-present")).toBeInDOM();
+    expect(helper.textByTestId("anchor-config-repo-not-present")).toBe("Either 'cr-test' config repository has not been set up or you are not authorized to view the same.");
   });
 });

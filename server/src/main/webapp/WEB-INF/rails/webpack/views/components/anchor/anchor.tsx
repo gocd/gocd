@@ -16,8 +16,8 @@
 
 import {OnloadScheduler, Scheduler} from "helpers/scheduler";
 import {MithrilComponent} from "jsx/mithril-component";
-import m from "mithril";
 import _ from "lodash";
+import m from "mithril";
 import headerStyles from "views/components/header_panel/index.scss";
 
 const headerSelector = `.${headerStyles.pageHeader}`;
@@ -38,7 +38,7 @@ export interface ScrollManager {
   setTarget(target: string): void;
   shouldScroll(criteria: string): boolean;
   scrollToEl(dom: Element): void;
-  hasTarget():boolean;
+  hasTarget(): boolean;
 }
 
 /**

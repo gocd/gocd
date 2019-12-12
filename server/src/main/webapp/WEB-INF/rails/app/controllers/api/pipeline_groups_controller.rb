@@ -15,11 +15,21 @@
 #
 
 class Api::PipelineGroupsController < Api::ApiController
+  before_action :check_api_enabled_toggle_and_404
+
   def list_configs
     pipeline_group_configs = pipeline_configs_service.getGroupsForUser(CaseInsensitiveString.str(current_user.getUsername()))
     pipeline_group_config_api_models = pipeline_group_configs.collect do |pipeline_group_config|
       PipelineGroupConfigAPIModel.new(pipeline_group_config)
     end
     render json: pipeline_group_config_api_models
+  end
+
+  private
+
+  def check_api_enabled_toggle_and_404
+    unless feature_toggle_service.isToggleOn(Toggles.ENABLE_PIPELINE_GROUP_CONFIG_LISTING_API)
+      render_not_found_error
+    end
   end
 end

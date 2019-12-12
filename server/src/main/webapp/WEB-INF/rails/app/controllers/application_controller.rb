@@ -206,6 +206,10 @@ class ApplicationController < ActionController::Base
     security_service.isUserAdmin(current_user)
   end
 
+  def render_not_found_error
+    render json: {message: 'Either the resource you requested was not found, or you are not authorized to perform this action.'}, status: 404
+  end
+
   private
 
   def no_layout?

@@ -216,8 +216,6 @@ Rails.application.routes.draw do
         get 'config/diff/:from_revision/:to_revision' => 'configuration#config_diff', as: :config_diff_api
       end
 
-      post 'admin/command-repo-cache/reload' => 'commands#reload_cache', as: :admin_command_cache_reload, constraints: HeaderConstraint.new
-
       # Vendor Webhooks
       post 'webhooks/github/notify' => 'web_hooks/git_hub#notify'
       post 'webhooks/gitlab/notify' => 'web_hooks/git_lab#notify'

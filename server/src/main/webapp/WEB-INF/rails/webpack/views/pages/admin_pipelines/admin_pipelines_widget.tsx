@@ -117,7 +117,10 @@ class PipelineGroupWidget extends MithrilViewComponent<PipelineGroupAttrs> {
         <div data-test-id={`pipeline-group-${s.slugify(grpName)}`}
              class={styles.pipelineGroupRow}>
           <div data-test-id={`pipeline-group-name-${s.slugify(grpName)}`}
-               class={styles.pipelineGroupName}>Group: {grpName}</div>
+               class={styles.pipelineGroupName}>
+            <span>Pipeline Group:</span>
+            <span class={styles.value}>{grpName}</span>
+          </div>
           <div class={styles.pipelineGroupActionButtons}>{this.actions(vnode)}</div>
           {this.showPipelines(vnode)}
         </div>

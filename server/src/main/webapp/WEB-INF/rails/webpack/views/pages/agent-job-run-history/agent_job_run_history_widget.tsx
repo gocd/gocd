@@ -18,13 +18,15 @@ import {MithrilComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {AgentJobRunHistoryAPIJSON, JobRunHistoryJSON} from "models/agent_job_run_history";
-import * as Icons from "views/components/icons/index";
 import {Link} from "views/components/link";
 import {PaginationWidget} from "views/components/pagination";
 import {Pagination} from "views/components/pagination/models/pagination";
 import {Spinner} from "views/components/spinner";
 import {Table, TableSortHandler} from "views/components/table";
 import {AgentJobStateTransitionModal} from "views/pages/agent-job-run-history/agent_job_state_transitions_modal";
+import styles from "./index.scss";
+
+const stateTransitionIcon = require("./icon-state-transition.svg");
 
 interface Attrs {
   jobHistory: Stream<AgentJobRunHistoryAPIJSON>;
@@ -56,8 +58,9 @@ export class AgentJobRunHistoryWidget extends MithrilComponent<Attrs, State> {
         {jobName}
       </Link>;
 
-      const jobStateTransitionIcon = <Icons.Usage iconOnly={true}
-                                                  onclick={() => new AgentJobStateTransitionModal(jobHistoryItem).render()}/>;
+      const jobStateTransitionIcon = <img class={styles.jobStateTransitionIconContainer}
+                                          onclick={() => new AgentJobStateTransitionModal(jobHistoryItem).render()}
+                                          src={stateTransitionIcon}/>;
 
       return [
         pipelineName, stageName, jobNameLink, jobHistoryItem.result, jobStateTransitionIcon

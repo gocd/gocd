@@ -34,7 +34,7 @@ class PipelineInstanceRepresenterTest {
 
     def expectedJson = [
       _links: [
-        self: [href: 'http://test.host/go/api/pipelines/p1/0']
+        self: [href: 'http://test.host/go/api/pipelines/p1/0/instance']
       ],
     ]
 

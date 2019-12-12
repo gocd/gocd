@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-import {ErrorResponse} from "helpers/api_request_builder";
+import {ErrorResponse, SuccessResponse} from "helpers/api_request_builder";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {AuthConfigs} from "models/auth_configs/auth_configs";
 import {AuthConfigsCRUD} from "models/auth_configs/auth_configs_crud";
-import {ConfigReposCRUD} from "models/config_repos/config_repos_crud";
-import {GoCDAttributes, GoCDRole, PluginRole, Roles} from "models/roles/roles";
+import {GoCDAttributes, GoCDRole, PluginRole, Roles, RolesWithSuggestions} from "models/roles/roles";
 import {RolesCRUD} from "models/roles/roles_crud";
 import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
@@ -32,7 +31,6 @@ import {Page, PageState} from "views/pages/page";
 import {AddOperation, CloneOperation, DeleteOperation, EditOperation, SaveOperation} from "views/pages/page_operations";
 import {CloneRoleModal, DeleteRoleConfirmModal, EditRoleModal, NewRoleModal} from "views/pages/roles/modals";
 import {RolesWidget} from "views/pages/roles/roles_widget";
-import {EnvironmentCRUD} from "../../models/environments/environment_crud";
 
 export interface State extends AddOperation<GoCDRole | PluginRole>, EditOperation<GoCDRole | PluginRole>, CloneOperation<GoCDRole | PluginRole>, DeleteOperation<GoCDRole | PluginRole>, SaveOperation {
   pluginInfos: PluginInfos;
@@ -128,7 +126,7 @@ export class RolesPage extends Page<null, State> {
   }
 
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {
-    return Promise.all([PluginInfoCRUD.all({type: ExtensionTypeString.AUTHORIZATION}), AuthConfigsCRUD.all(), RolesCRUD.all(), EnvironmentCRUD.all(), ConfigReposCRUD.all()])
+    return Promise.all([PluginInfoCRUD.all({type: ExtensionTypeString.AUTHORIZATION}), AuthConfigsCRUD.all(), RolesCRUD.allWithAutocompleteSuggestions()])
                   .then((results) => {
                     results[0].do((successResponse) => {
                       this.pageState           = PageState.OK;
@@ -136,25 +134,17 @@ export class RolesPage extends Page<null, State> {
                       vnode.state.pluginInfos  = allAuthPluginInfos.getPluginInfosWithAuthorizeCapabilities();
                     }, () => this.setErrorState());
 
-                    results[1].do((successResponse) => {
+                    results[1].do((successResponse: SuccessResponse<AuthConfigs>) => {
                       this.pageState          = PageState.OK;
                       vnode.state.authConfigs = (successResponse.body);
                     }, () => this.setErrorState());
 
-                    results[2].do((successResponse) => {
+                    results[2].do((successResponse: SuccessResponse<RolesWithSuggestions>) => {
                       this.pageState    = PageState.OK;
-                      vnode.state.roles = successResponse.body;
-                    }, () => this.setErrorState());
-
-                    results[3].do((successResponse) => {
-                      vnode.state.resourceAutocompleteHelper()
-                           .set("environment", ["*"].concat(successResponse.body.map((env) => env.name())));
-                    }, () => this.setErrorState());
-
-                    results[4].do((successResponse) => {
-                      vnode.state.resourceAutocompleteHelper()
-                           .set("config_repo",
-                                ["*"].concat(successResponse.body.map((configRepo) => configRepo.id()!)));
+                      vnode.state.roles = successResponse.body.roles;
+                      successResponse.body.autoCompletion.forEach((suggestion) => {
+                        vnode.state.resourceAutocompleteHelper().set(suggestion.key, ["*"].concat(suggestion.value));
+                      });
                     }, () => this.setErrorState());
                   });
   }

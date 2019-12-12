@@ -14,11 +14,7 @@
  * limitations under the License.
  */
 
-import {
-  GoCDRole,
-  PluginRole,
-  Role, RoleType
-} from "models/roles/roles";
+import {GoCDRole, PluginRole, Role, RolesWithSuggestions, RolesWithSuggestionsJSON, RoleType} from "models/roles/roles";
 import {RolesTestData} from "views/pages/roles/spec/test_data";
 
 describe("RoleModel", () => {
@@ -122,5 +118,29 @@ describe("RoleModel", () => {
     expect(policyErrors.errorsForDisplay("type")).toEqual("Type must be present.");
     expect(policyErrors.errorsForDisplay("resource")).toEqual("Resource must be present.");
   });
+});
 
+describe('RolesWithSuggestions', () => {
+  it('should deserialize roles with auto suggestions', () => {
+    const goCDRoleJSON    = RolesTestData.GoCDRoleJSON();
+    const inputJson       = {
+      _embedded:       {
+        roles: [goCDRoleJSON]
+      },
+      auto_completion: [
+        {
+          key:   "key1",
+          value: ["val1", "val2"]
+        }
+      ]
+    } as RolesWithSuggestionsJSON;
+    const withSuggestions = RolesWithSuggestions.fromJSON(inputJson);
+
+    expect(withSuggestions.roles.length).toEqual(1);
+    expect(withSuggestions.roles[0].name()).toEqual("spacetiger");
+
+    expect(withSuggestions.autoCompletion.length).toEqual(1);
+    expect(withSuggestions.autoCompletion[0].key).toEqual("key1");
+    expect(withSuggestions.autoCompletion[0].value).toEqual(["val1", "val2"]);
+  });
 });

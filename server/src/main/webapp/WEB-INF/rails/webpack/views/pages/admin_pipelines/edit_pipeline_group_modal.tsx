@@ -16,17 +16,18 @@
 
 import m from "mithril";
 import Stream from "mithril/stream";
-import {PipelineGroup, PipelineGroupViewModel} from "../../../models/admin_pipelines/admin_pipelines";
-import {PipelineGroupCRUD} from "../../../models/admin_pipelines/pipeline_groups_crud";
-import {PermissionForEntity} from "../../../models/authorization/authorization";
-import {Cancel, Primary, Secondary} from "../../components/buttons";
-import {CollapsiblePanel} from "../../components/collapsible_panel";
-import {FlashMessage, FlashMessageModel, MessageType} from "../../components/flash_message";
-import {AutocompleteField, SuggestionProvider} from "../../components/forms/autocomplete";
-import {CheckboxField, TextField} from "../../components/forms/input_fields";
-import {Modal, Size} from "../../components/modal";
-import {Table} from "../../components/table";
-import styles from "../secret_configs/index.scss";
+import {PipelineGroup, PipelineGroupViewModel} from "models/admin_pipelines/admin_pipelines";
+import {PipelineGroupCRUD} from "models/admin_pipelines/pipeline_groups_crud";
+import {PermissionForEntity} from "models/authorization/authorization";
+import {Cancel, Primary, Secondary} from "views/components/buttons";
+import {CollapsiblePanel} from "views/components/collapsible_panel";
+import {FlashMessage, FlashMessageModel, MessageType} from "views/components/flash_message";
+import {AutocompleteField, SuggestionProvider} from "views/components/forms/autocomplete";
+import {CheckboxField, TextField} from "views/components/forms/input_fields";
+import {Modal, Size} from "views/components/modal";
+import {Table} from "views/components/table";
+import {Info} from "views/components/tooltip";
+import styles from "./edit_pipeline_group.scss";
 
 class UsersProvider extends SuggestionProvider {
   private readonly usersCache: string[];
@@ -67,10 +68,14 @@ export class EditPipelineGroupModal extends Modal {
   private readonly onSuccessfulSave: (msg: string) => void;
   private readonly flashMessage: FlashMessageModel;
   private etag: string;
+  private readonly containsPipelinesRemotely: boolean;
+  private readonly pipelineGroupName: string;
 
-  constructor(group: PipelineGroup, etag: string, usersAutoCompleteHelper: string[], rolesAutoCompleteHelper: string[], onSuccessfulSave: (msg: string) => void) {
+  constructor(group: PipelineGroup, etag: string, usersAutoCompleteHelper: string[], rolesAutoCompleteHelper: string[], onSuccessfulSave: (msg: string) => void, containsPipelinesRemotely: boolean) {
     super(Size.large);
+    this.pipelineGroupName           = group.name();
     this.onSuccessfulSave            = onSuccessfulSave;
+    this.containsPipelinesRemotely   = containsPipelinesRemotely;
     this.pipelineGroupViewModel      = new PipelineGroupViewModel(group);
     this.fixedHeight                 = true;
     this.usersProvider               = new UsersProvider(usersAutoCompleteHelper);
@@ -83,6 +88,9 @@ export class EditPipelineGroupModal extends Modal {
 
   body(): m.Children {
     let flashMessageHtml;
+    const infoTooltip = <div data-test-id="info-tooltip" class={styles.pipelineGroupTooltipWrapper}>
+      <Info content={"Cannot rename pipeline group as it contains remotely defined pipelines"}/>
+    </div>;
     if (this.flashMessage.hasMessage()) {
       flashMessageHtml = <FlashMessage dataTestId={"pipeline-group-flash-message"}
                                        type={this.flashMessage.type}
@@ -90,7 +98,11 @@ export class EditPipelineGroupModal extends Modal {
     }
     return <div>
       {flashMessageHtml}
-      <TextField label={"Pipeline group name"} property={this.pipelineGroupViewModel.name} readonly={true}/>
+      <div class={styles.pipelineGroupNameWrapper}>
+        <TextField title={this.containsPipelinesRemotely ? "Cannot rename pipeline group as it contains remotely defined pipelines" : ""} label={"Pipeline" +
+        " group name"} property={this.pipelineGroupViewModel.name} readonly={this.containsPipelinesRemotely}/>
+        {this.containsPipelinesRemotely ? infoTooltip : ""}
+      </div>
       <CollapsiblePanel header={"User permissions"}
                         expanded={true}
                         onexpand={() => this.userPermissionCollapseState(true)}
@@ -98,8 +110,10 @@ export class EditPipelineGroupModal extends Modal {
                         dataTestId={"users-permissions-collapse"}
                         actions={<Secondary dataTestId={"add-user-permission"}
                                             onclick={this.addUserAuthorization.bind(this)}>Add</Secondary>}>
-        <Table data={this.userPermissionData()} headers={["Name", "View", "Operate", "Admin", ""]}
-               data-test-id="users-permissions"/>
+        <div class={styles.usersPermissionTableDiv}>
+          <Table data={this.userPermissionData()} headers={["Name", "View", "Operate", "Admin", ""]}
+                 data-test-id="users-permissions"/>
+        </div>
       </CollapsiblePanel>
       <CollapsiblePanel header={"Role permissions"}
                         expanded={true}
@@ -128,7 +142,7 @@ export class EditPipelineGroupModal extends Modal {
   userPermissionData() {
     return this.pipelineGroupViewModel.authorizedUsers().map((authorizedEntity) => [
       <AutocompleteField dataTestId={"user-name"} property={authorizedEntity.name} required={true} maxItems={25}
-                         provider={this.usersProvider}/>,
+                         provider={this.usersProvider} autoEvaluate={false}/>,
       <CheckboxField property={authorizedEntity.view} dataTestId={"view-permission"}
                      readonly={authorizedEntity.admin()}/>,
       <CheckboxField property={authorizedEntity.operate} dataTestId={"operate-permission"}
@@ -188,7 +202,7 @@ export class EditPipelineGroupModal extends Modal {
   }
 
   private performSave() {
-    PipelineGroupCRUD.update(this.pipelineGroupViewModel.getUpdatedPipelineGroup(), this.etag)
+    PipelineGroupCRUD.update(this.pipelineGroupName, this.pipelineGroupViewModel.getUpdatedPipelineGroup(), this.etag)
                      .then((result) => {
                        result.do(() => {
                          this.onSuccessfulSave(`Pipeline group ${this.pipelineGroupViewModel.name()} updated successfully.`);

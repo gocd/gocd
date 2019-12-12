@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import {PipelineStructure, PipelineStructureJSON} from "models/internal_pipeline_structure/pipeline_structure";
+import {PipelineGroup, PipelineGroupJSON, Pipelines, PipelineStructure, PipelineStructureJSON, PipelineWithOrigin} from "models/internal_pipeline_structure/pipeline_structure";
+import {Origin, OriginType} from "../../origin";
 
 describe("Pipeline Structure", () => {
   let json: PipelineStructureJSON, pipelineStructure: PipelineStructure;
@@ -64,4 +65,36 @@ describe("Pipeline Structure", () => {
     ],
     templates: []
   } as PipelineStructureJSON;
+});
+
+const pipelineGroupJSON: PipelineGroupJSON = {
+  name: "group-1",
+  pipelines: [{
+    name: "some-pipeline",
+    origin: {type: OriginType.GoCD},
+    stages: []
+  }]
+};
+
+describe('PipelineGroups', () => {
+  describe('containsRemotelyDefinedPipelines', () => {
+    it("should return true if the pipelines defined remotely", () => {
+      const pipelineGroup = PipelineGroup.fromJSON(pipelineGroupJSON);
+      expect(pipelineGroup.containsRemotelyDefinedPipelines()).toBe(false);
+    });
+
+    it("should return false if the any of pipelines defined remotely", () => {
+      const pipelineGroup      = PipelineGroup.fromJSON(pipelineGroupJSON);
+      const pipelineWithOrigin = new PipelineWithOrigin("config-repo-pipeline", undefined, Origin.fromJSON({type: OriginType.ConfigRepo}), []);
+      pipelineGroup.pipelines().push(pipelineWithOrigin);
+      expect(pipelineGroup.containsRemotelyDefinedPipelines()).toBe(true);
+    });
+
+    it("should return false pipelines are not available", () => {
+      const pipelineGroup      = PipelineGroup.fromJSON(pipelineGroupJSON);
+      pipelineGroup.pipelines(new Pipelines());
+      expect(pipelineGroup.containsRemotelyDefinedPipelines()).toBe(false);
+    });
+
+  });
 });

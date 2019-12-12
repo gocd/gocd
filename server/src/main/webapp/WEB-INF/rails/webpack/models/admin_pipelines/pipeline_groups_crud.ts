@@ -24,8 +24,8 @@ export class PipelineGroupCRUD {
                             .then(this.extractObjectWithEtag);
   }
 
-  static update(updatedPipelineGroup: PipelineGroup, etag: string) {
-    return ApiRequestBuilder.PUT(SparkRoutes.pipelineGroupsPath(updatedPipelineGroup.name()),
+  static update(groupName: string, updatedPipelineGroup: PipelineGroup, etag: string) {
+    return ApiRequestBuilder.PUT(SparkRoutes.pipelineGroupsPath(groupName),
                                  ApiVersion.latest,
                                  {
                                    payload: updatedPipelineGroup, etag

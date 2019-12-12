@@ -81,11 +81,14 @@ export class AdminPipelinesPage extends Page<null, State> {
     };
 
     vnode.state.doEditPipelineGroup = (groupName: string) => {
+      const pipelineGroup            = vnode.state.pipelineGroups().find((pipelineGroup) => pipelineGroup.name() === groupName);
+      const containsPipelinesRemotely = pipelineGroup ? pipelineGroup.containsRemotelyDefinedPipelines() : false;
+
       this.pageState = PageState.LOADING;
       PipelineGroupCRUD.get(groupName).then((result) => {
         this.pageState = PageState.OK;
         result.do((successResponse) => {
-          new EditPipelineGroupModal(successResponse.body.object, successResponse.body.etag, vnode.state.usersAutoCompleteHelper(), vnode.state.rolesAutoCompleteHelper(), vnode.state.onSuccessfulSave).render();
+          new EditPipelineGroupModal(successResponse.body.object, successResponse.body.etag, vnode.state.usersAutoCompleteHelper(), vnode.state.rolesAutoCompleteHelper(), vnode.state.onSuccessfulSave, containsPipelinesRemotely).render();
         }, () => {
           this.setErrorState();
         });

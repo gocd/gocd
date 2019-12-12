@@ -28,28 +28,40 @@ describe('EditPipelineGroupModal', () => {
   let modal: EditPipelineGroupModal;
   let testHelper: TestHelper;
 
-  beforeEach(() => {
+  function mount(containsPipelinesRemotely: boolean = false) {
     const pipelineGroup = PipelineGroup.fromJSON(pipelineGroupJSON());
-    modal               = new EditPipelineGroupModal(pipelineGroup, "etag", [], [], _.noop);
+    modal               = new EditPipelineGroupModal(pipelineGroup, "etag", [], [], _.noop, containsPipelinesRemotely);
     modal.render();
     m.redraw.sync();
     testHelper = new TestHelper().forModal();
-  });
+  }
 
   afterEach(() => {
     ModalManager.closeAll();
   });
 
   it('should render text field and label for pipeline group name', () => {
+    mount();
     expect(testHelper.byTestId("form-field-label-pipeline-group-name")).toBeInDOM();
     expect(testHelper.byTestId("form-field-label-pipeline-group-name")).toHaveText("Pipeline group name");
 
     expect(testHelper.byTestId("form-field-input-pipeline-group-name")).toBeInDOM();
     expect(testHelper.byTestId("form-field-input-pipeline-group-name")).toHaveValue("pipeline-group");
+    expect(testHelper.byTestId("form-field-input-pipeline-group-name")).not.toBeDisabled();
+  });
+
+  it('should render pipeline disabled group name with tooltip', () => {
+    mount(true);
+    expect(testHelper.byTestId("info-tooltip")).toBeInDOM();
+    expect(testHelper.byTestId("info-tooltip")).toHaveText("Cannot rename pipeline group as it contains remotely defined pipelines");
     expect(testHelper.byTestId("form-field-input-pipeline-group-name")).toBeDisabled();
   });
 
   describe('userPermissions', () => {
+    beforeEach(() => {
+      mount();
+    });
+
     it('should render open collapsible panel', () => {
       expect(testHelper.byTestId("collapse-header", testHelper.byTestId("users-permissions-collapse"))).toContainText("User permissions");
       expect(testHelper.byTestId("add-user-permission", testHelper.byTestId("users-permissions-collapse"))).toBeInDOM();
@@ -134,6 +146,10 @@ describe('EditPipelineGroupModal', () => {
   });
 
   describe('rolePermissions', () => {
+    beforeEach(() => {
+      mount();
+    });
+
     it('should render open collapsible panel', () => {
       expect(testHelper.byTestId("collapse-header", testHelper.byTestId("roles-permissions-collapse"))).toContainText("Role permissions");
       expect(testHelper.byTestId("add-role-permission", testHelper.byTestId("roles-permissions-collapse"))).toBeInDOM();
@@ -195,6 +211,7 @@ describe('EditPipelineGroupModal', () => {
   });
 
   it("should update pipeline group on click of save button", () => {
+    mount();
     spyOn(PipelineGroupCRUD, "update").and.returnValue(new Promise<ApiResult<ObjectWithEtag<PipelineGroup>>>((resolve) => {
       resolve();
     }));
@@ -204,6 +221,7 @@ describe('EditPipelineGroupModal', () => {
   });
 
   it('should have save and cancel buttons', () => {
+    mount();
     expect(testHelper.byTestId("cancel-button")).toBeInDOM();
     expect(testHelper.byTestId("save-pipeline-group")).toBeInDOM();
   });

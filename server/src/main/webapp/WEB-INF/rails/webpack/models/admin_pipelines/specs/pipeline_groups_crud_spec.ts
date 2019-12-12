@@ -72,7 +72,7 @@ describe('pipelineGroupsCrud', () => {
         done();
       });
 
-      PipelineGroupCRUD.update(pipelineGroup, "some-etag").then(onResponse);
+      PipelineGroupCRUD.update(pipelineGroup.name(), pipelineGroup, "some-etag").then(onResponse);
 
       const request = jasmine.Ajax.requests.mostRecent();
 

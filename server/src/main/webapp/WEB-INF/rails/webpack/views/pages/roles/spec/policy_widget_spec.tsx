@@ -59,7 +59,7 @@ describe('PolicyWidgetSpecs', () => {
     expect(helper.byTestId("permission-permission")).toHaveValue("allow");
     expect(helper.textByTestId("permission-permission")).toContain("SelectAllowDeny");
     expect(helper.byTestId("permission-action")).toHaveValue("view");
-    expect(helper.textByTestId("permission-action")).toContain("SelectViewEditAdminister");
+    expect(helper.textByTestId("permission-action")).toContain("SelectViewAdminister");
     expect(helper.byTestId("permission-type")).toHaveValue("*");
     expect(helper.textByTestId("permission-type")).toContain("SelectAllEnvironment");
     expect(helper.byTestId("permission-resource")).toHaveValue("env");
@@ -113,20 +113,18 @@ describe('PolicyWidgetSpecs', () => {
     expect(typeOptions[3]).toHaveValue("config_repo");
   });
 
-  it("should render 3 items in supported actions dropdown", () => {
+  it("should render 4 items in supported actions dropdown", () => {
     const policy = new Policy();
     policy.push(Stream(new Directive("allow", "view", "*", "env")));
     mount(policy);
 
     const actionOptions = helper.qa("option", helper.byTestId("permission-action"));
 
-    expect(actionOptions.length).toBe(4);
+    expect(actionOptions.length).toBe(3);
     expect(actionOptions[1]).toHaveText("View");
     expect(actionOptions[1]).toHaveValue("view");
-    expect(actionOptions[2]).toHaveText("Edit");
-    expect(actionOptions[2]).toHaveValue("edit");
-    expect(actionOptions[3]).toHaveText("Administer");
-    expect(actionOptions[3]).toHaveValue("administer");
+    expect(actionOptions[2]).toHaveText("Administer");
+    expect(actionOptions[2]).toHaveValue("administer");
   });
 
   function mount(policy: Policy = new Policy(), resourceAutoComplete: Map<string, string[]> = new Map()) {

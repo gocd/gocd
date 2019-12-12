@@ -79,10 +79,7 @@ describe("ConfigRepo attribute util functions", () => {
           destination: ""
         }
       },
-      permissions: {
-        can_edit: false,
-        can_administer: false
-      },
+      can_administer: false,
       configuration: [{
         key: "file_pattern",
         value: "*.json"

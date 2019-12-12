@@ -99,8 +99,12 @@ public class RoleConfigTest {
 
     @Test
     void shouldValidatePolicy() {
-        validatePolicyIsInvalid((roleConfig, context) -> roleConfig.validateTree(context));
-        validateEditActionOfAPolicyIsValid((roleConfig, context) -> roleConfig.validateTree(context));
+        validatePolicyIsInvalid(new Validator() {
+            @Override
+            public void validate(RoleConfig roleConfig, ValidationContext context) {
+                roleConfig.validateTree(context);
+            }
+        });
     }
 
     private void validatePresenceOfRoleName(Validator v) {
@@ -149,22 +153,7 @@ public class RoleConfigTest {
         validator.validate(role, validationContext);
 
         assertThat(role.getPolicy().hasErrors()).isTrue();
-        assertThat(role.getPolicy().get(0).errors().on("action")).isEqualTo("Invalid action, must be one of [view, edit, administer].");
-    }
-
-    @Test
-    private void validateEditActionOfAPolicyIsValid(Validator validator) {
-        SecurityConfig securityConfig = new SecurityConfig();
-        ValidationContext validationContext = ValidationContextMother.validationContext(securityConfig);
-
-        Policy policy = new Policy();
-        policy.add(new Allow("edit", ENVIRONMENT.getType(), "env_1"));
-        RoleConfig role = new RoleConfig(new CaseInsensitiveString("role"), new Users(), policy);
-        securityConfig.getRoles().add(role);
-
-        validator.validate(role, validationContext);
-
-        assertThat(role.getPolicy().hasErrors()).isFalse();
+        assertThat(role.getPolicy().get(0).errors().on("action")).isEqualTo("Invalid action, must be one of [view, administer].");
     }
 
     interface Validator {

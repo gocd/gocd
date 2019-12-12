@@ -17,25 +17,18 @@
 package com.thoughtworks.go.apiv1.internalenvironments.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.config.EnvironmentConfig;
 import com.thoughtworks.go.config.merge.MergeConfigOrigin;
-import com.thoughtworks.go.config.policy.SupportedAction;
-import com.thoughtworks.go.config.policy.SupportedEntity;
 import com.thoughtworks.go.config.remote.ConfigOrigin;
 
 import java.util.Collections;
 import java.util.List;
-
-import static com.thoughtworks.go.server.newsecurity.utils.SessionUtils.currentUsername;
+import java.util.function.Function;
 
 public class MergedEnvironmentRepresenter {
-    public static void toJSON(OutputWriter outputWriter, EnvironmentConfig environmentConfig, ApiAuthenticationHelper apiAuthenticationHelper) {
+    public static void toJSON(OutputWriter outputWriter, EnvironmentConfig environmentConfig, Function<String, Boolean> canUserAdministerEnvironment) {
         outputWriter.add("name", environmentConfig.name());
-        outputWriter.addChild("permissions", permissionsWriter -> {
-            permissionsWriter.add("can_edit", apiAuthenticationHelper.doesUserHasPermissions(currentUsername(), SupportedAction.EDIT, SupportedEntity.ENVIRONMENT, environmentConfig.name().toString()));
-            permissionsWriter.add("can_administer", apiAuthenticationHelper.doesUserHasPermissions(currentUsername(), SupportedAction.ADMINISTER, SupportedEntity.ENVIRONMENT, environmentConfig.name().toString()));
-        });
+        outputWriter.add("can_administer", canUserAdministerEnvironment.apply(environmentConfig.name().toString()));
         addOrigin(outputWriter, environmentConfig.getOrigin());
         outputWriter.addChildList("pipelines", outputListWriter -> {
             environmentConfig.getPipelines().forEach(pipeline -> outputListWriter.addChild(writer -> EnvironmentPipelineRepresenter.toJSON(writer, pipeline, environmentConfig)));

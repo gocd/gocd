@@ -75,7 +75,7 @@ describe("Environments Body Widget", () => {
     expect(editIcons[2].title).toBeFalsy();
     expect(editIcons[2]).not.toBeDisabled();
 
-    environment.permissions().canEdit(false);
+    environment.canAdminister(false);
     helper.redraw();
 
     expect(editIcons[0].title).toBe(`You dont have permissions to edit '${environment.name()}' environment.`);

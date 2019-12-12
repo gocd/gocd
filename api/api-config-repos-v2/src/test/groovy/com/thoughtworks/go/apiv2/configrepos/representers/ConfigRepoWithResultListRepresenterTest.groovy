@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.apiv2.configrepos.representers
 
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv2.configrepos.ConfigRepoWithResult
 import com.thoughtworks.go.config.PartialConfigParseResult
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig
@@ -24,32 +23,24 @@ import com.thoughtworks.go.config.remote.ConfigRepoConfig
 import com.thoughtworks.go.config.remote.PartialConfig
 import com.thoughtworks.go.domain.materials.Modification
 import com.thoughtworks.go.spark.Routes
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.mockito.Mock
+
+import java.util.function.Function
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static com.thoughtworks.go.helper.MaterialConfigsMother.hg
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
-import static org.mockito.MockitoAnnotations.initMocks
 
 class ConfigRepoWithResultListRepresenterTest {
-  @Mock
-  ApiAuthenticationHelper authenticationHelper
-
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
-
   private static final String TEST_PLUGIN_ID = "test.configrepo.plugin"
   private static final String TEST_REPO_URL = "https://fakeurl.com"
 
   @Test
   void toJSON() {
     List<ConfigRepoWithResult> repos = [repo("foo"), repo("bar")]
+    Function<String, Boolean> canUserAdministerConfigRepo = { name -> true }
 
-    String json = toObjectString({ w -> ConfigRepoWithResultListRepresenter.toJSON(w, repos, authenticationHelper) })
+    String json = toObjectString({ w -> ConfigRepoWithResultListRepresenter.toJSON(w, repos, canUserAdministerConfigRepo) })
 
     assertThatJson(json).isEqualTo([
       _links   : [
@@ -82,10 +73,7 @@ class ConfigRepoWithResultListRepresenterTest {
           auto_update: true
         ]
       ],
-      permissions                : [
-        can_edit      : false,
-        can_administer: false
-      ],
+      can_administer             : true,
       configuration              : [],
       material_update_in_progress: false,
       parse_info                 : [

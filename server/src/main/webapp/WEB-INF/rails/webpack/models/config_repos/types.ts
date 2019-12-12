@@ -18,7 +18,7 @@ import Stream from "mithril/stream";
 import {
   ConfigRepoJSON,
   ConfigReposJSON, MaterialModificationJSON,
-  ParseInfoJSON, PermissionsJSON,
+  ParseInfoJSON,
 } from "models/config_repos/serialization";
 import {Material, Materials} from "models/materials/types";
 import {Errors} from "models/mixins/errors";
@@ -34,20 +34,6 @@ export interface ConfigRepo extends ValidatableMixin {
 export interface LastParse extends ValidatableMixin {
 }
 
-export class Permissions {
-  readonly canEdit: Stream<boolean>;
-  readonly canAdminister: Stream<boolean>;
-
-  constructor(canEdit: boolean, canAdminister: boolean) {
-    this.canEdit = Stream(canEdit);
-    this.canAdminister = Stream(canAdminister);
-  }
-
-  static fromJSON(json: PermissionsJSON) {
-    return new Permissions(json.can_edit, json.can_administer);
-  }
-}
-
 export class ConfigRepo implements ValidatableMixin {
   static readonly PIPELINE_PATTERN                             = "pipeline_pattern";
   static readonly ENVIRONMENT_PATTERN                          = "environment_pattern";
@@ -58,7 +44,7 @@ export class ConfigRepo implements ValidatableMixin {
                   id: Stream<string | undefined>;
                   pluginId: Stream<string | undefined>;
                   material: Stream<Material | undefined>;
-                  permissions: Stream<Permissions>;
+                  canAdminister: Stream<boolean>;
                   configuration: Stream<Configuration[] | undefined>;
                   lastParse: Stream<ParseInfo | null | undefined>;
                   __jsonPluginPipelinesPattern: Stream<string> = Stream("");
@@ -69,14 +55,14 @@ export class ConfigRepo implements ValidatableMixin {
   constructor(id?: string,
               pluginId?: string,
               material?: Material,
-              permissions?: Permissions,
+              canAdminister?: boolean,
               configuration?: Configuration[],
               lastParse?: ParseInfo | null,
               materialUpdateInProgress?: boolean) {
     this.id                       = Stream(id);
     this.pluginId                 = Stream(pluginId);
     this.material                 = Stream(material);
-    this.permissions              = Stream(permissions!);
+    this.canAdminister            = Stream(canAdminister || false);
     this.configuration            = Stream(configuration);
     this.lastParse                = Stream(lastParse);
     this.materialUpdateInProgress = Stream(materialUpdateInProgress || false);
@@ -107,7 +93,7 @@ export class ConfigRepo implements ValidatableMixin {
     const configRepo = new ConfigRepo(json.id,
                                       json.plugin_id,
                                       Materials.fromJSON(json.material),
-                                      json.permissions ? Permissions.fromJSON(json.permissions) : new Permissions(true, true),
+                                      json.can_administer,
                                       configurations,
                                       parseInfo,
                                       json.material_update_in_progress);

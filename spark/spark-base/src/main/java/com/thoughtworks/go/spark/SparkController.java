@@ -64,12 +64,12 @@ public interface SparkController {
                 return SupportedAction.VIEW;
             case "POST":
                 return SupportedAction.ADMINISTER;
+            case "PUT":
+                return SupportedAction.ADMINISTER;
+            case "PATCH":
+                return SupportedAction.ADMINISTER;
             case "DELETE":
                 return SupportedAction.ADMINISTER;
-            case "PUT":
-                return SupportedAction.EDIT;
-            case "PATCH":
-                return SupportedAction.EDIT;
             default:
                 return SupportedAction.UNKNOWN;
         }

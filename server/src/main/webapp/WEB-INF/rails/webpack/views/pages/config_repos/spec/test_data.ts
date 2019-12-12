@@ -77,10 +77,7 @@ export function createConfigRepoParsedWithError(overrides?: any): ConfigRepo {
                                    destination: ""
                                  }
                                },
-                               permissions: {
-                                 can_edit: true,
-                                 can_administer: true
-                               },
+                               can_administer: true,
                                configuration: [{
                                  key: "file_pattern",
                                  value: "*.json"
@@ -132,10 +129,7 @@ export function createConfigRepoParsed(overrides?: any): ConfigRepo {
                                    destination: ""
                                  }
                                },
-                               permissions: {
-                                 can_edit: false,
-                                 can_administer: false
-                               },
+                               can_administer: false,
                                configuration: [{
                                  key: "file_pattern",
                                  value: "*.json"
@@ -175,10 +169,7 @@ export function createConfigRepoWithError(id?: string, repoId?: string): ConfigR
                                    destination: ""
                                  }
                                },
-                               permissions: {
-                                 can_edit: false,
-                                 can_administer: false
-                               },
+                               can_administer: false,
                                configuration: [{
                                  key: "file_pattern",
                                  value: "*.json"

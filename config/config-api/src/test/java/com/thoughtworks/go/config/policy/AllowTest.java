@@ -68,22 +68,6 @@ class AllowTest extends AbstractDirectiveTest {
                         .isEqualTo(Result.SKIP);
             }
 
-            @Test
-            void toAdministerConfigIfActionIsEdit() {
-                final Allow allow = new Allow("edit", "environment", "env_1");
-
-                assertThat(allow.apply("administer", EnvironmentConfig.class, "env_1"))
-                        .isEqualTo(Result.SKIP);
-            }
-
-            @Test
-            void toAdministerConfigIfActionIsView() {
-                final Allow allow = new Allow("view", "environment", "env_1");
-
-                assertThat(allow.apply("administer", EnvironmentConfig.class, "env_1"))
-                        .isEqualTo(Result.SKIP);
-            }
-
             @ParameterizedTest
             @ValueSource(strings = {"my_group", "grpoup"})
             void ifResourceDoesNotMatchTheWildCardPatterAndActionAndTypeMatch(String resource) {
@@ -109,22 +93,6 @@ class AllowTest extends AbstractDirectiveTest {
                 final Allow allow = new Allow("administer", "environment", "env_1");
 
                 assertThat(allow.apply("view", EnvironmentConfig.class, "env_1"))
-                        .isEqualTo(Result.ALLOW);
-            }
-
-            @Test
-            void toViewConfigIfActionIsEdit() {
-                final Allow allow = new Allow("edit", "environment", "env_1");
-
-                assertThat(allow.apply("view", EnvironmentConfig.class, "env_1"))
-                        .isEqualTo(Result.ALLOW);
-            }
-
-            @Test
-            void toEditConfigIfActionIsEdit() {
-                final Allow allow = new Allow("edit", "environment", "env_1");
-
-                assertThat(allow.apply("edit", EnvironmentConfig.class, "env_1"))
                         .isEqualTo(Result.ALLOW);
             }
 

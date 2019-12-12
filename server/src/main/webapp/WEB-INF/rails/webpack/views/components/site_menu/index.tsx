@@ -38,10 +38,10 @@ class SiteHeaderLink extends MithrilViewComponent<SiteHeaderLinkAttrs> {
   view(vnode: m.Vnode<SiteHeaderLinkAttrs>) {
 
     const classes = classnames({
-                                 [styles.siteNavLink]: vnode.attrs.isNavLink,
-                                 [styles.siteSubNavLink]: !vnode.attrs.isNavLink,
-                                 [styles.active]: !vnode.attrs.isNavLink && activeItem(vnode.attrs.href),
-                               });
+      [styles.siteNavLink]: vnode.attrs.isNavLink,
+      [styles.siteSubNavLink]: !vnode.attrs.isNavLink,
+      [styles.active]: !vnode.attrs.isNavLink && activeItem(vnode.attrs.href),
+    });
 
     return (
       <a class={classes}
@@ -68,9 +68,9 @@ interface SiteNavItemAttrs extends TextWithLink {
 class SiteNavItem extends MithrilViewComponent<SiteNavItemAttrs> {
   view(vnode: m.Vnode<SiteNavItemAttrs>) {
     const dropDownClass = classnames({
-                                       [styles.isDropDown]: vnode.attrs.isDropDown,
-                                       [styles.active]: activeItem(vnode.attrs.href),
-                                     }, styles.siteNavItem);
+      [styles.isDropDown]: vnode.attrs.isDropDown,
+      [styles.active]: activeItem(vnode.attrs.href) || this.isActive(vnode),
+    }, styles.siteNavItem);
 
     if (!vnode.attrs.isDropDown) {
       return (
@@ -92,6 +92,13 @@ class SiteNavItem extends MithrilViewComponent<SiteNavItemAttrs> {
         {vnode.children}
       </li>
     );
+  }
+
+  isActive(vnode: m.Vnode<SiteNavItemAttrs>) {
+    if (!vnode.attrs.isDropDown || !vnode.attrs.text) {
+      return false;
+    }
+    return window.location.pathname.toLowerCase().startsWith(`/go/${vnode.attrs.text.toLowerCase()}`);
   }
 }
 
@@ -142,10 +149,7 @@ export class SiteMenu extends MithrilViewComponent<Attrs> {
     const analyticsMenu: m.Children = vnode.attrs.showAnalytics ?
       <SiteNavItem href="/go/analytics" text="Analytics"/> : null;
 
-    let adminMenu                        = null;
-    const linkToAccessTokenManagementSPA = <SiteSubNavItem href="/go/admin/admin_access_tokens"
-                                                           text="Access Tokens Management"/>;
-
+    let adminMenu = null;
     if (vnode.attrs.canViewAdminPage) {
       if (vnode.attrs.isUserAdmin) {
         adminMenu = (
@@ -177,7 +181,7 @@ export class SiteMenu extends MithrilViewComponent<Attrs> {
                 <SiteSubNavItem href="/go/admin/security/auth_configs" text="Authorization Configuration"/>
                 <SiteSubNavItem href="/go/admin/security/roles" text="Role configuration"/>
                 <SiteSubNavItem href="/go/admin/users" text="Users Management"/>
-                {linkToAccessTokenManagementSPA}
+                <SiteSubNavItem href="/go/admin/admin_access_tokens" text="Access Tokens Management"/>
               </SiteSubNav>
             </div>
           </SiteNavItem>

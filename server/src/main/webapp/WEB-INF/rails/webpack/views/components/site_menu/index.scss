@@ -60,6 +60,7 @@
   @media(min-width: $screen-lg) {
     padding: 0 10px;
   }
+
   &.active {
     &:after {
       content:    "";
@@ -72,6 +73,7 @@
       background: $active-menu;
     }
   }
+
   &.is-drop-down {
 
     &:before {
@@ -87,12 +89,21 @@
       border-top:   10px solid $site-header;
     }
   }
+
   &:hover {
-    @include ie-edge-fix-for-admin-dropdown
+    @include ie-edge-fix-for-admin-dropdown;
+
+    &.active {
+      &:before {
+        border-top: 10px solid $active-menu;
+      }
+    }
   }
+
   &:focus, &:focus-within {
     @include ie-edge-fix-for-admin-dropdown
   }
+
   .caret_down_icon {
     @include icon-before($fa-var-caret-down);
     color:     $icon-color;
@@ -135,7 +146,7 @@
 }
 
 .has-only-one-option {
-  padding:     10px 20px;
+  padding: 10px 20px;
 }
 
 .site-sub-nav {
@@ -175,6 +186,7 @@
   @media (max-width: $screen-md-min) {
     margin-bottom: 10px;
   }
+
   &.active {
     &:after {
       content:    "";
@@ -187,6 +199,7 @@
       background: $active-menu;
     }
   }
+
   &:visited {
     color: $subnav-link-color;
   }
